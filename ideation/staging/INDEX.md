@@ -71,6 +71,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [manager-review-approval-scope-kind](#manager-review-approval-scope-kind) | MODIFIED `hermes-domain-overlay` (additive `approval_scope_kinds` vocabulary extension — a dedicated `manager_review` kind) | 1 | Registered 2026-08-10 — origin is `xFactory-Hermes-Install` feature `011-three-layer-manager-review-gate`'s implementation plan (tension T2), ruled "register now" by Brett Heap the same day; the live gate proceeds on the `engineering_intent` fallback in the meantime; 2 open questions (envelope-vs-overlay home, naming/scope grain), neither blocking |
 | [openxdox-install-app-provisioning](#openxdox-install-app-provisioning) | MODIFIED `credential-contracts` (or a new `install-app-provisioning` capability: two-App manifest provisioning + naming convention + apply-repo home); realization in Omnigent-Install (installer) + codexFactory (manifests + install docs) | 1 | Ready to iterate — named by Brett 2026-08-14 from the openXdox dispatch-migration's manual App toil; GitHub-capability verified (no app-creates-app API; the App Manifest flow is the mechanism, Apps tenant-owned); 6 claims settled (two Apps stay two, manifest flow, tenant-owned, globally-unique-name convention, small apply-workflow repo, tenant only sets the content-App scope); 5 open questions (contract home + managed-vs-self-hosted flow hardest); gated on the QA dispatch migration completing |
 | [substantive-review-lane-questions](#substantive-review-lane-questions) | tracks `roles-authority-model` (MODIFIED by in-flight change `add-substantive-review-lane`, PR #178, draft) — no capability delta of its own | 1 | Registered 2026-08-15 — origin is Brett's direction to track the ad-hoc-authored proposal's five declared-open, not-decided questions (this topic is post-proposal tracking, NOT the proposal's origin; the proposal's own `.openspec.yaml` records `kind: ad_hoc`); six decided principles carried as settled context, not reopened; 5 open questions (rollout order, non-engineering persona home, company-policy-lead per-PR seating, per-repo ruleset shape, risk-tier taxonomy), none blocking the pilot |
+| [staged-topic-outline-template](#staged-topic-outline-template) | MODIFIED `document-lifecycle` (the primary-fragment template contract: required sections, round-trip-on-demote refresh rule, section provenance, marker usage) and MODIFIED `ideation-dashboard` (the doxBench outline tab renders the template + gains an add-section affordance) | 1 | Registered 2026-08-15 — origin is Brett's direction to make the doxBench outline tab render a distilled TRUE outline (human + AI consumption) instead of a merely conventionally feat-spec-shaped fragment; 7 claims settled (primary fragment recommended as the outline, three required sections, structured open questions, provenance on added sections, round-trip refresh on demote, ratified `xspec:` markers for machine-addressability); carries the full draft template skeleton; 5 open questions (primary-fragment-vs-separate-file, migration of the 30+ existing topics, spec-delta-vs-convention, and the wheel-summary-extraction question hardest), none blocking |
 
 ## hermes-stack-topology-per-client
 
@@ -1148,3 +1149,57 @@ repo scope.
   or a recorded decision Brett rules directly and notes back into the
   fragment. This topic carries no exit change of its own; it closes once
   all five questions carry a disposition.
+
+## staged-topic-outline-template
+
+- Staging ID: `openxFactory:staging:staged-topic-outline-template`
+- Repository context: openxFactory owns both target capabilities —
+  `document-lifecycle` (the fragment template contract: required sections,
+  round-trip-on-demote refresh rule, section provenance, marker usage) and
+  `ideation-dashboard` (the doxBench outline tab that renders the template
+  and would gain an add-section affordance). The wheel already
+  deterministically selects a topic's primary fragment
+  (`primaryFragmentPath()`) and extracts its `Summary:` header field for
+  the expanded tile's preview (`fragmentSummary()`, both in
+  `scripts/ideation_dashboard/web/views/wheel-model.js`) — the template is
+  written to stay compatible with both without a selector change.
+- Source: Brett Heap's direction 2026-08-15 (in-session): the outline tab
+  today renders a staged topic's primary fragment, which is only
+  conventionally "feat-spec-shaped" — Brett wants a distilled TRUE outline
+  of the staged topic, for both human and AI consumption, with a standard
+  template.
+- Claim: seven settled claims, not reopened by the open questions below —
+  the outline serves both human and AI readers; the primary fragment
+  `<staging_id>.md` itself IS the templated outline, carried as the
+  RECOMMENDED (not yet ratified) shape; three sections are REQUIRED (idea
+  notes, conflicts, open questions); every open question carries Context /
+  Recommended answer / Explanation / Disposition status, in that order;
+  sections are addable by either a human or an AI, each carrying an
+  `Added-by:` provenance line; round-trip semantics refresh the
+  proposal-element sections to the ACTUAL last-attempted proposal text on
+  demote, never re-blanking them; and the template reuses the ratified
+  `xspec:candidate`/`xspec:supersedes` marker grammar for
+  machine-addressability rather than inventing a second mechanism.
+- Files:
+  - [staged-topic-outline-template.md](staged-topic-outline-template/staged-topic-outline-template.md)
+    — primary: 7 claims, the full draft template skeleton (fenced,
+    copy-pasteable, marker comments included), 3 idea notes, 3 conflicts,
+    5 open questions each with Context/Recommended answer/Explanation/
+    Disposition status, exit.
+- Open questions (none blocking): (1) does the primary fragment become the
+  outline, or does a separate `outline.md` earn a dedicated file
+  (recommended: primary fragment — preserves the wheel's one-path rule,
+  no selector change); (2) how the 30+ existing staged topics migrate
+  (recommended: opt-in conformance, new topics required, doc-health nudges
+  rather than blocks); (3) whether this becomes a `document-lifecycle`
+  spec delta or stays a staging convention (recommended: spec delta — the
+  round-trip/demote guarantee needs contract force); (4) which intent verb
+  authorizes AI section-patching (recommended: `edit-apply`, scoped by the
+  targeted section); (5) whether the wheel's summary extraction should read
+  the template's `Summary:` field explicitly rather than falling through
+  its current heuristic (recommended: yes, once the template ratifies).
+- Exit: iterate in doxBench until all five open questions carry a
+  disposition other than `open`; likely lands as a single OpenSpec change
+  carrying a `document-lifecycle` delta (the template contract) and an
+  `ideation-dashboard` delta (the outline tab rendering + add-section
+  affordance).
