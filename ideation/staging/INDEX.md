@@ -73,6 +73,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [substantive-review-lane-questions](#substantive-review-lane-questions) | tracks `roles-authority-model` (MODIFIED by in-flight change `add-substantive-review-lane`, PR #178, draft) — no capability delta of its own | 1 | Registered 2026-08-15 — origin is Brett's direction to track the ad-hoc-authored proposal's five declared-open, not-decided questions (this topic is post-proposal tracking, NOT the proposal's origin; the proposal's own `.openspec.yaml` records `kind: ad_hoc`); six decided principles carried as settled context, not reopened; 5 open questions (rollout order, non-engineering persona home, company-policy-lead per-PR seating, per-repo ruleset shape, risk-tier taxonomy), none blocking the pilot |
 | [staged-topic-outline-template](#staged-topic-outline-template) | MODIFIED `document-lifecycle` (the primary-fragment template contract: required sections, round-trip-on-demote refresh rule, section provenance, marker usage) and MODIFIED `ideation-dashboard` (the doxBench outline tab renders the template + gains an add-section affordance) | 1 | Registered 2026-08-15 — origin is Brett's direction to make the doxBench outline tab render a distilled TRUE outline (human + AI consumption) instead of a merely conventionally feat-spec-shaped fragment; 7 claims settled (primary fragment recommended as the outline, three required sections, structured open questions, provenance on added sections, round-trip refresh on demote, ratified `xspec:` markers for machine-addressability); carries the full draft template skeleton; 5 open questions (primary-fragment-vs-separate-file, migration of the 30+ existing topics, spec-delta-vs-convention, and the wheel-summary-extraction question hardest), none blocking |
 | [notebook-projection-identity](#notebook-projection-identity) | MODIFIED `lifecycle-notebook-projection` (declared hosting-account field + share-out roster) and MODIFIED `credential-contracts` (two-case account-custody rule: company service account normal case, personal hosting the other legitimate case) | 1 | Registered 2026-08-15 — origin is Brett hitting a live "request access" wall on the personal-Gmail-hosted NotebookLM projection, the same disease as the just-retired openXdox personal PAT; 6 claims settled (company account is the normal case, hosting is a declared install-time intake decision, personal hosting stays legitimate as the other case, company account shares out to users, company-policy Hermes monitors + approves share requests, and this mirrors the ratified openXdox dispatch two-case precedent); first fresh conformer of `staged-topic-outline-template` carrying LIVE `xspec:candidate` markers (verified against the checker: no rejection found, only `record`-status docs are excluded); 5 open questions (contract home, company-account type, share-roster reuse of `add-client-identity-roster`, monitor/approve mechanics with no share API, and opensoft's own migration sequencing), none blocking |
+| [doxbench-editing-model](#doxbench-editing-model) | MODIFIED `ideation-dashboard` (left-panel dynamic document tabs generalizing the outline/document buffer pair to N document buffers; chat-context binding to the active left-panel selection; docs-wheel tile edit verb + dirty-tile marker; right-panel Editor/Preview tab redesign with Save/Cancel) | 1 | Registered 2026-08-15 — origin is Brett's direction settling the general doxBench interaction model: left panel selects the working document (docs/lens/outline plus dynamic numbered tabs per open edit), center chat binds to whatever is selected, right panel shows the result via Editor/Preview tabs with Save/Cancel (replacing today's split md/preview layout); 7 claims settled; verified live that `BUFFER_KINDS`, the turn-assembly buffer requirement, and the save order are all hard-coded to exactly outline+document today, so the N-buffer generalization is the load-bearing engineering question; 6 open questions (tab overflow, Save/Cancel semantics, dirty-tile storage, chat-binding rule, Editor/Preview default, concurrent-edit safety), none blocking; sibling of `staged-topic-outline-template` Open question 4 (content-contract vs. interaction-model halves of the same AI-edit act) |
 
 ## hermes-stack-topology-per-client
 
@@ -1268,3 +1269,75 @@ repo scope.
   `credential-contracts` delta, combined or sequenced per question 1's
   resolution), raised only once a real company account exists to prove
   the mechanism against.
+
+## doxbench-editing-model
+
+- Staging ID: `openxFactory:staging:doxbench-editing-model`
+- Repository context: openxFactory owns `ideation-dashboard`, the sole
+  target capability — the doxBench workbench UI this topic reshapes end to
+  end (left selector, center chat, right editor/preview surface, docs wheel,
+  wheel tiles).
+- Source: Brett Heap's direction 2026-08-15 (in-session): the settled
+  interaction model for how a user moves between documents, how the chat's
+  working context follows that selection, and how the right-hand result
+  surface should be redesigned from a split view into tabs.
+- Claim: seven settled claims, not reopened by the open questions below —
+  the left panel is the selector of what you are working on (docs/lens/
+  outline plus a dynamic numbered tab per document opened in edit mode); the
+  outline tab focused binds the chat to the outline and shows its unsaved
+  version on the right; the docs tab's expanded tile gains a second verb
+  (edit, beside the existing read) that loads the doc as a new numbered
+  left-panel tab; a doc with an open unsaved edit is visibly marked on its
+  wheel tile; a doc tab selected binds the chat to that doc and the right
+  panel shows the live edit; the right panel becomes Editor/Preview TABS
+  (not the current split md/preview) carrying Save and Cancel; and the
+  general model is left-selects/chat-works/right-shows.
+- Files:
+  - [doxbench-editing-model.md](doxbench-editing-model/doxbench-editing-model.md)
+    — primary: 7 claims, live `xspec:candidate` Why/What changes/Impact
+    sections, 7 idea notes, 6 conflicts, 6 open questions each with
+    Context/Recommended answer/Explanation/Disposition status, exit.
+- Verified live by reading the code in this session: `doxbench-state.js`'s
+  `BUFFER_KINDS` is frozen to exactly `["outline", "document"]` and its
+  state validator throws unless the buffer set is exactly those two keys;
+  `doxbench_turns.py`'s `require_outline_and_document` refuses any turn
+  request that does not supply exactly one outline buffer and one document
+  buffer, and `PROPOSAL_TARGETS` is the same fixed two-tuple; `doxbench-save.js`'s
+  `SAVE_BUFFER_ORDER` is a fixed, ordered two-buffer commit sequence (outline
+  first, establishing session ancestry the document buffer's commit depends
+  on); the right panel (`doxbench-editor.js`) already renders a textarea and
+  a preview side by side in one pane per buffer tab — the literal split view
+  Claim 6 retires; the docs wheel's expanded tile (`doc-wheel.js`) offers
+  exactly one verb today (read); and the wheel (`wheel.js`/`wheel-model.js`)
+  carries no dirty-tile concept, only an unrelated health-status badge
+  idiom worth reusing. The N-buffer generalization of state, turn assembly,
+  and save ordering is therefore the load-bearing engineering question this
+  topic surfaces, not a UI-only change.
+- Open questions (none blocking): (1) numbered vs. named tabs and the
+  overflow policy (recommended: numbered chips with a filename tooltip, LRU
+  overflow into a dropdown); (2) Save/Cancel semantics (recommended: Save =
+  commit-per-gate-action on the session's draft branch with PR-as-save
+  `open-pr` as the promotion act; Cancel = discard to `base_content`, both
+  already-designed primitives); (3) dirty-tile signaling storage
+  (recommended: a distinct visual state driven by live buffer `dirty` flags,
+  session-local, never persisted into the snapshot); (4) the chat-context
+  binding rule (recommended: chat always binds to the active left-panel
+  selection; every turn names the buffer it acted on, generalizing today's
+  `active_document_path` revalidation); (5) Editor/Preview default and sync
+  (recommended: Preview default, live re-render on switch, reusing the
+  existing debounced-preview pipeline); (6) concurrent-edit safety
+  (recommended: keep the existing per-buffer content-hash generation guard,
+  applied to however many buffers exist — already buffer-scoped, not
+  state-scoped, so this generalizes almost for free).
+- Sibling relationship: `staged-topic-outline-template` Open question 4 asks
+  which intent verb authorizes an AI patching one template section
+  (recommended answer there: `edit-apply`) — that is the content-contract
+  half of the same underlying act; this topic is the interaction-model half
+  (what the UI looks like while a human or the chat performs that edit).
+  Deliberately kept as two separate topics so neither's exit gates the
+  other.
+- Exit: iterate in doxBench until all six open questions above carry a
+  disposition other than `open`; likely lands as a single OpenSpec change
+  carrying one `ideation-dashboard` delta, sequenced so the buffer/turn/save
+  N-buffer generalization lands first since every UI-facing claim depends
+  on it.
