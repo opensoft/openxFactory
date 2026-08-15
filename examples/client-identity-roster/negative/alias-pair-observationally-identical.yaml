@@ -1,0 +1,91 @@
+# INVALID roster fragment — violates FR-038 (rule "an alias pair"): two
+# entries differ SOLELY in a free token (`blast_radius_unit`), are
+# OBSERVATIONALLY IDENTICAL — the same granted-permission set and the same
+# admission acts by surface, act, achieved scope and enforcement mode — and
+# NEITHER declares a `duty_separation_rationale`. All three predicates hold,
+# which is what makes this an alias rather than a governed distinction, and
+# the free-token axes are bounded by exactly this rule and nothing stricter.
+# Its discrimination partners are the packaged genuine per-unit pair
+# (differing in achieved scope) and the packaged genuine duty pair (differing
+# in permissions and declaring the rationale), both of which must validate
+# CLEAN in the same run (finding alias-pair-observationally-identical).
+schema_version: 1
+kind: xfactory_client_identity_roster
+client_ref: demo-client
+client_tenant: 11111111-1111-1111-1111-111111111111
+domain: demoxfactory
+legend:
+  blast_radius_units:
+    unit_a: Unit A
+    unit_b: Unit B
+  duties:
+    observing: Read-only observation
+entries:
+- identity_ref: demo-bc-identity
+  identity_kind: entra_app_registration
+  home_tenant: 11111111-1111-1111-1111-111111111111
+  principal_locations:
+  - 11111111-1111-1111-1111-111111111111
+  residency_model: client_tenant_single
+  admission_surface: business_central
+  duty: observing
+  blast_radius_unit: unit_a
+  authority_class_intended: observe
+  authority_class_achieved: observe
+  granted_permissions:
+  - id: Demo.Read.All
+    achieves: observe
+    reaches:
+    - business_central
+  admission:
+  - surface: business_central
+    act: per-environment application user created
+    achieved_scope: Unit A environment
+    enforcement_mode: provider_enforced
+    evidence_ref:
+      repo: opensoft/DemoxFactory
+      path: tenants/demo-admission-evidence-v1.yaml
+    verified_at: '2026-08-01T00:00:00Z'
+    exceeds_governed_unit: false
+  per_unit_principal_available:
+    business_central: true
+  lifecycle_state: enrolled
+  standing_credential_attestation:
+    no_standing_credential: true
+    attested_at: '2026-08-01T00:00:00Z'
+  ratified_by: demoxfactory:demo-observation-capability
+  consent_ref: demo-consent-v1
+- identity_ref: demo-bc-identity
+  identity_kind: entra_app_registration
+  home_tenant: 11111111-1111-1111-1111-111111111111
+  principal_locations:
+  - 11111111-1111-1111-1111-111111111111
+  residency_model: client_tenant_single
+  admission_surface: business_central
+  duty: observing
+  blast_radius_unit: unit_b
+  authority_class_intended: observe
+  authority_class_achieved: observe
+  granted_permissions:
+  - id: Demo.Read.All
+    achieves: observe
+    reaches:
+    - business_central
+  admission:
+  - surface: business_central
+    act: per-environment application user created
+    achieved_scope: Unit A environment
+    enforcement_mode: provider_enforced
+    evidence_ref:
+      repo: opensoft/DemoxFactory
+      path: tenants/demo-admission-evidence-v1.yaml
+    verified_at: '2026-08-01T00:00:00Z'
+    exceeds_governed_unit: false
+  per_unit_principal_available:
+    business_central: true
+  lifecycle_state: enrolled
+  standing_credential_attestation:
+    no_standing_credential: true
+    attested_at: '2026-08-01T00:00:00Z'
+  ratified_by: demoxfactory:demo-observation-capability
+  consent_ref: demo-consent-v1

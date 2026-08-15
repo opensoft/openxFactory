@@ -190,7 +190,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       *Verification*: `python3 -c "import yaml,jsonschema;
       jsonschema.Draft202012Validator.check_schema(yaml.safe_load(open(...)))"`
       passes; a grep confirms no object lacks `additionalProperties: false`.
-- [~] 1.2 [US1] The six CLOSED vocabularies as `$defs`, each enumerated
+- [x] 1.2 [US1] The six CLOSED vocabularies as `$defs`, each enumerated
       explicitly and each carrying a `description` naming its extension route
       (FR-007, FR-031, FR-034). **Each `admission_surface` MEMBER's description
       additionally names the admission act and the scoping mechanism that make
@@ -216,7 +216,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       negatives of 4.2 plus `destructive-authority-class.yaml` in 4.1 (the
       authority-class set's refusal, which sits in 4.1 because FR-016 names
       it), six in total — each refused (SC-014).
-- [~] 1.3 [US1] `$defs.identity_key` — the five-element uniqueness tuple,
+- [x] 1.3 [US1] `$defs.identity_key` — the five-element uniqueness tuple,
       **element 3 = `authority_class_intended`** (ruling R-N1), defined ONCE
       and referenced by both the uniqueness rule and the drift record. The
       `description` states the choice and its reason: a key must be declarative
@@ -226,7 +226,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       *Verification*: 2.4's uniqueness rule reads element 3 from
       `authority_class_intended`; 4.1's `full-tuple-duplicate.yaml` is refused
       naming all five elements (FR-006).
-- [~] 1.4 [US1] Kind 1 `xfactory_client_identity_roster` top level:
+- [x] 1.4 [US1] Kind 1 `xfactory_client_identity_roster` top level:
       `schema_version`, `kind`, `client_ref`, **`client_tenant`**, `domain`,
       `legend`, `entries[]`
       (`minItems: 1`). **`client_tenant` (gate ruling G2)** is a REQUIRED
@@ -246,7 +246,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       no requirement makes it one and it would fire on a conformant `retired`
       or `planned` entry's fragment.
       *Verification*: 3.2/3.5 fragments validate; 4.2's legend negatives refused.
-- [~] 1.5 [US1] The entry object — the FR-001 field list UNREDUCED:
+- [x] 1.5 [US1] The entry object — the FR-001 field list UNREDUCED:
       `identity_ref` (string), `identity_kind`, `home_tenant`,
       `principal_locations[]`, `residency_model`, `admission_surface`, `duty`,
       `blast_radius_unit`, `authority_class_intended`,
@@ -280,7 +280,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       `tests/client-identity-roster/test_client_identity_roster.py` compares the
       entry's declared properties against FR-001's list — so a later refactor
       cannot quietly drop `granted_permissions[]` or `admission[]` (SC-004).
-- [~] 1.6 [US1] `admission[]` — `type: array, minItems: 1` (**not 2**; a
+- [x] 1.6 [US1] `admission[]` — `type: array, minItems: 1` (**not 2**; a
       one-member array is a legal single-act expression, ruling A-N3), whose
       members carry `surface`, `act`, `achieved_scope` (provider-native),
       `enforcement_mode`, `evidence_ref`, `verified_at`, and
@@ -307,7 +307,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       *Verification*: 4.1's `unverified-act-counted-as-access.yaml`,
       `scope-exceeds-unit-undeclared.yaml` and `evidence-ref-malformed.yaml`
       refused; 3.2's two-act case validates with the excess declared.
-- [~] 1.7 [US1] `declared_excess` (optional object: `spanned_surfaces[]`,
+- [x] 1.7 [US1] `declared_excess` (optional object: `spanned_surfaces[]`,
       `provider_reason`, `bound_mechanism`, `gate_obligation`,
       `enforcement_test_ref`), `per_unit_principal_available` (the per-surface
       MAPPING declared at 1.5 — admission-surface member → boolean, never a
@@ -325,7 +325,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       `provider-enforced-without-per-unit-principal.yaml`,
       `per-unit-principal-available-but-logical.yaml`,
       `false-standing-credential-attestation.yaml` each refused for its own code.
-- [~] 1.8 [US1] The `vendor_tenant_multi` obligations as an `if/then` on
+- [x] 1.8 [US1] The `vendor_tenant_multi` obligations as an `if/then` on
       `residency_model` IN THE SCHEMA (not only in the validator), so a
       validator refactor cannot lose them: tenant allow-list enforced at token
       validation, per-client authorization state, per-client revocation
@@ -335,7 +335,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       *Verification*: 4.1's `vendor-tenant-multi-missing-obligations.yaml`
       refused; a grep asserting no `authority_class` appears inside any
       residency branch (constraint 1's mechanized form).
-- [~] 1.9 [US6] Kind 2 `xfactory_client_identity_drift_finding`:
+- [x] 1.9 [US6] Kind 2 `xfactory_client_identity_drift_finding`:
       `schema_version`, `kind`, `identity_ref` (the `$defs.identity_key`
       OBJECT — deliberately a different shape from the entry's STRING
       `identity_ref`, FR-035, documented in the description), `fragment_ref`,
@@ -408,7 +408,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       with no argument exits 2 and prints usage; `pytest tests/` runs under the
       `tests/hermeticity.py` guard, which makes an outbound reach a test
       failure (SC-011).
-- [~] 2.2 The self-test layer (FR-018): positives validate clean; each negative
+- [x] 2.2 The self-test layer (FR-018): positives validate clean; each negative
       must raise its REGISTERED code, with an optional pinned detail substring
       where the code alone would be satisfied by a generic `schema` finding —
       the consent validator's two-part expectations table. FIVE failure modes
@@ -430,12 +430,12 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       five distinct self-test failures; SC-001. Plus one assertion that a
       schema-invalid negative still raises its NAMED code, not only a generic
       `schema` finding.
-- [~] 2.3 Record-internal rules, group 1 — closed-vocabulary and shape
+- [x] 2.3 Record-internal rules, group 1 — closed-vocabulary and shape
       refusals, each naming the closed set and the extension route in its
       message (FR-005, FR-007, FR-031, FR-034, SC-014).
       *Verification*: 4.2's five vocabulary negatives plus 4.1's
       `destructive-authority-class.yaml` — one per closed set, six in total.
-- [~] 2.4 [US1] Uniqueness and the alias rule — the feature's sharpest pair.
+- [x] 2.4 [US1] Uniqueness and the alias rule — the feature's sharpest pair.
       Uniqueness: entries sharing the whole `$defs.identity_key` tuple are a
       finding NAMING EVERY ELEMENT; entries differing in ANY element validate
       clean (FR-006). **Both rules compare entries WITHIN ONE FRAGMENT, never
@@ -462,7 +462,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       *Verification*: 4.6's single-run discrimination — the genuine per-unit
       pair and genuine duty pair at ZERO findings while the alias pair is
       refused (SC-002). A rule broad enough to catch all three fails.
-- [~] 2.5 [US1] Admission verification, effective reach, and the scope-excess
+- [x] 2.5 [US1] Admission verification, effective reach, and the scope-excess
       rule (FR-002, FR-003, FR-010): an act with no `evidence_ref` is unverified
       and EXCLUDED from effective reach; **an act carrying `verified_at` with
       NO `evidence_ref` is REFUSED as `unverified-act-counted-as-access`,
@@ -490,7 +490,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       `unverified-act-counted-as-access.yaml` and
       `scope-exceeds-unit-undeclared.yaml`; 3.2's union reach and its DECLARED
       excess are the discrimination partner of the last of those.
-- [~] 2.6 [US1] Authority, all of it RECORD-INTERNAL against the declarations
+- [x] 2.6 [US1] Authority, all of it RECORD-INTERNAL against the declarations
       1.5 puts in `granted_permissions[]` — no provider catalogue, no inference
       from an identifier's spelling: `authority_class_achieved` must equal the
       MAXIMUM declared `achieves` (`mutate` dominates `observe`), and any other
@@ -561,7 +561,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       surfaces and its mapping answers both). It is a FIXTURE rather than
       3.3's packaged entry by Decision C (2026-08-15); the discrimination it
       performs is unchanged.
-- [~] 2.7 [US1] Residency (FR-012) and lifecycle/attestation (FR-013): a
+- [x] 2.7 [US1] Residency (FR-012) and lifecycle/attestation (FR-013): a
       registration homed outside the client tenant may not declare
       client-resident — **the predicate, against 1.4's DECLARED comparand
       (gate ruling G2): under `residency_model: client_tenant_single`,
@@ -581,7 +581,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       *Verification*: 4.1's `vendor-homed-declared-client-resident.yaml`,
       `vendor-tenant-multi-missing-obligations.yaml`,
       `false-standing-credential-attestation.yaml`; 3.4's `planned` positive.
-- [~] 2.8 [US1] Both roots and the legend — the RECORD-INTERNAL half (the
+- [x] 2.8 [US1] Both roots and the legend — the RECORD-INTERNAL half (the
       resolution half is 2.9): an entry naming a capability and no consent
       instrument is invalid, stating that consent — not our own ratification —
       authorizes standing in another party's tenant; a `mutate` entry naming no
@@ -654,7 +654,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       exclusion is what holds this true, and it is unaffected by the
       exact-path predicate, since 6.5's fragments are direct children of their
       OWN fixture repos' declared placement.
-- [~] 2.10 [US2] Absence, and the negative guarantee (FR-022, FR-032, SC-013):
+- [x] 2.10 [US2] Absence, and the negative guarantee (FR-022, FR-032, SC-013):
       a target with no `credentials/client-identity-roster/` directory, or the
       directory with no files, prints an EXPLICIT NOTICE naming the absence and
       exits 0. NO code path in the module derives an expected entry set — not
@@ -878,7 +878,7 @@ Negatives take the CONSENT family's header dialect
 `# … (finding <finding-code>)`), one violation per file, each registered by
 filename in the validator's expectations table.
 
-- [ ] 4.1 Author the NINETEEN record-internal packaged negatives — twelve of
+- [x] 4.1 Author the NINETEEN record-internal packaged negatives — twelve of
       FR-016's named rules (the thirteenth packaged named rule,
       out-of-vocabulary admission surface, sits with its vocabulary siblings in
       4.2) plus SEVEN per-rule confirmations FR-016's "at minimum" list does not
@@ -923,7 +923,7 @@ filename in the validator's expectations table.
       discrimination partner is 3.2's worked case (the same shape with the
       excess declared, zero findings).
       *Verification*: each refused by its OWN registered code (2.2); SC-001.
-- [ ] 4.2 [P] The closed-vocabulary and legend negatives (SC-014):
+- [x] 4.2 [P] The closed-vocabulary and legend negatives (SC-014):
       `admission-surface-out-of-vocabulary.yaml`,
       `residency-model-out-of-vocabulary.yaml`,
       `enforcement-mode-out-of-vocabulary.yaml`,
@@ -940,7 +940,7 @@ filename in the validator's expectations table.
       (FR-034's two findings) and
       `evidence-ref-malformed.yaml`, which is FR-037's shape probe rather than a
       vocabulary or legend case.
-- [ ] 4.3 [P] [US6] The THREE drift-record negatives:
+- [x] 4.3 [P] [US6] The THREE drift-record negatives:
       `drift-finding-without-roster-value.yaml`,
       `drift-finding-without-observed-value.yaml` (FR-035), and
       **`drift-finding-status-out-of-vocabulary.yaml`** (checklist pass) — the
@@ -948,7 +948,7 @@ filename in the validator's expectations table.
       family, so its seventh set gets the refusal probe the other six have.
       *Verification*: refused by their own codes in the 2.2 self-test; the
       third names the closed `status` set the way 2.3's refusals name theirs.
-- [ ] 4.4 [P] `achieved-class-contradicted-by-permissions.yaml` (**ruling
+- [x] 4.4 [P] `achieved-class-contradicted-by-permissions.yaml` (**ruling
       A-11**) — an entry declaring `authority_class_achieved: observe` while a
       `granted_permissions[]` member DECLARES `achieves: mutate` (the
       contradiction is between two declarations in the record; the fixture must
@@ -961,7 +961,7 @@ filename in the validator's expectations table.
       substitutes for the other.
       *Verification*: refused by 2.6's FR-004 code, registered in the
       expectations table.
-- [ ] 4.5 The EIGHT repo-shaped fixtures in `tests/client-identity-roster/
+- [x] 4.5 The EIGHT repo-shaped fixtures in `tests/client-identity-roster/
       test_client_identity_roster.py`, built in `tmp_path` from inline
       templates (the `tests/conformance-gate/test_conformance_checks.py`
       `make_repo` idiom): (1) conformant → exit 0, carrying TWO fragments for
@@ -1004,26 +1004,26 @@ filename in the validator's expectations table.
       capability, its gate obligation and its consent citation both DO resolve,
       and its `retired` entry's ended instrument is accepted), and fixture 7's
       partner is fixture 1's fragments at the declared placement.
-- [ ] 4.6 **The SC-002 discrimination assertion** — ONE run over the packaged
+- [x] 4.6 **The SC-002 discrimination assertion** — ONE run over the packaged
       corpus producing THREE verdicts: the genuine per-unit pair ZERO findings,
       the genuine duty pair ZERO findings, the alias pair REFUSED. Asserted in
       `tests/client-identity-roster/test_client_identity_roster.py` as a single
       test so a rule broad enough to catch all three cannot pass.
       *Verification*: `pytest tests/client-identity-roster/ -k discrimination`;
       this is the killed-flaw acceptance test named at 10.5.
-- [ ] 4.7 [P] The SC-013 negative assertion: a source-level test that NO module
+- [x] 4.7 [P] The SC-013 negative assertion: a source-level test that NO module
       in this feature reads `credentials/requirements.yaml` or any other
       inventory to derive an expected entry set — the checklist item and the
       analyze pass should both look for one and find nothing.
       *Verification*: `pytest tests/client-identity-roster/ -k no_completeness`.
-- [ ] 4.8 Confirm the FR-016 coverage re-count holds against the built corpus:
+- [x] 4.8 Confirm the FR-016 coverage re-count holds against the built corpus:
       **16 named rules, 16 homed, 0 unhomed** (13 packaged, 2 repo-shaped, 1 in
       the doc-health corpus at 6.5) — plan.md's Cluster C table.
       *Verification*: walk the table against the files on disk; the 2.2
       registration check independently proves no file lacks a probe and no probe
       lacks a file. The count is unaffected by Decision C: it counts NEGATIVES,
       and 4.9 relocates a POSITIVE.
-- [ ] 4.9 [US1] **The SYNTHETIC representability fixture — SC-002's fourth
+- [x] 4.9 [US1] **The SYNTHETIC representability fixture — SC-002's fourth
       positive, relocated here from 3.3 by Decision C (Brett, 2026-08-15).**
       Author `tests/client-identity-roster/fixtures/multi-surface-reader-representability.yaml`:
       a fragment whose entry declares an `admission_surface` of
@@ -1060,6 +1060,72 @@ filename in the validator's expectations table.
 **Checkpoint**: every named rule has a refused negative and every killed-flaw
 positive passes clean — three of the four SC-002 positives in the packaged
 corpus, the fourth as 4.9's synthetic fixture.
+
+**REACHED 2026-08-15. The self-test is FULLY STRICT AND GREEN**: 4 positives
+confirmed clean, **31 negatives confirmed refused for their REGISTERED code**,
+detail-pinned on 28 of the 31 wherever the code alone would be too coarse to
+prove a file failed for its own reason. `pytest tests/client-identity-roster/`
+is **41 passed**.
+
+**Fail-for-its-own-reason, measured rather than asserted.** Every one of the 31
+negatives raises its registered code and NO OTHER RULE'S code — asserted file by
+file — the only companion being the generic `schema` code where the violation is
+also schema-visible, which is the rule engine deliberately running to completion
+rather than returning at the first schema failure. 15 of the 31 exercise that
+overlap, and a dedicated assertion proves the NAMED code still fires in every
+one of them: a validator that returned early would leave those refusals — the
+ones required to name the closed set and its extension route — existing nowhere.
+
+**2.2's five failure modes are EXERCISED, not trusted.** A throwaway sandbox
+copies the validator, the schema and the packaged corpus into `tmp_path`, and
+each mode is broken there and measured: a registered probe with no file
+(`negative-missing`), a file with no registration (`negative-unregistered`), a
+negative that validates clean (`negative-should-fail`), a negative that fails
+for the WRONG code (`negative-wrong-reason`), and a code that fires without its
+pinned detail (`negative-detail-mismatch`). A control test proves the sandbox is
+green before anything is broken, so none of the five can pass because the copy
+was broken.
+
+**Killed-flaw acceptance set — all five verdicts.** In ONE run over the packaged
+corpus: the genuine per-unit pair ZERO findings, the genuine duty pair ZERO
+findings, the alias pair REFUSED. Plus the `planned` entry clean and never
+reported as missing; and 4.9's synthetic multi-surface fixture clean, then
+REFUSED for `undeclared-reach` AND `undeclared-act-surface` with
+`spanned_surfaces[]` removed and nothing else — the discrimination that proves
+it measures the rules rather than passing vacuously. A SIXTH assertion the task
+list did not require but the corpus needed: every genuine packaged pair fails
+the alias rule's FIRST predicate (they differ in permissions or in achieved
+scope), so predicate THREE — the `duty_separation_rationale` — would have been
+measured by nothing; adding a rationale to the alias negative and asserting the
+same record goes clean is where that predicate is now measured.
+
+**FR-016 coverage re-count, walked against the files on disk: 16 named rules,
+16 homed, 0 unhomed** — 13 packaged, 2 repo-shaped (fixture 4 for the
+unresolvable gate obligation; fixtures 5 AND 7 for placement), 1 in the
+cross-domain doc-health corpus at 6.5. The table is now a test rather than a
+prose claim, and its sixteenth row binds the moment 6.5's corpus lands rather
+than being silently satisfied by its absence. The count is unmoved by
+Decision C, which relocated a POSITIVE.
+
+**Fixture inventory: 31 packaged negatives, 8 repo-shaped fixtures, 1 synthetic
+fixture — exactly the plan's counts, none moved.** Two additions inside the
+module rather than to the counts: `tests/client-identity-roster/` also asserts
+the ratified entry field list (1.5), the seven closed vocabularies' refusal
+probes with their extension routes (SC-014), and the source-level negative
+guarantee (4.7).
+
+**`[~]` → `[x]` this phase (16)**: 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.2,
+2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.10 — each named a Phase-3 or Phase-4 artifact as
+its verification and that artifact now runs green.
+
+**STILL `[~]`, and why.** **1.10** names the manifest `consumption_rule` at 9.1,
+which is Phase 9. **2.9** names 6.5's doc-health fixture repos alongside 4.5's:
+its 4.5 half is green (fixtures 2, 4, 5, 6, 7 and 8 all exit nonzero for their
+own codes, and a self-scan of this checkout exits 0 reporting NO misplacement of
+its own packaged corpus), and the `tests/` exclusion that clause turns on is
+ALREADY proven against a real roster-kind file under `tests/` — 4.9's fixture,
+which the self-scan does not report — leaving only 6.5's repos to measure. (3.3
+stays `[~]` permanently: it is the RELOCATED task.)
 
 ---
 

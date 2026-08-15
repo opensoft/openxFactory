@@ -142,10 +142,111 @@ VENDOR_OBLIGATIONS = (
 
 # Layer-1 negative corpus: filename -> (expected finding code, optional detail
 # substring). The detail pins a fixture whose CODE alone is too coarse to prove
-# it failed for its own reason. Populated by Phase 4 as each negative lands; a
-# registration with no file and a file with no registration are both errors the
-# moment the packaged corpus exists.
-EXPECTED_NEGATIVE_FINDINGS: dict[str, tuple[str, str | None]] = {}
+# it failed for its own reason — a code reused across several fields, a rule
+# with several failure shapes, or a requirement that demands the message NAME
+# something. A registration with no file and a file with no registration are
+# both errors.
+#
+# Every negative below is built by mutating ONE minimal conformant record in
+# exactly the way its own header names, and every one of them raises its
+# REGISTERED code and NO OTHER record-internal code. Where a violation is also
+# visible to the schema, the generic `schema` code accompanies it — that is the
+# rule engine deliberately running to completion rather than returning at the
+# first schema failure, because a raw jsonschema message names neither the
+# closed vocabulary nor the extension route the refusals are required to name.
+EXPECTED_NEGATIVE_FINDINGS: dict[str, tuple[str, str | None]] = {
+    # --- record-internal rules -------------------------------------------
+    "consent-recorded-as-access.yaml":
+        ("consent-recorded-as-access", "no admission act"),
+    "unverified-act-counted-as-access.yaml":
+        ("unverified-act-counted-as-access", "verified_at with NO evidence_ref"),
+    "undeclared-reach.yaml":
+        ("undeclared-reach", "reaches surface 'exchange'"),
+    "achieved-exceeds-intended-undeclared.yaml":
+        ("achieved-exceeds-intended-undeclared", None),
+    "achieved-class-contradicted-by-permissions.yaml":
+        ("achieved-class-contradicts-permissions",
+         "the maximum class its granted_permissions DECLARE is 'mutate'"),
+    "scope-exceeds-unit-undeclared.yaml":
+        ("undeclared-scope-excess", "declares no declared_excess"),
+    "undeclared-act-surface.yaml":
+        ("undeclared-act-surface", "surface 'exchange'"),
+    # FR-010 requires the refusal to NAME the token it matched.
+    "name-understates-achieved-authority.yaml":
+        ("name-understates-achieved-authority",
+         "observation-suggesting token 'observer'"),
+    "missing-enforcement-test.yaml":
+        ("missing-enforcement-test", "no enforcement_test_ref"),
+    # The two per-unit rules share a subject and must not be confusable.
+    "provider-enforced-without-per-unit-principal.yaml":
+        ("provider-enforced-without-per-unit-principal",
+         "claims provider_enforced on surface 'business_central'"),
+    "per-unit-principal-available-but-logical.yaml":
+        ("per-unit-principal-available-but-logical",
+         "every admission act there"),
+    "per-unit-principal-undeclared.yaml":
+        ("per-unit-principal-undeclared",
+         "no answer for surface 'business_central'"),
+    # Gate ruling G2: the finding must NAME `home_tenant`, so a record that
+    # would pass the REJECTED containment reading cannot pass this one.
+    "vendor-homed-declared-client-resident.yaml":
+        ("vendor-homed-declared-client-resident",
+         "home_tenant is '22222222-2222-2222-2222-222222222222'"),
+    "vendor-tenant-multi-missing-obligations.yaml":
+        ("vendor-tenant-multi-missing-obligations",
+         "tenant_allow_list_enforced_at_token_validation"),
+    "mutate-without-ratified-capability.yaml":
+        ("mutate-without-ratified-capability", "not domain-qualified"),
+    "entry-without-consent-instrument.yaml":
+        ("entry-without-consent-instrument", "names no consent instrument"),
+    # Three failure shapes share this code; pin the one this file encodes.
+    "false-standing-credential-attestation.yaml":
+        ("false-standing-credential-attestation", "The record contradicts itself"),
+    # FR-006 requires the refusal to name EVERY element of the tuple.
+    "full-tuple-duplicate.yaml":
+        ("duplicate-identity-key",
+         "domain='demoxfactory', admission_surface='business_central', "
+         "authority_class_intended='observe', blast_radius_unit='unit_a', "
+         "duty='observing'"),
+    "alias-pair-observationally-identical.yaml":
+        ("alias-pair-observationally-identical", "['blast_radius_unit']"),
+
+    # --- closed vocabularies (SC-014), one per set ------------------------
+    # Each pin names the SET, because the code alone would be satisfied by the
+    # same rule firing on a different field.
+    "admission-surface-out-of-vocabulary.yaml":
+        ("admission-surface-out-of-vocabulary",
+         "admission_surface is 'sharepoint', which is not a member of the "
+         "closed admission_surface vocabulary"),
+    "destructive-authority-class.yaml":
+        ("destructive-authority-class",
+         "authority_class_intended is 'destroy', which is not a member of the "
+         "closed authority_class vocabulary"),
+    "residency-model-out-of-vocabulary.yaml":
+        ("residency-model-out-of-vocabulary", "closed residency_model vocabulary"),
+    "enforcement-mode-out-of-vocabulary.yaml":
+        ("enforcement-mode-out-of-vocabulary", "closed enforcement_mode vocabulary"),
+    "lifecycle-state-out-of-vocabulary.yaml":
+        ("lifecycle-state-out-of-vocabulary", "closed lifecycle_state vocabulary"),
+    "identity-kind-out-of-vocabulary.yaml":
+        ("identity-kind-out-of-vocabulary", "closed identity_kind vocabulary"),
+    "drift-finding-status-out-of-vocabulary.yaml":
+        ("drift-finding-status-out-of-vocabulary", "closed drift_status vocabulary"),
+
+    # --- legend and the declared evidence pointer -------------------------
+    "legend-token-missing.yaml":
+        ("legend-token-missing", "duty token 'auditing'"),
+    "legend-token-declared-twice.yaml":
+        ("legend-token-declared-twice", "declared in BOTH"),
+    "evidence-ref-malformed.yaml":
+        ("evidence-ref-malformed", "is missing ['path']"),
+
+    # --- the drift record --------------------------------------------------
+    "drift-finding-without-roster-value.yaml":
+        ("drift-finding-without-roster-value", None),
+    "drift-finding-without-observed-value.yaml":
+        ("drift-finding-without-observed-value", None),
+}
 
 
 # --------------------------- findings ---------------------------
