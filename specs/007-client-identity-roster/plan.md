@@ -58,7 +58,7 @@ access, no domain-repository edit.
 | IV. Schema and artifact discipline | PASS. Every new YAML carries `schema_version` + `kind`; `.example.yaml` files are instantiation stubs, never live configuration; validator root is `Path(__file__).resolve().parents[1]` so no host-absolute path is committed; no credential, provider payload, or tenant secret enters the tree — the packaged BC case records app/object/sp identifiers and permission names only, and its source record already states `credentials: none`. New docs are linked into `README.md`'s index and `contracts/README.md`'s registration table. |
 | V. Validation gates | PASS. The green bar is enumerated below and is the SC-010 list verbatim. Behaviour is proven by fixtures and a discrimination measurement (genuine pairs pass, alias pair refused), not by assertion. |
 | VI. Versioned, content-addressed releases | PASS. `contract-v1.32` allocated at realization: manifest bundle version, per-file `sha256`, CHANGELOG entry, regenerated release digest inventory, atomic commit. `contract_schema_version` bumps on the two consent schemas; the record envelope's `schema_version` const does NOT change (research.md, "A registration gap FR-021 assumes away"). Additive-minor is the claim, and `docs/contract-versioning-policy.md:130-132` is the test it is held to. |
-| VII. Fail-closed authority boundaries | PASS. Six closed vocabularies refuse unrecognized values; the two open tokens are pattern-bound and legend-bound. The drift record refuses grant issuance while `open` — a fail-closed lever that mutates nothing. No model call anywhere; the cross-domain family is a deterministic recompute. |
+| VII. Fail-closed authority boundaries | PASS. SEVEN closed vocabularies refuse unrecognized values — FR-034's six entry-side sets plus the drift record's `status` (SC-014, as re-scoped by the checklist pass) — and each has its own refusal probe; the two open tokens are pattern-bound and legend-bound. The drift record refuses grant issuance while `open` — a fail-closed lever that mutates nothing. No model call anywhere; the cross-domain family is a deterministic recompute. |
 
 **Complexity Tracking**: no entries. Nothing here requires a constitutional
 exception.
@@ -100,7 +100,7 @@ against the design below; encoding them is the work.
   never copied into a domain repo. Exit codes 0 clean / 1 findings / 2 harness
   error.
 - **Scale**: one new schema file (2 kinds), one new validator, one new
-  doc-health family module, ~32 packaged fixture files (28 negatives, two
+  doc-health family module, ~35 packaged fixture files (31 negatives, two
   positive fragments, the drift example, a README), four modified
   capabilities' surfaces, one bundle cut.
 
@@ -143,7 +143,8 @@ examples/client-identity-roster/
 │                                                            #   multi-surface reader,
 │                                                            #   planned entry
 ├── client-identity-roster-farheap-ledgerx.example.yaml      # duty-separated pair,
-│                                                            #   per-unit pair
+│                                                            #   per-unit pair,
+│                                                            #   retired entry
 ├── client-identity-drift-finding.example.yaml
 └── negative/                                                # one file per rule
     ├── consent-recorded-as-access.yaml
@@ -152,9 +153,11 @@ examples/client-identity-roster/
     ├── achieved-exceeds-intended-undeclared.yaml
     ├── achieved-class-contradicted-by-permissions.yaml       # FR-004 (ruling A-11)
     ├── scope-exceeds-unit-undeclared.yaml                    # FR-002/FR-010 (analyze R6)
+    ├── undeclared-act-surface.yaml                           # FR-009 act side (checklist)
     ├── name-understates-achieved-authority.yaml
     ├── missing-enforcement-test.yaml
     ├── provider-enforced-without-per-unit-principal.yaml
+    ├── per-unit-principal-undeclared.yaml                    # FR-008 coverage (checklist)
     ├── per-unit-principal-available-but-logical.yaml
     ├── vendor-homed-declared-client-resident.yaml
     ├── vendor-tenant-multi-missing-obligations.yaml
@@ -173,7 +176,8 @@ examples/client-identity-roster/
     ├── legend-token-declared-twice.yaml
     ├── evidence-ref-malformed.yaml
     ├── drift-finding-without-roster-value.yaml
-    └── drift-finding-without-observed-value.yaml
+    ├── drift-finding-without-observed-value.yaml
+    └── drift-finding-status-out-of-vocabulary.yaml           # SC-014's 7th set (checklist)
 
 tests/client-identity-roster/test_client_identity_roster.py  # repo-context rules,
                                                              #   SIX tmp_path repos
@@ -277,7 +281,7 @@ legend, and the entry's optional `duty_separation_rationale`:
 | `granted_permissions[]` | `minItems: 1`; each member an OBJECT — `id` (the provider-native identifier, verbatim), `achieves` (`observe\|mutate`), `reaches[]` (admission-surface members) — see below |
 | `admission[]` | LIST, `minItems: 1` — see below |
 | `declared_excess` | optional object: `spanned_surfaces[]`, `provider_reason`, `bound_mechanism`, `gate_obligation`, `enforcement_test_ref` |
-| `per_unit_principal_available` | MAPPING `admission_surface` member → boolean, covering the entry's surface and every `spanned_surfaces[]` member (FR-008 is per-surface) |
+| `per_unit_principal_available` | MAPPING `admission_surface` member → boolean; keys constrained to the enum by the schema, and REQUIRED to cover the entry's own surface plus every `spanned_surfaces[]` member — a coverage rule the validator enforces (Cluster B), because the schema cannot make a key set depend on another field's value. FR-008 is per-surface, and a missing key is indistinguishable from `false` unless it is named |
 | `lifecycle_state` | closed enum `planned\|enrolled\|retired` |
 | `standing_credential_attestation` | object: `no_standing_credential` (boolean claim), the approved grant-window reference, and the evidence pointer — see below |
 | `ratified_by` | domain-qualified capability id |
@@ -289,6 +293,19 @@ legend, and the entry's optional `duty_separation_rationale`:
 below). `evidence_ref` is a DECLARED POINTER — `{repo, path, sha?}` (FR-037) —
 and an act with no `evidence_ref` is `verified: false` by derivation, never by
 independent assertion, so an unverified act cannot claim verification.
+
+**`evidence_ref` and `verified_at` are a PAIR, expressed as
+`dependentRequired` in BOTH directions** (checklist pass; FR-002, FR-003,
+FR-033). Both optional, but each requires the other: present-present is a
+VERIFIED act, absent-absent is the UNVERIFIED state FR-003 requires to stay
+representable, and `verified_at` WITHOUT `evidence_ref` is refused as
+`unverified-act-counted-as-access` — the record claiming a verification it
+cannot evidence. Before this pairing the derivation had no firing rule: with
+`verified_at` required on every act, an unverified act was unrepresentable;
+with it merely optional, the negative FR-016 names by that very phrase had no
+refusal predicate at all and would have passed. The pairing is what makes
+"consent is never access" checkable at the ACT level, as the union rule makes
+it computable at the ENTRY level.
 
 **`exceeds_governed_unit` exists because `achieved_scope` is an OPAQUE TOKEN
 and the change's own motivating measurement must be checkable.** Ruling R7
@@ -407,8 +424,13 @@ FR-029's boundary and is what 4.1's negative encodes.
 — deliberately a different shape from the entry's string `identity_ref`, per
 FR-035's wording, documented in the schema description), `fragment_ref`,
 `rule_id`, `roster_value`, `observed_value` (both REQUIRED — the ratified
-delta scenario), `observed_at`, `opened_at`, `status` (`open|resolved|disposed`),
-`disposition_ref`. Field names borrow doc-health's where they apply; the
+delta scenario), `observed_at`, `opened_at`, `status` (`open|resolved|disposed` — a CLOSED set
+with its own refusal probe, SC-014 as re-scoped by the checklist pass),
+`disposition_ref` (OPTIONAL, and REQUIRED by an `if status == disposed / then`
+branch: a disposed finding with no citation is exactly the unfalsifiable
+disposal the record exists to prevent, while an `open` finding cannot carry
+one — which is why the packaged example, an `open` finding, declares none).
+Field names borrow doc-health's where they apply; the
 schema description states explicitly that the record claims no alignment with
 and no storage in any doc-health findings register, because none exists.
 
@@ -464,6 +486,17 @@ The uniqueness rule and the alias rule both read element 3 from
 FR-006 duplicate finding even where their achieved classes differ — that
 difference is a separate finding (FR-004/FR-010), never a licence to duplicate.
 
+**Both rules are scoped WITHIN one fragment** (checklist pass, FR-006). A
+fragment is per (client, domain), the tuple carries no `client_ref`, and the
+legend binds free tokens per fragment — so `sandbox1` in client A's fragment
+and `sandbox1` in client B's name different provider objects. A validator that
+pooled every fragment in a target repo before applying the uniqueness rule
+would report a domain's two clients' per-environment identities as ONE
+duplicate: the per-unit flaw re-killed from the other direction. The
+comparison set is therefore the entries of one fragment. Repo fixture 1
+(Cluster C) carries two fragments for two clients with an identical tuple and
+exits 0, so the scope is measured rather than assumed.
+
 ### Cluster B — the canonical validator
 
 `scripts/validate-client-identity-roster.py`, standalone, network-free,
@@ -477,6 +510,23 @@ be satisfied by a generic `schema` finding, a detail substring is pinned too
 themselves errors: a registered probe with no file, a file with no
 registration, a negative that passes, a negative that fails for the wrong
 code, and a negative whose code fires without the pinned detail (FR-018).
+
+**Record-internal rules run on a document even when the SCHEMA already refuses
+it, and each raises its own kebab code** (checklist pass). This is structural,
+not cosmetic: most of this corpus's negatives are schema-visible (a value
+outside a closed set, an entry with no `admission` list, a destructive class),
+and a raw `jsonschema` message names neither the closed vocabulary nor the
+extension route that FR-007, FR-034, SC-014 and this cluster's own message
+requirements demand. If the validator returned at the first schema failure,
+those negatives would adjudicate as a generic `schema` finding and the named
+refusals would exist nowhere. The rule engine therefore reads the loaded
+mapping defensively — a missing or wrong-typed field is skipped by the rule
+that would have read it, never crashed on — and runs to completion; the schema
+finding and the named finding both appear, and the expectations table pins the
+NAMED one. This is the roster-side counterpart of the fact ruling A-3a records
+for `validate-credential-contracts.py`, whose self-test reads
+`_semantic_findings` ONLY (`:108`): a refusal the harness cannot read is a
+refusal that does not exist.
 
 **Layer 2 — repo scan of the target.** Two passes:
 
@@ -552,6 +602,31 @@ acts plus the OR of their `exceeds_governed_unit` flags (Cluster A) — so
 FR-003's union is reported, not merely asserted, and US1 scenario 2 has
 something to read.
 
+**Three rules the checklist pass added, each closing a stated obligation that
+had no firing predicate** (none extends scope; each carries its own packaged
+negative, Cluster C):
+
+1. **The verification pair** (FR-002, FR-003): an act carrying `verified_at`
+   with no `evidence_ref` raises `unverified-act-counted-as-access` naming the
+   act. The schema's two-way `dependentRequired` refuses the same shape; the
+   named code is what the expectations table reads.
+2. **Act-surface reach** (FR-009): every `admission[].surface` must be the
+   entry's own `admission_surface` or a declared
+   `declared_excess.spanned_surfaces[]` member; anything else raises
+   `undeclared-act-surface` naming the act and the surface. FR-009's
+   permission-side rule reads `granted_permissions[].reaches[]` and cannot see
+   an act performed on a surface no permission declares — yet an admission act
+   IS the second key that makes a surface reachable, which is this change's own
+   measured finding. The cross-domain family already reads acts this way
+   (research.md Decision 6), so without this rule the intra-repo gate is
+   strictly weaker than the reporting pass on the same evidence.
+3. **Per-unit principal coverage** (FR-008): `per_unit_principal_available`
+   must carry a key for the entry's surface and for every spanned surface;
+   a missing key raises `per-unit-principal-undeclared` naming the surface. A
+   key for a surface the entry does not touch is NOT a finding — the key space
+   is closed by the enum, and inventing strictness there would penalise a
+   fragment that answers more than it must.
+
 **The alias rule** (FR-038) is implemented exactly as stated, as a
 three-predicate conjunction, and no more: two entries differ SOLELY in a free
 token, AND are observationally identical (the same `granted_permissions[]` set,
@@ -571,9 +646,17 @@ any broader form.
   `achieved_scope`), a genuine duty pair (differing in permissions OR
   declaring the rationale), a provider-forced multi-surface reader with its
   declaration, and a `planned` entry — each with ZERO findings, living inside
-  the two packaged fragments.
-- **Negatives**: the 28 packaged files listed in the structure above (26 as
-  first planned; plus `achieved-class-contradicted-by-permissions.yaml` added
+  the two packaged fragments. The checklist pass adds a fifth positive for
+  coverage rather than for a killed flaw: a `retired` entry, so the third
+  member of the `lifecycle_state` set has an instance somewhere in the corpus
+  and FR-013's "a retired entry MUST retain its record" is exercised instead
+  of merely asserted.
+- **Negatives**: the 31 packaged files listed in the structure above (26 as
+  first planned; plus THREE added by the checklist pass —
+  `undeclared-act-surface.yaml`, `per-unit-principal-undeclared.yaml` and
+  `drift-finding-status-out-of-vocabulary.yaml`, each homing a rule this
+  cluster's own requirements state and nothing fired on; plus
+  `achieved-class-contradicted-by-permissions.yaml` added
   by ruling A-11 to home FR-004's rule — an entry declaring
   `authority_class_achieved: observe` while a `granted_permissions[]` member
   declares `achieves: mutate`, a contradiction between two DECLARATIONS rather
@@ -598,7 +681,11 @@ any broader form.
   `tmp_path` from inline templates, the idiom
   `tests/conformance-gate/test_conformance_checks.py` already uses (`make_repo`,
   `STACK`/`FLOW_MD`/`FLOW_YAML`). SIX repos:
-  1. conformant (exit 0);
+  1. conformant (exit 0) — and it carries TWO fragments, for TWO clients,
+     whose entries share the whole uniqueness tuple, so the fragment scope of
+     FR-006 (Cluster A) is measured here rather than assumed; its gate
+     obligation and its consent citation both resolve, which makes it the
+     discrimination partner of fixtures 2, 4 and 6;
   2. nonconformant `mutate`-without-ratified-capability (nonzero) — the
      delta's own gate-exit scenario. Its packaged sibling
      `negative/mutate-without-ratified-capability.yaml` proves the FINDING
@@ -662,11 +749,17 @@ consent-recorded-as-access, FR-010's
 name-understates-achieved-authority, FR-008's available-but-unused per-unit
 principal, FR-012's vendor-tenant-multi missing obligations, SC-014's four
 remaining closed-vocabulary refusals and its two legend negatives, FR-037's
-`evidence_ref` shape, and FR-035's two drift-record negatives.
+`evidence_ref` shape, FR-035's two drift-record negatives, and the three the
+checklist pass homed: FR-009's act-side reach (`undeclared-act-surface.yaml`),
+FR-008's mapping coverage (`per-unit-principal-undeclared.yaml`), and SC-014's
+seventh closed set (`drift-finding-status-out-of-vocabulary.yaml`). FR-002's
+verification pair reuses the already-planned
+`unverified-act-counted-as-access.yaml`, which the pairing rule gives a
+refusal predicate it did not previously have.
 
-Two counts, because they measure different things: **31 rule-homes** (28
+Two counts, because they measure different things: **34 rule-homes** (31
 packaged + the 2 FR-016 rules with no packaged home + 1 in the doc-health
-corpus) and **33 refusing probes** — the repo corpus carries FOUR refusing
+corpus) and **36 refusing probes** — the repo corpus carries FOUR refusing
 fixtures (2, 4, 5, 6) where only two of them are the rule-homes counted above:
 fixture 2 additionally proves named rule 9's GATE EXIT, which its packaged
 sibling cannot, and fixture 6 homes FR-014's resolution clause, which is not in
@@ -756,7 +849,14 @@ Atomic, in one commit (constitution VI):
    --output contracts/releases/contract-v1.32.digests.yaml`. Its membership is
    the Hermes-runtime release surface plus the manifest/CHANGELOG/README and
    versioning policy — roster paths do NOT enter it and must not be hand-added
-   (research.md, "Registration mechanics").
+   (research.md, "Registration mechanics"). **Generation is therefore LAST
+   inside this cluster** (checklist pass): `RELEASE_SURFACE_PATHS`
+   (`scripts/hermes_runtime_validation/release.py:64-70`) contains
+   `contracts/manifest.yaml`, `contracts/CHANGELOG.md` AND
+   `contracts/README.md`, so steps 1, 2 and 3 must all have landed before the
+   inventory is built — generating it after step 1 alone bakes in stale
+   digests for the two files steps 2 and 3 are still editing, and the release
+   verifier then fails on a file this same commit touched.
 5. `README.md`: the roster family in the document index, AND the correction
    the progress handoff owes — the OpenSpec Records block at ~line 264-272
    still says "MODIFIES consent-instrument … and doc-health (sixteenth
@@ -800,6 +900,16 @@ different facts, and the estate does not yet carry the second:
 - codexFactory's conformance gate enumerates the pack's three members BY NAME,
   so a fourth member is not picked up by that gate until the gate is edited;
 - OpsxFactory's gate invokes no canonical pack check at all.
+
+A second, smaller residual belongs beside it (checklist pass): the pack's
+NO-COPY rule — US3 acceptance scenario 3's second clause, and the promoted
+delta's "A copied check is a conformance defect" — is a DECLARATION with no
+mechanized probe anywhere in the estate. The existing conformance-gate suite's
+fifteen tests cover inventory, parity and pin behaviour and none of them scans
+a domain repo for a copied check. This feature inherits the rule with its
+fourth member and does not build the missing detector, because a copy-detector
+is a new check rather than a realization of FR-022. It is named here so the
+clause is not read as measured.
 
 So on the day this feature archives, a nonconformant roster entry fails the
 pack check when the pack check is RUN, and the pack check is not yet run by
@@ -1183,6 +1293,44 @@ scope:
     and makes FR-003's union computable. The alternative — inferring breadth
     from a provider string — is the inference the neutral layer has no standing
     to make.
+
+Six further choices are added by the **checklist pass**, in the same reviewable
+class. Each closes a rule this feature's own requirements state but nothing
+fired on, or an ambiguity whose wrong resolution would regress a killed flaw;
+none extends scope, and each is homed by a probe:
+
+25. **`evidence_ref` and `verified_at` are a two-way `dependentRequired`
+    pair**, and `verified_at` without `evidence_ref` is the refusal predicate
+    of `unverified-act-counted-as-access` — the FR-016 negative that, before
+    this, had no predicate at all (exclusion from effective reach is a
+    behaviour, not a refusal). FR-033 is reworded from "every admission act" to
+    "every VERIFIED admission act", because requiring the timestamp everywhere
+    made FR-003's unverified state unrepresentable.
+26. **Uniqueness and the alias rule are scoped WITHIN one fragment.** The tuple
+    carries no `client_ref` and the legend is per fragment, so pooling a
+    repo's fragments would report two clients' per-environment identities as a
+    duplicate — the per-unit flaw from the other side. Repo fixture 1 measures
+    it.
+27. **The alias rule's "solely in a free token" reads as "in free tokens
+    only"** — a pair differing in BOTH tokens is in scope. The narrow reading
+    leaves the rule evadable by inventing two spellings instead of one, and the
+    wider reading cannot fire on a genuine pair (which differs in
+    `achieved_scope`, in permissions, or declares the rationale).
+28. **Three rules gain a firing predicate and a packaged negative**: act-side
+    undeclared reach (`undeclared-act-surface`), `per_unit_principal_available`
+    coverage (`per-unit-principal-undeclared`), and the drift record's closed
+    `status` set. The first is the sharpest — the cross-domain family reads
+    admission acts for reach while the intra-repo gate read only permissions,
+    so the BLOCKING check was strictly weaker than the REPORTING one on the
+    same evidence.
+29. **`disposition_ref` is optional and required only when `status: disposed`**
+    (an `open` finding cannot carry one), and **record-internal rules run to
+    completion even when the schema already refuses the document**, so a
+    schema-visible negative still raises the named code its refusal message
+    and its expectations-table entry depend on.
+30. **A `retired` entry joins the packaged corpus** so no member of a closed
+    lifecycle set is left without an instance, and FR-013's retention
+    guarantee is exercised rather than asserted.
 
 ## Contradictions found between spec.md, the rulings, and the amended packet
 

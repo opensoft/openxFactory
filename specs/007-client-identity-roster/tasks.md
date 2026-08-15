@@ -213,8 +213,14 @@ Phases 5–8; see the Phase 0 checkpoint).
       `enforcement_mode`, `evidence_ref`, `verified_at`, and
       **`exceeds_governed_unit`** (boolean, REQUIRED). `evidence_ref` is a
       DECLARED POINTER object `{repo, path, sha?}` (FR-037) with a description
-      stating that no validator resolves it. `verified_at` is required and
-      carries NO maximum age (FR-033 — no decay in this release); an act with
+      stating that no validator resolves it. **`evidence_ref` and `verified_at`
+      are a PAIR, expressed as `dependentRequired` in BOTH directions**: both
+      present is a VERIFIED act, both absent is the UNVERIFIED state FR-003
+      requires to stay representable, and a `verified_at` with no
+      `evidence_ref` is refused (2.5). `verified_at` carries NO maximum age
+      (FR-033 — no decay in this release, and reworded by the checklist pass to
+      "every VERIFIED act", because requiring it on every act made the
+      unverified state unrepresentable); an act with
       no `evidence_ref` is unverified BY DERIVATION, never by an independent
       `verified: false` field an author could contradict (FR-003).
       `exceeds_governed_unit` declares whether the scope that act achieves
@@ -232,7 +238,10 @@ Phases 5–8; see the Phase 0 checkpoint).
       `provider_reason`, `bound_mechanism`, `gate_obligation`,
       `enforcement_test_ref`), `per_unit_principal_available` (the per-surface
       MAPPING declared at 1.5 — admission-surface member → boolean, never a
-      single boolean),
+      single boolean; the schema closes its KEY SPACE to the enum, while the
+      COVERAGE rule — a key for the entry's surface and for every
+      `spanned_surfaces[]` member — is 2.6's, because a key set that depends on
+      another field's value is not expressible here),
       `standing_credential_attestation` — the claim
       (`no_standing_credential`, boolean), the approved GRANT-WINDOW REFERENCE
       the claim is made against, and the evidence pointer, so FR-013's
@@ -259,7 +268,12 @@ Phases 5–8; see the Phase 0 checkpoint).
       `identity_ref`, FR-035, documented in the description), `fragment_ref`,
       `rule_id`, `roster_value` and `observed_value` (BOTH required — the
       ratified delta scenario), `observed_at`, `opened_at`, `status`
-      (`open|resolved|disposed`), `disposition_ref`. The description states:
+      (`open|resolved|disposed` — a CLOSED set, refused outside it like every
+      other, whose negative is 4.3's third file), and `disposition_ref`
+      (OPTIONAL, made REQUIRED by an `if status == disposed / then` branch: a
+      disposed finding with no citation is the unfalsifiable disposal this
+      record exists to prevent, and an `open` finding cannot have one).
+      The description states:
       (a) why the two `identity_ref` shapes differ; (b) that the tuple's third
       element is the INTENDED class so the join survives drift (R-N1); (c) that
       the record claims no alignment with and no storage in any doc-health
@@ -308,9 +322,21 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       are themselves errors: a registered probe with no file, a file with no
       registration, a negative that passes, a negative that fails for the WRONG
       code, and a negative whose code fires without the pinned detail.
+      **Record-internal rules RUN even when the schema already refuses the
+      document, and each raises its own kebab code** (checklist pass): most of
+      this corpus's negatives are schema-visible, and a raw `jsonschema`
+      message names neither the closed vocabulary nor the extension route that
+      2.3, FR-007, FR-034 and SC-014 require, so a validator that returned at
+      the first schema failure would leave those refusals existing nowhere and
+      make their expectations-table entries unregisterable — the roster-side
+      form of the `_semantic_findings`-only fact behind ruling A-3a. Rules read
+      the loaded mapping defensively (a missing or wrong-typed field is skipped
+      by the rule that would read it, never crashed on).
       *Verification* (runs after Phase 4 — this task's corpus is authored at
       3.2–3.6 and 4.1–4.4): temporarily break one negative each way and confirm
-      five distinct self-test failures; SC-001.
+      five distinct self-test failures; SC-001. Plus one assertion that a
+      schema-invalid negative still raises its NAMED code, not only a generic
+      `schema` finding.
 - [ ] 2.3 Record-internal rules, group 1 — closed-vocabulary and shape
       refusals, each naming the closed set and the extension route in its
       message (FR-005, FR-007, FR-031, FR-034, SC-014).
@@ -319,8 +345,17 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
 - [ ] 2.4 [US1] Uniqueness and the alias rule — the feature's sharpest pair.
       Uniqueness: entries sharing the whole `$defs.identity_key` tuple are a
       finding NAMING EVERY ELEMENT; entries differing in ANY element validate
-      clean (FR-006). The alias rule (FR-038) is a THREE-predicate conjunction
-      and no broader: two entries differ SOLELY in a free token, AND are
+      clean (FR-006). **Both rules compare entries WITHIN ONE FRAGMENT, never
+      across fragments** (checklist pass): the tuple carries no `client_ref`
+      and the legend binds free tokens per fragment, so pooling a repo's
+      fragments would report a domain's two clients' `sandbox1` identities as
+      one duplicate — the per-unit flaw re-killed from the other direction.
+      4.5's fixture 1 measures the scope. The alias rule (FR-038) is a
+      THREE-predicate conjunction
+      and no broader: two entries differ SOLELY in free tokens — one or BOTH,
+      since a domain that could evade the rule by inventing two spellings
+      instead of one would leave it bounding nothing, and the wider reading
+      cannot touch a genuine pair — AND are
       observationally identical (the same `granted_permissions[]` set, compared
       as normalized member tuples `(id, achieves, sorted(reaches))` now that
       members are objects, and the same admission acts by
@@ -336,7 +371,12 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       refused (SC-002). A rule broad enough to catch all three fails.
 - [ ] 2.5 [US1] Admission verification, effective reach, and the scope-excess
       rule (FR-002, FR-003, FR-010): an act with no `evidence_ref` is unverified
-      and EXCLUDED from effective reach; provider consent with no admission act
+      and EXCLUDED from effective reach; **an act carrying `verified_at` with
+      NO `evidence_ref` is REFUSED as `unverified-act-counted-as-access`,
+      naming the act** — the record claiming a verification it cannot evidence,
+      which is the refusal predicate that FR-016 negative lacked before the
+      checklist pass (exclusion is a behaviour, not a refusal, so the fixture
+      would have passed); provider consent with no admission act
       is refused stating that consent is not admission. Effective reach is
       COMPUTED, never declared, and CONCRETELY: the set of
       `(surface, achieved_scope)` pairs over VERIFIED acts only, plus the
@@ -373,14 +413,33 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       `mutate`, matches a SMALL CLOSED token list declared in the module
       (`observer`, `observe`, `reader`, `read`, `readonly`, `viewer`, `audit`,
       case-insensitive, word-boundary) and NAMES the token it matched (FR-010).
+      **ACT-SIDE reach** (checklist pass, FR-009): every `admission[].surface`
+      must be the entry's own `admission_surface` or a declared
+      `spanned_surfaces[]` member, and anything else is `undeclared-act-surface`
+      naming the act and the surface — the permission-side rule cannot see an
+      act performed on a surface no permission declares, yet an admission act
+      IS the second key that makes a surface reachable (this change's own
+      measured finding), and the cross-domain family already reads acts this
+      way (6.3), so without it the BLOCKING check is weaker than the REPORTING
+      one on identical evidence.
       Structural scoping:
       provider-enforced claimed where no per-unit principal exists is a
-      finding, and an available per-unit principal left unused while logical
-      enforcement is declared is a finding NAMING the available principal
-      (FR-008). The rules must NOT invalidate a deliberately narrow identity
+      finding; an available per-unit principal left unused while logical
+      enforcement is declared is a finding NAMING the available principal; and
+      **a surface the entry touches with NO key in
+      `per_unit_principal_available` is `per-unit-principal-undeclared` naming
+      that surface** (checklist pass — 1.7 states the coverage obligation and
+      nothing fired on it; an absent key and a `false` answer are otherwise
+      indistinguishable). A key for a surface the entry does NOT touch is not a
+      finding: the key space is already closed by the enum (FR-008).
+      The rules must NOT invalidate a deliberately narrow identity
       because the provider's granularity is coarser than the axis (FR-009).
-      *Verification*: 4.1 and 4.4's negatives; 3.3's multi-surface reader
-      validates clean, which is the "must not invalidate" half.
+      *Verification*: 4.1 and 4.4's negatives — including
+      `undeclared-act-surface.yaml` and `per-unit-principal-undeclared.yaml`;
+      3.3's multi-surface reader
+      validates clean, which is the "must not invalidate" half and the
+      discrimination partner of both new negatives (its acts sit on declared
+      surfaces and its mapping answers both).
 - [ ] 2.7 [US1] Residency (FR-012) and lifecycle/attestation (FR-013): a
       registration homed outside the client tenant may not declare
       client-resident; `vendor_tenant_multi` requires its five obligations; a
@@ -527,16 +586,23 @@ begin.
       `ledgerx-farheap-bc-poster` / `-provisioner` precedent, differing in
       granted permissions or declaring `duty_separation_rationale`, the
       optional field 1.5 declares) and the GENUINE per-unit pair (differing in
-      `achieved_scope`).
+      `achieved_scope`). It also carries the **`retired` entry** (checklist
+      pass): the third `lifecycle_state` member otherwise has no instance
+      anywhere in the corpus, and FR-013's "a retired entry MUST retain its
+      record" is a guarantee nothing exercises without one.
       *Depends on*: 0.1, 1.4–1.7. *Verification*: both pairs at ZERO findings in
       the same run that refuses 4.1's alias pair — the SC-002 discrimination
-      asserted at 4.6.
+      asserted at 4.6; the `retired` entry likewise clean, and not reported as
+      missing, incomplete or stale (FR-013, FR-033).
 - [ ] 3.6 [P] [US6] `client-identity-drift-finding.example.yaml` — a complete
       finding: the `identity_key` OBJECT (element 3 = the entry's
       `authority_class_intended`), `fragment_ref` naming 3.2's fragment,
       `rule_id`, `roster_value`, `observed_value`, `observed_at`, `opened_at`,
-      `status: open`, `disposition_ref`.
-      *Depends on*: 0.1, 1.9. *Verification*: 2.2 self-test clean; 4.3's two
+      `status: open` — and therefore NO `disposition_ref`, which 1.9 makes
+      conditional on `status: disposed` (an open finding has not been
+      dispositioned; carrying a citation there was incoherent in the pre-
+      checklist draft).
+      *Depends on*: 0.1, 1.9. *Verification*: 2.2 self-test clean; 4.3's three
       negatives are its refusals.
 
 **Checkpoint**: four mandated cases packaged across two fragments, drift
@@ -556,19 +622,26 @@ Negatives take the CONSENT family's header dialect
 `# … (finding <finding-code>)`), one violation per file, each registered by
 filename in the validator's expectations table.
 
-- [ ] 4.1 Author the SEVENTEEN record-internal packaged negatives — twelve of
+- [ ] 4.1 Author the NINETEEN record-internal packaged negatives — twelve of
       FR-016's named rules (the thirteenth packaged named rule,
       out-of-vocabulary admission surface, sits with its vocabulary siblings in
-      4.2) plus FIVE per-rule confirmations FR-016's "at minimum" list does not
+      4.2) plus SEVEN per-rule confirmations FR-016's "at minimum" list does not
       enumerate (FR-003, FR-008's second half, FR-010's name/purpose clause,
-      FR-012, and FR-002/FR-010's scope excess):
+      FR-012, FR-002/FR-010's scope excess, and the two the checklist pass
+      homed — FR-009's act side and FR-008's mapping coverage):
       `consent-recorded-as-access.yaml`,
-      `unverified-act-counted-as-access.yaml`, `undeclared-reach.yaml`,
+      `unverified-act-counted-as-access.yaml` (an act carrying `verified_at`
+      with NO `evidence_ref` — the predicate 2.5 gives this file, without which
+      it would pass), `undeclared-reach.yaml`,
       `achieved-exceeds-intended-undeclared.yaml`,
       `name-understates-achieved-authority.yaml`,
       `missing-enforcement-test.yaml`,
       `provider-enforced-without-per-unit-principal.yaml`,
       `per-unit-principal-available-but-logical.yaml`,
+      **`per-unit-principal-undeclared.yaml`** (a mapping with no answer for a
+      surface the entry touches — 2.6),
+      **`undeclared-act-surface.yaml`** (an admission act on a surface the
+      entry neither owns nor declares as spanned — 2.6),
       `vendor-homed-declared-client-resident.yaml`,
       `vendor-tenant-multi-missing-obligations.yaml`,
       `mutate-without-ratified-capability.yaml` (the record-internal FINDING;
@@ -591,15 +664,23 @@ filename in the validator's expectations table.
       `identity-kind-out-of-vocabulary.yaml`, `legend-token-missing.yaml`,
       `legend-token-declared-twice.yaml`, `evidence-ref-malformed.yaml`.
       *Verification*: these FIVE vocabulary negatives plus 4.1's
-      `destructive-authority-class.yaml` give ONE negative per closed set (six
-      sets, six refusals, SC-014), each refusal NAMING the closed vocabulary and
-      the extension route; plus both legend cases (FR-034's two findings) and
+      `destructive-authority-class.yaml` give ONE negative per ENTRY-side
+      closed set (FR-034's six sets, six refusals), each refusal NAMING the
+      closed vocabulary and the extension route; SC-014's SEVENTH set — the
+      drift record's `status` — is homed at 4.3, so no closed vocabulary in the
+      roster family ships without a refusal probe (the
+      `issuance_preconditions` set is SC-008's, at 7.3); plus both legend cases
+      (FR-034's two findings) and
       `evidence-ref-malformed.yaml`, which is FR-037's shape probe rather than a
       vocabulary or legend case.
-- [ ] 4.3 [P] [US6] The drift-record negatives:
+- [ ] 4.3 [P] [US6] The THREE drift-record negatives:
       `drift-finding-without-roster-value.yaml`,
-      `drift-finding-without-observed-value.yaml` (FR-035).
-      *Verification*: refused by their own codes in the 2.2 self-test.
+      `drift-finding-without-observed-value.yaml` (FR-035), and
+      **`drift-finding-status-out-of-vocabulary.yaml`** (checklist pass) — the
+      `status` set is closed and SC-014 covers EVERY closed vocabulary of this
+      family, so its seventh set gets the refusal probe the other six have.
+      *Verification*: refused by their own codes in the 2.2 self-test; the
+      third names the closed `status` set the way 2.3's refusals name theirs.
 - [ ] 4.4 [P] `achieved-class-contradicted-by-permissions.yaml` (**ruling
       A-11**) — an entry declaring `authority_class_achieved: observe` while a
       `granted_permissions[]` member DECLARES `achieves: mutate` (the
@@ -616,7 +697,11 @@ filename in the validator's expectations table.
 - [ ] 4.5 The SIX repo-shaped fixtures in `tests/client-identity-roster/
       test_client_identity_roster.py`, built in `tmp_path` from inline
       templates (the `tests/conformance-gate/test_conformance_checks.py`
-      `make_repo` idiom): (1) conformant → exit 0; (2) nonconformant
+      `make_repo` idiom): (1) conformant → exit 0, carrying TWO fragments for
+      TWO clients whose entries share the WHOLE uniqueness tuple, which is how
+      FR-006's fragment scope is measured (checklist pass: a cross-fragment
+      comparison would report them as a duplicate and re-kill the per-unit
+      flaw); (2) nonconformant
       `mutate`-without-ratified-capability → nonzero — the ROSTER delta's own
       gate-exit scenario; its packaged sibling proves the FINDING
       record-internally and this repo proves the EXIT, which a packaged file
@@ -954,7 +1039,13 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       schema, its validator and its examples; amended rows for the two consent
       schemas; a row for `xfactory-credential-contracts`.
       *Verification*: the registration table lists every file 9.1 registers.
-- [ ] 9.4 [US2] Generate
+- [ ] 9.4 [US2] **After 9.1, 9.2 AND 9.3 have landed** — `RELEASE_SURFACE_PATHS`
+      (`scripts/hermes_runtime_validation/release.py:64-70`) covers
+      `contracts/manifest.yaml`, `contracts/CHANGELOG.md` and
+      `contracts/README.md`, so building the inventory before the changelog and
+      README edits land bakes in digests this same commit invalidates
+      (checklist pass; the [P] on 9.2/9.3 means "parallel with each other",
+      never "concurrent with 9.4") — generate
       `contracts/releases/contract-v1.32.digests.yaml` with
       `python3 scripts/validate-contract-release.py build --tag contract-v1.32
       --output contracts/releases/contract-v1.32.digests.yaml`. Its membership
@@ -1074,14 +1165,14 @@ nothing was orphaned.
 | FR-003 | 1.6, 2.5, 4.1 |
 | FR-004 | 2.6, 4.4 |
 | FR-005 | 1.2, 4.1 |
-| FR-006 | 1.3, 2.4, 4.1 |
+| FR-006 | 1.3, 2.4, 4.1, 4.5 (fixture 1: the fragment scope) |
 | FR-007 | 1.2, 2.3, 4.2 |
 | FR-008 | 1.7, 2.6, 4.1 |
 | FR-009 | 1.7, 2.6, 3.3, 4.1 |
 | FR-010 | 1.7, 2.5 (scope excess), 2.6, 3.2, 4.1 |
 | FR-011 | 1.7, 2.9, 4.1 (missing enforcement test), 4.5 (fixture 4: unresolvable obligation) |
 | FR-012 | 1.8, 2.7, 4.1 |
-| FR-013 | 1.7, 2.7, 3.4, 4.1 |
+| FR-013 | 1.7, 2.7, 3.4, 3.5 (the `retired` entry), 4.1 |
 | FR-014 | 2.8 (presence), 2.9 (resolution), 4.1, 4.5 (fixtures 2 and 6) |
 | FR-015 | 2.1 (shape, argument, exit codes) + 2.3–2.10 ("enforce every intra-repo rule") |
 | FR-016 | 4.1, 4.2, 4.3, 4.4, 4.5, 4.8, 6.5 |
@@ -1121,7 +1212,7 @@ nothing was orphaned.
 | SC-011 | 2.1, 6.6, 10.6 |
 | SC-012 | 7.4, 10.6 |
 | SC-013 | 2.10, 4.7, 3.4 |
-| SC-014 | 1.2, 4.2 |
+| SC-014 | 1.2, 1.9, 4.2, 4.3 |
 
 ---
 
@@ -1155,7 +1246,9 @@ nothing was orphaned.
 - Within Phase 4, 4.2, 4.3, 4.4 and 4.7 are `[P]` (different files).
 - Within Phase 6, 6.2 and 6.3 are `[P]` (different finding classes, same module
   — parallel only if authored as separate functions first).
-- Within Phase 9, 9.2 and 9.3 are `[P]`; 9.1 → 9.4 → 9.6 is sequential.
+- Within Phase 9, 9.2 and 9.3 are `[P]` **with each other only**; the
+  sequence is 9.1, 9.2, 9.3 → 9.4 → 9.6, because all three of the files 9.1–9.3
+  edit are release-surface members whose digests 9.4 records.
 
 ### The two STOP conditions
 

@@ -551,8 +551,15 @@ remove an identity, permission, or admission.
   scope that act achieves, whether the resulting bound is provider-enforced or
   logic-enforced, an evidence reference for a successful call, and the time it
   was verified. A record MUST NOT express admission as a single act.
-  Each member MUST ADDITIONALLY declare whether the scope that act achieves
-  reaches BEYOND the entry's governed blast-radius unit
+  The evidence reference and the verification time are a PAIR: both present
+  (a VERIFIED act) or both absent (an UNVERIFIED act — the distinct state
+  FR-003 requires, which must stay representable). An act declaring a
+  verification time with NO evidence reference MUST be a finding: it asserts a
+  verification the record cannot evidence, and that assertion is the concrete,
+  record-internal form of FR-016's "an unverified admission act counted as
+  access".
+  Each member MUST ADDITIONALLY declare whether the scope that act
+  achieves reaches BEYOND the entry's governed blast-radius unit
   (`exceeds_governed_unit`). That declaration is required because
   `achieved_scope` is provider-native and opaque to the neutral layer, so a
   check may compare scope tokens for equality but MUST NOT read breadth out of
@@ -562,7 +569,9 @@ remove an identity, permission, or admission.
   legend: the ratified rule cannot be evaluated without it.
 - **FR-003**: Provider consent alone MUST NOT be recordable as access; an
   admission act without verification evidence MUST be represented in a distinct
-  unverified state and MUST be excluded from the identity's effective reach;
+  unverified state — the absence of BOTH the evidence reference and the
+  verification time (FR-002), never an independently asserted flag — and MUST
+  be excluded from the identity's effective reach;
   effective reach MUST be the union of verified acts. That union MUST be
   computed and REPORTED, and — because its members are opaque tokens — it is
   defined concretely as the set of `(surface, achieved_scope)` pairs over
@@ -592,6 +601,17 @@ remove an identity, permission, or admission.
   element MUST validate clean. The checks MUST NOT report a per-blast-radius-
   unit identity or a duty-separated identity as an overlap, a duplicate, or any
   other finding.
+  Uniqueness MUST be scoped WITHIN a fragment — that is, per (client, domain),
+  the unit a fragment covers — because the tuple carries no `client_ref` while
+  the free tokens are legend-bound PER FRAGMENT, so one token spelling names
+  different provider objects in two clients' tenants. Two entries in DIFFERENT
+  fragments sharing the whole tuple MUST NOT be a duplicate finding: a domain
+  governing a `sandbox1` unit for two clients holds two distinct identities,
+  and reporting them as one would re-kill the per-unit flaw from the other
+  direction. That guarantee MUST be fixture-measured rather than merely stated
+  — a target repo publishing two fragments for two clients with an identical
+  tuple exits 0. The drift record's `fragment_ref` (FR-035) is what supplies
+  the client scope its `identity_ref` tuple deliberately omits.
 - **FR-007**: `admission_surface` MUST be a CLOSED vocabulary containing
   exactly `business_central` and `exchange` in this release, each entry naming
   the admission act and the scoping mechanism that make it a surface. Any other
@@ -602,6 +622,14 @@ remove an identity, permission, or admission.
   keyed by admission-surface member, not a single boolean, because a
   provider-forced multi-surface identity needs one answer per surface —
   whether a principal scoped to the governed blast-radius unit is available.
+  The mapping MUST carry an answer for the entry's own `admission_surface` and
+  for every surface the entry declares as spanned
+  (`declared_excess.spanned_surfaces[]`); a surface the entry touches with no
+  answer in the mapping MUST be a finding naming that surface, because an
+  absent key and a `false` answer are otherwise indistinguishable and the structural-before-logical rule below has
+  nothing to read. A key for a surface the entry does not touch MUST NOT be a
+  finding — the key space is already closed by the `admission_surface`
+  vocabulary, and inventing strictness there is not this release's business.
   A bound MAY be recorded as logic-enforced only where no such principal
   exists, with the provider reason recorded. A bound recorded as
   provider-enforced where no such principal exists MUST be a finding, and an
@@ -611,9 +639,16 @@ remove an identity, permission, or admission.
   achieved class above the intended one — MUST be declarable with the provider
   reason and a gate obligation, and MUST be conformant when so declared.
   Undeclared reach MUST be a finding naming the surface and the permission that
-  reaches it. The checks MUST NOT invalidate a deliberately narrow identity
-  merely because the provider's permission granularity is coarser than the
-  axis.
+  reaches it. The SAME rule MUST cover the ADMISSION side: an admission act
+  (FR-002) performed on a surface that is neither the entry's own
+  `admission_surface` nor a declared `spanned_surfaces[]` member MUST be a
+  finding naming the act and the surface. Permission-side reach alone is not
+  the whole of reach — an admission act is the second key that makes a surface
+  actually reachable, so an undeclared act-surface is reach the record hides
+  even where no permission declares it, and the cross-domain family already
+  reads acts this way (FR-023). The checks MUST NOT invalidate a deliberately
+  narrow identity merely because the provider's permission granularity is
+  coarser than the axis.
 - **FR-010**: Where achieved authority exceeds intended authority, the entry
   MUST declare the excess with the reason no narrower permission exists, the
   bounding mechanism, the gate obligation, and the enforcement-test reference.
@@ -632,6 +667,14 @@ remove an identity, permission, or admission.
   small closed token list declared in the validator and naming the token it
   matched, so the rule stays deterministic and inspectable rather than
   becoming an open-ended reading of prose.
+  That token list is a DETECTOR, not a guarantee, and its blind spot MUST be
+  stated rather than discovered: a name using an observation word outside the
+  list escapes it. The list is admissible only because the load-bearing rule
+  beside it is closed-world at the representation level — FR-004's
+  record-internal check that `authority_class_achieved` equals the maximum
+  declared `achieves`, which no naming choice can evade. The name rule MUST
+  NOT be grown into an open-ended prose reading, and MUST NOT be relied on as
+  the mechanism that catches an understated identity.
 - **FR-011**: Every gate obligation MUST resolve to an existing gate in the
   owning domain's governed workflow records and MUST name a test proving
   refusal of a target outside the governed blast-radius unit. An unresolvable
@@ -847,8 +890,15 @@ remove an identity, permission, or admission.
   `issuance_preconditions` vocabulary (FR-028) adds an OPTIONAL property, so no
   existing record becomes invalid and no existing record's meaning changes; the
   consent status growth (FR-039) adds an enum member, so no existing instrument
-  changes state. A change to either that is not purely additive breaks this
-  requirement and must be escalated rather than absorbed.
+  changes state. The ONE place an existing check's behaviour changes is the
+  consent cascade gate (FR-026): its reach widens from `terminated` to
+  `terminated` or `withdrawn`, which is a behaviour change and is declared as
+  one rather than described as a no-op. It is reconciled with this boundary by
+  the same additivity argument in its narrow form — the widened reach can only
+  bind an instrument in a state that could not exist before this change, so no
+  existing instrument or fixture acquires a finding. A change to any of the
+  three that is not purely additive breaks this requirement and must be
+  escalated rather than absorbed.
 - **FR-031**: Surfaces outside the first-release vocabulary MUST NOT be added,
   and identities on them MUST NOT be treated as missing roster entries.
 
@@ -869,8 +919,10 @@ remove an identity, permission, or admission.
   classes and would demand an entry for a class whose ratified position is that
   the factory holds no identity at all.
 - **FR-033**: Admission-evidence freshness — NO DECAY IN THIS RELEASE.
-  `verified_at` MUST be recorded on every admission act, and verified versus
-  unverified MUST be the only distinction any check draws. No maximum age, no
+  `verified_at` MUST be recorded on every VERIFIED admission act — paired with
+  that act's evidence reference per FR-002, an unverified act carrying neither
+  — and verified versus unverified MUST be the only distinction any check
+  draws. No maximum age, no
   re-verification interval, and no staleness finding, report, or
   issuance-precondition failure MUST be introduced.
 - **FR-034**: Vocabulary closedness. The following MUST be CLOSED neutral
@@ -905,7 +957,13 @@ remove an identity, permission, or admission.
   record MUST carry: `identity_ref` (the five-element uniqueness tuple that
   identifies the entry), `fragment_ref`, the rule id that produced it,
   `roster_value`, `observed_value`, `observed_at`, `opened_at`, a `status` of
-  `open`, `resolved`, or `disposed`, and a disposition citation. `roster_value`
+  `open`, `resolved`, or `disposed`, and a disposition citation. The `status`
+  set is CLOSED and MUST refuse a value outside it like every other closed set
+  in this family (SC-014). The disposition citation is a declared property
+  whose POPULATION is conditional: it MUST be present when `status` is
+  `disposed` — a disposition with no citation is the unfalsifiable form the
+  record exists to prevent — and MUST NOT be required on an `open` finding,
+  which by construction has not been dispositioned. `roster_value`
   and `observed_value` are mandatory because the ratified delta scenario says
   the check "records the roster value and the observed value". Field NAMES MUST
   borrow from doc-health where they apply, but the record MUST NOT claim
@@ -939,7 +997,11 @@ remove an identity, permission, or admission.
   and unaffected: that target is intra-repo.
 - **FR-038**: The alias rule MUST be implemented as stated and MUST NOT be
   broadened. A finding MUST be raised ONLY when two entries differ solely in a
-  free token (`blast_radius_unit` or `duty`) AND are observationally identical
+  free token (`blast_radius_unit` or `duty`) — read as "in free tokens ONLY",
+  so a pair differing in BOTH free tokens while identical in every other field
+  is in scope, because a domain able to evade the rule by inventing two token
+  spellings instead of one would leave it bounding nothing — AND are
+  observationally identical
   — the same `granted_permissions[]` set and the same admission acts by
   (surface, act, `achieved_scope`, `enforcement_mode`) — AND declare no
   duty-separation rationale. The rationale MUST be a declarable field:
@@ -970,7 +1032,8 @@ remove an identity, permission, or admission.
 
 - **Roster fragment**: one client (`client_ref`) as seen by one owning domain,
   carrying that domain's entries. The unit a domain publishes and a cross-domain
-  pass assembles.
+  pass assembles — and the scope within which uniqueness and the free-token
+  legend are read (FR-006, FR-034).
 - **Roster entry**: one governed identity, identified by the uniqueness tuple
   (domain, admission surface, authority class, blast-radius unit, duty), with
   its granted permissions, admission list, residency declaration, lifecycle
@@ -983,7 +1046,11 @@ remove an identity, permission, or admission.
 - **Admission act**: one entry in the admission list — surface, act, achieved
   scope, enforcement mode, evidence of a successful call, verification time,
   and whether that achieved scope exceeds the entry's governed blast-radius
-  unit. Verified acts union into effective reach — the set of their
+  unit. The evidence and the verification time travel as a PAIR (both present,
+  or both absent on an unverified act); a time without evidence is a claimed
+  verification the record cannot show, and is refused. The act's surface must
+  be the entry's own or one it declares as spanned. Verified acts union into
+  effective reach — the set of their
   (surface, achieved scope) pairs plus the OR of their exceedance
   declarations, which is how "the union, not the narrower act" is computed
   rather than asserted; unverified acts are a distinct state that contributes
@@ -1100,11 +1167,16 @@ remove an identity, permission, or admission.
   the validator derives an expected entry set from credential requirement
   classes or from any other inventory. A single finding produced by absence is
   a scope breach, not a strictness improvement.
-- **SC-014**: Every closed vocabulary is enumerated in the schema and refuses a
-  value outside it, while `blast_radius_unit` and `duty` accept any
-  pattern-conformant token that carries a legend binding — measured by one
-  negative per closed set plus a legend-missing negative and a
-  legend-duplicated negative.
+- **SC-014**: Every closed vocabulary of the ROSTER contract family is
+  enumerated in the schema and refuses a value outside it — FR-034's six
+  (`admission_surface`, authority class, `residency_model`, `enforcement_mode`,
+  `lifecycle_state`, `identity_kind`) PLUS the drift record's `status`
+  (FR-035), seven sets in total — while `blast_radius_unit` and `duty` accept
+  any pattern-conformant token that carries a legend binding. Measured by one
+  negative per closed set (seven), plus a legend-missing negative and a
+  legend-duplicated negative. The `issuance_preconditions` vocabulary is
+  closed in the credential-contracts schema and is measured by SC-008 instead,
+  so no closed set in this feature ships without a refusal probe.
 
 ## Assumptions
 

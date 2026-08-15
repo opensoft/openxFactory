@@ -688,7 +688,11 @@ checkout; `runner.build_context` turns it into `ctx.repo_paths`
 (`name -> Path`) with `ctx.agg_root` set. The family iterates
 `sorted(ctx.repo_paths.items())` — the same loop `fam_proposal_origin` uses
 at `proposal_origin.py:331` — and reads
-`<repo>/credentials/client-identity-roster/*.yaml` from each.
+`<repo>/credentials/client-identity-roster/*.y*ml` from each (the same glob the
+canonical validator uses over the declared placement; the `*.yaml`-only
+spelling this file carried before the checklist pass would have skipped a
+`.yml` fragment the intra-repo gate accepts, making the reporting pass blind to
+a file the blocking pass had already checked).
 
 Skip semantics, mapped to the two ratified cases:
 
@@ -1100,3 +1104,102 @@ that says "Companion to: `decision-review-2026-08-14.md` … appended to here
 rather than edited, per the record-immutability rule". Any further amendment
 this feature provokes lands as a new sibling record file, never as an append
 or an edit.
+
+---
+
+## Decision 9 — the checklist pass's six additions (2026-08-14)
+
+The maximum-coverage `/speckit-checklist` run resolved its items against these
+artifacts and found six rules that the requirements STATE and nothing FIRED on,
+plus one ambiguity whose wrong reading regresses a killed flaw. All six are
+recorded here as derivations, not preferences; plan.md lists them as reviewable
+decisions 25-30 and every one is homed by a probe.
+
+### 9a — the verification pair, and the negative that had no predicate
+
+FR-016 names "an unverified admission act counted as access" as a NEGATIVE
+CONFIRMATION, and FR-003 defines the behaviour for an unverified act as
+EXCLUSION from effective reach. Exclusion is a behaviour, not a refusal: with
+`evidence_ref` optional and `verified_at` required on every act, the negative
+fixture would have been REFUSED for the wrong reason (a missing `verified_at`)
+or, with both optional, would have PASSED — a registered negative that validates
+clean is one of the five self-test failure modes FR-018 enumerates.
+
+The pairing resolves it without inventing a rule: `evidence_ref` and
+`verified_at` are `dependentRequired` in both directions, so the representable
+states are exactly the two FR-003 names (verified, unverified), and the third —
+a verification time with no evidence — is the record CLAIMING a verification it
+cannot show. That claim is the "counted as access" case in its record-internal
+form, and it is what the fixture now encodes. FR-033's "on every admission act"
+is reworded to "on every VERIFIED admission act", which is what ruling R6
+actually says (`verified_at` recorded; verified versus unverified the only
+distinction) and what keeps FR-003's unverified state representable.
+
+### 9b — act-side undeclared reach
+
+FR-009's rule reads `granted_permissions[].reaches[]`. The cross-domain family's
+`undeclared-cross-domain-reach` predicate (Decision 6) reads "an admission act
+OR `declared_excess`" — acts included. So on identical evidence the REPORTING
+pass saw reach the BLOCKING gate could not, which inverts the ratified split
+(intra-repo conformance blocks; composition reports). The change's own
+motivating measurement is that an admission act is the second key that makes a
+surface
+reachable — six days of admin-consented permissions returned `401` until the
+act landed — so an act on a surface the entry neither owns nor declares as
+spanned is reach, whatever the permission list says. The rule is FR-009's own,
+extended to the act side, with `undeclared-act-surface.yaml` as its negative and
+the multi-surface reader (whose acts sit on declared surfaces) as its
+discrimination partner.
+
+### 9c — `per_unit_principal_available` coverage
+
+Task 1.5 states the mapping "cover[s] the entry's surface and every
+`spanned_surfaces[]` member". Nothing enforced it and nothing probed it, and a
+key set that depends on another field's VALUE is not expressible in the schema
+(the schema closes the key SPACE to the enum; it cannot require the key set).
+An absent key and a declared `false` are indistinguishable to FR-008's
+structural-before-logical rule, so a fragment could omit the awkward surface and
+pass. The coverage rule is the validator's, `per-unit-principal-undeclared`
+names the surface, and an EXTRA key stays legal — the key space is already
+closed, and penalising a fragment that answers more than it must would be
+invented strictness.
+
+### 9d — uniqueness is scoped within a fragment
+
+The uniqueness tuple carries no `client_ref` and the legend binds free tokens
+PER FRAGMENT, so `sandbox1` in two clients' fragments names two different
+provider objects. A validator that pooled a target repo's fragments before
+applying FR-006 would report a domain's two clients' per-environment identities
+as one duplicate — the per-blast-radius-unit flaw the cross-model review killed,
+re-killed from the other direction, and the acceptance test the seed handoff
+states in exactly those terms. The scope is per fragment, and repo fixture 1
+carries two clients' fragments with an identical tuple at exit 0, so the scope
+is measured. The drift record's `fragment_ref` is what carries the client scope
+its `identity_ref` omits — corroboration that the tuple was never meant to be
+repo-global.
+
+### 9e — the alias rule reads "in free tokens only"
+
+"Differ solely in a free token" admits a narrow reading (exactly one token
+differs). Under it, a domain evades the rule by inventing a unit spelling AND a
+duty spelling instead of one. The wider reading — identical in every non-free
+field, differing in one or both free tokens — cannot touch a genuine pair, which
+by construction differs in `achieved_scope`, in granted permissions, or declares
+the rationale. The wider reading is therefore both safe and the only one that
+bounds what the rule exists to bound.
+
+### 9f — closed-set and disposition hygiene, and the schema/semantic ordering
+
+Three smaller items of the same class: the drift record's `status` is a closed
+set that SC-014's "every closed vocabulary" covered while the corpus's six
+negatives did not (a seventh negative homes it); `disposition_ref` was listed
+unconditionally although an `open` finding cannot have been dispositioned (it is
+optional, required only under `status: disposed`, and the packaged `open`
+example carries none); and record-internal rules must run to completion even
+when the schema already refuses a document, because most negatives here are
+schema-visible and a raw `jsonschema` message names neither the closed
+vocabulary nor the extension route the refusal messages are required to name —
+the roster-side counterpart of the `_semantic_findings`-only fact behind ruling
+A-3a. A `retired` entry joins the packaged corpus for the same reason a closed
+set gets a negative: a lifecycle member with no instance anywhere is a
+guarantee nothing exercises.
