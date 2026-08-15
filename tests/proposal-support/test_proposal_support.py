@@ -277,6 +277,48 @@ class ProposalSupportTests(unittest.TestCase):
             self.assertTrue((archived[0] / "supporting-docs.tar.gz").is_file())
             self.assertEqual(support.verify_archive(archived[0]), [])
 
+    def test_a_status_line_inside_a_code_fence_is_an_example_not_the_status(self):
+        """REGRESSION, 2026-08-15. The first fragment this mover ever moved
+        carried a copy-pasteable template skeleton whose fenced example header
+        read `Status: staged`. The verifier's multiline regex matched the
+        EXAMPLE and failed a bundle whose real header the mover had already
+        transitioned to `draft` — which would have blocked the archive gate on
+        a bundle that was correct."""
+        fenced = (
+            "# Topic\n\nStatus: draft\nKind: reference\n\n"
+            "Copy this skeleton:\n\n"
+            "```markdown\n# Staged: <title>\n\nStatus: staged\nKind: reference\n```\n"
+        )
+        self.assertFalse(support._declares_staged_status(fenced))
+
+        # ...and the real thing is still caught, outside any fence.
+        real = "# Topic\n\nStatus: staged\nKind: reference\n"
+        self.assertTrue(support._declares_staged_status(real))
+
+        # An unclosed fence must not swallow a later real header.
+        unclosed = "# Topic\n\n```\nexample\n```\n\nStatus: staged\n"
+        self.assertTrue(support._declares_staged_status(unclosed))
+
+    def test_a_moved_fragment_carrying_a_fenced_example_still_verifies(self):
+        """The same defect end to end: transition a fragment whose body holds a
+        fenced `Status: staged` example, then verify the bundle."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.fixture(root)
+            topic = root / "ideation/staging/topic-a"
+            (topic / "source.md").write_text(
+                "# Source\n\nStatus: staged\nKind: reference\n\n"
+                "```markdown\nStatus: staged\n```\n"
+            )
+            support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], None,
+                "2026-08-15", False, True,
+            )
+            moved = root / "openspec/changes/change-a/supporting-docs/source.md"
+            self.assertIn("Status: draft", moved.read_text())
+            self.assertEqual(
+                support.verify_active_support(root / "openspec/changes/change-a"), [])
+
 
 if __name__ == "__main__":
     unittest.main()

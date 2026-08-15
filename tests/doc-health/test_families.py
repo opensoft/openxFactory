@@ -91,6 +91,53 @@ def test_proposal_support_location_conformance(tmp_path):
     assert "under canonical specs" in rules
 
 
+def test_source_snapshots_keep_their_staged_status(tmp_path):
+    """REGRESSION, 2026-08-15. `source-snapshots/` holds BYTE-EXACT copies of
+    the staged files as they were at the move, and the manifest proves that
+    with a per-file sha256. Their `Status: staged` is therefore CORRECT, and
+    the usual remedy — rewrite it to `draft` — would falsify the snapshot and
+    break the checksum it exists to support.
+
+    Nothing exercised this until the first mover-produced bundle landed, at
+    which point a correct snapshot became a standing ERROR on the change that
+    produced it. Proposal prose beside the snapshots is still checked."""
+    repo = tmp_path / "alpha"
+    support = repo / "openspec/changes/change-a/supporting-docs"
+    (support / "source-snapshots").mkdir(parents=True)
+    # the immutable record: staged, and legitimately so
+    (support / "source-snapshots/source.md").write_text(
+        "# Source\n\nStatus: staged\nKind: architecture\n")
+    # live proposal prose beside it, correctly transitioned
+    (support / "source.md").write_text("# Source\n\nStatus: draft\n")
+    (support / "manifest.yaml").write_text(json.dumps({
+        "format_version": 1,
+        "files": [{
+            "path": "source.md",
+            "sha256": hashlib.sha256(
+                (support / "source.md").read_bytes()).hexdigest(),
+        }],
+    }))
+
+    ctx = make_ctx("location-conformance")
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    ctx.change_ids = {"alpha": set()}
+    got = FAMILIES["location-conformance"](ctx)
+
+    assert not any("source-snapshots" in f.path for f in got), (
+        "a byte-exact snapshot must not be reported for the status it records")
+    assert not any(
+        "staged status under active proposal support" in f.rule for f in got)
+
+    # ...and the exemption is scoped to snapshots: prose that really is still
+    # staged is caught.
+    (support / "source.md").write_text("# Source\n\nStatus: staged\n")
+    ctx.docs = corpus.load_docs("alpha", repo)
+    got = FAMILIES["location-conformance"](ctx)
+    assert any(
+        "staged status under active proposal support" in f.rule for f in got)
+
+
 def test_clean_and_corrupt_archived_support(tmp_path):
     repo = tmp_path / "alpha"
     directory = repo / "openspec/changes/archive/2026-07-09-change-a"
