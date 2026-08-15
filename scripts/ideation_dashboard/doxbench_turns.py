@@ -269,51 +269,6 @@ class ObservedHashes:
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
-class BufferBinding:
-    """The buffer a turn was BOUND to -- what the chat was working ON, as
-    distinct from what it was grounded on (add-doxbench-editing-phase-a).
-
-    ``kind`` is the buffer kind; ``path`` is its repository-relative path,
-    or ``None`` for a buffer that has none yet. ``named()`` is the one
-    spelling a record or a transcript should show: the path where there is
-    one, and the buffer kind where there is not -- so a turn read later
-    STATES which material it was working on instead of leaving that
-    inferable from which proposal came back."""
-
-    kind: str
-    path: str | None
-
-    def named(self) -> str:
-        return self.path if self.path is not None else self.kind
-
-
-def resolve_turn_binding(
-    *,
-    active_document_path: str | None,
-    outline_path: str | None,
-) -> BufferBinding:
-    """The buffer binding a turn DECLARES, derived from the one active
-    declaration the released turn envelope carries.
-
-    A turn that names an active document is bound to that document; a turn
-    that names none can only be working on the outline (its document buffer
-    is backed by no path at all -- the G-1 outline-only turn, whose
-    permitted proposal targets narrow to the outline for the same reason).
-
-    The client's own selection is the richer fact -- a human may have the
-    outline selected while a document is still loaded for grounding -- but
-    the released `xfactory-workbench-chat-turn` request is closed
-    (``additionalProperties: false``), so declaring the selected buffer kind
-    on the wire would be a contract release, which this change deliberately
-    is not. This function is therefore the SERVER's reading of the binding
-    the request declared, and it is exactly the binding
-    ``revalidate_scope`` already enforces the buffers against."""
-    if active_document_path is not None:
-        return BufferBinding(kind="document", path=active_document_path)
-    return BufferBinding(kind="outline", path=outline_path)
-
-
-@dataclasses.dataclass(frozen=True, slots=True)
 class PromptEnvelope:
     """The assembled, deterministic prompt for one chat turn."""
 
@@ -324,11 +279,6 @@ class PromptEnvelope:
     transcript: tuple[TranscriptTurn, ...]
     active_document_path: str | None
     observed_hashes: ObservedHashes
-    # The turn's own record of which buffer it was bound to. Additive: the
-    # sections, the scope, the observed identities and the wire envelope are
-    # all untouched, and NOTHING downstream reads this to decide anything --
-    # it is there so a completed turn names its material.
-    bound_buffer: BufferBinding | None = None
 
     def rendered(self) -> str:
         """The full prompt text, sections joined in declared order. Byte-for-
@@ -695,15 +645,6 @@ def build_prompt_envelope(
         transcript=tuple(transcript),
         active_document_path=active_document_path,
         observed_hashes=ObservedHashes(outline=outline_identity, document=document_identity),
-        # Derived AFTER every refusal above has passed, from the same
-        # declaration `revalidate_scope` checked -- so the binding a record
-        # names can only ever be one this turn was actually validated for.
-        # It narrows nothing: both buffers still ride the turn as grounding,
-        # because binding says what the chat works ON, not what it may see.
-        bound_buffer=resolve_turn_binding(
-            active_document_path=active_document_path,
-            outline_path=projection.outline_path,
-        ),
     )
 
 

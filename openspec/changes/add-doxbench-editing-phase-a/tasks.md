@@ -107,9 +107,22 @@
 - [x] 5.2 A selection change switches the chat's context immediately, with no
       confirm step. The unsaved-edit guard on a DIFFERENT-DOCUMENT switch is
       untouched — it guards content replacement, not context binding.
-- [x] 5.3 `doxbench_turns.py`: the turn record names the exact buffer the turn
-      was bound to — repository-relative path, or buffer kind where the buffer
-      has no path yet. Additive to the existing request/response shape.
+- [~] 5.3 **DEFERRED — F2 carve-out, Brett's 2026-08-15 ruling on the PR #196
+      review.** `doxbench_turns.py` was to name the bound buffer in the turn
+      record. It cannot: `xfactory-workbench-chat-turn.schema.yaml` closes the
+      request AND the success envelope (`additionalProperties: false`), so a
+      record a reader can consult cannot carry the name without a chat-turn
+      contract release — which this change forbids (`target_release: none`,
+      task 9.3). The attempt (a server-side `PromptEnvelope.bound_buffer`) was
+      REMOVED rather than kept: review found it unreadable (nothing serializes,
+      persists or renders it) and mis-derivable (the wire carries the document
+      path, never which buffer the human selected, so an outline-bound turn
+      recorded as document-bound). The obligation rides Phase B, which re-cuts
+      the turn machinery and releases that contract anyway; it is recorded on
+      the staged topic so Phase B inherits it. What Phase A ships instead is the
+      LIVE binding statement on the chat rail — see 5.1/5.2, and the delta's
+      amended chat-binding requirement, which states the deferral rather than
+      leaving a silent gap.
 - [x] 5.4 `revalidate_scope`'s active-path check is PRESERVED, not replaced: a
       declared binding that does not match the supplied buffer still refuses
       before any provider call, leaking no projection or buffer content.

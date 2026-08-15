@@ -120,7 +120,7 @@ The doxBench authoring canvas SHALL carry exactly ONE Save control and exactly O
 - **THEN** Save MUST be unreachable and MUST state that absence as visible text beside it, not only in a hover title
 
 ### Requirement: The doxBench chat binds to the active buffer selection
-The doxBench chat SHALL take its working context from the ACTIVE BUFFER — the one the context region has selected — and MUST NOT maintain a second, separately-chosen context beside it. Changing the selection SHALL change the chat's working context IMMEDIATELY, with no confirmation step, because changing which buffer is active replaces no content and destroys nothing; the existing unsaved-edit guard that fires when switching to a DIFFERENT DOCUMENT SHALL be unchanged by this rule, since that switch does replace buffer content. Focusing the context region's `outline` selection tab SHALL put the chat in outline-editing context; selecting a document from the scoped `docs` set SHALL put the chat in that document's context. Every turn record SHALL name the exact buffer — by its repository-relative path, or by its buffer kind where the buffer has no path yet — that the turn was bound to, so a transcript read later states which material the turn was working on rather than leaving it inferable from which proposal came back. This SHALL generalize the existing active-path revalidation rather than replace it: a turn whose declared active binding does not match the supplied buffer MUST still refuse before any provider call. Binding SHALL govern what the chat is working ON and MUST NOT narrow what the turn may be grounded on — the turn continues to carry the canvas buffers the grounded-turn contract requires.
+The doxBench chat SHALL take its working context from the ACTIVE BUFFER — the one the context region has selected — and MUST NOT maintain a second, separately-chosen context beside it. Changing the selection SHALL change the chat's working context IMMEDIATELY, with no confirmation step, because changing which buffer is active replaces no content and destroys nothing; the existing unsaved-edit guard that fires when switching to a DIFFERENT DOCUMENT SHALL be unchanged by this rule, since that switch does replace buffer content. Focusing the context region's `outline` selection tab SHALL put the chat in outline-editing context; selecting a document from the scoped `docs` set SHALL put the chat in that document's context. The chat SHALL STATE its current binding on the chat surface itself, naming the active buffer where the conversation happens, so which material a conversation is working on is READ rather than inferred from which proposal came back. Naming the bound buffer inside a turn's durable RECORD is DEFERRED and MUST NOT be claimed by this capability: the released chat-turn envelope is closed in both directions, so a record a reader can actually consult cannot carry that name without releasing the chat-turn contract, which this capability does not do; the obligation SHALL ride the buffer-set widening that next releases that contract, and MUST remain recorded against it until it does. This SHALL generalize the existing active-path revalidation rather than replace it: a turn whose declared active binding does not match the supplied buffer MUST still refuse before any provider call. Binding SHALL govern what the chat is working ON and MUST NOT narrow what the turn may be grounded on — the turn continues to carry the canvas buffers the grounded-turn contract requires.
 
 #### Scenario: The selection changes mid-conversation
 - **WHEN** a human with an open conversation changes the context region's selection to a different buffer
@@ -129,12 +129,13 @@ The doxBench chat SHALL take its working context from the ACTIVE BUFFER — the 
 
 #### Scenario: The outline is selected
 - **WHEN** the context region's `outline` selection tab is focused
-- **THEN** a turn submitted next MUST be bound to the `outline` buffer and its record MUST name that buffer
+- **THEN** a turn submitted next MUST be bound to the `outline` buffer
+- **AND** the chat surface MUST state that binding, so the human can see which material the conversation is working on before they send
 
-#### Scenario: A turn record is read later
-- **WHEN** a human reads a completed turn's record
-- **THEN** it MUST name the exact buffer the turn was bound to
-- **AND** that name MUST NOT have to be inferred from the proposals the turn returned
+#### Scenario: A turn record is asked to name its bound buffer
+- **WHEN** a reader consults a completed turn's durable record to learn which buffer that turn was bound to
+- **THEN** this capability MUST NOT claim to answer it, and MUST NOT carry a server-side-only field that no reader can reach in place of an answer
+- **AND** the binding MUST instead be readable on the live chat surface, with the record-naming obligation kept recorded against the buffer-set widening that next releases the chat-turn contract
 
 #### Scenario: A turn's declared binding does not match its buffers
 - **WHEN** a turn declares an active binding that does not match the buffer supplied under it
