@@ -15,7 +15,7 @@ entries:
   path: contracts/README.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:e3ae8b4f19b6917bedc55eda9c513b9ddf0b68f8bfb126e416778e1c647790c5
+  digest: sha256:47af0889a0b455ccc28de317b332cc164c3350712c4398b5d75ecaa256f12848
 - artifact_id: hermes-runtime-contract-readme
   path: contracts/hermes-runtime/README.md
   type: documentation
