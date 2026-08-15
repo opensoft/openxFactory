@@ -9,7 +9,14 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
-## Unreleased — pending bundle registration (fold into the next cut)
+## contract-v1.32 — 2026-08-15 (additive; the Subject Hermes overlay kind)
+
+Cuts the standing Unreleased items: the `hermes_subject_overlay` kind and
+validator dispatch (add-subject-overlay-contract, ratified 2026-08-15,
+PR #183 merged cb738ba5) and the openxwallet RSA signature-algorithm
+widening. Also corrects the `omnigent-domain-overlay` manifest digest,
+which drifted when df16f21 edited the schema without refreshing the
+recorded digest.
 
 - **Additive**: `contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml`
   — the neutral `hermes_subject_overlay` kind for a Subject Hermes layer's
