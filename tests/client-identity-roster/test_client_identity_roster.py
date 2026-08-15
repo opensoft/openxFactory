@@ -727,6 +727,93 @@ def test_no_module_derives_an_expected_entry_set_from_any_inventory():
     assert checked, "no feature module was found to check"
 
 
+# Names that WRITE. A module that never calls any of them cannot mutate a
+# roster fragment, a permission set or an admission record, whatever its prose
+# claims. `replace` is discriminated by ARITY rather than excluded: `str.replace`
+# takes two arguments and mutates nothing, while `Path.replace(target)` takes one
+# and is a rename — the loophole a bare name-denylist would leave open.
+WRITE_CAPABLE_CALLS = frozenset({
+    "write_text", "write_bytes", "writelines", "write", "truncate", "touch",
+    "mkdir", "makedirs", "unlink", "remove", "removedirs", "rmdir", "rmtree",
+    "rename", "renames", "symlink_to", "hardlink_to", "chmod", "chown",
+    "copy", "copy2", "copyfile", "copytree", "move",
+    "dump", "dump_all", "safe_dump", "safe_dump_all",
+})
+
+# Modules whose mere IMPORT would put a mutation or a provider call within
+# reach. FR-029 forbids a provider call and SC-011 forbids a network reach, and
+# both are enforced structurally here rather than by reading the code's promises.
+FORBIDDEN_IMPORTS = frozenset({
+    "os", "shutil", "subprocess", "socket", "http", "ftplib", "smtplib",
+    "requests", "httpx", "urllib", "urllib.request", "azure", "msal",
+    "msgraph", "boto3",
+})
+
+
+def test_no_feature_module_writes_anything_and_the_drift_path_only_records():
+    """FR-027 and US6's Independent Test, measured at SOURCE LEVEL — the point
+    the task list makes about this requirement is that A SCHEMA DESCRIPTION IS
+    NOT A VERIFICATION. Recording a drift finding must mutate nothing: not the
+    roster fragment it cites, not a permission set, not an admission record.
+
+    The guarantee is proven three ways over every module in this feature, so a
+    later author cannot reintroduce a write by a route the other two miss:
+
+      1. no WRITE-CAPABLE call name appears (with `replace` discriminated by
+         arity, so `Path.replace`'s rename cannot hide behind `str.replace`);
+      2. every `open()` is a READ — no mode argument carrying `w`, `a`, `x` or
+         `+` anywhere in the feature;
+      3. no module imports `os`, `shutil`, `subprocess`, a network module or a
+         provider SDK, so a mutation or a provider call is not merely unused but
+         OUT OF REACH (FR-029, SC-011).
+
+    The drift path is covered by the same three, which is what "reads and
+    records only" means operationally: a finding is a value returned to the
+    caller, never a byte written anywhere."""
+    checked = 0
+    for module in FEATURE_MODULES:
+        if not module.is_file():
+            continue
+        checked += 1
+        tree = ast.parse(module.read_text(encoding="utf-8"))
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    root = alias.name.split(".")[0]
+                    assert root not in FORBIDDEN_IMPORTS, (
+                        f"{module.name} imports {alias.name!r}, which puts a "
+                        f"write or a provider call within reach")
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                root = node.module.split(".")[0]
+                assert root not in FORBIDDEN_IMPORTS, (
+                    f"{module.name} imports from {node.module!r}, which puts a "
+                    f"write or a provider call within reach")
+            elif isinstance(node, ast.Call):
+                func = node.func
+                name = (func.attr if isinstance(func, ast.Attribute)
+                        else func.id if isinstance(func, ast.Name) else "")
+                assert name not in WRITE_CAPABLE_CALLS, (
+                    f"{module.name}:{node.lineno} calls {name!r} — this feature "
+                    f"records findings and writes nothing (FR-027)")
+                if name == "replace" and len(node.args) == 1:
+                    raise AssertionError(
+                        f"{module.name}:{node.lineno} calls a one-argument "
+                        f"replace(), which is Path.replace's rename")
+                if name == "open":
+                    mode = None
+                    if len(node.args) >= 2 and isinstance(node.args[1], ast.Constant):
+                        mode = node.args[1].value
+                    for kw in node.keywords:
+                        if kw.arg == "mode" and isinstance(kw.value, ast.Constant):
+                            mode = kw.value.value
+                    if mode is not None:
+                        assert not set(str(mode)) & set("wax+"), (
+                            f"{module.name}:{node.lineno} opens for writing "
+                            f"with mode {mode!r}")
+    assert checked, "no feature module was found to check"
+
+
 def test_the_validator_states_the_negative_guarantee_in_its_own_docstring():
     """A guarantee nobody wrote down is a guarantee the next author deletes."""
     doc = roster.__doc__ or ""

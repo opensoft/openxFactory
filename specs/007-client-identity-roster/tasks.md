@@ -772,6 +772,13 @@ MODIFIED capability's surface, and the measurement confirms it.
       Nothing is authored under this id; it is retained rather than deleted so
       the relocation is legible and the SC-002 positive can be traced from the
       case list to its new home.
+      **DISPOSITION CONFIRMED AT THE PHASE 10 SWEEP (2026-08-15): this is the
+      ONE task in the list that stays `[~]`, permanently and by ruling.** It is
+      not incomplete work — flipping it to `[x]` would claim a packaged example
+      that deliberately does not exist, and flipping it to `[ ]` would claim
+      work still owed. Its obligation discharged at 4.9 and was MEASURED at
+      10.5, in the same run as the packaged corpus. Final tally: 70 of 70 tasks
+      `[x]`, this one dispositioned, zero `[ ]`.
 - [x] 3.4 [US1] The `planned` entry, in the same fragment: `lifecycle_state:
       planned`, an identity not yet created, its kind declared as intent.
       *Depends on*: 0.1, 1.7. *Verification*: ZERO findings (FR-013, SC-002);
@@ -1141,6 +1148,14 @@ ALREADY proven against a real roster-kind file under `tests/` — 4.9's fixture,
 which the self-scan does not report — leaving only 6.5's repos to measure. (3.3
 stays `[~]` permanently: it is the RELOCATED task.)
 
+**SUPERSEDED — this paragraph is the PHASE-4 SNAPSHOT and is retained as a
+record of the sequence, not as current state.** 2.9 closed at Phase 6 when
+6.5's fixture repos landed; **1.10 closed at Phase 9**, its verification being
+the `client-identity-roster` row's `consumption_rule` in
+`contracts/manifest.yaml`; and **5.3 closed at Phase 10**, its verification
+being the `residual:` field on the FR-022 and SC-006 rows of
+`traceability.yaml`. Only 3.3 remains `[~]`, permanently and by ruling.
+
 ---
 
 ## Phase 5 — Cluster F: pack membership (Decision A, archive blocker)
@@ -1162,7 +1177,7 @@ stays `[~]` permanently: it is the RELOCATED task.)
       *Verification*: grep; `openspec/specs/domain-conformance-checks/spec.md`
       is confirmed UNEDITED (the archive step rewrites promoted text, the same
       rule FR-025 states for doc-health).
-- [~] 5.3 [P] Carry the ruling A-N2 residual so it is not silently dropped:
+- [x] 5.3 [P] Carry the ruling A-N2 residual so it is not silently dropped:
       pack blocking is NOMINAL at archive — codexFactory's gate enumerates the
       pack's three members by NAME and OpsxFactory's gate invokes no canonical
       check — so domain-gate wiring is a named FOLLOW-UP, out of scope by
@@ -1172,6 +1187,18 @@ stays `[~]` permanently: it is the RELOCATED task.)
       the follow-up both see it.
       *Verification*: the residual appears in both places; the claim this
       feature makes is exactly SC-006's, no wider.
+      **CLOSED `[~]` → `[x]` AT PHASE 10 (2026-08-15).** plan.md (Cluster F)
+      carried it from the planning pass; `traceability.yaml` now carries it in
+      the OTHER required place, and in BOTH the rows the task names — FR-022
+      and SC-006 each have a `residual:` field stating it in substance
+      verbatim: pack blocking is NOMINAL at archive, because codexFactory's
+      gate enumerates the pack's three members BY NAME and OpsxFactory's gate
+      invokes no canonical check, so joining the pack CONFERS blocking status
+      without yet FIRING in either domain gate; domain-gate wiring is a NAMED
+      FOLLOW-UP, out of scope by FR-030/SC-012 because it is a
+      domain-repository edit; and the claim this feature makes is exactly
+      SC-006's, no wider. Both the reviewer of this feature and the author of
+      the follow-up meet it where they look.
 
 ---
 
@@ -1614,7 +1641,7 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
 
 **Depends on**: all preceding phases.
 
-- [ ] 10.1 Author `specs/007-client-identity-roster/traceability.yaml` in the
+- [x] 10.1 Author `specs/007-client-identity-roster/traceability.yaml` in the
       006 file's ACTUAL shape (read
       `specs/006-openxwallet-contracts/traceability.yaml`, not only its task
       6.6): the record envelope — `schema_version: 1`, `kind:
@@ -1637,12 +1664,36 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       residual note (task 5.3).
       *Verification*: a coverage check that every FR and SC id in spec.md has a
       row, and that no row's `red_proven` is left unset.
-- [ ] 10.2 `OPENSPEC_TELEMETRY=0 openspec validate add-client-identity-roster
+      **DONE 2026-08-15. Coverage check RUN, not eyeballed**: 53 rows against
+      53 ids extracted from spec.md — FR-001…FR-039 and SC-001…SC-014 — with
+      `missing=[]` and `extra=[]`, and zero rows missing `statement`,
+      `artifact`, `enforced_by`, `negative_confirmation` or `red_proven`.
+      Envelope present as required (`schema_version: 1`, `kind:
+      openxfactory_realization_traceability`, `feature`, `ratified_change`,
+      all FIVE capabilities).
+      **`red_proven` is MEASURED, which is why the plan deferred this file to
+      implementation.** Task 2.2's break-one-negative procedure was applied to
+      EVERY registered code rather than to one sample: the validator module was
+      loaded 31 times, one registered finding code neutered per load by
+      dropping it in `Findings.error`, and `self_test()` run. CONTROL (nothing
+      suppressed) = 0 errors, GREEN; **31 of 31 codes turn the packaged corpus
+      RED when suppressed.** The sweep's summary is recorded in the file's own
+      `red_proof_sweep` block, so the claim is auditable without rerunning it.
+      No new script was added — the reproduction is the five shipped
+      `test_failure_mode_*` tests.
+      The FR-022 and SC-006 rows each carry the ruling A-N2 residual as a
+      `residual:` field (task 5.3, closed here).
+- [x] 10.2 `OPENSPEC_TELEMETRY=0 openspec validate add-client-identity-roster
       --strict` **and** `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`,
       run from the `openxFactory/` root. 58/58 at `4de5bb2` — it must not
       regress.
       *Verification*: both exit 0; the `--all` count is ≥ 58.
-- [ ] 10.3 The doc-health family green:
+      **RUN 2026-08-15 from the `openxFactory/` root, at `b7984bd`.**
+      `openspec validate add-client-identity-roster --strict` → `Change
+      'add-client-identity-roster' is valid`, exit 0. `openspec validate --all
+      --strict` → `Totals: 58 passed, 0 failed (58 items)`, exit 0. **58/58
+      holds; no regression from the count at `4de5bb2`.**
+- [x] 10.3 The doc-health family green:
       `python3 openxFactory/scripts/doc-health.py --repo-root <aggregation
       checkout>` run FROM the aggregation root (the script lives inside the
       openxFactory repo, so the leading `openxFactory/` is required from there)
@@ -1671,7 +1722,49 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       Plus `pytest tests/doc-health/` whole suite green against 0.3's baseline.
       *Verification*: the report renders a `client-identity-composition`
       section (which is why 6.4 adds the id to `FAMILY_IDS`).
-- [ ] 10.4 **All validator self-tests green**, each compared against 0.3's
+      **RUN 2026-08-15 — TWO runs, because one alone cannot measure what this
+      task asks, and the reach limit of each is stated rather than glossed.**
+      **(1) THE REAL AGGREGATION RUN.** `python3 scripts/doc-health.py
+      --repo-root /home/brett/projects/xFactory` (this branch's script against
+      the shared aggregation checkout; `--report-out` directed to the session
+      scratchpad, **no write of any kind to the shared checkout**, and the
+      merge phase NOT run there per gate ruling G8's rider). EXIT 0. SIXTEEN
+      families ran. The new family appears BOTH in the headline's "Skipped
+      families (never silently omitted)" list and as its own report section:
+      `client-identity-composition — no client is held by two or more domains:
+      nothing to compose`. **That SKIP is the expected green**: no domain
+      publishes roster fragments yet, and the family says so with an explicit
+      reason rather than vanishing.
+      REACH LIMIT, stated: that checkout's `openxFactory` submodule is the
+      SHARED one, not this branch, so the aggregation run cannot see this
+      change's documents at all — which is why it cannot be the whole of
+      FR-025's measurement.
+      **(2) THE BEFORE/AFTER PAIR THAT DOES COVER THIS CHANGE'S DOCUMENTS.**
+      `--single-repo` self-gate over a THROWAWAY clone checked out at
+      `ae3f5c8` (the branch base) and over this branch. Both exit 0, both
+      report `3 critical, 6 error, 30 warning, 4 info`. Finding lines
+      extracted, repo-name-normalised and diffed: **IDENTICAL across
+      critical/error/warning — zero new, zero changed, zero removed.** The
+      single diff is one INFO line's draft-age `min` (1 → 0), a clock artifact
+      of a clone created today, with `n=69` unchanged on both sides. No finding
+      on either side names a document this change adds or edits.
+      **THE G8 EXCLUSION SET IS EMPTY, and that is recorded rather than
+      assumed.** The qualification exists for three arms — `coverage` for the
+      new `examples/client-identity-roster/README.md`, `stale-entry` for the
+      `contracts/CHANGELOG.md` and `contracts/README.md` edits, and revision
+      re-staling at merge. NONE fired: in self-gate mode the `document-catalog`
+      family has no catalog snapshot in scope and emits only
+      `[info] (baseline):(progress) — [coverage] baseline coverage 0/0 entries
+      (0.0%) across 0/0 repositories`, and the aggregation run's
+      `document-catalog` findings are all against documents in the shared
+      checkout that this change did not touch. **So no finding was excluded,
+      the qualification was not spent, and the green is unqualified in fact
+      even though it is qualified in the criterion.** The optional merge-phase
+      demonstration was NOT performed.
+      `pytest tests/doc-health/` — **642 passed, 7 skipped** against 0.3's
+      baseline of 621 passed + 7 skipped: **+21 tests, zero pre-existing tests
+      changed, removed or newly skipped.**
+- [x] 10.4 **All validator self-tests green**, each compared against 0.3's
       captured baseline so "unaffected" is measured, not assumed:
       `python3 scripts/validate-client-identity-roster.py <fixture repo>`
       (clean on the conformant fixture, nonzero on each negative repo);
@@ -1682,7 +1775,46 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       `python3 scripts/validate-manifest-digests.py`.
       *Verification*: every command exits 0; no pre-existing finding code
       changed or disappeared (FR-030, SC-010).
-- [ ] 10.5 **The killed-flaw acceptance fixtures pass with ZERO findings** —
+      **RUN 2026-08-15 against 0.3's captured baseline. The second clause is
+      the one that holds unqualified everywhere; the first clause is AMENDED at
+      two named sites where "exit 0" was never the true before-state.**
+      | command | baseline (0.3) | now | verdict |
+      |---|---|---|---|
+      | `validate-client-identity-roster.py` self-test | n/a (new) | 4 positives clean, 31 negatives refused for their registered reason; exit 0 | GREEN |
+      | roster validator over the repo fixtures | n/a (new) | fixture 1 (+1 retired-entry arm, +1 fragment-scope arm) exits 0; fixtures 2, 4, 5, 6, 7, 8 exit NONZERO each for its own code; fixture 3 and 3b exit 0 with the absence notice | GREEN |
+      | `validate-consent-instruments.py` | 5 pos / 5 neg / 2 purpose probes, 0 err 0 warn | 6 pos / 7 neg / 2 purpose probes, `0 error(s), 0 warning(s)`; exit 0 | GREEN, additive only |
+      | `validate-credential-contracts.py .` | 2 pos + 3 neg, `0 contract(s) checked, 0 skipped, 0 error(s) -> PASS` | 3 pos + 5 neg, same PASS verdict; exit 0 | GREEN, additive only |
+      | `validate-credential-contracts.py <OpsxFactory>` (7.4) | exit 1, `11 contract(s) checked, 27 skipped, 1 error(s) -> FAIL` | exit 1, verdict line BYTE-IDENTICAL | **ZERO NEW, ZERO CHANGED** |
+      | `pytest tests/client-identity-roster` | n/a (new) | 42 passed | GREEN |
+      | `pytest tests/doc-health` | 621 passed, 7 skipped | 642 passed, 7 skipped | +21, none changed |
+      | `pytest tests/conformance-gate` | 13 passed, 2 skipped (15) | 17 passed, 2 skipped (19) | +4, the 15 UNMODIFIED |
+      | `pytest tests/credential_contracts` | 2 passed | 2 passed | unchanged |
+      | `pytest tests/document_catalog` | not in the 0.3 baseline | 42 passed | GREEN, no baseline to diff |
+      | `validate-manifest-digests.py` | 132 checked, 1 pre-existing failure | 134 checked, THE SAME 1 failure | **ZERO NEW, ZERO CHANGED** |
+      Suites were run PER DIRECTORY, never as a bare `pytest` at the
+      repository root: a pre-existing, unrelated collection failure under
+      `experiments/` would otherwise mask this measurement.
+      **WORDING RECONCILIATIONS (the 7.4 class), two sites, both amended here
+      rather than reported as passes:**
+      (a) **`validate-credential-contracts.py` over the OpsxFactory
+      checkout.** It exits **1**, not 0, and did so BEFORE this feature: one
+      pre-existing unrelated `shared-secret-identity` error on
+      `credentials/platform-bindings.yaml`. Proven by running the BRANCH-BASE
+      validator (from a throwaway clone at `ae3f5c8`) against the same
+      checkout: same exit 1, same single ERROR line, same verdict line. The
+      ENTIRE output diff between before and after is ONE LINE — the self-test
+      composition, `2 positive + 3 negative` → `3 positive + 5 negative` — which
+      is this feature's own declared additive growth. So wherever a task or
+      criterion says "exit 0" over OpsxFactory, the honest measure is **zero
+      new, zero changed findings**, and it holds exactly.
+      (b) **`validate-manifest-digests.py`.** See 9.6: 132 → 134 digests
+      checked with a byte-identical failure set, one pre-existing unrelated
+      mismatch on `contracts/omnigent/omnigent-domain-overlay.schema.yaml`.
+      Every row this change touches verifies.
+      NO pre-existing finding code changed or disappeared anywhere, and every
+      finding-code register that was empty at baseline is still empty (FR-030,
+      SC-010).
+- [x] 10.5 **The killed-flaw acceptance fixtures pass with ZERO findings** —
       the feature's own acceptance test, run as one measurement: the genuine
       per-unit pair, the genuine duty pair, the provider-forced multi-surface
       reader, and the `planned` entry, all clean, in the SAME run in which the
@@ -1697,7 +1829,29 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       *Verification*: `pytest tests/client-identity-roster/ -k discrimination`
       plus the self-test's zero-finding verdict on both packaged fragments AND
       on 4.9's fixture.
-- [ ] 10.6 The boundary measurements: `git status --porcelain` over the
+      **MEASURED 2026-08-15 AS ONE RUN, and the run REACHES the relocated
+      fixture.** 4.9's synthetic fixture was placed at the declared placement
+      in a scratch repository carrying the gate and the consent instrument it
+      cites (without those, it is refused for `unresolvable-gate-obligation`
+      and `unresolvable-consent-citation` — repo-context rules, which is
+      precisely why a bare file drop is not the measurement). ONE invocation of
+      `python3 scripts/validate-client-identity-roster.py <that repo>`
+      produced, together:
+      `note self-test: 4 positive example(s) confirmed clean, 31 negative
+      example(s) confirmed refused for their registered reason` — which is the
+      genuine per-unit pair, the genuine duty pair and the `planned` entry all
+      CLEAN, and the alias-pair negative REFUSED, in the same run — and
+      `killed-flaw-run: 1 roster record(s) checked, 0 error(s) -> PASS` for the
+      multi-surface reader. **Exit 0.** SC-002's fourth positive is therefore
+      measured, not dropped, which is the outcome Decision C was ruled to
+      preserve.
+      `pytest tests/client-identity-roster/ -k "discrimination or
+      multi_surface"` → 5 passed, 36 deselected. The discrimination assertion is
+      ONE test producing THREE verdicts, so a rule broad enough to catch all
+      three cannot pass it.
+      **No finding landed against any genuine pair. Both killed flaws stay
+      killed.**
+- [x] 10.6 The boundary measurements: `git status --porcelain` over the
       AGGREGATION checkout shows no change under `xFactories/` (SC-012, FR-030);
       a confirmation that no credential was minted and no provider call made
       anywhere in the feature or its tests (FR-029); **the FR-027 no-mutation
@@ -1710,7 +1864,58 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       success (SC-011).
       *Verification*: clean porcelain under `xFactories/`; `pytest tests/`
       green with the guard registered.
-- [ ] 10.7 **The pre-archive delta-fidelity assertion** (gate ruling G7;
+      **MEASURED 2026-08-15. Four measurements; the first needed its wording
+      reconciled against a shared checkout, and that is stated rather than
+      papered over.**
+      **(a) `git status --porcelain` over the AGGREGATION checkout, scoped to
+      `xFactories/`.** It is NOT clean, and it was not clean before this
+      feature either: six modified submodule pointers (LedgerxFactory, MedxEHR,
+      MedxFactory, OpsxFactory, codexFactory, openChart) and six untracked
+      directories. **Every one is FOREIGN.** The 0.3 baseline flagged this
+      checkout as SHARED with other sessions and required the reading to
+      account for foreign work; it does. The evidence that none of it is ours:
+      the untracked entries' mtimes run **2026-07-19 to 2026-08-04**, all
+      predating this session; the reading is IDENTICAL before and after this
+      feature's ONLY touch of that checkout (a read-only `doc-health` run with
+      `--report-out` directed to the session scratchpad); and this feature
+      creates or edits no file outside the openxFactory clone — its one other
+      external measurement, 7.4, is a read-only validator run over
+      OpsxFactory. So SC-012's clause reads, honestly, **no change under
+      `xFactories/` attributable to this feature**, which is the claim FR-030
+      and SC-012 actually make. The doc-health merge phase was NOT run there
+      (gate ruling G8's rider).
+      **(b) FR-029 — no credential minted, no provider call.** A sweep of the
+      feature's code AND its tests for provider, network and
+      credential-minting markers returns NOTHING: no `requests`/`httpx`/
+      `urllib`/`socket`, no `az`/Graph/`Connect-`/`New-Az`, no `msal`, no
+      `client_secret`/`api_key`/`access_token`/`Bearer`. The only `subprocess`
+      use anywhere in the feature is the test harness invoking
+      `sys.executable` on the validator itself. Task 0.1's provider
+      precondition was itself resolved OFFLINE against the pinned checkout for
+      this same reason.
+      **(c) FR-027 — the no-mutation confirmation, as a SOURCE-LEVEL CHECK and
+      now as a shipped test**, because US6's Independent Test asks for exactly
+      this and a schema description is not a verification. Added
+      `tests/client-identity-roster::test_no_feature_module_writes_anything_and_the_drift_path_only_records`,
+      which proves it three independent ways over every feature module:
+      (1) no write-capable call name appears — with `replace` discriminated BY
+      ARITY, so `Path.replace`'s rename cannot hide behind a two-argument
+      `str.replace`; (2) every `open()` is a READ (both are `path.open(encoding=…)`);
+      (3) no module imports `os`, `shutil`, `subprocess`, a network module or a
+      provider SDK, so a mutation or a provider call is not merely unused but
+      OUT OF REACH. **Red-proven**: the same three arms run against a
+      deliberately mutating probe module produce five hits (`import shutil`,
+      `write_text()`, `write()`, `open(mode='w')`, one-argument `replace()`).
+      The drift path is covered by the same three — "reads and records only"
+      means a finding is a value returned to the caller, never a byte written.
+      **(d) The suite-wide hermeticity guard is CONFIRMED ACTIVE**, not merely
+      present: `pytest.ini` anchors `rootdir` at the repository root (verified
+      in this feature's own run output), so `tests/conftest.py` — which
+      registers `tests/hermeticity.py` — is always in the conftest chain; and
+      the guard's own probe, `tests/notebooklm/test_hermeticity_guard.py`,
+      passes (2 passed). A network reach is therefore a test FAILURE rather
+      than a silent success (SC-011).
+- [x] 10.7 **The pre-archive delta-fidelity assertion** (gate ruling G7;
       precedent
       `openspec/changes/archive/2026-08-04-add-ideation-cross-reference-readiness/tasks.md:5`,
       which records exactly this rebase for the same requirement). BEFORE the
@@ -1735,6 +1940,31 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       add-client-identity-roster --strict` and `--all --strict` (10.2). The
       2026-08-15 rebase is recorded in
       `openspec/changes/add-client-identity-roster/review/amendment-record-2026-08-15.md`.
+      **ASSERTED 2026-08-15, mechanically, against the promoted files AS THEY
+      NOW STAND — not against this file's snapshot of them.** A parser sliced
+      each requirement out of both the promoted spec and the delta and compared
+      scenario titles and bullet sets.
+      **`doc-health` / "Deterministic check families"** — promoted carries
+      SEVEN scenarios, the delta EIGHT. All seven are present
+      (`MISSING FROM DELTA: []`); the eighth is this change's own addition,
+      "Roster composition is checked across domains". Bullet-level: six of the
+      seven have byte-identical bullet sets, and "A run executes the check
+      families" goes 6 bullets → 7 with ALL SIX promoted bullets present and
+      the new owning-requirement AND-bullet inserted before the last —
+      including, intact, the "reported as skipped, never silently omitted"
+      clause and the per-repo+preflight coverage clause the gate found at risk.
+      The new bullet's target is the `client-identity-roster` capability's own
+      "The roster composes across domains from published fragments"
+      requirement, which EXISTS in the roster delta — so it does not dangle.
+      **`consent-instrument`** — both restated requirements hold. "Termination
+      Cascades Through Declared Dependent References": promoted 1 scenario,
+      delta 2, nothing missing. "The Lifecycle Enum Is Closed With Declared
+      Aliases" (G5's addition): promoted 2 scenarios, delta 3, nothing missing,
+      the third being "Withdrawal is its own terminal state, never an alias".
+      **Nothing promoted is deleted on landing.** RE-RUN this assertion if
+      another lane lands before the archive — it binds against the promoted
+      file at archive time, never against this snapshot. `openspec validate`
+      strict and `--all --strict` both green (10.2) after the assertion.
 
 ---
 
