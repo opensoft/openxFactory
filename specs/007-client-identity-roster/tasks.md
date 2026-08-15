@@ -593,7 +593,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       with no negative confirmation breaches FR-016.
       *Verification*: 4.1's `entry-without-consent-instrument.yaml`,
       `mutate-without-ratified-capability.yaml`; 4.2's two legend negatives.
-- [~] 2.9 [US2] The repo-scan layer, two passes. (a) **Whole-repo kind sweep**
+- [x] 2.9 [US2] The repo-scan layer, two passes. (a) **Whole-repo kind sweep**
       (FR-036): `rglob` every `*.y*ml` skipping `.git`, `node_modules`,
       `__pycache__`, `.venv`, and — when the target IS this checkout — THIS
       FEATURE'S OWN FIXTURE CORPORA: `examples/client-identity-roster/` AND
@@ -1165,7 +1165,7 @@ stays `[~]` permanently: it is the RELOCATED task.)
 
 **Depends on**: Phase 1. **Parallel with**: Phases 5, 7, 8.
 
-- [ ] 6.1 [US5] `scripts/doc_health/client_identity_composition.py` exposing
+- [x] 6.1 [US5] `scripts/doc_health/client_identity_composition.py` exposing
       `fam_client_identity_composition(ctx) -> list[Finding] | Skip`. Assembly:
       iterate `sorted(ctx.repo_paths.items())`, read
       `<repo>/credentials/client-identity-roster/*.y*ml`, group by
@@ -1174,7 +1174,7 @@ stays `[~]` permanently: it is the RELOCATED task.)
       "no client is held by two or more domains: nothing to compose". The skip
       is CORPUS-level, not per-client — a mixed corpus reports (FR-023).
       *Verification*: 6.6's skip tests.
-- [ ] 6.2 [P] [US5] The `shared-identity-material` finding class: two fragments
+- [x] 6.2 [P] [US5] The `shared-identity-material` finding class: two fragments
       for one `client_ref` from DIFFERENT `domain` values whose entries name
       the same identity MATERIAL. **EXACTLY TWO disjuncts (gate ruling G4):**
       (i) the same `identity_ref`; (ii) both entries declare
@@ -1190,7 +1190,7 @@ stays `[~]` permanently: it is the RELOCATED task.)
       holding their OWN separate identity on one surface and class is NOT a
       finding at any level — and 6.5's equal-`provider_object_ref` fixture
       proves disjunct (ii) fires on its own.
-- [ ] 6.3 [P] [US5] The `undeclared-cross-domain-reach` finding class: an
+- [x] 6.3 [P] [US5] The `undeclared-cross-domain-reach` finding class: an
       admission act or `declared_excess` in domain A's fragment achieves scope
       over an admission surface for which A publishes no entry, while another
       domain's fragment for the same client declares that surface. The
@@ -1201,7 +1201,7 @@ stays `[~]` permanently: it is the RELOCATED task.)
       `FAMILY_RESOLUTION`.
       *Verification*: 6.6 asserts no intra-repo finding code ever appears in
       this family's output (FR-023, SC-009).
-- [ ] 6.4 [US5] Registration and the count-bearing prose this feature OWNS:
+- [x] 6.4 [US5] Registration and the count-bearing prose this feature OWNS:
       import at `scripts/doc_health/families.py:25`; the
       `"client-identity-composition"` key in `FAMILIES` (`families.py:674-690`);
       the id added to `FAMILY_IDS` (`scripts/doc_health/__init__.py:52-70`) so
@@ -1215,7 +1215,7 @@ stays `[~]` permanently: it is the RELOCATED task.)
       <aggregation checkout>` (the path from the aggregation root, plan green
       bar step 7) lists sixteen families and renders the new section; grep
       confirms the promoted spec and the ordinals are untouched.
-- [ ] 6.5 [US5] Fixtures at
+- [x] 6.5 [US5] Fixtures at
       `tests/doc-health/fixtures/client-identity-composition/` — at least THREE
       repo directories so the corpus proves both finding classes AND the FR-024
       non-finding: two domains sharing identity material for one client; two
@@ -1241,7 +1241,7 @@ stays `[~]` permanently: it is the RELOCATED task.)
       where FR-016's "cross-domain shared identity" negative lives (research.md
       Decision 7).
       *Verification*: 6.6 and 6.7.
-- [ ] 6.6 [US5] `tests/doc-health/test_client_identity_composition.py`.
+- [x] 6.6 [US5] `tests/doc-health/test_client_identity_composition.py`.
       **Ruling A-9 — the trap this suite must not fall into**:
       `tests/doc-health/conftest.py` `make_ctx` defaults **`agg_root=None`**
       (line 66), and this family's FIRST branch is
@@ -1260,7 +1260,7 @@ stays `[~]` permanently: it is the RELOCATED task.)
       *Verification*: `pytest tests/doc-health/test_client_identity_composition.py`;
       plus `pytest tests/doc-health/` whole-suite, where the new family must add
       findings to NO existing family's fixtures.
-- [ ] 6.7 [US5] **Ruling A-N4** — prove SC-006 across BOTH corpora: run
+- [x] 6.7 [US5] **Ruling A-N4** — prove SC-006 across BOTH corpora: run
       `scripts/validate-client-identity-roster.py` over each doc-health
       cross-domain fixture repo and assert **exit 0** on each (which is why
       6.5 requires every fixture fragment to be intra-repo conformant). Without
