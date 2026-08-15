@@ -277,8 +277,7 @@ Introducing a second candidate file re-opens precisely the ambiguity that
 rule was built to avoid, in exchange for a separation (outline vs.
 everything else) the template's own "other files stay free-form" claim
 already delivers without touching the selector at all.
-Disposition status: leaning (carried as the RECOMMENDED shape in Claim 2;
-not yet ratified)
+Disposition status: accepted-as-recommended (Brett, 2026-08-15) — feeds the `add-staged-topic-outline-template` proposal
 Added-by: Brett Heap (direction) / Claude Opus 4.8 (drafting) · 2026-08-15
 
 ### Q2. How do the 30+ existing staged topics migrate to this template?
@@ -300,7 +299,7 @@ COMPLETE-and-archival or blocked on an unrelated external gate, produces
 busywork without advancing any live decision, while a WARNING-tier doc-health
 finding keeps the incentive to convert visible without stalling unrelated
 work.
-Disposition status: open
+Disposition status: accepted-as-recommended (Brett, 2026-08-15) — feeds the `add-staged-topic-outline-template` proposal
 Added-by: Brett Heap (direction) / Claude Opus 4.8 (drafting) · 2026-08-15
 
 ### Q3. Does this template become a `document-lifecycle` spec delta, or
@@ -320,7 +319,7 @@ round-trip guarantee is a testable property — does a demoted fragment's
 Last-proposal-attempt slot actually carry the prior change's real text — and
 a testable property belongs in a spec requirement with a scenario, not in
 prose nobody re-checks.
-Disposition status: open
+Disposition status: accepted-as-recommended (Brett, 2026-08-15) — feeds the `add-staged-topic-outline-template` proposal
 Added-by: Brett Heap (direction) / Claude Opus 4.8 (drafting) · 2026-08-15
 
 ### Q4. Which intent verb authorizes an AI patching one template section?
@@ -341,7 +340,7 @@ reviewable) to express a distinction — this edit happens to be scoped to
 one named section — that is a patch-TARGETING detail, not a different KIND
 of action. The marker grammar supplies the addressing precision without a
 new verb.
-Disposition status: open
+Disposition status: accepted-as-recommended (Brett, 2026-08-15) — feeds the `add-staged-topic-outline-template` proposal
 Added-by: Brett Heap (direction) / Claude Opus 4.8 (drafting) · 2026-08-15
 
 ### Q5. Should the wheel's 3-line summary extraction read the template's `Summary:` section explicitly, rather than falling through its current heuristic?
@@ -360,8 +359,8 @@ field; once the template makes that guarantee for conforming topics, the
 fallback becomes unnecessary defensive code for a case the template has
 already closed. Non-conforming topics (Q2's opt-in remainder) still need
 the fallback, so this is additive to `fragmentSummary()`, never a removal.
-Disposition status: open (gated on Q2's migration ruling and this topic's
-own ratification)
+Disposition status: accepted-as-recommended (Brett, 2026-08-15) — feeds the `add-staged-topic-outline-template` proposal; Q2 ruled opt-in, so the
+fallback stays for non-conformers and this rides Phase B as sequenced
 Added-by: Brett Heap (direction) / Claude Opus 4.8 (drafting) · 2026-08-15
 
 ## Exit
@@ -373,3 +372,13 @@ change (something like `add-staged-topic-outline-template`, named for real
 only when actually raised) carrying a `document-lifecycle` delta for the
 template contract and an `ideation-dashboard` delta for the outline tab's
 rendering and its add-section affordance.
+
+**EXIT CONDITION MET, 2026-08-15.** All five questions carry
+`accepted-as-recommended` (Brett), so the parallel decision track this topic was
+sequenced for is closed and the change is raised as
+`add-staged-topic-outline-template` with exactly the two deltas anticipated
+above. Two rulings carry forward rather than landing in that change: Q4 makes
+`edit-apply` the verb for AI section-patching, which upgrades
+`doxbench-editing-model` Phase A's freeform chat rewrites into marker-scoped
+patches; and Q5 rides Phase B, because Q2's opt-in migration means the wheel's
+existing summary fallback must stay for non-conforming topics.

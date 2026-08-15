@@ -1208,6 +1208,13 @@ repo scope.
   targeted section); (5) whether the wheel's summary extraction should read
   the template's `Summary:` field explicitly rather than falling through
   its current heuristic (recommended: yes, once the template ratifies).
+- All five questions dispositioned 2026-08-15 (accepted as recommended) —
+  the parallel decision track this topic was sequenced for is now CLOSED, and
+  `add-staged-topic-outline-template` is drafting next. Q4's ruling (`edit-apply`
+  covers AI section-patching) is the hinge into `doxbench-editing-model` Phase A:
+  it upgrades that phase's freeform chat rewrites into marker-scoped section
+  patches. Q5 still rides Phase B as sequenced, because Q2 ruled opt-in
+  migration and so the wheel's existing fallback stays for non-conformers.
 - **SEQUENCED in PARALLEL with `doxbench-editing-model` Phase A (Brett
   2026-08-15 ruling on today's four staging topics)** — this topic's five
   dispositions are human decisions, not builds, so it runs alongside Phase A
