@@ -273,3 +273,115 @@ def test_notebook_projection_drift():
     from doc_health import Skip
     ctx_unauth = make_ctx("status-validity", notebook=lambda: None)
     assert isinstance(drift(ctx_unauth), Skip)
+
+
+# --------------------------------------------------------------------------
+# staged-topic-template (add-staged-topic-outline-template, ratified 2026-08-15)
+# --------------------------------------------------------------------------
+
+CONFORMING = """# Staged: a topic
+
+Status: staged
+Kind: architecture
+
+## Idea notes (pre-document, non-documented)
+
+Something.
+
+## Conflicts
+
+None.
+
+## Open questions
+
+### Q1. Does it work?
+
+Context: it might not.
+Recommended answer: yes.
+Explanation: because.
+Disposition status: open
+"""
+
+
+def _topic(repo, name, text):
+    topic = repo / "ideation/staging" / name
+    topic.mkdir(parents=True)
+    (topic / f"{name}.md").write_text(text)
+    return f"ideation/staging/{name}/{name}.md"
+
+
+def _ctx_for(tmp_path, topics, first_dates):
+    repo = tmp_path / "alpha"
+    (repo / "ideation/staging").mkdir(parents=True)
+    rels = {name: _topic(repo, name, text) for name, text in topics.items()}
+    ctx = make_ctx("location-conformance",
+                   git=FakeGit(first_dates={
+                       ("alpha", rels[name]): d for name, d in first_dates.items()}))
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    return ctx, rels
+
+
+def test_a_conforming_fragment_produces_no_finding(tmp_path):
+    ctx, _ = _ctx_for(tmp_path, {"good": CONFORMING},
+                      {"good": date(2026, 9, 1)})
+    assert FAMILIES["staged-topic-template"](ctx) == []
+
+
+def test_non_conformance_is_never_gate_blocking(tmp_path):
+    """Q2's ruling: doc-health treats non-conformance as a nudge, NEVER a
+    gate-blocking finding — so even a REQUIRED topic warns rather than errors.
+    Asserted explicitly because the instinct on a new family is to fail the
+    gate, and `--fail-on error` is what would make this block a run."""
+    bare = "# Staged: x\n\nStatus: staged\n\n## Claims\n\nNothing.\n"
+    ctx, _ = _ctx_for(tmp_path, {"newtopic": bare},
+                      {"newtopic": date(2026, 9, 1)})  # after ratification
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    assert got[0].severity == WARNING
+    assert "REQUIRED" in got[0].rule
+
+
+def test_obligation_follows_the_staging_date_not_the_last_touch(tmp_path):
+    """A topic staged before the template is opt-in, and editing it for an
+    unrelated reason must not silently make it required — which is why the
+    family reads first_commit_date, never last_commit_date."""
+    bare = "# Staged: x\n\nStatus: staged\n\n## Claims\n\nNothing.\n"
+    ctx, _ = _ctx_for(tmp_path, {"oldtopic": bare},
+                      {"oldtopic": date(2026, 7, 1)})  # before ratification
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    assert "opt-in" in got[0].rule and "REQUIRED" not in got[0].rule
+
+
+def test_an_unknown_staging_date_is_treated_as_opt_in(tmp_path):
+    bare = "# Staged: x\n\nStatus: staged\n\n## Claims\n\nNothing.\n"
+    ctx, _ = _ctx_for(tmp_path, {"nodate": bare}, {})
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1 and "opt-in" in got[0].rule
+
+
+def test_a_question_missing_sub_fields_is_reported(tmp_path):
+    partial = CONFORMING.replace("Explanation: because.\n", "")
+    ctx, _ = _ctx_for(tmp_path, {"partial": partial},
+                      {"partial": date(2026, 9, 1)})
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    assert "Explanation" in got[0].rule and "lacks" in got[0].rule
+
+
+def test_a_fenced_skeleton_does_not_count_as_real_sections(tmp_path):
+    """The canonical template ships as a copy-pasteable FENCED skeleton. A
+    fragment that merely quotes it has not adopted it."""
+    quoting = (
+        "# Staged: x\n\nStatus: staged\n\n"
+        "Copy this:\n\n```markdown\n"
+        "## Idea notes (pre-document, non-documented)\n\n"
+        "## Conflicts\n\n## Open questions\n```\n"
+    )
+    ctx, _ = _ctx_for(tmp_path, {"quoter": quoting},
+                      {"quoter": date(2026, 9, 1)})
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    for label in ("idea notes", "conflicts", "open questions"):
+        assert label in got[0].rule

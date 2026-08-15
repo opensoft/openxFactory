@@ -682,8 +682,123 @@ def fam_notebook_projection_drift(ctx):
         "run the lifecycle notebook sync with --apply")]
 
 
+# --------------------------------------------------------------------------
+# staged-topic-template (add-staged-topic-outline-template, ratified 2026-08-15)
+#
+# A staged topic's primary fragment carries a required template so its live
+# state is extractable without opening the whole folder. This family reports
+# non-conformance and DELIBERATELY NEVER BLOCKS A GATE — Q2's ruling was
+# "doc-health treats non-conformance as a nudge, never a gate-blocking
+# finding", so every finding here is WARNING even for a topic where conformance
+# is REQUIRED. The required/opt-in distinction lives in the rule TEXT, which is
+# what a reader acts on, rather than in a severity that would fail a run.
+# Escalating this family to ERROR needs a new ruling, not a judgement call.
+
+TEMPLATE_RATIFIED = date(2026, 8, 15)
+
+# Matched case-insensitively against `## ` headings; a heading may carry a
+# parenthetical suffix (the canonical skeleton's own idea-notes heading does).
+_TEMPLATE_SECTIONS = (
+    ("idea notes", "pre-document idea notes"),
+    ("conflicts", "conflicts"),
+    ("open questions", "open questions"),
+)
+_QUESTION_SUBFIELDS = ("Context", "Recommended answer", "Explanation",
+                       "Disposition status")
+
+
+def _primary_fragment(topic: Path) -> Path | None:
+    """Mirror of `primaryFragmentPath` in wheel-model.js: the exact
+    `<topic>.md` first, else the shallowest markdown file. Path-only, never
+    content-sniffed — the one-path rule this template contract preserves."""
+    mds = sorted(p for p in topic.rglob("*.md"))
+    if not mds:
+        return None
+    named = f"{topic.name.lower()}.md"
+    for path in mds:
+        if path.name.lower() == named:
+            return path
+    return min(mds, key=lambda p: (len(p.relative_to(topic).parts), str(p)))
+
+
+def _template_gaps(text: str) -> list[str]:
+    """Which template obligations this fragment does not meet."""
+    gaps = []
+    headings, in_fence = [], False
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if not in_fence and line.startswith("## "):
+            headings.append(line[3:].strip().lower())
+    for needle, label in _TEMPLATE_SECTIONS:
+        if not any(needle in h for h in headings):
+            gaps.append(f"no {label} section")
+
+    # Every `### Q...` under Open questions carries all four sub-fields. The
+    # fragment is scanned outside fences for the same reason the headings are:
+    # the canonical skeleton is itself a fenced example.
+    in_questions, in_fence, current, seen = False, False, None, {}
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if line.startswith("## "):
+            in_questions = "open questions" in line[3:].strip().lower()
+            current = None
+        elif in_questions and line.startswith("### "):
+            current = line[4:].strip()
+            seen[current] = set()
+        elif current is not None:
+            for field in _QUESTION_SUBFIELDS:
+                if line.startswith(f"{field}:"):
+                    seen[current].add(field)
+    for question, fields in seen.items():
+        missing = [f for f in _QUESTION_SUBFIELDS if f not in fields]
+        if missing:
+            short = question if len(question) <= 48 else question[:45] + "..."
+            gaps.append(f"question '{short}' lacks {', '.join(missing)}")
+    return gaps
+
+
+def fam_staged_topic_template(ctx):
+    findings = []
+    for repo, repo_path in sorted(ctx.repo_paths.items()):
+        staging = repo_path / "ideation" / "staging"
+        if not staging.is_dir():
+            continue
+        for topic in sorted(p for p in staging.iterdir() if p.is_dir()):
+            primary = _primary_fragment(topic)
+            if primary is None:
+                continue  # an empty topic folder is another family's business
+            rel = primary.relative_to(repo_path).as_posix()
+            gaps = _template_gaps(primary.read_text(errors="replace"))
+            if not gaps:
+                continue
+            # Obligation follows the topic's STAGING date, never its last
+            # touch: editing an opt-in topic for an unrelated reason must not
+            # silently make it required. An unknown date is treated as opt-in.
+            staged_on = ctx.git.first_commit_date(repo_path, rel)
+            required = staged_on is not None and staged_on >= TEMPLATE_RATIFIED
+            scope = ("staged after the template ratified, so conformance is "
+                     "REQUIRED") if required else (
+                     "staged before the template ratified, so conformance is "
+                     "opt-in — rewrite it when the topic is next worked")
+            findings.append(Finding(
+                WARNING, "staged-topic-template", repo, rel,
+                f"primary fragment does not meet the outline template "
+                f"({'; '.join(gaps)}) — {scope}",
+                "add the missing sections, or give every open question its "
+                "Context / Recommended answer / Explanation / Disposition "
+                "status sub-fields"))
+    return findings
+
+
 FAMILIES = {
     "status-validity": fam_status_validity,
+    "staged-topic-template": fam_staged_topic_template,
     "standard-backing": fam_standard_backing,
     "ratified-provenance": fam_ratified_provenance,
     "succession-integrity": fam_succession_integrity,
