@@ -1,0 +1,19 @@
+schema_version: 1
+kind: hermes_domain_overlay
+
+# A valid domain overlay so the fixture fails for exactly one reason: the
+# subject document at the declared customer path.
+domain:
+  id: codex
+  display_name: codex Domain Hermes
+  approval_scope_kinds:
+    - engineering_intent
+  required_approval_fields:
+    - approved_scope_ref
+  authority_boundaries:
+    codex_owns:
+      - engineering_decomposition
+    xfactory_owns:
+      - neutral_contracts
+    repository_owns:
+      - final_branch_protection

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Validate the hermes-domain-overlay contract family (add-hermes-domain-overlay-contract).
 
-The openxFactory-owned canonical validator for the two kinds
-`hermes_domain_overlay` and `hermes_overlay_descriptor`
+The openxFactory-owned canonical validator for the family's document kinds —
+`hermes_domain_overlay`, `hermes_subject_overlay`, `hermes_overlay_descriptor`
+and `hermes_domain_content_manifest`
 (`contracts/hermes-domain-overlay/*.schema.yaml`). Run from the pinned
 openxFactory checkout, never copied into domain repos:
 
@@ -14,10 +15,16 @@ Two layers run:
    every `*.example.yaml` must pass; every file under `negative/` must fail
    for its INTENDED reason (declared in its `# expected_failure:` header) —
    the self-test fails closed if any negative stops failing for its reason
-   or any positive example fails.
-2. Optional real artifacts under DOMAIN_REPO_PATH: the overlay at the
-   descriptor-declared path (or the documented convention
-   `hermes/domain/overlay.yaml` when no descriptor exists) is validated;
+   or any positive example fails. Repo-SHAPED negatives are directories under
+   `negative/` (a repo needs more than one file to be wrong in the ways that
+   matter): a directory carrying an ontology starter marker is checked for
+   generated-domain completeness, and a directory carrying an overlay
+   descriptor is walked exactly as a real repo's declared paths are, with the
+   `# expected_failure:` header read from the document at its declared
+   subject path.
+2. Optional real artifacts under DOMAIN_REPO_PATH: every descriptor-declared
+   path (or the documented convention `hermes/domain/overlay.yaml` when no
+   descriptor exists) is dispatched BY THE KIND of the document found there;
    a descriptor, when present, is validated including path existence.
 
 Deterministic checks the schema shape cannot express:
@@ -26,7 +33,14 @@ Deterministic checks the schema shape cannot express:
   - the no-overlap rule: no authority item appears in more than one
     boundary list;
   - descriptor role keys are limited to domain/client/customer, and every
-    declared path exists when a repo path is supplied.
+    declared path exists when a repo path is supplied;
+  - subject-overlay address self-consistency and uniqueness (every `policies`
+    key equals its `policy_id`; every policy's `policy_namespace` equals the
+    subject's; no address declared twice), the prohibited-block list (a
+    subject adds constraints and never grants, widens, or waives), and
+    cross-document identity conformance against the DOMAIN's own
+    `hermes/subject/template.yaml` — skipped with notice where a repository
+    ships no subject template (add-subject-overlay-contract).
 """
 from __future__ import annotations
 
@@ -43,6 +57,38 @@ DESCRIPTOR_ROLES = {"domain", "client", "customer"}
 CONVENTION_PATHS = {"domain": "hermes/domain/overlay.yaml"}
 DESCRIPTOR_FILE = "hermes/overlay-descriptor.yaml"
 CONTENT_MANIFEST_FILE = "hermes/domain/content-manifest.yaml"
+# The domain's own subject-kind template, at the documented convention path —
+# the same convention-then-contract idiom the family already uses for the
+# domain overlay. Absent template => the cross-document identity check is
+# skipped with notice, never turned into a new refusal class.
+SUBJECT_TEMPLATE_FILE = "hermes/subject/template.yaml"
+# Kinds this canonical validator OWNS at a declared path. Anything else keeps
+# the skip-with-notice: a kind owned by another canonical validator must not be
+# double-validated here, because two implementations of one rule fork canonical
+# meaning (add-subject-overlay-contract).
+FAMILY_VALIDATED_KINDS = {"hermes_domain_overlay", "hermes_subject_overlay"}
+ROLE_KINDS = {"domain": "hermes_domain_overlay", "customer": "hermes_subject_overlay"}
+FOREIGN_KIND_VALIDATORS = {"hermes_client_overlay": "scripts/validate-client-content.py"}
+SUBJECT_RELATIONS = {"additive_constraints_only"}
+# The Domain layer's enforceable slice. A subject overlay carrying any of these
+# would be legislating for the domain from the subject seat; the invariant is
+# `a subject may add constraints, never grant, widen, or waive`, enforced
+# structurally on the document rather than by a comparability engine whose
+# partial orders have no counterpart key for an additive named constraint.
+PROHIBITED_SUBJECT_BLOCKS = {
+    "authority_boundaries", "approval_scope_kinds", "required_approval_fields",
+}
+# Credential-shaped keys whose value would be key material rather than policy.
+# A `*_ref` / `*_binding` key is deliberately absent: reference-delivered
+# credentials are the governed form and must stay expressible.
+CREDENTIAL_VALUE_KEYS = {
+    "secret", "secrets", "token", "password", "passphrase", "api_key", "apikey",
+    "private_key", "client_secret", "credential", "credentials",
+}
+# Explicit issuer markers only. No entropy or base64-shape heuristic: a false
+# refusal on a long opaque identifier would be a new refusal class this
+# contract never declared.
+RAW_SECRET_MARKERS = ("-----BEGIN", "ghp_", "github_pat_", "gho_", "ghs_", "AKIA")
 CONTENT_KINDS = {
     "role_authority", "policy_position", "escalation_rule", "deliberation_mix",
     "review_council", "memory_boundary", "practice_adoption",
@@ -102,6 +148,136 @@ def validate_overlay(doc: object, findings: list[str]) -> None:
             if item in seen and seen[item] != list_name:
                 _fail(findings, f"authority item in more than one boundary list: {item} ({seen[item]} and {list_name})")
             seen.setdefault(item, list_name)
+
+
+def _walk_entries(node: object, path: str):
+    """Yield (dotted_path, key, value) for every mapping entry in a document,
+    so a prohibited block cannot hide one level deeper than the check."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            here = f"{path}.{key}" if path else str(key)
+            yield here, key, value
+            yield from _walk_entries(value, here)
+    elif isinstance(node, list):
+        for index, item in enumerate(node):
+            yield from _walk_entries(item, f"{path}[{index}]")
+
+
+def _prohibited_subject_content(doc: dict, findings: list[str]) -> None:
+    for where, key, value in _walk_entries(doc, ""):
+        if key in PROHIBITED_SUBJECT_BLOCKS:
+            _fail(findings,
+                  f"prohibited block for a subject overlay: {where} — a subject "
+                  f"adds constraints and never grants, widens, or waives "
+                  f"({key} is the Domain layer's enforceable slice)")
+        if key in CREDENTIAL_VALUE_KEYS and isinstance(value, str) and value.strip():
+            _fail(findings,
+                  f"prohibited credential value at {where}: a subject overlay "
+                  "carries policy, never key material")
+        if isinstance(value, str) and any(m in value for m in RAW_SECRET_MARKERS):
+            _fail(findings,
+                  f"prohibited credential value at {where}: the value carries a "
+                  "raw-secret marker")
+
+
+def _validate_subject_template(subject: dict, findings: list[str], repo_path: Path) -> None:
+    """Cross-document identity conformance (add-subject-overlay-contract D4):
+    the DOMAIN's own subject_hermes_template decides which subject kinds exist
+    and which identity fields each one requires, so no engineering (or
+    clinical, or accounting) field name ever enters a domain-neutral contract.
+    A repository shipping no template is skipped with notice."""
+    template_path = repo_path / SUBJECT_TEMPLATE_FILE
+    if not template_path.is_file():
+        print(f"note: no subject template at {SUBJECT_TEMPLATE_FILE}; "
+              "skipping cross-document subject identity conformance")
+        return
+    try:
+        template = yaml.safe_load(template_path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as exc:
+        return _fail(findings, f"unparseable subject template {SUBJECT_TEMPLATE_FILE}: {exc}")
+    if not isinstance(template, dict) or template.get("kind") != "subject_hermes_template":
+        return _fail(findings, f"{SUBJECT_TEMPLATE_FILE} is not a subject_hermes_template")
+    block = template.get("subject_hermes")
+    if not isinstance(block, dict):
+        return _fail(findings, f"{SUBJECT_TEMPLATE_FILE} carries no subject_hermes block")
+    subject_kind = subject.get("subject_kind")
+    declared = block.get("subject_kinds")
+    if not isinstance(declared, list) or not declared:
+        return _fail(findings, f"{SUBJECT_TEMPLATE_FILE} declares no subject_kinds")
+    if subject_kind not in declared:
+        return _fail(findings,
+                     f"undeclared subject_kind {subject_kind}: the domain template "
+                     f"declares {sorted(str(k) for k in declared)}")
+    required_fields = block.get("required_subject_fields")
+    required = required_fields.get(subject_kind) if isinstance(required_fields, dict) else None
+    for field in required or []:
+        value = subject.get(field)
+        if value is None or (hasattr(value, "__len__") and len(value) == 0):
+            _fail(findings,
+                  f"template-required field missing or empty on subject: {field} "
+                  f"(required by required_subject_fields.{subject_kind})")
+
+
+def validate_subject_overlay(doc: object, findings: list[str], repo_path: Path | None) -> None:
+    if not isinstance(doc, dict):
+        return _fail(findings, "subject overlay document is not a mapping")
+    if doc.get("kind") != "hermes_subject_overlay":
+        return _fail(findings, "kind is not hermes_subject_overlay")
+    if not isinstance(doc.get("schema_version"), int) or doc["schema_version"] < 1:
+        _fail(findings, "schema_version must be an integer >= 1")
+    _prohibited_subject_content(doc, findings)
+    subject = doc.get("subject")
+    if not isinstance(subject, dict):
+        return _fail(findings, "missing required block: subject")
+    for field in ("id", "subject_kind", "display_name", "policy_namespace"):
+        value = subject.get(field)
+        if not isinstance(value, str) or not value.strip():
+            _fail(findings, f"missing or empty subject.{field}")
+    relation = subject.get("relation_to_baseline")
+    if relation is None or (isinstance(relation, str) and not relation.strip()):
+        _fail(findings,
+              "missing or empty subject.relation_to_baseline: a subject overlay "
+              "DECLARES its relation to the baseline and none is inferred by default")
+    elif relation not in SUBJECT_RELATIONS:
+        _fail(findings,
+              f"subject.relation_to_baseline must be one of {sorted(SUBJECT_RELATIONS)}, "
+              f"got {relation!r}")
+    policies = subject.get("policies")
+    if not isinstance(policies, dict) or not policies:
+        _fail(findings,
+              "missing or empty subject.policies: a subject overlay declares at "
+              "least one named policy")
+    else:
+        namespace = subject.get("policy_namespace")
+        seen_addresses: dict[str, str] = {}
+        for key, policy in policies.items():
+            if not isinstance(policy, dict):
+                _fail(findings, f"subject.policies.{key} must be a mapping")
+                continue
+            policy_id = policy.get("policy_id")
+            if not isinstance(policy_id, str) or not policy_id.strip():
+                _fail(findings, f"missing or empty policy_id for subject.policies.{key}")
+            elif policy_id != key:
+                _fail(findings,
+                      f"policies key {key} does not match its declared policy_id "
+                      f"{policy_id}: the key IS the address")
+            policy_namespace = policy.get("policy_namespace")
+            if not isinstance(policy_namespace, str) or not policy_namespace.strip():
+                _fail(findings, f"missing or empty policy_namespace for subject.policies.{key}")
+            elif isinstance(namespace, str) and policy_namespace != namespace:
+                _fail(findings,
+                      f"policy namespace mismatch for subject.policies.{key}: the policy "
+                      f"declares {policy_namespace}, the subject declares {namespace}")
+            if isinstance(policy_id, str) and isinstance(policy_namespace, str):
+                address = f"{policy_namespace}/{policy_id}"
+                if address in seen_addresses:
+                    _fail(findings,
+                          f"duplicate policy address {address}: declared by "
+                          f"subject.policies.{seen_addresses[address]} and "
+                          f"subject.policies.{key}")
+                seen_addresses.setdefault(address, str(key))
+    if repo_path is not None:
+        _validate_subject_template(subject, findings, repo_path)
 
 
 def validate_descriptor(doc: object, findings: list[str], repo_path: Path | None) -> None:
@@ -169,6 +345,8 @@ def validate_document(path: Path, repo_path: Path | None) -> list[str]:
     kind = doc.get("kind") if isinstance(doc, dict) else None
     if kind == "hermes_domain_overlay":
         validate_overlay(doc, findings)
+    elif kind == "hermes_subject_overlay":
+        validate_subject_overlay(doc, findings, repo_path)
     elif kind == "hermes_overlay_descriptor":
         validate_descriptor(doc, findings, repo_path)
     elif kind == "hermes_domain_content_manifest":
@@ -211,16 +389,36 @@ def self_test() -> int:
         checked += 1
     for negative_dir in sorted(p for p in NEGATIVE_DIR.iterdir() if p.is_dir()):
         marker = negative_dir / ONTOLOGY_STARTER_MARKER
-        if not marker.is_file():
+        if marker.is_file():
+            reason = expected_failure(marker)
+            findings = validate_generated_domain(negative_dir)
+            if not findings or not any(reason in f for f in findings):
+                print(f"FAIL repo negative {negative_dir.name}: expected '{reason}', "
+                      f"got {findings}", file=sys.stderr)
+                return 1
+            print(f"negative ok ({reason}): {negative_dir.name}/")
+            checked += 1
             continue
-        reason = expected_failure(marker)
-        findings = validate_generated_domain(negative_dir)
-        if not findings or not any(reason in f for f in findings):
-            print(f"FAIL repo negative {negative_dir.name}: expected '{reason}', "
-                  f"got {findings}", file=sys.stderr)
-            return 1
-        print(f"negative ok ({reason}): {negative_dir.name}/")
-        checked += 1
+        if (negative_dir / DESCRIPTOR_FILE).is_file():
+            # A repo-shaped negative for the rules that only exist ACROSS
+            # documents: kind dispatch at a descriptor-declared path, and
+            # identity conformance against the repo's own subject template.
+            # The expected failure is declared on the document at the declared
+            # subject path — the document the fixture is about.
+            findings = repo_shaped_findings(negative_dir)
+            role_paths, _, _ = resolve_role_paths(negative_dir)
+            subject_rel = role_paths.get("customer")
+            if subject_rel is None:
+                print(f"FAIL repo negative {negative_dir.name}: descriptor declares "
+                      "no customer role path", file=sys.stderr)
+                return 1
+            reason = expected_failure(negative_dir / subject_rel)
+            if not findings or not any(reason in f for f in findings):
+                print(f"FAIL repo negative {negative_dir.name}: expected '{reason}', "
+                      f"got {findings}", file=sys.stderr)
+                return 1
+            print(f"negative ok ({reason}): {negative_dir.name}/")
+            checked += 1
     print(f"self-test ok: {checked} fixture(s)")
     return 0
 
@@ -260,18 +458,95 @@ def validate_generated_domain(repo_path: Path) -> list[str]:
     return findings
 
 
-def validate_repo(repo_path: Path) -> int:
+def resolve_role_paths(repo_path: Path) -> tuple[dict[str, str], bool, list[str]]:
+    """Resolve role -> path for a repo: the documented convention, overridden by
+    the descriptor's declarations when one is shipped. Returns the mapping, a
+    descriptor-present flag, and any descriptor findings (a bad descriptor is
+    fatal for the walk, so callers stop on a non-empty list)."""
     descriptor_path = repo_path / DESCRIPTOR_FILE
     role_paths = dict(CONVENTION_PATHS)
-    if descriptor_path.is_file():
-        findings = validate_document(descriptor_path, repo_path)
-        if findings:
-            for finding in findings:
-                print(f"FAIL {descriptor_path}: {finding}", file=sys.stderr)
-            return 1
+    if not descriptor_path.is_file():
+        return role_paths, False, []
+    findings = validate_document(descriptor_path, repo_path)
+    if findings:
+        return role_paths, True, findings
+    declared = yaml.safe_load(descriptor_path.read_text(encoding="utf-8"))["overlay_paths"]
+    role_paths.update(declared)
+    return role_paths, True, []
+
+
+def validate_declared_paths(repo_path: Path, role_paths: dict[str, str],
+                            descriptor_present: bool,
+                            notices: list[str]) -> tuple[list[str], int]:
+    """Dispatch every declared (or conventional) overlay path BY THE KIND of the
+    document found there, replacing the pre-add-subject-overlay-contract blanket
+    skip of everything that was not a domain overlay. A kind this family does not
+    own keeps the skip-with-notice; a family-owned kind sitting at the wrong
+    role's path is a finding, not a silent pass.
+
+    Returns (findings, validated_count)."""
+    findings: list[str] = []
+    validated = 0
+    for role, rel_path in sorted(role_paths.items()):
+        overlay_path = repo_path / rel_path
+        if not overlay_path.is_file():
+            if role in CONVENTION_PATHS and not descriptor_present:
+                notices.append(f"note: no overlay at convention path for role {role}: {rel_path}")
+                continue
+            findings.append(f"role {role}: declared overlay missing at {rel_path}")
+            continue
+        try:
+            doc = yaml.safe_load(overlay_path.read_text(encoding="utf-8"))
+        except yaml.YAMLError as exc:
+            findings.append(f"{rel_path}: unparseable YAML: {exc}")
+            continue
+        kind = doc.get("kind") if isinstance(doc, dict) else None
+        if kind not in FAMILY_VALIDATED_KINDS:
+            owner = FOREIGN_KIND_VALIDATORS.get(kind)
+            if owner:
+                notices.append(f"skip role {role}: {rel_path} carries kind {kind} "
+                               f"(canonical owner: {owner})")
+            else:
+                notices.append(f"skip role {role}: {rel_path} carries kind {kind} "
+                               "(no canonical validator in this family)")
+            continue
+        expected = ROLE_KINDS.get(role)
+        if expected is not None and kind != expected:
+            findings.append(f"{rel_path}: wrong kind at declared path for role {role}: "
+                            f"{kind} (the {role} role is governed by {expected})")
+            continue
+        doc_findings = validate_document(overlay_path, repo_path)
+        if doc_findings:
+            findings.extend(f"{rel_path}: {finding}" for finding in doc_findings)
+            continue
+        notices.append(f"overlay ok ({role}): {rel_path}")
+        validated += 1
+    return findings, validated
+
+
+def repo_shaped_findings(repo_path: Path) -> list[str]:
+    """Every finding a repo-SHAPED fixture raises across its documents: the
+    descriptor's own findings, then the kind-dispatched walk of its declared
+    paths. Used by the self-test so a repo-shaped negative is checked through
+    exactly the code a real domain repo runs."""
+    role_paths, descriptor_present, findings = resolve_role_paths(repo_path)
+    if findings:
+        return findings
+    notices: list[str] = []
+    path_findings, _ = validate_declared_paths(
+        repo_path, role_paths, descriptor_present, notices)
+    return path_findings
+
+
+def validate_repo(repo_path: Path) -> int:
+    descriptor_path = repo_path / DESCRIPTOR_FILE
+    role_paths, descriptor_present, descriptor_findings = resolve_role_paths(repo_path)
+    if descriptor_findings:
+        for finding in descriptor_findings:
+            print(f"FAIL {descriptor_path}: {finding}", file=sys.stderr)
+        return 1
+    if descriptor_present:
         print(f"descriptor ok: {DESCRIPTOR_FILE}")
-        declared = yaml.safe_load(descriptor_path.read_text(encoding="utf-8"))["overlay_paths"]
-        role_paths.update(declared)
     else:
         print(f"no descriptor at {DESCRIPTOR_FILE}; using documented convention")
     manifest_path = repo_path / CONTENT_MANIFEST_FILE
@@ -291,27 +566,15 @@ def validate_repo(repo_path: Path) -> int:
         return 1
     if (repo_path / ONTOLOGY_STARTER_MARKER).is_file():
         print("generated-domain completeness ok: domain_ontology declared")
-    validated = 0
-    for role, rel_path in sorted(role_paths.items()):
-        overlay_path = repo_path / rel_path
-        if not overlay_path.is_file():
-            if role in CONVENTION_PATHS and not descriptor_path.is_file():
-                print(f"note: no overlay at convention path for role {role}: {rel_path}")
-                continue
-            print(f"FAIL role {role}: declared overlay missing at {rel_path}", file=sys.stderr)
-            return 1
-        doc = yaml.safe_load(overlay_path.read_text(encoding="utf-8"))
-        kind = doc.get("kind") if isinstance(doc, dict) else None
-        if kind != "hermes_domain_overlay":
-            print(f"skip role {role}: {rel_path} carries kind {kind} (not a domain overlay)")
-            continue
-        findings = validate_document(overlay_path, repo_path)
-        if findings:
-            for finding in findings:
-                print(f"FAIL {rel_path}: {finding}", file=sys.stderr)
-            return 1
-        print(f"overlay ok ({role}): {rel_path}")
-        validated += 1
+    notices: list[str] = []
+    findings, validated = validate_declared_paths(
+        repo_path, role_paths, descriptor_present, notices)
+    for notice in notices:
+        print(notice)
+    if findings:
+        for finding in findings:
+            print(f"FAIL {finding}", file=sys.stderr)
+        return 1
     print(f"repo validation ok: {validated} overlay(s) validated")
     return 0
 

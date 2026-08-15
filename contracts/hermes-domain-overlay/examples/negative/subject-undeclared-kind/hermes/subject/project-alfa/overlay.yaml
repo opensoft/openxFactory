@@ -1,0 +1,20 @@
+# expected_failure: undeclared subject_kind
+# Repo-SHAPED negative: the rule only exists across documents. The subject kind
+# is spelled plausibly but the domain's own template declares no such kind, so
+# nothing downstream knows which identity fields it must carry.
+schema_version: 1
+kind: hermes_subject_overlay
+
+subject:
+  id: project-alfa
+  subject_kind: programme
+  display_name: Project Alfa Subject Hermes
+  policy_namespace: opensoft.codexfactory.project-alfa
+  relation_to_baseline: additive_constraints_only
+  owner: engineering-directorate
+  repositories:
+    - opensoft/codexFactory
+  policies:
+    admission-conditions:
+      policy_id: admission-conditions
+      policy_namespace: opensoft.codexfactory.project-alfa
