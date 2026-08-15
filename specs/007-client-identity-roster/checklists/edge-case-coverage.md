@@ -25,7 +25,7 @@ each named edge case is dispositioned rather than merely noticed.
 - [x] CHK1310 Is the error path for a misplaced instance covered, including the case where the only validator that scans the tree skips unknown kinds? [Edge Case, Spec §Edge Cases, §FR-036]
 - [x] CHK1311 Is the error path for an obligation naming a renamed or removed gate covered? [Edge Case, Spec §Edge Cases, §FR-011]
 - [x] CHK1312 Is the error path for a citation that resolves to nothing covered, distinct from a citation that is absent? [Edge Case, Spec §FR-014]
-- [x] CHK1313 Is the error path for a citation that resolves to an instrument NOT in force covered? [Edge Case, Spec §FR-014]
+- [x] CHK1313 Is the error path for a citation that resolves to an instrument NOT in force covered — for the entries the in-force test binds, and NOT for a `retired` entry, whose ended instrument is the expected state? [Edge Case, Spec §FR-014] — AMENDED by gate ruling G1: the path is now a DISCRIMINATION, not a bare error path. Repo fixture 8 (an `enrolled` entry citing a `terminated` instrument that resolves) is the refusal, and repo fixture 1's `retired` entry citing that same instrument is the clean partner; the refusal carries its own code, distinct from fixture 6's unresolvable-citation code.
 - [x] CHK1314 Is the error path for an admission act that claims verification it cannot evidence covered? [Edge Case, Spec §FR-002] — FIXED this pass: the pair rule gives this path a predicate and a code.
 - [x] CHK1315 Is the error path for an act on a surface the entry never declared covered? [Edge Case, Spec §FR-009] — FIXED this pass.
 - [x] CHK1316 Is the error path for a mapping that answers for some surfaces and not others covered? [Edge Case, Spec §FR-008] — FIXED this pass.

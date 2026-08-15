@@ -171,8 +171,18 @@ Phases 5–8; see the Phase 0 checkpoint).
       `authority_class_intended`; 4.1's `full-tuple-duplicate.yaml` is refused
       naming all five elements (FR-006).
 - [ ] 1.4 [US1] Kind 1 `xfactory_client_identity_roster` top level:
-      `schema_version`, `kind`, `client_ref`, `domain`, `legend`, `entries[]`
-      (`minItems: 1`). `legend` is
+      `schema_version`, `kind`, `client_ref`, **`client_tenant`**, `domain`,
+      `legend`, `entries[]`
+      (`minItems: 1`). **`client_tenant` (gate ruling G2)** is a REQUIRED
+      string carrying the PROVIDER TENANT IDENTIFIER of the client this
+      fragment covers, in the same dialect as `home_tenant` and the members of
+      `principal_locations[]`; its `description` says so and says why it is
+      declared rather than derived — `client_ref` is a governance slug, so
+      without this field the `client_tenant_single` rule (2.7) has nothing to
+      compare `home_tenant` against, and the inference alternative
+      (`home_tenant ∈ principal_locations[]`) cannot catch an identity homed
+      in the WRONG client's tenant. It sits on the FRAGMENT because a fragment
+      is per (client, domain). `legend` is
       `{blast_radius_units: {<token>: <provider id>}, duties: {…}}` — a MAPPING,
       so "declared twice for the same key" is unrepresentable at the schema
       level and the checkable duplicate (FR-034) is a token in BOTH maps
@@ -201,7 +211,14 @@ Phases 5–8; see the Phase 0 checkpoint).
       the declaration FR-038's alias rule reads and the second addition ruling
       R7 makes to the ratified list (the legend at 1.4 is the first). Without
       it 2.4 cannot implement its third predicate and 3.5 cannot author its
-      genuine duty pair.
+      genuine duty pair. **Plus the OPTIONAL `provider_object_ref` (string,
+      gate ruling G4)** — the provider-native OBJECT identifier (an Entra
+      `app_id`; the BC identity evidence record already carries one), which is
+      the second disjunct of the cross-domain `shared-identity-material` rule
+      (6.2). Its `description` states that it is an OBJECT identifier and NOT
+      a tenant identifier, the distinction the whole rule turns on: read
+      against `principal_locations[]` (tenants) the disjunct would intersect
+      on the shared client tenant and refuse FR-024's ratified non-finding.
       *Verification* (the assertion's module is created at 4.5; see
       "Verification timing"): a field-list assertion in
       `tests/client-identity-roster/test_client_identity_roster.py` compares the
@@ -413,6 +430,15 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       `mutate`, matches a SMALL CLOSED token list declared in the module
       (`observer`, `observe`, `reader`, `read`, `readonly`, `viewer`, `audit`,
       case-insensitive, word-boundary) and NAMES the token it matched (FR-010).
+      **THREE conjuncts, not two (gate ruling G6): token AND
+      `authority_class_achieved: mutate` AND NO `declared_excess` covering the
+      class overshoot** — "covering" = PRESENT, since `declared_excess` is a
+      single object (a future per-excess split re-keys this to the
+      class-overshoot member). The third conjunct is the CURE US1 acceptance
+      scenario 4 ratifies; without it this rule fires on 3.2's Business
+      Central positive, which 3.2, 4.6 and 10.5 all require to be clean. The
+      residual is deliberate: intended = achieved = `mutate` leaves no excess
+      to declare, so the finding stands and the identity must be renamed.
       **ACT-SIDE reach** (checklist pass, FR-009): every `admission[].surface`
       must be the entry's own `admission_surface` or a declared
       `spanned_surfaces[]` member, and anything else is `undeclared-act-surface`
@@ -442,7 +468,14 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       surfaces and its mapping answers both).
 - [ ] 2.7 [US1] Residency (FR-012) and lifecycle/attestation (FR-013): a
       registration homed outside the client tenant may not declare
-      client-resident; `vendor_tenant_multi` requires its five obligations; a
+      client-resident — **the predicate, against 1.4's DECLARED comparand
+      (gate ruling G2): under `residency_model: client_tenant_single`,
+      `home_tenant == fragment.client_tenant` AND every
+      `principal_locations[]` member `== fragment.client_tenant`, with the
+      finding NAMING `home_tenant`. Never a containment reading
+      (`home_tenant ∈ principal_locations[]`), which passes an identity homed
+      in the WRONG client's tenant — the case the rule exists to refuse**;
+      `vendor_tenant_multi` requires its five obligations; a
       `planned` entry validates and is NEVER reported as missing or incomplete;
       a retired entry retains its record; a credential held outside an approved
       grant window makes the attestation false and is reported against that
@@ -479,12 +512,20 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       (`tests/doc-health/test_suite.py:23-27`, "fixture corpora must never
       enter a real scan"); neither exclusion narrows FR-036 over a TARGET
       DOMAIN repo, which carries no such trees. Any file carrying
-      `kind: xfactory_client_identity_roster` outside
+      `kind: xfactory_client_identity_roster` that is **not a DIRECT CHILD of**
       `credentials/client-identity-roster/` raises `misplaced-roster-instance`
-      naming the offending path AND the declared placement. (b)
-      **Declared-placement validation**: every fragment at the declared path is
+      naming the offending path AND the declared placement. **The predicate is
+      EXACT-PATH, never a directory prefix** (gate ruling G3, FR-036):
+      `path.parent == <target>/credentials/client-identity-roster`, not
+      `startswith`. Under a prefix reading a nested instance at
+      `credentials/client-identity-roster/<sub>/x.yaml` is tolerated by this
+      pass AND missed by (b)'s flat glob — covered by nothing, the hole SC-005
+      forbids. (b) **Declared-placement validation**: every fragment at the
+      declared path — the FLAT `*.y*ml` glob, direct children only — is
       schema-validated and rule-checked, and the run prints a COUNT of records
-      checked. Plus the repo-context rules the packaged corpus cannot express:
+      checked. (a) and (b) MUST be exact complements over one `*.y*ml`
+      universe: every kind-carrying file is validated or reported, never
+      neither. Plus the repo-context rules the packaged corpus cannot express:
       (i) gate-obligation RESOLUTION against the target's `workflows/<name>.yaml`
       gates, with an unresolvable obligation a finding (FR-011); and (ii)
       **`consent_ref` RESOLUTION** against the target repo's own
@@ -499,13 +540,25 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       posture as the gate obligation and deliberately NOT `evidence_ref`'s
       (FR-037), which points into another repo; "in force" is `executed` or
       `amended`, never `draft`, `pending_signatures`, `terminated` or
-      `withdrawn`. `ratified_by` is NOT resolved — the ratified clause attaches
+      `withdrawn`. **The in-force test is LIFECYCLE-SCOPED (gate ruling G1,
+      FR-014): RESOLUTION binds every entry, but an entry whose
+      `lifecycle_state` is `retired` is exempt from the in-force test — an
+      ended instrument is the EXPECTED state beside a retired entry, since the
+      ratified cascade runs withdrawal or termination through to retirement
+      while FR-013 keeps the record. `planned` and `enrolled` entries take the
+      in-force test unchanged, and a NON-retired entry citing an ended
+      instrument raises its own code (distinct from the unresolvable-citation
+      code — this citation resolves) naming the entry, the instrument and its
+      status.** `ratified_by` is NOT resolved — the ratified clause attaches
       resolution to the instrument citation alone and the capability scenario is
       an absence test (2.8's half, with repo fixture 2 proving the gate exit).
-      *Verification*: 4.5's repo fixtures 2, 4, 5 and 6; running the validator
-      against this checkout must NOT report its own packaged corpus OR 6.5's
-      fixture repos as misplaced (exit 0 with the absence notice, since
-      openxFactory publishes no fragment of its own).
+      *Verification*: 4.5's repo fixtures 2, 4, 5, 6, 7 and 8; running the
+      validator against this checkout must NOT report its own packaged corpus
+      OR 6.5's fixture repos as misplaced (exit 0 with the absence notice,
+      since openxFactory publishes no fragment of its own) — the `tests/`
+      exclusion is what holds this true, and it is unaffected by the
+      exact-path predicate, since 6.5's fragments are direct children of their
+      OWN fixture repos' declared placement.
 - [ ] 2.10 [US2] Absence, and the negative guarantee (FR-022, FR-032, SC-013):
       a target with no `credentials/client-identity-roster/` directory, or the
       directory with no files, prints an EXPLICIT NOTICE naming the absence and
@@ -589,11 +642,18 @@ begin.
       `achieved_scope`). It also carries the **`retired` entry** (checklist
       pass): the third `lifecycle_state` member otherwise has no instance
       anywhere in the corpus, and FR-013's "a retired entry MUST retain its
-      record" is a guarantee nothing exercises without one.
+      record" is a guarantee nothing exercises without one. **That entry's
+      `consent_ref` names a `terminated` (or `withdrawn`) instrument** (gate
+      ruling G1) — the cascade's own end state, which FR-014's lifecycle
+      scoping admits for a `retired` entry and refuses for every other. It is
+      authored here so the packaged corpus STATES the case; the RESOLUTION that
+      makes it load-bearing is repo-context, and 4.5's fixtures 1 and 8 are
+      where it is measured.
       *Depends on*: 0.1, 1.4–1.7. *Verification*: both pairs at ZERO findings in
       the same run that refuses 4.1's alias pair — the SC-002 discrimination
       asserted at 4.6; the `retired` entry likewise clean, and not reported as
-      missing, incomplete or stale (FR-013, FR-033).
+      missing, incomplete or stale (FR-013, FR-033), nor reported for citing an
+      ended instrument (FR-014).
 - [ ] 3.6 [P] [US6] `client-identity-drift-finding.example.yaml` — a complete
       finding: the `identity_key` OBJECT (element 3 = the entry's
       `authority_class_intended`), `fragment_ref` naming 3.2's fragment,
@@ -634,7 +694,13 @@ filename in the validator's expectations table.
       with NO `evidence_ref` — the predicate 2.5 gives this file, without which
       it would pass), `undeclared-reach.yaml`,
       `achieved-exceeds-intended-undeclared.yaml`,
-      `name-understates-achieved-authority.yaml`,
+      `name-understates-achieved-authority.yaml` (**sharpened by gate ruling
+      G6** so it fails for its OWN reason: `authority_class_intended: mutate`
+      AND `authority_class_achieved: mutate`, an observation-suggesting
+      `identity_ref`, and NO `declared_excess` — with intended equal to
+      achieved there is no excess to declare and therefore no cure, so the
+      name code fires ALONE, unaccompanied by the achieved-above-intended
+      finding that would otherwise mask it),
       `missing-enforcement-test.yaml`,
       `provider-enforced-without-per-unit-principal.yaml`,
       `per-unit-principal-available-but-logical.yaml`,
@@ -642,7 +708,12 @@ filename in the validator's expectations table.
       surface the entry touches — 2.6),
       **`undeclared-act-surface.yaml`** (an admission act on a surface the
       entry neither owns nor declares as spanned — 2.6),
-      `vendor-homed-declared-client-resident.yaml`,
+      `vendor-homed-declared-client-resident.yaml` (**pinned to the G2 code**:
+      the fragment declares `client_tenant`, the entry declares
+      `residency_model: client_tenant_single` and a `home_tenant` that differs
+      from it, and the expectations table pins the finding that NAMES
+      `home_tenant` — so the file cannot pass by an inference the validator no
+      longer makes),
       `vendor-tenant-multi-missing-obligations.yaml`,
       `mutate-without-ratified-capability.yaml` (the record-internal FINDING;
       repo fixture 2 proves the gate EXIT),
@@ -694,14 +765,17 @@ filename in the validator's expectations table.
       substitutes for the other.
       *Verification*: refused by 2.6's FR-004 code, registered in the
       expectations table.
-- [ ] 4.5 The SIX repo-shaped fixtures in `tests/client-identity-roster/
+- [ ] 4.5 The EIGHT repo-shaped fixtures in `tests/client-identity-roster/
       test_client_identity_roster.py`, built in `tmp_path` from inline
       templates (the `tests/conformance-gate/test_conformance_checks.py`
       `make_repo` idiom): (1) conformant → exit 0, carrying TWO fragments for
       TWO clients whose entries share the WHOLE uniqueness tuple, which is how
       FR-006's fragment scope is measured (checklist pass: a cross-fragment
       comparison would report them as a duplicate and re-kill the per-unit
-      flaw); (2) nonconformant
+      flaw) — and, per gate ruling G1, ALSO a `retired` entry whose
+      `consent_ref` resolves to a `terminated` instrument PRESENT in that
+      repo's consent records, so FR-014's lifecycle exemption is measured
+      clean rather than asserted; (2) nonconformant
       `mutate`-without-ratified-capability → nonzero — the ROSTER delta's own
       gate-exit scenario; its packaged sibling proves the FINDING
       record-internally and this repo proves the EXIT, which a packaged file
@@ -717,11 +791,23 @@ filename in the validator's expectations table.
       that repo's consent records, while the repo carries at least one real
       `xfactory_consent_instrument` in force (so the finding proves
       non-resolution, not an empty tree) → nonzero with FR-014's resolution
-      code.
+      code; (7) **nested misplacement** (gate ruling G3) — a roster instance at
+      `credentials/client-identity-roster/<sub>/x.yaml`, INSIDE the declared
+      directory but not a DIRECT CHILD of it, so it is invisible to the flat
+      validating glob → nonzero with `misplaced-roster-instance`. This is the
+      arm the pre-gate prefix reading left covered by nothing, and it is the
+      HARDER placement case: fixture 5 is outside `credentials/` entirely and
+      any reading catches it. (8) **an ended instrument cited by a NON-retired
+      entry** (gate ruling G1) — an `enrolled` entry whose `consent_ref`
+      RESOLVES to the same `terminated` instrument fixture 1's `retired` entry
+      cites → nonzero with FR-014's in-force code, which is NOT fixture 6's
+      resolution code: the citation resolves, so the fixture can only fail for
+      its own reason.
       *Verification*: `pytest tests/client-identity-roster/`; fixture 1 is the
-      discrimination partner of fixtures 2, 4 and 6 (it names a ratified
-      capability, and its gate obligation and its consent citation both DO
-      resolve).
+      discrimination partner of fixtures 2, 4, 6 and 8 (it names a ratified
+      capability, its gate obligation and its consent citation both DO resolve,
+      and its `retired` entry's ended instrument is accepted), and fixture 7's
+      partner is fixture 1's fragments at the declared placement.
 - [ ] 4.6 **The SC-002 discrimination assertion** — ONE run over the packaged
       corpus producing THREE verdicts: the genuine per-unit pair ZERO findings,
       the genuine duty pair ZERO findings, the alias pair REFUSED. Asserted in
@@ -793,12 +879,20 @@ positive passes clean.
       *Verification*: 6.6's skip tests.
 - [ ] 6.2 [P] [US5] The `shared-identity-material` finding class: two fragments
       for one `client_ref` from DIFFERENT `domain` values whose entries name
-      the same identity MATERIAL — the same `identity_ref`, or the same
-      provider-native application identifier in `principal_locations[]`. Keyed
-      on MATERIAL, never on (surface, class) collocation.
+      the same identity MATERIAL. **EXACTLY TWO disjuncts (gate ruling G4):**
+      (i) the same `identity_ref`; (ii) both entries declare
+      `provider_object_ref` (1.5) AND the values are EQUAL. Disjunct (ii) does
+      NOT fire when either entry omits the field — an absent declaration is
+      not evidence of sharing. **It is NOT read against
+      `principal_locations[]`**, which carries TENANT identifiers: that
+      reading intersects on the shared client tenant and would refuse FR-024's
+      ratified non-finding, since two domains holding separate identities in
+      one client tenant necessarily share the tenant. Keyed on MATERIAL, never
+      on (surface, class) collocation and never on collocation in a tenant.
       *Verification*: 6.6 asserts the FR-024 discrimination — two domains each
       holding their OWN separate identity on one surface and class is NOT a
-      finding at any level.
+      finding at any level — and 6.5's equal-`provider_object_ref` fixture
+      proves disjunct (ii) fires on its own.
 - [ ] 6.3 [P] [US5] The `undeclared-cross-domain-reach` finding class: an
       admission act or `declared_excess` in domain A's fragment achieves scope
       over an admission surface for which A publishes no entry, while another
@@ -829,7 +923,13 @@ positive passes clean.
       repo directories so the corpus proves both finding classes AND the FR-024
       non-finding: two domains sharing identity material for one client; two
       domains with separate identities on one surface and class; a
-      single-fragment client for the skip case. Include the fixture that
+      single-fragment client for the skip case. **Plus the disjunct-(ii)
+      fixture (gate ruling G4): two domains' entries for one client declaring
+      EQUAL `provider_object_ref` under DIFFERENT `identity_ref` spellings →
+      `shared-identity-material`.** It is the only probe of the second
+      disjunct, and its discrimination partner is the FR-024 fixture, which
+      must stay a NON-finding — separate identities in one client tenant, each
+      with its own `provider_object_ref` (or none), sharing only the tenant. Include the fixture that
       produces a finding CONTRADICTING a ratified capability, which is what
       6.6's `CONTESTED` assertion measures. **Every fixture fragment MUST be
       intra-repo CONFORMANT** — closed vocabularies, legend, verified
@@ -947,14 +1047,28 @@ text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
       files. The RECORD envelope's `schema_version: const: 1` does NOT change —
       changing it would invalidate every existing instrument, the opposite of
       additive.
+      **The COUNT-BEARING PROSE sweep ships with the enum growth — two sites,
+      both saying "five" of a set that is becoming six** (gate ruling G5): the
+      schema comment at `contracts/schemas/consent-instrument.schema.yaml:195`
+      ("CLOSED five-state lifecycle") and the validator's
+      `alias-target-not-neutral` message at
+      `scripts/validate-consent-instruments.py:356` ("does not target the
+      closed five-state enum", the site 8.2 edits). Both become
+      **six-state**. This is the consent-side counterpart of FR-025's
+      count-bearing prose rule for doc-health, and it is a COUNT, not an
+      ordinal — no ordinal statement about an earlier state is touched.
       *Verification*: 8.6's regression; `withdrawn` is a DISTINCT member, never
-      aliased onto `terminated`.
+      aliased onto `terminated`; a grep for "five-state" across the schemas and
+      `scripts/` returns nothing.
 - [ ] 8.2 [US4] `scripts/validate-consent-instruments.py`: `NEUTRAL_STATUSES`
       (`:129-130`) + `withdrawn` — the alias-target check adjudicates against
       this tuple, so omitting it would let a domain alias onto a status the
       schema accepts and the validator rejects; and `PAST_SIGNATURE_STATUSES`
       (`:133`) + `withdrawn` — an instrument can only be withdrawn after
-      execution, so the lifecycle-skip discipline must reach it.
+      execution, so the lifecycle-skip discipline must reach it. The
+      `alias-target-not-neutral` MESSAGE at `:356` is one of 8.1's two
+      count-bearing prose sites: "closed five-state enum" → **six-state**,
+      edited in the same pass that grows the tuple it describes.
       *Depends on*: **0.2** — growing `NEUTRAL_STATUSES` NARROWS
       `alias-remaps-neutral-status` (`:348`), and 0.2 is what proves the
       narrowing fires nowhere.
@@ -1112,8 +1226,27 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       openxFactory repo, so the leading `openxFactory/` is required from there)
       — SIXTEEN families run, the new one REPORTS or SKIPS
       with an explicit reason, and NO new finding lands against this change or
-      its documents (FR-025, SC-009). Plus `pytest tests/doc-health/` whole
-      suite green against 0.3's baseline.
+      its documents (FR-025, SC-009), **excluding the `document-catalog`
+      family's `coverage` and `stale-entry` classes against documents THIS
+      change adds or edits** (gate ruling G8). Those three arms — coverage for
+      the new `examples/client-identity-roster/README.md`, stale-entry for the
+      `contracts/CHANGELOG.md` and `contracts/README.md` edits, and revision
+      re-staling when the catalog merges — are LAGGING AGGREGATION-CATALOG
+      STATE, not defects: the snapshot is aggregation-hosted and the nightly
+      catalog lane's merge phase cures them in ONE cycle (precedent:
+      `openxdox-naming.md`, whose identical coverage finding self-healed on
+      the next nightly). Record the excluded findings verbatim in the run
+      notes with that reason, so the exclusion is auditable rather than a
+      silent pass. **Every other family, and every other `document-catalog`
+      class, fails this task unqualified** — including a `coverage` or
+      `stale-entry` finding against a document this change did NOT touch.
+      A demonstration run of the merge phase is OPTIONAL and, if done, runs in
+      a THROWAWAY aggregation checkout with
+      `--catalog-unavailable-reason worker_unavailable` — **never in the
+      shared `/home/brett/projects/xFactory` checkout**, which it would leave
+      carrying uncommitted `runs/` and `.sequence/` state the porcelain guard
+      (10.6) does not cover.
+      Plus `pytest tests/doc-health/` whole suite green against 0.3's baseline.
       *Verification*: the report renders a `client-identity-composition`
       section (which is why 6.4 adds the id to `FAMILY_IDS`).
 - [ ] 10.4 **All validator self-tests green**, each compared against 0.3's
@@ -1149,6 +1282,31 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       success (SC-011).
       *Verification*: clean porcelain under `xFactories/`; `pytest tests/`
       green with the guard registered.
+- [ ] 10.7 **The pre-archive delta-fidelity assertion** (gate ruling G7;
+      precedent
+      `openspec/changes/archive/2026-08-04-add-ideation-cross-reference-readiness/tasks.md:5`,
+      which records exactly this rebase for the same requirement). BEFORE the
+      archive step runs, verify that the `doc-health` delta's MODIFIED
+      "Deterministic check families" block is REBASED onto the promoted
+      requirement as it then stands: every promoted scenario restated verbatim
+      (seven at the time of writing — "A run executes the check families" with
+      all of its THEN/AND bullets, "Lifecycle conformance checks fire", "A
+      register carries staged status", "Drift checks fire", "Catalog
+      conformance checks fire", "Routing conformance checks fire", "Origin
+      conformance checks fire"), plus THIS change's additions and nothing else.
+      The archive rewrites a requirement WHOLESALE from the delta's text, per
+      requirement and not per capability, so any promoted scenario the delta
+      omits is DELETED on landing. Apply the same check to the
+      `consent-instrument` delta's restated lifecycle requirement. If the
+      promoted text has moved since (another lane landing first), rebase again
+      — the assertion is against the promoted file at archive time, never
+      against this file's snapshot of it.
+      *Verification*: diff the delta block against
+      `openspec/specs/doc-health/spec.md`'s promoted requirement — every
+      promoted scenario present; then `openspec validate
+      add-client-identity-roster --strict` and `--all --strict` (10.2). The
+      2026-08-15 rebase is recorded in
+      `openspec/changes/add-client-identity-roster/review/amendment-record-2026-08-15.md`.
 
 ---
 
@@ -1160,7 +1318,7 @@ nothing was orphaned.
 
 | Requirement | Tasks |
 |---|---|
-| FR-001 | 1.4, 1.5 |
+| FR-001 | 1.4 (fragment, incl. `client_tenant`), 1.5 (entry, incl. `provider_object_ref`) |
 | FR-002 | 1.6, 2.5, 4.1 (`scope-exceeds-unit-undeclared.yaml`) |
 | FR-003 | 1.6, 2.5, 4.1 |
 | FR-004 | 2.6, 4.4 |
@@ -1171,9 +1329,9 @@ nothing was orphaned.
 | FR-009 | 1.7, 2.6, 3.3, 4.1 |
 | FR-010 | 1.7, 2.5 (scope excess), 2.6, 3.2, 4.1 |
 | FR-011 | 1.7, 2.9, 4.1 (missing enforcement test), 4.5 (fixture 4: unresolvable obligation) |
-| FR-012 | 1.8, 2.7, 4.1 |
+| FR-012 | 1.4 (`client_tenant`, ruling G2), 1.8, 2.7, 4.1 |
 | FR-013 | 1.7, 2.7, 3.4, 3.5 (the `retired` entry), 4.1 |
-| FR-014 | 2.8 (presence), 2.9 (resolution), 4.1, 4.5 (fixtures 2 and 6) |
+| FR-014 | 2.8 (presence), 2.9 (resolution + the lifecycle-scoped in-force test), 3.5 (the `retired` entry's ended instrument), 4.1, 4.5 (fixtures 2, 6, and 8 — the non-retired entry citing an ended instrument) |
 | FR-015 | 2.1 (shape, argument, exit codes) + 2.3–2.10 ("enforce every intra-repo rule") |
 | FR-016 | 4.1, 4.2, 4.3, 4.4, 4.5, 4.8, 6.5 |
 | FR-017 | 3.2, 3.3, 3.4, 3.5, 4.6 |
@@ -1182,7 +1340,7 @@ nothing was orphaned.
 | FR-020 | 1.10, 2.9, 9.1 |
 | FR-021 | 9.1–9.6 |
 | FR-022 | 2.10, 5.1, 5.2, 5.3 |
-| FR-023 | 6.1, 6.2, 6.3, 6.4, 6.5, 6.6 |
+| FR-023 | 6.1, 6.2 (both disjuncts, ruling G4), 6.3, 6.4, 6.5, 6.6 |
 | FR-024 | 6.2, 6.5, 6.6 |
 | FR-025 | 6.4, 10.3 |
 | FR-026 | 8.3, 8.4, 8.5 |
@@ -1195,7 +1353,7 @@ nothing was orphaned.
 | FR-033 | 1.6 |
 | FR-034 | 1.2, 1.4, 2.3, 2.8, 4.2 |
 | FR-035 | 1.9, 3.6, 4.3 |
-| FR-036 | 2.9, 4.5 (fixture 5) |
+| FR-036 | 2.9 (exact-path predicate), 4.5 (fixtures 5 and 7 — outside `credentials/`, and nested inside the declared directory) |
 | FR-037 | 1.6, 2.9, 4.2 (`evidence-ref-malformed.yaml`), 8.3 |
 | FR-038 | 2.4, 3.5 (both genuine pairs), 4.1 (alias-pair negative), 4.6 |
 | FR-039 | 8.1, 8.2, 8.5 |
@@ -1203,7 +1361,7 @@ nothing was orphaned.
 | SC-002 | 3.3, 3.4, 3.5, 4.6, 10.5 |
 | SC-003 | 3.2 |
 | SC-004 | 1.5, 3.2 |
-| SC-005 | 2.9, 4.5 (fixture 5) |
+| SC-005 | 2.9, 4.5 (fixtures 5 and 7) |
 | SC-006 | 5.1, 6.7, 5.3 (residual) |
 | SC-007 | 8.5, 8.6 |
 | SC-008 | 7.1, 7.2, 7.3 |

@@ -52,7 +52,7 @@ instrument keeps its verdict.
 - [x] CHK730 Are the fixtures for the new behaviour required to prove the obligation fires IDENTICALLY on both terminating events? [Measurability, tasks §8.5]
 - [x] CHK731 Is the positive fixture required to exercise the new status AND the new dependent kind together? [Coverage, tasks §8.5]
 - [x] CHK732 Is the promoted consent spec text excluded from edits, by the same rule as doc-health's? [Consistency, plan §decision 15, research §Decision 5]
-- [x] CHK733 Is the roster side's use of the consent lifecycle ("in force" = executed or amended) consistent with the grown set, i.e. does it exclude `withdrawn`? [Consistency, Spec §FR-014, §FR-039]
+- [x] CHK733 Is the roster side's use of the consent lifecycle ("in force" = executed or amended) consistent with the grown set — excluding `withdrawn` for every entry the in-force test APPLIES to, and exempting `retired` entries from that test entirely? [Consistency, Spec §FR-014, §FR-039] — AMENDED by gate ruling G1: the in-force test is now lifecycle-scoped. Resolution binds every entry; the in-force condition binds `planned` and `enrolled` only, because the ratified cascade drives withdrawal or termination through to identity retirement while FR-013 keeps the retired record, so an ended instrument is the EXPECTED citation of a `retired` entry. The item's original unscoped reading would have held the gate permanently red on the cascade's own correct end state.
 
 ## Notes
 
@@ -60,4 +60,7 @@ instrument keeps its verdict.
   scope-containment and ratified-fidelity checklists.
 - CHK733 is the item most at risk of silent staleness later: the roster validator hard-codes
   the in-force set, so a future growth of the consent lifecycle must revisit it. It passes
-  today because FR-014 names all four excluded states including `withdrawn`.
+  today because FR-014 names all four excluded states including `withdrawn` — and, after
+  gate ruling G1, because it also names WHICH entries the in-force test binds. A future
+  lifecycle growth must revisit both halves: the excluded-state list AND the lifecycle
+  scoping.

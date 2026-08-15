@@ -29,7 +29,7 @@ residuals each carries at archive.
 - [x] CHK613 Is the family's scope restricted to CROSS-DOMAIN concerns, with duplication of intra-repo rules forbidden by requirement? [Scope, Spec §FR-023]
 - [x] CHK614 Is that prohibition given a measurement (no intra-repo finding code ever appears in the family's output)? [Measurability, tasks §6.6]
 - [x] CHK615 Are the two finding classes defined by PREDICATE rather than by the delta's prose names? [Clarity, research §Decision 6]
-- [x] CHK616 Is `shared-identity-material` keyed on identity MATERIAL rather than on collocation, so FR-024's non-finding survives? [Constraint fidelity, Spec §FR-024, research §Decision 6]
+- [x] CHK616 Is `shared-identity-material` keyed on identity MATERIAL rather than on collocation, so FR-024's non-finding survives? [Constraint fidelity, Spec §FR-024, research §Decision 6] — the item's wording stands, but it passed for the wrong reason before gate ruling G4: the second disjunct read `principal_locations[]`, which carries TENANT identifiers, so read literally it intersected on the shared client tenant and refused FR-024's non-finding. The disjunct is now equal `provider_object_ref` declared by BOTH entries, and the claim is true as stated.
 - [x] CHK617 Is the FR-024 non-finding required to be measured by a fixture, not only stated? [Measurability, tasks §6.5, §6.6]
 - [x] CHK618 Are the family's skips required to be EXPLICIT with a reason, rather than silence or a false pass? [Observability, Spec §FR-023, §US5-AS3]
 - [x] CHK619 Is the skip's granularity specified (corpus-level, not per client), with the reason a per-client skip would suppress real findings? [Clarity, research §Decision 6]

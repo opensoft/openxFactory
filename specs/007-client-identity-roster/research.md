@@ -553,8 +553,19 @@ tuple.
 
 The promoted requirement text at `openspec/specs/consent-instrument/spec.md:69-74`
 ("the closed five-state lifecycle") is PROMOTED text and is **not** edited by
-this feature, by the same rule FR-025 states for doc-health: the OpenSpec
-archive step rewrites promoted spec text after this feature lands.
+this feature, by the same rule FR-025 states for doc-health. **What the
+archive step actually rewrites is narrower than the pre-gate wording here
+claimed, and the difference is load-bearing** (gate ruling G5): the archive
+operates PER REQUIREMENT, not per capability — it replaces only those
+requirements a delta RESTATES by heading, and a promoted requirement no delta
+carries survives the archive untouched. Declaring a capability MODIFIED is
+therefore not sufficient to rewrite anything inside it; the delta must carry
+each requirement it changes. That is why this packet's
+`specs/consent-instrument/spec.md` now restates "The Lifecycle Enum Is Closed
+With Declared Aliases" in its six-state form: without that restatement the
+promoted capability would keep its five-state text and contradict both this
+feature's shipped enum and its own cascade requirement. Recorded in
+`openspec/changes/add-client-identity-roster/review/amendment-record-2026-08-15.md`.
 
 ### The dependent-kind member
 
@@ -713,12 +724,29 @@ The ratified delta names them in prose only, so the plan fixes their
 predicates:
 
 - **`shared-identity-material`** — two fragments for one `client_ref` from
-  DIFFERENT `domain` values whose entries name the same identity MATERIAL:
-  the same `identity_ref`, or the same provider-native application identifier
-  in `principal_locations[]`. Keyed on material, NEVER on (surface, class)
-  collocation — FR-024 makes two domains each holding their own separate
-  identity on one surface and class conformant at every level, and a fixture
-  proves the discrimination.
+  DIFFERENT `domain` values whose entries name the same identity MATERIAL,
+  on EXACTLY TWO disjuncts: the same `identity_ref`, OR the same
+  `provider_object_ref` where BOTH entries declare it. Keyed on material,
+  NEVER on (surface, class) collocation — FR-024 makes two domains each
+  holding their own separate identity on one surface and class conformant at
+  every level, and a fixture proves the discrimination.
+
+  **The second disjunct was corrected at the pre-implementation gate (ruling
+  G4).** It read "the same provider-native application identifier in
+  `principal_locations[]`", and that field carries TENANT identifiers, not
+  object identifiers. Read literally the rule intersects on the shared client
+  tenant — which two domains holding separate identities for one client
+  necessarily share — and refuses FR-024's ratified non-finding, the exact
+  outcome this predicate was written to avoid. The cure is a DECLARED field
+  rather than a deleted disjunct: `provider_object_ref`, an optional entry
+  property carrying the provider-native OBJECT identifier (an Entra `app_id`;
+  `OpsxFactory:tenants/farheap-bc-observer-identity-evidence-v1.yaml` already
+  records exactly this fact for the worked case). Two domains that really do
+  share one Entra application share that value, and no amount of tenant
+  collocation produces it. The disjunct fires only when both entries declare
+  it, because an absent declaration is not evidence of sharing — the same
+  posture the estate takes everywhere else in this feature: declare the fact,
+  never infer it.
 - **`undeclared-cross-domain-reach`** — an admission act or `declared_excess`
   in domain A's fragment achieves scope over an admission surface for which A
   publishes no entry, while another domain's fragment for the same client

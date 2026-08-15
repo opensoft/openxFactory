@@ -22,7 +22,7 @@ and that a term means the same thing wherever it appears.
 - [x] CHK809 Do the coverage-table rows still match the tasks that realize each requirement after F-009's corrections and this pass's three additions? [Traceability, tasks §Requirement → task coverage]
 - [x] CHK810 Is the FR-030 baseline still written OUTSIDE the tracked tree (F-010), given every commit in this lane stages the feature directory wholesale? [Scope, tasks §0.3]
 - [x] CHK811 Is the verification-timing convention (work and verification may land in different phases) still stated, so F-011's apparent cycle is not re-raised? [Clarity, tasks §Format]
-- [x] CHK812 Do the negative totals reconcile after F-012's correction and this pass's additions? [Consistency, plan §Cluster C]
+- [x] CHK812 Do the negative totals reconcile after F-012's correction, this pass's additions, and the gate pass's two repo fixtures? [Consistency, plan §Cluster C] — RE-CHECKED after gate rulings G1/G3: 31 packaged unchanged, repo-shaped six → eight, refusing probes 36 → 38, rule-homes unchanged at 34 (see CHK406).
 - [x] CHK813 Does Phase 7 still state why it has no build dependency despite naming an artifact fixed in Phase 1 (F-013)? [Clarity, tasks §Phase 7 header]
 - [x] CHK814 Are the three external-checkout dependencies still established by a Phase 0 task (F-014)? [Dependency, tasks §0.3]
 - [x] CHK815 Are the README claims in research still true of the tree (F-015)? [Traceability, research §Examples layout]

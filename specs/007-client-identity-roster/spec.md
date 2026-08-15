@@ -376,7 +376,7 @@ validate unchanged, which the additive growth guarantees.
 Two domain factories hold identities in the same client tenant. A nightly
 deterministic pass assembles their published fragments per client and reports
 only the genuinely cross-domain concerns: identity material shared between
-domains, and reach into a surface a domain did not declare. Two domains each
+domains, and reach into a surface a domain publishes no entry for. Two domains each
 holding their own separate identity on one surface and class is explicitly NOT
 a finding — separate identities are what preserve provider-side attribution and
 independent revocation.
@@ -527,10 +527,13 @@ remove an identity, permission, or admission.
 - **FR-001**: The feature MUST define a canonical schema
   `contracts/schemas/xfactory-client-identity-roster.schema.yaml` carrying
   `schema_version` and `kind`, describing a per-client, per-domain roster
-  fragment with `client_ref`, `domain`, and `entries[]`, where each entry
+  fragment with `client_ref`, `client_tenant`, `domain`, and `entries[]`,
+  where each entry
   carries `identity_ref`, `identity_kind`, `home_tenant`,
   `principal_locations[]`, `residency_model`, `admission_surface`, `duty`,
   `blast_radius_unit`, `authority_class_intended`, `authority_class_achieved`,
+  the OPTIONAL `provider_object_ref` required by FR-023's shared-material
+  disjunct,
   `granted_permissions[]`, `admission[]`, `declared_excess`,
   `per_unit_principal_available`, `lifecycle_state`,
   `standing_credential_attestation`, `ratified_by` (domain-qualified), and
@@ -539,9 +542,19 @@ remove an identity, permission, or admission.
   that fragment to its provider-native identifier, and each entry MAY carry the
   OPTIONAL `duty_separation_rationale` required by FR-038's alias rule. The
   field list above is the ratified one (OpenSpec task 2.1) and MUST NOT be
-  reduced; the legend and the duty-separation rationale are the only additions
-  to THIS ENTRY LIST, and each exists because ruling R7's own rule cannot be
-  evaluated without it. The one addition to the ADMISSION ACT's list —
+  reduced; every addition to it is enumerated here, and each exists because a
+  ratified rule cannot be evaluated without it — the legend and the
+  duty-separation rationale (ruling R7), and `provider_object_ref` (gate
+  ruling G4, the shared-material disjunct). The FRAGMENT gains exactly one
+  addition on the same footing: `client_tenant`, a REQUIRED string carrying
+  the provider tenant identifier of the client the fragment covers, in the
+  same dialect as `home_tenant` and `principal_locations[]`. It is the
+  comparand FR-012's client-resident rule has to have — `client_ref` is a
+  governance slug, not a tenant identifier, so without it the ratified refusal
+  of a vendor-homed registration declared client-resident is unevaluable, and
+  the alternative of inferring residency from
+  `home_tenant ∈ principal_locations[]` cannot catch an identity homed in the
+  WRONG client's tenant. The one addition to the ADMISSION ACT's list —
   `exceeds_governed_unit`, FR-002 — is a different list and is justified on the
   same footing: the ratified requirement that a structural-to-logical
   degradation be a "declared, CHECKABLE, tested fact" cannot be evaluated
@@ -667,6 +680,23 @@ remove an identity, permission, or admission.
   small closed token list declared in the validator and naming the token it
   matched, so the rule stays deterministic and inspectable rather than
   becoming an open-ended reading of prose.
+  The rule MUST ALSO carry the CURE conjunct US1 acceptance scenario 4
+  mandates ("passes only once the excess, its provider reason, and its
+  bounding mechanism are declared"): the name finding fires only when the
+  observation token AND `authority_class_achieved: mutate` are BOTH present
+  AND the entry declares NO `declared_excess` covering the class overshoot.
+  "Covering" means PRESENT, because `declared_excess` is a single object;
+  if a per-excess split ever lands, this MUST be re-keyed to the
+  class-overshoot member rather than left reading the object's presence.
+  Without the conjunct the rule fires on the mandated Business Central
+  positive — an entry named for observation, achieving `mutate`, with its
+  excess fully declared — which three artifacts require to validate with ZERO
+  findings.
+  The POST-CURE RESIDUAL MUST be stated rather than left implicit: an entry
+  that declares `authority_class_intended: mutate` and
+  `authority_class_achieved: mutate` has no excess to declare and therefore no
+  cure available, so an observation-suggesting name on such an entry MUST be a
+  finding and the only remedy is to rename the identity.
   That token list is a DETECTOR, not a guarantee, and its blind spot MUST be
   stated rather than discovered: a name using an observation word outside the
   list escapes it. The list is admissible only because the load-bearing rule
@@ -690,6 +720,15 @@ remove an identity, permission, or admission.
   registration homed outside the client tenant MUST NOT be declarable as
   client-resident on the grounds that its principal appears in the client
   tenant.
+  That refusal MUST be enforced against the fragment's DECLARED
+  `client_tenant` (FR-001), never against an inferred comparand: under
+  `residency_model: client_tenant_single`, `home_tenant` MUST equal
+  `fragment.client_tenant` AND every `principal_locations[]` member MUST equal
+  `fragment.client_tenant`; a violation MUST be a finding NAMING
+  `home_tenant`. A containment reading (`home_tenant` merely appearing in
+  `principal_locations[]`) MUST NOT be used, because it passes an identity
+  homed in the wrong client's tenant — the exact case the ratified refusal
+  exists to catch.
 - **FR-013**: Each entry MUST carry `lifecycle_state` of `planned`, `enrolled`,
   or `retired` and a standing-credential attestation. A `planned` entry MUST
   validate and MUST NOT be reported as missing or incomplete; a retired entry
@@ -698,17 +737,30 @@ remove an identity, permission, or admission.
 - **FR-014**: Each entry MUST name both the domain-qualified ratified
   capability that justifies the identity and the consent instrument that
   authorizes its standing in the client's tenant, with the instrument citation
-  resolving to an instrument in force. An entry citing a capability and no
+  resolving to an instrument record. An entry citing a capability and no
   instrument MUST be invalid. A `mutate` entry naming no ratified capability
   MUST fail the owning domain's gate rather than emit a report-only finding.
   The INSTRUMENT citation MUST actually resolve — presence of a citation is not
   resolution — and that resolution MUST be INTRA-REPO, against the TARGET domain
   repository's own consent-instrument records, which makes it a repo-context
   rule of the same class as FR-011's gate obligation and explicitly NOT a
-  cross-repository read of the kind FR-037 forbids. "In force" MUST be read
-  against the consent family's own closed lifecycle: an instrument that is
-  `executed` or `amended`, never one that is `draft`, `pending_signatures`,
-  `terminated`, or `withdrawn`. Because the consent family declares no domain
+  cross-repository read of the kind FR-037 forbids.
+  **Resolution binds every entry; the additional IN-FORCE condition is scoped
+  by the entry's lifecycle state.** For an entry whose `lifecycle_state` is
+  `retired`, the resolved instrument need NOT be in force — an ENDED
+  instrument is the expected state there, because the ratified consent cascade
+  runs withdrawal or termination THROUGH to identity retirement while FR-013
+  mandates that the retired entry RETAIN its record. An unscoped in-force rule
+  would therefore turn the cascade's own correct end state into a permanently
+  red blocking gate, and the only way to clear it would be to delete the
+  record FR-013 requires kept. For every OTHER entry — `planned` and
+  `enrolled` — the resolved instrument MUST be in force. "In force" MUST be
+  read against the consent family's own closed lifecycle: an instrument that
+  is `executed` or `amended`, never one that is `draft`,
+  `pending_signatures`, `terminated`, or `withdrawn`. A NON-retired entry
+  citing an ended instrument MUST be a finding naming the entry, the
+  instrument and its status; a retired entry citing that same instrument MUST
+  validate clean. Because the consent family declares no domain
   placement, resolution MUST use the mechanism its own validator uses — a kind
   sweep for `xfactory_consent_instrument` over the target repo, matching the
   citation against each record's `instrument_id`. The CAPABILITY citation MUST
@@ -823,6 +875,17 @@ remove an identity, permission, or admission.
   there is nothing to compose, MUST make no model call or network request, and
   MUST classify a finding that contradicts a ratified capability as contested
   rather than auto-fixable.
+  `shared-identity-material` MUST be keyed on identity MATERIAL and MUST fire
+  on exactly two disjuncts: two entries from DIFFERENT domains for one client
+  naming the same `identity_ref`, OR two such entries that BOTH declare
+  `provider_object_ref` with EQUAL values. `provider_object_ref` is an
+  OPTIONAL entry field (FR-001) carrying the provider-native OBJECT identifier
+  of the identity — an Entra `app_id`, the fact the BC identity evidence
+  record already carries — and the second disjunct MUST NOT fire when either
+  entry omits it. The disjunct MUST NOT be keyed on `principal_locations[]`,
+  which carries TENANT identifiers: read that way the rule intersects on the
+  shared client tenant and refuses the FR-024 non-finding the ratified delta
+  requires to stay clean.
 - **FR-024**: Two domains each holding their own separate identity on one
   admission surface and authority class in one client tenant MUST NOT be a
   finding at any level.
@@ -831,7 +894,14 @@ remove an identity, permission, or admission.
   "sixteen check families"), NOT with the promoted spec text, which still says
   fifteen and is rewritten by the OpenSpec archive step after this feature
   lands. This feature MUST NOT edit
-  `openspec/specs/doc-health/spec.md`. It MUST update the count-bearing prose
+  `openspec/specs/doc-health/spec.md`. The archive rewrites PER REQUIREMENT
+  and wholesale: it replaces exactly the requirements a delta restates and
+  leaves every other promoted requirement untouched, so the count text is
+  rewritten only because this packet's delta CARRIES "Deterministic check
+  families" — and every promoted scenario inside that requirement MUST be
+  restated in the delta or it is DELETED on landing. Declaring a capability
+  MODIFIED rewrites nothing by itself. This rule extends to every promoted
+  spec this change modifies. It MUST update the count-bearing prose
   sites it owns — at minimum the `scripts/doc_health/families.py` module
   docstring ("The fifteen contract check families." on line 1, plus that
   docstring's note naming which module owns which late family, which must name
@@ -841,6 +911,20 @@ remove an identity, permission, or admission.
   ordinal is not a count. doc-health MUST report no new finding against the
   feature, which is the operative measurement: no automated assertion compares
   the implemented family count against promoted text.
+  That green condition is QUALIFIED, and the qualification is named rather
+  than discovered at the gate: it EXCLUDES the `document-catalog` family's
+  `coverage` and `stale-entry` finding classes raised against this change's
+  own new or edited governed documents. Those two classes are not defects in
+  the change; they are LAGGING AGGREGATION-CATALOG STATE — the catalog
+  snapshot is aggregation-hosted and refreshed by the nightly catalog lane's
+  merge phase, so a new governed document is uncovered, and an edited one
+  stale, until that lane next runs. The cure is mechanical and takes one
+  cycle (precedent: `openxdox-naming.md`, whose identical coverage finding
+  self-healed on the following nightly). Every OTHER family, and every other
+  `document-catalog` finding class, remains inside the green condition
+  unqualified. Excluding these two is not a waiver of the measurement: a
+  finding in either class that names a document this change did NOT touch
+  still fails it.
 - **FR-026**: The `consent-instrument` family MUST admit a governed identity
   standing in the consenting party's tenant as a first-class dependent-artifact
   reference kind — a named member of the closed dependent-kind enumeration
@@ -982,11 +1066,20 @@ remove an identity, permission, or admission.
 
 - **FR-036**: The canonical validator MUST sweep the ENTIRE target repository
   for files carrying `kind: xfactory_client_identity_roster`, not only the
-  declared placement, and MUST report any instance outside
-  `credentials/client-identity-roster/` as a MISPLACEMENT finding naming the
-  offending path and the declared placement. Placement is mechanized, not
-  advisory: without the sweep a stray fragment is covered by no kind-aware
-  validator anywhere in the target repo, whatever tree it lands in.
+  declared placement, and MUST report any MISPLACED instance as a finding
+  naming the offending path and the declared placement. Misplacement MUST be
+  read as an EXACT-PATH predicate, not a directory prefix: a file carrying the
+  kind is misplaced when it is not a DIRECT CHILD of
+  `credentials/client-identity-roster/`. A prefix reading leaves a nested
+  instance (`credentials/client-identity-roster/<sub>/x.yaml`) inside the
+  sweep's tolerance and outside the FLAT validating glob that checks the
+  declared placement — covered by nothing, which is the hole this release
+  MUST NOT ship. The two passes MUST be exactly complementary over the same
+  `*.y*ml` universe: every kind-carrying file is either validated as a
+  declared-placement fragment or reported as misplaced, and never neither.
+  Placement is mechanized, not advisory: without the sweep a stray fragment is
+  covered by no kind-aware validator anywhere in the target repo, whatever
+  tree it lands in.
 - **FR-037**: `evidence_ref` MUST be a DECLARED POINTER — repository, path, and
   optionally a sha — whose SHAPE the canonical validator checks and whose
   TARGET it MUST NOT resolve, because that validator is network-free and reads
@@ -1119,9 +1212,13 @@ remove an identity, permission, or admission.
 - **SC-005**: A fragment at `credentials/client-identity-roster/<client_ref>.yaml`
   is claimed and checked by exactly one canonical validator, and a fragment
   carrying the roster kind ANYWHERE ELSE in the target repo is reported as
-  misplaced by the whole-repo sweep — measured by a misplacement fixture placed
-  outside `credentials/` entirely, with no path by which a roster instance is
-  skipped as out of scope and covered by nothing.
+  misplaced by the whole-repo sweep — measured by TWO misplacement fixtures,
+  one outside `credentials/` entirely and one NESTED inside
+  `credentials/client-identity-roster/<sub>/` (the harder case: inside the
+  declared directory, outside the flat validating glob, and the arm a
+  directory-prefix reading of FR-036 would have let through). Together they
+  measure the complementarity FR-036 requires: no path by which a roster
+  instance is skipped as out of scope and covered by nothing.
 - **SC-006**: The blocking/reporting split holds in measurement: an intra-repo
   nonconformance yields a nonzero exit from the domain gate, while a
   cross-domain shared-identity case yields a doc-health finding and leaves the
@@ -1155,7 +1252,11 @@ remove an identity, permission, or admission.
   FOUR MODIFIED capabilities' existing test suites pass — `consent-instrument`
   and `doc-health` as declared at ratification, plus `domain-conformance-checks`
   and `credential-contracts` as amended by Decisions A and B — and doc-health
-  reports no new finding against the change or its documents.
+  reports no new finding against the change or its documents, read with
+  FR-025's qualification (the `document-catalog` family's `coverage` and
+  `stale-entry` classes against this change's own documents are lagging
+  catalog state cured by the nightly catalog lane, and are excluded; nothing
+  else is).
 - **SC-011**: Every new check and test runs with no outbound network access and
   no model call, and produces byte-identical findings across runs.
 - **SC-012**: No file in any domain repository is modified by this feature, and

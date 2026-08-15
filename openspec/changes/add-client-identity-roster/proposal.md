@@ -176,7 +176,13 @@ this cannot be a domain-local rule.
 ### Modified Capabilities
 
 - `consent-instrument`: dependent-reference cascade reaches governed
-  identities.
+  identities, AND the closed status lifecycle grows from five states to six —
+  `withdrawn` becomes a distinct terminal member alongside `terminated`,
+  never an alias of it, because the cascade obligation this change ratifies
+  fires on "terminated or withdrawn" while the promoted enumeration admits
+  only `terminated` (clarify ruling N1; the requirement text is restated in
+  this packet's `specs/consent-instrument/spec.md`, recorded in
+  `review/amendment-record-2026-08-15.md`).
 - `doc-health`: sixteenth deterministic family, cross-domain scope only.
 - `domain-conformance-checks`: the pack grows to four checks, admitting the
   canonical roster check as blocking (Decision A, 2026-08-14).

@@ -20,7 +20,7 @@ that doc-health reports a finding against the very change that grows it.
 
 ## Promoted spec text
 
-- [x] CHK907 Is the rule that promoted spec text is rewritten by the archive step, not by this feature, stated for doc-health? [Scope, Spec §FR-025]
+- [x] CHK907 Is the rule that promoted spec text is rewritten by the archive step, not by this feature, stated for doc-health — with the per-requirement mechanic that makes the rewrite conditional on the delta carrying the requirement? [Scope, Spec §FR-025] — AMENDED by gate ruling G7: the archive rewrites PER REQUIREMENT and wholesale, so the doc-health delta had to be rebased onto all seven promoted scenarios of "Deterministic check families" (it carried two, which would have deleted six on landing). Task 10.7 now asserts the rebase before archive.
 - [x] CHK908 Is the same rule extended to the OTHER promoted specs this change modifies, rather than left implicit? [Consistency, plan §decision 15]
 - [x] CHK909 Are the three promoted spec paths named explicitly in the NOT-EDITED list? [Completeness, plan §Project structure, tasks §Notes]
 - [x] CHK910 Is the measurement of agreement stated as agreement with the RATIFIED DELTA wording rather than with promoted text? [Clarity, Spec §FR-025]
