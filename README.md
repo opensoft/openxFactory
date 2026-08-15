@@ -225,7 +225,21 @@ Every DomainxFactory must validate against the canonical contract:
   — run from the pinned openxFactory checkout, never copied into domain repos.
 - Credential contracts: [xfactory-credential-contracts schema](contracts/schemas/xfactory-credential-contracts.schema.yaml)
   and `scripts/validate-credential-contracts.py <domain-repo>` — the five
-  credential record kinds under `credentials/` (DTN-004).
+  credential record kinds under `credentials/` (DTN-004). Registered in
+  `contracts/manifest.yaml` for the first time at `contract-v1.32`, which also
+  adds the optional `issuance_preconditions` vocabulary
+  (`add-client-identity-roster`).
+- Client identity roster: [xfactory-client-identity-roster schema](contracts/schemas/xfactory-client-identity-roster.schema.yaml),
+  `scripts/validate-client-identity-roster.py <domain-repo>` and the packaged
+  corpus at [examples/client-identity-roster](examples/client-identity-roster/README.md)
+  — which identities a domain holds STANDING inside a paying client's provider
+  tenant, keyed on (domain, admission surface, authority class, blast-radius
+  unit, duty), with verified admission and achieved scope, and a report-only
+  drift finding that mutates nothing. A domain publishes its fragments at
+  `credentials/client-identity-roster/<client_ref>.yaml`, one file per
+  (client, domain) pair; a domain that publishes none stays conformant and the
+  check reports a notice. Registered at `contract-v1.32`
+  (`add-client-identity-roster`).
 - openxWallet: [contracts/openxwallet](contracts/openxwallet/README.md) (the
   holder-agnostic core) and
   [contracts/openxwallet-agent-profile](contracts/openxwallet-agent-profile/README.md)
@@ -268,8 +282,19 @@ Active changes:
   keyed on (domain, admission surface, authority class, blast-radius unit,
   duty); verified admission with achieved scope; structural scoping
   preferred; declared provider-forced breadth; report-only drift that
-  refuses grant issuance. MODIFIES consent-instrument (cascade reaches
-  identities) and doc-health (sixteenth family).
+  refuses grant issuance. MODIFIES FOUR capabilities: consent-instrument
+  (the cascade reaches identities — `withdrawn` joins the lifecycle as a
+  second terminal state and `dependent_refs` gains the named
+  `governed_identity` kind), doc-health (the sixteenth check family,
+  `client-identity-composition`), `domain-conformance-checks` (the neutral
+  utility pack grows to FOUR checks — Decision A, 2026-08-14) and
+  `credential-contracts` (the optional `issuance_preconditions` vocabulary,
+  every value `const: true` — Decision B, 2026-08-14). Decisions A and B are
+  the 2026-08-14 amendments that added the third and fourth modified
+  capabilities; Decision C (Brett, 2026-08-15) relocated the uncitable
+  multi-surface-reader packaged example to a synthetic representability
+  fixture after its provider precondition was falsified. Registered at
+  `contract-v1.32`.
 - `add-worker-credential-by-reference` — ARCHIVED 2026-08-14
   (`openspec/changes/archive/2026-08-14-add-worker-credential-by-reference/`):
   credential-by-reference is LIVE on all three CPC claude lanes — vault

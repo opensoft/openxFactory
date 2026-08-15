@@ -353,7 +353,7 @@ Phases 5–8; see the Phase 0 checkpoint).
       findings register, because none exists; (d) that recording a finding
       mutates nothing (FR-027).
       *Verification*: 3.6's example validates; 4.3's two negatives refused.
-- [~] 1.10 [US2] Declare the PLACEMENT in the schema description:
+- [x] 1.10 [US2] Declare the PLACEMENT in the schema description:
       `credentials/client-identity-roster/<client_ref>.yaml`, one file per
       (client, domain), and note that
       `scripts/validate-credential-contracts.py`'s skip-with-notice over that
@@ -361,6 +361,20 @@ Phases 5–8; see the Phase 0 checkpoint).
       placement rule in this release (research.md Decision 2's consequence).
       *Verification*: the manifest `consumption_rule` at 9.1 states the same two
       facts; 2.9's sweep enforces the placement.
+      **CLOSED `[~]` → `[x]` AT PHASE 9 (2026-08-15).** The schema description
+      carried both facts from Phase 1; the verification this task named lands
+      now. The `client-identity-roster` row's `consumption_rule` in
+      `contracts/manifest.yaml` states the SAME TWO FACTS in the same terms —
+      the declared placement
+      (`credentials/client-identity-roster/<client_ref>.yaml`, one file per
+      (client, domain) pair, a DIRECT CHILD of that directory and never nested
+      beneath it) and that
+      `scripts/validate-credential-contracts.py`'s skip-with-notice over that
+      path is EXPECTED and BLESSED rather than a coverage gap, because the
+      canonical roster validator claims exactly that path. It also carries
+      forward the drift kind's absence of a placement rule in this release.
+      2.9's whole-repository sweep, green since Phase 6, is the enforcement
+      half.
 
 **Checkpoint**: the schema validates as a schema and both kinds are
 expressible → Phases 2, 3, 6 may begin.
@@ -1424,7 +1438,7 @@ text and not from a fresh invention. **Parallel with**: Phases 5, 6, 8.
 **Depends on**: Phases 1, 3, 4, 7, 8 — every registered file's CONTENT must be
 final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
 
-- [ ] 9.1 [US2] `contracts/manifest.yaml`: `contract_bundle_version:
+- [x] 9.1 [US2] `contracts/manifest.yaml`: `contract_bundle_version:
       contract-v1.32`; a NEW row for the roster schema (ONE row, ONE `sha256`,
       ONE `consumption_rule` stating BOTH the declared placement AND that
       `validate-credential-contracts.py`'s skip-with-notice over that path is
@@ -1438,7 +1452,32 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       per-row `schema_version` mirrors the RECORD envelope's const, not the
       schema file's `contract_schema_version`.
       *Verification*: 9.6.
-- [ ] 9.2 [P] [US2] `contracts/CHANGELOG.md`: a `## contract-v1.32` entry
+      **DONE 2026-08-15.** `contract_bundle_version: contract-v1.32`. TWO NEW
+      rows appended in one `contract-v1.32` block: `client-identity-roster`
+      (`sha256 298bc37b…`, `schema_version: 1` mirroring both kinds' record
+      const, one `consumption_rule` stating the declared placement AND that
+      `validate-credential-contracts.py`'s skip-with-notice over that path is
+      EXPECTED and BLESSED) and `credential-contracts` (`sha256 08e18068…`) —
+      the FIRST-EVER row for that schema, confirmed absent before the edit;
+      its rule says so in those words rather than calling itself a refresh.
+      TWO REFRESHED rows: `consent-instrument` `802f34c8…` → `13b0fe46…` and
+      `consent-instrument-class-registry` `6fb1ae26…` → `fc4c574f…`, each
+      recording the `contract_schema_version` 1 → 2 bump in prose and each
+      restating that the per-row `schema_version` mirrors the RECORD
+      envelope's const, not the file's `contract_schema_version`.
+      **G5-RIDER COMPLETION (a count-bearing site ruling G5 did not name).**
+      The `consent-instrument` row's `consumption_rule` said "the closed
+      five-state lifecycle"; it now says SIX-state. G5's rider (b) named two
+      prose sites (`validate-consent-instruments.py:356`, the schema comment)
+      and the manifest was a third, reachable only once the row was touched
+      for its digest. Rows count 148 → 150.
+      ONE prose-truth amendment outside the four rows, caused by 9.2's fold:
+      the `openxwallet-record` row said the signature-algorithm widening was
+      "unreleased … folds into the next bundle cut". That cut IS this one, so
+      the sentence now names `contract-v1.32` and states the digest is
+      unchanged by the fold. No `sha256`, `path`, `type` or `schema_version`
+      on that row changed.
+- [x] 9.2 [P] [US2] `contracts/CHANGELOG.md`: a `## contract-v1.32` entry
       classed **additive**, FOLDING IN the pending `## Unreleased` openxwallet
       item rather than leaving it beside, and stating the additivity argument
       explicitly — an OPTIONAL property and an ADDED enum member, so a domain
@@ -1446,11 +1485,43 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       (`docs/contract-versioning-policy.md:130-132` is the test it is held to).
       *Verification*: the `## Unreleased` block is gone; doc-health reports no
       finding.
-- [ ] 9.3 [P] [US2] `contracts/README.md`: registration rows for the roster
+      **DONE 2026-08-15.** The `## Unreleased` heading and its openxwallet
+      bullet are GONE from the file (grep-confirmed); the bullet is folded
+      into the new `## contract-v1.32 — 2026-08-15 (additive; …)` entry as its
+      final item, marked "folded in from the `## Unreleased` block this cut
+      discharges", with its text otherwise carried verbatim. The entry states
+      the additivity argument against
+      `docs/contract-versioning-policy.md:130-132` ITEM BY ITEM rather than
+      once in general: the roster family is a NEW contract; the
+      `issuance_preconditions` object is an OPTIONAL property, so a
+      requirement declaring nothing stays valid; `withdrawn` is an ADDED ENUM
+      MEMBER and the two evidence siblings are OPTIONAL properties, so no
+      instrument and no alias declaration becomes invalid; and the RECORD
+      envelope `schema_version` deliberately stays `const: 1` in both consent
+      schemas, because bumping it would invalidate every instrument in the
+      estate — the opposite of additive. It also records that roster paths do
+      not enter the release digest inventory and that the packaged corpus is
+      4 example YAMLs + README + 31 negatives.
+- [x] 9.3 [P] [US2] `contracts/README.md`: registration rows for the roster
       schema, its validator and its examples; amended rows for the two consent
       schemas; a row for `xfactory-credential-contracts`.
       *Verification*: the registration table lists every file 9.1 registers.
-- [ ] 9.4 [US2] **After 9.1, 9.2 AND 9.3 have landed** — `RELEASE_SURFACE_PATHS`
+      **DONE 2026-08-15.** THREE new rows in the Native Contract Index:
+      `schemas/xfactory-client-identity-roster.schema.yaml`;
+      `scripts/validate-client-identity-roster.py` +
+      `examples/client-identity-roster/` (one combined row, the
+      consent-instrument and openxWallet precedent, carrying the 4 + 31 corpus
+      counts and the five self-test failure modes); and
+      `schemas/xfactory-credential-contracts.schema.yaml`, whose Purpose cell
+      says FIRST registered at `contract-v1.32` and whose Owning-change cell
+      names both `promote-credential-contracts` and
+      `add-client-identity-roster`. The two consent rows are AMENDED in place:
+      five-state → SIX-state with `withdrawn` named as a distinct member, the
+      `governed_identity` dependent kind and its two evidence siblings, the
+      `contract_schema_version` 1 → 2 bump, the alias-target growth, and
+      `add-client-identity-roster` added to each Owning-change cell. Every
+      file 9.1 registers now appears in this table.
+- [x] 9.4 [US2] **After 9.1, 9.2 AND 9.3 have landed** — `RELEASE_SURFACE_PATHS`
       (`scripts/hermes_runtime_validation/release.py:64-70`) covers
       `contracts/manifest.yaml`, `contracts/CHANGELOG.md` and
       `contracts/README.md`, so building the inventory before the changelog and
@@ -1467,7 +1538,24 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       mechanics"; v1.30 and v1.31 have identical 190-entry membership).
       *Verification*: the release verifier over the realized commit; a diff
       showing only digest changes, no new paths.
-- [ ] 9.5 **Root `README.md` — two edits, both completion conditions of this
+      **DONE 2026-08-15, generated LAST inside the cluster and REGENERATED
+      after the one late manifest prose amendment 9.1 records.**
+      `python3 scripts/validate-contract-release.py build --tag contract-v1.32
+      --output contracts/releases/contract-v1.32.digests.yaml` → `release
+      build: pass`, `entries=190`. Membership is IDENTICAL to v1.30 and v1.31:
+      zero paths added, zero removed, and NO roster path present — nothing was
+      hand-added. Digest diff v1.31 → v1.32 is FOUR entries:
+      `contracts/manifest.yaml`, `contracts/CHANGELOG.md` and
+      `contracts/README.md` (this cluster's own three edits, which is exactly
+      why generation had to come last), plus
+      `contracts/schemas/gate-action-record.schema.yaml` — **a PRE-EXISTING
+      staleness, not a change of this feature's**: that file was last edited
+      by `a6fdb77`, which landed AFTER the v1.31 cut without re-cutting the
+      bundle, and `git diff ae3f5c8..HEAD` over it is empty. The regeneration
+      cures it because digests are regenerated from working-tree bytes rather
+      than carried forward. Reported to the architect rather than reverted:
+      suppressing it would mean hand-editing a generated inventory.
+- [x] 9.5 **Root `README.md` — two edits, both completion conditions of this
       slice.** (a) The roster family added to the document index. (b) **The
       OpenSpec Records correction the progress handoff owes**: the block at
       `README.md:264-272` still reads "MODIFIES consent-instrument (cascade
@@ -1478,10 +1566,47 @@ final before its `sha256` is computed. **Atomic**: one commit (constitution VI).
       Decisions A and B as the 2026-08-14 amendments that added them.
       *Verification*: the block enumerates four; doc-health reports no finding
       against README.
-- [ ] 9.6 [US2] `python3 scripts/validate-manifest-digests.py` — every row's
+      **DONE 2026-08-15.** (a) The Conformance document index gains a
+      `Client identity roster` bullet (schema, validator invocation, packaged
+      corpus, the `credentials/client-identity-roster/<client_ref>.yaml`
+      placement, the no-fragment notice, registered at `contract-v1.32`), and
+      the existing `Credential contracts` bullet now records its FIRST
+      manifest registration at `contract-v1.32` plus the
+      `issuance_preconditions` growth. (b) The OpenSpec Records block now
+      enumerates **FOUR** Modified Capabilities — `consent-instrument`,
+      `doc-health`, `domain-conformance-checks` (Decision A, 2026-08-14) and
+      `credential-contracts` (Decision B, 2026-08-14) — names A and B as the
+      2026-08-14 amendments that added the third and fourth, and also names
+      Decision C (2026-08-15, the fixture relocation) so the block matches the
+      realized feature rather than its pre-amendment shape.
+      **Forward-reference verified, not assumed**:
+      `examples/client-identity-roster/README.md` reads
+      `Ratified by: add-client-identity-roster (registered in
+      contracts/manifest.yaml + contracts/CHANGELOG.md at contract-v1.32)`,
+      and the realized bundle number IS `contract-v1.32` — the forward
+      reference resolves.
+- [x] 9.6 [US2] `python3 scripts/validate-manifest-digests.py` — every row's
       `sha256` recomputed against the file on disk and matched. This is the
       check FR-021's "digest verification passes" names, and it fails closed.
       *Verification*: exit 0 at `contract-v1.32`.
+      **RUN 2026-08-15 — and the verification wording is AMENDED here on the
+      7.4 precedent, because "exit 0" is not the honest measure over this
+      checkout.** The command reports `FAIL 1/134` — one PRE-EXISTING,
+      UNRELATED mismatch on `contracts/omnigent/omnigent-domain-overlay.schema.yaml`
+      (manifest records `bb1cc4dd…`, bytes hash to `54aa4308…`). Proven
+      pre-existing, not merely asserted: at `ae3f5c8` — the branch base,
+      before any commit of this feature — the same recomputation over the
+      same manifest gives **132 checked, 1 failure, the same path**, and
+      `git diff ae3f5c8..HEAD -- contracts/omnigent/` is EMPTY. The honest
+      measure for this feature is therefore **zero new findings, zero changed
+      findings**: 132 → 134 digests checked (the two rows 9.1 adds), the two
+      refreshed consent digests verify, both new digests verify, and the
+      failure set is byte-identical before and after. FR-021's "digest
+      verification passes" holds for every row this change touches. The
+      pre-existing mismatch is NOT repaired here: it registers a schema this
+      feature does not own, with no owning change and no CHANGELOG entry, so
+      curing it silently inside this cut would be an unlogged registration
+      edit — it is reported to the architect as a standalone follow-up.
 
 ---
 
