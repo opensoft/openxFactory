@@ -1376,3 +1376,18 @@ repo scope.
   Editor/Preview default, 6 concurrent-edit/stale-hash safety) dispositioned
   2026-08-15 (accepted as recommended; (1) and (3) stay open as Phase B) —
   Phase A proposal drafting next.
+- **Phase A proposal raised 2026-08-15** as `add-doxbench-editing-phase-a`
+  (active change; one `ideation-dashboard` delta — the canvas presents the
+  ACTIVE buffer chosen by the context region, the Editor/Preview view-tab
+  pair replaces the split pane, one Save and one Cancel replace the
+  per-buffer toolbar pair, the chat binds to the active buffer and each turn
+  record names it, and the panel controls stay inside the per-buffer
+  staleness guard). The topic stays STAGED with (1) and (3) open: Phase B —
+  numbered multi-document tabs, the docs-wheel edit verb, the dirty-tile
+  marker, and the N-buffer generalization — is explicitly out of that
+  proposal's scope. Reading the code for the proposal settled the Conflicts
+  section's per-buffer-vs-panel-level Save question: `save()` is ALREADY
+  whole-canvas (`BUFFER_KINDS.filter(dirty)`, one seam call) and merely drawn
+  twice, so Claim 6 changes the button count and no Save semantics; Discard
+  is the genuinely per-buffer control, and Q2 names the ACTIVE buffer as
+  Cancel's target.
