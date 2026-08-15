@@ -1,0 +1,19 @@
+# gate-intent — one human's REQUEST for a gate-console action
+# (gate-intent.schema.yaml). The actor was stamped by the intent inbox
+# from the ingress-authenticated identity; the apply lane revalidated
+# everything server-side before this file gained its terminal status.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: dispose-possible
+target:
+  possible_id: pos-openxdox-dispatch-readiness-20260814
+args:
+  note: openXdox dispatch-token readiness
+  outcome: accepted
+requested_at: '2026-08-15T01:22:03.519457+00:00'
+snapshot_rev_seen: 66ca33fd5a9556fe8edb022fbd7b18c4e80dab2d
+status: refused
+idempotency_key: 13c699ab338d962142700058b4ac6c12c9d43e9df38caf3bee6d3e6138a92e76
+refusal_reason: "snapshot_rev_seen 66ca33fd5a9556fe8edb022fbd7b18c4e80dab2d is not\
+  \ a commit this checkout knows \u2014 the viewed state is unverifiable"
