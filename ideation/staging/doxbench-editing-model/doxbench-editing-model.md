@@ -321,8 +321,9 @@ for Cancel) — this topic's Save/Cancel controls are a UI binding onto
 existing machinery, not a new persistence or reversal mechanism. The only
 open engineering question underneath is the N-buffer save-ordering rule
 (see the Conflicts section), not the semantics of what Save or Cancel MEAN.
-Disposition status: open
+Disposition status: accepted-as-recommended (Brett, 2026-08-15) — feeds the Phase A proposal
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
+Dispositioned-by: Brett Heap (ruling relayed in-session) · 2026-08-15
 
 ### Q3. How does dirty-tile signaling on the wheel get stored and displayed?
 
@@ -369,8 +370,9 @@ supplied buffer) rather than inventing a second context-tracking mechanism
 beside it — the generalization is in WHAT can be named as active (any open
 buffer, not only "outline" or "the one document"), not in the binding rule
 itself.
-Disposition status: open
+Disposition status: accepted-as-recommended (Brett, 2026-08-15) — feeds the Phase A proposal
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
+Dispositioned-by: Brett Heap (ruling relayed in-session) · 2026-08-15
 
 ### Q5. What is the Editor/Preview tab pair's default and sync behavior?
 
@@ -389,8 +391,9 @@ Explanation: defaulting to Preview matches the "large-screen reading"
 framing Claim 3 already uses for the read verb, and reusing the debounced
 preview pipeline that already exists (rather than building a second
 rendering path) keeps this a layout change, not a new rendering feature.
-Disposition status: open
+Disposition status: accepted-as-recommended (Brett, 2026-08-15) — feeds the Phase A proposal
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
+Dispositioned-by: Brett Heap (ruling relayed in-session) · 2026-08-15
 
 ### Q6. How is concurrent-edit safety preserved once state generalizes to N buffers?
 
@@ -411,8 +414,9 @@ buffer-scoped, not state-scoped — nothing about it assumes there are only
 two buffers, so widening the buffer set does not require a new safety
 mechanism, only applying the existing one N times instead of twice. This is
 the one place the generalization is close to free.
-Disposition status: open
+Disposition status: accepted-as-recommended (Brett, 2026-08-15) — feeds the Phase A proposal
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
+Dispositioned-by: Brett Heap (ruling relayed in-session) · 2026-08-15
 
 ## Exit
 

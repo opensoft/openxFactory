@@ -285,6 +285,26 @@ Active changes:
   `relation_to_baseline: additive_constraints_only`. MODIFIES
   hermes-domain-overlay (six requirements). Related, not blocking: staged
   topic `subject-establishment` (DTN-017), which gains a landing surface.
+- [add-doxbench-editing-phase-a](openspec/changes/add-doxbench-editing-phase-a/proposal.md)
+  — authored 2026-08-15, Phase A of the `doxbench-editing-model` staged topic
+  (sequenced first of Brett's four 2026-08-15 topics; its four Phase-A open
+  questions were dispositioned accepted-as-recommended the same day). Brett's
+  model is one sentence — left selects, center chat works, right shows the
+  result — and Phase A is the half of it that fits the EXISTING two-buffer
+  machinery with no invariant break: the authoring canvas presents the ACTIVE
+  buffer, chosen by the context region rather than by a second tablist of its
+  own; an Editor/Preview VIEW-TAB pair replaces the side-by-side
+  textarea+preview split, with Preview the default and a flush on every switch
+  into it; one Save and one Cancel replace the duplicated per-buffer toolbar
+  pair (Save keeps its ratified branch-session semantics unchanged — reading
+  the code showed `save()` was ALREADY whole-canvas and merely drawn twice —
+  while Cancel discards the ACTIVE buffer to its `base_content`); the chat
+  binds to the active buffer immediately with no confirm step and every turn
+  record names the buffer it acted on; and the per-buffer staleness guard is
+  asserted to survive the consolidation. Phase B — numbered multi-document
+  tabs, the docs-wheel edit verb, the dirty-tile marker, and the N-buffer
+  generalization of `BUFFER_KINDS`/`require_outline_and_document`/`SAVE_BUFFER_ORDER`
+  — is explicitly out of scope. No contract release.
 - [add-client-identity-roster](openspec/changes/add-client-identity-roster/proposal.md)
   — authored 2026-08-14 from the Business Central admission investigation:
   the neutral identity layer beneath credential-contracts and
