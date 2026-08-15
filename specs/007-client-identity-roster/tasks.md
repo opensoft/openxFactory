@@ -396,7 +396,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
 
 *Target file (all of Phase 2)*: `scripts/validate-client-identity-roster.py`.
 
-- [ ] 2.1 Module skeleton following the sibling `validate-*.py` contract
+- [x] 2.1 Module skeleton following the sibling `validate-*.py` contract
       (FR-015, FR-029): `ROOT = Path(__file__).resolve().parents[1]` (no
       host-absolute path), ONE positional target-repo argument, `print(__doc__)`
       + `SystemExit(2)` on wrong argc, a `Findings` class emitting
@@ -408,7 +408,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       with no argument exits 2 and prints usage; `pytest tests/` runs under the
       `tests/hermeticity.py` guard, which makes an outbound reach a test
       failure (SC-011).
-- [ ] 2.2 The self-test layer (FR-018): positives validate clean; each negative
+- [~] 2.2 The self-test layer (FR-018): positives validate clean; each negative
       must raise its REGISTERED code, with an optional pinned detail substring
       where the code alone would be satisfied by a generic `schema` finding —
       the consent validator's two-part expectations table. FIVE failure modes
@@ -430,12 +430,12 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       five distinct self-test failures; SC-001. Plus one assertion that a
       schema-invalid negative still raises its NAMED code, not only a generic
       `schema` finding.
-- [ ] 2.3 Record-internal rules, group 1 — closed-vocabulary and shape
+- [~] 2.3 Record-internal rules, group 1 — closed-vocabulary and shape
       refusals, each naming the closed set and the extension route in its
       message (FR-005, FR-007, FR-031, FR-034, SC-014).
       *Verification*: 4.2's five vocabulary negatives plus 4.1's
       `destructive-authority-class.yaml` — one per closed set, six in total.
-- [ ] 2.4 [US1] Uniqueness and the alias rule — the feature's sharpest pair.
+- [~] 2.4 [US1] Uniqueness and the alias rule — the feature's sharpest pair.
       Uniqueness: entries sharing the whole `$defs.identity_key` tuple are a
       finding NAMING EVERY ELEMENT; entries differing in ANY element validate
       clean (FR-006). **Both rules compare entries WITHIN ONE FRAGMENT, never
@@ -462,7 +462,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       *Verification*: 4.6's single-run discrimination — the genuine per-unit
       pair and genuine duty pair at ZERO findings while the alias pair is
       refused (SC-002). A rule broad enough to catch all three fails.
-- [ ] 2.5 [US1] Admission verification, effective reach, and the scope-excess
+- [~] 2.5 [US1] Admission verification, effective reach, and the scope-excess
       rule (FR-002, FR-003, FR-010): an act with no `evidence_ref` is unverified
       and EXCLUDED from effective reach; **an act carrying `verified_at` with
       NO `evidence_ref` is REFUSED as `unverified-act-counted-as-access`,
@@ -490,7 +490,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       `unverified-act-counted-as-access.yaml` and
       `scope-exceeds-unit-undeclared.yaml`; 3.2's union reach and its DECLARED
       excess are the discrimination partner of the last of those.
-- [ ] 2.6 [US1] Authority, all of it RECORD-INTERNAL against the declarations
+- [~] 2.6 [US1] Authority, all of it RECORD-INTERNAL against the declarations
       1.5 puts in `granted_permissions[]` — no provider catalogue, no inference
       from an identifier's spelling: `authority_class_achieved` must equal the
       MAXIMUM declared `achieves` (`mutate` dominates `observe`), and any other
@@ -528,6 +528,23 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       provider-enforced claimed where no per-unit principal exists is a
       finding; an available per-unit principal left unused while logical
       enforcement is declared is a finding NAMING the available principal; and
+      **"LEFT UNUSED" IS PER-SURFACE, NOT PER-ACT — measured 2026-08-15, and
+      the distinction is load-bearing.** A per-ACT reading (any
+      `logic_enforced` act at a surface whose mapping says `true`) FIRES ON
+      3.2's mandated Business Central positive, which 3.2, 4.6 and 10.5 all
+      require to validate with ZERO findings: that entry's per-environment
+      application user USES the available principal, while its admin-center act
+      CANNOT, having no scope selector at all. The ratified scenario is "a
+      surface that DOES offer such a principal while the entry declares logical
+      enforcement INSTEAD" — instead of USING it. So the predicate is: at a
+      surface whose mapping declares `true`, NO act on that surface is
+      `provider_enforced`. An act that cannot use the principal is conformant
+      beside a sibling act that does. The FALSE-CLAIM rule
+      (`provider-enforced-without-per-unit-principal`) stays PER-ACT, because
+      an act claiming an enforcement its surface cannot supply is that act
+      lying whatever its siblings do. 4.1's
+      `per-unit-principal-available-but-logical.yaml` must therefore declare
+      logical enforcement on EVERY act at the surface, or it will not fire.
       **a surface the entry touches with NO key in
       `per_unit_principal_available` is `per-unit-principal-undeclared` naming
       that surface** (checklist pass — 1.7 states the coverage obligation and
@@ -544,7 +561,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       surfaces and its mapping answers both). It is a FIXTURE rather than
       3.3's packaged entry by Decision C (2026-08-15); the discrimination it
       performs is unchanged.
-- [ ] 2.7 [US1] Residency (FR-012) and lifecycle/attestation (FR-013): a
+- [~] 2.7 [US1] Residency (FR-012) and lifecycle/attestation (FR-013): a
       registration homed outside the client tenant may not declare
       client-resident — **the predicate, against 1.4's DECLARED comparand
       (gate ruling G2): under `residency_model: client_tenant_single`,
@@ -564,7 +581,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       *Verification*: 4.1's `vendor-homed-declared-client-resident.yaml`,
       `vendor-tenant-multi-missing-obligations.yaml`,
       `false-standing-credential-attestation.yaml`; 3.4's `planned` positive.
-- [ ] 2.8 [US1] Both roots and the legend — the RECORD-INTERNAL half (the
+- [~] 2.8 [US1] Both roots and the legend — the RECORD-INTERNAL half (the
       resolution half is 2.9): an entry naming a capability and no consent
       instrument is invalid, stating that consent — not our own ratification —
       authorizes standing in another party's tenant; a `mutate` entry naming no
@@ -576,7 +593,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       with no negative confirmation breaches FR-016.
       *Verification*: 4.1's `entry-without-consent-instrument.yaml`,
       `mutate-without-ratified-capability.yaml`; 4.2's two legend negatives.
-- [ ] 2.9 [US2] The repo-scan layer, two passes. (a) **Whole-repo kind sweep**
+- [~] 2.9 [US2] The repo-scan layer, two passes. (a) **Whole-repo kind sweep**
       (FR-036): `rglob` every `*.y*ml` skipping `.git`, `node_modules`,
       `__pycache__`, `.venv`, and — when the target IS this checkout — THIS
       FEATURE'S OWN FIXTURE CORPORA: `examples/client-identity-roster/` AND
@@ -637,7 +654,7 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
       exclusion is what holds this true, and it is unaffected by the
       exact-path predicate, since 6.5's fragments are direct children of their
       OWN fixture repos' declared placement.
-- [ ] 2.10 [US2] Absence, and the negative guarantee (FR-022, FR-032, SC-013):
+- [~] 2.10 [US2] Absence, and the negative guarantee (FR-022, FR-032, SC-013):
       a target with no `credentials/client-identity-roster/` directory, or the
       directory with no files, prints an EXPLICIT NOTICE naming the absence and
       exits 0. NO code path in the module derives an expected entry set — not
@@ -646,6 +663,32 @@ timing" in Format) — 2.2 is authored here and checked `[x]` after 4.4.
 
 **Checkpoint**: the validator runs, self-tests, and scans → Phases 4 and 5 may
 begin.
+
+**REACHED 2026-08-15.** `scripts/validate-client-identity-roster.py`: 30 rules
+across the six groups, all record-internal ones running to completion whether
+or not the schema already refused the document, each raising its own kebab
+code. No argument exits 2 and prints usage; a self-scan of this checkout exits
+0 with the absence notice and reports NO misplacement of its own corpus.
+**46/46 inline rule probes behaved as expected**, over repos built in
+`tmp_path` — every named negative fires for its OWN code, every discrimination
+partner stays clean, both misplacement arms fire (including the NESTED one the
+exact-path predicate exists for), the retired/enrolled consent pair
+discriminates, and identical inputs produce byte-identical findings. The
+throwaway harness that ran them is in the session scratchpad
+(`probe_phase2.py`); the PERMANENT module is 4.5's, which is why 2.2–2.10 stay
+`[~]`: each names a Phase-4 fixture as its verification.
+
+**One rule was CORRECTED by its own discrimination partner during this phase**
+— the per-unit "left unused" predicate, which as first written fired on the
+mandated Business Central positive. Recorded in 2.6 above, with the consequence
+for 4.1's fixture. This is the discrimination doing exactly what SC-002 keeps
+it for.
+
+**FR-030 re-measured after Phases 1–2**: the four MODIFIED capabilities'
+suites are byte-identical to 0.3's baseline — consent `0 error(s), 0
+warning(s)`, credential-contracts `0 error(s) -> PASS`, and 645 tests
+(636 passed + 9 skipped) against the baseline's 645. Neither phase touches a
+MODIFIED capability's surface, and the measurement confirms it.
 
 ---
 
