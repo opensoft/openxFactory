@@ -1133,7 +1133,7 @@ stays `[~]` permanently: it is the RELOCATED task.)
 
 **Depends on**: Phases 2, 4. **Parallel with**: Phases 6, 7, 8.
 
-- [ ] 5.1 [US3] Grow `tests/conformance-gate/test_conformance_checks.py` to
+- [x] 5.1 [US3] Grow `tests/conformance-gate/test_conformance_checks.py` to
       load `validate-client-identity-roster` alongside the three `check-*`
       modules, exercising FOUR pack behaviours the deltas specify — three from
       the `domain-conformance-checks` delta (an entry nonconformance → nonzero;
@@ -1143,12 +1143,12 @@ stays `[~]` permanently: it is the RELOCATED task.)
       checks' 15 tests must pass UNMODIFIED — only new tests are added.
       *Verification*: `pytest tests/conformance-gate/`; diff against 0.3's
       baseline shows no existing test changed.
-- [ ] 5.2 [P] [US3] Update that module's docstring — "Locks the three checks" →
+- [x] 5.2 [P] [US3] Update that module's docstring — "Locks the three checks" →
       four. This is the only pack COUNT site this feature owns.
       *Verification*: grep; `openspec/specs/domain-conformance-checks/spec.md`
       is confirmed UNEDITED (the archive step rewrites promoted text, the same
       rule FR-025 states for doc-health).
-- [ ] 5.3 [P] Carry the ruling A-N2 residual so it is not silently dropped:
+- [~] 5.3 [P] Carry the ruling A-N2 residual so it is not silently dropped:
       pack blocking is NOMINAL at archive — codexFactory's gate enumerates the
       pack's three members by NAME and OpsxFactory's gate invokes no canonical
       check — so domain-gate wiring is a named FOLLOW-UP, out of scope by
