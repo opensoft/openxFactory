@@ -6,7 +6,9 @@ dependency stays visible and never silently assumed.
 
 ## 1. Ratification
 
-- [ ] 1.1 **(OPERATOR)** Ratify the proposal. Ratification confirms or
+- [x] 1.1 **(OPERATOR)** **RATIFIED 2026-08-15 by Brett Heap** — all three
+      OQ-1 positions confirmed as written (a/b/c below).
+      Original text: Ratify the proposal. Ratification confirms or
       corrects the three OQ-1 positions codexFactory
       `add-project-alfa-subject-overlay` design §8 assigned to openxFactory,
       because the schema branches on each:
