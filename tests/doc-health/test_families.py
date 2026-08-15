@@ -15,6 +15,7 @@ from conftest import AS_OF, FakeGit, make_ctx
 
 from doc_health import CRITICAL, ERROR, WARNING, INFO
 from doc_health import corpus
+from doc_health import families
 from doc_health.families import FAMILIES
 
 
@@ -89,6 +90,53 @@ def test_proposal_support_location_conformance(tmp_path):
     assert "staged status under active proposal support" in rules
     assert "active proposal support checksum mismatch" in rules
     assert "under canonical specs" in rules
+
+
+def test_source_snapshots_keep_their_staged_status(tmp_path):
+    """REGRESSION, 2026-08-15. `source-snapshots/` holds BYTE-EXACT copies of
+    the staged files as they were at the move, and the manifest proves that
+    with a per-file sha256. Their `Status: staged` is therefore CORRECT, and
+    the usual remedy — rewrite it to `draft` — would falsify the snapshot and
+    break the checksum it exists to support.
+
+    Nothing exercised this until the first mover-produced bundle landed, at
+    which point a correct snapshot became a standing ERROR on the change that
+    produced it. Proposal prose beside the snapshots is still checked."""
+    repo = tmp_path / "alpha"
+    support = repo / "openspec/changes/change-a/supporting-docs"
+    (support / "source-snapshots").mkdir(parents=True)
+    # the immutable record: staged, and legitimately so
+    (support / "source-snapshots/source.md").write_text(
+        "# Source\n\nStatus: staged\nKind: architecture\n")
+    # live proposal prose beside it, correctly transitioned
+    (support / "source.md").write_text("# Source\n\nStatus: draft\n")
+    (support / "manifest.yaml").write_text(json.dumps({
+        "format_version": 1,
+        "files": [{
+            "path": "source.md",
+            "sha256": hashlib.sha256(
+                (support / "source.md").read_bytes()).hexdigest(),
+        }],
+    }))
+
+    ctx = make_ctx("location-conformance")
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    ctx.change_ids = {"alpha": set()}
+    got = FAMILIES["location-conformance"](ctx)
+
+    assert not any("source-snapshots" in f.path for f in got), (
+        "a byte-exact snapshot must not be reported for the status it records")
+    assert not any(
+        "staged status under active proposal support" in f.rule for f in got)
+
+    # ...and the exemption is scoped to snapshots: prose that really is still
+    # staged is caught.
+    (support / "source.md").write_text("# Source\n\nStatus: staged\n")
+    ctx.docs = corpus.load_docs("alpha", repo)
+    got = FAMILIES["location-conformance"](ctx)
+    assert any(
+        "staged status under active proposal support" in f.rule for f in got)
 
 
 def test_clean_and_corrupt_archived_support(tmp_path):
@@ -226,3 +274,139 @@ def test_notebook_projection_drift():
     from doc_health import Skip
     ctx_unauth = make_ctx("status-validity", notebook=lambda: None)
     assert isinstance(drift(ctx_unauth), Skip)
+
+
+# --------------------------------------------------------------------------
+# staged-topic-template (add-staged-topic-outline-template, ratified 2026-08-15)
+# --------------------------------------------------------------------------
+
+CONFORMING = """# Staged: a topic
+
+Status: staged
+Kind: architecture
+
+## Idea notes (pre-document, non-documented)
+
+Something.
+
+## Conflicts
+
+None.
+
+## Open questions
+
+### Q1. Does it work?
+
+Context: it might not.
+Recommended answer: yes.
+Explanation: because.
+Disposition status: open
+"""
+
+
+def _topic(repo, name, text):
+    topic = repo / "ideation/staging" / name
+    topic.mkdir(parents=True)
+    (topic / f"{name}.md").write_text(text)
+    return f"ideation/staging/{name}/{name}.md"
+
+
+def _ctx_for(tmp_path, topics, first_dates):
+    repo = tmp_path / "alpha"
+    (repo / "ideation/staging").mkdir(parents=True)
+    rels = {name: _topic(repo, name, text) for name, text in topics.items()}
+    ctx = make_ctx("location-conformance",
+                   git=FakeGit(first_dates={
+                       ("alpha", rels[name]): d for name, d in first_dates.items()}))
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    return ctx, rels
+
+
+def test_a_conforming_fragment_produces_no_finding(tmp_path):
+    ctx, _ = _ctx_for(tmp_path, {"good": CONFORMING},
+                      {"good": date(2026, 9, 1)})
+    assert FAMILIES["staged-topic-template"](ctx) == []
+
+
+def test_non_conformance_is_never_gate_blocking(tmp_path):
+    """Q2's ruling: doc-health treats non-conformance as a nudge, NEVER a
+    gate-blocking finding — so even a REQUIRED topic warns rather than errors.
+    Asserted explicitly because the instinct on a new family is to fail the
+    gate, and `--fail-on error` is what would make this block a run."""
+    bare = "# Staged: x\n\nStatus: staged\n\n## Claims\n\nNothing.\n"
+    ctx, _ = _ctx_for(tmp_path, {"newtopic": bare},
+                      {"newtopic": date(2026, 9, 1)})  # after ratification
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    assert got[0].severity == WARNING
+    assert "REQUIRED" in got[0].rule
+
+
+def test_obligation_follows_the_staging_date_not_the_last_touch(tmp_path):
+    """A topic staged before the template is opt-in, and editing it for an
+    unrelated reason must not silently make it required — which is why the
+    family reads first_commit_date, never last_commit_date."""
+    bare = "# Staged: x\n\nStatus: staged\n\n## Claims\n\nNothing.\n"
+    ctx, _ = _ctx_for(tmp_path, {"oldtopic": bare},
+                      {"oldtopic": date(2026, 7, 1)})  # before ratification
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    assert "opt-in" in got[0].rule and "REQUIRED" not in got[0].rule
+
+
+def test_an_unknown_staging_date_is_treated_as_opt_in(tmp_path):
+    bare = "# Staged: x\n\nStatus: staged\n\n## Claims\n\nNothing.\n"
+    ctx, _ = _ctx_for(tmp_path, {"nodate": bare}, {})
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1 and "opt-in" in got[0].rule
+
+
+def test_a_question_missing_sub_fields_is_reported(tmp_path):
+    partial = CONFORMING.replace("Explanation: because.\n", "")
+    ctx, _ = _ctx_for(tmp_path, {"partial": partial},
+                      {"partial": date(2026, 9, 1)})
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    assert "Explanation" in got[0].rule and "lacks" in got[0].rule
+
+
+def test_a_fenced_skeleton_does_not_count_as_real_sections(tmp_path):
+    """The canonical template ships as a copy-pasteable FENCED skeleton. A
+    fragment that merely quotes it has not adopted it."""
+    quoting = (
+        "# Staged: x\n\nStatus: staged\n\n"
+        "Copy this:\n\n```markdown\n"
+        "## Idea notes (pre-document, non-documented)\n\n"
+        "## Conflicts\n\n## Open questions\n```\n"
+    )
+    ctx, _ = _ctx_for(tmp_path, {"quoter": quoting},
+                      {"quoter": date(2026, 9, 1)})
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    for label in ("idea notes", "conflicts", "open questions"):
+        assert label in got[0].rule
+
+
+def test_the_checker_and_the_contract_text_agree():
+    """The template contract lives in `docs/document-lifecycle.md`; the family
+    that enforces it reads section names from code constants. Nothing makes
+    those two follow each other, so this pins them: every section and sub-field
+    the checker requires must actually be named in the ratified prose.
+
+    Without this, editing the doc silently leaves the validator enforcing the
+    old contract — the exact drift shape doc-health exists to catch elsewhere.
+    """
+    repo_root = Path(__file__).resolve().parents[2]
+    doc = (repo_root / "docs" / "document-lifecycle.md").read_text()
+    section = doc.split("## The Staged-Topic Outline Template", 1)[1]
+    section = section.split("\n## Gates In Practice", 1)[0]
+
+    for _needle, label in families._TEMPLATE_SECTIONS:
+        assert label.split()[-1] in section.lower(), (
+            f"the checker requires a '{label}' section the contract text "
+            f"does not name")
+    for field in families._QUESTION_SUBFIELDS:
+        assert field in section, (
+            f"the checker requires the '{field}' sub-field the contract text "
+            f"does not name")

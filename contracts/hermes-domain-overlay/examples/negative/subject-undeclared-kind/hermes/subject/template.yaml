@@ -1,0 +1,18 @@
+schema_version: 1
+kind: subject_hermes_template
+
+# The DOMAIN's own declaration of which subject kinds exist and which identity
+# fields each requires. The neutral contract never names these fields.
+subject_hermes:
+  subject_kinds:
+    - project
+    - repository
+  required_subject_fields:
+    project:
+      - id
+      - owner
+      - repositories
+    repository:
+      - id
+      - url
+      - default_branch

@@ -1,0 +1,71 @@
+# VALID consent instrument: WITHDRAWN — the SECOND terminal state
+# (add-client-identity-roster). Withdrawal by the consenting party and
+# termination are distinct EVENTS with the same consequence for everything the
+# instrument authorized, so `withdrawn` is a distinct enum member and never an
+# alias of `terminated`, and the cascade obligation runs from either.
+#
+# The cascade here reaches a GOVERNED IDENTITY — a standing registration in the
+# client's own tenant — and that dependent is held by TWO keys, so it carries
+# THREE pieces of evidence: the credential cascade, the removal of the identity
+# itself, and the withdrawal of its admission act. Revoking the credential and
+# stopping there would leave standing access in the client's tenant, which is
+# the half-cascade the obligation exists to refuse.
+#
+# The `ref` is a DECLARED POINTER: roster fragment path plus the entry's
+# identity_ref. This validator opens no fragment and confirms no entry's
+# existence — it is network-free and reads one repository.
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: "ci-demo-advisory-0004"
+domain: demo-advisory
+instrument_class: engagement_letter
+parties:
+  - party: "Acme Advisors LLP"
+    rung: 1
+    role: tenant_firm
+    authority_basis: direct
+  - party: "Meridian Retail Ltd"
+    rung: 2
+    role: subject_client_company
+    authority_basis: direct
+scope:
+  purposes: [bookkeeping]
+  out_of_scope: [payroll-support]
+delegation_clauses:
+  - clause_id: "dc-1"
+    summary: "Read-only ledger observation for bookkeeping, subject-scoped."
+    access:
+      permission: "ledger:read"
+      constraint: "subject-scoped; no cross-subject reads"
+autonomy_position: "hypothesis_only"
+revocation:
+  right: >-
+    The subject client company may withdraw its consent at any time by written
+    notice, independently of the engagement's termination.
+  sla: "P1D"
+custody:
+  locator: "opaque:demo-advisory/instruments/ci-demo-advisory-0004"
+  sha256: "2a3b4c5d6e7f80912a3b4c5d6e7f80912a3b4c5d6e7f80912a3b4c5d6e7f8091"
+status: withdrawn
+status_history:
+  - status: draft
+    at: "2026-05-20T09:00:00Z"
+  - status: pending_signatures
+    at: "2026-05-27T11:00:00Z"
+  - status: executed
+    at: "2026-06-01T09:30:00Z"
+  - status: withdrawn
+    at: "2026-07-30T10:00:00Z"
+effective:
+  executed_on: "2026-06-01"
+dependent_refs:
+  - kind: credential_grant
+    ref: "credentials/grants/meridian-observation-grant.yaml"
+    cascade_evidence: "credentials/revocations/meridian-observation-grant-2026-07-31.yaml"
+  - kind: governed_identity
+    ref: "credentials/client-identity-roster/meridian.yaml#meridian-bc-observer"
+    cascade_evidence: "credentials/revocations/meridian-observation-grant-2026-07-31.yaml"
+    identity_removal_evidence: "tenants/meridian-bc-observer-removal-2026-07-31.yaml"
+    admission_withdrawal_evidence: "tenants/meridian-bc-admission-withdrawal-2026-07-31.yaml"
+data_consent:
+  mapping: none

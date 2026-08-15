@@ -1190,8 +1190,13 @@ repo scope.
   demote, never re-blanking them; and the template reuses the ratified
   `xspec:candidate`/`xspec:supersedes` marker grammar for
   machine-addressability rather than inventing a second mechanism.
-- Files:
-  - [staged-topic-outline-template.md](staged-topic-outline-template/staged-topic-outline-template.md)
+- Files: **MOVED OUT OF STAGING 2026-08-15.** The topic exited via
+  `add-staged-topic-outline-template`, so `scripts/proposal-support.py`
+  transitioned its material into that change's `supporting-docs/` — status
+  `staged` → `draft`, with a per-file sha256 manifest and a byte-exact
+  `source-snapshots/` copy. The staging folder is now empty by design; this row
+  stays as the topic's index entry and its exit record.
+  - [staged-topic-outline-template.md](../../openspec/changes/add-staged-topic-outline-template/supporting-docs/staged-topic-outline-template.md)
     — primary: 7 claims, the full draft template skeleton (fenced,
     copy-pasteable, marker comments included), 3 idea notes, 3 conflicts,
     5 open questions each with Context/Recommended answer/Explanation/
@@ -1208,6 +1213,13 @@ repo scope.
   targeted section); (5) whether the wheel's summary extraction should read
   the template's `Summary:` field explicitly rather than falling through
   its current heuristic (recommended: yes, once the template ratifies).
+- All five questions dispositioned 2026-08-15 (accepted as recommended) —
+  the parallel decision track this topic was sequenced for is now CLOSED, and
+  `add-staged-topic-outline-template` is drafting next. Q4's ruling (`edit-apply`
+  covers AI section-patching) is the hinge into `doxbench-editing-model` Phase A:
+  it upgrades that phase's freeform chat rewrites into marker-scoped section
+  patches. Q5 still rides Phase B as sequenced, because Q2 ruled opt-in
+  migration and so the wheel's existing fallback stays for non-conformers.
 - **SEQUENCED in PARALLEL with `doxbench-editing-model` Phase A (Brett
   2026-08-15 ruling on today's four staging topics)** — this topic's five
   dispositions are human decisions, not builds, so it runs alongside Phase A

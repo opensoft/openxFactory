@@ -35,8 +35,9 @@ AS_OF = date(2026, 7, 9)
 
 class FakeGit:
     def __init__(self, last_dates=None, line_dates=None, captures=None,
-                 pins=None, remotes=None, heads=None):
+                 pins=None, remotes=None, heads=None, first_dates=None):
         self.last_dates = last_dates or {}
+        self.first_dates = first_dates or {}
         self.line_dates = line_dates or {}
         self.captures = captures or {}
         self.pins = pins
@@ -45,6 +46,9 @@ class FakeGit:
 
     def last_commit_date(self, repo: Path, relpath: str):
         return self.last_dates.get((repo.name, relpath))
+
+    def first_commit_date(self, repo: Path, relpath: str):
+        return self.first_dates.get((repo.name, relpath))
 
     def line_commit_date(self, repo: Path, relpath: str, line: int):
         return self.line_dates.get((repo.name, relpath, line))

@@ -67,6 +67,14 @@ FAMILY_IDS = [
     # fourteenth family (add-cross-factory-ideation-routing; doc-health
     # delta "Deterministic check families").
     "ideation-routing",
+    # sixteenth family (add-client-identity-roster; doc-health delta
+    # "Deterministic check families"). The FIFTEENTH, "proposal-origin", is
+    # absent from this list — a pre-existing omission that leaves that family
+    # without a report section. It is recorded in this feature's research and
+    # deliberately NOT fixed here: repairing another capability's registration
+    # inside this change would put an unrelated family's report output on this
+    # feature's evidence.
+    "client-identity-composition",
 ]
 
 

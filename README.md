@@ -225,7 +225,21 @@ Every DomainxFactory must validate against the canonical contract:
   — run from the pinned openxFactory checkout, never copied into domain repos.
 - Credential contracts: [xfactory-credential-contracts schema](contracts/schemas/xfactory-credential-contracts.schema.yaml)
   and `scripts/validate-credential-contracts.py <domain-repo>` — the five
-  credential record kinds under `credentials/` (DTN-004).
+  credential record kinds under `credentials/` (DTN-004). Registered in
+  `contracts/manifest.yaml` for the first time at `contract-v1.33`, which also
+  adds the optional `issuance_preconditions` vocabulary
+  (`add-client-identity-roster`).
+- Client identity roster: [xfactory-client-identity-roster schema](contracts/schemas/xfactory-client-identity-roster.schema.yaml),
+  `scripts/validate-client-identity-roster.py <domain-repo>` and the packaged
+  corpus at [examples/client-identity-roster](examples/client-identity-roster/README.md)
+  — which identities a domain holds STANDING inside a paying client's provider
+  tenant, keyed on (domain, admission surface, authority class, blast-radius
+  unit, duty), with verified admission and achieved scope, and a report-only
+  drift finding that mutates nothing. A domain publishes its fragments at
+  `credentials/client-identity-roster/<client_ref>.yaml`, one file per
+  (client, domain) pair; a domain that publishes none stays conformant and the
+  check reports a notice. Registered at `contract-v1.33`
+  (`add-client-identity-roster`).
 - openxWallet: [contracts/openxwallet](contracts/openxwallet/README.md) (the
   holder-agnostic core) and
   [contracts/openxwallet-agent-profile](contracts/openxwallet-agent-profile/README.md)
@@ -261,6 +275,41 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- `add-subject-overlay-contract` — ARCHIVED 2026-08-15
+  (`openspec/changes/archive/2026-08-15-add-subject-overlay-contract/`):
+  the neutral `hermes_subject_overlay` kind is RELEASED as **`contract-v1.32`**
+  (annotated tag verified; 190-entry digest inventory) and CONSUMED —
+  hermes-install pins the family at the tag with parity floors covering the
+  kind (1 positive + 8 negatives), and the first instance
+  (codexFactory `hermes/subject/project-alfa/overlay.yaml`) is LIVE-SEEDED on
+  the QA stack (repin+seed window 2026-08-15). OQ-1 ruled: kind name
+  canonical, identity `subject.id`, `stricter_only` refused for
+  `relation_to_baseline: additive_constraints_only`. Related landing surface
+  for staged topic `subject-establishment` (DTN-017).
+
+- [add-staged-topic-outline-template](openspec/changes/add-staged-topic-outline-template/proposal.md)
+  — authored 2026-08-15 from the `staged-topic-outline-template` staged topic,
+  the track Brett's 2026-08-15 sequencing ruling put in PARALLEL with
+  `doxbench-editing-model` Phase A because its five questions were decisions
+  rather than builds. All five accepted as recommended, so the parallel track is
+  closed. A staged topic's primary fragment gets a required template — three
+  required sections, and every open question carrying Context / Recommended
+  answer / Explanation / Disposition status in fixed order, so a question is
+  never recorded bare. The load-bearing clause is ROUND-TRIP ON DEMOTE: a topic
+  that reached proposal and came back does not reset to its aspirational text,
+  it carries the ACTUAL last-attempted `proposal.md` with the change id, both
+  dates and the reason — nothing learned in flight is lost by falling back.
+  Sections added by a human or an AI carry `Added-by:` provenance;
+  proposal-element sections reuse the ratified `xspec:` marker grammar rather
+  than inventing a second addressing mechanism. Q1 keeps `primaryFragmentPath`
+  untouched (the wheel's one-path rule is preserved, not extended); Q2 makes
+  existing topics opt-in with doc-health nudging rather than blocking; Q4 rules
+  `edit-apply` the verb for AI section-patching, which is the hinge that
+  upgrades Phase A's freeform chat rewrites into marker-scoped patches. Both
+  deltas are ADDED, not MODIFIED as the staging INDEX predicted — the existing
+  requirements govern placement and buffer mechanics, neither fragment shape.
+  `target_release: implemented`.
+
 - [add-doxbench-editing-phase-a](openspec/changes/add-doxbench-editing-phase-a/proposal.md)
   — authored 2026-08-15, Phase A of the `doxbench-editing-model` staged topic
   (sequenced first of Brett's four 2026-08-15 topics; its four Phase-A open
@@ -291,15 +340,6 @@ Active changes:
   so `doxbench_turns.py` is untouched and the obligation is recorded on the
   staged topic). The archive gate still needs the merged-commit evidence
   (tasks 9.1).
-- [add-client-identity-roster](openspec/changes/add-client-identity-roster/proposal.md)
-  — authored 2026-08-14 from the Business Central admission investigation:
-  the neutral identity layer beneath credential-contracts and
-  consent-instrument. Which identities stand in a paying client's tenant,
-  keyed on (domain, admission surface, authority class, blast-radius unit,
-  duty); verified admission with achieved scope; structural scoping
-  preferred; declared provider-forced breadth; report-only drift that
-  refuses grant issuance. MODIFIES consent-instrument (cascade reaches
-  identities) and doc-health (sixteenth family).
 - `add-worker-credential-by-reference` — ARCHIVED 2026-08-14
   (`openspec/changes/archive/2026-08-14-add-worker-credential-by-reference/`):
   credential-by-reference is LIVE on all three CPC claude lanes — vault
@@ -456,6 +496,38 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-client-identity-roster](openspec/changes/archive/2026-08-15-add-client-identity-roster/proposal.md)
+  Promoted the neutral `client-identity-roster` capability (13 requirements)
+  from the Business Central admission investigation: the identity layer
+  beneath `credential-contracts` and `consent-instrument`. Which identities
+  stand inside a paying client's provider tenant, keyed on (domain, admission
+  surface, authority class, blast-radius unit, duty); admission is a VERIFIED
+  list and consent is never recorded as access; achieved authority is derived
+  from granted permissions and its excess over intent declared; structural
+  scoping is preferred and its absence must be declared; provider-forced
+  breadth is declared, never silently absorbed; destructive authority holds no
+  provider identity by default; and drift REPORTS rather than remediates,
+  withholding our own credential and refusing grant issuance. MODIFIED FOUR
+  capabilities: consent-instrument (the cascade reaches governed identities,
+  and `withdrawn` becomes the sixth lifecycle member as a DISTINCT terminal
+  state that MUST NOT be declared an alias of `terminated`), doc-health (the
+  sixteenth deterministic check family, client identity roster composition,
+  scoped to the CROSS-DOMAIN concerns only), domain-conformance-checks (the
+  neutral utility pack grows to FOUR checks — pack membership is what makes
+  `scripts/validate-client-identity-roster.py` BLOCKING, Decision A
+  2026-08-14) and credential-contracts (the optional, CLOSED
+  `issuance_preconditions` vocabulary whose first member is the roster-drift
+  precondition, Decision B 2026-08-14). Decision C (Brett, 2026-08-15)
+  relocated the uncitable multi-surface-reader packaged example to a synthetic
+  representability fixture after its provider precondition was falsified.
+  Realized 2026-08-15 by Speckit feature `007-client-identity-roster` (PR
+  #190) at `contract-v1.33` and archived 2026-08-15. Intra-repo entry
+  conformance fails the domain gate; cross-domain composition is advisory.
+  This release enforces NO roster completeness rule — neither a missing
+  fragment nor a missing entry is a finding — and scoped completeness, plus
+  the live refuse-then-allow proof at a domain mint surface, are named
+  successors.
 
 - [qualify-avatar-brokered-call-feasibility](openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/proposal.md)
   — tenant-data-free F0 harness for sideband-before-answer ordering, retries,

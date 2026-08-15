@@ -1,0 +1,134 @@
+schema_version: 1
+name: hermes_subject_overlay
+# Neutral schema for a SUBJECT layer's seedable Hermes overlay: the instance
+# document of a subject kind the DOMAIN's own `subject_hermes_template`
+# declares, carrying addressable named policies. Added by
+# add-subject-overlay-contract (ratified 2026-08-15).
+#
+# INSTANCES LIVE IN DOMAIN REPOSITORIES ONLY. openxFactory describes this
+# kind and validates it; it never hosts one.
+#
+# LAYER-NAME MAPPING — read this before reconciling names. This kind uses the
+# canonical Subject/Tenant/Domain vocabulary, while the runtime layer ROLE key
+# stays the frozen machine identifier `customer`
+# (`overlay-descriptor.schema.yaml` `overlay_paths.customer`, whose own
+# comment already anticipates `hermes/subject/`).
+# `contracts/policies/layer-vocabulary.yaml` `legacy_mapping` resolves
+# `customer -> subject`; its `frozen_identifiers` keep the released role key
+# byte-stable, and the promoted layer-vocabulary requirement holds that a
+# contract family authored after adoption uses the canonical vocabulary from
+# its first version. Neither side is renamed: the descriptor keeps `customer`,
+# this kind uses `subject`, and the bridge is stated here rather than left to
+# the reader.
+#
+# IDENTITY IS `id`, NOT `ref`. A subject overlay DECLARES an identity that
+# exists in no prior registry, unlike `client.ref` in `hermes_client_overlay`,
+# which points at a tenant recorded elsewhere. The domain templates already
+# require `id` (codexFactory's `required_subject_fields` names it for all four
+# of its subject kinds), so spelling it `ref` would make a conforming instance
+# fail its own domain's template on the first field.
+#
+# Rules JSON-Schema shape cannot express live in the canonical validator
+# (scripts/validate-hermes-domain-overlay.py):
+#   1. Address self-consistency — every `policies` key equals its entry's
+#      `policy_id`, and every policy's `policy_namespace` equals
+#      `subject.policy_namespace`, so `<policy_namespace>/<policy_id>` resolves
+#      to exactly one payload and a materialized policy row is
+#      address-resolvable without joining to its sibling identity record.
+#   2. Address uniqueness — no two policies declare the same address.
+#   3. The prohibited-block list — a subject ADDS constraints and never grants,
+#      widens, or waives, so `authority_boundaries`, `approval_scope_kinds` and
+#      `required_approval_fields` (the Domain layer's enforceable slice) and any
+#      credential VALUE are refused anywhere in the document.
+#   4. Cross-document identity conformance — `subject_kind` must be declared by
+#      the domain's own `hermes/subject/template.yaml`
+#      (`kind: subject_hermes_template`), and every field named by that
+#      template's `required_subject_fields[subject_kind]` must be present and
+#      non-empty on `subject`. A repository shipping no subject template is
+#      skipped with notice: no new refusal class.
+#
+# THE POLICY BODY IS DELIBERATELY OPEN. Enumerating policy names is exactly
+# what stops the tenant-layer `client-content/client-policy-overrides.schema.yaml`
+# (a closed set of seven) from carrying a domain's named policy. This contract
+# governs the addressing ENVELOPE, not the policy vocabulary.
+#
+# The enforceable slice a conforming document contributes (`subject_identity`
+# plus a `policy_position` payload keyed by policy id) is described in this
+# family's README; extraction, transaction shape, provenance, digest
+# verification, and refusal vocabulary belong to the consuming install
+# repository.
+type: object
+required:
+  - schema_version
+  - kind
+  - subject
+properties:
+  schema_version:
+    type: integer
+    minimum: 1
+  kind:
+    type: string
+    enum:
+      - hermes_subject_overlay
+  subject:
+    type: object
+    required:
+      - id
+      - subject_kind
+      - display_name
+      - policy_namespace
+      - relation_to_baseline
+      - policies
+    properties:
+      # No neutral pattern on `id`: identity SPELLING is the domain's, and is
+      # enforced against its own subject_hermes_template rather than against a
+      # neutral field list.
+      id:
+        type: string
+        minLength: 1
+      subject_kind:
+        type: string
+        minLength: 1
+      display_name:
+        type: string
+        minLength: 1
+      policy_namespace:
+        type: string
+        minLength: 1
+      # Single-value enum, the same shape discipline as the tenant layer's
+      # `relation_to_domain: [stricter_only]`: the position is DECLARED in the
+      # document, nothing is inferred by default, and a future relation (a
+      # comparability relation against a composed baseline, say) is an additive
+      # enum widening rather than a breaking change to authored documents.
+      # `stricter_only` is deliberately NOT imported: its partial orders are
+      # keyed to tenant-policy keys, and a subject's additive named constraints
+      # have no baseline counterpart, so every one would return
+      # `review_required` and the declaration would enforce nothing.
+      relation_to_baseline:
+        type: string
+        enum:
+          - additive_constraints_only
+      # Keyed by policy id. The key equals the entry's `policy_id`, and each
+      # payload restates its own namespace and id (canonical validator rule 1).
+      policies:
+        type: object
+        minProperties: 1
+        additionalProperties:
+          type: object
+          required:
+            - policy_id
+            - policy_namespace
+          properties:
+            policy_id:
+              type: string
+              minLength: 1
+            policy_namespace:
+              type: string
+              minLength: 1
+          # OPEN body: the policy's conditions are domain-owned.
+          additionalProperties: true
+    # Domain-declared identity fields arrive as additional properties — the
+    # same choice hermes-layer-template.schema.json already makes. codexFactory's
+    # `repository` subject kind needs `check_profile` and `reviewer_group`; a
+    # patient subject kind will need neither.
+    additionalProperties: true

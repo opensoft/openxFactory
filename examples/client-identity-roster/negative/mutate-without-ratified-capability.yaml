@@ -1,0 +1,51 @@
+# INVALID roster fragment — violates FR-014 (rule "`mutate` entry with no
+# ratified capability"): a `mutate` entry whose `ratified_by` is not
+# domain-qualified, so it names no capability any domain owns. This is an
+# ERROR that fails the owning domain's gate, not a report-only finding. Its
+# repo-shaped sibling proves the GATE EXIT, which a packaged file cannot
+# (finding mutate-without-ratified-capability).
+schema_version: 1
+kind: xfactory_client_identity_roster
+client_ref: demo-client
+client_tenant: 11111111-1111-1111-1111-111111111111
+domain: demoxfactory
+legend:
+  blast_radius_units:
+    unit_a: Unit A
+  duties:
+    observing: Read-only observation
+entries:
+- identity_ref: demo-bc-writer
+  identity_kind: entra_app_registration
+  home_tenant: 11111111-1111-1111-1111-111111111111
+  principal_locations:
+  - 11111111-1111-1111-1111-111111111111
+  residency_model: client_tenant_single
+  admission_surface: business_central
+  duty: observing
+  blast_radius_unit: unit_a
+  authority_class_intended: mutate
+  authority_class_achieved: mutate
+  granted_permissions:
+  - id: Demo.ReadWrite.All
+    achieves: mutate
+    reaches:
+    - business_central
+  admission:
+  - surface: business_central
+    act: per-environment application user created
+    achieved_scope: Unit A environment
+    enforcement_mode: provider_enforced
+    evidence_ref:
+      repo: opensoft/DemoxFactory
+      path: tenants/demo-admission-evidence-v1.yaml
+    verified_at: '2026-08-01T00:00:00Z'
+    exceeds_governed_unit: false
+  per_unit_principal_available:
+    business_central: true
+  lifecycle_state: enrolled
+  standing_credential_attestation:
+    no_standing_credential: true
+    attested_at: '2026-08-01T00:00:00Z'
+  ratified_by: demo-mutation-capability
+  consent_ref: demo-consent-v1
