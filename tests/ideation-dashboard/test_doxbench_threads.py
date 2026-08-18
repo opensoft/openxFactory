@@ -803,3 +803,128 @@ def test_an_undeclared_plane_or_capability_is_refused_not_guessed():
         dt.require_thread_capability(plane="qa", gate_capability=True)
     with pytest.raises(dt.ThreadFormatRefused):
         dt.require_thread_capability(plane=dt.LOCAL_PLANE, gate_capability="yes")
+
+
+# ===========================================================================
+# Task 3.5's verified finding, applied to task 9.1's acceptance criteria
+# (`verification-findings.md` §3.5, discharged 2026-08-18).
+#
+# The harness's own session/artifact store lands OUTSIDE the git worktree, in a
+# home-relative tree keyed to an encoding of the invoking cwd, with zero
+# relationship to git branches or worktrees. So an `artifact://<id>` pointer
+# persisted into a sidecar is scoped to the ORIGINATING harness session's own
+# directory and will never resolve for a colleague who fetches the shared branch.
+#
+# The sidecar is THE RECORD. A record that points at something the branch does
+# not carry is not a record, so this is a refusal rather than a warning — and the
+# finding's two remedies are both realized: dereference the content, or state the
+# FACT that it was elided.
+# ===========================================================================
+
+
+def test_a_turn_body_may_not_carry_an_unresolvable_harness_pointer():
+    """The refusal is on the dataclass, so it is ABSOLUTE: there is no flag, no
+    strict-mode switch, and no route by which a pointer becomes the record."""
+    for field, human, assistant in (
+        ("human", "look at artifact://abc123", "fine"),
+        ("assistant", "fine", "I wrote it to artifact://abc123"),
+    ):
+        with pytest.raises(dt.ThreadFormatRefused) as raised:
+            dt.ThreadTurn(turn_id="t1", model="m", bound_buffer_key="outline",
+                          human=human, assistant=assistant)
+        message = str(raised.value)
+        assert "artifact://" in message
+        assert field in message
+        # The refusal states WHY it can never resolve, not merely that it is
+        # forbidden — a reader has to be able to act on it.
+        assert "outside the git worktree" in message
+        assert "rides no branch" in message
+
+
+def test_a_pointer_buried_mid_sentence_is_refused_too():
+    """The match is deliberately broad: a pointer inside a sentence is exactly as
+    unresolvable as one on its own line, and the finding is about resolvability
+    rather than layout."""
+    with pytest.raises(dt.ThreadFormatRefused):
+        dt.ThreadTurn(turn_id="t1", model="m", bound_buffer_key="outline",
+                      human="the full text is at artifact://xyz if you want it",
+                      assistant="ok")
+
+
+def test_the_dereference_seam_resolves_a_pointer_before_it_becomes_the_record():
+    """The finding's FIRST remedy: turn mirroring dereferences (inlines) the
+    content rather than persisting the pointer. The seam is the §11 bridge's job
+    to supply, because it is the only component that can read the harness's own
+    store."""
+    turn = dt.dereference_bodies(
+        "t1", "claude-opus-5", "outline",
+        "the tool output is at artifact://abc123",
+        "read and summarized",
+        dereference=lambda body: body.replace(
+            "artifact://abc123", "the inlined tool output"))
+    assert turn.human == "the tool output is at the inlined tool output"
+    assert turn.assistant == "read and summarized"
+    # A body with no pointer is handed to no seam at all, so the common path
+    # cannot be changed by a mirror that decided to rewrite prose.
+    seen = []
+    plain = dt.dereference_bodies(
+        "t2", "m", "outline", "plain prose", "plain answer",
+        dereference=lambda body: seen.append(body) or body)
+    assert seen == []
+    assert plain.human == "plain prose"
+
+
+def test_a_half_resolving_seam_cannot_slip_a_pointer_through():
+    """The seam's answer goes straight back through `ThreadTurn`'s own refusal,
+    so an implementation that resolved one pointer and left another fails rather
+    than persisting the survivor."""
+    with pytest.raises(dt.ThreadFormatRefused):
+        dt.dereference_bodies("t1", "m", "outline",
+                              "artifact://one and artifact://two", "ok",
+                              dereference=lambda body: body.replace(
+                                  "artifact://one", "inlined"))
+    # …and a seam that answers with a non-string is refused rather than coerced.
+    with pytest.raises(dt.ThreadFormatRefused):
+        dt.dereference_bodies("t1", "m", "outline", "artifact://one", "ok",
+                              dereference=lambda body: None)
+    # …and no seam at all is refused, rather than silently skipping the resolve.
+    with pytest.raises(dt.ThreadFormatRefused):
+        dt.dereference_bodies("t1", "m", "outline", "artifact://one", "ok",
+                              dereference=None)
+
+
+def test_an_elided_note_records_the_fact_rather_than_an_unresolvable_pointer():
+    """The finding's SECOND remedy, for output too large to inline: the sidecar
+    records the FACT and the size, which a reader can act on."""
+    note = dt.elided_note(4096, "spilled to the harness store")
+    assert "4096 bytes" in note
+    assert "spilled to the harness store" in note
+    assert "unresolvable pointer" in note
+    assert dt.HARNESS_ARTIFACT_SCHEME not in note
+    # It is a legal body, so a turn can actually carry it.
+    turn = dt.ThreadTurn(turn_id="t1", model="m", bound_buffer_key="outline",
+                         human="show me the whole run log", assistant=note)
+    assert turn.assistant == note
+    # A note that cannot state a real size is refused rather than guessed at.
+    for bad in (-1, True, "4096", None):
+        with pytest.raises(dt.ThreadFormatRefused):
+            dt.elided_note(bad)
+
+
+def test_mirroring_cannot_persist_a_pointer_because_the_turn_cannot_hold_one():
+    """The whole point of putting the refusal on the dataclass: `mirror_turn` needs
+    no check of its own, because a turn carrying a pointer cannot exist to be
+    handed to it."""
+    thread = _thread()
+    mirrored = []
+    class Mirror:
+        def mirror_turn(self, thread_value, turn_value):
+            mirrored.append(turn_value.turn_id)
+    resolved = dt.dereference_bodies(
+        "t9", "m", "outline", "see artifact://abc", "ok",
+        dereference=lambda body: body.replace("artifact://abc",
+                                              dt.elided_note(12)))
+    appended = dt.mirror_turn(thread, resolved, mirror=Mirror())
+    assert appended.turns[-1].turn_id == "t9"
+    assert mirrored == ["t9"]
+    assert dt.HARNESS_ARTIFACT_SCHEME not in dt.render_thread(appended)

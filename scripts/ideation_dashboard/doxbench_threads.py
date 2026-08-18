@@ -48,7 +48,7 @@ for every write and store spelling it must not contain.
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:  # pragma: no cover - typing only; never a runtime import,
@@ -269,6 +269,63 @@ def _non_empty_single_line(value: object, *, field: str) -> str:
     return text
 
 
+# ---------------------------------------------------------------------------
+# THE UNRESOLVABLE-POINTER REFUSAL (task 3.5's verified finding, discharged
+# 2026-08-18: `verification-findings.md` §3.5).
+#
+# The harness's own session/artifact store lands OUTSIDE the git worktree, in a
+# home-relative tree keyed to an encoding of the invoking cwd, with zero
+# relationship to git branches or worktrees. So an `artifact://<id>` reference
+# persisted into a sidecar is scoped to the originating harness session's own
+# directory and will NEVER resolve for a colleague who fetches the shared branch
+# — the referenced file simply does not exist in their checkout, whatever they
+# fetch.
+#
+# The sidecar is THE RECORD. A record that points at something the branch does not
+# carry is not a record, so this is a REFUSAL rather than a warning: turn
+# mirroring must DEREFERENCE the content before it becomes the record, or state
+# the FACT that content was elided. `mirror_turn` takes an optional
+# `dereference` seam for the first, and `elided_note` spells the second — both
+# stdlib-only, both fully functional with no harness present, and the refusal
+# stands when neither is used.
+#
+# The prefix match is deliberately BROAD (anywhere in the body, not only at a
+# line start): a pointer buried mid-sentence is exactly as unresolvable as one on
+# its own line, and the finding is about resolvability, not layout.
+HARNESS_ARTIFACT_SCHEME = "artifact://"
+
+UNRESOLVABLE_ARTIFACT_REASON = (
+    "a harness `artifact://` reference resolves only inside the originating "
+    "harness session's own home-relative store, which is outside the git "
+    "worktree and rides no branch — so a colleague who fetches the shared branch "
+    "can never resolve it. The sidecar is the record: dereference the content "
+    "before it becomes the record, or record the FACT that it was elided"
+)
+
+
+def elided_note(byte_count: int, reason: str = "spilled to the harness store") -> str:
+    """The sentence a body carries INSTEAD of an unresolvable pointer when
+    inlining is infeasible — the finding's own second option. It records that
+    content was elided and how much, which a reader can act on, rather than a
+    pointer they cannot follow."""
+
+    if not isinstance(byte_count, int) or isinstance(byte_count, bool) or byte_count < 0:
+        raise ThreadFormatRefused(
+            "an elided-content note states a non-negative byte count")
+    return (
+        f"[elided: {byte_count} bytes of content were not inlined "
+        f"({_non_empty_single_line(reason, field='elision reason')}); the "
+        "sidecar records the fact rather than an unresolvable pointer]"
+    )
+
+
+def _refuse_unresolvable_pointer(value: str, *, field: str) -> None:
+    if HARNESS_ARTIFACT_SCHEME in value:
+        raise ThreadFormatRefused(
+            f"{field} carries {HARNESS_ARTIFACT_SCHEME!r}: "
+            + UNRESOLVABLE_ARTIFACT_REASON)
+
+
 def _validated_body(value: object, *, field: str) -> str:
     """A transcript body: prose that MAY span lines, must not be blank, must
     carry no blank line (a blank line is the turn-block separator), and must open
@@ -297,6 +354,7 @@ def _validated_body(value: object, *, field: str) -> str:
                     f"{field} opens a line with {sentinel!r}, a structural "
                     "sentinel; such a body would parse back as a different "
                     "thread than the one rendered")
+    _refuse_unresolvable_pointer(value, field=field)
     return value
 
 
@@ -1135,6 +1193,46 @@ class ThreadMirror(Protocol):
     def mirror_turn(self, thread: "DocumentThread", turn: "ThreadTurn") -> None: ...
 
 
+def dereference_bodies(turn_id: str, model: str, bound_buffer_key: str,
+                       human: str, assistant: str, *,
+                       dereference: Callable[[str], str]) -> ThreadTurn:
+    """Build a turn from bodies that MAY still carry harness `artifact://`
+    pointers, resolving each through the injected ``dereference`` seam FIRST.
+
+    This is the seam task 3.5's finding asks for, and it is deliberately a
+    separate function rather than a flag on ``ThreadTurn``: the refusal on the
+    dataclass stays absolute, so the only way a pointer can leave a body is by
+    somebody actually resolving it. The seam is the §11 bridge's job to supply —
+    it is the only component that can read the harness's own store — and a seam
+    that returns text still carrying a pointer is refused by ``ThreadTurn`` on the
+    next line, so a half-resolving implementation cannot slip a pointer through.
+
+    Where inlining is infeasible, the seam returns ``elided_note(...)`` instead:
+    the FACT that content was elided is a record a reader can act on, and an
+    unresolvable pointer is not.
+    """
+
+    if not callable(dereference):
+        raise ThreadFormatRefused(
+            "dereference_bodies needs a callable dereference seam; without one "
+            "there is nothing that can resolve a harness pointer")
+    resolved = []
+    for value, field in ((human, "human turn body"), (assistant, "assistant turn body")):
+        if not isinstance(value, str):
+            raise ThreadFormatRefused(f"{field} must be a string")
+        if HARNESS_ARTIFACT_SCHEME not in value:
+            resolved.append(value)
+            continue
+        answer = dereference(value)
+        if not isinstance(answer, str):
+            raise ThreadFormatRefused(
+                f"the dereference seam answered {field} with a non-string")
+        resolved.append(answer)
+    return ThreadTurn(turn_id=turn_id, model=model,
+                      bound_buffer_key=bound_buffer_key,
+                      human=resolved[0], assistant=resolved[1])
+
+
 def mirror_turn(thread: DocumentThread, turn: ThreadTurn, *,
                 mirror: ThreadMirror | None = None) -> DocumentThread:
     """Append ``turn`` to the sidecar thread and, when a mirror is injected, hand
@@ -1146,7 +1244,13 @@ def mirror_turn(thread: DocumentThread, turn: ThreadTurn, *,
     ``mirror=None`` the function is FULLY functional, because a thread must not
     depend on a harness existing: the editor-only posture (design §3.4) keeps
     buffers, the loaded set, Save, and threads-on-disk usable with no model port
-    at all."""
+    at all.
+
+    A turn reaching here can no longer carry a harness `artifact://` pointer:
+    ``ThreadTurn`` refuses one at construction (task 3.5's verified finding), so
+    the mirroring step cannot persist a reference the shared branch would never
+    resolve. ``dereference_bodies`` is the seam that resolves one first.
+    """
 
     if not isinstance(thread, DocumentThread):
         raise ThreadFormatRefused("mirror_turn appends to a DocumentThread")

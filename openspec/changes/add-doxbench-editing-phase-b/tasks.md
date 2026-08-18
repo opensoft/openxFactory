@@ -294,6 +294,18 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       files in different folders never merge two conversations.
       `render_state_header` is a literal PREFIX of the file, so a packet can
       carry other threads' headers without their transcripts.
+      **Task 3.5's verified finding is realized** (`verification-findings.md`
+      §3.5): the harness's own artifact store lands OUTSIDE the git worktree, so
+      an `artifact://` pointer in a sidecar would never resolve for a colleague
+      who fetched the shared branch. A turn body carrying one is therefore
+      REFUSED at construction — absolutely, with no flag and no strict-mode
+      switch — and both of the finding's remedies exist:
+      `dereference_bodies(..., dereference=...)` resolves the content through a
+      seam the §11 bridge supplies (a half-resolving seam cannot slip a survivor
+      through, because its answer goes straight back through the same refusal),
+      and `elided_note(bytes, reason)` records the FACT and the size where
+      inlining is infeasible. `mirror_turn` needs no check of its own: a turn
+      holding a pointer cannot exist to be handed to it.
 - [ ] 9.2 Threads commit WITH the document's Save through the existing
       one-commit-per-gate-action path, so a thread and its document cannot land
       in separate commits.
