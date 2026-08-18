@@ -2395,12 +2395,20 @@ def _released_turn(**over):
 
 
 @released_only
-def test_the_default_validator_factory_loads_the_four_released_kinds(released_validators):
+def test_the_default_validator_factory_loads_every_released_kind(released_validators):
+    """RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13): the file
+    now holds SIX turn envelopes, not three. The v1 kinds stay in the set
+    deliberately -- they are DEPRECATED, not withdrawn, and a factory that
+    stopped loading them would refuse exactly the clients the deprecation exists
+    to keep working."""
     assert set(released_validators) == {
         doxbench_contracts.KIND_MODEL_CATALOG,
         doxbench_contracts.KIND_CHAT_TURN,
         doxbench_contracts.KIND_CHAT_TURN_SUCCESS,
         doxbench_contracts.KIND_CHAT_TURN_FAILURE,
+        doxbench_contracts.KIND_CHAT_TURN_V2,
+        doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS,
+        doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE,
     }
     # And `build_server`'s default seam is the very function that loads them.
     assert serve_mod.default_doxbench_validators() .keys() == released_validators.keys()

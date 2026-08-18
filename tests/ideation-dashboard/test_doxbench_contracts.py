@@ -17,7 +17,7 @@ from a publisher checkout — this suite is hosted inside openxFactory, so the
 released bytes are simply present — and `OPENXFACTORY_ROOT` still selects a
 different checkout when one is wanted:
 
-    OPENXFACTORY_ROOT=/workspace/projects/xFactory/openxFactory-worktrees/contract-v1.31
+    OPENXFACTORY_ROOT=/workspace/projects/xFactory/openxFactory-worktrees/contract-v1.34
 
 It skips loudly only when neither is available. Making this rung default-on is
 what turns a pin the serve would refuse on back into a test failure instead of a
@@ -44,21 +44,28 @@ from ideation_dashboard import doxbench_contracts as contracts
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 
-RELEASED_REF = "e5554028e521d57c7501ef9bac206b20415281ef"
-RELEASED_TAG = "contract-v1.31"
+# RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13). The chat-turn
+# digest moves because the release widens that file itself; the catalog's does
+# not. The REF is the unresolved-until-published sentinel: the policy publishes
+# the annotated tag against the commit that lands, so on a realization branch
+# there is no release commit to name, and naming a stale one would be a false
+# statement about which release these digests belong to.
+RELEASED_REF = "unpublished:contract-v1.34"
+RELEASED_TAG = "contract-v1.34"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "0e6e7e946268b220918a426c6df399a9e01d064ee5dcbe22f8381dbf39aef1e0",
     CHAT_TURN_SCHEMA_FILE:
-        "8386566ef881661659d38f6d6c27c723a7ddaf5dd3b8e18ead854c40a2a876bb",
+        "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
 }
 
 # ---------------------------------------------------------------------------
 # hermetic fixture world
 #
 # The fake schemas mirror the released files' STRUCTURE (a whole-document
-# catalog; one chat-turn file holding three envelopes under `$defs`, selected by
-# a `oneOf`), because the structure is what the loader's per-kind mapping and the
+# catalog; one chat-turn file holding SIX envelopes under `$defs` -- the three v1
+# ones and the three contract-v1.34 added beside them -- selected by a `oneOf`),
+# because the structure is what the loader's per-kind mapping and the
 # registry-backed `$ref` resolution have to cope with. They deliberately do NOT
 # mirror the released files' rules — restating a contract rule in a fixture is
 # the forking of contract authority this whole module exists to avoid.
@@ -91,6 +98,9 @@ oneOf:
   - $ref: "#/$defs/request"
   - $ref: "#/$defs/success"
   - $ref: "#/$defs/failure"
+  - $ref: "#/$defs/request_v2"
+  - $ref: "#/$defs/success_v2"
+  - $ref: "#/$defs/failure_v2"
 $defs:
   request:
     type: object
@@ -115,6 +125,30 @@ $defs:
     properties:
       schema_version: { const: 1 }
       kind: { const: workbench-chat-turn-failure }
+      error: { type: string, minLength: 1 }
+  request_v2:
+    type: object
+    additionalProperties: false
+    required: [schema_version, kind, message]
+    properties:
+      schema_version: { const: 1 }
+      kind: { const: workbench-chat-turn-v2 }
+      message: { type: string, minLength: 1 }
+  success_v2:
+    type: object
+    additionalProperties: false
+    required: [schema_version, kind, assistant_prose]
+    properties:
+      schema_version: { const: 1 }
+      kind: { const: workbench-chat-turn-v2-success }
+      assistant_prose: { type: string }
+  failure_v2:
+    type: object
+    additionalProperties: false
+    required: [schema_version, kind, error]
+    properties:
+      schema_version: { const: 1 }
+      kind: { const: workbench-chat-turn-v2-failure }
       error: { type: string, minLength: 1 }
 """
 
@@ -214,13 +248,34 @@ def test_module_pins_the_immutable_released_contract():
 # exempts no byte.
 
 
-def test_declared_wire_kinds_are_the_four_doxbench_instance_kinds():
+def test_declared_wire_kinds_are_every_doxbench_instance_kind():
+    """RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13): the
+    co-resident widened family adds three kinds beside the three v1 ones, which
+    stay DECLARED because they are deprecated, not withdrawn."""
     assert set(contracts.WIRE_KINDS) == {
         "workbench-model-catalog",
         "workbench-chat-turn",
         "workbench-chat-turn-success",
         "workbench-chat-turn-failure",
+        "workbench-chat-turn-v2",
+        "workbench-chat-turn-v2-success",
+        "workbench-chat-turn-v2-failure",
     }
+
+
+def test_the_v1_family_is_declared_deprecated_and_still_dispatchable():
+    """contract-v1.34 deprecates the v1 family with a removal target of
+    contract-v2.0. Deprecated is NOT withdrawn: every deprecated kind still
+    resolves to its own envelope, because the policy's breaking path requires
+    the old shape to keep working for at least one full published release."""
+    assert set(contracts.DEPRECATED_CHAT_TURN_KINDS) == {
+        "workbench-chat-turn",
+        "workbench-chat-turn-success",
+        "workbench-chat-turn-failure",
+    }
+    for kind in contracts.DEPRECATED_CHAT_TURN_KINDS:
+        assert kind in contracts.WIRE_KINDS
+        assert kind in contracts.CHAT_TURN_DEFS
 
 
 # ---------------------------------------------------------------------------
@@ -720,9 +775,11 @@ def test_packaged_positives_validate_structurally(released_root):
     positives = _packaged_positives(released_root)
     # 6 -> 7 at contract-v1.28: the release ADDS
     # workbench-chat-turn-outline-only.example.yaml, the instance proving a
-    # null active_document_path is legal (G-1). The exact count IS the pin, so
-    # it advances with the release rather than being loosened to an inequality.
-    assert len(positives) == 7, [p.name for p in positives]
+    # null active_document_path is legal (G-1). 7 -> 9 at contract-v1.34, which
+    # adds the widened family's loaded-set request and its record. The exact
+    # count IS the pin, so it advances with the release rather than being
+    # loosened to an inequality.
+    assert len(positives) == 9, [p.name for p in positives]
 
     for path in positives:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))
