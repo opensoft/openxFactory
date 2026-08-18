@@ -108,6 +108,33 @@ remaining open question:
 
 Dispositioned-by: Brett Heap (live-UI annotation) · 2026-08-18
 
+The following three claims are settled by a further round of Brett's
+2026-08-18 live-UI annotations on the running doxBench app (verbatim
+annotation text quoted in full below) and likewise are NOT reopened by any
+remaining open question:
+
+10. **The chat is THREAD-BASED PER DOCUMENT.** Each open/loaded document
+    (per Claim 8's edit verb) carries its own persisted chat thread; switching
+    the working document (per Claim 9's dropdown) switches which thread the
+    chat window shows and appends to. This is a chat-header annotation,
+    verbatim: "we need to save the thread per document. but the context for
+    the chat has all the threads in it. so we need to look at a memory system
+    that will allow that to work well for this chat window. discuss options
+    with me."
+11. **The chat CONTEXT spans the staged set, not just the active thread.** The
+    model working any one document's thread sees all of the staged set's
+    threads — the working unit for context purposes is the whole staged set,
+    while the persisted, switchable unit for conversation purposes is the
+    per-document thread. This is a chat-rail annotation, verbatim: "This is
+    the window that will be thread based on the document, but the context is
+    for this staged set. so the context has all the chat threads."
+12. **Threads must be SAVED.** Per-document threads are not disposable
+    session state — Claim 10's "save the thread per document" is a persistence
+    requirement, not merely an in-memory switch, and Open question 7 below is
+    exactly the mechanism question this claim raises.
+
+Dispositioned-by: Brett Heap (live-UI annotation) · 2026-08-18
+
 ## Why
 
 <!-- xspec:candidate target=ideation-dashboard -->
@@ -352,6 +379,12 @@ LRU-fold-to-overflow-menu — the dropdown itself is the overflow mechanism
 (a scrollable list, not a fixed-width row), so the "many open edits" concern
 this question raised is resolved by construction rather than by a folding
 policy.
+Re-affirmed (same day, second annotation): Brett annotated the chat header a
+second time on 2026-08-18, verbatim: "this is only the Name of the document
+selected that we are chatting on. This should be a dropdown to select the
+'open' docs that are being edited this session." This re-states the ruling
+above rather than changing it — the dropdown-of-loaded-docs shape stands as
+already ruled.
 Disposition status: overridden-by-ruling (Brett, 2026-08-18, live-UI annotation)
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
 Dispositioned-by: Brett Heap (live-UI annotation) · 2026-08-18
@@ -494,12 +527,53 @@ Disposition status: accepted-as-recommended (Brett, 2026-08-15) — feeds the Ph
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
 Dispositioned-by: Brett Heap (ruling relayed in-session) · 2026-08-15
 
+### Q7. Which memory system persists the per-document threads and assembles the set-wide context?
+
+Context: Brett explicitly asked to discuss options before ruling (Claim 10's
+annotation, verbatim: "discuss options with me") rather than annotating a
+ruling directly onto the UI as he did for Q1 and Q3 — this question is
+deliberately left open for that discussion, not merely undecided. The turn
+store is in-memory today; the chat-turn wire is closed for Phase B's release
+(the Phase A/B split above already sequences a wire-carrying release); branch
+sessions provide a commit-per-action durable substrate already ratified for
+Save; and the serve's write surface is the interactivity boundary's declared
+allowlist, which any persistence mechanism for threads must fit inside.
+Recommended answer: the orchestrator's recommendation, PENDING Brett's ruling
+from the options discussion he asked for — threads persist as per-document
+sidecar files in the session branch, committed alongside the document's Save
+(riding the existing commit-per-action substrate rather than adding a new
+persistence path); each thread file maintains a distilled summary block
+alongside its full turn history; context assembly for any one document's
+active thread = that thread in full + every other loaded document's thread
+summary + the loaded documents themselves, assembled server-side from the
+session tree so no wire change is needed for threads themselves (only the
+already-planned Phase B wire release carries the turn-record fields it
+already carries). Threads stay session-branch working memory and are excluded
+from PR-as-save promotion by default (they are conversation scaffolding, not
+document content).
+Explanation: repo-native durability and provenance come for free from the
+same branch-session substrate Q2 already ratified for Save, rather than
+inventing a second persistence mechanism; the distilled-summary-plus-full-
+thread shape matches the outline-template sibling topic's existing
+distill-everything pattern (`staged-topic-outline-template`); keeping
+assembly server-side and out of the wire preserves the serve's write
+discipline (the interactivity boundary's declared allowlist); and a summary-
+per-other-thread (rather than every thread in full) bounds context growth as
+the staged set's document count grows.
+Disposition status: open — awaiting Brett's ruling from the options
+discussion he requested ("discuss options with me")
+Added-by: Claude Opus 4.8 (session) · 2026-08-18
+
 ## Exit
 
-Iterate this fragment in doxBench until all six open questions above carry a
-disposition other than `open`. The likely landing is a single OpenSpec change
-carrying one `ideation-dashboard` delta: the N-buffer state/turn/save
-generalization, the left-panel numbered-tab model, the chat-context binding
-rule, the docs-wheel edit verb plus dirty-tile marker, and the right-panel
-Editor/Preview redesign with Save/Cancel — sequenced so the buffer/turn/save
-generalization lands first, since every UI-facing claim above depends on it.
+Iterate this fragment in doxBench until all seven open questions above carry a
+disposition other than `open`. Q7 (the per-document-thread / set-wide-context
+memory system) is the one question this topic now carries open pending the
+options discussion Brett asked for; the other six are dispositioned. The
+likely landing is a single OpenSpec change carrying one `ideation-dashboard`
+delta: the N-buffer state/turn/save generalization, the left-panel numbered-
+tab model, the chat-context binding rule, the docs-wheel edit verb plus
+dirty-tile marker, the right-panel Editor/Preview redesign with Save/Cancel,
+and the thread-per-document / set-wide-context chat memory model — sequenced
+so the buffer/turn/save generalization lands first, since every UI-facing
+claim above depends on it.

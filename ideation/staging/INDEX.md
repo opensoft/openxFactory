@@ -1416,3 +1416,9 @@ repo scope.
   placeholder. Phase B re-cuts the turn machinery and releases that contract
   anyway, so the naming rides that release; Phase A ships the LIVE binding
   statement on the chat rail instead.
+- A thread-per-document / set-wide-context chat memory model was added
+  2026-08-18 via Brett's live-UI annotations (each loaded document gets its
+  own persisted, savable chat thread; the model sees every thread across the
+  staged set); which memory system persists and assembles that is under
+  discussion (Q7, open, per Brett's "discuss options with me"), and Phase B
+  proposal drafting follows that ruling.
