@@ -275,6 +275,56 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-doxbench-editing-phase-b](openspec/changes/add-doxbench-editing-phase-b/proposal.md)
+  — authored 2026-08-18, Phase B and the EXIT of the `doxbench-editing-model`
+  staged topic: all seven questions dispositioned, 26 claims settled (Brett's
+  live-UI annotations and in-session rulings 2026-08-15 → 2026-08-18). Where
+  Phase A was a layout-and-binding change on proven substrate, Phase B is the
+  state-model generalization plus the working-session model Brett's memory
+  ruling added on top of it. Ten pieces: the buffer set widens from exactly two
+  to `outline` + N loaded documents (the three pinned layers re-cut together —
+  the state validator, `require_outline_and_document`/`PROPOSAL_TARGETS`, and
+  `SAVE_BUFFER_ORDER`, whose fixed pair becomes a RULE: outline first as session
+  ancestry, then documents independently, so one document's refusal stops no
+  other); the chat rail header becomes a DROPDOWN of the loaded documents whose
+  selection IS the active buffer (Q1's numbered chips and LRU fold are
+  overridden — the dropdown is the overflow policy, and the set is bounded and
+  refuses rather than evicting text); the docs-wheel tile carries read / edit /
+  save with a colored loaded-and-dirty state (Q3); each loaded document gets a
+  persisted THREAD with a structured thread-state header (goal, accepted facts,
+  open questions, decisions, evidence refs, pending actions) committing on that
+  document's Save; share-session is an explicit commit-push-return-the-ref verb
+  reusing the pull-request port's EXISTING `push` member and opening no PR; and
+  per-turn context becomes a `memory-gateway` BOUNDED CONTEXT PACKET assembled
+  by a Staged-Set Knowledge Service behind ONE MCP boundary (search, get_source,
+  promote_finding, reindex; `graph_query` reserved and unimplemented) over an
+  internal assembly port — v1 GRAPH-LESS local hybrid on the recorded Mem0-v3
+  caution, graph admitted only on a named graduation trigger, backend an
+  install-time declaration, approved/ratified content exempt from aggressive
+  compression BY THE ASSEMBLER because only it can read a lifecycle `Status:`.
+  Compression is three layers with three fidelity contracts (selection,
+  semantic compaction, mechanical reversible offload); Headroom is WATCH-LISTED
+  with its adoption gates recorded and is deliberately not a dependency. The
+  harness is oh-my-pi behind a thin stdlib bridge that is an ADAPTER for the
+  unchanged three-member `WorkbenchModelPort` — no fourth port member, one
+  harness session per thread, sidecars remain the record, `auto` declares itself
+  a routing rule rather than a model. Carries a chat-turn contract release
+  discharging Phase A's F2 carve-out (the turn record names the DECLARED bound
+  buffer, plus selected-model metadata), realized as a co-resident envelope
+  family so the release is ADDITIVE and the bundle minor is allocated at
+  realization, never reserved. `memory-gateway` gets ONE delta of its own after
+  a full read: a declared SUBJECT-FREE LOCAL CONSUMER CLASS that must name every
+  rail it declares inapplicable, refused to any consumer holding provider
+  credentials or addressing a subject — because the contract's M0 set assumes a
+  customer subject and a credentialed provider this consumer has neither of, and
+  "inapplicable" must be declared rather than silently skipped. Seven verify-list
+  items (harness memory backends, MCP depth, `SYSTEM.md` cadence, Cognee's
+  embedded backend, the artifact store's location, `/shake`'s RPC surface,
+  memory-gateway's realization depth) are BLOCKING pre-realization tasks.
+  Sequenced AFTER `add-doxbench-editing-phase-a`, three of whose ADDED
+  requirements it MODIFIES relative to that change's outcome.
+  `target_release: implemented`.
+
 - `add-subject-overlay-contract` — ARCHIVED 2026-08-15
   (`openspec/changes/archive/2026-08-15-add-subject-overlay-contract/`):
   the neutral `hermes_subject_overlay` kind is RELEASED as **`contract-v1.32`**
