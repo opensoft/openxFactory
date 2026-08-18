@@ -296,10 +296,13 @@ Phase B.
   see is the one it is safe to leave pending — and the moment it becomes visible
   is exactly when it must not be stale. `flushOne(kind)` already implements this;
   Phase A calls it on the switch.
-- **D3. The canvas document picker stays.** It is a working, labelled,
+- **D3. The canvas document picker stays — REVISITED and REVERSED, see the
+  annotation round below.** As originally decided: it is a working, labelled,
   keyboard-reachable route to `selectDocument`, and its dirty-buffer guard is
-  load-bearing. The left-panel selection becomes the primary route beside it.
-  Removing a control is a separate argument from adding a route.
+  load-bearing; the left-panel selection becomes the primary route beside it,
+  and removing a control is a separate argument from adding a route. That
+  argument has since been made and won — the guard is no longer the picker's,
+  and Brett retired the control.
 - **D4. Phase A holds the two-buffer invariant explicitly rather than
   incidentally.** The delta states it as a requirement so that "we didn't
   generalize the state model" is a checked property of this change and not an
@@ -307,3 +310,69 @@ Phase B.
 - **D5. Save's verdict stays per buffer.** One button, still two answers.
   Collapsing the report to a single "saved" would hide the partial-success case
   the ratified buffer contract explicitly requires to be reported separately.
+
+## The annotation round (Brett, 2026-08-15, on the live Phase A canvas)
+
+Phase A shipped, Brett used it, and left two annotations on the running
+surface. Both are UI decisions by the ratifying authority, recorded here
+because each one reverses or narrows something this design argued for.
+
+### Annotation 1 — the chrome section goes; Save and Cancel move into the tab row
+
+> *"we do not need this section now that the left panel will let us select the
+> active document. remove this but place the save and cancel in line with the
+> tabs."* — on `div.doxbench-chrome`
+
+**The picker is retired, and D3's reason for keeping it no longer applies.** D3
+kept the canvas picker because its dirty-buffer guard was load-bearing — and at
+the time that was literally true: the guard, the revert-on-refusal and the
+refusal sentence lived partly in the picker's own `change` handler. The PR #196
+review moved all three INTO `selectDocument` (F4/F6): one refusal vocabulary
+for every route, one guard, and a reconcile that puts the context region's own
+selection back on the document the canvas really holds. **That is what made the
+control removable without losing a rule**, and it is why the two changes had to
+happen in that order. Phase A's model always said *left selects*; the picker
+was the transitional second route, and the wheel is now the only one.
+
+The G-1 outline-only posture survives in a better place. It used to be stated
+twice — on the picker's label and in the Document buffer's status — and the
+status keeps it: it is a fact about the BUFFER, not about a control.
+
+**Save and Cancel move into the view-tab row.** The ratified requirement is
+that exactly one of each sits *"outside both view tabs so that each control and
+its answer are on screen whichever view the human is standing on"*. A row that
+carries the tabs on the left and the two controls on the right satisfies that
+literally: the controls are outside both tabpanels and scoped to neither view.
+No spec text needed amending for the placement. The controls sit in their own
+group INSIDE the row but OUTSIDE the `role=tablist` element — a button inside a
+tablist is announced as a tab and joins the roving-tabindex cycle, which is
+exactly the two-level confusion the naming resolution exists to prevent.
+
+**Where the verdict surface went.** The per-buffer status regions are
+load-bearing: a partial Save reports per buffer by the ratified buffer
+contract, and every stated refusal on this surface lands in those same regions.
+They move, intact and still `aria-live`, into a compact status row directly
+under the tab row — with one change: **each line now names its buffer
+visibly.** Stacked unlabelled in the old chrome, a clean canvas rendered "no
+unsaved changes" twice with nothing to attribute either sentence to, which is
+visible in the annotated screenshot and is precisely the case a partial Save
+has to report. The accessible name carried the buffer already; now the visible
+text does too.
+
+### Annotation 2 — the canvas heading goes
+
+> *"why do we need this line? i do not see what it is adding to our UI."* — on
+> `h2.doxbench-heading`
+
+Nothing an assistive technology did not already get. A `role=region` is
+announced by its accessible name on entry, and the `h2` rendered that identical
+string a second time, visibly, costing a row of a narrow panel. The heading is
+removed and the region keeps its `aria-label` — which is the house idiom, not a
+new one: the two sibling regions (`swb-context`, `doxbench-rail`) have always
+been named exactly this way, with `aria-label` and no heading. A
+visually-hidden `h2` was considered and rejected for the same reason: inside a
+region that already has a name, it is simply announced twice.
+
+This DOES collide with ratified text, and the collision is amended rather than
+ignored — see the `doxBench surface identity` MODIFIED requirement in this
+change's delta, and the note at the end of `tasks.md`.

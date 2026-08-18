@@ -195,3 +195,44 @@
       notes that Phase A was raised.
 - [x] 9.3 No contract release: no schema change, no new artifact kind, no new
       gate verb. `target_release: none` verified still true at landing.
+
+## 10. The annotation round (Brett, 2026-08-15, on the live Phase A canvas)
+
+Two annotations left on the running surface by the ratifying authority, after
+Phase A landed. Both are recorded here because each narrows or reverses
+something this change decided; `design.md` carries the reasoning.
+
+- [x] 10.1 **The `doxbench-chrome` section is retired** ("we do not need this
+      section now that the left panel will let us select the active document").
+      The canvas document picker goes with it: D3 kept it for its dirty-buffer
+      guard, and the PR #196 review moved that guard — with the refusal sentence
+      and the reconcile — into `selectDocument` (F4/F6), which is what made the
+      control removable without losing a rule. The context region's docs wheel
+      is now the sole human selection route, exactly as Phase A's model always
+      said. G-1's outline-only posture survives in the Document buffer's own
+      status, where it belonged.
+- [x] 10.2 **Save and Cancel move into the view-tab row** ("place the save and
+      cancel in line with the tabs"), in their own group inside the row but
+      OUTSIDE the `role=tablist` element. The ratified requirement — one of
+      each, "outside both view tabs so that each control and its answer are on
+      screen whichever view the human is standing on" — is satisfied literally
+      by that placement, so no spec text needed amending for it.
+- [x] 10.3 **The per-buffer verdict surface survives** in a compact status row
+      under the tab row: both regions, still `aria-live`, still per buffer
+      (partial saves and stated refusals are load-bearing) — and each line now
+      NAMES its buffer visibly, because stacked unlabelled they rendered as
+      "no unsaved changesno unsaved changes", two identical sentences a reader
+      could not attribute.
+- [x] 10.4 **The `h2.doxbench-heading` is retired** ("why do we need this line?
+      i do not see what it is adding to our UI"). The region keeps its
+      `aria-label` — the house idiom its two sibling regions already use — so
+      the accessible name is unchanged while the duplicate visible line goes.
+- [x] 10.5 **The one collision with ratified text is AMENDED, not ignored.**
+      `doxBench surface identity`'s scenario read "its visible heading and
+      accessible surface name MUST use the exact name `doxBench`", and this
+      canvas's heading was the surface's only visible statement of it. The
+      delta carries that requirement as MODIFIED: the name is required wherever
+      the surface names itself and in the ACCESSIBLE name, a region already
+      carrying it need not restate it visibly, and any heading that IS rendered
+      must still use the exact casing. Directed by Brett's 2026-08-15
+      annotation round; the accessible name may never be dropped in exchange.

@@ -962,12 +962,17 @@ async function inputRefusalScenario() {
   return { surrogate, oversized };
 }
 
-// W-8/W-9 companion (wave re-review): a picker CHANGE during the loading
-// window. selectDocument refuses it (the F6-2 loading posture), but the
-// change handler used to revert the DISPLAYED value only on "blocked" -- so
-// the picker kept showing the choice that never landed, FOREVER, silently
-// lying about which document edits land in and turns ground on.
-async function pickerDuringLoadScenario() {
+// W-8/W-9 companion (wave re-review): a document SELECTION during the loading
+// window. selectDocument refuses it (the F6-2 loading posture), and the
+// refusal must be STATED -- it used to be silent, leaving whichever control
+// asked showing a choice that never landed, forever.
+//
+// PIN EVOLUTION (Brett's 2026-08-15 annotation round): this drove the canvas's
+// own picker, which is retired -- the context region's docs wheel is the sole
+// human route now. What it actually pins is `selectDocument`'s refusal, which
+// is where the sentence has lived since the PR #196 review (F6) and is shared
+// by every route into it, so the scenario drives the method directly.
+async function selectDuringLoadScenario() {
   let releaseLoad;
   const gate = new Promise((resolve) => { releaseLoad = resolve; });
   const inner = makeLoadSource(CONTENT, []);
@@ -975,11 +980,9 @@ async function pickerDuringLoadScenario() {
   const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
     loadSource: gated, storage: new FakeStorage(), previewDelayMs: 5,
   });
-  const picker = controller.elements().documentPicker();
-  picker.value = DOC_B;
-  await fireEvent(picker, 'change');       // refused: the load is still open
+  const refused = await controller.selectDocument(DOC_B);  // the load is open
   const duringLoad = {
-    pickerValue: picker.value,
+    refused,
     status: String(controller.elements().status('document').textContent),
   };
   releaseLoad();
@@ -987,7 +990,6 @@ async function pickerDuringLoadScenario() {
   return {
     duringLoad,
     afterLoad: {
-      pickerValue: picker.value,
       bufferPath: controller.state().buffers.document.path,
     },
   };
@@ -1085,6 +1087,8 @@ async function accessibilityScenario() {
     hostRole: host.getAttribute('role'),
     hostAriaLabel: host.getAttribute('aria-label'),
     hostTextContent: host.textContent,
+    // the retired visible heading, counted rather than assumed gone
+    headings: host.walk().filter((n) => n.tagName === 'H2').length,
     outlineDescribedBy: outlineTextarea.getAttribute('aria-describedby'),
     outlinePreviewId: outlinePreview.id,
     documentDescribedBy: documentTextarea.getAttribute('aria-describedby'),
@@ -1129,39 +1133,52 @@ async function guardFocusScenario() {
            activeBufferAfterCancel, focusedAfterDiscard };
 }
 
-// S3: the document picker is the one way a human reaches selectDocument.
-async function documentPickerScenario() {
+// S3, re-pinned (Brett's 2026-08-15 annotation round): the canvas no longer
+// renders a document picker of its own — "we do not need this section now that
+// the left panel will let us select the active document" — so the SELECTION
+// route it used to drive belongs entirely to the context region's docs wheel,
+// where it is exercised against the real shell in `selection_results`.
+//
+// What survives here is the rule the picker existed to carry, and it is now
+// carried by `selectDocument` itself (PR #196 review F4/F6 moved the guard,
+// the refusal sentence and the reconcile into it — which is what made the
+// control removable without losing anything): a clean switch lands, a dirty
+// Document buffer BLOCKS with the guard, and Discard resolves it. Driven
+// through the method, and the canvas is asserted to render no picker at all.
+async function selectDocumentRouteScenario() {
   const calls = [];
-  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+  const root = new Node('div');
+  const controller = mountDoxBenchCanvas(root, makeProjection(), {
     loadSource: makeLoadSource(CONTENT, calls), storage: new FakeStorage(), previewDelayMs: 5,
   });
   await controller.ready;
-  const picker = controller.elements().documentPicker();
-  const optionValues = picker.children.map((opt) => opt.value);
-  const initialValue = picker.value;
+  const initialPath = controller.state().buffers.document.path;
 
-  // a clean switch: picker adopts the new path
-  picker.value = DOC_B;
-  await fireEvent(picker, 'change');
-  const afterCleanSwitch = { value: picker.value, path: controller.state().buffers.document.path };
+  // a clean switch lands
+  const cleanSwitch = await controller.selectDocument(DOC_B);
+  const afterCleanSwitch = { result: cleanSwitch,
+                             path: controller.state().buffers.document.path };
 
-  // make it dirty, then attempt to switch back through the picker: blocked,
-  // and the control must snap back to the CURRENT path, not the attempted one
-  await controller.edit('document', '# dirty via picker test\n');
-  picker.value = DOC_A;
-  await fireEvent(picker, 'change');
+  // make it dirty, then attempt to switch back: blocked, guard shown, and the
+  // buffer stays exactly where it was
+  await controller.edit('document', '# dirty via the selection route\n');
+  const blocked = await controller.selectDocument(DOC_A);
   const afterBlockedAttempt = {
-    value: picker.value,
+    result: blocked,
     documentPath: controller.state().buffers.document.path,
     guardHidden: controller.elements().guard().hidden,
   };
 
-  // resolve with Discard: the switch completes and the picker shows it
+  // resolve with Discard: the switch completes
   await controller.resolveGuard('discard');
-  const afterDiscardResolves = { value: picker.value, path: controller.state().buffers.document.path };
+  const afterDiscardResolves = { path: controller.state().buffers.document.path };
 
   return {
-    optionValues, initialValue, afterCleanSwitch, afterBlockedAttempt, afterDiscardResolves,
+    initialPath, afterCleanSwitch, afterBlockedAttempt, afterDiscardResolves,
+    // the retired control, asserted absent rather than assumed gone
+    selects: root.walk().filter((n) => n.tagName === 'SELECT').length,
+    pickerNodes: root.walk().filter(
+      (n) => String(n.className).includes('doxbench-document-picker')).length,
   };
 }
 
@@ -1258,7 +1275,6 @@ async function inputDuringLoadScenario() {
     // are looked up without a buffer kind. The posture itself is unchanged.
     discardDisabled: controller.elements().cancel().disabled === true,
     saveDisabled: controller.elements().save().disabled === true,
-    pickerDisabled: controller.elements().documentPicker().disabled === true,
   };
   const duringStatus = String(status.textContent);
   let threw = null;
@@ -1286,8 +1302,7 @@ async function inputDuringLoadScenario() {
     afterControls: {
       discardDisabled: controller.elements().cancel().disabled === true,
       saveDisabled: controller.elements().save().disabled === true,
-      pickerDisabled: controller.elements().documentPicker().disabled === true,
-    },
+      },
   };
 }
 
@@ -1325,8 +1340,7 @@ async function oversizedInitialLoadScenario() {
     failedControls: {
       discardDisabled: controller.elements().cancel().disabled === true,
       saveDisabled: controller.elements().save().disabled === true,
-      pickerDisabled: controller.elements().documentPicker().disabled === true,
-    },
+      },
   };
 }
 
@@ -1718,19 +1732,20 @@ async function oversizedSwitchScenario() {
     threw = String(err && err.message);
   }
   const after = controller.state().buffers.document;
-  // …and the same failure through the PICKER, whose change handler is exactly
-  // the promise-dropping caller the containment exists for
-  const picker = controller.elements().documentPicker();
-  picker.value = DOC_B;
-  let pickerThrew = null;
-  try { await fireEvent(picker, 'change'); }
-  catch (err) { pickerThrew = String(err && err.message); }
+  // …and again through the GUARD's discard arm, the other caller that reaches
+  // switchDocument through a handler which drops the returned promise
+  await controller.edit('document', '# dirty before the failing switch\n');
+  await controller.selectDocument(DOC_B);              // blocked by the guard
+  let guardThrew = null;
+  let guardResolved = null;
+  try { guardResolved = await controller.resolveGuard('discard'); }
+  catch (err) { guardThrew = String(err && err.message); }
   return {
-    threw, result, pickerThrew,
+    threw, result, guardThrew, guardResolved,
     status: String(controller.elements().status('document').textContent),
-    pickerValue: picker.value,
     before: { path: before.path, content: before.content },
     after: { path: after.path, content: after.content, dirty: after.dirty },
+    afterGuard: { path: controller.state().buffers.document.path },
   };
 }
 
@@ -1784,14 +1799,14 @@ const results = {
   editThenDiscardBeforeSettle: await editThenDiscardBeforeSettleScenario(),
   editThenSwitchBeforeSettle: await editThenSwitchBeforeSettleScenario(),
   inputRefusal: await inputRefusalScenario(),
-  pickerDuringLoad: await pickerDuringLoadScenario(),
+  selectDuringLoad: await selectDuringLoadScenario(),
   applyRefusalCodes: await applyRefusalCodesScenario(),
   typedOutlineOverridesEmpty: await typedOutlineOverridesEmptyScenario(),
   typedDocumentOverridesUnavailable: await typedDocumentOverridesUnavailableScenario(),
   outOfScopeSelectDocument: await outOfScopeSelectDocumentScenario(),
   accessibility: await accessibilityScenario(),
   guardFocus: await guardFocusScenario(),
-  documentPicker: await documentPickerScenario(),
+  selectDocumentRoute: await selectDocumentRouteScenario(),
   postDestroyInert: await postDestroyInertScenario(),
   identitySettled: await identitySettledScenario(),
   inputDuringLoad: await inputDuringLoadScenario(),
@@ -2014,7 +2029,12 @@ def test_a_document_that_cannot_be_loaded_refuses_visibly_instead_of_rejecting(
     loaded."""
     result = editor_results["oversizedSwitch"]
     assert result["threw"] is None
-    assert result["pickerThrew"] is None
+    # PIN EVOLUTION (Brett's 2026-08-15 annotation round): the picker is retired,
+    # so the second promise-dropping caller measured here is the GUARD's discard
+    # arm, which reaches the same `switchDocument`.
+    assert result["guardThrew"] is None
+    assert result["guardResolved"]["status"] == "refused"
+    assert result["afterGuard"]["path"] == result["before"]["path"]
     assert result["result"]["status"] == "refused"
     # the message names the byte class, never the document's text
     assert "400" in result["result"]["reason"] or "bytes" in result["result"]["reason"]
@@ -2023,8 +2043,7 @@ def test_a_document_that_cannot_be_loaded_refuses_visibly_instead_of_rejecting(
     assert result["after"]["path"] == result["before"]["path"]
     assert result["after"]["content"] == result["before"]["content"]
     assert result["after"]["dirty"] is False
-    # …and the picker does not lie about which document is active
-    assert result["pickerValue"] == result["before"]["path"]
+    # …and the buffer never moved off the document it really holds
 
 
 def test_a_document_switch_drops_the_previous_documents_caret_and_scroll(
@@ -2247,17 +2266,21 @@ def test_authoring_surfaces_disable_autofill_and_derive_text_direction():
     content-derived surfaces — each buffer's authoring textarea and its
     preview — derive text direction from their own bytes (`dir="auto"`), and
     every control a browser might try to autofill — the textareas and the
-    document picker — refuses autofill. The status line and heading stay
-    direction-unset ON PURPOSE: status text is the fixed refusal/save
-    vocabulary (it never echoes buffer content, by house rule) and the
-    heading always leads with the LTR product name, so `dir="auto"` would
-    resolve identically there and only imply a content-derivation that does
-    not exist."""
+    textareas — refuses autofill. The status line stays direction-unset ON
+    PURPOSE: status text is the fixed refusal/save vocabulary and never echoes
+    buffer content, by house rule, so `dir="auto"` there would only imply a
+    content-derivation that does not exist.
+
+    PIN EVOLUTION (Brett's 2026-08-15 annotation round): the document picker
+    was the other autofill-refusing control and it is retired, so its line goes
+    with it — and the heading clause goes too, because the heading is retired
+    as well (the region's accessible name carries the product name now)."""
     source = EDITOR_JS.read_text(encoding="utf-8")
     assert 'textarea.setAttribute("dir", "auto")' in source
     assert 'preview.setAttribute("dir", "auto")' in source
     assert 'textarea.setAttribute("autocomplete", "off")' in source
-    assert 'picker.setAttribute("autocomplete", "off")' in source
+    # the retired picker's own autofill refusal is gone with the control
+    assert "doxbench-document-picker" not in source
 
 
 def test_selected_tab_styling_rides_aria_selected_not_a_shadow_class():
@@ -2480,16 +2503,30 @@ def test_each_buffer_editor_is_described_by_its_own_preview(editor_results):
 
 
 def test_the_canvas_region_carries_the_exact_product_name(editor_results):
-    """S1b (FR-001/SC-009): the mounted region is an accessible `region`
-    whose name begins with the exact casing `doxBench`, and the visible
-    heading states it too -- never `Doxbench`/`DoxBench`/`doxbench`."""
+    """S1b (FR-001/SC-009): the mounted region is an accessible `region` whose
+    name carries the exact casing `doxBench` and the opened scope --
+    never `Doxbench`/`DoxBench`/`doxbench`.
+
+    PIN EVOLUTION (Brett's 2026-08-15 annotation round: "why do we need this
+    line? i do not see what it is adding to our UI"). The name used to be
+    rendered TWICE — as this region's `aria-label` and again as a visible
+    `h2.doxbench-heading` carrying the identical string. The h2 is retired: it
+    duplicated the accessible name a screen reader already announces on
+    entering the region, and cost a row of a narrow panel to do it. The
+    ACCESSIBLE name is what actually names a region, and it is unchanged; the
+    two sibling regions (`swb-context`, `doxbench-rail`) have always been
+    named exactly this way, with `aria-label` and no heading."""
     result = editor_results["accessibility"]
     assert result["hostRole"] == "region"
-    assert result["hostAriaLabel"].startswith("doxBench")
-    assert "doxBench · Topic X" in result["hostTextContent"]
-    visible = result["hostTextContent"]
+    assert result["hostAriaLabel"] == "doxBench · Topic X"
+    # the exact casing, wherever the name appears
     for wrong_casing in ("Doxbench", "DoxBench", "doxbench"):
-        assert wrong_casing not in visible
+        assert wrong_casing not in result["hostAriaLabel"]
+        assert wrong_casing not in result["hostTextContent"]
+    # …and it is NOT duplicated as visible text: no heading node survives, and
+    # the region's own rendered text does not restate its name
+    assert result["headings"] == 0
+    assert "doxBench" not in result["hostTextContent"]
 
 
 def test_save_unavailable_reason_is_visible_text_not_only_a_hover_title(editor_results):
@@ -2513,34 +2550,38 @@ def test_showing_the_guard_moves_focus_to_discard_and_resolving_returns_it(
     assert result["focusedAfterDiscard"] is True
 
 
-def test_the_document_picker_reaches_select_document_and_reverts_when_blocked(
+def test_the_canvas_renders_no_document_picker_and_the_route_still_guards(
     editor_results,
 ):
-    """S3 (T035 / acceptance scenario 4): the labelled document picker is
-    the one way a human reaches selectDocument. A clean switch adopts the
-    new path; a blocked switch snaps the control back to the CURRENT path
-    until the guard resolves; resolving with Discard completes the switch
-    and the control shows the new path."""
-    result = editor_results["documentPicker"]
-    assert set(result["optionValues"]) == {
-        "ideation/staging/topic-x/detail.md",
-        "ideation/staging/topic-x/second.md",
-    }
-    assert result["initialValue"] == "ideation/staging/topic-x/detail.md"
+    """PIN EVOLUTION (Brett's 2026-08-15 annotation round): "we do not need
+    this section now that the left panel will let us select the active
+    document." The canvas's own picker — S3's "the one way a human reaches
+    selectDocument" — is retired; the context region's docs wheel is that way
+    now, and it is driven against the real shell in `selection_results`.
 
-    assert result["afterCleanSwitch"]["value"] == "ideation/staging/topic-x/second.md"
+    This test therefore asserts two things instead of the control: the picker
+    is genuinely GONE (not merely hidden), and every rule it used to carry
+    still holds on `selectDocument`, which is where the PR #196 review (F4/F6)
+    moved the guard, the refusal sentence and the reconcile — the move that
+    made the control removable without losing a rule. A clean switch lands; a
+    dirty Document buffer BLOCKS with the guard shown and the buffer untouched;
+    Discard resolves it."""
+    result = editor_results["selectDocumentRoute"]
+    assert result["selects"] == 0, "the canvas renders no <select> at all"
+    assert result["pickerNodes"] == 0
+    assert result["initialPath"] == "ideation/staging/topic-x/detail.md"
+
+    assert result["afterCleanSwitch"]["result"]["status"] == "switched"
     assert result["afterCleanSwitch"]["path"] == "ideation/staging/topic-x/second.md"
 
     blocked = result["afterBlockedAttempt"]
+    assert blocked["result"] == {"status": "blocked", "reason": "dirty_document"}
     assert blocked["guardHidden"] is False
-    assert blocked["documentPath"] == "ideation/staging/topic-x/second.md"
-    assert blocked["value"] == "ideation/staging/topic-x/second.md", (
-        "the picker must snap back to the CURRENT path, not the attempted one"
+    assert blocked["documentPath"] == "ideation/staging/topic-x/second.md", (
+        "the buffer must stay on the CURRENT document, not the attempted one"
     )
 
-    resolved = result["afterDiscardResolves"]
-    assert resolved["path"] == "ideation/staging/topic-x/detail.md"
-    assert resolved["value"] == "ideation/staging/topic-x/detail.md"
+    assert result["afterDiscardResolves"]["path"] == "ideation/staging/topic-x/detail.md"
 
 
 def test_the_controller_is_fully_inert_after_destroy(editor_results):
@@ -3443,7 +3484,7 @@ const output = {};
 
 {
   // SOURCE UNAVAILABLE for the document: the outline still loads; the document
-  // reports its unavailable state INLINE and the context/picker stays.
+  // reports its unavailable state INLINE and the rest of the canvas stays.
   const root = new Node('div');
   const controller = mountDoxBenchCanvas(root, projection(), {
     loadSource: async (path) => (path === OUTLINE_PATH
@@ -3472,13 +3513,9 @@ const output = {};
     storage: new FakeStorage(), previewDelayMs: 5,
   });
   await controller.ready;
-  const picker = controller.elements().documentPicker();
   output.outlineOnly = {
     ...survey(root),
     text: root.textContent.slice(0, 4000),
-    pickerOptions: picker.children.length,
-    pickerDisabled: picker.disabled === true,
-    pickerLabel: picker.parentNode.textContent,
     documentStatus: controller.elements().status('document').textContent,
     documentPath: controller.state().buffers.document.path,
   };
@@ -3544,27 +3581,34 @@ def test_an_unavailable_source_is_reported_inline_with_context_retained(
         posture_results):
     view = posture_results["sourceUnavailable"]
     assert "source unavailable" in view["text"]
-    # the outline buffer still loaded and stays usable; the picker/context
+    # the outline buffer still loaded and stays usable; the rest of the canvas
     # survives the unavailable document rather than vanishing with it
     assert view["textareas"] >= 1 and view["textareasDisabled"] == 0
-    assert view["selects"] >= 1
     assert view["cancelButtons"] == 1
+    # PIN EVOLUTION (Brett's 2026-08-15 annotation round): this used to assert
+    # `selects >= 1` for the canvas's own document picker. That control is
+    # retired — the context region's docs wheel is the selection route — so the
+    # canvas renders no <select> at all, and the pin flips to say so.
+    assert view["selects"] == 0
 
 
-def test_an_outline_only_tile_states_that_posture_instead_of_an_empty_picker(
+def test_an_outline_only_tile_states_that_posture_in_the_buffers_own_status(
         posture_results):
     """G-1 (PR #63 re-verification): on 16 of 21 real staged topics the tile's
     ONLY editable path is its own primary fragment, which this canvas loads as
-    the OUTLINE and which T104 F2 therefore does not offer as a DOCUMENT. The
-    picker used to render as an empty, enabled control that did nothing. It now
-    STATES the posture — and the canvas stays fully usable, because chat
-    grounds on the outline alone (`active_document_path: null`)."""
+    the OUTLINE and which T104 F2 therefore does not offer as a DOCUMENT.
+
+    PIN EVOLUTION (Brett's 2026-08-15 annotation round): the posture used to be
+    stated TWICE — on the picker's own label and in the Document buffer's
+    status. The picker is retired, so the status carries it alone, which is
+    where it belonged: it is a fact about the BUFFER, not about a control. The
+    canvas stays fully usable, because chat grounds on the outline alone
+    (`active_document_path: null`)."""
     view = posture_results["outlineOnly"]
-    assert view["pickerOptions"] == 0
-    assert view["pickerDisabled"] is True
-    assert "only editable document" in view["pickerLabel"]
-    # the Document buffer's own status says it too, instead of the misleading
-    # "no document selected" (there is none to select)
+    # the retired control leaves nothing empty behind
+    assert view["selects"] == 0
+    # the Document buffer's own status says the posture, instead of the
+    # misleading "no document selected" (there is none to select)
     assert "no document selected" not in view["documentStatus"]
     assert "only editable document" in view["documentStatus"]
     assert view["documentPath"] is None
@@ -4267,19 +4311,25 @@ def test_the_guard_save_arm_stops_on_the_remount_its_own_save_triggers(
     assert remount["persistedDocumentPath"] == "ideation/staging/topic-x/detail.md"
 
 
-def test_a_picker_change_during_the_load_reverts_and_states_the_refusal(
-        editor_results):
-    """W-9 (wave re-review): a change during the loading window is refused by
-    the F6-2 posture, but the handler reverted the DISPLAYED value only on
-    "blocked" — the picker then showed the choice that never landed, forever,
-    lying about which document edits land in and turns ground on. The picker
-    now reverts on every non-switched outcome and the refusal is stated
-    through the same visible status idiom every other refusal uses."""
-    probe = editor_results["pickerDuringLoad"]
+def test_a_selection_during_the_load_is_refused_and_says_so(editor_results):
+    """W-9 (wave re-review): a document selection during the loading window is
+    refused by the F6-2 posture, and the refusal must be STATED — it used to be
+    silent, leaving whichever control asked showing a choice that never landed,
+    forever, lying about which document edits land in and turns ground on.
+
+    PIN EVOLUTION (Brett's 2026-08-15 annotation round): this drove the canvas's
+    own picker and asserted the value it reverted to. The picker is retired —
+    the context region's docs wheel is the sole human route — so what remains
+    is the rule that outlived the control: `selectDocument` refuses, states the
+    refusal in the Document buffer's own status region, and leaves the buffer
+    on the document it really holds. The reverting half now belongs to the
+    wheel and is pinned live in `test_a_blocked_selection_leaves_wheel_and_canvas_agreeing`."""
+    probe = editor_results["selectDuringLoad"]
     doc_a = "ideation/staging/topic-x/detail.md"
-    assert probe["duringLoad"]["pickerValue"] == doc_a
+    assert probe["duringLoad"]["refused"]["status"] == "refused"
     assert "refused --" in probe["duringLoad"]["status"]
-    assert probe["afterLoad"]["pickerValue"] == doc_a
+    # the status names the buffer it reports (the annotation round's other half)
+    assert probe["duringLoad"]["status"].startswith("Document: ")
     assert probe["afterLoad"]["bufferPath"] == doc_a
 
 
@@ -4313,16 +4363,18 @@ def test_the_loading_and_failed_load_postures_disable_the_refusing_controls(
     -- a silently dead click. They now mount disabled exactly like the
     textareas (the module's own honest-posture idiom), the first
     syncBufferDom re-enables them, and a failed load (where syncBufferDom
-    never runs) leaves them disabled beside the stated failure."""
+    never runs) leaves them disabled beside the stated failure.
+
+    PIN EVOLUTION (Brett's 2026-08-15 annotation round): the picker is retired,
+    so the posture is measured on the two controls that remain. The rule is
+    unchanged and so is its reason — a control whose handler drops its refusal
+    must be one the browser physically refuses."""
     during = editor_results["inputDuringLoad"]["duringControls"]
-    assert during == {"discardDisabled": True, "saveDisabled": True,
-                      "pickerDisabled": True}
+    assert during == {"discardDisabled": True, "saveDisabled": True}
     after = editor_results["inputDuringLoad"]["afterControls"]
-    assert after == {"discardDisabled": False, "saveDisabled": False,
-                     "pickerDisabled": False}
+    assert after == {"discardDisabled": False, "saveDisabled": False}
     failed = editor_results["oversizedLoad"]["failedControls"]
-    assert failed == {"discardDisabled": True, "saveDisabled": True,
-                      "pickerDisabled": True}
+    assert failed == {"discardDisabled": True, "saveDisabled": True}
 
 
 def test_an_edit_settling_after_destroy_leaves_storage_untouched(editor_results):
@@ -4484,7 +4536,9 @@ const wheelPath = () => {
   const focused = wheelPane.__docWheel.focused();
   return focused ? focused.path : null;
 };
-const pickerValue = () => (one('doxbench-document-picker') || {}).value || null;
+// the canvas's own picker is retired (Brett's 2026-08-15 annotation round), so
+// the surfaces that must agree are the wheel and the canvas itself
+const pickerNodes = () => byClass('doxbench-document-picker').length;
 const headerText = () => String((one('doxchat-header') || {}).textContent || '');
 // the canvas's own answer: the fake source names the path it loaded
 const canvasDocument = () => (byClass('doxbench-textarea')[1] || {}).value || '';
@@ -4492,7 +4546,7 @@ const canvasDocument = () => (byClass('doxbench-textarea')[1] || {}).value || ''
 // the two controls under test: a switch to DOC_B would have replaced the
 // buffer's text with DOC_B's, taking the human's unsaved bytes with it.
 const agree = () => ({
-  wheel: wheelPath(), picker: pickerValue(),
+  wheel: wheelPath(), pickerNodes: pickerNodes(),
   // the canvas's OWN answer, independent of the two controls under test: a
   // switch that landed would have replaced the buffer's text with DOC_A's,
   // taking the human's unsaved bytes with it
@@ -4598,20 +4652,23 @@ def test_a_docs_row_selection_moves_the_stated_binding(selection_results):
     assert header.startswith("Working on — second.md")
 
 
-def test_a_blocked_selection_leaves_wheel_picker_and_canvas_agreeing(
+def test_a_blocked_selection_leaves_wheel_and_canvas_agreeing(
     selection_results,
 ):
-    """PR #196 review F4: three controls answer one question. The canvas picker
-    has always reverted itself when a selection did not land; the docs wheel had
-    no reconciliation at all, so a guard-blocked selection left it showing a
-    document the canvas never loaded -- and `doc-wheel.js`'s `selectPath`, which
-    exists for precisely this, had zero callers. Blocked, and then declined,
-    all three must still name the document that is actually open."""
+    """PR #196 review F4: the controls that answer "which document" must not
+    disagree. The docs wheel had no reconciliation, so a guard-blocked selection
+    left it showing a document the canvas never loaded -- and `doc-wheel.js`'s
+    `selectPath`, which exists for precisely this, had zero callers.
+
+    PIN EVOLUTION (Brett's 2026-08-15 annotation round): there were THREE such
+    surfaces; the canvas's own picker is retired, so there are two, and the
+    third is asserted absent. Blocked, and then declined, the wheel and the
+    canvas must still name the document that is actually open."""
     assert selection_results["guardShown"] is True
     for phase in ("whileBlocked", "afterCancel"):
         state = selection_results[phase]
         assert state["wheel"].endswith("second.md"), phase
-        assert state["picker"].endswith("second.md"), phase
+        assert state["pickerNodes"] == 0, phase
         assert state["canvasSwitchedToA"] is False, phase
     assert selection_results["guardHiddenAfterCancel"] is True
     # …and declining threw nothing away

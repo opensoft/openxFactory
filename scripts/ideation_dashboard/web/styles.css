@@ -1543,10 +1543,15 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .doxbench-canvas[hidden] { display: none; }
 .swb-regions.has-rail .doxbench-canvas { flex-basis: 32%; }
 
-.doxbench-heading {
-  font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ink);
-  margin: 0 0 4px; flex: none;
+/* Brett's 2026-08-15 annotation round: `.doxbench-heading` is retired — the
+   region's accessible name carries "doxBench · <scope>" and the h2 duplicated
+   it visibly for no gain. The TAB ROW takes that slot: view tabs left, the
+   panel's Save/Cancel right, in one line. */
+.doxbench-tabrow {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 8px; flex: none; min-width: 0;
 }
+.doxbench-actions { display: flex; align-items: center; gap: 6px; flex: none; }
 /* add-doxbench-editing-phase-a: the VIEW tabs (Editor/Preview) took over the
    strip the retired BUFFER tablist used to occupy, so they inherit its look
    verbatim — the selected-tab rule below still keys on aria-selected, which
@@ -1570,7 +1575,14 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 /* the panel chrome: the document picker, one status region per buffer, and the
    one Save / one Cancel — all OUTSIDE both view tabs, so each control and its
    answer are on screen from either view. */
-.doxbench-chrome { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: none; }
+/* The status row: each buffer's own live region plus the Save note, under the
+   tab row. The chrome block this replaces also carried the document picker and
+   the two controls; the picker is retired and the controls moved into the tab
+   row (Brett's 2026-08-15 annotation round). */
+.doxbench-statusbar {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
+  flex: none; min-width: 0;
+}
 .doxbench-status { font-size: 10.5px; color: var(--faint-ink); flex: 1; }
 .doxbench-status.is-dirty { color: var(--st-proposal); font-weight: 600; }
 .doxbench-cancel, .doxbench-save {
@@ -1634,15 +1646,6 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   font-size: 10px; color: var(--faint-ink); font-style: italic; flex-basis: 100%;
 }
 .doxbench-status-error { color: var(--blocked); font-weight: 600; }
-.doxbench-picker-label {
-  display: flex; flex-direction: column; gap: 2px; font-size: 10.5px; color: var(--muted);
-  flex: none;
-}
-.doxbench-document-picker {
-  font-family: var(--sans); font-size: 12px; color: var(--ink); background: var(--panel);
-  border: 1px solid var(--border); border-radius: 4px; padding: 3px 7px;
-}
-.doxbench-document-picker:focus-visible { outline: 2px solid var(--st-realized); outline-offset: 1px; }
 
 /* ---- doxBench posture note + forced-colors modes (US5, T091/T093) ------- */
 /* The inline posture explanation (FR-040/FR-025): visible, wrapped, never
@@ -1783,25 +1786,11 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   color: var(--ink); background: var(--panel);
   border-color: var(--border); font-weight: 600;
 }
-.doxbench-chrome {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  padding: 6px 0;
+.doxbench-statusbar {
+  display: flex; align-items: baseline; gap: 4px 10px; flex-wrap: wrap;
+  padding: 4px 0 6px;
 }
-.doxbench-picker-label {
-  /* T104 F9-3: this later block wins per-property over the S1c wave's block
-     above, but it never re-declared flex-direction, so `column` survived from
-     that wave while `flex: 1` made the label compete with the editarea for
-     the pane's HEIGHT — the <select> inside (flex: 1) stretched vertically.
-     The label is a compact row above the toolbar, never a height competitor:
-     row explicitly, flex: none explicitly. */
-  display: flex; flex-direction: row; align-items: center; gap: 6px;
-  font-size: 12px; color: var(--muted); min-width: 0; flex: none;
-}
-.doxbench-picker-label select {
-  flex: 1; min-width: 0; font: inherit; padding: 4px 6px;
-  background: var(--panel); color: var(--ink);
-  border: 1px solid var(--border); border-radius: 6px;
-}
+.doxbench-tabrow { padding-top: 2px; }
 .doxbench-panes { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 .doxbench-viewpane { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
 .doxbench-viewpane[hidden] { display: none; }

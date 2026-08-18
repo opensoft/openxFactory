@@ -167,6 +167,68 @@ def test_the_view_tablist_implements_the_apg_roving_pattern():
     assert 'tabBtn.addEventListener("keydown"' in source
 
 
+def test_the_canvas_region_is_named_without_a_duplicate_visible_heading():
+    """Brett's 2026-08-15 annotation round: "why do we need this line? i do not
+    see what it is adding to our UI."
+
+    The answer was: nothing an assistive technology did not already get. A
+    `role=region` is announced BY ITS ACCESSIBLE NAME on entry, and the retired
+    `h2.doxbench-heading` rendered that same string a second time, visibly,
+    costing a row of a narrow panel. Removing it is only safe while the name
+    itself survives — so this pins the posture rather than the removal: the
+    canvas host is a named region, the name carries the exact `doxBench`
+    casing, and the module constructs no heading to restate it.
+
+    The house idiom is the sibling regions': `swb-context` and `doxbench-rail`
+    are both `role=region` + `aria-label` with no heading of their own, which is
+    why an `aria-label` (rather than a visually-hidden heading) is what this
+    canvas keeps — a visually-hidden h2 INSIDE a region that already has a name
+    would simply be announced twice."""
+    editor = _editor()
+    assert 'host.setAttribute("role", "region")' in editor
+    assert 'host.setAttribute("aria-label", canvasLabel)' in editor
+    assert 'canvasLabel = "doxBench"' in editor
+    # no heading element is constructed at all
+    assert 'el("h2"' not in editor
+    # the retired class name may survive in the prose that RECORDS the removal,
+    # never as a string the module hands to the DOM builder
+    assert '"doxbench-heading"' not in editor
+    # the siblings this idiom is copied from, still named the same way
+    shell = _shell()
+    assert 'aria-label", "docs and lens context"' in shell
+    assert 'aria-label", "doxBench chat rail"' in shell
+
+
+def test_the_panel_controls_sit_in_the_tab_row_but_outside_the_tablist():
+    """Brett's 2026-08-15 annotation round: "place the save and cancel in line
+    with the tabs." They are in the tab ROW and outside the TABLIST — a button
+    inside `role=tablist` would be announced as a tab and would join the
+    roving-tabindex arrow cycle, turning two controls into two phantom views."""
+    editor = _editor()
+    assert 'const tabrow = el("div", "doxbench-tabrow")' in editor
+    assert 'const actions = el("div", "doxbench-actions")' in editor
+    assert "actions.append(cancelBtn, saveBtn);" in editor
+    # the tablist takes the tabs and nothing else
+    assert "tabrow.append(viewTablist, actions);" in editor
+    assert "viewTablist.appendChild(tabBtn);" in editor
+
+
+def test_each_buffer_status_names_the_buffer_it_reports():
+    """The per-buffer verdict surface had to survive the chrome's retirement
+    (partial saves and stated refusals are load-bearing). It moved to a compact
+    status row — and each line now NAMES its buffer visibly, because stacked in
+    the old chrome the two regions rendered as "no unsaved changesno unsaved
+    changes": two identical sentences a reader could not attribute, which is
+    exactly the case a PARTIAL save has to report."""
+    editor = _editor()
+    assert 'const prefix = bufferLabel(kind) + ": ";' in editor
+    assert 'label + ": " + EDITOR_LOADING_REASON' in editor
+    assert 'label + ": refused -- "' in editor
+    # …and the regions are still per buffer, still live, still separately named
+    assert 'status.setAttribute("aria-live", "polite")' in editor
+    assert 'status.setAttribute("aria-label", label + " buffer status")' in editor
+
+
 def test_the_retired_buffer_tablist_is_not_rendered_as_a_control():
     """add-doxbench-editing-phase-a task 2.2: two tablists answering "which
     buffer" and "which view" in one panel is how a design conversation stops
