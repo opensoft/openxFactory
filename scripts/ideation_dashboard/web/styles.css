@@ -1751,6 +1751,15 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .doxchat-loaded-empty {
   font-size: 11px; color: var(--faint-ink); padding: 4px 8px;
 }
+/* The selected entry's FULL name, for assistive technology. Visually hidden and
+   still a live region — the same idiom `doxchat-announce` uses one region over.
+   The visible label may be a basename or a distinguishing suffix; "the full name
+   MUST be available to assistive technology" is a separate obligation, and a
+   title attribute alone does not discharge it. */
+.doxchat-loaded-full {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
 .doxchat-card-target {
   align-self: flex-start; font: 10px/1.4 ui-monospace, monospace;
   letter-spacing: .06em; padding: 1px 6px; border-radius: 4px;
