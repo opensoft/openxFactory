@@ -81,6 +81,33 @@ iterate against:
 7. **The general model:** left selects the working doc, center chat works on
    it, right shows the result with save/cancel.
 
+The following two claims are settled by Brett's 2026-08-18 live-UI
+annotations on the running doxBench app (verbatim annotation text quoted in
+the Q1 and Q3 dispositions below) and likewise are NOT reopened by any
+remaining open question:
+
+8. **The docs-wheel tile's action row carries three verbs: read, edit,
+   save.** Read is unchanged — it still opens the immersive large-window
+   reader experience. Edit is the verb that loads the document into the
+   chat context; from 2026-08-18 onward, "loaded" throughout this fragment
+   means exactly this — a document opened via a wheel tile's edit button —
+   and the set of loaded documents is exactly the set Claim 9's rail
+   dropdown lists. Save lives on the tile itself, is active only when that
+   document's buffer has unsaved changes (dirty-gated — inactive otherwise),
+   and performs the identical act as the right panel's existing Save button
+   (same save mechanism, a second entry point onto it, not a second save
+   pipeline).
+9. **The chat rail header's "Working on — …" line (`doxbench-chat.js`)
+   becomes a dropdown box** listing every currently loaded document (loaded
+   per Claim 8's edit verb). The dropdown's selected entry IS the active
+   working document/buffer — i.e., the active buffer in the generalized
+   N-buffer model, and the concrete resolution of Q4's "active left-panel
+   selection" for the loaded-document case. An entry whose filename does not
+   fit on one line hover-expands to show the full filename rather than
+   truncating.
+
+Dispositioned-by: Brett Heap (live-UI annotation) · 2026-08-18
+
 ## Why
 
 <!-- xspec:candidate target=ideation-dashboard -->
@@ -221,6 +248,15 @@ and Cancel continuing to mean discarding a buffer back to its `base_content`
   `wheeltile-dirty` class) keeps one consistent marker vocabulary on the
   wheel rather than inventing a second one beside it. — Added-by: Claude
   Opus 4.8 (session, Brett's direction) · 2026-08-15
+- Annotation round 2 (same day, 2026-08-18) also queued a chat MODEL
+  SELECTOR next to the send button — not one of this fragment's two open
+  questions, but relevant to Phase B's scope: if a per-turn model choice
+  needs a wire field (e.g. recording which model handled a turn), it rides
+  the same Phase B chat-turn contract release as the turn-record obligation
+  Q4 already settled (every turn record names the exact buffer it acted
+  on) — one release carrying both additive fields, not two separate
+  releases. — Added-by: Claude Opus 4.8 (session) · 2026-08-18.
+  Dispositioned-by: Brett Heap (live-UI annotation) · 2026-08-18
 
 ## Conflicts
 
@@ -299,8 +335,26 @@ cap that refuses a new open) matches how the rest of doxBench treats
 degradation — never blocking a governed action outright when a softer
 fallback exists — and keeps every already-open edit reachable, just not
 all simultaneously visible.
-Disposition status: open
+Ruling (overrides Recommended answer above): Brett annotated the live UI
+directly on the chat rail header ("Working on — ..."), verbatim: "make this
+a dropdown box that lists the files that have been loaded by clicking the
+edit button on the wheel. the selected one is the file we are working on.
+if not fit in one line, then use hover to expand to see full filename."
+This replaces numbered chips + LRU overflow with a DROPDOWN BOX in the chat
+rail header (the existing "Working on — {boundName}" element in
+`doxbench-chat.js`) listing every document currently loaded into the chat
+context (loaded = opened via the docs-wheel tile's edit verb, per Claim 3
+and new Claim 8); the dropdown's selected entry IS the active working
+document/buffer; an entry whose filename does not fit on one line
+hover-expands to show the full filename rather than truncating or
+ellipsizing. There is no chip row, no numbered ('1', '2', …) tabs, and no
+LRU-fold-to-overflow-menu — the dropdown itself is the overflow mechanism
+(a scrollable list, not a fixed-width row), so the "many open edits" concern
+this question raised is resolved by construction rather than by a folding
+policy.
+Disposition status: overridden-by-ruling (Brett, 2026-08-18, live-UI annotation)
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
+Dispositioned-by: Brett Heap (live-UI annotation) · 2026-08-18
 
 ### Q2. What are Save and Cancel's exact semantics?
 
@@ -345,8 +399,30 @@ snapshot generator responsible for knowing about live browser sessions it
 has no way to observe. Driving the tile marker off the already-live
 `dirty` state keeps the marker honest and keeps the snapshot's derivation
 model unchanged.
-Disposition status: open
+Ruling (overrides Recommended answer above): Brett annotated a docs-wheel
+tile directly on the live UI, verbatim: "add a load button. read will still
+pull up an imersive reader experience of the doc in a large window. the new
+<Edit> button will then load this into the chat context. Once loaded and
+editable by chat, color this tile so we know is must be saved. also add a
+save button here. So we have read, edit, save and save only active if there
+are changes. the save acts same as the save button that is in the preview
+panel." The ruled shape (see new Claim 8): the wheel tile's action row
+carries three verbs — read (unchanged, the immersive large-window reader),
+edit (loads the document into the chat context), and save (lives on the
+tile itself). The tile is COLORED whenever its document is
+loaded-and-editable-by-chat — the visual-state idiom the recommended answer
+proposed (a badge/tile-color class in the `wheelhealth-ind` idiom) stands,
+but the trigger condition is now explicitly "loaded into chat context",
+still driven off the live session-local buffer state, never persisted into
+the snapshot. New beyond the recommended answer: the tile also gains its
+own Save control — active (clickable) only when the buffer has unsaved
+changes, inactive otherwise — that performs the identical save act as the
+right panel's existing Save button (Q2's already-ratified Save semantics;
+one save mechanism, two entry points). The tile is therefore both a status
+signal and an action surface, not a passive badge only.
+Disposition status: overridden-by-ruling (Brett, 2026-08-18, live-UI annotation)
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
+Dispositioned-by: Brett Heap (live-UI annotation) · 2026-08-18
 
 ### Q4. What is the chat-context binding rule, precisely?
 

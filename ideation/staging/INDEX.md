@@ -1388,6 +1388,10 @@ repo scope.
   Editor/Preview default, 6 concurrent-edit/stale-hash safety) dispositioned
   2026-08-15 (accepted as recommended; (1) and (3) stay open as Phase B) —
   Phase A proposal drafting next.
+- Phase B design questions (1 tab overflow, 3 dirty-tile signaling)
+  dispositioned 2026-08-18 by Brett via live-UI annotations (dropdown-of-
+  loaded-files; colored dirty tiles + per-tile save; read/edit/save tile
+  verbs); Phase B proposal drafting is next.
 - **Phase A proposal raised 2026-08-15** as `add-doxbench-editing-phase-a`
   (active change; one `ideation-dashboard` delta — the canvas presents the
   ACTIVE buffer chosen by the context region, the Editor/Preview view-tab
