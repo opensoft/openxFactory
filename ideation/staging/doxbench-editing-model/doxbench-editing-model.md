@@ -135,6 +135,57 @@ remaining open question:
 
 Dispositioned-by: Brett Heap (live-UI annotation) · 2026-08-18
 
+The following nine claims are settled by Brett's 2026-08-18 in-session ruling
+on the chat memory design (synthesizing his live-UI annotations, an
+in-session web-research pass on harnesses and graph-context managers, and an
+external design review he supplied) and likewise are NOT reopened by any
+remaining open question:
+
+13. **Chat memory is a two-plane design**: session working memory (per-document
+    thread sidecar files, truth) is separate from the Staged-Set Knowledge
+    Service (governed, shared, derived retrieval over the staged set plus
+    promoted findings only).
+14. **Each thread file carries a structured thread-state header** — active
+    goal, accepted facts, open questions, in-thread decisions,
+    retrieved-evidence refs, pending actions — above the raw transcript;
+    compaction preserves these commitments, not narrative.
+15. **The Staged-Set Knowledge Service is exposed behind one MCP boundary**
+    (a small tool contract: search, get_source, promote_finding, reindex;
+    graph_query later) plus an internal assembly port that a future backend
+    swaps behind without changing the boundary.
+16. **v1 retrieval is graph-less**: local hybrid (lexical/BM25 + small
+    embedded vectors + structured thread-states); a graph manager (Cognee
+    preferred, version-pinned; Graphiti+FalkorDB Lite the alternate) slots in
+    behind the same port only when a concrete graduation trigger fires
+    (recurring dependency traversal, contradiction detection, or
+    change-impact-analysis need).
+17. **The retrieval backend is an install-time declaration**, per the
+    ratified two-case principle: local-embedded for self-hosted installs,
+    hosted backends (e.g. Vertex) for tenant installs.
+18. **Promotion is gate-only**: raw chat never becomes durable truth
+    automatically; a thread finding enters the corpus only through the
+    existing lifecycle verbs (idea note / fragment / disposition on the
+    topic, with provenance) — no parallel decision store.
+19. **Source ranking is status-driven**: ratified/standard canon >
+    accepted/staged facts > promoted findings > active thread state >
+    harness-local memory (non-authoritative, ranked last), encoded in the
+    harness system prompt.
+20. **The chat harness is oh-my-pi (`can1357/oh-my-pi`)**, run behind a thin
+    stdlib-Python HTTP-to-stdio bridge under the existing WorkbenchModelPort
+    seam; one OMP RPC session per document-thread (`switch_session`); the
+    sidecar thread files remain the record — OMP's native memory backends
+    never hold the threads (split-brain prohibition), and if enabled at all
+    hold only non-authoritative lessons.
+21. **Share-session is an explicit commit-and-push act**: threads are local
+    until a share-session verb commits them and pushes the session branch; a
+    colleague resumes the session from the fetched branch.
+
+Dispositioned-by: Brett Heap (in-session ruling) · 2026-08-18
+Source: the graph-engine options (Cognee/Graphiti+FalkorDB), the Mem0 v3
+finding, and the OMP/oh-my-pi harness integration details derive from an
+external design review supplied by Brett 2026-08-18, synthesized and adapted
+in-session.
+
 ## Why
 
 <!-- xspec:candidate target=ideation-dashboard -->
@@ -284,6 +335,19 @@ and Cancel continuing to mean discarding a buffer back to its `base_content`
   on) — one release carrying both additive fields, not two separate
   releases. — Added-by: Claude Opus 4.8 (session) · 2026-08-18.
   Dispositioned-by: Brett Heap (live-UI annotation) · 2026-08-18
+- **VERIFY LIST before Phase B realization** — items the ruled two-plane
+  memory design (Claims 13-21, Q7's Ruling block) depends on that our own
+  research has not independently confirmed: (a) OMP's memory-backend claims
+  (local / Hindsight / Mnemopi), cited from its README by the external
+  design review — unverified by our own research; (b) the depth of OMP/pi's
+  MCP client (tool-calling) support; (c) whether OMP re-reads `SYSTEM.md` per
+  turn or caches it at session start; (d) Cognee's current default embedded
+  graph backend, in flux after the Kuzu archival (Apple acqui-hire, Oct
+  2025) — watch `topoteretes/cognee#2098`. — Added-by: Claude Opus 4.8
+  (session) · 2026-08-18. Dispositioned-by: Brett Heap (in-session ruling) ·
+  2026-08-18. Source: external design review supplied by Brett 2026-08-18,
+  synthesized and adapted in-session (item (a) is a direct citation from
+  that review).
 
 ## Conflicts
 
@@ -560,16 +624,71 @@ assembly server-side and out of the wire preserves the serve's write
 discipline (the interactivity boundary's declared allowlist); and a summary-
 per-other-thread (rather than every thread in full) bounds context growth as
 the staged set's document count grows.
-Disposition status: open — awaiting Brett's ruling from the options
-discussion he requested ("discuss options with me")
+Ruling: THE RULED TWO-PLANE MEMORY DESIGN (Brett, 2026-08-18, synthesizing his
+live-UI annotations, an in-session web-research pass on harnesses and
+graph-context managers, and an external design review he supplied).
+
+- **Plane 1 — session working memory (truth).** Per-document chat threads
+  persist as sidecar files on the session's draft branch. Each thread file
+  carries a structured THREAD-STATE HEADER — active goal, accepted facts,
+  open questions, decisions made in-thread, retrieved-evidence refs, pending
+  actions — above the raw transcript; compaction preserves these commitments,
+  not narrative. Threads commit on the document's Save (local until pushed).
+  Sharing is an explicit act: a share-session verb commits threads and pushes
+  the session branch; a colleague resumes the session from the fetched
+  branch. Threads are working memory, excluded from PR-as-save promotion by
+  default.
+- **Plane 2 — the Staged-Set Knowledge Service (governed, shared, derived).**
+  Retrieval over the staged set's documents plus PROMOTED findings only.
+  Exposed behind one MCP boundary (a small tool contract: search, get_source,
+  promote_finding, reindex; graph_query later) and an internal assembly port.
+  v1 retrieval is local hybrid (lexical/BM25 + small embedded vectors + the
+  structured thread-states); no graph engine in v1. A graph manager (Cognee
+  preferred, version-pinned; Graphiti+FalkorDB Lite the alternate) slots in
+  behind the same port when a concrete graduation trigger fires: recurring
+  need for dependency traversal, contradiction detection, or change-impact
+  analysis. The Mem0 v3 finding — graph memory lost on recall, 3x slower, 2x
+  token cost, so they removed it — is the recorded caution motivating a
+  graph-less v1. The retrieval backend is an install-time declaration per the
+  ratified two-case principle: local-embedded for self-hosted installs,
+  hosted backends (e.g. Vertex) for tenant installs — the same intake family
+  as the credential/notebook hosting declarations.
+- **Promotion gate.** Raw chat never becomes durable truth automatically. A
+  thread finding enters the corpus only through the existing lifecycle verbs
+  (promoted into an idea note / fragment / disposition on the topic, with
+  provenance) — no parallel decision store.
+- **Source-ranking hierarchy** (encoded in the harness system prompt, driven
+  by lifecycle Status headers): ratified/standard canon > accepted/staged
+  facts > promoted findings > active thread state > harness-local memory
+  (non-authoritative, ranked last).
+- **Harness.** The chat runs through oh-my-pi (`can1357/oh-my-pi`, MIT)
+  behind a thin stdlib-Python HTTP-to-stdio bridge under the existing
+  WorkbenchModelPort seam (`omp --mode rpc`; no HTTP mode exists upstream).
+  One OMP RPC session per document-thread via `switch_session`; doxBench
+  mirrors turns to the sidecar files, which remain the record — OMP's native
+  memory backends do NOT hold the threads (split-brain prohibition); if
+  enabled at all, they hold only non-authoritative lessons. Per-turn model
+  choice = `set_model` before prompt. The model menu is `auto / Opus / Kimi
+  K3 / ...` where `auto` is our own routing rule (a role-mapping/extension —
+  OMP has roles and fallback chains, but no native `auto`). Kimi K3 in the
+  menu means API access (Moonshot/Together — the 594GB open weights need
+  ≥8xH100; not local).
+
+Source: the graph-engine options (Cognee/Graphiti+FalkorDB), the Mem0 v3
+finding, and the OMP/oh-my-pi harness integration details derive from an
+external design review supplied by Brett 2026-08-18, synthesized and adapted
+in-session.
+Disposition status: ruled (Brett, 2026-08-18) — the two-plane memory design
+below
 Added-by: Claude Opus 4.8 (session) · 2026-08-18
+Dispositioned-by: Brett Heap (in-session ruling) · 2026-08-18
 
 ## Exit
 
-Iterate this fragment in doxBench until all seven open questions above carry a
-disposition other than `open`. Q7 (the per-document-thread / set-wide-context
-memory system) is the one question this topic now carries open pending the
-options discussion Brett asked for; the other six are dispositioned. The
+All seven open questions above now carry a disposition other than `open` —
+Q7 was ruled 2026-08-18 as the two-plane memory design recorded above
+(session-working-memory thread sidecars as truth, plus a Staged-Set
+Knowledge Service behind one MCP boundary). The
 likely landing is a single OpenSpec change carrying one `ideation-dashboard`
 delta: the N-buffer state/turn/save generalization, the left-panel numbered-
 tab model, the chat-context binding rule, the docs-wheel edit verb plus
