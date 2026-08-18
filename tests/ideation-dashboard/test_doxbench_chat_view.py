@@ -1651,9 +1651,17 @@ class Node {
     return this._text + this.children.map((c) => c.textContent).join('');
   }
   set textContent(value) { this.children = []; this._text = String(value); }
-  appendChild(child) { this.children.push(child); return child; }
+  // annotation round 2 asks WHERE the model selector sits, so the stub records
+  // parentage the way every other DOM stub in this suite already does
+  appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
   append(...kids) { for (const k of kids) this.appendChild(k); }
   setAttribute(name, value) { this.attributes[name] = String(value); }
+  // annotation round 2 reads `aria-describedby` back off the send button, so
+  // the stub gains the reader that matches the setter it already had
+  getAttribute(name) {
+    return Object.prototype.hasOwnProperty.call(this.attributes, name)
+      ? this.attributes[name] : null;
+  }
   addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
   focus() {}
   walk() { return this.children.reduce((a, c) => a.concat(c.walk()), [this]); }
@@ -1694,12 +1702,20 @@ const editorState = () => ({ buffers: {
   await rail.ready;
   const note = byClass(host, "doxchat-unavailable")[0] || null;
   const selector = byClass(host, "doxchat-model")[0];
+  const send = byClass(host, "doxchat-send")[0];
   out.emptyCatalog = {
     noteExists: Boolean(note),
-    noteHidden: note ? note.hidden : null,
+    // annotation round 2: the note is sr-only, not hidden — it is the send
+    // button's programmatic description now, so it must stay in the tree
+    noteSrOnly: note ? String(note.className).includes("doxchat-sronly") : null,
     noteText: note ? note.textContent : null,
-    selectorHidden: selector.hidden,
-    sendDisabled: byClass(host, "doxchat-send")[0].disabled,
+    selectorDisabled: selector.disabled === true,
+    selectorInSendRow: Boolean(selector.parentNode
+      && String(selector.parentNode.className).includes("doxchat-sendrow")),
+    sendDisabled: send.disabled,
+    sendTitle: send.title,
+    sendDescribedBy: send.getAttribute("aria-describedby"),
+    noteId: note ? note.id : null,
   };
 }
 
@@ -1718,16 +1734,15 @@ const editorState = () => ({ buffers: {
   // P3-8: the mount-to-catalog window's own words are part of the pin -- the
   // rail must not claim a configuration fact ("no approved model is
   // configured") it cannot know until the one-shot catalog ready settles.
-  const beforeCatalog = { noteHidden: note ? note.hidden : null,
-                          noteText: note ? note.textContent : null,
-                          selectorHidden: selector.hidden };
+  const beforeCatalog = { noteText: note ? note.textContent : null,
+                          selectorDisabled: selector.disabled === true };
   resolveCatalog({ schema_version: 1, kind: "workbench-model-catalog",
                    models: [ENTRY] });
   await rail.ready;
   out.lateCatalog = {
     beforeCatalog,
-    noteHidden: note ? note.hidden : null,
-    selectorHidden: selector.hidden,
+    noteText: note ? note.textContent : null,
+    selectorDisabled: selector.disabled === true,
     options: selector.children.map((o) => o.value),
   };
 }
@@ -1794,30 +1809,47 @@ def rail_dom_results(tmp_path_factory):
 
 def test_an_empty_catalog_mount_renders_the_in_rail_unavailability_note(
         rail_dom_results):
-    """F5-9 residual: the rail beside the shell's "chat is unavailable"
-    posture line must not look fully live. The in-rail note states the same
-    posture in the rail's own fixed vocabulary and stands in for the
-    selector; Send stays disabled (that half was already fixed)."""
+    """F5-9 residual: the rail must not look fully live when no model is
+    available. Send stays disabled and the reason is STATED.
+
+    PIN EVOLUTION (Brett's 2026-08-18 annotation round 2: "add a model selector
+    down next to the send button. make this text the hover text for the send
+    button if no model selected"). Two halves of this pin moved. The note no
+    longer STANDS as a visible line — it is sr-only, and its sentence is the
+    send button's `title` and its `aria-describedby` target, which is where a
+    human trying to send actually looks. And the selector no longer HIDES when
+    nothing is selectable: it is a permanent part of the send row, rendered
+    empty and DISABLED, which is the honest shape of this plane's posture (the
+    server answers with a catalog, and the catalog is empty). What has not
+    changed is the rule the pin exists for: the rail never looks live when it
+    is not, and the reason is legible."""
     e = rail_dom_results["emptyCatalog"]
     assert e["noteExists"] is True
-    assert e["noteHidden"] is False
+    assert e["noteSrOnly"] is True
     assert "chat is unavailable" in e["noteText"]
     assert "no approved model" in e["noteText"]
-    assert e["selectorHidden"] is True, (
-        "an empty selector rendered beside the unavailability posture is the "
-        "contradiction this finding names")
+    # the selector is present, beside Send, and inert
+    assert e["selectorInSendRow"] is True
+    assert e["selectorDisabled"] is True
     assert e["sendDisabled"] is True
+    # …and Brett's sentence IS the send button's hover text, and is associated
+    # programmatically rather than by title alone
+    assert e["sendTitle"] == e["noteText"]
+    assert e["sendDescribedBy"] == e["noteId"]
+    assert e["noteId"]
 
 
 def test_a_catalog_arriving_later_replaces_the_note_with_the_live_selector(
         rail_dom_results):
     l = rail_dom_results["lateCatalog"]
     # before the catalog resolves the rail is honest about having no model
-    assert l["beforeCatalog"]["noteHidden"] is False
-    assert l["beforeCatalog"]["selectorHidden"] is True
+    assert "checking the model catalog" in l["beforeCatalog"]["noteText"]
+    assert l["beforeCatalog"]["selectorDisabled"] is True
     # the rail was never unmounted, so the arriving catalog lights it up
-    assert l["noteHidden"] is True
-    assert l["selectorHidden"] is False
+    # a catalog with an available entry clears the reason and enables the
+    # selector in place (annotation round 2: it never hid, so it never unhides)
+    assert l["noteText"] == ""
+    assert l["selectorDisabled"] is False
     assert "model-a" in l["options"]
 
 
@@ -1919,6 +1951,12 @@ class Node {
   appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
   append(...kids) { for (const k of kids) this.appendChild(k); }
   setAttribute(name, value) { this.attributes[name] = String(value); }
+  // annotation round 2 reads `aria-describedby` back off the send button, so
+  // the stub gains the reader that matches the setter it already had
+  getAttribute(name) {
+    return Object.prototype.hasOwnProperty.call(this.attributes, name)
+      ? this.attributes[name] : null;
+  }
   addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
   focus() {
     // a real browser refuses focus on detached or disabled controls
@@ -2112,11 +2150,16 @@ async function catalogPosture(catalog) {
   await rail.ready;
   const note = byClass(host, "doxchat-unavailable")[0];
   const selector = byClass(host, "doxchat-model")[0];
+  const send = byClass(host, "doxchat-send")[0];
   return {
-    noteHidden: note.hidden,
+    // annotation round 2: the note is sr-only and the selector is disabled
+    // rather than hidden, so the posture is read off those two facts plus the
+    // send button's own stated reason
+    noteSrOnly: String(note.className).includes("doxchat-sronly"),
     noteText: note.textContent,
-    selectorHidden: selector.hidden,
-    sendDisabled: byClass(host, "doxchat-send")[0].disabled,
+    selectorDisabled: selector.disabled === true,
+    sendDisabled: send.disabled,
+    sendTitle: send.title,
   };
 }
 out.staleTokenCatalog = await catalogPosture(
@@ -2459,11 +2502,16 @@ def test_a_stale_console_token_catalog_failure_names_the_reload_remedy(
     stale-token vocabulary R-3 uses on the chat-turn path -- never the
     configured-none misdiagnosis."""
     s = focus_throw_results["staleTokenCatalog"]
-    assert s["noteHidden"] is False
+    # PIN EVOLUTION (annotation round 2): the sentence is sr-only and is the
+    # send button's hover text; the selector is present-and-disabled rather than
+    # hidden. WHICH sentence each failure carries — the whole point of F10-1 —
+    # is unchanged.
+    assert s["noteSrOnly"] is True
     assert "console token is stale" in s["noteText"]
     assert "reload" in s["noteText"]
     assert "no approved model" not in s["noteText"]
-    assert s["selectorHidden"] is True
+    assert s["sendTitle"] == s["noteText"]
+    assert s["selectorDisabled"] is True
     assert s["sendDisabled"] is True
 
 
@@ -2473,17 +2521,18 @@ def test_an_unreadable_catalog_gets_its_own_fixed_sentence(focus_throw_results):
     model is configured", because "nothing is configured" and "the answer
     could not be read" are different facts with different remedies."""
     u = focus_throw_results["unreadableCatalog"]
-    assert u["noteHidden"] is False
+    assert u["noteSrOnly"] is True
     assert "could not be read" in u["noteText"]
     assert "no approved model" not in u["noteText"]
-    assert u["selectorHidden"] is True
+    assert u["sendTitle"] == u["noteText"]
+    assert u["selectorDisabled"] is True
     assert u["sendDisabled"] is True
 
 
 def test_a_throwing_catalog_transport_reads_as_unreadable_not_configured_none(
         focus_throw_results):
     t = focus_throw_results["throwingCatalog"]
-    assert t["noteHidden"] is False
+    assert t["noteSrOnly"] is True
     assert "could not be read" in t["noteText"]
     assert "connection refused" not in t["noteText"], "no echoed error text"
     assert "no approved model" not in t["noteText"]
@@ -2493,9 +2542,12 @@ def test_an_empty_catalog_keeps_the_configured_none_note(focus_throw_results):
     """models: [] is a SUCCESS (FR-025) and keeps the existing editor-only
     sentence -- the two failure postures above must not absorb it."""
     e = focus_throw_results["configuredNoneCatalog"]
-    assert e["noteHidden"] is False
+    assert e["noteSrOnly"] is True
     assert "no approved model is configured" in e["noteText"]
     assert "could not be read" not in e["noteText"]
+    # …and this is the sentence Brett pointed at: it is the send button's hover
+    # text now (annotation round 2), not a standing line
+    assert e["sendTitle"] == e["noteText"]
 
 
 def test_an_over_bound_composer_paste_renders_and_announces_the_bound(

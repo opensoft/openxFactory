@@ -2454,6 +2454,38 @@ def test_the_rail_region_is_a_named_landmark_like_its_two_siblings():
 # driven live in test_doxbench_view.py.
 # ---------------------------------------------------------------------------
 
+def test_only_the_plane_postures_still_stand_as_an_inline_note():
+    """Brett's 2026-08-18 annotation round 2, on the `editor-only` posture line:
+    "add a model selector down next to the send button. make this text the hover
+    text for the send button if no model selected."
+
+    The posture ladder has two kinds of rung. Three are about CHAT — stale
+    console token, unreadable catalog, no approved model — and all three leave
+    the canvas offered, so their sentence belongs on the send button, where the
+    human is trying to act. The rest are about the PLANE: they explain a canvas
+    that is withheld or degraded, the rail is not mounted for most of them, and
+    there is no control to hang the sentence on, so they keep the inline note.
+    One rule, in one function, rather than a condition per caller."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    model = MODEL_JS.read_text(encoding="utf-8")
+    # the model MARKS the chat rungs; nothing infers them from their text
+    assert model.count("chat: true,") == 3
+    for chat_rung in ("console-token-stale", "catalog-unreadable", "editor-only"):
+        # the KIND declaration, not the prose that happens to name the rung
+        i = model.index('kind: "' + chat_rung + '"')
+        assert "chat: true," in model[i:i + 200], chat_rung
+    # …and the plane rungs are NOT marked
+    for plane_rung in ("hosted-hidden", "gate-off", "unkeyed",
+                       "source-unavailable"):
+        i = model.index('kind: "' + plane_rung + '"')
+        assert "chat: true," not in model[i:i + 200], plane_rung
+    # ONE rule decides whether the note stands, and both callers go through it
+    assert "function showPostureNote(plane)" in source
+    assert 'const stands = !!plane.note && plane.chat !== true;' in source
+    assert source.count("showPostureNote(") == 3   # 1 definition, 2 callers
+    assert "postureNote.textContent = plane.note" not in source
+
+
 def test_the_context_selection_drives_the_canvas_active_buffer():
     source = SWB_JS.read_text(encoding="utf-8")
     # the outline SELECTION tab makes the outline buffer active, through the

@@ -215,23 +215,15 @@ function bufferLabel(kind) {
 export const SAVE_UNAVAILABLE_REASON =
   "Save is not wired in this preview -- the governed Save action ships in a later change";
 
-// The wired posture's own honest notes. They state what Save DOES so the
-// enabled control is as legible as the disabled one was, and they deliberately
-// never contain SAVE_UNAVAILABLE_REASON -- a wired canvas that still carried
-// that sentence would be lying in the opposite direction.
-//
-// The ORDER clause names its authority instead of restating it (PR #196
-// review F8). It used to spell "Outline before Document", first as a literal
-// and then derived from BUFFER_KINDS -- but BUFFER_KINDS is the buffer SET,
-// and the save ORDER is `SAVE_BUFFER_ORDER` in ./doxbench-save.js, which this
-// module deliberately does not import: choosing the order (like choosing the
-// action) is the orchestrator's job, not the canvas's. A sentence that read
-// one authority while claiming the other's fact is exactly the drift Phase A
-// is trying to prevent, so the note stops asserting the order and names who
-// fixes it.
-export const SAVE_WIRED_NOTE =
-  "Save persists only the changed buffers, in the deterministic order the save "
-  + "orchestrator fixes, through the existing governance actions";
+// SAVE_WIRED_NOTE IS RETIRED (Brett's 2026-08-18 annotation round 2: "remove
+// these lines. the UI must be intuitive and not rely on this text to inform
+// the user"). It stood permanently under the tab row explaining what Save
+// does — "Save persists only the changed buffers, …" — which is the one thing
+// the CONTROL can say by itself: Save is disabled while nothing is dirty and
+// enabled the moment something is, so the button's own state carries the
+// sentence the note used to spell out. What has no control to carry it, and
+// therefore stays, is the UNAVAILABLE reason below: a Save that cannot run at
+// all is not a state a disabled button can tell apart from a nothing-to-save state.
 
 // Cancel's own fixed sentence. It names the ACT and the SCOPE of the act,
 // because one control that could have reverted any buffer must say which one
@@ -268,6 +260,9 @@ const LOAD_FAILURE_PREFIX = "this canvas could not load its sources -- ";
 
 const DESTROYED_REASON = "this doxBench canvas has been destroyed";
 const DEFAULT_PREVIEW_DELAY_MS = 150;
+// Long enough to be read at reading speed, short enough that it is plainly an
+// EVENT and not the standing text annotation round 2 retired.
+const DEFAULT_EVENT_NOTE_MS = 9000;
 const FALLBACK_REVISION = "0".repeat(40);
 
 function el(tag, cls, text) {
@@ -398,6 +393,10 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   const previewDelayMs = Number.isFinite(options.previewDelayMs)
     ? options.previewDelayMs
     : DEFAULT_PREVIEW_DELAY_MS;
+  // How long a transient event line stays on screen (annotation round 2).
+  const eventNoteMs = Number.isFinite(options.eventNoteMs)
+    ? options.eventNoteMs
+    : DEFAULT_EVENT_NOTE_MS;
 
   // ---- mutable controller state, declared before DOM construction so the --
   // ---- document picker's initial option list can read it synchronously. --
@@ -467,9 +466,21 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // screen whichever view the human is standing on — the ratified placement
   // rule, satisfied by a row rather than by a block of its own.
   const tabrow = el("div", "doxbench-tabrow");
-  // …and the row beneath it, which carries what the canvas SAYS rather than
-  // what it offers: each buffer's live status region and the Save note.
+  // …and the row beneath it. It used to STAND there stating each buffer's
+  // state; annotation round 2 retired that (the controls carry it now), so what
+  // is left is sr-only: the per-buffer live regions, the gate-absent reason,
+  // and one TRANSIENT visible line for events.
   const statusbar = el("div", "doxbench-statusbar");
+  // THE EVENT NOTE. An event, not standing text: a refusal or a Save that did
+  // not wholly land appears here, visibly, and clears itself. Everything a
+  // human can read off a control's own state -- clean, dirty, saving -- never
+  // reaches it. `eventNoteMs` is injectable for the same reason
+  // `previewDelayMs` is: a timer a test cannot pin is a timer a test cannot
+  // trust.
+  const eventNote = el("div", "doxbench-eventnote");
+  eventNote.setAttribute("aria-live", "polite");
+  eventNote.hidden = true;
+  let eventNoteTimer = null;
 
   // THE VIEW TABLIST: `Editor` / `Preview`, over whichever buffer is active.
   // It answers WHICH VIEW and nothing else — the buffer choice belongs to the
@@ -550,7 +561,21 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     const label = bufferLabel(kind);
     const previewId = instanceId + "-preview-" + kind;
 
-    const status = el("span", "doxbench-status doxbench-status-" + kind);
+    // VISUALLY HIDDEN, and still a live region (Brett's 2026-08-18 annotation
+    // round 2: "remove these lines. the UI must be intuitive and not rely on
+    // this text to inform the user"). The lines Brett is looking at are the
+    // STANDING ones -- "Outline: no unsaved changes" beside "Document: no
+    // unsaved changes" -- and he is right that a control's own enabled state
+    // says that better than a sentence does. But these regions are not only
+    // decoration: they are the per-buffer verdict surface the ratified buffer
+    // contract requires a partial Save to be readable in, they are where every
+    // stated refusal on this canvas lands, and they are announced. So they stay
+    // in the DOM, sr-only, exactly as `doxchat-announce` does one region over --
+    // the same house idiom. What a sighted human needs to SEE is the EVENT half
+    // (a refusal, a Save that did not wholly land), and that goes to the
+    // transient note below rather than standing here forever.
+    const status = el("span",
+      "doxbench-status doxbench-status-" + kind + " doxbench-sronly");
     status.setAttribute("aria-live", "polite");
     // ONE Save, still TWO answers: each buffer keeps its own status region, and
     // both are on screen at once, so the partial-success case (one buffer
@@ -592,6 +617,7 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
         // never just vanish with nothing said (CHK016/CHK019).
         status.textContent = label + ": refused -- " + result.error;
         status.classList.add("doxbench-status-error");
+        stateEvent(label + ": refused -- " + result.error);
       } else {
         status.classList.remove("doxbench-status-error");
       }
@@ -648,6 +674,7 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // sentences a reader could not attribute -- which is what the annotated
   // screenshot shows.
   for (const kind of BUFFER_KINDS) statusbar.appendChild(statusEls[kind]);
+  statusbar.appendChild(eventNote);
 
   // CANCEL -- the panel's narrow half. It is `discardBuffer` aimed at the
   // ACTIVE buffer and nothing else: discard destroys unsaved human work and
@@ -688,8 +715,14 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     saveBtn.setAttribute("aria-disabled", "true");
   }
   const saveNoteId = instanceId + "-save-note";
+  // Empty in the WIRED posture (annotation round 2 retired the sentence that
+  // used to stand here) and the fixed reason where there is no gate at all --
+  // which the ratified requirement needs as VISIBLE text beside the control,
+  // not a hover title, because an unreachable Save is not something a disabled
+  // button can tell apart from a nothing-to-save state.
   const saveNote = el("span", "doxbench-save-note",
-                      saveSeam ? SAVE_WIRED_NOTE : SAVE_UNAVAILABLE_REASON);
+                      saveSeam ? "" : SAVE_UNAVAILABLE_REASON);
+  saveNote.hidden = !!saveSeam;
   saveNote.id = saveNoteId;
   saveBtn.setAttribute("aria-describedby", saveNoteId);
   // The two controls sit in their own group INSIDE the tab row but OUTSIDE the
@@ -854,21 +887,48 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // every change of which buffer is active.
   function syncPanelControls() {
     if (!state) return;   // the mount-time disabled posture stands until a load
+    // THE CONTROLS CARRY THE STATE (Brett's 2026-08-18 annotation round 2:
+    // "the UI must be intuitive and not rely on this text to inform the user").
+    // "Nothing is dirty" used to be a SENTENCE standing under the tab row; it is
+    // a control state, and the control says it better: Save is reachable exactly
+    // when there is something to save, Cancel exactly when there is something to
+    // revert. A human reads that off the row without reading anything.
+    const anythingDirty = BUFFER_KINDS.some((kind) => state.buffers[kind].dirty);
+    const activeDirty = state.buffers[activeBuffer].dirty;
     if (saveSeam) {
-      // With a governed Save wired, Cancel restores the last SAVED text, so it
-      // stays available on a clean buffer (a no-op there, and a control that
-      // flickered between postures mid-Save would be worse). Only an in-flight
-      // Save takes it away. Without a seam this is untouched: a clean buffer has
-      // nothing to restore, so Cancel is disabled exactly as Discard was.
-      saveBtn.disabled = saving;
-      saveBtn.setAttribute("aria-disabled", saving ? "true" : "false");
-      cancelBtn.disabled = saving;
+      // An in-flight Save still takes both away -- that posture is about the
+      // bytes being in flight, not about what is dirty.
+      saveBtn.disabled = saving || !anythingDirty;
+      saveBtn.setAttribute("aria-disabled",
+                           saving || !anythingDirty ? "true" : "false");
+      cancelBtn.disabled = saving || !activeDirty;
       guardSaveBtn.disabled = saving;
       guardDiscardBtn.disabled = saving;
       guardCancelBtn.disabled = saving;
     } else {
-      cancelBtn.disabled = !state.buffers[activeBuffer].dirty;
+      // No gate at all: Save was never reachable here and stays that way, with
+      // its reason beside it as visible text. Cancel is local and follows the
+      // active buffer exactly as it always did.
+      cancelBtn.disabled = !activeDirty;
     }
+  }
+
+  // ONE TRANSIENT VISIBLE LINE, for the half of the retired status text a human
+  // must not miss: an EVENT. A refusal, or a Save that did not wholly land --
+  // never a state a control already shows. It clears itself, because standing
+  // text is what annotation round 2 removed; the sr-only per-buffer regions
+  // keep the durable, per-buffer detail for assistive technology and for the
+  // partial-Save contract.
+  function stateEvent(text) {
+    if (destroyed || !text) return;
+    if (eventNoteTimer !== null) clearTimeout(eventNoteTimer);
+    eventNote.textContent = String(text);
+    eventNote.hidden = false;
+    eventNoteTimer = setTimeout(() => {
+      eventNoteTimer = null;
+      eventNote.textContent = "";
+      eventNote.hidden = true;
+    }, eventNoteMs);
   }
 
   // The status region states, in order: what a Save is doing to this buffer
@@ -1361,6 +1421,7 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       const reason = "the Save seam failed -- " + failure;
       for (const kind of changed) statedOutcomes[kind] = "Save refused -- " + reason;
       for (const kind of BUFFER_KINDS) syncBufferDom(kind);
+      stateEvent("Save refused -- " + reason);
       return { status: "refused", reason };
     }
     let landedRef = null;
@@ -1383,10 +1444,18 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
           statedOutcomes[row.kind] = "Save reported a commit this canvas could not "
             + "adopt -- " + ((error && error.message) || "unknown error")
             + "; this buffer keeps its unsaved text";
+          stateEvent(bufferLabel(row.kind) + ": " + statedOutcomes[row.kind]);
           continue;
         }
       }
       statedOutcomes[row.kind] = saveOutcomeSentence(row);
+      // A committed buffer needs no event: Save going disabled and the buffer
+      // going clean IS the report. Anything else -- refused, not attempted, a
+      // commit this canvas could not adopt -- is exactly what a human must not
+      // miss, so it takes the transient line as well as its own sr-only region.
+      if (row.status !== "committed") {
+        stateEvent(bufferLabel(row.kind) + ": " + saveOutcomeSentence(row));
+      }
     }
     const previousRef = scopeKey().ref;
     if (landedRef !== null) rekeyTo(landedRef);
@@ -1487,10 +1556,9 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // neither can refuse silently (CHK016/CHK019). "blocked" is deliberately not
   // routed through it: the guard IS its own statement.
   function refuseSelection(reason) {
-    if (statusEls.document) {
-      statusEls.document.textContent =
-        bufferLabel("document") + ": refused -- " + reason;
-    }
+    const sentence = bufferLabel("document") + ": refused -- " + reason;
+    if (statusEls.document) statusEls.document.textContent = sentence;
+    stateEvent(sentence);
     return { status: "refused", reason };
   }
 
@@ -1616,6 +1684,9 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       // and the document picker, both needed to test the fix round's
       // visible-refusal and scope-guard behaviour.
       status: (kind) => statusEls[kind] || null,
+      // the transient visible line annotation round 2 introduced, so a test can
+      // measure that an EVENT was shown without waiting on its own timer
+      eventNote: () => eventNote,
     };
   }
 
@@ -1627,6 +1698,10 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
         clearTimeout(previewTimers[kind].timer);
         previewTimers[kind] = null;
       }
+    }
+    if (eventNoteTimer !== null) {
+      clearTimeout(eventNoteTimer);
+      eventNoteTimer = null;
     }
     persistNow();
   }
@@ -1701,6 +1776,7 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
         statusEls[kind].textContent = bufferLabel(kind) + ": " + loadFailureReason;
         statusEls[kind].classList.add("doxbench-status-error");
       }
+      stateEvent(loadFailureReason);
     }
   }
 

@@ -167,6 +167,68 @@ def test_the_view_tablist_implements_the_apg_roving_pattern():
     assert 'tabBtn.addEventListener("keydown"' in source
 
 
+def test_the_retired_standing_status_stays_in_the_accessibility_tree():
+    """Brett's 2026-08-18 annotation round 2: "remove these lines. the UI must be
+    intuitive and not rely on this text to inform the user."
+
+    Removing the lines VISUALLY is the instruction; removing them from the
+    accessibility tree would be a different and much worse change, because these
+    regions are announced, they are where every stated refusal on this canvas
+    lands, and they are the per-buffer surface the ratified buffer contract
+    requires a partial Save to be readable in. So the class is `sronly`, not
+    `hidden`: `display: none` and the `hidden` attribute both take a live region
+    out of the tree along with the text."""
+    editor = _editor()
+    assert "doxbench-sronly" in editor
+    assert 'status.setAttribute("aria-live", "polite")' in editor
+    styles = _styles()
+    # the house sr-only recipe, not display:none and not hidden
+    block = styles[styles.index(".doxbench-sronly {"):]
+    block = block[:block.index("}")]
+    assert "position: absolute" in block
+    assert "clip-path: inset(50%)" in block
+    assert "display: none" not in block
+
+
+def test_an_event_refusal_has_a_visible_live_region_of_its_own():
+    """The same annotation's other constraint: an EVENT a sighted human must not
+    miss cannot hide in an sr-only region. One transient visible line carries
+    refusals and non-committed Save verdicts, announced politely like every
+    other refusal channel on this surface."""
+    editor = _editor()
+    assert 'const eventNote = el("div", "doxbench-eventnote")' in editor
+    assert 'eventNote.setAttribute("aria-live", "polite")' in editor
+    assert "function stateEvent(text)" in editor
+    # it clears itself — standing text is what the annotation removed
+    assert "eventNote.hidden = true;" in editor
+    assert "doxbench-eventnote" in _styles()
+
+
+def test_the_model_selector_sits_by_send_and_states_why_send_is_unreachable():
+    """Brett's 2026-08-18 annotation round 2: "add a model selector down next to
+    the send button. make this text the hover text for the send button if no
+    model selected."
+
+    Two a11y obligations ride that. The selector must be LABELLED (it is a bare
+    `<select>` with no visible label text beside it), and the disabled Send's
+    reason must be associated PROGRAMMATICALLY rather than living in a `title`
+    a screen reader may never surface — so the sentence stays in the DOM,
+    sr-only, as the button's `aria-describedby` target."""
+    rail = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+            / "doxbench-chat.js").read_text(encoding="utf-8")
+    assert 'selector.setAttribute("aria-label", "approved model")' in rail
+    assert 'const sendrow = el("div", "doxchat-sendrow")' in rail
+    assert "sendrow.append(selector, sendBtn);" in rail
+    assert 'sendBtn.setAttribute("aria-describedby", unavailableNote.id)' in rail
+    assert '"doxchat-unavailable doxchat-sronly"' in rail
+    # the title carries the same sentence, from the same one selector
+    assert "sendBtn.title = sendTitle(inFlight, sendBtn.disabled, modelReason)" in rail
+    assert "unavailabilityNote(state)" in rail
+    styles = _styles()
+    assert ".doxchat-sendrow" in styles
+    assert ".doxchat-sronly" in styles
+
+
 def test_the_canvas_region_is_named_without_a_duplicate_visible_heading():
     """Brett's 2026-08-15 annotation round: "why do we need this line? i do not
     see what it is adding to our UI."

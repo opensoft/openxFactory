@@ -1298,11 +1298,24 @@ async function inputDuringLoadScenario() {
     results,
     afterDisabled: textarea.disabled === true,
     afterContent: controller.state().buffers.document.content,
-    // P3-2: the first syncBufferDom ends the mount-time posture
+    // P3-2: the first syncBufferDom ends the mount-time posture. Since Brett's
+    // 2026-08-18 annotation round 2 the controls also carry the DIRTY state, so
+    // a settled-but-clean canvas holds them disabled for a second, honest
+    // reason -- both probes are taken so the two reasons stay distinguishable.
     afterControls: {
       discardDisabled: controller.elements().cancel().disabled === true,
       saveDisabled: controller.elements().save().disabled === true,
       },
+    afterDirtyControls: await (async () => {
+      // the ACTIVE buffer, because Cancel is aimed at that one and Save at the
+      // whole dirty set -- dirtying only the inactive buffer would leave Cancel
+      // correctly unreachable and prove nothing about the loading window
+      await controller.edit('outline', '# dirty after the load settled\n');
+      return {
+        discardDisabled: controller.elements().cancel().disabled === true,
+        saveDisabled: controller.elements().save().disabled === true,
+      };
+    })(),
   };
 }
 
@@ -1777,6 +1790,59 @@ async function switchDropsTheStaleViewScenario() {
   };
 }
 
+// Brett's 2026-08-18 annotation round 2: "remove these lines. the UI must be
+// intuitive and not rely on this text to inform the user." The STANDING text
+// goes; the state it carried becomes control state, the durable per-buffer
+// sentences go sr-only, and an EVENT gets one transient visible line.
+async function statusbarPostureScenario() {
+  const root = new Node('div');
+  const controller = mountDoxBenchCanvas(root, makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(),
+    previewDelayMs: 5, eventNoteMs: 50,
+    save: async () => ({ status: 'refused', buffers: [{
+      kind: 'outline', status: 'refused', action: 'edit-document', ref: null,
+      revision: null, content_hash: null,
+      message: 'the outline base moved under this buffer' }] }),
+  });
+  await controller.ready;
+  const srOnly = (kind) => String(controller.elements().status(kind).className)
+    .includes('doxbench-sronly');
+  const note = controller.elements().eventNote();
+  const clean = {
+    saveDisabled: controller.elements().save().disabled === true,
+    cancelDisabled: controller.elements().cancel().disabled === true,
+    statusSrOnly: { outline: srOnly('outline'), document: srOnly('document') },
+    // the sentences are still THERE, and still name their buffer
+    statusText: String(controller.elements().status('outline').textContent),
+    live: controller.elements().status('outline').getAttribute('aria-live'),
+    eventHidden: note.hidden === true,
+    // the wired posture's standing "Save persists only the changed buffers…"
+    // note is deleted outright
+    hostText: root.textContent,
+  };
+  // dirty the ACTIVE buffer: both controls come live, with no sentence needed
+  await controller.edit('outline', '# outline edited\n');
+  const dirty = {
+    saveDisabled: controller.elements().save().disabled === true,
+    cancelDisabled: controller.elements().cancel().disabled === true,
+  };
+  // an EVENT -- a Save that refuses -- is visible, transiently
+  await controller.save();
+  const onEvent = {
+    eventHidden: note.hidden === true,
+    eventText: String(note.textContent),
+    // …and the durable per-buffer verdict is still in its own sr-only region
+    statusText: String(controller.elements().status('outline').textContent),
+  };
+  await new Promise((r) => setTimeout(r, 90));
+  const afterFade = {
+    eventHidden: note.hidden === true,
+    eventText: String(note.textContent),
+    statusText: String(controller.elements().status('outline').textContent),
+  };
+  return { clean, dirty, onEvent, afterFade };
+}
+
 const previewCases = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 
 const results = {
@@ -1821,6 +1887,7 @@ const results = {
   guardCancelDoesNotRebind: await guardCancelDoesNotRebindScenario(),
   oversizedSwitch: await oversizedSwitchScenario(),
   switchDropsStaleView: await switchDropsTheStaleViewScenario(),
+  statusbarPosture: await statusbarPostureScenario(),
 };
 
 console.log(JSON.stringify(results));
@@ -2072,6 +2139,70 @@ def test_a_document_switch_drops_the_previous_documents_caret_and_scroll(
     # document; a real browser additionally resets it when `.value` is
     # reassigned, which the shim does not model — so it is deliberately NOT
     # asserted here rather than asserted against the shim's own behaviour.
+
+
+def test_the_standing_status_text_is_gone_and_the_controls_carry_the_state(
+    editor_results,
+):
+    """Brett's 2026-08-18 annotation round 2: "remove these lines. the UI must be
+    intuitive and not rely on this text to inform the user."
+
+    The lines he is looking at are the STANDING ones — "Outline: no unsaved
+    changes" beside "Document: no unsaved changes", and under them a permanent
+    sentence explaining what Save does. He is right that a control's own
+    enabled state says that better: Save is reachable exactly when there is
+    something to save, Cancel exactly when the ACTIVE buffer has something to
+    revert. So the state moves onto the controls and the sentences stop
+    standing."""
+    clean = editor_results["statusbarPosture"]["clean"]
+    dirty = editor_results["statusbarPosture"]["dirty"]
+    # nothing dirty: both controls say so by being unreachable
+    assert clean["saveDisabled"] is True
+    assert clean["cancelDisabled"] is True
+    # something dirty: both come live, with no sentence needed
+    assert dirty["saveDisabled"] is False
+    assert dirty["cancelDisabled"] is False
+    # …and the standing explanation of what Save does is deleted outright
+    assert "Save persists only the changed buffers" not in clean["hostText"]
+
+
+def test_the_per_buffer_sentences_survive_sr_only(editor_results):
+    """The other half of the same annotation, and the reason it is not simply a
+    deletion: these regions are the per-buffer verdict surface the ratified
+    buffer contract requires a PARTIAL Save to be readable in, they are where
+    every stated refusal on this canvas lands, and they are announced. They stay
+    in the DOM, visually hidden, in the same sr-only idiom `.doxchat-announce`
+    uses one region over — so a screen reader still hears them and every rule
+    pinned on their sentences still holds."""
+    clean = editor_results["statusbarPosture"]["clean"]
+    assert clean["statusSrOnly"] == {"outline": True, "document": True}
+    assert clean["live"] == "polite"
+    # the sentence is still there, still naming its buffer
+    assert clean["statusText"].startswith("Outline: ")
+    assert "no unsaved changes" in clean["statusText"]
+
+
+def test_an_event_refusal_is_visible_transiently_not_standing(editor_results):
+    """The third half: an EVENT — a refusal, or a Save that did not wholly land
+    — must still reach a sighted human, and the annotation forbids it standing
+    there forever. One transient visible line carries exactly those, and clears
+    itself; the durable, per-buffer detail stays in the sr-only regions, so
+    nothing a test or an assistive technology relies on is lost with it."""
+    posture = editor_results["statusbarPosture"]
+    # nothing to say at rest
+    assert posture["clean"]["eventHidden"] is True
+    # a refused Save is said, visibly, and names the buffer it is about
+    on_event = posture["onEvent"]
+    assert on_event["eventHidden"] is False
+    assert "Outline: " in on_event["eventText"]
+    assert "base moved" in on_event["eventText"]
+    # …and it clears itself, which is what makes it an event and not standing text
+    after = posture["afterFade"]
+    assert after["eventHidden"] is True
+    assert after["eventText"] == ""
+    # while the DURABLE per-buffer verdict is still readable in its own region
+    assert "Save refused" in after["statusText"]
+    assert "base moved" in after["statusText"]
 
 
 def test_cancel_reverts_only_the_active_buffer_and_says_which(editor_results):
@@ -2831,6 +2962,11 @@ async function bothCommitted() {
   await controller.edit('outline', '# Outline edited\n');
   await controller.edit('document', '# Document A edited\n');
   const before = controller.state();
+  // annotation round 2: the CONTROL carries the state, so its posture is
+  // measured on both sides of the save — reachable while something is dirty,
+  // unreachable once nothing is
+  const saveBtnWhileDirty = describe(controller.elements().save());
+  const cancelBtnWhileDirty = describe(controller.elements().cancel());
   const settledBeforeSave = identitySettled.length;
   const outcome = await controller.save();
   const after = controller.state();
@@ -2848,6 +2984,7 @@ async function bothCommitted() {
     // wired posture is enabled and the fixed unavailable reason is GONE
     // rather than restyled -- is unchanged.
     saveBtn: describe(controller.elements().save()),
+    saveBtnWhileDirty, cancelBtnWhileDirty,
     hostText: host.textContent,
     storedKeys: [...storage.values.keys()],
     removedKeys: storage.removed,
@@ -3112,11 +3249,24 @@ def test_with_a_save_seam_the_control_becomes_enabled(save_seam_results):
     """The other half: an injected seam makes Save reachable, and the disabled
     posture and its note are gone rather than merely restyled."""
     # PIN EVOLUTION (add-doxbench-editing-phase-a): ONE Save on the panel, so
-    # this reads one control rather than one per buffer. The posture asserted
-    # is unchanged.
-    button = save_seam_results["bothCommitted"]["saveBtn"]
+    # this reads one control rather than one per buffer.
+    #
+    # PIN EVOLUTION (Brett's 2026-08-18 annotation round 2): reachability is now
+    # measured WHILE SOMETHING IS DIRTY, because the control carries the state
+    # the retired status text used to spell out — Save is reachable exactly when
+    # there is something to save. The seam-gated half this test exists for is
+    # unchanged: a seam makes Save reachable at all, and the fixed unavailable
+    # reason is GONE rather than restyled.
+    button = save_seam_results["bothCommitted"]["saveBtnWhileDirty"]
     assert button["disabled"] is False
     assert button["ariaDisabled"] in (None, "false")
+    assert save_seam_results["bothCommitted"]["cancelBtnWhileDirty"][
+        "disabled"] is False
+    # …and once the save has landed there is nothing left to save, so the
+    # control says so by being unreachable rather than by a sentence
+    settled = save_seam_results["bothCommitted"]["saveBtn"]
+    assert settled["disabled"] is True
+    assert settled["ariaDisabled"] == "true"
     assert save_seam_results["saveUnavailableReason"] not in \
         save_seam_results["bothCommitted"]["hostText"]
 
@@ -3244,11 +3394,25 @@ def test_an_edit_during_a_save_is_refused_so_the_saved_bytes_stay_truthful(
 
 
 def test_the_busy_posture_is_cleared_when_the_save_settles(save_seam_results):
+    """The BUSY posture — `aria-busy`, the stated "saving" line, both controls
+    withdrawn — is lifted the moment the save settles.
+
+    PIN EVOLUTION (Brett's 2026-08-18 annotation round 2): "withdrawn" and
+    "restored" used to be the same fact as "disabled" and "enabled", because
+    dirtiness played no part in it. Now it does: this scenario's save COMMITS,
+    so once it settles nothing is dirty and the controls are correctly
+    unreachable — by the state rule, not by the busy rule. What this test must
+    still prove is that the BUSY half cleared, so it reads `aria-busy` and the
+    status sentence rather than the disabled flags, which now answer a different
+    question."""
     after = save_seam_results["busy"]["after"]
-    assert after["save"]["disabled"] is False
-    assert after["discard"]["disabled"] is False
     assert after["status"]["busy"] in (None, "false")
     assert "saving" not in (after["status"]["text"] or "").lower()
+    # the controls are unreachable for the HONEST reason — the save landed and
+    # left nothing to save — and the in-flight scenario above already proves
+    # they were reachable while the buffer was dirty
+    assert after["save"]["disabled"] is True
+    assert save_seam_results["busy"]["during"]["save"]["disabled"] is True
 
 
 def test_an_in_flight_save_does_not_move_focus(save_seam_results):
@@ -3962,7 +4126,18 @@ const inThird = (cls) => (third.walk().filter(
   (n) => String(n.className).split(' ').includes(cls))[0] || null);
 await until(() => inThird('swb-posture-note') !== null, 'the third posture note');
 for (let i = 0; i < 60; i += 1) await settle();
+// PIN EVOLUTION (Brett's 2026-08-18 annotation round 2): a CHAT rung's sentence
+// no longer stands in the shell's posture note -- it is the send button's stated
+// reason, inside the rail, where the human is trying to act. Both halves are
+// probed: the standing line is empty, and the sentence arrived where it went.
 out.staleTokenPosture = (inThird('swb-posture-note') || {}).textContent || '';
+out.staleTokenSendTitle = (inThird('doxchat-send') || {}).title || '';
+out.staleTokenSendDescribedBy =
+  (inThird('doxchat-send') || { getAttribute: () => null })
+    .getAttribute('aria-describedby') || '';
+out.staleTokenRailNote = (inThird('doxchat-unavailable') || {}).textContent || '';
+out.staleTokenRailNoteSrOnly = String(
+  (inThird('doxchat-unavailable') || {}).className || '').includes('doxchat-sronly');
 
 console.log(JSON.stringify(out));
 """
@@ -4371,8 +4546,15 @@ def test_the_loading_and_failed_load_postures_disable_the_refusing_controls(
     must be one the browser physically refuses."""
     during = editor_results["inputDuringLoad"]["duringControls"]
     assert during == {"discardDisabled": True, "saveDisabled": True}
+    # PIN EVOLUTION (Brett's 2026-08-18 annotation round 2): a settled canvas is
+    # CLEAN, and the controls now carry that — Save is reachable exactly when
+    # there is something to save. So "the loading window ended" is proven by
+    # making something dirty and watching them come live, which distinguishes
+    # the two reasons a control can be unreachable instead of conflating them.
     after = editor_results["inputDuringLoad"]["afterControls"]
-    assert after == {"discardDisabled": False, "saveDisabled": False}
+    assert after == {"discardDisabled": True, "saveDisabled": True}
+    after_dirty = editor_results["inputDuringLoad"]["afterDirtyControls"]
+    assert after_dirty == {"discardDisabled": False, "saveDisabled": False}
     failed = editor_results["oversizedLoad"]["failedControls"]
     assert failed == {"discardDisabled": True, "saveDisabled": True}
 
@@ -4401,9 +4583,22 @@ def test_the_shell_posture_note_follows_the_catalog_failure(shell_results):
     configured" on a failed catalog (the count is 0 before and after, so the
     count half never fires). This drives a failing catalog through the REAL
     mounted shell and reads the rendered note."""
-    posture = shell_results["staleTokenPosture"]
-    assert "console token is stale" in posture, posture
-    assert "no approved model is configured" not in posture
+    # PIN EVOLUTION (Brett's 2026-08-18 annotation round 2): the threading this
+    # test guards is unchanged — the rail's catalog FAILURE must reach the human
+    # and must not stay stuck on "no approved model is configured" — but its
+    # destination moved. A chat rung's sentence is the SEND BUTTON's stated
+    # reason now ("make this text the hover text for the send button if no model
+    # selected"), so the standing shell line is empty and the sentence is read
+    # where it went.
+    assert shell_results["staleTokenPosture"] == ""
+    title = shell_results["staleTokenSendTitle"]
+    assert "console token is stale" in title, title
+    assert "no approved model is configured" not in title
+    # …and it is associated programmatically, not by title alone
+    note = shell_results["staleTokenRailNote"]
+    assert "console token is stale" in note
+    assert shell_results["staleTokenRailNoteSrOnly"] is True
+    assert shell_results["staleTokenSendDescribedBy"]
 
 
 def test_the_editors_apply_refusals_carry_their_fixed_codes(editor_results):

@@ -430,9 +430,17 @@ const _CARD_NOTES = Object.freeze({
 
 // WHY SEND IS IN THE STATE IT IS IN — three cases, named rather than nested,
 // so the reason a human cannot send is always readable on the control itself.
-function sendTitle(inFlight, disabled) {
+// Brett's 2026-08-18 annotation round 2: "make this text the hover text for the
+// send button if no model selected." When the reason Send is unreachable is
+// that no model is available or chosen, the button's tooltip IS the sentence
+// that used to stand in the posture note — the same string, from the same one
+// selector (`unavailabilityNote`), so the two can never drift. The generic
+// "…and type a message" line is kept for the case where a model IS selected and
+// the composer is simply empty, which is a different reason.
+function sendTitle(inFlight, disabled, unavailableReason) {
   if (inFlight) return "a turn is in flight — one turn at a time per conversation";
-  if (disabled) return "select an approved model and type a message to send";
+  if (disabled && unavailableReason) return unavailableReason;
+  if (disabled) return "type a message to send";
   return "send this turn";
 }
 
@@ -516,6 +524,11 @@ export function createProposalActions(options) {
   };
 }
 
+// One counter per module load, so each mounted rail's sr-only reason carries an
+// id no sibling rail can collide with (the canvas does the same for its own
+// per-instance ids).
+let railSequence = 0;
+
 export function mountDoxBenchChatRail(host, options = {}) {
   const {
     scopeKey, transports, editorState, activeDocumentPath, onState,
@@ -562,6 +575,9 @@ export function mountDoxBenchChatRail(host, options = {}) {
   subjectInput.setAttribute("dir", "auto");
   const selector = el("select", "doxchat-model");
   selector.setAttribute("aria-label", "approved model");
+  // The choice is workbench state, not a form answer — the same autofill
+  // refusal every other authoring control on this surface carries.
+  selector.setAttribute("autocomplete", "off");
   // T104 F5-9 residual: the rail's own unavailability posture. It stands in
   // for the selector while the catalog has no available entry (including
   // before any catalog has adopted), so the rail never looks fully live
@@ -571,7 +587,7 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // the loading sentence, not the configured-none claim — at construction
   // the catalog has not answered, and render() keeps whichever sentence
   // unavailabilityNote derives from the state's own facts.
-  const unavailableNote = el("div", "doxchat-unavailable",
+  const unavailableNote = el("div", "doxchat-unavailable doxchat-sronly",
                              CHAT_CATALOG_LOADING_NOTE);
   const transcriptList = el("ul", "doxchat-transcript");
   transcriptList.setAttribute("aria-label", "chat transcript");
@@ -594,8 +610,24 @@ export function mountDoxBenchChatRail(host, options = {}) {
   disclosure.setAttribute("aria-live", "polite");
   const sendBtn = el("button", "doxchat-send", "Send");
   sendBtn.type = "button";
-  host.append(header, subjectInput, selector, unavailableNote, transcriptList,
-              cardsHost, announce, failureNote, composer, disclosure, sendBtn);
+  // THE SEND ROW (Brett's 2026-08-18 annotation round 2: "add a model selector
+  // down next to the send button"). The approved-model selector used to sit up
+  // by the working subject, three regions away from the control its choice
+  // governs; it belongs where the turn is sent from. Same element, same
+  // `selectModel` binding, same `canSend` authority — only its place moved.
+  const sendrow = el("div", "doxchat-sendrow");
+  sendrow.append(selector, sendBtn);
+  // …and the unavailability sentence goes sr-only: it is the send button's
+  // stated REASON now (title + aria-describedby below), not a standing line.
+  // "make this text the hover text for the send button if no model selected."
+  // The class is set at CONSTRUCTION rather than through classList, because the
+  // rail's own DOM stub is deliberately minimal and this module has never
+  // needed classList — a view that reaches for one API more than it must is a
+  // view its harness has to grow to match.
+  unavailableNote.id = "doxchat-unavailable-" + (railSequence += 1);
+  sendBtn.setAttribute("aria-describedby", unavailableNote.id);
+  host.append(header, subjectInput, unavailableNote, transcriptList,
+              cardsHost, announce, failureNote, composer, disclosure, sendrow);
 
   function renderHeader() {
     const es = typeof editorState === "function" ? editorState() : editorState;
@@ -714,17 +746,21 @@ export function mountDoxBenchChatRail(host, options = {}) {
     }
     disclosure.textContent = sendDisclosure(state) || "";
     disclosure.hidden = !sendDisclosure(state);
-    // T104 F5-9: exactly one of {selector, unavailability note} shows. No
-    // available entry — a null catalog (not yet adopted or refused) or an
-    // adopted empty one (FR-025 editor-only) — is the note's condition, the
-    // same fact that keeps canSend false. WHICH sentence the note carries is
-    // the model's catalogFailure fact (T104 F10-1): stale token, unreadable
-    // catalog, or the configured-none default.
+    // T104 F5-9 originally traded the SELECTOR against the unavailability NOTE:
+    // exactly one of the two showed. Brett's 2026-08-18 annotation round 2
+    // changes both halves. The selector is a permanent part of the send row —
+    // "add a model selector down next to the send button" — so with no
+    // available entry it renders EMPTY AND DISABLED rather than vanishing,
+    // which is the honest shape of this plane's posture: the server exposes a
+    // catalog and it is empty, not absent. And the note is no longer a standing
+    // line at all: it is sr-only, and its sentence is the send button's stated
+    // reason. WHICH sentence it carries is unchanged — the model's
+    // catalogFailure fact (T104 F10-1): stale token, unreadable catalog, or the
+    // configured-none default.
     const selectable = (state.models || []).some(
       (entry) => entry.available === true);
-    selector.hidden = !selectable;
-    unavailableNote.hidden = selectable;
-    unavailableNote.textContent = unavailabilityNote(state);
+    selector.disabled = !selectable;
+    unavailableNote.textContent = selectable ? "" : unavailabilityNote(state);
     selector.value = state.selectedModelId || "";
     transcriptList.textContent = "";
     for (const turn of transcriptWindow(state)) {
@@ -744,7 +780,11 @@ export function mountDoxBenchChatRail(host, options = {}) {
     const inFlight = state.phase !== "idle";
     sendBtn.disabled = !canSend(state);
     sendBtn.textContent = inFlight ? "Sending…" : "Send";
-    sendBtn.title = sendTitle(inFlight, sendBtn.disabled);
+    // The reason is a MODEL reason only while no model is actually selectable or
+    // selected; once one is chosen, an empty composer is a different reason and
+    // must not borrow this sentence.
+    const modelReason = state.selectedModelId ? null : unavailabilityNote(state);
+    sendBtn.title = sendTitle(inFlight, sendBtn.disabled, modelReason);
     if (typeof onState === "function") onState(state);
   }
 
