@@ -1765,14 +1765,25 @@ def test_the_outline_pane_reads_through_the_active_keys_source_base():
     was keyed correctly the whole time, so the page disagreed with itself.
 
     The renderer stays TRANSPORT-FREE: the viewer owns the fetch, and threading a
-    base string adds no call site (FR-047's counts are unchanged)."""
+    base string adds no call site (FR-047's counts are unchanged).
+
+    The spellings below gained a trailing argument each in
+    `add-staged-topic-outline-template` (the add-section seam, and the viewer's
+    `onText` read-back the section index is built from). What this test guards is
+    unchanged and is the reason the pins are substrings and not signatures:
+    `sourceBase` and `edit` must still be THREADED to the pane and on to the
+    viewer, because dropping either is what put a draft view on `main`'s bytes.
+    Both additions are transport-free — no new call site, no second fetch of the
+    same bytes."""
     web = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
     view = (web / "views" / "staging-workbench.js").read_text(encoding="utf-8")
     app = (web / "app.js").read_text(encoding="utf-8")
 
-    assert "function renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit)" in view
-    assert "renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit);" in view
-    assert "renderViewer(host, { path, doc, sourceBase, edit });" in view
+    assert ("function renderOutlinePanel(pane, snapshot, scope, create, "
+            "sourceBase, edit, sections)") in view
+    assert ("renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit,"
+            ) in view
+    assert "renderViewer(host, { path, doc, sourceBase, edit," in view
     assert "sourceBase, edit, onSessionRekey," in view
     assert "onSessionEnded, onScopeOpened } = {})" in view
     # Shell viewers get a fixed key derived from their selected entry. The

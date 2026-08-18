@@ -318,6 +318,15 @@ export async function renderViewer(root, opts) {
   // `fetch` directly — the ONE other legitimate network call in the whole
   // bundle besides app.js's snapshot fetch (D15 source pass-through).
   const injectedFetch = o.fetch;
+  // READ-BACK SEAM (add-staged-topic-outline-template task 3.1's wiring), and
+  // the reason it exists rather than a second fetch: this viewer OWNS the one
+  // /source read for these bytes (D15), so a caller that needs the loaded text
+  // for its own derivation — the outline tab, deriving the templated section
+  // index — is handed the text the viewer already has. Called ONLY on a
+  // successful load: a degraded or failed load leaves it silent, because the
+  // viewer has already said so in its own body and a caller must not derive a
+  // model from bytes that never arrived.
+  const onText = typeof o.onText === "function" ? o.onText : null;
 
   root.innerHTML = "";
   if (!path) {
@@ -363,4 +372,5 @@ export async function renderViewer(root, opts) {
 
   const text = await response.text();
   mountSafeMarkdown(body, text);
+  if (onText) onText(text);
 }

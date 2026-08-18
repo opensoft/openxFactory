@@ -62,18 +62,24 @@ remains is the contract and the surface.
 
 ## 3. The outline tab
 
-- [~] 3.1 Render identified sections from headings and `xspec:` fences. No
+- [x] 3.1 Render identified sections from headings and `xspec:` fences. No
       content-sniffing, no fabricated headings.
-      MODEL BUILT, RENDERING NOT WIRED. `web/views/outline-model.js` is a pure,
+      MODEL BUILT, RENDERING NOW WIRED. `web/views/outline-model.js` is a pure,
       fence-aware section model — identifies sections from real `## ` headings
       and `xspec:` fences, classifies required / added / proposal-element,
       extracts `Added-by:` provenance, reports gaps. 9 tests under node,
       including that nothing is fabricated (every reported section is asserted
       to be a real line in the source) and that QUOTING the canonical fenced
-      skeleton is not adopting it. Wiring waits on 3.2's ruling: the index and
+      skeleton is not adopting it. Wiring waited on 3.2's ruling: the index and
       the add-section affordance share one pane, and building that layout twice
       is the avoidable cost.
-- [ ] 3.2 Add-section affordance writing through `edit-document`, scoped by the
+      WIRED with 3.2 as the shared pane predicted — the outline selection tab now
+      renders the section index (title, role, line, `Added-by:`) above the
+      viewer's rendering of the same fragment, from the bytes `renderViewer`
+      hands back through its new optional `onText`. The second fetch that a
+      separate index pass would have needed does not exist: D15's one-read rule
+      for document content is intact.
+- [x] 3.2 Add-section affordance writing through `edit-document`, scoped by the
       target section; `Added-by:` provenance stamped on the added section.
       UNBLOCKED 2026-08-15 by Amendment 1 (Brett: "amend to edit-document").
       As ratified this said `edit-apply`, which is the gate console's
@@ -83,14 +89,51 @@ remains is the contract and the surface.
       staging. `edit-document` is the session content verb the buffer contract
       already uses; Q4's intent (no second write verb, existing session path,
       section scoping as a targeting detail) is unchanged.
-- [ ] 3.3 Degrade on non-conforming fragments: render what is present, report
+      LANDED as design (A): the affordance inserts the section skeleton into the
+      outline BUFFER and stops. It performs no network call, no gate action and
+      no save — the human's existing Save carries the text through
+      `edit-document`, so the tab gained no write verb of its own. The insert
+      lands through the canvas's OWN `applyProposal`, reused rather than
+      paralleled: it already owns the settled-identity gate (an insert computed
+      against text the buffer has since moved off is refused, never forced), the
+      line-ending re-flavor (without which one insertion becomes a whole-file EOL
+      rewrite), and `edit()` itself — so the dirty state, hashing and Save plan
+      are byte-for-byte what typing produces. Scoping is a reported addressing
+      key: a required section takes its canonical place in the skeleton's own
+      order, and a free-form section is anchored by a target the human names.
+      Provenance follows the contract's non-uniform rule rather than making it
+      uniform — required sections stamp `Added-by:` on the seeded note or
+      question the way the skeleton shows, and a section beyond the required set
+      carries the section-level line.
+- [x] 3.3 Degrade on non-conforming fragments: render what is present, report
       nothing as broken, rewrite nothing on open.
-- [ ] 3.4 Gate-off posture: the affordance is not a live control and no write
+      `outlineModel`'s `pre-template` state drives one calm sentence naming the
+      MIGRATION STAGE — "staged before the outline template … the opt-in posture,
+      not a fault" — asserted to contain none of error/invalid/broken/fail. A
+      pre-template fragment's real sections render, the buffer is still clean
+      afterwards, and its bytes are byte-identical to the stored bytes. A
+      fragment whose bytes never arrive gets NO index at all rather than one
+      derived from an absent load: the index is built from the text
+      `renderViewer` hands back on a successful load and from nothing else.
+- [x] 3.4 Gate-off posture: the affordance is not a live control and no write
       path is reachable.
-- [ ] 3.5 Leave the outline buffer's seeding, hashing, dirty-state and Save
+      The predicate is `canvasOffered()` — the same derivation `drawCanvas` and
+      `docTileVerbs` use, deliberately not `canvasController !== null`, because
+      `drawTab` runs BEFORE the canvas mounts and a controller check would
+      withhold the affordance on capable consoles too. With no seam the controls
+      render disabled AND WITH NO LISTENER BOUND: disabled alone would leave a
+      write path for anything that re-enabled the node. The index still READS on
+      a gate-off plane — reading a topic's structure needs no authority.
+- [x] 3.5 Leave the outline buffer's seeding, hashing, dirty-state and Save
       semantics untouched — this is presentation and addressing only. A diff in
       `BUFFER_KINDS` or the save order means the change has overreached into
       `doxbench-editing-model` Phase B's territory.
+      Held. No line of `doxbench-state.js`, `doxbench-editor.js` or
+      `doxbench-save.js` changed; `BUFFER_KINDS`, `SAVE_DOCUMENT_ORDER_RULE` and
+      `saveBufferOrder` are asserted from the LIVE modules the composition
+      imports. The one seam added anywhere is `viewer.js`'s optional `onText`
+      read-back, which exists precisely so the tab does not open a second fetch
+      for bytes the viewer already has.
 
 ## 4. Tests
 
@@ -102,9 +145,26 @@ remains is the contract and the surface.
       not be a shape assertion.
 - [ ] 4.3 Opt-in boundary: a pre-ratification topic warns and does not block; a
       post-ratification topic is required.
-- [ ] 4.4 Outline tab: sections identified from headings/fences; add-section
+- [x] 4.4 Outline tab: sections identified from headings/fences; add-section
       goes through `edit-document` with provenance; non-conforming fragment renders
       without rewrite; gate-off offers no live control.
+      Two files, split by what each can actually prove. The PURE insertion rules
+      (canonical placement, the heading a required section really lands under,
+      provenance placement, the already-present refusal, explicit targeting, EOL
+      blindness, one blank line each side) extend `test_outline_model.py`'s node
+      harness — 12 new cases, no DOM. The WIRING is
+      `tests/ideation-dashboard/test_outline_tab.py`, which mounts the REAL
+      `mountStagingWorkbench` against the DOM instrument `test_doxbench_view.py`
+      owns (imported, never copied) and presses the buttons: the add dirties the
+      outline buffer, and the Save that follows is the shipped
+      `savePlanState` + `runSave` over a recording transport — wired exactly as
+      app.js wires it — so `action: "edit-document"` is READ OFF THE WIRE rather
+      than asserted from a fixture. Three assertions exist because the first
+      draft of the test got them wrong and the code was right: the fixture quotes
+      the canonical skeleton inside a ```markdown fence, so every heading
+      assertion in the harness is fence-aware and INDEPENDENTLY implemented — a
+      check routed through the scanner under test could not have caught a fence
+      bug in it.
 
 ## 5. Gates
 

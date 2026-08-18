@@ -32,6 +32,12 @@
 //            sites and the degraded posture (no serve shim, 404 on the static
 //            image) is EXACTLY the viewer's own inline message. A scope with
 //            no outline gets an explicit empty state, never a fabricated one.
+//            Above the rendering sits the TEMPLATED SECTION INDEX
+//            (add-staged-topic-outline-template): the fragment's own headings and
+//            `xspec:` fences, read by the pure outline-model.js, with a one-press
+//            add for each required section the fragment lacks. An add writes into
+//            the outline BUFFER and stops — the human's own Save carries it
+//            through `edit-document`, so the tab gains no write verb.
 //
 // NO TRANSPORT IN THIS FILE (task 4.6, and pinned by test_staging_workbench.py):
 // this module opens no route and carries no request of its own. The workbench's
@@ -84,6 +90,7 @@ import {
   openedSessions, sessionOpened,
 } from "./swb-session.js";
 import { primaryFragmentPath } from "./wheel-model.js";
+import { insertSection, outlineModel } from "./outline-model.js";
 import { renderViewer } from "./viewer.js";
 import { mountDoxBenchCanvas } from "./doxbench-editor.js";
 import { mountDoxBenchChatRail } from "./doxbench-chat.js";
@@ -559,6 +566,220 @@ function outlineEmpty(pane, message) {
   pane.appendChild(el("div", "swb-empty swb-outline-empty", message));
 }
 
+// ---- the templated section index + the add-section affordance -----------------
+//      (add-staged-topic-outline-template tasks 3.2-3.4)
+//
+// WHAT THE INDEX SAYS, and what it deliberately does not. The section model
+// (outline-model.js) reads the fragment's OWN `## ` headings and `xspec:` fences,
+// fence-aware, so a fragment that merely QUOTES the canonical skeleton is not
+// reported as having adopted it. Everything below is presentation over that one
+// verdict: no second scanner, no content-sniffing, and no heading the file does
+// not carry.
+//
+// NON-CONFORMANCE IS NOT AN ERROR STATE (task 3.3). Conformance is REQUIRED
+// only for topics staged after the template ratified and OPT-IN for the 30-odd
+// that came before, so most fragments in the corpus carry none of it. A
+// pre-template fragment renders its real sections and one calm sentence saying
+// the shape is earned when the topic is next worked -- never a warning, never a
+// count of failures, and never a rewrite as a side effect of opening the tab.
+
+// One line per state, and each one is about the TOPIC's stage of migration
+// rather than about a fault in the file.
+function outlineStateLine(model) {
+  if (model.state === "conforming") {
+    return "conforming — the three required sections are present and every open "
+      + "question carries its four sub-fields";
+  }
+  if (model.state === "pre-template") {
+    return "staged before the outline template — it carries none of the required "
+      + "sections yet, which is the opt-in posture, not a fault. The shape is "
+      + "earned when the topic is next worked, never by opening it here.";
+  }
+  return "partly templated — the sections below are what the fragment carries; "
+    + "the rest are still to be written when the topic is next worked";
+}
+
+const OUTLINE_ROLE_LABELS = {
+  required: "required", added: "added", "proposal-element": "proposal element",
+};
+
+// The provenance line stamped on a section this affordance adds. UTC, because
+// the date is a governance record on the document rather than a clock reading
+// for the reader — a local-time stamp would make the same act carry two
+// different dates depending on who performed it.
+function provenanceDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// One add, end to end: the insert is computed against what the OUTLINE BUFFER
+// holds (never against the stored bytes rendered below it, which is exactly the
+// human's unsaved work behind), and it lands through the canvas's own
+// `applyProposal` — the settled-identity gate, the line-ending re-flavor and the
+// same `edit()` a keystroke goes through. This function performs NO write of its
+// own, opens no route, and calls no gate action.
+async function runAddSection(seam, path, note, title, after) {
+  note.hidden = false;
+  const live = seam.buffer();
+  if (!live) {
+    note.textContent = "the outline buffer is not loaded yet — nothing was written";
+    return null;
+  }
+  // The buffer and this panel resolve the fragment through the SAME
+  // `primaryFragmentPath` rule, so a disagreement is a defect rather than a
+  // situation to paper over: refused, said out loud, and nothing written.
+  if (live.path !== path) {
+    note.textContent = "the canvas is holding a different outline (" + live.path
+      + ") — nothing was written";
+    return null;
+  }
+  const patch = insertSection(live.text, {
+    title, after, addedBy: seam.actor, date: provenanceDate(),
+  });
+  if (!patch.ok) {
+    note.textContent = patch.reason;
+    return null;
+  }
+  const outcome = await seam.apply(live.baseHash, patch.text);
+  if (!outcome || outcome.ok !== true) {
+    note.textContent = (outcome && outcome.error)
+      || "the insertion was refused and stated no reason";
+    return null;
+  }
+  const where = patch.mode === "end"
+    ? "at the end of the outline"
+    : patch.mode + ' "' + patch.target + '"';
+  // WHAT HAPPENED AND WHAT DID NOT, in one sentence: the text is in the buffer,
+  // it is unsaved, and the human's existing Save is what commits it. This
+  // affordance is not a write and must never read like one. The heading NAMED is
+  // the one written, not the one asked for — a required section lands under its
+  // canonical skeleton heading.
+  note.textContent = 'added "' + patch.heading + '" to the outline buffer ' + where
+    + " with Added-by provenance — unsaved: the canvas Save carries it through "
+    + "edit-document on the session branch";
+  return outcome;
+}
+
+// The add controls. `seam` null means editing is not live on this plane, and
+// then every control renders DISABLED WITH NO LISTENER BOUND (task 3.4): the
+// affordance still says what it would be, because a surface that hides its own
+// authority teaches the reader nothing, but there is no write path to reach —
+// the same posture viewer.js's "open in editor" button and the docs tile's
+// load/save verbs already take where the capability is absent.
+function mountAddSection(host, model, path, seam) {
+  const note = el("div", "swb-outlinenote");
+  note.setAttribute("aria-live", "polite");
+  note.hidden = true;
+  const absent = "adding a section needs the local human console's editing "
+    + "capability — this plane has none, so no write path is offered";
+
+  // `intent()` is read at CLICK time, never closed over at build time: the
+  // free-form control's two values are whatever the human has typed and chosen
+  // by then.
+  function addControl(label, cls, intent) {
+    const btn = el("button", "swb-cbtn swb-outlineadd " + cls, label);
+    btn.type = "button";
+    if (!seam) {
+      // NO LISTENER IS BOUND. Disabled alone would still leave a write path on
+      // the page for anything that re-enabled the node; there is nothing here to
+      // reach.
+      btn.disabled = true;
+      btn.title = absent;
+      return btn;
+    }
+    btn.title = "insert the section skeleton into the outline buffer — your Save "
+      + "commits it through edit-document";
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      try {
+        const asked = intent();
+        await runAddSection(seam, path, note, asked.title, asked.after);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+    return btn;
+  }
+
+  // The MISSING required sections, each its own one-press add scoped to its
+  // canonical place. The template's own order decides where it lands, so an add
+  // never moves what a human already wrote.
+  for (const gap of model.gaps) {
+    if (gap.kind !== "missing-section") continue;
+    const row = el("div", "swb-outlinegap");
+    row.appendChild(el("span", "swb-outlinegaplabel",
+      "no " + gap.label + " section"));
+    const asked = { title: gap.label, after: null };
+    row.appendChild(addControl("add it", "swb-outlineaddgap", () => asked));
+    host.appendChild(row);
+  }
+  // …and the questions the contract says are incomplete. STATED ONLY: the
+  // affordance adds SECTIONS, and filling a sub-field is the human's sentence to
+  // write, not a slot for this surface to stuff.
+  for (const gap of model.gaps) {
+    if (gap.kind !== "incomplete-question") continue;
+    host.appendChild(el("div", "swb-outlinegap",
+      gap.label + " — still to carry " + gap.missing.join(", ")));
+  }
+
+  // The free-form add, scoped EXPLICITLY: the human names the section and the
+  // one it goes behind, and that target is the patch's addressing key.
+  const form = el("div", "swb-cfield swb-outlineform");
+  const titleLabel = el("label", "swb-clabel", "add a section");
+  const titleInput = el("input", "swb-outlinetitle");
+  titleInput.type = "text";
+  titleInput.setAttribute("placeholder", "section heading");
+  // Named for assistive navigation. The visible `label` beside it carries no
+  // `for`/`id` pair, and a placeholder is not an accessible name — it disappears
+  // the moment the human types.
+  titleInput.setAttribute("aria-label", "heading of the section to add");
+  titleInput.disabled = !seam;
+  const afterLabel = el("label", "swb-clabel", "after");
+  const afterSelect = el("select", "swb-outlineafter");
+  afterSelect.setAttribute("aria-label",
+    "the section the new one is added after — the patch's addressing key");
+  afterSelect.disabled = !seam;
+  const endOption = el("option", null, "(the end of the outline)");
+  endOption.value = "";
+  afterSelect.appendChild(endOption);
+  for (const section of model.sections) {
+    const option = el("option", null, section.title);
+    option.value = section.title;
+    afterSelect.appendChild(option);
+  }
+  form.append(titleLabel, titleInput, afterLabel, afterSelect,
+    addControl("add", "swb-outlineaddfree", () => ({
+      title: String(titleInput.value || "").trim(),
+      after: afterSelect.value || null,
+    })));
+  host.appendChild(form);
+  if (!seam) host.appendChild(el("div", "swb-lensnote", absent));
+  host.appendChild(note);
+}
+
+// The whole index, rendered from the loaded text the viewer handed back.
+function renderOutlineIndex(host, text, path, seam) {
+  host.innerHTML = "";
+  const model = outlineModel(text);
+  host.appendChild(el("div", "swb-abstractlabel", "outline template"));
+  host.appendChild(el("div", "swb-lensnote swb-outlinestate", outlineStateLine(model)));
+  if (!model.sections.length) {
+    host.appendChild(el("div", "swb-empty",
+      "this fragment carries no `## ` sections outside its code fences"));
+  }
+  for (const section of model.sections) {
+    const row = el("div", "swb-outlinerow");
+    row.appendChild(el("span", "swb-outlinetitleline", section.title));
+    row.appendChild(el("span", "swb-abstractchip",
+      OUTLINE_ROLE_LABELS[section.role] || section.role));
+    row.appendChild(el("span", "swb-outlineline", "line " + section.line));
+    if (section.addedBy) {
+      row.appendChild(el("span", "swb-outlineprov", "Added-by: " + section.addedBy));
+    }
+    host.appendChild(row);
+  }
+  mountAddSection(host, model, path, seam);
+}
+
 // `sourceBase` is the ACTIVE (repository, ref)'s own keyed `/source/` base
 // (PR #49 review finding 16). Without it `renderViewer` fell back to the unkeyed
 // `/source/`, which the server resolves to the ACTIVE REGISTRY ENTRY — and the
@@ -568,7 +789,13 @@ function outlineEmpty(pane, message) {
 // which app.js keys correctly — showed the session's own. US2 acceptance
 // scenario 5 and FR-010 both name the outline explicitly, and spec §US2 calls
 // this exact failure "specifically dangerous — a draft view mistaken for main".
-function renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit) {
+//
+// `sections` (add-staged-topic-outline-template task 3.2) is the ADD-SECTION
+// seam, or null where editing is not live on this plane. It is the shell's
+// narrow window onto the outline buffer — read the live text and its settled
+// identity, hand back the whole next text — and nothing more: no transport, no
+// gate action, and no second state authority over the buffer.
+function renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit, sections) {
   pane.innerHTML = "";
   // task 5.6: "new fragment in this topic" — offered for STAGED scopes only and
   // HIDDEN (never disabled) for a cluster or a possible, which have no staging
@@ -596,6 +823,13 @@ function renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit) {
       "outline of the PICKED staging topic " + scope.outline.stagingId +
       " (the pick is recorded register data)"));
   }
+  // THE TEMPLATED SECTION INDEX, above the rendered fragment. It is built from
+  // the bytes the viewer loads and hands back (`onText`), so it needs no fetch of
+  // its own and cannot describe a fragment that never arrived: on a failed or
+  // degraded load this host stays empty and the viewer's own message stands
+  // alone.
+  const index = el("div", "swb-outlineindex");
+  pane.appendChild(index);
   const host = el("div", "swb-outline");
   pane.appendChild(host);
   // read-only, through the viewer's own /source pass-through: renderViewer owns
@@ -608,7 +842,8 @@ function renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit) {
   // other, so focusing this selection tab makes the outline the active buffer
   // over there without changing what is rendered here.
   const doc = (snapshot.documents || []).find((d) => d.path === path) || null;
-  renderViewer(host, { path, doc, sourceBase, edit });
+  renderViewer(host, { path, doc, sourceBase, edit,
+    onText: (text) => renderOutlineIndex(index, text, path, sections) });
 }
 
 // ---- the full-screen shell (task 4.2) ------------------------------------------
@@ -1108,7 +1343,8 @@ export function mountStagingWorkbench(container, snapshot,
         lensScopeSnapshot(snapshot, scope), scope);
       renderLensPanel(pane, snapshot, scope, lensSession, create);
     } else {
-      renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit);
+      renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit,
+        outlineSectionSeam());
     }
   }
 
@@ -1380,6 +1616,57 @@ export function mountStagingWorkbench(container, snapshot,
       }
     }
     return { loaded: false, dirty: false, owned: true, key: null };
+  }
+  // ---- THE ADD-SECTION SEAM (add-staged-topic-outline-template task 3.2) ----
+  //
+  // The outline tab's add-section affordance writes into the OUTLINE BUFFER and
+  // stops there. The human's existing Save is what carries the new section to the
+  // branch through `edit-document`; this seam performs no write, opens no route,
+  // and invokes no gate verb. That is the whole of the ruling: section-scoped
+  // patching is a patch-TARGETING detail, so it introduces no second write verb.
+  //
+  // `apply` is the canvas's OWN `applyProposal`, reused rather than paralleled.
+  // It is the existing primitive for "swap one buffer's whole text": it gates on
+  // the SETTLED content identity (so an insert computed against text the buffer
+  // has since moved off is refused, never forced), re-applies the document's own
+  // line-ending flavor (without which one reviewed insertion becomes a whole-file
+  // EOL rewrite — the defect the buffer contract's proposal path already paid
+  // for), and lands through the same `edit()` a keystroke does, which is what
+  // makes the dirty state, the hashing and the Save plan identical to typing. A
+  // second insertion method would have to re-earn all three.
+  //
+  // WITHHELD, not degraded, where editing is not live (task 3.4). The predicate
+  // is `canvasOffered()` — the same derivation `drawCanvas` and `docTileVerbs`
+  // use, and deliberately not `canvasController !== null`, because `drawTab` runs
+  // BEFORE the canvas mounts and a controller check would withhold the affordance
+  // on every capable console too. A null seam makes the controls inert with no
+  // listener bound.
+  function outlineSectionSeam() {
+    if (!canvasOffered()) return null;
+    return {
+      actor: (caps && caps.actor) || "local",
+      // Read at CLICK time, never cached: "what the outline buffer holds" is a
+      // fact about this browser a moment ago.
+      buffer: () => {
+        const live = canvasController && canvasController.state();
+        const buffer = live && live.buffers ? live.buffers.outline : null;
+        if (!buffer) return null;
+        return { path: buffer.path, text: buffer.content,
+                 baseHash: (buffer.current_hash && buffer.current_hash.hex) || null };
+      },
+      apply: async (baseHash, text) => {
+        if (!canvasController
+            || typeof canvasController.applyProposal !== "function") {
+          return { ok: false, error: "this console has no editing seam wired" };
+        }
+        try {
+          return await canvasController.applyProposal(
+            "outline", { base_hash: baseHash, content: text });
+        } catch (unused) {
+          return { ok: false, error: "the insertion failed" };
+        }
+      },
+    };
   }
   // "A buffer moved" — repaint the tiles' loaded / loaded-and-dirty marking and
   // the expanded tile's Save reachability from the live state.
