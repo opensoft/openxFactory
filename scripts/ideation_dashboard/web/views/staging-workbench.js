@@ -194,7 +194,17 @@ function renderAbstract(host, doc) {
 // mount-time seed is deliberately NOT forwarded: a render is not a human
 // choosing a document, and letting it through would pop the unsaved-edit guard
 // on a switch nobody asked for.
-function renderDocsPanel(pane, scope, onOpen, create, onBind) {
+// `verbs` (add-doxbench-editing-phase-b, Q3 ruled) carries the tile's two NEW
+// verbs plus the live buffer state its marking is derived from. Injected exactly
+// like every other seam on this surface, and OPTIONAL: without it the tile keeps
+// its read verb and states the absence of the other two rather than failing on
+// activation, which is the delta's own rule for a surface where editing is
+// unreachable.
+//
+//   verbs.load(path)            -> Promise<{ok, error?}>
+//   verbs.save(path)            -> Promise<{ok, error?}>
+//   verbs.bufferStateFor(path)  -> {loaded, dirty, owned} | null   (LIVE, never cached)
+function renderDocsPanel(pane, scope, onOpen, create, onBind, verbs) {
   // The wheel owns a RAF loop and a ResizeObserver, so the OUTGOING one has to
   // be torn down before its host DOM is discarded — a re-render on every scope
   // change would otherwise leak one animation loop per render, each observing
@@ -227,6 +237,14 @@ function renderDocsPanel(pane, scope, onOpen, create, onBind) {
   const selector = el("div", "swb-docselector");
   split.append(abstract, selector);
   pane.appendChild(split);
+  // WHERE A TILE VERB'S OUTCOME LANDS. A load refused at the loaded-set bound
+  // and a save the governed pipeline declined are both facts the human must be
+  // able to read; a control that swallowed them would be a control that lies
+  // about whether their work is saved. Announced as well as shown.
+  const note = el("div", "swb-docverbnote");
+  note.setAttribute("aria-live", "polite");
+  note.hidden = true;
+  pane.appendChild(note);
 
   // A drum is one reel, so the sections flatten — carrying their labels onto
   // the tiles rather than losing them (see `docWheelEntries`).
@@ -246,12 +264,39 @@ function renderDocsPanel(pane, scope, onOpen, create, onBind) {
       if (reconciling) return;
       if (onBind && entry && entry.path) onBind(entry.path);
     },
-    // SELECT and OPEN stay distinct verbs, as they were in the flat list:
-    // selecting must not steal the read-only viewer, and opening (from the
+    // SELECT and READ stay distinct verbs, as they were in the flat list:
+    // selecting must not steal the read-only viewer, and reading (from the
     // expanded tile) must not be the only way to look at a document.
-    onOpen: onOpen ? (row) => onOpen(row) : null,
+    onRead: onOpen ? (row) => onOpen(row) : null,
+    // LOAD FOR EDITING — the ONE route into the loaded set (design D5). The
+    // outcome is surfaced on the pane itself: a refusal (the loaded-set bound,
+    // an out-of-scope path, a failed source read) must be VISIBLE, never a
+    // click that appears to do nothing.
+    onLoad: verbs && typeof verbs.load === "function"
+      ? async (row) => {
+          const outcome = await verbs.load(row.path);
+          renderTileVerbNote(note, outcome, "load");
+          wheel.refreshBufferState();
+        }
+      : null,
+    // SAVE — the same governed pipeline the canvas Save reaches, scoped to this
+    // document plus the outline-ancestry step (design D4). A second entry point
+    // to one mechanism.
+    onSave: verbs && typeof verbs.save === "function"
+      ? async (row) => {
+          const outcome = await verbs.save(row.path);
+          renderTileVerbNote(note, outcome, "save");
+          wheel.refreshBufferState();
+        }
+      : null,
+    bufferStateFor: verbs && typeof verbs.bufferStateFor === "function"
+      ? (path) => verbs.bufferStateFor(path)
+      : null,
   });
   pane.__docWheel = wheel;
+  // The pane's own refresh hook, so the shell can say "a buffer moved" without
+  // knowing anything about the wheel.
+  pane.__docWheelRefresh = () => wheel.refreshBufferState();
 
   // An empty scope has no tile to select, so nothing seeded the abstract: say
   // so explicitly rather than leaving the upper half blank.
@@ -271,6 +316,27 @@ function renderDocsPanel(pane, scope, onOpen, create, onBind) {
     reconciling = true;
     try { wheel.selectPath(path); } finally { reconciling = false; }
   };
+}
+
+// One tile verb's outcome, stated. FIXED phrasing per class, with the seam's own
+// reason appended when it supplies one — the seam's reasons are this surface's
+// own sentences (a measured bound, a governed refusal), never provider or
+// document text.
+function renderTileVerbNote(note, outcome, verb) {
+  if (!note) return;
+  const ok = Boolean(outcome && outcome.ok);
+  const reason = outcome && typeof outcome.error === "string" ? outcome.error : "";
+  if (ok) {
+    note.textContent = verb === "save"
+      ? "saved through the governed Save"
+      : "loaded for editing — the chat and the canvas are on it now";
+  } else {
+    note.textContent = (verb === "save"
+      ? "the governed Save did not land"
+      : "this document was not loaded")
+      + (reason ? " — " + reason : "");
+  }
+  note.hidden = false;
 }
 
 // WHICH lens section is showing. Module-scope like the lens session itself:
@@ -1018,7 +1084,7 @@ export function mountStagingWorkbench(container, snapshot,
     if (activeTab === "docs") {
       reconcileDocsSelection = renderDocsPanel(pane, scope, onOpenDoc
         ? (row) => onOpenDoc(row.path, row.doc) : null, create,
-        bindCanvasToDocument);
+        bindCanvasToDocument, docTileVerbs());
       syncContextSelection();   // a fresh wheel starts where the canvas is
     } else if (activeTab === "lens") {
       // the session survives the tab switch and reseeds on a scope change —
@@ -1087,10 +1153,11 @@ export function mountStagingWorkbench(container, snapshot,
     // blob still pending at that moment is re-applied forever.
     const companion = pendingCompanion;
     pendingCompanion = null;
-    railController.restore(companion, {
-      outline: hexOf(live.buffers.outline),
-      document: hexOf(live.buffers.document),
-    });
+    const restoreHashes = {};
+    for (const key of Object.keys(live.buffers || {})) {
+      restoreHashes[key] = hexOf(live.buffers[key]);
+    }
+    railController.restore(companion, restoreHashes);
   }
   function teardownRail() {
     if (railController && typeof railController.destroy === "function") {
@@ -1176,14 +1243,90 @@ export function mountStagingWorkbench(container, snapshot,
       syncContextSelection();
     }
   }
+  // ---- THE TILE VERBS (add-doxbench-editing-phase-b, Q3 ruled) -------------
+  //
+  // Every one goes through the CANVAS's own primitives, exactly as the selection
+  // half above does: the canvas owns the loaded set, the state authority, the
+  // scope refusal and the governed Save, and this file says which verb a human
+  // invoked. No second loaded-set store, no second save path, no widened
+  // authority — the tile's Save is a second ENTRY POINT to one mechanism.
+  //
+  // Absent where editing is absent: with no canvas controller the seam returns
+  // no functions at all, and the tile then STATES the absence rather than
+  // failing on activation.
+  function docTileVerbs() {
+    return {
+      load: async (path) => {
+        if (!canvasController
+            || typeof canvasController.loadDocumentForEditing !== "function") {
+          return { ok: false,
+                   error: "this console has no editing seam wired" };
+        }
+        let outcome = null;
+        try {
+          outcome = await canvasController.loadDocumentForEditing(path);
+        } catch (unused) {
+          outcome = { ok: false, error: "the load failed" };
+        }
+        syncContextFromCanvas();
+        return outcome || { ok: false, error: "the load was refused" };
+      },
+      save: async (path) => {
+        if (!canvasController
+            || typeof canvasController.saveDocument !== "function") {
+          return { ok: false, error: "the governed Save is not wired here" };
+        }
+        let outcome = null;
+        try {
+          outcome = await canvasController.saveDocument(path);
+        } catch (unused) {
+          outcome = { ok: false, error: "the Save failed" };
+        }
+        syncContextFromCanvas();
+        return outcome || { ok: false, error: "the Save was refused" };
+      },
+      // LIVE, read at paint time and never cached (design D9): "has an open
+      // unsaved edit" is a fact about a browser, and the snapshot's generator
+      // cannot observe one, so it is never written anywhere.
+      bufferStateFor: (path) => {
+        const live = canvasController && canvasController.state();
+        if (!live || !live.buffers) return null;
+        for (const key of Object.keys(live.buffers)) {
+          const buffer = live.buffers[key];
+          if (buffer && buffer.path === path) {
+            return { loaded: true, dirty: buffer.dirty === true,
+                     owned: buffer.owned === true, key };
+          }
+        }
+        return { loaded: false, dirty: false, owned: true, key: null };
+      },
+    };
+  }
+  // "A buffer moved" — repaint the tiles' loaded / loaded-and-dirty marking and
+  // the expanded tile's Save reachability from the live state.
+  function refreshDocTiles() {
+    const pane = body.querySelector
+      ? body.querySelector(".swb-pane-docs")
+      : null;
+    if (pane && typeof pane.__docWheelRefresh === "function") {
+      pane.__docWheelRefresh();
+    }
+  }
   // The wheel's reconcile, as adopted by the last docs draw (null on the other
   // selection tabs, where there is no wheel to reconcile).
   let reconcileDocsSelection = null;
   function syncContextSelection() {
     if (typeof reconcileDocsSelection !== "function") return;
     const current = canvasController && canvasController.state();
-    if (!current) return;
-    reconcileDocsSelection(current.buffers.document.path);
+    if (!current || !current.buffers) return;
+    // add-doxbench-editing-phase-b: reconcile the wheel to the SELECTED buffer,
+    // whichever key holds it — Phase A could read `buffers.document` because
+    // there was exactly one document slot. When the outline is selected there is
+    // no document row to reconcile to, and the wheel is left where it is rather
+    // than being moved to a document nobody chose.
+    const selected = current.buffers[current.active_buffer];
+    if (!selected || selected.kind !== "document") return;
+    reconcileDocsSelection(selected.path);
   }
   // T100 P1-A, factored out (Phase A): every settled identity refreshes the
   // rail's proposal currency so stale reaches the RENDERED cards — and the same
@@ -1197,12 +1340,17 @@ export function mountStagingWorkbench(container, snapshot,
   function refreshRailFromCanvas() {
     if (!railController || !canvasController) return;
     const current = canvasController.state();
-    if (!current) return;
+    if (!current || !current.buffers) return;
     const hexOf = (b) => (b && b.current_hash && b.current_hash.hex) || null;
-    railController.refreshCurrency({
-      outline: hexOf(current.buffers.outline),
-      document: hexOf(current.buffers.document),
-    });
+    // add-doxbench-editing-phase-b: currency is refreshed for EVERY buffer key
+    // the canvas holds, not two fixed names. A proposal's target is a buffer key
+    // now, so a currency map that carried only two of N keys would leave a
+    // proposal against a third document permanently unable to go stale.
+    const hashes = {};
+    for (const key of Object.keys(current.buffers)) {
+      hashes[key] = hexOf(current.buffers[key]);
+    }
+    railController.refreshCurrency(hashes);
   }
   function canvasHoldsUnsavedWork() {
     const live = canvasController && canvasController.state();
@@ -1366,9 +1514,34 @@ export function mountStagingWorkbench(container, snapshot,
           ? canvasController.applyProposal(target, record)
           : null),
         editorState: () => canvasController && canvasController.state(),
+        // add-doxbench-editing-phase-b: the rail's loaded-document SELECTOR
+        // reaches the selection through the canvas's own primitive, which owns
+        // the state authority. D7: three routes, one value -- this one, the
+        // context region's outline tab, and a load -- and the selector never
+        // becomes a second state authority.
+        selectBuffer: async (key) => {
+          if (!canvasController
+              || typeof canvasController.setActiveBuffer !== "function") return;
+          canvasController.setActiveBuffer(key);
+          syncContextFromCanvas();
+          refreshDocTiles();
+        },
         activeDocumentPath: () => {
           const current = canvasController && canvasController.state();
-          return current ? current.buffers.document.path : null;
+          if (!current || !current.buffers) return null;
+          // add-doxbench-editing-phase-b: the ONE document path a released v1
+          // turn may name is the SELECTED buffer's, when a document is selected.
+          // Phase A could read `buffers.document` because there was one slot.
+          // TODO(add-doxbench-editing-phase-b tasks.md §13): the widened
+          // envelope carries the outline plus N documents and a declared
+          // bound-buffer key, at which point this narrowing to one path goes.
+          const selected = current.buffers[current.active_buffer];
+          if (selected && selected.kind === "document") return selected.path;
+          const documentKeys = Object.keys(current.buffers)
+            .filter((key) => key !== "outline").sort();
+          if (!documentKeys.length) return null;
+          const first = current.buffers[documentKeys[0]];
+          return first ? first.path : null;
         },
         // T104 F2: the documents a turn on this tile may actually name — the
         // scope authority's own intersection, so a "no active document"
@@ -1665,8 +1838,13 @@ export function mountStagingWorkbench(container, snapshot,
         // PerBufferSaveOutcome), one per kind — never a map. Indexing it as one
         // gave `undefined` for every save, so even a COMMITTED body would have
         // read as refused.
+        // add-doxbench-editing-phase-b: the per-buffer outcome row's first
+        // field is `key` (the BUFFER KEY) rather than `kind`. This seam request
+        // declares no key, so `savePlanState` keys it by its `kind` -- which
+        // lands it on the reserved `document` slot, exactly what a create's
+        // not-yet-keyed buffer is.
         const row = (verdict && Array.isArray(verdict.buffers)
-          ? verdict.buffers.find((r) => r && r.kind === "document") : null);
+          ? verdict.buffers.find((r) => r && r.key === "document") : null);
         if (row && row.status === "committed") return { committed: true };
         return { refused: (row && row.message) || "the save was refused" };
       } catch (err) {

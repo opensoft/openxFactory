@@ -524,6 +524,147 @@ export function createProposalActions(options) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// THE LOADED-DOCUMENT SELECTOR (add-doxbench-editing-phase-b, Q1 ruled:
+// "make this a dropdown box that lists the files that have been loaded by
+// clicking the edit button on the wheel. the selected one is the file we are
+// working on. if not fit in one line, then use hover to expand to see full
+// filename.")
+//
+// Phase A's rail header was a LABEL -- "Working on — <name> · Chatting about —
+// …". Phase B makes it a SELECTOR, and the model behind it is pure and exported
+// so the whole listing rule is pinnable without a DOM.
+//
+// D6: THE DROPDOWN IS THE OVERFLOW POLICY. A native scrolling select dissolves
+// the many-open-edits problem by construction, so there is no folding, no
+// least-recently-used chip row, and -- deliberately -- NO EVICTION anywhere:
+// every loaded buffer may hold unsaved work, and a policy that evicted to make
+// room would be a policy that discards human text. Reaching the loaded-set bound
+// REFUSES the load with the measured bound stated, which is the state module's
+// job, not this one's.
+//
+// D7: this is a SELECTION SURFACE, not a second state authority.
+// `state.active_buffer` -- a buffer KEY -- remains the one answer to "what is
+// selected". The selector renders it and sets it through the injected seam;
+// loading sets it; the context region's outline tab sets it. Three routes, one
+// value.
+// ---------------------------------------------------------------------------
+
+export const LOADED_SELECTOR_EMPTY_NOTE =
+  "no document is loaded — use a docs tile's load verb to work on one; the "
+  + "outline is workable on its own";
+
+const OUTLINE_BUFFER_KEY = "outline";
+const OUTLINE_ENTRY_LABEL = "Outline";
+const UNBACKED_ENTRY_LABEL = "(not yet created)";
+
+function basenameOf(path) {
+  return String(path).split("/").at(-1) || String(path);
+}
+
+// The DISTINGUISHING label rule. A basename is what a human reads, so it is the
+// default; but "a selector that cannot tell two files apart is worse than one
+// that shows a longer name", so when two loaded documents share a basename each
+// colliding entry grows leftwards one path segment at a time until every label
+// in the collision is distinct. The full path always rides the entry as its
+// hover/assistive name, so nothing is ever ambiguous to a reader who asks.
+export function distinguishingLabels(paths) {
+  const values = Array.from(paths, (path) => String(path));
+  const labels = new Map();
+  const bySuffixDepth = new Map();
+  for (const path of values) {
+    const base = basenameOf(path);
+    if (!bySuffixDepth.has(base)) bySuffixDepth.set(base, []);
+    bySuffixDepth.get(base).push(path);
+  }
+  for (const [, colliding] of bySuffixDepth) {
+    if (colliding.length === 1) {
+      labels.set(colliding[0], basenameOf(colliding[0]));
+      continue;
+    }
+    let depth = 1;
+    let assigned = null;
+    // Grow the suffix until every label in THIS collision is distinct, bounded
+    // by the longest path so the loop cannot run away on identical paths (which
+    // the keyed buffer set makes impossible in the first place).
+    const longest = Math.max(...colliding.map((p) => p.split("/").length));
+    while (depth <= longest) {
+      const candidate = new Map();
+      for (const path of colliding) {
+        candidate.set(path, path.split("/").slice(-depth).join("/"));
+      }
+      if (new Set(candidate.values()).size === colliding.length) {
+        assigned = candidate;
+        break;
+      }
+      depth += 1;
+    }
+    for (const path of colliding) {
+      labels.set(path, assigned ? assigned.get(path) : path);
+    }
+  }
+  return labels;
+}
+
+// The selector's whole listing, derived from the LIVE editor state and nothing
+// else. The reserved `outline` entry leads, because the outline is a buffer the
+// selector must be able to name: the ratified rule is that the selector's
+// selected entry IS the selected buffer, and every route must leave the
+// selector, the canvas and the chat agreeing -- a selector that could not show
+// an outline selection would disagree with the canvas the moment the outline tab
+// was focused.
+export function loadedSelectorModel(editorStateValue) {
+  const state = editorStateValue || null;
+  const buffers = (state && state.buffers) || {};
+  const keys = Object.keys(buffers);
+  const documentKeys = keys.filter((key) => key !== OUTLINE_BUFFER_KEY);
+  // The DECLARED order, spelled exactly as doxbench-state.js declares it:
+  // ascending lexicographic by buffer key (UTF-16 code unit). A listing whose
+  // order depended on insertion would reorder itself under the human's cursor.
+  documentKeys.sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
+  const labels = distinguishingLabels(
+    documentKeys.map((key) => {
+      const buffer = buffers[key];
+      return buffer && buffer.path ? buffer.path : key;
+    }));
+  const selected = state && typeof state.active_buffer === "string"
+    ? state.active_buffer : OUTLINE_BUFFER_KEY;
+  const entries = [];
+  if (Object.prototype.hasOwnProperty.call(buffers, OUTLINE_BUFFER_KEY)) {
+    const outline = buffers[OUTLINE_BUFFER_KEY];
+    entries.push(Object.freeze({
+      key: OUTLINE_BUFFER_KEY,
+      label: OUTLINE_ENTRY_LABEL,
+      fullName: outline && outline.path ? String(outline.path) : UNBACKED_ENTRY_LABEL,
+      kind: "outline",
+      owned: outline ? outline.owned === true : false,
+      dirty: outline ? outline.dirty === true : false,
+      selected: selected === OUTLINE_BUFFER_KEY,
+    }));
+  }
+  for (const key of documentKeys) {
+    const buffer = buffers[key];
+    const path = buffer && buffer.path ? String(buffer.path) : null;
+    entries.push(Object.freeze({
+      key,
+      label: path === null ? UNBACKED_ENTRY_LABEL : labels.get(path) || basenameOf(path),
+      fullName: path === null ? UNBACKED_ENTRY_LABEL : path,
+      kind: "document",
+      owned: buffer ? buffer.owned === true : false,
+      dirty: buffer ? buffer.dirty === true : false,
+      selected: selected === key,
+    }));
+  }
+  return Object.freeze({
+    entries: Object.freeze(entries),
+    selected,
+    documentCount: documentKeys.length,
+    // The HONEST empty state: the control is rendered and says so, rather than
+    // hiding, and the outline stays selectable and workable beside it.
+    emptyNote: documentKeys.length === 0 ? LOADED_SELECTOR_EMPTY_NOTE : null,
+  });
+}
+
 // One counter per module load, so each mounted rail's sr-only reason carries an
 // id no sibling rail can collide with (the canvas does the same for its own
 // per-instance ids).
@@ -569,6 +710,23 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // persistent header names BOTH buffers a turn grounds on and a proposal
   // may rewrite, updating as the active document changes.
   const header = el("div", "doxchat-header");
+  // THE LOADED-DOCUMENT SELECTOR (Q1 ruled). A native scrolling select, so the
+  // control IS the overflow policy (D6) and the surface introduces no second
+  // spelling of selection: it is the same element idiom the approved-model
+  // selector already uses, keyboard-reachable with the platform's own semantics.
+  const loadedSelect = el("select", "doxchat-loaded");
+  loadedSelect.setAttribute("aria-label", "loaded document");
+  // A workbench selection, not a form answer — the same autofill refusal every
+  // other authoring control on this surface carries.
+  loadedSelect.setAttribute("autocomplete", "off");
+  // The SELECTED entry's FULL name, for assistive technology. The visible label
+  // may be a basename (or the shortest distinguishing suffix); "the full name
+  // MUST be available to assistive technology" is a separate obligation from
+  // hover, and a title attribute alone does not discharge it.
+  const loadedFull = el("div", "doxchat-loaded-full doxchat-sronly");
+  loadedFull.setAttribute("aria-live", "polite");
+  // The honest empty state — rendered, never hidden.
+  const loadedEmpty = el("div", "doxchat-loaded-empty");
   const subjectInput = el("input", "doxchat-subject");
   subjectInput.setAttribute("aria-label", "working subject");
   subjectInput.setAttribute("autocomplete", "off");
@@ -626,28 +784,102 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // view its harness has to grow to match.
   unavailableNote.id = "doxchat-unavailable-" + (railSequence += 1);
   sendBtn.setAttribute("aria-describedby", unavailableNote.id);
-  host.append(header, subjectInput, unavailableNote, transcriptList,
+  host.append(header, loadedSelect, loadedEmpty, loadedFull, subjectInput,
+              unavailableNote, transcriptList,
               cardsHost, announce, failureNote, composer, disclosure, sendrow);
 
+  // SELECTING IS IMMEDIATE, and it is not a state authority: the seam owns the
+  // move, `state.active_buffer` remains the one answer, and this handler only
+  // asks. No confirmation step, because changing which buffer is selected
+  // replaces no content and destroys nothing — the unsaved-edit guard is not
+  // extended to selection now that documents are held side by side rather than
+  // in one slot.
+  //
+  // TODO(add-doxbench-editing-phase-b tasks.md §9): switching the selection must
+  // also switch WHICH THREAD the transcript shows and appends to. The thread
+  // sidecar and its persistence land in the threads slice; this handler is the
+  // one place that call belongs, and it is deliberately left as the selection
+  // move alone rather than half-wired to a store that does not exist yet.
+  loadedSelect.addEventListener("change", async () => {
+    const wanted = String(loadedSelect.value || "");
+    const model = loadedSelectorModel(liveEditorState());
+    if (!model.entries.some((entry) => entry.key === wanted)) {
+      // A value naming no held buffer is put back rather than acted on: the
+      // selector renders the selection, it never invents one.
+      renderLoadedSelector();
+      return;
+    }
+    const select = options.selectBuffer;
+    if (typeof select === "function") await select(wanted);
+    renderLoadedSelector();
+    renderHeader();
+  });
+
+  function liveEditorState() {
+    return typeof editorState === "function" ? editorState() : editorState;
+  }
+
+  // The selector is rebuilt from the live state on every render, which is what
+  // makes "the selector, the canvas and the chat agree" structural rather than a
+  // rule three call sites have to remember.
+  function renderLoadedSelector() {
+    const model = loadedSelectorModel(liveEditorState());
+    loadedSelect.textContent = "";
+    for (const entry of model.entries) {
+      const option = el("option", "doxchat-loaded-option", entry.label);
+      option.value = entry.key;
+      // HOVER reveals the full name (Q1's own words), and the same string is
+      // handed to assistive technology.
+      option.setAttribute("title", entry.fullName);
+      option.setAttribute("aria-label", entry.fullName);
+      if (entry.selected) option.setAttribute("selected", "selected");
+      // A context-only document is loadable for grounding and conversation, and
+      // its non-owned status rides the entry so the surface never implies it can
+      // be saved here (design D2).
+      if (entry.kind === "document" && entry.owned !== true) {
+        option.setAttribute("data-owned", "false");
+      }
+      if (entry.dirty) option.setAttribute("data-dirty", "true");
+      loadedSelect.appendChild(option);
+    }
+    loadedSelect.value = model.selected;
+    loadedSelect.disabled = model.entries.length === 0;
+    loadedEmpty.textContent = model.emptyNote || "";
+    loadedEmpty.hidden = model.emptyNote === null;
+    const chosen = model.entries.find((entry) => entry.selected);
+    loadedFull.textContent = chosen
+      ? "Working on " + chosen.fullName
+      : "no buffer is selected";
+  }
+
   function renderHeader() {
-    const es = typeof editorState === "function" ? editorState() : editorState;
+    const es = liveEditorState();
     const nameOf = (b) => {
       if (!b) return "(absent)";
       if (b.path === null || b.path === undefined) return "(not yet created)";
       return String(b.path).split("/").at(-1);
     };
-    const outline = es && es.buffers ? es.buffers.outline : null;
-    const documentBuffer = es && es.buffers ? es.buffers.document : null;
     // add-doxbench-editing-phase-a: the chat's WORKING CONTEXT is the canvas's
     // ACTIVE BUFFER — the one the context region selected — and it is read
     // straight off the live editor state rather than tracked a second time
-    // here. Grounding is unchanged and still names BOTH buffers: binding says
+    // here. Grounding is unchanged and still names EVERY buffer: binding says
     // what the chat is working ON, never what it may see.
+    //
+    // add-doxbench-editing-phase-b: "every loaded document" is now a SET, so the
+    // header states the binding and the COUNT rather than enumerating two fixed
+    // names it no longer has. The enumeration lives in the selector beside it,
+    // which is where a human can also act on it.
     const bound = es && es.buffers ? es.buffers[es.active_buffer] : null;
     const boundName = bound ? nameOf(bound) : "(absent)";
+    const model = loadedSelectorModel(es);
+    const grounded = model.documentCount === 1
+      ? "1 loaded document"
+      : String(model.documentCount) + " loaded documents";
     header.textContent = "Working on — " + boundName
-      + " · Chatting about — Outline: " + nameOf(outline)
-      + " · Document: " + nameOf(documentBuffer);
+      + " · Chatting about — Outline: "
+      + nameOf(es && es.buffers ? es.buffers.outline : null)
+      + " · " + grounded;
+    renderLoadedSelector();
   }
 
   // (The captured-node `restoreFocus` helper that used to live here went
