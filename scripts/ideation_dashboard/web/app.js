@@ -902,9 +902,18 @@ async function render() {
       storage: guardedSessionStorage(),
       loadSource: createDoxBenchSourceLoader(() => workbenchSourceBase),
       hash: contentIdentity,
+      // THE SAVE SCOPE RIDES THE REQUEST (add-doxbench-editing-phase-b, design
+      // D4). A `docs` tile's own Save is the SAME pipeline restricted to that
+      // document plus the outline-ancestry step, and the restriction is
+      // `runSave`'s `only`. Dropping it here would have made the tile Save
+      // persist EVERY dirty document — the exact widening D4 forbids, and a
+      // widening this composition would perform silently. The canvas Save sends
+      // no `only`, so its behaviour is byte-for-byte what it was.
       save: (request) => runSave(
         savePlanState(request),
-        { transport: firstEditTransport({ caps, repair: consoleRepair }) }),
+        { transport: firstEditTransport({ caps, repair: consoleRepair }),
+          ...(request && request.only !== undefined
+            ? { only: request.only } : {}) }),
       catalog: createDoxBenchCatalogLoader(() => caps?.console_token),
       chatTurn: createDoxBenchTurnSubmitter(() => caps?.console_token),
     };

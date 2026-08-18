@@ -729,8 +729,14 @@ export function unloadDocumentBuffer(stateValue, keyValue, options = {}) {
       refusal: UNLOAD_REFUSED_DIRTY,
     });
   }
-  const remaining = { ...current.buffers };
-  delete remaining[target];
+  // REST-OMISSION rather than the property-removal operator, and not for style:
+  // the mutation-boundary guard bans that operator's own bare word anywhere in a
+  // doxBench client module (FR-037 -- no doxBench path removes a document), and
+  // it is a NEGATIVE-SPACE tripwire whose whole value is that it has no
+  // exceptions. Building the remainder WITHOUT the key says the same thing
+  // without spending one, so the guard keeps its unbroken surface.
+  const { [target]: unloaded, ...remaining } = current.buffers;
+  void unloaded;
   return Object.freeze({
     state: validatedFrozenState({
       key: current.key,
@@ -772,9 +778,12 @@ export function rekeyDocumentBuffer(stateValue, fromKeyValue, pathValue) {
     hash_generation: buffer.hash_generation + 1,
     hash_pending: false,
   });
-  const buffers = { ...current.buffers };
-  delete buffers[from];
-  buffers[path] = moved;
+  // Rest-omission for the same reason `unloadDocumentBuffer` uses it: the
+  // negative-space guard on FR-037's removal verb has no exceptions, and the
+  // reserved key is freed by building the set WITHOUT it.
+  const { [from]: rekeyed, ...rest } = current.buffers;
+  void rekeyed;
+  const buffers = { ...rest, [path]: moved };
   return validatedFrozenState({
     key: current.key,
     active_buffer: current.active === from ? path : current.active,

@@ -1315,18 +1315,46 @@ export function mountStagingWorkbench(container, snapshot,
   // The wheel's reconcile, as adopted by the last docs draw (null on the other
   // selection tabs, where there is no wheel to reconcile).
   let reconcileDocsSelection = null;
+  // WHICH DOCUMENT THE CANVAS IS ON, in ONE place (add-doxbench-editing-phase-b).
+  //
+  // Phase A could read `state.buffers.document.path`: there was exactly one
+  // document slot, so "the document the canvas holds" was a single well-defined
+  // value whichever buffer happened to be SELECTED. Phase B holds N, so the
+  // question needs a stated rule, and this is it:
+  //
+  //   1. the SELECTED buffer's path, when a document is selected — that is the
+  //      document the human is working on, and it is what the wheel must
+  //      reconcile to and what a released v1 turn must name; otherwise
+  //   2. the FIRST loaded document in the declared order, because the outline
+  //      being selected does not mean the canvas holds no document — it means the
+  //      human stepped to the outline, and the docs wheel must still sit on the
+  //      document they were on rather than snapping back to the top of the reel;
+  //   3. `null` when nothing is loaded.
+  //
+  // Reading it in TWO places with two spellings is exactly how the wheel and the
+  // canvas came to disagree before (PR #196 review F4), so both callers below
+  // read this.
+  function canvasDocumentPath() {
+    const current = canvasController && canvasController.state();
+    if (!current || !current.buffers) return null;
+    const selected = current.buffers[current.active_buffer];
+    if (selected && selected.kind === "document" && selected.path) {
+      return selected.path;
+    }
+    const documentKeys = Object.keys(current.buffers)
+      .filter((key) => key !== "outline")
+      .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
+    for (const key of documentKeys) {
+      const buffer = current.buffers[key];
+      if (buffer && buffer.path) return buffer.path;
+    }
+    return null;
+  }
   function syncContextSelection() {
     if (typeof reconcileDocsSelection !== "function") return;
-    const current = canvasController && canvasController.state();
-    if (!current || !current.buffers) return;
-    // add-doxbench-editing-phase-b: reconcile the wheel to the SELECTED buffer,
-    // whichever key holds it — Phase A could read `buffers.document` because
-    // there was exactly one document slot. When the outline is selected there is
-    // no document row to reconcile to, and the wheel is left where it is rather
-    // than being moved to a document nobody chose.
-    const selected = current.buffers[current.active_buffer];
-    if (!selected || selected.kind !== "document") return;
-    reconcileDocsSelection(selected.path);
+    const path = canvasDocumentPath();
+    if (path == null) return;
+    reconcileDocsSelection(path);
   }
   // T100 P1-A, factored out (Phase A): every settled identity refreshes the
   // rail's proposal currency so stale reaches the RENDERED cards — and the same
@@ -1526,23 +1554,12 @@ export function mountStagingWorkbench(container, snapshot,
           syncContextFromCanvas();
           refreshDocTiles();
         },
-        activeDocumentPath: () => {
-          const current = canvasController && canvasController.state();
-          if (!current || !current.buffers) return null;
-          // add-doxbench-editing-phase-b: the ONE document path a released v1
-          // turn may name is the SELECTED buffer's, when a document is selected.
-          // Phase A could read `buffers.document` because there was one slot.
-          // TODO(add-doxbench-editing-phase-b tasks.md §13): the widened
-          // envelope carries the outline plus N documents and a declared
-          // bound-buffer key, at which point this narrowing to one path goes.
-          const selected = current.buffers[current.active_buffer];
-          if (selected && selected.kind === "document") return selected.path;
-          const documentKeys = Object.keys(current.buffers)
-            .filter((key) => key !== "outline").sort();
-          if (!documentKeys.length) return null;
-          const first = current.buffers[documentKeys[0]];
-          return first ? first.path : null;
-        },
+        // The ONE document path a released v1 turn may name, from the ONE rule
+        // `canvasDocumentPath` states.
+        // TODO(add-doxbench-editing-phase-b tasks.md §13): the widened envelope
+        // carries the outline plus N documents and a declared bound-buffer key,
+        // at which point this narrowing to a single path goes away entirely.
+        activeDocumentPath: () => canvasDocumentPath(),
         // T104 F2: the documents a turn on this tile may actually name — the
         // scope authority's own intersection, so a "no active document"
         // refusal names one the operator can pick instead of stopping at the
