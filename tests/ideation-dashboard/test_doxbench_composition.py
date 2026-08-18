@@ -57,6 +57,16 @@ const { mountStagingWorkbench } = await import('./staging-workbench.js');
 const OUTLINE_PATH = 'ideation/staging/topic-x/topic-x.md';
 const DOC_A = 'ideation/staging/topic-x/detail.md';
 const DOC_B = 'ideation/staging/topic-x/second.md';
+// N1 (PR #207 re-verification): two paths that sort BEFORE the literal reserved
+// key `"document"` under the declared UTF-16 code-unit order (uppercase letters
+// precede lowercase). They exist to DISCRIMINATE the F1 wire fix: the reverted
+// implementation fell through to the first loaded document by key order, which the
+// original fixture's `detail.md`/`second.md` never were, because both sort AFTER
+// `"document"` and the reserved slot therefore won by accident rather than by
+// rule. TWO of them, so that whichever one the projection happens to make the
+// reserved slot, at least one is still loadable.
+const EARLY_A = 'BOOK.md';
+const EARLY_B = 'README.md';
 
 function snapshotFor(files) {
   return {
@@ -199,7 +209,8 @@ const out = {};
 // F1: loading a document must not kill the chat
 // =====================================================================
 {
-  const ctx = await mount({ files: [OUTLINE_PATH, DOC_A, DOC_B] });
+  const ctx = await mount({
+    files: [OUTLINE_PATH, DOC_A, DOC_B, EARLY_A, EARLY_B] });
   await until(() => ctx.byClass('doxbench-textarea').length >= 2, 'the canvas');
   await until(() => ctx.one('doxchat-header') !== null, 'the chat rail');
   await quiesce(40);
@@ -215,8 +226,12 @@ const out = {};
   out.f1.reservedPath = first ? first.buffers[1].path : null;
   out.f1.baselineActiveDocumentPath = first ? first.active_document_path : null;
 
-  // Load a DIFFERENT document through the tile's OWN verb -- the one route in.
-  const other = out.f1.reservedPath === DOC_B ? DOC_A : DOC_B;
+  // Load a DIFFERENT document through the tile's OWN verb -- the one route in,
+  // and deliberately one whose key sorts BEFORE the reserved `"document"` key, so
+  // a fall-through to "the first loaded document by key order" would pick IT and
+  // not the reserved slot (N1).
+  const other = [EARLY_A, EARLY_B, DOC_A, DOC_B].find(
+    (candidate) => candidate !== out.f1.reservedPath);
   out.f1.loadedPath = other;
   const loaded = await expandTileFor(ctx, other);
   const loadBtn = loaded.tile.querySelector('.swb-docload');
@@ -397,6 +412,45 @@ const out = {};
   out.f9.outlineTitle = ctx.one('doxchat-unload').title;
 }
 
+// =====================================================================
+// N3: the RESERVED document slot rides every turn, so it is never unloaded
+// =====================================================================
+{
+  const ctx = await mount({ files: [OUTLINE_PATH, DOC_A, DOC_B] });
+  await until(() => ctx.byClass('doxbench-textarea').length >= 2, 'the canvas');
+  await until(() => ctx.one('doxchat-loaded') !== null, 'the selector');
+  await quiesce(40);
+  await chooseModel(ctx);
+  // Select the RESERVED slot -- it is a legitimate, listed, selectable entry, and
+  // the chat binds to it. What it is not is unloadable.
+  const selectNode = ctx.one('doxchat-loaded');
+  selectNode.value = 'document';
+  await fire(selectNode, 'change');
+  await quiesce(30);
+  const unload = ctx.one('doxchat-unload');
+  out.n3 = {
+    selected: selectNode.value,
+    listed: selectNode.children.map((o) => o.value),
+    disabled: unload.disabled === true,
+    title: unload.title,
+  };
+  // Press it anyway: the click path refuses too, so the render's disabled state is
+  // not the only thing standing between a human and a wedged chat.
+  await fire(unload, 'click');
+  await quiesce(40);
+  out.n3.stillListed = ctx.one('doxchat-loaded').children.map((o) => o.value);
+  out.n3.editors = ctx.byClass('doxbench-textarea').length;
+  // …and a turn STILL BUILDS, which is the failure this guards: emptying the slot
+  // left `buildTurnRequest` reading `buffers.document.path` on an absent buffer,
+  // caught as the generic unsettled-buffer failure, so the rail said "still
+  // settling; try Send again in a moment" forever.
+  const sent = await typeAndSend(ctx, 'a turn after attempting the unload');
+  out.n3.turns = ctx.log.turns.length;
+  out.n3.failureNote = sent.failure;
+  const request = ctx.log.turns[ctx.log.turns.length - 1] || null;
+  out.n3.wireDocumentPath = request ? request.buffers[1].path : null;
+}
+
 console.log(JSON.stringify(out));
 """
 
@@ -434,8 +488,13 @@ def test_loading_a_document_does_not_kill_the_chat(composition):
     assert "loaded for editing" in f1["verbNote"]
     # The load really happened: the selector lists the outline, the reserved slot
     # and the newly loaded document, and names the new one as selected.
-    assert f1["selectorOptions"] == ["outline", "document", f1["loadedPath"]]
+    assert set(f1["selectorOptions"]) == {"outline", "document", f1["loadedPath"]}
     assert f1["selectorValue"] == f1["loadedPath"]
+    # …and the listing is in the DECLARED order, which is what puts the loaded key
+    # before the reserved one here and is exactly what makes N1's discrimination
+    # possible.
+    assert f1["selectorOptions"] == ["outline"] + sorted(
+        [key for key in f1["selectorOptions"] if key != "outline"])
     # The baseline turn went out before any of this, which is what makes the
     # reserved slot's path a measured fact rather than an assumption.
     assert f1["baselineSent"] == 1
@@ -471,6 +530,13 @@ def test_the_released_wire_only_ever_names_the_reserved_slots_path(composition):
     assert f1["turnsAfterOutlineSend"] == 2, (
         "the baseline turn plus this one; the bound-to-loaded attempt sent none")
     assert f1["wireBufferKinds"] == ["outline", "document"]
+    # N1: the loaded document's KEY sorts BEFORE the reserved `"document"` key, so
+    # an implementation that fell through to "the first loaded document by key
+    # order" would name IT here. The fixture makes that discrimination possible;
+    # this assertion is what fails on the reverted code.
+    assert f1["loadedPath"] < "document", (
+        "the fixture must load a key that sorts before the reserved one, or this "
+        "assertion cannot tell the wire invariant from a lucky sort order")
     assert f1["wireActiveDocumentPath"] == f1["reservedPath"]
     assert f1["wireBufferPaths"][1] == f1["reservedPath"]
     # The loaded document is NOT on the wire, which is exactly why the chat
@@ -591,3 +657,43 @@ def test_the_outline_is_never_unloadable(composition):
     f9 = composition["f9"]
     assert f9["outlineDisabled"] is True
     assert "reserved buffer" in f9["outlineTitle"]
+
+
+# ---------------------------------------------------------------------------
+# N3
+# ---------------------------------------------------------------------------
+
+
+def test_the_reserved_document_slot_is_selectable_but_never_unloadable(
+        composition):
+    """N3 (PR #207 re-verification): the reserved `document` key was listed as an
+    ORDINARY loaded entry whenever it carried a path, so Unload was reachable for
+    it — and one click emptied the slot, after which `buildTurnRequest` read
+    `buffers.document.path` on an absent buffer. That threw, was caught as the
+    generic unsettled-buffer failure, and the rail then said "the buffers are
+    still settling; try Send again in a moment" FOREVER: a permanently false
+    sentence, which is the worst thing a refusal can be.
+
+    The rule follows the code's own reasoning about the outline. Under the
+    released v1 envelope the reserved document slot is not merely reserved, it
+    RIDES EVERY TURN — `buildTurnRequest` sends exactly `buffers.outline` and
+    `buffers.document` — so it can no more leave the set than the outline can.
+    Listing it stays right: it is selectable and the chat binds to it."""
+    n3 = composition["n3"]
+    # It IS a first-class, listed, selectable entry.
+    assert "document" in n3["listed"]
+    assert n3["selected"] == "document"
+    # …and Unload is withheld for it, with the reason naming why.
+    assert n3["disabled"] is True
+    assert "rides every turn" in n3["title"]
+    assert "never unloaded" in n3["title"]
+    assert "load another document to work beside it" in n3["title"]
+    # Pressing it anyway changes nothing: the click path refuses too.
+    assert n3["stillListed"] == n3["listed"]
+    assert n3["editors"] >= 2
+    # And the chat is not wedged: a turn builds, reaches the transport, and carries
+    # the reserved slot's own path exactly as it did before.
+    assert n3["turns"] == 1
+    assert n3["wireDocumentPath"] is not None
+    assert "still settling" not in n3["failureNote"], (
+        "the wedged-chat sentence must be unreachable")

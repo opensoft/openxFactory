@@ -663,10 +663,19 @@ export function loadDocumentBuffer(stateValue, bufferValue, options = {}) {
     throw new TypeError("a loaded buffer must use the same repository as the scope");
   }
   const target = bufferKeyFor(buffer);
-  if (target === OUTLINE_BUFFER_KEY) {
-    // The reserved outline key, claimed by a document's own path. Refused rather
-    // than thrown (F12): the state module owns membership, so it owns the
-    // sentence too.
+  if (target === OUTLINE_BUFFER_KEY
+      || target === UNBACKED_DOCUMENT_BUFFER_KEY) {
+    // EITHER reserved key, claimed by a document's own path. Refused rather than
+    // thrown (F12): the state module owns membership, so it owns the sentence too.
+    //
+    // BOTH halves, and the second one matters more than its reachability suggests
+    // (N2, PR #207 re-verification). The outline half was caught by the validator
+    // and became a thrown TypeError. The `document` half was caught by NOTHING: a
+    // repository-root file named exactly `document` keys to the reserved slot, and
+    // the spread below would have OVERWRITTEN whatever that slot held -- including
+    // a create buffer holding unsaved human text. That is the one thing design D6
+    // forbids outright ("no eviction anywhere ... every loaded buffer may hold
+    // unsaved work"), and it would have happened silently.
     return Object.freeze({
       state: validatedFrozenState({
         key: current.key,

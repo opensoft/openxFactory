@@ -617,6 +617,11 @@ export const LOADED_SELECTOR_EMPTY_NOTE =
   + "outline is workable on its own";
 
 const OUTLINE_BUFFER_KEY = "outline";
+// The reserved unbacked/create key. Under the RELEASED v1 envelope this slot is
+// not merely reserved -- it RIDES EVERY TURN, exactly as the outline does
+// (`buildTurnRequest` sends `buffers.outline` and `buffers.document` and nothing
+// else), which is why it can no more be unloaded than the outline can.
+const RESERVED_DOCUMENT_BUFFER_KEY = "document";
 const OUTLINE_ENTRY_LABEL = "Outline";
 const UNBACKED_ENTRY_LABEL = "(not yet created)";
 
@@ -708,6 +713,7 @@ export function loadedSelectorModel(editorStateValue) {
     const outline = buffers[OUTLINE_BUFFER_KEY];
     entries.push(Object.freeze({
       key: OUTLINE_BUFFER_KEY,
+      reserved: true,
       label: OUTLINE_ENTRY_LABEL,
       fullName: outline && outline.path ? String(outline.path) : UNBACKED_ENTRY_LABEL,
       kind: "outline",
@@ -721,6 +727,14 @@ export function loadedSelectorModel(editorStateValue) {
     const path = buffer && buffer.path ? String(buffer.path) : null;
     entries.push(Object.freeze({
       key,
+      // N3 (PR #207 re-verification): the reserved key is a RESERVED entry, not an
+      // ordinary loaded document, even when it carries a real path. Listing it is
+      // right -- it is selectable and the chat binds to it -- but treating it as
+      // ordinary made Unload reachable for it, and emptying it left
+      // `buildTurnRequest` reading `buffers.document.path` on an absent buffer.
+      // That threw, was caught as the generic unsettled-buffer failure, and the
+      // rail then said "still settling; try Send again in a moment" forever.
+      reserved: key === RESERVED_DOCUMENT_BUFFER_KEY,
       label: path === null ? UNBACKED_ENTRY_LABEL : labels.get(path) || basenameOf(path),
       fullName: path === null ? UNBACKED_ENTRY_LABEL : path,
       kind: "document",
@@ -916,7 +930,10 @@ export function mountDoxBenchChatRail(host, options = {}) {
   unloadBtn.addEventListener("click", async () => {
     const model = loadedSelectorModel(liveEditorState());
     const chosen = model.entries.find((entry) => entry.selected);
-    if (!chosen || chosen.kind !== "document") return;
+    // Refused here as well as withheld above (N3): a reserved buffer leaving the
+    // set is the one act that can wedge the chat, so the click path does not
+    // depend on the render having disabled the control.
+    if (!chosen || chosen.kind !== "document" || chosen.reserved === true) return;
     const unload = options.unloadBuffer;
     if (typeof unload !== "function") return;
     const arming = unloadArmedKey === chosen.key;
@@ -975,14 +992,25 @@ export function mountDoxBenchChatRail(host, options = {}) {
     // exists at all: on a surface with no editing capability there is no loaded
     // set to leave.
     const unloadable = Boolean(chosen) && chosen.kind === "document"
+      && chosen.reserved !== true
       && typeof options.unloadBuffer === "function";
     unloadBtn.disabled = !unloadable;
     if (!unloadable) {
       unloadArmedKey = null;
       unloadBtn.textContent = "Unload";
-      unloadBtn.title = chosen && chosen.kind === "outline"
-        ? "the outline is a reserved buffer and is never unloaded"
-        : "no loaded document is selected";
+      if (chosen && chosen.reserved === true) {
+        // ONE sentence for both reserved keys, because it is one fact: under the
+        // released envelope the outline and the reserved document slot are the two
+        // buffers every turn carries, so unloading either would leave the chat
+        // unable to build a turn at all.
+        unloadBtn.title = chosen.kind === "outline"
+          ? "the outline is a reserved buffer that rides every turn, and is never "
+            + "unloaded"
+          : "this is the tile's own document, a reserved buffer that rides every "
+            + "turn, and is never unloaded — load another document to work beside it";
+      } else {
+        unloadBtn.title = "no loaded document is selected";
+      }
       return;
     }
     const armed = unloadArmedKey === chosen.key;

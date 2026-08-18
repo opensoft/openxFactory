@@ -1192,8 +1192,14 @@ class TypedProposal:
 
 @dataclasses.dataclass(frozen=True, slots=True)
 class ValidatedAssistantResponse:
-    """The whole validated typed response: bounded prose plus 0-2 validated
-    proposals with unique targets."""
+    """The whole validated typed response: bounded prose plus validated proposals
+    with unique targets, AT MOST ONE PER SUPPLIED BUFFER (``PROPOSAL_CAP_RULE``).
+
+    The literal ``0-2`` this docstring used to state was the released v1 wire's own
+    bound, which `add-doxbench-editing-phase-b` replaced with a bound expressed over
+    the request's buffer count -- so a four-buffer request may carry four proposals
+    and a two-buffer one still may not carry three. The v1 wire supplies exactly two
+    buffers, so its effective bound is unchanged."""
 
     assistant_prose: str
     proposals: tuple[TypedProposal, ...]

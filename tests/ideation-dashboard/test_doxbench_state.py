@@ -1059,3 +1059,99 @@ def test_apply_and_discard_still_touch_exactly_one_buffer(keyed_set_results):
     assert apply["othersClean"] is False
     assert apply["discardedBack"] == "# Zulu\n"
     assert apply["discardedClean"] is False
+
+
+# ===========================================================================
+# PR #207 re-verification, N2: BOTH reserved keys, claimed by a document's path.
+#
+# `outline` was caught by the validator and surfaced as a thrown TypeError, which
+# the shell could only report as a generic "the load failed". `document` was caught
+# by NOTHING: a repository-root file named exactly `document` keys to the reserved
+# slot, and the load would have OVERWRITTEN whatever that slot held -- including a
+# create buffer holding unsaved human text. Design D6 forbids that outright ("no
+# eviction anywhere ... every loaded buffer may hold unsaved work"), and it would
+# have happened silently.
+# ===========================================================================
+
+_RESERVED_KEY_HARNESS = """
+import {
+  LOAD_REFUSED_RESERVED_KEY,
+  createBufferState,
+  createDoxBenchState,
+  loadDocumentBuffer,
+  loadedDocumentKeys,
+} from './doxbench-state.mjs';
+
+const key = { repository: 'fixture-repo', ref: 'main',
+              tile_kind: 'staged', tile_id: 'topic-x' };
+const BASE = '1'.repeat(40);
+const descriptor = (path, content) => ({
+  path, owned: true, base_ref: 'main', base_revision: BASE, content });
+
+const state = await createDoxBenchState({
+  key,
+  outline: descriptor('ideation/staging/topic-x/topic-x.md', '# Outline\\n'),
+  document: descriptor('ideation/staging/topic-x/detail.md',
+                       '# unsaved human text\\n'),
+});
+
+const out = {};
+for (const path of ['outline', 'document']) {
+  const buffer = await createBufferState({
+    kind: 'document', repository: key.repository,
+    ...descriptor(path, '# an intruder at a reserved key\\n'),
+  }, {});
+  const result = loadDocumentBuffer(state, buffer);
+  out[path] = {
+    refusal: result.refusal,
+    loaded: result.loaded,
+    keyReturned: result.key,
+    // The reserved slot's own bytes, after the refusal.
+    reservedContent: result.state.buffers.document.content,
+    outlineContent: result.state.buffers.outline.content,
+    documentKeys: loadedDocumentKeys(result.state),
+  };
+}
+out.code = LOAD_REFUSED_RESERVED_KEY;
+console.log(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def reserved_key_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the reserved-key probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-reserved-key")
+    shutil.copy(STATE_JS, tmp_path / "doxbench-state.mjs")
+    harness = tmp_path / "reserved-key-harness.mjs"
+    harness.write_text(_RESERVED_KEY_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True, text=True,
+                          timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_document_path_that_is_a_reserved_key_is_refused_by_name(
+        reserved_key_results):
+    """Both halves, stated rather than thrown: the refusal is the module's own
+    named code, so the surface can tell the human WHICH file and why instead of
+    reporting a generic failure."""
+    assert reserved_key_results["code"] == "path_is_a_reserved_key"
+    for half in ("outline", "document"):
+        answer = reserved_key_results[half]
+        assert answer["loaded"] is False, half
+        assert answer["refusal"] == "path_is_a_reserved_key", half
+        assert answer["keyReturned"] is None, half
+
+
+def test_a_reserved_key_refusal_never_overwrites_what_that_key_held(
+        reserved_key_results):
+    """N2's teeth. The `document` half had no guard at all, so the load would have
+    replaced the reserved slot's buffer — unsaved human text and all — which is the
+    silent eviction design D6 forbids outright."""
+    for half in ("outline", "document"):
+        answer = reserved_key_results[half]
+        assert answer["reservedContent"] == "# unsaved human text\n", half
+        assert answer["outlineContent"] == "# Outline\n", half
+        # …and nothing joined the set either.
+        assert answer["documentKeys"] == ["document"], half

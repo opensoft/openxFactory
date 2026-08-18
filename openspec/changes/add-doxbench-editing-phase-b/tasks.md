@@ -324,6 +324,20 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
         that is still unbacked — which is the delta's own prediction that the
         guard is "unchanged WHERE IT STILL APPLIES" and never extended to
         selection.
+      **THE TRADE THIS MAKES, recorded rather than glossed (PR #207
+      re-verification, N4 — WITH BRETT).** Under the released v1 envelope the
+      chat's DOCUMENT binding is pinned to the mount-time reserved slot once that
+      slot is backed: no route re-points it, because the envelope carries exactly
+      the outline plus that one slot and nothing may empty it (N3). Phase A DID
+      allow a row-selection swap of which document the chat was about, so this is
+      a **user-visible reduction**, accepted here as a stated interim posture —
+      a human can load and edit any number of documents and Save each, and the
+      chat states plainly when it cannot be bound to one, but it cannot be
+      re-pointed at a different document within a session. It ends either with
+      §13's widened envelope (which carries N documents and a declared bound-buffer
+      key, retiring the limit entirely) or sooner, if Brett rules that a
+      CLEAN reserved slot may be re-pointed. Selection semantics are NOT changed
+      here pending that ruling.
 
 ## 9. Threads
 
