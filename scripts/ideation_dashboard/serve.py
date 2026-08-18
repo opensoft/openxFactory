@@ -1510,11 +1510,29 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 if projection is None:
                     scope_refused = True
                 else:
+                    # add-doxbench-editing-phase-b: the pair became a SET.
+                    # The DECLARED binding is the request's own
+                    # `active_document_path` where it names one -- reading its
+                    # KEY off a declared path is a spelling change, not the
+                    # inference Phase A's review killed (that one derived
+                    # "outline versus document" from an adjacent field). Where
+                    # it is null the released v1 envelope declares NO binding at
+                    # all, `None` says so, and the module's own rule then
+                    # refuses a path-backed document rather than guessing.
+                    #
+                    # TODO(add-doxbench-editing-phase-b tasks.md §13): the
+                    # released v1 envelope carries no `bound_buffer` field and
+                    # exactly two buffers, so this seam cannot yet declare a
+                    # binding for an outline-bound turn or carry N documents.
+                    # The gated contract-release slice adds the co-resident
+                    # widened family; nothing here needs to change but the two
+                    # values passed in.
                     doxbench_turns.revalidate_scope(
                         projection=projection, request_scope=key,
-                        active_document_path=active_document_path,
-                        outline_path=outline_buf.path if outline_buf else None,
-                        document_path=document_buf.path if document_buf else None,
+                        bound_buffer_key=active_document_path,
+                        buffer_keys=tuple(
+                            doxbench_turns.buffer_key_for(b) for b in turn_buffers),
+                        paths=tuple(b.path for b in turn_buffers),
                     )
         except (doxbench_turns.TurnScopeError, doxbench_scope.ScopeConfinementError,
                 ValueError, OSError):
@@ -1527,7 +1545,15 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 
         # ---- step 6: exact identity ----
         try:
-            outline, document = doxbench_turns.require_outline_and_document(turn_buffers)
+            outline, turn_documents = \
+                doxbench_turns.require_outline_and_documents(turn_buffers)
+            # The released v1 envelope carries exactly ONE document buffer, so
+            # this unpack is total for every request that reached here (the
+            # schema gate above refuses any other count). §13 is what makes the
+            # set wider on the wire; the module already holds it.
+            document = next(iter(
+                turn_documents[k] for k in
+                doxbench_turns.ordered_document_keys(turn_documents)))
         except doxbench_turns.TurnBufferKindError:
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
                               turn_id)
@@ -1750,8 +1776,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 model_input_limit_bytes=effective_input_limit,
                 model_output_limit_bytes=effective_output_limit,
                 working_subject=working_subject, transcript=tuple(transcript_turns),
-                buffers=(outline, document), message=message,
-                session_base=session_base)
+                buffers=turn_buffers, message=message,
+                session_base=session_base,
+                # The DECLARED binding, or `None` where the released v1 envelope
+                # declares none. Never inferred (design D17).
+                bound_buffer_key=active_document_path)
         except doxbench_turns.TurnScopeError:
             outcome_code = DOXBENCH_ERR_TURN_SCOPE_REFUSED
         except doxbench_turns.TurnIdentityMismatchError:
@@ -1781,9 +1810,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # `doxbench_turns.validate_assistant_response`: such a turn is
             # chat grounded on the tile's context, with NO document-targeted
             # proposal. Every turn that DOES name a document is unchanged.
+            # The permitted set is the REQUEST'S OWN buffer keys
+            # (add-doxbench-editing-phase-b task 5.3 retired the fixed enum);
+            # G-1's outline-only narrowing is unchanged.
             permitted_targets = (
-                doxbench_turns.PROPOSAL_TARGETS if active_document_path is not None
-                else ("outline",))
+                None if active_document_path is not None
+                else (doxbench_turns.OUTLINE_BUFFER_KEY,))
 
             def _typed_response_validator(raw):
                 return doxbench_turns.validate_assistant_response(
@@ -1809,9 +1841,15 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     client_turn_id=client_turn_id,
                     assistant_turn_id="assistant-" + digest[:56],
                     model_id=model_id,
+                    # The released v1 success envelope has room for EXACTLY
+                    # these two keys. The envelope's own identities are keyed by
+                    # BUFFER KEY now, so the one document's key is read rather
+                    # than assumed -- and §13's widened family is what lets a
+                    # record state all N of them.
                     observed_hashes={
                         "outline": prompt_envelope.observed_hashes.outline.hex,
-                        "document": prompt_envelope.observed_hashes.document.hex,
+                        "document": prompt_envelope.observed_hashes.for_key(
+                            doxbench_turns.buffer_key_for(document)).hex,
                     },
                     assistant_prose=outcome.assistant_prose,
                     proposals=outcome.proposals)

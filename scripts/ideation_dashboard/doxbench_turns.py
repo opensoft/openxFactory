@@ -7,9 +7,11 @@ This module implements both the request-side envelope/boundary surface
 (T047) and the store slice (T048) together. It owns:
 
 * an internal, schema-agnostic prompt envelope assembly
-  (``build_prompt_envelope``) that renders exactly nine deterministic
-  sections from a scope projection, a pair of working buffers, a bounded
-  transcript, and a new human message;
+  (``build_prompt_envelope``) that renders the nine declared deterministic
+  section GROUPS from a scope projection, a KEYED BUFFER SET (the reserved
+  `outline` buffer plus one section per loaded document, in the declared
+  order -- add-doxbench-editing-phase-b), a bounded transcript, and a new
+  human message;
 * the exact UTF-8 byte-count validators for every request-side dimension a
   turn must enforce before any provider dispatch is attempted;
 * the redacted refusal shape (``TurnError`` and its subclasses) every
@@ -37,7 +39,7 @@ import copy
 import dataclasses
 import itertools
 import threading
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import PurePosixPath
 
 from ideation_dashboard.doxbench_hash import (
@@ -78,6 +80,60 @@ MAX_RESPONSE_TOTAL_BYTES = SERVER_MAX_OUTPUT_LIMIT_BYTES
 # deterministic prompt shape
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# BUFFER KEYS (add-doxbench-editing-phase-b, design D1)
+#
+# The turn's buffer set is KEYED, exactly as the browser's working state is:
+# `outline` is permanently reserved, a document buffer's key is its own
+# repository-relative PATH, and the reserved `document` key holds the ONE
+# not-yet-created buffer of the create flow, which has no path to be keyed by.
+# ---------------------------------------------------------------------------
+
+OUTLINE_BUFFER_KEY = "outline"
+UNBACKED_DOCUMENT_BUFFER_KEY = "document"
+
+# The DECLARED deterministic document order (design D3 point 4). Spelled to
+# match `web/views/doxbench-state.js`'s `DOCUMENT_KEY_ORDER_RULE` byte for byte,
+# and sorted on UTF-16 code units rather than Python code points so the two
+# runtimes agree on every key, including the astral characters where code-unit
+# and code-point order diverge. A companion test asserts the two spellings.
+DOCUMENT_KEY_ORDER_RULE = "ascending lexicographic by buffer key (UTF-16 code unit)"
+
+
+def buffer_key_for(buffer: TurnBuffer) -> str:
+    """The key a buffer belongs under. Never invented: the outline's key is
+    reserved, a document's key IS its path, and a document with no path yet
+    takes the one reserved unbacked slot."""
+    if buffer.kind == OUTLINE_BUFFER_KEY:
+        return OUTLINE_BUFFER_KEY
+    if buffer.path is None:
+        return UNBACKED_DOCUMENT_BUFFER_KEY
+    return buffer.path
+
+
+def ordered_document_keys(keys) -> tuple[str, ...]:
+    return tuple(sorted(
+        (key for key in keys if key != OUTLINE_BUFFER_KEY),
+        key=lambda value: value.encode("utf-16-be", "surrogatepass"),
+    ))
+
+
+def ordered_buffer_keys(keys) -> tuple[str, ...]:
+    """The outline first -- its commit is the session ancestry -- then every
+    document in the declared order. The ONE place a buffer enumeration order is
+    decided, because a prompt whose section order depends on dictionary
+    iteration is a prompt no test can pin."""
+    return (OUTLINE_BUFFER_KEY,) + ordered_document_keys(keys)
+
+
+DOCUMENT_BUFFER_SECTION_PREFIX = "document_buffer:"
+
+# The nine DECLARED section groups, in order. `document_buffers` is a GROUP that
+# expands to one section per loaded document in the declared order
+# (`prompt_section_keys`); every other entry is exactly one section. Phase A had
+# a single `document_buffer` here because the set held exactly one document; the
+# group name replaces it rather than a longer literal list, since the count is
+# now the request's own.
 PROMPT_SECTION_ORDER: tuple[str, ...] = (
     "system_contract",
     "model_data_handling",
@@ -85,9 +141,39 @@ PROMPT_SECTION_ORDER: tuple[str, ...] = (
     "working_subject",
     "transcript",
     "outline_buffer",
-    "document_buffer",
+    "document_buffers",
     "human_message",
     "response_instruction",
+)
+
+
+def prompt_section_keys(document_keys) -> tuple[str, ...]:
+    """The CONCRETE section keys one request's envelope carries, in the declared
+    order -- `PROMPT_SECTION_ORDER` with the `document_buffers` group expanded to
+    one `document_buffer:<buffer key>` section per loaded document."""
+    documents = ordered_document_keys(document_keys)
+    keys: list[str] = []
+    for group in PROMPT_SECTION_ORDER:
+        if group == "document_buffers":
+            keys.extend(DOCUMENT_BUFFER_SECTION_PREFIX + key for key in documents)
+        else:
+            keys.append(group)
+    return tuple(keys)
+
+
+# The SOURCE-RANKING HIERARCHY, stated rather than left to the model to infer
+# (add-doxbench-editing-phase-b task 5.5; the delta's knowledge-service
+# requirement). Ordered most authoritative first, and it names the LAST rank
+# explicitly as non-authoritative because a harness's own memory claiming to be
+# a thread is the split brain the contract forbids.
+SOURCE_RANKING_TEXT = (
+    "Rank the material below by authority, in this order, and never invert it: "
+    "(1) ratified or standard canon; (2) accepted or staged facts; "
+    "(3) promoted findings; (4) active thread state; and last, "
+    "(5) any harness-local memory, which is NON-AUTHORITATIVE and must never be "
+    "cited as governed truth. A summary, a thread-state header, an offloaded "
+    "artifact, or a derived index is never authority: it becomes durable only by "
+    "creating a new object through review."
 )
 
 SYSTEM_CONTRACT_TEXT = (
@@ -95,7 +181,8 @@ SYSTEM_CONTRACT_TEXT = (
     "strictly in the outline and document buffers, the scope metadata, and "
     "the transcript shown below. Never invent facts about the repository "
     "or the selected model, and never claim access to material outside the "
-    "sections provided in this prompt."
+    "sections provided in this prompt.\n"
+    + SOURCE_RANKING_TEXT
 )
 
 RESPONSE_INSTRUCTION_TEXT = (
@@ -126,7 +213,7 @@ class TurnBlankMessageError(TurnError):
 
 class TurnBufferKindError(TurnError):
     """Raised when the supplied working buffers are not exactly one outline
-    buffer and one document buffer."""
+    buffer plus one or more distinctly-keyed document buffers."""
 
 
 class TurnConflictError(TurnError):
@@ -251,8 +338,8 @@ class TranscriptTurn:
 
 @dataclasses.dataclass(frozen=True, slots=True)
 class PromptSection:
-    """One of the nine sections a prompt envelope assembles, in the exact
-    order ``PROMPT_SECTION_ORDER`` declares."""
+    """One section a prompt envelope assembles, in the exact order
+    ``prompt_section_keys`` declares from ``PROMPT_SECTION_ORDER``."""
 
     key: str
     text: str
@@ -260,12 +347,39 @@ class PromptSection:
 
 @dataclasses.dataclass(frozen=True, slots=True)
 class ObservedHashes:
-    """The recomputed content identities observed for the outline and the
-    document buffer at assembly time -- never a cached value from an
-    earlier turn (FR-016)."""
+    """The recomputed content identities observed for EVERY buffer in the
+    request's own buffer set at assembly time, keyed by BUFFER KEY -- never a
+    cached value from an earlier turn (FR-016).
 
-    outline: ContentIdentity
-    document: ContentIdentity
+    Phase A carried two named fields, `outline` and `document`, because the set
+    held exactly those two buffers. add-doxbench-editing-phase-b keys them, so a
+    turn carrying the outline plus four loaded documents states five identities
+    and a reader can ask for any of them by key. `outline` survives as a
+    PROPERTY, because that key is permanently reserved and every turn carries it;
+    `document` does not, because it is now one possible key among N and an
+    attribute named after one key would be a literal buffer name baked into a
+    surface expressed over the set."""
+
+    by_key: Mapping[str, ContentIdentity]
+
+    @property
+    def outline(self) -> ContentIdentity:
+        return self.by_key[OUTLINE_BUFFER_KEY]
+
+    def for_key(self, key: str) -> ContentIdentity:
+        return self.by_key[key]
+
+    def keys(self) -> tuple[str, ...]:
+        return ordered_buffer_keys(self.by_key)
+
+    def document_keys(self) -> tuple[str, ...]:
+        return ordered_document_keys(self.by_key)
+
+    def __contains__(self, key: object) -> bool:
+        return key in self.by_key
+
+    def __len__(self) -> int:
+        return len(self.by_key)
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -279,6 +393,13 @@ class PromptEnvelope:
     transcript: tuple[TranscriptTurn, ...]
     active_document_path: str | None
     observed_hashes: ObservedHashes
+    # The DECLARED bound buffer's key, or ``None`` where the caller's wire
+    # envelope carries no declared binding (the released v1 shape; tasks.md §13
+    # is the release that discharges it). NEVER inferred from
+    # ``active_document_path`` -- Phase A's review killed exactly that, on the
+    # ground that a human working the outline with a document loaded was being
+    # recorded as bound to the document.
+    bound_buffer_key: str | None = None
 
     def rendered(self) -> str:
         """The full prompt text, sections joined in declared order. Byte-for-
@@ -323,13 +444,23 @@ def validate_transcript(transcript) -> None:
 def validate_request_body_bytes(
     *,
     outline_bytes: int,
-    document_bytes: int,
+    document_bytes: int = 0,
     message_bytes: int,
     working_subject_bytes: int,
     transcript_bytes: int,
+    document_buffer_bytes: Sequence[int] = (),
 ) -> None:
+    """The whole request's measured UTF-8 total, against the fixed ceiling.
+
+    ``document_bytes`` was the ONE document buffer Phase A allowed;
+    ``document_buffer_bytes`` carries EVERY loaded document's measurement, and
+    both are summed so a caller may pass either -- the released v1 wire supplies
+    exactly one document and passes it as `document_bytes`, and a widened caller
+    passes the whole set. Nothing is dropped or sampled: a bound that measured
+    only some of the buffers it is bounding would be no bound at all."""
     measured = (
-        outline_bytes + document_bytes + message_bytes + working_subject_bytes + transcript_bytes
+        outline_bytes + document_bytes + message_bytes + working_subject_bytes
+        + transcript_bytes + sum(document_buffer_bytes)
     )
     if measured > MAX_REQUEST_BODY_BYTES:
         raise TurnLimitError("request_body_bytes", measured, MAX_REQUEST_BODY_BYTES)
@@ -392,57 +523,86 @@ def revalidate_scope(
     *,
     projection: ScopeProjection,
     request_scope: ScopeKey,
-    active_document_path: str | None,
-    outline_path: str | None,
-    document_path: str | None,
+    bound_buffer_key: str | None,
+    buffer_keys: Sequence[str],
+    paths: Sequence[str | None],
 ) -> None:
-    """Independently revalidate a turn's scope binding against a projection
-    a scope authority already produced. Refuses (``TurnScopeError``) unless:
-    the request scope equals the projection's own active binding; the
-    active document path equals the supplied document path; and every
-    non-``None`` path among ``outline_path``/``document_path`` is both
-    in-scope (``projection.context_paths``) and editable
-    (``projection.editable_paths``) -- a readable-but-not-editable path is
-    always refused before any disclosure. A ``None`` document path (a
-    buffer not yet created) is exempt from the in-scope/editable checks.
-    Every refusal here leaks no projection or buffer content."""
+    """Independently revalidate a turn's scope binding against a projection a
+    scope authority already produced. Refuses (``TurnScopeError``) unless:
+
+    * the request scope equals the projection's own active binding;
+    * the request's DECLARED ``bound_buffer_key`` names one of the buffers the
+      request actually supplied (``buffer_keys``) -- the same refusal discipline
+      Phase A expressed as an equality between the active document path and the
+      one document buffer's path, restated over a SET because the set is now the
+      outline plus N loaded documents; and
+    * every non-``None`` path in ``paths`` is both in-scope
+      (``projection.context_paths``) and editable (``projection.editable_paths``)
+      -- a readable-but-not-editable path is always refused before any
+      disclosure. A ``None`` path (a buffer not yet created) is exempt.
+
+    ``bound_buffer_key`` may be ``None`` ONLY where the caller's wire envelope
+    carries no declared binding at all -- which is the case the released v1
+    chat-turn envelope is in, and the gap this capability's own contract release
+    (tasks.md §13) discharges. The binding is then NOT inferred from an adjacent
+    field, because that is exactly the mis-derivation Phase A's review killed:
+    instead the buffer set is required to hold no path-backed document, since a
+    request that supplies a document it is working on and declares no binding is
+    refusing to say what it is working on. Every refusal here leaks no projection
+    or buffer content."""
     if request_scope != projection.key:
         raise TurnScopeError("request scope does not match the projection's active binding")
-    if active_document_path != document_path:
-        raise TurnScopeError("active document path does not match the supplied document path")
-    for path in (outline_path, document_path):
+    keys = tuple(buffer_keys)
+    if bound_buffer_key is None:
+        if any(key not in (OUTLINE_BUFFER_KEY, UNBACKED_DOCUMENT_BUFFER_KEY)
+               for key in keys):
+            raise TurnScopeError(
+                "a turn that declares no bound buffer must not supply a "
+                "path-backed document buffer"
+            )
+    elif bound_buffer_key not in keys:
+        raise TurnScopeError("the declared bound buffer names no supplied buffer")
+    for path in paths:
         if path is None:
             continue
         _require_in_scope_and_editable(path, projection)
 
 
 # ---------------------------------------------------------------------------
-# buffer-kind requirement
+# buffer-set requirement (add-doxbench-editing-phase-b task 5.1)
 # ---------------------------------------------------------------------------
 
 
-def require_outline_and_document(buffers) -> tuple[TurnBuffer, TurnBuffer]:
-    """Require exactly one outline buffer and one document buffer, in any
-    order. Refuses (``TurnBufferKindError``) on a missing, duplicated, or
-    unexpected buffer kind."""
+def require_outline_and_documents(buffers) -> tuple[TurnBuffer, dict[str, TurnBuffer]]:
+    """Require exactly ONE outline buffer and ONE OR MORE document buffers, in
+    any order, each keyed by its own path (or by the one reserved unbacked slot).
+    Refuses (``TurnBufferKindError``) on a missing outline, a second outline, a
+    duplicated document key -- the same document supplied twice, which is
+    impossible in a well-formed keyed set and would make "which text did the
+    model see" unanswerable -- or an unexpected kind.
+
+    Phase A's ``require_outline_and_document`` demanded exactly one of each and
+    returned a pair. The ratified Phase B contract widens the set, so the
+    requirement is restated over it and the return shape names the keys."""
     outline: TurnBuffer | None = None
-    document: TurnBuffer | None = None
+    documents: dict[str, TurnBuffer] = {}
     for buffer in buffers:
-        if buffer.kind == "outline":
+        if buffer.kind == OUTLINE_BUFFER_KEY:
             if outline is not None:
                 raise TurnBufferKindError("more than one outline buffer was supplied")
             outline = buffer
         elif buffer.kind == "document":
-            if document is not None:
-                raise TurnBufferKindError("more than one document buffer was supplied")
-            document = buffer
+            key = buffer_key_for(buffer)
+            if key in documents:
+                raise TurnBufferKindError("the same document buffer was supplied twice")
+            documents[key] = buffer
         else:
             raise TurnBufferKindError("unexpected buffer kind")
-    if outline is None or document is None:
+    if outline is None or not documents:
         raise TurnBufferKindError(
-            "exactly one outline buffer and one document buffer are required"
+            "exactly one outline buffer and at least one document buffer are required"
         )
-    return outline, document
+    return outline, documents
 
 
 # ---------------------------------------------------------------------------
@@ -594,31 +754,58 @@ def build_prompt_envelope(
     buffers,
     message: str,
     session_base: SessionBase | None = None,
+    bound_buffer_key: str | None = None,
 ) -> PromptEnvelope:
-    """Assemble the deterministic, nine-section prompt envelope for one
-    chat turn. Order of operations is load-bearing: scope and editable
-    revalidation runs first, then the buffer-kind requirement, then the
-    buffer-binding check (each buffer's path/repository/base_ref against
-    the validated projection and request scope -- widened for a session
-    scope by ``session_base`` to accept a buffer based on the session's
-    own recorded base, T104 R-12), then exact identity verification for
-    each buffer, and only then is any section text assembled -- so a
-    scope, binding, or identity refusal never discloses a partial
-    envelope or buffer content."""
+    """Assemble the deterministic prompt envelope for one chat turn -- the nine
+    declared section GROUPS, with one document-buffer section per loaded document
+    in the declared order. Order of operations is load-bearing: scope and
+    editable revalidation runs first, then the buffer-set requirement, then the
+    buffer-binding check PER BUFFER (each buffer's path/repository/base_ref
+    against the validated projection and request scope -- widened for a session
+    scope by ``session_base`` to accept a buffer based on the session's own
+    recorded base, T104 R-12), then exact identity verification for each buffer,
+    and only then is any section text assembled -- so a scope, binding, or
+    identity refusal never discloses a partial envelope or buffer content.
+
+    ``bound_buffer_key`` is the request's own DECLARED binding. ``None`` means
+    the caller's wire envelope carries none (the released v1 shape), and it is
+    never inferred here.
+
+    A document buffer's expected path is ITS OWN key, not a single
+    ``active_document_path``: the binding check was always per buffer, and
+    widening the set means running it N times rather than relaxing it once. The
+    reserved unbacked slot's expected path stays ``None``.
+    """
+    outline, documents = require_outline_and_documents(buffers)
+    document_keys = ordered_document_keys(documents)
     revalidate_scope(
         projection=projection,
         request_scope=request_scope,
-        active_document_path=active_document_path,
-        outline_path=projection.outline_path,
-        document_path=active_document_path,
+        bound_buffer_key=bound_buffer_key,
+        buffer_keys=(OUTLINE_BUFFER_KEY,) + document_keys,
+        paths=(projection.outline_path,)
+        + tuple(documents[key].path for key in document_keys),
     )
-    outline, document = require_outline_and_document(buffers)
     _require_buffer_binding(outline, projection.outline_path, request_scope,
                             session_base)
-    _require_buffer_binding(document, active_document_path, request_scope,
-                            session_base)
-    outline_identity = verify_buffer_identity(outline)
-    document_identity = verify_buffer_identity(document)
+    for key in document_keys:
+        # A document buffer's expected path is its OWN key, which
+        # `require_outline_and_documents` established IS its path. That is not a
+        # relaxation of the confinement: what confines a document is
+        # `_require_in_scope_and_editable`, which ran above for every supplied
+        # path, and what this check is FOR is the base clauses -- repository, ref
+        # name, and the T104 R-12 session-base widening with its byte-equality
+        # leg -- each of which runs here per buffer exactly as it ran for the one
+        # document Phase A allowed. Phase A additionally cross-checked the
+        # buffer's path against a single server-declared `active_document_path`;
+        # there is no single such value once the loaded set is the human's own
+        # choice, and the DECLARED binding it is replaced by is checked in
+        # `revalidate_scope` against the supplied key set.
+        _require_buffer_binding(documents[key], documents[key].path, request_scope,
+                                session_base)
+    observed = {OUTLINE_BUFFER_KEY: verify_buffer_identity(outline)}
+    for key in document_keys:
+        observed[key] = verify_buffer_identity(documents[key])
 
     sections = (
         PromptSection(key="system_contract", text=SYSTEM_CONTRACT_TEXT),
@@ -632,7 +819,8 @@ def build_prompt_envelope(
         _working_subject_section(working_subject),
         _transcript_section(transcript),
         _buffer_section("outline_buffer", outline),
-        _buffer_section("document_buffer", document),
+        *(_buffer_section(DOCUMENT_BUFFER_SECTION_PREFIX + key, documents[key])
+          for key in document_keys),
         _human_message_section(message),
         PromptSection(key="response_instruction", text=RESPONSE_INSTRUCTION_TEXT),
     )
@@ -644,7 +832,8 @@ def build_prompt_envelope(
         message=message,
         transcript=tuple(transcript),
         active_document_path=active_document_path,
-        observed_hashes=ObservedHashes(outline=outline_identity, document=document_identity),
+        observed_hashes=ObservedHashes(by_key=dict(observed)),
+        bound_buffer_key=bound_buffer_key,
     )
 
 
@@ -939,9 +1128,35 @@ class TurnResponseError(TurnError):
 
 
 MAX_PROPOSAL_SUMMARY_CHARS = 500  # schema maxLength counts characters
-MAX_RESPONSE_PROPOSALS = 2
-PROPOSAL_TARGETS: tuple[str, ...] = ("outline", "document")
+
+# THE PROPOSAL CAP IS A RULE, NOT A NUMBER (add-doxbench-editing-phase-b task
+# 5.3). Phase A's `MAX_RESPONSE_PROPOSALS = 2` was the literal buffer count of a
+# two-buffer request. The ratified Phase B contract states the bound over the
+# REQUEST'S OWN buffer count, so widening the loaded set cannot silently widen
+# what one response may rewrite beyond what it was grounded on -- and cannot
+# narrow it either, which a fixed 2 would have done the moment a third document
+# was loaded.
+PROPOSAL_CAP_RULE = (
+    "at most one proposal per buffer the request supplied, so a response may "
+    "never rewrite more buffers than it was shown"
+)
+
 _PROPOSAL_FIELDS = frozenset({"target", "base_hash", "summary", "content"})
+
+
+def permitted_proposal_targets(observed: ObservedHashes) -> tuple[str, ...]:
+    """The closed set of targets one response may name: exactly the BUFFER KEYS
+    the request supplied and the model was therefore shown.
+
+    Phase A's `PROPOSAL_TARGETS` was a fixed two-value enum, which is retired
+    rather than lengthened: `outline` is the one reserved name and every other
+    key is a path the request itself declared, so no module-level constant can
+    know the set. Deriving it from the OBSERVED identities -- the same object the
+    base-identity check reads -- makes "a target the request did not supply" and
+    "a target whose shown identity we do not hold" the same refusal by
+    construction, which is what makes an unroutable proposal impossible to guess
+    at rather than merely unlikely."""
+    return observed.keys()
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -968,30 +1183,37 @@ def validate_assistant_response(
     raw,
     *,
     observed: ObservedHashes,
-    permitted_targets: Sequence[str] = PROPOSAL_TARGETS,
+    permitted_targets: Sequence[str] | None = None,
 ) -> ValidatedAssistantResponse:
     """Validate a provider's typed response strictly against the released
     contract, refusing with ``TurnResponseError`` on the FIRST defect.
 
-    ``permitted_targets`` narrows the enum for ONE turn. It exists for the
-    outline-only turn (G-1): when the request declares no active document
-    (``active_document_path`` is null — legal from contract-v1.28, mirroring
-    the already-nullable ``buffer_state.path``), the document buffer is backed
-    by no path at all, so a document-targeted proposal would be a rewrite of a
-    document that does not exist. The feature's own contract
-    (``specs/010-doxbench-editor-chat/contracts/chat-turn.md``) and FR-026/
-    FR-027 are silent on that case; the NARROWEST reading is taken and
+    ``permitted_targets`` defaults to the request's OWN buffer keys
+    (``permitted_proposal_targets(observed)``) and may be NARROWED for one turn.
+    It exists for the outline-only turn (G-1): when the request declares no
+    active document (``active_document_path`` is null — legal from
+    contract-v1.28, mirroring the already-nullable ``buffer_state.path``), the
+    document buffer is backed by no path at all, so a document-targeted proposal
+    would be a rewrite of a document that does not exist. The feature's own
+    contract (``specs/010-doxbench-editor-chat/contracts/chat-turn.md``) and
+    FR-026/FR-027 are silent on that case; the NARROWEST reading is taken and
     recorded — such a turn is chat grounded on the tile's context with NO
-    document-targeted proposal — and it fails closed here rather than
-    producing an Apply the buffer layer would have to refuse later. The
-    default is the full enum, so every turn that DOES name a document is
-    unchanged.
+    document-targeted proposal — and it fails closed here rather than producing
+    an Apply the buffer layer would have to refuse later. A supplied
+    ``permitted_targets`` may only NARROW: a target it names that the request did
+    not supply is refused, because a narrowing that admitted a buffer the model
+    was never shown would be a widening wearing the wrong name.
 
-    Order: structural shape -> per-proposal field/bound checks (closed
-    four-field surface; target enum; 64-lowercase-hex base; summary 1..500
-    characters; content <= ``MAX_PROPOSAL_BYTES`` UTF-8 bytes — the plan
-    bound, stricter than the schema's transport ceiling) -> duplicate-target
-    -> base identity versus ``observed`` -> the SPANNING total
+    The PROPOSAL CAP is the request's buffer count, not a literal 2
+    (``PROPOSAL_CAP_RULE``): at most one proposal per supplied buffer, which
+    duplicate-target refusal already implies and which is stated as a bound so an
+    over-long list refuses before any per-proposal work is done.
+
+    Order: structural shape -> the count bound -> per-proposal field/bound checks
+    (closed four-field surface; target among the supplied keys; 64-lowercase-hex
+    base; summary 1..500 characters; content <= ``MAX_PROPOSAL_BYTES`` UTF-8
+    bytes — the plan bound, stricter than the schema's transport ceiling) ->
+    duplicate-target -> base identity versus ``observed`` -> the SPANNING total
     (prose + all proposal content <= ``MAX_RESPONSE_TOTAL_BYTES``). Prose is
     bounded by ``MAX_ASSISTANT_PROSE_BYTES`` exactly as the model layer
     already enforces; revalidating here keeps this function the single
@@ -1005,8 +1227,12 @@ def validate_assistant_response(
     prose_bytes = utf8_size(prose)
     if prose_bytes > MAX_ASSISTANT_PROSE_BYTES:
         raise TurnResponseError("assistant prose exceeds the permitted size")
+    supplied = permitted_proposal_targets(observed)
+    allowed = supplied if permitted_targets is None else tuple(
+        target for target in permitted_targets if target in supplied)
     proposals = raw["proposals"]
-    if len(proposals) > MAX_RESPONSE_PROPOSALS:
+    # THE CAP, expressed over the request's own buffer count.
+    if len(proposals) > len(supplied):
         raise TurnResponseError("too many proposals")
     validated: list[TypedProposal] = []
     seen_targets: set[str] = set()
@@ -1015,9 +1241,9 @@ def validate_assistant_response(
         if not isinstance(item, dict) or set(item) != _PROPOSAL_FIELDS:
             raise TurnResponseError("proposal shape is invalid")
         target = item["target"]
-        if target not in PROPOSAL_TARGETS:
+        if not isinstance(target, str) or target not in supplied:
             raise TurnResponseError("proposal target is unknown")
-        if target not in permitted_targets:
+        if target not in allowed:
             # G-1: this turn names no such buffer to rewrite (the outline-only
             # turn's document buffer is backed by no path). Refused as a
             # RESPONSE defect, never a scope refusal -- the request was fine.
@@ -1038,7 +1264,7 @@ def validate_assistant_response(
         content_bytes = utf8_size(content)
         if content_bytes > MAX_PROPOSAL_BYTES:
             raise TurnResponseError("proposal content exceeds the permitted size")
-        shown = observed.outline if target == "outline" else observed.document
+        shown = observed.for_key(target)
         if base_hash != shown.hex:
             raise TurnResponseError(
                 "proposal base identity does not match the shown content")
