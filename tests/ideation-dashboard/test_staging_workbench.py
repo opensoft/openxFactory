@@ -2556,7 +2556,22 @@ def test_the_docs_wheels_own_mount_seed_does_not_bind_the_canvas():
         "\n}\n", 1)[0]
     assert "let seeded = false;" in docs_panel
     assert "if (!seeded) { seeded = true; return; }" in docs_panel
-    assert "onBind(entry.path)" in docs_panel
+    # RE-PINNED by `add-doxbench-editing-phase-b` (PR #207 review, F1's root
+    # cause). Phase A bound the canvas from a docs-row SELECTION; the ratified
+    # Phase B delta names exactly three selection routes -- the outline tab,
+    # LOADING a document, and the rail's loaded-document selector -- and a docs-row
+    # selection is not one of them. Keeping it made the ratified loaded set
+    # UNREACHABLE, measured: a tile click switched the single reserved slot to that
+    # path first, so the LOAD that followed always found the document "already
+    # loaded" and the set could never hold two.
+    #
+    # The claim this test makes is UNCHANGED and still asserted: the wheel's own
+    # mount-time seed must not act. What moved is what a human selection DOES --
+    # it renders the abstract above it, which is the other half of the annotation
+    # that asked for the wheel, and binding is the tile's LOAD verb's job.
+    assert "onBind(entry.path)" not in docs_panel
+    assert "renderAbstract(abstract, entry ? entry.row.doc : null);" in docs_panel
+    assert "a selection is not a binding route" in docs_panel
 
 
 # ---------------------------------------------------------------------------

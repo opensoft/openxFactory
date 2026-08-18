@@ -223,6 +223,12 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       names, distinguishable entries when basenames collide, keyboard-reachable
       under the surface's existing selection semantics, with an honest empty
       state when nothing is loaded.
+      **Proven in COMPOSITION** after the PR #207 adversarial review found the
+      empty state unreachable (F6): the reserved `document` slot is present in
+      every state the canvas produces, and counting it kept `documentCount` off
+      zero forever, so the ratified sentence could never render on any real
+      surface. `test_doxbench_composition.py` drives the real mount and pins the
+      empty state on the state the canvas actually builds.
 - [ ] 7.2 Selecting an entry sets the selected buffer through the existing state
       primitive and switches the transcript to that document's thread. No second
       state authority.
@@ -230,7 +236,10 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       sets the selected buffer through the canvas's own `setActiveBuffer` seam,
       immediately and with no confirmation step, and reads `state.active_buffer`
       back rather than tracking it a second time — no second state authority
-      exists. The THREAD switch waits on §9's sidecar store; the change handler
+      exists, and the review's F1 reproduction is now a composition test:
+      loading a document, selecting it, and the released wire's own invariant are
+      all driven through the real mount. The THREAD switch waits on §9's sidecar
+      store; the change handler
       carries a `TODO(add-doxbench-editing-phase-b tasks.md §9)` naming it, and
       is deliberately left as the selection move alone rather than half-wired to
       a store that does not exist yet.
@@ -273,6 +282,12 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       dirty, visibly inert otherwise, and runs the same pipeline scoped to that
       document plus the ancestry step (design D4), reporting each buffer it
       acted on.
+      **Proven in COMPOSITION** after the PR #207 adversarial review found it
+      enabled-then-refusing for every restored Phase A session (F2): the marking
+      resolved the buffer BY PATH and the save resolved it BY KEY, and the two
+      differ for exactly a real document under the reserved `document` key. ONE
+      resolver now answers both, so the control's enabled state and the act it
+      performs can never name different buffers.
 - [x] 8.3 A loaded tile is marked, and a loaded-and-dirty tile is marked as
       needing a save, in the wheel's existing badge/colour idiom, driven off
       live buffer state and never written into the snapshot.
@@ -280,6 +295,35 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       offers no reachable Save and no must-save marking.
 - [x] 8.5 Where editing is unreachable, load and save state their absence rather
       than failing on activation; read stays available.
+      **Proven in COMPOSITION** after the PR #207 adversarial review found it
+      unrealized (F3): the verbs existed unconditionally, so a gate-off surface
+      failed ON ACTIVATION with the wrong sentence. They are now withheld by the
+      SAME `canvasOffered()` derivation the canvas mount reads — not by whether
+      the controller happens to have mounted yet, which would have withheld them
+      on capable surfaces too, since the docs pane is drawn first.
+
+- [x] 8.6 **ADDED by the PR #207 adversarial review (F9 and F1).** Two acts the
+      ratified requirements name had no control at all, so neither existed:
+      * the loaded set's ONE WAY OUT — "a document SHALL leave the loaded set only
+        by an explicit human act, and that act MUST refuse or require an explicit
+        discard while the buffer is dirty". `unloadDocument` shipped as a state
+        primitive with no caller, which also made the declared bound a dead end: a
+        session that reached it could never get back under it. The control now
+        lives beside the selector, is scoped to the selected document, is never
+        offered for the reserved outline, and REFUSES a dirty buffer on the first
+        press while re-labelling itself to say what a second press discards.
+      * the tile's LOAD as the BINDING route. Phase A bound the canvas from a
+        docs-row SELECTION, and keeping that made the loaded set unreachable —
+        measured: a tile click switched the single reserved slot to that path
+        first, so the LOAD that followed always found the document already loaded
+        and the set could never hold two. The ratified delta names exactly three
+        selection routes and a docs-row selection is not one of them, so a
+        selection now moves the abstract above it and the tile's LOAD verb binds.
+        `selectDocument` and its unsaved-edit guard are kept and still reached for
+        the one transition that DOES replace content — filling a reserved slot
+        that is still unbacked — which is the delta's own prediction that the
+        guard is "unchanged WHERE IT STILL APPLIES" and never extended to
+        selection.
 
 ## 9. Threads
 

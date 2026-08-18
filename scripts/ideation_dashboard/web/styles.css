@@ -1747,6 +1747,18 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
    the option says so rather than looking like an owned document (design D2). */
 .doxchat-loaded-option[data-owned="false"] { font-style: italic; }
 .doxchat-loaded-option[data-dirty="true"] { font-weight: 700; }
+/* THE UNLOAD AFFORDANCE (PR #207 review, F9): the loaded set's one way out, on
+   the surface that presents the set. Its label changes to say what a second
+   press means, so an irreversible discard is never one unannounced click. */
+.doxchat-unload {
+  font: inherit; font-size: 11px; padding: 3px 8px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--ink);
+}
+.doxchat-unload:disabled { opacity: .5; cursor: not-allowed; }
+.doxchat-loaded-note {
+  font-size: 11px; color: var(--faint-ink); padding: 4px 8px;
+}
 /* The HONEST empty state — rendered, never hidden. */
 .doxchat-loaded-empty {
   font-size: 11px; color: var(--faint-ink); padding: 4px 8px;

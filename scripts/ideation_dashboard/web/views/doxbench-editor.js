@@ -217,6 +217,7 @@ import {
   DOXBENCH_MAX_LOADED_DOCUMENTS,
   LOAD_REFUSED_ALREADY_LOADED,
   LOAD_REFUSED_BOUND_REACHED,
+  LOAD_REFUSED_RESERVED_KEY,
   OUTLINE_BUFFER_KEY,
   UNLOAD_REFUSED_DIRTY,
   UNBACKED_DOCUMENT_BUFFER_KEY,
@@ -416,6 +417,17 @@ export const CONTEXT_ONLY_SAVE_REASON =
 export const UNLOAD_DIRTY_REASON =
   "this document has unsaved changes -- unloading it would drop them, so it "
   + "refuses until they are saved or explicitly discarded";
+
+// F12 (PR #207 review): a repository-root file named exactly `outline` (or
+// exactly `document`) cannot be keyed by its own path without claiming a key the
+// format reserves. Named, so the human is told which file and why, instead of the
+// generic "the load failed" a thrown validator error could only become.
+export function reservedKeyReason(path) {
+  return "this document's own path is " + String(path) + ", which is a key the "
+    + "buffer set reserves -- the outline and the one not-yet-created document "
+    + "hold those two names, so a document at this path cannot join the loaded "
+    + "set; rename or move it to load it";
+}
 
 export function boundReachedReason(bound, measured) {
   return "the loaded set already holds " + String(measured) + " documents, which "
@@ -2059,11 +2071,13 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
         notifyLoadedSetChanged();
         return { ok: true, key: result.key, already_loaded: true, error: null };
       }
-      return refuseLoad(
-        path,
-        result.refusal === LOAD_REFUSED_BOUND_REACHED
-          ? boundReachedReason(result.bound, result.measured)
-          : "this document could not join the loaded set",
+      let reason = "this document could not join the loaded set";
+      if (result.refusal === LOAD_REFUSED_BOUND_REACHED) {
+        reason = boundReachedReason(result.bound, result.measured);
+      } else if (result.refusal === LOAD_REFUSED_RESERVED_KEY) {
+        reason = reservedKeyReason(path);
+      }
+      return refuseLoad(path, reason,
         { refusal: result.refusal, bound: result.bound, measured: result.measured },
       );
     }

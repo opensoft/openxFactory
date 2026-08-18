@@ -393,13 +393,22 @@ class PromptEnvelope:
     transcript: tuple[TranscriptTurn, ...]
     active_document_path: str | None
     observed_hashes: ObservedHashes
-    # The DECLARED bound buffer's key, or ``None`` where the caller's wire
-    # envelope carries no declared binding (the released v1 shape; tasks.md §13
-    # is the release that discharges it). NEVER inferred from
-    # ``active_document_path`` -- Phase A's review killed exactly that, on the
-    # ground that a human working the outline with a document loaded was being
-    # recorded as bound to the document.
-    bound_buffer_key: str | None = None
+
+    # NO ``bound_buffer_key`` FIELD, deliberately (adversarial review of PR #207,
+    # F4). One was added here and removed again for the same reason Phase A's own
+    # review killed its ancestor: a field on an internal envelope that nothing
+    # serializes, persists or renders is unreadable, so it cannot discharge the
+    # obligation to NAME the bound buffer in a turn's durable RECORD -- and
+    # deriving it from ``active_document_path`` mis-states the binding exactly as
+    # Phase A's review found, recording "bound to the document" for a human
+    # working the outline with a document loaded.
+    #
+    # The declared binding is still CHECKED: ``build_prompt_envelope`` passes it
+    # to ``revalidate_scope``, which refuses a binding naming no supplied buffer
+    # before any provider call. What it is not is stored here as a claim no reader
+    # can consult. It returns as a RECORD field when the widened co-resident
+    # envelope family carries it on the wire (tasks.md §13), which is the only
+    # place it can be read from.
 
     def rendered(self) -> str:
         """The full prompt text, sections joined in declared order. Byte-for-
@@ -767,9 +776,12 @@ def build_prompt_envelope(
     and only then is any section text assembled -- so a scope, binding, or
     identity refusal never discloses a partial envelope or buffer content.
 
-    ``bound_buffer_key`` is the request's own DECLARED binding. ``None`` means
-    the caller's wire envelope carries none (the released v1 shape), and it is
-    never inferred here.
+    ``bound_buffer_key`` is the request's own DECLARED binding, and it is a
+    VALIDATION INPUT only: it is handed to ``revalidate_scope`` and never stored
+    on the returned envelope (F4 -- an unreadable field cannot discharge the
+    obligation to name the bound buffer in a durable record, and deriving one from
+    an adjacent field mis-states it). ``None`` means the caller's wire envelope
+    declares no binding, which the released v1 shape does not.
 
     A document buffer's expected path is ITS OWN key, not a single
     ``active_document_path``: the binding check was always per buffer, and
@@ -789,18 +801,23 @@ def build_prompt_envelope(
     _require_buffer_binding(outline, projection.outline_path, request_scope,
                             session_base)
     for key in document_keys:
-        # A document buffer's expected path is its OWN key, which
-        # `require_outline_and_documents` established IS its path. That is not a
-        # relaxation of the confinement: what confines a document is
-        # `_require_in_scope_and_editable`, which ran above for every supplied
-        # path, and what this check is FOR is the base clauses -- repository, ref
-        # name, and the T104 R-12 session-base widening with its byte-equality
-        # leg -- each of which runs here per buffer exactly as it ran for the one
-        # document Phase A allowed. Phase A additionally cross-checked the
-        # buffer's path against a single server-declared `active_document_path`;
-        # there is no single such value once the loaded set is the human's own
-        # choice, and the DECLARED binding it is replaced by is checked in
-        # `revalidate_scope` against the supplied key set.
+        # STATED PLAINLY (PR #207 review, F13): a document buffer's expected path
+        # is its OWN key, which `require_outline_and_documents` established IS its
+        # path -- so the path clause inside `_require_buffer_binding` is a
+        # SELF-COMPARISON for documents and does no work. It is not pretended
+        # otherwise, and it is not removed either: the function is one shape for
+        # both buffer kinds, and the outline still passes a path it did not derive
+        # from the buffer (`projection.outline_path`), where the clause is live.
+        #
+        # What confines a DOCUMENT is therefore two other things, both of which do
+        # run: `_require_in_scope_and_editable`, which ran above for every supplied
+        # path, and the base clauses here -- repository, ref name, and the T104
+        # R-12 session-base widening with its byte-equality leg -- each applied per
+        # buffer exactly as they were to the one document Phase A allowed. Phase A
+        # additionally cross-checked the buffer's path against a single
+        # server-declared `active_document_path`; no single such value exists once
+        # the loaded set is the human's own choice, and the DECLARED binding that
+        # replaces it is checked in `revalidate_scope` against the supplied keys.
         _require_buffer_binding(documents[key], documents[key].path, request_scope,
                                 session_base)
     observed = {OUTLINE_BUFFER_KEY: verify_buffer_identity(outline)}
@@ -833,7 +850,6 @@ def build_prompt_envelope(
         transcript=tuple(transcript),
         active_document_path=active_document_path,
         observed_hashes=ObservedHashes(by_key=dict(observed)),
-        bound_buffer_key=bound_buffer_key,
     )
 
 
@@ -1113,7 +1129,11 @@ class TurnStore:
 # ---------------------------------------------------------------------------
 # T061 (US3): strict typed assistant-response validation against the PINNED
 # released contract (contract-v1.27 `typed_proposal`: exactly
-# {target, base_hash, summary, content}, 0-2 proposals, unique targets).
+# {target, base_hash, summary, content}, unique targets, and AT MOST ONE
+# PROPOSAL PER SUPPLIED BUFFER -- `PROPOSAL_CAP_RULE`, which replaced the
+# released schema's literal 0-2 when add-doxbench-editing-phase-b made the
+# bound the request's own buffer count. The released v1 wire still carries
+# exactly two buffers, so the effective bound there is still two.
 # ---------------------------------------------------------------------------
 
 

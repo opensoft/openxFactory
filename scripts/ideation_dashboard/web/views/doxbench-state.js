@@ -637,6 +637,15 @@ export function setActiveBuffer(stateValue, keyValue) {
 
 export const LOAD_REFUSED_ALREADY_LOADED = "already_loaded";
 export const LOAD_REFUSED_BOUND_REACHED = "loaded_set_bound_reached";
+// F12 (PR #207 review): a document whose repository-relative path IS a reserved
+// key -- a repository-root file named exactly `outline`, or one named exactly
+// `document` -- cannot be keyed by its path without colliding with the key the
+// format reserves. The validator would have refused the resulting state with a
+// thrown TypeError, which the shell could only report as a generic "the load
+// failed". A REFUSAL instead, in the module's own vocabulary and named, because
+// a human whose file is called `outline` deserves to be told that rather than
+// shown a shrug.
+export const LOAD_REFUSED_RESERVED_KEY = "path_is_a_reserved_key";
 export const UNLOAD_REFUSED_DIRTY = "unsaved_edits";
 
 // Add a document buffer under its path key, or -- when the loaded set already
@@ -652,6 +661,24 @@ export function loadDocumentBuffer(stateValue, bufferValue, options = {}) {
   }
   if (buffer.repository !== current.key.repository) {
     throw new TypeError("a loaded buffer must use the same repository as the scope");
+  }
+  const target = bufferKeyFor(buffer);
+  if (target === OUTLINE_BUFFER_KEY) {
+    // The reserved outline key, claimed by a document's own path. Refused rather
+    // than thrown (F12): the state module owns membership, so it owns the
+    // sentence too.
+    return Object.freeze({
+      state: validatedFrozenState({
+        key: current.key,
+        active_buffer: current.active,
+        buffers: current.buffers,
+      }),
+      key: null,
+      loaded: false,
+      refusal: LOAD_REFUSED_RESERVED_KEY,
+      bound: null,
+      measured: current.documentKeys.length,
+    });
   }
   const existing = current.documentKeys.find(
     (candidate) => current.buffers[candidate].path === buffer.path,
@@ -690,7 +717,6 @@ export function loadDocumentBuffer(stateValue, bufferValue, options = {}) {
       measured: current.documentKeys.length,
     });
   }
-  const target = bufferKeyFor(buffer);
   return Object.freeze({
     state: validatedFrozenState({
       key: current.key,

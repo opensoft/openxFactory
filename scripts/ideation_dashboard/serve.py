@@ -1778,8 +1778,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 working_subject=working_subject, transcript=tuple(transcript_turns),
                 buffers=turn_buffers, message=message,
                 session_base=session_base,
-                # The DECLARED binding, or `None` where the released v1 envelope
-                # declares none. Never inferred (design D17).
+                # The DECLARED active document, checked against the supplied
+                # buffer set and NOT stored as a binding claim (PR #207 review
+                # F4): the released v1 envelope declares which DOCUMENT is
+                # active, which is not the same statement as which BUFFER the
+                # human is working on, and recording the second from the first is
+                # the mis-derivation Phase A's review killed. §13's widened family
+                # carries the binding itself.
                 bound_buffer_key=active_document_path)
         except doxbench_turns.TurnScopeError:
             outcome_code = DOXBENCH_ERR_TURN_SCOPE_REFUSED

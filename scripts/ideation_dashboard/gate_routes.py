@@ -1890,7 +1890,22 @@ def first_edit_gate_factory(actor: str, records_dir: str):
 
     TWO declared allowances, and no third: the records tree, exactly as
     `_edit_document` grants it, and — since add-doxbench-editing-phase-b (task
-    9.5) — the THREAD SIDECAR tree. A thread commits WITH the document's Save on
+    9.5, `openspec/changes/add-doxbench-editing-phase-b/tasks.md`) — the THREAD
+    SIDECAR tree.
+
+    THE WIDENING IS AS NARROW AS THE TASK ALLOWS, and this note is the record of
+    why it is this wide and no wider (PR #207 review, F10). The allowance is ONE
+    prefix, the threads module's own declared one, granted to ONE gate — the doxBench
+    first-edit/Save gate — and to no other gate on this surface; a companion test
+    asserts the prefix appears exactly once in this module. It is a PREFIX rather
+    than a per-document path because the gate is constructed once per Save and the
+    sidecar path is derived per document inside that Save
+    (`doxbench_threads.thread_commit_paths`), so a path-exact allowance would have
+    to be recomputed by this factory from state it does not hold. What keeps the
+    prefix from being a hole is that nothing else can write under it: the module
+    exposes exactly one write route (`write_thread`), the path rule refuses an
+    absolute, traversal-shaped or already-a-sidecar document, and the boundary
+    still resolves every write inside the session worktree. A thread commits WITH the document's Save on
     the one-commit-per-gate-action path (design §4.2), and it is written through
     this same gate's `write_gate_artifact`, so without the prefix DECLARED here
     the boundary refuses it as `outside-allowlist`. The narrow session-rewrite

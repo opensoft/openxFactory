@@ -693,15 +693,25 @@ def test_the_shell_wires_the_tile_verbs_through_the_canvas_controller():
     assert "onSave:" in window
     assert "bufferStateFor:" in window
     # …and the verbs themselves go through the canvas controller.
-    verbs = source[source.index("function docTileVerbs()"):][:2600]
+    verbs = source[source.index("function docTileVerbs()"):][:6000]
     assert "canvasController.loadDocumentForEditing" in verbs
     assert "canvasController.saveDocument" in verbs
-    assert "canvasController.state()" in verbs
+    # …and the load's OTHER route, for a reserved slot that is still unbacked:
+    # `selectDocument` through the shell's own `bindCanvasToDocument`, which is
+    # where Phase A's unsaved-edit guard still applies (PR #207 review, F1).
+    assert "bindCanvasToDocument(path)" in verbs
+    assert "docBufferState" in verbs
 
 
-def test_the_rail_is_given_the_one_selection_seam():
+def test_the_rail_is_given_the_loaded_set_seams():
+    """The rail owns the loaded set's two human acts — SELECT and UNLOAD — and both
+    reach the canvas's own primitives, which hold the state authority and the dirty
+    refusal. The window widened when `unloadBuffer` joined it (PR #207 review, F9);
+    both are asserted rather than only the one that was there first."""
     source = (VIEWS / "staging-workbench.js").read_text(encoding="utf-8")
     mount = source.index("mountDoxBenchChatRail(rail")
-    window = source[mount:mount + 3000]
+    window = source[mount:mount + 5000]
     assert "selectBuffer:" in window
     assert "canvasController.setActiveBuffer" in window
+    assert "unloadBuffer:" in window
+    assert "canvasController.unloadDocument" in window

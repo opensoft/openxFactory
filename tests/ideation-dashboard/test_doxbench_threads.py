@@ -928,3 +928,163 @@ def test_mirroring_cannot_persist_a_pointer_because_the_turn_cannot_hold_one():
     assert appended.turns[-1].turn_id == "t9"
     assert mirrored == ["t9"]
     assert dt.HARNESS_ARTIFACT_SCHEME not in dt.render_thread(appended)
+
+
+# ===========================================================================
+# Adversarial review of PR #207 — F5 and F8.
+# ===========================================================================
+
+
+def test_the_state_header_refuses_an_unresolvable_pointer_in_every_class(
+):
+    """F5: the pointer refusal covered only transcript BODIES, and the state
+    HEADER accepted them — with `Evidence refs:` the likeliest landing spot,
+    since an evidence ref is exactly the shape of thing a tool result gets
+    remembered as. A header pointer travels FURTHER than a transcript one: the
+    header is the part a context packet carries to other threads, so the packet
+    would hand a colleague a reference nothing in their checkout can resolve.
+
+    The refusal now lives in the ONE validator every frontmatter value, every
+    commitment item and every turn header field funnels through, so all six
+    commitment classes are covered by construction rather than by six checks
+    somebody has to remember to add."""
+    pointer = "artifact://abc123"
+    cases = {
+        "active goal": lambda: dt.ThreadState(active_goal=pointer),
+        "open question": lambda: dt.ThreadState(open_questions=(pointer,)),
+        "evidence ref": lambda: dt.ThreadState(evidence_refs=(pointer,)),
+        "pending action": lambda: dt.ThreadState(pending_actions=(pointer,)),
+        "accepted fact": lambda: dt.ThreadState(
+            accepted_facts=(dt.AcceptedFact(text=f"see {pointer}"),)),
+        "fact evidence": lambda: dt.ThreadState(
+            accepted_facts=(dt.AcceptedFact(text="f", evidence=pointer),)),
+        "decision": lambda: dt.ThreadState(
+            decisions=(dt.ThreadDecision(f"chose {pointer}", "basis"),)),
+        "decision basis": lambda: dt.ThreadState(
+            decisions=(dt.ThreadDecision("chose it", pointer),)),
+    }
+    for name, build in cases.items():
+        with pytest.raises(dt.ThreadFormatRefused) as raised:
+            build()
+        assert "artifact://" in str(raised.value), name
+        assert "outside the git worktree" in str(raised.value), name
+
+
+def test_a_turn_header_field_refuses_an_unresolvable_pointer_too():
+    """The turn id, the model and the bound buffer key are single-line values on
+    the same validator, so they are covered by the same rule."""
+    for field in ("turn_id", "model", "bound_buffer_key"):
+        kwargs = {"turn_id": "t1", "model": "m", "bound_buffer_key": "outline",
+                  "human": "q", "assistant": "a"}
+        kwargs[field] = "artifact://abc"
+        with pytest.raises(dt.ThreadFormatRefused):
+            dt.ThreadTurn(**kwargs)
+
+
+def test_the_frontmatter_document_path_refuses_an_unresolvable_pointer():
+    """Reported as a PATH refusal rather than a generic format one, because the
+    caller asked for a sidecar path and the answer is that this document cannot
+    have one — the module's existing wrapping, unchanged, now carrying the pointer
+    reason inside it."""
+    with pytest.raises(dt.ThreadPathRefused) as raised:
+        dt.thread_path_for("artifact://abc")
+    assert "artifact://" in str(raised.value)
+    assert "outside the git worktree" in str(raised.value)
+
+
+MULTI_PARAGRAPH = (
+    "Here is the first paragraph of a real answer.\n"
+    "\n"
+    "Here is a second, after a blank line — which is what an assistant actually\n"
+    "writes.\n"
+    "\n"
+    "    an indented block, four spaces\n"
+    "\tand one indented with a tab\n"
+    "\n"
+    "and a closing line."
+)
+
+
+def test_a_multi_paragraph_body_with_blank_lines_is_storable(
+):
+    """F8: the narrow rule refused a blank line because a blank line WAS the
+    transcript's turn-block separator — which made an ordinary multi-paragraph
+    reply, a fenced code block, or a spaced list UNSTORABLE. The record has to be
+    able to hold what was actually said.
+
+    The block boundary moved to the turn HEADER instead, which a body cannot
+    contain (a body line opening with it is still refused), so blank lines became
+    ordinary content and interior indentation — tabs included — is untouched."""
+    thread = _thread(turns=(
+        dt.ThreadTurn(turn_id="t1", model="m", bound_buffer_key="outline",
+                      human="what did you find?", assistant=MULTI_PARAGRAPH),
+        dt.ThreadTurn(turn_id="t2", model="m", bound_buffer_key="outline",
+                      human=MULTI_PARAGRAPH, assistant="understood"),
+    ))
+    rendered = dt.render_thread(thread)
+    parsed = dt.parse_thread(rendered)
+    # The round trip is still IDENTITY, which is the property the narrow rule was
+    # protecting and which the wider rule keeps.
+    assert dt.render_thread(parsed) == rendered
+    assert parsed.turns[0].assistant == MULTI_PARAGRAPH
+    assert parsed.turns[1].human == MULTI_PARAGRAPH
+    assert len(parsed.turns) == 2
+    # …and the blank lines really are in the file, not swallowed.
+    assert "\n\n    an indented block, four spaces\n" in rendered
+    assert "\n\tand one indented with a tab\n" in rendered
+
+
+def test_the_marker_collision_protections_all_survive_the_widening():
+    """F8 widened exactly one rule and kept the rest, because each of these
+    protects the ROUND TRIP rather than merely tidying."""
+    base = {"turn_id": "t1", "model": "m", "bound_buffer_key": "outline"}
+    # a line OPENING with a structural sentinel still refuses
+    for sentinel in ("### turn 9 · m · bound: outline", "human: smuggled",
+                     "assistant: smuggled", "## Thread state", "---"):
+        with pytest.raises(dt.ThreadFormatRefused):
+            dt.ThreadTurn(**base, human="fine",
+                          assistant="a real line\n" + sentinel)
+    # a carriage return still refuses — the file is LF-only
+    with pytest.raises(dt.ThreadFormatRefused):
+        dt.ThreadTurn(**base, human="fine", assistant="one\r\ntwo")
+    # leading/trailing whitespace on the WHOLE body still refuses: the render
+    # leaves it no room for an outer blank
+    for bad in ("\nleading", "trailing\n", " leading space", "\tleading tab"):
+        with pytest.raises(dt.ThreadFormatRefused):
+            dt.ThreadTurn(**base, human="fine", assistant=bad)
+    # a wholly blank body is still not a turn
+    for bad in ("", "\n", "   "):
+        with pytest.raises(dt.ThreadFormatRefused):
+            dt.ThreadTurn(**base, human="fine", assistant=bad)
+
+
+def test_a_transcript_line_before_any_turn_header_is_refused():
+    """The new boundary's own refusal: with the header as the block opener, a
+    stray line before the first one has no block to belong to and is named rather
+    than absorbed."""
+    thread = _thread(turns=(
+        dt.ThreadTurn(turn_id="t1", model="m", bound_buffer_key="outline",
+                      human="q", assistant="a"),))
+    rendered = dt.render_thread(thread)
+    broken = rendered.replace("### turn t1", "stray line\n### turn t1", 1)
+    with pytest.raises(dt.ThreadFormatRefused) as raised:
+        dt.parse_thread(broken)
+    assert "before any turn header" in str(raised.value)
+
+
+def test_a_missing_separator_between_turn_blocks_is_refused():
+    """Exactly one blank line separates blocks, and the parser drops exactly one
+    when a block closes — so a file missing it does not silently gain a trailing
+    body line."""
+    thread = _thread(turns=(
+        dt.ThreadTurn(turn_id="t1", model="m", bound_buffer_key="outline",
+                      human="q", assistant="a"),
+        dt.ThreadTurn(turn_id="t2", model="m", bound_buffer_key="outline",
+                      human="q", assistant="a"),
+    ))
+    rendered = dt.render_thread(thread)
+    broken = rendered.replace("assistant: a\n\n### turn t2",
+                              "assistant: a\n### turn t2", 1)
+    with pytest.raises(dt.ThreadFormatRefused) as raised:
+        dt.parse_thread(broken)
+    assert "separated by exactly one blank line" in str(raised.value)

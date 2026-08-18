@@ -259,6 +259,15 @@ def _single_line(value: object, *, field: str) -> str:
     if "\n" in value or "\r" in value:
         raise ThreadFormatRefused(
             f"{field} spans lines; this value is a single line by format")
+    # F5 (adversarial review of PR #207): the refusal belongs HERE, not only on
+    # transcript bodies. Every frontmatter value, every commitment item and every
+    # turn header field funnels through this one validator, so putting it here
+    # covers the STATE HEADER too -- and `Evidence refs:` is the likeliest place a
+    # harness pointer would land, since an evidence ref is exactly the shape of
+    # thing a tool result gets remembered as. A header that pointed at content the
+    # shared branch does not carry would be worse than a transcript that did: the
+    # header is the part a packet carries to OTHER threads.
+    _refuse_unresolvable_pointer(value, field=field)
     return value
 
 
@@ -289,9 +298,13 @@ def _non_empty_single_line(value: object, *, field: str) -> str:
 # stdlib-only, both fully functional with no harness present, and the refusal
 # stands when neither is used.
 #
-# The prefix match is deliberately BROAD (anywhere in the body, not only at a
-# line start): a pointer buried mid-sentence is exactly as unresolvable as one on
-# its own line, and the finding is about resolvability, not layout.
+# The prefix match is deliberately BROAD (anywhere in a value, not only at a line
+# start): a pointer buried mid-sentence is exactly as unresolvable as one on its
+# own line, and the finding is about resolvability, not layout. It applies to
+# EVERY value the format stores -- frontmatter, the six state-header commitment
+# classes, the turn header fields and the transcript bodies -- because the header
+# is the part a context packet carries to other threads, so an unresolvable
+# pointer there travels further than one in a transcript.
 HARNESS_ARTIFACT_SCHEME = "artifact://"
 
 UNRESOLVABLE_ARTIFACT_REASON = (
@@ -327,9 +340,31 @@ def _refuse_unresolvable_pointer(value: str, *, field: str) -> None:
 
 
 def _validated_body(value: object, *, field: str) -> str:
-    """A transcript body: prose that MAY span lines, must not be blank, must
-    carry no blank line (a blank line is the turn-block separator), and must open
-    no line with a structural sentinel."""
+    """A transcript body: prose that MAY span lines AND may contain blank lines.
+
+    F8 (adversarial review of PR #207) widened this rule, and the reason is that
+    the narrow one could not store a real answer. A blank line used to be refused
+    because a blank line was the transcript's own turn-block separator — which
+    made an ordinary multi-paragraph assistant reply, a fenced code block with a
+    blank line in it, or a bulleted list with spacing UNSTORABLE. The record has to
+    be able to hold what was actually said, and re-cutting the format after §11
+    starts mirroring real turns would have cost a `schema_version` bump for
+    nothing. So the BLOCK BOUNDARY moved to the turn header instead (see
+    ``_parse_turn``) and blank lines became ordinary body content.
+
+    What is deliberately NOT widened, because each protects the round trip rather
+    than merely tidying:
+
+    * a carriage return — the file is LF-only, and a CRLF body would render one
+      way and read back another;
+    * leading or trailing whitespace on the WHOLE body — the render puts the body
+      immediately after ``human:``/``assistant: ``, so an outer blank would not
+      survive; INTERIOR indentation (tabs included) is untouched and legal, which
+      is what a code block needs;
+    * a line OPENING with a structural sentinel — such a body would parse back as
+      a different thread than the one rendered, and escaping it would make the
+      sidecar unreadable to the human it is written for.
+    """
 
     if not isinstance(value, str):
         raise ThreadFormatRefused(f"{field} must be a string")
@@ -339,15 +374,11 @@ def _validated_body(value: object, *, field: str) -> str:
     if value != value.strip():
         raise ThreadFormatRefused(
             f"{field} carries leading or trailing whitespace; a body is stored "
-            "exactly as given")
+            "exactly as given and the render leaves it no room for an outer blank")
     if not value:
         raise ThreadFormatRefused(
             f"{field} must not be blank; a turn with no text is not a turn")
     for line in value.split("\n"):
-        if not line.strip():
-            raise ThreadFormatRefused(
-                f"{field} contains a blank line, which is the transcript's own "
-                "turn separator; a body is one block of prose")
         for sentinel in BODY_FORBIDDEN_LINE_PREFIXES:
             if line.startswith(sentinel):
                 raise ThreadFormatRefused(
@@ -908,22 +939,30 @@ def parse_thread(text: str) -> DocumentThread:
                 f"the {TRANSCRIPT_SECTION!r} heading is followed by one blank "
                 "line before the first turn")
         index += 1
-        block: list[str] = []
+        # THE BLOCK BOUNDARY IS THE TURN HEADER, not a blank line (F8). A blank
+        # line was the separator until a real multi-paragraph answer proved
+        # unstorable; the header is a boundary a body cannot contain, because
+        # `_validated_body` refuses a body line that opens with it. The single
+        # blank line the renderer puts BETWEEN blocks is therefore the last line of
+        # the preceding block, and exactly one is dropped when the block closes —
+        # deterministically, so the round trip stays identity.
+        raw_blocks: list[list[str]] = []
         for line in lines[index:]:
-            if line == "":
-                if not block:
-                    raise ThreadFormatRefused(
-                        "the transcript carries an empty turn block; turns are "
-                        "separated by exactly one blank line")
-                turns.append(_parse_turn(block))
-                block = []
+            if line.startswith(TURN_HEADER_PREFIX):
+                raw_blocks.append([line])
                 continue
-            block.append(line)
-        if not block:
-            raise ThreadFormatRefused(
-                "the transcript ends with a blank line; a turn block is the last "
-                "thing in the file")
-        turns.append(_parse_turn(block))
+            if not raw_blocks:
+                raise ThreadFormatRefused(
+                    f"the transcript carries the line {line!r} before any turn "
+                    f"header; a turn block opens with {TURN_HEADER_PREFIX!r}")
+            raw_blocks[-1].append(line)
+        for position, block in enumerate(raw_blocks):
+            if position < len(raw_blocks) - 1:
+                if not block or block[-1] != "":
+                    raise ThreadFormatRefused(
+                        "turn blocks are separated by exactly one blank line")
+                block = block[:-1]
+            turns.append(_parse_turn(block))
     return DocumentThread(
         document=values[KEY_DOCUMENT],
         scope=_parse_scope(values[KEY_SCOPE]),

@@ -344,6 +344,15 @@ class Node {
     this._scrollTop = 0;
     this._innerHTML = '';
     this.parentNode = null;
+    // Every element has one, and the wheel writes `transform`/`opacity`/
+    // `zIndex` through it on every layout pass. Absent, the wheel's layout threw
+    // and no test could reach the tiles it places -- the same gap that hid the
+    // composition defects the PR #207 review found.
+    this.style = {};
+    // Measured height. Zero is the honest default for an unlaid-out stub, and
+    // `doc-wheel.js` deliberately waits for a real box rather than dividing by
+    // it; a harness that wants tiles placed sets it.
+    this.clientHeight = 0;
     const self = this;
     this.classList = {
       add(...names) {
@@ -439,6 +448,19 @@ class Node {
     return child;
   }
   setAttribute(name, value) { this.attributes[name] = String(value); }
+  // A real DOM method the shipped code has always used (`doc-wheel.js` clears
+  // `aria-hidden` on every tile it lays out). The shim lacked it, which is why
+  // no test in this suite had ever driven the docs wheel's LAYOUT -- and the
+  // adversarial review of PR #207 found three composition defects hiding behind
+  // exactly that gap. Added as the real method, never as a no-op.
+  removeAttribute(name) { delete this.attributes[name]; }
+  // A tile carries its own removal too (`mountActions` rebuilds the action row).
+  remove() {
+    if (!this.parentNode) return;
+    const at = this.parentNode.children.indexOf(this);
+    if (at >= 0) this.parentNode.children.splice(at, 1);
+    this.parentNode = null;
+  }
   getAttribute(name) {
     return Object.prototype.hasOwnProperty.call(this.attributes, name)
       ? this.attributes[name] : null;
@@ -2748,11 +2770,18 @@ def test_staging_workbench_composes_the_doxbench_canvas_without_new_transport():
     assert 'import { mountDoxBenchCanvas } from "./doxbench-editor.js";' in view
     assert "doxbenchScopeProjection" in view
 
+    # RE-PINNED (PR #207 review, F3): the offering derivation moved OUT of
+    # `drawCanvas` into `canvasOffered()`, because the docs tile's verbs must read
+    # the SAME answer -- a tile that decided its own capability from whether the
+    # canvas controller happened to have mounted yet said "no editing capability"
+    # on a console that has one (the docs pane is drawn first). One derivation, two
+    # readers; every clause of it is unchanged and still asserted here.
+    assert "function canvasOffered() {" in view
     assert (
-        "const canvasOffered = !!scope && createGateLive(caps) && "
-        "!sessionSurfaceHidden(caps) &&" in view
+        "return !!scope && createGateLive(caps) && !sessionSurfaceHidden(caps)"
+        in view
     )
-    assert "!!active?.repository && !!active?.ref;" in view
+    assert "&& !!active?.repository && !!active?.ref;" in view
 
     # T023 (+T080 client half, 2026-07-30; PIN EVOLUTION T100 P1-A,
     # 2026-08-01): the composition forwards ONLY the seams app.js injects via
@@ -3843,8 +3872,12 @@ def test_gate_off_and_hidden_surfaces_withhold_the_canvas_at_the_shell():
     source = (EDITOR_JS.parent / "staging-workbench.js").read_text(encoding="utf-8")
     assert "createGateLive(caps)" in source
     assert "sessionSurfaceHidden(caps)" in source
-    assert "canvas.hidden = !canvasOffered" in source
-    assert "if (!canvasOffered) return;" in source
+    assert "const offered = canvasOffered();" in source
+    assert "canvas.hidden = !offered" in source
+    assert "if (!offered) return;" in source
+    # …and the docs tile's verbs read the SAME predicate, so the two surfaces
+    # cannot disagree about whether this console can edit (PR #207 review, F3).
+    assert "if (!canvasOffered()) {" in source
 
 
 def test_the_shell_derives_one_explicit_presentation_posture():
@@ -3919,7 +3952,10 @@ const saveRequests = [];
 
 function fire(node, type) {
   const listeners = (node.listeners && node.listeners[type]) || [];
-  return Promise.all(listeners.map((fn) => fn({ target: node })));
+  // A real event carries both, and the docs tile's own action handlers call
+  // `stopPropagation` (a click on an action belongs to the action, not the tile).
+  return Promise.all(listeners.map((fn) => fn({
+    target: node, stopPropagation() {}, preventDefault() {} })));
 }
 
 const settle = () => new Promise((r) => setTimeout(r, 0));
@@ -4720,7 +4756,11 @@ const caps = { actions: { gate: true, session: true }, actor: 'brett' };
 
 function fire(node, type) {
   const listeners = (node.listeners && node.listeners[type]) || [];
-  return Promise.all(listeners.map((fn) => fn({ target: node })));
+  // A real event carries these too, and the docs tile's action handlers call
+  // `stopPropagation` -- a click on an action belongs to the action, not the
+  // tile it sits on.
+  return Promise.all(listeners.map((fn) => fn({
+    target: node, stopPropagation() {}, preventDefault() {} })));
 }
 // A real keydown: the wheel reads `ev.key` and consumes the event, so a bare
 // {target} would sail straight past its handler.
@@ -4797,7 +4837,7 @@ const canvasDocument = () => (byClass('doxbench-textarea')[1] || {}).value || ''
 // the two controls under test: a switch to DOC_B would have replaced the
 // buffer's text with DOC_B's, taking the human's unsaved bytes with it.
 const agree = () => ({
-  wheel: wheelPath(), pickerNodes: pickerNodes(),
+  wheel: wheelPath(), pickerNodes: pickerNodes(), editors: byClass('doxbench-textarea').length,
   // the canvas's OWN answer, independent of the two controls under test: a
   // switch that landed would have replaced the buffer's text with DOC_A's,
   // taking the human's unsaved bytes with it
@@ -4811,41 +4851,66 @@ await until(() => headerText().includes(OUTLINE_PATH.split('/').pop()),
             'the rail header to read the loaded buffers');
 out.headerAtMount = headerText();
 
-// ---- F3: a docs-row selection moves the STATED binding --------------------
-// The mount leaves the OUTLINE active (the canvas opens on it) while the wheel
-// and the canvas both sit on DOC_A, so the header names the outline above. One
-// arrow selects DOC_B: the chat's working context follows the selection, and
-// the header is where that is said.
+// ---- F3: the tile's LOAD verb moves the STATED binding --------------------
+// RE-CUT by `add-doxbench-editing-phase-b` (PR #207 review, F1's root cause).
+// A docs-row SELECTION no longer binds anything -- the ratified delta names the
+// outline tab, LOADING a document, and the rail's selector as the three
+// selection routes, and keeping the row selection made the loaded set
+// unreachable. So the binding change this test is about is driven through the
+// verb that actually performs it now.
 const selector = one('swb-docselector');
-await fireKey(selector, 'ArrowDown');
-await until(() => canvasDocument().includes(DOC_B), 'the switched document');
+selector.clientHeight = 420;
+const docsPane = container.walk().find((n) => n.__docWheelRefresh);
+docsPane.__docWheelRefresh();
+for (let i = 0; i < 5; i += 1) await settle();
+const tiles = byClass('wheeltile');
+const target = tiles.find((t) => t.title === DOC_B);
+for (let attempt = 0; attempt < 3; attempt += 1) {
+  if (target.querySelector('.wheelactions')) break;
+  await fire(target, 'click');
+  for (let i = 0; i < 5; i += 1) await settle();
+}
+await fire(target.querySelector('.swb-docload'), 'click');
+await until(() => byClass('doxbench-textarea').length === 3,
+            'the loaded document its own editor');
 for (let i = 0; i < 20; i += 1) await settle();
-out.wheelAfterArrow = wheelPath();
-out.headerAfterArrow = headerText();
+out.wheelAfterLoad = wheelPath();
+out.headerAfterLoad = headerText();
+out.loadedEditorCount = byClass('doxbench-textarea').length;
+// The FIRST document is untouched by the second one arriving: its own editor
+// still holds its own text, under its own key.
+out.firstStillHeld = byClass('doxbench-textarea')[1].value.includes(DOC_A);
+out.secondHeld = byClass('doxbench-textarea')[2].value.includes(DOC_B);
 
-// ---- F4: a blocked selection must leave all three agreeing ----------------
-// Type into the document so the unsaved-edit guard has something to guard.
+// ---- F4: a load REPLACES nothing, so no guard can fire ---------------------
+// Type into the first document, then load ANOTHER one. Under Phase A this was
+// the guard's whole reason to exist: the switch would have overwritten those
+// bytes. Under Phase B the second document arrives BESIDE the first, under its
+// own key, so there is nothing to guard -- which is exactly what the delta says
+// ("a selection change no longer replaces any buffer's content once documents
+// are held side by side rather than in one slot") and what this now pins.
 const editorTab = byClass('doxbench-viewtab')[0];
 await fire(editorTab, 'click');
-const liveDocumentArea = byClass('doxbench-textarea')[1];
-liveDocumentArea.value = '# unsaved work in the document\n';
-await fire(liveDocumentArea, 'input');
+for (let i = 0; i < 10; i += 1) await settle();
+const firstArea = byClass('doxbench-textarea')[1];
+firstArea.value = '# unsaved work in the first document\n';
+await fire(firstArea, 'input');
 await until(() => byClass('doxbench-status').some(
   (n) => String(n.textContent || '').includes('unsaved')), 'the dirty document');
-
-// now arrow BACK toward DOC_A: the guard blocks the switch
-await fireKey(selector, 'ArrowUp');
-for (let i = 0; i < 30; i += 1) await settle();
+for (let i = 0; i < 20; i += 1) await settle();
+// A THIRD document is loaded while the first holds unsaved work.
+const third = byClass('wheeltile').find((t) => t.title === OUTLINE_PATH);
+for (let attempt = 0; attempt < 3; attempt += 1) {
+  if (third.querySelector('.wheelactions')) break;
+  await fire(third, 'click');
+  for (let i = 0; i < 5; i += 1) await settle();
+}
+await fire(third.querySelector('.swb-docload'), 'click');
+for (let i = 0; i < 40; i += 1) await settle();
 out.guardShown = !(one('doxbench-guard') || { hidden: true }).hidden;
-out.whileBlocked = agree();
-
-// Cancel: declining keeps everything exactly where it was
-const guardCancel = one('doxbench-guard-cancel');
-await fire(guardCancel, 'click');
-for (let i = 0; i < 30; i += 1) await settle();
-out.afterCancel = agree();
-out.guardHiddenAfterCancel = (one('doxbench-guard') || {}).hidden === true;
-out.documentStillDirty = byClass('doxbench-textarea')[1].value.includes('unsaved work');
+out.unsavedWorkSurvived =
+  byClass('doxbench-textarea')[1].value.includes('unsaved work');
+out.afterLoad = agree();
 
 console.log(JSON.stringify(out));
 """
@@ -4906,29 +4971,61 @@ def test_the_rail_states_the_buffer_the_chat_is_working_on(selection_results):
     assert "1 loaded documents" not in header
 
 
-def test_a_docs_row_selection_moves_the_stated_binding(selection_results):
-    """PR #196 review F3, second half: the mount leaves the OUTLINE active
-    while the wheel and the canvas both sit on the first document, so a docs-row
-    selection is a BINDING change — and the rail's header is where that is
-    said. It went unrefreshed on the routes that move the binding without
-    moving a content identity, so the rail kept naming the outline beside a
-    chat now working on the document.
+def test_the_tile_load_verb_moves_the_stated_binding(selection_results):
+    """PR #196 review F3, second half — RE-CUT by `add-doxbench-editing-phase-b`
+    (PR #207 review, F1's root cause).
+
+    The CLAIM is unchanged: a route that moves the binding without moving a
+    content identity must still refresh the rail's header, or the rail keeps
+    naming the outline beside a chat now working on a document. What moved is
+    WHICH route does that. Phase A bound from a docs-row selection; the ratified
+    delta names the outline tab, LOADING a document, and the rail's selector as
+    the three selection routes, and keeping the row selection made the loaded set
+    unreachable (a tile click pre-switched the single reserved slot, so the LOAD
+    that followed always found the document already loaded). So the binding change
+    is driven here through the verb that performs it now.
 
     (The `unchanged` route — selecting the document the canvas already holds —
     is the same binding change with no switch at all; it is refreshed by the
     same call, is pinned as a shell doctrine in test_staging_workbench.py, and
     its binding half is driven at the controller in
     `test_the_context_selection_chooses_the_active_buffer_not_the_view_tabs`.)"""
-    assert selection_results["wheelAfterArrow"].endswith("second.md")
-    header = selection_results["headerAfterArrow"]
+    assert selection_results["wheelAfterLoad"].endswith("second.md")
+    header = selection_results["headerAfterLoad"]
     assert header.startswith("Working on — second.md")
+    # The second document arrived BESIDE the first: three editors, each holding
+    # its own text under its own key. Phase A had one document slot, so this was
+    # the switch the guard existed to protect; Phase B replaces nothing.
+    assert selection_results["loadedEditorCount"] == 3
+    assert selection_results["firstStillHeld"] is True
+    assert selection_results["secondHeld"] is True
 
 
-def test_a_blocked_selection_leaves_wheel_and_canvas_agreeing(
+def test_loading_beside_unsaved_work_replaces_nothing_and_needs_no_guard(
     selection_results,
 ):
-    """PR #196 review F4: the controls that answer "which document" must not
-    disagree. The docs wheel had no reconciliation, so a guard-blocked selection
+    """PR #196 review F4 — RE-CUT by `add-doxbench-editing-phase-b` (PR #207
+    review).
+
+    Phase A's guard existed because switching the ONE document slot overwrote
+    whatever unsaved bytes it held, and this test drove a guard-blocked switch to
+    prove the wheel and the canvas still agreed afterwards. Under Phase B a load
+    adds a buffer BESIDE the others under its own key and replaces nothing, so
+    there is no switch to block — which is exactly what the ratified delta says
+    ("a selection change no longer replaces any buffer's content once documents
+    are held side by side rather than in one slot") and what is pinned here
+    instead: the unsaved work survives untouched, no guard is raised, and the
+    surfaces still agree.
+
+    The guard itself is NOT retired and is NOT weakened: it still governs
+    `selectDocument`, which the load verb still reaches for the one transition
+    that does replace content — filling a reserved slot that is still unbacked.
+    Its narrowed applicability is the delta's own prediction that it is
+    "unchanged by this rule WHERE IT STILL APPLIES" and never extended to
+    selection.
+
+    The ORIGINAL claim — that the controls answering "which document" must not
+    disagree — is what the docs wheel had no reconciliation for, so a blocked
     left it showing a document the canvas never loaded -- and `doc-wheel.js`'s
     `selectPath`, which exists for precisely this, had zero callers.
 
@@ -4936,15 +5033,26 @@ def test_a_blocked_selection_leaves_wheel_and_canvas_agreeing(
     surfaces; the canvas's own picker is retired, so there are two, and the
     third is asserted absent. Blocked, and then declined, the wheel and the
     canvas must still name the document that is actually open."""
-    assert selection_results["guardShown"] is True
-    for phase in ("whileBlocked", "afterCancel"):
-        state = selection_results[phase]
-        assert state["wheel"].endswith("second.md"), phase
-        assert state["pickerNodes"] == 0, phase
-        assert state["canvasSwitchedToA"] is False, phase
-    assert selection_results["guardHiddenAfterCancel"] is True
-    # …and declining threw nothing away
-    assert selection_results["documentStillDirty"] is True
+    # NO GUARD IS RAISED, because nothing is replaced: the third document arrives
+    # under its own key beside the two already held.
+    assert selection_results["guardShown"] is False
+    # …and the unsaved work is exactly where the human left it. Under Phase A this
+    # load would have been a SWITCH, and these bytes are what the guard existed to
+    # stand in front of.
+    assert selection_results["unsavedWorkSurvived"] is True
+    # The surfaces still agree, which is the original claim: the wheel names a
+    # document the canvas really holds, there is no third selection surface, and
+    # the first document was not flushed by the arrival of another.
+    state = selection_results["afterLoad"]
+    assert state["pickerNodes"] == 0
+    assert state["wheel"] is not None
+    assert state["editors"] >= 3, (
+        "each loaded buffer holds its own editor; none replaced another")
+    # `canvasSwitchedToA` is False here BY CONSTRUCTION and that is the point: the
+    # human typed OVER the first document's text, so its editor holds their bytes
+    # rather than the loaded source's — and `unsavedWorkSurvived` above is the
+    # assertion that those bytes are still there after another document arrived.
+    assert state["canvasSwitchedToA"] is False
 
 
 # ===========================================================================
@@ -4958,10 +5066,16 @@ def test_a_blocked_selection_leaves_wheel_and_canvas_agreeing(
 # (`runSave(savePlanState(request), {transport, only: request.only})`) rather
 # than a scripted stand-in, because the whole claim under test is that the tile
 # Save is the SAME pipeline narrowed — a hand-written seam could "prove" a scope
-# the real orchestrator does not honour. That composition is also the one the
-# console's own seam must perform, and pinning it here is what makes a
-# composition that drops `only` fail on a named line instead of silently
-# persisting every dirty document from a control that named one.
+# the real orchestrator does not honour.
+#
+# WHAT THIS DOES NOT CLAIM (PR #207 review, F7): it is not a tripwire on the
+# console's own composition. The canvas narrows the buffer set BEFORE it builds
+# the request, so a composition that dropped `only` would still persist exactly
+# these rows and this harness could not tell. Forwarding the scope is defence in
+# depth, said as such in `app.js`, and the mechanism `only` performs is pinned
+# where it lives — `runSave` over a four-buffer state in
+# `test_doxbench_save.py::test_the_tile_save_persists_that_document_plus_the_ancestry_step_only`,
+# which DOES fail if the scope stops being honoured.
 # ===========================================================================
 
 _LOADED_SET_HARNESS = _EDITOR_DOM_SHIM + r"""

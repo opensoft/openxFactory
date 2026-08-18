@@ -556,7 +556,12 @@ def test_envelope_exposes_fr013_required_fields():
     assert isinstance(envelope.observed_hashes.for_key(DOCUMENT_PATH),
                       ContentIdentity)
     assert envelope.observed_hashes.keys() == ("outline", DOCUMENT_PATH)
-    assert envelope.bound_buffer_key == DOCUMENT_PATH
+    # NO `bound_buffer_key` FIELD (adversarial review of PR #207, F4): the
+    # declared binding is a VALIDATION input, never a claim stored where no reader
+    # can consult it. §13's widened envelope is the only place a record can name
+    # the bound buffer, and until then the gap stays STATED rather than filled
+    # with an unreadable field.
+    assert not hasattr(envelope, "bound_buffer_key")
 
 
 # --- exact identity recompute / mismatch refusal ----------------------------
@@ -2928,7 +2933,8 @@ def test_a_turn_carrying_three_documents_assembles_one_section_each():
     )
     assert [section.key for section in envelope.sections] == list(
         doxbench_turns.prompt_section_keys(_THREE))
-    assert envelope.bound_buffer_key == _THREE[1]
+    assert not hasattr(envelope, "bound_buffer_key"), (
+        "F4: the declared binding is checked, never stored unreadably")
     # Every buffer's identity is observed, keyed, and recomputed at assembly
     # time -- four of them, not two.
     assert envelope.observed_hashes.keys() == doxbench_turns.ordered_buffer_keys(_THREE)
