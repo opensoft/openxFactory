@@ -1419,6 +1419,14 @@ repo scope.
 - A thread-per-document / set-wide-context chat memory model was added
   2026-08-18 via Brett's live-UI annotations (each loaded document gets its
   own persisted, savable chat thread; the model sees every thread across the
-  staged set); which memory system persists and assembles that is under
-  discussion (Q7, open, per Brett's "discuss options with me"), and Phase B
-  proposal drafting follows that ruling.
+  staged set); which memory system persists and assembles that (Q7) was
+  RULED 2026-08-18 (Brett, in-session, synthesizing his live-UI annotations,
+  a web-research pass, and an external design review he supplied): a
+  two-plane design — per-document sidecar thread-state files on the session
+  branch as truth, plus a Staged-Set Knowledge Service (governed, shared,
+  derived retrieval over the staged set and promoted findings) behind one
+  MCP boundary, graph-less in v1 with a concrete graduation trigger for
+  adding a graph manager later, and the chat running through the oh-my-pi
+  harness via a thin stdlib bridge. Every Phase B question is now
+  dispositioned (nine new claims recorded, 13-21); Phase B proposal drafting
+  is next.
