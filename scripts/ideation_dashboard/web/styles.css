@@ -2420,3 +2420,21 @@ tr.lit > td { background: rgba(127, 127, 127, 0.16); }
   margin-left: 6px; font-size: 10px; font-weight: 700; letter-spacing: .04em;
   text-transform: uppercase; color: var(--picked); cursor: help;
 }
+
+/* The outline tab's TEMPLATED SECTION INDEX and its add-section affordance
+   (add-staged-topic-outline-template tasks 3.2-3.4). Deliberately quiet: a
+   pre-template fragment is the normal case for most of the corpus while
+   conformance is opt-in, so nothing here reaches for the blocked/warning
+   palette — the state line is prose in the same muted voice as the lens notes. */
+.swb-outlineindex { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.swb-outlinerow { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.swb-outlinetitleline { font-family: var(--mono); font-size: 11.5px; font-weight: 600; }
+.swb-outlineline, .swb-outlineprov { font-size: 10.5px; color: var(--faint-ink); }
+.swb-outlinegap {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 11px; color: var(--muted);
+}
+.swb-outlineform { flex-wrap: wrap; margin-top: 4px; }
+.swb-outlinetitle { flex: 1; min-width: 160px; }
+.swb-outlineadd:disabled { opacity: 0.5; cursor: not-allowed; }
+.swb-outlinenote { font-size: 11px; color: var(--muted); line-height: 1.45; }
