@@ -30,11 +30,14 @@ fail-closed chain, they run per request in both modes, and they are anchored to
 this module's own literals rather than to anything the checkout claims about
 itself — which is what makes publisher mode safe rather than merely convenient.
 
-The chat-turn FILE holds three closed envelopes under a `oneOf`, discriminated by
-`kind`. Consumers dispatch on the INSTANCE kind, so the per-kind mapping resolves
-each envelope individually through a `$ref` into that file — the same
-registry-backed pattern the openxFactory validator uses for the possibles-register
-kernel section.
+The chat-turn FILE holds six closed envelopes under a `oneOf`, discriminated by
+`kind`: the three v1 envelopes and the three co-resident widened ones
+contract-v1.34 added beside them (`add-doxbench-editing-phase-b` design D15).
+Consumers dispatch on the INSTANCE kind, so the per-kind mapping resolves each
+envelope individually through a `$ref` into that file — the same registry-backed
+pattern the openxFactory validator uses for the possibles-register kernel
+section, and the reason a second family costs this module a mapping entry rather
+than a branch.
 """
 
 from __future__ import annotations
@@ -74,9 +77,29 @@ from referencing.jsonschema import DRAFT202012
 # That divergence is not drift: codexFactory hosted this runtime until
 # `adopt-neutral-tooling-home` and is now merely another consumer, so the two
 # pins move independently. A future reader comparing them should stop here.
+#
+# Moved v1.31 -> v1.34 by `add-doxbench-editing-phase-b` §13. This repin is NOT
+# digest-neutral, and could not be: the release widens
+# `xfactory-workbench-chat-turn.schema.yaml` itself, so the chat-turn digest
+# below is the widened file's and the catalog's is unmoved. The repin lands in
+# the same change as the release because the fail-closed chain is byte-exact —
+# a runtime pinned to v1.31's digest cannot read v1.34's schema at all, which is
+# the check working, not a reason to relax it.
+#
+# THE REF IS UNRESOLVED UNTIL THE TAG PUBLISHES, and says so rather than naming
+# a commit that does not exist yet. The versioning policy allocates the version
+# and builds the digest inventory AT REALIZATION (steps 1-2) and publishes the
+# annotated tag against the commit that actually lands (step 5) — so on the
+# realization branch there is no release commit to name, and the inventory
+# itself carries no commit field for exactly this reason. The sentinel is
+# spelled as a value no `stack.yaml` can legitimately declare, so a CONSUMER
+# comparing its declared ref against this one REFUSES rather than matching by
+# accident; publisher mode is unaffected (it reads no declaration), and no
+# digest question depends on this value. Replaced with the published commit
+# when `contract-v1.34` is tagged and verified post-merge.
 
-CONTRACT_REF = "e5554028e521d57c7501ef9bac206b20415281ef"
-CONTRACT_TAG = "contract-v1.31"
+CONTRACT_REF = "unpublished:contract-v1.34"
+CONTRACT_TAG = "contract-v1.34"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
@@ -86,24 +109,42 @@ SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "0e6e7e946268b220918a426c6df399a9e01d064ee5dcbe22f8381dbf39aef1e0",
     CHAT_TURN_SCHEMA_FILE:
-        "8386566ef881661659d38f6d6c27c723a7ddaf5dd3b8e18ead854c40a2a876bb",
+        "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
 }
 
-# The four doxBench INSTANCE kinds. The catalog kind is a whole-document schema;
-# the three turn kinds all live in the chat-turn file, under these `$defs`.
+# The seven doxBench INSTANCE kinds. The catalog kind is a whole-document schema;
+# the six turn kinds all live in the chat-turn file, under these `$defs` — the
+# three v1 envelopes and, since contract-v1.34, the three co-resident widened
+# ones. Both families are DISPATCHABLE: the v1 kinds are deprecated, not
+# withdrawn, and a release that stopped resolving them would break the very
+# clients the deprecation exists to keep working.
 KIND_MODEL_CATALOG = "workbench-model-catalog"
 KIND_CHAT_TURN = "workbench-chat-turn"
 KIND_CHAT_TURN_SUCCESS = "workbench-chat-turn-success"
 KIND_CHAT_TURN_FAILURE = "workbench-chat-turn-failure"
+KIND_CHAT_TURN_V2 = "workbench-chat-turn-v2"
+KIND_CHAT_TURN_V2_SUCCESS = "workbench-chat-turn-v2-success"
+KIND_CHAT_TURN_V2_FAILURE = "workbench-chat-turn-v2-failure"
 
 CHAT_TURN_DEFS = {
     KIND_CHAT_TURN: "request",
     KIND_CHAT_TURN_SUCCESS: "success",
     KIND_CHAT_TURN_FAILURE: "failure",
+    KIND_CHAT_TURN_V2: "request_v2",
+    KIND_CHAT_TURN_V2_SUCCESS: "success_v2",
+    KIND_CHAT_TURN_V2_FAILURE: "failure_v2",
 }
 
+# The DEPRECATED family, named here so a caller can ask rather than pattern-match
+# on a kind string. The removal target is the schema's own
+# `deprecated_envelopes` record and the CHANGELOG's migration note; this tuple
+# states only WHICH kinds are deprecated.
+DEPRECATED_CHAT_TURN_KINDS = (KIND_CHAT_TURN, KIND_CHAT_TURN_SUCCESS,
+                              KIND_CHAT_TURN_FAILURE)
+
 WIRE_KINDS = (KIND_MODEL_CATALOG, KIND_CHAT_TURN, KIND_CHAT_TURN_SUCCESS,
-              KIND_CHAT_TURN_FAILURE)
+              KIND_CHAT_TURN_FAILURE, KIND_CHAT_TURN_V2,
+              KIND_CHAT_TURN_V2_SUCCESS, KIND_CHAT_TURN_V2_FAILURE)
 
 # --------------------------- checkout location ---------------------------
 #
