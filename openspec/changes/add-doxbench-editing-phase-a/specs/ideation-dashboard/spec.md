@@ -69,6 +69,24 @@ The dashboard SHALL provide doxBench as the named evolution of the staging workb
 - **WHEN** the three desktop regions cannot remain usable side by side
 - **THEN** the same context, authoring canvas, and chat regions MUST stack without losing state, labels, keyboard reachability, or focus order
 
+### Requirement: doxBench surface identity
+The dashboard SHALL name the integrated staging-workbench authoring surface **doxBench**, using that exact casing wherever the surface names itself — visible product copy, navigation, heading text where a heading exists, ACCESSIBLE NAMES, documentation, tests, and realization evidence. A region whose accessible name already carries the product name SHALL NOT be required to restate it as visible heading text: an accessible `region` is announced by its name on entry, so a heading duplicating that name adds nothing an assistive technology did not already receive while costing visible space, and a surface MAY therefore carry its name in the accessible name alone. Where a surface renders a heading at all, that heading MUST use the exact casing. doxBench SHALL remain the named human-facing evolution of the existing `ideation-dashboard` staging workbench rather than a second capability. Existing technical identifiers — including `workbench-*` schemas, routes, module names, the `workbench-chat-turn` kind, `WorkbenchModelPort`, branch-session records, and persisted dashboard artifacts — MUST remain compatible and MUST NOT be renamed or rewritten solely to adopt the doxBench name.
+
+#### Scenario: The integrated authoring surface is presented
+- **WHEN** the dashboard exposes the integrated authoring surface
+- **THEN** its accessible surface name MUST use the exact name `doxBench`, and any heading it does render MUST use that exact name too
+- **AND** generic controls MAY retain descriptive workbench terminology where that terminology names an inherited technical concept
+
+#### Scenario: A named region would restate its own name visibly
+- **WHEN** a doxBench region already carries the product name as its accessible name
+- **THEN** a visible heading repeating that same name MUST NOT be required, because it is announced twice and occupies space the surface needs for material
+- **AND** the accessible name MUST NOT be dropped in exchange — removing the heading is only permitted while the region stays named
+
+#### Scenario: Existing workbench artifacts are loaded
+- **WHEN** doxBench consumes a pre-name snapshot, branch-session record, route, schema, or other `workbench-*` artifact
+- **THEN** that artifact MUST remain valid and usable without migration
+- **AND** no persisted identifier or artifact kind MUST be rewritten merely to carry the doxBench name
+
 ## ADDED Requirements
 
 ### Requirement: The doxBench canvas presents Editor and Preview view tabs

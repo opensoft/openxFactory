@@ -345,11 +345,12 @@ function eolOnlyDirty(buffer) {
     && displayText(buffer.content) === displayText(buffer.base_content);
 }
 
-// G-1: the outline-only posture, stated in the two places the operator looks
-// for a document — the picker's own label and the Document buffer's status.
-export const OUTLINE_ONLY_LABEL =
-  "Active document — none: this tile's outline is its only editable "
-  + "document, and chat grounds on it";
+// G-1: the outline-only posture. It used to be stated twice -- on the canvas
+// picker's own label and in the Document buffer's status -- and the picker's
+// half retired with the picker (Brett's 2026-08-15 annotation round). The
+// status is where it belonged anyway: it is a fact about the BUFFER, not about
+// a control, and it is still on screen for a tile whose only editable path is
+// its own primary fragment.
 const OUTLINE_ONLY_STATUS =
   "no separate document on this tile — the outline is its only editable "
   + "document, and chat grounds on it";
@@ -448,17 +449,27 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   const titleText = options.title || currentProjection.title || null;
   const canvasLabel = "doxBench" + (titleText ? " · " + titleText : "");
   host.setAttribute("role", "region");
+  // THE REGION'S NAME, and the only place this canvas states it (Brett's
+  // 2026-08-15 annotation round: "why do we need this line? i do not see what
+  // it is adding to our UI"). The `h2.doxbench-heading` that used to render
+  // this same string above the tabs is retired: it duplicated the accessible
+  // name a screen reader already announces on entering the region, cost a row
+  // of a narrow panel, and named nothing the surface did not already say. The
+  // two sibling regions beside it — `swb-context` and `doxbench-rail` — have
+  // always been named exactly this way, with `aria-label` and no heading, so
+  // this is the house idiom rather than a new one.
   host.setAttribute("aria-label", canvasLabel);
-  const heading = el("h2", "doxbench-heading", canvasLabel);
 
-  // THE CHROME: everything that answers "which material, in what state, and
-  // what may I do about it" — the document picker, one status region per
-  // buffer, and the panel's two controls. It sits OUTSIDE both view tabs on
-  // purpose, so each control and the answer it gets are on screen whichever
-  // view the human is standing on (the shape the draft-seed surface beside
-  // this one already uses under Brett's 2026-08-10 "keep the tabs, put ONE
-  // save on both" ruling).
-  const chrome = el("div", "doxbench-chrome");
+  // THE TAB ROW: the view tabs on the left, the panel's two controls on the
+  // right, in ONE row (Brett's 2026-08-15 annotation round: "place the save
+  // and cancel in line with the tabs"). They remain OUTSIDE both tabpanels and
+  // are scoped to neither view, so each control and the answer it gets are on
+  // screen whichever view the human is standing on — the ratified placement
+  // rule, satisfied by a row rather than by a block of its own.
+  const tabrow = el("div", "doxbench-tabrow");
+  // …and the row beneath it, which carries what the canvas SAYS rather than
+  // what it offers: each buffer's live status region and the Save note.
+  const statusbar = el("div", "doxbench-statusbar");
 
   // THE VIEW TABLIST: `Editor` / `Preview`, over whichever buffer is active.
   // It answers WHICH VIEW and nothing else — the buffer choice belongs to the
@@ -478,7 +489,6 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   const textareas = {};
   const previews = {};
   const statusEls = {};
-  let documentPicker = null;
 
   for (const view of DOXBENCH_VIEW_TABS) {
     const viewTabId = instanceId + "-viewtab-" + view.key;
@@ -551,7 +561,7 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     // region every other buffer fact is stated in -- this module's one idiom
     // for "why the surface refuses" (the unwired Save note works the same
     // way). syncBufferDom replaces it the moment real state exists.
-    status.textContent = EDITOR_LOADING_REASON;
+    status.textContent = label + ": " + EDITOR_LOADING_REASON;
 
     const editorBox = el("div", "doxbench-bufferbox doxbench-bufferbox-" + kind);
     const textarea = document.createElement("textarea");
@@ -580,7 +590,7 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       if (!result.ok) {
         // Refused honestly and VISIBLY: the human's keystroke or paste must
         // never just vanish with nothing said (CHK016/CHK019).
-        status.textContent = "refused -- " + result.error;
+        status.textContent = label + ": refused -- " + result.error;
         status.classList.add("doxbench-status-error");
       } else {
         status.classList.remove("doxbench-status-error");
@@ -607,66 +617,37 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     statusEls[kind] = status;
   }
 
-  // The canvas's own route to selectDocument (T035 / acceptance scenario 4),
-  // kept by Phase A design D3: a labelled, keyboard-reachable picker naming
-  // exactly the scoped candidates. It lives in the CHROME rather than inside a
-  // view pane, so it stays reachable from Editor and Preview alike, and it
-  // opens no transport -- it only calls the local selectDocument(path).
+  // THE CANVAS'S OWN DOCUMENT PICKER IS RETIRED (Brett's 2026-08-15 annotation
+  // round: "we do not need this section now that the left panel will let us
+  // select the active document"). The context region's docs wheel is now the
+  // sole human route to a document, which is what Phase A's model asked for in
+  // the first place -- left selects.
   //
-  // G-1 (PR #63 re-verification): a tile whose ONLY editable path is its own
-  // primary fragment — which this canvas loads as the OUTLINE, and which is
-  // therefore not offered as a DOCUMENT (T104 F2) — has no candidate to pick.
-  // That posture is STATED here rather than rendered as an empty control that
-  // does nothing: chat still works on such a tile, grounded on the outline
-  // alone.
-  {
-    const candidatePaths = currentProjection.active_document_candidates || [];
-    const pickerLabel = el("label", "doxbench-picker-label",
-      candidatePaths.length ? "Active document" : OUTLINE_ONLY_LABEL);
-    const picker = document.createElement("select");
-    picker.className = "doxbench-document-picker";
-    picker.setAttribute("aria-label", "choose the active "
-      + bufferLabel("document") + " buffer");
-    // T104 F9-4 (FR-044): browsers autofill <select>s too (address forms
-    // taught them to); the active-document choice is workbench state, not a
-    // form answer, so autofill is refused here like the textareas above.
-    picker.setAttribute("autocomplete", "off");
-    // P3-2: disabled from construction like the buttons below -- a change
-    // during the loading window is refused by selectDocument (W-9 keeps
-    // that refusal visible as defense in depth), but the honest posture is
-    // a control the browser physically refuses. The first syncBufferDom
-    // re-derives it: enabled exactly when the scope offers candidates and
-    // no Save is in flight (the G-1 outline-only posture stays disabled).
-    picker.disabled = true;
-    for (const candidate of candidatePaths) {
-      const opt = document.createElement("option");
-      opt.value = candidate;
-      opt.textContent = basename(candidate);
-      picker.appendChild(opt);
-    }
-    if (activeDocumentPath != null) picker.value = activeDocumentPath;
-    picker.addEventListener("change", async () => {
-      const target = picker.value;
-      const result = await selectDocument(target);
-      if (result.status === "switched" || result.status === "unchanged") {
-        return;
-      }
-      // Never silently replace the edited buffer, and never leave the
-      // control lying about which document is actually active. W-9 (wave
-      // re-review): this used to revert only the "blocked" outcome, so a
-      // change REFUSED during the loading window (the F6-2 posture) left
-      // the picker showing a choice that never landed — forever, since
-      // nothing later re-synced it — and the refusal itself was invisible.
-      // The refusal SENTENCE is no longer written here: selectDocument states
-      // it, so both routes into it share one refusal vocabulary.
-      picker.value = activeDocumentPath == null ? "" : activeDocumentPath;
-    });
-    pickerLabel.appendChild(picker);
-    documentPicker = picker;
-    chrome.appendChild(pickerLabel);
-  }
+  // NOTHING GUARDED WENT WITH IT. Phase A design D3 kept this picker because
+  // its dirty-Document guard was load-bearing, and at the time the guard, the
+  // revert and the refusal sentence lived partly in the picker's own change
+  // handler. The PR #196 review moved all three INTO `selectDocument` (F4/F6):
+  // one refusal vocabulary, one guard, and a reconcile that puts the context
+  // region's own selection back on the document the canvas really holds. So
+  // the control could go without taking a rule with it -- which is exactly the
+  // order those two changes had to happen in.
+  //
+  // G-1 (PR #63 re-verification) survives too, and in a better place: a tile
+  // whose ONLY editable path is its own primary fragment has no document to
+  // pick, and that posture is STATED in the Document buffer's own status line
+  // (`OUTLINE_ONLY_STATUS`) rather than as an empty control that does nothing.
 
-  for (const kind of BUFFER_KINDS) chrome.appendChild(statusEls[kind]);
+  // THE STATUS BAR: one compact row under the tab row, carrying each buffer's
+  // own live status region and the Save note. The per-buffer verdict surface is
+  // LOAD-BEARING and had to survive the chrome's retirement intact -- a partial
+  // Save (one buffer committed, the other refused) is reported per buffer by
+  // the ratified buffer contract, and every stated refusal on this surface
+  // lands in these same regions. What changed is that each line now NAMES its
+  // buffer visibly (`statusLine` prefixes the label): stacked in the old chrome
+  // they rendered as "no unsaved changesno unsaved changes", two identical
+  // sentences a reader could not attribute -- which is what the annotated
+  // screenshot shows.
+  for (const kind of BUFFER_KINDS) statusbar.appendChild(statusEls[kind]);
 
   // CANCEL -- the panel's narrow half. It is `discardBuffer` aimed at the
   // ACTIVE buffer and nothing else: discard destroys unsaved human work and
@@ -711,7 +692,14 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
                       saveSeam ? SAVE_WIRED_NOTE : SAVE_UNAVAILABLE_REASON);
   saveNote.id = saveNoteId;
   saveBtn.setAttribute("aria-describedby", saveNoteId);
-  chrome.append(cancelBtn, saveBtn, saveNote);
+  // The two controls sit in their own group INSIDE the tab row but OUTSIDE the
+  // tablist element: a button inside `role=tablist` would be announced as a tab
+  // and would join the roving-tabindex arrow cycle, which is precisely the
+  // confusion the two-level naming exists to prevent. The Save NOTE stays in
+  // the status row, where the sentences live.
+  const actions = el("div", "doxbench-actions");
+  actions.append(cancelBtn, saveBtn);
+  statusbar.appendChild(saveNote);
 
   // The document-switch guard (FR-007 / acceptance scenario 4): one
   // persistent region, built once, shown only while a dirty Document buffer
@@ -752,7 +740,8 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   guardCancelBtn.addEventListener("click", () => { resolveGuard("cancel"); });
   guardHost.append(guardStatus, guardSaveBtn, guardSaveNote, guardDiscardBtn, guardCancelBtn);
 
-  host.append(heading, chrome, viewTablist, panes, guardHost);
+  tabrow.append(viewTablist, actions);
+  host.append(tabrow, statusbar, panes, guardHost);
 
   // The LOADED state's key is the authority once there is one: a Save that
   // lands on a session ref rekeys that state, and a later context refresh
@@ -865,14 +854,6 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // every change of which buffer is active.
   function syncPanelControls() {
     if (!state) return;   // the mount-time disabled posture stands until a load
-    // P3-2: the picker's enabled state is re-derived here in BOTH postures,
-    // ending the mount-time disabled window (and, after a failed load, never
-    // reached at all -- exactly the honest permanent posture). The G-1
-    // outline-only rule holds: no candidates, no enabled picker.
-    if (documentPicker) {
-      documentPicker.disabled = saving
-        || (currentProjection.active_document_candidates || []).length === 0;
-    }
     if (saveSeam) {
       // With a governed Save wired, Cancel restores the last SAVED text, so it
       // stays available on a clean buffer (a no-op there, and a control that
@@ -896,9 +877,17 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // reported as one blended verdict would be exactly the lie FR-035 forbids.
   function statusLine(kind, buffer) {
     const dirtyText = bufferStatusText(kind, buffer);
-    if (savingKinds.has(kind)) return "saving this buffer -- " + dirtyText;
+    // EVERY line NAMES ITS BUFFER (Brett's 2026-08-15 annotation round). The
+    // two regions used to sit stacked in the chrome with no visible label, so a
+    // clean canvas rendered "no unsaved changes" twice with nothing to
+    // attribute either sentence to -- and a PARTIAL Save, whose whole point is
+    // that one buffer committed and the other refused, was exactly the case
+    // that unlabelled pair could not report. The accessible name carried the
+    // buffer already; now the visible text does too.
+    const prefix = bufferLabel(kind) + ": ";
+    if (savingKinds.has(kind)) return prefix + "saving this buffer -- " + dirtyText;
     const outcome = statedOutcomes[kind];
-    return outcome ? outcome + " -- " + dirtyText : dirtyText;
+    return prefix + (outcome ? outcome + " -- " + dirtyText : dirtyText);
   }
 
   // One buffer's verdict, as the sentence a human reads. Never a status code on
@@ -1469,7 +1458,6 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     if (destroyed) return { status: "refused", reason: DESTROYED_REASON };
     state = replaceBuffer(state, buffer);
     activeDocumentPath = path;
-    if (documentPicker) documentPicker.value = path == null ? "" : path;
     // PR #196 review F7: the remembered caret and scroll belong to the
     // document that just LEFT. Re-applying them to whatever the next document
     // happens to be puts the human at an offset with no relationship to the
@@ -1500,7 +1488,8 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // routed through it: the guard IS its own statement.
   function refuseSelection(reason) {
     if (statusEls.document) {
-      statusEls.document.textContent = "refused -- " + reason;
+      statusEls.document.textContent =
+        bufferLabel("document") + ": refused -- " + reason;
     }
     return { status: "refused", reason };
   }
@@ -1627,7 +1616,6 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       // and the document picker, both needed to test the fix round's
       // visible-refusal and scope-guard behaviour.
       status: (kind) => statusEls[kind] || null,
-      documentPicker: () => documentPicker,
     };
   }
 
@@ -1671,7 +1659,6 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
         // `Preview` is where every mount opens.
         activeBuffer = restored.active_buffer;
         activeDocumentPath = restored.buffers.document.path;
-        if (documentPicker && activeDocumentPath != null) documentPicker.value = activeDocumentPath;
       } else {
         const [outline, documentDescriptor] = await Promise.all([
           loadDescriptor("outline", currentProjection.outline_path),
@@ -1711,7 +1698,7 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
           : "the load failed before any buffer state existed"
       );
       for (const kind of BUFFER_KINDS) {
-        statusEls[kind].textContent = loadFailureReason;
+        statusEls[kind].textContent = bufferLabel(kind) + ": " + loadFailureReason;
         statusEls[kind].classList.add("doxbench-status-error");
       }
     }
