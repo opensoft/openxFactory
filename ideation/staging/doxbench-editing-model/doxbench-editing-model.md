@@ -186,6 +186,95 @@ finding, and the OMP/oh-my-pi harness integration details derive from an
 external design review supplied by Brett 2026-08-18, synthesized and adapted
 in-session.
 
+The following five claims are settled by a second round of Brett's 2026-08-18
+in-session ruling — a verification research pass conducted after Claims 13-21
+landed, checking the external design review's claims and the harness
+mechanism details against the ratified xFactory contracts and against
+Headroom's actual repository state — and likewise are NOT reopened by any
+remaining open question:
+
+22. **The knowledge service and per-turn context assembly realize the
+    ratified neutral `memory-gateway` capability.** Per-turn context
+    assembled for a document's active thread IS a memory-gateway bounded
+    context packet (`Context Packets Bound Runtime Memory`); the Staged-Set
+    Knowledge Service's retrieval backends (Claim 16's local hybrid v1, the
+    later graph-manager slot) are provider profiles behind canonical,
+    product-neutral ports (`Canonical Ports Are Product Neutral`, `Provider
+    Profiles Declare Capability`); promoting a thread finding into the
+    corpus (Claim 18) realizes `Promotions Are Explicit And Reviewed`; the
+    compression/assembly policy (Claims 24-25) runs as a rail before
+    provider I/O (`Rails Run Before Provider I/O`); and per-turn/per-session
+    token telemetry realizes gateway-owned usage metering (`Usage Metering
+    Is Gateway-Owned`). Honest flag, not a fully proven claim:
+    memory-gateway's realization depth elsewhere in xFactory is unverified
+    in this session — this may be the contract's FIRST live consumer — so
+    the Phase B proposal must read the full `memory-gateway` spec itself and
+    declare conformance (and any small delta it needs) rather than inherit
+    this summary uncritically.
+23. **Every compressed artifact this design produces conforms to
+    `governed-derived-model`, and any future graph layer stays bounded by
+    the semantic kernel.** The thread-state header (Claim 14), any
+    distilled summary, and any future graph-manager index (Claim 16) are
+    non-authoritative by construction, regenerable, and promotable only by
+    creating a new object through review (`governed-derived-model`'s
+    Non-authoritative by construction and Human-gated promotion
+    requirements) — none of them becomes truth by being compressed. If a
+    graph manager (Cognee/Graphiti) is ever graduated in per Claim 16, its
+    semantic layer is bounded by `xfactory-semantic-kernel`'s Bounded
+    semantic context and Semantic inference cannot authorize requirements:
+    inferred relations stay advisory, never an authorization input.
+24. **Compression runs as a three-layer stack, each layer a distinct
+    fidelity contract.** Layer 1 — SELECTION (governed): the Staged-Set
+    Knowledge Service packs only relevant evidence into the bounded context
+    packet; lossless-by-reference, since excluded material is one retrieval
+    call away. Layer 2 — SEMANTIC COMPACTION (governed): the structured
+    thread-state header (Claim 14) preserves commitments — goals, accepted
+    facts, decisions, open questions, evidence refs, pending actions — not
+    narrative; lossy by design, human-reviewable, promotion-gated, itself a
+    governed derived model per Claim 23.
+25. **Layer 3 — mechanical reversible compression at the LLM boundary — is
+    realized v1 by oh-my-pi's own `/shake` / `artifact://` mechanism.**
+    Heavy tool results offload to session artifacts with recoverable
+    placeholders — the compress-cache-retrieve pattern, running entirely
+    inside our own trust boundary (Claim 20's harness choice) with no proxy
+    and no new dependency. The exempt-approved-content policy — protecting
+    approved/ratified content from aggressive compression — lives UPSTREAM,
+    in the packet assembler, keyed on the content's lifecycle `Status:`
+    header (the same source-ranking hierarchy Claim 19 already encodes); it
+    is never delegated into a third-party compressor, which would have no
+    visibility into lifecycle status.
+26. **Headroom (`headroomlabs-ai/headroom`) is a WATCH-LIST candidate, not
+    adopted, for any layer of this design.** A 2026-08-18 verification pass
+    found it disqualifying today on independent grounds: (a) its
+    `SECURITY.md` on `main` claims no credential storage while an open PR
+    (`headroom#2684`) demonstrates plaintext credential persistence (OAuth
+    tokens; the CCR store writes pre-compression originals to unencrypted
+    SQLite; settings persist credential-shaped headers) alongside a
+    default-ON telemetry beacon in the OSS build; (b) an independent
+    pre-registered benchmark (`Entelligentsia/tokbench`, discussed at
+    `headroom#645`) measured ~5-10% per-request and net-zero run-level
+    savings on a real agentic workload against the project's 60-95%
+    headline; (c) recurring Anthropic prompt-cache-fidelity regressions (one
+    causing a 2-7x cost INCREASE, `headroom#2438`) and several open
+    Claude-Code-lane bugs, plus a CCR retrieval path that fails on plain
+    streaming-proxy clients (it needs the MCP path) and a `ContentRouter`
+    with no caller-metadata hook — so Claim 25's exempt-approved-content
+    policy could not live inside it even if the other findings cleared.
+    Adoption gates (revisit only when ALL hold): the credential-storage
+    findings fixed and `SECURITY.md` made truthful; telemetry default-off;
+    prompt-cache fidelity stable; a sandboxed trial showing net savings on
+    doxBench's own workload. An integration path exists for if/when it
+    matures: a community `pi-headroom` bridge, and open `headroom wrap omp`
+    requests upstream.
+
+Dispositioned-by: Brett Heap (in-session ruling) · 2026-08-18
+Source: verification research pass 2026-08-18 — `memory-gateway`,
+`governed-derived-model`, and `xfactory-semantic-kernel` specs read directly
+from `openspec/specs/`; Headroom's repository, `SECURITY.md`, PR #2684, the
+`tokbench` benchmark discussion, and its issue tracker checked directly;
+corrects two factual errors carried in the external design review supplied
+2026-08-18 (see the "External-doc reliability" idea note below).
+
 ## Why
 
 <!-- xspec:candidate target=ideation-dashboard -->
@@ -335,19 +424,43 @@ and Cancel continuing to mean discarding a buffer back to its `base_content`
   on) — one release carrying both additive fields, not two separate
   releases. — Added-by: Claude Opus 4.8 (session) · 2026-08-18.
   Dispositioned-by: Brett Heap (live-UI annotation) · 2026-08-18
-- **VERIFY LIST before Phase B realization** — items the ruled two-plane
-  memory design (Claims 13-21, Q7's Ruling block) depends on that our own
-  research has not independently confirmed: (a) OMP's memory-backend claims
-  (local / Hindsight / Mnemopi), cited from its README by the external
-  design review — unverified by our own research; (b) the depth of OMP/pi's
-  MCP client (tool-calling) support; (c) whether OMP re-reads `SYSTEM.md` per
-  turn or caches it at session start; (d) Cognee's current default embedded
-  graph backend, in flux after the Kuzu archival (Apple acqui-hire, Oct
-  2025) — watch `topoteretes/cognee#2098`. — Added-by: Claude Opus 4.8
-  (session) · 2026-08-18. Dispositioned-by: Brett Heap (in-session ruling) ·
-  2026-08-18. Source: external design review supplied by Brett 2026-08-18,
-  synthesized and adapted in-session (item (a) is a direct citation from
-  that review).
+- **VERIFY LIST before Phase B realization** (extended 2026-08-18, second
+  session pass) — items the ruled two-plane memory design (Claims 13-21,
+  Q7's Ruling block) and its addendum (Claims 22-26, the Ruling addendum)
+  depend on that our own research has not independently confirmed: (a)
+  OMP's memory-backend claims (local / Hindsight / Mnemopi), cited from its
+  README by the external design review — unverified by our own research;
+  (b) the depth of OMP/pi's MCP client (tool-calling) support; (c) whether
+  OMP re-reads `SYSTEM.md` per turn or caches it at session start; (d)
+  Cognee's current default embedded graph backend, in flux after the Kuzu
+  archival (Apple acqui-hire, Oct 2025) — watch `topoteretes/cognee#2098`;
+  (e) where OMP session artifacts (the `artifact://` store, Claim 25) live
+  on disk, and whether they land inside the session worktree — so they ride
+  the branch, per Claim 21's share-session act — or somewhere external to
+  it; (f) `/shake`'s exact trigger surface — a manual chat command, an
+  automatic threshold-triggered behavior, or both — and whether OMP's RPC
+  mode (Claim 20) exposes it programmatically rather than only as an
+  interactive command; (g) `memory-gateway`'s current realization depth
+  anywhere in xFactory — is any conformant consumer actually live today, or
+  is this topic's Phase B the first (Claim 22's honest flag). — Added-by:
+  Claude Opus 4.8 (session) · 2026-08-18. Dispositioned-by: Brett Heap
+  (in-session ruling) · 2026-08-18. Source: external design review supplied
+  by Brett 2026-08-18, synthesized and adapted in-session (item (a) is a
+  direct citation from that review); items (e)-(g) added 2026-08-18 in a
+  second session pass following the memory-gateway/Headroom verification
+  research (Claims 22-26).
+- **External-doc reliability note** (standing practice, proven twice). The
+  external design reviews Brett has supplied for this topic have been
+  directionally valuable but factually loose: "SpecLock" appears in no real
+  project this session's verification research could find (invented
+  vocabulary in the review), and "Mnemopi"/`artifact://`/`/shake` are
+  `oh-my-pi` features misattributed to Headroom in the review Brett
+  supplied 2026-08-18. Standing practice going forward: every external-doc
+  claim gets verified against the actual upstream source before it enters
+  contract text — this is now twice proven necessary on this single topic
+  (once for the harness/memory review behind Claims 13-21, again for the
+  Headroom review behind Claim 26). — Added-by: Claude Opus 4.8 (session) ·
+  2026-08-18. Dispositioned-by: Brett Heap (in-session ruling) · 2026-08-18.
 
 ## Conflicts
 
@@ -674,12 +787,72 @@ graph-context managers, and an external design review he supplied).
   menu means API access (Moonshot/Together — the 594GB open weights need
   ≥8xH100; not local).
 
+**Ruling addendum (2026-08-18, second session pass).** A follow-up
+verification pass the same day fills in the two structural pieces the
+ruling above left implicit: which ratified xFactory contract this design
+realizes, and exactly how "compaction preserves commitments, not narrative"
+(Claim 14) turns into working token discipline.
+
+- **Memory-gateway conformance.** The knowledge service and per-turn context
+  assembly above SHALL be written as a realization of the ratified neutral
+  `memory-gateway` capability, not a bespoke mechanism beside it: per-turn
+  context is a memory-gateway bounded context packet; the retrieval backends
+  (local hybrid v1, the later graph-manager slot) are provider profiles
+  behind memory-gateway's canonical, product-neutral ports; promoting a
+  thread finding (the Promotion gate above) realizes `Promotions Are
+  Explicit And Reviewed`; the compression stack below runs as a rail before
+  provider I/O; and token telemetry realizes gateway-owned usage metering.
+  Every compressed artifact (the thread-state header, any summary, any
+  future graph) additionally conforms to `governed-derived-model` —
+  non-authoritative by construction, regenerable, promotable only by
+  creating a new object through review — and any future graph layer stays
+  inside `xfactory-semantic-kernel`'s bounded-context and
+  inference-cannot-authorize requirements. Honest flag: memory-gateway's
+  realization depth elsewhere in xFactory is unverified — this may be the
+  contract's first live consumer — so the Phase B proposal must read the
+  full spec itself and declare conformance (and any small delta) rather
+  than take this summary on faith. (See new Claims 22-23.)
+- **The three-layer compression stack.** Layer 1, SELECTION (governed): the
+  Staged-Set Knowledge Service packs only relevant evidence into the
+  context packet — lossless-by-reference, excluded material stays one
+  retrieval away. Layer 2, SEMANTIC COMPACTION (governed): the structured
+  thread-state header — lossy by design, human-reviewable, promotion-gated,
+  itself a governed derived model. Layer 3, MECHANICAL REVERSIBLE
+  COMPRESSION at the LLM boundary: v1 is oh-my-pi's own native `/shake` /
+  `artifact://` mechanism — heavy tool results offload to session artifacts
+  with recoverable placeholders, inside our own trust boundary, no proxy,
+  no new dependency. The exempt-approved-content policy (protecting
+  approved/ratified content from aggressive compression) lives upstream in
+  the packet assembler, keyed on lifecycle status — never inside a
+  third-party compressor. (See new Claims 24-25.)
+- **Headroom is watch-listed, not adopted.** `headroomlabs-ai/headroom`
+  (Apache-2.0) was evaluated as a candidate for Layer 3 and rejected for
+  now: verification found a SECURITY.md credential-storage claim
+  contradicted by an open PR proving plaintext credential persistence plus
+  default-on telemetry, an independent benchmark showing ~5-10%
+  per-request / net-zero run-level savings against its 60-95% headline,
+  recurring Anthropic prompt-cache-fidelity regressions, and no
+  caller-metadata hook for the exempt-approved-content policy even setting
+  the other findings aside. Adoption gates and the integration path are
+  recorded in new Claim 26. This also surfaced a naming correction:
+  "SpecLock" matches no real project, and "Mnemopi"/`artifact://`/`/shake`
+  are oh-my-pi features the external review misattributed to Headroom (see
+  the Idea notes external-doc-reliability entry) — the design as ruled here
+  uses the corrected attributions throughout.
+
+Addendum source: verification research pass 2026-08-18 — the
+`memory-gateway`, `governed-derived-model`, and `xfactory-semantic-kernel`
+specs read directly from `openspec/specs/`; Headroom's repository,
+`SECURITY.md`, PR #2684, the `tokbench` benchmark discussion, and its issue
+tracker checked directly.
+
 Source: the graph-engine options (Cognee/Graphiti+FalkorDB), the Mem0 v3
 finding, and the OMP/oh-my-pi harness integration details derive from an
 external design review supplied by Brett 2026-08-18, synthesized and adapted
 in-session.
 Disposition status: ruled (Brett, 2026-08-18) — the two-plane memory design
-below
+below, extended 2026-08-18 (second session pass) with memory-gateway
+conformance and the three-layer compression stack
 Added-by: Claude Opus 4.8 (session) · 2026-08-18
 Dispositioned-by: Brett Heap (in-session ruling) · 2026-08-18
 
