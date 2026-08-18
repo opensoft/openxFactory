@@ -9,6 +9,59 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.34 — 2026-08-18 (additive + deprecating; the doxBench chat-turn widening)
+
+Realizes `add-doxbench-editing-phase-b` §13, the contract release its ratified
+"chat-turn contract release carries the bound buffer and the model" requirement
+names. One file changes: `schemas/xfactory-workbench-chat-turn.schema.yaml`.
+
+**Change class: ADDITIVE (minor) plus a DEPRECATION (minor)**, both under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+lines 128-135. Nothing here is breaking: no required field is added to an
+existing shape, no shape is removed, and no vocabulary is reinterpreted, so a
+consumer on the same major version remains conformant WITHOUT CHANGES.
+
+`xfactory-workbench-chat-turn.schema.yaml` gains a CO-RESIDENT SECOND ENVELOPE
+FAMILY beside its existing one — `workbench-chat-turn-v2`,
+`workbench-chat-turn-v2-success`, `workbench-chat-turn-v2-failure` — added to
+the file's top-level `oneOf` and discriminated by `kind`, exactly as the three
+v1 envelopes already discriminate each other. The widened family carries what
+the v1 shape had no room for: the outline plus EVERY loaded document buffer
+(`buffers` widens from `minItems: 2, maxItems: 2` to `minItems: 2, maxItems: 25`
+— the surface's declared 24-document loaded-set bound plus the reserved
+outline); the DECLARED `bound_buffer` key on both the request and the durable
+record; `observed_hashes` keyed by BUFFER KEY rather than by the two fixed names
+`outline` and `document`; `typed_proposal.target` as a buffer key rather than a
+two-value enum, with the proposal list bounded by the buffer set rather than by
+a literal 2; and `selected_model` metadata beside `model_id`, so a record states
+both which model ANSWERED and which entry the human CHOSE (the two differ
+exactly when the chosen entry is a routing rule). The v2 request carries no
+`active_document_path`: the binding is DECLARED, never inferred from an adjacent
+field that answers a different question.
+
+**The v1 request, success and failure blocks are BYTE-IDENTICAL to their
+contract-v1.31 bytes** and keep validating; a client that submits the previously
+released shape is still served. That byte identity is asserted by a test against
+a committed baseline, not by re-validation. The file's own
+`contract_schema_version` stays `1`, and the envelope-level `schema_version`
+stays `1` with it, because nothing previously valid becomes invalid.
+
+**Deprecation, with its removal target recorded.** The whole v1 family
+(`workbench-chat-turn`, `workbench-chat-turn-success`,
+`workbench-chat-turn-failure`) is DEPRECATED as of this release. The record is
+machine-readable in the schema's own top-level `deprecated_envelopes` block —
+placed outside every envelope precisely so the deprecated bytes do not move.
+Removal target: **contract-v2.0**, which is the next major and therefore the
+earliest release at which a removal is legal; this deprecation starts the
+"at least one full minor release where the old shape produced deprecation
+warnings" clock the policy's breaking path requires. Migration: submit
+`workbench-chat-turn-v2` instead of `workbench-chat-turn`; carry every loaded
+buffer in `buffers` rather than exactly two; replace `active_document_path` with
+`bound_buffer` (the key of the buffer the conversation is working ON, which must
+name one of the buffers the same request supplies); read `observed_hashes` and a
+proposal's `target` as buffer keys; and read the answering model from `model_id`
+with the chosen entry from `selected_model`.
+
 ## contract-v1.33 — 2026-08-15 (additive; the client-identity roster, and the credential-contracts registration gap closed)
 
 Realizes `add-client-identity-roster` through Speckit feature

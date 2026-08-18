@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.33
+contract_bundle_version: contract-v1.34
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1571,20 +1571,28 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 8386566ef881661659d38f6d6c27c723a7ddaf5dd3b8e18ead854c40a2a876bb
+    sha256: 2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
       The doxBench grounded chat-turn wire family
-      (add-workbench-integrated-editor-chat 2.1): one file, three closed
-      envelopes discriminated by kind — request, validated success, fixed
-      redacted failure. Exact-UTF-8 SHA-256 content identity; exactly one
-      outline and one document buffer per request; working_subject is
-      non-identity by type; only limit failures carry measured data.
-      Consumed through the pinned openxFactory checkout at the
-      contract-v1.27 tag; per-file sha256 verified before any copy is
-      treated as current. Hash parity, budget, unknown-model, duplicate
-      turn-id, proposal-target, and failure-pairing rules are enforced by
+      (add-workbench-integrated-editor-chat 2.1): one file, now SIX closed
+      envelopes discriminated by kind — the v1 request, validated success and
+      fixed redacted failure, plus the co-resident widened v2 family
+      contract-v1.34 adds (add-doxbench-editing-phase-b design D15).
+      Exact-UTF-8 SHA-256 content identity; working_subject is non-identity by
+      type; only limit failures carry measured data. The v1 request carries
+      exactly one outline and one document buffer; the v2 request carries the
+      outline plus every LOADED document, DECLARES its bound-buffer key, and its
+      record states that key, the per-buffer observed hashes by key, a
+      buffer-key proposal target, and the selected-model metadata. The v1 family
+      is DEPRECATED at contract-v1.34 with removal target contract-v2.0
+      (schema `deprecated_envelopes`; CHANGELOG migration note); it keeps
+      validating and is still served until then. Consumed through the pinned
+      openxFactory checkout at the declared tag; per-file sha256 verified before
+      any copy is treated as current. Hash parity, budget, unknown-model,
+      duplicate turn-id, proposal-target, bound-buffer membership, and
+      failure-pairing rules are enforced by
       scripts/validate-ideation-dashboard-contracts.py, never
       re-implemented by consumers.
   # ---- action-plane + worker-enrollment contract surface — contract-v1.29 realization ----

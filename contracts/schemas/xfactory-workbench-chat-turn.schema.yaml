@@ -27,10 +27,48 @@ description: >-
   the outline alone, because the tile has no separate editable document).
   Both are REQUIRED keys with a nullable value — absent and null are
   different facts, and only null is expressible.
+
+  CO-RESIDENT SECOND FAMILY (contract-v1.34, add-doxbench-editing-phase-b
+  design D15). The three `-v2` envelopes below carry the WIDENED doxBench turn:
+  the outline plus every LOADED document buffer, the DECLARED bound-buffer key
+  on both the request and the durable record, per-buffer observed hashes keyed
+  by buffer key, a proposal target expressed as a buffer key, and the
+  selected-model metadata that lets a record state which model answered. They
+  are ADDED beside the v1 envelopes rather than mutating them: v1's request,
+  success and failure are byte-identical to their contract-v1.31 bytes and keep
+  validating, so nothing that validates today stops validating. Discrimination
+  is by `kind`, exactly as it already is between the three v1 envelopes; the
+  envelope-level `schema_version` stays `1` because it names the FILE's
+  `contract_schema_version`, which does not move (D16 — nothing previously
+  valid becomes invalid). The v1 family is DEPRECATED by this release; see
+  `deprecated_envelopes` below and `contracts/CHANGELOG.md` for the migration
+  note and the removal target.
 oneOf:
   - $ref: "#/$defs/request"
   - $ref: "#/$defs/success"
   - $ref: "#/$defs/failure"
+  - $ref: "#/$defs/request_v2"
+  - $ref: "#/$defs/success_v2"
+  - $ref: "#/$defs/failure_v2"
+# The machine-readable half of the deprecation (contract-v1.34). It is recorded
+# HERE, outside every envelope, because the deprecated envelopes' own bytes must
+# not move: a deprecation is a statement ABOUT a shape, and editing the shape to
+# say so would break the byte-identity this release promises. Removal is a
+# BREAKING change and therefore targets the next major, after the full minor
+# release of deprecation warnings the versioning policy requires.
+deprecated_envelopes:
+  - kind: workbench-chat-turn
+    superseded_by: workbench-chat-turn-v2
+    deprecated_in: contract-v1.34
+    removal_target: contract-v2.0
+  - kind: workbench-chat-turn-success
+    superseded_by: workbench-chat-turn-v2-success
+    deprecated_in: contract-v1.34
+    removal_target: contract-v2.0
+  - kind: workbench-chat-turn-failure
+    superseded_by: workbench-chat-turn-v2-failure
+    deprecated_in: contract-v1.34
+    removal_target: contract-v2.0
 $defs:
   content_hash:
     type: string
@@ -167,6 +205,156 @@ $defs:
     properties:
       schema_version: { const: 1 }
       kind: { const: workbench-chat-turn-failure }
+      client_turn_id: { type: string, minLength: 1, maxLength: 128 }
+      error: { type: string, pattern: "^[a-z][a-z0-9_]{2,63}$" }
+      message: { type: string, minLength: 1, maxLength: 500 }
+      limit:
+        type: object
+        additionalProperties: false
+        required: [dimension, measured, maximum]
+        properties:
+          dimension: { type: string, minLength: 1, maxLength: 64 }
+          measured: { type: integer, minimum: 0 }
+          maximum: { type: integer, minimum: 0 }
+  # ---- the widened, co-resident family (contract-v1.34) ----
+  buffer_key:
+    # A buffer's KEY in the widened family (design D1): the permanently
+    # reserved `outline`, the reserved `document` key that holds the ONE
+    # not-yet-created artifact of the create flow, or a document's own
+    # repository-relative path. Both reserved spellings already satisfy the
+    # confined-path shape, so ONE constraint expresses all three and no `oneOf`
+    # can match a key twice. WHICH keys a given turn actually holds is the
+    # request's own statement, checked by the delegated validator against the
+    # buffer set the request supplies — a schema cannot know a loaded set.
+    $ref: "#/$defs/confined_path"
+  keyed_observed_hashes:
+    # The recomputed identity of EVERY buffer the request supplied, keyed by
+    # buffer key. v1 required exactly the two keys `outline` and `document`
+    # because the set held exactly those two buffers; the widened record states
+    # one identity per loaded document, so a reader can ask which text the model
+    # saw for any of them. `outline` stays REQUIRED: its key is permanently
+    # reserved and every turn carries it.
+    type: object
+    minProperties: 2
+    maxProperties: 25
+    required: [outline]
+    propertyNames: { $ref: "#/$defs/buffer_key" }
+    additionalProperties: { $ref: "#/$defs/content_hash" }
+  keyed_typed_proposal:
+    # v1's `typed_proposal` with its two-value `target` enum widened to a BUFFER
+    # KEY. Every other field, bound and rule is unchanged. A target the request
+    # did not supply is unroutable and is refused by the delegated validator
+    # rather than guessed at.
+    type: object
+    additionalProperties: false
+    required: [target, base_hash, summary, content]
+    properties:
+      target: { $ref: "#/$defs/buffer_key" }
+      base_hash: { $ref: "#/$defs/content_hash" }
+      summary: { type: string, minLength: 1, maxLength: 500 }
+      content: { type: string, maxLength: 1048576 }
+  selected_model:
+    # WHAT THE HUMAN CHOSE, beside `model_id`'s WHAT ANSWERED. The two differ
+    # exactly when the chosen catalog entry is a ROUTING RULE this capability
+    # owns (an `auto` entry) rather than a provider model, which is why
+    # `routing_rule` is stated rather than inferred from the two ids being
+    # unequal. `data_handling` is the chosen entry's own catalog badge, carried
+    # so a transcript states the handling posture the human was shown at send
+    # time rather than the one the catalog happens to declare when it is read
+    # back. The resolved model is NOT repeated here: it is `model_id`, once.
+    type: object
+    additionalProperties: false
+    required: [requested_model_id, routing_rule, data_handling]
+    properties:
+      requested_model_id: { type: string, minLength: 1, maxLength: 128 }
+      routing_rule: { type: boolean }
+      data_handling: { type: string, minLength: 1, maxLength: 500 }
+  request_v2:
+    # The widened request. It carries the outline plus every loaded document,
+    # and it DECLARES which of them the chat is bound to. `active_document_path`
+    # is deliberately absent: the binding is stated, never inferred from an
+    # adjacent field that answers a different question (design D17), and the two
+    # questions had different answers exactly when a human worked the outline
+    # with a document loaded.
+    type: object
+    additionalProperties: false
+    required: [schema_version, kind, client_turn_id, scope, bound_buffer,
+               working_subject, message, model_id, last_assistant_turn_id,
+               transcript, buffers]
+    properties:
+      schema_version: { const: 1 }
+      kind: { const: workbench-chat-turn-v2 }
+      client_turn_id: { type: string, minLength: 1, maxLength: 128 }
+      scope: { $ref: "#/$defs/scope_key" }
+      # The DECLARED binding: what the chat is working ON. It MUST name one of
+      # the buffers this same request supplies (delegated validator), and it
+      # never narrows what the turn is GROUNDED on — every loaded buffer rides
+      # the request regardless of which one is bound.
+      bound_buffer: { $ref: "#/$defs/buffer_key" }
+      working_subject: { type: string, maxLength: 512 }
+      message: { type: string, minLength: 1, maxLength: 65536 }
+      model_id: { type: string, minLength: 1, maxLength: 128 }
+      last_assistant_turn_id:
+        oneOf: [ { type: "null" }, { type: string, maxLength: 128 } ]
+      transcript:
+        type: array
+        maxItems: 128
+        items: { $ref: "#/$defs/transcript_turn" }
+      buffers:
+        # The outline plus one to twenty-four document buffers. The lower bound
+        # is unchanged from v1 (one outline and at least one document buffer,
+        # which the delegated validator pairs as before); the upper bound is the
+        # surface's own declared loaded-set bound plus the reserved outline, so
+        # a request can never carry more buffers than a human is allowed to
+        # load. Reaching the bound REFUSES the load with the measured bound
+        # stated; nothing is evicted, because every loaded buffer may hold
+        # unsaved human text.
+        type: array
+        minItems: 2
+        maxItems: 25
+        items: { $ref: "#/$defs/buffer_state" }
+  success_v2:
+    # The widened, validated success — the turn's durable RECORD. It names the
+    # bound buffer (from the request's DECLARED binding, never derived), states
+    # every buffer's observed identity by key, and carries the selected-model
+    # metadata beside the model that answered.
+    type: object
+    additionalProperties: false
+    required: [schema_version, kind, client_turn_id, assistant_turn_id,
+               model_id, selected_model, bound_buffer, observed_hashes,
+               assistant_prose, proposals]
+    properties:
+      schema_version: { const: 1 }
+      kind: { const: workbench-chat-turn-v2-success }
+      client_turn_id: { type: string, minLength: 1, maxLength: 128 }
+      assistant_turn_id: { type: string, minLength: 1, maxLength: 128 }
+      # The model that ANSWERED. With a routing-rule entry this is the model the
+      # rule resolved to, which is what makes a transcript state which model
+      # produced which turn instead of leaving it to be inferred.
+      model_id: { type: string, minLength: 1, maxLength: 128 }
+      selected_model: { $ref: "#/$defs/selected_model" }
+      bound_buffer: { $ref: "#/$defs/buffer_key" }
+      observed_hashes: { $ref: "#/$defs/keyed_observed_hashes" }
+      assistant_prose: { type: string, maxLength: 900000 }
+      # At most one proposal per supplied buffer (the delegated validator holds
+      # that rule, which is expressed over the REQUEST's own buffer count); the
+      # transport ceiling here is the largest buffer set a request may carry.
+      proposals:
+        type: array
+        maxItems: 25
+        items: { $ref: "#/$defs/keyed_typed_proposal" }
+  failure_v2:
+    # The fixed redacted failure for a v2 turn. Structurally identical to the v1
+    # failure and deliberately so — a refusal discloses nothing whichever family
+    # it answers — but it carries its own `kind`, so the whole v1 family can be
+    # deprecated as a unit and a v2 turn is never answered in a deprecated
+    # envelope.
+    type: object
+    additionalProperties: false
+    required: [schema_version, kind, client_turn_id, error, message]
+    properties:
+      schema_version: { const: 1 }
+      kind: { const: workbench-chat-turn-v2-failure }
       client_turn_id: { type: string, minLength: 1, maxLength: 128 }
       error: { type: string, pattern: "^[a-z][a-z0-9_]{2,63}$" }
       message: { type: string, minLength: 1, maxLength: 500 }
