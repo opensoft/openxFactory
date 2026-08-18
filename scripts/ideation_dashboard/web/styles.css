@@ -1732,6 +1732,46 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   font-size: 12px; font-weight: 600; color: var(--ink);
   padding: 6px 8px; border-bottom: 1px solid var(--border);
 }
+/* THE LOADED-DOCUMENT SELECTOR (add-doxbench-editing-phase-b, Q1 ruled). A
+   native scrolling select IS the overflow policy (design D6): no folding, no
+   chip row, no least-recently-used eviction, because every loaded buffer may
+   hold unsaved work. `size` is left to the platform so the list scrolls in its
+   own popup exactly as the approved-model selector's does. */
+.doxchat-loaded {
+  width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.doxchat-loaded:disabled { opacity: .5; cursor: not-allowed; }
+/* A context-only entry is loadable for grounding but has no reachable Save, and
+   the option says so rather than looking like an owned document (design D2). */
+.doxchat-loaded-option[data-owned="false"] { font-style: italic; }
+.doxchat-loaded-option[data-dirty="true"] { font-weight: 700; }
+/* THE UNLOAD AFFORDANCE (PR #207 review, F9): the loaded set's one way out, on
+   the surface that presents the set. Its label changes to say what a second
+   press means, so an irreversible discard is never one unannounced click. */
+.doxchat-unload {
+  font: inherit; font-size: 11px; padding: 3px 8px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--ink);
+}
+.doxchat-unload:disabled { opacity: .5; cursor: not-allowed; }
+.doxchat-loaded-note {
+  font-size: 11px; color: var(--faint-ink); padding: 4px 8px;
+}
+/* The HONEST empty state — rendered, never hidden. */
+.doxchat-loaded-empty {
+  font-size: 11px; color: var(--faint-ink); padding: 4px 8px;
+}
+/* The selected entry's FULL name, for assistive technology. Visually hidden and
+   still a live region — the same idiom `doxchat-announce` uses one region over.
+   The visible label may be a basename or a distinguishing suffix; "the full name
+   MUST be available to assistive technology" is a separate obligation, and a
+   title attribute alone does not discharge it. */
+.doxchat-loaded-full {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
 .doxchat-card-target {
   align-self: flex-start; font: 10px/1.4 ui-monospace, monospace;
   letter-spacing: .06em; padding: 1px 6px; border-radius: 4px;
@@ -1989,6 +2029,32 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   background: var(--surface); color: var(--ink);
 }
 .swb-docopen:disabled { opacity: 0.5; cursor: not-allowed; }
+/* THE TILE'S THREE VERBS (add-doxbench-editing-phase-b, Q3 ruled). Load and
+   Save share the read verb's chrome, because they are three verbs on one row
+   rather than three visual languages. */
+.swb-docload, .swb-docsave {
+  font: inherit; font-size: 10px; padding: 2px 8px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--ink);
+}
+.swb-docload:disabled, .swb-docsave:disabled { opacity: 0.5; cursor: not-allowed; }
+/* THE TILE MARKING, in the wheel's existing badge/colour idiom (design D9).
+   LOADED and LOADED-AND-DIRTY are separately distinguishable, because Brett
+   named both: one says "this is in the chat context", the other says "this must
+   be saved". Driven off live buffer state; never written into the snapshot. */
+.swb-doctile.swb-docloaded {
+  border-color: var(--st-staged); box-shadow: inset 0 0 0 1px var(--st-staged);
+}
+.swb-doctile.swb-docneedssave {
+  border-color: var(--st-proposal); background: var(--faint);
+  box-shadow: inset 0 0 0 2px var(--st-proposal);
+}
+/* Where a tile verb's outcome lands — a refused load (the measured loaded-set
+   bound) or a Save the governed pipeline declined. */
+.swb-docverbnote {
+  font-size: 11px; color: var(--faint-ink);
+  padding: 4px 8px; border-top: 1px solid var(--border);
+}
 .swb-row-selected {
   outline: 2px solid var(--st-staged); outline-offset: -2px;
   background: var(--faint);

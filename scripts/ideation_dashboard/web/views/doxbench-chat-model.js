@@ -339,6 +339,29 @@ export function rekeyChatState(stateValue, keyValue) {
 
 export const PROPOSAL_STATUSES = Object.freeze([
   "current", "stale", "rejected", "applied"]);
+// THE TARGET SET, and why it is still these two names.
+//
+// add-doxbench-editing-phase-b makes a proposal's target a BUFFER KEY drawn from
+// the request's own supplied set, and the SERVER side of that is realized:
+// `doxbench_turns.permitted_proposal_targets` derives the closed set from the
+// identities the request was shown, so a path-keyed target routes and an
+// unsupplied one is refused as unroutable. What has NOT moved is the WIRE: the
+// released v1 chat-turn envelope declares `typed_proposal.target` as this
+// two-value enum, so no other target can reach this module today.
+//
+// These two names are therefore a LEGAL INSTANCE of the keyed shape -- the
+// reserved `outline` key plus the reserved unbacked `document` key -- exactly as
+// `{outline, document}` is a legal instance of the keyed buffer set (design D1).
+// The behaviour a widened wire needs is already correct and already fail-closed:
+// a target this set does not hold is DROPPED rather than recorded, which is the
+// delta's own rule ("refused as unroutable and MUST NOT be rendered with an
+// Apply control"), and `refreshProposalCurrency` reads whichever hashes it is
+// handed, which the shell now supplies for EVERY buffer key.
+//
+// TODO(add-doxbench-editing-phase-b tasks.md §13): the co-resident widened
+// envelope family releases a buffer-key target. When it lands, this constant
+// becomes the request's own key set -- read from the turn the records were built
+// from, never from a module constant, for the same reason the server's is.
 const PROPOSAL_TARGETS = Object.freeze(["outline", "document"]);
 const NO_PROPOSALS = Object.freeze({ outline: null, document: null });
 

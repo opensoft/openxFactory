@@ -43,6 +43,34 @@ const BUFFERS_UNSETTLED = Object.freeze({
   message: "the buffers are still settling; try Send again in a moment",
 });
 
+// THE V1-WIRE BINDING LIMIT, stated (adversarial review of PR #207, F1).
+//
+// `buildTurnRequest` sends exactly the two buffers the RELEASED v1 chat-turn
+// envelope has room for: the reserved `outline` key and the reserved `document`
+// key. So a turn can only ever be about one of those two, and
+// `active_document_path` can only ever name the reserved slot's own path — which
+// is the invariant `staging-workbench.js` restores.
+//
+// Phase B lets a human SELECT a path-keyed loaded document, and the canvas and
+// the selector honour it immediately. The CHAT cannot, until §13's co-resident
+// widened family releases an envelope that carries the outline plus N documents
+// and a declared bound-buffer key. Before this note existed, selecting such a
+// buffer made the route refuse with its fixed redacted `turn_scope_refused`
+// code — a governance refusal shown for a limitation of our own wire, which is
+// the one thing a refusal must never be.
+//
+// So it is a STATED PRE-FLIGHT POSTURE instead: Send is unreachable, the reason
+// is on the control and programmatically associated, and no provider or route is
+// consulted at all. The house idiom (design §3.4): a capability that is absent
+// says so; it does not fail on activation.
+const CHAT_BINDING_UNRELEASED = Object.freeze({
+  error: "chat_binding_unreleased",
+  message: "this chat cannot be bound to a document loaded beside the tile's own "
+    + "yet: the released turn envelope carries the outline and one document, so "
+    + "select the outline or the tile's own document to send. Editing, Save and "
+    + "the loaded set are unaffected.",
+});
+
 // T100 P1-2 (real-corpus finding): a pre-identity console-token refusal
 // (legacy {ok,error,message} shape) must surface as a RECOVERABLE fixed
 // message, never a wedged rail. The stale-token case names its remedy.
@@ -324,6 +352,16 @@ export function createTurnDispatcher(options) {
         return { refused: true,
                  state: settleTurnFailure(begun, BUFFERS_UNSETTLED) };
       }
+      // F1 (PR #207 review): the SELECTED buffer is one the released envelope
+      // cannot carry a turn about. Refused HERE — pre-flight, composer
+      // preserved, the transport never consulted — with our own stated reason,
+      // rather than shipped so the route can answer with a redacted governance
+      // code for a limitation of our own wire.
+      const binding = chatBindingPosture(editorState);
+      if (!binding.ok) {
+        return { refused: true,
+                 state: settleTurnFailure(begun, CHAT_BINDING_UNRELEASED) };
+      }
       // T104 F2: the two RELEASED-envelope violations, refused here rather
       // than shipped. Same settlement, same preserved composer.
       if (!stateValue.selectedModelId) {
@@ -524,6 +562,197 @@ export function createProposalActions(options) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// THE LOADED-DOCUMENT SELECTOR (add-doxbench-editing-phase-b, Q1 ruled:
+// "make this a dropdown box that lists the files that have been loaded by
+// clicking the edit button on the wheel. the selected one is the file we are
+// working on. if not fit in one line, then use hover to expand to see full
+// filename.")
+//
+// Phase A's rail header was a LABEL -- "Working on — <name> · Chatting about —
+// …". Phase B makes it a SELECTOR, and the model behind it is pure and exported
+// so the whole listing rule is pinnable without a DOM.
+//
+// D6: THE DROPDOWN IS THE OVERFLOW POLICY. A native scrolling select dissolves
+// the many-open-edits problem by construction, so there is no folding, no
+// least-recently-used chip row, and -- deliberately -- NO EVICTION anywhere:
+// every loaded buffer may hold unsaved work, and a policy that evicted to make
+// room would be a policy that discards human text. Reaching the loaded-set bound
+// REFUSES the load with the measured bound stated, which is the state module's
+// job, not this one's.
+//
+// D7: this is a SELECTION SURFACE, not a second state authority.
+// `state.active_buffer` -- a buffer KEY -- remains the one answer to "what is
+// selected". The selector renders it and sets it through the injected seam;
+// loading sets it; the context region's outline tab sets it. Three routes, one
+// value.
+// ---------------------------------------------------------------------------
+
+// Which buffer keys the RELEASED v1 envelope can carry a turn about. Both are
+// reserved keys, and that is the whole of the closed set until §13.
+const V1_BINDABLE_BUFFER_KEYS = Object.freeze(["outline", "document"]);
+
+// The chat's binding posture for one editor state. PURE and exported, so the
+// limitation is pinned without a DOM and read from exactly one place by the
+// render, the dispatcher and the tests.
+export function chatBindingPosture(editorStateValue) {
+  const state = editorStateValue || null;
+  const selected = state && typeof state.active_buffer === "string"
+    ? state.active_buffer : null;
+  if (selected === null) {
+    // No state yet (the rail renders before the canvas's initial load settles).
+    // Not a refusal: there is nothing to refuse about, and `canSend` already
+    // holds Send closed until a model and a message exist.
+    return Object.freeze({ ok: true, reason: null, selected: null });
+  }
+  if (V1_BINDABLE_BUFFER_KEYS.includes(selected)) {
+    return Object.freeze({ ok: true, reason: null, selected });
+  }
+  return Object.freeze({
+    ok: false, reason: CHAT_BINDING_UNRELEASED.message, selected });
+}
+
+export const LOADED_SELECTOR_EMPTY_NOTE =
+  "no document is loaded — use a docs tile's load verb to work on one; the "
+  + "outline is workable on its own";
+
+const OUTLINE_BUFFER_KEY = "outline";
+// The reserved unbacked/create key. Under the RELEASED v1 envelope this slot is
+// not merely reserved -- it RIDES EVERY TURN, exactly as the outline does
+// (`buildTurnRequest` sends `buffers.outline` and `buffers.document` and nothing
+// else), which is why it can no more be unloaded than the outline can.
+const RESERVED_DOCUMENT_BUFFER_KEY = "document";
+const OUTLINE_ENTRY_LABEL = "Outline";
+const UNBACKED_ENTRY_LABEL = "(not yet created)";
+
+function basenameOf(path) {
+  return String(path).split("/").at(-1) || String(path);
+}
+
+// The DISTINGUISHING label rule. A basename is what a human reads, so it is the
+// default; but "a selector that cannot tell two files apart is worse than one
+// that shows a longer name", so when two loaded documents share a basename each
+// colliding entry grows leftwards one path segment at a time until every label
+// in the collision is distinct. The full path always rides the entry as its
+// hover/assistive name, so nothing is ever ambiguous to a reader who asks.
+export function distinguishingLabels(paths) {
+  const values = Array.from(paths, (path) => String(path));
+  const labels = new Map();
+  const bySuffixDepth = new Map();
+  for (const path of values) {
+    const base = basenameOf(path);
+    if (!bySuffixDepth.has(base)) bySuffixDepth.set(base, []);
+    bySuffixDepth.get(base).push(path);
+  }
+  for (const [, colliding] of bySuffixDepth) {
+    if (colliding.length === 1) {
+      labels.set(colliding[0], basenameOf(colliding[0]));
+      continue;
+    }
+    let depth = 1;
+    let assigned = null;
+    // Grow the suffix until every label in THIS collision is distinct, bounded
+    // by the longest path so the loop cannot run away on identical paths (which
+    // the keyed buffer set makes impossible in the first place).
+    const longest = Math.max(...colliding.map((p) => p.split("/").length));
+    while (depth <= longest) {
+      const candidate = new Map();
+      for (const path of colliding) {
+        candidate.set(path, path.split("/").slice(-depth).join("/"));
+      }
+      if (new Set(candidate.values()).size === colliding.length) {
+        assigned = candidate;
+        break;
+      }
+      depth += 1;
+    }
+    for (const path of colliding) {
+      labels.set(path, assigned ? assigned.get(path) : path);
+    }
+  }
+  return labels;
+}
+
+// The selector's whole listing, derived from the LIVE editor state and nothing
+// else. The reserved `outline` entry leads, because the outline is a buffer the
+// selector must be able to name: the ratified rule is that the selector's
+// selected entry IS the selected buffer, and every route must leave the
+// selector, the canvas and the chat agreeing -- a selector that could not show
+// an outline selection would disagree with the canvas the moment the outline tab
+// was focused.
+export function loadedSelectorModel(editorStateValue) {
+  const state = editorStateValue || null;
+  const buffers = (state && state.buffers) || {};
+  const keys = Object.keys(buffers);
+  // F6 (PR #207 review): the reserved `document` slot is present in EVERY state
+  // the canvas produces — `initialLoad` builds it — and while its `path` is null
+  // it is the create flow's not-yet-created artifact, not a loaded document. A
+  // buffer nobody loaded must not be listed as loaded, and counting it made the
+  // ratified empty state unreachable: `documentCount` was never zero, so the
+  // honest "no document is loaded" sentence could never render. Same rule the
+  // canvas's own `loadedBuffers()` applies, spelled once per module because both
+  // stay import-free.
+  const documentKeys = keys.filter((key) => {
+    if (key === OUTLINE_BUFFER_KEY) return false;
+    const buffer = buffers[key];
+    return Boolean(buffer && buffer.path !== null && buffer.path !== undefined);
+  });
+  // The DECLARED order, spelled exactly as doxbench-state.js declares it:
+  // ascending lexicographic by buffer key (UTF-16 code unit). A listing whose
+  // order depended on insertion would reorder itself under the human's cursor.
+  documentKeys.sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
+  const labels = distinguishingLabels(
+    documentKeys.map((key) => {
+      const buffer = buffers[key];
+      return buffer && buffer.path ? buffer.path : key;
+    }));
+  const selected = state && typeof state.active_buffer === "string"
+    ? state.active_buffer : OUTLINE_BUFFER_KEY;
+  const entries = [];
+  if (Object.prototype.hasOwnProperty.call(buffers, OUTLINE_BUFFER_KEY)) {
+    const outline = buffers[OUTLINE_BUFFER_KEY];
+    entries.push(Object.freeze({
+      key: OUTLINE_BUFFER_KEY,
+      reserved: true,
+      label: OUTLINE_ENTRY_LABEL,
+      fullName: outline && outline.path ? String(outline.path) : UNBACKED_ENTRY_LABEL,
+      kind: "outline",
+      owned: outline ? outline.owned === true : false,
+      dirty: outline ? outline.dirty === true : false,
+      selected: selected === OUTLINE_BUFFER_KEY,
+    }));
+  }
+  for (const key of documentKeys) {
+    const buffer = buffers[key];
+    const path = buffer && buffer.path ? String(buffer.path) : null;
+    entries.push(Object.freeze({
+      key,
+      // N3 (PR #207 re-verification): the reserved key is a RESERVED entry, not an
+      // ordinary loaded document, even when it carries a real path. Listing it is
+      // right -- it is selectable and the chat binds to it -- but treating it as
+      // ordinary made Unload reachable for it, and emptying it left
+      // `buildTurnRequest` reading `buffers.document.path` on an absent buffer.
+      // That threw, was caught as the generic unsettled-buffer failure, and the
+      // rail then said "still settling; try Send again in a moment" forever.
+      reserved: key === RESERVED_DOCUMENT_BUFFER_KEY,
+      label: path === null ? UNBACKED_ENTRY_LABEL : labels.get(path) || basenameOf(path),
+      fullName: path === null ? UNBACKED_ENTRY_LABEL : path,
+      kind: "document",
+      owned: buffer ? buffer.owned === true : false,
+      dirty: buffer ? buffer.dirty === true : false,
+      selected: selected === key,
+    }));
+  }
+  return Object.freeze({
+    entries: Object.freeze(entries),
+    selected,
+    documentCount: documentKeys.length,
+    // The HONEST empty state: the control is rendered and says so, rather than
+    // hiding, and the outline stays selectable and workable beside it.
+    emptyNote: documentKeys.length === 0 ? LOADED_SELECTOR_EMPTY_NOTE : null,
+  });
+}
+
 // One counter per module load, so each mounted rail's sr-only reason carries an
 // id no sibling rail can collide with (the canvas does the same for its own
 // per-instance ids).
@@ -569,6 +798,40 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // persistent header names BOTH buffers a turn grounds on and a proposal
   // may rewrite, updating as the active document changes.
   const header = el("div", "doxchat-header");
+  // THE LOADED-DOCUMENT SELECTOR (Q1 ruled). A native scrolling select, so the
+  // control IS the overflow policy (D6) and the surface introduces no second
+  // spelling of selection: it is the same element idiom the approved-model
+  // selector already uses, keyboard-reachable with the platform's own semantics.
+  const loadedSelect = el("select", "doxchat-loaded");
+  loadedSelect.setAttribute("aria-label", "loaded document");
+  // A workbench selection, not a form answer — the same autofill refusal every
+  // other authoring control on this surface carries.
+  loadedSelect.setAttribute("autocomplete", "off");
+  // The SELECTED entry's FULL name, for assistive technology. The visible label
+  // may be a basename (or the shortest distinguishing suffix); "the full name
+  // MUST be available to assistive technology" is a separate obligation from
+  // hover, and a title attribute alone does not discharge it.
+  const loadedFull = el("div", "doxchat-loaded-full doxchat-sronly");
+  loadedFull.setAttribute("aria-live", "polite");
+  // The honest empty state — rendered, never hidden.
+  const loadedEmpty = el("div", "doxchat-loaded-empty");
+  // THE UNLOAD AFFORDANCE (PR #207 review, F9). The ratified loaded-set
+  // requirement says "a document SHALL leave the loaded set only by an explicit
+  // human act, and that act MUST refuse or require an explicit discard while the
+  // buffer is dirty" — and the state primitive for it shipped with no control, so
+  // the act did not exist and the declared bound was a dead end: a session that
+  // reached it could never get back under it.
+  //
+  // It lives HERE, beside the selector, because this is the surface that presents
+  // the loaded set — the same reason the selector is here. It is scoped to the
+  // SELECTED entry, which is the one a human is looking at, and it is unreachable
+  // while the outline is selected: the outline's key is permanently reserved and
+  // it is the one buffer that rides every turn.
+  const unloadBtn = el("button", "doxchat-unload", "Unload");
+  unloadBtn.type = "button";
+  const loadedNote = el("div", "doxchat-loaded-note");
+  loadedNote.setAttribute("aria-live", "polite");
+  loadedNote.hidden = true;
   const subjectInput = el("input", "doxchat-subject");
   subjectInput.setAttribute("aria-label", "working subject");
   subjectInput.setAttribute("autocomplete", "off");
@@ -626,28 +889,165 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // view its harness has to grow to match.
   unavailableNote.id = "doxchat-unavailable-" + (railSequence += 1);
   sendBtn.setAttribute("aria-describedby", unavailableNote.id);
-  host.append(header, subjectInput, unavailableNote, transcriptList,
+  host.append(header, loadedSelect, unloadBtn, loadedNote, loadedEmpty,
+              loadedFull, subjectInput,
+              unavailableNote, transcriptList,
               cardsHost, announce, failureNote, composer, disclosure, sendrow);
 
+  // SELECTING IS IMMEDIATE, and it is not a state authority: the seam owns the
+  // move, `state.active_buffer` remains the one answer, and this handler only
+  // asks. No confirmation step, because changing which buffer is selected
+  // replaces no content and destroys nothing — the unsaved-edit guard is not
+  // extended to selection now that documents are held side by side rather than
+  // in one slot.
+  //
+  // TODO(add-doxbench-editing-phase-b tasks.md §9): switching the selection must
+  // also switch WHICH THREAD the transcript shows and appends to. The thread
+  // sidecar and its persistence land in the threads slice; this handler is the
+  // one place that call belongs, and it is deliberately left as the selection
+  // move alone rather than half-wired to a store that does not exist yet.
+  loadedSelect.addEventListener("change", async () => {
+    const wanted = String(loadedSelect.value || "");
+    const model = loadedSelectorModel(liveEditorState());
+    if (!model.entries.some((entry) => entry.key === wanted)) {
+      // A value naming no held buffer is put back rather than acted on: the
+      // selector renders the selection, it never invents one.
+      renderLoadedSelector();
+      return;
+    }
+    const select = options.selectBuffer;
+    if (typeof select === "function") await select(wanted);
+    renderLoadedSelector();
+    renderHeader();
+  });
+
+  // The unload act: explicit, scoped to the selected document, and REFUSED while
+  // that buffer is dirty unless the human states the discard — which they do by
+  // pressing it a second time, on a control that has changed its own label to say
+  // what the second press means. Dropping unsaved work silently is the one thing
+  // this control must never do.
+  let unloadArmedKey = null;
+  unloadBtn.addEventListener("click", async () => {
+    const model = loadedSelectorModel(liveEditorState());
+    const chosen = model.entries.find((entry) => entry.selected);
+    // Refused here as well as withheld above (N3): a reserved buffer leaving the
+    // set is the one act that can wedge the chat, so the click path does not
+    // depend on the render having disabled the control.
+    if (!chosen || chosen.kind !== "document" || chosen.reserved === true) return;
+    const unload = options.unloadBuffer;
+    if (typeof unload !== "function") return;
+    const arming = unloadArmedKey === chosen.key;
+    const outcome = await unload(chosen.key, { discardUnsavedEdits: arming });
+    if (outcome && outcome.ok === true) {
+      unloadArmedKey = null;
+      loadedNote.textContent = "unloaded — its unsaved edits, if any, are gone";
+      loadedNote.hidden = false;
+    } else {
+      // ARMED, not performed: the refusal names what a second press will do.
+      unloadArmedKey = chosen.key;
+      loadedNote.textContent = (outcome && outcome.error)
+        || "this document was not unloaded";
+      loadedNote.hidden = false;
+    }
+    renderLoadedSelector();
+    renderHeader();
+  });
+
+  function liveEditorState() {
+    return typeof editorState === "function" ? editorState() : editorState;
+  }
+
+  // The selector is rebuilt from the live state on every render, which is what
+  // makes "the selector, the canvas and the chat agree" structural rather than a
+  // rule three call sites have to remember.
+  function renderLoadedSelector() {
+    const model = loadedSelectorModel(liveEditorState());
+    loadedSelect.textContent = "";
+    for (const entry of model.entries) {
+      const option = el("option", "doxchat-loaded-option", entry.label);
+      option.value = entry.key;
+      // HOVER reveals the full name (Q1's own words), and the same string is
+      // handed to assistive technology.
+      option.setAttribute("title", entry.fullName);
+      option.setAttribute("aria-label", entry.fullName);
+      if (entry.selected) option.setAttribute("selected", "selected");
+      // A context-only document is loadable for grounding and conversation, and
+      // its non-owned status rides the entry so the surface never implies it can
+      // be saved here (design D2).
+      if (entry.kind === "document" && entry.owned !== true) {
+        option.setAttribute("data-owned", "false");
+      }
+      if (entry.dirty) option.setAttribute("data-dirty", "true");
+      loadedSelect.appendChild(option);
+    }
+    loadedSelect.value = model.selected;
+    loadedSelect.disabled = model.entries.length === 0;
+    loadedEmpty.textContent = model.emptyNote || "";
+    loadedEmpty.hidden = model.emptyNote === null;
+    const chosen = model.entries.find((entry) => entry.selected);
+    loadedFull.textContent = chosen
+      ? "Working on " + chosen.fullName
+      : "no buffer is selected";
+    // Unload is reachable only for a selected DOCUMENT, and only where the seam
+    // exists at all: on a surface with no editing capability there is no loaded
+    // set to leave.
+    const unloadable = Boolean(chosen) && chosen.kind === "document"
+      && chosen.reserved !== true
+      && typeof options.unloadBuffer === "function";
+    unloadBtn.disabled = !unloadable;
+    if (!unloadable) {
+      unloadArmedKey = null;
+      unloadBtn.textContent = "Unload";
+      if (chosen && chosen.reserved === true) {
+        // ONE sentence for both reserved keys, because it is one fact: under the
+        // released envelope the outline and the reserved document slot are the two
+        // buffers every turn carries, so unloading either would leave the chat
+        // unable to build a turn at all.
+        unloadBtn.title = chosen.kind === "outline"
+          ? "the outline is a reserved buffer that rides every turn, and is never "
+            + "unloaded"
+          : "this is the tile's own document, a reserved buffer that rides every "
+            + "turn, and is never unloaded — load another document to work beside it";
+      } else {
+        unloadBtn.title = "no loaded document is selected";
+      }
+      return;
+    }
+    const armed = unloadArmedKey === chosen.key;
+    unloadBtn.textContent = armed ? "Discard and unload" : "Unload";
+    unloadBtn.title = armed
+      ? "press again to DISCARD this document's unsaved edits and unload it"
+      : "unload " + chosen.fullName + " from the loaded set";
+  }
+
   function renderHeader() {
-    const es = typeof editorState === "function" ? editorState() : editorState;
+    const es = liveEditorState();
     const nameOf = (b) => {
       if (!b) return "(absent)";
       if (b.path === null || b.path === undefined) return "(not yet created)";
       return String(b.path).split("/").at(-1);
     };
-    const outline = es && es.buffers ? es.buffers.outline : null;
-    const documentBuffer = es && es.buffers ? es.buffers.document : null;
     // add-doxbench-editing-phase-a: the chat's WORKING CONTEXT is the canvas's
     // ACTIVE BUFFER — the one the context region selected — and it is read
     // straight off the live editor state rather than tracked a second time
-    // here. Grounding is unchanged and still names BOTH buffers: binding says
+    // here. Grounding is unchanged and still names EVERY buffer: binding says
     // what the chat is working ON, never what it may see.
+    //
+    // add-doxbench-editing-phase-b: "every loaded document" is now a SET, so the
+    // header states the binding and the COUNT rather than enumerating two fixed
+    // names it no longer has. The enumeration lives in the selector beside it,
+    // which is where a human can also act on it.
     const bound = es && es.buffers ? es.buffers[es.active_buffer] : null;
     const boundName = bound ? nameOf(bound) : "(absent)";
+    const model = loadedSelectorModel(es);
+    const grounded = model.documentCount === 1
+      ? "1 loaded document"
+      : String(model.documentCount) + " loaded documents";
     header.textContent = "Working on — " + boundName
-      + " · Chatting about — Outline: " + nameOf(outline)
-      + " · Document: " + nameOf(documentBuffer);
+      + " · Chatting about — Outline: "
+      + nameOf(es && es.buffers ? es.buffers.outline : null)
+      + " · " + grounded;
+    renderLoadedSelector();
   }
 
   // (The captured-node `restoreFocus` helper that used to live here went
@@ -778,13 +1178,24 @@ export function mountDoxBenchChatRail(host, options = {}) {
     // precisely because the button still looked available, and the second
     // click sent an empty message the schema refused as malformed.
     const inFlight = state.phase !== "idle";
-    sendBtn.disabled = !canSend(state);
+    // F1 (PR #207 review): a selection the released envelope cannot carry holds
+    // Send closed BEFORE any provider is reached, and the reason rides the
+    // control and the sr-only region the control already points at with
+    // `aria-describedby` — so it is programmatically associated rather than
+    // living only in a hover title.
+    const binding = chatBindingPosture(liveEditorState());
+    sendBtn.disabled = !canSend(state) || !binding.ok;
     sendBtn.textContent = inFlight ? "Sending…" : "Send";
     // The reason is a MODEL reason only while no model is actually selectable or
     // selected; once one is chosen, an empty composer is a different reason and
     // must not borrow this sentence.
-    const modelReason = state.selectedModelId ? null : unavailabilityNote(state);
+    // The BINDING reason wins when it applies: it names a limitation of this
+    // surface's own wire, which no model choice can fix.
+    const modelReason = !binding.ok
+      ? binding.reason
+      : (state.selectedModelId ? null : unavailabilityNote(state));
     sendBtn.title = sendTitle(inFlight, sendBtn.disabled, modelReason);
+    if (!binding.ok) unavailableNote.textContent = binding.reason;
     if (typeof onState === "function") onState(state);
   }
 

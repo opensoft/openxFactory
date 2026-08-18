@@ -533,7 +533,8 @@ STATE_JS = SAVE_JS.parent / "doxbench-state.js"
 # T071 set: the scenarios are independent, so they are all run and returned
 # together (the same economy `mutation_results` uses).
 _SAVE_HARNESS = r"""
-const { runSave, saveOrder, SAVE_BUFFER_ORDER } = await import('./doxbench-save.js');
+const { runSave, saveOrder, saveBufferOrder, SAVE_DOCUMENT_ORDER_RULE } =
+  await import('./doxbench-save.js');
 
 const KEY = { repository: 'fixture-repo', ref: 'main',
               tile_kind: 'staged', tile_id: 'topic-x' };
@@ -602,7 +603,8 @@ async function scenario(script, over = {}) {
 }
 
 const results = {
-  order: SAVE_BUFFER_ORDER,
+  order: saveBufferOrder(Object.keys(state().buffers)),
+  orderRule: SAVE_DOCUMENT_ORDER_RULE,
   plan: saveOrder(state()),
   planWithCleanOutline: saveOrder(state({ outline: { dirty: false } })),
   bothAccepted: await scenario({}),
@@ -639,10 +641,21 @@ def save_results(tmp_path_factory):
 
 # ---- outline first -------------------------------------------------------
 
-def test_the_declared_save_order_is_outline_then_document(save_results):
-    """The order is a declared constant, not an emergent property of whichever
-    buffer happened to be iterated first."""
+def test_the_declared_save_order_is_outline_then_documents(save_results):
+    """RE-PINNED by `add-doxbench-editing-phase-b` (task 6.1).
+
+    Phase A pinned a declared CONSTANT (`SAVE_BUFFER_ORDER`, a fixed ordered
+    pair). Phase B holds N documents, so a constant list cannot express the
+    order and the ratified contract states a RULE instead: the outline first
+    because its commit is the session ancestry, then every document in a
+    deterministic order the realization declares. The assertion is not
+    weakened -- the order is still not an emergent property of whichever buffer
+    happened to be iterated first; it is now a declared FUNCTION of the buffer
+    keys, and the declaration itself is asserted beside it.
+    """
     assert save_results["order"] == ["outline", "document"]
+    assert save_results["orderRule"] == (
+        "ascending lexicographic by buffer key (UTF-16 code unit)")
 
 
 def test_both_dirty_buffers_are_attempted_outline_first(save_results):
@@ -687,7 +700,7 @@ def test_each_buffer_declares_the_existing_action_its_path_implies(save_results)
     """FR-031: an existing path is the existing edit action; a buffer with no
     path yet is the existing create action. Save introduces no third verb."""
     plan = save_results["plan"]
-    by_kind = {row["kind"]: row for row in plan}
+    by_kind = {row["key"]: row for row in plan}
     assert by_kind["outline"]["action"] == "edit-document"
     assert by_kind["document"]["action"] == "edit-document"
     for call in save_results["bothAccepted"]["calls"]:
@@ -695,7 +708,7 @@ def test_each_buffer_declares_the_existing_action_its_path_implies(save_results)
 
 
 def test_the_plan_skips_a_clean_buffer(save_results):
-    kinds = [row["kind"] for row in save_results["planWithCleanOutline"]]
+    kinds = [row["key"] for row in save_results["planWithCleanOutline"]]
     assert kinds == ["document"]
 
 
@@ -763,7 +776,7 @@ def test_every_buffer_outcome_carries_the_declared_outcome_fields(save_results):
     outcome cannot be reported with a field quietly missing."""
     for scenario_name in ("bothAccepted", "documentRefused", "outlineRefused"):
         for row in save_results[scenario_name]["outcome"]["buffers"]:
-            assert set(row) == {"kind", "status", "action", "ref", "revision",
+            assert set(row) == {"key", "status", "action", "ref", "revision",
                                 "content_hash", "message"}, row
             assert row["status"] in {"unchanged", "committed", "refused",
                                      "not_attempted"}
@@ -771,7 +784,7 @@ def test_every_buffer_outcome_carries_the_declared_outcome_fields(save_results):
 
 def _outcome_for(scenario, kind):
     for row in scenario["outcome"]["buffers"]:
-        if row["kind"] == kind:
+        if row["key"] == kind:
             return row
     raise AssertionError(f"no outcome reported for {kind}: {scenario['outcome']}")
 
@@ -867,7 +880,7 @@ try {
   out.planKey = state.key;
   out.planKinds = Object.keys(state.buffers);
   out.rows = saveOrder(state).map((row) => ({
-    kind: row.kind, action: row.action, document: row.document,
+    key: row.key, action: row.action, document: row.document,
     base_hash: row.base_hash, refusal: row.refusal,
   }));
   const sent = [];
@@ -879,7 +892,7 @@ try {
   } });
   out.sent = sent;
   out.outcome = outcome.buffers.map((row) => ({
-    kind: row.kind, status: row.status }));
+    key: row.key, status: row.status }));
   out.threw = null;
 } catch (error) {
   out.threw = String(error && error.message || error);
@@ -911,14 +924,14 @@ def test_an_absent_outline_buffer_no_longer_blocks_the_document_save(absent_outl
     # the plan: one document row, the edit action (the path exists in the
     # buffer), its declared base hex, and no refusal from the missing outline
     assert r["rows"] == [{
-        "kind": "document", "action": "edit-document",
+        "key": "document", "action": "edit-document",
         "document": "docs/registry.md", "base_hash": "c" * 64,
         "refusal": None,
     }]
     # and the run itself: the document is sent and commits; the absent outline
     # is reported `unchanged` rather than blocking the document behind it
     assert r["sent"] == ["document"]
-    outcome = {row["kind"]: row["status"] for row in r["outcome"]}
+    outcome = {row["key"]: row["status"] for row in r["outcome"]}
     assert outcome == {"outline": "unchanged", "document": "committed"}
 
 
@@ -1024,8 +1037,8 @@ const SERVER_PAYLOAD = {
       return firstEditVerdict(SERVER_PAYLOAD); } });
   out.serverVerb = {
     plannedAction: requests[0] && requests[0].action,
-    committedAction: outcome.buffers.find((b) => b.kind === "document").action,
-    status: outcome.buffers.find((b) => b.kind === "document").status,
+    committedAction: outcome.buffers.find((b) => b.key === "document").action,
+    status: outcome.buffers.find((b) => b.key === "document").status,
   };
 }
 {
@@ -1033,7 +1046,7 @@ const SERVER_PAYLOAD = {
   // verdict at all maps to the FIXED refusal — never a TypeError mid-Save.
   const outcome = await runSave(state, {
     transport: async () => firstEditVerdict(null) });
-  const row = outcome.buffers.find((b) => b.kind === "document");
+  const row = outcome.buffers.find((b) => b.key === "document");
   out.nullVerdict = { status: row.status, message: row.message };
 }
 console.log(JSON.stringify(out));
@@ -1073,3 +1086,254 @@ def test_a_transport_with_no_payload_yields_the_mapped_refusal_mid_save(
     assert n["status"] == "refused"
     assert n["message"] == (
         "the Save transport returned no verdict for this buffer")
+
+
+# ==========================================================================
+# add-doxbench-editing-phase-b §6: N DOCUMENTS, ancestry-then-independence.
+#
+# The ordering rule Phase A could not express and Phase B ratifies (design D3):
+# the outline first as ANCESTRY, then every dirty document INDEPENDENTLY, one
+# document's refusal stopping no other. This harness is the shape no Phase A
+# scenario could take -- an outline plus three documents -- and it drives the
+# three cases the delta's own scenarios name:
+#
+#   * all four land;
+#   * the outline REFUSES, so every document is `not_attempted` with the
+#     missing-ancestry reason and nothing is sent;
+#   * one document refuses, and the ones behind it are STILL ATTEMPTED, because
+#     they descend from the same ancestry and the refusal was not about them.
+#
+# Plus the tile Save's scope (D4): the same pipeline, restricted to one document
+# plus the ancestry step, persisting no other loaded document.
+# ==========================================================================
+
+_N_DOCUMENT_HARNESS = r"""
+const { runSave, saveOrder, saveBufferOrder } =
+  await import('./doxbench-save.js');
+
+const KEY = { repository: 'fixture-repo', ref: 'main',
+              tile_kind: 'staged', tile_id: 'topic-x' };
+const OUTLINE = 'ideation/staging/topic-x/topic-x.md';
+const ALPHA = 'ideation/staging/topic-x/alpha.md';
+const MIDDLE = 'ideation/staging/topic-x/nested/alpha.md';
+const ZULU = 'ideation/staging/topic-x/zulu.md';
+
+const hex = (seed) => {
+  let out = '';
+  for (const ch of String(seed)) out += ch.charCodeAt(0).toString(16).padStart(2, '0');
+  return out.padEnd(64, '0').slice(0, 64);
+};
+const identity = (seed) => ({ algorithm: 'sha256', hex: hex(seed) });
+
+function buffer(kind, path, { dirty = true, owned = true } = {}) {
+  const base = identity(path + 'base');
+  return {
+    kind, path, owned, repository: KEY.repository,
+    base_ref: 'main', base_revision: 'rev',
+    base_hash: base, base_content: '# ' + path + '\n',
+    current_hash: dirty ? identity(path + 'curr') : base,
+    content: dirty ? '# ' + path + ' edited\n' : '# ' + path + '\n',
+    dirty, load_state: 'ready', hash_generation: dirty ? 1 : 0,
+    hash_pending: false,
+  };
+}
+
+function state(over = {}) {
+  return {
+    key: KEY, active_buffer: ALPHA,
+    buffers: {
+      outline: buffer('outline', OUTLINE, over.outline || {}),
+      [ZULU]: buffer('document', ZULU, over[ZULU] || {}),
+      [ALPHA]: buffer('document', ALPHA, over[ALPHA] || {}),
+      [MIDDLE]: buffer('document', MIDDLE, over[MIDDLE] || {}),
+    },
+  };
+}
+
+// The transport answers from a script keyed by DOCUMENT PATH (the outline by
+// its own path), so a refusal can be aimed at exactly one buffer.
+function transportFor(script, calls) {
+  let n = 0;
+  return async (request) => {
+    calls.push({ kind: request.kind, document: request.document });
+    const verdict = script[request.document];
+    n += 1;
+    if (verdict) return { ok: false, message: verdict };
+    return {
+      ok: true, ref: 'draft/topic-x', revision: 'newrev-' + n,
+      document: request.document,
+      content_hash: { algorithm: 'sha256', hex: hex(request.document + 'saved') },
+    };
+  };
+}
+
+async function scenario(script, over = {}, options = {}) {
+  const calls = [];
+  const outcome = await runSave(state(over), {
+    transport: transportFor(script, calls), ...options });
+  return {
+    calls,
+    status: outcome.status,
+    rows: outcome.buffers.map((r) => ({ key: r.key, status: r.status,
+                                        message: r.message })),
+    dirty: Object.fromEntries(Object.entries(outcome.state.buffers)
+      .map(([k, b]) => [k, b.dirty])),
+    bases: Object.fromEntries(Object.entries(outcome.state.buffers)
+      .map(([k, b]) => [k, b.base_content])),
+  };
+}
+
+console.log(JSON.stringify({
+  order: saveBufferOrder(Object.keys(state().buffers)),
+  plan: saveOrder(state()).map((r) => r.key),
+  allLand: await scenario({}),
+  outlineRefused: await scenario({ [OUTLINE]: 'the outline base moved' }),
+  oneDocumentRefused: await scenario({ [MIDDLE]: 'that document base moved' }),
+  tileScoped: await scenario({}, {}, { only: ALPHA }),
+  tileScopedCleanOutline: await scenario(
+    {}, { outline: { dirty: false } }, { only: ALPHA }),
+  tileScopedOutlineRefused: await scenario(
+    { [OUTLINE]: 'the outline base moved' }, {}, { only: ALPHA }),
+}));
+"""
+
+
+@pytest.fixture(scope="module")
+def n_document_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the N-document Save probe")
+    root = tmp_path_factory.mktemp("doxbench-save-n-documents")
+    (root / "views").mkdir()
+    shutil.copy(SAVE_JS, root / "views" / "doxbench-save.js")
+    shutil.copy(STATE_JS, root / "views" / "doxbench-state.js")
+    (root / "package.json").write_text('{"type": "module"}', encoding="utf-8")
+    harness = root / "views" / "n-document-harness.mjs"
+    harness.write_text(_N_DOCUMENT_HARNESS, encoding="utf-8")
+    done = subprocess.run([NODE, str(harness)], capture_output=True, text=True,
+                          timeout=60)
+    assert done.returncode == 0, done.stderr
+    return json.loads(done.stdout)
+
+
+def test_the_outline_leads_and_documents_follow_in_the_declared_order(
+        n_document_results):
+    """Task 6.1: the outline FIRST because its commit is the session ancestry,
+    then every document in the declared deterministic order."""
+    assert n_document_results["order"] == [
+        "outline",
+        "ideation/staging/topic-x/alpha.md",
+        "ideation/staging/topic-x/nested/alpha.md",
+        "ideation/staging/topic-x/zulu.md",
+    ]
+    assert n_document_results["plan"] == n_document_results["order"]
+
+
+def test_four_dirty_buffers_each_produce_their_own_gate_action(
+        n_document_results):
+    """The delta's `Several dirty documents are saved` scenario: the outline runs
+    first and each changed document produces its OWN existing gate-action commit,
+    with no combined or hidden write verb."""
+    scenario = n_document_results["allLand"]
+    assert scenario["status"] == "committed"
+    assert [c["document"] for c in scenario["calls"]] == [
+        "ideation/staging/topic-x/topic-x.md",
+        "ideation/staging/topic-x/alpha.md",
+        "ideation/staging/topic-x/nested/alpha.md",
+        "ideation/staging/topic-x/zulu.md",
+    ]
+    assert all(row["status"] == "committed" for row in scenario["rows"])
+    assert all(dirty is False for dirty in scenario["dirty"].values())
+
+
+def test_a_refused_outline_stops_every_document_with_the_ancestry_reason(
+        n_document_results):
+    """The delta's `The outline's save refuses` scenario: every dirty document is
+    reported `not_attempted` with the missing-ancestry reason and MUST NOT be
+    sent, and every buffer's text, base and dirty state is preserved exactly."""
+    scenario = n_document_results["outlineRefused"]
+    assert scenario["status"] == "refused"
+    assert [c["document"] for c in scenario["calls"]] == [
+        "ideation/staging/topic-x/topic-x.md"], (
+        "a document was sent with no ancestry to descend from")
+    by_key = {row["key"]: row for row in scenario["rows"]}
+    assert by_key["outline"]["status"] == "refused"
+    for key in ("ideation/staging/topic-x/alpha.md",
+                "ideation/staging/topic-x/nested/alpha.md",
+                "ideation/staging/topic-x/zulu.md"):
+        assert by_key[key]["status"] == "not_attempted"
+        assert "no session ancestry" in by_key[key]["message"]
+    assert all(dirty is True for dirty in scenario["dirty"].values())
+
+
+def test_one_documents_refusal_stops_no_other_document(n_document_results):
+    """The delta's `One document's save refuses` scenario, and the whole reason
+    design D3 restated the rule instead of lengthening the list: the third
+    document MUST still be attempted, because it descends from the same ancestry
+    and the refusal was not about it. Keeping Phase A's chain here would report
+    untried work as blocked by a refusal that had nothing to do with it -- a
+    false statement about both buffers."""
+    scenario = n_document_results["oneDocumentRefused"]
+    assert scenario["status"] == "partial"
+    # ALL FOUR were attempted: the refusal in the middle stopped nothing.
+    assert [c["document"] for c in scenario["calls"]] == [
+        "ideation/staging/topic-x/topic-x.md",
+        "ideation/staging/topic-x/alpha.md",
+        "ideation/staging/topic-x/nested/alpha.md",
+        "ideation/staging/topic-x/zulu.md",
+    ]
+    by_key = {row["key"]: row for row in scenario["rows"]}
+    # The report NAMES the committed, refused and remaining buffers separately.
+    assert by_key["outline"]["status"] == "committed"
+    assert by_key["ideation/staging/topic-x/alpha.md"]["status"] == "committed"
+    assert by_key["ideation/staging/topic-x/nested/alpha.md"]["status"] == "refused"
+    assert by_key["ideation/staging/topic-x/zulu.md"]["status"] == "committed"
+    assert "that document base moved" in \
+        by_key["ideation/staging/topic-x/nested/alpha.md"]["message"]
+    # …and NO row claims to have been blocked by it.
+    assert not any(row["status"] == "not_attempted" for row in scenario["rows"])
+    # The refused buffer keeps its text; the committed ones advanced.
+    assert scenario["dirty"]["ideation/staging/topic-x/nested/alpha.md"] is True
+    assert scenario["dirty"]["ideation/staging/topic-x/zulu.md"] is False
+
+
+def test_the_tile_save_persists_that_document_plus_the_ancestry_step_only(
+        n_document_results):
+    """Design D4 and the delta's `The tile save runs with a dirty outline`
+    scenario: the outline is persisted first as the ancestry step, that document
+    is then persisted, each reporting its own verdict -- and NO other loaded
+    document is persisted by that act, because a control that lives on one
+    document's tile and is enabled by that document's state must not persist
+    three others the human is not looking at."""
+    scoped = n_document_results["tileScoped"]
+    assert [c["document"] for c in scoped["calls"]] == [
+        "ideation/staging/topic-x/topic-x.md",
+        "ideation/staging/topic-x/alpha.md",
+    ]
+    keys = {row["key"] for row in scoped["rows"]}
+    assert keys == {"outline", "ideation/staging/topic-x/alpha.md"}
+    # The two documents the act did not touch keep their unsaved work, and are
+    # not reported as refused -- nobody asked about them.
+    assert scoped["dirty"]["ideation/staging/topic-x/zulu.md"] is True
+    assert scoped["dirty"]["ideation/staging/topic-x/nested/alpha.md"] is True
+
+
+def test_the_tile_save_skips_a_clean_outline_and_still_lands(n_document_results):
+    scoped = n_document_results["tileScopedCleanOutline"]
+    assert [c["document"] for c in scoped["calls"]] == [
+        "ideation/staging/topic-x/alpha.md"]
+    by_key = {row["key"]: row for row in scoped["rows"]}
+    assert by_key["outline"]["status"] == "unchanged"
+    assert by_key["ideation/staging/topic-x/alpha.md"]["status"] == "committed"
+
+
+def test_the_tile_save_cannot_commit_a_document_without_the_ancestry(
+        n_document_results):
+    """The ancestry step is not skippable by a scoped entry point, or a tile Save
+    would be a way to commit a document without the ancestry the ordering rule
+    requires."""
+    scoped = n_document_results["tileScopedOutlineRefused"]
+    assert [c["document"] for c in scoped["calls"]] == [
+        "ideation/staging/topic-x/topic-x.md"]
+    by_key = {row["key"]: row for row in scoped["rows"]}
+    assert by_key["outline"]["status"] == "refused"
+    assert by_key["ideation/staging/topic-x/alpha.md"]["status"] == "not_attempted"

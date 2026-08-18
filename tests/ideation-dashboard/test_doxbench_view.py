@@ -344,6 +344,15 @@ class Node {
     this._scrollTop = 0;
     this._innerHTML = '';
     this.parentNode = null;
+    // Every element has one, and the wheel writes `transform`/`opacity`/
+    // `zIndex` through it on every layout pass. Absent, the wheel's layout threw
+    // and no test could reach the tiles it places -- the same gap that hid the
+    // composition defects the PR #207 review found.
+    this.style = {};
+    // Measured height. Zero is the honest default for an unlaid-out stub, and
+    // `doc-wheel.js` deliberately waits for a real box rather than dividing by
+    // it; a harness that wants tiles placed sets it.
+    this.clientHeight = 0;
     const self = this;
     this.classList = {
       add(...names) {
@@ -439,6 +448,19 @@ class Node {
     return child;
   }
   setAttribute(name, value) { this.attributes[name] = String(value); }
+  // A real DOM method the shipped code has always used (`doc-wheel.js` clears
+  // `aria-hidden` on every tile it lays out). The shim lacked it, which is why
+  // no test in this suite had ever driven the docs wheel's LAYOUT -- and the
+  // adversarial review of PR #207 found three composition defects hiding behind
+  // exactly that gap. Added as the real method, never as a no-op.
+  removeAttribute(name) { delete this.attributes[name]; }
+  // A tile carries its own removal too (`mountActions` rebuilds the action row).
+  remove() {
+    if (!this.parentNode) return;
+    const at = this.parentNode.children.indexOf(this);
+    if (at >= 0) this.parentNode.children.splice(at, 1);
+    this.parentNode = null;
+  }
   getAttribute(name) {
     return Object.prototype.hasOwnProperty.call(this.attributes, name)
       ? this.attributes[name] : null;
@@ -1800,7 +1822,7 @@ async function statusbarPostureScenario() {
     loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(),
     previewDelayMs: 5, eventNoteMs: 50,
     save: async () => ({ status: 'refused', buffers: [{
-      kind: 'outline', status: 'refused', action: 'edit-document', ref: null,
+      key: 'outline', status: 'refused', action: 'edit-document', ref: null,
       revision: null, content_hash: null,
       message: 'the outline base moved under this buffer' }] }),
   });
@@ -2748,11 +2770,18 @@ def test_staging_workbench_composes_the_doxbench_canvas_without_new_transport():
     assert 'import { mountDoxBenchCanvas } from "./doxbench-editor.js";' in view
     assert "doxbenchScopeProjection" in view
 
+    # RE-PINNED (PR #207 review, F3): the offering derivation moved OUT of
+    # `drawCanvas` into `canvasOffered()`, because the docs tile's verbs must read
+    # the SAME answer -- a tile that decided its own capability from whether the
+    # canvas controller happened to have mounted yet said "no editing capability"
+    # on a console that has one (the docs pane is drawn first). One derivation, two
+    # readers; every clause of it is unchanged and still asserted here.
+    assert "function canvasOffered() {" in view
     assert (
-        "const canvasOffered = !!scope && createGateLive(caps) && "
-        "!sessionSurfaceHidden(caps) &&" in view
+        "return !!scope && createGateLive(caps) && !sessionSurfaceHidden(caps)"
+        in view
     )
-    assert "!!active?.repository && !!active?.ref;" in view
+    assert "&& !!active?.repository && !!active?.ref;" in view
 
     # T023 (+T080 client half, 2026-07-30; PIN EVOLUTION T100 P1-A,
     # 2026-08-01): the composition forwards ONLY the seams app.js injects via
@@ -2900,20 +2929,28 @@ function identity(seed) {
   return { algorithm: 'sha256', hex: hex.padEnd(64, '0').slice(0, 64) };
 }
 
-// A scripted seam. `verdicts` maps buffer kind -> outcome row; anything absent
-// is reported committed. `gate` (optional) is awaited before answering, which is
-// how the BUSY posture is observed mid-flight rather than inferred.
+// A scripted seam. `verdicts` maps buffer KEY -> outcome row; anything absent is
+// reported committed. `gate` (optional) is awaited before answering, which is how
+// the BUSY posture is observed mid-flight rather than inferred.
+//
+// PIN EVOLUTION (add-doxbench-editing-phase-b): the seam request row's identifier
+// and the outcome row's identifier are both `key` rather than `kind`. The rename
+// is ./doxbench-save.js's -- a row keyed by `kind` would carry a document's PATH
+// under the word `kind` once the buffer set widens, which is a false statement
+// about the field -- and this fixture models the same wire the real seam does. Not
+// a weakening: the same rows, the same verdicts, the same lookups, keyed by the
+// identifier the contract now uses.
 function seamFor(verdicts, { gate = null, calls = null } = {}) {
   return async (request) => {
     if (calls) calls.push(request);
     if (gate) await gate.promise;
     const rows = request.buffers.map((buffer) => {
-      const scripted = verdicts[buffer.kind];
-      if (scripted) return { kind: buffer.kind, ...scripted };
+      const scripted = verdicts[buffer.key];
+      if (scripted) return { key: buffer.key, ...scripted };
       return {
-        kind: buffer.kind, status: 'committed', action: 'edit-document',
-        ref: SESSION_REF, revision: 'newrev-' + buffer.kind,
-        content_hash: identity(buffer.kind + 'saved'), message: null,
+        key: buffer.key, status: 'committed', action: 'edit-document',
+        ref: SESSION_REF, revision: 'newrev-' + buffer.key,
+        content_hash: identity(buffer.key + 'saved'), message: null,
       };
     });
     const statuses = new Set(rows.map((r) => r.status));
@@ -3275,15 +3312,26 @@ def test_with_a_save_seam_the_control_becomes_enabled(save_seam_results):
 
 def test_only_dirty_buffers_are_handed_to_the_save_seam(save_seam_results):
     """FR-031: Save persists only CHANGED buffers. The controller decides what
-    is dirty; it does not decide order or action."""
+    is dirty; it does not decide order or action.
+
+    PIN EVOLUTION (add-doxbench-editing-phase-b): each seam request row names its
+    buffer with `key` rather than `kind`. The field had to be renamed, not merely
+    reinterpreted, because a document buffer's key is its PATH once the loaded set
+    widens and a path carried under the word `kind` is a false statement about the
+    field — the same rename ./doxbench-save.js made to its plan and outcome rows.
+    Not a weakening: the identifier is still asserted present, still asserted to
+    name both buffers, and every other required field is unchanged."""
     calls = save_seam_results["bothCommitted"]["calls"]
     assert len(calls) == 1, "one explicit Save is one call to the seam"
-    kinds = sorted(b["kind"] for b in calls[0]["buffers"])
-    assert kinds == ["document", "outline"]
+    keys = sorted(b["key"] for b in calls[0]["buffers"])
+    assert keys == ["document", "outline"]
     for buffer in calls[0]["buffers"]:
         assert buffer["dirty"] is True
-        assert set(buffer) >= {"kind", "path", "content", "base_ref",
+        assert set(buffer) >= {"key", "path", "content", "base_ref",
                                "base_revision", "base_hash", "dirty", "owned"}
+    # …and the whole-canvas Save carries NO scope restriction: `only` is what the
+    # tile Save adds, and its absence here is what makes this the broad control.
+    assert "only" not in calls[0]
 
 
 def test_a_save_with_nothing_dirty_never_calls_the_seam(save_seam_results):
@@ -3302,7 +3350,10 @@ def test_a_fully_committed_save_advances_both_bases_and_clears_dirty(
     buffers, freshness, and later turns agree with the branch."""
     result = save_seam_results["bothCommitted"]
     assert result["beforeDirty"] == {"outline": True, "document": True}
-    rows = {row["kind"]: row for row in result["outcome"]["buffers"]}
+    # PIN EVOLUTION (add-doxbench-editing-phase-b): outcome rows are keyed by
+    # buffer KEY (`row.key`), the rename ./doxbench-save.js made for the reason
+    # given above. Same rows, same seven fields, same verdicts.
+    rows = {row["key"]: row for row in result["outcome"]["buffers"]}
     for kind in ("outline", "document"):
         buffer = result["afterBuffers"][kind]
         assert buffer["dirty"] is False, kind
@@ -3487,33 +3538,60 @@ def test_the_view_surface_is_expressed_over_the_buffer_set_not_two_names():
     (the fifth ADDED requirement): the view tabs, the one Save, the one Cancel
     and the chat binding read the declared buffer enumeration and the
     active-buffer key. Widening the buffer set must be a change to the buffer
-    contract and to NOTHING on this surface, so a realization that hard-coded
-    `outline` and `document` into any of them is refused here rather than
-    discovered in Phase B.
+    contract and to NOTHING on this surface.
 
-    Note what this does NOT claim: the module still names the `document`
-    buffer where the DOCUMENT-specific machinery lives (the picker, the
-    document-switch guard, `switchDocument`). That machinery is not part of
-    the view surface and Phase A does not generalize it."""
+    PIN EVOLUTION (add-doxbench-editing-phase-b), and it is a FINDING against
+    Phase A's own task 7.4 ("doxbench-editor.js is verified UNCHANGED in
+    structure") rather than a routine re-pin. WHAT MOVED: every assertion below
+    used to read `BUFFER_KINDS` as the module's enumeration source. That constant
+    is the KIND VOCABULARY — Phase B's state module says so explicitly — and using
+    it as the state's KEY LIST is precisely the "literal buffer names baked into
+    the view's structure" this requirement refuses: with two documents loaded, a
+    loop over `BUFFER_KINDS` walks a set that is not the buffer set.
+
+    WHY IT IS NOT A WEAKENING: each assertion is replaced by the SAME assertion
+    over a STRICTER source. `perBuffer(seed)` seeded from a constant becomes
+    per-key registration in `ensureBufferDom`, so no fixed-length seed exists to
+    assert; the per-buffer loops become loops over `bufferKeysNow()`, which is the
+    state's own declared order; the membership refusal becomes `holdsBufferKey`,
+    which asks the state instead of a name list and therefore refuses strictly
+    MORE (an unloaded key as well as an unknown one); and the label lookup keeps
+    its fallback while gaining the collision rule the selector requirement needs.
+    The absence assertions — no literal buffer name in the view tabs, no
+    "must be outline or document" — are unchanged and still absolute.
+
+    Note what this does NOT claim: the module still names the RESERVED
+    `document` key where the reserved-selection-slot machinery lives (the
+    document-switch guard, `switchDocument`). That slot is a reserved key in the
+    contract, not a member of the buffer enumeration, and naming it is what keeps
+    a Phase A session restoring unchanged."""
     source = EDITOR_JS.read_text(encoding="utf-8")
-    # every per-buffer structure is seeded FROM the enumeration
-    assert "const perBuffer = (seed) => Object.fromEntries(" in source
-    assert "BUFFER_KINDS.map((kind) => [kind, seed])" in source
-    # …and every per-buffer surface is built by looping it
-    assert source.count("for (const kind of BUFFER_KINDS)") >= 4
+    # the per-buffer structures are registered PER KEY, lazily, and nothing seeds
+    # them from a fixed-length name list
+    assert "function ensureBufferDom(bufferKey) {" in source
+    assert "const perBuffer =" not in source
+    assert "BUFFER_KINDS.map(" not in source
+    # …and every per-buffer surface is built by looping the STATE's keys
+    assert "return state ? bufferKeysInOrder(state) : BUFFER_KINDS;" in source
+    assert source.count("for (const key of keys) {") >= 4
     # the view tabs render the ACTIVE buffer; they never enumerate buffers
     view_tab_block = source.split("for (const view of DOXBENCH_VIEW_TABS) {", 1)[1] \
         .split("\n  }\n", 1)[0]
     for literal in ('"outline"', '"document"'):
         assert literal not in view_tab_block, literal
     # Save operates over the declared set; Cancel over the active key
-    assert "BUFFER_KINDS.filter((kind) => state.buffers[kind].dirty)" in source
-    assert "const kind = activeBuffer;" in source
-    # and the active-buffer refusal reads the enumeration rather than a pair
-    assert "if (!BUFFER_KINDS.includes(kind)) {" in source
+    assert "const changed = scope.filter((key) => state.buffers[key].dirty);" in source
+    assert "const held = bufferKeysNow();" in source
+    assert "const key = activeBuffer;" in source
+    # and the active-buffer refusal asks whether the STATE HOLDS the key
+    assert "if (!holdsBufferKey(key)) {" in source
+    assert "must name a buffer this canvas holds" in source
     assert "must be outline or document" not in source
-    # labels are a lookup with a fallback, so a new kind can never be unnamed
-    assert "return DOXBENCH_BUFFER_LABELS[kind] || String(kind);" in source
+    # labels are a lookup with a fallback, so a new key can never be unnamed…
+    assert "|| DOXBENCH_BUFFER_LABELS[bufferKey]" in source
+    assert "|| String(bufferKey);" in source
+    # …and two loaded documents sharing a basename stay distinguishable
+    assert "function bufferLabelFor(bufferKey, siblingKeys) {" in source
 
 
 def test_the_editor_module_exposes_no_force_or_bypass_verb():
@@ -3530,8 +3608,15 @@ def test_the_editor_module_exposes_no_force_or_bypass_verb():
     assert source.count("saveSeam({") == 1
     # Cancel is the existing per-buffer discard, aimed at the active buffer —
     # not a new primitive and not a whole-canvas reversal
-    assert "const result = await discard(kind);" in source
-    assert "const kind = activeBuffer;" in source
+    #
+    # PIN EVOLUTION (add-doxbench-editing-phase-b): the per-buffer parameter is
+    # spelled `key`, because it names a buffer KEY (a path, for a loaded document)
+    # and no longer a two-value kind. Same call, same target, same narrowness.
+    assert "const result = await discard(key);" in source
+    assert "const key = activeBuffer;" in source
+    # …and the tile Save is the SAME seam through the SAME function, narrowed —
+    # never a second call site and never a second write route
+    assert "await save({ only: key })" in source
 
 
 # ---- the guard's Save arm ----------------------------------------------
@@ -3787,8 +3872,12 @@ def test_gate_off_and_hidden_surfaces_withhold_the_canvas_at_the_shell():
     source = (EDITOR_JS.parent / "staging-workbench.js").read_text(encoding="utf-8")
     assert "createGateLive(caps)" in source
     assert "sessionSurfaceHidden(caps)" in source
-    assert "canvas.hidden = !canvasOffered" in source
-    assert "if (!canvasOffered) return;" in source
+    assert "const offered = canvasOffered();" in source
+    assert "canvas.hidden = !offered" in source
+    assert "if (!offered) return;" in source
+    # …and the docs tile's verbs read the SAME predicate, so the two surfaces
+    # cannot disagree about whether this console can edit (PR #207 review, F3).
+    assert "if (!canvasOffered()) {" in source
 
 
 def test_the_shell_derives_one_explicit_presentation_posture():
@@ -3863,7 +3952,10 @@ const saveRequests = [];
 
 function fire(node, type) {
   const listeners = (node.listeners && node.listeners[type]) || [];
-  return Promise.all(listeners.map((fn) => fn({ target: node })));
+  // A real event carries both, and the docs tile's own action handlers call
+  // `stopPropagation` (a click on an action belongs to the action, not the tile).
+  return Promise.all(listeners.map((fn) => fn({
+    target: node, stopPropagation() {}, preventDefault() {} })));
 }
 
 const settle = () => new Promise((r) => setTimeout(r, 0));
@@ -3899,11 +3991,11 @@ const doxbench = {
     saveRequests.push(request);
     return {
       status: 'committed',
-      buffers: request.buffers.map((row) => (row.kind === 'outline'
-        ? { kind: 'outline', status: 'committed', action: 'edit-document',
+      buffers: request.buffers.map((row) => (row.key === 'outline'
+        ? { key: 'outline', status: 'committed', action: 'edit-document',
             ref: SESSION_REF, revision: '2'.repeat(40),
             content_hash: row.current_hash, message: null }
-        : { kind: 'document', status: 'refused', action: 'edit-document',
+        : { key: 'document', status: 'refused', action: 'edit-document',
             ref: null, revision: null, content_hash: null,
             message: 'not this time' })),
     };
@@ -4664,7 +4756,11 @@ const caps = { actions: { gate: true, session: true }, actor: 'brett' };
 
 function fire(node, type) {
   const listeners = (node.listeners && node.listeners[type]) || [];
-  return Promise.all(listeners.map((fn) => fn({ target: node })));
+  // A real event carries these too, and the docs tile's action handlers call
+  // `stopPropagation` -- a click on an action belongs to the action, not the
+  // tile it sits on.
+  return Promise.all(listeners.map((fn) => fn({
+    target: node, stopPropagation() {}, preventDefault() {} })));
 }
 // A real keydown: the wheel reads `ev.key` and consumes the event, so a bare
 // {target} would sail straight past its handler.
@@ -4741,7 +4837,7 @@ const canvasDocument = () => (byClass('doxbench-textarea')[1] || {}).value || ''
 // the two controls under test: a switch to DOC_B would have replaced the
 // buffer's text with DOC_B's, taking the human's unsaved bytes with it.
 const agree = () => ({
-  wheel: wheelPath(), pickerNodes: pickerNodes(),
+  wheel: wheelPath(), pickerNodes: pickerNodes(), editors: byClass('doxbench-textarea').length,
   // the canvas's OWN answer, independent of the two controls under test: a
   // switch that landed would have replaced the buffer's text with DOC_A's,
   // taking the human's unsaved bytes with it
@@ -4755,41 +4851,66 @@ await until(() => headerText().includes(OUTLINE_PATH.split('/').pop()),
             'the rail header to read the loaded buffers');
 out.headerAtMount = headerText();
 
-// ---- F3: a docs-row selection moves the STATED binding --------------------
-// The mount leaves the OUTLINE active (the canvas opens on it) while the wheel
-// and the canvas both sit on DOC_A, so the header names the outline above. One
-// arrow selects DOC_B: the chat's working context follows the selection, and
-// the header is where that is said.
+// ---- F3: the tile's LOAD verb moves the STATED binding --------------------
+// RE-CUT by `add-doxbench-editing-phase-b` (PR #207 review, F1's root cause).
+// A docs-row SELECTION no longer binds anything -- the ratified delta names the
+// outline tab, LOADING a document, and the rail's selector as the three
+// selection routes, and keeping the row selection made the loaded set
+// unreachable. So the binding change this test is about is driven through the
+// verb that actually performs it now.
 const selector = one('swb-docselector');
-await fireKey(selector, 'ArrowDown');
-await until(() => canvasDocument().includes(DOC_B), 'the switched document');
+selector.clientHeight = 420;
+const docsPane = container.walk().find((n) => n.__docWheelRefresh);
+docsPane.__docWheelRefresh();
+for (let i = 0; i < 5; i += 1) await settle();
+const tiles = byClass('wheeltile');
+const target = tiles.find((t) => t.title === DOC_B);
+for (let attempt = 0; attempt < 3; attempt += 1) {
+  if (target.querySelector('.wheelactions')) break;
+  await fire(target, 'click');
+  for (let i = 0; i < 5; i += 1) await settle();
+}
+await fire(target.querySelector('.swb-docload'), 'click');
+await until(() => byClass('doxbench-textarea').length === 3,
+            'the loaded document its own editor');
 for (let i = 0; i < 20; i += 1) await settle();
-out.wheelAfterArrow = wheelPath();
-out.headerAfterArrow = headerText();
+out.wheelAfterLoad = wheelPath();
+out.headerAfterLoad = headerText();
+out.loadedEditorCount = byClass('doxbench-textarea').length;
+// The FIRST document is untouched by the second one arriving: its own editor
+// still holds its own text, under its own key.
+out.firstStillHeld = byClass('doxbench-textarea')[1].value.includes(DOC_A);
+out.secondHeld = byClass('doxbench-textarea')[2].value.includes(DOC_B);
 
-// ---- F4: a blocked selection must leave all three agreeing ----------------
-// Type into the document so the unsaved-edit guard has something to guard.
+// ---- F4: a load REPLACES nothing, so no guard can fire ---------------------
+// Type into the first document, then load ANOTHER one. Under Phase A this was
+// the guard's whole reason to exist: the switch would have overwritten those
+// bytes. Under Phase B the second document arrives BESIDE the first, under its
+// own key, so there is nothing to guard -- which is exactly what the delta says
+// ("a selection change no longer replaces any buffer's content once documents
+// are held side by side rather than in one slot") and what this now pins.
 const editorTab = byClass('doxbench-viewtab')[0];
 await fire(editorTab, 'click');
-const liveDocumentArea = byClass('doxbench-textarea')[1];
-liveDocumentArea.value = '# unsaved work in the document\n';
-await fire(liveDocumentArea, 'input');
+for (let i = 0; i < 10; i += 1) await settle();
+const firstArea = byClass('doxbench-textarea')[1];
+firstArea.value = '# unsaved work in the first document\n';
+await fire(firstArea, 'input');
 await until(() => byClass('doxbench-status').some(
   (n) => String(n.textContent || '').includes('unsaved')), 'the dirty document');
-
-// now arrow BACK toward DOC_A: the guard blocks the switch
-await fireKey(selector, 'ArrowUp');
-for (let i = 0; i < 30; i += 1) await settle();
+for (let i = 0; i < 20; i += 1) await settle();
+// A THIRD document is loaded while the first holds unsaved work.
+const third = byClass('wheeltile').find((t) => t.title === OUTLINE_PATH);
+for (let attempt = 0; attempt < 3; attempt += 1) {
+  if (third.querySelector('.wheelactions')) break;
+  await fire(third, 'click');
+  for (let i = 0; i < 5; i += 1) await settle();
+}
+await fire(third.querySelector('.swb-docload'), 'click');
+for (let i = 0; i < 40; i += 1) await settle();
 out.guardShown = !(one('doxbench-guard') || { hidden: true }).hidden;
-out.whileBlocked = agree();
-
-// Cancel: declining keeps everything exactly where it was
-const guardCancel = one('doxbench-guard-cancel');
-await fire(guardCancel, 'click');
-for (let i = 0; i < 30; i += 1) await settle();
-out.afterCancel = agree();
-out.guardHiddenAfterCancel = (one('doxbench-guard') || {}).hidden === true;
-out.documentStillDirty = byClass('doxbench-textarea')[1].value.includes('unsaved work');
+out.unsavedWorkSurvived =
+  byClass('doxbench-textarea')[1].value.includes('unsaved work');
+out.afterLoad = agree();
 
 console.log(JSON.stringify(out));
 """
@@ -4819,39 +4940,92 @@ def selection_results(tmp_path_factory):
 def test_the_rail_states_the_buffer_the_chat_is_working_on(selection_results):
     """PR #196 review F3, first half: the rail's header states the ACTIVE
     buffer -- the chat's working context -- and it had no test at all. At mount
-    the outline is active, so that is what it must say."""
+    the outline is active, so that is what it must say.
+
+    RE-PINNED by `add-doxbench-editing-phase-b` (task 7.1). The BINDING half is
+    untouched and still asserted exactly: the header states the selected buffer,
+    first, by name. What moved is the GROUNDING half. Phase A's header enumerated
+    two fixed buffer names ("Outline: … · Document: …") because the set held
+    exactly those two; Phase B holds the outline plus N loaded documents, and an
+    enumeration of N filenames in a one-line header is unreadable at four
+    documents and impossible at twenty.
+
+    So the header STATES the count and the ENUMERATION moves into the
+    loaded-document selector immediately beside it -- which is where a human can
+    also act on it, and which is what Q1's ruling asked for. The claim the
+    Phase A assertion was making is not weakened: grounding still names every
+    buffer the turn carries, the header still says so, and the selector now
+    proves it entry by entry (`test_doxbench_tile_verbs.py`). The outline keeps
+    its own named slot because its key is permanently reserved and it is the one
+    buffer that rides every turn.
+    """
     header = selection_results["headerAtMount"]
     assert header.startswith("Working on — ")
     assert "topic-x.md" in header.split("·")[0]
-    # grounding is unchanged and still names BOTH buffers: binding says what
-    # the chat works ON, never what it may see
+    # grounding is unchanged and still names EVERY buffer a turn carries: binding
+    # says what the chat works ON, never what it may see.
     assert "Chatting about — Outline:" in header
-    assert "Document:" in header
+    assert "1 loaded document" in header
+    # …and it is a COUNT, not a silent truncation of a two-name list: the plural
+    # is derived, so a second loaded document reads honestly rather than as "1".
+    assert "1 loaded documents" not in header
 
 
-def test_a_docs_row_selection_moves_the_stated_binding(selection_results):
-    """PR #196 review F3, second half: the mount leaves the OUTLINE active
-    while the wheel and the canvas both sit on the first document, so a docs-row
-    selection is a BINDING change — and the rail's header is where that is
-    said. It went unrefreshed on the routes that move the binding without
-    moving a content identity, so the rail kept naming the outline beside a
-    chat now working on the document.
+def test_the_tile_load_verb_moves_the_stated_binding(selection_results):
+    """PR #196 review F3, second half — RE-CUT by `add-doxbench-editing-phase-b`
+    (PR #207 review, F1's root cause).
+
+    The CLAIM is unchanged: a route that moves the binding without moving a
+    content identity must still refresh the rail's header, or the rail keeps
+    naming the outline beside a chat now working on a document. What moved is
+    WHICH route does that. Phase A bound from a docs-row selection; the ratified
+    delta names the outline tab, LOADING a document, and the rail's selector as
+    the three selection routes, and keeping the row selection made the loaded set
+    unreachable (a tile click pre-switched the single reserved slot, so the LOAD
+    that followed always found the document already loaded). So the binding change
+    is driven here through the verb that performs it now.
 
     (The `unchanged` route — selecting the document the canvas already holds —
     is the same binding change with no switch at all; it is refreshed by the
     same call, is pinned as a shell doctrine in test_staging_workbench.py, and
     its binding half is driven at the controller in
     `test_the_context_selection_chooses_the_active_buffer_not_the_view_tabs`.)"""
-    assert selection_results["wheelAfterArrow"].endswith("second.md")
-    header = selection_results["headerAfterArrow"]
+    assert selection_results["wheelAfterLoad"].endswith("second.md")
+    header = selection_results["headerAfterLoad"]
     assert header.startswith("Working on — second.md")
+    # The second document arrived BESIDE the first: three editors, each holding
+    # its own text under its own key. Phase A had one document slot, so this was
+    # the switch the guard existed to protect; Phase B replaces nothing.
+    assert selection_results["loadedEditorCount"] == 3
+    assert selection_results["firstStillHeld"] is True
+    assert selection_results["secondHeld"] is True
 
 
-def test_a_blocked_selection_leaves_wheel_and_canvas_agreeing(
+def test_loading_beside_unsaved_work_replaces_nothing_and_needs_no_guard(
     selection_results,
 ):
-    """PR #196 review F4: the controls that answer "which document" must not
-    disagree. The docs wheel had no reconciliation, so a guard-blocked selection
+    """PR #196 review F4 — RE-CUT by `add-doxbench-editing-phase-b` (PR #207
+    review).
+
+    Phase A's guard existed because switching the ONE document slot overwrote
+    whatever unsaved bytes it held, and this test drove a guard-blocked switch to
+    prove the wheel and the canvas still agreed afterwards. Under Phase B a load
+    adds a buffer BESIDE the others under its own key and replaces nothing, so
+    there is no switch to block — which is exactly what the ratified delta says
+    ("a selection change no longer replaces any buffer's content once documents
+    are held side by side rather than in one slot") and what is pinned here
+    instead: the unsaved work survives untouched, no guard is raised, and the
+    surfaces still agree.
+
+    The guard itself is NOT retired and is NOT weakened: it still governs
+    `selectDocument`, which the load verb still reaches for the one transition
+    that does replace content — filling a reserved slot that is still unbacked.
+    Its narrowed applicability is the delta's own prediction that it is
+    "unchanged by this rule WHERE IT STILL APPLIES" and never extended to
+    selection.
+
+    The ORIGINAL claim — that the controls answering "which document" must not
+    disagree — is what the docs wheel had no reconciliation for, so a blocked
     left it showing a document the canvas never loaded -- and `doc-wheel.js`'s
     `selectPath`, which exists for precisely this, had zero callers.
 
@@ -4859,12 +5033,566 @@ def test_a_blocked_selection_leaves_wheel_and_canvas_agreeing(
     surfaces; the canvas's own picker is retired, so there are two, and the
     third is asserted absent. Blocked, and then declined, the wheel and the
     canvas must still name the document that is actually open."""
-    assert selection_results["guardShown"] is True
-    for phase in ("whileBlocked", "afterCancel"):
-        state = selection_results[phase]
-        assert state["wheel"].endswith("second.md"), phase
-        assert state["pickerNodes"] == 0, phase
-        assert state["canvasSwitchedToA"] is False, phase
-    assert selection_results["guardHiddenAfterCancel"] is True
-    # …and declining threw nothing away
-    assert selection_results["documentStillDirty"] is True
+    # NO GUARD IS RAISED, because nothing is replaced: the third document arrives
+    # under its own key beside the two already held.
+    assert selection_results["guardShown"] is False
+    # …and the unsaved work is exactly where the human left it. Under Phase A this
+    # load would have been a SWITCH, and these bytes are what the guard existed to
+    # stand in front of.
+    assert selection_results["unsavedWorkSurvived"] is True
+    # The surfaces still agree, which is the original claim: the wheel names a
+    # document the canvas really holds, there is no third selection surface, and
+    # the first document was not flushed by the arrival of another.
+    state = selection_results["afterLoad"]
+    assert state["pickerNodes"] == 0
+    assert state["wheel"] is not None
+    assert state["editors"] >= 3, (
+        "each loaded buffer holds its own editor; none replaced another")
+    # `canvasSwitchedToA` is False here BY CONSTRUCTION and that is the point: the
+    # human typed OVER the first document's text, so its editor holds their bytes
+    # rather than the loaded source's — and `unsavedWorkSurvived` above is the
+    # assertion that those bytes are still there after another document arrived.
+    assert state["canvasSwitchedToA"] is False
+
+
+# ===========================================================================
+# add-doxbench-editing-phase-b: THE LOADED SET, on the live canvas.
+#
+# One harness, its own node process like every other in this file, driving the
+# controller's Phase B surface against the SAME DOM shim and the SAME injected
+# seams the Phase A scenarios use. What is new is only how many buffers exist.
+#
+# The tile-Save scenario deliberately composes the REAL `doxbench-save.js`
+# (`runSave(savePlanState(request), {transport, only: request.only})`) rather
+# than a scripted stand-in, because the whole claim under test is that the tile
+# Save is the SAME pipeline narrowed — a hand-written seam could "prove" a scope
+# the real orchestrator does not honour.
+#
+# WHAT THIS DOES NOT CLAIM (PR #207 review, F7): it is not a tripwire on the
+# console's own composition. The canvas narrows the buffer set BEFORE it builds
+# the request, so a composition that dropped `only` would still persist exactly
+# these rows and this harness could not tell. Forwarding the scope is defence in
+# depth, said as such in `app.js`, and the mechanism `only` performs is pinned
+# where it lives — `runSave` over a four-buffer state in
+# `test_doxbench_save.py::test_the_tile_save_persists_that_document_plus_the_ancestry_step_only`,
+# which DOES fail if the scope stops being honoured.
+# ===========================================================================
+
+_LOADED_SET_HARNESS = _EDITOR_DOM_SHIM + r"""
+import { createRequire } from 'node:module';
+globalThis.markdownit = createRequire(import.meta.url)('../vendor/markdown-it.min.js');
+
+const { mountDoxBenchCanvas, boundReachedReason } =
+  await import('./doxbench-editor.js');
+const { runSave, savePlanState } = await import('./doxbench-save.js');
+
+const OUTLINE_PATH = 'ideation/staging/topic-x/topic-x.md';
+const DOC_A = 'ideation/staging/topic-x/detail.md';
+const DOC_B = 'ideation/staging/topic-x/second.md';
+const DOC_C = 'ideation/staging/topic-x/third.md';
+const COLLIDE_A = 'ideation/staging/topic-x/alpha/README.md';
+const COLLIDE_B = 'ideation/staging/topic-x/beta/README.md';
+const CONTEXT_DOC = 'ideation/brainstorm/inherited.md';
+const SESSION_REF = 'draft/topic-x';
+const CONTENT = {
+  [OUTLINE_PATH]: '# Outline\n',
+  [DOC_A]: '# Document A\n',
+  [DOC_B]: '# Document B\n',
+  [DOC_C]: '# Document C\n',
+  [COLLIDE_A]: '# Alpha readme\n',
+  [COLLIDE_B]: '# Beta readme\n',
+  [CONTEXT_DOC]: '# Inherited\n',
+};
+
+class FakeStorage {
+  constructor() { this.values = new Map(); this.removed = []; }
+  getItem(k) { return this.values.has(k) ? this.values.get(k) : null; }
+  setItem(k, v) { this.values.set(k, String(v)); }
+  removeItem(k) { this.removed.push(k); this.values.delete(k); }
+}
+
+const loadSource = async (path) => (path in CONTENT
+  ? { content: CONTENT[path], revision: 'rev-' + path, ref: 'main' } : null);
+
+// The same lowercase-SHA-256-shaped stand-in the save-seam harness uses: the
+// state module validates every identity it writes into working state, so a
+// fixture emitting 64 arbitrary characters would model a server that cannot
+// exist.
+function identity(seed) {
+  let hex = '';
+  for (const ch of String(seed)) hex += ch.charCodeAt(0).toString(16).padStart(2, '0');
+  return { algorithm: 'sha256', hex: hex.padEnd(64, '0').slice(0, 64) };
+}
+
+function projection(overrides = {}) {
+  const editable = [OUTLINE_PATH, DOC_A, DOC_B, DOC_C, COLLIDE_A, COLLIDE_B];
+  const base = {
+    key: { repository: 'fixture-repo', ref: 'main',
+           tile_kind: 'staged', tile_id: 'topic-x' },
+    title: 'Topic X', source_revision: 'a'.repeat(40),
+    outline_path: OUTLINE_PATH,
+    editable_paths: editable,
+    context_paths: editable.concat([CONTEXT_DOC]),
+    active_document_candidates: [DOC_A],
+    sections: [],
+  };
+  const merged = { ...base, ...overrides };
+  merged.key = { ...base.key, ...(overrides.key || {}) };
+  return merged;
+}
+
+// THE REAL ORCHESTRATOR, composed exactly as the console's own seam must be.
+function realSeam(calls) {
+  return (request) => runSave(savePlanState(request), {
+    only: request.only,
+    transport: async (req) => {
+      calls.push({ kind: req.kind, document: req.document, action: req.action });
+      return {
+        ok: true, action: req.action, ref: SESSION_REF,
+        revision: 'rev-' + calls.length,
+        content_hash: identity(String(req.document) + 'saved'),
+      };
+    },
+  });
+}
+
+// THE RESERVED UNBACKED SLOT IS LEFT UNBACKED (`activeDocumentPath: null`), so
+// every document below arrives through the LOAD verb under its own path key.
+// A mount that pre-seeded the reserved slot with the first candidate would make
+// loading THAT document the already-loaded case — which is correct behaviour and
+// is pinned on its own in `alreadyLoaded`, but it is not what these scenarios are
+// measuring.
+async function mount(opts = {}, over = {}) {
+  const host = new Node('div');
+  const controller = mountDoxBenchCanvas(host, projection(over), {
+    loadSource, storage: new FakeStorage(), previewDelayMs: 5,
+    activeDocumentPath: null, ...opts,
+  });
+  await controller.ready;
+  return { controller, host };
+}
+
+const classCount = (host, cls) => host.walk()
+  .filter((n) => String(n.className).split(' ').includes(cls)).length;
+const dirtyMap = (controller) => Object.fromEntries(
+  controller.bufferKeys().map((k) => [k, controller.state().buffers[k].dirty]));
+
+// ---- a third document is a first-class buffer -----------------------------
+async function thirdDocument() {
+  const { controller, host } = await mount();
+  const results = [];
+  for (const path of [DOC_A, DOC_B, DOC_C]) {
+    results.push(await controller.loadDocumentForEditing(path));
+  }
+  // …and one of the three is edited, so dirtiness is per buffer
+  await controller.edit(DOC_B, '# Document B edited\n');
+  const statusFor = (k) => {
+    const node = controller.elements().status(k);
+    return { text: String(node.textContent), name: node.getAttribute('aria-label'),
+             hidden: node.hidden === true, cls: String(node.className) };
+  };
+  return {
+    results,
+    keys: controller.bufferKeys(),
+    loaded: controller.loadedBuffers(),
+    dirty: dirtyMap(controller),
+    active: controller.activeBuffer(),
+    textareas: classCount(host, 'doxbench-textarea'),
+    previews: classCount(host, 'doxbench-preview'),
+    statuses: classCount(host, 'doxbench-status'),
+    statusB: statusFor(DOC_B),
+    statusC: statusFor(DOC_C),
+    // the third document's own text really is its own
+    contentC: controller.state().buffers[DOC_C].content,
+    contentB: controller.state().buffers[DOC_B].content,
+  };
+}
+
+// ---- an unheld key is refused, a held one is not -------------------------
+async function unheldKey() {
+  const { controller } = await mount();
+  await controller.loadDocumentForEditing(DOC_A);
+  let refusal = null;
+  try {
+    controller.setActiveBuffer(DOC_B);   // in scope, never loaded
+  } catch (error) {
+    refusal = String(error && error.message);
+  }
+  let typoRefusal = null;
+  try {
+    controller.setActiveBuffer('outlien');
+  } catch (error) {
+    typoRefusal = String(error && error.message);
+  }
+  return {
+    refusal, typoRefusal,
+    activeAfterRefusal: controller.activeBuffer(),
+    heldAccepted: controller.setActiveBuffer(DOC_A),
+    outlineAccepted: controller.setActiveBuffer('outline'),
+  };
+}
+
+// ---- the bound refuses and STATES the measured number -------------------
+async function boundRefusal() {
+  const notified = [];
+  // THREE, because the reserved unbacked slot every mount builds is itself a
+  // buffer that may hold unsaved work, and the state module counts it -- which is
+  // the whole point of the bound. So two loads fill the set and the third refuses.
+  const { controller } = await mount({
+    maxLoadedDocuments: 3,
+    onLoadedSetChanged: (snapshot) => notified.push(snapshot.documents.length),
+  });
+  const first = await controller.loadDocumentForEditing(DOC_A);
+  const second = await controller.loadDocumentForEditing(DOC_B);
+  // the third is one past the bound
+  const third = await controller.loadDocumentForEditing(DOC_C);
+  return {
+    first, second, third,
+    keys: controller.bufferKeys(),
+    // the exact sentence the module builds, so the numbers are pinned rather
+    // than matched loosely
+    expected: boundReachedReason(3, 3),
+    eventNote: String(controller.elements().eventNote().textContent),
+    notified,
+  };
+}
+
+// ---- unloading a dirty buffer refuses ----------------------------------
+async function dirtyUnload() {
+  const { controller } = await mount();
+  await controller.loadDocumentForEditing(DOC_A);
+  await controller.edit(DOC_A, '# Document A edited\n');
+  const refused = controller.unloadDocument(DOC_A);
+  const afterRefusal = {
+    keys: controller.bufferKeys(),
+    content: controller.state().buffers[DOC_A].content,
+    dirty: controller.state().buffers[DOC_A].dirty,
+  };
+  const discarded = controller.unloadDocument(DOC_A, { discardUnsavedEdits: true });
+  return {
+    refused, afterRefusal, discarded,
+    keysAfter: controller.bufferKeys(),
+    activeAfter: controller.activeBuffer(),
+    // the nodes stay, blanked and hidden, so a re-load reuses them
+    statusHidden: controller.elements().status(DOC_A).hidden === true,
+    statusText: String(controller.elements().status(DOC_A).textContent),
+    reloaded: await controller.loadDocumentForEditing(DOC_A),
+    contentAfterReload: controller.state().buffers[DOC_A].content,
+  };
+}
+
+// ---- the tile Save is the same pipeline, narrowed ----------------------
+async function tileSave() {
+  const calls = [];
+  const { controller } = await mount({ save: realSeam(calls) });
+  await controller.loadDocumentForEditing(DOC_A);
+  await controller.loadDocumentForEditing(DOC_B);
+  await controller.edit('outline', '# Outline edited\n');
+  await controller.edit(DOC_A, '# Document A edited\n');
+  await controller.edit(DOC_B, '# Document B edited\n');
+  const outcome = await controller.saveDocument(DOC_A);
+  return {
+    outcome,
+    calls,
+    dirty: dirtyMap(controller),
+    // the untouched document's bytes are exactly what the human left
+    contentB: controller.state().buffers[DOC_B].content,
+    statusB: String(controller.elements().status(DOC_B).textContent),
+    statusA: String(controller.elements().status(DOC_A).textContent),
+    statusOutline: String(controller.elements().status('outline').textContent),
+    // …and the outline it DID act on advanced onto the reported base
+    outlineBaseRef: controller.state().buffers['outline'].base_ref,
+  };
+}
+
+// ---- a context-only document loads, and its tile Save does not -----------
+async function contextOnlyTileSave() {
+  const calls = [];
+  const { controller } = await mount({ save: realSeam(calls) });
+  const loaded = await controller.loadDocumentForEditing(CONTEXT_DOC);
+  await controller.edit(CONTEXT_DOC, '# Inherited, edited\n');
+  const refused = await controller.saveDocument(CONTEXT_DOC);
+  return {
+    loaded, refused, calls,
+    owned: controller.loadedBuffers().map((row) => ({ key: row.key, owned: row.owned })),
+  };
+}
+
+// ---- two loaded documents sharing a basename stay distinguishable --------
+async function basenameCollision() {
+  const { controller } = await mount();
+  await controller.loadDocumentForEditing(COLLIDE_A);
+  const beforeSecond = controller.loadedBuffers().map((row) => row.label);
+  await controller.loadDocumentForEditing(COLLIDE_B);
+  const labels = controller.loadedBuffers().map((row) => row.label);
+  return {
+    beforeSecond, labels,
+    names: [COLLIDE_A, COLLIDE_B].map(
+      (k) => controller.elements().status(k).getAttribute('aria-label')),
+    textareaNames: [COLLIDE_A, COLLIDE_B].map(
+      (k) => controller.elements().textarea(k).getAttribute('aria-label')),
+    // the CSS fragments are distinct too, because a path is not a class name
+    classes: [COLLIDE_A, COLLIDE_B].map(
+      (k) => String(controller.elements().status(k).className)),
+  };
+}
+
+// ---- loading a path already loaded SELECTS it and re-reads nothing -------
+async function alreadyLoaded() {
+  const { controller } = await mount();
+  await controller.loadDocumentForEditing(DOC_A);
+  await controller.edit(DOC_A, '# unsaved work in A\n');
+  await controller.loadDocumentForEditing(DOC_B);   // move the selection away
+  const again = await controller.loadDocumentForEditing(DOC_A);
+  return {
+    again,
+    active: controller.activeBuffer(),
+    content: controller.state().buffers[DOC_A].content,
+    dirty: controller.state().buffers[DOC_A].dirty,
+    keys: controller.bufferKeys(),
+  };
+}
+
+console.log(JSON.stringify({
+  thirdDocument: await thirdDocument(),
+  unheldKey: await unheldKey(),
+  boundRefusal: await boundRefusal(),
+  dirtyUnload: await dirtyUnload(),
+  tileSave: await tileSave(),
+  contextOnlyTileSave: await contextOnlyTileSave(),
+  basenameCollision: await basenameCollision(),
+  alreadyLoaded: await alreadyLoaded(),
+}));
+"""
+
+
+@pytest.fixture(scope="module")
+def loaded_set_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the doxBench loaded-set probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-loaded-set")
+    views = tmp_path / "views"
+    shutil.copytree(EDITOR_JS.parent, views)
+    shutil.copytree(EDITOR_JS.parent.parent / "vendor", tmp_path / "vendor")
+    (tmp_path / "package.json").write_text('{"type": "module"}', encoding="utf-8")
+    (tmp_path / "vendor" / "package.json").write_text(
+        '{"type": "commonjs"}', encoding="utf-8")
+    harness = views / "loaded-set-harness.mjs"
+    harness.write_text(_LOADED_SET_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True, text=True,
+                          timeout=120)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_third_loaded_document_is_a_first_class_buffer(loaded_set_results):
+    """add-doxbench-editing-phase-b, "A second document is loaded" and "The
+    buffer set widens": a document the human loads gets its OWN key, its own
+    editor, its own preview, its own live status region and its own dirty state
+    — and loading it replaces, discards and flushes nothing."""
+    result = loaded_set_results["thirdDocument"]
+    for row in result["results"]:
+        assert row["ok"] is True, row
+        assert row["already_loaded"] is False, row
+    # the outline first, then the documents in the declared lexicographic order
+    # (the reserved unbacked `document` slot the mount always builds sorts first
+    # among them, because the rule is a plain ascending comparison of the key)
+    assert result["keys"] == [
+        "outline",
+        "document",
+        "ideation/staging/topic-x/detail.md",
+        "ideation/staging/topic-x/second.md",
+        "ideation/staging/topic-x/third.md",
+    ]
+    assert result["textareas"] == 5
+    assert result["previews"] == 5
+    assert result["statuses"] == 5
+    # each buffer's own dirty state, and only the edited one is dirty
+    assert result["dirty"]["ideation/staging/topic-x/second.md"] is True
+    assert result["dirty"]["ideation/staging/topic-x/third.md"] is False
+    assert result["dirty"]["outline"] is False
+    # the third document's own live status region names it and reports it
+    assert result["statusC"]["hidden"] is False
+    assert result["statusC"]["name"] == "third.md buffer status"
+    assert "third.md: no unsaved changes" == result["statusC"]["text"]
+    assert "second.md: unsaved changes" == result["statusB"]["text"]
+    assert "doxbench-sronly" in result["statusC"]["cls"]
+    # …and the texts did not bleed between buffers
+    assert result["contentB"] == "# Document B edited\n"
+    assert result["contentC"] == "# Document C\n"
+    # loading selects, so the last load is the selected buffer
+    assert result["active"] == "ideation/staging/topic-x/third.md"
+
+
+def test_set_active_buffer_refuses_a_key_the_canvas_does_not_hold(
+    loaded_set_results,
+):
+    """The widened form of Phase A's enumeration guard. Membership is a question
+    about the STATE, so an in-scope path that was never LOADED is refused exactly
+    as a misspelling is — which is strictly more than the old
+    `BUFFER_KINDS.includes(...)` refused, since that constant would have
+    accepted neither and rejected both for the wrong reason."""
+    result = loaded_set_results["unheldKey"]
+    assert "must name a buffer this canvas holds" in result["refusal"]
+    assert "must name a buffer this canvas holds" in result["typoRefusal"]
+    # a refused selection moves nothing
+    assert result["activeAfterRefusal"] == "ideation/staging/topic-x/detail.md"
+    # …and a key the canvas DOES hold is accepted, including the reserved outline
+    assert result["heldAccepted"] == "ideation/staging/topic-x/detail.md"
+    assert result["outlineAccepted"] == "outline"
+
+
+def test_the_loaded_set_bound_refuses_with_the_measured_number(
+    loaded_set_results,
+):
+    """add-doxbench-editing-phase-b, "The loaded-set bound is reached": the load
+    refuses, STATES the measured bound, and evicts nothing — because every loaded
+    buffer may hold unsaved work, so making room would be discarding human
+    text."""
+    result = loaded_set_results["boundRefusal"]
+    assert result["first"]["ok"] is True
+    assert result["second"]["ok"] is True
+    third = result["third"]
+    assert third["ok"] is False
+    assert third["key"] is None
+    assert third["refusal"] == "loaded_set_bound_reached"
+    # the MEASURED numbers, in the sentence. The reserved unbacked slot every
+    # mount builds counts toward the bound, because it is a buffer that may hold
+    # unsaved work — which is exactly what the bound protects.
+    assert third["measured"] == 3
+    assert third["bound"] == 3
+    assert third["error"] == result["expected"]
+    assert "already holds 3 documents" in third["error"]
+    assert "declared bound of 3" in third["error"]
+    # nothing was evicted to make room
+    assert result["keys"] == [
+        "outline",
+        "document",
+        "ideation/staging/topic-x/detail.md",
+        "ideation/staging/topic-x/second.md",
+    ]
+    # …and the refusal is VISIBLE, not only returned
+    assert "refused" in result["eventNote"]
+    # the loaded-set notification fired for the two loads and not for the refusal
+    assert result["notified"][-1] == 2
+
+
+def test_unloading_a_dirty_document_refuses_until_the_discard_is_explicit(
+    loaded_set_results,
+):
+    """add-doxbench-editing-phase-b, "A dirty document is unloaded": the unload
+    refuses or requires an explicit discard, and MUST NOT silently drop the
+    text."""
+    result = loaded_set_results["dirtyUnload"]
+    assert result["refused"]["ok"] is False
+    assert result["refused"]["refusal"] == "unsaved_edits"
+    assert "unloading it would drop them" in result["refused"]["error"]
+    # the buffer is exactly as it was
+    assert result["afterRefusal"]["content"] == "# Document A edited\n"
+    assert result["afterRefusal"]["dirty"] is True
+    assert "ideation/staging/topic-x/detail.md" in result["afterRefusal"]["keys"]
+    # the explicit discard is honoured, and the selection returns to the outline
+    assert result["discarded"]["ok"] is True
+    assert result["keysAfter"] == ["outline", "document"]
+    assert result["activeAfter"] == "outline"
+    # the unloaded region says nothing rather than standing there stale
+    assert result["statusHidden"] is True
+    assert result["statusText"] == ""
+    # …and a re-load reuses the same nodes and reads the document afresh
+    assert result["reloaded"]["ok"] is True
+    assert result["contentAfterReload"] == "# Document A\n"
+
+
+def test_the_tile_save_persists_its_document_and_the_ancestry_step_only(
+    loaded_set_results,
+):
+    """add-doxbench-editing-phase-b design D4, and the `docs`-tile requirement:
+    the tile Save runs the SAME pipeline restricted to that document plus the
+    outline-ancestry step, MUST NOT persist another loaded document the human is
+    not looking at, and reports every buffer it acted on per buffer.
+
+    Driven through the REAL `doxbench-save.js`, so the scope is the
+    orchestrator's own `only` and not a fixture's opinion of it."""
+    result = loaded_set_results["tileSave"]
+    # exactly two governed actions, the outline FIRST as ancestry
+    assert [call["document"] for call in result["calls"]] == [
+        "ideation/staging/topic-x/topic-x.md",
+        "ideation/staging/topic-x/detail.md",
+    ]
+    assert [call["kind"] for call in result["calls"]] == ["outline", "document"]
+    # the verdict is per buffer, and names ONLY the buffers it acted on
+    rows = {row["key"]: row for row in result["outcome"]["buffers"]}
+    assert sorted(rows) == ["ideation/staging/topic-x/detail.md", "outline"]
+    assert rows["outline"]["status"] == "committed"
+    assert rows["ideation/staging/topic-x/detail.md"]["status"] == "committed"
+    assert result["outcome"]["ok"] is True
+    # the document the human was NOT looking at is untouched and still dirty
+    assert result["dirty"]["ideation/staging/topic-x/second.md"] is True
+    assert result["contentB"] == "# Document B edited\n"
+    assert "second.md: unsaved changes" == result["statusB"]
+    # …while both buffers it DID act on report their own verdict
+    assert "saved as edit-document" in result["statusA"]
+    assert "saved as edit-document" in result["statusOutline"]
+    assert result["dirty"]["outline"] is False
+    assert result["dirty"]["ideation/staging/topic-x/detail.md"] is False
+    assert result["outlineBaseRef"] == "draft/topic-x"
+
+
+def test_a_context_only_document_loads_but_has_no_reachable_tile_save(
+    loaded_set_results,
+):
+    """add-doxbench-editing-phase-b design D2 and "A context-only document is
+    loaded": an inherited document is loadable for grounding, carries
+    `owned: false`, and its tile Save states its absence rather than reaching a
+    governance action that would only refuse it."""
+    result = loaded_set_results["contextOnlyTileSave"]
+    assert result["loaded"]["ok"] is True
+    assert result["owned"] == [
+        {"key": "ideation/brainstorm/inherited.md", "owned": False}]
+    assert result["refused"]["ok"] is False
+    assert "read-only context" in result["refused"]["error"]
+    # nothing reached the governed action at all
+    assert result["calls"] == []
+
+
+def test_two_loaded_documents_sharing_a_basename_stay_distinguishable(
+    loaded_set_results,
+):
+    """add-doxbench-editing-phase-b, "Two loaded documents share a basename":
+    the surface MUST distinguish them. The declared rule is the shortest
+    trailing path suffix that no other loaded document shares, applied to the
+    WHOLE set — so the second `README.md` lengthens the first one's label as
+    well as its own."""
+    result = loaded_set_results["basenameCollision"]
+    # alone, the basename is unambiguous and that is what shows
+    assert result["beforeSecond"] == ["README.md"]
+    # together, both lengthen — and neither is left ambiguous
+    assert result["labels"] == ["alpha/README.md", "beta/README.md"]
+    assert result["names"] == ["alpha/README.md buffer status",
+                              "beta/README.md buffer status"]
+    assert result["textareaNames"] == ["alpha/README.md buffer text",
+                                       "beta/README.md buffer text"]
+    # and the CSS fragments are distinct, because a path is not a class name
+    first, second = result["classes"]
+    assert first != second
+    for cls in (first, second):
+        assert "/" not in cls
+        assert "doxbench-status " in cls + " "
+
+
+def test_loading_a_document_already_loaded_selects_it_and_re_reads_nothing(
+    loaded_set_results,
+):
+    """add-doxbench-editing-phase-b, "A document already loaded is loaded
+    again": that buffer becomes the selected one and MUST NOT be reloaded from
+    source, because reloading would silently discard its unsaved text."""
+    result = loaded_set_results["alreadyLoaded"]
+    assert result["again"]["ok"] is True
+    assert result["again"]["already_loaded"] is True
+    assert result["again"]["key"] == "ideation/staging/topic-x/detail.md"
+    assert result["active"] == "ideation/staging/topic-x/detail.md"
+    # the unsaved text survived the second load verb exactly
+    assert result["content"] == "# unsaved work in A\n"
+    assert result["dirty"] is True
+    # …and no second buffer claimed the same path
+    assert result["keys"].count("ideation/staging/topic-x/detail.md") == 1

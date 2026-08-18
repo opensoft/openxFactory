@@ -902,9 +902,26 @@ async function render() {
       storage: guardedSessionStorage(),
       loadSource: createDoxBenchSourceLoader(() => workbenchSourceBase),
       hash: contentIdentity,
+      // THE SAVE SCOPE RIDES THE REQUEST (add-doxbench-editing-phase-b, design
+      // D4), as DEFENCE IN DEPTH — and this note says so plainly because an
+      // earlier version of it claimed a guard it did not have (PR #207 review,
+      // F7).
+      //
+      // What actually narrows a `docs` tile's Save is the CANVAS: `save({only})`
+      // filters the buffer set to the named documents plus the outline BEFORE it
+      // builds the request, so the request already carries only those rows and
+      // `runSave` would persist only those rows whether or not the scope came with
+      // it. Forwarding it makes `runSave`'s own scope AGREE with the request's
+      // instead of being merely consistent with it, which is what keeps the
+      // guarantee true for a future caller that hands over a wider buffer set.
+      // The mechanism itself is pinned where it lives, on `runSave` over a
+      // four-buffer state (`test_doxbench_save.py`). The canvas Save sends no
+      // `only`, so its behaviour is byte-for-byte what it was.
       save: (request) => runSave(
         savePlanState(request),
-        { transport: firstEditTransport({ caps, repair: consoleRepair }) }),
+        { transport: firstEditTransport({ caps, repair: consoleRepair }),
+          ...(request && request.only !== undefined
+            ? { only: request.only } : {}) }),
       catalog: createDoxBenchCatalogLoader(() => caps?.console_token),
       chatTurn: createDoxBenchTurnSubmitter(() => caps?.console_token),
     };

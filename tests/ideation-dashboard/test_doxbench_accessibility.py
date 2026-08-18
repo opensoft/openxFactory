@@ -281,11 +281,19 @@ def test_each_buffer_status_names_the_buffer_it_reports():
     status row — and each line now NAMES its buffer visibly, because stacked in
     the old chrome the two regions rendered as "no unsaved changesno unsaved
     changes": two identical sentences a reader could not attribute, which is
-    exactly the case a PARTIAL save has to report."""
+    exactly the case a PARTIAL save has to report.
+
+    PIN EVOLUTION (add-doxbench-editing-phase-b): the per-buffer parameter is
+    spelled `key`, and the refusal sentence reads the LIVE label rather than the
+    one captured when the region was built — because a basename collision can
+    arrive later, and the second `README.md` to be loaded must lengthen the FIRST
+    one's name too. Same strength: every sentence is still built from the buffer's
+    own label, and the label is still the only thing that names it."""
     editor = _editor()
-    assert 'const prefix = bufferLabel(kind) + ": ";' in editor
+    assert 'const prefix = bufferLabel(key) + ": ";' in editor
     assert 'label + ": " + EDITOR_LOADING_REASON' in editor
-    assert 'label + ": refused -- "' in editor
+    assert 'const named = bufferLabel(bufferKey);' in editor
+    assert 'named + ": refused -- "' in editor
     # …and the regions are still per buffer, still live, still separately named
     assert 'status.setAttribute("aria-live", "polite")' in editor
     assert 'status.setAttribute("aria-label", label + " buffer status")' in editor

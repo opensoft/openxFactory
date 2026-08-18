@@ -133,124 +133,275 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
 
 ## 4. State generalization (first, because everything depends on it)
 
-- [ ] 4.1 `doxbench-state.js`: the buffer set becomes KEYED — `outline`
+- [x] 4.1 `doxbench-state.js`: the buffer set becomes KEYED — `outline`
       reserved, document buffers keyed by repository-relative path, the reserved
       `document` key for at most one unbacked create slot (design D1).
       `BUFFER_KINDS` survives as the KIND vocabulary and stops being the state's
       key list. The module stays import-free so the Node harness keeps
       executing the browser's exact bytes.
-- [ ] 4.2 `validatedDoxBenchState` enforces the new shape: `outline` present;
+- [x] 4.2 `validatedDoxBenchState` enforces the new shape: `outline` present;
       every other key equal to its buffer's own path; the reserved key at most
       once; every buffer's repository equal to the scope's. The
       exactly-two-keys throw is replaced, not relaxed into silence.
-- [ ] 4.3 `createDoxBenchState`, `replaceBuffer`, `setActiveBuffer` operate on
+- [x] 4.3 `createDoxBenchState`, `replaceBuffer`, `setActiveBuffer` operate on
       buffer KEYS. `beginBufferEdit`, `settleBufferHash`, `adoptSavedBase`,
       `discardBuffer`, `applyProposalToBuffer` are UNCHANGED — verify by diff
       that they are, since that is the design's central claim about this layer.
-- [ ] 4.4 A re-key primitive moves the reserved unbacked buffer to its path when
+- [x] 4.4 A re-key primitive moves the reserved unbacked buffer to its path when
       the server reports one, stepping the hash generation as every other base
       transition does.
-- [ ] 4.5 `persistDoxBenchState`/`restoreDoxBenchState` carry the keyed set, and
+      The PRIMITIVE is realized and pinned (`rekeyDocumentBuffer`: the reserved
+      key is freed carrying nothing from the buffer that left it, and the
+      generation steps).
+      **FINDING, recorded rather than papered over.** Its UI half is not
+      reachable as the task assumes: the ratified seven-field per-buffer outcome
+      row carries no path, so the canvas cannot learn the path a `create-document`
+      reported and cannot call the primitive from a Save verdict. Widening the row
+      to an eighth field would contradict the same requirement's
+      "unchanged in shape" clause, so it is NOT done here. The canvas also cannot
+      reach the case today: a path-less create request declares no document, which
+      the server's own transaction refuses, so no unbacked create Save exists on
+      this surface to re-key from. Resolving it is a choice between (a) the row
+      carrying the created path and (b) the re-key staying a state-module
+      primitive driven by whichever flow does create a document — and it is
+      Brett's call, not a realization detail.
+- [x] 4.5 `persistDoxBenchState`/`restoreDoxBenchState` carry the keyed set, and
       a Phase A session envelope (`{outline, document}`) restores unchanged —
       the migration-free property D1 was chosen for. Prove it with a test that
       restores a captured Phase A envelope.
-- [ ] 4.6 The per-buffer staleness guard is applied N times and nowhere widened:
+- [x] 4.6 The per-buffer staleness guard is applied N times and nowhere widened:
       no force path, no cross-buffer settle, no shared generation counter.
-- [ ] 4.7 Re-pin `tests/ideation-dashboard/test_doxbench_state.py` and the
+- [x] 4.7 Re-pin `tests/ideation-dashboard/test_doxbench_state.py` and the
       module-boundary assertions in `test_staging_workbench.py` with the reason
       stated; never delete an assertion to make a refactor pass.
 
 ## 5. The turn contract
 
-- [ ] 5.1 `doxbench_turns.py`: `require_outline_and_document` becomes a
+- [x] 5.1 `doxbench_turns.py`: `require_outline_and_document` becomes a
       one-outline-plus-N-documents requirement, refusing a duplicate path, a
       missing outline, and an unexpected kind with the same redacted shape.
-- [ ] 5.2 `revalidate_scope`: the declared BOUND-BUFFER key must name a supplied
+- [x] 5.2 `revalidate_scope`: the declared BOUND-BUFFER key must name a supplied
       buffer; every supplied path must be in-scope and editable; the refusal
       leaks no projection or buffer content. The per-buffer binding check
       (including the session-base widening) runs once per buffer, unchanged.
-- [ ] 5.3 `PROPOSAL_TARGETS` and `ObservedHashes` become buffer-key-shaped; the
+- [x] 5.3 `PROPOSAL_TARGETS` and `ObservedHashes` become buffer-key-shaped; the
       proposal cap is expressed over the request's buffer count.
 - [ ] 5.4 `PROMPT_SECTION_ORDER` grows deterministically: one section per loaded
       document in the declared order, plus the packet's sections (§10). The
       order stays a single declared constant.
-- [ ] 5.5 `SYSTEM_CONTRACT_TEXT` carries the source-ranking hierarchy —
+      **HALF LANDED, half gated.** The document half is realized: the single
+      `document_buffer` slot became the `document_buffers` GROUP, expanded by
+      `prompt_section_keys` to one `document_buffer:<buffer key>` section per
+      loaded document in the declared order, from ONE constant, pinned at both
+      levels. The PACKET's sections wait on §10, which is gated on §3, so this
+      task stays open until they land beside them.
+- [x] 5.5 `SYSTEM_CONTRACT_TEXT` carries the source-ranking hierarchy —
       ratified/standard canon > accepted/staged facts > promoted findings >
       active thread state > harness-local memory last and non-authoritative.
-- [ ] 5.6 Re-pin `test_doxbench_turns.py`. The F2 carve-out's note that
+- [x] 5.6 Re-pin `test_doxbench_turns.py`. The F2 carve-out's note that
       `doxbench_turns.py` was left untouched by Phase A is superseded here, and
       the supersession is stated in the test's own reason.
 
 ## 6. Save ordering
 
-- [ ] 6.1 `doxbench-save.js`: `SAVE_BUFFER_ORDER` becomes the ordering RULE —
+- [x] 6.1 `doxbench-save.js`: `SAVE_BUFFER_ORDER` becomes the ordering RULE —
       outline first when dirty (ancestry), then documents in a declared
       deterministic order (design D3).
-- [ ] 6.2 A dirty outline that did not land reports every document
+- [x] 6.2 A dirty outline that did not land reports every document
       `not_attempted` with the missing-ancestry reason. A document refusal stops
       no other document: the `blocked` chain applies to the ancestry step only.
-- [ ] 6.3 The seven-field per-buffer outcome row is unchanged in shape and has
+- [x] 6.3 The seven-field per-buffer outcome row is unchanged in shape and has
       more rows; `wholeStatus`'s `partial` case gets direct coverage across
       three documents.
-- [ ] 6.4 `savePlanState`/`saveOrder` key rows by buffer key; the `owned:
+- [x] 6.4 `savePlanState`/`saveOrder` key rows by buffer key; the `owned:
       false` context-only withholding is unchanged.
 
 ## 7. The selector and the canvas
 
-- [ ] 7.1 `doxbench-chat.js`: the rail header's "Working on — …" line becomes
+- [x] 7.1 `doxbench-chat.js`: the rail header's "Working on — …" line becomes
       the loaded-document SELECTOR — a scrolling list, hover-expanded full
       names, distinguishable entries when basenames collide, keyboard-reachable
       under the surface's existing selection semantics, with an honest empty
       state when nothing is loaded.
+      **Proven in COMPOSITION** after the PR #207 adversarial review found the
+      empty state unreachable (F6): the reserved `document` slot is present in
+      every state the canvas produces, and counting it kept `documentCount` off
+      zero forever, so the ratified sentence could never render on any real
+      surface. `test_doxbench_composition.py` drives the real mount and pins the
+      empty state on the state the canvas actually builds.
 - [ ] 7.2 Selecting an entry sets the selected buffer through the existing state
       primitive and switches the transcript to that document's thread. No second
       state authority.
-- [ ] 7.3 `staging-workbench.js`: loading a document adds it to the loaded set
+      **HALF LANDED, half gated.** The selection half is realized: the selector
+      sets the selected buffer through the canvas's own `setActiveBuffer` seam,
+      immediately and with no confirmation step, and reads `state.active_buffer`
+      back rather than tracking it a second time — no second state authority
+      exists, and the review's F1 reproduction is now a composition test:
+      loading a document, selecting it, and the released wire's own invariant are
+      all driven through the real mount. The THREAD switch waits on §9's sidecar
+      store; the change handler
+      carries a `TODO(add-doxbench-editing-phase-b tasks.md §9)` naming it, and
+      is deliberately left as the selection move alone rather than half-wired to
+      a store that does not exist yet.
+- [x] 7.3 `staging-workbench.js`: loading a document adds it to the loaded set
       and selects it; the `outline` selection tab still selects the outline;
       all three routes leave selector, canvas and chat agreeing.
-- [ ] 7.4 `doxbench-editor.js` is verified UNCHANGED in structure — the view
+- [x] 7.4 `doxbench-editor.js` is verified UNCHANGED in structure — the view
       tabs, the one Save and the one Cancel already read the buffer set and the
       selected key (Phase A's fifth ADDED requirement). Any change needed here
       is a finding against that requirement, not a task.
-- [ ] 7.5 Re-pin the DOM, tablist, accessibility and mutation-boundary tests for
+      **VERIFIED, WITH A FINDING — and the finding is exactly the one the task
+      says to raise.** The STRUCTURE held: the view tabs still render whichever
+      buffer is selected and enumerate none, the canvas still carries exactly one
+      Save and one Cancel outside both tabs, Cancel still targets the selected key
+      alone, and the chat still binds to the selected key. Widening the buffer set
+      required no structural change to any of them, which is what the requirement
+      predicted.
+      What the requirement's own prohibition CAUGHT is that the module's buffer
+      ENUMERATION was expressed over the `BUFFER_KINDS` constant rather than over
+      `state.buffers` — a literal two-name list baked into the surface's own
+      structure, which the delta forbids in as many words. So the SOURCE of every
+      enumeration moved to the state (`bufferKeysInOrder`), and membership
+      questions became "does the state hold this key" rather than "is this one of
+      two names", which refuses strictly more. Per-buffer DOM became lazy
+      (`ensureBufferDom`) so the initial DOM is byte-identical and a newly loaded
+      document gets its own nodes; label and CSS-slug rules are declared and
+      pinned. A second defect surfaced with it and is fixed: `switchDocument`
+      called `replaceBuffer` without naming the key, which under the keyed set
+      resolved by PATH and added a new key beside the reserved slot instead of
+      replacing it.
+- [x] 7.5 Re-pin the DOM, tablist, accessibility and mutation-boundary tests for
       the new rail control.
 
 ## 8. The tile verbs
 
-- [ ] 8.1 `doc-wheel.js`: the expanded tile's action row carries read (the
+- [x] 8.1 `doc-wheel.js`: the expanded tile's action row carries read (the
       existing immersive reader, relabelled from `open`), load-for-editing, and
       save.
-- [ ] 8.2 Save on the tile is reachable only while that document's buffer is
+- [x] 8.2 Save on the tile is reachable only while that document's buffer is
       dirty, visibly inert otherwise, and runs the same pipeline scoped to that
       document plus the ancestry step (design D4), reporting each buffer it
       acted on.
-- [ ] 8.3 A loaded tile is marked, and a loaded-and-dirty tile is marked as
+      **Proven in COMPOSITION** after the PR #207 adversarial review found it
+      enabled-then-refusing for every restored Phase A session (F2): the marking
+      resolved the buffer BY PATH and the save resolved it BY KEY, and the two
+      differ for exactly a real document under the reserved `document` key. ONE
+      resolver now answers both, so the control's enabled state and the act it
+      performs can never name different buffers.
+- [x] 8.3 A loaded tile is marked, and a loaded-and-dirty tile is marked as
       needing a save, in the wheel's existing badge/colour idiom, driven off
       live buffer state and never written into the snapshot.
-- [ ] 8.4 A context-only (`owned: false`) document loads for grounding but
+- [x] 8.4 A context-only (`owned: false`) document loads for grounding but
       offers no reachable Save and no must-save marking.
-- [ ] 8.5 Where editing is unreachable, load and save state their absence rather
+- [x] 8.5 Where editing is unreachable, load and save state their absence rather
       than failing on activation; read stays available.
+      **Proven in COMPOSITION** after the PR #207 adversarial review found it
+      unrealized (F3): the verbs existed unconditionally, so a gate-off surface
+      failed ON ACTIVATION with the wrong sentence. They are now withheld by the
+      SAME `canvasOffered()` derivation the canvas mount reads — not by whether
+      the controller happens to have mounted yet, which would have withheld them
+      on capable surfaces too, since the docs pane is drawn first.
+
+- [x] 8.6 **ADDED by the PR #207 adversarial review (F9 and F1).** Two acts the
+      ratified requirements name had no control at all, so neither existed:
+      * the loaded set's ONE WAY OUT — "a document SHALL leave the loaded set only
+        by an explicit human act, and that act MUST refuse or require an explicit
+        discard while the buffer is dirty". `unloadDocument` shipped as a state
+        primitive with no caller, which also made the declared bound a dead end: a
+        session that reached it could never get back under it. The control now
+        lives beside the selector, is scoped to the selected document, is never
+        offered for the reserved outline, and REFUSES a dirty buffer on the first
+        press while re-labelling itself to say what a second press discards.
+      * the tile's LOAD as the BINDING route. Phase A bound the canvas from a
+        docs-row SELECTION, and keeping that made the loaded set unreachable —
+        measured: a tile click switched the single reserved slot to that path
+        first, so the LOAD that followed always found the document already loaded
+        and the set could never hold two. The ratified delta names exactly three
+        selection routes and a docs-row selection is not one of them, so a
+        selection now moves the abstract above it and the tile's LOAD verb binds.
+        `selectDocument` and its unsaved-edit guard are kept and still reached for
+        the one transition that DOES replace content — filling a reserved slot
+        that is still unbacked — which is the delta's own prediction that the
+        guard is "unchanged WHERE IT STILL APPLIES" and never extended to
+        selection.
+      **THE TRADE THIS MAKES, recorded rather than glossed (PR #207
+      re-verification, N4 — WITH BRETT).** Under the released v1 envelope the
+      chat's DOCUMENT binding is pinned to the mount-time reserved slot once that
+      slot is backed: no route re-points it, because the envelope carries exactly
+      the outline plus that one slot and nothing may empty it (N3). Phase A DID
+      allow a row-selection swap of which document the chat was about, so this is
+      a **user-visible reduction**, accepted here as a stated interim posture —
+      a human can load and edit any number of documents and Save each, and the
+      chat states plainly when it cannot be bound to one, but it cannot be
+      re-pointed at a different document within a session. It ends either with
+      §13's widened envelope (which carries N documents and a declared bound-buffer
+      key, retiring the limit entirely) or sooner, if Brett rules that a
+      CLEAN reserved slot may be re-pointed. Selection semantics are NOT changed
+      here pending that ruling.
 
 ## 9. Threads
 
-- [ ] 9.1 The thread sidecar file: one per loaded document, on the session
+- [x] 9.1 The thread sidecar file: one per loaded document, on the session
       branch inside the session worktree, with the structured state header above
       the transcript and the `authority`/`regenerable_from` fields written into
       the file (design §4.1).
+      Realized in `scripts/ideation_dashboard/doxbench_threads.py`, pinned as a
+      golden render with a byte-identical render/parse round trip. The path rule
+      MIRRORS the document's own repository-relative path under
+      `ideation/dashboard/session-threads/`, reversibly, so two `README.md`
+      files in different folders never merge two conversations.
+      `render_state_header` is a literal PREFIX of the file, so a packet can
+      carry other threads' headers without their transcripts.
+      **Task 3.5's verified finding is realized** (`verification-findings.md`
+      §3.5): the harness's own artifact store lands OUTSIDE the git worktree, so
+      an `artifact://` pointer in a sidecar would never resolve for a colleague
+      who fetched the shared branch. A turn body carrying one is therefore
+      REFUSED at construction — absolutely, with no flag and no strict-mode
+      switch — and both of the finding's remedies exist:
+      `dereference_bodies(..., dereference=...)` resolves the content through a
+      seam the §11 bridge supplies (a half-resolving seam cannot slip a survivor
+      through, because its answer goes straight back through the same refusal),
+      and `elided_note(bytes, reason)` records the FACT and the size where
+      inlining is infeasible. `mirror_turn` needs no check of its own: a turn
+      holding a pointer cannot exist to be handed to it.
 - [ ] 9.2 Threads commit WITH the document's Save through the existing
       one-commit-per-gate-action path, so a thread and its document cannot land
       in separate commits.
-- [ ] 9.3 Compaction preserves the header's commitments; a compaction that drops
+      **SEAM LANDED, route unwired.** `thread_commit_paths(document_path)` yields
+      the paths a Save adds to `commit_gate_action`'s DECLARED document set (that
+      function is untouched), and `write_thread(gate, thread)` is the only write
+      route, going through the injected `HumanGate` inside the session worktree.
+      What is not wired is the CALL from the save route, which belongs with §11's
+      turn mirroring and the thread route §9.5 also waits on.
+- [x] 9.3 Compaction preserves the header's commitments; a compaction that drops
       an open question, decision, accepted fact, evidence ref or pending action
       fails a test rather than a review.
-- [ ] 9.4 Threads are excluded from the session pull request's promotion by
+      `compact_thread` is lossy over the TRANSCRIPT and a RAISE over the header:
+      the refusal names the class and the item, each of the five classes is
+      pinned separately, and the ACTIVE GOAL is treated as a sixth class —
+      a strengthening past the delta's enumerated five, stated as such.
+- [x] 9.4 Threads are excluded from the session pull request's promotion by
       default, and the promotion route for a finding is an existing lifecycle
       verb with provenance. No parallel decision store exists anywhere in the
       realization.
+      DECLARED as `promotion_excluded_prefixes()` plus its stated reason, which
+      the §12 verb consults. The negative is asserted rather than described:
+      nineteen forbidden source spellings and a public-surface check prove there
+      is no `promote*`/`publish*` name, no parallel store, and no write or push
+      route of the module's own.
 - [ ] 9.5 Thread routes live inside the serve's declared write allowlist (the
       interactivity boundary), are loopback-only, fail closed on an unresolved
       actor, and are absent without the gate capability and on the hosted plane.
+      **ALLOWLIST AND POSTURES LANDED, route unwired.**
+      `gate_routes.first_edit_gate_factory` — doxBench's governed Save — now
+      DECLARES the thread prefix, without which the boundary refuses the sidecar
+      as `outside-allowlist`; no other gate widens, and a test asserts the prefix
+      appears exactly once. `require_thread_capability` refuses on the hosted
+      plane and where the gate capability is absent, with a fixed reason and a
+      named cause, and refuses an undeclared plane rather than guessing. What
+      remains is the ROUTE itself — loopback-only and fail-closed on an
+      unresolved actor at the HTTP surface — which belongs with §11's turn
+      mirroring, the first caller a thread route would have.
 
 ## 10. The knowledge service v1
 

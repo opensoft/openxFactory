@@ -66,7 +66,7 @@ import yaml
 
 from pathlib import Path
 
-from . import branch_session, gate_console, generator
+from . import branch_session, doxbench_threads, gate_console, generator
 from . import session_git as session_git_mod
 from . import session_pr
 from .boundary import (
@@ -1887,12 +1887,35 @@ def first_edit_gate_factory(actor: str, records_dir: str):
     Called with the session worktree ONLY once the transaction has opened or
     joined the session, so the gate's root, its declared session root, and the
     tree the record lands in are the same directory by construction (FR-015).
-    The records tree is the sole allowance, exactly as `_edit_document` grants
-    it: the narrow session-rewrite allowance is unlocked by the DECLARATION, not
-    by a wider path list."""
+
+    TWO declared allowances, and no third: the records tree, exactly as
+    `_edit_document` grants it, and — since add-doxbench-editing-phase-b (task
+    9.5, `openspec/changes/add-doxbench-editing-phase-b/tasks.md`) — the THREAD
+    SIDECAR tree.
+
+    THE WIDENING IS AS NARROW AS THE TASK ALLOWS, and this note is the record of
+    why it is this wide and no wider (PR #207 review, F10). The allowance is ONE
+    prefix, the threads module's own declared one, granted to ONE gate — the doxBench
+    first-edit/Save gate — and to no other gate on this surface; a companion test
+    asserts the prefix appears exactly once in this module. It is a PREFIX rather
+    than a per-document path because the gate is constructed once per Save and the
+    sidecar path is derived per document inside that Save
+    (`doxbench_threads.thread_commit_paths`), so a path-exact allowance would have
+    to be recomputed by this factory from state it does not hold. What keeps the
+    prefix from being a hole is that nothing else can write under it: the module
+    exposes exactly one write route (`write_thread`), the path rule refuses an
+    absolute, traversal-shaped or already-a-sidecar document, and the boundary
+    still resolves every write inside the session worktree. A thread commits WITH the document's Save on
+    the one-commit-per-gate-action path (design §4.2), and it is written through
+    this same gate's `write_gate_artifact`, so without the prefix DECLARED here
+    the boundary refuses it as `outside-allowlist`. The narrow session-rewrite
+    allowance is still unlocked by the DECLARATION rather than by a wider path
+    list, and nothing else on this surface widens: only this gate gains the
+    thread prefix."""
     def build(worktree):
-        return HumanGate(worktree, [records_dir], human_actor=actor,
-                         session_root=worktree)
+        return HumanGate(worktree,
+                         [records_dir, doxbench_threads.THREAD_PREFIX],
+                         human_actor=actor, session_root=worktree)
     return build
 
 
