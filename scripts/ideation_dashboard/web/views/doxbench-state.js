@@ -7,7 +7,30 @@
 
 export const DOXBENCH_MAX_BUFFER_BYTES = 400_000;
 export const CONTENT_IDENTITY_ALGORITHM = "sha256";
+
+// THE KIND VOCABULARY, and nothing more (add-doxbench-editing-phase-b, design
+// D1). Until Phase B this constant doubled as the STATE'S KEY LIST -- the
+// buffer set was exactly `{outline, document}` and every consumer enumerated it
+// through this array. That second job is gone: the state is now a KEYED SET,
+// `outline` plus one key per loaded document, and the keys are read from
+// `state.buffers` itself. What survives here is the two-value KIND vocabulary a
+// buffer declares about itself.
 export const BUFFER_KINDS = Object.freeze(["outline", "document"]);
+
+// The two RESERVED keys. `outline` is permanently reserved for the buffer whose
+// commit establishes the session ancestry every document commit descends from.
+// `document` is reserved for AT MOST ONE not-yet-created buffer -- the create
+// flow's unbacked slot, which cannot be keyed by a path because it has none --
+// and is freed again when its first Save reports the path it created.
+export const OUTLINE_BUFFER_KEY = "outline";
+export const UNBACKED_DOCUMENT_BUFFER_KEY = "document";
+
+// The declared bound on the loaded set (design D6). Reaching it REFUSES the
+// load with the measured bound stated; it never evicts, because every loaded
+// buffer may hold unsaved human text and an eviction policy is a policy that
+// discards it.
+export const DOXBENCH_MAX_LOADED_DOCUMENTS = 24;
+
 export const DOXBENCH_SESSION_STATE_VERSION = 1;
 export const DOXBENCH_SESSION_STATE_KIND = "doxbench-working-state";
 
@@ -124,11 +147,45 @@ function bufferKind(value) {
   return value;
 }
 
-function activeBufferKind(value) {
-  if (!BUFFER_KIND_SET.has(value)) {
-    throw new TypeError("active buffer must be outline or document");
-  }
-  return value;
+// ---------------------------------------------------------------------------
+// BUFFER KEYS (design D1). The key of the outline buffer is the reserved word
+// `outline`; the key of a document buffer is its own repository-relative PATH,
+// so a document can be loaded at most once and no two buffers can claim the
+// same file -- impossible by construction rather than by a lookup. A document
+// with no path yet lives under the reserved `document` key until its first
+// Save reports one.
+// ---------------------------------------------------------------------------
+
+function bufferKeyString(value, name) {
+  return nonEmptyString(value, name);
+}
+
+// The key a buffer BELONGS under, derived from the buffer alone.
+export function bufferKeyFor(bufferValue) {
+  const buffer = plainObject(bufferValue, "buffer");
+  if (buffer.kind === "outline") return OUTLINE_BUFFER_KEY;
+  bufferKind(buffer.kind);
+  return buffer.path === null || buffer.path === undefined
+    ? UNBACKED_DOCUMENT_BUFFER_KEY
+    : nonEmptyString(buffer.path, "buffer path");
+}
+
+// The declared DETERMINISTIC document order (design D3 point 4, and the
+// selector's own listing order). Ascending lexicographic comparison of the
+// buffer KEY by UTF-16 code unit -- `<` on the key string, with no locale, no
+// collator, and no special case for the reserved `document` key, which orders
+// as the literal string it is. "Any order" constrains the CONTRACT (documents
+// impose no ordering rule on each other); it does not license a
+// nondeterministic one, so the realization declares this one and pins it.
+export const DOCUMENT_KEY_ORDER_RULE =
+  "ascending lexicographic by buffer key (UTF-16 code unit)";
+
+export function orderedDocumentKeys(bufferKeys) {
+  const keys = Array.from(bufferKeys).filter(
+    (key) => key !== OUTLINE_BUFFER_KEY,
+  );
+  keys.sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
+  return Object.freeze(keys);
 }
 
 function normalizedScopeKey(value) {
@@ -262,29 +319,49 @@ export async function createBufferState(descriptor, options = {}) {
   });
 }
 
+// Build the keyed buffer set: the reserved `outline` buffer plus ZERO OR MORE
+// document buffers (design D1). `document` names the ONE reserved unbacked slot
+// -- the create flow's not-yet-created artifact, and the shape a Phase A
+// session was always built in -- while `documents` is the keyed set of loaded
+// documents, each keyed by its own path. Passing neither is legal: an outline
+// alone is a working state.
 export async function createDoxBenchState(descriptor, options = {}) {
   const input = plainObject(descriptor, "doxBench state descriptor");
   const key = normalizedScopeKey(input.key);
-  const active = activeBufferKind(input.active_buffer || "outline");
-  const [outline, documentBuffer] = await Promise.all([
-    createBufferState({
-      ...plainObject(input.outline, "outline descriptor"),
-      kind: "outline",
-      repository: key.repository,
-    }, options),
-    createBufferState({
+  const pending = [["outline", createBufferState({
+    ...plainObject(input.outline, "outline descriptor"),
+    kind: "outline",
+    repository: key.repository,
+  }, options)]];
+  if (input.document !== undefined && input.document !== null) {
+    pending.push([UNBACKED_DOCUMENT_BUFFER_KEY, createBufferState({
       ...plainObject(input.document, "document descriptor"),
       kind: "document",
       repository: key.repository,
-    }, options),
-  ]);
-  return Object.freeze({
+    }, options)]);
+  }
+  const documents = input.documents === undefined || input.documents === null
+    ? {}
+    : plainObject(input.documents, "documents descriptor map");
+  for (const documentKey of Object.keys(documents)) {
+    if (documentKey === OUTLINE_BUFFER_KEY) {
+      throw new TypeError("the outline key is reserved for the outline buffer");
+    }
+    pending.push([documentKey, createBufferState({
+      ...plainObject(documents[documentKey], "document descriptor"),
+      kind: "document",
+      repository: key.repository,
+    }, options)]);
+  }
+  const built = await Promise.all(pending.map(([, promise]) => promise));
+  const buffers = {};
+  pending.forEach(([bufferKey], index) => {
+    buffers[bufferKey] = built[index];
+  });
+  return validatedFrozenState({
     key,
-    active_buffer: active,
-    buffers: Object.freeze({
-      outline,
-      document: documentBuffer,
-    }),
+    active_buffer: input.active_buffer || OUTLINE_BUFFER_KEY,
+    buffers,
   });
 }
 
@@ -393,13 +470,10 @@ export function rekeyDoxBenchState(stateValue, keyValue) {
       "a rekey may not move working state to another repository",
     );
   }
-  return Object.freeze({
+  return validatedFrozenState({
     key,
     active_buffer: current.active,
-    buffers: Object.freeze({
-      outline: current.outline,
-      document: current.documentBuffer,
-    }),
+    buffers: current.buffers,
   });
 }
 
@@ -415,57 +489,296 @@ export function discardBuffer(bufferValue) {
   });
 }
 
+// THE KEYED-SET RULE (design D1; the delta's `doxBench editor buffer contract`).
+// The exactly-two-keys throw is REPLACED, not relaxed into silence -- every
+// clause below is a refusal:
+//
+//   * `outline` is PRESENT and its buffer declares kind `outline`;
+//   * every OTHER key holds a buffer of kind `document`;
+//   * the reserved `document` key appears at most once (it is one object key, so
+//     that is structural) and is the ONLY key permitted to hold a buffer whose
+//     path does not equal the key;
+//   * every other document key EQUALS its own buffer's path, so a document is
+//     loaded at most once and no two buffers can claim the same file -- which is
+//     also checked directly, across the reserved key too;
+//   * every buffer's repository equals the scope's;
+//   * `active_buffer` names a key the set actually holds.
+//
+// BACKWARD COMPATIBILITY, deliberately (D1's migration-free property, task 4.5):
+// a Phase A state is `{outline, document}` where the `document` buffer routinely
+// carried a REAL path -- that was the single document slot. Such a state is a
+// LEGAL INSTANCE here, because the reserved key admits a path-backed buffer as
+// well as an unbacked one. That is why the restore path needs no migration, no
+// envelope version bump, and no "old shape" branch. Every NEW load keys by path;
+// the reserved key is only ever reached by the create flow or by a restored
+// Phase A envelope, and `rekeyDocumentBuffer` moves it to its path.
 function validatedDoxBenchState(value) {
   const state = plainObject(value, "doxBench state");
   const key = normalizedScopeKey(state.key);
-  const active = activeBufferKind(state.active_buffer);
   const buffers = plainObject(state.buffers, "doxBench buffers");
   const keys = Object.keys(buffers);
-  if (
-    keys.length !== BUFFER_KINDS.length
-    || !BUFFER_KINDS.every((kind) => keys.includes(kind))
-  ) {
-    throw new TypeError("doxBench state must contain exactly outline and document");
+  if (!keys.includes(OUTLINE_BUFFER_KEY)) {
+    throw new TypeError("doxBench state must contain the reserved outline buffer");
   }
-  const outline = validatedBuffer(buffers.outline);
-  const documentBuffer = validatedBuffer(buffers.document);
-  if (outline.kind !== "outline" || documentBuffer.kind !== "document") {
-    throw new TypeError("doxBench buffers must match their outline/document slots");
-  }
-  for (const buffer of [outline, documentBuffer]) {
+  const validated = {};
+  const documentKeys = [];
+  const claimedPaths = new Set();
+  for (const bufferKeyValue of keys) {
+    const buffer = validatedBuffer(buffers[bufferKeyValue]);
     if (buffer.repository !== key.repository) {
-      throw new TypeError("both buffers must use the same repository as the scope");
+      throw new TypeError("every buffer must use the same repository as the scope");
     }
+    if (bufferKeyValue === OUTLINE_BUFFER_KEY) {
+      if (buffer.kind !== "outline") {
+        throw new TypeError("the outline key must hold the outline buffer");
+      }
+    } else {
+      if (buffer.kind !== "document") {
+        throw new TypeError("every key beside outline must hold a document buffer");
+      }
+      if (bufferKeyValue !== UNBACKED_DOCUMENT_BUFFER_KEY
+          && buffer.path !== bufferKeyValue) {
+        throw new TypeError("a document buffer's key must equal its own path");
+      }
+      if (buffer.path !== null) {
+        if (claimedPaths.has(buffer.path)) {
+          throw new TypeError("two buffers must not claim the same document path");
+        }
+        claimedPaths.add(buffer.path);
+      }
+      documentKeys.push(bufferKeyValue);
+    }
+    validated[bufferKeyValue] = buffer;
   }
-  return { state, key, active, outline, documentBuffer };
+  const active = bufferKeyString(state.active_buffer, "active buffer");
+  if (!Object.prototype.hasOwnProperty.call(validated, active)) {
+    throw new TypeError("active buffer must name a buffer the state holds");
+  }
+  return {
+    state,
+    key,
+    active,
+    buffers: validated,
+    outline: validated[OUTLINE_BUFFER_KEY],
+    documentKeys: orderedDocumentKeys(documentKeys),
+  };
 }
 
-export function replaceBuffer(stateValue, bufferValue) {
+// One frozen state object, from one validated shape. Every exported transition
+// funnels through here so no caller can assemble a state the validator would
+// have refused.
+function validatedFrozenState(candidate) {
+  const current = validatedDoxBenchState(candidate);
+  return Object.freeze({
+    key: current.key,
+    active_buffer: current.active,
+    buffers: Object.freeze({ ...current.buffers }),
+  });
+}
+
+// The loaded set, as the selector and the save order read it: the outline key
+// first, then the document keys in the DECLARED deterministic order.
+export function bufferKeysInOrder(stateValue) {
+  const current = validatedDoxBenchState(stateValue);
+  return Object.freeze([OUTLINE_BUFFER_KEY, ...current.documentKeys]);
+}
+
+export function loadedDocumentKeys(stateValue) {
+  return validatedDoxBenchState(stateValue).documentKeys;
+}
+
+// Replace one buffer, in place, under the key it already occupies.
+//
+// The key is resolved rather than switched on a kind literal: an explicit
+// `keyValue` wins; otherwise an outline buffer takes the reserved outline key; a
+// document buffer that some existing key already holds AT THE SAME PATH stays
+// under THAT key -- which is what keeps a restored Phase A buffer (a real path
+// under the reserved `document` key) from silently re-keying itself on an
+// ordinary edit; and only a genuinely new document lands on its derived key.
+export function replaceBuffer(stateValue, bufferValue, keyValue) {
   const current = validatedDoxBenchState(stateValue);
   const buffer = validatedBuffer(bufferValue);
   if (buffer.repository !== current.key.repository) {
     throw new TypeError("replacement buffer must use the same repository as the scope");
   }
-  return Object.freeze({
+  let target;
+  if (keyValue !== undefined && keyValue !== null) {
+    target = bufferKeyString(keyValue, "buffer key");
+  } else if (buffer.kind === "outline") {
+    target = OUTLINE_BUFFER_KEY;
+  } else {
+    target = current.documentKeys.find(
+      (candidate) => current.buffers[candidate].path === buffer.path,
+    ) ?? bufferKeyFor(buffer);
+  }
+  return validatedFrozenState({
     key: current.key,
     active_buffer: current.active,
-    buffers: Object.freeze({
-      outline: buffer.kind === "outline" ? buffer : current.outline,
-      document: buffer.kind === "document" ? buffer : current.documentBuffer,
-    }),
+    buffers: { ...current.buffers, [target]: buffer },
   });
 }
 
-export function setActiveBuffer(stateValue, kindValue) {
+export function setActiveBuffer(stateValue, keyValue) {
   const current = validatedDoxBenchState(stateValue);
-  const active = activeBufferKind(kindValue);
-  return Object.freeze({
+  return validatedFrozenState({
     key: current.key,
-    active_buffer: active,
-    buffers: Object.freeze({
-      outline: current.outline,
-      document: current.documentBuffer,
+    active_buffer: bufferKeyString(keyValue, "active buffer"),
+    buffers: current.buffers,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// THE LOADED SET (the delta's `The doxBench loaded set is the outline plus the
+// documents the human loaded`). Membership changes only here, and only by an
+// act a human performed: `loadDocumentBuffer` is the ONE route in and
+// `unloadDocumentBuffer` the one route out. A retrieval result, a proposal, the
+// snapshot and an inherited edge all reach neither.
+// ---------------------------------------------------------------------------
+
+export const LOAD_REFUSED_ALREADY_LOADED = "already_loaded";
+export const LOAD_REFUSED_BOUND_REACHED = "loaded_set_bound_reached";
+export const UNLOAD_REFUSED_DIRTY = "unsaved_edits";
+
+// Add a document buffer under its path key, or -- when the loaded set already
+// holds that path -- SELECT the buffer that is already there and report it.
+// Re-reading the document from source would silently discard its unsaved text,
+// which is the one thing the scenario forbids, so the existing buffer is never
+// replaced.
+export function loadDocumentBuffer(stateValue, bufferValue, options = {}) {
+  const current = validatedDoxBenchState(stateValue);
+  const buffer = validatedBuffer(bufferValue);
+  if (buffer.kind !== "document") {
+    throw new TypeError("only a document buffer can join the loaded set");
+  }
+  if (buffer.repository !== current.key.repository) {
+    throw new TypeError("a loaded buffer must use the same repository as the scope");
+  }
+  const existing = current.documentKeys.find(
+    (candidate) => current.buffers[candidate].path === buffer.path,
+  );
+  if (existing !== undefined) {
+    return Object.freeze({
+      state: validatedFrozenState({
+        key: current.key,
+        active_buffer: existing,
+        buffers: current.buffers,
+      }),
+      key: existing,
+      loaded: false,
+      refusal: LOAD_REFUSED_ALREADY_LOADED,
+      bound: null,
+      measured: current.documentKeys.length,
+    });
+  }
+  const bound = Number.isSafeInteger(options.maxLoadedDocuments)
+    ? options.maxLoadedDocuments
+    : DOXBENCH_MAX_LOADED_DOCUMENTS;
+  if (current.documentKeys.length >= bound) {
+    // REFUSE and state the number (design D6). Nothing already loaded is
+    // evicted: every loaded buffer may hold unsaved work, so making room would
+    // be discarding human text.
+    return Object.freeze({
+      state: validatedFrozenState({
+        key: current.key,
+        active_buffer: current.active,
+        buffers: current.buffers,
+      }),
+      key: null,
+      loaded: false,
+      refusal: LOAD_REFUSED_BOUND_REACHED,
+      bound,
+      measured: current.documentKeys.length,
+    });
+  }
+  const target = bufferKeyFor(buffer);
+  return Object.freeze({
+    state: validatedFrozenState({
+      key: current.key,
+      active_buffer: target,
+      buffers: { ...current.buffers, [target]: buffer },
     }),
+    key: target,
+    loaded: true,
+    refusal: null,
+    bound,
+    measured: current.documentKeys.length + 1,
+  });
+}
+
+// Leave the loaded set. A DIRTY buffer is refused unless the caller states an
+// explicit discard, because dropping it destroys unsaved work exactly as Cancel
+// does -- and Cancel at least says so.
+export function unloadDocumentBuffer(stateValue, keyValue, options = {}) {
+  const current = validatedDoxBenchState(stateValue);
+  const target = bufferKeyString(keyValue, "buffer key");
+  if (target === OUTLINE_BUFFER_KEY) {
+    throw new TypeError("the outline buffer is reserved and cannot be unloaded");
+  }
+  const buffer = current.buffers[target];
+  if (buffer === undefined) {
+    throw new TypeError("unload must name a buffer the loaded set holds");
+  }
+  if (buffer.dirty === true && options.discardUnsavedEdits !== true) {
+    return Object.freeze({
+      state: validatedFrozenState({
+        key: current.key,
+        active_buffer: current.active,
+        buffers: current.buffers,
+      }),
+      unloaded: false,
+      refusal: UNLOAD_REFUSED_DIRTY,
+    });
+  }
+  const remaining = { ...current.buffers };
+  delete remaining[target];
+  return Object.freeze({
+    state: validatedFrozenState({
+      key: current.key,
+      active_buffer: current.active === target ? OUTLINE_BUFFER_KEY : current.active,
+      buffers: remaining,
+    }),
+    unloaded: true,
+    refusal: null,
+  });
+}
+
+// Move the reserved unbacked buffer onto the path the SERVER reported for it
+// (task 4.4; the delta's re-key scenario). The create flow's buffer had no path
+// to be keyed by; the server's first Save answer gives it one, and the reserved
+// key is freed WITHOUT carrying anything from the buffer that left it.
+//
+// The hash generation is stepped, exactly as every other base transition steps
+// it, so a hash still in flight over the older text settles against a buffer
+// that has moved on and is correctly dropped. Stepping twice (once in
+// `adoptSavedBase`, once here) is harmless: the counter is monotonic and only
+// ever used to drop stale settles.
+export function rekeyDocumentBuffer(stateValue, fromKeyValue, pathValue) {
+  const current = validatedDoxBenchState(stateValue);
+  const from = bufferKeyString(fromKeyValue, "buffer key");
+  if (from === OUTLINE_BUFFER_KEY) {
+    throw new TypeError("the outline key is reserved and cannot be re-keyed");
+  }
+  const buffer = current.buffers[from];
+  if (buffer === undefined) {
+    throw new TypeError("a re-key must name a buffer the state holds");
+  }
+  const path = nonEmptyString(pathValue, "re-keyed buffer path");
+  if (path !== from && Object.prototype.hasOwnProperty.call(current.buffers, path)) {
+    throw new TypeError("a re-key must not overwrite another loaded document");
+  }
+  const moved = frozenBuffer({
+    ...buffer,
+    path,
+    hash_generation: buffer.hash_generation + 1,
+    hash_pending: false,
+  });
+  const buffers = { ...current.buffers };
+  delete buffers[from];
+  buffers[path] = moved;
+  return validatedFrozenState({
+    key: current.key,
+    active_buffer: current.active === from ? path : current.active,
+    buffers,
   });
 }
 
@@ -510,15 +823,21 @@ export function persistDoxBenchState(stateValue, injectedStorage,
   }
   const storage = sessionStorageOf(injectedStorage);
   if (!storage) return false;
+  // The KEYED SET, written under its own keys. The envelope's
+  // `schema_version` does NOT move (design D1): a Phase A record is
+  // `{outline, document}`, which is a legal instance of this shape, so nothing
+  // previously written becomes unreadable and no migration branch exists.
+  const persistedBuffers = {};
+  for (const bufferKeyValue of Object.keys(current.buffers)) {
+    persistedBuffers[bufferKeyValue] = persistedBuffer(
+      current.buffers[bufferKeyValue]);
+  }
   const envelope = {
     schema_version: DOXBENCH_SESSION_STATE_VERSION,
     kind: DOXBENCH_SESSION_STATE_KIND,
     key: current.key,
     active_buffer: current.active,
-    buffers: {
-      outline: persistedBuffer(current.outline),
-      document: persistedBuffer(current.documentBuffer),
-    },
+    buffers: persistedBuffers,
   };
   // R-1 (operator requirement: "reopening the same tile continues the work").
   // The chat working state — subject, selected model, transcript AND the
@@ -606,22 +925,38 @@ export async function restoreDoxBenchState(
       ? null : envelope.companion;
     const buffers = plainObject(envelope.buffers, "stored doxBench buffers");
     const bufferKeys = Object.keys(buffers);
-    if (
-      bufferKeys.length !== BUFFER_KINDS.length
-      || !BUFFER_KINDS.every((kind) => bufferKeys.includes(kind))
-    ) {
-      throw new TypeError("stored doxBench state must contain exactly two buffers");
+    if (!bufferKeys.includes(OUTLINE_BUFFER_KEY)) {
+      throw new TypeError("stored doxBench state must contain the outline buffer");
     }
-    const [outline, documentBuffer] = await Promise.all([
-      restoredBuffer("outline", key.repository, buffers.outline, options),
-      restoredBuffer("document", key.repository, buffers.document, options),
-    ]);
+    // An envelope whose KEYS disagree with its own buffers is refused rather
+    // than reconciled: a stored document key that is not the reserved one must
+    // equal the path it stored, or the record cannot be trusted to say which
+    // file the text belongs to. A Phase A record -- `{outline, document}`, its
+    // `document` slot carrying a real path -- passes unchanged, which is D1's
+    // migration-free property.
+    for (const bufferKeyValue of bufferKeys) {
+      if (bufferKeyValue === OUTLINE_BUFFER_KEY
+          || bufferKeyValue === UNBACKED_DOCUMENT_BUFFER_KEY) {
+        continue;
+      }
+      const stored = plainObject(buffers[bufferKeyValue], "stored buffer");
+      if (stored.path !== bufferKeyValue) {
+        throw new TypeError("a stored document key must equal its own path");
+      }
+    }
+    const restored = await Promise.all(bufferKeys.map((bufferKeyValue) =>
+      restoredBuffer(
+        bufferKeyValue === OUTLINE_BUFFER_KEY ? "outline" : "document",
+        key.repository, buffers[bufferKeyValue], options)));
+    const restoredBuffers = {};
+    bufferKeys.forEach((bufferKeyValue, index) => {
+      restoredBuffers[bufferKeyValue] = restored[index];
+    });
     return Object.freeze({
-      key,
-      active_buffer: activeBufferKind(envelope.active_buffer),
-      buffers: Object.freeze({
-        outline,
-        document: documentBuffer,
+      ...validatedFrozenState({
+        key,
+        active_buffer: envelope.active_buffer,
+        buffers: restoredBuffers,
       }),
       // R-1: handed back with the buffers it was written beside, so the
       // caller restores BOTH or neither.
