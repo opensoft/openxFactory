@@ -1241,6 +1241,23 @@ export function mountStagingWorkbench(container, snapshot,
       railController.rekey(railScopeKey());
     }
   }
+  // ONE rule for whether the plane's posture stands as an inline line (Brett's
+  // 2026-08-18 annotation round 2, on the `editor-only` instance of it: "add a
+  // model selector down next to the send button. make this text the hover text
+  // for the send button if no model selected").
+  //
+  // A CHAT rung's sentence is now the send button's stated reason — tooltip and
+  // `aria-describedby`, inside the rail, where the human is trying to act — so
+  // it does not stand here as well. The PLANE rungs (hosted, gate-off, unkeyed,
+  // source-unavailable) keep the inline note: they explain a canvas that is
+  // WITHHELD or degraded, the rail is not even mounted for most of them, and
+  // there is no control to hang the sentence on.
+  function showPostureNote(plane) {
+    const stands = !!plane.note && plane.chat !== true;
+    postureNote.textContent = stands ? plane.note : "";
+    postureNote.hidden = !stands;
+  }
+
   function drawCanvas() {
     if (canvasController && typeof canvasController.destroy === "function") {
       canvasController.destroy();
@@ -1262,8 +1279,7 @@ export function mountStagingWorkbench(container, snapshot,
       approvedModelCount,
       catalogFailure: railCatalogFailure,
     });
-    postureNote.textContent = plane.note || "";
-    postureNote.hidden = !plane.note;
+    showPostureNote(plane);
     const canvasOffered = !!scope && createGateLive(caps) && !sessionSurfaceHidden(caps) &&
       !!active?.repository && !!active?.ref;
     canvas.hidden = !canvasOffered;
@@ -1343,8 +1359,7 @@ export function mountStagingWorkbench(container, snapshot,
               approvedModelCount,
               catalogFailure: railCatalogFailure,
             });
-            postureNote.textContent = refreshed.note || "";
-            postureNote.hidden = !refreshed.note;
+            showPostureNote(refreshed);
           }
         },
         applyProposal: (target, record) => (canvasController

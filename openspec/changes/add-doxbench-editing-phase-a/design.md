@@ -376,3 +376,118 @@ region that already has a name, it is simply announced twice.
 This DOES collide with ratified text, and the collision is amended rather than
 ignored — see the `doxBench surface identity` MODIFIED requirement in this
 change's delta, and the note at the end of `tasks.md`.
+
+## Annotation round 2 (Brett, 2026-08-18, on the live canvas and rail)
+
+Two more annotations after round 1 landed. Both say the same thing in different
+places: **the surface should be legible from its controls, not from standing
+prose.** Neither reverses a decision this design argued for; both remove text it
+never argued for.
+
+### Annotation A — the standing status text goes
+
+> *"remove these lines. the UI must be intuitive and not rely on this text to
+> inform the user."* — on `div.doxbench-statusbar`, whose captured text read
+> `Outline: no unsaved changesDocument: no unsaved changesSave persists only the
+> changed buffers, in th…`
+
+Three things stood there, and they are answered three different ways.
+
+**The dirty/clean state becomes CONTROL state.** "No unsaved changes" is
+exactly what a disabled Save says, without asking anyone to read a sentence:
+Save is now reachable when any buffer is dirty and unreachable when none is,
+Cancel when the ACTIVE buffer is dirty. That is a strictly better statement than
+the text, because it also tells the human what they can *do* about it. (Save
+keeps its other gate untouched: an in-flight Save still withdraws both controls,
+and a missing seam still makes Save unreachable for its own stated reason.)
+
+**The "Save persists only the changed buffers…" note is deleted.** It explained
+the behaviour the control now demonstrates. Nothing replaces it.
+
+**The per-buffer sentences go SR-ONLY, and this is the load-bearing part.**
+Those two regions are not decoration: the ratified buffer contract requires a
+PARTIAL Save to be reported per buffer, every stated refusal on this canvas
+lands in them, and they are `aria-live`. Deleting them would delete a contract
+obligation and an accessibility surface at once. So they stay in the DOM under
+`.doxbench-sronly` — the same recipe `.doxchat-announce` uses one region over:
+`position: absolute` + `clip-path: inset(50%)`, never `display: none` and never
+the `hidden` attribute, either of which would take the live region out of the
+accessibility tree along with the text.
+
+**EVENTS get one transient visible line.** A refusal, or a Save that did not
+wholly land, is something a sighted human must not miss — and it is an EVENT,
+not a state, so it must not stand there afterwards. `.doxbench-eventnote`
+appears when there is such a thing to say, names the buffer it is about, and
+clears itself after `eventNoteMs` (injectable, like `previewDelayMs`, because a
+timer a test cannot pin is a timer nobody can trust). A COMMITTED buffer gets no
+event: Save going unreachable and the buffer going clean is the report.
+
+The division is the honest one: **state on the controls, durable detail in the
+sr-only regions, events on a transient line.**
+
+### Annotation B — the model selector moves to the send button
+
+> *"add a model selector down next to the send button. make this text the hover
+> text for the send button if no model selected."* — on `div.swb-posture-note`,
+> reading "chat is unavailable — no approved model is configured; both editors
+> remain fully usable."
+
+**What the model machinery actually is** (inspected before implementing, and it
+decided the shape of this):
+
+- the server exposes models on `GET /workbench/model-catalog`, gated on the same
+  loopback + `session` + resolved-actor verdict the session capability uses;
+- the catalog comes from an injected `WorkbenchModelPort` — `serve.py`'s
+  `model_port_factory` seam. There is **no CLI flag, no config file and no
+  env-var read**: `ideation_dashboard.serve --help` has no model argument;
+- with no factory injected — the shipped default, and this local serve's posture
+  — the route answers `EMPTY_CATALOG` as a **success**, not an error. That is
+  the ratified editor-only posture (FR-025/SC-008);
+- **the chat-turn request already carries `model_id`**, in the released
+  envelope's own `required` list, and the rail already sends
+  `state.selectedModelId` there.
+
+That last point matters: **carrying a per-turn model choice needs no wire change
+at all.** The mechanism exists, the selector exists, and `canSend` already
+refuses a turn with no model selected. So this annotation is a MOVE, not a new
+feature — the selector was three regions above the control its choice governs.
+
+- The selector joins Send in a `doxchat-sendrow`. Same element, same
+  `selectModel` binding, same `canSend` authority.
+- With nothing selectable it renders **empty and DISABLED** rather than hiding.
+  That is the honest shape of this plane: the server answers with a catalog and
+  the catalog is empty. (This replaces T104 F5-9's selector-XOR-note trade,
+  whose reason — never look live when you are not — is served better by a
+  visibly inert control than by an absent one.)
+- The unavailability sentence becomes the send button's `title` **and** its
+  `aria-describedby` target, so the reason is programmatically associated rather
+  than living only in a tooltip a screen reader may never surface. The note
+  itself goes sr-only. One selector (`unavailabilityNote`) still chooses WHICH
+  sentence — stale token, unreadable catalog, or configured-none — so the
+  button's tooltip and the F10-1 vocabulary can never drift.
+- The shell's standing posture note now renders only for the PLANE rungs. The
+  three CHAT rungs are marked `chat: true` in `presentationPosture`; their
+  sentence lives on the send button. The plane rungs (hosted, gate-off, unkeyed,
+  source-unavailable) keep the inline note: they explain a canvas that is
+  WITHHELD, the rail is not even mounted for most of them, and there is no
+  control to hang the sentence on.
+
+**The wire limitation, flagged.** Everything above works within the released
+contract because `model_id` is already a field. What does NOT work without a
+contract release is anything the envelope has no room for — and the standing
+example is the turn-record buffer naming deferred in the F2 carve-out. If a
+future round wants per-turn model METADATA beyond the id (a provider hint, a
+selected-model echo in the response), that is the same closed-envelope wall, and
+it rides Phase B's chat-turn contract release alongside the F2 obligation rather
+than forcing a release of its own.
+
+### Spec text
+
+No ratified scenario pins the statusbar's visible text, the posture note's
+placement, or the selector's position, so no amendment was needed for either
+annotation. The one clause that came close is the gate-absent rule — *"both
+controls SHALL state that absence as visible text beside them rather than only
+in a hover title"* — and it is **honoured unchanged**: the fixed
+`SAVE_UNAVAILABLE_REASON` still renders as visible text beside Save wherever
+there is no gate seam. It is the WIRED posture's standing note that was deleted,
+which no requirement ever asked for.

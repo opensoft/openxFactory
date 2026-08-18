@@ -1575,14 +1575,32 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 /* the panel chrome: the document picker, one status region per buffer, and the
    one Save / one Cancel — all OUTSIDE both view tabs, so each control and its
    answer are on screen from either view. */
-/* The status row: each buffer's own live region plus the Save note, under the
-   tab row. The chrome block this replaces also carried the document picker and
-   the two controls; the picker is retired and the controls moved into the tab
-   row (Brett's 2026-08-15 annotation round). */
+/* The status row under the tab row. Brett's 2026-08-18 annotation round 2
+   retired its STANDING text — the controls' own enabled state says what the
+   sentences used to — so what remains is sr-only (the per-buffer live regions,
+   for assistive technology and for the partial-Save contract), the gate-absent
+   reason, and ONE transient visible line for events. */
 .doxbench-statusbar {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
   flex: none; min-width: 0;
 }
+/* The house sr-only idiom, the same one `.doxchat-announce` uses one region
+   over: out of the visual flow, still in the accessibility tree, still
+   announced. NOT `display: none` and NOT `hidden`, either of which would take
+   the live region out of the tree along with the text. */
+.doxbench-sronly {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+/* The EVENT line: a refusal, or a Save that did not wholly land. Visible only
+   while it has something to say, and it says it briefly — standing text is what
+   annotation round 2 removed. */
+.doxbench-eventnote {
+  flex-basis: 100%; min-width: 0; font-size: 11px; color: var(--blocked);
+  overflow-wrap: anywhere;
+}
+.doxbench-eventnote[hidden] { display: none; }
+.doxbench-save-note[hidden] { display: none; }
 .doxbench-status { font-size: 10.5px; color: var(--faint-ink); flex: 1; }
 .doxbench-status.is-dirty { color: var(--st-proposal); font-weight: 600; }
 .doxbench-cancel, .doxbench-save {
@@ -1761,6 +1779,24 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   border: 1px solid var(--border); border-radius: 6px;
   background: var(--faint); color: var(--ink);
 }
+/* THE SEND ROW (Brett's 2026-08-18 annotation round 2): the approved-model
+   selector sits beside Send, where the choice it governs is used. The selector
+   takes the slack so a long model label truncates rather than pushing Send off
+   the row; Send keeps its intrinsic width. */
+.doxchat-sendrow {
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  min-width: 0;
+}
+.doxchat-sendrow .doxchat-model { flex: 1 1 auto; min-width: 0; }
+.doxchat-sendrow .doxchat-send { flex: none; }
+.doxchat-model:disabled { opacity: .5; cursor: not-allowed; }
+/* The same sr-only idiom `.doxchat-announce` uses: the unavailability sentence
+   is the send button's programmatic description now, not a standing line, so it
+   must stay in the accessibility tree while leaving the visual flow. */
+.doxchat-sronly {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
 .doxchat-send { align-self: flex-end; }
 .doxchat-card-apply:disabled, .doxchat-card-reject:disabled,
 .doxchat-send:disabled { opacity: .5; cursor: not-allowed; }
@@ -1790,6 +1826,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   display: flex; align-items: baseline; gap: 4px 10px; flex-wrap: wrap;
   padding: 4px 0 6px;
 }
+.doxbench-eventnote { font-size: 12px; }
 .doxbench-tabrow { padding-top: 2px; }
 .doxbench-panes { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 .doxbench-viewpane { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }

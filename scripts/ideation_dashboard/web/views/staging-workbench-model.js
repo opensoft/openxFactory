@@ -1394,6 +1394,15 @@ export function presentationPosture(input) {
         "state inline.",
     };
   }
+  // `chat: true` MARKS THE RUNGS THAT ARE ABOUT CHAT rather than about the
+  // plane (Brett's 2026-08-18 annotation round 2). All three below leave the
+  // canvas offered — chat is what failed, not editing — and their sentence now
+  // belongs to the SEND BUTTON, whose tooltip and accessible description state
+  // it where the human is trying to act ("make this text the hover text for the
+  // send button if no model selected"). The plane rungs above carry no such
+  // flag: they explain a canvas that is WITHHELD, there is no send button to
+  // hang them on, and they keep their inline note.
+  //
   // T104 F10-1: the catalog-FAILURE rungs, above editor-only because a
   // failed catalog also reports zero approved models — the count alone
   // cannot tell "nothing is configured" from "the answer could not be
@@ -1404,21 +1413,21 @@ export function presentationPosture(input) {
   // both — chat is what failed, not editing (FR-025).
   if (facts.catalogFailure === "console_required") {
     return {
-      kind: "console-token-stale", canvas: true,
+      kind: "console-token-stale", canvas: true, chat: true,
       note: "chat is unavailable — this page's console token is stale; " +
         "reload the page to continue. Both editors remain fully usable.",
     };
   }
   if (facts.catalogFailure) {
     return {
-      kind: "catalog-unreadable", canvas: true,
+      kind: "catalog-unreadable", canvas: true, chat: true,
       note: "chat is unavailable — the model catalog could not be read; " +
         "both editors remain fully usable.",
     };
   }
   if (approvedModels === 0) {
     return {
-      kind: "editor-only", canvas: true,
+      kind: "editor-only", canvas: true, chat: true,
       note: "chat is unavailable — no approved model is configured; both " +
         "editors remain fully usable.",
     };
