@@ -533,7 +533,8 @@ STATE_JS = SAVE_JS.parent / "doxbench-state.js"
 # T071 set: the scenarios are independent, so they are all run and returned
 # together (the same economy `mutation_results` uses).
 _SAVE_HARNESS = r"""
-const { runSave, saveOrder, SAVE_BUFFER_ORDER } = await import('./doxbench-save.js');
+const { runSave, saveOrder, saveBufferOrder, SAVE_DOCUMENT_ORDER_RULE } =
+  await import('./doxbench-save.js');
 
 const KEY = { repository: 'fixture-repo', ref: 'main',
               tile_kind: 'staged', tile_id: 'topic-x' };
@@ -602,7 +603,8 @@ async function scenario(script, over = {}) {
 }
 
 const results = {
-  order: SAVE_BUFFER_ORDER,
+  order: saveBufferOrder(Object.keys(state().buffers)),
+  orderRule: SAVE_DOCUMENT_ORDER_RULE,
   plan: saveOrder(state()),
   planWithCleanOutline: saveOrder(state({ outline: { dirty: false } })),
   bothAccepted: await scenario({}),
@@ -639,10 +641,21 @@ def save_results(tmp_path_factory):
 
 # ---- outline first -------------------------------------------------------
 
-def test_the_declared_save_order_is_outline_then_document(save_results):
-    """The order is a declared constant, not an emergent property of whichever
-    buffer happened to be iterated first."""
+def test_the_declared_save_order_is_outline_then_documents(save_results):
+    """RE-PINNED by `add-doxbench-editing-phase-b` (task 6.1).
+
+    Phase A pinned a declared CONSTANT (`SAVE_BUFFER_ORDER`, a fixed ordered
+    pair). Phase B holds N documents, so a constant list cannot express the
+    order and the ratified contract states a RULE instead: the outline first
+    because its commit is the session ancestry, then every document in a
+    deterministic order the realization declares. The assertion is not
+    weakened -- the order is still not an emergent property of whichever buffer
+    happened to be iterated first; it is now a declared FUNCTION of the buffer
+    keys, and the declaration itself is asserted beside it.
+    """
     assert save_results["order"] == ["outline", "document"]
+    assert save_results["orderRule"] == (
+        "ascending lexicographic by buffer key (UTF-16 code unit)")
 
 
 def test_both_dirty_buffers_are_attempted_outline_first(save_results):
@@ -687,7 +700,7 @@ def test_each_buffer_declares_the_existing_action_its_path_implies(save_results)
     """FR-031: an existing path is the existing edit action; a buffer with no
     path yet is the existing create action. Save introduces no third verb."""
     plan = save_results["plan"]
-    by_kind = {row["kind"]: row for row in plan}
+    by_kind = {row["key"]: row for row in plan}
     assert by_kind["outline"]["action"] == "edit-document"
     assert by_kind["document"]["action"] == "edit-document"
     for call in save_results["bothAccepted"]["calls"]:
@@ -695,7 +708,7 @@ def test_each_buffer_declares_the_existing_action_its_path_implies(save_results)
 
 
 def test_the_plan_skips_a_clean_buffer(save_results):
-    kinds = [row["kind"] for row in save_results["planWithCleanOutline"]]
+    kinds = [row["key"] for row in save_results["planWithCleanOutline"]]
     assert kinds == ["document"]
 
 
@@ -763,7 +776,7 @@ def test_every_buffer_outcome_carries_the_declared_outcome_fields(save_results):
     outcome cannot be reported with a field quietly missing."""
     for scenario_name in ("bothAccepted", "documentRefused", "outlineRefused"):
         for row in save_results[scenario_name]["outcome"]["buffers"]:
-            assert set(row) == {"kind", "status", "action", "ref", "revision",
+            assert set(row) == {"key", "status", "action", "ref", "revision",
                                 "content_hash", "message"}, row
             assert row["status"] in {"unchanged", "committed", "refused",
                                      "not_attempted"}
@@ -771,7 +784,7 @@ def test_every_buffer_outcome_carries_the_declared_outcome_fields(save_results):
 
 def _outcome_for(scenario, kind):
     for row in scenario["outcome"]["buffers"]:
-        if row["kind"] == kind:
+        if row["key"] == kind:
             return row
     raise AssertionError(f"no outcome reported for {kind}: {scenario['outcome']}")
 
@@ -867,7 +880,7 @@ try {
   out.planKey = state.key;
   out.planKinds = Object.keys(state.buffers);
   out.rows = saveOrder(state).map((row) => ({
-    kind: row.kind, action: row.action, document: row.document,
+    key: row.key, action: row.action, document: row.document,
     base_hash: row.base_hash, refusal: row.refusal,
   }));
   const sent = [];
@@ -879,7 +892,7 @@ try {
   } });
   out.sent = sent;
   out.outcome = outcome.buffers.map((row) => ({
-    kind: row.kind, status: row.status }));
+    key: row.key, status: row.status }));
   out.threw = null;
 } catch (error) {
   out.threw = String(error && error.message || error);
@@ -911,14 +924,14 @@ def test_an_absent_outline_buffer_no_longer_blocks_the_document_save(absent_outl
     # the plan: one document row, the edit action (the path exists in the
     # buffer), its declared base hex, and no refusal from the missing outline
     assert r["rows"] == [{
-        "kind": "document", "action": "edit-document",
+        "key": "document", "action": "edit-document",
         "document": "docs/registry.md", "base_hash": "c" * 64,
         "refusal": None,
     }]
     # and the run itself: the document is sent and commits; the absent outline
     # is reported `unchanged` rather than blocking the document behind it
     assert r["sent"] == ["document"]
-    outcome = {row["kind"]: row["status"] for row in r["outcome"]}
+    outcome = {row["key"]: row["status"] for row in r["outcome"]}
     assert outcome == {"outline": "unchanged", "document": "committed"}
 
 
@@ -1024,8 +1037,8 @@ const SERVER_PAYLOAD = {
       return firstEditVerdict(SERVER_PAYLOAD); } });
   out.serverVerb = {
     plannedAction: requests[0] && requests[0].action,
-    committedAction: outcome.buffers.find((b) => b.kind === "document").action,
-    status: outcome.buffers.find((b) => b.kind === "document").status,
+    committedAction: outcome.buffers.find((b) => b.key === "document").action,
+    status: outcome.buffers.find((b) => b.key === "document").status,
   };
 }
 {
@@ -1033,7 +1046,7 @@ const SERVER_PAYLOAD = {
   // verdict at all maps to the FIXED refusal — never a TypeError mid-Save.
   const outcome = await runSave(state, {
     transport: async () => firstEditVerdict(null) });
-  const row = outcome.buffers.find((b) => b.kind === "document");
+  const row = outcome.buffers.find((b) => b.key === "document");
   out.nullVerdict = { status: row.status, message: row.message };
 }
 console.log(JSON.stringify(out));
