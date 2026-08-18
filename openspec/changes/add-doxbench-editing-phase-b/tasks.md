@@ -64,40 +64,72 @@ state whether the finding CHANGES a mechanism this design assumed. A finding
 that changes a mechanism reopens the affected design section before its slice
 starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
 
-- [ ] 3.1 **(a) The harness's memory backends** — the local / Hindsight /
+- [x] 3.1 **(a) The harness's memory backends** — the local / Hindsight /
       Mnemopi claims are cited from the harness README by an external design
       review and unverified by our own research. Verify what backends exist and
       what each stores. Blocks §11 (bridge). A backend that cannot be disabled
       would change the split-brain prohibition from a policy into a refusal.
-- [ ] 3.2 **(b) MCP client depth** — how deep the harness's tool-calling
+      **Verified 2026-08-18** — see `verification-findings.md` §3.1. Four
+      mutually-exclusive backends (`off|local|hindsight|mnemopi`), one enum,
+      `off` is the default and a true no-op. Does not change the mechanism.
+- [x] 3.2 **(b) MCP client depth** — how deep the harness's tool-calling
       support goes. Blocks §10 (knowledge service): the MCP boundary is only
       reachable from the model if the harness can call tools at all; if it
       cannot, the packet is assembled entirely server-side and the boundary
       serves our own assembler only. Record which of the two it is.
-- [ ] 3.3 **(c) `SYSTEM.md` re-read cadence** — per turn, or cached at session
+      **Verified 2026-08-18** — see `verification-findings.md` §3.2. Full
+      hands-on end-to-end proof: real mid-turn MCP tool dispatch via
+      `write xd://<tool>`. The boundary is model-reachable. Does not change
+      the mechanism.
+- [x] 3.3 **(c) `SYSTEM.md` re-read cadence** — per turn, or cached at session
       start. Blocks §10 (the source-ranking hierarchy): a cached read means the
       hierarchy is fixed for a session and a change requires a session restart,
       which the surface must then state.
-- [ ] 3.4 **(d) Cognee's current default embedded graph backend** — in flux
+      **Verified 2026-08-18** — see `verification-findings.md` §3.3. Read once
+      at session start (`main.ts`), rebuilds reuse the captured string
+      (`sdk.ts`), never re-read from disk mid-session. Does not change the
+      mechanism.
+- [x] 3.4 **(d) Cognee's current default embedded graph backend** — in flux
       after the Kuzu archival (watch `topoteretes/cognee#2098`). Blocks nothing
       in v1 by construction, and blocks any graduation: a version pin against a
       moving default is not a pin. Record the state and the date read.
-- [ ] 3.5 **(e) Where the harness's session artifact store lands on disk** —
+      **Verified 2026-08-18** — see `verification-findings.md` §3.4. Migrated
+      Kuzu → Ladybug (pinned `0.19.0`, merged 2026-08-15 upstream), still
+      under active churn. Informational; blocks nothing in v1.
+- [x] 3.5 **(e) Where the harness's session artifact store lands on disk** —
       inside the session worktree (so offloaded artifacts ride the branch under
       share-session) or outside it. Blocks §9 (threads) and §12
       (share-session): if it lands outside, share-session must say so rather
       than implying it shared everything.
-- [ ] 3.6 **(f) `/shake`'s trigger surface** — manual command, automatic
+      **Verified 2026-08-18** — see `verification-findings.md` §3.5. Lands
+      OUTSIDE the worktree by default (`~/.omp/agent/sessions/...`), hands-on
+      confirmed. Phase B's own-sidecar approach (§4.1) is unaffected and
+      necessary; adds one concrete requirement to task 9.1 (dereference
+      `artifact://` content before writing to the sidecar).
+- [x] 3.6 **(f) `/shake`'s trigger surface** — manual command, automatic
       threshold, or both; and whether RPC mode exposes it programmatically
       rather than only interactively. Blocks compression layer 3's realization:
       an interactive-only command is not a mechanism a server can rely on, and
       the layer would then need a different v1.
-- [ ] 3.7 **(g) `memory-gateway`'s realization depth elsewhere in xFactory** —
+      **Verified 2026-08-18** — see `verification-findings.md` §3.6. Both
+      manual and automatic surfaces exist; manual `/shake` confirmed hands-on
+      reachable in `--mode rpc` via `{"type":"prompt","message":"/shake elide"}`.
+      Does not change the mechanism.
+- [x] 3.7 **(g) `memory-gateway`'s realization depth elsewhere in xFactory** —
       is any conformant consumer live today, or is this the first? Blocks the
       `memory-gateway` delta's landing: a first consumer proposing a contract
       amendment must say that it is the first (Claim 22's honest flag).
-- [ ] 3.8 Record every finding, including "verified as assumed", so a later
+      **Verified 2026-08-18** — see `verification-findings.md` §3.7.
+      `installs/hermes-install`'s memory-boundary gate precedes Phase B
+      (ratified 2026-07-24) but is subject-bearing and provisional; Phase B is
+      the first subject-free consumer and the first to declare formal
+      per-requirement conformance. Precision correction to Claim 22's framing
+      recommended before landing (not a reversal).
+- [x] 3.8 Record every finding, including "verified as assumed", so a later
       reader can tell a checked assumption from an unchecked one.
+      Done — `verification-findings.md`, all seven items independently
+      checked against upstream source or hands-on execution; none left as
+      "verified as assumed."
 
 ## 4. State generalization (first, because everything depends on it)
 
