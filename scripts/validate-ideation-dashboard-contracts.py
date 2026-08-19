@@ -331,6 +331,11 @@ def warn_if_deprecated_kind(f: Findings, label: str, tag: str,
     entry = deprecated_kinds(docs).get(tag)
     if entry is None:
         return
+    # CONSEQUENCE, stated: under `--strict` (opt-in, "treat warnings as errors")
+    # a deprecated instance now FAILS. That is what strict mode means and what a
+    # consumer asking for it wants — a way to find the shapes that will not
+    # survive the removal target. The default invocation, which is what this
+    # repository's own gates run, still exits 0.
     f.warnings.append(
         f"{label}: kind {tag!r} is DEPRECATED as of "
         f"{entry.get('deprecated_in', 'an unstated release')} — superseded by "
