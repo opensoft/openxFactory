@@ -470,9 +470,12 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       No graph engine, store, or index: `ProviderProfile` REFUSES a profile
       declaring `graph`, and eleven engine/candidate spellings are asserted
       absent from the module's source.
-- [x] 10.2 The MCP boundary: `search`, `get_source`, `promote_finding`,
+- [x] 10.2 The ONE tool boundary: `search`, `get_source`, `promote_finding`,
       `reindex`, with `graph_query` RESERVED and unimplemented (a test asserts
-      it is unimplemented).
+      it is unimplemented). *(The line read "The MCP boundary" until the
+      adversarial review's F10; the delta says "exactly ONE tool boundary" and
+      never says MCP, so the heading is aligned with the note below rather than
+      left contradicting it.)*
       `KnowledgeToolBoundary`, dispatching through a FIXED table rather than
       `getattr`, so a caller cannot reach a private helper by naming it and the
       reserved name answers from the same table. `graph_query` is IN
@@ -618,6 +621,14 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       The backend INSTANCE is built per request from the process-wide
       declaration: the server is threaded, and one tile's derived index must
       never be visible to another tile's turn.
+      **THE ASSEMBLER SEAM IS GUARDED (re-verify NF6).** `packet_assembler` is
+      injectable — it is what makes the packet leash testable end to end — and
+      it carries the governance rails, so a swapped assembler bypasses the
+      confinement, the exemption and the bounds fit while still passing the
+      leash. It therefore gets the guard `knowledge_declaration` has: a server
+      built with no kwarg is asserted to bind the REAL assembler, and neither
+      production entrypoint may pass the argument at all (asserted against the
+      `build_server` call sites' own AST, not against a grep).
       **THE INDEX BOUND IS STATED, NOT SILENT (adversarial review, F6).** The
       index carries a declared bound (`MAX_INDEXED_SOURCES`) and the
       confinement does not, so a tile with more documents than the bound has

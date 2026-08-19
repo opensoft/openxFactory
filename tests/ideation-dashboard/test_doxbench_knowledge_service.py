@@ -105,6 +105,57 @@ def test_the_route_reads_the_declaration_and_never_selects_a_backend(tmp_path):
         assert forbidden not in serve_source, forbidden
 
 
+def test_a_server_built_with_no_kwarg_binds_the_REAL_packet_assembler(tmp_path):
+    """RE-VERIFY NF6. The `packet_assembler` seam carries the governance rails
+    — the confinement, the lifecycle-status exemption and the bounds fit all
+    live inside the assembler — so a swapped one bypasses all three while still
+    passing the leash, which the reviewer proved by driving 560 KB of
+    out-of-confinement text to a 200.
+
+    A seam that powerful gets the same guard `knowledge_declaration` has: the
+    default is asserted to be the real function, and neither production
+    entrypoint is allowed to pass the argument at all. The injection stays
+    available to tests, which is what makes the leash testable end to end, but
+    nothing in a shipped path can reach it."""
+    from test_doxbench_routes import _handler_class, _serving
+
+    with _serving(tmp_path) as (httpd, _host, _port):
+        bound = _handler_class(httpd).packet_assembler
+    assert bound is pk.assemble_packet
+
+
+def test_neither_entrypoint_passes_a_packet_assembler(tmp_path):
+    """The production entrypoints declare the notebook adapter and the
+    retrieval backend explicitly, and must NOT declare this: an install that
+    could name its own packet assembler could name one that skips a rail."""
+    import ast
+
+    calls = 0
+    for module in ("serve.py", "cli.py"):
+        path = REPO_ROOT / "scripts" / "ideation_dashboard" / module
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            target = node.func
+            name = (target.attr if isinstance(target, ast.Attribute)
+                    else getattr(target, "id", None))
+            if name != "build_server":
+                continue
+            calls += 1
+            passed = {kw.arg for kw in node.keywords}
+            assert "packet_assembler" not in passed, module
+            # the retrieval backend, by contrast, MUST be declared here
+            assert "knowledge_declaration" in passed or any(
+                kw.arg is None for kw in node.keywords), module
+    assert calls >= 2, "the entrypoint call sites moved; this guard found none"
+
+    # and `build_server`'s own default is the real function, not an absence
+    serve_source = (REPO_ROOT / "scripts" / "ideation_dashboard"
+                    / "serve.py").read_text(encoding="utf-8")
+    assert "else doxbench_packet.assemble_packet)" in serve_source
+
+
 def test_a_tile_that_cannot_be_indexed_degrades_rather_than_failing(tmp_path):
     """An unreadable corpus is the same POSTURE as an undeclared backend, not
     a turn failure: `_knowledge_service` answers None and the reduced packet
@@ -320,7 +371,7 @@ def test_server_selected_evidence_over_the_bound_FITS_instead_of_refusing(
         checkout_root=_fat_checkout(tmp_path))
     assert status == 200, payload
     declaration = _declaration(port)
-    assert "selected out to fit this packet's bound" in declaration
+    assert "selected out to fit this packet's bound, best-ranked first" in declaration
     for ref in TILE_EVIDENCE:
         assert ref in declaration
     assert "one retrieval call away" in declaration
@@ -379,13 +430,42 @@ def test_the_genuine_refusal_arm_answers_409_and_names_its_dimension(tmp_path):
     assert port.calls.count("dispatch") == 0
 
 
-def test_the_coverage_shortfall_is_stated_on_a_real_route(tmp_path):
-    """F6: the index has a declared bound and the confinement does not, so the
-    packet says how much of the tile's staged set retrieval actually covered."""
+def test_FULL_coverage_is_stated_on_a_real_route(tmp_path):
+    """RENAMED (re-verify NF3). This asserted the FULL-coverage sentence while
+    claiming to be the shortfall test, so the shortfall branch had no route
+    coverage at all — the branch that matters, because it is the one that
+    contradicts the packet's own lossless note."""
     status, _payload, port = _post_turn(
         tmp_path, _turn(), knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED)
     assert status == 200
-    assert "retrieval covered all 3 documents" in _declaration(port)
+    assert "the index covered all 3 documents" in _declaration(port)
+
+
+def test_the_coverage_SHORTFALL_is_stated_on_a_real_route(tmp_path):
+    """The branch itself, driven the way the reviewer's own repro drives it:
+    squeeze the index bound on the live handler below the tile's staged-set
+    size, so refs that ARE confined were never indexed."""
+    from test_doxbench_routes import (
+        _capabilities, _console_headers, _handler_class, _request, _serving,
+        CHAT_ROUTE,
+    )
+
+    fake = _port()
+    with _serving(tmp_path, model_port_factory=(lambda: fake),
+                  knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED
+                  ) as (httpd, host, port):
+        _handler_class(httpd).MAX_INDEXED_SOURCES = 1
+        caps = _capabilities(host, port)
+        status, _payload, _headers, _raw = _request(
+            host, port, "POST", CHAT_ROUTE,
+            body=_turn(message="doc health checks"),
+            headers=_console_headers(caps))
+
+    assert status == 200
+    declaration = _declaration(fake)
+    assert "the index covered 1 of 3 documents" in declaration
+    assert "the remaining 2 were beyond the declared index bound" in declaration
+    assert "not one retrieval call away either" in declaration
 
 
 def test_the_evidence_revision_is_stated_on_a_real_route(tmp_path):

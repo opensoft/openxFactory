@@ -614,6 +614,13 @@ def bounds_rail(
     Reading it as a selection priority would be one layer claiming another's
     job, which the fidelity contracts exist to prevent.
 
+    THE CONSEQUENCE, STATED (re-verify NF7): a ratified or standard canon
+    document CAN be dropped here — by its byte size and its rank, like anything
+    else — while a draft that fits is carried. That is not the exemption
+    failing; the exemption promises such a document will not be aggressively
+    COMPRESSED if it is carried, and promises nothing about whether selection
+    carries it. The dropped ref is named, so the reader can see it went.
+
     Returns the sources that fit, in their original order, and the refs that
     were dropped, in rank order."""
 
@@ -880,34 +887,46 @@ def declaration_text(packet: ContextPacket) -> str:
             + ", ".join(packet.absent_threads)
             + " — nothing has been mirrored into those sidecars, so no thread "
               "is claimed for them")
-    if packet.source_revision:
+    if packet.of_kind(SOURCE_EVIDENCE) or packet.dropped_evidence:
         # F5: evidence is the SERVED CHECKOUT's bytes at the projection's own
         # revision. A session's unsaved work rides as buffers, and a session's
         # SAVED work lands in the session worktree, which this evidence has not
         # been read from — so the packet says which bytes these are rather than
         # letting a reader assume they are the session's.
+        #
+        # THE CAVEAT IS NOT CONDITIONAL ON THE STRING IT WARNS ABOUT (re-verify
+        # NF4). This used to be gated on `packet.source_revision`, so a
+        # projection whose snapshot declared no revision dropped the whole
+        # disclosure — the worktree warning vanished exactly where the reader
+        # had least information. The condition is now "does this packet stand
+        # on retrieved bytes at all", which is what the warning is about, and a
+        # missing revision is SAID rather than used as a reason to say nothing.
         lines.append(
             f"evidence bytes are the served checkout at revision "
-            f"{packet.source_revision} — NOT this session's worktree, so a "
-            "document saved or created in this session appears here at its "
-            "pre-session bytes, or not at all")
+            f"{packet.source_revision or 'unknown'} — NOT this session's "
+            "worktree, so a document saved or created in this session appears "
+            "here at its pre-session bytes, or not at all")
     if packet.dropped_evidence:
         lines.append(
-            "selected out to fit this packet's bound, lowest-ranked first: "
+            "selected out to fit this packet's bound, best-ranked first: "
             + ", ".join(packet.dropped_evidence)
             + " — each is named because it remains one retrieval call away; "
               "nothing was shortened")
     if packet.corpus_coverage is not None:
+        # "THE INDEX covered", not "retrieval covered" (re-verify NF2): the
+        # number is about what was INDEXED, and under the reduced-retrieval
+        # posture no retrieval happened at all — so the two sentences would
+        # contradict each other on the same packet.
         indexed, total = packet.corpus_coverage
         if indexed < total:
             lines.append(
-                f"retrieval covered {indexed} of {total} documents in this "
+                f"the index covered {indexed} of {total} documents in this "
                 f"tile's staged set: the remaining {total - indexed} were "
                 "beyond the declared index bound and were NOT retrievable for "
                 "this turn, so they are not one retrieval call away either")
         else:
             lines.append(
-                f"retrieval covered all {total} documents in this tile's "
+                f"the index covered all {total} documents in this tile's "
                 "staged set")
     lines.append(_LOSSLESS_NOTE)
     return "\n".join(lines)

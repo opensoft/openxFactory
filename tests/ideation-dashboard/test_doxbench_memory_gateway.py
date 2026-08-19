@@ -218,6 +218,13 @@ def test_the_reading_never_claims_a_whole_tier():
     assert reading.claims_whole_tier() is False
     assert "Usage Metering Is Gateway-Owned" in reading.partial
     assert "Promotions Are Explicit And Reviewed" in reading.narrowed
+    # RE-VERIFY NF1: pinned BY NAME. This disposition was corrected from
+    # REALIZED to NARROWED by the adversarial review (F4) — and nothing failed
+    # when it was flipped back, because no test named it. The correction is a
+    # claim about what this surface does NOT do, which is exactly the kind that
+    # rots silently unless something asserts it.
+    assert "Gateway Conformance Is Testable" in reading.narrowed
+    assert "Gateway Conformance Is Testable" not in reading.realized
     assert "Rails Run Before Provider I/O" in reading.realized
     # No tier is claimed whole, and M0 is the one that would be tempting: it
     # holds inapplicable requirements alongside realized ones.

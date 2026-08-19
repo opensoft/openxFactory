@@ -27,6 +27,8 @@ pinned here so the later slice has something to satisfy.
 
 from __future__ import annotations
 
+import dataclasses
+
 import pytest
 
 from conftest import REPO_ROOT  # noqa: F401  (sys.path side effect)
@@ -346,6 +348,74 @@ def test_the_declaration_states_WHICH_BYTES_the_evidence_is(
     assert "pre-session bytes, or not at all" in text
 
 
+def test_the_worktree_caveat_survives_a_projection_with_NO_revision():
+    """RE-VERIFY NF4. The whole disclosure used to be gated on
+    `packet.source_revision`, so a snapshot that declared no revision dropped
+    the worktree warning entirely — it vanished exactly where the reader had
+    least information about which bytes they were looking at.
+
+    The caveat is now conditional on the packet standing on retrieved bytes at
+    all, which is what it warns about; a missing revision is SAID."""
+    revisionless = dataclasses.replace(_projection(), source_revision="")
+    packet = pk.assemble_packet(
+        projection=revisionless, scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler", knowledge=_boundary(),
+        already_carried=(OUTLINE,), clock=_clock())
+    assert packet.of_kind(pk.SOURCE_EVIDENCE), "no evidence, nothing to warn about"
+    text = pk.declaration_text(packet)
+    assert "evidence bytes are the served checkout at revision unknown" in text
+    assert "NOT this session's worktree" in text
+
+
+def test_the_caveat_survives_when_every_evidence_item_was_dropped():
+    """Dropped refs are named as one-retrieval-call-away FROM THE SERVED
+    CHECKOUT, so the caveat is owed there too."""
+    boundary = _boundary()
+    boundary.sources[EVIDENCE_DRAFT] = ("Status: draft\n\n"
+                                        + "x" * (pk.MAX_PACKET_BYTES + 1))
+    boundary.sources[EVIDENCE_RATIFIED] = ("Status: ratified\n\n"
+                                           + "y" * (pk.MAX_PACKET_BYTES + 1))
+    packet = pk.assemble_packet(
+        projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler", knowledge=boundary,
+        already_carried=(OUTLINE,), clock=_clock())
+    assert packet.of_kind(pk.SOURCE_EVIDENCE) == ()
+    assert packet.dropped_evidence
+    assert "NOT this session's worktree" in pk.declaration_text(packet)
+
+
+def test_dropped_refs_are_named_BEST_ranked_first_as_they_were_dropped():
+    """RE-VERIFY NF5. The line said "lowest-ranked first" while `bounds_rail`
+    walks best-ranked first and appends what does not fit — so the first name
+    printed is the HIGHEST-ranked item that was dropped, and the sentence was
+    the exact opposite of the data beside it."""
+    huge = "Status: draft\n\n" + "x" * (pk.MAX_PACKET_BYTES + 1)
+    rows = (
+        pk.PacketSource(ref="rank1.md", kind=pk.SOURCE_EVIDENCE, text=huge,
+                        status=None, compression_exempt=False),
+        pk.PacketSource(ref="rank2.md", kind=pk.SOURCE_EVIDENCE, text=huge,
+                        status=None, compression_exempt=False),
+    )
+    _fitted, dropped = pk.bounds_rail(rows)
+    assert dropped == ("rank1.md", "rank2.md")
+
+
+def test_a_ratified_document_can_be_dropped_by_the_fit_and_is_named():
+    """RE-VERIFY NF7, stated rather than left implicit: the exemption governs
+    aggressive COMPRESSION, not selection, so canon can be selected out by byte
+    size while a draft that fits is carried. The dropped ref is named."""
+    boundary = _boundary()
+    boundary.sources[EVIDENCE_RATIFIED] = ("Status: ratified\n\n"
+                                           + "y" * (pk.MAX_PACKET_BYTES + 1))
+    packet = pk.assemble_packet(
+        projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler", knowledge=boundary,
+        already_carried=(OUTLINE,), clock=_clock())
+    assert EVIDENCE_RATIFIED in packet.dropped_evidence
+    assert EVIDENCE_DRAFT in packet.refs()
+    assert EVIDENCE_RATIFIED in pk.declaration_text(packet)
+
+
 def test_a_packet_carrying_no_evidence_claims_no_revision():
     packet = pk.reduced_packet(projection=_projection(), scope=SCOPE,
                                selected_key=DOC_A, loaded_keys=(DOC_A,),
@@ -363,7 +433,7 @@ def test_a_retrieval_coverage_shortfall_is_STATED_not_left_to_silence():
         loaded_keys=(DOC_A,), query="packet assembler", knowledge=_boundary(),
         already_carried=(OUTLINE,), corpus_coverage=(200, 512), clock=_clock())
     text = pk.declaration_text(packet)
-    assert "retrieval covered 200 of 512 documents" in text
+    assert "the index covered 200 of 512 documents" in text
     assert "the remaining 312 were beyond the declared index bound" in text
     assert "not one retrieval call away either" in text
 
@@ -373,7 +443,7 @@ def test_full_coverage_is_stated_too_so_the_line_is_never_ambiguous():
         projection=_projection(), scope=SCOPE, selected_key=DOC_A,
         loaded_keys=(DOC_A,), query="packet assembler", knowledge=_boundary(),
         already_carried=(OUTLINE,), corpus_coverage=(7, 7), clock=_clock())
-    assert "retrieval covered all 7 documents" in pk.declaration_text(packet)
+    assert "the index covered all 7 documents" in pk.declaration_text(packet)
 
 
 def test_selection_is_lossless_by_reference_and_says_so():
@@ -514,7 +584,7 @@ def test_every_dropped_ref_is_NAMED_in_the_declaration():
         loaded_keys=(DOC_A,), query="packet assembler", knowledge=boundary,
         already_carried=(OUTLINE,), clock=_clock())
     text = pk.declaration_text(packet)
-    assert "selected out to fit this packet's bound" in text
+    assert "selected out to fit this packet's bound, best-ranked first" in text
     for ref in packet.dropped_evidence:
         assert ref in text
     assert "one retrieval call away" in text
