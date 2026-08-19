@@ -368,16 +368,140 @@ class AuthorshipRecordTests(unittest.TestCase):
             ["Proposed by: change-c"])
 
     def test_the_update_preserves_a_crlf_documents_line_endings(self):
-        """`.*$` would eat the `\\r` and leave the one rewritten line LF in a CRLF
-        file — the same corpus-integrity class the demote's move arm was fixed for.
-        Only the authorship value changes; every other byte after it survives."""
+        """`.*$` and `\\s*$` both eat the `\\r` and leave the rewritten line LF in
+        a CRLF file — the same corpus-integrity class the demote's move arm was
+        fixed for. Rewriting a ROW in place keeps the ending it had, so BOTH lines
+        this gate touches stay CRLF, not just the one the first fix covered."""
         with TemporaryDirectory() as td:
             out = self.rendered(
                 Path(td),
                 "# One\r\n\r\nStatus: staged\r\nProposed by: change-a\r\n"
                 "Kind: reference\r\n\r\nbody\r\n")
-        self.assertIn("Proposed by: change-b\r\n", out)
-        self.assertIn("Kind: reference\r\n\r\nbody\r\n", out)
+        self.assertEqual(
+            out,
+            "# One\r\n\r\nStatus: draft\r\nProposed by: change-b\r\n"
+            "Kind: reference\r\n\r\nbody\r\n")
+        # not one stray LF anywhere in a CRLF document
+        self.assertNotIn("\n", out.replace("\r\n", ""))
+
+    def test_a_crlf_document_gets_its_first_record_in_its_own_flavor(self):
+        """The ADD arm through the same lens: the inserted line takes the status
+        line's own ending, so a Windows-authored fragment does not come back with
+        one LF in it."""
+        with TemporaryDirectory() as td:
+            out = self.rendered(
+                Path(td), "# One\r\n\r\nStatus: staged\r\nKind: reference\r\n")
+        self.assertEqual(
+            out,
+            "# One\r\n\r\nStatus: draft\r\nProposed by: change-b\r\n"
+            "Kind: reference\r\n")
+        self.assertNotIn("\n", out.replace("\r\n", ""))
+
+    def test_the_flip_does_not_eat_the_blank_line_below_the_header(self):
+        """`^Status:\\s*staged\\s*$` consumes the newline after the header — `\\s*`
+        is greedy and `$` is satisfied one line later — so a human's blank line
+        between the header block and the body was DELETED on every lap. Pinned by
+        line count as well as by text, because that is how it was noticed: seven
+        lines in, six out."""
+        source = "# One\n\nStatus: staged\n\nKind: reference\n\nbody\n"
+        with TemporaryDirectory() as td:
+            out = self.rendered(Path(td), source)
+        self.assertEqual(
+            out, "# One\n\nStatus: draft\nProposed by: change-b\n\n"
+                 "Kind: reference\n\nbody\n")
+        # the record is the ONLY line added: 7 in, 8 out, and no blank lost
+        self.assertEqual(len(out.splitlines()), len(source.splitlines()) + 1)
+
+    def test_the_update_arm_does_not_eat_the_blank_line_either(self):
+        source = "# One\n\nStatus: staged\nProposed by: change-a\n\nbody\n"
+        with TemporaryDirectory() as td:
+            out = self.rendered(Path(td), source)
+        self.assertEqual(
+            out, "# One\n\nStatus: draft\nProposed by: change-b\n\nbody\n")
+        self.assertEqual(len(out.splitlines()), len(source.splitlines()))
+
+    # ---- fence-awareness and header anchoring (review C1) --------------------
+
+    def test_a_fenced_example_record_is_not_the_documents_record(self):
+        """A `Proposed by:` line inside a ``` block is an EXAMPLE — a skeleton
+        somebody pasted in to show what a fragment looks like. Reading it as this
+        document's record did two things at once: it SUPPRESSED adding the real
+        record (against the ratified 'the record MUST be added'), and it silently
+        rewrote somebody's example to name the current change."""
+        source = ("# One\n\nStatus: staged\nKind: reference\n\n"
+                  "Copy this skeleton:\n\n"
+                  "```markdown\nStatus: staged\nProposed by: some-old-change\n```\n")
+        with TemporaryDirectory() as td:
+            out = self.rendered(Path(td), source)
+        # the real record was ADDED, in the header block
+        self.assertEqual(
+            [line for line in out.splitlines()
+             if line.startswith("Proposed by:")][0], "Proposed by: change-b")
+        # …and the fenced example is untouched, verbatim
+        self.assertIn(
+            "```markdown\nStatus: staged\nProposed by: some-old-change\n```\n", out)
+
+    def test_a_fenced_status_example_is_not_the_documents_status(self):
+        """The same blindness on the other header. A document whose FIRST
+        `Status:` line is a fenced example must still be read by its own."""
+        source = ("# One\n\n```markdown\nStatus: staged\n```\n\n"
+                  "Status: staged\nKind: reference\n")
+        with TemporaryDirectory() as td:
+            out = self.rendered(Path(td), source)
+        self.assertIn("```markdown\nStatus: staged\n```\n", out)   # example intact
+        self.assertIn("Status: draft\nProposed by: change-b\nKind: reference\n", out)
+
+    def test_a_record_far_below_the_header_does_not_become_the_record(self):
+        """Anchoring, not 'first match anywhere'. A `Proposed by:` line down in
+        the prose is not this document's authorship record; rewriting it there
+        left the header block with no record at all and quietly relocated a
+        governance line into somebody's body text."""
+        source = ("# One\n\nStatus: staged\nKind: reference\n\n"
+                  "## History\n\nProposed by: change-a (a note about the past)\n")
+        with TemporaryDirectory() as td:
+            out = self.rendered(Path(td), source)
+        lines = [line for line in out.splitlines()
+                 if line.startswith("Proposed by:")]
+        self.assertEqual(lines, ["Proposed by: change-b"])
+        # the record joined the HEADER BLOCK, under the status it belongs to
+        self.assertIn("Status: draft\nProposed by: change-b\nKind: reference\n", out)
+
+    # ---- duplicate collapse (review C3) -------------------------------------
+
+    def test_pre_existing_duplicate_records_are_collapsed_to_one(self):
+        """The ratified requirement is unconditional: 'the document MUST carry
+        exactly one such record… naming the most recent attempt'. Refreshing one
+        of three and leaving two stale satisfies the letter of an update and none
+        of the point — several lines each claiming to name the proposing change
+        say nothing about which one is current."""
+        source = ("# One\n\nStatus: staged\nProposed by: change-a\n"
+                  "Proposed by: change-x\nKind: reference\n")
+        with TemporaryDirectory() as td:
+            out = self.rendered(Path(td), source)
+        self.assertEqual(
+            out, "# One\n\nStatus: draft\nProposed by: change-b\nKind: reference\n")
+
+    def test_collapse_keeps_the_header_blocks_copy_and_drops_the_stray(self):
+        source = ("# One\n\nStatus: staged\nProposed by: change-a\n"
+                  "Kind: reference\n\n## History\n\nProposed by: change-x\n")
+        with TemporaryDirectory() as td:
+            out = self.rendered(Path(td), source)
+        self.assertEqual(
+            [line for line in out.splitlines()
+             if line.startswith("Proposed by:")], ["Proposed by: change-b"])
+        self.assertIn("## History\n\n", out)
+
+    def test_collapse_never_reaches_inside_a_fence(self):
+        source = ("# One\n\nStatus: staged\nProposed by: change-a\n"
+                  "Proposed by: change-x\nKind: reference\n\n"
+                  "```\nProposed by: an-example\n```\n")
+        with TemporaryDirectory() as td:
+            out = self.rendered(Path(td), source)
+        self.assertIn("```\nProposed by: an-example\n```\n", out)
+        self.assertEqual(
+            [line for line in out.splitlines()
+             if line.startswith("Proposed by:")],
+            ["Proposed by: change-b", "Proposed by: an-example"])
 
     def test_the_status_flip_still_happens_when_a_line_already_exists(self):
         """The status flip itself is unchanged by this part — the update arm must
