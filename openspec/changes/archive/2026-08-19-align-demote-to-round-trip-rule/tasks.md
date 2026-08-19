@@ -349,10 +349,13 @@ markdown surgery is the risky half and it is the half that needs no tree.
         reader behind fifteen families and wants its own change.
       • `plan_demotion` resolves the origin topic ONLY from a possible's pick edge,
         and the forward transition removes the staging folder that edge points at —
-        so every one of the six active changes with a declared staged origin reports
-        `origin_staging_id: None`, and a real demote needs `--staging-topic`. The
-        `.openspec.yaml` origin block the transition itself WRITES would answer this
-        without a snapshot, and nothing reads it.
+        so the defect is TOTAL: all 12 of 12 active changes report
+        `origin_staging_id: None` and refuse demote without an explicit
+        `--staging-topic`, not just changes with a declared staged origin (only 4 of
+        the 12 even declare `origin.kind: staged`). `generator.py` builds the
+        mapping exclusively from possibles-register pick edges, and nothing reads
+        the `.openspec.yaml` origin block the transition itself WRITES, which would
+        answer this without a snapshot.
       • A demote leaves its own `openspec/INDEX.md` in the topic, and that file
         carries no `Status:` header — so a whole-folder forward transition of a
         returned topic refuses ("governed Markdown lacks Status header") until the

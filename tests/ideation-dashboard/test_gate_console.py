@@ -751,9 +751,10 @@ def _write_proposal(root: Path, why: str) -> None:
 # a convenience here. `plan_demotion` resolves the origin topic ONLY from a
 # possible's pick edge, and the forward transition REMOVES the staging folder, which
 # drops that edge from the snapshot — so a change that genuinely reached proposal
-# reports `origin_staging_id: None`. Measured on the real corpus too: all six active
-# changes with a declared staged origin report None, including both whose
-# supporting-docs manifest records one. The refusal message anticipates exactly this
+# reports `origin_staging_id: None`. Measured on the real corpus too: the defect is
+# TOTAL — all 12 of 12 active changes report None, not just the four that declare
+# `origin.kind: staged` (one of which has a supporting-docs manifest recording the
+# pick edge, and still reports None). The refusal message anticipates exactly this
 # and says to pass the topic explicitly, and the CLI exposes `--staging-topic`, so
 # this is the operator's real path and the test takes it.
 
