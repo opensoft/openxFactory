@@ -443,7 +443,6 @@ function mountRail(stateRef, selectBuffer) {
     transports: { catalog: async () => ({ schema_version: 1,
       kind: 'workbench-model-catalog', models: [] }), chatTurn: async () => null },
     editorState: () => stateRef.value,
-    activeDocumentPath: () => null,
     selectBuffer,
   });
   return { host, rail };

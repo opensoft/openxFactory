@@ -54,11 +54,11 @@ const ENVELOPE = { schema_version: 1, kind: "workbench-model-catalog",
 const EMPTY_ENVELOPE = { schema_version: 1, kind: "workbench-model-catalog",
                          models: [] };
 const success = (prose) => ({
-  schema_version: 1, kind: "workbench-chat-turn-success",
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t-1", assistant_turn_id: "a-1", model_id: "model-a",
   observed_hashes: { outline: "a".repeat(64), document: "b".repeat(64) },
   assistant_prose: prose, proposals: [] });
-const FAILURE = { schema_version: 1, kind: "workbench-chat-turn-failure",
+const FAILURE = { schema_version: 1, kind: "workbench-chat-turn-v2-failure",
                   client_turn_id: "t-1", error: "model_failed",
                   message: "the model request failed" };
 
@@ -282,7 +282,8 @@ const bufferOf = (kind) => ({
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
   content: "# " + kind, dirty: kind === "outline",
 });
-const editorState = { buffers: { outline: bufferOf("outline"),
+const editorState = { active_buffer: "outline",
+                      buffers: { outline: bufferOf("outline"),
                                  document: bufferOf("document") } };
 let s = editComposer(editSubject(selectModel(
   adoptCatalog(createChatState(KEY), ENVELOPE), "model-a"),
@@ -291,13 +292,15 @@ let s = editComposer(editSubject(selectModel(
 // ---- pure request builder ----
 const req = buildTurnRequest({
   state: s, scopeKey: KEY, clientTurnId: "turn-x1",
-  activeDocumentPath: null, editorState });
+  boundBuffer: "outline", editorState });
 out.request = {
   keys: Object.keys(req).sort(),
   version: req.schema_version, kind: req.kind,
   turnId: req.client_turn_id, model: req.model_id,
   subject: req.working_subject, message: req.message,
   scopeKeys: Object.keys(req.scope).sort(),
+  boundBuffer: req.bound_buffer,
+  hasActiveDocumentPath: "active_document_path" in req,
   bufferKinds: req.buffers.map((b) => b.kind),
   bufferKeys: Object.keys(req.buffers[0]).sort(),
   outlineHash: req.buffers[0].content_hash,
@@ -308,22 +311,26 @@ out.request = {
 };
 
 // ---- dispatcher: success / failure / refusal / one-in-flight ----
-const success = { schema_version: 1, kind: "workbench-chat-turn-success",
+const success = { schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "turn-1", assistant_turn_id: "a-1", model_id: "model-a",
-  observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
+  selected_model: { requested_model_id: "model-a", routing_rule: false,
+                    data_handling: "Processed in the approved tenant boundary" },
+  bound_buffer: "docs/detail.md",
+  observed_hashes: { outline: "d".repeat(64), "docs/detail.md": "d".repeat(64) },
   assistant_prose: "grounded answer", proposals: [] };
-const failure = { schema_version: 1, kind: "workbench-chat-turn-failure",
+const failure = { schema_version: 1, kind: "workbench-chat-turn-v2-failure",
   client_turn_id: "turn-1", error: "model_failed",
   message: "the model request failed" };
 
-// T104 F2: a turn the RELEASED envelope would accept names a document
-// (`active_document_path` is a non-empty confined_path there -- only the
-// BUFFER path is nullable), so the dispatch scenarios below carry one. The
-// pure builder above keeps the null-path document buffer it always had.
+// The dispatch scenarios below carry a BACKED document under the reserved key,
+// which is the shape a restored Phase A session holds and a legal instance of
+// the keyed set. The pure builder above keeps the null-path document buffer it
+// always had.
 const DOC_PATH = "docs/detail.md";
-const editorStateWithDoc = { buffers: {
-  outline: bufferOf("outline"),
-  document: { ...bufferOf("document"), path: DOC_PATH } } };
+const editorStateWithDoc = { active_buffer: "document",
+  buffers: {
+    outline: bufferOf("outline"),
+    document: { ...bufferOf("document"), path: DOC_PATH } } };
 
 async function run(payload, opts = {}) {
   let sent = null;
@@ -335,8 +342,7 @@ async function run(payload, opts = {}) {
   const dispatcher = createTurnDispatcher({
     transports, turnIdFactory: (n) => "turn-" + n });
   const result = await dispatcher.submit(s, {
-    scopeKey: KEY, activeDocumentPath: DOC_PATH,
-    editorState: editorStateWithDoc });
+    scopeKey: KEY, editorState: editorStateWithDoc });
   return { sent, result };
 }
 {
@@ -371,19 +377,16 @@ async function run(payload, opts = {}) {
   const dispatcher = createTurnDispatcher({
     transports, turnIdFactory: (n) => "turn-" + n });
   const first = dispatcher.submit(s, {
-    scopeKey: KEY, activeDocumentPath: DOC_PATH,
-    editorState: editorStateWithDoc });
+    scopeKey: KEY, editorState: editorStateWithDoc });
   const second = await dispatcher.submit(s, {
-    scopeKey: KEY, activeDocumentPath: DOC_PATH,
-    editorState: editorStateWithDoc });
+    scopeKey: KEY, editorState: editorStateWithDoc });
   out.inFlight = { secondRefused: second.refused === true };
   resolveTurn();
   const settled = await first;
   out.inFlight.firstSettled = settled.state.phase;
   // distinct ids per accepted submit
   const third = await dispatcher.submit(settled.state, {
-    scopeKey: KEY, activeDocumentPath: DOC_PATH,
-    editorState: editorStateWithDoc });
+    scopeKey: KEY, editorState: editorStateWithDoc });
   out.inFlight.freshId = third.clientTurnId !== settled.clientTurnId;
 }
 
@@ -405,8 +408,7 @@ async function preflight(stateValue, context) {
   const noModel = editComposer(editSubject(
     adoptCatalog(createChatState(KEY), ENVELOPE), "Working subject"),
     "What next?");
-  const { sent, result } = await preflight(
-    noModel, { activeDocumentPath: DOC_PATH });
+  const { sent, result } = await preflight(noModel, {});
   out.noModel = {
     refused: result.refused === true,
     transportCalled: sent !== null,
@@ -417,58 +419,60 @@ async function preflight(stateValue, context) {
   };
 }
 {
-  // no active document, but the tile HAS usable ones: the note names one
-  const { sent, result } = await preflight(s, {
-    activeDocumentPath: null,
-    documentCandidates: () => ["ideation/staging/topic-x/new.md",
-                               "ideation/staging/topic-x/other.md"],
-  });
-  out.noDocument = {
+  // SUPERSEDES the interim N4 posture (task 8.6, recorded WITH BRETT in the
+  // PR #207 re-verification). Under the v1 wire, a turn bound to a document
+  // loaded BESIDE the tile's own was refused pre-flight with a stated reason,
+  // because the released envelope had room for exactly the outline plus one
+  // reserved slot. The widened envelope carries the loaded set and DECLARES the
+  // binding, so that same selection now SENDS: the request names that document
+  // as the bound buffer and still carries every buffer the canvas holds.
+  const LOADED = "ideation/staging/topic-x/other.md";
+  const besideTheTile = { active_buffer: LOADED, buffers: {
+    outline: bufferOf("outline"),
+    document: { ...bufferOf("document"), path: DOC_PATH },
+    [LOADED]: { ...bufferOf("document"), path: LOADED } } };
+  const { sent, result } = await preflight(s, { editorState: besideTheTile });
+  out.boundBesideTheTile = {
     refused: result.refused === true,
     transportCalled: sent !== null,
+    boundBuffer: sent ? sent.bound_buffer : "NOT-SENT",
+    bufferPaths: sent ? sent.buffers.map((b) => b.path) : [],
     phase: result.state.phase,
-    composer: result.state.composer,
-    error: result.state.lastFailure && result.state.lastFailure.error,
-    message: result.state.lastFailure && result.state.lastFailure.message,
+    failure: result.state.lastFailure && result.state.lastFailure.error,
   };
 }
 {
-  // no active document, NO candidates, and no outline either: genuinely no
-  // context, so the F2 refusal stands and says what to do instead
-  const outlineless = { buffers: {
-    outline: { ...bufferOf("outline"), path: null },
-    document: { ...bufferOf("document"), path: null } } };
-  let sent = null;
-  const transports = { chatTurn: async (body) => { sent = body;
-    return { ok: true, status: 200, payload: success }; } };
-  const dispatcher = createTurnDispatcher({
-    transports, turnIdFactory: (n) => "turn-" + n });
-  const result = await dispatcher.submit(s, {
-    scopeKey: KEY, editorState: outlineless,
-    activeDocumentPath: null, documentCandidates: () => [] });
-  out.noDocumentAtAll = {
+  // An UNSETTLED buffer ANYWHERE in the loaded set is one identity the request
+  // cannot declare, so the whole turn refuses pre-flight -- the check reads
+  // every buffer the state holds rather than two named ones.
+  const LOADED = "ideation/staging/topic-x/other.md";
+  const oneUnsettled = { active_buffer: "outline", buffers: {
+    outline: bufferOf("outline"),
+    document: { ...bufferOf("document"), path: DOC_PATH },
+    [LOADED]: { ...bufferOf("document"), path: LOADED, hash_pending: true } } };
+  const { sent, result } = await preflight(s, { editorState: oneUnsettled });
+  out.oneUnsettled = {
     refused: result.refused === true,
     transportCalled: sent !== null,
     error: result.state.lastFailure && result.state.lastFailure.error,
-    message: result.state.lastFailure && result.state.lastFailure.message,
   };
 }
 
-// ---- G-1: the OUTLINE-ONLY turn proceeds with a null active document ----
+// ---- the outline-only turn, now DECLARED rather than implied by a null ----
 {
-  // the real-corpus majority case: no usable document candidate, but the
-  // outline IS backed and in scope, so the turn grounds on it alone
-  const outlineOnlyState = { buffers: {
+  // The real-corpus majority case: the tile's only editable path IS its outline,
+  // so the reserved document slot is not yet created. The turn binds to the
+  // outline and SAYS SO; the widened envelope carries no `active_document_path`
+  // at all, so nothing downstream can infer a binding from one.
+  const outlineOnlyState = { active_buffer: "outline", buffers: {
     outline: bufferOf("outline"),                       // backed: docs/outline.md
     document: { ...bufferOf("document"), path: null } } };  // not yet created
-  const { sent, result } = await preflight(s, {
-    editorState: outlineOnlyState,
-    activeDocumentPath: null, documentCandidates: () => [] });
+  const { sent, result } = await preflight(s, { editorState: outlineOnlyState });
   out.outlineOnly = {
     refused: result.refused === true,
     transportCalled: sent !== null,
-    activeDocumentPath: sent ? sent.active_document_path : "NOT-SENT",
-    hasKey: sent ? ("active_document_path" in sent) : false,
+    boundBuffer: sent ? sent.bound_buffer : "NOT-SENT",
+    hasActiveDocumentPath: sent ? ("active_document_path" in sent) : false,
     outlineBufferPath: sent ? sent.buffers[0].path : null,
     documentBufferPath: sent ? sent.buffers[1].path : "NOT-SENT",
     phase: result.state.phase,
@@ -498,13 +502,19 @@ def view_results(tmp_path_factory):
 
 
 def test_the_request_builder_emits_the_released_request_shape(view_results):
+    """RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13). The rail
+    sends the WIDENED envelope: `bound_buffer` replaces `active_document_path`,
+    which is not merely renamed but GONE -- the binding is declared, and the
+    envelope carries no adjacent field anything could infer one from (D17)."""
     r = view_results["request"]
     assert r["keys"] == sorted([
         "schema_version", "kind", "client_turn_id", "scope",
-        "active_document_path", "working_subject", "message", "model_id",
+        "bound_buffer", "working_subject", "message", "model_id",
         "last_assistant_turn_id", "transcript", "buffers"])
+    assert r["hasActiveDocumentPath"] is False
+    assert r["boundBuffer"] == "outline"
     assert r["version"] == 1
-    assert r["kind"] == "workbench-chat-turn"
+    assert r["kind"] == "workbench-chat-turn-v2"
     assert r["turnId"] == "turn-x1"
     assert r["model"] == "model-a"
     assert r["subject"] == "Working subject"
@@ -531,7 +541,7 @@ def test_a_success_settles_clears_composer_and_appends_turns(view_results):
     assert s["settled"] == "idle"
     assert s["composer"] == ""
     assert s["turns"] == 2
-    assert s["sentKind"] == "workbench-chat-turn"
+    assert s["sentKind"] == "workbench-chat-turn-v2"
     assert s["freshBuffers"] is True
 
 
@@ -558,16 +568,18 @@ def test_one_turn_in_flight_and_fresh_ids_per_accepted_submit(view_results):
     assert i["freshId"] is True
 
 
-# ---- T104 F2: shapes the RELEASED envelope refuses never reach the wire ----
+# ---- shapes the RELEASED envelope refuses never reach the wire ----
 #
-# contract-v1.27's request requires `model_id` minLength 1 and
-# `active_document_path` to be a non-empty `confined_path` (only the BUFFER
-# path is nullable there). The rail emitted `""` and `null` for them, so two
-# answerable local conditions -- no model picked, no document active -- arrived
-# as an opaque server refusal, or as `turn_scope_refused` naming nothing the
-# operator could pick instead. Both are now refused pre-flight, in the
-# operator's own vocabulary, with the composer preserved (FR-016) and the
-# transport never consulted.
+# `model_id` is still minLength 1 on the widened envelope, so an unselected model
+# is still refused pre-flight, in the operator's own vocabulary, with the
+# composer preserved (FR-016) and the transport never consulted.
+#
+# The `no_active_document` refusals that stood beside it are GONE with the v1
+# wire that forced them (contract-v1.34, §13): that envelope made a turn declare
+# ONE active document path, so an operator with several candidates had a choice
+# to make before one could be named, and a tile with none had to prove it could
+# ground on the outline instead. The widened envelope carries every loaded buffer
+# and binds to the one the human SELECTED, so neither question can arise.
 
 def test_an_unselected_model_is_refused_pre_flight_not_sent_as_empty(view_results):
     m = view_results["noModel"]
@@ -579,49 +591,59 @@ def test_an_unselected_model_is_refused_pre_flight_not_sent_as_empty(view_result
     assert "model" in m["message"]
 
 
-def test_no_active_document_is_refused_pre_flight_naming_a_usable_one(view_results):
-    d = view_results["noDocument"]
-    assert d["refused"] is True
-    assert d["transportCalled"] is False
-    assert d["phase"] == "idle"
-    assert d["composer"] == "What next?"
-    assert d["error"] == "no_active_document"
-    # ACTIONABLE: the refusal names a document the operator can actually pick
-    assert "ideation/staging/topic-x/new.md" in d["message"]
+def test_a_selection_beside_the_tiles_own_document_now_sends(view_results):
+    """THE N4 DISSOLUTION, pinned (task 8.6 -> §13).
+
+    The interim posture this supersedes was explicit and recorded WITH BRETT: a
+    human could load and edit any number of documents and Save each, but the CHAT
+    could not be re-pointed at one, because the released v1 envelope carried the
+    outline plus one reserved slot and nothing else. Send was held closed for any
+    other selection and the reason was visible on the control.
+
+    The widened envelope ends it: the same selection sends, the request DECLARES
+    that document as the bound buffer, and it still carries every buffer the
+    canvas holds -- binding says what the chat works ON, never what it may see."""
+    b = view_results["boundBesideTheTile"]
+    assert b["refused"] is False, "the interim binding refusal is retired"
+    assert b["transportCalled"] is True
+    assert b["failure"] is None
+    assert b["boundBuffer"] == "ideation/staging/topic-x/other.md"
+    # GROUNDING is unnarrowed: the outline, the tile's own document, and the
+    # document loaded beside it all ride the request.
+    assert sorted(b["bufferPaths"]) == sorted(
+        ["docs/outline.md", "docs/detail.md",
+         "ideation/staging/topic-x/other.md"])
+    assert b["phase"] == "idle"
 
 
-def test_a_tile_with_no_usable_document_says_so_and_names_the_way_forward(
-        view_results):
-    """SCOPED by G-1: this refusal now covers the tile that has neither a
-    candidate NOR a backed outline — genuinely nothing to ground on. A tile
-    whose outline IS backed takes the outline-only path below instead."""
-    d = view_results["noDocumentAtAll"]
-    assert d["refused"] is True
-    assert d["transportCalled"] is False
-    assert d["error"] == "no_active_document"
-    assert "create one" in d["message"]
+def test_one_unsettled_buffer_anywhere_refuses_the_whole_turn(view_results):
+    """The settled-identity pre-flight reads EVERY buffer the state holds, not
+    the two Phase A named: a widened request declares one identity per buffer it
+    carries, so a single unsettled buffer is a single undeclarable identity."""
+    u = view_results["oneUnsettled"]
+    assert u["refused"] is True
+    assert u["transportCalled"] is False
+    assert u["error"] == "buffers_unsettled"
 
 
-# ---- G-1: the outline-only turn, the real-corpus majority case -------------
+# ---- the outline-only turn, the real-corpus majority case -------------------
 #
 # 16 of 21 real staged topics have exactly ONE editable path — the topic's own
-# primary fragment, which the canvas loads as the OUTLINE and which T104 F2
-# therefore does not offer as a DOCUMENT. Those tiles have no document to name.
-# Before contract-v1.28 that made a legal turn impossible and the rail refused;
-# now the turn declares `active_document_path: null`, mirroring the
-# already-nullable `buffer_state.path` the document buffer carries here.
+# primary fragment, which the canvas loads as the OUTLINE. Under the v1 wire such
+# a turn declared `active_document_path: null` and the reader had to infer that
+# the outline was what it was about. It is now DECLARED.
 
-def test_an_outline_only_tile_sends_a_turn_with_a_null_active_document(
+def test_an_outline_only_tile_declares_the_outline_as_its_bound_buffer(
         view_results):
     o = view_results["outlineOnly"]
     assert o["refused"] is False, "the outline-only turn must not be refused"
     assert o["transportCalled"] is True
-    # the key is PRESENT and null — absent and null are different facts, and
-    # the released envelope requires the key
-    assert o["hasKey"] is True
-    assert o["activeDocumentPath"] is None
-    # the outline is what the turn grounds on, and the document buffer is the
-    # not-yet-created shape
+    assert o["boundBuffer"] == "outline"
+    # The field the inference used is not on this envelope at all — the negative
+    # F2/D17 asks for, proven at the wire rather than described.
+    assert o["hasActiveDocumentPath"] is False
+    # the outline is what the turn is bound to, and the document buffer is still
+    # carried in its not-yet-created shape
     assert o["outlineBufferPath"] == "docs/outline.md"
     assert o["documentBufferPath"] is None
     assert o["phase"] == "idle"
@@ -655,7 +677,7 @@ const ENVELOPE = { schema_version: 1, kind: "workbench-model-catalog",
 const proposal = (target, base) => ({ target, base_hash: base,
   summary: "Rework the " + target, content: "# New " + target });
 const successWith = (proposals) => ({
-  schema_version: 1, kind: "workbench-chat-turn-success",
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t-1", assistant_turn_id: "a-1", model_id: "model-a",
   observed_hashes: { outline: OUTLINE_HASH, document: DOCUMENT_HASH },
   assistant_prose: "with proposals", proposals });
@@ -666,6 +688,53 @@ let s = settleTurnSuccess(beginTurn(base), successWith([
   proposal("outline", OUTLINE_HASH), proposal("document", DOCUMENT_HASH)]));
 s = refreshProposalCurrency(s, { outline: OUTLINE_HASH,
                                  document: DOCUMENT_HASH });
+
+// F4 (adversarial review of the §13 slice): A PROPOSAL AGAINST A PATH-KEYED
+// THIRD DOCUMENT, carried through the whole chain the widened wire makes
+// possible -- adoption, the card model, and Apply. Every other fixture in this
+// suite targets one of the two RESERVED keys, which a two-name literal would
+// have served just as well; only a path-keyed target can tell the keyed map from
+// the constant it replaced.
+const THIRD = "ideation/staging/topic-x/third.md";
+const THIRD_HASH = "c".repeat(64);
+const wideSuccess = {
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
+  client_turn_id: "t-2", assistant_turn_id: "a-2", model_id: "model-a",
+  bound_buffer: THIRD,
+  // The RECORD's own buffer set -- which is what the permitted-target rule now
+  // reads, instead of a module constant.
+  observed_hashes: { outline: OUTLINE_HASH, document: DOCUMENT_HASH,
+                     [THIRD]: THIRD_HASH },
+  assistant_prose: "a proposal for the loaded document",
+  proposals: [proposal(THIRD, THIRD_HASH)] };
+let wide = settleTurnSuccess(beginTurn(base), wideSuccess);
+wide = refreshProposalCurrency(wide, { outline: OUTLINE_HASH,
+                                       document: DOCUMENT_HASH,
+                                       [THIRD]: THIRD_HASH });
+const wideApplied = [];
+const wideActions = createProposalActions({
+  applyProposal: async (target) => { wideApplied.push(target); return { ok: true }; } });
+const afterWideApply = await wideActions.apply(wide, THIRD);
+out.pathKeyedProposal = {
+  adoptedKeys: Object.keys(proposalsOf(wide)),
+  cards: proposalCardModel(wide).map(
+    (card) => ({ target: card.target, label: card.label,
+                 ariaLabel: card.ariaLabel, applyEnabled: card.applyEnabled })),
+  appliedThrough: wideApplied,
+  status: (proposalsOf(afterWideApply)[THIRD] || {}).status || null,
+  // …and one that goes STALE re-scores by its own key, like any other.
+  staleStatus: (proposalsOf(refreshProposalCurrency(
+    wide, { outline: OUTLINE_HASH, document: DOCUMENT_HASH,
+            [THIRD]: "d".repeat(64) }))[THIRD] || {}).status || null,
+};
+// The unroutable half: a target the RECORD did not observe is dropped, never
+// rendered with an Apply control.
+const unroutable = settleTurnSuccess(beginTurn(base), {
+  ...wideSuccess,
+  client_turn_id: "t-3",
+  proposals: [proposal("ideation/staging/topic-x/never-supplied.md", THIRD_HASH)] });
+out.unroutableProposal = { keys: Object.keys(proposalsOf(unroutable)),
+                           cards: proposalCardModel(unroutable).length };
 
 // card model: both targets, a11y-bearing, apply enabled only when current
 out.cards = proposalCardModel(s);
@@ -854,7 +923,7 @@ out.disclosure = sendDisclosure(s);
 out.noneSelected = sendDisclosure(createChatState(KEY));
 
 // unsettled buffers refuse pre-flight (composer preserved, transport unused)
-const unsettled = { buffers: {
+const unsettled = { active_buffer: "outline", buffers: {
   outline: { kind: "outline", path: "docs/o.md", base_ref: "main",
              base_revision: "r1", base_hash: "c".repeat(64),
              current_hash: null, hash_pending: true, content: "#", dirty: true },
@@ -868,7 +937,7 @@ const dispatcher = createTurnDispatcher({
   turnIdFactory: (n) => "turn-" + n });
 const withText = editComposer(s, "hello?");
 const refusal = await dispatcher.submit(withText, {
-  scopeKey: KEY, activeDocumentPath: null, editorState: unsettled });
+  scopeKey: KEY, editorState: unsettled });
 out.unsettled = { refused: refusal.refused === true, sent,
                   composer: refusal.state.composer };
 
@@ -876,7 +945,7 @@ out.unsettled = { refused: refusal.refused === true, sent,
 const begun = beginTurn(editComposer(s, "first question"));
 const typedDuringFlight = editComposer(begun, "follow-up draft");
 const settled = settleTurnSuccess(typedDuringFlight, {
-  schema_version: 1, kind: "workbench-chat-turn-success",
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t-1", assistant_turn_id: "a-1", model_id: "model-a",
   observed_hashes: { outline: "a".repeat(64), document: "b".repeat(64) },
   assistant_prose: "answer", proposals: [] });
@@ -949,16 +1018,19 @@ const buffer = (kind) => ({ kind, path: null, owned: true, base_ref: "main",
   base_revision: "r1", base_hash: "c".repeat(64),
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
   hash_pending: false, content: "#", dirty: false });
-// T104 F2: a dispatched turn names a document (the released envelope's
-// `active_document_path` is a non-empty confined_path), so these scenarios --
-// whose subject is abort/settlement, not the null-path lifecycle -- carry one.
+// A dispatched turn declares its BOUND BUFFER (contract-v1.34), which the
+// dispatcher reads off `active_buffer` -- so these scenarios, whose subject is
+// abort/settlement rather than the binding itself, carry a selected document.
 const DOC_PATH = "docs/detail.md";
-const editorState = { buffers: {
+const editorState = { active_buffer: "document", buffers: {
   outline: buffer("outline"),
   document: { ...buffer("document"), path: DOC_PATH } } };
-const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-success",
+const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
-  observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
+  selected_model: { requested_model_id: "model-a", routing_rule: false,
+                    data_handling: "on-tenant" },
+  bound_buffer: DOC_PATH,
+  observed_hashes: { outline: "d".repeat(64), [DOC_PATH]: "d".repeat(64) },
   assistant_prose: "late answer", proposals: [] };
 const base = editComposer(selectModel(
   adoptCatalog(createChatState(KEY), ENVELOPE), "model-a"), "hello");
@@ -973,7 +1045,7 @@ const base = editComposer(selectModel(
       return { ok: true, status: 200, payload: SUCCESS }; } },
     turnIdFactory: (n) => "turn-" + n });
   const pending = dispatcher.submit(live, {
-    scopeKey: KEY, activeDocumentPath: DOC_PATH, editorState,
+    scopeKey: KEY, editorState,
     onBegin: (s) => { live = s; }, liveState: () => live });
   live = abortTurn(live);                       // human abandons the flight
   live = editComposer(live, "different");       // and keeps working
@@ -994,7 +1066,7 @@ const base = editComposer(selectModel(
     transports: { chatTurn: async () => null },
     turnIdFactory: (n) => "turn-" + n });
   const result = await dispatcher.submit(base, {
-    scopeKey: KEY, activeDocumentPath: null, editorState: unsettled });
+    scopeKey: KEY, editorState: unsettled });
   out.unsettled = { refused: result.refused === true,
                     error: result.state.lastFailure
                       && result.state.lastFailure.error,
@@ -1065,10 +1137,10 @@ const buffer = (kind) => ({ kind, path: null, owned: true, base_ref: "main",
   base_revision: "r1", base_hash: "c".repeat(64),
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
   hash_pending: false, content: "#", dirty: false });
-// T104 F2: the released envelope requires a named active document; this
-// scenario's subject is the stale-token mapping, so it carries one.
+// The turn declares its BOUND BUFFER (contract-v1.34); this scenario's subject
+// is the stale-token mapping, so it selects the tile's own document.
 const DOC_PATH = "docs/detail.md";
-const editorState = { buffers: {
+const editorState = { active_buffer: "document", buffers: {
   outline: buffer("outline"),
   document: { ...buffer("document"), path: DOC_PATH } } };
 const base = editComposer(selectModel(adoptCatalog(createChatState(KEY),
@@ -1082,7 +1154,7 @@ const dispatcher = createTurnDispatcher({
                message: "the console token does not match this serve's" } }) },
   turnIdFactory: (n) => "turn-" + n });
 const result = await dispatcher.submit(base, {
-  scopeKey: KEY, activeDocumentPath: DOC_PATH, editorState });
+  scopeKey: KEY, editorState });
 out.stale = { phase: result.state.phase,
               composer: result.state.composer,
               error: result.state.lastFailure && result.state.lastFailure.error,
@@ -1151,7 +1223,7 @@ let s = editSubject(editComposer(selectModel(adoptCatalog(createChatState(KEY),
   { schema_version: 1, kind: "workbench-model-catalog", models: [ENTRY] }),
   "model-a"), "draft question"), "Working subject");
 s = settleTurnSuccess(beginTurn(s), {
-  schema_version: 1, kind: "workbench-chat-turn-success", client_turn_id: "t",
+  schema_version: 1, kind: "workbench-chat-turn-v2-success", client_turn_id: "t",
   assistant_turn_id: "a", model_id: "model-a",
   observed_hashes: { outline: OUTLINE, document: DOCUMENT },
   assistant_prose: "answer",
@@ -1326,7 +1398,7 @@ const ENTRY = { model_id: "model-a", label: "Approved", provider_class: "on-tena
 const ENVELOPE = { schema_version: 1, kind: "workbench-model-catalog",
                    models: [ENTRY] };
 const success = (prose) => ({
-  schema_version: 1, kind: "workbench-chat-turn-success",
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
   observed_hashes: { outline: "a".repeat(64), document: "b".repeat(64) },
   assistant_prose: prose, proposals: [] });
@@ -1363,8 +1435,9 @@ const bufferOf = (kind, path) => ({
   content: "# " + kind, dirty: false });
 const req = buildTurnRequest({
   state: editComposer(s, "follow-up"), scopeKey: KEY, clientTurnId: "turn-n",
-  activeDocumentPath: "docs/detail.md",
-  editorState: { buffers: { outline: bufferOf("outline", "docs/outline.md"),
+  boundBuffer: "document",
+  editorState: { active_buffer: "document",
+                 buffers: { outline: bufferOf("outline", "docs/outline.md"),
                             document: bufferOf("document", "docs/detail.md") } } });
 out.requestTranscript = { turns: req.transcript.length,
                           bytes: bytesOf(req.transcript) };
@@ -1685,7 +1758,7 @@ const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
   base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
   hash_pending: false, content: "# " + kind, dirty: false });
-const editorState = () => ({ buffers: {
+const editorState = () => ({ active_buffer: "document", buffers: {
   outline: bufferOf("outline", "docs/outline.md"),
   document: bufferOf("document", "docs/detail.md") } });
 
@@ -1698,7 +1771,7 @@ const editorState = () => ({ buffers: {
       catalog: async () => ({ schema_version: 1,
         kind: "workbench-model-catalog", models: [] }),
       chatTurn: async () => null },
-    editorState, activeDocumentPath: () => "docs/detail.md" });
+    editorState });
   await rail.ready;
   const note = byClass(host, "doxchat-unavailable")[0] || null;
   const selector = byClass(host, "doxchat-model")[0];
@@ -1728,7 +1801,7 @@ const editorState = () => ({ buffers: {
     transports: {
       catalog: () => new Promise((res) => { resolveCatalog = res; }),
       chatTurn: async () => null },
-    editorState, activeDocumentPath: () => "docs/detail.md" });
+    editorState });
   const note = byClass(host, "doxchat-unavailable")[0] || null;
   const selector = byClass(host, "doxchat-model")[0];
   // P3-8: the mount-to-catalog window's own words are part of the pin -- the
@@ -1750,7 +1823,7 @@ const editorState = () => ({ buffers: {
 // ---- F5-5: a refused Apply renders a failure note and announces it ----
 {
   const host = new Node("div"); host.ownerDocument = doc;
-  const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-success",
+  const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-v2-success",
     client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
     observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
     assistant_prose: "answer",
@@ -1762,7 +1835,7 @@ const editorState = () => ({ buffers: {
       catalog: async () => ({ schema_version: 1,
         kind: "workbench-model-catalog", models: [ENTRY] }),
       chatTurn: async () => ({ ok: true, status: 200, payload: SUCCESS }) },
-    editorState, activeDocumentPath: () => "docs/detail.md",
+    editorState,
     applyProposal: async () => ({ ok: false, code: "stale",
       error: "this proposal no longer matches the buffer" }) });
   await rail.ready;
@@ -1870,6 +1943,43 @@ def test_the_mount_to_catalog_window_reads_the_loading_sentence(
     # and once the catalog settles empty, the configured-none sentence stands
     settled = rail_dom_results["emptyCatalog"]
     assert "no approved model" in settled["noteText"]
+
+
+def test_a_path_keyed_proposal_is_adopted_rendered_and_applied(card_results):
+    """F4: judgment call 9's claimed failure mode, MEASURED rather than asserted.
+
+    Before the keyed map, `adoptProposals` filtered against a two-name literal
+    and `proposalCardModel` enumerated the same two names — so a proposal against
+    the third document a human loaded was dropped in silence: no record, no card,
+    no Apply, and no refusal either. Every other fixture in this suite targets a
+    RESERVED key, which the old literal served just as well, so nothing measured
+    the difference."""
+    r = card_results["pathKeyedProposal"]
+    third = "ideation/staging/topic-x/third.md"
+    assert r["adoptedKeys"] == [third], (
+        "the record's own observed buffers are the permitted set")
+    assert [card["target"] for card in r["cards"]] == [third]
+    # The BADGE reads as a name a human recognizes; the full key stays available
+    # to assistive technology, so two loaded documents sharing a basename are
+    # never indistinguishable.
+    assert r["cards"][0]["label"] == "third.md"
+    assert third in r["cards"][0]["ariaLabel"]
+    assert r["cards"][0]["applyEnabled"] is True
+    # …and Apply routes to the seam under that key, then marks it applied.
+    assert r["appliedThrough"] == [third]
+    assert r["status"] == "applied"
+    # Currency is per key like any other: move that buffer, that card goes stale.
+    assert r["staleStatus"] == "stale"
+
+
+def test_a_proposal_the_turn_did_not_observe_is_dropped_not_rendered(card_results):
+    """The other half of the same rule: the permitted set is the RECORD's own
+    buffer set, so an unroutable target is dropped rather than guessed at — and
+    dropped means no card, which is the delta's "MUST NOT be rendered with an
+    Apply control"."""
+    r = card_results["unroutableProposal"]
+    assert r["keys"] == []
+    assert r["cards"] == 0
 
 
 def test_a_refused_apply_renders_a_failure_note_and_announces_it(
@@ -1988,10 +2098,10 @@ const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
   base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
   current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
   hash_pending: false, content: "# " + kind, dirty: false });
-const editorState = () => ({ buffers: {
+const editorState = () => ({ active_buffer: "document", buffers: {
   outline: bufferOf("outline", "docs/outline.md"),
   document: bufferOf("document", "docs/detail.md") } });
-const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-success",
+const SUCCESS = { schema_version: 1, kind: "workbench-chat-turn-v2-success",
   client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
   observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
   assistant_prose: "answer",
@@ -2011,7 +2121,6 @@ function mountRail(overrides = {}) {
     // P3-3 needs a LIVE editor-state provider whose identities can move
     // between submit and settle; every other scenario keeps the fixed one.
     editorState: overrides.editorState || editorState,
-    activeDocumentPath: () => "docs/detail.md",
     applyProposal: overrides.applyProposal || (async () => ({ ok: true })),
     onState: overrides.onState });
   return { host, rail };
@@ -2326,7 +2435,7 @@ out.configuredNoneCatalog = await catalogPosture(
 // event that would have re-scored them fired BEFORE they existed ----
 {
   let currentHex = "d".repeat(64);
-  const liveEditorState = () => ({ buffers: {
+  const liveEditorState = () => ({ active_buffer: "document", buffers: {
     outline: { ...bufferOf("outline", "docs/outline.md"),
                current_hash: { algorithm: "sha256", hex: currentHex } },
     document: bufferOf("document", "docs/detail.md") } });
@@ -2349,6 +2458,90 @@ out.configuredNoneCatalog = await catalogPosture(
   out.settleTimeCurrency = {
     status: (rail.state().proposals.outline || {}).status || null,
     applyDisabled: applyBtn ? applyBtn.disabled : null,
+  };
+}
+
+// ---- CODEX-4 (Codex review of PR #210): the settlement re-score must cover
+// EVERY live buffer, not the two Phase A named. Both scenarios below are chosen
+// to DISCRIMINATE — each one's answer differs before and after the fix, which a
+// scenario whose answer happens to match by accident cannot do:
+//   (c) the reserved slot is PRESENT and the path-keyed buffer did NOT move.
+//       Before: the re-score ran with a two-key map, so that buffer scored
+//       against `undefined` and the card came back falsely STALE.
+//   (d) the reserved slot is ABSENT and the path-keyed buffer DID move.
+//       Before: the guard read `buffers.document`, found nothing, and skipped the
+//       re-score entirely — the card stayed CURRENT with an enabled Apply
+//       against text the buffer no longer held, which is Codex's own reading.
+{
+  const LOADED = 'ideation/staging/topic-x/loaded.md';
+  const withReservedSlot = () => ({ active_buffer: LOADED, buffers: {
+    outline: bufferOf('outline', 'docs/outline.md'),
+    document: bufferOf('document', 'docs/detail.md'),
+    [LOADED]: bufferOf('document', LOADED) } });
+  const SUCCESS_C = {
+    schema_version: 1, kind: 'workbench-chat-turn-v2-success',
+    client_turn_id: 't', assistant_turn_id: 'a', model_id: 'model-a',
+    bound_buffer: LOADED,
+    observed_hashes: { outline: 'd'.repeat(64), document: 'd'.repeat(64),
+                       [LOADED]: 'd'.repeat(64) },
+    assistant_prose: 'answer',
+    proposals: [{ target: LOADED, base_hash: 'd'.repeat(64),
+                  summary: 'Rework the loaded document',
+                  content: '# New loaded document' }] };
+  const { host, rail } = mountRail({
+    editorState: withReservedSlot,
+    chatTurn: async () => ({ ok: true, status: 200, payload: SUCCESS_C }) });
+  await rail.ready;
+  const selector = byClass(host, 'doxchat-model')[0];
+  selector.value = 'model-a'; await fire(selector, 'change');
+  const composer = byClass(host, 'doxchat-composer')[0];
+  composer.value = 'please propose'; await fire(composer, 'input');
+  await fire(byClass(host, 'doxchat-send')[0], 'click');
+  const applyBtn = byClass(host, 'doxchat-card-apply')[0] || null;
+  out.unmovedLoadedCurrency = {
+    status: (rail.state().proposals[LOADED] || {}).status || null,
+    applyDisabled: applyBtn ? applyBtn.disabled : null,
+  };
+}
+{
+  const LOADED = 'ideation/staging/topic-x/loaded.md';
+  let loadedHex = 'd'.repeat(64);
+  // NO reserved `document` slot: the shape a session holds once its create was
+  // re-keyed onto a path.
+  const noReservedSlot = () => ({ active_buffer: LOADED, buffers: {
+    outline: bufferOf('outline', 'docs/outline.md'),
+    [LOADED]: { ...bufferOf('document', LOADED),
+                current_hash: { algorithm: 'sha256', hex: loadedHex } } } });
+  const SUCCESS_D = {
+    schema_version: 1, kind: 'workbench-chat-turn-v2-success',
+    client_turn_id: 't', assistant_turn_id: 'a', model_id: 'model-a',
+    bound_buffer: LOADED,
+    observed_hashes: { outline: 'd'.repeat(64), [LOADED]: 'd'.repeat(64) },
+    assistant_prose: 'answer',
+    proposals: [{ target: LOADED, base_hash: 'd'.repeat(64),
+                  summary: 'Rework the loaded document',
+                  content: '# New loaded document' }] };
+  let releaseTurn;
+  const turnGate = new Promise((resolve) => { releaseTurn = resolve; });
+  const { host, rail } = mountRail({
+    editorState: noReservedSlot,
+    chatTurn: async () => { await turnGate;
+      return { ok: true, status: 200, payload: SUCCESS_D }; } });
+  await rail.ready;
+  const selector = byClass(host, 'doxchat-model')[0];
+  selector.value = 'model-a'; await fire(selector, 'change');
+  const composer = byClass(host, 'doxchat-composer')[0];
+  composer.value = 'please propose'; await fire(composer, 'input');
+  const sendSettled = fire(byClass(host, 'doxchat-send')[0], 'click');
+  loadedHex = 'e'.repeat(64);   // the LOADED buffer moves DURING the flight
+  releaseTurn();
+  await sendSettled;
+  const applyBtn = byClass(host, 'doxchat-card-apply')[0] || null;
+  out.movedLoadedCurrency = {
+    status: (rail.state().proposals[LOADED] || {}).status || null,
+    applyDisabled: applyBtn ? applyBtn.disabled : null,
+    hasReservedSlot: Object.prototype.hasOwnProperty.call(
+      noReservedSlot().buffers, 'document'),
   };
 }
 
@@ -2378,7 +2571,7 @@ out.configuredNoneCatalog = await catalogPosture(
 // re-enables Send -- a keyboard operator who was ON Send stays there ----
 {
   const FAILURE = { ok: false, status: 502, payload: {
-    schema_version: 1, kind: "workbench-chat-turn-failure",
+    schema_version: 1, kind: "workbench-chat-turn-v2-failure",
     client_turn_id: "t", error: "model_failed",
     message: "the model request failed" } };
   const { host, rail } = mountRail({ chatTurn: async () => FAILURE });
@@ -2695,3 +2888,33 @@ def test_a_landed_apply_clears_the_failure_its_refusal_left_behind(
     assert probe["proposalStatus"] == "applied"
     assert probe["afterError"] is None
     assert probe["noteHidden"] is True
+
+
+def test_the_settlement_rescore_covers_every_live_buffer(focus_throw_results):
+    """CODEX-4 (Codex review of PR #210), through the REAL mount.
+
+    The success-time re-score enumerated `outline` and `document` — the two names
+    Phase A had — so a PATH-KEYED document was scored against a hash the map did
+    not hold, or not scored at all. Both scenarios here DISCRIMINATE: each one's
+    answer differs before and after the fix.
+
+    (d) The reserved slot is absent and the loaded buffer MOVED mid-flight. The
+    old guard read `buffers.document`, found nothing, and skipped the re-score
+    entirely — so the card stayed CURRENT with an enabled Apply against text the
+    buffer no longer held. The swap-time guard would still have refused the
+    click; this is about the card telling the truth before anyone clicks it."""
+    moved = focus_throw_results["movedLoadedCurrency"]
+    assert moved["hasReservedSlot"] is False
+    assert moved["status"] == "stale"
+    assert moved["applyDisabled"] is True
+
+
+def test_the_settlement_rescore_leaves_an_unmoved_buffer_current(focus_throw_results):
+    """(c), the other direction, so the fix cannot be "mark everything stale":
+    the reserved slot is PRESENT and the loaded buffer did NOT move, and the
+    proposal must come back CURRENT and applicable. Before the fix the two-key
+    map scored it against `undefined` and the card read falsely stale — a human
+    told to ask again in a new turn for no reason at all."""
+    unmoved = focus_throw_results["unmovedLoadedCurrency"]
+    assert unmoved["status"] == "current"
+    assert unmoved["applyDisabled"] is False

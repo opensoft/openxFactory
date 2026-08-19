@@ -254,6 +254,15 @@ DOXBENCH_MODEL_CATALOG_KIND = "workbench-model-catalog"
 DOXBENCH_CHAT_TURN_KIND = "workbench-chat-turn"
 DOXBENCH_CHAT_TURN_SUCCESS_KIND = "workbench-chat-turn-success"
 DOXBENCH_CHAT_TURN_FAILURE_KIND = "workbench-chat-turn-failure"
+# The CO-RESIDENT WIDENED family (contract-v1.34, add-doxbench-editing-phase-b
+# §13). Both families are served: the v1 kinds above are DEPRECATED, not
+# withdrawn, and the route answers a request in the family it arrived in --
+# answering a v1 turn in a v2 envelope would break exactly the client the
+# deprecation exists to keep working, and answering a v2 turn in a deprecated
+# one would emit a shape with no room for what that turn declared.
+DOXBENCH_CHAT_TURN_V2_KIND = "workbench-chat-turn-v2"
+DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND = "workbench-chat-turn-v2-success"
+DOXBENCH_CHAT_TURN_V2_FAILURE_KIND = "workbench-chat-turn-v2-failure"
 
 # ---- fixed doxBench error catalog (mirrors action_errors.ERROR_CATALOG's shape) ----
 # The closed code set combines spellings pinned verbatim by the planning
@@ -388,7 +397,8 @@ def doxbench_error_status(code: str) -> int:
 #     direction; the code and fixed message are identical either way.
 
 def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
-                               limit: dict | None = None) -> dict:
+                               limit: dict | None = None,
+                               kind: str = DOXBENCH_CHAT_TURN_FAILURE_KIND) -> dict:
     """The RELEASED `workbench-chat-turn-failure` envelope for `code` — a PURE
     module-level function, testable with no handler and no server.
 
@@ -398,11 +408,17 @@ def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
     named fields exactly as `doxbench_error_body` rebuilds it, so nothing
     request-derived can splice a key into a response. The message is the same
     fixed module-level constant the pre-release shape used; only the envelope
-    changed."""
+    changed.
+
+    `kind` selects the FAMILY the refusal is answered in (contract-v1.34). The
+    two failure envelopes are structurally identical -- a refusal discloses
+    nothing whichever family it answers -- so the only thing that varies is which
+    `kind` a caller is entitled to receive, and that is the family its request
+    arrived in."""
     _, message = DOXBENCH_ERROR_CATALOG[code]
     body: dict = {
         "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
-        "kind": DOXBENCH_CHAT_TURN_FAILURE_KIND,
+        "kind": str(kind),
         "client_turn_id": str(client_turn_id),
         "error": code,
         "message": message,
@@ -444,6 +460,82 @@ def doxbench_turn_success_body(*, client_turn_id: str, assistant_turn_id: str,
             "outline": str(observed_hashes["outline"]),
             "document": str(observed_hashes["document"]),
         },
+        "assistant_prose": str(assistant_prose),
+        "proposals": [
+            {"target": str(p.target), "base_hash": str(p.base_hash),
+             "summary": str(p.summary), "content": str(p.content)}
+            for p in proposals
+        ],
+    }
+
+
+def doxbench_selected_model(model_entry) -> dict:
+    """The SELECTED-MODEL metadata a widened record carries, derived from the
+    catalog entry the turn resolved — in ONE place (adversarial review of the §13
+    slice, F6).
+
+    Today no catalog entry declares itself a routing rule: that declaration is
+    task 11.7's, and it needs a MODEL-CATALOG release to carry it, which is
+    recorded against 11.7 rather than assumed here. So this reads the entry
+    duck-typed and defaults honestly — `routing_rule` false, the answering model
+    the one the human chose — and a catalog entry that grows the fields answers
+    with them without this route changing at all. Written as one function
+    because the alternative is three literals at the call site, which is three
+    places 11.7 would have to find."""
+    requested = str(model_entry.model_id)
+    routing_rule = bool(getattr(model_entry, "routing_rule", False))
+    resolved = getattr(model_entry, "resolved_model_id", None)
+    return {
+        "requested_model_id": requested,
+        "routing_rule": routing_rule,
+        "data_handling": str(model_entry.data_handling),
+        # The model that ANSWERS. Equal to the requested id until a routing-rule
+        # entry resolves to something else, which is exactly when the two facts
+        # stop being one fact.
+        "resolved_model_id": str(resolved) if resolved else requested,
+    }
+
+
+def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str,
+                                  model_id: str, requested_model_id: str,
+                                  routing_rule: bool, data_handling: str,
+                                  bound_buffer: str, observed_hashes: dict,
+                                  assistant_prose: str, proposals=()) -> dict:
+    """The RELEASED `workbench-chat-turn-v2-success` envelope — the turn's
+    durable RECORD (contract-v1.34; add-doxbench-editing-phase-b §13).
+
+    Three things this envelope has room for that its predecessor did not, and
+    each is REBUILT here from named values so nothing caller-derived can splice a
+    key in:
+
+    * `bound_buffer` — the binding the REQUEST DECLARED, carried through
+      unchanged. Never derived from which document happened to be supplied: that
+      derivation is the one Phase A's review killed, because it recorded "bound
+      to the document" for a human working the outline with a document loaded.
+    * `observed_hashes` keyed by BUFFER KEY, one per buffer the turn carried,
+      rather than the two fixed names the v1 record could express.
+    * `selected_model` — what the human CHOSE, beside `model_id`'s what
+      ANSWERED. `routing_rule` is stated rather than inferred from the two ids
+      being unequal, because "these differ" and "this entry is a routing rule"
+      are different facts.
+
+    Like its v1 sibling this builder is never the last word on conformance: the
+    route self-validates the built envelope against the released schema before it
+    is stored or sent."""
+    return {
+        "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
+        "kind": DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND,
+        "client_turn_id": str(client_turn_id),
+        "assistant_turn_id": str(assistant_turn_id),
+        "model_id": str(model_id),
+        "selected_model": {
+            "requested_model_id": str(requested_model_id),
+            "routing_rule": bool(routing_rule),
+            "data_handling": str(data_handling),
+        },
+        "bound_buffer": str(bound_buffer),
+        "observed_hashes": {str(key): str(value)
+                            for key, value in observed_hashes.items()},
         "assistant_prose": str(assistant_prose),
         "proposals": [
             {"target": str(p.target), "base_hash": str(p.base_hash),
@@ -1234,7 +1326,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return None
         return turn_id
 
-    def _refuse_turn(self, validators, code, turn_id, *, limit=None) -> None:
+    def _refuse_turn(self, validators, code, turn_id, *, limit=None,
+                     failure_kind=DOXBENCH_CHAT_TURN_FAILURE_KIND) -> None:
         """Emit one chat-turn refusal in the correct envelope.
 
         With a wire-valid `turn_id` this is the RELEASED
@@ -1251,30 +1344,30 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         release: then the wire-valid verdict is None and this emits the fixed
         shape, rather than putting an out-of-bounds id in an envelope that
         claims released conformance. The turn STORE keeps using the parsed id,
-        because idempotency is keyed on what the caller actually sent."""
+        because idempotency is keyed on what the caller actually sent.
+
+        `failure_kind` is the FAMILY the refusal is answered in (contract-v1.34).
+        It follows the family the request arrived in and defaults to the v1
+        envelope, which is what a request that never named a recognizable family
+        still gets."""
         status = doxbench_error_status(code)
         if turn_id is not None:
-            body = doxbench_turn_failure_body(code, turn_id, limit=limit)
-            if self._doxbench_wire_conforms(
-                    validators, DOXBENCH_CHAT_TURN_FAILURE_KIND, body):
+            body = doxbench_turn_failure_body(code, turn_id, limit=limit,
+                                              kind=failure_kind)
+            if self._doxbench_wire_conforms(validators, failure_kind, body):
                 self._send_json(status, body)
                 return
         self._send_json(status, doxbench_error_body(code, limit=limit))
 
     @staticmethod
-    def _parse_workbench_chat_turn_body(payload):
-        """Structural, known-field extraction for `POST /actions/workbench/
-        chat-turn` (T051). Returns a tuple of coerced fields, or `None` on
-        ANY structural violation: a missing/wrong-typed field, a blank-or-
-        whitespace-only `message`, or a buffer list that is not exactly one
-        `outline` plus one `document`. Runs AFTER the released-schema gate, so
-        unknown extra keys are already refused by the CLOSED released envelope
-        rather than ignored here -- this parser no longer needs to decide that
-        question and deliberately still does not: it coerces the known fields
-        the chain needs. NEVER re-implements
-        `doxbench_turns.TurnBuffer`/`TranscriptTurn`'s own validation --
-        this only checks JSON *shape*, then hands the coerced values to
-        those constructors."""
+    def _parse_workbench_chat_turn_common(payload):
+        """The fields BOTH released chat-turn families spell identically, coerced
+        from one payload; `None` on any structural violation.
+
+        Split out at contract-v1.34 so the two family parsers below differ in
+        exactly what actually differs -- how the binding is DECLARED and how many
+        buffers may ride -- rather than in a second copy of the eight fields that
+        do not. Each family parser calls this, then adds its own half."""
         from ideation_dashboard import doxbench_turns
 
         if not isinstance(payload, dict):
@@ -1293,10 +1386,6 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             if not isinstance(value, str):
                 return None
             scope_fields[name] = value
-
-        active_document_path = payload.get("active_document_path")
-        if active_document_path is not None and not isinstance(active_document_path, str):
-            return None
 
         working_subject = payload.get("working_subject")
         if not isinstance(working_subject, str):
@@ -1334,10 +1423,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             transcript_turns.append(doxbench_turns.TranscriptTurn(role=role, text=text))
 
         buffers_raw = payload.get("buffers")
-        if not isinstance(buffers_raw, list) or len(buffers_raw) != 2:
+        if not isinstance(buffers_raw, list) or not buffers_raw:
             return None
         turn_buffers = []
-        kinds_seen = []
         for item in buffers_raw:
             if not isinstance(item, dict):
                 return None
@@ -1359,16 +1447,94 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 return None
             if not isinstance(dirty, bool):
                 return None
-            kinds_seen.append(kind)
             turn_buffers.append(doxbench_turns.TurnBuffer(
                 kind=kind, repository=repository, path=path, base_ref=base_ref,
                 base_revision=base_revision, base_hash=base_hash,
                 content_hash=content_hash, content=content, dirty=dirty))
-        if sorted(kinds_seen) != ["document", "outline"]:
-            return None
 
-        return (client_turn_id, scope_fields, active_document_path, working_subject,
-                message, model_id, last_assistant_turn_id, transcript_turns, turn_buffers)
+        return {
+            "client_turn_id": client_turn_id,
+            "scope_fields": scope_fields,
+            "working_subject": working_subject,
+            "message": message,
+            "model_id": model_id,
+            "last_assistant_turn_id": last_assistant_turn_id,
+            "transcript_turns": transcript_turns,
+            "turn_buffers": turn_buffers,
+        }
+
+    @classmethod
+    def _parse_workbench_chat_turn_body(cls, payload):
+        """Structural, known-field extraction for a RELEASED v1 `POST
+        /actions/workbench/chat-turn` (T051). Returns the coerced-field record,
+        or `None` on ANY structural violation: a missing/wrong-typed field, a
+        blank-or-whitespace-only `message`, or a buffer list that is not exactly
+        one `outline` plus one `document`. Runs AFTER the released-schema gate,
+        so unknown extra keys are already refused by the CLOSED released envelope
+        rather than ignored here -- this parser no longer needs to decide that
+        question and deliberately still does not: it coerces the known fields
+        the chain needs. NEVER re-implements
+        `doxbench_turns.TurnBuffer`/`TranscriptTurn`'s own validation --
+        this only checks JSON *shape*, then hands the coerced values to
+        those constructors.
+
+        THE V1 BINDING, unchanged and DEPRECATED with its family
+        (contract-v1.34): this envelope declares an `active_document_path` and
+        nothing else, so the binding it can express is that path -- reading its
+        KEY off a declared path is a spelling change, not the inference Phase A's
+        review killed. Where it is null the envelope declares NO binding at all,
+        `None` says so, and `doxbench_turns.revalidate_scope`'s own rule then
+        refuses a path-backed document rather than guessing."""
+        from ideation_dashboard import doxbench_turns
+
+        common = cls._parse_workbench_chat_turn_common(payload)
+        if common is None:
+            return None
+        active_document_path = payload.get("active_document_path")
+        if active_document_path is not None and not isinstance(active_document_path, str):
+            return None
+        buffers = common["turn_buffers"]
+        if sorted(buffer.kind for buffer in buffers) != ["document", "outline"]:
+            return None
+        return {
+            **common,
+            "active_document_path": active_document_path,
+            "bound_buffer_key": active_document_path,
+            "failure_kind": DOXBENCH_CHAT_TURN_FAILURE_KIND,
+            "success_kind": DOXBENCH_CHAT_TURN_SUCCESS_KIND,
+        }
+
+    @classmethod
+    def _parse_workbench_chat_turn_v2_body(cls, payload):
+        """The same extraction for the WIDENED family (contract-v1.34;
+        add-doxbench-editing-phase-b §13). Two differences, and only two:
+
+        * the binding is DECLARED as `bound_buffer` -- a buffer KEY, carried on
+          the wire, which the scope revalidation below requires to name one of
+          the buffers this same request supplied. There is no
+          `active_document_path` in this envelope to infer it from, and the
+          closed schema refuses one; the record therefore states the binding the
+          human declared rather than one derived from which document happened to
+          be supplied (design D17).
+        * the buffer set is the outline plus ONE OR MORE documents rather than
+          exactly one of each, keyed as `doxbench_turns` keys them.
+
+        The pairing itself is not restated here: `require_outline_and_documents`
+        is the authority and runs on this same list a few steps later."""
+        common = cls._parse_workbench_chat_turn_common(payload)
+        if common is None:
+            return None
+        bound_buffer = payload.get("bound_buffer")
+        if not isinstance(bound_buffer, str) or not bound_buffer:
+            return None
+        return {
+            **common,
+            # DELIBERATELY ABSENT: this family carries no active document path,
+            # so there is nothing here for any later step to read one from.
+            "bound_buffer_key": bound_buffer,
+            "failure_kind": DOXBENCH_CHAT_TURN_V2_FAILURE_KIND,
+            "success_kind": DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND,
+        }
 
     def _handle_workbench_chat_turn(self) -> None:
         """`POST /actions/workbench/chat-turn` (T051). See the section
@@ -1416,6 +1582,22 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # purpose only -- so a refusal the browser can correlate is possible
         # (see `_wire_valid_turn_id`). ----
         turn_id = self._wire_valid_turn_id(payload)
+        # WHICH FAMILY THIS TURN ARRIVED IN (contract-v1.34). Read off the raw
+        # payload's own `kind`, which is the only thing that distinguishes the
+        # two co-resident envelopes, exactly as the released file discriminates
+        # them. An unrecognized kind is answered in the v1 failure family: a
+        # request that never named a family it could be answered in gets the
+        # posture it would have got before this release, and the schema gate
+        # below refuses it in any case.
+        request_kind = (payload.get("kind")
+                        if isinstance(payload.get("kind"), str) else None)
+        if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:
+            failure_kind = DOXBENCH_CHAT_TURN_V2_FAILURE_KIND
+            parse_body = self._parse_workbench_chat_turn_v2_body
+        else:
+            request_kind = DOXBENCH_CHAT_TURN_KIND
+            failure_kind = DOXBENCH_CHAT_TURN_FAILURE_KIND
+            parse_body = self._parse_workbench_chat_turn_body
         validators = self._doxbench_validators()
         if validators is None:
             # No readable contract, so no validated turn is possible. Fail
@@ -1426,17 +1608,29 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 doxbench_error_status(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE),
                 doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
             return
-        if not self._doxbench_wire_conforms(
-                validators, DOXBENCH_CHAT_TURN_KIND, payload):
-            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST, turn_id)
+        if not self._doxbench_wire_conforms(validators, request_kind, payload):
+            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
+                              turn_id, failure_kind=failure_kind)
             return
 
-        fields = self._parse_workbench_chat_turn_body(payload)
+        fields = parse_body(payload)
         if fields is None:
-            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST, turn_id)
+            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
+                              turn_id, failure_kind=failure_kind)
             return
-        (client_turn_id, scope_fields, active_document_path, working_subject, message,
-         model_id, _last_assistant_turn_id, transcript_turns, turn_buffers) = fields
+        client_turn_id = fields["client_turn_id"]
+        scope_fields = fields["scope_fields"]
+        # The v1 envelope's own field, absent from the widened one by
+        # construction. Read as an OPTIONAL member so the widened lane has
+        # nothing to read it from -- the point of the release, not an oversight.
+        active_document_path = fields.get("active_document_path")
+        bound_buffer_key = fields["bound_buffer_key"]
+        success_kind = fields["success_kind"]
+        working_subject = fields["working_subject"]
+        message = fields["message"]
+        model_id = fields["model_id"]
+        transcript_turns = fields["transcript_turns"]
+        turn_buffers = fields["turn_buffers"]
 
         from ideation_dashboard import doxbench_hash
         from ideation_dashboard import doxbench_model
@@ -1447,9 +1641,6 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                                       ref=scope_fields["ref"],
                                       tile_kind=scope_fields["tile_kind"],
                                       tile_id=scope_fields["tile_id"])
-        outline_buf = next((b for b in turn_buffers if b.kind == "outline"), None)
-        document_buf = next((b for b in turn_buffers if b.kind == "document"), None)
-
         # ---- step 5: scope, all from SERVER truth ----
         projection = None
         session_base = None
@@ -1510,26 +1701,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 if projection is None:
                     scope_refused = True
                 else:
-                    # add-doxbench-editing-phase-b: the pair became a SET.
-                    # The DECLARED binding is the request's own
-                    # `active_document_path` where it names one -- reading its
-                    # KEY off a declared path is a spelling change, not the
-                    # inference Phase A's review killed (that one derived
-                    # "outline versus document" from an adjacent field). Where
-                    # it is null the released v1 envelope declares NO binding at
-                    # all, `None` says so, and the module's own rule then
-                    # refuses a path-backed document rather than guessing.
-                    #
-                    # TODO(add-doxbench-editing-phase-b tasks.md §13): the
-                    # released v1 envelope carries no `bound_buffer` field and
-                    # exactly two buffers, so this seam cannot yet declare a
-                    # binding for an outline-bound turn or carry N documents.
-                    # The gated contract-release slice adds the co-resident
-                    # widened family; nothing here needs to change but the two
-                    # values passed in.
+                    # add-doxbench-editing-phase-b: the pair became a SET, and
+                    # §13 released the wire that can say so. The DECLARED
+                    # binding arrives from the parser -- `bound_buffer` on the
+                    # widened envelope, the declared `active_document_path` on
+                    # the deprecated one -- and is never derived here from an
+                    # adjacent field, which is the mis-derivation Phase A's
+                    # review killed. A v1 turn that declares nothing passes
+                    # `None`, and the module's own rule then refuses a
+                    # path-backed document rather than guessing.
                     doxbench_turns.revalidate_scope(
                         projection=projection, request_scope=key,
-                        bound_buffer_key=active_document_path,
+                        bound_buffer_key=bound_buffer_key,
                         buffer_keys=tuple(
                             doxbench_turns.buffer_key_for(b) for b in turn_buffers),
                         paths=tuple(b.path for b in turn_buffers),
@@ -1540,28 +1723,39 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 
         if scope_refused:
             self._refuse_turn(validators, DOXBENCH_ERR_TURN_SCOPE_REFUSED,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
 
         # ---- step 6: exact identity ----
+        # WHICH RESERVED PATHS THIS LANE REFUSES (Codex review of PR #210,
+        # CODEX-1). `outline` on both -- a document keyed there vanishes from the
+        # enumeration and killed the handler, reproduced at a4a6f6e. `document`
+        # on the WIDENED lane only, where it would shadow the reserved unbacked
+        # slot that may ride beside it; the v1 envelope carries exactly one
+        # document, so it has no such collision, and a v1 turn shaped that way
+        # was served at a4a6f6e. Refusing it here would break the additive class
+        # this release claims.
+        refused_paths = (doxbench_turns.RESERVED_BUFFER_KEYS
+                         if request_kind == DOXBENCH_CHAT_TURN_V2_KIND
+                         else doxbench_turns.V1_RESERVED_BUFFER_KEYS)
         try:
             outline, turn_documents = \
-                doxbench_turns.require_outline_and_documents(turn_buffers)
-            # The released v1 envelope carries exactly ONE document buffer, so
-            # this unpack is total for every request that reached here (the
-            # schema gate above refuses any other count). §13 is what makes the
-            # set wider on the wire; the module already holds it.
-            document = next(iter(
-                turn_documents[k] for k in
-                doxbench_turns.ordered_document_keys(turn_documents)))
+                doxbench_turns.require_outline_and_documents(
+                    turn_buffers, refused_paths=refused_paths)
+            # The DECLARED order, from the module that owns it. The v1 envelope
+            # carries exactly one document so this list has one member there;
+            # the widened one carries the loaded set, and every member of it is
+            # verified below rather than the first.
+            document_keys = doxbench_turns.ordered_document_keys(turn_documents)
         except doxbench_turns.TurnBufferKindError:
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
 
         try:
             doxbench_turns.verify_buffer_identity(outline)
-            doxbench_turns.verify_buffer_identity(document)
+            for buffer_key in document_keys:
+                doxbench_turns.verify_buffer_identity(turn_documents[buffer_key])
         except doxbench_hash.ContentEncodingError:
             # T104 F5-8: a lone UTF-16 surrogate in buffer content. JSON's
             # `"\ud800"` escape decodes to a str no runtime can encode to
@@ -1576,15 +1770,16 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # identically across runtimes is MALFORMED -- the fixed
             # `invalid_turn_request`, refused before any hash comparison.
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         except doxbench_turns.TurnIdentityMismatchError:
             self._refuse_turn(validators, DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         except doxbench_turns.TurnLimitError as exc:
             self._refuse_turn(validators, DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
-                              turn_id, limit=exc.as_public_dict())
+                              turn_id, limit=exc.as_public_dict(),
+                              failure_kind=failure_kind)
             return
 
         # ---- step 7: model ----
@@ -1592,22 +1787,22 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if port is None:
             self._refuse_turn(validators,
                               DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         try:
             catalog = port.catalog()
         except Exception:  # noqa: BLE001 - never let a provider-shaped exception reach the wire
             self._refuse_turn(validators, DOXBENCH_ERR_CATALOG_UNAVAILABLE,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         if not isinstance(catalog, doxbench_model.ModelCatalog):
             self._refuse_turn(validators, DOXBENCH_ERR_CATALOG_UNAVAILABLE,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         model_entry = catalog.selectable_entry_for(model_id)
         if model_entry is None:
             self._refuse_turn(validators, DOXBENCH_ERR_MODEL_UNAVAILABLE,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
 
         effective_input_limit = doxbench_model.effective_limit_bytes(
@@ -1625,7 +1820,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # ONE try so every field class gets the same fixed refusal.
         try:
             outline_bytes = doxbench_hash.utf8_size(outline.content)
-            document_bytes = doxbench_hash.utf8_size(document.content)
+            # EVERY loaded document is measured, not the first: a bound that
+            # measured only some of the buffers it is bounding would be no bound
+            # at all, and the widened envelope carries N of them.
+            document_buffer_bytes = tuple(
+                doxbench_hash.utf8_size(turn_documents[buffer_key].content)
+                for buffer_key in document_keys)
+            document_bytes = sum(document_buffer_bytes)
             message_bytes = doxbench_hash.utf8_size(message)
             working_subject_bytes = doxbench_hash.utf8_size(working_subject)
             transcript_byte_total = doxbench_turns.transcript_bytes(transcript_turns)
@@ -1633,7 +1834,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             doxbench_turns.validate_message(message)
             doxbench_turns.validate_transcript(transcript_turns)
             doxbench_turns.validate_request_body_bytes(
-                outline_bytes=outline_bytes, document_bytes=document_bytes,
+                outline_bytes=outline_bytes,
+                document_buffer_bytes=document_buffer_bytes,
                 message_bytes=message_bytes, working_subject_bytes=working_subject_bytes,
                 transcript_bytes=transcript_byte_total)
         except doxbench_hash.ContentEncodingError:
@@ -1641,11 +1843,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # runtime can carry identically is a malformed request, answered
             # with an HTTP envelope rather than a killed handler.
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         except doxbench_turns.TurnLimitError as exc:
             self._refuse_turn(validators, DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
-                              turn_id, limit=exc.as_public_dict())
+                              turn_id, limit=exc.as_public_dict(),
+                              failure_kind=failure_kind)
             return
 
         # `validate_request_body_bytes` cannot accept a NARROWED ceiling (it
@@ -1660,7 +1863,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 validators, DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED, turn_id,
                 limit={"dimension": "request_body_bytes",
                        "measured": request_total_bytes,
-                       "maximum": effective_input_limit})
+                       "maximum": effective_input_limit},
+                failure_kind=failure_kind)
             return
 
         # ---- step 8: idempotency, LAST precondition. PEEK FIRST so the
@@ -1676,6 +1880,44 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # bound and honoured below -- discarding it dispatched the provider a
         # second time (FR-019) and then died on an uncaught `TurnConflictError`
         # out of `complete()`, dropping the connection with no envelope. ----
+        #
+        # BUFFER ORDER IS NOT PART OF THE REQUEST'S IDENTITY -- on the widened
+        # lane (Codex review of PR #210, CODEX-2). `json.dumps(sort_keys=True)`
+        # orders KEYS, never array members, so a retransmission that merely
+        # reordered the buffer array digested differently and came back
+        # `turn_id_conflict` instead of the recorded result -- reproduced: the
+        # same turn id with the same content and the same hashes, second send
+        # 409. The released contract says a repeated id with identical input
+        # hashes replays, and a reordered array carries identical hashes.
+        #
+        # Canonicalized by BUFFER KEY, in the same UTF-16 code-unit order the
+        # rest of this family declares, so the two runtimes cannot disagree about
+        # it either.
+        #
+        # The v1 lane's canonical form is DELIBERATELY untouched, and the reason
+        # is a TRADE rather than an impossibility -- stated plainly because the
+        # first spelling of this comment overclaimed. That envelope fixes the
+        # buffer COUNT (exactly two) and their KINDS (one outline, one document);
+        # it does NOT fix their ARRAY ORDER, so a v1 client that retransmits the
+        # same turn with its two buffers swapped gets the same 409 this fix
+        # closes on the widened lane. That wart is KNOWINGLY RETAINED: v1 digests
+        # are already recorded in live stores, and changing the form would make
+        # every turn in flight unreplayable -- a live break traded against a
+        # latent one on a lane that is deprecated and dies at contract-v2.0.
+        canonical_buffer_order = turn_buffers
+        if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:
+            canonical_buffer_order = sorted(
+                turn_buffers,
+                key=lambda buf: doxbench_turns.buffer_key_for(buf).encode(
+                    "utf-16-be", "surrogatepass"))
+        # THE DECLARED BINDING IS PART OF THE REQUEST'S IDENTITY
+        # (add-doxbench-editing-phase-b §13). Two widened turns that carry the
+        # same buffers and the same message but are bound to DIFFERENT documents
+        # are different requests, and a digest that could not tell them apart
+        # would replay one turn's answer for the other -- so `bound_buffer` joins
+        # the canonical form. The v1 lane's `active_document_path` stays exactly
+        # where it was, so its digests are unchanged; on that lane the two fields
+        # hold the same string anyway.
         canonical = {
             "repository": scope_fields["repository"], "ref": scope_fields["ref"],
             "tile_kind": scope_fields["tile_kind"], "tile_id": scope_fields["tile_id"],
@@ -1687,9 +1929,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                  "base_ref": buf.base_ref, "base_revision": buf.base_revision,
                  "base_hash": buf.base_hash, "content_hash": buf.content_hash,
                  "dirty": buf.dirty}
-                for buf in turn_buffers
+                for buf in canonical_buffer_order
             ],
         }
+        if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:
+            canonical["kind"] = request_kind
+            canonical["bound_buffer"] = bound_buffer_key
         try:
             digest = doxbench_hash.sha256_hex(
                 json.dumps(canonical, sort_keys=True, separators=(",", ":"),
@@ -1703,7 +1948,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # surrogate carriers). Same fixed refusal as the other three
             # sites: malformed request, HTTP envelope, never a dead handler.
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
 
         record = self.turn_store.snapshot(key, client_turn_id)
@@ -1711,7 +1956,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             if record.state == doxbench_turns.TURN_STATE_IN_FLIGHT:
                 code = (DOXBENCH_ERR_TURN_IN_FLIGHT if record.request_digest == digest
                        else DOXBENCH_ERR_TURN_ID_CONFLICT)
-                self._refuse_turn(validators, code, turn_id)
+                self._refuse_turn(validators, code, turn_id, failure_kind=failure_kind)
                 return
             if record.request_digest == digest:
                 # A resolved replay: the stored outcome is returned
@@ -1725,18 +1970,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json(outcome["status"], outcome["body"])
                 return
             self._refuse_turn(validators, DOXBENCH_ERR_TURN_ID_CONFLICT,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
 
         try:
             lease = self.turn_store.reserve(key, client_turn_id, digest)
         except doxbench_turns.TurnInFlightError:
             self._refuse_turn(validators, DOXBENCH_ERR_TURN_IN_FLIGHT,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         except doxbench_turns.TurnConflictError:
             self._refuse_turn(validators, DOXBENCH_ERR_TURN_ID_CONFLICT,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
 
         if not lease.should_dispatch:
@@ -1778,14 +2023,15 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 working_subject=working_subject, transcript=tuple(transcript_turns),
                 buffers=turn_buffers, message=message,
                 session_base=session_base,
-                # The DECLARED active document, checked against the supplied
-                # buffer set and NOT stored as a binding claim (PR #207 review
-                # F4): the released v1 envelope declares which DOCUMENT is
-                # active, which is not the same statement as which BUFFER the
-                # human is working on, and recording the second from the first is
-                # the mis-derivation Phase A's review killed. §13's widened family
-                # carries the binding itself.
-                bound_buffer_key=active_document_path)
+                refused_paths=refused_paths,
+                # The DECLARED binding, checked against the supplied buffer set
+                # and NOT stored as a binding claim on the envelope (PR #207
+                # review F4): an internal field nothing serializes cannot
+                # discharge the obligation to name the bound buffer in a durable
+                # RECORD. §13's widened family carries it on the wire, which is
+                # the only place a reader can consult it, and the success body
+                # below is where it lands.
+                bound_buffer_key=bound_buffer_key)
         except doxbench_turns.TurnScopeError:
             outcome_code = DOXBENCH_ERR_TURN_SCOPE_REFUSED
         except doxbench_turns.TurnIdentityMismatchError:
@@ -1817,10 +2063,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # proposal. Every turn that DOES name a document is unchanged.
             # The permitted set is the REQUEST'S OWN buffer keys
             # (add-doxbench-editing-phase-b task 5.3 retired the fixed enum);
-            # G-1's outline-only narrowing is unchanged.
-            permitted_targets = (
-                None if active_document_path is not None
-                else (doxbench_turns.OUTLINE_BUFFER_KEY,))
+            # G-1's narrowing is unchanged and is now expressed PER BUFFER,
+            # which is the same rule stated over a set: a document buffer backed
+            # by NO PATH names no document, so a proposal targeting it would be a
+            # rewrite of a document that does not exist. On the v1 lane that is
+            # exactly "active_document_path is null", because the one document
+            # buffer is then the unbacked one; on the widened lane the unbacked
+            # slot can ride beside real documents, and only IT is withheld.
+            permitted_targets = tuple(
+                buffer_key for buffer_key in
+                (doxbench_turns.OUTLINE_BUFFER_KEY,) + tuple(document_keys)
+                if buffer_key == doxbench_turns.OUTLINE_BUFFER_KEY
+                or turn_documents[buffer_key].path is not None)
 
             def _typed_response_validator(raw):
                 return doxbench_turns.validate_assistant_response(
@@ -1842,24 +2096,52 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 # a scheme, so it is derived from the turn's own canonical
                 # request digest -- deterministic, request-unforgeable, and
                 # carrying no provider or content material.
-                success_body = doxbench_turn_success_body(
-                    client_turn_id=client_turn_id,
-                    assistant_turn_id="assistant-" + digest[:56],
-                    model_id=model_id,
-                    # The released v1 success envelope has room for EXACTLY
+                observed = prompt_envelope.observed_hashes
+                if success_kind == DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND:
+                    # THE RECORD, at last able to say what the turn was about
+                    # (§13; design D17). It names the DECLARED bound buffer --
+                    # carried from the request, never derived -- states every
+                    # buffer's observed identity by key, and carries the
+                    # selected-model metadata beside the model that answered.
+                    #
+                    # The selected-model metadata is DERIVED from the catalog
+                    # entry, in one place (`doxbench_selected_model`), so task
+                    # 11.7's routing-rule entry changes that function rather than
+                    # three literals here.
+                    selected_model = doxbench_selected_model(model_entry)
+                    success_body = doxbench_turn_v2_success_body(
+                        client_turn_id=client_turn_id,
+                        assistant_turn_id="assistant-" + digest[:56],
+                        model_id=selected_model["resolved_model_id"],
+                        requested_model_id=selected_model["requested_model_id"],
+                        routing_rule=selected_model["routing_rule"],
+                        data_handling=selected_model["data_handling"],
+                        bound_buffer=bound_buffer_key,
+                        observed_hashes={
+                            buffer_key: observed.for_key(buffer_key).hex
+                            for buffer_key in observed.keys()
+                        },
+                        assistant_prose=outcome.assistant_prose,
+                        proposals=outcome.proposals)
+                else:
+                    # The DEPRECATED v1 success envelope has room for EXACTLY
                     # these two keys. The envelope's own identities are keyed by
-                    # BUFFER KEY now, so the one document's key is read rather
-                    # than assumed -- and §13's widened family is what lets a
-                    # record state all N of them.
-                    observed_hashes={
-                        "outline": prompt_envelope.observed_hashes.outline.hex,
-                        "document": prompt_envelope.observed_hashes.for_key(
-                            doxbench_turns.buffer_key_for(document)).hex,
-                    },
-                    assistant_prose=outcome.assistant_prose,
-                    proposals=outcome.proposals)
+                    # BUFFER KEY, so the one document's key is read rather than
+                    # assumed; that lane still carries exactly one document,
+                    # which the closed v1 request schema guarantees.
+                    document_key = document_keys[0]
+                    success_body = doxbench_turn_success_body(
+                        client_turn_id=client_turn_id,
+                        assistant_turn_id="assistant-" + digest[:56],
+                        model_id=model_id,
+                        observed_hashes={
+                            "outline": observed.outline.hex,
+                            "document": observed.for_key(document_key).hex,
+                        },
+                        assistant_prose=outcome.assistant_prose,
+                        proposals=outcome.proposals)
                 if self._doxbench_wire_conforms(
-                        validators, DOXBENCH_CHAT_TURN_SUCCESS_KIND, success_body):
+                        validators, success_kind, success_body):
                     body_bytes = json.dumps(success_body).encode("utf-8")
                     # The stored result IS the sent result (byte-identical
                     # replay, contracts/chat-turn.md "Idempotency").
@@ -1878,7 +2160,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     except doxbench_turns.TurnConflictError:
                         self._refuse_turn(validators,
                                           DOXBENCH_ERR_TURN_ID_CONFLICT,
-                                          turn_id)
+                                          turn_id, failure_kind=failure_kind)
                         return
                     self._send_json(200, success_body)
                     return
@@ -1894,10 +2176,10 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # stored or sent: what the turn store retains for a byte-identical
         # replay must be the same validated shape this response carries, or a
         # replay would answer differently from the original.
-        body = (doxbench_turn_failure_body(outcome_code, turn_id)
+        body = (doxbench_turn_failure_body(outcome_code, turn_id,
+                                           kind=failure_kind)
                 if turn_id is not None else doxbench_error_body(outcome_code))
-        if not self._doxbench_wire_conforms(
-                validators, DOXBENCH_CHAT_TURN_FAILURE_KIND, body):
+        if not self._doxbench_wire_conforms(validators, failure_kind, body):
             body = doxbench_error_body(outcome_code)
         body_bytes = json.dumps(body).encode("utf-8")
         # Planning-contract obligation 1 (contracts/chat-turn.md): a refused

@@ -142,6 +142,13 @@ KIND_TO_SCHEMA = {
     "workbench-chat-turn": "xfactory-workbench-chat-turn.schema.yaml",
     "workbench-chat-turn-success": "xfactory-workbench-chat-turn.schema.yaml",
     "workbench-chat-turn-failure": "xfactory-workbench-chat-turn.schema.yaml",
+    # The co-resident WIDENED family (contract-v1.34,
+    # add-doxbench-editing-phase-b design D15). Same file, same oneOf; the v1
+    # kinds above are DEPRECATED but still validated, because a deprecation that
+    # stopped validating would break the clients it exists to keep working.
+    "workbench-chat-turn-v2": "xfactory-workbench-chat-turn.schema.yaml",
+    "workbench-chat-turn-v2-success": "xfactory-workbench-chat-turn.schema.yaml",
+    "workbench-chat-turn-v2-failure": "xfactory-workbench-chat-turn.schema.yaml",
 }
 
 # The snapshot's projection collections — the data an INDEX must never carry
@@ -295,6 +302,47 @@ def load_context(path: Path | None) -> tuple[set[str] | None, list[str]]:
     return ratified, notes
 
 
+# --------------------- deprecation warnings (read, never restated) ---------------------
+
+def deprecated_kinds(docs: dict[str, dict]) -> dict[str, dict]:
+    """Every instance kind a loaded schema declares DEPRECATED, keyed by kind.
+
+    Read from the schemas' own top-level `deprecated_envelopes` blocks. This
+    validator never carries its own list of what is deprecated: the release owns
+    that statement, and a second copy here would be a second authority that could
+    disagree with the bytes consumers actually pin."""
+    declared: dict[str, dict] = {}
+    for doc in docs.values():
+        if not isinstance(doc, dict):
+            continue
+        for entry in doc.get("deprecated_envelopes") or []:
+            if isinstance(entry, dict) and isinstance(entry.get("kind"), str):
+                declared[entry["kind"]] = entry
+    return declared
+
+
+def warn_if_deprecated_kind(f: Findings, label: str, tag: str,
+                            docs: dict[str, dict]) -> None:
+    """WARN, and still accept — the deprecating-change class the versioning
+    policy defines ("the conformance validator emits warnings but still accepts
+    it"). Without this the deprecation was inert: a release could claim to start
+    the clock the breaking path requires while every conforming instance of the
+    deprecated shape validated in silence."""
+    entry = deprecated_kinds(docs).get(tag)
+    if entry is None:
+        return
+    # CONSEQUENCE, stated: under `--strict` (opt-in, "treat warnings as errors")
+    # a deprecated instance now FAILS. That is what strict mode means and what a
+    # consumer asking for it wants — a way to find the shapes that will not
+    # survive the removal target. The default invocation, which is what this
+    # repository's own gates run, still exits 0.
+    f.warnings.append(
+        f"{label}: kind {tag!r} is DEPRECATED as of "
+        f"{entry.get('deprecated_in', 'an unstated release')} — superseded by "
+        f"{entry.get('superseded_by', 'no stated replacement')}; removal target "
+        f"{entry.get('removal_target', 'unstated')}")
+
+
 # --------------------- per-instance validation (schema + rules) ---------------------
 
 def validate_instance(
@@ -322,6 +370,7 @@ def validate_instance(
     for e in iter_errors(doc_validator(schema_name, registry, docs), doc):
         loc = "/".join(str(p) for p in e.absolute_path) or "<root>"
         f.error("schema", f"{label}: {loc}: {e.message}")
+    warn_if_deprecated_kind(f, label, tag, docs)
 
     if tag == "ideation-dashboard-snapshot":
         check_snapshot_referential_integrity(f, label, doc)
@@ -340,6 +389,15 @@ def validate_instance(
     elif tag == "workbench-chat-turn-success":
         check_turn_success(f, label, doc)
     elif tag == "workbench-chat-turn-failure":
+        check_turn_failure(f, label, doc)
+    elif tag == "workbench-chat-turn-v2":
+        check_turn_request_v2(f, label, doc, model_ctx)
+    elif tag == "workbench-chat-turn-v2-success":
+        check_turn_success_v2(f, label, doc)
+    elif tag == "workbench-chat-turn-v2-failure":
+        # The redaction and limit-pairing rules are the family's, not a
+        # per-envelope invention: a v2 failure discloses exactly what a v1
+        # failure does, so it is judged by exactly the same function.
         check_turn_failure(f, label, doc)
     return tag
 
@@ -793,8 +851,9 @@ def _confined(f: Findings, label: str, where: str, path_value) -> None:
 
 def check_turn_request(f: Findings, label: str, doc: dict,
                        model_ctx: dict[str, int] | None) -> None:
-    buffers = doc.get("buffers") or []
-    kinds = sorted(str(b.get("kind")) for b in buffers if isinstance(b, dict))
+    buffers = [b for b in doc.get("buffers") or [] if isinstance(b, dict)]
+    check_reserved_document_paths(f, label, buffers, V1_RESERVED_DOCUMENT_PATHS)
+    kinds = sorted(str(b.get("kind")) for b in buffers)
     if kinds != ["document", "outline"]:
         f.error("buffers", f"{label}: exactly one outline and one document "
                            f"buffer required, got {kinds}")
@@ -826,11 +885,158 @@ def check_turn_request(f: Findings, label: str, doc: dict,
                           f"over model {mid!r} input limit {limit}")
 
 
+# THE RESERVED KEYS A DOCUMENT'S OWN PATH MAY NOT CLAIM, per lane (Codex review
+# of PR #210, CODEX-3). Restated here rather than imported: this validator is
+# PUBLISHED BY EXACT COMMIT and run from a pinned checkout against an arbitrary
+# target repository, so it must not import the runtime package that happens to
+# sit beside it in the publisher. The pairing with
+# `ideation_dashboard.doxbench_turns.RESERVED_BUFFER_KEYS` /
+# `V1_RESERVED_BUFFER_KEYS` is asserted by a companion test instead, which is the
+# only way to make a restatement safe.
+#
+# The asymmetry is the runtime's own and is load-bearing. `outline` is refused on
+# BOTH lanes: a document keyed there is filtered out of every downstream
+# enumeration. `document` is refused on the WIDENED lane only, where the reserved
+# unbacked slot can ride beside a path-backed document; the v1 envelope carries
+# exactly one document whose key is `document` either way, and such a turn was
+# served before this release.
+V1_RESERVED_DOCUMENT_PATHS = frozenset({"outline"})
+V2_RESERVED_DOCUMENT_PATHS = frozenset({"outline", "document"})
+
+
+def check_reserved_document_paths(f: Findings, label: str, buffers: list,
+                                  refused: frozenset) -> None:
+    """Refuse a document buffer whose own PATH claims a reserved buffer key.
+
+    Without this the family's declared owner certified an envelope the route
+    always refuses — conformance for a shape that cannot be processed, which is
+    worse than no verdict."""
+    for buffer in buffers:
+        if str(buffer.get("kind")) != "document":
+            continue
+        if buffer.get("path") in refused:
+            f.error("reserved-key",
+                    f"{label}: a document buffer's path claims the reserved "
+                    f"buffer key {buffer.get('path')!r}; the route refuses this "
+                    f"before any provider call")
+
+
+def _buffer_key_of(buffer: dict) -> str:
+    """The KEY a buffer is held under (add-doxbench-editing-phase-b design D1),
+    derived exactly as the runtime derives it: the outline's key is reserved, a
+    document's key IS its own path, and a document with no path yet takes the one
+    reserved unbacked slot. Never invented, and never read off an adjacent field
+    that answers a different question."""
+    if str(buffer.get("kind")) == "outline":
+        return "outline"
+    path = buffer.get("path")
+    return "document" if path is None else str(path)
+
+
+def check_turn_request_v2(f: Findings, label: str, doc: dict,
+                          model_ctx: dict[str, int] | None) -> None:
+    """The widened request's rules the shape cannot express: one outline plus one
+    or more DISTINCTLY KEYED documents, and a DECLARED binding that names one of
+    the buffers this same request supplied. The hash, confinement, unknown-model
+    and budget rules are the v1 ones, applied per buffer over a set instead of a
+    pair."""
+    buffers = [b for b in doc.get("buffers") or [] if isinstance(b, dict)]
+    check_reserved_document_paths(f, label, buffers, V2_RESERVED_DOCUMENT_PATHS)
+    outlines = [b for b in buffers if str(b.get("kind")) == "outline"]
+    documents = [b for b in buffers if str(b.get("kind")) == "document"]
+    if len(outlines) != 1 or not documents:
+        f.error("buffers", f"{label}: exactly one outline buffer and at least "
+                           f"one document buffer required, got "
+                           f"{len(outlines)} outline(s) and "
+                           f"{len(documents)} document(s)")
+    keys: list[str] = [_buffer_key_of(b) for b in buffers]
+    duplicates = sorted({key for key in keys if keys.count(key) > 1})
+    if duplicates:
+        f.error("buffers", f"{label}: two buffers claim the same key "
+                           f"{duplicates} — a document is loaded at most once, "
+                           f"and 'which text did the model see' must have one "
+                           f"answer")
+    bound = doc.get("bound_buffer")
+    if str(bound) not in keys:
+        f.error("bound-buffer",
+                f"{label}: bound_buffer {bound!r} names no supplied buffer "
+                f"(supplied {sorted(set(keys))})")
+    _confined(f, label, "bound_buffer", bound)
+    total_bytes = 0
+    for b in buffers:
+        key = _buffer_key_of(b)
+        _confined(f, label, f"buffers/{key}/path", b.get("path", ""))
+        content = str(b.get("content", ""))
+        total_bytes += len(content.encode("utf-8"))
+        declared = str(b.get("content_hash", ""))
+        actual = _hashlib.sha256(content.encode("utf-8")).hexdigest()
+        if declared != actual:
+            f.error("hash", f"{label}: buffers/{key}: content_hash "
+                            f"mismatch (declared {declared[:12]}…, actual {actual[:12]}…)")
+    if model_ctx is None:
+        f.warnings.append(f"{label}: model context unavailable — unknown-model "
+                          f"and budget checks SKIPPED (supply a catalog instance)")
+        return
+    mid = str(doc.get("model_id", ""))
+    if mid not in model_ctx:
+        f.error("unknown-model",
+                f"{label}: model_id {mid!r} is not in the approved catalog")
+        return
+    limit = model_ctx[mid]
+    if limit and total_bytes > limit:
+        f.error("budget", f"{label}: request buffers total {total_bytes} bytes "
+                          f"over model {mid!r} input limit {limit}")
+
+
 def check_turn_success(f: Findings, label: str, doc: dict) -> None:
     targets = [p.get("target") for p in doc.get("proposals") or []
                if isinstance(p, dict)]
     if len(targets) != len(set(targets)):
         f.error("proposal", f"{label}: proposal targets must be unique, got {targets}")
+
+
+def check_turn_success_v2(f: Findings, label: str, doc: dict) -> None:
+    """The widened record's own consistency. It carries every buffer's observed
+    identity by KEY, so three rules the v1 record could not state become
+    checkable here: a proposal targets a buffer the turn actually held, the
+    proposal count is bounded by that buffer count rather than by a literal 2,
+    and the record's declared binding names one of those same buffers."""
+    observed = doc.get("observed_hashes")
+    observed = observed if isinstance(observed, dict) else {}
+    proposals = [p for p in doc.get("proposals") or [] if isinstance(p, dict)]
+    targets = [p.get("target") for p in proposals]
+    if len(targets) != len(set(targets)):
+        f.error("proposal", f"{label}: proposal targets must be unique, got {targets}")
+    if len(proposals) > len(observed):
+        f.error("proposal",
+                f"{label}: {len(proposals)} proposal(s) against "
+                f"{len(observed)} supplied buffer(s) — a response may never "
+                f"rewrite more buffers than it was shown")
+    for proposal in proposals:
+        target = str(proposal.get("target"))
+        if target not in observed:
+            f.error("proposal-target",
+                    f"{label}: proposal target {target!r} names no buffer this "
+                    f"turn observed — unroutable, never guessed at")
+            continue
+        if str(proposal.get("base_hash")) != str(observed[target]):
+            f.error("proposal",
+                    f"{label}: proposal {target!r} is based on an identity the "
+                    f"turn did not observe for that buffer")
+    bound = str(doc.get("bound_buffer"))
+    if bound not in observed:
+        f.error("bound-buffer",
+                f"{label}: bound_buffer {bound!r} names no buffer this turn "
+                f"observed (observed {sorted(observed)})")
+    selected = doc.get("selected_model")
+    selected = selected if isinstance(selected, dict) else {}
+    if (selected.get("routing_rule") is False
+            and str(selected.get("requested_model_id")) != str(doc.get("model_id"))):
+        f.error("selected-model",
+                f"{label}: a non-routing catalog entry cannot resolve to a "
+                f"different model (requested "
+                f"{selected.get('requested_model_id')!r}, answered "
+                f"{doc.get('model_id')!r})")
 
 
 def check_turn_failure(f: Findings, label: str, doc: dict) -> None:
@@ -850,16 +1056,18 @@ def check_turn_id_uniqueness(f: Findings, paths) -> None:
     seen: dict[str, tuple[str, str]] = {}
     for path in paths:
         doc = load_yaml(path)
-        if not (isinstance(doc, dict) and doc.get("kind") == "workbench-chat-turn"):
+        if not (isinstance(doc, dict) and doc.get("kind") in (
+                "workbench-chat-turn", "workbench-chat-turn-v2")):
             continue
         tid = str(doc.get("client_turn_id"))
-        # Canonicalize buffer order by kind before hashing: a retransmission
-        # that merely reorders [outline, document] is the SAME request, not an
-        # FR-019 conflict.
+        # Canonicalize buffer order before hashing: a retransmission that merely
+        # reorders the buffers is the SAME request, not an FR-019 conflict.
+        # Ordering is by buffer KEY rather than by kind, because the widened
+        # request holds N documents and every one of them declares `document`.
         canonical = dict(doc)
         canonical["buffers"] = sorted(
             (b for b in doc.get("buffers") or [] if isinstance(b, dict)),
-            key=lambda b: str(b.get("kind")))
+            key=_buffer_key_of)
         digest = _hashlib.sha256(
             _json.dumps(canonical, sort_keys=True).encode()).hexdigest()
         if tid in seen and seen[tid][0] != digest:

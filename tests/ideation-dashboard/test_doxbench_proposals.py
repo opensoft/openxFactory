@@ -64,7 +64,7 @@ out.review = { outline: p0.outline.status, document: p0.document.status,
 // prose-only: no proposal records at all
 const prose = settleTurnSuccess(beginTurn(base), successWith([]));
 const pp = proposalsOf(prose);
-out.proseOnly = { outline: pp.outline, document: pp.document };
+out.proseOnly = { keys: Object.keys(pp) };
 
 // comparison: an edited outline flips ONLY the outline proposal to stale,
 // and restoring the content flips it back
@@ -99,7 +99,7 @@ const nextTurn = settleTurnSuccess(beginTurn(editComposer(edited, "again")),
   successWith([proposal("outline", "e".repeat(64))]));
 const pn = proposalsOf(refreshProposalCurrency(nextTurn,
   { outline: "e".repeat(64), document: DOCUMENT_HASH }));
-out.newTurn = { outline: pn.outline.status, document: pn.document };
+out.newTurn = { outline: pn.outline.status, keys: Object.keys(pn) };
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -127,7 +127,12 @@ def test_review_adopts_both_targets_independently_and_frozen(proposal_results):
 
 
 def test_a_prose_only_turn_carries_no_proposal_records(proposal_results):
-    assert proposal_results["proseOnly"] == {"outline": None, "document": None}
+    """RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13): the
+    proposal map is KEYED BY BUFFER KEY now, so "no proposal" is an ABSENT key
+    rather than two fixed names holding null. It has to be: the target set is the
+    turn's own buffer set, and a map pre-seeded with two names could not carry a
+    proposal against the third document a human loaded."""
+    assert proposal_results["proseOnly"]["keys"] == []
 
 
 def test_currency_is_exact_per_target_hash_comparison_and_reversible(proposal_results):
@@ -159,9 +164,12 @@ def test_applied_is_terminal_for_currency_refreshes(proposal_results):
 
 
 def test_a_new_turn_replaces_the_proposal_set_entirely(proposal_results):
+    """RE-PINNED with the keyed map: the previous turn's document proposal is
+    GONE from the set rather than nulled in place, which is the same fact stated
+    over keys the turn actually carried."""
     n = proposal_results["newTurn"]
     assert n["outline"] == "current"
-    assert n["document"] is None
+    assert n["keys"] == ["outline"]
 
 
 def test_no_force_apply_or_merge_path_exists_in_the_source():

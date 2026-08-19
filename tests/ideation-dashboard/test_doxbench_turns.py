@@ -418,6 +418,94 @@ def test_duplicate_kind_refuses():
         require_outline_and_documents([one, two, document])
 
 
+@pytest.mark.parametrize("reserved", ["outline", "document"])
+def test_a_document_path_claiming_a_reserved_key_refuses(reserved):
+    # The DEFAULT refused set is the widened lane's, which is the fail-closed
+    # direction for any new caller (Codex review CODEX-1).
+    """F2 (adversarial review of the §13 slice): a document buffer whose own PATH
+    is a reserved key must be refused HERE, before identity verification and
+    before any port.
+
+    The outline spelling was the dangerous one. `buffer_key_for` mapped it to the
+    reserved outline key, this requirement accepted it, and
+    `ordered_document_keys` then filtered it OUT — so every later step read a set
+    that did not contain it: its declared content hash was never verified, its
+    bytes were never counted against the request bound, and the released v1
+    success builder indexed an empty document list, dying with the connection and
+    stranding the turn's store lease. The `document` spelling is refused with it,
+    mirroring the browser's own `LOAD_REFUSED_RESERVED_KEY`, which refuses both
+    for the same reason."""
+    outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
+    claimant = _buffer("document", path=reserved, content=DOCUMENT_CONTENT)
+    with pytest.raises(TurnBufferKindError) as raised:
+        require_outline_and_documents([outline, claimant])
+    assert "reserved buffer key" in str(raised.value)
+
+
+def test_the_v1_lane_refuses_only_the_outline_spelling():
+    """CODEX-1 (Codex review of PR #210). The rule is PER LANE, because the two
+    spellings fail differently.
+
+    `outline` is a crash class on every lane: `ordered_document_keys` filters that
+    key out of the document enumeration, so the buffer vanishes from every later
+    step — reproduced at a4a6f6e as a dropped connection with no response.
+
+    `document` is a collision only where the reserved unbacked slot can ride
+    BESIDE a path-backed document, which is the widened lane alone. The v1
+    envelope carries exactly one document whose key is `document` either way, and
+    such a turn was SERVED at a4a6f6e (reproduced: HTTP 200, dispatched), so
+    refusing it here would break the promise this release's additive class
+    makes."""
+    outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
+    at_document = _buffer("document", path="document", content=DOCUMENT_CONTENT)
+    _resolved, documents = require_outline_and_documents(
+        [outline, at_document],
+        refused_paths=doxbench_turns.V1_RESERVED_BUFFER_KEYS)
+    assert set(documents) == {"document"}
+    # …and the outline spelling stays refused on that same narrowed set.
+    at_outline = _buffer("document", path="outline", content=DOCUMENT_CONTENT)
+    with pytest.raises(TurnBufferKindError):
+        require_outline_and_documents(
+            [outline, at_outline],
+            refused_paths=doxbench_turns.V1_RESERVED_BUFFER_KEYS)
+
+
+def test_the_two_lane_refusal_sets_differ_by_exactly_the_unbacked_key():
+    """The per-lane sets are stated as a relationship, not as two literals that
+    could drift apart."""
+    assert (doxbench_turns.RESERVED_BUFFER_KEYS
+            - doxbench_turns.V1_RESERVED_BUFFER_KEYS) == {
+        doxbench_turns.UNBACKED_DOCUMENT_BUFFER_KEY}
+    assert doxbench_turns.V1_RESERVED_BUFFER_KEYS == {
+        doxbench_turns.OUTLINE_BUFFER_KEY}
+
+
+def test_the_reserved_keys_are_the_same_two_the_browser_refuses():
+    """The two sides of F2's rule must name the same keys, or one of them is
+    refusing a load the other accepts on the wire. The browser owns the
+    human-facing refusal (`LOAD_REFUSED_RESERVED_KEY`); the server owns the wire
+    one, because a request is not obliged to have come from that browser."""
+    assert doxbench_turns.RESERVED_BUFFER_KEYS == {
+        doxbench_turns.OUTLINE_BUFFER_KEY,
+        doxbench_turns.UNBACKED_DOCUMENT_BUFFER_KEY,
+    }
+    state_js = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+                / "doxbench-state.js").read_text(encoding="utf-8")
+    assert 'LOAD_REFUSED_RESERVED_KEY = "path_is_a_reserved_key"' in state_js
+    for key in doxbench_turns.RESERVED_BUFFER_KEYS:
+        assert f'BUFFER_KEY = "{key}"' in state_js, key
+
+
+def test_the_reserved_unbacked_slot_is_still_accepted():
+    """The other half of the same rule: a document with NO path is the create
+    flow's own buffer and belongs under the reserved key. Refusing a null path
+    here would refuse the create flow itself."""
+    outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
+    unbacked = _buffer("document", path=None, content=DOCUMENT_CONTENT)
+    _resolved_outline, documents = require_outline_and_documents([outline, unbacked])
+    assert set(documents) == {"document"}
+
+
 def test_extra_unexpected_kind_refuses():
     outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
     document = _buffer("document", path=DOCUMENT_PATH, content=DOCUMENT_CONTENT)
@@ -2912,6 +3000,14 @@ def test_the_declared_document_order_is_deterministic_and_matches_the_browser():
                / "doxbench-save.js").read_text(encoding="utf-8")
     assert doxbench_turns.DOCUMENT_KEY_ORDER_RULE in state_js
     assert doxbench_turns.DOCUMENT_KEY_ORDER_RULE in save_js
+    # F8 (adversarial review of the §13 slice): §13 added three more places that
+    # order buffer keys -- the request builder, the selector listing, and the
+    # proposal card order -- and a rule re-spelled in prose is a rule that drifts.
+    # Every home carries the SAME string, and this is where that is enforced.
+    views = REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+    for home in ("doxbench-chat.js", "doxbench-chat-model.js"):
+        text = (views / home).read_text(encoding="utf-8")
+        assert doxbench_turns.DOCUMENT_KEY_ORDER_RULE in text, home
 
 
 def test_a_turn_carrying_three_documents_assembles_one_section_each():

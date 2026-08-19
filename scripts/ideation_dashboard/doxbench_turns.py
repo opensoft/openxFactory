@@ -92,6 +92,29 @@ MAX_RESPONSE_TOTAL_BYTES = SERVER_MAX_OUTPUT_LIMIT_BYTES
 OUTLINE_BUFFER_KEY = "outline"
 UNBACKED_DOCUMENT_BUFFER_KEY = "document"
 
+# The keys a DOCUMENT'S OWN PATH may not claim. The browser refuses such a load in
+# its own vocabulary (`doxbench-state.js` `LOAD_REFUSED_RESERVED_KEY`, F12/N2);
+# these are the same rule on the server, because a wire request is not obliged to
+# have come from that browser.
+#
+# THE RULE IS PER LANE, and deliberately so (Codex review of PR #210, CODEX-1).
+#
+# `outline` is refused on EVERY lane. A document keyed there is filtered out of
+# the document enumeration by `ordered_document_keys`, so it vanishes: its hash
+# goes unverified, its bytes uncounted, and the v1 success builder indexes an
+# empty list. Reproduced at a4a6f6e — the connection dropped with no response at
+# all — so refusing it restores no promise, it closes a crash.
+#
+# `document` is refused only on the WIDENED lane. There it would shadow the ONE
+# reserved unbacked slot, which may ride the same request beside it. On the v1
+# lane no such ambiguity exists: that envelope carries exactly one document, its
+# key IS `document` whether the path is null or literally "document", and a turn
+# shaped that way WAS SERVED at a4a6f6e (reproduced: 200, dispatched). Refusing it
+# would break the promise this release's additive class makes -- that a v1 client
+# keeps being served -- for a collision that lane cannot have.
+RESERVED_BUFFER_KEYS = frozenset({OUTLINE_BUFFER_KEY, UNBACKED_DOCUMENT_BUFFER_KEY})
+V1_RESERVED_BUFFER_KEYS = frozenset({OUTLINE_BUFFER_KEY})
+
 # The DECLARED deterministic document order (design D3 point 4). Spelled to
 # match `web/views/doxbench-state.js`'s `DOCUMENT_KEY_ORDER_RULE` byte for byte,
 # and sorted on UTF-16 code units rather than Python code points so the two
@@ -582,13 +605,32 @@ def revalidate_scope(
 # ---------------------------------------------------------------------------
 
 
-def require_outline_and_documents(buffers) -> tuple[TurnBuffer, dict[str, TurnBuffer]]:
+def require_outline_and_documents(
+    buffers, *, refused_paths: frozenset[str] = RESERVED_BUFFER_KEYS,
+) -> tuple[TurnBuffer, dict[str, TurnBuffer]]:
     """Require exactly ONE outline buffer and ONE OR MORE document buffers, in
     any order, each keyed by its own path (or by the one reserved unbacked slot).
     Refuses (``TurnBufferKindError``) on a missing outline, a second outline, a
     duplicated document key -- the same document supplied twice, which is
     impossible in a well-formed keyed set and would make "which text did the
     model see" unanswerable -- or an unexpected kind.
+
+    A document buffer whose own PATH claims one of ``refused_paths`` is refused
+    here too, and that refusal is load-bearing rather than tidy (adversarial
+    review of the §13 slice, F2). A repository-root file named exactly ``outline``
+    derives the reserved outline key, which ``ordered_document_keys`` then filters
+    OUT of the document enumeration -- so the buffer passed this requirement and
+    every later step read a set that did not contain it: its declared content hash
+    was never verified, its bytes were never counted against the request bound,
+    and the released v1 success builder indexed an empty document list and died
+    with the connection, stranding the turn's own store lease. Refusing it HERE
+    puts the verdict before identity verification and before any port is
+    consulted, which is where a malformed request belongs.
+
+    ``refused_paths`` defaults to the WIDENED lane's set -- the fail-closed
+    direction for any new caller -- and the v1 lane passes
+    ``V1_RESERVED_BUFFER_KEYS``, which omits the ``document`` spelling because
+    that lane cannot have the collision it guards (see those constants).
 
     Phase A's ``require_outline_and_document`` demanded exactly one of each and
     returned a pair. The ratified Phase B contract widens the set, so the
@@ -601,6 +643,9 @@ def require_outline_and_documents(buffers) -> tuple[TurnBuffer, dict[str, TurnBu
                 raise TurnBufferKindError("more than one outline buffer was supplied")
             outline = buffer
         elif buffer.kind == "document":
+            if buffer.path in refused_paths:
+                raise TurnBufferKindError(
+                    "a document buffer's path claims a reserved buffer key")
             key = buffer_key_for(buffer)
             if key in documents:
                 raise TurnBufferKindError("the same document buffer was supplied twice")
@@ -764,6 +809,7 @@ def build_prompt_envelope(
     message: str,
     session_base: SessionBase | None = None,
     bound_buffer_key: str | None = None,
+    refused_paths: frozenset[str] = RESERVED_BUFFER_KEYS,
 ) -> PromptEnvelope:
     """Assemble the deterministic prompt envelope for one chat turn -- the nine
     declared section GROUPS, with one document-buffer section per loaded document
@@ -788,7 +834,8 @@ def build_prompt_envelope(
     widening the set means running it N times rather than relaxing it once. The
     reserved unbacked slot's expected path stays ``None``.
     """
-    outline, documents = require_outline_and_documents(buffers)
+    outline, documents = require_outline_and_documents(
+        buffers, refused_paths=refused_paths)
     document_keys = ordered_document_keys(documents)
     revalidate_scope(
         projection=projection,

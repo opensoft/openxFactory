@@ -206,7 +206,8 @@ async function typeAndSend(ctx, message) {
 const out = {};
 
 // =====================================================================
-// F1: loading a document must not kill the chat
+// F1 / N4: loading a document must not kill the chat, and the chat now BINDS
+// to whichever buffer is selected (contract-v1.34, §13)
 // =====================================================================
 {
   const ctx = await mount({
@@ -219,17 +220,21 @@ const out = {};
 
   // A BASELINE turn first, so the reserved slot's own path is read off the WIRE
   // rather than assumed: whichever document the projection made active at mount
-  // is the one the released envelope carries, and that is the fact under test.
-  const baseline = await typeAndSend(ctx, 'baseline turn before any load');
+  // is the one that slot holds, and that is the fact the rest is measured
+  // against.
+  await typeAndSend(ctx, 'baseline turn before any load');
   out.f1.baselineSent = ctx.log.turns.length;
   const first = ctx.log.turns[0] || null;
   out.f1.reservedPath = first ? first.buffers[1].path : null;
-  out.f1.baselineActiveDocumentPath = first ? first.active_document_path : null;
+  out.f1.baselineKind = first ? first.kind : null;
+  out.f1.baselineBound = first ? first.bound_buffer : null;
+  out.f1.baselineHasActiveDocumentPath =
+    first ? ('active_document_path' in first) : null;
 
   // Load a DIFFERENT document through the tile's OWN verb -- the one route in,
   // and deliberately one whose key sorts BEFORE the reserved `"document"` key, so
-  // a fall-through to "the first loaded document by key order" would pick IT and
-  // not the reserved slot (N1).
+  // an implementation that fell through to "the first loaded document by key
+  // order" would pick IT rather than what the human selected (N1).
   const other = [EARLY_A, EARLY_B, DOC_A, DOC_B].find(
     (candidate) => candidate !== out.f1.reservedPath);
   out.f1.loadedPath = other;
@@ -249,16 +254,24 @@ const out = {};
   out.f1.selectorOptions = selectNode.children.map((o) => o.value);
   out.f1.selectorValue = selectNode.value;
 
-  // …and a send is REFUSED PRE-FLIGHT, with our own stated reason, having
-  // consulted no transport at all.
+  // …and a send on that selection SUCCEEDS. Under the interim N4 posture this
+  // was held closed pre-flight with a stated reason; the widened envelope
+  // carries the loaded set and DECLARES the binding, so the turn goes out.
   const attempt = await typeAndSend(ctx, 'what does this document say?');
   out.f1.sendDisabledWhileBound = attempt.disabledBefore;
   out.f1.turnsAfterBoundSend = ctx.log.turns.length;
-  out.f1.statedReason = attempt.title;
-  out.f1.statedInDescribedBy = attempt.unavailable;
+  const boundRequest = ctx.log.turns[ctx.log.turns.length - 1] || null;
+  out.f1.boundKind = boundRequest ? boundRequest.kind : null;
+  out.f1.boundBuffer = boundRequest ? boundRequest.bound_buffer : null;
+  out.f1.boundWirePaths = boundRequest
+    ? boundRequest.buffers.map((b) => b.path) : null;
+  out.f1.boundWireKinds = boundRequest
+    ? boundRequest.buffers.map((b) => b.kind) : null;
+  out.f1.boundHasActiveDocumentPath =
+    boundRequest ? ('active_document_path' in boundRequest) : null;
 
-  // Selecting the OUTLINE makes the chat sendable again, and the request names
-  // the RESERVED SLOT's path -- never the loaded document's.
+  // Selecting the OUTLINE re-points the binding, and the request still carries
+  // every loaded buffer: binding says what the chat works ON, never what it sees.
   const outlineTab = ctx.byClass('swb-tab').find(
     (b) => String(b.textContent).toLowerCase().includes('outline'));
   await fire(outlineTab, 'click');
@@ -267,7 +280,7 @@ const out = {};
   out.f1.sendEnabledOnOutline = recovered.disabledBefore === false;
   out.f1.turnsAfterOutlineSend = ctx.log.turns.length;
   const request = ctx.log.turns[ctx.log.turns.length - 1] || null;
-  out.f1.wireActiveDocumentPath = request ? request.active_document_path : null;
+  out.f1.outlineBound = request ? request.bound_buffer : null;
   out.f1.wireBufferKinds = request
     ? request.buffers.map((b) => b.kind) : null;
   out.f1.wireBufferPaths = request
@@ -498,50 +511,65 @@ def test_loading_a_document_does_not_kill_the_chat(composition):
     # The baseline turn went out before any of this, which is what makes the
     # reserved slot's path a measured fact rather than an assumption.
     assert f1["baselineSent"] == 1
-    assert f1["baselineActiveDocumentPath"] == f1["reservedPath"]
+    assert f1["baselineKind"] == "workbench-chat-turn-v2"
 
 
-def test_a_turn_bound_to_a_loaded_document_is_refused_pre_flight_and_says_why(
+def test_a_turn_bound_to_a_loaded_document_now_sends_and_declares_that_binding(
         composition):
-    """The house degraded-posture idiom (design §3.4): a capability that is absent
-    SAYS SO and consults nothing. Never a redacted governance refusal for a
-    limitation of our own wire."""
-    f1 = composition["f1"]
-    assert f1["sendDisabledWhileBound"] is True, (
-        "Send must be closed before the click, not refused after it")
-    assert f1["turnsAfterBoundSend"] == 1, (
-        "only the baseline turn: the bound-to-loaded attempt consulted no "
-        "transport, no route and no provider")
-    for surface in (f1["statedReason"], f1["statedInDescribedBy"]):
-        assert "released turn envelope" in surface
-        assert "select the outline or the tile's own document" in surface
-        # …and it says what still works, because the editors and the loaded set
-        # are genuinely unaffected.
-        assert "Editing, Save and" in surface
+    """THE N4 DISSOLUTION, proven through the REAL MOUNT (task 8.6 -> §13).
 
+    SUPERSEDES the interim posture this test used to pin: under the released v1
+    envelope a turn bound to a document loaded beside the tile's own was held
+    closed pre-flight, because the wire carried the outline plus one reserved
+    slot and could not say which of N buffers the chat was on. The widened
+    envelope carries the loaded set and DECLARES the binding, so the same
+    selection sends — and the request names that document as the bound buffer.
 
-def test_the_released_wire_only_ever_names_the_reserved_slots_path(composition):
-    """The invariant the fix restores, proven on the REQUEST: the released v1
-    envelope carries the outline and the reserved `document` slot, so
-    `active_document_path` names the reserved slot's own path — even with another
-    document loaded and even when the human is standing on the outline."""
+    Everything here is driven through `mountStagingWorkbench`: a real tile load,
+    a real selector, a real send. The stubbed-seam version of this test is what
+    hid three broken flows behind 3050 green ones in PR #207."""
     f1 = composition["f1"]
-    assert f1["sendEnabledOnOutline"] is True
-    assert f1["turnsAfterOutlineSend"] == 2, (
-        "the baseline turn plus this one; the bound-to-loaded attempt sent none")
-    assert f1["wireBufferKinds"] == ["outline", "document"]
+    assert f1["sendDisabledWhileBound"] is False, (
+        "the interim binding gate is retired: Send is reachable on a selection "
+        "the widened envelope can carry")
+    assert f1["turnsAfterBoundSend"] == 2, (
+        "the baseline turn plus this one: the selection now reaches the transport")
+    assert f1["boundKind"] == "workbench-chat-turn-v2"
+    assert f1["boundBuffer"] == f1["loadedPath"], (
+        "the DECLARED binding is the buffer the human selected")
     # N1: the loaded document's KEY sorts BEFORE the reserved `"document"` key, so
-    # an implementation that fell through to "the first loaded document by key
-    # order" would name IT here. The fixture makes that discrimination possible;
-    # this assertion is what fails on the reverted code.
+    # an implementation that fell through to "the first document by key order"
+    # could not be told from one that read the selection. The fixture makes that
+    # discrimination possible.
     assert f1["loadedPath"] < "document", (
         "the fixture must load a key that sorts before the reserved one, or this "
-        "assertion cannot tell the wire invariant from a lucky sort order")
-    assert f1["wireActiveDocumentPath"] == f1["reservedPath"]
-    assert f1["wireBufferPaths"][1] == f1["reservedPath"]
-    # The loaded document is NOT on the wire, which is exactly why the chat
-    # cannot be bound to it yet.
-    assert f1["loadedPath"] not in f1["wireBufferPaths"]
+        "assertion cannot tell a declared binding from a lucky sort order")
+    # GROUNDING is unnarrowed: the outline, the reserved slot and the loaded
+    # document all ride the request.
+    assert f1["boundWireKinds"] == ["outline", "document", "document"]
+    assert f1["loadedPath"] in f1["boundWirePaths"]
+    assert f1["reservedPath"] in f1["boundWirePaths"]
+
+
+def test_the_widened_wire_declares_its_binding_and_carries_no_active_path(
+        composition):
+    """D17, proven on the REQUEST rather than described: the binding the record
+    will name is DECLARED on the wire, and the field Phase A's review found it
+    mis-derived from is not on this envelope at all — so there is nothing left to
+    infer it from, on any turn, whichever buffer is selected."""
+    f1 = composition["f1"]
+    assert f1["baselineHasActiveDocumentPath"] is False
+    assert f1["boundHasActiveDocumentPath"] is False
+    # Selecting the outline re-points the binding immediately, with no
+    # confirmation step and no reload…
+    assert f1["sendEnabledOnOutline"] is True
+    assert f1["turnsAfterOutlineSend"] == 3
+    assert f1["outlineBound"] == "outline"
+    # …and the same three buffers still ride it. Binding names what the chat
+    # works ON; it never narrows what the turn may be grounded on.
+    assert f1["wireBufferKinds"] == ["outline", "document", "document"]
+    assert f1["loadedPath"] in f1["wireBufferPaths"]
+    assert f1["reservedPath"] in f1["wireBufferPaths"]
 
 
 # ---------------------------------------------------------------------------
@@ -674,18 +702,22 @@ def test_the_reserved_document_slot_is_selectable_but_never_unloadable(
     still settling; try Send again in a moment" FOREVER: a permanently false
     sentence, which is the worst thing a refusal can be.
 
-    The rule follows the code's own reasoning about the outline. Under the
-    released v1 envelope the reserved document slot is not merely reserved, it
-    RIDES EVERY TURN — `buildTurnRequest` sends exactly `buffers.outline` and
-    `buffers.document` — so it can no more leave the set than the outline can.
-    Listing it stays right: it is selectable and the chat binds to it."""
+    RE-REASONED at contract-v1.34 (F7, adversarial review of the §13 slice). The
+    guard stands; the reason it stands changed with the wire. It used to be that
+    the released envelope carried exactly the outline and this slot, so emptying
+    the slot left the request builder reading an absent buffer. The widened
+    envelope carries the whole loaded set, and the floor is now stated in two
+    places that agree: `request_v2.buffers` declares `minItems: 2`, and the
+    server's `require_outline_and_documents` requires an outline plus AT LEAST
+    ONE document. A session holding only the outline and this slot therefore has
+    no document to spare. Listing it stays right: it is selectable and the chat
+    binds to it."""
     n3 = composition["n3"]
     # It IS a first-class, listed, selectable entry.
     assert "document" in n3["listed"]
     assert n3["selected"] == "document"
     # …and Unload is withheld for it, with the reason naming why.
     assert n3["disabled"] is True
-    assert "rides every turn" in n3["title"]
     assert "never unloaded" in n3["title"]
     assert "load another document to work beside it" in n3["title"]
     # Pressing it anyway changes nothing: the click path refuses too.
