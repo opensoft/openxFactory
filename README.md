@@ -278,6 +278,26 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [align-demote-to-round-trip-rule](openspec/changes/align-demote-to-round-trip-rule/proposal.md)
+  — authored 2026-08-19, a DEFECT FIX: the demote verb performs precisely the
+  reset the ratified round-trip rule is titled against. `classify_change_file`
+  routes anything under `supporting-docs/` back to the topic root by bare
+  basename, and `proposal-support.py transition` records the topic's own primary
+  fragment there — so the demote's destination IS the primary fragment, and it
+  lands carrying the aspirational pre-proposal snapshot with the round-trip
+  provenance slots gone and `Status: draft` on a file the selector still calls the
+  staged topic's outline. Found by DRIVING the verb, not by reading it: a search
+  for the slot's own field names finds no writer anywhere, which is what made an
+  earlier review conclude the rule was merely unimplemented. Not a special case —
+  2 of 2 staged-origin manifests have this shape. One ADDED requirement on
+  `ideation-dashboard` carrying four parts: status preservation, provenance-slot
+  fill from values the executor already holds, `xspec:` proposal-element refresh
+  from the returned `proposal.md` (the genuinely new surface), and Brett's
+  no-silent-overwrite ruling — the snapshot is a fallback SOURCE, never the
+  authority, so a destination that exists and differs is refreshed IN PLACE and
+  the snapshot preserved beside it rather than written over live human work.
+  Realizing it unblocks `add-staged-topic-outline-template` task 4.2, which stays
+  that change's task. `target_release: implementation_pending`.
 - [add-doxbench-editing-phase-b](openspec/changes/add-doxbench-editing-phase-b/proposal.md)
   — authored 2026-08-18, Phase B and the EXIT of the `doxbench-editing-model`
   staged topic: all seven questions dispositioned, 26 claims settled (Brett's

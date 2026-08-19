@@ -1,0 +1,14 @@
+schema: spec-driven
+created: 2026-08-19
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-19-align-demote-to-round-trip-rule
+  reason: >-
+    Born from a review finding while discharging `add-staged-topic-outline-template`
+    task 4.2: driving the real demote verb showed the mechanism performs the exact
+    reset the ratified round-trip rule is titled against, overwriting a staged
+    topic's primary fragment with the aspirational pre-proposal snapshot. No
+    staging topic preceded it — the defect was found by driving code, not by
+    ideation, and Brett ruled it straight to a proposal
+  approved_by: Brett
+  approved_on: 2026-08-19
