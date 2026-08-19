@@ -19,6 +19,7 @@ rather than described:
 
 from __future__ import annotations
 
+import dataclasses
 import inspect
 
 import pytest
@@ -388,7 +389,7 @@ def test_the_index_is_a_derived_projection_rebuilt_from_its_sources():
 def test_the_indexed_source_carries_no_cached_lifecycle_status():
     """The exemption is the ASSEMBLER'S to apply from the item's own header; a
     status cached here would be a second copy for it to trust instead."""
-    fields = {field.name for field in kn.dataclasses.fields(kn.IndexedSource)}
+    fields = {field.name for field in dataclasses.fields(kn.IndexedSource)}
     assert fields == {"ref", "text"}
 
 
