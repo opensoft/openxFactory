@@ -2007,6 +2007,21 @@ export function mountStagingWorkbench(container, snapshot,
           syncContextFromCanvas();
           refreshDocTiles();
         },
+        // add-doxbench-editing-phase-b task 7.2's THREAD half: selecting a
+        // document switches the transcript to that document's thread. The
+        // thread is the server's record — one sidecar per document, on the
+        // session branch — so the rail reads it through this seam and invents
+        // nothing. Absent (a plane with no thread transport) the rail keeps its
+        // pre-§11 behaviour, which is the editor-only posture unchanged.
+        loadThread: (typeof doxbench?.thread === "function"
+          ? (key) => doxbench.thread({
+              repository: String(active.repository || ""),
+              ref: String(active.ref || ""),
+              tile_kind: String(scope.kind || ""),
+              tile_id: String(scope.id || ""),
+              document: String(key || ""),
+            })
+          : null),
         // (The v1 wire's narrowing stood here: the rail's active-document option
         // was pinned to the RESERVED slot's own path, because the released
         // envelope carried that one document and nothing else, and beside it the
