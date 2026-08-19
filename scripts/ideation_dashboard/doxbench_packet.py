@@ -386,6 +386,16 @@ MAX_PACKET_SOURCES = 48
 # scaffolding. Deliberately generous, and its adequacy is MEASURED rather than
 # asserted — a companion test renders a real turn at a narrowed catalog ceiling
 # and checks the assembled prompt against that ceiling.
+#
+# ADEQUATE FOR THE SHAPE THIS SLICE SHIPS, AND NOT FOR §11's. Nothing writes
+# thread sidecars yet, so a packet carries evidence and no thread sections, and
+# a flat reserve covers that comfortably. Once §11 mirrors turns, 24
+# thread-state sections plus 6 evidence sections at 120-character refs spend
+# ~19.7 KB of section scaffolding, and the 48-source bound ~31.2 KB — both past
+# this number. The obligation is recorded against `tasks.md` §11.5, the slice
+# that creates the shape which breaches it, with the two fix options (charge
+# RENDERED section bytes against the budget, or scale this reserve with
+# `MAX_PACKET_SOURCES`) and the re-measure method.
 PROMPT_SCAFFOLD_RESERVE_BYTES = 16_384
 
 
@@ -472,6 +482,19 @@ class ContextPacket:
                 "a full packet carries no reduction reason")
         if self.expires_at <= self.issued_at:
             raise PacketError("a packet expires after it is issued")
+        if self.corpus_coverage is not None and not isinstance(
+                self.corpus_coverage, CorpusCoverage):
+            # THE ONE FIELD WITH NO CONSTRUCTOR VALIDATION, until now. It used
+            # to be a plain `(indexed, total)` tuple, and a caller still passing
+            # one — a stale test, a §11 seam written against the old shape —
+            # would sail through construction and then raise `AttributeError`
+            # deep inside `declaration_text`, which is the T104 F4 class: a
+            # failure that kills the handler mid-turn and drops the connection
+            # instead of refusing. Refused HERE, where the wrong shape arrives.
+            raise PacketError(
+                "corpus_coverage is a CorpusCoverage; it stopped being a "
+                "(indexed, total) tuple when the two omission classes had to "
+                "be told apart")
 
     # -- readers -----------------------------------------------------------
 

@@ -466,6 +466,19 @@ def test_an_unreadable_only_shortfall_does_not_blame_the_bound():
     assert "beyond the declared index bound" not in text
 
 
+def test_a_LEGACY_COVERAGE_TUPLE_is_refused_at_construction():
+    """Re-verify carry-forward NF-B. `corpus_coverage` was the one packet field
+    with no constructor validation, so a caller still passing the old
+    `(indexed, total)` tuple constructed fine and then raised `AttributeError`
+    inside `declaration_text` — the T104 F4 class, where a handler dies
+    mid-turn and drops the connection instead of refusing."""
+    with pytest.raises(pk.PacketError) as raised:
+        pk.ContextPacket(purpose=pk.PACKET_PURPOSE_CHAT_TURN, scope=SCOPE,
+                         posture=pk.POSTURE_FULL, sources=(), issued_at=1.0,
+                         expires_at=2.0, corpus_coverage=(200, 512))
+    assert "stopped being a (indexed, total) tuple" in str(raised.value)
+
+
 def test_coverage_that_accounts_for_more_than_the_tile_holds_is_refused():
     with pytest.raises(pk.PacketError):
         pk.CorpusCoverage(indexed=5, unreadable=5, total=6)

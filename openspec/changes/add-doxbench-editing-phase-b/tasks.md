@@ -832,6 +832,37 @@ The seam §11 fills is the thread mapping handed to `assemble_packet`.
 - [ ] 11.5 The sidecar is the record: every turn is mirrored to it, and the
       harness's native memory holds no thread. Any enabled harness-local memory
       is non-authoritative and ranked last.
+      **OBLIGATION INHERITED FROM §10, RECORDED HERE BECAUSE THIS SLICE IS WHAT
+      BREACHES IT** (re-verify carry-forward NF-A). §10's packet bound composes
+      with the model's declared input limit through
+      `doxbench_packet.packet_budget_for`, which subtracts a FLAT
+      `PROMPT_SCAFFOLD_RESERVE_BYTES` (16 384) for everything the rendered
+      prompt spends outside the packet's own source bytes and outside the
+      request bytes the route already measured — section labels, the
+      non-authoritative notes each thread section carries, the evidence
+      headers, and the packet's declaration line per source.
+      That reserve is adequate for the shape §10 SHIPS, which carries evidence
+      and no threads, and it is measured against real rendered prompts at three
+      ceilings. It is NOT adequate for the shape THIS task creates. Measured:
+      24 thread-state sections plus 6 evidence sections at 120-character refs
+      spend **19 745 bytes** of uncounted overhead, and the packet's own
+      48-source bound spends **31 211** — both past the flat 16 384, so a turn
+      near its model's ceiling could be accepted and then dispatch a prompt over
+      that ceiling. That is exactly the defect CODEX-B closed for the
+      evidence-only shape, re-opened by the section count this slice adds.
+      **FIX OPTIONS, both viable, neither prejudged:** (a) charge the RENDERED
+      section bytes against the budget rather than the source bytes — the
+      honest measurement, and it makes the reserve cover only the genuinely
+      fixed constants; or (b) scale the reserve with `MAX_PACKET_SOURCES` and
+      the observed ref length, keeping the cheaper single subtraction.
+      **RE-MEASURE METHOD:** render a real turn at a narrowed catalog ceiling
+      with threads mirrored and evidence carried, sum
+      `utf8_size(section.text)` across the assembled envelope, and compare it
+      to the entry's `effective_input_limit` — the same approach
+      `test_the_scaffold_reserve_is_MEASURED_adequate_not_asserted` already
+      uses, extended to the thread sections this slice starts writing.
+      Recorded against THIS task rather than left in §10's ticks, so it
+      survives §10's archive the way task 10.7's release obligation does.
 - [ ] 11.6 Per-turn model choice is applied inside the adapter before dispatch,
       using the `model_id` the envelope already carries. No fourth port member.
 - [ ] 11.7 The catalog declares the menu, `auto` declares itself a ROUTING RULE
