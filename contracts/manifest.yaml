@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.34
+contract_bundle_version: contract-v1.35
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1970,7 +1970,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-client-identity-roster.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 298bc37be55e3fa8a69e1ffda3bfad4305e225f650a87294336146ca704cb013
+    sha256: 5f21c72724bfa2624a20c827b1ee3e68bbbb36746017883ab565e7f43fb23a6b
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
