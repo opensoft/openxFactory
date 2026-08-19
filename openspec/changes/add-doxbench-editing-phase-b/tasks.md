@@ -522,12 +522,13 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       release is the full minor of deprecation the breaking path requires.
       Deprecated is not withdrawn: all six kinds stay dispatchable, and a v1 turn
       is still served and still answered in ITS own family.
-- [x] 13.3 The bundle version is ALLOCATED AT REALIZATION through the
+- [ ] 13.3 The bundle version is ALLOCATED AT REALIZATION through the
       serialized realization order — fetch, rebase, recheck availability,
       allocate, update manifest + CHANGELOG + digest inventory atomically with
       the schema, gate and review the exact candidate commit, land it, then
       publish and verify the annotated tag. No number is reserved before then.
-      **ALLOCATION LANDED; PUBLICATION IS POST-MERGE, as the policy orders it.**
+      **HALF LANDED, half POST-MERGE — and it stays open until the tag exists,
+      because a bundle is not published until its tag does.**
       Fetched origin, confirmed the branch already sat on `origin/main`
       (`a4a6f6e`, no rebase needed), rechecked availability at allocation time —
       `contract-v1.33` present in the CHANGELOG and manifest with no published
