@@ -314,7 +314,7 @@ class Vocabularies:
 EXTENSION_ROUTE = {
     "admission_surface":
         "a surface enters with the promotion of the capability that governs it "
-        "(endpoint/Intune, Windows 365 and Entra-directory arrive with theirs); "
+        "(endpoint MUTATION / Intune write and Entra-directory arrive with theirs); "
         "non-Entra providers, including a client-org GitHub App installation, "
         "are a named successor routed by client-infrastructure-liaison",
     "authority_class":

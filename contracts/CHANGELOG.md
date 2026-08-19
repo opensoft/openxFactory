@@ -9,6 +9,55 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.35 — 2026-08-19 (additive; the `device` roster admission surface)
+
+Realizes `add-roster-device-admission-surface`, the ratified extension of the
+client-identity-roster closed `admission_surface` vocabulary. One CONTRACT
+changes — `schemas/xfactory-client-identity-roster.schema.yaml` — and the
+change adds a packaged `device` example to
+`examples/client-identity-roster/`. The roster schema is content-addressed by
+its per-file `sha256` in [`manifest.yaml`](manifest.yaml); that row's digest is
+RECOMPUTED in this cut. (The roster schema is not a release-inventory member,
+so this cut's digest inventory changes only where `manifest.yaml` and this
+changelog change.)
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+A `oneOf` const member is added to `$defs.admission_surface`; nothing
+previously valid becomes invalid, no required field is added to any existing
+shape, no shape is removed, and no existing roster is reinterpreted, so a
+domain on the same major version stays conformant WITHOUT CHANGES. The
+schema's own `contract_schema_version` stays `1`, and the roster row's
+`schema_version` stays `1` with it — vocabulary-member admission is governed by
+the schema's EXTENSION ROUTE text, not by the object-shape/key-space growth
+that would take a `contract_schema_version` bump.
+
+`$defs.admission_surface` gains a third member, `device`: the Microsoft tenant
+DEVICE ESTATE — Entra registered devices, Intune managed devices and Windows
+365 Cloud PCs — admitted as ONE tenant-wide READ surface. Its admission act is
+admin consent for the read-only application roles `Device.Read.All`,
+`DeviceManagementManagedDevices.Read.All` and `CloudPC.Read.All` on ONE Entra
+app registration; its scoping mechanism is tenant-wide read with exact
+effective scopes and no narrower provider selector (`enforcement_mode:
+logic_enforced`); it is read-only. Because the governed unit IS the tenant
+device estate, tenant-wide read is the GOVERNED scope, not excess. The
+extension-route prose is resliced so `device` is the READ surface for those
+three provider areas, while endpoint MUTATION (Intune write) and Entra
+DIRECTORY read remain SEPARATE future surfaces, each arriving with its own
+governing change. Evidence: the OpsxFactory node-inventory reader (a downstream
+consumer authored under OpsxFactory governance).
+
+The packaged positive example (`opsx-farheap-node-inventory-reader`, a
+`planned` entry in
+`examples/client-identity-roster/client-identity-roster-farheap-opsx.example.yaml`)
+demonstrates the shape: `admission_surface: device`,
+`authority_class_intended`/`_achieved: observe`, the three read roles each
+`achieves: observe`, `exceeds_governed_unit: false`, NO `declared_excess`,
+`per_unit_principal_available: {device: false}`, and a single
+`logic_enforced` act. The `admission-surface-out-of-vocabulary` negative
+(which uses `sharepoint`) still fires — `device` is now in-vocabulary,
+`sharepoint` is not.
+
 ## contract-v1.34 — 2026-08-18 (additive + deprecating; the doxBench chat-turn widening)
 
 Realizes `add-doxbench-editing-phase-b` §13, the contract release its ratified

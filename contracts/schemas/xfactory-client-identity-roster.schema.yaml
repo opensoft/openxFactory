@@ -82,13 +82,13 @@ $defs:
   admission_surface:
     title: Admission surface
     description: >-
-      CLOSED first-release vocabulary (ratified answer 5, FR-007): exactly
-      `business_central` and `exchange`, the two client-tenant Entra-homed
-      surfaces whose capabilities are PROMOTED. A member is a surface because
+      CLOSED vocabulary (ratified answer 5, FR-007): `business_central`,
+      `exchange` and `device`, the client-tenant Entra-homed surfaces whose
+      capabilities are PROMOTED. A member is a surface because
       an ADMISSION ACT exists for it separately — not because a product is
       named — so each member below declares that act and the scoping mechanism
       that bounds it. EXTENSION ROUTE: a surface enters with the promotion of
-      the capability that governs it (endpoint/Intune, Windows 365 and
+      the capability that governs it (endpoint MUTATION / Intune write and
       Entra-directory arrive with theirs); non-Entra providers, including a
       client-org GitHub App installation, are a NAMED SUCCESSOR routed by
       `client-infrastructure-liaison`. An identity on a surface outside this
@@ -119,6 +119,20 @@ $defs:
           bound, and the provider enforces it — a read against a covered
           mailbox is granted and a read against any other mailbox in the
           tenant is refused.
+      - const: device
+        description: >-
+          The Microsoft tenant DEVICE ESTATE — Entra registered devices,
+          Intune managed devices and Windows 365 Cloud PCs — admitted as ONE
+          tenant-wide READ surface. Its admission act is ADMIN CONSENT for the
+          read-only application roles `Device.Read.All`,
+          `DeviceManagementManagedDevices.Read.All` and `CloudPC.Read.All` on
+          ONE Entra app registration. Its scoping mechanism is TENANT-WIDE
+          READ: the granted roles carry no narrower selector, so the exact
+          effective scopes ARE the bound and the provider offers nothing
+          narrower (unlike Exchange's per-group RestrictAccess). Read-only —
+          no granted role confers creation, modification or deletion. Endpoint
+          MUTATION (Intune write) and Entra DIRECTORY read remain SEPARATE
+          future surfaces, each arriving with its own governing change.
 
   authority_class:
     title: Authority class
