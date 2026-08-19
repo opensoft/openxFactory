@@ -4,7 +4,7 @@
 
 Two layers, and keeping them apart is the whole shape of this module:
 
-  * the **MCP tool boundary** — what a CALLER sees. Exactly four tools
+  * the **tool boundary** — what a CALLER sees. Exactly four tools
     (``search``, ``get_source``, ``promote_finding``, ``reindex``) and one
     RESERVED name (``graph_query``) that is declared and unimplemented so its
     later arrival is not a boundary change; and
@@ -13,6 +13,16 @@ Two layers, and keeping them apart is the whole shape of this module:
     way ``WorkbenchModelPort``'s is.
 
 A backend swap changes neither, which is what makes the port worth having.
+
+**IT IS AN IN-PROCESS BOUNDARY, AND SAYING SO IS THE POINT.** The ratified
+delta asks for "exactly ONE tool boundary declaring a small tool contract" and
+never says MCP; an earlier draft of this docstring called it "the MCP tool
+boundary", which named a protocol nothing here speaks. The requirement is
+satisfied by the boundary being ONE and being small, not by its transport. The
+STDIO MCP server that exposes these same four tools to the harness — and the
+mount-name pin `verification-findings.md` §3.2 asks for, `xd://mcp__<server>__
+<tool>` — belong to the §11 bridge slice, which is the first thing that will
+have a harness to expose them to.
 
 **v1 IS GRAPH-LESS, and that is a recorded finding rather than a taste.** The
 profile behind the port is LOCAL-HYBRID: lexical retrieval (BM25 over the

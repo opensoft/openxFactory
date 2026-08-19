@@ -169,13 +169,56 @@ def test_reported_tokens_accumulate_and_stay_absent_until_one_is_reported():
     assert meter.session(scope).reported_provider_tokens == 15
 
 
-def test_the_meter_is_bounded_and_evicts_the_oldest_scope():
+def test_the_meter_is_bounded_and_its_eviction_is_VISIBLE():
+    """RE-PINNED (adversarial review, F9). This used to assert that an evicted
+    scope answers `None` — the SAME answer as a scope that never ran, so five
+    hundred metered turns and zero metered turns read identically. The bound
+    stays (dropping the totals is what it is for); what changed is that the
+    drop is now something a reader can see."""
     meter = tel.UsageMeter()
     for index in range(tel.MAX_METERED_SCOPES + 3):
         meter.record(_usage(scope=_scope(f"topic-{index:03d}")))
     assert len(meter.scopes()) == tel.MAX_METERED_SCOPES
-    assert meter.session(_scope("topic-000")) is None
+    assert meter.eviction_count() == 3
+
+    evicted = meter.session(_scope("topic-000"))
+    assert isinstance(evicted, tel.EvictedSession)
+    assert evicted.as_dict()["evicted"] is True
+    assert "NOT the answer for a session that never ran" in (
+        evicted.as_dict()["reason"])
+
+    # a scope that never ran is still, distinctly, None
+    assert meter.session(_scope("never-opened")) is None
     assert meter.session(_scope("topic-066")) is not None
+
+
+def test_eviction_is_LEAST_RECENTLY_RECORDED_not_first_opened():
+    """The busiest live conversation must not be dropped first merely because
+    it was opened first: recording moves a scope to the end, exactly as the
+    turn store tracks recency."""
+    meter = tel.UsageMeter()
+    busy = _scope("busy")
+    meter.record(_usage(scope=busy))
+    for index in range(tel.MAX_METERED_SCOPES - 1):
+        meter.record(_usage(scope=_scope(f"other-{index:03d}")))
+    meter.record(_usage(scope=busy))          # busy is now most recent
+    meter.record(_usage(scope=_scope("new"))) # forces one eviction
+
+    assert isinstance(meter.session(busy), tel.SessionUsage)
+    assert meter.session(busy).turn_count == 2
+    assert isinstance(meter.session(_scope("other-000")), tel.EvictedSession)
+
+
+def test_a_scope_that_returns_after_eviction_stops_reading_as_evicted():
+    meter = tel.UsageMeter()
+    first = _scope("returning")
+    meter.record(_usage(scope=first))
+    for index in range(tel.MAX_METERED_SCOPES):
+        meter.record(_usage(scope=_scope(f"filler-{index:03d}")))
+    assert isinstance(meter.session(first), tel.EvictedSession)
+    meter.record(_usage(scope=first))
+    assert isinstance(meter.session(first), tel.SessionUsage)
+    assert meter.session(first).turn_count == 1
 
 
 def test_two_meters_share_no_state():

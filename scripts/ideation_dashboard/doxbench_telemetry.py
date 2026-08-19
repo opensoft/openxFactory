@@ -247,6 +247,27 @@ class SessionUsage:
 MAX_METERED_SCOPES = 64
 
 
+@dataclasses.dataclass(frozen=True, slots=True)
+class EvictedSession:
+    """What a meter answers for a scope whose totals it DROPPED to stay
+    bounded.
+
+    A distinct answer from ``None``, and that distinction is the point
+    (adversarial review, F9): the meter used to return ``None`` for an evicted
+    scope, which is byte-identical to the answer for a session that never ran —
+    so a conversation with five hundred metered turns and one with none read
+    the same. The totals are genuinely gone (dropping them is what the bound is
+    for), so what is retained is the FACT that they existed and were dropped."""
+
+    scope: ScopeKey
+
+    def as_dict(self) -> dict[str, object]:
+        return {"workflow": self.scope.as_dict(), "evicted": True,
+                "reason": ("this scope's totals were dropped to keep the "
+                           "in-process meter bounded; they are gone, and this "
+                           "is NOT the answer for a session that never ran")}
+
+
 class UsageMeter:
     """A bounded, thread-safe, per-instance meter.
 
@@ -265,17 +286,35 @@ class UsageMeter:
         self._lock = threading.Lock()
         self._totals: dict[ScopeKey, dict[str, int]] = {}
         self._reported_tokens: dict[ScopeKey, int | None] = {}
+        # Which scopes were dropped, and how many times a drop happened. The
+        # evicted ROSTER is itself bounded (it would otherwise be the leak the
+        # bound exists to prevent), so the COUNTER is what survives when even
+        # the roster rolls over — a reader can always tell that dropping is
+        # happening, even where it can no longer tell which scope.
+        self._evicted: dict[ScopeKey, None] = {}
+        self._eviction_count = 0
 
     def record(self, usage: TurnUsage) -> TurnUsage:
         if not isinstance(usage, TurnUsage):
             raise TelemetryRefused("a meter records a TurnUsage")
         with self._lock:
             totals = self._totals.get(usage.scope)
+            if totals is not None:
+                # LEAST-RECENTLY-RECORDED eviction, not first-opened: the
+                # busiest live conversation must not be the first one dropped
+                # merely because it was opened first. Recording moves a scope
+                # to the end, exactly as the turn store tracks recency.
+                self._totals[usage.scope] = self._totals.pop(usage.scope)
             if totals is None:
+                self._evicted.pop(usage.scope, None)
                 if len(self._totals) >= MAX_METERED_SCOPES:
                     oldest = next(iter(self._totals))
                     self._totals.pop(oldest, None)
                     self._reported_tokens.pop(oldest, None)
+                    self._eviction_count += 1
+                    self._evicted[oldest] = None
+                    while len(self._evicted) > MAX_METERED_SCOPES:
+                        self._evicted.pop(next(iter(self._evicted)), None)
                 totals = {"turn_count": 0, "source_count": 0,
                           "exempt_source_count": 0, "packet_bytes": 0,
                           "prompt_bytes": 0}
@@ -292,15 +331,22 @@ class UsageMeter:
                     current + usage.provider_tokens)
         return usage
 
-    def session(self, scope: ScopeKey) -> SessionUsage | None:
-        """The totals for one conversation scope, or None if it has none.
+    def session(self, scope: ScopeKey) -> "SessionUsage | EvictedSession | None":
+        """The totals for one conversation scope.
 
-        None rather than a zeroed row on purpose: a session that never ran is
-        not a session that used nothing."""
+        THREE distinct answers, and the third is why this reads the way it does
+        (adversarial review, F9): ``SessionUsage`` when the totals are held,
+        ``EvictedSession`` when this scope WAS metered and its totals were
+        dropped to keep the meter bounded, and ``None`` only when nothing was
+        ever recorded for it. None rather than a zeroed row for the last case,
+        for the same reason: a session that never ran is not a session that
+        used nothing — and neither is one whose numbers were thrown away."""
 
         with self._lock:
             totals = self._totals.get(scope)
             if totals is None:
+                if scope in self._evicted:
+                    return EvictedSession(scope=scope)
                 return None
             reported = self._reported_tokens.get(scope)
             snapshot = dict(totals)
@@ -318,6 +364,12 @@ class UsageMeter:
     def scopes(self) -> tuple[ScopeKey, ...]:
         with self._lock:
             return tuple(self._totals)
+
+    def eviction_count(self) -> int:
+        """How many scopes this meter has dropped. The one number that always
+        survives, including after the evicted roster itself rolls over."""
+        with self._lock:
+            return self._eviction_count
 
 
 def declared_absences() -> Mapping[str, str]:

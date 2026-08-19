@@ -58,6 +58,19 @@ TIER_M2 = "M2"
 TIER_M3 = "M3"
 TIER_M4 = "M4"
 
+# TWO VALUES THAT ARE NOT TIERS, and both are transcriptions rather than
+# inventions (adversarial review, F7). The column used to carry a plain tier
+# for each, which was wrong in two different ways: one requirement was given a
+# tier the spec's own tier block never assigns it, and one was FLATTENED to a
+# single tier the spec explicitly refuses to flatten.
+#
+# A companion test asserts every value here against the spec's tier block, so
+# neither error can recur silently.
+TIER_UNTIERED = "untiered"
+TIER_MIRRORS_OPERATION = (
+    "follows the tier of the operation it mirrors "
+    "(rails at M0, promotion at M1, migration at M4)")
+
 # Every requirement the promoted capability publishes, with the tier its own
 # spec header assigns it. Transcribed rather than inferred, and asserted against
 # the spec file itself by a companion test, so a requirement added upstream
@@ -67,7 +80,7 @@ CAPABILITY_REQUIREMENTS: Mapping[str, str] = {
     "Gateway Mediates Governed Memory Access": TIER_M0,
     "Canonical Ports Are Product Neutral": TIER_M0,
     "Provider Profiles Declare Capability": TIER_M0,
-    "Expert Memory And Knowledge DBs Are Gateway-Governed": TIER_M4,
+    "Expert Memory And Knowledge DBs Are Gateway-Governed": TIER_MIRRORS_OPERATION,
     "Rails Run Before Provider I/O": TIER_M0,
     "Provider Access Uses Bindings And Short-Lived Grants": TIER_M0,
     "Subject Safety Rail Handles Adult And Minor Subjects": TIER_M2,
@@ -84,7 +97,7 @@ CAPABILITY_REQUIREMENTS: Mapping[str, str] = {
     "Fail Modes Are Explicit And Break-Glass Is Audited": TIER_M0,
     "Erasure Is Distinct From Revocation": TIER_M1,
     "Gateway Conformance Is Testable": TIER_M0,
-    "Derived memory bindings validate against the neutral schema": TIER_M0,
+    "Derived memory bindings validate against the neutral schema": TIER_UNTIERED,
 }
 
 # The dispositions a declaration may give a requirement. There is deliberately
@@ -544,11 +557,18 @@ DOXBENCH_DISPOSITIONS: tuple[RequirementDisposition, ...] = (
        "erasure is a subject-data obligation; this surface stores no subject "
        "data, and its derived index holds nothing that is not already in the "
        "repository it was derived from"),
-    _D("Gateway Conformance Is Testable", REALIZED,
-       "this declaration IS the machine-readable artifact validation reads, "
-       "and its refusal conditions, its completeness, and the realization "
-       "facts it asserts are executed by the companion test module rather "
-       "than described"),
+    _D("Gateway Conformance Is Testable", NARROWED,
+       "the requirement's own scenarios are about a DomainxFactory declaring a "
+       "stack.yaml memory_gateway block that the canonical domain-factory "
+       "validator checks, and this surface is not a domain factory and has no "
+       "such block; what it realizes is the requirement's RULE — that a "
+       "conformance claim is executable rather than asserted — through a "
+       "declaration a validator can read and a companion test suite that "
+       "executes every refusal condition and cross-examines each claim against "
+       "the module that realizes it. NARROWED rather than realized, and "
+       "deliberately: no gate outside this repository's own test run reads "
+       "this declaration today, so claiming the requirement whole would be the "
+       "unchecked assertion it exists to prevent"),
     _D("Derived memory bindings validate against the neutral schema",
        INAPPLICABLE,
        "a hermes_memory_binding is the projection of a LAYER's seeded memory "
