@@ -759,6 +759,67 @@ def test_the_rendered_prompt_stays_inside_the_ceiling_WITH_threads(tmp_path):
                    for section in envelope.sections), ceiling
 
 
+def test_the_FLAT_reserve_really_was_too_small_for_the_shape_this_slice_makes(
+        tmp_path):
+    """THE OBLIGATION'S OWN SHAPE, MEASURED THROUGH THE REAL ROUTE: 24 loaded
+    documents, each with a thread, plus the evidence slots a turn reserves.
+
+    What is measured is the SCAFFOLDING — the rendered prompt minus the packet's
+    own source bytes and minus the request bytes the route already measured —
+    which is exactly what the reserve exists to cover. Two things are asserted,
+    and the pair is the whole §11.5 argument:
+
+      * the scaffolding this shape really spends EXCEEDS the flat 16,384 the
+        pre-slice reserve subtracted, so the old arithmetic would have accepted
+        a turn at its ceiling and then dispatched a prompt past it;
+      * it fits inside the reserve the route now computes from the turn's own
+        refs, so the new arithmetic covers what it charges for."""
+    from ideation_dashboard.doxbench_hash import utf8_size
+
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+    documents = [f"ideation/staging/ideation-governance/loaded-{n:02d}.md"
+                 for n in range(24)]
+    for document in documents:
+        _seed_sidecar(worktree, _thread_for(document, goal="g" * 40))
+    buffers = [_buf("outline", OUTLINE_PATH, "# Outline\n\noutline body")]
+    buffers += [_buf("document", document, f"# Doc {n}\n\nbody {n}")
+                for n, document in enumerate(documents)]
+    body = _turn_v2(bound_buffer=documents[0], buffers=buffers)
+    wide = _port(_catalog(input_limit_bytes=1_000_000))
+    with _thread_serving(tmp_path, worktree=worktree, port=wide,
+                         snapshot=_snapshot_with_editable(*documents),
+                         knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED
+                         ) as (_httpd, host, prt, port):
+        status, payload = _post(host, prt, body)
+    assert status == 200, payload
+    envelope = port.dispatched[0]
+    rendered = sum(utf8_size(section.text) for section in envelope.sections)
+    request_bytes = sum(utf8_size(buffer["content"]) for buffer in buffers)
+    request_bytes += utf8_size(body["message"])
+    request_bytes += utf8_size(body["working_subject"])
+    packet_sections = [
+        section for section in envelope.sections
+        if section.key == pk.PACKET_SECTION_SELECTED_THREAD
+        or section.key.startswith(pk.THREAD_STATE_SECTION_PREFIX)
+        or section.key.startswith(pk.EVIDENCE_SECTION_PREFIX)]
+    assert len(packet_sections) >= 24, len(packet_sections)
+    # what the packet's OWN bound already accounts for
+    carried_bytes = utf8_size(dt.render_thread(
+        _thread_for(documents[0], goal="g" * 40)))
+    carried_bytes += sum(
+        utf8_size(dt.render_state_header(_thread_for(document, goal="g" * 40)))
+        for document in documents[1:])
+    scaffolding = rendered - request_bytes - carried_bytes
+    assert scaffolding > pk.PROMPT_SCAFFOLD_RESERVE_BYTES, (
+        "this shape no longer breaches the flat reserve, so the measurement "
+        f"proves nothing: {scaffolding}")
+    charged = pk.packet_scaffold_reserve(
+        thread_refs=tuple(documents),
+        evidence_slots=pk.DEFAULT_EVIDENCE_LIMIT)
+    assert scaffolding <= charged, (scaffolding, charged)
+
+
 # ===========================================================================
 # THE SAVE COMMITS THE THREAD WITH ITS DOCUMENT (task 9.2) — REAL git
 # ===========================================================================
