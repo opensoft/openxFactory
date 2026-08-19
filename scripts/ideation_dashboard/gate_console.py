@@ -313,24 +313,36 @@ def find_change(snapshot: dict, change_id: str) -> dict | None:
 def _flip_status(text: str, new_status: str) -> str:
     """Rewrite the first `Status:` header value in the doc's header window.
     A no-op when the document carries no `Status:` header (e.g. tasks.md,
-    a `.openspec.yaml`)."""
-    lines = text.splitlines(keepends=True)
-    limit = min(len(lines), HEADER_SCAN_LINES)
+    a `.openspec.yaml`).
+
+    LINES ARE THE THREE REAL LINE ENDINGS AND NOTHING ELSE. This used
+    `str.splitlines(keepends=True)`, which also breaks on `\\x0b`, `\\x0c`,
+    `\\x1c`-`\\x1e`, `\\x85`, U+2028 and U+2029 — and `align-demote-to-round-trip-
+    rule` newly routes a topic's PRIMARY FRAGMENT through here, which made two
+    real damages reachable:
+
+    * `Status: draft\\x0crest of the line` was seen as TWO pseudo-lines, so the
+      first was replaced with no ending and the remainder was GLUED onto the new
+      value: `Status: stagedrest of the line`. A line boundary the file does not
+      contain was invented, and text moved across it.
+    * A header carrying U+2028s inflates the pseudo-line count past the 15-line
+      window, so a real `Status:` inside the header is never found and the flip
+      silently does nothing — which failed the ratified "the restored fragment MUST
+      carry `Status: staged`" scenario on input you get by pasting from a web page.
+
+    Both are fixed by sharing `round_trip`'s split, and the fix is not confined to
+    the fragment: every `openspec/`-bound document this verb flips to `draft` was
+    exposed to the same two damages before.
+    """
+    rows = round_trip.split_keepends(text)
+    limit = min(len(rows), HEADER_SCAN_LINES)
     for i in range(limit):
-        if lines[i].startswith("Status:"):
-            # The rewritten line keeps the ending it HAD (wave re-review P3):
-            # this used to see only LF because its caller's `read_text` had
-            # already translated the document, but the demote move now feeds
-            # it untranslated text, and flipping a CRLF header must not be
-            # the one line that comes out LF.
-            if lines[i].endswith("\r\n"):
-                nl = "\r\n"
-            elif lines[i].endswith("\n"):
-                nl = "\n"
-            else:
-                nl = ""
-            lines[i] = f"Status: {new_status}{nl}"
-            return "".join(lines)
+        body, ending = rows[i]
+        if body.startswith("Status:"):
+            # The rewritten line keeps the ending it HAD (wave re-review P3): a
+            # CRLF header must not be the one line that comes out LF.
+            rows[i] = (f"Status: {new_status}", ending)
+            return round_trip.join_rows(rows)
     return text
 
 
@@ -912,6 +924,9 @@ class DemotionExecution:
     snapshot_disposition: str | None = None
     preserved_snapshot_path: Path | None = None
     outline_refreshed: bool = False
+    # Why the refresh did NOT happen, when it did not. A refusal a caller cannot
+    # read is a refusal that reads as success.
+    outline_refusal: str | None = None
 
 
 def _read_raised_date(root: Path, plan: DemotionPlan) -> str:
@@ -1005,13 +1020,30 @@ def _restore_outline(
                             or STAGED_STATUS)
         result.snapshot_disposition = "applied"
 
-    refreshed = round_trip.refresh_fragment(
-        base, proposal_text=proposal_text, provenance=provenance)
-    dst.write_bytes(refreshed.encode("utf-8"))
+    # THE UNCLOSED-FENCE REFUSAL. Inside an open fence a written section is
+    # invisible to the scanner that would find it next time, so it would be written
+    # again on every pass — the ratified idempotence clause carries no qualifier.
+    # The restore still happens (the file must exist); only the refresh is withheld,
+    # and it says so.
+    if round_trip.ends_inside_fence(base):
+        result.outline_refusal = (
+            "the fragment ends inside an unclosed code fence, so the round-trip "
+            "provenance was NOT written — close the fence and re-run the demote's "
+            "refresh")
+        refreshed = base
+    else:
+        refreshed = round_trip.refresh_fragment(
+            base, proposal_text=proposal_text, provenance=provenance)
+
+    # Written only when the bytes actually move, so a refused refresh leaves the
+    # destination's mtime alone as well as its content.
+    new_bytes = refreshed.encode("utf-8")
+    if not dst.is_file() or dst.read_bytes() != new_bytes:
+        dst.write_bytes(new_bytes)
     src.unlink()
     result.moved.append((outline.from_path, outline.to_path))
     result.outline_path = dst
-    result.outline_refreshed = True
+    result.outline_refreshed = result.outline_refusal is None
 
 
 def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str | None = None) -> DemotionExecution:
@@ -1075,7 +1107,11 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
     # live fragment was refreshed rather than overwritten has to be able to read
     # that here, and to find the snapshot that was kept instead of applied.
     outline_note = ""
-    if result.outline_refreshed and result.outline_path is not None:
+    if result.outline_refusal and result.outline_path is not None:
+        outline_note = (
+            f"\nOutline: {result.outline_path.relative_to(root).as_posix()} — "
+            f"{result.outline_refusal}.\n")
+    elif result.outline_refreshed and result.outline_path is not None:
         rel = result.outline_path.relative_to(root).as_posix()
         if result.snapshot_disposition == "preserved" and result.preserved_snapshot_path:
             kept = result.preserved_snapshot_path.relative_to(root).as_posix()

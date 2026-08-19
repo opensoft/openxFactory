@@ -109,6 +109,43 @@ markdown surgery is the risky half and it is the half that needs no tree.
       verb's move arm was already fixed for once, re-entering through its newest
       arm. Every document read here is `read_bytes().decode` now. Found by the CRLF
       test failing, not by review.
+      REVIEW ROUND 2 closed three findings, two of which failed ratified scenarios.
+      **F1** — the module's own hazard note was violated ONE FUNCTION AWAY:
+      `_flip_status` still used `str.splitlines(keepends=True)`, and this change
+      newly routes the primary fragment through it. Two damages were reachable and
+      both are now pinned: `Status: draft\x0crest of the line` was seen as two
+      pseudo-lines, so the first was replaced with no ending and the remainder was
+      GLUED onto the new value (`Status: stagedrest of the line`) — text moved
+      across a line boundary the file does not contain; and a header carrying
+      U+2028s inflates the pseudo-line count past the 15-line window, so a real
+      `Status:` was never found and the flip silently did nothing, failing "the
+      restored fragment MUST carry `Status: staged`" on input you get by pasting
+      from a web page. `_flip_status` shares `round_trip`'s split now. THE FIX IS
+      NOT CONFINED TO THIS CHANGE'S SURFACE: every `openspec/`-bound document this
+      verb flips to `draft` was exposed to the same two damages before, so a
+      pre-existing defect goes with it.
+      **F2** — the ratified idempotence clause carries NO qualifier, and it failed
+      on a fragment ending inside an unclosed fence: the insert landed inside the
+      open span, invisible to `find_provenance_section`, so each pass inserted
+      again (1 -> 2 -> 3 sections). `round_trip.ends_inside_fence` now refuses the
+      INSERT, mirroring `outline-model.js`'s already-ratified answer to the same
+      input, and the refusal is narrow — slots findable OUTSIDE the fence are still
+      filled, because refusing those would punish a document for a defect below it.
+      The refusal is surfaced as `outline_refusal` and in the README rather than
+      reported as a refresh that did not happen, and ends-inside-fence is pinned as
+      a FOURTH agreed behavior in the fence test.
+      **F3** — `snapshot_disposition` / `preserved_snapshot_path` were populated and
+      read by nothing, so the sentence this change's own comment calls "exactly the
+      sentence a human needs to be able to check" never reached the human who ran
+      the verb. `cmd_gate_demote --execute` prints the disposition, the preserved
+      path, and any withheld-refresh reason; asserted through the REAL parser rather
+      than a hand-built Namespace, whose field set could drift while passing.
+      All three reverts were mutation-checked and each is caught by its own test.
+      ONE READER-SIDE DEFECT FOUND AND DELIBERATELY NOT FIXED: `corpus.parse_status`
+      has the same pseudo-line blindness (`text.splitlines()[:15]`), so a U+2028
+      header hides the status from doc-health's READER too. It is outside this
+      change's surface, and touching it would move corpus findings this slice's own
+      gate forbids. Recorded here for whoever rules on it.
 
 ## 4. Tests
 

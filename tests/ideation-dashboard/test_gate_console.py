@@ -543,6 +543,128 @@ def test_a_crlf_outline_keeps_its_line_endings_through_the_refresh(tmp_path):
     assert f"Change ID: {CHANGE}".encode() in raw
 
 
+# ---- review F1: `_flip_status` shared the round-trip split --------------------
+#
+# Both inputs below are the reviewer's, reproduced against the fixed tree. They
+# were reachable the moment this change routed a topic's PRIMARY FRAGMENT through
+# `_flip_status`, and the fix is not confined to the fragment: every
+# `openspec/`-bound document this verb flips to `draft` was exposed to the same two
+# damages before.
+
+
+def test_a_form_feed_in_a_status_line_does_not_invent_a_line_boundary():
+    """`str.splitlines(keepends=True)` saw `Status: draft\\x0crest` as TWO
+    pseudo-lines, replaced the first with no ending, and GLUED the remainder onto
+    the new value — `Status: stagedrest of the line`. Text moved across a line
+    boundary the file does not contain."""
+    src = "Status: draft\x0crest of the line\nbody\n"
+    out = gc._flip_status(src, "staged")
+    assert "Status: stagedrest of the line" not in out, \
+        "the remainder was glued onto the status value again"
+    assert out.startswith("Status: staged\n")
+    # the real line count is unchanged: no boundary was invented or destroyed
+    assert out.count("\n") == src.count("\n")
+    assert out.endswith("body\n")
+
+
+def test_a_unicode_line_separator_in_the_header_does_not_hide_the_status():
+    """U+2028 inflates the pseudo-line count past the 15-line header window, so a
+    real `Status:` inside the header was never found and the flip silently did
+    nothing — failing the ratified "the restored fragment MUST carry `Status:
+    staged`" scenario on input you get by pasting from a web page."""
+    header = "".join(f"Field{i}: v  \n" for i in range(9))
+    src = "# Staged: t\n" + header + "Status: draft\n\n## Why\n"
+    assert len(src.splitlines(keepends=True)) > gc.HEADER_SCAN_LINES
+    out = gc._flip_status(src, "staged")
+    assert "Status: staged" in out
+    assert "Status: draft" not in out
+    # …and every U+2028 the author had survives
+    assert out.count(" ") == src.count(" ")
+
+
+def test_the_status_flip_still_keeps_a_crlf_headers_own_ending():
+    """The P3 guarantee the rewrite had to carry across unchanged."""
+    src = "# T\r\n\r\nStatus: draft\r\n\r\n## Why\r\n"
+    out = gc._flip_status(src, "staged")
+    assert out == src.replace("Status: draft\r\n", "Status: staged\r\n")
+
+
+# ---- review F2 and F3, through the driven verb --------------------------------
+
+
+def test_a_fragment_ending_inside_an_unclosed_fence_withholds_the_refresh(tmp_path):
+    """Review F2, end to end. The restore still happens — the file must exist — but
+    the provenance is NOT written into the open span, and the execution record says
+    so rather than reporting a refresh that did not occur."""
+    root = _tree(tmp_path)
+    unclosed = (f"# Staged: {TOPIC}\n\nStatus: staged\n\nExample:\n\n"
+                "```markdown\n## Claims\n\n- x\n")
+    _with_transitioned_snapshot(root, snapshot=unclosed)
+
+    res, ex = _demote_and_execute(root)
+    text = _fragment(root).read_text(encoding="utf-8")
+
+    assert ex.outline_refreshed is False
+    assert "unclosed code fence" in (ex.outline_refusal or "")
+    assert round_trip.PROVENANCE_HEADING not in text
+    # the restored bytes are the snapshot's, with only the status flip applied
+    assert "```markdown\n## Claims\n\n- x\n" in text
+    # and the README tells the human, instead of claiming a refresh
+    readme = (root / "ideation" / "staging" / TOPIC / "README.md").read_text(
+        encoding="utf-8")
+    assert "unclosed code fence" in readme
+    assert "REFRESHED IN PLACE" not in readme
+
+
+def test_a_withheld_refresh_leaves_a_live_fragment_byte_identical(tmp_path):
+    """The refusal must not become its own overwrite: a live differing fragment
+    that ends inside a fence keeps every byte, and its mtime is not even touched."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    live = (f"# Staged: {TOPIC}\n\nStatus: staged\n\nMY WORK\n\n"
+            "```markdown\n## Claims\n")
+    _fragment(root).parent.mkdir(parents=True, exist_ok=True)
+    _fragment(root).write_text(live, encoding="utf-8")
+    before_mtime = _fragment(root).stat().st_mtime_ns
+
+    res, ex = _demote_and_execute(root)
+
+    assert ex.outline_refreshed is False
+    assert _fragment(root).read_text(encoding="utf-8") == live
+    assert _fragment(root).stat().st_mtime_ns == before_mtime
+    # the snapshot was still preserved rather than discarded
+    assert ex.snapshot_disposition == "preserved"
+    assert ex.preserved_snapshot_path is not None
+
+
+def test_the_cli_tells_the_human_the_snapshot_was_preserved(tmp_path, capsys):
+    """Review F3. `snapshot_disposition` and `preserved_snapshot_path` were
+    populated and read by nothing — "we did not overwrite your work" is exactly the
+    sentence a human needs to be able to check, and it has to reach the operator who
+    ran the verb, not just a dataclass."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    _fragment(root).parent.mkdir(parents=True, exist_ok=True)
+    _fragment(root).write_text(LIVE, encoding="utf-8")
+
+    from ideation_dashboard import cli
+
+    # Through the REAL parser, not a hand-built Namespace: a Namespace's field set
+    # can drift from the CLI's while the test keeps passing.
+    args = cli.build_parser().parse_args([
+        "gate", "demote", "--repo-root", str(root), "--actor", "brett",
+        "--repository", "fixture-repo", "--source-revision", PINNED_REVISION,
+        "--change-id", CHANGE, "--reason", "Reworking scope.", "--execute",
+    ])
+    assert args.func(args) == 0
+    out = capsys.readouterr().out
+
+    assert "snapshot preserved" in out
+    assert "REFRESHED IN PLACE" in out
+    assert f"{TOPIC}.snapshot-{CHANGE}.md" in out
+    assert "not applied over your work" in out
+
+
 def test_the_round_trip_arm_leaves_a_topic_with_no_snapshot_untouched(tmp_path):
     """The fixture change as it ships carries no supporting-docs, so there is no
     outline move at all and this arm must be inert — which is why the eight

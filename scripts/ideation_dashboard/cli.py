@@ -422,6 +422,21 @@ def cmd_gate_demote(args: argparse.Namespace) -> int:
         ex = gate_mod.execute_demotion_plan(res.plan, repo_root)
         print(f"  EXECUTED: {len(ex.moved)} file(s) moved into {res.plan.topic_path}/openspec/; "
               f"README+INDEX updated; change folder removed={ex.removed_change_folder}")
+        # THE OUTLINE'S OWN SENTENCE (align-demote-to-round-trip-rule). "We did not
+        # overwrite your work" is exactly the sentence a human needs to be able to
+        # check, and a disposition recorded only in a returned dataclass is a
+        # disposition nobody reads. It goes to the operator who ran the verb.
+        if ex.outline_path is not None:
+            print(f"  outline: {ex.outline_path.relative_to(repo_root)} "
+                  f"(snapshot {ex.snapshot_disposition})")
+            if ex.preserved_snapshot_path is not None:
+                print(f"    your fragment already existed and differed, so it was "
+                      f"REFRESHED IN PLACE — the change folder's snapshot was "
+                      f"preserved as "
+                      f"{ex.preserved_snapshot_path.relative_to(repo_root)}, "
+                      f"not applied over your work")
+            if ex.outline_refusal:
+                print(f"    REFRESH WITHHELD: {ex.outline_refusal}")
     else:
         print("  (plan only — rerun with --execute to apply the moves to this checkout)")
     return 0
