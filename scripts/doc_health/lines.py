@@ -33,17 +33,36 @@ Only the three real line endings separate lines here: CR, LF, and CRLF. The
 guarantee in this corpus is stated in terms of, and it is asserted in the tests
 for exactly that reason — get it wrong and every caller's guarantee is void.
 
-THE LINE RULE IS SHARED, NOT REIMPLEMENTED PER READER. This is the corpus's
-fourth attempt at "what is a line" (after `doc_health.families`,
-`web/views/outline-model.js`, and the private copy `round_trip.py` used to
-carry) — a dedicated, named home is how a fifth implementation gets prevented
-instead of discovered. `ideation_dashboard.round_trip` imports this module
-rather than defining its own copy; `doc_health.corpus.parse_status` and
-`parse_kind` scan through it directly. The JavaScript side
-(`web/views/outline-model.js`) cannot import a Python module, so it remains a
-separate implementation of the fence/line rules — that divergence is not
-fixable here and is held by an explicit three-way agreement test instead of by
-convention (see `tests/ideation-dashboard/test_round_trip.py`).
+THE LINE RULE IS SHARED, NOT REIMPLEMENTED PER READER — EVERY PYTHON READER,
+not just `corpus.parse_status`/`parse_kind`. Before this module existed (and,
+for six of these, before this change's wide ruling), the corpus carried
+FOUR separate Python spellings of "what is a line": the private copy
+`round_trip.py` used to define; `doc_health.families`'s own unbounded
+`text.splitlines()` scan (`_scan_lines`); and the `text.splitlines()[:N]`
+window idiom independently repeated in `corpus.parse_status`/`parse_kind`,
+`doc_health.families._header_line`, `doc_health.inventory._header_value`,
+`doc_health.organizer_dispatch._header_value`,
+`ideation_dashboard.doxbench_packet.lifecycle_status`,
+`ideation_dashboard.authoring.missing_required_headers`, and
+`ideation_dashboard.generator._header_value` — none of them agreeing with
+each other, or with this module's rule, on CR/LF/CRLF-only lines.
+
+Brett's same-day ruling on `align-status-reader-to-real-lines` (in-session
+multiple choice, recommended option adopted, 2026-08-19) converts ALL of
+them: the delta's "SHALL hold for every reader of that header" governs over
+the change's initially narrower `code_surface:` enumeration, measured at zero
+baseline cost (1227 governed aggregation files, zero exotic separators, zero
+window differences, zero value changes). Every one of the readers named above
+now scans through THIS module. `web/views/outline-model.js` cannot import a
+Python module, so it remains the ONE separate implementation of this line
+rule — that divergence is not fixable here and is held by an explicit
+agreement test instead of by convention (see
+`tests/ideation-dashboard/test_round_trip.py`). The naive ``` fence-toggle
+PREDICATE itself is a separate, narrower rule from this one (three textually
+independent spellings — `round_trip.py`, `families.py`, `outline-model.js` —
+pinned by that same test module's `test_the_shared_predicate_is_spelled_the_same_in_all_three`)
+and is not converted here: this module owns line-splitting, not fence
+detection.
 """
 
 from __future__ import annotations

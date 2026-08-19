@@ -27,6 +27,7 @@ import re
 from pathlib import Path
 
 from . import corpus
+from .lines import split_keepends
 
 # Contract vocabulary — exactly two values exist for the governed v1
 # corpus (document-catalog.template.yaml / tag-application matrix).
@@ -63,11 +64,13 @@ def _sort_key(entry: dict) -> tuple:
 
 def _header_value(text: str, name: str) -> str | None:
     """Value of a `Name: value` header in the doc's header block, None if
-    absent — same scan window the status/kind parsers use."""
+    absent — the SAME scan window, over the same real lines, the status/kind
+    parsers use (`corpus.parse_status`/`parse_kind`, both through
+    `doc_health.lines.split_keepends`)."""
     prefix = f"{name}: "
-    for line in text.splitlines()[:corpus.STATUS_SCAN_LINES]:
-        if line.startswith(prefix):
-            return line[len(prefix):].strip() or None
+    for body, _ending in split_keepends(text)[:corpus.STATUS_SCAN_LINES]:
+        if body.startswith(prefix):
+            return body[len(prefix):].strip() or None
     return None
 
 

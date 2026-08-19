@@ -25,6 +25,7 @@ from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
                TAXONOMY, Finding, Skip)
 from . import (client_identity_composition, corpus, document_catalog,
                ideation_routing, proposal_origin)
+from .lines import split_keepends
 
 # Per-family resolution class defaults (doc-health contract): contested
 # families suggest state-changing edits; everything else is mechanical.
@@ -73,9 +74,22 @@ def _resolves(doc_dir: Path, repo_path: Path, target: str) -> bool:
 
 
 def _header_line(doc, prefix: str) -> str | None:
-    for line in doc.text.splitlines()[:corpus.STATUS_SCAN_LINES]:
-        if line.startswith(prefix):
-            return line
+    """First `prefix`-matching REAL line within the doc's header window.
+
+    Real lines (CR/LF/CRLF only — `doc_health.lines`), not
+    `str.splitlines()` pseudo-lines: this is a reader of the SAME lifecycle
+    header `corpus.parse_status`/`parse_kind` read, and a wider splitting
+    rule here than there is exactly the divergence
+    `align-status-reader-to-real-lines` closes — demonstrated as a false
+    CRITICAL `ratified-provenance` finding ("Ratified by: missing") on a
+    document whose real header plainly carries the line, inflated past the
+    window by an exotic separator. Widened to every reader of the header by
+    the change's ruling (2026-08-19): the delta's "SHALL hold for every
+    reader of that header" governs.
+    """
+    for body, _ending in split_keepends(doc.text)[:corpus.STATUS_SCAN_LINES]:
+        if body.startswith(prefix):
+            return body
     return None
 
 
@@ -88,9 +102,20 @@ def _strip_inline_code(line: str) -> str:
 
 
 def _scan_lines(text: str):
-    """Yield (lineno, line, in_code_fence) with ``` fence tracking."""
+    """Yield (lineno, line, in_code_fence) with ``` fence tracking.
+
+    Real lines (CR/LF/CRLF only — `doc_health.lines`), not unbounded
+    `str.splitlines()`: before `align-status-reader-to-real-lines`'s wide
+    ruling, this was a live SECOND Python line rule, disagreeing with
+    `round_trip.py`'s split on any form-feed/U+2028/NEL heading fixture and
+    making the module docstring's "reduces the Python side to one" false.
+    Line NUMBERS are unaffected for every document this repository's
+    baseline measured (zero exotic separators across 1227 governed
+    aggregation files), since real-line and pseudo-line numbering agree
+    wherever no such separator appears.
+    """
     fenced = False
-    for i, line in enumerate(text.splitlines(), start=1):
+    for i, (line, _ending) in enumerate(split_keepends(text), start=1):
         if line.lstrip().startswith("```"):
             fenced = not fenced
             yield i, line, True

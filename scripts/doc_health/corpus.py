@@ -98,25 +98,37 @@ def parse_kind(text: str) -> str | None:
     return None
 
 
-# SWEEP RECORD (align-status-reader-to-real-lines, task 2.3). `grep -rn
-# "splitlines()\[:" scripts/` was run against this fix so the next reader does
-# not have to re-run it to know whether `parse_status`/`parse_kind` were the
-# whole set. They were not: the same `text.splitlines()[:N]` idiom is also
-# carried, independently, by:
+# SWEEP RECORD (align-status-reader-to-real-lines, task 2.3), UPDATED under
+# the wide ruling. `grep -rn "splitlines()\[:" scripts/` was run against this
+# fix so the next reader does not have to re-run it to know whether
+# `parse_status`/`parse_kind` were the whole set. They were not: the same
+# `text.splitlines()[:N]` idiom was also carried, independently, by:
 #   scripts/ideation_dashboard/doxbench_packet.py  lifecycle_status()
 #   scripts/ideation_dashboard/authoring.py        missing_required_headers()
 #   scripts/ideation_dashboard/generator.py        _header_value()
 #   scripts/doc_health/inventory.py                _header_value()
 #   scripts/doc_health/families.py                 _header_line()
 #   scripts/doc_health/organizer_dispatch.py       _header_value()
-# Each shares the same pseudo-line blindness this change closes for
-# `parse_status`/`parse_kind`. They are DELIBERATELY untouched here: this
-# change's ratified code surface (`proposal.md`) is `doc_health/lines.py`,
-# `corpus.parse_status`/`parse_kind`, and `round_trip.py`'s import, with a
-# baseline diff sized to that surface. Widening it here would mean presenting
-# a baseline diff for six more call sites this change never measured. Closing
-# the rest of the idiom, if warranted, is a follow-up change's own scope and
-# its own baseline diff — not a rider on this one.
+# plus one UNBOUNDED sibling defect the `splitlines()[:` grep pattern does not
+# match: `scripts/doc_health/families.py`'s `_scan_lines()`, a live second
+# Python line rule (design Decision 2's fence-scanning hazard's line-splitting
+# half) disagreeing with `round_trip.py` on any exotic-boundary heading
+# fixture.
+#
+# First cut of this change scoped its ratified `proposal.md` code surface to
+# `lines.py` + `parse_status`/`parse_kind` + `round_trip.py`'s import alone,
+# and left the six sites above untouched, reasoning that widening would mean
+# presenting an unmeasured baseline diff. Brett's same-day ruling (in-session
+# multiple choice, recommended option adopted, 2026-08-19) found that
+# reasoning was the drafting error, not the delta: the delta's "SHALL hold for
+# every reader of that header" and the proposal's "reduces the Python side to
+# one" already governed every reader, and the narrow front-matter enumeration
+# was corrected to match. The measurement the narrow cut said it lacked was
+# then taken — 1227 governed aggregation files, zero exotic separators, zero
+# window differences, zero value changes — so ALL SIX sites plus `_scan_lines`
+# convert in THIS change, on a demonstrated zero baseline cost. See
+# `proposal.md`'s amended `code_surface:` and `Ratified:` lines for the ruling
+# in full.
 
 
 def load_docs(repo_name: str, repo_path: Path) -> list[Doc]:

@@ -64,6 +64,7 @@ import re
 import time
 from collections.abc import Callable, Mapping, Sequence
 
+from doc_health.lines import split_keepends
 from ideation_dashboard.doxbench_hash import utf8_size
 from ideation_dashboard.doxbench_scope import ScopeKey, ScopeProjection
 from ideation_dashboard.doxbench_threads import (
@@ -118,11 +119,17 @@ class PacketExpired(PacketRejected):
 # ---------------------------------------------------------------------------
 
 # The SAME rule the repository's doc-health corpus reader uses: a `Status:`
-# line inside the document's own header block. Spelled here rather than
-# imported, because the exemption is the ASSEMBLER'S to apply and this is the
-# read it applies it from; a companion test asserts the two spellings agree
-# against real corpus documents, which is the house pattern for a rule that
-# must hold in two places at once.
+# line inside the document's own header block, found by scanning the SAME
+# shared real-line primitive corpus.parse_status scans through
+# (`doc_health.lines.split_keepends` — CR/LF/CRLF only, so an exotic
+# separator cannot inflate this window past a line that is plainly there).
+# The window/regex/loop are still spelled out here rather than calling
+# `corpus.parse_status` itself, because the exemption is the ASSEMBLER'S to
+# apply and this is the read it applies it from; a companion test asserts
+# the two readers agree, including on a synthetic exotic-separator fixture
+# rather than real corpus documents alone (the corpus carries none today —
+# measured zero across 1227 governed aggregation files — so an agreement
+# check limited to it would pass vacuously).
 _STATUS_RE = re.compile(r"^Status:\s*(.+?)\s*$")
 STATUS_SCAN_LINES = 15
 
@@ -157,8 +164,8 @@ def lifecycle_status(text: str) -> str | None:
     """The document's own declared `Status:`, or None when it declares none."""
     if not isinstance(text, str):
         return None
-    for line in text.splitlines()[:STATUS_SCAN_LINES]:
-        match = _STATUS_RE.match(line)
+    for body, _ending in split_keepends(text)[:STATUS_SCAN_LINES]:
+        match = _STATUS_RE.match(body)
         if match:
             return match.group(1)
     return None
