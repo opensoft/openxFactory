@@ -1,0 +1,15 @@
+schema: spec-driven
+created: 2026-08-19
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-19-refine-demote-round-trip-mechanics
+  reason: >-
+    Three defects found by DRIVING both gates while discharging
+    `add-staged-topic-outline-template` task 4.2 — the origin topic unresolvable
+    for every active change, the demote's own `openspec/INDEX.md` blocking the
+    topic's next forward transition, and `Proposed by:` accumulating one line per
+    lap — plus Brett's Decision 3 ruling that `Status at demote` carry the change's
+    task progress. No staging topic preceded it: the defects were found by running
+    code, and Brett ruled them straight to a proposal alongside the ruling record
+  approved_by: Brett
+  approved_on: 2026-08-19
