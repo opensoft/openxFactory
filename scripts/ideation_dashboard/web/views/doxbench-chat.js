@@ -556,10 +556,18 @@ export const LOADED_SELECTOR_EMPTY_NOTE =
   + "outline is workable on its own";
 
 const OUTLINE_BUFFER_KEY = "outline";
-// The reserved unbacked/create key. Under the RELEASED v1 envelope this slot is
-// not merely reserved -- it RIDES EVERY TURN, exactly as the outline does
-// (`buildTurnRequest` sends `buffers.outline` and `buffers.document` and nothing
-// else), which is why it can no more be unloaded than the outline can.
+// The reserved unbacked/create key, and WHY it is still not unloadable now that
+// the wire carries the whole loaded set (F7, adversarial review of the §13
+// slice). The old reason -- "the released envelope carries exactly these two
+// buffers" -- retired with that envelope, and a guard resting on a retired
+// reason is a guard the next reader deletes.
+//
+// The live reason is the ONE-DOCUMENT FLOOR, stated in two places that agree:
+// `request_v2.buffers` declares `minItems: 2`, and the server's own
+// `require_outline_and_documents` requires an outline plus AT LEAST ONE
+// document. A session holding only the outline plus this slot therefore has
+// nothing to spare -- emptying it leaves a buffer set no turn can be built from,
+// which is the wedge N3 measured.
 const RESERVED_DOCUMENT_BUFFER_KEY = "document";
 const OUTLINE_ENTRY_LABEL = "Outline";
 const UNBACKED_ENTRY_LABEL = "(not yet created)";
@@ -666,13 +674,17 @@ export function loadedSelectorModel(editorStateValue) {
     const path = buffer && buffer.path ? String(buffer.path) : null;
     entries.push(Object.freeze({
       key,
-      // N3 (PR #207 re-verification): the reserved key is a RESERVED entry, not an
-      // ordinary loaded document, even when it carries a real path. Listing it is
-      // right -- it is selectable and the chat binds to it -- but treating it as
-      // ordinary made Unload reachable for it, and emptying it left
-      // `buildTurnRequest` reading `buffers.document.path` on an absent buffer.
-      // That threw, was caught as the generic unsettled-buffer failure, and the
-      // rail then said "still settling; try Send again in a moment" forever.
+      // N3 (PR #207 re-verification), restated for the widened wire (F7): the
+      // reserved key is a RESERVED entry, not an ordinary loaded document, even
+      // when it carries a real path. Listing it is right -- it is selectable and
+      // the chat binds to it -- but treating it as ordinary makes Unload
+      // reachable for it, and a session holding only the outline plus this slot
+      // has no document to spare: the released `request_v2` declares
+      // `minItems: 2` and the server requires an outline plus at least one
+      // document, so emptying it leaves a set no turn can be built from. Under
+      // the v1 envelope the same act threw inside the request builder and wedged
+      // the rail at "still settling" forever; the shape of the failure changed,
+      // the floor did not.
       reserved: key === RESERVED_DOCUMENT_BUFFER_KEY,
       label: path === null ? UNBACKED_ENTRY_LABEL : labels.get(path) || basenameOf(path),
       fullName: path === null ? UNBACKED_ENTRY_LABEL : path,
@@ -938,15 +950,17 @@ export function mountDoxBenchChatRail(host, options = {}) {
       unloadArmedKey = null;
       unloadBtn.textContent = "Unload";
       if (chosen && chosen.reserved === true) {
-        // ONE sentence for both reserved keys, because it is one fact: under the
-        // released envelope the outline and the reserved document slot are the two
-        // buffers every turn carries, so unloading either would leave the chat
-        // unable to build a turn at all.
+        // ONE sentence for both reserved keys, because it is one fact (F7): a
+        // turn requires the outline AND at least one document -- `minItems: 2`
+        // on the released widened request, and the server's own buffer-set
+        // requirement -- so unloading either of the two buffers a bare session
+        // holds would leave the chat unable to build a turn at all.
         unloadBtn.title = chosen.kind === "outline"
-          ? "the outline is a reserved buffer that rides every turn, and is never "
+          ? "the outline is a reserved buffer every turn carries, and is never "
             + "unloaded"
-          : "this is the tile's own document, a reserved buffer that rides every "
-            + "turn, and is never unloaded — load another document to work beside it";
+          : "this is the tile's own document, the reserved buffer a turn falls "
+            + "back on, and is never unloaded — load another document to work "
+            + "beside it";
       } else {
         unloadBtn.title = "no loaded document is selected";
       }

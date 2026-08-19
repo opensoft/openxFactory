@@ -702,18 +702,22 @@ def test_the_reserved_document_slot_is_selectable_but_never_unloadable(
     still settling; try Send again in a moment" FOREVER: a permanently false
     sentence, which is the worst thing a refusal can be.
 
-    The rule follows the code's own reasoning about the outline. Under the
-    released v1 envelope the reserved document slot is not merely reserved, it
-    RIDES EVERY TURN — `buildTurnRequest` sends exactly `buffers.outline` and
-    `buffers.document` — so it can no more leave the set than the outline can.
-    Listing it stays right: it is selectable and the chat binds to it."""
+    RE-REASONED at contract-v1.34 (F7, adversarial review of the §13 slice). The
+    guard stands; the reason it stands changed with the wire. It used to be that
+    the released envelope carried exactly the outline and this slot, so emptying
+    the slot left the request builder reading an absent buffer. The widened
+    envelope carries the whole loaded set, and the floor is now stated in two
+    places that agree: `request_v2.buffers` declares `minItems: 2`, and the
+    server's `require_outline_and_documents` requires an outline plus AT LEAST
+    ONE document. A session holding only the outline and this slot therefore has
+    no document to spare. Listing it stays right: it is selectable and the chat
+    binds to it."""
     n3 = composition["n3"]
     # It IS a first-class, listed, selectable entry.
     assert "document" in n3["listed"]
     assert n3["selected"] == "document"
     # …and Unload is withheld for it, with the reason naming why.
     assert n3["disabled"] is True
-    assert "rides every turn" in n3["title"]
     assert "never unloaded" in n3["title"]
     assert "load another document to work beside it" in n3["title"]
     # Pressing it anyway changes nothing: the click path refuses too.
