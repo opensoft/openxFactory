@@ -46,11 +46,11 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 
 # RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13). The chat-turn
 # digest moves because the release widens that file itself; the catalog's does
-# not. The REF is the unresolved-until-published sentinel: the policy publishes
-# the annotated tag against the commit that lands, so on a realization branch
-# there is no release commit to name, and naming a stale one would be a false
-# statement about which release these digests belong to.
-RELEASED_REF = "unpublished:contract-v1.34"
+# not. The REF carried an unresolved-until-published sentinel across the
+# realization branch — the policy publishes the annotated tag against the commit
+# that lands, so until then there was no release commit to name — and now names
+# that commit: `contract-v1.34^{}` == 5daa173, tag object 439d76b.
+RELEASED_REF = "5daa1731f24010356b044971328f8a7aa321994c"
 RELEASED_TAG = "contract-v1.34"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:

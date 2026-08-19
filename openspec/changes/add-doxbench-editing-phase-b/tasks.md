@@ -538,13 +538,12 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       release is the full minor of deprecation the breaking path requires.
       Deprecated is not withdrawn: all six kinds stay dispatchable, and a v1 turn
       is still served and still answered in ITS own family.
-- [ ] 13.3 The bundle version is ALLOCATED AT REALIZATION through the
+- [x] 13.3 The bundle version is ALLOCATED AT REALIZATION through the
       serialized realization order — fetch, rebase, recheck availability,
       allocate, update manifest + CHANGELOG + digest inventory atomically with
       the schema, gate and review the exact candidate commit, land it, then
       publish and verify the annotated tag. No number is reserved before then.
-      **HALF LANDED, half POST-MERGE — and it stays open until the tag exists,
-      because a bundle is not published until its tag does.**
+      **DONE — the tag exists.**
       Fetched origin, confirmed the branch already sat on `origin/main`
       (`a4a6f6e`, no rebase needed), rechecked availability at allocation time —
       `contract-v1.33` present in the CHANGELOG and manifest with no published
@@ -556,13 +555,29 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       branch: steps 4-5 (land the exact reviewed commit, then publish and verify
       the annotated tag from an independently refreshed checkout) happen after
       merge, against the commit that actually lands.
-      **CONSEQUENCE, flagged.** `doxbench_contracts.CONTRACT_REF` cannot name a
-      commit that does not exist yet, so it carries the sentinel
-      `unpublished:contract-v1.34` — a value no `stack.yaml` can declare, so a
-      CONSUMER comparing against it refuses rather than matching by accident
-      (publisher mode reads no declaration and is unaffected). Replacing it with
-      the published commit is part of the post-merge tag step, not a follow-up
-      anyone may forget: the release is not published until its tag exists.
+      **STEPS 4-5, DISCHARGED AT THE LANDED COMMIT.** PR #210 squash-merged as
+      **`5daa1731f24010356b044971328f8a7aa321994c`** on `origin/main`. Because a
+      squash creates a NEW commit, every gate reran against that exact commit
+      before anything was tagged — `verify-commit` pass, the dashboard validator
+      0 errors / 4 deprecation warnings / exit 0, `openspec validate --all
+      --strict` 61 passed, doc-health 0 new regressions, and the three ideation
+      suites run separately (3174 + 63 + 665 passed, 7 skipped) — and the
+      availability recheck confirmed no `contract-v1.34` tag had appeared.
+      The annotated tag is PUBLISHED and VERIFIED: tag object
+      `439d76b88044edbb22ccf677d57e76dd8a6da350`, dereferencing to
+      `5daa1731f24010356b044971328f8a7aa321994c` — confirmed from the remote
+      (`git ls-remote --tags`) rather than from the local ref that created it,
+      and `validate-contract-release.py verify-commit --commit contract-v1.34`
+      reproduces every digest in
+      `contracts/releases/contract-v1.34.digests.yaml` from the tag's own
+      objects.
+      **THE SENTINEL IS REPLACED**, which is what closes this task rather than a
+      follow-up anyone could forget: `doxbench_contracts.CONTRACT_REF` carried
+      `unpublished:contract-v1.34` across the realization branch — a value no
+      `stack.yaml` can declare, so a CONSUMER comparing against it refused
+      rather than matched by accident — and now names the published commit, in
+      the same spelling the v1.31 pin used (the tag's dereferenced commit, never
+      the tag object).
 - [x] 13.4 The runtime keeps resolving its pinned wire schemas from the checkout
       it runs in, and both model routes keep refusing before consulting any port
       when a pinned contract cannot be read. The repin is digest-checked.

@@ -86,19 +86,17 @@ from referencing.jsonschema import DRAFT202012
 # a runtime pinned to v1.31's digest cannot read v1.34's schema at all, which is
 # the check working, not a reason to relax it.
 #
-# THE REF IS UNRESOLVED UNTIL THE TAG PUBLISHES, and says so rather than naming
-# a commit that does not exist yet. The versioning policy allocates the version
-# and builds the digest inventory AT REALIZATION (steps 1-2) and publishes the
-# annotated tag against the commit that actually lands (step 5) — so on the
-# realization branch there is no release commit to name, and the inventory
-# itself carries no commit field for exactly this reason. The sentinel is
-# spelled as a value no `stack.yaml` can legitimately declare, so a CONSUMER
-# comparing its declared ref against this one REFUSES rather than matching by
-# accident; publisher mode is unaffected (it reads no declaration), and no
-# digest question depends on this value. Replaced with the published commit
-# when `contract-v1.34` is tagged and verified post-merge.
+# THE REF IS RESOLVED: `contract-v1.34` is published (annotated tag object
+# 439d76b88044edbb22ccf677d57e76dd8a6da350) and this names the commit it
+# dereferences to, exactly as the v1.31 pin named its own. It carried the
+# `unpublished:contract-v1.34` sentinel across the realization branch, because
+# the versioning policy allocates the version and builds the digest inventory AT
+# REALIZATION (steps 1-2) and publishes the tag against the commit that actually
+# lands (step 5) -- so until that commit existed there was nothing honest to
+# name, and the sentinel was spelled as a value no `stack.yaml` can declare so a
+# consumer comparing against it REFUSED rather than matched by accident.
 
-CONTRACT_REF = "unpublished:contract-v1.34"
+CONTRACT_REF = "5daa1731f24010356b044971328f8a7aa321994c"
 CONTRACT_TAG = "contract-v1.34"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
