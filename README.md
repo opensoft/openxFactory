@@ -278,6 +278,20 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-roster-device-admission-surface](openspec/changes/add-roster-device-admission-surface/proposal.md)
+  — authored 2026-08-19. Admits the single `device` (node-inventory) admission
+  surface into the closed `admission_surface` vocabulary of
+  `client-identity-roster`, through the capability's own extension route, so
+  OpsxFactory can enroll its ratified `microsoft_managed_node_inventory_reader`
+  (`Device.Read.All` + `DeviceManagementManagedDevices.Read.All` +
+  `CloudPC.Read.All`, tenant-wide read, provider offers nothing narrower — the
+  roster's Decision-3 motivating example). ONE surface, not three; the three
+  provider areas ride the entry as declared provider-forced breadth.
+  Additive — no `contract_schema_version` bump; the realization bumps the
+  bundle contract-v1.34 → contract-v1.35 with a digest refresh. Proposed on the
+  node-inventory realization evidence per the reader-grant clarify decision Q4;
+  the schema/bundle edit waits for Brett's ratification.
+  `target_release: implementation_pending`.
 - [refine-demote-round-trip-mechanics](openspec/changes/refine-demote-round-trip-mechanics/proposal.md)
   — authored 2026-08-19. Three defects found by DRIVING both gates while
   discharging `add-staged-topic-outline-template` task 4.2, plus Brett's Decision 3
