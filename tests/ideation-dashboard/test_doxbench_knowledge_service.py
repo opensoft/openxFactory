@@ -19,14 +19,18 @@ defect hides.
 
 from __future__ import annotations
 
+import dataclasses
+import shutil
+
 import pytest
 
-from conftest import REPO_ROOT  # noqa: F401  (sys.path side effect)
+from conftest import BASE_REPO, REPO_ROOT  # noqa: F401  (sys.path side effect)
 
 from ideation_dashboard import doxbench_knowledge as kn  # noqa: E402
 from ideation_dashboard import doxbench_packet as pk  # noqa: E402
 from ideation_dashboard import doxbench_telemetry as tel  # noqa: E402
 from ideation_dashboard import serve as serve_mod  # noqa: E402
+from ideation_dashboard.doxbench_scope import ScopeKey  # noqa: E402
 
 from test_doxbench_routes import (  # noqa: E402
     OUTLINE_PATH, _assert_refusal, _catalog, _CatalogOnlyPort, _port,
@@ -211,6 +215,188 @@ def test_the_reduced_posture_does_not_change_the_turns_own_success_shape(
     assert without[0] == with_service[0] == 200
     assert set(without[1]) == set(with_service[1])
     assert without[1]["kind"] == with_service[1]["kind"]
+
+
+# ===========================================================================
+# THE LEASH, AT THE ROUTE (task 10.4; adversarial review F1)
+# ===========================================================================
+
+FOREIGN_SCOPE = ScopeKey(repository="some-other-repo", ref="main",
+                         tile_kind="staged", tile_id="a-different-tile")
+
+
+def _bad_packet_assembler(*, axis, good_after_first=False):
+    """An assembler that hands the route a packet the leash must reject.
+
+    This is the seam the review's own repro used by hand: `require_valid` can
+    only be exercised end to end by a route that is GIVEN a stale or foreign
+    packet, and no legitimate input produces one."""
+    state = {"calls": 0}
+
+    def _assemble(**kwargs):
+        state["calls"] += 1
+        good = state["calls"] > 1 and good_after_first
+        packet = pk.assemble_packet(**{**kwargs, "knowledge": None})
+        if good:
+            return packet
+        if axis == "scope":
+            return dataclasses.replace(packet, scope=FOREIGN_SCOPE)
+        if axis == "purpose":
+            return dataclasses.replace(packet, purpose="doxbench-share-session")
+        return dataclasses.replace(packet, issued_at=0.0, expires_at=1.0)
+
+    _assemble.calls = state
+    return _assemble
+
+
+@pytest.mark.parametrize("axis", ["purpose", "scope", "expiry"])
+def test_the_route_refuses_a_packet_that_fails_its_leash_on_any_axis(tmp_path,
+                                                                     axis):
+    assembler = _bad_packet_assembler(axis=axis)
+    status, payload, port = _post_turn(tmp_path, _turn(),
+                                       packet_assembler=assembler)
+    _assert_refusal(status, payload,
+                    serve_mod.DOXBENCH_ERR_CONTEXT_PACKET_INVALID)
+    assert status == 500
+    # nothing was dispatched: the leash is checked BEFORE any provider is
+    # reached, so a foreign packet never becomes a prompt
+    assert port.calls.count("dispatch") == 0
+    # and the route asked for a NEW packet before giving up, exactly as the
+    # delta's "reject it and request a new one" says
+    assert assembler.calls["calls"] == 2
+
+
+@pytest.mark.parametrize("axis", ["purpose", "scope", "expiry"])
+def test_a_reissued_packet_is_accepted_and_the_turn_proceeds(tmp_path, axis):
+    """"Request a new one" is a REQUEST, not a formality: when the reissued
+    packet is valid the turn is served, and only a second failure refuses."""
+    assembler = _bad_packet_assembler(axis=axis, good_after_first=True)
+    status, _payload, port = _post_turn(tmp_path, _turn(),
+                                        packet_assembler=assembler)
+    assert status == 200
+    assert port.calls.count("dispatch") == 1
+    assert assembler.calls["calls"] == 2
+
+
+def test_a_rejected_packet_leaks_nothing_into_the_refusal(tmp_path):
+    assembler = _bad_packet_assembler(axis="scope")
+    status, payload, _port = _post_turn(
+        tmp_path, _turn(), packet_assembler=assembler)
+    assert status == 500
+    from test_doxbench_routes import _TURN_SENTINELS
+    for sentinel in _TURN_SENTINELS:
+        assert sentinel not in str(payload)
+    assert "some-other-repo" not in str(payload)
+
+
+# ===========================================================================
+# THE BOUNDS RAIL'S TWO ARMS, AT THE ROUTE (task 10.3; adversarial review F2)
+# ===========================================================================
+
+
+def _fat_checkout(tmp_path):
+    """A copy of the fixture checkout whose two brainstorm notes are each big
+    enough to blow the packet bound on their own — the review's own repro,
+    which a real corpus reproduces with documents it already holds."""
+    root = tmp_path / "fat-checkout"
+    shutil.copytree(BASE_REPO, root)
+    for ref in TILE_EVIDENCE:
+        path = root / ref
+        path.write_text(
+            path.read_text(encoding="utf-8") + "\n\n"
+            + ("doc health dtn register staging governance " * 8000),
+            encoding="utf-8")
+    return root
+
+
+def test_server_selected_evidence_over_the_bound_FITS_instead_of_refusing(
+        tmp_path):
+    """RE-PINNED BEHAVIOUR (F2). This turn used to answer HTTP 413
+    `request_limit_exceeded` — blaming a few-hundred-byte request for hundreds
+    of KB the SERVER selected, and refusing every turn on that tile forever."""
+    status, payload, port = _post_turn(
+        tmp_path, _turn(message="doc health checks dtn register"),
+        knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED,
+        checkout_root=_fat_checkout(tmp_path))
+    assert status == 200, payload
+    declaration = _declaration(port)
+    assert "selected out to fit this packet's bound" in declaration
+    for ref in TILE_EVIDENCE:
+        assert ref in declaration
+    assert "one retrieval call away" in declaration
+    assert "nothing was shortened" in declaration
+
+
+def test_a_fitted_packet_carries_what_it_kept_WHOLE_and_drops_the_rest(tmp_path):
+    """Fitting is selection, never truncation: what survives survives byte for
+    byte. Built with ONE oversized document so the tile's other note is still
+    small enough to be carried — otherwise this test would pass vacuously on a
+    packet that carried no evidence at all."""
+    root = tmp_path / "one-fat-checkout"
+    shutil.copytree(BASE_REPO, root)
+    fat, lean = TILE_EVIDENCE
+    fat_path = root / fat
+    fat_path.write_text(
+        fat_path.read_text(encoding="utf-8") + "\n\n"
+        + ("doc health dtn register staging governance " * 8000),
+        encoding="utf-8")
+
+    status, _payload, port = _post_turn(
+        tmp_path, _turn(message="doc health checks dtn register"),
+        knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED,
+        checkout_root=root)
+    assert status == 200
+    sections = _packet_sections(port)
+    carried = {key[len(pk.EVIDENCE_SECTION_PREFIX):]: text
+               for key, text in sections.items()
+               if key.startswith(pk.EVIDENCE_SECTION_PREFIX)}
+    assert carried, "the fit dropped everything; this test would prove nothing"
+    assert fat not in carried
+    for ref, text in carried.items():
+        assert (root / ref).read_text(encoding="utf-8") in text
+    assert fat in _declaration(port)
+
+
+def test_the_genuine_refusal_arm_answers_409_and_names_its_dimension(tmp_path):
+    """The only refusal left: the session's own threads exceed the bound
+    alone. It carries the measured dimension, and its message does NOT blame
+    the request."""
+    def _oversized_threads(**kwargs):
+        packet = pk.assemble_packet(**{**kwargs, "knowledge": None})
+        raise pk.PacketBoundExceeded(
+            "context_packet_bytes", pk.MAX_PACKET_BYTES + 1,
+            pk.MAX_PACKET_BYTES)
+
+    status, payload, port = _post_turn(tmp_path, _turn(),
+                                       packet_assembler=_oversized_threads)
+    assert status == 409
+    assert payload["error"] == serve_mod.DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED
+    assert payload["limit"] == {"dimension": "context_packet_bytes",
+                                "measured": pk.MAX_PACKET_BYTES + 1,
+                                "maximum": pk.MAX_PACKET_BYTES}
+    assert "request" not in payload["message"]
+    assert "thread" in payload["message"]
+    assert port.calls.count("dispatch") == 0
+
+
+def test_the_coverage_shortfall_is_stated_on_a_real_route(tmp_path):
+    """F6: the index has a declared bound and the confinement does not, so the
+    packet says how much of the tile's staged set retrieval actually covered."""
+    status, _payload, port = _post_turn(
+        tmp_path, _turn(), knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED)
+    assert status == 200
+    assert "retrieval covered all 3 documents" in _declaration(port)
+
+
+def test_the_evidence_revision_is_stated_on_a_real_route(tmp_path):
+    """F5: evidence is the SERVED CHECKOUT's bytes, not the session's."""
+    status, _payload, port = _post_turn(
+        tmp_path, _turn(message="doc health checks dtn register"),
+        knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED)
+    assert status == 200
+    declaration = _declaration(port)
+    assert "evidence bytes are the served checkout at revision" in declaration
+    assert "NOT this session's worktree" in declaration
 
 
 # ===========================================================================

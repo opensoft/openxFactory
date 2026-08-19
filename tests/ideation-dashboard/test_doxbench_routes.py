@@ -267,7 +267,7 @@ _UNSET = object()
 @contextmanager
 def _serving(tmp_path, *, actor="brett", checkout_root=None,
             model_port_factory=None, snapshot=None,
-            knowledge_declaration=None,
+            knowledge_declaration=None, packet_assembler=None,
             schema_validator_factory=_fixture_validators):
     """PIN EVOLUTION (T024/T050/T051 wire clause): the harness now injects
     released-schema validators, because the routes validate every wire shape
@@ -291,6 +291,9 @@ def _serving(tmp_path, *, actor="brett", checkout_root=None,
         # `build_server` -- is the declared reduced-packet posture, which is
         # what every pre-existing test in this file exercises unchanged.
         knowledge_declaration=knowledge_declaration,
+        # The packet assembler is a COLLABORATOR of the turn route, injected
+        # like every other one; `None` keeps `build_server`'s real default.
+        packet_assembler=packet_assembler,
         **extra,
     )
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
@@ -994,7 +997,8 @@ def _port(catalog=None):
 
 
 def _post_turn(tmp_path, body, *, port=None, headers=None, snapshot=None,
-               knowledge_declaration=None, inspect_handler=None):
+               knowledge_declaration=None, inspect_handler=None,
+               packet_assembler=None, checkout_root=None):
     """POST a turn as the real local console. Returns (status, payload, port).
 
     `inspect_handler` is called with the bound handler class while the server
@@ -1002,7 +1006,9 @@ def _post_turn(tmp_path, body, *, port=None, headers=None, snapshot=None,
     does not carry (the usage meter, task 10.8)."""
     fake = port if port is not None else _port()
     with _serving(tmp_path, model_port_factory=(lambda: fake), snapshot=snapshot,
-                  knowledge_declaration=knowledge_declaration) as (httpd, host, prt):
+                  knowledge_declaration=knowledge_declaration,
+                  packet_assembler=packet_assembler,
+                  checkout_root=checkout_root) as (httpd, host, prt):
         caps = _capabilities(host, prt)
         status, payload, _headers, _raw = _request(host, prt, "POST", CHAT_ROUTE, body=body,
                                    headers=headers or _console_headers(caps))
