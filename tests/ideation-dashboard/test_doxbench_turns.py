@@ -98,7 +98,7 @@ from ideation_dashboard.doxbench_turns import (
     validate_working_subject,
     verify_buffer_identity,
 )
-from ideation_dashboard import doxbench_turns
+from ideation_dashboard import doxbench_packet, doxbench_turns
 
 MODULE_PATH = REPO_ROOT / "scripts" / "ideation_dashboard" / "doxbench_turns.py"
 
@@ -243,6 +243,29 @@ def _revalidate_v1_shaped(
     )
 
 
+def _section(envelope, key: str) -> PromptSection:
+    """One section, looked up BY KEY.
+
+    RE-PINNED (task 5.4's packet half). These lookups used to be POSITIONAL
+    (`envelope.sections[6]`), which pinned a section's identity to a count that
+    the packet's own sections change — and which had already gone quietly wrong
+    once: `sections[6]` named the outline buffer in a test whose assertion about
+    the DOCUMENT buffer still passed, because the outline happened to carry the
+    label it was checking for. Nothing is weakened here: the declared ORDER is
+    still asserted whole, against `prompt_section_keys`, in
+    `test_envelope_sections_are_assembled_in_the_exact_declared_order`; what
+    these call sites assert is which section carries which text, and a key says
+    that where an index only implied it."""
+
+    matches = [section for section in envelope.sections if section.key == key]
+    assert len(matches) == 1, (key, [s.key for s in envelope.sections])
+    return matches[0]
+
+
+def _document_section(envelope, path: str = DOCUMENT_PATH) -> PromptSection:
+    return _section(envelope, "document_buffer:" + path)
+
+
 def _build_envelope(
     *,
     projection: ScopeProjection | None = None,
@@ -258,8 +281,12 @@ def _build_envelope(
     message: str = "Which open question should we close next?",
     session_base=None,
     bound_buffer_key=_UNSET,
+    packet=None,
+    meter=None,
 ) -> PromptEnvelope:
     return build_prompt_envelope(
+        packet=packet,
+        meter=meter,
         projection=projection if projection is not None else _valid_projection(),
         request_scope=request_scope if request_scope is not None else _key(),
         active_document_path=active_document_path,
@@ -285,16 +312,24 @@ def _build_envelope(
 # ===========================================================================
 
 
-def test_prompt_section_order_is_the_nine_step_deterministic_sequence():
-    """RE-PINNED by `add-doxbench-editing-phase-b` (task 5.4).
+def test_prompt_section_order_is_the_declared_deterministic_sequence():
+    """RE-PINNED TWICE by `add-doxbench-editing-phase-b` (task 5.4).
 
-    Still nine declared entries, still one constant, still deterministic. What
-    moved is that the single `document_buffer` SLOT became the `document_buffers`
-    GROUP, because the request now carries the outline plus N loaded documents
-    and a fixed slot cannot name them. The concrete per-request section keys are
-    pinned beside it, so "deterministic" is asserted at both levels rather than
-    traded away: the group expands to one section per document in the DECLARED
-    order and nothing depends on dictionary iteration.
+    First half (landed earlier): the single `document_buffer` SLOT became the
+    `document_buffers` GROUP, because the request now carries the outline plus N
+    loaded documents and a fixed slot cannot name them.
+
+    SECOND HALF (this slice): the PACKET's four groups joined the constant, in
+    design §3.1 step 5's own order — the packet's declaration, then the selected
+    thread, then the other threads' state headers, then the evidence with refs,
+    all ahead of the outline and document buffers. `transcript` keeps Phase A's
+    position: step 5 does not name it at all, so moving it would invent an
+    ordering the design does not state.
+
+    Still ONE constant, still deterministic, and still pinned at BOTH levels:
+    the declared groups here, and the concrete per-request keys below — which
+    now depend on the packet as well as on the buffer set, because two of the
+    packet's groups expand per item exactly as `document_buffers` does.
     """
     assert PROMPT_SECTION_ORDER == (
         "system_contract",
@@ -302,12 +337,19 @@ def test_prompt_section_order_is_the_nine_step_deterministic_sequence():
         "scope_metadata",
         "working_subject",
         "transcript",
+        "context_packet",
+        "selected_thread",
+        "thread_state_headers",
+        "evidence",
         "outline_buffer",
         "document_buffers",
         "human_message",
         "response_instruction",
     )
-    assert doxbench_turns.prompt_section_keys(["b.md", "a.md"]) == (
+    # With NO packet the packet groups contribute nothing at all — no empty
+    # section and no placeholder. (A real turn always has one; `None` is the
+    # question "what would the order be without", not a shape a route produces.)
+    assert doxbench_turns.prompt_section_keys(["b.md", "a.md"], packet=None) == (
         "system_contract",
         "model_data_handling",
         "scope_metadata",
@@ -322,9 +364,12 @@ def test_prompt_section_order_is_the_nine_step_deterministic_sequence():
 
 
 def test_envelope_sections_are_assembled_in_the_exact_declared_order():
-    envelope = _build_envelope()
+    packet = doxbench_packet.reduced_packet(
+        projection=_valid_projection(), scope=_key(),
+        selected_key=DOCUMENT_PATH, loaded_keys=(DOCUMENT_PATH,))
+    envelope = _build_envelope(packet=packet)
     assert [section.key for section in envelope.sections] == list(
-        doxbench_turns.prompt_section_keys([DOCUMENT_PATH]))
+        doxbench_turns.prompt_section_keys([DOCUMENT_PATH], packet=packet))
     assert all(isinstance(section, PromptSection) for section in envelope.sections)
 
 
@@ -337,8 +382,8 @@ def test_assembly_is_byte_for_byte_deterministic_for_identical_input():
 
 def test_system_contract_and_response_instruction_are_the_fixed_constants():
     envelope = _build_envelope()
-    system_section = envelope.sections[0]
-    instruction_section = envelope.sections[-1]
+    system_section = _section(envelope, "system_contract")
+    instruction_section = _section(envelope, "response_instruction")
     assert system_section.key == "system_contract"
     assert system_section.text == SYSTEM_CONTRACT_TEXT
     assert instruction_section.key == "response_instruction"
@@ -352,7 +397,7 @@ def test_model_data_handling_section_carries_the_selected_facts():
         model_input_limit_bytes=800_000,
         model_output_limit_bytes=900_000,
     )
-    section = envelope.sections[1]
+    section = _section(envelope, "model_data_handling")
     assert section.key == "model_data_handling"
     assert "opaque-local-id" in section.text
     assert "Processed in the approved tenant boundary" in section.text
@@ -362,7 +407,7 @@ def test_model_data_handling_section_carries_the_selected_facts():
 
 def test_scope_metadata_section_carries_repository_ref_and_tile():
     envelope = _build_envelope()
-    section = envelope.sections[2]
+    section = _section(envelope, "scope_metadata")
     assert section.key == "scope_metadata"
     assert REPOSITORY in section.text
     assert REF in section.text
@@ -372,14 +417,14 @@ def test_scope_metadata_section_carries_repository_ref_and_tile():
 
 def test_working_subject_section_carries_the_exact_text():
     envelope = _build_envelope(working_subject="Clarify the acceptance boundary")
-    section = envelope.sections[3]
+    section = _section(envelope, "working_subject")
     assert section.key == "working_subject"
     assert "Clarify the acceptance boundary" in section.text
 
 
 def test_human_message_section_carries_the_exact_new_message():
     envelope = _build_envelope(message="Which open question should we close next?")
-    section = envelope.sections[7]
+    section = _section(envelope, "human_message")
     assert section.key == "human_message"
     assert "Which open question should we close next?" in section.text
 
@@ -524,8 +569,8 @@ def test_build_prompt_envelope_refuses_the_same_way_on_bad_buffer_kinds():
 
 def test_full_outline_and_document_content_survive_exactly_in_their_sections():
     envelope = _build_envelope()
-    outline_section = envelope.sections[5]
-    document_section = envelope.sections[6]
+    outline_section = _section(envelope, "outline_buffer")
+    document_section = _document_section(envelope)
     assert outline_section.key == "outline_buffer"
     # RE-PINNED (task 5.4): a document's section is named for the BUFFER KEY it
     # carries, so a prompt with four documents has four separately identifiable
@@ -542,7 +587,7 @@ def test_buffer_at_the_exact_400000_byte_boundary_is_accepted_and_survives_whole
     assert utf8_size(content) == HASH_MAX_BUFFER_BYTES == 400_000
 
     envelope = _build_envelope(buffers=_valid_buffers(document_content=content))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert content in document_section.text
     assert marker in document_section.text
 
@@ -550,7 +595,7 @@ def test_buffer_at_the_exact_400000_byte_boundary_is_accepted_and_survives_whole
 def test_crlf_content_is_preserved_exactly_no_newline_normalization():
     content = "Line1\r\nLine2\r\nLine3\r\n"
     envelope = _build_envelope(buffers=_valid_buffers(document_content=content))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert content in document_section.text
     assert "Line1\r\nLine2" in document_section.text
     # a normalizer that rewrote CRLF to LF would break this exact substring
@@ -563,7 +608,7 @@ def test_combining_character_content_is_preserved_not_composed():
     assert combining != composed
     content = f"marker-combining-{combining}-end"
     envelope = _build_envelope(buffers=_valid_buffers(document_content=content))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert content in document_section.text
     assert combining in document_section.text
     # a normalizer that composed the accent would rewrite this exact substring
@@ -575,7 +620,7 @@ def test_astral_plane_character_content_is_preserved_exactly():
     astral = "\U0001F600" * 5  # GRINNING FACE, outside the BMP
     content = f"marker-astral-{astral}-end"
     envelope = _build_envelope(buffers=_valid_buffers(document_content=content))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert content in document_section.text
     assert astral in document_section.text
 
@@ -583,7 +628,7 @@ def test_astral_plane_character_content_is_preserved_exactly():
 def test_transcript_is_bounded_but_never_selected_or_summarized():
     turns = tuple(TranscriptTurn(role="human", text=f"turn-{i}") for i in range(5))
     envelope = _build_envelope(transcript=turns)
-    transcript_section = envelope.sections[4]
+    transcript_section = _section(envelope, "transcript")
     assert transcript_section.key == "transcript"
     for turn in turns:
         assert turn.text in transcript_section.text
@@ -594,22 +639,22 @@ def test_transcript_is_bounded_but_never_selected_or_summarized():
 
 def test_dirty_buffer_carries_the_explicit_dirty_working_state_label():
     envelope = _build_envelope(buffers=_valid_buffers(document_dirty=True))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert WORKING_STATE_DIRTY_LABEL in document_section.text
     assert WORKING_STATE_CLEAN_LABEL not in document_section.text
 
 
 def test_clean_buffer_carries_the_explicit_clean_working_state_label():
     envelope = _build_envelope(buffers=_valid_buffers(document_dirty=False))
-    document_section = envelope.sections[6]
+    document_section = _document_section(envelope)
     assert WORKING_STATE_CLEAN_LABEL in document_section.text
     assert WORKING_STATE_DIRTY_LABEL not in document_section.text
 
 
 def test_outline_and_document_labels_are_independent_of_each_other():
     envelope = _build_envelope(buffers=_valid_buffers(outline_dirty=True, document_dirty=False))
-    outline_section = envelope.sections[5]
-    document_section = envelope.sections[6]
+    outline_section = _section(envelope, "outline_buffer")
+    document_section = _document_section(envelope)
     assert WORKING_STATE_DIRTY_LABEL in outline_section.text
     assert WORKING_STATE_CLEAN_LABEL in document_section.text
 
@@ -1314,7 +1359,7 @@ def test_an_unsaved_buffer_based_on_the_sessions_own_base_grounds_a_turn():
         buffers=_pre_session_buffers(),
         session_base=_session_base(documents={DOCUMENT_PATH: DOCUMENT_CONTENT}),
     )
-    assert envelope.sections[6].text.endswith(DOCUMENT_CONTENT)
+    assert _document_section(envelope).text.endswith(DOCUMENT_CONTENT)
 
 
 def test_a_pre_session_buffer_is_refused_once_the_session_diverged_past_its_base():
@@ -1350,7 +1395,7 @@ def test_a_buffer_declaring_the_serving_snapshots_revision_grounds_too():
             documents={DOCUMENT_PATH: DOCUMENT_CONTENT},
             alias_revisions=("snapshot-rev-at-open",)),
     )
-    assert envelope.sections[6].text.endswith(DOCUMENT_CONTENT)
+    assert _document_section(envelope).text.endswith(DOCUMENT_CONTENT)
 
     # an alias never relaxes the byte clause ...
     with pytest.raises(TurnScopeError):
@@ -1451,7 +1496,7 @@ def test_a_document_the_session_never_held_grounds_only_an_empty_base():
                     base_ref="main", base_revision="base-rev-1", dirty=True)
     buffers = [_buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT), fresh]
     envelope = _build_envelope(buffers=buffers, session_base=_session_base())
-    assert envelope.sections[6].text.endswith("typed later")
+    assert _document_section(envelope).text.endswith("typed later")
 
     claiming = _buffer("document", path=DOCUMENT_PATH, content=DOCUMENT_CONTENT,
                        base_ref="main", base_revision="base-rev-1")
@@ -1480,7 +1525,7 @@ def test_document_buffer_with_a_null_path_is_disclosed_with_a_not_yet_created_he
     buffers = _valid_buffers()
     buffers[1] = _buffer("document", path=None, content=DOCUMENT_CONTENT)
     envelope = _build_envelope(active_document_path=None, buffers=buffers)
-    document_section = envelope.sections[6]
+    document_section = _section(envelope, "document_buffer:document")
     # The reserved unbacked slot: no path to be keyed by, so it keeps the
     # reserved `document` key and its section is named for that key.
     assert document_section.key == "document_buffer:document"
@@ -1500,7 +1545,7 @@ def test_outline_buffer_with_a_null_path_is_disclosed_with_a_not_yet_created_hea
     envelope = _build_envelope(
         projection=projection, active_document_path=DOCUMENT_PATH, buffers=buffers
     )
-    outline_section = envelope.sections[5]
+    outline_section = _section(envelope, "outline_buffer")
     assert outline_section.key == "outline_buffer"
     assert "Path: (not yet created)" in outline_section.text
     assert OUTLINE_CONTENT in outline_section.text
@@ -1567,8 +1612,8 @@ def test_second_turn_after_an_intervening_edit_uses_the_new_content_never_a_cach
     assert first.hex == content_identity(DOCUMENT_CONTENT).hex
     assert second.hex == content_identity(edited_content).hex
     assert first.hex != second.hex
-    assert edited_content in second_envelope.sections[6].text
-    assert DOCUMENT_CONTENT not in edited_content or edited_content in second_envelope.sections[6].text
+    assert edited_content in _document_section(second_envelope).text
+    assert DOCUMENT_CONTENT not in edited_content or edited_content in _document_section(second_envelope).text
 
 
 # ===========================================================================
@@ -3013,8 +3058,13 @@ def test_the_declared_document_order_is_deterministic_and_matches_the_browser():
 def test_a_turn_carrying_three_documents_assembles_one_section_each():
     """Task 5.4: the two buffer sections become the outline section plus one
     section per loaded document, in the declared order, from ONE constant."""
+    three_projection = _three_document_projection()
+    packet = doxbench_packet.reduced_packet(
+        projection=three_projection, scope=_key(), selected_key=_THREE[1],
+        loaded_keys=_THREE)
     envelope = build_prompt_envelope(
-        projection=_three_document_projection(),
+        packet=packet,
+        projection=three_projection,
         request_scope=_key(),
         active_document_path=_THREE[1],
         model_id="opaque-local-id",
@@ -3028,7 +3078,7 @@ def test_a_turn_carrying_three_documents_assembles_one_section_each():
         bound_buffer_key=_THREE[1],
     )
     assert [section.key for section in envelope.sections] == list(
-        doxbench_turns.prompt_section_keys(_THREE))
+        doxbench_turns.prompt_section_keys(_THREE, packet=packet))
     assert not hasattr(envelope, "bound_buffer_key"), (
         "F4: the declared binding is checked, never stored unreadably")
     # Every buffer's identity is observed, keyed, and recomputed at assembly

@@ -261,6 +261,12 @@ SOURCE_KINDS: tuple[str, ...] = (
 POSTURE_FULL = "full"
 POSTURE_REDUCED = "reduced"
 
+# The provider id a packet carries when NO retrieval provider was reached at
+# all. A declared label rather than an empty string or a `None`, for the same
+# reason the telemetry's absences are declared: a blank reads as "not filled in
+# yet" and invites someone to fill it in.
+PROVIDER_NONE = "no-retrieval-provider"
+
 REDUCED_NO_KNOWLEDGE_SERVICE = (
     "the staged-set knowledge service is unavailable, so this packet carries "
     "the selected thread and the loaded buffers only, with NO corpus evidence; "
@@ -316,10 +322,15 @@ class ContextPacket:
     sources: tuple[PacketSource, ...]
     issued_at: float
     expires_at: float
+    provider_id: str = PROVIDER_NONE
     reduced_reason: str | None = None
     absent_threads: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
+        if not isinstance(self.provider_id, str) or not self.provider_id.strip():
+            raise PacketError(
+                "a packet names the retrieval provider profile that produced "
+                "its evidence, or declares that none was reached")
         if self.posture not in (POSTURE_FULL, POSTURE_REDUCED):
             raise PacketError(
                 f"a packet posture is {POSTURE_FULL!r} or {POSTURE_REDUCED!r}")
@@ -565,11 +576,14 @@ def assemble_packet(
 
     posture = POSTURE_FULL
     reduced_reason: str | None = None
+    provider_id = PROVIDER_NONE
     evidence: list[_Evidence] = []
     if knowledge is None:
         posture = POSTURE_REDUCED
         reduced_reason = REDUCED_NO_KNOWLEDGE_SERVICE
     else:
+        profile = knowledge.profile()
+        provider_id = getattr(profile, "profile_id", PROVIDER_NONE)
         available = frozenset(ref for ref in confined if ref not in carried)
         hits = knowledge.search(
             query, confined_to=available, limit=evidence_limit,
@@ -601,6 +615,7 @@ def assemble_packet(
         sources=bounded,
         issued_at=issued,
         expires_at=issued + float(ttl_seconds),
+        provider_id=provider_id,
         reduced_reason=reduced_reason,
         absent_threads=absent,
     )
@@ -712,6 +727,7 @@ def declaration_text(packet: ContextPacket) -> str:
         f"scope: repository={packet.scope.repository} ref={packet.scope.ref} "
         f"tile_kind={packet.scope.tile_kind} tile_id={packet.scope.tile_id}",
         f"posture: {packet.posture}",
+        f"retrieval provider profile: {packet.provider_id}",
         f"expires: {packet.expires_at - packet.issued_at:.0f} seconds after "
         "issue, after which it is invalid and a new packet must be requested",
     ]
