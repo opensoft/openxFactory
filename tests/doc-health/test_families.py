@@ -422,8 +422,21 @@ def test_a_bare_question_is_non_conforming_and_names_every_missing_sub_field(tmp
     assert len(got) == 1
     # the three sections are present, so the ONLY gap is the question itself
     assert "no pre-document idea notes section" not in got[0].rule
-    for field in families._QUESTION_SUBFIELDS:
+    # THE FOUR NAMES, LITERALLY — never looped from
+    # `families._QUESTION_SUBFIELDS`. Iterating the constant makes the assertion
+    # shrink with it: drop a field from the tuple and a loop-driven check simply
+    # tests less and still passes. That is the same DIRECTION blindness the two
+    # agreement tests have (both assert checker-subset-of-contract and
+    # checker-subset-of-model, neither the reverse), and it is why dropping
+    # `Recommended answer` from the tuple passed the whole pre-existing suite on
+    # both sides.
+    for field in ("Context", "Recommended answer", "Explanation",
+                  "Disposition status"):
         assert field in got[0].rule, f"{field} not named in: {got[0].rule}"
+    # …and the checker still requires exactly those four and no others, so this
+    # test and the family cannot drift apart in the other direction either
+    assert list(families._QUESTION_SUBFIELDS) == [
+        "Context", "Recommended answer", "Explanation", "Disposition status"]
     assert "Q1. Does it work?" in got[0].rule
 
 
@@ -515,8 +528,15 @@ def test_a_topic_touched_long_after_ratification_stays_opt_in(tmp_path):
     An opt-in topic edited for an unrelated reason must not silently become
     required — so the context here offers a contradictory LAST commit date well
     after ratification, and a filesystem mtime of now, and the verdict must still
-    be opt-in. Swap `first_commit_date` for `last_commit_date` in the family and
-    only this test notices."""
+    be opt-in.
+
+    Swapping `first_commit_date` for `last_commit_date` in the family is noticed
+    by four tests, not by this one alone — but this is the only one that ISOLATES
+    the trap. The other three notice by accident of an unset fixture: they supply
+    no `last_dates` at all, so the swapped call returns None and their expected
+    REQUIRED collapses to opt-in. Only here does a topic carry BOTH dates, so only
+    here does the failure mean "the family read the wrong one" rather than "the
+    fixture had nothing to read"."""
     ctx, rels = _ctx_for(
         tmp_path, {"old": BARE},
         first_dates={"old": date(2026, 7, 1)},     # staged before ratification

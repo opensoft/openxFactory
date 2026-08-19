@@ -202,56 +202,103 @@ remains is the contract and the surface.
       the open-questions scope gate, first-missing-field-only, and dropping
       `Recommended answer` from the sub-field tuple. The recommendation rule was
       caught by NOTHING before this task: that mutation passed the whole
-      pre-existing suite.
+      pre-existing suite on both sides.
+      THE STRUCTURAL REASON IT WAS INVISIBLE, worth more than the fix: both
+      pre-existing agreement tests assert in ONE DIRECTION — the checker's fields
+      are named in the contract prose, and the checker's fields appear in the JS
+      model. Neither asserts the reverse. A direction-blind pair cannot see
+      SHRINKAGE: remove a field and both simply assert less, in step, and stay
+      green. The new assertion therefore names the four literally rather than
+      looping the constant, plus pins the tuple's exact contents, so the pair now
+      closes in both directions. (Review round 2 caught that the bare-question
+      test as first written still looped the constant, and so still passed the
+      mutation it was added for.)
       ONE CONTRACT RULE IS STILL UNENFORCED AND DELIBERATELY LEFT SO: the four
       sub-fields are specified "in this order", and neither the family nor the
-      model checks order — both test membership. A test cannot fail-if-broken
-      against a rule nothing implements, and adding an order check would raise new
-      warnings across the opt-in corpus, which gate 5.3 forbids this slice from
-      doing. Either the ordering words are advisory or the family needs a ruling;
-      recorded here rather than silently satisfied.
+      model checks order — `families.py` collects them into a `set` and discards
+      order outright; `outline-model.js` keeps encounter order but scores only
+      membership. A test cannot fail-if-broken against a rule nothing implements.
+      The reason it is not implemented HERE is that enforcing it needs a
+      production change to `families.py` mirrored in `outline-model.js`, and this
+      slice touches no production file — not corpus risk: the corpus was counted,
+      and all 12 open questions carry all four sub-fields IN ORDER, so an order
+      check would raise zero new findings today. (An earlier draft of this note
+      claimed corpus risk. It was wrong, and the count is recorded here so the
+      next reader does not inherit the excuse.) Either the ordering words are
+      advisory or both implementations need the rule; that is a ruling, not a
+      test.
 - [ ] 4.2 Round-trip: demote a fragment that reached proposal and assert the
       proposal-element sections carry the real prior text, not the aspirational
       original. This is the requirement's whole point and the one test that must
       not be a shape assertion.
-      **BLOCKED, AND LEFT UNCHECKED DELIBERATELY** — the requirement is
-      unrealized, not untested, so the box stays open where a completeness sweep
-      will still see it. Verified by
-      command rather than trusted from the prose, because this change has now been
-      bitten three times by a doc's claim that a mechanism exists.
-      A demote mechanism DOES exist and is well covered: `gate_console.py`
-      `plan_demotion` / `demote` / `execute_demotion_plan`, reachable as
-      `cli.py gate demote --execute` and `POST /actions/gate/demote`, with eight
-      tests in `tests/ideation-dashboard/test_gate_console.py` including
-      byte-exact CRLF preservation of the moved documents. What it does on demote
-      is MOVE `proposal.md` (and tasks/design/spec deltas) into
-      `ideation/staging/<topic>/openspec/` flipped to `Status: draft`, append a
-      `## Returned drafts` note to the topic README carrying the change id, the
-      demote date and the reason, write an `openspec/INDEX.md`, and remove the
-      change folder.
-      What it does NOT do is touch the topic's PRIMARY FRAGMENT at all. Nothing in
-      the repository writes `## Last proposal attempt (round-trip provenance)` or
-      refreshes the `xspec:candidate` proposal-element sections; repo-wide, that
-      heading appears only in `docs/document-lifecycle.md`, in this change's
-      supporting-docs snapshots, and in our own test fixtures. `Status at demote`
-      and `Demote reason` appear in no code at all. Nor does any CHECKER read
-      those slots: `fam_staged_topic_template` scores the three sections and the
-      four sub-fields only, and `location-conformance`'s `_staged_exit_changes`
-      scans `## Exit`, not the round-trip slot. So the fallback the task allows —
+      **BLOCKED, AND LEFT UNCHECKED DELIBERATELY.** Not because the rule is
+      unimplemented — because THE MECHANISM ACTIVELY INVERTS IT. The box stays
+      open where a completeness sweep will still see it.
+      (An earlier draft of this note said the demote "does not touch the primary
+      fragment at all". That was FALSE, and it is the fourth time this change has
+      been bitten by a claim about a mechanism that nobody drove. It was corrected
+      by driving the mechanism, which is the only thing that has ever settled one
+      of these.)
+      THE MECHANISM. `gate_console.py`'s `plan_demotion` / `demote` /
+      `execute_demotion_plan`, reachable as `cli.py gate demote --execute` and
+      `POST /actions/gate/demote`, with eight tests in
+      `tests/ideation-dashboard/test_gate_console.py` including byte-exact CRLF
+      preservation. `proposal.md` and its siblings return to
+      `ideation/staging/<topic>/openspec/` as `Status: draft`, a
+      `## Returned drafts` note is appended to the topic README carrying the change
+      id, the demote date and the reason, an `openspec/INDEX.md` is written, and the
+      change folder is removed.
+      THE INVERSION. `classify_change_file` (gate_console.py:548-549) routes
+      ANYTHING under `supporting-docs/` back to the TOPIC ROOT by bare basename
+      with a `Status: draft` flip. And the supporting-docs manifest that
+      `proposal-support.py transition` writes records the topic's own primary
+      fragment under exactly that bare basename — this change's own manifest has
+      `path: staged-topic-outline-template.md` with `remaining_paths: []`. Since
+      the primary fragment's basename IS `<topic>.md`, the demote's destination IS
+      the primary fragment path.
+      Driven, not reasoned: a fixture whose fragment carried real post-proposal
+      text plus a filled round-trip slot, demoted through the real console and
+      executor, came back carrying the ASPIRATIONAL snapshot verbatim — the real
+      in-flight text gone, all four slots gone, and `Status: draft` on a file
+      `_primary_fragment` still selects as the staged topic's outline.
+      So the ratified rule titled "A demoted topic does not reset to its
+      aspirational text" describes precisely what the mechanism performs, silently,
+      over the one file the wheel, doc-health and the outline tab all read.
+      GENERALITY. Not a special case: of the 9 changes carrying a supporting-docs
+      manifest, 2 declare a `staged` origin, and BOTH record a file whose basename
+      equals `<topic>.md` — i.e. 2 of 2 would overwrite their topic's primary
+      fragment on demote. The other 7 predate the origin contract and declare none.
+      This is the shape `transition` produces.
+      SECONDARY DEFECT, worth its own line: the destination is flipped to
+      `Status: draft` while `_primary_fragment` and `primaryFragmentPath` still
+      select it as the STAGED topic's outline — a staged topic whose outline
+      announces itself as a draft, which `status-validity` and the wheel both read.
+      LATENT, AND ONLY LATENT BY ACCIDENT: today the restore reads as harmless
+      because `transition` empties the topic folder on the way out
+      (`remaining_paths: []`), so the destination is usually absent when the move
+      lands. If a fragment were ever left behind, or the topic re-staged and worked
+      before a demote, the identical move overwrites live human work byte for byte
+      with no diff, no prompt and no record beyond the README note.
+      NO CHECKER READS THE SLOTS EITHER, so the fallback this task allows —
       distinguishing a genuine round-trip slot from the aspirational original —
-      has no purchase either.
-      Corroboration that this is a live misconception and not merely a gap:
-      `openspec/changes/add-doxbench-editing-phase-a/tasks.md:193` records "Its
-      'Last proposal attempt' slot is NOT filled — that slot fills on demote only,
-      per the template." It does not; nothing fills it.
-      The honest options are a spec-level decision, not a test: either
-      `execute_demotion_plan` grows a fragment-refresh step (a real code surface,
-      belonging to a change of its own), or the round-trip guarantee is restated as
-      what the mechanism actually does — material returns as drafts under
-      `openspec/` with the reason recorded in the README — and the fragment-slot
-      wording is superseded. Writing a harness that "demotes" by hand-authoring
-      the expected fragment and then asserting it would be a shape assertion in a
-      costume, and is exactly what this task forbids.
+      has no purchase: `fam_staged_topic_template` scores the three sections and
+      four sub-fields only, and `location-conformance`'s `_staged_exit_changes`
+      scans `## Exit`. Nothing anywhere writes `Status at demote` or
+      `Demote reason`.
+      THE MISCONCEPTION IS RECORDED AS FACT in the corpus:
+      `openspec/changes/add-doxbench-editing-phase-a/tasks.md:193-194` says the
+      slot "fills on demote only, per the template". Nothing fills it, and the same
+      demote deletes it.
+      DISPOSITION IS BRETT'S, and this is a contract/mechanism divergence needing
+      OpenSpec, not a test. Recommendation carried forward: treat it as a DEFECT
+      FIX in demote — keep `Status: staged` on a fragment destination, and fill the
+      four slots from values `execute_demotion_plan` already holds (change id,
+      demote date, reason; `Raised` from the change's own transition manifest) —
+      with the `xspec:candidate` refresh from the returned `proposal.md` as the
+      genuinely new surface, possibly its own change. Deliberately NOT built here.
+      What was refused: writing a harness that "demotes" by hand-authoring the
+      expected fragment and asserting it. That is a shape assertion in a costume,
+      and it would have hidden the inversion instead of finding it.
 - [x] 4.3 Opt-in boundary: a pre-ratification topic warns and does not block; a
       post-ratification topic is required.
       The three ends were already pinned by 2.2/2.3 — pre-ratification is opt-in,
