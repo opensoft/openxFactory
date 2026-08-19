@@ -417,11 +417,16 @@ def test_a_demote_restores_an_absent_outline_and_refreshes_it(tmp_path):
     assert "THE ASPIRATIONAL PRE-PROPOSAL GUESS." not in text
 
     # …and refreshing the RESULT again with the same inputs is a no-op, which is
-    # the requirement's idempotence clause measured on real output
+    # the requirement's idempotence clause measured on real output. "The same
+    # inputs" moved with `refine-demote-round-trip-mechanics` part 4: the
+    # state-at-demote slot now carries the change's task progress beside its
+    # status (the fixture change records 2 of 4), so re-deriving it here means
+    # re-deriving that too.
     again = round_trip.refresh_fragment(
         text, proposal_text=returned,
         provenance={"Change ID": CHANGE, "Raised": "2026-07-02",
-                    "Status at demote": "active", "Demoted": AT[:10],
+                    "Status at demote": "active — 2 of 4 tasks done",
+                    "Demoted": AT[:10],
                     "Demote reason": "Reworking scope."})
     assert again == text
     # the selector still calls it the topic's outline
@@ -869,6 +874,243 @@ def test_the_round_trip_arm_leaves_a_topic_with_no_snapshot_untouched(tmp_path):
     assert ex.outline_refreshed is False
     assert ex.snapshot_disposition is None
     assert not _fragment(root).exists()
+
+
+# ============================================================================
+# refine-demote-round-trip-mechanics — the four mechanics around the rule
+# ============================================================================
+#
+# Three defects that only a FULL LAP can show (forward gate, then demote, then
+# forward again), plus Brett's Decision 3. Every test below drives the real gates
+# for the same reason the round-trip tests above do: each of these was invisible
+# to a reading of the code and visible on the first lap.
+
+
+def _minimal_snapshot(**over) -> dict:
+    change = {"id": CHANGE, "status": "active",
+              "folder": f"openspec/changes/{CHANGE}", "files": []}
+    change.update(over)
+    return {"changes": [change], "possibles": []}
+
+
+# ---- part 1: the origin precedence order, at the planner's rung --------------
+
+def test_an_explicitly_supplied_topic_outranks_a_resolved_origin():
+    """The first rung, and it is here rather than in the generator because this
+    is where a human's argument arrives. A human naming the destination is the
+    most direct statement of intent available, so it wins over both derived
+    sources — including one that now actually answers."""
+    snap = _minimal_snapshot(origin_staging_id="resolved-from-the-origin-block")
+    plan = gc.plan_demotion(snap, CHANGE, reason="r",
+                            staging_topic="named-by-a-human")
+    assert plan.staging_topic == "named-by-a-human"
+    assert plan.topic_path == "ideation/staging/named-by-a-human"
+
+
+def test_a_resolved_origin_is_used_when_no_topic_is_supplied():
+    plan = gc.plan_demotion(_minimal_snapshot(origin_staging_id="from-the-block"),
+                            CHANGE, reason="r")
+    assert plan.staging_topic == "from-the-block"
+
+
+def test_an_unresolvable_origin_still_refuses_and_names_the_explicit_option():
+    """A change whose origin is ad-hoc or absent has NO staging topic to return
+    to, and inventing one would move material somewhere nobody chose. The refusal
+    survives this change unchanged in substance, and it has to name the way out."""
+    with pytest.raises(gc.GateRefused) as ei:
+        gc.plan_demotion(_minimal_snapshot(origin_staging_id=None), CHANGE, reason="r")
+    message = str(ei.value)
+    assert "no recorded origin staging topic" in message
+    assert "--staging-topic" in message
+
+
+# ---- part 2: the demote's own INDEX does not block the next transition -------
+
+def _headered_proposal(root: Path, why: str) -> None:
+    """A change `proposal.md` carrying a lifecycle header, which is what a
+    proposal returning into a governed staging folder needs to be transitionable
+    again (45 of 94 proposals in the real corpus carry one)."""
+    proposal = root / "openspec" / "changes" / CHANGE / "proposal.md"
+    proposal.parent.mkdir(parents=True, exist_ok=True)
+    proposal.write_text(
+        f"---\ncode_surface: none\nStatus: draft\n---\n\n# Proposal: {CHANGE}\n\n"
+        f"## Why\n\n{why}\n", encoding="utf-8")
+
+
+def _header_the_changes_tasks(root: Path) -> None:
+    """Give the change's own `tasks.md` a lifecycle header.
+
+    NOT a workaround for the artifact under test — an isolation of it. OpenSpec
+    change artifacts do not carry lifecycle headers by convention (measured on
+    this corpus: 93 of 94 `tasks.md`, 154 of 158 spec deltas, 65 of 68
+    `design.md`), and the demote MOVES them byte-exactly under the ratified
+    corpus-integrity guarantee that
+    `test_a_crlf_document_survives_a_demote_move_byte_exactly` pins. A header-less
+    RETURNED CHANGE ARTIFACT is therefore a separate blocker with a different
+    owner; this test is about the artifact the reverse transition WRITES itself.
+    """
+    tasks = root / "openspec" / "changes" / CHANGE / "tasks.md"
+    tasks.write_text(
+        tasks.read_text(encoding="utf-8").replace(
+            f"# Tasks: {CHANGE}\n", f"# Tasks: {CHANGE}\n\nStatus: draft\n", 1),
+        encoding="utf-8")
+
+
+def test_the_demotes_own_index_carries_a_lifecycle_status(tmp_path):
+    """design Decision 2 — `draft`, because the INDEX describes the returned
+    DRAFT proposals and shares their state, and the next demote regenerates it
+    rather than it being durable evidence (which `record` would claim)."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    res, ex = _demote_and_execute(root)
+    index = ex.index_path.read_text(encoding="utf-8")
+    assert "Status: draft" in index.splitlines()
+    # and it is in the HEADER WINDOW the readers scan, not buried in the listing
+    assert index.splitlines().index("Status: draft") < 5
+
+
+def test_a_returned_topic_transitions_forward_again_over_its_whole_folder(tmp_path):
+    """DRIVEN, not asserted (task 2.2). The defect was found by running the real
+    forward transition over a returned topic and watching it refuse
+    (`SupportError: governed Markdown lacks Status header`) on the demote's OWN
+    `openspec/INDEX.md` — the reverse transition leaving a landmine for the next
+    lap of the very cycle it is half of. So the fix is believed on the same
+    evidence: both gates driven, whole folder, no file naming, no operator
+    workaround."""
+    root = _tree(tmp_path)
+    _header_the_changes_tasks(root)
+    _reach_proposal(root, _fragment_reaching_proposal(ASPIRATIONAL_GUESS))
+    _headered_proposal(root, IN_FLIGHT_TRUTH)
+    res, ex = _demote_and_execute(root, reason="Reworking scope.")
+
+    # the returned topic really does hold the demote's own INDEX…
+    returned = sorted(
+        p.relative_to(root).as_posix()
+        for p in (root / "ideation" / "staging" / TOPIC).rglob("*") if p.is_file())
+    assert f"ideation/staging/{TOPIC}/openspec/INDEX.md" in returned
+
+    # …and the REAL forward gate now takes the WHOLE FOLDER without refusing.
+    _headered_proposal(root, "A SECOND ATTEMPT'S REASONING.")
+    support.transition(root, CHANGE, f"ideation/staging/{TOPIC}", [], None,
+                       "2026-08-01", False, True)
+
+    sd = root / "openspec" / "changes" / CHANGE / "supporting-docs"
+    assert (sd / "openspec" / "INDEX.md").is_file(), \
+        "the whole-folder transition did not carry the demote's own INDEX forward"
+    assert not (root / "ideation" / "staging" / TOPIC).exists(), \
+        "the forward transition leaves the topic folder empty and removed"
+
+
+# ---- part 3: one authorship line per document, not one per attempt ----------
+
+def test_two_laps_leave_exactly_one_proposed_by_line_naming_the_latest(tmp_path):
+    """The forward gate rewrites `Status: staged` into `Status: draft` plus a
+    `Proposed by:` line; the demote restores `Status: staged` and leaves the
+    authorship line alone (correctly — see the boundary test below). So without
+    the fix the second lap adds a SECOND line and the third a third, and several
+    lines each claiming to name the proposing change say nothing about which one
+    is current."""
+    root = _tree(tmp_path)
+    _header_the_changes_tasks(root)
+    _reach_proposal(root, _fragment_reaching_proposal(ASPIRATIONAL_GUESS))
+    _headered_proposal(root, IN_FLIGHT_TRUTH)
+    _demote_and_execute(root, reason="First attempt.")
+
+    returned = _fragment(root).read_text(encoding="utf-8")
+    # the demote returns the line untouched — that is the boundary, not the bug
+    assert returned.count("Proposed by:") == 1
+
+    _headered_proposal(root, "A SECOND ATTEMPT'S REASONING.")
+    support.transition(root, CHANGE, f"ideation/staging/{TOPIC}", [], None,
+                       "2026-08-01", False, True)
+
+    moved = (root / "openspec" / "changes" / CHANGE / "supporting-docs"
+             / f"{TOPIC}.md").read_text(encoding="utf-8")
+    lines = [ln for ln in moved.splitlines() if ln.startswith("Proposed by:")]
+    assert lines == [f"Proposed by: {CHANGE}"], \
+        "a second lap through the proposal gate duplicated the authorship line"
+    assert "Status: draft" in moved.splitlines()
+
+
+def test_the_demotes_bounded_refresh_is_not_where_the_line_is_deduped(tmp_path):
+    """design Decision 3, asserted as a BOUNDARY rather than assumed. The obvious
+    place to dedupe is the demote's refresh, since that is what runs when the line
+    comes back — and it is the wrong place: the ratified requirement pins that
+    refresh as bounded to the provenance slots and the marked sections, "leaving
+    every other byte of that file unchanged". A header-tidying refresh would trade
+    a data-loss guarantee for neatness, so this test pins that the demote leaves
+    two authorship lines EXACTLY as it found them."""
+    root = _tree(tmp_path)
+    snapshot_path = _with_transitioned_snapshot(root)
+    fragment = _fragment(root)
+    fragment.parent.mkdir(parents=True, exist_ok=True)
+    live = snapshot_path.read_text(encoding="utf-8").replace(
+        "Status: staged\n",
+        "Status: staged\nProposed by: an-older-change\n"
+        "Proposed by: a-second-older-change\n", 1)
+    fragment.write_text(live, encoding="utf-8")
+
+    res, ex = _demote_and_execute(root, reason="Boundary.")
+    after = fragment.read_text(encoding="utf-8")
+
+    assert ex.snapshot_disposition == "preserved"   # the live-fragment arm
+    assert [ln for ln in after.splitlines() if ln.startswith("Proposed by:")] == [
+        "Proposed by: an-older-change", "Proposed by: a-second-older-change"], \
+        "the demote's bounded refresh widened to tidy a header line"
+
+
+# ---- part 4: the state-at-demote slot (Brett's Decision 3) ------------------
+
+def test_state_at_demote_renders_status_and_progress_as_prose():
+    assert gc.state_at_demote("active", {"completed": 9, "total": 22}) == \
+        "active — 9 of 22 tasks done"
+
+
+def test_state_at_demote_with_no_progress_renders_the_status_alone():
+    """NOT `active — unavailable`. The ratified unavailable rule is about a value
+    that could not be RESOLVED; a change recording no tasks has no progress to
+    resolve, and reporting a lookup failure where there was none is a different
+    lie from the one the rule forbids."""
+    for progress in (None, {}, {"completed": 0, "total": 0}, {"total": "many"}):
+        assert gc.state_at_demote("active", progress) == "active"
+
+
+def test_state_at_demote_with_no_status_stays_empty_for_the_unavailable_marker():
+    """An unresolvable STATUS is a real resolution failure, so it must reach the
+    caller's `UNAVAILABLE` rather than being papered over with a task count."""
+    assert gc.state_at_demote("", {"completed": 9, "total": 22}) == ""
+
+
+def test_the_plan_carries_task_progress_beside_the_status(tmp_path):
+    """Same reasoning as `status_at_demote` before it: the plan is snapshot-derived
+    and pure, and `execute_demotion_plan` never sees a snapshot."""
+    root = _tree(tmp_path)
+    plan = gc.plan_demotion(_snapshot(root), CHANGE, reason="r")
+    assert plan.status_at_demote == "active"
+    assert plan.task_progress == {"completed": 2, "total": 4}
+
+
+def test_the_demoted_fragments_state_slot_carries_the_progress(tmp_path):
+    """The fixture change records 2 of 4 tasks done — ticked AND unticked, so the
+    count is not a total masquerading as progress."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    _demote_and_execute(root)
+    text = _fragment(root).read_text(encoding="utf-8")
+    assert "Status at demote: active — 2 of 4 tasks done" in text
+    assert round_trip.UNAVAILABLE not in text
+
+
+def test_a_change_with_no_tasks_file_gets_the_status_alone(tmp_path):
+    root = _tree(tmp_path)
+    (root / "openspec" / "changes" / CHANGE / "tasks.md").unlink()
+    _with_transitioned_snapshot(root)
+    plan = gc.plan_demotion(_snapshot(root), CHANGE, reason="No tasks.")
+    assert plan.task_progress is None
+    gc.execute_demotion_plan(plan, root, at=AT)
+    slot = [ln for ln in _fragment(root).read_text(encoding="utf-8").splitlines()
+            if ln.startswith("Status at demote:")]
+    assert slot == ["Status at demote: active"]
 
 
 # ============================================================================
