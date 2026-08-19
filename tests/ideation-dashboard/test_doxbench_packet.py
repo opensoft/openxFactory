@@ -328,6 +328,54 @@ def test_a_loaded_document_with_no_sidecar_is_declared_absent_not_invented():
     assert "nothing has been mirrored into those sidecars" in text
 
 
+def test_the_declaration_states_WHICH_BYTES_the_evidence_is(
+):
+    """The session's saves land in its WORKTREE; evidence is read from the
+    SERVED CHECKOUT. A document saved (or created) in this session is therefore
+    eligible evidence at its pre-session bytes, or not indexable at all — so
+    the packet names the revision rather than letting a reader assume the
+    evidence is the session's own work."""
+    packet = pk.assemble_packet(
+        projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler", knowledge=_boundary(),
+        already_carried=(OUTLINE,), clock=_clock())
+    assert packet.source_revision == "r" * 40
+    text = pk.declaration_text(packet)
+    assert "evidence bytes are the served checkout at revision" in text
+    assert "NOT this session's worktree" in text
+    assert "pre-session bytes, or not at all" in text
+
+
+def test_a_packet_carrying_no_evidence_claims_no_revision():
+    packet = pk.reduced_packet(projection=_projection(), scope=SCOPE,
+                               selected_key=DOC_A, loaded_keys=(DOC_A,),
+                               clock=_clock())
+    assert packet.source_revision is None
+    assert "served checkout at revision" not in pk.declaration_text(packet)
+
+
+def test_a_retrieval_coverage_shortfall_is_STATED_not_left_to_silence():
+    """The index has a declared bound; the confinement does not. Refs past the
+    bound are confined-but-unindexable, which the declaration must say — the
+    lossless note's "one retrieval call away" is FALSE for them."""
+    packet = pk.assemble_packet(
+        projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler", knowledge=_boundary(),
+        already_carried=(OUTLINE,), corpus_coverage=(200, 512), clock=_clock())
+    text = pk.declaration_text(packet)
+    assert "retrieval covered 200 of 512 documents" in text
+    assert "the remaining 312 were beyond the declared index bound" in text
+    assert "not one retrieval call away either" in text
+
+
+def test_full_coverage_is_stated_too_so_the_line_is_never_ambiguous():
+    packet = pk.assemble_packet(
+        projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler", knowledge=_boundary(),
+        already_carried=(OUTLINE,), corpus_coverage=(7, 7), clock=_clock())
+    assert "retrieval covered all 7 documents" in pk.declaration_text(packet)
+
+
 def test_selection_is_lossless_by_reference_and_says_so():
     packet = pk.reduced_packet(projection=_projection(), scope=SCOPE,
                                selected_key=DOC_A, loaded_keys=(DOC_A,),
@@ -367,6 +415,28 @@ def test_the_exempt_status_set_is_the_approved_end_of_the_lifecycle(status,
     assert pk.is_compression_exempt(f"Status: {status}\n\nbody\n") is exempt
 
 
+@pytest.mark.parametrize("raw,word,exempt", [
+    ("ratified", "ratified", True),
+    ("ratified (2026-08-01)", "ratified", True),
+    ("standard · promoted 2026-07-24", "standard", True),
+    ("record · 2026-08-01T01:21Z (session of 2026-07-31)", "record", False),
+    ("record (in progress — accumulating)", "record", False),
+    ("brainstorm | staged", "brainstorm", False),
+    ("superseded by add-x", "superseded", False),
+])
+def test_a_DECORATED_status_keeps_its_status_word(raw, word, exempt):
+    """This corpus already carries decorated statuses (`record · …`,
+    `record (in progress — …)`), so a decorated `ratified (…)` would otherwise
+    lose its exemption SILENTLY — the exact failure this rail prevents.
+
+    `lifecycle_status` still returns the RAW value, so the agreement with the
+    repository's own corpus reader is untouched."""
+    text = f"Status: {raw}\n\nbody\n"
+    assert pk.lifecycle_status(text) == raw
+    assert pk.status_word(raw) == word
+    assert pk.is_compression_exempt(text) is exempt
+
+
 def test_a_document_with_no_status_header_is_not_exempt():
     assert pk.lifecycle_status("no header here\n") is None
     assert pk.is_compression_exempt("no header here\n") is False
@@ -404,44 +474,118 @@ def test_the_status_read_agrees_with_the_repositorys_own_corpus_reader():
 # ===========================================================================
 
 
-def test_the_bounds_refusal_names_the_measured_dimension_and_truncates_nothing():
+def _oversized_thread() -> dt.DocumentThread:
+    """A thread whose state header alone blows the packet bound. Nothing
+    SELECTED it, so there is nothing to select less of."""
+    return _thread(DOC_A, goal="g" * (pk.MAX_PACKET_BYTES + 1))
+
+
+def test_oversized_evidence_is_SELECTED_OUT_rather_than_refusing_the_turn():
+    """RE-PINNED (adversarial review, F2). This test used to assert that
+    server-selected evidence over the bound REFUSED the turn — which made every
+    turn on a tile holding one big document fail forever, with an HTTP 413
+    blaming a ~700-byte request for 293 KB the server itself chose.
+
+    Selection is layer one, and layer one's contract is LOSSLESS BY REFERENCE:
+    carrying less of what retrieval selected is selection, not truncation. So
+    the packet FITS by selecting less and NAMES what it dropped."""
     oversized = "x" * (pk.MAX_PACKET_BYTES + 1)
     boundary = _boundary()
     boundary.sources[EVIDENCE_DRAFT] = "Status: draft\n\n" + oversized
+    packet = pk.assemble_packet(
+        projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler", knowledge=boundary,
+        already_carried=(OUTLINE,), clock=_clock())
+    assert packet.byte_count <= pk.MAX_PACKET_BYTES
+    assert EVIDENCE_DRAFT in packet.dropped_evidence
+    assert EVIDENCE_DRAFT not in packet.refs()
+    # the one that fits is still carried: a fit is not an all-or-nothing drop
+    assert EVIDENCE_RATIFIED in packet.refs()
+
+
+def test_every_dropped_ref_is_NAMED_in_the_declaration():
+    """"Lossless by reference" is only true if the packet says which
+    references it is standing on."""
+    boundary = _boundary()
+    boundary.sources[EVIDENCE_DRAFT] = ("Status: draft\n\n"
+                                        + "x" * (pk.MAX_PACKET_BYTES + 1))
+    packet = pk.assemble_packet(
+        projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler", knowledge=boundary,
+        already_carried=(OUTLINE,), clock=_clock())
+    text = pk.declaration_text(packet)
+    assert "selected out to fit this packet's bound" in text
+    for ref in packet.dropped_evidence:
+        assert ref in text
+    assert "one retrieval call away" in text
+    assert "nothing was shortened" in text
+
+
+def test_the_fit_keeps_the_best_ranked_items_that_FIT_not_a_prefix():
+    """Dropping strictly from the tail was the obvious alternative and is
+    worse: one oversized TOP hit would evict every smaller item behind it and
+    the packet would carry nothing. The fit is greedy BY RANK."""
+    huge = "Status: draft\n\n" + "x" * (pk.MAX_PACKET_BYTES + 1)
+    rows = (
+        pk.PacketSource(ref="rank1-huge.md", kind=pk.SOURCE_EVIDENCE, text=huge,
+                        status=None, compression_exempt=False),
+        pk.PacketSource(ref="rank2-small.md", kind=pk.SOURCE_EVIDENCE,
+                        text="small", status=None, compression_exempt=False),
+    )
+    fitted, dropped = pk.bounds_rail(rows)
+    assert [source.ref for source in fitted] == ["rank2-small.md"]
+    assert dropped == ("rank1-huge.md",)
+
+
+def test_the_source_count_bound_is_fitted_by_dropping_too():
+    rows = tuple(
+        pk.PacketSource(ref=f"r{index:03d}.md", kind=pk.SOURCE_EVIDENCE,
+                        text="x", status=None, compression_exempt=False)
+        for index in range(pk.MAX_PACKET_SOURCES + 3))
+    fitted, dropped = pk.bounds_rail(rows)
+    assert len(fitted) == pk.MAX_PACKET_SOURCES
+    assert len(dropped) == 3
+    # rank order preserved: the three dropped are the last three
+    assert dropped == ("r048.md", "r049.md", "r050.md")
+
+
+def test_threads_alone_over_the_bound_REFUSE_with_the_measured_dimension():
+    """The genuine refusal arm, and the only one left: the threads are not
+    SELECTED — the packet is the only place they appear — so there is nothing
+    to select less of. The refusal is actionable, because layer two exists to
+    compact a thread back inside a bound."""
     with pytest.raises(pk.PacketBoundExceeded) as raised:
         pk.assemble_packet(
             projection=_projection(), scope=SCOPE, selected_key=DOC_A,
-            loaded_keys=(DOC_A,), query="packet assembler", knowledge=boundary,
-            already_carried=(OUTLINE,), clock=_clock())
+            loaded_keys=(DOC_A,), query="packet assembler", knowledge=None,
+            threads={DOC_A: _oversized_thread()}, clock=_clock())
     assert raised.value.limit["dimension"] == "context_packet_bytes"
     assert raised.value.limit["measured"] > pk.MAX_PACKET_BYTES
     assert raised.value.limit["maximum"] == pk.MAX_PACKET_BYTES
 
 
-def test_a_bounds_refusal_discloses_no_packet_content():
-    sentinel = "SENTINEL-PACKET-CONTENT-" + "y" * pk.MAX_PACKET_BYTES
-    boundary = _boundary()
-    boundary.sources[EVIDENCE_DRAFT] = "Status: draft\n\n" + sentinel
-    with pytest.raises(pk.PacketBoundExceeded) as raised:
-        pk.assemble_packet(
-            projection=_projection(), scope=SCOPE, selected_key=DOC_A,
-            loaded_keys=(DOC_A,), query="packet assembler", knowledge=boundary,
-            already_carried=(OUTLINE,), clock=_clock())
-    assert "SENTINEL-PACKET-CONTENT" not in str(raised.value)
-    assert "SENTINEL-PACKET-CONTENT" not in repr(raised.value)
-    assert "SENTINEL-PACKET-CONTENT" not in repr(raised.value.limit)
-    # and no ref either -- the refusal is dimensions and integers
-    assert EVIDENCE_DRAFT not in str(raised.value)
-
-
-def test_the_source_count_bound_refuses_with_its_own_dimension():
+def test_the_source_count_refusal_arm_names_its_own_dimension():
     rows = tuple(
-        pk.PacketSource(ref=f"r{index}.md", kind=pk.SOURCE_EVIDENCE, text="x",
-                        status=None, compression_exempt=False)
+        pk.PacketSource(ref=f"t{index:03d}.md", kind=pk.SOURCE_THREAD_STATE,
+                        text="x", status=None, compression_exempt=False)
         for index in range(pk.MAX_PACKET_SOURCES + 1))
     with pytest.raises(pk.PacketBoundExceeded) as raised:
         pk.bounds_rail(rows)
     assert raised.value.limit["dimension"] == "context_packet_sources"
+
+
+def test_a_bounds_refusal_discloses_no_packet_content():
+    sentinel = "SENTINEL-PACKET-CONTENT-" + "y" * pk.MAX_PACKET_BYTES
+    with pytest.raises(pk.PacketBoundExceeded) as raised:
+        pk.assemble_packet(
+            projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+            loaded_keys=(DOC_A,), query="packet assembler", knowledge=None,
+            threads={DOC_A: _thread(DOC_A, goal=sentinel)}, clock=_clock())
+    assert "SENTINEL-PACKET-CONTENT" not in str(raised.value)
+    assert "SENTINEL-PACKET-CONTENT" not in repr(raised.value)
+    assert "SENTINEL-PACKET-CONTENT" not in repr(raised.value.limit)
+    # and no ref either -- the refusal is dimensions and integers
+    assert DOC_A not in str(raised.value)
 
 
 def test_nothing_is_truncated_to_fit_a_bound():
@@ -503,6 +647,46 @@ def test_the_reduced_packet_runs_the_SAME_rails_rather_than_skipping_them():
             threads={DOC_A: _thread(
                 DOC_A, goal="x" * (pk.MAX_PACKET_BYTES + 1))},
             clock=_clock())
+
+
+def test_a_retrieval_that_REFUSES_degrades_instead_of_killing_the_turn():
+    """"The knowledge service cannot answer" is a case the delta already rules
+    on. v1's in-process backend cannot realistically refuse, but the port
+    exists so another backend can sit behind it, and an unhandled refusal there
+    would have dropped the connection mid-turn."""
+    class RefusingBoundary(RecordingBoundary):
+        def search(self, query, *, confined_to, limit,
+                   thread_signals=frozenset()):
+            raise kn.RetrievalRefused("this backend declines")
+
+    packet = pk.assemble_packet(
+        projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler",
+        knowledge=RefusingBoundary(), already_carried=(OUTLINE,),
+        clock=_clock())
+    assert packet.posture == pk.POSTURE_REDUCED
+    assert packet.reduced_reason == pk.REDUCED_RETRIEVAL_REFUSED
+    assert packet.of_kind(pk.SOURCE_EVIDENCE) == ()
+    assert packet.provider_id == pk.PROVIDER_NONE
+
+
+def test_evidence_gathered_before_a_refusal_is_discarded_not_half_carried():
+    class HalfwayBoundary(RecordingBoundary):
+        def get_source(self, ref, *, confined_to):
+            self.fetches.append((ref, confined_to))
+            if ref == EVIDENCE_DRAFT:
+                return kn.IndexedSource(ref=ref, text=DRAFT_TEXT)
+            raise kn.RetrievalRefused("this backend declines mid-answer")
+
+    halfway = HalfwayBoundary(sources={EVIDENCE_RATIFIED: RATIFIED_TEXT,
+                                       EVIDENCE_DRAFT: DRAFT_TEXT})
+    packet = pk.assemble_packet(
+        projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler",
+        knowledge=halfway, already_carried=(OUTLINE,), clock=_clock())
+    assert halfway.fetches, "the test never reached the failing fetch"
+    assert packet.posture == pk.POSTURE_REDUCED
+    assert packet.of_kind(pk.SOURCE_EVIDENCE) == ()
 
 
 def test_a_reduced_packet_must_state_its_reason():

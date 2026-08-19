@@ -283,10 +283,12 @@ def _build_envelope(
     bound_buffer_key=_UNSET,
     packet=None,
     meter=None,
+    clock=None,
 ) -> PromptEnvelope:
     return build_prompt_envelope(
         packet=packet,
         meter=meter,
+        **({} if clock is None else {"clock": clock}),
         projection=projection if projection is not None else _valid_projection(),
         request_scope=request_scope if request_scope is not None else _key(),
         active_document_path=active_document_path,
@@ -388,6 +390,65 @@ def test_a_turn_with_no_packet_supplied_carries_the_declared_reduced_one():
     assert doxbench_packet.PACKET_SECTION_SELECTED_THREAD not in sections
     assert not [key for key in sections
                 if key.startswith(doxbench_packet.EVIDENCE_SECTION_PREFIX)]
+
+
+_FOREIGN_SCOPE = ScopeKey(repository="some-other-repo", ref="main",
+                          tile_kind="staged", tile_id="a-different-tile")
+
+
+def _packet_for(scope, *, clock=lambda: 0.0, ttl=300.0):
+    return doxbench_packet.reduced_packet(
+        projection=_valid_projection(), scope=scope,
+        selected_key=DOCUMENT_PATH, loaded_keys=(DOCUMENT_PATH,),
+        clock=clock, ttl_seconds=ttl)
+
+
+def test_the_consuming_surface_REJECTS_a_packet_issued_for_another_scope():
+    """The delta: "a consuming surface presented with such a packet MUST reject
+    it and request a new one."
+
+    Found by the adversarial review (F1): `require_valid` existed, was tested,
+    and had ZERO production call sites — a packet issued for another repository
+    and another tile was rendered into the prompt unexamined. The leash is only
+    a leash where something pulls on it."""
+    foreign = _packet_for(_FOREIGN_SCOPE)
+    with pytest.raises(doxbench_packet.PacketScopeMismatch):
+        _build_envelope(packet=foreign)
+
+
+def test_the_consuming_surface_REJECTS_a_packet_issued_for_another_purpose():
+    packet = _packet_for(_key())
+    other_purpose = dataclasses.replace(packet, purpose="doxbench-share-session")
+    with pytest.raises(doxbench_packet.PacketPurposeMismatch):
+        _build_envelope(packet=other_purpose)
+
+
+def test_the_consuming_surface_REJECTS_an_EXPIRED_packet():
+    stale = _packet_for(_key(), clock=lambda: 0.0, ttl=1.0)
+    with pytest.raises(doxbench_packet.PacketExpired):
+        _build_envelope(packet=stale, clock=lambda: 5.0)
+
+
+def test_a_rejected_packet_discloses_none_of_its_own_content():
+    """Revalidation runs BEFORE any section text is assembled, so a rejected
+    packet cannot leak what it was carrying."""
+    sentinel = "SENTINEL-FOREIGN-PACKET-GOAL"
+    foreign = doxbench_packet.assemble_packet(
+        projection=_valid_projection(), scope=_FOREIGN_SCOPE,
+        selected_key=DOCUMENT_PATH, loaded_keys=(DOCUMENT_PATH,),
+        query=sentinel, knowledge=None, clock=lambda: 0.0)
+    with pytest.raises(doxbench_packet.PacketRejected) as raised:
+        _build_envelope(packet=foreign)
+    assert sentinel not in str(raised.value)
+    assert sentinel not in repr(raised.value)
+
+
+def test_a_freshly_assembled_packet_never_fails_its_own_expiry_check():
+    """The revalidation reads the SAME clock the packet was issued on, so a
+    packet assembled for this very turn cannot be rejected as stale by a second
+    clock reading."""
+    envelope = _build_envelope(packet=None, clock=lambda: 12345.0)
+    assert envelope.sections
 
 
 def test_assembly_is_byte_for_byte_deterministic_for_identical_input():

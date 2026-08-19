@@ -39,6 +39,7 @@ import copy
 import dataclasses
 import itertools
 import threading
+import time
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import PurePosixPath
 
@@ -237,8 +238,11 @@ SOURCE_RANKING_TEXT = (
 
 SYSTEM_CONTRACT_TEXT = (
     "You are the doxBench editor-chat assistant. Ground every answer "
-    "strictly in the outline and document buffers, the scope metadata, and "
-    "the transcript shown below. Never invent facts about the repository "
+    "strictly in the sections shown below: the context packet's declaration "
+    "of what it carries, the selected document's thread and the other loaded "
+    "documents' thread-state headers, the evidence and its refs, the outline "
+    "and document buffers, the scope metadata, and the transcript. Never "
+    "invent facts about the repository "
     "or the selected model, and never claim access to material outside the "
     "sections provided in this prompt.\n"
     + SOURCE_RANKING_TEXT
@@ -848,6 +852,7 @@ def build_prompt_envelope(
     refused_paths: frozenset[str] = RESERVED_BUFFER_KEYS,
     packet: "doxbench_packet.ContextPacket | None" = None,
     meter: object | None = None,
+    clock: Callable[[], float] = time.monotonic,
 ) -> PromptEnvelope:
     """Assemble the deterministic prompt envelope for one chat turn -- the nine
     declared section GROUPS, with one document-buffer section per loaded document
@@ -920,7 +925,22 @@ def build_prompt_envelope(
     if packet is None:
         packet = doxbench_packet.reduced_packet(
             projection=projection, scope=request_scope,
-            selected_key=bound_buffer_key, loaded_keys=document_keys)
+            selected_key=bound_buffer_key, loaded_keys=document_keys,
+            clock=clock)
+
+    # THIS IS THE CONSUMING SURFACE, AND IT REVALIDATES THE LEASH IT WAS HANDED
+    # (adversarial review, F1). The delta's own sentence -- "a consuming surface
+    # presented with such a packet MUST reject it and request a new one" -- is
+    # about exactly this moment, and before this call the packet's purpose,
+    # scope and expiry were declared but never CHECKED anywhere in production:
+    # a packet issued for another repository, another tile, or an expired turn
+    # rendered into the prompt unexamined. It runs BEFORE any section text is
+    # assembled, so a rejected packet discloses none of its own content, and it
+    # runs on the SAME clock the packet was issued on, so a freshly assembled
+    # packet can never fail its own expiry check by reading two clocks.
+    doxbench_packet.require_valid(
+        packet, purpose=doxbench_packet.PACKET_PURPOSE_CHAT_TURN,
+        scope=request_scope, now=clock())
 
     sections = (
         PromptSection(key="system_contract", text=SYSTEM_CONTRACT_TEXT),
