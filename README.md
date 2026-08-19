@@ -278,6 +278,46 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [refine-demote-round-trip-mechanics](openspec/changes/refine-demote-round-trip-mechanics/proposal.md)
+  — authored 2026-08-19. Three defects found by DRIVING both gates while
+  discharging `add-staged-topic-outline-template` task 4.2, plus Brett's Decision 3
+  ruling, all on the same round trip. (1) The origin topic is unresolvable for
+  every active change: `generator.py` builds `origin_staging_id` only from
+  possibles pick edges, which the forward transition destroys along with the
+  staging folder they point at — measured, 12 of 12 active changes report `None`
+  and the corpus holds one pick edge carrying no `change_id`, so the mapping is
+  EMPTY. The answer is already on disk and unread: the transition writes an origin
+  block into `.openspec.yaml`, and `generator.py` already parses that file for
+  `_ratifier_of` alone. Resolution gains a precedence order (explicit topic, then
+  the origin block where it declares `kind: staged`, then the pick edge) and helps
+  4 of 12 — the other 8 are `ad_hoc` and correctly have no topic to return to.
+  (2) The demote's own `openspec/INDEX.md` carries no `Status:` header, so a
+  whole-folder forward transition of a returned topic refuses — the demote leaving
+  a landmine for the next lap of its own cycle. (3) `Proposed by:` accumulates one
+  line per lap, and the fix lands on the FORWARD transition that writes it, NOT the
+  demote's refresh: deduping there would widen the boundary the promoted
+  requirement pins as "leaving every other byte of that file unchanged", trading a
+  data-loss guarantee for tidiness. (4) Ruling 3: `Status at demote` carries task
+  progress beside the status, which needs a MODIFIED delta on the promoted
+  requirement rather than riding its existing wording. One MODIFIED and two ADDED on
+  `ideation-dashboard`, one ADDED on `document-lifecycle`.
+  `target_release: implementation_pending`.
+- [align-status-reader-to-real-lines](openspec/changes/align-status-reader-to-real-lines/proposal.md)
+  — authored 2026-08-19. The read side of the pseudo-line blindness
+  `align-demote-to-round-trip-rule` half-closed. `corpus.parse_status` and
+  `parse_kind` scan `text.splitlines()[:15]`, which also breaks on `\x0b`, `\x0c`,
+  `\x1c`-`\x1e`, `\x85`, U+2028 and U+2029 — so a header carrying enough of them
+  pushes a real `Status:` past the window and doc-health reports "missing status
+  header" about a document that has one, while the demote now writes that header
+  correctly. Both divergence shapes are recorded in the archived change's §7.2. The
+  fix counts REAL lines through a primitive shared with the writer rather than a
+  third implementation, and the primitive is placed in `doc_health` because the
+  measured module-level dependency runs `ideation_dashboard` → `doc_health` and
+  inverting it for a text helper would put the checker layer downstream of the
+  dashboard runtime. Measured baseline: 0 of 1079 governed files carry an exotic
+  separator anywhere, so the fix moves ZERO findings today — its value is closing
+  the divergence, and its own change is what lets doc-health's shared reader own
+  that baseline diff (Brett's ruling). `target_release: implementation_pending`.
 - [add-doxbench-editing-phase-b](openspec/changes/add-doxbench-editing-phase-b/proposal.md)
   — authored 2026-08-18, Phase B and the EXIT of the `doxbench-editing-model`
   staged topic: all seven questions dispositioned, 26 claims settled (Brett's
