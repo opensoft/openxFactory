@@ -372,5 +372,15 @@ export async function renderViewer(root, opts) {
 
   const text = await response.text();
   mountSafeMarkdown(body, text);
-  if (onText) onText(text);
+  if (onText) {
+    // CONTAINED. Callers do not await this function (the outline pane mounts it
+    // and moves on), so a throw while a caller builds its own derivation would
+    // become a silent unhandled rejection — and it would be the LAST statement
+    // that failed, after the document itself rendered. Nothing is said on the
+    // page beyond the derivation simply being absent: the body above is already
+    // correct, and a message about a caller's bug would libel the document.
+    try {
+      onText(text);
+    } catch (unused) { /* the caller's derivation, not the viewer's read */ }
+  }
 }

@@ -106,7 +106,7 @@ const { mountStagingWorkbench } = await import('./staging-workbench.js');
 // action choice are the shipped module's, and only the transport is ours.
 const { runSave, savePlanState, saveBufferOrder, SAVE_DOCUMENT_ORDER_RULE } =
   await import('./doxbench-save.js');
-const { BUFFER_KINDS } = await import('./doxbench-state.js');
+const { BUFFER_KINDS, contentIdentity } = await import('./doxbench-state.js');
 
 const FRAGMENTS = JSON.parse(process.argv[2]);
 
@@ -162,7 +162,25 @@ function installFetch(bytes) {
   return asked;
 }
 
-async function mount({ topic, files, bytes, gate = true, waitForIndex = true }) {
+// A HOLDABLE content-identity seam, so the hash-settling window is a state the
+// test can stand still inside instead of a race it has to win. Off by default:
+// the canvas's own `contentIdentity` is what every other case runs on.
+function holdableHash() {
+  const gate = { holding: false, waiting: [] };
+  gate.hash = async (content) => {
+    if (gate.holding) await new Promise((resolve) => gate.waiting.push(resolve));
+    return contentIdentity(content);
+  };
+  gate.release = () => {
+    gate.holding = false;
+    const waiting = gate.waiting.splice(0);
+    for (const resolve of waiting) resolve();
+  };
+  return gate;
+}
+
+async function mount({ topic, files, bytes, gate = true, waitForIndex = true,
+                       hashGate = null }) {
   const container = document.createElement('div');
   const log = { saves: [], asked: installFetch(bytes) };
   const caps = gate
@@ -180,7 +198,7 @@ async function mount({ topic, files, bytes, gate = true, waitForIndex = true }) 
       content: Object.prototype.hasOwnProperty.call(bytes, path) ? bytes[path] : '',
       ref: 'main' }),
     storage: new FakeStorage(),
-    hash: undefined,
+    hash: hashGate ? hashGate.hash : undefined,
     save: (request) => runSave(savePlanState(request), { transport }),
   };
   const workbench = mountStagingWorkbench(container, snapshotFor(topic, files), {
@@ -258,6 +276,8 @@ const out = {
     bytes: { [outline]: FRAGMENTS.partly } });
   out.partly = {
     state: String(ctx.one('swb-outlinestate').textContent),
+    header: String(ctx.one('swb-abstractlabel').textContent),
+    headerTitle: String(ctx.one('swb-abstractlabel').title || ''),
     rows: indexRows(ctx),
     gaps: ctx.byClass('swb-outlinegaplabel').map((n) => String(n.textContent)),
     addButtons: ctx.byClass('swb-outlineaddgap').map((b) => ({
@@ -326,6 +346,65 @@ const out = {
     headings: realHeadings(ctx.byClass('doxbench-textarea')[0].value),
     text: String(ctx.byClass('doxbench-textarea')[0].value),
   };
+
+  // Review finding F2, through the real control: a heading that merely RESEMBLES
+  // a template one is addable and lands verbatim. Every one of these was refused
+  // before, naming a section the human never asked for.
+  out.resembling = [];
+  for (const title of ['Exit criteria', 'Conflicts with promoted specs',
+                       'Notes on conflicts']) {
+    ctx.one('swb-outlinetitle').value = title;
+    ctx.one('swb-outlineafter').value = '';
+    await fire(ctx.one('swb-outlineaddfree'), 'click');
+    await quiesce(80);
+    out.resembling.push({
+      title,
+      note: String(ctx.one('swb-outlinenote').textContent),
+      landed: realHeadings(ctx.byClass('doxbench-textarea')[0].value)
+        .includes(title),
+    });
+  }
+  out.resemblingText = String(ctx.byClass('doxbench-textarea')[0].value);
+}
+
+// =====================================================================
+// F3: the seam's CODE is mapped; its text is never echoed
+// =====================================================================
+{
+  // The settling window, held open. A keystroke leaves the outline buffer
+  // `hash_pending` until its identity resolves; pressing add inside that window
+  // is the reachable `unsettled` refusal, and before the fix the human was handed
+  // the canvas's own sentence with no recovery in it.
+  const outline = 'ideation/staging/topic-h/topic-h.md';
+  const hashGate = holdableHash();
+  const ctx = await mount({
+    topic: 'topic-h', files: [outline],
+    bytes: { [outline]: FRAGMENTS.partly }, hashGate });
+  hashGate.holding = true;
+  const area = ctx.byClass('doxbench-textarea')[0];
+  const editorTab = ctx.byClass('doxbench-viewtab')[0];
+  await fire(editorTab, 'click');
+  await quiesce(10);
+  area.value = FRAGMENTS.partly + '\nA keystroke.\n';
+  fire(area, 'input');            // deliberately NOT awaited: the hash is held
+  await quiesce(20);
+  const add = ctx.byClass('swb-outlineaddgap')[0];
+  await fire(add, 'click');
+  await quiesce(20);
+  out.unsettled = {
+    note: String(ctx.one('swb-outlinenote').textContent),
+    // nothing was written while the identity was in flight
+    stillHasNoSection: !realHeadings(area.value).includes(
+      'Idea notes (pre-document, non-documented)'),
+  };
+  // …and once it settles, the same press works. The refusal's advice is true.
+  hashGate.release();
+  await quiesce(60);
+  await fire(add, 'click');
+  await quiesce(80);
+  out.unsettled.afterRelease = String(ctx.one('swb-outlinenote').textContent);
+  out.unsettled.landedAfterRelease = realHeadings(area.value).includes(
+    'Idea notes (pre-document, non-documented)');
 }
 
 // =====================================================================
@@ -389,6 +468,35 @@ const out = {
     controls: ctx.byClass('swb-outlineadd').length,
     viewerBody: String((ctx.one('viewer-body') || {}).textContent || ''),
     saveRequests: ctx.log.saves.length,
+  };
+}
+
+// =====================================================================
+// H1: a throwing `onText` must not take the viewer down with it
+// =====================================================================
+{
+  // Direct at the seam, because no production caller can be made to throw on
+  // demand. Callers do NOT await renderViewer, so an escaping throw here is a
+  // silent unhandled rejection AFTER the document has already rendered.
+  const { renderViewer } = await import('./viewer.js');
+  globalThis.fetch = async () => ({
+    ok: true, status: 200, headers: { get: () => 'aligned' },
+    text: async () => '# A document\n\nWith prose.\n' });
+  const root = document.createElement('div');
+  let rejected = null;
+  let called = 0;
+  await renderViewer(root, {
+    path: 'ideation/staging/topic-v/topic-v.md',
+    sourceBase: '/source/',
+    onText: (text) => { called += 1; void text; throw new Error('derivation bug'); },
+  }).then(() => null, (error) => { rejected = String(error && error.message); });
+  out.throwingOnText = {
+    called,
+    rejected,
+    // the document itself still rendered -- the throw was the LAST statement
+    bodyRendered: root.walk().some(
+      (n) => String(n.className).split(' ').includes('viewer-body')
+        && String(n.innerHTML).includes('A document')),
   };
 }
 
@@ -460,8 +568,10 @@ def test_the_add_control_is_live_where_editing_is(tab):
 def test_the_added_section_lands_in_the_outline_buffer_with_provenance(tab):
     text = tab["partly"]["bufferText"]
     assert "## Idea notes (pre-document, non-documented)" in text
-    # the provenance names the gate's own actor and a real date
-    assert "Added-by: brett · 20" in text
+    # The provenance names the gate's own actor and a REAL ISO date. Asserted as a
+    # pattern because the prefix-only form this replaces ("· 20") passed on a
+    # literal "20" and so proved nothing about the date at all.
+    assert re.search(r"Added-by: brett · \d{4}-\d{2}-\d{2}", text), text
     # …in its canonical place, between Claims and Conflicts
     assert tab["partly"]["bufferHeadings"] == [
         "Claims", "Idea notes (pre-document, non-documented)", "Conflicts", "Exit"]
@@ -524,7 +634,111 @@ def test_the_free_form_add_is_scoped_by_the_target_the_human_names(tab):
         "Claims", "Idea notes (pre-document, non-documented)", "Conflicts",
         "Prior art", "Exit"]
     # a section beyond the required set carries the section-level provenance line
-    assert "## Prior art\n\nAdded-by: brett · 20" in free["text"]
+    assert re.search(r"## Prior art\n\nAdded-by: brett · \d{4}-\d{2}-\d{2}",
+                     free["text"]), free["text"]
+
+
+def test_a_heading_that_merely_resembles_a_template_one_is_addable(tab):
+    """Review finding F2, through the real control. Each of these was refused on a
+    conforming fragment — with a message naming a section the human never asked
+    for — and the near-misses were silently rewritten into the required heading."""
+    landed = {row["title"]: row for row in tab["resembling"]}
+    assert set(landed) == {"Exit criteria", "Conflicts with promoted specs",
+                           "Notes on conflicts"}
+    for title, row in landed.items():
+        assert row["landed"] is True, row["note"]
+        assert "already carries" not in row["note"], row["note"]
+        assert '"' + title + '"' in row["note"], row["note"]
+    # …and the required Conflicts section is still there exactly once, with its own
+    # seed intact — nothing was canonicalized on top of it
+    text = tab["resemblingText"]
+    assert text.count("\n## Conflicts\n") == 1
+    assert "## Notes on conflicts\n\nAdded-by: brett" in text
+    assert "<conflict text> — Added-by" not in text.split(
+        "## Notes on conflicts", 1)[1]
+
+
+# ---------------------------------------------------------------------------
+# F3: the seam's code is mapped to this tab's sentences; its text is not echoed
+# ---------------------------------------------------------------------------
+
+
+def test_pressing_add_inside_the_settling_window_gets_recovery_advice(tab):
+    """W-10's lesson, on this surface. The window is genuinely reachable — a
+    keystroke leaves the buffer `hash_pending` until its identity resolves — and
+    the human used to be handed the canvas's own sentence, which states the
+    situation and no way out of it."""
+    unsettled = tab["unsettled"]
+    assert unsettled["note"] == (
+        "the outline buffer's identity is still settling — press add again in a "
+        "moment")
+    # the canvas's own text, and the chat's noun, are both absent
+    assert "proposal" not in unsettled["note"]
+    assert "still settling" in unsettled["note"] and "moment" in unsettled["note"]
+    # nothing was written while the identity was in flight
+    assert unsettled["stillHasNoSection"] is True
+
+
+def test_the_settling_refusal_tells_the_truth_about_its_own_recovery(tab):
+    """An advice sentence that does not work is worse than none: the same press,
+    once the identity settles, lands."""
+    unsettled = tab["unsettled"]
+    assert "added" in unsettled["afterRelease"]
+    assert "Idea notes (pre-document, non-documented)" in unsettled["afterRelease"]
+    assert unsettled["landedAfterRelease"] is True
+
+
+def test_the_refusal_mapping_is_a_code_whitelist_with_no_text_echo():
+    """Both other consumers of `applyProposal` forbid echoing the seam's text —
+    doxbench-chat.js calls its mapping a WHITELIST and drops the text unread, and
+    the canvas states its sentences are "never echoed". This tab now does the same,
+    and the pin is on the shape rather than on any one sentence: the refusal branch
+    reads `code` and nothing else."""
+    view = (VIEWS / "staging-workbench.js").read_text(encoding="utf-8")
+    assert "function addSectionRefusal(outcome)" in view
+    mapper = view.split("function addSectionRefusal(outcome) {", 1)[1].split(
+        "\n}\n", 1)[0]
+    # every branch keys off the CODE, and every answer is one of the four fixed
+    # sentences — no interpolation, no seam text
+    assert 'code === "unsettled"' in mapper
+    assert 'code === "stale"' in mapper
+    assert 'code === "unavailable"' in mapper
+    assert "outcome.error" not in mapper
+    assert mapper.count("return ADD_SECTION_") == 4
+    # …and the add path itself never reaches for the seam's text
+    body = view.split("async function runAddSection(", 1)[1].split(
+        "\n}\n", 1)[0]
+    assert "note.textContent = addSectionRefusal(outcome);" in body
+    assert ".error" not in body, "the seam's own text must not reach the note"
+    # the pre-fix fallback sentence is gone
+    assert "the insertion was refused and stated no reason" not in view
+
+
+def test_every_refusal_the_seam_makes_for_itself_carries_a_code():
+    """A refusal with no code falls through to the generic sentence, so the seam's
+    own two must be coded or the accurate message is lost."""
+    view = (VIEWS / "staging-workbench.js").read_text(encoding="utf-8")
+    seam = view.split("function outlineSectionSeam() {", 1)[1].split(
+        "\n  }\n", 1)[0]
+    refusals = re.findall(r"return \{ ok: false,[^}]*\}", seam, re.DOTALL)
+    assert refusals, seam
+    for refusal in refusals:
+        assert "code:" in refusal, refusal
+
+
+# ---------------------------------------------------------------------------
+# H2: the index says which bytes it is describing
+# ---------------------------------------------------------------------------
+
+
+def test_the_index_header_says_it_describes_the_stored_bytes(tab):
+    """Without it the gap row above ("no pre-document idea notes section") reads as
+    contradicting the refusal below it ("this outline already carries…") — two
+    honest answers about two different texts, looking like one surface arguing with
+    itself. The two-renderings split itself is deliberate and stays."""
+    assert tab["partly"]["header"] == "outline template — as stored"
+    title = tab["partly"]["headerTitle"]
+    assert "SAVED" in title and "unsaved" in title
 
 
 # ---------------------------------------------------------------------------
@@ -622,6 +836,17 @@ def test_this_slice_added_no_write_verb_and_no_transport():
 # ---------------------------------------------------------------------------
 # 3.3 (degraded load): bytes that never arrive
 # ---------------------------------------------------------------------------
+
+
+def test_a_throwing_read_back_seam_does_not_take_the_viewer_down(tab):
+    """H1. `renderViewer` is never awaited by its callers, so a throw inside a
+    caller's derivation becomes a silent unhandled rejection — and it happens
+    AFTER the document has rendered, so the honest outcome is a missing index, not
+    a broken page and not a message about someone else's bug."""
+    thrown = tab["throwingOnText"]
+    assert thrown["called"] == 1, "the seam must still be invoked on a good load"
+    assert thrown["rejected"] is None, thrown["rejected"]
+    assert thrown["bodyRendered"] is True
 
 
 def test_a_fragment_that_fails_to_load_gets_no_fabricated_index(tab):
