@@ -62,6 +62,7 @@ import yaml
 
 from doc_health import corpus
 
+from . import round_trip
 from .boundary import (
     GATE_SIDE_EFFECT,
     BoundaryViolation,
@@ -152,6 +153,10 @@ ART_OTHER = "other"
 DEFAULT_RECORDS_DIR = "ideation/dashboard/gate-records/"
 
 DRAFT_STATUS = "draft"
+# The status a returning PRIMARY FRAGMENT carries. Set positively rather than by
+# omitting the flip, so a snapshot whose own header had drifted is normalized
+# instead of returned as-is (align-demote-to-round-trip-rule).
+STAGED_STATUS = "staged"
 
 
 class GateRefused(Exception):
@@ -507,11 +512,20 @@ class FileMove:
     """One reverse-transition file move: a change artifact returning to the
     staging topic. `status_flip` (when set) rewrites the moved copy's `Status:`
     header — proposal documents CONTINUE AS DRAFT IDEAS in the topic's openspec/
-    workspace (the draft-proposal convention)."""
+    workspace (the draft-proposal convention).
+
+    `outline` marks the ONE move whose destination is the topic's declared primary
+    fragment (align-demote-to-round-trip-rule, design Decision 1). It is decided in
+    the PURE PLAN and published, so `demote-<stamp>.plan.yaml` states which file
+    will be treated as the topic's outline BEFORE anything is written — a human
+    reviewing the plan should not have to infer that from a basename. An outline
+    move carries `status_flip = "staged"`, not `"draft"`: the same selection rule
+    still calls that file the staged topic's outline."""
     from_path: str          # repo-relative source (inside the change folder)
     to_path: str            # repo-relative destination (inside the staging topic)
     role: str               # proposal-draft | design-draft | spec-delta | tasks | supporting-doc | openspec-config | other
     status_flip: str | None
+    outline: bool = False
 
 
 @dataclass(frozen=True)
@@ -524,6 +538,10 @@ class DemotionPlan:
     reason: str
     moves: tuple[FileMove, ...]
     withdrawn_picks: tuple[str, ...]   # register pick edges (change_id inheritance) to withdraw
+    # The change's status the moment it was demoted, carried from the snapshot the
+    # plan was derived from because `execute_demotion_plan` never sees one. It fills
+    # the `Status at demote` provenance slot.
+    status_at_demote: str = ""
 
 
 def classify_change_file(rel_within_change: str) -> tuple[str, str, str | None]:
@@ -577,14 +595,30 @@ def plan_demotion(
     topic_path = f"ideation/staging/{topic}"
     openspec_ws = f"{topic_path}/openspec"
 
+    # THE OUTLINE DESTINATION, decided PATH-ONLY and here in the pure plan
+    # (align-demote-to-round-trip-rule, design Decision 1). `primaryFragmentPath`
+    # has two arms — the exact `<topic>.md`, ELSE the shallowest markdown file — and
+    # only the first is decidable from a path without reading the tree. That arm is
+    # what `proposal-support.py transition` produces and what both real
+    # staged-origin manifests carry, so it is the covered case; the
+    # shallowest-markdown arm is a KNOWN BOUND, deliberately not half-handled, and
+    # needs its own ruling rather than a guess here.
+    outline_dest = f"{topic_path}/{topic}.md"
+
     moves: list[FileMove] = []
     for path in change.get("files") or []:
         if not path.startswith(folder + "/"):
             continue
         rel_within = path[len(folder) + 1:]
         role, dest_rel, flip = classify_change_file(rel_within)
+        to_path = f"{topic_path}/{dest_rel}"
+        is_outline = to_path == outline_dest
         moves.append(FileMove(
-            from_path=path, to_path=f"{topic_path}/{dest_rel}", role=role, status_flip=flip))
+            from_path=path, to_path=to_path, role=role,
+            # A staged topic's outline is STAGED. The `draft` flip stays exactly
+            # as it was for the proposal documents bound for `openspec/`.
+            status_flip=STAGED_STATUS if is_outline else flip,
+            outline=is_outline))
 
     withdrawn = tuple(sorted(
         p["id"] for p in snapshot.get("possibles") or []
@@ -594,7 +628,8 @@ def plan_demotion(
     return DemotionPlan(
         change_id=change_id, staging_topic=topic, change_folder=folder,
         topic_path=topic_path, openspec_workspace=openspec_ws, reason=reason.strip(),
-        moves=tuple(moves), withdrawn_picks=withdrawn)
+        moves=tuple(moves), withdrawn_picks=withdrawn,
+        status_at_demote=str(change.get("status") or ""))
 
 
 def transition_manifest(plan: DemotionPlan, *, actor: str, at: str,
@@ -618,9 +653,10 @@ def transition_manifest(plan: DemotionPlan, *, actor: str, at: str,
         "reason": plan.reason,
         "transitioned_at": at,
         "source_revision": source_revision,
+        "status_at_demote": plan.status_at_demote,
         "files": [
             {"from": m.from_path, "to": m.to_path, "role": m.role,
-             "status_flip": m.status_flip}
+             "status_flip": m.status_flip, "outline": m.outline}
             for m in plan.moves
         ],
         "register_edits": {
@@ -643,6 +679,13 @@ def executable_plan(plan: DemotionPlan, *, actor: str, at: str) -> dict:
         step: dict[str, Any] = {"op": "move", "from": m.from_path, "to": m.to_path}
         if m.status_flip:
             step["set_status"] = m.status_flip
+        if m.outline:
+            # DECLARED before execution: this destination is the topic's outline,
+            # so it is refreshed rather than overwritten, and a pre-existing
+            # differing fragment is never byte-replaced.
+            step["outline_restore"] = True
+            step["refresh"] = "provenance-slots + xspec:candidate sections"
+            step["on_existing_differing_fragment"] = "refresh in place; preserve snapshot"
         steps.append(step)
     steps.append({"op": "update-readme", "path": f"{plan.topic_path}/README.md",
                   "record": f"demoted {plan.change_id} ({at})"})
@@ -857,6 +900,118 @@ class DemotionExecution:
     readme_path: Path | None = None
     index_path: Path | None = None
     removed_change_folder: bool = False
+    # align-demote-to-round-trip-rule: what happened to the topic's OUTLINE.
+    # `outline_path` is the fragment that now carries the round-trip provenance;
+    # `snapshot_disposition` is "applied" when the change folder's snapshot became
+    # that fragment (the destination was absent or identical) or "preserved" when a
+    # live differing fragment was refreshed in place and the snapshot was kept
+    # beside it instead; `preserved_snapshot_path` names that kept copy. The
+    # distinction is recorded rather than inferred because "we did not overwrite
+    # your work" is exactly the sentence a human needs to be able to check.
+    outline_path: Path | None = None
+    snapshot_disposition: str | None = None
+    preserved_snapshot_path: Path | None = None
+    outline_refreshed: bool = False
+
+
+def _read_raised_date(root: Path, plan: DemotionPlan) -> str:
+    """The date the topic transitioned INTO the change, from the change's own
+    supporting-docs manifest.
+
+    Read BEFORE the moves run, because that manifest is itself a returning
+    supporting-doc and the change folder is removed at the end of execution.
+    An absent or unreadable manifest yields the UNAVAILABLE marker: the
+    requirement forbids fabricating the value, so it is never guessed from the
+    change folder's archive-date prefix or from a file mtime.
+    """
+    manifest = root / plan.change_folder / "supporting-docs" / "manifest.yaml"
+    if not manifest.is_file():
+        return round_trip.UNAVAILABLE
+    try:
+        loaded = yaml.safe_load(manifest.read_bytes().decode("utf-8"))
+    except Exception:
+        return round_trip.UNAVAILABLE
+    if not isinstance(loaded, dict):
+        return round_trip.UNAVAILABLE
+    raised = loaded.get("transitioned_at")
+    return str(raised) if raised else round_trip.UNAVAILABLE
+
+
+def _restore_outline(
+    plan: DemotionPlan, root: Path, at: str, raised: str,
+    result: DemotionExecution,
+) -> None:
+    """The outline move, which is a REFRESH and not a copy.
+
+    Three cases, and the third is the reason this change exists:
+
+    * destination ABSENT — restore the snapshot, then refresh it. The ordinary
+      case, because `transition` empties the topic folder on the way out.
+    * destination byte-IDENTICAL to the snapshot — the same, since there is
+      nothing to lose; routing it through the third case would preserve a copy of
+      a file identical to the one beside it.
+    * destination PRESENT AND DIFFERING — the live fragment is the AUTHORITY. Its
+      bytes are NOT replaced. The refresh applies into it, bounded to the
+      provenance slots and the marked sections, and the snapshot is preserved
+      beside it so that "never byte-replace" does not quietly become "silently
+      discard the other copy".
+    """
+    outline = next((m for m in plan.moves if m.outline), None)
+    if outline is None:
+        return
+    src = root / outline.from_path
+    dst = root / outline.to_path
+    if not src.is_file():
+        return
+
+    provenance = {
+        "Change ID": plan.change_id,
+        "Raised": raised,
+        "Status at demote": plan.status_at_demote or round_trip.UNAVAILABLE,
+        "Demoted": at[:10],
+        "Demote reason": plan.reason,
+    }
+    # The RETURNED proposal, read from its destination: the durable artifact a
+    # human can still open afterwards. A change with no proposal.md leaves the
+    # marked sections untouched and still gets its slots filled.
+    # `read_bytes().decode`, never `read_text`: Python 3.12's `Path.read_text` has
+    # no `newline=` parameter and its universal-newline mode TRANSLATES CRLF to LF
+    # on the way in. Reading the fragment that way collapsed a Windows-authored
+    # outline to LF and the refresh then wrote the translation back — the same
+    # corpus-integrity defect this verb's move arm was already fixed for once.
+    returned_proposal = root / plan.openspec_workspace / "proposal.md"
+    proposal_text = (
+        returned_proposal.read_bytes().decode("utf-8")
+        if returned_proposal.is_file() else None)
+
+    snapshot_bytes = src.read_bytes()
+    dst.parent.mkdir(parents=True, exist_ok=True)
+
+    if dst.is_file() and dst.read_bytes() != snapshot_bytes:
+        # CASE 3. The snapshot never reaches the destination. It is kept as a
+        # VISIBLE ordinary topic file — not a dotfile and not `.orig` — because a
+        # hidden artifact in a governed folder is how material goes missing, and
+        # the corpus readers (doc-health, the wheel) should see it.
+        kept = dst.parent / f"{plan.staging_topic}.snapshot-{plan.change_id}.md"
+        kept.write_bytes(
+            _flip_status(snapshot_bytes.decode("utf-8"), DRAFT_STATUS).encode("utf-8"))
+        result.preserved_snapshot_path = kept
+        result.snapshot_disposition = "preserved"
+        base = dst.read_bytes().decode("utf-8")   # never read_text (see above)
+    else:
+        # CASES 1 and 2. The snapshot becomes the fragment, with its Status set
+        # positively to `staged` by the plan's own flip.
+        base = _flip_status(snapshot_bytes.decode("utf-8"), outline.status_flip
+                            or STAGED_STATUS)
+        result.snapshot_disposition = "applied"
+
+    refreshed = round_trip.refresh_fragment(
+        base, proposal_text=proposal_text, provenance=provenance)
+    dst.write_bytes(refreshed.encode("utf-8"))
+    src.unlink()
+    result.moved.append((outline.from_path, outline.to_path))
+    result.outline_path = dst
+    result.outline_refreshed = True
 
 
 def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str | None = None) -> DemotionExecution:
@@ -866,15 +1021,30 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
     --execute` runs it against a real checkout a human drives. Moves each file
     (flipping Status where the plan says), records the return in the topic
     README, writes the openspec-workspace INDEX, and removes the emptied change
-    folder."""
+    folder.
+
+    THE OUTLINE MOVE IS DIFFERENT (align-demote-to-round-trip-rule). Every other
+    move is a byte copy; the topic's primary fragment is REFRESHED, and a live
+    fragment that differs from the change folder's snapshot of it is never
+    byte-replaced — the snapshot is a fallback SOURCE, never the authority."""
     root = Path(tree_root).resolve()
     at = at or _utcnow()
     result = DemotionExecution()
+
+    # BEFORE the moves: the raised date lives in the change's supporting-docs
+    # manifest, which is itself a returning supporting-doc, and the change folder
+    # is removed at the end of this function.
+    raised = _read_raised_date(root, plan)
 
     for m in plan.moves:
         src = root / m.from_path
         dst = root / m.to_path
         if not src.is_file():
+            continue
+        if m.outline:
+            # Deferred to its own pass below, after every ordinary move has landed:
+            # the refresh reads the RETURNED `proposal.md` from its destination, so
+            # it must run once that file is there.
             continue
         # Wave re-review P3 (the F10 corpus-integrity class through another
         # verb): this MOVE used to `read_text(errors="replace")` ->
@@ -895,12 +1065,33 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
         src.unlink()
         result.moved.append((m.from_path, m.to_path))
 
+    _restore_outline(plan, root, at, raised, result)
+
     # README record (append; create if absent).
     readme = root / plan.topic_path / "README.md"
     readme.parent.mkdir(parents=True, exist_ok=True)
     returned = [m.to_path for m in plan.moves]
+    # THE OUTLINE'S OWN SENTENCE (align-demote-to-round-trip-rule). A human whose
+    # live fragment was refreshed rather than overwritten has to be able to read
+    # that here, and to find the snapshot that was kept instead of applied.
+    outline_note = ""
+    if result.outline_refreshed and result.outline_path is not None:
+        rel = result.outline_path.relative_to(root).as_posix()
+        if result.snapshot_disposition == "preserved" and result.preserved_snapshot_path:
+            kept = result.preserved_snapshot_path.relative_to(root).as_posix()
+            outline_note = (
+                f"\nOutline: {rel} already existed and differed, so it was "
+                f"REFRESHED IN PLACE (round-trip provenance slots and "
+                f"`xspec:candidate` sections only). Its other bytes are "
+                f"untouched. The change folder's snapshot was PRESERVED as "
+                f"{kept} rather than applied over your work.\n")
+        else:
+            outline_note = (
+                f"\nOutline: {rel} was restored from the change folder's snapshot "
+                f"and refreshed with this demote's round-trip provenance.\n")
     note = (f"\n## Returned drafts (demoted {plan.change_id}, {at[:10]})\n\n"
-            f"Reason: {plan.reason}\n\n"
+            f"Reason: {plan.reason}\n"
+            + outline_note + "\n"
             + "\n".join(f"- {r}" for r in returned) + "\n")
     if readme.is_file():
         # Translation-free on BOTH legs (wave re-review P3): `read_bytes().
