@@ -422,6 +422,104 @@ def test_all_three_fence_implementations_agree():
         assert mine == _families_real_headings(text), name
 
 
+# ---- review F2: ends-inside-fence, the FOURTH agreed behavior -----------------
+
+
+UNCLOSED = ("# Staged: t\n\nStatus: staged\n\nExample:\n\n"
+            "```markdown\n## Claims\n\n- x\n")
+
+
+def test_an_unclosed_fence_refuses_the_insert_rather_than_writing_into_it():
+    """Review F2. The insert would land INSIDE the open fence, where
+    `find_provenance_section` cannot see it — so the next pass inserts again, and
+    the ratified idempotence clause (which carries no qualifier) is broken: 1 -> 2
+    -> 3 sections. `outline-model.js` already refuses this exact input on the JS
+    side; the rule is now the same on both."""
+    assert rt.ends_inside_fence(UNCLOSED) is True
+    once = rt.fill_provenance_slots(UNCLOSED, PROVENANCE)
+    assert once == UNCLOSED, "nothing may be written into an open fence span"
+    assert once.count(rt.PROVENANCE_HEADING) == 0
+
+
+def test_the_unclosed_fence_refusal_is_idempotent_to_any_depth():
+    """The property the defect broke, asserted past the point it used to fail."""
+    text = UNCLOSED
+    for _ in range(4):
+        text = rt.refresh_fragment(
+            text, proposal_text=PROPOSAL, provenance=PROVENANCE)
+        assert text == UNCLOSED
+
+
+def test_closing_the_fence_restores_the_insert_and_stays_idempotent():
+    """The refusal is about the fence and nothing else — the remedy it names
+    actually works."""
+    closed = UNCLOSED + "```\n"
+    assert rt.ends_inside_fence(closed) is False
+    once = rt.fill_provenance_slots(closed, PROVENANCE)
+    assert once.count(rt.PROVENANCE_HEADING) == 1
+    assert rt.fill_provenance_slots(once, PROVENANCE) == once
+
+
+def test_slots_already_outside_the_fence_are_still_filled():
+    """The refusal is narrow: it withholds the INSERT, not the whole refresh. A
+    provenance section that is findable outside the open fence is safely
+    rewritable, and refusing that too would punish a document for a defect
+    somewhere below it."""
+    findable = ("# Staged: t\n\nStatus: staged\n\n"
+                + rt.PROVENANCE_HEADING + "\n\nChange ID: none yet\n"
+                "Raised: n/a\nStatus at demote: n/a\nDemoted: n/a\n"
+                "Demote reason: n/a\n\nExample:\n\n```markdown\n## Claims\n")
+    assert rt.ends_inside_fence(findable) is True
+    out = rt.fill_provenance_slots(findable, PROVENANCE)
+    assert "Change ID: add-worked-example" in out
+    assert out.count(rt.PROVENANCE_HEADING) == 1
+    assert rt.fill_provenance_slots(out, PROVENANCE) == out
+
+
+_ENDS_FENCE_PROBE = """
+import { readFileSync } from 'node:fs';
+import { endsInsideFence } from %(model)s;
+const cases = JSON.parse(readFileSync(%(cases)s, 'utf8'));
+const out = {};
+for (const [name, text] of Object.entries(cases)) out[name] = endsInsideFence(text);
+console.log(JSON.stringify(out));
+"""
+
+ENDS_FENCE_FIXTURES = {
+    **FENCE_FIXTURES,
+    "unclosed_markdown": UNCLOSED,
+    "closed_after_unclosed": UNCLOSED + "```\n",
+    "three_fences": "a\n```\nb\n```\nc\n```\nd\n",
+    "fence_only": "```\n",
+}
+
+
+@pytest.mark.skipif(NODE is None, reason="node is not installed")
+def test_ends_inside_fence_agrees_with_outline_model_js():
+    """The FOURTH agreed behavior. `doc_health.families` has no such predicate, so
+    the agreement here is round_trip <-> outline-model.js — but the families toggle
+    it shares implies the same answer, computed alongside so a divergence in any of
+    the three surfaces here."""
+    with TemporaryDirectory() as tmp:
+        cases = Path(tmp) / "cases.json"
+        cases.write_text(json.dumps(ENDS_FENCE_FIXTURES), encoding="utf-8")
+        script = Path(tmp) / "probe.mjs"
+        script.write_text(_ENDS_FENCE_PROBE % {
+            "model": json.dumps(str(OUTLINE_MODEL_JS)),
+            "cases": json.dumps(str(cases)),
+        }, encoding="utf-8")
+        done = subprocess.run([NODE, str(script)], capture_output=True, text=True)
+        assert done.returncode == 0, done.stderr
+        js = json.loads(done.stdout)
+    for name, text in sorted(ENDS_FENCE_FIXTURES.items()):
+        mine = rt.ends_inside_fence(text)
+        assert mine == js[name], f"{name}: round_trip={mine}, outline-model.js={js[name]}"
+        # the families toggle, applied to the same question
+        implied = sum(1 for _lineno, line, _f in families._scan_lines(text)
+                      if line.lstrip().startswith("```")) % 2 == 1
+        assert mine == implied, name
+
+
 def test_the_shared_predicate_is_spelled_the_same_in_all_three():
     """The algorithm, not just its outcome on these fixtures: all three lstrip (or
     trimStart) and then test the literal three backticks. A fixture set can only

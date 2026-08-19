@@ -179,6 +179,26 @@ def find_provenance_section(rows: list[tuple[str, str]]) -> tuple[int, int] | No
     return None
 
 
+def ends_inside_fence(text: str) -> bool:
+    """True when the document's last code fence is never closed.
+
+    The SAME rule and the same name as `outline-model.js`'s `endsInsideFence`,
+    which the outline tab already uses to REFUSE adding a section to such a
+    fragment. Refusing is not fastidiousness: inside an open fence every heading
+    is invisible to the scanner, so an inserted section cannot be found again —
+    and a section that cannot be found is a section that gets inserted AGAIN on
+    the next pass, which breaks the ratified idempotence clause outright (1 -> 2
+    -> 3 provenance sections). Refusal is also the only honest answer, because
+    closing somebody's fence for them would be repairing a document nobody asked
+    us to change.
+    """
+    fenced = False
+    for body, _ending in split_keepends(text):
+        if _is_fence(body):
+            fenced = not fenced
+    return fenced
+
+
 def _slot_line(name: str, value: str, ending: str) -> tuple[str, str]:
     text = str(value) if str(value).strip() else UNAVAILABLE
     return (f"{name}: {text}", ending)
@@ -204,6 +224,12 @@ def fill_provenance_slots(text: str, values: dict[str, str]) -> str:
 
     found = find_provenance_section(rows)
     if found is None:
+        # REFUSED, NEVER INSERTED INTO AN OPEN SPAN. The insert would land inside
+        # the unclosed fence, be invisible to `find_provenance_section` next time,
+        # and be inserted again on every pass — the idempotence clause has no
+        # qualifier, so this cannot be left to "the corpus has none today".
+        if ends_inside_fence(text):
+            return text
         return join_rows(_insert_provenance_section(rows, wanted, eol))
 
     start, end = found
