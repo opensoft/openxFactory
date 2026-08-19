@@ -373,6 +373,23 @@ def test_envelope_sections_are_assembled_in_the_exact_declared_order():
     assert all(isinstance(section, PromptSection) for section in envelope.sections)
 
 
+def test_a_turn_with_no_packet_supplied_carries_the_declared_reduced_one():
+    """Task 5.4's packet half, at the assembler: EVERY turn carries a packet.
+
+    A caller that supplies none does not get a packet-less prompt — it gets the
+    DECLARED REDUCED packet, because "no knowledge service" is a posture with a
+    stated reduction (design §3.4) and not the absence of the pipeline. This is
+    the leg the route never exercises, since the route always assembles one."""
+    envelope = _build_envelope(packet=None)
+    sections = {section.key: section.text for section in envelope.sections}
+    declaration = sections[doxbench_packet.PACKET_SECTION_DECLARATION]
+    assert "posture: reduced" in declaration
+    assert "reduced because:" in declaration
+    assert doxbench_packet.PACKET_SECTION_SELECTED_THREAD not in sections
+    assert not [key for key in sections
+                if key.startswith(doxbench_packet.EVIDENCE_SECTION_PREFIX)]
+
+
 def test_assembly_is_byte_for_byte_deterministic_for_identical_input():
     first = _build_envelope()
     second = _build_envelope()
