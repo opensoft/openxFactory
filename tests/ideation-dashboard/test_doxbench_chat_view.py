@@ -689,6 +689,53 @@ let s = settleTurnSuccess(beginTurn(base), successWith([
 s = refreshProposalCurrency(s, { outline: OUTLINE_HASH,
                                  document: DOCUMENT_HASH });
 
+// F4 (adversarial review of the §13 slice): A PROPOSAL AGAINST A PATH-KEYED
+// THIRD DOCUMENT, carried through the whole chain the widened wire makes
+// possible -- adoption, the card model, and Apply. Every other fixture in this
+// suite targets one of the two RESERVED keys, which a two-name literal would
+// have served just as well; only a path-keyed target can tell the keyed map from
+// the constant it replaced.
+const THIRD = "ideation/staging/topic-x/third.md";
+const THIRD_HASH = "c".repeat(64);
+const wideSuccess = {
+  schema_version: 1, kind: "workbench-chat-turn-v2-success",
+  client_turn_id: "t-2", assistant_turn_id: "a-2", model_id: "model-a",
+  bound_buffer: THIRD,
+  // The RECORD's own buffer set -- which is what the permitted-target rule now
+  // reads, instead of a module constant.
+  observed_hashes: { outline: OUTLINE_HASH, document: DOCUMENT_HASH,
+                     [THIRD]: THIRD_HASH },
+  assistant_prose: "a proposal for the loaded document",
+  proposals: [proposal(THIRD, THIRD_HASH)] };
+let wide = settleTurnSuccess(beginTurn(base), wideSuccess);
+wide = refreshProposalCurrency(wide, { outline: OUTLINE_HASH,
+                                       document: DOCUMENT_HASH,
+                                       [THIRD]: THIRD_HASH });
+const wideApplied = [];
+const wideActions = createProposalActions({
+  applyProposal: async (target) => { wideApplied.push(target); return { ok: true }; } });
+const afterWideApply = await wideActions.apply(wide, THIRD);
+out.pathKeyedProposal = {
+  adoptedKeys: Object.keys(proposalsOf(wide)),
+  cards: proposalCardModel(wide).map(
+    (card) => ({ target: card.target, label: card.label,
+                 ariaLabel: card.ariaLabel, applyEnabled: card.applyEnabled })),
+  appliedThrough: wideApplied,
+  status: (proposalsOf(afterWideApply)[THIRD] || {}).status || null,
+  // …and one that goes STALE re-scores by its own key, like any other.
+  staleStatus: (proposalsOf(refreshProposalCurrency(
+    wide, { outline: OUTLINE_HASH, document: DOCUMENT_HASH,
+            [THIRD]: "d".repeat(64) }))[THIRD] || {}).status || null,
+};
+// The unroutable half: a target the RECORD did not observe is dropped, never
+// rendered with an Apply control.
+const unroutable = settleTurnSuccess(beginTurn(base), {
+  ...wideSuccess,
+  client_turn_id: "t-3",
+  proposals: [proposal("ideation/staging/topic-x/never-supplied.md", THIRD_HASH)] });
+out.unroutableProposal = { keys: Object.keys(proposalsOf(unroutable)),
+                           cards: proposalCardModel(unroutable).length };
+
 // card model: both targets, a11y-bearing, apply enabled only when current
 out.cards = proposalCardModel(s);
 const stale = refreshProposalCurrency(s, { outline: "e".repeat(64),
@@ -1896,6 +1943,43 @@ def test_the_mount_to_catalog_window_reads_the_loading_sentence(
     # and once the catalog settles empty, the configured-none sentence stands
     settled = rail_dom_results["emptyCatalog"]
     assert "no approved model" in settled["noteText"]
+
+
+def test_a_path_keyed_proposal_is_adopted_rendered_and_applied(card_results):
+    """F4: judgment call 9's claimed failure mode, MEASURED rather than asserted.
+
+    Before the keyed map, `adoptProposals` filtered against a two-name literal
+    and `proposalCardModel` enumerated the same two names — so a proposal against
+    the third document a human loaded was dropped in silence: no record, no card,
+    no Apply, and no refusal either. Every other fixture in this suite targets a
+    RESERVED key, which the old literal served just as well, so nothing measured
+    the difference."""
+    r = card_results["pathKeyedProposal"]
+    third = "ideation/staging/topic-x/third.md"
+    assert r["adoptedKeys"] == [third], (
+        "the record's own observed buffers are the permitted set")
+    assert [card["target"] for card in r["cards"]] == [third]
+    # The BADGE reads as a name a human recognizes; the full key stays available
+    # to assistive technology, so two loaded documents sharing a basename are
+    # never indistinguishable.
+    assert r["cards"][0]["label"] == "third.md"
+    assert third in r["cards"][0]["ariaLabel"]
+    assert r["cards"][0]["applyEnabled"] is True
+    # …and Apply routes to the seam under that key, then marks it applied.
+    assert r["appliedThrough"] == [third]
+    assert r["status"] == "applied"
+    # Currency is per key like any other: move that buffer, that card goes stale.
+    assert r["staleStatus"] == "stale"
+
+
+def test_a_proposal_the_turn_did_not_observe_is_dropped_not_rendered(card_results):
+    """The other half of the same rule: the permitted set is the RECORD's own
+    buffer set, so an unroutable target is dropped rather than guessed at — and
+    dropped means no card, which is the delta's "MUST NOT be rendered with an
+    Apply control"."""
+    r = card_results["unroutableProposal"]
+    assert r["keys"] == []
+    assert r["cards"] == 0
 
 
 def test_a_refused_apply_renders_a_failure_note_and_announces_it(

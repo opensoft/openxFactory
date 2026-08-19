@@ -3374,3 +3374,40 @@ def test_the_request_byte_bound_counts_every_loaded_document(tmp_path):
     assert payload["limit"]["measured"] >= 24_000, (
         "both documents must be counted, not the first")
     assert "dispatch" not in fake.calls
+
+
+# ---------------------------------------------------------------------------
+# F6: the selected-model metadata is DERIVED from the catalog entry, in one place
+# ---------------------------------------------------------------------------
+
+def test_the_selected_model_metadata_reads_the_catalog_entry(tmp_path):
+    """`doxbench_selected_model` is the one place task 11.7 has to change. It
+    reads the entry duck-typed and defaults honestly, so today's catalog — which
+    declares no routing rule, because the model-catalog envelope has no field for
+    one yet — produces the true statement rather than a literal."""
+    entry = _catalog().entries[0]
+    assert serve_mod.doxbench_selected_model(entry) == {
+        "requested_model_id": "model-a",
+        "routing_rule": False,
+        "data_handling": "Processed in the approved tenant boundary",
+        "resolved_model_id": "model-a",
+    }
+
+
+def test_a_routing_rule_entry_would_be_reported_as_one_without_touching_the_route():
+    """The forward half, proven on a stand-in entry that declares the fields task
+    11.7 will add: the route needs no change to report a routing rule and the
+    model it resolved to. A record built from three literals could not."""
+
+    class _RoutingEntry:
+        model_id = "auto"
+        data_handling = "Routes to any approved model; badge of all of them"
+        routing_rule = True
+        resolved_model_id = "model-a"
+
+    assert serve_mod.doxbench_selected_model(_RoutingEntry()) == {
+        "requested_model_id": "auto",
+        "routing_rule": True,
+        "data_handling": "Routes to any approved model; badge of all of them",
+        "resolved_model_id": "model-a",
+    }

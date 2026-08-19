@@ -469,6 +469,33 @@ def doxbench_turn_success_body(*, client_turn_id: str, assistant_turn_id: str,
     }
 
 
+def doxbench_selected_model(model_entry) -> dict:
+    """The SELECTED-MODEL metadata a widened record carries, derived from the
+    catalog entry the turn resolved — in ONE place (adversarial review of the §13
+    slice, F6).
+
+    Today no catalog entry declares itself a routing rule: that declaration is
+    task 11.7's, and it needs a MODEL-CATALOG release to carry it, which is
+    recorded against 11.7 rather than assumed here. So this reads the entry
+    duck-typed and defaults honestly — `routing_rule` false, the answering model
+    the one the human chose — and a catalog entry that grows the fields answers
+    with them without this route changing at all. Written as one function
+    because the alternative is three literals at the call site, which is three
+    places 11.7 would have to find."""
+    requested = str(model_entry.model_id)
+    routing_rule = bool(getattr(model_entry, "routing_rule", False))
+    resolved = getattr(model_entry, "resolved_model_id", None)
+    return {
+        "requested_model_id": requested,
+        "routing_rule": routing_rule,
+        "data_handling": str(model_entry.data_handling),
+        # The model that ANSWERS. Equal to the requested id until a routing-rule
+        # entry resolves to something else, which is exactly when the two facts
+        # stop being one fact.
+        "resolved_model_id": str(resolved) if resolved else requested,
+    }
+
+
 def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str,
                                   model_id: str, requested_model_id: str,
                                   routing_rule: bool, data_handling: str,
@@ -2035,18 +2062,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     # buffer's observed identity by key, and carries the
                     # selected-model metadata beside the model that answered.
                     #
-                    # `routing_rule` is FALSE here because no catalog entry
-                    # declares itself one yet: the routing-rule entry is task
-                    # 11.7's, and the honest statement today is that the human
-                    # chose a provider model and that model answered. The field
-                    # exists so 11.7 has somewhere true to write.
+                    # The selected-model metadata is DERIVED from the catalog
+                    # entry, in one place (`doxbench_selected_model`), so task
+                    # 11.7's routing-rule entry changes that function rather than
+                    # three literals here.
+                    selected_model = doxbench_selected_model(model_entry)
                     success_body = doxbench_turn_v2_success_body(
                         client_turn_id=client_turn_id,
                         assistant_turn_id="assistant-" + digest[:56],
-                        model_id=model_id,
-                        requested_model_id=model_id,
-                        routing_rule=False,
-                        data_handling=model_entry.data_handling,
+                        model_id=selected_model["resolved_model_id"],
+                        requested_model_id=selected_model["requested_model_id"],
+                        routing_rule=selected_model["routing_rule"],
+                        data_handling=selected_model["data_handling"],
                         bound_buffer=bound_buffer_key,
                         observed_hashes={
                             buffer_key: observed.for_key(buffer_key).hex

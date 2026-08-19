@@ -457,6 +457,22 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       carrying the badge of every model it may route to, and the resolved model
       is recorded on the turn. An API-backed entry's credential comes from the
       ratified broker lane; the bridge holds no secret.
+      **OBLIGATION RECORDED AGAINST THIS TASK by §13's release** (the delta's own
+      rule: a field the released envelope has no room for MUST have its
+      obligation recorded against the release that will carry it). The turn
+      RECORD can already state a routing rule — `workbench-chat-turn-v2-success`
+      carries `selected_model.routing_rule` beside the resolved `model_id`, and
+      the route derives both from the catalog entry in ONE place
+      (`serve.py doxbench_selected_model`). What has NO room for it is the
+      CATALOG: `xfactory-workbench-model-catalog.schema.yaml` declares a CLOSED
+      seven-field entry with no `routing_rule` and no resolved-model field, so no
+      conformant catalog can declare an `auto` entry today, and the record's
+      `routing_rule` is truthfully `false` for every entry that exists. This task
+      therefore needs its OWN contract release — an additive model-catalog
+      growth, allocated at ITS realization under the same versioning policy —
+      before the ratified `The menu offers a routing rule` scenario can be
+      claimed. Until then the gap is stated rather than papered over, which is
+      the same discipline §13 applied to the bound buffer.
 
 ## 12. Share-session
 

@@ -2944,6 +2944,14 @@ def test_the_declared_document_order_is_deterministic_and_matches_the_browser():
                / "doxbench-save.js").read_text(encoding="utf-8")
     assert doxbench_turns.DOCUMENT_KEY_ORDER_RULE in state_js
     assert doxbench_turns.DOCUMENT_KEY_ORDER_RULE in save_js
+    # F8 (adversarial review of the §13 slice): §13 added three more places that
+    # order buffer keys -- the request builder, the selector listing, and the
+    # proposal card order -- and a rule re-spelled in prose is a rule that drifts.
+    # Every home carries the SAME string, and this is where that is enforced.
+    views = REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+    for home in ("doxbench-chat.js", "doxbench-chat-model.js"):
+        text = (views / home).read_text(encoding="utf-8")
+        assert doxbench_turns.DOCUMENT_KEY_ORDER_RULE in text, home
 
 
 def test_a_turn_carrying_three_documents_assembles_one_section_each():

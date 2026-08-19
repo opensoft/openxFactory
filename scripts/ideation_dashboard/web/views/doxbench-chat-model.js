@@ -361,9 +361,12 @@ function permittedTargetsOf(successPayload) {
 }
 
 // The DECLARED order proposals are read and rendered in: the reserved outline
-// first -- it is the buffer every turn carries -- then the documents ascending by
-// buffer key, which is the same order the selector and the save plan use. A card
-// list whose order depended on object insertion would reshuffle under the cursor.
+// first -- it is the buffer every turn carries -- then the documents in the rule
+// every home spells identically:
+//   ascending lexicographic by buffer key (UTF-16 code unit)
+// Same order the selector and the save plan use, and the same rule STRING, which
+// is what a companion test pins across the homes. A card list whose order
+// depended on object insertion would reshuffle under the cursor.
 export function orderedProposalTargets(records) {
   const keys = Object.keys(records || {}).filter((key) => records[key]);
   const documents = keys.filter((key) => key !== "outline").sort(

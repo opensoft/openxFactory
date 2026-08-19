@@ -13,7 +13,11 @@ without fabricating historical tags.
 
 Realizes `add-doxbench-editing-phase-b` §13, the contract release its ratified
 "chat-turn contract release carries the bound buffer and the model" requirement
-names. One file changes: `schemas/xfactory-workbench-chat-turn.schema.yaml`.
+names. One CONTRACT changes —
+`schemas/xfactory-workbench-chat-turn.schema.yaml` — and one normative document
+moves with it: [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+records this cut's deprecation in its "Deprecations Currently In Force" list.
+Both are release-surface members and both are digested in this cut's inventory.
 
 **Change class: ADDITIVE (minor) plus a DEPRECATION (minor)**, both under
 [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)

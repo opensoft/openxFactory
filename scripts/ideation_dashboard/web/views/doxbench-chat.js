@@ -209,9 +209,10 @@ function wireBuffer(bufferValue, kindValue, repositoryValue) {
 }
 
 // The buffer keys a request carries, in the DECLARED order: the reserved outline
-// first, then every loaded document ascending by key. Spelled to match
-// `doxbench-state.js`'s own rule, because a request whose buffer order depended
-// on object insertion is a request no test can pin.
+// first, then every loaded document in the rule every home spells identically --
+// ascending lexicographic by buffer key (UTF-16 code unit) -- because a request
+// whose buffer order depended on object insertion is a request no test can pin.
+// The rule string is the pin: a companion test asserts it appears in each home.
 function wireBufferKeys(buffers) {
   const documents = Object.keys(buffers || {}).filter((key) => key !== "outline");
   documents.sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
