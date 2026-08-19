@@ -1727,9 +1727,21 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         # ---- step 6: exact identity ----
+        # WHICH RESERVED PATHS THIS LANE REFUSES (Codex review of PR #210,
+        # CODEX-1). `outline` on both -- a document keyed there vanishes from the
+        # enumeration and killed the handler, reproduced at a4a6f6e. `document`
+        # on the WIDENED lane only, where it would shadow the reserved unbacked
+        # slot that may ride beside it; the v1 envelope carries exactly one
+        # document, so it has no such collision, and a v1 turn shaped that way
+        # was served at a4a6f6e. Refusing it here would break the additive class
+        # this release claims.
+        refused_paths = (doxbench_turns.RESERVED_BUFFER_KEYS
+                         if request_kind == DOXBENCH_CHAT_TURN_V2_KIND
+                         else doxbench_turns.V1_RESERVED_BUFFER_KEYS)
         try:
             outline, turn_documents = \
-                doxbench_turns.require_outline_and_documents(turn_buffers)
+                doxbench_turns.require_outline_and_documents(
+                    turn_buffers, refused_paths=refused_paths)
             # The DECLARED order, from the module that owns it. The v1 envelope
             # carries exactly one document so this list has one member there;
             # the widened one carries the loaded set, and every member of it is
@@ -1869,6 +1881,28 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # second time (FR-019) and then died on an uncaught `TurnConflictError`
         # out of `complete()`, dropping the connection with no envelope. ----
         #
+        # BUFFER ORDER IS NOT PART OF THE REQUEST'S IDENTITY -- on the widened
+        # lane (Codex review of PR #210, CODEX-2). `json.dumps(sort_keys=True)`
+        # orders KEYS, never array members, so a retransmission that merely
+        # reordered the buffer array digested differently and came back
+        # `turn_id_conflict` instead of the recorded result -- reproduced: the
+        # same turn id with the same content and the same hashes, second send
+        # 409. The released contract says a repeated id with identical input
+        # hashes replays, and a reordered array carries identical hashes.
+        #
+        # Canonicalized by BUFFER KEY, in the same UTF-16 code-unit order the
+        # rest of this family declares, so the two runtimes cannot disagree about
+        # it either. The v1 lane's canonical form is DELIBERATELY untouched: its
+        # digests are already recorded in live stores, and changing the form
+        # would make every in-flight v1 turn unreplayable -- and that lane
+        # carries exactly two buffers whose order the closed envelope already
+        # fixes by kind.
+        canonical_buffer_order = turn_buffers
+        if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:
+            canonical_buffer_order = sorted(
+                turn_buffers,
+                key=lambda buf: doxbench_turns.buffer_key_for(buf).encode(
+                    "utf-16-be", "surrogatepass"))
         # THE DECLARED BINDING IS PART OF THE REQUEST'S IDENTITY
         # (add-doxbench-editing-phase-b §13). Two widened turns that carry the
         # same buffers and the same message but are bound to DIFFERENT documents
@@ -1888,7 +1922,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                  "base_ref": buf.base_ref, "base_revision": buf.base_revision,
                  "base_hash": buf.base_hash, "content_hash": buf.content_hash,
                  "dirty": buf.dirty}
-                for buf in turn_buffers
+                for buf in canonical_buffer_order
             ],
         }
         if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:
@@ -1982,6 +2016,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 working_subject=working_subject, transcript=tuple(transcript_turns),
                 buffers=turn_buffers, message=message,
                 session_base=session_base,
+                refused_paths=refused_paths,
                 # The DECLARED binding, checked against the supplied buffer set
                 # and NOT stored as a binding claim on the envelope (PR #207
                 # review F4): an internal field nothing serializes cannot

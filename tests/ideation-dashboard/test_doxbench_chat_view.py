@@ -2461,6 +2461,90 @@ out.configuredNoneCatalog = await catalogPosture(
   };
 }
 
+// ---- CODEX-4 (Codex review of PR #210): the settlement re-score must cover
+// EVERY live buffer, not the two Phase A named. Both scenarios below are chosen
+// to DISCRIMINATE — each one's answer differs before and after the fix, which a
+// scenario whose answer happens to match by accident cannot do:
+//   (c) the reserved slot is PRESENT and the path-keyed buffer did NOT move.
+//       Before: the re-score ran with a two-key map, so that buffer scored
+//       against `undefined` and the card came back falsely STALE.
+//   (d) the reserved slot is ABSENT and the path-keyed buffer DID move.
+//       Before: the guard read `buffers.document`, found nothing, and skipped the
+//       re-score entirely — the card stayed CURRENT with an enabled Apply
+//       against text the buffer no longer held, which is Codex's own reading.
+{
+  const LOADED = 'ideation/staging/topic-x/loaded.md';
+  const withReservedSlot = () => ({ active_buffer: LOADED, buffers: {
+    outline: bufferOf('outline', 'docs/outline.md'),
+    document: bufferOf('document', 'docs/detail.md'),
+    [LOADED]: bufferOf('document', LOADED) } });
+  const SUCCESS_C = {
+    schema_version: 1, kind: 'workbench-chat-turn-v2-success',
+    client_turn_id: 't', assistant_turn_id: 'a', model_id: 'model-a',
+    bound_buffer: LOADED,
+    observed_hashes: { outline: 'd'.repeat(64), document: 'd'.repeat(64),
+                       [LOADED]: 'd'.repeat(64) },
+    assistant_prose: 'answer',
+    proposals: [{ target: LOADED, base_hash: 'd'.repeat(64),
+                  summary: 'Rework the loaded document',
+                  content: '# New loaded document' }] };
+  const { host, rail } = mountRail({
+    editorState: withReservedSlot,
+    chatTurn: async () => ({ ok: true, status: 200, payload: SUCCESS_C }) });
+  await rail.ready;
+  const selector = byClass(host, 'doxchat-model')[0];
+  selector.value = 'model-a'; await fire(selector, 'change');
+  const composer = byClass(host, 'doxchat-composer')[0];
+  composer.value = 'please propose'; await fire(composer, 'input');
+  await fire(byClass(host, 'doxchat-send')[0], 'click');
+  const applyBtn = byClass(host, 'doxchat-card-apply')[0] || null;
+  out.unmovedLoadedCurrency = {
+    status: (rail.state().proposals[LOADED] || {}).status || null,
+    applyDisabled: applyBtn ? applyBtn.disabled : null,
+  };
+}
+{
+  const LOADED = 'ideation/staging/topic-x/loaded.md';
+  let loadedHex = 'd'.repeat(64);
+  // NO reserved `document` slot: the shape a session holds once its create was
+  // re-keyed onto a path.
+  const noReservedSlot = () => ({ active_buffer: LOADED, buffers: {
+    outline: bufferOf('outline', 'docs/outline.md'),
+    [LOADED]: { ...bufferOf('document', LOADED),
+                current_hash: { algorithm: 'sha256', hex: loadedHex } } } });
+  const SUCCESS_D = {
+    schema_version: 1, kind: 'workbench-chat-turn-v2-success',
+    client_turn_id: 't', assistant_turn_id: 'a', model_id: 'model-a',
+    bound_buffer: LOADED,
+    observed_hashes: { outline: 'd'.repeat(64), [LOADED]: 'd'.repeat(64) },
+    assistant_prose: 'answer',
+    proposals: [{ target: LOADED, base_hash: 'd'.repeat(64),
+                  summary: 'Rework the loaded document',
+                  content: '# New loaded document' }] };
+  let releaseTurn;
+  const turnGate = new Promise((resolve) => { releaseTurn = resolve; });
+  const { host, rail } = mountRail({
+    editorState: noReservedSlot,
+    chatTurn: async () => { await turnGate;
+      return { ok: true, status: 200, payload: SUCCESS_D }; } });
+  await rail.ready;
+  const selector = byClass(host, 'doxchat-model')[0];
+  selector.value = 'model-a'; await fire(selector, 'change');
+  const composer = byClass(host, 'doxchat-composer')[0];
+  composer.value = 'please propose'; await fire(composer, 'input');
+  const sendSettled = fire(byClass(host, 'doxchat-send')[0], 'click');
+  loadedHex = 'e'.repeat(64);   // the LOADED buffer moves DURING the flight
+  releaseTurn();
+  await sendSettled;
+  const applyBtn = byClass(host, 'doxchat-card-apply')[0] || null;
+  out.movedLoadedCurrency = {
+    status: (rail.state().proposals[LOADED] || {}).status || null,
+    applyDisabled: applyBtn ? applyBtn.disabled : null,
+    hasReservedSlot: Object.prototype.hasOwnProperty.call(
+      noReservedSlot().buffers, 'document'),
+  };
+}
+
 // ---- P3-7: send-path focus by INTENT, not by captured node. A successful
 // send clears the composer, canSend goes false, render() disables Send --
 // the captured node can no longer take focus, and the keyboard operator
@@ -2804,3 +2888,33 @@ def test_a_landed_apply_clears_the_failure_its_refusal_left_behind(
     assert probe["proposalStatus"] == "applied"
     assert probe["afterError"] is None
     assert probe["noteHidden"] is True
+
+
+def test_the_settlement_rescore_covers_every_live_buffer(focus_throw_results):
+    """CODEX-4 (Codex review of PR #210), through the REAL mount.
+
+    The success-time re-score enumerated `outline` and `document` — the two names
+    Phase A had — so a PATH-KEYED document was scored against a hash the map did
+    not hold, or not scored at all. Both scenarios here DISCRIMINATE: each one's
+    answer differs before and after the fix.
+
+    (d) The reserved slot is absent and the loaded buffer MOVED mid-flight. The
+    old guard read `buffers.document`, found nothing, and skipped the re-score
+    entirely — so the card stayed CURRENT with an enabled Apply against text the
+    buffer no longer held. The swap-time guard would still have refused the
+    click; this is about the card telling the truth before anyone clicks it."""
+    moved = focus_throw_results["movedLoadedCurrency"]
+    assert moved["hasReservedSlot"] is False
+    assert moved["status"] == "stale"
+    assert moved["applyDisabled"] is True
+
+
+def test_the_settlement_rescore_leaves_an_unmoved_buffer_current(focus_throw_results):
+    """(c), the other direction, so the fix cannot be "mark everything stale":
+    the reserved slot is PRESENT and the loaded buffer did NOT move, and the
+    proposal must come back CURRENT and applicable. Before the fix the two-key
+    map scored it against `undefined` and the card read falsely stale — a human
+    told to ask again in a new turn for no reason at all."""
+    unmoved = focus_throw_results["unmovedLoadedCurrency"]
+    assert unmoved["status"] == "current"
+    assert unmoved["applyDisabled"] is False

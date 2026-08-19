@@ -851,8 +851,9 @@ def _confined(f: Findings, label: str, where: str, path_value) -> None:
 
 def check_turn_request(f: Findings, label: str, doc: dict,
                        model_ctx: dict[str, int] | None) -> None:
-    buffers = doc.get("buffers") or []
-    kinds = sorted(str(b.get("kind")) for b in buffers if isinstance(b, dict))
+    buffers = [b for b in doc.get("buffers") or [] if isinstance(b, dict)]
+    check_reserved_document_paths(f, label, buffers, V1_RESERVED_DOCUMENT_PATHS)
+    kinds = sorted(str(b.get("kind")) for b in buffers)
     if kinds != ["document", "outline"]:
         f.error("buffers", f"{label}: exactly one outline and one document "
                            f"buffer required, got {kinds}")
@@ -884,6 +885,42 @@ def check_turn_request(f: Findings, label: str, doc: dict,
                           f"over model {mid!r} input limit {limit}")
 
 
+# THE RESERVED KEYS A DOCUMENT'S OWN PATH MAY NOT CLAIM, per lane (Codex review
+# of PR #210, CODEX-3). Restated here rather than imported: this validator is
+# PUBLISHED BY EXACT COMMIT and run from a pinned checkout against an arbitrary
+# target repository, so it must not import the runtime package that happens to
+# sit beside it in the publisher. The pairing with
+# `ideation_dashboard.doxbench_turns.RESERVED_BUFFER_KEYS` /
+# `V1_RESERVED_BUFFER_KEYS` is asserted by a companion test instead, which is the
+# only way to make a restatement safe.
+#
+# The asymmetry is the runtime's own and is load-bearing. `outline` is refused on
+# BOTH lanes: a document keyed there is filtered out of every downstream
+# enumeration. `document` is refused on the WIDENED lane only, where the reserved
+# unbacked slot can ride beside a path-backed document; the v1 envelope carries
+# exactly one document whose key is `document` either way, and such a turn was
+# served before this release.
+V1_RESERVED_DOCUMENT_PATHS = frozenset({"outline"})
+V2_RESERVED_DOCUMENT_PATHS = frozenset({"outline", "document"})
+
+
+def check_reserved_document_paths(f: Findings, label: str, buffers: list,
+                                  refused: frozenset) -> None:
+    """Refuse a document buffer whose own PATH claims a reserved buffer key.
+
+    Without this the family's declared owner certified an envelope the route
+    always refuses — conformance for a shape that cannot be processed, which is
+    worse than no verdict."""
+    for buffer in buffers:
+        if str(buffer.get("kind")) != "document":
+            continue
+        if buffer.get("path") in refused:
+            f.error("reserved-key",
+                    f"{label}: a document buffer's path claims the reserved "
+                    f"buffer key {buffer.get('path')!r}; the route refuses this "
+                    f"before any provider call")
+
+
 def _buffer_key_of(buffer: dict) -> str:
     """The KEY a buffer is held under (add-doxbench-editing-phase-b design D1),
     derived exactly as the runtime derives it: the outline's key is reserved, a
@@ -904,6 +941,7 @@ def check_turn_request_v2(f: Findings, label: str, doc: dict,
     and budget rules are the v1 ones, applied per buffer over a set instead of a
     pair."""
     buffers = [b for b in doc.get("buffers") or [] if isinstance(b, dict)]
+    check_reserved_document_paths(f, label, buffers, V2_RESERVED_DOCUMENT_PATHS)
     outlines = [b for b in buffers if str(b.get("kind")) == "outline"]
     documents = [b for b in buffers if str(b.get("kind")) == "document"]
     if len(outlines) != 1 or not documents:

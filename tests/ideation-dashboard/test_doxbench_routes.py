@@ -3232,12 +3232,14 @@ _RESERVED_CLAIM_HASH = "f" * 64
 _RESERVED_SNAPSHOT_PATHS = ("outline", "document")
 
 
-@pytest.mark.parametrize("reserved", ["outline", "document"])
-def test_a_v1_turn_whose_document_path_claims_a_reserved_key_is_refused(
-        tmp_path, reserved):
-    body = _turn(active_document_path=reserved, buffers=[
+def test_a_v1_turn_whose_document_path_claims_the_outline_key_is_refused(tmp_path):
+    """The v1 half of the reserved-key refusal. NARROWED to the `outline`
+    spelling by Codex review CODEX-1: that one is a CRASH class on this lane —
+    reproduced at a4a6f6e as a dropped connection with no response — while the
+    `document` spelling was SERVED there and keeps being served (below)."""
+    body = _turn(active_document_path="outline", buffers=[
         _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
-        _buf("document", reserved, _RESERVED_CLAIM_CONTENT,
+        _buf("document", "outline", _RESERVED_CLAIM_CONTENT,
              content_hash=_RESERVED_CLAIM_HASH),
     ])
     status, payload, fake = _post_turn(
@@ -3253,6 +3255,29 @@ def test_a_v1_turn_whose_document_path_claims_a_reserved_key_is_refused(
     _assert_no_sentinels(payload)
 
 
+def test_a_v1_turn_whose_document_path_is_literally_document_is_still_served(
+        tmp_path):
+    """CODEX-1, the promise this release makes: a v1 client keeps being served.
+
+    A repository-root file named exactly `document` is a legal editable path, and
+    a v1 turn carrying it was SERVED at a4a6f6e — reproduced in a worktree at that
+    commit: HTTP 200, dispatched. The v1 envelope carries exactly ONE document
+    whose key is `document` whether its path is null or literally "document", so
+    that lane has no collision to guard; refusing it would have been a breaking
+    change wearing an additive release's number."""
+    body = _turn(active_document_path="document", buffers=[
+        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
+        _buf("document", "document", "# Doc\n\n" + _S_DOCUMENT),
+    ])
+    status, payload, fake = _post_turn(
+        tmp_path, body,
+        snapshot=_snapshot_with_editable(*_RESERVED_SNAPSHOT_PATHS))
+    assert status == 200, payload
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert set(payload["observed_hashes"]) == {"outline", "document"}
+    assert fake.calls.count("dispatch") == 1
+
+
 @pytest.mark.parametrize("reserved", ["outline", "document"])
 def test_a_v2_turn_whose_document_path_claims_a_reserved_key_is_refused(
         tmp_path, reserved):
@@ -3266,6 +3291,11 @@ def test_a_v2_turn_whose_document_path_claims_a_reserved_key_is_refused(
         snapshot=_snapshot_with_editable(*_RESERVED_SNAPSHOT_PATHS))
     assert payload is not None
     _assert_v2_refusal(status, payload, "invalid_turn_request")
+    # BOTH spellings stay refused on THIS lane (CODEX-1): the widened envelope
+    # can carry the reserved unbacked slot beside a path-backed document, so a
+    # document at path `document` would shadow it — the collision the v1 lane
+    # cannot have.
+    #
     # BEFORE the provider, and before the CATALOG: on this lane the buffer used
     # to survive to dispatch and come back as `response_invalid`, which named the
     # model for a defect in the request.
@@ -3421,3 +3451,82 @@ def test_a_routing_rule_entry_would_be_reported_as_one_without_touching_the_rout
         "data_handling": "Routes to any approved model; badge of all of them",
         "resolved_model_id": "model-a",
     }
+
+
+# ---------------------------------------------------------------------------
+# CODEX-2 (Codex review of PR #210): BUFFER ORDER IS NOT PART OF A TURN'S
+# IDENTITY on the widened lane
+# ---------------------------------------------------------------------------
+
+def test_a_widened_turn_replays_when_its_buffers_arrive_reordered(tmp_path):
+    """The released contract: "a repeated completed id with identical input
+    hashes SHALL return the recorded result without another provider dispatch".
+
+    A reordered buffer array carries identical hashes, but
+    `json.dumps(sort_keys=True)` orders KEYS and never array members — so the
+    retransmission digested differently and came back `turn_id_conflict`.
+    Reproduced before the fix: second send 409. The canonical form now orders the
+    buffers by BUFFER KEY."""
+    buffers = [
+        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
+        _buf("document", DOC_ALPHA, "# Alpha\n\n" + _S_DOCUMENT),
+        _buf("document", DOC_ZULU, "# Zulu\n\nsecond loaded document"),
+    ]
+    body = _turn_v2(client_turn_id="turn-v2-reorder", bound_buffer=DOC_ALPHA,
+                    buffers=buffers)
+    reordered = dict(body, buffers=[buffers[0], buffers[2], buffers[1]])
+    fake = _port()
+    with _serving(tmp_path, model_port_factory=(lambda: fake),
+                  snapshot=_snapshot_with_editable(DOC_ALPHA, DOC_ZULU)
+                  ) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first_status, first_payload, _h, _r = _request(
+            host, prt, "POST", CHAT_ROUTE, body=body, headers=_console_headers(caps))
+        second_status, second_payload, _h2, _r2 = _request(
+            host, prt, "POST", CHAT_ROUTE, body=reordered,
+            headers=_console_headers(caps))
+    assert first_status == 200, first_payload
+    assert second_status == 200, second_payload
+    # BYTE-IDENTICAL replay, and exactly one provider dispatch for the two sends.
+    assert second_payload == first_payload
+    assert fake.calls.count("dispatch") == 1
+
+
+def test_a_widened_turn_with_changed_content_still_conflicts(tmp_path):
+    """The other side of the same rule, so the fix cannot have loosened
+    idempotency into indifference: a repeat of the same id with DIFFERENT content
+    is still the conflict it always was."""
+    body = _turn_v2(client_turn_id="turn-v2-conflict", bound_buffer=DOC_ALPHA,
+                    buffers=[
+                        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
+                        _buf("document", DOC_ALPHA, "# Alpha\n\n" + _S_DOCUMENT),
+                    ])
+    changed = dict(body, buffers=[
+        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
+        _buf("document", DOC_ALPHA, "# Alpha\n\nEDITED SINCE"),
+    ])
+    fake = _port()
+    with _serving(tmp_path, model_port_factory=(lambda: fake),
+                  snapshot=_snapshot_with_editable(DOC_ALPHA, DOC_ZULU)
+                  ) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first_status, _p, _h, _r = _request(
+            host, prt, "POST", CHAT_ROUTE, body=body, headers=_console_headers(caps))
+        second_status, second_payload, _h2, _r2 = _request(
+            host, prt, "POST", CHAT_ROUTE, body=changed,
+            headers=_console_headers(caps))
+    assert first_status == 200
+    _assert_v2_refusal(second_status, second_payload, "turn_id_conflict")
+    assert fake.calls.count("dispatch") == 1
+
+
+def test_the_v1_canonical_form_is_untouched_by_the_reorder_fix(tmp_path):
+    """The v1 lane keeps its recorded digests: its canonical form still carries
+    the buffers in WIRE order, because changing it would make every turn already
+    in a live store unreplayable. That lane carries exactly two buffers whose
+    order the closed envelope fixes by kind, so it has nothing to gain."""
+    source = (REPO_ROOT / "scripts" / "ideation_dashboard"
+              / "serve.py").read_text(encoding="utf-8")
+    assert "canonical_buffer_order = turn_buffers" in source
+    assert 'if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:\n' \
+           '            canonical_buffer_order = sorted(' in source

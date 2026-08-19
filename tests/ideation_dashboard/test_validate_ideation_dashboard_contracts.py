@@ -289,3 +289,57 @@ def test_a_new_artifact_buffer_may_carry_a_null_path(vidc, registry_docs):
         "workbench-model-catalog-local.example.yaml"))
     f = _validate(vidc, registry_docs, "null-path", doc, ctx)
     assert not f.errors, f.errors
+
+
+# ---- CODEX-3 (Codex review of PR #210): the validator refuses what the route
+# refuses, per lane -------------------------------------------------------------
+
+def test_a_v2_document_at_a_reserved_path_is_refused(vidc, registry_docs):
+    """The certification gap Codex found: a widened instance whose document sits
+    at path `document` validated CLEAN while the route always refuses it.
+
+    The fixture shape matters — the outline plus exactly ONE document, so nothing
+    else claims that key. A fixture carrying the unbacked slot too would fail on
+    the duplicate-key rule and never reach this one, which is how the gap
+    survived."""
+    doc = _example("workbench-chat-turn-v2-loaded-set.example.yaml")
+    doc = copy.deepcopy(doc)
+    doc["buffers"] = [doc["buffers"][0], doc["buffers"][1]]
+    doc["buffers"][1]["path"] = "document"
+    doc["bound_buffer"] = "document"
+    f = _validate(vidc, registry_docs, "v2-reserved-document", doc)
+    assert any("reserved" in e for e in f.errors), f.errors
+
+
+def test_a_v1_document_at_the_outline_path_is_refused(vidc, registry_docs):
+    """The v1 lane's half — the OUTLINE spelling only."""
+    doc = copy.deepcopy(_example("workbench-chat-turn-unsaved-edits.example.yaml"))
+    doc["buffers"][1]["path"] = "outline"
+    doc["active_document_path"] = "outline"
+    f = _validate(vidc, registry_docs, "v1-reserved-outline", doc)
+    assert any("reserved" in e for e in f.errors), f.errors
+
+
+def test_a_v1_document_at_the_document_path_is_still_accepted(vidc, registry_docs):
+    """…and NOT the `document` spelling (CODEX-1): a v1 turn carrying a
+    repository-root file named exactly `document` was served before this release
+    and still is, so certifying it is correct. The validator's per-lane rule
+    tracks the route's, which is the only way conformance means anything."""
+    doc = copy.deepcopy(_example("workbench-chat-turn-unsaved-edits.example.yaml"))
+    doc["buffers"][1]["path"] = "document"
+    doc["active_document_path"] = "document"
+    f = _validate(vidc, registry_docs, "v1-reserved-document", doc)
+    assert not any("reserved" in e for e in f.errors), f.errors
+
+
+def test_the_validators_reserved_sets_agree_with_the_runtimes(vidc):
+    """The validator RESTATES these sets rather than importing them, because it
+    is published by exact commit and run against arbitrary target repositories —
+    so the pairing has to be asserted somewhere, and this is that somewhere."""
+    import sys
+    scripts = str(ROOT / "scripts")
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    from ideation_dashboard import doxbench_turns as turns
+    assert set(vidc.V2_RESERVED_DOCUMENT_PATHS) == set(turns.RESERVED_BUFFER_KEYS)
+    assert set(vidc.V1_RESERVED_DOCUMENT_PATHS) == set(turns.V1_RESERVED_BUFFER_KEYS)

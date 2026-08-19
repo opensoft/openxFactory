@@ -420,6 +420,8 @@ def test_duplicate_kind_refuses():
 
 @pytest.mark.parametrize("reserved", ["outline", "document"])
 def test_a_document_path_claiming_a_reserved_key_refuses(reserved):
+    # The DEFAULT refused set is the widened lane's, which is the fail-closed
+    # direction for any new caller (Codex review CODEX-1).
     """F2 (adversarial review of the §13 slice): a document buffer whose own PATH
     is a reserved key must be refused HERE, before identity verification and
     before any port.
@@ -438,6 +440,44 @@ def test_a_document_path_claiming_a_reserved_key_refuses(reserved):
     with pytest.raises(TurnBufferKindError) as raised:
         require_outline_and_documents([outline, claimant])
     assert "reserved buffer key" in str(raised.value)
+
+
+def test_the_v1_lane_refuses_only_the_outline_spelling():
+    """CODEX-1 (Codex review of PR #210). The rule is PER LANE, because the two
+    spellings fail differently.
+
+    `outline` is a crash class on every lane: `ordered_document_keys` filters that
+    key out of the document enumeration, so the buffer vanishes from every later
+    step — reproduced at a4a6f6e as a dropped connection with no response.
+
+    `document` is a collision only where the reserved unbacked slot can ride
+    BESIDE a path-backed document, which is the widened lane alone. The v1
+    envelope carries exactly one document whose key is `document` either way, and
+    such a turn was SERVED at a4a6f6e (reproduced: HTTP 200, dispatched), so
+    refusing it here would break the promise this release's additive class
+    makes."""
+    outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
+    at_document = _buffer("document", path="document", content=DOCUMENT_CONTENT)
+    _resolved, documents = require_outline_and_documents(
+        [outline, at_document],
+        refused_paths=doxbench_turns.V1_RESERVED_BUFFER_KEYS)
+    assert set(documents) == {"document"}
+    # …and the outline spelling stays refused on that same narrowed set.
+    at_outline = _buffer("document", path="outline", content=DOCUMENT_CONTENT)
+    with pytest.raises(TurnBufferKindError):
+        require_outline_and_documents(
+            [outline, at_outline],
+            refused_paths=doxbench_turns.V1_RESERVED_BUFFER_KEYS)
+
+
+def test_the_two_lane_refusal_sets_differ_by_exactly_the_unbacked_key():
+    """The per-lane sets are stated as a relationship, not as two literals that
+    could drift apart."""
+    assert (doxbench_turns.RESERVED_BUFFER_KEYS
+            - doxbench_turns.V1_RESERVED_BUFFER_KEYS) == {
+        doxbench_turns.UNBACKED_DOCUMENT_BUFFER_KEY}
+    assert doxbench_turns.V1_RESERVED_BUFFER_KEYS == {
+        doxbench_turns.OUTLINE_BUFFER_KEY}
 
 
 def test_the_reserved_keys_are_the_same_two_the_browser_refuses():

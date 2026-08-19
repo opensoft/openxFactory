@@ -100,7 +100,8 @@ ideation-dashboard/
 │   ├── workbench-chat-turn-over-budget.negative.yaml             # buffers over the model input limit
 │   ├── workbench-chat-turn-unknown-model.negative.yaml           # model_id outside the catalog
 │   ├── workbench-chat-turn-untyped-proposal.negative.yaml        # replacement content with no target
-│   └── workbench-chat-turn-v2-unbound-buffer.negative.yaml       # bound_buffer naming no supplied buffer
+│   ├── workbench-chat-turn-v2-unbound-buffer.negative.yaml       # bound_buffer naming no supplied buffer
+│   └── workbench-chat-turn-v2-reserved-key-path.negative.yaml    # document path claiming a reserved key
 └── transitions/                                       # register (old, new) pairs; valid-* pass, invalid-* fail
     ├── valid-pick-and-reject.{before,after}.yaml      #   latent→picked, latent→rejected, plus a new entry
     ├── valid-derived-disposition.{before,after}.yaml  #   derived accept→latent (origin retained) + reject→rejected
@@ -124,7 +125,7 @@ ideation-dashboard/
 | `gate-intent.schema.yaml` | `gate-intent-pending`, `gate-intent-applied`, `gate-intent-promote-to-staging`, `gate-intent-derive-possibles`, `gate-intent-research-brief` | `intent-applied-without-record`, `intent-refused-without-reason`, `intent-promote-to-staging-without-possible-id`, `intent-derive-possibles-without-cluster-id`, `intent-research-brief-without-possible-id` |
 | `xfactory-workbench-model-catalog.schema.yaml` | `workbench-model-catalog-local`, `workbench-model-catalog-empty`, `workbench-model-catalog-hosted-zero-retention` | `workbench-model-catalog-exposed-credential`, `workbench-model-catalog-raw-endpoint` |
 | `xfactory-workbench-chat-turn.schema.yaml` (v1 family, DEPRECATED at `contract-v1.34`) | `workbench-chat-turn-unsaved-edits`, `workbench-chat-turn-outline-only`, `workbench-chat-turn-prose-only`, `workbench-chat-turn-both-proposals` | `workbench-chat-turn-escaping-path`, `workbench-chat-turn-hash-mismatch`, `workbench-chat-turn-identity-subject`, `workbench-chat-turn-over-budget`, `workbench-chat-turn-unknown-model`, `workbench-chat-turn-untyped-proposal` |
-| `xfactory-workbench-chat-turn.schema.yaml` (widened `-v2` family, `contract-v1.34`) | `workbench-chat-turn-v2-loaded-set`, `workbench-chat-turn-v2-success` | `workbench-chat-turn-v2-unbound-buffer` |
+| `xfactory-workbench-chat-turn.schema.yaml` (widened `-v2` family, `contract-v1.34`) | `workbench-chat-turn-v2-loaded-set`, `workbench-chat-turn-v2-success` | `workbench-chat-turn-v2-unbound-buffer`, `workbench-chat-turn-v2-reserved-key-path` |
 | `gate-action-record.schema.yaml` | `gate-action-record-ratify`, `gate-action-record-kickoff`, `gate-action-record-demote`, `gate-action-record-dispose-possible`, `gate-action-record-edit-document`, `gate-action-record-open-pr`, `gate-action-record-abandon-session`, `gate-action-record-promote-to-staging`, `gate-action-record-derive-possibles`, `gate-action-record-research-brief` | `gate-demote-without-reason`, `gate-ratify-without-ratification-artifact`, `gate-kickoff-without-workflow-job`, `gate-kickoff-unratified-target`, `gate-dispose-rejected-uncited`, `gate-action-edit-document-no-commit-artifact`, `gate-action-edit-document-no-ref`, `gate-action-open-pr-no-pull-request-artifact`, `gate-action-abandon-session-unreasoned`, `gate-action-promote-to-staging-without-workflow-job`, `gate-action-derive-possibles-without-workflow-job`, `gate-action-derive-possibles-without-cluster-id`, `gate-action-research-brief-without-workflow-job` |
 
 ## Named cases from task 2.4

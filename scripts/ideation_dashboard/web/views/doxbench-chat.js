@@ -1226,15 +1226,24 @@ export function mountDoxBenchChatRail(host, options = {}) {
       if (succeeded) {
         const liveEditor = typeof editorState === "function"
           ? editorState() : editorState;
-        const outline = liveEditor && liveEditor.buffers
-          && liveEditor.buffers.outline;
-        const documentBuffer = liveEditor && liveEditor.buffers
-          && liveEditor.buffers.document;
-        if (bufferSettled(outline) && bufferSettled(documentBuffer)) {
-          adopt(refreshProposalCurrency(state, {
-            outline: hexOf(outline.current_hash),
-            document: hexOf(documentBuffer.current_hash),
-          }));
+        // EVERY LIVE BUFFER, not the two Phase A named (Codex review of PR #210,
+        // CODEX-4). The old pair failed in both directions once a turn could
+        // carry N buffers: a path-keyed document scored against a hash the map
+        // did not hold and read falsely STALE, and a session whose reserved slot
+        // had been re-keyed away skipped the re-score altogether, leaving an
+        // enabled Apply against text the buffer no longer held. The identity map
+        // is now the same set the turn's own `observed_hashes` declared -- which
+        // is what the buffers the model was shown are.
+        const buffers = (liveEditor && liveEditor.buffers) || {};
+        const keys = Object.keys(buffers);
+        // An UNSETTLED identity cannot re-score, so the re-score is skipped
+        // entirely in that window -- unchanged, and now judged over the whole
+        // set: that buffer's own settle fires onIdentitySettled, which reaches
+        // refreshCurrency through the composition moments later.
+        if (keys.length && keys.every((key) => bufferSettled(buffers[key]))) {
+          const hashes = {};
+          for (const key of keys) hashes[key] = hexOf(buffers[key].current_hash);
+          adopt(refreshProposalCurrency(state, hashes));
         }
       }
       settled = true;
