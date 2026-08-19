@@ -500,9 +500,34 @@ _DISPATCH_OUTCOME_CODES = {
     "response_invalid",
 }
 
+# PIN EVOLUTION (add-doxbench-editing-phase-b §10, and the adversarial review
+# that required it). TWO packet-era spellings, each a recorded judgement call
+# for a condition that has no code in the planning contracts because the
+# planning contracts predate the bounded context packet:
+#
+#   * `context_packet_bound_exceeded` (409) replaces the misuse of
+#     `request_limit_exceeded` for a bound the SERVER's own selection blew.
+#     413 with "the request exceeds the allowed size for this route" was false
+#     twice over — the request was a few hundred bytes, and the oversize was
+#     server-selected evidence — and un-actionable, because it refused every
+#     turn on that tile forever. Evidence is now fitted by selecting less, so
+#     this code answers only the case the session's own THREADS exceed the
+#     bound alone, which a human can act on by compacting the thread.
+#   * `context_packet_invalid` (500) answers a packet that failed its own
+#     purpose/scope/expiry revalidation twice, which no request the caller
+#     could send would fix.
+#
+# The released failure envelope's `error` is a free-form pattern string, not an
+# enum, so neither needed a contract change. This set stays CLOSED for the same
+# reason the others do.
+_PACKET_CODES = {
+    "context_packet_invalid",
+    "context_packet_bound_exceeded",
+}
+
 _ALL_DOXBENCH_CODES = (
     _PLANNING_CONTRACT_CODES | _ROUTE_VERBATIM_CODES
-    | _ROUTE_JUDGEMENT_CALL_CODES | _DISPATCH_OUTCOME_CODES
+    | _ROUTE_JUDGEMENT_CALL_CODES | _DISPATCH_OUTCOME_CODES | _PACKET_CODES
 )
 
 
@@ -577,11 +602,21 @@ def test_limit_block_carries_only_a_fixed_dimension_and_two_integers():
     assert isinstance(body["limit"]["maximum"], int)
 
 
-def test_only_the_limit_code_ever_carries_a_limit_block():
+def test_only_the_limit_BEARING_codes_ever_carry_a_limit_block():
+    """RE-PINNED (add-doxbench-editing-phase-b §10). The rule was never "one
+    code"; it was "only a DIMENSION-BEARING refusal carries a dimension", and
+    for a long time exactly one refusal was dimension-bearing. The packet's
+    bound refusal is the second, and it names its measured dimension for the
+    same reason the first does. The set is asserted to be exactly those two, so
+    a third cannot appear unnoticed."""
+    assert serve_mod.DOXBENCH_LIMIT_BEARING_CODES == {
+        serve_mod.DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
+        serve_mod.DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED,
+    }
     limit = {"dimension": "request_body_bytes", "measured": 1, "maximum": 1}
     for code in serve_mod.DOXBENCH_ERROR_CATALOG:
         body = serve_mod.doxbench_error_body(code, limit=limit)
-        if code == serve_mod.DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED:
+        if code in serve_mod.DOXBENCH_LIMIT_BEARING_CODES:
             assert "limit" in body
         else:
             assert "limit" not in body

@@ -30,6 +30,7 @@ if str(_SCRIPTS_DIR) not in sys.path:
 
 from ideation_dashboard import authoring as authoring_mod  # noqa: E402
 from ideation_dashboard import branch_session as branch_session_mod  # noqa: E402
+from ideation_dashboard import doxbench_knowledge as knowledge_mod  # noqa: E402
 from ideation_dashboard import gate_console as gate_mod  # noqa: E402
 from ideation_dashboard import gate_routes as gate_routes_mod  # noqa: E402
 from ideation_dashboard import human_seen as human_seen_mod  # noqa: E402
@@ -300,7 +301,15 @@ def cmd_generate_and_open(args: argparse.Namespace, *, opener=webbrowser.open) -
                                    # the ENTRYPOINT declares the real notebook
                                    # adapter; `build_server` never reaches for one
                                    # on a caller's behalf (PR #49 hardening item 1)
-                                   adapter_factory=serve_mod.real_notebook_adapter)
+                                   adapter_factory=serve_mod.real_notebook_adapter,
+                                   # and the same discipline for the doxBench
+                                   # knowledge service: the ENTRYPOINT makes the
+                                   # install-time retrieval-backend declaration
+                                   # (add-doxbench-editing-phase-b D11), which is
+                                   # the self-hosted half of the ratified
+                                   # two-case principle
+                                   knowledge_declaration=(
+                                       knowledge_mod.SELF_HOSTED_LOCAL_EMBEDDED))
     url = serve_mod.server_url(httpd, "/index.html")
     print(f"  serving {url}")
     print(f"  snapshot {serve_mod.server_url(httpd, '/snapshot.json')}")

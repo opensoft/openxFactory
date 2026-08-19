@@ -116,6 +116,9 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 from ideation_dashboard import action_errors  # noqa: E402
+from ideation_dashboard import doxbench_knowledge  # noqa: E402
+from ideation_dashboard import doxbench_packet  # noqa: E402
+from ideation_dashboard import doxbench_telemetry  # noqa: E402
 from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
 
 DEFAULT_HOST = "127.0.0.1"
@@ -292,6 +295,16 @@ DOXBENCH_ERR_MODEL_TIMEOUT = "model_timeout"
 DOXBENCH_ERR_MODEL_FAILED = "model_failed"
 DOXBENCH_ERR_RESPONSE_INVALID = "response_invalid"
 
+# add-doxbench-editing-phase-b §10, and BOTH are judgement-call spellings this
+# slice records rather than inherits. The released failure envelope's `error` is
+# a free-form `^[a-z][a-z0-9_]{2,63}$` string, not an enum, so naming a
+# server-side condition honestly needs no contract change — and reusing
+# `request_limit_exceeded` for either of these would state something FALSE:
+# that the CALLER's request was too large, when what exceeded a bound was
+# context the server itself selected or the session's own threads.
+DOXBENCH_ERR_CONTEXT_PACKET_INVALID = "context_packet_invalid"
+DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED = "context_packet_bound_exceeded"
+
 # Fixed, module-level messages: never composed from request data, exactly
 # like `action_errors.ERROR_CATALOG`'s messages.
 _DOXBENCH_MSG_REQUEST_LIMIT_EXCEEDED = "the request exceeds the allowed size for this route"
@@ -307,6 +320,11 @@ _DOXBENCH_MSG_INVALID_TURN_REQUEST = "the turn request is malformed"
 _DOXBENCH_MSG_MODEL_TIMEOUT = "the model did not answer within the declared timeout"
 _DOXBENCH_MSG_MODEL_FAILED = "the model request failed"
 _DOXBENCH_MSG_RESPONSE_INVALID = "the model response could not be validated"
+_DOXBENCH_MSG_CONTEXT_PACKET_INVALID = (
+    "the bounded context for this turn could not be confirmed")
+_DOXBENCH_MSG_CONTEXT_PACKET_BOUND_EXCEEDED = (
+    "this session's own thread material exceeds the bounded context a turn may "
+    "carry; compacting the thread brings it back inside the bound")
 
 # code -> (HTTP status, fixed caller-safe message). `request_limit_exceeded`'s
 # 413 (Payload Too Large) is this slice's own judgement call: the planning
@@ -346,7 +364,26 @@ DOXBENCH_ERROR_CATALOG: dict[str, tuple[int, str]] = {
     DOXBENCH_ERR_MODEL_TIMEOUT: (504, _DOXBENCH_MSG_MODEL_TIMEOUT),
     DOXBENCH_ERR_MODEL_FAILED: (502, _DOXBENCH_MSG_MODEL_FAILED),
     DOXBENCH_ERR_RESPONSE_INVALID: (502, _DOXBENCH_MSG_RESPONSE_INVALID),
+    # 500: the server produced a bounded context it could not then use. No
+    # request the caller could send would fix it, so a 4xx would misdirect.
+    DOXBENCH_ERR_CONTEXT_PACKET_INVALID: (
+        500, _DOXBENCH_MSG_CONTEXT_PACKET_INVALID),
+    # 409: the turn conflicts with the current state of the session's own
+    # threads. Not 413 -- the REQUEST is not too large, the session's working
+    # memory is -- and the caller CAN act on it, which is what makes 409 right:
+    # compacting the thread is layer two, and it exists for exactly this.
+    DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED: (
+        409, _DOXBENCH_MSG_CONTEXT_PACKET_BOUND_EXCEEDED),
 }
+
+# The codes whose released envelope may carry the `limit` block. The released
+# failure envelope allows `limit` on any code; this set is the SERVER's own
+# rule about which refusals are dimension-bearing, kept in one place so the two
+# body builders cannot disagree about it.
+DOXBENCH_LIMIT_BEARING_CODES: frozenset[str] = frozenset({
+    DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
+    DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED,
+})
 
 
 def doxbench_error_body(code: str, *, limit: dict | None = None) -> dict:
@@ -361,7 +398,7 @@ def doxbench_error_body(code: str, *, limit: dict | None = None) -> dict:
     the section banner above states."""
     _, message = DOXBENCH_ERROR_CATALOG[code]
     body: dict = {"ok": False, "error": code, "message": message}
-    if code == DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED and limit is not None:
+    if code in DOXBENCH_LIMIT_BEARING_CODES and limit is not None:
         body["limit"] = {
             "dimension": str(limit["dimension"]),
             "measured": int(limit["measured"]),
@@ -423,7 +460,7 @@ def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
         "error": code,
         "message": message,
     }
-    if code == DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED and limit is not None:
+    if code in DOXBENCH_LIMIT_BEARING_CODES and limit is not None:
         body["limit"] = {
             "dimension": str(limit["dimension"]),
             "measured": int(limit["measured"]),
@@ -1023,6 +1060,28 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     # `doxbench_turns.TurnStore()` here -- ONE store per served process, never
     # shared across servers (see `test_turn_store_is_bound_per_server_process`).
     turn_store = None
+    # The doxBench STAGED-SET KNOWLEDGE SERVICE, declared at INSTALL time
+    # (add-doxbench-editing-phase-b D11, task 10.6). None means NO knowledge
+    # service, which is a declared POSTURE and not an error: the turn degrades
+    # to the reduced packet with its reduction stated, the rails still run, and
+    # the editors are untouched. NOTHING at runtime — no turn, no prompt, no
+    # heuristic — may choose a backend, which is why this is a serve-level
+    # declaration and why the route below only ever READS it.
+    knowledge_declaration = None
+    # The packet assembler this route reaches, bound by `build_server` to
+    # `doxbench_packet.assemble_packet`. INJECTED for the same reason every
+    # other collaborator on this route is (the model port, the notebook
+    # adapter, the schema validators): the packet is now a collaborator, and
+    # the leash it carries -- purpose, scope, expiry -- can only be exercised
+    # end to end by a route that was handed one it must reject. Unlike the
+    # capability seams, absence here is NOT a posture: the real assembler is
+    # the default, because assembling a packet is the pipeline, not a
+    # capability an install may decline.
+    packet_assembler = staticmethod(doxbench_packet.assemble_packet)
+    # The per-process content-free usage meter (task 10.8). None only in
+    # hand-constructed handlers; one meter per served process, beside the turn
+    # store and never shared across servers.
+    usage_meter = None
     actor: str | None = None
     # The repository half of every session key this process serves, BOUND at
     # `build_server` to the served checkout's own repository (finding R2-11). None
@@ -1169,6 +1228,100 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return self.model_port_factory()
         except Exception:  # noqa: BLE001 - absence is a capability verdict
             return None
+
+    # The largest corpus one tile's index is built from. A bound, not a
+    # policy: a tile's staged set is a topic folder, and an index that grew
+    # without one would be a way to spend a serve's memory by loading a tile.
+    MAX_INDEXED_SOURCES = 200
+
+    def _indexed_sources(self, projection):
+        """This tile's staged set, as indexable sources.
+
+        Read through `snapshot_registry.resolve_within` — the SINGLE
+        containment authority `/source` already uses — rather than through a
+        second path check of this route's own, because two confinement rules
+        are how one of them drifts. A path that does not resolve, is not a
+        file, or cannot be decoded is SKIPPED: an unreadable document is one
+        the packet will not carry, never a reason to fail a turn.
+
+        The bytes come from the SERVED CHECKOUT, which is what "the tile's
+        staged set" means here: the corpus at the revision this tile projects.
+        A session's own edits ride the turn as BUFFERS, verbatim and
+        identity-verified, so nothing is read twice from two places.
+
+        THE BOUND IS ON WHAT IS INDEXED, NOT ON WHAT IS ATTEMPTED (Codex review
+        of PR #216, CODEX-C). Slicing `context_paths` before filtering let an
+        unreadable entry consume index capacity, so a tile whose first entries
+        were missing indexed FEWER than the bound and never even considered
+        readable documents behind them — and the coverage sentence then blamed
+        "the declared index bound" for omissions the bound had nothing to do
+        with. Reproduced at a bound of 2 over three paths: one indexed.
+
+        Returns the sources plus the refs that were UNREADABLE, so the packet
+        can tell the two omission classes apart instead of merging them.
+        """
+
+        sources = []
+        unreadable = []
+        for ref in projection.context_paths:
+            if len(sources) >= self.MAX_INDEXED_SOURCES:
+                break
+            resolved = registry_mod.resolve_within(self.checkout_root, ref)
+            if resolved is None:
+                unreadable.append(ref)
+                continue
+            try:
+                text = resolved.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                unreadable.append(ref)
+                continue
+            sources.append(doxbench_knowledge.IndexedSource(ref=ref, text=text))
+        return tuple(sources), tuple(unreadable)
+
+    def _knowledge_service_and_coverage(self, projection):
+        """The tool boundary over this install's DECLARED retrieval backend,
+        indexed for this tile's confined corpus — or None.
+
+        ABSENCE IS A POSTURE (design §3.4), exactly as it is for the model
+        port: no declaration means no knowledge service, the packet assembler
+        produces the DECLARED reduced packet with its reduction stated, and the
+        editors are unaffected. A failure to index is the same posture rather
+        than a turn failure, for the same reason.
+
+        A FRESH backend per request, built from the install-time declaration.
+        The declaration is process-wide; the INDEX is not, because this server
+        is threaded and one tile's index must never be visible to another
+        tile's turn. Nothing here consults the turn, the message, or the
+        prompt: the declaration is the only input to which backend exists.
+
+        COVERAGE, stated rather than left to silence (adversarial review, F6):
+        the index has a DECLARED BOUND and the confinement does not, so a tile
+        holding more documents than the bound has refs that are confined but
+        were never indexed -- not retrievable this turn, and NOT "one retrieval
+        call away" the way the packet's own lossless note would otherwise
+        imply. The actual indexed count is returned beside the boundary so the
+        packet can say so; an unreadable document counts as uncovered for the
+        same reason.
+        """
+
+        declaration = getattr(self, "knowledge_declaration", None)
+        if declaration is None:
+            return None, None
+        try:
+            backend = doxbench_knowledge.build_backend(declaration)
+            boundary = doxbench_knowledge.KnowledgeToolBoundary(backend)
+            # ONLY CONFINED SOURCES ARE EVER INDEXED: `_indexed_sources` reads
+            # `projection.context_paths`, which IS the tile's staged set and is
+            # exactly what `confined_refs` computes the admissible set from, so
+            # the index is a SUBSET of the confinement by construction rather
+            # than by filtering afterwards (Codex review of PR #216, CODEX-A).
+            sources, unreadable = self._indexed_sources(projection)
+            boundary.reindex(sources)
+        except Exception:  # noqa: BLE001 - absence is a capability verdict
+            return None, None
+        return boundary, doxbench_packet.CorpusCoverage(
+            indexed=len(sources), unreadable=len(unreadable),
+            total=len(projection.context_paths))
 
     def _doxbench_validators(self):
         """The RELEASED per-kind schema validators for this request, or None.
@@ -2012,9 +2165,72 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # (T049): fixed codes, fixed redacted diagnostics, injected
         # monotonic clock for the deadline.
         outcome_code = DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE
+        outcome_limit = None
         prompt_envelope = None
         try:
+            # ---- the PACKET, assembled BEFORE the prompt and before any
+            # provider (§10.3). Its rails run inside the assembler: the
+            # confinement is computed from the projection and HANDED to the
+            # retrieval boundary rather than left for it to respect, and the
+            # lifecycle-status exemption is applied from each item's own
+            # `Status:` header. `_knowledge_service` returning None is the
+            # DECLARED reduced posture, not a failure, so nothing here branches
+            # on it -- the reduction is stated inside the packet.
+            #
+            # PROMOTED FINDINGS are an empty set today, and deliberately so: a
+            # finding becomes a promoted one only when a human performs the
+            # reviewed act that creates the target object, and that object is
+            # then an ordinary document of the tile, which the tile's own
+            # staged set already carries. There is no promoted-findings
+            # register to read, and inventing one here would be the parallel
+            # decision store the contract forbids.
+            knowledge, coverage = self._knowledge_service_and_coverage(
+                projection)
+
+            def _new_packet():
+                return self.packet_assembler(
+                    projection=projection,
+                    scope=key,
+                    selected_key=bound_buffer_key,
+                    loaded_keys=document_keys,
+                    query=message,
+                    knowledge=knowledge,
+                    corpus_coverage=coverage,
+                    # THE PACKET'S BOUND COMPOSES WITH THE MODEL'S OWN INPUT
+                    # LIMIT (Codex review of PR #216, CODEX-B). The request
+                    # bytes were measured and accepted against
+                    # `effective_input_limit` above, but the packet is appended
+                    # AFTER that check, so a turn could be accepted and then
+                    # dispatch a prompt past the model's declared capacity —
+                    # failing at the provider instead of at a measured bound.
+                    # The packet is FITTED to what the request left, rather
+                    # than refused afterwards: refusing here would resurrect
+                    # exactly the un-actionable-refusal class the fit removed.
+                    max_packet_bytes=doxbench_packet.packet_budget_for(
+                        input_limit_bytes=effective_input_limit,
+                        request_bytes=request_total_bytes),
+                    already_carried=(
+                        () if projection.outline_path is None
+                        else (projection.outline_path,)),
+                )
+
+            packet = _new_packet()
+            try:
+                doxbench_packet.require_valid(
+                    packet,
+                    purpose=doxbench_packet.PACKET_PURPOSE_CHAT_TURN,
+                    scope=key, now=time.monotonic())
+            except doxbench_packet.PacketRejected:
+                # THE DELTA'S OWN SENTENCE, realized literally: a consuming
+                # surface presented with a stale or foreign packet "MUST reject
+                # it and REQUEST A NEW ONE". So the route asks the service for
+                # a new packet exactly once; only a second failure is a refusal,
+                # because a leash that could not be reissued is a server that
+                # cannot bound its own context.
+                packet = _new_packet()
+
             prompt_envelope = doxbench_turns.build_prompt_envelope(
+                packet=packet, meter=self.usage_meter,
                 projection=projection, request_scope=key,
                 active_document_path=active_document_path,
                 model_id=model_id, model_data_handling=model_entry.data_handling,
@@ -2037,6 +2253,30 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         except doxbench_turns.TurnIdentityMismatchError:
             outcome_code = DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH
         except doxbench_turns.TurnBufferKindError:
+            outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
+        except doxbench_packet.PacketBoundExceeded as exc:
+            # THE BOUNDS RAIL'S REFUSAL ARM, on the wire (task 10.3, F2).
+            #
+            # RE-MAPPED after the adversarial review. This used to answer
+            # `request_limit_exceeded` (413, "the request exceeds the allowed
+            # size for this route"), which was FALSE twice over: the request
+            # was a few hundred bytes, and what exceeded the bound was context
+            # the SERVER selected. Evidence is now fitted by selecting less, so
+            # reaching here means the session's own THREADS exceed the bound
+            # alone -- a 409 against the session's state, with the measured
+            # dimension named and a message pointing at the act that fixes it.
+            outcome_code = DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED
+            outcome_limit = exc.limit
+        except doxbench_packet.PacketRejected:
+            # The re-requested packet was ALSO invalid. The server could not
+            # bound its own context for this turn, which no request the caller
+            # could send would fix -- so it is a 500 that says exactly that,
+            # never a 4xx blaming the turn.
+            outcome_code = DOXBENCH_ERR_CONTEXT_PACKET_INVALID
+        except doxbench_packet.PacketError:
+            # Any other packet refusal is a malformed turn, mapped to the same
+            # fixed code every other structural refusal uses. Its text names
+            # this module's own vocabulary and stays in this process.
             outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
         except doxbench_hash.ContentEncodingError:
             # T104 F5-8, the step-9 re-verification leg: `build_prompt_envelope`
@@ -2177,10 +2417,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # replay must be the same validated shape this response carries, or a
         # replay would answer differently from the original.
         body = (doxbench_turn_failure_body(outcome_code, turn_id,
+                                           limit=outcome_limit,
                                            kind=failure_kind)
-                if turn_id is not None else doxbench_error_body(outcome_code))
+                if turn_id is not None
+                else doxbench_error_body(outcome_code, limit=outcome_limit))
         if not self._doxbench_wire_conforms(validators, failure_kind, body):
-            body = doxbench_error_body(outcome_code)
+            body = doxbench_error_body(outcome_code, limit=outcome_limit)
         body_bytes = json.dumps(body).encode("utf-8")
         # Planning-contract obligation 1 (contracts/chat-turn.md): a refused
         # finalization must not abandon the slot -- `fail` frees the
@@ -3441,6 +3683,8 @@ def build_server(
     project_register: Path | str | None = None,
     peek_ttl_seconds: float = registry_mod.PEEK_TTL_SECONDS,
     snapshot_source=None,
+    knowledge_declaration=None,
+    packet_assembler=None,
 ) -> http.server.ThreadingHTTPServer:
     """Build (but do not start) the loopback server. `port=0` binds an ephemeral
     port (read it back from `httpd.server_address`). `head` is injectable so a
@@ -3467,7 +3711,16 @@ def build_server(
     remains available as the baked/local fallback — so a server built exactly as
     every existing caller builds one serves exactly one `(repository, main)`
     entry and behaves as it always has. `snapshot_source` is injectable for
-    tests."""
+    tests.
+
+    `knowledge_declaration` is the INSTALL-TIME declaration of the doxBench
+    staged-set knowledge service's retrieval backend
+    (add-doxbench-editing-phase-b D11): unset means NO knowledge service, which
+    is the declared reduced-packet posture rather than an error, and the
+    production entrypoint declares `SELF_HOSTED_LOCAL_EMBEDDED` explicitly —
+    the same discipline `real_notebook_adapter` carries, and for the same
+    reason: an operator must be able to read what their install talks to, and a
+    library default that quietly built one would defeat that."""
     from ideation_dashboard import doxbench_turns
 
     web_dir = Path(web_dir).resolve()
@@ -3567,6 +3820,18 @@ def build_server(
                   if schema_validator_factory is not None else None)),
         # ONE fresh turn-idempotency ledger per served process (T050/T051).
         "turn_store": doxbench_turns.TurnStore(),
+        # The INSTALL-TIME retrieval-backend declaration (task 10.6). Bound
+        # once, here, and READ by the route; the backend instance itself is
+        # built per request from this declaration and from nothing else, so no
+        # tile's derived index is ever visible to another tile's turn.
+        "knowledge_declaration": knowledge_declaration,
+        # The packet assembler, defaulted to the real one (see the class
+        # attribute's own note on why absence is not a posture here).
+        "packet_assembler": staticmethod(
+            packet_assembler if packet_assembler is not None
+            else doxbench_packet.assemble_packet),
+        # ONE fresh content-free usage meter per served process (task 10.8).
+        "usage_meter": doxbench_telemetry.UsageMeter(),
         "actor": resolved_actor,
         # the session key's repository half, for this whole process (R2-11)
         "session_repository": session_repository,
@@ -3609,6 +3874,14 @@ def serve(
     rather than letting `build_server` reach for it on every caller's behalf. A
     caller that passes its own `adapter_factory` (a test, a harness) keeps it."""
     build_kwargs.setdefault("adapter_factory", real_notebook_adapter)
+    # The INSTALL-TIME retrieval-backend declaration, made by the ENTRYPOINT for
+    # the same reason the notebook adapter is: an operator must be able to read
+    # what their install talks to, and `build_server` reaching for one on every
+    # caller's behalf would put that decision out of sight. This is the
+    # self-hosted case of the ratified two-case principle; a tenant install
+    # declares its own here instead.
+    build_kwargs.setdefault("knowledge_declaration",
+                            doxbench_knowledge.SELF_HOSTED_LOCAL_EMBEDDED)
     httpd = build_server(web_dir, snapshot_path, checkout_root, host=host,
                          port=port, quiet=quiet, actor=actor, **build_kwargs)
     print(f"serving ideation dashboard at {server_url(httpd, '/index.html')}")

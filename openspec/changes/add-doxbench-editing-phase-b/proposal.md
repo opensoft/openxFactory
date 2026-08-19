@@ -224,6 +224,17 @@ credentials or acquires a subject scope, and which loses the declaration the
 moment either changes. That is a small, neutral addition that makes the
 inapplicability auditable; it grants no exemption and relaxes no rail.
 
+**And the honest "first consumer" statement, stated precisely**
+(`verification-findings.md` §3.7): this change is the first consumer to declare
+formal per-requirement conformance to `memory-gateway` and the first
+SUBJECT-FREE one — not the first thing in xFactory to reference the contract's
+vocabulary at all. `installs/hermes-install`'s `add-memory-gateway-binding`
+(archived 2026-07-24) precedes it with real, tested code, and is narrower,
+subject-bearing, and self-described as a runtime convention ahead of a gateway
+service that does not exist there yet. That precedent strengthens rather than
+weakens the case for the delta: its own text shows the contract has no
+vocabulary for a consumer with no subject at all.
+
 `governed-derived-model` is treated differently and deliberately. Claim 23 says
 the thread-state header, the summaries, and any future graph index conform to
 it. Read directly, that capability's conformance surface is a DomainxFactory's

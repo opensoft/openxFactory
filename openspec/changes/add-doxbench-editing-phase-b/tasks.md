@@ -48,6 +48,15 @@ RATIFICATION — none of them starts before Brett ratifies this change.
       memory-gateway conformance declaration and its delta, 23 → the
       property-level derived-model assertion (design §7.2, flagged), 24–25 →
       the three-layer compression stack, 26 → the watch-list discipline.
+      **Claim 22's "first consumer" framing is stated PRECISELY** per task
+      3.7's finding, in both `design.md` §7.1 and `proposal.md`: this change is
+      the first consumer to declare FORMAL PER-REQUIREMENT conformance to
+      `memory-gateway` and the first SUBJECT-FREE one — not the first thing in
+      xFactory to reference the contract's vocabulary at all.
+      `installs/hermes-install`'s `add-memory-gateway-binding` (archived
+      2026-07-24) is the prior, narrower, subject-bearing and self-described
+      provisional precedent, and it strengthens the case for the delta rather
+      than weakening it.
 - [x] 2.2 Every one of the seven questions carries a disposition other than
       `open`, so this change EXITS the topic. Q1/Q3/Q7 are the three Phase B
       inherits, and each ruling's verbatim text is quoted in `design.md`.
@@ -186,15 +195,51 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       (including the session-base widening) runs once per buffer, unchanged.
 - [x] 5.3 `PROPOSAL_TARGETS` and `ObservedHashes` become buffer-key-shaped; the
       proposal cap is expressed over the request's buffer count.
-- [ ] 5.4 `PROMPT_SECTION_ORDER` grows deterministically: one section per loaded
+- [x] 5.4 `PROMPT_SECTION_ORDER` grows deterministically: one section per loaded
       document in the declared order, plus the packet's sections (§10). The
       order stays a single declared constant.
-      **HALF LANDED, half gated.** The document half is realized: the single
-      `document_buffer` slot became the `document_buffers` GROUP, expanded by
+      **BOTH HALVES LANDED.** The document half: the single `document_buffer`
+      slot became the `document_buffers` GROUP, expanded by
       `prompt_section_keys` to one `document_buffer:<buffer key>` section per
       loaded document in the declared order, from ONE constant, pinned at both
-      levels. The PACKET's sections wait on §10, which is gated on §3, so this
-      task stays open until they land beside them.
+      levels.
+      The PACKET half (with §10): four more groups joined the same constant in
+      design §3.1 step 5's own order — the packet's DECLARATION, the selected
+      thread, the other threads' state headers, the evidence with refs — all
+      ahead of the outline and document buffers. Two of them EXPAND per item
+      exactly as `document_buffers` does (`thread_state:<key>`,
+      `evidence:<ref>`), and one function decides that expansion so the
+      concrete keys and the rendered sections cannot disagree; a companion test
+      asserts they do not.
+      `prompt_section_keys` now takes the packet as a REQUIRED keyword rather
+      than a defaulted one, because every turn carries a packet — an absent
+      knowledge service yields the DECLARED REDUCED packet, not a packet-less
+      prompt — and a `None` default would invent a second prompt shape no
+      requirement sanctions.
+      **JUDGEMENT CALLS, flagged rather than buried.** (a) `transcript` keeps
+      Phase A's position. Step 5's list does not name it at all, so moving it
+      would invent an ordering the design does not state, and dropping it would
+      drop a released input; it sits adjacent to the thread sections it is the
+      wire-carried counterpart of. (b) The packet's DECLARATION section is not
+      in step 5's list either. It exists because the packet must declare its
+      purpose, its sources with refs, its scope and its expiry somewhere a
+      reader of the prompt can see, and because that is where a REDUCED posture
+      is stated (§3.4) — neither of which has another readable home.
+      **WHAT STILL WAITS, and on what.** Step 5's `model data handling`,
+      `scope`, `working subject`, `outline buffer`, `document buffers`, `human
+      message` and `response instruction` already existed and are untouched.
+      Nothing in step 5 is now missing. The SECTIONS' contents that later
+      slices own are the thread material itself (§11 mirrors turns into the
+      sidecars this packet reads) and any layer-three offload placeholder (§11
+      again) — both of which flow through the seams here without changing this
+      order.
+      **RE-PINNED, with the reason stated:** the turn suite's POSITIONAL
+      section lookups (`envelope.sections[6]`) became key lookups. An index
+      pinned a section's identity to a count the packet changes, and it had
+      already gone quietly wrong once — `sections[6]` named the OUTLINE buffer
+      in a test asserting about the DOCUMENT buffer, which passed only because
+      both carried the label it checked for. The declared ORDER is still
+      asserted whole against `prompt_section_keys`.
 - [x] 5.5 `SYSTEM_CONTRACT_TEXT` carries the source-ranking hierarchy —
       ratified/standard canon > accepted/staged facts > promoted findings >
       active thread state > harness-local memory last and non-authoritative.
@@ -405,32 +450,368 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
 
 ## 10. The knowledge service v1
 
-- [ ] 10.1 The internal ASSEMBLY PORT: the product-neutral surface a retrieval
+- [x] 10.1 The internal ASSEMBLY PORT: the product-neutral surface a retrieval
       backend implements, with the v1 local-hybrid profile behind it (lexical +
       small embedded vectors + the structured thread-states). No graph engine,
       anywhere.
-- [ ] 10.2 The MCP boundary: `search`, `get_source`, `promote_finding`,
+      `scripts/ideation_dashboard/doxbench_knowledge.py`. Four product-neutral
+      members (`profile`/`index`/`retrieve`/`source`), pinned as an EQUALITY
+      with a `FORBIDDEN_ASSEMBLY_PORT_MEMBERS` companion in the same shape
+      `WorkbenchModelPort`'s is, and DELIBERATELY not the tool names: one
+      vocabulary for both layers would make a backend swap look like a boundary
+      change the first time they had to differ.
+      The v1 profile is in-process and stdlib-only: BM25 over the confined
+      corpus, plus a deterministic hashed token/character-trigram projection
+      (96 dimensions, `hashlib.blake2b` rather than the per-process-randomized
+      `hash()`, so two independently built indexes rank identically), plus the
+      structured thread-states as a third signal — fused on declared weights
+      summing to one, with ties broken on the ref. Each of the three signals
+      has a test showing it selecting something the others cannot.
+      **N-GRAM OFF-BY-ONE FIXED (Copilot review of PR #216).** The strict
+      length comparison skipped the single n-gram of a token exactly
+      `CHARACTER_NGRAM` long, so every three-letter token contributed NO n-gram
+      feature while four-letter tokens contributed two — contradicting the
+      function's own docstring and weakening the vector leg precisely for the
+      short tokens the lexical leg generalizes over worst. The pin is on the
+      feature ENUMERATION rather than on a score, and both score-coupled
+      scenarios were re-derived rather than tuned: the null query still yields
+      zero on both textual legs, and the vector-leg case still fires with
+      `lexical == 0`.
+      No graph engine, store, or index: `ProviderProfile` REFUSES a profile
+      declaring `graph`, and eleven engine/candidate spellings are asserted
+      absent from the module's source.
+- [x] 10.2 The ONE tool boundary: `search`, `get_source`, `promote_finding`,
       `reindex`, with `graph_query` RESERVED and unimplemented (a test asserts
-      it is unimplemented).
-- [ ] 10.3 The packet assembler: selection rail, then the lifecycle-status
+      it is unimplemented). *(The line read "The MCP boundary" until the
+      adversarial review's F10; the delta says "exactly ONE tool boundary" and
+      never says MCP, so the heading is aligned with the note below rather than
+      left contradicting it.)*
+      `KnowledgeToolBoundary`, dispatching through a FIXED table rather than
+      `getattr`, so a caller cannot reach a private helper by naming it and the
+      reserved name answers from the same table. `graph_query` is IN
+      `declared_tools()`, is NOT an attribute of the boundary, and refuses with
+      a fixed governance reason naming the graduation trigger — not a
+      `NotImplementedError`, not a missing name, and a different exception class
+      from an undeclared name, because a typo must never read as a governance
+      verdict.
+      `promote_finding` writes nothing and stores nothing: it returns a request
+      naming the reviewed act, read from this surface's own `memory-gateway`
+      declaration so "how a finding becomes durable here" has ONE spelling. An
+      unattributed finding is refused.
+      **IT IS AN IN-PROCESS BOUNDARY (adversarial review, F10).** The ratified
+      delta asks for "exactly ONE tool boundary declaring a small tool
+      contract" and never says MCP; an earlier docstring here called it "the
+      MCP tool boundary", naming a protocol nothing in this slice speaks. The
+      requirement is satisfied by the boundary being one and being small, not
+      by its transport. **OWED AT §11:** the stdio MCP server that exposes
+      these same four tools to the harness, and the mount-name pin
+      `verification-findings.md` §3.2 asks for
+      (`xd://mcp__<server>__<tool>`) — §11 is the first slice with a harness to
+      expose them to, and until then no test can assert a mount name nothing
+      mounts.
+- [x] 10.3 The packet assembler: selection rail, then the lifecycle-status
       exemption rail keyed on each item's `Status:` header, then the bounds
       check, then deterministic assembly (design §3.1). Both rails run before
       any retrieval or provider I/O, and a refusal discloses no packet content.
-- [ ] 10.4 The packet declares purpose, sources with refs, bound scope and
+      `scripts/ideation_dashboard/doxbench_packet.py`. The CONFINEMENT is
+      computed first and HANDED to the retrieval boundary rather than left for
+      it to respect — a recording boundary reports what it was given, so the
+      ordering is a fact about a call rather than a comment — and the
+      assembler re-filters the provider's answers against it anyway.
+      The exemption rail reads each item's own `Status:` header IN THE
+      ASSEMBLER and marks the item; the marking travels with it, upstream of a
+      layer-three compressor that does not exist yet and cannot be delegated to
+      one. The read is cross-checked against the repository's own
+      `doc_health.corpus.parse_status` over real documents, because the same
+      rule living in two places is how two places drift.
+      The bounds rail has TWO ARMS, and the difference between them is layer
+      one's fidelity contract (**adversarial review, F2 — the first version of
+      this rail had only the second arm**):
+      (a) EVIDENCE is what retrieval SELECTED, so an oversized packet FITS by
+      selecting less — evidence is walked best-ranked first and kept while it
+      fits the remaining budget, and every dropped ref is NAMED in the
+      declaration. That is lossless-by-reference, not truncation: no source is
+      ever shortened, and what is dropped stays one retrieval call away.
+      Dropping strictly from the tail was the obvious alternative and is worse
+      — one oversized top hit would evict every smaller item behind it.
+      (b) THE THREADS are not selected and appear nowhere else, so if they
+      alone exceed the bound the packet REFUSES with the measured dimension.
+      That refusal is actionable: layer two exists to compact a thread.
+      **The wire codes are two RECORDED judgement-call spellings**, not a reuse
+      of `request_limit_exceeded` — which said "the request exceeds the allowed
+      size for this route" about a few-hundred-byte request whose oversize was
+      server-selected evidence, and refused every turn on that tile forever.
+      The released failure envelope's `error` is a free-form pattern string,
+      not an enum, so `context_packet_bound_exceeded` (409, carrying the
+      dimension, message naming the compaction that fixes it) and
+      `context_packet_invalid` (500) needed no contract change.
+      **THE PACKET'S BOUND COMPOSES WITH THE MODEL'S (Codex review of PR #216,
+      CODEX-B).** The request bytes are measured against the catalog entry's
+      effective input limit BEFORE the packet exists, and the packet's sections
+      are appended after — so an accepted turn could dispatch a prompt past the
+      model's declared capacity and fail at the PROVIDER rather than at a
+      measured bound. The route now passes the REMAINING budget (the limit,
+      minus the measured request, minus a declared scaffold reserve for what
+      the prompt spends outside both) as the packet's bound, and the fit
+      carries what fits. Fitted rather than refused, for the same reason F2
+      recorded; the genuinely-unfittable case still refuses through the 409
+      arm. The reserve's adequacy is MEASURED against real rendered prompts at
+      three ceilings rather than asserted.
+      **RAILS-BEFORE-PROVIDER, STATED PRECISELY (CODEX-A, refuted).** Codex
+      read design §3.1 as requiring that no provider be touched until after
+      selection, and asked for a reorder. The design does not read cleanly on
+      this point — step 2's own box CONTAINS "evidence: knowledge service
+      search" while the prose beneath says steps 2–3 run before any provider is
+      reached — and the reorder is not a stricter reading but an incoherent
+      one: it would mean selecting evidence before knowing what evidence
+      exists. The implementation takes the reading that preserves what the
+      rails are FOR, and now SAYS so where the claim is made rather than only
+      where the code is: the rail that governs the retrieval provider is the
+      CONFINEMENT, computed first and handed to it; selection, the exemption
+      and the bounds fit all precede the MODEL provider; and the index the
+      provider searches is a SUBSET of the confinement by construction, which
+      is now asserted by a test rather than argued.
+      **THE LEASH IS PULLED (F1).** `require_valid` had ZERO production call
+      sites: a packet issued for another repository, another tile, or an
+      expired turn rendered into the prompt unexamined. `build_prompt_envelope`
+      — the consuming surface — now revalidates purpose, scope and expiry
+      BEFORE assembling any section text, on the SAME injected clock the packet
+      was issued on. At the route the delta's own words are realized literally:
+      a rejected packet makes the route REQUEST A NEW ONE, and only a second
+      failure refuses.
+      **EXEMPT-STATUS JUDGEMENT CALL, flagged (accepted by the adversarial
+      review).** The delta says "approved or ratified". This repository's
+      lifecycle spells the approved end `ratified` AND `standard`, and the
+      source-ranking hierarchy this same change ratified ranks "ratified or
+      standard canon" together at the top, so exempting `ratified` while
+      compressing `standard` would compress the most authoritative material
+      this surface has. `EXEMPT_STATUSES` is therefore
+      `{approved, ratified, standard}` — where `approved` is FOREIGN-CORPUS
+      TOLERANCE and not a fourth local status: it is not in this repository's
+      lifecycle vocabulary and a corpus-wide grep finds ZERO documents carrying
+      it, so it is honoured for a corpus that does use the word and recorded as
+      tolerance so no reader mistakes it for a status this repository issues.
+      A DECORATED status (`ratified (2026-08-01)`, `record · …`) keeps its
+      status word: the corpus already carries decorated forms, and a decorated
+      `ratified` would otherwise lose its exemption silently.
+- [x] 10.4 The packet declares purpose, sources with refs, bound scope and
       expiry, and is rejected for another purpose, another scope, or after
       expiry.
-- [ ] 10.5 Evidence is confined to the tile's staged set plus promoted findings;
+      `ContextPacket` + `require_valid`, with a test per rejection axis and a
+      declaration section that renders the purpose, the scope, the expiry, the
+      retrieval provider profile, and every source with its ref, its own
+      `Status:`, and its exemption verdict. Expiry is compared against an
+      INJECTED clock (`time.monotonic` by default), the same discipline
+      `dispatch_turn`'s deadline uses.
+- [x] 10.5 Evidence is confined to the tile's staged set plus promoted findings;
       a retrieval that would return anything else is excluded, and a retrieved
       document never joins the loaded set.
-- [ ] 10.6 The retrieval backend is read from an install-time declaration; no
+      `confined_refs` reads `projection.context_paths` — the tile's own staged
+      set — plus the promoted findings the caller names. Confinement governs
+      the SOURCE FETCH as well as the search, because a confinement that
+      governed one and not the other would be none at all. A rogue backend
+      answering outside the set has its answer dropped at the assembler and is
+      never even fetched.
+      "Never joins the loaded set" is asserted through the STATE AUTHORITY, not
+      only through the packet: the assembled prompt's buffer sections still
+      enumerate exactly the buffers the request supplied, both at the assembler
+      and through the real serve, and the assembler's source contains no buffer
+      type and no state-route spelling.
+      **RECORDED, not deferred:** the promoted-findings set is EMPTY at the
+      route today, and deliberately — reading a promoted-findings register
+      would mean BUILDING one, which is the parallel decision store the
+      contract forbids. A finding becomes promoted only when a human performs
+      the reviewed act that creates the target object.
+      **CORRECTED (adversarial review, F5).** The first version of this note
+      justified the empty set by claiming the created object "is then an
+      ordinary document of the tile which the staged set already carries."
+      That is FALSE for the case that matters: a `create-document` gate action
+      writes into the SESSION WORKTREE, while the retrieval corpus is read from
+      the SERVED CHECKOUT, so a freshly created finding is confined-but-
+      unindexable — `resolve_within` finds no such file and it is skipped. The
+      empty set is right for the reason above (no register may be built), NOT
+      because the staged set already covers it, and the packet now states which
+      bytes its evidence is so no reader concludes otherwise.
+      **THE SAME BOUNDARY, stated in full:** evidence is the served checkout at
+      `projection.source_revision`. A document the session has SAVED is
+      therefore eligible evidence at its PRE-SESSION bytes, and one the session
+      CREATED is not eligible at all. The packet declares both facts. Reading
+      the session worktree instead is not a silent fix — it would put unmerged
+      session text into the corpus lane that the confinement rail governs — so
+      it is left to the slice that owns session-aware retrieval rather than
+      taken here.
+- [x] 10.6 The retrieval backend is read from an install-time declaration; no
       runtime, per-turn, prompt-driven or heuristic selection path exists.
+      `RetrievalBackendDeclaration` enforces the ratified two-case principle:
+      a self-hosted install declares `local-embedded`, and a hosted backend is
+      declarable only by a TENANT install — which v1 then refuses to build,
+      naming the gap, rather than falling back to a local backend nobody
+      declared. `build_server` takes the declaration and the two production
+      entrypoints (`serve()` and the CLI's generate-and-open) make it
+      explicitly, the same discipline `real_notebook_adapter` carries.
+      The negative is CONSTRUCTIVE: `build_backend`'s signature has exactly one
+      parameter, so there is no turn, prompt, or heuristic to pass it, and a
+      test asserts that against `inspect.signature` rather than against a
+      comment; the route's own source is asserted free of every
+      per-turn-selection spelling.
+      The backend INSTANCE is built per request from the process-wide
+      declaration: the server is threaded, and one tile's derived index must
+      never be visible to another tile's turn.
+      **THE ASSEMBLER SEAM IS GUARDED (re-verify NF6).** `packet_assembler` is
+      injectable — it is what makes the packet leash testable end to end — and
+      it carries the governance rails, so a swapped assembler bypasses the
+      confinement, the exemption and the bounds fit while still passing the
+      leash. It therefore gets the guard `knowledge_declaration` has: a server
+      built with no kwarg is asserted to bind the REAL assembler, and neither
+      production entrypoint may pass the argument at all (asserted against the
+      `build_server` call sites' own AST, not against a grep).
+      **THE INDEX BOUND IS STATED, NOT SILENT (adversarial review, F6).** The
+      index carries a declared bound (`MAX_INDEXED_SOURCES`) and the
+      confinement does not, so a tile with more documents than the bound has
+      refs that are confined but were never indexed. That was the exact
+      "silently shortened" class the bounds rail's own docstring forbids, and
+      it falsified the packet's "one retrieval call away" note. The packet now
+      DECLARES coverage — indexed of confined — and says in as many words that
+      the uncovered remainder was not retrievable this turn. Stating it was
+      chosen over refusing past the bound because refusing would reproduce
+      exactly the un-actionable, permanent per-tile refusal F2 just removed;
+      the ratified text asks for bounds to be visible, and a stated shortfall
+      is visible in the one place the reader of the context is looking.
+      **AND THE BOUND IS ON WHAT IS INDEXED, NOT ON WHAT IS ATTEMPTED (Codex
+      review of PR #216, CODEX-C).** The slice ran BEFORE the readability
+      filter, so an unreadable entry consumed index capacity and readable
+      documents behind it were never considered — reproduced at a bound of 2
+      over three paths: ONE indexed — and the coverage line then blamed "the
+      declared index bound" for an omission the bound had nothing to do with.
+      `CorpusCoverage` now keeps the two omission classes apart:
+      unreadable-at-this-revision versus beyond-the-bound, since the first
+      stays absent until someone fixes it and the second would return under a
+      larger bound.
 - [ ] 10.7 Degraded posture: no knowledge service → the declared reduced packet
       with the posture stated, no unbounded substitute, no rail bypass, editors
       unaffected.
-- [ ] 10.8 Per-turn and per-session token telemetry is emitted content-free.
+      **PACKET HALF LANDED, SURFACE HALF GATED** — half-open in the same shape
+      task 5.4 carried, because half of this requirement genuinely is not
+      built.
+      The reduced packet is the SAME pipeline with one input absent, not a
+      second pipeline with the rails skipped — a test drives a bounds refusal
+      through it to prove that. A `ContextPacket` cannot be reduced without
+      stating its reason, and the reason says in as many words that nothing
+      unbounded was substituted and no rail was bypassed.
+      INDEPENDENCE is proven through the real serve: a live model with no
+      knowledge service SUCCEEDS with a reduced packet rather than refusing,
+      and a live knowledge service with no model leaves the route's
+      model-capability refusal shape and gate order byte-identical and leaks no
+      evidence into it. The success envelope is the same with and without.
+      **OBLIGATION RECORDED AGAINST THIS TASK, in §11.7's pattern.** The
+      reduced posture is STATED in the assembled context, which is where the
+      ratified sentence puts it, and the packet half is done. What is NOT done
+      is the posture being visible to the HUMAN on the surface.
+      `workbench-chat-turn-v2-success` is a CLOSED envelope
+      (`additionalProperties: false`) with no field for a context posture, so
+      no conformant success body can carry one today, and the delta's own rule
+      forbids carrying it as a server-side value no reader can consult. This
+      task therefore needs its OWN contract release — **an additive
+      chat-turn-success growth carrying the assembled context's posture
+      (`full | reduced`) and its reason, allocated at ITS realization under
+      `docs/contract-versioning-policy.md`, exactly as contract-v1.34 was
+      allocated at §13's** — before the ratified "with the reduced posture
+      STATED" clause can be claimed as visible rather than only as assembled.
+      Until then the gap is stated rather than papered over.
+      **CORRECTED (adversarial review, F3):** an earlier version of this note
+      claimed the obligation was "recorded against the release that will carry
+      it" and cited §13 and §11.7 as precedents. Both citations were wrong. §13
+      is CLOSED and shipped and carries nothing forward; §11.7 records its
+      obligation by naming its OWN future release and staying open — which is
+      what recording looks like, and is what this task now does.
+- [x] 10.8 Per-turn and per-session token telemetry is emitted content-free.
       Where the metering requirement's client/domain/bill-to fields have no
       value on a self-hosted console, the absence is declared rather than
       filled with a placeholder.
+      `scripts/ideation_dashboard/doxbench_telemetry.py`, cited from
+      `memory-gateway`'s `Usage Metering Is Gateway-Owned` (the requirement
+      whose `client`/`domain`/`bill-to`/customer-subject fields this console
+      cannot fill), and emitted from `build_prompt_envelope` — the one place
+      where both the packet's byte count and the prompt's are real
+      measurements.
+      Content-freedom is STRUCTURAL: every field is a count, a
+      closed-vocabulary label, a scope key, or a `DeclaredAbsence`, so there is
+      no field a caller could put text in. Each unfillable field accepts ONLY a
+      declared absence carrying its reason, so a later caller cannot quietly
+      fill one in. The meter is bounded, per-process, and writes nowhere.
+      **TOKENS, honestly.** A token count is carried only when a PROVIDER
+      reports one and is a declared absence otherwise: this surface measures
+      exact UTF-8 bytes and has no tokenizer, and multiplying bytes by a
+      guessed ratio would be a fabricated measurement in a usage record. §11
+      owns the dispatch operation that will carry a reported count.
+      **"EMITTED" RESTATED HONESTLY (adversarial review, F9).** Telemetry is
+      MEASURED AND RETAINED IN-PROCESS, readable from the served process's own
+      meter (`handler.usage_meter`, per-turn and per-session). `record`'s
+      return value is not consumed by its caller, and NOTHING emits the record
+      off-process: there is no log line, no wire field, and no store, because
+      the released success envelope has no room for one and this slice may not
+      touch `contracts/`. The emission surface is owed to the slice that gets
+      one, and until then "emitted" means "measured, retained, and readable
+      here" — which is what the tests assert.
+      **AND THE RETENTION IS BOUNDED, VISIBLY.** An evicted scope used to
+      answer `None`, byte-identical to a scope that never ran, so a
+      conversation with five hundred metered turns and one with none read the
+      same. `session()` now has three distinct answers, evictions are counted,
+      and eviction is least-recently-RECORDED rather than first-opened so the
+      busiest live conversation is not the first dropped.
+
+**The `memory-gateway` conformance declaration** (design §7.1) is realized as a
+first-class machine-readable artifact,
+`scripts/ideation_dashboard/doxbench_memory_gateway.py`: the capability's whole
+21-requirement roster with its published tiers, a disposition AND a reason for
+every one of them, and the reviewed act (`create-document`, carried to review by
+the session pull request) that satisfies promotion where the target is not a
+Hermes memory layer. Conformance validation READS it — `assess_conformance(None)`
+refuses rather than passing — and an incomplete declaration is refused, because
+"an unnamed absence is the thing it replaces". The three refusal conditions are
+constructive: a consumer holding a provider credential, addressing a customer
+subject, or routing to a networked provider never obtains a declaration to
+annotate, and one that acquires any of them LOSES it. The seven requirements the
+delta says a declaration may not reduce cannot be declared inapplicable at all.
+The roster is asserted against the promoted spec file itself, and the
+declaration's claims are cross-examined against the modules that realize them.
+**Two dispositions the design left unnamed, flagged rather than assumed:**
+`Expert Memory And Knowledge DBs Are Gateway-Governed` is INAPPLICABLE (no
+Domain Omnigent expert and no external knowledge DB is in this path), and
+`Gateway Conformance Is Testable` is **NARROWED** — **corrected from REALIZED
+by the adversarial review (F4)**, which was right: that requirement's scenarios
+are about a DomainxFactory declaring a `memory_gateway` block in its
+`stack.yaml` that the canonical domain-factory validator checks, and doxBench
+is not a domain factory and declares no such block. Nothing outside this
+repository's own test run reads this declaration today, so REALIZED rested on
+"this declaration IS the artifact validation reads" — a claim with no reader
+behind it. What IS realized is the requirement's rule, that a conformance claim
+executes rather than asserts; that is what NARROWED now says, with the reason.
+**The TIER column is transcribed, not invented (F7):** it carried `M0` for a
+requirement the spec's tier block never tiers, and flattened
+`Expert Memory And Knowledge DBs Are Gateway-Governed` to `M4` where the spec
+says in as many words that it follows the tier of the operation it mirrors.
+`TIER_UNTIERED` and `TIER_MIRRORS_OPERATION` replace both, and the roster test —
+which checked NAMES only — now asserts every value against the spec's own
+tier block.
+
+**The three-layer compression stack's fidelity vocabulary** is pinned as data
+with a checker in `doxbench_packet`: describing selection as lossy, semantic
+compaction as lossless, or mechanical offload as a summary RAISES. Layer one is
+realized here; layer two names `doxbench_threads.compact_thread` as its real
+owner; layer THREE declares itself unrealized and names §11, and the note says
+where the lifecycle exemption sits relative to it and why a compressor with no
+caller-metadata surface is disqualified from carrying it. The watch-listed
+candidate is recorded with its five gates and CANNOT be constructed as adopted;
+no module in this slice depends on one.
+
+**Thread read side, and what waits on §11.** The packet carries the selected
+document's thread in full and the other loaded documents' state headers through
+`doxbench_threads`' own `render_thread`/`render_state_header`. Nothing writes a
+turn into a sidecar yet (tasks 9.2/9.5 are "route unwired" by design), so the
+route supplies no threads today and the packet DECLARES the absence honestly —
+naming each loaded document that has no sidecar, and inventing no empty thread.
+The seam §11 fills is the thread mapping handed to `assemble_packet`.
 
 ## 11. The harness bridge and the model menu
 
@@ -451,6 +832,37 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
 - [ ] 11.5 The sidecar is the record: every turn is mirrored to it, and the
       harness's native memory holds no thread. Any enabled harness-local memory
       is non-authoritative and ranked last.
+      **OBLIGATION INHERITED FROM §10, RECORDED HERE BECAUSE THIS SLICE IS WHAT
+      BREACHES IT** (re-verify carry-forward NF-A). §10's packet bound composes
+      with the model's declared input limit through
+      `doxbench_packet.packet_budget_for`, which subtracts a FLAT
+      `PROMPT_SCAFFOLD_RESERVE_BYTES` (16 384) for everything the rendered
+      prompt spends outside the packet's own source bytes and outside the
+      request bytes the route already measured — section labels, the
+      non-authoritative notes each thread section carries, the evidence
+      headers, and the packet's declaration line per source.
+      That reserve is adequate for the shape §10 SHIPS, which carries evidence
+      and no threads, and it is measured against real rendered prompts at three
+      ceilings. It is NOT adequate for the shape THIS task creates. Measured:
+      24 thread-state sections plus 6 evidence sections at 120-character refs
+      spend **19 745 bytes** of uncounted overhead, and the packet's own
+      48-source bound spends **31 211** — both past the flat 16 384, so a turn
+      near its model's ceiling could be accepted and then dispatch a prompt over
+      that ceiling. That is exactly the defect CODEX-B closed for the
+      evidence-only shape, re-opened by the section count this slice adds.
+      **FIX OPTIONS, both viable, neither prejudged:** (a) charge the RENDERED
+      section bytes against the budget rather than the source bytes — the
+      honest measurement, and it makes the reserve cover only the genuinely
+      fixed constants; or (b) scale the reserve with `MAX_PACKET_SOURCES` and
+      the observed ref length, keeping the cheaper single subtraction.
+      **RE-MEASURE METHOD:** render a real turn at a narrowed catalog ceiling
+      with threads mirrored and evidence carried, sum
+      `utf8_size(section.text)` across the assembled envelope, and compare it
+      to the entry's `effective_input_limit` — the same approach
+      `test_the_scaffold_reserve_is_MEASURED_adequate_not_asserted` already
+      uses, extended to the thread sections this slice starts writing.
+      Recorded against THIS task rather than left in §10's ticks, so it
+      survives §10's archive the way task 10.7's release obligation does.
 - [ ] 11.6 Per-turn model choice is applied inside the adapter before dispatch,
       using the `model_id` the envelope already carries. No fourth port member.
 - [ ] 11.7 The catalog declares the menu, `auto` declares itself a ROUTING RULE

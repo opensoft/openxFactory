@@ -39,6 +39,7 @@ import copy
 import dataclasses
 import itertools
 import threading
+import time
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import PurePosixPath
 
@@ -49,11 +50,15 @@ from ideation_dashboard.doxbench_hash import (
     sha256_hex,
     utf8_size,
 )
+from ideation_dashboard import doxbench_packet
 from ideation_dashboard.doxbench_model import (
     SERVER_MAX_INPUT_LIMIT_BYTES,
     SERVER_MAX_OUTPUT_LIMIT_BYTES,
 )
 from ideation_dashboard.doxbench_scope import ScopeKey, ScopeProjection
+from ideation_dashboard.doxbench_telemetry import (
+    OPERATION_CONTEXT_PACKET, PROVIDER_ROLE_RETRIEVAL, TurnUsage,
+)
 
 # ---------------------------------------------------------------------------
 # request-side boundary constants (plan.md Constraints; contracts/chat-turn.md)
@@ -151,18 +156,38 @@ def ordered_buffer_keys(keys) -> tuple[str, ...]:
 
 DOCUMENT_BUFFER_SECTION_PREFIX = "document_buffer:"
 
-# The nine DECLARED section groups, in order. `document_buffers` is a GROUP that
-# expands to one section per loaded document in the declared order
-# (`prompt_section_keys`); every other entry is exactly one section. Phase A had
-# a single `document_buffer` here because the set held exactly one document; the
-# group name replaces it rather than a longer literal list, since the count is
-# now the request's own.
+# The DECLARED section groups, in order. Three of them are GROUPS that expand to
+# a per-item section list rather than to exactly one section
+# (`prompt_section_keys`).
+#
+# `document_buffers` expands to one section per loaded document in the declared
+# order. Phase A had a single `document_buffer` here because the set held
+# exactly one document; the group name replaced it rather than a longer literal
+# list, since the count is now the request's own.
+#
+# THE PACKET'S FOUR GROUPS (task 5.4's packet half, §10) sit between the
+# transcript and the buffers, which is design §3.1 step 5's own order —
+# "· thread (selected, full) · thread-state headers (others) · evidence (with
+# refs) · outline buffer · document buffers ·" — with the packet's DECLARATION
+# ahead of them, because a packet that states its purpose, its sources, its
+# scope and its expiry has to state them somewhere a reader of the prompt can
+# see, and that is also where a REDUCED posture is stated (§3.4).
+#
+# `transcript` keeps the position Phase A gave it. Step 5's list does not name
+# it at all — it names the thread material that will eventually carry the same
+# conversation — so moving it would be inventing an ordering the design does
+# not state, while dropping it would drop a released input. It therefore stays
+# adjacent to the thread sections it is the wire-carried counterpart of.
 PROMPT_SECTION_ORDER: tuple[str, ...] = (
     "system_contract",
     "model_data_handling",
     "scope_metadata",
     "working_subject",
     "transcript",
+    doxbench_packet.PACKET_SECTION_DECLARATION,
+    doxbench_packet.PACKET_SECTION_SELECTED_THREAD,
+    doxbench_packet.PACKET_SECTION_THREAD_STATES,
+    doxbench_packet.PACKET_SECTION_EVIDENCE,
     "outline_buffer",
     "document_buffers",
     "human_message",
@@ -170,15 +195,27 @@ PROMPT_SECTION_ORDER: tuple[str, ...] = (
 )
 
 
-def prompt_section_keys(document_keys) -> tuple[str, ...]:
+def prompt_section_keys(document_keys, *, packet) -> tuple[str, ...]:
     """The CONCRETE section keys one request's envelope carries, in the declared
-    order -- `PROMPT_SECTION_ORDER` with the `document_buffers` group expanded to
-    one `document_buffer:<buffer key>` section per loaded document."""
+    order -- `PROMPT_SECTION_ORDER` with every GROUP expanded: one
+    `document_buffer:<buffer key>` section per loaded document, and the packet's
+    own groups expanded by the packet module (one `thread_state:<key>` per other
+    loaded document that HAS a thread, one `evidence:<ref>` per selected
+    evidence item).
+
+    ``packet`` is REQUIRED and not defaulted, deliberately. Every turn carries a
+    packet -- an absent knowledge service yields the DECLARED REDUCED packet,
+    not the absence of one (§3.4) -- so a `None` default would invent a second
+    prompt shape that no requirement sanctions. ``None`` is still accepted by
+    the expansion because a caller may ask what a packet-less order would be;
+    what it may not do is arrive by omission."""
     documents = ordered_document_keys(document_keys)
     keys: list[str] = []
     for group in PROMPT_SECTION_ORDER:
         if group == "document_buffers":
             keys.extend(DOCUMENT_BUFFER_SECTION_PREFIX + key for key in documents)
+        elif group in doxbench_packet.PACKET_SECTION_GROUPS:
+            keys.extend(doxbench_packet.expand_group(group, packet))
         else:
             keys.append(group)
     return tuple(keys)
@@ -201,8 +238,11 @@ SOURCE_RANKING_TEXT = (
 
 SYSTEM_CONTRACT_TEXT = (
     "You are the doxBench editor-chat assistant. Ground every answer "
-    "strictly in the outline and document buffers, the scope metadata, and "
-    "the transcript shown below. Never invent facts about the repository "
+    "strictly in the sections shown below: the context packet's declaration "
+    "of what it carries, the selected document's thread and the other loaded "
+    "documents' thread-state headers, the evidence and its refs, the outline "
+    "and document buffers, the scope metadata, and the transcript. Never "
+    "invent facts about the repository "
     "or the selected model, and never claim access to material outside the "
     "sections provided in this prompt.\n"
     + SOURCE_RANKING_TEXT
@@ -810,6 +850,9 @@ def build_prompt_envelope(
     session_base: SessionBase | None = None,
     bound_buffer_key: str | None = None,
     refused_paths: frozenset[str] = RESERVED_BUFFER_KEYS,
+    packet: "doxbench_packet.ContextPacket | None" = None,
+    meter: object | None = None,
+    clock: Callable[[], float] = time.monotonic,
 ) -> PromptEnvelope:
     """Assemble the deterministic prompt envelope for one chat turn -- the nine
     declared section GROUPS, with one document-buffer section per loaded document
@@ -871,6 +914,34 @@ def build_prompt_envelope(
     for key in document_keys:
         observed[key] = verify_buffer_identity(documents[key])
 
+    # THE PACKET (task 5.4's packet half, §10). Every turn carries one: a
+    # caller that supplies none gets the DECLARED REDUCED packet rather than a
+    # packet-less prompt, because "no knowledge service" is a POSTURE with a
+    # stated reduction and not the absence of the pipeline. Its rails have
+    # already run by the time it arrives here -- confinement and the
+    # lifecycle-status exemption both happen inside the assembler, upstream of
+    # every provider -- and the bounds refusal it can raise is a refusal of the
+    # turn, never a truncation of it.
+    if packet is None:
+        packet = doxbench_packet.reduced_packet(
+            projection=projection, scope=request_scope,
+            selected_key=bound_buffer_key, loaded_keys=document_keys,
+            clock=clock)
+
+    # THIS IS THE CONSUMING SURFACE, AND IT REVALIDATES THE LEASH IT WAS HANDED
+    # (adversarial review, F1). The delta's own sentence -- "a consuming surface
+    # presented with such a packet MUST reject it and request a new one" -- is
+    # about exactly this moment, and before this call the packet's purpose,
+    # scope and expiry were declared but never CHECKED anywhere in production:
+    # a packet issued for another repository, another tile, or an expired turn
+    # rendered into the prompt unexamined. It runs BEFORE any section text is
+    # assembled, so a rejected packet discloses none of its own content, and it
+    # runs on the SAME clock the packet was issued on, so a freshly assembled
+    # packet can never fail its own expiry check by reading two clocks.
+    doxbench_packet.require_valid(
+        packet, purpose=doxbench_packet.PACKET_PURPOSE_CHAT_TURN,
+        scope=request_scope, now=clock())
+
     sections = (
         PromptSection(key="system_contract", text=SYSTEM_CONTRACT_TEXT),
         _model_data_handling_section(
@@ -882,12 +953,32 @@ def build_prompt_envelope(
         _scope_metadata_section(request_scope),
         _working_subject_section(working_subject),
         _transcript_section(transcript),
+        *(PromptSection(key=key, text=text)
+          for key, text in doxbench_packet.packet_sections(packet)),
         _buffer_section("outline_buffer", outline),
         *(_buffer_section(DOCUMENT_BUFFER_SECTION_PREFIX + key, documents[key])
           for key in document_keys),
         _human_message_section(message),
         PromptSection(key="response_instruction", text=RESPONSE_INSTRUCTION_TEXT),
     )
+
+    if meter is not None:
+        # CONTENT-FREE metering, emitted where BOTH dimensions are real: the
+        # packet's own byte count and the assembled prompt's. The dispatch
+        # operation and any provider-reported token count belong to the slice
+        # that dispatches (§11), which is why only one operation is emitted
+        # here rather than a second one with a fabricated zero.
+        meter.record(TurnUsage(
+            operation=OPERATION_CONTEXT_PACKET,
+            scope=request_scope,
+            provider_role=PROVIDER_ROLE_RETRIEVAL,
+            provider_id=packet.provider_id,
+            packet_posture=packet.posture,
+            source_count=len(packet.sources),
+            exempt_source_count=packet.exempt_count,
+            packet_bytes=packet.byte_count,
+            prompt_bytes=sum(utf8_size(section.text) for section in sections),
+        ))
 
     return PromptEnvelope(
         sections=sections,
