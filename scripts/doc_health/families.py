@@ -106,13 +106,19 @@ def _scan_lines(text: str):
 
     Real lines (CR/LF/CRLF only — `doc_health.lines`), not unbounded
     `str.splitlines()`: before `align-status-reader-to-real-lines`'s wide
-    ruling, this was a live SECOND Python line rule, disagreeing with
-    `round_trip.py`'s split on any form-feed/U+2028/NEL heading fixture and
-    making the module docstring's "reduces the Python side to one" false.
-    Line NUMBERS are unaffected for every document this repository's
-    baseline measured (zero exotic separators across 1227 governed
-    aggregation files), since real-line and pseudo-line numbering agree
-    wherever no such separator appears.
+    ruling, THIS FUNCTION was a live second Python line rule, disagreeing
+    with `round_trip.py`'s split on any form-feed/U+2028/NEL heading
+    fixture. Fixing it here does not make the corpus's "reduces the Python
+    side to one" claim true in general — `_template_gaps` in this same
+    module carries the identical unbounded-`splitlines()` pattern over the
+    same document text, independently, and remains unconverted (deliberately
+    out of this change's every-*header*-reader scope; see `tasks.md` §7 and
+    `doc_health.lines`'s module docstring). It is true for lifecycle-header
+    readers specifically, which is the claim this change makes. Line
+    NUMBERS are unaffected for every document this repository's baseline
+    measured (zero exotic separators across 1227 governed aggregation
+    files), since real-line and pseudo-line numbering agree wherever no
+    such separator appears.
     """
     fenced = False
     for i, (line, _ending) in enumerate(split_keepends(text), start=1):

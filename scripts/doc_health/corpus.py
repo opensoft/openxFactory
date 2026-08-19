@@ -109,11 +109,13 @@ def parse_kind(text: str) -> str | None:
 #   scripts/doc_health/inventory.py                _header_value()
 #   scripts/doc_health/families.py                 _header_line()
 #   scripts/doc_health/organizer_dispatch.py       _header_value()
-# plus one UNBOUNDED sibling defect the `splitlines()[:` grep pattern does not
+# plus an UNBOUNDED sibling defect the `splitlines()[:` grep pattern does not
 # match: `scripts/doc_health/families.py`'s `_scan_lines()`, a live second
 # Python line rule (design Decision 2's fence-scanning hazard's line-splitting
 # half) disagreeing with `round_trip.py` on any exotic-boundary heading
-# fixture.
+# fixture. `_scan_lines` is not the only such sibling in this corpus — see the
+# SECOND SWEEP GAP note below for `families.py`'s OTHER unbounded scanner,
+# `_template_gaps`, which remains open (tasks.md §7).
 #
 # First cut of this change scoped its ratified `proposal.md` code surface to
 # `lines.py` + `parse_status`/`parse_kind` + `round_trip.py`'s import alone,
@@ -129,6 +131,26 @@ def parse_kind(text: str) -> str | None:
 # convert in THIS change, on a demonstrated zero baseline cost. See
 # `proposal.md`'s amended `code_surface:` and `Ratified:` lines for the ruling
 # in full.
+#
+# SECOND SWEEP GAP (finding F4, focused re-verify, 2026-08-19). The
+# `splitlines()\[:` grep above STILL missed
+# `scripts/ideation_dashboard/completeness.py`'s `_has_header`: it reads the
+# window through `_Prepared.lines[:HEADER_WINDOW]`, where `_Prepared.lines`
+# is assigned `text.splitlines()` in `__init__` — the split call and the
+# window slice sit on DIFFERENT lines of source, so a grep for the two
+# tokens adjacent (`splitlines()\[:`) cannot match either one. Demonstrated:
+# `authoring.missing_required_headers` (already converted) said a header
+# block was COMPLETE while `completeness`'s `governance_header_block` check
+# (not yet converted) said ABSENT, on the SAME exotic-separator document.
+# Converted now (`_Prepared.lines` itself, coherently — every consumer of
+# `.lines` already treated it as an opaque `Sequence[str]`, so nothing else
+# in that module needed to change). THE NEXT SWEEP should grep bare
+# `splitlines()` over document text generally, not just the `[:N]`-windowed
+# idiom — an assignment-then-slice split defeats the narrower pattern, and
+# `families.py`'s `_template_gaps` (deferred, see tasks.md §7 — NOT a
+# lifecycle-header reader, so outside this change's every-reader clause) is
+# a further instance of exactly that same blind spot, left for its own
+# scope.
 
 
 def load_docs(repo_name: str, repo_path: Path) -> list[Doc]:
