@@ -274,20 +274,35 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       zero forever, so the ratified sentence could never render on any real
       surface. `test_doxbench_composition.py` drives the real mount and pins the
       empty state on the state the canvas actually builds.
-- [ ] 7.2 Selecting an entry sets the selected buffer through the existing state
+- [x] 7.2 Selecting an entry sets the selected buffer through the existing state
       primitive and switches the transcript to that document's thread. No second
       state authority.
-      **HALF LANDED, half gated.** The selection half is realized: the selector
-      sets the selected buffer through the canvas's own `setActiveBuffer` seam,
-      immediately and with no confirmation step, and reads `state.active_buffer`
-      back rather than tracking it a second time — no second state authority
-      exists, and the review's F1 reproduction is now a composition test:
-      loading a document, selecting it, and the released wire's own invariant are
-      all driven through the real mount. The THREAD switch waits on §9's sidecar
-      store; the change handler
-      carries a `TODO(add-doxbench-editing-phase-b tasks.md §9)` naming it, and
-      is deliberately left as the selection move alone rather than half-wired to
-      a store that does not exist yet.
+      **The selection half landed with §7; §11 closes the thread half and the
+      `TODO(add-doxbench-editing-phase-b tasks.md §9)` is gone.** The selection
+      still moves FIRST, through the canvas's own `setActiveBuffer` seam, and the
+      transcript follows it: `switchThread` reads the newly selected document's
+      thread through the §9.5 route and `adoptThreadTranscript` replaces the
+      rail's transcript with that thread's turns. ONE call site, and a test pins
+      the count — a second one would be a second answer to "which thread is this
+      rail showing", which is the second state authority this task forbids.
+      **The real defect it closes, stated:** the rail's transcript is what the
+      next turn's WIRE transcript is built from, so leaving document A's
+      conversation on screen after selecting B carried A's turns into B's next
+      request as B's context. A document with no thread — or a plane with no
+      thread transport, or any of §9.5's four declared absences — adopts the
+      EMPTY transcript, which is the honest answer for a document nobody has
+      talked about.
+      **Judgement call, flagged:** the switch clears `proposals` and
+      `lastFailure` as well as the transcript. Both are facts about the PREVIOUS
+      document's turn, and a proposal with an Apply control targeting a buffer
+      the human is no longer looking at is exactly the stale-apply hazard the
+      currency rules exist to prevent. It is deliberately NOT a re-key: the
+      catalog, the model selection, the composer and the working subject all
+      survive, because the SCOPE did not move.
+      **Judgement call, flagged:** `loadThread` is an OPTIONAL seam. A shell
+      that supplies none keeps the pre-§11 behaviour exactly, which is what lets
+      the editor-only posture and every existing composition harness stand
+      unchanged.
 - [x] 7.3 `staging-workbench.js`: loading a document adds it to the loaded set
       and selects it; the `outline` selection tab still selects the outline;
       all three routes leave selector, canvas and chat agreeing.
@@ -409,15 +424,31 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       and `elided_note(bytes, reason)` records the FACT and the size where
       inlining is infeasible. `mirror_turn` needs no check of its own: a turn
       holding a pointer cannot exist to be handed to it.
-- [ ] 9.2 Threads commit WITH the document's Save through the existing
+- [x] 9.2 Threads commit WITH the document's Save through the existing
       one-commit-per-gate-action path, so a thread and its document cannot land
       in separate commits.
-      **SEAM LANDED, route unwired.** `thread_commit_paths(document_path)` yields
-      the paths a Save adds to `commit_gate_action`'s DECLARED document set (that
-      function is untouched), and `write_thread(gate, thread)` is the only write
-      route, going through the injected `HumanGate` inside the session worktree.
-      What is not wired is the CALL from the save route, which belongs with §11's
-      turn mirroring and the thread route §9.5 also waits on.
+      **SEAM LANDED at §9, ROUTE WIRED at §11.** `thread_commit_paths` is now
+      CALLED: `gate_routes.execute_first_edit` injects it into
+      `branch_session.commit_first_edit` as `thread_paths_for`, and the
+      transaction adds the sidecar to the DECLARED path set
+      `_commit_gate_action_locked` already commits as exactly ONE commit. That
+      function is untouched, and `write_thread(gate, thread)` is still the only
+      write route. Proven against REAL git: a turn writes a sidecar into the
+      session worktree, the next Save's commit carries the document, its
+      gate-action record and the sidecar together, and a Save with no sidecar
+      written commits exactly what it always did.
+      **Judgement call, flagged (the seam, not a computed list).** The route
+      passes the FUNCTION rather than a computed path list, because the sidecar
+      path must be derived from the NORMALISED document path the transaction
+      settles on (`verdict.document`) — the path the turn's own mirror wrote
+      under. Deriving it at the route from the caller's spelling could name a
+      different file, and a Save that declared a path nothing wrote would refuse.
+      **Judgement call, flagged (only a DIRTY sidecar joins).**
+      `_commit_gate_action_locked` refuses any declared path that is not dirty
+      ("already committed on this branch"), so declaring a sidecar no turn has
+      touched since the last Save would refuse EVERY Save on a tile whose thread
+      had not moved. The filter is therefore load-bearing rather than an
+      optimisation, and it is stated where it is applied.
 - [x] 9.3 Compaction preserves the header's commitments; a compaction that drops
       an open question, decision, accepted fact, evidence ref or pending action
       fails a test rather than a review.
@@ -434,19 +465,38 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       nineteen forbidden source spellings and a public-surface check prove there
       is no `promote*`/`publish*` name, no parallel store, and no write or push
       route of the module's own.
-- [ ] 9.5 Thread routes live inside the serve's declared write allowlist (the
+- [x] 9.5 Thread routes live inside the serve's declared write allowlist (the
       interactivity boundary), are loopback-only, fail closed on an unresolved
       actor, and are absent without the gate capability and on the hosted plane.
-      **ALLOWLIST AND POSTURES LANDED, route unwired.**
-      `gate_routes.first_edit_gate_factory` — doxBench's governed Save — now
-      DECLARES the thread prefix, without which the boundary refuses the sidecar
-      as `outside-allowlist`; no other gate widens, and a test asserts the prefix
-      appears exactly once. `require_thread_capability` refuses on the hosted
-      plane and where the gate capability is absent, with a fixed reason and a
-      named cause, and refuses an undeclared plane rather than guessing. What
-      remains is the ROUTE itself — loopback-only and fail-closed on an
-      unresolved actor at the HTTP surface — which belongs with §11's turn
-      mirroring, the first caller a thread route would have.
+      **ALLOWLIST AND POSTURES LANDED at §9, ROUTE LANDED at §11.**
+      `gate_routes.first_edit_gate_factory` — doxBench's governed Save — DECLARES
+      the thread prefix, without which the boundary refuses the sidecar as
+      `outside-allowlist`; no other gate widens, and a test asserts the prefix
+      appears exactly once. The WRITE goes through that gate and no other:
+      `serve._mirror_turn_into_sidecar` builds it through the factory rather than
+      beside it.
+      `GET /workbench/thread` is the read route, and all four clauses are
+      answered in order by `doxbench_threads`' own capability rule rather than by
+      a second copy of it: not loopback → the hosted-plane cause; no gate
+      capability or no resolved actor → the no-gate-capability cause; a
+      non-console caller → the existing fixed `console_required`; a scope with no
+      live session → the same declared absence, never an oracle about which refs
+      or tiles exist. The read is confined by `resolve_within`, the same
+      containment authority `/source` uses, so a traversal-shaped document name
+      answers "no thread" rather than another tree's file.
+      **Judgement call, flagged (the wire shape).** The thread body is an
+      UNVERSIONED console-internal JSON shape, like `/capabilities`, and
+      deliberately not a released envelope: no openxFactory schema declares a
+      thread, and minting a `schema_version` here would claim a release nobody
+      cut. The governed artifact is the sidecar FILE, which carries its own
+      `schema_version`, `authority` and `regenerable_from`.
+      **Judgement call, flagged (a new error code).**
+      `thread_capability_unavailable` (403) joins `DOXBENCH_ERROR_CATALOG`'s
+      closed set, in the packet pair's own pattern: the released failure
+      envelope's `error` is a free-form pattern string rather than an enum, so no
+      contract change was needed, and reusing `model_capability_unavailable`
+      would name a different absence while `turn_scope_refused` would blame the
+      scope for a capability verdict.
 
 ## 10. The knowledge service v1
 
@@ -509,6 +559,40 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       (`xd://mcp__<server>__<tool>`) — §11 is the first slice with a harness to
       expose them to, and until then no test can assert a mount name nothing
       mounts.
+      **DISCHARGED AT §11** (`scripts/ideation_dashboard/doxbench_mcp.py`): the
+      stdio MCP server implements `initialize`, `tools/list` and `tools/call`
+      per the MCP 2025-03-26 spec in front of the SAME `KnowledgeToolBoundary`
+      — not beside a second one — and the four mount names are pinned STRING
+      FOR STRING (`xd://mcp__doxbench__search`, `…__get_source`,
+      `…__promote_finding`, `…__reindex`). Confinement travels WITH the mount:
+      a server process serves ONE tile's confined set, declared in a manifest
+      the bridge writes beside the registration, so a mount cannot be talked
+      into another tile because the refs it could name are the only ones it was
+      ever given. The two verdicts stay apart on this transport exactly as they
+      are in-process — `graph_query` answers with the boundary's fixed
+      governance refusal, an undeclared name answers as unknown — and
+      `graph_query` is NOT listed in `tools/list`, because a mount that always
+      refuses is a tool the model spends system-prompt budget reading about and
+      can never use. `reindex` rebuilds from the MOUNT's own manifest and takes
+      no sources from the caller, since a reindex the model could supply
+      sources to would put material outside the tile's staged set INSIDE the
+      confinement. Registration is written BEFORE the child starts, which is
+      the whole guarantee on offer: MCP discovery is asynchronous, and a turn
+      that races it degrades to design §3.4's reduced-packet posture — the
+      correct fallback already specified, so no wait-for-discovery mechanism
+      was invented.
+      **FINDING, flagged for adjudication (the mount separator).**
+      `verification-findings.md` §3.2 states the convention TWICE and the two
+      disagree: its PROSE (and this note, quoting it) writes
+      `xd://mcp__<server>__<tool>` with a DOUBLE underscore, while its EVIDENCE
+      writes `xd://mcp__verify_echo_echo` for a server whose one tool was
+      `echo`, and `xd://mcp__sonarqube_*` for that host's ambient servers — a
+      SINGLE underscore. The realization takes the PROSE, because that is what
+      the finding states as its convention and what this task quotes, and
+      isolates the disagreement in ONE constant (`doxbench_mcp.MOUNT_SEPARATOR`)
+      driving ONE composition, with the exact strings pinned by a test. If the
+      evidence reading is the true one, the correction is that constant and the
+      failing test says so.
 - [x] 10.3 The packet assembler: selection rail, then the lifecycle-status
       exemption rail keyed on each item's `Status:` header, then the bounds
       check, then deterministic assembly (design §3.1). Both rails run before
@@ -557,6 +641,18 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       recorded; the genuinely-unfittable case still refuses through the 409
       arm. The reserve's adequacy is MEASURED against real rendered prompts at
       three ceilings rather than asserted.
+      **THE 409 ARM'S REACHABILITY, CORRECTED AT §11.** When this task shipped
+      the route supplied NO threads, so the only thing that could exceed the
+      packet's bound was evidence — which the fit selects away rather than
+      refusing — and the arm could be reached only by injecting an assembler
+      that put a thread in. That was recorded honestly as a synthetic pin. §11
+      wires the route to the session's own sidecars, so the arm now has a REAL
+      route test: a thread larger than what the model's declared ceiling leaves
+      refuses with `context_packet_bound_exceeded`, the measured dimension
+      `context_packet_bytes`, nothing dispatched and no thread content in the
+      body — with a control test proving the identical sidecar under a generous
+      ceiling still answers 200, so the refusal is about the BOUND rather than
+      about threads being present.
       **RAILS-BEFORE-PROVIDER, STATED PRECISELY (CODEX-A, refuted).** Codex
       read design §3.1 as requiring that no provider be touched until after
       selection, and asked for a reorder. The design does not read cleanly on
@@ -805,35 +901,171 @@ caller-metadata surface is disqualified from carrying it. The watch-listed
 candidate is recorded with its five gates and CANNOT be constructed as adopted;
 no module in this slice depends on one.
 
-**Thread read side, and what waits on §11.** The packet carries the selected
-document's thread in full and the other loaded documents' state headers through
-`doxbench_threads`' own `render_thread`/`render_state_header`. Nothing writes a
-turn into a sidecar yet (tasks 9.2/9.5 are "route unwired" by design), so the
-route supplies no threads today and the packet DECLARES the absence honestly —
-naming each loaded document that has no sidecar, and inventing no empty thread.
-The seam §11 fills is the thread mapping handed to `assemble_packet`.
+**Thread read side — the seam §10 shipped, FILLED at §11.** The packet carries
+the selected document's thread in full and the other loaded documents' state
+headers through `doxbench_threads`' own `render_thread`/`render_state_header`.
+When this task shipped nothing wrote a turn into a sidecar (tasks 9.2/9.5 were
+"route unwired" by design), so the route supplied no threads and the packet
+DECLARED the absence honestly. §11 fills the seam: `serve._document_threads`
+reads each loaded document's sidecar out of the SESSION WORKTREE and hands the
+mapping to `assemble_packet`, and the honest absence now means what it says — a
+document with no sidecar, an unreadable one, a scope with no live session — while
+a document that HAS one is carried. The unwired note is retired rather than left
+standing; `test_doxbench_thread_wiring.py` is where the wiring is proven.
+
+**Layer THREE is realized at §11**, on the surface `verification-findings.md`
+§3.6 verified: `OmpHarnessBridge.shake()` sends the recorded slash-command frame
+(`{"type": "prompt", "message": "/shake elide"}`), reads back
+`data.agentInvoked: false` plus the free-text `command_output` summary, and
+reports that summary for BOOKKEEPING ONLY — there is no structured
+bytes-reclaimed field in the RPC response, so `ShakeReport` claims no number and
+a test asserts it carries none. The fidelity vocabulary's layer-three entry is
+untouched: mechanical, reversible, at the model boundary.
 
 ## 11. The harness bridge and the model menu
 
-- [ ] 11.1 The bridge: a stdlib-only local child process translating the
+- [x] 11.1 The bridge: a stdlib-only local child process translating the
       server's call into the harness's stdio RPC, the only component that knows
       the harness protocol, loopback-local, holding no credential.
-- [ ] 11.2 It is an ADAPTER for the UNCHANGED three-member `WorkbenchModelPort`.
+      Realized as `scripts/ideation_dashboard/doxbench_bridge.py`. Stdlib only;
+      every seam a test needs — the spawn, the clock, the log sink, the child
+      environment — is injected, so no gate depends on `omp` being installed,
+      and it is not installed on this host.
+      LOOPBACK-LOCAL BY CONSTRUCTION rather than by configuration: there is no
+      socket here at all, the transport is the child's own stdin/stdout pipe,
+      and upstream has no HTTP mode to add one.
+      CREDENTIAL-FREE BY CONSTRUCTION too: `child_environment` is an ALLOWLIST
+      (`PATH`, `HOME`, `LANG`, `LC_ALL`, `TMPDIR`) rather than a denylist,
+      because a denylist of credential-shaped names is a list somebody has to
+      keep up with and the one it misses is the one that leaks. A test drives a
+      base environment carrying `ANTHROPIC_API_KEY`/`AWS_SECRET_ACCESS_KEY` and
+      asserts the child sees neither, and a second test asserts the module's own
+      source names no credential spelling at all.
+      **Judgement call, flagged (the child's cwd).** The child runs in the
+      bridge's own session directory, never a git worktree or the served
+      checkout. Two things follow, both wanted: the harness's project-scoped
+      `.omp/mcp.json` discovery finds the knowledge-mount registration the bridge
+      wrote there and nothing else, and a harness tool that reaches for the
+      filesystem lands in a scratch directory rather than in the corpus.
+      Grounding comes from the packet, which is assembled and bounded before the
+      child process exists.
+      **FINDING, flagged for adjudication (one unverified launch detail).**
+      `verification-findings.md` §3.1 records the memory SETTING — its name, its
+      enum, its default, its resolution function — but not the CLI spelling of a
+      per-setting override. `SETTING_FLAG = "--setting"` is this module's one
+      guess, isolated in a single constant with the argv pinned by a test, so a
+      correction is one line that a test confirms rather than a hunt through a
+      launcher. Everything else in the argv (`--mode rpc`, `--profile`,
+      `--session-dir`) is recorded.
+- [x] 11.2 It is an ADAPTER for the UNCHANGED three-member `WorkbenchModelPort`.
       A test asserts the port still has exactly three members and that
       `FORBIDDEN_PORT_MEMBERS` still bans the rest.
-- [ ] 11.3 Lifecycle: started on demand at the first turn that needs it,
+      D14, literally: the port's `__protocol_attrs__` equality is re-asserted in
+      the slice that would have widened it, and the ADAPTER's own public surface
+      is asserted disjoint from `FORBIDDEN_PORT_MEMBERS` as well — a
+      strengthening past the task, because the ban is only worth anything if the
+      thing behind the seam respects it too. Per-turn model choice, session
+      switching, `/shake` and `artifact://` dereferencing all live INSIDE the
+      adapter; each of them is a fourth port member somebody would otherwise have
+      argued for.
+- [x] 11.3 Lifecycle: started on demand at the first turn that needs it,
       supervised, restarted on failure with a bounded retry, stderr to the
       serve's log and never to the wire; a dead or unstartable bridge surfaces
       as the honest model-unavailable posture with the route's existing refusal
       shape and gate order unchanged.
-- [ ] 11.4 One harness session per document thread; switching the selected
+      ON DEMAND is asserted as a NEGATIVE: `catalog()` — the route's pre-turn
+      call — must not start a child, and a test drives `started is False` across
+      it and `True` only after the first `dispatch`. An editor-only session
+      therefore spawns no model process it never uses.
+      SUPERVISED: liveness is checked before every dispatch, the restart is
+      bounded (`MAX_RESTARTS = 2`, and a test counts the attempts so the bound is
+      a number something reads), and the child's stderr is drained to an injected
+      log sink and to nothing else — a test scripts a sentinel on the child's
+      stderr and asserts it reaches the log and never the answer.
+      **THE HONEST MODEL-UNAVAILABLE POSTURE HAS TWO LEGS, and the split is a
+      judgement call worth adjudicating.** (1) A bridge known dead or unstartable
+      makes `catalog()` report every entry `available: false`, which fails
+      `selectable_entry_for` at the route's EXISTING model step — so the refusal
+      shape and the gate ORDER are byte-identical, nothing is dispatched, and no
+      packet is even assembled. (2) A child that dies MID-turn, after the catalog
+      said available, surfaces by `dispatch` raising, which
+      `doxbench_model.dispatch_turn` maps to its fixed redacted `model_failed` —
+      the route's existing shape for an adapter that failed. Leg (2) is not
+      spelled `model_unavailable` because the port has no channel to say so
+      without a fourth member, and inventing one would be exactly the widening
+      D14 forbids.
+- [x] 11.4 One harness session per document thread; switching the selected
       document switches the harness session; one session never serves two
       threads.
-- [ ] 11.5 The sidecar is the record: every turn is mirrored to it, and the
+      `select_thread(document_key)` binds the harness to one document's session:
+      a thread already seen is re-attached with `switch_session` carrying the
+      path `get_state` reported when that thread's session was created (the
+      recorded second-process flow, verbatim), a thread never seen gets a FRESH
+      session, and a session path already bound to another thread is REFUSED
+      (`BridgeSessionConflict`) rather than shared. The route calls it before
+      dispatch, and a bind failure REFUSES the turn rather than dispatching into
+      another document's conversation.
+      FRESH-PER-THREAD is what makes §3.3 safe for free: `SYSTEM.md` is read once
+      at session start and every later rebuild replays that captured string, so a
+      source-ranking hierarchy that must not change mid-conversation is
+      guaranteed by never reusing a session across threads.
+      **Judgement call, flagged (how a fresh session is made).** The recorded RPC
+      surface has `switch_session` and it has process start with `--session-dir`;
+      it has no in-session "start another session" command. So a thread nothing
+      has opened a session for gets one by RESTARTING the child under this
+      bridge's own session directory and recording the `get_state.sessionFile`
+      the new process reports. That is a real cost — one process start per new
+      thread in a serve — and it is the option that keeps every frame inside the
+      verified set instead of inventing one. The recorded session PATHS survive a
+      restart deliberately (a session file outlives the process that opened it,
+      which is why `switch_session` by path works at all); what does not survive
+      is the selection.
+- [x] 11.5 The sidecar is the record: every turn is mirrored to it, and the
       harness's native memory holds no thread. Any enabled harness-local memory
       is non-authoritative and ranked last.
-      **OBLIGATION INHERITED FROM §10, RECORDED HERE BECAUSE THIS SLICE IS WHAT
-      BREACHES IT** (re-verify carry-forward NF-A). §10's packet bound composes
+      **THE RECORD.** Every answered turn is mirrored into the SELECTED
+      document's sidecar before the answer is stored or sent, through
+      `doxbench_threads`' one write route and the doxBench Save gate's own
+      declared allowlist. The turn id is the DERIVED `assistant_turn_id`, not the
+      caller's `client_turn_id`: the released schema bounds that field's LENGTH
+      and nothing else, so a client could spell one carrying the sidecar's own
+      turn-header separator, and a record must not take its identity from a
+      string a caller chose freely. The sidecar format is LF-only and the wire
+      carries whatever a browser and a provider produced, so the mirror
+      NORMALISES CRLF at the one place a turn becomes a record — a normalisation,
+      not an edit: the bytes the model returned still ride the response envelope
+      unchanged.
+      **THE HARNESS HOLDS NO THREAD, as an install fact rather than a policy.**
+      The launch config pins `memory.backend: off` explicitly AND runs under a
+      dedicated `--profile doxbench-bridge`, so a developer's personal
+      interactive harness memory settings cannot bleed into a bridge session
+      (§3.1's implementation consequence, taken literally). `HarnessThreadMirror`
+      re-asserts the pin rather than relying on it: a bridge whose launch config
+      lost it REFUSES to mirror rather than quietly starting a second store, and
+      a test drives that refusal. The source-ranking hierarchy already ranks any
+      harness-local memory LAST and says in as many words that it is never
+      governed truth (`SOURCE_RANKING_TEXT`, task 5.5).
+      **Judgement call, flagged (a record that cannot be written).** The provider
+      has already answered by the time the record is written, and there is no
+      released refusal code for "the record could not be written". Losing the
+      human's answer to protect a record that failed for an environment reason is
+      the worse trade, so the answer still ships, the failure goes to the serve's
+      own log — where every other non-wire diagnostic goes — and the NEXT turn's
+      packet declares that document's thread ABSENT, honestly, rather than
+      implying a conversation that was never recorded. A test pins that the wire
+      outcome, its status and its envelope are unchanged and that nothing leaks.
+      **`artifact://` (task 3.5's finding), both remedies live.** The bridge
+      supplies the dereference seam `dereference_bodies` asks for: it resolves a
+      pointer's content out of the harness's own store — the sibling directory of
+      the session file, derived from it and nothing else — and where inlining is
+      infeasible (unreadable, undecodable, or past
+      `MAX_INLINE_ARTIFACT_BYTES`) it returns `elided_note(bytes, reason)`
+      instead. A serve with NO bridge supplies a seam that resolves nothing, so a
+      pointer-bearing body is refused by `ThreadTurn` and the sidecar records
+      NOTHING rather than an unresolvable pointer; the turn itself still answers.
+      **OBLIGATION INHERITED FROM §10 — DISCHARGED BY THIS SLICE, and the fix
+      option is recorded below with its re-measurement** (re-verify carry-forward
+      NF-A). §10's packet bound composes
       with the model's declared input limit through
       `doxbench_packet.packet_budget_for`, which subtracts a FLAT
       `PROMPT_SCAFFOLD_RESERVE_BYTES` (16 384) for everything the rendered
@@ -863,8 +1095,57 @@ The seam §11 fills is the thread mapping handed to `assemble_packet`.
       uses, extended to the thread sections this slice starts writing.
       Recorded against THIS task rather than left in §10's ticks, so it
       survives §10's archive the way task 10.7's release obligation does.
-- [ ] 11.6 Per-turn model choice is applied inside the adapter before dispatch,
+      **DISCHARGED — FIX OPTION (a), and why.** The RENDERED section scaffolding
+      is now charged against the budget, per source, from the SAME literals the
+      renderer uses: the three section preambles and the declaration line became
+      module constants (`SELECTED_THREAD_PREAMBLE`, `THREAD_STATE_PREAMBLE`,
+      `EVIDENCE_PREAMBLE`, `DECLARATION_LINE`), `PER_SOURCE_SCAFFOLD_BYTES` is
+      DERIVED from the widest instantiation of them rather than typed in, and
+      `packet_scaffold_reserve(thread_refs=…, evidence_slots=…)` charges one
+      per-source cost per thread ref the route holds and per evidence slot it may
+      fill. `PROMPT_SCAFFOLD_RESERVE_BYTES` keeps only what is genuinely FIXED,
+      and the defaults reproduce the pre-§11 number exactly — so a caller
+      carrying neither threads nor evidence stays on the arithmetic it was
+      measured under.
+      Option (b) — scaling one flat number by `MAX_PACKET_SOURCES` — was
+      REJECTED, and the reason is a real cost rather than a preference: it
+      charges every turn for 48 sections it will not carry, which on a narrow
+      catalog ceiling refuses turns that would have fitted. Charging what the
+      turn's OWN refs render is both the honest measurement and the cheaper one.
+      **RE-MEASURED, three ways.**
+      (1) `test_the_rendered_prompt_stays_inside_the_ceiling_WITH_threads`
+      extends §10's method to thread sections: a real turn at three narrowed
+      catalog ceilings (60 000 / 120 000 / 400 000) with a thread mirrored and
+      evidence carried, summing `utf8_size(section.text)` across the assembled
+      envelope and comparing it to the entry's effective input limit.
+      (2) `test_the_FLAT_reserve_really_was_too_small_for_the_shape_this_slice_makes`
+      drives the OBLIGATION'S OWN SHAPE through the real route — 24 loaded
+      documents each with a thread, plus the evidence slots — and measures the
+      scaffolding the rendered prompt actually spends: **16 477 bytes against the
+      old flat 16 384**. So the breach is measured, not argued, and it is small,
+      which is worth saying plainly: the flat number was inadequate, and it was
+      inadequate by ~93 bytes at 30 sections rather than by the ~3 KB the
+      obligation's own estimate implied.
+      (3) The arithmetic is asserted to COVER both numbers the obligation itself
+      recorded (19 745 at 24 thread-states plus 6 evidence refs of 120
+      characters, and 31 211 at the 48-source bound).
+      **Judgement call, flagged (the ref is charged THREE times).** A source's
+      ref renders in the declaration line and in its own section's preamble —
+      that is two — and a third time in the section KEY (`thread_state:<ref>`,
+      `evidence:<ref>`). The keys are not part of `section.text` and the bridge's
+      own renderer does not emit them, so charging them is deliberately
+      GENEROUS; it is also what brings the arithmetic above the obligation's two
+      recorded measurements, which were taken against a shape this module can no
+      longer reproduce exactly. Matching a number somebody else measured from
+      ABOVE rather than from below is the honest direction for a reserve.
+- [x] 11.6 Per-turn model choice is applied inside the adapter before dispatch,
       using the `model_id` the envelope already carries. No fourth port member.
+      `OmpHarnessBridge.dispatch` sends `set_model` and then `prompt`, in that
+      order, reading the `model_id` off the envelope — the recorded ordering
+      (`switch_session` → `set_model` → `prompt`), verified hands-on in the
+      findings' RPC-mechanics note. A test spies the frames a real child receives
+      and asserts the pair and its order; another asserts a harness that refuses
+      the model refuses the TURN rather than prompting a model nobody chose.
 - [ ] 11.7 The catalog declares the menu, `auto` declares itself a ROUTING RULE
       carrying the badge of every model it may route to, and the resolved model
       is recorded on the turn. An API-backed entry's credential comes from the
@@ -885,6 +1166,23 @@ The seam §11 fills is the thread mapping handed to `assemble_packet`.
       before the ratified `The menu offers a routing rule` scenario can be
       claimed. Until then the gap is stated rather than papered over, which is
       the same discipline §13 applied to the bound buffer.
+      **RUNTIME HALF REALIZED AT §11, RELEASE HALF STILL OWED — half-ticked in
+      prose on task 10.7's precedent, and the box stays UNCHECKED because the
+      ratified `The menu offers a routing rule` scenario still cannot be
+      claimed.** What §11 built: the adapter applies the RESOLVED model id where
+      a catalog entry can say so and the requested id otherwise
+      (`OmpHarnessBridge._apply_model`), so the day an additive model-catalog
+      release lets an entry declare `routing_rule` and a resolved model, the
+      bridge already honours it with no change. A test drives a duck-typed entry
+      that DOES declare one and asserts the harness is set to the resolved model.
+      What §11 did NOT build, and must not: the catalog schema is untouched, no
+      release was cut, and `routing_rule` stays truthfully `false` for every
+      entry that can exist today — a test asserts `ModelCatalogEntry` has neither
+      a `routing_rule` nor a `resolved_model_id` attribute, so the record's
+      `false` is a fact about the TYPE rather than a default nobody checked.
+      The credential clause IS discharged: the bridge's child environment is an
+      ALLOWLIST no credential-shaped variable can pass, and the module's own
+      source names none (task 11.1).
 
 ## 12. Share-session
 
