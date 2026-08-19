@@ -4,12 +4,12 @@ target_release: implementation_pending
 ---
 # Proposal: add-roster-device-admission-surface
 
-Status: staged
-Staged: 2026-08-19 — awaiting Brett's ratification before the schema/bundle
-realization runs. This change AUTHORS the vocabulary extension and its
-realization plan; it does NOT edit the schema, the manifest bundle, or any
-example (that is post-ratification realization work, tasks §1–§5). No code, no
-bundle bump, and no merge land with this proposal.
+Status: ratified
+Ratified: 2026-08-19 — record: `review/ratification-2026-08-19.md` (Brett;
+clarify rulings + cross-model adversarial review with F1 fixed and F2 accepted;
+`device` admitted as one tenant-wide read surface). The schema/bundle
+realization (tasks §1–§5) runs post-ratification; no schema, bundle bump, or
+merge landed with the proposal itself.
 Proposed: 2026-08-19 on the node-inventory realization evidence, per the
 ratified reader-grant clarify decision Q4 (OpsxFactory
 `add-tenant-reader-grant-pipeline`), which named the openxFactory
