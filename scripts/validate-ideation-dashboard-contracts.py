@@ -302,6 +302,42 @@ def load_context(path: Path | None) -> tuple[set[str] | None, list[str]]:
     return ratified, notes
 
 
+# --------------------- deprecation warnings (read, never restated) ---------------------
+
+def deprecated_kinds(docs: dict[str, dict]) -> dict[str, dict]:
+    """Every instance kind a loaded schema declares DEPRECATED, keyed by kind.
+
+    Read from the schemas' own top-level `deprecated_envelopes` blocks. This
+    validator never carries its own list of what is deprecated: the release owns
+    that statement, and a second copy here would be a second authority that could
+    disagree with the bytes consumers actually pin."""
+    declared: dict[str, dict] = {}
+    for doc in docs.values():
+        if not isinstance(doc, dict):
+            continue
+        for entry in doc.get("deprecated_envelopes") or []:
+            if isinstance(entry, dict) and isinstance(entry.get("kind"), str):
+                declared[entry["kind"]] = entry
+    return declared
+
+
+def warn_if_deprecated_kind(f: Findings, label: str, tag: str,
+                            docs: dict[str, dict]) -> None:
+    """WARN, and still accept — the deprecating-change class the versioning
+    policy defines ("the conformance validator emits warnings but still accepts
+    it"). Without this the deprecation was inert: a release could claim to start
+    the clock the breaking path requires while every conforming instance of the
+    deprecated shape validated in silence."""
+    entry = deprecated_kinds(docs).get(tag)
+    if entry is None:
+        return
+    f.warnings.append(
+        f"{label}: kind {tag!r} is DEPRECATED as of "
+        f"{entry.get('deprecated_in', 'an unstated release')} — superseded by "
+        f"{entry.get('superseded_by', 'no stated replacement')}; removal target "
+        f"{entry.get('removal_target', 'unstated')}")
+
+
 # --------------------- per-instance validation (schema + rules) ---------------------
 
 def validate_instance(
@@ -329,6 +365,7 @@ def validate_instance(
     for e in iter_errors(doc_validator(schema_name, registry, docs), doc):
         loc = "/".join(str(p) for p in e.absolute_path) or "<root>"
         f.error("schema", f"{label}: {loc}: {e.message}")
+    warn_if_deprecated_kind(f, label, tag, docs)
 
     if tag == "ideation-dashboard-snapshot":
         check_snapshot_referential_integrity(f, label, doc)
