@@ -71,7 +71,18 @@ class PacketError(ValueError):
 class PacketBoundExceeded(PacketError):
     """Raised when the assembled packet exceeds a declared bound. Names the
     MEASURED DIMENSION and the limit, and nothing is truncated to fit: a
-    silently shortened context is a context nobody can reason about."""
+    silently shortened context is a context nobody can reason about.
+
+    ``limit`` carries the same three fields every other doxBench bound refusal
+    reports -- the dimension's NAME, what was measured, and the maximum -- so a
+    caller learns which bound it hit and by how much. Three values this module
+    computed itself: no ref, no text, and nothing caller-supplied."""
+
+    def __init__(self, dimension: str, measured: int, maximum: int) -> None:
+        self.limit = {"dimension": dimension, "measured": measured,
+                      "maximum": maximum}
+        super().__init__(
+            f"packet {dimension} {measured} exceeds the bound {maximum}")
 
 
 class PacketRejected(PacketError):
@@ -523,14 +534,12 @@ def bounds_rail(sources: Sequence[PacketSource]) -> tuple[PacketSource, ...]:
 
     rows = tuple(sources)
     if len(rows) > MAX_PACKET_SOURCES:
-        raise PacketBoundExceeded(
-            f"packet source count {len(rows)} exceeds the bound "
-            f"{MAX_PACKET_SOURCES}")
+        raise PacketBoundExceeded("context_packet_sources", len(rows),
+                                  MAX_PACKET_SOURCES)
     measured = sum(row.byte_count for row in rows)
     if measured > MAX_PACKET_BYTES:
-        raise PacketBoundExceeded(
-            f"packet size {measured} bytes exceeds the bound "
-            f"{MAX_PACKET_BYTES} bytes")
+        raise PacketBoundExceeded("context_packet_bytes", measured,
+                                  MAX_PACKET_BYTES)
     return rows
 
 

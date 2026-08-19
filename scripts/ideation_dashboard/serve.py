@@ -116,6 +116,9 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 from ideation_dashboard import action_errors  # noqa: E402
+from ideation_dashboard import doxbench_knowledge  # noqa: E402
+from ideation_dashboard import doxbench_packet  # noqa: E402
+from ideation_dashboard import doxbench_telemetry  # noqa: E402
 from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
 
 DEFAULT_HOST = "127.0.0.1"
@@ -1023,6 +1026,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     # `doxbench_turns.TurnStore()` here -- ONE store per served process, never
     # shared across servers (see `test_turn_store_is_bound_per_server_process`).
     turn_store = None
+    # The doxBench STAGED-SET KNOWLEDGE SERVICE, declared at INSTALL time
+    # (add-doxbench-editing-phase-b D11, task 10.6). None means NO knowledge
+    # service, which is a declared POSTURE and not an error: the turn degrades
+    # to the reduced packet with its reduction stated, the rails still run, and
+    # the editors are untouched. NOTHING at runtime — no turn, no prompt, no
+    # heuristic — may choose a backend, which is why this is a serve-level
+    # declaration and why the route below only ever READS it.
+    knowledge_declaration = None
+    # The per-process content-free usage meter (task 10.8). None only in
+    # hand-constructed handlers; one meter per served process, beside the turn
+    # store and never shared across servers.
+    usage_meter = None
     actor: str | None = None
     # The repository half of every session key this process serves, BOUND at
     # `build_server` to the served checkout's own repository (finding R2-11). None
@@ -1169,6 +1184,65 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return self.model_port_factory()
         except Exception:  # noqa: BLE001 - absence is a capability verdict
             return None
+
+    # The largest corpus one tile's index is built from. A bound, not a
+    # policy: a tile's staged set is a topic folder, and an index that grew
+    # without one would be a way to spend a serve's memory by loading a tile.
+    MAX_INDEXED_SOURCES = 200
+
+    def _indexed_sources(self, projection):
+        """This tile's staged set, as indexable sources.
+
+        Read through `snapshot_registry.resolve_within` — the SINGLE
+        containment authority `/source` already uses — rather than through a
+        second path check of this route's own, because two confinement rules
+        are how one of them drifts. A path that does not resolve, is not a
+        file, or cannot be decoded is SKIPPED: an unreadable document is one
+        the packet will not carry, never a reason to fail a turn.
+
+        The bytes come from the SERVED CHECKOUT, which is what "the tile's
+        staged set" means here: the corpus at the revision this tile projects.
+        A session's own edits ride the turn as BUFFERS, verbatim and
+        identity-verified, so nothing is read twice from two places."""
+
+        sources = []
+        for ref in projection.context_paths[:self.MAX_INDEXED_SOURCES]:
+            resolved = registry_mod.resolve_within(self.checkout_root, ref)
+            if resolved is None:
+                continue
+            try:
+                text = resolved.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
+            sources.append(doxbench_knowledge.IndexedSource(ref=ref, text=text))
+        return tuple(sources)
+
+    def _knowledge_service(self, projection):
+        """The tool boundary over this install's DECLARED retrieval backend,
+        indexed for this tile's confined corpus — or None.
+
+        ABSENCE IS A POSTURE (design §3.4), exactly as it is for the model
+        port: no declaration means no knowledge service, the packet assembler
+        produces the DECLARED reduced packet with its reduction stated, and the
+        editors are unaffected. A failure to index is the same posture rather
+        than a turn failure, for the same reason.
+
+        A FRESH backend per request, built from the install-time declaration.
+        The declaration is process-wide; the INDEX is not, because this server
+        is threaded and one tile's index must never be visible to another
+        tile's turn. Nothing here consults the turn, the message, or the
+        prompt: the declaration is the only input to which backend exists."""
+
+        declaration = getattr(self, "knowledge_declaration", None)
+        if declaration is None:
+            return None
+        try:
+            backend = doxbench_knowledge.build_backend(declaration)
+            boundary = doxbench_knowledge.KnowledgeToolBoundary(backend)
+            boundary.reindex(self._indexed_sources(projection))
+        except Exception:  # noqa: BLE001 - absence is a capability verdict
+            return None
+        return boundary
 
     def _doxbench_validators(self):
         """The RELEASED per-kind schema validators for this request, or None.
@@ -2012,9 +2086,38 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # (T049): fixed codes, fixed redacted diagnostics, injected
         # monotonic clock for the deadline.
         outcome_code = DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE
+        outcome_limit = None
         prompt_envelope = None
         try:
+            # ---- the PACKET, assembled BEFORE the prompt and before any
+            # provider (§10.3). Its rails run inside the assembler: the
+            # confinement is computed from the projection and HANDED to the
+            # retrieval boundary rather than left for it to respect, and the
+            # lifecycle-status exemption is applied from each item's own
+            # `Status:` header. `_knowledge_service` returning None is the
+            # DECLARED reduced posture, not a failure, so nothing here branches
+            # on it -- the reduction is stated inside the packet.
+            #
+            # PROMOTED FINDINGS are an empty set today, and deliberately so: a
+            # finding becomes a promoted one only when a human performs the
+            # reviewed act that creates the target object, and that object is
+            # then an ordinary document of the tile, which the tile's own
+            # staged set already carries. There is no promoted-findings
+            # register to read, and inventing one here would be the parallel
+            # decision store the contract forbids.
+            packet = doxbench_packet.assemble_packet(
+                projection=projection,
+                scope=key,
+                selected_key=bound_buffer_key,
+                loaded_keys=document_keys,
+                query=message,
+                knowledge=self._knowledge_service(projection),
+                already_carried=(
+                    () if projection.outline_path is None
+                    else (projection.outline_path,)),
+            )
             prompt_envelope = doxbench_turns.build_prompt_envelope(
+                packet=packet, meter=self.usage_meter,
                 projection=projection, request_scope=key,
                 active_document_path=active_document_path,
                 model_id=model_id, model_data_handling=model_entry.data_handling,
@@ -2037,6 +2140,21 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         except doxbench_turns.TurnIdentityMismatchError:
             outcome_code = DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH
         except doxbench_turns.TurnBufferKindError:
+            outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
+        except doxbench_packet.PacketBoundExceeded as exc:
+            # THE BOUNDS RAIL, on the wire (task 10.3). Nothing is truncated to
+            # fit and nothing is dropped: the turn is REFUSED and the MEASURED
+            # DIMENSION is named, which is what the existing
+            # `request_limit_exceeded` envelope already carries -- a
+            # `dimension`/`measured`/`maximum` triple rebuilt field by field, so
+            # nothing but those three integers and that one label reaches the
+            # wire and no packet content can ride along.
+            outcome_code = DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED
+            outcome_limit = exc.limit
+        except doxbench_packet.PacketError:
+            # Any other packet refusal is a malformed turn, mapped to the same
+            # fixed code every other structural refusal uses. Its text names
+            # this module's own vocabulary and stays in this process.
             outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
         except doxbench_hash.ContentEncodingError:
             # T104 F5-8, the step-9 re-verification leg: `build_prompt_envelope`
@@ -2177,10 +2295,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # replay must be the same validated shape this response carries, or a
         # replay would answer differently from the original.
         body = (doxbench_turn_failure_body(outcome_code, turn_id,
+                                           limit=outcome_limit,
                                            kind=failure_kind)
-                if turn_id is not None else doxbench_error_body(outcome_code))
+                if turn_id is not None
+                else doxbench_error_body(outcome_code, limit=outcome_limit))
         if not self._doxbench_wire_conforms(validators, failure_kind, body):
-            body = doxbench_error_body(outcome_code)
+            body = doxbench_error_body(outcome_code, limit=outcome_limit)
         body_bytes = json.dumps(body).encode("utf-8")
         # Planning-contract obligation 1 (contracts/chat-turn.md): a refused
         # finalization must not abandon the slot -- `fail` frees the
@@ -3441,6 +3561,7 @@ def build_server(
     project_register: Path | str | None = None,
     peek_ttl_seconds: float = registry_mod.PEEK_TTL_SECONDS,
     snapshot_source=None,
+    knowledge_declaration=None,
 ) -> http.server.ThreadingHTTPServer:
     """Build (but do not start) the loopback server. `port=0` binds an ephemeral
     port (read it back from `httpd.server_address`). `head` is injectable so a
@@ -3467,7 +3588,16 @@ def build_server(
     remains available as the baked/local fallback — so a server built exactly as
     every existing caller builds one serves exactly one `(repository, main)`
     entry and behaves as it always has. `snapshot_source` is injectable for
-    tests."""
+    tests.
+
+    `knowledge_declaration` is the INSTALL-TIME declaration of the doxBench
+    staged-set knowledge service's retrieval backend
+    (add-doxbench-editing-phase-b D11): unset means NO knowledge service, which
+    is the declared reduced-packet posture rather than an error, and the
+    production entrypoint declares `SELF_HOSTED_LOCAL_EMBEDDED` explicitly —
+    the same discipline `real_notebook_adapter` carries, and for the same
+    reason: an operator must be able to read what their install talks to, and a
+    library default that quietly built one would defeat that."""
     from ideation_dashboard import doxbench_turns
 
     web_dir = Path(web_dir).resolve()
@@ -3567,6 +3697,13 @@ def build_server(
                   if schema_validator_factory is not None else None)),
         # ONE fresh turn-idempotency ledger per served process (T050/T051).
         "turn_store": doxbench_turns.TurnStore(),
+        # The INSTALL-TIME retrieval-backend declaration (task 10.6). Bound
+        # once, here, and READ by the route; the backend instance itself is
+        # built per request from this declaration and from nothing else, so no
+        # tile's derived index is ever visible to another tile's turn.
+        "knowledge_declaration": knowledge_declaration,
+        # ONE fresh content-free usage meter per served process (task 10.8).
+        "usage_meter": doxbench_telemetry.UsageMeter(),
         "actor": resolved_actor,
         # the session key's repository half, for this whole process (R2-11)
         "session_repository": session_repository,
@@ -3609,6 +3746,14 @@ def serve(
     rather than letting `build_server` reach for it on every caller's behalf. A
     caller that passes its own `adapter_factory` (a test, a harness) keeps it."""
     build_kwargs.setdefault("adapter_factory", real_notebook_adapter)
+    # The INSTALL-TIME retrieval-backend declaration, made by the ENTRYPOINT for
+    # the same reason the notebook adapter is: an operator must be able to read
+    # what their install talks to, and `build_server` reaching for one on every
+    # caller's behalf would put that decision out of sight. This is the
+    # self-hosted case of the ratified two-case principle; a tenant install
+    # declares its own here instead.
+    build_kwargs.setdefault("knowledge_declaration",
+                            doxbench_knowledge.SELF_HOSTED_LOCAL_EMBEDDED)
     httpd = build_server(web_dir, snapshot_path, checkout_root, host=host,
                          port=port, quiet=quiet, actor=actor, **build_kwargs)
     print(f"serving ideation dashboard at {server_url(httpd, '/index.html')}")
