@@ -122,9 +122,23 @@ STATUS_SCAN_LINES = 15
 # this same change ratified ranks "ratified or standard canon" TOGETHER at the
 # top. Exempting `ratified` while compressing `standard` would therefore
 # compress the most authoritative material this surface has, which is the
-# opposite of what the exemption is for. `approved` is kept because the delta
-# names it and a corpus may use it.
+# opposite of what the exemption is for.
+#
+# `approved` is FOREIGN-CORPUS TOLERANCE, not a fourth local status: the delta
+# names it, this repository's lifecycle vocabulary does not contain it, and a
+# corpus-wide grep finds ZERO documents carrying it. It is honoured so a corpus
+# that does use the word is not silently compressed, and it is recorded here as
+# tolerance so no reader mistakes it for a status this repository issues.
 EXEMPT_STATUSES: frozenset[str] = frozenset({"approved", "ratified", "standard"})
+
+# A `Status:` value may carry a DECORATION after the status word — this corpus
+# already holds `record · 2026-08-01T01:21Z (session of …)` and
+# `record (in progress — …)` — so the exemption reads the leading status WORD
+# and ignores what follows. Without this, a decorated `Status: ratified (…)`
+# would silently lose its exemption, which is the exact failure this rail
+# exists to prevent. `lifecycle_status` still returns the RAW value, so it goes
+# on agreeing byte for byte with the repository's own corpus reader.
+_STATUS_DECORATORS = "(·|,"
 
 
 def lifecycle_status(text: str) -> str | None:
@@ -138,11 +152,21 @@ def lifecycle_status(text: str) -> str | None:
     return None
 
 
+def status_word(status: str | None) -> str | None:
+    """The leading status WORD of a possibly-decorated `Status:` value."""
+    if status is None:
+        return None
+    value = status.strip().lower()
+    for decorator in _STATUS_DECORATORS:
+        value = value.split(decorator, 1)[0]
+    parts = value.split()
+    return parts[0] if parts else None
+
+
 def is_compression_exempt(text: str) -> bool:
     """Whether this content is exempt from aggressive compression, read from
     its OWN lifecycle status header."""
-    status = lifecycle_status(text)
-    return status is not None and status.strip().lower() in EXEMPT_STATUSES
+    return status_word(lifecycle_status(text)) in EXEMPT_STATUSES
 
 
 # ---------------------------------------------------------------------------
@@ -285,6 +309,13 @@ REDUCED_NO_KNOWLEDGE_SERVICE = (
     "provider"
 )
 
+REDUCED_RETRIEVAL_REFUSED = (
+    "the staged-set knowledge service refused this retrieval, so this packet "
+    "carries the selected thread and the loaded buffers only, with NO corpus "
+    "evidence; no unbounded context was substituted and no rail was bypassed "
+    "to reach a provider"
+)
+
 # The packet's declared lifetime. Short, because a packet is a leash on ONE
 # turn: a packet that outlived the turn it was assembled for would be a
 # standing grant to material the next turn never asked for.
@@ -336,6 +367,20 @@ class ContextPacket:
     provider_id: str = PROVIDER_NONE
     reduced_reason: str | None = None
     absent_threads: tuple[str, ...] = ()
+    # Evidence the bounds rail SELECTED OUT so the packet would fit. Named
+    # rather than counted, because "lossless by reference" is only true if the
+    # packet says which references it is standing on (task 10.3/F2).
+    dropped_evidence: tuple[str, ...] = ()
+    # (indexed, confined) — how much of this tile's staged set the retrieval
+    # index actually covered. A shortfall means refs that ARE confined were not
+    # retrievable this turn, which the declaration must state rather than let a
+    # reader infer full coverage from silence (F6).
+    corpus_coverage: tuple[int, int] | None = None
+    # The revision the evidence BYTES were read at. Evidence comes from the
+    # served checkout at the projection's own revision — never from the
+    # session worktree — so a packet that carries evidence has to say which
+    # bytes those are (F5).
+    source_revision: str | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.provider_id, str) or not self.provider_id.strip():
@@ -449,6 +494,16 @@ class _Evidence:
     text: str
 
 
+# The refusal classes a retrieval backend behind the port may raise, which the
+# assembler turns into the DECLARED reduced posture rather than into a dead
+# turn. Deliberately NOT a bare `Exception` (that would swallow defects), and
+# deliberately not `doxbench_knowledge.KnowledgeError` by import: the knowledge
+# seam is duck-typed, and importing it here to name one exception would turn an
+# injected collaborator into a hard dependency. `KnowledgeError` derives from
+# `ValueError`, so it is caught by the first entry.
+RETRIEVAL_FAILURES = (ValueError, LookupError, OSError, TimeoutError)
+
+
 def selection_rail(
     *,
     selected_key: str | None,
@@ -523,24 +578,72 @@ def exemption_rail(
 # ---------------------------------------------------------------------------
 
 
-def bounds_rail(sources: Sequence[PacketSource]) -> tuple[PacketSource, ...]:
-    """Refuse an oversized packet, naming the MEASURED DIMENSION.
+def bounds_rail(
+    sources: Sequence[PacketSource],
+) -> tuple[tuple[PacketSource, ...], tuple[str, ...]]:
+    """Make the packet FIT its bound by SELECTING less, and refuse only when
+    selecting less cannot help.
 
-    Nothing is truncated and nothing is dropped to fit: the house rule is
-    refuse-and-say-the-number, because a context silently shortened to fit a
-    bound is a context whose omissions nobody can see. The refusal carries the
-    dimension, the measurement, and the limit — never a ref and never a byte
-    of content."""
+    Two different things were being conflated before this rail was written the
+    way it is now, and the difference is the whole reason layer one has a
+    fidelity contract:
+
+      * EVIDENCE is what the knowledge service SELECTED. Carrying less of it is
+        selection, which is LOSSLESS BY REFERENCE — the packet names what it
+        dropped and every dropped ref is one retrieval call away. So an
+        oversized packet drops evidence from the LOWEST-RANKED end until it
+        fits, and names what it dropped. No source is ever shortened: a source
+        is carried whole or not at all, which is what keeps this selection
+        rather than truncation.
+      * THE THREADS are not selected — they are the session's own working
+        memory, and the packet is the only place they appear. There is nothing
+        to drop, so if they alone exceed the bound the packet REFUSES, naming
+        the measured dimension. That refusal is actionable: layer two
+        (`compact_thread`) exists precisely to bring a thread back inside a
+        bound.
+
+    Ranking is the selection criterion, so the fit is GREEDY BY RANK: evidence
+    is walked best-ranked first and an item is kept when it fits the remaining
+    budget and dropped when it does not. Dropping strictly from the tail was
+    the obvious alternative and is worse — one oversized top hit would evict
+    every smaller, better-than-nothing item behind it, so the packet would end
+    up carrying nothing at all rather than the three items that fit.
+
+    The lifecycle-status exemption deliberately does NOT reorder this: that
+    exemption governs aggressive COMPRESSION, and fitting-by-rank is selection.
+    Reading it as a selection priority would be one layer claiming another's
+    job, which the fidelity contracts exist to prevent.
+
+    Returns the sources that fit, in their original order, and the refs that
+    were dropped, in rank order."""
 
     rows = tuple(sources)
-    if len(rows) > MAX_PACKET_SOURCES:
-        raise PacketBoundExceeded("context_packet_sources", len(rows),
+    fixed = [row for row in rows if row.kind != SOURCE_EVIDENCE]
+    fixed_bytes = sum(row.byte_count for row in fixed)
+    if len(fixed) > MAX_PACKET_SOURCES:
+        raise PacketBoundExceeded("context_packet_sources", len(fixed),
                                   MAX_PACKET_SOURCES)
-    measured = sum(row.byte_count for row in rows)
-    if measured > MAX_PACKET_BYTES:
-        raise PacketBoundExceeded("context_packet_bytes", measured,
+    if fixed_bytes > MAX_PACKET_BYTES:
+        raise PacketBoundExceeded("context_packet_bytes", fixed_bytes,
                                   MAX_PACKET_BYTES)
-    return rows
+
+    kept: set[int] = set()
+    dropped: list[str] = []
+    remaining_bytes = MAX_PACKET_BYTES - fixed_bytes
+    remaining_slots = MAX_PACKET_SOURCES - len(fixed)
+    for index, row in enumerate(rows):
+        if row.kind != SOURCE_EVIDENCE:
+            continue
+        if remaining_slots > 0 and row.byte_count <= remaining_bytes:
+            kept.add(index)
+            remaining_bytes -= row.byte_count
+            remaining_slots -= 1
+        else:
+            dropped.append(row.ref)
+
+    fitted = tuple(row for index, row in enumerate(rows)
+                   if row.kind != SOURCE_EVIDENCE or index in kept)
+    return fitted, tuple(dropped)
 
 
 # ---------------------------------------------------------------------------
@@ -560,6 +663,7 @@ def assemble_packet(
     promoted_findings: Sequence[str] = (),
     evidence_limit: int = 6,
     already_carried: Sequence[str] = (),
+    corpus_coverage: tuple[int, int] | None = None,
     clock: Callable[[], float] = time.monotonic,
     ttl_seconds: float = PACKET_TTL_SECONDS,
 ) -> ContextPacket:
@@ -591,31 +695,45 @@ def assemble_packet(
         posture = POSTURE_REDUCED
         reduced_reason = REDUCED_NO_KNOWLEDGE_SERVICE
     else:
-        profile = knowledge.profile()
-        provider_id = getattr(profile, "profile_id", PROVIDER_NONE)
-        available = frozenset(ref for ref in confined if ref not in carried)
-        hits = knowledge.search(
-            query, confined_to=available, limit=evidence_limit,
-            thread_signals=thread_signals(threads))
-        for hit in hits:
-            ref = getattr(hit, "ref", None)
-            # RE-FILTERED AT THE ASSEMBLER as well as at the provider. A
-            # retrieval that would return material outside the tile's staged
-            # set and the promoted findings has it EXCLUDED here, whatever the
-            # backend behind the port believed.
-            if not isinstance(ref, str) or ref not in available:
-                continue
-            source = knowledge.get_source(ref, confined_to=available)
-            text = getattr(source, "text", None)
-            if not isinstance(text, str):
-                continue
-            evidence.append(_Evidence(ref=ref, text=text))
+        try:
+            profile = knowledge.profile()
+            provider_id = getattr(profile, "profile_id", PROVIDER_NONE)
+            available = frozenset(ref for ref in confined if ref not in carried)
+            hits = knowledge.search(
+                query, confined_to=available, limit=evidence_limit,
+                thread_signals=thread_signals(threads))
+            for hit in hits:
+                ref = getattr(hit, "ref", None)
+                # RE-FILTERED AT THE ASSEMBLER as well as at the provider. A
+                # retrieval that would return material outside the tile's staged
+                # set and the promoted findings has it EXCLUDED here, whatever
+                # the backend behind the port believed.
+                if not isinstance(ref, str) or ref not in available:
+                    continue
+                source = knowledge.get_source(ref, confined_to=available)
+                text = getattr(source, "text", None)
+                if not isinstance(text, str):
+                    continue
+                evidence.append(_Evidence(ref=ref, text=text))
+        except RETRIEVAL_FAILURES:
+            # A BACKEND THAT REFUSES IS THE DEGRADED POSTURE, not a dead turn.
+            # v1's in-process backend cannot realistically fail here, but the
+            # port exists so another one can sit behind it, and "the knowledge
+            # service cannot answer" is a case the delta already rules on: the
+            # turn degrades to the declared reduced packet. Evidence gathered
+            # before the failure is discarded rather than half-carried, because
+            # a packet claiming full posture with an arbitrary prefix of its
+            # evidence would be a worse answer than the honest reduced one.
+            posture = POSTURE_REDUCED
+            reduced_reason = REDUCED_RETRIEVAL_REFUSED
+            provider_id = PROVIDER_NONE
+            evidence = []
 
     selected, absent = selection_rail(
         selected_key=selected_key, loaded_keys=loaded, threads=threads,
         evidence=tuple(evidence))
     marked = exemption_rail(selected)
-    bounded = bounds_rail(marked)
+    bounded, dropped = bounds_rail(marked)
     issued = float(clock())
     return ContextPacket(
         purpose=PACKET_PURPOSE_CHAT_TURN,
@@ -627,6 +745,9 @@ def assemble_packet(
         provider_id=provider_id,
         reduced_reason=reduced_reason,
         absent_threads=absent,
+        dropped_evidence=dropped,
+        corpus_coverage=corpus_coverage,
+        source_revision=(projection.source_revision or None) if evidence else None,
     )
 
 
@@ -683,8 +804,10 @@ _NON_AUTHORITATIVE_NOTE = (
 
 _LOSSLESS_NOTE = (
     "Material this packet does not carry is NOT lost: selection is lossless "
-    "BY REFERENCE — the packet names what it carries, and anything omitted is "
-    "one retrieval call away."
+    "BY REFERENCE — the packet names what it carries, and anything omitted "
+    "from the covered corpus is one retrieval call away. Where a line above "
+    "says otherwise, that line is the exception and this sentence does not "
+    "override it."
 )
 
 
@@ -757,6 +880,35 @@ def declaration_text(packet: ContextPacket) -> str:
             + ", ".join(packet.absent_threads)
             + " — nothing has been mirrored into those sidecars, so no thread "
               "is claimed for them")
+    if packet.source_revision:
+        # F5: evidence is the SERVED CHECKOUT's bytes at the projection's own
+        # revision. A session's unsaved work rides as buffers, and a session's
+        # SAVED work lands in the session worktree, which this evidence has not
+        # been read from — so the packet says which bytes these are rather than
+        # letting a reader assume they are the session's.
+        lines.append(
+            f"evidence bytes are the served checkout at revision "
+            f"{packet.source_revision} — NOT this session's worktree, so a "
+            "document saved or created in this session appears here at its "
+            "pre-session bytes, or not at all")
+    if packet.dropped_evidence:
+        lines.append(
+            "selected out to fit this packet's bound, lowest-ranked first: "
+            + ", ".join(packet.dropped_evidence)
+            + " — each is named because it remains one retrieval call away; "
+              "nothing was shortened")
+    if packet.corpus_coverage is not None:
+        indexed, total = packet.corpus_coverage
+        if indexed < total:
+            lines.append(
+                f"retrieval covered {indexed} of {total} documents in this "
+                f"tile's staged set: the remaining {total - indexed} were "
+                "beyond the declared index bound and were NOT retrievable for "
+                "this turn, so they are not one retrieval call away either")
+        else:
+            lines.append(
+                f"retrieval covered all {total} documents in this tile's "
+                "staged set")
     lines.append(_LOSSLESS_NOTE)
     return "\n".join(lines)
 
