@@ -485,6 +485,17 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       naming the reviewed act, read from this surface's own `memory-gateway`
       declaration so "how a finding becomes durable here" has ONE spelling. An
       unattributed finding is refused.
+      **IT IS AN IN-PROCESS BOUNDARY (adversarial review, F10).** The ratified
+      delta asks for "exactly ONE tool boundary declaring a small tool
+      contract" and never says MCP; an earlier docstring here called it "the
+      MCP tool boundary", naming a protocol nothing in this slice speaks. The
+      requirement is satisfied by the boundary being one and being small, not
+      by its transport. **OWED AT §11:** the stdio MCP server that exposes
+      these same four tools to the harness, and the mount-name pin
+      `verification-findings.md` §3.2 asks for
+      (`xd://mcp__<server>__<tool>`) — §11 is the first slice with a harness to
+      expose them to, and until then no test can assert a mount name nothing
+      mounts.
 - [x] 10.3 The packet assembler: selection rail, then the lifecycle-status
       exemption rail keyed on each item's `Status:` header, then the bounds
       check, then deterministic assembly (design §3.1). Both rails run before
@@ -500,24 +511,50 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       one. The read is cross-checked against the repository's own
       `doc_health.corpus.parse_status` over real documents, because the same
       rule living in two places is how two places drift.
-      The bounds rail refuses with the MEASURED DIMENSION (a
-      dimension/measured/maximum triple) and truncates nothing; a test asserts
-      the refusal carries no packet content and not even a ref, and another
-      asserts an oversized-but-legal source survives byte for byte.
-      **JUDGEMENT CALL, flagged.** On the wire the bounds refusal reuses the
-      existing `request_limit_exceeded` envelope, which is the only released
-      code that can carry a dimension at all. It is a server-assembled bound
-      rather than a caller-sent one, so the fit is imperfect; the alternative
-      was `invalid_turn_request`, which HIDES the measured dimension the
-      requirement demands be named, and `contracts/` may not change in this
-      slice to add a code.
-      **EXEMPT-STATUS JUDGEMENT CALL, flagged.** The delta says "approved or
-      ratified". This repository's lifecycle spells the approved end
-      `ratified` AND `standard`, and the source-ranking hierarchy this same
-      change ratified ranks "ratified or standard canon" together at the top,
-      so exempting `ratified` while compressing `standard` would compress the
-      most authoritative material this surface has. `EXEMPT_STATUSES` is
-      therefore `{approved, ratified, standard}`.
+      The bounds rail has TWO ARMS, and the difference between them is layer
+      one's fidelity contract (**adversarial review, F2 — the first version of
+      this rail had only the second arm**):
+      (a) EVIDENCE is what retrieval SELECTED, so an oversized packet FITS by
+      selecting less — evidence is walked best-ranked first and kept while it
+      fits the remaining budget, and every dropped ref is NAMED in the
+      declaration. That is lossless-by-reference, not truncation: no source is
+      ever shortened, and what is dropped stays one retrieval call away.
+      Dropping strictly from the tail was the obvious alternative and is worse
+      — one oversized top hit would evict every smaller item behind it.
+      (b) THE THREADS are not selected and appear nowhere else, so if they
+      alone exceed the bound the packet REFUSES with the measured dimension.
+      That refusal is actionable: layer two exists to compact a thread.
+      **The wire codes are two RECORDED judgement-call spellings**, not a reuse
+      of `request_limit_exceeded` — which said "the request exceeds the allowed
+      size for this route" about a few-hundred-byte request whose oversize was
+      server-selected evidence, and refused every turn on that tile forever.
+      The released failure envelope's `error` is a free-form pattern string,
+      not an enum, so `context_packet_bound_exceeded` (409, carrying the
+      dimension, message naming the compaction that fixes it) and
+      `context_packet_invalid` (500) needed no contract change.
+      **THE LEASH IS PULLED (F1).** `require_valid` had ZERO production call
+      sites: a packet issued for another repository, another tile, or an
+      expired turn rendered into the prompt unexamined. `build_prompt_envelope`
+      — the consuming surface — now revalidates purpose, scope and expiry
+      BEFORE assembling any section text, on the SAME injected clock the packet
+      was issued on. At the route the delta's own words are realized literally:
+      a rejected packet makes the route REQUEST A NEW ONE, and only a second
+      failure refuses.
+      **EXEMPT-STATUS JUDGEMENT CALL, flagged (accepted by the adversarial
+      review).** The delta says "approved or ratified". This repository's
+      lifecycle spells the approved end `ratified` AND `standard`, and the
+      source-ranking hierarchy this same change ratified ranks "ratified or
+      standard canon" together at the top, so exempting `ratified` while
+      compressing `standard` would compress the most authoritative material
+      this surface has. `EXEMPT_STATUSES` is therefore
+      `{approved, ratified, standard}` — where `approved` is FOREIGN-CORPUS
+      TOLERANCE and not a fourth local status: it is not in this repository's
+      lifecycle vocabulary and a corpus-wide grep finds ZERO documents carrying
+      it, so it is honoured for a corpus that does use the word and recorded as
+      tolerance so no reader mistakes it for a status this repository issues.
+      A DECORATED status (`ratified (2026-08-01)`, `record · …`) keeps its
+      status word: the corpus already carries decorated forms, and a decorated
+      `ratified` would otherwise lose its exemption silently.
 - [x] 10.4 The packet declares purpose, sources with refs, bound scope and
       expiry, and is rejected for another purpose, another scope, or after
       expiry.
@@ -542,11 +579,28 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       and through the real serve, and the assembler's source contains no buffer
       type and no state-route spelling.
       **RECORDED, not deferred:** the promoted-findings set is EMPTY at the
-      route today, and deliberately. A finding becomes promoted only when a
-      human performs the reviewed act that creates the target object, and that
-      object is then an ordinary document of the tile which the staged set
-      already carries. Reading a promoted-findings register would mean building
-      one, which is the parallel decision store the contract forbids.
+      route today, and deliberately — reading a promoted-findings register
+      would mean BUILDING one, which is the parallel decision store the
+      contract forbids. A finding becomes promoted only when a human performs
+      the reviewed act that creates the target object.
+      **CORRECTED (adversarial review, F5).** The first version of this note
+      justified the empty set by claiming the created object "is then an
+      ordinary document of the tile which the staged set already carries."
+      That is FALSE for the case that matters: a `create-document` gate action
+      writes into the SESSION WORKTREE, while the retrieval corpus is read from
+      the SERVED CHECKOUT, so a freshly created finding is confined-but-
+      unindexable — `resolve_within` finds no such file and it is skipped. The
+      empty set is right for the reason above (no register may be built), NOT
+      because the staged set already covers it, and the packet now states which
+      bytes its evidence is so no reader concludes otherwise.
+      **THE SAME BOUNDARY, stated in full:** evidence is the served checkout at
+      `projection.source_revision`. A document the session has SAVED is
+      therefore eligible evidence at its PRE-SESSION bytes, and one the session
+      CREATED is not eligible at all. The packet declares both facts. Reading
+      the session worktree instead is not a silent fix — it would put unmerged
+      session text into the corpus lane that the confinement rail governs — so
+      it is left to the slice that owns session-aware retrieval rather than
+      taken here.
 - [x] 10.6 The retrieval backend is read from an install-time declaration; no
       runtime, per-turn, prompt-driven or heuristic selection path exists.
       `RetrievalBackendDeclaration` enforces the ratified two-case principle:
@@ -564,9 +618,24 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       The backend INSTANCE is built per request from the process-wide
       declaration: the server is threaded, and one tile's derived index must
       never be visible to another tile's turn.
-- [x] 10.7 Degraded posture: no knowledge service → the declared reduced packet
+      **THE INDEX BOUND IS STATED, NOT SILENT (adversarial review, F6).** The
+      index carries a declared bound (`MAX_INDEXED_SOURCES`) and the
+      confinement does not, so a tile with more documents than the bound has
+      refs that are confined but were never indexed. That was the exact
+      "silently shortened" class the bounds rail's own docstring forbids, and
+      it falsified the packet's "one retrieval call away" note. The packet now
+      DECLARES coverage — indexed of confined — and says in as many words that
+      the uncovered remainder was not retrievable this turn. Stating it was
+      chosen over refusing past the bound because refusing would reproduce
+      exactly the un-actionable, permanent per-tile refusal F2 just removed;
+      the ratified text asks for bounds to be visible, and a stated shortfall
+      is visible in the one place the reader of the context is looking.
+- [ ] 10.7 Degraded posture: no knowledge service → the declared reduced packet
       with the posture stated, no unbounded substitute, no rail bypass, editors
       unaffected.
+      **PACKET HALF LANDED, SURFACE HALF GATED** — half-open in the same shape
+      task 5.4 carried, because half of this requirement genuinely is not
+      built.
       The reduced packet is the SAME pipeline with one input absent, not a
       second pipeline with the rails skipped — a test drives a bounds refusal
       through it to prove that. A `ContextPacket` cannot be reduced without
@@ -577,14 +646,27 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       and a live knowledge service with no model leaves the route's
       model-capability refusal shape and gate order byte-identical and leaks no
       evidence into it. The success envelope is the same with and without.
-      **JUDGEMENT CALL, flagged.** The reduced posture is STATED in the
-      assembled context, which is where the ratified sentence puts it. Making
-      it visible in the BROWSER would need a field the released success
-      envelope has no room for, and this slice may not touch `contracts/`; the
-      delta's own rule forbids carrying such a field as an unreadable
-      server-side value, so the obligation is RECORDED here against the release
-      that will carry it — the same discipline §13 applied to the bound buffer
-      and §11.7 to the routing rule.
+      **OBLIGATION RECORDED AGAINST THIS TASK, in §11.7's pattern.** The
+      reduced posture is STATED in the assembled context, which is where the
+      ratified sentence puts it, and the packet half is done. What is NOT done
+      is the posture being visible to the HUMAN on the surface.
+      `workbench-chat-turn-v2-success` is a CLOSED envelope
+      (`additionalProperties: false`) with no field for a context posture, so
+      no conformant success body can carry one today, and the delta's own rule
+      forbids carrying it as a server-side value no reader can consult. This
+      task therefore needs its OWN contract release — **an additive
+      chat-turn-success growth carrying the assembled context's posture
+      (`full | reduced`) and its reason, allocated at ITS realization under
+      `docs/contract-versioning-policy.md`, exactly as contract-v1.34 was
+      allocated at §13's** — before the ratified "with the reduced posture
+      STATED" clause can be claimed as visible rather than only as assembled.
+      Until then the gap is stated rather than papered over.
+      **CORRECTED (adversarial review, F3):** an earlier version of this note
+      claimed the obligation was "recorded against the release that will carry
+      it" and cited §13 and §11.7 as precedents. Both citations were wrong. §13
+      is CLOSED and shipped and carries nothing forward; §11.7 records its
+      obligation by naming its OWN future release and staying open — which is
+      what recording looks like, and is what this task now does.
 - [x] 10.8 Per-turn and per-session token telemetry is emitted content-free.
       Where the metering requirement's client/domain/bill-to fields have no
       value on a self-hosted console, the absence is declared rather than
@@ -605,6 +687,21 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       exact UTF-8 bytes and has no tokenizer, and multiplying bytes by a
       guessed ratio would be a fabricated measurement in a usage record. §11
       owns the dispatch operation that will carry a reported count.
+      **"EMITTED" RESTATED HONESTLY (adversarial review, F9).** Telemetry is
+      MEASURED AND RETAINED IN-PROCESS, readable from the served process's own
+      meter (`handler.usage_meter`, per-turn and per-session). `record`'s
+      return value is not consumed by its caller, and NOTHING emits the record
+      off-process: there is no log line, no wire field, and no store, because
+      the released success envelope has no room for one and this slice may not
+      touch `contracts/`. The emission surface is owed to the slice that gets
+      one, and until then "emitted" means "measured, retained, and readable
+      here" — which is what the tests assert.
+      **AND THE RETENTION IS BOUNDED, VISIBLY.** An evicted scope used to
+      answer `None`, byte-identical to a scope that never ran, so a
+      conversation with five hundred metered turns and one with none read the
+      same. `session()` now has three distinct answers, evictions are counted,
+      and eviction is least-recently-RECORDED rather than first-opened so the
+      busiest live conversation is not the first dropped.
 
 **The `memory-gateway` conformance declaration** (design §7.1) is realized as a
 first-class machine-readable artifact,
@@ -624,8 +721,22 @@ declaration's claims are cross-examined against the modules that realize them.
 **Two dispositions the design left unnamed, flagged rather than assumed:**
 `Expert Memory And Knowledge DBs Are Gateway-Governed` is INAPPLICABLE (no
 Domain Omnigent expert and no external knowledge DB is in this path), and
-`Gateway Conformance Is Testable` is REALIZED (this declaration is the artifact
-validation reads, and its rules are executed rather than described).
+`Gateway Conformance Is Testable` is **NARROWED** — **corrected from REALIZED
+by the adversarial review (F4)**, which was right: that requirement's scenarios
+are about a DomainxFactory declaring a `memory_gateway` block in its
+`stack.yaml` that the canonical domain-factory validator checks, and doxBench
+is not a domain factory and declares no such block. Nothing outside this
+repository's own test run reads this declaration today, so REALIZED rested on
+"this declaration IS the artifact validation reads" — a claim with no reader
+behind it. What IS realized is the requirement's rule, that a conformance claim
+executes rather than asserts; that is what NARROWED now says, with the reason.
+**The TIER column is transcribed, not invented (F7):** it carried `M0` for a
+requirement the spec's tier block never tiers, and flattened
+`Expert Memory And Knowledge DBs Are Gateway-Governed` to `M4` where the spec
+says in as many words that it follows the tier of the operation it mirrors.
+`TIER_UNTIERED` and `TIER_MIRRORS_OPERATION` replace both, and the roster test —
+which checked NAMES only — now asserts every value against the spec's own
+tier block.
 
 **The three-layer compression stack's fidelity vocabulary** is pinned as data
 with a checker in `doxbench_packet`: describing selection as lossy, semantic
