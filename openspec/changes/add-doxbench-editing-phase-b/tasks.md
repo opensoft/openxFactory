@@ -467,6 +467,16 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       structured thread-states as a third signal — fused on declared weights
       summing to one, with ties broken on the ref. Each of the three signals
       has a test showing it selecting something the others cannot.
+      **N-GRAM OFF-BY-ONE FIXED (Copilot review of PR #216).** The strict
+      length comparison skipped the single n-gram of a token exactly
+      `CHARACTER_NGRAM` long, so every three-letter token contributed NO n-gram
+      feature while four-letter tokens contributed two — contradicting the
+      function's own docstring and weakening the vector leg precisely for the
+      short tokens the lexical leg generalizes over worst. The pin is on the
+      feature ENUMERATION rather than on a score, and both score-coupled
+      scenarios were re-derived rather than tuned: the null query still yields
+      zero on both textual legs, and the vector-leg case still fires with
+      `lexical == 0`.
       No graph engine, store, or index: `ProviderProfile` REFUSES a profile
       declaring `graph`, and eleven engine/candidate spellings are asserted
       absent from the module's source.
@@ -535,6 +545,32 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       not an enum, so `context_packet_bound_exceeded` (409, carrying the
       dimension, message naming the compaction that fixes it) and
       `context_packet_invalid` (500) needed no contract change.
+      **THE PACKET'S BOUND COMPOSES WITH THE MODEL'S (Codex review of PR #216,
+      CODEX-B).** The request bytes are measured against the catalog entry's
+      effective input limit BEFORE the packet exists, and the packet's sections
+      are appended after — so an accepted turn could dispatch a prompt past the
+      model's declared capacity and fail at the PROVIDER rather than at a
+      measured bound. The route now passes the REMAINING budget (the limit,
+      minus the measured request, minus a declared scaffold reserve for what
+      the prompt spends outside both) as the packet's bound, and the fit
+      carries what fits. Fitted rather than refused, for the same reason F2
+      recorded; the genuinely-unfittable case still refuses through the 409
+      arm. The reserve's adequacy is MEASURED against real rendered prompts at
+      three ceilings rather than asserted.
+      **RAILS-BEFORE-PROVIDER, STATED PRECISELY (CODEX-A, refuted).** Codex
+      read design §3.1 as requiring that no provider be touched until after
+      selection, and asked for a reorder. The design does not read cleanly on
+      this point — step 2's own box CONTAINS "evidence: knowledge service
+      search" while the prose beneath says steps 2–3 run before any provider is
+      reached — and the reorder is not a stricter reading but an incoherent
+      one: it would mean selecting evidence before knowing what evidence
+      exists. The implementation takes the reading that preserves what the
+      rails are FOR, and now SAYS so where the claim is made rather than only
+      where the code is: the rail that governs the retrieval provider is the
+      CONFINEMENT, computed first and handed to it; selection, the exemption
+      and the bounds fit all precede the MODEL provider; and the index the
+      provider searches is a SUBSET of the confinement by construction, which
+      is now asserted by a test rather than argued.
       **THE LEASH IS PULLED (F1).** `require_valid` had ZERO production call
       sites: a packet issued for another repository, another tile, or an
       expired turn rendered into the prompt unexamined. `build_prompt_envelope`
@@ -641,6 +677,16 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       exactly the un-actionable, permanent per-tile refusal F2 just removed;
       the ratified text asks for bounds to be visible, and a stated shortfall
       is visible in the one place the reader of the context is looking.
+      **AND THE BOUND IS ON WHAT IS INDEXED, NOT ON WHAT IS ATTEMPTED (Codex
+      review of PR #216, CODEX-C).** The slice ran BEFORE the readability
+      filter, so an unreadable entry consumed index capacity and readable
+      documents behind it were never considered — reproduced at a bound of 2
+      over three paths: ONE indexed — and the coverage line then blamed "the
+      declared index bound" for an omission the bound had nothing to do with.
+      `CorpusCoverage` now keeps the two omission classes apart:
+      unreadable-at-this-revision versus beyond-the-bound, since the first
+      stays absent until someone fixes it and the second would return under a
+      larger bound.
 - [ ] 10.7 Degraded posture: no knowledge service → the declared reduced packet
       with the posture stated, no unbounded substitute, no rail bypass, editors
       unaffected.
