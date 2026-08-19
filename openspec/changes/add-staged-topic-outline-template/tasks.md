@@ -105,6 +105,38 @@ remains is the contract and the surface.
       uniform — required sections stamp `Added-by:` on the seeded note or
       question the way the skeleton shows, and a section beyond the required set
       carries the section-level line.
+      ADVERSARIAL REVIEW (FIX FIRST) closed three findings on this task. **F2**:
+      the duplicate rule was rank-wide on BOTH routes, so on a fully templated
+      fragment "Exit criteria", "Why we deferred", "Impact analysis", "Claims
+      log", "Prior art on why", "Conflicts with promoted specs" and "Open
+      questions for Brett" were all refused — naming a section the human never
+      asked for, with an explicit target unable to get round it — while a
+      near-miss like "Notes on conflicts" was silently rewritten to
+      `## Conflicts` with the conflict seed. Since the free-form control is the
+      ONLY route to the contract's "either a human or an AI may add a section
+      beyond the required set", the grant was unusable. The two routes are now
+      separated by an explicit `required` flag: the gap row keeps the loose
+      label match and the rank clash (both doing necessary work there), and the
+      free-form route is exact — exact-title duplicates, verbatim headings,
+      canonical placement only for a title that already IS a canonical heading.
+      All fourteen cases are pinned, and the pre-fix module was re-run to prove
+      each one was genuinely refused rather than merely untested. **F3**: the
+      refusal branch echoed the seam's `error` text, which both other consumers
+      of `applyProposal` forbid (the chat calls its mapping a WHITELIST and drops
+      the text unread; the canvas states its sentences are "never echoed") — so
+      the reachable settling window handed the human "the buffer identity is
+      still settling" with no recovery, and the stale sentence said "proposal", a
+      noun this tab never uses. `outcome.code` is now mapped to four fixed
+      tab-voiced sentences, each naming its own recovery, and the seam's own two
+      refusals gained codes so they map accurately rather than falling through.
+      The settling window is driven for real in the test through a holdable hash
+      seam, including that the advice is TRUE: the same press lands once the
+      identity settles. **F4**: on a fragment ending inside an unclosed fence the
+      insert appended inside the fence, the model then saw zero sections, the
+      "already carries" guard could never fire, and repeated presses piled up
+      copies each reporting success. `insertSection` now refuses on an unclosed
+      fence — refusal, not repair, because closing it would rewrite a fragment
+      nobody asked us to change, which 3.3 forbids outright.
 - [x] 3.3 Degrade on non-conforming fragments: render what is present, report
       nothing as broken, rewrite nothing on open.
       `outlineModel`'s `pre-template` state drives one calm sentence naming the
@@ -115,6 +147,15 @@ remains is the contract and the surface.
       fragment whose bytes never arrive gets NO index at all rather than one
       derived from an absent load: the index is built from the text
       `renderViewer` hands back on a successful load and from nothing else.
+      Review hardenings: the `onText` invocation is now CONTAINED (H1) — callers
+      do not await `renderViewer`, so a throw inside a caller's derivation was a
+      silent unhandled rejection after the document had already rendered; the
+      honest outcome is a missing index, and the test proves it by removing the
+      guard and watching the promise reject. The index header now says
+      "as stored" (H2), because the index describes the SAVED fragment while the
+      canvas holds unsaved work — without the label, a gap row above an
+      "already carries" refusal reads as the surface arguing with itself rather
+      than as the two honest answers the deliberate split gives.
 - [x] 3.4 Gate-off posture: the affordance is not a live control and no write
       path is reachable.
       The predicate is `canvasOffered()` — the same derivation `drawCanvas` and
@@ -165,6 +206,20 @@ remains is the contract and the surface.
       assertion in the harness is fence-aware and INDEPENDENTLY implemented — a
       check routed through the scanner under test could not have caught a fence
       bug in it.
+      REVIEW ROUND 2 grew the set to 72 cases and, more usefully, made three of
+      them honest. **F1** was a test-coverage regression this task itself
+      introduced: loosening `test_session_confinement.py`'s call-site pin to a
+      substring made it a prefix of the DECLARATION too, so it stopped
+      constraining the call — the reviewer swapped `sourceBase` for `null` at the
+      call site and the whole suite stayed green, re-opening the finding-16
+      failure ("a draft view mistaken for main") the pin exists to catch. It is a
+      regex through the call's own closing arguments now, and the mutation was
+      re-run to confirm it FAILS. **F5**: `"Added-by: brett · 20"` passed on a
+      literal "20"; the date half is a `\d{4}-\d{2}-\d{2}` match. And every new
+      regression test was validated by re-running the PRE-FIX code against its
+      fixture rather than assumed — which is what caught that F2's seven headings
+      only misbehave on a FULLY templated fragment, so the original three-section
+      fixture would have proven nothing.
 
 ## 5. Gates
 

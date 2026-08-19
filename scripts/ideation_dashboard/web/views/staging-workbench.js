@@ -611,13 +611,45 @@ function provenanceDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
+// THE REFUSAL VOCABULARY, mapped from the seam's CODE and never from its text.
+//
+// W-10's lesson, and both other consumers of `applyProposal` already forbid the
+// shortcut: doxbench-chat.js calls its mapping a WHITELIST and drops the seam's
+// error text unread, and the canvas states the codes "remain the canvas's and are
+// never echoed". Echoing them here reached a human with "this proposal no longer
+// matches the buffer" — a noun this tab never uses — and with a settling-window
+// sentence carrying no recovery, which is exactly the collapse W-10 undid. Each
+// sentence below names its own recovery, in the tab's own voice.
+const ADD_SECTION_UNSETTLED =
+  "the outline buffer's identity is still settling — press add again in a moment";
+const ADD_SECTION_STALE =
+  "the outline buffer moved while this section was being composed — press add "
+  + "again to compose it against the current text";
+const ADD_SECTION_UNAVAILABLE =
+  "the outline buffer is not available for editing on this console — nothing "
+  + "was written";
+const ADD_SECTION_REFUSED =
+  "the insertion was refused and nothing was written — press add again";
+
+function addSectionRefusal(outcome) {
+  const code = outcome && typeof outcome.code === "string" ? outcome.code : null;
+  if (code === "unsettled") return ADD_SECTION_UNSETTLED;
+  if (code === "stale") return ADD_SECTION_STALE;
+  if (code === "unavailable") return ADD_SECTION_UNAVAILABLE;
+  return ADD_SECTION_REFUSED;
+}
+
 // One add, end to end: the insert is computed against what the OUTLINE BUFFER
 // holds (never against the stored bytes rendered below it, which is exactly the
 // human's unsaved work behind), and it lands through the canvas's own
 // `applyProposal` — the settled-identity gate, the line-ending re-flavor and the
 // same `edit()` a keystroke goes through. This function performs NO write of its
 // own, opens no route, and calls no gate action.
-async function runAddSection(seam, path, note, title, after) {
+//
+// `required` marks the GAP-ROW route, where the caller asks by the contract's own
+// label and the section lands under its canonical heading and seed. The free-form
+// route leaves it false and gets the human's heading verbatim.
+async function runAddSection(seam, path, note, title, after, required) {
   note.hidden = false;
   const live = seam.buffer();
   if (!live) {
@@ -633,16 +665,18 @@ async function runAddSection(seam, path, note, title, after) {
     return null;
   }
   const patch = insertSection(live.text, {
-    title, after, addedBy: seam.actor, date: provenanceDate(),
+    title, after, required, addedBy: seam.actor, date: provenanceDate(),
   });
   if (!patch.ok) {
+    // The MODEL's reasons are this tab's own sentences (it is our pure module,
+    // written for this surface), so they are stated verbatim. The SEAM's are not,
+    // which is why the branch below maps a code instead.
     note.textContent = patch.reason;
     return null;
   }
   const outcome = await seam.apply(live.baseHash, patch.text);
   if (!outcome || outcome.ok !== true) {
-    note.textContent = (outcome && outcome.error)
-      || "the insertion was refused and stated no reason";
+    note.textContent = addSectionRefusal(outcome);
     return null;
   }
   const where = patch.mode === "end"
@@ -692,7 +726,8 @@ function mountAddSection(host, model, path, seam) {
       btn.disabled = true;
       try {
         const asked = intent();
-        await runAddSection(seam, path, note, asked.title, asked.after);
+        await runAddSection(seam, path, note, asked.title, asked.after,
+                            asked.required === true);
       } finally {
         btn.disabled = false;
       }
@@ -708,7 +743,10 @@ function mountAddSection(host, model, path, seam) {
     const row = el("div", "swb-outlinegap");
     row.appendChild(el("span", "swb-outlinegaplabel",
       "no " + gap.label + " section"));
-    const asked = { title: gap.label, after: null };
+    // `required` is the load-bearing flag: the button asks by the contract's
+    // LABEL, so the model may resolve it loosely to the canonical heading and
+    // seed. Nothing else in the tab is allowed that latitude.
+    const asked = { title: gap.label, after: null, required: true };
     row.appendChild(addControl("add it", "swb-outlineaddgap", () => asked));
     host.appendChild(row);
   }
@@ -760,7 +798,15 @@ function mountAddSection(host, model, path, seam) {
 function renderOutlineIndex(host, text, path, seam) {
   host.innerHTML = "";
   const model = outlineModel(text);
-  host.appendChild(el("div", "swb-abstractlabel", "outline template"));
+  // "AS STORED" is not decoration. This index describes the SAVED fragment while
+  // the canvas beside it holds unsaved work, so after an add a gap row here still
+  // reports a section the buffer already has — and without the label that reads as
+  // the page contradicting itself rather than as the two honest answers the
+  // deliberate two-renderings split gives (see `renderOutlinePanel`).
+  const header = el("div", "swb-abstractlabel", "outline template — as stored");
+  header.title = "the sections in the SAVED fragment; the canvas beside this "
+    + "holds your unsaved edits, so the two differ by exactly that much";
+  host.appendChild(header);
   host.appendChild(el("div", "swb-lensnote swb-outlinestate", outlineStateLine(model)));
   if (!model.sections.length) {
     host.appendChild(el("div", "swb-empty",
@@ -1654,16 +1700,21 @@ export function mountStagingWorkbench(container, snapshot,
         return { path: buffer.path, text: buffer.content,
                  baseHash: (buffer.current_hash && buffer.current_hash.hex) || null };
       },
+      // Every refusal this seam makes for itself carries a CODE, in the same
+      // vocabulary `applyProposal` answers in, because the panel maps codes and
+      // never echoes text (W-10). A refusal with no code would fall through to
+      // the panel's generic sentence rather than the accurate one.
       apply: async (baseHash, text) => {
         if (!canvasController
             || typeof canvasController.applyProposal !== "function") {
-          return { ok: false, error: "this console has no editing seam wired" };
+          return { ok: false, code: "unavailable",
+                   error: "this console has no editing seam wired" };
         }
         try {
           return await canvasController.applyProposal(
             "outline", { base_hash: baseHash, content: text });
         } catch (unused) {
-          return { ok: false, error: "the insertion failed" };
+          return { ok: false, code: "failed", error: "the insertion failed" };
         }
       },
     };

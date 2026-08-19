@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import http.client
 import json
+import re
 import shutil
 import subprocess
 import threading
@@ -1770,19 +1771,30 @@ def test_the_outline_pane_reads_through_the_active_keys_source_base():
     The spellings below gained a trailing argument each in
     `add-staged-topic-outline-template` (the add-section seam, and the viewer's
     `onText` read-back the section index is built from). What this test guards is
-    unchanged and is the reason the pins are substrings and not signatures:
-    `sourceBase` and `edit` must still be THREADED to the pane and on to the
-    viewer, because dropping either is what put a draft view on `main`'s bytes.
-    Both additions are transport-free — no new call site, no second fetch of the
-    same bytes."""
+    unchanged: `sourceBase` and `edit` must still be THREADED to the pane and on
+    to the viewer, because dropping either is what put a draft view on `main`'s
+    bytes. Both additions are transport-free — no new call site, no second fetch
+    of the same bytes.
+
+    THE CALL-SITE PIN IS A REGEX, and the review that made it one is the reason.
+    Widening the declaration made the plain substring
+    `renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit,` a
+    prefix of the DECLARATION as well as the call, so it stopped constraining the
+    call at all: the reviewer replaced `sourceBase` with `null` at the call site
+    and the whole suite stayed green — exactly the finding-16 regression this test
+    exists to catch. The pattern below must therefore run through the call's own
+    closing arguments, which the declaration cannot supply."""
     web = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
     view = (web / "views" / "staging-workbench.js").read_text(encoding="utf-8")
     app = (web / "app.js").read_text(encoding="utf-8")
 
     assert ("function renderOutlinePanel(pane, snapshot, scope, create, "
             "sourceBase, edit, sections)") in view
-    assert ("renderOutlinePanel(pane, snapshot, scope, create, sourceBase, edit,"
-            ) in view
+    assert re.search(
+        r"renderOutlinePanel\(pane, snapshot, scope, create, sourceBase, edit,"
+        r"\s*outlineSectionSeam\(\)\);", view), (
+            "the outline pane must be CALLED with the active key's own sourceBase "
+            "and edit action, not a default or a null")
     assert "renderViewer(host, { path, doc, sourceBase, edit," in view
     assert "sourceBase, edit, onSessionRekey," in view
     assert "onSessionEnded, onScopeOpened } = {})" in view

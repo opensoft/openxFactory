@@ -198,10 +198,43 @@ const REQUIRED_TEMPLATES = {
   },
 };
 
+// TWO WAYS TO REACH A TEMPLATE, and keeping them apart is the whole of PR
+// review finding F2.
+//
+// `requiredTemplateFor` is the REQUIRED-GAP route: the caller is the gap row's
+// own button, which asks by the contract's LABEL ("pre-document idea notes"), so
+// a loose `includes` match against the label's needle is doing necessary work.
+// It is reached only when the caller declares `required: true`.
+//
+// `templateForExactHeading` is the FREE-FORM route, and it is exact on purpose.
+// A human typing "Notes on conflicts" or "Conflicts with promoted specs" means
+// that heading and not the required Conflicts section; the loose match used to
+// silently rewrite the first to `## Conflicts` and refuse the second as a
+// duplicate. The contract grants that a human or an AI "may add a section beyond
+// the required set", and this is the only route to it, so anything but an exact
+// canonical heading is written verbatim with the generic skeleton.
 function requiredTemplateFor(title) {
   const lower = String(title == null ? "" : title).toLowerCase();
   const match = REQUIRED_SECTIONS.find((s) => lower.includes(s.needle));
   return match ? REQUIRED_TEMPLATES[match.needle] : null;
+}
+
+function templateForExactHeading(title) {
+  const key = String(title == null ? "" : title).trim().toLowerCase();
+  for (const needle of Object.keys(REQUIRED_TEMPLATES)) {
+    const template = REQUIRED_TEMPLATES[needle];
+    if (template.heading.toLowerCase() === key) return template;
+  }
+  return null;
+}
+
+// WHICH ROUTE A TITLE TOOK, answered in ONE place. `insertSection` needs it for
+// the rank and `sectionSkeleton` for the heading and seed, and two resolutions of
+// the same fact are two things to keep in step.
+function resolveTemplate(title, required) {
+  return required === true
+    ? requiredTemplateFor(title)
+    : templateForExactHeading(title);
 }
 
 /**
@@ -210,15 +243,37 @@ function requiredTemplateFor(title) {
  * Every slot stays a `<…>` fill-in, exactly as the skeleton ships them: the
  * affordance adds a section's SHAPE and its provenance, never content it made
  * up on the human's behalf.
+ *
+ * `required` names the gap-row route and is what licenses the canonical heading
+ * and seed. Without it the title is written VERBATIM unless it already IS a
+ * canonical heading, letter for letter.
  */
-export function sectionSkeleton(title, { addedBy, date } = {}) {
+export function sectionSkeleton(title, { addedBy, date, required } = {}) {
   const stamp = String(addedBy || "unattributed") + " · " + String(date || "undated");
-  const template = requiredTemplateFor(title);
+  const template = resolveTemplate(title, required);
   const heading = template ? template.heading : String(title == null ? "" : title).trim();
   const body = template
     ? template.body(stamp)
     : ["Added-by: " + stamp, "", "- <fill this in>"];
   return ["## " + heading, "", ...body].join("\n");
+}
+
+/**
+ * True when the fragment's last code fence is never closed.
+ *
+ * The SAME `isFence` rule `outlineSections` toggles on, so the two cannot
+ * disagree about where a fence is — this is not a second scanner, it is the one
+ * fact that scanner's loop knows and does not report. `insertSection` refuses on
+ * it, because inside an unclosed fence every heading is invisible to the model:
+ * the append lands inside the fence, the duplicate guard then sees no sections at
+ * all, and repeated presses pile up copies each reporting success.
+ */
+export function endsInsideFence(text) {
+  let fenced = false;
+  for (const line of String(text == null ? "" : text).split(/\r\n|\r|\n/)) {
+    if (isFence(line)) fenced = !fenced;
+  }
+  return fenced;
 }
 
 // Where a section's own text stops: the next `## ` heading, or the end.
@@ -229,6 +284,17 @@ function sectionEnd(sections, target, total) {
 
 /**
  * The whole next text of a fragment with ONE section added, or a stated refusal.
+ *
+ * `required: true` is the GAP-ROW route: the caller is asking for one of the
+ * three required sections by the contract's own label, so the section lands under
+ * its canonical heading with its canonical seed, in its canonical place, and a
+ * section of the same RANK already present is a refusal. Everything else is
+ * free-form: the title is written verbatim, the duplicate rule is exact-title
+ * equality, and canonical placement applies only to a title that already IS a
+ * canonical heading. That split is PR review finding F2 — a rank-wide refusal on
+ * the free-form path made "Exit criteria", "Impact analysis" and
+ * "Conflicts with promoted specs" all unaddable on a conforming fragment, which
+ * is the only route the contract gives a human for adding one.
  *
  * `after` names the section the new one is inserted behind — the patch's
  * addressing key, and the "scoped by the target section" half of the contract.
@@ -251,11 +317,30 @@ export function insertSection(text, options = {}) {
   const title = String(options.title == null ? "" : options.title).trim();
   if (!title) return { ok: false, reason: "a section needs a heading" };
   const lines = String(text == null ? "" : text).split(/\r\n|\r|\n/);
-  const sections = outlineSections(lines.join("\n"));
-  const rank = sectionRank(title);
+  const source = lines.join("\n");
+  // REFUSED, NEVER REPAIRED (review finding F4). Closing the fence for the human
+  // would be rewriting a fragment nobody asked us to change, which is the one
+  // thing task 3.3 forbids outright.
+  if (endsInsideFence(source)) {
+    return { ok: false,
+             reason: "this fragment ends inside an unclosed code fence — close "
+               + "it before adding sections, or every heading below it is "
+               + "invisible to the outline" };
+  }
+  const sections = outlineSections(source);
+  const required = options.required === true;
+  const template = resolveTemplate(title, required);
+  if (required && !template) {
+    return { ok: false,
+             reason: '"' + title + '" is not one of the three required sections' };
+  }
+  // The rank drives BOTH the canonical placement and (on the required route) the
+  // duplicate rule — and it is read off the TEMPLATE's heading, never off the
+  // caller's free text, so no coincidental substring can reach it.
+  const rank = template ? sectionRank(template.heading) : null;
   const clash = sections.find((section) =>
-    section.title.toLowerCase() === title.toLowerCase()
-    || (rank !== null && sectionRank(section.title) === rank));
+    section.title.trim().toLowerCase() === title.toLowerCase()
+    || (required && rank !== null && sectionRank(section.title) === rank));
   if (clash) {
     return { ok: false,
              reason: 'this outline already carries the section "' + clash.title + '"' };
