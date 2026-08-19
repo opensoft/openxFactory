@@ -320,5 +320,100 @@ class ProposalSupportTests(unittest.TestCase):
                 support.verify_active_support(root / "openspec/changes/change-a"), [])
 
 
+class AuthorshipRecordTests(unittest.TestCase):
+    """`refine-demote-round-trip-mechanics` part 3: the proposal gate records its
+    authorship ONCE PER DOCUMENT, not once per attempt.
+
+    A document may legitimately reach proposal, be demoted, be worked, and reach
+    proposal again — the round-trip guarantee exists precisely so that lap is
+    normal. Appending a fresh `Proposed by:` line each time turns a normal lap
+    into an ambiguous record: several lines each claiming to name the proposing
+    change say nothing about which one is current.
+    """
+
+    def rendered(self, root: Path, text: str, change: str = "change-b") -> str:
+        path = root / "doc.md"
+        path.write_text(text, encoding="utf-8")
+        return support.proposed_content(path, path, {}, root, change).decode("utf-8")
+
+    def test_a_first_lap_adds_the_authorship_line(self):
+        with TemporaryDirectory() as td:
+            out = self.rendered(Path(td), "# One\n\nStatus: staged\nKind: reference\n")
+        self.assertEqual(
+            out, "# One\n\nStatus: draft\nProposed by: change-b\nKind: reference\n")
+
+    def test_a_second_lap_updates_the_line_rather_than_adding_another(self):
+        """The shape a demoted document comes back in: the demote restores
+        `Status: staged` and correctly leaves the authorship line alone, so the
+        next transition sees both."""
+        with TemporaryDirectory() as td:
+            out = self.rendered(
+                Path(td),
+                "# One\n\nStatus: staged\nProposed by: change-a\nKind: reference\n")
+        self.assertEqual(
+            out, "# One\n\nStatus: draft\nProposed by: change-b\nKind: reference\n")
+        self.assertEqual(out.count("Proposed by:"), 1)
+
+    def test_a_third_lap_still_leaves_exactly_one_line(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            once = self.rendered(root, "# One\n\nStatus: staged\nKind: reference\n",
+                                 "change-a")
+            twice = self.rendered(root, once.replace("Status: draft", "Status: staged"),
+                                  "change-b")
+            thrice = self.rendered(root, twice.replace("Status: draft", "Status: staged"),
+                                   "change-c")
+        self.assertEqual(
+            [line for line in thrice.splitlines() if line.startswith("Proposed by:")],
+            ["Proposed by: change-c"])
+
+    def test_the_update_preserves_a_crlf_documents_line_endings(self):
+        """`.*$` would eat the `\\r` and leave the one rewritten line LF in a CRLF
+        file — the same corpus-integrity class the demote's move arm was fixed for.
+        Only the authorship value changes; every other byte after it survives."""
+        with TemporaryDirectory() as td:
+            out = self.rendered(
+                Path(td),
+                "# One\r\n\r\nStatus: staged\r\nProposed by: change-a\r\n"
+                "Kind: reference\r\n\r\nbody\r\n")
+        self.assertIn("Proposed by: change-b\r\n", out)
+        self.assertIn("Kind: reference\r\n\r\nbody\r\n", out)
+
+    def test_the_status_flip_still_happens_when_a_line_already_exists(self):
+        """The status flip itself is unchanged by this part — the update arm must
+        not become an arm that forgets to flip."""
+        with TemporaryDirectory() as td:
+            out = self.rendered(
+                Path(td), "# One\n\nStatus: staged\nProposed by: change-a\n")
+        self.assertIn("Status: draft", out)
+        self.assertNotIn("Status: staged", out)
+
+    def test_a_non_staged_document_is_left_alone(self):
+        """The gate only writes authorship on the staged->draft flip; a `record`
+        document carrying its own historical line is not rewritten."""
+        with TemporaryDirectory() as td:
+            out = self.rendered(
+                Path(td), "# One\n\nStatus: record\nProposed by: change-a\n")
+        self.assertIn("Proposed by: change-a", out)
+
+    def test_the_end_to_end_round_trip_shape_carries_one_line(self):
+        """Driven through `transition`, not just the renderer."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "openspec/changes/change-b").mkdir(parents=True)
+            topic = root / "ideation/staging/topic-a"
+            topic.mkdir(parents=True)
+            (topic / "one.md").write_text(
+                "# One\n\nStatus: staged\nProposed by: change-a\nKind: reference\n",
+                encoding="utf-8")
+            support.transition(root, "change-b", "ideation/staging/topic-a", [],
+                               None, "2026-08-19", False, True)
+            moved = (root / "openspec/changes/change-b/supporting-docs/one.md"
+                     ).read_text(encoding="utf-8")
+        self.assertEqual(
+            [line for line in moved.splitlines() if line.startswith("Proposed by:")],
+            ["Proposed by: change-b"])
+
+
 if __name__ == "__main__":
     unittest.main()

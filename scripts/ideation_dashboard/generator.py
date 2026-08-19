@@ -252,6 +252,37 @@ def _load_openspec_meta(folder: Path) -> dict:
     return data if isinstance(data, dict) else {}
 
 
+def _declared_origin_staging(folder: Path) -> str | None:
+    """The staging topic a change RECORDS as its own origin, or None.
+
+    Read from the change's `.openspec.yaml` `origin:` block — the artifact the
+    FORWARD transition writes (`proposal-support.write_origin_block`) at the
+    moment the topic becomes a change. That makes it the one origin statement
+    that survives the transition: a possibles-register pick edge points at the
+    staging FOLDER, and the forward transition removes that folder, so a
+    resolution reading only pick edges fails for exactly the changes that
+    actually reached proposal (measured: 12 of 12 active changes reported
+    `origin_staging_id: None`, and the corpus held ONE pick edge, carrying no
+    `change_id`).
+
+    Only `kind: staged` answers. An `ad_hoc` origin means the change did not come
+    from staging, so there is no topic to return to and the demote's refusal is
+    correct rather than something to paper over.
+
+    THE ID IS THE BASENAME OF `origin.path`, not `origin.id`. The declared id is
+    namespaced (`<repo>:staging:<topic>`) while this field is compared against
+    `staged_topics[].staging_id`, which is the bare topic. Deriving it from the
+    path keeps one spelling of the id's shape rather than teaching a second place
+    how to take a namespaced id apart."""
+    origin = _load_openspec_meta(folder).get("origin")
+    if not isinstance(origin, dict) or origin.get("kind") != "staged":
+        return None
+    path = origin.get("path")
+    if not isinstance(path, str):
+        return None
+    return path.strip().rstrip("/").rsplit("/", 1)[-1] or None
+
+
 def _ratifier_of(folder: Path) -> str | None:
     """The recorded ratifying authority for a change, read from a GOVERNED
     artifact — the change's OpenSpec metadata (`.openspec.yaml`, `ratified_by`/
@@ -438,14 +469,24 @@ def _change_entry(
     change_id: str, status: str, folder: Path, archive_date: str | None,
     repo_root: Path, change_origin_staging: dict[str, str],
 ) -> dict[str, Any]:
-    """One `changes[]` entry, including the folder/files drill-down listing."""
+    """One `changes[]` entry, including the folder/files drill-down listing.
+
+    `origin_staging_id` follows a DECLARED PRECEDENCE ORDER rather than one
+    source: the change's own recorded staged origin first, then the
+    possibles-register pick edge. The order is stated as an order rather than a
+    replacement so a pick edge keeps working wherever one still exists; the
+    recorded origin leads because it is the source the forward transition writes
+    and does not destroy. (An explicitly supplied topic outranks both, and is
+    applied by `gate_console.plan_demotion`, which is where a human's argument
+    arrives.)"""
     code_surface, target_release = _release_frontmatter(folder)
     change: dict[str, Any] = {
         "id": change_id,
         "status": status,
         "code_surface": code_surface,
         "target_release": target_release,
-        "origin_staging_id": change_origin_staging.get(change_id),
+        "origin_staging_id": (_declared_origin_staging(folder)
+                              or change_origin_staging.get(change_id)),
     }
     ratification = _ratification(folder, archive_date, status)
     if ratification:

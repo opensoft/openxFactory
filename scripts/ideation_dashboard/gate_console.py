@@ -554,6 +554,14 @@ class DemotionPlan:
     # plan was derived from because `execute_demotion_plan` never sees one. It fills
     # the `Status at demote` provenance slot.
     status_at_demote: str = ""
+    # The change's task progress at the same moment, carried the same way and for
+    # the same reason (the executor never sees a snapshot). The status alone is a
+    # CONSTANT — `plan_demotion` refuses any change that is not active, so a
+    # status-only slot cannot tell one demote from another — and the progress is
+    # the informative fact the snapshot already holds beside it. `None` where the
+    # change records no tasks, which the slot renders as the status alone rather
+    # than as a fabricated count.
+    task_progress: dict[str, int] | None = None
 
 
 def classify_change_file(rel_within_change: str) -> tuple[str, str, str | None]:
@@ -597,11 +605,18 @@ def plan_demotion(
         raise GateRefused(
             f"change {change_id!r} is {change.get('status')!r}; only an active "
             "proposal is demoted back to staging")
+    # THE PRECEDENCE ORDER, and its first rung is here because this is where a
+    # human's argument arrives: an explicitly supplied topic ALWAYS wins, because
+    # naming the destination is the most direct statement of intent available. The
+    # remaining two rungs — the change's own recorded staged origin, then a
+    # possibles pick edge — are resolved into `origin_staging_id` by the generator,
+    # which is the only side that reads the tree.
     topic = staging_topic or change.get("origin_staging_id")
     if not topic:
         raise GateRefused(
             f"change {change_id!r} has no recorded origin staging topic; pass "
-            "staging_topic explicitly to target the reverse transition")
+            "staging_topic (`--staging-topic` on the CLI) explicitly to target "
+            "the reverse transition")
 
     folder = change.get("folder") or f"openspec/changes/{change_id}"
     topic_path = f"ideation/staging/{topic}"
@@ -637,11 +652,43 @@ def plan_demotion(
         if isinstance(p, dict) and (p.get("pick") or {}).get("change_id") == change_id and p.get("id")
     ))
 
+    # Snapshot-derived, like the status beside it. The generator emits the key
+    # only when the change records tasks, so an absent key is "no tasks", not
+    # "lookup failed" — a distinction the slot's rendering depends on.
+    raw_progress = change.get("task_progress")
+    progress = dict(raw_progress) if isinstance(raw_progress, dict) else None
+
     return DemotionPlan(
         change_id=change_id, staging_topic=topic, change_folder=folder,
         topic_path=topic_path, openspec_workspace=openspec_ws, reason=reason.strip(),
         moves=tuple(moves), withdrawn_picks=withdrawn,
-        status_at_demote=str(change.get("status") or ""))
+        status_at_demote=str(change.get("status") or ""),
+        task_progress=progress)
+
+
+def state_at_demote(status: str, progress: dict[str, int] | None) -> str:
+    """PURE: the `Status at demote` provenance slot's value — the change's state
+    at the moment it was demoted, as the prose a human reads in the fragment.
+
+    `active — 9 of 22 tasks done`. PROSE, not a code: the slot sits in a markdown
+    document beside four other slots that are all plain prose, and a reader of
+    that document is the audience.
+
+    NO PROGRESS RENDERS THE STATUS ALONE, never `active — unavailable`. The
+    ratified unavailable rule is about a value that could not be RESOLVED; a
+    change that records no tasks has no progress to resolve, so writing
+    `unavailable` there would report a lookup failure that did not happen. An
+    empty status still yields "", which the caller turns into the real
+    UNAVAILABLE marker — that one IS a resolution failure."""
+    base = str(status or "").strip()
+    if not base or not isinstance(progress, dict):
+        return base
+    completed, total = progress.get("completed"), progress.get("total")
+    if not isinstance(completed, int) or not isinstance(total, int):
+        return base
+    if isinstance(completed, bool) or isinstance(total, bool) or total <= 0:
+        return base
+    return f"{base} — {completed} of {total} tasks done"
 
 
 def transition_manifest(plan: DemotionPlan, *, actor: str, at: str,
@@ -982,7 +1029,9 @@ def _restore_outline(
     provenance = {
         "Change ID": plan.change_id,
         "Raised": raised,
-        "Status at demote": plan.status_at_demote or round_trip.UNAVAILABLE,
+        "Status at demote": (state_at_demote(plan.status_at_demote,
+                                             plan.task_progress)
+                             or round_trip.UNAVAILABLE),
         "Demoted": at[:10],
         "Demote reason": plan.reason,
     }
@@ -1149,8 +1198,18 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
     index = root / plan.openspec_workspace / "INDEX.md"
     index.parent.mkdir(parents=True, exist_ok=True)
     ws_files = [m.to_path for m in plan.moves if m.to_path.startswith(plan.openspec_workspace + "/")]
+    # THE STATUS HEADER IS A ROUND-TRIP OBLIGATION, not a formatting preference.
+    # This INDEX is a governed markdown document the reverse transition writes
+    # into a governed folder, and the FORWARD transition refuses any governed
+    # markdown without a `Status:` header — so an unheadered INDEX made the cycle
+    # one-way for the topic it was applied to (`SupportError: governed Markdown
+    # lacks Status header` on the next whole-folder transition of that topic).
+    # `draft` is the status: the INDEX describes the returned DRAFT proposals and
+    # shares their state, and the next demote regenerates it, so it is not the
+    # immutable evidence `record` would claim (design Decision 2).
     index.write_text(
         f"# openspec/ draft workspace — {plan.staging_topic}\n\n"
+        f"Status: {DRAFT_STATUS}\n\n"
         f"Draft proposals returned from demoted change {plan.change_id} "
         f"({at[:10]}). These continue as draft ideas per the draft-proposal "
         f"convention:\n\n" + ("\n".join(f"- {p}" for p in ws_files) or "- (none)") + "\n",

@@ -288,13 +288,39 @@ def proposed_content(path: Path, target: Path, mapping: dict[Path, Path],
     if status is None:
         raise SupportError(f"governed Markdown lacks Status header: {path}")
     if status.group(1) == "staged":
-        text = re.sub(
-            r"^Status:\s*staged\s*$",
-            f"Status: draft\nProposed by: {change}",
-            text,
-            count=1,
-            flags=re.M,
-        )
+        # ONE authorship record per document, not one per attempt. A document may
+        # legitimately reach proposal, be demoted, be worked, and reach proposal
+        # again — the round-trip guarantee exists so that lap is normal — and
+        # appending a fresh `Proposed by:` line each time turned a normal lap into
+        # an ambiguous record: several lines each claiming to name the proposing
+        # change say nothing about which one is current.
+        #
+        # THE OBLIGATION SITS HERE, on the gate that WRITES the line, and
+        # deliberately not on the reverse transition's refresh. That refresh is
+        # ratified as bounded to the round-trip provenance slots and the marked
+        # proposal-element sections, "leaving every other byte of that file
+        # unchanged"; deduping a header there would trade a data-loss guarantee
+        # for tidiness.
+        #
+        # The STATUS FLIP itself is unchanged in either arm. `[^\r\n]*` rather
+        # than `.*$` on the authorship line so a CRLF document keeps its `\r`:
+        # `.` matches `\r`, so `.*$` would eat the carriage return and leave the
+        # one rewritten line LF in a CRLF file.
+        existing_authorship = re.search(r"^Proposed by:", text, re.M)
+        if existing_authorship:
+            text = re.sub(r"^Status:\s*staged\s*$", "Status: draft", text,
+                          count=1, flags=re.M)
+            text = re.sub(r"^Proposed by:[^\r\n]*",
+                          lambda _m: f"Proposed by: {change}", text,
+                          count=1, flags=re.M)
+        else:
+            text = re.sub(
+                r"^Status:\s*staged\s*$",
+                lambda _m: f"Status: draft\nProposed by: {change}",
+                text,
+                count=1,
+                flags=re.M,
+            )
     elif status.group(1) not in (
             {"draft", "record", "superseded", "retired"}
             if historical else {"draft", "record"}):
