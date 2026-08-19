@@ -66,6 +66,17 @@ name one of the buffers the same request supplies); read `observed_hashes` and a
 proposal's `target` as buffer keys; and read the answering model from `model_id`
 with the chosen entry from `selected_model`.
 
+**What the deprecation does to your tooling.** The family's delegated validator
+(`scripts/validate-ideation-dashboard-contracts.py`) reads the schema's own
+`deprecated_envelopes` block and now emits ONE WARNING per validated v1 instance,
+naming the superseding kind and the removal target — that warning is what the
+deprecating change class requires, and the instance is still ACCEPTED, so the
+default invocation still exits 0. The consequence to plan for: under the opt-in
+`--strict` flag ("treat warnings as errors") a v1 instance now exits 1. That is
+strict mode working as documented, and it is the intended way to find the shapes
+that will not survive `contract-v2.0`; it is no longer the right command for
+gating a corpus that legitimately still holds v1 instances.
+
 ## contract-v1.33 — 2026-08-15 (additive; the client-identity roster, and the credential-contracts registration gap closed)
 
 Realizes `add-client-identity-roster` through Speckit feature

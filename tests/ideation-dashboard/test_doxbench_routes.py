@@ -3100,7 +3100,8 @@ def test_a_widened_turn_whose_binding_names_no_supplied_buffer_is_refused(
         tmp_path, _turn_v2(bound_buffer="ideation/staging/ideation-governance/"
                                         "never-supplied.md"))
     _assert_v2_refusal(status, payload, "turn_scope_refused")
-    assert "dispatch" not in fake.calls
+    # Scope revalidation is step 5: no port member is consulted at all.
+    assert fake.calls == []
     _assert_no_sentinels(payload)
 
 
@@ -3246,7 +3247,9 @@ def test_a_v1_turn_whose_document_path_claims_a_reserved_key_is_refused(
         "the connection must carry an envelope, never drop: an IndexError here "
         "stranded the turn-store lease and told the browser nothing")
     _assert_refusal(status, payload, "invalid_turn_request")
-    assert "dispatch" not in fake.calls
+    # The buffer-set requirement is step 6; the model port is step 7. A malformed
+    # request must reach neither.
+    assert fake.calls == []
     _assert_no_sentinels(payload)
 
 
@@ -3263,10 +3266,10 @@ def test_a_v2_turn_whose_document_path_claims_a_reserved_key_is_refused(
         snapshot=_snapshot_with_editable(*_RESERVED_SNAPSHOT_PATHS))
     assert payload is not None
     _assert_v2_refusal(status, payload, "invalid_turn_request")
-    # BEFORE the provider: on this lane the buffer used to survive to dispatch
-    # and come back as `response_invalid`, which named the model for a defect in
-    # the request.
-    assert "dispatch" not in fake.calls
+    # BEFORE the provider, and before the CATALOG: on this lane the buffer used
+    # to survive to dispatch and come back as `response_invalid`, which named the
+    # model for a defect in the request.
+    assert fake.calls == []
     _assert_no_sentinels(payload)
 
 
@@ -3345,7 +3348,11 @@ def test_a_widened_turn_verifies_every_documents_identity_not_just_the_first(
     status, payload, fake = _post_turn(
         tmp_path, body, snapshot=_snapshot_with_editable(DOC_ALPHA, DOC_ZULU))
     _assert_v2_refusal(status, payload, "content_identity_mismatch")
-    assert "dispatch" not in fake.calls
+    # NO PORT TOUCH AT ALL, not merely no dispatch: exact identity is step 6 and
+    # the model step is 7, so a loop that verified only the first document and
+    # went on to consult the catalog would satisfy "no dispatch" while breaking
+    # the gate order this test is named for.
+    assert fake.calls == []
     _assert_no_sentinels(payload)
 
 
@@ -3373,7 +3380,10 @@ def test_the_request_byte_bound_counts_every_loaded_document(tmp_path):
     assert payload["limit"]["maximum"] == 20_000
     assert payload["limit"]["measured"] >= 24_000, (
         "both documents must be counted, not the first")
-    assert "dispatch" not in fake.calls
+    # This bound is the SELECTED ENTRY's, so the catalog is legitimately consulted
+    # before it can be applied — the one pre-dispatch refusal in this section that
+    # is NOT `fake.calls == []`, stated so nobody tightens it into a false pin.
+    assert fake.calls == ["catalog"]
 
 
 # ---------------------------------------------------------------------------

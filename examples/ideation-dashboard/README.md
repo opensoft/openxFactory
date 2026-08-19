@@ -267,6 +267,15 @@ behavior, task 3.8), so there is deliberately no negative for it.
 
 ```bash
 # Self-test all fixtures + scan the checkout for real instances / committed manifests:
+python3 scripts/validate-ideation-dashboard-contracts.py
+
+# …and the same sweep with warnings treated as errors. NOT the self-test command
+# since contract-v1.34: the four packaged v1 chat-turn fixtures are instances of
+# a DEPRECATED envelope family, so the validator warns on each one (by design —
+# that warning is what the deprecating change class requires) and `--strict`
+# therefore exits 1 on them, and will keep doing so until the removal target
+# contract-v2.0 retires the fixtures with the family. Use it to FIND deprecated
+# and otherwise-warned shapes, not to gate this directory:
 python3 scripts/validate-ideation-dashboard-contracts.py --strict
 
 # One file (kind auto-detected):
