@@ -1247,19 +1247,36 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         The bytes come from the SERVED CHECKOUT, which is what "the tile's
         staged set" means here: the corpus at the revision this tile projects.
         A session's own edits ride the turn as BUFFERS, verbatim and
-        identity-verified, so nothing is read twice from two places."""
+        identity-verified, so nothing is read twice from two places.
+
+        THE BOUND IS ON WHAT IS INDEXED, NOT ON WHAT IS ATTEMPTED (Codex review
+        of PR #216, CODEX-C). Slicing `context_paths` before filtering let an
+        unreadable entry consume index capacity, so a tile whose first entries
+        were missing indexed FEWER than the bound and never even considered
+        readable documents behind them — and the coverage sentence then blamed
+        "the declared index bound" for omissions the bound had nothing to do
+        with. Reproduced at a bound of 2 over three paths: one indexed.
+
+        Returns the sources plus the refs that were UNREADABLE, so the packet
+        can tell the two omission classes apart instead of merging them.
+        """
 
         sources = []
-        for ref in projection.context_paths[:self.MAX_INDEXED_SOURCES]:
+        unreadable = []
+        for ref in projection.context_paths:
+            if len(sources) >= self.MAX_INDEXED_SOURCES:
+                break
             resolved = registry_mod.resolve_within(self.checkout_root, ref)
             if resolved is None:
+                unreadable.append(ref)
                 continue
             try:
                 text = resolved.read_text(encoding="utf-8")
             except (OSError, UnicodeDecodeError):
+                unreadable.append(ref)
                 continue
             sources.append(doxbench_knowledge.IndexedSource(ref=ref, text=text))
-        return tuple(sources)
+        return tuple(sources), tuple(unreadable)
 
     def _knowledge_service_and_coverage(self, projection):
         """The tool boundary over this install's DECLARED retrieval backend,
@@ -1293,11 +1310,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         try:
             backend = doxbench_knowledge.build_backend(declaration)
             boundary = doxbench_knowledge.KnowledgeToolBoundary(backend)
-            sources = self._indexed_sources(projection)
+            # ONLY CONFINED SOURCES ARE EVER INDEXED: `_indexed_sources` reads
+            # `projection.context_paths`, which IS the tile's staged set and is
+            # exactly what `confined_refs` computes the admissible set from, so
+            # the index is a SUBSET of the confinement by construction rather
+            # than by filtering afterwards (Codex review of PR #216, CODEX-A).
+            sources, unreadable = self._indexed_sources(projection)
             boundary.reindex(sources)
         except Exception:  # noqa: BLE001 - absence is a capability verdict
             return None, None
-        return boundary, (len(sources), len(projection.context_paths))
+        return boundary, doxbench_packet.CorpusCoverage(
+            indexed=len(sources), unreadable=len(unreadable),
+            total=len(projection.context_paths))
 
     def _doxbench_validators(self):
         """The RELEASED per-kind schema validators for this request, or None.
@@ -2172,6 +2196,19 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     query=message,
                     knowledge=knowledge,
                     corpus_coverage=coverage,
+                    # THE PACKET'S BOUND COMPOSES WITH THE MODEL'S OWN INPUT
+                    # LIMIT (Codex review of PR #216, CODEX-B). The request
+                    # bytes were measured and accepted against
+                    # `effective_input_limit` above, but the packet is appended
+                    # AFTER that check, so a turn could be accepted and then
+                    # dispatch a prompt past the model's declared capacity —
+                    # failing at the provider instead of at a measured bound.
+                    # The packet is FITTED to what the request left, rather
+                    # than refused afterwards: refusing here would resurrect
+                    # exactly the un-actionable-refusal class the fit removed.
+                    max_packet_bytes=doxbench_packet.packet_budget_for(
+                        input_limit_bytes=effective_input_limit,
+                        request_bytes=request_total_bytes),
                     already_carried=(
                         () if projection.outline_path is None
                         else (projection.outline_path,)),

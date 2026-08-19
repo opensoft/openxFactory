@@ -105,6 +105,39 @@ def test_the_route_reads_the_declaration_and_never_selects_a_backend(tmp_path):
         assert forbidden not in serve_source, forbidden
 
 
+def test_the_index_is_built_only_from_CONFINED_sources(tmp_path):
+    """Codex review of PR #216, CODEX-A. The reindex that precedes the search
+    is itself governed: `_indexed_sources` reads `projection.context_paths`,
+    which IS the tile's staged set and is exactly what `confined_refs` computes
+    the admissible set from — so the index is a SUBSET of the confinement by
+    construction, not by filtering its answers afterwards.
+
+    Asserted rather than argued, because "the provider is handed the rail"
+    only means anything if what it was given to search was confined too."""
+    from test_doxbench_routes import _handler_class, _serving
+
+    with _serving(tmp_path,
+                  knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED
+                  ) as (httpd, _host, _port):
+        handler = _handler_class(httpd)
+        from ideation_dashboard.doxbench_scope import ScopeKey, resolve_scope
+        from ideation_dashboard.generator import generate_snapshot
+        from conftest import BASE_REPO, PINNED_REVISION, FakeGit
+
+        snapshot = generate_snapshot(BASE_REPO, "fixture-repo",
+                                     source_revision=PINNED_REVISION,
+                                     git=FakeGit())
+        key = ScopeKey(repository="fixture-repo", ref="main",
+                       tile_kind="staged", tile_id="ideation-governance")
+        projection = resolve_scope(snapshot, key, source_root=BASE_REPO)
+        sources, _unreadable = handler._indexed_sources(handler, projection)
+
+    indexed = {source.ref for source in sources}
+    confined = pk.confined_refs(projection)
+    assert indexed, "nothing was indexed; this proves nothing"
+    assert indexed <= confined
+
+
 def test_a_server_built_with_no_kwarg_binds_the_REAL_packet_assembler(tmp_path):
     """RE-VERIFY NF6. The `packet_assembler` seam carries the governance rails
     — the confinement, the lifecycle-status exemption and the bounds fit all
@@ -350,6 +383,10 @@ def _fat_checkout(tmp_path):
     enough to blow the packet bound on their own — the review's own repro,
     which a real corpus reproduces with documents it already holds."""
     root = tmp_path / "fat-checkout"
+    if root.exists():
+        # IDEMPOTENT: a caller that needs the same fat checkout for several
+        # ceilings must not have to remember that building it twice explodes.
+        return root
     shutil.copytree(BASE_REPO, root)
     for ref in TILE_EVIDENCE:
         path = root / ref
@@ -464,8 +501,67 @@ def test_the_coverage_SHORTFALL_is_stated_on_a_real_route(tmp_path):
     assert status == 200
     declaration = _declaration(fake)
     assert "the index covered 1 of 3 documents" in declaration
-    assert "the remaining 2 were beyond the declared index bound" in declaration
+    assert "2 were beyond the declared index bound" in declaration
     assert "not one retrieval call away either" in declaration
+
+
+class _MissingFirst:
+    """A projection whose FIRST staged-set entry does not exist on disk."""
+    context_paths = ("ideation/staging/does-not-exist/GONE.md",) + TILE_EVIDENCE
+    source_revision = "r" * 40
+
+
+def test_an_unreadable_entry_does_not_consume_index_capacity(tmp_path):
+    """Codex review of PR #216, CODEX-C, reproduced then fixed. Slicing
+    `context_paths` before filtering let a missing file eat a slot, so a bound
+    of 2 over three paths indexed ONE and never considered the readable
+    document behind it — and the coverage line then blamed the index bound for
+    an omission the bound had nothing to do with."""
+    from test_doxbench_routes import _handler_class, _serving
+
+    with _serving(tmp_path,
+                  knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED
+                  ) as (httpd, _host, _port):
+        handler = _handler_class(httpd)
+        handler.MAX_INDEXED_SOURCES = 2
+        sources, unreadable = handler._indexed_sources(handler, _MissingFirst())
+
+    # the bound is on what is INDEXED: both readable documents made it in
+    assert [source.ref for source in sources] == list(TILE_EVIDENCE)
+    assert unreadable == ("ideation/staging/does-not-exist/GONE.md",)
+
+
+def test_the_route_states_unreadable_and_beyond_bound_apart(tmp_path):
+    """The same fix, seen where a human reads it: the packet's own
+    declaration."""
+    from test_doxbench_routes import (
+        _capabilities, _console_headers, _handler_class, _request, _serving,
+        CHAT_ROUTE,
+    )
+
+    fake = _port()
+    with _serving(tmp_path, model_port_factory=(lambda: fake),
+                  knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED
+                  ) as (httpd, host, port):
+        handler = _handler_class(httpd)
+        handler.MAX_INDEXED_SOURCES = 1
+        original = handler._indexed_sources
+
+        def _with_an_unreadable(self, projection):
+            sources, _unreadable = original(self, projection)
+            return sources, ("ideation/staging/topic/UNREADABLE.md",)
+
+        handler._indexed_sources = _with_an_unreadable
+        caps = _capabilities(host, port)
+        status, _payload, _headers, _raw = _request(
+            host, port, "POST", CHAT_ROUTE,
+            body=_turn(message="doc health checks"),
+            headers=_console_headers(caps))
+
+    assert status == 200
+    declaration = _declaration(fake)
+    assert "could not be read at this revision" in declaration
+    assert "beyond the declared index bound" in declaration
 
 
 def test_the_evidence_revision_is_stated_on_a_real_route(tmp_path):
@@ -477,6 +573,116 @@ def test_the_evidence_revision_is_stated_on_a_real_route(tmp_path):
     declaration = _declaration(port)
     assert "evidence bytes are the served checkout at revision" in declaration
     assert "NOT this session's worktree" in declaration
+
+
+# ===========================================================================
+# THE PACKET COMPOSES WITH THE MODEL'S INPUT LIMIT (Codex review, CODEX-B)
+# ===========================================================================
+
+
+def _prompt_bytes(port) -> int:
+    from ideation_dashboard.doxbench_hash import utf8_size
+
+    return sum(utf8_size(section.text)
+               for section in port.dispatched[0].sections)
+
+
+def test_the_packet_is_FITTED_to_what_the_request_left_of_the_input_limit(
+        tmp_path):
+    """The request bytes are measured against the catalog's effective input
+    limit BEFORE the packet exists, and the packet's sections are appended
+    after — so without this composition an accepted turn could dispatch a
+    prompt past the model's declared capacity and fail at the provider instead
+    of at a measured bound.
+
+    Fitted rather than refused, for the reason the bounds rework recorded:
+    a refusal here would resurrect the un-actionable-refusal class."""
+    narrow = _port(_catalog(input_limit_bytes=40_000))
+    status, _payload, port = _post_turn(
+        tmp_path, _turn(message="doc health checks dtn register"),
+        port=narrow, knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED,
+        checkout_root=_fat_checkout(tmp_path))
+    assert status == 200
+    assert _prompt_bytes(port) <= 40_000
+    # it fitted by SELECTING less, and said so
+    assert "selected out to fit this packet's bound" in _declaration(port)
+
+
+def test_a_generous_ceiling_still_carries_evidence(tmp_path):
+    """The composition must not starve a turn that has room: the same tile at
+    the default ceiling still carries its evidence."""
+    status, _payload, port = _post_turn(
+        tmp_path, _turn(message="doc health checks dtn register"),
+        knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED)
+    assert status == 200
+    sections = _packet_sections(port)
+    assert [key for key in sections
+            if key.startswith(pk.EVIDENCE_SECTION_PREFIX)]
+
+
+def test_the_scaffold_reserve_is_MEASURED_adequate_not_asserted(tmp_path):
+    """`PROMPT_SCAFFOLD_RESERVE_BYTES` is a declared allowance for what the
+    prompt spends outside the packet and outside the measured request. Its
+    adequacy is checked against a REAL rendered prompt rather than argued."""
+    for ceiling in (40_000, 60_000, 200_000):
+        narrow = _port(_catalog(input_limit_bytes=ceiling))
+        status, _payload, port = _post_turn(
+            tmp_path, _turn(message="doc health checks dtn register"),
+            port=narrow, knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED,
+            checkout_root=_fat_checkout(tmp_path))
+        assert status == 200, ceiling
+        assert _prompt_bytes(port) <= ceiling, ceiling
+
+
+def test_a_budget_of_zero_carries_no_evidence_rather_than_refusing(tmp_path):
+    """A turn with no room left for evidence is still a turn: the fit carries
+    none, names what it dropped, and the editor keeps working."""
+    assert pk.packet_budget_for(input_limit_bytes=1_000,
+                                request_bytes=900) == 0
+    status, _payload, port = _post_turn(
+        tmp_path, _turn(message="doc health checks dtn register"),
+        knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED,
+        packet_assembler=lambda **kw: pk.assemble_packet(
+            **{**kw, "max_packet_bytes": 0}))
+    assert status == 200
+    sections = _packet_sections(port)
+    assert not [key for key in sections
+                if key.startswith(pk.EVIDENCE_SECTION_PREFIX)]
+
+
+def test_non_evidence_over_the_remaining_budget_refuses_via_the_409_arm(
+        tmp_path):
+    """The genuinely-unfittable arm: what the packet must carry and nothing
+    selected — the session's own threads — over the REMAINING budget refuses
+    with the measured dimension, not with a provider failure."""
+    def _threads_over_budget(**kwargs):
+        return pk.assemble_packet(**{**kwargs, "max_packet_bytes": 10,
+                                     "knowledge": None})
+
+    from ideation_dashboard import doxbench_threads as dt
+
+    def _with_a_big_thread(**kwargs):
+        scope = kwargs["scope"]
+        thread = dt.DocumentThread(
+            document="ideation/staging/ideation-governance/README.md",
+            scope=dt.ThreadScope(repository=scope.repository,
+                                 tile_kind=scope.tile_kind,
+                                 tile_id=scope.tile_id),
+            state=dt.ThreadState(active_goal="g" * 500))
+        return pk.assemble_packet(**{
+            **kwargs, "max_packet_bytes": 10, "knowledge": None,
+            "selected_key": "ideation/staging/ideation-governance/README.md",
+            "threads": {"ideation/staging/ideation-governance/README.md": thread},
+        })
+
+    status, payload, port = _post_turn(tmp_path, _turn(),
+                                       packet_assembler=_with_a_big_thread)
+    assert status == 409
+    assert payload["error"] == (
+        serve_mod.DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED)
+    assert payload["limit"]["dimension"] == "context_packet_bytes"
+    assert payload["limit"]["maximum"] == 10
+    assert port.calls.count("dispatch") == 0
 
 
 # ===========================================================================

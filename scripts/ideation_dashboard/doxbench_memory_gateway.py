@@ -495,9 +495,15 @@ DOXBENCH_DISPOSITIONS: tuple[RequirementDisposition, ...] = (
        "this repository's own staged set, read in-process, and delivered only "
        "as a bounded packet"),
     _D("Rails Run Before Provider I/O", REALIZED,
-       "the confinement/selection rail and the lifecycle-status exemption rail "
-       "both run before any retrieval provider or model provider is reached, "
-       "and a refusal at either discloses no packet content"),
+       "stated PRECISELY, because design §3.1's own step 2 both contains the "
+       "evidence search AND is described as preceding every provider: the rail "
+       "that GOVERNS the retrieval provider is the CONFINEMENT, and it is "
+       "computed first and handed to that provider rather than applied to its "
+       "answers afterwards; selection, the lifecycle-status exemption and the "
+       "bounds fit all complete before the MODEL provider is reached; and the "
+       "index the retrieval provider searches is built only from the tile's "
+       "own staged set, so it is a subset of the confinement by construction. "
+       "A refusal at any of them discloses no packet content"),
     _D("Provider Access Uses Bindings And Short-Lived Grants", INAPPLICABLE,
        "v1's provider is an in-process local index with no credential and no "
        "endpoint, so there is no binding to resolve and no grant to scope; an "

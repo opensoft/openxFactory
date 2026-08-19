@@ -350,6 +350,23 @@ def test_the_three_signals_each_do_work():
     assert thread[0].lexical == 0 and thread[0].vector == 0
 
 
+@pytest.mark.parametrize("token,expected", [
+    ("ab", ["ab"]),                              # shorter than one n-gram
+    ("the", ["the", "#the"]),                    # EXACTLY one n-gram
+    ("abcd", ["abcd", "#abc", "#bcd"]),          # two
+])
+def test_every_character_ngram_inside_a_token_is_emitted(token, expected):
+    """Copilot review of PR #216. `len(token) > CHARACTER_NGRAM` skipped the
+    single n-gram of a token exactly that long, so every three-letter token
+    contributed NO n-gram feature while four-letter tokens contributed two —
+    contradicting `_features`' own docstring, and weakening the vector leg
+    precisely for the short tokens the lexical leg generalizes over worst.
+
+    Pinned on the feature ENUMERATION rather than on a score, so it states the
+    rule directly and cannot drift with the hash."""
+    assert list(kn._features((token,))) == expected
+
+
 def test_the_fused_weights_are_declared_and_sum_to_one():
     assert (kn.WEIGHT_LEXICAL + kn.WEIGHT_VECTOR
             + kn.WEIGHT_THREAD) == pytest.approx(1.0)

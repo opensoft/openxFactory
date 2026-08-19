@@ -10,6 +10,18 @@ The pipeline this module owns, in the order design §3.1 fixes:
      tile's own staged set plus the promoted findings, and nothing else. This
      runs before any retrieval provider is reached, and the provider is handed
      the set rather than trusted to respect one.
+
+     WHY THAT IS THE COHERENT READING, recorded because design §3.1 does not
+     read cleanly on its own: step 2's own box CONTAINS "evidence: knowledge
+     service search", and the prose beneath it says steps 2–3 run "before any
+     retrieval provider or model provider is reached". Those cannot both be
+     literally true, so this module takes the reading that preserves what the
+     rails are FOR — the rail that governs the retrieval provider (the
+     confinement) precedes and constrains it, and selection, the exemption and
+     the bounds fit all precede the MODEL provider. Reordering so that no
+     provider is touched until after selection would mean selecting evidence
+     before knowing what evidence exists, which is not a stricter reading of
+     the requirement but an incoherent one.
   2. **SELECTION** (compression layer one, LOSSLESS BY REFERENCE) — the
      selected document's thread in full, the OTHER loaded documents' thread
      STATE HEADERS only, and the evidence the confined retrieval selected. What
@@ -302,6 +314,40 @@ POSTURE_REDUCED = "reduced"
 # yet" and invites someone to fill it in.
 PROVIDER_NONE = "no-retrieval-provider"
 
+
+@dataclasses.dataclass(frozen=True, slots=True)
+class CorpusCoverage:
+    """How much of the tile's confined staged set the derived index actually
+    covered, and WHY the rest is missing.
+
+    The two omission classes are kept apart (Codex review of PR #216, CODEX-C)
+    because they mean different things to a reader: an UNREADABLE document is
+    absent at this revision and will stay absent until it is fixed, while a
+    BEYOND-BOUND one exists and would be retrievable under a larger bound.
+    Merging them let the declaration blame the index bound for omissions the
+    bound had nothing to do with."""
+
+    indexed: int
+    unreadable: int
+    total: int
+
+    def __post_init__(self) -> None:
+        for field in ("indexed", "unreadable", "total"):
+            value = getattr(self, field)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise PacketError(f"coverage.{field} is a non-negative count")
+        if self.indexed + self.unreadable > self.total:
+            raise PacketError(
+                "coverage accounts for more documents than the tile holds")
+
+    @property
+    def beyond_bound(self) -> int:
+        return self.total - self.indexed - self.unreadable
+
+    @property
+    def complete(self) -> bool:
+        return self.indexed == self.total
+
 REDUCED_NO_KNOWLEDGE_SERVICE = (
     "the staged-set knowledge service is unavailable, so this packet carries "
     "the selected thread and the loaded buffers only, with NO corpus evidence; "
@@ -327,6 +373,33 @@ PACKET_TTL_SECONDS = 300.0
 # against the model entry's effective input limit.
 MAX_PACKET_BYTES = 256_000
 MAX_PACKET_SOURCES = 48
+
+# What the assembled prompt spends OUTSIDE the packet and outside the request
+# bytes the route has already measured: the fixed system-contract and
+# response-instruction constants, the model-data-handling and scope-metadata
+# sections, every section's label and separators, and the packet's own
+# declaration at its maximum source count.
+#
+# It exists because the packet's bound must compose with the MODEL's declared
+# input limit (Codex review of PR #216, CODEX-B): the route knows what the
+# request already spends, and the packet has to fit in what is left MINUS this
+# scaffolding. Deliberately generous, and its adequacy is MEASURED rather than
+# asserted — a companion test renders a real turn at a narrowed catalog ceiling
+# and checks the assembled prompt against that ceiling.
+PROMPT_SCAFFOLD_RESERVE_BYTES = 16_384
+
+
+def packet_budget_for(*, input_limit_bytes: int, request_bytes: int) -> int:
+    """The bytes a packet may spend on a turn whose request already spends
+    ``request_bytes`` against a model declaring ``input_limit_bytes``.
+
+    Never more than the packet's own bound, never negative. A budget of zero is
+    a legal answer and NOT an error: it means this turn has no room for
+    evidence, so the fit carries none and says which refs it dropped — which is
+    a better turn than one refused for a limit the caller cannot see."""
+
+    remaining = int(input_limit_bytes) - int(request_bytes) - PROMPT_SCAFFOLD_RESERVE_BYTES
+    return max(0, min(MAX_PACKET_BYTES, remaining))
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -371,11 +444,11 @@ class ContextPacket:
     # rather than counted, because "lossless by reference" is only true if the
     # packet says which references it is standing on (task 10.3/F2).
     dropped_evidence: tuple[str, ...] = ()
-    # (indexed, confined) — how much of this tile's staged set the retrieval
-    # index actually covered. A shortfall means refs that ARE confined were not
+    # How much of this tile's staged set the derived index covered, and why
+    # the rest is missing. A shortfall means refs that ARE confined were not
     # retrievable this turn, which the declaration must state rather than let a
     # reader infer full coverage from silence (F6).
-    corpus_coverage: tuple[int, int] | None = None
+    corpus_coverage: "CorpusCoverage | None" = None
     # The revision the evidence BYTES were read at. Evidence comes from the
     # served checkout at the projection's own revision — never from the
     # session worktree — so a packet that carries evidence has to say which
@@ -580,6 +653,9 @@ def exemption_rail(
 
 def bounds_rail(
     sources: Sequence[PacketSource],
+    *,
+    max_bytes: int = MAX_PACKET_BYTES,
+    max_sources: int = MAX_PACKET_SOURCES,
 ) -> tuple[tuple[PacketSource, ...], tuple[str, ...]]:
     """Make the packet FIT its bound by SELECTING less, and refuse only when
     selecting less cannot help.
@@ -625,19 +701,21 @@ def bounds_rail(
     were dropped, in rank order."""
 
     rows = tuple(sources)
+    max_bytes = max(0, int(max_bytes))
+    max_sources = max(0, int(max_sources))
     fixed = [row for row in rows if row.kind != SOURCE_EVIDENCE]
     fixed_bytes = sum(row.byte_count for row in fixed)
-    if len(fixed) > MAX_PACKET_SOURCES:
+    if len(fixed) > max_sources:
         raise PacketBoundExceeded("context_packet_sources", len(fixed),
-                                  MAX_PACKET_SOURCES)
-    if fixed_bytes > MAX_PACKET_BYTES:
+                                  max_sources)
+    if fixed_bytes > max_bytes:
         raise PacketBoundExceeded("context_packet_bytes", fixed_bytes,
-                                  MAX_PACKET_BYTES)
+                                  max_bytes)
 
     kept: set[int] = set()
     dropped: list[str] = []
-    remaining_bytes = MAX_PACKET_BYTES - fixed_bytes
-    remaining_slots = MAX_PACKET_SOURCES - len(fixed)
+    remaining_bytes = max_bytes - fixed_bytes
+    remaining_slots = max_sources - len(fixed)
     for index, row in enumerate(rows):
         if row.kind != SOURCE_EVIDENCE:
             continue
@@ -670,7 +748,8 @@ def assemble_packet(
     promoted_findings: Sequence[str] = (),
     evidence_limit: int = 6,
     already_carried: Sequence[str] = (),
-    corpus_coverage: tuple[int, int] | None = None,
+    corpus_coverage: "CorpusCoverage | None" = None,
+    max_packet_bytes: int = MAX_PACKET_BYTES,
     clock: Callable[[], float] = time.monotonic,
     ttl_seconds: float = PACKET_TTL_SECONDS,
 ) -> ContextPacket:
@@ -740,7 +819,7 @@ def assemble_packet(
         selected_key=selected_key, loaded_keys=loaded, threads=threads,
         evidence=tuple(evidence))
     marked = exemption_rail(selected)
-    bounded, dropped = bounds_rail(marked)
+    bounded, dropped = bounds_rail(marked, max_bytes=max_packet_bytes)
     issued = float(clock())
     return ContextPacket(
         purpose=PACKET_PURPOSE_CHAT_TURN,
@@ -917,17 +996,26 @@ def declaration_text(packet: ContextPacket) -> str:
         # number is about what was INDEXED, and under the reduced-retrieval
         # posture no retrieval happened at all — so the two sentences would
         # contradict each other on the same packet.
-        indexed, total = packet.corpus_coverage
-        if indexed < total:
+        coverage = packet.corpus_coverage
+        if coverage.complete:
             lines.append(
-                f"the index covered {indexed} of {total} documents in this "
-                f"tile's staged set: the remaining {total - indexed} were "
-                "beyond the declared index bound and were NOT retrievable for "
-                "this turn, so they are not one retrieval call away either")
+                f"the index covered all {coverage.total} documents in this "
+                "tile's staged set")
         else:
+            causes = []
+            if coverage.unreadable:
+                causes.append(
+                    f"{coverage.unreadable} could not be read at this revision")
+            if coverage.beyond_bound:
+                causes.append(
+                    f"{coverage.beyond_bound} were beyond the declared index "
+                    "bound")
             lines.append(
-                f"the index covered all {total} documents in this tile's "
-                "staged set")
+                f"the index covered {coverage.indexed} of {coverage.total} "
+                f"documents in this tile's staged set: "
+                + " and ".join(causes)
+                + " — those were NOT retrievable for this turn, so they are "
+                  "not one retrieval call away either")
     lines.append(_LOSSLESS_NOTE)
     return "\n".join(lines)
 

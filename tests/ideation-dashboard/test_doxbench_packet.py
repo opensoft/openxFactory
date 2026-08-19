@@ -431,18 +431,52 @@ def test_a_retrieval_coverage_shortfall_is_STATED_not_left_to_silence():
     packet = pk.assemble_packet(
         projection=_projection(), scope=SCOPE, selected_key=DOC_A,
         loaded_keys=(DOC_A,), query="packet assembler", knowledge=_boundary(),
-        already_carried=(OUTLINE,), corpus_coverage=(200, 512), clock=_clock())
+        already_carried=(OUTLINE,), clock=_clock(),
+        corpus_coverage=pk.CorpusCoverage(indexed=200, unreadable=0, total=512))
     text = pk.declaration_text(packet)
     assert "the index covered 200 of 512 documents" in text
-    assert "the remaining 312 were beyond the declared index bound" in text
+    assert "312 were beyond the declared index bound" in text
     assert "not one retrieval call away either" in text
+
+
+def test_the_two_omission_classes_are_stated_apart_not_merged():
+    """Codex review of PR #216, CODEX-C. An UNREADABLE document is absent at
+    this revision and stays absent until it is fixed; a BEYOND-BOUND one exists
+    and would be retrievable under a larger bound. Blaming the index bound for
+    both told the reader the wrong thing about half of them."""
+    packet = pk.assemble_packet(
+        projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler", knowledge=_boundary(),
+        already_carried=(OUTLINE,), clock=_clock(),
+        corpus_coverage=pk.CorpusCoverage(indexed=5, unreadable=2, total=9))
+    text = pk.declaration_text(packet)
+    assert "the index covered 5 of 9 documents" in text
+    assert "2 could not be read at this revision" in text
+    assert "2 were beyond the declared index bound" in text
+
+
+def test_an_unreadable_only_shortfall_does_not_blame_the_bound():
+    packet = pk.assemble_packet(
+        projection=_projection(), scope=SCOPE, selected_key=DOC_A,
+        loaded_keys=(DOC_A,), query="packet assembler", knowledge=_boundary(),
+        already_carried=(OUTLINE,), clock=_clock(),
+        corpus_coverage=pk.CorpusCoverage(indexed=4, unreadable=2, total=6))
+    text = pk.declaration_text(packet)
+    assert "2 could not be read at this revision" in text
+    assert "beyond the declared index bound" not in text
+
+
+def test_coverage_that_accounts_for_more_than_the_tile_holds_is_refused():
+    with pytest.raises(pk.PacketError):
+        pk.CorpusCoverage(indexed=5, unreadable=5, total=6)
 
 
 def test_full_coverage_is_stated_too_so_the_line_is_never_ambiguous():
     packet = pk.assemble_packet(
         projection=_projection(), scope=SCOPE, selected_key=DOC_A,
         loaded_keys=(DOC_A,), query="packet assembler", knowledge=_boundary(),
-        already_carried=(OUTLINE,), corpus_coverage=(7, 7), clock=_clock())
+        already_carried=(OUTLINE,), clock=_clock(),
+        corpus_coverage=pk.CorpusCoverage(indexed=7, unreadable=0, total=7))
     assert "the index covered all 7 documents" in pk.declaration_text(packet)
 
 

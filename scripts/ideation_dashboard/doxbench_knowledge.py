@@ -373,7 +373,14 @@ def _features(tokens: Sequence[str]) -> Iterable[str]:
 
     for token in tokens:
         yield token
-        if len(token) > CHARACTER_NGRAM:
+        # `>=`, not `>` (Copilot review of PR #216). A token of EXACTLY
+        # `CHARACTER_NGRAM` characters contains exactly one n-gram — itself —
+        # and the strict comparison skipped it, so every three-letter token
+        # contributed no n-gram feature at all while four-letter tokens
+        # contributed two. That contradicted this function's own docstring, and
+        # it silently weakened the vector leg for the shortest tokens, which
+        # are the ones the lexical leg is already worst at generalizing over.
+        if len(token) >= CHARACTER_NGRAM:
             for start in range(len(token) - CHARACTER_NGRAM + 1):
                 yield "#" + token[start:start + CHARACTER_NGRAM]
 
