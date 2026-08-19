@@ -881,8 +881,12 @@ def test_the_deprecation_records_its_removal_target(released_root):
     document = yaml.safe_load(
         (released_root / "contracts" / "schemas"
          / CHAT_TURN_SCHEMA_FILE).read_text(encoding="utf-8"))
-    recorded = {entry["kind"]: entry
-                for entry in document["deprecated_envelopes"]}
+    declared = document.get("deprecated_envelopes")
+    assert declared, (
+        "contract-v1.34 deprecates the v1 family, and the record lives in the "
+        "schema itself so a consumer reading the bytes learns it without "
+        "reading a CHANGELOG")
+    recorded = {entry["kind"]: entry for entry in declared}
     assert set(recorded) == set(contracts.DEPRECATED_CHAT_TURN_KINDS)
     for kind, entry in recorded.items():
         assert entry["deprecated_in"] == "contract-v1.34"
