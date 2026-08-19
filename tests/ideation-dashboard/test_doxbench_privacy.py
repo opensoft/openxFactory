@@ -105,7 +105,7 @@ out.refusedInputAbsent = !JSON.stringify(editComposer(s, SECRET_OVERSIZE))
 
 // A settled failure retains ONLY the two fixed released fields — nothing
 // from a wider (hostile) failure payload survives into state.
-const hostile = { schema_version: 1, kind: "workbench-chat-turn-failure",
+const hostile = { schema_version: 1, kind: "workbench-chat-turn-v2-failure",
   client_turn_id: "t-1", error: "model_failed",
   message: "the model request failed",
   endpoint: "leak-sentinel-endpoint", api_material: "leak-sentinel-key" };
@@ -121,20 +121,21 @@ const buffer = (kind) => ({ kind, path: null, owned: true, base_ref: "main",
   base_revision: "r1", base_hash: "c".repeat(64),
   current_hash: "d".repeat(64),
   content: "leak-sentinel-unsaved-buffer-text", dirty: true });
-// T104 F2: the released envelope names an active document, so this leak
-// probe -- whose subject is what the STATE retains -- carries one.
+// A dispatched turn DECLARES its bound buffer (contract-v1.34), read off
+// `active_buffer` -- this leak probe's subject is what the STATE retains, so it
+// simply selects the tile's own document.
 const DOC_PATH = "docs/detail.md";
-const editorState = { buffers: {
+const editorState = { active_buffer: "document", buffers: {
   outline: buffer("outline"),
   document: { ...buffer("document"), path: DOC_PATH } } };
 const dispatcher = createTurnDispatcher({
   transports: { chatTurn: async () => ({ ok: false, status: 502, payload: {
-    schema_version: 1, kind: "workbench-chat-turn-failure",
+    schema_version: 1, kind: "workbench-chat-turn-v2-failure",
     client_turn_id: "turn-1", error: "model_failed",
     message: "the model request failed" } }) },
   turnIdFactory: (n) => "turn-" + n });
 const result = await dispatcher.submit(editComposer(s, "ok?"), {
-  scopeKey: KEY, activeDocumentPath: DOC_PATH, editorState });
+  scopeKey: KEY, editorState });
 out.bufferContentAbsent = !JSON.stringify(result.state)
   .includes("leak-sentinel-unsaved-buffer-text");
 process.stdout.write(JSON.stringify(out));
