@@ -152,6 +152,52 @@ def test_a_question_missing_sub_fields_is_reported_by_name():
     assert "Q1" in gaps[0]["label"]
 
 
+# ---- task 4.1's named case, on the SURFACE side of the same contract ----------
+#
+# The checker half is pinned in tests/doc-health/test_families.py. Both are here
+# because the model and the family MUST mean the same thing by conformance — the
+# modules say so in their own comments ("change both together or neither") — and a
+# rule proven on only one side can drift on the other while both keep passing.
+
+
+def test_a_bare_question_is_non_conforming_and_reports_all_four_fields():
+    """"A question is never recorded bare." A heading with nothing under it must
+    report every field it owes, in the contract's order, so the tab tells the
+    human what to write rather than only that something is wrong."""
+    bare = CONFORMING.split("### Q1.")[0] + "### Q1. Does it hold?\n"
+    model = run_model(bare)
+    gaps = [g for g in model["gaps"] if g["kind"] == "incomplete-question"]
+    assert len(gaps) == 1
+    assert gaps[0]["missing"] == [
+        "Context", "Recommended answer", "Explanation", "Disposition status"]
+    assert model["conforming"] is False
+    # the three required SECTIONS are all present, so the question is the only gap
+    assert [g["kind"] for g in model["gaps"]] == ["incomplete-question"]
+
+
+def test_a_question_with_a_disposition_but_no_recommendation_is_non_conforming():
+    """The contract's own emphasis, and the case task 4.1 names: the disposition
+    may stay `open`, but a recommendation and its reasoning are still owed. This
+    is what makes an undecided question something a reader can disagree with
+    instead of a prompt to re-derive."""
+    model = run_model(CONFORMING.replace(
+        "Recommended answer: yes.\nExplanation: because of X.\n", ""))
+    gaps = [g for g in model["gaps"] if g["kind"] == "incomplete-question"]
+    assert len(gaps) == 1
+    assert gaps[0]["missing"] == ["Recommended answer", "Explanation"]
+
+
+def test_a_sub_heading_outside_open_questions_is_not_an_open_question():
+    """The four sub-fields are owed by open questions, not by every `### ` a
+    fragment carries. A model that scored all of them would report a gap on a
+    conforming fragment, and the tab would show a fault where there is none."""
+    model = run_model(CONFORMING.replace(
+        "## Conflicts\n\nNone known.\n",
+        "## Conflicts\n\n### With the promoted spec\n\nStated, not resolved.\n"))
+    assert [g for g in model["gaps"] if g["kind"] == "incomplete-question"] == []
+    assert model["conforming"] is True
+
+
 def test_added_sections_carry_their_provenance():
     model = run_model(CONFORMING + "\n## Prior art\n\nAdded-by: claude-opus-5 · 2026-08-15\n\nNotes.\n")
     extra = [s for s in model["sections"] if s["title"] == "Prior art"][0]
