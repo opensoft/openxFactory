@@ -1,11 +1,20 @@
 ---
 code_surface: openxFactory (scripts/ideation_dashboard/gate_console.py — `classify_change_file` gains the outline-restore classification, `execute_demotion_plan` gains the fragment-refresh step and stops byte-replacing a differing destination; a new pure `scripts/ideation_dashboard/round_trip.py` owning the slot fill and the `xspec:` section refresh; tests/ideation-dashboard/test_gate_console.py plus a new test_round_trip.py)
 target_release: implementation_pending — the requirement lands now; the change archives only on merged code with green realization evidence, because its whole content is a mechanism correction
-Status: draft
-Ruling: 2026-08-19 by Brett Heap — draft the 4.2 defect-fix proposal. Scope set to all four parts in one change (status preservation, slot fill, proposal-element refresh, no-silent-overwrite guard).
+Status: ratified
+Ratified: 2026-08-19 by Brett Heap — in-session, verbatim: "merge it and ratify", after reading the drafted proposal on PR #212. Follows his same-day ruling that set the scope to all four parts in one change (status preservation, slot fill, proposal-element refresh, no-silent-overwrite guard).
 ---
 
 # Proposal: align-demote-to-round-trip-rule
+
+> **APPROVED BUT NOT YET REALIZED.** This change has a non-empty code surface and
+> none of it is built: `classify_change_file` still routes the outline restore
+> with a `Status: draft` flip, `execute_demotion_plan` fills no provenance slot,
+> refreshes no proposal-element section, and byte-replaces a differing
+> destination, and `round_trip.py` does not exist. Under `release-realization`'s
+> archive gate it therefore stays ACTIVE as approved intent until its code merges
+> with green realization evidence — the invariant being that promoted specs
+> describe what the code does. Nothing here should be read as shipped.
 
 ## Why
 
