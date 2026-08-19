@@ -55,9 +55,12 @@ node-inventory reader enrollment downstream.
   read surface — one admission act (admin consent for the application read
   roles on one identity) and one scoping mechanism (tenant-wide read, no
   narrower provider selector). The three provider areas it spans — Entra
-  registered devices, Intune managed devices, Windows 365 Cloud PCs — are the
-  member's admission-act and scoping prose, declared as provider-forced
-  breadth on the entry (roster Decision 3), NOT three surfaces.
+  registered devices, Intune managed devices, Windows 365 Cloud PCs — are named
+  ONLY in the member's admission-act and scoping `description` prose, NOT three
+  surfaces and NOT a structured breadth field. For the `device` surface the
+  governed unit is the tenant-wide device estate, so tenant-wide read is the
+  governed scope (`exceeds_governed_unit: false`, no `declared_excess`), not
+  provider-forced excess.
 - Endpoint-mutation and Entra-directory remain SEPARATE future surfaces, each
   arriving with its own governing change per the schema's extension-route
   text. They are out of scope here.
@@ -76,9 +79,11 @@ node-inventory reader enrollment downstream.
 - **Modified Capabilities:** `client-identity-roster` — the
   "Identities are enumerated by admission surface, not by product name"
   requirement's closed vocabulary gains `device` (spec delta below). No other
-  promoted requirement changes; the "Provider-forced breadth is declared"
-  requirement already governs the device reader's spanned-surface shape and
-  needs no edit.
+  promoted requirement changes; the device reader declares no forced breadth
+  (its governed unit is the tenant-wide device estate, so
+  `exceeds_governed_unit: false` and no `declared_excess`), so the
+  "Provider-forced breadth is declared" requirement applies unchanged and needs
+  no edit.
 - **Contract surface:** `contracts/schemas/xfactory-client-identity-roster.schema.yaml`
   (`$defs.admission_surface` gains one member),
   `scripts/validate-client-identity-roster.py` (refusal-string sync only),

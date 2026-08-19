@@ -36,25 +36,25 @@ match a vocabulary that exists to describe them.
 
 **Adopted.** `device` is a SINGLE read surface: one admission act and one
 scoping mechanism. The three provider areas it reaches — Entra registered
-devices, Intune managed devices, Windows 365 Cloud PCs — are described in the
-member's admission-act/scoping prose and are declared on the consuming entry
-as provider-forced `spanned_surfaces`/breadth, NOT as three separate
-`admission_surface` members.
+devices, Intune managed devices, Windows 365 Cloud PCs — are named ONLY in the
+member's admission-act/scoping `description` prose (Ruling 3), NOT as three
+separate `admission_surface` members and NOT as any structured
+`spanned_surfaces`/`declared_excess` breadth field on the consuming entry.
 
-**Rationale.** This is roster Decision 3 applied exactly as ratified.
-Decision 3's own worked example is this identity:
+**Rationale.** An admission surface is defined extensionally as a provider-side
+surface owning ONE independent admission act and ONE scoping mechanism (the
+promoted requirement). Node-inventory read has exactly one admission act (admin
+consent for the three read roles on one identity) and one scoping mechanism
+(tenant-wide read, no narrower selector) — so it is one surface by the ratified
+definition, not three. Roster Decision 3's own worked example is this identity:
 "`microsoft_managed_node_inventory_reader` is a ratified, deliberately narrow
 class holding Entra, Intune and Windows 365 read scopes on one identity with
 `exact_effective_scopes: true`, because the provider offers nothing narrower."
-The ratified treatment of that breadth is: it is ONE narrow identity whose
-provider-forced breadth is DECLARED with the provider reason and a gate
-obligation — "forced breadth is conformant when declared … undeclared breadth
-is the finding." An admission surface is defined extensionally as a
-provider-side surface owning ONE independent admission act and ONE scoping
-mechanism (the promoted requirement). Node-inventory read has exactly one
-admission act (admin consent for the three read roles on one identity) and one
-scoping mechanism (tenant-wide read, no narrower selector) — so it is one
-surface by the ratified definition, not three.
+That tenant-wide read is NOT excess to be declared away: for the `device`
+surface the GOVERNED UNIT is the whole tenant device estate — a complete tenant
+device inventory is node-inventory's very purpose — so tenant-wide read IS the
+governed scope, carried with `exceeds_governed_unit: false` and NO
+`declared_excess` block (see the Adversarial fix (F1) note below).
 
 **Rejected: three surfaces (`entra_devices`, `intune_managed_devices`,
 `windows_365_cloud_pcs`).** Modelling the provider areas as three surfaces
@@ -62,9 +62,10 @@ would contradict the extensional surface definition (they share one admission
 act, so they are one surface, exactly like `business_central`'s two acts are
 one surface), and it would re-introduce from the other direction the failure
 Decision 3 rejects: it would re-slice a deliberately narrow, ratified identity
-into a false appearance of three separately admissible surfaces. The
-provider-forced breadth mechanism already exists to carry precisely this
-shape.
+into a false appearance of three separately admissible surfaces. Modelling
+them as ONE surface whose governed unit is the tenant device estate records the
+shape truthfully — the tenant-wide read is the governed scope, not excess to be
+carried in a breadth field.
 
 **Boundary.** Endpoint-MUTATION (Intune write/remediation) and
 Entra-DIRECTORY are SEPARATE future surfaces, listed in the schema's own
@@ -72,6 +73,27 @@ extension-route text as arriving with their own governing changes
 ("endpoint/Intune, Windows 365 and Entra-directory arrive with theirs"). This
 change admits only the read surface `device`. It does not admit any mutation
 surface and does not pre-empt the directory surface.
+
+**Adversarial fix (F1).** An earlier draft of this ruling described the three
+provider areas as the entry's declared `spanned_surfaces` / "provider-forced
+breadth." That framing was a vestige of surface-SPANNING and is
+schema-impossible: `spanned_surfaces[]` items `$ref` the `admission_surface`
+vocabulary (they must be surface consts), and the three provider areas are not
+vocabulary members, so the schema would refuse them; and per this ruling
+`device` is ONE surface, which spans no OTHER surface. Corrected to the
+governed-tenant-scope framing: for the `device` surface the governed unit IS
+the tenant device estate, so a conformant `device` entry carries
+`exceeds_governed_unit: false`, NO `declared_excess` block, and empty/omitted
+`spanned_surfaces`. The tenant-wide device read is the governed scope, not
+excess to be declared.
+
+**Read/mutate re-slice (F2 — for Brett's conscious acceptance at ratification).**
+Admitting `device` re-slices the schema's extension-route prose along a
+read/mutate axis: `device` is the READ surface for Entra, Intune and Windows
+365, while endpoint-MUTATION (Intune write/remediation) and Entra-DIRECTORY
+remain SEPARATE future surfaces, each with its own governing change. This
+read/mutate cut is flagged for conscious acceptance at ratification; it does
+not change the spec delta.
 
 ## Ruling 3 — Admission act and scoping prose (authored from node-inventory evidence)
 
@@ -86,9 +108,13 @@ existing members:
   registered devices, Intune managed devices and Windows 365 Cloud PCs.
 - **Scoping mechanism:** TENANT-WIDE READ. `exact_effective_scopes: true` and
   no narrower provider selector — "the provider offers nothing narrower" (the
-  roster's own motivating example, Decision 3). The bound the roster axis
-  wants (a per-blast-radius-unit selector) does not exist at this surface; the
-  breadth is declared and bounded by gate obligation, not silently absorbed.
+  roster's own motivating example, Decision 3). There is no provider scoping
+  mechanism (unlike Exchange's `RestrictAccess`), so the admission act(s) run
+  `enforcement_mode: logic_enforced`: the read is bounded by the exact
+  read-only roles, not by a provider selector. The governed unit is the
+  tenant-wide device estate (a `blast_radius_unit` token such as
+  `tenant_device_estate`), so the tenant-wide read is the governed scope — not
+  silently absorbed excess.
 - **Authority class:** READ-ONLY. The requirement carries
   `reject_write_or_destructive_scopes: true`; the surface admits `observe`
   only. No mutation or destructive capability rides this member (endpoint

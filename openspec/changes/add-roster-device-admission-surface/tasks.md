@@ -46,10 +46,26 @@ edits below are the post-ratification implementation.
 - [ ] 3.1 Add a packaged positive example entry using
       `admission_surface: device` under `examples/client-identity-roster/`
       (an entry, or a small fragment, transcribed from the node-inventory
-      reader evidence — read-only, tenant-wide, provider-forced breadth
-      declared with its `spanned_surfaces` for the three provider areas and a
-      gate obligation). List it in
-      `examples/client-identity-roster/README.md`.
+      reader evidence). The example MUST use the governed-tenant-scope shape
+      (design Ruling 2 + Adversarial fix F1) so the roster validator self-test
+      passes on it:
+      - `exceeds_governed_unit: false` — the governed unit IS the tenant-wide
+        device estate, so tenant-wide read is the governed scope, not excess;
+      - NO `declared_excess` block, and `spanned_surfaces` empty/omitted — the
+        three provider areas (Entra / Intune / Windows 365) are NOT
+        `admission_surface` consts, so they CANNOT appear in a structured
+        breadth field (the schema would refuse them); they live only in the
+        `device` member's `description` prose;
+      - `per_unit_principal_available: {device: false}` — no per-unit
+        principal; the governed unit is the whole tenant device estate;
+      - each admission act `enforcement_mode: logic_enforced` — there is no
+        provider scoping selector (unlike Exchange's `RestrictAccess`); the
+        read is bounded by the exact read-only roles;
+      - `blast_radius_unit` = the tenant-wide device estate (a clear token such
+        as `tenant_device_estate`, described in the fragment legend);
+      - read-only (`observe` only), transcribed from the ratified
+        `microsoft_managed_node_inventory_reader` evidence.
+      List it in `examples/client-identity-roster/README.md`.
 - [ ] 3.2 Confirm the `admission-surface-out-of-vocabulary` negative
       (`examples/client-identity-roster/negative/admission-surface-out-of-vocabulary.yaml`,
       which uses `sharepoint`) STAYS a valid negative — `sharepoint` is still
