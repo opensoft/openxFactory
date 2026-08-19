@@ -285,19 +285,75 @@ markdown surgery is the risky half and it is the half that needs no tree.
 
 ## 6. Bookkeeping
 
-- [x] 6.1 README "OpenSpec Records" active block — done at proposal time.
-- [ ] 6.2 Realization evidence in the front matter at the archive gate: merged
+- [x] 6.1 README "OpenSpec Records" active block — done at proposal time, and moved
+      to the "Archived changes:" block at the archive gate.
+- [x] 6.2 Realization evidence in the front matter at the archive gate: merged
       commit/PR plus the green run. `target_release: implementation_pending` means
       this change does NOT archive on landing the requirement.
+      REALIZED and archived 2026-08-19. Merged to openxFactory main as PR #215 —
+      `e2c07ef` (the mechanism, the pure `round_trip.py`, the driven end-to-end
+      proof), `d28d36d` (the review's three findings: `_flip_status` sharing the
+      round-trip split, the unclosed-fence refusal, the CLI reporting the snapshot
+      disposition), `1c8b58a` (three record corrections), plus `79ed72e`, a Copilot
+      catch this change's own work made necessary: the `--execute` summary claimed
+      every moved file landed in `openspec/`, which stopped being true once the
+      outline restore added a topic-ROOT destination to `ex.moved`.
+      GREEN ON THE IMPLEMENTED TARGET: `tests/ideation-dashboard` 3240 passed /
+      6 skipped / exit 0; `tests/doc-health` exit 1 with exactly the four known
+      pre-existing `test_client_identity_composition.py` failures, diffed as a set;
+      `openspec validate --all --strict` 62/62; doc-health single-repo exit 0 and
+      byte-identical to the branch-base baseline. The realization proof is a DRIVEN
+      demote whose fragment came back right — which is the only evidence this defect
+      has ever yielded, since a grep for the round-trip slot is what concluded the
+      rule was unimplemented in the first place.
+      EVIDENCE LIVES HERE, NOT IN THE FRONT MATTER, following the corpus: three
+      recent archive commits leave `proposal.md` a pure rename and record
+      realization inline in `tasks.md`. The one deviation is the
+      "APPROVED BUT NOT YET REALIZED" banner, which postdates every archive
+      precedent and would be a false statement about a realized change — it is
+      rewritten rather than carried, and §6.3 records why.
+- [x] 6.3 The banner. This change's proposal opened with the release-realization
+      "APPROVED BUT NOT YET REALIZED … Nothing here should be read as shipped"
+      block. No archived change in the corpus has ever carried one — the convention
+      arrived after the three most recent archives — so there is no precedent for
+      whether archiving removes or rewrites it. Rewritten to state realization,
+      because the alternative is archiving a record whose first paragraph is untrue,
+      and a formatting precedent is the cheaper thing to break.
 
 ## 7. Handed back, not owned here
 
-- [ ] 7.1 `add-staged-topic-outline-template` task 4.2 — the round-trip test —
+- [x] 7.1 `add-staged-topic-outline-template` task 4.2 — the round-trip test —
       becomes writable once this lands, and STAYS THAT CHANGE'S TASK. Realizing
       this change is what unblocks it; discharging it is not this change's work.
       Left as an unchecked item here only so the dependency is visible from both
       sides.
+      HANDED OFF AND TAKEN UP: 4.2 is discharged in the parent change, driving BOTH
+      gates — the real `proposal-support.py transition` forward, then the real
+      demote back — so "reached proposal" is the mechanism's own doing rather than a
+      hand-built shape. Ticked here because the dependency this item exists to make
+      visible is now closed at both ends, not because this change did the work.
 - [ ] 7.2 Two open rulings this change deliberately did not take: whether
       `Status at demote` should carry the change's `task_progress` instead of a
       constant (design Decision 3), and whether the shallowest-markdown arm of the
       selection rule needs the same treatment (design Decision 1).
+      LEFT OPEN THROUGH THE ARCHIVE, deliberately, and precedented —
+      `add-client-identity-roster` archived carrying fifteen unchecked items. These
+      two are Brett's rulings, not work: ticking them would claim a decision nobody
+      made. They stay visible where the next reader of this change meets them, in
+      design.md beside the code that would change if either is ruled.
+      THREE MORE OPEN ITEMS the realization surfaced, recorded here for the same
+      reason rather than filed silently:
+      • `corpus.parse_status` shares the pseudo-line blindness `_flip_status` just
+        shed, so the write side is fixed and the READ side is not. Measured harmless
+        today (0 of 1079 files carry an exotic separator); it is doc-health's shared
+        reader behind fifteen families and wants its own change.
+      • `plan_demotion` resolves the origin topic ONLY from a possible's pick edge,
+        and the forward transition removes the staging folder that edge points at —
+        so every one of the six active changes with a declared staged origin reports
+        `origin_staging_id: None`, and a real demote needs `--staging-topic`. The
+        `.openspec.yaml` origin block the transition itself WRITES would answer this
+        without a snapshot, and nothing reads it.
+      • A demote leaves its own `openspec/INDEX.md` in the topic, and that file
+        carries no `Status:` header — so a whole-folder forward transition of a
+        returned topic refuses ("governed Markdown lacks Status header") until the
+        operator selects files explicitly. Found by driving the second lap.

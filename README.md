@@ -278,26 +278,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [align-demote-to-round-trip-rule](openspec/changes/align-demote-to-round-trip-rule/proposal.md)
-  — authored 2026-08-19, a DEFECT FIX: the demote verb performs precisely the
-  reset the ratified round-trip rule is titled against. `classify_change_file`
-  routes anything under `supporting-docs/` back to the topic root by bare
-  basename, and `proposal-support.py transition` records the topic's own primary
-  fragment there — so the demote's destination IS the primary fragment, and it
-  lands carrying the aspirational pre-proposal snapshot with the round-trip
-  provenance slots gone and `Status: draft` on a file the selector still calls the
-  staged topic's outline. Found by DRIVING the verb, not by reading it: a search
-  for the slot's own field names finds no writer anywhere, which is what made an
-  earlier review conclude the rule was merely unimplemented. Not a special case —
-  2 of 2 staged-origin manifests have this shape. One ADDED requirement on
-  `ideation-dashboard` carrying four parts: status preservation, provenance-slot
-  fill from values the executor already holds, `xspec:` proposal-element refresh
-  from the returned `proposal.md` (the genuinely new surface), and Brett's
-  no-silent-overwrite ruling — the snapshot is a fallback SOURCE, never the
-  authority, so a destination that exists and differs is refreshed IN PLACE and
-  the snapshot preserved beside it rather than written over live human work.
-  Realizing it unblocks `add-staged-topic-outline-template` task 4.2, which stays
-  that change's task. `target_release: implementation_pending`.
 - [add-doxbench-editing-phase-b](openspec/changes/add-doxbench-editing-phase-b/proposal.md)
   — authored 2026-08-18, Phase B and the EXIT of the `doxbench-editing-model`
   staged topic: all seven questions dispositioned, 26 claims settled (Brett's
@@ -570,6 +550,33 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [align-demote-to-round-trip-rule](openspec/changes/archive/2026-08-19-align-demote-to-round-trip-rule/proposal.md)
+  A DEFECT FIX: the demote verb performed precisely the reset the ratified
+  round-trip rule is titled against. `classify_change_file` routes anything under
+  `supporting-docs/` back to the topic root by bare basename, and
+  `proposal-support.py transition` records the topic's own primary fragment there
+  — so the demote's destination WAS the primary fragment, and it came back
+  carrying the aspirational pre-proposal snapshot with the provenance slots gone
+  and `Status: draft` on a file the selector still calls the staged topic's
+  outline. Found by DRIVING the verb rather than reading it: a grep for the slot's
+  own field names finds no writer anywhere, which is exactly what made an earlier
+  review conclude the rule was merely unimplemented. Not a special case — 2 of 2
+  staged-origin manifests had the shape. Promoted one requirement on
+  `ideation-dashboard` carrying four parts: status preservation, provenance-slot
+  fill from values the executor already holds, `xspec:` proposal-element refresh
+  from the returned `proposal.md`, and Brett's no-silent-overwrite ruling — the
+  snapshot is a fallback SOURCE, never the authority, so a destination that exists
+  and differs is refreshed IN PLACE with the snapshot preserved beside it rather
+  than written over live human work. Realized 2026-08-19 as PR #215 (`e2c07ef`,
+  `d28d36d`, `1c8b58a`, `79ed72e`) and archived 2026-08-19: 3240 tests passing,
+  `openspec validate --all --strict` 62/62, doc-health baseline-identical, and a
+  driven demote whose fragment came back right. It unblocked
+  `add-staged-topic-outline-template` task 4.2, discharged in the parent by driving
+  both gates. Three open items the realization surfaced — `corpus.parse_status`'s
+  matching read-side blindness, `plan_demotion` resolving the origin topic only
+  from a pick edge the forward transition erases, and a demote's own
+  `openspec/INDEX.md` blocking the next whole-folder transition — are recorded in
+  its `tasks.md` §7.2 rather than filed silently.
 - [add-client-identity-roster](openspec/changes/archive/2026-08-15-add-client-identity-roster/proposal.md)
   Promoted the neutral `client-identity-roster` capability (13 requirements)
   from the Business Central admission investigation: the identity layer
