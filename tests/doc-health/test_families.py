@@ -3,11 +3,12 @@ violations — a missed or extra finding fails the test."""
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 import gzip
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import tarfile
 
@@ -311,13 +312,19 @@ def _topic(repo, name, text):
     return f"ideation/staging/{name}/{name}.md"
 
 
-def _ctx_for(tmp_path, topics, first_dates):
+def _ctx_for(tmp_path, topics, first_dates, last_dates=None):
+    """`last_dates` is ADDITIVE (task 4.3): the family must read the topic's
+    FIRST commit date and nothing else, so proving that needs a context where a
+    contradictory LAST commit date is available to be read by mistake."""
     repo = tmp_path / "alpha"
     (repo / "ideation/staging").mkdir(parents=True)
     rels = {name: _topic(repo, name, text) for name, text in topics.items()}
     ctx = make_ctx("location-conformance",
-                   git=FakeGit(first_dates={
-                       ("alpha", rels[name]): d for name, d in first_dates.items()}))
+                   git=FakeGit(
+                       first_dates={("alpha", rels[name]): d
+                                    for name, d in first_dates.items()},
+                       last_dates={("alpha", rels[name]): d
+                                   for name, d in (last_dates or {}).items()}))
     ctx.repo_paths = {"alpha": repo}
     ctx.docs = corpus.load_docs("alpha", repo)
     return ctx, rels
@@ -386,6 +393,152 @@ def test_a_fenced_skeleton_does_not_count_as_real_sections(tmp_path):
     assert len(got) == 1
     for label in ("idea notes", "conflicts", "open questions"):
         assert label in got[0].rule
+
+
+# ---- task 4.1: the conformance rules the existing cases above do not reach ----
+#
+# What is already proven and deliberately NOT re-proven here: the three required
+# sections (`test_a_conforming_fragment_produces_no_finding` +
+# `test_a_fenced_skeleton_does_not_count_as_real_sections`), that a missing
+# sub-field is named (`test_a_question_missing_sub_fields_is_reported`), and the
+# WARNING severity (`test_non_conformance_is_never_gate_blocking`).
+#
+# What those do not reach is the contract's own emphasis: "A question is never
+# recorded bare. The template forces a recommendation and the reasoning for it
+# even while the disposition itself stays `open`." The existing case drops
+# `Explanation:` from an otherwise complete question — which is a missing field,
+# but not the shape the contract is about.
+
+
+def test_a_bare_question_is_non_conforming_and_names_every_missing_sub_field(tmp_path):
+    """"A question is never recorded bare" — the rule task 4.1 names. A heading
+    with nothing under it must not pass merely because nothing contradicts the
+    four fields; all four are reported, so the human is told what to write rather
+    than that something is wrong."""
+    bare_question = CONFORMING.split("### Q1.")[0] + "### Q1. Does it work?\n"
+    ctx, _ = _ctx_for(tmp_path, {"bare": bare_question},
+                      {"bare": date(2026, 9, 1)})
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    # the three sections are present, so the ONLY gap is the question itself
+    assert "no pre-document idea notes section" not in got[0].rule
+    for field in families._QUESTION_SUBFIELDS:
+        assert field in got[0].rule, f"{field} not named in: {got[0].rule}"
+    assert "Q1. Does it work?" in got[0].rule
+
+
+def test_a_question_with_a_disposition_but_no_recommendation_is_non_conforming(tmp_path):
+    """The contract's own named failure, and the one task 4.1 spells out: the
+    disposition may stay `open`, but the recommendation and its reasoning are
+    still owed. A question carrying only Context and a status is exactly the
+    "bare question" the template exists to prevent — an undecided question that
+    gives a reader nothing to disagree with."""
+    no_recommendation = CONFORMING.replace(
+        "Recommended answer: yes.\nExplanation: because.\n", "")
+    ctx, _ = _ctx_for(tmp_path, {"norec": no_recommendation},
+                      {"norec": date(2026, 9, 1)})
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    assert "Recommended answer" in got[0].rule
+    assert "Explanation" in got[0].rule
+    # …and it does NOT claim the fields that ARE there are missing
+    assert "Context" not in got[0].rule
+    assert "Disposition status" not in got[0].rule
+
+
+def test_every_incomplete_question_is_reported_not_only_the_first(tmp_path):
+    """Open questions is "where the most attention is spent", so a fragment
+    carrying several is the normal case. Reporting only the first would send a
+    human back for a second round on a fragment they had just fixed."""
+    two = CONFORMING + (
+        "\n### Q2. And this one?\n\nContext: also unclear.\n"
+        "Disposition status: open\n")
+    ctx, _ = _ctx_for(tmp_path, {"two": two}, {"two": date(2026, 9, 1)})
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1          # one finding per FRAGMENT…
+    assert "Q2. And this one?" in got[0].rule
+    assert "Recommended answer" in got[0].rule
+    # …and Q1, which is complete, is not accused
+    assert "Q1" not in got[0].rule
+
+
+def test_a_third_level_heading_outside_open_questions_is_not_a_question(tmp_path):
+    """The four sub-fields are owed by OPEN QUESTIONS, not by every `### `
+    heading a fragment happens to carry. Without this the rule would fire on any
+    sub-heading anywhere — a spurious finding on much of the corpus, and the kind
+    a human learns to ignore, which costs the family its whole value."""
+    with_subheading = CONFORMING.replace(
+        "## Conflicts\n\nNone.\n",
+        "## Conflicts\n\n### With the promoted spec\n\nStated, not resolved.\n")
+    ctx, _ = _ctx_for(tmp_path, {"sub": with_subheading},
+                      {"sub": date(2026, 9, 1)})
+    assert FAMILIES["staged-topic-template"](ctx) == []
+
+
+# ---- task 4.3: the opt-in boundary, driven from both sides --------------------
+#
+# Already proven above: a pre-ratification topic is opt-in
+# (`test_obligation_follows_the_staging_date_not_the_last_touch`), a
+# post-ratification topic is REQUIRED (`test_non_conformance_is_never_gate_blocking`),
+# and an unknown date is opt-in (`test_an_unknown_staging_date_is_treated_as_opt_in`).
+#
+# What those leave open is the BOUNDARY itself and the trap task 2.2 names. The
+# discriminator is `staged_on >= TEMPLATE_RATIFIED`, and nothing pinned either
+# side of that comparison or proved the family ignores a later touch.
+
+BARE = "# Staged: x\n\nStatus: staged\n\n## Claims\n\nNothing.\n"
+
+
+def test_the_ratification_day_itself_is_required(tmp_path):
+    """`>=`, not `>`. A topic staged ON the day the template ratified was staged
+    after it ratified; an off-by-one here would let a whole day of topics claim
+    the opt-in posture forever, since obligation never re-derives."""
+    ctx, _ = _ctx_for(tmp_path, {"onday": BARE},
+                      {"onday": families.TEMPLATE_RATIFIED})
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    assert "REQUIRED" in got[0].rule and "opt-in" not in got[0].rule
+
+
+def test_the_day_before_ratification_is_opt_in(tmp_path):
+    """The other side of the same comparison, one day away, so the pair fails
+    for a `>` and for a `>` written as `>=` on the wrong operand alike."""
+    ctx, _ = _ctx_for(tmp_path, {"daybefore": BARE},
+                      {"daybefore": families.TEMPLATE_RATIFIED - timedelta(days=1)})
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    assert "opt-in" in got[0].rule and "REQUIRED" not in got[0].rule
+
+
+def test_a_topic_touched_long_after_ratification_stays_opt_in(tmp_path):
+    """THE TRAP task 2.2 was built to avoid, now driven rather than described.
+    An opt-in topic edited for an unrelated reason must not silently become
+    required — so the context here offers a contradictory LAST commit date well
+    after ratification, and a filesystem mtime of now, and the verdict must still
+    be opt-in. Swap `first_commit_date` for `last_commit_date` in the family and
+    only this test notices."""
+    ctx, rels = _ctx_for(
+        tmp_path, {"old": BARE},
+        first_dates={"old": date(2026, 7, 1)},     # staged before ratification
+        last_dates={"old": date(2026, 9, 30)})     # …and touched long after
+    touched = tmp_path / "alpha" / rels["old"]
+    os.utime(touched, None)                        # a fresh mtime too
+    got = FAMILIES["staged-topic-template"](ctx)
+    assert len(got) == 1
+    assert "opt-in" in got[0].rule and "REQUIRED" not in got[0].rule
+
+
+def test_the_boundary_is_judged_per_topic_not_per_run(tmp_path):
+    """Q2 means the corpus is deliberately non-uniform for a while, so both
+    postures coexist in one run and each topic gets its own verdict — a family
+    that decided once per run would mislabel every topic on one side of it."""
+    ctx, _ = _ctx_for(tmp_path, {"before": BARE, "after": BARE},
+                      {"before": date(2026, 7, 1), "after": date(2026, 9, 1)})
+    got = {f.path.split("/")[2]: f.rule
+           for f in FAMILIES["staged-topic-template"](ctx)}
+    assert set(got) == {"before", "after"}
+    assert "opt-in" in got["before"] and "REQUIRED" not in got["before"]
+    assert "REQUIRED" in got["after"] and "opt-in" not in got["after"]
 
 
 def test_the_checker_and_the_contract_text_agree():
