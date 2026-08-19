@@ -440,6 +440,22 @@ def test_a_document_path_claiming_a_reserved_key_refuses(reserved):
     assert "reserved buffer key" in str(raised.value)
 
 
+def test_the_reserved_keys_are_the_same_two_the_browser_refuses():
+    """The two sides of F2's rule must name the same keys, or one of them is
+    refusing a load the other accepts on the wire. The browser owns the
+    human-facing refusal (`LOAD_REFUSED_RESERVED_KEY`); the server owns the wire
+    one, because a request is not obliged to have come from that browser."""
+    assert doxbench_turns.RESERVED_BUFFER_KEYS == {
+        doxbench_turns.OUTLINE_BUFFER_KEY,
+        doxbench_turns.UNBACKED_DOCUMENT_BUFFER_KEY,
+    }
+    state_js = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+                / "doxbench-state.js").read_text(encoding="utf-8")
+    assert 'LOAD_REFUSED_RESERVED_KEY = "path_is_a_reserved_key"' in state_js
+    for key in doxbench_turns.RESERVED_BUFFER_KEYS:
+        assert f'BUFFER_KEY = "{key}"' in state_js, key
+
+
 def test_the_reserved_unbacked_slot_is_still_accepted():
     """The other half of the same rule: a document with NO path is the create
     flow's own buffer and belongs under the reserved key. Refusing a null path
