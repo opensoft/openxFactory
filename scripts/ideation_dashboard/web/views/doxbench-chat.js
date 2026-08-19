@@ -15,6 +15,7 @@
 // `mountDoxBenchChatRail` is the thin assembly over it.
 
 import {
+  orderedProposalTargets,
   createChatState, adoptCatalog, selectModel, editSubject, editComposer,
   beginTurn, settleTurnSuccess, settleTurnFailure, abortTurn,
   transcriptWindow, transcriptWireWindow, rekeyChatState, proposalsOf,
@@ -24,9 +25,15 @@ import {
   canSend, MAX_MESSAGE_BYTES, MAX_WORKING_SUBJECT_BYTES,
 } from "./doxbench-chat-model.js";
 
-const CHAT_TURN_KIND = "workbench-chat-turn";
-const CHAT_SUCCESS_KIND = "workbench-chat-turn-success";
-const CHAT_FAILURE_KIND = "workbench-chat-turn-failure";
+// THE WIDENED FAMILY (contract-v1.34, add-doxbench-editing-phase-b §13). The v1
+// kinds this rail used to send are DEPRECATED and still served; this surface
+// sends the widened ones, because they are the only envelopes that can carry the
+// loaded set and the DECLARED bound-buffer key the ratified turn contract
+// requires -- and the release is what dissolved the interim binding posture
+// (task 8.6's N4) rather than merely relaxing it.
+const CHAT_TURN_KIND = "workbench-chat-turn-v2";
+const CHAT_SUCCESS_KIND = "workbench-chat-turn-v2-success";
+const CHAT_FAILURE_KIND = "workbench-chat-turn-v2-failure";
 
 // FIXED local failure marker for a transport that never produced a released
 // failure envelope (network refusal, pre-identity refusal shape, throw).
@@ -43,34 +50,14 @@ const BUFFERS_UNSETTLED = Object.freeze({
   message: "the buffers are still settling; try Send again in a moment",
 });
 
-// THE V1-WIRE BINDING LIMIT, stated (adversarial review of PR #207, F1).
-//
-// `buildTurnRequest` sends exactly the two buffers the RELEASED v1 chat-turn
-// envelope has room for: the reserved `outline` key and the reserved `document`
-// key. So a turn can only ever be about one of those two, and
-// `active_document_path` can only ever name the reserved slot's own path — which
-// is the invariant `staging-workbench.js` restores.
-//
-// Phase B lets a human SELECT a path-keyed loaded document, and the canvas and
-// the selector honour it immediately. The CHAT cannot, until §13's co-resident
-// widened family releases an envelope that carries the outline plus N documents
-// and a declared bound-buffer key. Before this note existed, selecting such a
-// buffer made the route refuse with its fixed redacted `turn_scope_refused`
-// code — a governance refusal shown for a limitation of our own wire, which is
-// the one thing a refusal must never be.
-//
-// So it is a STATED PRE-FLIGHT POSTURE instead: Send is unreachable, the reason
-// is on the control and programmatically associated, and no provider or route is
-// consulted at all. The house idiom (design §3.4): a capability that is absent
-// says so; it does not fail on activation.
-const CHAT_BINDING_UNRELEASED = Object.freeze({
-  error: "chat_binding_unreleased",
-  message: "this chat cannot be bound to a document loaded beside the tile's own "
-    + "yet: the released turn envelope carries the outline and one document, so "
-    + "select the outline or the tile's own document to send. Editing, Save and "
-    + "the loaded set are unaffected.",
-});
-
+// (The interim CHAT_BINDING_UNRELEASED posture stood here.) It was the stated
+// reduction task 8.6 recorded WITH BRETT on 2026-08-18: under the released v1
+// envelope the chat carried the outline plus ONE reserved document slot, so a
+// turn could only ever be about one of those two, Send was held closed for any
+// other selection, and the reason was visible on the control. §13's release ends
+// it exactly as that record said it would -- the widened envelope carries the
+// outline plus every loaded document and a DECLARED bound-buffer key, so the chat
+// binds to whatever the human selected and there is nothing left to refuse.
 // T100 P1-2 (real-corpus finding): a pre-identity console-token refusal
 // (legacy {ok,error,message} shape) must surface as a RECOVERABLE fixed
 // message, never a wedged rail. The stale-token case names its remedy.
@@ -97,12 +84,6 @@ const SEND_PATH_FAILED = Object.freeze({
 const NO_MODEL_SELECTED = Object.freeze({
   error: "no_model_selected",
   message: "choose an approved model above before sending",
-});
-
-const NO_ACTIVE_DOCUMENT = Object.freeze({
-  error: "no_active_document",
-  message: "a turn grounds on a document you may edit, and none is active; "
-    + "pick one in the Document tab first",
 });
 
 // T104 F5-5 + W-10: the FIXED refusals for an Apply the buffer seam would
@@ -199,52 +180,14 @@ const SUBJECT_OVER_BOUND = Object.freeze({
     + "-byte subject bound — refused, never truncated; shorten it",
 });
 
-// The ACTIONABLE half of the same refusal (T104 F2: "the refusal names no
-// document the operator could pick instead"). When the tile HAS usable
-// documents, the note names one; when it has none AND there is no outline to
-// ground on either, it says so and names the only way forward, rather than
-// leaving the operator to discover from an opaque `turn_scope_refused` that
-// this tile can never chat.
-function noActiveDocumentFailure(candidates) {
-  const usable = (candidates || []).filter(
-    (path) => typeof path === "string" && path);
-  if (!usable.length) {
-    return Object.freeze({
-      error: "no_active_document",
-      message: "this tile has no document you may edit, so a turn has nothing "
-        + "to ground on — create one first, and it becomes available here",
-    });
-  }
-  return Object.freeze({
-    error: "no_active_document",
-    message: NO_ACTIVE_DOCUMENT.message + " — for example "
-      + usable[0] + (usable.length > 1
-        ? " (" + (usable.length - 1) + " more available)" : ""),
-  });
-}
-
-// G-1 (PR #63 re-verification, 2026-08-02): THE OUTLINE-ONLY TURN.
-//
-// Measured on the real corpus, 16 of 21 staged topics have exactly ONE
-// editable path — the topic's own primary fragment, which this canvas loads
-// as the OUTLINE. T104 F2 correctly stopped advertising the outline as an
-// active DOCUMENT candidate (one file cannot be two independent buffers), so
-// those tiles have no document to name. That is not "nothing to ground on":
-// the outline IS the tile's material. Such a turn declares
-// `active_document_path: null` — the shape the contract-v1.28 amendment makes
-// legal, mirroring `buffer_state.path`, which is already nullable and is what
-// the document buffer carries here.
-//
-// A backed OUTLINE buffer is the whole precondition: the scope authority
-// publishes `outline_path` only when it is in-scope AND editable (T104 F2), so
-// a non-null outline buffer path is exactly the case the server's own FR-015
-// guard accepts with a null document.
-function outlineOnlyTurnIsAvailable(editorStateValue) {
-  const outline = editorStateValue && editorStateValue.buffers
-    && editorStateValue.buffers.outline;
-  const outlinePath = outline && outline.path;
-  return typeof outlinePath === "string" && outlinePath.length > 0;
-}
+// (T104 F2's `no_active_document` refusals and G-1's outline-only precondition
+// stood here.) Both existed because the v1 envelope forced a turn to declare ONE
+// active document path: with candidates and none active the operator had a
+// choice to make, and with none at all the turn had to prove it could ground on
+// the outline instead. contract-v1.34's widened envelope carries the whole
+// loaded set and binds to the buffer the human SELECTED, so neither question
+// arises -- there is always a bound buffer, and it is always one the request
+// supplies. Removed rather than left unreachable.
 
 function hexOf(identity) {
   return typeof identity === "string" ? identity : String(identity && identity.hex);
@@ -265,8 +208,18 @@ function wireBuffer(bufferValue, kindValue, repositoryValue) {
   };
 }
 
+// The buffer keys a request carries, in the DECLARED order: the reserved outline
+// first, then every loaded document ascending by key. Spelled to match
+// `doxbench-state.js`'s own rule, because a request whose buffer order depended
+// on object insertion is a request no test can pin.
+function wireBufferKeys(buffers) {
+  const documents = Object.keys(buffers || {}).filter((key) => key !== "outline");
+  documents.sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
+  return ["outline", ...documents];
+}
+
 export function buildTurnRequest(options) {
-  const { state, scopeKey, clientTurnId, activeDocumentPath, editorState } = options;
+  const { state, scopeKey, clientTurnId, boundBuffer, editorState } = options;
   const buffers = editorState.buffers;
   return {
     schema_version: 1,
@@ -278,15 +231,15 @@ export function buildTurnRequest(options) {
       tile_kind: String(scopeKey.tile_kind),
       tile_id: String(scopeKey.tile_id),
     },
-    // T104 F2 + G-1: `model_id` must be minLength 1, enforced by
-    // `createTurnDispatcher.submit` before this builder is reached (an absent
-    // model is an answerable local refusal, not a malformed request).
-    // `active_document_path` is NULLABLE per the contract-v1.28 amendment,
-    // mirroring `buffer_state.path`: null is the outline-only turn, which the
-    // dispatcher permits only when the outline buffer is backed and the tile
-    // publishes no usable document candidate.
-    active_document_path: activeDocumentPath === null
-      || activeDocumentPath === undefined ? null : String(activeDocumentPath),
+    // THE DECLARED BINDING (contract-v1.34; design D17): the key of the buffer
+    // the human has SELECTED, stated on the wire so the turn's durable record can
+    // name it. It is not inferred from an adjacent field -- the widened envelope
+    // carries no `active_document_path` for anything to infer it from, and that
+    // inference is the one Phase A's review killed. `model_id` must still be
+    // minLength 1, which `createTurnDispatcher.submit` enforces before this
+    // builder is reached (an absent model is an answerable local refusal, not a
+    // malformed request).
+    bound_buffer: String(boundBuffer),
     working_subject: state.workingSubject,
     message: state.composer,
     model_id: state.selectedModelId === null ? "" : state.selectedModelId,
@@ -297,10 +250,11 @@ export function buildTurnRequest(options) {
     // oldest evicted first — possibly nothing — while the display keeps it.
     transcript: transcriptWireWindow(state).map(
       (turn) => ({ role: turn.role, content: turn.content })),
-    buffers: [
-      wireBuffer(buffers.outline, "outline", scopeKey.repository),
-      wireBuffer(buffers.document, "document", scopeKey.repository),
-    ],
+    // EVERY buffer the canvas holds. Binding says what the chat is working ON;
+    // it never narrows what the turn is GROUNDED on, so the outline and every
+    // loaded document ride the request whichever one is bound.
+    buffers: wireBufferKeys(buffers).map(
+      (key) => wireBuffer(buffers[key], buffers[key].kind, scopeKey.repository)),
   };
 }
 
@@ -344,55 +298,42 @@ export function createTurnDispatcher(options) {
         ? contextValue.editorState() : contextValue.editorState;
       // PR #63 review (Copilot): an UNSETTLED buffer identity cannot be
       // declared on the wire — refuse pre-flight, composer preserved, the
-      // transport never consulted.
-      if (!editorState || !bufferSettled(editorState.buffers.outline)
-          || !bufferSettled(editorState.buffers.document)) {
+      // transport never consulted. EVERY buffer is checked, not two named ones:
+      // the widened request declares an identity for each one it carries, so one
+      // unsettled buffer anywhere in the loaded set is one undeclarable identity.
+      const bound = boundBufferKey(editorState);
+      const settled = editorState && editorState.buffers
+        && Object.keys(editorState.buffers).every(
+          (key) => bufferSettled(editorState.buffers[key]));
+      if (!editorState || !settled || bound === null) {
         // `begun` is in_flight, so the fixed-failure settlement applies:
         // idle again, composer preserved, the note visible (R2).
         return { refused: true,
                  state: settleTurnFailure(begun, BUFFERS_UNSETTLED) };
       }
-      // F1 (PR #207 review): the SELECTED buffer is one the released envelope
-      // cannot carry a turn about. Refused HERE — pre-flight, composer
-      // preserved, the transport never consulted — with our own stated reason,
-      // rather than shipped so the route can answer with a redacted governance
-      // code for a limitation of our own wire.
-      const binding = chatBindingPosture(editorState);
-      if (!binding.ok) {
-        return { refused: true,
-                 state: settleTurnFailure(begun, CHAT_BINDING_UNRELEASED) };
-      }
-      // T104 F2: the two RELEASED-envelope violations, refused here rather
-      // than shipped. Same settlement, same preserved composer.
+      // (The interim binding refusal stood here; §13's release retired it with
+      // the posture it belonged to. The SELECTED buffer is always a buffer the
+      // widened request carries, so there is nothing left to refuse pre-flight.)
+      //
+      // T104 F2: the RELEASED-envelope violation still refused here rather than
+      // shipped. Same settlement, same preserved composer.
       if (!stateValue.selectedModelId) {
         return { refused: true,
                  state: settleTurnFailure(begun, NO_MODEL_SELECTED) };
       }
-      const activePath = contextValue.activeDocumentPath;
-      if (activePath === null || activePath === undefined || activePath === "") {
-        const candidates = typeof contextValue.documentCandidates === "function"
-          ? contextValue.documentCandidates() : contextValue.documentCandidates;
-        const usable = (candidates || []).filter(
-          (path) => typeof path === "string" && path);
-        // The tile HAS documents this turn could name and none is active: the
-        // operator has a choice to make, so the F2 refusal stands and names
-        // one (T104 F2, unchanged).
-        //
-        // With NO candidates the choice does not exist. If the outline is
-        // backed, the turn grounds on it alone (G-1); only a tile with
-        // neither is genuinely without context, and keeps the F2 refusal.
-        if (usable.length || !outlineOnlyTurnIsAvailable(editorState)) {
-          return { refused: true,
-                   state: settleTurnFailure(
-                     begun, noActiveDocumentFailure(usable)) };
-        }
-      }
+      // (The `no_active_document` pre-flight refusal stood here too.) It existed
+      // because the v1 envelope made a turn declare ONE active document path and
+      // an operator with several candidates had a choice to make before one could
+      // be named. The widened envelope carries every loaded buffer and binds to
+      // the one the human SELECTED, so that choice is already made by the time
+      // Send is pressed -- including for the create flow's unbacked slot, which
+      // is a legitimate thing to be working on and which the server accepts.
       if (typeof contextValue.onBegin === "function") {
         contextValue.onBegin(begun);
       }
       const request = buildTurnRequest({
         state: stateValue, scopeKey: contextValue.scopeKey, clientTurnId,
-        activeDocumentPath: contextValue.activeDocumentPath, editorState });
+        boundBuffer: bound, editorState });
       let response = null;
       try {
         response = await transports.chatTurn(request);
@@ -486,11 +427,20 @@ function sendTitle(inFlight, disabled, unavailableReason) {
 export function proposalCardModel(stateValue) {
   const records = proposalsOf(stateValue);
   const cards = [];
-  for (const target of ["outline", "document"]) {
+  // The DECLARED order, from the model that owns it -- not a two-name literal.
+  // A proposal's target is a BUFFER KEY since contract-v1.34, so a card list
+  // built by enumerating two names could not render a proposal against the third
+  // document a human loaded (add-doxbench-editing-phase-b §13).
+  for (const target of orderedProposalTargets(records)) {
     const record = records[target];
     if (!record) continue;
+    // The BADGE reads as a name a human recognizes; the aria label and the note
+    // carry the whole key, so a basename shared by two loaded documents is never
+    // the only thing a reader has.
+    const label = target === "outline" ? "outline" : basenameOf(target);
     cards.push(Object.freeze({
       target,
+      label,
       status: record.status,
       summary: record.summary,
       applyEnabled: record.status === "current",
@@ -588,28 +538,17 @@ export function createProposalActions(options) {
 // value.
 // ---------------------------------------------------------------------------
 
-// Which buffer keys the RELEASED v1 envelope can carry a turn about. Both are
-// reserved keys, and that is the whole of the closed set until §13.
-const V1_BINDABLE_BUFFER_KEYS = Object.freeze(["outline", "document"]);
-
-// The chat's binding posture for one editor state. PURE and exported, so the
-// limitation is pinned without a DOM and read from exactly one place by the
-// render, the dispatcher and the tests.
-export function chatBindingPosture(editorStateValue) {
+// THE BINDING A TURN DECLARES: the SELECTED buffer's key, read straight off the
+// one state authority and never tracked a second time here (D7). Since
+// contract-v1.34 there is no closed set to check it against -- the widened
+// envelope carries every loaded buffer, so whatever is selected is a buffer the
+// request supplies, which is exactly what the server's own revalidation
+// requires. `null` only while the canvas's initial load has not settled, which
+// `canSend` already holds Send closed through.
+export function boundBufferKey(editorStateValue) {
   const state = editorStateValue || null;
-  const selected = state && typeof state.active_buffer === "string"
+  return state && typeof state.active_buffer === "string" && state.active_buffer
     ? state.active_buffer : null;
-  if (selected === null) {
-    // No state yet (the rail renders before the canvas's initial load settles).
-    // Not a refusal: there is nothing to refuse about, and `canSend` already
-    // holds Send closed until a model and a message exist.
-    return Object.freeze({ ok: true, reason: null, selected: null });
-  }
-  if (V1_BINDABLE_BUFFER_KEYS.includes(selected)) {
-    return Object.freeze({ ok: true, reason: null, selected });
-  }
-  return Object.freeze({
-    ok: false, reason: CHAT_BINDING_UNRELEASED.message, selected });
 }
 
 export const LOADED_SELECTOR_EMPTY_NOTE =
@@ -760,7 +699,7 @@ let railSequence = 0;
 
 export function mountDoxBenchChatRail(host, options = {}) {
   const {
-    scopeKey, transports, editorState, activeDocumentPath, onState,
+    scopeKey, transports, editorState, onState,
   } = options;
   const doc = host.ownerDocument;
   let state = createChatState(scopeKey);
@@ -1062,7 +1001,9 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // WHICH buffer held focus, not the node). `cardControls` is rebuilt by
   // every renderCards pass, so the lookup always answers with the LIVE
   // control for that identity.
-  let cardControls = { outline: null, document: null };
+  // Keyed by proposal TARGET -- a buffer key since contract-v1.34, so this is a
+  // plain map rebuilt per render rather than two fixed slots.
+  let cardControls = {};
 
   function restoreCardFocus(targetValue, roleValue) {
     const rebuilt = cardControls[targetValue];
@@ -1081,13 +1022,14 @@ export function mountDoxBenchChatRail(host, options = {}) {
 
   function renderCards() {
     cardsHost.textContent = "";
-    cardControls = { outline: null, document: null };
+    cardControls = {};
     for (const card of proposalCardModel(state)) {
       const item = el("div", "doxchat-card doxchat-card-" + card.status);
       item.setAttribute("role", "group");
       item.setAttribute("aria-label", card.ariaLabel);
       const badge = el("span", "doxchat-card-target",
-                       card.target.toUpperCase());
+                       card.label.toUpperCase());
+      badge.setAttribute("title", card.target);
       const summaryNode = el("span", "doxchat-card-summary", card.summary);
       summaryNode.setAttribute("dir", "auto");
       item.append(badge, summaryNode,
@@ -1178,24 +1120,18 @@ export function mountDoxBenchChatRail(host, options = {}) {
     // precisely because the button still looked available, and the second
     // click sent an empty message the schema refused as malformed.
     const inFlight = state.phase !== "idle";
-    // F1 (PR #207 review): a selection the released envelope cannot carry holds
-    // Send closed BEFORE any provider is reached, and the reason rides the
-    // control and the sr-only region the control already points at with
-    // `aria-describedby` — so it is programmatically associated rather than
-    // living only in a hover title.
-    const binding = chatBindingPosture(liveEditorState());
-    sendBtn.disabled = !canSend(state) || !binding.ok;
+    // The interim send-gate stood here (task 8.6's N4): a selection the released
+    // v1 envelope could not carry held Send closed and stated why. §13's widened
+    // envelope carries every loaded buffer and the declared binding, so there is
+    // no selection this surface must refuse to send, and the gate goes with the
+    // posture rather than lingering as a branch that can never be true.
+    sendBtn.disabled = !canSend(state);
     sendBtn.textContent = inFlight ? "Sending…" : "Send";
     // The reason is a MODEL reason only while no model is actually selectable or
     // selected; once one is chosen, an empty composer is a different reason and
     // must not borrow this sentence.
-    // The BINDING reason wins when it applies: it names a limitation of this
-    // surface's own wire, which no model choice can fix.
-    const modelReason = !binding.ok
-      ? binding.reason
-      : (state.selectedModelId ? null : unavailabilityNote(state));
+    const modelReason = state.selectedModelId ? null : unavailabilityNote(state);
     sendBtn.title = sendTitle(inFlight, sendBtn.disabled, modelReason);
-    if (!binding.ok) unavailableNote.textContent = binding.reason;
     if (typeof onState === "function") onState(state);
   }
 
@@ -1249,11 +1185,10 @@ export function mountDoxBenchChatRail(host, options = {}) {
     try {
       const result = await dispatcher.submit(state, {
         scopeKey: currentScopeKey,
-        activeDocumentPath: typeof activeDocumentPath === "function"
-          ? activeDocumentPath() : (activeDocumentPath ?? null),
-        // T104 F2: the tile's USABLE documents, so a no-active-document
-        // refusal can name one instead of leaving the operator to guess.
-        documentCandidates: options.documentCandidates,
+        // The binding is read from the live editor state inside `submit`, from
+        // the one selection authority -- the rail neither tracks it nor is
+        // handed it, which is what keeps the selector from becoming a second
+        // answer to "which buffer is selected" (design D7).
         editorState,
         // Refused states carry the visible fixed note (R2); abandoned
         // results hand back the live state unchanged (R1) — adopt whatever

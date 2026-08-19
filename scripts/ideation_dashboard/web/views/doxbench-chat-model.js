@@ -68,7 +68,7 @@ export function createChatState(keyValue) {
     pendingMessage: null,    // the composer content captured at beginTurn
     transcript: Object.freeze([]),
     lastFailure: null,
-    proposals: Object.freeze({ outline: null, document: null }),
+    proposals: NO_PROPOSALS,
   });
 }
 
@@ -269,7 +269,7 @@ export function settleTurnSuccess(stateValue, successPayload) {
       ? "" : stateValue.composer,
     pendingMessage: null,
     lastFailure: null,
-    proposals: adoptProposals(successPayload.proposals),
+    proposals: adoptProposals(successPayload),
     transcript: boundedAppend(
       stateValue.transcript,
       stateValue.pendingMessage === null ? "" : stateValue.pendingMessage,
@@ -339,31 +339,39 @@ export function rekeyChatState(stateValue, keyValue) {
 
 export const PROPOSAL_STATUSES = Object.freeze([
   "current", "stale", "rejected", "applied"]);
-// THE TARGET SET, and why it is still these two names.
+
+// THE TARGET SET IS THE RECORD'S OWN (contract-v1.34, add-doxbench-editing-phase-b
+// §13). It used to be a module constant of two names, because the v1 wire declared
+// `typed_proposal.target` as a two-value enum and no other target could reach this
+// module. The widened family releases a BUFFER-KEY target, so the closed set is
+// the one the turn itself states: `observed_hashes` is keyed by buffer and holds
+// exactly the buffers the request supplied and the model was therefore shown.
 //
-// add-doxbench-editing-phase-b makes a proposal's target a BUFFER KEY drawn from
-// the request's own supplied set, and the SERVER side of that is realized:
-// `doxbench_turns.permitted_proposal_targets` derives the closed set from the
-// identities the request was shown, so a path-keyed target routes and an
-// unsupplied one is refused as unroutable. What has NOT moved is the WIRE: the
-// released v1 chat-turn envelope declares `typed_proposal.target` as this
-// two-value enum, so no other target can reach this module today.
-//
-// These two names are therefore a LEGAL INSTANCE of the keyed shape -- the
-// reserved `outline` key plus the reserved unbacked `document` key -- exactly as
-// `{outline, document}` is a legal instance of the keyed buffer set (design D1).
-// The behaviour a widened wire needs is already correct and already fail-closed:
-// a target this set does not hold is DROPPED rather than recorded, which is the
-// delta's own rule ("refused as unroutable and MUST NOT be rendered with an
-// Apply control"), and `refreshProposalCurrency` reads whichever hashes it is
-// handed, which the shell now supplies for EVERY buffer key.
-//
-// TODO(add-doxbench-editing-phase-b tasks.md §13): the co-resident widened
-// envelope family releases a buffer-key target. When it lands, this constant
-// becomes the request's own key set -- read from the turn the records were built
-// from, never from a module constant, for the same reason the server's is.
-const PROPOSAL_TARGETS = Object.freeze(["outline", "document"]);
-const NO_PROPOSALS = Object.freeze({ outline: null, document: null });
+// Reading it from the RECORD rather than from a constant is the same rule the
+// server derives its own permitted set by, and it makes "a target the request did
+// not supply" and "a target whose shown identity we do not hold" one question. A
+// target outside it is DROPPED rather than recorded, which is the delta's own rule
+// ("refused as unroutable and MUST NOT be rendered with an Apply control"). Both
+// families answer it: a v1 record carries the same object under the two reserved
+// keys.
+function permittedTargetsOf(successPayload) {
+  const observed = successPayload && successPayload.observed_hashes;
+  if (!observed || typeof observed !== "object") return [];
+  return Object.keys(observed);
+}
+
+// The DECLARED order proposals are read and rendered in: the reserved outline
+// first -- it is the buffer every turn carries -- then the documents ascending by
+// buffer key, which is the same order the selector and the save plan use. A card
+// list whose order depended on object insertion would reshuffle under the cursor.
+export function orderedProposalTargets(records) {
+  const keys = Object.keys(records || {}).filter((key) => records[key]);
+  const documents = keys.filter((key) => key !== "outline").sort(
+    (left, right) => (left < right ? -1 : left > right ? 1 : 0));
+  return keys.includes("outline") ? ["outline", ...documents] : documents;
+}
+
+const NO_PROPOSALS = Object.freeze({});
 
 function proposalRecord(raw, statusValue) {
   return Object.freeze({
@@ -375,10 +383,11 @@ function proposalRecord(raw, statusValue) {
   });
 }
 
-function adoptProposals(payloadProposals) {
-  const records = { outline: null, document: null };
-  for (const raw of payloadProposals || []) {
-    if (PROPOSAL_TARGETS.includes(raw && raw.target)) {
+function adoptProposals(successPayload) {
+  const permitted = permittedTargetsOf(successPayload);
+  const records = {};
+  for (const raw of (successPayload && successPayload.proposals) || []) {
+    if (raw && permitted.includes(raw.target)) {
       records[raw.target] = proposalRecord(raw, "current");
     }
   }
@@ -391,9 +400,9 @@ export function proposalsOf(stateValue) {
 
 export function refreshProposalCurrency(stateValue, currentHashes) {
   const before = proposalsOf(stateValue);
-  const records = { outline: before.outline, document: before.document };
+  const records = { ...before };
   let changed = false;
-  for (const target of PROPOSAL_TARGETS) {
+  for (const target of Object.keys(records)) {
     const record = records[target];
     if (!record) continue;
     if (record.status === "applied" || record.status === "rejected") continue;
@@ -478,7 +487,7 @@ export function chatSnapshot(stateValue) {
     composer: stateValue.composer,
     transcript: transcriptWindow(stateValue).map(
       (turn) => ({ role: turn.role, content: turn.content })),
-    proposals: PROPOSAL_TARGETS.map((target) => records[target])
+    proposals: orderedProposalTargets(records).map((target) => records[target])
       .filter(Boolean)
       .map((record) => ({
         target: record.target, base_hash: record.base_hash,
@@ -494,10 +503,14 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
       || snapshotValue.kind !== CHAT_SNAPSHOT_KIND) {
     return stateValue;   // unknown shape: keep the fresh state, fail closed
   }
-  const records = { outline: null, document: null };
+  const records = {};
   for (const raw of Array.isArray(snapshotValue.proposals)
       ? snapshotValue.proposals : []) {
-    if (!PROPOSAL_TARGETS.includes(raw && raw.target)) continue;
+    // Any buffer KEY may have been a target (contract-v1.34); a restored record
+    // whose buffer is no longer loaded re-scores to `stale` below, because
+    // `refreshProposalCurrency` holds no current hash for it. Fail-closed by the
+    // same rule that scores every other restored proposal, not by a second one.
+    if (!raw || typeof raw.target !== "string" || !raw.target) continue;
     // TERMINAL statuses survive verbatim (an applied proposal stays applied);
     // everything else is re-scored below against the restored bytes.
     const status = (raw.status === "applied" || raw.status === "rejected")

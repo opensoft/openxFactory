@@ -791,3 +791,105 @@ def test_delegated_semantics_accept_the_packaged_positives(released_root):
     returncode, output = contracts.delegated_semantic_validation(positives,
                                                                  released_root)
     assert returncode == 0, output
+
+
+# ---------------------------------------------------------------------------
+# THE V1 ENVELOPES ARE BYTE-IDENTICAL (contract-v1.34,
+# add-doxbench-editing-phase-b task 13.1)
+#
+# The release ADDS a family beside the existing one rather than mutating a closed
+# envelope, and "byte-identical" is the promise the CHANGELOG makes to every
+# consumer pinned to the older shape. That promise is asserted against a
+# COMMITTED BASELINE of those bytes -- not by re-validating an instance, which
+# would still pass after a widened `maxItems` or a relaxed enum quietly changed
+# what the old shape means.
+# ---------------------------------------------------------------------------
+
+V1_ENVELOPE_BASELINE = (
+    Path(__file__).resolve().parent / "fixtures"
+    / "chat-turn-v1-envelopes.baseline.yaml")
+
+
+def _defs_blocks(schema_text: str) -> dict[str, str]:
+    """Every `$defs` member's EXACT source text, keyed by name.
+
+    Split on indent-2 keys, with an indent-2 comment run attaching to the block
+    it introduces rather than to the one above it -- otherwise a comment written
+    before a NEW definition would appear to change the bytes of the definition
+    before it, which is the opposite of what this file measures."""
+    lines = schema_text.splitlines(keepends=True)
+    blocks: dict[str, str] = {}
+    name: str | None = None
+    body: list[str] = []
+    pending: list[str] = []
+    for line in lines[lines.index("$defs:\n") + 1:]:
+        stripped = line.strip()
+        if line.startswith("  #") and not line.startswith("   "):
+            pending.append(line)
+            continue
+        if (line.startswith("  ") and not line.startswith("   ")
+                and stripped.endswith(":") and stripped[:-1].isidentifier()):
+            if name is not None:
+                blocks[name] = "".join(body)
+            name, body, pending = stripped[:-1], [*pending, line], []
+            continue
+        body.extend(pending)
+        pending = []
+        body.append(line)
+    if name is not None:
+        blocks[name] = "".join(body)
+    return blocks
+
+
+def test_the_v1_envelope_bytes_are_unchanged_by_the_release(released_root):
+    schema = (released_root / "contracts" / "schemas"
+              / CHAT_TURN_SCHEMA_FILE).read_text(encoding="utf-8")
+    blocks = _defs_blocks(schema)
+    for envelope in ("request", "success", "failure"):
+        assert envelope in blocks, envelope
+    observed = "".join(blocks[name] for name in ("request", "success", "failure"))
+    baseline = V1_ENVELOPE_BASELINE.read_text(encoding="utf-8")
+    assert observed == baseline, (
+        "the v1 request/success/failure blocks are not byte-identical to the "
+        "committed contract-v1.31 baseline; the release is additive, so any "
+        "change here is a change to a shape consumers are pinned to")
+
+
+def test_the_widened_family_is_present_beside_the_unchanged_one(released_root):
+    """The other half of the same claim: the file really did grow. A test that
+    only checked the v1 bytes would pass on a file that never gained a widened
+    envelope at all."""
+    schema = (released_root / "contracts" / "schemas"
+              / CHAT_TURN_SCHEMA_FILE).read_text(encoding="utf-8")
+    blocks = _defs_blocks(schema)
+    for envelope in ("request_v2", "success_v2", "failure_v2"):
+        assert envelope in blocks, envelope
+    document = yaml.safe_load(schema)
+    # The file's own version does NOT move: nothing previously valid becomes
+    # invalid, which is what makes this additive rather than breaking (D16).
+    assert document["contract_schema_version"] == 1
+    assert [ref["$ref"] for ref in document["oneOf"]] == [
+        "#/$defs/request", "#/$defs/success", "#/$defs/failure",
+        "#/$defs/request_v2", "#/$defs/success_v2", "#/$defs/failure_v2"]
+
+
+def test_the_deprecation_records_its_removal_target(released_root):
+    """Task 13.2: the v1 family is deprecated IN THIS RELEASE with the removal
+    target recorded. Recorded OUTSIDE the envelopes, because a deprecation is a
+    statement about a shape and editing the shape to say so would break the byte
+    identity asserted above."""
+    document = yaml.safe_load(
+        (released_root / "contracts" / "schemas"
+         / CHAT_TURN_SCHEMA_FILE).read_text(encoding="utf-8"))
+    recorded = {entry["kind"]: entry
+                for entry in document["deprecated_envelopes"]}
+    assert set(recorded) == set(contracts.DEPRECATED_CHAT_TURN_KINDS)
+    for kind, entry in recorded.items():
+        assert entry["deprecated_in"] == "contract-v1.34"
+        # Removal of a released shape is BREAKING, so it can only land at a
+        # major -- and only after the full minor release of deprecation the
+        # versioning policy requires, which this release is.
+        assert entry["removal_target"] == "contract-v2.0"
+        assert entry["superseded_by"] in contracts.CHAT_TURN_DEFS
+        assert entry["superseded_by"] not in contracts.DEPRECATED_CHAT_TURN_KINDS
+        assert kind in contracts.CHAT_TURN_DEFS

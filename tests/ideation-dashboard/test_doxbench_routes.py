@@ -173,11 +173,68 @@ _FIXTURE_TURN_FAILURE_SCHEMA = {
     },
 }
 
+# The CO-RESIDENT WIDENED family (contract-v1.34,
+# add-doxbench-editing-phase-b §13), fixtured to the same depth and for the same
+# reason: discriminators and closedness only. `bound_buffer` replaces
+# `active_document_path` on the request -- the binding is DECLARED, not inferred
+# from an adjacent field -- and the record gains that key plus the
+# selected-model metadata.
+_FIXTURE_TURN_V2_REQUEST_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["schema_version", "kind", "client_turn_id", "scope",
+                 "bound_buffer", "working_subject", "message", "model_id",
+                 "last_assistant_turn_id", "transcript", "buffers"],
+    "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": doxbench_contracts.KIND_CHAT_TURN_V2},
+        "client_turn_id": {},
+        "scope": {},
+        "bound_buffer": {},
+        "working_subject": {},
+        "message": {},
+        "model_id": {},
+        "last_assistant_turn_id": {},
+        "transcript": {},
+        "buffers": {},
+    },
+}
+
+_FIXTURE_TURN_V2_SUCCESS_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["schema_version", "kind", "client_turn_id", "assistant_turn_id",
+                 "model_id", "selected_model", "bound_buffer", "observed_hashes",
+                 "assistant_prose", "proposals"],
+    "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS},
+        "client_turn_id": {}, "assistant_turn_id": {}, "model_id": {},
+        "selected_model": {}, "bound_buffer": {},
+        "observed_hashes": {}, "assistant_prose": {}, "proposals": {},
+    },
+}
+
+_FIXTURE_TURN_V2_FAILURE_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["schema_version", "kind", "client_turn_id", "error", "message"],
+    "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE},
+        "client_turn_id": {}, "error": {}, "message": {},
+        "limit": {},
+    },
+}
+
 _FIXTURE_SCHEMAS = {
     doxbench_contracts.KIND_MODEL_CATALOG: _FIXTURE_CATALOG_SCHEMA,
     doxbench_contracts.KIND_CHAT_TURN: _FIXTURE_TURN_REQUEST_SCHEMA,
     doxbench_contracts.KIND_CHAT_TURN_SUCCESS: _FIXTURE_TURN_SUCCESS_SCHEMA,
     doxbench_contracts.KIND_CHAT_TURN_FAILURE: _FIXTURE_TURN_FAILURE_SCHEMA,
+    doxbench_contracts.KIND_CHAT_TURN_V2: _FIXTURE_TURN_V2_REQUEST_SCHEMA,
+    doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS: _FIXTURE_TURN_V2_SUCCESS_SCHEMA,
+    doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE: _FIXTURE_TURN_V2_FAILURE_SCHEMA,
 }
 
 
@@ -2930,3 +2987,130 @@ def test_a_wrong_token_bearing_get_still_refuses_on_validity(tmp_path):
             host, p, "GET", ROUTE,
             headers={"X-XF-Console-Token": "forged-token-value"})
     assert status == 403
+
+
+# ---------------------------------------------------------------------------
+# THE WIDENED FAMILY ON THE ROUTE (contract-v1.34;
+# add-doxbench-editing-phase-b tasks 13.1/13.4/13.5)
+#
+# The route serves BOTH released families and answers a turn in the family it
+# arrived in. The v1 lane above is unchanged and stays exercised by every test
+# in this module; these pin the widened one -- most importantly that the durable
+# RECORD names the binding the REQUEST DECLARED, which is the F2 obligation
+# Phase A deferred against exactly this release.
+# ---------------------------------------------------------------------------
+
+_RELEASED_V2_SUCCESS_KEYS = {
+    "schema_version", "kind", "client_turn_id", "assistant_turn_id",
+    "model_id", "selected_model", "bound_buffer", "observed_hashes",
+    "assistant_prose", "proposals",
+}
+
+
+def _turn_v2(**over):
+    """A widened turn over the same fixture tile: the outline plus the reserved
+    not-yet-created document slot, with the binding DECLARED rather than implied
+    by an active-document path (which this envelope does not carry)."""
+    body = {
+        "schema_version": 1,
+        "kind": doxbench_contracts.KIND_CHAT_TURN_V2,
+        "client_turn_id": "turn-v2-0001",
+        "scope": {"repository": "fixture-repo", "ref": "main",
+                  "tile_kind": "staged", "tile_id": "ideation-governance"},
+        "bound_buffer": "outline",
+        "working_subject": "Clarify the acceptance boundary " + _S_SUBJECT,
+        "message": "Which open question should we close next? " + _S_MESSAGE,
+        "model_id": "model-a",
+        "last_assistant_turn_id": None,
+        "transcript": [],
+        "buffers": [
+            _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
+            _buf("document", None, "# Document\n\n" + _S_DOCUMENT),
+        ],
+    }
+    body.update(over)
+    return body
+
+
+def test_a_widened_turn_returns_the_widened_record_naming_its_declared_binding(
+        tmp_path):
+    """THE F2 OBLIGATION, discharged and measured on the RECORD.
+
+    The turn is bound to the OUTLINE while a document buffer rides beside it --
+    precisely the case Phase A's review found mis-recorded, because the binding
+    was derived from which document happened to be supplied. The record names
+    what the request DECLARED."""
+    status, payload, fake = _post_turn(tmp_path, _turn_v2())
+    assert status == 200
+    assert set(payload) == _RELEASED_V2_SUCCESS_KEYS
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
+    assert payload["client_turn_id"] == "turn-v2-0001"
+    assert payload["bound_buffer"] == "outline"
+    # Keyed by BUFFER KEY, one per buffer the turn carried.
+    assert set(payload["observed_hashes"]) == {"outline", "document"}
+    for value in payload["observed_hashes"].values():
+        assert isinstance(value, str) and len(value) == 64
+    # The selected-model metadata beside the model that answered.
+    assert payload["model_id"] == "model-a"
+    assert payload["selected_model"] == {
+        "requested_model_id": "model-a",
+        "routing_rule": False,
+        "data_handling": "Processed in the approved tenant boundary",
+    }
+    assert fake.calls.count("dispatch") == 1
+    assert fake.calls[-1] == "dispatch"
+    _assert_no_sentinels(payload)
+
+
+def test_a_widened_turn_bound_to_a_supplied_document_records_that_key(tmp_path):
+    """The other binding, over the same buffer set: what changes in the record is
+    the declared key and NOTHING else, which is what makes the record a statement
+    about the conversation rather than about the buffer list."""
+    status, payload, _fake = _post_turn(
+        tmp_path, _turn_v2(client_turn_id="turn-v2-0002",
+                           bound_buffer="document"))
+    assert status == 200
+    assert payload["bound_buffer"] == "document"
+    assert set(payload["observed_hashes"]) == {"outline", "document"}
+
+
+def test_a_widened_turn_whose_binding_names_no_supplied_buffer_is_refused(
+        tmp_path):
+    """The generalized active-path revalidation: refused BEFORE any provider
+    call, and answered in the family the request arrived in."""
+    status, payload, fake = _post_turn(
+        tmp_path, _turn_v2(bound_buffer="ideation/staging/ideation-governance/"
+                                        "never-supplied.md"))
+    assert status == serve_mod.doxbench_error_status(
+        serve_mod.DOXBENCH_ERR_TURN_SCOPE_REFUSED)
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE
+    assert payload["error"] == "turn_scope_refused"
+    assert "dispatch" not in fake.calls
+    _assert_no_sentinels(payload)
+
+
+def test_a_deprecated_v1_turn_is_still_served_in_its_own_family(tmp_path):
+    """The deprecation's whole promise: the older shape keeps working, and it is
+    answered in ITS envelope -- never in the widened one, which carries fields a
+    v1 client has no reader for."""
+    status, payload, _fake = _post_turn(tmp_path, _turn())
+    assert status == 200
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_SUCCESS
+    assert "bound_buffer" not in payload
+    assert "selected_model" not in payload
+
+
+@released_only
+def test_both_families_conform_to_the_released_schema_on_the_wire(
+        tmp_path, released_validators):
+    """Requests and records from BOTH families validate against the released
+    bytes -- the co-residence claim, executed rather than described."""
+    v2_request = _turn_v2()
+    assert doxbench_contracts.validate_instance(v2_request) == []
+    assert doxbench_contracts.validate_instance(_turn()) == []
+    status, payload, _fake = _post_turn(tmp_path, v2_request)
+    assert status == 200
+    assert doxbench_contracts.validate_instance(payload) == []
+    status, payload, _fake = _post_turn(tmp_path, _turn())
+    assert status == 200
+    assert doxbench_contracts.validate_instance(payload) == []

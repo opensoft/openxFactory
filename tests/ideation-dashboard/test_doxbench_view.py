@@ -2804,11 +2804,15 @@ def test_staging_workbench_composes_the_doxbench_canvas_without_new_transport():
                       'onIdentitySettled: syncContextFromCanvas'):
         assert forwarded in view
     assert 'railController.refreshCurrency(' in view
-    # T104 F2: the rail is handed the tile's USABLE documents (the scope
-    # authority's own intersection), so a "no active document" refusal can name
-    # one the operator could pick instead of dead-ending. Read from the
-    # projection the canvas was mounted on -- the shell derives nothing here.
-    assert 'documentCandidates: () => projection.active_document_candidates' in view
+    # RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13). The rail
+    # used to be handed the tile's USABLE documents, so a "no active document"
+    # refusal could name one instead of dead-ending -- a refusal that existed
+    # only because the v1 envelope made a turn declare ONE active document path.
+    # The widened envelope carries the whole loaded set and binds to the SELECTED
+    # buffer, so neither the refusal nor the seam that fed it exists; the rail
+    # reads its binding off the state authority itself.
+    assert 'documentCandidates' not in view
+    assert 'activeDocumentPath' not in view
     for needle in ("fetch(", "XMLHttpRequest", "doFetch", "/actions/"):
         assert needle not in view
 

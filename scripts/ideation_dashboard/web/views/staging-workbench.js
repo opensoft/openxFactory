@@ -1429,11 +1429,13 @@ export function mountStagingWorkbench(container, snapshot,
     }
     return null;
   }
-  // The RESERVED `document` slot's own path, or null. This is the only document
-  // path the released v1 turn envelope can carry (F1), and it is deliberately a
-  // different question from `canvasDocumentPath` above -- which answers "which
-  // document is the human on" for the WHEEL, a UI concern with no wire in it.
-  // Two questions, two functions, each named for what it answers.
+  // The RESERVED `document` slot's own path, or null -- the question the LOAD
+  // route asks to decide whether a first load FILLS the unbacked slot or ADDS a
+  // path-keyed buffer beside it. It stopped being a wire question at
+  // contract-v1.34, when the widened envelope started carrying the whole loaded
+  // set; it remains a state question, and it is still a different one from
+  // `canvasDocumentPath` above, which answers "which document is the human on"
+  // for the WHEEL.
   function reservedDocumentPath() {
     const current = canvasController && canvasController.state();
     if (!current || !current.buffers) return null;
@@ -1667,30 +1669,14 @@ export function mountStagingWorkbench(container, snapshot,
           syncContextFromCanvas();
           refreshDocTiles();
         },
-        // THE WIRE'S OWN INVARIANT, restored (adversarial review of PR #207,
-        // F1). `buildTurnRequest` sends exactly the two buffers the released v1
-        // envelope has room for -- the reserved `outline` key and the reserved
-        // `document` key -- so `active_document_path` can only ever name the
-        // RESERVED SLOT's own path. Handing it the selected buffer's path instead
-        // named a buffer the wire never carried, and the route then refused every
-        // turn with its fixed redacted `turn_scope_refused` code: a governance
-        // refusal shown for a limitation of our own wire.
-        //
-        // Selecting a path-keyed loaded document is still honoured by the canvas
-        // and the selector; the CHAT states that it cannot be bound there yet
-        // (`chatBindingPosture`), pre-flight and visibly, and consults no route.
-        //
-        // TODO(add-doxbench-editing-phase-b tasks.md §13): the widened
-        // co-resident family carries the outline plus N documents and a DECLARED
-        // bound-buffer key. When it releases, this narrowing and the posture
-        // beside it both go.
-        activeDocumentPath: () => reservedDocumentPath(),
-        // T104 F2: the documents a turn on this tile may actually name — the
-        // scope authority's own intersection, so a "no active document"
-        // refusal names one the operator can pick instead of stopping at the
-        // refusal. Read from the projection this canvas was mounted on; the
-        // shell derives nothing of its own here.
-        documentCandidates: () => projection.active_document_candidates || [],
+        // (The v1 wire's narrowing stood here: the rail's active-document option
+        // was pinned to the RESERVED slot's own path, because the released
+        // envelope carried that one document and nothing else, and beside it the
+        // candidate list a "no active document" refusal named. contract-v1.34's
+        // widened family carries the whole loaded set and a DECLARED bound-buffer
+        // key, so the rail reads its binding off the one selection authority
+        // itself and neither option exists any more -- task 8.6's N4 posture ends
+        // here, as that record said it would.)
       });
     }
     // PR #196 review F3, the mount-time half: the rail's header names the
