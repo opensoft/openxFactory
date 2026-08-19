@@ -478,26 +478,112 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
 
 ## 13. The contract release, and landing
 
-- [ ] 13.1 `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` gains a
+- [x] 13.1 `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` gains a
       second, CO-RESIDENT envelope family: the v1 request/success/failure stay
       BYTE-IDENTICAL and keep validating (a test asserts the bytes), and the new
       family carries the outline plus N document buffers, the bound-buffer key
       on request and record, per-buffer observed hashes keyed by buffer, a
       buffer-key proposal target, and the selected-model metadata.
-- [ ] 13.2 The v1 family is DEPRECATED in the same release with its removal
+      Released at **contract-v1.34** as `workbench-chat-turn-v2` /
+      `-v2-success` / `-v2-failure`, added to the file's top-level `oneOf` and
+      discriminated by `kind` exactly as the three v1 envelopes already
+      discriminate each other. Every closed constraint the design named widens in
+      the NEW family only: `buffers` `minItems: 2, maxItems: 2` → `maxItems: 25`
+      (the declared 24-document loaded-set bound plus the reserved outline);
+      `observed_hashes`' exact `{outline, document}` keys → a map keyed by BUFFER
+      KEY with `outline` still required; `typed_proposal.target`'s two-value enum
+      → a buffer key; `proposals.maxItems: 2` → the buffer-set bound, with the
+      one-per-supplied-buffer RULE staying the delegated validator's. The v1
+      bytes are asserted against a COMMITTED BASELINE
+      (`tests/ideation-dashboard/fixtures/chat-turn-v1-envelopes.baseline.yaml`),
+      not by re-validating an instance — a widened `maxItems` would still
+      validate. The widened request carries NO `active_document_path`: the
+      binding is declared, and the closed envelope leaves nothing to infer it
+      from.
+      **JUDGEMENT CALLS, flagged rather than buried.** (a) The design says
+      `buffer_state.kind`'s two-value enum "must widen"; design §1.1 also says
+      the KIND vocabulary "stays exactly this". Both hold only if what widens is
+      the buffer's IDENTITY, which moves from `kind` to the derived buffer key —
+      so `buffer_state` is REUSED unchanged by the widened family and no
+      redundant `key` field is added that could disagree with `path`.
+      (b) `additionalProperties: false` stays false: what widened is the closed
+      property SET, not the closedness. (c) The envelope-level `schema_version`
+      stays `1` beside the file's own (D16).
+- [x] 13.2 The v1 family is DEPRECATED in the same release with its removal
       target recorded. Change class stated as ADDITIVE (minor) plus a
       deprecation, per `docs/contract-versioning-policy.md`.
-- [ ] 13.3 The bundle version is ALLOCATED AT REALIZATION through the
+      Recorded in THREE places, each for a different reader: the schema's own
+      top-level `deprecated_envelopes` block (machine-readable, and placed
+      OUTSIDE every envelope precisely so the deprecated bytes do not move); the
+      CHANGELOG entry, which states the class against the policy's own test and
+      carries the migration note; and the policy's "Deprecations Currently In
+      Force" list. Removal target **contract-v2.0** — the next major, which is
+      the earliest release at which removing a released shape is legal, and this
+      release is the full minor of deprecation the breaking path requires.
+      Deprecated is not withdrawn: all six kinds stay dispatchable, and a v1 turn
+      is still served and still answered in ITS own family.
+- [x] 13.3 The bundle version is ALLOCATED AT REALIZATION through the
       serialized realization order — fetch, rebase, recheck availability,
       allocate, update manifest + CHANGELOG + digest inventory atomically with
       the schema, gate and review the exact candidate commit, land it, then
       publish and verify the annotated tag. No number is reserved before then.
-- [ ] 13.4 The runtime keeps resolving its pinned wire schemas from the checkout
+      **ALLOCATION LANDED; PUBLICATION IS POST-MERGE, as the policy orders it.**
+      Fetched origin, confirmed the branch already sat on `origin/main`
+      (`a4a6f6e`, no rebase needed), rechecked availability at allocation time —
+      `contract-v1.33` present in the CHANGELOG and manifest with no published
+      tag, `contract-v1.34` absent from the CHANGELOG, the manifest, the
+      `contracts/releases/` inventories and the remote tags — and allocated
+      **contract-v1.34**. Manifest, CHANGELOG, README, the versioning policy's
+      deprecation list and `contracts/releases/contract-v1.34.digests.yaml` moved
+      ATOMICALLY with the schema in one commit. NO TAG IS PUBLISHED on this
+      branch: steps 4-5 (land the exact reviewed commit, then publish and verify
+      the annotated tag from an independently refreshed checkout) happen after
+      merge, against the commit that actually lands.
+      **CONSEQUENCE, flagged.** `doxbench_contracts.CONTRACT_REF` cannot name a
+      commit that does not exist yet, so it carries the sentinel
+      `unpublished:contract-v1.34` — a value no `stack.yaml` can declare, so a
+      CONSUMER comparing against it refuses rather than matching by accident
+      (publisher mode reads no declaration and is unaffected). Replacing it with
+      the published commit is part of the post-merge tag step, not a follow-up
+      anyone may forget: the release is not published until its tag exists.
+- [x] 13.4 The runtime keeps resolving its pinned wire schemas from the checkout
       it runs in, and both model routes keep refusing before consulting any port
       when a pinned contract cannot be read. The repin is digest-checked.
-- [ ] 13.5 The F2 obligation is verified discharged: the record names the
+      `doxbench_contracts` moved v1.31 → v1.34 with the chat-turn digest (the
+      catalog's is unmoved), and the repin is NOT digest-neutral because the
+      release widens that file itself — a runtime pinned to v1.31's digest cannot
+      read v1.34's schema at all, which is the fail-closed chain working. Nothing
+      in it relaxed: declared pin, checkout resolution, manifest parity and
+      released bytes all still run per request, and both model routes still fail
+      closed on an unreadable contract. The route now reads WHICH FAMILY a turn
+      arrived in off the payload's own `kind` and answers in that family; the
+      gate order, the fixed codes and the redaction are unchanged, and identity
+      verification and the request-byte bound run over EVERY loaded document
+      rather than the first.
+- [x] 13.5 The F2 obligation is verified discharged: the record names the
       DECLARED bound buffer, and no server-side-only field and no inference from
       `active_document_path` remains anywhere.
+      The record names it: a route test posts a widened turn bound to the OUTLINE
+      while a document buffer rides beside it — exactly the case Phase A's review
+      found mis-recorded — and reads `bound_buffer` back off the released success
+      envelope. Both negatives are PROVEN rather than described, in
+      `tests/ideation-dashboard/test_doxbench_bound_buffer.py`: no
+      `PromptEnvelope` field reads as a binding claim (asserted on the dataclass,
+      not its docstring) and no runtime module assigns one onto the envelope; the
+      widened request envelope is CLOSED and declares no `active_document_path`,
+      so a request carrying one is refused by the released validator itself; and
+      neither browser module carries the seam that used to feed it. The
+      deprecated v1 lane still reads its own declared `active_document_path` —
+      that envelope's own field, and reading a KEY off a declared path is a
+      spelling change, not the killed derivation — but the handler passes the
+      PARSED binding whichever family it came from.
+      **N4 DISSOLVED WITH IT** (task 8.6's recorded interim posture): the chat
+      binds to the SELECTED buffer through the existing single state authority,
+      the binding is declared on the request and echoed in the record, and the
+      interim send-gate, its visible reason and the shell's narrowing to the
+      reserved slot are REMOVED — not left unreachable. Proven through the REAL
+      mount in `test_doxbench_composition.py`: load a document, select it, send,
+      and read the declared binding and the whole loaded set off the wire.
 - [ ] 13.6 The staged topic is EXITED: every question dispositioned, the topic
       folder's transition recorded, and the staging INDEX detail section updated
       to say Phase B carried the remainder.
