@@ -373,14 +373,31 @@ export async function renderViewer(root, opts) {
   const text = await response.text();
   mountSafeMarkdown(body, text);
   if (onText) {
-    // CONTAINED. Callers do not await this function (the outline pane mounts it
-    // and moves on), so a throw while a caller builds its own derivation would
-    // become a silent unhandled rejection — and it would be the LAST statement
-    // that failed, after the document itself rendered. Nothing is said on the
-    // page beyond the derivation simply being absent: the body above is already
-    // correct, and a message about a caller's bug would libel the document.
+    // CONTAINED, IN BOTH SHAPES A CALLER CAN FAIL IN. Callers do not await this
+    // function (the outline pane mounts it and moves on), so a failure while a
+    // caller builds its own derivation would become a silent unhandled
+    // rejection — and it would be the LAST statement that failed, after the
+    // document itself had already rendered.
+    //
+    // A SYNCHRONOUS throw is caught below. An ASYNC `onText` never throws at
+    // all: it hands back a rejected promise, which sails past a bare try/catch
+    // untouched. Our one caller is synchronous today, so that half was latent —
+    // but a containment claim true of only one of the two shapes is worse than
+    // no claim, because this comment is what the next caller reads before
+    // writing an async one (PR #208 review).
+    //
+    // Nothing is said on the page either way, beyond the derivation simply being
+    // absent: the body above is already correct, and a message about a caller's
+    // bug would libel the document.
     try {
-      onText(text);
+      const derived = onText(text);
+      // `.then(undefined, handler)` rather than `.catch`: only `then` is
+      // required of a thenable, and this settles the rejection WITHOUT awaiting
+      // it — the read is finished, and the viewer does not wait on anybody's
+      // derivation to call itself done.
+      if (derived && typeof derived.then === "function") {
+        derived.then(undefined, () => {});
+      }
     } catch (unused) { /* the caller's derivation, not the viewer's read */ }
   }
 }

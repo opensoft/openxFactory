@@ -498,6 +498,39 @@ const out = {
       (n) => String(n.className).split(' ').includes('viewer-body')
         && String(n.innerHTML).includes('A document')),
   };
+
+  // …and the ASYNC shape (PR #208 review). An async `onText` never throws: it
+  // hands back a rejected promise, which a bare try/catch does not see at all.
+  // Installing the process handler is what makes the escape OBSERVABLE instead
+  // of fatal -- without one, node would print the rejection and take the harness
+  // with it, which is exactly the failure mode being closed.
+  const escaped = [];
+  process.on('unhandledRejection', (reason) => {
+    escaped.push(String((reason && reason.message) || reason));
+  });
+  const asyncRoot = document.createElement('div');
+  let asyncRejected = null;
+  let asyncCalled = 0;
+  await renderViewer(asyncRoot, {
+    path: 'ideation/staging/topic-u/topic-u.md',
+    sourceBase: '/source/',
+    onText: async (text) => {
+      asyncCalled += 1;
+      void text;
+      throw new Error('async derivation bug');
+    },
+  }).then(() => null, (error) => { asyncRejected = String(error && error.message); });
+  // Node reports an unhandled rejection a tick AFTER the microtask queue drains,
+  // so the escape has to be given room to surface before it is measured.
+  for (let i = 0; i < 8; i += 1) await new Promise((r) => setTimeout(r, 0));
+  out.asyncThrowingOnText = {
+    called: asyncCalled,
+    rejected: asyncRejected,
+    escaped: [...escaped],
+    bodyRendered: asyncRoot.walk().some(
+      (n) => String(n.className).split(' ').includes('viewer-body')
+        && String(n.innerHTML).includes('A document')),
+  };
 }
 
 console.log(JSON.stringify(out));
@@ -846,6 +879,23 @@ def test_a_throwing_read_back_seam_does_not_take_the_viewer_down(tab):
     thrown = tab["throwingOnText"]
     assert thrown["called"] == 1, "the seam must still be invoked on a good load"
     assert thrown["rejected"] is None, thrown["rejected"]
+    assert thrown["bodyRendered"] is True
+
+
+def test_an_async_read_back_seam_that_rejects_is_contained_too(tab):
+    """PR #208 review (Copilot). A try/catch catches a THROW; an async `onText`
+    never throws — it returns a rejected promise, which sails straight past it and
+    becomes the very unhandled rejection the containment comment claims to
+    prevent. Our one caller is synchronous today, so this half was latent; the
+    claim still has to be true for both shapes, because that comment is what the
+    next caller reads before writing an async one."""
+    thrown = tab["asyncThrowingOnText"]
+    assert thrown["called"] == 1, "the seam must still be invoked on a good load"
+    # the viewer's own promise resolves — the caller's failure is not the read's
+    assert thrown["rejected"] is None, thrown["rejected"]
+    # …and nothing escaped to the process as an unhandled rejection
+    assert "async derivation bug" not in thrown["escaped"], thrown["escaped"]
+    assert thrown["escaped"] == [], thrown["escaped"]
     assert thrown["bodyRendered"] is True
 
 
