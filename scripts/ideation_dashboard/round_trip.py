@@ -40,6 +40,8 @@ from __future__ import annotations
 
 import re
 
+from doc_health.lines import join_rows, split_keepends
+
 # The skeleton's own heading, matched case-insensitively on its stable prefix so a
 # fragment that spells the parenthetical differently is still found.
 PROVENANCE_HEADING = "## Last proposal attempt (round-trip provenance)"
@@ -72,7 +74,14 @@ UNAVAILABLE = "unavailable"
 _XSPEC_OPEN = re.compile(r"<!--\s*xspec:candidate\b")
 _XSPEC_CLOSE = re.compile(r"<!--\s*/\s*xspec:candidate\s*-->")
 
-_EOL = re.compile(r"\r\n|\r|\n")
+# `split_keepends` / `join_rows` used to be defined here. They are now the
+# shared primitive in `doc_health.lines` (imported above), because
+# `corpus.parse_status` / `parse_kind` need the same real-line rule this
+# module's writer path does — see that module's docstring for WHY the rule
+# is CR/LF/CRLF-only and for the `join(split(t)) == t` property every
+# byte-preservation guarantee below rests on. This is the corpus's fourth
+# attempt at "what is a line"; a dedicated shared home is how a fifth gets
+# prevented instead of discovered.
 
 
 def _is_fence(line: str) -> bool:
@@ -86,31 +95,6 @@ def _is_fence(line: str) -> bool:
     three on a shared fixture set.
     """
     return line.lstrip().startswith("```")
-
-
-def split_keepends(text: str) -> list[tuple[str, str]]:
-    """`text` as [(body, ending)] pairs, where ''.join(b + e) IS `text`.
-
-    NOT `str.splitlines(keepends=True)`, which also breaks on \\x0b, \\x0c,
-    \\x1c-\\x1e, \\x85, U+2028 and U+2029. A governance document containing one of
-    those would be silently re-split and rejoined into different bytes. Only the
-    three real line endings separate lines here, and the identity above is
-    asserted in the tests.
-    """
-    rows: list[tuple[str, str]] = []
-    at, size = 0, len(text)
-    while at < size:
-        match = _EOL.search(text, at)
-        if match is None:
-            rows.append((text[at:], ""))
-            break
-        rows.append((text[at:match.start()], match.group(0)))
-        at = match.end()
-    return rows
-
-
-def join_rows(rows: list[tuple[str, str]]) -> str:
-    return "".join(body + ending for body, ending in rows)
 
 
 def document_eol(rows: list[tuple[str, str]]) -> str:

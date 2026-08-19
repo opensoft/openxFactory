@@ -16,6 +16,8 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+from .lines import split_keepends
+
 GOVERNED_ROOTS = ("contracts", "docs", "examples", "ideation", "templates")
 EXCLUDED_PARTS = {".git", "installs", "node_modules", "tests", "__pycache__"}
 STATUS_RE = re.compile(r"^Status:\s*(.+?)\s*$")
@@ -68,18 +70,53 @@ def iter_doc_paths(repo_path: Path) -> list[Path]:
 
 
 def parse_status(text: str) -> str | None:
-    for line in text.splitlines()[:STATUS_SCAN_LINES]:
-        m = STATUS_RE.match(line)
+    """Locate the `Status:` header within the first REAL lines of `text`.
+
+    Scans real lines (CR/LF/CRLF only — see `doc_health.lines`) rather than
+    `str.splitlines()` fragments, so a header carrying an exotic separator
+    (form feed, U+2028, ...) does not inflate the scan window and hide a
+    `Status:` line that is plainly there. A reader more aggressive than the
+    writer can otherwise report a correct document as lacking a status it
+    carries — a false finding (`align-status-reader-to-real-lines`).
+    """
+    for body, _ending in split_keepends(text)[:STATUS_SCAN_LINES]:
+        m = STATUS_RE.match(body)
         if m:
             return m.group(1)
     return None
 
 
 def parse_kind(text: str) -> str | None:
-    for line in text.splitlines()[:STATUS_SCAN_LINES]:
-        if line.startswith("Kind: "):
-            return line[len("Kind: "):].strip() or None
+    """`Kind:` header, scanned the same real-line way as `parse_status`.
+
+    Shares the blindness `parse_status` used to have (both scanned
+    `text.splitlines()[:STATUS_SCAN_LINES]`), so it shares the fix.
+    """
+    for body, _ending in split_keepends(text)[:STATUS_SCAN_LINES]:
+        if body.startswith("Kind: "):
+            return body[len("Kind: "):].strip() or None
     return None
+
+
+# SWEEP RECORD (align-status-reader-to-real-lines, task 2.3). `grep -rn
+# "splitlines()\[:" scripts/` was run against this fix so the next reader does
+# not have to re-run it to know whether `parse_status`/`parse_kind` were the
+# whole set. They were not: the same `text.splitlines()[:N]` idiom is also
+# carried, independently, by:
+#   scripts/ideation_dashboard/doxbench_packet.py  lifecycle_status()
+#   scripts/ideation_dashboard/authoring.py        missing_required_headers()
+#   scripts/ideation_dashboard/generator.py        _header_value()
+#   scripts/doc_health/inventory.py                _header_value()
+#   scripts/doc_health/families.py                 _header_line()
+#   scripts/doc_health/organizer_dispatch.py       _header_value()
+# Each shares the same pseudo-line blindness this change closes for
+# `parse_status`/`parse_kind`. They are DELIBERATELY untouched here: this
+# change's ratified code surface (`proposal.md`) is `doc_health/lines.py`,
+# `corpus.parse_status`/`parse_kind`, and `round_trip.py`'s import, with a
+# baseline diff sized to that surface. Widening it here would mean presenting
+# a baseline diff for six more call sites this change never measured. Closing
+# the rest of the idiom, if warranted, is a follow-up change's own scope and
+# its own baseline diff — not a rider on this one.
 
 
 def load_docs(repo_name: str, repo_path: Path) -> list[Doc]:
