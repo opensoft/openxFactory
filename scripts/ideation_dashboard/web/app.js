@@ -307,10 +307,11 @@ export function createDoxBenchThreadLoader(consoleTokenOf, injectedFetch) {
       cache: "no-store",
       headers: consoleToken ? { [CONSOLE_TOKEN_HEADER]: consoleToken } : {},
     };
-    const url = THREAD_ROUTE + "?" + new URLSearchParams(query || {}).toString();
+    const threadUrl =
+      THREAD_ROUTE + "?" + new URLSearchParams(query || {}).toString();
     const response = injectedFetch
-      ? await injectedFetch(url, options)
-      : await fetch(url, options);
+      ? await injectedFetch(threadUrl, options)
+      : await fetch(threadUrl, options);
     // EVERY refusal is the SAME answer here, and deliberately: the four
     // absences task 9.5 enumerates — the hosted plane, no gate capability, an
     // unresolved actor, no live session — are one posture on this surface,

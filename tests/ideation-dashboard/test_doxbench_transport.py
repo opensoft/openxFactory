@@ -178,7 +178,7 @@ def test_app_js_carries_exactly_the_four_named_fetch_call_sites():
         f"pass-through, model-catalog GET, chat-turn POST, thread GET), "
         f"found: {fetches}"
     )
-    assert sum("url, options" in a for a in fetches) == 1, (
+    assert sum("threadUrl" in a for a in fetches) == 1, (
         "exactly one call site may GET a document's thread"
     )
     assert any("snapshotUrl" in a or "snapshot" in a.lower() for a in fetches), (
