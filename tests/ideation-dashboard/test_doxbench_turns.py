@@ -468,6 +468,23 @@ def test_system_contract_and_response_instruction_are_the_fixed_constants():
     assert instruction_section.text == RESPONSE_INSTRUCTION_TEXT
 
 
+def test_the_grounding_sentence_names_every_section_the_packet_adds():
+    """RE-PINNED (adversarial review, F8). The grounding sentence told the model
+    to ground "strictly in the outline and document buffers, the scope metadata,
+    and the transcript" — which EXCLUDED every section §10 added, and therefore
+    contradicted the source-ranking hierarchy sitting directly beneath it in the
+    same constant (rank 2 is staged facts, rank 3 promoted findings, rank 4
+    active thread state: all of them arrive in sections the sentence did not
+    admit). A prompt that ranks material it also forbids is a prompt that cannot
+    be followed."""
+    for named in ("context packet", "thread", "thread-state headers",
+                  "evidence", "outline", "document buffers", "scope metadata",
+                  "transcript"):
+        assert named in SYSTEM_CONTRACT_TEXT, named
+    # and the hierarchy it must agree with is still there, unmoved (task 5.5)
+    assert doxbench_turns.SOURCE_RANKING_TEXT in SYSTEM_CONTRACT_TEXT
+
+
 def test_model_data_handling_section_carries_the_selected_facts():
     envelope = _build_envelope(
         model_id="opaque-local-id",
