@@ -496,10 +496,28 @@ ENDS_FENCE_FIXTURES = {
 
 @pytest.mark.skipif(NODE is None, reason="node is not installed")
 def test_ends_inside_fence_agrees_with_outline_model_js():
-    """The FOURTH agreed behavior. `doc_health.families` has no such predicate, so
-    the agreement here is round_trip <-> outline-model.js — but the families toggle
-    it shares implies the same answer, computed alongside so a divergence in any of
-    the three surfaces here."""
+    """The FOURTH agreed behavior, and WHAT IT ACTUALLY PINS — narrower than a
+    first draft of this docstring claimed.
+
+    It pins TWO implementations: `round_trip.ends_inside_fence` against
+    `outline-model.js`'s `endsInsideFence`, over ten fixtures. `doc_health.families`
+    has no such predicate at all, so the third value below is NOT a third
+    implementation's answer — `implied` RETYPES the backtick test rather than
+    consuming `_scan_lines`' own `in_fence` flag, so a families-side divergence would
+    be caught by `test_round_trip_and_doc_health_agree_about_every_fence` and
+    `test_the_shared_predicate_is_spelled_the_same_in_all_three`, not here. It is
+    kept as a cheap consistency check on the shared rule, not as a third pin, and
+    saying so is the point: a test that overstates its reach is worse than a narrow
+    one, because the gap it leaves is invisible.
+
+    THE UPGRADE PATH, and why it is blocked. A real three-way pin wants a fixture
+    carrying an exotic separator (`\\x0c`, U+2028, …), because that is the input where
+    the three genuinely diverge. Adding one here would also expose the read/write
+    divergence in `corpus.parse_status`, which this change deliberately does not
+    touch — `parse_status` is doc-health's shared reader behind fifteen families and
+    needs its own change with its own baseline diff (see tasks.md §3's note). Build
+    this fixture when that lands.
+    """
     with TemporaryDirectory() as tmp:
         cases = Path(tmp) / "cases.json"
         cases.write_text(json.dumps(ENDS_FENCE_FIXTURES), encoding="utf-8")
@@ -514,7 +532,9 @@ def test_ends_inside_fence_agrees_with_outline_model_js():
     for name, text in sorted(ENDS_FENCE_FIXTURES.items()):
         mine = rt.ends_inside_fence(text)
         assert mine == js[name], f"{name}: round_trip={mine}, outline-model.js={js[name]}"
-        # the families toggle, applied to the same question
+        # A consistency check on the shared RULE, not a third implementation's
+        # answer: this retypes the backtick test because `_scan_lines` does not
+        # report its final fence state. See the docstring.
         implied = sum(1 for _lineno, line, _f in families._scan_lines(text)
                       if line.lstrip().startswith("```")) % 2 == 1
         assert mine == implied, name
