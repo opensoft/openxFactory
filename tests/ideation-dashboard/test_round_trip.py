@@ -336,13 +336,33 @@ def test_the_whole_refresh_touches_only_the_slots_and_the_marked_body():
             f"an unrelated line changed: {line!r}"
 
 
-# ---- the THIRD implementation of one fence rule -------------------------------
+# ---- the fence rule: ONE shared line-split + two independent fence toggles ---
 #
 # design Decision 2 named this hazard when it chose a new module: `round_trip.py`,
-# `doc_health.families` and `web/views/outline-model.js` now each carry the same
-# naive ``` toggle, in the same corpus, over the same documents. Sharing the code
-# is not available — one of the three is JavaScript in the browser bundle — so the
-# mitigation is this test.
+# `doc_health.families` and `web/views/outline-model.js` each carry the same
+# naive ``` PREDICATE (`line.lstrip().startswith("```")` / `String(line)
+# .trimStart().startsWith("```")`), independently spelled three times and pinned
+# textually by `test_the_shared_predicate_is_spelled_the_same_in_all_three` below.
+# Sharing THAT code is not available — one of the three is JavaScript in the
+# browser bundle — so the mitigation for the predicate itself stays this pair of
+# agreement tests.
+#
+# The LINE-SPLIT underneath the predicate is a narrower story, and it changed
+# under `align-status-reader-to-real-lines`'s wide ruling (2026-08-19,
+# adversarial-review finding C3): `round_trip.py`'s `_section_bounds` and
+# `doc_health.families._scan_lines` now BOTH split through the same
+# `doc_health.lines.split_keepends` (real lines: CR/LF/CRLF only), so on any
+# input the two Python call sites cannot diverge on WHERE a line is — only on a
+# bug in one's own fence-toggle loop, which is what the agreement test below
+# still exists to catch. `outline-model.js`'s `outlineSections` splits on the
+# same real-line regex independently (`text.split(/\r\n|\r|\n/)`) and cannot
+# import the Python primitive, so it remains the ONE genuinely separate
+# implementation. What `test_all_three_fence_implementations_agree` compares is
+# therefore two implementations of the full heading-detection behavior — ONE
+# Python (unified line-split, two independent fence loops) and ONE JS — not
+# three independently-splitting ones, even though it is still useful to run the
+# comparison against both Python call sites explicitly (a regression in either
+# one's fence-toggle loop alone would still be caught).
 #
 # It compares what each module DOES with fences rather than a private helper's
 # signature: for a fixture whose lines are headings and fences, the set of headings
@@ -619,32 +639,49 @@ ENDS_FENCE_FIXTURES = {
     "closed_after_unclosed": UNCLOSED + "```\n",
     "three_fences": "a\n```\nb\n```\nc\n```\nd\n",
     "fence_only": "```\n",
+    # THE SCHEDULED FIXTURE, built (align-status-reader-to-real-lines, C6): an
+    # exotic separator SHARING a real line with a fence marker, so the OLD
+    # pseudo-line rule would split the marker onto its own pseudo-line (and
+    # toggle on it) where the real-line rule does not, because the marker is
+    # not at the START of the real line. Measured: before this change's
+    # families.py conversion, `families._scan_lines`'s implied fence state
+    # disagreed (True) with `round_trip.ends_inside_fence`/outline-model.js's
+    # `endsInsideFence` (both False, correctly) on both of these. After the
+    # conversion all three agree.
+    "form_feed_fence": "## one\nbody\x0c```after\n## two\n",
+    "u2028_fence": "## one\nbody" + chr(0x2028) + "```after\n## two\n",
 }
 
 
 @pytest.mark.skipif(NODE is None, reason="node is not installed")
 def test_ends_inside_fence_agrees_with_outline_model_js():
-    """The FOURTH agreed behavior, and WHAT IT ACTUALLY PINS — narrower than a
-    first draft of this docstring claimed.
+    """The FOURTH agreed behavior, and WHAT IT ACTUALLY PINS.
 
-    It pins TWO implementations: `round_trip.ends_inside_fence` against
-    `outline-model.js`'s `endsInsideFence`, over ten fixtures. `doc_health.families`
-    has no such predicate at all, so the third value below is NOT a third
-    implementation's answer — `implied` RETYPES the backtick test rather than
-    consuming `_scan_lines`' own `in_fence` flag, so a families-side divergence would
-    be caught by `test_round_trip_and_doc_health_agree_about_every_fence` and
-    `test_the_shared_predicate_is_spelled_the_same_in_all_three`, not here. It is
-    kept as a cheap consistency check on the shared rule, not as a third pin, and
-    saying so is the point: a test that overstates its reach is worse than a narrow
-    one, because the gap it leaves is invisible.
+    It pins TWO implementations directly: `round_trip.ends_inside_fence` against
+    `outline-model.js`'s `endsInsideFence`, over twelve fixtures (ten shared with
+    `ENDS_FENCE_FIXTURES`'s ancestors plus the two exotic-separator fixtures
+    below). `doc_health.families` has no `ends_inside_fence`-shaped predicate at
+    all, so `implied` is not a third implementation's independent answer — it
+    RETYPES the backtick test rather than consuming `_scan_lines`' own
+    `in_fence` flag. It is kept as a cheap consistency check on the shared
+    rule, not as a third pin, and saying so is the point: a test that
+    overstates its reach is worse than a narrow one, because the gap it
+    leaves is invisible.
 
-    THE UPGRADE PATH, and why it is blocked. A real three-way pin wants a fixture
-    carrying an exotic separator (`\\x0c`, U+2028, …), because that is the input where
-    the three genuinely diverge. Adding one here would also expose the read/write
-    divergence in `corpus.parse_status`, which this change deliberately does not
-    touch — `parse_status` is doc-health's shared reader behind fifteen families and
-    needs its own change with its own baseline diff (see tasks.md §3's note). Build
-    this fixture when that lands.
+    THE UPGRADE PATH IS NO LONGER BLOCKED (align-status-reader-to-real-lines,
+    finding C6). This docstring used to say the real three-way pin this test
+    wants — a fixture carrying an exotic separator (`\\x0c`, U+2028, …), the
+    input where a pseudo-line rule and a real-line rule genuinely diverge —
+    was blocked because building it would also expose the (then-unfixed)
+    read/write divergence in `corpus.parse_status`. This change's wide ruling
+    removed that blocker: `corpus.parse_status` was fixed first (its own
+    commit), and `families._scan_lines`'s line-split converted alongside it.
+    `form_feed_fence` and `u2028_fence` below are that fixture, built. The
+    two REAL pins (`rt.ends_inside_fence` vs. `outline-model.js`'s
+    `endsInsideFence`) already agreed on this exotic input even before the
+    `families.py` conversion — both split real lines already — so it was
+    `implied`, the families-based consistency check, that disagreed until
+    `families._scan_lines` converted too; it agrees now.
     """
     with TemporaryDirectory() as tmp:
         cases = Path(tmp) / "cases.json"

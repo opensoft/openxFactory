@@ -64,6 +64,7 @@ import yaml
 
 from doc_health import TAXONOMY, corpus
 from doc_health.corpus import RealGit
+from doc_health.lines import split_keepends
 
 from . import GENERATOR_VERSION, completeness, fixtures
 from .register import CrossReferenceIndexAdapter, ProjectRegisterAdapter
@@ -123,11 +124,14 @@ class RealGitDates:
 # --------------------------- header parsing ---------------------------
 
 def _header_value(text: str, name: str) -> str | None:
-    """First `Name: value` header value in the doc's header window, else None."""
+    """First `Name: value` header value in the doc's header window, else
+    None. Real lines (`doc_health.lines.split_keepends`), matching
+    `doc_health.corpus.parse_status`/`parse_kind`'s window exactly — see
+    this module's `HEADER_SCAN_LINES` comment."""
     prefix = name + ":"
-    for line in text.splitlines()[:HEADER_SCAN_LINES]:
-        if line.startswith(prefix):
-            return line[len(prefix):].strip() or None
+    for body, _ending in split_keepends(text)[:HEADER_SCAN_LINES]:
+        if body.startswith(prefix):
+            return body[len(prefix):].strip() or None
     return None
 
 

@@ -60,6 +60,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from . import corpus, ideation_routing, organizer
+from .lines import split_keepends
 
 # Watchdog reasons (spec "Organizer child becomes stale"): the auditable string
 # explaining why a dispatched child's result was or wasn't collected. Mirrors
@@ -223,10 +224,13 @@ def _source_descriptor(repo: str, path: str, repo_paths: dict, host: dict,
 
 
 def _header_value(text: str, name: str) -> str | None:
+    """Same real-line scan window `corpus.parse_status`/`parse_kind` use
+    (`doc_health.lines.split_keepends`), so a `Handling:` header an exotic
+    separator would otherwise inflate past the window is still found."""
     prefix = f"{name}: "
-    for line in text.splitlines()[:corpus.STATUS_SCAN_LINES]:
-        if line.startswith(prefix):
-            return line[len(prefix):].strip() or None
+    for body, _ending in split_keepends(text)[:corpus.STATUS_SCAN_LINES]:
+        if body.startswith(prefix):
+            return body[len(prefix):].strip() or None
     return None
 
 
