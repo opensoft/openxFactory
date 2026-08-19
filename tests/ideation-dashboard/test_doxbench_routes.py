@@ -267,6 +267,7 @@ _UNSET = object()
 @contextmanager
 def _serving(tmp_path, *, actor="brett", checkout_root=None,
             model_port_factory=None, snapshot=None,
+            knowledge_declaration=None,
             schema_validator_factory=_fixture_validators):
     """PIN EVOLUTION (T024/T050/T051 wire clause): the harness now injects
     released-schema validators, because the routes validate every wire shape
@@ -285,6 +286,11 @@ def _serving(tmp_path, *, actor="brett", checkout_root=None,
         head=PINNED_REVISION,
         actor=actor,
         model_port_factory=model_port_factory,
+        # add-doxbench-editing-phase-b task 10.6: the INSTALL-TIME retrieval
+        # backend declaration. `None` -- the default here and in
+        # `build_server` -- is the declared reduced-packet posture, which is
+        # what every pre-existing test in this file exercises unchanged.
+        knowledge_declaration=knowledge_declaration,
         **extra,
     )
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
@@ -987,13 +993,21 @@ def _port(catalog=None):
     return FakeWorkbenchModelPort(catalog if catalog is not None else _catalog())
 
 
-def _post_turn(tmp_path, body, *, port=None, headers=None, snapshot=None):
-    """POST a turn as the real local console. Returns (status, payload, port)."""
+def _post_turn(tmp_path, body, *, port=None, headers=None, snapshot=None,
+               knowledge_declaration=None, inspect_handler=None):
+    """POST a turn as the real local console. Returns (status, payload, port).
+
+    `inspect_handler` is called with the bound handler class while the server
+    is still up, for a test that needs to read per-process state the response
+    does not carry (the usage meter, task 10.8)."""
     fake = port if port is not None else _port()
-    with _serving(tmp_path, model_port_factory=(lambda: fake), snapshot=snapshot) as (httpd, host, prt):
+    with _serving(tmp_path, model_port_factory=(lambda: fake), snapshot=snapshot,
+                  knowledge_declaration=knowledge_declaration) as (httpd, host, prt):
         caps = _capabilities(host, prt)
         status, payload, _headers, _raw = _request(host, prt, "POST", CHAT_ROUTE, body=body,
                                    headers=headers or _console_headers(caps))
+        if inspect_handler is not None:
+            inspect_handler(_handler_class(httpd))
     return status, payload, fake
 
 
