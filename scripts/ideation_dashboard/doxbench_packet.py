@@ -420,6 +420,12 @@ DECLARATION_LINE = "  - {kind} {ref} [{status}] [{exemption}]"
 # each section costs its own separator too.
 SECTION_SEPARATOR_BYTES = 2
 
+# The per-item section KEYS. Declared here, above the arithmetic that charges
+# for them and used by `expand_group`/`packet_sections` below — one literal
+# each.
+THREAD_STATE_SECTION_PREFIX = "thread_state:"
+EVIDENCE_SECTION_PREFIX = "evidence:"
+
 # The evidence slots one turn may fill. Declared here rather than left as a
 # bare default on `assemble_packet`, because the ROUTE has to charge the
 # scaffolding for the same number the assembler will select against, and two
@@ -457,7 +463,9 @@ def _widest_per_source_bytes() -> int:
         utf8_size(template.format(**filled))
         for template in (SELECTED_THREAD_PREAMBLE, THREAD_STATE_PREAMBLE,
                          EVIDENCE_PREAMBLE))
-    return (widest_section + SECTION_SEPARATOR_BYTES
+    widest_key = max(utf8_size(THREAD_STATE_SECTION_PREFIX),
+                     utf8_size(EVIDENCE_SECTION_PREFIX))
+    return (widest_section + SECTION_SEPARATOR_BYTES + widest_key
             + utf8_size(DECLARATION_LINE.format(**filled)) + 1)
 
 
@@ -465,6 +473,20 @@ def _widest_per_source_bytes() -> int:
 # and one line in the packet's declaration (plus that line's newline). DERIVED
 # from the templates above rather than typed in, so the two cannot drift.
 PER_SOURCE_SCAFFOLD_BYTES = _widest_per_source_bytes()
+
+# HOW MANY TIMES ONE SOURCE'S REF RENDERS, and why the answer is three rather
+# than the two a reading of `packet_sections` alone would give: the packet's
+# declaration line carries it, the section's own preamble carries it, and the
+# section KEY carries it a third time. The keys are not part of `section.text`
+# and the bridge's own renderer does not emit them — but an adapter that labels
+# its sections spends them, and this measurement is the one place where being
+# generous is the safe direction. It is also what brings the reserve above the
+# §11.5 obligation's OWN two recorded measurements (19,745 bytes at 24
+# thread-states plus 6 evidence refs of 120 characters, and 31,211 at the
+# 48-source bound), which were taken against a shape this module can no longer
+# reproduce exactly; matching them from above rather than from below is the
+# honest way to honour a number somebody else measured.
+REF_RENDERINGS = 3
 
 
 def packet_scaffold_reserve(*, thread_refs: Sequence[str] = (),
@@ -486,9 +508,10 @@ def packet_scaffold_reserve(*, thread_refs: Sequence[str] = (),
     refs = tuple(thread_refs)
     slots = max(0, int(evidence_slots))
     ref_bytes = max(0, int(evidence_ref_bytes))
-    per_thread = sum(PER_SOURCE_SCAFFOLD_BYTES + 2 * utf8_size(ref)
+    per_thread = sum(PER_SOURCE_SCAFFOLD_BYTES + REF_RENDERINGS * utf8_size(ref)
                      for ref in refs)
-    per_evidence = slots * (PER_SOURCE_SCAFFOLD_BYTES + 2 * ref_bytes)
+    per_evidence = slots * (PER_SOURCE_SCAFFOLD_BYTES
+                            + REF_RENDERINGS * ref_bytes)
     return PROMPT_SCAFFOLD_RESERVE_BYTES + per_thread + per_evidence
 
 
@@ -1006,9 +1029,6 @@ PACKET_SECTION_GROUPS: tuple[str, ...] = (
     PACKET_SECTION_THREAD_STATES,
     PACKET_SECTION_EVIDENCE,
 )
-
-THREAD_STATE_SECTION_PREFIX = "thread_state:"
-EVIDENCE_SECTION_PREFIX = "evidence:"
 
 _LOSSLESS_NOTE = (
     "Material this packet does not carry is NOT lost: selection is lossless "
