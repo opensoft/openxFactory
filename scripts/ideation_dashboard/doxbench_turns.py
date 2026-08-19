@@ -615,7 +615,7 @@ def require_outline_and_documents(
     impossible in a well-formed keyed set and would make "which text did the
     model see" unanswerable -- or an unexpected kind.
 
-A document buffer whose own PATH claims one of ``refused_paths`` is refused
+    A document buffer whose own PATH claims one of ``refused_paths`` is refused
     here too, and that refusal is load-bearing rather than tidy (adversarial
     review of the §13 slice, F2). A repository-root file named exactly ``outline``
     derives the reserved outline key, which ``ordered_document_keys`` then filters

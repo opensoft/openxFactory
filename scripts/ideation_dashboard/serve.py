@@ -1892,11 +1892,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         #
         # Canonicalized by BUFFER KEY, in the same UTF-16 code-unit order the
         # rest of this family declares, so the two runtimes cannot disagree about
-        # it either. The v1 lane's canonical form is DELIBERATELY untouched: its
-        # digests are already recorded in live stores, and changing the form
-        # would make every in-flight v1 turn unreplayable -- and that lane
-        # carries exactly two buffers whose order the closed envelope already
-        # fixes by kind.
+        # it either.
+        #
+        # The v1 lane's canonical form is DELIBERATELY untouched, and the reason
+        # is a TRADE rather than an impossibility -- stated plainly because the
+        # first spelling of this comment overclaimed. That envelope fixes the
+        # buffer COUNT (exactly two) and their KINDS (one outline, one document);
+        # it does NOT fix their ARRAY ORDER, so a v1 client that retransmits the
+        # same turn with its two buffers swapped gets the same 409 this fix
+        # closes on the widened lane. That wart is KNOWINGLY RETAINED: v1 digests
+        # are already recorded in live stores, and changing the form would make
+        # every turn in flight unreplayable -- a live break traded against a
+        # latent one on a lane that is deprecated and dies at contract-v2.0.
         canonical_buffer_order = turn_buffers
         if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:
             canonical_buffer_order = sorted(

@@ -3523,8 +3523,14 @@ def test_a_widened_turn_with_changed_content_still_conflicts(tmp_path):
 def test_the_v1_canonical_form_is_untouched_by_the_reorder_fix(tmp_path):
     """The v1 lane keeps its recorded digests: its canonical form still carries
     the buffers in WIRE order, because changing it would make every turn already
-    in a live store unreplayable. That lane carries exactly two buffers whose
-    order the closed envelope fixes by kind, so it has nothing to gain."""
+    in a live store unreplayable.
+
+    STATED HONESTLY (land-time note N6): that is a TRADE, not an impossibility.
+    The closed v1 envelope fixes the buffer COUNT and their KINDS, NOT their
+    array order — so a v1 client that retransmits the same turn with its two
+    buffers swapped still gets the 409 this fix closes on the widened lane. The
+    wart is knowingly retained, because a live break (every recorded digest) is
+    worse than a latent one, and it dies with the lane at contract-v2.0."""
     source = (REPO_ROOT / "scripts" / "ideation_dashboard"
               / "serve.py").read_text(encoding="utf-8")
     assert "canonical_buffer_order = turn_buffers" in source
