@@ -1,11 +1,20 @@
 ---
 code_surface: openxFactory (scripts/ideation_dashboard/generator.py — `_change_entry` resolves `origin_staging_id` from the change's own `.openspec.yaml` origin block, and carries `task_progress` through; scripts/ideation_dashboard/gate_console.py — the demote's `openspec/INDEX.md` gains a `Status:` header and the provenance slot carries task progress; scripts/proposal-support.py — the forward transition updates an existing `Proposed by:` line instead of adding a second; tests/ideation-dashboard/test_gate_console.py and tests/proposal-support/)
 target_release: implementation_pending — the requirements land now; the change archives only on merged code with green realization evidence, because all four parts are mechanism corrections
-Status: draft
-Ruling: 2026-08-19 by Brett Heap — in-session multiple choice, all recommended options adopted. Decision 3 (enrich `Status at demote` with task progress) rides this change; Decision 1 (the shallowest-markdown selection arm) is explicitly OUT of scope by the same ruling, deferred until a real topic hits it.
+Status: ratified
+Ratified: 2026-08-19 by Brett Heap — in-session, verbatim: "merge and ratify both", after reading the drafted proposal on PR #218. Same-day scope rulings (in-session multiple choice, all recommended options adopted): Decision 3 (enrich `Status at demote` with task progress) rides this change; Decision 1 (the shallowest-markdown selection arm) is explicitly OUT of scope by the same ruling, deferred until a real topic hits it.
 ---
 
 # Proposal: refine-demote-round-trip-mechanics
+
+> **APPROVED BUT NOT YET REALIZED.** This change has a non-empty code surface and
+> none of it is built: `generator.py` still resolves `origin_staging_id` from pick
+> edges alone (the `.openspec.yaml` origin block stays unread), the demote's
+> `openspec/INDEX.md` still carries no `Status:` header, `proposal-support.py`
+> still appends a fresh `Proposed by:` line per lap, and the provenance slot still
+> reads a bare `active`. Under `release-realization`'s archive gate it therefore
+> stays ACTIVE as approved intent until its code merges with green realization
+> evidence. Nothing here should be read as shipped.
 
 ## Why
 

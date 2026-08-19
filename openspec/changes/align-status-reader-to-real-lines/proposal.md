@@ -1,11 +1,19 @@
 ---
 code_surface: openxFactory (a new shared line primitive in `scripts/doc_health/lines.py`; `scripts/doc_health/corpus.py` — `parse_status` and `parse_kind` scan REAL lines through it; `scripts/ideation_dashboard/round_trip.py` imports it instead of carrying its own copy; tests/doc-health/ and tests/ideation-dashboard/test_round_trip.py)
 target_release: implementation_pending — the requirement lands now; the change archives only on merged code with green realization evidence, because its whole content is a reader correction
-Status: draft
-Ruling: 2026-08-19 by Brett Heap — in-session multiple choice, all recommended options adopted. The read-side fix owns its own change rather than riding the demote fixes, so doc-health's shared reader carries its own baseline diff.
+Status: ratified
+Ratified: 2026-08-19 by Brett Heap — in-session, verbatim: "merge and ratify both", after reading the drafted proposal on PR #218. Same-day scope ruling (in-session multiple choice, recommended option adopted): the read-side fix owns its own change rather than riding the demote fixes, so doc-health's shared reader carries its own baseline diff.
 ---
 
 # Proposal: align-status-reader-to-real-lines
+
+> **APPROVED BUT NOT YET REALIZED.** This change has a non-empty code surface and
+> none of it is built: `scripts/doc_health/lines.py` does not exist,
+> `corpus.parse_status` and `parse_kind` still scan pseudo-lines through
+> `str.splitlines`, and `round_trip.py` still carries its own private copy of the
+> line rule. Under `release-realization`'s archive gate it therefore stays ACTIVE
+> as approved intent until its code merges with green realization evidence.
+> Nothing here should be read as shipped.
 
 ## Why
 
