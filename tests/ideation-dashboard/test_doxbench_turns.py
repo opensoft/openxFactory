@@ -418,6 +418,38 @@ def test_duplicate_kind_refuses():
         require_outline_and_documents([one, two, document])
 
 
+@pytest.mark.parametrize("reserved", ["outline", "document"])
+def test_a_document_path_claiming_a_reserved_key_refuses(reserved):
+    """F2 (adversarial review of the §13 slice): a document buffer whose own PATH
+    is a reserved key must be refused HERE, before identity verification and
+    before any port.
+
+    The outline spelling was the dangerous one. `buffer_key_for` mapped it to the
+    reserved outline key, this requirement accepted it, and
+    `ordered_document_keys` then filtered it OUT — so every later step read a set
+    that did not contain it: its declared content hash was never verified, its
+    bytes were never counted against the request bound, and the released v1
+    success builder indexed an empty document list, dying with the connection and
+    stranding the turn's store lease. The `document` spelling is refused with it,
+    mirroring the browser's own `LOAD_REFUSED_RESERVED_KEY`, which refuses both
+    for the same reason."""
+    outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
+    claimant = _buffer("document", path=reserved, content=DOCUMENT_CONTENT)
+    with pytest.raises(TurnBufferKindError) as raised:
+        require_outline_and_documents([outline, claimant])
+    assert "reserved buffer key" in str(raised.value)
+
+
+def test_the_reserved_unbacked_slot_is_still_accepted():
+    """The other half of the same rule: a document with NO path is the create
+    flow's own buffer and belongs under the reserved key. Refusing a null path
+    here would refuse the create flow itself."""
+    outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
+    unbacked = _buffer("document", path=None, content=DOCUMENT_CONTENT)
+    _resolved_outline, documents = require_outline_and_documents([outline, unbacked])
+    assert set(documents) == {"document"}
+
+
 def test_extra_unexpected_kind_refuses():
     outline = _buffer("outline", path=OUTLINE_PATH, content=OUTLINE_CONTENT)
     document = _buffer("document", path=DOCUMENT_PATH, content=DOCUMENT_CONTENT)

@@ -92,6 +92,12 @@ MAX_RESPONSE_TOTAL_BYTES = SERVER_MAX_OUTPUT_LIMIT_BYTES
 OUTLINE_BUFFER_KEY = "outline"
 UNBACKED_DOCUMENT_BUFFER_KEY = "document"
 
+# The two keys a DOCUMENT'S OWN PATH may never claim. The browser refuses such a
+# load in its own vocabulary (`doxbench-state.js` `LOAD_REFUSED_RESERVED_KEY`,
+# F12/N2); this is the same rule on the server, because a wire request is not
+# obliged to have come from that browser.
+RESERVED_BUFFER_KEYS = frozenset({OUTLINE_BUFFER_KEY, UNBACKED_DOCUMENT_BUFFER_KEY})
+
 # The DECLARED deterministic document order (design D3 point 4). Spelled to
 # match `web/views/doxbench-state.js`'s `DOCUMENT_KEY_ORDER_RULE` byte for byte,
 # and sorted on UTF-16 code units rather than Python code points so the two
@@ -590,6 +596,21 @@ def require_outline_and_documents(buffers) -> tuple[TurnBuffer, dict[str, TurnBu
     impossible in a well-formed keyed set and would make "which text did the
     model see" unanswerable -- or an unexpected kind.
 
+    A document buffer whose own PATH is a RESERVED KEY is refused here too, and
+    that refusal is load-bearing rather than tidy (adversarial review of the §13
+    slice, F2). A repository-root file named exactly ``outline`` derives the
+    reserved outline key, which ``ordered_document_keys`` then filters OUT of the
+    document enumeration -- so the buffer passed this requirement and every later
+    step read a set that did not contain it: its declared content hash was never
+    verified, its bytes were never counted against the request bound, and the
+    released v1 success builder indexed an empty document list and died with the
+    connection, stranding the turn's own store lease. Refusing it HERE puts the
+    verdict before identity verification and before any port is consulted, which
+    is where a malformed request belongs. It mirrors the browser's own
+    ``LOAD_REFUSED_RESERVED_KEY``, and it covers BOTH reserved spellings for the
+    same reason that refusal does: a path-backed ``document`` would silently
+    occupy the slot the create flow reserves.
+
     Phase A's ``require_outline_and_document`` demanded exactly one of each and
     returned a pair. The ratified Phase B contract widens the set, so the
     requirement is restated over it and the return shape names the keys."""
@@ -601,6 +622,9 @@ def require_outline_and_documents(buffers) -> tuple[TurnBuffer, dict[str, TurnBu
                 raise TurnBufferKindError("more than one outline buffer was supplied")
             outline = buffer
         elif buffer.kind == "document":
+            if buffer.path in RESERVED_BUFFER_KEYS:
+                raise TurnBufferKindError(
+                    "a document buffer's path claims a reserved buffer key")
             key = buffer_key_for(buffer)
             if key in documents:
                 raise TurnBufferKindError("the same document buffer was supplied twice")

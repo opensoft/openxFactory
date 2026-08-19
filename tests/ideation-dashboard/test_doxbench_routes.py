@@ -1026,6 +1026,24 @@ def _assert_refusal(status, payload, code):
     assert payload["message"] == serve_mod.DOXBENCH_ERROR_CATALOG[code][1]
 
 
+def _assert_v2_refusal(status, payload, code):
+    """`_assert_refusal` for the WIDENED family (contract-v1.34). Identical in
+    every clause but the `kind`: a refusal is answered in the family its request
+    arrived in, and asserting the v1 kind on a v2 turn would pass only for a
+    route that answered the wrong one."""
+    assert status == serve_mod.doxbench_error_status(code)
+    expected = {"schema_version", "kind", "client_turn_id", "error", "message"}
+    if code == serve_mod.DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED:
+        expected.add("limit")
+    assert set(payload) == expected
+    assert payload["schema_version"] == 1
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE
+    assert isinstance(payload["client_turn_id"], str)
+    assert 1 <= len(payload["client_turn_id"]) <= 128
+    assert payload["error"] == code
+    assert payload["message"] == serve_mod.DOXBENCH_ERROR_CATALOG[code][1]
+
+
 def _assert_preidentity_refusal(status, payload, code):
     """A refusal the released envelope CANNOT express: it requires a
     `client_turn_id`, and these refusals happen before any turn identity was
@@ -3081,10 +3099,7 @@ def test_a_widened_turn_whose_binding_names_no_supplied_buffer_is_refused(
     status, payload, fake = _post_turn(
         tmp_path, _turn_v2(bound_buffer="ideation/staging/ideation-governance/"
                                         "never-supplied.md"))
-    assert status == serve_mod.doxbench_error_status(
-        serve_mod.DOXBENCH_ERR_TURN_SCOPE_REFUSED)
-    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE
-    assert payload["error"] == "turn_scope_refused"
+    _assert_v2_refusal(status, payload, "turn_scope_refused")
     assert "dispatch" not in fake.calls
     _assert_no_sentinels(payload)
 
@@ -3114,3 +3129,248 @@ def test_both_families_conform_to_the_released_schema_on_the_wire(
     status, payload, _fake = _post_turn(tmp_path, _turn())
     assert status == 200
     assert doxbench_contracts.validate_instance(payload) == []
+
+
+# ---------------------------------------------------------------------------
+# A SECOND FIXTURE TILE: the same staged topic, widened to hold MORE THAN ONE
+# EDITABLE DOCUMENT (adversarial review of the §13 slice, F2 and F5).
+#
+# The default fixture tile is the G-1 single-document shape — `editable_paths ==
+# (OUTLINE_PATH,)` — which is the right default and is pinned as such above. It
+# also means every turn this module posts carries exactly one document buffer,
+# so the widened lane's own arithmetic (the per-document identity loop, the
+# per-document byte bound, an observed-hash map with three keys) was never
+# actually driven, and a buffer whose path claims a RESERVED KEY was refused by
+# scope confinement long before it could reach the requirement that must refuse
+# it.
+#
+# The extra documents join the topic's OWN FILES rather than its inbound
+# destinations, because only the topic's own section is `owned` and therefore
+# editable — which is the scope authority's rule, read off it rather than
+# assumed.
+# ---------------------------------------------------------------------------
+
+def _staged_document(path):
+    return {
+        "id": path, "path": path, "stage": "staged", "kind": "staging-packet",
+        "summary": "fixture document for the widened-lane tests",
+        "topics": ["ideation-governance"],
+        "dates": {"captured": "2026-08-18"},
+        "destinations": {"staged_topics": ["ideation-governance"]},
+        "completeness": {
+            "score": 0.6,
+            "structure": {"value": 1.0, "count": 3},
+            "length": {"value": 1.0, "count": 45},
+            "open_markers": {"value": 1.0, "count": 0},
+            "keyword_coverage": {"value": 1.0, "count": 1},
+            "link_degree": {"value": 1.0, "count": 2},
+        },
+    }
+
+
+def _snapshot_with_editable(*paths):
+    """The fixture snapshot with `paths` added to the tile's OWN material, so the
+    scope authority resolves each one as in-scope AND editable."""
+    snapshot = copy.deepcopy(_snapshot())
+    snapshot["documents"] = list(snapshot["documents"]) + [
+        _staged_document(path) for path in paths]
+    for topic in snapshot["staged_topics"]:
+        if topic.get("staging_id") == "ideation-governance":
+            topic["files"] = list(topic["files"]) + list(paths)
+    return snapshot
+
+
+DOC_ALPHA = "ideation/staging/ideation-governance/alpha.md"
+DOC_ZULU = "ideation/staging/ideation-governance/zulu.md"
+
+
+def test_the_widened_fixture_tile_really_is_editable_at_every_added_path():
+    """The fixture's own precondition, through the real scope authority — so a
+    test below that passes because a path was NOT editable cannot be mistaken for
+    one that passes because the rule under test held."""
+    from ideation_dashboard.doxbench_scope import resolve_scope
+    projection = resolve_scope(
+        _snapshot_with_editable("outline", "document", DOC_ALPHA, DOC_ZULU),
+        KEY, source_root=BASE_REPO)
+    assert projection is not None
+    for path in ("outline", "document", DOC_ALPHA, DOC_ZULU):
+        assert path in projection.editable_paths
+        assert path in projection.context_paths
+    # The outline buffer's own path is unmoved: the tile's primary fragment.
+    assert projection.outline_path == OUTLINE_PATH
+
+
+# ---------------------------------------------------------------------------
+# F2 (adversarial review of the §13 slice): A DOCUMENT PATH THAT CLAIMS A
+# RESERVED KEY IS REFUSED ON BOTH LANES, WITH AN ENVELOPE
+#
+# `buffer_key_for` maps a document buffer at path `outline` onto the reserved
+# outline key; `ordered_document_keys` filters that key OUT of the document
+# enumeration. So the buffer passed the kind requirement and then vanished:
+# step 6 never verified its declared content hash, step 7 never counted its bytes
+# against the request bound, and the released v1 success builder indexed an empty
+# document list — an uncaught IndexError, a dropped connection with NO envelope
+# at all, and a stranded turn-store lease. On the widened lane it survived as far
+# as the provider and came back mislabelled as a response defect.
+#
+# The refusal now lands in `require_outline_and_documents`, before identity
+# verification and before any port. These tests prove the ENVELOPE, because "the
+# connection dropped" is exactly what a passing status assertion cannot tell from
+# a refusal — and they run against the widened fixture tile, where the claimed
+# path is genuinely in scope and editable, so scope confinement cannot answer
+# first and hide the hole.
+# ---------------------------------------------------------------------------
+
+# The reviewer's own repro shape: an oversize buffer whose declared content_hash
+# CANNOT match its text. If identity verification ever ran on it, the refusal
+# would be `content_identity_mismatch`; `invalid_turn_request` is the proof that
+# the malformed-request verdict is reached first, which is where it belongs.
+_RESERVED_CLAIM_CONTENT = "R" * 5010
+_RESERVED_CLAIM_HASH = "f" * 64
+
+_RESERVED_SNAPSHOT_PATHS = ("outline", "document")
+
+
+@pytest.mark.parametrize("reserved", ["outline", "document"])
+def test_a_v1_turn_whose_document_path_claims_a_reserved_key_is_refused(
+        tmp_path, reserved):
+    body = _turn(active_document_path=reserved, buffers=[
+        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
+        _buf("document", reserved, _RESERVED_CLAIM_CONTENT,
+             content_hash=_RESERVED_CLAIM_HASH),
+    ])
+    status, payload, fake = _post_turn(
+        tmp_path, body,
+        snapshot=_snapshot_with_editable(*_RESERVED_SNAPSHOT_PATHS))
+    assert payload is not None, (
+        "the connection must carry an envelope, never drop: an IndexError here "
+        "stranded the turn-store lease and told the browser nothing")
+    _assert_refusal(status, payload, "invalid_turn_request")
+    assert "dispatch" not in fake.calls
+    _assert_no_sentinels(payload)
+
+
+@pytest.mark.parametrize("reserved", ["outline", "document"])
+def test_a_v2_turn_whose_document_path_claims_a_reserved_key_is_refused(
+        tmp_path, reserved):
+    body = _turn_v2(bound_buffer="outline", buffers=[
+        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
+        _buf("document", reserved, _RESERVED_CLAIM_CONTENT,
+             content_hash=_RESERVED_CLAIM_HASH),
+    ])
+    status, payload, fake = _post_turn(
+        tmp_path, body,
+        snapshot=_snapshot_with_editable(*_RESERVED_SNAPSHOT_PATHS))
+    assert payload is not None
+    _assert_v2_refusal(status, payload, "invalid_turn_request")
+    # BEFORE the provider: on this lane the buffer used to survive to dispatch
+    # and come back as `response_invalid`, which named the model for a defect in
+    # the request.
+    assert "dispatch" not in fake.calls
+    _assert_no_sentinels(payload)
+
+
+def test_the_reserved_key_refusal_leaves_the_turn_slot_reusable(tmp_path):
+    """The stranded-lease half of F2, measured rather than argued: a refused turn
+    must leave its conversation slot usable, which it cannot do if the handler
+    died mid-lease."""
+    claimed = _turn_v2(bound_buffer="outline", buffers=[
+        _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
+        _buf("document", "outline", _RESERVED_CLAIM_CONTENT,
+             content_hash=_RESERVED_CLAIM_HASH),
+    ])
+    fake = _port()
+    with _serving(tmp_path, model_port_factory=(lambda: fake),
+                  snapshot=_snapshot_with_editable(*_RESERVED_SNAPSHOT_PATHS)
+                  ) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first_status, first_payload, _h, _r = _request(
+            host, prt, "POST", CHAT_ROUTE, body=claimed,
+            headers=_console_headers(caps))
+        # …and a well-formed turn on the same conversation goes through after it.
+        second_status, second_payload, _h2, _r2 = _request(
+            host, prt, "POST", CHAT_ROUTE, body=_turn_v2(client_turn_id="turn-v2-9"),
+            headers=_console_headers(caps))
+    assert first_payload["error"] == "invalid_turn_request"
+    assert first_status == serve_mod.doxbench_error_status(
+        serve_mod.DOXBENCH_ERR_INVALID_TURN_REQUEST)
+    assert second_status == 200, second_payload
+    assert second_payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
+
+
+# ---------------------------------------------------------------------------
+# F5: THE WIDENED LANE, ACTUALLY WIDE — outline plus TWO path-backed documents
+# ---------------------------------------------------------------------------
+
+def test_a_widened_turn_carries_two_path_backed_documents_end_to_end(tmp_path):
+    """Every widened-lane mechanism the single-document fixture could not reach:
+    the per-document identity loop, the per-document byte bound, an
+    `observed_hashes` map with THREE keys, and a `bound_buffer` naming a
+    path-keyed document rather than a reserved one."""
+    body = _turn_v2(
+        client_turn_id="turn-v2-wide",
+        bound_buffer=DOC_ZULU,
+        buffers=[
+            _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
+            _buf("document", DOC_ALPHA, "# Alpha\n\n" + _S_DOCUMENT),
+            _buf("document", DOC_ZULU, "# Zulu\n\nsecond loaded document"),
+        ])
+    status, payload, fake = _post_turn(
+        tmp_path, body, snapshot=_snapshot_with_editable(DOC_ALPHA, DOC_ZULU))
+    assert status == 200, payload
+    assert payload["kind"] == doxbench_contracts.KIND_CHAT_TURN_V2_SUCCESS
+    assert payload["bound_buffer"] == DOC_ZULU
+    assert set(payload["observed_hashes"]) == {"outline", DOC_ALPHA, DOC_ZULU}
+    for value in payload["observed_hashes"].values():
+        assert isinstance(value, str) and len(value) == 64
+    # The identities are each buffer's OWN recomputed hash, not one repeated.
+    assert len(set(payload["observed_hashes"].values())) == 3
+    assert fake.calls.count("dispatch") == 1
+    _assert_no_sentinels(payload)
+
+
+def test_a_widened_turn_verifies_every_documents_identity_not_just_the_first(
+        tmp_path):
+    """The per-document loop, proven by moving the SECOND document's declared
+    hash: a loop that verified only the first would answer 200 here."""
+    body = _turn_v2(
+        client_turn_id="turn-v2-wide-2",
+        bound_buffer=DOC_ALPHA,
+        buffers=[
+            _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
+            _buf("document", DOC_ALPHA, "# Alpha\n\n" + _S_DOCUMENT),
+            _buf("document", DOC_ZULU, "# Zulu\n\nsecond loaded document",
+                 content_hash="a" * 64),
+        ])
+    status, payload, fake = _post_turn(
+        tmp_path, body, snapshot=_snapshot_with_editable(DOC_ALPHA, DOC_ZULU))
+    _assert_v2_refusal(status, payload, "content_identity_mismatch")
+    assert "dispatch" not in fake.calls
+    _assert_no_sentinels(payload)
+
+
+def test_the_request_byte_bound_counts_every_loaded_document(tmp_path):
+    """The byte bound over the SET: two documents that each fit the selected
+    model's ceiling but together do not must refuse with the MEASURED TOTAL.
+
+    The ceiling is narrowed through the catalog entry rather than reached with
+    megabytes, because the point is the arithmetic — a bound that measured only
+    the first document would report roughly half this number and answer 200."""
+    half = "z" * 12_000
+    body = _turn_v2(
+        client_turn_id="turn-v2-wide-3",
+        bound_buffer=DOC_ALPHA,
+        buffers=[
+            _buf("outline", OUTLINE_PATH, "# Outline\n\n" + _S_OUTLINE),
+            _buf("document", DOC_ALPHA, half),
+            _buf("document", DOC_ZULU, half),
+        ])
+    status, payload, fake = _post_turn(
+        tmp_path, body, port=_port(_catalog(input_limit_bytes=20_000)),
+        snapshot=_snapshot_with_editable(DOC_ALPHA, DOC_ZULU))
+    _assert_v2_refusal(status, payload, "request_limit_exceeded")
+    assert payload["limit"]["dimension"] == "request_body_bytes"
+    assert payload["limit"]["maximum"] == 20_000
+    assert payload["limit"]["measured"] >= 24_000, (
+        "both documents must be counted, not the first")
+    assert "dispatch" not in fake.calls
