@@ -134,6 +134,22 @@ markdown surgery is the risky half and it is the half that needs no tree.
       The refusal is surfaced as `outline_refusal` and in the README rather than
       reported as a refresh that did not happen, and ends-inside-fence is pinned as
       a FOURTH agreed behavior in the fence test.
+      **A RESIDUAL BOUND F2's FIX CREATES, stated so a completeness sweep does not
+      read it as an oversight.** Where the destination is ABSENT and the change
+      folder's SNAPSHOT is itself malformed — ending inside an unclosed fence — the
+      ratified absent-branch scenario asks for both `Status: staged` AND the filled
+      provenance slots. The file gets the status and a WITHHELD refresh, so it gets
+      the first and not the second. The two clauses cannot both hold for a malformed
+      snapshot: filling the slots means inserting into an open span, which is exactly
+      what breaks the unqualified idempotence clause. Idempotence plus a STATED
+      refusal was chosen over a silent non-idempotent insert, and the refusal is
+      visible in three places (the `outline_refusal` field, the topic README, and the
+      CLI's execute output) rather than inferred. Unreachable on today's corpus, and
+      counted rather than assumed: 0 of 1079 governed markdown files end inside an
+      unclosed fence, and 0 of the 31 staged topics with a primary fragment do. If
+      Brett prefers the
+      absent-branch clause to win, the change is one line and the cost is idempotence
+      — which is why it is a ruling and not a fix.
       **F3** — `snapshot_disposition` / `preserved_snapshot_path` were populated and
       read by nothing, so the sentence this change's own comment calls "exactly the
       sentence a human needs to be able to check" never reached the human who ran
@@ -142,10 +158,44 @@ markdown surgery is the risky half and it is the half that needs no tree.
       than a hand-built Namespace, whose field set could drift while passing.
       All three reverts were mutation-checked and each is caught by its own test.
       ONE READER-SIDE DEFECT FOUND AND DELIBERATELY NOT FIXED: `corpus.parse_status`
-      has the same pseudo-line blindness (`text.splitlines()[:15]`), so a U+2028
-      header hides the status from doc-health's READER too. It is outside this
-      change's surface, and touching it would move corpus findings this slice's own
-      gate forbids. Recorded here for whoever rules on it.
+      has the same pseudo-line blindness (`text.splitlines()[:15]`), so the write
+      side is fixed and the read side is not.
+      **THE REASON, CORRECTED.** An earlier draft of this note said touching it
+      "would move corpus findings this slice's own gate forbids". That was FALSE and
+      it was measured false: 1079 markdown files under this checkout (with
+      `corpus.EXCLUDED_PARTS` applied to the RELATIVE path — applied to the absolute
+      path it excludes everything, since the worktree lives under `.git/modules/`),
+      and ZERO carry any of `\x0b \x0c \x1c \x1d \x1e \x85` U+2028 U+2029 anywhere in
+      the file, let alone in a header window; zero files where the pseudo-line and
+      real-line windows even differ. Fixing `parse_status` today would move NO
+      finding at all.
+      The right reason is not risk, it is OWNERSHIP: `parse_status` is doc-health's
+      shared reader behind fifteen check families, and a change to it deserves its
+      own change with its own baseline diff rather than riding a gate-console fix.
+      That conclusion is unchanged; only its justification was invented. This is the
+      SECOND time in this change's family that an accurate finding got an
+      invented gate-based excuse — the 4.x order-check justification was the first —
+      so it is named here as a pattern to stop, not just a line to correct.
+      THE TWO DIVERGENCE SHAPES, measured rather than transcribed:
+      (1) WINDOW OVERRUN, a false finding and not corruption. Enough exotic
+      separators ahead of `Status:` that the PSEUDO-line count of everything before
+      it passes 15, and the reader stops looking before reaching a `Status:` the file
+      really carries: the demote writes a correct `Status: staged` and
+      `parse_status` returns None, so `status-validity` reports "missing status
+      header" about a document that has one. The threshold is NOT a fixed count —
+      review said "≥6" and 6 separators still parses fine (11 pseudo-lines); a
+      minimal header needs about 20 to reach 25 pseudo-lines, and a real header with
+      more preceding lines needs fewer.
+      (2) A SECOND HEADER SHARING ONE REAL LINE — the one place the read and write
+      sides disagree about CONTENT. `Status: draft<SEP>Kind: x` where `<SEP>` is any
+      of the exotic separators: pre-fix the flip produced `Status: stagedKind: x`,
+      which the reader parsed as the INVALID status `'stagedKind: x'` while keeping
+      the text; post-fix the whole real line is the status header, so its value is
+      replaced and `Kind: x` goes with it — the reader now sees a valid `'staged'`.
+      Better on validity, and it does delete text a pre-fix reader could see.
+      Review's example used a PLAIN SPACE, which produces no divergence at all
+      (`Status: draft Kind: x` is one real line either way and both algorithms emit
+      the same bytes); the shape needs an exotic separator to exist.
 
 ## 4. Tests
 
