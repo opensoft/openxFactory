@@ -42,7 +42,9 @@ import pytest
 
 from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit, find_openxfactory_validator
 
+from doc_health import families
 from ideation_dashboard import gate_console as gc
+from ideation_dashboard import round_trip
 from ideation_dashboard import serve as serve_mod
 from ideation_dashboard.boundary import (
     AGENT, GATE_SIDE_EFFECT, BoundaryViolation, HumanGate, OutputBoundary,
@@ -264,6 +266,414 @@ def test_the_demote_readme_append_preserves_the_existing_readmes_bytes(tmp_path)
     assert after.startswith(crlf), (
         "the append rewrote the README's own bytes instead of only adding to them")
     assert b"Returned drafts" in after
+
+
+# ============================================================================
+# demote and the ROUND-TRIP RULE (align-demote-to-round-trip-rule)
+# ============================================================================
+#
+# The whole change exists because greps lie about this mechanism: nothing in the
+# repository writes the round-trip slot BY NAME, so a search concluded the rule
+# was unimplemented, and only driving the verb showed that the fragment is written
+# by ROUTING — `supporting-docs/<topic>.md` returns to the topic root under its
+# bare basename, which IS the primary fragment's path. So every test below drives
+# the REAL `plan_demotion` + `execute_demotion_plan`. None of them stubs the move.
+#
+# The fixture change carries no supporting-docs, so `_with_transitioned_snapshot`
+# adds exactly what `proposal-support.py transition` records: the topic's own
+# fragment snapshotted under its bare basename, plus the manifest whose
+# `transitioned_at` is the only source for the `Raised` slot.
+
+ASPIRATIONAL = f"""# Staged: {TOPIC}
+
+Status: staged
+Summary: THE ASPIRATIONAL ORIGINAL, snapshotted before the proposal was raised.
+
+## Last proposal attempt (round-trip provenance)
+
+Change ID: none yet
+Raised: n/a
+Status at demote: n/a
+Demoted: n/a
+Demote reason: n/a
+
+## Why
+
+<!-- xspec:candidate target=ideation-dashboard -->
+THE ASPIRATIONAL PRE-PROPOSAL GUESS.
+<!-- /xspec:candidate -->
+"""
+
+LIVE = f"""# Staged: {TOPIC}
+
+Status: staged
+Summary: THE LIVE FRAGMENT, worked on AFTER the proposal was raised.
+
+## Last proposal attempt (round-trip provenance)
+
+Change ID: none yet
+Raised: n/a
+Status at demote: n/a
+Demoted: n/a
+Demote reason: n/a
+
+## Idea notes (pre-document, non-documented)
+
+- A HALF-FORMED THOUGHT NOBODY ELSE HAS A COPY OF. — Added-by: brett · 2026-08-18
+
+## Why
+
+<!-- xspec:candidate target=ideation-dashboard -->
+A GUESS THE HUMAN LATER IMPROVED IN FLIGHT.
+<!-- /xspec:candidate -->
+"""
+
+
+def _with_transitioned_snapshot(root: Path, *, manifest: bool = True,
+                                snapshot: str = ASPIRATIONAL) -> Path:
+    """Give the fixture change the shape `transition` leaves behind."""
+    sd = root / "openspec" / "changes" / CHANGE / "supporting-docs"
+    sd.mkdir(parents=True, exist_ok=True)
+    (sd / f"{TOPIC}.md").write_text(snapshot, encoding="utf-8")
+    if manifest:
+        (sd / "manifest.yaml").write_text(
+            "change_id: " + CHANGE + "\n"
+            "format_version: 1\n"
+            "origin:\n  kind: staged\n  path: ideation/staging/" + TOPIC + "\n"
+            "remaining_paths: []\n"
+            "transitioned_at: '2026-07-02'\n", encoding="utf-8")
+    return sd / f"{TOPIC}.md"
+
+
+def _fragment(root: Path) -> Path:
+    return root / "ideation" / "staging" / TOPIC / f"{TOPIC}.md"
+
+
+def _demote_and_execute(root: Path, *, reason="Reworking scope."):
+    snap = _snapshot(root)
+    res = gc.GateConsole(_gate(root)).demote(snap, CHANGE, reason=reason, at=AT)
+    ex = gc.execute_demotion_plan(res.plan, root, at=AT)
+    return res, ex
+
+
+def test_the_plan_declares_which_move_is_the_topics_outline(tmp_path):
+    """design Decision 1: decided PATH-ONLY and in the PURE plan, so the
+    reviewable `demote-<stamp>.plan.yaml` states it BEFORE execution. A human
+    reviewing the plan should not have to infer it from a basename."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    plan = gc.plan_demotion(_snapshot(root), CHANGE, reason="r")
+
+    outline = [m for m in plan.moves if m.outline]
+    assert len(outline) == 1
+    assert outline[0].to_path == f"ideation/staging/{TOPIC}/{TOPIC}.md"
+    # A staged topic's outline is STAGED — set positively, not by omitting a flip.
+    assert outline[0].status_flip == "staged"
+    # …and the draft flip is UNCHANGED for the documents bound for `openspec/`.
+    by_from = {m.from_path: m for m in plan.moves}
+    prop = by_from[f"openspec/changes/{CHANGE}/proposal.md"]
+    assert prop.status_flip == "draft" and prop.outline is False
+
+    # published in both artifacts a human reads before running --execute
+    manifest = gc.transition_manifest(plan, actor="brett", at=AT)
+    entry = [f for f in manifest["files"] if f["outline"]]
+    assert len(entry) == 1 and entry[0]["status_flip"] == "staged"
+    assert manifest["status_at_demote"] == "active"
+    steps = gc.executable_plan(plan, actor="brett", at=AT)["steps"]
+    declared = [s for s in steps if s.get("outline_restore")]
+    assert len(declared) == 1
+    assert declared[0]["set_status"] == "staged"
+
+
+def test_a_demote_restores_an_absent_outline_and_refreshes_it(tmp_path):
+    """The ordinary case — `transition` empties the topic folder, so the
+    destination is usually absent. Restored, staged, slots filled, and the marked
+    section carrying the RETURNED proposal's real text."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    assert not _fragment(root).exists()
+
+    res, ex = _demote_and_execute(root)
+    text = _fragment(root).read_text(encoding="utf-8")
+
+    assert ex.snapshot_disposition == "applied"
+    assert ex.preserved_snapshot_path is None
+    assert ex.outline_refreshed is True
+    assert "Status: staged" in text and "Status: draft" not in text
+    assert f"Change ID: {CHANGE}" in text
+    assert "Raised: 2026-07-02" in text          # from the manifest, not guessed
+    assert "Status at demote: active" in text
+    assert f"Demoted: {AT[:10]}" in text
+    assert "Demote reason: Reworking scope." in text
+    assert "n/a" not in text and "none yet" not in text
+    # the REAL returned proposal text, not the aspirational snapshot's
+    returned = (root / "ideation" / "staging" / TOPIC / "openspec"
+                / "proposal.md").read_text(encoding="utf-8")
+    why = returned.split("## Why", 1)[1].split("\n## ", 1)[0].strip()
+    assert why and why in text
+    assert "THE ASPIRATIONAL PRE-PROPOSAL GUESS." not in text
+
+    # …and refreshing the RESULT again with the same inputs is a no-op, which is
+    # the requirement's idempotence clause measured on real output
+    again = round_trip.refresh_fragment(
+        text, proposal_text=returned,
+        provenance={"Change ID": CHANGE, "Raised": "2026-07-02",
+                    "Status at demote": "active", "Demoted": AT[:10],
+                    "Demote reason": "Reworking scope."})
+    assert again == text
+    # the selector still calls it the topic's outline
+    assert families._primary_fragment(
+        root / "ideation" / "staging" / TOPIC).name == f"{TOPIC}.md"
+
+
+def test_a_demote_never_byte_replaces_a_live_differing_outline(tmp_path):
+    """THE TEST THIS CHANGE EXISTS FOR. Before it, the demote wrote the change
+    folder's pre-proposal snapshot straight over the live fragment: everything
+    learned while the change was in flight was discarded at exactly the moment it
+    was most valuable, with no diff, no prompt, and no record beyond a path in a
+    README list."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    _fragment(root).parent.mkdir(parents=True, exist_ok=True)
+    _fragment(root).write_text(LIVE, encoding="utf-8")
+
+    res, ex = _demote_and_execute(root)
+    text = _fragment(root).read_text(encoding="utf-8")
+
+    assert ex.snapshot_disposition == "preserved"
+    # the live fragment's OWN content, outside the refreshed regions, survives
+    assert "THE LIVE FRAGMENT, worked on AFTER the proposal was raised." in text
+    assert "A HALF-FORMED THOUGHT NOBODY ELSE HAS A COPY OF." in text
+    assert "## Idea notes (pre-document, non-documented)" in text
+    # the snapshot never reached the destination
+    assert "THE ASPIRATIONAL ORIGINAL" not in text
+    assert "THE ASPIRATIONAL PRE-PROPOSAL GUESS." not in text
+    # the bounded regions DID move
+    assert f"Change ID: {CHANGE}" in text
+    assert "A GUESS THE HUMAN LATER IMPROVED IN FLIGHT." not in text
+
+
+def test_the_preserved_snapshot_is_a_visible_topic_file_named_in_the_record(tmp_path):
+    """"Never byte-replace" must not quietly become "silently discard the other
+    copy". The snapshot is kept as an ORDINARY topic file — not a dotfile, not
+    `.orig` — because a hidden artifact in a governed folder is how material goes
+    missing, and it is named where the human will look."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    _fragment(root).parent.mkdir(parents=True, exist_ok=True)
+    _fragment(root).write_text(LIVE, encoding="utf-8")
+
+    res, ex = _demote_and_execute(root)
+
+    kept = root / "ideation" / "staging" / TOPIC / f"{TOPIC}.snapshot-{CHANGE}.md"
+    assert kept.is_file()
+    assert ex.preserved_snapshot_path == kept
+    assert not kept.name.startswith(".") and not kept.name.endswith(".orig")
+    body = kept.read_text(encoding="utf-8")
+    assert "THE ASPIRATIONAL ORIGINAL" in body
+    # it is a proposal-era snapshot, not the topic's outline
+    assert "Status: draft" in body
+    # …and the selector is NOT confused about which file is the outline
+    assert families._primary_fragment(
+        root / "ideation" / "staging" / TOPIC).name == f"{TOPIC}.md"
+    # the README says what happened, and names the kept file
+    readme = (root / "ideation" / "staging" / TOPIC / "README.md").read_text(
+        encoding="utf-8")
+    assert "REFRESHED IN PLACE" in readme
+    assert "PRESERVED" in readme and kept.name in readme
+
+
+def test_an_identical_outline_destination_counts_as_a_restore(tmp_path):
+    """Case (b): nothing to lose, so no preserved copy. Routing it through the
+    differs path would leave a snapshot file identical to the one beside it."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    _fragment(root).parent.mkdir(parents=True, exist_ok=True)
+    _fragment(root).write_text(ASPIRATIONAL, encoding="utf-8")
+
+    res, ex = _demote_and_execute(root)
+    assert ex.snapshot_disposition == "applied"
+    assert ex.preserved_snapshot_path is None
+    assert not (root / "ideation" / "staging" / TOPIC
+                / f"{TOPIC}.snapshot-{CHANGE}.md").exists()
+
+
+def test_a_demote_with_no_proposal_document_still_fills_the_slots(tmp_path):
+    """The requirement's own edge: slots filled, marked sections left exactly as
+    they were."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    (root / "openspec" / "changes" / CHANGE / "proposal.md").unlink()
+
+    res, ex = _demote_and_execute(root)
+    text = _fragment(root).read_text(encoding="utf-8")
+    assert f"Change ID: {CHANGE}" in text
+    assert "Demote reason: Reworking scope." in text
+    # the snapshot's own marked body is untouched, because there was nothing to
+    # refresh it from
+    assert "THE ASPIRATIONAL PRE-PROPOSAL GUESS." in text
+
+
+def test_an_absent_manifest_records_the_raised_date_as_unavailable(tmp_path):
+    """Never fabricated: not from the change folder's archive-date prefix, not
+    from a file mtime. Most changes carry no manifest at all."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root, manifest=False)
+
+    res, ex = _demote_and_execute(root)
+    text = _fragment(root).read_text(encoding="utf-8")
+    assert f"Raised: {round_trip.UNAVAILABLE}" in text
+    assert "Raised: n/a" not in text
+
+
+def test_a_crlf_outline_keeps_its_line_endings_through_the_refresh(tmp_path):
+    """The corpus-integrity class through this verb's newest arm. The refresh is a
+    bounded write; one insertion must never become a whole-file line-ending
+    rewrite."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    _fragment(root).parent.mkdir(parents=True, exist_ok=True)
+    _fragment(root).write_bytes(LIVE.replace("\n", "\r\n").encode("utf-8"))
+
+    res, ex = _demote_and_execute(root)
+    raw = _fragment(root).read_bytes()
+    assert b"\r\n" in raw
+    # no lone LF anywhere: every ending is CRLF
+    assert raw.replace(b"\r\n", b"") .count(b"\n") == 0
+    assert f"Change ID: {CHANGE}".encode() in raw
+
+
+# ---- review F1: `_flip_status` shared the round-trip split --------------------
+#
+# Both inputs below are the reviewer's, reproduced against the fixed tree. They
+# were reachable the moment this change routed a topic's PRIMARY FRAGMENT through
+# `_flip_status`, and the fix is not confined to the fragment: every
+# `openspec/`-bound document this verb flips to `draft` was exposed to the same two
+# damages before.
+
+
+def test_a_form_feed_in_a_status_line_does_not_invent_a_line_boundary():
+    """`str.splitlines(keepends=True)` saw `Status: draft\\x0crest` as TWO
+    pseudo-lines, replaced the first with no ending, and GLUED the remainder onto
+    the new value — `Status: stagedrest of the line`. Text moved across a line
+    boundary the file does not contain."""
+    src = "Status: draft\x0crest of the line\nbody\n"
+    out = gc._flip_status(src, "staged")
+    assert "Status: stagedrest of the line" not in out, \
+        "the remainder was glued onto the status value again"
+    assert out.startswith("Status: staged\n")
+    # the real line count is unchanged: no boundary was invented or destroyed
+    assert out.count("\n") == src.count("\n")
+    assert out.endswith("body\n")
+
+
+def test_a_unicode_line_separator_in_the_header_does_not_hide_the_status():
+    """U+2028 inflates the pseudo-line count past the 15-line header window, so a
+    real `Status:` inside the header was never found and the flip silently did
+    nothing — failing the ratified "the restored fragment MUST carry `Status:
+    staged`" scenario on input you get by pasting from a web page."""
+    header = "".join(f"Field{i}: v  \n" for i in range(9))
+    src = "# Staged: t\n" + header + "Status: draft\n\n## Why\n"
+    assert len(src.splitlines(keepends=True)) > gc.HEADER_SCAN_LINES
+    out = gc._flip_status(src, "staged")
+    assert "Status: staged" in out
+    assert "Status: draft" not in out
+    # …and every U+2028 the author had survives
+    assert out.count(" ") == src.count(" ")
+
+
+def test_the_status_flip_still_keeps_a_crlf_headers_own_ending():
+    """The P3 guarantee the rewrite had to carry across unchanged."""
+    src = "# T\r\n\r\nStatus: draft\r\n\r\n## Why\r\n"
+    out = gc._flip_status(src, "staged")
+    assert out == src.replace("Status: draft\r\n", "Status: staged\r\n")
+
+
+# ---- review F2 and F3, through the driven verb --------------------------------
+
+
+def test_a_fragment_ending_inside_an_unclosed_fence_withholds_the_refresh(tmp_path):
+    """Review F2, end to end. The restore still happens — the file must exist — but
+    the provenance is NOT written into the open span, and the execution record says
+    so rather than reporting a refresh that did not occur."""
+    root = _tree(tmp_path)
+    unclosed = (f"# Staged: {TOPIC}\n\nStatus: staged\n\nExample:\n\n"
+                "```markdown\n## Claims\n\n- x\n")
+    _with_transitioned_snapshot(root, snapshot=unclosed)
+
+    res, ex = _demote_and_execute(root)
+    text = _fragment(root).read_text(encoding="utf-8")
+
+    assert ex.outline_refreshed is False
+    assert "unclosed code fence" in (ex.outline_refusal or "")
+    assert round_trip.PROVENANCE_HEADING not in text
+    # the restored bytes are the snapshot's, with only the status flip applied
+    assert "```markdown\n## Claims\n\n- x\n" in text
+    # and the README tells the human, instead of claiming a refresh
+    readme = (root / "ideation" / "staging" / TOPIC / "README.md").read_text(
+        encoding="utf-8")
+    assert "unclosed code fence" in readme
+    assert "REFRESHED IN PLACE" not in readme
+
+
+def test_a_withheld_refresh_leaves_a_live_fragment_byte_identical(tmp_path):
+    """The refusal must not become its own overwrite: a live differing fragment
+    that ends inside a fence keeps every byte, and its mtime is not even touched."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    live = (f"# Staged: {TOPIC}\n\nStatus: staged\n\nMY WORK\n\n"
+            "```markdown\n## Claims\n")
+    _fragment(root).parent.mkdir(parents=True, exist_ok=True)
+    _fragment(root).write_text(live, encoding="utf-8")
+    before_mtime = _fragment(root).stat().st_mtime_ns
+
+    res, ex = _demote_and_execute(root)
+
+    assert ex.outline_refreshed is False
+    assert _fragment(root).read_text(encoding="utf-8") == live
+    assert _fragment(root).stat().st_mtime_ns == before_mtime
+    # the snapshot was still preserved rather than discarded
+    assert ex.snapshot_disposition == "preserved"
+    assert ex.preserved_snapshot_path is not None
+
+
+def test_the_cli_tells_the_human_the_snapshot_was_preserved(tmp_path, capsys):
+    """Review F3. `snapshot_disposition` and `preserved_snapshot_path` were
+    populated and read by nothing — "we did not overwrite your work" is exactly the
+    sentence a human needs to be able to check, and it has to reach the operator who
+    ran the verb, not just a dataclass."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    _fragment(root).parent.mkdir(parents=True, exist_ok=True)
+    _fragment(root).write_text(LIVE, encoding="utf-8")
+
+    from ideation_dashboard import cli
+
+    # Through the REAL parser, not a hand-built Namespace: a Namespace's field set
+    # can drift from the CLI's while the test keeps passing.
+    args = cli.build_parser().parse_args([
+        "gate", "demote", "--repo-root", str(root), "--actor", "brett",
+        "--repository", "fixture-repo", "--source-revision", PINNED_REVISION,
+        "--change-id", CHANGE, "--reason", "Reworking scope.", "--execute",
+    ])
+    assert args.func(args) == 0
+    out = capsys.readouterr().out
+
+    assert "snapshot preserved" in out
+    assert "REFRESHED IN PLACE" in out
+    assert f"{TOPIC}.snapshot-{CHANGE}.md" in out
+    assert "not applied over your work" in out
+
+
+def test_the_round_trip_arm_leaves_a_topic_with_no_snapshot_untouched(tmp_path):
+    """The fixture change as it ships carries no supporting-docs, so there is no
+    outline move at all and this arm must be inert — which is why the eight
+    pre-existing demote tests still pass unchanged."""
+    root = _tree(tmp_path)
+    res, ex = _demote_and_execute(root)
+    assert ex.outline_refreshed is False
+    assert ex.snapshot_disposition is None
+    assert not _fragment(root).exists()
 
 
 # ============================================================================

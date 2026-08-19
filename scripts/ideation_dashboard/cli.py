@@ -429,8 +429,31 @@ def cmd_gate_demote(args: argparse.Namespace) -> int:
     print(f"  planned moves: {len(res.plan.moves)}; withdrawn picks: {list(res.plan.withdrawn_picks)}")
     if args.execute:
         ex = gate_mod.execute_demotion_plan(res.plan, repo_root)
-        print(f"  EXECUTED: {len(ex.moved)} file(s) moved into {res.plan.topic_path}/openspec/; "
+        # Not every move lands in openspec/ — supporting-docs restores and the
+        # outline restore (below) can land in the topic ROOT instead, so the
+        # summary counts both rather than naming a single destination
+        # (Copilot review, PR #215).
+        into_ws = sum(1 for _, to in ex.moved
+                      if to.startswith(res.plan.openspec_workspace + "/"))
+        into_root = len(ex.moved) - into_ws
+        print(f"  EXECUTED: {len(ex.moved)} file(s) moved back into {res.plan.topic_path}/ "
+              f"({into_ws} into openspec/, {into_root} into the topic root); "
               f"README+INDEX updated; change folder removed={ex.removed_change_folder}")
+        # THE OUTLINE'S OWN SENTENCE (align-demote-to-round-trip-rule). "We did not
+        # overwrite your work" is exactly the sentence a human needs to be able to
+        # check, and a disposition recorded only in a returned dataclass is a
+        # disposition nobody reads. It goes to the operator who ran the verb.
+        if ex.outline_path is not None:
+            print(f"  outline: {ex.outline_path.relative_to(repo_root)} "
+                  f"(snapshot {ex.snapshot_disposition})")
+            if ex.preserved_snapshot_path is not None:
+                print(f"    your fragment already existed and differed, so it was "
+                      f"REFRESHED IN PLACE — the change folder's snapshot was "
+                      f"preserved as "
+                      f"{ex.preserved_snapshot_path.relative_to(repo_root)}, "
+                      f"not applied over your work")
+            if ex.outline_refusal:
+                print(f"    REFRESH WITHHELD: {ex.outline_refusal}")
     else:
         print("  (plan only — rerun with --execute to apply the moves to this checkout)")
     return 0

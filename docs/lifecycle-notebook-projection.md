@@ -329,7 +329,10 @@ registered: it is derived state bound to a branch that outlives nothing, and
   one re-projects (delete + re-add, ~2s each) into each of the 3+N books —
   batch grounding edits rather than trickling them.
 - nlm sessions expire in ~20 minutes; CI use needs an auth strategy before
-  the nightly integration.
+  the nightly integration. The current host auth blocker, the WSLg Playwright
+  workaround (`scripts/nlm_auth.py`), and the machine-account direction that
+  retires it are tracked as an open operational item:
+  [NotebookLM Projection Sync — Open Operational Item](notebooklm-sync-open-item.md).
 - Matching is title-based; retitling rules (section 2) therefore cause a
   delete + re-add cycle on the affected sources.
 - Notebook synthesis can be stale between syncs; the repo is always the
