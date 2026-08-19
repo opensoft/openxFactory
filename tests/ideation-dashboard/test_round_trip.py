@@ -353,15 +353,31 @@ def test_the_whole_refresh_touches_only_the_slots_and_the_marked_body():
 # `doc_health.lines.split_keepends` (real lines: CR/LF/CRLF only), so on any
 # input the two Python call sites cannot diverge on WHERE a line is — only on a
 # bug in one's own fence-toggle loop, which is what the agreement test below
-# still exists to catch. `outline-model.js`'s `outlineSections` splits on the
-# same real-line regex independently (`text.split(/\r\n|\r|\n/)`) and cannot
-# import the Python primitive, so it remains the ONE genuinely separate
-# implementation. What `test_all_three_fence_implementations_agree` compares is
-# therefore two implementations of the full heading-detection behavior — ONE
-# Python (unified line-split, two independent fence loops) and ONE JS — not
-# three independently-splitting ones, even though it is still useful to run the
-# comparison against both Python call sites explicitly (a regression in either
-# one's fence-toggle loop alone would still be caught).
+# still exists to catch.
+#
+# `outline-model.js`'s OWN split is not one rule, corrected (finding F1, a
+# focused re-verify): `outlineSections` (the function this test's JS probe
+# calls) splits with `text.split("\n")` at outline-model.js:46 — LF ONLY —
+# while `endsInsideFence`/`insertSection` split with the real-line regex
+# `text.split(/\r\n|\r|\n/)` at outline-model.js:273/:319. The two disagree
+# on their own, INSIDE the JS file, on a CR-only document (demonstrated:
+# `outlineSections` folds two `##` lines into one section, `endsInsideFence`
+# reads them as two). That pre-existing JS-internal inconsistency is out of
+# scope for this Python-side change — the fixtures below carry no bare-CR
+# input, so it is held by NEITHER test here, and fixing the JS is not
+# attempted. What `outlineSections` does share with the Python side, on
+# every fixture this test actually exercises (LF-only markdown), is the
+# outcome, not the rule: no fixture here distinguishes LF-only splitting
+# from real-line splitting, because none contains a lone CR or an exotic
+# separator adjacent to a `##`/```` ``` ```` boundary.
+#
+# What `test_all_three_fence_implementations_agree` compares is therefore two
+# implementations of the full heading-detection behavior on THESE
+# fixtures — ONE Python (unified line-split, two independent fence loops)
+# and ONE JS — not three independently-splitting ones on these inputs, even
+# though it is still useful to run the comparison against both Python call
+# sites explicitly (a regression in either one's fence-toggle loop alone
+# would still be caught).
 #
 # It compares what each module DOES with fences rather than a private helper's
 # signature: for a fixture whose lines are headings and fences, the set of headings

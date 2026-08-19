@@ -9,7 +9,9 @@ that header" vs. the narrower `code_surface:` front matter), and Brett's
 same-day ruling (2026-08-19, in-session multiple choice, recommended option
 adopted) resolved it WIDE: the delta governs, the narrow front matter was the
 drafting error, and all six remaining pseudo-line readers convert in this
-same change. Section 2a below is that conversion.
+same change. Section 2a below is that conversion. A FOCUSED RE-VERIFY of that
+realization found four further mechanical items (findings F1-F4; F4 falls
+under the already-ruled wide scope, no new ruling needed) — section 2b.
 
 ## 1. The shared primitive
 
@@ -80,6 +82,65 @@ value changes.
       truthfully — it is not dropped, its factual claims are corrected to
       match what this branch actually built.
 
+## 2b. Focused re-verify round 2 (findings F1-F4, 2026-08-19)
+
+No new ruling needed — F4 falls under the already-ruled wide scope (every
+reader of a lifecycle header). Four mechanical items from a focused
+re-verify of round 2a's dispositions.
+
+- [x] 2b.1 (F4, IN SCOPE) `ideation_dashboard.completeness._Prepared.lines`
+      converts to `doc_health.lines.split_keepends`: `_has_header` reads the
+      SAME six lifecycle header fields, in the SAME 15-line window, as
+      `authoring.missing_required_headers` and `corpus.parse_status`, and its
+      own comment already claimed the mirror. Demonstrated: same document,
+      `authoring` said the header block COMPLETE, `completeness` said
+      `governance_header_block` ABSENT. Converting `.lines` itself (not
+      `_has_header` alone) fixes every consumer coherently — `_headings`,
+      `_has_heading`, the `h1_title`/`section` checks, and
+      `_open_question_items` all already treated `.lines` as an opaque
+      `Sequence[str]`. The module's stated "imports `re` and nothing else"
+      purity claim is corrected to admit `doc_health.lines` (itself pure),
+      and the AST-based purity test is updated to match and to assert
+      `doc_health.lines`'s own import set stays `{__future__, re}`.
+- [x] 2b.2 The SWEEP BLIND SPOT that hid F4 recorded: `p.lines[:HEADER_WINDOW]`
+      puts the `splitlines()` call and the window slice on different source
+      lines, so `grep "splitlines()\[:"` cannot match either. Recorded in
+      `corpus.py`'s sweep comment: the next sweep should grep bare
+      `splitlines()` over document text generally, not just the windowed
+      idiom.
+- [x] 2b.3 MUTATION GAP closed: `inventory._header_value`,
+      `organizer_dispatch._header_value`, `generator._header_value`, and
+      `authoring.missing_required_headers` had NO dedicated test at all — the
+      reviewer reverted all four simultaneously and nothing failed. One
+      shared exotic-fixture test per package added
+      (`tests/doc-health/test_header_value_readers.py` for the doc-health
+      pair, `tests/ideation-dashboard/test_header_value_readers.py` for the
+      ideation-dashboard pair), each with an embedded mutation-check test,
+      PLUS a live source-level one-at-a-time revert of all four (each
+      reverted alone, confirmed to fail exactly the test it should, restored)
+      as a manual verification pass.
+- [x] 2b.4 (F1) The false claim that `outline-model.js`'s `outlineSections`
+      splits on the same real-line regex as `endsInsideFence`/`insertSection`
+      — corrected in `test_round_trip.py`. `outlineSections` is LF-only
+      (`text.split("\n")` at outline-model.js:46); the real-line regex lives
+      only at :273/:319. Demonstrated divergent on a CR-only document. The
+      JS-internal inconsistency is pre-existing, out of scope, and held by
+      NO test here (no fixture in this suite carries a bare CR) — not
+      claimed to be fixed or pinned, and the JS itself is not touched.
+- [x] 2b.5 (F2/F3) Three prose spots corrected that overclaimed the Python
+      line-split side was now singular while `families._template_gaps`
+      (two of its own unbounded `text.splitlines()` loops, demonstrated
+      divergent on a form-feed fragment) survives unconverted:
+      `doc_health/lines.py`'s module docstring ("the ONE separate
+      implementation" — now correctly attributes that status only to
+      lifecycle-header readers, and names `_template_gaps` as a remaining
+      Python-side sibling), `corpus.py`'s sweep comment ("plus one UNBOUNDED
+      sibling defect" — now points at the second sweep-gap note rather than
+      implying `_scan_lines` was the only one), and `families._scan_lines`'s
+      own docstring ("this WAS a live second Python line rule" — past tense
+      corrected to scope the claim to `_scan_lines` itself, not the corpus).
+      `_template_gaps` recorded in §7 Deferred below with the disposition.
+
 ## 3. The writer stops carrying its own copy
 
 - [x] 3.1 `ideation_dashboard/round_trip.py` imports the primitive instead of
@@ -145,7 +206,11 @@ value changes.
       changed readers too and this gate carries real information again — a
       moved finding means a corpus document carries a separator the
       0-of-1227 aggregation-wide measurement did not see, and that is a
-      reason to stop and explain, not to accept the diff.
+      reason to stop and explain, not to accept the diff. RE-RUN AGAIN after
+      2b: `completeness.py`/`generator.py`/`authoring.py` are not on the
+      doc-health report's own path (they feed the ideation-dashboard
+      generator, not the doc-health suite), but the gate is re-run anyway
+      rather than assumed unaffected.
 
 ## 6. Bookkeeping
 
@@ -168,3 +233,17 @@ value changes.
       measures. Not invented as a gate excuse — no gate forbids this; it is
       deferred because it is unbuilt and its cost was not judged worth paying
       in this change.
+- [ ] 7.2 `doc_health.families._template_gaps` (families.py, two unbounded
+      `text.splitlines()` loops over document text) — DEFERRED, with the
+      reviewer's ruling recorded (focused re-verify, 2026-08-19): it is NOT a
+      lifecycle-header reader — it scans `## `/`### Q` TEMPLATE headings for
+      conformance checking, never the `Status:`/`Kind:`/etc. header window —
+      so it sits honestly OUTSIDE this change's every-*header*-reader clause,
+      not inside it by omission. It is latent (0 of 1227 governed aggregation
+      files diverge between its pseudo-line reading and a real-line one) and
+      demonstrably divergent on a form-feed fragment when one is constructed.
+      It shares the exact grep blind spot that hid F4
+      (`completeness._Prepared.lines`): a bare unbounded `splitlines()` over
+      document text, not the `splitlines()[:N]` windowed idiom the sweep's
+      grep pattern targets. Left for its own change and its own baseline
+      diff, same as 7.1 above — not a gate excuse, an honest scope boundary.

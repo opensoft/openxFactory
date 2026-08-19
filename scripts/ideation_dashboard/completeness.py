@@ -9,12 +9,28 @@ set of constants, so the rendered bar and the refusal message can never
 disagree.
 
 EVERY FUNCTION HERE IS PURE. No file read, no network, no clock, no model call,
-no randomness, no module state — the module imports `re` and nothing else, which
-is the structural half of design D1's guarantee: the score is a function of the
-pinned tree alone, so the same tree yields a BYTE-IDENTICAL snapshot (the
-promoted spec's first scenario) and a rising-score scenario is fixture-testable.
-Text and derived maps arrive as ARGUMENTS from the generator, which has already
-loaded them.
+no randomness, no module state — the module imports `re` and
+`doc_health.lines.split_keepends` (itself pure: `re` and nothing else, no I/O)
+and nothing beyond those two, which is the structural half of design D1's
+guarantee: the score is a function of the pinned tree alone, so the same tree
+yields a BYTE-IDENTICAL snapshot (the promoted spec's first scenario) and a
+rising-score scenario is fixture-testable. Text and derived maps arrive as
+ARGUMENTS from the generator, which has already loaded them.
+
+`_Prepared.lines` is REAL lines (CR/LF/CRLF only), not `str.splitlines()`
+pseudo-lines, since `align-status-reader-to-real-lines`'s wide ruling
+(2026-08-19, finding F4): `_has_header` reads the SAME six lifecycle header
+fields, in the SAME 15-line window, as `doc_health.corpus.parse_status`/
+`parse_kind` and `authoring.missing_required_headers` — see this module's
+`GOVERNANCE_HEADER_FIELDS`/`HEADER_WINDOW` comment — and a wider split here
+than there is the exact divergence that change exists to close: a document
+whose header carries an exotic separator could get `authoring` saying its
+header block is COMPLETE (real lines) and `completeness` saying
+`governance_header_block` is ABSENT (pseudo-lines), demonstrated. Converting
+`_Prepared.lines` alone fixes every consumer coherently — `_headings`,
+`_has_heading`, `_has_header`, the `h1_title`/`section` structural checks, and
+`_open_question_items` all already treat `.lines` as an opaque `Sequence[str]`
+of "the document's lines," so none of them needed to change.
 
 The five signals are deliberately STRUCTURAL PROXIES, not an assessment of
 quality (design D1 consequence): a well-formed empty argument scores well. The
@@ -61,6 +77,8 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable, Mapping, Sequence
 from typing import Any
+
+from doc_health.lines import split_keepends
 
 # --------------------------------------------------------------------------
 # v1 contract constants (design D2 — fixed, never a per-run input)
@@ -156,7 +174,12 @@ class _Prepared:
 
     def __init__(self, text: str) -> None:
         self.text = text
-        self.lines = text.splitlines()
+        # REAL lines (CR/LF/CRLF only), not `str.splitlines()` pseudo-lines —
+        # see the module docstring. `.lines` stays a plain `list[str]` (the
+        # body half of each `split_keepends` row; the ending is not needed by
+        # any consumer here), so every existing reader of `.lines` keeps its
+        # own signature and behavior unchanged.
+        self.lines = [body for body, _ending in split_keepends(text)]
         self.body_words = _body_word_count(self.lines)
 
 
