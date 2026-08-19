@@ -587,6 +587,29 @@ def _prompt_bytes(port) -> int:
                for section in port.dispatched[0].sections)
 
 
+def _mid_checkout(tmp_path):
+    """A checkout whose tile documents are ~60 KB each — big enough that a
+    NARROWED model ceiling cannot afford them, small enough that the packet's
+    OWN 256 KB bound easily can.
+
+    That gap is the whole point: `_fat_checkout`'s ~344 KB documents exceed the
+    packet bound by themselves, so they drop with or without the input-limit
+    composition and a test built on them proves nothing about it. Found by
+    revert-testing this very pin."""
+    root = tmp_path / "mid-checkout"
+    if root.exists():
+        return root
+    shutil.copytree(BASE_REPO, root)
+    for ref in TILE_EVIDENCE:
+        path = root / ref
+        path.write_text(
+            path.read_text(encoding="utf-8") + "\n\n"
+            + ("doc health dtn register staging governance " * 1400),
+            encoding="utf-8")
+        assert 40_000 < path.stat().st_size < pk.MAX_PACKET_BYTES
+    return root
+
+
 def test_the_packet_is_FITTED_to_what_the_request_left_of_the_input_limit(
         tmp_path):
     """The request bytes are measured against the catalog's effective input
@@ -601,7 +624,7 @@ def test_the_packet_is_FITTED_to_what_the_request_left_of_the_input_limit(
     status, _payload, port = _post_turn(
         tmp_path, _turn(message="doc health checks dtn register"),
         port=narrow, knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED,
-        checkout_root=_fat_checkout(tmp_path))
+        checkout_root=_mid_checkout(tmp_path))
     assert status == 200
     assert _prompt_bytes(port) <= 40_000
     # it fitted by SELECTING less, and said so
@@ -624,14 +647,20 @@ def test_the_scaffold_reserve_is_MEASURED_adequate_not_asserted(tmp_path):
     """`PROMPT_SCAFFOLD_RESERVE_BYTES` is a declared allowance for what the
     prompt spends outside the packet and outside the measured request. Its
     adequacy is checked against a REAL rendered prompt rather than argued."""
+    carried = []
     for ceiling in (40_000, 60_000, 200_000):
         narrow = _port(_catalog(input_limit_bytes=ceiling))
         status, _payload, port = _post_turn(
             tmp_path, _turn(message="doc health checks dtn register"),
             port=narrow, knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED,
-            checkout_root=_fat_checkout(tmp_path))
+            checkout_root=_mid_checkout(tmp_path))
         assert status == 200, ceiling
         assert _prompt_bytes(port) <= ceiling, ceiling
+        carried.append(any(key.startswith(pk.EVIDENCE_SECTION_PREFIX)
+                           for key in _packet_sections(port)))
+    # the generous ceiling MUST carry evidence, or the reserve is being
+    # "proved adequate" by a packet that spends nothing
+    assert carried[-1] is True
 
 
 def test_a_budget_of_zero_carries_no_evidence_rather_than_refusing(tmp_path):
