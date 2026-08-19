@@ -562,6 +562,13 @@ remains applicable. It grants no exemption and relaxes no rail; it makes an
 absence auditable. Verify-list item (g) asks the honest companion question —
 whether any conformant consumer is live in xFactory today or whether this is the
 first — because a first consumer proposing a contract amendment should say so.
+**Answered, and stated precisely** (`verification-findings.md` §3.7): Phase B is
+the first consumer to declare formal per-requirement conformance and the first
+SUBJECT-FREE one, but it is not the first thing in xFactory to reference the
+contract's vocabulary at all — `installs/hermes-install`'s `add-memory-gateway-
+binding` (archived 2026-07-24) precedes it as a narrower, subject-bearing,
+self-described provisional consumer, and its own text is part of why this delta
+is needed: the contract has no vocabulary yet for a consumer with no subject.
 
 ### 7.2 `governed-derived-model` — property-level, not declaration-level
 
