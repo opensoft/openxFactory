@@ -803,11 +803,27 @@ def test_delegated_semantics_accept_the_packaged_positives(released_root):
 # COMMITTED BASELINE of those bytes -- not by re-validating an instance, which
 # would still pass after a widened `maxItems` or a relaxed enum quietly changed
 # what the old shape means.
+#
+# F1 (adversarial review of the §13 slice): the baseline covers the `$ref`
+# CLOSURE, not the three envelope blocks alone. A v1 envelope is only as closed
+# as what it points at -- `buffer_state.kind`'s two-value enum and
+# `typed_proposal.target`'s are shared `$defs`, and they are exactly the
+# constraints D15 contemplates widening. A guard over the three blocks alone went
+# green while both enums were mutated, which is a change to v1's MEANING wearing
+# the appearance of byte identity. The closure is COMPUTED here rather than
+# listed, so a v1 envelope that grows a `$ref` to some new shared definition
+# widens the guard with it instead of quietly escaping it.
 # ---------------------------------------------------------------------------
 
 V1_ENVELOPE_BASELINE = (
     Path(__file__).resolve().parent / "fixtures"
     / "chat-turn-v1-envelopes.baseline.yaml")
+
+
+def _defs_order(schema_text: str) -> list[str]:
+    """The `$defs` member names in FILE order, which is the order the committed
+    baseline concatenates them in."""
+    return list(_defs_blocks(schema_text))
 
 
 def _defs_blocks(schema_text: str) -> dict[str, str]:
@@ -841,18 +857,66 @@ def _defs_blocks(schema_text: str) -> dict[str, str]:
     return blocks
 
 
+def _local_refs(node, found):
+    """Every `#/$defs/<name>` this node points at, at any depth."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == "$ref" and isinstance(value, str) and value.startswith("#/$defs/"):
+                found.add(value.split("/")[-1])
+            else:
+                _local_refs(value, found)
+    elif isinstance(node, list):
+        for item in node:
+            _local_refs(item, found)
+    return found
+
+
+def _v1_ref_closure(document):
+    """The three v1 envelopes plus every `$def` reachable from them.
+
+    Computed, never listed: a v1 envelope that starts pointing at a new shared
+    definition must pull that definition under the byte guard automatically,
+    because the alternative is a guard that silently stops covering what the
+    envelope actually means."""
+    defs = document["$defs"]
+    closure: set[str] = set()
+    frontier = {"request", "success", "failure"}
+    while frontier:
+        closure |= frontier
+        following: set[str] = set()
+        for name in frontier:
+            following |= _local_refs(defs[name], set())
+        frontier = following - closure
+    return closure
+
+
 def test_the_v1_envelope_bytes_are_unchanged_by_the_release(released_root):
     schema = (released_root / "contracts" / "schemas"
               / CHAT_TURN_SCHEMA_FILE).read_text(encoding="utf-8")
     blocks = _defs_blocks(schema)
-    for envelope in ("request", "success", "failure"):
-        assert envelope in blocks, envelope
-    observed = "".join(blocks[name] for name in ("request", "success", "failure"))
+    document = yaml.safe_load(schema)
+    closure = _v1_ref_closure(document)
+    # The closure is what it is BECAUSE of the refs; these names are asserted so
+    # a closure computation that silently returned nothing cannot pass.
+    assert closure >= {
+        "request", "success", "failure",
+        "content_hash", "confined_path", "scope_key", "buffer_state",
+        "transcript_turn", "typed_proposal",
+    }, sorted(closure)
+    # The widened family's own definitions are NOT in it: they are new bytes
+    # this release adds, and the promise is about the old shape.
+    assert not (closure & {"request_v2", "success_v2", "failure_v2",
+                           "buffer_key", "keyed_observed_hashes",
+                           "keyed_typed_proposal", "selected_model"})
+    covered = [name for name in _defs_order(schema) if name in closure]
+    observed = "".join(blocks[name] for name in covered)
     baseline = V1_ENVELOPE_BASELINE.read_text(encoding="utf-8")
     assert observed == baseline, (
-        "the v1 request/success/failure blocks are not byte-identical to the "
-        "committed contract-v1.31 baseline; the release is additive, so any "
-        "change here is a change to a shape consumers are pinned to")
+        "the v1 envelopes and the shared definitions they $ref are not "
+        "byte-identical to the committed contract-v1.31 baseline; the release is "
+        "additive, so any change here is a change to a shape consumers are "
+        "pinned to -- including a widened enum in a SHARED definition, which "
+        "changes what the old envelope means without touching its own block")
 
 
 def test_the_widened_family_is_present_beside_the_unchanged_one(released_root):

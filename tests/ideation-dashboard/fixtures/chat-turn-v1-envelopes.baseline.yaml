@@ -1,3 +1,65 @@
+  content_hash:
+    type: string
+    pattern: "^[0-9a-f]{64}$"
+  confined_path:
+    # Repository-relative, confined: never absolute, never an escape. The
+    # delegated validator re-checks `..` traversal segment-wise.
+    type: string
+    minLength: 1
+    maxLength: 512
+    pattern: "^[^/].*$"
+  scope_key:
+    type: object
+    additionalProperties: false
+    required: [repository, ref, tile_kind, tile_id]
+    properties:
+      repository: { type: string, minLength: 1, maxLength: 128 }
+      ref: { type: string, minLength: 1, maxLength: 256 }
+      tile_kind: { enum: [cluster, possible, staged] }
+      tile_id: { type: string, minLength: 1, maxLength: 256 }
+  buffer_state:
+    # One COMPLETE authoring buffer (FR-005/FR-013): descriptor + full text +
+    # both identities. `base_hash` is the loaded base's identity; the
+    # stale-authority comparisons happen against `content_hash`.
+    type: object
+    additionalProperties: false
+    required: [kind, repository, path, base_ref, base_revision,
+               base_hash, content_hash, content, dirty]
+    properties:
+      kind: { enum: [outline, document] }
+      repository: { type: string, minLength: 1, maxLength: 128 }
+      # Nullable: a not-yet-created artifact has no path until its first Save
+      # (the null-path -> create lifecycle, data-model S4).
+      path:
+        oneOf:
+          - { type: "null" }
+          - { $ref: "#/$defs/confined_path" }
+      base_ref: { type: string, minLength: 1, maxLength: 256 }
+      base_revision: { type: string, minLength: 1, maxLength: 128 }
+      base_hash: { $ref: "#/$defs/content_hash" }
+      content_hash: { $ref: "#/$defs/content_hash" }
+      content: { type: string, maxLength: 1048576 }
+      dirty: { type: boolean }
+  transcript_turn:
+    type: object
+    additionalProperties: false
+    required: [role, content]
+    properties:
+      role: { enum: [human, assistant] }
+      content: { type: string, maxLength: 65536 }
+      turn_id: { type: string, minLength: 1, maxLength: 128 }
+  typed_proposal:
+    # A human-reviewable replacement for exactly ONE buffer, bound to the
+    # content identity the model saw (FR-026..FR-029). Untyped replacement
+    # content — a proposal with no target — is refused at the schema.
+    type: object
+    additionalProperties: false
+    required: [target, base_hash, summary, content]
+    properties:
+      target: { enum: [outline, document] }
+      base_hash: { $ref: "#/$defs/content_hash" }
+      summary: { type: string, minLength: 1, maxLength: 500 }
+      content: { type: string, maxLength: 1048576 }
   request:
     type: object
     additionalProperties: false
