@@ -1,0 +1,599 @@
+"""The LOCAL HARNESS BRIDGE (add-doxbench-editing-phase-b tasks 11.1-11.6).
+
+HERMETIC BY CONSTRUCTION, AND THE CONSTRUCTION IS THE POINT. `omp` is not
+installed on this host and no gate may require it, so every process test here
+drives `fixtures/fake_omp_child.py` — a real child, over real pipes, speaking
+the frames `verification-findings.md` recorded hands-on and no others. What
+that buys over an in-process double: the JSONL framing, the stdin flush, the
+stdout reader thread, the stderr drain, and process death are all REAL, which
+is where a stdio adapter's defects actually live.
+
+The failure modes that cannot be driven through a real child without making the
+suite slow or flaky (an unstartable command, a spawn that raises) use an
+injected spawn instead — the same seam, one layer in.
+"""
+
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+from conftest import REPO_ROOT  # noqa: F401  (sys.path side effect)
+
+from ideation_dashboard import doxbench_bridge as br  # noqa: E402
+from ideation_dashboard import doxbench_mcp as mcp  # noqa: E402
+from ideation_dashboard import doxbench_threads as dt  # noqa: E402
+from ideation_dashboard.doxbench_model import (  # noqa: E402
+    ModelCatalog, ModelCatalogEntry, WorkbenchModelPort,
+)
+
+FAKE_CHILD = Path(__file__).resolve().parent / "fixtures" / "fake_omp_child.py"
+
+
+# ---------------------------------------------------------------------------
+# harness
+# ---------------------------------------------------------------------------
+
+
+def _entry(model_id="opus", *, available=True):
+    return ModelCatalogEntry(
+        model_id=model_id, label=model_id.title(), provider_class="on-tenant",
+        available=available, input_limit_bytes=200_000,
+        output_limit_bytes=64_000, data_handling="stays on this tenant")
+
+
+def _catalog(*entries):
+    return ModelCatalog.from_entries(entries or (_entry(),))
+
+
+class _Section:
+    def __init__(self, key, text):
+        self.key = key
+        self.text = text
+
+
+class _Envelope:
+    def __init__(self, model_id="opus", sections=None):
+        self.model_id = model_id
+        self.sections = tuple(sections or (
+            _Section("system_contract", "ground every answer"),
+            _Section("human_message", "Human message:\nwhat changed?")))
+
+
+def _fake_spawn(*scripted):
+    """A spawn seam that starts the FAKE child with the bridge's own argv tail,
+    so the launch flags this module builds are really parsed by a real
+    process."""
+
+    def spawn(argv, environment, cwd):
+        command = [sys.executable, str(FAKE_CHILD), *list(argv)[1:], *scripted]
+        return subprocess.Popen(
+            command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, env=dict(environment), cwd=str(cwd))
+    return spawn
+
+
+def _bridge(tmp_path, *scripted, catalog=None, log=None, **kwargs):
+    return br.OmpHarnessBridge(
+        catalog if catalog is not None else _catalog(),
+        session_root=tmp_path / "bridge",
+        spawn=_fake_spawn(*scripted),
+        log=log if log is not None else (lambda line: None),
+        environment={"PATH": "/usr/bin:/bin"},
+        **kwargs)
+
+
+# ===========================================================================
+# 11.2 — AN ADAPTER FOR THE UNCHANGED THREE-MEMBER PORT
+# ===========================================================================
+
+
+def test_the_port_still_declares_exactly_three_members(tmp_path):
+    """Task 11.2, asserted where the slice that would have widened it lives.
+    `test_doxbench_model.py` pins the same equality; this one pins that THIS
+    slice did not move it, which is the claim §11 actually makes."""
+    assert WorkbenchModelPort.__protocol_attrs__ == {
+        "timeout_seconds", "catalog", "dispatch"}
+
+
+def test_the_bridge_satisfies_the_port_without_growing_a_provider_verb(tmp_path):
+    from test_doxbench_model import FORBIDDEN_PORT_MEMBERS
+
+    bridge = _bridge(tmp_path)
+    assert isinstance(bridge, WorkbenchModelPort)
+    public = {name for name in dir(bridge) if not name.startswith("_")}
+    # The adapter may carry adapter surface (select_thread, shake, dereference,
+    # mirror); what it may NOT carry is a second spelling of the provider verb.
+    assert not (public & FORBIDDEN_PORT_MEMBERS), sorted(
+        public & FORBIDDEN_PORT_MEMBERS)
+
+
+def test_the_bridge_module_declares_no_credential_shaped_name():
+    """Task 11.1's "holding no credential", asserted against the source rather
+    than described: a bridge that grew a key field would fail here."""
+    source = (REPO_ROOT / "scripts" / "ideation_dashboard"
+              / "doxbench_bridge.py").read_text(encoding="utf-8")
+    for forbidden in ("api_key", "apiKey", "ANTHROPIC_API_KEY", "OPENAI_API_KEY",
+                      "bearer", "Authorization", "secret_key"):
+        assert forbidden not in source, forbidden
+
+
+# ===========================================================================
+# 11.1 — THE LAUNCH: loopback-local, credential-free, memory pinned off
+# ===========================================================================
+
+
+def test_the_launch_argv_pins_the_profile_and_the_memory_backend(tmp_path):
+    launch = br.LaunchConfig(session_dir=tmp_path / "sessions")
+    argv = launch.argv()
+    assert argv[0] == "omp"
+    assert argv[1:3] == ("--mode", "rpc")
+    assert "--profile" in argv and "doxbench-bridge" in argv
+    assert "memory.backend=off" in argv
+    assert launch.declares_memory_off() is True
+
+
+def test_a_launch_that_drops_the_memory_pin_is_visible_to_the_mirror(tmp_path):
+    """Verification §3.1's implementation consequence, enforced rather than
+    documented: a bridge whose launch config lost the pin refuses to mirror
+    instead of quietly starting a second store."""
+    launch = br.LaunchConfig(session_dir=tmp_path / "s", settings=())
+    bridge = _bridge(tmp_path, launch=launch)
+    thread = _thread("ideation/staging/t/a.md")
+    turn = dt.ThreadTurn(turn_id="t1", model="opus", bound_buffer_key="a",
+                         human="hi", assistant="there")
+    with pytest.raises(br.BridgeError, match="memory.backend"):
+        bridge.mirror().mirror_turn(thread, turn)
+
+
+def test_the_child_environment_is_an_allowlist_not_a_denylist():
+    given = {"PATH": "/bin", "HOME": "/h", "ANTHROPIC_API_KEY": "sk-live",
+             "OMP_TOKEN": "t", "AWS_SECRET_ACCESS_KEY": "s"}
+    assert br.child_environment(given) == {"PATH": "/bin", "HOME": "/h"}
+
+
+def test_no_child_is_started_until_a_turn_needs_one(tmp_path):
+    """Task 11.3's first clause: an editor-only session must not spawn a model
+    process it never uses. `catalog()` is the route's pre-turn call and it must
+    not start anything."""
+    bridge = _bridge(tmp_path)
+    assert bridge.started is False
+    bridge.catalog()
+    assert bridge.started is False
+    bridge.dispatch(_Envelope())
+    assert bridge.started is True
+    bridge.stop()
+
+
+# ===========================================================================
+# 11.6 — set_model BEFORE prompt, inside the adapter
+# ===========================================================================
+
+
+def test_a_turn_sets_the_model_before_prompting_over_a_real_child(tmp_path):
+    bridge = _bridge(tmp_path, "--reply", "the harness answered")
+    answer = bridge.dispatch(_Envelope(model_id="opus"))
+    assert answer == {"assistant_prose": "the harness answered", "proposals": []}
+    bridge.stop()
+
+
+def test_the_model_the_harness_is_set_to_is_the_envelope_s_own(tmp_path):
+    seen = []
+
+    class _Recording:
+        def __init__(self, inner):
+            self.inner = inner
+
+        def __call__(self, argv, environment, cwd):
+            return self.inner(argv, environment, cwd)
+
+    bridge = _bridge(tmp_path)
+    original = br.HarnessChild.request
+
+    def _spy(self, frame, *, deadline, clock):
+        seen.append(dict(frame))
+        return original(self, frame, deadline=deadline, clock=clock)
+
+    br.HarnessChild.request = _spy
+    try:
+        bridge.dispatch(_Envelope(model_id="opus"))
+    finally:
+        br.HarnessChild.request = original
+        bridge.stop()
+    kinds = [frame["type"] for frame in seen]
+    assert kinds == ["set_model", "prompt"], kinds
+    assert seen[0]["modelId"] == "opus"
+
+
+def test_a_harness_that_refuses_the_model_refuses_the_turn(tmp_path):
+    bridge = _bridge(tmp_path, "--refuse-model")
+    with pytest.raises(br.BridgeProtocolError):
+        bridge.dispatch(_Envelope())
+    bridge.stop()
+
+
+def test_a_routing_rule_entry_would_set_the_RESOLVED_model(tmp_path):
+    """Task 11.7's RUNTIME half. No conformant catalog entry can declare a
+    routing rule today — the released catalog schema is a CLOSED seven-field
+    entry — so this drives a duck-typed entry that CAN, proving the adapter
+    already honours whatever a lawful catalog grows into without a change."""
+
+    class _RoutingEntry:
+        model_id = "auto"
+        provider_class = "routed"
+        resolved_model_id = "opus"
+        available = True
+
+    class _Catalog:
+        entries = ()
+
+        @staticmethod
+        def entry_for(model_id):
+            return _RoutingEntry() if model_id == "auto" else None
+
+    bridge = _bridge(tmp_path)
+    bridge._declared_catalog = _Catalog()      # noqa: SLF001 - the point of the test
+    seen = []
+    original = br.HarnessChild.request
+
+    def _spy(self, frame, *, deadline, clock):
+        seen.append(dict(frame))
+        return original(self, frame, deadline=deadline, clock=clock)
+
+    br.HarnessChild.request = _spy
+    try:
+        bridge.dispatch(_Envelope(model_id="auto"))
+    finally:
+        br.HarnessChild.request = original
+        bridge.stop()
+    assert seen[0]["modelId"] == "opus"
+    assert seen[0]["provider"] == "routed"
+
+
+def test_every_entry_a_conformant_catalog_can_hold_is_truthfully_not_a_routing_rule():
+    """The other half of 11.7's honesty clause: nothing in the shipped catalog
+    type can claim to be a routing rule, so the record's `routing_rule` is
+    truthfully false for every entry that can exist today."""
+    entry = _entry()
+    assert not hasattr(entry, "routing_rule")
+    assert not hasattr(entry, "resolved_model_id")
+
+
+# ===========================================================================
+# 11.3 — SUPERVISION
+# ===========================================================================
+
+
+def test_a_child_that_dies_mid_turn_surfaces_as_unavailable_not_a_hang(tmp_path):
+    # dies while handling the FIRST command, which is `set_model`
+    bridge = _bridge(tmp_path, "--die-after", "1")
+    with pytest.raises(br.BridgeUnavailable):
+        bridge.dispatch(_Envelope())
+    bridge.stop()
+
+
+def test_an_unstartable_bridge_refuses_inside_a_bounded_retry(tmp_path):
+    attempts = []
+
+    def _never(argv, environment, cwd):
+        attempts.append(argv)
+        raise OSError("no such command")
+
+    bridge = br.OmpHarnessBridge(
+        _catalog(), session_root=tmp_path / "bridge", spawn=_never,
+        log=lambda line: None, environment={}, max_restarts=2)
+    with pytest.raises(br.BridgeUnavailable):
+        bridge.dispatch(_Envelope())
+    # bounded: the retry stops, it does not spin
+    assert len(attempts) == 3, attempts
+
+
+def test_an_unavailable_bridge_reports_every_catalog_entry_unavailable(tmp_path):
+    """The FIRST of task 11.3's two legs, and the one that keeps the route's
+    gate ORDER unchanged: an unavailable entry fails `selectable_entry_for` at
+    the route's existing model step, which refuses with the existing fixed code
+    before any packet is assembled and before any dispatch."""
+
+    def _never(argv, environment, cwd):
+        raise OSError("no such command")
+
+    bridge = br.OmpHarnessBridge(
+        _catalog(_entry("opus"), _entry("kimi")), session_root=tmp_path / "b",
+        spawn=_never, log=lambda line: None, environment={})
+    assert [e.available for e in bridge.catalog().entries] == [True, True]
+    with pytest.raises(br.BridgeUnavailable):
+        bridge.dispatch(_Envelope())
+    assert [e.available for e in bridge.catalog().entries] == [False, False]
+    assert bridge.catalog().selectable_entry_for("opus") is None
+
+
+def test_child_stderr_reaches_the_serve_log_and_never_the_answer(tmp_path):
+    logged = []
+    bridge = _bridge(tmp_path, "--stderr", "SECRET-DIAGNOSTIC-TEXT",
+                     log=logged.append)
+    answer = bridge.dispatch(_Envelope())
+    bridge.stop()
+    assert "SECRET-DIAGNOSTIC-TEXT" not in json.dumps(answer)
+    assert any("SECRET-DIAGNOSTIC-TEXT" in line for line in logged), logged
+
+
+def test_a_non_json_banner_on_stdout_is_ignored_rather_than_fatal(tmp_path):
+    bridge = _bridge(tmp_path, "--banner", "omp v17.3.7 ready")
+    assert bridge.dispatch(_Envelope())["assistant_prose"]
+    bridge.stop()
+
+
+# ===========================================================================
+# 11.4 — ONE SESSION PER DOCUMENT THREAD
+# ===========================================================================
+
+
+def _thread(document, *, goal="", refs=()):
+    return dt.DocumentThread(
+        document=document,
+        scope=dt.ThreadScope(repository="fixture-repo", tile_kind="staged",
+                             tile_id="ideation-governance"),
+        state=dt.ThreadState(active_goal=goal, evidence_refs=tuple(refs)))
+
+
+def test_selecting_a_thread_twice_switches_the_harness_session_once(tmp_path):
+    session = str(tmp_path / "sessions" / "2026-08-19T00-00-00-000Z_abc.jsonl")
+    bridge = _bridge(tmp_path, "--session-file", session)
+    frames = []
+    original = br.HarnessChild.request
+
+    def _spy(self, frame, *, deadline, clock):
+        frames.append(dict(frame))
+        return original(self, frame, deadline=deadline, clock=clock)
+
+    br.HarnessChild.request = _spy
+    try:
+        first = bridge.select_thread("ideation/staging/t/a.md")
+        again = bridge.select_thread("ideation/staging/t/a.md")
+    finally:
+        br.HarnessChild.request = original
+        bridge.stop()
+    assert first == session and again == session
+    # the SECOND selection of the same thread is a no-op: no second get_state,
+    # no switch_session, because the harness is already on that thread.
+    assert [f["type"] for f in frames] == ["get_state"]
+
+
+def test_a_second_thread_gets_a_FRESH_session_and_the_first_switches_back(tmp_path):
+    """Task 11.4 in one test: one session per document thread, switching the
+    selected document switches the harness session, and one session never
+    serves two threads."""
+    first_session = str(tmp_path / "s1.jsonl")
+    second_session = str(tmp_path / "s2.jsonl")
+    calls = {"n": 0}
+
+    def spawn(argv, environment, cwd):
+        calls["n"] += 1
+        session = first_session if calls["n"] == 1 else second_session
+        command = [sys.executable, str(FAKE_CHILD), *list(argv)[1:],
+                   "--session-file", session]
+        return subprocess.Popen(
+            command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, env=dict(environment), cwd=str(cwd))
+
+    bridge = br.OmpHarnessBridge(
+        _catalog(), session_root=tmp_path / "bridge", spawn=spawn,
+        log=lambda line: None, environment={"PATH": "/usr/bin:/bin"})
+    frames = []
+    original = br.HarnessChild.request
+
+    def _spy(self, frame, *, deadline, clock):
+        frames.append(dict(frame))
+        return original(self, frame, deadline=deadline, clock=clock)
+
+    br.HarnessChild.request = _spy
+    try:
+        a = bridge.select_thread("ideation/staging/t/a.md")
+        b = bridge.select_thread("ideation/staging/t/b.md")
+        back = bridge.select_thread("ideation/staging/t/a.md")
+    finally:
+        br.HarnessChild.request = original
+        bridge.stop()
+    assert a == first_session
+    assert b == second_session
+    assert a != b, "two threads shared one session"
+    assert back == first_session
+    # the RETURN to the first thread is a `switch_session` carrying that
+    # thread's OWN recorded path — the recorded second-process flow.
+    switches = [f for f in frames if f["type"] == "switch_session"]
+    assert len(switches) == 1
+    assert switches[0]["sessionPath"] == first_session
+    assert calls["n"] == 2, "a fresh session per thread means one start each"
+
+
+def test_a_session_already_bound_to_another_thread_is_refused(tmp_path):
+    """One session never serves two threads. Driven by a harness that reports
+    the SAME session file for a second thread, which is the shape the refusal
+    exists for."""
+    same = str(tmp_path / "one.jsonl")
+    bridge = _bridge(tmp_path, "--session-file", same)
+    bridge.select_thread("ideation/staging/t/a.md")
+    with pytest.raises(br.BridgeSessionConflict):
+        bridge.select_thread("ideation/staging/t/b.md")
+    bridge.stop()
+
+
+# ===========================================================================
+# LAYER THREE — /shake (verification §3.6)
+# ===========================================================================
+
+
+def test_shake_rides_the_prompt_channel_and_reports_free_text_only(tmp_path):
+    bridge = _bridge(tmp_path)
+    sent = []
+    original = br.HarnessChild.request
+
+    def _spy(self, frame, *, deadline, clock):
+        sent.append(dict(frame))
+        return original(self, frame, deadline=deadline, clock=clock)
+
+    br.HarnessChild.request = _spy
+    try:
+        report = bridge.shake()
+    finally:
+        br.HarnessChild.request = original
+        bridge.stop()
+    assert sent[-1] == {"id": sent[-1]["id"], "type": "prompt",
+                        "message": "/shake elide"}
+    assert report.agent_invoked is False
+    assert report.summary == "Nothing to shake."
+    # there is no structured bytes-reclaimed field, and this type claims none
+    assert not hasattr(report, "bytes_reclaimed")
+
+
+def test_an_unrecorded_shake_mode_is_refused_rather_than_sent(tmp_path):
+    bridge = _bridge(tmp_path)
+    with pytest.raises(br.BridgeError):
+        bridge.shake("everything")
+    bridge.stop()
+
+
+# ===========================================================================
+# artifact:// DEREFERENCING (verification §3.5)
+# ===========================================================================
+
+
+def test_the_bridge_inlines_artifact_content_through_the_harness_store(tmp_path):
+    sessions = tmp_path / "sessions"
+    artifacts = sessions / "2026-08-19T00-00-00-000Z_abc"
+    artifacts.mkdir(parents=True)
+    (artifacts / "blob1").write_text("the spilled tool output", encoding="utf-8")
+    session_file = str(sessions / "2026-08-19T00-00-00-000Z_abc.jsonl")
+
+    bridge = _bridge(tmp_path, "--session-file", session_file)
+    bridge.select_thread("ideation/staging/t/a.md")
+    resolved = bridge.dereference("before artifact://blob1 after")
+    bridge.stop()
+    assert resolved == "before the spilled tool output after"
+    assert dt.HARNESS_ARTIFACT_SCHEME not in resolved
+
+
+def test_an_unresolvable_pointer_becomes_an_elided_note_not_a_pointer(tmp_path):
+    bridge = _bridge(tmp_path, "--session-file", str(tmp_path / "s.jsonl"))
+    bridge.select_thread("ideation/staging/t/a.md")
+    resolved = bridge.dereference("see artifact://missing for details")
+    bridge.stop()
+    assert dt.HARNESS_ARTIFACT_SCHEME not in resolved
+    assert "[elided:" in resolved
+
+
+def test_an_oversize_artifact_records_the_FACT_and_its_size(tmp_path):
+    sessions = tmp_path / "sessions"
+    artifacts = sessions / "s"
+    artifacts.mkdir(parents=True)
+    payload = "x" * (br.MAX_INLINE_ARTIFACT_BYTES + 1)
+    (artifacts / "big").write_text(payload, encoding="utf-8")
+
+    bridge = _bridge(tmp_path, "--session-file", str(sessions / "s.jsonl"))
+    bridge.select_thread("ideation/staging/t/a.md")
+    resolved = bridge.dereference("artifact://big")
+    bridge.stop()
+    assert str(len(payload)) in resolved
+    assert dt.HARNESS_ARTIFACT_SCHEME not in resolved
+
+
+def test_the_dereference_seam_satisfies_the_threads_module_s_own_builder(tmp_path):
+    """The seam `doxbench_threads.dereference_bodies` asks for, driven through
+    that function — so a half-resolving bridge is refused by `ThreadTurn` on the
+    next line rather than persisting a pointer."""
+    sessions = tmp_path / "sessions"
+    (sessions / "s").mkdir(parents=True)
+    (sessions / "s" / "b").write_text("inlined body", encoding="utf-8")
+    bridge = _bridge(tmp_path, "--session-file", str(sessions / "s.jsonl"))
+    bridge.select_thread("ideation/staging/t/a.md")
+    turn = dt.dereference_bodies(
+        "t1", "opus", "a.md", "what does artifact://b say?", "it says so",
+        dereference=bridge.dereference)
+    bridge.stop()
+    assert "inlined body" in turn.human
+
+
+# ===========================================================================
+# THE MIRROR — the sidecar is the record (11.5)
+# ===========================================================================
+
+
+def test_the_mirror_is_told_the_turn_and_answers_with_nothing(tmp_path):
+    bridge = _bridge(tmp_path, "--session-file", str(tmp_path / "s.jsonl"))
+    mirror = bridge.mirror()
+    thread = _thread("ideation/staging/t/a.md")
+    turn = dt.ThreadTurn(turn_id="t1", model="opus", bound_buffer_key="a",
+                         human="hi", assistant="there")
+    appended = dt.mirror_turn(thread, turn, mirror=mirror)
+    bridge.stop()
+    assert mirror.mirror_turn(thread, turn) is None
+    assert appended.turns[-1].turn_id == "t1"
+    assert mirror.mirrored[0] == ("ideation/staging/t/a.md", "t1")
+
+
+def test_the_mirror_implements_exactly_the_declared_operation_set(tmp_path):
+    bridge = _bridge(tmp_path)
+    mirror = bridge.mirror()
+    for operation in dt.MIRROR_OPERATIONS:
+        assert callable(getattr(mirror, operation, None))
+    assert isinstance(mirror, dt.ThreadMirror)
+
+
+# ===========================================================================
+# THE KNOWLEDGE MOUNT REGISTRATION (task 10.2's owed note, at §11)
+# ===========================================================================
+
+
+def test_registering_the_mount_writes_the_config_the_harness_discovers(tmp_path):
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    (corpus / "note.md").write_text("Status: draft\n\nsomething", encoding="utf-8")
+    manifest = mcp.MountManifest(
+        sources=(("ideation/brainstorm/note.md", str(corpus / "note.md")),))
+    bridge = _bridge(tmp_path)
+    manifest_path, config_path = bridge.register_knowledge_mount(manifest)
+    assert manifest_path.is_file() and config_path.is_file()
+    assert config_path.parent.name == mcp.MCP_CONFIG_DIR
+    document = json.loads(config_path.read_text(encoding="utf-8"))
+    assert set(document["mcpServers"]) == {mcp.MCP_SERVER_NAME}
+    assert document["mcpServers"][mcp.MCP_SERVER_NAME]["type"] == "stdio"
+    # written OUTSIDE any git worktree: the bridge's own session root
+    assert str(config_path).startswith(str(tmp_path / "bridge"))
+
+
+def test_the_registration_is_written_before_any_child_exists(tmp_path):
+    """Registration-before-first-turn is the whole guarantee on offer (MCP
+    discovery is asynchronous), so it must be reachable with no child running."""
+    bridge = _bridge(tmp_path)
+    bridge.register_knowledge_mount(mcp.MountManifest(sources=(("r", "/x"),)))
+    assert bridge.started is False
+
+
+# ===========================================================================
+# PROMPT RENDERING
+# ===========================================================================
+
+
+def test_the_prompt_message_is_the_sections_and_only_the_sections():
+    envelope = _Envelope(sections=(_Section("a", "ALPHA"), _Section("b", "BETA")))
+    assert br.render_prompt_message(envelope) == "ALPHA\n\nBETA"
+
+
+def test_an_envelope_with_no_sections_is_refused_rather_than_composed():
+    class _Empty:
+        sections = ()
+
+    with pytest.raises(br.BridgeProtocolError):
+        br.render_prompt_message(_Empty())
+
+
+@pytest.mark.parametrize("field", br.ASSISTANT_TEXT_FIELDS)
+def test_every_declared_assistant_text_spelling_is_read(field):
+    assert br._assistant_text_of({"type": "message_update", field: "TEXT"}) \
+        == "TEXT"
+    assert br._assistant_text_of(
+        {"type": "message_update", "data": {field: "TEXT"}}) == "TEXT"
