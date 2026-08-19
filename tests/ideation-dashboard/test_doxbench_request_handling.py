@@ -525,9 +525,22 @@ _PACKET_CODES = {
     "context_packet_bound_exceeded",
 }
 
+# PIN EVOLUTION (add-doxbench-editing-phase-b §9.5, the thread route). ONE
+# spelling, the same class of recorded judgement call as the packet pair: a
+# thread is session working memory on an unmerged branch, so where no branch
+# session can be opened there is nothing for a thread to be. Reusing
+# `model_capability_unavailable` would name a different absence and reusing
+# `turn_scope_refused` would blame the scope for a capability verdict. The
+# DECLARED cause rides the body's `cause` field, and both causes are fixed
+# module-level strings owned by `doxbench_threads`.
+_THREAD_CODES = {
+    "thread_capability_unavailable",
+}
+
 _ALL_DOXBENCH_CODES = (
     _PLANNING_CONTRACT_CODES | _ROUTE_VERBATIM_CODES
     | _ROUTE_JUDGEMENT_CALL_CODES | _DISPATCH_OUTCOME_CODES | _PACKET_CODES
+    | _THREAD_CODES
 )
 
 

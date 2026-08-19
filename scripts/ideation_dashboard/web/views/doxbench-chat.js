@@ -19,6 +19,7 @@ import {
   createChatState, adoptCatalog, selectModel, editSubject, editComposer,
   beginTurn, settleTurnSuccess, settleTurnFailure, abortTurn,
   transcriptWindow, transcriptWireWindow, rekeyChatState, proposalsOf,
+  adoptThreadTranscript,
   refreshProposalCurrency, rejectProposal, markProposalApplied,
   markProposalAppliedAfterSwap, clearLocalFailure,
   recordLocalFailure, recordCatalogFailure, chatSnapshot, restoreChatState,
@@ -853,11 +854,22 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // extended to selection now that documents are held side by side rather than
   // in one slot.
   //
-  // TODO(add-doxbench-editing-phase-b tasks.md §9): switching the selection must
-  // also switch WHICH THREAD the transcript shows and appends to. The thread
-  // sidecar and its persistence land in the threads slice; this handler is the
-  // one place that call belongs, and it is deliberately left as the selection
-  // move alone rather than half-wired to a store that does not exist yet.
+  // SWITCHING THE SELECTION SWITCHES THE THREAD (task 7.2, completed at §11).
+  // The thread is the SERVER's record — one sidecar per document, read through
+  // the thread route `options.loadThread` fetches — so this handler asks for
+  // the newly selected document's thread and adopts it as the transcript.
+  //
+  // ORDER IS THE CONTRACT: the selection moves FIRST, through the canvas's own
+  // `setActiveBuffer` seam, and the transcript follows. A thread that cannot be
+  // read — no session, no gate capability, the hosted plane, a document with no
+  // sidecar yet — adopts an EMPTY transcript rather than leaving the previous
+  // document's conversation on screen, because the wire transcript is this
+  // rail's own state and carrying another document's turns into this one's next
+  // request is the defect the switch exists to close.
+  //
+  // `loadThread` is OPTIONAL. A shell that supplies none keeps exactly the
+  // pre-§11 behaviour, which is what lets the editor-only posture and every
+  // composition harness stand unchanged.
   loadedSelect.addEventListener("change", async () => {
     const wanted = String(loadedSelect.value || "");
     const model = loadedSelectorModel(liveEditorState());
@@ -869,6 +881,7 @@ export function mountDoxBenchChatRail(host, options = {}) {
     }
     const select = options.selectBuffer;
     if (typeof select === "function") await select(wanted);
+    await switchThread(wanted);
     renderLoadedSelector();
     renderHeader();
   });
@@ -907,6 +920,26 @@ export function mountDoxBenchChatRail(host, options = {}) {
 
   function liveEditorState() {
     return typeof editorState === "function" ? editorState() : editorState;
+  }
+
+  // Task 7.2's thread half. ONE call site — the selector's change handler —
+  // because a second one would be a second answer to "which thread is this
+  // rail showing", which is exactly the second state authority the task
+  // forbids. A transport that is absent, refuses, or answers a shape this rail
+  // does not recognise all reach the same place: the EMPTY transcript, which is
+  // what a document with no readable thread honestly has.
+  async function switchThread(documentKey) {
+    const load = options.loadThread;
+    if (typeof load !== "function") return;
+    let answer = null;
+    try {
+      answer = await load(documentKey);
+    } catch (error) {
+      answer = null;
+    }
+    if (destroyed) return;
+    const turns = answer && Array.isArray(answer.turns) ? answer.turns : [];
+    adopt(adoptThreadTranscript(state, turns));
   }
 
   // The selector is rebuilt from the live state on every render, which is what

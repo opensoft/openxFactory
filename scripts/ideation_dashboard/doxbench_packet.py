@@ -420,6 +420,12 @@ DECLARATION_LINE = "  - {kind} {ref} [{status}] [{exemption}]"
 # each section costs its own separator too.
 SECTION_SEPARATOR_BYTES = 2
 
+# The evidence slots one turn may fill. Declared here rather than left as a
+# bare default on `assemble_packet`, because the ROUTE has to charge the
+# scaffolding for the same number the assembler will select against, and two
+# spellings of one number is how a reserve stops matching a prompt.
+DEFAULT_EVIDENCE_LIMIT = 6
+
 # The observed ref length the §11.5 obligation measured against. Used only where
 # a ref is not yet known — the evidence SLOTS a turn reserves room for, whose
 # refs the retrieval has not chosen yet.
@@ -866,7 +872,7 @@ def assemble_packet(
     threads: Mapping[str, DocumentThread] | None = None,
     knowledge: object | None = None,
     promoted_findings: Sequence[str] = (),
-    evidence_limit: int = 6,
+    evidence_limit: int = DEFAULT_EVIDENCE_LIMIT,
     already_carried: Sequence[str] = (),
     corpus_coverage: "CorpusCoverage | None" = None,
     max_packet_bytes: int = MAX_PACKET_BYTES,

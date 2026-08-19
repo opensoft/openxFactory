@@ -301,6 +301,14 @@ MAX_RESTARTS = 2
 # would otherwise let a child spend the serve's memory.
 MAX_FRAME_BYTES = 4 * 1024 * 1024
 
+# How long a settled command waits for the free-text frame that follows it.
+# `/shake` answers with its response FIRST and its `command_output` summary
+# after (verification §3.6's captured stdout, in that order), so a reader that
+# stopped at the response would drop the only thing the command reports. Small
+# and bounded: the summary is bookkeeping, and a harness that never sends one
+# must not hold a turn open for it.
+TRAILING_FRAME_GRACE_SECONDS = 0.25
+
 # The largest `artifact://` payload the bridge inlines into a sidecar. Past it
 # the sidecar records the FACT of the elision, which is verification §3.5's own
 # second remedy and is a record a reader can act on.
@@ -359,7 +367,11 @@ class HarnessChild:
             try:
                 for raw in stream:
                     handler(raw)
-            except BaseException:  # noqa: BLE001 - a closed pipe ends a reader
+            except (OSError, ValueError):
+                # A closed pipe ends a reader, and that is the ordinary way a
+                # reader ends. NARROW deliberately: a `BaseException` clause
+                # here would swallow the suite's own hermeticity guard, which
+                # is a `BaseException` precisely so no handler can disable it.
                 return
         thread = threading.Thread(
             target=_run, daemon=True,
@@ -411,14 +423,14 @@ class HarnessChild:
             if stream is not None:
                 try:
                     stream.close()
-                except BaseException:  # noqa: BLE001 - a closed pipe is not a failure
+                except (OSError, ValueError):    # an already-closed pipe
                     pass
         for verb in ("terminate", "kill"):
             action = getattr(process, verb, None)
             if callable(action):
                 try:
                     action()
-                except BaseException:  # noqa: BLE001 - a dead child is already stopped
+                except OSError:                  # a dead child is already stopped
                     pass
                 break
 
@@ -502,10 +514,34 @@ class HarnessChild:
             # (verification §3.6's `/shake` round trip is exactly this); one
             # that DID keeps reading until the terminal `agent_end`.
             if not settled.agent_invoked or ended:
+                if not settled.agent_invoked:
+                    self._drain_trailing(outputs, assistant, deadline=deadline,
+                                         clock=clock)
                 break
         return dataclasses.replace(
             settled, command_output=tuple(outputs),
             assistant_text="".join(assistant), agent_ended=ended)
+
+    def _drain_trailing(self, outputs: list, assistant: list, *,
+                        deadline: float, clock: Callable[[], float]) -> None:
+        """Collect the free-text frames a settled, agent-free command emits
+        AFTER its response (verification §3.6). Bounded by the grace and by the
+        turn's own deadline, and it stops at the first summary."""
+
+        end = min(deadline, clock() + TRAILING_FRAME_GRACE_SECONDS)
+        while clock() < end:
+            try:
+                frame = self._frames.get(timeout=max(0.0, min(0.05, end - clock())))
+            except queue.Empty:
+                continue
+            kind = frame.get("type")
+            if kind == FRAME_COMMAND_OUTPUT:
+                text = frame.get("text")
+                if isinstance(text, str):
+                    outputs.append(text)
+                return
+            if kind == FRAME_MESSAGE_UPDATE:
+                assistant.append(_assistant_text_of(frame))
 
 
 def _assistant_text_of(frame: Mapping[str, object]) -> str:
@@ -826,7 +862,16 @@ class OmpHarnessBridge:
                     "the harness bridge could not be started inside its bounded "
                     "retry; the model is unavailable for this turn")
             attempts += 1
-            self._restart_child()
+            try:
+                self._restart_child()
+            except BridgeUnavailable:
+                # BOUNDED, not unbounded: a start that fails is retried until
+                # the bound is spent and then reported as the honest
+                # model-unavailable posture. The alternative — reporting the
+                # first failure — makes `max_restarts` a number nothing reads.
+                if attempts > self._max_restarts:
+                    raise
+                continue
 
     def _restart_child(self) -> None:
         if self._child is not None:
