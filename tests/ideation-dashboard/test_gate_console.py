@@ -30,6 +30,7 @@ same FakeGit + PINNED_REVISION substrate as the rest of the suite:
 from __future__ import annotations
 
 import http.client
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -349,9 +350,11 @@ def _fragment(root: Path) -> Path:
     return root / "ideation" / "staging" / TOPIC / f"{TOPIC}.md"
 
 
-def _demote_and_execute(root: Path, *, reason="Reworking scope."):
+def _demote_and_execute(root: Path, *, reason="Reworking scope.",
+                        staging_topic=None):
     snap = _snapshot(root)
-    res = gc.GateConsole(_gate(root)).demote(snap, CHANGE, reason=reason, at=AT)
+    res = gc.GateConsole(_gate(root)).demote(snap, CHANGE, reason=reason, at=AT,
+                                             staging_topic=staging_topic)
     ex = gc.execute_demotion_plan(res.plan, root, at=AT)
     return res, ex
 
@@ -663,6 +666,198 @@ def test_the_cli_tells_the_human_the_snapshot_was_preserved(tmp_path, capsys):
     assert "REFRESHED IN PLACE" in out
     assert f"{TOPIC}.snapshot-{CHANGE}.md" in out
     assert "not applied over your work" in out
+
+
+# ---- the PARENT change's task 4.2: the round-trip rule, both transitions driven -
+#
+# `add-staged-topic-outline-template` 4.2 calls itself "the one test that must not
+# be a shape assertion", and its property is narrower than anything above: a
+# fragment that genuinely REACHED PROPOSAL, then was demoted, carries the last
+# attempted `proposal.md`'s REAL text — not the aspirational original the change
+# folder snapshotted — plus the change id, BOTH dates, and the reason.
+#
+# What the tests above already discharge, and what is therefore not repeated here:
+# the absent-destination restore, the marked-section refresh against a returned
+# proposal, the five slots, `Raised` from a manifest, and the never-byte-replace
+# guard. What none of them do is REACH PROPOSAL for real — they hand-build the
+# post-transition shape with `_with_transitioned_snapshot`. This one drives the
+# actual forward gate, so "reached proposal" is the mechanism's own doing and both
+# dates are real: `Raised` from the transition that raised it, `Demoted` from the
+# demote that returned it.
+
+_SUPPORT_SPEC = importlib.util.spec_from_file_location(
+    "proposal_support_for_round_trip", REPO_ROOT / "scripts" / "proposal-support.py")
+support = importlib.util.module_from_spec(_SUPPORT_SPEC)
+sys.modules[_SUPPORT_SPEC.name] = support
+_SUPPORT_SPEC.loader.exec_module(support)
+
+# Deliberately unlike anything the template ships, so an aspirational echo or a
+# skeleton placeholder cannot pass for the real thing.
+ASPIRATIONAL_GUESS = "PRE-PROPOSAL GUESS: maybe the wheel should re-derive summaries."
+IN_FLIGHT_TRUTH = ("WHAT THE CHANGE ACTUALLY LEARNED: the summary is guaranteed by "
+                   "the template, so the wheel reads it and keeps the fallback.")
+RAISED_ON = "2026-07-02"
+
+
+def _fragment_reaching_proposal(marked_body: str) -> str:
+    return f"""# Staged: {TOPIC}
+
+Status: staged
+Summary: a topic on its way to a proposal.
+Staging ID: fixture-repo:staging:{TOPIC}
+
+## Last proposal attempt (round-trip provenance)
+
+Change ID: none yet
+Raised: n/a
+Status at demote: n/a
+Demoted: n/a
+Demote reason: n/a
+
+## Why
+
+<!-- xspec:candidate target=ideation-dashboard -->
+{marked_body}
+<!-- /xspec:candidate -->
+"""
+
+
+def _reach_proposal(root: Path, fragment_text: str, *, raised=RAISED_ON) -> None:
+    """Drive the REAL forward gate: `proposal-support.py transition`.
+
+    This is what "reached proposal" means mechanically, and every fact it produces
+    is the transition's rather than this test's: the fragment MOVES into the
+    change's `supporting-docs/` rewritten to `Status: draft` with a `Proposed by:`
+    line, its original bytes are kept under `source-snapshots/`, the manifest
+    records `transitioned_at` (the only source for the `Raised` slot), and the topic
+    folder is emptied and removed.
+    """
+    topic_dir = root / "ideation" / "staging" / TOPIC
+    topic_dir.mkdir(parents=True, exist_ok=True)
+    (topic_dir / f"{TOPIC}.md").write_text(fragment_text, encoding="utf-8")
+    support.transition(root, CHANGE, f"ideation/staging/{TOPIC}", [], None,
+                       raised, False, True)
+
+
+def _write_proposal(root: Path, why: str) -> None:
+    proposal = root / "openspec" / "changes" / CHANGE / "proposal.md"
+    proposal.parent.mkdir(parents=True, exist_ok=True)
+    proposal.write_text(
+        f"---\ncode_surface: none\n---\n\n# Proposal: {CHANGE}\n\n"
+        f"## Why\n\n{why}\n", encoding="utf-8")
+
+
+# THE DEMOTE NEEDS `--staging-topic`, and that is a fact about the flow rather than
+# a convenience here. `plan_demotion` resolves the origin topic ONLY from a
+# possible's pick edge, and the forward transition REMOVES the staging folder, which
+# drops that edge from the snapshot — so a change that genuinely reached proposal
+# reports `origin_staging_id: None`. Measured on the real corpus too: the defect is
+# TOTAL — all 12 of 12 active changes report None, not just the four that declare
+# `origin.kind: staged` (one of which has a supporting-docs manifest recording the
+# pick edge, and still reports None). The refusal message anticipates exactly this
+# and says to pass the topic explicitly, and the CLI exposes `--staging-topic`, so
+# this is the operator's real path and the test takes it.
+
+
+
+def test_a_demoted_fragment_carries_the_real_prior_text_not_the_aspirational_one(tmp_path):
+    """PARENT TASK 4.2. Both gates driven, nothing hand-built between them."""
+    root = _tree(tmp_path)
+    _reach_proposal(root, _fragment_reaching_proposal(ASPIRATIONAL_GUESS))
+
+    # The forward transition really did move the fragment out of staging…
+    assert not _fragment(root).exists()
+    snapshot = (root / "openspec" / "changes" / CHANGE / "supporting-docs"
+                / f"{TOPIC}.md")
+    assert snapshot.is_file()
+    assert ASPIRATIONAL_GUESS in snapshot.read_text(encoding="utf-8")
+    # …it flipped the moved copy to a draft…
+    assert "Status: draft" in snapshot.read_text(encoding="utf-8")
+    # …and the manifest it wrote is where `Raised` will come from.
+    manifest = (root / "openspec" / "changes" / CHANGE / "supporting-docs"
+                / "manifest.yaml").read_text(encoding="utf-8")
+    assert RAISED_ON in manifest and "transitioned_at" in manifest
+
+    # The proposal is then WORKED ON — this is the text the rule exists to save.
+    _write_proposal(root, IN_FLIGHT_TRUTH)
+
+    res, ex = _demote_and_execute(root, reason="Scope was wrong.",
+                                  staging_topic=TOPIC)
+    text = _fragment(root).read_text(encoding="utf-8")
+
+    # THE PROPERTY: the real prior text, not the aspirational original.
+    assert IN_FLIGHT_TRUTH in text, \
+        "the demoted fragment lost what the change learned while it was in flight"
+    assert ASPIRATIONAL_GUESS not in text, \
+        "the demoted fragment reset to its pre-proposal aspirational text"
+    # …inside the marked block, which is where the contract puts it
+    marked = text.split("<!-- xspec:candidate", 1)[1].split("<!-- /xspec:candidate", 1)[0]
+    assert IN_FLIGHT_TRUTH in marked
+
+    # …tagged with the change id, BOTH dates, and the reason
+    assert f"Change ID: {CHANGE}" in text
+    assert f"Raised: {RAISED_ON}" in text          # the real forward transition's
+    assert f"Demoted: {AT[:10]}" in text           # the real demote's
+    assert "Demote reason: Scope was wrong." in text
+    assert "Status at demote: active" in text
+    assert "n/a" not in text and "none yet" not in text
+
+    # …and the forward transition's `Status: draft` is undone: a staged topic's
+    # outline is staged again.
+    assert "Status: staged" in text and "Status: draft" not in text
+    assert families._primary_fragment(
+        root / "ideation" / "staging" / TOPIC).name == f"{TOPIC}.md"
+
+
+def test_the_round_trip_survives_a_second_lap_through_both_gates(tmp_path):
+    """The rule's own words are "nothing learned while a change was in flight may
+    be lost", and that has to hold on the SECOND lap too — otherwise the guarantee
+    expires after one use. Both gates are driven again, so the second lap is as real
+    as the first."""
+    root = _tree(tmp_path)
+    _reach_proposal(root, _fragment_reaching_proposal(ASPIRATIONAL_GUESS))
+    _write_proposal(root, IN_FLIGHT_TRUTH)
+    _demote_and_execute(root, reason="First attempt.", staging_topic=TOPIC)
+    returned = _fragment(root).read_text(encoding="utf-8")
+    assert IN_FLIGHT_TRUTH in returned
+
+    # A human works the returned fragment, and it goes round again — through the
+    # REAL forward gate a second time.
+    _fragment(root).write_text(
+        returned + "\n## Idea notes (pre-document, non-documented)\n\n"
+        "- LEARNED AFTER THE FIRST DEMOTE. — Added-by: brett · 2026-08-19\n",
+        encoding="utf-8")
+    # Re-raising means the change folder EXISTS again: the first demote removed it
+    # (`active OpenSpec change not found` otherwise), so a second attempt is a
+    # change re-created and then transitioned into — not the same folder reopened.
+    _write_proposal(root, "A SECOND ATTEMPT'S REASONING.")
+    # SELECTED, not "everything in the topic". The first demote left its own
+    # `openspec/INDEX.md` in the folder, and that file carries no `Status:` header —
+    # which a whole-folder transition refuses outright ("governed Markdown lacks
+    # Status header"). Naming the fragment is both the operator's normal move and
+    # the only one that works on a topic a demote has already returned to.
+    support.transition(root, CHANGE, f"ideation/staging/{TOPIC}",
+                       [f"{TOPIC}.md"], None, "2026-08-01", False, True)
+
+    res, ex = _demote_and_execute(root, reason="Second attempt.",
+                                  staging_topic=TOPIC)
+    text = _fragment(root).read_text(encoding="utf-8")
+
+    # THE HUMAN'S OWN MATERIAL survives the second lap — that is what "nothing
+    # learned may be lost by falling back to staging" protects.
+    assert "LEARNED AFTER THE FIRST DEMOTE." in text
+    # The marked section carries the LAST attempt, so the first attempt's text is
+    # SUPERSEDED there rather than lost by the demote — the contract says "the last
+    # attempted proposal.md", singular. (A first draft of this test asserted the
+    # first lap's text also survived; the contract does not promise that, and the
+    # code was right.)
+    assert "A SECOND ATTEMPT'S REASONING." in text
+    assert IN_FLIGHT_TRUTH not in text
+    assert ASPIRATIONAL_GUESS not in text
+    # …and the slots moved on to the second attempt, both dates with them
+    assert "Demote reason: Second attempt." in text
+    assert "Raised: 2026-08-01" in text
+    assert f"Demoted: {AT[:10]}" in text
 
 
 def test_the_round_trip_arm_leaves_a_topic_with_no_snapshot_untouched(tmp_path):

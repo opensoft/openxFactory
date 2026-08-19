@@ -227,13 +227,57 @@ remains is the contract and the surface.
       next reader does not inherit the excuse.) Either the ordering words are
       advisory or both implementations need the rule; that is a ruling, not a
       test.
-- [ ] 4.2 Round-trip: demote a fragment that reached proposal and assert the
+- [x] 4.2 Round-trip: demote a fragment that reached proposal and assert the
       proposal-element sections carry the real prior text, not the aspirational
       original. This is the requirement's whole point and the one test that must
       not be a shape assertion.
-      **BLOCKED, AND LEFT UNCHECKED DELIBERATELY.** Not because the rule is
-      unimplemented — because THE MECHANISM ACTIVELY INVERTS IT. The box stays
-      open where a completeness sweep will still see it.
+      **UNBLOCKED AND DISCHARGED 2026-08-19** by
+      `align-demote-to-round-trip-rule`, which was proposed, ratified, realized
+      (PR #215) and archived precisely because this task could not be written
+      honestly against the old mechanism. The blocker's full diagnosis is kept
+      below, unedited, because it is the reason that change exists.
+      THE TEST, in `tests/ideation-dashboard/test_gate_console.py`, drives BOTH
+      GATES rather than constructing the middle: the real
+      `proposal-support.py transition` forward — so "reached proposal" is the
+      mechanism's own doing, with the fragment really moved into
+      `supporting-docs/`, flipped to `Status: draft`, its original bytes kept under
+      `source-snapshots/`, the manifest's `transitioned_at` written, and the topic
+      folder emptied — then the real console demote back. Both DATES are therefore
+      real: `Raised` from the transition that raised it, `Demoted` from the demote
+      that returned it. The marked section is asserted to carry the proposal's
+      distinctive in-flight text and NOT the equally distinctive aspirational
+      guess, so neither a template placeholder nor a snapshot echo can pass; the
+      forward transition's `Status: draft` is asserted undone; and a second test
+      takes a second lap through both gates, because "nothing learned may be lost"
+      has to survive more than one use.
+      WHAT WAS ALREADY PINNED and is cited rather than repeated: the
+      absent-destination restore, the marked-section refresh against a returned
+      proposal, the five slots, `Raised` from a manifest, the never-byte-replace
+      guard, and the CRLF drive all landed with the realizing change. What none of
+      them did was reach proposal for real — they hand-built the post-transition
+      shape — and that gap is exactly what 4.2 adds.
+      MUTATION-VALIDATED: disabling the marked-section refresh, disabling the
+      outline arm entirely, and making `Raised` unresolvable are each caught by
+      both new tests. (A first pass at the outline-arm mutation hit an
+      identically-indented line in `executable_plan` instead and appeared to catch
+      nothing — recorded because "the mutation found no coverage gap" and "the
+      mutation edited the wrong line" look identical in the output.)
+      THREE FINDINGS CAME OUT OF DRIVING IT, all recorded in the realized change's
+      §7.2: `plan_demotion` resolves the origin topic only from a possible's pick
+      edge that the forward transition erases, so a genuinely-transitioned change
+      reports `origin_staging_id: None` and the demote needs `--staging-topic`
+      (measured TOTAL: 12 of 12 active changes on the real corpus, not just the 4
+      that declare `origin.kind: staged`); a demote leaves its own
+      `openspec/INDEX.md`, which has no `Status:` header and so refuses the next
+      whole-folder forward transition; and `Proposed by:` accumulates one line per
+      lap. Also corrected in the test itself: a first draft
+      asserted the FIRST lap's proposal text also survived the second lap. The
+      contract promises "the last attempted `proposal.md`", singular — the earlier
+      text is superseded in the marked slot, not lost by the demote — so the
+      assertion was wrong and the code was right.
+      THE BLOCKER, AS DIAGNOSED, kept for the record:
+      Not because the rule is unimplemented — because THE MECHANISM ACTIVELY
+      INVERTED IT.
       (An earlier draft of this note said the demote "does not touch the primary
       fragment at all". That was FALSE, and it is the fourth time this change has
       been bitten by a claim about a mechanism that nobody drove. It was corrected
@@ -299,6 +343,12 @@ remains is the contract and the surface.
       What was refused: writing a harness that "demotes" by hand-authoring the
       expected fragment and asserting it. That is a shape assertion in a costume,
       and it would have hidden the inversion instead of finding it.
+      (END OF THE BLOCKER RECORD. Brett ruled the recommendation above, and
+      `align-demote-to-round-trip-rule` built all four parts of it — including the
+      `xspec:candidate` refresh — and is archived at
+      `openspec/changes/archive/2026-08-19-align-demote-to-round-trip-rule/`. The
+      refusal in the paragraph above is what made the test worth writing once the
+      mechanism could support it.)
 - [x] 4.3 Opt-in boundary: a pre-ratification topic warns and does not block; a
       post-ratification topic is required.
       The three ends were already pinned by 2.2/2.3 — pre-ratification is opt-in,

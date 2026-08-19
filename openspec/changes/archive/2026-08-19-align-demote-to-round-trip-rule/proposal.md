@@ -7,14 +7,22 @@ Ratified: 2026-08-19 by Brett Heap — in-session, verbatim: "merge it and ratif
 
 # Proposal: align-demote-to-round-trip-rule
 
-> **APPROVED BUT NOT YET REALIZED.** This change has a non-empty code surface and
-> none of it is built: `classify_change_file` still routes the outline restore
-> with a `Status: draft` flip, `execute_demotion_plan` fills no provenance slot,
-> refreshes no proposal-element section, and byte-replaces a differing
-> destination, and `round_trip.py` does not exist. Under `release-realization`'s
-> archive gate it therefore stays ACTIVE as approved intent until its code merges
-> with green realization evidence — the invariant being that promoted specs
-> describe what the code does. Nothing here should be read as shipped.
+> **REALIZED AND ARCHIVED 2026-08-19.** The code is merged on the implemented
+> target as PR #215 (`e2c07ef`, `d28d36d`, `1c8b58a`, plus the follow-up `79ed72e`)
+> and green there: `tests/ideation-dashboard` 3240 passed / 6 skipped / exit 0,
+> `openspec validate --all --strict` 62/62, doc-health byte-identical to its
+> baseline, and a DRIVEN demote whose fragment came back carrying the returned
+> proposal's real text, `Status: staged`, and the five filled provenance slots.
+> `round_trip.py` exists; the outline restore keeps `staged`; a differing
+> destination is refreshed in place with the snapshot preserved beside it. Task
+> detail and the open items the realization surfaced are in `tasks.md`.
+>
+> This block replaced the release-realization "APPROVED BUT NOT YET REALIZED"
+> banner rather than carrying it. That is a deliberate deviation from the corpus's
+> archive precedent, where `proposal.md` is a pure rename: the banner convention
+> postdates every archived change, so there was no precedent either way, and
+> archiving a record whose first paragraph says "none of it is built" would have
+> been the more expensive break (`tasks.md` §6.3).
 
 ## Why
 
