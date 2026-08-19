@@ -269,18 +269,30 @@ def _declared_origin_staging(folder: Path) -> str | None:
     from staging, so there is no topic to return to and the demote's refusal is
     correct rather than something to paper over.
 
-    THE ID IS THE BASENAME OF `origin.path`, not `origin.id`. The declared id is
+    THE ID COMES FROM `origin.path`, not `origin.id`. The declared id is
     namespaced (`<repo>:staging:<topic>`) while this field is compared against
     `staged_topics[].staging_id`, which is the bare topic. Deriving it from the
     path keeps one spelling of the id's shape rather than teaching a second place
-    how to take a namespaced id apart."""
+    how to take a namespaced id apart.
+
+    THE TOPIC IS THE FIRST SEGMENT AFTER `ideation/staging/`, not the path's
+    BASENAME. `proposal-support.py transition` accepts any directory below
+    `ideation/staging/` as its source, so a real declared origin can read
+    `ideation/staging/my-topic/openspec` — and a basename rule answers `openspec`,
+    a topic nobody named, into which the demote would then silently plan every
+    returning file. A path that is not below `ideation/staging/` answers NOTHING
+    rather than being guessed at: the origin contract puts staged sources there,
+    and a malformed declaration is a refusal case, not a parsing challenge."""
     origin = _load_openspec_meta(folder).get("origin")
     if not isinstance(origin, dict) or origin.get("kind") != "staged":
         return None
     path = origin.get("path")
     if not isinstance(path, str):
         return None
-    return path.strip().rstrip("/").rsplit("/", 1)[-1] or None
+    parts = [part for part in path.strip().split("/") if part not in ("", ".")]
+    if parts[:2] != ["ideation", "staging"] or len(parts) < 3:
+        return None
+    return parts[2]
 
 
 def _ratifier_of(folder: Path) -> str | None:

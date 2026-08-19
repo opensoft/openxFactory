@@ -408,6 +408,75 @@ def test_round_trip_and_doc_health_agree_about_every_fence(name):
     assert _round_trip_real_headings(text) == _families_real_headings(text), name
 
 
+# ---- the FOURTH implementation: the supporting-document mover -----------------
+#
+# `proposal-support.py` is the forward gate, and `refine-demote-round-trip-
+# mechanics` made its `Status:`/`Proposed by:` readers fence-aware — so the same
+# naive ``` toggle now lives in four places over the same corpus. Sharing the code
+# is still not available (this one is a standalone script a human runs against a
+# checkout where the dashboard package need not be importable, and one of the
+# other three is browser JavaScript), so it joins the mitigation instead.
+#
+# It answers a different question from the heading scanners — "which lines are
+# real" rather than "which headings are real" — so the comparison is on the
+# fenced-flag vector each module computes, which is the thing all four actually
+# share.
+
+_MOVER = REPO_ROOT / "scripts" / "proposal-support.py"
+
+
+def _mover_module():
+    import importlib.util
+    import sys
+    spec = importlib.util.spec_from_file_location("proposal_support_fence", _MOVER)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _round_trip_fenced(text):
+    return rt._fenced_flags(rt.split_keepends(text))
+
+
+def _families_fenced(text):
+    return [fenced for _lineno, _line, fenced in families._scan_lines(text)]
+
+
+def _mover_fenced(text):
+    support = _mover_module()
+    rows = support._split_keepends(text)
+    return support._fenced_flags(rows)
+
+
+@pytest.mark.parametrize("name", sorted(FENCE_FIXTURES))
+def test_the_mover_agrees_with_the_other_fence_implementations(name):
+    text = FENCE_FIXTURES[name]
+    mine = _mover_fenced(text)
+    assert mine == _round_trip_fenced(text), name
+    # `_scan_lines` uses `str.splitlines()`, which drops a trailing empty row the
+    # keepends split does not produce — compare the shared prefix, which is every
+    # real line of the fixture.
+    theirs = _families_fenced(text)
+    assert mine[:len(theirs)] == theirs, name
+
+
+def test_the_movers_line_split_is_the_three_real_endings_and_nothing_else():
+    """The other half of the shared convention. `str.splitlines()` also breaks on
+    \\x0b, \\x0c, \\x1c-\\x1e, \\x85, U+2028 and U+2029 — a governance document
+    carrying one would be re-split and rejoined into different bytes, which is
+    exactly the damage `_flip_status` was fixed for on the demote side."""
+    support = _mover_module()
+    text = "Status: draft\x0crest of the line\nnext still one line\r\nlast"
+    rows = support._split_keepends(text)
+    assert "".join(body + ending for body, ending in rows) == text
+    assert [body for body, _e in rows] == [
+        "Status: draft\x0crest of the line", "next still one line", "last"]
+    assert rows == support._split_keepends(text)
+    # …and the same split the other implementations use, on the same input
+    assert rows == rt.split_keepends(text)
+
+
 @pytest.mark.skipif(NODE is None, reason="node is not installed")
 def test_all_three_fence_implementations_agree():
     """The whole mitigation in one assertion. If this fails, one of the three moved

@@ -1,8 +1,8 @@
 ---
-code_surface: openxFactory (scripts/ideation_dashboard/generator.py — `_change_entry` resolves `origin_staging_id` from the change's own `.openspec.yaml` origin block, and carries `task_progress` through; scripts/ideation_dashboard/gate_console.py — the demote's `openspec/INDEX.md` gains a `Status:` header and the provenance slot carries task progress; scripts/proposal-support.py — the forward transition updates an existing `Proposed by:` line instead of adding a second; tests/ideation-dashboard/test_gate_console.py and tests/proposal-support/)
+code_surface: openxFactory (scripts/ideation_dashboard/generator.py — `_change_entry` resolves `origin_staging_id` from the change's own `.openspec.yaml` origin block, taking the first path segment below `ideation/staging/`, and carries `task_progress` through; scripts/ideation_dashboard/gate_console.py — the demote's `openspec/INDEX.md` gains a `Status:` header, every returned governed markdown lacking one is given `Status: draft` through the status-flip decode arm, and the provenance slot carries task progress; scripts/proposal-support.py — the forward transition keeps exactly one `Proposed by:` record, fence-aware and anchored to the status header's block, on shared line/fence primitives; tests/ideation-dashboard/{test_gate_console,test_generator,test_round_trip}.py and tests/proposal-support/)
 target_release: implementation_pending — the requirements land now; the change archives only on merged code with green realization evidence, because all four parts are mechanism corrections
 Status: ratified
-Ratified: 2026-08-19 by Brett Heap — in-session, verbatim: "merge and ratify both", after reading the drafted proposal on PR #218. Same-day scope rulings (in-session multiple choice, all recommended options adopted): Decision 3 (enrich `Status at demote` with task progress) rides this change; Decision 1 (the shallowest-markdown selection arm) is explicitly OUT of scope by the same ruling, deferred until a real topic hits it.
+Ratified: 2026-08-19 by Brett Heap — in-session, verbatim: "merge and ratify both", after reading the drafted proposal on PR #218. Same-day scope rulings (in-session multiple choice, all recommended options adopted): Decision 3 (enrich `Status at demote` with task progress) rides this change; Decision 1 (the shallowest-markdown selection arm) is explicitly OUT of scope by the same ruling, deferred until a real topic hits it. Same-day scope ruling (in-session multiple choice, recommended option adopted, 2026-08-19): the returned-artifact half of the whole-folder requirement is realized in this change; the demote adds `Status: draft` to returned governed markdown lacking a header via the sanctioned decode arm; the byte-exact-move reading was rejected as citing no ratified text.
 ---
 
 # Proposal: refine-demote-round-trip-mechanics
@@ -68,12 +68,19 @@ that declare a staged origin. The other eight declare `ad_hoc` or nothing and ha
 no staging topic to return to — for those, `--staging-topic` remains genuinely
 required, and inventing one would be worse than asking.
 
-**The demote's `INDEX.md` carries a valid `Status:` header**, so the topic it
-returns material to can be transitioned again without the operator working around
-an artifact the demote itself left.
+**Every governed markdown the demote writes into a topic carries a valid
+`Status:` header** — its own `INDEX.md`, and equally the `tasks.md`, `design.md`
+and spec deltas it returns there, which by OpenSpec convention carry none. So the
+topic can be transitioned again without the operator working around an artifact
+the demote left. Returned material that already has a header keeps it; the value
+added is `draft`, and it is written through the same decode arm the status flip
+uses, so a CRLF document does not come back with one LF line in it.
 
-**The forward transition updates an existing `Proposed by:` line** instead of
-adding another.
+**The forward transition keeps exactly one `Proposed by:` line** — updating the
+existing record rather than adding another, collapsing duplicates a document
+already carried, ignoring occurrences inside code fences (an example is not a
+record), and anchoring the record to the status header's own block rather than to
+the first match anywhere in the document.
 
 **`Status at demote` carries the change's task progress** beside its status, from
 the snapshot value the executor already holds — `active — 9 of 22 tasks done`.
@@ -130,7 +137,36 @@ updated instead. The demote's boundedness stays exactly as ratified.
 - **Not in scope:** the read-side half of the pseudo-line blindness, which is
   `align-status-reader-to-real-lines` by the same ruling, so doc-health's shared
   reader owns its baseline diff separately.
-- **The `origin_staging_id` fix widens a snapshot field's provenance**, so
-  `test_snapshot*.py`'s determinism pins are part of the surface: the field's value
-  changes for four changes, and that is a deliberate, asserted move rather than
-  drift.
+- **The `origin_staging_id` fix widens a snapshot field's provenance**, and the
+  scope stated here at proposal time — "the field's value changes for four
+  changes" — counted only ACTIVE changes and is off by roughly nine times.
+  Corrected by measurement at `8426dbc`: **35 changes gain a value** (the 4 active
+  ones that declare a staged origin, plus **31 archived** ones, because the
+  generator projects the field uniformly over `changes[]`), and **16 new
+  `staged -> change` wheel edges render where 0 rendered before**. The remaining
+  19 resolve to topics the forward transition already removed, and
+  `wheel-model.js`'s `link()` drops an edge whose endpoint is missing, so none of
+  them dangles; the pinned schema types the field `[string, "null"]` with no
+  referential constraint.
+- **No determinism pin actually moved, and the task that predicted one was
+  wrong.** No test in the suite reads `origin_staging_id` against the real
+  corpus, and the base-repo fixture change carries no `.openspec.yaml`, so its
+  existing pin still resolves through the retained pick-edge fallback. The one
+  pin that did move belongs to part 4 —
+  `test_a_demote_restores_an_absent_outline_and_refreshes_it` re-derives the
+  provenance dict to prove idempotence, and its `Status at demote` value is now
+  the enriched one.
+- **The whole-folder obligation covers RETURNED artifacts too** (Brett's ruling,
+  2026-08-19). The defect stated above as "the demote's `openspec/INDEX.md`
+  carries no `Status:` header" is only the first offender in sorted order: the
+  forward gate refuses on the FIRST governed markdown without a header, and
+  `INDEX.md` sorts before `tasks.md`, which hid the rest. Measured at `8426dbc`:
+  93 of 94 `tasks.md`, 154 of 158 spec deltas, 65 of 68 `design.md` and 49 of 94
+  `proposal.md` carry no header at all, so nearly every returned change artifact
+  blocked the next lap. The demote therefore adds `Status: draft` to any returned
+  governed markdown that lacks a header, through the same decode arm the status
+  flip already uses, preserving the document's own line-ending flavor. The one
+  real demoted topic in the corpus corroborates it:
+  `ideation/staging/tier2-council-clearance-pattern/openspec/` carries hand-added
+  status headers on its `INDEX.md`, `tasks.md` and `design.md` — an operator
+  working around exactly this.

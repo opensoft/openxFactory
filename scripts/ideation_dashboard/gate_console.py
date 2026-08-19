@@ -335,15 +335,84 @@ def _flip_status(text: str, new_status: str) -> str:
     exposed to the same two damages before.
     """
     rows = round_trip.split_keepends(text)
-    limit = min(len(rows), HEADER_SCAN_LINES)
-    for i in range(limit):
-        body, ending = rows[i]
-        if body.startswith("Status:"):
-            # The rewritten line keeps the ending it HAD (wave re-review P3): a
-            # CRLF header must not be the one line that comes out LF.
-            rows[i] = (f"Status: {new_status}", ending)
-            return round_trip.join_rows(rows)
-    return text
+    index = _status_row(rows)
+    if index is None:
+        return text
+    body, ending = rows[index]
+    # The rewritten line keeps the ending it HAD (wave re-review P3): a CRLF
+    # header must not be the one line that comes out LF.
+    rows[index] = (f"Status: {new_status}", ending)
+    return round_trip.join_rows(rows)
+
+
+def _status_row(rows: list[tuple[str, str]]) -> int | None:
+    """Index of the document's `Status:` header row within the header window, or
+    None. The ONE scan `_flip_status` and `_add_status_header` share, so the
+    question "does this document carry a header" gets the same answer from the
+    side that rewrites one and the side that adds one."""
+    for i in range(min(len(rows), HEADER_SCAN_LINES)):
+        if rows[i][0].startswith("Status:"):
+            return i
+    return None
+
+
+def _add_status_header(text: str, new_status: str) -> tuple[str, bool]:
+    """(text carrying a lifecycle status header, whether one was ADDED).
+
+    THE ROUND-TRIP OBLIGATION, realized on returned material (Brett's ruling,
+    2026-08-19). Every artifact the reverse transition writes into a staging
+    topic has to satisfy the same governed-document rules the forward transition
+    enforces there — and OpenSpec change artifacts do not carry lifecycle headers
+    by convention. Measured at 8426dbc by the forward gate's own reader (a
+    `Status:` line outside every fence): 93 of 94 `tasks.md`, 154 of 158 spec
+    deltas, 65 of 68 `design.md` and 49 of 94 `proposal.md` carry NONE. The
+    counts move with the corpus; the shape does not. Returned unheadered, every
+    one of them made the next whole-folder transition of that topic refuse, so
+    the demote left the cycle one-way for the topic it was applied to.
+
+    `draft` is the status, for design Decision 2's reason: the returned material
+    is a draft proposal continuing as a draft idea in the topic's workspace.
+
+    WHERE IT GOES follows the corpus rather than an invention. A document opening
+    with a `---` front-matter block gets the header INSIDE that block, which is
+    where `ideation/staging/tier2-council-clearance-pattern/openspec/proposal.md`
+    — the one real returned topic a human already fixed by hand — carries it;
+    putting it above the block would push the front matter off position 0 and
+    stop it being front matter at all. Otherwise it goes under the leading `# `
+    title, which is where every other governed document in this corpus carries
+    it.
+
+    A document that already has a header is returned UNCHANGED and reports False:
+    the flip arm owns those, and this must never become a second writer of the
+    same line.
+    """
+    rows = round_trip.split_keepends(text)
+    if _status_row(rows) is not None:
+        return text, False
+    eol = round_trip.document_eol(rows)
+    if not rows:
+        return f"Status: {new_status}{eol}", True
+
+    if rows[0][0].strip() == "---":
+        for i in range(1, min(len(rows), HEADER_SCAN_LINES)):
+            if rows[i][0].strip() == "---":
+                rows.insert(i, (f"Status: {new_status}", eol))
+                return round_trip.join_rows(rows), True
+
+    at = 0
+    if rows[0][0].startswith("# "):
+        at = 2 if len(rows) > 1 and not rows[1][0].strip() else 1
+    block = [(f"Status: {new_status}", eol), ("", eol)]
+    if at > 0 and rows[at - 1][0].strip():
+        block.insert(0, ("", eol))
+    if at >= len(rows):
+        # Appending past the end: the last row may carry no ending at all (a file
+        # with no trailing newline), and the new header must not be glued onto it.
+        if rows and not rows[-1][1]:
+            rows[-1] = (rows[-1][0], eol)
+        block = block[:-1]
+    rows[at:at] = block
+    return round_trip.join_rows(rows), True
 
 
 # --------------------------------------------------------------------------
@@ -688,6 +757,13 @@ def state_at_demote(status: str, progress: dict[str, int] | None) -> str:
         return base
     if isinstance(completed, bool) or isinstance(total, bool) or total <= 0:
         return base
+    if completed < 0 or completed > total:
+        # Unreachable through the generator, which counts `completed` out of the
+        # same regex sweep that produces `total`. Guarded anyway because the slot
+        # is prose a human reads as fact, and `9 of 4 tasks done` is a fabricated
+        # one — the status alone is the true statement about a record that does
+        # not add up.
+        return base
     return f"{base} — {completed} of {total} tasks done"
 
 
@@ -738,6 +814,15 @@ def executable_plan(plan: DemotionPlan, *, actor: str, at: str) -> dict:
         step: dict[str, Any] = {"op": "move", "from": m.from_path, "to": m.to_path}
         if m.status_flip:
             step["set_status"] = m.status_flip
+        if m.to_path.endswith(".md") and not m.outline:
+            # DECLARED before execution, and decidable PATH-ONLY like everything
+            # else in this plan: a returned governed markdown document that
+            # arrives with no lifecycle status header is given `Status: draft`,
+            # because the forward transition refuses governed markdown without
+            # one. Whether any given file needs it is a fact about the tree, not
+            # the path — so the plan states the RULE and the execution record
+            # names the files it actually applied to.
+            step["ensure_status"] = DRAFT_STATUS
         if m.outline:
             # DECLARED before execution: this destination is the topic's outline,
             # so it is refreshed rather than overwritten, and a pre-existing
@@ -974,6 +1059,12 @@ class DemotionExecution:
     # Why the refresh did NOT happen, when it did not. A refusal a caller cannot
     # read is a refusal that reads as success.
     outline_refusal: str | None = None
+    # Returned markdown that arrived carrying no lifecycle status header and was
+    # given `Status: draft` so the topic stays transitionable (Brett's ruling,
+    # 2026-08-19). Recorded rather than silent: this verb edited bytes of a
+    # human-visible document, and "which of my files did you touch, and how" is
+    # exactly the question a gate record has to be able to answer.
+    status_headers_added: list[str] = field(default_factory=list)
 
 
 def _read_raised_date(root: Path, plan: DemotionPlan) -> str:
@@ -1132,15 +1223,30 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
         # `write_text`, which universal-newline-translated CRLF to LF on
         # Linux — silently rewriting a Windows-authored document and
         # invalidating any open doxBench buffer's base identity — and mangled
-        # undecodable bytes to U+FFFD on the way. A move is not an edit: it
-        # copies BYTES and decodes nothing. Only the Status-flip arm must
-        # decode, and it decodes STRICTLY — the same refuse-to-fabricate
-        # asymmetry as the doxBench base revalidation (P3-5): a non-UTF-8
-        # document fails the demotion loudly rather than being silently
-        # re-encoded under a gate record naming the human.
+        # undecodable bytes to U+FFFD on the way. So NOTHING here goes through
+        # universal-newline translation: a governed markdown document is decoded
+        # STRICTLY, rewritten by row (each line keeping the ending it had), and
+        # re-encoded only when its bytes actually changed. Strict is the same
+        # refuse-to-fabricate asymmetry as the doxBench base revalidation (P3-5):
+        # a non-UTF-8 markdown document fails the demotion loudly rather than
+        # being silently re-encoded under a gate record naming the human.
+        # Non-markdown never decodes at all — it is a byte copy.
         data = src.read_bytes()
-        if m.status_flip:
-            data = _flip_status(data.decode("utf-8"), m.status_flip).encode("utf-8")
+        if m.to_path.endswith(".md"):
+            decoded = data.decode("utf-8")
+            updated = _flip_status(decoded, m.status_flip) if m.status_flip else decoded
+            # THE ROUND-TRIP OBLIGATION on returned material (Brett's ruling,
+            # 2026-08-19): a governed markdown artifact this verb writes into a
+            # staging topic carries a lifecycle status header, because the
+            # forward transition refuses governed markdown without one and an
+            # unheadered returned artifact makes the cycle one-way for that
+            # topic. `_flip_status` cannot do this — it is a no-op on a document
+            # with no header, which is 93 of 94 `tasks.md` in this corpus.
+            updated, added = _add_status_header(updated, m.status_flip or DRAFT_STATUS)
+            if added:
+                result.status_headers_added.append(m.to_path)
+            if updated != decoded:
+                data = updated.encode("utf-8")
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(data)
         src.unlink()
@@ -1174,9 +1280,18 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
             outline_note = (
                 f"\nOutline: {rel} was restored from the change folder's snapshot "
                 f"and refreshed with this demote's round-trip provenance.\n")
+    # WHICH RETURNED FILES THIS VERB EDITED, named. The header additions are the
+    # only place a demote changes bytes inside a file it is otherwise just moving,
+    # so they are stated rather than left for a human to notice in a diff.
+    header_note = ""
+    if result.status_headers_added:
+        header_note = (
+            "\nStatus headers added (these arrived carrying none, and the "
+            "forward transition refuses governed Markdown without one):\n"
+            + "\n".join(f"- {p}" for p in result.status_headers_added) + "\n")
     note = (f"\n## Returned drafts (demoted {plan.change_id}, {at[:10]})\n\n"
             f"Reason: {plan.reason}\n"
-            + outline_note + "\n"
+            + outline_note + header_note + "\n"
             + "\n".join(f"- {r}" for r in returned) + "\n")
     if readme.is_file():
         # Translation-free on BOTH legs (wave re-review P3): `read_bytes().

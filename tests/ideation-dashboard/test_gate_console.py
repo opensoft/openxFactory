@@ -208,25 +208,110 @@ def test_demote_console_does_not_touch_the_live_corpus_only_execution_does(tmp_p
     assert (root / "openspec" / "changes" / CHANGE).is_dir()
 
 
-def test_a_crlf_document_survives_a_demote_move_byte_exactly(tmp_path):
-    """Wave re-review P3 — the F10 corpus-integrity class through another
-    verb. The demote MOVE used to `read_text(errors="replace")` ->
-    `write_text`, so on Linux a CRLF (Windows-authored) document was silently
-    rewritten as LF by universal-newline translation — invalidating any open
-    doxBench buffer's base identity for that document — and any undecodable
-    byte was silently mangled to U+FFFD. A move that flips no Status header
-    now copies BYTES and never decodes at all, so the moved copy is the
-    source, byte for byte."""
+def test_a_crlf_document_keeps_its_endings_when_the_demote_adds_a_header(tmp_path):
+    """Wave re-review P3 — the F10 corpus-integrity class through another verb.
+    The demote MOVE used to `read_text(errors="replace")` -> `write_text`, so on
+    Linux a CRLF (Windows-authored) document was silently rewritten as LF by
+    universal-newline translation — invalidating any open doxBench buffer's base
+    identity for that document — and any undecodable byte was silently mangled to
+    U+FFFD. Nothing here goes through universal-newline translation any more.
+
+    UPDATED CONTRACT (Brett's ruling, 2026-08-19). This used to assert the moved
+    copy was the source BYTE FOR BYTE, which was a wave-re-review regression pin
+    and never ratified text. The round-trip requirement is unconditional about
+    every artifact the reverse transition writes into a topic carrying a
+    lifecycle status header, and a returned `tasks.md` is one — so a header IS
+    added. What survives is the corpus-integrity guarantee itself: the added line
+    takes the DOCUMENT'S OWN ending flavor, and every pre-existing byte is
+    untouched."""
     root = _tree(tmp_path)
     snap = _snapshot(root)
     crlf = b"# Tasks\r\n\r\n- [ ] 1.1 authored\r\n- [ ] 1.2 on Windows\r\n"
     (root / "openspec" / "changes" / CHANGE / "tasks.md").write_bytes(crlf)
 
     res = gc.GateConsole(_gate(root)).demote(snap, CHANGE, reason="CRLF round trip.", at=AT)
-    gc.execute_demotion_plan(res.plan, root, at=AT)
+    ex = gc.execute_demotion_plan(res.plan, root, at=AT)
 
     moved = root / "ideation" / "staging" / TOPIC / "openspec" / "tasks.md"
+    expected = b"# Tasks\r\n\r\nStatus: draft\r\n\r\n- [ ] 1.1 authored\r\n- [ ] 1.2 on Windows\r\n"
+    assert moved.read_bytes() == expected
+    # NOT one LF among the CRLFs — the added line matches the document
+    assert b"\n" not in moved.read_bytes().replace(b"\r\n", b"")
+    # …and the addition is RECORDED rather than silent
+    assert ex.status_headers_added == [f"ideation/staging/{TOPIC}/openspec/tasks.md"]
+
+
+def test_a_returned_document_that_already_has_a_header_is_not_touched_twice(tmp_path):
+    """The add arm must never become a second writer of the same line: a document
+    arriving with a header goes through the flip arm alone, and reports nothing
+    added."""
+    root = _tree(tmp_path)
+    snap = _snapshot(root)
+    crlf = b"# Tasks\r\n\r\nStatus: staged\r\n\r\n- [ ] 1.1 authored\r\n"
+    (root / "openspec" / "changes" / CHANGE / "tasks.md").write_bytes(crlf)
+
+    res = gc.GateConsole(_gate(root)).demote(snap, CHANGE, reason="Already headed.", at=AT)
+    ex = gc.execute_demotion_plan(res.plan, root, at=AT)
+
+    moved = root / "ideation" / "staging" / TOPIC / "openspec" / "tasks.md"
+    # `tasks.md` carries no status FLIP, so its existing header stands as authored
     assert moved.read_bytes() == crlf
+    assert ex.status_headers_added == []
+
+
+def test_a_returned_front_matter_document_gets_its_header_inside_the_block(tmp_path):
+    """Where the header goes follows the corpus: the one real returned topic a
+    human already fixed by hand
+    (`ideation/staging/tier2-council-clearance-pattern/openspec/proposal.md`)
+    carries `Status:` INSIDE the `---` block. Above it, the front matter would no
+    longer start at position 0 and would stop being front matter."""
+    root = _tree(tmp_path)
+    snap = _snapshot(root)
+    (root / "openspec" / "changes" / CHANGE / "proposal.md").write_text(
+        "---\ncode_surface: none\ntarget_release: none\n---\n\n"
+        "# Proposal: x\n\n## Why\n\nbecause.\n", encoding="utf-8")
+
+    res = gc.GateConsole(_gate(root)).demote(snap, CHANGE, reason="Front matter.", at=AT)
+    gc.execute_demotion_plan(res.plan, root, at=AT)
+
+    moved = (root / "ideation" / "staging" / TOPIC / "openspec"
+             / "proposal.md").read_text(encoding="utf-8")
+    assert moved.startswith(
+        "---\ncode_surface: none\ntarget_release: none\nStatus: draft\n---\n")
+    assert moved.count("Status:") == 1
+
+
+def test_a_returned_document_with_no_leading_heading_still_gets_a_header(tmp_path):
+    root = _tree(tmp_path)
+    snap = _snapshot(root)
+    (root / "openspec" / "changes" / CHANGE / "tasks.md").write_text(
+        "- [ ] 1.1 no title line at all\n", encoding="utf-8")
+
+    res = gc.GateConsole(_gate(root)).demote(snap, CHANGE, reason="No heading.", at=AT)
+    gc.execute_demotion_plan(res.plan, root, at=AT)
+
+    moved = (root / "ideation" / "staging" / TOPIC / "openspec"
+             / "tasks.md").read_text(encoding="utf-8")
+    assert moved == "Status: draft\n\n- [ ] 1.1 no title line at all\n"
+
+
+def test_a_non_markdown_return_is_still_a_pure_byte_copy(tmp_path):
+    """The header obligation is about GOVERNED MARKDOWN. A `.openspec.yaml` is
+    not decoded at all, so an undecodable byte in one cannot fail a demotion and
+    cannot be mangled into U+FFFD either."""
+    root = _tree(tmp_path)
+    raw = b"schema: spec-driven\r\ncreated: 2026-07-02\r\n\xff\xfe not utf-8\r\n"
+    (root / "openspec" / "changes" / CHANGE / ".openspec.yaml").write_bytes(raw)
+    snap = _snapshot(root)   # written BEFORE the snapshot, so the move plans it
+
+    res = gc.GateConsole(_gate(root)).demote(snap, CHANGE, reason="Bytes.", at=AT)
+    ex = gc.execute_demotion_plan(res.plan, root, at=AT)
+
+    moved = root / "ideation" / "staging" / TOPIC / "openspec" / ".openspec.yaml"
+    assert moved.read_bytes() == raw
+    # the fixture's own header-less `tasks.md` IS headed on the same lap — the
+    # obligation applies to markdown and to nothing else
+    assert not any(p.endswith(".yaml") for p in ex.status_headers_added)
 
 
 def test_a_status_flipping_demote_move_preserves_crlf_line_endings(tmp_path):
@@ -926,33 +1011,32 @@ def test_an_unresolvable_origin_still_refuses_and_names_the_explicit_option():
 
 # ---- part 2: the demote's own INDEX does not block the next transition -------
 
-def _headered_proposal(root: Path, why: str) -> None:
-    """A change `proposal.md` carrying a lifecycle header, which is what a
-    proposal returning into a governed staging folder needs to be transitionable
-    again (45 of 94 proposals in the real corpus carry one)."""
-    proposal = root / "openspec" / "changes" / CHANGE / "proposal.md"
-    proposal.parent.mkdir(parents=True, exist_ok=True)
-    proposal.write_text(
-        f"---\ncode_surface: none\nStatus: draft\n---\n\n# Proposal: {CHANGE}\n\n"
-        f"## Why\n\n{why}\n", encoding="utf-8")
+def _headerless_change_artifacts(root: Path, why: str) -> None:
+    """The change folder in the shape OpenSpec really leaves it in.
 
-
-def _header_the_changes_tasks(root: Path) -> None:
-    """Give the change's own `tasks.md` a lifecycle header.
-
-    NOT a workaround for the artifact under test — an isolation of it. OpenSpec
-    change artifacts do not carry lifecycle headers by convention (measured on
-    this corpus: 93 of 94 `tasks.md`, 154 of 158 spec deltas, 65 of 68
-    `design.md`), and the demote MOVES them byte-exactly under the ratified
-    corpus-integrity guarantee that
-    `test_a_crlf_document_survives_a_demote_move_byte_exactly` pins. A header-less
-    RETURNED CHANGE ARTIFACT is therefore a separate blocker with a different
-    owner; this test is about the artifact the reverse transition WRITES itself.
+    Measured at 8426dbc by the forward gate's own reader (a `Status:` line
+    outside every fence): 93 of 94 `tasks.md`, 154 of 158 spec deltas, 65 of 68
+    `design.md` and 49 of 94 `proposal.md` carry NO lifecycle status header —
+    the convention simply does not put one there. So the driven test below runs
+    on that shape rather than on a tidied one: `proposal.md` (front matter, no
+    Status), `design.md`, `tasks.md` (the fixture's own, unheadered) and a spec
+    delta. Every one of them is governed markdown the demote writes into a
+    governed staging folder, and the forward transition refuses governed markdown
+    without a header.
     """
-    tasks = root / "openspec" / "changes" / CHANGE / "tasks.md"
-    tasks.write_text(
-        tasks.read_text(encoding="utf-8").replace(
-            f"# Tasks: {CHANGE}\n", f"# Tasks: {CHANGE}\n\nStatus: draft\n", 1),
+    folder = root / "openspec" / "changes" / CHANGE
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "proposal.md").write_text(
+        f"---\ncode_surface: none\ntarget_release: none\n---\n\n"
+        f"# Proposal: {CHANGE}\n\n## Why\n\n{why}\n", encoding="utf-8")
+    (folder / "design.md").write_text(
+        f"# Design: {CHANGE}\n\n## Decision 1\n\nbecause.\n", encoding="utf-8")
+    delta = folder / "specs" / "ideation-dashboard" / "spec.md"
+    delta.parent.mkdir(parents=True, exist_ok=True)
+    delta.write_text(
+        "# ideation-dashboard\n\n## ADDED Requirements\n\n"
+        "### Requirement: Something\nThe thing SHALL happen.\n\n"
+        "#### Scenario: It happens\n- **WHEN** asked\n- **THEN** it happens\n",
         encoding="utf-8")
 
 
@@ -972,32 +1056,53 @@ def test_the_demotes_own_index_carries_a_lifecycle_status(tmp_path):
 def test_a_returned_topic_transitions_forward_again_over_its_whole_folder(tmp_path):
     """DRIVEN, not asserted (task 2.2). The defect was found by running the real
     forward transition over a returned topic and watching it refuse
-    (`SupportError: governed Markdown lacks Status header`) on the demote's OWN
-    `openspec/INDEX.md` — the reverse transition leaving a landmine for the next
-    lap of the very cycle it is half of. So the fix is believed on the same
-    evidence: both gates driven, whole folder, no file naming, no operator
-    workaround."""
+    (`SupportError: governed Markdown lacks Status header`), so the fix is
+    believed on the same evidence: both gates driven, WHOLE FOLDER, no file
+    naming, no operator workaround, and the change folder in the header-less shape
+    OpenSpec really leaves it in.
+
+    The refusal has TWO sources and the requirement covers both — every artifact
+    the reverse transition writes into the topic, which is its own `INDEX.md` and
+    equally the `tasks.md`/`design.md`/spec deltas it moves there. Fixing only the
+    first just moves the refusal to the next file in sorted order, which is how
+    the second source stayed hidden: the gate refuses on the FIRST offender and
+    `INDEX.md` sorts before `tasks.md`."""
     root = _tree(tmp_path)
-    _header_the_changes_tasks(root)
     _reach_proposal(root, _fragment_reaching_proposal(ASPIRATIONAL_GUESS))
-    _headered_proposal(root, IN_FLIGHT_TRUTH)
+    _headerless_change_artifacts(root, IN_FLIGHT_TRUTH)
     res, ex = _demote_and_execute(root, reason="Reworking scope.")
 
-    # the returned topic really does hold the demote's own INDEX…
-    returned = sorted(
-        p.relative_to(root).as_posix()
-        for p in (root / "ideation" / "staging" / TOPIC).rglob("*") if p.is_file())
+    topic_dir = root / "ideation" / "staging" / TOPIC
+    returned = sorted(p.relative_to(root).as_posix()
+                      for p in topic_dir.rglob("*") if p.is_file())
+    # the returned topic holds the demote's own INDEX *and* the header-less
+    # change artifacts, all of which had to be made transitionable
     assert f"ideation/staging/{TOPIC}/openspec/INDEX.md" in returned
+    assert f"ideation/staging/{TOPIC}/openspec/tasks.md" in returned
+    assert (f"ideation/staging/{TOPIC}/openspec/specs/ideation-dashboard/spec.md"
+            in returned)
+    assert sorted(ex.status_headers_added) == [
+        f"ideation/staging/{TOPIC}/openspec/design.md",
+        f"ideation/staging/{TOPIC}/openspec/proposal.md",
+        f"ideation/staging/{TOPIC}/openspec/specs/ideation-dashboard/spec.md",
+        f"ideation/staging/{TOPIC}/openspec/tasks.md",
+    ]
+    # …and the human can read which files this verb edited, in the topic README
+    readme = (topic_dir / "README.md").read_text(encoding="utf-8")
+    assert "Status headers added" in readme
+    assert f"ideation/staging/{TOPIC}/openspec/tasks.md" in readme
 
-    # …and the REAL forward gate now takes the WHOLE FOLDER without refusing.
-    _headered_proposal(root, "A SECOND ATTEMPT'S REASONING.")
+    # THE PROPERTY: the REAL forward gate takes the WHOLE FOLDER without refusing.
+    _headerless_change_artifacts(root, "A SECOND ATTEMPT'S REASONING.")
     support.transition(root, CHANGE, f"ideation/staging/{TOPIC}", [], None,
                        "2026-08-01", False, True)
 
     sd = root / "openspec" / "changes" / CHANGE / "supporting-docs"
-    assert (sd / "openspec" / "INDEX.md").is_file(), \
-        "the whole-folder transition did not carry the demote's own INDEX forward"
-    assert not (root / "ideation" / "staging" / TOPIC).exists(), \
+    for rel in ("openspec/INDEX.md", "openspec/tasks.md", "openspec/design.md",
+                "openspec/specs/ideation-dashboard/spec.md"):
+        assert (sd / rel).is_file(), \
+            f"the whole-folder transition did not carry {rel} forward"
+    assert not topic_dir.exists(), \
         "the forward transition leaves the topic folder empty and removed"
 
 
@@ -1011,16 +1116,15 @@ def test_two_laps_leave_exactly_one_proposed_by_line_naming_the_latest(tmp_path)
     lines each claiming to name the proposing change say nothing about which one
     is current."""
     root = _tree(tmp_path)
-    _header_the_changes_tasks(root)
     _reach_proposal(root, _fragment_reaching_proposal(ASPIRATIONAL_GUESS))
-    _headered_proposal(root, IN_FLIGHT_TRUTH)
+    _headerless_change_artifacts(root, IN_FLIGHT_TRUTH)
     _demote_and_execute(root, reason="First attempt.")
 
     returned = _fragment(root).read_text(encoding="utf-8")
     # the demote returns the line untouched — that is the boundary, not the bug
     assert returned.count("Proposed by:") == 1
 
-    _headered_proposal(root, "A SECOND ATTEMPT'S REASONING.")
+    _headerless_change_artifacts(root, "A SECOND ATTEMPT'S REASONING.")
     support.transition(root, CHANGE, f"ideation/staging/{TOPIC}", [], None,
                        "2026-08-01", False, True)
 
@@ -1073,6 +1177,15 @@ def test_state_at_demote_with_no_progress_renders_the_status_alone():
     lie from the one the rule forbids."""
     for progress in (None, {}, {"completed": 0, "total": 0}, {"total": "many"}):
         assert gc.state_at_demote("active", progress) == "active"
+
+
+def test_state_at_demote_refuses_a_progress_record_that_does_not_add_up():
+    """Unreachable through the generator, which counts `completed` out of the same
+    sweep that produces `total`. Guarded anyway: the slot is prose a human reads as
+    fact, and `9 of 4 tasks done` is a fabricated one — the status alone is the
+    true statement about a record that does not add up."""
+    assert gc.state_at_demote("active", {"completed": 9, "total": 4}) == "active"
+    assert gc.state_at_demote("active", {"completed": -1, "total": 4}) == "active"
 
 
 def test_state_at_demote_with_no_status_stays_empty_for_the_unavailable_marker():

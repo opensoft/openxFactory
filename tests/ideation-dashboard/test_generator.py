@@ -494,6 +494,33 @@ def test_a_trailing_slash_on_the_declared_path_does_not_become_an_empty_topic(tm
     assert _origin_of(root) == "returned-topic"
 
 
+def test_a_nested_staging_source_resolves_to_the_topic_not_the_subfolder(tmp_path):
+    """`proposal-support.py transition` accepts ANY directory below
+    `ideation/staging/` as its source, so a real declared origin can read
+    `ideation/staging/<topic>/openspec`. A basename rule answers `openspec` — a
+    topic nobody named, and one the demote would then silently plan every
+    returning file into. The topic is the first segment after the staging root."""
+    root = _change_with_origin(tmp_path, (
+        "origin:\n  kind: staged\n"
+        "  id: fixture-repo:staging:returned-topic\n"
+        "  path: ideation/staging/returned-topic/openspec\n"))
+    assert _origin_of(root) == "returned-topic"
+
+
+def test_a_declared_path_outside_the_staging_root_resolves_nothing(tmp_path):
+    """A malformed declaration is a refusal case, not a parsing challenge: the
+    origin contract puts staged sources below `ideation/staging/`, and guessing a
+    topic out of a path that is not there would target a folder nobody chose."""
+    for bad in ("docs/somewhere-else", "ideation/brainstorm/a-note",
+                "ideation/staging", "returned-topic"):
+        root = _change_with_origin(
+            tmp_path / bad.replace("/", "_"),
+            f"origin:\n  kind: staged\n"
+            f"  id: fixture-repo:staging:returned-topic\n  path: {bad}\n",
+            staging_folder=False)
+        assert _origin_of(root) is None, bad
+
+
 def test_an_ad_hoc_origin_resolves_nothing(tmp_path):
     """A change that never came from staging has no topic to return to, and
     inventing one would move material somewhere nobody chose."""
@@ -502,6 +529,22 @@ def test_an_ad_hoc_origin_resolves_nothing(tmp_path):
         "  id: fixture-repo:adhoc:2026-08-19-add-x\n"
         "  reason: born from an annotation\n"
         "  approved_by: Brett\n  approved_on: 2026-08-19\n"), staging_folder=False)
+    assert _origin_of(root) is None
+
+
+def test_an_ad_hoc_origin_carrying_a_staged_looking_path_still_resolves_nothing(tmp_path):
+    """The KIND gate on its own, with the path guard unable to cover for it.
+    `origin_errors` does not forbid extra keys, so an ad-hoc declaration can carry
+    a `path` that looks exactly like a staged one — and the answer is still
+    nothing, because the kind is the statement about where the change came from.
+    Found by mutation: with only `test_an_ad_hoc_origin_resolves_nothing`, deleting
+    the kind check passed, since a real ad-hoc origin has no `path` to parse."""
+    root = _change_with_origin(tmp_path, (
+        "origin:\n  kind: ad_hoc\n"
+        "  id: fixture-repo:adhoc:2026-08-19-add-x\n"
+        "  path: ideation/staging/returned-topic\n"
+        "  reason: born from an annotation\n"
+        "  approved_by: Brett\n  approved_on: 2026-08-19\n"))
     assert _origin_of(root) is None
 
 
