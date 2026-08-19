@@ -265,11 +265,12 @@ remains is the contract and the surface.
       THREE FINDINGS CAME OUT OF DRIVING IT, all recorded in the realized change's
       §7.2: `plan_demotion` resolves the origin topic only from a possible's pick
       edge that the forward transition erases, so a genuinely-transitioned change
-      reports `origin_staging_id: None` and the demote needs `--staging-topic` (true
-      of all six active staged-origin changes on the real corpus, measured); a
-      demote leaves its own `openspec/INDEX.md`, which has no `Status:` header and
-      so refuses the next whole-folder forward transition; and `Proposed by:`
-      accumulates one line per lap. Also corrected in the test itself: a first draft
+      reports `origin_staging_id: None` and the demote needs `--staging-topic`
+      (measured TOTAL: 12 of 12 active changes on the real corpus, not just the 4
+      that declare `origin.kind: staged`); a demote leaves its own
+      `openspec/INDEX.md`, which has no `Status:` header and so refuses the next
+      whole-folder forward transition; and `Proposed by:` accumulates one line per
+      lap. Also corrected in the test itself: a first draft
       asserted the FIRST lap's proposal text also survived the second lap. The
       contract promises "the last attempted `proposal.md`", singular — the earlier
       text is superseded in the marked slot, not lost by the demote — so the

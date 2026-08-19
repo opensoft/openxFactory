@@ -576,7 +576,11 @@ Archived changes:
   matching read-side blindness, `plan_demotion` resolving the origin topic only
   from a pick edge the forward transition erases, and a demote's own
   `openspec/INDEX.md` blocking the next whole-folder transition — are recorded in
-  its `tasks.md` §7.2 rather than filed silently.
+  its `tasks.md` §7.2 rather than filed silently. The same section leaves two
+  rulings open for Brett: whether `Status at demote` should carry the change's
+  `task_progress` instead of a constant (design Decision 3), and whether the
+  shallowest-markdown arm of the primary-fragment selection rule needs the same
+  path-only treatment (design Decision 1).
 - [add-client-identity-roster](openspec/changes/archive/2026-08-15-add-client-identity-roster/proposal.md)
   Promoted the neutral `client-identity-roster` capability (13 requirements)
   from the Business Central admission investigation: the identity layer
