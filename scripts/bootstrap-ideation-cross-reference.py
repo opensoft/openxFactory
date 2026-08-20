@@ -63,6 +63,16 @@ except ImportError:  # pragma: no cover
     print("ERROR PyYAML is required", file=sys.stderr)
     sys.exit(2)
 
+# `doc_health` is a sibling package of this script (both live directly under
+# `scripts/`), so Python's own `sys.path[0]` insertion — the invoked script's
+# containing directory — already makes it importable with no extra path
+# manipulation, whether this runs as `python3 scripts/bootstrap-ideation-
+# cross-reference.py` from any cwd. Verified before relying on it (finding F5,
+# align-status-reader-to-real-lines): unlike a script that genuinely cannot
+# reach `doc_health` (which would keep a local copy joined to the shared rule
+# by an agreement test instead), this one converts.
+from doc_health.lines import split_keepends
+
 ROOT = Path(__file__).resolve().parents[1]
 RENDERER = ROOT / "scripts" / "render-ideation-cross-reference.py"
 GENERATOR_VERSION = "ideation-xref-bootstrap-0.1.0"
@@ -83,20 +93,30 @@ SLUG_RE = re.compile(r"[^a-z0-9]+")
 
 def parse_header(text: str) -> dict[str, str]:
     """Parse the contiguous header field block (H1 + blank skipped) up to the
-    first `## ` body section, joining continuation lines onto their field."""
+    first `## ` body section, joining continuation lines onto their field —
+    identical to `doc_health.ideation_readiness._parse_header`, and pinned to
+    agree with it (`tests/doc-health/test_ideation_readiness.py`).
+
+    Real lines (CR/LF/CRLF only — `doc_health.lines`), not `str.splitlines()`
+    pseudo-lines (finding F5, align-status-reader-to-real-lines): this was
+    the ONE-TIME bootstrap already run once (2026-07-14) to seed the corpus,
+    but a rule that disagrees with its own twin is still worth correcting —
+    if it is ever re-run, its clustering must not silently diverge from what
+    the readiness worker would derive from the same documents now.
+    """
     fields: dict[str, str] = {}
     current: str | None = None
-    for line in text.splitlines():
-        if line.startswith("## "):
+    for body, _ending in split_keepends(text):
+        if body.startswith("## "):
             break
-        if line.startswith("# ") or not line.strip():
+        if body.startswith("# ") or not body.strip():
             continue
-        m = FIELD_RE.match(line)
+        m = FIELD_RE.match(body)
         if m:
             current = m.group(1).strip()
             fields[current] = m.group(2).strip()
         elif current is not None:
-            fields[current] = (fields[current] + " " + line.strip()).strip()
+            fields[current] = (fields[current] + " " + body.strip()).strip()
     return fields
 
 
