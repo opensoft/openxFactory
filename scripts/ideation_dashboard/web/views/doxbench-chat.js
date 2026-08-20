@@ -879,6 +879,20 @@ export function mountDoxBenchChatRail(host, options = {}) {
       renderLoadedSelector();
       return;
     }
+    // NOT WHILE A TURN IS IN FLIGHT (adversarial review P2-9). The running turn
+    // was sent bound to the CURRENT document and its answer will be appended to
+    // whatever transcript is loaded when it settles — so moving the selection
+    // now leaks that document's question and answer into another document's
+    // transcript and onto the wire. The refusal is stated on the rail's own
+    // note rather than swallowed, and the selector is rendered back.
+    if (state.phase === "in_flight") {
+      loadedNote.textContent = "a turn is still running on the selected "
+        + "document — it finishes bound to that document, so the selection "
+        + "moves once it settles";
+      loadedNote.hidden = false;
+      renderLoadedSelector();
+      return;
+    }
     const select = options.selectBuffer;
     if (typeof select === "function") await select(wanted);
     await switchThread(wanted);

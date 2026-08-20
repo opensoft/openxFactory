@@ -77,6 +77,29 @@ def _fake_spawn(*scripted):
     return spawn
 
 
+LIVE_THREAD = "ideation/staging/t/a.md"
+
+
+def _turn_frames(seen):
+    """The frames the TURN itself sent. The bind that precedes every dispatch
+    issues its own `get_state`/`switch_session`, which is not the turn."""
+    return [frame for frame in seen
+            if frame.get("type") in ("set_model", "prompt")]
+
+
+def _dispatch(bridge, envelope=None, *, thread=LIVE_THREAD):
+    """Bind a conversation, then dispatch — the order the ROUTE uses.
+
+    Since the adversarial review's P2-11 a turn is always bound to the
+    conversation it belongs to (a document, or the tile's outline), and the
+    bridge REFUSES an unbound dispatch rather than running it in whichever
+    session the harness was last switched to. Every dispatch test therefore
+    binds first, exactly as the route does."""
+
+    bridge.select_thread(thread)
+    return bridge.dispatch(envelope if envelope is not None else _Envelope())
+
+
 def _bridge(tmp_path, *scripted, catalog=None, log=None, **kwargs):
     return br.OmpHarnessBridge(
         catalog if catalog is not None else _catalog(),
@@ -159,7 +182,7 @@ def test_a_child_start_always_materialises_the_overlay_it_names(tmp_path):
     not a skipped option. So the file has to exist whenever the argv names it."""
     bridge = _bridge(tmp_path)
     assert not bridge.launch.overlay_path.exists()
-    bridge.dispatch(_Envelope())
+    _dispatch(bridge)
     assert bridge.launch.overlay_path.is_file()
     bridge.stop()
 
@@ -192,8 +215,38 @@ def test_no_child_is_started_until_a_turn_needs_one(tmp_path):
     assert bridge.started is False
     bridge.catalog()
     assert bridge.started is False
-    bridge.dispatch(_Envelope())
+    _dispatch(bridge)
     assert bridge.started is True
+    bridge.stop()
+
+
+def test_an_UNBOUND_dispatch_is_refused_rather_than_run_somewhere_else(tmp_path):
+    """P2-11, structurally. An outline-bound turn used to reach `dispatch` with
+    no bind at all, so it was prompted into whichever DOCUMENT session the
+    harness was last switched to — and that document's session accumulated it.
+    The bridge now refuses, so a caller cannot reintroduce the leak by
+    forgetting."""
+    bridge = _bridge(tmp_path)
+    with pytest.raises(br.BridgeSessionConflict):
+        bridge.dispatch(_Envelope())
+    bridge.stop()
+
+
+def test_an_outline_turn_binds_its_TILES_own_conversation(tmp_path):
+    """An outline conversation is a real conversation; it just is not a
+    document's. Keyed by the tile, because two tiles' outlines are two
+    conversations and a bare `outline` would merge them."""
+    first = br.OmpHarnessBridge.outline_conversation_key("staged", "topic-a")
+    second = br.OmpHarnessBridge.outline_conversation_key("staged", "topic-b")
+    assert first != second
+    assert first.startswith(br.OUTLINE_CONVERSATION_PREFIX)
+    # …and it can never collide with a document path key
+    assert not first.startswith("ideation/")
+
+    session_a = str(tmp_path / "a.jsonl")
+    bridge = _bridge(tmp_path, "--session-file", session_a)
+    assert bridge.select_thread(first) == session_a
+    assert _dispatch(bridge, thread=first)["assistant_prose"]
     bridge.stop()
 
 
@@ -204,7 +257,7 @@ def test_no_child_is_started_until_a_turn_needs_one(tmp_path):
 
 def test_a_turn_sets_the_model_before_prompting_over_a_real_child(tmp_path):
     bridge = _bridge(tmp_path, "--reply", "the harness answered")
-    answer = bridge.dispatch(_Envelope(model_id="opus"))
+    answer = _dispatch(bridge, _Envelope(model_id="opus"))
     assert answer == {"assistant_prose": "the harness answered", "proposals": []}
     bridge.stop()
 
@@ -228,13 +281,13 @@ def test_the_model_the_harness_is_set_to_is_the_envelope_s_own(tmp_path):
 
     br.HarnessChild.request = _spy
     try:
-        bridge.dispatch(_Envelope(model_id="opus"))
+        _dispatch(bridge, _Envelope(model_id="opus"))
     finally:
         br.HarnessChild.request = original
         bridge.stop()
-    kinds = [frame["type"] for frame in seen]
+    kinds = [frame["type"] for frame in _turn_frames(seen)]
     assert kinds == ["set_model", "prompt"], kinds
-    assert seen[0]["modelId"] == "opus"
+    assert _turn_frames(seen)[0]["modelId"] == "opus"
 
 
 def test_a_harness_that_refuses_the_model_refuses_the_turn(tmp_path):
@@ -242,7 +295,7 @@ def test_a_harness_that_refuses_the_model_refuses_the_turn(tmp_path):
                      launch=br.LaunchConfig(session_dir=tmp_path / "s",
                                             provider_id="local-proxy"))
     with pytest.raises(br.BridgeProtocolError):
-        bridge.dispatch(_Envelope())
+        _dispatch(bridge)
     bridge.stop()
 
 
@@ -265,11 +318,11 @@ def test_the_harness_provider_id_comes_from_the_INSTALL_not_the_catalog(tmp_path
 
     br.HarnessChild.request = _spy
     try:
-        bridge.dispatch(_Envelope(model_id="opus"))
+        _dispatch(bridge, _Envelope(model_id="opus"))
     finally:
         br.HarnessChild.request = original
         bridge.stop()
-    assert seen[0]["provider"] == "local-proxy"
+    assert _turn_frames(seen)[0]["provider"] == "local-proxy"
     assert "on-tenant" not in json.dumps(seen)
 
 
@@ -287,11 +340,11 @@ def test_with_no_declared_provider_the_key_is_OMITTED_not_guessed(tmp_path):
 
     br.HarnessChild.request = _spy
     try:
-        bridge.dispatch(_Envelope(model_id="opus"))
+        _dispatch(bridge, _Envelope(model_id="opus"))
     finally:
         br.HarnessChild.request = original
         bridge.stop()
-    assert "provider" not in seen[0], seen[0]
+    assert "provider" not in _turn_frames(seen)[0], seen
 
 
 def test_a_governance_label_sent_as_a_provider_is_refused_by_the_harness(tmp_path):
@@ -301,7 +354,7 @@ def test_a_governance_label_sent_as_a_provider_is_refused_by_the_harness(tmp_pat
                      launch=br.LaunchConfig(session_dir=tmp_path / "s",
                                             provider_id="self_hosted"))
     with pytest.raises(br.BridgeProtocolError):
-        bridge.dispatch(_Envelope())
+        _dispatch(bridge)
     bridge.stop()
 
 
@@ -335,11 +388,11 @@ def test_a_routing_rule_entry_would_set_the_RESOLVED_model(tmp_path):
 
     br.HarnessChild.request = _spy
     try:
-        bridge.dispatch(_Envelope(model_id="auto"))
+        _dispatch(bridge, _Envelope(model_id="auto"))
     finally:
         br.HarnessChild.request = original
         bridge.stop()
-    assert seen[0]["modelId"] == "opus"
+    assert _turn_frames(seen)[0]["modelId"] == "opus"
 
 
 def test_every_entry_a_conformant_catalog_can_hold_is_truthfully_not_a_routing_rule():
@@ -360,7 +413,7 @@ def test_a_child_that_dies_mid_turn_surfaces_as_unavailable_not_a_hang(tmp_path)
     # dies while handling the FIRST command, which is `set_model`
     bridge = _bridge(tmp_path, "--die-after", "1")
     with pytest.raises(br.BridgeUnavailable):
-        bridge.dispatch(_Envelope())
+        _dispatch(bridge)
     bridge.stop()
 
 
@@ -375,7 +428,7 @@ def test_an_unstartable_bridge_refuses_inside_a_bounded_retry(tmp_path):
         _catalog(), session_root=tmp_path / "bridge", spawn=_never,
         log=lambda line: None, environment={}, max_restarts=2)
     with pytest.raises(br.BridgeUnavailable):
-        bridge.dispatch(_Envelope())
+        _dispatch(bridge)
     # bounded: the retry stops, it does not spin
     assert len(attempts) == 3, attempts
 
@@ -389,7 +442,7 @@ def test_a_child_that_STARTS_AND_DIES_flips_the_catalog_too(tmp_path):
                      catalog=_catalog(_entry("opus"), _entry("kimi")))
     assert [e.available for e in bridge.catalog().entries] == [True, True]
     with pytest.raises(br.BridgeUnavailable):
-        bridge.dispatch(_Envelope())
+        _dispatch(bridge)
     assert bridge.available is False
     assert [e.available for e in bridge.catalog().entries] == [False, False]
     assert bridge.catalog().selectable_entry_for("opus") is None
@@ -410,7 +463,7 @@ def test_an_unavailable_bridge_reports_every_catalog_entry_unavailable(tmp_path)
         spawn=_never, log=lambda line: None, environment={})
     assert [e.available for e in bridge.catalog().entries] == [True, True]
     with pytest.raises(br.BridgeUnavailable):
-        bridge.dispatch(_Envelope())
+        _dispatch(bridge)
     assert [e.available for e in bridge.catalog().entries] == [False, False]
     assert bridge.catalog().selectable_entry_for("opus") is None
 
@@ -419,7 +472,7 @@ def test_child_stderr_reaches_the_serve_log_and_never_the_answer(tmp_path):
     logged = []
     bridge = _bridge(tmp_path, "--stderr", "SECRET-DIAGNOSTIC-TEXT",
                      log=logged.append)
-    answer = bridge.dispatch(_Envelope())
+    answer = _dispatch(bridge)
     bridge.stop()
     assert "SECRET-DIAGNOSTIC-TEXT" not in json.dumps(answer)
     assert any("SECRET-DIAGNOSTIC-TEXT" in line for line in logged), logged
@@ -427,7 +480,7 @@ def test_child_stderr_reaches_the_serve_log_and_never_the_answer(tmp_path):
 
 def test_a_non_json_banner_on_stdout_is_ignored_rather_than_fatal(tmp_path):
     bridge = _bridge(tmp_path, "--banner", "omp v17.3.7 ready")
-    assert bridge.dispatch(_Envelope())["assistant_prose"]
+    assert _dispatch(bridge)["assistant_prose"]
     bridge.stop()
 
 
@@ -438,7 +491,7 @@ def test_the_unsolicited_startup_frames_a_real_harness_sends_are_ignored(
     cannot ignore them cannot talk to omp at all — and the fixture now sends
     them, so this is exercised rather than assumed."""
     bridge = _bridge(tmp_path)
-    assert bridge.dispatch(_Envelope())["assistant_prose"]
+    assert _dispatch(bridge)["assistant_prose"]
     bridge.stop()
 
 
@@ -771,7 +824,7 @@ def test_a_real_agent_turn_returns_the_MODELS_OWN_TEXT_not_an_empty_answer(
     rather than returning at the response."""
     bridge = _bridge(tmp_path, "--reply", "THE MODEL ANSWERED",
                      "--delta-chunks", "4")
-    answer = bridge.dispatch(_Envelope())
+    answer = _dispatch(bridge)
     bridge.stop()
     assert answer == {"assistant_prose": "THE MODEL ANSWERED", "proposals": []}
 
@@ -780,7 +833,7 @@ def test_a_streamed_answer_is_not_doubled_by_its_own_text_end(tmp_path):
     """`text_end` repeats the whole run it closes, so only the deltas
     accumulate — and the terminal message list is preferred over both."""
     bridge = _bridge(tmp_path, "--reply", "ABCDEF", "--delta-chunks", "3")
-    assert bridge.dispatch(_Envelope())["assistant_prose"] == "ABCDEF"
+    assert _dispatch(bridge)["assistant_prose"] == "ABCDEF"
     bridge.stop()
 
 

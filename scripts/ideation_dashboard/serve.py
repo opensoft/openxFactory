@@ -1414,22 +1414,52 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         rather than inventing an empty one.
 
         `source_root` IS the worktree for a session entry (the turn route
-        already reads the session's own text through it); the entry is
-        recognised as a session by either marker the registry sets, because
-        `session_tile` is None on a bootstrap-reconstructed entry and
-        `session_base` is None on one whose base could not be re-derived — and
-        treating "neither" as "not a session" is the fail-closed reading."""
+        already reads the session's own text through it).
+
+        SESSION-NESS COMES FROM THE LIVENESS AUTHORITY, not from the registry's
+        advisory markers — corrected 2026-08-19 after the adversarial review's
+        P2-10. This used to gate on `session_tile or session_base`, and
+        `snapshot_registry` documents BOTH as advisory: `session_tile` is "None
+        on a bootstrap-reconstructed entry", and `session_base` "degrades to the
+        original name-equality binding — advisory ... **and never the reason a
+        session fails**". This made them exactly that, and the consequences were
+        silent: a bootstrap-reconstructed entry with neither marker got `{}`
+        threads, no mirrored record, and a 403 from the thread route, with
+        nothing on the wire saying so.
+
+        `branch_session.live_session_branches` is what the Save path itself
+        trusts and what the turn route ALREADY calls one step earlier through
+        `doxbench_scope.session_created_paths_for_scope`. Asking it means a
+        session this console can WRITE to is a session this console will RECORD
+        into, which is the property that actually matters."""
         try:
             entry = self.source.registry.resolve(key.repository, key.ref)
         except Exception:  # noqa: BLE001 - an unresolvable scope has no threads
             return None
         if entry is None or entry.source_root is None:
             return None
-        if not (getattr(entry, "session_tile", None)
-                or getattr(entry, "session_base", None)):
+        if not self._is_live_session_ref(key, entry):
             return None
         root = Path(entry.source_root)
         return root if root.is_dir() else None
+
+    def _is_live_session_ref(self, key, entry) -> bool:
+        """Whether `key.ref` is one of this tile's LIVE session branches."""
+        from ideation_dashboard import branch_session
+        kinds = {"cluster": branch_session.CLUSTER,
+                 "possible": branch_session.POSSIBLE,
+                 "staged": branch_session.STAGED_TOPIC}
+        scope_kind = kinds.get(key.tile_kind)
+        if scope_kind is None or not key.ref:
+            return False
+        try:
+            live = branch_session.live_session_branches(
+                self.source.registry, entry.repository or key.repository,
+                branch_session.Tile(scope_kind, key.tile_id))
+        except Exception:  # noqa: BLE001 - an ambiguous family is not a session
+            return False
+        return registry_mod.normalize_ref(key.ref) in {
+            registry_mod.normalize_ref(branch) for branch in live}
 
     def _read_thread(self, worktree, document: str):
         """One document's thread, or None where no sidecar exists or it cannot
@@ -2648,10 +2678,24 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # dispatching anyway would ground the answer in another document's
         # conversation, so the turn refuses with the route's existing fixed,
         # redacted `model_failed` and nothing is dispatched.
-        if prompt_envelope is not None and bound_buffer_key in document_keys \
+        if prompt_envelope is not None \
                 and callable(getattr(port, "select_thread", None)):
+            # EVERY turn binds, including an outline-bound one (adversarial
+            # review P2-11). The bind used to be gated on
+            # `bound_buffer_key in document_keys`, so an outline turn was
+            # dispatched into whichever DOCUMENT session the harness was last
+            # switched to and contaminated that document's harness context. An
+            # outline conversation is a real conversation; it just is not a
+            # document's, so it binds under its own tile-scoped key.
+            conversation_key = (
+                bound_buffer_key if bound_buffer_key in document_keys
+                else port.outline_conversation_key(key.tile_kind, key.tile_id)
+                if callable(getattr(port, "outline_conversation_key", None))
+                else None)
             try:
-                port.select_thread(bound_buffer_key)
+                if conversation_key is None:
+                    raise RuntimeError("this adapter declares no outline key")
+                port.select_thread(conversation_key)
             except Exception:  # noqa: BLE001 - never let an adapter's text reach the wire
                 sys.stderr.write(
                     "[workbench/chat-turn] the harness bridge could not bind "

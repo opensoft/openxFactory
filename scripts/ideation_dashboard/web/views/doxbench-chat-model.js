@@ -333,6 +333,22 @@ export function transcriptWindow(stateValue) {
 // looking at is exactly the stale Apply control the currency rules exist to
 // prevent.
 export function adoptThreadTranscript(stateValue, turnsValue) {
+  // A TURN IN FLIGHT BELONGS TO THE DOCUMENT IT WAS SENT FOR (adversarial
+  // review P2-9). Switching while `phase === "in_flight"` used to swap the
+  // transcript under the running turn, and `settleTurnSuccess` then appended
+  // document A's question and answer onto document B's transcript — which is
+  // also B's WIRE transcript, so A's conversation became B's context on B's
+  // next turn, and A's proposal was restored under B with a live Apply
+  // control. Reproduced from the UI with no server race.
+  //
+  // REFUSED, by returning the identical state object — the same "no" every
+  // other refusal in this module gives (`beginTurn` on a second begin,
+  // `rekeyChatState` on an unchanged key). The rail's caller renders the
+  // selector back to the buffer the conversation is still bound to, so the
+  // selection and the transcript cannot disagree.
+  if (stateValue.phase === "in_flight") {
+    return stateValue;
+  }
   const rows = Array.isArray(turnsValue) ? turnsValue : [];
   let transcript = Object.freeze(rows.flatMap((turn) => {
     if (!turn || typeof turn !== "object") return [];

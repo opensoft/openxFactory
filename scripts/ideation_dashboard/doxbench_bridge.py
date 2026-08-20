@@ -292,6 +292,11 @@ SHAKE_MODE_ELIDE = "elide"
 SHAKE_MODE_IMAGES = "images"
 SHAKE_MODES: tuple[str, ...] = (SHAKE_MODE_ELIDE, SHAKE_MODE_IMAGES)
 
+# The conversation-key prefix an OUTLINE-bound turn binds under. A `/` is legal
+# in a document path but the prefix is not, so an outline key can never collide
+# with a document's own path key.
+OUTLINE_CONVERSATION_PREFIX = "outline::"
+
 # WHERE THE ASSISTANT'S TEXT ACTUALLY ARRIVES — CORRECTED 2026-08-19 after the
 # adversarial review's P1-3, against the ORIGINAL verification session's raw
 # captured stdout (`rpc-stdout-{5,6,7}.log`) and a live re-run.
@@ -951,6 +956,16 @@ class OmpHarnessBridge:
         proposals would be doing response validation behind the seam."""
 
         with self._lock, self._marking_unavailable_on_death():
+            # A TURN IS ALWAYS BOUND TO A CONVERSATION (P2-11), enforced here so
+            # a caller cannot reintroduce the leak by forgetting to bind: an
+            # unbound dispatch would run in whatever session the harness was
+            # last switched to, which is another conversation's.
+            if self._selected is None:
+                raise BridgeSessionConflict(
+                    "no conversation is bound: a turn is dispatched into the "
+                    "session of the document (or the tile outline) it belongs "
+                    "to, and an unbound turn would land in whichever "
+                    "conversation the harness was last switched to")
             child = self._ensure_child()
             deadline = self._clock() + self._timeout_seconds
             model_id = getattr(prompt_envelope, "model_id", None)
@@ -969,8 +984,31 @@ class OmpHarnessBridge:
 
     # -- adapter surface (NOT port members) --------------------------------
 
+    @staticmethod
+    def outline_conversation_key(tile_kind: str, tile_id: str) -> str:
+        """The conversation key an OUTLINE-bound turn binds to.
+
+        A turn bound to the tile's outline is not a document's conversation, but
+        it is still A conversation, and it must not land in a DOCUMENT's harness
+        session — which is what happened before the adversarial review's P2-11:
+        the route only bound document turns, so an outline turn was prompted
+        into whichever document the harness was last switched to, and that
+        document's session `.jsonl` accumulated it. The document's next turn
+        then carried the outline conversation in the harness's own context.
+
+        Keyed by the TILE, not by the string `outline`, because two tiles' outlines
+        are two conversations and a bare `outline` would merge them."""
+
+        return f"{OUTLINE_CONVERSATION_PREFIX}{tile_kind}/{tile_id}"
+
     def select_thread(self, thread_key: str) -> str | None:
-        """Bind the harness to ONE document thread's session (task 11.4).
+        """Bind the harness to ONE conversation's session (task 11.4).
+
+        "Conversation" rather than "document thread" is the honest word since
+        P2-11: every turn binds, and an outline-bound turn binds to its tile's
+        own outline key (`outline_conversation_key`) rather than to a document.
+        The rule the task states is unchanged and now actually total — one
+        session per conversation, and one session never serves two.
 
         Rules, all from design §5.2:
 

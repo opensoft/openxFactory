@@ -29,7 +29,7 @@ _HARNESS = """
 import {
   MAX_TRANSCRIPT_TURNS, createChatState, adoptCatalog, settleTurnSuccess,
   beginTurn, editComposer, selectModel, transcriptWindow, proposalsOf,
-  adoptThreadTranscript,
+  adoptThreadTranscript, transcriptWireWindow,
 } from "./doxbench-chat-model.mjs";
 
 const out = {};
@@ -100,6 +100,40 @@ out.long = { turns: transcriptWindow(long).length,
 out.junk = [null, undefined, "nope", [null, 3]].map(
   (value) => transcriptWindow(adoptThreadTranscript(a, value)).length);
 
+// ===================================================================
+// P2-9: A TURN IN FLIGHT BELONGS TO THE DOCUMENT IT WAS SENT FOR.
+// The reviewer's own reproduction, run against the shipped module.
+// ===================================================================
+let inflight = adoptCatalog(createChatState(KEY), ENVELOPE);
+inflight = selectModel(inflight, "model-a");
+inflight = adoptThreadTranscript(inflight, [
+  { turn_id: "b1", model: "model-a", bound_buffer_key: "b.md",
+    human: "what about B?", assistant: "B's own answer" }]);
+inflight = editComposer(inflight, "QUESTION-ABOUT-DOCUMENT-A");
+inflight = beginTurn(inflight);
+const attempted = adoptThreadTranscript(inflight, [
+  { turn_id: "z1", model: "model-a", bound_buffer_key: "z.md",
+    human: "a different document", assistant: "a different answer" }]);
+out.inflight = {
+  refusedIdentically: attempted === inflight,
+  phase: attempted.phase,
+  transcript: transcriptWindow(attempted).map((t) => t.content),
+};
+// …and when the turn SETTLES, its answer lands on its OWN document.
+const settled = settleTurnSuccess(attempted, success("SECRET-ABOUT-DOCUMENT-A"));
+out.settled = {
+  transcript: transcriptWindow(settled).map((t) => t.content),
+  wire: transcriptWireWindow(settled).map((t) => t.content),
+};
+// once idle, the switch is allowed again
+const afterSettle = adoptThreadTranscript(settled, [
+  { turn_id: "z1", model: "model-a", bound_buffer_key: "z.md",
+    human: "a different document", assistant: "a different answer" }]);
+out.afterSettle = {
+  transcript: transcriptWindow(afterSettle).map((t) => t.content),
+  proposals: Object.keys(proposalsOf(afterSettle)).length,
+};
+
 console.log(JSON.stringify(out));
 """
 
@@ -164,6 +198,47 @@ def test_a_thread_longer_than_the_display_bound_is_evicted_oldest_first(
 
 def test_an_odd_answer_never_invents_a_conversation(switch_results):
     assert switch_results["junk"] == [0, 0, 0, 0]
+
+
+def test_a_switch_while_a_turn_is_in_flight_is_REFUSED(switch_results):
+    """P2-9. The reviewer drove exactly this against the shipped module and
+    watched document A's question and answer land on document B's transcript
+    AND on B's wire transcript, with A's proposal restored under B."""
+    inflight = switch_results["inflight"]
+    assert inflight["refusedIdentically"] is True, (
+        "the refusal must return the IDENTICAL state object, like every other "
+        "refusal in this module")
+    assert inflight["phase"] == "in_flight"
+    assert inflight["transcript"] == ["what about B?", "B's own answer"]
+
+
+def test_the_in_flight_turn_settles_onto_its_OWN_document(switch_results):
+    settled = switch_results["settled"]
+    assert settled["transcript"] == [
+        "what about B?", "B's own answer",
+        "QUESTION-ABOUT-DOCUMENT-A", "SECRET-ABOUT-DOCUMENT-A"]
+    # …and the WIRE carries the same, which is the half that misgrounds the
+    # NEXT turn when it is wrong.
+    assert settled["wire"] == settled["transcript"]
+
+
+def test_once_the_turn_settles_the_switch_is_allowed_again(switch_results):
+    """The refusal is scoped to the flight, not a lock: an idle rail switches."""
+    after = switch_results["afterSettle"]
+    assert after["transcript"] == ["a different document", "a different answer"]
+    assert after["proposals"] == 0
+
+
+def test_the_rail_refuses_the_switch_at_the_HANDLER_too():
+    """Defence in depth, and the visible half: the model refuses by returning
+    the same state, and the handler says so on the rail's own note rather than
+    moving the selection and swallowing it."""
+    view = CHAT_VIEW_JS.read_text(encoding="utf-8")
+    handler = view.split("loadedSelect.addEventListener", 1)[1].split("});", 1)[0]
+    assert 'state.phase === "in_flight"' in handler
+    assert handler.index('state.phase === "in_flight"') < handler.index(
+        "await select(wanted)"), (
+        "the in-flight refusal must come BEFORE the selection moves")
 
 
 # ---------------------------------------------------------------------------

@@ -486,6 +486,61 @@ def test_the_route_binds_the_selected_document_s_thread_before_dispatching(
     assert port.calls.index("select_thread") < port.calls.index("dispatch")
 
 
+def test_an_OUTLINE_turn_binds_its_tiles_own_conversation_not_a_document(
+        tmp_path):
+    """P2-11. The bind used to be gated on `bound_buffer_key in document_keys`,
+    so an outline turn never bound at all and was dispatched into whichever
+    DOCUMENT session the harness was last switched to — contaminating that
+    document's harness context, which is the second store design §5.2 keeps
+    apart. Every turn binds now, and an outline turn binds under its tile."""
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+
+    class _BindingPort:
+        timeout_seconds = 30.0
+
+        def __init__(self):
+            self.calls = []
+            self.dispatched = []
+            self.bound = []
+
+        def catalog(self):
+            return _catalog()
+
+        @staticmethod
+        def outline_conversation_key(tile_kind, tile_id):
+            from ideation_dashboard import doxbench_bridge as br
+            return br.OmpHarnessBridge.outline_conversation_key(
+                tile_kind, tile_id)
+
+        def select_thread(self, key):
+            self.bound.append(key)
+
+        def dispatch(self, prompt_envelope):
+            self.calls.append("dispatch")
+            self.dispatched.append(prompt_envelope)
+            return {"assistant_prose": "outline answer", "proposals": []}
+
+    port = _BindingPort()
+    # A document turn first, so the harness is left bound to a DOCUMENT — the
+    # precondition that made the leak reachable.
+    with _thread_serving(tmp_path, worktree=worktree,
+                         port=port) as (_httpd, host, prt, _p):
+        assert _post(host, prt, _turn_bound_to(DOC_ALPHA))[0] == 200
+        assert _post(host, prt, dict(_turn_v2(bound_buffer="outline"),
+                                     client_turn_id="turn-outline"))[0] == 200
+    assert port.bound[0] == DOC_ALPHA
+    assert port.bound[1] == "outline::staged/ideation-governance"
+    assert port.bound[1] != DOC_ALPHA
+    # …and the OUTLINE turn wrote no sidecar of its own: a thread belongs to a
+    # DOCUMENT (judgement call 15 — true of the sidecar, and now true of the
+    # harness session too). The only sidecar is the document turn's.
+    written = sorted(str(path.relative_to(worktree))
+                     for path in (worktree / dt.THREAD_PREFIX).rglob("*")
+                     if path.is_file())
+    assert written == [dt.thread_path_for(DOC_ALPHA)], written
+
+
 def test_a_bridge_that_cannot_bind_the_thread_refuses_rather_than_grounding_it_elsewhere(
         tmp_path):
     worktree = tmp_path / "worktree"
@@ -922,6 +977,110 @@ def test_a_Save_with_no_thread_written_commits_exactly_what_it_always_did(
     landed = _commit_paths(worktree, first["commit"])
     assert document in landed
     assert not any(path.startswith(dt.THREAD_PREFIX) for path in landed), landed
+
+
+# ===========================================================================
+# THE REAL `_session_worktree_for` (P2-10) — the one method no test executed
+# ===========================================================================
+
+
+class _RegistryOnly(serve_mod.DashboardHandler):
+    """A handler that is NOTHING but its registry.
+
+    Subclassed rather than duck-typed so the method under test is the REAL one
+    with its REAL collaborators — `__init__` is bypassed because a
+    `BaseHTTPRequestHandler` constructor serves a request, and this test is
+    about one method's own logic."""
+
+    def __init__(self, registry):          # noqa: D107 - deliberately no super()
+        self.source = type("S", (), {"registry": registry})()
+
+
+def _real_worktree_for(registry, key):
+    return _RegistryOnly(registry)._session_worktree_for(key)
+
+
+def _open_a_real_session(repo):
+    from ideation_dashboard import branch_session as bs
+    from ideation_dashboard import gate_routes as gr
+    from ideation_dashboard import session_git as sg
+    from ideation_dashboard import snapshot_registry as reg
+    from ideation_dashboard.generator import generate_snapshot
+    from session_fixtures import GATE_RECORDS_PREFIX
+
+    snapshot_path = repo.root.parent / "main-snapshot.json"
+    snapshot_path.write_text(
+        json.dumps(generate_snapshot(repo.root, repo.repository)),
+        encoding="utf-8")
+    registry = reg.SnapshotRegistry()
+    registry.register(reg.entry_from_snapshot_file(
+        snapshot_path, repository=repo.repository, ref=reg.DEFAULT_REF,
+        source_root=repo.root), active=True)
+    outcome = gr.execute_first_edit(
+        git=sg.SessionGit(repo.root), session_registry=registry,
+        repository=repo.repository, tile=bs.Tile(bs.STAGED_TOPIC, repo.topic_id),
+        document=f"ideation/staging/{repo.topic_id}/detail.md",
+        content="# Detail\n\nfirst\n", actor="brett",
+        checkout_root=repo.root, records_dir=GATE_RECORDS_PREFIX,
+        at="2026-08-19T09:00:00Z")
+    return registry, outcome["ref"]
+
+
+def test_the_REAL_session_worktree_method_finds_a_live_session(scratch_repo):
+    """P2-10. Every route test overrides this method, so nothing executed its
+    body — and its body gated on two fields `snapshot_registry` documents as
+    ADVISORY and "never the reason a session fails". It now asks the liveness
+    authority the Save path itself trusts, and this drives the real thing
+    against a real git session."""
+    from ideation_dashboard.doxbench_scope import ScopeKey
+
+    registry, ref = _open_a_real_session(scratch_repo)
+    key = ScopeKey(repository=scratch_repo.repository, ref=ref,
+                   tile_kind="staged", tile_id=scratch_repo.topic_id)
+    worktree = _real_worktree_for(registry, key)
+    assert worktree is not None, "a live session must have a thread worktree"
+    assert Path(worktree).is_dir()
+    assert Path(worktree) == Path(
+        registry.resolve(scratch_repo.repository, ref).source_root)
+
+
+def test_the_ADVISORY_markers_are_no_longer_the_predicate(scratch_repo):
+    """The regression this fix exists for: a bootstrap-reconstructed entry
+    carries neither `session_tile` nor `session_base`, and the old predicate
+    silently lost every record on it. Liveness is unchanged by clearing them."""
+    from ideation_dashboard.doxbench_scope import ScopeKey
+
+    registry, ref = _open_a_real_session(scratch_repo)
+    entry = registry.resolve(scratch_repo.repository, ref)
+    entry.session_tile = None
+    entry.session_base = None
+    entry.session_base_aliases = ()
+    key = ScopeKey(repository=scratch_repo.repository, ref=ref,
+                   tile_kind="staged", tile_id=scratch_repo.topic_id)
+    assert _real_worktree_for(registry, key) is not None, (
+        "a bootstrap-reconstructed session still holds threads")
+
+
+def test_a_ref_that_is_not_a_live_session_branch_has_no_worktree(scratch_repo):
+    """The fail-closed half still holds: `main` is not a session."""
+    from ideation_dashboard.doxbench_scope import ScopeKey
+    from ideation_dashboard import snapshot_registry as reg
+
+    registry, _ref = _open_a_real_session(scratch_repo)
+    key = ScopeKey(repository=scratch_repo.repository, ref=reg.DEFAULT_REF,
+                   tile_kind="staged", tile_id=scratch_repo.topic_id)
+    assert _real_worktree_for(registry, key) is None
+
+
+def test_another_tiles_session_is_not_this_tiles_worktree(scratch_repo):
+    """Liveness is asked over THIS tile's branch family, so one tile's session
+    never answers another tile's thread question."""
+    from ideation_dashboard.doxbench_scope import ScopeKey
+
+    registry, ref = _open_a_real_session(scratch_repo)
+    key = ScopeKey(repository=scratch_repo.repository, ref=ref,
+                   tile_kind="staged", tile_id="some-other-topic")
+    assert _real_worktree_for(registry, key) is None
 
 
 def test_the_thread_prefix_is_declared_on_exactly_one_gate():

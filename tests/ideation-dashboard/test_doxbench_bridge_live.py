@@ -175,6 +175,9 @@ def test_a_real_turn_returns_the_models_own_text(live_bridge):
     """P1-1 + P1-3 + P1-4 + P1-5, all four at once. Before this fix round the
     launch line was rejected outright; worked around, `dispatch` returned
     `{'assistant_prose': ''}` at 1.97 s while the answer arrived ~20 s later."""
+    # Bind first, exactly as the route does — a turn always belongs to a
+    # conversation (P2-11).
+    live_bridge.select_thread("ideation/staging/live/a.md")
     started = time.monotonic()
     answer = live_bridge.dispatch(_Envelope())
     elapsed = time.monotonic() - started
