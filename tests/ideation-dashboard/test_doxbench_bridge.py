@@ -123,6 +123,34 @@ def test_the_port_still_declares_exactly_three_members(tmp_path):
         "timeout_seconds", "catalog", "dispatch"}
 
 
+def test_the_de_facto_adapter_surface_is_declared_even_though_the_ban_is_not(
+        tmp_path):
+    """P3-21, recorded as a test rather than left as a comment.
+
+    The PORT is three members and `FORBIDDEN_PORT_MEMBERS` polices exactly
+    those. But the ROUTE reaches four more names on the adapter duck-typed —
+    `select_thread`, `outline_conversation_key`, `mirror`, `dereference` — and
+    the ban list cannot see that widening, because a duck-typed call is not a
+    protocol member. That is not a D14 violation: none of them is a second
+    spelling of the provider verb, and each is a capability D14 explicitly puts
+    INSIDE the adapter. What it is is a contract nothing else states, so it is
+    stated here: this is the set the route may reach, and a fifth name arriving
+    without this list moving is the thing to argue about."""
+
+    reached = {"select_thread", "outline_conversation_key", "mirror",
+               "dereference"}
+    bridge = _bridge(tmp_path)
+    for name in reached:
+        assert callable(getattr(bridge, name, None)), name
+    serve_source = (REPO_ROOT / "scripts" / "ideation_dashboard"
+                    / "serve.py").read_text(encoding="utf-8")
+    duck_typed = {name for name in
+                  ("select_thread", "outline_conversation_key", "mirror",
+                   "dereference", "shake", "run_command", "catalog", "dispatch")
+                  if f'getattr(port, "{name}"' in serve_source}
+    assert duck_typed <= reached | {"catalog", "dispatch"}, sorted(duck_typed)
+
+
 def test_the_bridge_satisfies_the_port_without_growing_a_provider_verb(tmp_path):
     from test_doxbench_model import FORBIDDEN_PORT_MEMBERS
 

@@ -655,6 +655,26 @@ def test_the_thread_route_is_absent_on_the_hosted_plane(tmp_path):
     assert dt.HOSTED_PLANE_CAUSE in payload["cause"]
 
 
+def test_a_scope_with_no_live_session_gets_its_OWN_cause(tmp_path):
+    """P3-19. This branch used to answer the no-gate-capability cause — a true
+    sentence about a DIFFERENT situation, since the plane has the capability
+    here and the scope simply has no open session. The cause stays generic, so
+    the route is still no oracle for which refs or tiles exist."""
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+    with _thread_serving(tmp_path, worktree=worktree) as (httpd, host, prt, _p):
+        _handler_class(httpd)._session_worktree_for = (   # noqa: SLF001
+            lambda self, key: None)
+        status, payload = _get(host, prt, _thread_query(DOC_ALPHA))
+    assert status == 403
+    assert payload["error"] == serve_mod.DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE
+    assert payload["cause"] == serve_mod.NO_LIVE_SESSION_CAUSE
+    assert payload["cause"] != dt.NO_GATE_CAPABILITY_CAUSE
+    # no oracle: neither the ref nor the tile id is echoed
+    assert "ideation-governance" not in json.dumps(payload)
+    assert DOC_ALPHA not in json.dumps(payload)
+
+
 def test_the_thread_route_refuses_a_non_console_caller(tmp_path):
     worktree = tmp_path / "worktree"
     worktree.mkdir()

@@ -340,6 +340,15 @@ _DOXBENCH_MSG_CONTEXT_PACKET_INVALID = (
 _DOXBENCH_MSG_CONTEXT_PACKET_BOUND_EXCEEDED = (
     "this session's own thread material exceeds the bounded context a turn may "
     "carry; compacting the thread brings it back inside the bound")
+# The THIRD declared cause for an absent thread, beside `doxbench_threads`'
+# hosted-plane and no-gate-capability pair. It belongs here rather than there
+# because it is a fact about THIS serve's session registry, not about the
+# thread format — and it is deliberately generic: a cause naming the ref or the
+# tile would make this route an oracle for which of them exist.
+NO_LIVE_SESSION_CAUSE = (
+    "no branch session is open for this scope, so there is no session worktree "
+    "for a thread to live in")
+
 _DOXBENCH_MSG_THREAD_CAPABILITY_UNAVAILABLE = (
     "threads exist only where branch sessions exist")
 
@@ -1654,11 +1663,16 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             tile_kind=fields["tile_kind"], tile_id=fields["tile_id"])
         worktree = self._session_worktree_for(key)
         if worktree is None:
-            # No live session on this scope: an ABSENCE with the same declared
-            # reason, never an oracle about which refs or tiles exist.
+            # No live session on this scope. A DISTINCT cause (adversarial
+            # review P3-19): this used to answer the no-gate-capability cause,
+            # which is a true sentence about a different situation — the plane
+            # HAS the capability here, this scope simply has no open session.
+            # The non-oracle reasoning is unchanged and is what keeps the cause
+            # generic: it says "no session is open for this scope" and never
+            # which refs or tiles exist.
             self._send_json(
                 doxbench_error_status(DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE),
-                _thread_absence_body(doxbench_threads.NO_GATE_CAPABILITY_CAUSE))
+                _thread_absence_body(NO_LIVE_SESSION_CAUSE))
             return
         thread = self._read_thread(worktree, fields["document"])
         body = {

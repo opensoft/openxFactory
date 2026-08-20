@@ -488,6 +488,18 @@ PER_SOURCE_SCAFFOLD_BYTES = _widest_per_source_bytes()
 # honest way to honour a number somebody else measured.
 REF_RENDERINGS = 3
 
+# WHAT THIS COSTS, RECORDED RATHER THAN HIDDEN (adversarial review P3-15). The
+# reserve over-charges: the 24-document measurement charges ~31.5 KB against
+# ~16.5 KB actually spent, roughly 2x. Over-reserving is the safe direction for
+# the model's ceiling — an under-charge dispatches a prompt past it, which is
+# the defect §11.5 exists to close — but it is not free: a turn near its
+# ceiling reaches a zero evidence budget, and eventually the 409, earlier than
+# it strictly must. That is the same cost cited to reject fix option (b), paid
+# here in a smaller amount, and it is the reason the tests assert
+# `spent <= charged` rather than a tight band: a tight band would fail on every
+# harmless change to a section label. Tightening this is a future measurement
+# exercise, not a correctness one.
+
 
 def packet_scaffold_reserve(*, thread_refs: Sequence[str] = (),
                             evidence_slots: int = 0,
@@ -496,10 +508,10 @@ def packet_scaffold_reserve(*, thread_refs: Sequence[str] = (),
     fixed constants, plus the rendered per-source overhead for the thread refs
     the route holds and the evidence slots it may fill.
 
-    A ref renders TWICE — once in the packet's declaration line and once in its
-    own section's preamble — so it is charged twice. Evidence refs are not known
-    until retrieval answers, so their slots are charged at the observed ref
-    length the §11.5 obligation measured against.
+    A ref is charged `REF_RENDERINGS` times — see that constant for why the
+    answer is three rather than the two places `packet_sections` renders it.
+    Evidence refs are not known until retrieval answers, so their slots are
+    charged at the observed ref length the §11.5 obligation measured against.
 
     Defaults reproduce the FLAT pre-§11 number exactly, which is what keeps a
     caller carrying neither threads nor evidence on the arithmetic it was

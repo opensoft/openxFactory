@@ -299,6 +299,32 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       currency rules exist to prevent. It is deliberately NOT a re-key: the
       catalog, the model selection, the composer and the working subject all
       survive, because the SCOPE did not move.
+      **CORRECTED 2026-08-19 (adversarial review P2-9): the switch had to be
+      refused while a turn is in flight.** The change handler was not gated on
+      `state.phase`, and `adoptThreadTranscript` did not change it — so
+      selecting document B while A's turn was running swapped the transcript
+      under the flight, and `settleTurnSuccess` then appended A's question and
+      answer onto B's transcript AND onto B's WIRE transcript, making A's
+      conversation B's context on B's next turn. A's proposal was restored under
+      B too, with a live Apply control, defeating the very clearing this task's
+      other judgement call describes. Reachable from the UI with no server race;
+      the reviewer reproduced it against the shipped module.
+      The model now REFUSES by returning the identical state object — the same
+      "no" `beginTurn` and `rekeyChatState` give — and the handler refuses
+      BEFORE the selection moves, saying so on the rail's own note rather than
+      swallowing it. A turn finishes bound to the document it was sent for, and
+      the selection moves once it settles. Pinned by the reviewer's own
+      reproduction, including the wire transcript.
+      **NOTED, not fixed (adversarial review P3-22):** the composer survives a
+      document switch — deliberately, and consistent with FR-016 and PR #63's
+      ruling that typing is never discarded — but it carries no label naming the
+      document it will bind to, so text typed about A can be sent bound to B
+      with no visual cue. The in-flight refusal above closes the case where a
+      TURN crosses documents; this is the case where a HUMAN's half-written
+      thought does. It is a surface affordance (a binding label beside the
+      composer) rather than a correctness fix, it belongs with whoever next
+      touches the rail's chrome, and it is recorded here because this task owns
+      the switch that makes it reachable.
       **Judgement call, flagged:** `loadThread` is an OPTIONAL seam. A shell
       that supplies none keeps the pre-§11 behaviour exactly, which is what lets
       the editor-only posture and every existing composition harness stand
@@ -484,6 +510,23 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       or tiles exist. The read is confined by `resolve_within`, the same
       containment authority `/source` uses, so a traversal-shaped document name
       answers "no thread" rather than another tree's file.
+      **CORRECTED 2026-08-19 (adversarial review P2-10): session-ness came from
+      two ADVISORY fields.** `_session_worktree_for` gated on
+      `session_tile or session_base`, and `snapshot_registry` documents both as
+      advisory — `session_tile` is "None on a bootstrap-reconstructed entry" and
+      `session_base` "degrades ... advisory ... **and never the reason a session
+      fails**". This route made them exactly that, and the consequences were
+      silent: no threads in the packet, NO MIRRORED RECORD with nothing on the
+      wire saying so, and a 403 from the thread route. It was also the one
+      method no test executed — every route test overrode it. It now asks
+      `branch_session.live_session_branches`, the liveness authority the Save
+      path itself trusts and which the turn route already calls one step
+      earlier, and four tests drive the REAL method against a real git session,
+      including the bootstrap-reconstructed entry that used to lose records.
+      **NOTED (adversarial review P3-19):** the "no live session" branch now
+      answers its OWN cause rather than borrowing the no-gate-capability one,
+      which was a true sentence about a different situation. It stays generic,
+      so the route is still no oracle for which refs or tiles exist.
       **Judgement call, flagged (the wire shape).** The thread body is an
       UNVERSIONED console-internal JSON shape, like `/capabilities`, and
       deliberately not a released envelope: no openxFactory schema declares a
@@ -563,8 +606,10 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       stdio MCP server implements `initialize`, `tools/list` and `tools/call`
       per the MCP 2025-03-26 spec in front of the SAME `KnowledgeToolBoundary`
       — not beside a second one — and the four mount names are pinned STRING
-      FOR STRING (`xd://mcp__doxbench__search`, `…__get_source`,
-      `…__promote_finding`, `…__reindex`). Confinement travels WITH the mount:
+      FOR STRING — and CORRECTED 2026-08-19 to the SINGLE-underscore form the
+      harness actually mints: `xd://mcp__doxbench_search`,
+      `xd://mcp__doxbench_get_source`, `xd://mcp__doxbench_promote_finding`,
+      `xd://mcp__doxbench_reindex`. Confinement travels WITH the mount:
       a server process serves ONE tile's confined set, declared in a manifest
       the bridge writes beside the registration, so a mount cannot be talked
       into another tile because the refs it could name are the only ones it was
@@ -581,18 +626,39 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       that races it degrades to design §3.4's reduced-packet posture — the
       correct fallback already specified, so no wait-for-discovery mechanism
       was invented.
-      **FINDING, flagged for adjudication (the mount separator).**
-      `verification-findings.md` §3.2 states the convention TWICE and the two
-      disagree: its PROSE (and this note, quoting it) writes
-      `xd://mcp__<server>__<tool>` with a DOUBLE underscore, while its EVIDENCE
-      writes `xd://mcp__verify_echo_echo` for a server whose one tool was
-      `echo`, and `xd://mcp__sonarqube_*` for that host's ambient servers — a
-      SINGLE underscore. The realization takes the PROSE, because that is what
-      the finding states as its convention and what this task quotes, and
-      isolates the disagreement in ONE constant (`doxbench_mcp.MOUNT_SEPARATOR`)
-      driving ONE composition, with the exact strings pinned by a test. If the
-      evidence reading is the true one, the correction is that constant and the
-      failing test says so.
+      **NOTED, not fixed (adversarial review P3-18):** `promote_finding`'s
+      `provenance` refs are NOT confined to the mount's manifest — a caller can
+      name a ref outside the tile's staged set and see it echoed back in the
+      returned request. This is a note rather than a defect because
+      `promote_finding` WRITES NOTHING and STORES NOTHING: it returns a request
+      naming the reviewed act, and the human performing that act is the gate
+      that would notice an unrelated provenance. The confinement claim the
+      boundary makes is correctly scoped in its own docstring to `search` and
+      `get_source`, both of which ARE confined and tested. Confining provenance
+      too would be a real strengthening; it belongs with whoever gives
+      `promote_finding` a durable consumer, and it is recorded here so that
+      slice inherits it rather than rediscovering it.
+      **THE MOUNT SEPARATOR: SETTLED 2026-08-19, AND THE FIRST READING WAS
+      WRONG** (adversarial review P1-2). `verification-findings.md` §3.2 stated
+      the convention twice and the two disagreed — its PROSE wrote
+      `xd://mcp__<server>__<tool>` (DOUBLE underscore), its own EVIDENCE wrote
+      `xd://mcp__verify_echo_echo` and `xd://mcp__sonarqube_*` (SINGLE). This
+      realization took the prose. The EVIDENCE was right: `createMCPToolName`
+      (`packages/coding-agent/src/mcp/tool-bridge.ts:345-358`, v17.3.7) returns
+      `mcp__${sanitizedServerName}_${normalizedToolName}`, and
+      `sanitizeMCPToolNamePart` collapses `_+` to `_`, so a double separator is
+      not merely unused — it is UNPRODUCIBLE. Re-confirmed LIVE by registering
+      this slice's own server as `doxbench` against a real `omp --mode rpc` and
+      reading the four names out of the running system prompt.
+      `verification-findings.md` §3.2 now carries a dated correction note at
+      the source. The one-constant isolation did its job — the fix was one
+      character plus three pinned test strings — and the test now pins against
+      a re-implementation of the harness's OWN composition rather than against
+      four literals, so the next rename is checked against the rule.
+      **NOTED:** `mount_name` also REFUSES a server or tool name the harness's
+      sanitiser would rewrite (a digit, a hyphen, a capital), because such a
+      name mounts under a different string than it is spelled with and a pin
+      that did not know that would pin a lie.
 - [x] 10.3 The packet assembler: selection rail, then the lifecycle-status
       exemption rail keyed on each item's `Status:` header, then the bounds
       check, then deterministic assembly (design §3.1). Both rails run before
@@ -949,14 +1015,31 @@ untouched: mechanical, reversible, at the model boundary.
       filesystem lands in a scratch directory rather than in the corpus.
       Grounding comes from the packet, which is assembled and bounded before the
       child process exists.
-      **FINDING, flagged for adjudication (one unverified launch detail).**
-      `verification-findings.md` §3.1 records the memory SETTING — its name, its
-      enum, its default, its resolution function — but not the CLI spelling of a
-      per-setting override. `SETTING_FLAG = "--setting"` is this module's one
-      guess, isolated in a single constant with the argv pinned by a test, so a
-      correction is one line that a test confirms rather than a hunt through a
-      launcher. Everything else in the argv (`--mode rpc`, `--profile`,
-      `--session-dir`) is recorded.
+      **CORRECTED 2026-08-19 AFTER LIVE VERIFICATION (adversarial review P1-1).**
+      The first realization guessed `--setting memory.backend=off` and ticked
+      this box on it. There is no such flag: real v17.3.7 answers
+      `Error: unknown flag: --setting` and exits, so the bridge could never have
+      started a harness. The pin now rides `--config=<overlay>` — a real,
+      repeatable flag whose overlay outranks both the global and the project
+      settings layers — written into the bridge's own session root, so pinning
+      the harness's memory backend touches no operator's home and no corpus.
+      LIVE: the child starts, `get_state` answers, and `/memory diagnose` reports
+      *"Memory backend is off — there is nothing to show."* from inside the
+      running session, while `backend: local` in the same slot answers
+      differently. The one-constant isolation the original tick claimed as its
+      safety net did work — the correction was one constant plus one test — but
+      the tick itself should not have been `[x]` on an unexecuted launch line,
+      and this note is the record of that.
+      **RECORDED, not fixed (an air-gapped install's first turn).**
+      `providers.tinyModel`, `.memoryModel` and `.autoThinkingModel` default to
+      `online`, and on a host with no egress the agent turn BLOCKS on them
+      before it ever reaches a local model — the live smoke pins all three local
+      in its own overlay to get past it. That is a property of the install, not
+      of the bridge, and the bridge deliberately does not pin them: choosing a
+      model role is an operator decision, and a bridge that quietly rewrote
+      three of them would be making it. An operator deploying this somewhere
+      without egress will meet it, so it is written here and in the smoke's own
+      docstring.
 - [x] 11.2 It is an ADAPTER for the UNCHANGED three-member `WorkbenchModelPort`.
       A test asserts the port still has exactly three members and that
       `FORBIDDEN_PORT_MEMBERS` still bans the rest.
@@ -968,6 +1051,17 @@ untouched: mechanical, reversible, at the model boundary.
       switching, `/shake` and `artifact://` dereferencing all live INSIDE the
       adapter; each of them is a fourth port member somebody would otherwise have
       argued for.
+      **NOTED (adversarial review P3-21): the ban list cannot see the whole
+      surface.** The PORT is three members and `FORBIDDEN_PORT_MEMBERS` polices
+      exactly those, but the ROUTE reaches four more names on the adapter
+      DUCK-TYPED — `select_thread`, `outline_conversation_key`, `mirror`,
+      `dereference` — and a duck-typed call is not a protocol member, so no
+      `__protocol_attrs__` equality can see them. That is not a D14 violation:
+      none is a second spelling of the provider verb, and every one is a
+      capability D14 explicitly puts INSIDE the adapter rather than on the port.
+      But it is a contract nothing else stated, so a test now declares that set
+      and asserts the route reaches nothing outside it — a fifth name arriving
+      without that list moving is the thing to argue about.
 - [x] 11.3 Lifecycle: started on demand at the first turn that needs it,
       supervised, restarted on failure with a bounded retry, stderr to the
       serve's log and never to the wire; a dead or unstartable bridge surfaces
@@ -994,6 +1088,17 @@ untouched: mechanical, reversible, at the model boundary.
       spelled `model_unavailable` because the port has no channel to say so
       without a fourth member, and inventing one would be exactly the widening
       D14 forbids.
+      **CORRECTED 2026-08-19 (adversarial review P2-8): leg (1) did not engage
+      for the commonest failure.** `_unavailable` was set only where `Popen`
+      itself raised or the bounded retry was spent, so a child that SPAWNS and
+      then exits — which is exactly what the `--setting` defect produced — left
+      the catalog advertising the model as available forever and pushed every
+      later turn onto leg (2). The reviewer proved it twice, live and
+      hermetically. Two changes: every public entry point now marks the bridge
+      unavailable when a `BridgeUnavailable` escapes it, and `catalog()` also
+      consults the child's own liveness. The prose above is now true of the
+      failure class it was written for, and a test drives a spawn-then-die child
+      through `catalog()` on both sides of the failure.
 - [x] 11.4 One harness session per document thread; switching the selected
       document switches the harness session; one session never serves two
       threads.
@@ -1009,6 +1114,18 @@ untouched: mechanical, reversible, at the model boundary.
       at session start and every later rebuild replays that captured string, so a
       source-ranking hierarchy that must not change mid-conversation is
       guaranteed by never reusing a session across threads.
+      **CORRECTED 2026-08-19 (adversarial review P2-11): the rule is now TOTAL.**
+      The bind was gated on `bound_buffer_key in document_keys`, so an
+      OUTLINE-bound turn never bound at all and was prompted into whichever
+      DOCUMENT session the harness was last switched to — accumulating in that
+      document's session `.jsonl`, so the document's next turn carried the
+      outline conversation in the harness's own context. That is the second
+      store design §5.2 keeps apart, cross-contaminated. Now every turn binds: a
+      document by its path, an outline by a TILE-SCOPED key
+      (`outline_conversation_key`, so two tiles' outlines are two conversations),
+      and the bridge REFUSES an unbound dispatch outright rather than running it
+      in whatever session it happens to be on — the invariant made structural so
+      a later caller cannot reintroduce it by forgetting.
       **Judgement call, flagged (how a fresh session is made).** The recorded RPC
       surface has `switch_session` and it has process start with `--session-dir`;
       it has no in-session "start another session" command. So a thread nothing
@@ -1035,16 +1152,50 @@ untouched: mechanical, reversible, at the model boundary.
       NORMALISES CRLF at the one place a turn becomes a record — a normalisation,
       not an edit: the bytes the model returned still ride the response envelope
       unchanged.
-      **THE HARNESS HOLDS NO THREAD, as an install fact rather than a policy.**
-      The launch config pins `memory.backend: off` explicitly AND runs under a
-      dedicated `--profile doxbench-bridge`, so a developer's personal
-      interactive harness memory settings cannot bleed into a bridge session
-      (§3.1's implementation consequence, taken literally). `HarnessThreadMirror`
-      re-asserts the pin rather than relying on it: a bridge whose launch config
-      lost it REFUSES to mirror rather than quietly starting a second store, and
-      a test drives that refusal. The source-ranking hierarchy already ranks any
+      **THE HARNESS HOLDS NO THREAD, and since 2026-08-19 that really is an
+      install fact rather than a policy.** The first realization asserted this
+      on a flag the harness rejects, which made the whole claim untrue
+      (adversarial review P2-12): a bridge that cannot start pins nothing. The
+      pin now rides a `--config` overlay — a real, repeatable flag whose overlay
+      outranks the global and project settings layers — and it is OBSERVABLE
+      from inside the running session: `/memory diagnose` answers *"Memory
+      backend is off"*, and the live smoke reads that back out of a real harness
+      rather than trusting the file the bridge wrote. The dedicated
+      `--profile doxbench-bridge` still isolates auth, sessions, settings and
+      caches, so a developer's personal interactive settings cannot bleed in.
+      `HarnessThreadMirror` re-asserts the DECLARATION as belt and braces — a
+      bridge whose launch config lost the pin REFUSES to mirror rather than
+      quietly starting a second store — and that guard is honestly a check on
+      the bridge's own config rather than on the harness's state; the harness's
+      state is what the live smoke reads. The source-ranking hierarchy already ranks any
       harness-local memory LAST and says in as many words that it is never
       governed truth (`SOURCE_RANKING_TEXT`, task 5.5).
+      **CORRECTED 2026-08-19 (adversarial review P1-3/P1-4): what was being
+      recorded was an EMPTY answer.** The reader looked for a flat
+      `text`/`delta`/`content`/`message` at a frame's top level, and a real
+      `message_update` carries the text one level down inside
+      `assistantMessageEvent`; and an omitted `agentInvoked` — which is what a
+      real prompt response has — was read as "the agent was not invoked", the
+      opposite of `rpc.md:104`. So `dispatch` returned `{"assistant_prose": ""}`
+      before the turn had happened, and THIS TASK'S mirror wrote that empty
+      answer into the sidecar as the durable record. Both are fixed and
+      live-proven; the mirror now records the model's own text.
+      **Judgement call, flagged (#15 — an OUTLINE-bound turn writes no thread).**
+      A thread belongs to a DOCUMENT, and the outline buffer is the tile's, not
+      a document's, so an outline turn records no sidecar. This was true of the
+      sidecar and NOT of the harness session until P2-11 was fixed (see 11.4);
+      it was also missing from this list entirely, which the reviewer counted
+      as a material honesty gap rather than a bookkeeping nit.
+      **Judgement call, flagged (#16 — where the assistant's text is read
+      from).** ONE reader, driven by a CLOSED table of event types
+      (`text_delta`, `text_end`) rather than a guess-list of field names, plus
+      one reader for a terminal frame's whole message list. The answer prefers
+      `agent_end.messages` (the harness's own final state), then a
+      `turn_end`/`message_end` message, then the accumulated deltas. The
+      original version of this call guessed a flat tuple of top-level names and
+      was wrong IN KIND, not in spelling — no addition to that tuple could have
+      found a nested field — and it was recorded only in a module comment, never
+      here. Both corrected.
       **Judgement call, flagged (a record that cannot be written).** The provider
       has already answered by the time the record is written, and there is no
       released refusal code for "the record could not be written". Losing the
@@ -1146,6 +1297,27 @@ untouched: mechanical, reversible, at the model boundary.
       findings' RPC-mechanics note. A test spies the frames a real child receives
       and asserts the pair and its order; another asserts a harness that refuses
       the model refuses the TURN rather than prompting a model nobody chose.
+      **CORRECTED 2026-08-19 (adversarial review P1-5): the PROVIDER half was
+      wrong, and every real `set_model` was refused.** The frame carried
+      `entry.provider_class` as the harness provider id, and `provider_class` is
+      a GOVERNANCE data-handling classification (`on-tenant`, `self_hosted`, …).
+      Live, side by side on one session:
+      `{"provider":"self_hosted"}` → `success:false, "Model not found:
+      self_hosted/local-model"`; `{"provider":"local-proxy"}` →
+      `success:true, data.id: local-model`. So no turn could ever have been
+      dispatched, and the ordering this tick verified was the ordering of two
+      frames the second of which always failed.
+      **Judgement call, flagged (where the harness provider id lives).** On
+      `LaunchConfig.provider_id`, the bridge's INSTALL-SIDE declaration — the
+      same placement §10 chose for the retrieval backend, and for the same
+      reason: which provider an install talks to is an operator fact an operator
+      must be able to read where the install is declared. Deliberately NOT on
+      the catalog entry: that schema is a CLOSED seven-field shape whose
+      widening is task 11.7's future release, and smuggling a harness-routing
+      field into a governance record is the exact conflation that caused this
+      defect. Undeclared, the `provider` key is OMITTED and the harness resolves
+      the model id by its own matching. LIVE-PROVEN end to end: `dispatch` now
+      returns `{"assistant_prose": "MOCK_DONE", "proposals": []}` in 1.40 s.
 - [ ] 11.7 The catalog declares the menu, `auto` declares itself a ROUTING RULE
       carrying the badge of every model it may route to, and the resolved model
       is recorded on the turn. An API-backed entry's credential comes from the
@@ -1183,6 +1355,21 @@ untouched: mechanical, reversible, at the model boundary.
       The credential clause IS discharged: the bridge's child environment is an
       ALLOWLIST no credential-shaped variable can pass, and the module's own
       source names none (task 11.1).
+      **AND THE OTHER HALF OF IT, STATED (adversarial review P3-23).** Because
+      the allowlist strips every provider credential variable, a live bridge can
+      only authenticate from the `doxbench-bridge` PROFILE's own stored
+      credentials — verified live: with an empty profile the harness answers
+      *"No models available. Use /login or set an API key environment
+      variable."*, which is the right posture (it refuses rather than reaching
+      for an ambient key). What §11 never said is where that profile's
+      credentials come from, and the answer is the sentence this task already
+      carries: an API-backed entry's credential comes from the ratified broker
+      lane (`add-model-provider-broker`), which provisions the profile — the
+      bridge neither holds nor fetches one. A self-hosted, keyless provider (the
+      live smoke's `auth: none`) needs no credential at all. Naming the
+      provisioning step is part of the release this task still owes, since a
+      catalog that can declare an API-backed routing entry is exactly the point
+      at which an operator has to know how the profile got its key.
 
 ## 12. Share-session
 
@@ -1199,6 +1386,20 @@ untouched: mechanical, reversible, at the model boundary.
       follows the plane rule the save verb already carries.
 - [ ] 12.5 A colleague's resume path is exercised end to end: fetch the shared
       branch, open the tile, join the session, see the threads.
+      **OBLIGATION RECORDED HERE BY §11 (adversarial review P3-17), because this
+      is the task that will meet it.** A thread rides only ITS OWN document's
+      Save, and only while its sidecar is DIRTY (task 9.2's filter, which is
+      load-bearing — declaring a clean path refuses the Save). So a document
+      that was DISCUSSED but never Saved again keeps an UNCOMMITTED sidecar, and
+      an uncommitted file does not travel on the branch this task's colleague
+      fetches: they resume with that document's thread missing, silently.
+      Nothing in §11 can close it — committing a thread without its document
+      would break the one-commit-per-gate-action rule 9.2 exists to honour, and
+      §12's verb is the first thing with a reason to commit threads on their
+      own, which is why the obligation is recorded against THIS task rather
+      than left in a ticked one. The cross-document half is sound and stays so:
+      `_dirty_thread_paths` derives its candidates from the document being
+      saved, so one document's sidecar can never join another's commit.
 - [ ] 12.6 (Scope call, recorded in the proposal) this slice MAY trail as a
       later realization slice; its CONTRACT does not.
 
