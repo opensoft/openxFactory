@@ -779,11 +779,14 @@ def is_live_session_ref(registry: Any, key: ScopeKey, *, repository: str,
 
     THE TWO DIVERGENCES, RESOLVED TOWARDS THE SAFER READING:
 
-    * REF NORMALISATION. The thread copy compared normalised refs, this one
-      compared raw strings. Normalisation wins: `refs/heads/draft/x` and
-      `draft/x` are the same branch, and a registry entry and a request can
-      legitimately spell one either way — treating them as different silently
-      loses a session's threads.
+    * REF NORMALISATION. The thread copy compared refs through
+      `snapshot_registry.normalize_ref`, this one compared raw strings.
+      Normalisation wins — but note precisely what it buys, because the first
+      version of this note overclaimed: `normalize_ref` trims whitespace and
+      maps None/empty to the default ref; it does NOT strip `refs/heads/`, so a
+      long-form ref is still a different string here. What it buys is that a ref
+      arriving with stray whitespace, or absent, resolves the way every other
+      registry consumer resolves it rather than silently failing to match.
     * EXCEPTION BREADTH. This one caught `SessionRefused`; the thread copy
       caught bare `Exception`. `SessionRefused` wins, and that is a JUDGEMENT
       CALL worth flagging: the narrow catch answers "not this tile's session"

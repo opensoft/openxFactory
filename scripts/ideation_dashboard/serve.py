@@ -1437,8 +1437,10 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         nothing on the wire saying so.
 
         `branch_session.live_session_branches` is what the Save path itself
-        trusts and what the turn route ALREADY calls one step earlier through
-        `doxbench_scope.session_created_paths_for_scope`. Asking it means a
+        trusts and what the turn route ALREADY reaches one step earlier through
+        `doxbench_scope.session_created_paths_for_scope`. This route asks it
+        through the SHARED `doxbench_scope.is_live_session_ref` rather than
+        calling it again here (re-verify N-6). Asking it means a
         session this console can WRITE to is a session this console will RECORD
         into, which is the property that actually matters."""
         try:

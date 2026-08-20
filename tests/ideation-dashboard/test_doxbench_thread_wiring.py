@@ -1081,6 +1081,40 @@ def test_the_ADVISORY_markers_are_no_longer_the_predicate(scratch_repo):
         "a bootstrap-reconstructed session still holds threads")
 
 
+def test_the_liveness_question_has_ONE_spelling_and_it_normalises_refs(
+        scratch_repo):
+    """RE-VERIFY N-6. `serve.py` had grown a second copy of this question and
+    the two had already diverged — this one is the safer reading, and it is the
+    only one now. The comparison goes through
+    `snapshot_registry.normalize_ref`, exactly as every other registry consumer
+    does, so a ref carrying stray whitespace resolves rather than silently
+    failing to match. (It does NOT strip `refs/heads/` — an earlier draft of
+    this note claimed it did, and that was wrong.)"""
+    from ideation_dashboard import doxbench_scope
+    from ideation_dashboard.doxbench_scope import ScopeKey
+
+    registry, ref = _open_a_real_session(scratch_repo)
+    key = ScopeKey(repository=scratch_repo.repository, ref=ref,
+                   tile_kind="staged", tile_id=scratch_repo.topic_id)
+    assert doxbench_scope.is_live_session_ref(
+        registry, key, repository=scratch_repo.repository, ref=ref) is True
+    # the SAME branch, spelled with stray whitespace
+    assert doxbench_scope.is_live_session_ref(
+        registry, key, repository=scratch_repo.repository,
+        ref=f"  {ref}  ") is True
+    # …and a genuinely different spelling is still not this session
+    assert doxbench_scope.is_live_session_ref(
+        registry, key, repository=scratch_repo.repository,
+        ref=f"refs/heads/{ref}") is False
+    # and serve.py's method is that function, not a copy of it
+    serve_source = (REPO_ROOT / "scripts" / "ideation_dashboard"
+                    / "serve.py").read_text(encoding="utf-8")
+    assert "doxbench_scope.is_live_session_ref(" in serve_source
+    assert "live_session_branches(" not in serve_source, (
+        "serve.py must ASK the shared question, not re-derive it (a prose "
+        "mention of the authority is fine; a call is a second copy)")
+
+
 def test_a_ref_that_is_not_a_live_session_branch_has_no_worktree(scratch_repo):
     """The fail-closed half still holds: `main` is not a session."""
     from ideation_dashboard.doxbench_scope import ScopeKey
