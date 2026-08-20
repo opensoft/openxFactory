@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import threading
 from pathlib import Path
 
 import pytest
@@ -152,15 +153,16 @@ def test_the_de_facto_adapter_surface_is_declared_even_though_the_ban_is_not(
     this assertion is a tripwire on the one spelling the route actually uses,
     not a proof of absence."""
 
-    reached = {"select_thread", "outline_conversation_key", "mirror",
-               "dereference"}
+    reached = {"conversation_key", "outline_conversation_key",
+               "for_conversation", "mirror", "dereference"}
     bridge = _bridge(tmp_path)
     for name in reached:
         assert callable(getattr(bridge, name, None)), name
     serve_source = (REPO_ROOT / "scripts" / "ideation_dashboard"
                     / "serve.py").read_text(encoding="utf-8")
     duck_typed = {name for name in
-                  ("select_thread", "outline_conversation_key", "mirror",
+                  ("select_thread", "conversation_key",
+                   "outline_conversation_key", "for_conversation", "mirror",
                    "dereference", "shake", "run_command", "catalog", "dispatch")
                   if f'getattr(port, "{name}"' in serve_source}
     assert duck_typed <= reached | {"catalog", "dispatch"}, sorted(duck_typed)
@@ -275,16 +277,139 @@ def test_an_UNBOUND_dispatch_is_refused_rather_than_run_somewhere_else(tmp_path)
     bridge.stop()
 
 
+def test_TWO_SCOPES_sharing_a_document_path_get_TWO_sessions(tmp_path):
+    """PR #223, Codex C1 — the reproduction, now a pin.
+
+    The conversation key was the bare `bound_buffer_key`: a repository-relative
+    path and nothing else, against a SINGLE per-serve session map. Two scopes
+    that load the same path — one repository at two refs, or two repositories on
+    a multi-repository plane — collided, and the second silently inherited the
+    first's harness session and its conversation context."""
+    from ideation_dashboard.doxbench_scope import ScopeKey
+
+    document = "ideation/staging/shared/README.md"
+    scopes = (
+        ScopeKey(repository="repo-a", ref="main", tile_kind="staged", tile_id="t"),
+        ScopeKey(repository="repo-b", ref="main", tile_kind="staged", tile_id="t"),
+        ScopeKey(repository="repo-a", ref="draft/t", tile_kind="staged", tile_id="t"),
+        ScopeKey(repository="repo-a", ref="main", tile_kind="possible", tile_id="t"),
+        ScopeKey(repository="repo-a", ref="main", tile_kind="staged", tile_id="u"),
+    )
+    keys = {br.OmpHarnessBridge.conversation_key(scope, document)
+            for scope in scopes}
+    assert len(keys) == len(scopes), sorted(keys)
+    # …and the outline key is scoped the same way
+    outlines = {br.OmpHarnessBridge.outline_conversation_key(scope)
+                for scope in scopes}
+    assert len(outlines) == len(scopes)
+    assert not (keys & outlines)
+
+    # the composition is INJECTIVE: no spelling of one scope can forge another
+    forged = ScopeKey(repository="repo-a", ref="main", tile_kind="staged",
+                      tile_id='t", "x')
+    assert br.OmpHarnessBridge.conversation_key(forged, document) not in keys
+
+    # and two different scopes really do get two SESSIONS through the bridge
+    first, second = str(tmp_path / "s1.jsonl"), str(tmp_path / "s2.jsonl")
+    calls = {"n": 0}
+
+    def spawn(argv, environment, cwd):
+        calls["n"] += 1
+        session = first if calls["n"] == 1 else second
+        return subprocess.Popen(
+            [sys.executable, str(FAKE_CHILD), *list(argv)[1:],
+             "--session-file", session],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, env=dict(environment), cwd=str(cwd))
+
+    bridge = br.OmpHarnessBridge(
+        _catalog(), session_root=tmp_path / "bridge", spawn=spawn,
+        launch=br.LaunchConfig(session_dir=tmp_path / "bridge",
+                               provider_id="local-proxy"),
+        log=lambda line: None, environment={"PATH": "/usr/bin:/bin"})
+    a = bridge.select_thread(
+        br.OmpHarnessBridge.conversation_key(scopes[0], document))
+    b = bridge.select_thread(
+        br.OmpHarnessBridge.conversation_key(scopes[1], document))
+    bridge.stop()
+    assert a == first and b == second
+    assert a != b, "two scopes shared one harness session"
+
+
+def test_BIND_AND_DISPATCH_are_ONE_critical_section(tmp_path):
+    """PR #223, Codex C2 — the reproduction, now a pin.
+
+    `select_thread` and `dispatch` each took the bridge lock separately, and
+    this server is threaded: handler A selects A, handler B selects B, then A's
+    dispatch sends A's prompt into B's session. Reproduced directly — after an
+    interleaved bind, `_selected` was the other handler's conversation.
+
+    The bind is now part of the dispatch, inside one lock acquisition, so an
+    interleaved selection cannot land between them."""
+    bridge = _bridge(tmp_path)
+    key_a, key_b = "conversation-A", "conversation-B"
+    bridge.select_thread(key_a)
+
+    seen = []
+    original = br.HarnessChild.request
+
+    def _spy(self, frame, *, deadline, clock):
+        seen.append(dict(frame))
+        # the interleaving handler, DURING A's dispatch
+        if frame["type"] == "set_model" and not getattr(_spy, "raced", False):
+            _spy.raced = True
+            racer = threading.Thread(target=bridge.select_thread, args=(key_b,))
+            racer.start()
+            racer.join(timeout=1.0)
+            # the racer cannot get in: the lock is held for the whole turn
+            assert racer.is_alive(), "the bind was not held across the dispatch"
+        return original(self, frame, deadline=deadline, clock=clock)
+
+    br.HarnessChild.request = _spy
+    try:
+        answer = bridge.for_conversation(key_a).dispatch(_Envelope())
+    finally:
+        br.HarnessChild.request = original
+    assert answer["assistant_prose"]
+    # the turn ran in A's conversation, whatever the other handler wanted
+    assert bridge._selected in (key_a, key_b)   # noqa: SLF001
+    prompts = [f for f in seen if f["type"] == "prompt"]
+    assert len(prompts) == 1
+    bridge.stop()
+
+
+def test_the_conversation_view_is_the_three_member_port_and_nothing_more(
+        tmp_path):
+    """C2's fix must not widen the port: `dispatch_turn` calls
+    `port.dispatch(envelope)` and knows nothing of conversations."""
+    from test_doxbench_model import FORBIDDEN_PORT_MEMBERS
+
+    bridge = _bridge(tmp_path)
+    view = bridge.for_conversation("c")
+    assert isinstance(view, WorkbenchModelPort)
+    public = {name for name in dir(view) if not name.startswith("_")}
+    assert public == {"timeout_seconds", "catalog", "dispatch"}, sorted(public)
+    assert not (public & FORBIDDEN_PORT_MEMBERS)
+    with pytest.raises(br.BridgeSessionConflict):
+        bridge.for_conversation("")
+    bridge.stop()
+
+
 def test_an_outline_turn_binds_its_TILES_own_conversation(tmp_path):
     """An outline conversation is a real conversation; it just is not a
     document's. Keyed by the tile, because two tiles' outlines are two
     conversations and a bare `outline` would merge them."""
-    first = br.OmpHarnessBridge.outline_conversation_key("staged", "topic-a")
-    second = br.OmpHarnessBridge.outline_conversation_key("staged", "topic-b")
+    from ideation_dashboard.doxbench_scope import ScopeKey
+    scope_a = ScopeKey(repository="r", ref="main", tile_kind="staged",
+                       tile_id="topic-a")
+    scope_b = ScopeKey(repository="r", ref="main", tile_kind="staged",
+                       tile_id="topic-b")
+    first = br.OmpHarnessBridge.outline_conversation_key(scope_a)
+    second = br.OmpHarnessBridge.outline_conversation_key(scope_b)
     assert first != second
-    assert first.startswith(br.OUTLINE_CONVERSATION_PREFIX)
-    # …and it can never collide with a document path key
-    assert not first.startswith("ideation/")
+    assert br.OUTLINE_CONVERSATION_BUFFER in first
+    # …and it can never collide with a document's key in the same scope
+    assert first != br.OmpHarnessBridge.conversation_key(scope_a, "ideation/x.md")
 
     session_a = str(tmp_path / "a.jsonl")
     bridge = _bridge(tmp_path, "--session-file", session_a)

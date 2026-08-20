@@ -395,6 +395,95 @@ def test_an_OUTLINE_bound_turn_writes_no_thread(tmp_path):
     assert not (worktree / dt.THREAD_PREFIX).exists()
 
 
+def test_a_turn_on_the_UNBACKED_slot_writes_no_sidecar(tmp_path):
+    """PR #223, Codex C3 — the reproduction, now a pin.
+
+    The sidecar path was derived from the buffer KEY, and key and path differ
+    for exactly one buffer: the reserved unbacked slot, whose key is `document`
+    and whose path is None. A turn on it wrote
+    `session-threads/document.thread.md` — a sidecar for a document that does
+    not exist. No Save could ever commit it (`thread_commit_paths` is called
+    with the real path), and a later re-key stranded it while a second thread
+    started at the document's own path.
+
+    A buffer with no path has no document, so it records no thread — the same
+    rule the outline already follows."""
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+    # the reserved unbacked slot, bound: exactly what `_turn_v2` ships
+    body = _turn_v2(bound_buffer="document")
+    with _thread_serving(tmp_path, worktree=worktree) as (_httpd, host, prt, _p):
+        status, payload = _post(host, prt, body)
+    assert status == 200, payload
+    stranded = worktree / dt.thread_path_for("document")
+    assert not stranded.exists(), (
+        "a sidecar was written for the reserved unbacked slot; no Save can "
+        "ever commit it and a re-key strands it")
+    assert not (worktree / dt.THREAD_PREFIX).exists()
+
+
+def test_the_sidecar_is_the_documents_PATH_not_its_buffer_key(tmp_path):
+    """The other half of C3: a path-backed buffer records under its PATH, which
+    is the same string `thread_commit_paths` derives the Save's declared path
+    from — so the turn's sidecar and the Save's sidecar are one file."""
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+    with _thread_serving(tmp_path, worktree=worktree) as (_httpd, host, prt, _p):
+        assert _post(host, prt, _turn_bound_to(DOC_ALPHA))[0] == 200
+    written = sorted(str(path.relative_to(worktree))
+                     for path in (worktree / dt.THREAD_PREFIX).rglob("*")
+                     if path.is_file())
+    assert written == [dt.thread_path_for(DOC_ALPHA)]
+    # the Save derives the SAME path from the document
+    assert dt.thread_commit_paths(DOC_ALPHA) == (dt.thread_path_for(DOC_ALPHA),)
+
+
+def test_the_conversation_key_the_route_sends_carries_the_whole_scope(tmp_path):
+    """C1 at the ROUTE: the key the route hands the adapter is scope-composed,
+    so two tiles loading one path cannot share a harness session."""
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+    seen = []
+
+    class _RecordingPort:
+        timeout_seconds = 30.0
+
+        def __init__(self):
+            self.calls = []
+            self.dispatched = []
+
+        def catalog(self):
+            return _catalog()
+
+        @staticmethod
+        def conversation_key(scope, buffer_key):
+            from ideation_dashboard import doxbench_bridge as brg
+            return brg.OmpHarnessBridge.conversation_key(scope, buffer_key)
+
+        @staticmethod
+        def outline_conversation_key(scope):
+            from ideation_dashboard import doxbench_bridge as brg
+            return brg.OmpHarnessBridge.outline_conversation_key(scope)
+
+        def for_conversation(self, conversation):
+            seen.append(conversation)
+            return self
+
+        def dispatch(self, prompt_envelope):
+            self.calls.append("dispatch")
+            self.dispatched.append(prompt_envelope)
+            return {"assistant_prose": "ok", "proposals": []}
+
+    port = _RecordingPort()
+    with _thread_serving(tmp_path, worktree=worktree,
+                         port=port) as (_httpd, host, prt, _p):
+        assert _post(host, prt, _turn_bound_to(DOC_ALPHA))[0] == 200
+    assert len(seen) == 1
+    assert "fixture-repo" in seen[0] and "ideation-governance" in seen[0]
+    assert DOC_ALPHA in seen[0]
+    assert seen[0] != DOC_ALPHA, "the bare buffer key is not a conversation key"
+
+
 def test_a_record_that_cannot_be_written_never_changes_the_wire_outcome(
         tmp_path):
     """THE JUDGEMENT CALL, PINNED. The provider has already answered by the time
@@ -452,38 +541,57 @@ def test_a_body_still_carrying_a_harness_pointer_is_refused_not_persisted(
 # ===========================================================================
 
 
+class _BindingPort:
+    """An adapter with the CONVERSATION surface the route now reaches.
+
+    Re-shaped for PR #223's C1/C2: the route composes a scope-bearing
+    conversation key and asks for a per-turn VIEW, rather than calling
+    `select_thread` and hoping the selection survives to the dispatch."""
+
+    timeout_seconds = 30.0
+
+    def __init__(self, prose="bound"):
+        self.calls = []
+        self.dispatched = []
+        self.bound = []
+        self._prose = prose
+
+    def catalog(self):
+        self.calls.append("catalog")
+        return _catalog()
+
+    @staticmethod
+    def conversation_key(scope, buffer_key):
+        from ideation_dashboard import doxbench_bridge as brg
+        return brg.OmpHarnessBridge.conversation_key(scope, buffer_key)
+
+    @staticmethod
+    def outline_conversation_key(scope):
+        from ideation_dashboard import doxbench_bridge as brg
+        return brg.OmpHarnessBridge.outline_conversation_key(scope)
+
+    def for_conversation(self, conversation):
+        self.calls.append("for_conversation")
+        self.bound.append(conversation)
+        return self
+
+    def dispatch(self, prompt_envelope):
+        self.calls.append("dispatch")
+        self.dispatched.append(prompt_envelope)
+        return {"assistant_prose": self._prose, "proposals": []}
+
+
 def test_the_route_binds_the_selected_document_s_thread_before_dispatching(
         tmp_path):
     worktree = tmp_path / "worktree"
     worktree.mkdir()
-
-    class _BindingPort:
-        timeout_seconds = 30.0
-
-        def __init__(self):
-            self.calls = []
-            self.dispatched = []
-            self.bound = []
-
-        def catalog(self):
-            self.calls.append("catalog")
-            return _catalog()
-
-        def select_thread(self, key):
-            self.calls.append("select_thread")
-            self.bound.append(key)
-
-        def dispatch(self, prompt_envelope):
-            self.calls.append("dispatch")
-            self.dispatched.append(prompt_envelope)
-            return {"assistant_prose": "bound", "proposals": []}
-
     port = _BindingPort()
     with _thread_serving(tmp_path, worktree=worktree,
                          port=port) as (_httpd, host, prt, _p):
         assert _post(host, prt, _turn_bound_to(DOC_ALPHA))[0] == 200
-    assert port.bound == [DOC_ALPHA]
-    assert port.calls.index("select_thread") < port.calls.index("dispatch")
+    assert len(port.bound) == 1
+    assert DOC_ALPHA in port.bound[0]
+    assert port.calls.index("for_conversation") < port.calls.index("dispatch")
 
 
 def test_an_OUTLINE_turn_binds_its_tiles_own_conversation_not_a_document(
@@ -496,32 +604,7 @@ def test_an_OUTLINE_turn_binds_its_tiles_own_conversation_not_a_document(
     worktree = tmp_path / "worktree"
     worktree.mkdir()
 
-    class _BindingPort:
-        timeout_seconds = 30.0
-
-        def __init__(self):
-            self.calls = []
-            self.dispatched = []
-            self.bound = []
-
-        def catalog(self):
-            return _catalog()
-
-        @staticmethod
-        def outline_conversation_key(tile_kind, tile_id):
-            from ideation_dashboard import doxbench_bridge as br
-            return br.OmpHarnessBridge.outline_conversation_key(
-                tile_kind, tile_id)
-
-        def select_thread(self, key):
-            self.bound.append(key)
-
-        def dispatch(self, prompt_envelope):
-            self.calls.append("dispatch")
-            self.dispatched.append(prompt_envelope)
-            return {"assistant_prose": "outline answer", "proposals": []}
-
-    port = _BindingPort()
+    port = _BindingPort(prose="outline answer")
     # A document turn first, so the harness is left bound to a DOCUMENT — the
     # precondition that made the leak reachable.
     with _thread_serving(tmp_path, worktree=worktree,
@@ -529,9 +612,11 @@ def test_an_OUTLINE_turn_binds_its_tiles_own_conversation_not_a_document(
         assert _post(host, prt, _turn_bound_to(DOC_ALPHA))[0] == 200
         assert _post(host, prt, dict(_turn_v2(bound_buffer="outline"),
                                      client_turn_id="turn-outline"))[0] == 200
-    assert port.bound[0] == DOC_ALPHA
-    assert port.bound[1] == "outline::staged/ideation-governance"
-    assert port.bound[1] != DOC_ALPHA
+    assert DOC_ALPHA in port.bound[0]
+    assert port.bound[1] != port.bound[0]
+    from ideation_dashboard import doxbench_bridge as _brg
+    assert _brg.OUTLINE_CONVERSATION_BUFFER in port.bound[1]
+    assert DOC_ALPHA not in port.bound[1]
     # …and the OUTLINE turn wrote no sidecar of its own: a thread belongs to a
     # DOCUMENT (judgement call 15 — true of the sidecar, and now true of the
     # harness session too). The only sidecar is the document turn's.
@@ -557,7 +642,15 @@ def test_a_bridge_that_cannot_bind_the_thread_refuses_rather_than_grounding_it_e
             self.calls.append("catalog")
             return _catalog()
 
-        def select_thread(self, key):
+        @staticmethod
+        def conversation_key(scope, buffer_key):
+            return "k"
+
+        @staticmethod
+        def outline_conversation_key(scope):
+            return "k"
+
+        def for_conversation(self, conversation):
             raise RuntimeError("SECRET-BRIDGE-DIAGNOSTIC")
 
         def dispatch(self, prompt_envelope):
@@ -629,11 +722,16 @@ def test_the_thread_route_is_absent_without_the_gate_capability(tmp_path):
                                            _thread_query(DOC_ALPHA))
     assert status == 403
     assert payload["error"] == serve_mod.DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE
-    assert dt.NO_GATE_CAPABILITY_CAUSE in payload["cause"]
+    assert payload["cause"] == dt.NO_GATE_CAPABILITY_CAUSE
     assert payload["reason"] == dt.THREAD_CAPABILITY_ABSENT_REASON
 
 
 def test_the_thread_route_fails_closed_on_an_unresolved_actor(tmp_path):
+    """PR #223, Copilot CP1 (1): an unresolved actor used to borrow the
+    no-gate-capability cause — a true sentence about a different situation,
+    since the plane HAS the capability and there is simply nobody to attribute
+    a gate action to. The same class as this slice's own P3-19, one clause
+    over."""
     worktree = tmp_path / "worktree"
     worktree.mkdir()
     with _thread_serving(tmp_path, worktree=worktree) as (httpd, host, prt, _p):
@@ -642,6 +740,33 @@ def test_the_thread_route_fails_closed_on_an_unresolved_actor(tmp_path):
                                            _thread_query(DOC_ALPHA))
     assert status == 403
     assert payload["error"] == serve_mod.DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE
+    assert payload["cause"] == serve_mod.NO_RESOLVED_ACTOR_CAUSE
+    assert payload["cause"] != dt.NO_GATE_CAPABILITY_CAUSE
+
+
+def test_every_absence_cause_is_a_CAUSE_and_not_the_reason_again(tmp_path):
+    """Copilot CP1 (2): `thread_capability_absence` returns
+    `"<REASON> — <cause>"`, and the body already carries the reason in its own
+    field — so the wire's `cause` embedded the reason twice and was not a
+    cause. Every declared cause is now the bare cause."""
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+    cases = []
+    with _thread_serving(tmp_path, worktree=worktree) as (httpd, host, prt, _p):
+        handler = _handler_class(httpd)
+        handler.loopback = False
+        cases.append(_request(host, prt, "GET", _thread_query(DOC_ALPHA))[1])
+        handler.loopback = True
+        caps = json.loads(json.dumps(handler.capabilities))
+        caps["actions"]["session"] = False
+        handler.capabilities = caps
+        cases.append(_request(host, prt, "GET", _thread_query(DOC_ALPHA))[1])
+    for payload in cases:
+        assert payload["reason"] == dt.THREAD_CAPABILITY_ABSENT_REASON
+        assert not payload["cause"].startswith(payload["reason"]), payload["cause"]
+        assert dt.THREAD_CAPABILITY_ABSENT_REASON not in payload["cause"]
+    assert cases[0]["cause"] == dt.HOSTED_PLANE_CAUSE
+    assert cases[1]["cause"] == dt.NO_GATE_CAPABILITY_CAUSE
 
 
 def test_the_thread_route_is_absent_on_the_hosted_plane(tmp_path):
@@ -652,7 +777,7 @@ def test_the_thread_route_is_absent_on_the_hosted_plane(tmp_path):
         status, payload, _h, _r = _request(host, prt, "GET",
                                            _thread_query(DOC_ALPHA))
     assert status == 403
-    assert dt.HOSTED_PLANE_CAUSE in payload["cause"]
+    assert payload["cause"] == dt.HOSTED_PLANE_CAUSE
 
 
 def test_a_scope_with_no_live_session_gets_its_OWN_cause(tmp_path):
@@ -779,6 +904,33 @@ def test_the_reserve_covers_the_two_shapes_the_obligation_MEASURED():
     full = pk.packet_scaffold_reserve(
         thread_refs=tuple("x" * 120 for _ in range(pk.MAX_PACKET_SOURCES)))
     assert full - pk.PROMPT_SCAFFOLD_RESERVE_BYTES >= 31_211
+
+
+def test_every_section_KEY_a_source_can_carry_is_counted():
+    """PR #223, Copilot CP3: the derivation counted only the two prefixed keys
+    and left out the SELECTED thread's fixed `selected_thread` — which is
+    longer than `thread_state:`, so a selected-thread source undercounted its
+    key bytes."""
+    from ideation_dashboard.doxbench_hash import utf8_size
+
+    widest = max(utf8_size(pk.PACKET_SECTION_SELECTED_THREAD),
+                 utf8_size(pk.THREAD_STATE_SECTION_PREFIX),
+                 utf8_size(pk.EVIDENCE_SECTION_PREFIX))
+    assert widest == utf8_size(pk.PACKET_SECTION_SELECTED_THREAD)
+    # every key a packet source can actually contribute is one of the three
+    packet = pk.ContextPacket(
+        purpose=pk.PACKET_PURPOSE_CHAT_TURN,
+        scope=serve_mod.doxbench_scope.ScopeKey(
+            repository="r", ref="main", tile_kind="staged", tile_id="t")
+        if hasattr(serve_mod, "doxbench_scope") else None,
+        posture=pk.POSTURE_FULL, sources=(), issued_at=0.0, expires_at=1.0)
+    del packet
+    for kind, expected in ((pk.SOURCE_SELECTED_THREAD,
+                            pk.PACKET_SECTION_SELECTED_THREAD),
+                           (pk.SOURCE_THREAD_STATE,
+                            pk.THREAD_STATE_SECTION_PREFIX),
+                           (pk.SOURCE_EVIDENCE, pk.EVIDENCE_SECTION_PREFIX)):
+        assert utf8_size(expected) <= widest, kind
 
 
 def test_the_widest_labels_are_the_ones_the_renderer_actually_produces():

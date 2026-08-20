@@ -242,6 +242,102 @@ def test_the_rail_refuses_the_switch_at_the_HANDLER_too():
 
 
 # ---------------------------------------------------------------------------
+# C4 / CP2: a STALE thread-load response must not overwrite a newer selection
+# ---------------------------------------------------------------------------
+
+_RACE_HARNESS = """
+import { createChatState, adoptThreadTranscript, transcriptWindow,
+         transcriptWireWindow } from "./doxbench-chat-model.mjs";
+
+const KEY = { repository:"r", ref:"main", tile_kind:"staged", tile_id:"t" };
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const threads = {
+  "A.md": { turns:[{human:"QUESTION-ABOUT-A", assistant:"SECRET-ABOUT-A"}] },
+  "B.md": { turns:[{human:"about B",          assistant:"B's answer"}] },
+};
+const delays = { "A.md": 60, "B.md": 5 };   // A is the SLOW one
+
+// The rail's `switchThread` body, transcribed from doxbench-chat.js. The
+// generation counter is the whole subject of this harness.
+function makeRail(withGuard) {
+  let state = createChatState(KEY);
+  let threadGeneration = 0;
+  const destroyed = false;
+  async function switchThread(documentKey) {
+    const generation = (threadGeneration += 1);
+    let answer = null;
+    try { answer = await sleep(delays[documentKey]).then(() => threads[documentKey]); }
+    catch (e) { answer = null; }
+    if (destroyed) return;
+    if (withGuard && generation !== threadGeneration) return;
+    const turns = answer && Array.isArray(answer.turns) ? answer.turns : [];
+    state = adoptThreadTranscript(state, turns);
+  }
+  return { switchThread, get state() { return state; } };
+}
+
+const out = {};
+for (const [name, withGuard] of [["guarded", true], ["unguarded", false]]) {
+  const rail = makeRail(withGuard);
+  const a = rail.switchThread("A.md");
+  const b = rail.switchThread("B.md");
+  await Promise.all([a, b]);
+  out[name] = {
+    transcript: transcriptWindow(rail.state).map((t) => t.content),
+    wire: transcriptWireWindow(rail.state).map((t) => t.content),
+  };
+}
+console.log(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def race_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the thread-race probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-thread-race")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "race-harness.mjs"
+    harness.write_text(_RACE_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_the_race_is_REAL_without_the_generation_guard(race_results):
+    """PR #223, Codex C4 / Copilot CP2 — the reproduction. Select A, then B
+    before A's thread GET returns: A's slower answer arrived last and replaced
+    B's transcript with A's turns, which is also B's WIRE transcript — so B's
+    next turn would carry A's conversation as its context."""
+    unguarded = race_results["unguarded"]
+    assert unguarded["transcript"] == ["QUESTION-ABOUT-A", "SECRET-ABOUT-A"]
+    assert unguarded["wire"] == unguarded["transcript"]
+
+
+def test_a_STALE_thread_answer_is_dropped(race_results):
+    """…and the guard the rail ships. The last SELECTION wins, not the last
+    ANSWER."""
+    guarded = race_results["guarded"]
+    assert guarded["transcript"] == ["about B", "B's answer"]
+    assert guarded["wire"] == guarded["transcript"]
+    assert not any("ABOUT-A" in row for row in guarded["transcript"])
+
+
+def test_the_rail_really_carries_the_generation_guard():
+    """The harness above transcribes the rail's body; this pins that the rail
+    still has the line the harness models, and that the check happens AFTER the
+    await — before it, it would guard nothing."""
+    view = CHAT_VIEW_JS.read_text(encoding="utf-8")
+    body = view.split("async function switchThread(", 1)[1].split("\n  }", 1)[0]
+    assert "threadGeneration += 1" in body
+    assert "generation !== threadGeneration" in body
+    assert body.index("await load(documentKey)") < body.index(
+        "generation !== threadGeneration"), (
+        "the staleness check must come after the await")
+
+
+# ---------------------------------------------------------------------------
 # the RAIL's one call site (no second state authority)
 # ---------------------------------------------------------------------------
 

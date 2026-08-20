@@ -2708,8 +2708,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # dispatching anyway would ground the answer in another document's
         # conversation, so the turn refuses with the route's existing fixed,
         # redacted `model_failed` and nothing is dispatched.
+        # The capability is now `for_conversation` (PR #223, C2): an adapter
+        # that offers it binds and dispatches atomically, and one that does not
+        # is a catalog-only or sessionless adapter, unchanged.
         if prompt_envelope is not None \
-                and callable(getattr(port, "select_thread", None)):
+                and callable(getattr(port, "for_conversation", None)):
             # EVERY turn binds, including an outline-bound one (adversarial
             # review P2-11). The bind used to be gated on
             # `bound_buffer_key in document_keys`, so an outline turn was
