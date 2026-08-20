@@ -206,6 +206,7 @@ def test_the_launch_line_the_bridge_builds_is_one_a_real_binary_accepts(
 def test_shake_round_trips_against_the_real_harness(live_bridge):
     """§3.6's exact surface: a `prompt` frame carrying slash text, answered with
     `agentInvoked: false` and a FREE-TEXT summary — no structured payload."""
+    live_bridge.select_thread("ideation/staging/live/a.md")
     report = live_bridge.shake()
     assert report.agent_invoked is False
     assert isinstance(report.summary, str)
@@ -227,9 +228,44 @@ def test_the_memory_backend_really_is_off_inside_the_running_session(
     answers from the harness's OWN resolved settings, so this reads the pin back
     out of the running session rather than trusting the file the bridge wrote.
     With `backend: local` in the same slot the harness answers differently."""
+    live_bridge.select_thread("ideation/staging/live/a.md")
     answer = live_bridge.run_command("/memory diagnose")
     report = "\n".join(answer.command_output)
     assert "off" in report.lower(), report
+
+
+def test_a_PROVIDERLESS_set_model_is_refused_by_the_REAL_binary(live_bridge):
+    """RE-VERIFY N-1, pinned against the harness itself rather than the fixture.
+
+    The shipped `provider_id=None` default used to omit the `provider` key on
+    the strength of a docstring claim that the harness would resolve the model
+    itself. It does not — and this asserts the exact refusal, so the claim
+    cannot come back."""
+    live_bridge.select_thread("ideation/staging/live/a.md")
+    child = live_bridge._child                 # noqa: SLF001 - the harness IS the subject
+    answer = child.request(
+        {"id": "sm-none", "type": "set_model", "modelId": MOCK_MODEL_ID},
+        deadline=time.monotonic() + 30, clock=time.monotonic)
+    assert answer.success is False
+    assert answer.error == f"Model not found: undefined/{MOCK_MODEL_ID}"
+
+
+def test_an_UNLISTED_slash_command_really_would_start_a_turn(live_bridge):
+    """RE-VERIFY N-2, pinned against the harness itself. The allowlist guards
+    against something the real binary genuinely does: an unknown slash command
+    is not an error, it is a model turn."""
+    live_bridge.select_thread("ideation/staging/live/a.md")
+    # the bridge refuses it…
+    with pytest.raises(Exception, match="not a builtin"):
+        live_bridge.run_command("/definitelynotacommand")
+    # …and this is what would have happened if it had not
+    child = live_bridge._child                 # noqa: SLF001
+    answer = child.request(
+        {"id": "u1", "type": "prompt", "message": "/definitelynotacommand"},
+        deadline=time.monotonic() + LIVE_TIMEOUT_SECONDS, clock=time.monotonic)
+    assert answer.agent_invoked is None, "a real model turn omits agentInvoked"
+    assert answer.assistant_text.strip(), (
+        "the harness answered a model turn for an unknown slash command")
 
 
 def test_the_knowledge_mount_registers_and_the_harness_lists_it(live_bridge,
@@ -246,6 +282,7 @@ def test_the_knowledge_mount_registers_and_the_harness_lists_it(live_bridge,
     assert manifest_path.is_file() and config_path.is_file()
     # a fresh child, so discovery runs with the registration already in place
     live_bridge.stop()
+    live_bridge.select_thread("ideation/staging/live/a.md")
     answer = live_bridge.run_command("/mcp list")
     listing = "\n".join(answer.command_output)
     assert mcp.MCP_SERVER_NAME in listing, listing

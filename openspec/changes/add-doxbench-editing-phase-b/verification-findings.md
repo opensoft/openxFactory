@@ -112,8 +112,9 @@ memory settings can never bleed into the bridge's sessions.
 > `/memory diagnose` answers *"Memory backend is off — there is nothing to
 > show."*, and with `backend: local` in the same slot it answers something
 > else. So §11.5's "install fact, not policy" is now a fact the harness itself
-> reports, rather than a claim about a flag it rejects. This is a
-strengthening finding, not a blocking one — no design section needs to
+> reports, rather than a claim about a flag it rejects.
+
+This is a strengthening finding, not a blocking one — no design section needs to
 reopen.
 
 ---

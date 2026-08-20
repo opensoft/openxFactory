@@ -101,6 +101,14 @@ def _dispatch(bridge, envelope=None, *, thread=LIVE_THREAD):
 
 
 def _bridge(tmp_path, *scripted, catalog=None, log=None, **kwargs):
+    # A DECLARED harness provider id is what a real install has (re-verify
+    # N-1): the shipped `None` default cannot send `set_model` at all, because
+    # a provider-less frame is refused by the harness with
+    # `Model not found: undefined/<model>`. Tests about dispatch mechanics
+    # therefore declare one, exactly as an operator does; the undeclared path
+    # has its own two tests below.
+    kwargs.setdefault("launch", br.LaunchConfig(
+        session_dir=tmp_path / "bridge", provider_id="local-proxy"))
     return br.OmpHarnessBridge(
         catalog if catalog is not None else _catalog(),
         session_root=tmp_path / "bridge",
@@ -135,7 +143,14 @@ def test_the_de_facto_adapter_surface_is_declared_even_though_the_ban_is_not(
     spelling of the provider verb, and each is a capability D14 explicitly puts
     INSIDE the adapter. What it is is a contract nothing else states, so it is
     stated here: this is the set the route may reach, and a fifth name arriving
-    without this list moving is the thing to argue about."""
+    without this list moving is the thing to argue about.
+
+    WHAT THIS TEST CANNOT SEE (re-verify N-8): it detects only the
+    `getattr(port, "…")` spelling. A route reaching a fifth capability as a
+    plain attribute access (`port.something`), through `hasattr`, or off a
+    variable would pass here unnoticed. The declared set is still the contract;
+    this assertion is a tripwire on the one spelling the route actually uses,
+    not a proof of absence."""
 
     reached = {"select_thread", "outline_conversation_key", "mirror",
                "dereference"}
@@ -354,12 +369,16 @@ def test_the_harness_provider_id_comes_from_the_INSTALL_not_the_catalog(tmp_path
     assert "on-tenant" not in json.dumps(seen)
 
 
-def test_with_no_declared_provider_the_key_is_OMITTED_not_guessed(tmp_path):
-    """An install that declares no harness provider lets the harness resolve the
-    model id by its own matching, rather than being handed a label it must
-    refuse."""
+def test_a_PROVIDERLESS_set_model_is_never_sent(tmp_path):
+    """RE-VERIFY N-1. This used to omit the `provider` key when the install
+    declared none, on a docstring claim that the harness would then resolve the
+    model itself. Live, it answers
+    `Model not found: undefined/local-model` — so the SHIPPED DEFAULT refused
+    every real turn. No provider-less `set_model` is ever sent now."""
     seen = []
-    bridge = _bridge(tmp_path)
+    bridge = _bridge(tmp_path, "--current-model", "opus",
+                     launch=br.LaunchConfig(session_dir=tmp_path / "bridge"))
+    assert bridge.launch.provider_id is None
     original = br.HarnessChild.request
 
     def _spy(self, frame, *, deadline, clock):
@@ -368,11 +387,43 @@ def test_with_no_declared_provider_the_key_is_OMITTED_not_guessed(tmp_path):
 
     br.HarnessChild.request = _spy
     try:
-        _dispatch(bridge, _Envelope(model_id="opus"))
+        answer = _dispatch(bridge, _Envelope(model_id="opus"))
     finally:
         br.HarnessChild.request = original
         bridge.stop()
-    assert "provider" not in _turn_frames(seen)[0], seen
+    assert answer["assistant_prose"]
+    assert not [frame for frame in seen if frame["type"] == "set_model"], seen
+
+
+def test_an_undeclared_provider_REFUSES_a_model_the_harness_is_not_on(tmp_path):
+    """The honest half of N-1's fix, and a judgement call: letting the profile's
+    default model answer under this turn's recorded `model_id` would put a false
+    model on a durable record."""
+    bridge = _bridge(tmp_path, "--current-model", "some-other-model",
+                     launch=br.LaunchConfig(session_dir=tmp_path / "bridge"))
+    with pytest.raises(br.BridgeProtocolError, match="no harness provider id"):
+        _dispatch(bridge, _Envelope(model_id="opus"))
+    bridge.stop()
+
+
+def test_the_fixture_refuses_a_providerless_set_model_like_the_real_binary(
+        tmp_path):
+    """The P1-7 lesson, completed. The fixture ACCEPTED a missing provider where
+    real omp refuses it, which is exactly why the broken default passed every
+    hermetic test. Driven straight at the fixture so the refusal shape itself is
+    pinned, verbatim from the live capture."""
+    bridge = _bridge(tmp_path,
+                     launch=br.LaunchConfig(session_dir=tmp_path / "bridge",
+                                            provider_id="local-proxy"))
+    bridge.select_thread(LIVE_THREAD)
+    child = bridge._child                       # noqa: SLF001 - the fixture IS the subject
+    answer = child.request(
+        {"id": "sm-none", "type": "set_model", "modelId": "local-model"},
+        deadline=__import__("time").monotonic() + 20,
+        clock=__import__("time").monotonic)
+    bridge.stop()
+    assert answer.success is False
+    assert answer.error == "Model not found: undefined/local-model"
 
 
 def test_a_governance_label_sent_as_a_provider_is_refused_by_the_harness(tmp_path):
@@ -474,6 +525,29 @@ def test_a_child_that_STARTS_AND_DIES_flips_the_catalog_too(tmp_path):
     assert bridge.available is False
     assert [e.available for e in bridge.catalog().entries] == [False, False]
     assert bridge.catalog().selectable_entry_for("opus") is None
+    bridge.stop()
+
+
+def test_a_child_KILLED_EXTERNALLY_is_reported_unavailable_with_no_call_since(
+        tmp_path):
+    """RE-VERIFY N-3: `_known_dead` was unpinned — reverting it left every suite
+    green, because every other path reaches `_unavailable` through a failed
+    call. This is the case it exists for: the child dies with NO public call in
+    between, and the next thing that happens is a catalog poll — which is
+    exactly what `GET /workbench/model-catalog` does."""
+    bridge = _bridge(tmp_path, catalog=_catalog(_entry("opus"), _entry("kimi")))
+    _dispatch(bridge)
+    assert bridge.available is True
+    assert [e.available for e in bridge.catalog().entries] == [True, True]
+
+    # killed from outside — nothing calls the bridge, nothing raises
+    bridge._child._process.kill()               # noqa: SLF001 - an external death
+    bridge._child._process.wait(timeout=10)     # noqa: SLF001
+
+    assert [e.available for e in bridge.catalog().entries] == [False, False]
+    assert bridge.catalog().selectable_entry_for("opus") is None
+    # N-4: the two public readers agree
+    assert bridge.available is False
     bridge.stop()
 
 
@@ -637,6 +711,7 @@ def test_a_session_already_bound_to_another_thread_is_refused(tmp_path):
 
 def test_shake_rides_the_prompt_channel_and_reports_free_text_only(tmp_path):
     bridge = _bridge(tmp_path)
+    bridge.select_thread(LIVE_THREAD)
     sent = []
     original = br.HarnessChild.request
 
@@ -662,6 +737,48 @@ def test_an_unrecorded_shake_mode_is_refused_rather_than_sent(tmp_path):
     bridge = _bridge(tmp_path)
     with pytest.raises(br.BridgeError):
         bridge.shake("everything")
+    bridge.stop()
+
+
+def test_an_UNLISTED_slash_command_is_refused_rather_than_dispatched(tmp_path):
+    """RE-VERIFY N-2. `run_command`'s docstring claimed a caller passing prose
+    would have it "interpreted by the harness as an unknown command". Live, an
+    unknown slash command falls straight through to a REAL MODEL TURN —
+    unbounded by the packet assembler, uncounted by the byte bounds and
+    unrecorded in any sidecar. The head is now a closed allowlist."""
+    bridge = _bridge(tmp_path)
+    bridge.select_thread(LIVE_THREAD)
+    for unlisted in ("/definitelynotacommand", "/compact", "/init",
+                     "/shakedown"):
+        with pytest.raises(br.BridgeError, match="not a builtin"):
+            bridge.run_command(unlisted)
+    for listed in ("/shake elide", "/memory diagnose", "/mcp list"):
+        assert bridge.run_command(listed).agent_invoked is False
+    bridge.stop()
+
+
+def test_the_fixture_lets_an_unknown_slash_command_START_A_TURN(tmp_path):
+    """The fixture reproduces the harness's real behaviour, so the allowlist is
+    guarding against something this rig can actually do — otherwise the guard
+    would be a test of nothing."""
+    bridge = _bridge(tmp_path, "--reply", "AN UNBOUNDED TURN RAN")
+    bridge.select_thread(LIVE_THREAD)
+    child = bridge._child                       # noqa: SLF001 - the fixture IS the subject
+    import time as _time
+    answer = child.request(
+        {"id": "u1", "type": "prompt", "message": "/definitelynotacommand"},
+        deadline=_time.monotonic() + 20, clock=_time.monotonic)
+    bridge.stop()
+    assert answer.assistant_text == "AN UNBOUNDED TURN RAN"
+    assert answer.agent_invoked is None, "a real model turn omits agentInvoked"
+
+
+def test_a_builtin_needs_a_bound_conversation_too(tmp_path):
+    """A builtin acts on the CURRENT session — an unbound `/shake` would compact
+    whichever conversation the harness was last switched to."""
+    bridge = _bridge(tmp_path)
+    with pytest.raises(br.BridgeSessionConflict):
+        bridge.run_command("/shake elide")
     bridge.stop()
 
 

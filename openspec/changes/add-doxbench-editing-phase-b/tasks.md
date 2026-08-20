@@ -523,6 +523,15 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       path itself trusts and which the turn route already calls one step
       earlier, and four tests drive the REAL method against a real git session,
       including the bootstrap-reconstructed entry that used to lose records.
+      **NOTED (re-verify N-6):** the liveness question now has ONE spelling —
+      `doxbench_scope.is_live_session_ref`, beside the other consumer of the
+      same question. `serve.py`'s copy had already diverged from it in two ways
+      (raw vs normalised ref comparison, bare `Exception` vs `SessionRefused`),
+      and the shared one keeps the safer reading of each: normalised refs, so
+      `refs/heads/draft/x` and `draft/x` are one branch; and the NARROW catch,
+      which is a judgement call — a declared branch-layer refusal answers "not
+      this tile's session", while a genuine defect propagates instead of being
+      reported as an honest absence.
       **NOTED (adversarial review P3-19):** the "no live session" branch now
       answers its OWN cause rather than borrowing the no-gate-capability one,
       which was a true sentence about a different situation. It stays generic,
@@ -1126,6 +1135,30 @@ untouched: mechanical, reversible, at the model boundary.
       and the bridge REFUSES an unbound dispatch outright rather than running it
       in whatever session it happens to be on — the invariant made structural so
       a later caller cannot reintroduce it by forgetting.
+      **Judgement call, flagged (#JC-2 — ONE named channel for harness
+      builtins).** `/shake`, `/memory` and `/mcp` all ride the generic
+      slash-command-over-`prompt` frame, so the framing is named once
+      (`run_command`) and `shake()` is a thin wrapper over it rather than a
+      second copy. The FACTORING stands; the SAFETY CLAIM that first shipped
+      with it did not.
+      **CORRECTED 2026-08-19 (re-verify N-2): an unlisted slash command is not
+      an error, it is a model turn.** The docstring claimed this channel
+      "cannot carry a model prompt — a caller passing prose gets it interpreted
+      by the harness as an unknown command". Live, `/definitelynotacommand`
+      answers with the model-turn response shape and runs a real turn to
+      `agent_end` — unbounded by the packet assembler, uncounted by the byte
+      bounds, unrecorded in any sidecar. No `serve.py` caller reached it that
+      way, but a false safety claim in the one module that knows this protocol
+      is worth more than the bug it hid. The head is now a CLOSED allowlist
+      (`HARNESS_COMMAND_HEADS`), a builtin requires a bound conversation exactly
+      as a turn does (an unbound `/shake` would compact somebody else's
+      context), and a response reporting that the agent WAS invoked raises
+      rather than returning. Pinned hermetically and against the real binary.
+      **Judgement call, flagged (#JC-3 — an unbound dispatch is REFUSED).**
+      Given its own entry rather than living only inside the P2-11 correction
+      above (re-verify N-5). A turn — and now a builtin — runs only in the
+      conversation it belongs to; the alternative, defaulting to whichever
+      session the harness was last switched to, is the leak itself.
       **Judgement call, flagged (how a fresh session is made).** The recorded RPC
       surface has `switch_session` and it has process start with `--session-dir`;
       it has no in-session "start another session" command. So a thread nothing
@@ -1307,6 +1340,26 @@ untouched: mechanical, reversible, at the model boundary.
       `success:true, data.id: local-model`. So no turn could ever have been
       dispatched, and the ordering this tick verified was the ordering of two
       frames the second of which always failed.
+      **CORRECTED 2026-08-19 (re-verify N-1): the shipped DEFAULT refused every
+      real turn.** With no `provider_id` declared, `_apply_model` omitted the
+      `provider` key on a docstring claim that the harness would "resolve the
+      model id by its own matching". Live, it answers
+      `Model not found: undefined/<model>` — so `provider_id=None`, the shipped
+      default, could not dispatch at all, and the fixture ACCEPTED the
+      provider-less frame the real binary refuses (the P1-7 pattern recurring;
+      the fixture now refuses it identically, which is what makes that lesson
+      complete). A provider-less `set_model` is never sent now: with no
+      declaration the bridge asks the harness which model it is ALREADY on —
+      live-proven to work, a turn with no `set_model` at all completes on the
+      profile's own default — and proceeds only if that is the model this turn
+      asked for.
+      **Judgement call, flagged (#JC-5 — an undeclared provider REFUSES a
+      model the harness is not already on).** The alternative, letting the
+      profile's default answer anyway, would put a model on the turn's durable
+      record that did not answer it — the same class of untruth §13's
+      `selected_model` exists to prevent. So an install that declares no harness
+      provider serves exactly the model its profile holds, and says so plainly
+      when asked for another.
       **Judgement call, flagged (where the harness provider id lives).** On
       `LaunchConfig.provider_id`, the bridge's INSTALL-SIDE declaration — the
       same placement §10 chose for the retrieval backend, and for the same

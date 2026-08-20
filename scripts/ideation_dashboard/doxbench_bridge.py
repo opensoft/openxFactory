@@ -297,6 +297,12 @@ SHAKE_MODES: tuple[str, ...] = (SHAKE_MODE_ELIDE, SHAKE_MODE_IMAGES)
 # with a document's own path key.
 OUTLINE_CONVERSATION_PREFIX = "outline::"
 
+# THE BUILTINS THIS BRIDGE INVOKES, and no others (re-verify N-2). An unlisted
+# slash command does NOT fail in the harness: it falls through to a real model
+# turn, which would bypass the packet assembler, the byte bounds and the
+# sidecar. Heads only — a subcommand rides the same head.
+HARNESS_COMMAND_HEADS: frozenset[str] = frozenset({"/shake", "/memory", "/mcp"})
+
 # WHERE THE ASSISTANT'S TEXT ACTUALLY ARRIVES — CORRECTED 2026-08-19 after the
 # adversarial review's P1-3, against the ORIGINAL verification session's raw
 # captured stdout (`rpc-stdout-{5,6,7}.log`) and a live re-run.
@@ -1120,23 +1126,60 @@ class OmpHarnessBridge:
         is named once, here, and `shake` is a thin wrapper over it rather than a
         second copy of the framing.
 
-        NOT a provider verb, and deliberately not spelled like one: it invokes
-        the harness's OWN builtins (`/shake`, `/memory diagnose`, `/mcp list`)
-        and cannot carry a model prompt — a caller passing prose gets it
-        interpreted by the harness as an unknown command, not dispatched to a
-        model."""
+        A CLOSED ALLOWLIST, and the docstring that stood here before the
+        re-verify's N-2 was WRONG about why. It claimed this channel "cannot
+        carry a model prompt — a caller passing prose gets it interpreted by the
+        harness as an unknown command". Live, an unknown slash command does the
+        opposite:
+
+            >>> {"type":"prompt","message":"/definitelynotacommand"}
+                {"type":"response","command":"prompt","success":true}   # no data
+                {"type":"agent_start"} … agent_end assistant text: 'MOCK_DONE'
+
+        i.e. it falls straight through to a REAL MODEL TURN — unbounded by the
+        packet assembler, uncounted by the byte bounds, and unrecorded in any
+        sidecar. Nothing in `serve.py` reached it that way, but "a leading slash
+        is safe" was a false safety claim in a module whose whole job is to be
+        the only thing that knows this protocol.
+
+        So the HEAD is checked against `HARNESS_COMMAND_HEADS` — the three
+        builtins this bridge actually invokes — and anything else is refused
+        here rather than dispatched. Two further guards, because an allowlisted
+        head with an unrecognised SUBCOMMAND could still fall through: the call
+        requires a bound conversation exactly as `dispatch` does (a builtin acts
+        on the CURRENT session, so an unbound `/shake` would compact somebody
+        else's context), and a response reporting that the agent WAS invoked is
+        raised on rather than returned."""
 
         if not isinstance(slash_text, str) or not slash_text.startswith("/"):
             raise BridgeError(
                 "a harness command starts with '/': this channel invokes "
                 "builtins, and a model prompt goes through dispatch")
+        head = slash_text.split()[0] if slash_text.split() else ""
+        if head not in HARNESS_COMMAND_HEADS:
+            raise BridgeError(
+                f"{head!r} is not a builtin this bridge invokes; the allowlist "
+                f"is {sorted(HARNESS_COMMAND_HEADS)}. An unlisted slash command "
+                "does not fail in the harness — it falls through to a real model "
+                "turn, unbounded and unrecorded")
         with self._lock, self._marking_unavailable_on_death():
+            if self._selected is None:
+                raise BridgeSessionConflict(
+                    "no conversation is bound: a builtin acts on the CURRENT "
+                    "session, so an unbound one would act on whichever "
+                    "conversation the harness was last switched to")
             child = self._ensure_child()
             deadline = self._clock() + self._timeout_seconds
-            return child.request(
+            answer = child.request(
                 {"id": child.next_id("cmd"), "type": CMD_PROMPT,
                  "message": slash_text},
                 deadline=deadline, clock=self._clock)
+            if answer.agent_invoked is not False:
+                raise BridgeProtocolError(
+                    "this builtin invoked the model instead of answering "
+                    "locally; a command channel that can start a turn is a "
+                    "second, unbounded dispatch path")
+            return answer
 
     def dereference(self, value: str) -> str:
         """The seam `doxbench_threads.dereference_bodies` asks for (§3.5).
@@ -1192,7 +1235,11 @@ class OmpHarnessBridge:
 
     @property
     def available(self) -> bool:
-        return not self._unavailable
+        """THE SAME ANSWER `catalog()` GIVES (re-verify N-4). This used to read
+        `_unavailable` alone while `catalog()` also consulted child liveness, so
+        the two public readers could contradict each other on a child that was
+        killed externally."""
+        return not (self._unavailable or self._known_dead)
 
     @contextlib.contextmanager
     def _marking_unavailable_on_death(self):
@@ -1289,21 +1336,61 @@ class OmpHarnessBridge:
         smuggling a harness-routing field into a governance record would be
         exactly the conflation that caused this defect.
 
-        Undeclared, the `provider` key is OMITTED entirely, which lets the
-        harness resolve the model id by its own matching — the documented
-        `--model` behaviour — rather than being handed a label it must refuse."""
+        WHAT AN UNDECLARED PROVIDER DOES — CORRECTED 2026-08-19 after the
+        re-verify's N-1. This method used to omit the `provider` key when the
+        install declared none, and this docstring claimed the harness would then
+        "resolve the model id by its own matching". That is FALSE, and it made
+        the SHIPPED DEFAULT (`provider_id=None`) refuse every real turn:
+
+            >>> {"type":"set_model","modelId":"local-model"}      # no provider
+                {"success":false,"error":"Model not found: undefined/local-model"}
+
+        So a provider-less `set_model` is never sent. With no declaration the
+        bridge instead asks the harness what model it is ALREADY on and proceeds
+        only if that is the model this turn asked for — live-proven to work: a
+        turn with no `set_model` at all runs to completion on the profile's own
+        default model.
+
+        REFUSING THE MISMATCH IS THE POINT, and it is a judgement call. Letting
+        a different model answer under this turn's recorded `model_id` would put
+        a false model on a durable record — the same class of untruth §13's
+        `selected_model` exists to prevent — so an install that declares no
+        harness provider can serve exactly the model its profile already holds,
+        and says so plainly when asked for another."""
 
         entry = self._declared_catalog.entry_for(model_id)
         resolved = getattr(entry, "resolved_model_id", None) if entry else None
-        frame = {"id": child.next_id("sm"), "type": CMD_SET_MODEL,
-                 "modelId": str(resolved) if resolved else model_id}
+        wanted = str(resolved) if resolved else model_id
         provider = self._launch.provider_id
-        if isinstance(provider, str) and provider:
-            frame["provider"] = provider
-        answer = child.request(frame, deadline=deadline, clock=self._clock)
+        if not (isinstance(provider, str) and provider):
+            current = self._current_model_id(child, deadline=deadline)
+            if current == wanted:
+                return
+            raise BridgeProtocolError(
+                "this install declares no harness provider id, and the harness "
+                "is not already on the model this turn selected; a "
+                "provider-less set_model is refused by the harness, and letting "
+                "another model answer under this turn's recorded model id would "
+                "put a false model on a durable record")
+        answer = child.request(
+            {"id": child.next_id("sm"), "type": CMD_SET_MODEL,
+             "modelId": wanted, "provider": provider},
+            deadline=deadline, clock=self._clock)
         if not answer.success:
             raise BridgeProtocolError(
                 "the harness refused the model this turn selected")
+
+    def _current_model_id(self, child: HarnessChild, *,
+                          deadline: float) -> str | None:
+        """The model the harness is ALREADY on, from `get_state.data.model.id`."""
+
+        answer = child.request({"id": child.next_id("gs"), "type": CMD_GET_STATE},
+                               deadline=deadline, clock=self._clock)
+        model = answer.data.get("model")
+        if not isinstance(model, Mapping):
+            return None
+        identifier = model.get("id")
+        return identifier if isinstance(identifier, str) else None
 
     def _session_path(self, child: HarnessChild, *, deadline: float) -> str | None:
         answer = child.request({"id": child.next_id("gs"), "type": CMD_GET_STATE},

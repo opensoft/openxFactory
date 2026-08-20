@@ -768,6 +768,55 @@ def session_created_paths(
     return tuple(output)
 
 
+def is_live_session_ref(registry: Any, key: ScopeKey, *, repository: str,
+                        ref: str) -> bool:
+    """Whether ``ref`` is one of THIS tile's live session branches.
+
+    ONE spelling of the question, extracted at the re-verify's N-6 because
+    `serve.py` had grown a second one for the thread routes and the two had
+    already diverged in two ways. Both callers now share this, so a change to
+    what counts as a live session cannot land in one of them only.
+
+    THE TWO DIVERGENCES, RESOLVED TOWARDS THE SAFER READING:
+
+    * REF NORMALISATION. The thread copy compared normalised refs, this one
+      compared raw strings. Normalisation wins: `refs/heads/draft/x` and
+      `draft/x` are the same branch, and a registry entry and a request can
+      legitimately spell one either way — treating them as different silently
+      loses a session's threads.
+    * EXCEPTION BREADTH. This one caught `SessionRefused`; the thread copy
+      caught bare `Exception`. `SessionRefused` wins, and that is a JUDGEMENT
+      CALL worth flagging: the narrow catch answers "not this tile's session"
+      for the refusals the branch layer DECLARES (a cross-tile collision, an
+      ambiguous family) and lets anything else — a registry that raises
+      `AttributeError`, say — propagate to the caller's own handler rather than
+      being silently reported as "no session". The thread route's caller wraps
+      it, so nothing new reaches the wire; what changes is that a genuine defect
+      stops being indistinguishable from an honest absence.
+    """
+
+    from . import branch_session  # lazy: keeps this module's import graph flat
+
+    kinds = {
+        "cluster": branch_session.CLUSTER,
+        "possible": branch_session.POSSIBLE,
+        "staged": branch_session.STAGED_TOPIC,
+    }
+    scope_kind = kinds.get(key.tile_kind)
+    if scope_kind is None or not ref or registry is None:
+        return False
+    try:
+        tile = branch_session.Tile(scope_kind, key.tile_id)
+        live = branch_session.live_session_branches(registry, repository, tile)
+    except branch_session.SessionRefused:
+        # `CrossTileCollision` included: an ambiguous live branch is answered as
+        # "not this tile's session" rather than as another tile's.
+        return False
+    from . import snapshot_registry as _registry
+    wanted = _registry.normalize_ref(ref)
+    return any(wanted == _registry.normalize_ref(branch) for branch in live)
+
+
 def session_created_paths_for_scope(
     registry: Any,
     key: ScopeKey,
@@ -784,23 +833,6 @@ def session_created_paths_for_scope(
     spell adds a path here.
     """
 
-    from . import branch_session  # lazy: keeps this module's import graph flat
-
-    kinds = {
-        "cluster": branch_session.CLUSTER,
-        "possible": branch_session.POSSIBLE,
-        "staged": branch_session.STAGED_TOPIC,
-    }
-    scope_kind = kinds.get(key.tile_kind)
-    if scope_kind is None or not ref or registry is None:
-        return ()
-    try:
-        tile = branch_session.Tile(scope_kind, key.tile_id)
-        live = branch_session.live_session_branches(registry, repository, tile)
-    except branch_session.SessionRefused:
-        # `CrossTileCollision` included: an ambiguous live branch is answered as
-        # "no created material" rather than as another tile's.
-        return ()
-    if ref not in live:
+    if not is_live_session_ref(registry, key, repository=repository, ref=ref):
         return ()
     return session_created_paths(source_root, ref)

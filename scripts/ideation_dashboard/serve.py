@@ -1453,22 +1453,17 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         return root if root.is_dir() else None
 
     def _is_live_session_ref(self, key, entry) -> bool:
-        """Whether `key.ref` is one of this tile's LIVE session branches."""
-        from ideation_dashboard import branch_session
-        kinds = {"cluster": branch_session.CLUSTER,
-                 "possible": branch_session.POSSIBLE,
-                 "staged": branch_session.STAGED_TOPIC}
-        scope_kind = kinds.get(key.tile_kind)
-        if scope_kind is None or not key.ref:
-            return False
-        try:
-            live = branch_session.live_session_branches(
-                self.source.registry, entry.repository or key.repository,
-                branch_session.Tile(scope_kind, key.tile_id))
-        except Exception:  # noqa: BLE001 - an ambiguous family is not a session
-            return False
-        return registry_mod.normalize_ref(key.ref) in {
-            registry_mod.normalize_ref(branch) for branch in live}
+        """Whether `key.ref` is one of this tile's LIVE session branches.
+
+        ONE spelling, in `doxbench_scope` beside the other consumer of the same
+        question (re-verify N-6). This method had grown as a second copy and had
+        already diverged from it — different ref comparison, different exception
+        breadth — which is precisely how the two would have drifted apart on the
+        next change to what counts as a live session."""
+        from ideation_dashboard import doxbench_scope
+        return doxbench_scope.is_live_session_ref(
+            self.source.registry, key,
+            repository=entry.repository or key.repository, ref=key.ref)
 
     def _read_thread(self, worktree, document: str):
         """One document's thread, or None where no sidecar exists or it cannot

@@ -153,6 +153,7 @@ def main():
     parser.add_argument("--delta-chunks", type=int, default=1)
     parser.add_argument("--die-after", type=int, default=0)
     parser.add_argument("--known-provider", default="local-proxy")
+    parser.add_argument("--current-model", default="local-model")
     parser.add_argument("--stderr", default="")
     parser.add_argument("--banner", default="")
     parser.add_argument("--no-ready", action="store_true")
@@ -196,7 +197,8 @@ def main():
         if kind == "get_state":
             emit({"id": request_id, "type": "response", "command": "get_state",
                   "success": True,
-                  "data": {"model": MODEL_DESCRIPTOR,
+                  "data": {"model": dict(MODEL_DESCRIPTOR,
+                                            id=args.current_model),
                            "sessionFile": session_file,
                            "sessionId": "01a01bf6-01ae-7000-a64c-83cb75fbdcdf",
                            "messageCount": 0, "isStreaming": False}})
@@ -212,7 +214,21 @@ def main():
             # harness does not know is "Model not found: <provider>/<modelId>",
             # NOT a generic failure. A governance data-handling label sent as a
             # provider id lands here every time.
-            if provider is not None and provider != args.known_provider:
+            #
+            # AND A MISSING PROVIDER IS REFUSED THE SAME WAY (re-verify N-1,
+            # captured live): the harness stringifies the absent key, so a frame
+            # with no `provider` answers
+            # `Model not found: undefined/<modelId>`. This fixture used to
+            # ACCEPT it — the P1-7 pattern recurring, and the reason the shipped
+            # `provider_id=None` default looked fine in every hermetic test
+            # while refusing every real turn.
+            if provider is None:
+                emit({"id": request_id, "type": "response",
+                      "command": "set_model", "success": False,
+                      "error": "Model not found: undefined/"
+                               f"{frame.get('modelId')}"})
+                continue
+            if provider != args.known_provider:
                 emit({"id": request_id, "type": "response",
                       "command": "set_model", "success": False,
                       "error": f"Model not found: {provider}/"
@@ -224,14 +240,20 @@ def main():
             continue
         if kind == "prompt":
             message = frame.get("message", "")
-            if message.startswith("/"):
-                # A builtin slash command: the summary arrives BEFORE the
-                # response, and the response DOES carry agentInvoked: false.
+            head = message.split()[0] if message.split() else ""
+            if head in ("/shake", "/memory", "/mcp"):
+                # A KNOWN builtin: the summary arrives BEFORE the response, and
+                # the response DOES carry agentInvoked: false.
                 emit({"type": "command_output", "text": "Nothing to shake."})
                 emit({"id": request_id, "type": "response",
                       "command": "prompt", "success": True,
                       "data": {"agentInvoked": False}})
                 continue
+            # AN UNKNOWN SLASH COMMAND IS NOT AN ERROR IN THE HARNESS — it falls
+            # straight through to a real model turn (re-verify N-2, captured
+            # live: `/definitelynotacommand` -> agent_start -> 'MOCK_DONE'). The
+            # fixture reproduces that, so a bridge that let one through would
+            # fail a test rather than only production.
             # A REAL MODEL PROMPT: the response carries NO data at all, and the
             # turn is reported through session events (rpc.md:104).
             emit({"id": request_id, "type": "response", "command": "prompt",
