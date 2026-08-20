@@ -90,7 +90,12 @@ the snapshot→plan path and are adjacent on purpose.
 - [x] 3.2 The demote's bounded refresh is NOT touched. Deduping there would widen
       the boundary the promoted requirement pins as "leaving every other byte of that
       file unchanged", trading a data-loss guarantee for tidiness (design Decision 3).
-      Assert the boundary still holds after this part.
+      Assert the boundary still holds after this part. NOTE the one carve-out 2.4
+      adds to that same byte bound, so the two texts do not disagree: a lifecycle
+      status header added where the fragment carries NONE, named in the execution
+      record. An authorship dedupe is still not one of those — that bound admits
+      exactly one addition, and it is the one without which the topic cannot be
+      transitioned at all.
 - [x] 3.3 The record is FENCE-AWARE and ANCHORED to the status header's own block.
       A `Proposed by:` inside a ``` block is an example: reading it as the record
       both suppressed adding the real one (against this change's own ADDED scenario
