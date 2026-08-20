@@ -346,23 +346,51 @@ def test_BIND_AND_DISPATCH_are_ONE_critical_section(tmp_path):
 
     The bind is now part of the dispatch, inside one lock acquisition, so an
     interleaved selection cannot land between them."""
-    bridge = _bridge(tmp_path)
-    key_a, key_b = "conversation-A", "conversation-B"
-    bridge.select_thread(key_a)
+    # A DISTINCT session per child start — each start is a new process, so one
+    # `--session-file` list cannot give two different answers.
+    sessions = [str(tmp_path / "a.jsonl"), str(tmp_path / "b.jsonl")]
+    starts = {"n": 0}
 
+    def spawn(argv, environment, cwd):
+        starts["n"] += 1
+        session = sessions[min(starts["n"] - 1, len(sessions) - 1)]
+        return subprocess.Popen(
+            [sys.executable, str(FAKE_CHILD), *list(argv)[1:],
+             "--session-file", session],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, env=dict(environment), cwd=str(cwd))
+
+    bridge = br.OmpHarnessBridge(
+        _catalog(), session_root=tmp_path / "bridge", spawn=spawn,
+        launch=br.LaunchConfig(session_dir=tmp_path / "bridge",
+                               provider_id="local-proxy"),
+        log=lambda line: None, environment={"PATH": "/usr/bin:/bin"})
+    key_a, key_b = "conversation-A", "conversation-B"
+
+    # Handler A binds A. Handler B then binds B — exactly the interleaving the
+    # separate locks allowed, and it really does move the selection.
+    bridge.select_thread(key_a)
+    bridge.select_thread(key_b)
+    assert bridge._selected == key_b            # noqa: SLF001
+
+    # A now dispatches. Its view must put the turn back in A's conversation,
+    # inside the same lock acquisition as the prompt — the whole point of C2.
     seen = []
+    held = {}
     original = br.HarnessChild.request
 
     def _spy(self, frame, *, deadline, clock):
         seen.append(dict(frame))
-        # the interleaving handler, DURING A's dispatch
-        if frame["type"] == "set_model" and not getattr(_spy, "raced", False):
-            _spy.raced = True
-            racer = threading.Thread(target=bridge.select_thread, args=(key_b,))
-            racer.start()
-            racer.join(timeout=1.0)
-            # the racer cannot get in: the lock is held for the whole turn
-            assert racer.is_alive(), "the bind was not held across the dispatch"
+        if frame["type"] == "prompt":
+            # WHILE the prompt is on the wire, the bridge lock is held and the
+            # selection is A's — an interleaving handler cannot move it, which
+            # is what "one critical section" means.
+            held["selected_at_prompt"] = bridge._selected   # noqa: SLF001
+            held["locked"] = not bridge._lock.acquire(      # noqa: SLF001
+                blocking=False) if threading.current_thread() is not None \
+                else None
+            if held["locked"] is False:
+                bridge._lock.release()                      # noqa: SLF001
         return original(self, frame, deadline=deadline, clock=clock)
 
     br.HarnessChild.request = _spy
@@ -371,10 +399,12 @@ def test_BIND_AND_DISPATCH_are_ONE_critical_section(tmp_path):
     finally:
         br.HarnessChild.request = original
     assert answer["assistant_prose"]
-    # the turn ran in A's conversation, whatever the other handler wanted
-    assert bridge._selected in (key_a, key_b)   # noqa: SLF001
-    prompts = [f for f in seen if f["type"] == "prompt"]
-    assert len(prompts) == 1
+    assert held["selected_at_prompt"] == key_a, (
+        "the prompt went out while another handler's conversation was bound")
+    # THE PIN: the dispatch re-bound A rather than running in B's session.
+    assert bridge._selected == key_a, (            # noqa: SLF001
+        "the turn ran in another handler's conversation")
+    assert [f["type"] for f in seen].count("prompt") == 1
     bridge.stop()
 
 
