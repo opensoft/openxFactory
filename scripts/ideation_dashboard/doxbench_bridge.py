@@ -592,10 +592,21 @@ class HarnessChild:
         except BaseException as error:  # noqa: BLE001 - a broken pipe is a dead child
             raise BridgeUnavailable(
                 "the harness child's stdin closed mid-command") from error
-        return self._await_response(request_id, deadline=deadline, clock=clock)
+        # ONLY A PROMPT HAS A TURN. `agentInvoked`'s omitted-means-await-events
+        # rule is a property of `prompt` success responses and of nothing else:
+        # `set_model`, `switch_session` and `get_state` never emit `agent_end`,
+        # so awaiting one after them hangs until the deadline. Caught by the
+        # LIVE run — the `set_model` response arrived at 1.03 s and the reader
+        # sat on it for the full 45 s deadline. Read off the REQUEST's own type
+        # rather than the response's `command`, so a harness that mislabels a
+        # response cannot make this hang either.
+        return self._await_response(
+            request_id, deadline=deadline, clock=clock,
+            awaits_turn=frame.get("type") == CMD_PROMPT)
 
     def _await_response(self, request_id: str, *, deadline: float,
-                        clock: Callable[[], float]) -> HarnessResponse:
+                        clock: Callable[[], float],
+                        awaits_turn: bool = False) -> HarnessResponse:
         outputs: list[str] = []
         assistant: list[str] = []
         ended = False
@@ -674,8 +685,8 @@ class HarnessChild:
             #    terminal `agent_end`;
             #  * `agentInvoked: true` is the same: keep reading.
             invoked = settled.agent_invoked
-            if not settled.success or invoked is False:
-                if invoked is False:
+            if not awaits_turn or not settled.success or invoked is False:
+                if awaits_turn and invoked is False:
                     self._drain_trailing(outputs, assistant, deadline=deadline,
                                          clock=clock)
                 break
