@@ -654,10 +654,27 @@ def test_a_form_feed_in_a_status_line_does_not_invent_a_line_boundary():
     out = gc._flip_status(src, "staged")
     assert "Status: stagedrest of the line" not in out, \
         "the remainder was glued onto the status value again"
-    assert out.startswith("Status: staged\n")
     # the real line count is unchanged: no boundary was invented or destroyed
     assert out.count("\n") == src.count("\n")
     assert out.endswith("body\n")
+
+    # UPDATED CONTRACT: `_flip_status` now reads the SAME grammar as the forward
+    # gate, and `Status: draft\x0crest of the line` does not satisfy it — the
+    # gate would refuse this document for lacking a header. So the flip declines
+    # the line instead of rewriting it, and the human's trailing text survives.
+    # The old behavior replaced the whole row with a bare `Status: staged`,
+    # DISCARDING `\x0crest of the line`: silent data loss dressed as a flip, and
+    # the assertion that used to sit here pinned it.
+    assert out == src
+    assert "rest of the line" in out
+
+    # …and the ratified "the restored fragment MUST carry `Status: staged`"
+    # scenario still holds, because the demote composes the flip with the header
+    # ADD — which is the pair the verb actually applies.
+    composed, added = gc._add_status_header(out, "staged")
+    assert added is True
+    assert composed.startswith("Status: staged\n")
+    assert "rest of the line" in composed
 
 
 def test_a_unicode_line_separator_in_the_header_does_not_hide_the_status():
@@ -1161,6 +1178,90 @@ def test_the_demotes_bounded_refresh_is_not_where_the_line_is_deduped(tmp_path):
     assert [ln for ln in after.splitlines() if ln.startswith("Proposed by:")] == [
         "Proposed by: an-older-change", "Proposed by: a-second-older-change"], \
         "the demote's bounded refresh widened to tidy a header line"
+
+
+# ---- the outline's own header, on the REFRESH-IN-PLACE arm (review R1) ------
+
+def test_a_header_less_live_outline_does_not_leave_the_topic_one_way(tmp_path):
+    """DRIVEN. An earlier pass of this change declared the outline out of scope on
+    the grounds that its source always arrives carrying a header. That is true of
+    the SNAPSHOT the restore arm applies and false of the LIVE FRAGMENT the
+    refresh-in-place arm reads — a document the human owns, which never passed the
+    forward gate and so never had to acquire a header. The demote then succeeded
+    with `outline_refusal: None`, wrote the fragment back with no header, and left
+    the topic one-way: the next whole-folder transition refused on the outline
+    itself. Both gates driven here, because that is how it was found."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    fragment = _fragment(root)
+    fragment.parent.mkdir(parents=True, exist_ok=True)
+    fragment.write_text(
+        f"# Staged: {TOPIC}\n\nSummary: a live working outline, no Status "
+        "header.\n\n## Why\n\nWHAT THE HUMAN IS ACTUALLY WORKING ON.\n",
+        encoding="utf-8")
+
+    res, ex = _demote_and_execute(root, reason="Live header-less fragment.")
+    after = fragment.read_text(encoding="utf-8")
+
+    assert ex.snapshot_disposition == "preserved"       # the refresh-in-place arm
+    assert ex.outline_refusal is None
+    # `staged`, NOT the `draft` returned change artifacts get: the ratified rule
+    # says the topic's declared primary fragment keeps `Status: staged`, and the
+    # value is taken from the same expression the restore arm uses.
+    assert "Status: staged" in after.splitlines()
+    assert "Status: draft" not in after.splitlines()
+    assert f"ideation/staging/{TOPIC}/{TOPIC}.md" in ex.status_headers_added
+    # the human's own bytes are still there
+    assert "WHAT THE HUMAN IS ACTUALLY WORKING ON." in after
+    assert "Summary: a live working outline, no Status header." in after
+    # …and the round-trip provenance still landed
+    assert f"Change ID: {CHANGE}" in after
+
+    # THE PROPERTY: the topic transitions forward again, whole folder.
+    _headerless_change_artifacts(root, "A SECOND ATTEMPT'S REASONING.")
+    support.transition(root, CHANGE, f"ideation/staging/{TOPIC}", [], None,
+                       "2026-08-01", False, True)
+    assert not (root / "ideation" / "staging" / TOPIC).exists()
+
+
+def test_a_live_outline_that_has_a_header_keeps_the_humans_own_value(tmp_path):
+    """The other half of R1, and the reason the fix is an ADD rather than a flip:
+    the refresh-in-place arm deliberately does not rewrite the live fragment's
+    status, because that value is the human's. Only its ABSENCE is filled."""
+    root = _tree(tmp_path)
+    _with_transitioned_snapshot(root)
+    fragment = _fragment(root)
+    fragment.parent.mkdir(parents=True, exist_ok=True)
+    fragment.write_text(
+        f"# Staged: {TOPIC}\n\nStatus: brainstorm\n\n## Why\n\nmine.\n",
+        encoding="utf-8")
+
+    res, ex = _demote_and_execute(root, reason="Human's own status.")
+    after = fragment.read_text(encoding="utf-8")
+
+    assert "Status: brainstorm" in after.splitlines()
+    assert f"ideation/staging/{TOPIC}/{TOPIC}.md" not in ex.status_headers_added
+
+
+def test_a_preserved_snapshot_copy_also_carries_a_header(tmp_path):
+    """The third governed markdown the demote writes into a topic on this arm.
+    Belt and braces — the snapshot arrives with a header by construction — but a
+    silent hole here would be the same defect in a third place."""
+    root = _tree(tmp_path)
+    snapshot_path = _with_transitioned_snapshot(root)
+    snapshot_path.write_text(
+        f"# Staged: {TOPIC}\n\nno header at all here either.\n", encoding="utf-8")
+    fragment = _fragment(root)
+    fragment.parent.mkdir(parents=True, exist_ok=True)
+    fragment.write_text(
+        f"# Staged: {TOPIC}\n\nStatus: staged\n\n## Why\n\nlive.\n",
+        encoding="utf-8")
+
+    res, ex = _demote_and_execute(root, reason="Preserved copy.")
+
+    assert ex.snapshot_disposition == "preserved"
+    kept = ex.preserved_snapshot_path.read_text(encoding="utf-8")
+    assert "Status: draft" in kept.splitlines()
 
 
 # ---- part 4: the state-at-demote slot (Brett's Decision 3) ------------------

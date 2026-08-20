@@ -414,6 +414,15 @@ def record_authorship(text: str, change: str) -> str:
     such record"), and refreshing one of three while leaving two stale satisfies
     the letter of an update and none of the point.
 
+    THE COLLAPSE REACHES THE WHOLE DOCUMENT, not just the header block. Only the
+    KEPT record is anchored to that block; every other unfenced `Proposed by:`
+    line goes, wherever it sits, because a stale record left standing in the body
+    says the same ambiguous thing as one left standing in the header. A line
+    inside a code fence is an example and is never touched. Measured rather than
+    estimated: 0 of the corpus's 1133 markdown documents carry a second such
+    record or one outside their header block today, so this governs the shape
+    rather than clearing a backlog.
+
     THE OBLIGATION SITS HERE, on the gate that WRITES the line, and deliberately
     not on the reverse transition's refresh. That refresh is ratified as bounded
     to the round-trip provenance slots and the marked proposal-element sections,

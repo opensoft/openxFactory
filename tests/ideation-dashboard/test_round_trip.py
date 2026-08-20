@@ -29,6 +29,7 @@ import pytest
 from conftest import REPO_ROOT
 
 from doc_health import families
+from ideation_dashboard import gate_console as gc
 from ideation_dashboard import round_trip as rt
 
 OUTLINE_MODEL_JS = (
@@ -475,6 +476,64 @@ def test_the_movers_line_split_is_the_three_real_endings_and_nothing_else():
     assert rows == support._split_keepends(text)
     # …and the same split the other implementations use, on the same input
     assert rows == rt.split_keepends(text)
+
+
+# ---- the STATUS-HEADER grammar, shared by the two gates (review R2) ----------
+#
+# The forward gate (`proposal-support._status_row`) decides whether a document is
+# REFUSED for lacking a status header. The reverse gate
+# (`gate_console._status_row`) decides whether a returned document needs one
+# ADDED. Where those two readers disagree, the demote leaves a topic one-way
+# while believing it has not — so they are pinned against each other here on the
+# shapes they used to disagree about. Measured over the corpus before the
+# alignment: 11 of 1148 documents.
+
+STATUS_FIXTURES = {
+    "plain": "# T\n\nStatus: draft\n\nbody\n",
+    # `startswith` says yes, the gate's `\S+` grammar says no. Seven archived
+    # change artifacts carry exactly this shape.
+    "parenthetical": "# T\n\nStatus: record (in progress — pending review)\n\nbody\n",
+    "trailing_space": "# T\n\nStatus: draft   \n\nbody\n",
+    "no_value": "# T\n\nStatus:\n\nbody\n",
+    "two_words": "# T\n\nStatus: open (operational)\n\nbody\n",
+    # a real header BELOW the old 15-row window
+    "beyond_the_window": "# T\n" + "".join(f"Field{i}: v\n" for i in range(20))
+                         + "Status: draft\n\nbody\n",
+    # a fenced EXAMPLE is not this document's header
+    "fenced_example": "# T\n\n```markdown\nStatus: staged\n```\n\nStatus: draft\n",
+    "only_fenced": "# T\n\n```markdown\nStatus: staged\n```\n\nbody\n",
+    "crlf": "# T\r\n\r\nStatus: draft\r\n\r\nbody\r\n",
+    "pseudo_line": "Status: draft\x0crest of the line\nbody\n",
+    "none_at_all": "# T\n\nbody\n",
+    "empty": "",
+}
+
+
+@pytest.mark.parametrize("name", sorted(STATUS_FIXTURES))
+def test_both_gates_agree_where_a_documents_status_header_is(name):
+    text = STATUS_FIXTURES[name]
+    support = _mover_module()
+    rows = support._split_keepends(text)
+    forward = support._status_row(rows, support._fenced_flags(rows))
+    reverse = gc._status_row(rt.split_keepends(text))
+    assert (forward[0] if forward else None) == reverse, (
+        f"{name}: the forward gate says {forward}, the reverse gate says {reverse}")
+
+
+def test_the_shapes_the_two_gates_used_to_disagree_about():
+    """Named rather than merely parametrized, because each one is a defect that
+    reached the corpus: a prefix match on a parenthetical annotation (7 archived
+    artifacts judged headed by the demote and refused by the gate), a real header
+    below the old 15-row window (a SECOND header inserted beside it), and a fenced
+    example read as the document's own."""
+    def reverse(text):
+        return gc._status_row(rt.split_keepends(text))
+
+    assert reverse(STATUS_FIXTURES["parenthetical"]) is None
+    assert reverse(STATUS_FIXTURES["beyond_the_window"]) == 21
+    assert reverse(STATUS_FIXTURES["only_fenced"]) is None
+    assert reverse(STATUS_FIXTURES["fenced_example"]) == 6
+    assert reverse(STATUS_FIXTURES["plain"]) == 2
 
 
 @pytest.mark.skipif(NODE is None, reason="node is not installed")

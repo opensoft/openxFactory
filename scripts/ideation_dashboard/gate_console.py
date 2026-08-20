@@ -345,14 +345,42 @@ def _flip_status(text: str, new_status: str) -> str:
     return round_trip.join_rows(rows)
 
 
+_STATUS_BODY_RE = re.compile(r"Status:\s*(\S+)\s*")
+
+
 def _status_row(rows: list[tuple[str, str]]) -> int | None:
-    """Index of the document's `Status:` header row within the header window, or
-    None. The ONE scan `_flip_status` and `_add_status_header` share, so the
-    question "does this document carry a header" gets the same answer from the
-    side that rewrites one and the side that adds one."""
-    for i in range(min(len(rows), HEADER_SCAN_LINES)):
-        if rows[i][0].startswith("Status:"):
-            return i
+    """Index of the document's `Status:` header row, or None. The ONE scan
+    `_flip_status` and `_add_status_header` share, so the question "does this
+    document carry a header" gets the same answer from the side that rewrites one
+    and the side that adds one.
+
+    THE SAME GRAMMAR AS THE FORWARD GATE (`proposal-support._status_row`), and
+    that alignment is the point rather than a tidy-up: this side decides whether a
+    returned document needs a header ADDED, the forward gate decides whether it
+    REFUSES the document, and where the two readers disagreed the demote left a
+    topic one-way while believing it had not. Measured over the corpus, the old
+    reader disagreed with the gate on 11 of 1148 documents, in both directions:
+
+    * STRICT, not `startswith`. `Status: record (in progress — …)` satisfies a
+      prefix test and fails the gate's `\\S+` grammar, so seven archived-change
+      artifacts were judged headed here and refused there. It also means
+      `_flip_status` no longer overwrites such a line — the parenthetical is a
+      human's annotation, and rewriting it to a bare `Status: draft` was silent
+      data loss dressed up as a status flip.
+    * FENCE-AWARE. A `Status:` line inside a ``` block is an EXAMPLE. Reading it
+      as the document's header flipped the example and left the real header alone.
+    * NO 15-ROW WINDOW. A real header below row 15 was invisible here and visible
+      to the gate, so `_add_status_header` inserted a SECOND one.
+
+    `HEADER_SCAN_LINES` still bounds the INSERTION point search in
+    `_add_status_header`, which is a different question — where a header belongs,
+    not whether one is present."""
+    flags = round_trip._fenced_flags(rows)
+    for index, (body, _ending) in enumerate(rows):
+        if flags[index]:
+            continue
+        if _STATUS_BODY_RE.fullmatch(body):
+            return index
     return None
 
 
@@ -1148,8 +1176,12 @@ def _restore_outline(
         # hidden artifact in a governed folder is how material goes missing, and
         # the corpus readers (doc-health, the wheel) should see it.
         kept = dst.parent / f"{plan.staging_topic}.snapshot-{plan.change_id}.md"
-        kept.write_bytes(
-            _flip_status(snapshot_bytes.decode("utf-8"), DRAFT_STATUS).encode("utf-8"))
+        kept_text, kept_added = _add_status_header(
+            _flip_status(snapshot_bytes.decode("utf-8"), DRAFT_STATUS), DRAFT_STATUS)
+        kept.write_bytes(kept_text.encode("utf-8"))
+        if kept_added:
+            result.status_headers_added.append(
+                kept.relative_to(root).as_posix())
         result.preserved_snapshot_path = kept
         result.snapshot_disposition = "preserved"
         base = dst.read_bytes().decode("utf-8")   # never read_text (see above)
@@ -1159,6 +1191,30 @@ def _restore_outline(
         base = _flip_status(snapshot_bytes.decode("utf-8"), outline.status_flip
                             or STAGED_STATUS)
         result.snapshot_disposition = "applied"
+
+    # THE HEADER OBLIGATION REACHES THE OUTLINE TOO, and specifically the
+    # REFRESH-IN-PLACE arm. A previous pass of this change declared the outline
+    # out of scope on the grounds that its source always arrives carrying a
+    # header — true of the snapshot the restore arm applies, and FALSE of the
+    # live fragment case 3 reads, which is a document the human owns and which
+    # never passed the forward gate to acquire one. Driven: a header-less working
+    # outline demoted cleanly (`outline_refusal: None`) and left the topic
+    # one-way, the next whole-folder transition refusing on the fragment itself.
+    #
+    # THE VALUE IS `staged`, NOT the `draft` used for returned change artifacts,
+    # and it is taken from the same expression the restore arm uses so the two
+    # cannot drift. The ratified rule is explicit: a returning file whose
+    # destination is the topic's declared primary fragment SHALL keep
+    # `Status: staged` and MUST NOT be flipped to draft, because the selection
+    # rule still calls that file the staged topic's outline.
+    #
+    # `_add_status_header` DEFERS to an existing header, so the live fragment's
+    # own status — whatever the human set it to — is still never rewritten here.
+    # Only its absence is filled.
+    base, outline_added = _add_status_header(
+        base, outline.status_flip or STAGED_STATUS)
+    if outline_added:
+        result.status_headers_added.append(outline.to_path)
 
     # THE UNCLOSED-FENCE REFUSAL. Inside an open fence a written section is
     # invisible to the scanner that would find it next time, so it would be written

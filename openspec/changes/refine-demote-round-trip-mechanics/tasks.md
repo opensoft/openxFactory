@@ -59,6 +59,29 @@ the snapshot→plan path and are adjacent on purpose.
       byte-exact-move reading that deferred this was rejected as citing no ratified
       text; `test_a_crlf_document_survives_a_demote_move_byte_exactly` was a
       wave-re-review regression pin and is updated to the new contract.
+- [x] 2.4 **THE OUTLINE'S REFRESH-IN-PLACE ARM**, which 2.3 wrongly declared out of
+      scope. The claim was that the outline's source always arrives carrying a
+      header; that holds for the SNAPSHOT the restore arm applies and fails for the
+      LIVE FRAGMENT the refresh-in-place arm reads — a document the human owns,
+      which never passed the forward gate. Demonstrated: a header-less working
+      outline demoted cleanly (`outline_refusal: None`) and left the topic one-way.
+      The refreshed bytes now go through the same add, with the value `staged`
+      (the ratified primary-fragment rule, taken from the same expression the
+      restore arm uses — NOT the `draft` returned change artifacts get). The add
+      defers to an existing header, so a live fragment's own status is still never
+      rewritten. The preserved-snapshot copy the same arm writes gets the same
+      treatment at `draft`.
+- [x] 2.5 **ONE STATUS GRAMMAR ACROSS BOTH GATES.** `gate_console._status_row`
+      (15-row window, fence-blind, prefix match) disagreed with
+      `proposal-support._status_row` (whole document, fence-aware, strict) on 11 of
+      the corpus's 1133 markdown documents — 10 of them documents the forward gate
+      REFUSES but the demote judged headed (7 archived-change evidence artifacts
+      with `Status: record · …` / `Status: record (in progress — …)`), and a real
+      header below row 15 that was invisible here, so a SECOND one was inserted
+      beside it. Aligned; the two now disagree on 0 of 1133, and they are pinned
+      against each other in the same file as the fence-flag agreement test. The
+      strict grammar also stops `_flip_status` overwriting such a line, which was
+      silent data loss dressed as a status flip.
 
 ## 3. The `Proposed by:` line
 
@@ -78,7 +101,11 @@ the snapshot→plan path and are adjacent on purpose.
 - [x] 3.4 Pre-existing DUPLICATES are collapsed to exactly one. The ratified
       requirement is unconditional ("the document MUST carry exactly one such
       record"), and refreshing one of three while leaving two stale satisfies the
-      letter of an update and none of the point. Outside fences only.
+      letter of an update and none of the point. Outside fences only, and the
+      collapse reaches the WHOLE DOCUMENT rather than only the header block — only
+      the KEPT record is anchored there. Stated in the delta and the docstring
+      because it is a scope a reader would otherwise have to infer from code;
+      measured at 0 of 1133 corpus documents at risk today.
 - [x] 3.5 The status flip stops eating bytes it never owned. `^Status:\s*staged\s*$`
       consumes the newline after the header (`\s*` is greedy, `$` is satisfied one
       line later), so a human's blank line between the header block and the body was
