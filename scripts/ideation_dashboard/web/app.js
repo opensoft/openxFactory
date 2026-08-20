@@ -240,6 +240,10 @@ export function createDoxBenchSourceLoader(sourceBaseOf, injectedFetch) {
 // which the browser holds none and can hold none (FR-020/FR-022).
 const CATALOG_ROUTE = "/workbench/model-catalog";
 const CHAT_TURN_ROUTE = "/actions/workbench/chat-turn";
+// add-doxbench-editing-phase-b task 9.5: the THREAD READ route. A GET, and only
+// a GET — a thread is written by a TURN, through the Save gate, and this seam
+// has no write to offer.
+const THREAD_ROUTE = "/workbench/thread";
 const CONSOLE_TOKEN_HEADER = "X-XF-Console-Token";
 
 export function createDoxBenchCatalogLoader(consoleTokenOf, injectedFetch) {
@@ -287,6 +291,34 @@ export function createDoxBenchCatalogLoader(consoleTokenOf, injectedFetch) {
     // read" -- NOT the editor-only configured-none posture this line used to
     // claim. An answer that cannot be read is a failure fact with its own
     // remedy, never evidence that nothing is configured (T104 F10-1).
+    return response.json().catch(() => null);
+  };
+}
+
+export function createDoxBenchThreadLoader(consoleTokenOf, injectedFetch) {
+  // A TRANSPORT MOVES BYTES. It names no field of the query it carries: the
+  // caller hands over an already-built parameter object, exactly as the turn
+  // submitter is handed an already-built request envelope, so this function
+  // cannot grow into the thing that decides what a thread request says.
+  return async function loadDoxBenchThread(query) {
+    // Same missing-token rule as the two transports above.
+    const consoleToken = consoleTokenOf();
+    const options = {
+      cache: "no-store",
+      headers: consoleToken ? { [CONSOLE_TOKEN_HEADER]: consoleToken } : {},
+    };
+    const threadUrl =
+      THREAD_ROUTE + "?" + new URLSearchParams(query || {}).toString();
+    const response = injectedFetch
+      ? await injectedFetch(threadUrl, options)
+      : await fetch(threadUrl, options);
+    // EVERY refusal is the SAME answer here, and deliberately: the four
+    // absences task 9.5 enumerates — the hosted plane, no gate capability, an
+    // unresolved actor, no live session — are one posture on this surface,
+    // "this document has no readable thread", and the rail renders it as the
+    // honest empty transcript. Nothing from the body is carried (FR-020/
+    // FR-022): the rail states an absence, it never quotes a server.
+    if (!response.ok) return null;
     return response.json().catch(() => null);
   };
 }
@@ -924,6 +956,11 @@ async function render() {
             ? { only: request.only } : {}) }),
       catalog: createDoxBenchCatalogLoader(() => caps?.console_token),
       chatTurn: createDoxBenchTurnSubmitter(() => caps?.console_token),
+      // add-doxbench-editing-phase-b task 7.2: the rail's loaded-document
+      // selector switches the transcript to that document's thread, and this
+      // is where it reads one. A READ seam only — there is no thread write on
+      // this bundle, because a thread is written by a turn.
+      thread: createDoxBenchThreadLoader(() => caps?.console_token),
     };
     const stagingWorkbench = mountStagingWorkbench(
       document.getElementById("staging-workbench-root"), snapshot,

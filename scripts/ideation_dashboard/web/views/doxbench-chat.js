@@ -19,6 +19,7 @@ import {
   createChatState, adoptCatalog, selectModel, editSubject, editComposer,
   beginTurn, settleTurnSuccess, settleTurnFailure, abortTurn,
   transcriptWindow, transcriptWireWindow, rekeyChatState, proposalsOf,
+  adoptThreadTranscript,
   refreshProposalCurrency, rejectProposal, markProposalApplied,
   markProposalAppliedAfterSwap, clearLocalFailure,
   recordLocalFailure, recordCatalogFailure, chatSnapshot, restoreChatState,
@@ -853,11 +854,22 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // extended to selection now that documents are held side by side rather than
   // in one slot.
   //
-  // TODO(add-doxbench-editing-phase-b tasks.md §9): switching the selection must
-  // also switch WHICH THREAD the transcript shows and appends to. The thread
-  // sidecar and its persistence land in the threads slice; this handler is the
-  // one place that call belongs, and it is deliberately left as the selection
-  // move alone rather than half-wired to a store that does not exist yet.
+  // SWITCHING THE SELECTION SWITCHES THE THREAD (task 7.2, completed at §11).
+  // The thread is the SERVER's record — one sidecar per document, read through
+  // the thread route `options.loadThread` fetches — so this handler asks for
+  // the newly selected document's thread and adopts it as the transcript.
+  //
+  // ORDER IS THE CONTRACT: the selection moves FIRST, through the canvas's own
+  // `setActiveBuffer` seam, and the transcript follows. A thread that cannot be
+  // read — no session, no gate capability, the hosted plane, a document with no
+  // sidecar yet — adopts an EMPTY transcript rather than leaving the previous
+  // document's conversation on screen, because the wire transcript is this
+  // rail's own state and carrying another document's turns into this one's next
+  // request is the defect the switch exists to close.
+  //
+  // `loadThread` is OPTIONAL. A shell that supplies none keeps exactly the
+  // pre-§11 behaviour, which is what lets the editor-only posture and every
+  // composition harness stand unchanged.
   loadedSelect.addEventListener("change", async () => {
     const wanted = String(loadedSelect.value || "");
     const model = loadedSelectorModel(liveEditorState());
@@ -867,8 +879,23 @@ export function mountDoxBenchChatRail(host, options = {}) {
       renderLoadedSelector();
       return;
     }
+    // NOT WHILE A TURN IS IN FLIGHT (adversarial review P2-9). The running turn
+    // was sent bound to the CURRENT document and its answer will be appended to
+    // whatever transcript is loaded when it settles — so moving the selection
+    // now leaks that document's question and answer into another document's
+    // transcript and onto the wire. The refusal is stated on the rail's own
+    // note rather than swallowed, and the selector is rendered back.
+    if (state.phase === "in_flight") {
+      loadedNote.textContent = "a turn is still running on the selected "
+        + "document — it finishes bound to that document, so the selection "
+        + "moves once it settles";
+      loadedNote.hidden = false;
+      renderLoadedSelector();
+      return;
+    }
     const select = options.selectBuffer;
     if (typeof select === "function") await select(wanted);
+    await switchThread(wanted);
     renderLoadedSelector();
     renderHeader();
   });
@@ -907,6 +934,40 @@ export function mountDoxBenchChatRail(host, options = {}) {
 
   function liveEditorState() {
     return typeof editorState === "function" ? editorState() : editorState;
+  }
+
+  // Task 7.2's thread half. ONE call site — the selector's change handler —
+  // because a second one would be a second answer to "which thread is this
+  // rail showing", which is exactly the second state authority the task
+  // forbids. A transport that is absent, refuses, or answers a shape this rail
+  // does not recognise all reach the same place: the EMPTY transcript, which is
+  // what a document with no readable thread honestly has.
+  // The generation of the LATEST thread switch. A thread read is asynchronous
+  // and two of them can be in flight, so the answer that arrives last is not
+  // necessarily the answer to the question asked last (PR #223, Codex C4 /
+  // Copilot CP2). Reproduced against the shipped module: select A, then B
+  // before A's GET returns, and A's slower answer replaced B's transcript with
+  // A's turns — which is also B's WIRE transcript, so B's next turn carried A's
+  // conversation as its context. A counter rather than a cancel because the
+  // transport is a plain fetch seam with no abort surface, and because the rule
+  // is about which ANSWER is current, not about which request is still running.
+  let threadGeneration = 0;
+  async function switchThread(documentKey) {
+    const load = options.loadThread;
+    if (typeof load !== "function") return;
+    const generation = (threadGeneration += 1);
+    let answer = null;
+    try {
+      answer = await load(documentKey);
+    } catch (error) {
+      answer = null;
+    }
+    if (destroyed) return;
+    // A STALE ANSWER IS DROPPED, not adopted. Checked after the await, which is
+    // the only place the selection can have moved.
+    if (generation !== threadGeneration) return;
+    const turns = answer && Array.isArray(answer.turns) ? answer.turns : [];
+    adopt(adoptThreadTranscript(state, turns));
   }
 
   // The selector is rebuilt from the live state on every render, which is what

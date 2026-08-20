@@ -90,8 +90,31 @@ engineer's* general-purpose omp profile would otherwise still be live and
 "ranked last" per design's own text — worth stating in the realization that
 the bridge should launch under a **dedicated profile** (`--profile
 <doxbench-bridge-name>`) precisely so a developer's personal interactive omp
-memory settings can never bleed into the bridge's sessions. This is a
-strengthening finding, not a blocking one — no design section needs to
+memory settings can never bleed into the bridge's sessions.
+
+> **ADDENDUM — 2026-08-19, live re-verification during §11's realization.**
+> This finding records the SETTING (`memory.backend`, its enum, its default,
+> its resolution function) but not how a launcher sets it, and the first
+> realization guessed `--setting memory.backend=off`. **There is no such
+> flag**: real v17.3.7 answers `Error: unknown flag: --setting` and exits, so
+> that launch line could never start a harness. The real per-run mechanism is
+> `--config=<value>` ("Load an extra config.yml-style overlay for this run",
+> repeatable), whose precedence is
+> `defaults <- global <- project <- PI_CONFIG_FILES <- --config <- runtime` —
+> i.e. it outranks both the operator's global settings and the project's.
+> The overlay is nested YAML and the value must be QUOTED, because bare `off`
+> is a YAML 1.1 boolean while the setting is a string enum:
+> ```yaml
+> memory:
+>   backend: "off"
+> ```
+> Verified observable from inside the running session: with this overlay
+> `/memory diagnose` answers *"Memory backend is off — there is nothing to
+> show."*, and with `backend: local` in the same slot it answers something
+> else. So §11.5's "install fact, not policy" is now a fact the harness itself
+> reports, rather than a claim about a flag it rejects.
+
+This is a strengthening finding, not a blocking one — no design section needs to
 reopen.
 
 ---
@@ -152,6 +175,34 @@ rather than one native function-schema entry per MCP tool — this is a
 deliberate design choice in OMP to avoid per-tool schema duplication and to
 control system-prompt size when many MCP servers are mounted, not a
 limitation on reachability.
+
+> **CORRECTION — 2026-08-19, live re-verification during §11's realization.**
+> This finding's PROSE below writes the mount name as
+> `xd://mcp__<server>__<tool>`, with a DOUBLE underscore. **That is wrong, and
+> this finding's own EVIDENCE above was right**: `xd://mcp__verify_echo_echo`
+> (server `verify-echo`, tool `echo`) and `xd://mcp__sonarqube_*` both show a
+> SINGLE underscore between server and tool.
+>
+> Settled against the harness's own source and a live mount:
+> `createMCPToolName`
+> (`packages/coding-agent/src/mcp/tool-bridge.ts:345-358`, v17.3.7) returns
+> ``` `mcp__${sanitizedServerName}_${normalizedToolName}` ```, and
+> `sanitizeMCPToolNamePart` (`:335-343`) collapses `_+` to `_`, so a double
+> separator is not merely unused — it is **unproducible**. Corroborated at
+> `builtin-names.ts:67`. Re-confirmed by registering §11's own
+> `doxbench_mcp.py` as the `doxbench` stdio server against a real
+> `omp --mode rpc` and reading the running system prompt:
+> `xd://mcp__doxbench_search`, `…_get_source`, `…_promote_finding`,
+> `…_reindex`.
+>
+> The realization pins the single-underscore form
+> (`doxbench_mcp.MOUNT_SEPARATOR`), and `tasks.md` 10.2's note carries the same
+> correction. Read every `mcp__<server>__<tool>` in the prose below as
+> `mcp__<server>_<tool>`.
+>
+> Recorded as a dated correction rather than a silent rewrite: this file is the
+> record of what was checked and when, and the sentence that was wrong is worth
+> more to a later reader than a clean one.
 
 **Implementation consequence:** design §10.6/§3.3 assumed "the MCP boundary
 is only reachable from the model if the harness can call tools at all" —

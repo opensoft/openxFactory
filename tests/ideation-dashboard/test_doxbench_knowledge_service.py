@@ -646,7 +646,18 @@ def test_a_generous_ceiling_still_carries_evidence(tmp_path):
 def test_the_scaffold_reserve_is_MEASURED_adequate_not_asserted(tmp_path):
     """`PROMPT_SCAFFOLD_RESERVE_BYTES` is a declared allowance for what the
     prompt spends outside the packet and outside the measured request. Its
-    adequacy is checked against a REAL rendered prompt rather than argued."""
+    adequacy is checked against a REAL rendered prompt rather than argued.
+
+    THE SHAPE MEASURED HERE CARRIES EVIDENCE AND NO THREADS, which is what §10
+    ships: nothing wrote a sidecar at this point in the change's history, so the
+    route supplied none. §11's obligation (tasks.md 11.5) is that the same
+    measurement must hold once the route DOES carry threads, and the extension
+    lives with the thread wiring it measures —
+    `test_doxbench_thread_wiring.py::test_the_rendered_prompt_stays_inside_the_ceiling_WITH_threads`
+    renders at three narrowed ceilings with a thread mirrored and evidence
+    carried, sums `utf8_size(section.text)` across the assembled envelope, and
+    compares it to the entry's effective input limit. This test stays as the
+    evidence-only leg of the same measurement."""
     carried = []
     for ceiling in (40_000, 60_000, 200_000):
         narrow = _port(_catalog(input_limit_bytes=ceiling))

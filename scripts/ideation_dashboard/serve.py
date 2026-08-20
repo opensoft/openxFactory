@@ -119,6 +119,7 @@ from ideation_dashboard import action_errors  # noqa: E402
 from ideation_dashboard import doxbench_knowledge  # noqa: E402
 from ideation_dashboard import doxbench_packet  # noqa: E402
 from ideation_dashboard import doxbench_telemetry  # noqa: E402
+from ideation_dashboard import doxbench_threads  # noqa: E402
 from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
 
 DEFAULT_HOST = "127.0.0.1"
@@ -155,6 +156,13 @@ ACTIONS_GATE_PREFIX = "/actions/gate/"
 # See the section banner above `_handle_workbench_model_catalog` for the
 # judgement calls their handlers make.
 WORKBENCH_MODEL_CATALOG_ROUTE = "/workbench/model-catalog"
+# add-doxbench-editing-phase-b task 9.5: the THREAD read route. A console-
+# internal surface, deliberately NOT a released contract envelope — no
+# openxFactory schema declares a thread shape, and inventing a `schema_version`
+# for one here would claim a release that was never cut. It carries the same
+# unversioned local shape `/capabilities` does, and the sidecar file itself is
+# the governed artifact.
+WORKBENCH_THREAD_ROUTE = "/workbench/thread"
 ACTIONS_WORKBENCH_CHAT_TURN_ROUTE = "/actions/workbench/chat-turn"
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 JSON_CTYPE = "application/json; charset=utf-8"
@@ -305,6 +313,13 @@ DOXBENCH_ERR_RESPONSE_INVALID = "response_invalid"
 DOXBENCH_ERR_CONTEXT_PACKET_INVALID = "context_packet_invalid"
 DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED = "context_packet_bound_exceeded"
 
+# add-doxbench-editing-phase-b §9.5, and the same class of judgement call: a
+# thread is session working memory on an unmerged branch, so where no branch
+# session can be opened there is nothing for a thread to be. Reusing
+# `model_capability_unavailable` would state a different absence, and reusing
+# `turn_scope_refused` would blame the scope for a capability verdict.
+DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE = "thread_capability_unavailable"
+
 # Fixed, module-level messages: never composed from request data, exactly
 # like `action_errors.ERROR_CATALOG`'s messages.
 _DOXBENCH_MSG_REQUEST_LIMIT_EXCEEDED = "the request exceeds the allowed size for this route"
@@ -325,6 +340,27 @@ _DOXBENCH_MSG_CONTEXT_PACKET_INVALID = (
 _DOXBENCH_MSG_CONTEXT_PACKET_BOUND_EXCEEDED = (
     "this session's own thread material exceeds the bounded context a turn may "
     "carry; compacting the thread brings it back inside the bound")
+# The THIRD declared cause for an absent thread, beside `doxbench_threads`'
+# hosted-plane and no-gate-capability pair. It belongs here rather than there
+# because it is a fact about THIS serve's session registry, not about the
+# thread format — and it is deliberately generic: a cause naming the ref or the
+# tile would make this route an oracle for which of them exist.
+NO_LIVE_SESSION_CAUSE = (
+    "no branch session is open for this scope, so there is no session worktree "
+    "for a thread to live in")
+
+# The FOURTH declared cause (PR #223, Copilot CP1). An unresolved actor used to
+# borrow the no-gate-capability cause, which is a true sentence about a
+# different situation — the plane HAS the capability, there is simply no
+# identified human to attribute a gate action to. Exactly the class this
+# slice's own P3-19 fixed for the no-live-session branch, missed one clause
+# over.
+NO_RESOLVED_ACTOR_CAUSE = (
+    "this console resolved no human actor, and a thread is one human's working "
+    "memory on a session branch — so there is nobody to attribute it to")
+
+_DOXBENCH_MSG_THREAD_CAPABILITY_UNAVAILABLE = (
+    "threads exist only where branch sessions exist")
 
 # code -> (HTTP status, fixed caller-safe message). `request_limit_exceeded`'s
 # 413 (Payload Too Large) is this slice's own judgement call: the planning
@@ -374,6 +410,12 @@ DOXBENCH_ERROR_CATALOG: dict[str, tuple[int, str]] = {
     # compacting the thread is layer two, and it exists for exactly this.
     DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED: (
         409, _DOXBENCH_MSG_CONTEXT_PACKET_BOUND_EXCEEDED),
+    # 403: a capability verdict, the same status and the same class as
+    # `model_capability_unavailable`. The two DECLARED causes — the hosted
+    # plane, and a plane with no gate capability — ride the body's `reason`
+    # field, and both are fixed module-level strings from `doxbench_threads`.
+    DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE: (
+        403, _DOXBENCH_MSG_THREAD_CAPABILITY_UNAVAILABLE),
 }
 
 # The codes whose released envelope may carry the `limit` block. The released
@@ -384,6 +426,36 @@ DOXBENCH_LIMIT_BEARING_CODES: frozenset[str] = frozenset({
     DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
     DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED,
 })
+
+
+# The sidecar format is LF-ONLY (`doxbench_threads._validated_body` refuses a
+# carriage return), and the wire carries whatever the browser and the provider
+# produced. Normalising HERE — at the one place a turn becomes a record — is
+# what keeps a CRLF answer storable instead of refused, and it is a
+# normalisation rather than an edit: the bytes the model returned still ride the
+# response envelope unchanged.
+def _sidecar_text(value: object) -> str:
+    text = "" if value is None else str(value)
+    return text.replace("\r\n", "\n").replace("\r", "\n").strip()
+
+
+def _no_dereference(value: str) -> str:
+    """The dereference seam a serve with NO bridge supplies: it resolves
+    nothing, so a body still carrying a harness pointer is refused by
+    `ThreadTurn` rather than persisted. Fail-closed, which is task 3.5's own
+    verdict — an unresolvable pointer in a shared sidecar is worse than an
+    unrecorded turn."""
+    return value
+
+
+def _thread_absence_body(reason: str) -> dict:
+    """The thread route's absence body: the FIXED catalog message, plus the
+    DECLARED cause. Both are module-level constants — `doxbench_threads` owns
+    the reason strings — so nothing request-derived reaches the wire."""
+    body = doxbench_error_body(DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE)
+    body["reason"] = doxbench_threads.THREAD_CAPABILITY_ABSENT_REASON
+    body["cause"] = reason
+    return body
 
 
 def doxbench_error_body(code: str, *, limit: dict | None = None) -> dict:
@@ -1323,6 +1395,323 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             indexed=len(sources), unreadable=len(unreadable),
             total=len(projection.context_paths))
 
+    # ------------------------------------------------------------------
+    # THREADS (add-doxbench-editing-phase-b §9.2/§9.5/§11.5, design §4)
+    #
+    # THE SIDECAR IS THE RECORD. These helpers READ threads out of the session
+    # worktree for the packet and WRITE one back after a turn settles, through
+    # `doxbench_threads`' own single write route and the doxBench Save gate's
+    # own declared allowlist. Nothing here parses, renders, or path-derives a
+    # thread itself: every one of those rules has exactly one spelling, and it
+    # is in `doxbench_threads`.
+    # ------------------------------------------------------------------
+
+    def _thread_plane(self) -> str:
+        """Which plane this serve is, in `doxbench_threads`' own vocabulary. A
+        non-loopback serve is the HOSTED plane, which opens no branch session
+        and therefore has no threads (FR-048)."""
+        return (doxbench_threads.LOCAL_PLANE if self.loopback
+                else doxbench_threads.HOSTED_PLANE)
+
+    def _thread_capability_absence(self) -> str | None:
+        """`None` where threads exist, else the DECLARED cause. Fail-closed on
+        an unresolved actor: a thread is a human's working memory on a session
+        branch, and a session with no identified human is not one."""
+        if not self.actor:
+            return NO_RESOLVED_ACTOR_CAUSE
+        try:
+            doxbench_threads.require_thread_capability(
+                plane=self._thread_plane(),
+                gate_capability=bool(
+                    self.capabilities.get("actions", {}).get("session")))
+        except doxbench_threads.ThreadCapabilityAbsent as absent:
+            # `.cause` and NOT `str(absent)` (CP1). The exception's text is
+            # "<REASON> — <cause>", and the body carries the reason in its own
+            # `reason` field — so returning the string embedded the reason
+            # twice and made `cause` not a cause.
+            return absent.cause
+        return None
+
+    def _session_worktree_for(self, key):
+        """The SESSION WORKTREE this scope's threads live in, or None.
+
+        A thread lives on the session branch inside the session worktree, so a
+        scope that is not a live session entry has none — and that is an
+        ABSENCE, not a failure: the packet then declares the thread absent
+        rather than inventing an empty one.
+
+        `source_root` IS the worktree for a session entry (the turn route
+        already reads the session's own text through it).
+
+        SESSION-NESS COMES FROM THE LIVENESS AUTHORITY, not from the registry's
+        advisory markers — corrected 2026-08-19 after the adversarial review's
+        P2-10. This used to gate on `session_tile or session_base`, and
+        `snapshot_registry` documents BOTH as advisory: `session_tile` is "None
+        on a bootstrap-reconstructed entry", and `session_base` "degrades to the
+        original name-equality binding — advisory ... **and never the reason a
+        session fails**". This made them exactly that, and the consequences were
+        silent: a bootstrap-reconstructed entry with neither marker got `{}`
+        threads, no mirrored record, and a 403 from the thread route, with
+        nothing on the wire saying so.
+
+        `branch_session.live_session_branches` is what the Save path itself
+        trusts and what the turn route ALREADY reaches one step earlier through
+        `doxbench_scope.session_created_paths_for_scope`. This route asks it
+        through the SHARED `doxbench_scope.is_live_session_ref` rather than
+        calling it again here (re-verify N-6). Asking it means a
+        session this console can WRITE to is a session this console will RECORD
+        into, which is the property that actually matters."""
+        try:
+            entry = self.source.registry.resolve(key.repository, key.ref)
+        except Exception:  # noqa: BLE001 - an unresolvable scope has no threads
+            return None
+        if entry is None or entry.source_root is None:
+            return None
+        if not self._is_live_session_ref(key, entry):
+            return None
+        root = Path(entry.source_root)
+        return root if root.is_dir() else None
+
+    def _is_live_session_ref(self, key, entry) -> bool:
+        """Whether `key.ref` is one of this tile's LIVE session branches.
+
+        ONE spelling, in `doxbench_scope` beside the other consumer of the same
+        question (re-verify N-6). This method had grown as a second copy and had
+        already diverged from it — different ref comparison, different exception
+        breadth — which is precisely how the two would have drifted apart on the
+        next change to what counts as a live session."""
+        from ideation_dashboard import doxbench_scope
+        return doxbench_scope.is_live_session_ref(
+            self.source.registry, key,
+            repository=entry.repository or key.repository, ref=key.ref)
+
+    def _read_thread(self, worktree, document: str):
+        """One document's thread, or None where no sidecar exists or it cannot
+        be read as one.
+
+        An UNREADABLE sidecar is treated exactly as an absent one, and the
+        reason is the packet's: an invented or half-parsed thread would be a
+        claim that a conversation happened. Confinement is the same
+        `resolve_within` authority `/source` uses, so a thread path cannot
+        escape the worktree."""
+        if worktree is None:
+            return None
+        try:
+            relative = doxbench_threads.thread_path_for(document)
+        except doxbench_threads.ThreadError:
+            return None
+        target = registry_mod.resolve_within(worktree, relative)
+        if target is None or not target.is_file():
+            return None
+        try:
+            return doxbench_threads.parse_thread(
+                target.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, doxbench_threads.ThreadError):
+            return None
+
+    def _document_threads(self, key, document_keys) -> dict:
+        """The thread mapping `assemble_packet` takes — the seam §10 left for
+        §11 to fill (`tasks.md` 10.3's "Thread read side, and what waits on
+        §11").
+
+        Keyed by BUFFER KEY, so the packet's selected-thread and thread-state
+        sections name the same keys the turn's buffers do. For every
+        PATH-BACKED document buffer that key IS its path, which is also what the
+        WRITE side keys by since PR #223's C3 — so a read and a write name one
+        file. The one buffer where they differ is the reserved unbacked slot
+        (key `document`, path None): the write side records no sidecar for it at
+        all, so the read is always an honest absence rather than a lookup under
+        a key nothing writes."""
+        absent = self._thread_capability_absence()
+        if absent is not None:
+            return {}
+        worktree = self._session_worktree_for(key)
+        if worktree is None:
+            return {}
+        threads = {}
+        for document in document_keys:
+            thread = self._read_thread(worktree, document)
+            if thread is not None:
+                threads[document] = thread
+        return threads
+
+    def _thread_gate(self, worktree):
+        """The doxBench Save gate, rooted at the session worktree and DECLARING
+        it — the one gate on this surface whose allowlist carries the thread
+        prefix (`gate_routes.first_edit_gate_factory`, task 9.5). Built through
+        that factory rather than beside it, so the widening has one spelling."""
+        from ideation_dashboard import gate_console
+        from ideation_dashboard import gate_routes
+        return gate_routes.first_edit_gate_factory(
+            self.actor, gate_console.DEFAULT_RECORDS_DIR)(worktree)
+
+    def _mirror_turn_into_sidecar(self, key, *, document: str, turn_id: str,
+                                  model_id: str, bound_buffer_key: str,
+                                  human: str, assistant: str, mirror=None,
+                                  dereference=None) -> bool:
+        """Append this turn to the selected document's sidecar and write it
+        (tasks 9.2's write half, 11.5).
+
+        Order is `doxbench_threads`': the append is computed FIRST and
+        completely, and the mirror is consulted afterwards on the resulting
+        thread — the sidecar is the record, so nothing downstream of it decides
+        what the record says. `dereference` is the BRIDGE's seam; with none, a
+        body carrying a harness pointer is refused by `ThreadTurn` rather than
+        persisted, which is the fail-closed half of task 3.5's finding.
+
+        RETURNS whether the record was written, and NEVER raises into the turn.
+        THE JUDGEMENT CALL, STATED: the provider has already answered by the
+        time this runs, and there is no released refusal code for "the record
+        could not be written". Losing the human's answer to protect a record
+        that failed for an environment reason is the worse trade, so the answer
+        still ships and the failure goes to the serve's own log — where every
+        other non-wire diagnostic on this surface goes. The next turn's packet
+        then declares that document's thread ABSENT, honestly, rather than
+        implying a conversation that was never recorded."""
+        worktree = self._session_worktree_for(key)
+        if worktree is None or self._thread_capability_absence() is not None:
+            return False
+        try:
+            thread = self._read_thread(worktree, document)
+            if thread is None:
+                thread = doxbench_threads.DocumentThread(
+                    document=document,
+                    scope=doxbench_threads.ThreadScope(
+                        repository=key.repository, tile_kind=key.tile_kind,
+                        tile_id=key.tile_id))
+            turn = doxbench_threads.dereference_bodies(
+                turn_id, model_id, bound_buffer_key,
+                _sidecar_text(human), _sidecar_text(assistant),
+                dereference=dereference if callable(dereference)
+                else _no_dereference)
+            appended = doxbench_threads.mirror_turn(thread, turn, mirror=mirror)
+            doxbench_threads.write_thread(self._thread_gate(worktree), appended)
+            return True
+        except doxbench_threads.ThreadMirrorFailed:
+            # The MIRROR failed, not the record. The append is already computed
+            # and the sidecar is what the record is, so the write still happens
+            # — a harness that cannot be told is not a reason to lose the turn.
+            sys.stderr.write(
+                "[workbench/thread] the harness mirror refused a turn; the "
+                "sidecar is still the record\n")
+            return self._write_thread_after_mirror_failure(worktree, document,
+                                                           key, turn_id,
+                                                           model_id,
+                                                           bound_buffer_key,
+                                                           human, assistant,
+                                                           dereference)
+        except Exception:  # noqa: BLE001 - a record failure never kills a turn
+            sys.stderr.write(
+                "[workbench/thread] this turn could not be mirrored into its "
+                "sidecar; the answer stands and the thread stays absent\n")
+            return False
+
+    def _write_thread_after_mirror_failure(self, worktree, document, key,
+                                           turn_id, model_id,
+                                           bound_buffer_key, human, assistant,
+                                           dereference) -> bool:
+        try:
+            thread = self._read_thread(worktree, document)
+            if thread is None:
+                thread = doxbench_threads.DocumentThread(
+                    document=document,
+                    scope=doxbench_threads.ThreadScope(
+                        repository=key.repository, tile_kind=key.tile_kind,
+                        tile_id=key.tile_id))
+            turn = doxbench_threads.dereference_bodies(
+                turn_id, model_id, bound_buffer_key,
+                _sidecar_text(human), _sidecar_text(assistant),
+                dereference=dereference if callable(dereference)
+                else _no_dereference)
+            appended = doxbench_threads.mirror_turn(thread, turn, mirror=None)
+            doxbench_threads.write_thread(self._thread_gate(worktree), appended)
+            return True
+        except Exception:  # noqa: BLE001 - same verdict as the caller's
+            return False
+
+    def _handle_workbench_thread(self, head_only: bool) -> None:
+        """`GET`/`HEAD /workbench/thread` (task 9.5).
+
+        LOOPBACK-ONLY, fail-closed on an unresolved actor, absent without the
+        gate capability and on the hosted plane — the four clauses the task
+        names, in that order, and answered by `doxbench_threads`' own
+        capability rule rather than by a second copy of it here. The read is
+        confined by `resolve_within`, the same containment authority `/source`
+        uses.
+
+        WHAT IT IS FOR: the loaded-document selector switches the transcript to
+        the selected document's thread (task 7.2), and this is where the
+        browser reads that thread from. It writes nothing: a thread is written
+        by a TURN, through the Save gate, and there is no second write route."""
+
+        if not self.loopback:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE),
+                _thread_absence_body(doxbench_threads.HOSTED_PLANE_CAUSE))
+            return
+        absence = self._thread_capability_absence()
+        if absence is not None:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE),
+                _thread_absence_body(absence))
+            return
+        console_refusal = self._not_the_human_console()
+        if console_refusal is not None:
+            sys.stderr.write(
+                f"[workbench/thread] agent_invocation refused: {console_refusal}\n")
+            self._send_json(doxbench_error_status(DOXBENCH_ERR_CONSOLE_REQUIRED),
+                            doxbench_error_body(DOXBENCH_ERR_CONSOLE_REQUIRED))
+            return
+        query = urllib.parse.parse_qs(
+            urllib.parse.urlsplit(self.path).query, keep_blank_values=False)
+
+        def _one(name):
+            values = query.get(name) or []
+            return values[0] if len(values) == 1 else None
+
+        fields = {name: _one(name) for name in
+                  ("repository", "ref", "tile_kind", "tile_id", "document")}
+        if any(value is None or not str(value).strip()
+               for value in fields.values()):
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_INVALID_TURN_REQUEST),
+                doxbench_error_body(DOXBENCH_ERR_INVALID_TURN_REQUEST))
+            return
+        from ideation_dashboard import doxbench_scope
+        key = doxbench_scope.ScopeKey(
+            repository=fields["repository"], ref=fields["ref"],
+            tile_kind=fields["tile_kind"], tile_id=fields["tile_id"])
+        worktree = self._session_worktree_for(key)
+        if worktree is None:
+            # No live session on this scope. A DISTINCT cause (adversarial
+            # review P3-19): this used to answer the no-gate-capability cause,
+            # which is a true sentence about a different situation — the plane
+            # HAS the capability here, this scope simply has no open session.
+            # The non-oracle reasoning is unchanged and is what keeps the cause
+            # generic: it says "no session is open for this scope" and never
+            # which refs or tiles exist.
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE),
+                _thread_absence_body(NO_LIVE_SESSION_CAUSE))
+            return
+        thread = self._read_thread(worktree, fields["document"])
+        body = {
+            "ok": True,
+            "document": fields["document"],
+            "present": thread is not None,
+            "authority": doxbench_threads.NON_AUTHORITATIVE,
+            "regenerable_from": doxbench_threads.REGENERABLE_FROM_TRANSCRIPT,
+            "turns": [] if thread is None else [
+                {"turn_id": turn.turn_id, "model": turn.model,
+                 "bound_buffer_key": turn.bound_buffer_key,
+                 "human": turn.human, "assistant": turn.assistant}
+                for turn in thread.turns],
+            "state_header": ("" if thread is None
+                             else doxbench_threads.render_state_header(thread)),
+        }
+        self._serve_bytes(json.dumps(body).encode("utf-8"), JSON_CTYPE,
+                          head_only)
+
     def _doxbench_validators(self):
         """The RELEASED per-kind schema validators for this request, or None.
 
@@ -2167,6 +2556,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         outcome_code = DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE
         outcome_limit = None
         prompt_envelope = None
+        turn_port = None
         try:
             # ---- the PACKET, assembled BEFORE the prompt and before any
             # provider (§10.3). Its rails run inside the assembler: the
@@ -2187,6 +2577,17 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             knowledge, coverage = self._knowledge_service_and_coverage(
                 projection)
 
+            # THE THREADS, at last (§11; the seam §10 shipped and could not
+            # fill). `assemble_packet` carries the selected document's thread
+            # IN FULL and every other loaded document's STATE HEADER, and it
+            # declares by name each loaded document that has no sidecar — so
+            # an absence is stated rather than inferred from silence. Read from
+            # the SESSION WORKTREE, which is the only place a thread lives; a
+            # scope with no live session answers `{}`, which is the same
+            # honest absence the route had before this slice, now for a reason
+            # instead of by omission.
+            threads = self._document_threads(key, document_keys)
+
             def _new_packet():
                 return self.packet_assembler(
                     projection=projection,
@@ -2194,6 +2595,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     selected_key=bound_buffer_key,
                     loaded_keys=document_keys,
                     query=message,
+                    threads=threads,
                     knowledge=knowledge,
                     corpus_coverage=coverage,
                     # THE PACKET'S BOUND COMPOSES WITH THE MODEL'S OWN INPUT
@@ -2208,7 +2610,16 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     # exactly the un-actionable-refusal class the fit removed.
                     max_packet_bytes=doxbench_packet.packet_budget_for(
                         input_limit_bytes=effective_input_limit,
-                        request_bytes=request_total_bytes),
+                        request_bytes=request_total_bytes,
+                        # §11.5's DISCHARGED obligation. The reserve is no
+                        # longer flat: the prompt's rendered per-section
+                        # scaffolding is charged from the refs THIS turn will
+                        # carry — one section per thread, one per evidence slot
+                        # — because a flat number could only ever be right for
+                        # one section count, and the count is exactly what this
+                        # slice changed.
+                        thread_refs=tuple(threads),
+                        evidence_slots=doxbench_packet.DEFAULT_EVIDENCE_LIMIT),
                     already_carried=(
                         () if projection.outline_path is None
                         else (projection.outline_path,)),
@@ -2289,6 +2700,63 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # defect. Same verdict as the earlier legs: `invalid_turn_request`.
             outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
 
+        # ---- ONE HARNESS SESSION PER DOCUMENT THREAD (task 11.4, and the
+        # server half of task 7.2's thread switch). The adapter is asked to
+        # bind to the SELECTED document's thread BEFORE the turn is dispatched,
+        # so switching the selected document switches the harness session and
+        # one session never serves two threads. Duck-typed exactly as
+        # `dispatch` is: an adapter without the method is a catalog-only or
+        # sessionless one and keeps working unchanged.
+        #
+        # A BINDING FAILURE IS NOT A TURN. If the adapter cannot bind this
+        # thread — a dead child, or a session already serving another thread —
+        # dispatching anyway would ground the answer in another document's
+        # conversation, so the turn refuses with the route's existing fixed,
+        # redacted `model_failed` and nothing is dispatched.
+        # The capability is now `for_conversation` (PR #223, C2): an adapter
+        # that offers it binds and dispatches atomically, and one that does not
+        # is a catalog-only or sessionless adapter, unchanged.
+        if prompt_envelope is not None \
+                and callable(getattr(port, "for_conversation", None)):
+            # EVERY turn binds, including an outline-bound one (adversarial
+            # review P2-11). The bind used to be gated on
+            # `bound_buffer_key in document_keys`, so an outline turn was
+            # dispatched into whichever DOCUMENT session the harness was last
+            # switched to and contaminated that document's harness context. An
+            # outline conversation is a real conversation; it just is not a
+            # document's, so it binds under its own tile-scoped key.
+            # THE WHOLE SCOPE IS IN THE KEY (PR #223, Codex C1). The bare
+            # `bound_buffer_key` is a repository-relative path and nothing else,
+            # so two scopes loading the SAME path — one repository at two refs,
+            # or two repositories on a multi-repository plane — collided in the
+            # bridge's single per-serve session map and the second silently
+            # inherited the first's conversation.
+            conversation_key = (
+                (port.conversation_key(key, bound_buffer_key)
+                 if bound_buffer_key in document_keys
+                 else port.outline_conversation_key(key))
+                if callable(getattr(port, "conversation_key", None)) else None)
+            try:
+                if conversation_key is None:
+                    raise RuntimeError(
+                        "this adapter declares no conversation key")
+                # BOUND AS PART OF THE DISPATCH, not before it (Codex C2). The
+                # bind used to be a separate call, and under this threading
+                # server another handler could move the selection in between —
+                # sending this turn's prompt into that handler's session. The
+                # per-turn view binds and prompts inside ONE lock acquisition.
+                turn_port = port.for_conversation(conversation_key)
+            except Exception:  # noqa: BLE001 - never let an adapter's text reach the wire
+                sys.stderr.write(
+                    "[workbench/chat-turn] the harness bridge could not bind "
+                    "this document's thread; the turn is refused rather than "
+                    "grounded in another thread\n")
+                prompt_envelope = None
+                outcome_code = DOXBENCH_ERR_MODEL_FAILED
+
+        # The conversation-bound view where the adapter offers one, the adapter
+        # itself otherwise (a catalog-only or sessionless adapter is unchanged).
+        turn_port = turn_port if turn_port is not None else port
         if prompt_envelope is not None and callable(getattr(port, "dispatch", None)):
             # T061: typed proposals validate against the hashes THIS request
             # was shown — wrong base is a response-side defect mapped to the
@@ -2329,7 +2797,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # abandoned daemon thread. dispatch_turn's own post-hoc elapsed
             # check stays as the pure verdict for adapters that DO return.
             outcome = self._deadline_bound_dispatch(
-                port, prompt_envelope, model_entry, _typed_response_validator)
+                turn_port, prompt_envelope, model_entry,
+                _typed_response_validator)
             if isinstance(outcome, doxbench_model.TurnDispatchSuccess):
                 # `assistant_turn_id` derivation is this slice's judgement
                 # call: the released schema bounds it (1..128) without naming
@@ -2337,6 +2806,45 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 # request digest -- deterministic, request-unforgeable, and
                 # carrying no provider or content material.
                 observed = prompt_envelope.observed_hashes
+                # ---- THE SIDECAR IS THE RECORD (tasks 9.2, 11.5) ----
+                # Every turn is mirrored into the SELECTED document's thread,
+                # before the answer is stored or sent, through
+                # `doxbench_threads`' one write route and the doxBench Save
+                # gate's own declared allowlist. The turn id is the derived
+                # `assistant_turn_id` rather than the caller's own
+                # `client_turn_id`: the released schema bounds that field's
+                # LENGTH and nothing else, so a client could spell one carrying
+                # the sidecar's own turn-header separator, and a record cannot
+                # take its identity from a string a caller chose freely.
+                #
+                # An OUTLINE-bound turn writes no thread: a thread belongs to a
+                # DOCUMENT, and the outline buffer is the tile's, not a
+                # document's.
+                # THE SIDECAR IS THE DOCUMENT'S, SO IT COMES FROM THE
+                # DOCUMENT'S PATH (PR #223, Codex C3). It used to be derived
+                # from the buffer KEY, and the two differ for exactly one
+                # buffer: the reserved unbacked slot, whose key is `document`
+                # and whose path is None. A turn on it wrote
+                # `session-threads/document.thread.md` — a sidecar for a
+                # document that does not exist, which no Save can ever commit
+                # (`thread_commit_paths` is called with the real path), and
+                # which a later re-key strands while a second thread starts at
+                # the document's own path.
+                #
+                # A buffer with NO path has no document, so it records no
+                # thread — the same rule the outline already follows. The buffer
+                # key stays in the turn's metadata, where it belongs.
+                bound_document = (
+                    turn_documents[bound_buffer_key].path
+                    if bound_buffer_key in document_keys else None)
+                if bound_document is not None:
+                    self._mirror_turn_into_sidecar(
+                        key, document=bound_document,
+                        turn_id="assistant-" + digest[:56],
+                        model_id=model_id, bound_buffer_key=bound_buffer_key,
+                        human=message, assistant=outcome.assistant_prose,
+                        mirror=getattr(port, "mirror", lambda: None)(),
+                        dereference=getattr(port, "dereference", None))
                 if success_kind == DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND:
                     # THE RECORD, at last able to say what the turn was about
                     # (§13; design D17). It names the DECLARED bound buffer --
@@ -2573,6 +3081,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return True
         if path == WORKBENCH_MODEL_CATALOG_ROUTE:
             self._handle_workbench_model_catalog(head_only)
+            return True
+        if path == WORKBENCH_THREAD_ROUTE:
+            self._handle_workbench_thread(head_only)
             return True
         if path.startswith(SOURCE_PREFIX):
             self._serve_source(path[len(SOURCE_PREFIX):], head_only)

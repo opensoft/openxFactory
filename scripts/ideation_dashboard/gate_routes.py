@@ -1953,7 +1953,15 @@ def execute_first_edit(*, git, session_registry, repository: str, tile,
         base_hash=base_hash, records_dir=records_dir, at=at, notes=notes,
         inventory=tile_inventory, base=base, notebook=notebook,
         provenance=provenance, summary=summary, continuation=continuation,
-        proposal=proposal)
+        proposal=proposal,
+        # THREADS COMMIT WITH THE DOCUMENT'S SAVE (add-doxbench-editing-phase-b
+        # task 9.2). The RULE is `doxbench_threads`', named here — the one place
+        # doxBench's Save is assembled — and applied by the transaction to the
+        # NORMALISED document path it settles on, because that is the path the
+        # turn's own sidecar was written under. Passing the seam rather than a
+        # computed list is what keeps those two paths the same file; computing
+        # it here would derive it from the caller's spelling instead.
+        thread_paths_for=doxbench_threads.thread_commit_paths)
     return {
         "ok": True,
         "verb": outcome.action,

@@ -384,8 +384,7 @@ MAX_PACKET_SOURCES = 48
 # What the assembled prompt spends OUTSIDE the packet and outside the request
 # bytes the route has already measured: the fixed system-contract and
 # response-instruction constants, the model-data-handling and scope-metadata
-# sections, every section's label and separators, and the packet's own
-# declaration at its maximum source count.
+# sections, and every FIXED section's label and separators.
 #
 # It exists because the packet's bound must compose with the MODEL's declared
 # input limit (Codex review of PR #216, CODEX-B): the route knows what the
@@ -394,28 +393,173 @@ MAX_PACKET_SOURCES = 48
 # asserted — a companion test renders a real turn at a narrowed catalog ceiling
 # and checks the assembled prompt against that ceiling.
 #
-# ADEQUATE FOR THE SHAPE THIS SLICE SHIPS, AND NOT FOR §11's. Nothing writes
-# thread sidecars yet, so a packet carries evidence and no thread sections, and
-# a flat reserve covers that comfortably. Once §11 mirrors turns, 24
-# thread-state sections plus 6 evidence sections at 120-character refs spend
-# ~19.7 KB of section scaffolding, and the 48-source bound ~31.2 KB — both past
-# this number. The obligation is recorded against `tasks.md` §11.5, the slice
-# that creates the shape which breaches it, with the two fix options (charge
-# RENDERED section bytes against the budget, or scale this reserve with
-# `MAX_PACKET_SOURCES`) and the re-measure method.
+# IT IS NO LONGER THE WHOLE RESERVE (tasks.md §11.5's recorded obligation,
+# discharged by the slice that breached it). This number used to be subtracted
+# FLAT, and a flat number could only ever be right for one section count: the
+# shape §10 shipped (evidence, no threads) fitted comfortably, while the shape
+# §11 creates — one section per loaded document's thread plus the evidence —
+# spent ~19.7 KB of section scaffolding at 24 thread-states and 6 evidence refs
+# of 120 characters, and ~31.2 KB at the packet's own 48-source bound. Both are
+# past this number, so a turn near its model's ceiling could be ACCEPTED and
+# then dispatch a prompt over that ceiling — the exact defect CODEX-B closed for
+# the evidence-only shape.
+#
+# FIX OPTION (a) WAS TAKEN: the RENDERED section scaffolding is charged against
+# the budget, per source, from the same literals the renderer uses (see
+# `PER_SOURCE_SCAFFOLD_BYTES`), and this constant keeps only what is genuinely
+# FIXED. Option (b) — scaling one flat number by `MAX_PACKET_SOURCES` — was
+# rejected because it charges every turn for 48 sources it will not carry, which
+# on a narrow catalog ceiling refuses turns that would have fitted; charging what
+# the turn's OWN refs render is both the honest measurement and the cheaper one.
 PROMPT_SCAFFOLD_RESERVE_BYTES = 16_384
 
+# The rendered preambles, extracted as TEMPLATES so the reserve arithmetic and
+# `packet_sections` read the same literals. A second copy of these strings is
+# exactly how a reserve stops matching what the prompt actually spends.
+SELECTED_THREAD_PREAMBLE = "SELECTED DOCUMENT THREAD — {ref}\n({note})\n\n"
+THREAD_STATE_PREAMBLE = (
+    "THREAD STATE HEADER — {ref}\n({note}; the transcript it summarizes is not "
+    "carried here)\n\n")
+EVIDENCE_PREAMBLE = "EVIDENCE — {ref} [{status}] [{exemption}]\n\n"
+DECLARATION_LINE = "  - {kind} {ref} [{status}] [{exemption}]"
 
-def packet_budget_for(*, input_limit_bytes: int, request_bytes: int) -> int:
+# Sections are joined by a blank line when a prompt is rendered for dispatch, so
+# each section costs its own separator too.
+SECTION_SEPARATOR_BYTES = 2
+
+# The per-item section KEYS. Declared here, above the arithmetic that charges
+# for them and used by `expand_group`/`packet_sections` below — one literal
+# each.
+PACKET_SECTION_SELECTED_THREAD = "selected_thread"
+THREAD_STATE_SECTION_PREFIX = "thread_state:"
+EVIDENCE_SECTION_PREFIX = "evidence:"
+
+# The evidence slots one turn may fill. Declared here rather than left as a
+# bare default on `assemble_packet`, because the ROUTE has to charge the
+# scaffolding for the same number the assembler will select against, and two
+# spellings of one number is how a reserve stops matching a prompt.
+DEFAULT_EVIDENCE_LIMIT = 6
+
+# The observed ref length the §11.5 obligation measured against. Used only where
+# a ref is not yet known — the evidence SLOTS a turn reserves room for, whose
+# refs the retrieval has not chosen yet.
+OBSERVED_REF_BYTES = 120
+
+# The note every thread section carries. Declared HERE, above the arithmetic
+# that charges for it, and used by `packet_sections` below — ONE literal.
+_NON_AUTHORITATIVE_NOTE = (
+    "NON-AUTHORITATIVE and regenerable from the transcript it summarizes: it "
+    "is not governed truth and does not become truth by being carried here")
+
+# The WIDEST value each rendered label can take. A companion test pins each
+# against the label helper that produces it, so a wider label breaks a test
+# rather than a budget.
+WIDEST_KIND_LABEL = max(SOURCE_KINDS, key=len)
+WIDEST_STATUS_LABEL = "no Status: header"
+WIDEST_EXEMPTION_LABEL = "EXEMPT from aggressive compression"
+
+
+def _widest_per_source_bytes() -> int:
+    """The widest rendered per-source scaffolding, with an EMPTY ref — the ref's
+    own bytes are charged separately, once per place it renders."""
+
+    filled = {"ref": "", "note": _NON_AUTHORITATIVE_NOTE,
+              "status": WIDEST_STATUS_LABEL,
+              "exemption": WIDEST_EXEMPTION_LABEL,
+              "kind": WIDEST_KIND_LABEL}
+    widest_section = max(
+        utf8_size(template.format(**filled))
+        for template in (SELECTED_THREAD_PREAMBLE, THREAD_STATE_PREAMBLE,
+                         EVIDENCE_PREAMBLE))
+    # EVERY section key a source can carry, not only the two prefixed ones
+    # (PR #223, Copilot CP3): the SELECTED thread's key is the fixed
+    # `selected_thread`, which is longer than `thread_state:` and was left out
+    # — so a selected-thread source undercounted its key bytes.
+    widest_key = max(utf8_size(PACKET_SECTION_SELECTED_THREAD),
+                     utf8_size(THREAD_STATE_SECTION_PREFIX),
+                     utf8_size(EVIDENCE_SECTION_PREFIX))
+    return (widest_section + SECTION_SEPARATOR_BYTES + widest_key
+            + utf8_size(DECLARATION_LINE.format(**filled)) + 1)
+
+
+# One source costs: its own prompt section's preamble, that section's separator,
+# and one line in the packet's declaration (plus that line's newline). DERIVED
+# from the templates above rather than typed in, so the two cannot drift.
+PER_SOURCE_SCAFFOLD_BYTES = _widest_per_source_bytes()
+
+# HOW MANY TIMES ONE SOURCE'S REF RENDERS, and why the answer is three rather
+# than the two a reading of `packet_sections` alone would give: the packet's
+# declaration line carries it, the section's own preamble carries it, and the
+# section KEY carries it a third time. The keys are not part of `section.text`
+# and the bridge's own renderer does not emit them — but an adapter that labels
+# its sections spends them, and this measurement is the one place where being
+# generous is the safe direction. It is also what brings the reserve above the
+# §11.5 obligation's OWN two recorded measurements (19,745 bytes at 24
+# thread-states plus 6 evidence refs of 120 characters, and 31,211 at the
+# 48-source bound), which were taken against a shape this module can no longer
+# reproduce exactly; matching them from above rather than from below is the
+# honest way to honour a number somebody else measured.
+REF_RENDERINGS = 3
+
+# WHAT THIS COSTS, RECORDED RATHER THAN HIDDEN (adversarial review P3-15). The
+# reserve over-charges: the 24-document measurement charges ~31.5 KB against
+# ~16.5 KB actually spent, roughly 2x. Over-reserving is the safe direction for
+# the model's ceiling — an under-charge dispatches a prompt past it, which is
+# the defect §11.5 exists to close — but it is not free: a turn near its
+# ceiling reaches a zero evidence budget, and eventually the 409, earlier than
+# it strictly must. That is the same cost cited to reject fix option (b), paid
+# here in a smaller amount, and it is the reason the tests assert
+# `spent <= charged` rather than a tight band: a tight band would fail on every
+# harmless change to a section label. Tightening this is a future measurement
+# exercise, not a correctness one.
+
+
+def packet_scaffold_reserve(*, thread_refs: Sequence[str] = (),
+                            evidence_slots: int = 0,
+                            evidence_ref_bytes: int = OBSERVED_REF_BYTES) -> int:
+    """The bytes the assembled prompt spends on SCAFFOLDING for this turn: the
+    fixed constants, plus the rendered per-source overhead for the thread refs
+    the route holds and the evidence slots it may fill.
+
+    A ref is charged `REF_RENDERINGS` times — see that constant for why the
+    answer is three rather than the two places `packet_sections` renders it.
+    Evidence refs are not known until retrieval answers, so their slots are
+    charged at the observed ref length the §11.5 obligation measured against.
+
+    Defaults reproduce the FLAT pre-§11 number exactly, which is what keeps a
+    caller carrying neither threads nor evidence on the arithmetic it was
+    measured under."""
+
+    refs = tuple(thread_refs)
+    slots = max(0, int(evidence_slots))
+    ref_bytes = max(0, int(evidence_ref_bytes))
+    per_thread = sum(PER_SOURCE_SCAFFOLD_BYTES + REF_RENDERINGS * utf8_size(ref)
+                     for ref in refs)
+    per_evidence = slots * (PER_SOURCE_SCAFFOLD_BYTES
+                            + REF_RENDERINGS * ref_bytes)
+    return PROMPT_SCAFFOLD_RESERVE_BYTES + per_thread + per_evidence
+
+
+def packet_budget_for(*, input_limit_bytes: int, request_bytes: int,
+                      thread_refs: Sequence[str] = (),
+                      evidence_slots: int = 0) -> int:
     """The bytes a packet may spend on a turn whose request already spends
     ``request_bytes`` against a model declaring ``input_limit_bytes``.
 
     Never more than the packet's own bound, never negative. A budget of zero is
     a legal answer and NOT an error: it means this turn has no room for
     evidence, so the fit carries none and says which refs it dropped — which is
-    a better turn than one refused for a limit the caller cannot see."""
+    a better turn than one refused for a limit the caller cannot see.
 
-    remaining = int(input_limit_bytes) - int(request_bytes) - PROMPT_SCAFFOLD_RESERVE_BYTES
+    ``thread_refs`` and ``evidence_slots`` describe the SHAPE this turn will
+    render, and they are what turned the flat reserve into a measured one
+    (tasks.md §11.5). Omitting them is the pre-§11 shape and yields the pre-§11
+    number; a caller that carries threads and does not declare them gets a
+    budget that is too generous, which is why the route passes both."""
+
+    reserve = packet_scaffold_reserve(thread_refs=thread_refs,
+                                      evidence_slots=evidence_slots)
+    remaining = int(input_limit_bytes) - int(request_bytes) - reserve
     return max(0, min(MAX_PACKET_BYTES, remaining))
 
 
@@ -776,7 +920,7 @@ def assemble_packet(
     threads: Mapping[str, DocumentThread] | None = None,
     knowledge: object | None = None,
     promoted_findings: Sequence[str] = (),
-    evidence_limit: int = 6,
+    evidence_limit: int = DEFAULT_EVIDENCE_LIMIT,
     already_carried: Sequence[str] = (),
     corpus_coverage: "CorpusCoverage | None" = None,
     max_packet_bytes: int = MAX_PACKET_BYTES,
@@ -900,7 +1044,6 @@ def reduced_packet(
 # `document_buffers` does, and `expand_group` is the one place that expansion
 # is decided so the concrete keys and the rendered sections cannot disagree.
 PACKET_SECTION_DECLARATION = "context_packet"
-PACKET_SECTION_SELECTED_THREAD = "selected_thread"
 PACKET_SECTION_THREAD_STATES = "thread_state_headers"
 PACKET_SECTION_EVIDENCE = "evidence"
 
@@ -910,13 +1053,6 @@ PACKET_SECTION_GROUPS: tuple[str, ...] = (
     PACKET_SECTION_THREAD_STATES,
     PACKET_SECTION_EVIDENCE,
 )
-
-THREAD_STATE_SECTION_PREFIX = "thread_state:"
-EVIDENCE_SECTION_PREFIX = "evidence:"
-
-_NON_AUTHORITATIVE_NOTE = (
-    "NON-AUTHORITATIVE and regenerable from the transcript it summarizes: it "
-    "is not governed truth and does not become truth by being carried here")
 
 _LOSSLESS_NOTE = (
     "Material this packet does not carry is NOT lost: selection is lossless "
@@ -985,9 +1121,10 @@ def declaration_text(packet: ContextPacket) -> str:
         f"carries {len(packet.sources)} source(s), of which "
         f"{packet.exempt_count} are exempt from aggressive compression:")
     for source in packet.sources:
-        lines.append(
-            f"  - {source.kind} {source.ref} "
-            f"[{_status_label(source)}] [{_exemption_label(source)}]")
+        lines.append(DECLARATION_LINE.format(
+            kind=source.kind, ref=source.ref,
+            status=_status_label(source),
+            exemption=_exemption_label(source)))
     if not packet.sources:
         lines.append("  (none)")
     if packet.absent_threads:
@@ -1067,17 +1204,17 @@ def packet_sections(
     for source in packet.of_kind(SOURCE_SELECTED_THREAD):
         sections.append((
             PACKET_SECTION_SELECTED_THREAD,
-            f"SELECTED DOCUMENT THREAD — {source.ref}\n"
-            f"({_NON_AUTHORITATIVE_NOTE})\n\n{source.text}"))
+            SELECTED_THREAD_PREAMBLE.format(
+                ref=source.ref, note=_NON_AUTHORITATIVE_NOTE) + source.text))
     for source in packet.of_kind(SOURCE_THREAD_STATE):
         sections.append((
             THREAD_STATE_SECTION_PREFIX + source.ref,
-            f"THREAD STATE HEADER — {source.ref}\n"
-            f"({_NON_AUTHORITATIVE_NOTE}; the transcript it summarizes is not "
-            f"carried here)\n\n{source.text}"))
+            THREAD_STATE_PREAMBLE.format(
+                ref=source.ref, note=_NON_AUTHORITATIVE_NOTE) + source.text))
     for source in packet.of_kind(SOURCE_EVIDENCE):
         sections.append((
             EVIDENCE_SECTION_PREFIX + source.ref,
-            f"EVIDENCE — {source.ref} [{_status_label(source)}] "
-            f"[{_exemption_label(source)}]\n\n{source.text}"))
+            EVIDENCE_PREAMBLE.format(
+                ref=source.ref, status=_status_label(source),
+                exemption=_exemption_label(source)) + source.text))
     return tuple(sections)

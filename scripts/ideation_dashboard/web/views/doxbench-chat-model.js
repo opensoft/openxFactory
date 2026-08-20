@@ -314,6 +314,65 @@ export function transcriptWindow(stateValue) {
   return stateValue.transcript;
 }
 
+// add-doxbench-editing-phase-b task 7.2: SELECTING A DOCUMENT SWITCHES THE
+// TRANSCRIPT TO THAT DOCUMENT'S THREAD.
+//
+// The thread is the SERVER's record — one sidecar per document, on the session
+// branch — so this function does not invent one: it adopts the turns the thread
+// route answered with, and adopts an EMPTY transcript where that document has
+// no thread yet. An empty transcript is the honest answer for a document nobody
+// has talked about, and leaving the previous document's conversation on screen
+// was the real defect: the next turn's wire transcript would then carry ANOTHER
+// document's conversation as this one's context.
+//
+// NO SECOND STATE AUTHORITY. This replaces `transcript` and nothing else
+// decides what it holds; the same display bounds apply, through the same
+// `boundedAppend`-shaped eviction the wire window re-checks. `proposals` and
+// `lastFailure` are cleared because both are facts about the PREVIOUS
+// document's turn, and a proposal targeting a buffer the human is no longer
+// looking at is exactly the stale Apply control the currency rules exist to
+// prevent.
+export function adoptThreadTranscript(stateValue, turnsValue) {
+  // A TURN IN FLIGHT BELONGS TO THE DOCUMENT IT WAS SENT FOR (adversarial
+  // review P2-9). Switching while `phase === "in_flight"` used to swap the
+  // transcript under the running turn, and `settleTurnSuccess` then appended
+  // document A's question and answer onto document B's transcript — which is
+  // also B's WIRE transcript, so A's conversation became B's context on B's
+  // next turn, and A's proposal was restored under B with a live Apply
+  // control. Reproduced from the UI with no server race.
+  //
+  // REFUSED, by returning the identical state object — the same "no" every
+  // other refusal in this module gives (`beginTurn` on a second begin,
+  // `rekeyChatState` on an unchanged key). The rail's caller renders the
+  // selector back to the buffer the conversation is still bound to, so the
+  // selection and the transcript cannot disagree.
+  if (stateValue.phase === "in_flight") {
+    return stateValue;
+  }
+  const rows = Array.isArray(turnsValue) ? turnsValue : [];
+  let transcript = Object.freeze(rows.flatMap((turn) => {
+    if (!turn || typeof turn !== "object") return [];
+    return [
+      Object.freeze({ role: "human", content: String(turn.human || "") }),
+      Object.freeze({ role: "assistant", content: String(turn.assistant || "") }),
+    ];
+  }));
+  // A thread can be longer than the DISPLAY bounds: it is a durable record and
+  // they are a window. Evict oldest whole pairs, exactly as an appended turn
+  // would be evicted, so a restored thread and a lived-through conversation
+  // render under one rule.
+  while (transcript.length > 2
+         && (transcript.length > MAX_TRANSCRIPT_TURNS
+             || transcriptBytes(transcript) > MAX_TRANSCRIPT_BYTES)) {
+    transcript = Object.freeze(transcript.slice(2));
+  }
+  return next(stateValue, {
+    transcript,
+    proposals: NO_PROPOSALS,
+    lastFailure: null,
+  });
+}
+
 export function rekeyChatState(stateValue, keyValue) {
   // FR-011/R12 browser-session isolation: a different scope key gets a
   // FRESH state (no transcript, composer, selection, or failure carryover);
