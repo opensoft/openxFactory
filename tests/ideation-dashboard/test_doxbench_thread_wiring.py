@@ -913,24 +913,29 @@ def test_every_section_KEY_a_source_can_carry_is_counted():
     key bytes."""
     from ideation_dashboard.doxbench_hash import utf8_size
 
-    widest = max(utf8_size(pk.PACKET_SECTION_SELECTED_THREAD),
-                 utf8_size(pk.THREAD_STATE_SECTION_PREFIX),
-                 utf8_size(pk.EVIDENCE_SECTION_PREFIX))
-    assert widest == utf8_size(pk.PACKET_SECTION_SELECTED_THREAD)
-    # every key a packet source can actually contribute is one of the three
-    packet = pk.ContextPacket(
-        purpose=pk.PACKET_PURPOSE_CHAT_TURN,
-        scope=serve_mod.doxbench_scope.ScopeKey(
-            repository="r", ref="main", tile_kind="staged", tile_id="t")
-        if hasattr(serve_mod, "doxbench_scope") else None,
-        posture=pk.POSTURE_FULL, sources=(), issued_at=0.0, expires_at=1.0)
-    del packet
-    for kind, expected in ((pk.SOURCE_SELECTED_THREAD,
-                            pk.PACKET_SECTION_SELECTED_THREAD),
-                           (pk.SOURCE_THREAD_STATE,
-                            pk.THREAD_STATE_SECTION_PREFIX),
-                           (pk.SOURCE_EVIDENCE, pk.EVIDENCE_SECTION_PREFIX)):
-        assert utf8_size(expected) <= widest, kind
+    # The three keys a packet source can contribute, and the widest of them.
+    keys = (pk.PACKET_SECTION_SELECTED_THREAD, pk.THREAD_STATE_SECTION_PREFIX,
+            pk.EVIDENCE_SECTION_PREFIX)
+    widest = max(utf8_size(k) for k in keys)
+    assert widest == utf8_size(pk.PACKET_SECTION_SELECTED_THREAD), (
+        "the SELECTED thread's key is the widest, and it was the one left out")
+
+    # RE-DERIVE the module's own constant and assert it counted that key. This
+    # is the assertion the first version of this test lacked: it compared two
+    # locally-computed numbers, so dropping the key from the module changed
+    # nothing here.
+    filled = {"ref": "", "note": pk._NON_AUTHORITATIVE_NOTE,
+              "status": pk.WIDEST_STATUS_LABEL,
+              "exemption": pk.WIDEST_EXEMPTION_LABEL,
+              "kind": pk.WIDEST_KIND_LABEL}
+    widest_section = max(
+        utf8_size(template.format(**filled))
+        for template in (pk.SELECTED_THREAD_PREAMBLE, pk.THREAD_STATE_PREAMBLE,
+                         pk.EVIDENCE_PREAMBLE))
+    expected = (widest_section + pk.SECTION_SEPARATOR_BYTES + widest
+                + utf8_size(pk.DECLARATION_LINE.format(**filled)) + 1)
+    assert pk.PER_SOURCE_SCAFFOLD_BYTES == expected, (
+        pk.PER_SOURCE_SCAFFOLD_BYTES, expected)
 
 
 def test_the_widest_labels_are_the_ones_the_renderer_actually_produces():

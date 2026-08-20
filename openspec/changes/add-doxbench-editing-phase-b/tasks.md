@@ -315,6 +315,18 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       swallowing it. A turn finishes bound to the document it was sent for, and
       the selection moves once it settles. Pinned by the reviewer's own
       reproduction, including the wire transcript.
+      **CORRECTED 2026-08-19 (PR #223, Codex C4 / Copilot CP2): a STALE thread
+      answer could overwrite a newer selection.** The in-flight refusal above
+      closes the case where a TURN crosses documents; this is the case where the
+      thread READ does. Select A, then B before A's GET returns: A's slower
+      answer arrived last and unconditionally replaced B's transcript with A's
+      turns — which is also B's WIRE transcript, so B's next turn would carry
+      A's conversation as its context. Reproduced against the shipped module.
+      `switchThread` now stamps a generation before the await and drops its own
+      answer if the selection moved while it was in flight — the last SELECTION
+      wins, not the last ANSWER. A counter rather than a cancel because the
+      transport is a plain fetch seam with no abort surface. Both arms are
+      pinned: the race reproduces without the guard and does not with it.
       **NOTED, not fixed (adversarial review P3-22):** the composer survives a
       document switch — deliberately, and consistent with FR-016 and PR #63's
       ruling that typing is never discarded — but it carries no label naming the
@@ -523,6 +535,18 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       path itself trusts and which the turn route already calls one step
       earlier, and four tests drive the REAL method against a real git session,
       including the bootstrap-reconstructed entry that used to lose records.
+      **CORRECTED 2026-08-19 (PR #223, Copilot CP1), both halves.** (1) An
+      unresolved actor borrowed the no-gate-capability cause — a true sentence
+      about a different situation, since the plane HAS the capability and there
+      is simply no identified human to attribute a gate action to. It has its
+      own `NO_RESOLVED_ACTOR_CAUSE` now. This is precisely the class this
+      slice's own P3-19 fixed for the no-live-session branch, missed one clause
+      over, which is worth recording as such. (2) The wire's `cause` field
+      carried `thread_capability_absence`'s full `"<REASON> — <cause>"` string
+      while the body already carries the reason in its own field, so the reason
+      appeared twice and `cause` was not a cause; the route reads
+      `ThreadCapabilityAbsent.cause` directly now. Every declared cause is a
+      bare cause, and a test asserts the reason never appears inside one.
       **NOTED (re-verify N-6):** the liveness question now has ONE spelling —
       `doxbench_scope.is_live_session_ref`, beside the other consumer of the
       same question. `serve.py`'s copy had already diverged from it in two ways
@@ -1154,7 +1178,29 @@ untouched: mechanical, reversible, at the model boundary.
       as a turn does (an unbound `/shake` would compact somebody else's
       context), and a response reporting that the agent WAS invoked raises
       rather than returning. Pinned hermetically and against the real binary.
+      **CORRECTED 2026-08-19 (PR #223, Codex C1 and C2): the binding was right
+      in shape and wrong in two mechanics.**
+      C1 — the conversation key was the bare `bound_buffer_key`, a
+      repository-relative path against a SINGLE per-serve session map, so two
+      scopes loading the SAME path (one repository at two refs, or two
+      repositories on a multi-repository plane) collided and the second silently
+      inherited the first's harness session. Reproduced: two `select_thread`
+      calls with one path returned one session file. The key is now composed
+      from the whole `ScopeKey` plus the buffer key, as JSON so the composition
+      is INJECTIVE — no spelling of one scope can forge another. Outline keys
+      are scoped identically, where they had been tile-only.
+      C2 — `select_thread` and `dispatch` each took the bridge lock SEPARATELY,
+      and this is a threading server: handler A selects A, handler B selects B,
+      then A's dispatch sends A's prompt into B's session. Reproduced directly.
+      The bind is now PART of the dispatch: the route asks for a per-turn
+      `for_conversation(key)` view whose `dispatch` binds and prompts inside one
+      lock acquisition. The view is exactly the three-member port, so
+      `dispatch_turn` is untouched and D14 stands.
       **Judgement call, flagged (#JC-3 — an unbound dispatch is REFUSED).**
+      STRENGTHENED by C2: the refusal was only ever a check that SOME
+      conversation was selected, which is the weaker half of the property. The
+      binding is now atomic with the turn, so "the turn runs in its own
+      conversation" is structural rather than a rule the route follows.
       Given its own entry rather than living only inside the P2-11 correction
       above (re-verify N-5). A turn — and now a builtin — runs only in the
       conversation it belongs to; the alternative, defaulting to whichever
@@ -1213,7 +1259,20 @@ untouched: mechanical, reversible, at the model boundary.
       before the turn had happened, and THIS TASK'S mirror wrote that empty
       answer into the sidecar as the durable record. Both are fixed and
       live-proven; the mirror now records the model's own text.
-      **Judgement call, flagged (#15 — an OUTLINE-bound turn writes no thread).**
+      **CORRECTED 2026-08-19 (PR #223, Codex C3): the sidecar came from the
+      buffer KEY, not the document's path.** Key and path differ for exactly one
+      buffer — the reserved unbacked slot, whose key is `document` and whose
+      path is None — and a turn bound to it wrote
+      `session-threads/document.thread.md`: a sidecar for a document that does
+      not exist. No Save could commit it (`thread_commit_paths` is called with
+      the real path), and a later re-key stranded it while a second thread
+      started at the document's own path. This is the key-vs-path resolver split
+      PR #207's F2 closed elsewhere, re-opened one layer down. The sidecar is
+      now derived from the bound buffer's own `path`, and a buffer with NO path
+      records no thread — which makes judgement call #15 below true of every
+      pathless buffer rather than of the outline alone.
+      **Judgement call, flagged (#15 — a turn on a buffer with NO DOCUMENT
+      writes no thread).**
       A thread belongs to a DOCUMENT, and the outline buffer is the tile's, not
       a document's, so an outline turn records no sidecar. This was true of the
       sidecar and NOT of the harness session until P2-11 was fixed (see 11.4);
@@ -1313,6 +1372,17 @@ untouched: mechanical, reversible, at the model boundary.
       (3) The arithmetic is asserted to COVER both numbers the obligation itself
       recorded (19 745 at 24 thread-states plus 6 evidence refs of 120
       characters, and 31 211 at the 48-source bound).
+      **CORRECTED 2026-08-19 (PR #223, Copilot CP3): one section key was left
+      out of the derivation.** `_widest_per_source_bytes` counted only the two
+      PREFIXED keys (`thread_state:`, `evidence:`) and missed the SELECTED
+      thread's fixed `selected_thread`, which is the longest of the three — so a
+      selected-thread source undercounted its key bytes by 2.
+      `PER_SOURCE_SCAFFOLD_BYTES` moves 313 -> 315, and both of the obligation's
+      recorded thresholds are still cleared with room:
+      20 250 >= 19 745 at 24 thread-states plus 6 evidence refs of 120
+      characters, and 32 400 >= 31 211 at the 48-source bound. The default
+      reserve is unchanged, so a caller carrying neither threads nor evidence is
+      on exactly the arithmetic it was measured under.
       **Judgement call, flagged (the ref is charged THREE times).** A source's
       ref renders in the declaration line and in its own section's preamble —
       that is two — and a third time in the section KEY (`thread_state:<ref>`,
