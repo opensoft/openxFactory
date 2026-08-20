@@ -1076,8 +1076,8 @@ untouched: mechanical, reversible, at the model boundary.
       a number something reads), and the child's stderr is drained to an injected
       log sink and to nothing else — a test scripts a sentinel on the child's
       stderr and asserts it reaches the log and never the answer.
-      **THE HONEST MODEL-UNAVAILABLE POSTURE HAS TWO LEGS, and the split is a
-      judgement call worth adjudicating.** (1) A bridge known dead or unstartable
+      **Judgement call, flagged (#1 — the honest model-unavailable posture has
+      TWO LEGS, and the split is worth adjudicating).** (1) A bridge known dead or unstartable
       makes `catalog()` report every entry `available: false`, which fails
       `selectable_entry_for` at the route's EXISTING model step — so the refusal
       shape and the gate ORDER are byte-identical, nothing is dispatched, and no
