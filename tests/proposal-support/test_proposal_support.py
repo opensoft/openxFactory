@@ -82,6 +82,39 @@ class ProposalSupportTests(unittest.TestCase):
             self.assertFalse((root / "ideation/staging/topic-a").exists())
             self.assertEqual(support.verify_active_support(destination.parent), [])
 
+    def test_the_recorded_origin_path_has_one_posix_spelling(self):
+        """The origin path is a MACHINE-READABLE RECORD readers split on `/`:
+        `generator._declared_origin_staging` resolves the demote's destination
+        topic from it, and doc-health's `proposal-origin` family joins it to a
+        repo root. `str(PurePath)` would spell it `ideation\\staging\\topic-a` on
+        a Windows checkout, so the record would depend on the operating system of
+        whoever ran the gate (Copilot, PR #221). Recorded twice in the manifest,
+        so the two spellings are pinned EQUAL as well as POSIX — a manifest must
+        not contradict itself about the path it came from."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.fixture(root)
+            manifest = support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], None,
+                "2026-07-09", False, True,
+            )
+        self.assertEqual(manifest["origin"]["path"], "ideation/staging/topic-a")
+        self.assertEqual(manifest["origin_path"], manifest["origin"]["path"])
+        self.assertNotIn("\\", manifest["origin"]["path"])
+
+        # STRUCTURAL, and deliberately so: on POSIX `str(PurePath)` and
+        # `as_posix()` return the same string, so the assertions above cannot
+        # tell the two apart and a regression to `str()` would pass them on
+        # every Linux CI run — the defect only appears on the platform the suite
+        # does not execute. So the SOURCE is pinned instead: the origin path is
+        # derived once, via `as_posix()`, and the manifest's second copy reuses
+        # that one value rather than re-deriving it.
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("origin_rel = source.relative_to(root).as_posix()", source)
+        self.assertIn('"origin_path": origin_rel,', source)
+        self.assertNotIn('"path": str(source.relative_to(root))', source)
+        self.assertNotIn('"origin_path": str(source.relative_to(root))', source)
+
     def test_committed_source_checksum_is_verified(self):
         with TemporaryDirectory() as td:
             root = Path(td)
