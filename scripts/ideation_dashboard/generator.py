@@ -64,6 +64,7 @@ import yaml
 
 from doc_health import TAXONOMY, corpus
 from doc_health.corpus import RealGit
+from doc_health.lines import split_keepends
 
 from . import GENERATOR_VERSION, completeness, fixtures
 from .register import CrossReferenceIndexAdapter, ProjectRegisterAdapter
@@ -123,11 +124,14 @@ class RealGitDates:
 # --------------------------- header parsing ---------------------------
 
 def _header_value(text: str, name: str) -> str | None:
-    """First `Name: value` header value in the doc's header window, else None."""
+    """First `Name: value` header value in the doc's header window, else
+    None. Real lines (`doc_health.lines.split_keepends`), matching
+    `doc_health.corpus.parse_status`/`parse_kind`'s window exactly — see
+    this module's `HEADER_SCAN_LINES` comment."""
     prefix = name + ":"
-    for line in text.splitlines()[:HEADER_SCAN_LINES]:
-        if line.startswith(prefix):
-            return line[len(prefix):].strip() or None
+    for body, _ending in split_keepends(text)[:HEADER_SCAN_LINES]:
+        if body.startswith(prefix):
+            return body[len(prefix):].strip() or None
     return None
 
 
@@ -250,6 +254,59 @@ def _load_openspec_meta(folder: Path) -> dict:
     except yaml.YAMLError:
         return {}
     return data if isinstance(data, dict) else {}
+
+
+def _declared_origin_staging(folder: Path) -> str | None:
+    """The staging topic a change RECORDS as its own origin, or None.
+
+    Read from the change's `.openspec.yaml` `origin:` block — the artifact the
+    FORWARD transition writes (`proposal-support.write_origin_block`) at the
+    moment the topic becomes a change. That makes it the one origin statement
+    that survives the transition: a possibles-register pick edge points at the
+    staging FOLDER, and the forward transition removes that folder, so a
+    resolution reading only pick edges fails for exactly the changes that
+    actually reached proposal (measured: 12 of 12 active changes reported
+    `origin_staging_id: None`, and the corpus held ONE pick edge, carrying no
+    `change_id`).
+
+    Only `kind: staged` answers. An `ad_hoc` origin means the change did not come
+    from staging, so there is no topic to return to and the demote's refusal is
+    correct rather than something to paper over.
+
+    THE ID COMES FROM `origin.path`, not `origin.id`. The declared id is
+    namespaced (`<repo>:staging:<topic>`) while this field is compared against
+    `staged_topics[].staging_id`, which is the bare topic. Deriving it from the
+    path keeps one spelling of the id's shape rather than teaching a second place
+    how to take a namespaced id apart.
+
+    THE TOPIC IS THE FIRST SEGMENT AFTER `ideation/staging/`, not the path's
+    BASENAME. `proposal-support.py transition` accepts any directory below
+    `ideation/staging/` as its source, so a real declared origin can read
+    `ideation/staging/my-topic/openspec` — and a basename rule answers `openspec`,
+    a topic nobody named, into which the demote would then silently plan every
+    returning file. A path that is not below `ideation/staging/` answers NOTHING
+    rather than being guessed at: the origin contract puts staged sources there,
+    and a malformed declaration is a refusal case, not a parsing challenge."""
+    origin = _load_openspec_meta(folder).get("origin")
+    if not isinstance(origin, dict) or origin.get("kind") != "staged":
+        return None
+    path = origin.get("path")
+    if not isinstance(path, str):
+        return None
+    # BACKSLASHES ARE TOLERATED ON THE WAY IN. The forward gate now records this
+    # path in POSIX form, but it used to record `str(Path.relative_to(...))`,
+    # which on a Windows checkout yields `ideation\staging\<topic>` — so a record
+    # written there resolved to nothing and the demote silently degraded to
+    # asking for `--staging-topic`. Records already on disk are not reachable by
+    # fixing the writer, so the reader normalizes rather than assuming its own
+    # spelling. (This does mean a POSIX directory whose name legally contains a
+    # backslash would be split; that is an absurd case traded for a real one, and
+    # the staged-origin id grammar does not admit it.)
+    normalized = path.strip().replace("\\", "/")
+    parts = [part for part in normalized.split("/") if part not in ("", ".")]
+    if parts[:2] != ["ideation", "staging"] or len(parts) < 3:
+        return None
+    return parts[2]
 
 
 def _ratifier_of(folder: Path) -> str | None:
@@ -438,14 +495,24 @@ def _change_entry(
     change_id: str, status: str, folder: Path, archive_date: str | None,
     repo_root: Path, change_origin_staging: dict[str, str],
 ) -> dict[str, Any]:
-    """One `changes[]` entry, including the folder/files drill-down listing."""
+    """One `changes[]` entry, including the folder/files drill-down listing.
+
+    `origin_staging_id` follows a DECLARED PRECEDENCE ORDER rather than one
+    source: the change's own recorded staged origin first, then the
+    possibles-register pick edge. The order is stated as an order rather than a
+    replacement so a pick edge keeps working wherever one still exists; the
+    recorded origin leads because it is the source the forward transition writes
+    and does not destroy. (An explicitly supplied topic outranks both, and is
+    applied by `gate_console.plan_demotion`, which is where a human's argument
+    arrives.)"""
     code_surface, target_release = _release_frontmatter(folder)
     change: dict[str, Any] = {
         "id": change_id,
         "status": status,
         "code_surface": code_surface,
         "target_release": target_release,
-        "origin_staging_id": change_origin_staging.get(change_id),
+        "origin_staging_id": (_declared_origin_staging(folder)
+                              or change_origin_staging.get(change_id)),
     }
     ratification = _ratification(folder, archive_date, status)
     if ratification:

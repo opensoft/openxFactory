@@ -23,6 +23,22 @@
 # ratified vocabulary carries `business_central` as ONE member whose description
 # names BOTH acts; the delta's "each act is its own admission surface" scenario
 # governs acts that admit INDEPENDENTLY, and these two do not.
+#
+#   3. THE `device` (NODE-INVENTORY) WORKED CASE (entry 3), added by
+#      add-roster-device-admission-surface (contract-v1.35). The `device`
+#      surface is ONE tenant-wide READ surface covering Entra registered
+#      devices + Intune managed devices + Windows 365 Cloud PCs. Its governed
+#      unit IS the tenant device estate, so tenant-wide read is the GOVERNED
+#      scope, not excess: `exceeds_governed_unit: false`, NO `declared_excess`,
+#      and NO `spanned_surfaces` (the three provider areas are prose in the
+#      `device` member's description, never structured breadth). It is READ-ONLY
+#      (`observe`/`observe`), its single act is `logic_enforced` (the read-only
+#      roles carry no narrower selector — the provider offers nothing narrower),
+#      and `per_unit_principal_available: {device: false}`. It is a `planned`
+#      entry with an UNVERIFIED act (no `evidence_ref`/`verified_at`), because
+#      the OpsxFactory node-inventory reader is a DOWNSTREAM consumer not yet
+#      admitted — mirroring entry 2's unverified convention, and asserting no
+#      verified provider fact this neutral repository cannot cite.
 schema_version: 1
 kind: xfactory_client_identity_roster
 client_ref: farheap
@@ -42,11 +58,21 @@ legend:
   blast_radius_units:
     sandbox1: "Sandbox1 (FarHeap Business Central environment, US)"
     production: "Production (FarHeap Business Central environment, friendly name FARHEAP, US)"
+    tenant_device_estate: >-
+      The FarHeap tenant DEVICE ESTATE as one unit — every Entra registered
+      device, every Intune managed device and every Windows 365 Cloud PC in
+      tenant 96d3fa6b-5547-49ca-9af1-dba9bec50c2b. Tenant-wide read is the
+      GOVERNED scope for this unit, not excess: the provider offers no narrower
+      selector on the read-only device roles.
   duties:
     environment_observation: >-
       Business Central ENVIRONMENT observation — extension deployment status,
       Access Control enumeration and environment inventory, producing
       infrastructure_readiness_result artifacts. The books are never touched.
+    node_inventory: >-
+      Read-only enumeration of the tenant device estate — Entra registered
+      devices, Intune managed devices and Windows 365 Cloud PCs — producing a
+      node inventory. No device is created, modified, wiped or retired.
 entries:
 
   # ------------------------------------------------------------------
@@ -256,3 +282,85 @@ entries:
         sha: 1ce8cae
     ratified_by: opsxfactory:business-central-administration
     consent_ref: farheap-bc-administration-consent-v1
+
+  # ------------------------------------------------------------------
+  # ENTRY 3 — the `device` (node-inventory) worked case
+  # (add-roster-device-admission-surface, contract-v1.35).
+  # ------------------------------------------------------------------
+  # The tenant DEVICE ESTATE read as ONE tenant-wide surface. Its governed unit
+  # IS that estate, so tenant-wide read is the GOVERNED scope
+  # (`exceeds_governed_unit: false`, no `declared_excess`): there is nothing to
+  # declare as excess, because the provider offers no narrower selector on the
+  # read-only device roles and the whole estate is what this entry governs. The
+  # three provider areas (Entra registered devices / Intune managed devices /
+  # Windows 365 Cloud PCs) are NOT `admission_surface` consts — they are prose
+  # in the `device` member's schema description and appear in NO structured
+  # breadth field. A `planned` entry (the node-inventory reader is a DOWNSTREAM
+  # OpsxFactory consumer not yet admitted), so its single act is UNVERIFIED by
+  # derivation — no `evidence_ref` and no `verified_at`, exactly as entry 2 —
+  # and `provider_object_ref` is omitted because the registration does not yet
+  # exist in the provider.
+  - identity_ref: opsx-farheap-node-inventory-reader
+    identity_kind: entra_app_registration
+    home_tenant: 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    principal_locations:
+      - 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    residency_model: client_tenant_single
+    admission_surface: device
+    duty: node_inventory
+    blast_radius_unit: tenant_device_estate
+    # Intended observation, ACHIEVED observation. Unlike Business Central, the
+    # device estate offers genuinely read-only application roles: the three
+    # granted roles confer no creation, modification or deletion, so there is no
+    # forced class overshoot and therefore no `declared_excess`.
+    authority_class_intended: observe
+    authority_class_achieved: observe
+    granted_permissions:
+      # The three read-only application roles the admission act consents to. All
+      # `observe`; each reaches the single `device` surface. `Device.Read.All`
+      # reads Entra registered devices, `DeviceManagementManagedDevices.Read.All`
+      # reads Intune managed devices, `CloudPC.Read.All` reads Windows 365 Cloud
+      # PCs — one tenant-wide read surface, three provider areas.
+      - id: Device.Read.All
+        achieves: observe
+        reaches: [device]
+      - id: DeviceManagementManagedDevices.Read.All
+        achieves: observe
+        reaches: [device]
+      - id: CloudPC.Read.All
+        achieves: observe
+        reaches: [device]
+    admission:
+      # THE SINGLE ACT — admin consent for the three read-only roles on ONE
+      # Entra app registration. `logic_enforced`: the read is bounded by the
+      # exact read-only roles, and there is NO provider scoping selector (unlike
+      # Exchange's RestrictAccess), so no per-unit principal exists to use. The
+      # act is UNVERIFIED — no `evidence_ref`/`verified_at` — because the
+      # registration is not yet admitted; it contributes nothing to effective
+      # reach until it is.
+      - surface: device
+        act: >-
+          admin consent to be granted for the read-only application roles
+          Device.Read.All, DeviceManagementManagedDevices.Read.All and
+          CloudPC.Read.All on one Entra app registration in the FarHeap tenant —
+          not yet performed; enters by separate instruction under the downstream
+          OpsxFactory node-inventory consent ceremony
+        achieved_scope: >-
+          tenant-wide device-estate read (intended; the read-only roles carry no
+          narrower selector, so the exact effective scopes ARE the bound and the
+          provider offers nothing narrower)
+        enforcement_mode: logic_enforced
+        exceeds_governed_unit: false
+    per_unit_principal_available:
+      # FALSE — the governed unit is the whole tenant device estate and the
+      # read-only roles carry no scope selector, so no principal is scoped to a
+      # narrower unit. `logic_enforced` beside a `false` answer is conformant:
+      # the bound is our gate logic and the read-only role set, with the
+      # provider reason recorded (there is no narrower selector to use).
+      device: false
+    lifecycle_state: planned
+    standing_credential_attestation:
+      no_standing_credential: true
+      attested_at: "2026-08-08T07:32:53Z"
+    ratified_by: opsxfactory:managed-node-inventory
+    consent_ref: farheap-node-inventory-consent-v1

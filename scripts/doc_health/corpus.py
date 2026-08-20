@@ -16,6 +16,8 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+from .lines import split_keepends
+
 GOVERNED_ROOTS = ("contracts", "docs", "examples", "ideation", "templates")
 EXCLUDED_PARTS = {".git", "installs", "node_modules", "tests", "__pycache__"}
 STATUS_RE = re.compile(r"^Status:\s*(.+?)\s*$")
@@ -68,18 +70,87 @@ def iter_doc_paths(repo_path: Path) -> list[Path]:
 
 
 def parse_status(text: str) -> str | None:
-    for line in text.splitlines()[:STATUS_SCAN_LINES]:
-        m = STATUS_RE.match(line)
+    """Locate the `Status:` header within the first REAL lines of `text`.
+
+    Scans real lines (CR/LF/CRLF only — see `doc_health.lines`) rather than
+    `str.splitlines()` fragments, so a header carrying an exotic separator
+    (form feed, U+2028, ...) does not inflate the scan window and hide a
+    `Status:` line that is plainly there. A reader more aggressive than the
+    writer can otherwise report a correct document as lacking a status it
+    carries — a false finding (`align-status-reader-to-real-lines`).
+    """
+    for body, _ending in split_keepends(text)[:STATUS_SCAN_LINES]:
+        m = STATUS_RE.match(body)
         if m:
             return m.group(1)
     return None
 
 
 def parse_kind(text: str) -> str | None:
-    for line in text.splitlines()[:STATUS_SCAN_LINES]:
-        if line.startswith("Kind: "):
-            return line[len("Kind: "):].strip() or None
+    """`Kind:` header, scanned the same real-line way as `parse_status`.
+
+    Shares the blindness `parse_status` used to have (both scanned
+    `text.splitlines()[:STATUS_SCAN_LINES]`), so it shares the fix.
+    """
+    for body, _ending in split_keepends(text)[:STATUS_SCAN_LINES]:
+        if body.startswith("Kind: "):
+            return body[len("Kind: "):].strip() or None
     return None
+
+
+# SWEEP RECORD (align-status-reader-to-real-lines, task 2.3), UPDATED under
+# the wide ruling. `grep -rn "splitlines()\[:" scripts/` was run against this
+# fix so the next reader does not have to re-run it to know whether
+# `parse_status`/`parse_kind` were the whole set. They were not: the same
+# `text.splitlines()[:N]` idiom was also carried, independently, by:
+#   scripts/ideation_dashboard/doxbench_packet.py  lifecycle_status()
+#   scripts/ideation_dashboard/authoring.py        missing_required_headers()
+#   scripts/ideation_dashboard/generator.py        _header_value()
+#   scripts/doc_health/inventory.py                _header_value()
+#   scripts/doc_health/families.py                 _header_line()
+#   scripts/doc_health/organizer_dispatch.py       _header_value()
+# plus an UNBOUNDED sibling defect the `splitlines()[:` grep pattern does not
+# match: `scripts/doc_health/families.py`'s `_scan_lines()`, a live second
+# Python line rule (design Decision 2's fence-scanning hazard's line-splitting
+# half) disagreeing with `round_trip.py` on any exotic-boundary heading
+# fixture. `_scan_lines` is not the only such sibling in this corpus — see the
+# SECOND SWEEP GAP note below for `families.py`'s OTHER unbounded scanner,
+# `_template_gaps`, which remains open (tasks.md §7).
+#
+# First cut of this change scoped its ratified `proposal.md` code surface to
+# `lines.py` + `parse_status`/`parse_kind` + `round_trip.py`'s import alone,
+# and left the six sites above untouched, reasoning that widening would mean
+# presenting an unmeasured baseline diff. Brett's same-day ruling (in-session
+# multiple choice, recommended option adopted, 2026-08-19) found that
+# reasoning was the drafting error, not the delta: the delta's "SHALL hold for
+# every reader of that header" and the proposal's "reduces the Python side to
+# one" already governed every reader, and the narrow front-matter enumeration
+# was corrected to match. The measurement the narrow cut said it lacked was
+# then taken — 1227 governed aggregation files, zero exotic separators, zero
+# window differences, zero value changes — so ALL SIX sites plus `_scan_lines`
+# convert in THIS change, on a demonstrated zero baseline cost. See
+# `proposal.md`'s amended `code_surface:` and `Ratified:` lines for the ruling
+# in full.
+#
+# SECOND SWEEP GAP (finding F4, focused re-verify, 2026-08-19). The
+# `splitlines()\[:` grep above STILL missed
+# `scripts/ideation_dashboard/completeness.py`'s `_has_header`: it reads the
+# window through `_Prepared.lines[:HEADER_WINDOW]`, where `_Prepared.lines`
+# is assigned `text.splitlines()` in `__init__` — the split call and the
+# window slice sit on DIFFERENT lines of source, so a grep for the two
+# tokens adjacent (`splitlines()\[:`) cannot match either one. Demonstrated:
+# `authoring.missing_required_headers` (already converted) said a header
+# block was COMPLETE while `completeness`'s `governance_header_block` check
+# (not yet converted) said ABSENT, on the SAME exotic-separator document.
+# Converted now (`_Prepared.lines` itself, coherently — every consumer of
+# `.lines` already treated it as an opaque `Sequence[str]`, so nothing else
+# in that module needed to change). THE NEXT SWEEP should grep bare
+# `splitlines()` over document text generally, not just the `[:N]`-windowed
+# idiom — an assignment-then-slice split defeats the narrower pattern, and
+# `families.py`'s `_template_gaps` (deferred, see tasks.md §7 — NOT a
+# lifecycle-header reader, so outside this change's every-reader clause) is
+# a further instance of exactly that same blind spot, left for its own
+# scope.
 
 
 def load_docs(repo_name: str, repo_path: Path) -> list[Doc]:

@@ -335,15 +335,112 @@ def _flip_status(text: str, new_status: str) -> str:
     exposed to the same two damages before.
     """
     rows = round_trip.split_keepends(text)
-    limit = min(len(rows), HEADER_SCAN_LINES)
-    for i in range(limit):
-        body, ending = rows[i]
-        if body.startswith("Status:"):
-            # The rewritten line keeps the ending it HAD (wave re-review P3): a
-            # CRLF header must not be the one line that comes out LF.
-            rows[i] = (f"Status: {new_status}", ending)
-            return round_trip.join_rows(rows)
-    return text
+    index = _status_row(rows)
+    if index is None:
+        return text
+    body, ending = rows[index]
+    # The rewritten line keeps the ending it HAD (wave re-review P3): a CRLF
+    # header must not be the one line that comes out LF.
+    rows[index] = (f"Status: {new_status}", ending)
+    return round_trip.join_rows(rows)
+
+
+_STATUS_BODY_RE = re.compile(r"Status:\s*(\S+)\s*")
+
+
+def _status_row(rows: list[tuple[str, str]]) -> int | None:
+    """Index of the document's `Status:` header row, or None. The ONE scan
+    `_flip_status` and `_add_status_header` share, so the question "does this
+    document carry a header" gets the same answer from the side that rewrites one
+    and the side that adds one.
+
+    THE SAME GRAMMAR AS THE FORWARD GATE (`proposal-support._status_row`), and
+    that alignment is the point rather than a tidy-up: this side decides whether a
+    returned document needs a header ADDED, the forward gate decides whether it
+    REFUSES the document, and where the two readers disagreed the demote left a
+    topic one-way while believing it had not. Measured over the corpus, the old
+    reader disagreed with the gate on 11 of 1148 documents, in both directions:
+
+    * STRICT, not `startswith`. `Status: record (in progress — …)` satisfies a
+      prefix test and fails the gate's `\\S+` grammar, so seven archived-change
+      artifacts were judged headed here and refused there. It also means
+      `_flip_status` no longer overwrites such a line — the parenthetical is a
+      human's annotation, and rewriting it to a bare `Status: draft` was silent
+      data loss dressed up as a status flip.
+    * FENCE-AWARE. A `Status:` line inside a ``` block is an EXAMPLE. Reading it
+      as the document's header flipped the example and left the real header alone.
+    * NO 15-ROW WINDOW. A real header below row 15 was invisible here and visible
+      to the gate, so `_add_status_header` inserted a SECOND one.
+
+    `HEADER_SCAN_LINES` still bounds the INSERTION point search in
+    `_add_status_header`, which is a different question — where a header belongs,
+    not whether one is present."""
+    flags = round_trip._fenced_flags(rows)
+    for index, (body, _ending) in enumerate(rows):
+        if flags[index]:
+            continue
+        if _STATUS_BODY_RE.fullmatch(body):
+            return index
+    return None
+
+
+def _add_status_header(text: str, new_status: str) -> tuple[str, bool]:
+    """(text carrying a lifecycle status header, whether one was ADDED).
+
+    THE ROUND-TRIP OBLIGATION, realized on returned material (Brett's ruling,
+    2026-08-19). Every artifact the reverse transition writes into a staging
+    topic has to satisfy the same governed-document rules the forward transition
+    enforces there — and OpenSpec change artifacts do not carry lifecycle headers
+    by convention. Measured at 8426dbc by the forward gate's own reader (a
+    `Status:` line outside every fence): 93 of 94 `tasks.md`, 154 of 158 spec
+    deltas, 65 of 68 `design.md` and 49 of 94 `proposal.md` carry NONE. The
+    counts move with the corpus; the shape does not. Returned unheadered, every
+    one of them made the next whole-folder transition of that topic refuse, so
+    the demote left the cycle one-way for the topic it was applied to.
+
+    `draft` is the status, for design Decision 2's reason: the returned material
+    is a draft proposal continuing as a draft idea in the topic's workspace.
+
+    WHERE IT GOES follows the corpus rather than an invention. A document opening
+    with a `---` front-matter block gets the header INSIDE that block, which is
+    where `ideation/staging/tier2-council-clearance-pattern/openspec/proposal.md`
+    — the one real returned topic a human already fixed by hand — carries it;
+    putting it above the block would push the front matter off position 0 and
+    stop it being front matter at all. Otherwise it goes under the leading `# `
+    title, which is where every other governed document in this corpus carries
+    it.
+
+    A document that already has a header is returned UNCHANGED and reports False:
+    the flip arm owns those, and this must never become a second writer of the
+    same line.
+    """
+    rows = round_trip.split_keepends(text)
+    if _status_row(rows) is not None:
+        return text, False
+    eol = round_trip.document_eol(rows)
+    if not rows:
+        return f"Status: {new_status}{eol}", True
+
+    if rows[0][0].strip() == "---":
+        for i in range(1, min(len(rows), HEADER_SCAN_LINES)):
+            if rows[i][0].strip() == "---":
+                rows.insert(i, (f"Status: {new_status}", eol))
+                return round_trip.join_rows(rows), True
+
+    at = 0
+    if rows[0][0].startswith("# "):
+        at = 2 if len(rows) > 1 and not rows[1][0].strip() else 1
+    block = [(f"Status: {new_status}", eol), ("", eol)]
+    if at > 0 and rows[at - 1][0].strip():
+        block.insert(0, ("", eol))
+    if at >= len(rows):
+        # Appending past the end: the last row may carry no ending at all (a file
+        # with no trailing newline), and the new header must not be glued onto it.
+        if rows and not rows[-1][1]:
+            rows[-1] = (rows[-1][0], eol)
+        block = block[:-1]
+    rows[at:at] = block
+    return round_trip.join_rows(rows), True
 
 
 # --------------------------------------------------------------------------
@@ -554,6 +651,14 @@ class DemotionPlan:
     # plan was derived from because `execute_demotion_plan` never sees one. It fills
     # the `Status at demote` provenance slot.
     status_at_demote: str = ""
+    # The change's task progress at the same moment, carried the same way and for
+    # the same reason (the executor never sees a snapshot). The status alone is a
+    # CONSTANT — `plan_demotion` refuses any change that is not active, so a
+    # status-only slot cannot tell one demote from another — and the progress is
+    # the informative fact the snapshot already holds beside it. `None` where the
+    # change records no tasks, which the slot renders as the status alone rather
+    # than as a fabricated count.
+    task_progress: dict[str, int] | None = None
 
 
 def classify_change_file(rel_within_change: str) -> tuple[str, str, str | None]:
@@ -597,11 +702,18 @@ def plan_demotion(
         raise GateRefused(
             f"change {change_id!r} is {change.get('status')!r}; only an active "
             "proposal is demoted back to staging")
+    # THE PRECEDENCE ORDER, and its first rung is here because this is where a
+    # human's argument arrives: an explicitly supplied topic ALWAYS wins, because
+    # naming the destination is the most direct statement of intent available. The
+    # remaining two rungs — the change's own recorded staged origin, then a
+    # possibles pick edge — are resolved into `origin_staging_id` by the generator,
+    # which is the only side that reads the tree.
     topic = staging_topic or change.get("origin_staging_id")
     if not topic:
         raise GateRefused(
             f"change {change_id!r} has no recorded origin staging topic; pass "
-            "staging_topic explicitly to target the reverse transition")
+            "staging_topic (`--staging-topic` on the CLI) explicitly to target "
+            "the reverse transition")
 
     folder = change.get("folder") or f"openspec/changes/{change_id}"
     topic_path = f"ideation/staging/{topic}"
@@ -637,11 +749,50 @@ def plan_demotion(
         if isinstance(p, dict) and (p.get("pick") or {}).get("change_id") == change_id and p.get("id")
     ))
 
+    # Snapshot-derived, like the status beside it. The generator emits the key
+    # only when the change records tasks, so an absent key is "no tasks", not
+    # "lookup failed" — a distinction the slot's rendering depends on.
+    raw_progress = change.get("task_progress")
+    progress = dict(raw_progress) if isinstance(raw_progress, dict) else None
+
     return DemotionPlan(
         change_id=change_id, staging_topic=topic, change_folder=folder,
         topic_path=topic_path, openspec_workspace=openspec_ws, reason=reason.strip(),
         moves=tuple(moves), withdrawn_picks=withdrawn,
-        status_at_demote=str(change.get("status") or ""))
+        status_at_demote=str(change.get("status") or ""),
+        task_progress=progress)
+
+
+def state_at_demote(status: str, progress: dict[str, int] | None) -> str:
+    """PURE: the `Status at demote` provenance slot's value — the change's state
+    at the moment it was demoted, as the prose a human reads in the fragment.
+
+    `active — 9 of 22 tasks done`. PROSE, not a code: the slot sits in a markdown
+    document beside four other slots that are all plain prose, and a reader of
+    that document is the audience.
+
+    NO PROGRESS RENDERS THE STATUS ALONE, never `active — unavailable`. The
+    ratified unavailable rule is about a value that could not be RESOLVED; a
+    change that records no tasks has no progress to resolve, so writing
+    `unavailable` there would report a lookup failure that did not happen. An
+    empty status still yields "", which the caller turns into the real
+    UNAVAILABLE marker — that one IS a resolution failure."""
+    base = str(status or "").strip()
+    if not base or not isinstance(progress, dict):
+        return base
+    completed, total = progress.get("completed"), progress.get("total")
+    if not isinstance(completed, int) or not isinstance(total, int):
+        return base
+    if isinstance(completed, bool) or isinstance(total, bool) or total <= 0:
+        return base
+    if completed < 0 or completed > total:
+        # Unreachable through the generator, which counts `completed` out of the
+        # same regex sweep that produces `total`. Guarded anyway because the slot
+        # is prose a human reads as fact, and `9 of 4 tasks done` is a fabricated
+        # one — the status alone is the true statement about a record that does
+        # not add up.
+        return base
+    return f"{base} — {completed} of {total} tasks done"
 
 
 def transition_manifest(plan: DemotionPlan, *, actor: str, at: str,
@@ -691,6 +842,15 @@ def executable_plan(plan: DemotionPlan, *, actor: str, at: str) -> dict:
         step: dict[str, Any] = {"op": "move", "from": m.from_path, "to": m.to_path}
         if m.status_flip:
             step["set_status"] = m.status_flip
+        if m.to_path.endswith(".md") and not m.outline:
+            # DECLARED before execution, and decidable PATH-ONLY like everything
+            # else in this plan: a returned governed markdown document that
+            # arrives with no lifecycle status header is given `Status: draft`,
+            # because the forward transition refuses governed markdown without
+            # one. Whether any given file needs it is a fact about the tree, not
+            # the path — so the plan states the RULE and the execution record
+            # names the files it actually applied to.
+            step["ensure_status"] = DRAFT_STATUS
         if m.outline:
             # DECLARED before execution: this destination is the topic's outline,
             # so it is refreshed rather than overwritten, and a pre-existing
@@ -927,6 +1087,12 @@ class DemotionExecution:
     # Why the refresh did NOT happen, when it did not. A refusal a caller cannot
     # read is a refusal that reads as success.
     outline_refusal: str | None = None
+    # Returned markdown that arrived carrying no lifecycle status header and was
+    # given `Status: draft` so the topic stays transitionable (Brett's ruling,
+    # 2026-08-19). Recorded rather than silent: this verb edited bytes of a
+    # human-visible document, and "which of my files did you touch, and how" is
+    # exactly the question a gate record has to be able to answer.
+    status_headers_added: list[str] = field(default_factory=list)
 
 
 def _read_raised_date(root: Path, plan: DemotionPlan) -> str:
@@ -982,7 +1148,9 @@ def _restore_outline(
     provenance = {
         "Change ID": plan.change_id,
         "Raised": raised,
-        "Status at demote": plan.status_at_demote or round_trip.UNAVAILABLE,
+        "Status at demote": (state_at_demote(plan.status_at_demote,
+                                             plan.task_progress)
+                             or round_trip.UNAVAILABLE),
         "Demoted": at[:10],
         "Demote reason": plan.reason,
     }
@@ -1008,8 +1176,12 @@ def _restore_outline(
         # hidden artifact in a governed folder is how material goes missing, and
         # the corpus readers (doc-health, the wheel) should see it.
         kept = dst.parent / f"{plan.staging_topic}.snapshot-{plan.change_id}.md"
-        kept.write_bytes(
-            _flip_status(snapshot_bytes.decode("utf-8"), DRAFT_STATUS).encode("utf-8"))
+        kept_text, kept_added = _add_status_header(
+            _flip_status(snapshot_bytes.decode("utf-8"), DRAFT_STATUS), DRAFT_STATUS)
+        kept.write_bytes(kept_text.encode("utf-8"))
+        if kept_added:
+            result.status_headers_added.append(
+                kept.relative_to(root).as_posix())
         result.preserved_snapshot_path = kept
         result.snapshot_disposition = "preserved"
         base = dst.read_bytes().decode("utf-8")   # never read_text (see above)
@@ -1019,6 +1191,30 @@ def _restore_outline(
         base = _flip_status(snapshot_bytes.decode("utf-8"), outline.status_flip
                             or STAGED_STATUS)
         result.snapshot_disposition = "applied"
+
+    # THE HEADER OBLIGATION REACHES THE OUTLINE TOO, and specifically the
+    # REFRESH-IN-PLACE arm. A previous pass of this change declared the outline
+    # out of scope on the grounds that its source always arrives carrying a
+    # header — true of the snapshot the restore arm applies, and FALSE of the
+    # live fragment case 3 reads, which is a document the human owns and which
+    # never passed the forward gate to acquire one. Driven: a header-less working
+    # outline demoted cleanly (`outline_refusal: None`) and left the topic
+    # one-way, the next whole-folder transition refusing on the fragment itself.
+    #
+    # THE VALUE IS `staged`, NOT the `draft` used for returned change artifacts,
+    # and it is taken from the same expression the restore arm uses so the two
+    # cannot drift. The ratified rule is explicit: a returning file whose
+    # destination is the topic's declared primary fragment SHALL keep
+    # `Status: staged` and MUST NOT be flipped to draft, because the selection
+    # rule still calls that file the staged topic's outline.
+    #
+    # `_add_status_header` DEFERS to an existing header, so the live fragment's
+    # own status — whatever the human set it to — is still never rewritten here.
+    # Only its absence is filled.
+    base, outline_added = _add_status_header(
+        base, outline.status_flip or STAGED_STATUS)
+    if outline_added:
+        result.status_headers_added.append(outline.to_path)
 
     # THE UNCLOSED-FENCE REFUSAL. Inside an open fence a written section is
     # invisible to the scanner that would find it next time, so it would be written
@@ -1083,15 +1279,30 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
         # `write_text`, which universal-newline-translated CRLF to LF on
         # Linux — silently rewriting a Windows-authored document and
         # invalidating any open doxBench buffer's base identity — and mangled
-        # undecodable bytes to U+FFFD on the way. A move is not an edit: it
-        # copies BYTES and decodes nothing. Only the Status-flip arm must
-        # decode, and it decodes STRICTLY — the same refuse-to-fabricate
-        # asymmetry as the doxBench base revalidation (P3-5): a non-UTF-8
-        # document fails the demotion loudly rather than being silently
-        # re-encoded under a gate record naming the human.
+        # undecodable bytes to U+FFFD on the way. So NOTHING here goes through
+        # universal-newline translation: a governed markdown document is decoded
+        # STRICTLY, rewritten by row (each line keeping the ending it had), and
+        # re-encoded only when its bytes actually changed. Strict is the same
+        # refuse-to-fabricate asymmetry as the doxBench base revalidation (P3-5):
+        # a non-UTF-8 markdown document fails the demotion loudly rather than
+        # being silently re-encoded under a gate record naming the human.
+        # Non-markdown never decodes at all — it is a byte copy.
         data = src.read_bytes()
-        if m.status_flip:
-            data = _flip_status(data.decode("utf-8"), m.status_flip).encode("utf-8")
+        if m.to_path.endswith(".md"):
+            decoded = data.decode("utf-8")
+            updated = _flip_status(decoded, m.status_flip) if m.status_flip else decoded
+            # THE ROUND-TRIP OBLIGATION on returned material (Brett's ruling,
+            # 2026-08-19): a governed markdown artifact this verb writes into a
+            # staging topic carries a lifecycle status header, because the
+            # forward transition refuses governed markdown without one and an
+            # unheadered returned artifact makes the cycle one-way for that
+            # topic. `_flip_status` cannot do this — it is a no-op on a document
+            # with no header, which is 93 of 94 `tasks.md` in this corpus.
+            updated, added = _add_status_header(updated, m.status_flip or DRAFT_STATUS)
+            if added:
+                result.status_headers_added.append(m.to_path)
+            if updated != decoded:
+                data = updated.encode("utf-8")
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(data)
         src.unlink()
@@ -1125,9 +1336,18 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
             outline_note = (
                 f"\nOutline: {rel} was restored from the change folder's snapshot "
                 f"and refreshed with this demote's round-trip provenance.\n")
+    # WHICH RETURNED FILES THIS VERB EDITED, named. The header additions are the
+    # only place a demote changes bytes inside a file it is otherwise just moving,
+    # so they are stated rather than left for a human to notice in a diff.
+    header_note = ""
+    if result.status_headers_added:
+        header_note = (
+            "\nStatus headers added (these arrived carrying none, and the "
+            "forward transition refuses governed Markdown without one):\n"
+            + "\n".join(f"- {p}" for p in result.status_headers_added) + "\n")
     note = (f"\n## Returned drafts (demoted {plan.change_id}, {at[:10]})\n\n"
             f"Reason: {plan.reason}\n"
-            + outline_note + "\n"
+            + outline_note + header_note + "\n"
             + "\n".join(f"- {r}" for r in returned) + "\n")
     if readme.is_file():
         # Translation-free on BOTH legs (wave re-review P3): `read_bytes().
@@ -1149,8 +1369,18 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
     index = root / plan.openspec_workspace / "INDEX.md"
     index.parent.mkdir(parents=True, exist_ok=True)
     ws_files = [m.to_path for m in plan.moves if m.to_path.startswith(plan.openspec_workspace + "/")]
+    # THE STATUS HEADER IS A ROUND-TRIP OBLIGATION, not a formatting preference.
+    # This INDEX is a governed markdown document the reverse transition writes
+    # into a governed folder, and the FORWARD transition refuses any governed
+    # markdown without a `Status:` header — so an unheadered INDEX made the cycle
+    # one-way for the topic it was applied to (`SupportError: governed Markdown
+    # lacks Status header` on the next whole-folder transition of that topic).
+    # `draft` is the status: the INDEX describes the returned DRAFT proposals and
+    # shares their state, and the next demote regenerates it, so it is not the
+    # immutable evidence `record` would claim (design Decision 2).
     index.write_text(
         f"# openspec/ draft workspace — {plan.staging_topic}\n\n"
+        f"Status: {DRAFT_STATUS}\n\n"
         f"Draft proposals returned from demoted change {plan.change_id} "
         f"({at[:10]}). These continue as draft ideas per the draft-proposal "
         f"convention:\n\n" + ("\n".join(f"- {p}" for p in ws_files) or "- (none)") + "\n",

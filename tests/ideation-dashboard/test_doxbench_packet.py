@@ -572,7 +572,15 @@ def test_a_thread_is_never_exempt_because_a_summary_is_not_canon():
 def test_the_status_read_agrees_with_the_repositorys_own_corpus_reader():
     """The rule lives in two places by necessity — the assembler must read the
     header ITSELF — so the two spellings are asserted to agree over REAL
-    documents rather than assumed to."""
+    documents rather than assumed to.
+
+    NON-EXHAUSTIVE BY CONSTRUCTION (adversarial-review finding C2): this
+    corpus carries no exotic line-boundary separator today (measured: zero
+    across 1227 governed aggregation files), so this loop alone would pass
+    identically whether the two readers agreed on that input or not — see
+    `test_the_status_read_agrees_on_a_synthetic_exotic_separator_fixture`
+    below for the check that actually exercises the RULE rather than
+    today's corpus."""
     import sys
     sys.path.insert(0, str(REPO_ROOT / "scripts"))
     from doc_health.corpus import parse_status  # noqa: E402
@@ -584,6 +592,68 @@ def test_the_status_read_agrees_with_the_repositorys_own_corpus_reader():
         assert pk.lifecycle_status(text) == parse_status(text), path
         checked += 1
     assert checked > 10, "the drift check needs real documents to be a check"
+
+
+def test_the_status_read_agrees_on_a_synthetic_exotic_separator_fixture():
+    """C2, made NON-VACUOUS. Before this change's wide ruling,
+    `lifecycle_status` still scanned `text.splitlines()[:15]` while its own
+    comment claimed "the SAME rule the repository's doc-health corpus reader
+    uses" — 7 of 10 exotic-separator cases diverged from
+    `doc_health.corpus.parse_status`, and the test above could not catch it
+    because no real corpus document carries such a separator. This fixture
+    does, deliberately: one real line littered with every exotic pseudo-line
+    boundary (form feed, U+2028, ...) placed so the OLD pseudo-line window
+    would have scanned past a `Status:` line that sits plainly inside the
+    real 15-line window."""
+    import sys
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    from doc_health.corpus import STATUS_SCAN_LINES, parse_status  # noqa: E402
+    from doc_health.lines import split_keepends  # noqa: E402
+
+    exotic = "\x0b\x0c\x1c\x1d\x1e\x85" + chr(0x2028) + chr(0x2029)
+    noise = "".join(f"seg{i}{c}" for i, c in enumerate(exotic * 2))
+    text = f"# Doc\n\n{noise}tail\nStatus: staged\n"
+
+    real_line_count = len(split_keepends(text))
+    pseudo_line_count = len(text.splitlines())
+    assert real_line_count <= STATUS_SCAN_LINES, \
+        "fixture is broken: the real-line count must fit the window"
+    assert pseudo_line_count > STATUS_SCAN_LINES, \
+        "fixture is broken: the pseudo-line count must overrun the window"
+
+    assert pk.lifecycle_status(text) == parse_status(text) == "staged"
+
+
+def test_mutation_reverting_lifecycle_status_alone_reproduces_the_divergence():
+    """MUTATION CHECK (tasks.md 4.8): reverting `lifecycle_status` alone to
+    the pre-fix `str.splitlines()[:15]` idiom, on the SAME synthetic fixture
+    the test above uses, must diverge from `corpus.parse_status` — proving
+    the fixture actually exercises the defect rather than passing by
+    accident."""
+    import sys
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    from doc_health.corpus import parse_status  # noqa: E402
+
+    exotic = "\x0b\x0c\x1c\x1d\x1e\x85" + chr(0x2028) + chr(0x2029)
+    noise = "".join(f"seg{i}{c}" for i, c in enumerate(exotic * 2))
+    text = f"# Doc\n\n{noise}tail\nStatus: staged\n"
+
+    def _reverted_lifecycle_status(text):
+        if not isinstance(text, str):
+            return None
+        for line in text.splitlines()[:pk.STATUS_SCAN_LINES]:
+            match = pk._STATUS_RE.match(line)
+            if match:
+                return match.group(1)
+        return None
+
+    reverted = _reverted_lifecycle_status(text)
+    fixed = pk.lifecycle_status(text)
+    correct = parse_status(text)
+    assert fixed == correct == "staged"
+    assert reverted != correct, (
+        "reverting lifecycle_status to splitlines() did not diverge from "
+        "corpus.parse_status on this fixture — it is not pinned to the defect")
 
 
 # ===========================================================================

@@ -29,6 +29,74 @@ class SupportError(ValueError):
     pass
 
 
+# --------------------------------------------------------------------------
+# LINE + FENCE PRIMITIVES — the corpus's one agreed pair, spelled here too
+#
+# `ideation_dashboard.round_trip`, `doc_health.families` and
+# `web/views/outline-model.js` already carry the same naive ``` toggle over the
+# same documents, and a companion test pins all three against a shared fixture
+# set. This mover is the FOURTH, and it is added to that test rather than left
+# to drift: sharing the code is not available (one of them is browser
+# JavaScript, and this file is a standalone script a human runs against a
+# checkout that may not have the dashboard package importable).
+#
+# Do not "improve" this predicate without the other three. `~~~` is a real
+# CommonMark fence and NONE of the four treats it as one — deliberately.
+# --------------------------------------------------------------------------
+
+_EOL_RE = re.compile(r"\r\n|\r|\n")
+
+
+def _split_keepends(text: str) -> list[tuple[str, str]]:
+    """`text` as [(body, ending)] pairs, where ''.join(b + e) IS `text`.
+
+    NOT `str.splitlines()`, which also breaks on \\x0b, \\x0c, \\x1c-\\x1e,
+    \\x85, U+2028 and U+2029 — a governance document containing one of those
+    would be silently re-split and rejoined into different bytes. Only the three
+    real line endings separate lines here.
+    """
+    rows: list[tuple[str, str]] = []
+    at, size = 0, len(text)
+    while at < size:
+        match = _EOL_RE.search(text, at)
+        if match is None:
+            rows.append((text[at:], ""))
+            break
+        rows.append((text[at:match.start()], match.group(0)))
+        at = match.end()
+    return rows
+
+
+def _join_rows(rows: list[tuple[str, str]]) -> str:
+    return "".join(body + ending for body, ending in rows)
+
+
+def _document_eol(rows: list[tuple[str, str]]) -> str:
+    """The flavor a NEW line takes: the document's FIRST real ending."""
+    for _body, ending in rows:
+        if ending:
+            return ending
+    return "\n"
+
+
+def _is_fence(line: str) -> bool:
+    return line.lstrip().startswith("```")
+
+
+def _fenced_flags(rows: list[tuple[str, str]]) -> list[bool]:
+    """Per-row "is inside a fence", with the fence lines themselves marked True —
+    a fence delimiter is never content to be rewritten."""
+    flags: list[bool] = []
+    fenced = False
+    for body, _ending in rows:
+        if _is_fence(body):
+            fenced = not fenced
+            flags.append(True)
+            continue
+        flags.append(fenced)
+    return flags
+
+
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -194,7 +262,12 @@ def origin_errors(root: Path, directory: Path, *, strict: bool,
         if not opath:
             errors.append(f"{name}: staged origin lacks `path`")
         elif strict:
-            header = staging_header_id(root / str(opath))
+            # Same normalization as `generator._declared_origin_staging`, and for
+            # the same reason: a backslash-spelled path recorded on a Windows
+            # checkout joins to one nonexistent component here, so `is_dir()`
+            # fails and this coherence check SKIPS instead of running. A check
+            # that silently does not run is worse than one that fails.
+            header = staging_header_id(root / str(opath).replace("\\", "/"))
             if header is not None and header != oid:
                 errors.append(
                     f"{name}: staging folder {opath!r} exists but its "
@@ -278,24 +351,144 @@ def rewrite_links(text: str, old_file: Path, new_file: Path,
     return LINK_RE.sub(replace, text)
 
 
+_STATUS_BODY_RE = re.compile(r"Status:\s*(\S+)\s*")
+AUTHORSHIP_PREFIX = "Proposed by:"
+
+
+def _status_row(rows: list[tuple[str, str]],
+                flags: list[bool]) -> tuple[int, str] | None:
+    """(row index, value) of the document's OWN `Status:` header, or None.
+
+    FENCE-AWARE, and that is not fastidiousness: the first fragment this mover
+    ever moved carried a copy-pasteable skeleton whose fenced example header read
+    `Status: staged`, and `_declares_staged_status` already had to learn to skip
+    it. Reading the example as the document's status here would flip the wrong
+    line and leave the real header untouched.
+    """
+    for index, (body, _ending) in enumerate(rows):
+        if flags[index]:
+            continue
+        match = _STATUS_BODY_RE.fullmatch(body)
+        if match:
+            return index, match.group(1)
+    return None
+
+
+def _header_block(rows: list[tuple[str, str]], flags: list[bool],
+                  status_index: int) -> tuple[int, int]:
+    """The `[start, end)` row range of the contiguous non-blank run carrying the
+    document's `Status:` header — the block the authorship record belongs to.
+
+    The record is ANCHORED to that block rather than found by "first match
+    anywhere". A `Proposed by:` line sitting far below the header is not this
+    document's authorship record: rewriting it there would leave the header block
+    with no record at all and quietly relocate a governance line into somebody's
+    prose.
+    """
+    start = status_index
+    while start > 0 and rows[start - 1][0].strip() and not flags[start - 1]:
+        start -= 1
+    end = status_index + 1
+    while end < len(rows) and rows[end][0].strip() and not flags[end]:
+        end += 1
+    return start, end
+
+
+def _authorship_rows(rows: list[tuple[str, str]], flags: list[bool]) -> list[int]:
+    """Row indices of the REAL authorship lines — outside every code fence.
+
+    A `Proposed by:` line inside a fence is an EXAMPLE. Treating it as the record
+    both suppressed adding the real one (a document whose only occurrence was
+    fenced silently got no record at all, against the ratified "the record MUST be
+    added") and rewrote the example to name the current change.
+    """
+    return [index for index, (body, _ending) in enumerate(rows)
+            if not flags[index] and body.startswith(AUTHORSHIP_PREFIX)]
+
+
+def record_authorship(text: str, change: str) -> str:
+    """The staged->draft flip PLUS the document's single authorship record.
+
+    ONE RECORD PER DOCUMENT, NOT ONE PER ATTEMPT. A document may legitimately
+    reach proposal, be demoted, be worked, and reach proposal again — the
+    round-trip guarantee exists so that lap is normal — and appending a fresh
+    `Proposed by:` line each time turned a normal lap into an ambiguous record:
+    several lines each claiming to name the proposing change say nothing about
+    which one is current. So pre-existing duplicates are COLLAPSED here too; the
+    ratified requirement is unconditional ("the document MUST carry exactly one
+    such record"), and refreshing one of three while leaving two stale satisfies
+    the letter of an update and none of the point.
+
+    THE COLLAPSE REACHES THE WHOLE DOCUMENT, not just the header block. Only the
+    KEPT record is anchored to that block; every other unfenced `Proposed by:`
+    line goes, wherever it sits, because a stale record left standing in the body
+    says the same ambiguous thing as one left standing in the header. A line
+    inside a code fence is an example and is never touched. Measured rather than
+    estimated: 0 of the corpus's 1133 markdown documents carry a second such
+    record or one outside their header block today, so this governs the shape
+    rather than clearing a backlog.
+
+    THE OBLIGATION SITS HERE, on the gate that WRITES the line, and deliberately
+    not on the reverse transition's refresh. That refresh is ratified as bounded
+    to the round-trip provenance slots and the marked proposal-element sections,
+    "leaving every other byte of that file unchanged"; deduping a header there
+    would trade a data-loss guarantee for tidiness.
+
+    ROW-BASED, NOT `re.sub` OVER THE RAW TEXT, for two demonstrated reasons.
+    `^Status:\\s*staged\\s*$` consumes the newline after the header — `\\s*` is
+    greedy and `$` is satisfied one line later — so a human's blank line between
+    the header block and the body was deleted on every lap (7 lines in, 6 out).
+    And `\\s*`/`.*$` both swallow a `\\r`, so the one rewritten line came out LF
+    in a CRLF document. Rewriting a row in place keeps the ending it HAD.
+    """
+    rows = _split_keepends(text)
+    flags = _fenced_flags(rows)
+    found = _status_row(rows, flags)
+    if found is None:
+        return text
+    status_index, _value = found
+    start, end = _header_block(rows, flags, status_index)
+    authorship = _authorship_rows(rows, flags)
+    in_block = [index for index in authorship if start <= index < end]
+    keep = in_block[0] if in_block else None
+    drop = {index for index in authorship if index != keep}
+
+    out: list[tuple[str, str]] = []
+    for index, (body, ending) in enumerate(rows):
+        if index == status_index:
+            if keep is None:
+                # A new record joins the header block directly under the status
+                # it belongs to. The status row borrows the document's ending
+                # flavor when it had none (a file with no trailing newline), so
+                # the two lines never fuse into one.
+                out.append(("Status: draft", ending or _document_eol(rows)))
+                out.append((f"{AUTHORSHIP_PREFIX} {change}", ending))
+            else:
+                out.append(("Status: draft", ending))
+            continue
+        if index in drop:
+            continue
+        if index == keep:
+            out.append((f"{AUTHORSHIP_PREFIX} {change}", ending))
+            continue
+        out.append((body, ending))
+    return _join_rows(out)
+
+
 def proposed_content(path: Path, target: Path, mapping: dict[Path, Path],
                      root: Path, change: str, historical: bool = False) -> bytes:
     data = path.read_bytes()
     if path.suffix.lower() != ".md":
         return data
     text = data.decode("utf-8")
-    status = re.search(r"^Status:\s*([^\s]+)\s*$", text, re.M)
-    if status is None:
+    rows = _split_keepends(text)
+    found = _status_row(rows, _fenced_flags(rows))
+    if found is None:
         raise SupportError(f"governed Markdown lacks Status header: {path}")
-    if status.group(1) == "staged":
-        text = re.sub(
-            r"^Status:\s*staged\s*$",
-            f"Status: draft\nProposed by: {change}",
-            text,
-            count=1,
-            flags=re.M,
-        )
-    elif status.group(1) not in (
+    _index, value = found
+    if value == "staged":
+        text = record_authorship(text, change)
+    elif value not in (
             {"draft", "record", "superseded", "retired"}
             if historical else {"draft", "record"}):
         raise SupportError(
@@ -395,8 +588,16 @@ def transition(root: Path, change: str, source_arg: str, requested: list[str],
     # the fallback for topics that predate the header convention.
     header_id = staging_header_id(source)
     origin_id = header_id or f"{root.name}:staging:{source.name}"
-    origin = {"kind": "staged", "id": origin_id,
-              "path": str(source.relative_to(root))}
+    # POSIX SPELLING, not `str(PurePath)`. The origin path is a MACHINE-READABLE
+    # RECORD other tools split on `/` — `generator._declared_origin_staging`
+    # resolves the demote's destination topic from it, and doc-health's
+    # `proposal-origin` family joins it to a repo root. `str()` on a Windows
+    # checkout yields `ideation\staging\<topic>`, so the record's spelling would
+    # depend on the operating system of whoever ran the gate, and every reader of
+    # it would silently stop resolving. The record format does not get to depend
+    # on the writer's OS.
+    origin_rel = source.relative_to(root).as_posix()
+    origin = {"kind": "staged", "id": origin_id, "path": origin_rel}
     existing_packet = load_packet(change_dir(root, change, archived))
     declared = (existing_packet or {}).get("origin")
     if isinstance(declared, dict):
@@ -412,7 +613,10 @@ def transition(root: Path, change: str, source_arg: str, requested: list[str],
         "format_version": 1,
         "notebook_workspace": workspace,
         "origin": origin,
-        "origin_path": str(source.relative_to(root)),
+        # The SAME value as `origin["path"]`, recorded a second time and read by
+        # doc-health's `proposal-origin` family. One spelling, from one source, so
+        # a manifest cannot contradict itself about the path it came from.
+        "origin_path": origin_rel,
         "remaining_paths": [str(path.relative_to(root)) for path in remaining],
         "source_revision": revision,
         "transitioned_at": transition_date,
@@ -500,15 +704,18 @@ def _declares_staged_status(text: str) -> bool:
     transitioned to `draft`. `doc_health.families._scan_lines` already tracks
     fences for the same reason; this mirrors it rather than inventing a second
     convention.
+
+    Split by this module's three-real-endings rule rather than
+    `str.splitlines()`, which also breaks on \\x0b, \\x0c, \\x1c-\\x1e, \\x85,
+    U+2028 and U+2029 — so this READER and the writer beside it agree about where
+    the lines are, rather than each having its own opinion about the same bytes.
     """
-    fenced = False
-    for line in text.splitlines():
-        if line.lstrip().startswith("```"):
-            fenced = not fenced
+    rows = _split_keepends(text)
+    flags = _fenced_flags(rows)
+    for index, (body, _ending) in enumerate(rows):
+        if flags[index]:
             continue
-        if fenced:
-            continue
-        if re.fullmatch(r"Status:\s*staged\s*", line):
+        if re.fullmatch(r"Status:\s*staged\s*", body):
             return True
     return False
 

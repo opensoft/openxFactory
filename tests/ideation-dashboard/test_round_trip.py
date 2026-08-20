@@ -29,6 +29,7 @@ import pytest
 from conftest import REPO_ROOT
 
 from doc_health import families
+from ideation_dashboard import gate_console as gc
 from ideation_dashboard import round_trip as rt
 
 OUTLINE_MODEL_JS = (
@@ -335,13 +336,49 @@ def test_the_whole_refresh_touches_only_the_slots_and_the_marked_body():
             f"an unrelated line changed: {line!r}"
 
 
-# ---- the THIRD implementation of one fence rule -------------------------------
+# ---- the fence rule: ONE shared line-split + two independent fence toggles ---
 #
 # design Decision 2 named this hazard when it chose a new module: `round_trip.py`,
-# `doc_health.families` and `web/views/outline-model.js` now each carry the same
-# naive ``` toggle, in the same corpus, over the same documents. Sharing the code
-# is not available — one of the three is JavaScript in the browser bundle — so the
-# mitigation is this test.
+# `doc_health.families` and `web/views/outline-model.js` each carry the same
+# naive ``` PREDICATE (`line.lstrip().startswith("```")` / `String(line)
+# .trimStart().startsWith("```")`), independently spelled three times and pinned
+# textually by `test_the_shared_predicate_is_spelled_the_same_in_all_three` below.
+# Sharing THAT code is not available — one of the three is JavaScript in the
+# browser bundle — so the mitigation for the predicate itself stays this pair of
+# agreement tests.
+#
+# The LINE-SPLIT underneath the predicate is a narrower story, and it changed
+# under `align-status-reader-to-real-lines`'s wide ruling (2026-08-19,
+# adversarial-review finding C3): `round_trip.py`'s `_section_bounds` and
+# `doc_health.families._scan_lines` now BOTH split through the same
+# `doc_health.lines.split_keepends` (real lines: CR/LF/CRLF only), so on any
+# input the two Python call sites cannot diverge on WHERE a line is — only on a
+# bug in one's own fence-toggle loop, which is what the agreement test below
+# still exists to catch.
+#
+# `outline-model.js`'s OWN split is not one rule, corrected (finding F1, a
+# focused re-verify): `outlineSections` (the function this test's JS probe
+# calls) splits with `text.split("\n")` at outline-model.js:46 — LF ONLY —
+# while `endsInsideFence`/`insertSection` split with the real-line regex
+# `text.split(/\r\n|\r|\n/)` at outline-model.js:273/:319. The two disagree
+# on their own, INSIDE the JS file, on a CR-only document (demonstrated:
+# `outlineSections` folds two `##` lines into one section, `endsInsideFence`
+# reads them as two). That pre-existing JS-internal inconsistency is out of
+# scope for this Python-side change — the fixtures below carry no bare-CR
+# input, so it is held by NEITHER test here, and fixing the JS is not
+# attempted. What `outlineSections` does share with the Python side, on
+# every fixture this test actually exercises (LF-only markdown), is the
+# outcome, not the rule: no fixture here distinguishes LF-only splitting
+# from real-line splitting, because none contains a lone CR or an exotic
+# separator adjacent to a `##`/```` ``` ```` boundary.
+#
+# What `test_all_three_fence_implementations_agree` compares is therefore two
+# implementations of the full heading-detection behavior on THESE
+# fixtures — ONE Python (unified line-split, two independent fence loops)
+# and ONE JS — not three independently-splitting ones on these inputs, even
+# though it is still useful to run the comparison against both Python call
+# sites explicitly (a regression in either one's fence-toggle loop alone
+# would still be caught).
 #
 # It compares what each module DOES with fences rather than a private helper's
 # signature: for a fixture whose lines are headings and fences, the set of headings
@@ -406,6 +443,133 @@ def _families_real_headings(text: str) -> list[list]:
 def test_round_trip_and_doc_health_agree_about_every_fence(name):
     text = FENCE_FIXTURES[name]
     assert _round_trip_real_headings(text) == _families_real_headings(text), name
+
+
+# ---- the FOURTH implementation: the supporting-document mover -----------------
+#
+# `proposal-support.py` is the forward gate, and `refine-demote-round-trip-
+# mechanics` made its `Status:`/`Proposed by:` readers fence-aware — so the same
+# naive ``` toggle now lives in four places over the same corpus. Sharing the code
+# is still not available (this one is a standalone script a human runs against a
+# checkout where the dashboard package need not be importable, and one of the
+# other three is browser JavaScript), so it joins the mitigation instead.
+#
+# It answers a different question from the heading scanners — "which lines are
+# real" rather than "which headings are real" — so the comparison is on the
+# fenced-flag vector each module computes, which is the thing all four actually
+# share.
+
+_MOVER = REPO_ROOT / "scripts" / "proposal-support.py"
+
+
+def _mover_module():
+    import importlib.util
+    import sys
+    spec = importlib.util.spec_from_file_location("proposal_support_fence", _MOVER)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _round_trip_fenced(text):
+    return rt._fenced_flags(rt.split_keepends(text))
+
+
+def _families_fenced(text):
+    return [fenced for _lineno, _line, fenced in families._scan_lines(text)]
+
+
+def _mover_fenced(text):
+    support = _mover_module()
+    rows = support._split_keepends(text)
+    return support._fenced_flags(rows)
+
+
+@pytest.mark.parametrize("name", sorted(FENCE_FIXTURES))
+def test_the_mover_agrees_with_the_other_fence_implementations(name):
+    text = FENCE_FIXTURES[name]
+    mine = _mover_fenced(text)
+    assert mine == _round_trip_fenced(text), name
+    # `_scan_lines` uses `str.splitlines()`, which drops a trailing empty row the
+    # keepends split does not produce — compare the shared prefix, which is every
+    # real line of the fixture.
+    theirs = _families_fenced(text)
+    assert mine[:len(theirs)] == theirs, name
+
+
+def test_the_movers_line_split_is_the_three_real_endings_and_nothing_else():
+    """The other half of the shared convention. `str.splitlines()` also breaks on
+    \\x0b, \\x0c, \\x1c-\\x1e, \\x85, U+2028 and U+2029 — a governance document
+    carrying one would be re-split and rejoined into different bytes, which is
+    exactly the damage `_flip_status` was fixed for on the demote side."""
+    support = _mover_module()
+    text = "Status: draft\x0crest of the line\nnext still one line\r\nlast"
+    rows = support._split_keepends(text)
+    assert "".join(body + ending for body, ending in rows) == text
+    assert [body for body, _e in rows] == [
+        "Status: draft\x0crest of the line", "next still one line", "last"]
+    assert rows == support._split_keepends(text)
+    # …and the same split the other implementations use, on the same input
+    assert rows == rt.split_keepends(text)
+
+
+# ---- the STATUS-HEADER grammar, shared by the two gates (review R2) ----------
+#
+# The forward gate (`proposal-support._status_row`) decides whether a document is
+# REFUSED for lacking a status header. The reverse gate
+# (`gate_console._status_row`) decides whether a returned document needs one
+# ADDED. Where those two readers disagree, the demote leaves a topic one-way
+# while believing it has not — so they are pinned against each other here on the
+# shapes they used to disagree about. Measured over the corpus before the
+# alignment: 11 of 1148 documents.
+
+STATUS_FIXTURES = {
+    "plain": "# T\n\nStatus: draft\n\nbody\n",
+    # `startswith` says yes, the gate's `\S+` grammar says no. Seven archived
+    # change artifacts carry exactly this shape.
+    "parenthetical": "# T\n\nStatus: record (in progress — pending review)\n\nbody\n",
+    "trailing_space": "# T\n\nStatus: draft   \n\nbody\n",
+    "no_value": "# T\n\nStatus:\n\nbody\n",
+    "two_words": "# T\n\nStatus: open (operational)\n\nbody\n",
+    # a real header BELOW the old 15-row window
+    "beyond_the_window": "# T\n" + "".join(f"Field{i}: v\n" for i in range(20))
+                         + "Status: draft\n\nbody\n",
+    # a fenced EXAMPLE is not this document's header
+    "fenced_example": "# T\n\n```markdown\nStatus: staged\n```\n\nStatus: draft\n",
+    "only_fenced": "# T\n\n```markdown\nStatus: staged\n```\n\nbody\n",
+    "crlf": "# T\r\n\r\nStatus: draft\r\n\r\nbody\r\n",
+    "pseudo_line": "Status: draft\x0crest of the line\nbody\n",
+    "none_at_all": "# T\n\nbody\n",
+    "empty": "",
+}
+
+
+@pytest.mark.parametrize("name", sorted(STATUS_FIXTURES))
+def test_both_gates_agree_where_a_documents_status_header_is(name):
+    text = STATUS_FIXTURES[name]
+    support = _mover_module()
+    rows = support._split_keepends(text)
+    forward = support._status_row(rows, support._fenced_flags(rows))
+    reverse = gc._status_row(rt.split_keepends(text))
+    assert (forward[0] if forward else None) == reverse, (
+        f"{name}: the forward gate says {forward}, the reverse gate says {reverse}")
+
+
+def test_the_shapes_the_two_gates_used_to_disagree_about():
+    """Named rather than merely parametrized, because each one is a defect that
+    reached the corpus: a prefix match on a parenthetical annotation (7 archived
+    artifacts judged headed by the demote and refused by the gate), a real header
+    below the old 15-row window (a SECOND header inserted beside it), and a fenced
+    example read as the document's own."""
+    def reverse(text):
+        return gc._status_row(rt.split_keepends(text))
+
+    assert reverse(STATUS_FIXTURES["parenthetical"]) is None
+    assert reverse(STATUS_FIXTURES["beyond_the_window"]) == 21
+    assert reverse(STATUS_FIXTURES["only_fenced"]) is None
+    assert reverse(STATUS_FIXTURES["fenced_example"]) == 6
+    assert reverse(STATUS_FIXTURES["plain"]) == 2
 
 
 @pytest.mark.skipif(NODE is None, reason="node is not installed")
@@ -491,32 +655,49 @@ ENDS_FENCE_FIXTURES = {
     "closed_after_unclosed": UNCLOSED + "```\n",
     "three_fences": "a\n```\nb\n```\nc\n```\nd\n",
     "fence_only": "```\n",
+    # THE SCHEDULED FIXTURE, built (align-status-reader-to-real-lines, C6): an
+    # exotic separator SHARING a real line with a fence marker, so the OLD
+    # pseudo-line rule would split the marker onto its own pseudo-line (and
+    # toggle on it) where the real-line rule does not, because the marker is
+    # not at the START of the real line. Measured: before this change's
+    # families.py conversion, `families._scan_lines`'s implied fence state
+    # disagreed (True) with `round_trip.ends_inside_fence`/outline-model.js's
+    # `endsInsideFence` (both False, correctly) on both of these. After the
+    # conversion all three agree.
+    "form_feed_fence": "## one\nbody\x0c```after\n## two\n",
+    "u2028_fence": "## one\nbody" + chr(0x2028) + "```after\n## two\n",
 }
 
 
 @pytest.mark.skipif(NODE is None, reason="node is not installed")
 def test_ends_inside_fence_agrees_with_outline_model_js():
-    """The FOURTH agreed behavior, and WHAT IT ACTUALLY PINS — narrower than a
-    first draft of this docstring claimed.
+    """The FOURTH agreed behavior, and WHAT IT ACTUALLY PINS.
 
-    It pins TWO implementations: `round_trip.ends_inside_fence` against
-    `outline-model.js`'s `endsInsideFence`, over ten fixtures. `doc_health.families`
-    has no such predicate at all, so the third value below is NOT a third
-    implementation's answer — `implied` RETYPES the backtick test rather than
-    consuming `_scan_lines`' own `in_fence` flag, so a families-side divergence would
-    be caught by `test_round_trip_and_doc_health_agree_about_every_fence` and
-    `test_the_shared_predicate_is_spelled_the_same_in_all_three`, not here. It is
-    kept as a cheap consistency check on the shared rule, not as a third pin, and
-    saying so is the point: a test that overstates its reach is worse than a narrow
-    one, because the gap it leaves is invisible.
+    It pins TWO implementations directly: `round_trip.ends_inside_fence` against
+    `outline-model.js`'s `endsInsideFence`, over twelve fixtures (ten shared with
+    `ENDS_FENCE_FIXTURES`'s ancestors plus the two exotic-separator fixtures
+    below). `doc_health.families` has no `ends_inside_fence`-shaped predicate at
+    all, so `implied` is not a third implementation's independent answer — it
+    RETYPES the backtick test rather than consuming `_scan_lines`' own
+    `in_fence` flag. It is kept as a cheap consistency check on the shared
+    rule, not as a third pin, and saying so is the point: a test that
+    overstates its reach is worse than a narrow one, because the gap it
+    leaves is invisible.
 
-    THE UPGRADE PATH, and why it is blocked. A real three-way pin wants a fixture
-    carrying an exotic separator (`\\x0c`, U+2028, …), because that is the input where
-    the three genuinely diverge. Adding one here would also expose the read/write
-    divergence in `corpus.parse_status`, which this change deliberately does not
-    touch — `parse_status` is doc-health's shared reader behind fifteen families and
-    needs its own change with its own baseline diff (see tasks.md §3's note). Build
-    this fixture when that lands.
+    THE UPGRADE PATH IS NO LONGER BLOCKED (align-status-reader-to-real-lines,
+    finding C6). This docstring used to say the real three-way pin this test
+    wants — a fixture carrying an exotic separator (`\\x0c`, U+2028, …), the
+    input where a pseudo-line rule and a real-line rule genuinely diverge —
+    was blocked because building it would also expose the (then-unfixed)
+    read/write divergence in `corpus.parse_status`. This change's wide ruling
+    removed that blocker: `corpus.parse_status` was fixed first (its own
+    commit), and `families._scan_lines`'s line-split converted alongside it.
+    `form_feed_fence` and `u2028_fence` below are that fixture, built. The
+    two REAL pins (`rt.ends_inside_fence` vs. `outline-model.js`'s
+    `endsInsideFence`) already agreed on this exotic input even before the
+    `families.py` conversion — both split real lines already — so it was
+    `implied`, the families-based consistency check, that disagreed until
+    `families._scan_lines` converted too; it agrees now.
     """
     with TemporaryDirectory() as tmp:
         cases = Path(tmp) / "cases.json"

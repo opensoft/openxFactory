@@ -246,6 +246,92 @@ def test_stage_comes_from_header_not_folder():
     assert by_path["ideation/brainstorm/b.md"]["stage"] == "brainstorm"
 
 
+# ---- F5 (align-status-reader-to-real-lines): _parse_header vs. corpus.parse_status --
+
+# One real line whose ONLY appearance of `Status:` is embedded mid-line
+# inside a `Target capabilities:` value, via a form feed — a real
+# line-boundary character to `str.splitlines()` but not to the real-line
+# rule. Neither reader should see a separate `Status:` field here: it never
+# starts a real line.
+_F5_EXOTIC_TEXT = (
+    "# Staged: x\n\nTarget capabilities: foo\x0cStatus: staged\n\n"
+    "## Body\n\nprose.\n"
+)
+
+
+def test_parse_header_agrees_with_corpus_parse_status_on_an_exotic_document():
+    """F5, demonstrated: before this fix, `_parse_header`'s
+    `str.splitlines()` scan saw `Target capabilities: foo` and `Status:
+    staged` as TWO separate pseudo-lines (form feed is one of
+    `splitlines()`'s boundary characters), so `derive_clusters` clustered
+    this document as 'staged' — a status it does not carry on any real
+    line. `doc_health.corpus.parse_status` (already real-line-based)
+    correctly reports no status for the same document. Fixed, both readers
+    now agree: no `Status:` field at all.
+    """
+    assert corpus.parse_status(_F5_EXOTIC_TEXT) is None
+    fields = ir._parse_header(_F5_EXOTIC_TEXT)
+    assert "Status" not in fields
+    assert fields["Target capabilities"] == "foo\x0cStatus: staged"
+
+
+def test_mutation_reverting_parse_header_alone_reproduces_the_f5_divergence():
+    """MUTATION CHECK: reverting `_parse_header` alone to
+    `text.splitlines()` must reproduce the false `Status: staged` field on
+    `_F5_EXOTIC_TEXT`, proving the test above is pinned to the defect."""
+    def _reverted(text):
+        fields: dict[str, str] = {}
+        current = None
+        for line in text.splitlines():
+            if line.startswith("## "):
+                break
+            if line.startswith("# ") or not line.strip():
+                continue
+            m = ir._FIELD_RE.match(line)
+            if m:
+                current = m.group(1).strip()
+                fields[current] = m.group(2).strip()
+            elif current is not None:
+                fields[current] = (fields[current] + " " + line.strip()).strip()
+        return fields
+
+    original = ir._parse_header
+    ir._parse_header = _reverted
+    try:
+        reverted_fields = ir._parse_header(_F5_EXOTIC_TEXT)
+    finally:
+        ir._parse_header = original
+
+    assert reverted_fields.get("Status") == "staged", (
+        "reverting _parse_header to splitlines() did not reproduce the "
+        "false Status: staged field — the fixture does not exercise this "
+        "conversion")
+
+
+def test_parse_header_agrees_with_the_bootstraps_own_parse_header():
+    """The bootstrap's own docstring claims its `parse_header` is
+    "identical to" `doc_health.ideation_readiness._parse_header`
+    (`scripts/bootstrap-ideation-cross-reference.py`). The two are spelled
+    twice by necessity — the bootstrap is a standalone script, not a
+    `doc_health` consumer at authoring time — so the claim is asserted to
+    hold, including on the exotic fixture the false-finding shape above
+    demonstrates, rather than assumed."""
+    import importlib.util
+
+    script = REPO_ROOT / "scripts" / "bootstrap-ideation-cross-reference.py"
+    spec = importlib.util.spec_from_file_location("_xref_bootstrap", script)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    for text in (
+        "# Staged: x\n\nStatus: staged\nTopics: a, b\n\n## Body\n\nprose.\n",
+        "# Staged: x\n\nStatus: staged\n\nTarget capabilities: `x`, `y` "
+        "(ADDED)\n\n## Body\n\nprose.\n",
+        _F5_EXOTIC_TEXT,
+    ):
+        assert mod.parse_header(text) == ir._parse_header(text), text
+
+
 def test_non_clusterable_paths_excluded():
     docs = [
         doc("ideation/staging/INDEX.md", topics=["t"]),   # not in a topic subdir

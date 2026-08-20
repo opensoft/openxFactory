@@ -54,7 +54,11 @@ client-identity-roster/
 │                                                         #   ONE surface, union effective reach,
 │                                                         #   declared excess; plus the `planned`
 │                                                         #   entry (Production, no application
-│                                                         #   user) with its UNVERIFIED act
+│                                                         #   user) with its UNVERIFIED act; plus
+│                                                         #   the `device` NODE-INVENTORY case —
+│                                                         #   one tenant-wide READ surface, no
+│                                                         #   declared excess, logic_enforced,
+│                                                         #   per_unit_principal false (v1.35)
 ├── client-identity-roster-farheap-ledgerx.example.yaml   # the SAME client held by a SECOND
 │                                                         #   domain: the GENUINE DUTY PAIR
 │                                                         #   (poster / provisioner) and the
@@ -112,6 +116,16 @@ client-identity-roster/
 - **A `planned` entry is legal and indefinite** — never reported as missing or
   incomplete; nothing in this family derives an expected entry set from any
   inventory.
+- **The `device` surface is ONE tenant-wide read, not three** — the
+  node-inventory entry (`opsx-farheap-node-inventory-reader`) reads Entra
+  registered devices, Intune managed devices and Windows 365 Cloud PCs through
+  the three read-only roles on ONE registration. Its governed unit IS the
+  tenant device estate, so tenant-wide read is the GOVERNED scope, not excess:
+  `exceeds_governed_unit: false`, no `declared_excess`, no `spanned_surfaces`.
+  Enforcement is `logic_enforced` with `per_unit_principal_available: {device:
+  false}` — the read-only roles carry no narrower selector, so no per-unit
+  principal exists to use, which is conformant. Admitted at `contract-v1.35` by
+  `add-roster-device-admission-surface`.
 - **A `retired` entry RETAINS its record** — and is EXEMPT from the consent
   instrument's in-force test, because the ratified cascade runs withdrawal or
   termination through to retirement. That exemption is repo-context and is

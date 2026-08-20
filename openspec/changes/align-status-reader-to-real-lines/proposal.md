@@ -1,19 +1,27 @@
 ---
-code_surface: openxFactory (a new shared line primitive in `scripts/doc_health/lines.py`; `scripts/doc_health/corpus.py` — `parse_status` and `parse_kind` scan REAL lines through it; `scripts/ideation_dashboard/round_trip.py` imports it instead of carrying its own copy; tests/doc-health/ and tests/ideation-dashboard/test_round_trip.py)
+code_surface: openxFactory (a shared line primitive in `scripts/doc_health/lines.py`; the DETERMINISTIC PASS and the dashboard readers of a governed document's lifecycle header scan real lines through it — this is the boundary the delta itself draws (its requirement is titled "The deterministic pass reads a document's lifecycle header by real lines"; the purpose clause is about what THE PASS reports), not an unqualified claim over every text-scanner in the corpus that happens to touch a `Status:` line; `tasks.md` §7 records the readers this scope does not reach, and why — `scripts/doc_health/corpus.py` (`parse_status`, `parse_kind`), `scripts/doc_health/families.py` (`_header_line`, `_scan_lines`), `scripts/doc_health/inventory.py` (`_header_value`), `scripts/doc_health/organizer_dispatch.py` (`_header_value`), `scripts/doc_health/ideation_readiness.py` (`_parse_header`), `scripts/ideation_dashboard/doxbench_packet.py` (`lifecycle_status`), `scripts/ideation_dashboard/authoring.py` (`missing_required_headers`), `scripts/ideation_dashboard/generator.py` (`_header_value`), `scripts/ideation_dashboard/completeness.py` (`_Prepared.lines`); its standalone twin `scripts/bootstrap-ideation-cross-reference.py` (`parse_header`), converted alongside it and pinned to agree by a companion test; `scripts/ideation_dashboard/round_trip.py` imports the primitive instead of carrying its own copy; tests/doc-health/ and tests/ideation-dashboard/test_round_trip.py)
 target_release: implementation_pending — the requirement lands now; the change archives only on merged code with green realization evidence, because its whole content is a reader correction
 Status: ratified
-Ratified: 2026-08-19 by Brett Heap — in-session, verbatim: "merge and ratify both", after reading the drafted proposal on PR #218. Same-day scope ruling (in-session multiple choice, recommended option adopted): the read-side fix owns its own change rather than riding the demote fixes, so doc-health's shared reader carries its own baseline diff.
+Ratified: 2026-08-19 by Brett Heap — in-session, verbatim: "merge and ratify both", after reading the drafted proposal on PR #218. Same-day scope ruling (in-session multiple choice, recommended option adopted): the read-side fix owns its own change rather than riding the demote fixes, so doc-health's shared reader carries its own baseline diff. A second same-day scope ruling (in-session multiple choice, recommended option adopted, 2026-08-19), made after an adversarial review of this change's realization returned FIX-FIRST over a spec contradiction the review surfaced: the delta's every-reader clause governs over the narrower code_surface enumeration above's first draft; all six remaining pseudo-line readers convert in this change, on a measured zero baseline cost (1227 files, 0 movement). A focused re-verify of that realization (2026-08-19) returned FIX-FIRST once more over four mechanical items (no new ruling needed — the fourth, `completeness.py`, falls under the already-ruled wide scope): the shared primitive now also covers `completeness.py`'s header read, a coverage gap in four of the six converted readers' tests is closed, a stale comment about a JavaScript-side implementation detail is corrected, and three prose spots overclaiming the Python line-split side was fully unified are softened to name `families._template_gaps` as a deliberately deferred exception (tasks.md §7.2). A second focused re-verify (2026-08-19), running the sweep method `corpus.py`'s own comment now prescribes (bare `splitlines()` over document text, not just the `[:N]`-windowed idiom), found one more true survivor — `doc_health.ideation_readiness._parse_header` (finding F5, also under the already-ruled wide scope) and its standalone twin `scripts/bootstrap-ideation-cross-reference.py`'s `parse_header`, both converted — plus a mis-pointing docstring on an unconverted copy of the pre-conversion `families._scan_lines` (finding F6, `doc_health.ideation_routing._scan_lines`, recorded beside `_template_gaps` in tasks.md §7 rather than converted, since it is not a lifecycle-header reader either) and a ruled-out borderline case (`families._staged_exit_changes`, reasoning recorded in tasks.md §2c.3). The prose is corrected again: `_template_gaps` and `ideation_routing._scan_lines` are now named together as the deliberately deferred exceptions, plural, not "the one."
 ---
 
 # Proposal: align-status-reader-to-real-lines
 
-> **APPROVED BUT NOT YET REALIZED.** This change has a non-empty code surface and
-> none of it is built: `scripts/doc_health/lines.py` does not exist,
-> `corpus.parse_status` and `parse_kind` still scan pseudo-lines through
-> `str.splitlines`, and `round_trip.py` still carries its own private copy of the
-> line rule. Under `release-realization`'s archive gate it therefore stays ACTIVE
-> as approved intent until its code merges with green realization evidence.
-> Nothing here should be read as shipped.
+> **APPROVED; CODE SURFACE BUILT ON THIS BRANCH, NOT YET MERGED.** This
+> change's code surface is built on this change's own realization commits:
+> `scripts/doc_health/lines.py` exists, and every reader named in
+> `code_surface:` above — `corpus.parse_status`/`parse_kind`,
+> `families._header_line`/`_scan_lines`, `inventory._header_value`,
+> `organizer_dispatch._header_value`, `ideation_readiness._parse_header`,
+> `doxbench_packet.lifecycle_status`, `authoring.missing_required_headers`,
+> `generator._header_value`, and `completeness._Prepared.lines` — scans real
+> lines through it, and so does its standalone twin
+> `bootstrap-ideation-cross-reference.py`'s `parse_header`; `round_trip.py`
+> imports the primitive rather than
+> carrying its own copy. Under `release-realization`'s archive gate this
+> change stays ACTIVE, not archived, until this branch merges to `main` with
+> green realization evidence recorded at the archive gate (task 6.2). Nothing
+> here should be read as shipped until then.
 
 ## Why
 
@@ -52,6 +60,16 @@ not in the body — and there is no file where the pseudo-line and real-line hea
 windows even differ. So the value is not a corpus cleanup. The value is that a
 reader and a writer over the same documents stop disagreeing about what a line is,
 before something in the corpus makes the disagreement visible.
+
+**Re-measured at the wide ruling (2026-08-19).** The adversarial review of this
+change's first (narrow) realization re-ran the same zero-exotic-separator
+measurement across the full aggregation corpus at that moment — 1227 governed
+files, still zero exotic separators, zero window differences, zero value changes
+— to confirm the WIDE conversion (every reader, not just `corpus.parse_status`/
+`parse_kind`) costs nothing either. The count differs from the figure above
+because it is a later count of a corpus that grows over time, not a
+re-measurement disagreeing with the first; both say the same thing about their
+own moment: zero movement.
 
 That measurement is also the reason this is its own change rather than a rider on
 `refine-demote-round-trip-mechanics`: `parse_status` sits behind sixteen
