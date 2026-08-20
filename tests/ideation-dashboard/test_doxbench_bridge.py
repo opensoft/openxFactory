@@ -127,21 +127,49 @@ def test_the_bridge_module_declares_no_credential_shaped_name():
 # ===========================================================================
 
 
-def test_the_launch_argv_pins_the_profile_and_the_memory_backend(tmp_path):
+def test_the_launch_argv_uses_only_flags_the_real_binary_declares(tmp_path):
+    """CORRECTED after the adversarial review's P1-1. `--setting` is not an omp
+    flag — real v17.3.7 answers `Error: unknown flag: --setting` and exits — so
+    the memory pin rides a `--config` overlay, which `omp --help` really
+    declares and which outranks both the global and the project layers."""
     launch = br.LaunchConfig(session_dir=tmp_path / "sessions")
     argv = launch.argv()
     assert argv[0] == "omp"
     assert argv[1:3] == ("--mode", "rpc")
     assert "--profile" in argv and "doxbench-bridge" in argv
-    assert "memory.backend=off" in argv
+    assert f"--config={launch.overlay_path}" in argv
+    # the flag that never existed must never come back
+    assert not any(arg.startswith("--setting") for arg in argv), argv
     assert launch.declares_memory_off() is True
+
+
+def test_the_overlay_pins_the_memory_backend_as_a_quoted_string(tmp_path):
+    """Bare `off` is a YAML 1.1 BOOLEAN and the setting is a string enum, so the
+    rendered value is quoted. A test rather than a comment, because the whole
+    point of the overlay is that the harness reads it."""
+    launch = br.LaunchConfig(session_dir=tmp_path / "sessions")
+    assert launch.overlay_text() == 'memory:\n  backend: "off"\n'
+    written = launch.write_overlay()
+    assert written == launch.overlay_path
+    assert written.read_text(encoding="utf-8") == launch.overlay_text()
+
+
+def test_a_child_start_always_materialises_the_overlay_it_names(tmp_path):
+    """A `--config` overlay is STRICT: a missing file is a hard startup error,
+    not a skipped option. So the file has to exist whenever the argv names it."""
+    bridge = _bridge(tmp_path)
+    assert not bridge.launch.overlay_path.exists()
+    bridge.dispatch(_Envelope())
+    assert bridge.launch.overlay_path.is_file()
+    bridge.stop()
 
 
 def test_a_launch_that_drops_the_memory_pin_is_visible_to_the_mirror(tmp_path):
     """Verification §3.1's implementation consequence, enforced rather than
     documented: a bridge whose launch config lost the pin refuses to mirror
-    instead of quietly starting a second store."""
-    launch = br.LaunchConfig(session_dir=tmp_path / "s", settings=())
+    instead of quietly starting a second store. Read from the OVERLAY, which is
+    what actually carries the pin."""
+    launch = br.LaunchConfig(session_dir=tmp_path / "s", overlay={})
     bridge = _bridge(tmp_path, launch=launch)
     thread = _thread("ideation/staging/t/a.md")
     turn = dt.ThreadTurn(turn_id="t1", model="opus", bound_buffer_key="a",
@@ -210,7 +238,68 @@ def test_the_model_the_harness_is_set_to_is_the_envelope_s_own(tmp_path):
 
 
 def test_a_harness_that_refuses_the_model_refuses_the_turn(tmp_path):
-    bridge = _bridge(tmp_path, "--refuse-model")
+    bridge = _bridge(tmp_path, "--known-provider", "something-else",
+                     launch=br.LaunchConfig(session_dir=tmp_path / "s",
+                                            provider_id="local-proxy"))
+    with pytest.raises(br.BridgeProtocolError):
+        bridge.dispatch(_Envelope())
+    bridge.stop()
+
+
+def test_the_harness_provider_id_comes_from_the_INSTALL_not_the_catalog(tmp_path):
+    """P1-5. `provider_class` is a GOVERNANCE data-handling classification, and
+    sending it as the harness provider id had every real `set_model` refused
+    with `Model not found: self_hosted/local-model`. The harness provider id is
+    an install-side declaration; the catalog entry never supplies one."""
+    catalog = _catalog(_entry("opus"))
+    assert catalog.entries[0].provider_class == "on-tenant"
+    seen = []
+    bridge = _bridge(tmp_path, catalog=catalog,
+                     launch=br.LaunchConfig(session_dir=tmp_path / "s",
+                                            provider_id="local-proxy"))
+    original = br.HarnessChild.request
+
+    def _spy(self, frame, *, deadline, clock):
+        seen.append(dict(frame))
+        return original(self, frame, deadline=deadline, clock=clock)
+
+    br.HarnessChild.request = _spy
+    try:
+        bridge.dispatch(_Envelope(model_id="opus"))
+    finally:
+        br.HarnessChild.request = original
+        bridge.stop()
+    assert seen[0]["provider"] == "local-proxy"
+    assert "on-tenant" not in json.dumps(seen)
+
+
+def test_with_no_declared_provider_the_key_is_OMITTED_not_guessed(tmp_path):
+    """An install that declares no harness provider lets the harness resolve the
+    model id by its own matching, rather than being handed a label it must
+    refuse."""
+    seen = []
+    bridge = _bridge(tmp_path)
+    original = br.HarnessChild.request
+
+    def _spy(self, frame, *, deadline, clock):
+        seen.append(dict(frame))
+        return original(self, frame, deadline=deadline, clock=clock)
+
+    br.HarnessChild.request = _spy
+    try:
+        bridge.dispatch(_Envelope(model_id="opus"))
+    finally:
+        br.HarnessChild.request = original
+        bridge.stop()
+    assert "provider" not in seen[0], seen[0]
+
+
+def test_a_governance_label_sent_as_a_provider_is_refused_by_the_harness(tmp_path):
+    """The fixture reproduces the REAL refusal shape, so the defect that shipped
+    would fail here rather than only in production."""
+    bridge = _bridge(tmp_path, "--known-provider", "local-proxy",
+                     launch=br.LaunchConfig(session_dir=tmp_path / "s",
+                                            provider_id="self_hosted"))
     with pytest.raises(br.BridgeProtocolError):
         bridge.dispatch(_Envelope())
     bridge.stop()
@@ -251,7 +340,6 @@ def test_a_routing_rule_entry_would_set_the_RESOLVED_model(tmp_path):
         br.HarnessChild.request = original
         bridge.stop()
     assert seen[0]["modelId"] == "opus"
-    assert seen[0]["provider"] == "routed"
 
 
 def test_every_entry_a_conformant_catalog_can_hold_is_truthfully_not_a_routing_rule():
@@ -292,6 +380,22 @@ def test_an_unstartable_bridge_refuses_inside_a_bounded_retry(tmp_path):
     assert len(attempts) == 3, attempts
 
 
+def test_a_child_that_STARTS_AND_DIES_flips_the_catalog_too(tmp_path):
+    """P2-8. `_unavailable` used to be set only where `Popen` itself raised, so
+    the commonest real failure — a child that spawns and then exits — left the
+    catalog advertising the model as available forever and pushed every later
+    turn onto leg 2 instead of the pre-dispatch refusal 11.3 promises."""
+    bridge = _bridge(tmp_path, "--die-after", "1",
+                     catalog=_catalog(_entry("opus"), _entry("kimi")))
+    assert [e.available for e in bridge.catalog().entries] == [True, True]
+    with pytest.raises(br.BridgeUnavailable):
+        bridge.dispatch(_Envelope())
+    assert bridge.available is False
+    assert [e.available for e in bridge.catalog().entries] == [False, False]
+    assert bridge.catalog().selectable_entry_for("opus") is None
+    bridge.stop()
+
+
 def test_an_unavailable_bridge_reports_every_catalog_entry_unavailable(tmp_path):
     """The FIRST of task 11.3's two legs, and the one that keeps the route's
     gate ORDER unchanged: an unavailable entry fails `selectable_entry_for` at
@@ -325,6 +429,29 @@ def test_a_non_json_banner_on_stdout_is_ignored_rather_than_fatal(tmp_path):
     bridge = _bridge(tmp_path, "--banner", "omp v17.3.7 ready")
     assert bridge.dispatch(_Envelope())["assistant_prose"]
     bridge.stop()
+
+
+def test_the_unsolicited_startup_frames_a_real_harness_sends_are_ignored(
+        tmp_path):
+    """A real session opens with `ready` and then emits `extension_ui_request`
+    and `available_commands_update` around every command, unasked. A host that
+    cannot ignore them cannot talk to omp at all — and the fixture now sends
+    them, so this is exercised rather than assumed."""
+    bridge = _bridge(tmp_path)
+    assert bridge.dispatch(_Envelope())["assistant_prose"]
+    bridge.stop()
+
+
+def test_a_frame_over_the_v1_cap_is_dropped_while_reading(tmp_path):
+    """P3-16. The cap is the REAL v1 one the `ready` frame advertises, and it is
+    enforced by a bounded read, so an unbounded run of bytes with no newline
+    cannot be materialised before the guard runs."""
+    import io
+
+    assert br.MAX_FRAME_BYTES == 1024 * 1024
+    oversize = b"x" * (br.MAX_FRAME_BYTES + 64)
+    stream = io.BytesIO(oversize + b"\n" + b'{"type":"ready"}\n')
+    assert list(br._bounded_lines(stream)) == [b'{"type":"ready"}\n']
 
 
 # ===========================================================================
@@ -591,9 +718,86 @@ def test_an_envelope_with_no_sections_is_refused_rather_than_composed():
         br.render_prompt_message(_Empty())
 
 
-@pytest.mark.parametrize("field", br.ASSISTANT_TEXT_FIELDS)
-def test_every_declared_assistant_text_spelling_is_read(field):
-    assert br._assistant_text_of({"type": "message_update", field: "TEXT"}) \
-        == "TEXT"
-    assert br._assistant_text_of(
-        {"type": "message_update", "data": {field: "TEXT"}}) == "TEXT"
+def test_the_streaming_delta_is_read_from_where_it_really_lives():
+    """P1-3. The text is INSIDE `assistantMessageEvent`, not at the frame's top
+    level and not under `data` — so no addition to a flat tuple of top-level
+    names could ever have found it. Frame transcribed from the real capture."""
+    frame = {"type": "message_update",
+             "assistantMessageEvent": {"type": "text_delta", "contentIndex": 0,
+                                       "delta": "MOCK_DONE", "partial": {}},
+             "message": {"role": "assistant",
+                         "content": [{"type": "text", "text": "MOCK_DONE"}]}}
+    assert br._assistant_text_of(frame) == "MOCK_DONE"
+
+
+def test_an_event_this_module_does_not_name_contributes_NOTHING():
+    """A `text_start` carries no text and a `toolcall_start` is a tool call, not
+    prose. The closed table is what keeps a guess out of the transcript."""
+    for event in ({"type": "text_start", "contentIndex": 0},
+                  {"type": "toolcall_start", "contentIndex": 0},
+                  {"type": "reasoning_delta", "delta": "thinking out loud"}):
+        assert br._assistant_text_of(
+            {"type": "message_update", "assistantMessageEvent": event}) == ""
+
+
+def test_the_final_answer_is_read_from_the_terminal_message_list():
+    """`agent_end.messages` is the harness's own final state. The LAST assistant
+    message carrying prose wins: a turn can end on a tool result, and an earlier
+    assistant message is working, not the answer."""
+    messages = [
+        {"role": "user", "content": [{"type": "text", "text": "say OK"}]},
+        {"role": "assistant", "content": [{"type": "toolCall", "id": "c1"}]},
+        {"role": "assistant", "content": [{"type": "text", "text": "FINAL"}]},
+    ]
+    assert br.final_assistant_text(messages) == "FINAL"
+    assert br.final_assistant_text([]) == ""
+    assert br.final_assistant_text(None) == ""
+
+
+def test_an_omitted_agentInvoked_means_await_the_session_events():
+    """`rpc.md:104`, and the defect that returned an empty answer at 1.97 s: an
+    omitted `agentInvoked` is NOT `False`."""
+    omitted = br.HarnessResponse(command="prompt", success=True, data={})
+    assert omitted.agent_invoked is None
+    slash = br.HarnessResponse(command="prompt", success=True,
+                               data={"agentInvoked": False})
+    assert slash.agent_invoked is False
+
+
+def test_a_real_agent_turn_returns_the_MODELS_OWN_TEXT_not_an_empty_answer(
+        tmp_path):
+    """The whole of P1-4, against the rebuilt fixture: the response frame
+    carries no `data`, the turn streams, and `dispatch` waits for `agent_end`
+    rather than returning at the response."""
+    bridge = _bridge(tmp_path, "--reply", "THE MODEL ANSWERED",
+                     "--delta-chunks", "4")
+    answer = bridge.dispatch(_Envelope())
+    bridge.stop()
+    assert answer == {"assistant_prose": "THE MODEL ANSWERED", "proposals": []}
+
+
+def test_a_streamed_answer_is_not_doubled_by_its_own_text_end(tmp_path):
+    """`text_end` repeats the whole run it closes, so only the deltas
+    accumulate — and the terminal message list is preferred over both."""
+    bridge = _bridge(tmp_path, "--reply", "ABCDEF", "--delta-chunks", "3")
+    assert bridge.dispatch(_Envelope())["assistant_prose"] == "ABCDEF"
+    bridge.stop()
+
+
+def test_the_rendered_prompt_is_the_envelopes_own_rendering():
+    """P3-20: one spelling. `PromptEnvelope.rendered()` is the authority, and
+    the bridge's fallback join must agree with it byte for byte."""
+    from ideation_dashboard.doxbench_turns import PromptEnvelope, PromptSection
+    from ideation_dashboard.doxbench_scope import ScopeKey
+
+    envelope = PromptEnvelope(
+        sections=(PromptSection(key="a", text="ALPHA"),
+                  PromptSection(key="b", text="BETA")),
+        scope=ScopeKey(repository="r", ref="main", tile_kind="staged",
+                       tile_id="t"),
+        model_id="m", message="hi", transcript=(),
+        active_document_path=None, observed_hashes=None)
+    assert br.render_prompt_message(envelope) == envelope.rendered()
+    assert br.render_prompt_message(
+        _Envelope(sections=(_Section("a", "ALPHA"),
+                            _Section("b", "BETA")))) == envelope.rendered()

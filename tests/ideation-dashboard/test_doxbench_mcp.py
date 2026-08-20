@@ -60,28 +60,64 @@ def _call(server, method, params=None, request_id=1):
 
 
 def test_the_mount_names_are_pinned_string_for_string():
-    assert mcp.mount_name(kn.TOOL_SEARCH) == "xd://mcp__doxbench__search"
-    assert mcp.mount_name(kn.TOOL_GET_SOURCE) == "xd://mcp__doxbench__get_source"
+    """CORRECTED after the adversarial review's P1-2 and LIVE-CAPTURED: with
+    this server registered as `doxbench` against real `omp --mode rpc`, the
+    running system prompt carried exactly these four names."""
+    assert mcp.mount_name(kn.TOOL_SEARCH) == "xd://mcp__doxbench_search"
+    assert mcp.mount_name(kn.TOOL_GET_SOURCE) == "xd://mcp__doxbench_get_source"
     assert mcp.mount_name(kn.TOOL_PROMOTE_FINDING) == \
-        "xd://mcp__doxbench__promote_finding"
-    assert mcp.mount_name(kn.TOOL_REINDEX) == "xd://mcp__doxbench__reindex"
+        "xd://mcp__doxbench_promote_finding"
+    assert mcp.mount_name(kn.TOOL_REINDEX) == "xd://mcp__doxbench_reindex"
 
 
 def test_the_mounted_set_is_the_boundary_s_implemented_tools_in_its_own_order():
     assert mcp.mounted_tool_names() == tuple(
-        f"xd://mcp__doxbench__{tool}" for tool in kn.IMPLEMENTED_TOOLS)
+        f"xd://mcp__doxbench_{tool}" for tool in kn.IMPLEMENTED_TOOLS)
 
 
-def test_the_mount_name_is_composed_from_one_separator_constant():
-    """The finding's prose and its evidence disagree about this separator (see
-    `MOUNT_SEPARATOR`'s own note). What this test protects is that the
-    disagreement has exactly ONE place to be resolved: change the constant and
-    every mount name moves together."""
-    assert mcp.MOUNT_SEPARATOR == "__"
+def test_the_mount_name_is_composed_the_way_the_harness_composes_it():
+    """`createMCPToolName` (tool-bridge.ts:345-358) is
+    `mcp__${server}_${tool}` — a SINGLE underscore — and
+    `sanitizeMCPToolNamePart` collapses `_+` to `_`, so a double separator is
+    not merely unused, it is UNPRODUCIBLE. This test re-implements the harness's
+    own composition and asserts this module agrees with it, so the pin is
+    against the rule rather than against four literals."""
+    assert mcp.MOUNT_SEPARATOR == "_"
+
+    def harness_name(server, tool):
+        import re as _re
+
+        def sanitize(value, fallback):
+            out = _re.sub(r"_+", "_",
+                          _re.sub(r"[^a-z_]+", "_", value.lower())).strip("_")
+            return out or fallback
+
+        server_part = sanitize(server, "server")
+        tool_part = sanitize(tool, "tool")
+        if tool_part.startswith(server_part + "_"):
+            tool_part = tool_part[len(server_part) + 1:]
+        return f"mcp__{server_part}_{tool_part}"
+
     for tool in kn.IMPLEMENTED_TOOLS:
-        name = mcp.mount_name(tool)
-        assert name == (mcp.XDEV_SCHEME + mcp.MOUNT_PREFIX
-                        + mcp.MCP_SERVER_NAME + mcp.MOUNT_SEPARATOR + tool)
+        assert mcp.mount_name(tool) == (
+            mcp.XDEV_SCHEME + harness_name(mcp.MCP_SERVER_NAME, tool))
+
+
+def test_a_name_the_harness_would_rewrite_is_refused_rather_than_pinned():
+    """The harness lowercases, replaces every run of non-`[a-z_]` with `_` and
+    collapses repeats — so a server or tool name carrying a digit, a hyphen or
+    a capital mounts under a DIFFERENT string than it is spelled with, and a pin
+    that did not know that would pin a lie."""
+    import ideation_dashboard.doxbench_mcp as module
+
+    original = module.MCP_SERVER_NAME
+    try:
+        for unsafe in ("dox-bench", "doxBench", "doxbench2"):
+            module.MCP_SERVER_NAME = unsafe
+            with pytest.raises(kn.KnowledgeError):
+                module.mount_name(kn.TOOL_SEARCH)
+    finally:
+        module.MCP_SERVER_NAME = original
 
 
 def test_an_undeclared_tool_has_no_mount_name():
@@ -217,6 +253,38 @@ def test_a_malformed_frame_is_answered_rather_than_fatal(tmp_path):
     lines = [json.loads(line) for line in out.getvalue().splitlines()]
     assert lines[0]["error"]["code"] == mcp.ERR_INVALID_PARAMS
     assert lines[1]["id"] == 7 and lines[1]["result"]["tools"]
+
+
+def test_the_REGISTERED_command_runs_with_no_PYTHONPATH_from_a_foreign_cwd(
+        tmp_path):
+    """P1-6. The registration used to name `-m ideation_dashboard.doxbench_mcp`,
+    which the harness runs from the bridge's session root under an allowlisted
+    environment carrying no `PYTHONPATH` — `ModuleNotFoundError`, every time, so
+    the mount could never start. The registered command is now taken VERBATIM
+    from the written config and run exactly as the harness would run it."""
+    root = tmp_path / "sessroot"
+    root.mkdir()
+    manifest = _manifest(tmp_path)
+    _manifest_path, config_path = mcp.write_registration(root, manifest)
+    document = json.loads(config_path.read_text(encoding="utf-8"))
+    entry = document["mcpServers"][mcp.MCP_SERVER_NAME]
+    assert "env" not in entry, (
+        "the entrypoint bootstraps its own package directory; an env block "
+        "would be a second thing an operator has to keep in step")
+    child = subprocess.Popen(
+        [entry["command"], *entry["args"]],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        # THE HARNESS'S OWN CONDITIONS: the bridge's session root as cwd, and
+        # an environment with no PYTHONPATH.
+        cwd=str(root), env={"PATH": "/usr/bin:/bin", "HOME": str(tmp_path)},
+        text=True)
+    stdout, stderr = child.communicate(
+        json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}) + "\n",
+        timeout=60)
+    assert child.returncode == 0, stderr
+    answer = json.loads(stdout.splitlines()[0])
+    assert [tool["name"] for tool in answer["result"]["tools"]] == list(
+        kn.IMPLEMENTED_TOOLS)
 
 
 def test_the_server_runs_as_a_real_child_over_real_pipes(tmp_path):

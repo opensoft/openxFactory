@@ -1066,15 +1066,39 @@ class OmpHarnessBridge:
             raise BridgeError(
                 f"{mode!r} is not a shake mode this bridge invokes; the "
                 f"recorded modes are {SHAKE_MODES}")
+        answer = self.run_command(f"/shake {mode}")
+        # `None` (omitted) and `False` both mean the agent was not invoked; a
+        # builtin never invokes one, and a harness that says so explicitly and
+        # one that stays silent report the same fact here.
+        return ShakeReport(agent_invoked=bool(answer.agent_invoked),
+                           summary="\n".join(answer.command_output))
+
+    def run_command(self, slash_text: str) -> HarnessResponse:
+        """Invoke ONE builtin slash command and return its settled response.
+
+        The channel `/shake` rides is the generic one — there is no distinct RPC
+        command type for a builtin; every one of them is a `prompt` frame whose
+        message is the slash text (verification §3.6, verbatim). So the channel
+        is named once, here, and `shake` is a thin wrapper over it rather than a
+        second copy of the framing.
+
+        NOT a provider verb, and deliberately not spelled like one: it invokes
+        the harness's OWN builtins (`/shake`, `/memory diagnose`, `/mcp list`)
+        and cannot carry a model prompt — a caller passing prose gets it
+        interpreted by the harness as an unknown command, not dispatched to a
+        model."""
+
+        if not isinstance(slash_text, str) or not slash_text.startswith("/"):
+            raise BridgeError(
+                "a harness command starts with '/': this channel invokes "
+                "builtins, and a model prompt goes through dispatch")
         with self._lock, self._marking_unavailable_on_death():
             child = self._ensure_child()
             deadline = self._clock() + self._timeout_seconds
-            answer = child.request(
-                {"id": child.next_id("sh"), "type": CMD_PROMPT,
-                 "message": f"/shake {mode}"},
+            return child.request(
+                {"id": child.next_id("cmd"), "type": CMD_PROMPT,
+                 "message": slash_text},
                 deadline=deadline, clock=self._clock)
-            return ShakeReport(agent_invoked=answer.agent_invoked,
-                               summary="\n".join(answer.command_output))
 
     def dereference(self, value: str) -> str:
         """The seam `doxbench_threads.dereference_bodies` asks for (§3.5).
