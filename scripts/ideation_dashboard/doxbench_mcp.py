@@ -47,11 +47,22 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import json
+import re
 import sys
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
-from ideation_dashboard import doxbench_knowledge
+# THIS MODULE IS ALSO A PROCESS ENTRYPOINT, and the harness starts it (P1-6).
+# The child is launched from the bridge's session root with an allowlisted
+# environment that carries no `PYTHONPATH`, so an import of the package this
+# file lives in has to be made to work from the file's own location — exactly
+# what `serve.py` does for the same reason. Placed ABOVE the package import
+# because that import is what needs it.
+_SCRIPTS_DIR = Path(__file__).resolve().parent.parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+from ideation_dashboard import doxbench_knowledge  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # identity and the mount name (verification §3.2's realization note)
@@ -70,24 +81,43 @@ MCP_PROTOCOL_VERSION = "2025-03-26"
 XDEV_SCHEME = "xd://"
 MOUNT_PREFIX = "mcp__"
 
-# THE ONE CONTRADICTION IN THE RECORDED FINDING, ISOLATED TO ONE CONSTANT.
+# THE CONTRADICTION IN THE RECORDED FINDING — SETTLED 2026-08-19, AGAINST THE
+# HARNESS'S OWN SOURCE AND A LIVE MOUNT.
 #
-# `verification-findings.md` §3.2 states the convention twice and the two
-# statements disagree:
+# `verification-findings.md` §3.2 stated the convention twice and the two
+# statements disagreed: its PROSE wrote `xd://mcp__<server>__<tool>` (a DOUBLE
+# underscore), while its own EVIDENCE wrote `xd://mcp__verify_echo_echo` for a
+# server whose one tool was `echo`, and `xd://mcp__sonarqube_*` for that host's
+# ambient servers (a SINGLE underscore). This module originally took the prose.
 #
-#   * its PROSE (the finding and the implementation-consequence paragraph, and
-#     tasks.md 10.2's note quoting it) writes `xd://mcp__<server>__<tool>` — a
-#     DOUBLE underscore between server and tool;
-#   * its EVIDENCE writes `xd://mcp__verify_echo_echo` for a server whose one
-#     tool was `echo`, and `xd://mcp__sonarqube_*` for the ambient servers on
-#     that host — a SINGLE underscore between server and tool.
+# THE EVIDENCE WAS RIGHT. The source of truth is `createMCPToolName`
+# (`packages/coding-agent/src/mcp/tool-bridge.ts:345-358`, v17.3.7):
 #
-# Both cannot be right. This module takes the PROSE, because that is what the
-# finding states as its convention and what the task quotes; the composition
-# lives in ONE function (`mount_name`) driven by ONE constant, and a companion
-# test pins the exact resulting strings. So if the evidence reading is the true
-# one, the correction is this constant and the test that fails tells you.
-MOUNT_SEPARATOR = "__"
+#     return `mcp__${sanitizedServerName}_${normalizedToolName}`;
+#
+# a SINGLE underscore — and `sanitizeMCPToolNamePart` (`:335-343`) collapses
+# `_+` to `_`, so a double separator is not merely unused, it is UNPRODUCIBLE.
+# Corroborated at `builtin-names.ts:67`, and LIVE-CAPTURED with this very server
+# registered as `doxbench` against real `omp --mode rpc`, verbatim from the
+# running system prompt:
+#
+#     xd://mcp__doxbench_search
+#     xd://mcp__doxbench_get_source
+#     xd://mcp__doxbench_promote_finding
+#     xd://mcp__doxbench_reindex
+#
+# `verification-findings.md` §3.2 carries a dated correction note recording the
+# same thing at its source. The one-constant isolation did its job: settling the
+# contradiction cost this line and three pinned test strings.
+MOUNT_SEPARATOR = "_"
+
+# The harness's own sanitiser, restated so `mount_name` can refuse a name whose
+# mount would not be the name this module composed. `sanitizeMCPToolNamePart`
+# lowercases, replaces every run of non-`[a-z_]` with `_`, collapses `_+`, and
+# strips leading/trailing `_` — so a server or tool name carrying a digit, a
+# hyphen or an uppercase letter mounts under a DIFFERENT string than it is
+# spelled with, and a pin that did not know this would pin a lie.
+_MOUNT_SAFE = re.compile(r"^[a-z]+(?:_[a-z]+)*$")
 
 
 def mount_name(tool: str) -> str:
@@ -99,6 +129,17 @@ def mount_name(tool: str) -> str:
         raise doxbench_knowledge.UnknownTool(
             f"{tool!r} is not a tool this boundary declares; the declared "
             f"names are {doxbench_knowledge.DECLARED_TOOLS}")
+    # The composed name is only the real mount name if the harness's sanitiser
+    # would leave both halves alone. Refusing here means a rename that WOULD be
+    # rewritten by the harness fails at this function rather than silently
+    # mounting under a string nothing in this repo pins.
+    for part, label in ((MCP_SERVER_NAME, "server name"), (tool, "tool name")):
+        if not _MOUNT_SAFE.match(part):
+            raise doxbench_knowledge.KnowledgeError(
+                f"{part!r} is not a mount-safe {label}: the harness lowercases "
+                "it, replaces every run of non-[a-z_] with '_' and collapses "
+                "repeats, so this would mount under a different string than it "
+                "is spelled with")
     return (f"{XDEV_SCHEME}{MOUNT_PREFIX}{MCP_SERVER_NAME}"
             f"{MOUNT_SEPARATOR}{tool}")
 
@@ -276,6 +317,32 @@ def registration_document(argv: Sequence[str]) -> dict:
     }
 
 
+def server_argv(manifest_path: Path | str, *, python: str | None = None
+                ) -> list[str]:
+    """The command line that starts THIS server for one manifest.
+
+    PATH-BASED, not `-m` — corrected 2026-08-19 after the adversarial review's
+    P1-6. The registration used to name `-m ideation_dashboard.doxbench_mcp`,
+    which the harness runs from the bridge's session root with an allowlisted
+    environment carrying no `PYTHONPATH`:
+
+        $ cd <session-root> && env -i PATH=… HOME=… /usr/bin/python3 \
+            -m ideation_dashboard.doxbench_mcp --manifest …
+        Error while finding module specification for
+        'ideation_dashboard.doxbench_mcp'
+        (ModuleNotFoundError: No module named 'ideation_dashboard')
+
+    so the mount could never start. An ABSOLUTE PATH to this file works from any
+    cwd and with no environment plumbing, because the file bootstraps its own
+    package directory onto `sys.path` at import (see the top of this module).
+    That keeps the registration free of an `env` block, which is the right shape
+    for a config file the harness reads: nothing about this server's location is
+    the operator's to keep in step."""
+
+    return [python or sys.executable, str(Path(__file__).resolve()),
+            "--manifest", str(manifest_path)]
+
+
 def write_registration(root: Path | str, manifest: MountManifest, *,
                        python: str | None = None) -> tuple[Path, Path]:
     """Write the manifest and the harness's own discovery config under ``root``.
@@ -291,11 +358,11 @@ def write_registration(root: Path | str, manifest: MountManifest, *,
     manifest_path.write_text(
         json.dumps(manifest.as_dict(), indent=2, sort_keys=True) + "\n",
         encoding="utf-8")
-    argv = [python or sys.executable, "-m", "ideation_dashboard.doxbench_mcp",
-            "--manifest", str(manifest_path)]
     config_path = base / MCP_CONFIG_DIR / MCP_CONFIG_FILE
     config_path.write_text(
-        json.dumps(registration_document(argv), indent=2, sort_keys=True) + "\n",
+        json.dumps(registration_document(
+            server_argv(manifest_path, python=python)),
+            indent=2, sort_keys=True) + "\n",
         encoding="utf-8")
     return manifest_path, config_path
 

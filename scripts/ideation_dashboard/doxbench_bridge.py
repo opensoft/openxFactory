@@ -54,6 +54,7 @@ needs — the spawn, the clock, the log sink — is injected.
 
 from __future__ import annotations
 
+import contextlib
 import dataclasses
 import json
 import os
@@ -134,19 +135,55 @@ SESSION_FILE_SUFFIX = ".jsonl"
 # (verification §3.1), but "the operator never opted in" is not a guarantee, so
 # the bridge states it.
 #
-# THE FLAG SPELLING IS THIS MODULE'S ONE UNVERIFIED LAUNCH DETAIL, and it is
-# isolated here on purpose: the findings record the SETTING (its name, its enum,
-# its default, its resolution function) but not the CLI spelling of a per-setting
-# override. A companion test pins the produced argv, so correcting the spelling
-# is a one-line change to this constant that a test will confirm — not a hunt
-# through a launcher.
-SETTING_FLAG = "--setting"
-MEMORY_BACKEND_SETTING = "memory.backend"
+# HOW IT IS STATED — CORRECTED 2026-08-19 after the adversarial review's P1-1.
+# This module used to emit `--setting memory.backend=off`. There is no such flag:
+# real `omp` v17.3.7 answers `Error: unknown flag: --setting` and exits, so the
+# bridge could never start a harness at all. The REAL per-run mechanism, from
+# `omp --help` and `docs/config-usage.md` §4, is a config OVERLAY:
+#
+#   --config=<value>   Load an extra config.yml-style overlay for this run
+#                      (repeatable)
+#
+# and its precedence is
+# `defaults <- global <- project <- PI_CONFIG_FILES <- --config <- runtime`,
+# so an overlay overrides both the operator's global settings and the project's.
+# That is a STRONGER pin than the profile's own settings file — which an
+# operator can edit — and it writes nothing into anybody's home directory: the
+# overlay lives in the bridge's own session root beside its other files.
+#
+# LIVE-VERIFIED 2026-08-19 against the surviving v17.3.7 install: with this
+# overlay `/memory diagnose` answers "Memory backend is off — there is nothing
+# to show.", and with `backend: local` in the same slot it answers something
+# else. The pin is observable in the running harness, not merely declared.
+CONFIG_FLAG = "--config"
+OVERLAY_FILENAME = "doxbench-bridge-overlay.yml"
+MEMORY_SECTION = "memory"
+MEMORY_BACKEND_KEY = "backend"
+MEMORY_BACKEND_SETTING = f"{MEMORY_SECTION}.{MEMORY_BACKEND_KEY}"
 MEMORY_BACKEND_OFF = "off"
 
-BRIDGE_SETTINGS: tuple[tuple[str, str], ...] = (
-    (MEMORY_BACKEND_SETTING, MEMORY_BACKEND_OFF),
-)
+# The overlay document itself. A nested mapping, exactly as `docs/memory.md`
+# spells it, and the value is QUOTED when rendered because bare `off` is a YAML
+# 1.1 boolean and the setting is a string enum.
+BRIDGE_OVERLAY: Mapping[str, Mapping[str, str]] = {
+    MEMORY_SECTION: {MEMORY_BACKEND_KEY: MEMORY_BACKEND_OFF},
+}
+
+
+def render_overlay(document: Mapping[str, Mapping[str, str]]) -> str:
+    """The overlay file's bytes: a two-level mapping of quoted scalars.
+
+    Hand-rendered rather than dumped, because this module is stdlib-only and a
+    YAML library is not stdlib. The shape is deliberately tiny — section, key,
+    quoted string — so the renderer cannot drift into being a serializer."""
+
+    lines = []
+    for section, entries in document.items():
+        lines.append(f"{section}:")
+        for key, value in entries.items():
+            escaped = str(value).replace("\\", "\\\\").replace('"', '\\"')
+            lines.append(f'  {key}: "{escaped}"')
+    return "\n".join(lines) + "\n"
 
 # The ONLY environment variables a bridge child inherits. An ALLOWLIST rather
 # than a denylist, because a denylist of credential-shaped names is a list
@@ -160,32 +197,65 @@ INHERITED_ENVIRONMENT: tuple[str, ...] = ("PATH", "HOME", "LANG", "LC_ALL", "TMP
 class LaunchConfig:
     """Everything the bridge needs to start ONE harness child, as data.
 
-    Data rather than code so a test can assert on the argv and the environment
-    without starting anything, and so an operator reading a launch line sees the
-    same tuple this module builds."""
+    Data rather than code so a test can assert on the argv, the overlay and the
+    environment without starting anything, and so an operator reading a launch
+    line sees the same tuple this module builds.
+
+    `provider_id` is the INSTALL-SIDE declaration of the harness provider the
+    approved models are registered under (`local-proxy`, `anthropic`, …). It
+    lives HERE and not on the catalog entry, and that placement is a recorded
+    judgement call — see `OmpHarnessBridge._apply_model`."""
 
     session_dir: Path
     command: str = HARNESS_COMMAND
     profile: str = BRIDGE_PROFILE
-    settings: tuple[tuple[str, str], ...] = BRIDGE_SETTINGS
+    overlay: Mapping[str, Mapping[str, str]] = dataclasses.field(
+        default_factory=lambda: BRIDGE_OVERLAY)
+    provider_id: str | None = None
     extra_args: tuple[str, ...] = ()
+
+    @property
+    def overlay_path(self) -> Path:
+        """Where the overlay this launch pins is written. Inside the bridge's
+        own session directory, which is also the child's cwd — so pinning the
+        harness's memory backend writes into no operator's home and no corpus."""
+        return Path(self.session_dir) / OVERLAY_FILENAME
 
     def argv(self) -> tuple[str, ...]:
         args = [self.command, MODE_FLAG, MODE_RPC,
                 PROFILE_FLAG, self.profile,
                 SESSION_DIR_FLAG, str(self.session_dir)]
-        for name, value in self.settings:
-            args.extend([SETTING_FLAG, f"{name}={value}"])
+        if self.overlay:
+            # `--config=<path>` rather than `--config <path>`: the flag's own
+            # declared spelling in `omp --help`, and the form verified live.
+            args.append(f"{CONFIG_FLAG}={self.overlay_path}")
         args.extend(self.extra_args)
         return tuple(args)
+
+    def overlay_text(self) -> str:
+        return render_overlay(self.overlay)
+
+    def write_overlay(self) -> Path:
+        """Materialise the overlay. Called before every child start, because a
+        `--config` overlay is STRICT: a missing file is a hard startup error, so
+        the file has to exist whenever the argv names it."""
+        target = self.overlay_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(self.overlay_text(), encoding="utf-8")
+        return target
 
     def environment(self, base: Mapping[str, str] | None = None) -> dict:
         return child_environment(os.environ if base is None else base)
 
     def declares_memory_off(self) -> bool:
-        """The property task 11.5's sentence turns on, answerable without
-        parsing an argv string."""
-        return (MEMORY_BACKEND_SETTING, MEMORY_BACKEND_OFF) in self.settings
+        """The property task 11.5's sentence turns on, read from the thing that
+        ACTUALLY carries the pin — the overlay document this launch writes and
+        names on the command line — rather than from a flag list that never
+        reached the harness."""
+        section = self.overlay.get(MEMORY_SECTION) if self.overlay else None
+        if not isinstance(section, Mapping):
+            return False
+        return section.get(MEMORY_BACKEND_KEY) == MEMORY_BACKEND_OFF
 
 
 def child_environment(base: Mapping[str, str]) -> dict:
@@ -212,6 +282,8 @@ FRAME_RESPONSE = "response"
 FRAME_COMMAND_OUTPUT = "command_output"
 FRAME_AGENT_END = "agent_end"
 FRAME_MESSAGE_UPDATE = "message_update"
+FRAME_TURN_END = "turn_end"
+FRAME_MESSAGE_END = "message_end"
 
 # The RECORDED shape of a slash command: there is no distinct RPC command type
 # for `/shake`; it rides the same generic slash-command-over-`prompt` channel as
@@ -220,13 +292,38 @@ SHAKE_MODE_ELIDE = "elide"
 SHAKE_MODE_IMAGES = "images"
 SHAKE_MODES: tuple[str, ...] = (SHAKE_MODE_ELIDE, SHAKE_MODE_IMAGES)
 
-# WHERE THE ASSISTANT'S TEXT ARRIVES. Verification §3.2 records that the reply
-# text appears "in the subsequent `message_update` deltas" and that the turn ends
-# at a terminal `agent_end`; it does not record the delta frame's own field
-# spelling. The candidate spellings are declared HERE, in one closed tuple read
-# in one place, rather than guessed at three call sites — so a correction is one
-# line and a companion test pins the reader against each spelling.
-ASSISTANT_TEXT_FIELDS: tuple[str, ...] = ("text", "delta", "content", "message")
+# WHERE THE ASSISTANT'S TEXT ACTUALLY ARRIVES — CORRECTED 2026-08-19 after the
+# adversarial review's P1-3, against the ORIGINAL verification session's raw
+# captured stdout (`rpc-stdout-{5,6,7}.log`) and a live re-run.
+#
+# The previous reading looked for a flat `text`/`delta`/`content`/`message` at
+# the frame's top level or under `data`. A real `message_update` has exactly
+# three top-level keys — `type`, `assistantMessageEvent`, `message` — and the
+# text is ONE LEVEL DOWN:
+#
+#   {"type":"message_update",
+#    "assistantMessageEvent":{"type":"text_delta","contentIndex":0,
+#                             "delta":"MOCK_DONE","partial":{…}},
+#    "message":{"role":"assistant","content":[{"type":"text","text":"MOCK_DONE"}],…}}
+#
+# so no addition to a flat tuple of top-level names could ever have found it.
+# The event carries the streaming piece under a type-dependent key; the sibling
+# `message` (and `agent_end.messages`) carries the WHOLE assistant message in
+# the content-part shape. Both readers live below, each in one place.
+ASSISTANT_EVENT_KEY = "assistantMessageEvent"
+EVENT_TYPE_TEXT_DELTA = "text_delta"
+EVENT_TYPE_TEXT_END = "text_end"
+# The key each event type carries its text under. A CLOSED table rather than a
+# guess-list: an event type absent from it contributes nothing.
+EVENT_TEXT_KEYS: Mapping[str, str] = {
+    EVENT_TYPE_TEXT_DELTA: "delta",
+    EVENT_TYPE_TEXT_END: "content",
+}
+MESSAGE_KEY = "message"
+MESSAGES_KEY = "messages"
+CONTENT_KEY = "content"
+ROLE_ASSISTANT = "assistant"
+CONTENT_TYPE_TEXT = "text"
 
 # How the envelope's sections become one prompt message. The sections already
 # carry their own headings (`CONTEXT PACKET —`, `EVIDENCE —`, `Human message:`),
@@ -244,6 +341,17 @@ def render_prompt_message(prompt_envelope: object) -> str:
     the adapter depend on prompt assembly, and D14 puts prompt assembly on the
     other side of the port."""
 
+    # ONE SPELLING WHERE THERE IS ONE TO USE (adversarial review P3-20).
+    # `doxbench_turns.PromptEnvelope.rendered()` already joins the sections in
+    # the declared order, and it is the authority on how a prompt renders — so
+    # an envelope that HAS it answers with it, and this function's own join is
+    # the fallback for a duck-typed envelope that does not. A companion test
+    # asserts the two agree byte for byte, so the fallback cannot drift.
+    rendered = getattr(prompt_envelope, "rendered", None)
+    if callable(rendered):
+        text = rendered()
+        if isinstance(text, str) and text:
+            return text
     sections = getattr(prompt_envelope, "sections", None)
     if not isinstance(sections, (tuple, list)) or not sections:
         raise BridgeProtocolError(
@@ -270,10 +378,25 @@ class HarnessResponse:
     command_output: tuple[str, ...] = ()
     assistant_text: str = ""
     agent_ended: bool = False
+    error: str = ""
 
     @property
-    def agent_invoked(self) -> bool:
-        return bool(self.data.get("agentInvoked", False))
+    def agent_invoked(self) -> bool | None:
+        """TRI-STATE, and the third state is the whole point (P1-4).
+
+        `rpc.md:104`: a `prompt` success response *may* include
+        `data.agentInvoked`, and **omitted means the host must rely on session
+        events for completion**. This used to read `bool(data.get(...,False))`,
+        collapsing "omitted" into "the agent was not invoked" — the exact
+        opposite of the documented meaning — so `dispatch` returned at the
+        response frame, 1.97 s in, with an empty answer, while the model's real
+        reply arrived ~20 s later and was never read.
+
+        `None` means OMITTED: keep reading until the terminal `agent_end`."""
+
+        if "agentInvoked" not in self.data:
+            return None
+        return bool(self.data.get("agentInvoked"))
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -297,9 +420,16 @@ class ShakeReport:
 # turns one bad turn into a serve that spends its life respawning.
 MAX_RESTARTS = 2
 
-# What a single frame may be. A harness that answered with an unbounded line
-# would otherwise let a child spend the serve's memory.
-MAX_FRAME_BYTES = 4 * 1024 * 1024
+# What a single frame may be. THE REAL v1 CAP, read off the `ready` frame every
+# captured transcript opens with (`"maxFrameBytes": 1048576`) — the 4 MiB this
+# module used to declare was both invented and dead, since a v1 harness never
+# sends a physical frame past 1 MiB.
+#
+# It is enforced by a BOUNDED READ rather than a post-hoc length check
+# (adversarial review P3-16): `readline(limit)` returns at most `limit` bytes,
+# so an unbounded line with no newline can no longer be materialised in full
+# before the guard runs.
+MAX_FRAME_BYTES = 1024 * 1024
 
 # How long a settled command waits for the free-text frame that follows it.
 # `/shake` answers with its response FIRST and its `command_output` summary
@@ -365,7 +495,7 @@ class HarnessChild:
     def _reader(self, stream, handler, name: str) -> threading.Thread:
         def _run():
             try:
-                for raw in stream:
+                for raw in _bounded_lines(stream):
                     handler(raw)
             except (OSError, ValueError):
                 # A closed pipe ends a reader, and that is the ordinary way a
@@ -385,6 +515,8 @@ class HarnessChild:
         if not line:
             return
         if utf8_size(line) > MAX_FRAME_BYTES:
+            # A terminated line that is still over the cap. The unterminated
+            # case never reaches here — `_bounded_lines` drops it while reading.
             self._log("dropping an oversize frame from the harness child")
             return
         try:
@@ -441,7 +573,7 @@ class HarnessChild:
         return f"{prefix}{self._next_id}"
 
     def request(self, frame: dict, *, deadline: float,
-                clock: Callable[[], float]) -> HarnessResponse:
+                clock: Callable[[], float]) -> HarnessResponse:  # noqa: D401
         """Write one command frame and read until ITS response settles.
 
         Frames for other ids are DROPPED rather than buffered: this transport
@@ -467,6 +599,8 @@ class HarnessChild:
         outputs: list[str] = []
         assistant: list[str] = []
         ended = False
+        final_messages: object = None
+        last_message: object = None
         settled: HarnessResponse | None = None
         while True:
             remaining = deadline - clock()
@@ -488,39 +622,87 @@ class HarnessChild:
                     outputs.append(text)
                 continue
             if kind == FRAME_MESSAGE_UPDATE:
-                assistant.append(_assistant_text_of(frame))
+                # ONLY the streaming deltas accumulate. `text_end` repeats the
+                # whole run it closes, so accumulating it too would double every
+                # answer a harness streams.
+                event = frame.get(ASSISTANT_EVENT_KEY)
+                if isinstance(event, Mapping) \
+                        and event.get("type") == EVENT_TYPE_TEXT_DELTA:
+                    assistant.append(_assistant_text_of(frame))
                 continue
             if kind == FRAME_AGENT_END:
                 ended = True
-                final = _assistant_text_of(frame)
-                if final:
-                    assistant.append(final)
+                # The terminal frame carries the WHOLE message list
+                # (`agent_end.messages`), which is the harness's own final
+                # state rather than a reassembly of deltas.
+                final_messages = frame.get(MESSAGES_KEY)
                 if settled is not None:
                     break
+                continue
+            if kind in (FRAME_TURN_END, FRAME_MESSAGE_END):
+                # A single-turn fallback for the same fact: these carry the one
+                # finished `message`. Read but never preferred over `agent_end`.
+                carried = frame.get(MESSAGE_KEY)
+                if isinstance(carried, Mapping) \
+                        and carried.get("role") == ROLE_ASSISTANT:
+                    last_message = carried
                 continue
             if kind != FRAME_RESPONSE:
                 continue
             if frame.get("id") != request_id:
                 continue
             data = frame.get("data")
+            error = frame.get("error")
             settled = HarnessResponse(
                 command=str(frame.get("command", "")),
                 success=bool(frame.get("success", False)),
                 data=data if isinstance(data, Mapping) else {},
                 command_output=tuple(outputs),
                 assistant_text="".join(assistant),
-                agent_ended=ended)
-            # A command that did NOT invoke the agent settles at its response
-            # (verification §3.6's `/shake` round trip is exactly this); one
-            # that DID keeps reading until the terminal `agent_end`.
-            if not settled.agent_invoked or ended:
-                if not settled.agent_invoked:
+                agent_ended=ended,
+                error=error if isinstance(error, str) else "")
+            # WHEN A COMMAND IS DONE (P1-4, corrected against the real
+            # protocol):
+            #
+            #  * a FAILED command is done at its response — there is no turn;
+            #  * `agentInvoked: false` (a builtin slash command like `/shake`)
+            #    is done at its response, plus a bounded drain for the
+            #    free-text summary that may trail it;
+            #  * `agentInvoked` OMITTED — which is what a real model prompt's
+            #    response looks like — means the turn is RUNNING and completion
+            #    is reported through session events, so keep reading to the
+            #    terminal `agent_end`;
+            #  * `agentInvoked: true` is the same: keep reading.
+            invoked = settled.agent_invoked
+            if not settled.success or invoked is False:
+                if invoked is False:
                     self._drain_trailing(outputs, assistant, deadline=deadline,
                                          clock=clock)
                 break
+            if ended:
+                break
         return dataclasses.replace(
             settled, command_output=tuple(outputs),
-            assistant_text="".join(assistant), agent_ended=ended)
+            assistant_text=self._answer(assistant, final_messages,
+                                        last_message),
+            agent_ended=ended)
+
+    @staticmethod
+    def _answer(deltas: list, final_messages: object,
+                last_message: object) -> str:
+        """The turn's answer, from the most authoritative source available.
+
+        Order, and why: the terminal frame's own message list first (the
+        harness's final state, complete even when the turn took several steps),
+        then the single finished assistant message a `turn_end`/`message_end`
+        carried, then the accumulated `text_delta` pieces. The deltas are last
+        rather than first because a reassembly can lose a piece the harness
+        never re-sent; they are kept because a harness that streams without a
+        terminal message list is still legible."""
+
+        return (final_assistant_text(final_messages)
+                or _text_of_message(last_message)
+                or "".join(deltas))
 
     def _drain_trailing(self, outputs: list, assistant: list, *,
                         deadline: float, clock: Callable[[], float]) -> None:
@@ -541,22 +723,97 @@ class HarnessChild:
                     outputs.append(text)
                 return
             if kind == FRAME_MESSAGE_UPDATE:
-                assistant.append(_assistant_text_of(frame))
+                event = frame.get(ASSISTANT_EVENT_KEY)
+                if isinstance(event, Mapping) \
+                        and event.get("type") == EVENT_TYPE_TEXT_DELTA:
+                    assistant.append(_assistant_text_of(frame))
 
 
 def _assistant_text_of(frame: Mapping[str, object]) -> str:
-    """The assistant text carried by a delta or terminal frame, read through the
-    ONE declared spelling set."""
+    """The STREAMING piece one `message_update` carries, or "".
 
-    for container in (frame, frame.get("data") if isinstance(
-            frame.get("data"), Mapping) else {}):
-        if not isinstance(container, Mapping):
+    Reads `assistantMessageEvent` and the closed `EVENT_TEXT_KEYS` table, so a
+    `text_start` (no text), a `toolcall_start` (a tool call, not prose) and any
+    event type this table does not name contribute nothing rather than
+    contributing a guess. `text_end` is deliberately NOT accumulated by the
+    caller — it repeats the whole run — but it is readable here so a harness that
+    emits only `text_end` is still legible."""
+
+    event = frame.get(ASSISTANT_EVENT_KEY)
+    if not isinstance(event, Mapping):
+        return ""
+    key = EVENT_TEXT_KEYS.get(str(event.get("type")))
+    if key is None:
+        return ""
+    value = event.get(key)
+    return value if isinstance(value, str) else ""
+
+
+def _text_of_message(message: object) -> str:
+    """Every text part of ONE assistant message, joined. The content is a LIST
+    of typed parts; a tool-call part carries no prose and is skipped."""
+
+    if not isinstance(message, Mapping):
+        return ""
+    parts = message.get(CONTENT_KEY)
+    if not isinstance(parts, (list, tuple)):
+        return ""
+    texts = []
+    for part in parts:
+        if not isinstance(part, Mapping) or part.get("type") != CONTENT_TYPE_TEXT:
             continue
-        for field in ASSISTANT_TEXT_FIELDS:
-            value = container.get(field)
-            if isinstance(value, str):
-                return value
+        value = part.get(CONTENT_TYPE_TEXT)
+        if isinstance(value, str):
+            texts.append(value)
+    return "".join(texts)
+
+
+def final_assistant_text(messages: object) -> str:
+    """The answer, read from a terminal frame's whole message list.
+
+    THE LAST assistant message that carries any prose — not simply the last
+    message, because a turn can end on a tool result, and not the first, because
+    a multi-step turn's earlier assistant messages are working, not the answer.
+    This is preferred over the accumulated deltas when a terminal frame provides
+    it: it is the harness's own final state rather than a reassembly."""
+
+    if not isinstance(messages, (list, tuple)):
+        return ""
+    for message in reversed(list(messages)):
+        if not isinstance(message, Mapping):
+            continue
+        if message.get("role") != ROLE_ASSISTANT:
+            continue
+        text = _text_of_message(message)
+        if text:
+            return text
     return ""
+
+
+def _bounded_lines(stream):
+    """Yield complete lines, never reading more than `MAX_FRAME_BYTES` at once.
+
+    A line longer than the cap is DROPPED — its head and every continuation —
+    rather than assembled, so a harness that emits an unbounded run of bytes
+    with no newline cannot spend the serve's memory. `readline(size)` is the
+    stdlib primitive that makes this cheap: it returns at most `size` bytes and
+    a short read without a trailing newline is exactly the over-long case."""
+
+    limit = MAX_FRAME_BYTES + 1
+    dropping = False
+    while True:
+        chunk = stream.readline(limit)
+        if not chunk:
+            return
+        terminated = chunk.endswith(b"\n") if isinstance(chunk, bytes) \
+            else chunk.endswith("\n")
+        if dropping:
+            dropping = not terminated
+            continue
+        if not terminated and len(chunk) >= MAX_FRAME_BYTES:
+            dropping = True
+            continue
+        yield chunk
 
 
 def _spawn_child(argv: Sequence[str], environment: Mapping[str, str],
@@ -627,6 +884,21 @@ class OmpHarnessBridge:
 
     # -- PORT MEMBER 2 -----------------------------------------------------
 
+    @property
+    def _known_dead(self) -> bool:
+        """A child that WAS started and is no longer alive.
+
+        THE OTHER HALF OF LEG 1 (adversarial review P2-8). `_unavailable` used
+        to be set only where `Popen` itself raised or the bounded retry was
+        spent — so the commonest real failure, a child that spawns and then
+        exits (which is exactly what the `--setting` defect produced), left the
+        catalog advertising the model as available forever and pushed every
+        later turn onto leg 2. Liveness is consulted here so leg 1 engages for
+        the failure class it was written for."""
+
+        child = self._child
+        return child is not None and not child.alive
+
     def catalog(self) -> ModelCatalog:
         """The DECLARED catalog, with every entry marked unavailable once the
         bridge is known dead or unstartable (task 11.3).
@@ -645,7 +917,7 @@ class OmpHarnessBridge:
         model process it never uses. So before the first turn the declaration
         stands as written; after a failure it does not."""
 
-        if not self._unavailable:
+        if not (self._unavailable or self._known_dead):
             return self._declared_catalog
         return ModelCatalog.from_entries(
             dataclasses.replace(entry, available=False)
@@ -667,7 +939,7 @@ class OmpHarnessBridge:
         validator's business, not this adapter's: an adapter that parsed
         proposals would be doing response validation behind the seam."""
 
-        with self._lock:
+        with self._lock, self._marking_unavailable_on_death():
             child = self._ensure_child()
             deadline = self._clock() + self._timeout_seconds
             model_id = getattr(prompt_envelope, "model_id", None)
@@ -712,7 +984,7 @@ class OmpHarnessBridge:
         Returns the session path now bound to this thread, or `None` where the
         harness reported no session file."""
 
-        with self._lock:
+        with self._lock, self._marking_unavailable_on_death():
             if self._selected == thread_key:
                 return self._sessions.get(thread_key)
             child = self._ensure_child()
@@ -783,7 +1055,7 @@ class OmpHarnessBridge:
             raise BridgeError(
                 f"{mode!r} is not a shake mode this bridge invokes; the "
                 f"recorded modes are {SHAKE_MODES}")
-        with self._lock:
+        with self._lock, self._marking_unavailable_on_death():
             child = self._ensure_child()
             deadline = self._clock() + self._timeout_seconds
             answer = child.request(
@@ -849,6 +1121,18 @@ class OmpHarnessBridge:
     def available(self) -> bool:
         return not self._unavailable
 
+    @contextlib.contextmanager
+    def _marking_unavailable_on_death(self):
+        """Every public entry point runs inside this, so leg 1 of the
+        model-unavailable posture engages the moment a child dies — not only
+        when a spawn raises (adversarial review P2-8)."""
+
+        try:
+            yield
+        except BridgeUnavailable:
+            self._unavailable = True
+            raise
+
     def _ensure_child(self) -> HarnessChild:
         attempts = 0
         while True:
@@ -886,6 +1170,9 @@ class OmpHarnessBridge:
             # next `select_thread` re-binds explicitly rather than assuming.
             self._selected = None
         self._session_root.mkdir(parents=True, exist_ok=True)
+        # THE OVERLAY MUST EXIST WHENEVER THE ARGV NAMES IT: a `--config` file
+        # that is missing is a hard startup error, not a skipped option.
+        self._launch.write_overlay()
         child = HarnessChild(self._launch, spawn=self._spawn, log=self._log,
                              environment=self._environment)
         try:
@@ -904,13 +1191,40 @@ class OmpHarnessBridge:
         routing rule — the released catalog schema is a CLOSED seven-field entry
         — so the two are always equal and `routing_rule` is truthfully false
         everywhere; task 11.7 records the additive model-catalog release that
-        would change that, and this line is already written for it."""
+        would change that, and this line is already written for it.
+
+        THE PROVIDER ID IS THE INSTALL'S, NOT THE CATALOG ENTRY'S — corrected
+        2026-08-19 after the adversarial review's P1-5. This used to send
+        `entry.provider_class`, which is a GOVERNANCE data-handling
+        classification (`on-tenant`, `self_hosted`, …), not a harness provider
+        id. Live, every such `set_model` was refused:
+
+            >>> {"type":"set_model","provider":"self_hosted","modelId":"local-model"}
+                {"success":false,"error":"Model not found: self_hosted/local-model"}
+            >>> {"type":"set_model","provider":"local-proxy","modelId":"local-model"}
+                {"success":true,"data":{"id":"local-model",…}}
+
+        so no turn could ever have been dispatched.
+
+        JUDGEMENT CALL, FLAGGED: the harness provider id now lives on
+        `LaunchConfig.provider_id`, the bridge's INSTALL-SIDE declaration —
+        the same placement §10 chose for the retrieval backend, and for the same
+        reason: which provider an install talks to is an operator fact, and an
+        operator must be able to read it where the install is declared. It is
+        deliberately NOT on the catalog entry: that schema is a CLOSED
+        seven-field shape whose widening is task 11.7's future release, and
+        smuggling a harness-routing field into a governance record would be
+        exactly the conflation that caused this defect.
+
+        Undeclared, the `provider` key is OMITTED entirely, which lets the
+        harness resolve the model id by its own matching — the documented
+        `--model` behaviour — rather than being handed a label it must refuse."""
 
         entry = self._declared_catalog.entry_for(model_id)
         resolved = getattr(entry, "resolved_model_id", None) if entry else None
         frame = {"id": child.next_id("sm"), "type": CMD_SET_MODEL,
                  "modelId": str(resolved) if resolved else model_id}
-        provider = getattr(entry, "provider_class", None) if entry else None
+        provider = self._launch.provider_id
         if isinstance(provider, str) and provider:
             frame["provider"] = provider
         answer = child.request(frame, deadline=deadline, clock=self._clock)
