@@ -109,16 +109,20 @@ def _scan_lines(text: str):
     ruling, THIS FUNCTION was a live second Python line rule, disagreeing
     with `round_trip.py`'s split on any form-feed/U+2028/NEL heading
     fixture. Fixing it here does not make the corpus's "reduces the Python
-    side to one" claim true in general — `_template_gaps` in this same
-    module carries the identical unbounded-`splitlines()` pattern over the
-    same document text, independently, and remains unconverted (deliberately
-    out of this change's every-*header*-reader scope; see `tasks.md` §7 and
-    `doc_health.lines`'s module docstring). It is true for lifecycle-header
-    readers specifically, which is the claim this change makes. Line
-    NUMBERS are unaffected for every document this repository's baseline
-    measured (zero exotic separators across 1227 governed aggregation
-    files), since real-line and pseudo-line numbering agree wherever no
-    such separator appears.
+    side to one" claim true in general — TWO further unbounded
+    `str.splitlines()` scanners over document text carry the identical
+    pattern, independently, and remain unconverted (deliberately out of
+    this change's every-*header*-reader scope; see `tasks.md` §7 and
+    `doc_health.lines`'s module docstring): `_template_gaps` in this same
+    module, and `doc_health.ideation_routing._scan_lines` (finding F6, an
+    unconverted copy of this very function as it existed before this
+    change). The "reduces the Python side to one" claim is true for
+    lifecycle-header readers specifically, which is the claim this change
+    makes — not for every line-splitting rule in the corpus. Line NUMBERS
+    are unaffected for every document this repository's baseline measured
+    (zero exotic separators across 1227 governed aggregation files), since
+    real-line and pseudo-line numbering agree wherever no such separator
+    appears.
     """
     fenced = False
     for i, (line, _ending) in enumerate(split_keepends(text), start=1):

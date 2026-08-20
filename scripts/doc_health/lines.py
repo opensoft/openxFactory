@@ -44,12 +44,18 @@ unbounded `text.splitlines()` scan (`_scan_lines`); the `text.splitlines()
 `doc_health.inventory._header_value`,
 `doc_health.organizer_dispatch._header_value`,
 `ideation_dashboard.doxbench_packet.lifecycle_status`,
-`ideation_dashboard.authoring.missing_required_headers`, and
-`ideation_dashboard.generator._header_value`; and
+`ideation_dashboard.authoring.missing_required_headers`,
+`ideation_dashboard.generator._header_value`, and
+`doc_health.ideation_readiness._parse_header`; and
 `ideation_dashboard.completeness._Prepared.lines`, an assignment-then-slice
 variant of the same window idiom that a grep for the literal idiom's two
 tokens adjacent could not find (finding F4) — none of them agreeing with
-each other, or with this module's rule, on CR/LF/CRLF-only lines.
+each other, or with this module's rule, on CR/LF/CRLF-only lines. A further
+sweep (finding F5, a second focused re-verify) found the SAME divergence
+class reaching `_parse_header`'s standalone twin,
+`scripts/bootstrap-ideation-cross-reference.py`'s `parse_header` — a
+separate script, not a package, but able to import this module (verified,
+not assumed) since both live directly under `scripts/`.
 
 Brett's same-day ruling on `align-status-reader-to-real-lines` (in-session
 multiple choice, recommended option adopted, 2026-08-19) converts ALL
@@ -58,25 +64,37 @@ that header" governs over the change's initially narrower `code_surface:`
 enumeration, measured at zero baseline cost (1227 governed aggregation
 files, zero exotic separators, zero window differences, zero value
 changes). Every one of the readers named above now scans through THIS
-module.
+module — verified true by a corrected, wider sweep (bare `splitlines()`
+over document text, not just the `[:N]`-windowed idiom) each time a
+narrower sweep pattern let one through, not asserted once and left stale.
 
 NOT EVERY PYTHON LINE-SPLIT IN THIS CORPUS CONVERGED HERE, and this
-docstring does not claim it did: `doc_health.families._template_gaps` still
-carries two of its own unbounded `text.splitlines()` loops, demonstrably
-divergent from this rule on a form-feed fragment. It is deliberately outside
-this change's scope (see `tasks.md` §7) — it scans `## `/`### Q` TEMPLATE
-headings for conformance checking, never a lifecycle header, so the delta's
-every-*header*-reader clause does not reach it, and the measured baseline
-carries no document where the two rules diverge (0 of 1227). `web/views
-/outline-model.js` cannot import a Python module regardless, so between
-this module's readers and `_template_gaps`, the corpus holds ONE Python
-rule for lifecycle headers and, separately, still TWO Python rules (this
-module's and `_template_gaps`'s own) plus one JS rule for the narrower
-question of "where is a `##`/```` ``` ```` boundary" outside the header
-window — that divergence, where it is exercised at all, is held by an
-explicit agreement test rather than by convention (see
+docstring does not claim it did. Two further unbounded `text.splitlines()`
+scanners share this rule's divergence class but are deliberately outside
+this change's scope (recorded, with reasoning, in `tasks.md` §7): NEITHER
+is a lifecycle-header reader, so the delta's every-*header*-reader clause
+does not reach either, and the measured baseline carries no document where
+either diverges from a real-line reading (0 of 1227 files).
+`doc_health.families._template_gaps` scans `## `/`### Q` TEMPLATE headings
+for conformance checking; `doc_health.ideation_routing._scan_lines`
+(finding F6) is an unconverted byte-for-byte copy of
+`families._scan_lines` as it existed BEFORE this change, scanning for
+markdown provenance references and fence state.
+
+So, for the NARROWER question of "where is a `##`/```` ``` ```` boundary"
+(as opposed to "where is a lifecycle header", which this module answers
+once, for everyone) — a question this module does not itself answer, since
+it owns line-splitting, not heading or fence detection — the corpus holds
+THREE Python rules (this module's, shared by `round_trip.py` and
+`families._scan_lines`; `_template_gaps`'s own; `ideation_routing
+._scan_lines`'s own) and, inside `web/views/outline-model.js`, TWO JS rules
+(`outlineSections`'s LF-only `text.split("\n")` at outline-model.js:46;
+`endsInsideFence`/`insertSection`'s real-line regex
+`text.split(/\r\n|\r|\n/)` at outline-model.js:273/319 — finding F1). That
+divergence, where it is exercised at all, is held by an explicit agreement
+test rather than by convention (see
 `tests/ideation-dashboard/test_round_trip.py`). The naive ``` fence-toggle
-PREDICATE itself is a separate, narrower rule from either line-split (three
+PREDICATE itself is a separate, narrower rule from any line-split (three
 textually independent spellings — `round_trip.py`, `families.py`,
 `outline-model.js` — pinned by that same test module's
 `test_the_shared_predicate_is_spelled_the_same_in_all_three`) and is not

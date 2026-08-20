@@ -11,7 +11,12 @@ adopted) resolved it WIDE: the delta governs, the narrow front matter was the
 drafting error, and all six remaining pseudo-line readers convert in this
 same change. Section 2a below is that conversion. A FOCUSED RE-VERIFY of that
 realization found four further mechanical items (findings F1-F4; F4 falls
-under the already-ruled wide scope, no new ruling needed) — section 2b.
+under the already-ruled wide scope, no new ruling needed) — section 2b. A
+SECOND focused re-verify, running the sweep method `corpus.py`'s own comment
+now prescribes (bare `splitlines()` over document text, not just the
+`[:N]`-windowed idiom), found one more survivor (F5, also under the
+already-ruled wide scope) plus a mis-pointing docstring (F6) and confirmed
+the remaining hits are genuinely out of scope — section 2c.
 
 ## 1. The shared primitive
 
@@ -141,6 +146,94 @@ re-verify of round 2a's dispositions.
       corrected to scope the claim to `_scan_lines` itself, not the corpus).
       `_template_gaps` recorded in §7 Deferred below with the disposition.
 
+## 2c. Second focused re-verify (findings F5-F6, 2026-08-19)
+
+The reviewer ran the sweep method `corpus.py`'s own comment prescribes —
+`grep -rn "\.splitlines()"` over document-text scanners, not just the
+`[:N]`-windowed idiom the ORIGINAL sweep pattern targeted — and found one
+more true survivor plus a mis-pointing docstring. Zero baseline cost
+pre-measured on all of it (0 of 1227).
+
+- [x] 2c.1 (F5, IN SCOPE under the already-ruled wide scope) `doc_health
+      .ideation_readiness._parse_header` converts to
+      `doc_health.lines.split_keepends`. Reads `Status:`/`Topics:`/`Target
+      capabilities:` for `derive_clusters`, which is on a LIVE path
+      (`ideation_readiness_dispatch`, `readiness_dispatch.py`) reading the
+      SAME document `corpus.parse_status` reads. Demonstrated: an exotic
+      separator can embed a `Status:`-shaped substring mid-line inside a
+      DIFFERENT field's value (e.g. `Target capabilities: foo<FF>Status:
+      staged`) — the old pseudo-line scan split that into two lines and
+      extracted a false `Status: staged` field (clustering the document as
+      'staged'), while `corpus.parse_status`, reading real lines, correctly
+      finds no `Status:` header at all on the same document.
+- [x] 2c.2 `_parse_header`'s TWIN, `scripts/bootstrap-ideation-cross-
+      reference.py`'s `parse_header` (the two docstrings each declare
+      "identical to" the other), converts too: verified (not assumed) that
+      this standalone script CAN import `doc_health.lines` — both live
+      directly under `scripts/`, so Python's own `sys.path[0]` insertion
+      (the invoked script's containing directory) makes it reachable with
+      no extra path manipulation. A new agreement test
+      (`test_parse_header_agrees_with_the_bootstraps_own_parse_header`)
+      pins the two to match, including on the F5 exotic fixture, rather
+      than trusting the docstrings' claim.
+- [x] 2c.3 THE SWEEP ITSELF re-run and recorded, so F5 is the last survivor
+      found by this method, not the next one to be found by a future
+      review. Verified the reviewer's pre-classification of the remaining
+      `\.splitlines()` hits over document/config text, all genuinely out of
+      scope (none reads the SIX lifecycle header fields; none is a
+      `Status:`/`Kind:`/etc. reader):
+        - `report.py:36` — a PRIOR doc-health REPORT's own machine-generated
+          ranked-plan line syntax, not a governed document.
+        - `ideation_routing.py:191`, `nightly_lane.py:150,320` — `.gitmodules`
+          INI parsing and subprocess stdout/stderr, neither a governed
+          document.
+        - `neutrality_dispatch.py:465` — the domain-neutralization register's
+          own `### DTN-XXX:` section-heading convention, not the lifecycle
+          header block.
+        - `families.py` (record-immutability blob diff; register-lifecycle-
+          consistency's `| DTN-XXX | ... |` table rows) — whole-document line-
+          SET comparison and a table-row format, neither a header read.
+        - Every `validate-*.py` per-repo validator's own `splitlines()[0]`/
+          subprocess-output reads (spot-checked
+          `validate-capability-steward.py`) — each is that validator's OWN
+          contract (YAML fixture first-line conventions, subprocess output),
+          not the doc-health/document-lifecycle header contract; per-repo
+          validators are already documented as divergent
+          (root `CLAUDE.md` working rule 5).
+      DISPOSITION, `families._staged_exit_changes` (BORDERLINE — reads
+      governed-document text, shares the naive `splitlines()` idiom, but is
+      it a lifecycle-header reader?): RULED OUT OF SCOPE. It reads
+      `Proposed by:`/`Proposal:`/`Exit:`/`Exits via:` lines and an `## Exit`
+      BODY SECTION — none of the six `GOVERNANCE_HEADER_FIELDS`/
+      `REQUIRED_HEADER_FIELDS` the wide ruling's every-*header*-reader clause
+      names, and not read from a bounded header window at all (it scans the
+      WHOLE document for exit-criteria citations, a different governed
+      vocabulary serving a different check — "has this staged fragment
+      already been promoted"). Sharing the naive-`splitlines()` PATTERN is
+      not the same as being a reader of THAT header; not converted.
+- [x] 2c.4 (F6, recorded, not converted) `doc_health.ideation_routing
+      ._scan_lines` is an unconverted byte-for-byte copy of
+      `families._scan_lines` as it existed BEFORE this change, and its
+      docstring pointed at "families `_scan_lines` precedent" as if
+      following that pointer would land on matching (now-converted)
+      behavior — it would not. Docstring corrected so the pointer doesn't
+      mislead; added to §7 beside `_template_gaps` with the same disposition
+      shape: not a lifecycle-header reader (scans for markdown provenance
+      references and fence state), latent (0 of 1227 files diverge), found
+      by the corrected sweep.
+- [x] 2c.5 Four prose spots corrected that had gone stale or undercounted
+      again: `proposal.md`'s `code_surface:` "EVERY reader ... scans real
+      lines through it" (false until 2c.1 landed; true after — verified,
+      and `_parse_header`/the bootstrap twin added to the enumeration);
+      `doc_health/lines.py`'s module docstring (both the lifecycle-header
+      reader list and the "TWO Python rules ... plus one JS rule" count for
+      the narrower heading/fence-boundary question, corrected to THREE
+      Python rules — this module's shared one, `_template_gaps`,
+      `ideation_routing._scan_lines` — and TWO JS rules — `outlineSections`'s
+      LF-only split at outline-model.js:46 vs. `endsInsideFence`/
+      `insertSection`'s real-line regex at :273/:319, per finding F1);
+      `families.py`'s `_scan_lines` docstring (same undercount, same fix).
+
 ## 3. The writer stops carrying its own copy
 
 - [x] 3.1 `ideation_dashboard/round_trip.py` imports the primitive instead of
@@ -210,7 +303,11 @@ re-verify of round 2a's dispositions.
       2b: `completeness.py`/`generator.py`/`authoring.py` are not on the
       doc-health report's own path (they feed the ideation-dashboard
       generator, not the doc-health suite), but the gate is re-run anyway
-      rather than assumed unaffected.
+      rather than assumed unaffected. RE-RUN AGAIN after 2c: unlike 2b's
+      three, `ideation_readiness.py` (`_parse_header`, feeding
+      `derive_clusters`) IS on the doc-health report's own path (the
+      `ideation-readiness` finding family) — this run carries real
+      information, not a belt-and-braces re-check.
 
 ## 6. Bookkeeping
 
@@ -247,3 +344,26 @@ re-verify of round 2a's dispositions.
       document text, not the `splitlines()[:N]` windowed idiom the sweep's
       grep pattern targets. Left for its own change and its own baseline
       diff, same as 7.1 above — not a gate excuse, an honest scope boundary.
+- [ ] 7.3 `doc_health.ideation_routing._scan_lines` (finding F6, second
+      focused re-verify, 2026-08-19) — DEFERRED, same disposition shape as
+      7.2: an unconverted byte-for-byte copy of `families._scan_lines` as it
+      existed BEFORE this change (unbounded `text.splitlines()`, same naive
+      fence toggle), used for markdown provenance-reference scanning and
+      fence-state tracking — never a `Status:`/`Kind:`/etc. header read, so
+      it too sits outside the every-*header*-reader clause. Latent (0 of
+      1227 files diverge). Its docstring used to point at "families
+      `_scan_lines` precedent," which a reader could take as "matches the
+      converted behavior" — corrected to say plainly that it does not.
+- [ ] 7.4 `doc_health.families._staged_exit_changes` (BORDERLINE, second
+      focused re-verify, 2026-08-19; see §2c.3 for the fuller reasoning) —
+      RULED OUT OF SCOPE, not deferred as unbuilt work: it reads `Proposed
+      by:`/`Proposal:`/`Exit:`/`Exits via:` lines and an `## Exit` body
+      section for `fam_location_conformance`'s "staged material already
+      cites a proposal" check. None of those four fields is one of the six
+      `GOVERNANCE_HEADER_FIELDS`/`REQUIRED_HEADER_FIELDS` the wide ruling's
+      every-*header*-reader clause names, and the scan is unbounded over the
+      WHOLE document rather than a header window — a genuinely different
+      reading purpose (exit-criteria citation, not lifecycle-header
+      declaration) that happens to share the naive `splitlines()` idiom.
+      Recorded here rather than left silently unconverted, so the next
+      sweep does not have to re-derive this judgment.
