@@ -289,7 +289,17 @@ def _declared_origin_staging(folder: Path) -> str | None:
     path = origin.get("path")
     if not isinstance(path, str):
         return None
-    parts = [part for part in path.strip().split("/") if part not in ("", ".")]
+    # BACKSLASHES ARE TOLERATED ON THE WAY IN. The forward gate now records this
+    # path in POSIX form, but it used to record `str(Path.relative_to(...))`,
+    # which on a Windows checkout yields `ideation\staging\<topic>` — so a record
+    # written there resolved to nothing and the demote silently degraded to
+    # asking for `--staging-topic`. Records already on disk are not reachable by
+    # fixing the writer, so the reader normalizes rather than assuming its own
+    # spelling. (This does mean a POSIX directory whose name legally contains a
+    # backslash would be split; that is an absurd case traded for a real one, and
+    # the staged-origin id grammar does not admit it.)
+    normalized = path.strip().replace("\\", "/")
+    parts = [part for part in normalized.split("/") if part not in ("", ".")]
     if parts[:2] != ["ideation", "staging"] or len(parts) < 3:
         return None
     return parts[2]

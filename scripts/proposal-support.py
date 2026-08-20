@@ -262,7 +262,12 @@ def origin_errors(root: Path, directory: Path, *, strict: bool,
         if not opath:
             errors.append(f"{name}: staged origin lacks `path`")
         elif strict:
-            header = staging_header_id(root / str(opath))
+            # Same normalization as `generator._declared_origin_staging`, and for
+            # the same reason: a backslash-spelled path recorded on a Windows
+            # checkout joins to one nonexistent component here, so `is_dir()`
+            # fails and this coherence check SKIPS instead of running. A check
+            # that silently does not run is worse than one that fails.
+            header = staging_header_id(root / str(opath).replace("\\", "/"))
             if header is not None and header != oid:
                 errors.append(
                     f"{name}: staging folder {opath!r} exists but its "
@@ -583,8 +588,16 @@ def transition(root: Path, change: str, source_arg: str, requested: list[str],
     # the fallback for topics that predate the header convention.
     header_id = staging_header_id(source)
     origin_id = header_id or f"{root.name}:staging:{source.name}"
-    origin = {"kind": "staged", "id": origin_id,
-              "path": str(source.relative_to(root))}
+    # POSIX SPELLING, not `str(PurePath)`. The origin path is a MACHINE-READABLE
+    # RECORD other tools split on `/` — `generator._declared_origin_staging`
+    # resolves the demote's destination topic from it, and doc-health's
+    # `proposal-origin` family joins it to a repo root. `str()` on a Windows
+    # checkout yields `ideation\staging\<topic>`, so the record's spelling would
+    # depend on the operating system of whoever ran the gate, and every reader of
+    # it would silently stop resolving. The record format does not get to depend
+    # on the writer's OS.
+    origin_rel = source.relative_to(root).as_posix()
+    origin = {"kind": "staged", "id": origin_id, "path": origin_rel}
     existing_packet = load_packet(change_dir(root, change, archived))
     declared = (existing_packet or {}).get("origin")
     if isinstance(declared, dict):
@@ -600,7 +613,10 @@ def transition(root: Path, change: str, source_arg: str, requested: list[str],
         "format_version": 1,
         "notebook_workspace": workspace,
         "origin": origin,
-        "origin_path": str(source.relative_to(root)),
+        # The SAME value as `origin["path"]`, recorded a second time and read by
+        # doc-health's `proposal-origin` family. One spelling, from one source, so
+        # a manifest cannot contradict itself about the path it came from.
+        "origin_path": origin_rel,
         "remaining_paths": [str(path.relative_to(root)) for path in remaining],
         "source_revision": revision,
         "transitioned_at": transition_date,

@@ -494,16 +494,27 @@ def test_a_trailing_slash_on_the_declared_path_does_not_become_an_empty_topic(tm
     assert _origin_of(root) == "returned-topic"
 
 
-def test_a_nested_staging_source_resolves_to_the_topic_not_the_subfolder(tmp_path):
+@pytest.mark.parametrize("declared", [
+    "ideation/staging/returned-topic/openspec",
+    # BACKSLASH-SPELLED, as `str(Path.relative_to(...))` produces on a Windows
+    # checkout (Copilot, PR #221). The writer now records POSIX, but records
+    # already on disk are not reachable by fixing the writer, so the reader
+    # tolerates both spellings rather than assuming its own.
+    "ideation\\staging\\returned-topic\\openspec",
+    "ideation\\staging\\returned-topic",
+])
+def test_a_nested_staging_source_resolves_to_the_topic_not_the_subfolder(
+        tmp_path, declared):
     """`proposal-support.py transition` accepts ANY directory below
     `ideation/staging/` as its source, so a real declared origin can read
     `ideation/staging/<topic>/openspec`. A basename rule answers `openspec` — a
     topic nobody named, and one the demote would then silently plan every
-    returning file into. The topic is the first segment after the staging root."""
+    returning file into. The topic is the first segment after the staging root,
+    in either spelling of a separator."""
     root = _change_with_origin(tmp_path, (
         "origin:\n  kind: staged\n"
         "  id: fixture-repo:staging:returned-topic\n"
-        "  path: ideation/staging/returned-topic/openspec\n"))
+        f"  path: {declared}\n"))
     assert _origin_of(root) == "returned-topic"
 
 
