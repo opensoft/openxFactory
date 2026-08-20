@@ -1086,10 +1086,13 @@ untouched: mechanical, reversible, at the model boundary.
       argued for.
       **NOTED (adversarial review P3-21): the ban list cannot see the whole
       surface.** The PORT is three members and `FORBIDDEN_PORT_MEMBERS` polices
-      exactly those, but the ROUTE reaches four more names on the adapter
-      DUCK-TYPED — `select_thread`, `outline_conversation_key`, `mirror`,
-      `dereference` — and a duck-typed call is not a protocol member, so no
-      `__protocol_attrs__` equality can see them. That is not a D14 violation:
+      exactly those, but the ROUTE reaches five more names on the adapter
+      DUCK-TYPED — `conversation_key`, `outline_conversation_key`,
+      `for_conversation`, `mirror`, `dereference` — and a duck-typed call is not
+      a protocol member, so no `__protocol_attrs__` equality can see them.
+      (`select_thread` is NOT among them since PR #223's C2: the route asks for
+      a per-turn conversation view instead, and `select_thread` stays public for
+      the live smoke and for binding a builtin.) That is not a D14 violation:
       none is a second spelling of the provider verb, and every one is a
       capability D14 explicitly puts INSIDE the adapter rather than on the port.
       But it is a contract nothing else stated, so a test now declares that set

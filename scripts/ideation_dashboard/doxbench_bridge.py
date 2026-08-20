@@ -982,7 +982,12 @@ class OmpHarnessBridge:
         inside the same single lock acquisition. The view satisfies the
         three-member `WorkbenchModelPort` exactly, so `dispatch_turn` — which
         calls `port.dispatch(envelope)` and knows nothing of conversations —
-        needs no signature change and D14 is untouched."""
+        needs no signature change and D14 is untouched.
+
+        It accepts ANY non-empty string as a conversation: the injectivity that
+        keeps two scopes apart lives in `conversation_key`, the composer, not
+        here. A caller that composes its own key is trusted to have composed it
+        the same way — this checks only that a key was supplied at all."""
 
         if not isinstance(conversation, str) or not conversation:
             raise BridgeSessionConflict(
@@ -1108,40 +1113,39 @@ class OmpHarnessBridge:
         Split out so a dispatch can bind and prompt inside ONE lock
         acquisition (PR #223's Codex C2). `self._lock` is an `RLock`, so the
         public wrapper re-entering it is free."""
-        if True:
-            if self._selected == thread_key:
-                return self._sessions.get(thread_key)
+        if self._selected == thread_key:
+            return self._sessions.get(thread_key)
+        child = self._ensure_child()
+        deadline = self._clock() + self._timeout_seconds
+        recorded = self._sessions.get(thread_key)
+        if recorded is not None:
+            answer = child.request(
+                {"id": child.next_id("sw"), "type": CMD_SWITCH_SESSION,
+                 "sessionPath": recorded},
+                deadline=deadline, clock=self._clock)
+            if not answer.success:
+                raise BridgeProtocolError(
+                    "the harness refused to switch to this thread's own "
+                    "session")
+            self._selected = thread_key
+            return recorded
+        # A FRESH session for a thread nothing has opened one for.
+        if self._selected is not None:
+            self._restart_child()
             child = self._ensure_child()
             deadline = self._clock() + self._timeout_seconds
-            recorded = self._sessions.get(thread_key)
-            if recorded is not None:
-                answer = child.request(
-                    {"id": child.next_id("sw"), "type": CMD_SWITCH_SESSION,
-                     "sessionPath": recorded},
-                    deadline=deadline, clock=self._clock)
-                if not answer.success:
-                    raise BridgeProtocolError(
-                        "the harness refused to switch to this thread's own "
-                        "session")
-                self._selected = thread_key
-                return recorded
-            # A FRESH session for a thread nothing has opened one for.
-            if self._selected is not None:
-                self._restart_child()
-                child = self._ensure_child()
-                deadline = self._clock() + self._timeout_seconds
-            path = self._session_path(child, deadline=deadline)
-            if path is not None:
-                owner = next((key for key, value in self._sessions.items()
-                              if value == path), None)
-                if owner is not None and owner != thread_key:
-                    raise BridgeSessionConflict(
-                        "this harness session already serves another document "
-                        "thread; one session never serves two threads, because "
-                        "that is one document's context leaking into another's")
-                self._sessions[thread_key] = path
-            self._selected = thread_key
-            return path
+        path = self._session_path(child, deadline=deadline)
+        if path is not None:
+            owner = next((key for key, value in self._sessions.items()
+                          if value == path), None)
+            if owner is not None and owner != thread_key:
+                raise BridgeSessionConflict(
+                    "this harness session already serves another document "
+                    "thread; one session never serves two threads, because "
+                    "that is one document's context leaking into another's")
+            self._sessions[thread_key] = path
+        self._selected = thread_key
+        return path
 
     def register_knowledge_mount(self, manifest) -> tuple[Path, Path]:
         """Register the knowledge service's stdio MCP server for this tile,

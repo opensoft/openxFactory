@@ -1514,9 +1514,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         §11 to fill (`tasks.md` 10.3's "Thread read side, and what waits on
         §11").
 
-        Keyed by BUFFER KEY, which for a document buffer IS its path, so the
-        packet's selected-thread and thread-state sections name the same keys
-        the turn's buffers do."""
+        Keyed by BUFFER KEY, so the packet's selected-thread and thread-state
+        sections name the same keys the turn's buffers do. For every
+        PATH-BACKED document buffer that key IS its path, which is also what the
+        WRITE side keys by since PR #223's C3 — so a read and a write name one
+        file. The one buffer where they differ is the reserved unbacked slot
+        (key `document`, path None): the write side records no sidecar for it at
+        all, so the read is always an honest absence rather than a lookup under
+        a key nothing writes."""
         absent = self._thread_capability_absence()
         if absent is not None:
             return {}
