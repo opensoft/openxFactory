@@ -942,9 +942,20 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // forbids. A transport that is absent, refuses, or answers a shape this rail
   // does not recognise all reach the same place: the EMPTY transcript, which is
   // what a document with no readable thread honestly has.
+  // The generation of the LATEST thread switch. A thread read is asynchronous
+  // and two of them can be in flight, so the answer that arrives last is not
+  // necessarily the answer to the question asked last (PR #223, Codex C4 /
+  // Copilot CP2). Reproduced against the shipped module: select A, then B
+  // before A's GET returns, and A's slower answer replaced B's transcript with
+  // A's turns — which is also B's WIRE transcript, so B's next turn carried A's
+  // conversation as its context. A counter rather than a cancel because the
+  // transport is a plain fetch seam with no abort surface, and because the rule
+  // is about which ANSWER is current, not about which request is still running.
+  let threadGeneration = 0;
   async function switchThread(documentKey) {
     const load = options.loadThread;
     if (typeof load !== "function") return;
+    const generation = (threadGeneration += 1);
     let answer = null;
     try {
       answer = await load(documentKey);
@@ -952,6 +963,9 @@ export function mountDoxBenchChatRail(host, options = {}) {
       answer = null;
     }
     if (destroyed) return;
+    // A STALE ANSWER IS DROPPED, not adopted. Checked after the await, which is
+    // the only place the selection can have moved.
+    if (generation !== threadGeneration) return;
     const turns = answer && Array.isArray(answer.turns) ? answer.turns : [];
     adopt(adoptThreadTranscript(state, turns));
   }

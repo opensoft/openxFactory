@@ -349,6 +349,16 @@ NO_LIVE_SESSION_CAUSE = (
     "no branch session is open for this scope, so there is no session worktree "
     "for a thread to live in")
 
+# The FOURTH declared cause (PR #223, Copilot CP1). An unresolved actor used to
+# borrow the no-gate-capability cause, which is a true sentence about a
+# different situation — the plane HAS the capability, there is simply no
+# identified human to attribute a gate action to. Exactly the class this
+# slice's own P3-19 fixed for the no-live-session branch, missed one clause
+# over.
+NO_RESOLVED_ACTOR_CAUSE = (
+    "this console resolved no human actor, and a thread is one human's working "
+    "memory on a session branch — so there is nobody to attribute it to")
+
 _DOXBENCH_MSG_THREAD_CAPABILITY_UNAVAILABLE = (
     "threads exist only where branch sessions exist")
 
@@ -1408,11 +1418,19 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         an unresolved actor: a thread is a human's working memory on a session
         branch, and a session with no identified human is not one."""
         if not self.actor:
-            return doxbench_threads.NO_GATE_CAPABILITY_CAUSE
-        return doxbench_threads.thread_capability_absence(
-            plane=self._thread_plane(),
-            gate_capability=bool(
-                self.capabilities.get("actions", {}).get("session")))
+            return NO_RESOLVED_ACTOR_CAUSE
+        try:
+            doxbench_threads.require_thread_capability(
+                plane=self._thread_plane(),
+                gate_capability=bool(
+                    self.capabilities.get("actions", {}).get("session")))
+        except doxbench_threads.ThreadCapabilityAbsent as absent:
+            # `.cause` and NOT `str(absent)` (CP1). The exception's text is
+            # "<REASON> — <cause>", and the body carries the reason in its own
+            # `reason` field — so returning the string embedded the reason
+            # twice and made `cause` not a cause.
+            return absent.cause
+        return None
 
     def _session_worktree_for(self, key):
         """The SESSION WORKTREE this scope's threads live in, or None.
@@ -2533,6 +2551,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         outcome_code = DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE
         outcome_limit = None
         prompt_envelope = None
+        turn_port = None
         try:
             # ---- the PACKET, assembled BEFORE the prompt and before any
             # provider (§10.3). Its rails run inside the assembler: the
@@ -2698,15 +2717,27 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # switched to and contaminated that document's harness context. An
             # outline conversation is a real conversation; it just is not a
             # document's, so it binds under its own tile-scoped key.
+            # THE WHOLE SCOPE IS IN THE KEY (PR #223, Codex C1). The bare
+            # `bound_buffer_key` is a repository-relative path and nothing else,
+            # so two scopes loading the SAME path — one repository at two refs,
+            # or two repositories on a multi-repository plane — collided in the
+            # bridge's single per-serve session map and the second silently
+            # inherited the first's conversation.
             conversation_key = (
-                bound_buffer_key if bound_buffer_key in document_keys
-                else port.outline_conversation_key(key.tile_kind, key.tile_id)
-                if callable(getattr(port, "outline_conversation_key", None))
-                else None)
+                (port.conversation_key(key, bound_buffer_key)
+                 if bound_buffer_key in document_keys
+                 else port.outline_conversation_key(key))
+                if callable(getattr(port, "conversation_key", None)) else None)
             try:
                 if conversation_key is None:
-                    raise RuntimeError("this adapter declares no outline key")
-                port.select_thread(conversation_key)
+                    raise RuntimeError(
+                        "this adapter declares no conversation key")
+                # BOUND AS PART OF THE DISPATCH, not before it (Codex C2). The
+                # bind used to be a separate call, and under this threading
+                # server another handler could move the selection in between —
+                # sending this turn's prompt into that handler's session. The
+                # per-turn view binds and prompts inside ONE lock acquisition.
+                turn_port = port.for_conversation(conversation_key)
             except Exception:  # noqa: BLE001 - never let an adapter's text reach the wire
                 sys.stderr.write(
                     "[workbench/chat-turn] the harness bridge could not bind "
@@ -2715,6 +2746,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 prompt_envelope = None
                 outcome_code = DOXBENCH_ERR_MODEL_FAILED
 
+        # The conversation-bound view where the adapter offers one, the adapter
+        # itself otherwise (a catalog-only or sessionless adapter is unchanged).
+        turn_port = turn_port if turn_port is not None else port
         if prompt_envelope is not None and callable(getattr(port, "dispatch", None)):
             # T061: typed proposals validate against the hashes THIS request
             # was shown — wrong base is a response-side defect mapped to the
@@ -2755,7 +2789,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # abandoned daemon thread. dispatch_turn's own post-hoc elapsed
             # check stays as the pure verdict for adapters that DO return.
             outcome = self._deadline_bound_dispatch(
-                port, prompt_envelope, model_entry, _typed_response_validator)
+                turn_port, prompt_envelope, model_entry,
+                _typed_response_validator)
             if isinstance(outcome, doxbench_model.TurnDispatchSuccess):
                 # `assistant_turn_id` derivation is this slice's judgement
                 # call: the released schema bounds it (1..128) without naming
@@ -2777,9 +2812,26 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 # An OUTLINE-bound turn writes no thread: a thread belongs to a
                 # DOCUMENT, and the outline buffer is the tile's, not a
                 # document's.
-                if bound_buffer_key in document_keys:
+                # THE SIDECAR IS THE DOCUMENT'S, SO IT COMES FROM THE
+                # DOCUMENT'S PATH (PR #223, Codex C3). It used to be derived
+                # from the buffer KEY, and the two differ for exactly one
+                # buffer: the reserved unbacked slot, whose key is `document`
+                # and whose path is None. A turn on it wrote
+                # `session-threads/document.thread.md` — a sidecar for a
+                # document that does not exist, which no Save can ever commit
+                # (`thread_commit_paths` is called with the real path), and
+                # which a later re-key strands while a second thread starts at
+                # the document's own path.
+                #
+                # A buffer with NO path has no document, so it records no
+                # thread — the same rule the outline already follows. The buffer
+                # key stays in the turn's metadata, where it belongs.
+                bound_document = (
+                    turn_documents[bound_buffer_key].path
+                    if bound_buffer_key in document_keys else None)
+                if bound_document is not None:
                     self._mirror_turn_into_sidecar(
-                        key, document=bound_buffer_key,
+                        key, document=bound_document,
                         turn_id="assistant-" + digest[:56],
                         model_id=model_id, bound_buffer_key=bound_buffer_key,
                         human=message, assistant=outcome.assistant_prose,

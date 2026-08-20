@@ -292,10 +292,14 @@ SHAKE_MODE_ELIDE = "elide"
 SHAKE_MODE_IMAGES = "images"
 SHAKE_MODES: tuple[str, ...] = (SHAKE_MODE_ELIDE, SHAKE_MODE_IMAGES)
 
-# The conversation-key prefix an OUTLINE-bound turn binds under. A `/` is legal
-# in a document path but the prefix is not, so an outline key can never collide
-# with a document's own path key.
-OUTLINE_CONVERSATION_PREFIX = "outline::"
+# The buffer-key marker an OUTLINE-bound turn binds under. `outline` is already
+# the reserved outline buffer key, so this is the same name the rest of the
+# family uses for the same thing.
+OUTLINE_CONVERSATION_BUFFER = "outline"
+
+# The conversation key's discriminator, so a key is self-describing in a
+# refusal and can never be mistaken for anything else this module stores.
+CONVERSATION_KEY_KIND = "doxbench-conversation"
 
 # THE BUILTINS THIS BRIDGE INVOKES, and no others (re-verify N-2). An unlisted
 # slash command does NOT fail in the harness: it falls through to a real model
@@ -961,12 +965,41 @@ class OmpHarnessBridge:
         validator's business, not this adapter's: an adapter that parsed
         proposals would be doing response validation behind the seam."""
 
+        return self._dispatch_bound(None, prompt_envelope)
+
+    def for_conversation(self, conversation: str) -> "_ConversationPort":
+        """A per-turn view of this adapter, bound to ONE conversation.
+
+        THE FIX FOR A REAL RACE (PR #223's Codex C2). `select_thread` and
+        `dispatch` each took the bridge lock SEPARATELY, and this server is a
+        `ThreadingHTTPServer`: handler A could select A, handler B select B, and
+        then A's dispatch send A's prompt into B's session. Reproduced directly
+        — after an interleaved bind, `_selected` was the other handler's
+        conversation at A's dispatch time.
+
+        Binding is therefore no longer a call the route makes BEFORE dispatch
+        and hopes survives; it is part of the dispatch operation, performed
+        inside the same single lock acquisition. The view satisfies the
+        three-member `WorkbenchModelPort` exactly, so `dispatch_turn` — which
+        calls `port.dispatch(envelope)` and knows nothing of conversations —
+        needs no signature change and D14 is untouched."""
+
+        if not isinstance(conversation, str) or not conversation:
+            raise BridgeSessionConflict(
+                "a conversation view names the conversation it is bound to")
+        return _ConversationPort(self, conversation)
+
+    def _dispatch_bound(self, conversation: str | None,
+                        prompt_envelope: object) -> object:
         with self._lock, self._marking_unavailable_on_death():
-            # A TURN IS ALWAYS BOUND TO A CONVERSATION (P2-11), enforced here so
-            # a caller cannot reintroduce the leak by forgetting to bind: an
-            # unbound dispatch would run in whatever session the harness was
-            # last switched to, which is another conversation's.
-            if self._selected is None:
+            # A TURN IS ALWAYS BOUND TO A CONVERSATION (P2-11), and since C2 the
+            # bind happens HERE, under the same lock as the prompt — so no other
+            # handler can move the selection in between. An unbound dispatch is
+            # still refused outright: a caller that forgot would otherwise run
+            # in whichever session the harness was last switched to.
+            if conversation is not None:
+                self._select_thread_locked(conversation)
+            elif self._selected is None:
                 raise BridgeSessionConflict(
                     "no conversation is bound: a turn is dispatched into the "
                     "session of the document (or the tile outline) it belongs "
@@ -991,21 +1024,48 @@ class OmpHarnessBridge:
     # -- adapter surface (NOT port members) --------------------------------
 
     @staticmethod
-    def outline_conversation_key(tile_kind: str, tile_id: str) -> str:
+    def conversation_key(scope: object, buffer_key: str) -> str:
+        """The key ONE conversation binds its harness session under.
+
+        THE WHOLE SCOPE IS IN IT — corrected 2026-08-19 after PR #223's Codex
+        C1. This used to be the bare `bound_buffer_key`, i.e. a repository-
+        relative document path and nothing else, while `_sessions` is a single
+        per-serve dict. Two different scopes that load the SAME path — the same
+        repository at two refs (`main` and a session branch), or two
+        repositories in a multi-repository plane — therefore collided, and the
+        second tile SILENTLY REUSED the first tile's harness session and
+        inherited its conversation context. That is precisely the cross-context
+        leak 11.4 exists to forbid, arriving through the key rather than through
+        the switch. Reproduced: two `select_thread` calls with one path returned
+        one session file.
+
+        Composed as JSON rather than by joining with a separator, because a
+        separator has to be a character no component can contain and a document
+        path can legally contain almost anything a filename can. JSON escaping
+        makes the composition INJECTIVE by construction, so two different scopes
+        cannot produce one key however they are spelled. It is an internal dict
+        key and an error string, never a wire value."""
+
+        return json.dumps([
+            CONVERSATION_KEY_KIND,
+            str(getattr(scope, "repository", "")),
+            str(getattr(scope, "ref", "")),
+            str(getattr(scope, "tile_kind", "")),
+            str(getattr(scope, "tile_id", "")),
+            str(buffer_key),
+        ], ensure_ascii=False)
+
+    @classmethod
+    def outline_conversation_key(cls, scope: object) -> str:
         """The conversation key an OUTLINE-bound turn binds to.
 
         A turn bound to the tile's outline is not a document's conversation, but
         it is still A conversation, and it must not land in a DOCUMENT's harness
-        session — which is what happened before the adversarial review's P2-11:
-        the route only bound document turns, so an outline turn was prompted
-        into whichever document the harness was last switched to, and that
-        document's session `.jsonl` accumulated it. The document's next turn
-        then carried the outline conversation in the harness's own context.
+        session (P2-11). It is scoped exactly as a document's is — two
+        repositories' identically-named tiles are two outlines, which the old
+        tile-only key merged (C1)."""
 
-        Keyed by the TILE, not by the string `outline`, because two tiles' outlines
-        are two conversations and a bare `outline` would merge them."""
-
-        return f"{OUTLINE_CONVERSATION_PREFIX}{tile_kind}/{tile_id}"
+        return cls.conversation_key(scope, OUTLINE_CONVERSATION_BUFFER)
 
     def select_thread(self, thread_key: str) -> str | None:
         """Bind the harness to ONE conversation's session (task 11.4).
@@ -1040,6 +1100,15 @@ class OmpHarnessBridge:
         harness reported no session file."""
 
         with self._lock, self._marking_unavailable_on_death():
+            return self._select_thread_locked(thread_key)
+
+    def _select_thread_locked(self, thread_key: str) -> str | None:
+        """`select_thread`'s body, with the lock ALREADY held.
+
+        Split out so a dispatch can bind and prompt inside ONE lock
+        acquisition (PR #223's Codex C2). `self._lock` is an `RLock`, so the
+        public wrapper re-entering it is free."""
+        if True:
             if self._selected == thread_key:
                 return self._sessions.get(thread_key)
             child = self._ensure_child()
@@ -1466,6 +1535,31 @@ def _split_artifact_tokens(value: str) -> Iterable[str]:
             end += 1
         out.append(value[found:end])
         index = end
+
+
+class _ConversationPort:
+    """One turn's view of the bridge, bound to one conversation.
+
+    Exactly the three `WorkbenchModelPort` members and nothing else: the route
+    hands this to `dispatch_turn`, which cannot tell it from the adapter and
+    does not need to. Everything conversational happens on the far side of
+    `dispatch`, inside the bridge's own lock."""
+
+    __slots__ = ("_bridge", "_conversation")
+
+    def __init__(self, bridge: OmpHarnessBridge, conversation: str) -> None:
+        self._bridge = bridge
+        self._conversation = conversation
+
+    @property
+    def timeout_seconds(self) -> float:
+        return self._bridge.timeout_seconds
+
+    def catalog(self) -> ModelCatalog:
+        return self._bridge.catalog()
+
+    def dispatch(self, prompt_envelope: object) -> object:
+        return self._bridge._dispatch_bound(self._conversation, prompt_envelope)
 
 
 class HarnessThreadMirror:

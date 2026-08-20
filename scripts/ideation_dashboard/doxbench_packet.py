@@ -430,6 +430,7 @@ SECTION_SEPARATOR_BYTES = 2
 # The per-item section KEYS. Declared here, above the arithmetic that charges
 # for them and used by `expand_group`/`packet_sections` below — one literal
 # each.
+PACKET_SECTION_SELECTED_THREAD = "selected_thread"
 THREAD_STATE_SECTION_PREFIX = "thread_state:"
 EVIDENCE_SECTION_PREFIX = "evidence:"
 
@@ -470,7 +471,12 @@ def _widest_per_source_bytes() -> int:
         utf8_size(template.format(**filled))
         for template in (SELECTED_THREAD_PREAMBLE, THREAD_STATE_PREAMBLE,
                          EVIDENCE_PREAMBLE))
-    widest_key = max(utf8_size(THREAD_STATE_SECTION_PREFIX),
+    # EVERY section key a source can carry, not only the two prefixed ones
+    # (PR #223, Copilot CP3): the SELECTED thread's key is the fixed
+    # `selected_thread`, which is longer than `thread_state:` and was left out
+    # — so a selected-thread source undercounted its key bytes.
+    widest_key = max(utf8_size(PACKET_SECTION_SELECTED_THREAD),
+                     utf8_size(THREAD_STATE_SECTION_PREFIX),
                      utf8_size(EVIDENCE_SECTION_PREFIX))
     return (widest_section + SECTION_SEPARATOR_BYTES + widest_key
             + utf8_size(DECLARATION_LINE.format(**filled)) + 1)
@@ -1038,7 +1044,6 @@ def reduced_packet(
 # `document_buffers` does, and `expand_group` is the one place that expansion
 # is decided so the concrete keys and the rendered sections cannot disagree.
 PACKET_SECTION_DECLARATION = "context_packet"
-PACKET_SECTION_SELECTED_THREAD = "selected_thread"
 PACKET_SECTION_THREAD_STATES = "thread_state_headers"
 PACKET_SECTION_EVIDENCE = "evidence"
 
