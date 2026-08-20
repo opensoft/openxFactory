@@ -170,3 +170,25 @@ updated instead. The demote's boundedness stays exactly as ratified.
   `ideation/staging/tier2-council-clearance-pattern/openspec/` carries hand-added
   status headers on its `INDEX.md`, `tasks.md` and `design.md` — an operator
   working around exactly this.
+- **The obligation reaches the OUTLINE, and specifically its refresh-in-place
+  arm.** An earlier pass of this change declared the outline out of scope on the
+  grounds that its source always arrives carrying a header. That is true of the
+  snapshot the restore arm applies and FALSE of the live fragment the
+  refresh-in-place arm reads — a document the human owns, which never passed the
+  forward gate and so never had to acquire one. Demonstrated, not argued: a
+  header-less working outline demoted cleanly (`outline_refusal: None`), was
+  written back with no header, and left the topic one-way, the next whole-folder
+  transition refusing on the fragment itself. The outline's header value is
+  `staged`, not the `draft` returned change artifacts get, taken from the same
+  expression the restore arm uses; and because the add defers to an existing
+  header, a live fragment's own status is still never rewritten.
+- **The two gates now read the status header with ONE grammar.** The reverse
+  gate's reader (15-row window, fence-blind, prefix match) disagreed with the
+  forward gate's (whole document, fence-aware, strict) on **11 of the corpus's
+  1133 markdown documents**, in both directions: 10 that the forward gate refuses
+  were judged headed by the demote — 7 of them archived-change evidence artifacts
+  whose `Status: record · …` and `Status: record (in progress — …)` lines satisfy
+  a prefix test — and a real header below row 15 was invisible here, so a SECOND
+  one was inserted beside it. After the alignment the two readers disagree on **0
+  of 1133**. The strict grammar also stops `_flip_status` overwriting such a line,
+  which was silent data loss dressed as a status flip.
