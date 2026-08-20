@@ -13,6 +13,8 @@ The fragment's proposal-element sections — the sections wrapped in the ratifie
 
 **The snapshot is a fallback SOURCE, never the authority.** Where the destination fragment already exists and differs from the change folder's snapshot of it, the reverse transition MUST NOT replace the destination's bytes. The refresh SHALL apply INTO the existing fragment, bounded to the provenance slots and the marked proposal-element sections, leaving every other byte of that file unchanged; and the snapshot copy SHALL be preserved in the topic beside it under a non-colliding name and named in the transition's own record, so that nothing is discarded either. Only where no fragment exists at the destination SHALL the snapshot be restored first and then refreshed. No live human work is ever silently replaced by a demote.
 
+EXACTLY ONE addition is carved out of that byte bound, and it is not part of the refresh. Where the destination fragment carries no lifecycle status header at all, the reverse transition SHALL add one — the `staged` status the primary-fragment rule above already requires — and SHALL name that addition in its execution record. Without it the reverse transition leaves behind a fragment the forward transition refuses, making the cycle one-way for the very topic it has just returned material to; a live fragment can reach that state because it is the human's own working document and never had to pass the forward gate to acquire a header. It is an ADDITION and never a rewrite: a header the fragment already carries is the human's statement about their own document and MUST NOT be changed. No other byte outside the provenance slots and the marked proposal-element sections may be written.
+
 The refresh SHALL be idempotent: applying it twice with the same inputs SHALL produce the same bytes. It SHALL preserve the destination document's own line-ending flavor rather than translating it.
 
 #### Scenario: The state-at-demote slot carries progress beside the status
@@ -40,6 +42,12 @@ The refresh SHALL be idempotent: applying it twice with the same inputs SHALL pr
 - **THEN** the destination's bytes MUST NOT be replaced by the snapshot
 - **AND** the provenance slots and the marked proposal-element sections MUST be refreshed in place, leaving every other byte of that file unchanged
 - **AND** the snapshot MUST be preserved in the topic under a non-colliding name and named in the transition's record
+
+#### Scenario: The live fragment carries no lifecycle status header
+- **WHEN** a demote's primary-fragment destination exists, differs from the snapshot, and carries no lifecycle status header
+- **THEN** a `staged` header MUST be added and named in the execution record
+- **AND** every other byte outside the provenance slots and the marked proposal-element sections MUST still be unchanged
+- **AND** a header the fragment already carries MUST NOT be changed
 
 #### Scenario: The refresh runs twice
 - **WHEN** the reverse transition's fragment refresh is applied twice with the same inputs
