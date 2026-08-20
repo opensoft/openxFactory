@@ -367,3 +367,51 @@ pre-measured on all of it (0 of 1227).
       declaration) that happens to share the naive `splitlines()` idiom.
       Recorded here rather than left silently unconverted, so the next
       sweep does not have to re-derive this judgment.
+- [ ] 7.5 `scripts/proposal-support.py` (finding F7, third focused re-verify,
+      2026-08-19) — three unshared lifecycle-`Status:` rules AS OF THIS
+      BRANCH's base, demonstrated: a reader in `proposed_content` (:287,
+      `re.search(r"^Status:...$", text, re.M)` — LF-only, raises a hard
+      `SupportError` on a plain CR-only file), the writer beside it (:291,
+      the same LF-only `re.sub`), and `_declares_staged_status` (:505,
+      pseudo-line `str.splitlines()` plus its own fence toggle). RULED OUT
+      OF SCOPE FOR CONVERSION, not deferred as unbuilt work: the promoted
+      delta's requirement is titled "The deterministic pass reads a
+      document's lifecycle header by real lines" and its purpose clause is
+      about what THE PASS reports; `proposal-support.py` is a standalone
+      mover that reports nothing to the deterministic pass, so it never was
+      inside the requirement's own boundary — the earlier drafts' "EVERY
+      reader" phrasing in `code_surface:` overclaimed past that boundary,
+      now corrected there too. Distinguished from a broken twin on a second
+      ground: `:287`'s divergence from `corpus.parse_status` is 251-of-1227
+      files, its OWN PRE-EXISTING CONTRACT (single-token values, unbounded
+      by any 15-line window) rather than a regression this change's line
+      rule could cause — the LINE-rule divergence proper (what an exotic
+      separator does to line boundaries) is the same 0-of-1227 latent shape
+      as every other deferred item here.
+
+      THE SIBLING BRANCH LARGELY REALIZES THIS ALREADY. Fetched and read
+      `origin/change/refine-demote-round-trip-mechanics`'s version of
+      `scripts/proposal-support.py` (its own rewrite of exactly these
+      sites, not part of this change): it carries a fourth private
+      real-line/fence primitive (`_split_keepends`/`_fenced_flags`,
+      CR/LF/CRLF-only — the same "cannot import, so keep a local copy
+      joined by an agreement test" shape `doc_health.lines`'s own docstring
+      names for `web/views/outline-model.js`, applied here because this is
+      a standalone script a human may run against a checkout without the
+      dashboard package importable). The old LF-only `re.M` reader/writer
+      pair is GONE, replaced by a fence-aware, row-based `_status_row` +
+      `record_authorship` pair sharing that primitive; `_declares_staged_status`
+      was moved onto the same primitive too. `tests/ideation-dashboard
+      /test_round_trip.py` on that branch adds `proposal-support.py` as an
+      explicit "FOURTH implementation" to the shared-fixture fence
+      agreement test. ONE STALE SPOT SURVIVES even there:
+      `_declares_staged_status`'s docstring still reads "`doc_health
+      .families._scan_lines` already tracks fences for the same reason;
+      this mirrors it rather than inventing a second convention" — true in
+      spirit now that `families._scan_lines` is also real-line-based (this
+      change's own 2a.2), but the claim was written for fence-tracking, not
+      the real-line split, and it does not say which. FOLLOW-UP, not fixed
+      here or on the sibling: reword that one docstring line after BOTH
+      branches merge, whichever lands second — not on this branch, per an
+      explicit constraint: editing `scripts/proposal-support.py` here would
+      manufacture a merge conflict with work that already supersedes it.
