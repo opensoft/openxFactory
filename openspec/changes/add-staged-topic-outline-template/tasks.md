@@ -486,6 +486,17 @@ remains is the contract and the surface.
       "Findings By Family" body of the two reports is BYTE-IDENTICAL. This branch
       touches one change document, so that is the expected answer — asserted
       rather than assumed.
+      THE ENUMERATION IS PINNED TO A SHA, and says which, because the corpus
+      moves under a gate run. Everything above is measured at this branch's base
+      `0a4b63a`. `main` advanced to `a1c694b` (#226, "Stage
+      identity-brokering-plane + pki-trust-anchor-plane topics") while this gate
+      was running, and re-running the same enumeration there gives **31**
+      findings over 326 documents rather than 29 over 324: both new topics were
+      staged 2026-08-21, i.e. after ratification, and neither carries an idea-notes
+      or a conflicts heading, so each lands as a REQUIRED nudge. That is the
+      family behaving exactly as task 2.2 specifies on topics it has never seen —
+      recorded rather than smoothed over, so a later reader comparing counts
+      knows the difference is new corpus and not a regression here.
 - [x] 5.4 Live proof in a browser: open a conforming topic and a pre-template
       topic in the outline tab, add a section to the conforming one, confirm the
       commit lands through `edit-document` on the session branch.
