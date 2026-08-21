@@ -48,11 +48,11 @@ ratification, which it must precede (design D7).
 
 ## 3. Ratification gate
 
-- [ ] 3.1 Brett ratifies proposal, design, and both spec deltas, ruling
+- [x] 3.1 DONE 2026-08-21 — ratified with OQ1 and OQ2 ruled per their recommendations (see the proposal's Ratification section). Brett ratifies proposal, design, and both spec deltas, ruling
       OQ1 (issuance-evidence strictness for an authority we do not operate)
       and OQ2 (chain-custody tiers closed or open; whether operator escrow
       is a tier at all) — the two the staged topic flags as hardest.
-- [ ] 3.2 Record the rulings in `proposal.md` as a Ratification section and
+- [x] 3.2 DONE 2026-08-21. Record the rulings in `proposal.md` as a Ratification section and
       set the front-matter `Status:` to `ratified` with `Ratified by:`.
       Ratification authorizes exactly one Speckit contract feature and
       creates no authority, anchor, key, or runtime.

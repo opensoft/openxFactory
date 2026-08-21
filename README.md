@@ -280,7 +280,10 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-identity-brokering](openspec/changes/add-identity-brokering/proposal.md)
-  — authored 2026-08-21. The neutral identity-brokering capability (exit 1 of
+  — authored and **RATIFIED 2026-08-21** (recommendations adopted as written;
+  the OQ-5 co-residence gate discharged: HealthLinc patients found and
+  pre-declared the first dedicated-instance client — see the change's
+  review/ finding). The neutral identity-brokering capability (exit 1 of
   the `identity-brokering-plane` staged topic, from Brett's 2026-08-21
   rulings): one persona per human within a broker instance, organizations
   realizing company boundaries on the persona, the broker asserting identity
@@ -291,7 +294,9 @@ Active changes:
   `repo-boundary-governance` (avatar-client template; creation by successor
   `implement-keycloak-install-repo`). Sibling of `add-trust-anchor`.
 - [add-trust-anchor](openspec/changes/add-trust-anchor/proposal.md)
-  — authored 2026-08-21. The neutral trust-anchor capability (exit 1 of the
+  — authored and **RATIFIED 2026-08-21** (OQ1 and OQ2 ruled per their
+  recommendations: establish-obligation with a declared floor; closed
+  custody enumeration, escrow as a relationship not a tier). The neutral trust-anchor capability (exit 1 of the
   `pki-trust-anchor-plane` staged topic): anchors as governed records,
   issuance only under recorded authority with evidence obligations, declared
   chain custody deriving what a certificate evidences (composing with
