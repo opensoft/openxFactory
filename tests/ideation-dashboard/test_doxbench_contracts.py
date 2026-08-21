@@ -44,17 +44,24 @@ from ideation_dashboard import doxbench_contracts as contracts
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 
-# RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13). The chat-turn
-# digest moves because the release widens that file itself; the catalog's does
-# not. The REF carried an unresolved-until-published sentinel across the
-# realization branch — the policy publishes the annotated tag against the commit
-# that lands, so until then there was no release commit to name — and now names
-# that commit: `contract-v1.34^{}` == 5daa173, tag object 439d76b.
-RELEASED_REF = "5daa1731f24010356b044971328f8a7aa321994c"
-RELEASED_TAG = "contract-v1.34"
+# RE-PINNED at contract-v1.38 (add-doxbench-editing-phase-b §11.7). The MIRROR
+# IMAGE of the v1.34 repin: there the chat-turn digest moved and the catalog's
+# did not, because that release widened the chat-turn file; here the CATALOG
+# digest moves and the chat-turn's does not, because this release grows the
+# catalog entry with the routing-rule declaration.
+#
+# The REF is the unresolved-until-published sentinel again, on v1.34's own
+# precedent — the policy publishes the annotated tag against the commit that
+# LANDS, so across a realization branch there is no release commit to name and
+# the sentinel is spelled as a value no `stack.yaml` can declare, so a consumer
+# comparing against it refuses rather than matching by accident. A follow-up
+# commit resolves it, as 7c544c84 did for v1.34 (`contract-v1.34^{}` == 5daa173,
+# tag object 439d76b).
+RELEASED_REF = "unpublished:contract-v1.38"
+RELEASED_TAG = "contract-v1.38"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
-        "0e6e7e946268b220918a426c6df399a9e01d064ee5dcbe22f8381dbf39aef1e0",
+        "692dad330c5958720d9ba6ef8f6ce1a19dec715547a087e0b08ccd30a9aaa26d",
     CHAT_TURN_SCHEMA_FILE:
         "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
 }
@@ -776,10 +783,11 @@ def test_packaged_positives_validate_structurally(released_root):
     # 6 -> 7 at contract-v1.28: the release ADDS
     # workbench-chat-turn-outline-only.example.yaml, the instance proving a
     # null active_document_path is legal (G-1). 7 -> 9 at contract-v1.34, which
-    # adds the widened family's loaded-set request and its record. The exact
+    # adds the widened family's loaded-set request and its record. 9 -> 10 at
+    # contract-v1.38, which adds the `auto` ROUTING RULE instance. The exact
     # count IS the pin, so it advances with the release rather than being
     # loosened to an inequality.
-    assert len(positives) == 9, [p.name for p in positives]
+    assert len(positives) == 10, [p.name for p in positives]
 
     for path in positives:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))

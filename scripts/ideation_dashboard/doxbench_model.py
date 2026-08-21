@@ -9,7 +9,7 @@ This module owns exactly five things:
   ``workbench-model-catalog`` wire envelope (``catalog_wire_envelope``), added
   once the additive openxFactory schema was released and pinned at
   contract-v1.27 (``d09d5820de5b63b9528f6baea884a6dccde9b158``) and grown at
-  contract-v1.37 to carry a ROUTING RULE's declaration (task 11.7);
+  contract-v1.38 to carry a ROUTING RULE's declaration (task 11.7);
 * the pure byte-limit arithmetic a turn must apply before disclosure
   (``effective_limit_bytes``);
 * the narrow ``WorkbenchModelPort`` seam (research R6) plus its
@@ -84,7 +84,7 @@ PUBLIC_ENTRY_FIELDS: tuple[str, ...] = (
     "data_handling",
 )
 
-# The ROUTING-RULE declaration (contract-v1.37, add-doxbench-editing-phase-b
+# The ROUTING-RULE declaration (contract-v1.38, add-doxbench-editing-phase-b
 # task 11.7). Optional, and all three travel together: a routing entry declares
 # every one of them, a plain entry declares none. They are disclosed only by an
 # entry that IS a routing rule -- see ``ModelCatalogEntry.as_public_dict`` for
@@ -147,7 +147,7 @@ class DuplicateModelIdError(ModelCatalogError):
 
 class InvalidRoutingRuleError(ModelCatalogError):
     """A routing declaration is not consistent with the catalog it sits in
-    (contract-v1.37). ONE class for every CROSS-ENTRY routing refusal --
+    (contract-v1.38). ONE class for every CROSS-ENTRY routing refusal --
     a `routes_to` reference no entry answers to, a target that is itself a
     routing rule, an available rule resolving to an unavailable model, and a
     rule whose own ``data_handling`` does not carry a target's badge --
@@ -205,7 +205,7 @@ class ModelCatalogEntry:
     fixture using one value (like the contract example's on-tenant posture)
     does not make it the only legal one.
 
-    THE ROUTING DECLARATION (contract-v1.37, task 11.7). An entry may declare
+    THE ROUTING DECLARATION (contract-v1.38, task 11.7). An entry may declare
     itself a ROUTING RULE -- an `auto` entry this capability resolves to a
     model by role -- rather than a directly answering provider model. The
     three fields travel together and their DEFAULTS are the plain-model
@@ -252,7 +252,7 @@ class ModelCatalogEntry:
         self._validate_routing_declaration()
 
     def _validate_routing_declaration(self) -> None:
-        """The PER-ENTRY half of the contract-v1.37 routing rules, mirroring
+        """The PER-ENTRY half of the contract-v1.38 routing rules, mirroring
         the released schema's `dependentRequired` and its two conditionals.
 
         ``routes_to`` is materialized to a ``tuple`` the same way
@@ -345,7 +345,7 @@ class ModelCatalog:
     intention-revealing constructor of choice; it is a thin wrapper around
     the dataclass constructor, not the only safe entry point.
 
-    Since contract-v1.37 the same ``__post_init__`` also enforces the routing
+    Since contract-v1.38 the same ``__post_init__`` also enforces the routing
     rules that need MORE THAN ONE entry to see -- see
     ``_validate_routing_targets``. A catalog holding an inconsistent routing
     declaration refuses as a whole, exactly as a duplicated ``model_id``
@@ -374,7 +374,7 @@ class ModelCatalog:
     def _validate_routing_targets(
         entries: tuple[ModelCatalogEntry, ...],
     ) -> None:
-        """The CROSS-ENTRY half of the contract-v1.37 routing rules -- the four
+        """The CROSS-ENTRY half of the contract-v1.38 routing rules -- the four
         the released schema cannot express and the delegated validator
         (`scripts/validate-ideation-dashboard-contracts.py`) enforces on the
         wire. Both places enforce the same four; neither is the other's

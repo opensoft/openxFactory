@@ -17,7 +17,7 @@ description: >-
   authority (the id is revalidated on every turn). Instance kinds use the
   retained `workbench-*` identifier family (compatibility-migration checklist
   NOTES); the file name carries the manifest's `xfactory-` artifact prefix.
-  Since contract-v1.37 an entry MAY additionally declare itself a ROUTING
+  Since contract-v1.38 an entry MAY additionally declare itself a ROUTING
   RULE (`routing_rule`/`routes_to`/`resolved_model_id`, all optional and all
   three travelling together) — see `$defs/model_entry`. That growth changes
   nothing about the credential posture: a routing entry names only opaque
@@ -40,7 +40,7 @@ properties:
 $defs:
   model_entry:
     # The public allowlist, exactly: the SEVEN REQUIRED base fields
-    # (data-model.md Section 6) plus, since contract-v1.37, the THREE OPTIONAL
+    # (data-model.md Section 6) plus, since contract-v1.38, the THREE OPTIONAL
     # routing-declaration fields below. An entry that declares none of the
     # three is byte-for-byte the entry this schema has always accepted, which
     # is what makes the growth additive.
@@ -68,7 +68,7 @@ $defs:
       # carry — a rule whose union does not fit is a rule that must be split or
       # whose members' badges must be written more tightly.
       data_handling: { type: string, minLength: 1, maxLength: 500 }
-      # --- the routing-rule declaration (contract-v1.37, additive) ---
+      # --- the routing-rule declaration (contract-v1.38, additive) ---
       #
       # OPTIONAL, and all three travel together (see dependentRequired and the
       # two conditionals below). Present-and-true means this entry is a ROUTING
@@ -125,7 +125,7 @@ $defs:
       # BOTH conditionals constrain ONLY the three fields this release adds:
       # each `if` requires `routing_rule` to be PRESENT, so an entry that
       # declares no routing rule matches neither and is judged exactly as it
-      # was before contract-v1.37.
+      # was before contract-v1.38.
       - if:
           required: [routing_rule]
           properties:

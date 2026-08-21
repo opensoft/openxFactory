@@ -1,4 +1,4 @@
-# VALID (contract-v1.37): an `auto` ROUTING RULE beside the two approved models
+# VALID (contract-v1.38): an `auto` ROUTING RULE beside the two approved models
 # it may route to. Its own badge CARRIES BOTH of theirs verbatim (the ratified
 # "carry the handling badge of every model it may route to"), it resolves to one
 # of them, that one is available, and its declared limits are the NARROWEST of

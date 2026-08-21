@@ -44,7 +44,7 @@ ideation-dashboard/
 ├── workbench-model-catalog-local.example.yaml         # doxBench WIRE: local catalog entry
 ├── workbench-model-catalog-empty.example.yaml         # doxBench WIRE: the editor-only SUCCESS posture
 ├── workbench-model-catalog-hosted-zero-retention.example.yaml  # doxBench WIRE: hosted badge
-├── workbench-model-catalog-routing-rule.example.yaml  # doxBench WIRE: an `auto` ROUTING RULE (contract-v1.37)
+├── workbench-model-catalog-routing-rule.example.yaml  # doxBench WIRE: an `auto` ROUTING RULE (contract-v1.38)
 ├── workbench-chat-turn-unsaved-edits.example.yaml     # doxBench WIRE v1: dirty buffer as turn input
 ├── workbench-chat-turn-outline-only.example.yaml      # doxBench WIRE v1: null active_document_path (G-1)
 ├── workbench-chat-turn-prose-only.example.yaml        # doxBench WIRE v1: success, conversation only

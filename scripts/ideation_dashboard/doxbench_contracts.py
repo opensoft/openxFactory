@@ -86,8 +86,8 @@ from referencing.jsonschema import DRAFT202012
 # a runtime pinned to v1.31's digest cannot read v1.34's schema at all, which is
 # the check working, not a reason to relax it.
 #
-# THE REF IS RESOLVED: `contract-v1.34` is published (annotated tag object
-# 439d76b88044edbb22ccf677d57e76dd8a6da350) and this names the commit it
+# THE REF WAS RESOLVED at contract-v1.34: it was published (annotated tag object
+# 439d76b88044edbb22ccf677d57e76dd8a6da350) and the pin named the commit it
 # dereferences to, exactly as the v1.31 pin named its own. It carried the
 # `unpublished:contract-v1.34` sentinel across the realization branch, because
 # the versioning policy allocates the version and builds the digest inventory AT
@@ -95,9 +95,30 @@ from referencing.jsonschema import DRAFT202012
 # lands (step 5) -- so until that commit existed there was nothing honest to
 # name, and the sentinel was spelled as a value no `stack.yaml` can declare so a
 # consumer comparing against it REFUSED rather than matched by accident.
+#
+# Moved v1.34 -> v1.38 by `add-doxbench-editing-phase-b` §11.7. Not
+# digest-neutral, and could not be: the release grows
+# `xfactory-workbench-model-catalog.schema.yaml` itself with the routing-rule
+# declaration, so the CATALOG digest below is the grown file's and the
+# chat-turn's is unmoved -- the exact mirror image of the v1.34 repin. The repin
+# lands in the same change as the release for the same reason it did then: the
+# fail-closed chain is byte-exact, so a runtime pinned to v1.34's catalog digest
+# cannot read v1.38's schema at all. That is the check working.
+#
+# WHY v1.38 AND NOT v1.37: the version is allocated AT REALIZATION against
+# what is available, and `contract-v1.37` was taken while this slice was in
+# flight -- 6cbb4495 (PR #235, identity-brokering + trust-anchor) landed it on
+# main, its own squash message still saying v1.36. CHANGELOG presence is the
+# availability test, not tag presence, so v1.38 is the next available number.
+#
+# THE REF IS THE SENTINEL AGAIN, deliberately, and on the same precedent: the
+# tag is cut at the realization squash, so on this branch there is no release
+# commit to name and `unpublished:contract-v1.38` is the only honest value. A
+# follow-up commit resolves it to the published commit, exactly as 7c544c84 did
+# for v1.34 while ticking 13.3.
 
-CONTRACT_REF = "5daa1731f24010356b044971328f8a7aa321994c"
-CONTRACT_TAG = "contract-v1.34"
+CONTRACT_REF = "unpublished:contract-v1.38"
+CONTRACT_TAG = "contract-v1.38"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
@@ -105,7 +126,7 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # sha256 over each schema file's exact bytes at the release.
 SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
-        "0e6e7e946268b220918a426c6df399a9e01d064ee5dcbe22f8381dbf39aef1e0",
+        "692dad330c5958720d9ba6ef8f6ce1a19dec715547a087e0b08ccd30a9aaa26d",
     CHAT_TURN_SCHEMA_FILE:
         "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
 }

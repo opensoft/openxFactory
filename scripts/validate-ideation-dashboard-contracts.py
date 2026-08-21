@@ -773,7 +773,7 @@ def check_committed_manifests(f: Findings, repo: Path) -> None:
 #   Catalog   model_id uniqueness; a credential/endpoint SPELLING scan over
 #             every public string value (the schema already refuses extra
 #             fields structurally; this catches leakage THROUGH allowed ones);
-#             and since contract-v1.37 the ROUTING-RULE resolution rules —
+#             and since contract-v1.38 the ROUTING-RULE resolution rules —
 #             dangling target, chained rule, available-rule-to-unavailable-
 #             model, and the badge covering (see check_routing_rules).
 #   Request   exactly one outline + one document buffer; segment-wise path
@@ -844,7 +844,7 @@ def check_model_catalog(f: Findings, label: str, doc: dict) -> None:
 
 
 def check_routing_rules(f: Findings, label: str, entries: list[dict]) -> None:
-    """The contract-v1.37 routing declaration's CROSS-ENTRY rules — the four the
+    """The contract-v1.38 routing declaration's CROSS-ENTRY rules — the four the
     released shape cannot express (`$defs/model_entry` says so in its own
     comments, and delegates them here).
 

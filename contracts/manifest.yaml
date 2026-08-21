@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.37
+contract_bundle_version: contract-v1.38
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1552,18 +1552,28 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 0e6e7e946268b220918a426c6df399a9e01d064ee5dcbe22f8381dbf39aef1e0
+    sha256: 692dad330c5958720d9ba6ef8f6ce1a19dec715547a087e0b08ccd30a9aaa26d
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
       The doxBench approved-model catalog wire envelope
       (add-workbench-integrated-editor-chat 2.1): the GET
-      /workbench/model-catalog success body, public seven-field allowlist
-      only, structurally closed against credentials/endpoints/secret names.
-      An empty models array is the successful editor-only posture. Consumed
-      through the pinned openxFactory checkout at the contract-v1.27 tag;
-      per-file sha256 verified before any copy is treated as current.
-      Catalog rules the shape cannot express are enforced by
+      /workbench/model-catalog success body, public allowlist only,
+      structurally closed against credentials/endpoints/secret names. An
+      empty models array is the successful editor-only posture. The allowlist
+      is the SEVEN REQUIRED base fields plus, since contract-v1.38, the THREE
+      OPTIONAL routing-declaration fields — routing_rule, routes_to,
+      resolved_model_id — which travel together and are ABSENT from a plain
+      entry, so a consumer that reads only the seven stays correct against
+      every catalog it could already read. A consumer that offers an `auto`
+      entry MUST read all three: routing_rule says the entry is a rule rather
+      than a model, resolved_model_id is the model that ANSWERS (and is what
+      a turn record's model_id carries), and the entry's own data_handling
+      states the posture of every model in routes_to. Consumed through the
+      pinned openxFactory checkout at the contract-v1.38 tag; per-file sha256
+      verified before any copy is treated as current. Catalog rules the shape
+      cannot express — routing resolution, the badge covering, the
+      availability and headroom rules — are enforced by
       scripts/validate-ideation-dashboard-contracts.py (the family's
       delegated owner), never re-implemented by consumers.
   - id: xfactory-workbench-chat-turn
