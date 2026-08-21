@@ -705,11 +705,20 @@ def _declares_staged_status(text: str) -> bool:
     `doc_health.families._scan_lines` is the FENCE-TRACKING convention alone — a
     ``` line toggling whether the rows after it count as content — rather than
     inventing a second convention for that. The line split underneath it is a
-    separate rule, and a shared one: both count the three real endings below, but
-    this module cannot import the primitive, so the agreement is held by
+    separate rule, and a shared one: both count the three real endings below.
+    Keeping a local copy of that split is a DELIBERATE CHOICE here, not an
+    impossibility — importing `doc_health.lines` would work, as the sibling
+    standalone `bootstrap-ideation-cross-reference.py` does from any cwd on
+    Python's own `sys.path[0]` insertion, both files living directly under
+    `scripts/` beside the package. This mover keeps its own copy because
+    converting it was RULED out of scope (finding F7,
+    `align-status-reader-to-real-lines` tasks.md 7.5): the promoted requirement
+    governs how the DETERMINISTIC PASS reads a lifecycle header, and this is a
+    standalone mover that reports nothing to that pass. What makes the choice
+    safe is the agreement tests rather than this sentence —
     `test_the_mover_agrees_with_the_other_fence_implementations` and
-    `test_the_movers_line_split_is_the_three_real_endings_and_nothing_else`
-    rather than by this sentence.
+    `test_the_movers_line_split_is_the_three_real_endings_and_nothing_else` pin
+    the local copy to the shared rule.
 
     Split by this module's three-real-endings rule rather than
     `str.splitlines()`, which also breaks on \\x0b, \\x0c, \\x1c-\\x1e, \\x85,
