@@ -436,8 +436,14 @@ remains is the contract and the surface.
       that drops the git-dependent `record-immutability` family), directory named
       `openxFactory` so no family self-skips on a repository-name mismatch:
       `python3 scripts/doc-health.py --single-repo . --report-out …` → **exit 0**.
-      Headline: 324 documents examined, `3 critical, 8 error, 74 warning, 3 info`,
-      `New regressions vs previous report: 0`.
+      Headline: 324 documents examined (nonzero and the whole corpus, not a
+      truncated tree), `3 critical, 8 error, 74 warning, 3 info`.
+      THE "0 NEW REGRESSIONS" IS MEASURED, NOT INHERITED. A run with no
+      `--previous-report` prints `New regressions vs previous report: 0`
+      trivially, which is worth nothing, so the base (`0a4b63a`) was run FIRST on
+      its own clean-path clone and this branch's run was then diffed against that
+      report: `--previous-report <base report> --new-findings-out <file>` → exit
+      0 and the new-findings file is literally `[]`.
       THE FAMILY'S OWN FINDINGS ARE ALL 29 OF THE ONES THIS CHANGE ADDED, and
       they are enumerated because a count would hide the one that matters. All
       29 are `warning`, exactly as task 2.3 requires, and 28 of the 29 read
@@ -476,10 +482,10 @@ remains is the contract and the surface.
       stated reason: registering a family is a report-surface change belonging to
       `doc-health`, not a gate tick. Recorded so the next reader does not
       conclude from a silent report that the family found nothing.
-      NO REGRESSION ANYWHERE ELSE: the identical full run on this branch and on
-      its base (`0a4b63a`, both clean-path clones) produces byte-identical
-      "Findings By Family" output. This branch touches one change document, so
-      that is the expected answer — asserted rather than assumed.
+      NO REGRESSION ANYWHERE ELSE: beyond the empty new-findings list, the whole
+      "Findings By Family" body of the two reports is BYTE-IDENTICAL. This branch
+      touches one change document, so that is the expected answer — asserted
+      rather than assumed.
 - [x] 5.4 Live proof in a browser: open a conforming topic and a pre-template
       topic in the outline tab, add a section to the conforming one, confirm the
       commit lands through `edit-document` on the session branch.
