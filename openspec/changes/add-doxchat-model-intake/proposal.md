@@ -1,13 +1,25 @@
 ---
 code_surface: openxFactory (`scripts/ideation_dashboard/web/views/doxbench-chat.js` — the selector's option list gains a first intake affordance and the empty-catalog default selection, and the send-control refusal stays byte-identical; `scripts/ideation_dashboard/web/views/staging-workbench-model.js` — the `approvedModels === 0` rung keeps its sentence and gains the intake-offered fact, and the two `catalogFailure` rungs must NOT offer it; `scripts/ideation_dashboard/web/app.js` — the catalog transport gains no new call site, and any intake route it does gain is budgeted by the transport-pin suite; `scripts/ideation_dashboard/serve.py` — a pending-declaration surface and the approval gate action beside the existing `_workbench_model_port` seam, both under the reused `session` local-human verdict; `scripts/ideation_dashboard/doxbench_model.py` — a proposed-vs-approved distinction that does NOT widen the closed seven-field public catalog entry; `contracts/schemas/gate-action-record.schema.yaml` — one additive `action` enum member for the approval act plus its `allOf` conditional; and `tests/ideation-dashboard/` — the selector-order, default-selection, no-secret-anywhere and approval-gating assertions). The credential BROKER itself (openProfiler), its custody, its OAuth authorization flow, and the provider client that would use a minted token are `add-model-provider-broker`'s surface, NOT this change's.
 target_release: implementation_pending
-Status: draft
+Status: ratified
+Ratified: 2026-08-21 by Brett Heap — in-session, verbatim: "proposal approved", after the proposal landed on PR #236. The five Open Questions were NOT individually ruled at ratification: their recommendations stand as the proposal's recorded positions, and each still needs Brett's explicit ruling before the slice it affects is built (OQ-3 in particular decides whether the approval record carries `consent_ref`).
 Proposed: 2026-08-21
 Origin: Brett's browser annotation on the live doxbench chat rail, 2026-08-21, targeting `select.doxchat-model`
 Depends-on: add-model-provider-broker (the credential broker and the binding this flow writes into; that change is itself blocked on openProfiler, unbuilt)
 ---
 
 # Proposal: add-doxchat-model-intake
+
+> **APPROVED BUT NOT YET REALIZED.** This change has a non-empty code surface and
+> none of it is built: the selector still renders no intake affordance, no
+> pending-declaration surface or approval gate action exists beside
+> `_workbench_model_port`, and the gate-action `action` enum carries no approval
+> member. It is additionally sequenced behind `add-model-provider-broker` (itself
+> blocked on the unbuilt openProfiler) for everything credential-shaped, and its
+> Open Questions still need explicit rulings before their slices build. Under
+> `release-realization`'s archive gate it stays ACTIVE as approved intent until
+> its code merges with green realization evidence. Nothing here should be read
+> as shipped.
 
 ## Why
 
