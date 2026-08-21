@@ -1965,7 +1965,10 @@ export function mountStagingWorkbench(container, snapshot,
         // `scope.title` IS the resolution: `workbenchScope` derives one display
         // title per tile kind (a cluster's `name`, a possible's `title`, a
         // staged topic's `staging_id`), and no tile in the snapshot family
-        // carries a summary field for the requirement's other half to name.
+        // carries a field NAMED summary. The nearest summary-shaped field is
+        // `possible.claim` (a required one-line prose claim), deliberately not
+        // used: the title is the one field all three kinds share, and a
+        // disjunction is satisfied by either half.
         subjectDefault: scope.title,
         transports: { catalog: doxbench.catalog, chatTurn: doxbench.chatTurn },
         onState: (chatState) => {

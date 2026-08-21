@@ -58,9 +58,12 @@ function next(stateValue, patch) {
 // WHICH HALF OF "title or summary". The tile record carries a title and no
 // summary: the workbench scope resolves ONE display title per tile kind
 // (a cluster's `name`, a possible's `title`, a staged topic's `staging_id`) and
-// the snapshot family declares no summary field on any of the three. So the
-// caller hands down that one already-resolved title, and no second derivation
-// and no unreachable summary branch is invented here.
+// the snapshot family declares no field NAMED summary on any of the three (the
+// nearest summary-shaped field, `possible.claim`, is deliberately not used --
+// the title is the one field all three kinds share, and a disjunction is
+// satisfied by either half). So the caller hands down that one
+// already-resolved title, and no second derivation and no unreachable summary
+// branch is invented here.
 //
 // THE SEED OBEYS THE HUMAN EDIT'S OWN RULE, by going through it: `editSubject`
 // refuses a non-string or over-512-byte value by returning the state unchanged,
