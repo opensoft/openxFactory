@@ -183,9 +183,10 @@ def _dirty(repo) -> tuple[str, ...]:
 
 
 def test_the_returned_ref_is_the_branch_ref_that_was_pushed(tmp_path):
-    """"Returns the pushed ref" is the REF, and the response's `revision` is the
-    sha it points at — both, because a colleague needs the name to fetch and the
-    reviewer needs the sha to know what they got."""
+    """The requirement's phrase "returns the pushed ref" means the REF, and the
+    response's `revision` is the sha it points at — both, because a colleague
+    needs the name to fetch and the reviewer needs the sha to know what they
+    got."""
     repo, registry, created = _session_world(tmp_path)
     _write_thread(repo, created["path"])
     port = RealPush(_worktree(repo))
@@ -217,7 +218,20 @@ def test_a_share_never_reaches_a_forbidden_port_member(tmp_path):
 
 def test_the_forbidden_set_is_derived_from_the_port_not_restated():
     """A port that grows a fourth member must FAIL this, not silently widen the
-    verb — which is why the constant is derived rather than written out."""
+    verb — which is why the constant is derived rather than written out.
+
+    THE MEMBERSHIP ASSERTION IS LOAD-BEARING, and its absence was a real hole
+    (PR #234, Copilot). Both the constant and this test derive the forbidden set
+    the same way — `PORT_OPERATIONS` minus `push` — so if `push` ever left the
+    port, both sides would move together, the set-difference below would still
+    hold, and `push not in FORBIDDEN` would still hold because the whole port
+    would be forbidden. The invariant this test exists to guard would be dead
+    while the test stayed green. Reproduced by removing `push` from
+    `PORT_OPERATIONS`: the test passed. Asserting the ANTECEDENT is what makes
+    the derivation checkable."""
+    # the antecedent: the member the verb is allowed to reach must EXIST
+    assert "push" in session_pr.PORT_OPERATIONS
+    # the derivation: everything else on the port is forbidden to this verb
     assert set(gr.FORBIDDEN_SHARE_OPERATIONS) == (
         set(session_pr.PORT_OPERATIONS) - {"push"})
     assert "push" not in gr.FORBIDDEN_SHARE_OPERATIONS
