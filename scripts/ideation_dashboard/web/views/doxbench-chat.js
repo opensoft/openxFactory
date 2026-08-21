@@ -188,7 +188,8 @@ const SUBJECT_OVER_BOUND = Object.freeze({
 // no seeded value. So it says what it is, in its own two affordances.
 //
 // The PLACEHOLDER names the field and shows one, on the house `"<name> — e.g.
-// <value>"` idiom the create form and the canvas id field already use. It is an
+// <value>"` idiom the canvas id field already uses (the one prior instance of
+// that exact form in these views). It is an
 // affordance and not an accessible name — it disappears the moment the human
 // types, which is why the `aria-label` stays exactly as it was.
 //
