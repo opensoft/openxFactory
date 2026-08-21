@@ -73,7 +73,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [substantive-review-lane-questions](#substantive-review-lane-questions) | tracks `roles-authority-model` (MODIFIED by in-flight change `add-substantive-review-lane`, PR #178, draft) — no capability delta of its own | 1 | Registered 2026-08-15 — origin is Brett's direction to track the ad-hoc-authored proposal's five declared-open, not-decided questions (this topic is post-proposal tracking, NOT the proposal's origin; the proposal's own `.openspec.yaml` records `kind: ad_hoc`); six decided principles carried as settled context, not reopened; 5 open questions (rollout order, non-engineering persona home, company-policy-lead per-PR seating, per-repo ruleset shape, risk-tier taxonomy), none blocking the pilot; SEQUENCED after the doxBench UI sprint (Brett 2026-08-15) — after `doxbench-editing-model` Phase A, `staged-topic-outline-template`, and Phase B, so the review lane catches the workbench's steady state rather than blocking the sprint |
 | [staged-topic-outline-template](#staged-topic-outline-template) | MODIFIED `document-lifecycle` (the primary-fragment template contract: required sections, round-trip-on-demote refresh rule, section provenance, marker usage) and MODIFIED `ideation-dashboard` (the doxBench outline tab renders the template + gains an add-section affordance) | 1 | **PROPOSED 2026-08-15 as `add-staged-topic-outline-template`, RATIFIED the same day** (all 5 open questions accepted as recommended, closing the parallel decision track) — exited staging the same day, material moved to the change's `supporting-docs/` (see detail section below); Q4 corrected by Amendment 1 to `edit-document` (ratified text named `edit-apply`, the gate console's redline verb, which cannot reach a session branch). Sections 1-4 realized (contract text, doc-health's warning-tier nudge, the outline tab + tests) and bookkeeping 6.1-6.3 discharged (this row, the exit record, and the `doxbench-editing-model` Q4 handoff); task 5.4 (live browser proof) and gates 5.1-5.3 outstanding before archive |
 | [notebook-projection-identity](#notebook-projection-identity) | MODIFIED `lifecycle-notebook-projection` (declared hosting-account field + share-out roster) and MODIFIED `credential-contracts` (two-case account-custody rule: company service account normal case, personal hosting the other legitimate case) | 1 | Registered 2026-08-15 — origin is Brett hitting a live "request access" wall on the personal-Gmail-hosted NotebookLM projection, the same disease as the just-retired openXdox personal PAT; 6 claims settled (company account is the normal case, hosting is a declared install-time intake decision, personal hosting stays legitimate as the other case, company account shares out to users, company-policy Hermes monitors + approves share requests, and this mirrors the ratified openXdox dispatch two-case precedent); first fresh conformer of `staged-topic-outline-template` carrying LIVE `xspec:candidate` markers (verified against the checker: no rejection found, only `record`-status docs are excluded); 5 open questions (contract home, company-account type, share-roster reuse of `add-client-identity-roster`, monitor/approve mechanics with no share API, and opensoft's own migration sequencing), none blocking; SEQUENCED last of today's four topics (Brett 2026-08-15) — behind `doxbench-editing-model` (both phases), the template, and the review-lane topic — since Q3's share-roster reuse waits on the in-flight `add-client-identity-roster` proposal |
-| [doxbench-editing-model](#doxbench-editing-model) | MODIFIED `ideation-dashboard` (left-panel dynamic document tabs generalizing the outline/document buffer pair to N document buffers; chat-context binding to the active left-panel selection; docs-wheel tile edit verb + dirty-tile marker; right-panel Editor/Preview tab redesign with Save/Cancel) | 1 | Registered 2026-08-15 — origin is Brett's direction settling the general doxBench interaction model: left panel selects the working document (docs/lens/outline plus dynamic numbered tabs per open edit), center chat binds to whatever is selected, right panel shows the result via Editor/Preview tabs with Save/Cancel (replacing today's split md/preview layout); 26 claims settled (includes the ruled two-plane chat memory design, Claims 13-21, and its 2026-08-18 second-pass addendum settling memory-gateway conformance, the three-layer compression stack with shake v1, and Headroom watch-listed not adopted, Claims 22-26); verified live that `BUFFER_KINDS`, the turn-assembly buffer requirement, and the save order are all hard-coded to exactly outline+document today, so the N-buffer generalization is the load-bearing engineering question; 7 open questions (tab overflow, Save/Cancel semantics, dirty-tile storage, chat-binding rule, Editor/Preview default, concurrent-edit safety, and the chat memory system — ruled 2026-08-18), none blocking; sibling of `staged-topic-outline-template` Open question 4 (content-contract vs. interaction-model halves of the same AI-edit act); SEQUENCED first, in two phases (Brett 2026-08-15) — Phase A (chat-on-outline + Editor/Preview tabs + Save/Cancel on the existing two-buffer machinery) built before the other three topics, Phase B (N-buffer generalization) following `staged-topic-outline-template`'s ratification |
+| [doxbench-editing-model](#doxbench-editing-model) | MODIFIED `ideation-dashboard` (left-panel dynamic document tabs generalizing the outline/document buffer pair to N document buffers; chat-context binding to the active left-panel selection; docs-wheel tile edit verb + dirty-tile marker; right-panel Editor/Preview tab redesign with Save/Cancel) | 1 | Registered 2026-08-15 — origin is Brett's direction settling the general doxBench interaction model: left panel selects the working document (docs/lens/outline plus dynamic numbered tabs per open edit), center chat binds to whatever is selected, right panel shows the result via Editor/Preview tabs with Save/Cancel (replacing today's split md/preview layout); 26 claims settled (includes the ruled two-plane chat memory design, Claims 13-21, and its 2026-08-18 second-pass addendum settling memory-gateway conformance, the three-layer compression stack with shake v1, and Headroom watch-listed not adopted, Claims 22-26); verified live that `BUFFER_KINDS`, the turn-assembly buffer requirement, and the save order are all hard-coded to exactly outline+document today, so the N-buffer generalization is the load-bearing engineering question; 7 open questions (tab overflow, Save/Cancel semantics, dirty-tile storage, chat-binding rule, Editor/Preview default, concurrent-edit safety, and the chat memory system — ruled 2026-08-18), none blocking; sibling of `staged-topic-outline-template` Open question 4 (content-contract vs. interaction-model halves of the same AI-edit act); SEQUENCED first, in two phases (Brett 2026-08-15) — Phase A (chat-on-outline + Editor/Preview tabs + Save/Cancel on the existing two-buffer machinery) built before the other three topics, Phase B (N-buffer generalization) following `staged-topic-outline-template`'s ratification. **EXITED STAGING 2026-08-21** — both phases raised and realized; `add-doxbench-editing-phase-a` ARCHIVED 2026-08-21 and its spec text promoted, `add-doxbench-editing-phase-b` carried the whole remainder (§4–§11 + §13 realized across PRs #207/#210/#216/#223, `contract-v1.34`) and remains ACTIVE pending §12 share-session, which Brett ruled 2026-08-21 trails as its own slice. The fragment moved to Phase B's `supporting-docs/`; two items are PARKED, not adopted — see the detail section |
 
 ## hermes-stack-topology-per-client
 
@@ -1332,11 +1332,46 @@ repo scope.
   panel shows the live edit; the right panel becomes Editor/Preview TABS
   (not the current split md/preview) carrying Save and Cancel; and the
   general model is left-selects/chat-works/right-shows.
-- Files:
-  - [doxbench-editing-model.md](doxbench-editing-model/doxbench-editing-model.md)
-    — primary: 7 claims, live `xspec:candidate` Why/What changes/Impact
-    sections, 7 idea notes, 6 conflicts, 6 open questions each with
+- Files: **MOVED OUT OF STAGING 2026-08-21.** The topic exited via
+  `add-doxbench-editing-phase-b`, so `scripts/proposal-support.py transition`
+  moved its material into that change's `supporting-docs/` — status `staged` →
+  `draft`, `Proposed by:` recorded, a per-file sha256 manifest and a byte-exact
+  `source-snapshots/` copy, and the change's `.openspec.yaml` origin
+  declaration byte-identical before and after (checked, because an origin
+  mutated after ratification is rejected at the archive gate). The staging
+  folder is now empty by design; this row stays as the topic's index entry and
+  its exit record.
+  - [doxbench-editing-model.md](../../openspec/changes/add-doxbench-editing-phase-b/supporting-docs/doxbench-editing-model.md)
+    — primary: 26 claims, live `xspec:candidate` Why/What changes/Impact
+    sections, 7 idea notes, 6 conflicts, 7 open questions each with
     Context/Recommended answer/Explanation/Disposition status, exit.
+- **PARKED AT EXIT — two items this topic settled that are NOT adopted, and
+  where each one now lives.** A topic exit must neither silently adopt nor
+  silently drop what it carried, so both are named here with a location that
+  survives this row:
+  1. **Headroom is WATCH-LISTED, not adopted** (Claim 26, and the second-pass
+     addendum's Claims 22–26). It survives as EXECUTABLE DATA rather than as
+     prose: `scripts/ideation_dashboard/doxbench_packet.py`'s
+     `WATCH_LISTED_CANDIDATES` records the candidate with all five of the
+     topic's gates — the credential findings fixed and `SECURITY.md` truthful,
+     telemetry default-off in the OSS build, prompt-cache fidelity stable
+     across releases, a sandboxed trial showing net savings on doxBench's own
+     workload, and a caller-metadata hook without which the lifecycle-status
+     exemption could not live inside it — and its `WatchListedCandidate`
+     constructor RAISES on `adopted=True`, so the parked state cannot be
+     flipped by prose alone. Nothing in the capability depends on it. The
+     reasoning stays readable in the moved fragment above.
+  2. **The graph-engine GRADUATION TRIGGER is recorded, not fired** (Claims
+     13–21's two-plane design; v1 retrieval is graph-less by ruling). It
+     survives in `scripts/ideation_dashboard/doxbench_knowledge.py`:
+     `graph_query` is a DECLARED but reserved-unimplemented tool whose fixed
+     `RESERVED_REFUSAL` names the trigger a graph engine, store, or index would
+     have to clear — a recurring need for dependency traversal, contradiction
+     detection, or change-impact analysis — so a caller asking today gets a
+     governance answer rather than a missing name.
+  Neither is a Phase B task and neither blocks the landing; both are Brett's to
+  fire, and both are reachable from live code rather than from a retired
+  staging folder.
 - Verified live by reading the code in this session: `doxbench-state.js`'s
   `BUFFER_KINDS` is frozen to exactly `["outline", "document"]` and its
   state validator throws unless the buffer set is exactly those two keys;

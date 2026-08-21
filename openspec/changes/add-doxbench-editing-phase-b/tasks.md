@@ -1529,6 +1529,59 @@ untouched: mechanical, reversible, at the model boundary.
 - [ ] 12.6 (Scope call, recorded in the proposal) this slice MAY trail as a
       later realization slice; its CONTRACT does not.
 
+**§12 IS THE BLOCKING STATE FOR THIS CHANGE'S ARCHIVE — adjudicated 2026-08-21
+from the record, at the landing.** Brett ruled the same day that §12 trails; the
+landing round then had to answer whether this change can archive with §12
+recorded as a trailing successor. It cannot. The record says so three times over,
+and the reading is the honest one rather than the convenient one:
+
+1. **The gate is written over the WHOLE code surface.**
+   `release-realization`'s *Realization archive gate*: "A change with a
+   non-empty code surface SHALL NOT archive until realization evidence exists:
+   its code merged on the implemented target … **Until then the change remains
+   active as approved-but-unrealized intent**, preserving the invariant that
+   promoted specs describe what the code does." This change's `code_surface:`
+   names `session_pr.py`/`gate_routes.py` — "share-session reusing the port's
+   existing `push` member and opening no pull request" — and that code is not
+   written. Not "mostly merged": the gate has no proportion in it.
+2. **Archiving would promote a SHALL that the code does not do.** §12's delta
+   is an ADDED requirement, *"Share-session hands a live session to a
+   colleague"*, whose text is a page of SHALLs about a verb, a push identity, a
+   gate-action record and a hosted-plane absence. Promotion would put all of it
+   in `openspec/specs/ideation-dashboard/spec.md` as description of the built
+   system. That is exactly the invariant the gate names, violated directly.
+3. **The record supports a successor CHANGE, never a trailing promise inside an
+   archived one.** Searched for a mechanism and there is none: no promoted spec
+   defines a trailing-realization or successor-slice archive. What the corpus
+   does contain is the opposite pattern, stated repeatedly — "a tunable
+   configuration would be a **successor change**", "any future override would be
+   … defined by a **successor change**", "per-tile repository binding remains a
+   **successor change**". The sanctioned way to land nine-tenths and defer one is
+   to carve the tenth into its own change, not to archive the parent over it.
+   The `recurrence-crystallization` topic is the worked precedent for the
+   adjacent case (partial promotion, remainder left staged and named).
+
+**Mechanically the sanctioned path already refuses**, independently of the
+reading above: `scripts/proposal-support.py archive` raises "change has
+incomplete tasks" on any `- [ ]` in `tasks.md`, and 12.1–12.6, 11.7 and 13.8 are
+open. So archiving Phase B today would require going around the archive gate,
+which is the one thing the standing rule forbids.
+
+**Therefore: this change stays ACTIVE, and Phase B was NOT archived in the
+landing round.** Two exits exist and BOTH are Brett's call, not this round's:
+
+- **(a) Realize §12** as its own slice against this change, then 13.8 ticks and
+  the whole change archives — the shape 12.6 anticipated.
+- **(b) Carve §12 out** into its own successor change, narrow this change's
+  `code_surface:` to what shipped by a recorded ruling, move the share-session
+  delta with it, then this change archives and the successor carries its own
+  gate. Note this is a `code_surface` amendment after ratification, which is a
+  contested-class act and needs the disposition to say so.
+
+Whichever Brett picks, the next session starts here. Nothing else in the wave-2
+landing is blocked by it: Phase A is archived, the staged topic is exited, and
+the realization evidence for everything built is recorded in `proposal.md`.
+
 ## 13. The contract release, and landing
 
 - [x] 13.1 `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` gains a
@@ -1653,10 +1706,33 @@ untouched: mechanical, reversible, at the model boundary.
       reserved slot are REMOVED — not left unreachable. Proven through the REAL
       mount in `test_doxbench_composition.py`: load a document, select it, send,
       and read the declared binding and the whole loaded set off the wire.
-- [ ] 13.6 The staged topic is EXITED: every question dispositioned, the topic
+- [x] 13.6 The staged topic is EXITED: every question dispositioned, the topic
       folder's transition recorded, and the staging INDEX detail section updated
       to say Phase B carried the remainder.
-- [ ] 13.7 **Archive order:** `add-doxbench-editing-phase-a` must archive FIRST,
+      All SEVEN questions carry a disposition other than `open` (checked, not
+      assumed: `Disposition status: open` appears zero times in the fragment).
+      `scripts/proposal-support.py transition` moved
+      `ideation/staging/doxbench-editing-model/` into this change's
+      `supporting-docs/` on 2026-08-21 — status `staged` → `draft`,
+      `Proposed by:` recorded, per-file sha256 manifest plus a byte-exact
+      `source-snapshots/` copy — and the change's `.openspec.yaml` origin block
+      was diffed byte-for-byte before and after and is IDENTICAL, because an
+      origin mutated after ratification is rejected at the archive gate. The
+      staging folder is empty by design; the INDEX row and detail section stay
+      as the topic's index entry and its exit record, following the
+      `staged-topic-outline-template` precedent rather than deleting the row.
+      **THE TWO PARKED ITEMS ARE DISPOSITIONED, NOT SWEPT.** A topic exit must
+      neither silently adopt nor silently drop what it carried, and this one
+      carried two things Brett has not ruled on. Both are named in the INDEX
+      detail with a location that survives the exit, and both are LIVE CODE
+      rather than prose, so neither can be flipped by a document edit:
+      **Headroom** stays watch-listed in `doxbench_packet.WATCH_LISTED_CANDIDATES`
+      with all five of the topic's gates, and its `WatchListedCandidate`
+      constructor RAISES on `adopted=True`; the **graph-engine graduation
+      trigger** stays recorded in `doxbench_knowledge.RESERVED_REFUSAL`, where
+      `graph_query` is declared-but-reserved and names the trigger it would have
+      to clear. Neither is a task here and neither blocks the landing.
+- [x] 13.7 **Archive order:** `add-doxbench-editing-phase-a` must archive FIRST,
       or the three Phase-A-relative MODIFIED requirements have nothing to amend
       and the promoted spec would keep Phase A's F2 deferral clause with nothing
       discharging it (design §9). Verify Phase A's archive before archiving
@@ -1664,3 +1740,25 @@ untouched: mechanical, reversible, at the model boundary.
 - [ ] 13.8 Realization evidence for the archive gate: merged on the implemented
       target through the engineering gates, plus a green run of the runnable
       surface (`release-realization`'s realization archive gate).
+      **THE EVIDENCE FOR EVERYTHING REALIZED IS RECORDED** in the block at the
+      head of `proposal.md` (2026-08-21) so it does not have to be re-derived:
+      §4–§9 core at PR #207 / `a4a6f6e`, §13 at PR #210 / `5daa173` with the
+      published annotated tag `contract-v1.34` and its sentinel replacement at
+      `7c544c8`, §10 at PR #216 / `ece236a`, §11 at PR #223 / `7312c25`; green
+      on the implemented target at the landing tree — `tests/ideation-dashboard`
+      3699 passed / 15 skipped, `tests/ideation_dashboard` 63, `tests/doc-health`
+      691, `tests/proposal-support` 31, `openspec validate --all --strict` 0
+      failed, the contracts validator 0 errors / 4 by-design warnings, and the
+      §11 live harness smoke 8 passed against real `omp` v17.3.7 (skipped
+      cleanly without it).
+      **THE TASK STAYS OPEN, and the reason is the gate itself, not the
+      bookkeeping.** `release-realization`'s realization archive gate is written
+      over the change's WHOLE declared code surface — "its code merged on the
+      implemented target" — and this change's `code_surface:` names
+      `session_pr.py`/`gate_routes.py` — share-session reusing the port's
+      existing `push` member`, which §12 has not built. Recording evidence for
+      the realized nine-tenths does not make the gate's sentence true, and
+      ticking this would assert that it is. It ticks when §12 realizes, or when
+      §12 is carved out into its own change and this one's code surface is
+      narrowed accordingly by a recorded ruling — see the §12 adjudication
+      recorded against task 12.6.
