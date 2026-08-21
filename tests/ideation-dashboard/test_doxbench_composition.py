@@ -213,7 +213,7 @@ const out = {};
   const ctx = await mount({
     files: [OUTLINE_PATH, DOC_A, DOC_B, EARLY_A, EARLY_B] });
   await until(() => ctx.byClass('doxbench-textarea').length >= 2, 'the canvas');
-  await until(() => ctx.one('doxchat-header') !== null, 'the chat rail');
+  await until(() => ctx.one('doxchat-loaded') !== null, 'the chat rail');
   await quiesce(40);
   await chooseModel(ctx);
   out.f1 = {};
@@ -365,7 +365,7 @@ const out = {};
     value: selectNode.value,
     emptyHidden: emptyNode.hidden === true,
     emptyText: String(emptyNode.textContent || ''),
-    header: String((ctx.one('doxchat-header') || {}).textContent || ''),
+    headerAbsent: ctx.one('doxchat-header') === null,
   };
 }
 
@@ -642,7 +642,13 @@ def test_the_selector_empty_state_renders_on_the_state_the_canvas_produces(
     assert f6["emptyHidden"] is False
     assert "no document is loaded" in f6["emptyText"]
     assert "outline is workable on its own" in f6["emptyText"]
-    assert "0 loaded documents" in f6["header"]
+    # Brett's 2026-08-21 annotation removed the standing header line, so the
+    # count it used to claim is now carried by the empty state asserted just
+    # above — the same fact, on the surface that survived. Pinned as an ABSENCE
+    # rather than deleted, so a re-introduced header line fails here.
+    assert f6["headerAbsent"] is True, (
+        "the standing 'Working on — … · Chatting about — …' line is removed; "
+        "the selector and its empty state state the binding now")
 
 
 # ---------------------------------------------------------------------------

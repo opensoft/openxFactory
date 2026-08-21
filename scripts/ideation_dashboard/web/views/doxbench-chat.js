@@ -747,10 +747,15 @@ export function mountDoxBenchChatRail(host, options = {}) {
     return node;
   };
 
-  // T100 P1-C (operator ruling: dual-target stays, disclosure fixed): a
-  // persistent header names BOTH buffers a turn grounds on and a proposal
-  // may rewrite, updating as the active document changes.
-  const header = el("div", "doxchat-header");
+  // Brett's 2026-08-21 annotation on `div.doxchat-header` ("remove this
+  // section."): the standing "Working on — … · Chatting about — …" line is
+  // GONE. It restated what the selector immediately below it already shows, so
+  // the ruled redundancy is the line, not the selector. The binding
+  // requirement's "the chat surface MUST state that binding" stays discharged
+  // where a human actually reads and changes it: the selector's own SELECTED
+  // entry, plus the sr-only `doxchat-loaded-full` live region that names that
+  // entry in full for assistive technology. T100 P1-C's dual-target disclosure
+  // ruling is SUPERSEDED by this one rather than quietly dropped.
   // THE LOADED-DOCUMENT SELECTOR (Q1 ruled). A native scrolling select, so the
   // control IS the overflow policy (D6) and the surface introduces no second
   // spelling of selection: it is the same element idiom the approved-model
@@ -842,7 +847,7 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // view its harness has to grow to match.
   unavailableNote.id = "doxchat-unavailable-" + (railSequence += 1);
   sendBtn.setAttribute("aria-describedby", unavailableNote.id);
-  host.append(header, loadedSelect, unloadBtn, loadedNote, loadedEmpty,
+  host.append(loadedSelect, unloadBtn, loadedNote, loadedEmpty,
               loadedFull, subjectInput,
               unavailableNote, transcriptList,
               cardsHost, announce, failureNote, composer, disclosure, sendrow);
@@ -897,7 +902,6 @@ export function mountDoxBenchChatRail(host, options = {}) {
     if (typeof select === "function") await select(wanted);
     await switchThread(wanted);
     renderLoadedSelector();
-    renderHeader();
   });
 
   // The unload act: explicit, scoped to the selected document, and REFUSED while
@@ -929,7 +933,6 @@ export function mountDoxBenchChatRail(host, options = {}) {
       loadedNote.hidden = false;
     }
     renderLoadedSelector();
-    renderHeader();
   });
 
   function liveEditorState() {
@@ -1035,35 +1038,11 @@ export function mountDoxBenchChatRail(host, options = {}) {
       : "unload " + chosen.fullName + " from the loaded set";
   }
 
-  function renderHeader() {
-    const es = liveEditorState();
-    const nameOf = (b) => {
-      if (!b) return "(absent)";
-      if (b.path === null || b.path === undefined) return "(not yet created)";
-      return String(b.path).split("/").at(-1);
-    };
-    // add-doxbench-editing-phase-a: the chat's WORKING CONTEXT is the canvas's
-    // ACTIVE BUFFER — the one the context region selected — and it is read
-    // straight off the live editor state rather than tracked a second time
-    // here. Grounding is unchanged and still names EVERY buffer: binding says
-    // what the chat is working ON, never what it may see.
-    //
-    // add-doxbench-editing-phase-b: "every loaded document" is now a SET, so the
-    // header states the binding and the COUNT rather than enumerating two fixed
-    // names it no longer has. The enumeration lives in the selector beside it,
-    // which is where a human can also act on it.
-    const bound = es && es.buffers ? es.buffers[es.active_buffer] : null;
-    const boundName = bound ? nameOf(bound) : "(absent)";
-    const model = loadedSelectorModel(es);
-    const grounded = model.documentCount === 1
-      ? "1 loaded document"
-      : String(model.documentCount) + " loaded documents";
-    header.textContent = "Working on — " + boundName
-      + " · Chatting about — Outline: "
-      + nameOf(es && es.buffers ? es.buffers.outline : null)
-      + " · " + grounded;
-    renderLoadedSelector();
-  }
+  // (`renderHeader` went with the annotation above. It set the standing header
+  // line and then called `renderLoadedSelector`; with the line gone it was a
+  // one-line forwarder, and a forwarder to the render that already runs at
+  // every one of its call sites is a second name for one act. The three call
+  // sites now name that act directly.)
 
   // (The captured-node `restoreFocus` helper that used to live here went
   // with P3-7: the send path was its last caller, and it embodied exactly
@@ -1145,7 +1124,7 @@ export function mountDoxBenchChatRail(host, options = {}) {
   }
 
   function render() {
-    renderHeader();
+    renderLoadedSelector();
     subjectInput.value = state.workingSubject;
     composer.value = state.composer;
     selector.textContent = "";
