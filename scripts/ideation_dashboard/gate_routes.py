@@ -2109,11 +2109,19 @@ def execute_share_session(gate_factory, git, *, session, pull_requests,
             at=at, ref=plan.branch, notes=notes, provenance=provenance,
             artifacts=[{"kind": gate_console.ART_OTHER,
                         "reference": pushed_ref}])
-        gate_console.write_gate_action_record(human, records_dir, record)
+        record_path = gate_console.write_gate_action_record(
+            human, records_dir, record)
+        # Relative to the SERVED checkout, the root a main-resident record is
+        # read back from — `open-pr`'s response says the same thing the same way.
+        record_rel = str(Path(record_path).relative_to(root))
+    else:
+        # Relative to the WORKTREE, because that is where it rode its commit.
+        record_rel = commit.record_relpath
 
     return {"ok": True, "shared": True, "branch": plan.branch,
             "pushed_ref": pushed_ref, "revision": revision,
             "threads": list(plan.threads),
+            "record": record_rel,
             "record_resident": "branch" if commit is not None else "main",
             "promotion": SHARE_IS_NOT_PROMOTION}
 

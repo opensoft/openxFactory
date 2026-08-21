@@ -109,3 +109,26 @@ from session_fixtures import (  # noqa: E402,F401  (fixture registration)
     fake_pull_requests,
     scratch_repo,
 )
+
+
+# --------------------------------------------------------------------------
+# add-doxbench-editing-phase-b §12.2 — NOTHING PUSHES IMPLICITLY.
+#
+# ONE canonical list, because two copies of a negative drift apart silently and
+# the drift is invisible by construction: both copies keep passing. §11 asserted
+# the first four modules (the turn, the thread writer, the harness bridge, the
+# MCP server); §12 owns the list now and adds the three remaining places a
+# non-human write could originate — the turn assembler, the packet builder, and
+# the scheduled lane, which is the "periodic task" the requirement names.
+#
+# The SHARE verb deliberately appears nowhere here: it lives in `gate_routes.py`,
+# beside `open-pr`, which is the only other verb on this surface that writes to a
+# remote. That placement is what lets this list stay a pure absence.
+# --------------------------------------------------------------------------
+
+NO_IMPLICIT_PUSH_MODULES: tuple[str, ...] = (
+    "serve.py", "doxbench_threads.py", "doxbench_bridge.py", "doxbench_mcp.py",
+    "doxbench_turns.py", "doxbench_packet.py", "nightly_lane.py",
+)
+
+FORBIDDEN_PUSH_TOKENS: tuple[str, ...] = (".push(", "open_or_update(", "git push")
