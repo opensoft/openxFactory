@@ -426,7 +426,12 @@ class ProposalSupportTests(unittest.TestCase):
                 "  approved_by: fixture\n"
                 "  approved_on: '2026-07-09'\n"
             )
-            with self.assertRaises(support.SupportError):
+            # assertRaisesRegex, NOT a bare assertRaises (F4): the PRE-fix
+            # path also raised SupportError here — "supporting-docs folder not
+            # found" — so a bare assertion passed against the very code this
+            # test exists to pin, and proved nothing.
+            with self.assertRaisesRegex(
+                    support.SupportError, "final-import-complete"):
                 support.archive_change(
                     root, "change-c", "2026-07-09", True, True)
 
