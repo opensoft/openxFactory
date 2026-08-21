@@ -895,8 +895,37 @@ def archive_change(root: Path, change: str, packaged_at: str,
     subprocess.run(
         ["openspec", "validate", change, "--strict"], cwd=root, check=True
     )
-    package(root, change, packaged_at, archived=False,
-            final_import_complete=final_import_complete, apply=True)
+    # PACKAGING IS FOR A CHANGE THAT HAS SUPPORTING DOCUMENTS, and only for one.
+    # The promoted rule says so in its first clause — "An OpenSpec change WITH
+    # proposal supporting documents SHALL NOT archive until ... the supporting
+    # folder has been converted into a deterministic bundle" — and `verify`
+    # already reads it that way on both sides: it checks an active change's
+    # support only `if (directory / "supporting-docs").exists()`, and an
+    # archived one's bundle only when a manifest or bundle is present, falling
+    # through to the origin check alone otherwise.
+    #
+    # This wrapper did not, and called `package()` unconditionally, so a
+    # staged-origin change that legitimately never took its topic with it could
+    # not be archived through the sanctioned path at all — it died on
+    # "supporting-docs folder not found". Fifteen archived staged-origin changes
+    # already have exactly that shape (`add-workbench-branch-sessions`,
+    # `add-repository-lens`, `add-openxwallet`,
+    # `add-session-notebook-reconciliation`, …), so the shape is established,
+    # not novel; what was missing was the wrapper's ability to produce it, which
+    # pushed the operator toward a bare `openspec archive` and around this gate.
+    #
+    # Found while archiving `add-doxbench-editing-phase-a`, whose task 9.2
+    # deliberately KEPT the topic staged for Phase B.
+    if (directory / "supporting-docs").is_dir():
+        package(root, change, packaged_at, archived=False,
+                final_import_complete=final_import_complete, apply=True)
+    elif final_import_complete:
+        raise SupportError(
+            "--final-import-complete records a NotebookLM source import for a "
+            "support bundle, and this change has no supporting-docs folder")
+    else:
+        print(f"NO SUPPORTING DOCS {directory} (origin retained, nothing to "
+              "package)")
     command = ["openspec", "archive", change]
     if yes:
         command.append("--yes")

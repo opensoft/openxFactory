@@ -310,6 +310,126 @@ class ProposalSupportTests(unittest.TestCase):
             self.assertTrue((archived[0] / "supporting-docs.tar.gz").is_file())
             self.assertEqual(support.verify_archive(archived[0]), [])
 
+    def test_archive_wrapper_archives_a_change_that_has_no_supporting_docs(self):
+        """A staged-origin change that legitimately never took its topic with it
+        MUST still archive through the sanctioned wrapper.
+
+        The promoted rule scopes packaging to a change WITH supporting
+        documents, and `verify` reads it that way on both sides — but this
+        wrapper called `package()` unconditionally and died on
+        "supporting-docs folder not found", which is the one thing that pushes
+        an operator toward a bare `openspec archive` and around the gate.
+        Fifteen archived staged-origin changes already have this shape."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            subprocess.run(
+                ["openspec", "init", str(root), "--tools", "none"],
+                check=True, capture_output=True, text=True,
+            )
+            subprocess.run(
+                ["openspec", "new", "change", "change-b"], cwd=root,
+                check=True, capture_output=True, text=True,
+            )
+            change = root / "openspec/changes/change-b"
+            (change / "proposal.md").write_text(
+                "## Why\n\nTest archive without support.\n\n"
+                "## What Changes\n\n- Add test capability.\n\n"
+                "## Capabilities\n\n### New Capabilities\n\n"
+                "- `test-capability`: test\n\n"
+                "### Modified Capabilities\n\n- None.\n\n"
+                "## Impact\n\n- Tests only.\n"
+            )
+            spec_dir = change / "specs/test-capability"
+            spec_dir.mkdir(parents=True)
+            (spec_dir / "spec.md").write_text(
+                "## ADDED Requirements\n\n"
+                "### Requirement: Bundleless archive fixture\n"
+                "The fixture SHALL archive without a bundle.\n\n"
+                "#### Scenario: Archive\n"
+                "- **WHEN** the change archives\n"
+                "- **THEN** the fixture MUST remain\n"
+            )
+            (change / "tasks.md").write_text(
+                "## 1. Test\n\n- [x] 1.1 Complete fixture\n"
+            )
+            # a STAGED origin, exactly as a topic-derived change carries — and
+            # NO supporting-docs folder, exactly as one that left its topic
+            # staged for a successor carries.
+            (change / ".openspec.yaml").write_text(
+                "schema: spec-driven\n"
+                "created: 2026-07-09\n"
+                "origin:\n"
+                "  kind: staged\n"
+                "  id: fixture:staging:topic-b\n"
+                "  path: ideation/staging/topic-b\n"
+                "  reason: the topic stays staged for a successor change\n"
+                "  approved_by: fixture\n"
+                "  approved_on: '2026-07-09'\n"
+            )
+            self.assertFalse((change / "supporting-docs").exists())
+
+            support.archive_change(root, "change-b", "2026-07-09", False, True)
+
+            archived = list((root / "openspec/changes/archive").glob(
+                "????-??-??-change-b"
+            ))
+            self.assertEqual(len(archived), 1)
+            # nothing was invented to satisfy the packager
+            self.assertFalse((archived[0] / "supporting-docs.tar.gz").exists())
+            self.assertFalse(
+                (archived[0] / "supporting-docs.manifest.yaml").exists())
+            # …and the origin still verifies on the archived side
+            self.assertEqual(support.verify(root, "change-b"), [])
+
+    def test_final_import_complete_without_a_bundle_is_refused(self):
+        """`--final-import-complete` records a NotebookLM import for a support
+        bundle. With no bundle it records nothing, so it is refused rather than
+        silently ignored."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            subprocess.run(
+                ["openspec", "init", str(root), "--tools", "none"],
+                check=True, capture_output=True, text=True,
+            )
+            subprocess.run(
+                ["openspec", "new", "change", "change-c"], cwd=root,
+                check=True, capture_output=True, text=True,
+            )
+            change = root / "openspec/changes/change-c"
+            (change / "proposal.md").write_text(
+                "## Why\n\nTest.\n\n## What Changes\n\n- Add.\n\n"
+                "## Capabilities\n\n### New Capabilities\n\n"
+                "- `test-capability`: test\n\n"
+                "### Modified Capabilities\n\n- None.\n\n"
+                "## Impact\n\n- Tests only.\n"
+            )
+            spec_dir = change / "specs/test-capability"
+            spec_dir.mkdir(parents=True)
+            (spec_dir / "spec.md").write_text(
+                "## ADDED Requirements\n\n"
+                "### Requirement: Fixture\n"
+                "The fixture SHALL exist.\n\n"
+                "#### Scenario: Archive\n"
+                "- **WHEN** it archives\n"
+                "- **THEN** it MUST remain\n"
+            )
+            (change / "tasks.md").write_text(
+                "## 1. Test\n\n- [x] 1.1 Done\n"
+            )
+            (change / ".openspec.yaml").write_text(
+                "schema: spec-driven\n"
+                "created: 2026-07-09\n"
+                "origin:\n"
+                "  kind: ad_hoc\n"
+                "  id: fixture:adhoc:2026-07-09-change-c\n"
+                "  reason: fixture\n"
+                "  approved_by: fixture\n"
+                "  approved_on: '2026-07-09'\n"
+            )
+            with self.assertRaises(support.SupportError):
+                support.archive_change(
+                    root, "change-c", "2026-07-09", True, True)
+
     def test_a_status_line_inside_a_code_fence_is_an_example_not_the_status(self):
         """REGRESSION, 2026-08-15. The first fragment this mover ever moved
         carried a copy-pasteable template skeleton whose fenced example header
