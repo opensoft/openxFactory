@@ -1,6 +1,6 @@
 # Keycloak Identity Brokering and the Single Persona — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Proposes self-hosted Keycloak as the family's identity broker — users log in with whatever upstream IdP their organization chooses (GitHub, Google, Entra ID, any OIDC/SAML), federated identities link/merge into ONE persistent persona per human, and organization membership (a user working at multiple companies or repo orgs) is modeled on the persona rather than fragmenting it — replacing the dashboard's htpasswd Basic Auth first and satisfying the gate console's authenticated-principal hardening prerequisite.
 Topics: identity-brokering, keycloak, user-management, single-persona, sso, ideation-dashboard, roles-authority-model, credential-contracts
@@ -10,6 +10,11 @@ Origin: Brett, 2026-07-14, after the ideation-dashboard deployment shipped
 with single-user htpasswd Basic Auth and the question "how do we manage
 users?" — and the final review's accepted risks named authenticated actor
 identity as the prerequisite for any write-enabled host phase.
+Organized: 2026-08-21 into the
+[identity-brokering-plane staged topic](../staging/identity-brokering-plane/identity-brokering-plane.md)
+and the sibling
+[pki-trust-anchor-plane staged topic](../staging/pki-trust-anchor-plane/pki-trust-anchor-plane.md)
+(both staged); kept as design history. See "Exit executed" below.
 
 Brainstorm — contradiction and half-formed options are legal here.
 
@@ -134,3 +139,64 @@ first (smallest, immediate payoff), persona/linking contract second
 (neutral, openxFactory-owned), gate-principal binding third. Coordinate
 with the OpsxFactory identity ownership question and the
 realm-integration topic in codexFactory staging.
+
+## Exit executed — 2026-08-21
+
+All three blockers this exit clause named were ruled by Brett Heap in the
+xFactory family session on 2026-08-21, so the split was executed the same
+day:
+
+- **Realm topology** → single realm per environment plus Keycloak
+  Organizations for companies (both tenant and subject/served), each able
+  to federate its own IdP with domain-routed login. The broker MUST NOT
+  mirror the tenancy graph — it asserts persona plus organization
+  memberships only, and authorization resolves in the governed layer
+  against the Hermes graph and grants. Isolation escalates by broker
+  INSTANCE (a per-client install) and never by realm split; the neutral
+  contract stays silent on instance count.
+- **Merge safety** → explicit account linking plus an admin-approved merge
+  queue. Never silent email-match auto-link. (This was the brainstorm's
+  own leaning; it is now the ruling.)
+- **Ownership split** → the github-administration precedent: openxFactory
+  owns the neutral contracts, OpsxFactory owns the administration
+  workflows as siblings of `exchange-administration` /
+  `aks-administration-workflow` / `github-administration-workflow` /
+  `business-central-administration`, and new install repos own the
+  deployable runtime (`opensoft/xFactory-Keycloak-Install` at
+  `installs/keycloak-install`, `opensoft/xFactory-OpenXPKI-Install` at
+  `installs/openxpki-install`, per-client instantiation as
+  `config/clients/<tenant>/runtime-manifest.yaml` on the hermes-install
+  precedent).
+
+Also ruled, beyond what this brainstorm asked: services and workloads are
+**not** realm users — workload identity stays on `credential-contracts`
+plus `openxwallet` grants, with broker clients provisioned only where
+something genuinely needs an OIDC token.
+
+The successors:
+
+- [identity-brokering-plane](../staging/identity-brokering-plane/identity-brokering-plane.md)
+  (`openxFactory:staging:identity-brokering-plane`) — the persona/claims
+  side, carrying the rulings above and the integration path (dashboard
+  oauth2-proxy swap, gate `actor_subject` binding, editor login, then the
+  later candidates this doc listed).
+- [pki-trust-anchor-plane](../staging/pki-trust-anchor-plane/pki-trust-anchor-plane.md)
+  (`openxFactory:staging:pki-trust-anchor-plane`) — the PKI side, which
+  this brainstorm did not anticipate: two realizations (a live Intune
+  Cloud PKI canary and OpenXPKI for the production core) force one
+  product-agnostic trust-anchor contract.
+- `OpsxFactory:staging:identity-pki-administration` — the governed
+  administration workflows for both planes, plus the new service-subject
+  kinds registered in lockstep.
+- `OpsxFactory:staging:engagement-shapes` — the engagement questions
+  raised by per-client broker and CA instances.
+
+The open questions this doc left unresolved were carried forward rather
+than answered: the durable subject id stored in governed records, the
+exact `actor_subject` field shape, login-only versus authorization gating
+at v1, `hermes-readiness` bearer-token adoption, and a pre-ratification
+check for any user population that must not co-reside in the shared
+realm. Credential custody (the last bullet above) is settled by
+composition rather than by ruling — broker DB credentials, IdP client
+secrets, and CA material are all `credential-contracts` records with
+declared custody, never committed.
