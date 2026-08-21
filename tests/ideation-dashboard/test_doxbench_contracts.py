@@ -61,7 +61,7 @@ RELEASED_REF = "unpublished:contract-v1.38"
 RELEASED_TAG = "contract-v1.38"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
-        "692dad330c5958720d9ba6ef8f6ce1a19dec715547a087e0b08ccd30a9aaa26d",
+        "7d0b8947d2a01c567a1f5920a9bccf99dcf0532dc846e84ce5060e2528a9c66d",
     CHAT_TURN_SCHEMA_FILE:
         "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
 }
@@ -1053,3 +1053,73 @@ def test_the_deprecation_records_its_removal_target(released_root):
         assert entry["superseded_by"] in contracts.CHAT_TURN_DEFS
         assert entry["superseded_by"] not in contracts.DEPRECATED_CHAT_TURN_KINDS
         assert kind in contracts.CHAT_TURN_DEFS
+
+
+# ---------------------------------------------------------------------------
+# THE FILE GATE AND THE TYPE GATE AGREE (contract-v1.38; adversarial review
+# round 1 F2)
+#
+# The claim "the same rules are enforced at catalog construction" was in a
+# docstring and was FALSE: `resolved_model_id ∈ routes_to` and the
+# self-reference refusal existed only on the type, so the file gate was strictly
+# weaker and the reviewer walked a catalog past it. It is now asserted over the
+# packaged corpus, in both directions, so a rule added to one gate and forgotten
+# in the other fails here instead of passing twice.
+# ---------------------------------------------------------------------------
+
+_ROUTING_NEGATIVE_GLOB = "workbench-model-catalog-routing-*.negative.yaml"
+
+
+def _type_gate_refuses(doc) -> bool:
+    """Construct the catalog through the real type. True when it refuses."""
+    from ideation_dashboard.doxbench_model import (
+        ModelCatalog, ModelCatalogEntry, ModelCatalogError,
+    )
+    try:
+        ModelCatalog.from_entries(
+            [ModelCatalogEntry(**entry) for entry in doc["models"]])
+    except (ModelCatalogError, TypeError):
+        return True
+    return False
+
+
+def _file_gate_errors(root: Path, path: Path) -> list:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "vidc_gate_parity", root / "scripts"
+        / "validate-ideation-dashboard-contracts.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    registry, docs = module.build_registry()
+    findings = module.Findings()
+    module.validate_instance(findings, path.name, module.load_yaml(path),
+                             registry, docs, set(), model_ctx={})
+    return findings.errors
+
+
+def test_every_packaged_routing_negative_is_refused_by_BOTH_gates(released_root):
+    negatives = sorted((released_root / "examples" / "ideation-dashboard"
+                        / "negative").glob(_ROUTING_NEGATIVE_GLOB))
+    # The exact count IS the pin, so it advances with the corpus rather than
+    # being loosened to an inequality. TEN at contract-v1.38: the five rules'
+    # own negatives (badge-gap, dangling-target, chained, unavailable-resolution,
+    # wider-than-target), the FOUR the adversarial review contributed
+    # (inverted-substring, incidental-word, resolved-outside-routes-to,
+    # self-reference), and the separator-collision case the segment grammar
+    # brought with it.
+    assert len(negatives) == 10, [p.name for p in negatives]
+    for path in negatives:
+        doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+        assert _file_gate_errors(released_root, path) != [], (
+            f"{path.name}: the FILE gate accepted it")
+        assert _type_gate_refuses(doc), (
+            f"{path.name}: the TYPE gate accepted it")
+
+
+def test_the_packaged_routing_positive_is_accepted_by_BOTH_gates(released_root):
+    path = (released_root / "examples" / "ideation-dashboard"
+            / "workbench-model-catalog-routing-rule.example.yaml")
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert contracts.validate_instance(doc, released_root) == []
+    assert _file_gate_errors(released_root, path) == []
+    assert not _type_gate_refuses(doc)

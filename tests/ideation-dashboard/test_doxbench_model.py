@@ -1365,3 +1365,107 @@ def test_a_routing_rule_is_selectable_and_looked_up_like_any_other_entry():
     assert rule is not None and rule.resolved_model_id == "a"
     assert catalog.entry_for("a").routing_rule is False
     assert [entry.model_id for entry in catalog.available_entries()] == ["auto", "a"]
+
+
+# ---------------------------------------------------------------------------
+# THE TWO GATES SHARE ONE GRAMMAR (contract-v1.38; adversarial review round 1
+# F1/F2)
+#
+# The delegated validator is a standalone script that imports nothing from this
+# package, so the separator and the normalizer are RESTATED there. Two copies of
+# a rule drift apart invisibly because both copies keep passing — the same
+# hazard §12.2 recorded for its no-implicit-push list — so the copies are pinned
+# equal here, and the PARITY of the two gates is asserted over the packaged
+# negatives rather than merely claimed in a docstring (which is precisely the
+# claim review round 1 found untrue).
+# ---------------------------------------------------------------------------
+
+_VALIDATOR_PATH = REPO_ROOT / "scripts" / "validate-ideation-dashboard-contracts.py"
+
+
+@pytest.fixture(scope="module")
+def delegated_validator():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "vidc_badge_parity", _VALIDATOR_PATH)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_the_badge_grammar_is_one_spelling_in_both_gates(delegated_validator):
+    assert (delegated_validator.ROUTING_BADGE_SEPARATOR
+            == doxbench_model.ROUTING_BADGE_SEPARATOR == " / ")
+    assert (delegated_validator.ROUTING_BADGE_TRAILING_PUNCTUATION
+            == doxbench_model.ROUTING_BADGE_TRAILING_PUNCTUATION == ".;,")
+
+
+@pytest.mark.parametrize("text", [
+    "Processed in the approved tenant boundary; no retention.",
+    "  leading and trailing  ",
+    "collapsed\n   across a\twrap",
+    "ON-TENANT",
+    "trailing punctuation.;,",
+    "",
+    " / ",
+])
+def test_the_two_gates_normalize_a_segment_identically(delegated_validator, text):
+    assert (delegated_validator.normalized_badge_segment(text)
+            == doxbench_model.normalized_badge_segment(text))
+    assert (delegated_validator.badge_segments(text)
+            == doxbench_model.badge_segments(text))
+
+
+def test_the_normalizer_forgives_only_what_cannot_flip_a_posture():
+    """The three normalizations, and the one thing that must NEVER normalize.
+
+    `on-tenant` vs `non-tenant` is the pair the reviewer used to break substring
+    containment, so it is the pair pinned here: no amount of case, whitespace or
+    trailing-punctuation forgiveness may make them equal."""
+    n = doxbench_model.normalized_badge_segment
+    # forgiven, because none of these is a different posture
+    assert n("On-Tenant") == n("on-tenant") == n("  on-tenant  ") == n("on-tenant.")
+    assert n("no  retention") == n("no retention")
+    assert n("no retention;") == n("no retention,") == n("no retention")
+    # NOT forgiven
+    assert n("on-tenant") != n("non-tenant")
+    assert n("retain") != n("retain nothing")
+    assert n("zero retention") != n("no retention")
+
+
+def test_a_target_badge_that_holds_the_separator_is_refused_as_ill_formed():
+    """The grammar's own residual collision, closed rather than hoped away: a
+    badge containing " / " could never BE one segment, so the catalog refuses
+    instead of silently splitting the badge in half and matching a fragment."""
+    with pytest.raises(InvalidRoutingRuleError,
+                       match="contains ' / ', the routing badge's own"):
+        ModelCatalog.from_entries([
+            _rule(routes_to=("a",), resolved="a",
+                  badge="Routes by role. / Read / write access."),
+            _entry("a", data_handling="Read / write access.")])
+
+
+def test_the_resolved_models_badge_is_covered_because_it_must_be_a_member():
+    """F2's note, asserted rather than assumed: `resolved_model_id ∈ routes_to`
+    plus the covering loop over `routes_to` means the ANSWERING model's badge is
+    necessarily carried. The construction below is the one the reviewer walked
+    past the file gate — a rule badged safe resolving to a model badged for
+    vendor training — and it is refused for the membership reason BEFORE any
+    covering question is asked."""
+    safe = CONTRACT_EXAMPLE["data_handling"]
+    leaky = "Content is retained and used for vendor model training."
+    with pytest.raises(InvalidCatalogEntryError,
+                       match="is not among the models this rule declares"):
+        _rule(routes_to=("safe",), resolved="leaky")
+    # And with membership held, the resolved model's badge IS one of the
+    # segments the covering rule just checked.
+    catalog = ModelCatalog.from_entries([
+        _rule(routes_to=("safe", "leaky"), resolved="leaky",
+              badge="Routes by role. / " + safe + " / " + leaky),
+        _entry("safe", data_handling=safe),
+        _entry("leaky", data_handling=leaky)])
+    rule = catalog.entries[0]
+    resolved = catalog.entry_for(rule.resolved_model_id)
+    assert rule.resolved_model_id in rule.routes_to
+    assert (doxbench_model.normalized_badge_segment(resolved.data_handling)
+            in doxbench_model.badge_segments(rule.data_handling))

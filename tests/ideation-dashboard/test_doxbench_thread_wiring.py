@@ -38,6 +38,9 @@ from ideation_dashboard import doxbench_knowledge as kn  # noqa: E402
 from ideation_dashboard import doxbench_packet as pk  # noqa: E402
 from ideation_dashboard import doxbench_threads as dt  # noqa: E402
 from ideation_dashboard import serve as serve_mod  # noqa: E402
+from ideation_dashboard.doxbench_model import (  # noqa: E402
+    ModelCatalog, ModelCatalogEntry,
+)
 
 from test_doxbench_routes import (  # noqa: E402
     DOC_ALPHA, DOC_ZULU, OUTLINE_PATH, _buf, _capabilities, _catalog,
@@ -331,6 +334,82 @@ def test_an_answered_turn_is_mirrored_into_the_selected_document_s_sidecar(
     # the RECORD is non-authoritative and says so in the file
     assert thread.authority == dt.NON_AUTHORITATIVE
     assert thread.regenerable_from == dt.REGENERABLE_FROM_TRANSCRIPT
+
+
+# ---------------------------------------------------------------------------
+# THE ROUTING RULE, END TO END THROUGH THE REAL ROUTE (contract-v1.38, task
+# 11.7; adversarial review round 1 F6 + F3)
+#
+# Written here rather than in `test_doxbench_routes` because the ratified THEN
+# has TWO halves and only this harness can see both in ONE real request: the
+# WIRE record (`model_id` is the model that answered, `selected_model` says the
+# human chose a rule) and the DURABLE TRANSCRIPT (the sidecar's turn header).
+# F3 was exactly the gap between them — the record was right and the transcript
+# named `auto`, so the file on disk could not answer "which model wrote this".
+# ---------------------------------------------------------------------------
+
+def _routing_catalog():
+    """`auto` routing to the fixture's own `model-a`, conformant on every rule:
+    its badge carries the target's as a SEGMENT, it resolves to a member of
+    `routes_to`, that member is available, and its limits do not exceed it."""
+    target = _catalog().entries[0]
+    rule = ModelCatalogEntry(
+        model_id="auto", label="Automatic (routes by role)",
+        provider_class="routing-rule", available=True,
+        input_limit_bytes=target.input_limit_bytes,
+        output_limit_bytes=target.output_limit_bytes,
+        data_handling="Routes by role. / " + target.data_handling,
+        routing_rule=True, routes_to=(target.model_id,),
+        resolved_model_id=target.model_id)
+    return ModelCatalog.from_entries([rule, target])
+
+
+def test_a_routed_turn_records_and_TRANSCRIBES_the_model_that_answered(tmp_path):
+    """The ratified scenario, claimed on the route: "the resolved model MUST be
+    recorded on the turn, so a transcript names the model that actually
+    answered."
+
+    Both readers are checked, because before F3 they disagreed:
+      * the WIRE record names the ANSWERING model in `model_id`, and states in
+        `selected_model` that what the human chose was a ROUTING RULE;
+      * the SIDECAR's turn header names the answering model too — that is the
+        transcript the requirement's purpose clause is about, and it is the half
+        that was wrong.
+    Neither the route nor the adapter changed for this; the catalog grew."""
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+    with _thread_serving(tmp_path, worktree=worktree,
+                         port=_port(_routing_catalog())) as (
+                             _httpd, host, prt, fake):
+        status, payload = _post(host, prt,
+                                _turn_bound_to(DOC_ALPHA, model_id="auto"))
+    assert status == 200, payload
+    # THE WIRE: what answered, and what was chosen, as two separate facts.
+    assert payload["model_id"] == "model-a"
+    assert payload["selected_model"]["requested_model_id"] == "auto"
+    assert payload["selected_model"]["routing_rule"] is True
+    assert payload["selected_model"]["data_handling"] == (
+        "Routes by role. / Processed in the approved tenant boundary")
+    # THE TRANSCRIPT: the durable file names the model that actually answered.
+    thread = _read_sidecar(worktree, DOC_ALPHA)
+    assert len(thread.turns) == 1
+    assert thread.turns[0].model == "model-a"
+    assert thread.turns[0].model != "auto"
+    assert fake.calls.count("dispatch") == 1
+
+
+def test_an_unrouted_turn_transcribes_the_model_it_asked_for(tmp_path):
+    """The other side of F3's fix, so hoisting the derivation cannot have
+    changed the ordinary case: with no routing rule the requested and answering
+    ids are ONE fact, and the sidecar names it exactly as it always did."""
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+    with _thread_serving(tmp_path, worktree=worktree) as (_httpd, host, prt, _p):
+        status, payload = _post(host, prt, _turn_bound_to(DOC_ALPHA))
+    assert status == 200, payload
+    assert payload["model_id"] == "model-a"
+    assert payload["selected_model"]["routing_rule"] is False
+    assert _read_sidecar(worktree, DOC_ALPHA).turns[0].model == "model-a"
 
 
 def test_a_second_turn_appends_rather_than_replacing(tmp_path):

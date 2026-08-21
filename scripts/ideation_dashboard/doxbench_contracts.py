@@ -126,7 +126,7 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # sha256 over each schema file's exact bytes at the release.
 SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
-        "692dad330c5958720d9ba6ef8f6ce1a19dec715547a087e0b08ccd30a9aaa26d",
+        "7d0b8947d2a01c567a1f5920a9bccf99dcf0532dc846e84ce5060e2528a9c66d",
     CHAT_TURN_SCHEMA_FILE:
         "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
 }
