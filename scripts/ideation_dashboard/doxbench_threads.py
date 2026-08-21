@@ -1225,8 +1225,9 @@ def shareable_thread_paths(dirty_paths: Iterable[str]) -> tuple[str, ...]:
 
     Takes the dirty set rather than a git seam because this module holds no git:
     the caller reads `SessionGit.dirty_paths` and hands the answer in, which is
-    also what keeps this function trivially testable and keeps the no-push
-    source sweep over this file honest."""
+    also what keeps this function trivially testable and keeps this module's own
+    forbidden-spelling guard honest: the sweep decides WHICH paths travel, and the
+    verb that publishes them lives in `gate_routes`, where the remote write is."""
 
     return tuple(sorted(
         path for path in dirty_paths

@@ -70,7 +70,8 @@ import { el } from "./helpers.js";
 import { panelEntry } from "./dispose.js";
 import {
   SESSION_ABANDON, SESSION_AFFORDANCES, SESSION_EDIT, SESSION_LABELS,
-  SESSION_FIRST_EDIT, SESSION_REFRESH_NOTEBOOK, SESSION_SAVE, SESSION_VERBS,
+  SESSION_FIRST_EDIT, SESSION_REFRESH_NOTEBOOK, SESSION_SAVE, SESSION_SHARE,
+  SESSION_VERBS,
   consoleHeaders, firstEditBody, firstEditVerdict, notebookRefreshCommand,
   sessionActionsLive, sessionCommand, sessionRequest, sessionRoute,
   sessionSurfaceHidden, withConsoleRepair,
@@ -221,6 +222,22 @@ function renderLanded(host, affordance, result) {
     line(host, "torn down: " + (result.torn_down || []).join(", "));
     line(host, "branch retained: " + yesNo(result.branch_retained));
     line(host, "gate-action record: " + result.record);
+    return;
+  }
+  if (affordance === SESSION_SHARE) {
+    if (result.shared === false) {
+      // §12.3's honest answer, reported as the outcome it is rather than as a
+      // failure: nothing was pushed, and the engine says why.
+      line(host, result.reason);
+      return;
+    }
+    line(host, "pushed ref: " + result.pushed_ref);
+    line(host, "revision: " + result.revision);
+    line(host, "threads committed: "
+      + ((result.threads || []).join(", ") || "(none were uncommitted)"));
+    line(host, "gate-action record: " + result.record
+      + " (" + result.record_resident + "-resident)");
+    line(host, result.promotion);
     return;
   }
   if (result.merged) {
@@ -438,6 +455,17 @@ function renderForm(host, affordance, ctx, opts) {
     picker = documentPicker(form, ctx);
     content = field(form, "Replacement", "",
       { multiline: true, placeholder: "the document's full new text" });
+  } else if (affordance === SESSION_SHARE) {
+    form.appendChild(el("div", "swb-cnote",
+      "commits this session's uncommitted thread sidecars and PUSHES the branch, "
+      + "so a colleague can fetch it and resume the same session — its documents "
+      + "and its threads. It opens NO pull request, requests no review, and "
+      + "merges and approves nothing. Until you press this, the session's threads "
+      + "have never left this machine. Invoked with nothing new, it says so "
+      + "rather than pushing again."));
+    values.notes = field(form, "Note", "",
+      { placeholder: "optional — recorded on the gate-action record (why you are "
+                     + "handing this over)" });
   } else if (affordance === SESSION_SAVE) {
     // WHAT BLANK MEANS, honestly (PR #49 second-review finding R2-13). It used to
     // say "left blank, the engine names the branch and its tile" full stop, while
@@ -488,6 +516,7 @@ function renderForm(host, affordance, ctx, opts) {
       title: values.title ? values.title.value : null,
       body: values.body ? values.body.value : null,
       reason: values.reason ? values.reason.value : null,
+      notes: values.notes ? values.notes.value : null,
     });
     if (!body) {
       panelEntry("refused",
