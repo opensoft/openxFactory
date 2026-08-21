@@ -74,6 +74,8 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [staged-topic-outline-template](#staged-topic-outline-template) | MODIFIED `document-lifecycle` (the primary-fragment template contract: required sections, round-trip-on-demote refresh rule, section provenance, marker usage) and MODIFIED `ideation-dashboard` (the doxBench outline tab renders the template + gains an add-section affordance) | 1 | **PROPOSED 2026-08-15 as `add-staged-topic-outline-template`, RATIFIED the same day** (all 5 open questions accepted as recommended, closing the parallel decision track) — exited staging the same day, material moved to the change's `supporting-docs/` (see detail section below); Q4 corrected by Amendment 1 to `edit-document` (ratified text named `edit-apply`, the gate console's redline verb, which cannot reach a session branch). Sections 1-4 realized (contract text, doc-health's warning-tier nudge, the outline tab + tests) and bookkeeping 6.1-6.3 discharged (this row, the exit record, and the `doxbench-editing-model` Q4 handoff); task 5.4 (live browser proof) and gates 5.1-5.3 outstanding before archive |
 | [notebook-projection-identity](#notebook-projection-identity) | MODIFIED `lifecycle-notebook-projection` (declared hosting-account field + share-out roster) and MODIFIED `credential-contracts` (two-case account-custody rule: company service account normal case, personal hosting the other legitimate case) | 1 | Registered 2026-08-15 — origin is Brett hitting a live "request access" wall on the personal-Gmail-hosted NotebookLM projection, the same disease as the just-retired openXdox personal PAT; 6 claims settled (company account is the normal case, hosting is a declared install-time intake decision, personal hosting stays legitimate as the other case, company account shares out to users, company-policy Hermes monitors + approves share requests, and this mirrors the ratified openXdox dispatch two-case precedent); first fresh conformer of `staged-topic-outline-template` carrying LIVE `xspec:candidate` markers (verified against the checker: no rejection found, only `record`-status docs are excluded); 5 open questions (contract home, company-account type, share-roster reuse of `add-client-identity-roster`, monitor/approve mechanics with no share API, and opensoft's own migration sequencing), none blocking; SEQUENCED last of today's four topics (Brett 2026-08-15) — behind `doxbench-editing-model` (both phases), the template, and the review-lane topic — since Q3's share-roster reuse waits on the in-flight `add-client-identity-roster` proposal |
 | [doxbench-editing-model](#doxbench-editing-model) | MODIFIED `ideation-dashboard` (left-panel dynamic document tabs generalizing the outline/document buffer pair to N document buffers; chat-context binding to the active left-panel selection; docs-wheel tile edit verb + dirty-tile marker; right-panel Editor/Preview tab redesign with Save/Cancel) | 1 | Registered 2026-08-15 — origin is Brett's direction settling the general doxBench interaction model: left panel selects the working document (docs/lens/outline plus dynamic numbered tabs per open edit), center chat binds to whatever is selected, right panel shows the result via Editor/Preview tabs with Save/Cancel (replacing today's split md/preview layout); 26 claims settled (includes the ruled two-plane chat memory design, Claims 13-21, and its 2026-08-18 second-pass addendum settling memory-gateway conformance, the three-layer compression stack with shake v1, and Headroom watch-listed not adopted, Claims 22-26); verified live that `BUFFER_KINDS`, the turn-assembly buffer requirement, and the save order are all hard-coded to exactly outline+document today, so the N-buffer generalization is the load-bearing engineering question; 7 open questions (tab overflow, Save/Cancel semantics, dirty-tile storage, chat-binding rule, Editor/Preview default, concurrent-edit safety, and the chat memory system — ruled 2026-08-18), none blocking; sibling of `staged-topic-outline-template` Open question 4 (content-contract vs. interaction-model halves of the same AI-edit act); SEQUENCED first, in two phases (Brett 2026-08-15) — Phase A (chat-on-outline + Editor/Preview tabs + Save/Cancel on the existing two-buffer machinery) built before the other three topics, Phase B (N-buffer generalization) following `staged-topic-outline-template`'s ratification. **EXITED STAGING 2026-08-21** — both phases raised and realized; `add-doxbench-editing-phase-a` ARCHIVED 2026-08-21 and its spec text promoted, `add-doxbench-editing-phase-b` carried the whole remainder (§4–§11 + §13 realized across PRs #207/#210/#216/#223, `contract-v1.34`) and remains ACTIVE pending §12 share-session, which Brett ruled 2026-08-21 trails as its own slice. The fragment moved to Phase B's `supporting-docs/`; two items are PARKED, not adopted — see the detail section |
+| [identity-brokering-plane](#identity-brokering-plane) | ADDED neutral `identity-brokering` (persona/claims, single-persona rule, organizations-realize-companies, never-mirror-the-tenancy-graph, merge-safety obligation); new OpsxFactory-owned `keycloak-administration` workflow capability; MODIFIED `repo-boundary-governance` (install-repository scope admits `keycloak-install`) | 1 | Ready to iterate — organized 2026-08-21 from the 2026-07-14 `keycloak-identity-brokering` brainstorm on the day Brett ruled all three of its exit blockers: realm topology (single realm per environment + Keycloak Organizations for tenant AND subject companies; isolation escalates by broker INSTANCE via a per-client install, never by realm split; the neutral contract stays silent on instance count so non-tenanted per-clinic deploys stay conformant), merge safety (explicit linking + admin-approved merge queue, never silent email-match auto-link), and the ownership split (github-administration precedent: neutral contract in openxFactory, administration workflow in OpsxFactory, runtime in a new install repo). Also ruled: workloads are NOT realm users (they stay on `credential-contracts` + `openxwallet` grants). 5 open questions (durable subject id in governed records + the `actor_subject` field shape hardest); one is a pre-ratification CHECK — whether any current commitment implies a population that must not co-reside in the shared realm |
+| [pki-trust-anchor-plane](#pki-trust-anchor-plane) | ADDED neutral `trust-anchor` (anchors, issuance evidence, declared chain custody deriving what a certificate evidences, renewal-as-rebind, revocation propagation composing with `openxwallet`, CA material as a `credential-contracts` record, declared-degraded-obligation rule); new OpsxFactory-owned `pki-administration` workflow capability; MODIFIED `repo-boundary-governance` (install-repository scope admits `openxpki-install`) | 1 | Ready to iterate — organized 2026-08-21 from Brett's rulings; the forcing fact is TWO realizations converging (live Intune Cloud PKI canary for device/host-broker certs, and OpenXPKI planned for the Opensoft production core), so the contract must be product-agnostic or it will be written twice and diverge. Seam with the active OpsxFactory `add-openxpki-qa-image-pipeline` RULED: image custody (build, pins, harness, ACR digest) stays in `opensoft/Opensoft-Tenant` because image custody is a tenant trust decision, QA deployment topology moves to `xFactory-OpenXPKI-Install` consuming the pinned digest — that change's Impact section must be AMENDED BEFORE RATIFICATION. 5 open questions (issuance-evidence strictness satisfiable by a CA we do not operate, and whether chain-custody tiers are a closed enumeration, hardest) |
 
 ## hermes-stack-topology-per-client
 
@@ -1474,3 +1476,129 @@ repo scope.
 - Memory design COMPLETE 2026-08-18 (memory-gateway conformance +
   three-layer compression, shake-v1, Headroom watch-listed); Phase B
   proposal drafting NOW LAUNCHING.
+## identity-brokering-plane
+
+- Staging ID: `openxFactory:staging:identity-brokering-plane`
+- Repository context: openxFactory owns the neutral persona/claims contract
+  (product-agnostic); OpsxFactory owns the `keycloak-administration` workflow
+  capability, sibling of `exchange-administration` /
+  `aks-administration-workflow` / `github-administration-workflow` /
+  `business-central-administration` (staged as
+  `OpsxFactory:staging:identity-pki-administration`); the new install repo
+  `opensoft/xFactory-Keycloak-Install` (aggregation path
+  `installs/keycloak-install`) owns the deployable runtime and per-client
+  instantiation as `config/clients/<tenant>/runtime-manifest.yaml`
+  (hermes-install precedent).
+- Source: the 2026-07-14 brainstorm
+  [keycloak-identity-brokering.md](../brainstorm/keycloak-identity-brokering.md),
+  captured after the ideation dashboard shipped behind one shared htpasswd
+  user; organized 2026-08-21 on Brett Heap's rulings in the xFactory family
+  session, which settled all three blockers the brainstorm's exit clause named.
+- Claim: three converging surfaces (htpasswd-only dashboard, the gate console's
+  forgeable-actor accepted risks, the per-client editor product's realm logins)
+  need ONE durable persona per human with company boundaries as memberships on
+  it — not identity-per-surface or identity-per-tenant. The broker asserts
+  persona + organization memberships and nothing else; authorization resolves
+  in the governed layer against the Hermes graph and grants, because a second
+  copy of the tenancy graph inside an off-the-shelf IdP is a copy that will
+  disagree with the first one.
+- Files:
+  - [identity-brokering-plane.md](identity-brokering-plane/identity-brokering-plane.md)
+    — primary: problem recap, the five rulings (R1 install repos, R3 realm
+    topology, R4 merge safety, R5 workloads-are-not-realm-users, R7 ownership
+    split), integration path, composition, 5 open questions, 3 exits.
+- Rulings carried as decided (2026-08-21): single realm per environment +
+  Keycloak Organizations for tenant AND subject/served companies, each able to
+  federate its own IdP with domain-routed login; isolation escalates by broker
+  INSTANCE (per-client install) and never by realm split; the neutral contract
+  says "a single persona within a broker instance; organizations realize
+  company boundaries" and stays SILENT on instance count so a non-tenanted
+  MedxFactory-style per-clinic deploy stays conformant; explicit account
+  linking + an admin-approved merge queue, never silent email-match auto-link;
+  services/workloads are not realm users (they ride `credential-contracts` +
+  `openxwallet` grants, with Keycloak clients only where OIDC tokens are
+  genuinely needed).
+- Open questions (carried): the durable subject id stored in governed records
+  (`sub` UUID + denormalized display name, and what happens to pre-broker
+  records carrying bare usernames); login-only vs org/group authorization
+  gating at v1 (leaning login-only first, authorization a later delta
+  consuming Organizations + the project register); the exact gate-action-record
+  `actor_subject` field shape (opaque id vs issuer+subject+display name);
+  whether `hermes-readiness`'s bearer token joins the first wave; and a
+  pre-ratification CHECK — whether any current commitment (Medx clinical, the
+  BC/DaVinciSite tenant work) implies a user population that must not
+  co-reside in the shared realm, in which case it becomes the first
+  dedicated-instance client.
+- Exit: three OpenSpec changes in dependency order — (1) neutral
+  `identity-brokering` capability in openxFactory; (2) `keycloak-administration`
+  workflow in OpsxFactory with the new service-subject kind registered in
+  lockstep (`customer-kinds` + Hermes template + `stack.yaml`, grant ceilings
+  in `credentials/requirements.yaml`), developed in the sibling Opsx topic;
+  (3) creation of `opensoft/xFactory-Keycloak-Install` plus the aggregation pin
+  under `repo-boundary-governance` (a MODIFIED delta to its "Install repository
+  scope" requirement, shared with the OpenXPKI install repo). Exits 1 and 2 may
+  be authored in parallel, but the neutral contract ratifies first.
+
+## pki-trust-anchor-plane
+
+- Staging ID: `openxFactory:staging:pki-trust-anchor-plane`
+- Repository context: openxFactory owns the neutral trust-anchor contract
+  (product-agnostic); OpsxFactory owns the `pki-administration` workflow
+  capability, sibling of the four existing administration capabilities (staged
+  as `OpsxFactory:staging:identity-pki-administration`);
+  `opensoft/Opensoft-Tenant` keeps image custody (build, pins, test harness,
+  ACR digest); the new install repo `opensoft/xFactory-OpenXPKI-Install`
+  (aggregation path `installs/openxpki-install`) owns the deployable topology
+  consuming the pinned digest.
+- Source: Brett Heap's rulings 2026-08-21 in the xFactory family session, taken
+  with the active OpsxFactory change `add-openxpki-qa-image-pipeline` and the
+  live Intune Cloud PKI canary track (tenant root CA `Opensoft xFactory Root
+  CA` + issuing CA, SCEP profiles, a TPM-bound broker certificate); sibling of
+  `openxFactory:staging:identity-brokering-plane`, whose R1/R7 rulings were
+  made once for both topics.
+- Claim: the family will run TWO certificate authorities from two vendors for
+  two populations (Intune Cloud PKI for device/host-broker certs — live;
+  OpenXPKI for the Opensoft production core — planned), so the obligations must
+  be stated once product-agnostically: a named anchor, evidenced issuance,
+  declared chain custody that DERIVES what a certificate evidences (the
+  openxwallet custody model applied to certificates), renewal treated as a
+  rebind obligation rather than a background event, revocation that propagates
+  to the authority the certificate supported, and CA material as a
+  `credential-contracts` record never committed.
+- Files:
+  - [pki-trust-anchor-plane.md](pki-trust-anchor-plane/pki-trust-anchor-plane.md)
+    — primary: why now, the four rulings (R8 two-PKIs-one-contract, R2 the
+    image-custody seam, R1 install repos, R7 ownership split), composition with
+    `openxwallet` + `credential-contracts`, a 7-point product-neutral contract
+    sketch, 5 open questions, 3 exits.
+- Rulings carried as decided (2026-08-21): the contract is product-agnostic
+  because both realizations are real; the Cloud PKI canary contributes the
+  contract's first hard-won obligation (the auto-renew /
+  keyCredential-rebind trap — renewal produces new key material, so anything
+  that bound authority to the old key must be re-bound and the rebind
+  evidenced); and the seam with `add-openxpki-qa-image-pipeline` splits along
+  CUSTODY — the image build/pin/test-harness stays in
+  `opensoft/Opensoft-Tenant` (image custody is a tenant trust decision, and the
+  digest-pin convention governs exactly here) while the QA deployment topology
+  manifests move to the install repo, which means that change's Impact section
+  must be AMENDED BEFORE RATIFICATION.
+- Open questions (carried): what the neutral contract requires of issuance
+  evidence, given it must be satisfiable by a CA whose internals we do not own;
+  how many chain-custody tiers and whether the enumeration is CLOSED (the
+  openxwallet precedent argues yes, with `evidences` derived — candidate
+  members hardware-isolated / host-readable / operator-escrowed, and whether
+  escrow is a tier at all touches `client-credential-escrow-registry`); how
+  renewal/rebind traps are represented as contract obligations and what
+  evidences a rebind when the failure mode is silent; whether the two
+  realizations are one capability with declared degraded obligations (leaning)
+  or a core-plus-profile seam (rule-of-three has not fired); and where the
+  Cloud PKI track's governed record lives given the device population is the
+  worker fleet's (seam with `add-cloudpc-worker-fleet-management` and the
+  worker-enrollment broker's device identity).
+- Exit: three OpenSpec changes — (1) neutral `trust-anchor` capability in
+  openxFactory; (2) `pki-administration` workflow in OpsxFactory with the new
+  service-subject kind registered in lockstep, PLUS the time-critical
+  amendment to the active `add-openxpki-qa-image-pipeline` Impact section;
+  (3) creation of `opensoft/xFactory-OpenXPKI-Install` plus the aggregation pin
+  under `repo-boundary-governance` (the shared MODIFIED "Install repository
+  scope" delta), moving the QA deployment topology manifests in per R2.

@@ -389,8 +389,21 @@ Active changes:
   whose own two follow-ups — `refine-demote-round-trip-mechanics` and
   `align-status-reader-to-real-lines` — are now realized and merged (PR #221,
   #222). Bookkeeping 6.1-6.3 discharged (this row, the exit-marked staging
-  fragments, and the `doxbench-editing-model` Q4 handoff). Outstanding: task
-  5.4's live browser proof and gates 5.1-5.3. `target_release: implemented`.
+  fragments, and the `doxbench-editing-model` Q4 handoff). GATES 5.1-5.4 ARE
+  NOW CLOSED, task 5.4 by driving a real headless browser against a throwaway
+  scratch checkout: the outline tab opened on a conforming and a pre-template
+  topic, a section added to the conforming one through the free-form control,
+  and the shipped Save landing ONE commit on session branch
+  `draft/outline-conformer` whose `edit-document` verb is evidenced three ways
+  (the `/actions/gate/first-edit` response, the commit subject plus its
+  `Gate-Action` trailer, and the committed gate-action record's own `action:`).
+  5.3's enumeration also surfaced that `staged-topic-template` is registered in
+  `families.FAMILIES` but absent from `FAMILY_IDS`, so the report prints no
+  section for its 29 warnings — the same pre-existing omission `proposal-origin`
+  has, left for `doc-health` to fix. All tasks are therefore ticked; what remains
+  is `release-realization`'s archive gate, which this change's non-empty code
+  surface holds open until its realization merges green.
+  `target_release: implemented`.
 
 - [add-doxbench-editing-phase-a](openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/proposal.md)
   — **ARCHIVED 2026-08-21** (realization evidence recorded at the gate: PR #196
