@@ -235,12 +235,19 @@ def test_the_working_subject_box_says_what_it_is_and_what_it_does():
 
     It was a bare text box above the transcript carrying an `aria-label` and
     nothing a sighted human could read — no visible label, no placeholder, and
-    (the ratified default from the tile's title being unrealized) no seeded
-    value either. So the field answers the question in its own two affordances,
-    which is the standard the annotation round before this one set: "the UI must
-    be intuitive and not rely on this text to inform the user" retired STANDING
-    explanatory lines, and an affordance on the control itself is exactly what it
-    left in their place.
+    (the ratified default from the tile's title being unrealized at the time)
+    no seeded value either. So the field answers the question in its own two
+    affordances, which is the standard the annotation round before this one set:
+    "the UI must be intuitive and not rely on this text to inform the user"
+    retired STANDING explanatory lines, and an affordance on the control itself
+    is exactly what it left in their place.
+
+    The third part of the answer — the promoted default from the tile's title —
+    was realized later, so the box now usually opens carrying a value and the
+    placeholder shows where it does not (an emptied box, or a title the
+    512-byte bound refuses to seed). Both affordances are unchanged by it, which
+    is what the assertions below hold; the seed itself is pinned in
+    test_doxbench_chat_view.py.
 
     The PLACEHOLDER names the field on the house `"<name> — e.g. <value>"` idiom
     the canvas id field already uses (the one prior instance of that exact

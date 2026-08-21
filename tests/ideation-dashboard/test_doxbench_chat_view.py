@@ -2122,6 +2122,9 @@ function mountRail(overrides = {}) {
     // between submit and settle; every other scenario keeps the fixed one.
     editorState: overrides.editorState || editorState,
     applyProposal: overrides.applyProposal || (async () => ({ ok: true })),
+    // The tile title the shell hands down. Left ABSENT by default so every
+    // pre-existing scenario keeps mounting with an empty subject box.
+    subjectDefault: overrides.subjectDefault,
     onState: overrides.onState });
   return { host, rail };
 }
@@ -2601,6 +2604,54 @@ out.configuredNoneCatalog = await catalogPosture(
     activeIsComposer: doc.activeElement === composer2,
   };
 }
+
+// ---- the promoted working-subject default, ON THE MOUNTED RAIL: the box the
+// human sees opens carrying the tile's title, and stays editable ----
+{
+  const TITLE = "keyword lens and edge degree";
+  const { host, rail } = mountRail({ subjectDefault: TITLE });
+  await rail.ready;
+  const subject = byClass(host, "doxchat-subject")[0];
+  const seededValue = subject.value;
+  const seededState = rail.state().workingSubject;
+  // …and it is a DEFAULT, not a fixed label: typing replaces it, and emptying
+  // it empties it (the placeholder is what shows then).
+  subject.value = "why does the funnel disagree with the wheel?";
+  await fire(subject, "input");
+  const typed = rail.state().workingSubject;
+  subject.value = "";
+  await fire(subject, "input");
+  out.seededSubject = {
+    seededValue, seededState, typed,
+    cleared: rail.state().workingSubject,
+    clearedValue: subject.value,
+    placeholder: subject.attributes.placeholder,
+    // the human's 512-byte refusal is untouched by the seed
+    ariaLabel: subject.attributes["aria-label"],
+  };
+}
+// …and a rail mounted with NO default still opens empty, so the placeholder
+// path the annotation round added is not a dead branch.
+{
+  const { host, rail } = mountRail({});
+  await rail.ready;
+  const subject = byClass(host, "doxchat-subject")[0];
+  out.unseededSubject = { value: subject.value,
+                          state: rail.state().workingSubject,
+                          placeholder: subject.attributes.placeholder };
+}
+// …and a tile title the 512-byte bound refuses seeds NOTHING, never a clipped
+// prefix: the box opens empty and sendable rather than holding text the human
+// never typed and the field itself would refuse.
+{
+  const { host, rail } = mountRail({
+    subjectDefault: "t".repeat(MAX_WORKING_SUBJECT_BYTES + 1) });
+  await rail.ready;
+  const subject = byClass(host, "doxchat-subject")[0];
+  out.overLongSeed = { value: subject.value,
+                       state: rail.state().workingSubject,
+                       failure: rail.state().lastFailure };
+}
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -2919,6 +2970,264 @@ def test_the_settlement_rescore_leaves_an_unmoved_buffer_current(focus_throw_res
     assert unmoved["status"] == "current"
     assert unmoved["applyDisabled"] is False
 
+
+# ---------------------------------------------------------------------------
+# THE PROMOTED WORKING-SUBJECT DEFAULT (capability `ideation-dashboard`,
+# requirement "Browser-local doxBench conversation": "The working subject SHALL
+# default from the tile's title or summary, remain editable, and affect
+# authoring focus only").
+#
+# It was ratified and promoted but never built: `createChatState` seeded an
+# empty subject and nothing ever filled it, which is what Brett's 2026-08-21
+# annotation measured from the running surface ("what is the box used for? i do
+# not know how to use it") and what add-doxbench-editing-phase-b's Amendment 2
+# recorded as a realization gap needing its own slice. This is that slice's
+# evidence: the seed lands, a stored human value still wins over it, the field
+# is still a field, and the 512-byte bound is still refused-never-truncated on
+# both the seeded and the typed side.
+# ---------------------------------------------------------------------------
+
+
+def test_the_mounted_rail_opens_with_the_tiles_title_in_the_subject_box(
+        focus_throw_results):
+    """The realization, where a human meets it: the box the annotation asked
+    about opens carrying the tile's own title instead of empty."""
+    s = focus_throw_results["seededSubject"]
+    assert s["seededValue"] == "keyword lens and edge degree"
+    assert s["seededState"] == "keyword lens and edge degree"
+    # the affordances the annotation round added are untouched by the seed
+    assert s["placeholder"].startswith("working subject — e.g.")
+    assert s["ariaLabel"] == "working subject"
+
+
+def test_the_seeded_subject_is_a_default_and_not_a_fixed_label(
+        focus_throw_results):
+    """"remain editable" is half the requirement's sentence: typing replaces the
+    seed, and emptying the box empties it — a default the human cannot overrule
+    would be a label wearing a text box."""
+    s = focus_throw_results["seededSubject"]
+    assert s["typed"] == "why does the funnel disagree with the wheel?"
+    assert s["cleared"] == ""
+    assert s["clearedValue"] == ""
+
+
+def test_a_rail_mounted_with_no_tile_title_still_opens_empty(
+        focus_throw_results):
+    """The placeholder path stays reachable: a mount handed no default (an older
+    caller, or a composition with no tile record to offer) opens empty, and the
+    placeholder the 2026-08-21 annotation added is what shows there."""
+    u = focus_throw_results["unseededSubject"]
+    assert u["value"] == ""
+    assert u["state"] == ""
+    assert u["placeholder"].startswith("working subject — e.g.")
+
+
+def test_a_tile_title_past_the_bound_seeds_nothing_rather_than_a_prefix(
+        focus_throw_results):
+    """The over-long SOURCE, decided against truncation. The 512-byte bound is
+    refused-never-truncated on both sides, so a seeded prefix would be text the
+    human never typed AND text this module's own rule forbids inventing; a
+    seeded value the field would itself refuse is simply incoherent. Empty is
+    always sendable, so seeding nothing can never leave Send refusing a value
+    nobody entered — and no over-bound failure note is invented for a value the
+    human did not type."""
+    o = focus_throw_results["overLongSeed"]
+    assert o["value"] == ""
+    assert o["state"] == ""
+    assert o["failure"] is None
+
+
+# --- the pure model's own half: seeding, precedence, and the bounds ---------
+
+_SUBJECT_DEFAULT_HARNESS = """
+import { createChatState, editSubject, rekeyChatState, chatSnapshot,
+         restoreChatState, MAX_WORKING_SUBJECT_BYTES }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "r", ref: "main", tile_kind: "staged", tile_id: "t" };
+const SESSION_KEY = { ...KEY, ref: "swb/session/t" };
+const OTHER_KEY = { ...KEY, tile_id: "other-topic" };
+const TITLE = "ideation governance";
+const byteLen = (text) => Buffer.byteLength(text, "utf8");
+
+// ---- the seed itself ----
+out.seeded = createChatState(KEY, TITLE).workingSubject;
+out.unseeded = createChatState(KEY).workingSubject;
+out.frozen = Object.isFrozen(createChatState(KEY, TITLE));
+// a title EXACTLY at the bound seeds whole -- the refusal is > 512, not >= 512
+const AT_BOUND = "b".repeat(MAX_WORKING_SUBJECT_BYTES);
+out.atBound = { bytes: byteLen(createChatState(KEY, AT_BOUND).workingSubject),
+                whole: createChatState(KEY, AT_BOUND).workingSubject === AT_BOUND };
+// ---- the over-long source: nothing, never a prefix ----
+const OVER = "o".repeat(MAX_WORKING_SUBJECT_BYTES + 1);
+out.overLong = { seeded: createChatState(KEY, OVER).workingSubject,
+                 isPrefixOfSource: OVER.startsWith(
+                   createChatState(KEY, OVER).workingSubject)
+                   && createChatState(KEY, OVER).workingSubject.length > 0 };
+// BYTES, never code points: 171 three-byte characters are 513 bytes and 171
+// code points, so a length-based bound would seed this one and the byte rule
+// refuses it -- the same discrimination the composer's own bound test uses.
+const WIDE = "\\u20ac".repeat(Math.ceil(MAX_WORKING_SUBJECT_BYTES / 3) + 1);
+out.wideSource = { bytes: byteLen(WIDE), codePoints: WIDE.length,
+                   seeded: createChatState(KEY, WIDE).workingSubject };
+// a non-string source (an absent title, a tile record that lost it) seeds
+// nothing rather than the string "undefined"
+out.nonStringSources = [undefined, null, 42, {}].map(
+  (bad) => createChatState(KEY, bad).workingSubject);
+
+// ---- editability, and the human's own bound ----
+const seeded = createChatState(KEY, TITLE);
+out.retyped = editSubject(seeded, "a different focus").workingSubject;
+out.emptied = editSubject(seeded, "").workingSubject;
+// the 512 refusal still holds for a HUMAN edit of a seeded box: the identical
+// state object comes back (which is how the view knows to say so)
+const refused = editSubject(seeded, OVER);
+out.humanOverBoundRefused = { identical: refused === seeded,
+                              held: refused.workingSubject };
+
+// ---- a STORED value wins over the default ----
+const typed = editSubject(createChatState(KEY, TITLE), "the human's own focus");
+out.storedWins = restoreChatState(createChatState(KEY, TITLE),
+  chatSnapshot(typed), {}).workingSubject;
+// ...INCLUDING a deliberately emptied one: the default must not resurrect the
+// title over a box the human emptied on purpose
+const emptied = editSubject(createChatState(KEY, TITLE), "");
+out.clearedStoredWins = { stored: chatSnapshot(emptied).workingSubject,
+                          restored: restoreChatState(createChatState(KEY, TITLE),
+                            chatSnapshot(emptied), {}).workingSubject };
+// a snapshot of an UNRECOGNIZED shape is refused fail-closed, which leaves the
+// seeded state exactly as it was -- the seed is not collateral of the refusal
+out.foreignSnapshotKeepsSeed = restoreChatState(createChatState(KEY, TITLE),
+  { kind: "nope" }, {}).workingSubject;
+
+// ---- a fresh conversation on a new key is seeded like a mount ----
+out.rekeySeeds = rekeyChatState(typed, SESSION_KEY, TITLE).workingSubject;
+out.rekeyDropsTheTypedValue =
+  rekeyChatState(typed, SESSION_KEY, TITLE).workingSubject !== typed.workingSubject;
+out.rekeyOtherTile = rekeyChatState(typed, OTHER_KEY, "another tile").workingSubject;
+out.sameKeyUntouched = rekeyChatState(typed, KEY, TITLE) === typed;
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def subject_default_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the working-subject default probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-subject-default")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "subject-default-harness.mjs"
+    harness.write_text(_SUBJECT_DEFAULT_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_fresh_chat_state_defaults_its_subject_from_the_tile_title(
+        subject_default_results):
+    """The promoted requirement's first clause, in the module that owns what a
+    fresh conversation holds. `createChatState` seeded `workingSubject: ""` and
+    nothing downstream ever filled it, so the box a human opened was always
+    empty — the realization gap Amendment 2 recorded."""
+    assert subject_default_results["seeded"] == "ideation governance"
+    assert subject_default_results["frozen"] is True
+    # a caller with no title to offer still gets the pre-existing empty state
+    assert subject_default_results["unseeded"] == ""
+    assert subject_default_results["nonStringSources"] == ["", "", "", ""]
+
+
+def test_a_title_exactly_at_the_bound_seeds_whole(subject_default_results):
+    """The refusal is OVER the bound, not at it — a 512-byte title is a legal
+    subject and seeds verbatim, which is what keeps the over-long case below a
+    real discrimination rather than an off-by-one."""
+    a = subject_default_results["atBound"]
+    assert a["bytes"] == 512
+    assert a["whole"] is True
+
+
+def test_a_title_past_the_bound_seeds_nothing_never_a_bounded_prefix(
+        subject_default_results):
+    """The over-long SOURCE. `editSubject` refuses an over-bound value and
+    truncates nothing ("no silent truncation is permitted"), and the seed goes
+    through that same rule rather than around it: a clipped title is text the
+    human never typed, and a default the field itself would refuse is
+    incoherent. Empty is always a sendable subject, so nothing seeded can make
+    Send refuse a value nobody entered."""
+    o = subject_default_results["overLong"]
+    assert o["seeded"] == ""
+    assert o["isPrefixOfSource"] is False, (
+        "the over-long title was truncated into the box instead of refused")
+
+
+def test_the_seed_bound_measures_utf8_bytes_and_not_code_points(
+        subject_default_results):
+    """The same byte discrimination the composer's bound carries: 171 three-byte
+    characters are 513 BYTES and 171 code points, so a length-based check would
+    seed a subject the server's own `validate_working_subject` then refuses."""
+    w = subject_default_results["wideSource"]
+    assert w["bytes"] > 512 and w["codePoints"] < 512, "precondition"
+    assert w["seeded"] == ""
+
+
+def test_the_seeded_subject_remains_editable_and_still_refuses_over_bound_edits(
+        subject_default_results):
+    """"remain editable", plus the half a default could quietly break: the
+    512-byte refusal is unchanged for a human edit of a SEEDED box, and it
+    still refuses by returning the identical state object, which is the one
+    signal the view reads to render the refusal note."""
+    assert subject_default_results["retyped"] == "a different focus"
+    assert subject_default_results["emptied"] == ""
+    h = subject_default_results["humanOverBoundRefused"]
+    assert h["identical"] is True
+    assert h["held"] == "ideation governance", "the refused edit kept the seed"
+
+
+def test_a_stored_working_subject_wins_over_the_tile_default(
+        subject_default_results):
+    """The precedence rule. The rail mounts seeded and the restore lands after
+    it, so the persisted subject must overrule the default — otherwise
+    reopening a tile would overwrite the focus a human wrote with the tile's
+    title."""
+    assert subject_default_results["storedWins"] == "the human's own focus"
+
+
+def test_an_emptied_stored_subject_is_not_re_seeded_from_the_title(
+        subject_default_results):
+    """THE SUBTLE HALF, decided and documented in the module. The snapshot
+    spells the subject as a plain string with no absent/null marker, so the
+    stored form cannot distinguish "the human emptied this box" from "nothing
+    was ever put in it" by the field alone. The stored value wins either way:
+    of the two readings, putting the title back over a box someone emptied on
+    purpose overrules a person, while leaving an unfilled box empty costs one
+    keystroke — and with the seed in place, an empty stored subject can only
+    come from an emptying or from a tile whose title seeds nothing anyway."""
+    c = subject_default_results["clearedStoredWins"]
+    assert c["stored"] == "", "precondition: the emptied subject persisted empty"
+    assert c["restored"] == ""
+
+
+def test_a_refused_foreign_snapshot_leaves_the_seeded_subject_standing(
+        subject_default_results):
+    """The fail-closed door and the seed agree: an unrecognized blob returns the
+    state untouched, so the tile default survives a snapshot that could not be
+    read (rather than the refusal costing the human their default too)."""
+    assert subject_default_results["foreignSnapshotKeepsSeed"] == "ideation governance"
+
+
+def test_a_rekeyed_conversation_is_seeded_like_a_fresh_mount(
+        subject_default_results):
+    """FR-011 isolation gives a moved scope key a FRESH conversation, and a
+    fresh conversation is seeded exactly like a mount — so a Save moving this
+    tile onto its session ref comes back with the tile's subject rather than
+    the empty box the un-threaded default would have left."""
+    r = subject_default_results
+    assert r["rekeySeeds"] == "ideation governance"
+    assert r["rekeyDropsTheTypedValue"] is True
+    assert r["rekeyOtherTile"] == "another tile"
+    # …and an unchanged key still returns the identical state object
+    assert r["sameKeyUntouched"] is True
 
 # ---------------------------------------------------------------------------
 # THE MENU OFFERS A ROUTING RULE (contract-v1.38, add-doxbench-editing-phase-b
