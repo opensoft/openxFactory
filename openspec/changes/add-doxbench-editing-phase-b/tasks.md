@@ -1578,6 +1578,24 @@ landing round.** Two exits exist and BOTH are Brett's call, not this round's:
   gate. Note this is a `code_surface` amendment after ratification, which is a
   contested-class act and needs the disposition to say so.
 
+**§12 IS NOT THE WHOLE LEDGER — corrected 2026-08-21 (review finding F5).** The
+first version of this note named §12 alone, which would have put a partial
+ledger in front of the ruling. NINE tasks are open, across THREE families, and
+only one of them is §12:
+
+| open | what it needs | who can close it |
+|---|---|---|
+| **10.7** | an additive **chat-turn-success** release carrying the assembled context's posture (`full \| reduced`) and its reason — the packet half is built and the browser half has no field to land in | a contract release |
+| **11.7** | an additive **model-catalog** release — the released entry is a CLOSED seven-field shape, so no conformant catalog can declare `auto` as a routing rule; the runtime already honours one | a contract release |
+| **12.1–12.6** | share-session: the verb, the no-implicit-push negative, the nothing-new report, the four postures, the colleague resume path (which also carries P3-17's uncommitted-sidecar tail), and 12.6's own scope call | a realization slice |
+| **13.8** | the realization-evidence tick, which cannot be true until the code surface is whole | whichever of the above lands last |
+
+So the two contract-release obligations are NOT waiting on §12 and do not become
+satisfiable by carving it out: even with share-session gone, 10.7 and 11.7 would
+still hold this change open under the same archive gate, because each names a
+release that has not been cut. Option (b) above therefore narrows the blocking
+set from three families to two — it does not clear it.
+
 Whichever Brett picks, the next session starts here. Nothing else in the wave-2
 landing is blocked by it: Phase A is archived, the staged topic is exited, and
 the realization evidence for everything built is recorded in `proposal.md`.
