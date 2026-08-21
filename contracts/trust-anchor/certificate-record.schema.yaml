@@ -1,0 +1,342 @@
+schema_version: 1
+kind: openxfactory-trust-anchor-contract-schema
+name: xfactory_certificate_record
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/trust-anchor/v1/certificate-record.schema.yaml"
+contract_id: trust-anchor-certificate-record
+contract_schema_version: 1
+title: Certificate record
+description: >-
+  A certificate as a governed record: the anchor it is trusted THROUGH, its
+  subject and validity, its declared chain custody and the `evidences` DERIVED
+  from it, the issuance evidence that answers "should this exist?", and the
+  dependent-binding set that makes a renewal's rebind obligations computable
+  BEFORE the renewal (add-trust-anchor, requirements on anchors, issuance
+  evidence, chain custody, dependent bindings and revocation).
+
+  TRUST HAS ONE REPRESENTABLE BASIS. `trust_evaluation.basis` is a constant:
+  `held_anchor_record`. A certificate accepted on its own strength — however
+  well-formed — has no shape here, and the refusal vocabulary contains no
+  member for "it parsed". A refusal for a chain that terminates nowhere must
+  NAME the missing anchor, so the record cannot say "refused" without saying
+  what was missing.
+
+  STANDING IS CHECKED AT USE. Every evaluation carries a
+  `revocation_standing_check` whose `basis` is the constant `checked_at_use`;
+  issuance-time validity is not a representable basis for current standing. An
+  evaluation recorded as `trusted` must, BY SHAPE, carry a check performed at
+  use that returned active standing — the schema will not let those three facts
+  disagree.
+
+  `evidences` IS DERIVED, NEVER ASSERTED. It comes from the declared custody
+  member through the closed chain-custody registry, and the canonical validator
+  recomputes it. Where NO custody is declared the record resolves to the
+  registry's declared floor — the weakest member — and may hold no assurance
+  above that member's ceiling. Raising assurance is therefore a custody change,
+  not a claim, and the refusal a consumer gets names the CUSTODY CEILING rather
+  than anything about the certificate's contents.
+
+  A DEPENDENT DISCOVERED BY AN OUTAGE IS A DEFECT OF THIS RECORD. The
+  enumeration declares itself `complete` or `known_incomplete` — a renewal
+  planned against a `known_incomplete` record is refused — and a defect entry
+  cannot be resolved without NAMING the binding added to the enumeration. So
+  "closed by re-binding alone" is unrepresentable: the correction of the record
+  is what closes the defect.
+type: object
+required:
+  - schema_version
+  - kind
+  - certificate_id
+  - realization_ref
+  - anchor_ref
+  - subject
+  - validity
+  - state
+  - key_generation
+  - evidences
+  - assurance_ceiling
+  - issuance_evidence
+  - dependent_binding_enumeration
+  - trust_evaluation
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_certificate_record]
+  certificate_id: {$ref: '#/$defs/identifier'}
+  realization_ref: {$ref: '#/$defs/identifier'}
+  anchor_ref:
+    # The anchor this certificate is trusted THROUGH. Required on every record:
+    # a certificate with no anchor is not a certificate this family can trust,
+    # and the field exists so that fact cannot be expressed by omission.
+    $ref: '#/$defs/identifier'
+  subject:
+    type: object
+    required: [identifier, subject_class]
+    additionalProperties: false
+    properties:
+      identifier: {type: string, minLength: 1, maxLength: 300}
+      subject_class:
+        # Neutral classes. What a realization calls its populations is its own
+        # vocabulary; this axis only has to be coarse enough for a consumer to
+        # know what kind of thing it is trusting.
+        type: string
+        enum: [device, host, service, workload, person, authority]
+      display_label: {type: string, maxLength: 300}
+      public_key_fingerprint:
+        type: string
+        pattern: '^(sha256|sha384|sha512|sha1):[0-9a-fA-F:]{16,160}$'
+  validity:
+    type: object
+    required: [not_before, not_after]
+    additionalProperties: false
+    properties:
+      not_before: {type: string, format: date-time}
+      not_after: {type: string, format: date-time}
+  state:
+    type: string
+    enum: [valid, superseded, revoked, expired]
+  key_generation:
+    # WHICH key this record is about. A renewal that changes key material
+    # supersedes a generation, and a dependent binding points at one — so the
+    # generation is the join between them, and "pointing at superseded
+    # material" becomes a comparison rather than an intuition.
+    type: object
+    required: [generation_ref]
+    additionalProperties: false
+    properties:
+      generation_ref: {$ref: '#/$defs/identifier'}
+      generated_at: {type: string, format: date-time}
+      supersedes_generation_ref: {$ref: '#/$defs/identifier'}
+  declared_chain_custody:
+    # OPTIONAL by ratification: an undeclared certificate resolves to the
+    # registry's floor and may hold no authority above it. Where declared, the
+    # member must be in the closed set; a readable-key member additionally
+    # requires the credential record and vault binding that hold the material,
+    # keyed by the registry's own boolean rather than by a member's name.
+    type: object
+    required: [custody_model, registry_id]
+    additionalProperties: false
+    properties:
+      custody_model: {$ref: '#/$defs/identifier'}
+      registry_id: {$ref: '#/$defs/identifier'}
+      registry_version: {type: integer, minimum: 1}
+      credential_record_ref: {$ref: '#/$defs/identifier'}
+      vault_binding_ref: {$ref: '#/$defs/identifier'}
+      declared_at: {type: string, format: date-time}
+      declared_by: {type: string, maxLength: 200}
+      statement: {type: string, maxLength: 800}
+  evidences:
+    # DERIVED from the declared custody member (or from the registry's floor
+    # where none is declared) and recomputed by the canonical validator. It is
+    # carried on the record so an auditor reading one file can tell whether the
+    # named holder or its host was evidenced, which is what the ratified audit
+    # scenario asks for.
+    type: string
+    enum: [using_host, named_holder]
+  assurance_ceiling:
+    # DERIVED: the ceiling of the declared custody member, or of the floor.
+    # A dependent binding requiring more than this is refused with the ceiling
+    # named.
+    $ref: '#/$defs/identifier'
+  custody_in_force_at:
+    # The moment the declared custody was in force, so an audit of an act can
+    # state the custody in force AT THE TIME of the act rather than the custody
+    # in force when the record was last read.
+    type: string
+    format: date-time
+  issuance_evidence:
+    # Either the evidence record, or the honest absence. The absence is not
+    # silent: the question "should this exist?" is answered `unanswered` — never
+    # yes — and the certificate is a revocation candidate until the record is
+    # produced. Both of those are constants, so an absent record cannot be
+    # written up as an approval.
+    type: object
+    required: [present]
+    additionalProperties: false
+    properties:
+      present: {type: boolean}
+      evidence_ref: {$ref: '#/$defs/identifier'}
+      unexplained:
+        type: object
+        required: [question_answered_as, disposition, recorded_at]
+        additionalProperties: false
+        properties:
+          question_answered_as: {const: unanswered}
+          disposition: {const: revocation_candidate}
+          recorded_at: {type: string, format: date-time}
+          statement: {type: string, maxLength: 800}
+    allOf:
+      - if:
+          properties: {present: {const: true}}
+          required: [present]
+        then:
+          required: [evidence_ref]
+          not: {required: [unexplained]}
+      - if:
+          properties: {present: {const: false}}
+          required: [present]
+        then:
+          required: [unexplained]
+          not: {required: [evidence_ref]}
+  dependent_binding_enumeration:
+    # The set of authority bindings referencing this certificate's key
+    # material, in any system, inside the family or outside it. This is what
+    # makes the rebind set a renewal will create computable BEFORE the renewal
+    # happens, which is the only thing that makes the rebind obligation
+    # enforceable.
+    type: object
+    required: [state, asserted_at, binding_refs]
+    additionalProperties: false
+    properties:
+      state:
+        type: string
+        enum: [complete, known_incomplete]
+      asserted_at: {type: string, format: date-time}
+      binding_refs:
+        type: array
+        uniqueItems: true
+        items: {$ref: '#/$defs/identifier'}
+      statement: {type: string, maxLength: 800}
+  record_defects:
+    # A dependent discovered only when it broke is a DEFECT OF THIS RECORD, not
+    # merely an incident. Resolution requires naming the binding that was added
+    # to the enumeration, so the record correction — not the re-bind — is what
+    # closes the defect.
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      required: [defect_id, discovered_at, discovered_by, added_binding_ref, resolution, statement]
+      additionalProperties: false
+      properties:
+        defect_id: {$ref: '#/$defs/identifier'}
+        discovered_at: {type: string, format: date-time}
+        discovered_by:
+          type: string
+          enum: [authentication_failure, planned_review, audit, holder_declaration]
+        added_binding_ref: {$ref: '#/$defs/identifier'}
+        resolution:
+          type: string
+          enum: [record_corrected, open]
+        corrected_at: {type: string, format: date-time}
+        rebind_evidence_ref: {$ref: '#/$defs/identifier'}
+        statement: {type: string, minLength: 1, maxLength: 900}
+      allOf:
+        - if:
+            properties: {resolution: {const: record_corrected}}
+            required: [resolution]
+          then: {required: [corrected_at]}
+  trust_evaluation:
+    type: object
+    required:
+      - evaluated_at
+      - basis
+      - chain_terminates_in_held_anchor
+      - revocation_standing_check
+      - outcome
+    additionalProperties: false
+    properties:
+      evaluated_at: {type: string, format: date-time}
+      basis:
+        # The ONLY representable basis for trusting a certificate.
+        const: held_anchor_record
+      presented_chain:
+        type: array
+        uniqueItems: true
+        items: {$ref: '#/$defs/identifier'}
+      chain_terminates_in_held_anchor: {type: boolean}
+      revocation_standing_check:
+        type: object
+        required: [basis, performed_at_use, checked_at, result]
+        additionalProperties: false
+        properties:
+          basis: {const: checked_at_use}
+          performed_at_use: {type: boolean}
+          checked_at: {type: string, format: date-time}
+          result:
+            type: string
+            enum: [current_standing_active, current_standing_revoked, unavailable]
+          source_statement: {type: string, maxLength: 600}
+      outcome:
+        type: string
+        enum: [trusted, refused]
+      refusal:
+        type: object
+        required: [code, statement]
+        additionalProperties: false
+        properties:
+          code:
+            # There is no member for "it was well-formed": well-formedness is
+            # not a reason to accept a certificate, so it is not a reason this
+            # vocabulary can record either.
+            type: string
+            enum:
+              - missing_anchor
+              - anchor_not_held
+              - anchor_outside_validity
+              - certificate_revoked
+              - certificate_outside_validity
+              - issuance_evidence_absent
+              - issuance_unauthorized
+              - custody_ceiling_exceeded
+              - declared_obligation_gap
+          missing_anchor_ref: {$ref: '#/$defs/identifier'}
+          ceiling_named: {$ref: '#/$defs/identifier'}
+          gap_obligation_ref: {$ref: '#/$defs/identifier'}
+          statement: {type: string, minLength: 1, maxLength: 900}
+        allOf:
+          - if:
+              properties: {code: {const: missing_anchor}}
+              required: [code]
+            then: {required: [missing_anchor_ref]}
+          - if:
+              properties: {code: {const: custody_ceiling_exceeded}}
+              required: [code]
+            then: {required: [ceiling_named]}
+          - if:
+              properties: {code: {const: declared_obligation_gap}}
+              required: [code]
+            then: {required: [gap_obligation_ref]}
+    allOf:
+      - if:
+          properties: {outcome: {const: refused}}
+          required: [outcome]
+        then: {required: [refusal]}
+      - if:
+          properties: {outcome: {const: trusted}}
+          required: [outcome]
+        then:
+          # Trust is not assertable over a chain that terminates nowhere, nor
+          # over a standing check that was skipped or came back revoked. The
+          # three facts cannot disagree, by shape.
+          not: {required: [refusal]}
+          properties:
+            chain_terminates_in_held_anchor: {const: true}
+            revocation_standing_check:
+              properties:
+                performed_at_use: {const: true}
+                result: {const: current_standing_active}
+  revocation:
+    type: object
+    required: [revoked_at, reason_statement]
+    additionalProperties: false
+    properties:
+      revoked_at: {type: string, format: date-time}
+      reason_statement: {type: string, minLength: 1, maxLength: 800}
+      propagation_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  created_at: {type: string, format: date-time}
+  notes: {type: string, maxLength: 1400}
+allOf:
+  - if:
+      properties: {state: {const: revoked}}
+      required: [state]
+    then: {required: [revocation]}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

@@ -1,0 +1,34 @@
+# expected_failure: never-mirror-property
+# expected_failure_detail: 'roles' is an undeclared property
+# requirement: IDB-R3
+# VIOLATES R3: the broker asserts identity and membership only.
+#
+# The most plausible version of the mistake, and the reason the property set is
+# a CLOSED ALLOW-LIST rather than a denylist. Someone needs the workbench to
+# know who may approve, the broker already knows who logged in, and adding
+# `roles` to the assertion is one line. From there the tenancy graph grows a
+# field at a time until broker state is a second copy of it — and the copy will
+# disagree with the first one, discovered by an authorization decision going
+# the wrong way.
+#
+# Authorization resolves in the governed layer, against the governed tenancy
+# graph and the grants already recorded there. The assertion contributes
+# identity and memberships, and there is nowhere in the shape to put anything
+# else.
+schema_version: 1
+kind: persona_assertion
+assertion_id: pa-carries-roles-9001
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+subject: sub-9001aa22bb33cc44
+display_name: Roles Carrier
+roles:
+  - workbench-reader
+  - gate-approver
+linked_identities:
+  - provider_id: entra-opensoft
+    upstream_subject: 9001aa22-bb33-cc44-dd55-ee66ff778899
+organization_memberships:
+  - organization_id: opensoft
+asserted_at: "2026-08-21T12:00:00Z"

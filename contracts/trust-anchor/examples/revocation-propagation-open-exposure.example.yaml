@@ -1,0 +1,53 @@
+# VALID revocation propagation recorded as an OPEN EXPOSURE. The window closed
+# with one downstream authority unevidenced, so the record says `incomplete` and
+# escalates — it does not report completion on the strength of the revocation
+# request. There is no "accepted risk" or "closed administratively" state to
+# reach for, because the only honest name for this is exposure.
+#
+# The window is checked arithmetically against its own declaration, and the
+# assessment is timed by the record's own `assessed_at` rather than by whenever
+# someone reads it.
+schema_version: 1
+kind: xfactory_certificate_revocation_propagation
+propagation_id: prop:core-legacy-03-revocation
+realization_ref: realization:core-self-hosted-authority
+mechanism:
+  realized_through: openxwallet_revocation_through_derivation
+  statement: >-
+    The certificate's downstream authority dies with it, checked at use. The
+    obligation is stated here; the mechanism is the ratified one.
+revoked:
+  target_kind: certificate
+  target_ref: cert:core-legacy-03
+  revoked_at: "2026-08-25T10:00:00Z"
+  reason_statement: >-
+    Revoked as an unexplained certificate whose issuance evidence could not be
+    produced.
+declared_window:
+  opens_at: "2026-08-25T10:00:00Z"
+  bounded_seconds: 86400
+  closes_at: "2026-08-26T10:00:00Z"
+assessed_at: "2026-08-27T09:00:00Z"
+downstream_authorities:
+  - authority_ref: authority:core-legacy-reporting-read
+    reached_via: derivation
+    state: propagated
+    propagation_evidence:
+      mode: exercise_refused
+      performed_at: "2026-08-25T10:20:00Z"
+      evidence_ref: evidence:core-legacy-reporting-refused
+  - authority_ref: authority:core-legacy-partner-feed
+    reached_via: derivation
+    state: unevidenced
+completion:
+  state: incomplete_open_exposure
+  escalation:
+    escalated_as: open_exposure
+    escalated_at: "2026-08-27T09:05:00Z"
+    exposure_ref: exposure:core-legacy-partner-feed-unrevoked
+    statement: >-
+      The partner feed's authority derived from this certificate and no
+      propagation could be evidenced within the declared window. Recorded as an
+      open exposure with a named owner rather than as a complete revocation,
+      because the request was sent and arrival was never shown.
+record_version: 1

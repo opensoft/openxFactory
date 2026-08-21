@@ -1,0 +1,54 @@
+# VALID dependent binding on a REVOKED certificate — the authority that
+# certificate supported, recorded so the revocation's propagation has something
+# to be checked against.
+#
+# This is the certificate half of the transitive-revocation rule. Revoking a
+# certificate revokes the authority THAT CERTIFICATE SUPPORTED, and the
+# certificate's own dependent-binding enumeration is the record of what that was:
+# the propagation record for `cert:core-legacy-03` must name
+# `authority:core-legacy-partner-feed`, and it does — as an UNEVIDENCED
+# authority inside an open exposure, which is the honest outcome rather than a
+# completed one.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:core-legacy-03-partner-feed
+certificate_ref: cert:core-legacy-03
+holding_system:
+  system_ref: system:partner-reporting-feed
+  inside_family: false
+  statement: >-
+    A partner's reporting feed accepts this certificate's key for the pull
+    authority it grants. Outside the family, and a rebind obligation anyway —
+    which is why `inside_family` is a required field rather than an implied one.
+  counterparty_ref: counterparty:partner-reporting
+binds:
+  binding_kind: authority_grant
+  what_statement: >-
+    The pull authority the feed grants to whoever presents this key. Revoking
+    the certificate has to reach this grant, or the certificate is revoked and
+    the authority it bought is not.
+  authority_ref: authority:core-legacy-partner-feed
+bound_key_reference:
+  key_generation_ref: keygen:core-legacy-03-g1
+  bound_at: "2026-01-20T00:00:00Z"
+required_assurance: host_attributed_act
+required_obligations: [TA-R6]
+admission:
+  state: admitted
+  decided_at: "2026-01-20T00:00:00Z"
+rebind_status:
+  state: current
+  as_of: "2026-08-20T08:00:00Z"
+  statement: >-
+    Bound to the certificate's only generation. The certificate was revoked
+    rather than renewed, so no rebind was ever owed — what is owed is
+    propagation.
+discovery:
+  discovered_by: audit
+  discovered_at: "2026-08-20T08:00:00Z"
+  recorded_before_first_renewal: true
+  statement: >-
+    Found by the same audit that found the certificate unexplained. Recorded as
+    an audit discovery rather than an authentication failure: the binding was
+    still working, which is exactly why it needed to be written down.
+record_version: 1

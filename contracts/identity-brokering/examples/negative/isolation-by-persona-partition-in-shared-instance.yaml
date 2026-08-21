@@ -1,0 +1,36 @@
+# expected_failure: isolation-by-partition
+# expected_failure_detail: must not co-reside, and the adoption names a 'shared' broker instance
+# requirement: IDB-R8
+# VIOLATES R8: isolation met by partitioning personas inside a shared instance.
+#
+# The restriction is correctly identified and correctly referenced — this
+# adoption did the co-residence work — and then it is answered inside the
+# shared instance, on the strength of a partition (a realm split, a group
+# boundary, a naming convention; the mechanism does not matter). The record even
+# claims `satisfied_by: dedicated_broker_instance`, which is the only value the
+# enumeration offers, while naming a shared deployment.
+#
+# The trade is the point: partitioning pays the FULL persona-fragmentation cost
+# — a human in the partition cannot be one persona with their other memberships
+# — and buys weaker isolation than a separate instance, because the
+# administrative plane, the datastore and the blast radius all stay shared. If
+# personas are going to be fragmented, the fragmentation should at least buy
+# real isolation.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-partitioned-patients-9018
+surface_ref: healthlinc-patient-portal-partitioned
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+authorization_posture: authenticated_persona
+governed_write_actions:
+  offered: false
+human_accounts_held_by_surface: false
+prior_shared_credential: none
+isolation:
+  co_residence_restriction: population_restricted
+  restriction_ref: "openspec/changes/add-identity-brokering/review/co-residence-finding-2026-08-21.md"
+  restricted_population: HealthLinc clinical patients (healthlinc-argentina)
+  satisfied_by: dedicated_broker_instance
+declared_at: "2026-08-22T11:00:00Z"

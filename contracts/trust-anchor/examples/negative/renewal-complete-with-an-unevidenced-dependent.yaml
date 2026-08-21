@@ -1,0 +1,44 @@
+# expected_failure: renewal-complete-with-unevidenced-dependent
+# expected_failure_detail: silence is not evidence
+# requirement: TA-R4
+# VIOLATES TA-R4: a renewal reported COMPLETE while one enumerated dependent
+# carries no rebind evidence at all.
+#
+# Note how it evades the shape. The schema refuses a rebind ENTRY whose evidence
+# is missing or failed, so this record simply does not mention the second
+# dependent — it enumerates both and reports on one. That is the honest-looking
+# version of the failure, and it is why the enumerated set is checked against the
+# rebind list rather than the rebind list being trusted as the set.
+#
+# A renewal that succeeds at the authority while a dependent still points at
+# superseded material is a failure of the ISSUING WORKFLOW. Nothing reported an
+# error, and the absence of an error is not evidence.
+schema_version: 1
+kind: xfactory_certificate_renewal_record
+renewal_id: renewal:neg-complete-unevidenced
+certificate_ref: cert:core-workload-02
+anchor_ref: anchor:core-issuing
+renewal_mode: requested
+planning:
+  planned_at: "2026-06-30T00:00:00Z"
+  certificate_enumeration_state: complete
+  outcome: proceeded
+key_change:
+  changed: true
+  superseded_key_generation_ref: keygen:core-workload-02-g1
+  new_key_generation_ref: keygen:core-workload-02-g2
+rebind_obligation:
+  arises: true
+  statement: New key material; both bindings owe a re-bind.
+enumerated_dependents:
+  - bind:core-workload-02-queue
+  - bind:core-workload-02-mesh
+dependent_rebinds:
+  - binding_ref: bind:core-workload-02-queue
+    rebind_evidence:
+      mode: authentication_against_new_material
+      performed_at: "2026-07-01T02:05:00Z"
+      result: succeeded
+authority_outcome: issued
+completion_state: complete
+reported_at: "2026-07-01T02:10:00Z"

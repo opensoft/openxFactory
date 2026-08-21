@@ -1,0 +1,36 @@
+# expected_failure: membership-as-authority
+# expected_failure_detail: organization_membership_as_authority=True
+# requirement: IDB-R6
+# VIOLATES R6: a transport client claiming membership as authority.
+#
+# The editor's drive connector needs to reach a client's documents, so its
+# client is put in that client's organization and the organization membership
+# becomes the authorization: whatever the organization can see, the connector
+# can see. The client is now an authority holder, and its authority is a
+# membership nobody attenuated, nobody scoped, and nobody can revoke without
+# removing the membership every human in that organization also depends on.
+#
+# The declaration is a required constant `false` for exactly this reason. A
+# transport client holds no membership as authority — and where the connector
+# genuinely needs authority, it takes a `credential-contracts` grant, which can
+# be attenuated, scoped, and revoked on its own.
+schema_version: 1
+kind: broker_client_declaration
+client_id: editor-drive-connector
+broker_instance_ref: broker-opensoft-shared
+surface_ref: openxfactory-editor
+client_type: confidential
+oidc_token_reason: >-
+  The editor exchanges an authorization code for drive tokens on behalf of the
+  signed-in persona, and therefore needs a confidential client.
+service_account_subject: svc-2c81d9e3fa456b72
+credential_requirement:
+  requirement_id: keycloak-confidential-client-editor
+  requirements_document_ref: OpsxFactory:credentials/requirements.yaml
+  holder_ref: opsx:service-subject:keycloak-opensoft-shared
+  custody_declared_in: "OpsxFactory:credentials/requirements.yaml#keycloak-confidential-client-editor"
+transport:
+  is_transport: true
+  actor_of_governed_acts: false
+  organization_membership_as_authority: true
+declared_at: "2026-08-22T10:30:00Z"

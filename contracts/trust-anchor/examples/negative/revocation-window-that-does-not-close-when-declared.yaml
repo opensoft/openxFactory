@@ -1,0 +1,40 @@
+# expected_failure: revocation-window-arithmetic
+# expected_failure_detail: recomputed rather than trusted
+# requirement: TA-R6
+# VIOLATES TA-R6's bounded-window requirement arithmetically: a window declared as
+# one hour that closes a day later.
+#
+# A window nobody checks is a window that means whatever its widest field says. The
+# closing moment is recomputed from the opening moment and the bound, on the same
+# principle that makes `evidences` derived: a record does not get to assert a
+# conclusion its own inputs contradict. Left unchecked, this is how a one-hour
+# obligation quietly becomes a one-day one — and the open-exposure escalation is
+# timed against the close, so the window's honesty is what makes that escalation
+# fire.
+schema_version: 1
+kind: xfactory_certificate_revocation_propagation
+propagation_id: prop:neg-window-arithmetic
+realization_ref: realization:core-self-hosted-authority
+mechanism:
+  realized_through: openxwallet_revocation_through_derivation
+  statement: Rides the ratified derivation rule.
+revoked:
+  target_kind: certificate
+  target_ref: cert:core-legacy-03
+  revoked_at: "2026-08-25T10:00:00Z"
+  reason_statement: Unexplained certificate, revoked after review.
+declared_window:
+  opens_at: "2026-08-25T10:00:00Z"
+  bounded_seconds: 3600
+  closes_at: "2026-08-26T10:00:00Z"
+  statement: One hour, as required for a suspected exposure.
+assessed_at: "2026-08-25T10:30:00Z"
+downstream_authorities:
+  - authority_ref: authority:core-legacy-reporting-read
+    reached_via: derivation
+    state: propagated
+    propagation_evidence:
+      mode: exercise_refused
+      performed_at: "2026-08-25T10:20:00Z"
+completion:
+  state: complete

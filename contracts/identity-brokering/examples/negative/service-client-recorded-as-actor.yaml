@@ -1,0 +1,26 @@
+# expected_failure: workload-as-actor
+# expected_failure_detail: the actor is broker service client
+# requirement: IDB-R6
+# VIOLATES R6: a governed record naming a service client as its human actor.
+#
+# The specific laundering move. A governed act reached the system through the
+# proxy's confidential client, so the record names the client as the actor —
+# and the act now appears to have been taken by somebody, which is worse than
+# recording that it was taken by nobody identifiable.
+#
+# The routing is already ratified elsewhere and is not reinvented here: a
+# service client is TRANSPORT, and an act with no establishable persona is
+# recorded as unattributed (`openxwallet`'s unattributed-act rule), never
+# assigned on the strength of the credential used.
+schema_version: 1
+kind: actor_subject_reference
+reference_id: asr-client-as-actor-9014
+governed_record_ref:
+  record_type: gate_action
+  record_ref: "openxfactory:gate/add-identity-brokering/close/2026-08-22"
+provenance: broker_asserted
+issuer:
+  broker_instance_id: broker-opensoft-shared
+subject: svc-1f70b8d2c9a34e61
+display_name_at_record: workbench-oauth2-proxy
+recorded_at: "2026-08-22T10:25:00Z"

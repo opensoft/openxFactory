@@ -1,0 +1,40 @@
+# expected_failure: never-mirror-property
+# expected_failure_detail: names 'northwind-industries'
+# requirement: IDB-R2
+# VIOLATES R2: a membership that names no company boundary.
+#
+# THE PATTERN CANNOT CATCH THIS ONE, WHICH IS WHY THE RESOLUTION EXISTS.
+# `northwind-industries` is a perfectly shaped identifier — no ':', no '/',
+# nothing a pattern could object to — and no `broker_organization` in the
+# corpus declares it. A membership names a COMPANY BOUNDARY that some
+# organization record actually realizes; a membership pointing at nothing is
+# an association with an entity the governed layer cannot resolve, and it is
+# the form a smuggled value takes once the obvious spellings are unrepresentable.
+#
+# This is the fixture that proves the rule is doing the work: it is the only
+# one of the three membership probes that fails with NO schema finding at all,
+# so `never-mirror-property` here cannot be a pattern refusal wearing the
+# rule's name.
+#
+# The rule is CORPUS-COUPLED, like the one-persona-per-instance, workload and
+# cross-instance rules: it resolves against the organizations the scan sees and
+# is skipped entirely when a scan declares none. A repository that keeps its
+# personas and its organizations apart gets a weaker check — recorded in the
+# family README rather than left to be discovered.
+schema_version: 1
+kind: persona_assertion
+assertion_id: pa-membership-undeclared-9024
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+subject: sub-membership-undecl-01
+display_name: Probe Undeclared Membership
+linked_identities:
+  - provider_id: entra-opensoft
+    upstream_subject: membership-undeclared-upstream-0001
+organization_memberships:
+  - organization_id: opensoft
+    member_since: "2026-01-06"
+  - organization_id: northwind-industries
+    member_since: "2026-04-02"
+asserted_at: "2026-08-22T12:10:00Z"

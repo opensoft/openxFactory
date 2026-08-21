@@ -1,0 +1,33 @@
+# expected_failure: chain-parent-unresolved
+# expected_failure_detail: terminates in no held anchor
+# requirement: TA-R1
+# VIOLATES TA-R1: a subordinate anchor naming a parent nobody holds.
+#
+# An unresolvable parent is not a paperwork gap; it is a chain that terminates
+# nowhere, dressed as a chain that terminates somewhere. Refused rather than
+# passed over, on the same principle that refuses a certificate whose chain
+# terminates in no held anchor: a reference that resolves to nothing must not be
+# treated as a reference that resolves.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:neg-orphan-issuing
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "Orphaned Issuing Authority"
+chain_position:
+  role: subordinate
+  parent_anchor_ref: anchor:never-held
+  path_depth: 1
+validity:
+  not_before: "2026-02-01T00:00:00Z"
+  not_after: "2031-02-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:core-service-issuance-policy
+    authority_kind: policy
+    statement: Service certificates.
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  credential_record_ref: credential:neg-orphan-issuing-key
+  vault_binding_ref: vaultbinding:core/neg-orphan-issuing-key

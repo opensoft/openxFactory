@@ -1,0 +1,33 @@
+# expected_failure: never-mirror-property
+# expected_failure_detail: 'governed_record_refs[0].tenant_layers' is an undeclared property
+# requirement: IDB-R3
+# VIOLATES R3: a POINTER became a PROJECTION.
+#
+# The reference is still there and still singular, so the record passes a
+# reading of the rule that counts references. What it now carries is the
+# referenced record's CONTENTS — the tenant's layers and its stacks, copied in
+# "so the surface does not have to call Hermes for them". That is the exact
+# failure design D2 draws the line against: one reference is required and
+# legal; copying the referenced record's contents into broker state is the
+# mirror.
+#
+# The line is pointer versus projection, not one reference versus two, which is
+# why the reference object is closed as tightly as the record around it.
+schema_version: 1
+kind: broker_organization
+organization_id: opensoft-projected
+display_name: Opensoft (projected)
+company_role: tenant
+broker_instance_ref: broker-opensoft-shared
+governed_record_refs:
+  - record_kind: tenant
+    record_ref: hermes/tenant/opensoft
+    resolves_in: governed_layer
+    tenant_layers:
+      - subject
+      - tenant
+      - domain
+    tenant_stacks:
+      - openxfactory
+      - opsxfactory
+declared_at: "2026-08-21T12:10:00Z"

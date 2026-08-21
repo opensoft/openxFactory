@@ -1,0 +1,175 @@
+schema_version: 1
+kind: openxfactory-identity-brokering-contract-schema
+name: persona_assertion
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/identity-brokering/v1/persona-assertion.schema.yaml"
+contract_id: identity-brokering-persona-assertion
+contract_schema_version: 1
+title: Identity-brokering persona assertion
+description: >-
+  What a conformant identity broker asserts about an authenticated human
+  (add-identity-brokering, capability `identity-brokering`, requirements
+  "One persona per human within a broker instance" and "The broker asserts
+  identity and membership only"). The assertion carries the issuing broker
+  INSTANCE, the stable opaque SUBJECT, the display name, the federated
+  upstream identities attached to that persona, and the organization
+  memberships — and nothing else.
+
+  THE PROPERTY SET IS A CLOSED ALLOW-LIST AT EVERY DEPTH. There is no place
+  in this shape to put a role, a group, a grant, a project, a stack, a
+  layer, a domain, a subject, an entitlement, or a permission, and
+  `additionalProperties: false` everywhere means a consumer cannot add one.
+  That is the never-mirror rule enforced by the SHAPE rather than by review:
+  a second copy of the tenancy graph inside an identity product is a copy
+  that will disagree with the first one, and the disagreement is discovered
+  by an authorization decision going the wrong way (design D2 and its named
+  risk). The canonical validator additionally walks every property PATH in a
+  document against the allow-list this schema derives, so an unrecognized
+  property is refused by NAME rather than passing unnoticed — an allow-list,
+  never a denylist of forbidden names, because a denylist admits every field
+  nobody thought to forbid.
+
+  A membership records ASSOCIATION, never authority: a membership entry
+  carries an organization and a date, and has no field in which a role,
+  scope or permission could be written. Authorization resolves in the
+  governed layer, against the governed tenancy graph and the grants already
+  recorded there.
+
+  AND THE MEMBERSHIP ID NAMES A COMPANY, not a path into the graph. The
+  membership's `organization_id` uses the `organization_id` $def — a
+  NARROWER pattern than the family's general `identifier`, admitting no ':'
+  and no '/' — because it is the one field on this shape that points at
+  another record and was therefore the never-mirror rule's last doorway:
+  `role:platform-admin`, `grant:deploy-prod`, `project:alpha` and
+  `stack/opensoft/qa/layer/tenant` were all legal "memberships" while every
+  closed object above held. `broker-organization.schema.yaml` narrows its
+  own `organization_id` to the SAME pattern, so the two shapes agree and no
+  organization can be declared under an id a conformant membership could
+  not name. The canonical validator additionally RESOLVES the id against
+  the `broker_organization` records in the same scan, so a smuggled value
+  shaped like a company name is refused as well.
+
+  Nothing here is key-shaped or secret-shaped. A linked upstream identity is
+  a provider id plus the subject that provider issued — a REFERENCE pair,
+  never a token, secret, assertion blob or credential of any kind.
+type: object
+required:
+  - schema_version
+  - kind
+  - assertion_id
+  - broker_instance
+  - subject
+  - display_name
+  - linked_identities
+  - organization_memberships
+  - asserted_at
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [persona_assertion]
+  assertion_id: {$ref: '#/$defs/identifier'}
+  broker_instance:
+    # The persona is single WITHIN THIS INSTANCE. The capability is
+    # deliberately silent on instance count (design D3): a single shared
+    # instance, a family of per-client instances, and a single-organization
+    # deployment with no operator layer above it are all conformant.
+    # Personas do not span instances, and no capability may require that
+    # they do — which is why the instance is part of every assertion rather
+    # than ambient context.
+    type: object
+    required: [instance_id]
+    additionalProperties: false
+    properties:
+      instance_id: {$ref: '#/$defs/identifier'}
+      deployment:
+        # Declared where the record knows it, so an isolation claim made by
+        # a surface adoption can be checked against the instance it names.
+        type: string
+        enum: [shared, dedicated]
+  subject:
+    # THE DURABLE UNIT. The broker-issued stable opaque subject: the only
+    # identifier a governed record may bind an actor to. The pattern admits
+    # no '@' and no whitespace, so an email address and a display name are
+    # UNREPRESENTABLE in this position rather than merely discouraged, and
+    # the length floor means a bare upstream username cannot sit here
+    # either (see actor-subject-reference.schema.yaml, which states the
+    # reasoning in full).
+    $ref: '#/$defs/opaque_subject'
+  display_name:
+    # Denormalized on purpose: a record must stay readable without a live
+    # broker. It is a LABEL and never an identifier.
+    type: string
+    minLength: 1
+    maxLength: 200
+  linked_identities:
+    # Every federated upstream identity this human uses, attached to THIS
+    # persona rather than standing up a second one. Upstream accounts are
+    # contingent — created, retired, renamed and reassigned by
+    # organisations the family does not control — so nothing durable is
+    # built on one.
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [provider_id, upstream_subject]
+      additionalProperties: false
+      properties:
+        provider_id: {$ref: '#/$defs/identifier'}
+        upstream_subject:
+          # The subject the upstream provider issued. A reference, not a
+          # credential: no token, no assertion, no secret.
+          type: string
+          minLength: 1
+          maxLength: 200
+        linked_at: {type: string, format: date-time}
+        link_record_ref:
+          # The identity-link record that attached this identity. Absent on
+          # the identity the persona was created from; present on every
+          # identity added afterwards, because linking is EXPLICIT and an
+          # explicit act has a record (requirement R4).
+          $ref: '#/$defs/identifier'
+  organization_memberships:
+    # Many-to-many, and ASSOCIATION ONLY. One persona may belong to several
+    # organizations at once; leaving a company removes a membership, never
+    # the persona. Required and possibly EMPTY: a persona with no membership
+    # is legal, and stating the empty set beats leaving absence ambiguous.
+    type: array
+    items:
+      type: object
+      required: [organization_id]
+      additionalProperties: false
+      properties:
+        organization_id: {$ref: '#/$defs/organization_id'}
+        member_since: {type: string, format: date}
+  asserted_at: {type: string, format: date-time}
+  policy_version: {type: integer, minimum: 1}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+  organization_id:
+    # A NARROWER identifier than the family's general one, and deliberately so.
+    # This is the ONE field on a persona assertion that points at another
+    # record, which made it the never-mirror rule's remaining doorway: with
+    # ':' and '/' admitted, `role:platform-admin`, `grant:deploy-prod`,
+    # `project:alpha` and `stack/opensoft/qa/layer/tenant` were all legal
+    # "memberships", and the graph rode in as an id while every closed object
+    # in this shape held. A company boundary is named by a plain id; the
+    # namespace separator and the path separator are what a projection needs
+    # and a company name does not, so they are unrepresentable here. The
+    # canonical validator additionally RESOLVES the id against the
+    # `broker_organization` records in the same scan, so a smuggled value that
+    # merely looks like a company name is refused too.
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]*$'
+  opaque_subject:
+    type: string
+    minLength: 16
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'

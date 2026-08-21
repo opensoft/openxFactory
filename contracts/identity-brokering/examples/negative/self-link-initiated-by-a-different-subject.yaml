@@ -1,0 +1,39 @@
+# expected_failure: self-link-outside-persona-session
+# expected_failure_detail: the initiating subject is
+# requirement: IDB-R4
+# VIOLATES R4: a self link somebody else initiated.
+#
+# `initiated_by` carries TWO subjects — who acted, and whose session it was —
+# and the validator checked only the second one against the persona being added
+# to. So the two were free to disagree, and the disagreement is the whole
+# attack: the record says the act was performed by `sub-attacker…` in a session
+# holding `sub-victim…`, and everything else lines up. Mode `self_link`, basis
+# `explicit_user_action`, one subject, the survivor matching the session, an
+# audit reference.
+#
+# What it produces is an attacker's upstream Google identity attached to the
+# victim's persona, recorded as the victim's OWN explicit act. An explicit link
+# is checkable rather than merely claimed precisely because the record names the
+# session it came from; a record whose initiator is not that session's holder
+# is somebody else's act wearing the paperwork of an explicit one.
+#
+# The two fields must agree. It fails with NO schema finding — the shape is
+# entirely conformant, which is what made it worth a rule.
+schema_version: 1
+kind: identity_link_record
+link_record_id: lnk-initiator-mismatch-9029
+broker_instance_ref: broker-opensoft-shared
+mode: self_link
+basis: explicit_user_action
+subjects:
+  - sub-linkvictim000001
+surviving_subject: sub-linkvictim000001
+linked_identity:
+  provider_id: google-workspace-opensoft
+  upstream_subject: "attacker-google-0001"
+initiated_by:
+  subject: sub-linkattacker0001
+  session_holds_subject: sub-linkvictim000001
+  initiated_at: "2026-08-22T12:35:00Z"
+occurred_at: "2026-08-22T12:35:02Z"
+evidence_ref: "broker-audit://broker-opensoft-shared/link/2026-08-22/12-35-02"

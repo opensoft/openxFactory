@@ -1,0 +1,58 @@
+# expected_failure: revoked-certificate-trusted
+# expected_failure_detail: standing is checked at USE
+# requirement: TA-R6
+# VIOLATES TA-R6: a revoked certificate recorded as trusted, on a standing check
+# that came back active.
+#
+# The record contradicts itself and the contradiction is easy to produce: the
+# standing check was performed against a cached or stale source, so the answer it
+# returned was about the certificate at issuance rather than the certificate now.
+# The certificate's own state says revoked. Issuance-time validity is not evidence
+# of current standing, and a check that returns the wrong answer does not become
+# the right answer by being recorded.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:neg-revoked-but-trusted
+realization_ref: realization:core-self-hosted-authority
+anchor_ref: anchor:core-issuing
+subject:
+  identifier: "still-accepted.core.internal"
+  subject_class: service
+validity:
+  not_before: "2026-08-01T00:00:00Z"
+  not_after: "2027-08-01T00:00:00Z"
+state: revoked
+revocation:
+  revoked_at: "2026-08-10T00:00:00Z"
+  reason_statement: Key exposure suspected during an incident.
+key_generation:
+  generation_ref: keygen:neg-revoked-but-trusted-g1
+declared_chain_custody:
+  custody_model: host_held
+  registry_id: trust-anchor-chain-custody
+  credential_record_ref: credential:neg-revoked-but-trusted-key
+  vault_binding_ref: vaultbinding:core/neg-revoked-but-trusted-key
+evidences: using_host
+assurance_ceiling: host_attributed_act
+issuance_evidence:
+  present: false
+  unexplained:
+    question_answered_as: unanswered
+    disposition: revocation_candidate
+    recorded_at: "2026-08-01T00:00:00Z"
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: "2026-08-01T00:00:00Z"
+  binding_refs: []
+trust_evaluation:
+  evaluated_at: "2026-08-16T09:00:00Z"
+  basis: held_anchor_record
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: "2026-08-16T09:00:00Z"
+    result: current_standing_active
+    source_statement: >-
+      Checked against a locally cached standing list refreshed nightly.
+  outcome: trusted

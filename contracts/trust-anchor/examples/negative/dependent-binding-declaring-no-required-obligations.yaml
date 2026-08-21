@@ -1,0 +1,44 @@
+# expected_failure: schema
+# expected_failure_detail: 'required_obligations' is a required property
+# requirement: TA-R8
+# VIOLATES TA-R8's point-of-use half, and it is the loophole the design NAMES:
+# declare every obligation `cannot`, then make sure no binding ever says which
+# obligations it depends on, and the declaration costs nothing anywhere.
+#
+# An adversarial review ran exactly that — all eight obligations `cannot`,
+# `required_obligations` deleted from every binding — and the corpus stayed green.
+# A declared gap is only a refusal if something at the point of use names the
+# obligation it needs, so `required_obligations` is REQUIRED and non-empty. A
+# binding that depends on nothing beyond the anchor framing still says so by
+# naming TA-R1; what it may not do is decline to answer.
+#
+# Pinned to `schema` with the message as its detail, because the guarantee IS the
+# shape: a binding that cannot be authored is stronger than one authored and then
+# refused. It also fires `dependent-binding-unenumerated`, since a certificate
+# that enumerated it would already be tracking it.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:neg-obligation-silent
+certificate_ref: cert:core-service-01
+holding_system:
+  system_ref: system:core-quiet-consumer
+  inside_family: true
+  statement: >-
+    A consumer that authenticates with this certificate's key and declines to
+    say what it depends on.
+binds:
+  binding_kind: authentication_credential
+  what_statement: Unstated. That is the defect.
+bound_key_reference:
+  key_generation_ref: keygen:core-service-01-g1
+required_assurance: host_attributed_act
+admission:
+  state: admitted
+  decided_at: "2026-08-01T00:00:00Z"
+rebind_status:
+  state: current
+  as_of: "2026-08-01T00:00:00Z"
+discovery:
+  discovered_by: holder_declaration
+  discovered_at: "2026-08-01T00:00:00Z"
+  recorded_before_first_renewal: true

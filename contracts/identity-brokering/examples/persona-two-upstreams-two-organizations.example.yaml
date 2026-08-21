@@ -1,0 +1,35 @@
+# VALID persona assertion: the human reality the whole capability exists for.
+# ONE person, TWO federated upstream providers (the operator's own directory
+# and a Google Workspace login), and TWO organization memberships — the tenant
+# company they work for and the served company they work with. Identity-per-
+# surface or identity-per-tenant would have fragmented this human into
+# unlinkable accounts; here the second upstream is a LINKED IDENTITY on the
+# same persona, attached by the explicit self-link record it names.
+#
+# Note what is absent and cannot be added: no role, no group, no grant, no
+# project, no stack, no layer, no domain. The memberships carry an
+# organization and a date, because membership records ASSOCIATION and
+# authorization resolves in the governed layer.
+schema_version: 1
+kind: persona_assertion
+assertion_id: pa-opensoft-shared-0001
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+subject: sub-8f2c41d60a974d3b
+display_name: Brett Heap
+linked_identities:
+  - provider_id: entra-opensoft
+    upstream_subject: 9c1f52a7-4d8e-4b1f-9c33-6f0a1d2e4b77
+    linked_at: "2026-08-21T09:00:00Z"
+  - provider_id: google-workspace-opensoft
+    upstream_subject: "104729384756102938475"
+    linked_at: "2026-08-21T10:15:00Z"
+    link_record_ref: lnk-self-google-0001
+organization_memberships:
+  - organization_id: opensoft
+    member_since: "2026-01-06"
+  - organization_id: farheap
+    member_since: "2026-05-18"
+asserted_at: "2026-08-21T10:16:00Z"
+policy_version: 1

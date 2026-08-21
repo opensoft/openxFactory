@@ -1,0 +1,43 @@
+# expected_failure: dependent-omission-unrecorded
+# expected_failure_detail: DEFECT OF THE CERTIFICATE RECORD
+# requirement: TA-R5
+# VIOLATES TA-R5: a binding whose own record says it was discovered by an
+# AUTHENTICATION FAILURE, against a certificate carrying no defect for it.
+#
+# This is the incident closed by the re-bind. The binding is now recorded, the
+# authentication works again, and nothing in the corpus says the enumeration was
+# ever wrong — so the next renewal is planned against a record that looks
+# complete and has already been demonstrated not to be. The ratified text makes
+# the discovery a defect OF THE RECORD, which is what converts an unbounded
+# unknown into a shrinking list.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:neg-outage-discovered
+certificate_ref: cert:core-workload-02
+holding_system:
+  system_ref: system:partner-integration-gateway
+  inside_family: false
+  statement: >-
+    A partner gateway that had pinned this certificate's key years ago; nobody
+    inside the family knew.
+binds:
+  binding_kind: signature_verification
+  what_statement: Partner-side verification of the batch runner's submissions.
+bound_key_reference:
+  key_generation_ref: keygen:core-workload-02-g2
+required_assurance: host_attributed_act
+required_obligations: [TA-R5]
+admission:
+  state: admitted
+  decided_at: "2026-07-05T00:00:00Z"
+rebind_status:
+  state: rebound
+  as_of: "2026-07-05T00:00:00Z"
+  rebind_evidence_ref: evidence:partner-gateway-rebind
+discovery:
+  discovered_by: authentication_failure
+  discovered_at: "2026-07-04T22:00:00Z"
+  recorded_before_first_renewal: false
+  statement: >-
+    Found when the partner's submissions started failing four days after the
+    renewal. Re-bound the same evening.

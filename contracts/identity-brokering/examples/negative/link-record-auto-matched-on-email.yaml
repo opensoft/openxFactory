@@ -1,0 +1,31 @@
+# expected_failure: silent-auto-link
+# expected_failure_detail: basis 'attribute_match' is not one of the bases
+# requirement: IDB-R4
+# VIOLATES R4: linking on an attribute match.
+#
+# The convenience everyone asks for, written down: a new federated identity
+# presents an address the broker already knows, so it is attached to that
+# persona automatically and the human never sees a prompt. It is an
+# account-takeover primitive wherever an upstream provider will assert an
+# unverified or reassignable address — Entra guest addresses and self-service
+# directories both qualify — and the resulting merge cannot be undone from the
+# audit record.
+#
+# Note what the record does NOT have to say to be refused: it names no
+# initiator and no approver either, but the basis alone is disqualifying. The
+# admissible bases are read out of the contract at run time, so this check
+# cannot drift from the shape it enforces.
+schema_version: 1
+kind: identity_link_record
+link_record_id: lnk-auto-email-9006
+broker_instance_ref: broker-opensoft-shared
+mode: self_link
+basis: attribute_match
+subjects:
+  - sub-8f2c41d60a974d3b
+surviving_subject: sub-8f2c41d60a974d3b
+linked_identity:
+  provider_id: entra-guest-partner
+  upstream_subject: "b7742100-1a2b-3c4d-5e6f-708192a3b4c5"
+occurred_at: "2026-08-22T09:00:00Z"
+evidence_ref: "broker-audit://broker-opensoft-shared/autolink/2026-08-22/09-00-00"

@@ -1,0 +1,40 @@
+# expected_failure: revocation-transitivity-incomplete
+# expected_failure_detail: propagation gap, not a paperwork omission
+# requirement: TA-R6
+# VIOLATES TA-R6: an anchor revocation that reaches an authority of its own and
+# names NO subordinate certificate.
+#
+# Revoking an anchor revokes transitively what its subordinate certificates
+# supported. This record revokes the anchor, evidences one propagation, and leaves
+# the certificate that chains to it — and the authority THAT supported — entirely
+# untouched. The closure is computed from the corpus's own anchor chain rather
+# than trusted from the record, because the certificates a revocation forgets are
+# exactly the ones nobody remembered to list.
+schema_version: 1
+kind: xfactory_certificate_revocation_propagation
+propagation_id: prop:neg-anchor-not-transitive
+realization_ref: realization:core-self-hosted-authority
+mechanism:
+  realized_through: openxwallet_revocation_through_derivation
+  statement: Rides the ratified derivation rule.
+revoked:
+  target_kind: anchor
+  target_ref: anchor:retired-root
+  revoked_at: "2026-05-01T00:00:00Z"
+  reason_statement: Pilot authority decommissioned.
+declared_window:
+  opens_at: "2026-05-01T00:00:00Z"
+  bounded_seconds: 172800
+  closes_at: "2026-05-03T00:00:00Z"
+assessed_at: "2026-05-02T00:00:00Z"
+subordinate_certificates_reached: []
+downstream_authorities:
+  - authority_ref: authority:pilot-console-admin
+    reached_via: derivation
+    state: propagated
+    propagation_evidence:
+      mode: authority_revoked_at_holder
+      performed_at: "2026-05-01T00:40:00Z"
+completion:
+  state: complete
+  statement: The pilot console's admin authority was revoked.

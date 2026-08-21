@@ -1,0 +1,241 @@
+schema_version: 1
+kind: openxfactory-trust-anchor-contract-schema
+name: xfactory_certificate_renewal_record
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/trust-anchor/v1/renewal-record.schema.yaml"
+contract_id: trust-anchor-renewal-record
+contract_schema_version: 1
+title: Certificate renewal record
+description: >-
+  A renewal, and the rebind obligation it creates (add-trust-anchor,
+  requirement "Renewal that changes key material is a rebind obligation";
+  design D3, OQ3).
+
+  A renewal producing new key material leaves every binding made against the
+  old material pointing at a key the holder no longer uses. So a renewal is
+  INCOMPLETE until each dependent binding is re-bound and each rebind
+  evidenced, and the obligation sits on the ISSUING WORKFLOW.
+
+  "SUCCESSFUL WITH AN UNEVIDENCED DEPENDENT" IS UNREPRESENTABLE, STRUCTURALLY.
+  `completion_state: complete` forces every entry in `dependent_rebinds` to
+  carry evidence whose result is `succeeded` — that is a schema constraint, not
+  a validator rule, so the impossible record cannot even be authored. The
+  canonical validator then closes the other half the schema cannot see: the
+  enumerated dependents must be exactly the set the CERTIFICATE record
+  enumerates, so a renewal cannot reach `complete` by enumerating fewer
+  dependents than exist.
+
+  THE FAILURE BELONGS TO THE ISSUING WORKFLOW, AND THERE IS NO OTHER
+  REPRESENTABLE ATTRIBUTION. `failure.attribution` is the constant
+  `issuing_workflow`. The dependent that stopped authenticating was configured
+  correctly when it was configured; the renewal is what changed beneath it.
+  Attributing the outage to the dependent produces an incident report that
+  teaches nothing and guarantees recurrence at the next renewal, so this
+  contract does not provide the field that would record it.
+
+  AN UNATTENDED RENEWAL IS NOT EXEMPT. `renewal_mode` is recorded because it is
+  a fact worth reading, and NO rule keys on it: an unattended renewal owes
+  exactly the rebinds a requested one owes. Silence is not evidence, which is
+  why the evidence is a per-dependent verification performed AFTER the renewal
+  rather than the absence of a reported error.
+
+  A KEY-PRESERVING RENEWAL SAYS SO EXPLICITLY. `rebind_obligation.arises` is
+  bound by shape to `key_change.changed`, and when no obligation arises the
+  rebind list must be EMPTY — so the absence of rebind evidence is a declared
+  fact rather than an omission a reader has to interpret.
+
+  A RENEWAL PLANNED AGAINST AN INCOMPLETE RECORD IS REFUSED, also by shape:
+  where the certificate's dependent enumeration is `known_incomplete`, the
+  planning outcome is forced to `refused` and no key material may change. The
+  validator additionally compares the declared enumeration state against the
+  certificate record, so a renewal cannot proceed by misdeclaring it.
+type: object
+required:
+  - schema_version
+  - kind
+  - renewal_id
+  - certificate_ref
+  - anchor_ref
+  - renewal_mode
+  - planning
+  - key_change
+  - rebind_obligation
+  - enumerated_dependents
+  - dependent_rebinds
+  - authority_outcome
+  - completion_state
+  - reported_at
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_certificate_renewal_record]
+  renewal_id: {$ref: '#/$defs/identifier'}
+  certificate_ref: {$ref: '#/$defs/identifier'}
+  anchor_ref: {$ref: '#/$defs/identifier'}
+  renewal_mode:
+    # Recorded, and load-bearing for NOTHING. An unattended renewal owes the
+    # same rebinds as a requested one; if any rule keyed on this field, the
+    # exemption the ratified text refuses would exist in the mechanism.
+    type: string
+    enum: [requested, unattended]
+  planning:
+    type: object
+    required: [planned_at, certificate_enumeration_state, outcome]
+    additionalProperties: false
+    properties:
+      planned_at: {type: string, format: date-time}
+      certificate_enumeration_state:
+        type: string
+        enum: [complete, known_incomplete]
+      outcome:
+        type: string
+        enum: [proceeded, refused]
+      statement: {type: string, maxLength: 900}
+    allOf:
+      - if:
+          properties: {certificate_enumeration_state: {const: known_incomplete}}
+          required: [certificate_enumeration_state]
+        then:
+          properties: {outcome: {const: refused}}
+  key_change:
+    type: object
+    required: [changed]
+    additionalProperties: false
+    properties:
+      changed: {type: boolean}
+      superseded_key_generation_ref: {$ref: '#/$defs/identifier'}
+      new_key_generation_ref: {$ref: '#/$defs/identifier'}
+    allOf:
+      - if:
+          properties: {changed: {const: true}}
+          required: [changed]
+        then:
+          required: [superseded_key_generation_ref, new_key_generation_ref]
+      - if:
+          properties: {changed: {const: false}}
+          required: [changed]
+        then:
+          not:
+            anyOf:
+              - {required: [superseded_key_generation_ref]}
+              - {required: [new_key_generation_ref]}
+  rebind_obligation:
+    type: object
+    required: [arises, statement]
+    additionalProperties: false
+    properties:
+      arises: {type: boolean}
+      statement: {type: string, minLength: 1, maxLength: 900}
+  enumerated_dependents:
+    # The dependents this renewal owes rebinds to, which must be exactly the
+    # set the certificate record enumerates. Declared here so the obligation is
+    # readable from the renewal alone, and checked there so it cannot shrink.
+    type: array
+    uniqueItems: true
+    items: {$ref: '#/$defs/identifier'}
+  dependent_rebinds:
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      required: [binding_ref]
+      additionalProperties: false
+      properties:
+        binding_ref: {$ref: '#/$defs/identifier'}
+        rebind_evidence:
+          # A verification performed AFTER the renewal against the NEW
+          # material. This is what turns a silent failure into a missing
+          # artifact, which is the only kind of silent failure a validator can
+          # catch.
+          type: object
+          required: [mode, performed_at, result]
+          additionalProperties: false
+          properties:
+            mode:
+              type: string
+              enum:
+                - authentication_against_new_material
+                - binding_read_against_new_material
+                - holder_attested_verification
+            performed_at: {type: string, format: date-time}
+            result:
+              type: string
+              enum: [succeeded, failed]
+            evidence_ref: {$ref: '#/$defs/identifier'}
+            statement: {type: string, maxLength: 800}
+  authority_outcome:
+    # What happened AT THE AUTHORITY, kept distinct from whether the renewal is
+    # complete. Succeeding here while leaving a dependent unbound is precisely
+    # the failure this record exists to name.
+    type: string
+    enum: [issued, refused_by_authority]
+  completion_state:
+    type: string
+    enum: [complete, failed, refused_at_planning]
+  failure:
+    type: object
+    required: [attribution, unbound_dependents, statement]
+    additionalProperties: false
+    properties:
+      attribution:
+        # The ONLY representable attribution. There is deliberately no member
+        # for the dependent that stopped authenticating.
+        const: issuing_workflow
+      unbound_dependents:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {$ref: '#/$defs/identifier'}
+      statement: {type: string, minLength: 1, maxLength: 900}
+      remediation_ref: {$ref: '#/$defs/identifier'}
+  reported_at: {type: string, format: date-time}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+allOf:
+  - if:
+      properties: {key_change: {properties: {changed: {const: true}}, required: [changed]}}
+      required: [key_change]
+    then:
+      properties: {rebind_obligation: {properties: {arises: {const: true}}}}
+  - if:
+      properties: {key_change: {properties: {changed: {const: false}}, required: [changed]}}
+      required: [key_change]
+    then:
+      properties:
+        rebind_obligation: {properties: {arises: {const: false}}}
+        # No obligation arises, so there is nothing to evidence — and the
+        # emptiness is required rather than merely expected, so a reader never
+        # has to decide whether an absent rebind is an omission.
+        dependent_rebinds: {maxItems: 0}
+  - if:
+      properties: {completion_state: {const: complete}}
+      required: [completion_state]
+    then:
+      properties:
+        dependent_rebinds:
+          items:
+            required: [rebind_evidence]
+            properties:
+              rebind_evidence:
+                required: [result]
+                properties: {result: {const: succeeded}}
+      not: {required: [failure]}
+  - if:
+      properties: {completion_state: {const: failed}}
+      required: [completion_state]
+    then: {required: [failure]}
+  - if:
+      properties: {planning: {properties: {outcome: {const: refused}}, required: [outcome]}}
+      required: [planning]
+    then:
+      properties:
+        completion_state: {const: refused_at_planning}
+        key_change: {properties: {changed: {const: false}}}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

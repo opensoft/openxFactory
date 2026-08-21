@@ -200,3 +200,44 @@ realm. Credential custody (the last bullet above) is settled by
 composition rather than by ruling — broker DB credentials, IdP client
 secrets, and CA material are all `credential-contracts` records with
 declared custody, never committed.
+
+### Realization landed — 2026-08-21
+
+Exit 1 of the persona/claims side is **realized**, the same day it was
+proposed and ratified: the neutral `identity-brokering` capability landed as
+`add-identity-brokering`, realized by Speckit feature
+`008-identity-brokering-contracts` and **registered at `contract-v1.37`** in
+[contracts/manifest.yaml](../../contracts/manifest.yaml) and
+[contracts/CHANGELOG.md](../../contracts/CHANGELOG.md). The family is
+[contracts/identity-brokering/](../../contracts/identity-brokering/README.md)
+— six schemas, a canonical validator, and 14 positive plus 41
+intended-invalid fixtures at 9/9 requirement coverage — and every ruling
+recorded above survived into it unchanged, including the two this brainstorm
+argued hardest for: the broker asserts persona plus organization memberships
+ONLY (now a closed property allow-list at every depth, so the tenancy graph
+cannot be mirrored even by accident), and merging is explicit or
+admin-approved with attribute-match auto-linking unrepresentable rather than
+merely discouraged.
+
+Three of the open questions this doc carried forward are now settled in the
+realization's research record: the durable subject id and the `actor_subject`
+field shape (the STRUCTURED reference — issuer, opaque subject, display name
+as it stood, provenance class), pre-broker history (mark the boundary date and
+map on demand, never blanket-backfill), and the co-residence check, which
+found one population (HealthLinc patients) and pre-declared it the first
+dedicated-instance client. Login-only versus authorization gating and
+`hermes-readiness` bearer tokens remain deferred to later deltas.
+
+The PKI side this brainstorm did not anticipate was realized the same day as
+the sibling `add-trust-anchor` (feature `009-trust-anchor-contracts`, the same
+`contract-v1.37` cut). Both staged fragments have completed full promotion and
+now live with their proposals:
+[identity-brokering-plane.md](../../openspec/changes/add-identity-brokering/supporting-docs/identity-brokering-plane.md)
+and
+[pki-trust-anchor-plane.md](../../openspec/changes/add-trust-anchor/supporting-docs/pki-trust-anchor-plane.md).
+The `../staging/` links above are kept as design history and are no longer
+live paths.
+
+Still open here: exits 2 and 3 on both planes — the OpsxFactory
+administration workflows and the two install-repository creations — tracked as
+named successors on the two changes, not in this brainstorm.

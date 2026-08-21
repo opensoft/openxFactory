@@ -1,0 +1,40 @@
+# expected_failure: key-material-reversibly-encoded
+# expected_failure_detail: no exception for test, demonstration or QA material
+# requirement: TA-R7
+# VIOLATES TA-R7 in the shape the ratified scenario names, with the armor gone and
+# the recovery recipe written out beside the blob. The record states the reason
+# ("QA only, not production") and states how to reverse it, and neither changes
+# the finding.
+#
+# The pairing is deliberate: the previous QA probe carried an ARMORED key, so it
+# could not tell whether the refusal came from the exemption being refused or from
+# the label being matched. This one has no label. "QA only" is not a reason the
+# contract accepts, and there is no field in which to record it as one.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:neg-qa-der-key
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "QA Root Authority (DER instance)"
+chain_position:
+  role: root
+  path_depth: 0
+validity:
+  not_before: "2026-01-01T00:00:00Z"
+  not_after: "2027-01-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:qa-issuance-policy
+    authority_kind: policy
+    statement: QA certificates only.
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  credential_record_ref: credential:neg-qa-der-root-key
+  vault_binding_ref: vaultbinding:qa/der-root-key
+notes: >-
+  QA ONLY, not production. Recovery: base64 -d | openssl pkcs8 -inform DER
+  -nocrypt. Keeping it here so the QA authority can be rebuilt without a vault
+  round trip:
+  MIFlAgEAMA0GCSqGSIb3DQEBAQUABIFQAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk8=
