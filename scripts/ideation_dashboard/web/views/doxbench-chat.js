@@ -197,6 +197,11 @@ const SUBJECT_OVER_BOUND = Object.freeze({
 // no room for and the half the annotation actually asked about: it rides every
 // turn as standing framing for the model, it is browser-local working state, and
 // it is optional. Nothing about the field's behaviour changed here.
+//
+// The third part of that annotation's answer — the promoted default from the
+// tile's title — landed later (`subjectDefault` below), so the box now usually
+// opens with a value and the placeholder shows where it does not: an emptied
+// box, or a tile whose title the 512-byte bound refuses to seed.
 export const SUBJECT_FIELD_PLACEHOLDER =
   "working subject — e.g. tighten the acceptance boundary";
 export const SUBJECT_FIELD_TITLE =
@@ -739,9 +744,15 @@ let railSequence = 0;
 export function mountDoxBenchChatRail(host, options = {}) {
   const {
     scopeKey, transports, editorState, onState,
+    // The tile's own title, handed down by the shell — the promoted
+    // requirement's "SHALL default from the tile's title or summary" (the
+    // snapshot family carries no summary; see `createChatState`). The rail
+    // neither derives it nor re-derives it: it is one more thing the tile
+    // knows and the rail is told, like the scope key beside it.
+    subjectDefault,
   } = options;
   const doc = host.ownerDocument;
-  let state = createChatState(scopeKey);
+  let state = createChatState(scopeKey, subjectDefault);
   // T104 F1: the key a turn DECLARES. It used to be the object literal
   // destructured above, captured once at mount, so a Save that moved the
   // buffers onto a branch session left every later turn naming the pre-session
@@ -1325,9 +1336,11 @@ export function mountDoxBenchChatRail(host, options = {}) {
     state: () => state,
     rekey(keyValue) {
       currentScopeKey = keyValue;
-      let next = rekeyChatState(state, keyValue);
+      let next = rekeyChatState(state, keyValue, subjectDefault);
       // A FRESH conversation on the new key (transcript, composer, subject,
-      // proposals and failure all cleared — FR-011), but the plane's already
+      // proposals and failure all cleared — FR-011; the subject then takes the
+      // tile default again, because a fresh conversation is seeded exactly like
+      // a mount), but the plane's already
       // fetched catalog is re-adopted so the rail can still be used. Only
       // reached when the key really moved: `rekeyChatState` returns the same
       // state object for an unchanged key. A catalog FAILURE is a fact about
