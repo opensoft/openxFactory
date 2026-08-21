@@ -48,8 +48,33 @@ function next(stateValue, patch) {
   return Object.freeze({ ...stateValue, ...patch });
 }
 
-export function createChatState(keyValue) {
-  return Object.freeze({
+// THE WORKING SUBJECT'S DEFAULT (promoted requirement "Browser-local doxBench
+// conversation": "The working subject SHALL default from the tile's title or
+// summary, remain editable"). It was unrealized -- this function seeded an empty
+// subject and nothing ever filled it, which is what Brett's 2026-08-21
+// annotation measured from the surface ("what is the box used for?") and what
+// add-doxbench-editing-phase-b's Amendment 2 recorded as a realization gap.
+//
+// WHICH HALF OF "title or summary". The tile record carries a title and no
+// summary: the workbench scope resolves ONE display title per tile kind
+// (a cluster's `name`, a possible's `title`, a staged topic's `staging_id`) and
+// the snapshot family declares no summary field on any of the three. So the
+// caller hands down that one already-resolved title, and no second derivation
+// and no unreachable summary branch is invented here.
+//
+// THE SEED OBEYS THE HUMAN EDIT'S OWN RULE, by going through it: `editSubject`
+// refuses a non-string or over-512-byte value by returning the state unchanged,
+// so an over-long title seeds NOTHING and the field stays empty (the placeholder
+// then says what it is). A bounded PREFIX was considered and rejected: this
+// module truncates nothing, and a clipped title is text the human never typed.
+// Empty is always sendable, so the refused seed can never leave Send refusing a
+// value nobody entered.
+//
+// A STORED VALUE ALWAYS WINS. `restoreChatState` runs after this one, on the
+// same fresh state, and adopts the persisted subject over the seed -- see the
+// note there for what an empty stored subject means.
+export function createChatState(keyValue, subjectDefaultValue) {
+  const fresh = Object.freeze({
     version: DOXBENCH_CHAT_STATE_VERSION,
     kind: DOXBENCH_CHAT_STATE_KIND,
     key: frozenKey(keyValue),
@@ -70,6 +95,7 @@ export function createChatState(keyValue) {
     lastFailure: null,
     proposals: NO_PROPOSALS,
   });
+  return editSubject(fresh, subjectDefaultValue);
 }
 
 // T104 F5-7's shared question: does this catalog vouch for `candidate` as a
@@ -373,14 +399,19 @@ export function adoptThreadTranscript(stateValue, turnsValue) {
   });
 }
 
-export function rekeyChatState(stateValue, keyValue) {
+export function rekeyChatState(stateValue, keyValue, subjectDefaultValue) {
   // FR-011/R12 browser-session isolation: a different scope key gets a
   // FRESH state (no transcript, composer, selection, or failure carryover);
   // the same key keeps the state untouched.
+  //
+  // A fresh conversation is a fresh conversation, so it is SEEDED like a mount:
+  // the default is threaded through rather than dropped, which is why a Save
+  // moving this tile onto its session ref comes back with the tile's subject
+  // instead of an empty box.
   if (sameKey(stateValue.key, keyValue)) {
     return stateValue;
   }
-  return createChatState(keyValue);
+  return createChatState(keyValue, subjectDefaultValue);
 }
 
 // ---------------------------------------------------------------------------
@@ -602,6 +633,23 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
     // restored field is dropped WHOLE, to the empty string, never trimmed
     // to fit; otherwise a hand-edited or future-versioned snapshot could
     // seed the state with text the bounds refuse to ever send.
+    //
+    // AN EMPTY STORED SUBJECT STANDS — it is NOT re-seeded from the tile
+    // default `createChatState` just applied. The snapshot spells the subject
+    // as a plain string with no absent/null marker, so the stored form cannot
+    // tell an emptied box apart from one nothing was ever put into, by the
+    // field alone; of the two readings the human's is the one worth being
+    // wrong about, because putting the title back over an emptied box
+    // overrules a person, while leaving an unfilled box empty costs one
+    // keystroke. (Going forward the ambiguity barely exists: a fresh state is
+    // seeded, so an empty stored subject can only come of a human emptying it
+    // or of a tile whose title seeds nothing — where re-seeding would land on
+    // the same empty box anyway. The one real gap is a record written by a
+    // build predating the seeding, and the shell's per-tab session store
+    // cannot carry one past the browser session it was written in.) An
+    // over-bound stored subject lands on the same empty box rather than on the
+    // default, by the rule above: a stored record answers for this
+    // conversation, corrupt field included.
     workingSubject: typeof snapshotValue.workingSubject === "string"
       && utf8Size(snapshotValue.workingSubject) <= MAX_WORKING_SUBJECT_BYTES
       ? snapshotValue.workingSubject : "",

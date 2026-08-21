@@ -1955,6 +1955,18 @@ export function mountStagingWorkbench(container, snapshot,
       railController = mountDoxBenchChatRail(rail, {
         scopeKey: { repository: active.repository, ref: active.ref,
                     tile_kind: scope.kind, tile_id: scope.id },
+        // THE WORKING SUBJECT'S DEFAULT (promoted requirement "Browser-local
+        // doxBench conversation": it "SHALL default from the tile's title or
+        // summary, remain editable"). The shell is where the tile record is, so
+        // the shell resolves it and the rail is simply told -- the same shape as
+        // the scope key above, and the same value the canvas is already handed
+        // and the header already renders, so the three cannot drift.
+        //
+        // `scope.title` IS the resolution: `workbenchScope` derives one display
+        // title per tile kind (a cluster's `name`, a possible's `title`, a
+        // staged topic's `staging_id`), and no tile in the snapshot family
+        // carries a summary field for the requirement's other half to name.
+        subjectDefault: scope.title,
         transports: { catalog: doxbench.catalog, chatTurn: doxbench.chatTurn },
         onState: (chatState) => {
           // R-1 (T104 F1): the rail exists now, so a blob restored before it

@@ -2449,6 +2449,23 @@ def test_the_rail_region_is_a_named_landmark_like_its_two_siblings():
     assert 'aria-label", "doxBench chat rail"' in source
 
 
+def test_the_shell_hands_the_rail_the_tiles_own_title_as_the_subject_default():
+    """The promoted requirement "The working subject SHALL default from the
+    tile's title or summary" is realized by the SHELL resolving it and the rail
+    being told — the same shape as the scope key beside it.
+
+    `scope.title` IS the resolution: `workbenchScope` derives exactly one
+    display title per tile kind (a cluster's `name`, a possible's `title`, a
+    staged topic's `staging_id`), no tile in the snapshot family carries a
+    summary field for the requirement's other half to name, and the same value
+    already reaches the canvas mount and the header — so the surfaces cannot
+    disagree about which tile this conversation is about."""
+    source = SWB_JS.read_text(encoding="utf-8")
+    mount = source.index("mountDoxBenchChatRail(rail")
+    window = source[mount:mount + 5000]
+    assert "subjectDefault: scope.title," in window
+
+
 # ---------------------------------------------------------------------------
 # add-doxbench-editing-phase-a: LEFT SELECTS. The context region chooses which
 # buffer the canvas presents, and therefore which buffer the chat works on.
