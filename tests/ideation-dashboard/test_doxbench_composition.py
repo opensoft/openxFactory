@@ -536,16 +536,27 @@ const out = {};
     await fire(ctx.one('doxbench-unload'), 'click');
   });
 
-  // DOCS-ROW SWITCH -- the act the reviewer measured at up to 3x, because
-  // `switchDocument` notified once through `setActiveBuffer` and once on its own.
-  const switchTile = await expandTileFor(ctx, reservedIsA ? DOC_A : DOC_B);
-  const readVerbHost = switchTile.tile;
-  const onRowSwitch = await measure(async () => {
-    const verb = readVerbHost.querySelector('.swb-docload');
+  // RE-LOAD OF AN ALREADY-LOADED DOCUMENT. Corrected after the R1 review: an
+  // earlier version of this block called itself a "docs-row switch" and claimed
+  // to drive `switchDocument`. It does not, and cannot -- by this point the
+  // reserved slot is backed, so the load verb takes
+  // `loadDocumentForEditing`'s ALREADY-LOADED short-circuit, which selects the
+  // held buffer through `setActiveBuffer` and never reaches `switchDocument` at
+  // all. The measurement was always valid as an ACT; only its stated route was
+  // wrong, and a comment naming the wrong route is how the next reader
+  // "verifies" a path nothing exercises.
+  //
+  // `switchDocument`'s own two shapes are counted where they can actually be
+  // reached -- at the canvas module, in
+  // `test_doxbench_view.py::test_one_loaded_set_notify_per_switch_whichever_shape`.
+  const heldTile = await expandTileFor(ctx, reservedIsA ? DOC_A : DOC_B);
+  const heldVerbHost = heldTile.tile;
+  const onReloadHeld = await measure(async () => {
+    const verb = heldVerbHost.querySelector('.swb-docload');
     if (verb) await fire(verb, 'click');
   });
 
-  out.refreshCounts = { onLoad, onSelect, onUnload, onRowSwitch };
+  out.refreshCounts = { onLoad, onSelect, onUnload, onReloadHeld };
 }
 
 // =====================================================================
@@ -935,11 +946,18 @@ def test_one_loaded_set_tail_runs_per_act(composition):
     """F9 (adversarial review): `onLoadedSetChanged` is the ONE tail. It was
     introduced beside the two explicit `syncContextFromCanvas(); refreshDocTiles()`
     call pairs the seams already ran, so every pre-existing act redrew the wheel
-    twice and a docs-row switch up to three times — idempotent, but two spellings
-    of one tail, which is the exact criticism that retired the `unloadBuffer`
-    seam. Measured on a counting wrapper around the wheel's own refresh, because
-    "it is idempotent" is not an argument for doing it twice."""
+    twice — idempotent, but two spellings of one tail, which is the exact
+    criticism that retired the `unloadBuffer` seam. Measured on a counting
+    wrapper around the wheel's own refresh, because "it is idempotent" is not an
+    argument for doing it twice.
+
+    These are the acts reachable THROUGH THE SHELL. `switchDocument`'s own two
+    shapes cannot be driven from here — once the reserved slot is backed, the
+    load verb takes the already-loaded short-circuit — so they are counted at the
+    canvas module in
+    `test_doxbench_view.py::test_one_loaded_set_notify_per_switch_whichever_shape`
+    instead of being claimed here."""
     counts = composition["refreshCounts"]
-    expected = {"onLoad": 1, "onSelect": 1, "onUnload": 1, "onRowSwitch": 1}
+    expected = {"onLoad": 1, "onSelect": 1, "onUnload": 1, "onReloadHeld": 1}
     assert counts == expected, (
         "each act must drive exactly one wheel refresh; measured " + str(counts))

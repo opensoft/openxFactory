@@ -5449,10 +5449,83 @@ async function alreadyLoaded() {
   };
 }
 
+// ---- R1: ONE loaded-set notify per switch, whichever shape the switch is ----
+// `switchDocument` fires the tail only when `setActiveBuffer` did not already do
+// it, because `setActiveBuffer` early-returns on an already-active key. That
+// dedupe is behaviourally right on every shape and was completely unpinned:
+// dropping the condition restores the double, inverting it fires zero on one
+// shape and twice on the other, and dropping the tail loses it entirely. All
+// four shapes are counted here on the injected notification itself.
+async function switchNotifyCounts() {
+  const counts = {};
+
+  // CROSS-KEY. The reserved slot is unbacked and the OUTLINE is selected, so the
+  // switch MOVES the selection onto the reserved key and `setActiveBuffer` owns
+  // the tail.
+  {
+    const notified = [];
+    const { controller } = await mount({
+      onLoadedSetChanged: () => notified.push(1) });
+    notified.length = 0;
+    const result = await controller.selectDocument(DOC_A);
+    counts.crossKey = { notifies: notified.length, status: result.status,
+                        active: controller.activeBuffer() };
+  }
+
+  // SAME-KEY CONTENT SWITCH. The reserved slot is BACKED and already selected, so
+  // the selection does not move -- `setActiveBuffer` early-returns and says
+  // nothing -- but the buffer's whole CONTENT is replaced, which the wheel and
+  // the selector must still hear. This is the shape the conditional tail exists
+  // for, and the one an unconditional dedupe would silence.
+  {
+    const notified = [];
+    const { controller } = await mount({
+      activeDocumentPath: DOC_A,
+      onLoadedSetChanged: () => notified.push(1) });
+    controller.setActiveBuffer('document');
+    notified.length = 0;
+    const result = await controller.selectDocument(DOC_B);
+    counts.sameKey = { notifies: notified.length, status: result.status,
+                       active: controller.activeBuffer(),
+                       content: controller.state().buffers.document.content };
+  }
+
+  // UNCHANGED, same path AND already the selected key. Nothing moves and nothing
+  // is replaced, so nothing is announced -- this route never reaches
+  // `switchDocument` at all.
+  {
+    const notified = [];
+    const { controller } = await mount({
+      activeDocumentPath: DOC_A,
+      onLoadedSetChanged: () => notified.push(1) });
+    controller.setActiveBuffer('document');
+    notified.length = 0;
+    const result = await controller.selectDocument(DOC_A);
+    counts.unchangedSameKey = { notifies: notified.length, status: result.status };
+  }
+
+  // UNCHANGED path, but the OUTLINE is selected. Choosing it is still an act of
+  // BINDING even though no content moves, so it is announced exactly once.
+  {
+    const notified = [];
+    const { controller } = await mount({
+      activeDocumentPath: DOC_A,
+      onLoadedSetChanged: () => notified.push(1) });
+    notified.length = 0;
+    const result = await controller.selectDocument(DOC_A);
+    counts.unchangedFromOutline = { notifies: notified.length,
+                                    status: result.status,
+                                    active: controller.activeBuffer() };
+  }
+
+  return counts;
+}
+
 console.log(JSON.stringify({
   thirdDocument: await thirdDocument(),
   unheldKey: await unheldKey(),
   boundRefusal: await boundRefusal(),
+  switchNotifyCounts: await switchNotifyCounts(),
   dirtyUnload: await dirtyUnload(),
   tileSave: await tileSave(),
   contextOnlyTileSave: await contextOnlyTileSave(),
@@ -5739,3 +5812,51 @@ def test_a_save_in_flight_keeps_the_pair_on_screen(editor_results):
     assert flight["settled"]["anythingDirty"] is False
     assert flight["settled"]["unloadHidden"] is False
     assert flight["settled"]["saveHidden"] is True
+
+
+def test_one_loaded_set_notify_per_switch_whichever_shape(loaded_set_results):
+    """R1 (adversarial review): `switchDocument`'s tail is CONDITIONAL, because
+    `setActiveBuffer` early-returns on an already-active key and therefore does
+    not always announce the change itself. The condition was behaviourally right
+    on every shape and pinned by nothing — three mutations at that one line
+    survived the whole suite.
+
+    The two switch shapes are genuinely different and both must announce ONCE:
+
+    * CROSS-KEY — the selection moves onto the reserved key, so `setActiveBuffer`
+      announces and the conditional tail must stay quiet, or the wheel redraws
+      twice (F9's double, live-reachable through the shell on the first fill of
+      an unbacked reserved slot).
+    * SAME-KEY CONTENT SWITCH — the selection does not move, so `setActiveBuffer`
+      says nothing and the conditional tail is the ONLY announcement; silence
+      here leaves the wheel and the selector describing the previous document.
+
+    And the two no-op shapes differ from each other too: re-selecting the path
+    already in the reserved slot announces nothing when that key is already
+    selected, but still announces once when the binding moves off the outline."""
+    counts = loaded_set_results["switchNotifyCounts"]
+
+    cross = counts["crossKey"]
+    assert cross["status"] == "switched"
+    assert cross["active"] == "document"
+    assert cross["notifies"] == 1, (
+        f"a cross-key switch must announce once, saw {cross['notifies']}")
+
+    same = counts["sameKey"]
+    assert same["status"] == "switched"
+    assert same["active"] == "document"
+    # the buffer really did take the new document's content
+    assert "Document B" in same["content"]
+    assert same["notifies"] == 1, (
+        f"a same-key content switch must announce once, saw {same['notifies']}")
+
+    unchanged = counts["unchangedSameKey"]
+    assert unchanged["status"] == "unchanged"
+    assert unchanged["notifies"] == 0, (
+        "re-selecting the already-selected path moves and replaces nothing")
+
+    rebound = counts["unchangedFromOutline"]
+    assert rebound["status"] == "unchanged"
+    assert rebound["active"] == "document"
+    assert rebound["notifies"] == 1, (
+        "binding off the outline is a selection change and must be announced")
