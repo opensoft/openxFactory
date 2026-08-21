@@ -739,8 +739,14 @@ remains is the contract and the surface.
       end to end rather than by testing its middle. That drive in turn spawned
       `refine-demote-round-trip-mechanics` and
       `align-status-reader-to-real-lines`, realized at PR #221 and #222 and both
-      ARCHIVED 2026-08-21 — every change this one spawned is closed before it
-      archives, so nothing is left owing to a successor.
+      ARCHIVED 2026-08-21 — so all three changes this one spawned are closed
+      before it archives. That is not the same as nothing being owed: 6.3's Q4
+      handoff records an obligation — turning Phase A's freeform chat rewrites
+      into marker-scoped patches under `edit-document` — that shipped in
+      NEITHER realized doxBench phase and is still waiting on a successor
+      change. It travels with the `doxbench-editing-model` fragment, now inside
+      `add-doxbench-editing-phase-b`'s `supporting-docs/`, and is deliberately
+      not carried by this archive.
       SECTIONS 6.1-6.3, bookkeeping — PR #224 / `8dde22f`, `2f9e876`
       (2026-08-21).
       SECTIONS 5.1-5.4, the gates and the LIVE PROOF — PR #227 / `5654343`,
@@ -757,9 +763,12 @@ remains is the contract and the surface.
       verb Amendment 1 corrected is evidenced three independent ways on the
       wire, in git, and in the governed record — not by the mere existence of a
       commit.
-      GREEN AT THE ARCHIVE GATE. Measured on this archive branch, whose only
-      delta from `origin/main` `6cbb449` is the archive move itself, with every
-      exit code read DIRECTLY from `$?` and never through a pipe:
+      GREEN AT THE ARCHIVE GATE. Measured on this archive branch, whose delta
+      from `origin/main` `6cbb449` is the archive move, the two promoted
+      requirements, this record, the rewritten banner, the README row move and
+      the staging INDEX repoint — no product code at all, which is why the only
+      report lines that move are word counts. Every exit code read DIRECTLY
+      from `$?`, never through a pipe:
       • `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` exit 0,
         `Totals: 63 passed, 0 failed (63 items)`. It read 64 before the archive.
         The drop of exactly one is this change leaving the active register and
