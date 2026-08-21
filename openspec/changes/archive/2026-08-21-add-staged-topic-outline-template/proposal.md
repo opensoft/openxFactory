@@ -6,7 +6,8 @@ Ratified: 2026-08-15 by Brett Heap — in-session, verbatim: "ratify add-staged-
 ---
 
 > **REALIZED AND ARCHIVED 2026-08-21.** All 22 tasks are discharged and the code
-> is merged on the implemented target across eight pull requests: #193
+> is merged on the implemented target across eight pull requests — this change's
+> OWN chain, each of which edits a file under this change's folder: #193
 > (`93f4241` — doc-health's WARNING-tier `staged-topic-template` family), #195
 > (`ea42a43` — the template as contract text in `docs/document-lifecycle.md`),
 > #198 (`e0dbcea`, `642dd64` — the outline section model and Amendment 1), #208
@@ -18,10 +19,16 @@ Ratified: 2026-08-15 by Brett Heap — in-session, verbatim: "ratify add-staged-
 > discharged by DRIVING the real round trip, once the change that defect spawned,
 > `align-demote-to-round-trip-rule`, had realized at #215), #224 (`8dde22f`,
 > `2f9e876` — bookkeeping 6.1-6.3) and #227 (`5654343`, `8780bf5`, `67ad236`,
-> `a70bf01`, `0d4cf16` — gates 5.1-5.3 and the live browser proof 5.4). Task
-> 4.2's driven round trip also spawned `refine-demote-round-trip-mechanics` and
-> `align-status-reader-to-real-lines`, both realized at #221/#222 and archived
-> 2026-08-21.
+> `a70bf01`, `0d4cf16` — gates 5.1-5.3 and the live browser proof 5.4).
+>
+> SPAWNED CHANGES, REALIZED SEPARATELY and not part of the chain above: task
+> 4.2's driven round trip produced `align-demote-to-round-trip-rule` (PR #215 /
+> `79ed72e`, archived by this change's #217),
+> `refine-demote-round-trip-mechanics` (PR #221 / `6c3d87c`) and
+> `align-status-reader-to-real-lines` (PR #222 / `c379a09`), the last two
+> archived 2026-08-21 by #225. None of those three PRs touches a file of this
+> change; each one's evidence lives in its own archive record. All three are
+> closed before this change archived.
 >
 > The realization proof is task 5.4: headless Chromium through the shipped page,
 > the real wheel gesture, the real outline tab, the shipped Save — and the answer

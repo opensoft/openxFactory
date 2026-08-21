@@ -706,6 +706,18 @@ remains is the contract and the surface.
       on main directly rather than under a merge commit; the shas below are the
       ones on main, read from `git log`, not the pre-rebase branch shas
       `gh pr view --json commits` returns.
+      THE CHAIN IS SPLIT IN TWO ON PURPOSE, because conflating the halves is a
+      mistake this record has already seen made: PR #239's own description
+      listed #215/#221/#222 as if they realized THIS change and omitted the
+      three 2026-08-15 PRs that actually did, and Copilot's review caught the
+      disagreement against the README row. The test applied here is mechanical
+      rather than narrative — DID THE PR EDIT A FILE UNDER
+      `openspec/changes/add-staged-topic-outline-template/`? — checked against
+      `gh pr view <n> --json files` for every number kept. The eight below all
+      pass it. #215, #221 and #222 all FAIL it: each touches only its own
+      change's documents and code, so each belongs to that change's archive
+      record, which already exists and already carries its own evidence. They
+      are listed under §4.2 as SPAWNED, never as this change's realization.
       SECTION 2, the doc-health nudge — PR #193 / `93f4241` (2026-08-15). The
       WARNING-tier `staged-topic-template` family, which never blocks a gate.
       SECTION 1, the template contract — PR #195 / `ea42a43` (2026-08-15).
@@ -738,9 +750,17 @@ remains is the contract and the surface.
       `55e8a67`), and 4.2 was then discharged by DRIVING the real round trip
       end to end rather than by testing its middle. That drive in turn spawned
       `refine-demote-round-trip-mechanics` and
-      `align-status-reader-to-real-lines`, realized at PR #221 and #222 and both
-      ARCHIVED 2026-08-21 — so all three changes this one spawned are closed
-      before it archives. That is not the same as nothing being owed: 6.3's Q4
+      `align-status-reader-to-real-lines`, realized at PR #221 (`6c3d87c`) and
+      #222 (`c379a09`) and both ARCHIVED 2026-08-21 by #225 (`0a4b63a`) — so
+      all three changes this one spawned are closed before it archives.
+      SPAWNED IS NOT REALIZED. #215, #221 and #222 realize
+      `align-demote-to-round-trip-rule`,
+      `refine-demote-round-trip-mechanics` and
+      `align-status-reader-to-real-lines` respectively; their evidence lives in
+      those three archive records and is deliberately not restated as this
+      change's. What #217 contributes to THIS change is task 4.2 and the
+      archiving of the first of them — the discharge, not the fix.
+      That is not the same as nothing being owed: 6.3's Q4
       handoff records an obligation — turning Phase A's freeform chat rewrites
       into marker-scoped patches under `edit-document` — that shipped in
       NEITHER realized doxBench phase and is still waiting on a successor
@@ -751,6 +771,14 @@ remains is the contract and the surface.
       (2026-08-21).
       SECTIONS 5.1-5.4, the gates and the LIVE PROOF — PR #227 / `5654343`,
       `8780bf5`, `67ad236`, `a70bf01`, `0d4cf16` (2026-08-21).
+      A NINTH PR EDITED THIS CHANGE'S `tasks.md` AND IS DELIBERATELY NOT IN THE
+      CHAIN: #228 (`4926b7c`, 2026-08-21, doxBench Phase B wave 2) reconciled
+      5.3's enumeration and 6.3's handoff path after the
+      `doxbench-editing-model` topic exited staging under it. It discharges no
+      task here and realizes nothing here — it repoints an address the corpus
+      moved. Recorded because the file-touched test above would otherwise
+      admit it, and a reader re-deriving the chain by that test deserves to
+      find the exception already reasoned about rather than as a discrepancy.
       THE REALIZATION PROOF IS TASK 5.4, transcribed in full above rather than
       restated here. Its four load-bearing verdicts are the ones that would have
       caught a fake: exactly ONE action route was reached across 99 recorded
