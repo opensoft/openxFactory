@@ -2918,3 +2918,152 @@ def test_the_settlement_rescore_leaves_an_unmoved_buffer_current(focus_throw_res
     unmoved = focus_throw_results["unmovedLoadedCurrency"]
     assert unmoved["status"] == "current"
     assert unmoved["applyDisabled"] is False
+
+
+# ---------------------------------------------------------------------------
+# THE MENU OFFERS A ROUTING RULE (contract-v1.38, add-doxbench-editing-phase-b
+# task 11.7) — AND THE VIEW IS UNCHANGED
+#
+# The ratified scenario's first THEN is that a routing entry "MUST declare
+# itself a routing rule and carry the handling badge of every model it may route
+# to", and the sibling scenario's is that the selector "MUST show exactly the
+# available catalog entries and their data-handling badges". The release
+# satisfies both WITHOUT a view change, and this is the probe that says so
+# rather than an argument in prose: the option text a routing entry renders
+# already contains every routed model's badge, because the released contract
+# REQUIRES the rule's own `data_handling` to carry them (the delegated
+# validator's covering rule) and this view already renders that string.
+#
+# So the JS below is the SHIPPED renderer, not a modified one. If a future
+# release moved the badges off `data_handling` into a per-target list, this test
+# would fail and a view change would then be owed.
+# ---------------------------------------------------------------------------
+
+_ROUTING_MENU_HARNESS = """
+class Node {
+  constructor(tag) {
+    this.tagName = String(tag).toUpperCase();
+    this.children = []; this.attributes = {}; this.listeners = {};
+    this.className = ''; this._text = ''; this.hidden = false;
+    this.disabled = false; this.value = '';
+  }
+  get textContent() {
+    return this._text + this.children.map((c) => c.textContent).join('');
+  }
+  set textContent(value) { this.children = []; this._text = String(value); }
+  appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
+  append(...kids) { for (const k of kids) this.appendChild(k); }
+  setAttribute(name, value) { this.attributes[name] = String(value); }
+  getAttribute(name) {
+    return Object.prototype.hasOwnProperty.call(this.attributes, name)
+      ? this.attributes[name] : null;
+  }
+  addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
+  focus() {}
+  walk() { return this.children.reduce((a, c) => a.concat(c.walk()), [this]); }
+}
+const doc = { createElement: (tag) => new Node(tag), activeElement: null };
+const byClass = (root, cls) => root.walk().filter(
+  (n) => String(n.className).split(' ').includes(cls));
+
+import { mountDoxBenchChatRail, sendDisclosure } from "./doxbench-chat.mjs";
+import { createChatState, adoptCatalog, selectModel }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "fixture-repo", ref: "main",
+              tile_kind: "staged", tile_id: "ideation-governance" };
+
+// The PACKAGED contract-v1.38 positive, verbatim in the parts that matter:
+// the rule's badge carries both routed badges, which is what the covering rule
+// requires of any conformant catalog.
+const ON_TENANT = "Processed in the approved tenant boundary; no retention.";
+const HOSTED = "Zero retention; content leaves the tenant boundary for inference only.";
+const RULE_BADGE = "Routes by role to any of: " + ON_TENANT + " / " + HOSTED;
+const CATALOG = { schema_version: 1, kind: "workbench-model-catalog", models: [
+  { model_id: "auto", label: "Automatic (routes by role)",
+    provider_class: "routing-rule", available: true,
+    input_limit_bytes: 2048, output_limit_bytes: 8192,
+    data_handling: RULE_BADGE, routing_rule: true,
+    routes_to: ["routed-on-tenant-1", "routed-hosted-zr-1"],
+    resolved_model_id: "routed-on-tenant-1" },
+  { model_id: "routed-on-tenant-1", label: "Approved authoring model (routable)",
+    provider_class: "on-tenant", available: true, input_limit_bytes: 800000,
+    output_limit_bytes: 900000, data_handling: ON_TENANT },
+  { model_id: "routed-hosted-zr-1", label: "Hosted zero-retention model (routable)",
+    provider_class: "hosted-zero-retention", available: true,
+    input_limit_bytes: 2048, output_limit_bytes: 8192, data_handling: HOSTED },
+]};
+const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
+  base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  hash_pending: false, content: "# " + kind, dirty: false });
+const editorState = () => ({ active_buffer: "document", buffers: {
+  outline: bufferOf("outline", "docs/outline.md"),
+  document: bufferOf("document", "docs/detail.md") } });
+
+const host = new Node("div"); host.ownerDocument = doc;
+const rail = mountDoxBenchChatRail(host, {
+  scopeKey: KEY,
+  transports: { catalog: async () => CATALOG, chatTurn: async () => null },
+  editorState });
+await rail.ready;
+const selector = byClass(host, "doxchat-model")[0];
+out.options = selector.children.map((o) => ({ value: o.value,
+                                              text: o.textContent }));
+out.selectorDisabled = selector.disabled === true;
+
+// The send-moment disclosure for the RULE, through the shipped pure function.
+const chosen = selectModel(adoptCatalog(createChatState(KEY), CATALOG), "auto");
+out.disclosure = sendDisclosure(chosen);
+out.badges = { onTenant: ON_TENANT, hosted: HOSTED, rule: RULE_BADGE };
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def routing_menu_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the routing-rule menu probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-routing-menu")
+    source = CHAT_VIEW_JS.read_text(encoding="utf-8").replace(
+        './doxbench-chat-model.js', './doxbench-chat-model.mjs')
+    (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "routing-menu-harness.mjs"
+    harness.write_text(_ROUTING_MENU_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_the_menu_shows_the_routing_rule_carrying_every_routed_badge(
+        routing_menu_results):
+    """The scenario, claimed ON THE MENU. The `auto` option is offered beside
+    the models it may route to, and its own visible text carries BOTH of their
+    handling badges — so a human choosing `auto` reads the posture of everything
+    it might reach, which is the whole point of the requirement's "because"
+    clause."""
+    options = routing_menu_results["options"]
+    badges = routing_menu_results["badges"]
+    assert [o["value"] for o in options] == [
+        "", "auto", "routed-on-tenant-1", "routed-hosted-zr-1"]
+    auto = next(o for o in options if o["value"] == "auto")
+    assert badges["onTenant"] in auto["text"]
+    assert badges["hosted"] in auto["text"]
+    assert "Automatic (routes by role)" in auto["text"]
+    assert routing_menu_results["selectorDisabled"] is False
+
+
+def test_the_send_disclosure_for_a_routing_rule_is_the_union_badge(
+        routing_menu_results):
+    """The send-moment disclosure needs no change either, for the same reason:
+    it names the SELECTED entry's own `data_handling`, and for a rule that
+    string is the union."""
+    assert routing_menu_results["disclosure"] == (
+        routing_menu_results["badges"]["rule"])
+    assert routing_menu_results["badges"]["onTenant"] in (
+        routing_menu_results["disclosure"])
+    assert routing_menu_results["badges"]["hosted"] in (
+        routing_menu_results["disclosure"])

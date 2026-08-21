@@ -1380,11 +1380,12 @@ class OmpHarnessBridge:
         """`set_model` BEFORE `prompt`, inside the adapter (task 11.6).
 
         The id sent is the RESOLVED one where the catalog can say so, and the
-        requested one otherwise. Today no conformant catalog entry can declare a
-        routing rule — the released catalog schema is a CLOSED seven-field entry
-        — so the two are always equal and `routing_rule` is truthfully false
-        everywhere; task 11.7 records the additive model-catalog release that
-        would change that, and this line is already written for it.
+        requested one otherwise. SINCE contract-v1.38 (task 11.7's additive
+        model-catalog release) a conformant catalog entry CAN declare a routing
+        rule, and this line honours it with no change of its own — which is what
+        it was written for. For every entry that declares none, the resolved and
+        requested ids are still equal and `routing_rule` is still truthfully
+        false.
 
         THE PROVIDER ID IS THE INSTALL'S, NOT THE CATALOG ENTRY'S — corrected
         2026-08-19 after the adversarial review's P1-5. This used to send
@@ -1404,10 +1405,14 @@ class OmpHarnessBridge:
         the same placement §10 chose for the retrieval backend, and for the same
         reason: which provider an install talks to is an operator fact, and an
         operator must be able to read it where the install is declared. It is
-        deliberately NOT on the catalog entry: that schema is a CLOSED
-        seven-field shape whose widening is task 11.7's future release, and
-        smuggling a harness-routing field into a governance record would be
-        exactly the conflation that caused this defect.
+        deliberately NOT on the catalog entry, and contract-v1.38 did NOT
+        reopen that: the release grew the entry with a ROUTING DECLARATION over
+        opaque catalog handles (`routing_rule`/`routes_to`/`resolved_model_id`)
+        and with nothing provider-shaped, so the entry still has no field a
+        harness provider id could occupy — the schema refuses `provider_id`
+        structurally, and a companion test asserts that against the released
+        bytes. Smuggling a harness-routing field into a governance record would
+        be exactly the conflation that caused this defect.
 
         WHAT AN UNDECLARED PROVIDER DOES — CORRECTED 2026-08-19 after the
         re-verify's N-1. This method used to omit the `provider` key when the

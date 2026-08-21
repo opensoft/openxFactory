@@ -752,7 +752,7 @@ def test_wire_envelope_literals_are_confined_to_the_released_catalog_projection(
     `d09d5820de5b63b9528f6baea884a6dccde9b158`), so the literals are exactly
     as legitimate here as they were forbidden before. What the pin protects
     now is CONFINEMENT: the two discriminators may appear only as the wire
-    projection's own constants, they never leak into the seven-field ENTRY
+    projection's own constants, they never leak into the ENTRY
     surface, and they never appear in the internal `as_public_dict`
     projections that predate the release."""
     src = MODULE_PATH.read_text(encoding="utf-8")
@@ -775,8 +775,9 @@ def test_wire_envelope_literals_are_confined_to_the_released_catalog_projection(
     assert "kind" not in entry.as_public_dict()
     assert "schema_version" not in catalog.as_public_dict()
     assert "kind" not in catalog.as_public_dict()
-    # And in the envelope they are the ONLY additions: the entries themselves
-    # stay the seven-field public allowlist.
+    # And in the envelope they are the ONLY additions: a plain entry stays
+    # exactly the seven required base fields (contract-v1.38's three routing
+    # fields are disclosed only by an entry that declares itself a rule).
     envelope = catalog_wire_envelope(catalog)
     assert set(envelope) - {"models"} == {"schema_version", "kind"}
     assert set(envelope["models"][0]) == set(PUBLIC_ENTRY_FIELDS)

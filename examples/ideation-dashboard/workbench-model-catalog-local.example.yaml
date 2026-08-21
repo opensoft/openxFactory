@@ -1,4 +1,6 @@
-# VALID: one approved local/on-tenant model, public seven-field allowlist only.
+# VALID: one approved local/on-tenant model, the seven required base fields
+# only — no routing declaration, which is the shape every producer that
+# predates contract-v1.38 emits and which stays valid unchanged.
 {
   "schema_version": 1,
   "kind": "workbench-model-catalog",
