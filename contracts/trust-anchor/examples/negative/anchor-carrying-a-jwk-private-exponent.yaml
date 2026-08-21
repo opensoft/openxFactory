@@ -1,0 +1,33 @@
+# expected_failure: key-material-embedded
+# expected_failure_detail: private exponent 'd'
+# requirement: TA-R7
+# VIOLATES TA-R7: the same refusal reached by the other route key material
+# actually travels — a serialized JWK carrying its private exponent.
+#
+# Because every object in this family is closed, a JWK cannot arrive as
+# structured data at all; it can only arrive as a STRING, which is precisely
+# where a name-based scan would not be looking. `d` alone is far too generic a
+# key to blocklist, but alongside `kty` it is unambiguous.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:neg-root-with-jwk
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "Leaky Root Authority (JWK)"
+  display_label: '{"kty":"RSA","n":"0vx7agoebGcQSuu","e":"AQAB","d":"X4cfUJeuLQRk1n"}'
+chain_position:
+  role: root
+  path_depth: 0
+validity:
+  not_before: "2026-01-01T00:00:00Z"
+  not_after: "2036-01-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:core-root-issuance-policy
+    authority_kind: policy
+    statement: Subordinate authorities only.
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  credential_record_ref: credential:neg-jwk-root-key
+  vault_binding_ref: vaultbinding:core/neg-jwk-root-key

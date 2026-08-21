@@ -1,0 +1,34 @@
+# VALID broker organization: a SERVED company that federates its own upstream
+# identity provider, with domain-routed login. FarHeap's humans authenticate in
+# FarHeap's own Entra tenant and reach it from the shared entry point, and the
+# personas arriving that way remain SINGLE personas with memberships —
+# federation changes where a login is verified, never how many personas a
+# human has.
+#
+# The provider's client credential is a REFERENCE to a `credential-contracts`
+# requirement with a named holder and the place custody is declared. No secret
+# value appears here, and there is no property in which one could.
+schema_version: 1
+kind: broker_organization
+organization_id: farheap
+display_name: FarHeap Solutions
+company_role: served
+broker_instance_ref: broker-opensoft-shared
+routed_domains:
+  - farheap.com
+federated_providers:
+  - provider_id: entra-farheap
+    provider_ref: "https://login.microsoftonline.com/farheap.com/v2.0"
+    routed_domains:
+      - farheap.com
+    client_credential:
+      requirement_id: keycloak-idp-client-farheap
+      requirements_document_ref: OpsxFactory:credentials/requirements.yaml
+      holder_ref: opsx:service-subject:keycloak-opensoft-shared
+      custody_declared_in: "OpsxFactory:credentials/requirements.yaml#keycloak-idp-client-farheap"
+governed_record_refs:
+  - record_kind: subject
+    record_ref: hermes/subject/farheap
+    resolves_in: governed_layer
+declared_at: "2026-08-21T09:05:00Z"
+policy_version: 1

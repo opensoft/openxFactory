@@ -1,0 +1,50 @@
+F4 evidence — the repo-scan exclusion applied to an explicitly named file
+=========================================================================
+
+Review finding F4. `repo_scan` excluded any path carrying both `examples` and
+`identity-brokering` in its parts, and did so for an EXPLICITLY NAMED FILE as
+well as during a directory sweep — and it did not count the exclusions. Two
+consequences, both silent:
+
+  1. `validate-identity-brokering.py <family-example>` — the one command an
+     author reaches for to check a single record — reported "0 errors" for a
+     file it never opened.
+  2. A whole-checkout sweep dropped 41 documents and said so nowhere. A
+     consumer whose own live records happened to sit under a path shaped like
+     `examples/.../identity-brokering/` would read a clean, silent, empty scan
+     as a pass.
+
+Fixed by applying the exclusion during a sweep ONLY, and reporting the excluded
+count on the note line beside the scanned and skipped counts.
+
+Reproduce from the repository root. Recorded 2026-08-21.
+
+--- 1. an explicitly named POSITIVE example is now validated ------------------
+$ python3 scripts/validate-identity-brokering.py \
+      contracts/identity-brokering/examples/persona-two-upstreams-two-organizations.example.yaml
+note  repo scan: 1 identity-brokering artifact(s) validated, 0 document(s) skipped as another kind, 0 excluded as a packaged/vendored teaching corpus
+validate-identity-brokering: 0 error(s), 0 warning(s)
+
+    ("1 identity-brokering artifact(s) validated" — it was 0 before the fix,
+     with the file silently skipped and uncounted.)
+
+--- 2. an explicitly named NEGATIVE fixture is now adjudicated ----------------
+$ python3 scripts/validate-identity-brokering.py \
+      contracts/identity-brokering/examples/negative/merge-approved-by-one-of-its-own-parties.yaml
+note  repo scan: 1 identity-brokering artifact(s) validated, 0 document(s) skipped as another kind, 0 excluded as a packaged/vendored teaching corpus
+ERROR [merge-approved-by-a-party] /tmp/claude-1000/-home-brett-projects-xFactory-xFactories-OpsxFactory/00c588a3-c92d-4d92-a0fa-05dd5cfe2654/scratchpa
+validate-identity-brokering: 1 error(s), 0 warning(s)
+
+    (An author naming a teaching fixture explicitly gets the finding it is
+     designed to provoke, which is the useful answer. The SWEEP still excludes
+     the packaged corpus, so a whole-repo scan does not re-adjudicate the
+     negatives as though they were live records.)
+
+--- 3. the sweep still excludes the corpus, and now says how much ------------
+$ python3 scripts/validate-identity-brokering.py . --strict
+note  corpus: 14 positive example(s), 41 negative confirmation(s) across 9/9 requirements
+note  repo scan: 0 identity-brokering artifact(s) validated, 1463 document(s) skipped as another kind, 55 excluded as a packaged/vendored teaching corpus
+validate-identity-brokering: 0 error(s), 0 warning(s)
+
+    (55 = the 41 documents of the original packaged corpus plus the 14 fixtures
+     this hardening slice added. Excluded, and COUNTED.)

@@ -1,0 +1,50 @@
+# expected_failure: dependent-binding-generation-mismatch
+# expected_failure_detail: does not need a renewal record to be a contradiction
+# requirement: TA-R5
+# VIOLATES TA-R5's join. The binding says `rebind_status.state: current` and names
+# `keygen:core-workload-02-g1`, while the certificate it is recorded against is at
+# `keygen:core-workload-02-g2`. The binding is pointing at superseded material and
+# calling itself current.
+#
+# The comparison already existed — and only ran THROUGH a renewal record. That
+# left the two cases where the failure is actually silent uncovered: a renewal
+# recorded as key-preserving, and no renewal record at all. Neither of those is
+# a renewal this rule can read, and both leave a dependent authenticating against
+# a key the holder no longer uses until it stops working somewhere else, for
+# reasons nobody connects to this record.
+#
+# The certificate is the authority on where "current" is, so the comparison is
+# made against the certificate. This fixture also fires
+# `dependent-binding-unenumerated`, because a corpus that enumerated it would be
+# describing a dependent it knows about — which is the healthy case.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:neg-workload-02-stale-consumer
+certificate_ref: cert:core-workload-02
+holding_system:
+  system_ref: system:core-report-consumer
+  inside_family: true
+  statement: >-
+    A consumer that authenticates to the batch runner with this certificate's
+    key.
+binds:
+  binding_kind: authentication_credential
+  what_statement: Report pull authentication for the batch runner.
+bound_key_reference:
+  key_generation_ref: keygen:core-workload-02-g1
+  bound_at: "2026-02-01T00:00:00Z"
+required_assurance: host_attributed_act
+required_obligations: [TA-R4]
+admission:
+  state: admitted
+  decided_at: "2026-02-01T00:00:00Z"
+rebind_status:
+  state: current
+  as_of: "2026-08-15T00:00:00Z"
+  statement: >-
+    Recorded as current because nothing reported an error. Silence is not
+    evidence, and the generation says otherwise.
+discovery:
+  discovered_by: holder_declaration
+  discovered_at: "2026-02-01T00:00:00Z"
+  recorded_before_first_renewal: true

@@ -1,0 +1,35 @@
+# expected_failure: shortfall-declared-after-the-claim
+# expected_failure_detail: declaring a gap afterwards does not validate
+# requirement: TA-R8
+# VIOLATES TA-R8's late-declaration guard: an issuance recorded in May, citing a
+# shortfall declared in June.
+#
+# The entry it cites is real, belongs to the right realization, names the right
+# obligation and honestly records a partial satisfaction — everything the previous
+# probe was missing. It is simply dated after the record it is being used to
+# excuse. Without the per-entry date this would be indistinguishable from a timely
+# declaration, and the guard the ratified text states would have nothing to bite
+# on: declaring a gap afterwards does not validate the claims made while the
+# realization was silent.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:neg-late-declared-shortfall
+certificate_ref: cert:managed-device-05
+anchor_ref: anchor:managed-issuing
+realization_ref: realization:managed-cloud-authority-canary
+authority:
+  authority_ref: policy:managed-device-issuance-profile
+  authority_kind: policy
+establishment_level: per_policy_attestation_with_authority_log
+request_provenance:
+  establishment: not_established
+  declared_shortfall_ref: ob:managed:TA-R2
+  statement: The authority reports the profile, not the request.
+authority_attestation:
+  policy_attestation_ref: attestation:managed-device-issuance-profile-2026-05
+  authority_log_ref: authoritylog:managed-issuing-2026-05-01
+issued_at: "2026-05-01T00:00:00Z"
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: false
+  statement: A managed service.

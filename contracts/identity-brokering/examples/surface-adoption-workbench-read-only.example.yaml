@@ -1,0 +1,39 @@
+# VALID surface adoption: the first adoption, and the cheapest proof of the
+# broker in production. A read-only surface moves behind persona login, declares
+# the AUTHENTICATED-PERSONA posture, and offers no governed write action.
+#
+# The adoption RETIRES the shared static secret it replaces. That is what keeps
+# an adoption from leaving two authentication paths live, and it means the
+# credential inventory records one FEWER shared secret rather than one more —
+# the single htpasswd user everybody had was the whole revocation story until
+# now.
+#
+# The posture declaration is the guard rail: if this surface later gains a
+# governed write action, acquiring it becomes a visible change of posture
+# rather than an unremarked commit.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-opendox-workbench-0001
+surface_ref: opendox-workbench
+surface_display_name: openDox workbench (ideation dashboard route)
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+authorization_posture: authenticated_persona
+governed_write_actions:
+  offered: false
+human_accounts_held_by_surface: false
+prior_shared_credential: replaced
+replaced_credential:
+  credential_requirement:
+    requirement_id: workbench-htpasswd-shared-user
+    requirements_document_ref: OpsxFactory:credentials/requirements.yaml
+    holder_ref: opsx:service-subject:aks-opensoft-qa
+    custody_declared_in: "OpsxFactory:credentials/requirements.yaml#workbench-htpasswd-shared-user"
+  retired: true
+  retired_at: "2026-08-21T16:00:00Z"
+  evidence_ref: "opsx:aks-administration-workflow/secret-retirement/2026-08-21/0001"
+isolation:
+  co_residence_restriction: none
+  restriction_ref: "openspec/changes/add-identity-brokering/review/co-residence-finding-2026-08-21.md#workbench-no-restricted-population"
+declared_at: "2026-08-21T16:00:30Z"

@@ -1,0 +1,52 @@
+# expected_failure: schema
+# expected_failure_detail: 'issuing_workflow' was expected
+# requirement: TA-R4
+# VIOLATES TA-R4's attribution half — and does so UNREPRESENTABLY, which is the
+# point of this probe.
+#
+# `failure.attribution` is a constant. There is no member for the dependent that
+# stopped authenticating, so this record cannot be authored at all; the shape
+# refuses it before any rule runs. The probe exists because the attribution half
+# is the part that is easy to skip and expensive to omit: attributing the outage
+# to the dependent produces an incident report that teaches nothing, a fix that is
+# a re-bind with no obligation attached, and a guarantee of recurrence at the next
+# renewal.
+#
+# The dependent was configured correctly when it was configured. The renewal is
+# what changed beneath it.
+schema_version: 1
+kind: xfactory_certificate_renewal_record
+renewal_id: renewal:neg-blaming-the-dependent
+certificate_ref: cert:core-workload-02
+anchor_ref: anchor:core-issuing
+renewal_mode: unattended
+planning:
+  planned_at: "2026-06-30T00:00:00Z"
+  certificate_enumeration_state: complete
+  outcome: proceeded
+key_change:
+  changed: true
+  superseded_key_generation_ref: keygen:core-workload-02-g1
+  new_key_generation_ref: keygen:core-workload-02-g2
+rebind_obligation:
+  arises: true
+  statement: New key material.
+enumerated_dependents:
+  - bind:core-workload-02-queue
+  - bind:core-workload-02-mesh
+dependent_rebinds:
+  - binding_ref: bind:core-workload-02-queue
+    rebind_evidence:
+      mode: authentication_against_new_material
+      performed_at: "2026-07-01T02:05:00Z"
+      result: succeeded
+authority_outcome: issued
+completion_state: failed
+failure:
+  attribution: dependent_binding
+  unbound_dependents:
+    - bind:core-workload-02-mesh
+  statement: >-
+    The mesh policy was pinning a key generation instead of the certificate, so
+    the mesh team should change their configuration.
+reported_at: "2026-07-01T03:00:00Z"

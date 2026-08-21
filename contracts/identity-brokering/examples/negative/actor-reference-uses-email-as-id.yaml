@@ -1,0 +1,25 @@
+# expected_failure: actor-identifier-not-opaque
+# expected_failure_detail: is an email address
+# requirement: IDB-R5
+# VIOLATES R5: an email address as the actor identifier.
+#
+# The address is the identifier the requirement singles out, and for two
+# reasons rather than one: an upstream provider may assert an address it never
+# verified, and addresses are REASSIGNED — the new holder of
+# brett@opensoft.one inherits every record written against it.
+#
+# It is also the same failure as the auto-link probe, one layer down: if
+# addresses were durable identifiers, matching on them would be safe. They are
+# not, so neither is.
+schema_version: 1
+kind: actor_subject_reference
+reference_id: asr-email-id-9011
+governed_record_ref:
+  record_type: administration_action
+  record_ref: "opsx:keycloak-administration/apply/2026-08-22/0011"
+provenance: broker_asserted
+issuer:
+  broker_instance_id: broker-opensoft-shared
+subject: brett@opensoft.one
+display_name_at_record: Brett Heap
+recorded_at: "2026-08-22T10:05:00Z"

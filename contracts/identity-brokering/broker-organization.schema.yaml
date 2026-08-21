@@ -1,0 +1,191 @@
+schema_version: 1
+kind: openxfactory-identity-brokering-contract-schema
+name: broker_organization
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/identity-brokering/v1/broker-organization.schema.yaml"
+contract_id: identity-brokering-broker-organization
+contract_schema_version: 1
+title: Identity-brokering broker organization
+description: >-
+  A company boundary as the broker holds it (add-identity-brokering,
+  capability `identity-brokering`, requirements "Organizations realize
+  company boundaries, on the persona" and "The broker asserts identity and
+  membership only"). The tenant/operator company and the subject/served
+  company are the SAME KIND of record — an organization a persona belongs
+  to — never a separate persona and never a separate identity population.
+
+  `company_role` is `tenant` or `served`: the two company boundaries this
+  family recognises, spelled as the ratified change's task 1.2 fixes them.
+  Stated precisely, because the looser phrasing overclaimed and the
+  reasoning is worth having exactly right (research.md, Decision 4): a
+  COMPANY BOUNDARY IS NOT A HERMES LAYER, and only ONE of these two words
+  is a canonical layer id. `contracts/policies/layer-vocabulary.yaml`
+  declares the canonical ids as `subject`, `tenant` and `domain`; `tenant`
+  is one of them, and `served` is NOT — it appears in that policy as the
+  ROLE TEXT of the subject layer ("The served party or work subject"), and
+  design D1 writes the pair as "tenant companies (the operator layer) and
+  subject/served companies". `served` is therefore this family's own
+  spelling of a company boundary, carried deliberately and bridged rather
+  than silently equated.
+
+  The family carries that BRIDGE explicitly (`tenant` -> `tenant`,
+  `served` -> `subject`), and the bridge's TARGETS are READ BY THE
+  CANONICAL VALIDATOR AT RUN TIME from the policy rather than restated
+  here, so renaming a canonical layer fails loudly instead of leaving this
+  family speaking a second spelling of the layer model. The policy's
+  `reserved_layer_terms` (`customer`, `client`) are refused from the same
+  source. One vocabulary, from one place: a role spelled `client` is
+  refused twice over — by this closed enumeration and by the reserved-term
+  check. Note that `governed_record_refs[].record_kind` is validated
+  against the canonical layer ids DIRECTLY, because that field does name a
+  layer; `company_role` does not.
+
+  THE POINTER-NOT-PROJECTION LINE LIVES HERE. `governed_record_refs` is
+  bounded at ONE item and each item is closed to a record kind, a reference
+  and the declaration that it resolves in the governed layer. Without a
+  pointer the governed layer could not resolve the boundary the broker just
+  named and implementers would rebuild the mapping by string-matching
+  company names — the mirror, arrived at accidentally. With more than a
+  pointer, broker state becomes a partial copy of the tenancy graph that
+  will disagree with it (design D2 and its named risk). One reference is
+  legal; copying the referenced record's contents into broker state is a
+  validation failure, and there is no property in which to copy them.
+
+  Membership records ASSOCIATION, not authority: nothing in this shape
+  grants anything. A federated upstream provider is a REFERENCE plus a
+  `credential-contracts` requirement reference — never a client secret, a
+  token, or any other credential value.
+type: object
+required:
+  - schema_version
+  - kind
+  - organization_id
+  - display_name
+  - company_role
+  - broker_instance_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [broker_organization]
+  organization_id: {$ref: '#/$defs/organization_id'}
+  display_name:
+    type: string
+    minLength: 1
+    maxLength: 200
+  company_role:
+    # CLOSED, and mapped onto the canonical layer vocabulary at run time.
+    # `tenant` is the operator company running the installation; `served`
+    # is the company the work is done for. There is no third value, and
+    # `customer` / `client` are reserved terms the validator refuses from
+    # the policy file itself.
+    type: string
+    enum: [tenant, served]
+  broker_instance_ref:
+    # The instance this organization exists in. Organizations are scoped to
+    # an instance for the same reason personas are: isolation escalates by
+    # instance (design D3).
+    $ref: '#/$defs/identifier'
+  routed_domains:
+    # Domain-routed login: a persona arriving from one of these domains
+    # reaches this organization's own provider from a shared entry point.
+    type: array
+    items: {$ref: '#/$defs/domain_name'}
+  federated_providers:
+    # An organization MAY federate its own upstream identity provider. The
+    # personas authenticating through it remain SINGLE personas with
+    # memberships — federation changes where a login is verified, never how
+    # many personas a human has.
+    type: array
+    items:
+      type: object
+      required: [provider_id, provider_ref, client_credential]
+      additionalProperties: false
+      properties:
+        provider_id: {$ref: '#/$defs/identifier'}
+        provider_ref:
+          # WHERE the provider is, as a reference a reader can resolve —
+          # an issuer URL or a governed reference. Not a configuration
+          # export, and not a place to paste one.
+          type: string
+          minLength: 1
+          maxLength: 300
+        routed_domains:
+          type: array
+          items: {$ref: '#/$defs/domain_name'}
+        client_credential: {$ref: '#/$defs/credential_reference'}
+  governed_record_refs:
+    # EXACTLY ONE, when present at all. `maxItems: 1` is the pointer-not-
+    # projection line expressed as a bound rather than as prose, and the
+    # canonical validator reports a second reference under its own finding
+    # code so the refusal names the rule instead of a generic array length.
+    type: array
+    minItems: 1
+    maxItems: 1
+    items:
+      type: object
+      required: [record_kind, record_ref, resolves_in]
+      additionalProperties: false
+      properties:
+        record_kind:
+          # The canonical layer the governed record belongs to. Validated
+          # against `contracts/policies/layer-vocabulary.yaml` at run time.
+          type: string
+          enum: [subject, tenant]
+        record_ref:
+          type: string
+          minLength: 1
+          maxLength: 300
+        resolves_in:
+          # A single member on purpose: the pointer resolves in the
+          # governed layer, and there is no other value it could take.
+          # Resolving it "in the broker" is the mirror.
+          type: string
+          enum: [governed_layer]
+  declared_at: {type: string, format: date-time}
+  policy_version: {type: integer, minimum: 1}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+  organization_id:
+    # A COMPANY BOUNDARY IS NAMED BY A PLAIN ID, not by a path into the
+    # tenancy graph. The same narrowed pattern
+    # `persona-assertion.schema.yaml` applies to a membership's
+    # `organization_id`, and the two must agree: an organization declarable
+    # as `opensoft/stack/qa/layer/tenant/project/alpha` is an organization no
+    # conformant membership could ever name, and the id itself would be the
+    # tenancy projection the never-mirror rule refuses — arriving in the one
+    # position on this shape that every other record resolves through.
+    # ':' and '/' are what a projection needs and a company name does not.
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]*$'
+  domain_name:
+    type: string
+    minLength: 3
+    maxLength: 253
+    pattern: '^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$'
+  credential_reference:
+    # A REFERENCE to a `credential-contracts` requirement, with the named
+    # holder and the place custody is declared. Composition, not a second
+    # custody vocabulary: this family states WHERE custody is declared and
+    # never restates the declaration, so the two cannot disagree.
+    type: object
+    required: [requirement_id, requirements_document_ref, holder_ref, custody_declared_in]
+    additionalProperties: false
+    properties:
+      requirement_id: {$ref: '#/$defs/identifier'}
+      requirements_document_ref:
+        type: string
+        minLength: 1
+        maxLength: 300
+      holder_ref: {$ref: '#/$defs/identifier'}
+      custody_declared_in:
+        type: string
+        minLength: 1
+        maxLength: 300

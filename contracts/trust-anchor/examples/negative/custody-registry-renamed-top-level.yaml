@@ -1,0 +1,40 @@
+# expected_failure: custody-ceiling-unearned
+# expected_failure_detail: caps at 'final_authority', the HIGHEST level
+# requirement: TA-R3
+# VIOLATES TA-R3, by attacking the RULE rather than the ruling: the ladder's top
+# level is renamed, and a host-evidencing member caps at it.
+#
+# A registry names its own levels, so a check comparing against a literal level
+# id would be disabled by exactly this rename and the collapse would validate
+# cleanly. The rule therefore keys on the top RANK. This fixture exists because
+# the equivalent hole was found in openxWallet's validator by attacking it rather
+# than by reading it, and the same attack has to fail here.
+schema_version: 1
+kind: xfactory_trust_anchor_chain_custody_registry
+registry_id: trust-anchor-chain-custody-probe
+registry_version: 1
+assurance_levels:
+  - id: channel_only
+    rank: 0
+    statement: Authenticate a channel; nothing is attributed.
+  - id: final_authority
+    rank: 1
+    statement: The top of this ladder, whatever it is called.
+custody_models:
+  - id: host_held
+    title: host held
+    key_readable_by_using_host: true
+    use_requires_authorization_outside_using_host: false
+    evidences: using_host
+    openxwallet_custody_model: holder_readable
+    evidences_statement: Probe member; see the fixture comment for what it violates.
+    assurance_ceiling: final_authority
+  - id: host_isolated_invocable
+    title: host isolated invocable
+    key_readable_by_using_host: false
+    use_requires_authorization_outside_using_host: false
+    evidences: using_host
+    openxwallet_custody_model: isolated_invocable
+    evidences_statement: Probe member; see the fixture comment for what it violates.
+    assurance_ceiling: channel_only
+undeclared_custody_resolves_to: host_held

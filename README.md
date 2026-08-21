@@ -252,6 +252,28 @@ Every DomainxFactory must validate against the canonical contract:
   custody model and never key material; authority travels as attenuated
   grants; custody CAPS what a signature evidences; and wallets stay optional
   for every domain (`add-openxwallet`).
+- Identity brokering: [contracts/identity-brokering](contracts/identity-brokering/README.md),
+  validated by `scripts/validate-identity-brokering.py [<repo-path>]
+  [--strict]` — one persona per human within a broker INSTANCE; organizations
+  realize company boundaries ON the persona; the broker asserts identity and
+  membership only, with the property set a CLOSED ALLOW-LIST at every depth
+  (derived from the schema, never a denylist) so the tenancy graph is never
+  mirrored; explicit self-link or admin-approved merge only; workloads are not
+  personas; and broker credentials are `credential-contracts` references.
+  Registered at `contract-v1.36` (`add-identity-brokering`). Opt-in: a domain
+  holding none of these artifacts stays conformant and the check reports a
+  notice.
+- Trust anchors: [contracts/trust-anchor](contracts/trust-anchor/README.md),
+  validated by `scripts/validate-trust-anchor.py [<repo-path>] [--strict]`
+  with its pytest wiring at `tests/trust-anchor/` — systems trust ANCHORS and
+  certificates only derivatively; issuance happens only under recorded
+  authority; declared chain custody DERIVES what a certificate evidences,
+  through a closed registry that composes with `openxwallet`'s custody rule at
+  run time rather than restating it; renewal that changes key material is a
+  rebind obligation over dependents enumerated in advance; revocation
+  propagates to the authority the certificate supported; and a realization
+  DECLARES the obligations it cannot meet. Registered at `contract-v1.36`
+  (`add-trust-anchor`). Product-agnostic and opt-in on the same terms.
 - Workflow contracts: [xfactory-workflow schema](contracts/schemas/xfactory-workflow.schema.yaml)
   and `scripts/validate-workflow-contracts.py <domain-repo>` — every
   `<domain>_workflow_contract` under `workflows/` validates against the
@@ -293,6 +315,14 @@ Active changes:
   Also ADDS the `xFactory-Keycloak-Install` repository boundary to
   `repo-boundary-governance` (avatar-client template; creation by successor
   `implement-keycloak-install-repo`). Sibling of `add-trust-anchor`.
+  **REALIZED 2026-08-21** by Speckit feature
+  `008-identity-brokering-contracts` (six schemas at
+  `contracts/identity-brokering/`, canonical validator
+  `scripts/validate-identity-brokering.py`, 14 positive + 41 negative
+  fixtures at 9/9 requirement coverage), hardened by a two-panel adversarial
+  review across the sibling families (14 + 14 confirmed findings — 28 and 52
+  bypass probes respectively — all fixed, ruled, or documented, with zero
+  ratified-corpus regressions), and **registered at `contract-v1.36`**.
 - [add-trust-anchor](openspec/changes/add-trust-anchor/proposal.md)
   — authored and **RATIFIED 2026-08-21** (OQ1 and OQ2 ruled per their
   recommendations: establish-obligation with a declared floor; closed
@@ -311,6 +341,15 @@ Active changes:
   `opensoft/Opensoft-Tenant`). Time-critical rider: the OpsxFactory
   `add-openxpki-qa-image-pipeline` Impact amendment must land before that
   change ratifies. Sibling of `add-identity-brokering`.
+  **REALIZED 2026-08-21** by Speckit feature `009-trust-anchor-contracts`
+  (seven schemas plus the closed chain-custody registry pair at
+  `contracts/trust-anchor/`, canonical validator
+  `scripts/validate-trust-anchor.py` with its `tests/trust-anchor/` pytest
+  wiring, 34 positive + 65 negative fixtures at 8/8 requirement coverage),
+  hardened by a two-panel adversarial review across the sibling families
+  (14 + 14 confirmed findings — 52 and 28 bypass probes respectively — all
+  fixed, ruled, or documented, with zero ratified-corpus regressions), and
+  **registered at `contract-v1.36`**.
 - [add-roster-device-admission-surface](openspec/changes/add-roster-device-admission-surface/proposal.md)
   — authored 2026-08-19. Admits the single `device` (node-inventory) admission
   surface into the closed `admission_surface` vocabulary of

@@ -1,0 +1,29 @@
+# expected_failure: key-material-reversibly-encoded
+# expected_failure_detail: hex-encoded key material
+# requirement: TA-R7
+# VIOLATES TA-R7 through the second reversible encoding, and exists as its own
+# probe because a scan written for one encoding is a scan that teaches people
+# which encoding to use.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:neg-hex-encoded-key
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "Demonstration Root Authority"
+chain_position:
+  role: root
+  path_depth: 0
+validity:
+  not_before: "2026-01-01T00:00:00Z"
+  not_after: "2027-01-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:demo-issuance-policy
+    authority_kind: policy
+    statement: Demonstration certificates only.
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  credential_record_ref: credential:neg-demo-root-key
+  vault_binding_ref: vaultbinding:demo/root-key
+notes: "demonstration material, hex for readability: 2d2d2d2d2d424547494e2050524956415445204b45592d2d2d2d2d4d494945765149424144414e42676b71686b6947397730424151454641415343424b63776767536a41674541416f494241514441716131625a3276512d2d2d2d2d454e442050524956415445204b45592d2d2d2d2d"

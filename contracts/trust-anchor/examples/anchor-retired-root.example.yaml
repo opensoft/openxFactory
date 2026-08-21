@@ -1,0 +1,37 @@
+# VALID trust anchor in the REVOKED state, with the propagation record that
+# carries what its revocation had to reach. Certificates chaining to it stopped
+# being trusted at that moment, and their own remaining validity did not extend
+# its standing.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:retired-root
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "Retired Pilot Root Authority"
+  public_key_fingerprint: "sha256:0A93B6D1E4C782F5501B7EAC38D6F1924B0E7C5A9D31F680"
+chain_position:
+  role: root
+  path_depth: 0
+validity:
+  not_before: "2024-01-01T00:00:00Z"
+  not_after: "2034-01-01T00:00:00Z"
+state: revoked
+revocation:
+  revoked_at: "2026-05-01T00:00:00Z"
+  reason_statement: >-
+    The pilot authority was decommissioned; its trust was withdrawn rather than
+    left to expire in 2034, because an unused anchor is still a held anchor.
+  propagation_ref: prop:retired-root-revocation
+admitted_issuance_authorities:
+  - authority_ref: policy:retired-root-issuance-policy
+    authority_kind: policy
+    statement: Pilot service certificates.
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  credential_record_ref: credential:retired-root-signing-key
+  vault_binding_ref: vaultbinding:core/retired-root-signing-key
+  declared_at: "2024-01-01T00:00:00Z"
+record_version: 2
+created_at: "2024-01-01T00:00:00Z"

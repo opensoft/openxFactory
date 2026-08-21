@@ -1,0 +1,38 @@
+# expected_failure: persona-spans-instances
+# expected_failure_detail: sub-5e3d90ac71bf4682
+# requirement: IDB-R8
+# VIOLATES R8: a merge reaching across broker instances.
+#
+# Approved, recorded, and every prior subject kept resolvable — this record does
+# the merge paperwork correctly. What it merges is a persona from the DEDICATED
+# HealthLinc instance into a persona in the shared one, on the entirely
+# reasonable-sounding grounds that they are the same human.
+#
+# They may well be. Personas still do not span instances, and nothing may
+# require them to: a human holding a persona in two instances holds two SINGLE
+# personas, each single within its own instance. Merging them here would
+# undo the isolation the dedicated instance exists to provide — a clinical
+# patient population becoming reachable from the operator plane by way of a
+# merge record, which is the co-residence bar defeated through the linking
+# machinery rather than through a deployment decision.
+schema_version: 1
+kind: identity_link_record
+link_record_id: lnk-cross-instance-9019
+broker_instance_ref: broker-opensoft-shared
+mode: admin_merge
+basis: governed_administration_approval
+subjects:
+  - sub-8f2c41d60a974d3b
+  - sub-5e3d90ac71bf4682
+surviving_subject: sub-8f2c41d60a974d3b
+pre_merge_subjects:
+  - subject: sub-8f2c41d60a974d3b
+    remains_resolvable_to: sub-8f2c41d60a974d3b
+  - subject: sub-5e3d90ac71bf4682
+    remains_resolvable_to: sub-8f2c41d60a974d3b
+approved_by:
+  administrator_subject: sub-ad91c740be6f5312
+  approval_record_ref: "opsx:keycloak-administration/merge-queue/2026-08-22/0019"
+  approved_at: "2026-08-22T11:05:00Z"
+occurred_at: "2026-08-22T11:05:30Z"
+evidence_ref: "broker-audit://broker-opensoft-shared/merge/2026-08-22/11-05-30"

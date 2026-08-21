@@ -1,0 +1,55 @@
+# VALID certificate record: a device certificate from the managed authority whose
+# key is hardware-resident but usable by the host WITHOUT a per-use
+# authorization. It evidences the USING HOST, and its ceiling is therefore the
+# host-attributed level — which is what makes the two refusals recorded against
+# it (in this corpus's binding examples) the correct outcome rather than an
+# inconvenience.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:managed-device-05
+realization_ref: realization:managed-cloud-authority-canary
+anchor_ref: anchor:managed-issuing
+subject:
+  identifier: "device-2291.fleet.managed"
+  subject_class: device
+validity:
+  not_before: "2026-07-15T00:00:00Z"
+  not_after: "2027-01-15T00:00:00Z"
+state: valid
+key_generation:
+  generation_ref: keygen:managed-device-05-g1
+  generated_at: "2026-07-15T00:00:00Z"
+declared_chain_custody:
+  custody_model: host_isolated_invocable
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  declared_at: "2026-07-15T00:00:00Z"
+  declared_by: opensoft
+  statement: >-
+    Non-exportable platform key with no per-use gate. The key cannot be stolen
+    and replayed elsewhere; a compromised host still authenticates as this
+    device at will.
+evidences: using_host
+assurance_ceiling: host_attributed_act
+issuance_evidence:
+  present: true
+  evidence_ref: ie:managed-device-05
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: "2026-07-15T00:00:00Z"
+  binding_refs:
+    - bind:managed-device-05-network
+    - bind:managed-device-05-attested-signing
+    - bind:managed-device-05-audit-authority
+trust_evaluation:
+  evaluated_at: "2026-08-15T11:00:00Z"
+  basis: held_anchor_record
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: "2026-08-15T11:00:00Z"
+    result: current_standing_active
+  outcome: trusted
+record_version: 1
+created_at: "2026-07-15T00:00:00Z"

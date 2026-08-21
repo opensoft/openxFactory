@@ -11,7 +11,7 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
 
 ## 1. Contract (openxFactory — THIS CHANGE)
 
-- [ ] 1.1 NEW `contracts/identity-brokering/persona-assertion.schema.yaml`
+- [x] 1.1 DONE 2026-08-21 — realized by Speckit feature `008-identity-brokering-contracts`; the property set is a closed allow-list at every depth AND the validator re-derives that allow-list from the schema, so an unrecognised property is refused by name (never a denylist). NEW `contracts/identity-brokering/persona-assertion.schema.yaml`
       (`kind: persona_assertion`, `schema_version`): the issuing broker
       instance id, the stable opaque subject, the display name, the linked
       upstream identities (provider id + upstream subject only — never a
@@ -20,7 +20,7 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
       to put a role, a group, a grant, a project, a stack, a layer, or a
       domain, so the never-mirror rule is enforced by the shape rather
       than by review (spec R3, design D2 and its risk).
-- [ ] 1.2 NEW `contracts/identity-brokering/broker-organization.schema.yaml`
+- [x] 1.2 DONE 2026-08-21 — `governed_record_refs` is `maxItems: 1` with a closed reference object, and `company_role: tenant | served` bridges to the canonical layers (`tenant` -> `tenant`, `served` -> `subject`) whose ids and reserved terms the validator READS from `contracts/policies/layer-vocabulary.yaml` at run time. NEW `contracts/identity-brokering/broker-organization.schema.yaml`
       (`kind: broker_organization`): organization id, company role
       (`tenant` | `served` — the ratified `layer-vocabulary` spelling),
       routed domains, federated upstream provider references, and EXACTLY
@@ -28,7 +28,7 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
       organization corresponds to. One reference, `maxItems`-bounded and
       singular by shape — the pointer-not-projection line of design D2
       lives here (spec R2, R3).
-- [ ] 1.3 NEW `contracts/identity-brokering/actor-subject-reference.schema.yaml`
+- [x] 1.3 DONE 2026-08-21 — the structured reference, with the three provenance classes' wrong combinations UNREPRESENTABLE (a `pre_broker_username` admits no issuer or subject; `presented_as_persona` is a required constant `false`) and OQ-1/OQ-3 recorded as settled in `specs/008-identity-brokering-contracts/research.md`. NEW `contracts/identity-brokering/actor-subject-reference.schema.yaml`
       (`kind: actor_subject_reference`): the reference a governed record
       embeds — issuer (broker instance), opaque subject,
       `display_name_at_record`, and a provenance discriminator separating
@@ -36,7 +36,7 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
       mapped historical actor. Structured, per the OQ-3 recommendation;
       the consuming gate-console change confirms or overrides it against a
       real record before the bundle cuts (spec R5).
-- [ ] 1.4 NEW `contracts/identity-brokering/identity-link-record.schema.yaml`
+- [x] 1.4 DONE 2026-08-21 — mode requires its actor by shape (a self link without an initiator and a merge without an approver are both unrepresentable), the admissible bases are READ OUT OF THE SCHEMA at run time so `attribute_match` is refused by the contract rather than by a second list, and every pre-merge subject carries the survivor it remains resolvable to. NEW `contracts/identity-brokering/identity-link-record.schema.yaml`
       (`kind: identity_link_record`): mode (`self_link` | `admin_merge`),
       the initiating persona or the approving administrator, the subjects
       involved, the surviving subject, the time, and an evidence
@@ -44,27 +44,27 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
       an initiator and a merge without an approver are both
       unrepresentable — and the record carries every pre-merge subject so
       the resolvability obligation has a source (spec R4, design D4).
-- [ ] 1.5 NEW `contracts/identity-brokering/broker-client-declaration.schema.yaml`
+- [x] 1.5 DONE 2026-08-21 — the transport assertion is THREE required constants (`is_transport: true`, `actor_of_governed_acts: false`, `organization_membership_as_authority: false`), so the claim is always made and only the conformant value is representable; the validator additionally refuses a declared client's subject appearing as a persona or as a governed record's actor. NEW `contracts/identity-brokering/broker-client-declaration.schema.yaml`
       (`kind: broker_client_declaration`): the service client, the surface
       it serves, the stated reason OIDC tokens are required, its
       `credential-contracts` requirement reference, and the transport
       assertion. No organization-membership-as-authority field exists, and
       the shape carries no actor role at all (spec R6, R7).
-- [ ] 1.6 NEW `contracts/identity-brokering/surface-adoption.schema.yaml`
+- [x] 1.6 DONE 2026-08-21 — a write-offering surface cannot declare the weaker posture (schema conditional plus rule f), `resolves_in` and `satisfied_by` are single-member enumerations, `human_accounts_held_by_surface` is a required constant `false`, and a restricted population requires a `dedicated` instance while an unrestricted dedicated instance stays conformant (silence on count, both directions). NEW `contracts/identity-brokering/surface-adoption.schema.yaml`
       (`kind: broker_surface_adoption`): the surface, its declared
       authorization posture (`authenticated_persona` |
       `resolved_authorization`), whether it offers governed write actions,
       the governed decision point when it does, and the retired
       credential reference when adoption replaces a shared static secret
       (spec R7, R9, design D8 and D9).
-- [ ] 1.7 `contracts/identity-brokering/README.md`: the family, the
+- [x] 1.7 DONE 2026-08-21 — `Status: ratified` naming this change, the nine rules with their reasoning, custody by composition, isolation by instance with silence on count, the record-kind table, the named consumers, and the limits stated rather than implied. `contracts/identity-brokering/README.md`: the family, the
       single-persona rule, organizations as company boundaries, the
       pointer-not-projection line, merge safety, the actor-subject
       contract, the workloads-are-not-personas rule, custody by
       composition, isolation by instance with silence on count, and the
       named consumers (the OpsxFactory administration workflow, the
       install repo, the dashboard swap, the gate console).
-- [ ] 1.8 Packaged examples under
+- [x] 1.8 DONE 2026-08-21 — 14 positives and 27 negatives [Amended by the adversarial-review hardening of 2026-08-21: the negative corpus is now 41, one new fixture per verified bypass, still 9/9 requirement coverage. Findings F1-F14 and their dispositions are recorded in `specs/008-identity-brokering-contracts/traceability.yaml` under `review_hardening`; the three that tightened the CONTRACT rather than a check (F5, F11, F12) are disclosed in that feature's research.md.]: the 18 named below plus 9 for ratified clauses that would otherwise have gone unproven (including the two that give requirement R2 a probe at all, which the named list left uncovered). Each negative declares `# expected_failure:`, a detail pin and a `# requirement:` attribution; coverage is closed in both directions at 9/9. Packaged examples under
       `contracts/identity-brokering/examples/`. Positives: a persona with
       two linked upstream identities and two organization memberships; a
       tenant organization and a served organization, one federating its
@@ -92,7 +92,7 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
       `adoption-leaves-shared-secret-live`,
       `isolation-by-persona-partition-in-shared-instance`,
       `write-action-under-authenticated-persona-posture`.
-- [ ] 1.9 Implement `scripts/validate-identity-brokering.py` (canonical
+- [x] 1.9 DONE 2026-08-21 — thirteen lettered rules (a)-(m) [Amended by the adversarial-review hardening of 2026-08-21: now FOURTEEN, (a)-(n) — rule (n), a membership names a declared organization — and the red proof covers 22 finding codes, not 19. Findings F1-F14 and their dispositions are recorded in `specs/008-identity-brokering-contracts/traceability.yaml` under `review_hardening`; the three that tightened the CONTRACT rather than a check (F5, F11, F12) are disclosed in that feature's research.md.]. All seven named clauses are implemented as written, plus the pointer bound, the workload collisions, the instance escalation, the layer vocabulary and the no-local-accounts claim. The allow-list is DERIVED FROM THE SCHEMA (local `$ref`s resolved, branches unioned) rather than written as a second list, and a recorded red proof shows all 19 finding codes load-bearing (`specs/008-identity-brokering-contracts/evidence/`; 22 after the hardening slice, the harness deriving its code set from the fixtures' own headers). Implement `scripts/validate-identity-brokering.py` (canonical
       validator, repo-path argument like the other canonical validators):
       schema checks plus the rules the shapes cannot express —
       (a) persona-assertion and organization properties validated against
@@ -110,14 +110,14 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
       actions must declare `resolved_authorization` and name its governed
       decision point; (g) an adoption that names a replaced shared
       credential must mark it retired.
-- [ ] 1.10 Validate: `OPENSPEC_TELEMETRY=0 openspec validate
+- [x] 1.10 DONE 2026-08-21 — `openspec validate add-identity-brokering --strict` valid and `--all --strict` 63/63; `validate-identity-brokering.py . --strict` 0 errors / 0 warnings over 14 positives and 27 negatives (re-verified 0/0 over 14 positives and 41 negatives after the 2026-08-21 review hardening); `validate-ideation-cross-reference.py` unchanged (its 3 errors are pre-existing, in an unmodified `tests/ideation-dashboard/fixtures/` document); doc-health single-repo run carries no finding against this change, its promoted supporting docs, the new family or the new validator. Validate: `OPENSPEC_TELEMETRY=0 openspec validate
       add-identity-brokering --strict` and `--all --strict` green;
       `python3 scripts/validate-identity-brokering.py . --strict` green
       (0 errors, 0 warnings) over the packaged examples;
       `python3 scripts/validate-ideation-cross-reference.py` still 0
       errors; doc-health clean against the change and the promoted
       supporting docs.
-- [ ] 1.11 Register in `contracts/manifest.yaml` +
+- [x] 1.11 DONE 2026-08-21 — registered at **`contract-v1.36`** (bundle bumped from `contract-v1.35`; the minor number was allocated at realization, never reserved ahead of merge order, and the annotated tag is applied post-merge to the realized commit per the versioning policy's "Bundle Realization Order"). All SIX schemas carry a per-file `sha256` in `contracts/manifest.yaml` under a `contract-v1.36` registration block with a distilled `consumption_rule` each; `scripts/validate-manifest-digests.py` verifies 150 digests (was 135). The `contract-v1.36` CHANGELOG entry states the additive class against the no-changes-required test, records that no `contract_schema_version` is bumped anywhere, and carries the realization + review-hardening provenance. Index rows added to `contracts/README.md` (family + validator/corpus) and conformance bullets to the root `README.md`. Per the openxWallet and client-identity-roster precedent the packaged corpus, the family README and `scripts/validate-identity-brokering.py` are content-addressed by commit with NO per-file digest — so the "closed release-inventory membership" this task asked for is the release-surface rule of `docs/contract-versioning-policy.md` § Release Digest Inventory, exercised when `contracts/releases/contract-v1.36.digests.yaml` is built at promotion time (`scripts/validate-contract-release.py build`), which is a promotion-order step and not part of this registration. Register in `contracts/manifest.yaml` +
       `contracts/CHANGELOG.md` + the README contract index at the next
       additive bundle cut, per `docs/contract-versioning-policy.md`
       (registration-at-realization precedent). Every schema carries a
@@ -141,7 +141,7 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
       the open design points differently. Ratification authorizes exactly
       one Speckit realization feature for phase 1 and creates no broker,
       realm, organization, credential, or persona.
-- [ ] 2.3 Settle before the schemas are authored, and record the
+- [x] 2.3 DONE 2026-08-21 — both settled BEFORE the schemas were authored and recorded in the realization feature's research: `specs/008-identity-brokering-contracts/research.md` § "Settlement 1 — the `actor_subject` field shape (change task 2.3, design OQ-3)" adopts the STRUCTURED REFERENCE (issuer + opaque subject + `display_name_at_record` + provenance discriminator) with the question, the reasoning and what the settlement does NOT do; § "Settlement 2 — pre-broker history (change task 2.3, design OQ-1)" adopts MARK THE BOUNDARY DATE, MAP ON DEMAND, NEVER BACKFILL, and records its structural half. Both are realized in `contracts/identity-brokering/actor-subject-reference.schema.yaml`, where the three provenance classes' wrong combinations are unrepresentable and `presented_as_persona` is a required constant `false`, so neither settlement can be undone by an instance author. Settle before the schemas are authored, and record the
       resolution in the realization feature's research: OQ-3 (the
       `actor_subject` field shape — recommendation: the structured
       reference) and OQ-1's history handling (recommendation: mark the
@@ -150,26 +150,26 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
 
 ## 3. Promotion bookkeeping (with phase 1)
 
-- [ ] 3.1 Move `ideation/staging/identity-brokering-plane/` into
+- [x] 3.1 DONE 2026-08-21 — moved with the canonical tool (`python3 scripts/proposal-support.py . transition add-identity-brokering ideation/staging/identity-brokering-plane --apply`), which moves the file, writes a byte-identical `source-snapshots/` copy, sets the promoted prose to `Status: draft` / `Proposed by: add-identity-brokering`, rewrites its relative links, and removes the emptied staging folder. The folder is gone. Move `ideation/staging/identity-brokering-plane/` into
       `openspec/changes/add-identity-brokering/supporting-docs/` per
       `document-lifecycle`, and remove the emptied staging folder so it
       leaves the organized-work queue.
-- [ ] 3.2 Write `supporting-docs.manifest.yaml`: original staging path,
+- [x] 3.2 DONE 2026-08-21 — written as `supporting-docs/manifest.yaml`, which is the filename the ratified `document-lifecycle` spine and `proposal-support.py` use for an ACTIVE change ("each active support folder owns `manifest.yaml`"); `supporting-docs.manifest.yaml` is the ARCHIVED form written beside the compressed bundle at archive time, from this manifest. It carries every field named here — `origin_path`, `source_revision` (5f59a32), `transitioned_at`, per-file `sha256` plus the source hash and snapshot path, and the repeated `origin.kind`/`id`/`path`, which the tool verified against `.openspec.yaml` before moving anything. `proposal-support.py verify add-identity-brokering` reports ok. Finding recorded in `specs/008-identity-brokering-contracts/research.md`. Write `supporting-docs.manifest.yaml`: original staging path,
       source revision, transition date, per-file hashes, and the repeated
       `origin.kind` / `origin.id` / `origin.path` values, which MUST match
       `.openspec.yaml` exactly or strict proposal validation fails.
       Promoted prose carries `Status: draft` and names this change.
-- [ ] 3.3 Retire the `identity-brokering-plane` row and detail section in
+- [x] 3.3 DONE 2026-08-21 — FULL promotion, so the INDEX maintenance rule's full-promotion branch applies rather than an in-place edit: no staged file remains, so the row AND the detail section are DELETED from `ideation/staging/INDEX.md` and the pointer moves to `ideation/README.md`'s "Active proposals promoted from staging" list, where the exit is recorded as exit 1 of the topic's three (with exits 2 and 3 named as the remaining successors). Row/section parity re-verified afterwards: 33/33 -> 31/31, and neither retired slug appears in either list. The sibling `pki-trust-anchor-plane` row was NOT left untouched as this task's last clause anticipated — `add-trust-anchor` realized in the SAME `contract-v1.36` cut, so its task 6.2 retired it in the same pass, and both pointers now sit side by side in the README list. Retire the `identity-brokering-plane` row and detail section in
       `ideation/staging/INDEX.md`, recording the exit as
       "Proposed as add-identity-brokering (exit 1)"; leave the sibling
       `pki-trust-anchor-plane` row untouched.
-- [ ] 3.4 Annotate the origin brainstorm
+- [x] 3.4 DONE 2026-08-21 — APPENDED a "### Realization landed — 2026-08-21" subsection to the "Exit executed" section of `ideation/brainstorm/keycloak-identity-brokering.md`, naming this change, Speckit feature `008-identity-brokering-contracts` and the `contract-v1.36` registration; recording which carried-forward open questions the realization settled (the subject id and `actor_subject` shape, pre-broker history, the co-residence check) and which stay deferred; naming the sibling `add-trust-anchor` in the same cut; and pointing at both fragments' current homes under `supporting-docs/`. Not one word of the existing rulings was rewritten. The doc's historical `../staging/` links are deliberately LEFT dangling and labelled as design history, matching the precedent already set by `ideation/brainstorm/ideation-dashboard.md` after its own full promotion. Annotate the origin brainstorm
       `ideation/brainstorm/keycloak-identity-brokering.md`: its
       "Exit executed" section names this change as exit 1's realization.
       Keep it as design history; do not rewrite its rulings.
-- [ ] 3.5 List the change in the openxFactory README "OpenSpec Records"
+- [x] 3.5 DONE 2026-08-21 — the entry was already in the openxFactory README "OpenSpec Records" block under "Active changes"; this pass APPENDS the realization to it — REALIZED 2026-08-21 by Speckit feature `008-identity-brokering-contracts`, the family/validator/corpus named, hardened by the two-panel adversarial review, registered at `contract-v1.36`. Two conformance bullets were also added to the README's validator list (identity brokering and trust anchors), mirroring the `validate-openxwallet.py` entry. The second clause — moving the entry from "Active changes" when the change archives — remains OPEN by design and is not this pass's work. List the change in the openxFactory README "OpenSpec Records"
       block on landing, and move the entry when it archives.
-- [ ] 3.6 Cross-reference `add-trust-anchor` as the sibling proposal from
+- [x] 3.6 DONE 2026-08-21 — cross-referenced in four places that a reader actually reaches: both README "OpenSpec Records" entries name each other as siblings, both `ideation/README.md` promoted-list pointers state that R1 and R7 were ruled ONCE across the two topics, and the brainstorm annotation names the sibling realization in the same `contract-v1.36` cut. CONFIRMED by inspection this pass: the two `repo-boundary-governance` deltas remain TWO DISTINCT ADDED REQUIREMENTS and never became a shared MODIFIED one — `openspec/changes/add-identity-brokering/specs/repo-boundary-governance/spec.md` carries `## ADDED Requirements` with the single requirement "Keycloak install repository boundary", and `openspec/changes/add-trust-anchor/specs/repo-boundary-governance/spec.md` carries `## ADDED Requirements` with the single requirement "OpenXPKI install repository boundary". Neither file contains a `## MODIFIED Requirements` section, so there is no shared requirement for the two changes to collide on at archive time (design D7). Cross-reference `add-trust-anchor` as the sibling proposal from
       the same 2026-08-21 session (rulings R1 and R7 were made once for
       both), and confirm the two changes' `repo-boundary-governance`
       deltas remain two distinct ADDED requirements — never a shared

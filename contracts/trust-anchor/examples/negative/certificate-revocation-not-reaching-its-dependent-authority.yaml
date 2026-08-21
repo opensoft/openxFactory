@@ -1,0 +1,53 @@
+# expected_failure: revocation-transitivity-incomplete
+# expected_failure_detail: revokes certificate
+# requirement: TA-R6
+# VIOLATES TA-R6 for a CERTIFICATE target. The record revokes
+# `cert:core-legacy-03` and reports `complete` while naming one unrelated
+# authority — and never the authority that certificate's own enumerated dependent
+# binding bought (`authority:core-legacy-partner-feed`, held by a partner outside
+# the family).
+#
+# The transitive closure was computed for ANCHOR targets only, which left the
+# ordinary case — one certificate revoked — resting on whatever the record chose
+# to list. The ratified requirement names both: "revoking a certificate or an
+# anchor revoke[s] the authority that certificate or anchor supported". The
+# certificate's dependent-binding enumeration is the record of what that was, and
+# it exists precisely so this closure is computable rather than asserted. An
+# authority the record does not name is a propagation gap: the certificate is
+# revoked and the authority it bought is still there.
+schema_version: 1
+kind: xfactory_certificate_revocation_propagation
+propagation_id: prop:neg-core-legacy-03-partial
+realization_ref: realization:core-self-hosted-authority
+mechanism:
+  realized_through: openxwallet_revocation_through_derivation
+  statement: >-
+    Rides the ratified derivation rule. What it does not do is reach everything
+    the certificate supported.
+revoked:
+  target_kind: certificate
+  target_ref: cert:core-legacy-03
+  revoked_at: "2026-08-25T10:00:00Z"
+  reason_statement: Unexplained certificate, revoked after the review window.
+declared_window:
+  opens_at: "2026-08-25T10:00:00Z"
+  bounded_seconds: 86400
+  closes_at: "2026-08-26T10:00:00Z"
+assessed_at: "2026-08-26T09:00:00Z"
+downstream_authorities:
+  - authority_ref: authority:core-legacy-reporting-read
+    reached_via: derivation
+    state: propagated
+    propagation_evidence:
+      mode: exercise_refused
+      performed_at: "2026-08-25T10:20:00Z"
+      evidence_ref: evidence:core-legacy-reporting-refused
+      statement: >-
+        The internal reporting authority died with the certificate, checked at
+        exercise.
+completion:
+  state: complete
+  statement: >-
+    Reported complete on the strength of the authority somebody remembered. The
+    partner feed's grant is not mentioned anywhere in this record.
+record_version: 1

@@ -1,0 +1,114 @@
+# VALID conformance declaration: the MANAGED authority the family does NOT
+# operate — the live canary. This is the case the contract exists to keep
+# conformant: the obligations it cannot fully meet are DECLARED, with reasons,
+# and it stays conformant on the strength of that declaration rather than being
+# excluded by obligations only a self-hosted authority could satisfy.
+#
+# Note what the gaps then do at point of use: `TA-R7` is declared `cannot`, so a
+# consumer requiring it refuses this realization's certificates FOR THAT USE
+# (see the refused audit binding in this corpus), and the anchors whose key
+# custody sits below the strictest member NAME this entry rather than leaving a
+# reader to assume the strongest case. A declared gap costs something, which is
+# what keeps declaring one from being cheaper than closing one.
+schema_version: 1
+kind: xfactory_trust_anchor_conformance_declaration
+declaration_id: decl:managed-cloud-authority-canary
+capability: trust-anchor
+realization:
+  realization_id: realization:managed-cloud-authority-canary
+  statement: >-
+    A cloud-managed certificate authority issuing device and host-broker
+    certificates. The family administers its configuration and consumes its
+    output; it does not operate its internals.
+  authority_operated_by_family: false
+  authority_statement: >-
+    NOT operated by the family. The anchor key material lives inside a managed
+    service, and what can be evidenced about issuance is what that service
+    exposes.
+  population_statement: Device and host-broker certificates for the managed fleet.
+declared_at: "2026-06-01T00:00:00Z"
+obligations:
+  - entry_id: ob:managed:TA-R1
+    obligation: TA-R1
+    satisfaction: satisfied
+    reason: >-
+      The managed root and issuing anchors are held as anchor records, and
+      device trust decisions name those anchors. Nothing here depends on the
+      authority's internals.
+    declared_at: "2026-06-01T00:00:00Z"
+  - entry_id: ob:managed:TA-R2
+    obligation: TA-R2
+    satisfaction: partial
+    reason: >-
+      The authority does not expose per-certificate request provenance. The
+      declared floor is met instead: the issuance policy attestation PLUS the
+      authority's own log, with every issuance record stating that provenance is
+      not established rather than asserting a requester it cannot evidence.
+    declared_at: "2026-06-01T00:00:00Z"
+    achieved_establishment_level: per_policy_attestation_with_authority_log
+    compensating_control: >-
+      Enrollment is gated by the device-management path, so the population of
+      possible requesters is bounded even where an individual request is not
+      attributable.
+  - entry_id: ob:managed:TA-R3
+    obligation: TA-R3
+    satisfaction: satisfied
+    reason: >-
+      Subject key custody is declared from the closed registry per certificate:
+      hardware-resident keys with a per-use attestation gate evidence the named
+      holder, and hardware-resident keys usable by the host at will evidence the
+      host. The distinction is declared rather than inferred from the word
+      "hardware".
+    declared_at: "2026-06-01T00:00:00Z"
+  - entry_id: ob:managed:TA-R4
+    obligation: TA-R4
+    satisfaction: satisfied
+    reason: >-
+      Learned the hard way. Automatic renewal produced new key material and the
+      directory binding kept pointing at the previous key; the workflow now
+      enumerates dependents from the certificate record and verifies each
+      against the new material before reporting completion.
+    declared_at: "2026-06-01T00:00:00Z"
+  - entry_id: ob:managed:TA-R5
+    obligation: TA-R5
+    satisfaction: partial
+    reason: >-
+      Dependents inside the family are recorded before service. Dependents in
+      systems the family does not own are recorded on the holder's declaration,
+      so the enumeration is only as complete as those declarations — which is
+      why a dependent discovered by an outage is recorded as a defect of the
+      certificate record and the enumeration corrected.
+    declared_at: "2026-06-01T00:00:00Z"
+  - entry_id: ob:managed:TA-R6
+    obligation: TA-R6
+    satisfaction: partial
+    reason: >-
+      Revocation of a certificate propagates to the authority it supported
+      within the declared window, and standing is checked at use. What cannot be
+      evidenced is the managed authority's own internal distribution, so
+      propagation is evidenced at the consuming authority rather than at the
+      issuer.
+    declared_at: "2026-06-01T00:00:00Z"
+  - entry_id: ob:managed:TA-R7
+    obligation: TA-R7
+    satisfaction: cannot
+    reason: >-
+      The anchor key material is held inside a service the family does not
+      operate, so no credential-contracts record with a vault binding can be
+      produced for it and the family declines to assert one. Issuance and
+      administration credentials FOR that service are credential records with
+      vault bindings and are brokered into ephemeral scope; the authority's own
+      key custody is what cannot be evidenced.
+    declared_at: "2026-06-01T00:00:00Z"
+    compensating_control: >-
+      The authority's published key-protection statement is retained as
+      evidence of what the operator claims, recorded as the operator's claim
+      rather than as the family's evidence.
+  - entry_id: ob:managed:TA-R8
+    obligation: TA-R8
+    satisfaction: satisfied
+    reason: >-
+      This declaration is the artifact, and it is refreshed when an obligation's
+      standing changes rather than when someone asks.
+    declared_at: "2026-06-01T00:00:00Z"
+record_version: 1

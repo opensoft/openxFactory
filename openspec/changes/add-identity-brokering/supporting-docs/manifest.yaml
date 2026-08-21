@@ -1,0 +1,23 @@
+{
+  "change_id": "add-identity-brokering",
+  "files": [
+    {
+      "path": "identity-brokering-plane.md",
+      "sha256": "5f60804411e1ba1d0d75c13e0e0e5e3609d753f02eb6033f6da7b284a0eab8d4",
+      "source_path": "ideation/staging/identity-brokering-plane/identity-brokering-plane.md",
+      "source_sha256": "4368b00fe3c0518d7bd814642c055bbe18be5845ac4639e028e90cf32116b7e9",
+      "source_snapshot_path": "source-snapshots/identity-brokering-plane.md"
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": {
+    "id": "openxFactory:staging:identity-brokering-plane",
+    "kind": "staged",
+    "path": "ideation/staging/identity-brokering-plane"
+  },
+  "origin_path": "ideation/staging/identity-brokering-plane",
+  "remaining_paths": [],
+  "source_revision": "5f59a32f3f1ad0b129721a4a4d3ea70d563f589a",
+  "transitioned_at": "2026-08-21"
+}

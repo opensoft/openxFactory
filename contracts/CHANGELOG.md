@@ -9,6 +9,195 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.36 — 2026-08-21 (additive; two new neutral families — identity brokering and trust anchors)
+
+Realizes the two ratified sibling changes of 2026-08-21 —
+`add-identity-brokering` through Speckit feature
+`008-identity-brokering-contracts`, and `add-trust-anchor` through
+`009-trust-anchor-contracts` — as TWO new neutral contract families. Fifteen
+NEW contract files land; **no existing released file's bytes change**, so
+every existing pin resolves byte-identically until it chooses to re-pin.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+lines 130-132 ("new optional fields, new contracts, new validator warnings").
+The test is that a domain repo on the same major version remains conformant
+WITHOUT CHANGES, and it holds trivially here: both families are entirely new,
+no existing shape gains a required field, no shape is removed, and no existing
+vocabulary is reinterpreted. Every new file declares
+`contract_schema_version: 1`, and NO `contract_schema_version` anywhere in the
+bundle is bumped. Both families are OPT-IN: a domain that records no persona,
+adoption, anchor or certificate publishes nothing and stays conformant, and
+each family's canonical validator exits 0 with a notice over a repository that
+holds none of its artifacts.
+
+**Nothing was pending.** The standing Unreleased items were cut at
+`contract-v1.32` (the `hermes_subject_overlay` kind and the openxWallet RSA
+signature-algorithm widening), and no Unreleased block accumulated between
+that cut and this one, so this entry folds no deferred item.
+
+### `contracts/identity-brokering/` — the neutral identity-brokering family (`add-identity-brokering`)
+
+The neutral contract for what any identity broker must assert about a human,
+what a governed record may store about an actor, and what a broker must never
+become. Keycloak is the realization being adopted and it appears in no schema,
+no enumeration and no requirement. SIX schemas, each with a per-file `sha256`
+in [`manifest.yaml`](manifest.yaml):
+
+- `persona-assertion.schema.yaml` — what a conformant broker asserts about an
+  authenticated human: issuing broker INSTANCE, stable opaque subject, display
+  name, federated upstreams, organization memberships, and nothing else. The
+  property set is a CLOSED ALLOW-LIST AT EVERY DEPTH, so a role, group, grant,
+  project, stack, layer or entitlement has nowhere to go — the never-mirror
+  rule enforced by the shape rather than by review. The membership's
+  `organization_id` uses a narrower pattern than the family's general
+  identifier (no `:` and no `/`), which was the rule's last doorway.
+- `broker-organization.schema.yaml` — a company boundary as the broker holds
+  it. `company_role` is `tenant` or `served`; the two are the SAME KIND of
+  record. A company boundary is NOT a Hermes layer, so the family carries an
+  explicit bridge (`tenant` -> `tenant`, `served` -> `subject`) whose targets
+  the canonical validator READS from
+  [`policies/layer-vocabulary.yaml`](policies/layer-vocabulary.yaml) at run
+  time, reserved terms included. `governed_record_refs` is bounded at ONE
+  closed item: the pointer-not-projection line.
+- `actor-subject-reference.schema.yaml` — the STRUCTURED reference a governed
+  record embeds when it names a human actor (issuer, opaque subject, display
+  name as it stood, provenance discriminator). Three provenance classes whose
+  wrong combinations are UNREPRESENTABLE, including a `pre_broker_username`
+  that admits no issuer or subject and carries a required constant
+  `presented_as_persona: false`.
+- `identity-link-record.schema.yaml` — a federated identity joining an
+  existing persona. EXACTLY TWO MODES, each requiring its actor by shape;
+  attribute-match auto-linking cannot be written at all; every pre-merge
+  subject is carried with the survivor it remains resolvable to.
+- `broker-client-declaration.schema.yaml` — a broker service client declared
+  as TRANSPORT, with three REQUIRED CONSTANTS (`is_transport: true`,
+  `actor_of_governed_acts: false`,
+  `organization_membership_as_authority: false`) and no property in which an
+  actor role or authority could be written. Non-human authority stays on
+  `credential-contracts` grants and `openxwallet` holders.
+- `surface-adoption.schema.yaml` — a surface's declared authorization posture,
+  the instance it authenticates against, the shared secret the adoption
+  retires, and the isolation its population requires. A write action cannot
+  hide under the weak posture (schema conditional both ways), `resolves_in`
+  has one legal value `governed_layer`, and isolation escalates by broker
+  INSTANCE while the contract stays SILENT on instance count.
+
+`contracts/identity-brokering/README.md` (`Status: ratified`) and the packaged
+corpus at `contracts/identity-brokering/examples/` — 14 positive examples and
+41 intended-invalid negatives, coverage closed in both directions at 9/9
+requirements — are content-addressed by commit, no per-file digest, per the
+openxWallet and client-identity-roster precedent. So is the canonical
+validator `scripts/validate-identity-brokering.py`: fourteen lettered rules
+(a)-(n) the shapes cannot express, with the closed allow-list DERIVED FROM THE
+SCHEMA (local `$ref`s resolved, branches unioned) rather than written as a
+second list, and the admissible linking bases, the authorization-resolution
+target and the layer vocabulary all READ AT RUN TIME from the contract or the
+policy so a check cannot drift from the thing it enforces.
+
+### `contracts/trust-anchor/` — the neutral trust-anchor family (`add-trust-anchor`)
+
+The neutral contract for what a governed system may assume about a certificate
+it trusts — product-agnostic, because the family runs two certificate
+authorities from two vendors for two populations (live Intune Cloud PKI;
+OpenXPKI planned). SEVEN schemas plus the chain-custody registry PAIR, each
+with a per-file `sha256` in [`manifest.yaml`](manifest.yaml):
+
+- `trust-anchor.schema.yaml` — the governed record a system TRUSTS; a
+  certificate is trusted only derivatively, through an anchor the evaluating
+  system already holds. Chain position is coherent or the record is refused,
+  an anchor's window BOUNDS its subordinates, and authority key material is a
+  `credential-contracts` record with its vault binding or a declared
+  obligation that neither can be produced.
+- `certificate-record.schema.yaml` — a certificate as a governed record.
+  `trust_evaluation.basis` is the constant `held_anchor_record` and the
+  standing check's basis is the constant `checked_at_use`, so trust cannot be
+  recorded on a certificate's own strength nor on issuance-time validity;
+  `evidences` is DERIVED from declared custody and recomputed.
+- `issuance-evidence.schema.yaml` — what an issuance record must ESTABLISH,
+  never the mechanism. Two `establishment_level` members and nothing weaker is
+  representable; the floor
+  (`per_policy_attestation_with_authority_log`) requires BOTH halves; asserted
+  provenance at `not_established` is forbidden by shape and requires a
+  resolvable `declared_shortfall_ref`.
+- `dependent-binding.schema.yaml` — one authority binding against a
+  certificate's key material, recorded so a renewal's rebind set is computable
+  BEFORE the renewal. The key GENERATION is the join, compared against the
+  CERTIFICATE with no renewal record in the way.
+- `renewal-record.schema.yaml` — a renewal and the rebind obligation it
+  creates. "Successful with an unevidenced dependent" is unrepresentable as a
+  SCHEMA constraint; `failure.attribution` is the constant
+  `issuing_workflow`; no rule anywhere keys on `renewal_mode`.
+- `revocation-propagation.schema.yaml` — revocation reaching the authority the
+  certificate supported, within a declared window whose arithmetic is
+  recomputed. `mechanism.realized_through` is the constant
+  `openxwallet_revocation_through_derivation` — one revocation vocabulary, not
+  two — and an unevidenced closed window must be recorded
+  `incomplete_open_exposure` with the escalation.
+- `conformance-declaration.schema.yaml` — obligation by obligation, what a
+  realization satisfies, partially satisfies, and cannot; CLOSED over the
+  capability's eight obligations with coverage checked in both directions and
+  a per-entry `declared_at`, so a gap declared afterwards does not validate
+  the claims made while the realization was silent.
+- `chain-custody-registry.schema.yaml` + `trust-anchor-chain-custody.registry.yaml`
+  — the CLOSED chain-custody enumeration and the ordered assurance ladder it
+  caps, as a schema plus its closed instance (the `openxwallet-custody`
+  registry pattern). `evidences` is DERIVED from two declared booleans and
+  never independently asserted, and each member declares the `openxwallet`
+  custody member it corresponds to, which the canonical validator RESOLVES
+  against [`openxwallet/openxwallet-custody.registry.yaml`](openxwallet/openxwallet-custody.registry.yaml)
+  at run time — so "composes with rather than restates" is structural rather
+  than a promise, and the two registries cannot drift into two custody
+  models. Operator escrow is a deliberate NON-MEMBER, modelled as a
+  relationship on the credential record rather than a custody tier (OQ2, ruled
+  as recommended).
+
+`contracts/trust-anchor/README.md` (`Status: ratified`) and the packaged
+corpus at `contracts/trust-anchor/examples/` — 34 positive examples and 65
+intended-invalid negatives, coverage closed in both directions at 8/8
+requirements — are content-addressed by commit, no per-file digest. So are the
+canonical validator `scripts/validate-trust-anchor.py` (34 lettered rules, a
+self-test layer and a repo-scan layer, exit 0/1/2) and its pytest wiring
+`tests/trust-anchor/` (validator exit code and reported corpus counts; every
+negative fixture adjudicated independently; the declaration-perimeter rules
+whose cases need two records that disagree).
+
+### Realization provenance and the review hardening in this cut
+
+Both families were ratified by Brett Heap on 2026-08-21 — identity brokering
+with its recommendations adopted as written and the OQ-5 co-residence gate
+discharged, trust anchors with OQ1 and OQ2 ruled as recommended — and both
+were realized the same day.
+
+**Each family was then hardened by an adversarial review panel independent of
+its author, and the hardening is IN the bytes this cut registers.** Identity
+brokering: 28 bypass probes, 14 verified findings, 14 new negative fixtures
+(negative corpus 27 -> 41), the validator's rule set (a)-(m) -> (a)-(n), and
+22 distinct finding codes red-proven; three findings tightened the CONTRACT
+rather than a check (a merge is not approved by one of its own parties;
+`prior_shared_credential` required; `restriction_ref` required for both
+answers) and are disclosed in
+`specs/008-identity-brokering-contracts/research.md`. Trust anchors: 52
+probes, 14 findings, all 14 closed, two new positives and twenty-two new
+negatives (32/43 -> 34/65), 27 -> 34 validator rules, and 50 non-`schema`
+finding codes red-proven. Zero ratified-corpus regressions on either side. The
+per-finding dispositions live in each feature's `traceability.yaml` under
+`review_hardening`.
+
+Both changes also ADD one requirement each to `repo-boundary-governance` — the
+`xFactory-Keycloak-Install` and `xFactory-OpenXPKI-Install` repository
+boundaries — as TWO DISTINCT ADDED requirements rather than one shared
+MODIFIED enumeration delta, so the sibling changes cannot collide on one
+requirement at archive time. Those are governance deltas, not contract files,
+and nothing in this cut depends on them.
+
+Per [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+"Bundle Realization Order", the minor number is allocated LATE: this entry,
+the manifest bump to `contract-v1.36` and the fifteen new contract files land
+atomically in one candidate commit, and the annotated tag `contract-v1.36` is
+applied POST-MERGE to the exact realized commit on published `origin/main` —
+never reserved ahead of merge order, and never moved once published.
+
 ## contract-v1.35 — 2026-08-19 (additive; the `device` roster admission surface)
 
 Realizes `add-roster-device-admission-surface`, the ratified extension of the

@@ -1,0 +1,50 @@
+# expected_failure: custody-registry-duplicate-claim
+# expected_failure_detail: a diverging copy beside the records that cite it
+# requirement: TA-R3
+# VIOLATES TA-R3's closed set by shipping a SECOND one under the same name. This
+# document claims `registry_id: trust-anchor-chain-custody` — the canonical id —
+# with a renamed ladder and its own version number.
+#
+# Internally it is impeccable: the derivation holds, the top level is earned, the
+# floor is a weakest member, the openxWallet mapping agrees. That is what makes it
+# dangerous. A record citing `registry_version: 7` is adjudicated against the
+# canonical registry and read by a human against this one, and the two can differ
+# by exactly as much as somebody wants them to.
+#
+# An identical copy is fine and expected — a domain repository vendoring the
+# pinned openxFactory bundle ships one — so the rule refuses a copy whose CONTENT
+# differs rather than a copy that exists.
+schema_version: 1
+kind: xfactory_trust_anchor_chain_custody_registry
+registry_id: trust-anchor-chain-custody
+registry_version: 7
+assurance_levels:
+  - {id: tier_a, rank: 0, statement: Renamed bottom of the ladder.}
+  - {id: tier_b, rank: 1, statement: Renamed middle of the ladder.}
+  - {id: tier_c, rank: 2, statement: Renamed top of the ladder.}
+custody_models:
+  - id: host_held
+    title: Readable by the using host
+    key_readable_by_using_host: true
+    use_requires_authorization_outside_using_host: false
+    evidences: using_host
+    openxwallet_custody_model: holder_readable
+    evidences_statement: The using host acted.
+    assurance_ceiling: tier_a
+  - id: host_isolated_invocable
+    title: Isolated, invocable without limit
+    key_readable_by_using_host: false
+    use_requires_authorization_outside_using_host: false
+    evidences: using_host
+    openxwallet_custody_model: isolated_invocable
+    evidences_statement: The using host acted.
+    assurance_ceiling: tier_b
+  - id: host_isolated_per_use_authorized
+    title: Isolated, per-use authorized
+    key_readable_by_using_host: false
+    use_requires_authorization_outside_using_host: true
+    evidences: named_holder
+    openxwallet_custody_model: isolated_per_use_authorized
+    evidences_statement: The named holder acted.
+    assurance_ceiling: tier_c
+undeclared_custody_resolves_to: host_held

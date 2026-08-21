@@ -1,0 +1,41 @@
+# expected_failure: shortfall-claim-moment-missing
+# expected_failure_detail: indistinguishable from a backdated one
+# requirement: TA-R8
+# VIOLATES TA-R8's timeliness guard by DECLARING NO MOMENT. The anchor cites a
+# shortfall entry and carries neither `declared_at` on its custody block nor
+# `created_at` on the record, so the comparison the ratified guard depends on —
+# was the gap declared BEFORE the claim? — has only one side.
+#
+# The earlier form of the rule SKIPPED when either side was missing, which made
+# omitting two optional timestamps a complete bypass: an adversarial review dated
+# a shortfall in 2030, deleted the anchor's two dates, and the record validated.
+# A guard that fails open on the record that wants it to is not a guard, so the
+# citation is refused and the schema now requires `declared_at` alongside a
+# shortfall reference — this fixture is refused twice over, by shape and by rule.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:neg-momentless-shortfall
+realization_ref: realization:managed-cloud-authority-canary
+anchor_identity:
+  subject_name: "Managed Root Authority (undated instance)"
+chain_position:
+  role: root
+  path_depth: 0
+validity:
+  not_before: "2026-01-01T00:00:00Z"
+  not_after: "2036-01-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:managed-device-issuance-profile
+    authority_kind: policy
+    statement: Device certificates enrolled through the managed profile.
+declared_chain_custody:
+  custody_model: host_isolated_invocable
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  declared_by: opensoft
+  declared_shortfall_ref: ob:managed:TA-R7
+  statement: >-
+    No declared_at here and no created_at below, so the record carries no moment
+    and there is nothing for the lateness guard to compare against.
+record_version: 1

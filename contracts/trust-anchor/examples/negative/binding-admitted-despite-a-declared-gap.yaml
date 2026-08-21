@@ -1,0 +1,43 @@
+# expected_failure: declared-gap-claimed
+# expected_failure_detail: not permission to assert the missing evidence
+# requirement: TA-R8
+# VIOLATES TA-R8's guard against the degraded-obligation rule becoming a loophole:
+# a binding that requires an obligation the realization declares it CANNOT
+# satisfy, admitted anyway.
+#
+# The refusal it should have received is in the positive corpus, naming the gap
+# entry. This record is the same situation with the declaration read as a
+# disclosure rather than as a constraint — "we told you we cannot evidence it, so
+# you know what you are getting". The ratified text closes that reading directly:
+# a declared gap is NOT permission to assert the missing evidence, and a consumer
+# refuses the certificate for the use the gap covers.
+#
+# This is also what gives declaration a cost at point of use, which is the only
+# thing that stops declaring a gap from being cheaper than closing one.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:neg-admitted-over-declared-gap
+certificate_ref: cert:managed-device-05
+holding_system:
+  system_ref: system:core-audit-authority
+  inside_family: true
+  statement: >-
+    An audit authority that will only rely on certificates whose issuing
+    authority's own key custody is evidenced as a credential record.
+binds:
+  binding_kind: trust_store_entry
+  what_statement: Admission into the audit authority's trust store.
+bound_key_reference:
+  key_generation_ref: keygen:managed-device-05-g1
+required_assurance: host_attributed_act
+required_obligations: [TA-R7]
+admission:
+  state: admitted
+  decided_at: "2026-07-16T10:00:00Z"
+rebind_status:
+  state: current
+  as_of: "2026-07-16T10:00:00Z"
+discovery:
+  discovered_by: planned_review
+  discovered_at: "2026-07-16T00:00:00Z"
+  recorded_before_first_renewal: true

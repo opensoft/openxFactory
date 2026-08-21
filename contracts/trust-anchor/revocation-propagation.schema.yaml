@@ -1,0 +1,200 @@
+schema_version: 1
+kind: openxfactory-trust-anchor-contract-schema
+name: xfactory_certificate_revocation_propagation
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/trust-anchor/v1/revocation-propagation.schema.yaml"
+contract_id: trust-anchor-revocation-propagation
+contract_schema_version: 1
+title: Revocation propagation record
+description: >-
+  Revoking a certificate or an anchor revokes the authority it SUPPORTED —
+  within a declared bounded window, with the propagation evidenced
+  (add-trust-anchor, requirement "Revocation propagates to the authority the
+  certificate supported"; design D5).
+
+  ONE REVOCATION VOCABULARY, NOT TWO. `mechanism.realized_through` is the
+  constant `openxwallet_revocation_through_derivation`: this contract states the
+  OBLIGATION and rides the ratified mechanism — revoking a parent kills what
+  derived from it, checked at exercise rather than trusted from issuance. A
+  second revocation vocabulary would lag the first and win locally by
+  proximity, so the shape offers no other value to record.
+
+  THE WINDOW IS DECLARED AND ARITHMETICALLY CHECKED. `opens_at`,
+  `bounded_seconds` and `closes_at` must agree; the canonical validator
+  recomputes the closing moment rather than trusting it, on the same principle
+  that makes `evidences` derived elsewhere in this family.
+
+  AN UNEVIDENCED CLOSED WINDOW IS AN OPEN EXPOSURE, NOT A COMPLETION.
+  `completion.state: complete` requires — by shape — that EVERY downstream
+  authority carry propagation evidence. The validator adds the clock: where
+  `assessed_at` is past `closes_at` and any authority is still unevidenced, the
+  record must be `incomplete_open_exposure` with the escalation recorded. A
+  revocation is never complete on the strength of the revocation REQUEST.
+
+  REVOKING AN ANCHOR IS TRANSITIVE. For an anchor target the record must
+  enumerate the subordinate certificates reached, and the validator computes
+  the closure over the anchor chain from the corpus: a certificate chaining to
+  the revoked anchor, or to any anchor beneath it, that this record does not
+  name is a propagation gap rather than an omission of paperwork.
+type: object
+required:
+  - schema_version
+  - kind
+  - propagation_id
+  - realization_ref
+  - mechanism
+  - revoked
+  - declared_window
+  - assessed_at
+  - downstream_authorities
+  - completion
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_certificate_revocation_propagation]
+  propagation_id: {$ref: '#/$defs/identifier'}
+  realization_ref: {$ref: '#/$defs/identifier'}
+  mechanism:
+    type: object
+    required: [realized_through, statement]
+    additionalProperties: false
+    properties:
+      realized_through: {const: openxwallet_revocation_through_derivation}
+      statement: {type: string, minLength: 1, maxLength: 900}
+  revoked:
+    type: object
+    required: [target_kind, target_ref, revoked_at, reason_statement]
+    additionalProperties: false
+    properties:
+      target_kind:
+        type: string
+        enum: [anchor, certificate]
+      target_ref: {$ref: '#/$defs/identifier'}
+      revoked_at: {type: string, format: date-time}
+      reason_statement: {type: string, minLength: 1, maxLength: 800}
+  declared_window:
+    type: object
+    required: [opens_at, bounded_seconds, closes_at]
+    additionalProperties: false
+    properties:
+      opens_at: {type: string, format: date-time}
+      bounded_seconds: {type: integer, minimum: 1}
+      closes_at: {type: string, format: date-time}
+      statement: {type: string, maxLength: 600}
+  assessed_at:
+    # When this record's completion state was assessed. The validator compares
+    # THIS against the window rather than the wall clock, so the record is a
+    # stable statement about a moment instead of a claim that decays.
+    type: string
+    format: date-time
+  subordinate_certificates_reached:
+    # Required for an anchor target: the certificates whose supported authority
+    # this propagation had to reach. Checked against the corpus's anchor chain.
+    type: array
+    uniqueItems: true
+    items: {$ref: '#/$defs/identifier'}
+  downstream_authorities:
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      required: [authority_ref, reached_via, state]
+      additionalProperties: false
+      properties:
+        authority_ref: {$ref: '#/$defs/identifier'}
+        reached_via:
+          type: string
+          enum: [derivation, dependent_binding, subordinate_certificate]
+        subordinate_certificate_ref: {$ref: '#/$defs/identifier'}
+        binding_ref: {$ref: '#/$defs/identifier'}
+        state:
+          type: string
+          enum: [propagated, unevidenced]
+        propagation_evidence:
+          type: object
+          required: [mode, performed_at]
+          additionalProperties: false
+          properties:
+            mode:
+              type: string
+              enum:
+                - exercise_refused
+                - binding_removed
+                - authority_revoked_at_holder
+                - standing_check_returned_revoked
+            performed_at: {type: string, format: date-time}
+            evidence_ref: {$ref: '#/$defs/identifier'}
+            statement: {type: string, maxLength: 800}
+      allOf:
+        - if:
+            properties: {state: {const: propagated}}
+            required: [state]
+          then: {required: [propagation_evidence]}
+        - if:
+            properties: {state: {const: unevidenced}}
+            required: [state]
+          then: {not: {required: [propagation_evidence]}}
+        - if:
+            properties: {reached_via: {const: subordinate_certificate}}
+            required: [reached_via]
+          then: {required: [subordinate_certificate_ref]}
+        - if:
+            properties: {reached_via: {const: dependent_binding}}
+            required: [reached_via]
+          then: {required: [binding_ref]}
+  completion:
+    type: object
+    required: [state]
+    additionalProperties: false
+    properties:
+      state:
+        type: string
+        enum: [complete, incomplete_open_exposure]
+      escalation:
+        type: object
+        required: [escalated_as, escalated_at, statement]
+        additionalProperties: false
+        properties:
+          escalated_as:
+            # The only representable escalation class. An unevidenced
+            # propagation is an OPEN EXPOSURE; there is no "accepted risk",
+            # "pending" or "closed administratively" member to reach for.
+            const: open_exposure
+          escalated_at: {type: string, format: date-time}
+          exposure_ref: {$ref: '#/$defs/identifier'}
+          statement: {type: string, minLength: 1, maxLength: 900}
+      statement: {type: string, maxLength: 900}
+    allOf:
+      - if:
+          properties: {state: {const: incomplete_open_exposure}}
+          required: [state]
+        then: {required: [escalation]}
+      - if:
+          properties: {state: {const: complete}}
+          required: [state]
+        then: {not: {required: [escalation]}}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+allOf:
+  - if:
+      properties: {revoked: {properties: {target_kind: {const: anchor}}, required: [target_kind]}}
+      required: [revoked]
+    then: {required: [subordinate_certificates_reached]}
+  - if:
+      properties: {completion: {properties: {state: {const: complete}}, required: [state]}}
+      required: [completion]
+    then:
+      properties:
+        downstream_authorities:
+          items:
+            required: [propagation_evidence]
+            properties: {state: {const: propagated}}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

@@ -1,0 +1,30 @@
+# VALID dependent binding admitted at the lowest assurance level: the certificate
+# authenticates a channel, and nothing about who decided anything is claimed.
+# Host-evidencing custody is entirely adequate here, which is the point of having
+# a ladder rather than a single bar.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:managed-device-05-network
+certificate_ref: cert:managed-device-05
+holding_system:
+  system_ref: system:managed-network-access
+  inside_family: true
+  statement: Network access control accepts this device certificate.
+binds:
+  binding_kind: authentication_credential
+  what_statement: Device network admission.
+bound_key_reference:
+  key_generation_ref: keygen:managed-device-05-g1
+required_assurance: channel_authentication
+required_obligations: [TA-R1]
+admission:
+  state: admitted
+  decided_at: "2026-07-15T02:00:00Z"
+rebind_status:
+  state: current
+  as_of: "2026-08-15T11:00:00Z"
+discovery:
+  discovered_by: holder_declaration
+  discovered_at: "2026-07-15T00:00:00Z"
+  recorded_before_first_renewal: true
+record_version: 1

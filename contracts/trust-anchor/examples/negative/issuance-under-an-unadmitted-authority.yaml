@@ -1,0 +1,34 @@
+# expected_failure: issuance-authority-not-admitted
+# expected_failure_detail: recorded as unauthorized
+# requirement: TA-R2
+# VIOLATES TA-R2: an issuance citing an authority the anchor does not admit, and
+# recording itself as authorized anyway.
+#
+# Authorization is DERIVED from the anchor's admitted set, never asserted by the
+# record that would benefit from asserting it. The honest version of this record
+# exists in the positive corpus and says `unauthorized`; that is what makes the
+# finding actionable rather than invisible. Compare the certificate that carries
+# it: the certificate's own validity does not ratify an unauthorized issuance
+# retroactively.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:neg-unadmitted-authority
+certificate_ref: cert:core-service-01
+anchor_ref: anchor:core-issuing
+realization_ref: realization:core-self-hosted-authority
+authority:
+  authority_ref: policy:some-other-teams-policy
+  authority_kind: policy
+  statement: A policy configured in an enrollment profile and never admitted here.
+establishment_level: per_certificate_record
+request_provenance:
+  establishment: established
+  requester_ref: system:another-teams-pipeline
+  request_id: req:neg-unadmitted-2026-08
+  requested_at: "2026-08-01T00:00:00Z"
+  statement: Provenance is established; the AUTHORITY is what was never admitted.
+issued_at: "2026-08-01T00:00:00Z"
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: true
+  statement: Operated by the family.

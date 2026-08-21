@@ -1,0 +1,41 @@
+# expected_failure: obligation-undeclared
+# expected_failure_detail: declared SATISFIED is an undeclared shortfall
+# requirement: TA-R8
+# VIOLATES TA-R8: a record that does not establish what the obligation requires,
+# pointing at an obligation entry that says the obligation is SATISFIED.
+#
+# This is the shape an undeclared shortfall actually takes once a contract asks
+# for declarations. Nobody writes "we are silent about this"; they cite the entry
+# that exists and hope the citation is not resolved. Here the self-hosted
+# realization — the one that CAN reach per-certificate provenance and declares
+# that it does — files an issuance record at the floor level and refers to its own
+# satisfied entry as cover.
+#
+# An undeclared shortfall is non-conformance even where the identical shortfall,
+# declared, would be conformant. So the reference is resolved: the entry must
+# belong to this realization, name this obligation, and actually record a
+# shortfall.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:neg-undeclared-shortfall
+certificate_ref: cert:core-service-01
+anchor_ref: anchor:core-issuing
+realization_ref: realization:core-self-hosted-authority
+authority:
+  authority_ref: policy:core-service-issuance-policy
+  authority_kind: policy
+establishment_level: per_policy_attestation_with_authority_log
+request_provenance:
+  establishment: not_established
+  declared_shortfall_ref: ob:core:TA-R2
+  statement: >-
+    The issuance came through an automation path that does not record who
+    triggered it.
+authority_attestation:
+  policy_attestation_ref: attestation:core-service-issuance-policy-2026-08
+  authority_log_ref: authoritylog:core-issuing-2026-08-01
+issued_at: "2026-08-01T00:00:00Z"
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: true
+  statement: Operated by the family.

@@ -1,0 +1,38 @@
+# VALID dependent binding, declared BEFORE the certificate entered service. This
+# is the ordinary case and the one the obligation depends on: because it is
+# recorded, the rebind set the next renewal creates is computable now rather than
+# discoverable later.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:core-service-01-gateway
+certificate_ref: cert:core-service-01
+holding_system:
+  system_ref: system:core-edge-gateway
+  inside_family: true
+  statement: >-
+    The edge gateway authenticates the ledger API by this certificate's key.
+binds:
+  binding_kind: authentication_credential
+  what_statement: >-
+    Client authentication for the ledger API's upstream calls; the gateway
+    accepts only this key for that route.
+  authority_ref: authority:core-ledger-api-upstream
+bound_key_reference:
+  key_generation_ref: keygen:core-service-01-g1
+  bound_at: "2026-08-01T06:00:00Z"
+required_assurance: host_attributed_act
+required_obligations: [TA-R4, TA-R5]
+admission:
+  state: admitted
+  decided_at: "2026-08-01T06:00:00Z"
+rebind_status:
+  state: current
+  as_of: "2026-08-15T09:00:00Z"
+  statement: >-
+    Bound to the certificate's current generation; the last renewal preserved
+    the key, so nothing was owed.
+discovery:
+  discovered_by: holder_declaration
+  discovered_at: "2026-07-31T00:00:00Z"
+  recorded_before_first_renewal: true
+record_version: 1
