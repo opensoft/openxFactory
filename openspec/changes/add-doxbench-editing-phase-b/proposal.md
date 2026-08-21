@@ -345,9 +345,20 @@ read as an interpretation, not a silent narrowing.
 
 **Amendment (2026-08-21, Brett, in-session multiple choice, recommended option
 adopted): the canvas control pair is dirty-state-conditional — Save+Cancel while
-the selected buffer is dirty, a single Unload control for a clean unloadable
-buffer — authorizing browser annotation A2; the rail's standalone unload control
-and its two-press arm flow are superseded.**
+ANY buffer of the loaded set is dirty, a single Unload control for a clean
+unloadable buffer — authorizing browser annotation A2; the rail's standalone
+unload control and its two-press arm flow are superseded.**
+
+**The ruling is recorded in its ANY-buffer reading deliberately.** Brett's
+sentence — "if there is a change to save or cancel" — names two predicates that
+are not the same, because Save answers for the whole canvas and Cancel for the
+selected buffer. Only the any-buffer reading is safe: under selected-buffer, a
+human whose outline still held unsaved text would lose the only Save on the
+surface the moment they stepped onto a clean document, which is the hazard this
+capability's discard rules exist to prevent. That is the reading the requirement
+states, the scenarios pin, and the realization implements, so it is the reading
+this headline authorizes — an archived headline naming the rejected option would
+license exactly the defect the amendment was written to avoid.
 
 Brett annotated the running doxBench app on 2026-08-21, on
 `button.doxchat-unload` in the chat rail: "remove this button here and
@@ -387,6 +398,15 @@ scenario requires that absence as visible text beside Save. Since an ungated
 surface has no reachable editing, nothing there is ever dirty, and an
 unconditional swap would have made that stated absence unreachable.
 
+**What that clause actually reaches, stated honestly.** Through the shipped
+shell, a gate-off console renders no authoring canvas controls at all, so a
+human on that plane never sees the slot in either occupancy. The clause
+therefore governs the CANVAS MODULE's own no-save-seam branch — a canvas mounted
+without the save seam, which is how the module is reachable directly and how the
+scenario above is written and pinned. It is a module-level invariant, not an
+end-user-visible posture on today's shell, and it is worth keeping precisely
+because the shell's behaviour here is the kind of thing that changes.
+
 **What is NOT amended.** The loaded-set requirement is untouched: a document
 still leaves the set only by an explicit human act, and that act still MUST
 refuse or require an explicit discard while dirty. The new design discharges
@@ -394,6 +414,14 @@ that clause more strongly than the arm flow did, by never offering the act while
 anything is dirty, and its scenario now says so explicitly. The state-level
 refusal in `unloadDocumentBuffer` stays exactly as it is — it is the floor, and a
 floor is not deleted because the surface above it grew a guard rail.
+
+**Ledger entries this supersedes.** Two completed items in this change's own
+`tasks.md` describe surfaces the amendment retires: task 7.1's rail header line,
+removed by annotation A1 in the same slice, and task 8.6's two-press rail
+arm/discard flow, superseded here. Both remain accurate records of what was
+built and when; the ledgers are NOT rewritten, because a ledger that agreed with
+every later correction would stop being a record. This sentence is the pointer
+between them.
 
 **A note on ownership.** `add-doxbench-editing-phase-a` and
 `add-doxbench-editing-phase-b` belong to another session's thread (most recently

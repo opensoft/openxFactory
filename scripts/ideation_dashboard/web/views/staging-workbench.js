@@ -1614,8 +1614,11 @@ export function mountStagingWorkbench(container, snapshot,
         } catch (unused) {
           outcome = { ok: false, error: "the load failed" };
         }
-        syncContextFromCanvas();
-        refreshDocTiles();
+        // No explicit tail here: `loadDocumentForEditing` fires
+        // `onLoadedSetChanged`, and that is the ONE tail (F9). Running it again
+        // from inside the seam was two spellings of one act -- exactly the
+        // criticism that retired the `unloadBuffer` seam -- and it redrew the
+        // docs wheel twice on every load.
         return outcome || { ok: false, error: "the load was refused" };
       },
       save: async (path) => {
@@ -2002,9 +2005,9 @@ export function mountStagingWorkbench(container, snapshot,
         selectBuffer: async (key) => {
           if (!canvasController
               || typeof canvasController.setActiveBuffer !== "function") return;
+          // `setActiveBuffer` fires `onLoadedSetChanged` itself, which carries
+          // the tail (F9). Selection is a loaded-set fact like any other.
           canvasController.setActiveBuffer(key);
-          syncContextFromCanvas();
-          refreshDocTiles();
         },
         // add-doxbench-editing-phase-b task 7.2's THREAD half: selecting a
         // document switches the transcript to that document's thread. The

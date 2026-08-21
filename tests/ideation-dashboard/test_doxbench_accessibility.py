@@ -279,6 +279,64 @@ def test_the_panel_controls_sit_in_the_tab_row_but_outside_the_tablist():
     assert "viewTablist.appendChild(tabBtn);" in editor
 
 
+def test_the_slot_swap_reads_saves_own_dirty_derivation_and_not_a_second_one():
+    """Amendment 1: "The dirty condition SHALL be read from the SAME per-buffer
+    dirty flag Save and Cancel already derive their reachability from, and a
+    realization that introduces a second source of dirtiness for the swap MUST be
+    rejected."
+
+    This MUST cannot be held behaviorally — a second derivation that happened to
+    be byte-identical in behaviour would pass every driven state, and would then
+    drift the first time one of the two was touched. It is a STRUCTURAL claim
+    about the source, so it is pinned structurally, in this module's established
+    idiom: there is exactly ONE `anythingDirty` binding, Save reads it, and the
+    swap reads that same name rather than recomputing over the buffers."""
+    editor = _editor()
+    assert editor.count("const anythingDirty =") == 1, (
+        "a second dirtiness derivation is exactly what the requirement rejects")
+    assert "saveBtn.disabled = saving || !anythingDirty;" in editor
+    assert "const showUnload = !anythingDirty" in editor
+    # …and the swap must not re-derive over the buffers on its own.
+    swap = editor[editor.index("const showUnload ="):]
+    swap = swap[:swap.index("syncUnloadControl();")]
+    assert ".dirty" not in swap, (
+        "the swap must read the shared derivation, never its own buffer scan")
+
+
+def test_the_slot_swap_keeps_its_defensive_in_flight_term():
+    """`!saving` in the swap condition has NO reachable state of its own today,
+    and that is worth saying out loud rather than discovering later.
+
+    `save()` clears `saving` in its `finally` BEFORE `adoptSavedBase` rebases any
+    buffer, so a buffer is still dirty for the whole flight and `!anythingDirty`
+    alone already holds the pair on screen — which the behavioural probe in
+    `test_doxbench_view.py::test_a_save_in_flight_keeps_the_pair_on_screen` pins.
+    The term is kept because it states the intent directly and is the guard that
+    would matter the moment that ordering changed. A claim with no reachable
+    behaviour can only be pinned structurally; pretending otherwise would be a
+    behavioural test asserting nothing."""
+    editor = _editor()
+    assert "const showUnload = !anythingDirty && !saving;" in editor, (
+        "the defensive in-flight term must not be dropped as dead code")
+
+
+def test_the_inert_unload_states_its_reason_as_visible_text():
+    """Amendment 1 holds the inert Unload to the SAME standard the requirement
+    already sets for an unreachable Save: the reason is visible text beside the
+    control, not only a hover title. It matters more here, not less — a disabled
+    button cannot take focus, so a `title` alone reaches neither a keyboard nor a
+    screen reader."""
+    editor = _editor()
+    assert 'const unloadNote = el("span", "doxbench-unload-note")' in editor
+    assert "statusbar.appendChild(unloadNote);" in editor
+    assert 'unloadBtn.setAttribute("aria-describedby", unloadNoteId);' in editor
+    # the reason reaches BOTH the note and the title, and the note is shown
+    assert "unloadNote.textContent = reason;" in editor
+    assert "unloadBtn.title = reason;" in editor
+    # …and the class the tripwire checks has a rule
+    assert ".doxbench-unload-note" in _styles()
+
+
 def test_each_buffer_status_names_the_buffer_it_reports():
     """The per-buffer verdict surface had to survive the chrome's retirement
     (partial saves and stated refusals are load-bearing). It moved to a compact

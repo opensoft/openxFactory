@@ -393,6 +393,10 @@ const out = {};
     unloadHidden: ctx.one('doxbench-unload').hidden === true,
     unloadDisabled: ctx.one('doxbench-unload').disabled === true,
     unloadTitle: String(ctx.one('doxbench-unload').title || ''),
+    // F7: the reason as VISIBLE text, not only a hover title -- an inert button
+    // cannot take focus, so a title alone reaches nobody.
+    unloadNoteHidden: ctx.one('doxbench-unload-note').hidden === true,
+    unloadNoteText: String(ctx.one('doxbench-unload-note').textContent || ''),
     saveHidden: ctx.one('doxbench-save').hidden === true,
     cancelHidden: ctx.one('doxbench-cancel').hidden === true,
   });
@@ -401,6 +405,9 @@ const out = {};
     optionsAfterLoad: ctx.one('doxchat-loaded').children.map((o) => o.value),
     clean: slot(),
     railControlGone: ctx.one('doxchat-unload') === null,
+    // F6: the control must NAME the buffer it would act on, so the probe records
+    // which document is actually selected and the assertion compares the two.
+    selectedWhenClean: ctx.one('doxchat-loaded').value,
   };
 
   // STATE: dirty -> Save and Cancel come back and Unload GOES AWAY. This is the
@@ -472,6 +479,73 @@ const out = {};
     // screen and inert, which is the honest pair for this state.
     cancelDisabled: ctx.one('doxbench-cancel').disabled === true,
   };
+}
+
+// =====================================================================
+// F9 (adversarial review): ONE loaded-set tail per act. `onLoadedSetChanged` is
+// the canvas's declared notification for "the loaded SET or the SELECTION
+// changed", and the shell's tail behind it re-syncs the context and redraws the
+// docs tiles. Two spellings of that tail -- the notification AND an explicit
+// call pair inside each seam -- is the exact criticism that retired the old
+// `unloadBuffer` seam, so it is measured rather than assumed. A counting wrapper
+// on the wheel's own `__docWheelRefresh` is the honest instrument: it is the
+// thing the tail actually drives.
+// =====================================================================
+{
+  const ctx = await mount({ files: [OUTLINE_PATH, DOC_A, DOC_B] });
+  await until(() => ctx.byClass('doxbench-textarea').length >= 2, 'the canvas');
+  await until(() => ctx.one('doxchat-loaded') !== null, 'the selector');
+  await quiesce(40);
+  const pane = ctx.container.walk().find((n) => n.__docWheel);
+  const real = pane.__docWheelRefresh;
+  let refreshes = 0;
+  pane.__docWheelRefresh = (...args) => { refreshes += 1; return real.apply(pane, args); };
+  const measure = async (act) => {
+    refreshes = 0;
+    await act();
+    await quiesce(40);
+    return refreshes;
+  };
+
+  // LOAD. `expandTileFor` drives its own refreshes to lay the tile out, so the
+  // counter is zeroed inside `measure`, after the expansion, by measuring only
+  // the verb click itself.
+  const reservedIsA = ctx.byClass('doxbench-textarea')[1].value.includes(DOC_A);
+  const other = reservedIsA ? DOC_B : DOC_A;
+  const tile = await expandTileFor(ctx, other);
+  const loadVerb = tile.tile.querySelector('.swb-docload');
+  const onLoad = await measure(async () => {
+    await fire(loadVerb, 'click');
+    await until(() => ctx.byClass('doxbench-textarea').length === 3,
+                'the loaded document its own editor');
+  });
+
+  // SELECT, through the rail selector's seam.
+  const selectNode = ctx.one('doxchat-loaded');
+  const onSelect = await measure(async () => {
+    selectNode.value = 'outline';
+    await fire(selectNode, 'change');
+  });
+
+  // UNLOAD, through the canvas slot. Select the loaded document back first --
+  // that selection is itself an act and is not part of the unload's count.
+  selectNode.value = other;
+  await fire(selectNode, 'change');
+  await quiesce(40);
+  const onUnload = await measure(async () => {
+    await fire(ctx.one('doxbench-unload'), 'click');
+  });
+
+  // DOCS-ROW SWITCH -- the act the reviewer measured at up to 3x, because
+  // `switchDocument` notified once through `setActiveBuffer` and once on its own.
+  const switchTile = await expandTileFor(ctx, reservedIsA ? DOC_A : DOC_B);
+  const readVerbHost = switchTile.tile;
+  const onRowSwitch = await measure(async () => {
+    const verb = readVerbHost.querySelector('.swb-docload');
+    if (verb) await fire(verb, 'click');
+  });
+
+  out.refreshCounts = { onLoad, onSelect, onUnload, onRowSwitch };
 }
 
 // =====================================================================
@@ -727,7 +801,15 @@ def test_the_canvas_slot_shows_unload_only_while_nothing_is_dirty(composition):
     # STATE 1 — clean: Unload alone, reachable, naming what it would unload.
     assert f9["clean"]["unloadHidden"] is False
     assert f9["clean"]["unloadDisabled"] is False
-    assert "from the loaded set" in f9["clean"]["unloadTitle"]
+    # It NAMES the selected document, not just the act (F6). The scenario says
+    # the control "MUST name the selected document it would unload", so the
+    # assertion compares the title against the selection rather than against a
+    # constant tail that any buffer would satisfy.
+    assert f9["clean"]["unloadTitle"] == (
+        "unload " + f9["selectedWhenClean"] + " from the loaded set")
+    assert f9["selectedWhenClean"] != "outline"
+    # Reachable: the control speaks for itself, so no standing reason beside it.
+    assert f9["clean"]["unloadNoteHidden"] is True
     assert f9["clean"]["saveHidden"] is True
     assert f9["clean"]["cancelHidden"] is True
 
@@ -736,6 +818,8 @@ def test_the_canvas_slot_shows_unload_only_while_nothing_is_dirty(composition):
     assert f9["dirty"]["cancelHidden"] is False
     assert f9["dirty"]["unloadHidden"] is True, (
         "a dirty canvas must not offer the unload act at all")
+    assert f9["dirty"]["unloadNoteHidden"] is True, (
+        "a reason for a control that is not on screen explains nothing")
     assert f9["dirtyStillLoaded"] == f9["optionsAfterLoad"], (
         "going dirty must drop nothing")
 
@@ -793,6 +877,11 @@ def test_the_outline_is_never_unloadable(composition):
         "the reserved posture is inert-and-stated, never absent")
     assert f9["outline"]["unloadDisabled"] is True
     assert "reserved buffer" in f9["outline"]["unloadTitle"]
+    # …and the reason is VISIBLE text beside it, not only the hover title (F7):
+    # the control is disabled, so it cannot take focus to reveal one.
+    assert f9["outline"]["unloadNoteHidden"] is False
+    assert f9["outline"]["unloadNoteText"] == f9["outline"]["unloadTitle"]
+    assert "reserved buffer" in f9["outline"]["unloadNoteText"]
     assert f9["outline"]["saveHidden"] is True
 
 
@@ -840,3 +929,17 @@ def test_the_reserved_document_slot_is_selectable_but_never_unloadable(
     assert n3["wireDocumentPath"] is not None
     assert "still settling" not in n3["failureNote"], (
         "the wedged-chat sentence must be unreachable")
+
+
+def test_one_loaded_set_tail_runs_per_act(composition):
+    """F9 (adversarial review): `onLoadedSetChanged` is the ONE tail. It was
+    introduced beside the two explicit `syncContextFromCanvas(); refreshDocTiles()`
+    call pairs the seams already ran, so every pre-existing act redrew the wheel
+    twice and a docs-row switch up to three times — idempotent, but two spellings
+    of one tail, which is the exact criticism that retired the `unloadBuffer`
+    seam. Measured on a counting wrapper around the wheel's own refresh, because
+    "it is idempotent" is not an argument for doing it twice."""
+    counts = composition["refreshCounts"]
+    expected = {"onLoad": 1, "onSelect": 1, "onUnload": 1, "onRowSwitch": 1}
+    assert counts == expected, (
+        "each act must drive exactly one wheel refresh; measured " + str(counts))
