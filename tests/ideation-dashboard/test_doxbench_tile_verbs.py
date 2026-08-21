@@ -718,15 +718,25 @@ def test_the_shell_wires_the_tile_verbs_through_the_canvas_controller():
     assert "docBufferState" in verbs
 
 
-def test_the_rail_is_given_the_loaded_set_seams():
-    """The rail owns the loaded set's two human acts — SELECT and UNLOAD — and both
-    reach the canvas's own primitives, which hold the state authority and the dirty
-    refusal. The window widened when `unloadBuffer` joined it (PR #207 review, F9);
-    both are asserted rather than only the one that was there first."""
+def test_the_rail_is_given_the_selection_seam_and_no_longer_the_unload_seam():
+    """The rail owned the loaded set's two human acts — SELECT and UNLOAD — and
+    both reached the canvas's own primitives, which hold the state authority and
+    the dirty refusal.
+
+    Amendment 1 (Brett, 2026-08-21) moved UNLOAD onto the canvas slot, so the
+    rail keeps SELECT and the `unloadBuffer` seam is retired rather than left
+    dead: nothing called it once the rail control went, and a seam with no caller
+    is a second route waiting to be re-wired by accident. The act still reaches
+    `canvasController.unloadDocument` — from inside the canvas now — so the dirty
+    refusal still lives in exactly one place."""
     source = (VIEWS / "staging-workbench.js").read_text(encoding="utf-8")
     mount = source.index("mountDoxBenchChatRail(rail")
     window = source[mount:mount + 5000]
     assert "selectBuffer:" in window
     assert "canvasController.setActiveBuffer" in window
-    assert "unloadBuffer:" in window
-    assert "canvasController.unloadDocument" in window
+    assert "unloadBuffer:" not in window, (
+        "the rail's unload seam is retired with its control")
+    # The shell still follows the loaded set, through the canvas's own declared
+    # notification rather than by wrapping the call.
+    assert "onLoadedSetChanged:" in source
+    assert "refreshDocTiles();" in source

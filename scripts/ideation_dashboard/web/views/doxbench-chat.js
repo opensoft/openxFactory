@@ -773,20 +773,18 @@ export function mountDoxBenchChatRail(host, options = {}) {
   loadedFull.setAttribute("aria-live", "polite");
   // The honest empty state — rendered, never hidden.
   const loadedEmpty = el("div", "doxchat-loaded-empty");
-  // THE UNLOAD AFFORDANCE (PR #207 review, F9). The ratified loaded-set
-  // requirement says "a document SHALL leave the loaded set only by an explicit
-  // human act, and that act MUST refuse or require an explicit discard while the
-  // buffer is dirty" — and the state primitive for it shipped with no control, so
-  // the act did not exist and the declared bound was a dead end: a session that
-  // reached it could never get back under it.
+  // THE UNLOAD AFFORDANCE MOVED TO THE CANVAS (Brett's 2026-08-21 annotation on
+  // `button.doxchat-unload`: "remove this button here and incorporate its
+  // function into the right panel 'cancel' button …"; authorized by Amendment 1
+  // on both doxbench phase changes). The rail's standalone control and its
+  // two-press arm/discard flow are SUPERSEDED: the canvas's one control slot now
+  // renders Save+Cancel while anything is dirty and a single Unload while
+  // nothing is, which discharges the loaded-set requirement's dirty refusal more
+  // strongly than the arm flow did — the act is not reachable at all while a
+  // buffer holds unsaved work, so there is no second press to get wrong.
   //
-  // It lives HERE, beside the selector, because this is the surface that presents
-  // the loaded set — the same reason the selector is here. It is scoped to the
-  // SELECTED entry, which is the one a human is looking at, and it is unreachable
-  // while the outline is selected: the outline's key is permanently reserved and
-  // it is the one buffer that rides every turn.
-  const unloadBtn = el("button", "doxchat-unload", "Unload");
-  unloadBtn.type = "button";
+  // The rail keeps the SELECTION and the state it needs for it; the ACT is the
+  // canvas's, next to the Save and Cancel it stands in for.
   const loadedNote = el("div", "doxchat-loaded-note");
   loadedNote.setAttribute("aria-live", "polite");
   loadedNote.hidden = true;
@@ -847,7 +845,7 @@ export function mountDoxBenchChatRail(host, options = {}) {
   // view its harness has to grow to match.
   unavailableNote.id = "doxchat-unavailable-" + (railSequence += 1);
   sendBtn.setAttribute("aria-describedby", unavailableNote.id);
-  host.append(loadedSelect, unloadBtn, loadedNote, loadedEmpty,
+  host.append(loadedSelect, loadedNote, loadedEmpty,
               loadedFull, subjectInput,
               unavailableNote, transcriptList,
               cardsHost, announce, failureNote, composer, disclosure, sendrow);
@@ -904,36 +902,11 @@ export function mountDoxBenchChatRail(host, options = {}) {
     renderLoadedSelector();
   });
 
-  // The unload act: explicit, scoped to the selected document, and REFUSED while
-  // that buffer is dirty unless the human states the discard — which they do by
-  // pressing it a second time, on a control that has changed its own label to say
-  // what the second press means. Dropping unsaved work silently is the one thing
-  // this control must never do.
-  let unloadArmedKey = null;
-  unloadBtn.addEventListener("click", async () => {
-    const model = loadedSelectorModel(liveEditorState());
-    const chosen = model.entries.find((entry) => entry.selected);
-    // Refused here as well as withheld above (N3): a reserved buffer leaving the
-    // set is the one act that can wedge the chat, so the click path does not
-    // depend on the render having disabled the control.
-    if (!chosen || chosen.kind !== "document" || chosen.reserved === true) return;
-    const unload = options.unloadBuffer;
-    if (typeof unload !== "function") return;
-    const arming = unloadArmedKey === chosen.key;
-    const outcome = await unload(chosen.key, { discardUnsavedEdits: arming });
-    if (outcome && outcome.ok === true) {
-      unloadArmedKey = null;
-      loadedNote.textContent = "unloaded — its unsaved edits, if any, are gone";
-      loadedNote.hidden = false;
-    } else {
-      // ARMED, not performed: the refusal names what a second press will do.
-      unloadArmedKey = chosen.key;
-      loadedNote.textContent = (outcome && outcome.error)
-        || "this document was not unloaded";
-      loadedNote.hidden = false;
-    }
-    renderLoadedSelector();
-  });
+  // (The unload click handler and its `unloadArmedKey` two-press arm flow went
+  // with the control, under the same annotation. `options.unloadBuffer` is no
+  // longer read here: the canvas holds the act now, and it reaches the same
+  // `unloadDocument` controller this seam forwarded to. `loadedNote` STAYS — the
+  // in-flight-turn selection refusal above is its other caller.)
 
   function liveEditorState() {
     return typeof editorState === "function" ? editorState() : editorState;
@@ -1004,38 +977,10 @@ export function mountDoxBenchChatRail(host, options = {}) {
     loadedFull.textContent = chosen
       ? "Working on " + chosen.fullName
       : "no buffer is selected";
-    // Unload is reachable only for a selected DOCUMENT, and only where the seam
-    // exists at all: on a surface with no editing capability there is no loaded
-    // set to leave.
-    const unloadable = Boolean(chosen) && chosen.kind === "document"
-      && chosen.reserved !== true
-      && typeof options.unloadBuffer === "function";
-    unloadBtn.disabled = !unloadable;
-    if (!unloadable) {
-      unloadArmedKey = null;
-      unloadBtn.textContent = "Unload";
-      if (chosen && chosen.reserved === true) {
-        // ONE sentence for both reserved keys, because it is one fact (F7): a
-        // turn requires the outline AND at least one document -- `minItems: 2`
-        // on the released widened request, and the server's own buffer-set
-        // requirement -- so unloading either of the two buffers a bare session
-        // holds would leave the chat unable to build a turn at all.
-        unloadBtn.title = chosen.kind === "outline"
-          ? "the outline is a reserved buffer every turn carries, and is never "
-            + "unloaded"
-          : "this is the tile's own document, the reserved buffer a turn falls "
-            + "back on, and is never unloaded — load another document to work "
-            + "beside it";
-      } else {
-        unloadBtn.title = "no loaded document is selected";
-      }
-      return;
-    }
-    const armed = unloadArmedKey === chosen.key;
-    unloadBtn.textContent = armed ? "Discard and unload" : "Unload";
-    unloadBtn.title = armed
-      ? "press again to DISCARD this document's unsaved edits and unload it"
-      : "unload " + chosen.fullName + " from the loaded set";
+    // (The unload control's posture went with the control. The reachability rule
+    // it encoded — a selected DOCUMENT under a non-reserved key — and the reason
+    // sentences it carried both moved to the canvas slot, which is where the act
+    // now lives; nothing about that rule was relaxed on the way.)
   }
 
   // (`renderHeader` went with the annotation above. It set the standing header

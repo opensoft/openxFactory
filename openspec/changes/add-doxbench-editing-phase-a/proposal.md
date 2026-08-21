@@ -174,3 +174,30 @@ N-buffer generalization Phase A deliberately does not perform:
   this change. Removing a working keyboard-reachable control is a separate
   argument from adding the selection route beside it, and the dirty-buffer
   switch guard must keep firing on both routes either way.
+
+## Amendment 1 — the canvas control slot is dirty-state-conditional (2026-08-21)
+
+**Amendment (2026-08-21, Brett, in-session multiple choice, recommended option
+adopted): the canvas control pair is dirty-state-conditional — Save+Cancel while
+the selected buffer is dirty, a single Unload control for a clean unloadable
+buffer — authorizing browser annotation A2; the rail's standalone unload control
+and its two-press arm flow are superseded.**
+
+Phase A's `One Save and one Cancel govern the doxBench canvas` stated the same
+control-count rule Phase B restates, so amending only one would have left two
+active changes disagreeing about the same slot. Phase A's requirement and its
+`The canvas offers its controls` scenario are amended here to the conditional
+form; the FULL statement — the any-buffer-dirty predicate, the reserved-buffer
+inert posture, the no-gate carve-out, and their scenarios — lives in Phase B's
+requirement, which Phase A now defers to.
+
+Phase A held exactly two buffers and no loaded set, so it had no unload act of
+its own to describe; the conditional slot is meaningful here only because Phase
+B's loaded set gives the clean state something to unload. Nothing else in Phase
+A moves: Save semantics, ordering, per-buffer reporting, Cancel's active-buffer
+scope, and the authority boundary are all unchanged.
+
+**A note on ownership.** This change belongs to another session's thread (most
+recently PRs #216 and #223). The amendment was ruled in session by Brett and is
+recorded here rather than negotiated across threads. See Phase B's Amendment 1
+for the reasoning behind each of the three readings it settles.

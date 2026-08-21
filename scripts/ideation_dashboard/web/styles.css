@@ -1603,13 +1603,21 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .doxbench-save-note[hidden] { display: none; }
 .doxbench-status { font-size: 10.5px; color: var(--faint-ink); flex: 1; }
 .doxbench-status.is-dirty { color: var(--st-proposal); font-weight: 600; }
-.doxbench-cancel, .doxbench-save {
+/* Amendment 1 (2026-08-21): Unload shares the slot with the Save/Cancel pair and
+   is never on screen beside them, so it takes the same look — the slot's
+   occupancy is what changes, not its shape. */
+.doxbench-cancel, .doxbench-save, .doxbench-unload {
   font-family: var(--mono); font-size: 10.5px; cursor: pointer; color: var(--muted);
   background: var(--faint); border: 1px solid var(--border); border-radius: 4px;
   padding: 2px 9px;
 }
-.doxbench-cancel:hover { border-color: var(--st-staged); color: var(--st-staged); }
-.doxbench-cancel:disabled, .doxbench-save:disabled { opacity: 0.5; cursor: not-allowed; }
+.doxbench-cancel:hover, .doxbench-unload:hover {
+  border-color: var(--st-staged); color: var(--st-staged);
+}
+.doxbench-cancel:disabled, .doxbench-save:disabled,
+.doxbench-unload:disabled { opacity: 0.5; cursor: not-allowed; }
+.doxbench-unload[hidden], .doxbench-save[hidden],
+.doxbench-cancel[hidden] { display: none; }
 .doxbench-textarea { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
 .doxbench-textarea {
   font-family: var(--mono); font-size: 12px; color: var(--ink); background: var(--panel);
@@ -1743,15 +1751,9 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
    the option says so rather than looking like an owned document (design D2). */
 .doxchat-loaded-option[data-owned="false"] { font-style: italic; }
 .doxchat-loaded-option[data-dirty="true"] { font-weight: 700; }
-/* THE UNLOAD AFFORDANCE (PR #207 review, F9): the loaded set's one way out, on
-   the surface that presents the set. Its label changes to say what a second
-   press means, so an irreversible discard is never one unannounced click. */
-.doxchat-unload {
-  font: inherit; font-size: 11px; padding: 3px 8px; cursor: pointer;
-  border: 1px solid var(--border); border-radius: 6px;
-  background: var(--surface); color: var(--ink);
-}
-.doxchat-unload:disabled { opacity: .5; cursor: not-allowed; }
+/* (`.doxchat-unload` went with its control: Brett's 2026-08-21 annotation moved
+   the loaded set's one way out onto the canvas slot, where `.doxbench-unload`
+   now carries it beside the Save and Cancel it stands in for.) */
 .doxchat-loaded-note {
   font-size: 11px; color: var(--faint-ink); padding: 4px 8px;
 }
@@ -1882,7 +1884,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   border: 1px dashed var(--border); border-radius: 6px; font-size: 13px;
 }
 .doxbench-status { font-size: 12px; color: var(--muted); }
-.doxbench-save, .doxbench-cancel, .doxbench-guard-save,
+.doxbench-save, .doxbench-cancel, .doxbench-unload, .doxbench-guard-save,
 .doxbench-guard-discard, .doxbench-guard-cancel {
   font: inherit; padding: 5px 12px; cursor: pointer;
   border: 1px solid var(--border); border-radius: 6px;

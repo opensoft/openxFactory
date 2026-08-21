@@ -387,15 +387,25 @@ const out = {};
   await until(() => ctx.byClass('doxbench-textarea').length === 3,
               'the loaded document its own editor');
   await quiesce(30);
-  const unload = ctx.one('doxchat-unload');
+  // Amendment 1: the act is the CANVAS slot's now. One reader for all three of
+  // its occupancies, so each state is measured the same way.
+  const slot = () => ({
+    unloadHidden: ctx.one('doxbench-unload').hidden === true,
+    unloadDisabled: ctx.one('doxbench-unload').disabled === true,
+    unloadTitle: String(ctx.one('doxbench-unload').title || ''),
+    saveHidden: ctx.one('doxbench-save').hidden === true,
+    cancelHidden: ctx.one('doxbench-cancel').hidden === true,
+  });
+  // STATE: nothing dirty, a loaded document selected -> Unload, alone.
   out.f9 = {
     optionsAfterLoad: ctx.one('doxchat-loaded').children.map((o) => o.value),
-    reachable: unload.disabled !== true,
-    label: unload.textContent,
+    clean: slot(),
+    railControlGone: ctx.one('doxchat-unload') === null,
   };
 
-  // Dirty it, then try to unload: REFUSED, and the control says what a second
-  // press would mean.
+  // STATE: dirty -> Save and Cancel come back and Unload GOES AWAY. This is the
+  // amended dirty-refusal discharge: the act is not reachable at all while a
+  // buffer holds unsaved work, so there is no press to refuse.
   const editorTab = ctx.byClass('doxbench-viewtab')[0];
   await fire(editorTab, 'click');
   await quiesce(10);
@@ -403,26 +413,65 @@ const out = {};
   loadedArea.value = '# unsaved work in the loaded document\n';
   await fire(loadedArea, 'input');
   await quiesce(30);
-  await fire(unload, 'click');
-  await quiesce(30);
-  out.f9.dirtyRefusedNote = String((ctx.one('doxchat-loaded-note') || {}).textContent || '');
-  out.f9.stillLoaded = ctx.one('doxchat-loaded').children.map((o) => o.value);
-  out.f9.armedLabel = unload.textContent;
-  out.f9.armedTitle = unload.title;
+  out.f9.dirty = slot();
+  out.f9.dirtyStillLoaded = ctx.one('doxchat-loaded').children.map((o) => o.value);
 
-  // A SECOND press states the discard, and only then does it leave.
-  await fire(unload, 'click');
+  // Cancel it back to clean, and the slot swaps again.
+  await fire(ctx.one('doxbench-cancel'), 'click');
   await quiesce(40);
-  out.f9.afterDiscard = ctx.one('doxchat-loaded').children.map((o) => o.value);
-  out.f9.afterNote = String((ctx.one('doxchat-loaded-note') || {}).textContent || '');
+  out.f9.afterCancel = slot();
 
-  // With the OUTLINE selected the control is unreachable and says why.
-  const outlineTab = ctx.byClass('swb-tab').find(
-    (b) => String(b.textContent).toLowerCase().includes('outline'));
-  await fire(outlineTab, 'click');
+  // …and NOW the act runs: the document leaves the set.
+  await fire(ctx.one('doxbench-unload'), 'click');
+  await quiesce(40);
+  out.f9.afterUnload = ctx.one('doxchat-loaded').children.map((o) => o.value);
+  out.f9.editorsAfterUnload = ctx.byClass('doxbench-textarea').length;
+  // `unloadDocumentBuffer` moves the selection to the outline when the unloaded
+  // buffer held it, so the slot lands on the reserved-outline posture.
+  out.f9.selectionAfterUnload = ctx.one('doxchat-loaded').value;
+  out.f9.outline = slot();
+}
+
+// =====================================================================
+// F10 (Amendment 1): the swap reads ANY-buffer-dirty, not selected-buffer-dirty.
+// A human whose OUTLINE holds unsaved text, standing on a CLEAN loaded document,
+// must still be able to see Save. Under a selected-buffer rule the slot would
+// show Unload here and the only Save on the surface would be hidden behind a
+// selection change nobody told them to make.
+// =====================================================================
+{
+  const ctx = await mount({ files: [OUTLINE_PATH, DOC_A, DOC_B] });
+  await until(() => ctx.byClass('doxbench-textarea').length >= 2, 'the canvas');
+  await until(() => ctx.one('doxchat-loaded') !== null, 'the selector');
+  await quiesce(40);
+  // Dirty the OUTLINE, which is the buffer selected at mount.
+  const editorTab = ctx.byClass('doxbench-viewtab')[0];
+  await fire(editorTab, 'click');
+  await quiesce(10);
+  const outlineArea = ctx.byClass('doxbench-textarea')[0];
+  outlineArea.value = '# unsaved outline work\n';
+  await fire(outlineArea, 'input');
   await quiesce(30);
-  out.f9.outlineDisabled = ctx.one('doxchat-unload').disabled === true;
-  out.f9.outlineTitle = ctx.one('doxchat-unload').title;
+  // Now LOAD a document, which selects it. A load replaces nothing, so the
+  // outline keeps its unsaved bytes while the selection moves to a CLEAN buffer.
+  const reservedIsA = ctx.byClass('doxbench-textarea')[1].value.includes(DOC_A);
+  const other = reservedIsA ? DOC_B : DOC_A;
+  const tile = await expandTileFor(ctx, other);
+  await fire(tile.tile.querySelector('.swb-docload'), 'click');
+  await until(() => ctx.byClass('doxbench-textarea').length === 3,
+              'the loaded document its own editor');
+  await quiesce(40);
+  out.f10 = {
+    selected: ctx.one('doxchat-loaded').value,
+    selectedIsClean: ctx.one('doxchat-loaded').value !== 'outline',
+    unloadHidden: ctx.one('doxbench-unload').hidden === true,
+    saveHidden: ctx.one('doxbench-save').hidden === true,
+    cancelHidden: ctx.one('doxbench-cancel').hidden === true,
+    saveDisabled: ctx.one('doxbench-save').disabled === true,
+    // Cancel is scoped to the SELECTED buffer, which is clean -- so it is on
+    // screen and inert, which is the honest pair for this state.
+    cancelDisabled: ctx.one('doxbench-cancel').disabled === true,
+  };
 }
 
 // =====================================================================
@@ -440,12 +489,15 @@ const out = {};
   selectNode.value = 'document';
   await fire(selectNode, 'change');
   await quiesce(30);
-  const unload = ctx.one('doxchat-unload');
+  const unload = ctx.one('doxbench-unload');
   out.n3 = {
     selected: selectNode.value,
     listed: selectNode.children.map((o) => o.value),
+    // Nothing is dirty here, so the slot IS showing Unload -- and it is showing
+    // it INERT, with the reserved reason stated rather than left to a press.
+    rendered: unload.hidden !== true,
     disabled: unload.disabled === true,
-    title: unload.title,
+    title: String(unload.title || ''),
   };
   // Press it anyway: the click path refuses too, so the render's disabled state is
   // not the only thing standing between a human and a wedged chat.
@@ -656,41 +708,92 @@ def test_the_selector_empty_state_renders_on_the_state_the_canvas_produces(
 # ---------------------------------------------------------------------------
 
 
-def test_a_loaded_document_can_be_unloaded_and_a_dirty_one_refuses_first(
-        composition):
-    """F9: the ratified loaded-set requirement says "a document SHALL leave the
-    loaded set only by an explicit human act, and that act MUST refuse or require
-    an explicit discard while the buffer is dirty". The state primitive shipped
-    with no control at all, so the act did not exist — and the declared bound was
-    a dead end, because a session that reached it could never get back under it.
+def test_the_canvas_slot_shows_unload_only_while_nothing_is_dirty(composition):
+    """F9, RE-CUT by Amendment 1 (Brett, 2026-08-21): the loaded set's one way out
+    moved from the chat rail onto the CANVAS control slot, and the slot's
+    occupancy is now the whole answer to "is this canvas holding unsaved work".
 
-    The control lives beside the selector, which is the surface that presents the
-    loaded set, and an irreversible discard is never one unannounced click: the
-    first press REFUSES and the label changes to say what the second one means."""
+    STATE 1 (clean, a loaded document selected): Unload alone.
+    STATE 2 (anything dirty): Save and Cancel, and NO Unload — which is the
+    amended discharge of the loaded-set requirement's dirty clause. The old
+    two-press arm flow refused a press; withholding the control refuses the act
+    itself, which is strictly stronger and leaves nothing to press by mistake."""
     f9 = composition["f9"]
-    # Two documents are loaded, and the control is reachable for the selected one.
+    assert f9["railControlGone"] is True, (
+        "the rail's standalone unload control is superseded")
+    # Two documents are loaded (plus the outline entry).
     assert len(f9["optionsAfterLoad"]) == 3
-    assert f9["reachable"] is True
-    assert f9["label"] == "Unload"
 
-    # Dirty: refused, nothing dropped, and the control re-labels itself.
-    assert "unsaved" in f9["dirtyRefusedNote"]
-    assert f9["stillLoaded"] == f9["optionsAfterLoad"], (
-        "a refused unload must drop nothing")
-    assert f9["armedLabel"] == "Discard and unload"
-    assert "press again to DISCARD" in f9["armedTitle"]
+    # STATE 1 — clean: Unload alone, reachable, naming what it would unload.
+    assert f9["clean"]["unloadHidden"] is False
+    assert f9["clean"]["unloadDisabled"] is False
+    assert "from the loaded set" in f9["clean"]["unloadTitle"]
+    assert f9["clean"]["saveHidden"] is True
+    assert f9["clean"]["cancelHidden"] is True
 
-    # The second press states the discard, and only then does the buffer leave.
-    assert len(f9["afterDiscard"]) == 2
-    assert "unloaded" in f9["afterNote"]
+    # STATE 2 — dirty: the pair returns and Unload is GONE. Nothing is dropped.
+    assert f9["dirty"]["saveHidden"] is False
+    assert f9["dirty"]["cancelHidden"] is False
+    assert f9["dirty"]["unloadHidden"] is True, (
+        "a dirty canvas must not offer the unload act at all")
+    assert f9["dirtyStillLoaded"] == f9["optionsAfterLoad"], (
+        "going dirty must drop nothing")
+
+    # Back to clean, and the slot swaps back.
+    assert f9["afterCancel"]["unloadHidden"] is False
+    assert f9["afterCancel"]["saveHidden"] is True
+
+
+def test_the_canvas_unload_actually_unloads_and_selection_falls_to_the_outline(
+        composition):
+    """The act still performs, and it performs exactly what `unloadDocumentBuffer`
+    defines: the document leaves the set, and because the unloaded buffer held the
+    selection, the selection moves to the reserved outline."""
+    f9 = composition["f9"]
+    assert len(f9["afterUnload"]) == 2, "the document must leave the loaded set"
+    assert f9["selectionAfterUnload"] == "outline"
+    # The panes keep their boxes for a cheap re-load, so the editor count is not
+    # the membership answer — the selector's listing above is.
+    assert f9["editorsAfterUnload"] >= 2
+
+
+def test_the_swap_reads_any_buffer_dirty_not_the_selected_buffer(composition):
+    """Amendment 1 states the predicate explicitly, because the two readings of
+    Brett's "if there is a change to save or cancel" differ exactly here.
+
+    Save answers for the WHOLE canvas. With the outline dirty and a CLEAN loaded
+    document selected, a selected-buffer rule would swap the slot to Unload and
+    hide the only Save on the surface from a human who still has unsaved outline
+    text — the precise hazard the discard rules exist to prevent. Any-buffer-dirty
+    keeps the pair on screen: Save live because something needs saving, Cancel
+    inert because the buffer they are standing on does not."""
+    f10 = composition["f10"]
+    assert f10["selectedIsClean"] is True, (
+        "the probe must be standing on the loaded document, not the outline")
+    assert f10["unloadHidden"] is True, (
+        "a dirty outline must not be hidden behind an Unload-only slot")
+    assert f10["saveHidden"] is False
+    assert f10["saveDisabled"] is False, (
+        "Save answers for the whole canvas, and the outline is dirty")
+    assert f10["cancelHidden"] is False
+    assert f10["cancelDisabled"] is True, (
+        "Cancel is scoped to the selected buffer, which is clean")
 
 
 def test_the_outline_is_never_unloadable(composition):
     """Its key is permanently reserved and it is the one buffer that rides every
-    turn, so the control states that rather than offering an act it must refuse."""
+    turn, so the control STATES that rather than offering an act it must refuse.
+
+    Amendment 1 keeps this posture and moves it: the control is RENDERED and
+    visibly inert rather than absent, because an absent control answers no
+    question and a slot that emptied itself would collapse the row on every
+    selection change."""
     f9 = composition["f9"]
-    assert f9["outlineDisabled"] is True
-    assert "reserved buffer" in f9["outlineTitle"]
+    assert f9["outline"]["unloadHidden"] is False, (
+        "the reserved posture is inert-and-stated, never absent")
+    assert f9["outline"]["unloadDisabled"] is True
+    assert "reserved buffer" in f9["outline"]["unloadTitle"]
+    assert f9["outline"]["saveHidden"] is True
 
 
 # ---------------------------------------------------------------------------
@@ -723,6 +826,8 @@ def test_the_reserved_document_slot_is_selectable_but_never_unloadable(
     assert "document" in n3["listed"]
     assert n3["selected"] == "document"
     # …and Unload is withheld for it, with the reason naming why.
+    assert n3["rendered"] is True, (
+        "nothing is dirty, so the slot shows Unload -- inert, with its reason")
     assert n3["disabled"] is True
     assert "never unloaded" in n3["title"]
     assert "load another document to work beside it" in n3["title"]
