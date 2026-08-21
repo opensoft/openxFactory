@@ -1601,7 +1601,7 @@ untouched: mechanical, reversible, at the model boundary.
       was NOT taken and needs no disposition, because it was a contested-class
       act that is now moot.
 
-- [ ] 12.7 **RELEASE OBLIGATION — the annotated tag and the submodule pin for
+- [x] 12.7 **RELEASE OBLIGATION — the annotated tag and the submodule pin for
       `contract-v1.36`.** Realizing 12.4 required an ADDITIVE growth of
       `gate-action-record.schema.yaml`'s `action` enum, and this task carries the
       half of that release the slice cannot perform in-branch.
@@ -1667,11 +1667,12 @@ untouched: mechanical, reversible, at the model boundary.
       NO SENTINEL TO REPLACE, unlike 13.3's `contract-v1.34`:
       `doxbench_contracts.CONTRACT_REF` pins the CHAT-TURN family's release
       commit, and v1.36 grows a different schema that no code pins by ref.
-      STILL OWED, and nothing else: the aggregation-repo submodule pin, which
-      the orchestrator performs immediately after this tick. This task is
-      therefore complete on everything this repository can do for it; it is left
-      UNTICKED only so the pin has somewhere to be recorded, and it ticks the
-      moment that pin lands.
+      THE PIN HAS LANDED, completing the ledger: the aggregation repo
+      (`opensoft/xFactory`) pins this repository at `3f9aa8e` (the commit that
+      recorded the tag half) in its commit `04366e3`, pushed 2026-08-22 by the
+      orchestrating session immediately after the tag verified — with the
+      gitlink object's existence checked inside the submodule first, per the
+      standing pin-sync discipline. Nothing on this task remains.
       **A FAMILY-WIDE SCHEMA NOTE** (§12 review, P3-7), recorded in full in the
       `contract-v1.36` CHANGELOG entry because it is a property of the whole
       per-action conditional family rather than of this cut: a conditional of the
