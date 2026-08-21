@@ -388,6 +388,16 @@ and Cancel continuing to mean discarding a buffer back to its `base_content`
   about the same underlying act, deliberately kept as two separate topics so
   neither's exit gates the other. — Added-by: Claude Opus 4.8 (session,
   Brett's direction) · 2026-08-15
+- **HANDOFF (correction to the bullet above):** `add-staged-topic-outline-template`
+  Amendment 1 (2026-08-15) renamed Q4's verb from `edit-apply` to
+  `edit-document` — `edit-apply` is the gate console's main-resident redline
+  verb (needs a change id, applies to change documents) and cannot reach a
+  session branch. The upgrade Q4 names — this topic's freeform chat rewrites
+  becoming marker-scoped section patches, addressed by a section's heading or
+  its `xspec:candidate` fence — shipped in neither the realized Phase A
+  (`add-doxbench-editing-phase-a`) nor Phase B; it remains for a successor
+  change to build. — Added-by: Claude (bookkeeping,
+  `add-staged-topic-outline-template` task 6.3) · 2026-08-21
 - The word "edit" is already load-bearing for something else in this corpus:
   `viewer.js`'s "✎ edit" button is a select-to-edit ESCAPE HATCH that opens
   the file in the user's own LOCAL editor and explicitly "does not edit
