@@ -421,11 +421,52 @@ remains is the contract and the surface.
 
 ## 6. Bookkeeping
 
-- [ ] 6.1 README "OpenSpec Records" active block.
-- [ ] 6.2 Tick the staging topic's exit and mark the INDEX row proposed.
-- [ ] 6.3 Hand Q4's ruling to `doxbench-editing-model` Phase A — `edit-document`
+- [x] 6.1 README "OpenSpec Records" active block.
+      Row was stale, not merely un-annotated: it still named `edit-apply` as
+      Q4's verb (Amendment 1 corrected this the same day it was ratified) and
+      said nothing of sections 1-4 landing or the two follow-on changes task
+      4.2's driven round trip spawned. Updated the row (README.md ~:397) with
+      the Amendment 1 correction, sections 1-4 realized, `align-demote-to-round-trip-rule`
+      (archived 2026-08-19) plus its two realized-and-merged follow-ups
+      `refine-demote-round-trip-mechanics`/`align-status-reader-to-real-lines`
+      (PR #221, #222), and what remains (5.4, gates, this bookkeeping section).
+- [x] 6.2 Tick the staging topic's exit and mark the INDEX row proposed.
+      The staging fragment itself was already consumed by the forward
+      transition 2026-08-15 (`ideation/staging/staged-topic-outline-template/`
+      is empty on disk; the moved copy under
+      `openspec/changes/add-staged-topic-outline-template/supporting-docs/`
+      already carries `Status: draft` + `Proposed by:` per
+      `document-lifecycle.md`'s `organized -> proposed` gate, and its own
+      "EXIT CONDITION MET" note) — so that half discharges by verification,
+      not edit. What was NOT yet done: `ideation/staging/INDEX.md`'s top
+      summary row (line 74) still read "Registered 2026-08-15" with no
+      mention of the exit, and its detail section (~:1218) still named the
+      pre-Amendment-1 `edit-apply` verb as Q4's ruling. Both updated: the
+      summary row now reads PROPOSED/RATIFIED with the exit, the Amendment 1
+      correction, and sections-1-4-realized status; the detail section's Q4
+      sentence now names `edit-document` and points at the handoff recorded
+      on the `doxbench-editing-model` staged topic (task 6.3). Left the
+      historical "Open questions" list (recommended: `edit-apply`) unedited —
+      it is the record of what was asked and ruled at staging time, the same
+      non-amendment rule Amendment 1 states for the supporting-docs copies.
+- [x] 6.3 Hand Q4's ruling to `doxbench-editing-model` Phase A — `edit-document`
       is the verb (Amendment 1; ratified as `edit-apply`, which cannot reach a
       session branch), so Phase A's chat edits become marker-scoped section
       patches.
       That upgrade belongs to Phase A, not here; this task is the handoff, not
       the build.
+      Phase A (`add-doxbench-editing-phase-a`) already realized and merged
+      2026-08-15 WITHOUT this upgrade, and Phase B's tasks carry no mention of
+      it either — so the landing spot is neither change's own docs but the
+      staged topic itself, following the exact precedent already in this
+      corpus: Phase A's own task 5.3 (the F2 turn-attribution carve-out) was
+      "recorded on the staged topic so Phase B inherits it" rather than left
+      in a closed change. Added a HANDOFF note in
+      `ideation/staging/doxbench-editing-model/doxbench-editing-model.md`'s
+      Idea notes, directly beside the existing sibling-topic cross-reference
+      that still names `edit-apply`: cites Amendment 1 and
+      `add-staged-topic-outline-template` by name, states `edit-document` is
+      the corrected verb and why (`edit-apply` needs a change id and cannot
+      reach a session branch), and records that the freeform-rewrites-to-
+      marker-scoped-patches upgrade shipped in neither realized phase and
+      remains for a successor change to build.

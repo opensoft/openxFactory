@@ -411,11 +411,24 @@ Active changes:
   than inventing a second addressing mechanism. Q1 keeps `primaryFragmentPath`
   untouched (the wheel's one-path rule is preserved, not extended); Q2 makes
   existing topics opt-in with doc-health nudging rather than blocking; Q4 rules
-  `edit-apply` the verb for AI section-patching, which is the hinge that
-  upgrades Phase A's freeform chat rewrites into marker-scoped patches. Both
-  deltas are ADDED, not MODIFIED as the staging INDEX predicted — the existing
-  requirements govern placement and buffer mechanics, neither fragment shape.
-  `target_release: implemented`.
+  `edit-document` the verb for AI section-patching (Amendment 1, 2026-08-15 —
+  ratified text named `edit-apply`, the gate console's main-resident redline
+  verb, which requires a change id and cannot reach a session branch), the
+  hinge that upgrades Phase A's freeform chat rewrites into marker-scoped
+  patches once a successor change builds it (recorded on the
+  `doxbench-editing-model` staged topic; neither Phase A nor Phase B shipped
+  it). Both deltas are ADDED, not MODIFIED as the staging INDEX predicted —
+  the existing requirements govern placement and buffer mechanics, neither
+  fragment shape. Sections 1-4 are realized: the template contract in
+  `docs/document-lifecycle.md`, doc-health's WARNING-tier `staged-topic-template`
+  family, and the outline tab's section index plus gated add-section
+  affordance, all with test coverage. Task 4.2's driven round-trip test
+  surfaced a live demote defect that spawned and closed
+  `align-demote-to-round-trip-rule` (ratified, realized, archived 2026-08-19),
+  whose own two follow-ups — `refine-demote-round-trip-mechanics` and
+  `align-status-reader-to-real-lines` — are now realized and merged (PR #221,
+  #222). Outstanding: task 5.4's live browser proof, gates 5.1-5.3, and
+  bookkeeping 6.1-6.3. `target_release: implemented`.
 
 - [add-doxbench-editing-phase-a](openspec/changes/add-doxbench-editing-phase-a/proposal.md)
   — authored 2026-08-15, Phase A of the `doxbench-editing-model` staged topic
