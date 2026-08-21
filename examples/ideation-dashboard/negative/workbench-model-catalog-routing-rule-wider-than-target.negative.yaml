@@ -13,7 +13,7 @@
       "available": true,
       "input_limit_bytes": 800000,
       "output_limit_bytes": 8192,
-      "data_handling": "Routes by role to any of: Zero retention; content leaves the tenant boundary for inference only.",
+      "data_handling": "Routes by role. / Zero retention; content leaves the tenant boundary for inference only.",
       "routing_rule": true,
       "routes_to": ["too-wide-hosted"],
       "resolved_model_id": "too-wide-hosted"

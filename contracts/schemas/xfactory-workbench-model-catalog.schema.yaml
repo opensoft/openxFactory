@@ -61,12 +61,25 @@ $defs:
       # Constraints): request bound 1,048,576 bytes; output bound 900,000.
       input_limit_bytes: { type: integer, minimum: 1, maximum: 1048576 }
       output_limit_bytes: { type: integer, minimum: 1, maximum: 900000 }
-      # For a ROUTING entry this text MUST state the handling posture of every
-      # model the rule may route to; the delegated validator enforces that
-      # covering rule, which the shape cannot express. The 500-byte ceiling is
-      # unchanged and therefore bounds how many distinct badges one rule can
-      # carry — a rule whose union does not fit is a rule that must be split or
-      # whose members' badges must be written more tightly.
+      # For a ROUTING entry this text is a SEPARATOR-JOINED LIST of badge
+      # segments, and it MUST carry the badge of every model the rule may route
+      # to as one of them. THE SEPARATOR IS SPACE SLASH SPACE (" / ").
+      #
+      # The covering rule is SEGMENT MEMBERSHIP, not substring containment: for
+      # each id in `routes_to`, that entry's own `data_handling` must equal one
+      # segment of this one, compared with whitespace collapsed, case folded and
+      # trailing `.;,` dropped — and with interior characters never rewritten,
+      # so `on-tenant` and `non-tenant` stay different. Extra segments are
+      # permitted: a rule may carry its own lead-in beside the badges it must
+      # carry. A ROUTED entry whose own badge contains the separator is refused,
+      # because such a badge could never be one segment. The delegated validator
+      # (`scripts/validate-ideation-dashboard-contracts.py`) enforces all of
+      # this; the shape can express none of it.
+      #
+      # The 500-byte ceiling is unchanged and therefore bounds how many distinct
+      # badges one rule can carry — a rule whose list does not fit is a rule
+      # that must be split, or whose members' badges must be written more
+      # tightly.
       data_handling: { type: string, minLength: 1, maxLength: 500 }
       # --- the routing-rule declaration (contract-v1.38, additive) ---
       #
@@ -99,8 +112,9 @@ $defs:
           Every model this rule MAY route to, as `model_id` references into
           this same catalog. The delegated validator resolves each one and
           refuses a dangling reference, a self-reference, a target that is
-          itself a routing rule, and a target whose `data_handling` text this
-          entry's own `data_handling` does not carry.
+          itself a routing rule, a target whose own `data_handling` this
+          entry's `data_handling` does not carry as a " / "-separated SEGMENT,
+          and a target whose badge holds that separator itself.
         items:
           type: string
           minLength: 1
@@ -113,9 +127,12 @@ $defs:
         pattern: "^[A-Za-z0-9][A-Za-z0-9._-]*$"
         description: >-
           The model this rule CURRENTLY resolves to — the one that ANSWERS the
-          turn and is recorded as the turn's `model_id`, beside the requested
-          id in `selected_model`. Must be a member of `routes_to`, and must be
-          available whenever the routing entry itself is available.
+          turn, is recorded as the turn's `model_id` beside the requested id in
+          `selected_model`, and is the model the turn's thread sidecar names.
+          Must be a member of `routes_to` — so the badge covering above has
+          necessarily checked it — and must be available whenever the routing
+          entry itself is available. Both are delegated-validator rules: the
+          shape has no operator for either.
     dependentRequired:
       # Neither routing field may ride on an entry that does not declare what
       # it is, and neither is meaningful without the other.

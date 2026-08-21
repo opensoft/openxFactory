@@ -3487,14 +3487,14 @@ def test_a_CONFORMANT_routing_entry_is_reported_as_one_without_touching_the_rout
         model_id="auto", label="Automatic (routes by role)",
         provider_class="routing-rule", available=True,
         input_limit_bytes=2048, output_limit_bytes=8192,
-        data_handling="Routes by role to any of: Processed in the approved "
-                      "tenant boundary",
+        data_handling="Routes by role. / Processed in the approved tenant "
+                      "boundary",
         routing_rule=True, routes_to=("model-a",), resolved_model_id="model-a")
     assert serve_mod.doxbench_selected_model(entry) == {
         "requested_model_id": "auto",
         "routing_rule": True,
-        "data_handling": "Routes by role to any of: Processed in the approved "
-                         "tenant boundary",
+        "data_handling": "Routes by role. / Processed in the approved tenant "
+                         "boundary",
         "resolved_model_id": "model-a",
     }
 

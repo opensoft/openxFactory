@@ -13,7 +13,7 @@
       "available": true,
       "input_limit_bytes": 2048,
       "output_limit_bytes": 8192,
-      "data_handling": "Routes by role to any of: Routes by role to any of: Processed in the approved tenant boundary; no retention.",
+      "data_handling": "Routes by role (outer). / Routes by role (inner). / Processed in the approved tenant boundary; no retention.",
       "routing_rule": true,
       "routes_to": ["auto-inner"],
       "resolved_model_id": "auto-inner"
@@ -25,7 +25,7 @@
       "available": true,
       "input_limit_bytes": 2048,
       "output_limit_bytes": 8192,
-      "data_handling": "Routes by role to any of: Processed in the approved tenant boundary; no retention.",
+      "data_handling": "Routes by role (inner). / Processed in the approved tenant boundary; no retention.",
       "routing_rule": true,
       "routes_to": ["chained-on-tenant"],
       "resolved_model_id": "chained-on-tenant"

@@ -2979,7 +2979,7 @@ const KEY = { repository: "fixture-repo", ref: "main",
 // requires of any conformant catalog.
 const ON_TENANT = "Processed in the approved tenant boundary; no retention.";
 const HOSTED = "Zero retention; content leaves the tenant boundary for inference only.";
-const RULE_BADGE = "Routes by role to any of: " + ON_TENANT + " / " + HOSTED;
+const RULE_BADGE = "Routes by role. / " + ON_TENANT + " / " + HOSTED;
 const CATALOG = { schema_version: 1, kind: "workbench-model-catalog", models: [
   { model_id: "auto", label: "Automatic (routes by role)",
     provider_class: "routing-rule", available: true,

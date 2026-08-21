@@ -1195,7 +1195,7 @@ def _rule(model_id="auto", *, routes_to=("a", "b"), resolved="a",
         model_id=model_id,
         provider_class="routing-rule",
         data_handling=badge if badge is not None else (
-            "Routes by role to any of: " + CONTRACT_EXAMPLE["data_handling"]),
+            "Routes by role. / " + CONTRACT_EXAMPLE["data_handling"]),
         routing_rule=True,
         routes_to=tuple(routes_to),
         resolved_model_id=resolved,
@@ -1306,7 +1306,7 @@ def test_routing_field_types_are_refused_with_TypeError_not_a_value_error():
     # 2. no chained rule
     (lambda: [
         _rule("outer", routes_to=("inner",), resolved="inner",
-              badge="Routes by role to any of: Routes by role to any of: "
+              badge="Routes by role (outer). / Routes by role (inner). / "
                     + CONTRACT_EXAMPLE["data_handling"]),
         _rule("inner", routes_to=("a",), resolved="a"),
         _entry("a")],

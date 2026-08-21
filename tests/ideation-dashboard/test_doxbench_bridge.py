@@ -647,7 +647,7 @@ def test_a_CONFORMANT_routing_entry_sets_the_resolved_model_with_no_adapter_chan
         model_id="auto", label="Automatic (routes by role)",
         provider_class="routing-rule", available=True,
         input_limit_bytes=200_000, output_limit_bytes=64_000,
-        data_handling="Routes by role to any of: stays on this tenant",
+        data_handling="Routes by role. / stays on this tenant",
         routing_rule=True, routes_to=("opus",), resolved_model_id="opus")
     bridge = _bridge(tmp_path, catalog=_catalog(rule, routed))
     seen = []

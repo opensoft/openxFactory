@@ -101,6 +101,71 @@ DECLARABLE_ENTRY_FIELDS: tuple[str, ...] = (
     PUBLIC_ENTRY_FIELDS + ROUTING_ENTRY_FIELDS
 )
 
+# ---- the routing badge's SEGMENT GRAMMAR (contract-v1.38, adversarial review
+# round 1 F1) ----
+#
+# A routing rule's `data_handling` is a SEPARATOR-JOINED LIST of badge segments,
+# and the covering rule is SEGMENT MEMBERSHIP: each routed model's own badge must
+# be one of those segments. It is NOT substring containment, which the review
+# broke twice on the released bytes -- a rule badged "Routes to a non-tenant
+# endpoint." was accepted as carrying a target badged "on-tenant" (the menu then
+# shows the INVERSE of the target's posture), and a rule ending "...retain
+# nothing." was accepted as carrying a target badged "retain".
+#
+# The separator is SPACE SLASH SPACE. Chosen because a badge is free prose and
+# any separator can collide with it: `;` `.` `,` all occur in the packaged
+# badges, `/` does not. The collision that remains is refused rather than hoped
+# away -- a target badge that itself contains the separator cannot BE a segment,
+# so `ModelCatalog` refuses that catalog (see `_validate_routing_targets`).
+#
+# This spelling is restated in `scripts/validate-ideation-dashboard-contracts.py`
+# (a standalone validator that imports nothing from this package, the same
+# convention `RESERVED_BUFFER_KEYS` follows) and a companion test pins the two
+# equal, so the two gates cannot drift into two grammars.
+ROUTING_BADGE_SEPARATOR = " / "
+
+# The closed set of trailing characters a segment comparison ignores. See
+# `normalized_badge_segment` for why these three and nothing else.
+ROUTING_BADGE_TRAILING_PUNCTUATION = ".;,"
+
+
+def normalized_badge_segment(text: object) -> str:
+    """One badge segment, in the form the covering rule compares.
+
+    THREE normalizations, each chosen because it cannot make two DIFFERENT
+    handling postures compare equal (adversarial review round 1 F1 called the
+    byte-exact comparison over-strict in the harmless direction):
+
+    * whitespace runs collapse and the ends are stripped, so a badge copied
+      across a line wrap still matches;
+    * case is folded, so `ON-TENANT` matches `on-tenant`;
+    * trailing characters in ``ROUTING_BADGE_TRAILING_PUNCTUATION`` are
+      dropped, so a rule that joins badges into a sentence and loses or gains a
+      full stop still matches.
+
+    DELIBERATELY NOT normalized: anything that removes or rewrites INTERIOR
+    characters. Hyphens, negations and stop words all stay, because that is
+    exactly where the difference between `on-tenant` and `non-tenant` lives --
+    the pair the review used to break the old predicate. A normalization that
+    could flip a posture would be worse than no normalization at all."""
+    collapsed = " ".join(str(text).split()).casefold()
+    return collapsed.rstrip(ROUTING_BADGE_TRAILING_PUNCTUATION).strip()
+
+
+def badge_segments(data_handling: object) -> tuple[str, ...]:
+    """A rule's declared badge, split into normalized segments.
+
+    Empty segments are dropped: a trailing or doubled separator is sloppy
+    authoring, not a segment that anything may match."""
+    return tuple(
+        segment
+        for segment in (
+            normalized_badge_segment(part)
+            for part in str(data_handling).split(ROUTING_BADGE_SEPARATOR)
+        )
+        if segment
+    )
+
 # ---- the RELEASED catalog wire envelope (T020 wire clause) ----
 #
 # `xfactory-workbench-model-catalog.schema.yaml` at contract-v1.27
@@ -395,13 +460,17 @@ class ModelCatalog:
            its targets' availability is not this rule's business.
         4. THE BADGE COVERING (the ratified scenario's own THEN: a routing
            entry "MUST ... carry the handling badge of every model it may route
-           to"). Each target's ``data_handling`` text must appear in the
-           rule's own ``data_handling``, because the rule's own badge is the
-           ONE string the menu shows for it. This is the strict mechanical
-           reading and it is flagged as a judgement call in task 11.7's tick:
-           the alternative -- per-target badge objects on the wire plus a view
-           that composes them -- duplicates authored text that then drifts, and
-           buys nothing the covering rule does not already guarantee.
+           to"), as SEGMENT MEMBERSHIP over ``ROUTING_BADGE_SEPARATOR``. The
+           rule's own badge is the ONE string the menu shows for it, so each
+           target's badge must be one of that badge's segments. A target badge
+           that itself contains the separator is refused as ILL-FORMED: it
+           could never be a segment, and the alternative is a grammar that
+           silently splits a badge in half. Extra segments are permitted -- a
+           rule may carry its own lead-in beside the badges it must carry.
+           CORRECTED at adversarial review round 1 (F1): this was raw substring
+           containment, which the reviewer broke twice on the released bytes.
+           See ``normalized_badge_segment`` for the whole argument and for what
+           is deliberately NOT normalized.
         5. A RULE PROMISES NO MORE HEADROOM THAN ITS NARROWEST DESTINATION.
            ``effective_limit_bytes`` is computed from the SELECTED entry, which
            for a routed turn is the RULE -- so a rule declaring limits above a
@@ -413,6 +482,7 @@ class ModelCatalog:
         for entry in entries:
             if entry.routing_rule is not True:
                 continue
+            declared_segments = badge_segments(entry.data_handling)
             resolvable = []
             for target_id in entry.routes_to:
                 target = by_id.get(target_id)
@@ -424,10 +494,17 @@ class ModelCatalog:
                     raise InvalidRoutingRuleError(
                         f"routing rule {entry.model_id!r} routes to "
                         f"{target_id!r}, which is itself a routing rule")
-                if target.data_handling not in entry.data_handling:
+                if ROUTING_BADGE_SEPARATOR in target.data_handling:
+                    raise InvalidRoutingRuleError(
+                        f"the data_handling badge of {target_id!r} contains "
+                        f"{ROUTING_BADGE_SEPARATOR!r}, the routing badge's own "
+                        f"segment separator, so it cannot be carried as one")
+                if normalized_badge_segment(
+                        target.data_handling) not in declared_segments:
                     raise InvalidRoutingRuleError(
                         f"routing rule {entry.model_id!r} does not carry the "
-                        f"data-handling badge of {target_id!r}")
+                        f"data-handling badge of {target_id!r} as a segment of "
+                        f"its own badge")
                 resolvable.append(target)
             for field in ("input_limit_bytes", "output_limit_bytes"):
                 declared = getattr(entry, field)
