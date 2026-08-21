@@ -431,7 +431,11 @@ the retired rail control withheld exactly the same way, at the same layer — so
 this amendment neither introduces nor repairs it, and the surface a human can
 reach is correct in both realizations. Tightening the public method is a change
 to the controller's contract and belongs to whoever next opens that contract,
-not to a UI amendment.
+not to a UI amendment. *(Largely DISSOLVED by Amendment 2 below, later the same
+day, and by the UI moving to meet the method rather than the reverse: the
+reserved set narrowed to the outline alone, so the two layers now name the same
+permanent refusal. This paragraph stands as the record of what was true when
+Amendment 1 was written.)*
 
 **What is NOT amended.** The loaded-set requirement is untouched: a document
 still leaves the set only by an explicit human act, and that act still MUST
@@ -455,3 +459,96 @@ PRs #216 and #223). This amendment was ruled in session by Brett and is recorded
 here rather than negotiated across threads; Phase A's matching statement of the
 same rule is amended in step so the two cannot disagree, and Phase A defers to
 this requirement for the full statement.
+
+## Amendment 2 — the reserved set narrows to the outline alone (2026-08-21)
+
+**Amendment 2 (2026-08-21, Brett, ruled via browser annotation, verbatim: "if I
+do the workflow to edit a document, and then cancel instead of save, then try to
+unload, the unload button is stippled. It should allow the document to unload.
+only the outline can never unload. we always want that to be loaded. If saved or
+canceled so the document is in neutral position, then we can unload it."): the
+reserved set narrows to the outline alone; a backed reserved-slot document in
+the neutral position unloads like any other document; the unbacked slot remains
+inert for want of anything to unload.**
+
+Brett annotated `button.doxbench-unload` on the running doxBench canvas while
+the SELECTED buffer was the tile's own document, held under the reserved
+`document` key with a real path. The control was inert and its title read "this
+is the tile's own document, the reserved buffer a turn falls back on, and is
+never unloaded — load another document to work beside it".
+
+**What the ruling aligns.** Three layers disagreed about what "reserved" meant
+for the Unload act. The UI withheld TWO keys; the controller's `unloadDocument`
+hard-refuses ONE (`outline`); `doxbench-state.js`'s `unloadDocumentBuffer`
+throws on ONE (`outline`). The ruling settles it at the number the two lower
+layers already used, so the surface now follows the state module rather than
+overruling it — which is why Amendment 1's recorded asymmetry is largely
+dissolved rather than merely re-described.
+
+**The claim that justified the withholding was checked before it was removed,
+and it is a WIRE bound, not a breakage.** The stated reason was the ONE-DOCUMENT
+FLOOR: `request_v2.buffers` declares `minItems: 2` and the server's
+`require_outline_and_documents` requires an outline plus at least one document,
+so a session holding only the outline plus this slot has no document to spare.
+Both statements are true and are untouched here. What was measured is what
+actually happens when the set empties, driven end to end through the real
+composition:
+
+* the unload itself is clean — no throw, the canvas keeps its boxes, the
+  selection moves to the outline exactly as the state module says;
+* the ratified selector EMPTY STATE renders at the same moment, naming the
+  remedy: "no document is loaded — use a docs tile's load verb to work on one;
+  the outline is workable on its own";
+* a turn still BUILDS and reaches the transport, binding to `outline`, carrying
+  the one buffer the set holds. Nothing throws inside the request builder;
+* at the server, that one-buffer request fails the released `request_v2` shape
+  and is answered with the fixed `invalid_turn_request` refusal in the v2
+  failure envelope — a 400 the rail renders on its live failure channel with the
+  composer preserved.
+
+So the floor is enforced by an EXPLICIT REFUSAL AT SEND, which is the honest
+surface for a wire bound, rather than by making a clean document permanently
+unremovable. The N3 wedge that originally motivated the withholding — under the
+v1 envelope, emptying the slot left `buildTurnRequest` reading `buffers.document
+.path` on an absent buffer, caught as the generic unsettled-buffer failure so
+the rail said "the buffers are still settling; try Send again in a moment"
+FOREVER — retired with that envelope. The widened builder carries whatever the
+set holds and says nothing untrue. That is the difference between the two
+refusals, and it is the whole difference: one was a permanently false sentence,
+the other is a correct one the human can act on.
+
+**What "neutral position" means, and why it needs no term of its own.** Brett's
+sentence names Save and Cancel as the two ways in. Both leave the buffer clean,
+and the canvas slot already shows Unload ONLY while no buffer of the loaded set
+is dirty (Amendment 1's swap). So the cleanliness half of the ruling is
+discharged by the swap that is already there; Amendment 2 changes only WHICH
+KEYS the control will act on once it is on screen. The dirty rule is untouched,
+including the loaded-set requirement's discharge that withholding the affordance
+entirely while anything is dirty satisfies the refusal.
+
+**The one non-outline withholding that stays, with the true reason.** The
+reserved `document` key can hold two different things. Backed, it is the tile's
+own document and it now unloads. UNBACKED — the create flow's not-yet-created
+artifact, a held buffer with a null path — it is not a member of the loaded set
+at all: `loadedBuffers` filters it out and the selector never lists it, which is
+what makes the ratified empty state reachable. There is no membership for Unload
+to end, so the control stays inert and says so. Its sentence changed with its
+reason, because the old one ("the reserved buffer a turn falls back on, and is
+never unloaded") is no longer true of anything under that key. Cancel is the
+control that acts on that buffer; Unload has no subject. This is a difference of
+SUBJECT, not of authority: the controller still accepts the key and the state
+module still honours it, which is right for a public method.
+
+**What is NOT amended.** The outline's reservation is untouched and is now the
+ONLY one — "only the outline can never unload. we always want that to be
+loaded." All three layers still say so. The loaded-set requirement is untouched:
+a document leaves the set only by an explicit human act, and that act still
+refuses or requires an explicit discard while dirty. Neither wire statement of
+the one-document floor is relaxed. Amendment 1's dirty-state-conditional slot,
+its ANY-buffer reading, and its gate-absent clause all stand exactly as written.
+
+**Ledger entries this supersedes.** Nothing in `tasks.md` is rewritten. The N3
+guard's own test is REPLACED rather than deleted — the same scenario, driven
+through Brett's reported sequence (edit, cancel, unload) and asserting the
+opposite outcome, with the reasoning for the reversal carried in its docstring
+so a reader who finds the old assertion in history can see why it turned over.

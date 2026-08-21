@@ -229,6 +229,39 @@ def test_the_model_selector_sits_by_send_and_states_why_send_is_unreachable():
     assert ".doxchat-sronly" in styles
 
 
+def test_the_working_subject_box_says_what_it_is_and_what_it_does():
+    """Brett's 2026-08-21 annotation round 2, on `input.doxchat-subject`: "what
+    is the box used for? i do not know how to use it."
+
+    It was a bare text box above the transcript carrying an `aria-label` and
+    nothing a sighted human could read — no visible label, no placeholder, and
+    (the ratified default from the tile's title being unrealized) no seeded
+    value either. So the field answers the question in its own two affordances,
+    which is the standard the annotation round before this one set: "the UI must
+    be intuitive and not rely on this text to inform the user" retired STANDING
+    explanatory lines, and an affordance on the control itself is exactly what it
+    left in their place.
+
+    The PLACEHOLDER names the field on the house `"<name> — e.g. <value>"` idiom
+    the create form and the canvas id field already use, and it is an addition,
+    never a replacement: a placeholder disappears the moment a human types, so it
+    is not an accessible name and the `aria-label` stays. The TITLE carries what
+    the value DOES, which is the half the annotation actually asked about."""
+    rail = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+            / "doxbench-chat.js").read_text(encoding="utf-8")
+    # The accessible name is untouched by the affordance.
+    assert 'subjectInput.setAttribute("aria-label", "working subject")' in rail
+    assert ('subjectInput.setAttribute("placeholder", SUBJECT_FIELD_PLACEHOLDER)'
+            in rail)
+    assert "subjectInput.title = SUBJECT_FIELD_TITLE;" in rail
+    # It NAMES the field and shows one, rather than describing it abstractly.
+    assert "working subject — e.g." in rail
+    # …and the title says where the value goes and that it is optional, because
+    # "what is this for" is not answered by a name.
+    assert "rides every turn" in rail
+    assert "may be left empty" in rail
+
+
 def test_the_canvas_region_is_named_without_a_duplicate_visible_heading():
     """Brett's 2026-08-15 annotation round: "why do we need this line? i do not
     see what it is adding to our UI."
