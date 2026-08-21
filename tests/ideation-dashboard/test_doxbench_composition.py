@@ -560,7 +560,12 @@ const out = {};
 }
 
 // =====================================================================
-// N3: the RESERVED document slot rides every turn, so it is never unloaded
+// N3, RE-RULED BY AMENDMENT 2 (2026-08-21, Brett, browser annotation): the
+// BACKED reserved `document` slot unloads like any other document once it is
+// back in the neutral position. "only the outline can never unload."
+//
+// Driven as BRETT REPORTED IT: edit the tile's own document, CANCEL instead of
+// saving, then unload. That is the sequence that came back stippled.
 // =====================================================================
 {
   const ctx = await mount({ files: [OUTLINE_PATH, DOC_A, DOC_B] });
@@ -568,37 +573,92 @@ const out = {};
   await until(() => ctx.one('doxchat-loaded') !== null, 'the selector');
   await quiesce(40);
   await chooseModel(ctx);
-  // Select the RESERVED slot -- it is a legitimate, listed, selectable entry, and
-  // the chat binds to it. What it is not is unloadable.
+  // Select the RESERVED slot -- a legitimate, listed, selectable entry the chat
+  // binds to, and now an unloadable one.
   const selectNode = ctx.one('doxchat-loaded');
   selectNode.value = 'document';
   await fire(selectNode, 'change');
   await quiesce(30);
-  const unload = ctx.one('doxbench-unload');
+  const slot = () => ({
+    rendered: ctx.one('doxbench-unload').hidden !== true,
+    disabled: ctx.one('doxbench-unload').disabled === true,
+    title: String(ctx.one('doxbench-unload').title || ''),
+    noteHidden: ctx.one('doxbench-unload-note').hidden === true,
+    saveHidden: ctx.one('doxbench-save').hidden === true,
+    cancelHidden: ctx.one('doxbench-cancel').hidden === true,
+  });
   out.n3 = {
     selected: selectNode.value,
     listed: selectNode.children.map((o) => o.value),
-    // Nothing is dirty here, so the slot IS showing Unload -- and it is showing
-    // it INERT, with the reserved reason stated rather than left to a press.
-    rendered: unload.hidden !== true,
-    disabled: unload.disabled === true,
-    title: String(unload.title || ''),
+    clean: slot(),
   };
-  // Press it anyway: the click path refuses too, so the render's disabled state is
-  // not the only thing standing between a human and a wedged chat.
-  await fire(unload, 'click');
+  // EDIT it. The pair comes back and Unload goes away -- unchanged by Amendment
+  // 2, which narrowed WHICH KEYS are reachable, never the dirty rule.
+  await fire(ctx.byClass('doxbench-viewtab')[0], 'click');
+  await quiesce(10);
+  const area = ctx.byClass('doxbench-textarea')[1];
+  area.value = '# the tile document, edited\n';
+  await fire(area, 'input');
+  await quiesce(30);
+  out.n3.dirty = slot();
+  // CANCEL -- not Save. The buffer returns to its base text, which is the
+  // "neutral position" the ruling names.
+  await fire(ctx.one('doxbench-cancel'), 'click');
   await quiesce(40);
-  out.n3.stillListed = ctx.one('doxchat-loaded').children.map((o) => o.value);
+  out.n3.afterCancel = slot();
+  // …and NOW the act runs, on the tile's own document.
+  await fire(ctx.one('doxbench-unload'), 'click');
+  await quiesce(40);
+  out.n3.listedAfter = ctx.one('doxchat-loaded').children.map((o) => o.value);
+  out.n3.emptyNote = String((ctx.one('doxchat-loaded-empty') || {}).textContent || '');
   out.n3.editors = ctx.byClass('doxbench-textarea').length;
-  // …and a turn STILL BUILDS, which is the failure this guards: emptying the slot
-  // left `buildTurnRequest` reading `buffers.document.path` on an absent buffer,
-  // caught as the generic unsettled-buffer failure, so the rail said "still
-  // settling; try Send again in a moment" forever.
-  const sent = await typeAndSend(ctx, 'a turn after attempting the unload');
+  // The chat is NOT wedged. The turn builds, reaches the transport, and carries
+  // the outline it bound to -- the old v1 failure (an absent buffer read inside
+  // the request builder, reported forever as "still settling") is unreachable.
+  const sent = await typeAndSend(ctx, 'a turn after the unload');
   out.n3.turns = ctx.log.turns.length;
   out.n3.failureNote = sent.failure;
   const request = ctx.log.turns[ctx.log.turns.length - 1] || null;
-  out.n3.wireDocumentPath = request ? request.buffers[1].path : null;
+  out.n3.wireBufferKinds = request ? request.buffers.map((b) => b.kind) : null;
+  out.n3.wireBound = request ? request.bound_buffer : null;
+}
+
+// =====================================================================
+// N3b (Amendment 2): the OTHER neutral position -- SAVED rather than cancelled.
+// "If saved or canceled so the document is in neutral position, then we can
+// unload it." Same slot, same act, reached through the governed Save.
+// =====================================================================
+{
+  const ctx = await mount({ files: [OUTLINE_PATH, DOC_A] });
+  await until(() => ctx.byClass('doxbench-textarea').length >= 2, 'the canvas');
+  await until(() => ctx.one('doxchat-loaded') !== null, 'the selector');
+  await quiesce(40);
+  const selectNode = ctx.one('doxchat-loaded');
+  selectNode.value = 'document';
+  await fire(selectNode, 'change');
+  await quiesce(30);
+  await fire(ctx.byClass('doxbench-viewtab')[0], 'click');
+  await quiesce(10);
+  const area = ctx.byClass('doxbench-textarea')[1];
+  area.value = '# the tile document, edited then saved\n';
+  await fire(area, 'input');
+  await quiesce(30);
+  out.n3b = {
+    dirtyUnloadHidden: ctx.one('doxbench-unload').hidden === true,
+    saveHidden: ctx.one('doxbench-save').hidden === true,
+  };
+  await fire(ctx.one('doxbench-save'), 'click');
+  // POLL the transition the assertion is about -- the slot swapping back once
+  // every buffer has rebased clean -- rather than a fixed delay that hopes it.
+  await until(() => ctx.one('doxbench-unload').hidden !== true,
+              'the Save to settle and the slot to swap back');
+  await quiesce(20);
+  out.n3b.saves = ctx.log.saves.length;
+  out.n3b.afterSaveDisabled = ctx.one('doxbench-unload').disabled === true;
+  out.n3b.afterSaveTitle = String(ctx.one('doxbench-unload').title || '');
+  await fire(ctx.one('doxbench-unload'), 'click');
+  await quiesce(40);
+  out.n3b.listedAfter = ctx.one('doxchat-loaded').children.map((o) => o.value);
 }
 
 console.log(JSON.stringify(out));
@@ -901,45 +961,89 @@ def test_the_outline_is_never_unloadable(composition):
 # ---------------------------------------------------------------------------
 
 
-def test_the_reserved_document_slot_is_selectable_but_never_unloadable(
+def test_the_backed_reserved_slot_unloads_after_an_edit_is_cancelled(
         composition):
-    """N3 (PR #207 re-verification): the reserved `document` key was listed as an
-    ORDINARY loaded entry whenever it carried a path, so Unload was reachable for
-    it — and one click emptied the slot, after which `buildTurnRequest` read
-    `buffers.document.path` on an absent buffer. That threw, was caught as the
-    generic unsettled-buffer failure, and the rail then said "the buffers are
-    still settling; try Send again in a moment" FOREVER: a permanently false
-    sentence, which is the worst thing a refusal can be.
+    """AMENDMENT 2 (2026-08-21, Brett, ruled via browser annotation): "if I do
+    the workflow to edit a document, and then cancel instead of save, then try to
+    unload, the unload button is stippled. It should allow the document to
+    unload. only the outline can never unload. we always want that to be loaded.
+    If saved or canceled so the document is in neutral position, then we can
+    unload it."
 
-    RE-REASONED at contract-v1.34 (F7, adversarial review of the §13 slice). The
-    guard stands; the reason it stands changed with the wire. It used to be that
-    the released envelope carried exactly the outline and this slot, so emptying
-    the slot left the request builder reading an absent buffer. The widened
-    envelope carries the whole loaded set, and the floor is now stated in two
-    places that agree: `request_v2.buffers` declares `minItems: 2`, and the
-    server's `require_outline_and_documents` requires an outline plus AT LEAST
-    ONE document. A session holding only the outline and this slot therefore has
-    no document to spare. Listing it stays right: it is selectable and the chat
-    binds to it."""
+    This test is the sequence Brett reported, driven end to end through the real
+    composition: select the tile's own document under the reserved `document`
+    key, edit it, CANCEL, and unload. It used to come back stippled.
+
+    WHAT THE RULING REPLACED. N3 (PR #207) found that emptying this slot under
+    the v1 envelope left `buildTurnRequest` reading `buffers.document.path` on an
+    absent buffer — caught as the generic unsettled-buffer failure, so the rail
+    said "the buffers are still settling; try Send again in a moment" FOREVER, a
+    permanently false sentence. The withholding was re-reasoned at contract-v1.34
+    (F7) onto the ONE-DOCUMENT FLOOR instead: `request_v2.buffers` declares
+    `minItems: 2` and the server requires an outline plus at least one document.
+
+    Both facts survive the amendment and neither justifies the withholding any
+    longer. The v1 wedge is gone with the envelope — the widened builder carries
+    whatever the set holds and reads no absent buffer, which the send at the end
+    of this test measures. The floor is real and still stated in both places, but
+    it is a WIRE bound, and a wire bound is discharged by refusing at send with
+    the composer preserved, not by making a clean document permanently
+    unremovable. The rail states the honest empty state in the same breath."""
     n3 = composition["n3"]
-    # It IS a first-class, listed, selectable entry.
+    # It IS a first-class, listed, selectable entry — unchanged.
     assert "document" in n3["listed"]
     assert n3["selected"] == "document"
-    # …and Unload is withheld for it, with the reason naming why.
-    assert n3["rendered"] is True, (
-        "nothing is dirty, so the slot shows Unload -- inert, with its reason")
-    assert n3["disabled"] is True
-    assert "never unloaded" in n3["title"]
-    assert "load another document to work beside it" in n3["title"]
-    # Pressing it anyway changes nothing: the click path refuses too.
-    assert n3["stillListed"] == n3["listed"]
-    assert n3["editors"] >= 2
-    # And the chat is not wedged: a turn builds, reaches the transport, and carries
-    # the reserved slot's own path exactly as it did before.
+    # CLEAN: the slot shows Unload, REACHABLE, naming the document it would act
+    # on rather than stating a reservation it no longer has.
+    assert n3["clean"]["rendered"] is True
+    assert n3["clean"]["disabled"] is False, (
+        "Amendment 2: a backed reserved-slot document in the neutral position "
+        "unloads like any other document")
+    assert n3["clean"]["title"].startswith("unload ")
+    assert "from the loaded set" in n3["clean"]["title"]
+    assert n3["clean"]["noteHidden"] is True, (
+        "a reachable control speaks for itself; the note is for inert ones")
+    # DIRTY: the pair returns and Unload leaves. Amendment 2 narrowed WHICH KEYS
+    # are reachable and touched the dirty rule not at all.
+    assert n3["dirty"]["rendered"] is False
+    assert n3["dirty"]["saveHidden"] is False
+    assert n3["dirty"]["cancelHidden"] is False
+    # CANCELLED — Brett's word, and the state his annotation was made in.
+    assert n3["afterCancel"]["rendered"] is True
+    assert n3["afterCancel"]["disabled"] is False, (
+        "the annotated defect exactly: cancelled back to neutral and still "
+        "stippled")
+    # …and the act runs.
+    assert n3["listedAfter"] == ["outline"], (
+        "the tile's own document left the loaded set")
+    assert n3["editors"] >= 2, (
+        "the boxes stay, blanked and hidden, so a re-load reuses them")
+    # The ratified empty state renders honestly the moment the set empties.
+    assert "no document is loaded" in n3["emptyNote"]
+    # THE CHAT IS NOT WEDGED. The turn builds, reaches the transport, binds to
+    # the outline, and nothing says the permanently false sentence.
     assert n3["turns"] == 1
-    assert n3["wireDocumentPath"] is not None
+    assert n3["wireBufferKinds"] == ["outline"]
+    assert n3["wireBound"] == "outline"
     assert "still settling" not in n3["failureNote"], (
         "the wedged-chat sentence must be unreachable")
+
+
+def test_the_backed_reserved_slot_unloads_after_a_save(composition):
+    """The other neutral position the ruling names: "If saved or canceled … then
+    we can unload it." Same slot, same act, reached through the governed Save
+    rather than through Cancel — because "neutral" is a property of the BUFFER,
+    not of which control put it there."""
+    n3b = composition["n3b"]
+    # Dirty: the pair, no Unload.
+    assert n3b["dirtyUnloadHidden"] is True
+    assert n3b["saveHidden"] is False
+    # Saved: one governed Save ran, and the slot came back with a REACHABLE
+    # Unload naming the document.
+    assert n3b["saves"] == 1
+    assert n3b["afterSaveDisabled"] is False
+    assert n3b["afterSaveTitle"].startswith("unload ")
+    assert n3b["listedAfter"] == ["outline"]
 
 
 def test_one_loaded_set_tail_runs_per_act(composition):

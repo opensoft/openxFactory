@@ -5400,6 +5400,60 @@ async function dirtyUnload() {
   };
 }
 
+// ---- the UNBACKED slot is inert: there is nothing to unload --------------
+// AMENDMENT 2 narrowed the reserved set to the OUTLINE ALONE, and this is the one
+// non-outline key the canvas control still withholds -- for a different reason
+// entirely, which is why it needs its own measurement. The create flow's
+// not-yet-created slot IS a held buffer, but it names no document, so it has no
+// loaded-set membership for Unload to end. `loadedBuffers` filters it out for
+// exactly that reason and the selector never lists it.
+//
+// A save seam is supplied because without one the slot does not swap at all
+// (the gate-absent clause), and this scenario is about what the SWAPPED slot
+// shows.
+async function unbackedSlotInert() {
+  const { controller } = await mount({ save: realSeam([]) });
+  controller.setActiveBuffer('document');
+  const els = controller.elements();
+  const before = {
+    path: controller.state().buffers.document.path,
+    listed: controller.loadedBuffers().map((row) => row.key),
+    rendered: els.unload().hidden !== true,
+    disabled: els.unload().disabled === true,
+    title: String(els.unload().title || ''),
+    noteHidden: els.unloadNote().hidden === true,
+    noteText: String(els.unloadNote().textContent || ''),
+  };
+  // Press it anyway: the click path re-derives the same rule, so the render's
+  // disabled state is not the only thing holding it.
+  for (const fn of (els.unload().listeners.click || [])) {
+    await fn({ target: els.unload(), stopPropagation() {}, preventDefault() {} });
+  }
+  return { before, keysAfter: controller.bufferKeys(),
+           activeAfter: controller.activeBuffer() };
+}
+
+// ---- the OUTLINE is refused by the same one rule -------------------------
+// The other half of the narrowed guard, measured at the canvas module: dropping
+// the outline's reservation must not pass.
+async function outlineStaysReserved() {
+  const { controller } = await mount({ save: realSeam([]) });
+  await controller.loadDocumentForEditing(DOC_A);
+  controller.setActiveBuffer('outline');
+  const els = controller.elements();
+  const posture = {
+    rendered: els.unload().hidden !== true,
+    disabled: els.unload().disabled === true,
+    title: String(els.unload().title || ''),
+    noteText: String(els.unloadNote().textContent || ''),
+  };
+  for (const fn of (els.unload().listeners.click || [])) {
+    await fn({ target: els.unload(), stopPropagation() {}, preventDefault() {} });
+  }
+  return { posture, keysAfter: controller.bufferKeys(),
+           refusal: controller.unloadDocument('outline') };
+}
+
 // ---- the tile Save is the same pipeline, narrowed ----------------------
 async function tileSave() {
   const calls = [];
@@ -5550,6 +5604,8 @@ console.log(JSON.stringify({
   boundRefusal: await boundRefusal(),
   switchNotifyCounts: await switchNotifyCounts(),
   dirtyUnload: await dirtyUnload(),
+  unbackedSlotInert: await unbackedSlotInert(),
+  outlineStaysReserved: await outlineStaysReserved(),
   tileSave: await tileSave(),
   contextOnlyTileSave: await contextOnlyTileSave(),
   basenameCollision: await basenameCollision(),
@@ -5693,6 +5749,66 @@ def test_unloading_a_dirty_document_refuses_until_the_discard_is_explicit(
     # …and a re-load reuses the same nodes and reads the document afresh
     assert result["reloaded"]["ok"] is True
     assert result["contentAfterReload"] == "# Document A\n"
+
+
+def test_the_unbacked_create_slot_has_nothing_to_unload(loaded_set_results):
+    """AMENDMENT 2 kept exactly one non-outline withholding, and changed its
+    reason to the true one.
+
+    The reserved `document` key can hold two very different things. BACKED, it is
+    the tile's own document and it now unloads like any other (pinned end to end
+    in `test_doxbench_composition.py`). UNBACKED, it is the create flow's
+    not-yet-created artifact: a held buffer with a null path, which
+    `loadedBuffers` filters out and the selector never lists, because it is not a
+    member of the loaded set at all. There is no membership for Unload to end, so
+    the control is inert and says so — and it says the true thing, not the
+    retired "reserved buffer a turn falls back on".
+
+    Cancel is the control that acts on this buffer. Unload has no subject."""
+    result = loaded_set_results["unbackedSlotInert"]
+    before = result["before"]
+    assert before["path"] is None, "the mount must leave the slot unbacked"
+    assert before["listed"] == [], (
+        "an unbacked slot is not a loaded document, and is not listed")
+    # Inert-and-stated, never absent — the same posture the outline gets.
+    assert before["rendered"] is True
+    assert before["disabled"] is True
+    assert "nothing to unload" in before["title"]
+    assert "has not been created yet" in before["title"]
+    # …and the reason is VISIBLE text beside it, not only a hover title.
+    assert before["noteHidden"] is False
+    assert before["noteText"] == before["title"]
+    # The retired sentence must not come back with it.
+    assert "never unloaded" not in before["title"], (
+        "Amendment 2: only the outline is never unloaded")
+    # Pressing it changes nothing: the click path re-derives the same rule.
+    assert result["keysAfter"] == ["outline", "document"]
+    assert result["activeAfter"] == "document"
+
+
+def test_the_outline_reservation_survives_the_narrowed_rule(loaded_set_results):
+    """The other half of Amendment 2, measured at the canvas module: narrowing
+    the reserved set to the outline must not narrow it past the outline.
+
+    "only the outline can never unload. we always want that to be loaded." Three
+    layers still say so and this pins all three — the control is inert with the
+    reason stated, its click path refuses, and the controller's public
+    `unloadDocument` hard-refuses the key whatever any surface does."""
+    result = loaded_set_results["outlineStaysReserved"]
+    posture = result["posture"]
+    assert posture["rendered"] is True, (
+        "inert-and-stated, never absent — an absent control answers nothing")
+    assert posture["disabled"] is True
+    assert "never unloaded" in posture["title"]
+    assert "reserved buffer" in posture["title"]
+    assert posture["noteText"] == posture["title"]
+    # The press changed nothing, and the loaded document beside it is untouched.
+    assert "outline" in result["keysAfter"]
+    assert "ideation/staging/topic-x/detail.md" in result["keysAfter"]
+    # …and the controller refuses the key directly, below any surface.
+    assert result["refusal"]["ok"] is False
+    assert "reserved for this scope and cannot be unloaded" in (
+        result["refusal"]["error"])
 
 
 def test_the_tile_save_persists_its_document_and_the_ancestry_step_only(

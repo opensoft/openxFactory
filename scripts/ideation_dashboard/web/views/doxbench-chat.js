@@ -181,6 +181,29 @@ const SUBJECT_OVER_BOUND = Object.freeze({
     + "-byte subject bound — refused, never truncated; shorten it",
 });
 
+// WHAT THE WORKING SUBJECT BOX IS (Brett's 2026-08-21 annotation on
+// `input.doxchat-subject`: "what is the box used for? i do not know how to use
+// it."). It carried an `aria-label` and nothing a sighted human could read: a
+// bare text box above the transcript, with no visible label, no placeholder, and
+// no seeded value. So it says what it is, in its own two affordances.
+//
+// The PLACEHOLDER names the field and shows one, on the house `"<name> — e.g.
+// <value>"` idiom the create form and the canvas id field already use. It is an
+// affordance and not an accessible name — it disappears the moment the human
+// types, which is why the `aria-label` stays exactly as it was.
+//
+// The TITLE says what the value DOES, because that is the half a placeholder has
+// no room for and the half the annotation actually asked about: it rides every
+// turn as standing framing for the model, it is browser-local working state, and
+// it is optional. Nothing about the field's behaviour changed here.
+export const SUBJECT_FIELD_PLACEHOLDER =
+  "working subject — e.g. tighten the acceptance boundary";
+export const SUBJECT_FIELD_TITLE =
+  "one line saying what this conversation is working on — it rides every turn "
+  + "as standing framing for the model, alongside the outline and the loaded "
+  + "documents. It edits nothing, is browser-local to this tile, and "
+  + "may be left empty.";
+
 // (T104 F2's `no_active_document` refusals and G-1's outline-only precondition
 // stood here.) Both existed because the v1 envelope forced a turn to declare ONE
 // active document path: with candidates and none active the operator had a
@@ -558,18 +581,23 @@ export const LOADED_SELECTOR_EMPTY_NOTE =
   + "outline is workable on its own";
 
 const OUTLINE_BUFFER_KEY = "outline";
-// The reserved unbacked/create key, and WHY it is still not unloadable now that
-// the wire carries the whole loaded set (F7, adversarial review of the §13
-// slice). The old reason -- "the released envelope carries exactly these two
-// buffers" -- retired with that envelope, and a guard resting on a retired
-// reason is a guard the next reader deletes.
+// The reserved unbacked/create key. It used to be withheld from Unload as well
+// as the outline, on the ONE-DOCUMENT FLOOR: `request_v2.buffers` declares
+// `minItems: 2` and the server's own `require_outline_and_documents` requires an
+// outline plus AT LEAST ONE document, so a session holding only the outline plus
+// this slot had nothing to spare.
 //
-// The live reason is the ONE-DOCUMENT FLOOR, stated in two places that agree:
-// `request_v2.buffers` declares `minItems: 2`, and the server's own
-// `require_outline_and_documents` requires an outline plus AT LEAST ONE
-// document. A session holding only the outline plus this slot therefore has
-// nothing to spare -- emptying it leaves a buffer set no turn can be built from,
-// which is the wedge N3 measured.
+// AMENDMENT 2 (2026-08-21, Brett, ruled via browser annotation) ends that
+// withholding. The floor itself is untouched -- both statements of it still
+// stand, unchanged -- but it is no longer discharged by making the act
+// unreachable. A BACKED slot in the neutral position unloads like any other
+// document, and a session left with no document REFUSES AT SEND, visibly, with
+// the composer preserved, which is the honest surface for a wire bound: the
+// selector renders its ratified empty state naming the load verb at the same
+// moment. What retired with the old envelope was the WEDGE, not the floor: under
+// v1 the same act threw inside the request builder and pinned the rail at "still
+// settling" forever, a permanently false sentence. The widened builder carries
+// whatever the set holds and says nothing untrue.
 const RESERVED_DOCUMENT_BUFFER_KEY = "document";
 const OUTLINE_ENTRY_LABEL = "Outline";
 const UNBACKED_ENTRY_LABEL = "(not yet created)";
@@ -676,17 +704,13 @@ export function loadedSelectorModel(editorStateValue) {
     const path = buffer && buffer.path ? String(buffer.path) : null;
     entries.push(Object.freeze({
       key,
-      // N3 (PR #207 re-verification), restated for the widened wire (F7): the
-      // reserved key is a RESERVED entry, not an ordinary loaded document, even
-      // when it carries a real path. Listing it is right -- it is selectable and
-      // the chat binds to it -- but treating it as ordinary makes Unload
-      // reachable for it, and a session holding only the outline plus this slot
-      // has no document to spare: the released `request_v2` declares
-      // `minItems: 2` and the server requires an outline plus at least one
-      // document, so emptying it leaves a set no turn can be built from. Under
-      // the v1 envelope the same act threw inside the request builder and wedged
-      // the rail at "still settling" forever; the shape of the failure changed,
-      // the floor did not.
+      // The entry's own record of WHICH KEY holds it. It marked the slot no
+      // surface would unload; Amendment 2 narrowed that set to the outline, so
+      // what it states now is only the fact -- this document sits under the
+      // reserved `document` key rather than under its own path, which is the
+      // shape a Phase A session restores as and the shape the create flow's
+      // first Save leaves behind. Kept because it is true and cheap to keep, not
+      // because a control still reads it.
       reserved: key === RESERVED_DOCUMENT_BUFFER_KEY,
       label: path === null ? UNBACKED_ENTRY_LABEL : labels.get(path) || basenameOf(path),
       fullName: path === null ? UNBACKED_ENTRY_LABEL : path,
@@ -790,6 +814,8 @@ export function mountDoxBenchChatRail(host, options = {}) {
   loadedNote.hidden = true;
   const subjectInput = el("input", "doxchat-subject");
   subjectInput.setAttribute("aria-label", "working subject");
+  subjectInput.setAttribute("placeholder", SUBJECT_FIELD_PLACEHOLDER);
+  subjectInput.title = SUBJECT_FIELD_TITLE;
   subjectInput.setAttribute("autocomplete", "off");
   subjectInput.setAttribute("dir", "auto");
   const selector = el("select", "doxchat-model");
