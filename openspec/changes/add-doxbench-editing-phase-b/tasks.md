@@ -1582,13 +1582,15 @@ untouched: mechanical, reversible, at the model boundary.
       `contract-v1.37` while this was in flight, although its own squash message
       still says "at contract-v1.36". CHANGELOG presence is the availability
       test, so v1.37 was taken and the next available number is v1.38.
-      **FLAGGED, and NOT this task's to fix:** at `6cbb4495`,
-      `validate-contract-release.py verify-commit` already exits 1 with
-      `HGR-RELEASE-INVENTORY-MISSING` — that cut bumped the bundle to v1.37
+      **FLAGGED, NOT this task's to fix — and SINCE FIXED by its own lane.** At
+      `6cbb4495`, `validate-contract-release.py verify-commit` exited 1 with
+      `HGR-RELEASE-INVENTORY-MISSING`: that cut bumped the bundle to v1.37
       without shipping `contracts/releases/contract-v1.37.digests.yaml`, the same
-      class of miss `contract-v1.36`'s first tag hit, one step earlier. This cut
-      resolves its own v1.38 inventory and is unaffected; v1.37's provenance gap
-      belongs to that lane.
+      class of miss `contract-v1.36`'s first tag hit, one step earlier. Recorded
+      rather than repaired here, because a release surface belongs to the release
+      that cut it — and `c1ffa0fd` (PR #238) has since shipped that inventory, so
+      main verifies again. This cut resolved its own v1.38 inventory throughout
+      and was never affected.
       **Judgement call, flagged — the badge covering is SEGMENT MEMBERSHIP over a
       DECLARED SEPARATOR, and the first answer was WRONG.** The ratified THEN is
       that a routing entry "MUST ... carry the handling badge of every model it
@@ -1988,9 +1990,10 @@ missing behaviour.
 Note for whoever cuts that release — 11.7's realization found that PR #235 had
 taken `contract-v1.37` mid-flight AND left
 `contracts/releases/contract-v1.37.digests.yaml` absent, so
-`verify-commit --commit 6cbb4495` exits 1. Recheck bundle availability against
-the CHANGELOG at the moment you allocate, and do not assume the preceding
-release surface verifies.
+`verify-commit --commit 6cbb4495` exited 1. PR #238 has since shipped that
+inventory, so main verifies again; the two habits the episode earns are
+unchanged. Recheck bundle availability against the CHANGELOG at the moment you
+allocate, and do not assume the preceding release surface verifies.
 
 Whichever Brett picks, the next session starts here. Nothing else in the wave-2
 landing is blocked by it: Phase A is archived, the staged topic is exited, and

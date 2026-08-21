@@ -27,15 +27,19 @@ own squash message still says "at contract-v1.36". Under
 the version is allocated AT REALIZATION against what is available, and CHANGELOG
 presence is the availability test, so this release is `contract-v1.38`.
 
-A DEFECT ON THE PRECEDING RELEASE SURFACE, recorded and deliberately NOT fixed
-here: at `6cbb4495`, `scripts/validate-contract-release.py verify-commit`
-reports `HGR-RELEASE-INVENTORY-MISSING` and exits 1, because that cut bumped the
-bundle to v1.37 without shipping `releases/contract-v1.37.digests.yaml`. It is
-the same class of miss `contract-v1.36`'s first tag hit, one step earlier.
+A DEFECT ON THE PRECEDING RELEASE SURFACE, found here and SINCE REPAIRED BY ITS
+OWN LANE. At `6cbb4495`, `scripts/validate-contract-release.py verify-commit`
+reported `HGR-RELEASE-INVENTORY-MISSING` and exited 1: that cut bumped the bundle
+to v1.37 without shipping `releases/contract-v1.37.digests.yaml`, the same class
+of miss `contract-v1.36`'s first tag hit, one step earlier. It was recorded here
+rather than fixed, because a release surface belongs to the release that cut it —
+and `c1ffa0fd` (PR #238, "Complete the contract-v1.37 cut: release digest
+inventory") has since shipped that inventory, so `verify-commit` passes on main
+again. The record is kept because the lesson outlives the defect: recheck bundle
+availability against the CHANGELOG at the moment you allocate, and do not assume
+the preceding release surface verifies. This cut was unaffected either way —
 `resolve_committed_inventory` reads `contract_bundle_version` AT THE COMMIT, so
-this cut's own verification is unaffected — it resolves v1.38 and checks against
-the v1.38 inventory that ships inside it — and v1.37's provenance gap belongs to
-that release's lane, not to this one.
+it resolves v1.38 and checks against the v1.38 inventory that ships inside it.
 
 **Change class: ADDITIVE (minor)** under
 [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).

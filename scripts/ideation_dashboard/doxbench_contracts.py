@@ -110,6 +110,8 @@ from referencing.jsonschema import DRAFT202012
 # flight -- 6cbb4495 (PR #235, identity-brokering + trust-anchor) landed it on
 # main, its own squash message still saying v1.36. CHANGELOG presence is the
 # availability test, not tag presence, so v1.38 is the next available number.
+# (That cut also shipped no v1.37 digest inventory, so `verify-commit` failed on
+# main until PR #238 completed it. Nothing here depended on either fact.)
 #
 # THE REF IS THE SENTINEL AGAIN, deliberately, and on the same precedent: the
 # tag is cut at the realization squash, so on this branch there is no release
