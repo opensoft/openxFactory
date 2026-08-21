@@ -292,46 +292,6 @@ Active changes:
   node-inventory realization evidence per the reader-grant clarify decision Q4;
   the schema/bundle edit waits for Brett's ratification.
   `target_release: implementation_pending`.
-- [refine-demote-round-trip-mechanics](openspec/changes/refine-demote-round-trip-mechanics/proposal.md)
-  — authored 2026-08-19. Three defects found by DRIVING both gates while
-  discharging `add-staged-topic-outline-template` task 4.2, plus Brett's Decision 3
-  ruling, all on the same round trip. (1) The origin topic is unresolvable for
-  every active change: `generator.py` builds `origin_staging_id` only from
-  possibles pick edges, which the forward transition destroys along with the
-  staging folder they point at — measured, 12 of 12 active changes report `None`
-  and the corpus holds one pick edge carrying no `change_id`, so the mapping is
-  EMPTY. The answer is already on disk and unread: the transition writes an origin
-  block into `.openspec.yaml`, and `generator.py` already parses that file for
-  `_ratifier_of` alone. Resolution gains a precedence order (explicit topic, then
-  the origin block where it declares `kind: staged`, then the pick edge) and helps
-  4 of 12 — the other 8 are `ad_hoc` and correctly have no topic to return to.
-  (2) The demote's own `openspec/INDEX.md` carries no `Status:` header, so a
-  whole-folder forward transition of a returned topic refuses — the demote leaving
-  a landmine for the next lap of its own cycle. (3) `Proposed by:` accumulates one
-  line per lap, and the fix lands on the FORWARD transition that writes it, NOT the
-  demote's refresh: deduping there would widen the boundary the promoted
-  requirement pins as "leaving every other byte of that file unchanged", trading a
-  data-loss guarantee for tidiness. (4) Ruling 3: `Status at demote` carries task
-  progress beside the status, which needs a MODIFIED delta on the promoted
-  requirement rather than riding its existing wording. One MODIFIED and two ADDED on
-  `ideation-dashboard`, one ADDED on `document-lifecycle`.
-  `target_release: implementation_pending`.
-- [align-status-reader-to-real-lines](openspec/changes/align-status-reader-to-real-lines/proposal.md)
-  — authored 2026-08-19. The read side of the pseudo-line blindness
-  `align-demote-to-round-trip-rule` half-closed. `corpus.parse_status` and
-  `parse_kind` scan `text.splitlines()[:15]`, which also breaks on `\x0b`, `\x0c`,
-  `\x1c`-`\x1e`, `\x85`, U+2028 and U+2029 — so a header carrying enough of them
-  pushes a real `Status:` past the window and doc-health reports "missing status
-  header" about a document that has one, while the demote now writes that header
-  correctly. Both divergence shapes are recorded in the archived change's §7.2. The
-  fix counts REAL lines through a primitive shared with the writer rather than a
-  third implementation, and the primitive is placed in `doc_health` because the
-  measured module-level dependency runs `ideation_dashboard` → `doc_health` and
-  inverting it for a text helper would put the checker layer downstream of the
-  dashboard runtime. Measured baseline: 0 of 1079 governed files carry an exotic
-  separator anywhere, so the fix moves ZERO findings today — its value is closing
-  the divergence, and its own change is what lets doc-health's shared reader own
-  that baseline diff (Brett's ruling). `target_release: implementation_pending`.
 - [add-doxbench-editing-phase-b](openspec/changes/add-doxbench-editing-phase-b/proposal.md)
   — authored 2026-08-18, Phase B and the EXIT of the `doxbench-editing-model`
   staged topic: all seven questions dispositioned, 26 claims settled (Brett's
@@ -604,6 +564,84 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [refine-demote-round-trip-mechanics](openspec/changes/archive/2026-08-21-refine-demote-round-trip-mechanics/proposal.md)
+  The MECHANICS around the round-trip rule `align-demote-to-round-trip-rule` fixed,
+  three of them found by DRIVING both gates on the next lap and the fourth by
+  Brett's Decision 3 ruling. (1) The origin topic was unresolvable for EVERY active
+  change: `generator.py` built `origin_staging_id` only from possibles pick edges,
+  which the forward transition destroys along with the staging folder they point at
+  — measured, 12 of 12 active changes reported `None` and the corpus held one pick
+  edge carrying no `change_id`, so the mapping was EMPTY. The answer was already on
+  disk and unread, since the transition WRITES an origin block into `.openspec.yaml`
+  that `generator.py` already parsed for `_ratifier_of` alone. Promoted as a
+  DECLARED PRECEDENCE ORDER — explicit topic, then the origin block where it
+  declares `kind: staged`, then the pick edge — resolving for the changes that came
+  from staging and refusing by name for the `ad_hoc` ones that have no topic to
+  return to. (2) The demote's own artifacts blocked the topic's next forward
+  transition, and `openspec/INDEX.md` was only the first offender in sorted order:
+  measured, 93 of 94 `tasks.md`, 154 of 158 spec deltas, 65 of 68 `design.md` and
+  49 of 94 `proposal.md` carried no `Status:` header, so nearly every returned
+  change artifact made the cycle one-way. Brett's returned-artifact ruling widened
+  the fix to all of them, and then to the OUTLINE's refresh-in-place arm, whose
+  source is the human's own working document and so never had to pass the forward
+  gate to acquire a header. (3) `Proposed by:` accumulated one line per lap, and the
+  fix landed on the FORWARD transition that writes it rather than the demote's
+  refresh — deduping there would have widened the byte bound the promoted
+  requirement pins as "leaving every other byte of that file unchanged", trading a
+  data-loss guarantee for tidiness. (4) Ruling 3: the state-at-demote slot carries
+  the change's task progress beside its status, which needed a MODIFIED delta
+  because the promoted text named a closed list of five values. The realization also
+  brought both gates onto ONE status grammar — the two readers disagreed on 11 of
+  1133 documents in both directions, and now on 0 — and carved EXACTLY ONE addition
+  out of the refresh's byte bound, in the delta that pins it. Promoted one MODIFIED
+  and two ADDED requirements on `ideation-dashboard` and one ADDED on
+  `document-lifecycle`. Realized 2026-08-20 as PR #221 (`1a7c2a1`, `17bba49`,
+  `8c123bf`, `ca9fcaf`, `6c3d87c`) and archived 2026-08-21: `openspec validate --all
+  --strict` 64/64 exit 0, `tests/ideation-dashboard` + `tests/proposal-support` 3729
+  passed / 14 skipped / exit 0, `tests/doc-health` clean, and the realization proof
+  a full LAP on a scratch tree — forward, demote, forward again — with the origin
+  resolved from the origin block and no operator workaround. Its §8 items stay open
+  BY RULING, not as gaps: the shallowest-markdown arm of the primary-fragment
+  selection rule is deferred until a real topic reaches it (0 of 31 do), and the
+  read-side half went to `align-status-reader-to-real-lines` below.
+- [align-status-reader-to-real-lines](openspec/changes/archive/2026-08-21-align-status-reader-to-real-lines/proposal.md)
+  The READ side of the pseudo-line blindness `align-demote-to-round-trip-rule`
+  half-closed, and the one place a false finding cost more than a crash.
+  `corpus.parse_status` and `parse_kind` scanned `text.splitlines()[:15]`, which
+  also breaks on `\x0b`, `\x0c`, `\x1c`-`\x1e`, `\x85`, U+2028 and U+2029 — so a
+  header carrying enough of them pushed a real `Status:` past the window and
+  doc-health reported "missing status header" about a document that plainly had one,
+  while the demote had just written that header correctly. A false finding accuses a
+  correct document and leaves the operator no recourse but to disbelieve the
+  checker. Promoted one ADDED requirement on `doc-health`: the deterministic pass
+  reads a lifecycle header by REAL lines, that rule holds for EVERY reader of the
+  header, and the rule is shared with the writers rather than reimplemented per
+  reader — with cross-language divergence held by an explicit agreement test rather
+  than by convention. The shared primitive is a new `scripts/doc_health/lines.py`,
+  placed in `doc_health` on the MEASURED dependency direction (module-level imports
+  run `ideation_dashboard` → `doc_health` at five call sites; the reverse is lazy
+  and marked `# lazy: house guard`), so the checker layer does not end up downstream
+  of the dashboard runtime for a text helper. Scope was RULED WIDE by Brett after an
+  adversarial review of the first narrow realization surfaced a contradiction
+  between the delta's every-reader clause and a narrower `code_surface:` — the delta
+  governs, and all ten readers plus a standalone twin converted in this change on a
+  measured zero baseline cost. Realized 2026-08-20 as PR #222 (`e6e3ae5`, `1644d86`,
+  `175e972`, `42cc321`, `50bfee2`, `c379a09`) and archived 2026-08-21: `openspec
+  validate --all --strict` 64/64 exit 0, `tests/doc-health` clean,
+  `tests/ideation-dashboard` + `tests/proposal-support` 3729 passed / 14 skipped /
+  exit 0, and task 5.3's own criterion — a doc-health report IDENTICAL to its
+  baseline, since a moved finding would mean the zero-exotic-separator measurement
+  had gone stale — discharged at all three re-run points and confirmed
+  byte-identical across every branch tip. Measured baseline: 0 of 1227 governed
+  files carry an exotic separator anywhere, so the fix moves ZERO findings today;
+  its value is closing the divergence before something in the corpus makes it
+  visible. Four readers stay UNCONVERTED and recorded rather than silently skipped
+  (`families._template_gaps`, `ideation_routing._scan_lines`,
+  `families._staged_exit_changes`, and `proposal-support.py`'s three rules): none
+  reads the six lifecycle header fields, so each sits honestly outside the
+  every-*header*-reader clause rather than inside it by omission. Its §7.5 follow-up
+  — one stale docstring line in `proposal-support.py` that could only be reworded
+  once BOTH sibling branches had merged — is discharged on this archive.
 - [align-demote-to-round-trip-rule](openspec/changes/archive/2026-08-19-align-demote-to-round-trip-rule/proposal.md)
   A DEFECT FIX: the demote verb performed precisely the reset the ratified
   round-trip rule is titled against. `classify_change_file` routes anything under
