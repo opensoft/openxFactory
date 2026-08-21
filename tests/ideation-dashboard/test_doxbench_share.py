@@ -637,3 +637,87 @@ def test_the_plan_touches_no_remote_and_no_index(tmp_path):
     assert plan.nothing_new is False
     assert _origin_sha(repo) is None          # read only: nothing was pushed
     assert rel in _dirty(repo)                # read only: nothing was staged
+
+
+# ===========================================================================
+# THE FAILURE WINDOW — the branch-resident record written BEFORE the push
+#
+# Adopted from the §12 adversarial review (P3-3), which reproduced it and ruled
+# the design CONTAINED rather than broken. It is pinned here because
+# "contained" is a claim about behaviour, and an unpinned claim about behaviour
+# is a comment.
+#
+# The window exists because the two halves of a share cannot be made atomic: a
+# branch-resident record must ride the commit it describes (FR-006), so it is
+# written before the push it names. What makes that safe is not that the record
+# is always true in isolation — it is that a record claiming an unshared push
+# CANNOT BE READ BY ANYONE until the push it claims actually succeeds, because
+# the only copy of it is on a branch no remote has.
+# ===========================================================================
+
+def test_a_failed_push_leaves_the_false_record_where_nobody_can_read_it(
+        tmp_path):
+    repo, registry, created = _session_world(tmp_path)
+    rel = _write_thread(repo, created["path"], "written before the push failed")
+
+    refusing = FakePullRequests(fail_push="the remote rejected this push")
+    status, refused = _share(repo, registry, refusing)
+
+    # the verb refuses, in the port's own words
+    assert status == 409, refused
+    assert refused["error"] == "gate_refused"
+    assert "rejected this push" in json.dumps(refused)
+
+    # the sidecar IS committed and the record IS on the branch — the window
+    assert rel not in _dirty(repo), "the thread commit stands"
+    branch_records = sorted(
+        (_worktree(repo) / RECORDS).rglob("share-session-*.gate-action.yaml"))
+    assert len(branch_records) == 1, branch_records
+
+    # ...AND THE CONTAINMENT: nothing left the machine, so the record claiming a
+    # share is unreachable by the colleague it would mislead.
+    assert _origin_sha(repo) is None
+    assert not list((repo.root / RECORDS).rglob(
+        "share-session-*.gate-action.yaml")), (
+        "no main-resident record may exist for a push that did not happen")
+
+
+def test_the_retry_after_a_failed_push_self_heals(tmp_path):
+    """The second half of the containment: the next invocation sees the branch
+    as `unpushed` (nothing is dirty any more) and shares it for real."""
+    repo, registry, created = _session_world(tmp_path)
+    _write_thread(repo, created["path"], "written before the push failed")
+    _share(repo, registry, FakePullRequests(fail_push="the remote said no"))
+    assert _origin_sha(repo) is None
+
+    status, shared = _share(repo, registry, RealPush(_worktree(repo)))
+
+    assert status == 200, shared
+    assert shared["shared"] is True
+    # nothing was dirty this time, so this share took the main-resident path
+    assert shared["threads"] == []
+    assert shared["record_resident"] == "main"
+    assert _origin_sha(repo) is not None
+
+
+def test_the_healed_trail_is_two_records_each_individually_truthful(tmp_path):
+    """What an auditor finds afterwards, pinned so the composite is not a
+    surprise: the BRANCH carries the failed attempt's record and the SERVED
+    checkout carries the successful one."""
+    repo, registry, created = _session_world(tmp_path)
+    _write_thread(repo, created["path"], "the attempt that did not land")
+    _share(repo, registry, FakePullRequests(fail_push="nope"))
+    _share(repo, registry, RealPush(_worktree(repo)))
+
+    on_branch = sorted(
+        (_worktree(repo) / RECORDS).rglob("share-session-*.gate-action.yaml"))
+    on_main = sorted(
+        (repo.root / RECORDS).rglob("share-session-*.gate-action.yaml"))
+    assert len(on_branch) == 1, on_branch
+    assert len(on_main) == 1, on_main
+    # and the colleague can now read the branch one, which by then is TRUE: the
+    # branch really has been shared, by the retry.
+    clone = _colleague_clone(tmp_path, repo)
+    subprocess.run(["git", "-C", str(clone), "checkout", BRANCH],
+                   check=True, capture_output=True, text=True)
+    assert list((clone / RECORDS).rglob("share-session-*.gate-action.yaml"))

@@ -1558,6 +1558,16 @@ untouched: mechanical, reversible, at the model boundary.
       own named test — a document created, DISCUSSED via a dirty sidecar and
       never Saved again, followed through that clone to prove the thread arrives;
       it fails with "the thread did not travel" if the sweep regresses.
+      **THE FAILED-THEN-RETRIED TRAIL, stated because the composite is worth
+      knowing even though each half is truthful.** A branch-resident record must
+      ride the commit it describes (FR-006), so it is written BEFORE the push it
+      names; if that push then fails, the branch carries a record of the failed
+      attempt and the retry — which finds nothing dirty and takes the
+      main-resident path — puts the successful one in the served checkout. An
+      auditor therefore finds TWO share records for one delivered share, in two
+      places. Each is individually accurate about the act it recorded, and the
+      false-looking one is unreachable while it is false: its only copy sits on a
+      branch no remote has. Pinned by three tests in the FAILURE WINDOW section.
       The mechanism is `doxbench_threads.shareable_thread_paths`, a
       CROSS-DOCUMENT sweep by prefix over the worktree's dirty set, committed as
       the share's OWN single gate action. It is a separate function from
@@ -1610,12 +1620,34 @@ untouched: mechanical, reversible, at the model boundary.
       only near fit, and its own conditional REQUIRES a `pull-request` artifact,
       so recording a share as an open-pr would both fail validation and assert a
       pull request this verb is forbidden to open.
-      DONE IN-BRANCH: the enum member, a conditional constraining only the new
-      member, the recomputed digest, the `consumption_rule`, and the
-      CHANGELOG entry (CHANGELOG presence is the availability test under the
-      versioning policy, not tag presence). STILL OWED: the annotated tag cut at
-      the realization squash and the aggregation-repo submodule pin — the same
-      shape task 13.3 carried for `contract-v1.34`.
+      DONE IN-BRANCH, all of it inside ONE commit so the cut reverts as a unit:
+      the enum member, a conditional constraining only the new member, the
+      recomputed `manifest.yaml` digest, the `consumption_rule`, the CHANGELOG
+      entry (CHANGELOG presence is the availability test under the versioning
+      policy, not tag presence), and the RELEASE DIGEST INVENTORY
+      `contracts/releases/contract-v1.36.digests.yaml` — built with
+      `scripts/validate-contract-release.py build`, 190 entries, exactly three
+      digests moved (the changelog, the manifest, and the schema itself, which is
+      a release-inventory member). The inventory ships INSIDE the cut because
+      both precedents did — `contract-v1.34` at `5daa173` and `contract-v1.35` at
+      `78f8e01` — and because no gate in the local set would have caught its
+      absence: its only consumer test lives in the environmentally-broken
+      `tests/hermes_runtime_contracts` suite. It was missing from the first
+      version of this cut and was added by the §12 review (P2-1).
+      STILL OWED, and nothing else: the annotated tag cut at the realization
+      squash and the aggregation-repo submodule pin — the same shape task 13.3
+      carried for `contract-v1.34`.
+      **A FAMILY-WIDE SCHEMA NOTE** (§12 review, P3-7), recorded in full in the
+      `contract-v1.36` CHANGELOG entry because it is a property of the whole
+      per-action conditional family rather than of this cut: a conditional of the
+      form `if action then artifacts contains kind` REQUIRES a companion artifact
+      but does not FORBID the others, so the schema does not prevent a
+      `share-session` record from carrying a `pull-request` artifact.
+      `abandon-session` has had the identical hole since
+      `add-workbench-branch-sessions`. The runtime is what forbids it — the verb
+      reaches exactly one port member, asserted against the port's own call log —
+      and closing it schema-side would narrow several pre-existing actions that
+      already have valid records in the corpus.
       **This is a JUDGMENT CALL and it is separable**: the contract growth is its
       own commit and reverts as a unit if Brett rules the other way.
 
