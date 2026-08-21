@@ -427,8 +427,9 @@ Active changes:
   `align-demote-to-round-trip-rule` (ratified, realized, archived 2026-08-19),
   whose own two follow-ups — `refine-demote-round-trip-mechanics` and
   `align-status-reader-to-real-lines` — are now realized and merged (PR #221,
-  #222). Outstanding: task 5.4's live browser proof, gates 5.1-5.3, and
-  bookkeeping 6.1-6.3. `target_release: implemented`.
+  #222). Bookkeeping 6.1-6.3 discharged (this row, the exit-marked staging
+  fragments, and the `doxbench-editing-model` Q4 handoff). Outstanding: task
+  5.4's live browser proof and gates 5.1-5.3. `target_release: implemented`.
 
 - [add-doxbench-editing-phase-a](openspec/changes/add-doxbench-editing-phase-a/proposal.md)
   — authored 2026-08-15, Phase A of the `doxbench-editing-model` staged topic

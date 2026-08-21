@@ -429,11 +429,14 @@ remains is the contract and the surface.
       the Amendment 1 correction, sections 1-4 realized, `align-demote-to-round-trip-rule`
       (archived 2026-08-19) plus its two realized-and-merged follow-ups
       `refine-demote-round-trip-mechanics`/`align-status-reader-to-real-lines`
-      (PR #221, #222), and what remains (5.4, gates, this bookkeeping section).
+      (PR #221, #222), and what remains (task 5.4's live browser proof and
+      gates 5.1-5.3).
 - [x] 6.2 Tick the staging topic's exit and mark the INDEX row proposed.
       The staging fragment itself was already consumed by the forward
       transition 2026-08-15 (`ideation/staging/staged-topic-outline-template/`
-      is empty on disk; the moved copy under
+      no longer exists in the checkout — consumed and removed by that
+      transition, not merely an empty directory git declines to track; the
+      moved copy under
       `openspec/changes/add-staged-topic-outline-template/supporting-docs/`
       already carries `Status: draft` + `Proposed by:` per
       `document-lifecycle.md`'s `organized -> proposed` gate, and its own
