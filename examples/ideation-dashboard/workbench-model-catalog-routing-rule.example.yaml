@@ -1,0 +1,41 @@
+# VALID (contract-v1.37): an `auto` ROUTING RULE beside the two approved models
+# it may route to. Its own badge CARRIES BOTH of theirs verbatim (the ratified
+# "carry the handling badge of every model it may route to"), it resolves to one
+# of them, that one is available, and its declared limits are the NARROWEST of
+# the two — a rule promises no more headroom than its narrowest destination.
+{
+  "schema_version": 1,
+  "kind": "workbench-model-catalog",
+  "models": [
+    {
+      "model_id": "auto",
+      "label": "Automatic (routes by role)",
+      "provider_class": "routing-rule",
+      "available": true,
+      "input_limit_bytes": 2048,
+      "output_limit_bytes": 8192,
+      "data_handling": "Routes by role to any of: Processed in the approved tenant boundary; no retention. / Zero retention; content leaves the tenant boundary for inference only.",
+      "routing_rule": true,
+      "routes_to": ["routed-on-tenant-1", "routed-hosted-zr-1"],
+      "resolved_model_id": "routed-on-tenant-1"
+    },
+    {
+      "model_id": "routed-on-tenant-1",
+      "label": "Approved authoring model (routable)",
+      "provider_class": "on-tenant",
+      "available": true,
+      "input_limit_bytes": 800000,
+      "output_limit_bytes": 900000,
+      "data_handling": "Processed in the approved tenant boundary; no retention."
+    },
+    {
+      "model_id": "routed-hosted-zr-1",
+      "label": "Hosted zero-retention model (routable)",
+      "provider_class": "hosted-zero-retention",
+      "available": true,
+      "input_limit_bytes": 2048,
+      "output_limit_bytes": 8192,
+      "data_handling": "Zero retention; content leaves the tenant boundary for inference only."
+    }
+  ]
+}

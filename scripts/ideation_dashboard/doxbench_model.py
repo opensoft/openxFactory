@@ -401,11 +401,19 @@ class ModelCatalog:
            reading and it is flagged as a judgement call in task 11.7's tick:
            the alternative -- per-target badge objects on the wire plus a view
            that composes them -- duplicates authored text that then drifts, and
-           buys nothing the covering rule does not already guarantee."""
+           buys nothing the covering rule does not already guarantee.
+        5. A RULE PROMISES NO MORE HEADROOM THAN ITS NARROWEST DESTINATION.
+           ``effective_limit_bytes`` is computed from the SELECTED entry, which
+           for a routed turn is the RULE -- so a rule declaring limits above a
+           target's would pass a turn the model it routed to cannot take. The
+           rule's declared limits must therefore not exceed the minimum across
+           every model it may route to, which is the entry-level restatement of
+           the schema's own "a catalog entry may only NARROW the ceilings"."""
         by_id = {entry.model_id: entry for entry in entries}
         for entry in entries:
             if entry.routing_rule is not True:
                 continue
+            resolvable = []
             for target_id in entry.routes_to:
                 target = by_id.get(target_id)
                 if target is None:
@@ -420,6 +428,15 @@ class ModelCatalog:
                     raise InvalidRoutingRuleError(
                         f"routing rule {entry.model_id!r} does not carry the "
                         f"data-handling badge of {target_id!r}")
+                resolvable.append(target)
+            for field in ("input_limit_bytes", "output_limit_bytes"):
+                declared = getattr(entry, field)
+                narrowest = min(getattr(target, field) for target in resolvable)
+                if declared > narrowest:
+                    raise InvalidRoutingRuleError(
+                        f"routing rule {entry.model_id!r} declares {field} "
+                        f"{declared}, above the {narrowest} of a model it may "
+                        f"route to")
             resolved = by_id[entry.resolved_model_id]
             if entry.available is True and resolved.available is not True:
                 raise InvalidRoutingRuleError(

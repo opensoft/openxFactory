@@ -44,6 +44,7 @@ ideation-dashboard/
 ├── workbench-model-catalog-local.example.yaml         # doxBench WIRE: local catalog entry
 ├── workbench-model-catalog-empty.example.yaml         # doxBench WIRE: the editor-only SUCCESS posture
 ├── workbench-model-catalog-hosted-zero-retention.example.yaml  # doxBench WIRE: hosted badge
+├── workbench-model-catalog-routing-rule.example.yaml  # doxBench WIRE: an `auto` ROUTING RULE (contract-v1.37)
 ├── workbench-chat-turn-unsaved-edits.example.yaml     # doxBench WIRE v1: dirty buffer as turn input
 ├── workbench-chat-turn-outline-only.example.yaml      # doxBench WIRE v1: null active_document_path (G-1)
 ├── workbench-chat-turn-prose-only.example.yaml        # doxBench WIRE v1: success, conversation only
@@ -94,6 +95,12 @@ ideation-dashboard/
 │   ├── gate-action-research-brief-without-workflow-job.yaml      # wheel record missing job
 │   ├── workbench-model-catalog-exposed-credential.negative.yaml  # credential in a public field
 │   ├── workbench-model-catalog-raw-endpoint.negative.yaml        # raw provider endpoint
+│   ├── workbench-model-catalog-plain-entry-resolves-elsewhere.negative.yaml # plain entry, routing field
+│   ├── workbench-model-catalog-routing-badge-gap.negative.yaml   # rule missing a routed model's badge
+│   ├── workbench-model-catalog-routing-dangling-target.negative.yaml # routes to an id nothing offers
+│   ├── workbench-model-catalog-routing-rule-chained.negative.yaml # rule routing to another rule
+│   ├── workbench-model-catalog-routing-rule-unavailable-resolution.negative.yaml # available rule, unavailable resolution
+│   ├── workbench-model-catalog-routing-rule-wider-than-target.negative.yaml # rule wider than a destination
 │   ├── workbench-chat-turn-escaping-path.negative.yaml           # buffer path escaping the checkout
 │   ├── workbench-chat-turn-hash-mismatch.negative.yaml           # declared content_hash ≠ recomputed
 │   ├── workbench-chat-turn-identity-subject.negative.yaml        # identity-shaped working_subject
@@ -123,7 +130,7 @@ ideation-dashboard/
 | `ideation-possibles-register.schema.yaml` (`#/$defs/possibles_register`) | `possibles-register.example`, `derived-possible-register.example` + `transitions/valid-*` | `register-uncited-rejection`, `register-picked-without-pick`, `register-missing-provenance`, `register-duplicate-id`, `register-derived-missing-derivation`, `register-derived-missing-worker-run`, `register-derived-unsourced`, `register-derived-bad-disposition`, `transitions/invalid-*` |
 | `project-register.schema.yaml` | `project-register.example` | `project-empty-project`, `project-empty-group`, `project-duplicate-id`, `project-dangling-group-member`, `project-multi-parent-repo` |
 | `gate-intent.schema.yaml` | `gate-intent-pending`, `gate-intent-applied`, `gate-intent-promote-to-staging`, `gate-intent-derive-possibles`, `gate-intent-research-brief` | `intent-applied-without-record`, `intent-refused-without-reason`, `intent-promote-to-staging-without-possible-id`, `intent-derive-possibles-without-cluster-id`, `intent-research-brief-without-possible-id` |
-| `xfactory-workbench-model-catalog.schema.yaml` | `workbench-model-catalog-local`, `workbench-model-catalog-empty`, `workbench-model-catalog-hosted-zero-retention` | `workbench-model-catalog-exposed-credential`, `workbench-model-catalog-raw-endpoint` |
+| `xfactory-workbench-model-catalog.schema.yaml` | `workbench-model-catalog-local`, `workbench-model-catalog-empty`, `workbench-model-catalog-hosted-zero-retention`, `workbench-model-catalog-routing-rule` | `workbench-model-catalog-exposed-credential`, `workbench-model-catalog-raw-endpoint`, `workbench-model-catalog-plain-entry-resolves-elsewhere`, `workbench-model-catalog-routing-badge-gap`, `workbench-model-catalog-routing-dangling-target`, `workbench-model-catalog-routing-rule-chained`, `workbench-model-catalog-routing-rule-unavailable-resolution`, `workbench-model-catalog-routing-rule-wider-than-target` |
 | `xfactory-workbench-chat-turn.schema.yaml` (v1 family, DEPRECATED at `contract-v1.34`) | `workbench-chat-turn-unsaved-edits`, `workbench-chat-turn-outline-only`, `workbench-chat-turn-prose-only`, `workbench-chat-turn-both-proposals` | `workbench-chat-turn-escaping-path`, `workbench-chat-turn-hash-mismatch`, `workbench-chat-turn-identity-subject`, `workbench-chat-turn-over-budget`, `workbench-chat-turn-unknown-model`, `workbench-chat-turn-untyped-proposal` |
 | `xfactory-workbench-chat-turn.schema.yaml` (widened `-v2` family, `contract-v1.34`) | `workbench-chat-turn-v2-loaded-set`, `workbench-chat-turn-v2-success` | `workbench-chat-turn-v2-unbound-buffer`, `workbench-chat-turn-v2-reserved-key-path` |
 | `gate-action-record.schema.yaml` | `gate-action-record-ratify`, `gate-action-record-kickoff`, `gate-action-record-demote`, `gate-action-record-dispose-possible`, `gate-action-record-edit-document`, `gate-action-record-open-pr`, `gate-action-record-abandon-session`, `gate-action-record-promote-to-staging`, `gate-action-record-derive-possibles`, `gate-action-record-research-brief` | `gate-demote-without-reason`, `gate-ratify-without-ratification-artifact`, `gate-kickoff-without-workflow-job`, `gate-kickoff-unratified-target`, `gate-dispose-rejected-uncited`, `gate-action-edit-document-no-commit-artifact`, `gate-action-edit-document-no-ref`, `gate-action-open-pr-no-pull-request-artifact`, `gate-action-abandon-session-unreasoned`, `gate-action-promote-to-staging-without-workflow-job`, `gate-action-derive-possibles-without-workflow-job`, `gate-action-derive-possibles-without-cluster-id`, `gate-action-research-brief-without-workflow-job` |

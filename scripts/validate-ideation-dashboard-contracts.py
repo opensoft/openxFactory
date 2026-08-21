@@ -772,7 +772,10 @@ def check_committed_manifests(f: Findings, repo: Path) -> None:
 # Layered on schema conformance, mirroring each schema's own comments:
 #   Catalog   model_id uniqueness; a credential/endpoint SPELLING scan over
 #             every public string value (the schema already refuses extra
-#             fields structurally; this catches leakage THROUGH allowed ones).
+#             fields structurally; this catches leakage THROUGH allowed ones);
+#             and since contract-v1.37 the ROUTING-RULE resolution rules —
+#             dangling target, chained rule, available-rule-to-unavailable-
+#             model, and the badge covering (see check_routing_rules).
 #   Request   exactly one outline + one document buffer; segment-wise path
 #             confinement; EXACT content-hash parity (the validator recomputes
 #             SHA-256 over each buffer's content, so a mismatched identity is
@@ -829,6 +832,7 @@ def _scan_public_strings(f: Findings, label: str, node: Any) -> None:
 
 
 def check_model_catalog(f: Findings, label: str, doc: dict) -> None:
+    entries = [e for e in doc.get("models") or [] if isinstance(e, dict)]
     seen = set()
     for entry in doc.get("models") or []:
         mid = entry.get("model_id") if isinstance(entry, dict) else None
@@ -836,6 +840,88 @@ def check_model_catalog(f: Findings, label: str, doc: dict) -> None:
             f.error("catalog", f"{label}: duplicate model_id {mid!r}")
         seen.add(mid)
     _scan_public_strings(f, label, doc.get("models"))
+    check_routing_rules(f, label, entries)
+
+
+def check_routing_rules(f: Findings, label: str, entries: list[dict]) -> None:
+    """The contract-v1.37 routing declaration's CROSS-ENTRY rules — the four the
+    released shape cannot express (`$defs/model_entry` says so in its own
+    comments, and delegates them here).
+
+    The shape already enforces everything expressible per entry: the three
+    fields travel together, `routes_to` is unique and non-empty, and a
+    `routing_rule: false` entry may carry neither routing field. What needs the
+    WHOLE catalog is resolution — and the same four rules are enforced at
+    catalog construction in `scripts/ideation_dashboard/doxbench_model.py`
+    (`ModelCatalog._validate_routing_targets`). Neither place substitutes for
+    the other: an in-process catalog never becomes a file, and a file is never
+    constructed through that type.
+
+    1. no dangling target;
+    2. no chained rule (`resolved_model_id` records the model that ANSWERED, so
+       it must name something that answers);
+    3. an available rule resolves to an available model;
+    4. THE BADGE COVERING — the ratified scenario's own THEN: a routing entry
+       MUST "carry the handling badge of every model it may route to", and the
+       entry's own `data_handling` is the one badge string the menu shows for
+       it, so each target's badge text must appear in it;
+    5. a rule promises no more headroom than its narrowest destination — the
+       effective turn limit is computed from the SELECTED entry, which for a
+       routed turn is the RULE.
+
+    `resolved_model_id ∈ routes_to` and the self-reference refusal are the
+    schema's/type's per-entry business and are not restated here; a structurally
+    invalid instance never reaches this function's caller with those fields
+    intact."""
+    by_id = {str(entry.get("model_id")): entry for entry in entries}
+    for entry in entries:
+        if entry.get("routing_rule") is not True:
+            continue
+        rule_id = str(entry.get("model_id"))
+        badge = str(entry.get("data_handling") or "")
+        targets = entry.get("routes_to")
+        resolvable = []
+        for target_id in targets if isinstance(targets, list) else []:
+            target = by_id.get(str(target_id))
+            if target is None:
+                f.error("routing-target",
+                        f"{label}: routing rule {rule_id!r} routes to "
+                        f"{target_id!r}, which is not in this catalog")
+                continue
+            if target.get("routing_rule") is True:
+                f.error("routing-target",
+                        f"{label}: routing rule {rule_id!r} routes to "
+                        f"{target_id!r}, which is itself a routing rule — a "
+                        f"resolved model must be one that answers")
+                continue
+            if str(target.get("data_handling") or "") not in badge:
+                f.error("routing-badge",
+                        f"{label}: routing rule {rule_id!r} does not carry the "
+                        f"data-handling badge of {target_id!r} — a routing "
+                        f"entry reports the posture of every model it may "
+                        f"route to")
+            resolvable.append(target)
+        for field in ("input_limit_bytes", "output_limit_bytes"):
+            declared = entry.get(field)
+            limits = [target.get(field) for target in resolvable
+                      if isinstance(target.get(field), int)]
+            if not (isinstance(declared, int) and limits):
+                continue
+            if declared > min(limits):
+                f.error("routing-limit",
+                        f"{label}: routing rule {rule_id!r} declares {field} "
+                        f"{declared}, above the {min(limits)} of a model it may "
+                        f"route to")
+        resolved_id = str(entry.get("resolved_model_id"))
+        resolved = by_id.get(resolved_id)
+        if resolved is None:
+            f.error("routing-target",
+                    f"{label}: routing rule {rule_id!r} resolves to "
+                    f"{resolved_id!r}, which is not in this catalog")
+        elif entry.get("available") is True and resolved.get("available") is not True:
+            f.error("routing-availability",
+                    f"{label}: routing rule {rule_id!r} is available but "
+                    f"resolves to {resolved_id!r}, which is not")
 
 
 def _confined(f: Findings, label: str, where: str, path_value) -> None:
