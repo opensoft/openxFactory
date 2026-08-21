@@ -785,7 +785,7 @@ remains is the contract and the surface.
         §7.2 rather than duplicated here; the clean-path run below is this
         change's own confirmation.
       • The same suite from a clean-path `git clone` of this branch tip
-        (`13a3c1a`, cloned to a directory named `openxFactory` so no family
+        (`4b5a350`, cloned to a directory named `openxFactory` so no family
         self-skips on a repository-name mismatch): exit 0, 691 passed, ZERO
         skips. So all 691 items are green — the four are a property of the
         PATH, not of the corpus, and this run is the direct refutation rather
@@ -794,7 +794,7 @@ remains is the contract and the surface.
         inherited. Two `python3 scripts/doc-health.py --single-repo .` runs from
         identically-named clean-path `git clone`s — never `git archive`, which
         drops the git-dependent `record-immutability` family — one of the base
-        `6cbb449` and one of this branch tip `13a3c1a`, both exit 0, the second
+        `6cbb449` and one of this branch tip `4b5a350`, both exit 0, the second
         run given the first as `--previous-report` with
         `--new-findings-out`. The new-findings file is literally `[]`, and
         because an empty list proves little on its own the two reports were
