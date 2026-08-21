@@ -5,13 +5,52 @@ Status: ratified
 Ratified: 2026-08-15 by Brett Heap — in-session, verbatim: "ratify add-staged-topic-outline-template". Follows his acceptance of all five open questions as recommended earlier the same day, which closed the parallel decision track this change was sequenced for.
 ---
 
-> **APPROVED BUT NOT YET REALIZED.** This change has a non-empty code surface and
-> none of it is built: the outline tab does not render the template, there is no
-> add-section affordance, `fragmentSummary()` has no conforming-topic path, and
-> doc-health has no conformance nudge. Under `release-realization`'s archive
-> gate it therefore stays ACTIVE as approved intent until its code merges on the
-> implemented target with a green run — the invariant being that promoted specs
-> describe what the code does. Nothing here should be read as shipped.
+> **REALIZED AND ARCHIVED 2026-08-21.** All 22 tasks are discharged and the code
+> is merged on the implemented target across eight pull requests — this change's
+> OWN chain, each of which edits a file under this change's folder: #193
+> (`93f4241` — doc-health's WARNING-tier `staged-topic-template` family), #195
+> (`ea42a43` — the template as contract text in `docs/document-lifecycle.md`),
+> #198 (`e0dbcea`, `642dd64` — the outline section model and Amendment 1), #208
+> (`26558e7`, `3a1f3aa`, `cd9f683` — the outline tab's section index through the
+> `renderViewer` `onText` seam, add-section through `applyProposal`, and Save
+> carried by `edit-document` per Amendment 1), #211 (`9dfd59a`, `4c9b46b` — the
+> mutation-validated tests for 4.1 and 4.3, plus the honest report that 4.2 was
+> blocked by a live demote defect), #217 (`55e8a67`, `7469d1a`, `b84a936` — 4.2
+> discharged by DRIVING the real round trip, once the change that defect spawned,
+> `align-demote-to-round-trip-rule`, had realized at #215), #224 (`8dde22f`,
+> `2f9e876` — bookkeeping 6.1-6.3) and #227 (`5654343`, `8780bf5`, `67ad236`,
+> `a70bf01`, `0d4cf16` — gates 5.1-5.3 and the live browser proof 5.4).
+>
+> SPAWNED CHANGES, REALIZED SEPARATELY and not part of the chain above: task
+> 4.2's driven round trip produced `align-demote-to-round-trip-rule` (PR #215 /
+> `79ed72e`, archived by this change's #217),
+> `refine-demote-round-trip-mechanics` (PR #221 / `6c3d87c`) and
+> `align-status-reader-to-real-lines` (PR #222 / `c379a09`), the last two
+> archived 2026-08-21 by #225. None of those three PRs touches a file of this
+> change; each one's evidence lives in its own archive record. All three are
+> closed before this change archived.
+>
+> The realization proof is task 5.4: headless Chromium through the shipped page,
+> the real wheel gesture, the real outline tab, the shipped Save — and the answer
+> read out of git. One write route reached (`/actions/gate/first-edit`), one
+> verb, and that verb evidenced THREE independent ways: the response body's
+> `"verb": "edit-document"`, the commit subject plus its `Gate-Action:` trailer
+> on session branch `draft/outline-conformer`, and the committed gate-action
+> record's own `action:`. The pre-template topic degraded rather than refused,
+> and the served checkout never moved. Task detail, the gate evidence, the 29
+> enumerated warning findings and the items left open by ruling are in
+> `tasks.md`.
+>
+> Amendment 1 below is part of the record, not an afterthought: Q4 was ratified
+> naming `edit-apply`, which cannot reach a session branch, and the verb the
+> code actually uses is `edit-document`.
+>
+> This block REPLACED the release-realization "APPROVED BUT NOT YET REALIZED"
+> banner rather than carrying it through the archive, following
+> `align-demote-to-round-trip-rule` (archived 2026-08-19, its task 6.3) and the
+> two archives of 2026-08-21 that took the same course: archiving a record whose
+> first paragraph says "none of it is built" would state something false about a
+> realized change.
 
 # Proposal: add-staged-topic-outline-template
 
