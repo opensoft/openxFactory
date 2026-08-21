@@ -9,6 +9,170 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.38 — 2026-08-21 (additive; the doxBench model-catalog routing rule)
+
+Realizes tasks.md §11.7 of `add-doxbench-editing-phase-b` — the ratified
+scenario *"The menu offers a routing rule"*. One CONTRACT changes:
+`schemas/xfactory-workbench-model-catalog.schema.yaml`. That schema is
+content-addressed by its per-file `sha256` in [`manifest.yaml`](manifest.yaml);
+that row's digest is RECOMPUTED in this cut, and its `consumption_rule` states
+what a consumer must now read and what it may still ignore.
+
+VERSION ALLOCATION, stated because it moved mid-flight. This slice was briefed
+as `contract-v1.37`. While it was in flight, `6cbb4495` (PR #235,
+identity-brokering + trust-anchor) landed on main and ALLOCATED v1.37 — a
+CHANGELOG heading plus `contract_bundle_version: contract-v1.37` — although its
+own squash message still says "at contract-v1.36". Under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+the version is allocated AT REALIZATION against what is available, and CHANGELOG
+presence is the availability test, so this release is `contract-v1.38`.
+
+A DEFECT ON THE PRECEDING RELEASE SURFACE, recorded and deliberately NOT fixed
+here: at `6cbb4495`, `scripts/validate-contract-release.py verify-commit`
+reports `HGR-RELEASE-INVENTORY-MISSING` and exits 1, because that cut bumped the
+bundle to v1.37 without shipping `releases/contract-v1.37.digests.yaml`. It is
+the same class of miss `contract-v1.36`'s first tag hit, one step earlier.
+`resolve_committed_inventory` reads `contract_bundle_version` AT THE COMMIT, so
+this cut's own verification is unaffected — it resolves v1.38 and checks against
+the v1.38 inventory that ships inside it — and v1.37's provenance gap belongs to
+that release's lane, not to this one.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+Three OPTIONAL properties are added to `$defs/model_entry`, together with one
+`dependentRequired` block and two `allOf` conditionals that constrain ONLY those
+three. Nothing previously valid becomes invalid, no required field is added to
+any existing shape, no shape is removed, and no existing catalog is
+reinterpreted: BOTH conditionals require `routing_rule` to be PRESENT, so an
+entry that declares no routing rule matches neither and is judged exactly as it
+was before, and `dependentRequired` cannot fire on keys that are absent. The
+schema's `contract_schema_version` stays `1`, and the manifest row's
+`schema_version` stays `1` with it. Verified case by case against the released
+bytes, including the pre-release entry shape and each malformed declaration.
+
+`$defs/model_entry` gains, all optional and all three travelling together:
+
+* `routing_rule` (boolean) — present-and-true means this entry is a ROUTING RULE
+  this capability owns, an `auto` entry that maps a turn to a model by role,
+  rather than a directly answering provider model. Absent means what absence has
+  always meant, and a plain entry acquires no new obligation of any kind.
+* `routes_to` — every model the rule MAY route to, as a non-empty, unique array
+  of `model_id` REFERENCES into the same catalog (same pattern and length bounds
+  as `model_id`, up to 64 members).
+* `resolved_model_id` — the model the rule CURRENTLY resolves to: the one that
+  ANSWERS, recorded as the turn's `model_id` beside the requested id in the
+  `workbench-chat-turn-v2-success` record's `selected_model`.
+
+They carry NO provider surface, and that is what keeps PUBLIC-ONLY BY
+CONSTRUCTION intact: both reference fields hold opaque catalog handles drawn
+from this catalog's own `model_id` values, so a routing declaration can name
+nothing a plain entry could not already name. §11.6's ruling that the harness
+provider id lives on `LaunchConfig.provider_id` and NOT on the catalog entry is
+untouched — the entry is still closed, `provider_id` on it is still refused
+structurally, and a companion test asserts that against these exact bytes.
+
+WHERE THE CREDENTIAL COMES FROM, named here because this is the release at which
+an operator can declare an API-backed routing entry and therefore has to know
+(§11.7's P3-23 sentence). An API-backed entry's credential is provisioned into
+the `doxbench-bridge` harness PROFILE by the ratified broker lane
+(`add-model-provider-broker`). The adapter neither holds nor fetches a raw
+secret: its child environment is an ALLOWLIST no credential-shaped variable can
+pass, which is why an empty profile makes the harness refuse ("no models
+available") rather than reach for an ambient key. A self-hosted, keyless
+provider needs no credential at all. Nothing in this release moves that
+boundary; it states it.
+
+FIVE RULES THE SHAPE CANNOT EXPRESS are delegated to
+`scripts/validate-ideation-dashboard-contracts.py`, the family's declared owner,
+and enforced identically at catalog construction in
+`scripts/ideation_dashboard/doxbench_model.py` (an in-process catalog never
+becomes a validated file, and a file is never constructed through that type, so
+neither place substitutes for the other):
+
+1. NO DANGLING TARGET — every `routes_to` id must name an entry in the same
+   catalog. A rule that routes somewhere the catalog does not offer has a badge
+   nobody can check.
+2. NO CHAINED RULE — a target must not itself be a routing rule, because
+   `resolved_model_id` is recorded as the model that ANSWERED and must therefore
+   name something that answers rather than another indirection.
+3. AN AVAILABLE RULE RESOLVES TO AN AVAILABLE MODEL. The turn gate checks
+   availability on the SELECTED entry, and the adapter then sets the harness to
+   the RESOLVED id; without this rule an available `auto` could dispatch to a
+   model the catalog itself calls unavailable. An unavailable rule is exempt —
+   nothing can select it.
+4. THE BADGE COVERING — the ratified THEN, mechanically: each target's
+   `data_handling` text must appear in the rule's own `data_handling`. See the
+   judgement call below.
+5. A RULE PROMISES NO MORE HEADROOM THAN ITS NARROWEST DESTINATION — the
+   effective turn limit is computed from the selected entry, which for a routed
+   turn is the rule, so its declared limits must not exceed the minimum across
+   `routes_to`. This is the entry-level restatement of the schema's own "a
+   catalog entry may only NARROW the server ceilings".
+
+Every one of the five has a packaged negative that fails for exactly its own
+reason, beside one positive (`workbench-model-catalog-routing-rule`) and a
+structural negative for a plain entry carrying a routing field.
+
+JUDGEMENT CALL — THE BADGE COVERING IS TEXT CONTAINMENT, AND THE MENU IS WHY.
+The requirement says a routing entry must "carry the handling badge of every
+model it may route to", *"because an entry that hid a routing decision behind a
+model-shaped id would report a handling posture it does not control"*. The
+entry's own `data_handling` is the ONE badge string the selector shows for it, so
+the covering rule is enforced as: each target's badge text must appear in the
+rule's. The alternative considered and rejected was per-target badge OBJECTS on
+the wire (`{model_id, data_handling}` pairs) plus a view that composes them —
+rejected because it duplicates authored text that then drifts from the target's
+own entry, and because it buys nothing containment does not already guarantee.
+The consequence, stated rather than hidden: `data_handling`'s pre-existing
+500-byte ceiling is UNCHANGED and therefore bounds how many distinct badges one
+rule can carry. A rule whose union does not fit must be split, or its members'
+badges written more tightly. Widening that ceiling was rejected as a
+consumer-visible change to an existing field, which this release's additive
+posture does not permit.
+
+JUDGEMENT CALL — DISCLOSED ONLY WHEN DECLARED. This repository's projection
+(`ModelCatalogEntry.as_public_dict`) emits the three keys only for an entry that
+IS a routing rule, so a plain entry's public dict is byte-identical across the
+release boundary. Always emitting them with plain-model defaults was rejected: it
+would change the bytes of every catalog response that exists, hand every
+consumer a `resolved_model_id: null` it never asked for, and put `routes_to: []`
+on entries this schema forbids to carry it. The WIRE, being additive, tolerates
+BOTH producers — an explicit `routing_rule: false` with no siblings is valid,
+it is simply not what this projection emits — so a consumer must not treat
+omission and explicit-false as different facts.
+
+NO VIEW CHANGE, and the reason is the covering rule. `doxbench-chat.js` already
+renders each option as `label — data_handling` and `sendDisclosure` already
+names the selected entry's `data_handling`, so for a conformant rule both
+already show every routed model's badge. A node probe mounts the SHIPPED rail
+over the packaged routing catalog and asserts exactly that, so the claim is
+evidence rather than argument; if a future release moved the badges off
+`data_handling`, that probe fails and a view change is then owed.
+`staging-workbench-model.js` reads only an approved-model COUNT and is untouched.
+
+RECONCILIATION with `add-doxchat-model-intake` (ratified 2026-08-21, UNBUILT).
+That change's proposal repeatedly describes the catalog entry as "the closed
+seven-field shape" and promises its own proposed-versus-approved distinction
+"does NOT widen" it. Both remain true of THAT change: its packet is another
+lane's and is not edited here, its descriptions were accurate when ratified, and
+its no-widening promise is about its own delta. What changes is the referent —
+the closed entry is now the v1.38 shape: seven required base fields plus the
+three optional routing-declaration fields. Its task 3.5 ("the closed seven-field
+public catalog entry does NOT widen") should be read against this shape when
+that lane builds; a proposed-versus-approved distinction is still not a widening
+of it.
+
+RELEASE OBLIGATION STILL OPEN AT THIS ENTRY: per the versioning policy,
+CHANGELOG presence is the availability test and the annotated tag is cut at the
+realization squash against the commit that actually lands. The release DIGEST
+INVENTORY (`releases/contract-v1.38.digests.yaml`) ships INSIDE this cut, as
+`contract-v1.34`, `contract-v1.35` and `contract-v1.36` all did. The consuming
+runtime repin ships with it and carries the `unpublished:contract-v1.38`
+sentinel for its ref, on `contract-v1.34`'s own precedent: until the release
+commit exists there is nothing honest to name, and the sentinel is spelled as a
+value no `stack.yaml` can declare, so a consumer comparing against it refuses
+rather than matching by accident. A follow-up commit resolves it.
+
 ## contract-v1.37 — 2026-08-21 (additive; two new neutral families — identity brokering and trust anchors)
 
 Realizes the two ratified sibling changes of 2026-08-21 —
