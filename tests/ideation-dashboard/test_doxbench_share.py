@@ -495,7 +495,14 @@ def _fetch_command_from(message: str) -> list[str]:
     """The fetch command the REFUSAL ITSELF printed, parsed out so the test can
     RUN it. Pinning the remedy by executing it is the only way it cannot rot:
     the previous hint (`git fetch origin <branch>`, no refspec) returned 0,
-    created no local branch, and left the human at the identical refusal."""
+    created no local branch, and left the human at the identical refusal.
+
+    SCOPED TO THE SINGLE-BRANCH REFUSAL, deliberately: it takes the FIRST
+    backticked fetch command, which is what `SessionRefused` carries because that
+    refusal is about ONE resume target. The `AbandonedBranchSurvives` report is a
+    different shape — it can name a whole surviving family and joins their fetch
+    commands with "; " — so pointing this helper at that message would silently
+    run only the first branch's fetch and look like it had done the job."""
     found = re.search(r"`(git fetch origin [^`]+)`", message)
     assert found, f"the refusal names no fetch command: {message}"
     return found.group(1).split()
