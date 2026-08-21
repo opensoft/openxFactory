@@ -279,6 +279,27 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-doxchat-model-intake](openspec/changes/add-doxchat-model-intake/proposal.md)
+  — authored 2026-08-21 from Brett's live browser annotation on the doxBench
+  chat rail ("this model selector is not working… we need to have add model as
+  the first option… bring up a wizard that helps the user auth with oauth to
+  their subscription or add a api"). Diagnosis first: the selector is not
+  broken but structurally empty — `serve.py`'s `main()` has no model flag, so
+  `reserve-dashboard.sh`'s `python3 -m ideation_dashboard.serve` declares no
+  `model_port_factory` and the catalog route honestly returns the empty
+  editor-only posture; nothing is hardcoded and no model list was ever
+  withheld. The change adds the intake affordance FIRST in the selector and
+  default when the catalog is empty (never when it could not be READ), an
+  intake flow that hands an API key or an OAuth authorization to the declared
+  credential broker and keeps only a `credential-contracts` binding, and the
+  seam nobody had written down: intake PROPOSES and a recorded human gate
+  action APPROVES, so supplying a payment credential never doubles as
+  approving a provider for governed work. Sequencing is a requirement, not a
+  note — the affordance never ships ahead of the flow. Depends on
+  `add-model-provider-broker` (custody, minting, the narrowed provider
+  boundary), which is itself blocked on openProfiler; needs an additive
+  `gate-action-record` action enum member at realization.
+  `target_release: implementation_pending`.
 - [add-identity-brokering](openspec/changes/add-identity-brokering/proposal.md)
   — authored and **RATIFIED 2026-08-21** (recommendations adopted as written;
   the OQ-5 co-residence gate discharged: HealthLinc patients found and
