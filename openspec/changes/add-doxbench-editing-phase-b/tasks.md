@@ -1634,9 +1634,44 @@ untouched: mechanical, reversible, at the model boundary.
       absence: its only consumer test lives in the environmentally-broken
       `tests/hermes_runtime_contracts` suite. It was missing from the first
       version of this cut and was added by the §12 review (P2-1).
-      STILL OWED, and nothing else: the annotated tag cut at the realization
-      squash and the aggregation-repo submodule pin — the same shape task 13.3
-      carried for `contract-v1.34`.
+      **THE TAG HALF IS DISCHARGED — `contract-v1.36` IS PUBLISHED AND
+      VERIFIED.** Brett RATIFIED the cut 2026-08-21; PR #234 squash-merged as
+      `08c5aa9`; every gate reran at that exact commit before anything was
+      tagged (identical tree to the branch tip `a734417`; ideation-dashboard
+      3733 passed / 15 skipped, ideation_dashboard 63, doc-health 691,
+      proposal-support 31, `openspec --all --strict` 63 passed, the dashboard
+      validator 0 errors / 4 by-design warnings, manifest digests 135, doc-health
+      zero-new against a same-clock `5f59a32` baseline).
+      **THE FIRST TAG WAS WRONG AND THE POLICY'S OWN VERIFY STEP CAUGHT IT**,
+      which is worth recording because it is the step earning its place:
+      `validate-contract-release.py verify-commit` failed at the freshly
+      published tag with three `HGR-RELEASE-DIGEST-MISMATCH` errors on exactly
+      the three files the cut changed. The digests were correct; the cut had left
+      `contracts/manifest.yaml`'s own `contract_bundle_version` at
+      `contract-v1.35`, and `resolve_committed_inventory` deliberately reads that
+      line at the commit so historical inventories are ignored — so the tool
+      correctly checked v1.36's tree against v1.35's inventory. Every prior cut
+      bumps that line (`5daa173` for v1.34, `78f8e01` for v1.35) and this one had
+      not. Corrected on main at **`d37cfa1`** — the bundle version plus the
+      rebuilt inventory, since the manifest is itself an inventory member — and
+      the annotated tag was RE-POINTED there rather than burning `v1.37` on the
+      error, which was safe only because the tag was minutes old in the same
+      session with no submodule pin yet referencing it.
+      The tag now verifies from the REMOTE rather than from the local ref that
+      created it: tag object `42c76966d91e4eeb1dd6b7f34efa78cf550586c8`,
+      dereferencing to `d37cfa1095ffb2558efb65e0b44d6c683501423a`
+      (`git ls-remote --tags origin`), annotated, with
+      `validate-contract-release.py verify-commit --commit contract-v1.36` and
+      `verify-tag --remote origin --tag contract-v1.36` both PASSING against
+      `contracts/releases/contract-v1.36.digests.yaml`.
+      NO SENTINEL TO REPLACE, unlike 13.3's `contract-v1.34`:
+      `doxbench_contracts.CONTRACT_REF` pins the CHAT-TURN family's release
+      commit, and v1.36 grows a different schema that no code pins by ref.
+      STILL OWED, and nothing else: the aggregation-repo submodule pin, which
+      the orchestrator performs immediately after this tick. This task is
+      therefore complete on everything this repository can do for it; it is left
+      UNTICKED only so the pin has somewhere to be recorded, and it ticks the
+      moment that pin lands.
       **A FAMILY-WIDE SCHEMA NOTE** (§12 review, P3-7), recorded in full in the
       `contract-v1.36` CHANGELOG entry because it is a property of the whole
       per-action conditional family rather than of this cut: a conditional of the
