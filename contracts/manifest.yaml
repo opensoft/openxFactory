@@ -1609,7 +1609,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/gate-action-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: a3e9240970427b0ef50a4c4a37749ee348374b4f120aca276bdaf28447fed8c6
+    sha256: 445a7e09c47a6c6da952e790ab423510804252685106f0759069c886ff291a17
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1621,9 +1621,13 @@ contracts:
       (add-workbench-branch-sessions 1.8) — plus the contract-v1.29 wheel
       commissions `promote-to-staging`, `derive-possibles`, and
       `research-brief`, with verb-specific targets and required workflow-job
-      companions. Consumed through the pinned openxFactory checkout at the
-      contract-v1.29 tag; per-file sha256 verified before any copy is treated
-      as current. The kickoff-ratification precondition, transition legality,
+      companions, and the contract-v1.36 `share-session` action — the doxBench
+      workbench verb that commits a session's dirty thread sidecars and pushes
+      the session branch, constrained on `target.ref` with NO artifact-kind
+      requirement because its record is branch-resident when it commits and
+      main-resident when it has nothing to commit. Consumed through the pinned
+      openxFactory checkout at the contract-v1.36 tag; per-file sha256 verified
+      before any copy is treated as current. The kickoff-ratification precondition, transition legality,
       and wheel commission pairings are
       enforced by scripts/validate-ideation-dashboard-contracts.py (the
       family's delegated owner), never re-implemented by consumers.

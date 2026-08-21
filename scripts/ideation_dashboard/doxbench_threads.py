@@ -48,7 +48,7 @@ for every write and store spelling it must not contain.
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:  # pragma: no cover - typing only; never a runtime import,
@@ -1196,6 +1196,43 @@ def promotion_excluded_prefixes() -> tuple[str, ...]:
     nobody checks is an absence that grows a helper."""
 
     return (THREAD_PREFIX,)
+
+
+def shareable_thread_paths(dirty_paths: Iterable[str]) -> tuple[str, ...]:
+    """Every DIRTY thread sidecar among `dirty_paths`, sorted — the paths the
+    SHARE verb commits as its own gate action (tasks.md §12.1, discharging the
+    §11 adversarial-review obligation P3-17 recorded against 12.5).
+
+    THIS IS DELIBERATELY CROSS-DOCUMENT, and that is the whole point of it
+    existing separately from `branch_session._dirty_thread_paths`. That function
+    is scoped to the ONE document a Save is saving, which is what keeps one
+    document's sidecar out of another document's Save commit — a property §12
+    must not weaken and does not. But the same scoping is exactly what left the
+    tail P3-17 named: a document that was DISCUSSED and never Saved again keeps
+    an uncommitted sidecar, no Save will ever carry it, and an uncommitted file
+    does not travel on the branch a colleague fetches. They would resume with
+    that thread missing and nothing would say so.
+
+    Share is the first verb with a legitimate reason to commit threads on their
+    own: it is not saving a document, it is publishing a session. So the sweep
+    is by PREFIX over the worktree's dirty set rather than derived from any
+    document, and the result is committed as the SHARE action's own single
+    commit — the one-commit-per-gate-action rule honoured, not relaxed.
+
+    Sorted for a deterministic declared set: `commit_gate_action` asserts the
+    post-stage index equals exactly the declared paths, and an unstable order
+    makes that assertion's failure text unreadable.
+
+    Takes the dirty set rather than a git seam because this module holds no git:
+    the caller reads `SessionGit.dirty_paths` and hands the answer in, which is
+    also what keeps this function trivially testable and keeps this module's own
+    forbidden-spelling guard honest: the sweep decides WHICH paths travel, and the
+    verb that publishes them lives in `gate_routes`, where the remote write is."""
+
+    return tuple(sorted(
+        path for path in dirty_paths
+        if str(path).startswith(THREAD_PREFIX)
+        and str(path).endswith(THREAD_SUFFIX)))
 
 
 # ---------------------------------------------------------------------------

@@ -102,8 +102,26 @@ SERVED_ALLOWED_SUBCOMMANDS = frozenset({
     "rev-list", "rev-parse", "show", "show-ref", "status", "worktree",
 })
 
-# Refused at EVERY cwd. `fetch`/`pull` would touch local refs, and FR-026/D17 is
-# explicit that the remote is read with `ls-remote` and NEVER fetched.
+# Refused at EVERY cwd. `fetch`/`pull` would touch local refs; the remote is read
+# with `ls-remote` and NEVER fetched.
+#
+# WHERE THAT RULE ACTUALLY LIVES, corrected 2026-08-21 (PR #234 review, P3-A).
+# This comment used to say "FR-026/D17 is explicit", which reads as a citation of
+# ratified spec prose. It is not one. The rule's only written home is a
+# SANCTIONED-DEVIATION note inside a realization task —
+# `openspec/changes/archive/2026-08-01-add-workbench-branch-sessions/tasks.md:97`,
+# "(`git ls-remote --heads`, never a fetch)" — plus this guard and the refusal
+# texts that cite it. `FR-026`/`D17` are that change's own feature and decision
+# numbering, not requirement ids in any promoted spec: no requirement under
+# `openspec/specs/` carries the never-fetch rule at all.
+#
+# PROMOTION CANDIDATE, recorded because the gap is the interesting part: this
+# rule carries real architectural weight — it is why the resume path cannot
+# materialize a remote branch itself, which is the whole shape of §12's colleague
+# hand-off (PR #234, Codex P1) — and a rule that decides that much while living
+# only in an archived change's task note is one an implementer can neither find
+# nor safely weigh. It belongs in a ratified requirement. Raising that is a
+# separate change with its own proposal; this note is the pointer, not the fix.
 FORBIDDEN_ANYWHERE_SUBCOMMANDS = ("fetch", "pull")
 
 # Git's own repository-ROUTING options. They redirect a command at a repository
@@ -562,6 +580,24 @@ class SessionGit:
         target.parent.mkdir(parents=True, exist_ok=True)
         self.git(self.served_root, "worktree", "add", str(target), branch)
         return target
+
+    def checked_out_at(self, branch: str) -> str | None:
+        """The working tree that currently has `branch` CHECKED OUT, or None.
+
+        `git for-each-ref --format=%(worktreepath)` fills that field exactly when
+        some working tree holds the ref, which is the condition `git worktree
+        add` refuses with exit 128. Asking BEFORE the add turns a raw GitError
+        naming neither cause nor remedy into the session vocabulary's own
+        refusal (PR #234, Codex P1).
+
+        A pure REF READ: no remote contact, no fetch, nothing written — so it is
+        legal on the served checkout and costs the resume path nothing."""
+        listed = self.git(self.served_root, "for-each-ref",
+                          "--format=%(worktreepath)", f"refs/heads/{branch}")
+        for line in listed.splitlines():
+            if line.strip():
+                return line.strip()
+        return None
 
     def worktree_remove(self, path: Path | str) -> None:
         """`git worktree remove --force <path>` — teardown, BOTH endings

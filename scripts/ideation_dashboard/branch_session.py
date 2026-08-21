@@ -235,11 +235,18 @@ class AbandonedBranchSurvives(SessionRefused):
         also = (f" The tile's other surviving branches are "
                 f"{', '.join(repr(b) for b in others)}; RESUME takes the most "
                 f"recent one." if others else "")
+        # The fetch instruction carries its REFSPEC. Without one, `git fetch
+        # origin <branch>` creates no local branch and the RESUME that follows
+        # refuses identically — the remedy read as if it worked (PR #234, Codex).
+        fetch_hint = "; ".join(
+            f"`git fetch origin refs/heads/{b}:refs/heads/{b}`"
+            for b in self.remote_only)
         remote = (f" NOTE: {', '.join(repr(b) for b in self.remote_only)} "
                   f"{'exists' if len(self.remote_only) == 1 else 'exist'} ONLY on "
                   "the remote (read with `git ls-remote --heads`; no session "
-                  "operation fetches, FR-026/D17) — fetch it yourself to RESUME "
-                  "it, or start a NEW ordinal beside it."
+                  "operation fetches, FR-026/D17) — fetch it yourself, WITH THE "
+                  f"DESTINATION REFSPEC ({fetch_hint}), to RESUME it, or start a "
+                  "NEW ordinal beside it."
                   if self.remote_only else "")
         answer = (f" Answer with continuation={CONTINUATION_RESUME!r} or "
                   f"continuation={CONTINUATION_NEW!r}.")
@@ -2187,11 +2194,35 @@ def _continue_abandoned(git: SessionGit, registry: Any, *, repository: str,
                 f"worktree would create a DIVERGENT local branch of the same name "
                 f"over work this machine has never seen, and no session operation "
                 f"fetches (FR-026, D17). Two real options: fetch it yourself "
-                f"(`git fetch origin {branch}`) and answer "
-                f"continuation={CONTINUATION_RESUME!r} again, or answer "
-                f"continuation={CONTINUATION_NEW!r} to start the next ordinal "
-                "beside it. Nothing was opened.")
+                f"with an EXPLICIT DESTINATION REFSPEC — "
+                f"`git fetch origin refs/heads/{branch}:refs/heads/{branch}` — "
+                f"and answer continuation={CONTINUATION_RESUME!r} again, or "
+                f"answer continuation={CONTINUATION_NEW!r} to start the next "
+                "ordinal beside it. Nothing was opened.\n\n"
+                "THE REFSPEC IS THE WHOLE INSTRUCTION, not decoration: "
+                f"`git fetch origin {branch}` succeeds, prints nothing alarming, "
+                "and creates NO local branch at all — it lands the objects in "
+                "FETCH_HEAD and stops — so answering `resume` after it returns "
+                "this identical refusal. Nor is `git checkout` a substitute: it "
+                "creates the ref but CHECKS IT OUT here, and a branch that is "
+                "checked out cannot also be given a worktree (PR #234, Codex).")
         worktree = worktree_path(root, branch)
+        # A branch git already has CHECKED OUT cannot also be given a worktree —
+        # git exits 128. Reached when a human materialized the ref with
+        # `git checkout <branch>` instead of a refspec fetch, which is the
+        # natural wrong move and was the one this refusal used to answer with a
+        # raw GitError naming neither the cause nor the fix (PR #234, Codex).
+        holder = git.checked_out_at(branch)
+        if holder is not None:
+            raise SessionRefused(
+                f"{branch!r} is already CHECKED OUT at {holder}, so a session "
+                f"worktree cannot be added for it — git allows a branch in one "
+                f"working tree at a time. This is what `git checkout {branch}` "
+                f"leaves behind; the session flow wants the branch PRESENT but "
+                f"NOT checked out. Switch that tree back "
+                f"(`git -C {holder} checkout {DEFAULT_BASE}`) and answer "
+                f"continuation={CONTINUATION_RESUME!r} again. Nothing was "
+                "opened.")
         git.worktree_add_existing(branch, worktree)
         # a RESUME is a live session again: the ending this branch had is over as
         # a fact about the PAST, and must not read as residue about the present

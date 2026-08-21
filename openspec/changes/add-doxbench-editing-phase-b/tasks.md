@@ -1499,19 +1499,82 @@ untouched: mechanical, reversible, at the model boundary.
 
 ## 12. Share-session
 
-- [ ] 12.1 The verb: commit threads → `push` (the pull-request port's EXISTING
+- [x] 12.1 The verb: commit threads → `push` (the pull-request port's EXISTING
       member) → return and record the pushed ref. No `open_or_update`, no pull
       request, no review request, no approval or merge authority.
-- [ ] 12.2 Nothing pushes implicitly: no Save, turn, compaction or scheduled
+      `gate_routes.execute_share_session` — three steps and no fourth, beside
+      `execute_open_pr` because §12 requires REUSING that remote-write path
+      rather than introducing a second one. The forbidden set is DERIVED
+      (`FORBIDDEN_SHARE_OPERATIONS` = `session_pr.PORT_OPERATIONS` minus `push`),
+      so a port that grows a fourth member fails the assertion instead of
+      silently widening the verb, and it is asserted against the port's own CALL
+      LOG rather than against source text.
+- [x] 12.2 Nothing pushes implicitly: no Save, turn, compaction or scheduled
       task may push. A test asserts the negative.
-- [ ] 12.3 Invoked with nothing new, it reports that honestly rather than
+      §11's four-module source sweep is EXTENDED rather than restated: the list
+      moved to `tests/ideation-dashboard/conftest.py` as
+      `NO_IMPLICIT_PUSH_MODULES`, §11's test now reads it from there, and §12
+      widened it to SEVEN — adding the turn assembler, the packet builder and the
+      scheduled lane, which is the "periodic task" the requirement names. §12's
+      test also asserts §11's four are a SUBSET, so the list can be widened and
+      never quietly narrowed; two copies of a negative drift apart invisibly,
+      because both copies keep passing. Two BEHAVIOURAL negatives sit beside it:
+      a real Save through the real route with a port that would record a push and
+      does not, and the bare-origin check that the branch is absent from the
+      remote until the verb runs.
+- [x] 12.3 Invoked with nothing new, it reports that honestly rather than
       pushing again.
-- [ ] 12.4 Loopback-only, fail-closed on an unresolved actor, console-presence
+      **"NOTHING NEW" IS TWO CONDITIONS, AND ONE WOULD HAVE BEEN A DEFECT** — no
+      dirty thread sidecars AND the remote already at this sha. Reading only
+      dirtiness looked sufficient and is not: nothing pushes implicitly, so a run
+      of Saves leaves NO dirty sidecar and several unpushed commits, which is the
+      ordinary state a share exists to publish. One condition would have reported
+      "nothing to share" and stranded the colleague. Decided by
+      `plan_share`, a side-effect-free read (`git status` plus `ls-remote`, which
+      never fetches) taken BEFORE the port is touched, so the honest answer costs
+      no remote write. Both arms are pinned, and the revert of the second
+      condition fails three tests.
+- [x] 12.4 Loopback-only, fail-closed on an unresolved actor, console-presence
       demonstrated, recorded as a human gate action; local-plane only, and a
       copyable descriptor where the gate capability is absent. The push identity
       follows the plane rule the save verb already carries.
-- [ ] 12.5 A colleague's resume path is exercised end to end: fetch the shared
+      Every posture is INHERITED rather than forked: loopback-only and the
+      capability refusal come from `_handle_gate_action`, console presence from
+      membership in `SESSION_BEARING_VERBS` (which is what makes FR-019's third
+      clause ENFORCED for this verb rather than merely observed), and the plane
+      rule from the same `session_pull_requests` port `open-pr` is handed — a
+      plane that declares none is refused with the FR-034 sentence naming the
+      invoking engineer's own credential. `share_session_gate_factory` is
+      deliberately NARROWER than the Save's: records tree only, no thread prefix,
+      because a share writes no sidecar (it commits ones already on disk).
+      The descriptor half is the session panel's existing FR-046 posture, which
+      is why the CLI verb `cli.py gate share-session` had to exist: the
+      descriptors are asserted by PARSING each one with the real CLI parser.
+- [x] 12.5 A colleague's resume path is exercised end to end: fetch the shared
       branch, open the tile, join the session, see the threads.
+      Driven as a REAL test against a REAL bare-repo origin on disk: share, clone
+      the origin into a separate directory, check out the shared branch, and find
+      both the document and its thread. **P3-17 IS DISCHARGED HERE** and has its
+      own named test — a document created, DISCUSSED via a dirty sidecar and
+      never Saved again, followed through that clone to prove the thread arrives;
+      it fails with "the thread did not travel" if the sweep regresses.
+      **THE FAILED-THEN-RETRIED TRAIL, stated because the composite is worth
+      knowing even though each half is truthful.** A branch-resident record must
+      ride the commit it describes (FR-006), so it is written BEFORE the push it
+      names; if that push then fails, the branch carries a record of the failed
+      attempt and the retry — which finds nothing dirty and takes the
+      main-resident path — puts the successful one in the served checkout. An
+      auditor therefore finds TWO share records for one delivered share, in two
+      places. Each is individually accurate about the act it recorded, and the
+      false-looking one is unreachable while it is false: its only copy sits on a
+      branch no remote has. Pinned by three tests in the FAILURE WINDOW section.
+      The mechanism is `doxbench_threads.shareable_thread_paths`, a
+      CROSS-DOCUMENT sweep by prefix over the worktree's dirty set, committed as
+      the share's OWN single gate action. It is a separate function from
+      `branch_session._dirty_thread_paths` rather than a widening of it, and that
+      is the point: the Save filter stays scoped to the one document being saved,
+      which is what keeps one document's sidecar out of another's Save commit.
+      Both halves are pinned in one test.
       **OBLIGATION RECORDED HERE BY §11 (adversarial review P3-17), because this
       is the task that will meet it.** A thread rides only ITS OWN document's
       Save, and only while its sidecar is DIRTY (task 9.2's filter, which is
@@ -1526,8 +1589,67 @@ untouched: mechanical, reversible, at the model boundary.
       than left in a ticked one. The cross-document half is sound and stays so:
       `_dirty_thread_paths` derives its candidates from the document being
       saved, so one document's sidecar can never join another's commit.
-- [ ] 12.6 (Scope call, recorded in the proposal) this slice MAY trail as a
+- [x] 12.6 (Scope call, recorded in the proposal) this slice MAY trail as a
       later realization slice; its CONTRACT does not.
+      **RESOLVED 2026-08-21 BY BRETT'S RULING: exit (a) — realize §12 as its own
+      slice against this change.** The scope call was real and is kept here
+      rather than deleted: §12 DID trail, by three slices, exactly as this task
+      anticipated, and the contract did not — the share-session requirement was
+      ratified with the rest of Phase B and has been binding throughout. What the
+      ruling settles is only which of the two recorded exits was taken. Exit (b)
+      (carve §12 into a successor change and narrow this change's `code_surface`)
+      was NOT taken and needs no disposition, because it was a contested-class
+      act that is now moot.
+
+- [ ] 12.7 **RELEASE OBLIGATION — the annotated tag and the submodule pin for
+      `contract-v1.36`.** Realizing 12.4 required an ADDITIVE growth of
+      `gate-action-record.schema.yaml`'s `action` enum, and this task carries the
+      half of that release the slice cannot perform in-branch.
+      **WHY A CONTRACT CHANGE AT ALL — this was a scope discovery, and the
+      implementer brief said there would be none.** The ratified requirement says
+      share-session "SHALL be recorded as a human gate action naming the branch
+      and the pushed ref". Gate-action records are validated against that schema;
+      its `action` enum was CLOSED at seventeen members with no `share-session`;
+      the file is digest-pinned in `contracts/manifest.yaml`; and the shapes each
+      verb emits are validated as files on disk by
+      `tests/ideation-dashboard/test_session_records.py`. So the action could not
+      be recorded honestly without the enum, and the enum could not grow without
+      recomputing a pinned digest — which `contract-v1.35` establishes is a
+      release cut even when `contract_schema_version` stays `1`.
+      REUSING AN EXISTING ACTION WAS CONSIDERED AND REJECTED: `open-pr` is the
+      only near fit, and its own conditional REQUIRES a `pull-request` artifact,
+      so recording a share as an open-pr would both fail validation and assert a
+      pull request this verb is forbidden to open.
+      DONE IN-BRANCH, all of it inside ONE commit so the cut reverts as a unit:
+      the enum member, a conditional constraining only the new member, the
+      recomputed `manifest.yaml` digest, the `consumption_rule`, the CHANGELOG
+      entry (CHANGELOG presence is the availability test under the versioning
+      policy, not tag presence), and the RELEASE DIGEST INVENTORY
+      `contracts/releases/contract-v1.36.digests.yaml` — built with
+      `scripts/validate-contract-release.py build`, 190 entries, exactly three
+      digests moved (the changelog, the manifest, and the schema itself, which is
+      a release-inventory member). The inventory ships INSIDE the cut because
+      both precedents did — `contract-v1.34` at `5daa173` and `contract-v1.35` at
+      `78f8e01` — and because no gate in the local set would have caught its
+      absence: its only consumer test lives in the environmentally-broken
+      `tests/hermes_runtime_contracts` suite. It was missing from the first
+      version of this cut and was added by the §12 review (P2-1).
+      STILL OWED, and nothing else: the annotated tag cut at the realization
+      squash and the aggregation-repo submodule pin — the same shape task 13.3
+      carried for `contract-v1.34`.
+      **A FAMILY-WIDE SCHEMA NOTE** (§12 review, P3-7), recorded in full in the
+      `contract-v1.36` CHANGELOG entry because it is a property of the whole
+      per-action conditional family rather than of this cut: a conditional of the
+      form `if action then artifacts contains kind` REQUIRES a companion artifact
+      but does not FORBID the others, so the schema does not prevent a
+      `share-session` record from carrying a `pull-request` artifact.
+      `abandon-session` has had the identical hole since
+      `add-workbench-branch-sessions`. The runtime is what forbids it — the verb
+      reaches exactly one port member, asserted against the port's own call log —
+      and closing it schema-side would narrow several pre-existing actions that
+      already have valid records in the corpus.
+      **This is a JUDGMENT CALL and it is separable**: the contract growth is its
+      own commit and reverts as a unit if Brett rules the other way.
 
 **§12 IS THE BLOCKING STATE FOR THIS CHANGE'S ARCHIVE — adjudicated 2026-08-21
 from the record, at the landing.** Brett ruled the same day that §12 trails; the
@@ -1570,8 +1692,18 @@ which is the one thing the standing rule forbids.
 **Therefore: this change stays ACTIVE, and Phase B was NOT archived in the
 landing round.** Two exits exist and BOTH are Brett's call, not this round's:
 
-- **(a) Realize §12** as its own slice against this change, then 13.8 ticks and
-  the whole change archives — the shape 12.6 anticipated.
+- **(a) Realize §12** as its own slice against this change — the shape 12.6
+  anticipated.
+  **CORRECTED 2026-08-21, at §12's realization: the clause that used to end this
+  line — "then 13.8 ticks and the whole change archives" — WAS AN OVERCLAIM, and
+  it contradicted the F5 ledger printed a few paragraphs below it.** Realizing
+  §12 does not tick 13.8 and does not archive the change. 10.7 and 11.7 are still
+  open, each owes a contract release that has not been cut, and the archive gate
+  is written over the WHOLE code surface with no proportion in it. §12 was the
+  largest of the three blocking families and it is now closed; the change stays
+  ACTIVE on the other two. Left as a correction rather than a silent edit
+  because a false promise in the record is what the next session would have
+  planned against.
 - **(b) Carve §12 out** into its own successor change, narrow this change's
   `code_surface:` to what shipped by a recorded ruling, move the share-session
   delta with it, then this change archives and the successor carries its own
@@ -1587,7 +1719,8 @@ only one of them is §12:
 |---|---|---|
 | **10.7** | an additive **chat-turn-success** release carrying the assembled context's posture (`full \| reduced`) and its reason — the packet half is built and the browser half has no field to land in | a contract release |
 | **11.7** | an additive **model-catalog** release — the released entry is a CLOSED seven-field shape, so no conformant catalog can declare `auto` as a routing rule; the runtime already honours one | a contract release |
-| **12.1–12.6** | share-session: the verb, the no-implicit-push negative, the nothing-new report, the four postures, the colleague resume path (which also carries P3-17's uncommitted-sidecar tail), and 12.6's own scope call | a realization slice |
+| ~~**12.1–12.6**~~ | ~~share-session: the verb, the no-implicit-push negative, the nothing-new report, the four postures, the colleague resume path (which also carries P3-17's uncommitted-sidecar tail), and 12.6's own scope call~~ | **CLOSED 2026-08-21** — realized as its own slice under Brett's exit (a); P3-17 discharged |
+| **12.7** | the annotated tag + submodule pin for `contract-v1.36`, the additive `share-session` enum growth 12.4 turned out to require (the in-branch half is done; see the task for why it was unavoidable) | a release cut |
 | **13.8** | the realization-evidence tick, which cannot be true until the code surface is whole | whichever of the above lands last |
 
 So the two contract-release obligations are NOT waiting on §12 and do not become
@@ -1595,6 +1728,16 @@ satisfiable by carving it out: even with share-session gone, 10.7 and 11.7 would
 still hold this change open under the same archive gate, because each names a
 release that has not been cut. Option (b) above therefore narrows the blocking
 set from three families to two — it does not clear it.
+
+**UPDATED 2026-08-21, after §12 realized under exit (a).** The ledger above is
+now: NINE open tasks became FOUR, and THREE families became three again rather
+than two, because §12's realization discharged 12.1–12.6 and created 12.7. That
+is not a regression — it is the same additive-release obligation 10.7 and 11.7
+already carry, discovered at the only point it could be (the requirement's
+"recorded as a human gate action" meets a closed enum), and its in-branch half is
+already done. The honest headline is that this change is now blocked by exactly
+ONE thing in three places: **three additive contract releases that have not been
+cut.** No verb, route, or runtime behaviour is missing any more.
 
 Whichever Brett picks, the next session starts here. Nothing else in the wave-2
 landing is blocked by it: Phase A is archived, the staged topic is exited, and
@@ -1776,7 +1919,22 @@ the realization evidence for everything built is recorded in `proposal.md`.
       `session_pr.py`/`gate_routes.py` — share-session reusing the port's
       existing `push` member`, which §12 has not built. Recording evidence for
       the realized nine-tenths does not make the gate's sentence true, and
-      ticking this would assert that it is. It ticks when §12 realizes, or when
-      §12 is carved out into its own change and this one's code surface is
-      narrowed accordingly by a recorded ruling — see the §12 adjudication
-      recorded against task 12.6.
+      ticking this would assert that it is.
+      **RE-ADJUDICATED 2026-08-21, AT §12's REALIZATION — AND THIS TASK STILL
+      DOES NOT TICK.** The sentence above used to end "it ticks when §12
+      realizes", which is now falsified by events and is corrected rather than
+      quietly satisfied. §12 HAS realized: the `code_surface:` clause that named
+      `session_pr.py`/`gate_routes.py` — "share-session reusing the port's
+      existing `push` member" — is built, tested against a real remote, and its
+      evidence is recorded against 12.1–12.5. That removes the LARGEST of the
+      three blocking families and it does not empty the set.
+      What still holds the gate is unchanged in kind: **10.7** owes an additive
+      chat-turn-success release and **11.7** owes an additive model-catalog
+      release, and §12 added **12.7**, which owes the annotated tag and pin for
+      `contract-v1.36`. Each names a release that has not been cut, so "its code
+      merged on the implemented target" is not yet true of the whole surface, and
+      the gate has no proportion in it. Mechanically the sanctioned path also
+      still refuses: `proposal-support.py archive` raises "change has incomplete
+      tasks" on any `- [ ]`, and four remain.
+      So this ticks when 10.7, 11.7 and 12.7 have landed — whichever is last —
+      and NOT before. Nothing was archived by this slice.
