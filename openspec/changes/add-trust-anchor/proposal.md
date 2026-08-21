@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (a NEW `contracts/trust-anchor/` family — trust-anchor record, certificate record with declared chain custody, issuance-evidence record, dependent-binding record, renewal/rebind-evidence record, revocation-propagation record, and realization conformance declaration — plus packaged positive and negative examples and the canonical `scripts/validate-trust-anchor.py`; registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut). No certificate authority, no key, no issuance service, no deployment. The OpsxFactory `pki-administration` workflow capability, the `xFactory-OpenXPKI-Install` repository and its QA deployment topology, the aggregation pin, and the governed record for the live cloud-PKI canary are successor realization changes named in the impact map, NOT this change's surface.
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-08-21 — "ratify both proposals"; all design decisions adopted as written; OQ1 ruled as recommended (issuance evidence stays an establish-obligation with a declared floor, set before schema authoring per tasks 4.2) and OQ2 ruled as recommended (closed custody enumeration with derived evidences; operator escrow is a relationship on the credential record, not a custody tier, settled with client-credential-escrow-registry per tasks 4.1)
 ---
 
 # Proposal: add-trust-anchor
@@ -210,3 +211,22 @@ a closed enumeration** (and whether operator escrow is a tier at all). Both
 must be settled before schemas are authored, not during — the `openxwallet`
 custody enumeration is the precedent for how quietly a wrong set re-opens
 the hole the rule was written to close.
+
+## Ratification
+
+Ratified by Brett Heap, 2026-08-21 (session instruction: "ratify both
+proposals"). All design decisions adopted as written. The two hardest open
+questions are ruled per their recommendations: **OQ1** — issuance evidence
+remains an obligation on what the record must *establish*, with the
+declared floor (per-certificate record where the authority exposes it;
+per-policy attestation plus the authority's own log where it does not)
+fixed before schema authoring (tasks 4.2), refusing the
+weaker-form-in-requirement middle option; **OQ2** — the custody
+enumeration is CLOSED with `evidences` derived, and operator escrow is
+modelled as a relationship on the credential record rather than a custody
+tier, settled with the `client-credential-escrow-registry` topic in the
+room (tasks 4.1). The remaining OQs keep their recommendations and named
+settlement points. Ratification authorizes exactly one Speckit contract
+feature and creates no authority, anchor, key, or runtime. The
+time-critical §2 amendment of `add-openxpki-qa-image-pipeline` remains
+open and must precede THAT change's ratification.

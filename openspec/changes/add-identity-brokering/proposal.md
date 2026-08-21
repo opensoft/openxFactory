@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (a NEW `contracts/identity-brokering/` family — persona assertion, broker organization, actor-subject reference, identity link/merge record, broker service-client declaration, and surface adoption/posture schemas — plus a family README, packaged positive/negative examples, and the canonical `scripts/validate-identity-brokering.py`; registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` + the README contract index at the next additive bundle cut). The broker RUNTIME and its per-client instantiation (`xFactory-Keycloak-Install`), the OpsxFactory `keycloak-administration` workflow with its service-subject registration, the dashboard oauth2-proxy swap, and the gate-action `actor_subject` field are successor realization changes named in the impact map, not this change's surface.
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-08-21 — "ratify both proposals"; all design decisions adopted as written, OQ-1 through OQ-4 recommendations adopted as the working recommendations at the settlement points their tasks name, and the OQ-5 pre-ratification gate discharged by review/co-residence-finding-2026-08-21.md (one population found: HealthLinc patients, pre-declared the first dedicated-instance client under D3)
 ---
 
 # Proposal: add-identity-brokering
@@ -174,3 +175,19 @@ to exist before the workflow or the runtime is built against it.
   (2026-07-14), whose three exit blockers were all ruled that day.
 - **Not ratified**: one pre-ratification GATE is outstanding — the
   co-residence check (design OQ-5). See design.md.
+
+## Ratification
+
+Ratified by Brett Heap, 2026-08-21 (session instruction: "ratify both
+proposals"). All design decisions adopted as written. The carried open
+questions keep their recommendations and their named settlement points
+(OQ-1/OQ-3 before schema authoring, in the realization feature's research;
+OQ-2 as its own later delta; OQ-4 with the readiness surface's owner). The
+OQ-5 gate is discharged by the written finding at
+`review/co-residence-finding-2026-08-21.md`: one population was found —
+HealthLinc patients (`healthlinc-argentina` in HealthLinc's recorded
+architecture) — and it is pre-declared the FIRST dedicated-instance client
+under design D3, binding realization to exclude clinical-patient
+populations from the shared instance by rule. Ratification authorizes
+exactly one Speckit realization feature for phase 1 and creates no broker,
+realm, organization, credential, or persona.

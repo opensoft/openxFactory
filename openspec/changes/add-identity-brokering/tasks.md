@@ -127,7 +127,7 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
 
 ## 2. Pre-ratification gate
 
-- [ ] 2.1 **GATE — the co-residence check (design OQ-5).** Produce a
+- [x] 2.1 **GATE — the co-residence check (design OQ-5).** DISCHARGED 2026-08-21 — finding at `review/co-residence-finding-2026-08-21.md`: one population found (HealthLinc patients), pre-declared the first dedicated-instance client under D3. Produce a
       written finding, before ratification, on whether any current
       commitment implies a user population that must NOT co-reside in a
       shared broker instance. Name each candidate population and the
@@ -137,7 +137,7 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
       becomes the first dedicated-instance client under design D3, and the
       contract's silence on instance count is exercised immediately
       rather than theoretically.
-- [ ] 2.2 Brett ratifies proposal, design, and both spec deltas, or rules
+- [x] 2.2 DONE 2026-08-21 — Brett ratified proposal, design, and both spec deltas (recommendations adopted as written; see the proposal's Ratification section). Brett ratifies proposal, design, and both spec deltas, or rules
       the open design points differently. Ratification authorizes exactly
       one Speckit realization feature for phase 1 and creates no broker,
       realm, organization, credential, or persona.
