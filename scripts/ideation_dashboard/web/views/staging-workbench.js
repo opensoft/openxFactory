@@ -1927,6 +1927,17 @@ export function mountStagingWorkbench(container, snapshot,
       // canvas ended up holding, which is how a guard resolved with Discard
       // reaches the wheel.
       onIdentitySettled: syncContextFromCanvas,
+      // Amendment 1 (2026-08-21): the UNLOAD act moved onto the canvas slot, so
+      // the shell can no longer learn about it from the rail seam that used to
+      // wrap the call. This is the canvas's OWN declared notification for
+      // exactly the two facts that changed — the loaded SET and the SELECTION —
+      // and it carries the same tail the retired `unloadBuffer` seam ran: the
+      // context region follows the canvas, and the docs tiles re-mark which
+      // documents are loaded.
+      onLoadedSetChanged: () => {
+        syncContextFromCanvas();
+        refreshDocTiles();
+      },
     });
     // T055: the chat rail mounts ONLY when the seam bundle carries BOTH
     // injected transports — the shell forwards them verbatim and opens no
@@ -1983,23 +1994,11 @@ export function mountStagingWorkbench(container, snapshot,
         // the state authority. D7: three routes, one value -- this one, the
         // context region's outline tab, and a load -- and the selector never
         // becomes a second state authority.
-        // F9: the loaded set's one way OUT, reached through the canvas's own
-        // primitive, which owns the dirty refusal. The rail states the outcome.
-        unloadBuffer: async (key, unloadOptions) => {
-          if (!canvasController
-              || typeof canvasController.unloadDocument !== "function") {
-            return { ok: false, error: "unloading is not wired on this console" };
-          }
-          let outcome = null;
-          try {
-            outcome = await canvasController.unloadDocument(key, unloadOptions);
-          } catch (unused) {
-            outcome = { ok: false, error: "the unload failed" };
-          }
-          syncContextFromCanvas();
-          refreshDocTiles();
-          return outcome || { ok: false, error: "the unload was refused" };
-        },
+        // (The `unloadBuffer` seam went with the rail control it served. The act
+        // is the canvas slot's now, and it reaches the SAME
+        // `canvasController.unloadDocument` from inside — so the dirty refusal
+        // still lives in one place, and the shell follows through
+        // `onLoadedSetChanged` above rather than by wrapping the call.)
         selectBuffer: async (key) => {
           if (!canvasController
               || typeof canvasController.setActiveBuffer !== "function") return;

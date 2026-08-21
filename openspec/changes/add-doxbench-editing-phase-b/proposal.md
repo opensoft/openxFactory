@@ -340,3 +340,64 @@ read as an interpretation, not a silent narrowing.
   building.
 - **Retiring the outline's reserved status.** `outline` stays a permanently
   reserved key with the ancestry role its commit already has.
+
+## Amendment 1 — the canvas control slot is dirty-state-conditional (2026-08-21)
+
+**Amendment (2026-08-21, Brett, in-session multiple choice, recommended option
+adopted): the canvas control pair is dirty-state-conditional — Save+Cancel while
+the selected buffer is dirty, a single Unload control for a clean unloadable
+buffer — authorizing browser annotation A2; the rail's standalone unload control
+and its two-press arm flow are superseded.**
+
+Brett annotated the running doxBench app on 2026-08-21, on
+`button.doxchat-unload` in the chat rail: "remove this button here and
+incorporate its function into the right panel 'cancel' button. if there is a
+change to save or cancel, then have those buttons. if no changes, then have that
+be 'unload' button."
+
+As originally written this requirement forbade that outright — "exactly ONE Save
+control and exactly ONE Cancel control", with a scenario requiring both to be
+present whenever the canvas renders. A clean canvas showing a single Unload
+would have presented zero of each. The annotation was therefore blocked pending
+this amendment rather than built against the delta, and Brett ruled it in
+session by multiple choice.
+
+**Three readings had to be settled from the code, and are now stated in the
+requirement rather than left to the realization:**
+
+*Which dirty?* Brett's words are "if there is a change to save or cancel". Save
+answers for the WHOLE canvas and Cancel for the selected buffer, so the two
+halves of that sentence are not the same predicate. The requirement takes
+ANY-buffer-dirty. Selected-buffer-dirty would withdraw the only Save from a
+human whose outline still held unsaved text merely because they had stepped onto
+a clean document — hiding a Save while work is unsaved, which is the hazard this
+capability's discard rules exist to prevent.
+
+*What does a clean RESERVED buffer show?* The outline is permanently reserved and
+`unloadDocumentBuffer` throws on it; the reserved unbacked `document` slot is
+withheld too, because a turn needs the outline plus at least one document. An
+empty slot would answer no question and would collapse the tab row on every
+selection change. So the Unload control renders and is VISIBLY INERT with its
+reason stated — the same posture the tile's Save verb already uses, and the same
+reason sentences the retired rail control carried, so no accessible text is lost.
+
+*What happens with no gate capability?* The slot does NOT swap. A surface that
+cannot save must go on saying so, and this requirement's own gate-absent
+scenario requires that absence as visible text beside Save. Since an ungated
+surface has no reachable editing, nothing there is ever dirty, and an
+unconditional swap would have made that stated absence unreachable.
+
+**What is NOT amended.** The loaded-set requirement is untouched: a document
+still leaves the set only by an explicit human act, and that act still MUST
+refuse or require an explicit discard while dirty. The new design discharges
+that clause more strongly than the arm flow did, by never offering the act while
+anything is dirty, and its scenario now says so explicitly. The state-level
+refusal in `unloadDocumentBuffer` stays exactly as it is — it is the floor, and a
+floor is not deleted because the surface above it grew a guard rail.
+
+**A note on ownership.** `add-doxbench-editing-phase-a` and
+`add-doxbench-editing-phase-b` belong to another session's thread (most recently
+PRs #216 and #223). This amendment was ruled in session by Brett and is recorded
+here rather than negotiated across threads; Phase A's matching statement of the
+same rule is amended in step so the two cannot disagree, and Phase A defers to
+this requirement for the full statement.

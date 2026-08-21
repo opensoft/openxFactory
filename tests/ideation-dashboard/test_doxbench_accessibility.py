@@ -265,11 +265,15 @@ def test_the_panel_controls_sit_in_the_tab_row_but_outside_the_tablist():
     """Brett's 2026-08-15 annotation round: "place the save and cancel in line
     with the tabs." They are in the tab ROW and outside the TABLIST — a button
     inside `role=tablist` would be announced as a tab and would join the
-    roving-tabindex arrow cycle, turning two controls into two phantom views."""
+    roving-tabindex arrow cycle, turning two controls into two phantom views.
+
+    Amendment 1 (2026-08-21) adds Unload as the slot's third occupant. It joins
+    the SAME group outside the tablist, for the same reason — the three are one
+    slot with two occupancies, never a control that lives somewhere else."""
     editor = _editor()
     assert 'const tabrow = el("div", "doxbench-tabrow")' in editor
     assert 'const actions = el("div", "doxbench-actions")' in editor
-    assert "actions.append(cancelBtn, saveBtn);" in editor
+    assert "actions.append(cancelBtn, saveBtn, unloadBtn);" in editor
     # the tablist takes the tabs and nothing else
     assert "tabrow.append(viewTablist, actions);" in editor
     assert "viewTablist.appendChild(tabBtn);" in editor
