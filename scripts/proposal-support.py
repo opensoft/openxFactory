@@ -701,9 +701,15 @@ def _declares_staged_status(text: str) -> bool:
     mover carried a copy-pasteable template skeleton whose example header said
     exactly that, and a naive multiline regex read the example as the real
     thing and failed a bundle whose real header the mover had already
-    transitioned to `draft`. `doc_health.families._scan_lines` already tracks
-    fences for the same reason; this mirrors it rather than inventing a second
-    convention.
+    transitioned to `draft`. What is mirrored from
+    `doc_health.families._scan_lines` is the FENCE-TRACKING convention alone — a
+    ``` line toggling whether the rows after it count as content — rather than
+    inventing a second convention for that. The line split underneath it is a
+    separate rule, and a shared one: both count the three real endings below, but
+    this module cannot import the primitive, so the agreement is held by
+    `test_the_mover_agrees_with_the_other_fence_implementations` and
+    `test_the_movers_line_split_is_the_three_real_endings_and_nothing_else`
+    rather than by this sentence.
 
     Split by this module's three-real-endings rule rather than
     `str.splitlines()`, which also breaks on \\x0b, \\x0c, \\x1c-\\x1e, \\x85,
