@@ -1433,6 +1433,49 @@ def test_the_normalizer_forgives_only_what_cannot_flip_a_posture():
     assert n("zero retention") != n("no retention")
 
 
+@pytest.mark.parametrize("rule_badge, target_badge, why", [
+    ("Routes to a non-tenant endpoint.", "on-tenant",
+     "review instance A: the rule states the INVERSE of the target's posture, "
+     "and `'on-tenant' in 'non-tenant'` is True"),
+    ("All routed models are on approved tenant infrastructure and retain nothing.",
+     "retain",
+     "review instance D: the target's whole badge is a common word the rule's "
+     "prose contains by accident"),
+    ("Processed in the approved tenant boundary; no retention. and more",
+     "Processed in the approved tenant boundary; no retention.",
+     "a badge swallowed into a longer sentence is not a segment"),
+])
+def test_the_covering_refuses_what_raw_substring_containment_accepted(
+        rule_badge, target_badge, why):
+    """THE DIRECT PIN on the type's own predicate (adversarial review round 1
+    F1). Each row is a case the OLD `in` test accepted; each must now refuse,
+    and refuse HERE rather than only through the packaged-corpus parity test —
+    a rule that lives in only one gate's test is a rule the other gate can
+    lose."""
+    with pytest.raises(InvalidRoutingRuleError,
+                       match="as a segment of its own badge"):
+        ModelCatalog.from_entries([
+            _rule(routes_to=("a",), resolved="a", badge=rule_badge),
+            _entry("a", data_handling=target_badge)])
+
+
+def test_the_covering_accepts_a_badge_that_IS_a_segment():
+    """The other direction, so the predicate cannot have become a blanket
+    refusal: the same target badge, carried as a real segment, is accepted —
+    including across the three forgiven normalizations."""
+    badge = "Processed in the approved tenant boundary; no retention."
+    for rule_badge in (
+            "Routes by role. / " + badge,
+            badge + " / Routes by role.",
+            "Routes by role. / " + badge.upper(),
+            "Routes by role. /   " + badge.rstrip(".") + "   ",
+    ):
+        catalog = ModelCatalog.from_entries([
+            _rule(routes_to=("a",), resolved="a", badge=rule_badge),
+            _entry("a", data_handling=badge)])
+        assert catalog.entries[0].routing_rule is True
+
+
 def test_a_target_badge_that_holds_the_separator_is_refused_as_ill_formed():
     """The grammar's own residual collision, closed rather than hoped away: a
     badge containing " / " could never BE one segment, so the catalog refuses
