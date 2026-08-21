@@ -778,6 +778,11 @@ def test_every_session_verb_refuses_a_foreign_repository(scratch_repo, tmp_path)
         # joins SESSION_BEARING_VERBS -- exactly the tripwire this test declares.
         "first-edit": {"scope_kind": bs.STAGED_TOPIC, "scope_id": TOPIC,
                        "document": "x.md", "content": "y"},
+        # add-doxbench-editing-phase-b §12: the SHARE verb tripped the same wire.
+        # It belongs here for the reason the table exists -- it writes into the
+        # session worktree AND performs a remote write, so its repository
+        # identity is carried, never inferred.
+        "share-session": {"scope_kind": bs.STAGED_TOPIC, "scope_id": TOPIC},
     }
     assert set(bodies) == set(gr.SESSION_BEARING_VERBS)
 
@@ -880,6 +885,9 @@ def test_every_session_verb_refuses_a_repository_it_cannot_establish(tmp_path):
         "first-edit": {"scope_kind": bs.STAGED_TOPIC,
                        "scope_id": "b-only-topic",
                        "document": "x.md", "content": "y"},
+        # add-doxbench-editing-phase-b §12: same tripwire, share leg.
+        "share-session": {"scope_kind": bs.STAGED_TOPIC,
+                          "scope_id": "b-only-topic"},
     }
     assert set(bodies) == set(gr.SESSION_BEARING_VERBS)
 

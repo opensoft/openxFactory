@@ -206,7 +206,7 @@ declared custody, never committed.
 Exit 1 of the persona/claims side is **realized**, the same day it was
 proposed and ratified: the neutral `identity-brokering` capability landed as
 `add-identity-brokering`, realized by Speckit feature
-`008-identity-brokering-contracts` and **registered at `contract-v1.36`** in
+`008-identity-brokering-contracts` and **registered at `contract-v1.37`** in
 [contracts/manifest.yaml](../../contracts/manifest.yaml) and
 [contracts/CHANGELOG.md](../../contracts/CHANGELOG.md). The family is
 [contracts/identity-brokering/](../../contracts/identity-brokering/README.md)
@@ -230,7 +230,7 @@ dedicated-instance client. Login-only versus authorization gating and
 
 The PKI side this brainstorm did not anticipate was realized the same day as
 the sibling `add-trust-anchor` (feature `009-trust-anchor-contracts`, the same
-`contract-v1.36` cut). Both staged fragments have completed full promotion and
+`contract-v1.37` cut). Both staged fragments have completed full promotion and
 now live with their proposals:
 [identity-brokering-plane.md](../../openspec/changes/add-identity-brokering/supporting-docs/identity-brokering-plane.md)
 and

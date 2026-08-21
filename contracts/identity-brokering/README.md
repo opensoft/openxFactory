@@ -4,7 +4,7 @@ Status: ratified
 Ratified by: add-identity-brokering (ratified Brett Heap 2026-08-21 — "ratify
 both proposals"; realized by Speckit feature `008-identity-brokering-contracts`.
 Registered in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at
-**contract-v1.36** (2026-08-21), per
+**contract-v1.37** (2026-08-21), per
 [Contract Versioning Policy](../../docs/contract-versioning-policy.md))
 Kind: reference
 Repository context: openxFactory owns this neutral capability; OpsxFactory owns

@@ -120,6 +120,13 @@ ACTION_CREATE_PROJECT = "create-project"
 # add-opendox-project-header (D15): the membership edit of an EXISTING
 # project — same mechanic, the descriptor carrying add/remove member lists.
 ACTION_EDIT_PROJECT = "edit-project"
+# add-doxbench-editing-phase-b §12 (contract-v1.36): the doxBench workbench
+# SHARE verb. It commits the session's dirty thread sidecars and PUSHES the
+# session branch so a colleague can resume the session — and does nothing else.
+# STRICTLY LESS than `open-pr`: it reuses that verb's existing remote-write path
+# and opens no pull request, requests no review, and holds no approval or merge
+# authority. ADDITIVE, same posture as every growth above.
+ACTION_SHARE_SESSION = "share-session"
 
 # Artifact kinds the schema recognises.
 ART_TRANSITION_MANIFEST = "transition-manifest"

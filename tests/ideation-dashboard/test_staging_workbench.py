@@ -1341,16 +1341,19 @@ def test_session_transport_uses_the_injected_fetcher_spelling():
             f"non-clearing innerHTML assignment: {m.group(0)!r}"
 
 
-def test_the_session_transport_addresses_exactly_the_three_live_routes(tmp_path):
-    """T077: four affordances, THREE routes. `refresh-notebook` resolves to NO
-    route at all (spec C10) — it is not a gate verb, so a route for it would be
-    an artifact no contract declares."""
+def test_the_session_transport_addresses_exactly_the_four_live_routes(tmp_path):
+    """T077, grown by add-doxbench-editing-phase-b §12: FIVE affordances, FOUR
+    routes. `refresh-notebook` still resolves to NO route at all (spec C10) — it
+    is not a gate verb, so a route for it would be an artifact no contract
+    declares — and `share` is the fourth that IS one."""
     out = _run_session(tmp_path)
-    assert out["affordances"] == ["edit", "save", "abandon", "refresh-notebook"]
-    assert out["live"] == ["edit", "save", "abandon"]
+    assert out["affordances"] == ["edit", "share", "save", "abandon",
+                                  "refresh-notebook"]
+    assert out["live"] == ["edit", "share", "save", "abandon"]
     assert out["descriptorOnly"] == ["refresh-notebook"]
     assert dict(out["routes"]) == {
         "edit": "/actions/gate/edit-document",
+        "share": "/actions/gate/share-session",
         "save": "/actions/gate/open-pr",
         "abandon": "/actions/gate/abandon-session",
         "refresh-notebook": None,

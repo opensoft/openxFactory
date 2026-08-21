@@ -4,7 +4,7 @@
 # custody enumeration is CLOSED with `evidences` derived, and operator escrow
 # is modelled as a relationship on the credential record rather than a custody
 # tier"). Registered in contracts/manifest.yaml + contracts/CHANGELOG.md at
-# contract-v1.36 (2026-08-21), per docs/contract-versioning-policy.md.
+# contract-v1.37 (2026-08-21), per docs/contract-versioning-policy.md.
 #
 # `evidences` is DERIVED from the two booleans, never independently asserted,
 # and the canonical validator enforces the derivation. Each member also

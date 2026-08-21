@@ -260,7 +260,7 @@ Every DomainxFactory must validate against the canonical contract:
   (derived from the schema, never a denylist) so the tenancy graph is never
   mirrored; explicit self-link or admin-approved merge only; workloads are not
   personas; and broker credentials are `credential-contracts` references.
-  Registered at `contract-v1.36` (`add-identity-brokering`). Opt-in: a domain
+  Registered at `contract-v1.37` (`add-identity-brokering`). Opt-in: a domain
   holding none of these artifacts stays conformant and the check reports a
   notice.
 - Trust anchors: [contracts/trust-anchor](contracts/trust-anchor/README.md),
@@ -272,7 +272,7 @@ Every DomainxFactory must validate against the canonical contract:
   run time rather than restating it; renewal that changes key material is a
   rebind obligation over dependents enumerated in advance; revocation
   propagates to the authority the certificate supported; and a realization
-  DECLARES the obligations it cannot meet. Registered at `contract-v1.36`
+  DECLARES the obligations it cannot meet. Registered at `contract-v1.37`
   (`add-trust-anchor`). Product-agnostic and opt-in on the same terms.
 - Workflow contracts: [xfactory-workflow schema](contracts/schemas/xfactory-workflow.schema.yaml)
   and `scripts/validate-workflow-contracts.py <domain-repo>` — every
@@ -301,6 +301,27 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-doxchat-model-intake](openspec/changes/add-doxchat-model-intake/proposal.md)
+  — authored 2026-08-21 from Brett's live browser annotation on the doxBench
+  chat rail ("this model selector is not working… we need to have add model as
+  the first option… bring up a wizard that helps the user auth with oauth to
+  their subscription or add a api"). Diagnosis first: the selector is not
+  broken but structurally empty — `serve.py`'s `main()` has no model flag, so
+  `reserve-dashboard.sh`'s `python3 -m ideation_dashboard.serve` declares no
+  `model_port_factory` and the catalog route honestly returns the empty
+  editor-only posture; nothing is hardcoded and no model list was ever
+  withheld. The change adds the intake affordance FIRST in the selector and
+  default when the catalog is empty (never when it could not be READ), an
+  intake flow that hands an API key or an OAuth authorization to the declared
+  credential broker and keeps only a `credential-contracts` binding, and the
+  seam nobody had written down: intake PROPOSES and a recorded human gate
+  action APPROVES, so supplying a payment credential never doubles as
+  approving a provider for governed work. Sequencing is a requirement, not a
+  note — the affordance never ships ahead of the flow. Depends on
+  `add-model-provider-broker` (custody, minting, the narrowed provider
+  boundary), which is itself blocked on openProfiler; needs an additive
+  `gate-action-record` action enum member at realization.
+  `target_release: implementation_pending`.
 - [add-identity-brokering](openspec/changes/add-identity-brokering/proposal.md)
   — authored and **RATIFIED 2026-08-21** (recommendations adopted as written;
   the OQ-5 co-residence gate discharged: HealthLinc patients found and
@@ -322,7 +343,7 @@ Active changes:
   fixtures at 9/9 requirement coverage), hardened by a two-panel adversarial
   review across the sibling families (14 + 14 confirmed findings — 28 and 52
   bypass probes respectively — all fixed, ruled, or documented, with zero
-  ratified-corpus regressions), and **registered at `contract-v1.36`**.
+  ratified-corpus regressions), and **registered at `contract-v1.37`**.
 - [add-trust-anchor](openspec/changes/add-trust-anchor/proposal.md)
   — authored and **RATIFIED 2026-08-21** (OQ1 and OQ2 ruled per their
   recommendations: establish-obligation with a declared floor; closed
@@ -349,7 +370,7 @@ Active changes:
   hardened by a two-panel adversarial review across the sibling families
   (14 + 14 confirmed findings — 52 and 28 bypass probes respectively — all
   fixed, ruled, or documented, with zero ratified-corpus regressions), and
-  **registered at `contract-v1.36`**.
+  **registered at `contract-v1.37`**.
 - [add-roster-device-admission-surface](openspec/changes/add-roster-device-admission-surface/proposal.md)
   — authored 2026-08-19. Admits the single `device` (node-inventory) admission
   surface into the closed `admission_surface` vocabulary of

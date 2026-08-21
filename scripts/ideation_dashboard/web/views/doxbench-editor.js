@@ -369,6 +369,26 @@ export const CANCEL_TITLE =
 export const GUARD_SAVE_WIRED_NOTE =
   "Save persists this Document buffer first, and then the switch continues";
 
+// The Unload control's REASONS. Carried over verbatim from the rail control this
+// one replaces so no accessible text was lost in the move (Amendment 1), then
+// NARROWED by Amendment 2 (2026-08-21, Brett, ruled via browser annotation): the
+// reserved set is the OUTLINE ALONE. The outline's sentence is unchanged and is
+// the only one that still says "never unloaded".
+//
+// The `document` slot's sentence is gone, because the fact it stated is no longer
+// true: a BACKED reserved slot in the neutral position unloads like any other
+// document. What is left under that key is the UNBACKED slot, and it is inert for
+// a different reason entirely — it names no document, so there is nothing to take
+// out of the loaded set. Cancel is the control that acts on it; Unload has no
+// subject.
+export const UNLOAD_OUTLINE_RESERVED_TITLE =
+  "the outline is a reserved buffer every turn carries, and is never unloaded";
+export const UNLOAD_UNBACKED_DOCUMENT_TITLE =
+  "this document has not been created yet, so there is nothing to unload — "
+  + "Cancel restores it, and its first Save gives it a path";
+export const UNLOAD_NOTHING_SELECTED_TITLE =
+  "no loaded document is selected";
+
 // A losing race is told, never queued: two Saves in flight would be two
 // governance actions for one human decision.
 export const SAVE_BUSY_REASON =
@@ -983,9 +1003,38 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // and would join the roving-tabindex arrow cycle, which is precisely the
   // confusion the two-level naming exists to prevent. The Save NOTE stays in
   // the status row, where the sentences live.
+  // UNLOAD -- the slot's THIRD occupant, and the one that is alone when it is
+  // there (Brett's 2026-08-21 annotation: "if there is a change to save or
+  // cancel, then have those buttons. if no changes, then have that be 'unload'
+  // button."; Amendment 1 on both doxbench phase changes authorizes it).
+  //
+  // It replaces the rail's standalone control, and it is the SAME act: it calls
+  // the same `unloadDocument` controller the rail's seam forwarded to, with all
+  // three refusal layers -- controller, state module, and this control's own
+  // reachability rule -- left standing. Those layers are now belt-and-braces
+  // rather than the live path, which is exactly what they should be: the dirty
+  // case cannot reach this button at all, so `discardUnsavedEdits` is never
+  // passed and the two-press arm flow has nothing left to arm.
+  const unloadBtn = el("button", "doxbench-unload", "Unload");
+  unloadBtn.type = "button";
+  unloadBtn.disabled = true;
+  unloadBtn.hidden = true;
+  unloadBtn.addEventListener("click", () => { unloadActiveBuffer(); });
+  // …and its reason as VISIBLE TEXT, on the Save note's own idiom. An INERT
+  // Unload cannot take focus, so a `title` alone is reachable by neither a
+  // keyboard nor a screen reader -- the same argument this capability already
+  // makes for an unreachable Save's reason, which holds doubly here because the
+  // control is disabled rather than merely uninformative. The title stays too;
+  // this is an addition, not a replacement.
+  const unloadNoteId = instanceId + "-unload-note";
+  const unloadNote = el("span", "doxbench-unload-note");
+  unloadNote.id = unloadNoteId;
+  unloadNote.hidden = true;
+  unloadBtn.setAttribute("aria-describedby", unloadNoteId);
   const actions = el("div", "doxbench-actions");
-  actions.append(cancelBtn, saveBtn);
+  actions.append(cancelBtn, saveBtn, unloadBtn);
   statusbar.appendChild(saveNote);
+  statusbar.appendChild(unloadNote);
 
   // The document-switch guard (FR-007 / acceptance scenario 4): one
   // persistent region, built once, shown only while a dirty Document buffer
@@ -1243,11 +1292,136 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       guardSaveBtn.disabled = saving;
       guardDiscardBtn.disabled = saving;
       guardCancelBtn.disabled = saving;
+      // THE SLOT SWAPS (Amendment 1). One control slot, two occupancies: the
+      // Save/Cancel pair while the loaded set holds unsaved work, a single
+      // Unload while it does not.
+      //
+      // ANY-buffer-dirty, not selected-buffer-dirty, and `anythingDirty` is
+      // deliberately the SAME derivation Save's own reachability reads one line
+      // up -- one answer to "is this canvas holding unsaved work", never two.
+      // Selected-buffer-dirty would withdraw the only Save from a human whose
+      // outline still held unsaved text merely because they had stepped onto a
+      // clean document.
+      //
+      // A Save in flight keeps the PAIR on screen, and that is pinned
+      // behaviourally. Note honestly WHICH term delivers it today: a buffer stays
+      // dirty until `adoptSavedBase` rebases it, and `save()` clears `saving` in
+      // its `finally` BEFORE that rebase runs, so throughout the flight
+      // `anythingDirty` is still true and `!anythingDirty` alone already holds
+      // the pair. `!saving` is therefore a DEFENSIVE term with no reachable state
+      // of its own right now -- kept because it states the intent directly, and
+      // because it is the guard that would matter the moment that ordering
+      // changed and a buffer went clean while the seam was still open. It is
+      // pinned structurally rather than behaviourally for exactly that reason;
+      // a behavioural test would be asserting nothing.
+      const showUnload = !anythingDirty && !saving;
+      saveBtn.hidden = showUnload;
+      cancelBtn.hidden = showUnload;
+      unloadBtn.hidden = !showUnload;
+      if (showUnload) {
+        syncUnloadControl();
+      } else {
+        // The pair is on screen, so Unload's reason has nothing to explain --
+        // a note left standing beside Save would describe a control that is
+        // not there.
+        unloadNote.textContent = "";
+        unloadNote.hidden = true;
+      }
     } else {
       // No gate at all: Save was never reachable here and stays that way, with
       // its reason beside it as visible text. Cancel is local and follows the
-      // active buffer exactly as it always did.
+      // active buffer exactly as it always did. THE SLOT DOES NOT SWAP HERE --
+      // a surface that cannot save must go on saying so, and an ungated surface
+      // has no reachable editing, so an unconditional swap would have made that
+      // stated absence unreachable for good.
       cancelBtn.disabled = !activeDirty;
+    }
+  }
+
+  // THE ONE REACHABILITY RULE for Unload, derived from the SELECTED buffer and
+  // shared by the render and the click path so the two cannot drift.
+  //
+  // AMENDMENT 2 (2026-08-21, Brett, ruled via browser annotation: "if I do the
+  // workflow to edit a document, and then cancel instead of save, then try to
+  // unload, the unload button is stippled. It should allow the document to
+  // unload. only the outline can never unload. we always want that to be loaded.
+  // If saved or canceled so the document is in neutral position, then we can
+  // unload it."). The rule NARROWED here from the rail control's two-key
+  // withholding to the outline alone:
+  //
+  //   * the OUTLINE is refused, permanently -- it is the one key the state
+  //     module itself throws on, and every turn carries it;
+  //   * a buffer the loaded set does not HOLD has nothing to act on;
+  //   * an UNBACKED buffer -- the create flow's not-yet-created slot, held under
+  //     the reserved `document` key with a null path -- has nothing to act on
+  //     either. It is a buffer, but it is not a document in the loaded set (it is
+  //     the one entry `loadedBuffers` filters out for exactly this reason), so
+  //     there is no membership for Unload to end. That is the SAME predicate the
+  //     selector lists by, stated once here rather than a second time.
+  //
+  // Cleanliness needs no term of its own: the slot only shows Unload while
+  // nothing in the loaded set is dirty, which is the "neutral position" the
+  // ruling names -- saved or cancelled, either way the buffer holds no unsaved
+  // work by the time this control is on screen.
+  //
+  // Where it cannot act the control stays RENDERED and visibly inert with the
+  // reason stated, which is the posture the tile's Save verb already uses -- an
+  // absent control answers no question, and a slot that emptied itself would
+  // collapse the tab row on every selection change.
+  function unloadableBufferKey() {
+    const key = activeBuffer;
+    if (key === OUTLINE_BUFFER_KEY) return null;
+    if (!state || !holdsBufferKey(key)) return null;
+    const buffer = state.buffers[key];
+    return (buffer && buffer.path !== null && buffer.path !== undefined)
+      ? key : null;
+  }
+
+  function syncUnloadControl() {
+    const key = activeBuffer;
+    const unloadable = unloadableBufferKey() !== null;
+    unloadBtn.disabled = !unloadable;
+    unloadBtn.setAttribute("aria-disabled", unloadable ? "false" : "true");
+    if (unloadable) {
+      // It NAMES the buffer it would act on: one control that could unload any
+      // loaded document must say which one it is aimed at, exactly as Cancel
+      // does for the buffer it reverts.
+      const buffer = state.buffers[key];
+      const named = (buffer && buffer.path) ? String(buffer.path) : key;
+      unloadBtn.title = "unload " + named + " from the loaded set";
+      // Reachable: the control speaks for itself, so the note stands down.
+      unloadNote.textContent = "";
+      unloadNote.hidden = true;
+      return;
+    }
+    let reason = UNLOAD_NOTHING_SELECTED_TITLE;
+    if (key === OUTLINE_BUFFER_KEY) {
+      reason = UNLOAD_OUTLINE_RESERVED_TITLE;
+    } else if (key === UNBACKED_DOCUMENT_BUFFER_KEY) {
+      // Only reachable for the UNBACKED slot now: a backed one under this same
+      // reserved key is unloadable and never lands here.
+      reason = UNLOAD_UNBACKED_DOCUMENT_TITLE;
+    }
+    unloadBtn.title = reason;
+    unloadNote.textContent = reason;
+    unloadNote.hidden = false;
+  }
+
+  // The click path. It re-derives reachability THROUGH THE SAME PREDICATE the
+  // render used rather than trusting the render to have disabled the control --
+  // the same belt-and-braces the rail's handler kept, and one rule rather than a
+  // second copy of it, so a narrowing applied to one can never miss the other.
+  // `discardUnsavedEdits` is never passed, because this control is unreachable
+  // while anything is dirty.
+  function unloadActiveBuffer() {
+    const key = unloadableBufferKey();
+    if (key === null) return;
+    // `unloadDocument` owns the whole tail: it announces its own refusals, moves
+    // the selection to the outline, and re-syncs the panel through
+    // `syncBufferDom`. Only the SUCCESS line is this control's to add.
+    const outcome = unloadDocument(key);
+    if (outcome && outcome.ok === true) {
+      stateEvent("unloaded " + key + " from the loaded set");
     }
   }
 
@@ -2113,6 +2287,21 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // THE ONE WAY OUT. A dirty buffer is REFUSED unless the caller states the
   // discard explicitly, because dropping it destroys unsaved work exactly as
   // Cancel does -- and Cancel at least says which buffer it reverted.
+  //
+  // THE ASYMMETRY RECORDED HERE ON 2026-08-21 IS LARGELY DISSOLVED, and by the
+  // UI moving to meet this method rather than the other way round. It used to be
+  // that this method hard-refused only the OUTLINE key while every UI path
+  // withheld BOTH reserved keys. Amendment 2 (Brett, ruled via browser
+  // annotation the same day) narrowed the reserved set to the outline alone, so
+  // the two layers now name the same permanent refusal.
+  //
+  // What remains is not an asymmetry of AUTHORITY but of SUBJECT: the canvas
+  // control additionally withholds an UNBACKED buffer, because a slot that names
+  // no document has no loaded-set membership to end. This method still accepts
+  // that key and the state module still honours it, which is right for a public
+  // method -- a caller that genuinely wants the create slot out of the set is
+  // asking a coherent question. It is simply not a question a control with no
+  // subject can pose.
   function unloadDocument(key, unloadOptions = {}) {
     if (destroyed) return { ok: false, error: DESTROYED_REASON };
     if (saving) return { ok: false, error: SAVE_BUSY_REASON };
@@ -2226,6 +2415,14 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     // Phase A: loading a document IS binding to it. The canvas presents the
     // active buffer and the chat works on it, so a switch that left the outline
     // active would show one thing and edit another.
+    // F9: `setActiveBuffer` notifies ONLY when the selection actually moves --
+    // it early-returns on an already-active key. So whether this switch has
+    // already fired the tail depends on where the selection was, and the tail
+    // below is conditioned on exactly that. Both cases must fire it once: a
+    // switch that moved the selection is covered by `setActiveBuffer`, and one
+    // that did not still replaced the whole buffer's CONTENT, which the wheel
+    // and the selector need to hear.
+    const selectionMoved = activeBuffer !== UNBACKED_DOCUMENT_BUFFER_KEY;
     setActiveBuffer(UNBACKED_DOCUMENT_BUFFER_KEY);
     syncBufferDom(UNBACKED_DOCUMENT_BUFFER_KEY);
     renderPreviewNow(UNBACKED_DOCUMENT_BUFFER_KEY);
@@ -2236,8 +2433,8 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     if (typeof onIdentitySettled === "function") {
       onIdentitySettled(UNBACKED_DOCUMENT_BUFFER_KEY, buffer.current_hash);
     }
-    // The selection moved, so the selector and the wheel hear it here too.
-    notifyLoadedSetChanged();
+    // …and only when `setActiveBuffer` did not already say it.
+    if (!selectionMoved) notifyLoadedSetChanged();
     return { status: "switched", reason: null };
   }
 
@@ -2401,6 +2598,10 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       // outline" is a question the panel no longer has an answer to.
       save: () => saveBtn,
       cancel: () => cancelBtn,
+      // Amendment 1: the slot's third occupant, and the visible note carrying
+      // its reason while it is inert.
+      unload: () => unloadBtn,
+      unloadNote: () => unloadNote,
       guard: () => guardHost,
       // additive, beyond the fixed minimum set: a per-buffer status region
       // and the document picker, both needed to test the fix round's

@@ -229,6 +229,40 @@ def test_the_model_selector_sits_by_send_and_states_why_send_is_unreachable():
     assert ".doxchat-sronly" in styles
 
 
+def test_the_working_subject_box_says_what_it_is_and_what_it_does():
+    """Brett's 2026-08-21 annotation round 2, on `input.doxchat-subject`: "what
+    is the box used for? i do not know how to use it."
+
+    It was a bare text box above the transcript carrying an `aria-label` and
+    nothing a sighted human could read — no visible label, no placeholder, and
+    (the ratified default from the tile's title being unrealized) no seeded
+    value either. So the field answers the question in its own two affordances,
+    which is the standard the annotation round before this one set: "the UI must
+    be intuitive and not rely on this text to inform the user" retired STANDING
+    explanatory lines, and an affordance on the control itself is exactly what it
+    left in their place.
+
+    The PLACEHOLDER names the field on the house `"<name> — e.g. <value>"` idiom
+    the canvas id field already uses (the one prior instance of that exact
+    form in these views), and it is an addition,
+    never a replacement: a placeholder disappears the moment a human types, so it
+    is not an accessible name and the `aria-label` stays. The TITLE carries what
+    the value DOES, which is the half the annotation actually asked about."""
+    rail = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" / "views"
+            / "doxbench-chat.js").read_text(encoding="utf-8")
+    # The accessible name is untouched by the affordance.
+    assert 'subjectInput.setAttribute("aria-label", "working subject")' in rail
+    assert ('subjectInput.setAttribute("placeholder", SUBJECT_FIELD_PLACEHOLDER)'
+            in rail)
+    assert "subjectInput.title = SUBJECT_FIELD_TITLE;" in rail
+    # It NAMES the field and shows one, rather than describing it abstractly.
+    assert "working subject — e.g." in rail
+    # …and the title says where the value goes and that it is optional, because
+    # "what is this for" is not answered by a name.
+    assert "rides every turn" in rail
+    assert "may be left empty" in rail
+
+
 def test_the_canvas_region_is_named_without_a_duplicate_visible_heading():
     """Brett's 2026-08-15 annotation round: "why do we need this line? i do not
     see what it is adding to our UI."
@@ -265,14 +299,76 @@ def test_the_panel_controls_sit_in_the_tab_row_but_outside_the_tablist():
     """Brett's 2026-08-15 annotation round: "place the save and cancel in line
     with the tabs." They are in the tab ROW and outside the TABLIST — a button
     inside `role=tablist` would be announced as a tab and would join the
-    roving-tabindex arrow cycle, turning two controls into two phantom views."""
+    roving-tabindex arrow cycle, turning two controls into two phantom views.
+
+    Amendment 1 (2026-08-21) adds Unload as the slot's third occupant. It joins
+    the SAME group outside the tablist, for the same reason — the three are one
+    slot with two occupancies, never a control that lives somewhere else."""
     editor = _editor()
     assert 'const tabrow = el("div", "doxbench-tabrow")' in editor
     assert 'const actions = el("div", "doxbench-actions")' in editor
-    assert "actions.append(cancelBtn, saveBtn);" in editor
+    assert "actions.append(cancelBtn, saveBtn, unloadBtn);" in editor
     # the tablist takes the tabs and nothing else
     assert "tabrow.append(viewTablist, actions);" in editor
     assert "viewTablist.appendChild(tabBtn);" in editor
+
+
+def test_the_slot_swap_reads_saves_own_dirty_derivation_and_not_a_second_one():
+    """Amendment 1: "The dirty condition SHALL be read from the SAME per-buffer
+    dirty flag Save and Cancel already derive their reachability from, and a
+    realization that introduces a second source of dirtiness for the swap MUST be
+    rejected."
+
+    This MUST cannot be held behaviorally — a second derivation that happened to
+    be byte-identical in behaviour would pass every driven state, and would then
+    drift the first time one of the two was touched. It is a STRUCTURAL claim
+    about the source, so it is pinned structurally, in this module's established
+    idiom: there is exactly ONE `anythingDirty` binding, Save reads it, and the
+    swap reads that same name rather than recomputing over the buffers."""
+    editor = _editor()
+    assert editor.count("const anythingDirty =") == 1, (
+        "a second dirtiness derivation is exactly what the requirement rejects")
+    assert "saveBtn.disabled = saving || !anythingDirty;" in editor
+    assert "const showUnload = !anythingDirty" in editor
+    # …and the swap must not re-derive over the buffers on its own.
+    swap = editor[editor.index("const showUnload ="):]
+    swap = swap[:swap.index("syncUnloadControl();")]
+    assert ".dirty" not in swap, (
+        "the swap must read the shared derivation, never its own buffer scan")
+
+
+def test_the_slot_swap_keeps_its_defensive_in_flight_term():
+    """`!saving` in the swap condition has NO reachable state of its own today,
+    and that is worth saying out loud rather than discovering later.
+
+    `save()` clears `saving` in its `finally` BEFORE `adoptSavedBase` rebases any
+    buffer, so a buffer is still dirty for the whole flight and `!anythingDirty`
+    alone already holds the pair on screen — which the behavioural probe in
+    `test_doxbench_view.py::test_a_save_in_flight_keeps_the_pair_on_screen` pins.
+    The term is kept because it states the intent directly and is the guard that
+    would matter the moment that ordering changed. A claim with no reachable
+    behaviour can only be pinned structurally; pretending otherwise would be a
+    behavioural test asserting nothing."""
+    editor = _editor()
+    assert "const showUnload = !anythingDirty && !saving;" in editor, (
+        "the defensive in-flight term must not be dropped as dead code")
+
+
+def test_the_inert_unload_states_its_reason_as_visible_text():
+    """Amendment 1 holds the inert Unload to the SAME standard the requirement
+    already sets for an unreachable Save: the reason is visible text beside the
+    control, not only a hover title. It matters more here, not less — a disabled
+    button cannot take focus, so a `title` alone reaches neither a keyboard nor a
+    screen reader."""
+    editor = _editor()
+    assert 'const unloadNote = el("span", "doxbench-unload-note")' in editor
+    assert "statusbar.appendChild(unloadNote);" in editor
+    assert 'unloadBtn.setAttribute("aria-describedby", unloadNoteId);' in editor
+    # the reason reaches BOTH the note and the title, and the note is shown
+    assert "unloadNote.textContent = reason;" in editor
+    assert "unloadBtn.title = reason;" in editor
+    # …and the class the tripwire checks has a rule
+    assert ".doxbench-unload-note" in _styles()
 
 
 def test_each_buffer_status_names_the_buffer_it_reports():

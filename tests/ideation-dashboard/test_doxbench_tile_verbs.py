@@ -478,8 +478,10 @@ function mountRail(stateRef, selectBuffer) {
   select.value = 'ideation/staging/t/never-loaded.md';
   await fire(select, 'change');
   out.refusedSelection = { chosen: chosen.slice(), value: select.value };
-  // The header states the binding and the loaded COUNT.
-  out.header = byClass(host, 'doxchat-header')[0].textContent;
+  // Brett's 2026-08-21 annotation: the standing header line is REMOVED, and the
+  // binding is read off the selector's own selection and the sr-only full-name
+  // region asserted above.
+  out.headerAbsent = byClass(host, 'doxchat-header').length === 0;
 }
 
 {
@@ -614,14 +616,28 @@ def test_a_value_naming_no_held_buffer_is_put_back_rather_than_acted_on(
         "the selector must render the selection the state actually holds")
 
 
-def test_the_header_states_the_binding_and_the_loaded_count(selector_results):
+def test_the_selector_states_the_binding_without_a_standing_header_line(
+        selector_results):
     """The chat STATES its current binding on the chat surface itself and makes
-    it SELECTABLE there. Phase A's header enumerated two fixed buffer names;
-    with N loaded documents the enumeration moves into the selector beside it,
-    which is where a human can also act on it."""
-    header = selector_results["header"]
-    assert "Working on — alpha.md" in header
-    assert "5 loaded documents" in header
+    it SELECTABLE there. Phase A stated it on a standing header line beside the
+    selector; Brett's 2026-08-21 annotation on `div.doxchat-header` ("remove
+    this section.") removed that line as a restatement of what the selector
+    below it already showed. The obligation now rests entirely on the selector's
+    own SELECTED entry plus the sr-only full-name region — both asserted here so
+    the removal cannot quietly take the binding statement with it."""
+    assert selector_results["headerAbsent"] is True, (
+        "the standing header line must not come back")
+    # READ: the selector renders the bound buffer, and names it in full for
+    # assistive technology.
+    assert selector_results["refusedSelection"]["value"] == (
+        "ideation/staging/t/nested/alpha.md")
+    assert selector_results["fullNameRegion"] == (
+        "Working on ideation/staging/t/nested/alpha.md")
+    # …and the loaded COUNT the header used to claim is the selector's own
+    # listing, which is where a human can also act on it.
+    documents = [option for option in selector_results["mounted"]["options"]
+                 if option["value"] != "outline"]
+    assert len(documents) == 5
 
 
 def test_the_empty_state_is_rendered_honestly_rather_than_hidden(
@@ -702,15 +718,25 @@ def test_the_shell_wires_the_tile_verbs_through_the_canvas_controller():
     assert "docBufferState" in verbs
 
 
-def test_the_rail_is_given_the_loaded_set_seams():
-    """The rail owns the loaded set's two human acts — SELECT and UNLOAD — and both
-    reach the canvas's own primitives, which hold the state authority and the dirty
-    refusal. The window widened when `unloadBuffer` joined it (PR #207 review, F9);
-    both are asserted rather than only the one that was there first."""
+def test_the_rail_is_given_the_selection_seam_and_no_longer_the_unload_seam():
+    """The rail owned the loaded set's two human acts — SELECT and UNLOAD — and
+    both reached the canvas's own primitives, which hold the state authority and
+    the dirty refusal.
+
+    Amendment 1 (Brett, 2026-08-21) moved UNLOAD onto the canvas slot, so the
+    rail keeps SELECT and the `unloadBuffer` seam is retired rather than left
+    dead: nothing called it once the rail control went, and a seam with no caller
+    is a second route waiting to be re-wired by accident. The act still reaches
+    `canvasController.unloadDocument` — from inside the canvas now — so the dirty
+    refusal still lives in exactly one place."""
     source = (VIEWS / "staging-workbench.js").read_text(encoding="utf-8")
     mount = source.index("mountDoxBenchChatRail(rail")
     window = source[mount:mount + 5000]
     assert "selectBuffer:" in window
     assert "canvasController.setActiveBuffer" in window
-    assert "unloadBuffer:" in window
-    assert "canvasController.unloadDocument" in window
+    assert "unloadBuffer:" not in window, (
+        "the rail's unload seam is retired with its control")
+    # The shell still follows the loaded set, through the canvas's own declared
+    # notification rather than by wrapping the call.
+    assert "onLoadedSetChanged:" in source
+    assert "refreshDocTiles();" in source

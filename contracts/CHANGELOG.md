@@ -9,7 +9,7 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
-## contract-v1.36 — 2026-08-21 (additive; two new neutral families — identity brokering and trust anchors)
+## contract-v1.37 — 2026-08-21 (additive; two new neutral families — identity brokering and trust anchors)
 
 Realizes the two ratified sibling changes of 2026-08-21 —
 `add-identity-brokering` through Speckit feature
@@ -193,10 +193,79 @@ and nothing in this cut depends on them.
 
 Per [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
 "Bundle Realization Order", the minor number is allocated LATE: this entry,
-the manifest bump to `contract-v1.36` and the fifteen new contract files land
-atomically in one candidate commit, and the annotated tag `contract-v1.36` is
+the manifest bump to `contract-v1.37` and the fifteen new contract files land
+atomically in one candidate commit, and the annotated tag `contract-v1.37` is
 applied POST-MERGE to the exact realized commit on published `origin/main` —
 never reserved ahead of merge order, and never moved once published.
+
+## contract-v1.36 — 2026-08-21 (additive; the `share-session` gate action)
+
+Realizes tasks.md §12 of `add-doxbench-editing-phase-b` — the ratified
+requirement *"Share-session hands a live session to a colleague"*. One CONTRACT
+changes: `schemas/gate-action-record.schema.yaml`. That schema is
+content-addressed by its per-file `sha256` in [`manifest.yaml`](manifest.yaml);
+that row's digest is RECOMPUTED in this cut, and its `consumption_rule` names
+the new action.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+An enum member is added to `action`, and one `allOf` conditional is added that
+constrains ONLY that new member. Nothing previously valid becomes invalid, no
+required field is added to any existing shape, no shape is removed, and no
+existing record is reinterpreted. This is the schema's own stated additive
+route — "no record has ever carried that action, so nothing pre-existing is
+narrowed" — the same posture under which `edit-document`, `open-pr`,
+`abandon-session` and the three wheel commissions landed. The schema's
+`contract_schema_version` stays `1`, and the manifest row's `schema_version`
+stays `1` with it.
+
+`action` gains `share-session`: the doxBench workbench verb that commits a
+session's DIRTY thread sidecars and PUSHES the session branch, so a colleague
+can resume the same session from the fetched branch. It is deliberately
+STRICTLY LESS than `open-pr` — it reuses that verb's existing remote-write path
+(`session_pr.PullRequestPort.push`), opens no pull request, requests no review,
+and holds no approval or merge authority. It exists because threads are LOCAL
+until a human says otherwise: a working note that leaves the machine without an
+explicit act is a disclosure nobody chose, so no Save, turn, compaction or
+scheduled task may push one.
+
+The new conditional requires `target.ref` and NO artifact kind. That is a
+decision, not an omission, and it is the one genuinely novel shape in this cut:
+`share-session` has TWO RECORD RESIDENCIES, because FR-006's one-commit-per-
+gate-action guard explicitly refuses an empty declared document set.
+
+* With dirty sidecars to publish, the action commits them WITH its record as
+  exactly one commit on the session branch, so the record is BRANCH-RESIDENT
+  and carries a `commit` artifact — and rides to the colleague, who can then
+  see why those threads landed.
+* With nothing dirty but commits the remote has not seen — the ordinary state
+  after a run of Saves, precisely because nothing pushes implicitly — the
+  action commits nothing, so its record is MAIN-RESIDENT exactly as `open-pr`'s
+  is.
+
+Requiring `commit` would therefore invalidate the second and commoner case, and
+requiring `pull-request` would assert a pull request this verb never opens.
+
+A FAMILY-WIDE NOTE, recorded here because it is a property of the whole
+per-action conditional family and not of this cut alone: a conditional of the
+form `if action then artifacts contains kind` requires a companion artifact; it
+does NOT forbid the others. So this schema does not prevent a `share-session`
+record from carrying a `pull-request` artifact — it simply never requires one.
+`abandon-session` has the identical hole and has had it since
+`add-workbench-branch-sessions`. What forbids it is the RUNTIME: the share verb
+reaches exactly one port member and a test asserts that against the port's own
+call log, so no path exists that could build such a record. Closing the hole
+schema-side would mean adding a `not`/`contains` clause to several pre-existing
+actions at once, which narrows shapes that already have valid records in the
+corpus — the one thing this schema's additive posture forbids. It is therefore
+recorded as a known, runtime-enforced boundary rather than fixed here.
+
+RELEASE OBLIGATION STILL OPEN AT THIS ENTRY: per the versioning policy,
+CHANGELOG presence is the availability test and the annotated tag is cut at the
+realization squash. Task 12.7 carries the tag + submodule-pin half. The release
+DIGEST INVENTORY (`releases/contract-v1.36.digests.yaml`) ships INSIDE this cut,
+as `contract-v1.34` and `contract-v1.35` both did — it is part of the cut, not
+part of the tagging.
 
 ## contract-v1.35 — 2026-08-19 (additive; the `device` roster admission surface)
 

@@ -3,7 +3,7 @@
 Status: ratified
 Ratified by: add-trust-anchor (approved Brett Heap 2026-08-21, with OQ1 and OQ2
 ruled as recommended; registered in `contracts/manifest.yaml` +
-`contracts/CHANGELOG.md` at **contract-v1.36** (2026-08-21), per
+`contracts/CHANGELOG.md` at **contract-v1.37** (2026-08-21), per
 [Contract Versioning Policy](../../docs/contract-versioning-policy.md))
 Kind: reference
 Repository context: openxFactory owns this neutral contract; the OpsxFactory

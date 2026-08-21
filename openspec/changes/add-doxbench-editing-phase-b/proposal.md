@@ -1,7 +1,7 @@
 ---
 code_surface: openxFactory (`scripts/ideation_dashboard/web/views/doxbench-state.js` — `BUFFER_KINDS` and the exactly-two-keys validator become a keyed buffer set with `outline` reserved; `doxbench-save.js` — `SAVE_BUFFER_ORDER` becomes the outline-ancestry rule plus documents in a deterministic order, and one document's refusal stops no other; `doxbench_turns.py` — `require_outline_and_document`, `PROPOSAL_TARGETS`, `ObservedHashes`, the nine-section `PROMPT_SECTION_ORDER` and `SYSTEM_CONTRACT_TEXT`; `doxbench-chat.js` — the rail header becomes the loaded-document selector; `doc-wheel.js` — the expanded tile's one `open` verb becomes read / edit / save with a loaded-and-dirty tile state; `doxbench-editor.js` and `staging-workbench.js` — the canvas and context region read the loaded set; `serve.py` — the thread sidecar and knowledge-service routes under the existing interactivity allowlist, the harness bridge behind the unchanged `WorkbenchModelPort`; `session_pr.py`/`gate_routes.py` — share-session reusing the port's existing `push` member and opening no pull request; NEW modules for the packet assembler, the Staged-Set Knowledge Service and its MCP boundary, and the stdlib-only harness bridge; `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` plus the release surface `contracts/manifest.yaml`, `contracts/CHANGELOG.md`, `contracts/releases/<tag>.digests.yaml`; and `tests/ideation-dashboard/` — the pinned buffer-shape, turn, save-order, DOM, accessibility and mutation-boundary assertions re-pinned honestly, never deleted)
 target_release: implemented
-contract_release: additive — a second, co-resident chat-turn envelope family in `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`, published in the next available ADDITIVE bundle minor, ALLOCATED AT REALIZATION per `docs/contract-versioning-policy.md` ("a proposed change MUST NOT reserve a minor number before merge order is known"). No number is reserved here; the released v1 envelopes stay byte-identical and valid.
+contract_release: additive — TWO releases, because this change's contract footprint is two schemas in two families and the frontmatter must name the whole of it. (1) REALIZED AS `contract-v1.34`: a second, co-resident chat-turn envelope family in `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`; the released v1 envelopes stay byte-identical and valid. (2) REALIZED AS `contract-v1.36`: an additive growth of `contracts/schemas/gate-action-record.schema.yaml` — the `share-session` action enum member and one `allOf` conditional constraining only that new member — which §12's ratified "SHALL be recorded as a human gate action" requires and which the closed enum made unavoidable (see tasks.md 12.7 for why reusing `open-pr` fails). Both are ADDITIVE (minor): nothing previously valid becomes invalid, no required field is added to an existing shape, no shape is removed, and each schema's own `contract_schema_version` stays `1`. Both were ALLOCATED AT REALIZATION per `docs/contract-versioning-policy.md` ("a proposed change MUST NOT reserve a minor number before merge order is known") — no number was reserved at proposal time. Two further additive releases are still OWED and unallocated, against tasks 10.7 (chat-turn-success posture) and 11.7 (model catalog).
 Status: draft
 Sequenced-after: add-doxbench-editing-phase-a (three MODIFIED requirements below are declared relative to Phase A's outcome)
 ---
@@ -340,3 +340,227 @@ read as an interpretation, not a silent narrowing.
   building.
 - **Retiring the outline's reserved status.** `outline` stays a permanently
   reserved key with the ancestry role its commit already has.
+
+## Amendment 1 — the canvas control slot is dirty-state-conditional (2026-08-21)
+
+**Amendment (2026-08-21, Brett, in-session multiple choice, recommended option
+adopted): the canvas control pair is dirty-state-conditional — Save+Cancel while
+ANY buffer of the loaded set is dirty, a single Unload control for a clean
+unloadable buffer — authorizing browser annotation A2; the rail's standalone
+unload control and its two-press arm flow are superseded.**
+
+**The ruling is recorded in its ANY-buffer reading deliberately.** Brett's
+sentence — "if there is a change to save or cancel" — names two predicates that
+are not the same, because Save answers for the whole canvas and Cancel for the
+selected buffer. Only the any-buffer reading is safe: under selected-buffer, a
+human whose outline still held unsaved text would lose the only Save on the
+surface the moment they stepped onto a clean document, which is the hazard this
+capability's discard rules exist to prevent. That is the reading the requirement
+states, the scenarios pin, and the realization implements, so it is the reading
+this headline authorizes — an archived headline naming the rejected option would
+license exactly the defect the amendment was written to avoid.
+
+Brett annotated the running doxBench app on 2026-08-21, on
+`button.doxchat-unload` in the chat rail: "remove this button here and
+incorporate its function into the right panel 'cancel' button. if there is a
+change to save or cancel, then have those buttons. if no changes, then have that
+be 'unload' button."
+
+As originally written this requirement forbade that outright — "exactly ONE Save
+control and exactly ONE Cancel control", with a scenario requiring both to be
+present whenever the canvas renders. A clean canvas showing a single Unload
+would have presented zero of each. The annotation was therefore blocked pending
+this amendment rather than built against the delta, and Brett ruled it in
+session by multiple choice.
+
+**Three readings had to be settled from the code, and are now stated in the
+requirement rather than left to the realization:**
+
+*Which dirty?* Brett's words are "if there is a change to save or cancel". Save
+answers for the WHOLE canvas and Cancel for the selected buffer, so the two
+halves of that sentence are not the same predicate. The requirement takes
+ANY-buffer-dirty. Selected-buffer-dirty would withdraw the only Save from a
+human whose outline still held unsaved text merely because they had stepped onto
+a clean document — hiding a Save while work is unsaved, which is the hazard this
+capability's discard rules exist to prevent.
+
+*What does a clean RESERVED buffer show?* The outline is permanently reserved and
+`unloadDocumentBuffer` throws on it; the reserved unbacked `document` slot is
+withheld too, because a turn needs the outline plus at least one document. An
+empty slot would answer no question and would collapse the tab row on every
+selection change. So the Unload control renders and is VISIBLY INERT with its
+reason stated — the same posture the tile's Save verb already uses, and the same
+reason sentences the retired rail control carried, so no accessible text is lost.
+
+*What happens with no gate capability?* The slot does NOT swap. A surface that
+cannot save must go on saying so, and this requirement's own gate-absent
+scenario requires that absence as visible text beside Save. Since an ungated
+surface has no reachable editing, nothing there is ever dirty, and an
+unconditional swap would have made that stated absence unreachable.
+
+**What that clause actually reaches, stated honestly.** Through the shipped
+shell, a gate-off console renders no authoring canvas controls at all, so a
+human on that plane never sees the slot in either occupancy. The clause
+therefore governs the CANVAS MODULE's own no-save-seam branch — a canvas mounted
+without the save seam, which is how the module is reachable directly and how the
+scenario above is written and pinned. It is a module-level invariant, not an
+end-user-visible posture on today's shell, and it is worth keeping precisely
+because the shell's behaviour here is the kind of thing that changes.
+
+**Phase A archived before this amendment reached it, and that is left alone.**
+`add-doxbench-editing-phase-a` was archived on 2026-08-21 (PR #228) carrying its
+ORIGINAL control-count wording, which is therefore what its archival promoted
+into `openspec/specs/ideation-dashboard/spec.md` — "exactly ONE Save control and
+exactly ONE Cancel control", with a scenario requiring both present at mount.
+An earlier revision of this branch had amended Phase A's copy too; a merge from
+main carried those edits into the ARCHIVED change, and they have been reverted.
+An archive must record what was actually ratified, and one that disagreed with
+the spec its own archival produced would be a falsified record — the same rule
+`add-staged-topic-outline-template`'s Amendment 1 applies to its supporting-docs
+copies. Nothing is lost by reverting it: this capability declares the
+requirement under `## MODIFIED Requirements`, so THIS delta is the sole carrier
+of the correction and supersedes the promoted wording when this change archives.
+Until then the promoted spec describes Phase A's shipped posture and this delta
+describes the amended one, which is exactly what a MODIFIED delta is for.
+
+**A pre-existing looseness at the public API, recorded and deliberately not
+widened here.** The controller's public `unloadDocument(key, …)` hard-refuses
+only `OUTLINE_BUFFER_KEY`, while the UI path withholds BOTH reserved keys (the
+outline and the unbacked `document` slot). The asymmetry predates this branch —
+the retired rail control withheld exactly the same way, at the same layer — so
+this amendment neither introduces nor repairs it, and the surface a human can
+reach is correct in both realizations. Tightening the public method is a change
+to the controller's contract and belongs to whoever next opens that contract,
+not to a UI amendment. *(Largely DISSOLVED by Amendment 2 below, later the same
+day, and by the UI moving to meet the method rather than the reverse: the
+reserved set narrowed to the outline alone, so the two layers now name the same
+permanent refusal. This paragraph stands as the record of what was true when
+Amendment 1 was written.)*
+
+**What is NOT amended.** The loaded-set requirement is untouched: a document
+still leaves the set only by an explicit human act, and that act still MUST
+refuse or require an explicit discard while dirty. The new design discharges
+that clause more strongly than the arm flow did, by never offering the act while
+anything is dirty, and its scenario now says so explicitly. The state-level
+refusal in `unloadDocumentBuffer` stays exactly as it is — it is the floor, and a
+floor is not deleted because the surface above it grew a guard rail.
+
+**Ledger entries this supersedes.** Two completed items in this change's own
+`tasks.md` describe surfaces the amendment retires: task 7.1's rail header line,
+removed by annotation A1 in the same slice, and task 8.6's two-press rail
+arm/discard flow, superseded here. Both remain accurate records of what was
+built and when; the ledgers are NOT rewritten, because a ledger that agreed with
+every later correction would stop being a record. This sentence is the pointer
+between them.
+
+**A note on ownership.** `add-doxbench-editing-phase-a` and
+`add-doxbench-editing-phase-b` belong to another session's thread (most recently
+PRs #216 and #223). This amendment was ruled in session by Brett and is recorded
+here rather than negotiated across threads; Phase A's matching statement of the
+same rule is amended in step so the two cannot disagree, and Phase A defers to
+this requirement for the full statement.
+
+## Amendment 2 — the reserved set narrows to the outline alone (2026-08-21)
+
+**Follow-ups this amendment surfaces without owning.** Two real gaps were
+measured while realizing it, both out of an annotation's scope, recorded here so
+they survive as work rather than as a test docstring's parenthetical: (1) a turn
+sent with the loaded set emptied to the outline is refused by the released wire
+shape (`buffers.minItems: 2`) with the fixed catalog message "the turn request
+is malformed", which does not name the missing document — improving that
+sentence is a change to a published failure envelope; (2) the promoted working
+subject requirement's "SHALL default from the tile's title or summary" is
+unrealized — `createChatState` seeds an empty subject and nothing fills it —
+which is a realization gap in an already-promoted requirement, needing its own
+slice.
+
+**Amendment 2 (2026-08-21, Brett, ruled via browser annotation, verbatim: "if I
+do the workflow to edit a document, and then cancel instead of save, then try to
+unload, the unload button is stippled. It should allow the document to unload.
+only the outline can never unload. we always want that to be loaded. If saved or
+canceled so the document is in neutral position, then we can unload it."): the
+reserved set narrows to the outline alone; a backed reserved-slot document in
+the neutral position unloads like any other document; the unbacked slot remains
+inert for want of anything to unload.**
+
+Brett annotated `button.doxbench-unload` on the running doxBench canvas while
+the SELECTED buffer was the tile's own document, held under the reserved
+`document` key with a real path. The control was inert and its title read "this
+is the tile's own document, the reserved buffer a turn falls back on, and is
+never unloaded — load another document to work beside it".
+
+**What the ruling aligns.** Three layers disagreed about what "reserved" meant
+for the Unload act. The UI withheld TWO keys; the controller's `unloadDocument`
+hard-refuses ONE (`outline`); `doxbench-state.js`'s `unloadDocumentBuffer`
+throws on ONE (`outline`). The ruling settles it at the number the two lower
+layers already used, so the surface now follows the state module rather than
+overruling it — which is why Amendment 1's recorded asymmetry is largely
+dissolved rather than merely re-described.
+
+**The claim that justified the withholding was checked before it was removed,
+and it is a WIRE bound, not a breakage.** The stated reason was the ONE-DOCUMENT
+FLOOR: `request_v2.buffers` declares `minItems: 2` and the server's
+`require_outline_and_documents` requires an outline plus at least one document,
+so a session holding only the outline plus this slot has no document to spare.
+Both statements are true and are untouched here. What was measured is what
+actually happens when the set empties, driven end to end through the real
+composition:
+
+* the unload itself is clean — no throw, the canvas keeps its boxes, the
+  selection moves to the outline exactly as the state module says;
+* the ratified selector EMPTY STATE renders at the same moment, naming the
+  remedy: "no document is loaded — use a docs tile's load verb to work on one;
+  the outline is workable on its own";
+* a turn still BUILDS and reaches the transport, binding to `outline`, carrying
+  the one buffer the set holds. Nothing throws inside the request builder;
+* at the server, that one-buffer request fails the released `request_v2` shape
+  and is answered with the fixed `invalid_turn_request` refusal in the v2
+  failure envelope — a 400 the rail renders on its live failure channel with the
+  composer preserved.
+
+So the floor is enforced by an EXPLICIT REFUSAL AT SEND, which is the honest
+surface for a wire bound, rather than by making a clean document permanently
+unremovable. The N3 wedge that originally motivated the withholding — under the
+v1 envelope, emptying the slot left `buildTurnRequest` reading `buffers.document
+.path` on an absent buffer, caught as the generic unsettled-buffer failure so
+the rail said "the buffers are still settling; try Send again in a moment"
+FOREVER — retired with that envelope. The widened builder carries whatever the
+set holds and says nothing untrue. That is the difference between the two
+refusals, and it is the whole difference: one was a permanently false sentence,
+the other is a correct one the human can act on.
+
+**What "neutral position" means, and why it needs no term of its own.** Brett's
+sentence names Save and Cancel as the two ways in. Both leave the buffer clean,
+and the canvas slot already shows Unload ONLY while no buffer of the loaded set
+is dirty (Amendment 1's swap). So the cleanliness half of the ruling is
+discharged by the swap that is already there; Amendment 2 changes only WHICH
+KEYS the control will act on once it is on screen. The dirty rule is untouched,
+including the loaded-set requirement's discharge that withholding the affordance
+entirely while anything is dirty satisfies the refusal.
+
+**The one non-outline withholding that stays, with the true reason.** The
+reserved `document` key can hold two different things. Backed, it is the tile's
+own document and it now unloads. UNBACKED — the create flow's not-yet-created
+artifact, a held buffer with a null path — it is not a member of the loaded set
+at all: `loadedBuffers` filters it out and the selector never lists it, which is
+what makes the ratified empty state reachable. There is no membership for Unload
+to end, so the control stays inert and says so. Its sentence changed with its
+reason, because the old one ("the reserved buffer a turn falls back on, and is
+never unloaded") is no longer true of anything under that key. Cancel is the
+control that acts on that buffer; Unload has no subject. This is a difference of
+SUBJECT, not of authority: the controller still accepts the key and the state
+module still honours it, which is right for a public method.
+
+**What is NOT amended.** The outline's reservation is untouched and is now the
+ONLY one — "only the outline can never unload. we always want that to be
+loaded." All three layers still say so. The loaded-set requirement is untouched:
+a document leaves the set only by an explicit human act, and that act still
+refuses or requires an explicit discard while dirty. Neither wire statement of
+the one-document floor is relaxed. Amendment 1's dirty-state-conditional slot,
+its ANY-buffer reading, and its gate-absent clause all stand exactly as written.
+
+**Ledger entries this supersedes.** Nothing in `tasks.md` is rewritten. The N3
+guard's own test is REPLACED rather than deleted — the same scenario, driven
+through Brett's reported sequence (edit, cancel, unload) and asserting the
+opposite outcome, with the reasoning for the reversal carried in its docstring
+so a reader who finds the old assertion in history can see why it turned over.

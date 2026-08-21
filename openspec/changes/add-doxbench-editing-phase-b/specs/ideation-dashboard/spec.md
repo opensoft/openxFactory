@@ -279,12 +279,46 @@ The view tabs, the canvas Save, the canvas Cancel, and the chat binding SHALL ea
 - **AND** the change MUST be confined to the buffer contract, the turn contract, and the save ordering rule
 
 ### Requirement: One Save and one Cancel govern the doxBench canvas
-The doxBench authoring canvas SHALL carry exactly ONE Save control and exactly ONE Cancel control, placed outside both view tabs so that each control and its answer are on screen whichever view the human is standing on, and MUST NOT render a duplicate Save or Cancel per view tab or per buffer WITHIN THE CANVAS. A per-document Save on the context region's `docs` tile is NOT such a duplicate and SHALL be permitted: it lives on a different surface, is scoped to the document whose tile carries it, and reaches the same governed pipeline — one save mechanism with a second entry point, which is the opposite of a second save path. The canvas Save SHALL keep the semantics the editor buffer contract gives it — it persists every dirty backed buffer through the existing `create-document`/`edit-document` gate actions under that contract's ordering rule, as commit-per-gate-action on the tile's branch session, with `open-pr` remaining the separate promotion act. Save's verdict SHALL continue to be reported PER BUFFER, so a partial success across several documents remains separately readable. Cancel SHALL discard the SELECTED buffer back to its last loaded or saved base content and MUST NOT touch any other buffer, because discard destroys unsaved human work, has no cross-buffer dependency, and a single control that silently reverted a buffer the human is not looking at would be this surface's one irreversible surprise — a hazard that grows, not shrinks, as the loaded set grows. Neither control SHALL grant any authority the surface did not already hold: no force-save, no force-discard, no bypass of a refusal, and no second write route. Where the gate capability is absent, both controls SHALL state that absence as visible text beside them rather than only in a hover title, and MUST NOT be reachable.
+The doxBench authoring canvas SHALL carry exactly ONE control slot placed outside both view tabs so that the slot and its answer are on screen whichever view the human is standing on, and what that slot renders SHALL be conditional on whether the loaded set holds unsaved work: while ANY buffer of the loaded set is dirty the slot SHALL render exactly ONE Save control and exactly ONE Cancel control, and while NO buffer is dirty it SHALL render exactly ONE Unload control in their place; the canvas MUST NOT render a duplicate Save, Cancel, or Unload per view tab or per buffer WITHIN THE CANVAS, and MUST NOT render Save or Cancel beside Unload, because the slot's own content is what tells a human whether this canvas is holding unsaved work. The dirty condition SHALL be read from the SAME per-buffer dirty flag Save and Cancel already derive their reachability from, and a realization that introduces a second source of dirtiness for the swap MUST be rejected. The condition SHALL be ANY-buffer-dirty rather than selected-buffer-dirty: Save answers for the whole canvas, so a rule that withdrew it whenever the SELECTED buffer happened to be clean would hide the only Save from a human whose other buffer still holds unsaved text — the precise hazard this capability's discard rules exist to prevent. The Unload control SHALL perform the loaded set's one way out for the SELECTED buffer, SHALL NAME that buffer where it can act, SHALL be reachable only where that buffer is a document the loaded set holds under a key that is not the reserved `outline` AND that names a document, and SHALL otherwise render as visibly inert while STATING the reason it cannot act as VISIBLE TEXT beside it rather than only in a hover title — the same standard this requirement already sets for an unreachable Save, and for the same reason doubled: a disabled control cannot take focus, so a title alone is reachable by neither a keyboard nor a screen reader. Amendment 2 (2026-08-21, Brett, ruled via browser annotation, verbatim: "if I do the workflow to edit a document, and then cancel instead of save, then try to unload, the unload button is stippled. It should allow the document to unload. only the outline can never unload. we always want that to be loaded. If saved or canceled so the document is in neutral position, then we can unload it."): the reserved set narrows to the outline alone; a backed reserved-slot document in the neutral position unloads like any other document; the unbacked slot remains inert for want of anything to unload. The `outline` key SHALL therefore be the ONLY key this control permanently withholds, and a document held under the reserved `document` key SHALL be as unloadable as one held under its own path once no buffer of the loaded set is dirty — the amendment narrows WHICH KEYS the control acts on and changes the dirty rule not at all. The UNBACKED `document` slot SHALL remain inert, and the realization MUST state that as a want of SUBJECT rather than as a reservation: the slot is held but names no document, so it has no loaded-set membership for the act to end, and the control's stated reason MUST NOT claim a reservation it no longer carries. Emptying the loaded set of every document SHALL NOT be prevented by withholding this act: where the turn contract's one-document floor makes such a session unable to build a turn, the surface SHALL refuse AT SEND with the composer preserved and the selector's honest empty state rendered, because a stated refusal a human can act on is a better discharge of a wire bound than a control that can never be reached. Where the gate capability is absent the slot SHALL keep its Save and Cancel posture unchanged and MUST NOT swap to Unload, because a surface that cannot save must go on saying so. A per-document Save on the context region's `docs` tile is NOT such a duplicate and SHALL be permitted: it lives on a different surface, is scoped to the document whose tile carries it, and reaches the same governed pipeline — one save mechanism with a second entry point, which is the opposite of a second save path. The canvas Save SHALL keep the semantics the editor buffer contract gives it — it persists every dirty backed buffer through the existing `create-document`/`edit-document` gate actions under that contract's ordering rule, as commit-per-gate-action on the tile's branch session, with `open-pr` remaining the separate promotion act. Save's verdict SHALL continue to be reported PER BUFFER, so a partial success across several documents remains separately readable. Cancel SHALL discard the SELECTED buffer back to its last loaded or saved base content and MUST NOT touch any other buffer, because discard destroys unsaved human work, has no cross-buffer dependency, and a single control that silently reverted a buffer the human is not looking at would be this surface's one irreversible surprise — a hazard that grows, not shrinks, as the loaded set grows. Neither control SHALL grant any authority the surface did not already hold: no force-save, no force-discard, no bypass of a refusal, and no second write route. Where the gate capability is absent, both controls SHALL state that absence as visible text beside them rather than only in a hover title, and MUST NOT be reachable.
 
-#### Scenario: The canvas offers its controls
-- **WHEN** doxBench mounts its authoring canvas
-- **THEN** exactly one Save control and exactly one Cancel control MUST be present on the canvas, outside both view tabs
-- **AND** no per-view-tab or per-buffer duplicate of either MUST be rendered inside the canvas
+#### Scenario: The canvas offers its controls while a buffer is dirty
+- **WHEN** doxBench renders its authoring canvas with any buffer of the loaded set dirty
+- **THEN** exactly one Save control and exactly one Cancel control MUST be rendered on the canvas, outside both view tabs
+- **AND** no Unload control MUST be rendered beside them
+- **AND** no per-view-tab or per-buffer duplicate of any of them MUST be rendered inside the canvas
+
+#### Scenario: The canvas offers its controls while nothing is dirty
+- **WHEN** doxBench renders its authoring canvas with no buffer of the loaded set dirty and a loaded document selected
+- **THEN** exactly one Unload control MUST be rendered in the same slot, outside both view tabs
+- **AND** no Save control and no Cancel control MUST be rendered beside it
+- **AND** the Unload control MUST be reachable and MUST name the selected document it would unload
+
+#### Scenario: Nothing is dirty and the selected buffer is the reserved outline
+- **WHEN** doxBench renders its authoring canvas with nothing dirty and the reserved `outline` buffer selected
+- **THEN** the Unload control MUST be rendered and MUST be visibly inert rather than absent
+- **AND** it MUST state that the outline is reserved and is never unloaded as VISIBLE TEXT beside it, not only in a hover title, because the inert control cannot take focus to reveal one
+- **AND** the `outline` key MUST be the ONLY key this control withholds by reservation (Amendment 2)
+
+#### Scenario: The tile's own document is edited, cancelled, and unloaded
+- **WHEN** a human edits the document held under the reserved `document` key, invokes Cancel rather than Save, and then invokes Unload
+- **THEN** the Unload control MUST be reachable and MUST name that document, because the buffer is clean and its key is not the outline
+- **AND** the document MUST leave the loaded set
+- **AND** the selector MUST render its honest empty state where it was the only loaded document
+- **AND** the same MUST hold where the buffer was returned to a clean state by Save instead of Cancel
+
+#### Scenario: The selected buffer is the unbacked create slot
+- **WHEN** doxBench renders its authoring canvas with nothing dirty and the reserved `document` key holding the not-yet-created artifact, which has no path
+- **THEN** the Unload control MUST be rendered and MUST be visibly inert rather than absent
+- **AND** its stated reason MUST name the absence of anything to unload, and MUST NOT claim the slot is reserved against unloading
+
+#### Scenario: The slot renders where the gate capability is absent
+- **WHEN** the authoring canvas is mounted with no gate save capability and no buffer is dirty
+- **THEN** the slot MUST keep rendering its Save and Cancel controls with Save unreachable and its absence stated as visible text
+- **AND** an Unload control MUST NOT be rendered in their place, because the swap would replace the one statement that a surface cannot save with a control that never says so
+
+#### Scenario: The swap is asked for a second source of dirtiness
+- **WHEN** any realization would drive the Save/Cancel-versus-Unload swap from a dirtiness signal other than the per-buffer dirty flag Save and Cancel already read
+- **THEN** it MUST be rejected — two answers to "is this canvas holding unsaved work" is how the two come to disagree
 
 #### Scenario: The canvas Save is invoked with several buffers dirty
 - **WHEN** a human invokes the canvas Save with the outline and two documents dirty
@@ -317,6 +351,8 @@ The loaded set SHALL be exactly the `outline` buffer plus every document a human
 #### Scenario: A dirty document is unloaded
 - **WHEN** a human unloads a document whose buffer has unsaved edits
 - **THEN** the unload MUST refuse or require an explicit discard, and MUST NOT silently drop the text
+- **AND** WITHHOLDING the unload affordance entirely while anything is dirty MUST satisfy this rule, because an act that cannot be reached is refused in the strongest available form
+- **AND** the state-level unload MUST keep refusing a dirty buffer that names no explicit discard, whether or not any surface can currently reach it
 
 #### Scenario: A context-only document is loaded
 - **WHEN** a human loads an inherited or cited document that is not this tile's own editable material

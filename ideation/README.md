@@ -265,7 +265,7 @@ Active proposals promoted from staging:
 
 - [add-identity-brokering](../openspec/changes/add-identity-brokering/proposal.md)
   — raised, RATIFIED and REALIZED 2026-08-21 (registered at
-  `contract-v1.36`) as the FULL promotion of the `identity-brokering-plane`
+  `contract-v1.37`) as the FULL promotion of the `identity-brokering-plane`
   staged topic, whose row and detail section leave
   [staging/INDEX.md](staging/INDEX.md) with this pointer: exit 1 of the
   topic's three exits, the neutral `identity-brokering` capability — one
@@ -288,7 +288,7 @@ Active proposals promoted from staging:
   the change.
 - [add-trust-anchor](../openspec/changes/add-trust-anchor/proposal.md)
   — raised, RATIFIED and REALIZED 2026-08-21 (registered at
-  `contract-v1.36`) as the FULL promotion of the `pki-trust-anchor-plane`
+  `contract-v1.37`) as the FULL promotion of the `pki-trust-anchor-plane`
   staged topic, whose row and detail section leave
   [staging/INDEX.md](staging/INDEX.md) with this pointer: exit 1 of three, the
   neutral `trust-anchor` capability — anchors as governed records with

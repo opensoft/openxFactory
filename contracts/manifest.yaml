@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.36
+contract_bundle_version: contract-v1.37
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1609,7 +1609,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/gate-action-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: a3e9240970427b0ef50a4c4a37749ee348374b4f120aca276bdaf28447fed8c6
+    sha256: 445a7e09c47a6c6da952e790ab423510804252685106f0759069c886ff291a17
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1621,9 +1621,13 @@ contracts:
       (add-workbench-branch-sessions 1.8) — plus the contract-v1.29 wheel
       commissions `promote-to-staging`, `derive-possibles`, and
       `research-brief`, with verb-specific targets and required workflow-job
-      companions. Consumed through the pinned openxFactory checkout at the
-      contract-v1.29 tag; per-file sha256 verified before any copy is treated
-      as current. The kickoff-ratification precondition, transition legality,
+      companions, and the contract-v1.36 `share-session` action — the doxBench
+      workbench verb that commits a session's dirty thread sidecars and pushes
+      the session branch, constrained on `target.ref` with NO artifact-kind
+      requirement because its record is branch-resident when it commits and
+      main-resident when it has nothing to commit. Consumed through the pinned
+      openxFactory checkout at the contract-v1.36 tag; per-file sha256 verified
+      before any copy is treated as current. The kickoff-ratification precondition, transition legality,
       and wheel commission pairings are
       enforced by scripts/validate-ideation-dashboard-contracts.py (the
       family's delegated owner), never re-implemented by consumers.
@@ -2015,7 +2019,7 @@ contracts:
       all leaves a requirement record valid. Consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any
       copy is treated as current.
-  # ---- identity-brokering contract family — contract-v1.36 registration (add-identity-brokering, feature 008-identity-brokering-contracts) ----
+  # ---- identity-brokering contract family — contract-v1.37 registration (add-identity-brokering, feature 008-identity-brokering-contracts) ----
   # The packaged corpus (contracts/identity-brokering/examples/, 14 positive
   # examples + 41 intended-invalid negatives, coverage closed in both
   # directions at 9/9 requirements), the family README, and the strict
@@ -2040,7 +2044,7 @@ contracts:
       denylist. A membership records ASSOCIATION and carries no role, scope
       or permission, and its `organization_id` uses a NARROWER pattern than
       the family's general identifier (no ':' and no '/') so a tenancy path
-      cannot be smuggled in as a membership. Registered at contract-v1.36;
+      cannot be smuggled in as a membership. Registered at contract-v1.37;
       consumed through the pinned openxFactory checkout with per-file
       sha256 verified before any copy is treated as current.
   - id: identity-brokering-broker-organization
@@ -2062,7 +2066,7 @@ contracts:
       THE POINTER-NOT-PROJECTION LINE LIVES HERE: `governed_record_refs` is
       bounded at ONE item, closed to a record kind, a reference and the
       declaration that it resolves in the governed layer. Registered at
-      contract-v1.36; consumed through the pinned openxFactory checkout
+      contract-v1.37; consumed through the pinned openxFactory checkout
       with per-file sha256 verified before any copy is treated as current.
   - id: identity-brokering-actor-subject-reference
     path: contracts/identity-brokering/actor-subject-reference.schema.yaml
@@ -2083,7 +2087,7 @@ contracts:
       mapper, date and evidence reference. That is OQ-1's settlement —
       mark the boundary date and map on demand, never blanket-backfill,
       because a backfill asserts identity resolutions nobody verified.
-      Registered at contract-v1.36; consumed through the pinned
+      Registered at contract-v1.37; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.
   - id: identity-brokering-identity-link-record
@@ -2104,7 +2108,7 @@ contracts:
       this schema at run time, so the check and the shape cannot drift
       apart. EVERY PRE-MERGE SUBJECT IS CARRIED, each with the surviving
       subject it remains resolvable to, so records already written against
-      a losing identifier stay attributable. Registered at contract-v1.36;
+      a losing identifier stay attributable. Registered at contract-v1.37;
       consumed through the pinned openxFactory checkout with per-file
       sha256 verified before any copy is treated as current.
   - id: identity-brokering-broker-client-declaration
@@ -2128,7 +2132,7 @@ contracts:
       `openxwallet` holders — and EVERY CREDENTIAL HERE IS A REFERENCE to
       a credential-contracts requirement with a named holder and declared
       custody, stored nowhere in this family. Registered at
-      contract-v1.36; consumed through the pinned openxFactory checkout
+      contract-v1.37; consumed through the pinned openxFactory checkout
       with per-file sha256 verified before any copy is treated as current.
   - id: identity-brokering-surface-adoption
     path: contracts/identity-brokering/surface-adoption.schema.yaml
@@ -2152,10 +2156,10 @@ contracts:
       `human_accounts_held_by_surface` is a required constant `false`.
       Isolation escalates by broker INSTANCE, and the contract stays
       SILENT on instance count so a non-tenanted per-clinic deploy stays
-      conformant. Registered at contract-v1.36; consumed through the
+      conformant. Registered at contract-v1.37; consumed through the
       pinned openxFactory checkout with per-file sha256 verified before
       any copy is treated as current.
-  # ---- trust-anchor contract family — contract-v1.36 registration (add-trust-anchor, feature 009-trust-anchor-contracts) ----
+  # ---- trust-anchor contract family — contract-v1.37 registration (add-trust-anchor, feature 009-trust-anchor-contracts) ----
   # The packaged corpus (contracts/trust-anchor/examples/, 34 positive
   # examples + 65 intended-invalid negatives, coverage closed in both
   # directions at 8/8 requirements), the family README, the strict validator
@@ -2186,7 +2190,7 @@ contracts:
       MATERIAL IS A CREDENTIAL RECORD: `declared_chain_custody` admits
       exactly the `credential-contracts` reference WITH its vault binding,
       or the obligation entry declaring that neither can be produced.
-      Registered at contract-v1.36; consumed through the pinned
+      Registered at contract-v1.37; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.
   - id: trust-anchor-certificate-record
@@ -2210,7 +2214,7 @@ contracts:
       registry, recomputed by the canonical validator, with an
       undeclared-custody record resolving to the registry's declared FLOOR
       — so raising assurance is a custody change rather than a claim.
-      Registered at contract-v1.36; consumed through the pinned
+      Registered at contract-v1.37; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.
   - id: trust-anchor-issuance-evidence
@@ -2235,7 +2239,7 @@ contracts:
       requires a `declared_shortfall_ref`, which the canonical validator
       resolves and refuses if the obligation it names is recorded
       satisfied, or was declared LATER than this record's own
-      `issued_at`. Registered at contract-v1.36; consumed through the
+      `issued_at`. Registered at contract-v1.37; consumed through the
       pinned openxFactory checkout with per-file sha256 verified before
       any copy is treated as current.
   - id: trust-anchor-dependent-binding
@@ -2260,7 +2264,7 @@ contracts:
       generation does not validate. ADMISSION IS WHERE CUSTODY AND
       DECLARED GAPS BITE: a `required_assurance` above the certificate's
       DERIVED ceiling must be recorded `refused` with the ceiling NAMED.
-      Registered at contract-v1.36; consumed through the pinned
+      Registered at contract-v1.37; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.
   - id: trust-anchor-renewal-record
@@ -2283,7 +2287,7 @@ contracts:
       representable attribution — `failure.attribution` is the constant
       `issuing_workflow`. AN UNATTENDED RENEWAL IS NOT EXEMPT: no rule
       anywhere keys on `renewal_mode`, because silence is not evidence.
-      Registered at contract-v1.36; consumed through the pinned
+      Registered at contract-v1.37; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.
   - id: trust-anchor-revocation-propagation
@@ -2310,7 +2314,7 @@ contracts:
       `incomplete_open_exposure` with the escalation recorded. REVOKING
       AN ANCHOR IS TRANSITIVE, and the validator computes the closure
       over the anchor chain from the corpus. Registered at
-      contract-v1.36; consumed through the pinned openxFactory checkout
+      contract-v1.37; consumed through the pinned openxFactory checkout
       with per-file sha256 verified before any copy is treated as
       current.
   - id: trust-anchor-conformance-declaration
@@ -2333,7 +2337,7 @@ contracts:
       DECLARING A GAP AFTERWARDS DOES NOT VALIDATE THE CLAIMS MADE WHILE
       THE REALIZATION WAS SILENT: each entry carries its own
       `declared_at`, and a record citing an entry declared LATER than the
-      record's own moment is refused. Registered at contract-v1.36;
+      record's own moment is refused. Registered at contract-v1.37;
       consumed through the pinned openxFactory checkout with per-file
       sha256 verified before any copy is treated as current.
   - id: trust-anchor-chain-custody-registry-schema
@@ -2356,7 +2360,7 @@ contracts:
       from two declared booleans and never independently asserted:
       `named_holder` iff the key is NOT readable by the using host AND use
       requires an authorization that host cannot itself supply,
-      `using_host` otherwise. Registered at contract-v1.36; consumed
+      `using_host` otherwise. Registered at contract-v1.37; consumed
       through the pinned openxFactory checkout with per-file sha256
       verified before any copy is treated as current.
   - id: trust-anchor-chain-custody-registry
@@ -2364,7 +2368,7 @@ contracts:
     source_path: openxFactory/contracts/trust-anchor/trust-anchor-chain-custody.registry.yaml
     type: registry
     schema_version: 1
-    sha256: 8fd3e37ddcf438866711e06089251dc23ad9a6c1ba872cf29e185b6f257526ae
+    sha256: b140fae269ce31701afbadef5d6c94002e2a683084c4c9912ddc0d8b321609f3
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2378,6 +2382,6 @@ contracts:
       Operator escrow is a DELIBERATE NON-MEMBER, modelled as a
       relationship on the credential record rather than a custody tier
       (Brett Heap's ratification of 2026-08-21, OQ2 ruled as
-      recommended). Registered at contract-v1.36; consumed through the
+      recommended). Registered at contract-v1.37; consumed through the
       pinned openxFactory checkout with per-file sha256 verified before
       any copy is treated as current.

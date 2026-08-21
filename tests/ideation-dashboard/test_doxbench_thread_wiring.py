@@ -866,11 +866,14 @@ def test_no_thread_write_path_reaches_a_push(tmp_path):
     nothing scheduled may either. Asserted against the SOURCE of every place
     this slice touched, because an absence nobody checks is an absence that
     grows a helper."""
-    for module in ("serve.py", "doxbench_threads.py", "doxbench_bridge.py",
-                   "doxbench_mcp.py"):
+    from conftest import FORBIDDEN_PUSH_TOKENS, NO_IMPLICIT_PUSH_MODULES
+    # §12 took ownership of the list and WIDENED it (conftest). Reading it from
+    # there rather than restating four names is what keeps the two sweeps from
+    # drifting apart while both keep passing.
+    for module in NO_IMPLICIT_PUSH_MODULES:
         source = (REPO_ROOT / "scripts" / "ideation_dashboard"
                   / module).read_text(encoding="utf-8")
-        for forbidden in (".push(", "open_or_update(", "git push"):
+        for forbidden in FORBIDDEN_PUSH_TOKENS:
             assert forbidden not in source, (module, forbidden)
 
 
