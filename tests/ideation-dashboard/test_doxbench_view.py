@@ -4821,7 +4821,7 @@ const byClass = (cls) => container.walk().filter(
 const one = (cls) => byClass(cls)[0] || null;
 
 await until(() => byClass('doxbench-textarea').length === 2, 'the canvas');
-await until(() => one('doxchat-header') !== null, 'the chat rail');
+await until(() => one('doxchat-loaded') !== null, 'the chat rail');
 const documentArea = byClass('doxbench-textarea')[1];
 await until(() => documentArea.value.includes(DOC_A), 'the loaded document');
 
@@ -4834,7 +4834,11 @@ const wheelPath = () => {
 // the canvas's own picker is retired (Brett's 2026-08-15 annotation round), so
 // the surfaces that must agree are the wheel and the canvas itself
 const pickerNodes = () => byClass('doxbench-document-picker').length;
-const headerText = () => String((one('doxchat-header') || {}).textContent || '');
+// Brett's 2026-08-21 annotation removed the standing header line, so the STATED
+// binding is read off the two surfaces that carry it now: the selector's own
+// selection, and the sr-only full-name region beside it.
+const bindingText = () => String((one('doxchat-loaded-full') || {}).textContent || '');
+const boundValue = () => String((one('doxchat-loaded') || {}).value || '');
 // the canvas's own answer: the fake source names the path it loaded
 const canvasDocument = () => (byClass('doxbench-textarea')[1] || {}).value || '';
 // The canvas's OWN answer to "which document am I holding", independent of
@@ -4850,10 +4854,13 @@ const agree = () => ({
 
 const out = {};
 // the rail renders once before the canvas's initial load settles, so wait for
-// the header to be reading real buffers rather than pinning the empty frame
-await until(() => headerText().includes(OUTLINE_PATH.split('/').pop()),
-            'the rail header to read the loaded buffers');
-out.headerAtMount = headerText();
+// the binding statement to be reading real buffers rather than pinning the
+// empty frame
+await until(() => bindingText().includes(OUTLINE_PATH.split('/').pop()),
+            'the rail binding statement to read the loaded buffers');
+out.bindingAtMount = bindingText();
+out.boundAtMount = boundValue();
+out.headerAbsent = byClass('doxchat-header').length === 0;
 
 // ---- F3: the tile's LOAD verb moves the STATED binding --------------------
 // RE-CUT by `add-doxbench-editing-phase-b` (PR #207 review, F1's root cause).
@@ -4879,7 +4886,8 @@ await until(() => byClass('doxbench-textarea').length === 3,
             'the loaded document its own editor');
 for (let i = 0; i < 20; i += 1) await settle();
 out.wheelAfterLoad = wheelPath();
-out.headerAfterLoad = headerText();
+out.bindingAfterLoad = bindingText();
+out.boundAfterLoad = boundValue();
 out.loadedEditorCount = byClass('doxbench-textarea').length;
 // The FIRST document is untouched by the second one arriving: its own editor
 // still holds its own text, under its own key.
@@ -4962,17 +4970,23 @@ def test_the_rail_states_the_buffer_the_chat_is_working_on(selection_results):
     proves it entry by entry (`test_doxbench_tile_verbs.py`). The outline keeps
     its own named slot because its key is permanently reserved and it is the one
     buffer that rides every turn.
+
+    RE-PINNED AGAIN by Brett's 2026-08-21 annotation on `div.doxchat-header`
+    ("remove this section."). The standing line is gone as a restatement of what
+    the selector below it already showed, so the CLAIM this test makes now rests
+    on the two surfaces that survived it: the selector's own selection, and the
+    sr-only full-name region that names it for assistive technology. The
+    grounding COUNT the line used to carry is the selector's own listing, pinned
+    entry by entry in `test_doxbench_tile_verbs.py`.
     """
-    header = selection_results["headerAtMount"]
-    assert header.startswith("Working on — ")
-    assert "topic-x.md" in header.split("·")[0]
-    # grounding is unchanged and still names EVERY buffer a turn carries: binding
-    # says what the chat works ON, never what it may see.
-    assert "Chatting about — Outline:" in header
-    assert "1 loaded document" in header
-    # …and it is a COUNT, not a silent truncation of a two-name list: the plural
-    # is derived, so a second loaded document reads honestly rather than as "1".
-    assert "1 loaded documents" not in header
+    assert selection_results["headerAbsent"] is True, (
+        "the standing header line must not come back")
+    # At mount the OUTLINE is the selected buffer, and both surfaces say so. The
+    # selector carries the reserved KEY (the outline's key is permanently
+    # `outline`, never its path); the sr-only region names the path in full.
+    assert selection_results["boundAtMount"] == "outline"
+    assert selection_results["bindingAtMount"] == (
+        "Working on ideation/staging/topic-x/topic-x.md")
 
 
 def test_the_tile_load_verb_moves_the_stated_binding(selection_results):
@@ -4995,8 +5009,13 @@ def test_the_tile_load_verb_moves_the_stated_binding(selection_results):
     its binding half is driven at the controller in
     `test_the_context_selection_chooses_the_active_buffer_not_the_view_tabs`.)"""
     assert selection_results["wheelAfterLoad"].endswith("second.md")
-    header = selection_results["headerAfterLoad"]
-    assert header.startswith("Working on — second.md")
+    # Brett's 2026-08-21 annotation removed the standing header line; the STATED
+    # binding the claim is about is the selector's own selection and the sr-only
+    # region beside it, and the LOAD verb must still move both.
+    assert selection_results["boundAfterLoad"] == (
+        "ideation/staging/topic-x/second.md")
+    assert selection_results["bindingAfterLoad"] == (
+        "Working on ideation/staging/topic-x/second.md")
     # The second document arrived BESIDE the first: three editors, each holding
     # its own text under its own key. Phase A had one document slot, so this was
     # the switch the guard existed to protect; Phase B replaces nothing.

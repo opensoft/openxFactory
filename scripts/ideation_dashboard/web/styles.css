@@ -1728,10 +1728,6 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   border: 1px solid var(--border); border-radius: 6px;
 }
 .doxchat-composer { min-height: 64px; resize: vertical; }
-.doxchat-header {
-  font-size: 12px; font-weight: 600; color: var(--ink);
-  padding: 6px 8px; border-bottom: 1px solid var(--border);
-}
 /* THE LOADED-DOCUMENT SELECTOR (add-doxbench-editing-phase-b, Q1 ruled). A
    native scrolling select IS the overflow policy (design D6): no folding, no
    chip row, no least-recently-used eviction, because every loaded buffer may
