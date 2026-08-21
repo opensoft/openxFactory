@@ -175,8 +175,70 @@ the snapshot→plan path and are adjacent on purpose.
 ## 7. Bookkeeping
 
 - [x] 7.1 README "OpenSpec Records" active block — done at proposal time.
-- [ ] 7.2 Realization evidence recorded at the archive gate; `implementation_pending`
+- [x] 7.2 Realization evidence recorded at the archive gate; `implementation_pending`
       means this does NOT archive on landing the requirements.
+      REALIZED and archived 2026-08-21. Merged to openxFactory main as PR #221
+      (merged 2026-08-20T01:23:54Z, rebase-merge, so the branch's five commits
+      landed on main directly rather than under a merge commit): `1a7c2a1`
+      (the four mechanics), `17bba49` (the fix-first pass — the returned-artifact
+      half of Brett's ruling plus four demonstrated defects), `8c123bf` (the
+      re-verify findings: the outline's refresh-in-place arm, one status grammar
+      across both gates, the collapse's stated scope), `ca9fcaf` (the status-header
+      addition carved out of the refresh's byte bound, in the delta that pins it),
+      `6c3d87c` (the staged origin path recorded in POSIX form, tolerating the other
+      spelling on the way in). The review record is the PR's own multi-lap
+      adversarial review thread — FIX-FIRST once, then two focused re-verify rounds,
+      each answered by the commit named above rather than by argument.
+      GREEN ON THE IMPLEMENTED TARGET, re-verified at `7312c25` (current
+      `origin/main`) rather than taken from the PR run:
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` exit 0, 64 passed /
+      0 failed (64 items); `python3 -m pytest tests/ideation-dashboard
+      tests/proposal-support -q` exit 0, 3729 passed / 14 skipped;
+      `python3 -m pytest tests/doc-health -q` 691 items with no genuine failure.
+      Exit codes read DIRECTLY, never through a pipe.
+      6.2'S "FOUR KNOWN PRE-EXISTING FAILURES" WERE NEVER A DEFECT — they were an
+      artifact of WHERE the suite was run, and the correction is recorded here
+      because three gate tasks across this change and its two siblings carried the
+      wrong explanation forward. `tests/doc-health` runs clean; do not describe
+      those four as expected failures anywhere.
+      THE REAL CAUSE, measured rather than assumed. The four
+      `test_client_identity_composition.py::test_every_cross_domain_fixture_repo_passes_the_blocking_domain_gate`
+      cases fail from any checkout whose ABSOLUTE PATH contains a `.git` directory
+      segment. `scripts/validate-client-identity-roster.py`'s `sweep_files` filters
+      any path with `.git` among its PARTS (`SKIP_DIR_NAMES`), and the check tests
+      every part rather than only the segments below the target — so from such a
+      location every fixture YAML is swept out, no `xfactory_consent_instrument`
+      resolves, and all three roster records fail
+      `unresolvable-consent-citation`. This archive ran from exactly such a tree,
+      an isolated worktree under
+      `.../xFactory/.git/modules/openxFactory/.claude/worktrees/...`, which is why
+      the same four appeared again here.
+      THREE MEASUREMENTS SETTLE IT, none of them inference:
+      • The identical fixture bytes copied to a directory with no `.git` segment,
+        through the identical validator, exit 0 —
+        `alphaxFactory: 3 roster record(s) checked, 0 error(s) -> PASS`.
+      • The whole suite from a clean-path mirror of this same tree: exit 0, 684
+        passed / 7 skipped, the 7 skips being sibling-checkout-dependent tests a
+        mirror outside the workspace layout cannot reach (they pass in the
+        worktree). The two runs together cover all 691 items, zero genuine failures.
+      • The decisive one, because it rules out the "a later commit fixed them"
+        reading: the tree at `78f8e01~1` — BEFORE the only commit since 2026-08-19
+        to touch the validator, the fixtures or the test, and that commit changes
+        one prose string in `EXTENSION_ROUTE` — passes all 21 cases from a clean
+        path. The consent fixtures have been present since `71674ed` (#190). So no
+        commit fixed anything: the tests always passed from a normal checkout and
+        always failed from a `.git`-segment one.
+      WHAT THAT MEANS FOR THE GATE INSTRUCTIONS. 6.2 here, and 5.2 in
+      `align-status-reader-to-real-lines`, both told their executor to enumerate
+      four known failures and assert the set unchanged. That instruction encoded a
+      location artifact as a property of the corpus, so it would have passed a
+      genuine regression through unnoticed on any clean-path run and would keep
+      excusing four failures forever on a `.git`-segment one. The set-comparison is
+      therefore moot rather than violated, and it is recorded as WRONG rather than
+      as satisfied. Not a defect claim against the validator — filtering `.git` is
+      correct for a corpus sweep, and a validator is entitled to assume it is not
+      being run from inside a git internal directory. Recorded so the next executor
+      does not re-derive it, and does not carry the excuse forward a fourth time.
 
 ## 8. Out of scope, by ruling
 
