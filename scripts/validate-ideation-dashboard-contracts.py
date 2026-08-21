@@ -928,6 +928,11 @@ def check_routing_rules(f: Findings, label: str, entries: list[dict]) -> None:
         target_ids = [str(t) for t in targets] if isinstance(targets, list) else []
         resolvable = []
         for target_id in target_ids:
+            # ALSO A DIAGNOSTIC (F2b asked for it as one: "explicit check, not
+            # incidental via the chained-rule rule"). A rule that names itself
+            # names a routing rule, so the chained-rule arm below refuses the
+            # same catalog — reporting "routes to something that is itself a
+            # routing rule", which is true and useless. Guarded by a code test.
             if target_id == rule_id:
                 f.error("routing-self-reference",
                         f"{label}: routing rule {rule_id!r} names ITSELF in "
@@ -947,6 +952,13 @@ def check_routing_rules(f: Findings, label: str, entries: list[dict]) -> None:
                         f"resolved model must be one that answers")
                 continue
             target_badge = str(target.get("data_handling") or "")
+            # A DIAGNOSTIC, not an independent refusal — and revert-testing is
+            # what proved it. A badge holding the separator can never BE a
+            # segment, so the covering check below refuses the same catalog
+            # either way; it just refuses it with a message that sends the
+            # operator to add a badge which will still not match. This arm names
+            # the real cause. Its guard is therefore a test on the finding CODE,
+            # not on the mere fact of refusal.
             if ROUTING_BADGE_SEPARATOR in target_badge:
                 f.error("routing-badge",
                         f"{label}: the data_handling badge of {target_id!r} "

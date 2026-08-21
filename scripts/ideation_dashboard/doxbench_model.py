@@ -494,6 +494,12 @@ class ModelCatalog:
                     raise InvalidRoutingRuleError(
                         f"routing rule {entry.model_id!r} routes to "
                         f"{target_id!r}, which is itself a routing rule")
+                # A DIAGNOSTIC rather than an independent refusal: a badge
+                # holding the separator can never be a segment, so the covering
+                # check below would refuse this catalog anyway — with a message
+                # telling the operator to add a badge that still would not
+                # match. Proven redundant-as-a-refusal by revert-test; kept
+                # because naming the real cause is worth one branch.
                 if ROUTING_BADGE_SEPARATOR in target.data_handling:
                     raise InvalidRoutingRuleError(
                         f"the data_handling badge of {target_id!r} contains "

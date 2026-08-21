@@ -1116,6 +1116,55 @@ def test_every_packaged_routing_negative_is_refused_by_BOTH_gates(released_root)
             f"{path.name}: the TYPE gate accepted it")
 
 
+# Each packaged routing negative fails for ITS OWN NAMED reason in the file
+# gate. This is the guard for the two arms revert-testing proved are DIAGNOSTIC
+# rather than independent — the separator collision (the covering check would
+# refuse it anyway, with a message that misdirects) and the self-reference (the
+# chained-rule arm would refuse it anyway, calling it something else). Asserting
+# the CODE is what keeps those arms honest; asserting mere refusal would not.
+_EXPECTED_FINDING_CODE = {
+    "workbench-model-catalog-routing-badge-gap": "routing-badge",
+    "workbench-model-catalog-routing-badge-holds-the-separator": "routing-badge",
+    "workbench-model-catalog-routing-badge-incidental-word": "routing-badge",
+    "workbench-model-catalog-routing-badge-inverted-substring": "routing-badge",
+    "workbench-model-catalog-routing-dangling-target": "routing-target",
+    "workbench-model-catalog-routing-resolved-outside-routes-to": "routing-resolution",
+    "workbench-model-catalog-routing-rule-chained": "routing-target",
+    "workbench-model-catalog-routing-rule-unavailable-resolution": "routing-availability",
+    "workbench-model-catalog-routing-rule-wider-than-target": "routing-limit",
+    "workbench-model-catalog-routing-self-reference": "routing-self-reference",
+}
+
+
+def test_each_routing_negative_is_refused_for_its_OWN_named_reason(released_root):
+    negatives = sorted((released_root / "examples" / "ideation-dashboard"
+                        / "negative").glob(_ROUTING_NEGATIVE_GLOB))
+    assert {p.name.replace(".negative.yaml", "") for p in negatives} == set(
+        _EXPECTED_FINDING_CODE)
+    for path in negatives:
+        errors = _file_gate_errors(released_root, path)
+        codes = {e.split("[", 1)[1].split("]", 1)[0] for e in errors}
+        expected = _EXPECTED_FINDING_CODE[path.name.replace(".negative.yaml", "")]
+        assert expected in codes, (path.name, sorted(codes))
+
+
+def test_the_separator_collision_and_self_reference_name_their_real_cause(
+        released_root):
+    """The two diagnostic arms, pinned on their MESSAGES. Without these the
+    arms could be deleted and every other test would stay green, because the
+    covering rule and the chained-rule rule respectively refuse the same
+    catalogs under different names."""
+    base = released_root / "examples" / "ideation-dashboard" / "negative"
+    separator = _file_gate_errors(
+        released_root,
+        base / "workbench-model-catalog-routing-badge-holds-the-separator.negative.yaml")
+    assert any("segment separator" in e for e in separator), separator
+    self_ref = _file_gate_errors(
+        released_root,
+        base / "workbench-model-catalog-routing-self-reference.negative.yaml")
+    assert any("names ITSELF in routes_to" in e for e in self_ref), self_ref
+
+
 def test_the_packaged_routing_positive_is_accepted_by_BOTH_gates(released_root):
     path = (released_root / "examples" / "ideation-dashboard"
             / "workbench-model-catalog-routing-rule.example.yaml")
