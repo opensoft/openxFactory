@@ -642,15 +642,27 @@ Archived changes:
 
 - [add-staged-topic-outline-template](openspec/changes/archive/2026-08-21-add-staged-topic-outline-template/proposal.md)
   — **ARCHIVED 2026-08-21**, all 22 tasks discharged and the realization
-  evidence recorded at the gate: PR #193 (`93f4241`, doc-health's WARNING-tier
-  `staged-topic-template` family), #195 (`ea42a43`, the template as contract
-  text), #198 (`e0dbcea`, `642dd64`, the outline section model and Amendment 1),
-  #208 (`26558e7`, `3a1f3aa`, `cd9f683`, the outline tab), #211 (`9dfd59a`,
-  `4c9b46b`, the mutation-validated 4.1/4.3 tests), #217 (`55e8a67`, `7469d1a`,
-  `b84a936`, task 4.2 discharged by DRIVING the real round trip once the change
-  its defect spawned had realized at #215), #224 (`8dde22f`, `2f9e876`,
-  bookkeeping 6.1-6.3) and #227 (`5654343`, `8780bf5`, `67ad236`, `a70bf01`,
-  `0d4cf16`, gates 5.1-5.4). Two ADDED requirements promoted —
+  evidence recorded at the gate. THIS CHANGE'S OWN REALIZATION CHAIN is eight
+  merged PRs, each of which edits this change's own files: #193 (`93f4241`,
+  doc-health's WARNING-tier `staged-topic-template` family), #195 (`ea42a43`,
+  the template as contract text in `docs/document-lifecycle.md`), #198
+  (`e0dbcea`, `642dd64`, the outline section model and Amendment 1), #208
+  (`26558e7`, `3a1f3aa`, `cd9f683`, the outline tab, tasks 3.1-3.5 + 4.4), #211
+  (`9dfd59a`, `4c9b46b`, the mutation-validated tests, tasks 4.1 + 4.3), #217
+  (`55e8a67`, `7469d1a`, `b84a936`, task 4.2 discharged by DRIVING the real
+  round trip), #224 (`8dde22f`, `2f9e876`, bookkeeping 6.1-6.3) and #227
+  (`5654343`, `8780bf5`, `67ad236`, `a70bf01`, `0d4cf16`, gates 5.1-5.4).
+  SPAWNED CHANGES REALIZED SEPARATELY, and NOT part of the chain above — each
+  has its own archive record carrying its own evidence, and none of these three
+  PRs touches a file of this change: `align-demote-to-round-trip-rule` (PR #215
+  / `79ed72e`, archived 2026-08-19 by this change's #217),
+  `refine-demote-round-trip-mechanics` (PR #221 / `6c3d87c`) and
+  `align-status-reader-to-real-lines` (PR #222 / `c379a09`), the last two
+  archived 2026-08-21 by #225. All three descend from task 4.2's driven round
+  trip. Separately, #228 (Phase B wave 2) edited this change's `tasks.md` to
+  reconcile its 5.3 enumeration and 6.3 path after the `doxbench-editing-model`
+  topic exited staging — a cross-change bookkeeping repoint, not a realization
+  of anything here. Two ADDED requirements promoted —
   `document-lifecycle`'s "Staged topic primary-fragment template" (5 scenarios)
   and `ideation-dashboard`'s "The outline tab renders the staged-topic template"
   (4 scenarios) — and the staged origin's support bundle archived beside the
@@ -684,11 +696,9 @@ Archived changes:
   `docs/document-lifecycle.md`, doc-health's WARNING-tier `staged-topic-template`
   family, and the outline tab's section index plus gated add-section
   affordance, all with test coverage. Task 4.2's driven round-trip test
-  surfaced a live demote defect that spawned and closed
-  `align-demote-to-round-trip-rule` (ratified, realized, archived 2026-08-19),
-  whose own two follow-ups — `refine-demote-round-trip-mechanics` and
-  `align-status-reader-to-real-lines` — are now realized and merged (PR #221,
-  #222). Bookkeeping 6.1-6.3 discharged (this row, the exit-marked staging
+  surfaced a live demote defect, which is where all three spawned changes
+  listed above came from; every one of them is closed before this change
+  archived. Bookkeeping 6.1-6.3 discharged (this row, the exit-marked staging
   fragments, and the `doxbench-editing-model` Q4 handoff). GATES 5.1-5.4 ARE
   NOW CLOSED, task 5.4 by driving a real headless browser against a throwaway
   scratch checkout: the outline tab opened on a conforming and a pre-template
