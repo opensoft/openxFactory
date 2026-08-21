@@ -118,7 +118,11 @@ The doxBench authoring canvas SHALL carry exactly ONE control slot placed outsid
 - **WHEN** doxBench renders its authoring canvas with any buffer dirty
 - **THEN** exactly one Save control and exactly one Cancel control MUST be present, outside both view tabs
 - **AND** no per-view-tab or per-buffer duplicate of either MUST be rendered
-- **AND** with nothing dirty the same slot MUST render exactly one Unload control in their place, as Phase B's requirement specifies in full
+
+#### Scenario: The canvas slot with nothing dirty
+- **WHEN** doxBench renders its authoring canvas with no buffer dirty
+- **THEN** the same slot MUST render exactly one Unload control in place of Save and Cancel, as Phase B's requirement specifies in full
+- **AND** neither a Save control nor a Cancel control MUST be rendered beside it
 
 #### Scenario: Save is invoked with both buffers dirty
 - **WHEN** a human invokes the one Save with both backed buffers dirty

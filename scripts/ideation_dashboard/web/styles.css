@@ -1601,6 +1601,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 }
 .doxbench-eventnote[hidden] { display: none; }
 .doxbench-save-note[hidden] { display: none; }
+.doxbench-unload-note[hidden] { display: none; }
 .doxbench-status { font-size: 10.5px; color: var(--faint-ink); flex: 1; }
 .doxbench-status.is-dirty { color: var(--st-proposal); font-weight: 600; }
 /* Amendment 1 (2026-08-21): Unload shares the slot with the Save/Cancel pair and
@@ -1668,7 +1669,7 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
    (legible without a hover), the document picker that reaches
    selectDocument, and the refused-edit status state. Append-only — no rule
    above this comment is touched. */
-.doxbench-save-note, .doxbench-guard-save-note {
+.doxbench-save-note, .doxbench-guard-save-note, .doxbench-unload-note {
   font-size: 10px; color: var(--faint-ink); font-style: italic; flex-basis: 100%;
 }
 .doxbench-status-error { color: var(--blocked); font-weight: 600; }

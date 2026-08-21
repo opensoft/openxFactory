@@ -603,6 +603,77 @@ async function guardScenario(choice) {
   return { dirtyBuffer, blocked, guardText, resolved, afterBuffer, calls: calls.slice() };
 }
 
+// Amendment 1 (F3): WHERE THE GATE CAPABILITY IS ABSENT THE SLOT DOES NOT SWAP.
+// Mounted with NO save seam and nothing dirty — the state that would otherwise
+// show Unload. The pair must stay, with Save's absence stated as visible text,
+// because swapping would replace the one statement that this surface cannot save
+// with a control that never says so.
+//
+// Written at the CANVAS MODULE, which is where the clause actually reaches:
+// through the shipped shell a gate-off console renders no canvas controls at
+// all, so this is a module-level invariant rather than an end-user posture.
+async function gateAbsentSlotScenario() {
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(), previewDelayMs: 5,
+  });
+  await controller.ready;
+  const els = controller.elements();
+  return {
+    anythingDirty: Object.values(controller.state().buffers).some((b) => b.dirty),
+    saveHidden: els.save().hidden === true,
+    cancelHidden: els.cancel().hidden === true,
+    unloadHidden: els.unload().hidden === true,
+    saveDisabled: els.save().disabled === true,
+  };
+}
+
+// Amendment 1 (F5): A SAVE IN FLIGHT KEEPS THE PAIR ON SCREEN. The bytes are
+// mid-flight and the buffers are about to stop being dirty but have not yet, so
+// swapping the slot under a running Save would answer a question nobody asked.
+// The seam is held open on a promise this scenario resolves by hand.
+async function saveInFlightSlotScenario() {
+  let release = null;
+  const held = new Promise((resolve) => { release = resolve; });
+  const controller = mountDoxBenchCanvas(new Node('div'), makeProjection(), {
+    loadSource: makeLoadSource(CONTENT, []), storage: new FakeStorage(), previewDelayMs: 5,
+    save: async (request) => {
+      await held;
+      return {
+        status: 'committed',
+        buffers: (request.buffers || []).map((row) => ({
+          key: row.key ?? row.kind, status: 'committed', action: 'edit-document',
+          ref: 'draft/x', revision: 'r2',
+          content_hash: { algorithm: 'sha256', hex: 'e'.repeat(64) }, message: null })),
+      };
+    },
+  });
+  await controller.ready;
+  await controller.edit('outline', '# dirty outline\n');
+  const els = controller.elements();
+  const dirty = {
+    saveHidden: els.save().hidden === true,
+    unloadHidden: els.unload().hidden === true,
+  };
+  const running = controller.save();
+  await new Promise((resolve) => setTimeout(resolve, 5));
+  const inFlight = {
+    saveHidden: els.save().hidden === true,
+    cancelHidden: els.cancel().hidden === true,
+    unloadHidden: els.unload().hidden === true,
+    saveDisabled: els.save().disabled === true,
+    cancelDisabled: els.cancel().disabled === true,
+  };
+  release();
+  await running;
+  await new Promise((resolve) => setTimeout(resolve, 5));
+  const settled = {
+    saveHidden: els.save().hidden === true,
+    unloadHidden: els.unload().hidden === true,
+    anythingDirty: Object.values(controller.state().buffers).some((b) => b.dirty),
+  };
+  return { dirty, inFlight, settled };
+}
+
 // Item 5: a CLEAN Document buffer switches immediately, no guard offered.
 async function cleanSwitchScenario() {
   const calls = [];
@@ -1910,6 +1981,8 @@ const results = {
   oversizedSwitch: await oversizedSwitchScenario(),
   switchDropsStaleView: await switchDropsTheStaleViewScenario(),
   statusbarPosture: await statusbarPostureScenario(),
+  gateAbsentSlot: await gateAbsentSlotScenario(),
+  saveInFlightSlot: await saveInFlightSlotScenario(),
 };
 
 console.log(JSON.stringify(results));
@@ -5619,3 +5692,50 @@ def test_loading_a_document_already_loaded_selects_it_and_re_reads_nothing(
     assert result["dirty"] is True
     # …and no second buffer claimed the same path
     assert result["keys"].count("ideation/staging/topic-x/detail.md") == 1
+
+
+def test_the_slot_does_not_swap_where_the_gate_capability_is_absent(
+        editor_results):
+    """Amendment 1: "Where the gate capability is absent the slot SHALL keep its
+    Save and Cancel posture unchanged and MUST NOT swap to Unload, because a
+    surface that cannot save must go on saying so."
+
+    Nothing is dirty here, which is exactly the state that shows Unload on a
+    gated canvas — so this is the state where a missing carve-out would be
+    invisible. An ungated surface has no reachable editing and is therefore never
+    dirty, which means an unconditional swap would have made Save's stated
+    absence unreachable for good rather than merely sometimes.
+
+    Driven at the CANVAS MODULE, which is where the clause reaches: through the
+    shipped shell a gate-off console renders no canvas controls at all."""
+    gate_off = editor_results["gateAbsentSlot"]
+    assert gate_off["anythingDirty"] is False, (
+        "the probe must stand in the state that would otherwise show Unload")
+    assert gate_off["unloadHidden"] is True, (
+        "an ungated canvas must not swap its stated Save absence for an Unload")
+    assert gate_off["saveHidden"] is False
+    assert gate_off["cancelHidden"] is False
+    assert gate_off["saveDisabled"] is True
+
+
+def test_a_save_in_flight_keeps_the_pair_on_screen(editor_results):
+    """Amendment 1's `!saving` half. While the bytes are in flight the buffers
+    are about to stop being dirty but have not yet, so swapping the slot mid-Save
+    would answer a question nobody asked — and would offer an unload of a buffer
+    whose verdict has not landed. Both controls stay, both inert; the swap
+    happens only once the Save settles and the canvas is genuinely clean."""
+    flight = editor_results["saveInFlightSlot"]
+    # dirty, pre-Save: the pair is up
+    assert flight["dirty"]["saveHidden"] is False
+    assert flight["dirty"]["unloadHidden"] is True
+    # in flight: still the pair, and both inert
+    assert flight["inFlight"]["unloadHidden"] is True, (
+        "a Save in flight must not swap the slot to Unload")
+    assert flight["inFlight"]["saveHidden"] is False
+    assert flight["inFlight"]["cancelHidden"] is False
+    assert flight["inFlight"]["saveDisabled"] is True
+    assert flight["inFlight"]["cancelDisabled"] is True
+    # settled and clean: NOW it swaps
+    assert flight["settled"]["anythingDirty"] is False
+    assert flight["settled"]["unloadHidden"] is False
+    assert flight["settled"]["saveHidden"] is True

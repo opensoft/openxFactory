@@ -179,9 +179,16 @@ N-buffer generalization Phase A deliberately does not perform:
 
 **Amendment (2026-08-21, Brett, in-session multiple choice, recommended option
 adopted): the canvas control pair is dirty-state-conditional — Save+Cancel while
-the selected buffer is dirty, a single Unload control for a clean unloadable
-buffer — authorizing browser annotation A2; the rail's standalone unload control
-and its two-press arm flow are superseded.**
+ANY buffer of the loaded set is dirty, a single Unload control for a clean
+unloadable buffer — authorizing browser annotation A2; the rail's standalone
+unload control and its two-press arm flow are superseded.**
+
+**The ruling is recorded in its ANY-buffer reading deliberately.** Save answers
+for the whole canvas, so a selected-buffer predicate would hide the only Save
+from a human whose other buffer still held unsaved text — the hazard the discard
+rules exist to prevent. Phase B's Amendment 1 carries the full reasoning; this
+headline authorizes the same reading, because an archived headline naming the
+rejected option would license the defect the amendment avoids.
 
 Phase A's `One Save and one Cancel govern the doxBench canvas` stated the same
 control-count rule Phase B restates, so amending only one would have left two
