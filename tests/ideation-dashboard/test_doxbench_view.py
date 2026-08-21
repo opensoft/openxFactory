@@ -631,6 +631,20 @@ async function gateAbsentSlotScenario() {
 // mid-flight and the buffers are about to stop being dirty but have not yet, so
 // swapping the slot under a running Save would answer a question nobody asked.
 // The seam is held open on a promise this scenario resolves by hand.
+// The same bounded-poll idiom the later harnesses in this file already carry
+// (`settle`/`until`), spelled here because this harness had no waiter of its own
+// and a fixed `setTimeout` is a guess about scheduler load rather than a wait
+// for the thing under test. Bounded, so a transition that never arrives fails
+// with its own name instead of hanging the probe.
+const inFlightSettle = () => new Promise((r) => setTimeout(r, 0));
+async function inFlightUntil(predicate, label) {
+  for (let i = 0; i < 400; i += 1) {
+    if (predicate()) return;
+    await inFlightSettle();
+  }
+  throw new Error('timed out waiting for ' + label);
+}
+
 async function saveInFlightSlotScenario() {
   let release = null;
   const held = new Promise((resolve) => { release = resolve; });
@@ -655,7 +669,13 @@ async function saveInFlightSlotScenario() {
     unloadHidden: els.unload().hidden === true,
   };
   const running = controller.save();
-  await new Promise((resolve) => setTimeout(resolve, 5));
+  // POLL the specific transition, never a fixed delay (Copilot, PR #229): a
+  // wall-clock sleep is a guess about scheduler load, and the thing this
+  // scenario is about — WHICH controls are on screen mid-flight — is exactly the
+  // thing a slow machine would race. `saving` reaches the panel by disabling
+  // Save, so that is the transition to wait on.
+  await inFlightUntil(() => els.save().disabled === true,
+                      'the Save to report itself in flight');
   const inFlight = {
     saveHidden: els.save().hidden === true,
     cancelHidden: els.cancel().hidden === true,
@@ -665,11 +685,14 @@ async function saveInFlightSlotScenario() {
   };
   release();
   await running;
-  await new Promise((resolve) => setTimeout(resolve, 5));
+  // …and the settled read waits on the state the assertion is about — every
+  // buffer clean — rather than on a delay that hopes the rebase already ran.
+  const clean = () => !Object.values(controller.state().buffers).some((b) => b.dirty);
+  await inFlightUntil(clean, 'the saved buffers to rebase clean');
   const settled = {
     saveHidden: els.save().hidden === true,
     unloadHidden: els.unload().hidden === true,
-    anythingDirty: Object.values(controller.state().buffers).some((b) => b.dirty),
+    anythingDirty: !clean(),
   };
   return { dirty, inFlight, settled };
 }

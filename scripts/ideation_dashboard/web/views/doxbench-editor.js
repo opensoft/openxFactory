@@ -2248,6 +2248,16 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // THE ONE WAY OUT. A dirty buffer is REFUSED unless the caller states the
   // discard explicitly, because dropping it destroys unsaved work exactly as
   // Cancel does -- and Cancel at least says which buffer it reverted.
+  //
+  // KNOWN, PRE-EXISTING ASYMMETRY (recorded 2026-08-21, deliberately not widened
+  // here): this method hard-refuses only the OUTLINE key, while every UI path
+  // withholds BOTH reserved keys -- the outline and the unbacked `document`
+  // slot, which a turn falls back on. The reachable surface is therefore correct,
+  // and it was equally correct before this branch: the retired rail control
+  // withheld the same two keys at the same layer. Tightening the PUBLIC method
+  // changes the controller's contract, which is a wider act than the UI
+  // amendment that moved this control onto the canvas, so it is left to whoever
+  // next opens that contract rather than smuggled in here.
   function unloadDocument(key, unloadOptions = {}) {
     if (destroyed) return { ok: false, error: DESTROYED_REASON };
     if (saving) return { ok: false, error: SAVE_BUSY_REASON };
