@@ -1529,6 +1529,40 @@ untouched: mechanical, reversible, at the model boundary.
       5 validator errors, restore -> 0), and every schema clause was
       revert-tested individually with the digest repinned so the case fired on
       the clause rather than on the pin.
+      **SEVEN RULES, NOT FIVE — corrected at adversarial review round 1 (F2).**
+      The file gate never checked `resolved_model_id ∈ routes_to` nor
+      self-reference, so it was strictly WEAKER than the type gate while its own
+      docstring claimed the two were identical. The reviewer walked a catalog
+      past it whose rule was badged safe and whose `resolved_model_id` named a
+      model badged *"retained and used for vendor model training"* — every
+      covering check had skipped that model, because they all iterate
+      `routes_to`, which it was not in. Both checks are added, and the parity
+      claim is no longer prose: a test runs BOTH gates over all TEN packaged
+      routing negatives and requires both to refuse each one, plus a second test
+      pinning every negative's own finding code.
+      **THE TRANSCRIPT NAMED THE RULE, NOT THE MODEL THAT ANSWERED — corrected
+      at review round 1 (F3), and this was the release's worst defect.** The
+      ratified THEN's own purpose clause is "so a transcript names the model that
+      actually answered", and the wire record did that correctly while the THREAD
+      SIDECAR — the durable transcript on disk, the thing a human reads later —
+      was handed the REQUESTED id. On a routed turn the file said `auto` and no
+      reader could learn which model wrote the answer. The cause was placement,
+      not logic: `doxbench_selected_model(model_entry)` was computed inside the
+      v2 arm, AFTER the sidecar was written. It is hoisted above the sidecar and
+      the sidecar takes the resolved id. Two route-level tests drive a routing
+      entry through the real POST and assert the wire record and the sidecar
+      header TOGETHER, with an unrouted sibling proving the hoist did not move
+      the ordinary case; un-hoisting fails the routed test.
+      **A RECORDED v1 LIMITATION (F3's other half).** The DEPRECATED v1 success
+      envelope has one `model_id` field and no `selected_model`, so on a routed
+      turn it cannot state both the requested and the answering model. It carries
+      the REQUESTED id, which is what every v1 consumer already reads and
+      revalidates. Widening a deprecated closed shape whose whole promise is
+      byte-identical stability is the one thing contract-v1.34's deprecation
+      forbids, and the fix is the v2 envelope, which exists. Recorded at the v1
+      arm in `serve.py` and in the CHANGELOG entry rather than fixed. The SIDECAR
+      on the v1 lane does name the answering model, because it is written above
+      the branch.
       The CREDENTIAL SENTENCE IS NOW IN THE RELEASE, which is what P3-23 asked
       for: the schema's own description and the CHANGELOG entry both name the
       provisioning step — an API-backed entry's credential is provisioned into
@@ -1555,21 +1589,53 @@ untouched: mechanical, reversible, at the model boundary.
       class of miss `contract-v1.36`'s first tag hit, one step earlier. This cut
       resolves its own v1.38 inventory and is unaffected; v1.37's provenance gap
       belongs to that lane.
-      **Judgement call, flagged (the badge covering is TEXT CONTAINMENT, and the
-      MENU is why).** The ratified THEN is that a routing entry "MUST ... carry
-      the handling badge of every model it may route to", *because* an entry that
-      hid a routing decision would "report a handling posture it does not
-      control". The entry's own `data_handling` is the ONE badge string the
-      selector shows for it, so the rule is enforced as: each target's
-      `data_handling` text must appear in the rule's. The alternative — per-target
-      badge OBJECTS on the wire plus a view that composes them — was designed and
-      REJECTED: it duplicates authored text that then drifts from the target's own
-      entry, and buys nothing containment does not already guarantee. The
-      consequence is stated rather than hidden: `data_handling`'s pre-existing
-      500-byte ceiling is UNCHANGED and therefore bounds how many distinct badges
-      one rule can carry. Widening that ceiling was rejected as a
-      consumer-visible change to an existing field, which the additive class does
-      not permit.
+      **Judgement call, flagged — the badge covering is SEGMENT MEMBERSHIP over a
+      DECLARED SEPARATOR, and the first answer was WRONG.** The ratified THEN is
+      that a routing entry "MUST ... carry the handling badge of every model it
+      may route to", *because* an entry that hid a routing decision would "report
+      a handling posture it does not control". The entry's own `data_handling` is
+      the ONE badge string the selector shows for it, so the covering must be
+      about that string.
+      **OVERTURNED AT ADVERSARIAL REVIEW ROUND 1 (F1).** This slice first shipped
+      the covering as raw substring containment, which is wrong in exactly the
+      direction the requirement exists to prevent, and the reviewer broke it
+      twice on the released bytes: a rule badged *"Routes to a non-tenant
+      endpoint."* was accepted as carrying a target badged *"on-tenant"*, because
+      `"on-tenant" in "non-tenant"` is True — so the menu would show the INVERSE
+      of the posture it routes to — and a rule ending *"...retain nothing."* was
+      accepted as carrying a target badged *"retain"*. Both false-accepts passed
+      BOTH gates. The same review found the predicate simultaneously
+      OVER-strict in the harmless direction: a trailing full stop, a capital, or
+      a line wrap all refused a badge that was plainly present.
+      The rule is now: a routing entry's `data_handling` is a list of badge
+      segments joined by `" / "` — the separator is DECLARED in the schema — and
+      each routed model's own badge must be one of those segments, compared with
+      whitespace collapsed, case folded and trailing `.;,` dropped. Extra
+      segments are permitted, so a rule keeps its own lead-in. INTERIOR
+      characters are never rewritten, and that is the load-bearing part: it is
+      exactly where the difference between `on-tenant` and `non-tenant` lives, so
+      no normalization may touch it. A test pins that the three forgiven
+      transformations cannot make a different posture compare equal.
+      The separator is `" / "` because a badge is free prose and any separator
+      can collide with one: `;`, `.` and `,` all occur in the packaged badges and
+      `/` does not. The residual collision is REFUSED rather than hoped away — a
+      routed entry whose own badge contains the separator could never be one
+      segment, so that catalog is refused as ill-formed. (Revert-testing showed
+      that refusal, and the explicit self-reference refusal F2 asked for, are
+      DIAGNOSTICS rather than independent guards — the covering rule and the
+      chained-rule rule respectively refuse the same catalogs under a misleading
+      name — so each is pinned on its own finding CODE and MESSAGE, which is the
+      only guard that fails if the arm is deleted.)
+      The alternative — per-target badge OBJECTS on the wire plus a view that
+      composes them — was designed and REJECTED, and the reason survives the
+      correction: it duplicates authored text that then drifts from the target's
+      own entry. What did NOT survive is the claim that containment "buys nothing
+      the covering rule does not already guarantee"; containment guaranteed the
+      wrong thing. The consequence is stated rather than hidden:
+      `data_handling`'s pre-existing 500-byte ceiling is UNCHANGED and therefore
+      bounds how many segments one rule can carry. Widening that ceiling was
+      rejected as a consumer-visible change to an existing field, which the
+      additive class does not permit.
       **Judgement call, flagged (`routes_to` holds REFERENCES, not badges).** The
       routable set is a list of `model_id` handles resolved inside the same
       catalog, so each badge has exactly one authoring home — the target's own
@@ -1885,7 +1951,7 @@ only one of them is §12:
 | **10.7** | an additive **chat-turn-success** release carrying the assembled context's posture (`full \| reduced`) and its reason — the packet half is built and the browser half has no field to land in | a contract release |
 | ~~**11.7**~~ | ~~an additive **model-catalog** release — the released entry is a CLOSED seven-field shape, so no conformant catalog can declare `auto` as a routing rule; the runtime already honours one~~ | **CLOSED 2026-08-21** — cut as `contract-v1.38` (v1.37 was taken mid-flight by PR #235); the entry now carries `routing_rule`/`routes_to`/`resolved_model_id`, the runtime was not rebuilt, and `verify-commit` passes on the cut |
 | ~~**12.1–12.6**~~ | ~~share-session: the verb, the no-implicit-push negative, the nothing-new report, the four postures, the colleague resume path (which also carries P3-17's uncommitted-sidecar tail), and 12.6's own scope call~~ | **CLOSED 2026-08-21** — realized as its own slice under Brett's exit (a); P3-17 discharged |
-| **12.7** | the annotated tag + submodule pin for `contract-v1.36`, the additive `share-session` enum growth 12.4 turned out to require (the in-branch half is done; see the task for why it was unavoidable) | a release cut |
+| ~~**12.7**~~ | ~~the annotated tag + submodule pin for `contract-v1.36`, the additive `share-session` enum growth 12.4 turned out to require (the in-branch half is done; see the task for why it was unavoidable)~~ | **CLOSED** — struck 2026-08-21 as a bookkeeping correction, on the authority of the task's OWN already-ticked discharge: `contract-v1.36` is tagged and the aggregation repo's pin landed at `04366e3`, and 12.7's body ends "Nothing on this task remains." The row simply outlived it |
 | **13.8** | the realization-evidence tick, which cannot be true until the code surface is whole | whichever of the above lands last |
 
 So the two contract-release obligations are NOT waiting on §12 and do not become
@@ -1904,16 +1970,25 @@ already done. The honest headline is that this change is now blocked by exactly
 ONE thing in three places: **three additive contract releases that have not been
 cut.** No verb, route, or runtime behaviour is missing any more.
 
-**UPDATED 2026-08-21, after 11.7's release landed.** FOUR open tasks became
-THREE, and one of the three contract releases is cut: `contract-v1.38` carries
-the model-catalog routing rule, so the ledger's 11.7 row is struck and the
-blocking set is **10.7's chat-turn-success release, 12.7's `contract-v1.36` tag
-+ submodule pin, and 13.8's evidence tick.** The headline is otherwise
-unchanged: what holds this change open is still contract releases and not
-missing behaviour. Note for whoever cuts the next one — 11.7's realization
-found that PR #235 had taken `contract-v1.37` mid-flight AND left
+**UPDATED 2026-08-21, after 11.7's release landed — and CORRECTED the same day
+at that release's adversarial review (F5), which caught this note overstating
+the blocking set.** FOUR open rows became TWO, not three. `contract-v1.38`
+carries the model-catalog routing rule, so 11.7's row is struck; and 12.7's row
+is struck too, as bookkeeping rather than news — that task has been TICKED since
+§12's release landed, its tag is published, its aggregation pin is at `04366e3`,
+and its body ends "Nothing on this task remains." The row had simply outlived
+the task.
+
+**The residual set is therefore 10.7 and 13.8**: one additive
+chat-turn-success release carrying the assembled context's posture, and the
+realization-evidence tick that cannot be true until it lands. The headline is
+otherwise unchanged: what holds this change open is a contract release, not
+missing behaviour.
+
+Note for whoever cuts that release — 11.7's realization found that PR #235 had
+taken `contract-v1.37` mid-flight AND left
 `contracts/releases/contract-v1.37.digests.yaml` absent, so
-`verify-commit --commit 6cbb4495` exits 1; recheck bundle availability against
+`verify-commit --commit 6cbb4495` exits 1. Recheck bundle availability against
 the CHANGELOG at the moment you allocate, and do not assume the preceding
 release surface verifies.
 

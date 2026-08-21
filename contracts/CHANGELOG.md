@@ -82,12 +82,16 @@ available") rather than reach for an ambient key. A self-hosted, keyless
 provider needs no credential at all. Nothing in this release moves that
 boundary; it states it.
 
-FIVE RULES THE SHAPE CANNOT EXPRESS are delegated to
+SEVEN RULES THE SHAPE CANNOT EXPRESS are delegated to
 `scripts/validate-ideation-dashboard-contracts.py`, the family's declared owner,
-and enforced identically at catalog construction in
+and enforced at catalog construction in
 `scripts/ideation_dashboard/doxbench_model.py` (an in-process catalog never
 becomes a validated file, and a file is never constructed through that type, so
-neither place substitutes for the other):
+neither place substitutes for the other). That the two gates AGREE is asserted by
+a test over the packaged corpus, not claimed here: an earlier draft of this entry
+said "enforced identically" while rules 6 and 7 below existed only on the type,
+and the release's own adversarial review walked a catalog past the file gate to
+prove it:
 
 1. NO DANGLING TARGET — every `routes_to` id must name an entry in the same
    catalog. A rule that routes somewhere the catalog does not offer has a badge
@@ -100,35 +104,73 @@ neither place substitutes for the other):
    the RESOLVED id; without this rule an available `auto` could dispatch to a
    model the catalog itself calls unavailable. An unavailable rule is exempt —
    nothing can select it.
-4. THE BADGE COVERING — the ratified THEN, mechanically: each target's
-   `data_handling` text must appear in the rule's own `data_handling`. See the
-   judgement call below.
+4. THE BADGE COVERING — the ratified THEN, as SEGMENT MEMBERSHIP over the
+   declared `" / "` separator: each target's `data_handling` must be one segment
+   of the rule's own, compared with whitespace collapsed, case folded and
+   trailing `.;,` dropped, and with interior characters never rewritten. Extra
+   segments are permitted; a routed badge that itself holds the separator is
+   refused as ill-formed, because it could never be one segment. See the
+   judgement call below for why this replaced substring containment.
 5. A RULE PROMISES NO MORE HEADROOM THAN ITS NARROWEST DESTINATION — the
    effective turn limit is computed from the selected entry, which for a routed
    turn is the rule, so its declared limits must not exceed the minimum across
    `routes_to`. This is the entry-level restatement of the schema's own "a
    catalog entry may only NARROW the server ceilings".
+6. `resolved_model_id` MUST BE A MEMBER OF `routes_to` — otherwise the model
+   that actually answers is the one model no covering check ever looked at,
+   since they all iterate `routes_to`.
+7. A RULE MUST NOT NAME ITSELF in `routes_to`.
 
-Every one of the five has a packaged negative that fails for exactly its own
-reason, beside one positive (`workbench-model-catalog-routing-rule`) and a
-structural negative for a plain entry carrying a routing field.
+Every rule has a packaged negative that fails for exactly its own reason — ten
+of them — beside one positive (`workbench-model-catalog-routing-rule`) and a
+structural negative for a plain entry carrying a routing field. Four of the ten
+came from this release's adversarial review, packaged verbatim from the
+reviewer's own instances.
 
-JUDGEMENT CALL — THE BADGE COVERING IS TEXT CONTAINMENT, AND THE MENU IS WHY.
+JUDGEMENT CALL — THE BADGE COVERING IS SEGMENT MEMBERSHIP, AND THE MENU IS WHY.
 The requirement says a routing entry must "carry the handling badge of every
 model it may route to", *"because an entry that hid a routing decision behind a
 model-shaped id would report a handling posture it does not control"*. The
 entry's own `data_handling` is the ONE badge string the selector shows for it, so
-the covering rule is enforced as: each target's badge text must appear in the
-rule's. The alternative considered and rejected was per-target badge OBJECTS on
-the wire (`{model_id, data_handling}` pairs) plus a view that composes them —
-rejected because it duplicates authored text that then drifts from the target's
-own entry, and because it buys nothing containment does not already guarantee.
+the covering rule has to be about that string.
+
+An earlier draft of this release enforced it as raw substring containment. THAT
+WAS WRONG, and this release's adversarial review broke it twice on these very
+bytes: a rule badged *"Routes to a non-tenant endpoint."* was accepted as
+carrying a target badged *"on-tenant"* — `"on-tenant" in "non-tenant"` is True,
+so the menu would have shown the INVERSE of the posture the rule routes to — and
+a rule ending *"...retain nothing."* was accepted as carrying a target badged
+*"retain"*. The same review found the predicate simultaneously OVER-strict in the
+harmless direction, refusing a badge that differed only by a trailing full stop,
+a capital, or a line wrap.
+
+The rule is therefore SEGMENT MEMBERSHIP, and the separator is DECLARED here and
+in the schema: `" / "` (space, slash, space). A routing rule's `data_handling` is
+a list of segments joined by it, and each routed model's own badge must be one of
+them. Comparison collapses whitespace, folds case, and ignores trailing `.;,`;
+it NEVER rewrites interior characters, which is the load-bearing part, because
+that is exactly where `on-tenant` and `non-tenant` differ. Extra segments are
+permitted, so a rule may carry its own lead-in beside the badges it must carry.
+The separator is `" / "` because a badge is free prose and any separator can
+collide with one — `;`, `.` and `,` all occur in the packaged badges and `/` does
+not — and the residual collision is refused rather than hoped away: a routed
+entry whose badge itself contains the separator could never be one segment, so
+that catalog is ill-formed.
+
+CONSUMER NOTE: a consumer that RENDERS a routing entry's badge may split it on
+`" / "` to show the routed postures separately, and one that does not may show
+the string whole; both are correct, and the string is authored to read as prose
+either way.
+
+The alternative considered and rejected was per-target badge OBJECTS on the wire
+(`{model_id, data_handling}` pairs) plus a view that composes them — rejected
+because it duplicates authored text that then drifts from the target's own entry.
 The consequence, stated rather than hidden: `data_handling`'s pre-existing
-500-byte ceiling is UNCHANGED and therefore bounds how many distinct badges one
-rule can carry. A rule whose union does not fit must be split, or its members'
-badges written more tightly. Widening that ceiling was rejected as a
-consumer-visible change to an existing field, which this release's additive
-posture does not permit.
+500-byte ceiling is UNCHANGED and therefore bounds how many segments one rule can
+carry. A rule whose list does not fit must be split, or its members' badges
+written more tightly. Widening that ceiling was rejected as a consumer-visible
+change to an existing field, which this release's additive posture does not
+permit.
 
 JUDGEMENT CALL — DISCLOSED ONLY WHEN DECLARED. This repository's projection
 (`ModelCatalogEntry.as_public_dict`) emits the three keys only for an entry that
@@ -140,6 +182,26 @@ on entries this schema forbids to carry it. The WIRE, being additive, tolerates
 BOTH producers — an explicit `routing_rule: false` with no siblings is valid,
 it is simply not what this projection emits — so a consumer must not treat
 omission and explicit-false as different facts.
+
+WHERE THE RESOLVED MODEL IS RECORDED, and a v1 LIMITATION that goes with it.
+The scenario's second THEN is that "the resolved model MUST be recorded on the
+turn, so a transcript names the model that actually answered", and there are TWO
+readers of that fact. The `workbench-chat-turn-v2-success` record carries it in
+`model_id`, beside `selected_model.requested_model_id` and
+`selected_model.routing_rule`. The turn's THREAD SIDECAR — the durable transcript
+on disk — carries it in the turn header. This release's adversarial review found
+the second one naming the RULE rather than the answering model (the derivation
+sat after the sidecar was written), which is now fixed: one derivation, above
+both readers.
+
+THE DEPRECATED v1 SUCCESS ENVELOPE CANNOT STATE BOTH FACTS, and is not changed to.
+`workbench-chat-turn-success` has one `model_id` field and no `selected_model`,
+so on a routed turn it carries the REQUESTED id — what every v1 consumer already
+reads and revalidates. Widening a deprecated closed shape whose whole promise is
+byte-identical stability is precisely what `contract-v1.34`'s deprecation
+forbids; the migration path is the v2 envelope, which exists and is where a
+routed turn should be recorded. The SIDECAR on the v1 lane does name the
+answering model, because it is not part of the v1 wire.
 
 NO VIEW CHANGE, and the reason is the covering rule. `doxbench-chat.js` already
 renders each option as `label — data_handling` and `sendDisclosure` already
@@ -161,6 +223,16 @@ three optional routing-declaration fields. Its task 3.5 ("the closed seven-field
 public catalog entry does NOT widen") should be read against this shape when
 that lane builds; a proposed-versus-approved distinction is still not a widening
 of it.
+
+OWED CROSS-REPO FOLLOW-UP (recorded, not performed). This schema's description
+names `codexFactory specs/010-doxbench-editor-chat/contracts/model-catalog.md`
+as its consumer contract, and that document's Reconciliation section claims an
+exact match with the seven-field entry shape. That claim is STALE against this
+release — though it remains CORRECT while codexFactory pins `contract-v1.27`,
+which is the pin it declares, so nothing there is wrong today. It becomes wrong
+the moment that repository re-pins. Updating it is codexFactory's own governed act
+under the domain upgrade runbook; no file in that repository is touched here, and
+this entry is the notice.
 
 RELEASE OBLIGATION STILL OPEN AT THIS ENTRY: per the versioning policy,
 CHANGELOG presence is the availability test and the annotated tag is cut at the
