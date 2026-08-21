@@ -7,21 +7,33 @@ Ratified: 2026-08-19 by Brett Heap — in-session, verbatim: "merge and ratify b
 
 # Proposal: align-status-reader-to-real-lines
 
-> **APPROVED; CODE SURFACE BUILT ON THIS BRANCH, NOT YET MERGED.** This
-> change's code surface is built on this change's own realization commits:
-> `scripts/doc_health/lines.py` exists, and every reader named in
-> `code_surface:` above — `corpus.parse_status`/`parse_kind`,
-> `families._header_line`/`_scan_lines`, `inventory._header_value`,
-> `organizer_dispatch._header_value`, `ideation_readiness._parse_header`,
-> `doxbench_packet.lifecycle_status`, `authoring.missing_required_headers`,
-> `generator._header_value`, and `completeness._Prepared.lines` — scans real
-> lines through it, and so does its standalone twin
-> `bootstrap-ideation-cross-reference.py`'s `parse_header`; `round_trip.py`
-> imports the primitive rather than
-> carrying its own copy. Under `release-realization`'s archive gate this
-> change stays ACTIVE, not archived, until this branch merges to `main` with
-> green realization evidence recorded at the archive gate (task 6.2). Nothing
-> here should be read as shipped until then.
+> **REALIZED AND ARCHIVED 2026-08-21.** The code is merged on the implemented
+> target as PR #222 (merged 2026-08-20T01:24:14Z, rebase-merge; the branch's
+> commits landed on main as `e6e3ae5`, `1644d86`, `175e972`, `42cc321`,
+> `50bfee2`, `c379a09`) and green there: `openspec validate --all --strict`
+> 64/64 exit 0, `tests/doc-health` 691 items with no genuine failure,
+> `tests/ideation-dashboard` + `tests/proposal-support` 3729 passed / 14 skipped
+> / exit 0. Task 5.3's own success criterion — a doc-health report identical to
+> its baseline, because a moved finding would mean the zero-exotic-separator
+> measurement had gone stale — was discharged on the branch and confirmed
+> byte-identical across every branch tip by the adversarial review, recorded there
+> rather than re-derived here. `scripts/doc_health/lines.py`
+> exists, and every reader named in `code_surface:` above —
+> `corpus.parse_status`/`parse_kind`, `families._header_line`/`_scan_lines`,
+> `inventory._header_value`, `organizer_dispatch._header_value`,
+> `ideation_readiness._parse_header`, `doxbench_packet.lifecycle_status`,
+> `authoring.missing_required_headers`, `generator._header_value`, and
+> `completeness._Prepared.lines` — scans real lines through it, as does its
+> standalone twin `bootstrap-ideation-cross-reference.py`'s `parse_header`;
+> `round_trip.py` imports the primitive rather than carrying its own copy. Task
+> detail, the gate evidence, and the readers this change's boundary deliberately
+> does not reach are in `tasks.md`.
+>
+> This block REPLACED the release-realization approved-but-unrealized banner
+> rather than carrying it through the rename, following
+> `align-demote-to-round-trip-rule` (archived 2026-08-19), which established that
+> precedent for the same reason: archiving a record whose first paragraph says the
+> code is unmerged would state something false about a realized change.
 
 ## Why
 

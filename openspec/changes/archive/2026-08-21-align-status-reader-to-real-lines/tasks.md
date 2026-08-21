@@ -312,8 +312,59 @@ pre-measured on all of it (0 of 1227).
 ## 6. Bookkeeping
 
 - [x] 6.1 README "OpenSpec Records" active block — done at proposal time.
-- [ ] 6.2 Realization evidence recorded at the archive gate; `implementation_pending`
+- [x] 6.2 Realization evidence recorded at the archive gate; `implementation_pending`
       means this does NOT archive on landing the requirement.
+      REALIZED and archived 2026-08-21. Merged to openxFactory main as PR #222
+      (merged 2026-08-20T01:24:14Z, rebase-merge, so the branch's six commits landed
+      on main directly rather than under a merge commit): `e6e3ae5` (the shared
+      real-line primitive and the narrow cut), `1644d86` (tasks 1-6.1 ticked as
+      realized), `175e972` (the FIX-FIRST response widening the change to EVERY
+      lifecycle-header reader, on Brett's same-day ruling), `42cc321` (focused
+      re-verify round 2 — the F4 `completeness.py` conversion, the four-reader
+      mutation gap, the F1/F2/F3 prose corrections), `50bfee2` (second focused
+      re-verify — the F5 `ideation_readiness._parse_header` conversion plus its
+      bootstrap twin, the F6 record, the prose undercounts), `c379a09` (third
+      focused re-verify — F7 recorded and the `code_surface:` boundary corrected).
+      The review record is the PR's own multi-lap adversarial review thread: one
+      FIX-FIRST verdict that surfaced a spec contradiction Brett then ruled WIDE,
+      then three focused re-verify rounds, each answered by the commit named above.
+      Sections 2a, 2b and 2c of this file are that thread's findings and
+      dispositions in full, which is why they read as a history rather than a plan.
+      GREEN ON THE IMPLEMENTED TARGET, re-verified at `7312c25` (current
+      `origin/main`) rather than taken from the PR run:
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` exit 0, 64 passed /
+      0 failed (64 items); `python3 -m pytest tests/doc-health -q` 691 items with no
+      genuine failure; `python3 -m pytest tests/ideation-dashboard
+      tests/proposal-support -q` exit 0, 3729 passed / 14 skipped. Exit codes read
+      DIRECTLY, never through a pipe.
+      5.2'S "FOUR KNOWN PRE-EXISTING FAILURES" WERE NEVER A DEFECT, and this gate's
+      instruction to enumerate them and assert the set unchanged was wrong rather
+      than satisfied. The four `test_client_identity_composition.py` cases fail from
+      any checkout whose absolute path carries a `.git` directory segment, because
+      `validate-client-identity-roster.py`'s `sweep_files` filters `.git` by path
+      PART and so sweeps out every fixture YAML — and they pass from a normal one,
+      including on the tree predating the only commit since 2026-08-19 to touch the
+      validator, the fixtures or the test. The full measurement, all three proofs,
+      and what it means for a gate that encoded a location artifact as a corpus
+      property are recorded once in the sibling change's tasks.md §7.2 rather than
+      duplicated here. `tests/doc-health` runs clean; those four must not be
+      described as expected failures anywhere.
+      TASK 5.3'S BASELINE GATE, the one that carries this change's real information:
+      discharged on the branch across all three re-run points (2a, 2b, 2c), and the
+      adversarial review confirmed the doc-health report byte-identical across every
+      branch tip. Recorded from that review rather than re-derived at the archive
+      gate, because reproducing it needs a checkout predating both merged PRs; the
+      claim is cited, not re-measured. What WAS measured here is this archive
+      branch's own report against its base: two `--single-repo` runs from
+      identically-named clean-path checkouts of `7312c25` and of this branch tip,
+      diffed raw. ZERO findings move — every finding line, family, severity and
+      class is identical. The report differs in exactly two lines, both the
+      promotion doing its job rather than a moved finding: canon share by words
+      29.6% -> 29.8% and the promoted-specs word total 102125 -> 103788, the 1663
+      words being the requirements the two archives promoted into
+      `openspec/specs/`. Stated as measured rather than as "byte-identical",
+      because it is not byte-identical and claiming so would be the kind of
+      overclaim §2c.5 exists to correct.
 
 ## 7. Deferred (recorded, not done)
 
@@ -415,3 +466,19 @@ pre-measured on all of it (0 of 1227).
       branches merge, whichever lands second — not on this branch, per an
       explicit constraint: editing `scripts/proposal-support.py` here would
       manufacture a merge conflict with work that already supersedes it.
+
+      FOLLOW-UP DONE, 2026-08-21, on the archive branch that carries both
+      parents' realizations — which is the "after BOTH branches merge" condition
+      this note set, and the earliest point at which the edit could not
+      manufacture the conflict it was deferred to avoid (PR #221 merged
+      2026-08-20T01:23:54Z, PR #222 at 01:24:14Z). `_declares_staged_status`'s
+      docstring now says which claim it is making: what it mirrors from
+      `families._scan_lines` is the FENCE-TRACKING convention alone, and the line
+      split underneath is a separate, shared rule — the three real endings — whose
+      agreement is held by
+      `test_the_mover_agrees_with_the_other_fence_implementations` and
+      `test_the_movers_line_split_is_the_three_real_endings_and_nothing_else`
+      rather than by the docstring's word. Prose only: one docstring, no behavior
+      change, and F7's out-of-scope-for-conversion ruling above is untouched —
+      this closes the STALE-CLAIM half of the finding, not the conversion half,
+      which stays ruled out.
