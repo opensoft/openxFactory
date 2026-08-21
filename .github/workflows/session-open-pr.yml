@@ -1,0 +1,105 @@
+# Session PR authorship route — mirror of xFactory's session-open-pr.yml and
+# codexFactory's activation-open-pr.yml (merge-master-approval capability,
+# "Session pull-request authorship route" requirement).
+#
+# Interactive sessions otherwise open PRs under the operator's own `gh` auth,
+# which makes the operator the AUTHOR — and GitHub's hard rule that a PR
+# author cannot approve their own PR then blocks the only live human approver
+# from satisfying this repo's required review. This workflow_dispatch route
+# opens the PR under the openxFactory CONTENT App instead, so authorship is a
+# non-human identity (openxfactory[bot]) distinct from the human reviewer.
+#
+# This route fixes authorship ONLY. It NEVER approves and NEVER merges; every
+# PR it opens parks for the human gate. The merge-master approver identity is
+# deliberately uninvolved here.
+name: session-open-pr
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Already-pushed head branch to open the PR from
+        type: string
+        required: true
+      title:
+        description: PR title
+        type: string
+        required: true
+      body:
+        description: PR body (Markdown)
+        type: string
+        required: false
+        default: ""
+      base:
+        description: Base branch (default branch when empty)
+        type: string
+        required: false
+        default: ""
+      draft:
+        description: Open as a draft PR
+        type: boolean
+        required: false
+        default: false
+
+permissions: {}
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preflight — is the content App configured?
+        env:
+          HAS_APP_ID: ${{ secrets.OPENXFACTORY_APP_ID != '' }}
+          HAS_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' }}
+        run: |
+          set -euo pipefail
+          if [ "$HAS_APP_ID" != "true" ] || [ "$HAS_APP_KEY" != "true" ]; then
+            echo "::error::content App not configured (secrets.OPENXFACTORY_APP_ID / secrets.OPENXFACTORY_APP_PRIVATE_KEY absent) — cannot author the PR as openxfactory[bot]."
+            exit 1
+          fi
+
+      # Author the PR as the CONTENT App (openxfactory[bot]) — NOT merge-master.
+      - name: Mint content App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Open PR under the content App
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ inputs.branch }}
+          TITLE: ${{ inputs.title }}
+          BODY: ${{ inputs.body }}
+          BASE_IN: ${{ inputs.base }}
+          DRAFT: ${{ inputs.draft }}
+        run: |
+          set -euo pipefail
+          # The head branch must already be pushed.
+          if ! gh api "repos/$REPO/branches/$BRANCH" >/dev/null 2>&1; then
+            echo "::error::branch '$BRANCH' not found on $REPO — push it first."
+            exit 1
+          fi
+          BASE="$BASE_IN"
+          if [ -z "$BASE" ]; then
+            BASE="$(gh repo view "$REPO" --json defaultBranchRef -q .defaultBranchRef.name)"
+          fi
+          # Reuse an already-open PR from this head, else create one.
+          EXISTING="$(gh pr list --repo "$REPO" --head "$BRANCH" --base "$BASE" --state open --json url -q '.[0].url' || true)"
+          if [ -n "$EXISTING" ]; then
+            echo "::notice::PR already open from $BRANCH: $EXISTING"
+            echo "Reused existing PR: $EXISTING" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          ARGS=(--repo "$REPO" --base "$BASE" --head "$BRANCH" --title "$TITLE" --body "$BODY")
+          if [ "$DRAFT" = "true" ]; then ARGS+=(--draft); fi
+          URL="$(gh pr create "${ARGS[@]}")"
+          echo "::notice::Opened PR as the content App: $URL"
+          {
+            echo "### session-open-pr"
+            echo "Opened PR authored by the content App (openxfactory[bot]): $URL"
+            echo "It parks for the human gate; nothing here approves or merges."
+          } >> "$GITHUB_STEP_SUMMARY"

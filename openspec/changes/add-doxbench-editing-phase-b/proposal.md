@@ -1,12 +1,54 @@
 ---
 code_surface: openxFactory (`scripts/ideation_dashboard/web/views/doxbench-state.js` — `BUFFER_KINDS` and the exactly-two-keys validator become a keyed buffer set with `outline` reserved; `doxbench-save.js` — `SAVE_BUFFER_ORDER` becomes the outline-ancestry rule plus documents in a deterministic order, and one document's refusal stops no other; `doxbench_turns.py` — `require_outline_and_document`, `PROPOSAL_TARGETS`, `ObservedHashes`, the nine-section `PROMPT_SECTION_ORDER` and `SYSTEM_CONTRACT_TEXT`; `doxbench-chat.js` — the rail header becomes the loaded-document selector; `doc-wheel.js` — the expanded tile's one `open` verb becomes read / edit / save with a loaded-and-dirty tile state; `doxbench-editor.js` and `staging-workbench.js` — the canvas and context region read the loaded set; `serve.py` — the thread sidecar and knowledge-service routes under the existing interactivity allowlist, the harness bridge behind the unchanged `WorkbenchModelPort`; `session_pr.py`/`gate_routes.py` — share-session reusing the port's existing `push` member and opening no pull request; NEW modules for the packet assembler, the Staged-Set Knowledge Service and its MCP boundary, and the stdlib-only harness bridge; `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` plus the release surface `contracts/manifest.yaml`, `contracts/CHANGELOG.md`, `contracts/releases/<tag>.digests.yaml`; and `tests/ideation-dashboard/` — the pinned buffer-shape, turn, save-order, DOM, accessibility and mutation-boundary assertions re-pinned honestly, never deleted)
 target_release: implemented
-contract_release: additive — a second, co-resident chat-turn envelope family in `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`, published in the next available ADDITIVE bundle minor, ALLOCATED AT REALIZATION per `docs/contract-versioning-policy.md` ("a proposed change MUST NOT reserve a minor number before merge order is known"). No number is reserved here; the released v1 envelopes stay byte-identical and valid.
+contract_release: additive — TWO releases, because this change's contract footprint is two schemas in two families and the frontmatter must name the whole of it. (1) REALIZED AS `contract-v1.34`: a second, co-resident chat-turn envelope family in `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`; the released v1 envelopes stay byte-identical and valid. (2) REALIZED AS `contract-v1.36`: an additive growth of `contracts/schemas/gate-action-record.schema.yaml` — the `share-session` action enum member and one `allOf` conditional constraining only that new member — which §12's ratified "SHALL be recorded as a human gate action" requires and which the closed enum made unavoidable (see tasks.md 12.7 for why reusing `open-pr` fails). Both are ADDITIVE (minor): nothing previously valid becomes invalid, no required field is added to an existing shape, no shape is removed, and each schema's own `contract_schema_version` stays `1`. Both were ALLOCATED AT REALIZATION per `docs/contract-versioning-policy.md` ("a proposed change MUST NOT reserve a minor number before merge order is known") — no number was reserved at proposal time. Two further additive releases are still OWED and unallocated, against tasks 10.7 (chat-turn-success posture) and 11.7 (model catalog).
 Status: draft
 Sequenced-after: add-doxbench-editing-phase-a (three MODIFIED requirements below are declared relative to Phase A's outcome)
 ---
 
 # Proposal: add-doxbench-editing-phase-b
+
+> **REALIZATION EVIDENCE, RECORDED 2026-08-21 — NOT AN ARCHIVE BLOCK.** This
+> change is still ACTIVE and MUST remain so; see the §12 adjudication below.
+> The evidence is written here at the landing so it does not have to be
+> re-derived when the gate can finally be met.
+>
+> **Merged on the implemented target** (`target_release: implemented`), in
+> realization order:
+> §3 verify list — PR #206 / `e7e7a84`;
+> §4–§9 core — PR #207 / `a4a6f6e`;
+> §13 contract release — PR #210 / `5daa173`, with the annotated tag
+> **`contract-v1.34`** published and verify-commit-proven and its sentinel
+> replaced at `7c544c8`;
+> §10 knowledge service — PR #216 / `ece236a`;
+> §11 harness bridge + thread wiring — PR #223 / `7312c25`.
+>
+> **Green on the implemented target at the landing tree:**
+> `tests/ideation-dashboard` 3699 passed / 15 skipped;
+> `tests/ideation_dashboard` 63 passed; `tests/doc-health` 691 passed;
+> `tests/proposal-support` 31 passed;
+> `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` 0 failed;
+> `validate-ideation-dashboard-contracts.py` 0 errors / 4 warnings (the
+> by-design v1 deprecation notices); doc-health pre/post zero-new against a
+> same-clock `origin/main` baseline. §11's runnable harness surface also ran
+> live against real `omp` v17.3.7 — 8 smoke tests passed, and they skip cleanly
+> where no harness is discoverable, so no gate depends on one.
+>
+> **WHY THIS IS NOT AN ARCHIVE BLOCK.** `release-realization`'s realization
+> archive gate is written over the change's WHOLE declared code surface: *"A
+> change with a non-empty code surface SHALL NOT archive until realization
+> evidence exists: its code merged on the implemented target … Until then the
+> change remains active as approved-but-unrealized intent, preserving the
+> invariant that promoted specs describe what the code does."* This change's
+> `code_surface:` names `session_pr.py`/`gate_routes.py` — share-session — and
+> §12 has not been built. Archiving now would promote the ADDED requirement
+> *"Share-session hands a live session to a colleague"* into
+> `openspec/specs/ideation-dashboard/spec.md`, asserting a SHALL over a verb
+> that does not exist — which is the precise invariant the gate names. The
+> unrealized part is recorded against §12's own open tasks, where it will be
+> read next, rather than papered over here.
+
+
 
 ## Why
 

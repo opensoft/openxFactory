@@ -165,6 +165,7 @@ Core domain-neutral docs:
 - [NotebookLM Source Workspaces](docs/notebooklm-source-workspaces.md)
 - [Lifecycle Notebook Projection](docs/lifecycle-notebook-projection.md)
 - [NotebookLM Projection Sync — Open Operational Item](docs/notebooklm-sync-open-item.md)
+- [Support-Bundle Scope in the Archive Gate — Open Contract Item](docs/support-bundle-scope-open-item.md)
   (pending sync run, the auth blocker + the `scripts/nlm_auth.py` workaround,
   and the machine-account direction)
 - [Ideation Work Area](ideation/README.md) (ratified convention; see
@@ -278,6 +279,38 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-identity-brokering](openspec/changes/add-identity-brokering/proposal.md)
+  — authored and **RATIFIED 2026-08-21** (recommendations adopted as written;
+  the OQ-5 co-residence gate discharged: HealthLinc patients found and
+  pre-declared the first dedicated-instance client — see the change's
+  review/ finding). The neutral identity-brokering capability (exit 1 of
+  the `identity-brokering-plane` staged topic, from Brett's 2026-08-21
+  rulings): one persona per human within a broker instance, organizations
+  realizing company boundaries on the persona, the broker asserting identity
+  and membership only (never mirroring the tenancy graph), explicit
+  linking/admin-merge only, workloads-are-not-personas, broker credentials as
+  credential-contract records, and isolation escalating by broker instance.
+  Also ADDS the `xFactory-Keycloak-Install` repository boundary to
+  `repo-boundary-governance` (avatar-client template; creation by successor
+  `implement-keycloak-install-repo`). Sibling of `add-trust-anchor`.
+- [add-trust-anchor](openspec/changes/add-trust-anchor/proposal.md)
+  — authored and **RATIFIED 2026-08-21** (OQ1 and OQ2 ruled per their
+  recommendations: establish-obligation with a declared floor; closed
+  custody enumeration, escrow as a relationship not a tier). The neutral trust-anchor capability (exit 1 of the
+  `pki-trust-anchor-plane` staged topic): anchors as governed records,
+  issuance only under recorded authority with evidence obligations, declared
+  chain custody deriving what a certificate evidences (composing with
+  `openxwallet`), renewal-as-rebind with dependent bindings recorded against
+  the certificate, revocation propagation, CA material as
+  `credential-contracts` records, and the declared-degraded-obligation rule —
+  product-agnostic across the two converging realizations (live Intune Cloud
+  PKI canary; OpenXPKI planned for the Opensoft production core). Also ADDS
+  the `xFactory-OpenXPKI-Install` repository boundary to
+  `repo-boundary-governance` (creation by successor
+  `implement-openxpki-install-repo`; image custody stays in
+  `opensoft/Opensoft-Tenant`). Time-critical rider: the OpsxFactory
+  `add-openxpki-qa-image-pipeline` Impact amendment must land before that
+  change ratifies. Sibling of `add-identity-brokering`.
 - [add-roster-device-admission-surface](openspec/changes/add-roster-device-admission-surface/proposal.md)
   — authored 2026-08-19. Admits the single `device` (node-inventory) admission
   surface into the closed `admission_surface` vocabulary of
@@ -388,11 +421,29 @@ Active changes:
   whose own two follow-ups — `refine-demote-round-trip-mechanics` and
   `align-status-reader-to-real-lines` — are now realized and merged (PR #221,
   #222). Bookkeeping 6.1-6.3 discharged (this row, the exit-marked staging
-  fragments, and the `doxbench-editing-model` Q4 handoff). Outstanding: task
-  5.4's live browser proof and gates 5.1-5.3. `target_release: implemented`.
+  fragments, and the `doxbench-editing-model` Q4 handoff). GATES 5.1-5.4 ARE
+  NOW CLOSED, task 5.4 by driving a real headless browser against a throwaway
+  scratch checkout: the outline tab opened on a conforming and a pre-template
+  topic, a section added to the conforming one through the free-form control,
+  and the shipped Save landing ONE commit on session branch
+  `draft/outline-conformer` whose `edit-document` verb is evidenced three ways
+  (the `/actions/gate/first-edit` response, the commit subject plus its
+  `Gate-Action` trailer, and the committed gate-action record's own `action:`).
+  5.3's enumeration also surfaced that `staged-topic-template` is registered in
+  `families.FAMILIES` but absent from `FAMILY_IDS`, so the report prints no
+  section for its 29 warnings — the same pre-existing omission `proposal-origin`
+  has, left for `doc-health` to fix. All tasks are therefore ticked; what remains
+  is `release-realization`'s archive gate, which this change's non-empty code
+  surface holds open until its realization merges green.
+  `target_release: implemented`.
 
-- [add-doxbench-editing-phase-a](openspec/changes/add-doxbench-editing-phase-a/proposal.md)
-  — authored 2026-08-15, Phase A of the `doxbench-editing-model` staged topic
+- [add-doxbench-editing-phase-a](openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/proposal.md)
+  — **ARCHIVED 2026-08-21** (realization evidence recorded at the gate: PR #196
+  / `6ac42ed`, plus its own annotation round at #199 / `224bf22` and #201 /
+  `96975c1`; its spec text promoted, +5 ADDED and ~2 MODIFIED, which is what
+  gave Phase B's three Phase-A-relative MODIFIED requirements something to
+  amend). Authored 2026-08-15, Phase A of the `doxbench-editing-model` staged
+  topic
   (sequenced first of Brett's four 2026-08-15 topics; its four Phase-A open
   questions were dispositioned accepted-as-recommended the same day). Brett's
   model is one sentence — left selects, center chat works, right shows the
@@ -419,8 +470,9 @@ Active changes:
   bound buffer in the durable TURN RECORD is deferred to Phase B (F2 carve-out,
   Brett 2026-08-15: it needs a chat-turn contract release this change forbids,
   so `doxbench_turns.py` is untouched and the obligation is recorded on the
-  staged topic). The archive gate still needs the merged-commit evidence
-  (tasks 9.1).
+  staged topic) — and that F2 obligation is DISCHARGED by Phase B's §13
+  release, `contract-v1.34`, which is why Phase A archived first. Task 9.1's
+  merged-commit evidence is recorded in the archived proposal.
 - `add-worker-credential-by-reference` — ARCHIVED 2026-08-14
   (`openspec/changes/archive/2026-08-14-add-worker-credential-by-reference/`):
   credential-by-reference is LIVE on all three CPC claude lanes — vault

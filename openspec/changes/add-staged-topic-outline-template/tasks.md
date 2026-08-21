@@ -330,8 +330,10 @@ remains is the contract and the surface.
       scans `## Exit`. Nothing anywhere writes `Status at demote` or
       `Demote reason`.
       THE MISCONCEPTION IS RECORDED AS FACT in the corpus:
-      `openspec/changes/add-doxbench-editing-phase-a/tasks.md:193-194` says the
-      slot "fills on demote only, per the template". Nothing fills it, and the same
+      `openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/tasks.md`
+      (task 9.2) says the slot "fills on demote only, per the template" — path
+      repointed 2026-08-21 when Phase A archived; the citation and the finding
+      are unchanged, only the location is. Nothing fills it, and the same
       demote deletes it.
       DISPOSITION IS BRETT'S, and this is a contract/mechanism divergence needing
       OpenSpec, not a test. Recommendation carried forward: treat it as a DEFECT
@@ -409,15 +411,223 @@ remains is the contract and the surface.
 
 ## 5. Gates
 
-- [ ] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate add-staged-topic-outline-template
+- [x] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate add-staged-topic-outline-template
       --strict`, then `--all --strict`, from the `openxFactory/` root.
-- [ ] 5.2 `python3 -m pytest tests/ideation-dashboard -q` and
+      Both green, both exit 0. The single-change run: "Change
+      'add-staged-topic-outline-template' is valid". The corpus run:
+      `Totals: 62 passed, 0 failed (62 items)` — 13 active changes and 49
+      promoted specs, this change among them.
+- [x] 5.2 `python3 -m pytest tests/ideation-dashboard -q` and
       `tests/doc-health` — exit codes read directly, never through a pipeline.
-- [ ] 5.3 doc-health full run: 0 new regressions beyond the new warning family's
+      `tests/ideation-dashboard`: **exit 0**, 3700 passed / 14 skipped in 414s.
+      `tests/doc-health` in the agent worktree: **exit 1**, 4 failed / 687
+      passed — and the four are the KNOWN LOCATION ARTIFACT, named in full
+      rather than counted:
+      `test_client_identity_composition.py::test_every_cross_domain_fixture_repo_passes_the_blocking_domain_gate`
+      at `[alphaxFactory]`, `[betaxFactory]`, `[deltaxFactory]` and
+      `[gammaxFactory]`. `validate-client-identity-roster.py` sweeps `.git`
+      against every path segment, and an agent worktree lives under
+      `.git/modules/openxFactory/.claude/worktrees/…`, so the sweep fires on the
+      PATH rather than on the fixture. Proven artifact rather than asserted: the
+      same suite on a clean-path `git clone` of this branch is **exit 0**, 684
+      passed / 7 skipped. Nothing else failed on either path, and both exit codes
+      were read from `$?` directly — no pipe, per the pipefail lesson.
+- [x] 5.3 doc-health full run: 0 new regressions beyond the new warning family's
       own intended findings, which should be enumerated rather than counted.
-- [ ] 5.4 Live proof in a browser: open a conforming topic and a pre-template
+      Run from a clean-path `git clone` of this branch (never `git archive` —
+      that drops the git-dependent `record-immutability` family), directory named
+      `openxFactory` so no family self-skips on a repository-name mismatch:
+      `python3 scripts/doc-health.py --single-repo . --report-out <scratchpad>/dh-branch.md`
+      (both reports written to the proof session's scratchpad, outside the
+      repo) → **exit 0**.
+      Headline: 324 documents examined (nonzero and the whole corpus, not a
+      truncated tree), `3 critical, 8 error, 74 warning, 3 info`.
+      THE "0 NEW REGRESSIONS" IS MEASURED, NOT INHERITED. A run with no
+      `--previous-report` prints `New regressions vs previous report: 0`
+      trivially, which is worth nothing, so the base (`0a4b63a`) was run FIRST on
+      its own clean-path clone and this branch's run was then diffed against that
+      report: `--previous-report <base report> --new-findings-out <file>` → exit
+      0 and the new-findings file is literally `[]`.
+      THE FAMILY'S OWN FINDINGS ARE ALL 29 OF THE ONES THIS CHANGE ADDED, and
+      they are enumerated because a count would hide the one that matters. All
+      29 are `warning`, exactly as task 2.3 requires, and 28 of the 29 read
+      "staged before the template ratified, so conformance is opt-in":
+      `agent-wallet-identity`, `avatar-pilot-hardening`,
+      `campaign-memory-fill-maintenance-mapping` (fragment
+      `campaign-marketing.md`), `client-credential-escrow-registry`,
+      `client-layer-tuning`, `codexfactory-domain-hermes-content`,
+      `context-compression-runtime`, `dashboard-project-scoping`,
+      `dashboard-repo-selector`, `github-administration-plane` (fragment
+      `multi-app-identity-and-github-administration.md`),
+      `hermes-stack-topology-per-client`, `ideation-action-plane`,
+      `layer-content-materialization`, `layer-vocabulary-machine-migration`,
+      `manager-review-approval-scope-kind`, `medxfactory-domain-hermes-content`,
+      `mobile-dashboard-surface`, `openxdox-install-app-provisioning`,
+      `proposal-origin-contract` (fragment
+      `fda-samd-traceability-rationale.md`), `qualify-avatar-live-voice`,
+      `recurrence-crystallization`, `session-notebook-reconciliation`,
+      `subject-establishment`, `tier2-council-clearance-pattern`,
+      `workbench-branch-sessions`, `worker-enrollment-broker`,
+      `worker-host-app`, `workstation-app-shell`. The TWENTY-NINTH is the only
+      REQUIRED one — `substantive-review-lane-questions`, staged after
+      2026-08-15, so `first_commit_date >= TEMPLATE_RATIFIED` puts it on the
+      obligated side of task 4.3's boundary. One required topic against 28
+      opt-in ones is precisely the deliberately non-uniform corpus Q2 ruled for,
+      and it is the single row a reader should act on today.
+      A REAL FINDING CAME OUT OF THE ENUMERATION, and it is why enumerating was
+      worth the trouble: **`staged-topic-template` has no report section at
+      all**. It is registered in `families.FAMILIES` and its 29 warnings are in
+      the headline counts, but it is absent from `doc_health/__init__.py`'s
+      `FAMILY_IDS`, and `report.py:251` iterates `FAMILY_IDS` to emit "Findings
+      By Family" — so the report a human reads names none of the 29. This is the
+      SAME pre-existing omission that file already records for `proposal-origin`
+      ("a pre-existing omission that leaves that family without a report
+      section… deliberately NOT fixed here"), and it is left alone for the same
+      stated reason: registering a family is a report-surface change belonging to
+      `doc-health`, not a gate tick. Recorded so the next reader does not
+      conclude from a silent report that the family found nothing.
+      NO REGRESSION ANYWHERE ELSE: beyond the empty new-findings list, the whole
+      "Findings By Family" body of the two reports is BYTE-IDENTICAL. This branch
+      touches one change document, so that is the expected answer — asserted
+      rather than assumed.
+      THE ENUMERATION IS PINNED TO A SHA, and says which, because the corpus
+      moves under a gate run. Everything above is measured at this branch's base
+      `0a4b63a`. `main` advanced to `a1c694b` (#226, "Stage
+      identity-brokering-plane + pki-trust-anchor-plane topics") while this gate
+      was running, and re-running the same enumeration there gives **31**
+      findings over 326 documents rather than 29 over 324: both new topics were
+      staged 2026-08-21, i.e. after ratification, and neither carries an idea-notes
+      or a conflicts heading, so each lands as a REQUIRED nudge. That is the
+      family behaving exactly as task 2.2 specifies on topics it has never seen —
+      recorded rather than smoothed over, so a later reader comparing counts
+      knows the difference is new corpus and not a regression here.
+      **THE CORPUS MOVED ONCE MORE, and this records it rather than leaving the
+      pin to rot.** The branch carrying this line also lands doxBench Phase B's
+      wave-2 landing, whose task 13.6 EXITS the `doxbench-editing-model` topic
+      from staging. That removes one topic folder from the tree this
+      enumeration was measured over. It does NOT disturb the enumeration
+      itself: `doxbench-editing-model` is not one of the 29 — it carries both an
+      idea-notes and a conflicts heading, so the family found nothing to nudge
+      about it — and the measured effect of the exit is a doc-health run
+      byte-identical to its own base, new-findings list literally `[]`, checked
+      on this merged tree. So the 29 enumerated findings and the one REQUIRED
+      row (`substantive-review-lane-questions`) stand exactly as recorded; what
+      changes is the corpus SIZE this enumeration was measured over, and
+      here are the real figures from that run rather than an estimate: the
+      staged stage goes 71 documents / 110819 words -> 70 / 103398 as the
+      fragment leaves, `record` goes 27 / 22895 -> 28 / 23506 (Phase B's
+      support-bundle-scope open item), promoted specs 103788 -> 106198 words
+      (Phase A's promotion on archive), and the headline total therefore reads
+      497023 governance words at 30.2% canon instead of 501423 at 29.5%. A
+      later re-run of 5.3 should expect those numbers, not the pinned ones.
+- [x] 5.4 Live proof in a browser: open a conforming topic and a pre-template
       topic in the outline tab, add a section to the conforming one, confirm the
       commit lands through `edit-document` on the session branch.
+      DRIVEN FOR REAL: headless Chromium through the shipped page, the real
+      wheel gesture, the real outline tab, the shipped Save, and then the answer
+      read OUT OF GIT. Harness in the session scratch directory, not committed
+      and nothing added to the repo — the same posture codexFactory's
+      `011-wheel-action-verbs/verification-evidence.md` §9 took for its own
+      interactive pass. `playwright` from `/tmp/t098-venv` (verified to launch a
+      browser before anything was written; `/tmp/pr-pw-venv`'s chromium is
+      mismatched and was avoided).
+      **THE SERVE POINTS AT A SCRATCH CHECKOUT ONLY**, built by
+      `session_fixtures.build_scratch_repo` in `tmp_path`, with `origin` a bare
+      repo on disk and `pull_request_factory` injected as `FakePullRequests` —
+      runbook §7 is absolute because a serve WRITES into whatever
+      `--checkout-root` it is handed. Port **8791**, never 8765: the production
+      dashboard is live there over a real worktree and was not touched, probed or
+      reused. `GET /capabilities` first:
+      `{gate: true, session: true, edit: true, actor: "brett"}` — loopback +
+      real checkout + a resolved actor, so the affordance under test is the LIVE
+      one and not the gate-off posture task 3.4 already pins.
+      **THE TWO TOPICS.** `outline-conformer` carries the ratified template (the
+      required trio plus a Q1 with all four sub-fields in order);
+      `legacy-outline-topic` is the pre-2026-08-15 shape — `## Background`,
+      `## Why` wrapping an `xspec:candidate` fence, `## Exit`, and none of the
+      required three. Each topic was opened on its OWN fresh page load, to shed
+      polluted drum state between columns.
+      **THE GESTURE, copied from the codexFactory smoke rather than invented.**
+      `#tab-wheel` → `[data-wheel="staged"].wheeltile:not(.wheelblank)`, choosing
+      from the tiles the drum has actually RENDERED near its centre line (the
+      drum renders a window, so `data-index` selectors mostly address unrendered
+      tiles) → first click, wait for class `wheelfocused` → second click, retry
+      until `.wheelactions` mounts (the drum re-seats under you) → the
+      `▣ open workbench` verb. No force-click anywhere: drum-edge tiles swallow
+      the event and the worst case hides a column via the header eye. Then the
+      `.swb-tab` reading "outline", and `.swb-outlinestate` as the settle signal.
+      **WHAT THE CONFORMING TOPIC SHOWED.** Header `outline template — as
+      stored`; state line "conforming — the three required sections are present
+      and every open question carries its four sub-fields"; five
+      `.swb-outlinerow`s naming `Claims` (added, line 10), `Idea notes
+      (pre-document, non-documented)` (required, 15), `Conflicts` (required, 19),
+      `Open questions` (required, 23, `Added-by: brett · 2026-08-21`), `Exit`
+      (added, 34). Zero `.swb-outlinegaplabel` rows and zero
+      `.swb-outlineaddgap` buttons, which is the honest consequence of
+      conformance — so the add went through the FREE-FORM control, the only route
+      the contract gives a human for "a section beyond the required set".
+      **THE ADD.** `.swb-outlinetitle` = "Impact analysis",
+      `.swb-outlineafter` = "Claims" (the addressing key), `.swb-outlineaddfree`.
+      `.swb-outlinenote` came back: *added "Impact analysis" to the outline
+      buffer after "Claims" with Added-by provenance — unsaved: the canvas Save
+      carries it through edit-document on the session branch*. The status region
+      moved from `Outline: no unsaved changes` to `Outline: unsaved changes`
+      while `Document: no unsaved changes` stayed put — the add dirties the
+      outline buffer and nothing else, exactly as design (A) claims.
+      **THE SAVE, AND THE VERB.** `.doxbench-save`, the shipped control over the
+      shipped transport. Ninety-nine responses were recorded across both page
+      loads and EXACTLY ONE reached an action route:
+      `/actions/gate/first-edit` → 200, body
+      `{"ok": true, "verb": "edit-document", "ref": "draft/outline-conformer",
+      "commit": "6d1e68a…", "session": "opened"}`. One write route, one verb, no
+      second write verb — the spec's "MUST NOT introduce a second write verb"
+      read off the wire rather than off a fixture. The only non-200s in the whole
+      run were two `GET /project-register.json` 404s (no register on a
+      single-repository serve, the honest empty answer). `pageerror` was
+      **EMPTY**.
+      **THE COMMIT, READ OUT OF GIT IN THE SCRATCH REPO.** Session branch
+      `draft/outline-conformer` in the worktree
+      `…/openxFactory-worktrees/sessions/draft__outline-conformer`; exactly one
+      commit ahead of `main`, `6d1e68a729363a3a9206afc97e04a574d8368b44`. Its
+      message is `edit-document: ideation/staging/outline-conformer/outline-conformer.md`
+      with the `Gate-Action: 20260821T140751Z` trailer, and it carries TWO paths
+      and only two — the fragment and
+      `ideation/dashboard/gate-records/ideation-staging-outline-conformer-outline-conformer/edit-document-20260821T140751Z.gate-action.yaml`,
+      whose body reads `action: edit-document`, `target.ref:
+      draft/outline-conformer`, `provenance: {surface: http, console_presence:
+      console-token}`, `artifacts: [{kind: commit, reference:
+      20260821T140751Z}]`. So the verb is evidenced THREE independent ways —
+      response body, commit subject + trailer, and the committed record's own
+      `action:` — rather than by the mere existence of a commit. The fragment
+      diff is the six lines the affordance composed, inserted behind `## Claims`
+      with the section-level `Added-by: brett · 2026-08-21` the contract reserves
+      for a section beyond the required set.
+      **THE SERVED CHECKOUT NEVER MOVED**: branch `main`, HEAD equal to the
+      pre-drive sha, and a filtered porcelain that is EMPTY after the whole run.
+      The session's commit lives in the session worktree, which is what FR-004's
+      immovability means.
+      **HOW THE PRE-TEMPLATE TOPIC DEGRADED**, and the clause it satisfies. The
+      spec's third scenario and the requirement's fourth paragraph: "MUST render
+      what is present, MUST NOT report a pre-existing topic as broken, and MUST
+      NOT rewrite a fragment into conformance as a side effect of opening it."
+      All three, driven: the index rendered its three REAL sections in order —
+      `Background` (added), `Why` (**proposal element**, because the model saw the
+      `xspec:candidate` fence rather than sniffing the prose), `Exit` (added) —
+      under the state line "staged before the outline template — it carries none
+      of the required sections yet, which is the opt-in posture, not a fault. The
+      shape is earned when the topic is next worked, never by opening it here.",
+      which contains none of error / invalid / broken / fail. Three gap rows
+      named the three absent sections as work to do, each with a live `add it`
+      button — offered, and NOT pressed. And the no-rewrite half is asserted on
+      bytes, not on a status pill: the stored fragment on disk is byte-identical
+      to what was committed, and both status regions still read "no unsaved
+      changes" after the tab had rendered.
+      **EIGHTEEN VERDICTS, all PASS**, including the four that would have caught
+      a fake: the wire's single action route, the response's `verb`, the
+      committed record's `action:`, and the served checkout's unmoved
+      fingerprint. Reproduced twice end to end (an earlier run landed the same
+      commit shape at `3271a0d` on its own scratch world) — the second run is the
+      one transcribed here.
 
 ## 6. Bookkeeping
 
@@ -473,3 +683,16 @@ remains is the contract and the surface.
       reach a session branch), and records that the freeform-rewrites-to-
       marker-scoped-patches upgrade shipped in neither realized phase and
       remains for a successor change to build.
+      **PATH RECONCILED 2026-08-21 — the corpus moved under this record.** The
+      `doxbench-editing-model` topic EXITED staging that day (Phase B's task
+      13.6, landing on the same branch that carries this line), so the handoff
+      note is no longer at
+      `ideation/staging/doxbench-editing-model/doxbench-editing-model.md`; it
+      moved with the whole fragment, git history intact, to
+      `openspec/changes/add-doxbench-editing-phase-b/supporting-docs/doxbench-editing-model.md`
+      and is verified present there in the Idea notes. Nothing about the handoff
+      changed — only its address. If anything the exit STRENGTHENS 6.3's own
+      reasoning: the note was placed on the topic so "Phase B inherits it", and
+      it now lives literally inside Phase B, and will ride into that change's
+      support bundle when it archives. The successor-change obligation the note
+      records is unaffected and still open.
