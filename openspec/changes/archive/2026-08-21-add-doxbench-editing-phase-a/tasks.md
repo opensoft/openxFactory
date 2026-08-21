@@ -186,9 +186,25 @@
 
 ## 9. Records
 
-- [ ] 9.1 The realization evidence recorded in this proposal's front matter at
+- [x] 9.1 The realization evidence recorded in this proposal's front matter at
       the archive gate — merged commit/PR plus the green test run that carries
       this change's own coverage.
+      Recorded as the block at the head of `proposal.md`. The merged evidence is
+      **PR #196 / `6ac42ed`** (2026-08-15), plus this change's own §10
+      annotation round at **PR #199 / `224bf22`** and **PR #201 / `96975c1`**
+      (both 2026-08-18). Derived from `git log` over this change directory
+      rather than from recollection, and one correction fell out of that:
+      **PR #207 did NOT realize any part of Phase A** — it realized doxBench
+      Phase B's core and touched no file here, so it is named in the block only
+      to say so.
+      The green run is this change's OWN coverage, the five test files
+      `code_surface:` names: **487 passed, exit 0**, with the full
+      `tests/ideation-dashboard` suite at **3699 passed / 15 skipped, exit 0**
+      re-taken at the gate (task 8.8's number, refreshed — the suite has grown
+      with Phase B's slices, which is why the recorded figure moved).
+      The block also states plainly what Phase B has since done to this
+      surface, so a reader of the archived spec is not misled into thinking the
+      two-buffer shape is still what the code does.
 - [x] 9.2 The staging topic `doxbench-editing-model` stays STAGED with Q1 and Q3
       still `open`. Its "Last proposal attempt" slot is NOT filled — that slot
       fills on demote only, per the template. The staging INDEX detail section

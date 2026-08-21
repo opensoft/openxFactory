@@ -895,8 +895,46 @@ def archive_change(root: Path, change: str, packaged_at: str,
     subprocess.run(
         ["openspec", "validate", change, "--strict"], cwd=root, check=True
     )
-    package(root, change, packaged_at, archived=False,
-            final_import_complete=final_import_complete, apply=True)
+    # PACKAGING IS FOR A CHANGE THAT HAS SUPPORTING DOCUMENTS, and only for one.
+    # The promoted rule says so in its first clause — "An OpenSpec change WITH
+    # proposal supporting documents SHALL NOT archive until ... the supporting
+    # folder has been converted into a deterministic bundle" — and `verify`
+    # already reads it that way on both sides: it checks an active change's
+    # support only `if (directory / "supporting-docs").exists()`, and an
+    # archived one's bundle only when a manifest or bundle is present, falling
+    # through to the origin check alone otherwise.
+    #
+    # This wrapper did not, and called `package()` unconditionally, so a
+    # staged-origin change that legitimately never took its topic with it could
+    # not be archived through the sanctioned path at all — it died on
+    # "supporting-docs folder not found". SIXTEEN archived staged-origin changes
+    # already had exactly that shape before this one — `add-ideation-dashboard`,
+    # `add-workbench-branch-sessions`, `add-openxwallet`, `add-repository-lens`,
+    # `add-session-notebook-reconciliation`, … — against fifteen WITH a bundle,
+    # so the bundle-less shape is the MAJORITY of staged origins, not an edge.
+    # (An earlier draft of this comment said "fifteen": that is the count of the
+    # COMPLEMENT, the with-bundle set. Recount by listing archived changes whose
+    # `.openspec.yaml` says `kind: staged` and partitioning on the presence of
+    # `supporting-docs.tar.gz`.) What was missing was the wrapper's ability to
+    # produce the shape, which pushed the operator toward a bare
+    # `openspec archive` and around this gate entirely.
+    #
+    # Found while archiving `add-doxbench-editing-phase-a`, whose task 9.2
+    # deliberately KEPT the topic staged for Phase B.
+    # `.exists()`, not `.is_dir()`, so this predicate is the SAME one `verify`
+    # applies (F3). A `supporting-docs` that exists but is not a directory is a
+    # broken change either way; what matters is that the two readers of "does
+    # this change have supporting documents" cannot disagree.
+    if (directory / "supporting-docs").exists():
+        package(root, change, packaged_at, archived=False,
+                final_import_complete=final_import_complete, apply=True)
+    elif final_import_complete:
+        raise SupportError(
+            "--final-import-complete records a NotebookLM source import for a "
+            "support bundle, and this change has no supporting-docs folder")
+    else:
+        print(f"NO SUPPORTING DOCS {directory} (origin retained, nothing to "
+              "package)")
     command = ["openspec", "archive", change]
     if yes:
         command.append("--yes")

@@ -330,8 +330,10 @@ remains is the contract and the surface.
       scans `## Exit`. Nothing anywhere writes `Status at demote` or
       `Demote reason`.
       THE MISCONCEPTION IS RECORDED AS FACT in the corpus:
-      `openspec/changes/add-doxbench-editing-phase-a/tasks.md:193-194` says the
-      slot "fills on demote only, per the template". Nothing fills it, and the same
+      `openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/tasks.md`
+      (task 9.2) says the slot "fills on demote only, per the template" — path
+      repointed 2026-08-21 when Phase A archived; the citation and the finding
+      are unchanged, only the location is. Nothing fills it, and the same
       demote deletes it.
       DISPOSITION IS BRETT'S, and this is a contract/mechanism divergence needing
       OpenSpec, not a test. Recommendation carried forward: treat it as a DEFECT
@@ -499,6 +501,25 @@ remains is the contract and the surface.
       family behaving exactly as task 2.2 specifies on topics it has never seen —
       recorded rather than smoothed over, so a later reader comparing counts
       knows the difference is new corpus and not a regression here.
+      **THE CORPUS MOVED ONCE MORE, and this records it rather than leaving the
+      pin to rot.** The branch carrying this line also lands doxBench Phase B's
+      wave-2 landing, whose task 13.6 EXITS the `doxbench-editing-model` topic
+      from staging. That removes one topic folder from the tree this
+      enumeration was measured over. It does NOT disturb the enumeration
+      itself: `doxbench-editing-model` is not one of the 29 — it carries both an
+      idea-notes and a conflicts heading, so the family found nothing to nudge
+      about it — and the measured effect of the exit is a doc-health run
+      byte-identical to its own base, new-findings list literally `[]`, checked
+      on this merged tree. So the 29 enumerated findings and the one REQUIRED
+      row (`substantive-review-lane-questions`) stand exactly as recorded; what
+      changes is the corpus SIZE this enumeration was measured over, and
+      here are the real figures from that run rather than an estimate: the
+      staged stage goes 71 documents / 110819 words -> 70 / 103398 as the
+      fragment leaves, `record` goes 27 / 22895 -> 28 / 23506 (Phase B's
+      support-bundle-scope open item), promoted specs 103788 -> 106198 words
+      (Phase A's promotion on archive), and the headline total therefore reads
+      497023 governance words at 30.2% canon instead of 501423 at 29.5%. A
+      later re-run of 5.3 should expect those numbers, not the pinned ones.
 - [x] 5.4 Live proof in a browser: open a conforming topic and a pre-template
       topic in the outline tab, add a section to the conforming one, confirm the
       commit lands through `edit-document` on the session branch.
@@ -662,3 +683,16 @@ remains is the contract and the surface.
       reach a session branch), and records that the freeform-rewrites-to-
       marker-scoped-patches upgrade shipped in neither realized phase and
       remains for a successor change to build.
+      **PATH RECONCILED 2026-08-21 — the corpus moved under this record.** The
+      `doxbench-editing-model` topic EXITED staging that day (Phase B's task
+      13.6, landing on the same branch that carries this line), so the handoff
+      note is no longer at
+      `ideation/staging/doxbench-editing-model/doxbench-editing-model.md`; it
+      moved with the whole fragment, git history intact, to
+      `openspec/changes/add-doxbench-editing-phase-b/supporting-docs/doxbench-editing-model.md`
+      and is verified present there in the Idea notes. Nothing about the handoff
+      changed — only its address. If anything the exit STRENGTHENS 6.3's own
+      reasoning: the note was placed on the topic so "Phase B inherits it", and
+      it now lives literally inside Phase B, and will ride into that change's
+      support bundle when it archives. The successor-change obligation the note
+      records is unaffected and still open.

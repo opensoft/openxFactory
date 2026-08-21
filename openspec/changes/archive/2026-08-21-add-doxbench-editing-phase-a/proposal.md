@@ -6,6 +6,44 @@ Status: draft
 
 # Proposal: add-doxbench-editing-phase-a
 
+> **REALIZED AND ARCHIVED 2026-08-21.** The code is merged on the implemented
+> target (`target_release: none` — no contract release; verified still true at
+> landing, task 9.3) as **PR #196**, landed on main as
+> `6ac42ed` (2026-08-15, "Realize add-doxbench-editing-phase-a: Editor/Preview
+> canvas, one Save/Cancel, chat-on-active-buffer"), with the change's own §10
+> annotation round landing as **PR #199** / `224bf22` (2026-08-18, "retire the
+> chrome section, inline Save/Cancel") and **PR #201** / `96975c1`
+> (2026-08-18, "intuitive state over status text, chat model selector"). Those
+> three are the whole of this change's realization: PR #207 realized doxBench
+> Phase B's core and touched no file in this change directory.
+>
+> Green at landing on `openxFactory` main: this change's OWN pinned coverage —
+> `test_doxbench_view.py`, `test_doxbench_accessibility.py`,
+> `test_doxbench_mutation_boundary.py`, `test_doxbench_turns.py`,
+> `test_staging_workbench.py` (the five files `code_surface:` names) — runs
+> **487 passed, exit 0**, and the full `tests/ideation-dashboard` suite runs
+> **3699 passed / 15 skipped, exit 0** (task 8.8's recorded run, re-taken at
+> the archive gate); `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`
+> passes; `validate-ideation-dashboard-contracts.py` reports 0 errors / 4
+> warnings (the by-design v1 deprecation notices).
+>
+> **What the surface looks like at landing, stated honestly.** Phase A's
+> Editor/Preview canvas, its single panel-level Save and Cancel, and its
+> chat-on-the-active-buffer rail all shipped at `6ac42ed` and are live. Phase B
+> (`add-doxbench-editing-phase-b`, still active) subsequently GENERALIZED that
+> surface from the two-buffer shape to a keyed loaded set — the three
+> requirements it declares `Sequenced-after` this change are exactly that
+> generalization. Phase A's own requirements are not withdrawn by it: the view
+> tabs, the one Save and the one Cancel still read whichever buffer is
+> selected, which Phase B's task 7.4 re-verified structurally. Phase A's F2
+> carve-out — naming the bound buffer in the durable TURN RECORD — was
+> deliberately deferred here and is DISCHARGED by Phase B's §13 release
+> (`contract-v1.34`, `workbench-chat-turn-v2-success.bound_buffer`), which is
+> why this change archives first and that one follows.
+>
+> Task detail and the annotation round's own reasoning are in `tasks.md` and
+> `design.md`.
+
 ## Why
 
 Brett settled the doxBench editing interaction model on 2026-08-15 and it has
