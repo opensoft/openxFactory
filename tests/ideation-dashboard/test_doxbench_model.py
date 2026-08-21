@@ -37,6 +37,9 @@ from ideation_dashboard.doxbench_model import (
     DuplicateModelIdError,
     FakeWorkbenchModelPort,
     InvalidCatalogEntryError,
+    InvalidRoutingRuleError,
+    DECLARABLE_ENTRY_FIELDS,
+    ROUTING_ENTRY_FIELDS,
     ModelCatalog,
     ModelCatalogEntry,
     ModelCatalogError,
@@ -1167,3 +1170,197 @@ def test_the_entry_output_limit_bounds_prose_plus_proposal_content():
         fake2, "opaque", entry=entry, clock=_list_clock(0.0, 1.0),
         proposal_validator=lambda raw: _ValidatedWithin())
     assert isinstance(ok, doxbench_model.TurnDispatchSuccess)
+
+
+# ===========================================================================
+# THE ROUTING-RULE DECLARATION (contract-v1.38, add-doxbench-editing-phase-b
+# task 11.7)
+#
+# The release makes an `auto` entry constructible: three OPTIONAL fields that
+# travel together, defaulting to the plain-model posture. Every rule asserted
+# here mirrors one the released schema or its delegated validator enforces on
+# the wire -- the two are pinned to each other by the packaged
+# `workbench-model-catalog-routing-rule.example.yaml`, which this suite's
+# sibling (`test_doxbench_contracts.py`) validates against the real bytes.
+# ===========================================================================
+
+
+def _rule(model_id="auto", *, routes_to=("a", "b"), resolved="a",
+          badge=None, **overrides):
+    """A routing entry over `_entry("a")`/`_entry("b")`-shaped targets, whose
+    badge carries the target badge by default so the covering rule holds."""
+    kwargs = dict(CONTRACT_EXAMPLE)
+    kwargs.update(
+        model_id=model_id,
+        provider_class="routing-rule",
+        data_handling=badge if badge is not None else (
+            "Routes by role to any of: " + CONTRACT_EXAMPLE["data_handling"]),
+        routing_rule=True,
+        routes_to=tuple(routes_to),
+        resolved_model_id=resolved,
+    )
+    kwargs.update(overrides)
+    return ModelCatalogEntry(**kwargs)
+
+
+def test_the_routing_fields_are_declared_optional_and_default_to_a_plain_model():
+    """THE ADDITIVE PROPERTY, at the type. A construction that names none of
+    the three -- i.e. every construction written before this release -- means
+    exactly what it always meant, and the public dict it projects is
+    byte-identical to the pre-release one."""
+    plain = ModelCatalogEntry(**CONTRACT_EXAMPLE)
+    assert plain.routing_rule is False
+    assert plain.routes_to == ()
+    assert plain.resolved_model_id is None
+    assert plain.as_public_dict() == CONTRACT_EXAMPLE
+    assert list(plain.as_public_dict()) == list(PUBLIC_ENTRY_FIELDS)
+
+
+def test_the_field_tuples_are_the_base_seven_then_the_routing_three():
+    assert ROUTING_ENTRY_FIELDS == (
+        "routing_rule", "routes_to", "resolved_model_id")
+    assert DECLARABLE_ENTRY_FIELDS == PUBLIC_ENTRY_FIELDS + ROUTING_ENTRY_FIELDS
+    # The base seven are a PREFIX of the declarable set, which is what makes a
+    # routing entry's projection an append rather than a reshuffle.
+    assert DECLARABLE_ENTRY_FIELDS[:len(PUBLIC_ENTRY_FIELDS)] == PUBLIC_ENTRY_FIELDS
+
+
+def test_a_routing_entry_discloses_the_three_fields_after_the_base_seven():
+    rule = _rule()
+    public = rule.as_public_dict()
+    assert list(public) == list(DECLARABLE_ENTRY_FIELDS)
+    assert public["routing_rule"] is True
+    assert public["routes_to"] == ["a", "b"]
+    assert public["resolved_model_id"] == "a"
+    # `routes_to` projects as a LIST (JSON has no tuple) and shares no state
+    # with the frozen entry.
+    public["routes_to"].append("smuggled")
+    assert rule.routes_to == ("a", "b")
+
+
+def test_the_wire_envelope_carries_a_routing_entry_and_leaves_plain_ones_alone():
+    catalog = ModelCatalog.from_entries(
+        [_rule(routes_to=("a",), resolved="a"), _entry("a")])
+    envelope = catalog_wire_envelope(catalog)
+    assert list(envelope) == list(WIRE_ENVELOPE_FIELDS)
+    assert set(envelope["models"][0]) == set(DECLARABLE_ENTRY_FIELDS)
+    assert set(envelope["models"][1]) == set(PUBLIC_ENTRY_FIELDS)
+
+
+@pytest.mark.parametrize("overrides, match", [
+    ({"routes_to": ()}, "must declare the models it may route to"),
+    ({"resolved_model_id": None}, "must declare the model it currently resolves"),
+    ({"routes_to": ("auto", "a"), "resolved": "a"}, "must not route to itself"),
+    ({"resolved": "c"}, "is not among the models this rule declares"),
+    ({"routes_to": ("a", "a")}, "must not repeat a model id"),
+])
+def test_an_inconsistent_routing_declaration_refuses_at_construction(overrides,
+                                                                     match):
+    kwargs = {k: v for k, v in overrides.items() if k != "resolved"}
+    if "resolved" in overrides:
+        kwargs["resolved"] = overrides["resolved"]
+    with pytest.raises(InvalidCatalogEntryError, match=match):
+        _rule(**kwargs)
+
+
+def test_a_plain_entry_may_not_carry_a_routing_only_field():
+    """The other direction of the schema's `dependentRequired`: a directly
+    answering model that resolves elsewhere is the hidden routing decision the
+    ratified requirement forbids."""
+    for field, value in (("routes_to", ("a",)), ("resolved_model_id", "a")):
+        with pytest.raises(InvalidCatalogEntryError,
+                           match="must declare neither"):
+            ModelCatalogEntry(**{**CONTRACT_EXAMPLE, field: value})
+
+
+def test_routing_field_types_are_refused_with_TypeError_not_a_value_error():
+    """The module's existing split, extended: a wrong PYTHON TYPE is a caller
+    programming error, a wrong VALUE is a catalog refusal."""
+    def _raw(**overrides):
+        # The DIRECT constructor, not the `_rule` helper: that helper coerces
+        # `routes_to` with `tuple(...)`, which would turn a bare string into a
+        # one-member tuple and hide the exact case under test.
+        return ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "routing_rule": True,
+                                    "routes_to": ("a",),
+                                    "resolved_model_id": "a", **overrides})
+
+    with pytest.raises(TypeError, match="routing_rule must be a bool"):
+        _raw(routing_rule="yes")
+    with pytest.raises(TypeError, match="not a single str"):
+        _raw(routes_to="a")
+    with pytest.raises(TypeError, match="not a single bytes"):
+        _raw(routes_to=b"a")
+    with pytest.raises(TypeError, match="routes_to must be an iterable"):
+        _raw(routes_to=7)
+    with pytest.raises(TypeError, match="routes_to member must be a str"):
+        _raw(routes_to=(7,))
+    with pytest.raises(TypeError, match="resolved_model_id must be a str"):
+        _raw(resolved_model_id=7)
+
+
+@pytest.mark.parametrize("entries_factory, match", [
+    # 1. no dangling target
+    (lambda: [_rule(routes_to=("ghost",), resolved="ghost"), _entry("a")],
+     "which is not in this catalog"),
+    # 2. no chained rule
+    (lambda: [
+        _rule("outer", routes_to=("inner",), resolved="inner",
+              badge="Routes by role to any of: Routes by role to any of: "
+                    + CONTRACT_EXAMPLE["data_handling"]),
+        _rule("inner", routes_to=("a",), resolved="a"),
+        _entry("a")],
+     "which is itself a routing rule"),
+    # 3. the badge covering
+    (lambda: [_rule(routes_to=("a", "b"), resolved="a",
+                    badge=CONTRACT_EXAMPLE["data_handling"]),
+              _entry("a"), _entry("b", data_handling="a different posture")],
+     "does not carry the data-handling badge"),
+    # 4. an available rule resolving to an unavailable model
+    (lambda: [_rule(routes_to=("a",), resolved="a"),
+              _entry("a", available=False)],
+     "is available but resolves to"),
+    # 5. a rule wider than a model it may route to
+    (lambda: [_rule(routes_to=("a",), resolved="a", input_limit_bytes=800_000),
+              _entry("a", input_limit_bytes=2048)],
+     "above the 2048 of a model it may route to"),
+])
+def test_a_catalog_refuses_a_routing_rule_it_cannot_honestly_offer(
+        entries_factory, match):
+    """The five CROSS-ENTRY rules. The catalog refuses AS A WHOLE, exactly as a
+    duplicated model_id does: dropping the offending entry would leave the
+    operator's declaration silently unserved."""
+    with pytest.raises(InvalidRoutingRuleError, match=match):
+        ModelCatalog.from_entries(entries_factory())
+    # And the same refusal through the direct constructor, not only the
+    # intention-revealing wrapper.
+    with pytest.raises(InvalidRoutingRuleError, match=match):
+        ModelCatalog(entries=tuple(entries_factory()))
+
+
+def test_an_unavailable_rule_may_resolve_to_an_unavailable_model():
+    """The availability rule's own boundary, and the reason the degraded-bridge
+    path still constructs: `OmpHarnessBridge.catalog()` marks EVERY entry
+    unavailable after a child dies, which would be unbuildable if the rule
+    applied to an unselectable rule."""
+    catalog = ModelCatalog.from_entries([
+        _rule(routes_to=("a",), resolved="a", available=False),
+        _entry("a", available=False)])
+    assert catalog.entries[0].routing_rule is True
+    # And that is exactly what the bridge's degraded projection produces.
+    degraded = ModelCatalog.from_entries(
+        dataclasses.replace(entry, available=False)
+        for entry in ModelCatalog.from_entries(
+            [_rule(routes_to=("a",), resolved="a"), _entry("a")]).entries)
+    assert degraded.entries[0].routes_to == ("a",)
+    assert all(entry.available is False for entry in degraded.entries)
+
+
+def test_a_routing_rule_is_selectable_and_looked_up_like_any_other_entry():
+    """No new lookup path: the rule is an entry, so the route's existing
+    step-7 revalidation (`selectable_entry_for`) governs it unchanged."""
+    catalog = ModelCatalog.from_entries(
+        [_rule(routes_to=("a",), resolved="a"), _entry("a")])
+    rule = catalog.selectable_entry_for("auto")
+    assert rule is not None and rule.resolved_model_id == "a"
+    assert catalog.entry_for("a").routing_rule is False
+    assert [entry.model_id for entry in catalog.available_entries()] == ["auto", "a"]

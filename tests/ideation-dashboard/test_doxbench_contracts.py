@@ -802,6 +802,90 @@ def test_delegated_semantics_accept_the_packaged_positives(released_root):
 
 
 # ---------------------------------------------------------------------------
+# THE ROUTING-RULE GROWTH IS ADDITIVE (contract-v1.38,
+# add-doxbench-editing-phase-b task 11.7)
+#
+# Asserted against the REAL released bytes, through the same loader a serve
+# uses, because the class claim ("nothing previously valid becomes invalid") is
+# a claim about those bytes and not about a fixture. Each case below is one
+# clause of the released `$defs/model_entry`: the two `if`s both require
+# `routing_rule` to be PRESENT, and `dependentRequired` binds the three fields
+# to each other.
+# ---------------------------------------------------------------------------
+
+_PLAIN_ENTRY = {
+    "model_id": "plain-1",
+    "label": "Approved authoring model",
+    "provider_class": "on-tenant",
+    "available": True,
+    "input_limit_bytes": 2048,
+    "output_limit_bytes": 8192,
+    "data_handling": "Processed in the approved tenant boundary; no retention.",
+}
+
+
+def _catalog_instance(*models):
+    return {"schema_version": 1, "kind": "workbench-model-catalog",
+            "models": list(models)}
+
+
+def _entry_with(**overrides):
+    return {**_PLAIN_ENTRY, **overrides}
+
+
+def test_the_pre_release_entry_shape_is_still_valid(released_root):
+    """THE ADDITIVE TEST ITSELF: the entry every existing producer emits, with
+    none of the three new fields, validates against the grown schema."""
+    assert contracts.validate_instance(
+        _catalog_instance(_PLAIN_ENTRY), released_root) == []
+
+
+def test_a_routing_rule_entry_is_valid_against_the_released_bytes(released_root):
+    rule = _entry_with(model_id="auto", routing_rule=True,
+                       routes_to=["plain-1"], resolved_model_id="plain-1")
+    assert contracts.validate_instance(
+        _catalog_instance(rule, _PLAIN_ENTRY), released_root) == []
+
+
+def test_the_released_schema_tolerates_a_producer_that_states_false_explicitly(
+        released_root):
+    """Additive means the wire accepts BOTH producers. This repository's own
+    projection OMITS the three fields on a plain entry, but a consumer of this
+    contract may not assume omission — an explicit `routing_rule: false` with no
+    siblings is valid, and a reader that choked on it would be wrong."""
+    assert contracts.validate_instance(
+        _catalog_instance(_entry_with(routing_rule=False)), released_root) == []
+
+
+@pytest.mark.parametrize("models, why", [
+    ([_entry_with(model_id="auto", routing_rule=True)],
+     "a rule with neither sibling"),
+    ([_entry_with(model_id="auto", routing_rule=True, routes_to=["plain-1"])],
+     "a rule with no resolved model"),
+    ([_entry_with(resolved_model_id="plain-1")],
+     "a plain entry that resolves elsewhere"),
+    ([_entry_with(routes_to=["plain-1"])],
+     "a plain entry with a routable set"),
+    ([_entry_with(model_id="auto", routing_rule=False, routes_to=["plain-1"],
+                  resolved_model_id="plain-1")],
+     "an explicit non-rule carrying routing fields"),
+    ([_entry_with(model_id="auto", routing_rule=True,
+                  routes_to=["plain-1", "plain-1"],
+                  resolved_model_id="plain-1")],
+     "a repeated routable target"),
+    ([_entry_with(model_id="auto", routing_rule=True, routes_to=[],
+                  resolved_model_id="plain-1")],
+     "an empty routable set"),
+    ([_entry_with(provider_id="local-proxy")],
+     "a harness provider id smuggled onto the entry (task 11.6's ruling)"),
+])
+def test_the_released_schema_refuses_a_malformed_routing_declaration(
+        released_root, models, why):
+    assert contracts.validate_instance(
+        _catalog_instance(*models), released_root) != [], why
+
+
+# ---------------------------------------------------------------------------
 # THE V1 ENVELOPES ARE BYTE-IDENTICAL (contract-v1.34,
 # add-doxbench-editing-phase-b task 13.1)
 #

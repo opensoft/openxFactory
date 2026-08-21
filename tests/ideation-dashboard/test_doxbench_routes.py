@@ -3457,7 +3457,12 @@ def test_the_selected_model_metadata_reads_the_catalog_entry(tmp_path):
 def test_a_routing_rule_entry_would_be_reported_as_one_without_touching_the_route():
     """The forward half, proven on a stand-in entry that declares the fields task
     11.7 will add: the route needs no change to report a routing rule and the
-    model it resolved to. A record built from three literals could not."""
+    model it resolved to. A record built from three literals could not.
+
+    KEPT VERBATIM ACROSS THE contract-v1.38 RELEASE, deliberately. The release
+    made those fields declarable on the real type (see the sibling below) and
+    this route was not touched — so this test passing unchanged IS the evidence
+    that the one-place derivation was written correctly the first time."""
 
     class _RoutingEntry:
         model_id = "auto"
@@ -3469,6 +3474,27 @@ def test_a_routing_rule_entry_would_be_reported_as_one_without_touching_the_rout
         "requested_model_id": "auto",
         "routing_rule": True,
         "data_handling": "Routes to any approved model; badge of all of them",
+        "resolved_model_id": "model-a",
+    }
+
+
+def test_a_CONFORMANT_routing_entry_is_reported_as_one_without_touching_the_route():
+    """The same derivation on a REAL `ModelCatalogEntry` — the shape
+    contract-v1.38 made constructible (task 11.7). `doxbench_selected_model` is
+    byte-identical to what §13 shipped; what changed is that a lawful catalog
+    can now hand it a routing rule."""
+    entry = ModelCatalogEntry(
+        model_id="auto", label="Automatic (routes by role)",
+        provider_class="routing-rule", available=True,
+        input_limit_bytes=2048, output_limit_bytes=8192,
+        data_handling="Routes by role to any of: Processed in the approved "
+                      "tenant boundary",
+        routing_rule=True, routes_to=("model-a",), resolved_model_id="model-a")
+    assert serve_mod.doxbench_selected_model(entry) == {
+        "requested_model_id": "auto",
+        "routing_rule": True,
+        "data_handling": "Routes by role to any of: Processed in the approved "
+                         "tenant boundary",
         "resolved_model_id": "model-a",
     }
 
