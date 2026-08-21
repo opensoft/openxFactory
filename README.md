@@ -279,6 +279,33 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-identity-brokering](openspec/changes/add-identity-brokering/proposal.md)
+  — authored 2026-08-21. The neutral identity-brokering capability (exit 1 of
+  the `identity-brokering-plane` staged topic, from Brett's 2026-08-21
+  rulings): one persona per human within a broker instance, organizations
+  realizing company boundaries on the persona, the broker asserting identity
+  and membership only (never mirroring the tenancy graph), explicit
+  linking/admin-merge only, workloads-are-not-personas, broker credentials as
+  credential-contract records, and isolation escalating by broker instance.
+  Also ADDS the `xFactory-Keycloak-Install` repository boundary to
+  `repo-boundary-governance` (avatar-client template; creation by successor
+  `implement-keycloak-install-repo`). Sibling of `add-trust-anchor`.
+- [add-trust-anchor](openspec/changes/add-trust-anchor/proposal.md)
+  — authored 2026-08-21. The neutral trust-anchor capability (exit 1 of the
+  `pki-trust-anchor-plane` staged topic): anchors as governed records,
+  issuance only under recorded authority with evidence obligations, declared
+  chain custody deriving what a certificate evidences (composing with
+  `openxwallet`), renewal-as-rebind with dependent bindings recorded against
+  the certificate, revocation propagation, CA material as
+  `credential-contracts` records, and the declared-degraded-obligation rule —
+  product-agnostic across the two converging realizations (live Intune Cloud
+  PKI canary; OpenXPKI planned for the Opensoft production core). Also ADDS
+  the `xFactory-OpenXPKI-Install` repository boundary to
+  `repo-boundary-governance` (creation by successor
+  `implement-openxpki-install-repo`; image custody stays in
+  `opensoft/Opensoft-Tenant`). Time-critical rider: the OpsxFactory
+  `add-openxpki-qa-image-pipeline` Impact amendment must land before that
+  change ratifies. Sibling of `add-identity-brokering`.
 - [add-roster-device-admission-surface](openspec/changes/add-roster-device-admission-surface/proposal.md)
   — authored 2026-08-19. Admits the single `device` (node-inventory) admission
   surface into the closed `admission_surface` vocabulary of
