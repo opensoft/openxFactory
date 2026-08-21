@@ -407,6 +407,32 @@ scenario above is written and pinned. It is a module-level invariant, not an
 end-user-visible posture on today's shell, and it is worth keeping precisely
 because the shell's behaviour here is the kind of thing that changes.
 
+**Phase A archived before this amendment reached it, and that is left alone.**
+`add-doxbench-editing-phase-a` was archived on 2026-08-21 (PR #228) carrying its
+ORIGINAL control-count wording, which is therefore what its archival promoted
+into `openspec/specs/ideation-dashboard/spec.md` — "exactly ONE Save control and
+exactly ONE Cancel control", with a scenario requiring both present at mount.
+An earlier revision of this branch had amended Phase A's copy too; a merge from
+main carried those edits into the ARCHIVED change, and they have been reverted.
+An archive must record what was actually ratified, and one that disagreed with
+the spec its own archival produced would be a falsified record — the same rule
+`add-staged-topic-outline-template`'s Amendment 1 applies to its supporting-docs
+copies. Nothing is lost by reverting it: this capability declares the
+requirement under `## MODIFIED Requirements`, so THIS delta is the sole carrier
+of the correction and supersedes the promoted wording when this change archives.
+Until then the promoted spec describes Phase A's shipped posture and this delta
+describes the amended one, which is exactly what a MODIFIED delta is for.
+
+**A pre-existing looseness at the public API, recorded and deliberately not
+widened here.** The controller's public `unloadDocument(key, …)` hard-refuses
+only `OUTLINE_BUFFER_KEY`, while the UI path withholds BOTH reserved keys (the
+outline and the unbacked `document` slot). The asymmetry predates this branch —
+the retired rail control withheld exactly the same way, at the same layer — so
+this amendment neither introduces nor repairs it, and the surface a human can
+reach is correct in both realizations. Tightening the public method is a change
+to the controller's contract and belongs to whoever next opens that contract,
+not to a UI amendment.
+
 **What is NOT amended.** The loaded-set requirement is untouched: a document
 still leaves the set only by an explicit human act, and that act still MUST
 refuse or require an explicit discard while dirty. The new design discharges
