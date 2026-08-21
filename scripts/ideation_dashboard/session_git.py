@@ -563,6 +563,24 @@ class SessionGit:
         self.git(self.served_root, "worktree", "add", str(target), branch)
         return target
 
+    def checked_out_at(self, branch: str) -> str | None:
+        """The working tree that currently has `branch` CHECKED OUT, or None.
+
+        `git for-each-ref --format=%(worktreepath)` fills that field exactly when
+        some working tree holds the ref, which is the condition `git worktree
+        add` refuses with exit 128. Asking BEFORE the add turns a raw GitError
+        naming neither cause nor remedy into the session vocabulary's own
+        refusal (PR #234, Codex P1).
+
+        A pure REF READ: no remote contact, no fetch, nothing written — so it is
+        legal on the served checkout and costs the resume path nothing."""
+        listed = self.git(self.served_root, "for-each-ref",
+                          "--format=%(worktreepath)", f"refs/heads/{branch}")
+        for line in listed.splitlines():
+            if line.strip():
+                return line.strip()
+        return None
+
     def worktree_remove(self, path: Path | str) -> None:
         """`git worktree remove --force <path>` — teardown, BOTH endings
         (FR-021). Removes the directory and git's bookkeeping; the BRANCH

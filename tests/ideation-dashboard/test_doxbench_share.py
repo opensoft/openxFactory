@@ -20,6 +20,7 @@ The table this file holds the surface to:
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -37,6 +38,7 @@ from ideation_dashboard import doxbench_hash as dh
 from ideation_dashboard import doxbench_threads as dt
 from ideation_dashboard import gate_console as gc
 from ideation_dashboard import gate_routes as gr
+from ideation_dashboard import session_git as sg
 from ideation_dashboard import session_pr
 from ideation_dashboard import snapshot_registry as reg
 from ideation_dashboard.generator import generate_snapshot
@@ -446,55 +448,183 @@ def test_the_share_gate_is_narrower_than_the_save_gate():
 
 def _colleague_clone(tmp_path, repo) -> Path:
     """A DIFFERENT machine: a fresh clone of the bare origin, which can only ever
-    see what was actually pushed."""
-    dest = tmp_path / "colleague"
+    see what was actually pushed.
+
+    Named `openxFactory` inside its own directory because the session machinery
+    keys the registry on the checkout's directory name."""
+    dest = tmp_path / "colleague" / repo.repository
+    dest.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(["git", "clone", str(repo.origin), str(dest)],
                    check=True, capture_output=True, text=True)
+    for key, value in (("user.email", "colleague@example.invalid"),
+                       ("user.name", "Colleague")):
+        subprocess.run(["git", "-C", str(dest), "config", key, value],
+                       check=True, capture_output=True, text=True)
     return dest
 
 
-def test_a_colleague_fetches_the_branch_and_sees_the_threads(tmp_path):
-    """12.5 end to end: share, clone, check out the shared branch, and find the
-    session's documents AND its threads."""
-    repo, registry, created = _session_world(tmp_path)
-    rel = _write_thread(repo, created["path"], "the reasoning behind the draft")
+def _colleague_registry(root: Path, repository: str, tmp_path):
+    path = tmp_path / f"colleague-snapshot-{root.name}.json"
+    path.write_text(json.dumps(generate_snapshot(root, repository)),
+                    encoding="utf-8")
+    registry = reg.SnapshotRegistry()
+    registry.register(reg.entry_from_snapshot_file(
+        path, repository=repository, ref=reg.DEFAULT_REF,
+        source_root=root), active=True)
+    return registry
 
+
+def _colleague_join(clone: Path, repository: str, tmp_path, *,
+                    continuation=None):
+    """THE REAL SUPPORTED SESSION JOIN, driven exactly as every session-bearing
+    verb drives it: `open_session` over the colleague's own checkout.
+
+    This is the whole point of Codex's P1 on PR #234. The first version of the
+    resume test checked out the branch by hand and read files off disk, which
+    proved the BYTES travelled and proved nothing at all about the ratified
+    scenario's words — "open the tile, join the session"."""
+    git = sg.SessionGit(clone)
+    return bs.open_session(
+        git, _colleague_registry(clone, repository, tmp_path),
+        repository=repository, tile=bs.Tile(bs.STAGED_TOPIC, TOPIC),
+        inventory=gr.discover_tile_inventory(clone), checkout_root=clone,
+        continuation=continuation)
+
+
+def _fetch_command_from(message: str) -> list[str]:
+    """The fetch command the REFUSAL ITSELF printed, parsed out so the test can
+    RUN it. Pinning the remedy by executing it is the only way it cannot rot:
+    the previous hint (`git fetch origin <branch>`, no refspec) returned 0,
+    created no local branch, and left the human at the identical refusal."""
+    found = re.search(r"`(git fetch origin [^`]+)`", message)
+    assert found, f"the refusal names no fetch command: {message}"
+    return found.group(1).split()
+
+
+def _share_then_resume(tmp_path, note: str):
+    """Share a discussed document, then JOIN the session from a fresh clone
+    through the real flow. Returns (rel, session, worktree)."""
+    repo, registry, created = _session_world(tmp_path)
+    rel = _write_thread(repo, created["path"], note)
     status, shared = _share(repo, registry, RealPush(_worktree(repo)))
     assert status == 200 and shared["shared"], shared
 
     clone = _colleague_clone(tmp_path, repo)
-    subprocess.run(["git", "-C", str(clone), "checkout", BRANCH],
+
+    # THE TILE IS OPENED FIRST, with no answer — the colleague gets the
+    # resume-or-new report, exactly as FR-025 requires. A session is never
+    # opened over a surviving branch silently, not even a shared one.
+    with pytest.raises(bs.AbandonedBranchSurvives) as reported:
+        _colleague_join(clone, repo.repository, tmp_path)
+
+    # THE REMEDY IS RUN, not read: the refusal's own fetch command, parsed out
+    # of its text and executed. See `_fetch_command_from`.
+    with pytest.raises(bs.SessionRefused) as refused:
+        _colleague_join(clone, repo.repository, tmp_path,
+                        continuation=bs.CONTINUATION_RESUME)
+    subprocess.run(_fetch_command_from(str(refused.value)), cwd=clone,
                    check=True, capture_output=True, text=True)
 
-    assert (clone / created["path"]).is_file()
-    thread = clone / rel
-    assert thread.is_file(), sorted(p.name for p in clone.rglob("*.thread.md"))
+    session = _colleague_join(clone, repo.repository, tmp_path,
+                              continuation=bs.CONTINUATION_RESUME)
+    assert str(reported.value)
+    return repo, created, rel, session, Path(session.worktree)
+
+
+def test_a_colleague_fetches_the_branch_and_joins_the_session(tmp_path):
+    """12.5 end to end, through the SUPPORTED FLOW: share, clone, fetch, and
+    JOIN THE SESSION — then find the session's documents and its threads inside
+    the session worktree the join materialized.
+
+    The earlier version of this test checked the branch out by hand and read
+    files off disk. That proved the bytes travelled and proved nothing about the
+    ratified scenario's words — "open the tile, join the session" — and it hid a
+    real defect (PR #234, Codex P1): the resume path refused a remote-only
+    branch, and the remedy it printed could not work."""
+    _repo, created, rel, session, worktree = _share_then_resume(
+        tmp_path, "the reasoning behind the draft")
+
+    assert session.branch == BRANCH
+    assert worktree.is_dir(), "the join must materialize a session worktree"
+    assert (worktree / created["path"]).is_file()
+    thread = worktree / rel
+    assert thread.is_file(), sorted(
+        x.name for x in worktree.rglob("*.thread.md"))
     assert "the reasoning behind the draft" in thread.read_text(encoding="utf-8")
 
 
 def test_a_discussed_but_never_saved_document_thread_still_arrives(tmp_path):
-    """P3-17, DISCHARGED — the tail §11 could not close and recorded here.
+    """P3-17, DISCHARGED — the tail §11 could not close and recorded here, and
+    now proved through the REAL session join rather than a manual checkout.
 
     The document is created, then DISCUSSED and never Saved again. Its sidecar is
     dirty and no Save will ever carry it, so before §12 it would sit uncommitted
     and the colleague would resume with the thread silently missing. The share
-    verb sweeps it as its own gate action, so it travels."""
-    repo, registry, created = _session_world(tmp_path)
-    # discussed, never saved again: the ONLY thing that touched this document
-    # since its creation is a turn writing its sidecar.
-    rel = _write_thread(repo, created["path"], "we argued about the framing")
-    assert rel in _dirty(repo), "the premise: the sidecar is uncommitted"
+    verb sweeps it as its own gate action, so it travels — and the colleague
+    finds it by JOINING the session, which is the path that matters."""
+    repo, _created, rel, _session, worktree = _share_then_resume(
+        tmp_path, "we argued about the framing")
+    del repo
 
-    status, shared = _share(repo, registry, RealPush(_worktree(repo)))
-    assert status == 200, shared
-    assert shared["threads"] == [rel]
-
-    clone = _colleague_clone(tmp_path, repo)
-    subprocess.run(["git", "-C", str(clone), "checkout", BRANCH],
-                   check=True, capture_output=True, text=True)
-    assert (clone / rel).is_file(), "P3-17 regression: the thread did not travel"
+    assert (worktree / rel).is_file(), (
+        "P3-17 regression: the thread did not survive the real resume")
     assert "we argued about the framing" in (
-        clone / rel).read_text(encoding="utf-8")
+        worktree / rel).read_text(encoding="utf-8")
+
+
+def test_the_refusal_names_a_fetch_that_actually_materializes_the_branch(
+        tmp_path):
+    """The remedy defect on its own, pinned in isolation (PR #234, Codex P1
+    link 3): the refspec-less form the refusal USED to print succeeds, creates
+    no local branch, and leaves the colleague at the identical refusal."""
+    repo, registry, created = _session_world(tmp_path)
+    _write_thread(repo, created["path"])
+    _share(repo, registry, RealPush(_worktree(repo)))
+    clone = _colleague_clone(tmp_path, repo)
+
+    with pytest.raises(bs.SessionRefused) as refused:
+        _colleague_join(clone, repo.repository, tmp_path,
+                        continuation=bs.CONTINUATION_RESUME)
+
+    # the OLD hint: succeeds, and does nothing that helps
+    subprocess.run(["git", "fetch", "origin", BRANCH], cwd=clone, check=True,
+                   capture_output=True, text=True)
+    assert sg.SessionGit(clone).local_ordinals("draft/") == ()
+
+    # the hint the refusal actually prints now: creates the local ref, and
+    # deliberately does NOT check it out
+    subprocess.run(_fetch_command_from(str(refused.value)), cwd=clone,
+                   check=True, capture_output=True, text=True)
+    assert sg.SessionGit(clone).local_ordinals("draft/") == (BRANCH,)
+    assert sg.SessionGit(clone).checked_out_at(BRANCH) is None
+
+
+def test_a_branch_checked_out_by_hand_refuses_with_its_own_remedy(tmp_path):
+    """Codex P1 link 4: `git checkout <branch>` creates the ref but CHECKS IT
+    OUT, and git allows a branch in one working tree at a time — so the resume
+    used to die as a raw GitError 128 naming neither cause nor fix."""
+    repo, registry, created = _session_world(tmp_path)
+    _write_thread(repo, created["path"])
+    _share(repo, registry, RealPush(_worktree(repo)))
+    clone = _colleague_clone(tmp_path, repo)
+    subprocess.run(["git", "checkout", BRANCH], cwd=clone, check=True,
+                   capture_output=True, text=True)
+
+    with pytest.raises(bs.SessionRefused) as refused:
+        _colleague_join(clone, repo.repository, tmp_path,
+                        continuation=bs.CONTINUATION_RESUME)
+
+    message = str(refused.value)
+    assert "already CHECKED OUT" in message
+    assert "one working tree at a time" in message
+    assert "Nothing was opened" in message
+
+    # and the remedy it names resolves it
+    subprocess.run(["git", "checkout", bs.DEFAULT_BASE], cwd=clone, check=True,
+                   capture_output=True, text=True)
+    session = _colleague_join(clone, repo.repository, tmp_path,
+                              continuation=bs.CONTINUATION_RESUME)
+    assert Path(session.worktree).is_dir()
 
 
 def test_the_sweep_is_cross_document_and_the_save_filter_is_not(tmp_path):
