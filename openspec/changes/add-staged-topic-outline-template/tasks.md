@@ -435,7 +435,9 @@ remains is the contract and the surface.
       Run from a clean-path `git clone` of this branch (never `git archive` —
       that drops the git-dependent `record-immutability` family), directory named
       `openxFactory` so no family self-skips on a repository-name mismatch:
-      `python3 scripts/doc-health.py --single-repo . --report-out …` → **exit 0**.
+      `python3 scripts/doc-health.py --single-repo . --report-out <scratchpad>/dh-branch.md`
+      (both reports written to the proof session's scratchpad, outside the
+      repo) → **exit 0**.
       Headline: 324 documents examined (nonzero and the whole corpus, not a
       truncated tree), `3 critical, 8 error, 74 warning, 3 info`.
       THE "0 NEW REGRESSIONS" IS MEASURED, NOT INHERITED. A run with no
