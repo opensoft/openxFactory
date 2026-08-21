@@ -696,3 +696,199 @@ remains is the contract and the surface.
       it now lives literally inside Phase B, and will ride into that change's
       support bundle when it archives. The successor-change obligation the note
       records is unaffected and still open.
+- [x] 6.4 Realization evidence recorded at the archive gate. `code_surface:` is
+      non-empty and `target_release: implemented`, so `release-realization`'s
+      gate held this change ACTIVE from ratification until every part of that
+      surface merged green — which is why the record below spans EIGHT pull
+      requests over six days rather than one landing.
+      REALIZED and archived 2026-08-21, all 22 tasks discharged. Merged to
+      openxFactory `main` throughout by rebase-merge, so each PR's commits land
+      on main directly rather than under a merge commit; the shas below are the
+      ones on main, read from `git log`, not the pre-rebase branch shas
+      `gh pr view --json commits` returns.
+      SECTION 2, the doc-health nudge — PR #193 / `93f4241` (2026-08-15). The
+      WARNING-tier `staged-topic-template` family, which never blocks a gate.
+      SECTION 1, the template contract — PR #195 / `ea42a43` (2026-08-15).
+      `docs/document-lifecycle.md` carries the template as contract text.
+      THE OUTLINE SECTION MODEL AND AMENDMENT 1 — PR #198 / `e0dbcea`,
+      `642dd64` (2026-08-15). Amendment 1 belongs in this record rather than in
+      a footnote, because the ratified text and the shipped code name different
+      verbs: Q4 ratified `edit-apply`, and `edit-apply` is the gate console's
+      MAIN-RESIDENT redline verb — it requires a change id and applies to change
+      documents, so it cannot write a staged topic's fragment on a session
+      branch. `edit-document` is the verb the code uses and the delta now names.
+      The amendment corrected the spec delta and `docs/document-lifecycle.md`
+      and deliberately did NOT correct the supporting-docs copies: those record
+      the question as it was asked and ruled, and the `source-snapshots/` copy
+      is checksum-pinned by the bundle manifest, so rewriting either would
+      falsify a record to make it agree with a later correction.
+      SECTION 3, the outline tab — PR #208 / `26558e7`, `3a1f3aa`, `cd9f683`
+      (2026-08-19). The section index through the viewer's `renderViewer`
+      `onText` seam, add-section through `applyProposal`, Save carried by
+      `edit-document`; `3a1f3aa` answered the review's five findings and two
+      hardenings, and `cd9f683` made the `onText` containment true for the async
+      shape too.
+      SECTIONS 4.1 AND 4.3, the mutation-validated tests — PR #211 / `9dfd59a`,
+      `4c9b46b` (2026-08-19). `4c9b46b` carries the correction that mattered:
+      4.2 was reported BLOCKED because the demote INVERTS the round-trip rule
+      rather than merely omitting it.
+      SECTION 4.2 — PR #217 / `55e8a67`, `7469d1a`, `b84a936` (2026-08-19). The
+      blocking defect became its own change,
+      `align-demote-to-round-trip-rule` (realized at PR #215, archived here by
+      `55e8a67`), and 4.2 was then discharged by DRIVING the real round trip
+      end to end rather than by testing its middle. That drive in turn spawned
+      `refine-demote-round-trip-mechanics` and
+      `align-status-reader-to-real-lines`, realized at PR #221 and #222 and both
+      ARCHIVED 2026-08-21 — every change this one spawned is closed before it
+      archives, so nothing is left owing to a successor.
+      SECTIONS 6.1-6.3, bookkeeping — PR #224 / `8dde22f`, `2f9e876`
+      (2026-08-21).
+      SECTIONS 5.1-5.4, the gates and the LIVE PROOF — PR #227 / `5654343`,
+      `8780bf5`, `67ad236`, `a70bf01`, `0d4cf16` (2026-08-21).
+      THE REALIZATION PROOF IS TASK 5.4, transcribed in full above rather than
+      restated here. Its four load-bearing verdicts are the ones that would have
+      caught a fake: exactly ONE action route was reached across 99 recorded
+      responses (`/actions/gate/first-edit` → 200); that response's body reads
+      `"verb": "edit-document"`; the single commit on session branch
+      `draft/outline-conformer` carries the subject
+      `edit-document: ideation/staging/outline-conformer/outline-conformer.md`
+      with a `Gate-Action:` trailer; and the committed gate-action record's own
+      `action:` reads `edit-document`. The served checkout never moved. So the
+      verb Amendment 1 corrected is evidenced three independent ways on the
+      wire, in git, and in the governed record — not by the mere existence of a
+      commit.
+      GREEN AT THE ARCHIVE GATE. Measured on this archive branch, whose only
+      delta from `origin/main` `6cbb449` is the archive move itself, with every
+      exit code read DIRECTLY from `$?` and never through a pipe:
+      • `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` exit 0,
+        `Totals: 63 passed, 0 failed (63 items)`. It read 64 before the archive.
+        The drop of exactly one is this change leaving the active register and
+        is recorded as the expected arithmetic, not as a pass in its own right.
+      • `python3 -m pytest tests/ideation-dashboard -q` exit 0, 3747 passed /
+        14 skipped in 412.95s. No test in that suite reads the active-change
+        register or a change path — the five files naming this change name it
+        in a comment or a docstring only — so the archive move could not have
+        moved a result there, and did not.
+      • `python3 -m pytest tests/doc-health -q` from this agent worktree: exit
+        1, 4 failed / 687 passed, and the four are the KNOWN LOCATION ARTIFACT
+        named in full rather than counted —
+        `test_client_identity_composition.py::test_every_cross_domain_fixture_repo_passes_the_blocking_domain_gate`
+        at `[alphaxFactory]`, `[betaxFactory]`, `[deltaxFactory]` and
+        `[gammaxFactory]`. Nothing else failed. These are NOT pre-existing
+        defects and must not be described as expected failures: an agent
+        worktree lives under `.git/modules/openxFactory/.claude/worktrees/…`,
+        and `validate-client-identity-roster.py`'s `sweep_files` filters `.git`
+        by path PART, so every fixture YAML is swept out and every
+        `consent_ref` resolves to nothing. The measurement behind that reading
+        is recorded once in
+        `openspec/changes/archive/2026-08-21-refine-demote-round-trip-mechanics/tasks.md`
+        §7.2 rather than duplicated here; the clean-path run below is this
+        change's own confirmation.
+      • The same suite from a clean-path `git clone` of this branch tip
+        (`13a3c1a`, cloned to a directory named `openxFactory` so no family
+        self-skips on a repository-name mismatch): exit 0, 691 passed, ZERO
+        skips. So all 691 items are green — the four are a property of the
+        PATH, not of the corpus, and this run is the direct refutation rather
+        than an argument.
+      • doc-health full run, and its zero-movement claim MEASURED rather than
+        inherited. Two `python3 scripts/doc-health.py --single-repo .` runs from
+        identically-named clean-path `git clone`s — never `git archive`, which
+        drops the git-dependent `record-immutability` family — one of the base
+        `6cbb449` and one of this branch tip `13a3c1a`, both exit 0, the second
+        run given the first as `--previous-report` with
+        `--new-findings-out`. The new-findings file is literally `[]`, and
+        because an empty list proves little on its own the two reports were
+        also diffed RAW. Findings are identical on both sides —
+        `3 critical, 8 error, 75 warning, 3 info` over the same 326 documents,
+        and the entire "Findings By Family" body byte-identical. THREE LINES
+        differ in the whole report, all of them word arithmetic and each
+        explained rather than accepted wholesale:
+        (1) `(promoted specs)` 106198 -> 107388 words, +1190, which is the two
+        requirements this archive promoted into `openspec/specs/`;
+        (2) canon share 31.1% -> 31.3% (155652 -> 156842 canon words of
+        500182 -> 501478 governance words), the same +1190 landing on the canon
+        side of the same ratio;
+        (3) `staged` 97982 -> 98088 words, +106, which is this commit's own
+        edit to `ideation/staging/INDEX.md` — the topic's exit record repointed
+        at the bundle — and NOT a document changing stage: the staged DOC count
+        is 68 on both sides, as are `record` (28) and every other row.
+        NOTHING MOVED FOR THE ARCHIVE MOVE ITSELF, which is the answer worth
+        recording: no location, aging, origin, immutability or
+        register-consistency family reacted to the change folder relocating
+        under `archive/`. Task 5.3's own family was checked separately rather
+        than left inside the total, since the `FAMILY_IDS` omission 5.3 records
+        means the report prints no section for it: `--family
+        staged-topic-template` gives `0 critical, 0 error, 29 WARNING, 0 info`
+        on BOTH trees. The 29 that 5.3 enumerated are exactly the 29 still
+        there — the count matches its 0a4b63a pin again because the two topics
+        staged at a1c694b have since exited to
+        `add-identity-brokering`/`add-trust-anchor`, not because the family
+        went quiet.
+      PROMOTION VERIFIED BY ENUMERATION, not by trusting the CLI's summary. The
+      change's `specs/` folder carried exactly two deltas, both `## ADDED
+      Requirements`, and both are present once and only once in
+      `openspec/specs/`:
+      • `document-lifecycle` → `Staged topic primary-fragment template`, now
+        `openspec/specs/document-lifecycle/spec.md:366`, the thirteenth
+        requirement in that capability (12 before). Its five scenarios landed —
+        `A topic is staged after ratification`, `A proposal is demoted back to
+        staging`, `An AI adds a section`, `A topic staged before ratification is
+        untouched`, `The template would require a second selected file` — and
+        the WARNING-tier clause that the `staged-topic-template` family
+        implements is in the promoted body verbatim.
+      • `ideation-dashboard` → `The outline tab renders the staged-topic
+        template`, now `openspec/specs/ideation-dashboard/spec.md:1653`, the
+        seventy-fourth requirement in that capability (73 before). Its four
+        scenarios landed, INCLUDING `A pre-template topic is opened`, the
+        degrade-don't-refuse scenario task 5.4 drove; and the Amendment 1
+        parenthetical naming `edit-document` promoted with it.
+      Both promoted bodies were diffed against the delta files rather than eyeballed:
+      `document-lifecycle` is byte-identical, and `ideation-dashboard` differs
+      only by the one trailing blank line the promoted file needs before the
+      next requirement.
+- [x] 6.5 The archive was performed by the SANCTIONED WRAPPER,
+      `python3 scripts/proposal-support.py . archive
+      add-staged-topic-outline-template --yes`, not by a bare `openspec
+      archive`. The difference is contractual, not stylistic. This change has a
+      STAGED origin (`openxFactory:staging:staged-topic-outline-template`,
+      consumed by the 2026-08-15 forward transition) and it OWNS a
+      `supporting-docs/` folder, and `document-lifecycle`'s promoted
+      `Supporting-document archive retention` requires that "before an OpenSpec
+      change with supporting documents archives, its supporting folder SHALL be
+      packaged into a deterministic compressed bundle beside the archived change
+      and a readable manifest SHALL remain outside the bundle with the bundle
+      and per-file hashes" — its scenario says in as many words that the
+      uncompressed folder MUST NOT remain. A bare `openspec archive` knows
+      nothing of that clause and would have moved the loose folder into
+      `archive/` intact, leaving the change in violation of a requirement in the
+      very capability it amends. The wrapper packages first and then delegates
+      to the CLI, so both halves happen in the right order. (The sibling archive
+      of 2026-08-21 used the bare CLI CORRECTLY for the opposite reason: both
+      those changes were `ad_hoc` with no `supporting-docs/`, and the wrapper's
+      own comment records that the bundle-less shape is the majority of staged
+      origins too. The predicate is the presence of supporting documents, not
+      the origin kind.)
+      RETENTION VERIFIED AGAINST PRE-ARCHIVE BYTES, both halves, because the
+      instruction not to let the tool silently mishandle either is only worth
+      as much as the check behind it.
+      • The origin block survived byte-for-byte: `.openspec.yaml` hashes
+        `86629329b9ab5ab0ba9587d903cc680d04fb3e69eab0b63ed5bb217eb2e6ad6b`
+        before and after, still declaring `kind: staged`, the durable id, and
+        `path: ideation/staging/staged-topic-outline-template` — the historical
+        transition source that `Proposal origin declaration` forbids rewriting
+        when the folder disappears. The origin is additionally echoed into
+        `supporting-docs.manifest.yaml`, so it now survives in two places.
+      • The bundle carries all three files at their pre-archive hashes:
+        `manifest.yaml` `e05488b6…`, `staged-topic-outline-template.md`
+        `47d46ac8…` (the moved fragment with its EXIT CONDITION MET note), and
+        `source-snapshots/staged-topic-outline-template.md` `022d1eee…` (the
+        byte-exact pre-transition copy). Checked twice over: the manifest's
+        recorded per-file hashes match the pre-archive `sha256sum` output, and
+        the tarball was independently extracted and re-hashed to the same three
+        values. `proposal-support.py . verify add-staged-topic-outline-template`
+        returns ok on the archived shape.
+      • The `ideation/staging/INDEX.md` exit record is repointed rather than
+        left dangling: the fragment is no longer a linkable file, so the row
+        names the bundle and its sibling manifest instead of linking a path that
+        would resolve to nothing. Same treatment `add-doxbench-editing-phase-a`
+        got when it archived (`34c4d7b`).
