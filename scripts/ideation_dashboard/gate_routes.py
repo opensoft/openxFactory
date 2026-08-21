@@ -61,6 +61,7 @@ branch (FR-025), stale residue (FR-008), or an externally-dispatching verb (FR-0
 from __future__ import annotations
 
 import contextlib
+import dataclasses
 
 import yaml
 
@@ -94,7 +95,13 @@ EXECUTING_VERBS = ("dispose-possible", "ratify", "propose",
                    # (and SESSION_BEARING_VERBS) when it landed; the declaration
                    # here lagged, so the roster disagreed with what the route
                    # actually executes.
-                   "first-edit")
+                   "first-edit",
+                   # add-doxbench-editing-phase-b §12: the doxBench SHARE verb.
+                   # It EXECUTES (it commits and it pushes), so it belongs here
+                   # rather than in the descriptor-only remainder — and it is
+                   # session-bearing below, which is what subjects it to the
+                   # console-presence refusal every remote-writing verb carries.
+                   "share-session")
 
 # The verbs that can OPEN, WRITE INTO, or END a branch session. They are the
 # verbs whose write lands in a per-repository worktree, so they are the verbs
@@ -102,7 +109,14 @@ EXECUTING_VERBS = ("dispose-possible", "ratify", "propose",
 # finding 8, leg a).
 SESSION_BEARING_VERBS = ("create-document", "edit-document", "open-pr",
                          "abandon-session", "cleanup-abandoned-branch",
-                         "first-edit")
+                         "first-edit",
+                         # §12.4: share-session writes into the session worktree
+                         # AND performs a remote write with the engineer's own
+                         # credential — the two properties this tuple exists to
+                         # carry repository identity for, and the membership
+                         # that makes FR-019's console-presence clause ENFORCED
+                         # for it rather than merely observed.
+                         "share-session")
 
 # Action names recorded on the gate-action record for the two lens verbs. The
 # names mirror the verb (honest audit), beside the enumerated console actions.
@@ -372,6 +386,17 @@ def run_gate_action(verb: str, body: dict, *, checkout_root: Path,
                         session_notebook=session_notebook,
                         pull_requests=session_pull_requests,
                         provenance=provenance)
+    if verb == "share-session":
+        # The SAME `session_pull_requests` port `open-pr` is handed, because
+        # §12's requirement is that the verb reuse the existing remote-write
+        # path rather than introduce a second one. No `session_notebook`: a
+        # share creates and retires nothing.
+        return _share_session(body, checkout_root, actor, records_dir,
+                              snapshot_path, session_registry=session_registry,
+                              repository=repository,
+                              tile_inventory=tile_inventory,
+                              pull_requests=session_pull_requests,
+                              provenance=provenance)
     if verb == "abandon-session":
         return _abandon_session(body, checkout_root, actor, records_dir,
                                 snapshot_path, session_registry=session_registry,
@@ -1881,6 +1906,218 @@ def execute_edit_document(gate, *, document: str, content, records_dir: str,
 # per-worktree action lock itself, and that lock is NOT reentrant — so nothing
 # here may claim it around the call.
 
+# ===========================================================================
+# SHARE-SESSION (add-doxbench-editing-phase-b tasks.md §12, contract-v1.36)
+#
+# The verb that hands a live workbench session to a colleague, and the reason
+# threads are LOCAL until a human says otherwise. It is defined by what it is
+# STRICTLY LESS THAN: `open-pr` pushes the branch AND opens a pull request into
+# the Merge-Master ritual; share-session pushes the branch and stops. Same port,
+# same credential rule, same console posture — one member instead of three.
+#
+# The whole verb is three steps: commit the session's DIRTY thread sidecars,
+# push the branch, return and record the pushed ref.
+# ===========================================================================
+
+SHARE_SESSION_REMEDY = (
+    "share-session publishes an ACTIVE branch session; open the tile and Save "
+    "once to start one, then share it.")
+
+# The port members this verb is FORBIDDEN to reach. Written down as DATA, not
+# left as an absence, because "opens no pull request, requests no review, holds
+# no approval or merge authority" is only checkable against a list somebody
+# committed to — `session_pr.PORT_OPERATIONS` minus `push` is exactly it, and
+# deriving it that way means a port that grows a fourth member fails this
+# assertion instead of quietly widening the verb.
+FORBIDDEN_SHARE_OPERATIONS: tuple[str, ...] = tuple(
+    op for op in session_pr.PORT_OPERATIONS if op != "push")
+
+# Sharing is NOT promotion (task 9.4). The verb pushes a branch; it promotes no
+# finding, and the thread prefix stays excluded from session-PR promotion by
+# default. Read from the threads module rather than restated, so the exclusion
+# has ONE spelling on this surface too.
+SHARE_IS_NOT_PROMOTION = (
+    "shared, not promoted: this verb pushes the session branch and promotes "
+    "nothing. Threads stay excluded from session pull-request promotion by "
+    "default (" + ", ".join(doxbench_threads.promotion_excluded_prefixes())
+    + "), and a finding becomes durable only by someone creating a new object "
+    "through an existing lifecycle verb, with provenance.")
+
+
+@dataclasses.dataclass(frozen=True)
+class SharePlan:
+    """What one share invocation has to do, decided by a SIDE-EFFECT-FREE read.
+
+    Computed before the port is touched so the "nothing new" answer costs no
+    remote write, and so the record's residency (below) is known before a gate
+    is built at either root."""
+
+    branch: str
+    threads: tuple[str, ...]
+    local_sha: str | None
+    remote_sha: str | None
+
+    @property
+    def commits(self) -> bool:
+        """Whether this share has sidecars to commit — which is also what
+        decides where its record lives."""
+        return bool(self.threads)
+
+    @property
+    def unpushed(self) -> bool:
+        """Whether the branch holds commits the remote has not seen. This is the
+        ORDINARY state after a run of Saves, not an edge case: nothing pushes
+        implicitly, so every Save leaves a commit here."""
+        return bool(self.local_sha) and self.local_sha != self.remote_sha
+
+    @property
+    def nothing_new(self) -> bool:
+        return not self.commits and not self.unpushed
+
+    def report(self) -> str:
+        """The HONEST nothing-new sentence (task 12.3). It names both things it
+        checked, because "nothing to share" with no reason reads as a failure."""
+        return (
+            f"nothing new to share: {self.branch!r} has no uncommitted thread "
+            f"sidecars, and the remote already holds this branch at "
+            f"{(self.remote_sha or '')[:12]}. Nothing was pushed.")
+
+
+def plan_share(git, *, worktree, branch: str) -> SharePlan:
+    """Read what a share WOULD do. No commit, no push, no remote write.
+
+    `remote_sha` uses `git ls-remote`, which is side-effect-free and never
+    fetches — the same read the merge observation already trusts."""
+
+    dirty = git.dirty_paths(worktree)
+    return SharePlan(
+        branch=branch,
+        threads=doxbench_threads.shareable_thread_paths(dirty),
+        local_sha=git.head(worktree) or None,
+        remote_sha=git.remote_sha(branch))
+
+
+def share_session_gate_factory(actor: str, records_dir: str):
+    """The gate builder for a share, at whichever root the plan needs.
+
+    DELIBERATELY NARROWER THAN `first_edit_gate_factory`: the records tree and
+    NOTHING else. That factory grants the thread-sidecar prefix because a Save
+    WRITES a sidecar through its gate; a share never writes one. It commits
+    sidecars that are already on disk, staged by explicit path through git, and
+    the only thing it writes through the gate is its own record. Granting the
+    thread prefix here would widen the allowlist for a write that does not
+    exist, so it is not granted, and a companion test asserts the difference."""
+
+    def build(root):
+        return HumanGate(root, [records_dir], human_actor=actor,
+                         session_root=root)
+    return build
+
+
+def execute_share_session(gate_factory, git, *, session, pull_requests,
+                          records_dir: str, checkout_root: Path | str,
+                          notes: str | None = None, at: str | None = None,
+                          provenance=None) -> dict:
+    """Commit the session's dirty threads, push the branch, record the share.
+
+    Human-only: the agent path is rejected (BoundaryViolation) BEFORE the plan
+    is read and long before anything is pushed, exactly as `execute_open_pr`
+    rejects it before the port is touched.
+
+    TWO RECORD RESIDENCIES, and the reason is structural rather than a taste
+    call — the contract-v1.36 entry states the same thing schema-side:
+
+      * WITH dirty sidecars, the record rides their commit onto the session
+        branch (`commit_gate_action`, untouched), so one gate action is one
+        commit and the record travels to the colleague who fetches the branch.
+      * WITH nothing dirty and commits the remote has not seen, there is
+        nothing to co-commit, and FR-006's own guard REFUSES an empty declared
+        set. So the record is main-resident, exactly as `open-pr`'s is.
+
+    The ordering differs with it, and the difference is reported rather than
+    hidden: the branch-resident record is written INSIDE the commit and so
+    precedes the push, while the main-resident one is written after it. A push
+    that fails after a thread commit therefore leaves a recorded commit and an
+    unshared branch — which the next invocation sees as `unpushed` and pushes,
+    honestly, rather than reporting nothing to do."""
+
+    # FIRST, before the plan and before the port: a gate at the SERVED checkout,
+    # which is where a main-resident record would land and where the agent-path
+    # refusal is identical either way.
+    main_gate = gate_factory(Path(checkout_root))
+    human = gate_console.require_human_gate(main_gate)
+    root = Path(human.output.root)
+    at = at or gate_console._utcnow()
+    if session is None:
+        raise branch_session.SessionRefused(
+            "`share-session` publishes an ACTIVE branch session; there is none "
+            "on this tile. " + SHARE_SESSION_REMEDY)
+    if Path(checkout_root).resolve() != root.resolve():
+        raise branch_session.SessionRefused(
+            f"the gate is rooted at {root} but the served checkout is "
+            f"{checkout_root}: a share's main-resident record is written into "
+            "the SERVED checkout's gate-records tree")
+    if pull_requests is None:
+        raise branch_session.SessionRefused(
+            "no pull-request port is declared on this plane, so `share-session` "
+            "has no identity to push with. The remote write uses the INVOKING "
+            "ENGINEER's own `gh` authentication (FR-034) — the same plane rule "
+            "the session Save already carries, and the reason a hosted plane "
+            "never holds one")
+
+    worktree = Path(session.worktree)
+    plan = plan_share(git, worktree=worktree, branch=session.branch)
+
+    # TASK 12.3, decided BEFORE the port: nothing new is reported, never pushed
+    # again. Costs one local status read and one `ls-remote`, and no write.
+    if plan.nothing_new:
+        return {"ok": True, "shared": False, "branch": plan.branch,
+                "pushed_ref": None, "revision": plan.local_sha,
+                "threads": [], "reason": plan.report(),
+                "promotion": SHARE_IS_NOT_PROMOTION}
+
+    commit = None
+    if plan.commits:
+        # THE P3-17 DISCHARGE. These sidecars belong to documents that were
+        # DISCUSSED and, in the tail case that obligation named, never Saved
+        # again — so no Save will ever carry them and they would not travel.
+        # They ride the SHARE's own commit instead, which is the first verb with
+        # a legitimate reason to commit a thread on its own.
+        record = gate_console.build_gate_action_record(
+            actor=human.human_actor, action=gate_console.ACTION_SHARE_SESSION,
+            at=at, ref=plan.branch, notes=notes, provenance=provenance,
+            artifacts=[branch_session.commit_artifact(
+                branch_session.action_stamp(at))])
+        commit = branch_session.commit_gate_action(
+            gate_factory(worktree), git, worktree=worktree,
+            branch=plan.branch, record=record, documents=plan.threads,
+            records_dir=records_dir,
+            summary=f"share-session: {len(plan.threads)} thread(s)",
+            session=session)
+
+    # THE ONLY REMOTE WRITE, and the port's EXISTING member. Everything above is
+    # local; everything the colleague can see happens here.
+    pull_requests.push(plan.branch)
+    pushed_ref = f"refs/heads/{plan.branch}"
+    revision = git.head(worktree) or plan.local_sha
+
+    if commit is None:
+        # Main-resident, and written AFTER the push, exactly as `open-pr`'s is:
+        # the record attests to a share that has already happened.
+        record = gate_console.build_gate_action_record(
+            actor=human.human_actor, action=gate_console.ACTION_SHARE_SESSION,
+            at=at, ref=plan.branch, notes=notes, provenance=provenance,
+            artifacts=[{"kind": gate_console.ART_OTHER,
+                        "reference": pushed_ref}])
+        gate_console.write_gate_action_record(human, records_dir, record)
+
+    return {"ok": True, "shared": True, "branch": plan.branch,
+            "pushed_ref": pushed_ref, "revision": revision,
+            "threads": list(plan.threads),
+            "record_resident": "branch" if commit is not None else "main",
+            "promotion": SHARE_IS_NOT_PROMOTION}
+
+
 def first_edit_gate_factory(actor: str, records_dir: str):
     """The worktree-rooted gate builder `commit_first_edit` writes through.
 
@@ -2555,6 +2792,75 @@ def _open_pr(body: dict, root: Path, actor: str, records_dir: str,
         return _refused(f"the session could not be saved: {exc}")
     except OSError as exc:
         return _refused(f"the open-pr record could not be written: {exc}")
+    return 200, result
+
+
+def _share_session(body: dict, root: Path, actor: str, records_dir: str,
+                   snapshot_path, *, session_registry=None,
+                   repository: str | None = None, tile_inventory=None,
+                   pull_requests=None,
+                   provenance=None) -> tuple[int, dict]:
+    """The §12 SHARE verb's route arm — `_open_pr`'s refusal chain with the
+    pull-request half removed, because that is precisely what the verb is.
+
+    It takes NO `title` and NO `body`: those exist on `open-pr` to name a pull
+    request, and a verb that opens none has nothing to name. `notes` stays,
+    because the record carries one."""
+    blank = _refuse_blank_actor("share-session", actor)
+    if blank:
+        return blank
+    scope_kind = _str_or_none(body.get("scope_kind"))
+    scope_id = _str_or_none(body.get("scope_id"))
+    if not scope_kind or not scope_id:
+        return _invalid(
+            "share-session requires the tile scope (scope_kind + scope_id): the "
+            "session whose branch it pushes is resolved from the tile")
+    if scope_kind not in branch_session.SCOPE_KINDS:
+        return _invalid("scope_kind must be one of "
+                        f"{', '.join(branch_session.SCOPE_KINDS)}")
+    if session_registry is None:
+        return _refused(
+            "no session registry is declared on this plane, so no branch session "
+            "can be live here. " + SHARE_SESSION_REMEDY)
+    snapshot = _load_snapshot(snapshot_path)
+    try:
+        if tile_inventory is None:
+            tile_inventory = discover_tile_inventory(root, snapshot)
+        session, git = resolve_session(
+            (scope_kind, scope_id), checkout_root=root,
+            registry=session_registry, repository=repository,
+            records_dir=records_dir, tile_inventory=tile_inventory,
+            verb="share-session", require_live=True,
+            remedy=SHARE_SESSION_REMEDY)
+    except branch_session.SessionRefused as exc:
+        return _refused(exc.report())
+    except session_git_mod.GitError as exc:
+        return _refused(f"the session could not be resolved: {exc}")
+    except OSError as exc:
+        return _refused(f"the session could not be resolved: {exc}")
+    try:
+        result = execute_share_session(
+            share_session_gate_factory(actor, records_dir), git,
+            session=session, pull_requests=pull_requests,
+            records_dir=records_dir, checkout_root=root,
+            notes=_str_or_none(body.get("notes")), provenance=provenance)
+    except BoundaryViolation as exc:
+        return _refused(exc.refusal.report(), status=403)
+    except gate_console.GateRefused as exc:
+        return _refused(str(exc))
+    except branch_session.SessionRefused as exc:
+        return _refused(exc.report())
+    except session_pr.PullRequestRefused as exc:
+        # The port's own reason, VERBATIM, exactly as `open-pr` reports it: a
+        # rejected push, a `gh` auth that is not there. On the main-resident
+        # path nothing was recorded, because that record is written last; on the
+        # branch-resident path the thread commit stands and the NEXT invocation
+        # sees it as unpushed and shares it, which is why this is safe to retry.
+        return _refused(str(exc))
+    except session_git_mod.GitError as exc:
+        return _refused(f"the session could not be shared: {exc}")
+    except OSError as exc:
+        return _refused(f"the share-session record could not be written: {exc}")
     return 200, result
 
 
