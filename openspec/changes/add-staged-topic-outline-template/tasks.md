@@ -330,8 +330,10 @@ remains is the contract and the surface.
       scans `## Exit`. Nothing anywhere writes `Status at demote` or
       `Demote reason`.
       THE MISCONCEPTION IS RECORDED AS FACT in the corpus:
-      `openspec/changes/add-doxbench-editing-phase-a/tasks.md:193-194` says the
-      slot "fills on demote only, per the template". Nothing fills it, and the same
+      `openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/tasks.md`
+      (task 9.2) says the slot "fills on demote only, per the template" — path
+      repointed 2026-08-21 when Phase A archived; the citation and the finding
+      are unchanged, only the location is. Nothing fills it, and the same
       demote deletes it.
       DISPOSITION IS BRETT'S, and this is a contract/mechanism divergence needing
       OpenSpec, not a test. Recommendation carried forward: treat it as a DEFECT

@@ -391,8 +391,13 @@ Active changes:
   fragments, and the `doxbench-editing-model` Q4 handoff). Outstanding: task
   5.4's live browser proof and gates 5.1-5.3. `target_release: implemented`.
 
-- [add-doxbench-editing-phase-a](openspec/changes/add-doxbench-editing-phase-a/proposal.md)
-  — authored 2026-08-15, Phase A of the `doxbench-editing-model` staged topic
+- [add-doxbench-editing-phase-a](openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/proposal.md)
+  — **ARCHIVED 2026-08-21** (realization evidence recorded at the gate: PR #196
+  / `6ac42ed`, plus its own annotation round at #199 / `224bf22` and #201 /
+  `96975c1`; its spec text promoted, +5 ADDED and ~2 MODIFIED, which is what
+  gave Phase B's three Phase-A-relative MODIFIED requirements something to
+  amend). Authored 2026-08-15, Phase A of the `doxbench-editing-model` staged
+  topic
   (sequenced first of Brett's four 2026-08-15 topics; its four Phase-A open
   questions were dispositioned accepted-as-recommended the same day). Brett's
   model is one sentence — left selects, center chat works, right shows the
@@ -419,8 +424,9 @@ Active changes:
   bound buffer in the durable TURN RECORD is deferred to Phase B (F2 carve-out,
   Brett 2026-08-15: it needs a chat-turn contract release this change forbids,
   so `doxbench_turns.py` is untouched and the obligation is recorded on the
-  staged topic). The archive gate still needs the merged-commit evidence
-  (tasks 9.1).
+  staged topic) — and that F2 obligation is DISCHARGED by Phase B's §13
+  release, `contract-v1.34`, which is why Phase A archived first. Task 9.1's
+  merged-commit evidence is recorded in the archived proposal.
 - `add-worker-credential-by-reference` — ARCHIVED 2026-08-14
   (`openspec/changes/archive/2026-08-14-add-worker-credential-by-reference/`):
   credential-by-reference is LIVE on all three CPC claude lanes — vault
