@@ -31,7 +31,7 @@ single Speckit feature §5 hands off to; do not duplicate it there.
 Not gated on this change's ratification. Gated by the OTHER change's
 ratification, which it must precede (design D7).
 
-- [ ] 2.1 In the OpsxFactory repo, amend the active change
+- [x] 2.1 DONE 2026-08-21 — all three sites amended (Impact split into the tenant-owned image-custody surface and the xFactory-OpenXPKI-Install topology home; What-Changes bullet 3 re-pointed; tasks gained a 3.4 migration obligation, since the change's QA tasks were already executed with the manifests authored in Opensoft-Tenant during bring-up — the amendment records that location as transitional, not governed). In the OpsxFactory repo, amend the active change
       `add-openxpki-qa-image-pipeline` in three places that today home the
       QA deployment manifests in `opensoft/Opensoft-Tenant`: its **Impact**
       section, its **"What Changes" bullet 3**, and its **tasks §3**.
@@ -39,10 +39,10 @@ ratification, which it must precede (design D7).
       `xFactory-OpenXPKI-Install`; leave the image-custody scope (build,
       release / package / configuration / base-image pins, offline and
       integration harness, ACR digest) exactly where it is.
-- [ ] 2.2 Re-validate that change `--strict` after the amendment and record
+- [x] 2.2 DONE 2026-08-21 — `openspec validate add-openxpki-qa-image-pipeline --strict` green post-amendment; the cross-reference to this proposal is recorded in its Impact. Re-validate that change `--strict` after the amendment and record
       the cross-reference to this proposal in its Impact section, so a
       reviewer reading either one finds the other.
-- [ ] 2.3 Confirm the amendment landed BEFORE that change is ratified. If
+- [ ] 2.3 STATUS 2026-08-21: on the good branch — the amendment is in the change's draft text BEFORE ratification (the change is still an uncommitted working-tree draft owned by its authoring session; it was found already implemented through its QA gate, tasks 3.x/4.x checked, but unratified). Close this box when that change ratifies with the amendment aboard. Confirm the amendment landed BEFORE that change is ratified. If
       it ratifies first, the correction becomes a follow-up change against
       ratified text rather than an edit to a draft — record which happened.
 
