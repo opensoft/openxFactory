@@ -8,7 +8,8 @@ This module owns exactly five things:
 * the PURE projection of a catalog into the RELEASED
   ``workbench-model-catalog`` wire envelope (``catalog_wire_envelope``), added
   once the additive openxFactory schema was released and pinned at
-  contract-v1.27 (``d09d5820de5b63b9528f6baea884a6dccde9b158``);
+  contract-v1.27 (``d09d5820de5b63b9528f6baea884a6dccde9b158``) and grown at
+  contract-v1.37 to carry a ROUTING RULE's declaration (task 11.7);
 * the pure byte-limit arithmetic a turn must apply before disclosure
   (``effective_limit_bytes``);
 * the narrow ``WorkbenchModelPort`` seam (research R6) plus its
@@ -70,8 +71,9 @@ SERVER_MAX_OUTPUT_LIMIT_BYTES = 900_000
 MAX_ASSISTANT_PROSE_BYTES = 65_536
 
 # The exact, ordered public-field allowlist (data-model.md Section 6,
-# contracts/model-catalog.md). Nothing else may ever appear in a public dict
-# this module produces.
+# contracts/model-catalog.md). These seven are the REQUIRED base every entry
+# carries, and they are what a plain entry's public dict holds -- exactly, in
+# this order, and nothing else.
 PUBLIC_ENTRY_FIELDS: tuple[str, ...] = (
     "model_id",
     "label",
@@ -80,6 +82,23 @@ PUBLIC_ENTRY_FIELDS: tuple[str, ...] = (
     "input_limit_bytes",
     "output_limit_bytes",
     "data_handling",
+)
+
+# The ROUTING-RULE declaration (contract-v1.37, add-doxbench-editing-phase-b
+# task 11.7). Optional, and all three travel together: a routing entry declares
+# every one of them, a plain entry declares none. They are disclosed only by an
+# entry that IS a routing rule -- see ``ModelCatalogEntry.as_public_dict`` for
+# why present-only-when-declared rather than always-present-with-defaults.
+ROUTING_ENTRY_FIELDS: tuple[str, ...] = (
+    "routing_rule",
+    "routes_to",
+    "resolved_model_id",
+)
+
+# Every key any public dict this module produces may hold, in projection order.
+# Nothing outside this tuple may ever appear.
+DECLARABLE_ENTRY_FIELDS: tuple[str, ...] = (
+    PUBLIC_ENTRY_FIELDS + ROUTING_ENTRY_FIELDS
 )
 
 # ---- the RELEASED catalog wire envelope (T020 wire clause) ----
@@ -126,6 +145,22 @@ class DuplicateModelIdError(ModelCatalogError):
     catalog refuses rather than dropping the later entry."""
 
 
+class InvalidRoutingRuleError(ModelCatalogError):
+    """A routing declaration is not consistent with the catalog it sits in
+    (contract-v1.37). ONE class for every CROSS-ENTRY routing refusal --
+    a `routes_to` reference no entry answers to, a target that is itself a
+    routing rule, an available rule resolving to an unavailable model, and a
+    rule whose own ``data_handling`` does not carry a target's badge --
+    because they share one consequence: this catalog cannot honestly offer
+    this routing rule, so the whole catalog refuses rather than serving a
+    menu entry that misstates what it routes to.
+
+    PER-ENTRY routing inconsistencies (the three fields not travelling
+    together, a rule naming itself, a resolved id outside ``routes_to``) are
+    ``InvalidCatalogEntryError`` instead: they need no second entry to see,
+    exactly like a blank label or an over-cap limit."""
+
+
 class AdapterTimeoutError(ValueError):
     """A declared adapter timeout violates ``0 < value <=
     MAX_ADAPTER_TIMEOUT_SECONDS``. Raised by ``validated_timeout_seconds``
@@ -158,16 +193,35 @@ def _require_positive_capped_int(field: str, value: object, cap: int) -> None:
 @dataclass(frozen=True, slots=True)
 class ModelCatalogEntry:
     """One approved, selectable model choice as doxBench chat may disclose
-    it to the browser (data-model.md Section 6). The seven fields below are
-    the whole public surface: nothing else may be constructed, because this
-    dataclass is slotted and every extra keyword argument is a ``TypeError``
-    at construction.
+    it to the browser (data-model.md Section 6). The seven REQUIRED fields
+    below plus the three OPTIONAL routing-declaration fields are the whole
+    public surface: nothing else may be constructed, because this dataclass
+    is slotted and every extra keyword argument is a ``TypeError`` at
+    construction.
 
     ``provider_class`` and ``data_handling`` are free-form, non-blank
     strings, not a closed enum: data-model.md Section 6 calls
     ``provider_class`` "enum/string" without naming the value set, and a
     fixture using one value (like the contract example's on-tenant posture)
-    does not make it the only legal one."""
+    does not make it the only legal one.
+
+    THE ROUTING DECLARATION (contract-v1.37, task 11.7). An entry may declare
+    itself a ROUTING RULE -- an `auto` entry this capability resolves to a
+    model by role -- rather than a directly answering provider model. The
+    three fields travel together and their DEFAULTS are the plain-model
+    posture, so every construction that predates this release means exactly
+    what it always meant: ``routing_rule=False``, no routable set, no resolved
+    id. Every rule enforced here mirrors the released schema's own
+    (`$defs/model_entry`); the rules that need a SECOND entry to see -- a
+    dangling target, a chained rule, an unavailable resolved model, the badge
+    covering -- belong to ``ModelCatalog`` because that is the smallest scope
+    that can answer them.
+
+    NOT ON THIS TYPE, deliberately: the harness provider id. Task 11.6 placed
+    it on ``LaunchConfig.provider_id``, the install-side declaration, precisely
+    so a harness-routing fact could not be smuggled into a governance record;
+    widening the entry does not reopen that ruling. `routes_to` and
+    `resolved_model_id` name opaque CATALOG handles and nothing else."""
 
     model_id: str
     label: str
@@ -176,6 +230,9 @@ class ModelCatalogEntry:
     input_limit_bytes: int
     output_limit_bytes: int
     data_handling: str
+    routing_rule: bool = False
+    routes_to: tuple[str, ...] = ()
+    resolved_model_id: str | None = None
 
     def __post_init__(self) -> None:
         _require_non_blank_str("model_id", self.model_id)
@@ -192,12 +249,74 @@ class ModelCatalogEntry:
         _require_positive_capped_int(
             "output_limit_bytes", self.output_limit_bytes, SERVER_MAX_OUTPUT_LIMIT_BYTES
         )
+        self._validate_routing_declaration()
+
+    def _validate_routing_declaration(self) -> None:
+        """The PER-ENTRY half of the contract-v1.37 routing rules, mirroring
+        the released schema's `dependentRequired` and its two conditionals.
+
+        ``routes_to`` is materialized to a ``tuple`` the same way
+        ``ModelCatalog`` materializes its entries, so a caller's source list
+        cannot mutate an entry after construction."""
+        if not isinstance(self.routing_rule, bool):
+            raise TypeError("routing_rule must be a bool, got "
+                            f"{type(self.routing_rule).__name__}")
+        if isinstance(self.routes_to, (str, bytes)):
+            raise TypeError("routes_to must be an iterable of model ids, not a "
+                            f"single {type(self.routes_to).__name__}")
+        try:
+            targets = tuple(self.routes_to)
+        except TypeError as error:
+            raise TypeError("routes_to must be an iterable of model ids, got "
+                            f"{type(self.routes_to).__name__}") from error
+        object.__setattr__(self, "routes_to", targets)
+        for target in targets:
+            _require_non_blank_str("routes_to member", target)
+        if len(set(targets)) != len(targets):
+            raise InvalidCatalogEntryError(
+                "routes_to must not repeat a model id")
+        if self.resolved_model_id is not None:
+            _require_non_blank_str("resolved_model_id", self.resolved_model_id)
+        # The three travel together, in both directions.
+        if self.routing_rule is True:
+            if not targets:
+                raise InvalidCatalogEntryError(
+                    "a routing_rule entry must declare the models it may route "
+                    "to (routes_to)")
+            if self.resolved_model_id is None:
+                raise InvalidCatalogEntryError(
+                    "a routing_rule entry must declare the model it currently "
+                    "resolves to (resolved_model_id)")
+            if self.model_id in targets:
+                raise InvalidCatalogEntryError(
+                    f"routing rule {self.model_id!r} must not route to itself")
+            if self.resolved_model_id not in targets:
+                raise InvalidCatalogEntryError(
+                    f"resolved_model_id {self.resolved_model_id!r} is not among "
+                    f"the models this rule declares it may route to")
+            return
+        if targets or self.resolved_model_id is not None:
+            raise InvalidCatalogEntryError(
+                "an entry that is not a routing rule must declare neither "
+                "routes_to nor resolved_model_id")
 
     def as_public_dict(self) -> dict:
-        """Exactly ``PUBLIC_ENTRY_FIELDS``, in that order. No version marker
-        and no discriminator marker -- see the module docstring's deferral
-        list."""
-        return {
+        """Exactly ``PUBLIC_ENTRY_FIELDS``, in that order, plus
+        ``ROUTING_ENTRY_FIELDS`` after them WHEN AND ONLY WHEN this entry is a
+        routing rule. No version marker and no discriminator marker -- see the
+        module docstring's deferral list.
+
+        PRESENT-ONLY-WHEN-DECLARED, and that is a decision (task 11.7's tick
+        flags it). The alternative -- always emitting the three keys with their
+        plain-model defaults -- would change the bytes of every catalog
+        response that exists, hand every consumer a `resolved_model_id: null`
+        it never asked for, and put `routes_to: []` on entries the released
+        schema forbids to carry it at all. Omission means what it has always
+        meant, so a plain entry's public dict is byte-identical across the
+        release boundary. The released schema tolerates BOTH producers: an
+        explicit `routing_rule: false` with no siblings is valid there, it is
+        simply not what this projection emits."""
+        public = {
             "model_id": self.model_id,
             "label": self.label,
             "provider_class": self.provider_class,
@@ -206,6 +325,11 @@ class ModelCatalogEntry:
             "output_limit_bytes": self.output_limit_bytes,
             "data_handling": self.data_handling,
         }
+        if self.routing_rule is True:
+            public["routing_rule"] = True
+            public["routes_to"] = list(self.routes_to)
+            public["resolved_model_id"] = self.resolved_model_id
+        return public
 
 
 @dataclass(frozen=True, slots=True)
@@ -219,7 +343,15 @@ class ModelCatalog:
     whether the catalog was built as ``ModelCatalog(entries=...)`` directly
     or through ``from_entries``. ``from_entries`` remains the
     intention-revealing constructor of choice; it is a thin wrapper around
-    the dataclass constructor, not the only safe entry point."""
+    the dataclass constructor, not the only safe entry point.
+
+    Since contract-v1.37 the same ``__post_init__`` also enforces the routing
+    rules that need MORE THAN ONE entry to see -- see
+    ``_validate_routing_targets``. A catalog holding an inconsistent routing
+    declaration refuses as a whole, exactly as a duplicated ``model_id``
+    refuses as a whole: a menu that misstates what an entry routes to is worse
+    than no menu, and dropping the offending entry would leave the operator's
+    declaration silently unserved."""
 
     entries: tuple[ModelCatalogEntry, ...]
 
@@ -236,6 +368,63 @@ class ModelCatalog:
             if entry.model_id in seen_ids:
                 raise DuplicateModelIdError(f"duplicate model_id: {entry.model_id!r}")
             seen_ids.add(entry.model_id)
+        self._validate_routing_targets(materialized)
+
+    @staticmethod
+    def _validate_routing_targets(
+        entries: tuple[ModelCatalogEntry, ...],
+    ) -> None:
+        """The CROSS-ENTRY half of the contract-v1.37 routing rules -- the four
+        the released schema cannot express and the delegated validator
+        (`scripts/validate-ideation-dashboard-contracts.py`) enforces on the
+        wire. Both places enforce the same four; neither is the other's
+        substitute, because a catalog assembled in-process never becomes a
+        validated file and a catalog file is never constructed here.
+
+        1. NO DANGLING TARGET. Every `routes_to` id must name an entry in this
+           same catalog. A rule that routes somewhere the catalog does not
+           offer is a rule whose badge nobody can check.
+        2. NO CHAINED RULE. A target must not itself be a routing rule.
+           ``resolved_model_id`` is recorded as the model that ANSWERED, so it
+           has to name something that answers rather than another indirection.
+        3. AN AVAILABLE RULE RESOLVES TO AN AVAILABLE MODEL. `dispatch_turn`
+           checks availability on the SELECTED entry, and the adapter then
+           sets the harness to the RESOLVED id -- so without this an available
+           `auto` could dispatch to a model the catalog itself calls
+           unavailable. When the rule is unavailable nothing can select it, so
+           its targets' availability is not this rule's business.
+        4. THE BADGE COVERING (the ratified scenario's own THEN: a routing
+           entry "MUST ... carry the handling badge of every model it may route
+           to"). Each target's ``data_handling`` text must appear in the
+           rule's own ``data_handling``, because the rule's own badge is the
+           ONE string the menu shows for it. This is the strict mechanical
+           reading and it is flagged as a judgement call in task 11.7's tick:
+           the alternative -- per-target badge objects on the wire plus a view
+           that composes them -- duplicates authored text that then drifts, and
+           buys nothing the covering rule does not already guarantee."""
+        by_id = {entry.model_id: entry for entry in entries}
+        for entry in entries:
+            if entry.routing_rule is not True:
+                continue
+            for target_id in entry.routes_to:
+                target = by_id.get(target_id)
+                if target is None:
+                    raise InvalidRoutingRuleError(
+                        f"routing rule {entry.model_id!r} routes to "
+                        f"{target_id!r}, which is not in this catalog")
+                if target.routing_rule is True:
+                    raise InvalidRoutingRuleError(
+                        f"routing rule {entry.model_id!r} routes to "
+                        f"{target_id!r}, which is itself a routing rule")
+                if target.data_handling not in entry.data_handling:
+                    raise InvalidRoutingRuleError(
+                        f"routing rule {entry.model_id!r} does not carry the "
+                        f"data-handling badge of {target_id!r}")
+            resolved = by_id[entry.resolved_model_id]
+            if entry.available is True and resolved.available is not True:
+                raise InvalidRoutingRuleError(
+                    f"routing rule {entry.model_id!r} is available but resolves "
+                    f"to {entry.resolved_model_id!r}, which is not")
 
     @classmethod
     def from_entries(cls, entries) -> "ModelCatalog":
@@ -293,7 +482,8 @@ model capability is a supported editor-only state, not an error."""
 def catalog_wire_envelope(catalog: ModelCatalog) -> dict:
     """The RELEASED ``workbench-model-catalog`` success envelope for
     ``catalog``: exactly ``WIRE_ENVELOPE_FIELDS``, in that order, with each
-    entry's own seven-field public dict, in catalog order.
+    entry's own public dict -- the seven base fields, plus a routing entry's
+    three-field declaration where it has one -- in catalog order.
 
     A PURE function, not a port member and not a deployment adapter: it takes
     a catalog and returns a fresh plain dict, reaching no network, reading no
