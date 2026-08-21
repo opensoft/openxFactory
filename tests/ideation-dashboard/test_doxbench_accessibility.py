@@ -243,7 +243,8 @@ def test_the_working_subject_box_says_what_it_is_and_what_it_does():
     left in their place.
 
     The PLACEHOLDER names the field on the house `"<name> — e.g. <value>"` idiom
-    the create form and the canvas id field already use, and it is an addition,
+    the canvas id field already uses (the one prior instance of that exact
+    form in these views), and it is an addition,
     never a replacement: a placeholder disappears the moment a human types, so it
     is not an accessible name and the `aria-label` stays. The TITLE carries what
     the value DOES, which is the half the annotation actually asked about."""

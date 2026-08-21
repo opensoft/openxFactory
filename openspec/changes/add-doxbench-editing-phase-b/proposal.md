@@ -462,6 +462,18 @@ this requirement for the full statement.
 
 ## Amendment 2 — the reserved set narrows to the outline alone (2026-08-21)
 
+**Follow-ups this amendment surfaces without owning.** Two real gaps were
+measured while realizing it, both out of an annotation's scope, recorded here so
+they survive as work rather than as a test docstring's parenthetical: (1) a turn
+sent with the loaded set emptied to the outline is refused by the released wire
+shape (`buffers.minItems: 2`) with the fixed catalog message "the turn request
+is malformed", which does not name the missing document — improving that
+sentence is a change to a published failure envelope; (2) the promoted working
+subject requirement's "SHALL default from the tile's title or summary" is
+unrealized — `createChatState` seeds an empty subject and nothing fills it —
+which is a realization gap in an already-promoted requirement, needing its own
+slice.
+
 **Amendment 2 (2026-08-21, Brett, ruled via browser annotation, verbatim: "if I
 do the workflow to edit a document, and then cancel instead of save, then try to
 unload, the unload button is stippled. It should allow the document to unload.
