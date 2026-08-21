@@ -7,14 +7,26 @@ Ratified: 2026-08-19 by Brett Heap — in-session, verbatim: "merge and ratify b
 
 # Proposal: refine-demote-round-trip-mechanics
 
-> **APPROVED BUT NOT YET REALIZED.** This change has a non-empty code surface and
-> none of it is built: `generator.py` still resolves `origin_staging_id` from pick
-> edges alone (the `.openspec.yaml` origin block stays unread), the demote's
-> `openspec/INDEX.md` still carries no `Status:` header, `proposal-support.py`
-> still appends a fresh `Proposed by:` line per lap, and the provenance slot still
-> reads a bare `active`. Under `release-realization`'s archive gate it therefore
-> stays ACTIVE as approved intent until its code merges with green realization
-> evidence. Nothing here should be read as shipped.
+> **REALIZED AND ARCHIVED 2026-08-21.** The code is merged on the implemented
+> target as PR #221 (merged 2026-08-20T01:23:54Z, rebase-merge; the branch's
+> commits landed on main as `1a7c2a1`, `17bba49`, `8c123bf`, `ca9fcaf`, `6c3d87c`)
+> and green there: `openspec validate --all --strict` 64/64 exit 0,
+> `tests/ideation-dashboard` + `tests/proposal-support` 3729 passed / 14 skipped /
+> exit 0, `tests/doc-health` 691 items with no genuine failure. All four parts are
+> built: `generator.py` resolves `origin_staging_id` from the change's own
+> `.openspec.yaml` origin block, every governed markdown the demote returns carries
+> a `Status:` header, `proposal-support.py` keeps exactly one fence-aware
+> `Proposed by:` record per document, and the provenance slot reads the status
+> together with the change's task progress. The realization proof is a full LAP on a
+> scratch tree — forward, demote, forward again — with the origin resolved from the
+> origin block and no operator workaround. Task detail, the gate evidence, and the
+> items left open by ruling are in `tasks.md`.
+>
+> This block REPLACED the release-realization "APPROVED BUT NOT YET REALIZED"
+> banner rather than carrying it through the rename, following
+> `align-demote-to-round-trip-rule` (archived 2026-08-19), which established that
+> precedent for the same reason: archiving a record whose first paragraph says
+> "none of it is built" would state something false about a realized change.
 
 ## Why
 
