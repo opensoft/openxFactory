@@ -2679,8 +2679,8 @@ the realization evidence for everything built is recorded in `proposal.md`.
       §12 share-session realized under Brett's exit (a); §11.7 at
       `contract-v1.38`; §10.7 at `contract-v1.39`. Green on this branch at the
       tick, measured AFTER merging `origin/main` at `2c69e743` into the branch
-      rather than before it, and RE-MEASURED after the adversarial review's
-      fixes: `tests/ideation-dashboard` 3903 passed / 15
+      rather than before it, and RE-MEASURED after BOTH rounds of the
+      adversarial review's fixes: `tests/ideation-dashboard` 3908 passed / 15
       skipped, `tests/ideation_dashboard` 63, `tests/doc-health` 691,
       `openspec validate --all --strict` 65 passed / 0 failed, the contracts
       validator 0 errors / 4 by-design warnings (41 valid + 66 negative
