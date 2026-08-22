@@ -145,6 +145,86 @@ def test_staging_header_linkage_checked_for_active(tmp_path):
     assert any("no document carries `Staging ID:" in r for r in rules)
 
 
+# BOTH SPELLINGS OF ONE RECORDED PATH. `str(PurePath)` wrote the second on a
+# Windows checkout until PR #221 put the writer into POSIX, and fixing a writer
+# cannot reach the records already on disk — so both must resolve here.
+_SPELLINGS = ["ideation/staging/topic-a", "ideation\\staging\\topic-a"]
+
+
+def _staged_packet(declared: str) -> str:
+    return STAGED.replace("path: ideation/staging/topic-a",
+                          f"path: {declared}")
+
+
+@pytest.mark.parametrize("declared", _SPELLINGS)
+def test_the_staging_header_check_runs_on_either_spelling(tmp_path, declared):
+    """THE SILENT HALF, and the reason this is worth a test at all.
+
+    A backslash-spelled origin path makes `Path(repo) / path` a directory that
+    does not exist, so `_staging_header_matches` returns None and the linkage
+    check SKIPS. Nothing is reported, nothing looks wrong, and a change whose
+    staging folder really has lost its `Staging ID:` linkage sails through. A
+    check that silently does not run is worse than one that fails."""
+    folder = tmp_path / "ideation" / "staging" / "topic-a"
+    folder.mkdir(parents=True)
+    (folder / "topic-a.md").write_text("Staging ID: repo:staging:DIFFERENT\n")
+    d = _change(tmp_path, "add-bs", _staged_packet(declared))
+    rules = [f.rule for f in po.check_change("r", tmp_path, d,
+                                             frozenset(), False)]
+    assert any("no document carries `Staging ID:" in r for r in rules)
+
+
+@pytest.mark.parametrize("declared", _SPELLINGS)
+def test_intact_linkage_reports_nothing_on_either_spelling(tmp_path, declared):
+    """Running is not the same as firing: the check must reach the folder AND
+    come back clean when the linkage is intact."""
+    folder = tmp_path / "ideation" / "staging" / "topic-a"
+    folder.mkdir(parents=True)
+    (folder / "topic-a.md").write_text("Staging ID: repo:staging:topic-a\n")
+    d = _change(tmp_path, "add-bs-ok", _staged_packet(declared))
+    assert po.check_change("r", tmp_path, d, frozenset(), False) == []
+
+
+@pytest.mark.parametrize("declared", _SPELLINGS)
+def test_a_vanished_staging_folder_stays_legal_history_either_way(
+        tmp_path, declared):
+    """The skip that is CORRECT stays a skip. A folder that disappeared after
+    the transition is legal history, and tolerating the other spelling must not
+    turn that silence into a finding — the normalization makes the check
+    resolve, not the check accuse."""
+    d = _change(tmp_path, "add-bs-gone", _staged_packet(declared))
+    assert po.check_change("r", tmp_path, d, frozenset(), False) == []
+
+
+@pytest.mark.parametrize("declared", _SPELLINGS)
+def test_the_recorded_revision_check_resolves_either_spelling(
+        tmp_path, declared):
+    """THE LOUD HALF at the other site. `git ls-tree` matches no entry for a
+    backslash-spelled path, so sound provenance reports as
+    `staged origin path ... does not resolve at the recorded source revision`
+    — a false ERROR against a folder that is present in the very commit
+    named."""
+    import subprocess
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    folder = tmp_path / "ideation" / "staging" / "topic-a"
+    folder.mkdir(parents=True)
+    (folder / "topic-a.md").write_text("Staging ID: repo:staging:topic-a\n")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "-A"], check=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "-c", "user.name=T", "-c",
+         "user.email=t@example.invalid", "commit", "-qm", "fixture"],
+        check=True)
+    revision = subprocess.run(
+        ["git", "-C", str(tmp_path), "rev-parse", "HEAD"],
+        capture_output=True, text=True, check=True).stdout.strip()
+    d = _change(tmp_path, "add-bs-rev", _staged_packet(declared),
+                manifest={"source_revision": revision,
+                          "origin": {"kind": "staged",
+                                     "id": "repo:staging:topic-a",
+                                     "path": declared}})
+    assert po.check_change("r", tmp_path, d, frozenset(), False) == []
+
+
 def test_vanished_staging_folder_is_legal_history(tmp_path):
     d = _change(tmp_path, "add-i", STAGED)
     assert po.check_change("r", tmp_path, d, frozenset(), False) == []
@@ -202,6 +282,24 @@ def test_gate_checks_manifest_agreement(tmp_path):
     errors = support.origin_errors(tmp_path, d, strict=False,
                                    manifest=manifest)
     assert errors and "immutable after ratification" in errors[0]
+
+
+@pytest.mark.parametrize("declared", _SPELLINGS)
+def test_the_gates_own_coherence_check_runs_on_either_spelling(
+        tmp_path, declared):
+    """`origin_errors`' strict arm has the SAME silent-skip failure as the
+    family's linkage check, and PR #221 normalized it without a test. It joins
+    the recorded path to the repo root and reads the folder's `Staging ID:`; a
+    spelling it cannot resolve makes `staging_header_id` return None and the
+    disagreement go unreported. Pinned here, on the funnel this module now
+    states once."""
+    folder = tmp_path / "ideation" / "staging" / "topic-a"
+    folder.mkdir(parents=True)
+    (folder / "topic-a.md").write_text(
+        "# T\n\nStatus: staged\nStaging ID: repo:staging:DIFFERENT\n")
+    d = _change(tmp_path, "add-bs-gate", _staged_packet(declared))
+    errors = support.origin_errors(tmp_path, d, strict=True)
+    assert any("does not equal the declared origin id" in e for e in errors)
 
 
 def test_write_origin_block_refuses_overwrite(tmp_path):

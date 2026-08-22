@@ -22,7 +22,7 @@ from datetime import date
 from pathlib import Path
 
 from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
-               TAXONOMY, Finding, Skip)
+               TAXONOMY, Finding, Skip, recorded_rel)
 from . import (client_identity_composition, corpus, document_catalog,
                ideation_routing, proposal_origin)
 from .lines import split_keepends
@@ -194,7 +194,7 @@ def _active_support_findings(repo: str, repo_path: Path) -> list[Finding]:
                     "change proposed prose to draft or immutable evidence to record"))
         if manifest is not None:
             for entry in manifest.get("files", []):
-                path = support / entry.get("path", "")
+                path = support / recorded_rel(entry.get("path", ""))
                 if (not path.is_file()
                         or _sha256(path) != entry.get("sha256")):
                     findings.append(Finding(
@@ -228,7 +228,7 @@ def _archive_support_findings(repo: str, repo_path: Path) -> list[Finding]:
                 "archived proposal support bundle checksum mismatch",
                 "rebuild the deterministic bundle and manifest"))
             continue
-        expected = {item.get("path"): item.get("sha256")
+        expected = {recorded_rel(item.get("path")): item.get("sha256")
                     for item in manifest.get("files", [])}
         actual = {}
         try:

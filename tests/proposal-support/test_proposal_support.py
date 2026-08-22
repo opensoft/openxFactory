@@ -115,6 +115,179 @@ class ProposalSupportTests(unittest.TestCase):
         self.assertNotIn('"path": str(source.relative_to(root))', source)
         self.assertNotIn('"origin_path": str(source.relative_to(root))', source)
 
+    def nested_fixture(self, root: Path) -> None:
+        """A staging topic with a SUBFOLDER.
+
+        The flat `fixture` above records `one.md` for `path` and
+        `source-snapshots/one.md` for the snapshot — a file name with no
+        separator has no spelling to get wrong, so it cannot show the defect.
+        One level of nesting makes every recorded field carry a separator."""
+        (root / "openspec/changes/change-a").mkdir(parents=True)
+        notes = root / "ideation/staging/topic-a/notes"
+        notes.mkdir(parents=True)
+        (notes / "one.md").write_text(
+            "# One\n\nStatus: staged\nKind: architecture\n"
+        )
+        (root / "ideation/staging/topic-a/two.md").write_text(
+            "# Two\n\nStatus: record\nKind: report\n"
+        )
+
+    def commit_fixture(self, root: Path) -> None:
+        subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+        subprocess.run(["git", "add", "."], cwd=root, check=True)
+        subprocess.run(
+            ["git", "-c", "user.name=Test", "-c",
+             "user.email=test@example.invalid", "commit", "-qm", "fixture"],
+            cwd=root, check=True,
+        )
+
+    def test_every_recorded_manifest_path_has_one_posix_spelling(self):
+        """The `files[]` and `remaining_paths` half of the same defect the
+        origin path was fixed for (PR #221 named these fields as the next lap).
+
+        Each is a machine-readable KEY beside a content hash: `path` and
+        `source_snapshot_path` are joined to the support folder to find the
+        file the sha256 describes, `source_path` becomes `<revision>:<path>`
+        for `git show`, and `remaining_paths` names what stayed staged. Spelled
+        by `str(PurePath)` on a Windows checkout they carry backslashes, so the
+        keys — never the hashes — would depend on the writer's operating
+        system, and a manifest verified anywhere else would report every entry
+        missing."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.nested_fixture(root)
+            manifest = support.transition(
+                root, "change-a", "ideation/staging/topic-a", ["notes/one.md"],
+                None, "2026-07-09", False, True,
+            )
+        entry = manifest["files"][0]
+        self.assertEqual(entry["path"], "notes/one.md")
+        self.assertEqual(entry["source_path"],
+                         "ideation/staging/topic-a/notes/one.md")
+        self.assertEqual(entry["source_snapshot_path"],
+                         "source-snapshots/notes/one.md")
+        self.assertEqual(manifest["remaining_paths"],
+                         ["ideation/staging/topic-a/two.md"])
+        for value in (*entry.values(), *manifest["remaining_paths"]):
+            self.assertNotIn("\\", value)
+
+        # STRUCTURAL, and the only assertions here that can fail on Linux: on
+        # POSIX `str(PurePath)` and `as_posix()` return the SAME string, so
+        # every value assertion above passes on a writer reverted to `str()`
+        # and the defect appears only on the platform this suite never runs on
+        # (the platform-inert mutation class PR #221 recorded). So the SOURCE is
+        # pinned: each field is derived once, through `as_posix()`, and the
+        # committed-blob check reads `entry["source_path"]` back rather than
+        # deriving that path a second time — one derivation per path, so an
+        # entry cannot contradict itself.
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn(
+            '"path": mapping[path].relative_to(destination).as_posix(),',
+            source)
+        self.assertIn('"source_path": path.relative_to(root).as_posix(),',
+                      source)
+        self.assertIn(
+            "snapshots[path].relative_to(destination).as_posix(),", source)
+        self.assertIn('"remaining_paths": [path.relative_to(root).as_posix()',
+                      source)
+        self.assertIn('entry["source_path"])', source)
+        self.assertNotIn("str(path.relative_to(root))", source)
+        self.assertNotIn("str(mapping[path].relative_to(destination))", source)
+        self.assertNotIn("str(snapshots[path].relative_to(destination))",
+                         source)
+
+    def test_verify_tolerates_backslash_spelled_manifest_paths(self):
+        """Fixing the writer cannot reach a manifest already on disk, so the
+        reader normalizes rather than assuming its own spelling — the same
+        treatment `origin_errors` and `generator._declared_origin_staging`
+        already give the origin path. Both fields are exercised because each is
+        a separate lookup: one finds the transitioned file, the other the
+        byte-exact snapshot the source hash is proved against."""
+        for field in ("path", "source_snapshot_path"):
+            with self.subTest(field=field), TemporaryDirectory() as td:
+                root = Path(td)
+                self.nested_fixture(root)
+                support.transition(
+                    root, "change-a", "ideation/staging/topic-a", [], None,
+                    "2026-07-09", False, True,
+                )
+                directory = root / "openspec/changes/change-a"
+                manifest_path = directory / "supporting-docs/manifest.yaml"
+                manifest = support.load_manifest(manifest_path)
+                entry = next(e for e in manifest["files"]
+                             if "/" in e[field])
+                entry[field] = entry[field].replace("/", "\\")
+                manifest_path.write_text(support.manifest_text(manifest))
+                self.assertEqual(
+                    support.verify_active_support(directory), [])
+
+    def test_git_blob_sha256_resolves_a_backslash_spelled_source_path(self):
+        """The failure PR #221 named and deferred: a Windows-written manifest
+        verified on Linux hands `git show` a `<revision>:a\\b\\c.md` that
+        matches no tree entry, so the blob resolves to None and `verify`
+        reports the source revision unavailable for a file that is right
+        there."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.nested_fixture(root)
+            self.commit_fixture(root)
+            revision = support.repo_revision(root)
+            rel = "ideation/staging/topic-a/notes/one.md"
+            expected = support.sha256_file(root / rel)
+            self.assertEqual(
+                support.git_blob_sha256(root, revision, rel), expected)
+            self.assertEqual(
+                support.git_blob_sha256(root, revision, rel.replace("/", "\\")),
+                expected)
+
+    def test_verify_reconciles_a_backslash_source_path_against_the_revision(self):
+        """End to end, with the snapshot deliberately out of the way: the
+        committed blob is then the ONLY route to the recorded source hash, so
+        this fails on an unnormalized `source_path` and cannot pass by
+        accident through the snapshot check beside it."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.nested_fixture(root)
+            self.commit_fixture(root)
+            support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], None,
+                "2026-07-09", False, True,
+            )
+            directory = root / "openspec/changes/change-a"
+            manifest_path = directory / "supporting-docs/manifest.yaml"
+            manifest = support.load_manifest(manifest_path)
+            entry = next(e for e in manifest["files"]
+                         if "/" in e["source_path"])
+            entry["source_path"] = entry["source_path"].replace("/", "\\")
+            del entry["source_snapshot_path"]
+            manifest_path.write_text(support.manifest_text(manifest))
+            self.assertEqual(support.verify_active_support(directory), [])
+
+    def test_verify_archive_tolerates_backslash_spelled_manifest_paths(self):
+        """The archived half of the round trip. Bundle member names are POSIX
+        on every platform (`deterministic_bundle` writes `as_posix()`), so the
+        manifest is the only side a Windows writer could spell otherwise — and
+        an inventory comparison across two alphabets calls a sound bundle
+        corrupt."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.nested_fixture(root)
+            support.transition(
+                root, "change-a", "ideation/staging/topic-a", [], None,
+                "2026-07-09", False, True,
+            )
+            support.package(root, "change-a", "2026-07-10", False, False, True)
+            directory = root / "openspec/changes/change-a"
+            manifest_path = directory / "supporting-docs.manifest.yaml"
+            manifest = support.load_manifest(manifest_path)
+            self.assertEqual(support.verify_archive(directory), [])
+            nested = [e for e in manifest["files"] if "/" in e["path"]]
+            self.assertTrue(nested, "the fixture must record a nested path")
+            for entry in nested:
+                entry["path"] = entry["path"].replace("/", "\\")
+            manifest_path.write_text(support.manifest_text(manifest))
+            self.assertEqual(support.verify_archive(directory), [])
+
     def test_committed_source_checksum_is_verified(self):
         with TemporaryDirectory() as td:
             root = Path(td)

@@ -14,6 +14,7 @@ import tarfile
 
 from conftest import AS_OF, FakeGit, make_ctx
 
+import doc_health
 from doc_health import CRITICAL, ERROR, WARNING, INFO
 from doc_health import corpus
 from doc_health import families
@@ -169,6 +170,98 @@ def test_clean_and_corrupt_archived_support(tmp_path):
     (directory / "supporting-docs.tar.gz").write_bytes(bundle + b"x")
     got = FAMILIES["location-conformance"](ctx)
     assert len(got) == 1 and "bundle checksum mismatch" in got[0].rule
+
+
+def _load_proposal_support():
+    """`scripts/proposal-support.py` as a module.
+
+    A hyphenated standalone script, so it is loaded by path rather than
+    imported — the reason `doc_health.recorded_rel` is a second copy of that
+    module's `manifest_rel` instead of an import of it."""
+    import importlib.util
+
+    script = Path(__file__).resolve().parents[2] / "scripts" / "proposal-support.py"
+    spec = importlib.util.spec_from_file_location("proposal_support_ref", script)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_the_recorded_path_normalizations_agree(tmp_path):
+    """The two readers of one record must not disagree about its alphabet.
+
+    `proposal-support.py verify` and this suite both resolve a support
+    manifest's `files[].path` and a proposal's recorded origin path, and a
+    record the one called sound while the other called it a checksum mismatch
+    (or unresolvable provenance) would be the worst of both. There are exactly
+    TWO copies of the rule — one per process boundary: `doc_health.recorded_rel`
+    serves the whole package, and the mover keeps its own because a hyphenated
+    standalone script cannot be imported. This pins them to each other."""
+    reference = _load_proposal_support().manifest_rel
+    for value in ("notes/one.md", "notes\\one.md", "source-snapshots\\a\\b.md",
+                  "ideation\\staging\\topic-a", "", "a/b", None, 7, ["x"]):
+        assert doc_health.recorded_rel(value) == reference(value)
+
+
+def test_backslash_spelled_manifest_paths_still_resolve(tmp_path):
+    """A manifest written by `str(PurePath)` on a Windows checkout spells its
+    path fields with backslashes (PR #221's deferred half). Read here they
+    become one filename that resolves to nothing, so every entry would report a
+    false `checksum mismatch` on files that are present and correct."""
+    repo = tmp_path / "alpha"
+    support = repo / "openspec/changes/change-a/supporting-docs"
+    (support / "notes").mkdir(parents=True)
+    (support / "notes/source.md").write_text("# Source\n\nStatus: draft\n")
+    (support / "manifest.yaml").write_text(json.dumps({
+        "format_version": 1,
+        "files": [{
+            "path": "notes\\source.md",
+            "sha256": hashlib.sha256(
+                (support / "notes/source.md").read_bytes()).hexdigest(),
+        }],
+    }))
+    ctx = make_ctx("location-conformance")
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    ctx.change_ids = {"alpha": set()}
+    assert FAMILIES["location-conformance"](ctx) == []
+
+    # ...and the tolerance is not blindness: a real mismatch still lands.
+    (support / "notes/source.md").write_text("# Source\n\nStatus: draft\n\nx\n")
+    ctx.docs = corpus.load_docs("alpha", repo)
+    got = FAMILIES["location-conformance"](ctx)
+    assert len(got) == 1 and "checksum mismatch" in got[0].rule
+
+
+def test_backslash_spelled_archive_manifest_paths_still_resolve(tmp_path):
+    """The archived half: bundle member names are POSIX on every platform, so a
+    backslash-spelled manifest makes the inventory comparison span two
+    alphabets and calls a sound bundle corrupt."""
+    repo = tmp_path / "alpha"
+    directory = repo / "openspec/changes/archive/2026-07-09-change-a"
+    directory.mkdir(parents=True)
+    content = b"# Source\n\nStatus: draft\n"
+    buffer = io.BytesIO()
+    with gzip.GzipFile(fileobj=buffer, mode="wb", filename="", mtime=0) as gz:
+        with tarfile.open(fileobj=gz, mode="w") as tar:
+            info = tarfile.TarInfo("notes/source.md")
+            info.size = len(content)
+            tar.addfile(info, io.BytesIO(content))
+    bundle = buffer.getvalue()
+    (directory / "supporting-docs.tar.gz").write_bytes(bundle)
+    (directory / "supporting-docs.manifest.yaml").write_text(json.dumps({
+        "format_version": 1,
+        "bundle": {"sha256": hashlib.sha256(bundle).hexdigest()},
+        "files": [{
+            "path": "notes\\source.md",
+            "sha256": hashlib.sha256(content).hexdigest(),
+        }],
+    }))
+    ctx = make_ctx("location-conformance")
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = []
+    ctx.change_ids = {"alpha": {"change-a"}}
+    assert FAMILIES["location-conformance"](ctx) == []
 
 
 def test_record_immutability():
