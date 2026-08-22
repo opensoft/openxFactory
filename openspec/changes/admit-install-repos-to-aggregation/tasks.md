@@ -85,7 +85,7 @@ plus the promoted *"Deferred aggregation and web-console integration"* and
 Each box lands in the aggregation repository. Leave them open until the PR
 merges — a tick here is a claim about `opensoft/xFactory`'s `main`.
 
-- [ ] 2.1 Add the two `.gitmodules` entries, matching the existing `installs/`
+- [x] 2.1 DONE 2026-08-21 — xFactory PR #127 (squash e02d0a8), entries carry url only, no branch key. Add the two `.gitmodules` entries, matching the existing `installs/`
       style and carrying **no `branch =` key** (design D-no-branch-key):
       `[submodule "installs/keycloak-install"]` path
       `installs/keycloak-install`, url
@@ -93,7 +93,7 @@ merges — a tick here is a claim about `opensoft/xFactory`'s `main`.
       `[submodule "installs/openxpki-install"]` path
       `installs/openxpki-install`, url
       `git@github.com:opensoft/OpenXPKI-Install.git`.
-- [ ] 2.2 Add the two gitlinks **at the exact validated commits and nowhere
+- [x] 2.2 DONE 2026-08-21 — gitlinks landed at 1aa184e (keycloak-install) and 05f4404 (openxpki-install) exactly. Add the two gitlinks **at the exact validated commits and nowhere
       further**: `installs/keycloak-install` ->
       `1aa184e891d4ba6e641a31260d3f64d2b335f175`,
       `installs/openxpki-install` ->
@@ -101,16 +101,16 @@ merges — a tick here is a claim about `opensoft/xFactory`'s `main`.
       the direction against the submodule's `main`, then commit — never
       `git commit -- <submodule-path>`, which takes the checkout's HEAD and
       silently overrides a staged pin.
-- [ ] 2.3 Update the README submodule documentation in the same act, as the
+- [x] 2.3 DONE 2026-08-21 — tree listing + remotes list, same commit. Update the README submodule documentation in the same act, as the
       archived installer precedent's tasks 4.1 did: add both paths to the
       `Repository Layout` tree and both `path -> remote` lines to
       `Current Submodules`. Add exactly those entries — the pre-existing
       staleness of both blocks is not swept in here (design D-readme).
-- [ ] 2.4 Stage explicit paths only (`.gitmodules`, the two gitlinks, `README.md`)
+- [x] 2.4 DONE 2026-08-21 — exactly those 4 paths staged (5-file diff incl. the folded openxFactory pointer sync, recorded in the PR body). Stage explicit paths only (`.gitmodules`, the two gitlinks, `README.md`)
       and inspect `git diff --cached --stat` for foreign entries before
       committing. This checkout is shared between sessions; a bare
       `git commit` takes whatever any session has staged.
-- [ ] 2.5 Open the PR through the `session-open-pr` route — the aggregation
+- [x] 2.5 DONE 2026-08-21 — xFactory PR #127 authored by openxfactory[bot], approved by Brett, auto-merged e02d0a8. Open the PR through the `session-open-pr` route — the aggregation
       carries its own copy of the same
       [workflow](../../../.github/workflows/session-open-pr.yml) openxFactory
       does — so the PR is authored by `openxfactory[bot]` and Brett is free to
@@ -119,19 +119,19 @@ merges — a tick here is a claim about `opensoft/xFactory`'s `main`.
 
 ## 3. Read-backs (off the landed aggregation tree)
 
-- [ ] 3.1 `git ls-tree HEAD installs/keycloak-install installs/openxpki-install`
+- [x] 3.1 DONE 2026-08-21 — merged-main read-back: 160000 1aa184e keycloak-install, 160000 05f4404 openxpki-install, openxFactory at eeb095d. `git ls-tree HEAD installs/keycloak-install installs/openxpki-install`
       on the merged aggregation `main` — both entries `commit` mode, showing
       exactly `1aa184e891d4ba6e641a31260d3f64d2b335f175` and
       `05f440444d9091206778e838454ed9b5bb7bff60`. Read the landed value back;
       do not infer it from what was staged.
-- [ ] 3.2 Parse `.gitmodules` on the merged `main` — `git config -f .gitmodules
+- [x] 3.2 DONE 2026-08-21 — both urls read back exactly (git@github.com:opensoft/Keycloak-Install.git, .../OpenXPKI-Install.git); no branch keys present. Parse `.gitmodules` on the merged `main` — `git config -f .gitmodules
       --get-regexp '^submodule\.installs/(keycloak|openxpki)-install\.'` —
       confirming both `path` and `url` for each and **no `branch` key** on
       either.
-- [ ] 3.3 `git submodule update --init --recursive` over the two new paths
+- [x] 3.3 DONE 2026-08-21 — both cloned and checked out at exactly the validated commits (submodule status: 1aa184e heads/main, 05f4404); recursive init pulled nothing further (no nested submodules, per the admission record's vendoring check). `git submodule update --init --recursive` over the two new paths
       reproduces both repository boundaries from the recorded commits, with
       nothing nested appearing (neither repository has a `.gitmodules`).
-- [ ] 3.4 `OPENSPEC_TELEMETRY=0 openspec validate
+- [x] 3.4 DONE 2026-08-21 — change valid --strict post-merge. `OPENSPEC_TELEMETRY=0 openspec validate
       admit-install-repos-to-aggregation --strict` and `--all --strict` green
       at archive as well as at authoring.
 - [ ] 3.5 Archive gate: this change declares a code surface, so it archives
