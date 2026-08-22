@@ -1085,6 +1085,32 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       `contract-v1.34`'s deprecation forbids; the migration path is the v2
       envelope. Recorded at the v1 arm in `serve.py`, in the CHANGELOG, and
       pinned by a test that fails if the v1 record ever grows the key.
+      **REVERT-TESTED, 26 CASES, and one of them came back GREEN and was fixed.**
+      Every schema clause was reverted individually WITH THE DIGEST REPINNED, so
+      each case fired on the clause rather than on the pin: both conditionals,
+      the posture enum, the object's closure, its `required`, the reason ceiling
+      in BOTH directions (raised → the over-ceiling refusal stops firing;
+      lowered → the shipped-reason guard fires), `context_packet` made required
+      (additivity broken), removed altogether, and added to the v1 envelope.
+      Both pin constants were drifted in both directions (tag, module digest,
+      manifest digest). Serve: the derivation as a constant `full`, the reason
+      re-derived rather than carried, the fail-open default, the key not
+      emitted, and each of the three refusal arms on its own. Browser: the
+      adopter not adopting, the adopter failing OPEN, `beginTurn` not clearing,
+      the note rendering for a full turn, the note never hidden, and
+      `adoptThreadTranscript` not clearing. THE GREEN ONE was that last case —
+      deleting the thread-switch clear broke no test — and the probe now asserts
+      it.
+      **AND ONE ARM IS A DIAGNOSTIC RATHER THAN A GUARD, stated because
+      revert-testing is what proved it.** Disabling BOTH pairing arms in the
+      delegated validator leaves its own packaged self-test GREEN, because the
+      shape refuses the same two instances anyway. That is exactly the class
+      §11.7's revert-testing found for its separator-collision and
+      self-reference arms, and it is handled the same way: the arms are pinned
+      on their finding CODE, which is the only guard that fails when they are
+      deleted. They are defence in depth and the diagnostic a reader of
+      validator output actually gets — not a second refusal, and the tick does
+      not claim they are.
       A THIRD DELEGATED RULE WAS CONSIDERED AND REJECTED: requiring the reason to
       SAY that nothing unbounded was substituted and no rail was bypassed. Both
       shipped reasons do say it, and a rule to that effect is prose-matching a

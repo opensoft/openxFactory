@@ -168,6 +168,16 @@ lives; it is the one new free-prose field the release adds, and the
 leak-through-an-allowed-field class the failure lane already guards against
 applies to it unchanged.
 
+THE RESTATED PAIRING IS A DIAGNOSTIC, NOT AN INDEPENDENT GUARD — found by
+revert-testing, recorded rather than dressed up. Disabling both pairing arms in
+the delegated validator leaves its own packaged self-test GREEN, because the
+SHAPE refuses the same two instances anyway. That is the same class
+`contract-v1.38`'s revert-testing found for its separator-collision and
+self-reference arms, and it is handled the same way: the arms are pinned on
+their finding CODE by a test, which is the only guard that fails when they are
+deleted. They earn their place as defence in depth and as the diagnostic a
+consumer reading validator output actually gets — not as a second refusal.
+
 A THIRD RULE WAS CONSIDERED AND REJECTED: requiring the reason to SAY that
 nothing unbounded was substituted and no rail was bypassed. Both shipped reasons
 do say it, and a rule to that effect would be prose-matching a contract — it
