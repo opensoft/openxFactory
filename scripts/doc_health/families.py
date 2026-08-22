@@ -362,7 +362,9 @@ def fam_ratified_provenance(ctx):
     which is what the requirement says and what OQ-4 ruled ("EXACTLY ONE
     citation line per document"). Two lines in the SAME spelling carry the
     identical defect as one of each — nothing on the page says which is
-    current — so the count, not the pair, is what fires.
+    current — so the count, not the pair, is what fires: one shared,
+    count-based rule string for every shape of duplicate, mixed-spelling
+    pair or same-spelling repeat alike.
     """
     findings = []
     for doc in ctx.docs:
@@ -371,17 +373,11 @@ def fam_ratified_provenance(ctx):
         by_lines = _header_lines(doc, _RATIFIED_BY_PREFIX)
         record_lines = _header_lines(doc, _RATIFIED_RECORD_PREFIX)
 
-        if len(by_lines) + len(record_lines) > 1:
-            if by_lines and record_lines:
-                rule = "carries both Ratified by: and Ratified: citations"
-            elif by_lines:
-                rule = (f"carries {len(by_lines)} Ratified by: citation "
-                        f"lines, not one")
-            else:
-                rule = (f"carries {len(record_lines)} Ratified: citation "
-                        f"lines, not one")
+        count = len(by_lines) + len(record_lines)
+        if count > 1:
             findings.append(Finding(
-                CRITICAL, "ratified-provenance", doc.repo, doc.path, rule,
+                CRITICAL, "ratified-provenance", doc.repo, doc.path,
+                f"carries {count} ratification citation lines, not one",
                 "keep exactly one: Ratified by: where an approving OpenSpec "
                 "change exists, Ratified: where none does"))
             continue

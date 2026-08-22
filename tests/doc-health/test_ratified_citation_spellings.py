@@ -151,25 +151,27 @@ def test_record_citation_naming_none_of_the_three_is_critical(repo):
 
 def test_carrying_both_spellings_is_critical(repo):
     """OQ-4: two lines each claiming to name the ratification say nothing
-    about which is current."""
+    about which is current. Reported on the count, not the pair (the
+    ratified scenario's own wording) — the exact string is pinned here."""
     rule = _only_rule(_run(
         "# Subject\n\nStatus: ratified\n"
         "Ratified by: real-change\n"
         "Ratified: 2026-08-22 by Brett Heap\n\nBody.\n", repo))
-    assert "both" in rule
-    assert "Ratified by:" in rule and "Ratified:" in rule
+    assert rule == "carries 2 ratification citation lines, not one"
 
 
 def test_both_spellings_is_a_finding_even_when_each_would_pass_alone(repo):
-    """The both-lines rule is structural, not a fallback for two bad lines:
-    here the primary resolves AND the record line clears the floor, and it is
-    still a finding."""
+    """The both-lines finding is structural, not a fallback for two bad
+    lines: here the primary resolves AND the record line clears the floor,
+    and it is still a finding, reported on the count."""
     findings = _run(
         "# Subject\n\nStatus: ratified\n"
         "Ratified by: real-change\n"
         f"Ratified: 2026-08-22 by Brett Heap — record: {RECORD_REL}\n"
         "\nBody.\n", repo)
-    assert len(findings) == 1 and "both" in findings[0].rule, _rules(findings)
+    assert len(findings) == 1
+    assert findings[0].rule == "carries 2 ratification citation lines, not one", \
+        _rules(findings)
 
 
 def test_both_spellings_in_the_reverse_order_is_the_same_finding(repo):
@@ -179,7 +181,7 @@ def test_both_spellings_in_the_reverse_order_is_the_same_finding(repo):
         "# Subject\n\nStatus: ratified\n"
         "Ratified: 2026-08-22 by Brett Heap\n"
         "Ratified by: real-change\n\nBody.\n", repo))
-    assert rule == "carries both Ratified by: and Ratified: citations"
+    assert rule == "carries 2 ratification citation lines, not one"
 
 
 def test_two_primary_citations_are_a_finding_even_when_one_resolves(repo):
@@ -187,30 +189,28 @@ def test_two_primary_citations_are_a_finding_even_when_one_resolves(repo):
     `Ratified by:` lines carry the identical defect as one of each — nothing
     on the page says which is current — and a reader that stopped at the
     first match would call this document clean because the FIRST line happens
-    to resolve."""
+    to resolve. Reported on the count: this is the SAME finding, byte for
+    byte, as one of each spelling (the ratified scenario's requirement)."""
     findings = _run(
         "# Subject\n\nStatus: ratified\n"
         "Ratified by: real-change\n"
         "Ratified by: ghost-change\n\nBody.\n", repo)
     rule = _only_rule(findings)
-    assert rule == "carries 2 Ratified by: citation lines, not one"
-    assert "both" not in rule, (
-        "a same-spelling duplicate must not be reported as carrying both "
-        "spellings — the document carries one spelling, twice")
+    assert rule == "carries 2 ratification citation lines, not one"
 
 
 def test_two_record_citations_are_a_finding_even_when_one_clears_the_floor(repo):
     """The same one-total rule on the record-citing spelling. The first line
     clears the floor on two axes, so a first-match reader sees a clean
     document; the second line is a competing claim about the same
-    ratification."""
+    ratification — the same count-based finding as the other duplicate
+    shapes."""
     findings = _run(
         "# Subject\n\nStatus: ratified\n"
         "Ratified: 2026-08-22 by Brett Heap\n"
         "Ratified: yes, it was agreed\n\nBody.\n", repo)
     rule = _only_rule(findings)
-    assert rule == "carries 2 Ratified: citation lines, not one"
-    assert "both" not in rule
+    assert rule == "carries 2 ratification citation lines, not one"
 
 
 # --------------------------------------- the primary spelling, unchanged
