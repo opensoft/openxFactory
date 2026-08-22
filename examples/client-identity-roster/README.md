@@ -58,7 +58,11 @@ client-identity-roster/
 │                                                         #   the `device` NODE-INVENTORY case —
 │                                                         #   one tenant-wide READ surface, no
 │                                                         #   declared excess, logic_enforced,
-│                                                         #   per_unit_principal false (v1.35)
+│                                                         #   per_unit_principal false (v1.35);
+│                                                         #   plus the `directory`
+│                                                         #   SERVICE-INVENTORY case — the same
+│                                                         #   governed-tenant-scope shape on the
+│                                                         #   directory/service estate (v1.39)
 ├── client-identity-roster-farheap-ledgerx.example.yaml   # the SAME client held by a SECOND
 │                                                         #   domain: the GENUINE DUTY PAIR
 │                                                         #   (poster / provisioner) and the
@@ -126,6 +130,21 @@ client-identity-roster/
   false}` — the read-only roles carry no narrower selector, so no per-unit
   principal exists to use, which is conformant. Admitted at `contract-v1.35` by
   `add-roster-device-admission-surface`.
+- **The `directory` surface is ONE tenant-wide read, and it is NOT `device`** —
+  the service-inventory entry (`opsx-farheap-service-discovery-reader`) reads the
+  tenant directory and service estate — organization profile and subscribed
+  service plans, service principals/applications, verified domains — through
+  `Organization.Read.All`, `Application.Read.All` and `Domain.Read.All` on ONE
+  registration. Same governed-tenant-scope shape as the `device` entry:
+  `exceeds_governed_unit: false`, no `declared_excess`, no `spanned_surfaces`,
+  `logic_enforced`, `per_unit_principal_available: {directory: false}`. The
+  broader `Directory.Read.All` is deliberately OUTSIDE this admission act,
+  because it also reads the already-admitted `device` surface and would collapse
+  two separately-consented, separately-scoped and separately-revocable surfaces
+  onto one act. Provider facts transcribed from the merged
+  `microsoft_service_discovery_reader` requirement (opensoft/OpsxFactory,
+  `credentials/requirements.yaml`, commit `824f8ef`). Admitted at
+  `contract-v1.39` by `add-roster-directory-admission-surface`.
 - **A `retired` entry RETAINS its record** — and is EXEMPT from the consent
   instrument's in-force test, because the ratified cascade runs withdrawal or
   termination through to retirement. That exemption is repo-context and is

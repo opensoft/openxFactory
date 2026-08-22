@@ -9,6 +9,129 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.39 — 2026-08-22 (additive; the `directory` roster admission surface)
+
+Realizes `add-roster-directory-admission-surface` §1–§5, the ratified extension
+of the client-identity-roster closed `admission_surface` vocabulary. One
+CONTRACT changes — `schemas/xfactory-client-identity-roster.schema.yaml` — and
+the change adds a packaged `directory` example to
+`examples/client-identity-roster/`. The roster schema is content-addressed by
+its per-file `sha256` in [`manifest.yaml`](manifest.yaml); that row's digest is
+RECOMPUTED in this cut. (The roster schema is not a release-inventory member —
+inventory membership is the `contracts/hermes-runtime/contract-index.yaml`
+catalog plus the Decision-10 auxiliaries — so this cut's digest inventory
+changes only where `manifest.yaml` and this changelog change. Checked, not
+assumed, per task 4.5.)
+
+VERSION ALLOCATION. `contracts/manifest.yaml` read `contract-v1.38` at
+realization, so this cut allocates `contract-v1.39`. Noted because an UNLANDED
+branch (`change/doxbench-turn-posture-release`, `97aa19a7`) has also cut a
+`contract-v1.39` in its own working state; under the availability test this
+changelog itself records at v1.38 — the version is allocated AT REALIZATION
+against what is AVAILABLE, and CHANGELOG PRESENCE on `main` is the availability
+test — v1.39 was unallocated when this ran. Whichever of the two lands second
+re-cuts against the CHANGELOG it then finds.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+A `oneOf` const member is added to `$defs.admission_surface`; nothing
+previously valid becomes invalid, no required field is added to any existing
+shape, no shape is removed, and no existing roster is reinterpreted, so a
+domain on the same major version stays conformant WITHOUT CHANGES. The one
+coupling is NAMED rather than denied: `per_unit_principal_available` closes its
+key space with `propertyNames: {$ref: "#/$defs/admission_surface"}`, so
+admitting `directory` DOES widen that closed key space — but purely
+PERMISSIVELY and purely by DERIVATION. A record can only meet the widening by
+CHOOSING to write a `directory` key it had no reason to write before; every
+fragment naming `business_central`, `exchange` or `device` validates
+byte-identically. `legend.*`'s sub-maps close on `free_token`, not on
+`admission_surface`, and are untouched. The schema's own
+`contract_schema_version` stays `1`, and the roster row's `schema_version`
+stays `1` with it — vocabulary-member admission is governed by the schema's
+EXTENSION ROUTE text, not by the object-shape/key-space growth that would take
+a `contract_schema_version` bump.
+
+`$defs.admission_surface` gains a fourth member, `directory`: the Microsoft
+tenant DIRECTORY AND SERVICE ESTATE — the organization profile and its
+subscribed service plans, the tenant's service principals/applications, and its
+verified domains — admitted as ONE tenant-wide READ surface. Its admission act
+is admin consent for the read-only application roles `Organization.Read.All`,
+`Application.Read.All` and `Domain.Read.All` on ONE Entra app registration;
+its scoping mechanism is tenant-wide read with exact effective scopes and no
+narrower provider selector (`enforcement_mode: logic_enforced`, no per-unit
+principal available); it is read-only. Because the governed unit IS the tenant
+directory and service estate — a complete tenant service-surface inventory is
+what read-only DISCOVER is for — tenant-wide read is the GOVERNED scope, not
+excess.
+
+THE READ/MUTATE BOUNDARY THE MEMBER PRESERVES, in two parts. First, an
+EXCLUSION inside the read half: a broader directory-wide read role such as
+`Directory.Read.All` is NOT within this surface's admission act, because it
+also reads the ALREADY-ADMITTED `device` surface (Entra registered devices are
+directory objects) and would therefore collapse two separately-consented,
+separately-scoped and separately-revocable surfaces onto one act. The neutral
+layer NEVER INFERS A PROVIDER FACT, so no validator can derive that boundary
+from the role tokens; the member `description` is the only place it can be
+stated, and it is stated there. Second, the mutation half stays out: the
+extension-route prose is resliced so `directory` is the READ surface for the
+tenant directory and service estate, while endpoint MUTATION (Intune write) and
+Entra-directory MUTATION (user, group and application administration) remain
+SEPARATE future surfaces, each arriving with its own governing change. The
+`device` member's own closing sentence is amended in the same cut so the
+contract file cannot contradict itself — it announced Entra-directory READ as a
+future surface, and now records it as admitted here.
+
+Also corrected in the same edit, and PROSE ONLY: the vocabulary's grounding
+moves from PROMOTED to RATIFIED. The text grounded both the member set and the
+extension route on capability PROMOTION, and that has been false since
+`contract-v1.35` — neither `managed-node-inventory` nor
+`managed-service-inventory` is promoted; both are RATIFIED and still active in
+OpsxFactory `openspec/changes/`, so on the old literal wording `device` should
+never have been admitted either. The vocabulary now names the surfaces "whose
+governing change is RATIFIED", and a surface "enters with the ratified change
+that governs it". The promoted requirement's own normative sentence — "The
+closed surface vocabulary SHALL be extended only by the change that governs a
+new surface" — is already change-based, is satisfied here, and is UNTOUCHED.
+`scripts/validate-client-identity-roster.py`'s human-facing
+`EXTENSION_ROUTE["admission_surface"]` refusal string is resynced to the
+revised schema text; the VOCABULARY itself needs no validator edit, because
+that validator DERIVES the closed set from the schema
+(`_consts(defs.get("admission_surface"))`) rather than restating it.
+
+GOVERNING EVIDENCE. OpsxFactory `add-managed-service-inventory` (read-only
+tenant service-surface DISCOVER, ratified 2026-08-21), §1–§6 realized and
+MERGED at OpsxFactory `main` `824f8ef`. The realized
+`microsoft_service_discovery_reader` credential requirement there
+(`credentials/requirements.yaml`) carries `admission_surface: directory` with
+`minimum_scopes` exactly those three roles under `exact_effective_scopes: true`
+and `reject_write_or_destructive_scopes: true` — which is why the member
+HARD-ENUMERATES the act instead of naming a role family. Per that change's
+ratified F1 ordering this extension is grounded on the DETERMINISTIC §1–§6
+contract, never on a live snapshot, and it authorizes no provider act.
+
+The packaged positive example (`opsx-farheap-service-discovery-reader`, a
+`planned` entry in
+`examples/client-identity-roster/client-identity-roster-farheap-opsx.example.yaml`)
+demonstrates the shape: `admission_surface: directory`,
+`authority_class_intended`/`_achieved: observe`, the three read roles each
+`achieves: observe` and `reaches: [directory]`, `exceeds_governed_unit: false`,
+NO `declared_excess`, no `spanned_surfaces`,
+`per_unit_principal_available: {directory: false}`, and a single
+`logic_enforced` act that is UNVERIFIED by derivation (no `evidence_ref`, no
+`verified_at`, `provider_object_ref` omitted) because the discovery reader is a
+DOWNSTREAM OpsxFactory consumer not yet admitted. The
+`admission-surface-out-of-vocabulary` negative (which uses `sharepoint`) still
+fires — `directory` is now in-vocabulary, `sharepoint` is not, and `sharepoint`
+being a service DISCOVER may DETECT is not admission.
+
+DOWNSTREAM, so the ordering is not overclaimed: landing this cut is NECESSARY
+but NOT SUFFICIENT for the OpsxFactory live sweep. OpsxFactory pins
+`contract-v1.35` and keeps its own local `ROSTER_ADMITTED_SURFACE_VOCAB`
+(`scripts/validate-domain-factory.py`), so a `directory` roster entry is
+refused by that repository's own validator until it RE-PINS to this bundle and
+widens that fence — the precedent being OpsxFactory PR #45 (`77f4b82`) for
+`device`.
+
 ## contract-v1.38 — 2026-08-21 (additive; the doxBench model-catalog routing rule)
 
 Realizes tasks.md §11.7 of `add-doxbench-editing-phase-b` — the ratified

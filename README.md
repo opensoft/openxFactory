@@ -301,6 +301,36 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-roster-directory-admission-surface](openspec/changes/add-roster-directory-admission-surface/proposal.md)
+  — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). Admits the
+  single `directory` (service-discovery) admission surface into the closed
+  `admission_surface` vocabulary of `client-identity-roster`, through the
+  capability's own extension route, so OpsxFactory can enroll its realized
+  `microsoft_service_discovery_reader` (`Organization.Read.All` +
+  `Application.Read.All` + `Domain.Read.All`, `exact_effective_scopes`,
+  `reject_write_or_destructive_scopes`). Sibling of the archived
+  `add-roster-device-admission-surface`, and the change its ratified F2 note
+  anticipated ("endpoint-MUTATION and Entra-DIRECTORY remain SEPARATE FUTURE
+  surfaces with their own governing changes"). `directory` is ONE tenant-wide
+  READ surface: one admission act (admin consent for exactly those three
+  read-only roles on one registration — a directory-wide role such as
+  `Directory.Read.All` is outside it, since it also reads the admitted `device`
+  surface), one scoping mechanism (tenant-wide read, no narrower provider
+  selector, `enforcement_mode: logic_enforced`), and its governed unit IS the
+  tenant directory/service estate — so tenant-wide read is the GOVERNED scope
+  (`exceeds_governed_unit: false`, no `declared_excess`, no `spanned_surfaces`)
+  and the provider areas read live only in the member's `description` prose.
+  Entra-directory MUTATION and endpoint MUTATION stay separate future surfaces.
+  Proposed on the realization evidence of OpsxFactory
+  `add-managed-service-inventory` §1–§6 (merged 2026-08-22, `main` `824f8ef`),
+  per that change's ratified F1 ordering, which makes this vocab extension a
+  blocking PREREQUISITE of its §7 live sweep and requires it to be justified on
+  the DETERMINISTIC contract, never on a live snapshot. ONE MODIFIED delta on
+  "Identities are enumerated by admission surface, not by product name" (all
+  three promoted scenarios restated verbatim, one scenario added). Additive —
+  no `contract_schema_version` bump; realization (tasks §1–§5, post-ratification)
+  bumps the bundle contract-v1.38 → contract-v1.39.
+  `target_release: implementation_pending`.
 - [admit-install-repos-to-aggregation](openspec/changes/admit-install-repos-to-aggregation/proposal.md)
   — authored and RATIFIED 2026-08-21 (Brett: "do the aggregation admission
   change, the two repos are added to openXfactory github app"). The separate
