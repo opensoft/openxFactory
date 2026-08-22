@@ -63,6 +63,7 @@ from ideation_dashboard import action_errors
 from ideation_dashboard import branch_session
 from ideation_dashboard import doxbench_contracts
 from ideation_dashboard import doxbench_hash
+from ideation_dashboard import doxbench_packet
 from ideation_dashboard import doxbench_turns
 from ideation_dashboard import gate_console
 from ideation_dashboard import serve as serve_mod
@@ -212,6 +213,14 @@ _FIXTURE_TURN_V2_SUCCESS_SCHEMA = {
         "client_turn_id": {}, "assistant_turn_id": {}, "model_id": {},
         "selected_model": {}, "bound_buffer": {},
         "observed_hashes": {}, "assistant_prose": {}, "proposals": {},
+        # contract-v1.40 (task 10.7). DECLARED HERE AND NOT REQUIRED, which
+        # mirrors the release exactly: the key is optional on the wire, and this
+        # fixture's whole job is discriminators and CLOSEDNESS — the released
+        # bytes hold the posture's value rules, and a test over those bytes is
+        # what checks them (`test_doxbench_contracts`). A fixture that restated
+        # them would be a second contract authority, which is the thing this
+        # fixture's own header refuses to be.
+        "context_packet": {},
     },
 }
 
@@ -3087,6 +3096,13 @@ _RELEASED_V2_SUCCESS_KEYS = {
     "schema_version", "kind", "client_turn_id", "assistant_turn_id",
     "model_id", "selected_model", "bound_buffer", "observed_hashes",
     "assistant_prose", "proposals",
+    # contract-v1.40 (task 10.7): the posture the turn's context packet was
+    # assembled under. OPTIONAL on the WIRE — that is what makes the release
+    # additive — but this producer always states it, so the key set it emits
+    # grew by exactly one and this pin grows with it. A record that omitted it
+    # would be conformant and would also be this server having stopped saying
+    # what it ran on, which is what the pin refuses.
+    "context_packet",
 }
 
 
@@ -3140,6 +3156,14 @@ def test_a_widened_turn_returns_the_widened_record_naming_its_declared_binding(
         "routing_rule": False,
         "data_handling": "Processed in the approved tenant boundary",
     }
+    # …and, since contract-v1.40, WHAT IT RAN ON. This harness declares no
+    # knowledge service (the library default is absence), so the packet is the
+    # DECLARED reduced one and the record now says so instead of leaving the
+    # reduction inside a prompt section nobody on the wire can read.
+    assert payload["context_packet"] == {
+        "posture": "reduced",
+        "reduced_reason": doxbench_packet.REDUCED_NO_KNOWLEDGE_SERVICE,
+    }
     assert fake.calls.count("dispatch") == 1
     assert fake.calls[-1] == "dispatch"
     _assert_no_sentinels(payload)
@@ -3167,6 +3191,43 @@ def test_a_widened_turn_whose_binding_names_no_supplied_buffer_is_refused(
     _assert_v2_refusal(status, payload, "turn_scope_refused")
     # Scope revalidation is step 5: no port member is consulted at all.
     assert fake.calls == []
+    _assert_no_sentinels(payload)
+
+
+@released_only
+def test_a_reduced_turn_conforms_to_the_RELEASED_posture_rules_end_to_end(
+        tmp_path, released_validators):
+    """THE FIXTURE-SCHEMA GAP, closed (adversarial review N3).
+
+    Every other posture test in this suite runs against `_fixture_validators`,
+    whose v2-success schema declares `context_packet: {}` — discriminators and
+    closedness only, deliberately, because a fixture that restated the value
+    rules would be a second contract authority. The consequence is that nothing
+    was driving a REDUCED turn through the released `$defs/context_packet` at
+    the route: the posture's own rules were exercised as instances
+    (`test_doxbench_contracts`) and as a rendered surface (the node probe), but
+    never as bytes a serve actually produced and a released validator actually
+    blessed.
+
+    This is that test. `build_server`'s own default validator seam resolves the
+    PINNED checkout, the route self-validates the body it built against the
+    released bytes before storing or sending it, and the record is revalidated
+    here as an instance for good measure."""
+    fake = _port()
+    with _serving(tmp_path, model_port_factory=(lambda: fake),
+                  schema_validator_factory=_UNSET) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        status, payload, _headers, _raw = _request(
+            host, prt, "POST", CHAT_ROUTE, body=_turn_v2(),
+            headers=_console_headers(caps))
+    assert status == 200, payload
+    # The harness declares no knowledge service, so the turn ran reduced — and
+    # the record says so, through the RELEASED shape rather than a fixture's.
+    assert payload["context_packet"] == {
+        "posture": "reduced",
+        "reduced_reason": doxbench_packet.REDUCED_NO_KNOWLEDGE_SERVICE,
+    }
+    assert doxbench_contracts.validate_instance(payload) == []
     _assert_no_sentinels(payload)
 
 

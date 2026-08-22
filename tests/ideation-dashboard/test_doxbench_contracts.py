@@ -44,25 +44,26 @@ from ideation_dashboard import doxbench_contracts as contracts
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 
-# RE-PINNED at contract-v1.38 (add-doxbench-editing-phase-b §11.7). The MIRROR
-# IMAGE of the v1.34 repin: there the chat-turn digest moved and the catalog's
-# did not, because that release widened the chat-turn file; here the CATALOG
-# digest moves and the chat-turn's does not, because this release grows the
-# catalog entry with the routing-rule declaration.
+# RE-PINNED at contract-v1.40 (add-doxbench-editing-phase-b §10.7), and the
+# MIRROR IMAGE OF THE PREVIOUS REPIN, which was itself the mirror of v1.34's: at
+# v1.38 the catalog digest moved and the chat-turn's did not; here the CHAT-TURN
+# digest moves and the catalog's does not, because this release grows
+# `$defs/success_v2` with the assembled context's posture.
 #
-# The REF carried the unresolved-until-published sentinel across the realization
-# branch, on v1.34's own precedent — the policy publishes the annotated tag
-# against the commit that LANDS, so until that commit existed there was nothing
-# honest to name — and now names it: `contract-v1.38^{}` == 0f50b35, the
-# squash-merge of PR #244, tag object 46cd169, peeled FROM THE REMOTE. (The v1.34
-# resolution was 7c544c84: `contract-v1.34^{}` == 5daa173, tag object 439d76b.)
-RELEASED_REF = "0f50b352b2b4a38dc237453bb8f1244e47c8e752"
-RELEASED_TAG = "contract-v1.38"
+# The REF is the unresolved-until-published sentinel again, on v1.34's and
+# v1.38's own precedent — the policy publishes the annotated tag against the
+# commit that LANDS, so across a realization branch there is no release commit
+# to name, and the sentinel is spelled as a value no `stack.yaml` can declare so
+# a consumer comparing against it refuses rather than matching by accident. A
+# follow-up commit resolves it, as 58e4aecd did for v1.38 (`contract-v1.38^{}`
+# == 0f50b35, tag object 46cd169) and 7c544c84 for v1.34.
+RELEASED_REF = "unpublished:contract-v1.40"
+RELEASED_TAG = "contract-v1.40"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
-        "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
+        "d8ee5624f2136977044971b17fe67fe31b057bbf621e14853069fd082019b254",
 }
 
 # ---------------------------------------------------------------------------
@@ -785,9 +786,14 @@ def test_packaged_positives_validate_structurally(released_root):
     # adds the widened family's loaded-set request and its record. 9 -> 10 at
     # contract-v1.38, which adds the `auto` ROUTING RULE instance — and 10 -> 11
     # within that release, for the rule-5' instance Brett's ruling made lawful
-    # (a rule wider than a NON-resolved member). The exact count IS the pin, so
-    # it advances with the release rather than being loosened to an inequality.
-    assert len(positives) == 11, [p.name for p in positives]
+    # (a rule wider than a NON-resolved member). 11 -> 13 at contract-v1.40,
+    # which adds the two CONTEXT POSTURE records: one reduced-with-its-reason
+    # and one explicitly full. (The pre-release record that states NO posture is
+    # the unchanged `workbench-chat-turn-v2-success` instance already counted
+    # here — its continued validity is the additive claim, so the release adds
+    # two files rather than three.) The exact count IS the pin, so it advances
+    # with the release rather than being loosened to an inequality.
+    assert len(positives) == 13, [p.name for p in positives]
 
     for path in positives:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -1258,3 +1264,320 @@ def test_every_packaged_routing_positive_is_covered_by_that_pin(released_root):
     on_disk = {p.name for p in (released_root / "examples" / "ideation-dashboard")
                .glob("workbench-model-catalog-routing-*.example.yaml")}
     assert on_disk == set(_ROUTING_POSITIVES)
+
+
+# ---------------------------------------------------------------------------
+# THE CONTEXT-POSTURE GROWTH IS ADDITIVE (contract-v1.40,
+# add-doxbench-editing-phase-b task 10.7)
+#
+# Asserted against the REAL released bytes, through the same loader a serve
+# uses, for the reason the v1.38 block records: the class claim ("nothing
+# previously valid becomes invalid") is a claim about those bytes and not about
+# a fixture. Each case below is one clause of the released `$defs/context_packet`
+# and of the optional property that references it.
+# ---------------------------------------------------------------------------
+
+_HASH_A = "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba"
+_HASH_B = "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825"
+_REASON = (
+    "the staged-set knowledge service is unavailable, so this packet carries "
+    "the selected thread and the loaded buffers only, with NO corpus evidence; "
+    "no unbounded context was substituted and no rail was bypassed to reach a "
+    "provider")
+
+
+def _v2_record(**overrides):
+    """The pre-release widened record — no `context_packet` at all."""
+    record = {
+        "schema_version": 1,
+        "kind": "workbench-chat-turn-v2-success",
+        "client_turn_id": "turn-v2-9001",
+        "assistant_turn_id": "srv-v2-9001",
+        "model_id": "local-authoring-1",
+        "selected_model": {
+            "requested_model_id": "local-authoring-1",
+            "routing_rule": False,
+            "data_handling": "Local process only; no content leaves this machine.",
+        },
+        "bound_buffer": "outline",
+        "observed_hashes": {"outline": _HASH_A, "document": _HASH_B},
+        "assistant_prose": "An answer.",
+        "proposals": [],
+    }
+    record.update(overrides)
+    return record
+
+
+def test_the_pre_release_v2_record_is_still_valid(released_root):
+    """THE ADDITIVE TEST ITSELF: the record every existing producer emits, with
+    no posture at all, validates against the grown schema. Its ABSENCE is legal
+    and says nothing about the posture — which is the sentence the manifest's
+    consumption rule and the schema comment both carry, executed here."""
+    assert contracts.validate_instance(_v2_record(), released_root) == []
+
+
+@pytest.mark.parametrize("packet, why", [
+    ({"posture": "full"}, "an explicitly full turn"),
+    ({"posture": "reduced", "reduced_reason": _REASON}, "a reduced turn"),
+    ({"posture": "reduced", "reduced_reason": "x"},
+     "the shortest legal reason"),
+    ({"posture": "reduced", "reduced_reason": "y" * 500},
+     "the reason at its exact ceiling"),
+])
+def test_the_released_bytes_accept_a_conformant_posture(
+        released_root, packet, why):
+    assert contracts.validate_instance(
+        _v2_record(context_packet=packet), released_root) == [], why
+
+
+@pytest.mark.parametrize("packet, why", [
+    ({"posture": "reduced"},
+     "a reduction with no reason — the silent degradation, refused"),
+    ({"posture": "full", "reduced_reason": _REASON},
+     "a full posture carrying a reason — two facts, one record"),
+    ({"posture": "degraded"}, "a posture outside the released vocabulary"),
+    ({"posture": "Full"}, "the right posture in the wrong case"),
+    ({}, "a posture object that states no posture"),
+    ({"reduced_reason": _REASON}, "a reason with no posture"),
+    ({"posture": "reduced", "reduced_reason": ""},
+     "an empty reason, which is a reason nobody can read"),
+    ({"posture": "reduced", "reduced_reason": "y" * 501},
+     "a reason one byte past the released ceiling"),
+    # PRESENCE, NOT TRUTHINESS, on the full arm — the boundary three of the
+    # family's four gates accepted (Copilot review of PR #256, finding 1). The
+    # shape refuses the KEY on a full posture, whatever it holds.
+    ({"posture": "full", "reduced_reason": ""},
+     "a full posture carrying a BLANK reason — the key is still present"),
+    ({"posture": "full", "reduced_reason": None},
+     "a full posture carrying a NULL reason — the key is still present"),
+    ({"posture": "reduced", "reduced_reason": _REASON,
+      "provider_id": "vertex-hosted"},
+     "a fourth fact on a closed object"),
+    ("reduced", "a bare string where the object belongs"),
+    (None, "an explicit null, which is not an absent key"),
+])
+def test_the_released_bytes_refuse_a_malformed_posture(
+        released_root, packet, why):
+    assert contracts.validate_instance(
+        _v2_record(context_packet=packet), released_root) != [], why
+
+
+def test_each_conditional_guards_a_case_THE_OTHER_ONE_DOES_NOT(released_root):
+    """THE S1-vs-S3 LESSON, read on this shape. contract-v1.38's growth carried
+    a `dependentRequired` block AND two `if`-conditionals, and its review found
+    they guard different paths — so a test that exercises one and assumes the
+    other is covered proves nothing about the second.
+
+    This release's two conditionals are the pairing's two halves, and they are
+    NOT each other's inverse. Deleting `posture == reduced -> required
+    [reduced_reason]` leaves the reason-on-full case still refused, and deleting
+    `posture == full -> not required [reduced_reason]` leaves
+    reduced-without-reason still refused: each case must therefore be shown
+    against BOTH clauses present and each clause revert-tested on its own. The
+    third case is the one NEITHER conditional touches — both require `posture`
+    to equal a named constant, so an unknown posture matches neither `if` and is
+    refused by the `enum` underneath them. A conditional guard cannot stand in
+    for the value constraint it sits on top of."""
+    schema = yaml.safe_load(
+        (released_root / "contracts" / "schemas" / CHAT_TURN_SCHEMA_FILE)
+        .read_text(encoding="utf-8"))
+    definition = schema["$defs"]["context_packet"]
+    # The two conditionals exist, and each names its own posture.
+    postures = [clause["if"]["properties"]["posture"]["const"]
+                for clause in definition["allOf"]]
+    assert postures == ["reduced", "full"]
+    # BOTH require `posture` to be PRESENT, which is what makes an object
+    # missing it fall through to `required` rather than to a silently-passing
+    # conditional.
+    for clause in definition["allOf"]:
+        assert clause["if"]["required"] == ["posture"]
+    # …and the enum underneath them is the whole vocabulary, so the unknown
+    # posture above is refused by a rule neither conditional can express.
+    assert definition["properties"]["posture"]["enum"] == ["full", "reduced"]
+    assert definition["additionalProperties"] is False
+    assert definition["required"] == ["posture"]
+
+
+def test_no_other_envelope_in_the_family_grows_a_posture(released_root):
+    """THE BLAST RADIUS, pinned. Exactly ONE envelope gains the key. Every
+    other envelope in this file is closed and refuses it, which is what makes
+    "one optional property on one shape" a checkable claim rather than a
+    description of intent — and it is what keeps the DEPRECATED v1 success
+    envelope byte-identical, as contract-v1.34's deprecation requires."""
+    packet = {"posture": "reduced", "reduced_reason": _REASON}
+    v1_success = {
+        "schema_version": 1,
+        "kind": "workbench-chat-turn-success",
+        "client_turn_id": "turn-9001",
+        "assistant_turn_id": "srv-9001",
+        "model_id": "local-authoring-1",
+        "observed_hashes": {"outline": _HASH_A, "document": _HASH_B},
+        "assistant_prose": "An answer.",
+        "proposals": [],
+        "context_packet": packet,
+    }
+    assert contracts.validate_instance(v1_success, released_root) != []
+    v2_failure = {
+        "schema_version": 1,
+        "kind": "workbench-chat-turn-v2-failure",
+        "client_turn_id": "turn-v2-9001",
+        "error": "model_failed",
+        "message": "The model could not answer this turn.",
+        "context_packet": packet,
+    }
+    assert contracts.validate_instance(v2_failure, released_root) != []
+
+
+_POSTURE_NEGATIVE_GLOB = "workbench-chat-turn-v2-context-*.negative.yaml"
+
+# Each packaged posture negative fails for ITS OWN reason AT THE GATE THAT OWNS
+# IT, and the table records WHICH gate rather than settling for "something
+# refused it". The distribution is the release's design, stated:
+#
+#   * the two PAIRING violations are refused by BOTH the shape and the delegated
+#     validator, with the `context-packet` finding code — that overlap is
+#     deliberate and is what keeps the restatement honest (see
+#     check_context_packet's docstring on why a file gate restates a rule the
+#     shape can express);
+#   * the unknown posture and the extra field are the SHAPE's alone, also
+#     deliberately: the delegated validator restates neither an enum nor a
+#     closure, because those are exactly what a schema is for;
+#   * and the credential leak is the DELEGATED validator's alone, because the
+#     shape cannot express it — `reduced_reason` is free prose and the leaking
+#     instance is structurally perfect. It is the one rule this release
+#     delegates, so it is the one negative the shape must NOT catch; if it ever
+#     did, the rule would have stopped being the shape's blind spot and this
+#     table would be lying about why the rule exists.
+#
+# (shape refuses, expected file-gate finding code or None)
+_POSTURE_NEGATIVE_GATES = {
+    "workbench-chat-turn-v2-context-reduced-without-reason":
+        (True, "context-packet"),
+    "workbench-chat-turn-v2-context-reason-on-full":
+        (True, "context-packet"),
+    "workbench-chat-turn-v2-context-unknown-posture": (True, None),
+    "workbench-chat-turn-v2-context-extra-field": (True, None),
+    "workbench-chat-turn-v2-context-reason-leaks-a-credential":
+        (False, "credential"),
+    # The blank and the null on a FULL posture (Copilot review of PR #256,
+    # finding 1). Both are refused by the shape for the KEY's presence, and both
+    # are now refused by the delegated validator too — the blank always was, the
+    # null was not, because that gate read the value where the shape reads the
+    # key.
+    "workbench-chat-turn-v2-context-empty-reason-on-full":
+        (True, "context-packet"),
+    "workbench-chat-turn-v2-context-null-reason-on-full":
+        (True, "context-packet"),
+}
+
+
+def test_every_packaged_posture_negative_is_covered_by_that_pin(released_root):
+    """The table above is a list, so a negative added later could miss it."""
+    on_disk = {p.stem.replace(".negative", "") for p in
+               (released_root / "examples" / "ideation-dashboard" / "negative")
+               .glob(_POSTURE_NEGATIVE_GLOB)}
+    assert on_disk == set(_POSTURE_NEGATIVE_GATES)
+
+
+@pytest.mark.parametrize("stem, shape_refuses, code", sorted(
+    (stem, shape, code)
+    for stem, (shape, code) in _POSTURE_NEGATIVE_GATES.items()))
+def test_each_packaged_posture_negative_is_refused_where_it_should_be(
+        released_root, stem, shape_refuses, code):
+    path = (released_root / "examples" / "ideation-dashboard" / "negative"
+            / f"{stem}.negative.yaml")
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert bool(contracts.validate_instance(doc, released_root)) is shape_refuses, (
+        f"{stem}: SHAPE expectation {shape_refuses!r}")
+    errors = _file_gate_errors(released_root, path)
+    if code is None:
+        # The delegated validator stays out of it — but SOMETHING must refuse,
+        # and that something is the schema check the file gate also runs.
+        assert not [e for e in errors if "[context-packet]" in e], stem
+        assert errors, f"{stem}: nothing refused it at all"
+    else:
+        assert [e for e in errors if f"[{code}]" in e], (
+            f"{stem}: no {code!r} finding, got {errors}")
+
+
+# The TYPE-GATE instance for each packaged pairing negative — one per stem,
+# spelled out (review N-2). This used to be a two-branch conditional
+# (`reduced-without-reason` or else `(FULL, _REASON)`), so the two negatives the
+# bot round added both collapsed onto the SAME instance as the pre-existing
+# one: four parameterisations constructing two distinct packets, reporting
+# per-stem coverage it did not provide. The blank stem in particular — the exact
+# instance the type used to accept — was never actually constructed here.
+#
+# `refuses=False` is not a gap being waved through, it is a REPRESENTATIONAL
+# LIMIT stated: a Python attribute has no key/value distinction, so
+# `reduced_reason=None` IS absence and there is no way to hand this constructor
+# "the key, present, holding null". The instance the WIRE can express has no
+# counterpart here, so the honest thing is to assert what the type really does
+# with the nearest expressible input rather than to pretend otherwise.
+_TYPE_GATE_INSTANCE = {
+    # FULL stem -> (posture, reduced_reason, refuses). Keyed on the whole stem,
+    # not a suffix: `-reason-on-full` is a suffix of `-empty-reason-on-full` and
+    # of `-null-reason-on-full`, so suffix matching is ambiguous here — which
+    # the companion test below caught on its first run, having been written to
+    # catch exactly that.
+    "workbench-chat-turn-v2-context-reduced-without-reason":
+        ("reduced", None, True),
+    "workbench-chat-turn-v2-context-reason-on-full":
+        ("full", _REASON, True),
+    "workbench-chat-turn-v2-context-empty-reason-on-full":
+        ("full", "", True),
+    "workbench-chat-turn-v2-context-null-reason-on-full":
+        ("full", None, False),
+}
+
+
+@pytest.mark.parametrize("stem", sorted(
+    s for s, (_shape, code) in _POSTURE_NEGATIVE_GATES.items()
+    if code == "context-packet"))
+def test_the_pairing_negatives_are_refused_by_the_PACKET_TYPE_TOO(stem):
+    """THE THIRD GATE. `ContextPacket.__post_init__` refuses the pairing
+    violations at construction, which is why no shipped path can produce one —
+    and asserting it HERE, beside the shape and the file gate, is what makes
+    "three gates, one rule" evidence rather than a claim in a docstring. It is
+    the same parity discipline contract-v1.38's review had to add after finding
+    its file gate strictly weaker than its type gate.
+
+    ONE STEM IS ASSERTED AS ACCEPTED, and that is the honest reading rather than
+    a hole: `-null-reason-on-full` names an instance only a WIRE format can
+    express (a key that is present and holds null), and a Python attribute
+    cannot hold it — `reduced_reason=None` is absence. The shape and the
+    delegated validator refuse that instance and are pinned doing so above; what
+    the type owns is the PRESENCE rule over the inputs it can actually receive,
+    and `test_the_construction_gate_and_the_derivation_agree_on_PRESENCE` is the
+    faithful pin for it."""
+    from ideation_dashboard import doxbench_packet as pk
+    from ideation_dashboard.doxbench_scope import ScopeKey
+
+    posture, reason, refuses = _TYPE_GATE_INSTANCE[stem]
+    scope = ScopeKey(repository="fixture-repo", ref="main",
+                     tile_kind="staged", tile_id="t")
+
+    def _construct():
+        return pk.ContextPacket(
+            purpose=pk.PACKET_PURPOSE_CHAT_TURN, scope=scope, posture=posture,
+            sources=(), issued_at=0.0, expires_at=1.0, reduced_reason=reason)
+
+    if refuses:
+        with pytest.raises(pk.PacketError):
+            _construct()
+    else:
+        assert _construct().posture == posture
+
+
+def test_every_pairing_negative_has_its_OWN_type_gate_instance():
+    """The table above is a map, so a stem added later could fall through it —
+    and the silent fallthrough is exactly the defect N-2 found. Every stem the
+    parametrization drives must match exactly one entry, and no two stems may
+    share an instance."""
+    stems = [s for s, (_shape, code) in _POSTURE_NEGATIVE_GATES.items()
+             if code == "context-packet"]
+    assert set(stems) == set(_TYPE_GATE_INSTANCE), (
+        f"table and corpus disagree: {set(stems) ^ set(_TYPE_GATE_INSTANCE)}")
+    instances = [_TYPE_GATE_INSTANCE[stem] for stem in stems]
+    assert len(set(instances)) == len(stems), (
+        f"two stems share one instance: {dict(zip(stems, instances))}")

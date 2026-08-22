@@ -3456,3 +3456,746 @@ def test_the_send_disclosure_for_a_routing_rule_is_the_union_badge(
         routing_menu_results["disclosure"])
     assert routing_menu_results["badges"]["hosted"] in (
         routing_menu_results["disclosure"])
+
+
+# ---------------------------------------------------------------------------
+# THE REDUCED POSTURE IS VISIBLE TO THE HUMAN (contract-v1.40,
+# add-doxbench-editing-phase-b task 10.7)
+#
+# This is the half of task 10.7 that was GATED, and the reason the task stayed
+# open after its packet half landed: the ratified sentence ends "with the
+# reduced posture STATED", the packet stated it, and no human could read it.
+# The release put the posture on the record; this probe is what makes "and on
+# the surface" evidence instead of an argument.
+#
+# It drives the SHIPPED `doxbench-chat.js` bytes through a real mount (P1-7 —
+# a probe executes shipped bytes, never a paraphrase), sends turns through the
+# real dispatcher, and reads the rendered note back off the DOM stub.
+# ---------------------------------------------------------------------------
+
+_POSTURE_HARNESS = """
+class Node {
+  constructor(tag) {
+    this.tagName = String(tag).toUpperCase();
+    this.children = []; this.attributes = {}; this.listeners = {};
+    this.className = ''; this._text = ''; this.hidden = false;
+    this.disabled = false; this.value = ''; this.writes = [];
+  }
+  get textContent() {
+    return this._text + this.children.map((c) => c.textContent).join('');
+  }
+  // S1's INSTRUMENT. The defect this probe exists to catch is an ORDER — a text
+  // mutation performed while the node is still `hidden`, i.e. while it is out
+  // of the accessibility tree and no live region can observe it. An assertion
+  // read AFTER render() cannot see that: both orders end with the same
+  // attributes. So the stub records `hidden` AT THE MOMENT the write happens.
+  set textContent(value) {
+    this.writes.push({ text: String(value), hiddenAtWrite: this.hidden });
+    this.children = []; this._text = String(value);
+  }
+  appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
+  append(...kids) { for (const k of kids) this.appendChild(k); }
+  setAttribute(name, value) { this.attributes[name] = String(value); }
+  getAttribute(name) {
+    return Object.prototype.hasOwnProperty.call(this.attributes, name)
+      ? this.attributes[name] : null;
+  }
+  addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
+  focus() {}
+  walk() { return this.children.reduce((a, c) => a.concat(c.walk()), [this]); }
+}
+const doc = { createElement: (tag) => new Node(tag), activeElement: null };
+const byClass = (root, cls) => root.walk().filter(
+  (n) => String(n.className).split(' ').includes(cls));
+const fire = async (node, type) => {
+  for (const fn of node.listeners[type] || []) await fn({});
+};
+
+import { mountDoxBenchChatRail, reducedContextNote, REDUCED_CONTEXT_LEAD }
+  from "./doxbench-chat.mjs";
+import { createChatState, settleTurnSuccess, beginTurn,
+         adoptThreadTranscript, chatSnapshot, restoreChatState,
+         CONTEXT_REDUCED_REASON_MAX_LENGTH }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "fixture-repo", ref: "main",
+              tile_kind: "staged", tile_id: "ideation-governance" };
+const ENTRY = { model_id: "model-a", label: "Approved", provider_class: "on-tenant",
+  available: true, input_limit_bytes: 800000, output_limit_bytes: 900000,
+  data_handling: "on-tenant" };
+const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
+  base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  hash_pending: false, content: "# " + kind, dirty: false });
+const editorState = () => ({ active_buffer: "document", buffers: {
+  outline: bufferOf("outline", "docs/outline.md"),
+  document: bufferOf("document", "docs/detail.md") } });
+
+// The reason VERBATIM from `doxbench_packet.REDUCED_NO_KNOWLEDGE_SERVICE`, so
+// what this probe renders is what a real degraded turn actually carries.
+const REASON = "the staged-set knowledge service is unavailable, so this packet"
+  + " carries the selected thread and the loaded buffers only, with NO corpus"
+  + " evidence; no unbounded context was substituted and no rail was bypassed"
+  + " to reach a provider";
+out.reason = REASON;
+out.lead = REDUCED_CONTEXT_LEAD;
+
+const recordWith = (contextPacket) => {
+  const record = { schema_version: 1,
+    kind: "workbench-chat-turn-v2-success",
+    client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
+    selected_model: { requested_model_id: "model-a", routing_rule: false,
+                      data_handling: "on-tenant" },
+    bound_buffer: "outline",
+    observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
+    assistant_prose: "answer", proposals: [] };
+  if (contextPacket !== undefined) record.context_packet = contextPacket;
+  return record;
+};
+
+// One mounted rail per case, each sending ONE real turn through the shipped
+// dispatcher and reading the rendered note back.
+async function railCase(contextPacket) {
+  const host = new Node("div"); host.ownerDocument = doc;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => ({ ok: true, status: 200,
+                               payload: recordWith(contextPacket) }) },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "what does the note say?"; await fire(composer, "input");
+  await fire(byClass(host, "doxchat-send")[0], "click");
+  const note = byClass(host, "doxchat-context")[0];
+  // S1: EVERY non-empty write, and whether the node was hidden when it
+  // happened. A write performed while hidden is a write no live region saw.
+  //
+  // READ ALL OF THEM, NOT THE LAST ONE — measured, and this is the trap the
+  // reviewer named. Under the defect order a reduced turn produces TWO
+  // non-empty writes: the render that settles the turn writes the text while
+  // the node is still hidden (the announcement is lost there), and a LATER
+  // re-render writes the same text again with the node already visible. Reading
+  // `writes[writes.length - 1]` sees only the benign second one and reports
+  // clean — which is exactly what it did, and the revert-test caught it.
+  const written = note ? note.writes.filter((wr) => wr.text !== "") : [];
+  return {
+    // true iff SOME text was written into the note while it was hidden
+    anyWriteWhileHidden: written.some((wr) => wr.hiddenAtWrite === true),
+    firstWriteHidden: written.length ? written[0].hiddenAtWrite : null,
+    nonEmptyWrites: written.length,
+    exists: Boolean(note),
+    hidden: note ? note.hidden : null,
+    text: note ? note.textContent : null,
+    live: note ? note.getAttribute("aria-live") : null,
+    // the answer still arrived: a degraded turn is a SUCCESSFUL turn
+    transcript: rail.state().transcript.length,
+    statePosture: rail.state().contextPacket
+      ? rail.state().contextPacket.posture : null,
+  };
+}
+
+// S4: a reduced answer, then a FAILED follow-up. The reduced answer is STILL
+// the transcript's last assistant turn, so its disclosure must still be there.
+async function reducedThenFailure() {
+  const host = new Node("div"); host.ownerDocument = doc;
+  let turn = 0;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => {
+        turn += 1;
+        return turn === 1
+          ? { ok: true, status: 200,
+              payload: recordWith({ posture: "reduced", reduced_reason: REASON }) }
+          : { ok: false, status: 502,
+              payload: { schema_version: 1,
+                         kind: "workbench-chat-turn-v2-failure",
+                         client_turn_id: "t", error: "model_failed",
+                         message: "The model could not answer this turn." } };
+      } },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  const note = byClass(host, "doxchat-context")[0];
+  const send = byClass(host, "doxchat-send")[0];
+
+  composer.value = "first question"; await fire(composer, "input");
+  await fire(send, "click");
+  const afterReduced = { hidden: note.hidden, text: note.textContent };
+
+  composer.value = "second question"; await fire(composer, "input");
+  await fire(send, "click");
+  const afterFailure = {
+    hidden: note.hidden, text: note.textContent,
+    transcript: rail.state().transcript.length,
+    lastAssistant: rail.state().transcript[
+      rail.state().transcript.length - 1].content,
+    failureShown: !byClass(host, "doxchat-failure")[0].hidden,
+  };
+  return { afterReduced, afterFailure };
+}
+
+// …and the inverse: a reduced answer REPLACED by a full one clears the note,
+// because the answer the note described is no longer the last one.
+async function reducedThenFullSuccess() {
+  const host = new Node("div"); host.ownerDocument = doc;
+  let turn = 0;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => {
+        turn += 1;
+        return { ok: true, status: 200, payload: recordWith(
+          turn === 1 ? { posture: "reduced", reduced_reason: REASON }
+                     : { posture: "full" }) };
+      } },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  const note = byClass(host, "doxchat-context")[0];
+  const send = byClass(host, "doxchat-send")[0];
+  composer.value = "first question"; await fire(composer, "input");
+  await fire(send, "click");
+  const afterReduced = { hidden: note.hidden, text: note.textContent };
+  composer.value = "second question"; await fire(composer, "input");
+  await fire(send, "click");
+  return { afterReduced,
+           afterFull: { hidden: note.hidden, text: note.textContent } };
+}
+
+out.s4Failure = await reducedThenFailure();
+out.s4FullSuccess = await reducedThenFullSuccess();
+out.reduced = await railCase({ posture: "reduced", reduced_reason: REASON });
+out.full = await railCase({ posture: "full" });
+out.omitted = await railCase(undefined);
+// A record that contradicts itself. The released schema refuses both of these,
+// so they cannot come from a conformant producer -- the surface still has to
+// decide, and it decides SILENCE rather than a half-statement.
+out.reducedNoReason = await railCase({ posture: "reduced" });
+out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON });
+
+// The note describes the LAST ANSWER, so a new flight clears it.
+{
+  const settled = settleTurnSuccess(
+    beginTurn(createChatState(KEY)),
+    recordWith({ posture: "reduced", reduced_reason: REASON }));
+  out.afterSettle = reducedContextNote(settled);
+  out.duringNextFlight = reducedContextNote(beginTurn(settled));
+  // …and switching documents replaces the transcript with the SERVER's thread,
+  // which carries no posture of its own.
+  out.afterThreadSwitch = reducedContextNote(
+    adoptThreadTranscript(settled, [{ human: "q", assistant: "a" }]));
+}
+
+// NEW-1/NEW-2: the SNAPSHOT round trip, which is the fourth answer-replacing
+// path and the one that survives a tile being closed.
+{
+  const reduced = settleTurnSuccess(
+    beginTurn({ ...createChatState(KEY), composer: "q" }),
+    recordWith({ posture: "reduced", reduced_reason: REASON }));
+  const full = settleTurnSuccess(
+    beginTurn({ ...createChatState(KEY), composer: "z" }),
+    recordWith({ posture: "full" }));
+
+  // (a) a snapshot of a reduced conversation CARRIES the posture …
+  const blob = chatSnapshot(reduced);
+  out.snapshotCarries = Boolean(blob.context_packet)
+    && blob.context_packet.posture === "reduced"
+    && blob.context_packet.reduced_reason === REASON;
+  // … INCLUDING an explicitly full one, which is not a quirk: this release's
+  // own doctrine is that absent and `full` are DIFFERENT facts, so a snapshot
+  // that dropped `full` would restore "unknown" over a posture somebody
+  // checked — re-introducing the inference-by-absence the release forbids.
+  // Read defensively: if the key stops being written this must REPORT that,
+  // not crash the harness and make the failure look like a broken probe.
+  out.snapshotCarriesFull =
+    (chatSnapshot(full).context_packet || {}).posture === "full";
+  // The key is omitted only when there is NO posture to state: a conversation
+  // with no answer yet, or one whose answer came from a producer older than
+  // contract-v1.40. That is the case whose blob is unchanged from before.
+  out.snapshotOmitsWhenUnknown =
+    !("context_packet" in chatSnapshot(createChatState(KEY)));
+
+  // (b) restoring it onto a FRESH rail brings the disclosure back with the
+  //     answer it describes.
+  out.restoredReduced = reducedContextNote(
+    restoreChatState(createChatState(KEY), blob, {})) !== null;
+
+  // (c) NEW-1: restoring a DIFFERENT conversation over a reduced one must not
+  //     leave the old note captioning the new answer.
+  const otherBlob = chatSnapshot(full);
+  const crossed = restoreChatState(reduced, otherBlob, {});
+  out.restoreClearsStale = reducedContextNote(crossed) === null;
+  out.crossedLastAssistant =
+    crossed.transcript[crossed.transcript.length - 1].content;
+
+  // (d) an OLD blob — one written before contract-v1.40 — restores to silence
+  //     rather than being refused, which is what makes the field additive.
+  const legacy = { ...blob };
+  delete legacy.context_packet;
+  out.legacyBlobRestores = {
+    note: reducedContextNote(restoreChatState(createChatState(KEY), legacy, {})),
+    transcript: restoreChatState(createChatState(KEY), legacy, {})
+      .transcript.length,
+  };
+
+  // (e) a blob that CONTRADICTS itself fails closed by the same rule a wire
+  //     record does. ASSERTED ON THE ADOPTED STATE, not on the rendered note:
+  //     `reducedContextNote` carries its own second guard on the same rule, so
+  //     a note-level assertion passes even when the adopter trusts the blob —
+  //     measured, by a revert-test (R39) that came back GREEN reading the note.
+  //     The state is where the adopter's verdict actually lands.
+  const contradictions = [
+    { posture: "reduced" },                                   // no reason
+    { posture: "reduced", reduced_reason: "" },               // empty reason
+    { posture: "full", reduced_reason: REASON },              // full WITH one
+    // PRESENCE, NOT TRUTHINESS (Copilot review of PR #256, finding 2). Both of
+    // these adopted as a clean `full` before the fix, though the released shape
+    // refuses the KEY on a full posture whatever it holds.
+    { posture: "full", reduced_reason: "" },                  // full + blank
+    { posture: "full", reduced_reason: null },                // full + null
+    { posture: "degraded", reduced_reason: REASON },          // unknown posture
+    "reduced",                                                // not an object
+  ];
+  // The RELEASED CEILING on the reading side (Codex review of PR #256): a
+  // malformed transport's oversized reason must not reach browser state, the
+  // live region, or the snapshot. The dispatcher checks only `ok` and `kind`.
+  const overCeiling = "x".repeat(CONTEXT_REDUCED_REASON_MAX_LENGTH + 1);
+  const atCeiling = "y".repeat(CONTEXT_REDUCED_REASON_MAX_LENGTH);
+  // ASTRAL: 300 code points, 600 UTF-16 units. Conformant under `maxLength:
+  // 500`, and the first version of this ceiling discarded it (Codex review).
+  const astral = String.fromCodePoint(0x1F600).repeat(300);
+  out.wireCeiling = {
+    over: settleTurnSuccess(
+      beginTurn({ ...createChatState(KEY), composer: "q" }),
+      recordWith({ posture: "reduced", reduced_reason: overCeiling }))
+      .contextPacket,
+    at: (settleTurnSuccess(
+      beginTurn({ ...createChatState(KEY), composer: "q" }),
+      recordWith({ posture: "reduced", reduced_reason: atCeiling }))
+      .contextPacket || {}).reduced_reason === atCeiling,
+    bound: CONTEXT_REDUCED_REASON_MAX_LENGTH,
+    astralCodePoints: [...astral].length,
+    astralUtf16Units: astral.length,
+    astralAdopted: (settleTurnSuccess(
+      beginTurn({ ...createChatState(KEY), composer: "q" }),
+      recordWith({ posture: "reduced", reduced_reason: astral }))
+      .contextPacket || {}).reduced_reason === astral,
+  };
+
+  out.contradictoryBlobs = contradictions.map((cp) =>
+    restoreChatState(createChatState(KEY), { ...blob, context_packet: cp }, {})
+      .contextPacket);
+  // …and the honest blob still adopts, so the guard is not simply refusing
+  // everything.
+  out.goodBlobAdopts = restoreChatState(
+    createChatState(KEY), blob, {}).contextPacket;
+  // …and a full posture with the key ABSENT is still ordinary and adoptable,
+  // so the presence rule refuses the key rather than the posture.
+  out.fullWithNoKeyAdopts = restoreChatState(
+    createChatState(KEY), { ...blob, context_packet: { posture: "full" } }, {})
+    .contextPacket;
+
+  // (f) THE ANSWER THE POSTURE DESCRIBES MUST SURVIVE THE RESTORE (Codex review
+  //     of PR #256). This restore drops malformed turns WHOLE, so a valid
+  //     stored posture can outlive the answer it belonged to.
+  const withTranscript = (turns) => ({ ...blob, transcript: turns });
+  out.restoreDropsOrphanedPosture = {
+    empty: restoreChatState(
+      createChatState(KEY), withTranscript([]), {}).contextPacket,
+    humanOnly: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q" }]), {}).contextPacket,
+    newestDropped: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q1" },
+                      { role: "assistant", content: "older answer" },
+                      { role: "human", content: "q2" },
+                      { role: "assistant", content: null }]), {}).contextPacket,
+    // …and the case that BROKE the first version of this guard: filtering the
+    // malformed final row leaves an OLDER assistant as the tail, so a guard
+    // that reads only the filtered transcript still adopts and captions the
+    // wrong answer (Codex review of PR #256).
+    newestDroppedOlderTail: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q" },
+                      { role: "assistant", content: "older answer" },
+                      { role: "assistant", content: null }]), {}).contextPacket,
+    intact: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q" },
+                      { role: "assistant", content: "answer" }]), {})
+      .contextPacket,
+  };
+}
+
+// NEW-3: typing in the composer must not re-announce the same sentence.
+{
+  const host = new Node("div"); host.ownerDocument = doc;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => ({ ok: true, status: 200,
+        payload: recordWith({ posture: "reduced", reduced_reason: REASON }) }) },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "ask"; await fire(composer, "input");
+  await fire(byClass(host, "doxchat-send")[0], "click");
+  const note = byClass(host, "doxchat-context")[0];
+  const afterTurn = note.writes.length;
+  // seven keystrokes, the reviewer's own measurement
+  for (const ch of "abcdefg") {
+    composer.value += ch; await fire(composer, "input");
+  }
+  out.rewrites = {
+    afterTurn,
+    afterTyping: note.writes.length,
+    stillShown: !note.hidden,
+    text: note.textContent,
+  };
+}
+
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def posture_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the context-posture probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-posture")
+    source = CHAT_VIEW_JS.read_text(encoding="utf-8").replace(
+        './doxbench-chat-model.js', './doxbench-chat-model.mjs')
+    (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "posture-harness.mjs"
+    harness.write_text(_POSTURE_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_reduced_turn_states_the_posture_and_its_reason_on_the_surface(
+        posture_results):
+    """THE RELEASE'S POINT, on the rendered surface. A turn that ran on the
+    declared reduced packet renders a visible, live-announced note naming the
+    reduction AND its reason — the reason verbatim, because "reduced context"
+    with no why is the silent degradation with a label on it.
+
+    The answer is still there: `transcript` is the human turn plus the
+    assistant's, which is the ratified "MUST NOT ... make the editors
+    unusable" half holding at the same time."""
+    reduced = posture_results["reduced"]
+    assert reduced["exists"] is True
+    assert reduced["hidden"] is False
+    assert reduced["text"] == posture_results["lead"] + posture_results["reason"]
+    assert "reduced context" in reduced["text"]
+    assert "no unbounded context was substituted" in reduced["text"]
+    assert reduced["live"] == "polite"
+    assert reduced["transcript"] == 2
+    assert reduced["statePosture"] == "reduced"
+
+
+def test_the_note_is_UN_HIDDEN_BEFORE_its_text_is_written(posture_results):
+    """S1, and the reason the `aria-live` assertion above is not enough. A
+    `hidden` node is out of the accessibility tree, so text written into one
+    while it is still hidden is a mutation no live region observed — the
+    "live-announced" claim would be false and the attribute would still read
+    `polite`. This release shipped that order the wrong way round and its
+    adversarial review caught it.
+
+    ASSERTED OVER EVERY WRITE, not the last one. Under the defect order the
+    settling render writes the text while the node is still hidden and a LATER
+    re-render writes the identical text with it already visible; an assertion
+    that reads only the final write sees the benign one and passes. That is not
+    hypothetical — this test was written that way first, and the R27
+    revert-test came back GREEN with the defect restored, which is how the
+    weakness was found."""
+    reduced = posture_results["reduced"]
+    assert reduced["nonEmptyWrites"] >= 1
+    assert reduced["firstWriteHidden"] is False
+    assert reduced["anyWriteWhileHidden"] is False
+
+
+def test_a_reduced_answer_keeps_its_disclosure_through_a_FAILED_follow_up(
+        posture_results):
+    """S4, reproduced and closed. The reviewer's sequence: a reduced answer,
+    then a follow-up that FAILS. The reduced answer is still the transcript's
+    last assistant turn — it is still on screen, and it still ran without
+    corpus evidence — so stripping its disclosure is the lost-badge defect this
+    release cited when it rejected per-turn badges, reappearing at rail level.
+
+    The note now survives, because it is keyed to the ANSWER rather than to a
+    flight starting. The failure note appears beside it: two true statements,
+    about two different things."""
+    r = posture_results["s4Failure"]
+    assert r["afterReduced"]["hidden"] is False
+    assert r["afterFailure"]["hidden"] is False, "the disclosure was stripped"
+    assert r["afterFailure"]["text"] == r["afterReduced"]["text"]
+    assert r["afterFailure"]["transcript"] == 2
+    assert r["afterFailure"]["lastAssistant"] == "answer"
+    assert r["afterFailure"]["failureShown"] is True
+
+
+def test_a_full_answer_REPLACING_a_reduced_one_clears_the_note(posture_results):
+    """The other half of S4's invariant, and what stops the fix from becoming a
+    note that never goes away: when the answer the note described is replaced
+    by a FULL one, the note goes with it."""
+    r = posture_results["s4FullSuccess"]
+    assert r["afterReduced"]["hidden"] is False
+    assert r["afterFull"]["hidden"] is True
+    assert r["afterFull"]["text"] == ""
+
+
+def test_a_full_turn_shows_nothing_new(posture_results):
+    """The other half of the treatment, and it is deliberate rather than
+    unfinished: a standing "full context" badge is a line every operator learns
+    to stop reading, which is exactly how the reduced one would stop being
+    noticed. The note element still EXISTS (so nothing has to be created at the
+    moment it is needed) and renders hidden and empty."""
+    full = posture_results["full"]
+    assert full["exists"] is True
+    assert full["hidden"] is True
+    assert full["text"] == ""
+    assert full["statePosture"] == "full"
+    assert full["transcript"] == 2
+
+
+def test_a_full_posture_carrying_the_KEY_at_all_is_refused(posture_results):
+    """Copilot review of PR #256, finding 2, at the exact boundary it names.
+    `hasReason` asked whether the reason was USABLE, so a stored blob reading
+    `{posture: "full", reduced_reason: ""}` — or `null` — adopted as a clean
+    full posture, though the released shape refuses either outright: its
+    `not: {required: [reduced_reason]}` is a statement about the KEY.
+
+    The adopter now asks two different questions, because the shape asks two:
+    `full` refuses the field for BEING THERE, `reduced` refuses it for being
+    UNUSABLE. This pins the first; the reduced cases in the list above pin the
+    second, unweakened."""
+    # indices 3 and 4 of the contradiction list are the blank and the null
+    assert posture_results["contradictoryBlobs"][3] is None
+    assert posture_results["contradictoryBlobs"][4] is None
+    # …while an absent key is still the ordinary, adoptable full posture.
+    assert posture_results["fullWithNoKeyAdopts"] == {"posture": "full"}
+
+
+def test_a_record_with_no_posture_renders_no_phantom_badge(posture_results):
+    """A producer older than contract-v1.40 states no posture, and the surface
+    says nothing rather than inventing one. Absence is not `full` and it is not
+    `reduced`; it is silence, and silence is what it renders."""
+    omitted = posture_results["omitted"]
+    assert omitted["hidden"] is True
+    assert omitted["text"] == ""
+    assert omitted["statePosture"] is None
+    assert omitted["transcript"] == 2
+
+
+@pytest.mark.parametrize("case", ["reducedNoReason", "fullWithReason"])
+def test_a_self_contradicting_record_renders_nothing_rather_than_half_of_it(
+        posture_results, case):
+    """FAIL-CLOSED ON THE SURFACE TOO. The released schema refuses both of
+    these, so neither can come from a conformant producer — but the adopter is
+    the last thing between a record and a human, and the wrong move would be to
+    keep whichever half looked renderable. A `reduced` with no readable reason
+    would render the words "reduced context" over a reduction nobody can check,
+    which is the failure this requirement is written against."""
+    result = posture_results[case]
+    assert result["hidden"] is True
+    assert result["text"] == ""
+    assert result["statePosture"] is None
+    # …and the ANSWER is not withheld: a malformed posture is a defect in the
+    # record's metadata, never a reason to drop the turn the human asked for.
+    assert result["transcript"] == 2
+
+
+def test_the_note_describes_the_last_answer_and_a_flight_does_not_move_it(
+        posture_results):
+    """THE INVARIANT, RESTATED AFTER S4 — and this test used to assert its
+    opposite. It read "a new flight clears it", which is what produced the
+    stripped-disclosure defect: a flight STARTING replaces no answer, so while
+    the next question is in the air the answer on screen is still the reduced
+    one and its disclosure is still true of it.
+
+    What the note tracks is the transcript's last assistant answer. Every path
+    that replaces that answer replaces the posture beside it, so nothing needs
+    to clear it on the way out."""
+    assert posture_results["afterSettle"] == (
+        posture_results["lead"] + posture_results["reason"])
+    assert posture_results["duringNextFlight"] == (
+        posture_results["lead"] + posture_results["reason"])
+
+
+def test_switching_documents_does_not_caption_the_new_thread_with_the_old_one(
+        posture_results):
+    """The same rule at the other exit. `adoptThreadTranscript` replaces the
+    transcript with the SERVER'S record of the newly selected document, and that
+    record carries no posture — so leaving the previous document's note up would
+    caption one conversation with a fact about another, which is the exact defect
+    class P2-9 found for the transcript itself."""
+    assert posture_results["afterThreadSwitch"] is None
+
+
+def test_the_snapshot_carries_the_posture_and_omits_it_when_there_is_none(
+        posture_results):
+    """NEW-2, taken as CLOSE rather than defer. Unlike the thread sidecar — a
+    durable on-disk format whose parser has fixed arity, correctly left alone —
+    the chat snapshot is a browser-local blob this release fully controls, so
+    the disclosure can survive a tile being closed and reopened without a
+    migration. A conversation with NO posture to state — no answer yet, or an
+    answer from a producer older than contract-v1.40 — writes the blob it
+    always did."""
+    assert posture_results["snapshotCarries"] is True
+    assert posture_results["restoredReduced"] is True
+    # An explicitly FULL posture is persisted too, and that is the doctrine
+    # rather than an oversight: absent and `full` are different facts
+    # everywhere else in this release, so dropping `full` here would restore
+    # "unknown" over a posture somebody checked.
+    assert posture_results["snapshotCarriesFull"] is True
+    # The key is absent only when there is no posture to state at all — which
+    # is the case whose blob is unchanged from before contract-v1.40.
+    assert posture_results["snapshotOmitsWhenUnknown"] is True
+
+
+def test_restoring_a_snapshot_does_not_leave_a_STALE_note_on_a_new_answer(
+        posture_results):
+    """NEW-1: `restoreChatState` is the FOURTH answer-replacing path, and it
+    used to leave `contextPacket` untouched while replacing the transcript
+    wholesale. The reviewer reproduced a restored answer captioned by a note
+    that never described it. Reachability was nil — the sole caller restores
+    onto a freshly mounted rail — but three places claimed the enumeration of
+    answer-replacing paths was complete at three, and it was four."""
+    assert posture_results["restoreClearsStale"] is True
+    assert posture_results["crossedLastAssistant"] == "answer"
+
+
+def test_a_restored_posture_never_outlives_the_answer_it_describes(
+        posture_results):
+    """Codex review of PR #256. `restoreChatState` drops malformed turns WHOLE,
+    so a perfectly valid stored posture can arrive with no answer to describe —
+    and in the worst variant, with the WRONG answer to describe.
+
+    Three reproduced cases, all now cleared: an empty transcript rendering a
+    reduction note for nothing; the assistant turn filtered out while the human
+    turn survives; and the NEWEST assistant turn dropped, which captioned the
+    OLDER answer with the newer one's posture. That last is the wrong-answer
+    caption this invariant exists to prevent, arriving by a third route after
+    the failed-follow-up (S4) and the cross-restore (NEW-1).
+
+    The test is the invariant: the restored transcript must END with an
+    assistant turn. The honest case still adopts, so this is a condition rather
+    than a blanket refusal."""
+    r = posture_results["restoreDropsOrphanedPosture"]
+    assert r["empty"] is None
+    assert r["humanOnly"] is None
+    assert r["newestDropped"] is None
+    assert r["newestDroppedOlderTail"] is None
+    assert r["intact"] == {
+        "posture": "reduced",
+        "reduced_reason": posture_results["reason"],
+    }
+
+
+def test_an_oversized_reason_from_the_WIRE_is_not_adopted(posture_results):
+    """Codex review of PR #256. The dispatcher validates only `ok` and `kind`,
+    so a malformed transport's over-ceiling reason would reach browser state,
+    the live region, and from there the persisted snapshot. The server refuses
+    one pre-dispatch; this is the same rule on the reading side, for payloads
+    the server did not author. A reason exactly AT the ceiling still adopts, so
+    the bound is a bound and not an off-by-one."""
+    w = posture_results["wireCeiling"]
+    assert w["bound"] == 500
+    assert w["over"] is None
+    assert w["at"] is True
+    # …and the unit is CODE POINTS, not UTF-16 units. A conformant 300-emoji
+    # reason is 600 `.length`, and the first version of this ceiling discarded
+    # it — hiding the very disclosure the release exists to show. The same
+    # mistake this release argued against on the server side (where a
+    # byte-counting guard would refuse a conformant 1,500-byte CJK reason),
+    # arriving on the browser side in the other unit.
+    assert w["astralCodePoints"] == 300
+    assert w["astralUtf16Units"] == 600
+    assert w["astralAdopted"] is True
+
+
+def test_the_browser_ceiling_is_pinned_to_the_RELEASED_maxLength():
+    """The JS constant cannot read the schema, so it is pinned to the released
+    bytes here — the same discipline `serve.CONTEXT_REDUCED_REASON_MAX_LENGTH`
+    gets. Three restatements of one bound, and a test for each pair, so they
+    cannot drift into three ceilings."""
+    import re
+    import yaml
+
+    schema = yaml.safe_load(
+        (REPO_ROOT / "contracts" / "schemas"
+         / "xfactory-workbench-chat-turn.schema.yaml").read_text(
+             encoding="utf-8"))
+    released = schema["$defs"]["context_packet"]["properties"][
+        "reduced_reason"]["maxLength"]
+    source = CHAT_MODEL_JS.read_text(encoding="utf-8")
+    match = re.search(
+        r"export const CONTEXT_REDUCED_REASON_MAX_LENGTH = (\d+);", source)
+    assert match, "the browser-side ceiling constant moved or was renamed"
+    assert int(match.group(1)) == released
+
+
+def test_a_snapshot_written_before_this_release_still_restores(posture_results):
+    """What makes the snapshot field ADDITIVE rather than a version bump: a
+    blob with no `context_packet` restores its transcript unharmed and simply
+    renders no note — exactly the behaviour before this release. Bumping
+    `CHAT_SNAPSHOT_VERSION` would instead have discarded every stored blob on
+    the first reopen, because `restoreChatState` fail-closes on an unrecognized
+    version and keeps the fresh state."""
+    legacy = posture_results["legacyBlobRestores"]
+    assert legacy["note"] is None
+    assert legacy["transcript"] == 2
+
+
+def test_a_contradictory_stored_posture_fails_closed_like_a_wire_one(
+        posture_results):
+    """One validator, both readers. A hand-edited blob claiming `reduced` with
+    no readable reason adopts to NOTHING, rather than captioning the restored
+    transcript with a reduction nobody can check.
+
+    ASSERTED ON THE ADOPTED STATE, not on the rendered note. `reducedContextNote`
+    holds its own second guard on the same rule, so a note-level assertion is
+    satisfied even when the adopter trusts the blob whole — which a revert-test
+    proved by coming back GREEN (R39) with the validation removed. The state is
+    where the adopter's verdict lands, so that is what this pins."""
+    assert posture_results["contradictoryBlobs"] == [None] * 7
+    # …and the guard is discriminating, not merely refusing everything.
+    assert posture_results["goodBlobAdopts"] == {
+        "posture": "reduced",
+        "reduced_reason": posture_results["reason"],
+    }
+
+
+def test_typing_does_not_RE_ANNOUNCE_the_same_disclosure(posture_results):
+    """NEW-3. `render()` runs on every keystroke, and re-writing a live region
+    with identical text re-announces it — the reviewer measured seven repeats
+    of the same 227-character sentence while typing one follow-up question. The
+    note is written only when its text actually changes, so the write count is
+    unmoved by typing while the note stays visible and unchanged."""
+    r = posture_results["rewrites"]
+    assert r["afterTyping"] == r["afterTurn"], "the disclosure was re-announced"
+    assert r["stillShown"] is True
+    assert r["text"] == posture_results["lead"] + posture_results["reason"]

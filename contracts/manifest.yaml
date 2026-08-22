@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.39
+contract_bundle_version: contract-v1.40
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1581,7 +1581,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5
+    sha256: d8ee5624f2136977044971b17fe67fe31b057bbf621e14853069fd082019b254
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1595,14 +1595,24 @@ contracts:
       exactly one outline and one document buffer; the v2 request carries the
       outline plus every LOADED document, DECLARES its bound-buffer key, and its
       record states that key, the per-buffer observed hashes by key, a
-      buffer-key proposal target, and the selected-model metadata. The v1 family
-      is DEPRECATED at contract-v1.34 with removal target contract-v2.0
+      buffer-key proposal target, and the selected-model metadata. SINCE
+      contract-v1.40 the v2 RECORD also carries `context_packet` — the POSTURE
+      (`full | reduced`) the turn's bounded context packet was assembled under,
+      plus that reduction's own reason. A consumer that reports how a turn was
+      grounded MUST read it; a consumer that does not may ignore it, exactly as
+      before. Its ABSENCE is not a posture claim: it means the producer predates
+      contract-v1.40, never that the context was full. The reason is present IFF
+      the posture is `reduced` (two schema conditionals, restated in the
+      delegated validator). The DEPRECATED v1 success envelope is NOT widened
+      and cannot state a posture — a recorded limitation, not an omission; the
+      migration path is the v2 envelope. The v1 family is DEPRECATED at
+      contract-v1.34 with removal target contract-v2.0
       (schema `deprecated_envelopes`; CHANGELOG migration note); it keeps
       validating and is still served until then. Consumed through the pinned
       openxFactory checkout at the declared tag; per-file sha256 verified before
       any copy is treated as current. Hash parity, budget, unknown-model,
-      duplicate turn-id, proposal-target, bound-buffer membership, and
-      failure-pairing rules are enforced by
+      duplicate turn-id, proposal-target, bound-buffer membership,
+      context-posture pairing, and failure-pairing rules are enforced by
       scripts/validate-ideation-dashboard-contracts.py, never
       re-implemented by consumers.
   # ---- action-plane + worker-enrollment contract surface — contract-v1.29 realization ----

@@ -33,8 +33,9 @@ from ideation_dashboard import serve as serve_mod  # noqa: E402
 from ideation_dashboard.doxbench_scope import ScopeKey  # noqa: E402
 
 from test_doxbench_routes import (  # noqa: E402
-    OUTLINE_PATH, _assert_refusal, _catalog, _CatalogOnlyPort, _port,
-    _post_turn, _turn,
+    CHAT_ROUTE, OUTLINE_PATH, _assert_refusal, _capabilities, _catalog,
+    _CatalogOnlyPort, _console_headers, _port, _post_turn, _request, _serving,
+    _turn, _turn_v2, _UNSET, released_only,
 )
 
 # The two brainstorm notes this fixture tile's scope contains beside its own
@@ -301,6 +302,292 @@ def test_the_reduced_posture_does_not_change_the_turns_own_success_shape(
     assert without[1]["kind"] == with_service[1]["kind"]
 
 
+def test_the_widened_record_keeps_the_same_shape_and_says_what_it_ran_on(
+        tmp_path):
+    """THE SAME CLAIM ON THE WIDENED LANE, and what contract-v1.40 changed
+    about it.
+
+    The clause above is unchanged and still holds: the two turns answer in the
+    SAME envelope with the SAME keys, so nothing a consumer parses moves when
+    the knowledge service disappears. What v1.40 adds is that the two records
+    now DIFFER in what they say — one states `full`, the other `reduced` with
+    its reason — which is the whole point of the release and is the difference
+    that used to be invisible to every reader of the record.
+
+    This is deliberately the STRONGER form of the sibling test above, not a
+    relaxation of it: the key-set equality is asserted first, and the posture
+    difference is asserted inside the one key whose job is to carry it."""
+    without = _post_turn(tmp_path, _turn_v2())
+    with_service = _post_turn(
+        tmp_path, _turn_v2(),
+        knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED)
+    assert without[0] == with_service[0] == 200
+    assert set(without[1]) == set(with_service[1])
+    assert "context_packet" in without[1]
+    assert without[1]["context_packet"] == {
+        "posture": "reduced",
+        "reduced_reason": pk.REDUCED_NO_KNOWLEDGE_SERVICE,
+    }
+    assert with_service[1]["context_packet"] == {"posture": "full"}
+
+
+# ===========================================================================
+# THE REDUCED POSTURE IS STATED ON THE RECORD (task 10.7, contract-v1.40)
+#
+# The ratified sentence ends "with the reduced posture STATED", and until this
+# release the statement lived only inside the assembled packet — where the
+# tests above read it, out of the prompt envelope the fake port was handed.
+# That is a real statement and it was never readable by the CONSUMER of the
+# turn or by the human who asked the question. These drive the REAL route and
+# read the posture off the WIRE.
+# ===========================================================================
+
+
+def test_a_widened_turn_with_no_knowledge_service_records_the_reduced_posture(
+        tmp_path):
+    """The scenario, end to end: no knowledge service, a turn that SUCCEEDS,
+    and a record that says what it ran on and why — including, in the reason's
+    own words, that nothing unbounded was substituted and no rail was bypassed.
+
+    The two halves are asserted TOGETHER on purpose: a success whose record
+    hid the reduction, and a refusal, are the two failures this requirement is
+    written against, and one assertion catches neither."""
+    status, payload, port = _post_turn(tmp_path, _turn_v2())
+    assert status == 200
+    assert payload["kind"] == "workbench-chat-turn-v2-success"
+    assert port.calls.count("dispatch") == 1
+    assert payload["context_packet"] == {
+        "posture": "reduced",
+        "reduced_reason": pk.REDUCED_NO_KNOWLEDGE_SERVICE,
+    }
+    reason = payload["context_packet"]["reduced_reason"]
+    assert "no unbounded context was substituted" in reason
+    assert "no rail was bypassed" in reason
+
+
+def test_a_widened_turn_with_a_live_knowledge_service_records_the_full_posture(
+        tmp_path):
+    """The inverse, which is what makes the reduced record MEAN anything: with
+    the declared backend indexed and answering, the record states `full` — and
+    carries NO reason, because a full packet has none to carry."""
+    status, payload, _port = _post_turn(
+        tmp_path, _turn_v2(),
+        knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED)
+    assert status == 200
+    assert payload["context_packet"] == {"posture": "full"}
+    assert "reduced_reason" not in payload["context_packet"]
+
+
+def test_the_record_and_the_packets_own_declaration_state_the_same_posture(
+        tmp_path):
+    """ONE DERIVATION, proven rather than asserted in a comment. The packet
+    writes its posture into the prompt's declaration section and the route
+    writes it onto the wire; both come from the same `ContextPacket`, so a
+    reader of the transcript and a reader of the record can never be told two
+    different things about the same turn."""
+    for declaration, posture in ((None, "reduced"),
+                                 (kn.SELF_HOSTED_LOCAL_EMBEDDED, "full")):
+        status, payload, port = _post_turn(
+            tmp_path, _turn_v2(), knowledge_declaration=declaration)
+        assert status == 200
+        assert f"posture: {posture}" in _declaration(port)
+        assert payload["context_packet"]["posture"] == posture
+
+
+def test_a_backend_that_REFUSES_records_its_own_reason_not_the_absent_one(
+        tmp_path, monkeypatch):
+    """THE DERIVATION READS THE PACKET, and this is the case that proves it.
+
+    There are TWO ways a turn reduces: no knowledge service was declared, and a
+    declared one REFUSED the retrieval. A derivation written as "did this serve
+    have a knowledge service?" would answer `full` here — a live backend was
+    declared and built — and the record would state the exact opposite of what
+    happened. Only the packet knows, so only the packet is read."""
+    class _RefusingBackend(kn.LocalHybridBackend):
+        def retrieve(self, query, *, confined_to, limit,
+                     thread_signals=frozenset()):
+            raise kn.RetrievalRefused("this backend declines")
+
+    monkeypatch.setattr(kn, "build_backend", lambda declaration: _RefusingBackend())
+    status, payload, port = _post_turn(
+        tmp_path, _turn_v2(),
+        knowledge_declaration=kn.SELF_HOSTED_LOCAL_EMBEDDED)
+    assert status == 200
+    assert port.calls.count("dispatch") == 1
+    assert payload["context_packet"] == {
+        "posture": "reduced",
+        "reduced_reason": pk.REDUCED_RETRIEVAL_REFUSED,
+    }
+    # …and it is the OTHER reason, not the absent-service one. The two are
+    # different facts and the record keeps them apart.
+    assert payload["context_packet"]["reduced_reason"] != (
+        pk.REDUCED_NO_KNOWLEDGE_SERVICE)
+
+
+def test_the_deprecated_v1_record_still_succeeds_and_still_cannot_say_so(
+        tmp_path):
+    """THE RECORDED v1 LIMITATION, pinned as a limitation rather than left to
+    prose. The deprecated envelope is CLOSED and contract-v1.40 does not widen
+    it, so a v1 turn that ran reduced succeeds — the ratified "MUST NOT make
+    the editors unusable" half — and carries no posture on the wire. The
+    reduction is still stated inside the packet, which is where it always was.
+
+    If a later release widened the v1 envelope this test fails, which is the
+    point: that would be the deprecation's byte-identity promise broken."""
+    status, payload, port = _post_turn(tmp_path, _turn())
+    assert status == 200
+    assert payload["kind"] == "workbench-chat-turn-success"
+    assert "context_packet" not in payload
+    assert "posture: reduced" in _declaration(port)
+
+
+def test_every_shipped_reduction_reason_fits_the_released_bound(tmp_path):
+    """THE AUTHORED CONSTANTS, held to the STRICTER unit — and the unit is the
+    point (adversarial review S2 corrected this docstring, which used to call
+    the released ceiling a "500-byte" one).
+
+    The released bound is `maxLength: 500`, which JSON Schema counts in CODE
+    POINTS. This test checks the shipped reasons in UTF-8 BYTES against that
+    same number, which is STRICTER: bytes ≥ code points for every string, so a
+    reason that passes here cannot fail the shape. That is deliberate and it is
+    a rule about text THIS REPOSITORY AUTHORS, not a rule the wire imposes — a
+    conformant producer elsewhere may ship 500 CJK characters at 1,500 bytes and
+    this contract accepts it.
+
+    What enforces the WIRE bound is not this test: it is
+    `serve.doxbench_context_packet`, which refuses an over-long reason in code
+    points before any provider is dispatched (see the route test below). This
+    test is the belt on the constants; that is the braces on the record."""
+    import yaml
+
+    schema = yaml.safe_load(
+        (REPO_ROOT / "contracts" / "schemas"
+         / "xfactory-workbench-chat-turn.schema.yaml").read_text(
+             encoding="utf-8"))
+    bound = schema["$defs"]["context_packet"]["properties"][
+        "reduced_reason"]["maxLength"]
+    reasons = [value for name, value in vars(pk).items()
+               if name.startswith("REDUCED_") and isinstance(value, str)]
+    assert reasons, "the reduction reasons moved; this guard found none"
+    for reason in reasons:
+        assert 0 < len(reason.encode("utf-8")) <= bound, reason[:60]
+
+
+def test_the_construction_gate_and_the_derivation_agree_on_PRESENCE(tmp_path):
+    """THE RELEASE CLAIMS THREE GATES ASSERT ONE RULE, and at the blank string
+    they did not (Copilot review of PR #256, finding 1). The released shape
+    forbids `reduced_reason`'s PRESENCE on a full posture; `ContextPacket` and
+    `serve.doxbench_context_packet` both forbade only a TRUTHY one, so
+    `{full, ""}` sailed through both and the record was emitted with the key
+    silently dropped.
+
+    Pinned here as the agreement it is supposed to be — and pinned in BOTH
+    directions, because the fix must not have been a blanket tightening: the
+    REDUCED arm still refuses a blank (there a blank is unusable, which is the
+    shape's `minLength: 1`) and still accepts a real reason."""
+    scope = ScopeKey(repository="fixture-repo", ref="main",
+                     tile_kind="staged", tile_id="t")
+
+    def _packet(posture, reason):
+        return pk.ContextPacket(
+            purpose=pk.PACKET_PURPOSE_CHAT_TURN, scope=scope, posture=posture,
+            sources=(), issued_at=0.0, expires_at=1.0, reduced_reason=reason)
+
+    class _Duck:
+        def __init__(self, posture, reason):
+            self.posture, self.reduced_reason = posture, reason
+
+    # FULL: the key's presence is the refusal, whatever it holds.
+    for blocked in ("", "a real reason"):
+        with pytest.raises(pk.PacketError):
+            _packet(pk.POSTURE_FULL, blocked)
+        with pytest.raises(pk.PacketError):
+            serve_mod.doxbench_context_packet(_Duck(pk.POSTURE_FULL, blocked))
+    # …and absence is the only thing that passes.
+    assert _packet(pk.POSTURE_FULL, None).posture == pk.POSTURE_FULL
+    assert serve_mod.doxbench_context_packet(
+        _Duck(pk.POSTURE_FULL, None)) == {"posture": "full"}
+
+    # REDUCED: unweakened, and a reason must be a STRING (Codex review of
+    # PR #256). `if not reason:` let any truthy value through and `str()` then
+    # MANUFACTURED a reason from it — `123` became "123", and a bare `object()`
+    # became "<object object at 0x…>", a heap address in a durable record on the
+    # degraded path. Same silent-normalisation class as the presence findings.
+    for blocked in (None, "", 123, ["a", "b"], {"why": "x"}, object()):
+        with pytest.raises(pk.PacketError):
+            _packet(pk.POSTURE_REDUCED, blocked)
+        with pytest.raises(pk.PacketError):
+            serve_mod.doxbench_context_packet(_Duck(pk.POSTURE_REDUCED, blocked))
+    assert serve_mod.doxbench_context_packet(
+        _Duck(pk.POSTURE_REDUCED, "why")) == {
+            "posture": "reduced", "reduced_reason": "why"}
+
+
+def test_the_serve_side_ceiling_is_pinned_to_the_RELEASED_maxLength():
+    """`CONTEXT_REDUCED_REASON_MAX_LENGTH` is a literal in a module that does
+    not parse the schema per turn. This is what makes it authoritative anyway —
+    the same discipline `MAX_ROUTING_TARGETS` got at contract-v1.38: the bound
+    is read out of the RELEASED BYTES here and pinned equal, so the guard and
+    the shape cannot drift into two ceilings."""
+    import yaml
+
+    schema = yaml.safe_load(
+        (REPO_ROOT / "contracts" / "schemas"
+         / "xfactory-workbench-chat-turn.schema.yaml").read_text(
+             encoding="utf-8"))
+    assert serve_mod.CONTEXT_REDUCED_REASON_MAX_LENGTH == schema["$defs"][
+        "context_packet"]["properties"]["reduced_reason"]["maxLength"]
+
+
+def test_an_over_long_reason_refuses_BEFORE_a_provider_is_dispatched(tmp_path):
+    """THE S2 DEFECT, closed and pinned. Before this guard the only thing
+    between an over-long reason and the wire was the route's POST-dispatch
+    self-validation, and the review reproduced the cost: 502 `response_invalid`
+    with `dispatch` already counted — a provider call paid for, and the human's
+    answer produced and then thrown away.
+
+    Refused pre-dispatch now, on the route's existing packet boundary."""
+    over = "x" * (serve_mod.CONTEXT_REDUCED_REASON_MAX_LENGTH + 1)
+    status, payload, port = _post_turn(
+        tmp_path, _turn_v2(),
+        packet_assembler=_lying_packet_assembler(
+            lambda p: object.__setattr__(p, "reduced_reason", over)))
+    assert status == 400
+    assert payload["error"] == serve_mod.DOXBENCH_ERR_INVALID_TURN_REQUEST
+    assert port.calls.count("dispatch") == 0
+
+
+@released_only
+def test_a_long_MULTIBYTE_reason_is_conformant_and_is_SERVED(tmp_path):
+    """THE OTHER HALF OF THE UNIT QUESTION, and the reason the guard counts code
+    points rather than bytes. 500 CJK characters is 1,500 UTF-8 bytes and is
+    CONFORMANT under `maxLength: 500`; a byte-counting guard would have refused
+    a record the released contract accepts, which is a worse defect than the one
+    S2 found. The turn is served and the record carries the reason whole.
+
+    DRIVEN THROUGH THE RELEASED VALIDATORS (adversarial review NEW-4), because
+    otherwise it proves the wrong thing. The fixture schema declares
+    `context_packet: {}` with no value rules, so under it this record would be
+    accepted whatever the released bound said — "conformant" would be a claim
+    about the fixture. Its sibling above needs no such treatment: the
+    producer-side guard fires BEFORE any validator is consulted, so which
+    validator is mounted cannot change that verdict."""
+    cjk = "漢" * serve_mod.CONTEXT_REDUCED_REASON_MAX_LENGTH
+    assert len(cjk.encode("utf-8")) == 1500
+    fake = _port()
+    with _serving(tmp_path, model_port_factory=(lambda: fake),
+                  packet_assembler=_lying_packet_assembler(
+                      lambda p: object.__setattr__(p, "reduced_reason", cjk)),
+                  schema_validator_factory=_UNSET) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        status, payload, _headers, _raw = _request(
+            host, prt, "POST", CHAT_ROUTE, body=_turn_v2(),
+            headers=_console_headers(caps))
+    assert status == 200, payload
+    assert fake.calls.count("dispatch") == 1
+    assert payload["context_packet"]["reduced_reason"] == cjk
+
+
 # ===========================================================================
 # THE LEASH, AT THE ROUTE (task 10.4; adversarial review F1)
 # ===========================================================================
@@ -360,6 +647,60 @@ def test_a_reissued_packet_is_accepted_and_the_turn_proceeds(tmp_path, axis):
     assert status == 200
     assert port.calls.count("dispatch") == 1
     assert assembler.calls["calls"] == 2
+
+
+def _lying_packet_assembler(mutate):
+    """An assembler whose packet CONTRADICTS ITSELF about its own posture.
+
+    `ContextPacket.__post_init__` refuses every one of these at construction,
+    so the mutation is applied AFTER it — through `object.__setattr__`, which
+    a frozen slotted dataclass cannot stop. That is not a contrived attack: the
+    packet assembler is an INJECTED, duck-typed seam
+    (`build_server(packet_assembler=…)`), and a collaborator behind it is under
+    no obligation to be a `ContextPacket` at all. What must hold is that a
+    record never states a posture the packet does not support."""
+    def _assemble(**kwargs):
+        packet = pk.assemble_packet(**kwargs)
+        mutate(packet)
+        return packet
+    return _assemble
+
+
+@pytest.mark.parametrize("mutate, why", [
+    (lambda p: object.__setattr__(p, "reduced_reason", None),
+     "reduced, with its reason removed"),
+    (lambda p: object.__setattr__(p, "posture", pk.POSTURE_FULL),
+     "full, still carrying a reduction reason"),
+    # PRESENCE, NOT TRUTHINESS (Copilot review of PR #256, finding 1). This is
+    # the instance the derivation used to accept: `if reason:` let a BLANK
+    # through, and the record shipped with the key quietly dropped instead of
+    # the turn failing closed. The released shape refuses the key's presence on
+    # a full posture whatever it holds, so this boundary must too.
+    (lambda p: (object.__setattr__(p, "posture", pk.POSTURE_FULL),
+                object.__setattr__(p, "reduced_reason", "")),
+     "full, carrying a BLANK reduction reason"),
+    (lambda p: object.__setattr__(p, "posture", "degraded"),
+     "a posture outside the released vocabulary"),
+    (lambda p: object.__delattr__(p, "posture"),
+     "no posture at all"),
+])
+def test_a_packet_that_lies_about_its_posture_refuses_the_turn(
+        tmp_path, mutate, why):
+    """FAIL-CLOSED, never a guessed posture (contract-v1.40, task 10.7).
+
+    The derivation could have defaulted — `getattr(packet, "posture", "full")`
+    would have made every one of these turns succeed with a record claiming a
+    full context. It refuses instead, on the route's EXISTING packet boundary,
+    so the answer is the same fixed `invalid_turn_request` every other
+    structural packet refusal gives and nothing about the failure is new
+    surface. Nothing is dispatched, because the derivation runs before the
+    provider does."""
+    status, payload, port = _post_turn(
+        tmp_path, _turn_v2(),
+        packet_assembler=_lying_packet_assembler(mutate))
+    assert status == 400, why
+    assert payload["error"] == serve_mod.DOXBENCH_ERR_INVALID_TURN_REQUEST, why
+    assert port.calls.count("dispatch") == 0, why
 
 
 def test_a_rejected_packet_leaks_nothing_into_the_refusal(tmp_path):

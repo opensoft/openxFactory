@@ -131,9 +131,51 @@ from referencing.jsonschema import DRAFT202012
 # `git ls-remote origin refs/tags/contract-v1.38^{}` peels to this commit, and
 # both `verify-commit --commit contract-v1.38` and
 # `verify-tag --remote origin --tag contract-v1.38` pass.
+#
+# Moved v1.38 -> v1.40 by `add-doxbench-editing-phase-b` §10.7. Not
+# digest-neutral, and could not be: the release grows
+# `xfactory-workbench-chat-turn.schema.yaml` itself with the assembled
+# context's POSTURE on `$defs/success_v2`, so the CHAT-TURN digest below is the
+# grown file's and the catalog's is unmoved -- the exact mirror image of the
+# v1.38 repin, and the same shape as the v1.34 one. The repin lands in the same
+# change as the release for the reason it did then: the fail-closed chain is
+# byte-exact, so a runtime pinned to v1.38's chat-turn digest cannot read
+# v1.40's schema at all. That is the check working.
+#
+# THE NUMBER THIS PIN CARRIES IS A RE-CUT, and the sequence matters for anyone
+# reading the provenance later. Checked against the CHANGELOG at the moment of
+# allocation rather than assumed -- the habit the v1.37/v1.38 episode earned:
+# at the branch base (66140613) the CHANGELOG's newest heading and the bundle
+# both read contract-v1.38, so contract-v1.39 was the next available number and
+# this slice ALLOCATED IT.
+#
+# IT THEN LOST IT. While this slice was in review,
+# add-roster-directory-admission-surface landed (PR #259, 5124fbcd, merged at
+# 1f45e427) and allocated contract-v1.39 for the `directory` roster admission
+# surface. CHANGELOG presence ON MAIN is the availability test, so v1.39 is
+# theirs and this pin re-cut to contract-v1.40 -- the v1.37 -> v1.38 shape a
+# second time, and the reason the habit is to recheck at the moment you LAND as
+# well as at the moment you allocate. Unlike that episode the preceding surface
+# is clean: their v1.39 digest inventory shipped complete and
+# `verify-commit --commit 1f45e427` passes against it.
+#
+# (Stated rather than overwritten. A blanket v1.39 -> v1.40 renumber had left
+# this paragraph claiming v1.40 "was available" at the branch base, which was
+# never true; the bot round caught it here after the same defect was corrected
+# in tasks.md, which is why the correction now names the sequence instead of
+# just the number.)
+#
+# THE REF IS THE UNRESOLVED-UNTIL-PUBLISHED SENTINEL across this realization
+# branch, on v1.34's and v1.38's own precedent: the versioning policy allocates
+# the version and builds the digest inventory AT REALIZATION (steps 1-2) and
+# publishes the annotated tag against the commit that actually LANDS (step 5),
+# so until that commit exists there is nothing honest to name. It is spelled as
+# a value no `stack.yaml` can declare, so a consumer comparing against it
+# REFUSES rather than matching by accident. A follow-up commit resolves it, as
+# 58e4aecd did for v1.38 and 7c544c84 for v1.34.
 
-CONTRACT_REF = "0f50b352b2b4a38dc237453bb8f1244e47c8e752"
-CONTRACT_TAG = "contract-v1.38"
+CONTRACT_REF = "unpublished:contract-v1.40"
+CONTRACT_TAG = "contract-v1.40"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
@@ -143,7 +185,7 @@ SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
-        "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
+        "d8ee5624f2136977044971b17fe67fe31b057bbf621e14853069fd082019b254",
 }
 
 # The seven doxBench INSTANCE kinds. The catalog kind is a whole-document schema;

@@ -1878,6 +1878,12 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .doxchat-send:disabled { opacity: .5; cursor: not-allowed; }
 .doxchat-failure { color: var(--blocked); font-size: 12px; }
 .doxchat-failure[hidden] { display: none; }
+/* contract-v1.40 (task 10.7): the assembled context's REDUCED posture, stated
+   under the transcript it describes. `--muted`, not `--blocked`: a reduced
+   packet is a turn that SUCCEEDED under a declared degradation, not a refusal,
+   and colouring it like one would misreport what happened. */
+.doxchat-context { color: var(--muted); font-size: 12px; }
+.doxchat-context[hidden] { display: none; }
 /* T100 P2: screen-reader announcement region (visually hidden, aria-live). */
 .doxchat-announce {
   position: absolute; width: 1px; height: 1px; margin: -1px;

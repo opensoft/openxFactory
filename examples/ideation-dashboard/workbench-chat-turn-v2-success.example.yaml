@@ -5,6 +5,14 @@
 # metadata beside the model that answered. Here the human chose the `auto`
 # ROUTING RULE, so `selected_model.requested_model_id` and `model_id` differ and
 # `routing_rule` says why.
+#
+# AND IT CARRIES NO `context_packet`, DELIBERATELY, since contract-v1.40: this
+# instance is the pre-release record shape, unchanged byte for byte, and its
+# continued validity IS the additive claim. Absence here is NOT a `full`
+# posture — it is a producer that predates v1.40 and states no posture at all.
+# See `workbench-chat-turn-v2-full-context.example.yaml` for a producer that
+# does, and `workbench-chat-turn-v2-reduced-context.example.yaml` for the
+# degraded one.
 {
   "schema_version": 1,
   "kind": "workbench-chat-turn-v2-success",
