@@ -1,0 +1,37 @@
+# expected_failure: dependent-binding-unenumerated
+# expected_failure_detail: unenforceable against bindings no record names
+# requirement: TA-R5
+# VIOLATES TA-R5: a binding recorded against a certificate whose own enumeration
+# does not name it.
+#
+# A binding that exists in one direction only is worse than an unrecorded one,
+# because it looks recorded. The renewal workflow reads the CERTIFICATE's
+# enumeration to compute what it owes, so a binding the certificate does not name
+# is a rebind obligation nothing will ever compute — and the failure mode is
+# silent precisely because nothing was looking.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:neg-unenumerated-shadow
+certificate_ref: cert:core-service-01
+holding_system:
+  system_ref: system:core-report-scheduler
+  inside_family: true
+  statement: >-
+    A scheduler that authenticates to the ledger API with this certificate's key.
+binds:
+  binding_kind: authentication_credential
+  what_statement: Scheduled report retrieval.
+bound_key_reference:
+  key_generation_ref: keygen:core-service-01-g1
+required_assurance: host_attributed_act
+required_obligations: [TA-R5]
+admission:
+  state: admitted
+  decided_at: "2026-08-10T00:00:00Z"
+rebind_status:
+  state: current
+  as_of: "2026-08-10T00:00:00Z"
+discovery:
+  discovered_by: holder_declaration
+  discovered_at: "2026-08-10T00:00:00Z"
+  recorded_before_first_renewal: true

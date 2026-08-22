@@ -1,0 +1,47 @@
+# INVALID (routing-limit): the rule declares an input budget above that of the
+# model it RESOLVES to. The effective turn limit is computed from the SELECTED
+# entry — for a routed turn, the rule — so this shape admits a turn the model
+# that actually answers cannot take.
+#
+# The catalog deliberately also holds a WIDER non-resolved member
+# (`too-wide-spare`, 800000): under rule 5' that member is irrelevant, and the
+# refusal below names `too-wide-hosted` — the resolution — rather than a
+# minimum. The mirror-image POSITIVE
+# (`workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member`) is
+# what proves the difference.
+{
+  "schema_version": 1,
+  "kind": "workbench-model-catalog",
+  "models": [
+    {
+      "model_id": "auto-too-wide",
+      "label": "Automatic (routes by role)",
+      "provider_class": "routing-rule",
+      "available": true,
+      "input_limit_bytes": 800000,
+      "output_limit_bytes": 8192,
+      "data_handling": "Routes by role. / Zero retention; content leaves the tenant boundary for inference only. / Processed in the approved tenant boundary; no retention.",
+      "routing_rule": true,
+      "routes_to": ["too-wide-hosted", "too-wide-spare"],
+      "resolved_model_id": "too-wide-hosted"
+    },
+    {
+      "model_id": "too-wide-hosted",
+      "label": "Hosted zero-retention model (the resolution)",
+      "provider_class": "hosted-zero-retention",
+      "available": true,
+      "input_limit_bytes": 2048,
+      "output_limit_bytes": 8192,
+      "data_handling": "Zero retention; content leaves the tenant boundary for inference only."
+    },
+    {
+      "model_id": "too-wide-spare",
+      "label": "Approved authoring model (routable, not resolved)",
+      "provider_class": "on-tenant",
+      "available": true,
+      "input_limit_bytes": 800000,
+      "output_limit_bytes": 900000,
+      "data_handling": "Processed in the approved tenant boundary; no retention."
+    }
+  ]
+}

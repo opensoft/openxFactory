@@ -5,8 +5,14 @@
 // and the view in doxbench-chat.js).
 //
 // Every function returns NEW frozen values and never mutates its input.
-// Bounds measure exact UTF-8 BYTES (never code points), mirroring
-// doxbench-state.js's utf8Size and the feature's content-identity rule.
+// The TEXT bounds — subject, message, transcript — measure exact UTF-8 BYTES
+// (never code points), mirroring doxbench-state.js's utf8Size and the feature's
+// content-identity rule. ONE bound does not, and the exception is deliberate
+// (fresh-eyes review F3, which caught this sentence claiming all of them do):
+// CONTEXT_REDUCED_REASON_MAX_LENGTH counts CODE POINTS, because it mirrors the
+// released schema's `maxLength` rather than a content identity, and JSON Schema
+// counts `maxLength` in code points. Counting that one in bytes would refuse
+// records the released contract accepts.
 // Wire spellings follow the RELEASED contract-v1.27 chat-turn schema:
 // transcript turns are `{role, content}` — the server-side dataclass's
 // `.text` is an internal name, not the wire — and an empty catalog `models`
@@ -48,8 +54,36 @@ function next(stateValue, patch) {
   return Object.freeze({ ...stateValue, ...patch });
 }
 
-export function createChatState(keyValue) {
-  return Object.freeze({
+// THE WORKING SUBJECT'S DEFAULT (promoted requirement "Browser-local doxBench
+// conversation": "The working subject SHALL default from the tile's title or
+// summary, remain editable"). It was unrealized -- this function seeded an empty
+// subject and nothing ever filled it, which is what Brett's 2026-08-21
+// annotation measured from the surface ("what is the box used for?") and what
+// add-doxbench-editing-phase-b's Amendment 2 recorded as a realization gap.
+//
+// WHICH HALF OF "title or summary". The tile record carries a title and no
+// summary: the workbench scope resolves ONE display title per tile kind
+// (a cluster's `name`, a possible's `title`, a staged topic's `staging_id`) and
+// the snapshot family declares no field NAMED summary on any of the three (the
+// nearest summary-shaped field, `possible.claim`, is deliberately not used --
+// the title is the one field all three kinds share, and a disjunction is
+// satisfied by either half). So the caller hands down that one
+// already-resolved title, and no second derivation and no unreachable summary
+// branch is invented here.
+//
+// THE SEED OBEYS THE HUMAN EDIT'S OWN RULE, by going through it: `editSubject`
+// refuses a non-string or over-512-byte value by returning the state unchanged,
+// so an over-long title seeds NOTHING and the field stays empty (the placeholder
+// then says what it is). A bounded PREFIX was considered and rejected: this
+// module truncates nothing, and a clipped title is text the human never typed.
+// Empty is always sendable, so the refused seed can never leave Send refusing a
+// value nobody entered.
+//
+// A STORED VALUE ALWAYS WINS. `restoreChatState` runs after this one, on the
+// same fresh state, and adopts the persisted subject over the seed -- see the
+// note there for what an empty stored subject means.
+export function createChatState(keyValue, subjectDefaultValue) {
+  const fresh = Object.freeze({
     version: DOXBENCH_CHAT_STATE_VERSION,
     kind: DOXBENCH_CHAT_STATE_KIND,
     key: frozenKey(keyValue),
@@ -68,8 +102,25 @@ export function createChatState(keyValue) {
     pendingMessage: null,    // the composer content captured at beginTurn
     transcript: Object.freeze([]),
     lastFailure: null,
-    proposals: Object.freeze({ outline: null, document: null }),
+    proposals: NO_PROPOSALS,
+    // WHAT THE LAST ANSWER RAN ON (contract-v1.40, task 10.7). The released
+    // record now STATES the posture its context packet was assembled under, and
+    // this is where that statement lands so the rail can show it. Null means
+    // "no answer to describe, or an answer that stated no posture" — a fresh
+    // conversation, a thread just switched to, or a record from a producer
+    // older than contract-v1.40 — and is NOT a claim that the context was full.
+    // It describes THE TRANSCRIPT'S LAST ASSISTANT ANSWER and changes exactly
+    // when that answer does; see `beginTurn` for why a flight STARTING is not
+    // one of those moments (adversarial review S4).
+    // Deliberately a fact about the MOST RECENT ANSWER rather than a per-turn
+    // annotation on the transcript: a transcript restored from the server's
+    // thread sidecar carries no posture (the sidecar's turn header is a
+    // fixed-arity format this release does not change), so per-turn badges
+    // would be present on a lived-through turn and absent on the identical
+    // restored one — a difference the reader would have to explain away.
+    contextPacket: null,
   });
+  return editSubject(fresh, subjectDefaultValue);
 }
 
 // T104 F5-7's shared question: does this catalog vouch for `candidate` as a
@@ -185,6 +236,31 @@ export function beginTurn(stateValue) {
   if (stateValue.phase !== "idle") {
     return stateValue;
   }
+  // THE POSTURE NOTE IS NOT CLEARED HERE, and an earlier version of this
+  // release cleared it here — which its adversarial review (S4) broke in one
+  // move: a reduced answer followed by a FAILED follow-up left the reduced
+  // answer holding the transcript with its disclosure GONE. That is precisely
+  // the lost-badge defect this release cited when it rejected per-turn badges,
+  // reappearing at rail level.
+  //
+  // THE INVARIANT IS SIMPLER THAN THE CLEAR WAS: the note describes THE
+  // TRANSCRIPT'S LAST ASSISTANT ANSWER. So it changes exactly when that answer
+  // does, and every path that replaces the answer already replaces the posture
+  // beside it. There are FOUR of them, and the fourth was missing from this
+  // list until the adversarial review found it (NEW-1): `settleTurnSuccess`
+  // adopts the new record's (null included, for a producer older than
+  // contract-v1.40), `adoptThreadTranscript` clears it with the transcript it
+  // replaces, `rekeyChatState` starts fresh, and `restoreChatState` adopts the
+  // SNAPSHOT's — which is why the snapshot now carries one. A flight STARTING
+  // replaces no answer, so it changes nothing: while a turn is in the air the
+  // note still describes the answer still on screen, which is true.
+  //
+  // The alternative the review offered — restore the posture in
+  // `settleTurnFailure` — was REJECTED: `beginTurn` would have to stash the
+  // value for `settleTurnFailure` to hand back, and `abortTurn` and
+  // `recordLocalFailure` would each need the same restore, so ONE invariant
+  // would be re-implemented at three sites instead of not being violated at
+  // one.
   return next(stateValue, {
     phase: "in_flight",
     pendingMessage: stateValue.composer,
@@ -256,6 +332,102 @@ export function transcriptWireWindow(stateValue) {
   return Object.freeze(window);
 }
 
+// The released `context_packet.reduced_reason` ceiling, restated here because
+// this module cannot read the schema — the same discipline
+// `serve.CONTEXT_REDUCED_REASON_MAX_LENGTH` gets, and a test pins BOTH to the
+// released `maxLength` so the three cannot drift into three ceilings. CODE
+// POINTS, matching what JSON Schema counts and what the server enforces.
+export const CONTEXT_REDUCED_REASON_MAX_LENGTH = 500;
+
+// Did the answer a stored posture BELONGS TO survive the restore? The posture
+// describes the transcript's last assistant answer, and `restoreChatState`
+// drops malformed rows WHOLE — so the question is about the SNAPSHOT's own
+// terminal row, not about whatever the filter happened to leave at the tail.
+// Same well-formedness test the transcript filter uses, so the two cannot
+// disagree about what "survived" means.
+function storedTerminalAnswerSurvived(snapshotValue) {
+  const rows = snapshotValue && Array.isArray(snapshotValue.transcript)
+    ? snapshotValue.transcript : [];
+  const last = rows.length ? rows[rows.length - 1] : null;
+  return Boolean(last) && last.role === "assistant"
+    && typeof last.content === "string";
+}
+
+// THE RELEASED `context_packet` OBJECT, adopted from a success record
+// (contract-v1.40, task 10.7). Total by refusal, in the shape every other
+// adopter in this module uses: anything that is not the released two-field
+// statement becomes null, and null renders nothing.
+//
+// FAIL-CLOSED ON A CONTRADICTION, not fail-open. The released schema refuses a
+// `reduced` with no reason and a `full` WITH one, so a payload carrying either
+// did not come from a conformant producer — and the wrong answer would be to
+// keep the half of it that looked usable. `reduced` with no readable reason is
+// exactly the "silent degradation" the requirement exists to prevent, and
+// showing the bare words "reduced context" with no reason would be that
+// degradation wearing a badge. Both drop to null.
+function adoptContextPacket(carrier) {
+  // ONE validator for BOTH readers, because they carry the SAME object: a
+  // success record's `context_packet` and the persisted snapshot's. Naming the
+  // stored field `context_packet` (and not a camelCase sibling) is deliberate —
+  // the released object shape travels whole, so no third spelling of the
+  // posture exists, and a malformed stored blob fails closed on the same
+  // PAIRING rule a malformed wire record does.
+  //
+  // "THE SAME RULE" IS NOT "THE SAME VERDICT", and the difference is worth
+  // naming (adversarial review). This adopter NORMALIZES: it reads the two
+  // fields it knows and returns a fresh two-key object, so an extra key on a
+  // stored blob is silently dropped and the posture still adopts. The released
+  // shape is CLOSED and REFUSES that instance outright. Both are right for
+  // where they sit — a wire contract must refuse what it did not admit, and a
+  // browser-local blob that gained a key from a future build should still
+  // render the posture it does carry rather than going blank — but they are
+  // different verdicts, and only the pairing and the posture vocabulary are
+  // enforced identically on both sides.
+  const raw = carrier && carrier.context_packet;
+  if (!raw || typeof raw !== "object") return null;
+  const posture = raw.posture;
+  const reason = raw.reduced_reason;
+  // TWO DIFFERENT QUESTIONS, because the released shape asks two (Copilot
+  // review of PR #256, finding 2).
+  //
+  // `full` refuses the field for BEING THERE — `not: {required:
+  // [reduced_reason]}` is about the KEY, so presence is own-key presence and a
+  // value of `""` or `null` is still a key that is present. This read
+  // `hasReason` for both arms, so `{posture: "full", reduced_reason: ""}`
+  // adopted as a clean full posture though the shape refuses that instance
+  // outright.
+  //
+  // `reduced` refuses the field for being UNUSABLE — the shape requires it AND
+  // bounds it at `minLength: 1`, so a blank or null reason is refused there for
+  // a different reason and by a different test. Do not collapse these.
+  const reasonPresent = Object.prototype.hasOwnProperty.call(
+    raw, "reduced_reason");
+  // …AND WITHIN THE RELEASED CEILING (Codex review of PR #256). "Usable" used
+  // to mean "a non-empty string", so a malformed transport's oversized reason
+  // — the dispatcher validates only `ok` and `kind` — reached browser state,
+  // the live region, and from there the persisted snapshot. The server refuses
+  // an over-ceiling reason pre-dispatch; this is the same rule on the reading
+  // side, for the payloads the server did not author.
+  // COUNTED IN CODE POINTS, because that is what `maxLength` counts (Codex
+  // review of PR #256). `String.length` is UTF-16 code UNITS: a conformant
+  // 300-emoji reason has 300 code points and a `.length` of 600, so the first
+  // version of this ceiling DISCARDED a record the released contract accepts
+  // and hid the very disclosure the release exists to show. `[...reason]`
+  // iterates code points. Exactly the mistake this release argued against on
+  // the server side — where a byte-counting guard would have refused a
+  // conformant 1,500-byte CJK reason — arriving on the browser side in the
+  // other unit.
+  const reasonUsable = typeof reason === "string" && reason !== ""
+    && [...reason].length <= CONTEXT_REDUCED_REASON_MAX_LENGTH;
+  if (posture === "full") {
+    return reasonPresent ? null : Object.freeze({ posture: "full" });
+  }
+  if (posture === "reduced" && reasonUsable) {
+    return Object.freeze({ posture: "reduced", reduced_reason: reason });
+  }
+  return null;
+}
+
 export function settleTurnSuccess(stateValue, successPayload) {
   if (stateValue.phase !== "in_flight") {
     return stateValue;
@@ -269,7 +441,13 @@ export function settleTurnSuccess(stateValue, successPayload) {
       ? "" : stateValue.composer,
     pendingMessage: null,
     lastFailure: null,
-    proposals: adoptProposals(successPayload.proposals),
+    proposals: adoptProposals(successPayload),
+    // THE RELEASED POSTURE, ADOPTED (contract-v1.40, task 10.7). Read from the
+    // record and never re-derived here: the server assembled the packet, so the
+    // browser has no second way to know. A record from a producer older than
+    // v1.40 carries no `context_packet` at all, which adopts as null — silence,
+    // not a claim that the context was full.
+    contextPacket: adoptContextPacket(successPayload),
     transcript: boundedAppend(
       stateValue.transcript,
       stateValue.pendingMessage === null ? "" : stateValue.pendingMessage,
@@ -314,14 +492,83 @@ export function transcriptWindow(stateValue) {
   return stateValue.transcript;
 }
 
-export function rekeyChatState(stateValue, keyValue) {
+// add-doxbench-editing-phase-b task 7.2: SELECTING A DOCUMENT SWITCHES THE
+// TRANSCRIPT TO THAT DOCUMENT'S THREAD.
+//
+// The thread is the SERVER's record — one sidecar per document, on the session
+// branch — so this function does not invent one: it adopts the turns the thread
+// route answered with, and adopts an EMPTY transcript where that document has
+// no thread yet. An empty transcript is the honest answer for a document nobody
+// has talked about, and leaving the previous document's conversation on screen
+// was the real defect: the next turn's wire transcript would then carry ANOTHER
+// document's conversation as this one's context.
+//
+// NO SECOND STATE AUTHORITY. This replaces `transcript` and nothing else
+// decides what it holds; the same display bounds apply, through the same
+// `boundedAppend`-shaped eviction the wire window re-checks. `proposals` and
+// `lastFailure` are cleared because both are facts about the PREVIOUS
+// document's turn, and a proposal targeting a buffer the human is no longer
+// looking at is exactly the stale Apply control the currency rules exist to
+// prevent.
+export function adoptThreadTranscript(stateValue, turnsValue) {
+  // A TURN IN FLIGHT BELONGS TO THE DOCUMENT IT WAS SENT FOR (adversarial
+  // review P2-9). Switching while `phase === "in_flight"` used to swap the
+  // transcript under the running turn, and `settleTurnSuccess` then appended
+  // document A's question and answer onto document B's transcript — which is
+  // also B's WIRE transcript, so A's conversation became B's context on B's
+  // next turn, and A's proposal was restored under B with a live Apply
+  // control. Reproduced from the UI with no server race.
+  //
+  // REFUSED, by returning the identical state object — the same "no" every
+  // other refusal in this module gives (`beginTurn` on a second begin,
+  // `rekeyChatState` on an unchanged key). The rail's caller renders the
+  // selector back to the buffer the conversation is still bound to, so the
+  // selection and the transcript cannot disagree.
+  if (stateValue.phase === "in_flight") {
+    return stateValue;
+  }
+  const rows = Array.isArray(turnsValue) ? turnsValue : [];
+  let transcript = Object.freeze(rows.flatMap((turn) => {
+    if (!turn || typeof turn !== "object") return [];
+    return [
+      Object.freeze({ role: "human", content: String(turn.human || "") }),
+      Object.freeze({ role: "assistant", content: String(turn.assistant || "") }),
+    ];
+  }));
+  // A thread can be longer than the DISPLAY bounds: it is a durable record and
+  // they are a window. Evict oldest whole pairs, exactly as an appended turn
+  // would be evicted, so a restored thread and a lived-through conversation
+  // render under one rule.
+  while (transcript.length > 2
+         && (transcript.length > MAX_TRANSCRIPT_TURNS
+             || transcriptBytes(transcript) > MAX_TRANSCRIPT_BYTES)) {
+    transcript = Object.freeze(transcript.slice(2));
+  }
+  return next(stateValue, {
+    transcript,
+    proposals: NO_PROPOSALS,
+    lastFailure: null,
+    // …and the posture goes with them, for the same reason: it is a fact about
+    // the PREVIOUS document's last answer, and the restored thread carries no
+    // posture of its own (the server's sidecar does not record one). Leaving it
+    // would caption this document's conversation with another's context.
+    contextPacket: null,
+  });
+}
+
+export function rekeyChatState(stateValue, keyValue, subjectDefaultValue) {
   // FR-011/R12 browser-session isolation: a different scope key gets a
   // FRESH state (no transcript, composer, selection, or failure carryover);
   // the same key keeps the state untouched.
+  //
+  // A fresh conversation is a fresh conversation, so it is SEEDED like a mount:
+  // the default is threaded through rather than dropped, which is why a Save
+  // moving this tile onto its session ref comes back with the tile's subject
+  // instead of an empty box.
   if (sameKey(stateValue.key, keyValue)) {
     return stateValue;
   }
-  return createChatState(keyValue);
+  return createChatState(keyValue, subjectDefaultValue);
 }
 
 // ---------------------------------------------------------------------------
@@ -339,8 +586,42 @@ export function rekeyChatState(stateValue, keyValue) {
 
 export const PROPOSAL_STATUSES = Object.freeze([
   "current", "stale", "rejected", "applied"]);
-const PROPOSAL_TARGETS = Object.freeze(["outline", "document"]);
-const NO_PROPOSALS = Object.freeze({ outline: null, document: null });
+
+// THE TARGET SET IS THE RECORD'S OWN (contract-v1.34, add-doxbench-editing-phase-b
+// §13). It used to be a module constant of two names, because the v1 wire declared
+// `typed_proposal.target` as a two-value enum and no other target could reach this
+// module. The widened family releases a BUFFER-KEY target, so the closed set is
+// the one the turn itself states: `observed_hashes` is keyed by buffer and holds
+// exactly the buffers the request supplied and the model was therefore shown.
+//
+// Reading it from the RECORD rather than from a constant is the same rule the
+// server derives its own permitted set by, and it makes "a target the request did
+// not supply" and "a target whose shown identity we do not hold" one question. A
+// target outside it is DROPPED rather than recorded, which is the delta's own rule
+// ("refused as unroutable and MUST NOT be rendered with an Apply control"). Both
+// families answer it: a v1 record carries the same object under the two reserved
+// keys.
+function permittedTargetsOf(successPayload) {
+  const observed = successPayload && successPayload.observed_hashes;
+  if (!observed || typeof observed !== "object") return [];
+  return Object.keys(observed);
+}
+
+// The DECLARED order proposals are read and rendered in: the reserved outline
+// first -- it is the buffer every turn carries -- then the documents in the rule
+// every home spells identically:
+//   ascending lexicographic by buffer key (UTF-16 code unit)
+// Same order the selector and the save plan use, and the same rule STRING, which
+// is what a companion test pins across the homes. A card list whose order
+// depended on object insertion would reshuffle under the cursor.
+export function orderedProposalTargets(records) {
+  const keys = Object.keys(records || {}).filter((key) => records[key]);
+  const documents = keys.filter((key) => key !== "outline").sort(
+    (left, right) => (left < right ? -1 : left > right ? 1 : 0));
+  return keys.includes("outline") ? ["outline", ...documents] : documents;
+}
+
+const NO_PROPOSALS = Object.freeze({});
 
 function proposalRecord(raw, statusValue) {
   return Object.freeze({
@@ -352,10 +633,11 @@ function proposalRecord(raw, statusValue) {
   });
 }
 
-function adoptProposals(payloadProposals) {
-  const records = { outline: null, document: null };
-  for (const raw of payloadProposals || []) {
-    if (PROPOSAL_TARGETS.includes(raw && raw.target)) {
+function adoptProposals(successPayload) {
+  const permitted = permittedTargetsOf(successPayload);
+  const records = {};
+  for (const raw of (successPayload && successPayload.proposals) || []) {
+    if (raw && permitted.includes(raw.target)) {
       records[raw.target] = proposalRecord(raw, "current");
     }
   }
@@ -368,9 +650,9 @@ export function proposalsOf(stateValue) {
 
 export function refreshProposalCurrency(stateValue, currentHashes) {
   const before = proposalsOf(stateValue);
-  const records = { outline: before.outline, document: before.document };
+  const records = { ...before };
   let changed = false;
-  for (const target of PROPOSAL_TARGETS) {
+  for (const target of Object.keys(records)) {
     const record = records[target];
     if (!record) continue;
     if (record.status === "applied" || record.status === "rejected") continue;
@@ -450,12 +732,32 @@ export function chatSnapshot(stateValue) {
   return {
     schema_version: CHAT_SNAPSHOT_VERSION,
     kind: CHAT_SNAPSHOT_KIND,
+    // WHAT THE RESTORED ANSWER RAN ON (contract-v1.40; adversarial review
+    // NEW-2). The transcript survives a tile being closed and reopened, so its
+    // disclosure has to survive with it — a restored reduced answer with no
+    // note is the same lost-badge defect S4 found on the failure path, one
+    // lifecycle up. Omitted entirely when there is nothing to say, so a
+    // conversation with no posture writes the same blob it always did.
+    //
+    // NO VERSION BUMP, and that is a judgement call with a cost on the other
+    // side. `restoreChatState` fail-closes on an unrecognized `schema_version`
+    // and keeps the FRESH state, so bumping would discard every snapshot in
+    // existence on the first reopen after the upgrade — the operator's
+    // composer text, subject, model choice and proposals, to add a caption.
+    // An OPTIONAL field invalidates nothing instead: an old blob lacks the key
+    // and restores to posture-unknown, which renders no note and is exactly
+    // today's behaviour; a NEW blob read by an OLDER build is ignored, because
+    // this restore reads named fields and never enumerates. Both directions
+    // safe, nothing discarded — the same additive reasoning the released wire
+    // contracts use when they grow without moving `contract_schema_version`.
+    ...(stateValue.contextPacket
+      ? { context_packet: stateValue.contextPacket } : {}),
     workingSubject: stateValue.workingSubject,
     selectedModelId: stateValue.selectedModelId,
     composer: stateValue.composer,
     transcript: transcriptWindow(stateValue).map(
       (turn) => ({ role: turn.role, content: turn.content })),
-    proposals: PROPOSAL_TARGETS.map((target) => records[target])
+    proposals: orderedProposalTargets(records).map((target) => records[target])
       .filter(Boolean)
       .map((record) => ({
         target: record.target, base_hash: record.base_hash,
@@ -471,10 +773,14 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
       || snapshotValue.kind !== CHAT_SNAPSHOT_KIND) {
     return stateValue;   // unknown shape: keep the fresh state, fail closed
   }
-  const records = { outline: null, document: null };
+  const records = {};
   for (const raw of Array.isArray(snapshotValue.proposals)
       ? snapshotValue.proposals : []) {
-    if (!PROPOSAL_TARGETS.includes(raw && raw.target)) continue;
+    // Any buffer KEY may have been a target (contract-v1.34); a restored record
+    // whose buffer is no longer loaded re-scores to `stale` below, because
+    // `refreshProposalCurrency` holds no current hash for it. Fail-closed by the
+    // same rule that scores every other restored proposal, not by a second one.
+    if (!raw || typeof raw.target !== "string" || !raw.target) continue;
     // TERMINAL statuses survive verbatim (an applied proposal stays applied);
     // everything else is re-scored below against the restored bytes.
     const status = (raw.status === "applied" || raw.status === "rejected")
@@ -504,6 +810,23 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
     // restored field is dropped WHOLE, to the empty string, never trimmed
     // to fit; otherwise a hand-edited or future-versioned snapshot could
     // seed the state with text the bounds refuse to ever send.
+    //
+    // AN EMPTY STORED SUBJECT STANDS — it is NOT re-seeded from the tile
+    // default `createChatState` just applied. The snapshot spells the subject
+    // as a plain string with no absent/null marker, so the stored form cannot
+    // tell an emptied box apart from one nothing was ever put into, by the
+    // field alone; of the two readings the human's is the one worth being
+    // wrong about, because putting the title back over an emptied box
+    // overrules a person, while leaving an unfilled box empty costs one
+    // keystroke. (Going forward the ambiguity barely exists: a fresh state is
+    // seeded, so an empty stored subject can only come of a human emptying it
+    // or of a tile whose title seeds nothing — where re-seeding would land on
+    // the same empty box anyway. The one real gap is a record written by a
+    // build predating the seeding, and the shell's per-tab session store
+    // cannot carry one past the browser session it was written in.) An
+    // over-bound stored subject lands on the same empty box rather than on the
+    // default, by the rule above: a stored record answers for this
+    // conversation, corrupt field included.
     workingSubject: typeof snapshotValue.workingSubject === "string"
       && utf8Size(snapshotValue.workingSubject) <= MAX_WORKING_SUBJECT_BYTES
       ? snapshotValue.workingSubject : "",
@@ -528,6 +851,50 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
       ? snapshotValue.composer : "",
     transcript,
     proposals: Object.freeze(records),
+    // THE FOURTH ANSWER-REPLACING PATH (adversarial review NEW-1). This
+    // replaces the transcript WHOLESALE, so it replaces the answer the note
+    // describes — and it used to leave `contextPacket` untouched, which the
+    // reviewer reproduced: a restored answer captioned by a note that never
+    // described it. Reachability was nil (the sole caller restores onto a
+    // freshly mounted rail, where it is already null) and the SENTENCE was
+    // false, which is what mattered: three places claimed the enumeration was
+    // complete at three paths.
+    //
+    // It adopts the SNAPSHOT's posture rather than nulling, which is NEW-2's
+    // half: a blob that carries one restores the disclosure with the answer, a
+    // blob that does not restores to silence. Both go through the same
+    // `adoptContextPacket` a wire record does, so a hand-edited or
+    // future-versioned blob claiming `reduced` with no readable reason fails
+    // closed to null instead of captioning the transcript with a reduction
+    // nobody can check.
+    //
+    // …AND ONLY IF THE ANSWER IT DESCRIBES SURVIVED THE RESTORE (Codex review
+    // of PR #256). The posture describes THE TRANSCRIPT'S LAST ASSISTANT
+    // ANSWER, and this restore drops malformed turns WHOLE (P3-6(a)/(b) above),
+    // so the answer the stored posture belonged to may simply not be here.
+    // Three reproduced cases: an empty transcript with a valid packet rendered
+    // a reduction note for no answer at all; a blob whose assistant turn was
+    // filtered did the same; and dropping only the NEWEST assistant turn
+    // captioned the OLDER answer with the newer one's posture — the
+    // wrong-answer caption this invariant exists to prevent, arriving by a
+    // third route after S4 and NEW-1.
+    //
+    // The test is THE SNAPSHOT'S OWN TERMINAL TURN, not the filtered tail —
+    // corrected after Codex broke the first version of this guard on exactly
+    // the case its shape could not see. Checking only the filtered transcript
+    // cannot tell the original terminal answer from an EARLIER retained one:
+    // `[human, assistant "older", assistant(malformed)]` filters down to a tail
+    // that IS an assistant turn, so the guard passed and captioned the older
+    // answer with the newer answer's posture — the very defect it was added to
+    // prevent, one layer in.
+    //
+    // So adoption asks whether the answer the posture BELONGS TO survived: the
+    // snapshot's own last transcript row must be a well-formed assistant turn.
+    // If it was dropped, or if the conversation ended on a human turn (a tile
+    // closed mid-question), there is no answer on screen for the posture to
+    // describe and it goes.
+    contextPacket: storedTerminalAnswerSurvived(snapshotValue)
+      ? adoptContextPacket(snapshotValue) : null,
   });
   // The re-score is the whole point of restoring these together.
   return currentHashes ? refreshProposalCurrency(restored, currentHashes)

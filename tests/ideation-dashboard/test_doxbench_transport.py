@@ -160,17 +160,26 @@ def test_app_js_defines_a_module_scope_source_loader_factory():
 
 
 def test_app_js_carries_exactly_the_four_named_fetch_call_sites():
-    """PIN EVOLUTION (T023 wire clause): the cap rises from 2 to 4, one per
-    NAMED call site, and each is asserted individually -- the cap is a budget
-    on transports, so raising it without naming what filled it would make it
-    meaningless. The four: the pre-existing snapshot fetch, the source-loading
-    pass-through, and the two transports this wave adds (GET the released model
-    catalog, POST a chat turn)."""
+    """PIN EVOLUTION (T023 wire clause, then add-doxbench-editing-phase-b §9.5):
+    the cap rose from 2 to 4, and now to 5, one per NAMED call site, each
+    asserted individually -- the cap is a budget on transports, so raising it
+    without naming what filled it would make it meaningless. The five: the
+    pre-existing snapshot fetch, the source-loading pass-through, the two
+    transports the T023 wave added (GET the released model catalog, POST a chat
+    turn), and the THREAD READ this slice adds.
+
+    The thread seam is a GET and only a GET: a thread is written by a TURN,
+    through the Save gate, so a write call site here would be a second write
+    route to the record."""
     app = APP_JS.read_text(encoding="utf-8")
     fetches = re.findall(r"fetch\(([^)]*)", app)
-    assert len(fetches) == 4, (
-        f"app.js must carry exactly four fetch( call sites (snapshot, source "
-        f"pass-through, model-catalog GET, chat-turn POST), found: {fetches}"
+    assert len(fetches) == 5, (
+        f"app.js must carry exactly five fetch( call sites (snapshot, source "
+        f"pass-through, model-catalog GET, chat-turn POST, thread GET), "
+        f"found: {fetches}"
+    )
+    assert sum("threadUrl" in a for a in fetches) == 1, (
+        "exactly one call site may GET a document's thread"
     )
     assert any("snapshotUrl" in a or "snapshot" in a.lower() for a in fetches), (
         "the pre-existing snapshot fetch must still be present"
@@ -218,9 +227,28 @@ def test_the_two_routes_are_module_constants_not_inline_literals():
     app = APP_JS.read_text(encoding="utf-8")
     assert f'const CATALOG_ROUTE = "{CATALOG_ROUTE}";' in app
     assert f'const CHAT_TURN_ROUTE = "{CHAT_TURN_ROUTE}";' in app
+    # add-doxbench-editing-phase-b §9.5: the thread READ route joins them under
+    # the same rule.
+    assert 'const THREAD_ROUTE = "/workbench/thread";' in app
     # Each route path appears exactly ONCE in the file: in its own constant.
     assert app.count(CATALOG_ROUTE) == 1
     assert app.count(CHAT_TURN_ROUTE) == 1
+    assert app.count("/workbench/thread") == 1
+
+
+def test_the_thread_transport_names_no_field_of_the_query_it_carries():
+    """A TRANSPORT MOVES BYTES, and this one is handed an already-built
+    parameter object for the same reason the turn submitter is handed an
+    already-built envelope: a transport that spelled the scope's own field names
+    would have grown into the thing that decides what a request says."""
+    app = APP_JS.read_text(encoding="utf-8")
+    body = app.split("export function createDoxBenchThreadLoader(", 1)[1] \
+              .split("\nexport function ", 1)[0]
+    for forbidden in ("tile_kind", "tile_id", "repository", "schema_version"):
+        assert forbidden not in body, forbidden
+    assert "method:" not in body, (
+        "the thread seam is a GET and only a GET: a thread is written by a "
+        "turn, through the Save gate")
 
 
 def test_the_transports_are_bundled_on_the_doxbench_seam_and_nothing_else():

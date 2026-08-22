@@ -1,0 +1,33 @@
+# VALID widened success (contract-v1.40): the DEGRADED POSTURE, on the wire.
+# The staged-set knowledge service was unavailable, so the turn ran on the
+# declared reduced packet — the selected thread and the loaded buffers, no
+# corpus evidence — and it SUCCEEDED, which is the ratified requirement's "MUST
+# NOT ... make the editors unusable" half. What contract-v1.40 adds is the other
+# half: the posture is STATED where a reader and a human can consult it, and the
+# reason says in as many words that nothing unbounded was substituted and no rail
+# was bypassed. The reason is carried VERBATIM from the packet, never
+# re-derived, and this instance's is the shipped
+# `doxbench_packet.REDUCED_NO_KNOWLEDGE_SERVICE` text.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-v2-success",
+  "client_turn_id": "turn-v2-0003",
+  "assistant_turn_id": "srv-v2-0003",
+  "model_id": "local-authoring-1",
+  "selected_model": {
+    "requested_model_id": "local-authoring-1",
+    "routing_rule": false,
+    "data_handling": "Local process only; no content leaves this machine."
+  },
+  "context_packet": {
+    "posture": "reduced",
+    "reduced_reason": "the staged-set knowledge service is unavailable, so this packet carries the selected thread and the loaded buffers only, with NO corpus evidence; no unbounded context was substituted and no rail was bypassed to reach a provider"
+  },
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "observed_hashes": {
+    "outline": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+    "ideation/staging/demo-topic/note.md": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825"
+  },
+  "assistant_prose": "Working from the note and the outline alone this turn: the staged-set index was not reachable, so nothing from the wider corpus is behind this answer.",
+  "proposals": []
+}

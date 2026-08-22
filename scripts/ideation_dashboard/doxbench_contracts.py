@@ -30,11 +30,14 @@ fail-closed chain, they run per request in both modes, and they are anchored to
 this module's own literals rather than to anything the checkout claims about
 itself — which is what makes publisher mode safe rather than merely convenient.
 
-The chat-turn FILE holds three closed envelopes under a `oneOf`, discriminated by
-`kind`. Consumers dispatch on the INSTANCE kind, so the per-kind mapping resolves
-each envelope individually through a `$ref` into that file — the same
-registry-backed pattern the openxFactory validator uses for the possibles-register
-kernel section.
+The chat-turn FILE holds six closed envelopes under a `oneOf`, discriminated by
+`kind`: the three v1 envelopes and the three co-resident widened ones
+contract-v1.34 added beside them (`add-doxbench-editing-phase-b` design D15).
+Consumers dispatch on the INSTANCE kind, so the per-kind mapping resolves each
+envelope individually through a `$ref` into that file — the same registry-backed
+pattern the openxFactory validator uses for the possibles-register kernel
+section, and the reason a second family costs this module a mapping entry rather
+than a branch.
 """
 
 from __future__ import annotations
@@ -74,9 +77,113 @@ from referencing.jsonschema import DRAFT202012
 # That divergence is not drift: codexFactory hosted this runtime until
 # `adopt-neutral-tooling-home` and is now merely another consumer, so the two
 # pins move independently. A future reader comparing them should stop here.
+#
+# Moved v1.31 -> v1.34 by `add-doxbench-editing-phase-b` §13. This repin is NOT
+# digest-neutral, and could not be: the release widens
+# `xfactory-workbench-chat-turn.schema.yaml` itself, so the chat-turn digest
+# below is the widened file's and the catalog's is unmoved. The repin lands in
+# the same change as the release because the fail-closed chain is byte-exact —
+# a runtime pinned to v1.31's digest cannot read v1.34's schema at all, which is
+# the check working, not a reason to relax it.
+#
+# THE REF WAS RESOLVED at contract-v1.34: it was published (annotated tag object
+# 439d76b88044edbb22ccf677d57e76dd8a6da350) and the pin named the commit it
+# dereferences to, exactly as the v1.31 pin named its own. It carried the
+# `unpublished:contract-v1.34` sentinel across the realization branch, because
+# the versioning policy allocates the version and builds the digest inventory AT
+# REALIZATION (steps 1-2) and publishes the tag against the commit that actually
+# lands (step 5) -- so until that commit existed there was nothing honest to
+# name, and the sentinel was spelled as a value no `stack.yaml` can declare so a
+# consumer comparing against it REFUSED rather than matched by accident.
+#
+# Moved v1.34 -> v1.38 by `add-doxbench-editing-phase-b` §11.7. Not
+# digest-neutral, and could not be: the release grows
+# `xfactory-workbench-model-catalog.schema.yaml` itself with the routing-rule
+# declaration, so the CATALOG digest below is the grown file's and the
+# chat-turn's is unmoved -- the exact mirror image of the v1.34 repin. The repin
+# lands in the same change as the release for the same reason it did then: the
+# fail-closed chain is byte-exact, so a runtime pinned to v1.34's catalog digest
+# cannot read v1.38's schema at all. That is the check working.
+#
+# WHY v1.38 AND NOT v1.37: the version is allocated AT REALIZATION against
+# what is available, and `contract-v1.37` was taken while this slice was in
+# flight -- 6cbb4495 (PR #235, identity-brokering + trust-anchor) landed it on
+# main, its own squash message still saying v1.36. CHANGELOG presence is the
+# availability test, not tag presence, so v1.38 is the next available number.
+# (That cut also shipped no v1.37 digest inventory, so `verify-commit` failed on
+# main until PR #238 completed it -- and fails again from PR #242, which edited
+# the CHANGELOG, an inventory member, without rebuilding v1.37's inventory.
+# Nothing here depends on any of it: this module pins SCHEMA digests, and the
+# v1.38 release surface verifies on its own.)
+#
+# THE REF IS RESOLVED: `contract-v1.38` is published (annotated tag object
+# 46cd169a5a2aeecd21e84f8684aa20a6053b1f75) and this names the commit it
+# dereferences to -- the squash-merge of PR #244 -- exactly as the v1.34 and
+# v1.31 pins named their own, and never the tag object. It carried the
+# `unpublished:contract-v1.38` sentinel across the realization branch, because
+# the versioning policy allocates the version and builds the digest inventory AT
+# REALIZATION (steps 1-2) and publishes the tag against the commit that actually
+# lands (step 5) -- so until that commit existed there was nothing honest to
+# name, and the sentinel was spelled as a value no `stack.yaml` can declare so a
+# consumer comparing against it REFUSED rather than matched by accident.
+#
+# Verified from the REMOTE rather than from the local ref that created it:
+# `git ls-remote origin refs/tags/contract-v1.38^{}` peels to this commit, and
+# both `verify-commit --commit contract-v1.38` and
+# `verify-tag --remote origin --tag contract-v1.38` pass.
+#
+# Moved v1.38 -> v1.40 by `add-doxbench-editing-phase-b` §10.7. Not
+# digest-neutral, and could not be: the release grows
+# `xfactory-workbench-chat-turn.schema.yaml` itself with the assembled
+# context's POSTURE on `$defs/success_v2`, so the CHAT-TURN digest below is the
+# grown file's and the catalog's is unmoved -- the exact mirror image of the
+# v1.38 repin, and the same shape as the v1.34 one. The repin lands in the same
+# change as the release for the reason it did then: the fail-closed chain is
+# byte-exact, so a runtime pinned to v1.38's chat-turn digest cannot read
+# v1.40's schema at all. That is the check working.
+#
+# THE NUMBER THIS PIN CARRIES IS A RE-CUT, and the sequence matters for anyone
+# reading the provenance later. Checked against the CHANGELOG at the moment of
+# allocation rather than assumed -- the habit the v1.37/v1.38 episode earned:
+# at the branch base (66140613) the CHANGELOG's newest heading and the bundle
+# both read contract-v1.38, so contract-v1.39 was the next available number and
+# this slice ALLOCATED IT.
+#
+# IT THEN LOST IT. While this slice was in review,
+# add-roster-directory-admission-surface landed (PR #259, 5124fbcd, merged at
+# 1f45e427) and allocated contract-v1.39 for the `directory` roster admission
+# surface. CHANGELOG presence ON MAIN is the availability test, so v1.39 is
+# theirs and this pin re-cut to contract-v1.40 -- the v1.37 -> v1.38 shape a
+# second time, and the reason the habit is to recheck at the moment you LAND as
+# well as at the moment you allocate. Unlike that episode the preceding surface
+# is clean: their v1.39 digest inventory shipped complete and
+# `verify-commit --commit 1f45e427` passes against it.
+#
+# (Stated rather than overwritten. A blanket v1.39 -> v1.40 renumber had left
+# this paragraph claiming v1.40 "was available" at the branch base, which was
+# never true; the bot round caught it here after the same defect was corrected
+# in tasks.md, which is why the correction now names the sequence instead of
+# just the number.)
+#
+# THE REF IS RESOLVED: `contract-v1.40` is published (annotated tag object
+# 3c82f6b820517b63e12d763b652064be9ccd2a71) and this names the commit it
+# DEREFERENCES to -- 671a6908, the squash-merge of PR #256 -- exactly as the
+# v1.38, v1.34 and v1.31 pins named their own, and never the tag object. It
+# carried the `unpublished:contract-v1.40` sentinel across the realization
+# branch, because the versioning policy allocates the version and builds the
+# digest inventory AT REALIZATION (steps 1-2) and publishes the annotated tag
+# against the commit that actually LANDS (step 5) -- so until that commit
+# existed there was nothing honest to name, and the sentinel was spelled as a
+# value no `stack.yaml` can declare so a consumer comparing against it REFUSED
+# rather than matching by accident.
+#
+# Verified from the REMOTE rather than from the local ref that created it:
+# `git ls-remote origin 'refs/tags/contract-v1.40^{}'` peels to this commit, and
+# both `verify-commit --commit contract-v1.40` and
+# `verify-tag --remote origin --tag contract-v1.40` pass.
 
-CONTRACT_REF = "e5554028e521d57c7501ef9bac206b20415281ef"
-CONTRACT_TAG = "contract-v1.31"
+CONTRACT_REF = "671a69082492e3bda01a916e52211686d6598d1a"
+CONTRACT_TAG = "contract-v1.40"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
@@ -84,26 +191,44 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # sha256 over each schema file's exact bytes at the release.
 SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
-        "0e6e7e946268b220918a426c6df399a9e01d064ee5dcbe22f8381dbf39aef1e0",
+        "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
-        "8386566ef881661659d38f6d6c27c723a7ddaf5dd3b8e18ead854c40a2a876bb",
+        "d8ee5624f2136977044971b17fe67fe31b057bbf621e14853069fd082019b254",
 }
 
-# The four doxBench INSTANCE kinds. The catalog kind is a whole-document schema;
-# the three turn kinds all live in the chat-turn file, under these `$defs`.
+# The seven doxBench INSTANCE kinds. The catalog kind is a whole-document schema;
+# the six turn kinds all live in the chat-turn file, under these `$defs` — the
+# three v1 envelopes and, since contract-v1.34, the three co-resident widened
+# ones. Both families are DISPATCHABLE: the v1 kinds are deprecated, not
+# withdrawn, and a release that stopped resolving them would break the very
+# clients the deprecation exists to keep working.
 KIND_MODEL_CATALOG = "workbench-model-catalog"
 KIND_CHAT_TURN = "workbench-chat-turn"
 KIND_CHAT_TURN_SUCCESS = "workbench-chat-turn-success"
 KIND_CHAT_TURN_FAILURE = "workbench-chat-turn-failure"
+KIND_CHAT_TURN_V2 = "workbench-chat-turn-v2"
+KIND_CHAT_TURN_V2_SUCCESS = "workbench-chat-turn-v2-success"
+KIND_CHAT_TURN_V2_FAILURE = "workbench-chat-turn-v2-failure"
 
 CHAT_TURN_DEFS = {
     KIND_CHAT_TURN: "request",
     KIND_CHAT_TURN_SUCCESS: "success",
     KIND_CHAT_TURN_FAILURE: "failure",
+    KIND_CHAT_TURN_V2: "request_v2",
+    KIND_CHAT_TURN_V2_SUCCESS: "success_v2",
+    KIND_CHAT_TURN_V2_FAILURE: "failure_v2",
 }
 
+# The DEPRECATED family, named here so a caller can ask rather than pattern-match
+# on a kind string. The removal target is the schema's own
+# `deprecated_envelopes` record and the CHANGELOG's migration note; this tuple
+# states only WHICH kinds are deprecated.
+DEPRECATED_CHAT_TURN_KINDS = (KIND_CHAT_TURN, KIND_CHAT_TURN_SUCCESS,
+                              KIND_CHAT_TURN_FAILURE)
+
 WIRE_KINDS = (KIND_MODEL_CATALOG, KIND_CHAT_TURN, KIND_CHAT_TURN_SUCCESS,
-              KIND_CHAT_TURN_FAILURE)
+              KIND_CHAT_TURN_FAILURE, KIND_CHAT_TURN_V2,
+              KIND_CHAT_TURN_V2_SUCCESS, KIND_CHAT_TURN_V2_FAILURE)
 
 # --------------------------- checkout location ---------------------------
 #

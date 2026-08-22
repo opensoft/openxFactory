@@ -1,0 +1,56 @@
+# NEGATIVE (expect: identity-cascade-incomplete). A TERMINATED instrument whose
+# governed_identity dependent carries CREDENTIAL-ONLY evidence: the grant was
+# revoked, and the identity and its admission act were left standing in the
+# client's tenant. The instrument's own cascade_evidence obligation is
+# satisfied, so this fixture can only fail for its own reason — and the finding
+# lands against the INSTRUMENT, which is the record that carries the
+# obligation, never against the identity.
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: "ci-demo-advisory-9001"
+domain: demo-advisory
+instrument_class: engagement_letter
+parties:
+  - party: "Acme Advisors LLP"
+    rung: 1
+    role: tenant_firm
+    authority_basis: direct
+  - party: "Meridian Retail Ltd"
+    rung: 2
+    role: subject_client_company
+    authority_basis: direct
+scope:
+  purposes: [bookkeeping]
+  out_of_scope: [payroll-support]
+delegation_clauses:
+  - clause_id: "dc-1"
+    summary: "Read-only ledger observation for bookkeeping, subject-scoped."
+    access:
+      permission: "ledger:read"
+      constraint: "subject-scoped; no cross-subject reads"
+autonomy_position: "hypothesis_only"
+revocation:
+  right: "Either party may terminate the engagement by written notice."
+  sla: "P1D"
+custody:
+  locator: "opaque:demo-advisory/instruments/ci-demo-advisory-9001"
+  sha256: "3b4c5d6e7f8091a23b4c5d6e7f8091a23b4c5d6e7f8091a23b4c5d6e7f8091a2"
+status: terminated
+status_history:
+  - status: draft
+    at: "2026-05-20T09:00:00Z"
+  - status: pending_signatures
+    at: "2026-05-27T11:00:00Z"
+  - status: executed
+    at: "2026-06-01T09:30:00Z"
+  - status: terminated
+    at: "2026-07-28T16:00:00Z"
+effective:
+  executed_on: "2026-06-01"
+  terminated_on: "2026-07-28"
+dependent_refs:
+  - kind: governed_identity
+    ref: "credentials/client-identity-roster/meridian.yaml#meridian-bc-observer"
+    cascade_evidence: "credentials/revocations/meridian-observation-grant-2026-07-29.yaml"
+data_consent:
+  mapping: none

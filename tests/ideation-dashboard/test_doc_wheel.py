@@ -26,11 +26,12 @@ enforced by construction, not by eye:
   * focusability is driven by the SAME predicate, `inReelWindow` (defect 6).
 
 WHY 0.4 IS THE RIGHT NUMBER, and not an arbitrary shrink. The drum places tiles
-at `winH/2 ± R` where `R = winH × drumF`. At the deck's default 1.0 that range
-is `[-0.5·winH, 1.5·winH]` — most of the column is laid out far outside its own
-window and survives only because the clip stops it painting. At 0.4 the range is
-`[0.1·winH, 0.9·winH]`: every tile the drum places lands INSIDE the subpane, and
-tiles leave by wrapping over the drum's own horizon rather than by running off
+at `winH/2 ± R` where `R = winH × drumF`. At factor 1.0 (the deck's original
+default) that range is `[-0.5·winH, 1.5·winH]` — most of the column is laid
+out far outside its own window and survives only because the clip stops it
+painting. At 0.4 the range is `[0.1·winH, 0.9·winH]`: every tile the drum
+places lands INSIDE the subpane, and tiles leave by wrapping over the drum's
+own horizon rather than by running off
 the end. In a pane a third the height of the deck's window that is the
 difference between a wheel and a clipped list.
 """
@@ -175,9 +176,10 @@ def test_at_this_radius_every_tile_the_drum_places_is_inside_the_subpane(probe):
 
 def test_the_decks_own_radius_would_not_fit_this_pane(probe):
     """The contrast that makes the previous test a fact about 0.4 rather than
-    a fact about small numbers: at the deck's default 1.0, tiles the drum has
-    NOT taken over the horizon are still laid out beyond both edges of a pane
-    this size, surviving only because the clip hides them."""
+    a fact about small numbers: at factor 1.0 (the deck's original default),
+    tiles the drum has NOT taken over the horizon are still laid out beyond
+    both edges of a pane this size, surviving only because the clip hides
+    them."""
     outside = [t for t in probe["deck"] if not t["over"]
                and (t["top"] < 0 or t["bottom"] > SUBPANE_H)]
     assert outside, (

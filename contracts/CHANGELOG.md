@@ -9,8 +9,1226 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
-## Unreleased — pending bundle registration (fold into the next cut)
+## contract-v1.40 — 2026-08-22 (additive; the doxBench chat-turn record states its assembled context's posture)
 
+Realizes tasks.md §10.7 of `add-doxbench-editing-phase-b` — the ratified
+scenario *"The knowledge service is unavailable"* and the requirement sentence
+it belongs to: *"Where the knowledge service is unavailable the turn SHALL
+degrade to a declared reduced packet — the selected thread and the loaded
+buffers, with the reduced posture STATED — and MUST NOT bypass a rail to reach a
+provider, MUST NOT silently substitute an unbounded context, and MUST NOT fail an
+editor that does not need it."* One CONTRACT changes:
+`schemas/xfactory-workbench-chat-turn.schema.yaml`. That schema is
+content-addressed by its per-file `sha256` in [`manifest.yaml`](manifest.yaml);
+that row's digest is RECOMPUTED in this cut, and its `consumption_rule` states
+what a consumer must now read and what it may still ignore.
+
+WHAT WAS ALREADY TRUE, AND WHAT WAS NOT. The packet half of §10.7 shipped with
+§10 itself (PR #216): a `ContextPacket` cannot be REDUCED without
+stating its reason and cannot be FULL while carrying one — enforced at
+construction, not by convention — and the reduced posture is written into the
+prompt's own declaration section, which is where the ratified sentence puts it.
+The turn also SUCCEEDS: a live model with no knowledge service answers on the
+reduced packet rather than refusing. What was NOT true is that any reader could
+consult the posture. `workbench-chat-turn-v2-success` is a CLOSED envelope
+(`additionalProperties: false`) with no field for one, so no conformant success
+body could carry it, and the delta's own rule forbids carrying it as a
+server-side value nobody can read. §10.7 therefore stayed open with its
+obligation recorded against ITSELF, naming the release that would carry it.
+This is that release.
+
+VERSION ALLOCATION, RE-CUT — this release was `contract-v1.39` until the number
+was taken out from under it. At this slice's branch base (`66140613`) the
+CHANGELOG's newest heading and `contract_bundle_version` both read
+`contract-v1.38`, so v1.39 was the next available number and this cut took it.
+While it was in review, `add-roster-directory-admission-surface` landed on main
+(PR #259, `5124fbcd`, merged at `1f45e427`) and ALLOCATED `contract-v1.39` for
+the `directory` roster admission surface. Under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+the version is allocated AT REALIZATION against what is available, and CHANGELOG
+PRESENCE ON MAIN is the availability test — so v1.39 is theirs and this release
+is `contract-v1.40`.
+
+BOTH SIDES SAW IT COMING, which is what makes this an orderly re-cut rather than
+a collision. That entry names this branch and says so in as many words: *"an
+UNLANDED branch (`change/doxbench-turn-posture-release`, `97aa19a7`) has also cut
+a `contract-v1.39` in its own working state … Whichever of the two lands second
+re-cuts against the CHANGELOG it then finds."* This is that re-cut. The two
+releases are INDEPENDENT — theirs grows
+`xfactory-client-identity-roster.schema.yaml`, this one grows
+`xfactory-workbench-chat-turn.schema.yaml`, and neither touches the other's file
+— so only the shared release surface merged, and their v1.39 digest inventory
+ships beside this one's v1.40 untouched.
+
+THE SAME SHAPE AS `contract-v1.38`, which was briefed as v1.37 until PR #235 took
+that number mid-flight, and the difference is worth recording. v1.37 was
+allocated by a cut whose own squash message still said v1.36 and which shipped NO
+digest inventory, so it had to be discovered and left a red release surface
+behind it. Here the taking release announced itself in its own entry and shipped
+`releases/contract-v1.39.digests.yaml` complete — verified present at
+`1f45e427` before this renumber — so there is no `HGR-RELEASE-INVENTORY-MISSING`
+landmine on the preceding surface this time. The habit that caught it is
+unchanged and has now paid three times: recheck bundle availability against the
+CHANGELOG at the moment you allocate, and again at the moment you land.
+
+THE PRECEDING RELEASE SURFACE IS GREEN, checked rather than assumed (the other
+half of that habit) — and the preceding release is now v1.39 rather than v1.38,
+because of the re-cut above. `validate-contract-release.py verify-commit --commit
+1f45e427` PASSES against `contracts/releases/contract-v1.39.digests.yaml`.
+Recorded because a preceding surface has been broken when a release got there
+twice in this family's recent history (`6cbb4495`, missing inventory; and from
+`e11a057b`, an inventory member edited without a rebuild), so "it verified last
+time" is not the test in either direction — including this one, where it
+verifies. Nothing here depends on it either way:
+`resolve_committed_inventory` reads `contract_bundle_version` AT THE COMMIT, so
+this cut resolves v1.40 and checks against the v1.40 inventory that ships inside
+it, and their v1.39 inventory is untouched beside it.
+
+MAIN MOVED UNDER THIS SLICE FIVE TIMES, and each time it was merged in rather
+than rebased over, with availability rechecked at the merge rather than trusted
+from the allocation: `2c69e743`, `0f9e14b4`, `ede82ef9` and `135d52d6` touched no
+`contracts/` file and left the number free; `1f45e427` took it, which is what
+this entry's allocation note is about. `verify-commit` passes at every merge.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+ONE OPTIONAL property is added to `$defs/success_v2`, referencing ONE new closed
+`$def`. Nothing previously valid becomes invalid, no required field is added to
+any existing shape, no shape is removed, and no existing record is reinterpreted:
+a record that carries no `context_packet` is judged exactly as it was before. The
+schema's `contract_schema_version` stays `1`, and the manifest row's
+`schema_version` stays `1` with it. Verified case by case against the released
+bytes, including the pre-release record shape and each malformed posture.
+
+`$defs/success_v2` gains:
+
+* `context_packet` (optional) — an object stating the POSTURE the turn's bounded
+  context packet was assembled under, and why it was reduced when it was.
+
+`$defs/context_packet` is that object, CLOSED, with two members:
+
+* `posture` (required) — `full` or `reduced`. Exactly two values, because
+  `ContextPacket` has exactly two: the wire does not get a third spelling of a
+  fact the assembler already owns.
+* `reduced_reason` (`minLength` 1, `maxLength` 500 — JSON Schema counts those in
+  CODE POINTS, and the shipped-reason guard below checks the stricter UTF-8 BYTE
+  count against the same number, so a reason that passes the guard passes the
+  shape) — present IFF the posture is `reduced`. Free prose about the ASSEMBLY,
+  never about content; in the two reasons this
+  capability ships it says in as many words that nothing unbounded was
+  substituted and no rail was bypassed, which is the ratified sentence's own
+  second and third clauses.
+
+THE TRUTH-PAIRING IS ENFORCED, not documented. Two `allOf` conditionals, and
+they are NOT each other's inverse — they guard different instances and each has
+its own packaged negative and its own revert-test. `posture: reduced` requires
+`reduced_reason`; `posture: full` refuses it. A posture outside the vocabulary
+matches NEITHER conditional (both require `posture` to equal a named constant)
+and is refused by the `enum` underneath them — the same lesson `contract-v1.38`
+learned about `dependentRequired` versus `if`-conditionals guarding different
+paths, read on this shape. No `dependentRequired` block is used here, and that
+is deliberate: `posture` is REQUIRED, so `dependentRequired: {reduced_reason:
+[posture]}` could never fire, and a clause no revert-test can make fail is a
+clause that documents rather than enforces.
+
+WHY ONE OBJECT AND NOT TWO SIBLING KEYS — a judgement call, flagged. The
+`selected_model` $def one line above set the precedent for exactly this shape:
+one fact about one thing, grouped. Three consequences decided it. The
+present-iff rule stays LOCAL to the object that owns it rather than becoming a
+cross-field rule on a ten-key envelope. The ENVELOPE's key set is then identical
+for a full turn and a reduced one, so a consumer's presence check is on ONE key
+— which is the ratified independence claim (*"MUST NOT ... make the editors
+unusable"*) read on the wire: the two turns differ in what the record SAYS, not
+in the shape it arrives in. That is asserted rather than described, by a
+route-level test that drives the SAME widened request with and without a
+knowledge service and requires the two records' key sets to be equal — a test
+that could not have been written at all under two sibling keys, because a
+reduced record would then carry one key more than a full one. (The pre-existing
+key-set test on the DEPRECATED v1 lane is untouched and says nothing about this:
+that envelope gains no key at all.) And a reader who wants the posture reads one
+object rather than correlating two keys that could disagree.
+
+OMISSION IS NOT A POSTURE CLAIM, and this is the consumer note that matters
+most. An absent `context_packet` means the producer predates `contract-v1.40`.
+It does NOT mean the context was full. A consumer that needs the posture must
+read the key and treat its absence as UNKNOWN. This is the mirror image of
+`contract-v1.38`'s disclosure call and the opposite conclusion, reached for the
+opposite reason: there, omission and explicit-`false` had to be read as the SAME
+fact, because a plain catalog entry is not a routing rule whether or not it says
+so. Here they are DIFFERENT facts, because a turn always ran under some posture
+and the question is only whether the producer stated it. Both packaged: the
+pre-release record (`workbench-chat-turn-v2-success.example.yaml`, whose
+INSTANCE is unchanged and states nothing — only its header comment gained a
+paragraph saying so) sits beside `workbench-chat-turn-v2-full-context`, which
+states `full` explicitly, and both are valid.
+
+JUDGEMENT CALL — THIS PRODUCER ALWAYS STATES THE POSTURE, INCLUDING `full`.
+`doxbench_turn_v2_success_body` takes the posture as a REQUIRED argument, so no
+v2 record this repository builds can silently omit it, and a full turn's record
+says `full` rather than saying nothing. Always-emitting was REJECTED for
+`contract-v1.38`'s catalog projection and is ADOPTED here, and the difference is
+what the omission would mean. There, omitting kept every existing catalog
+response byte-identical and cost a reader nothing, because absence and
+explicit-false were the same fact. Here, omitting on a full turn would make the
+posture inferable only by absence — which is precisely the reading this release
+forbids — and would leave a reader unable to distinguish "assembled full" from
+"nobody checked". The cost is stated rather than hidden: every v2 success body
+this server produces now carries one more key than it did at `contract-v1.38`,
+as does the copy the idempotency store replays. NOTHING DURABLY STORES A v2
+BODY (adversarial review N6, which caught this entry calling that store
+durable): `TurnStore` is per-process, in-memory and bounded, so a replayed
+record outlives the request and not the process. The durable record of a turn is
+the THREAD SIDECAR on disk, and it does not carry the wire body at all — the
+same boundary the sidecar gap below is about.
+
+THE DERIVATION IS ONE FUNCTION, AND IT READS THE PACKET. `serve.py`
+`doxbench_context_packet` sits beside `doxbench_selected_model` and re-states the
+packet's OWN `posture` and `reduced_reason`, verbatim. It is deliberately NOT a
+re-derivation from "did this serve have a knowledge service?", which would be a
+second authority able to disagree with the first: a packet also reduces when a
+DECLARED backend REFUSES a retrieval, and only the packet knows which of the two
+happened. A route-level test drives a refusing backend and asserts the record
+carries `REDUCED_RETRIEVAL_REFUSED` rather than the absent-service reason — the
+case the re-derived implementation would get exactly backwards.
+
+FAIL-CLOSED, NEVER A GUESSED POSTURE. The derivation runs INSIDE the route's
+existing packet boundary, so a packet that contradicts itself about its own
+posture — which `ContextPacket` cannot construct, but the INJECTED, duck-typed
+`packet_assembler` seam could hand back — is a `PacketError` mapped to the fixed
+`invalid_turn_request`, with nothing dispatched. Four such cases are tested
+through the real seam. A defaulting derivation (`getattr(packet, "posture",
+"full")`) would have shipped a record claiming a full context for every one of
+them.
+
+TWO DELEGATED RULES, in `scripts/validate-ideation-dashboard-contracts.py`
+(`check_context_packet`), the family's declared owner. The first — the pairing —
+the SHAPE also expresses, and it is restated on purpose: it is this release's
+whole truth-claim, and `contract-v1.38`'s review found a file gate that had grown
+strictly weaker than the type gate beside it while its own docstring claimed
+parity. THREE gates now assert this one rule (the two conditionals,
+`ContextPacket.__post_init__`, and the validator), and a test asserts they AGREE
+on the packaged corpus rather than leaving it to prose. The second — that
+`reduced_reason` is LINTED for credential and endpoint spellings exactly as a
+failure's `message` is — the shape CANNOT express, and this is the only place it
+lives; it is the one new free-prose field the release adds, and the
+leak-through-an-allowed-field class the failure lane already watches applies to
+it unchanged.
+
+THAT SECOND RULE IS A LINT AND THE ENTRY SAYS SO. It is a spelling heuristic
+over free prose, with misses in both directions: it refuses innocent text that
+happens to say `api_key`, and it passes a real token whose shape it does not
+know. It raises the cost of a careless paste; it does NOT establish that a
+reason is secret-free, and a consumer must not read a clean scan as if it did.
+What is structural here is the producer, not the scan: the reasons this
+capability emits are MODULE CONSTANTS rather than formatted provider errors, so
+no value flows into the field for a scan to have to catch.
+
+THE RESTATED PAIRING IS A DIAGNOSTIC, NOT AN INDEPENDENT GUARD — found by
+revert-testing, recorded rather than dressed up. Disabling both pairing arms in
+the delegated validator leaves its own packaged self-test GREEN, because the
+SHAPE refuses the same two instances anyway. That is the same class
+`contract-v1.38`'s revert-testing found for its separator-collision and
+self-reference arms, and it is handled the same way: the arms are pinned on
+their finding CODE by a test, which is the only guard that fails when they are
+deleted. They earn their place as defence in depth and as the diagnostic a
+consumer reading validator output actually gets — not as a second refusal.
+
+A THIRD RULE WAS CONSIDERED AND REJECTED: requiring the reason to SAY that
+nothing unbounded was substituted and no rail was bypassed. Both shipped reasons
+do say it, and a rule to that effect would be prose-matching a contract — it
+would refuse a conformant producer whose honest reason is worded differently and
+pass a dishonest one that quoted the sentence. What the wire can check is that a
+reduction is STATED; whether the statement is TRUE is the assembler's rail,
+enforced where the rails run.
+
+THE CEILING IS ENFORCED BY THE PRODUCER, PRE-DISPATCH, and an earlier draft of
+this entry claimed a guard that did not exist. The route self-validates every
+success body against the released schema and answers `response_invalid` if it
+refuses — so without a producer-side bound a reduction reason past the ceiling
+turned a degraded-but-successful turn into a 502 AFTER a provider dispatch had
+been paid for, on the one path nobody exercises by hand. Measured, not supposed.
+`serve.doxbench_context_packet` now refuses an over-long reason where the reason
+is carried onto the record, in CODE POINTS so it refuses exactly what this shape
+refuses and no conformant record more; its constant is pinned to this file's
+`maxLength` by a test. A second test holds every shipped `REDUCED_*` constant to
+the STRICTER UTF-8 byte count — a rule about text this repository authors, not
+one the wire imposes. The reason is never truncated to fit; truncating a
+statement about a degradation is how a degradation goes quiet.
+
+THE SURFACE HALF, which is why this release exists rather than being a
+record-only growth. §10.7's gap was never that the posture was unknown — it was
+that the human whose answer had quietly changed could not see it. The rail now
+renders one live-announced note under the transcript, `reduced context: <the
+reason>`, for a turn that ran reduced, and NOTHING for a full one — un-hidden
+BEFORE its text is written, because a `hidden` node is out of the accessibility
+tree and text written into one is announced by nothing (the `aria-live`
+attribute reads the same either way, so the ORDER is what a probe has to pin),
+and written only when its text CHANGES, because re-writing a live region with
+the same sentence re-announces it on every keystroke: a standing
+"full context" badge is a line every operator learns to stop reading, which is
+exactly how the reduced one would stop being noticed. A node probe mounts the
+SHIPPED `doxbench-chat.js` bytes and drives real turns through it — reduced
+renders the note and the reason, full renders nothing, a record with no posture
+renders no phantom badge, and both self-contradicting records render silence
+rather than half a statement.
+
+JUDGEMENT CALL — THE NOTE IS RAIL-LEVEL AND DESCRIBES THE TRANSCRIPT'S LAST
+ASSISTANT ANSWER, not a per-turn badge in the transcript. Per-turn was designed
+and rejected: the browser transcript is restored from the SERVER'S THREAD SIDECAR
+when a human switches documents, and the sidecar records no posture, so per-turn
+badges would be present on a lived-through turn and absent on the byte-identical
+restored one — a difference the reader would have to explain away. The note
+therefore changes exactly when that answer changes, and every path that replaces
+the answer already replaces the posture beside it — FOUR of them:
+`settleTurnSuccess`, `adoptThreadTranscript`, `rekeyChatState`, and
+`restoreChatState`, which adopts the posture the browser-local chat SNAPSHOT now
+carries so the disclosure survives a tile being closed and reopened. That
+snapshot field is optional and needs no version bump: an older blob lacks it and
+restores to posture-unknown, which renders no note and is the pre-release
+behaviour exactly. A flight STARTING replaces no
+answer and moves nothing: an earlier draft cleared the note there, and a reduced
+answer followed by a FAILED follow-up then lost its disclosure while still
+holding the transcript — the same lost-badge defect the per-turn rejection was
+about, at rail level.
+
+JUDGEMENT CALL, FLAGGED — THE THREAD SIDECAR IS NOT EXTENDED. The durable
+transcript on disk names the turn id, the model and the bound buffer, and it does
+not name the posture. Extending it was considered and REJECTED on the format, not
+on the merit: `doxbench_threads._parse_turn` refuses any turn header that does not
+split into EXACTLY three fields, so a fourth would make every sidecar already on
+disk unreadable by the new parser and every new sidecar unreadable by the old
+one — a breaking change to a durable record, inside an additive release. This is
+recorded as a GAP rather than papered over, and it is the honest counterpart to
+`contract-v1.38`'s F3 finding (which caught the sidecar naming the wrong model):
+a reader of a thread file can learn WHICH MODEL answered and cannot learn WHAT
+CONTEXT it answered on. Closing it needs a sidecar format migration, which is a
+successor change's act.
+
+THE DEPRECATED v1 SUCCESS ENVELOPE IS NOT WIDENED, and this is the second
+recorded v1 limitation of this family (the first was `contract-v1.38`'s, about
+the requested versus the answering model). `workbench-chat-turn-success` has no
+`context_packet` and gains none, so a v1 turn that ran on a reduced context
+SUCCEEDS — the ratified *"MUST NOT ... make the editors unusable"* half — and
+cannot say so on the wire. The reduction is still stated where it always was,
+inside the assembled packet. Widening a deprecated closed shape whose whole
+promise is byte-identical stability is precisely what `contract-v1.34`'s
+deprecation forbids; the migration path is the v2 envelope, which exists.
+Recorded at the v1 arm in `serve.py` and pinned by a test that fails if the v1
+record ever grows the key.
+
+OWED CROSS-REPO FOLLOW-UP (recorded, not performed). This schema's description
+names `codexFactory specs/010-doxbench-editor-chat/contracts/chat-turn.md` as its
+consumer contract. That document is NOT in this checkout and was NOT read here,
+so this entry does not assert what it says — what it asserts is the obligation:
+if it enumerates the v2 success envelope's fields, it is now short by one, in the
+same way `contract-v1.38`'s entry recorded for the model-catalog document.
+Either way it remains CORRECT while codexFactory pins `contract-v1.27`, which is
+the pin it declares, so nothing there is wrong today. It becomes wrong the moment that repository
+re-pins. Updating it is codexFactory's own governed act under the domain upgrade
+runbook; no file in that repository is touched here, and this entry is the notice.
+
+RELEASE OBLIGATION STILL OPEN AT THIS ENTRY: per the versioning policy, CHANGELOG
+presence is the availability test and the annotated tag is cut at the realization
+squash against the commit that actually lands. The release DIGEST INVENTORY
+(`releases/contract-v1.40.digests.yaml`) ships INSIDE this cut, as
+`contract-v1.34`, `contract-v1.35`, `contract-v1.36` and `contract-v1.38` did —
+and as `contract-v1.37` did NOT, which is the defect this file records against
+it and the reason the habit is written down. The consuming runtime repin
+ships with it and carries the `unpublished:contract-v1.40` sentinel for its ref,
+on `contract-v1.34`'s own precedent: until the release commit exists there is
+nothing honest to name, and the sentinel is spelled as a value no `stack.yaml`
+can declare, so a consumer comparing against it refuses rather than matching by
+accident. A follow-up commit resolves it.
+## contract-v1.39 — 2026-08-22 (additive; the `directory` roster admission surface)
+
+Realizes `add-roster-directory-admission-surface` §1–§5, the ratified extension
+of the client-identity-roster closed `admission_surface` vocabulary. One
+CONTRACT changes — `schemas/xfactory-client-identity-roster.schema.yaml` — and
+the change adds a packaged `directory` example to
+`examples/client-identity-roster/`. The roster schema is content-addressed by
+its per-file `sha256` in [`manifest.yaml`](manifest.yaml); that row's digest is
+RECOMPUTED in this cut. (The roster schema is not a release-inventory member —
+inventory membership is the `contracts/hermes-runtime/contract-index.yaml`
+catalog plus the Decision-10 auxiliaries — so this cut's digest inventory
+changes only where `manifest.yaml` and this changelog change. Checked, not
+assumed, per task 4.5.)
+
+VERSION ALLOCATION. `contracts/manifest.yaml` read `contract-v1.38` at
+realization, so this cut allocates `contract-v1.39`. Noted because an UNLANDED
+branch (`change/doxbench-turn-posture-release`, `97aa19a7`) has also cut a
+`contract-v1.39` in its own working state; under the availability test this
+changelog itself records at v1.38 — the version is allocated AT REALIZATION
+against what is AVAILABLE, and CHANGELOG PRESENCE on `main` is the availability
+test — v1.39 was unallocated when this ran. Whichever of the two lands second
+re-cuts against the CHANGELOG it then finds.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+A `oneOf` const member is added to `$defs.admission_surface`; nothing
+previously valid becomes invalid, no required field is added to any existing
+shape, no shape is removed, and no existing roster is reinterpreted, so a
+domain on the same major version stays conformant WITHOUT CHANGES. The one
+coupling is NAMED rather than denied: `per_unit_principal_available` closes its
+key space with `propertyNames: {$ref: "#/$defs/admission_surface"}`, so
+admitting `directory` DOES widen that closed key space — but purely
+PERMISSIVELY and purely by DERIVATION. A record can only meet the widening by
+CHOOSING to write a `directory` key it had no reason to write before; every
+fragment naming `business_central`, `exchange` or `device` validates
+byte-identically. `legend.*`'s sub-maps close on `free_token`, not on
+`admission_surface`, and are untouched. The schema's own
+`contract_schema_version` stays `1`, and the roster row's `schema_version`
+stays `1` with it — vocabulary-member admission is governed by the schema's
+EXTENSION ROUTE text, not by the object-shape/key-space growth that would take
+a `contract_schema_version` bump.
+
+`$defs.admission_surface` gains a fourth member, `directory`: the Microsoft
+tenant DIRECTORY AND SERVICE ESTATE — the organization profile and its
+subscribed service plans, the tenant's service principals/applications, and its
+verified domains — admitted as ONE tenant-wide READ surface. Its admission act
+is admin consent for the read-only application roles `Organization.Read.All`,
+`Application.Read.All` and `Domain.Read.All` on ONE Entra app registration;
+its scoping mechanism is tenant-wide read with exact effective scopes and no
+narrower provider selector (`enforcement_mode: logic_enforced`, no per-unit
+principal available); it is read-only. Because the governed unit IS the tenant
+directory and service estate — a complete tenant service-surface inventory is
+what read-only DISCOVER is for — tenant-wide read is the GOVERNED scope, not
+excess.
+
+THE READ/MUTATE BOUNDARY THE MEMBER PRESERVES, in two parts. First, an
+EXCLUSION inside the read half: a broader directory-wide read role such as
+`Directory.Read.All` is NOT within this surface's admission act, because it
+also reads the ALREADY-ADMITTED `device` surface (Entra registered devices are
+directory objects) and would therefore collapse two separately-consented,
+separately-scoped and separately-revocable surfaces onto one act. The neutral
+layer NEVER INFERS A PROVIDER FACT, so no validator can derive that boundary
+from the role tokens; the member `description` is the only place it can be
+stated, and it is stated there. Second, the mutation half stays out: the
+extension-route prose is resliced so `directory` is the READ surface for the
+tenant directory and service estate, while endpoint MUTATION (Intune write) and
+Entra-directory MUTATION (user, group and application administration) remain
+SEPARATE future surfaces, each arriving with its own governing change. The
+`device` member's own closing sentence is amended in the same cut so the
+contract file cannot contradict itself — it announced Entra-directory READ as a
+future surface, and now records it as admitted here.
+
+Also corrected in the same edit, and PROSE ONLY: the vocabulary's grounding
+moves from PROMOTED to RATIFIED. The text grounded both the member set and the
+extension route on capability PROMOTION, and that has been false since
+`contract-v1.35` — neither `managed-node-inventory` nor
+`managed-service-inventory` is promoted; both are RATIFIED and still active in
+OpsxFactory `openspec/changes/`, so on the old literal wording `device` should
+never have been admitted either. The vocabulary now names the surfaces "whose
+governing change is RATIFIED", and a surface "enters with the ratified change
+that governs it". The promoted requirement's own normative sentence — "The
+closed surface vocabulary SHALL be extended only by the change that governs a
+new surface" — is already change-based, is satisfied here, and is UNTOUCHED.
+`scripts/validate-client-identity-roster.py`'s human-facing
+`EXTENSION_ROUTE["admission_surface"]` refusal string is resynced to the
+revised schema text; the VOCABULARY itself needs no validator edit, because
+that validator DERIVES the closed set from the schema
+(`_consts(defs.get("admission_surface"))`) rather than restating it.
+
+GOVERNING EVIDENCE. OpsxFactory `add-managed-service-inventory` (read-only
+tenant service-surface DISCOVER, ratified 2026-08-21), §1–§6 realized and
+MERGED at OpsxFactory `main` `824f8ef`. The realized
+`microsoft_service_discovery_reader` credential requirement there
+(`credentials/requirements.yaml`) carries `admission_surface: directory` with
+`minimum_scopes` exactly those three roles under `exact_effective_scopes: true`
+and `reject_write_or_destructive_scopes: true` — which is why the member
+HARD-ENUMERATES the act instead of naming a role family. Per that change's
+ratified F1 ordering this extension is grounded on the DETERMINISTIC §1–§6
+contract, never on a live snapshot, and it authorizes no provider act.
+
+The packaged positive example (`opsx-farheap-service-discovery-reader`, a
+`planned` entry in
+`examples/client-identity-roster/client-identity-roster-farheap-opsx.example.yaml`)
+demonstrates the shape: `admission_surface: directory`,
+`authority_class_intended`/`_achieved: observe`, the three read roles each
+`achieves: observe` and `reaches: [directory]`, `exceeds_governed_unit: false`,
+NO `declared_excess`, no `spanned_surfaces`,
+`per_unit_principal_available: {directory: false}`, and a single
+`logic_enforced` act that is UNVERIFIED by derivation (no `evidence_ref`, no
+`verified_at`, `provider_object_ref` omitted) because the discovery reader is a
+DOWNSTREAM OpsxFactory consumer not yet admitted. The
+`admission-surface-out-of-vocabulary` negative (which uses `sharepoint`) still
+fires — `directory` is now in-vocabulary, `sharepoint` is not, and `sharepoint`
+being a service DISCOVER may DETECT is not admission.
+
+DOWNSTREAM, so the ordering is not overclaimed: landing this cut is NECESSARY
+but NOT SUFFICIENT for the OpsxFactory live sweep. OpsxFactory pins
+`contract-v1.35` and keeps its own local `ROSTER_ADMITTED_SURFACE_VOCAB`
+(`scripts/validate-domain-factory.py`), so a `directory` roster entry is
+refused by that repository's own validator until it RE-PINS to this bundle and
+widens that fence — the precedent being OpsxFactory PR #45 (`77f4b82`) for
+`device`.
+
+## contract-v1.38 — 2026-08-21 (additive; the doxBench model-catalog routing rule)
+
+Realizes tasks.md §11.7 of `add-doxbench-editing-phase-b` — the ratified
+scenario *"The menu offers a routing rule"*. One CONTRACT changes:
+`schemas/xfactory-workbench-model-catalog.schema.yaml`. That schema is
+content-addressed by its per-file `sha256` in [`manifest.yaml`](manifest.yaml);
+that row's digest is RECOMPUTED in this cut, and its `consumption_rule` states
+what a consumer must now read and what it may still ignore.
+
+VERSION ALLOCATION, stated because it moved mid-flight. This slice was briefed
+as `contract-v1.37`. While it was in flight, `6cbb4495` (PR #235,
+identity-brokering + trust-anchor) landed on main and ALLOCATED v1.37 — a
+CHANGELOG heading plus `contract_bundle_version: contract-v1.37` — although its
+own squash message still says "at contract-v1.36". Under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+the version is allocated AT REALIZATION against what is available, and CHANGELOG
+presence is the availability test, so this release is `contract-v1.38`.
+
+A DEFECT ON THE PRECEDING RELEASE SURFACE, found here, repaired by its own lane,
+AND BACK. At `6cbb4495`, `scripts/validate-contract-release.py verify-commit`
+reported `HGR-RELEASE-INVENTORY-MISSING` and exited 1: that cut bumped the bundle
+to v1.37 without shipping `releases/contract-v1.37.digests.yaml`, the same class
+of miss `contract-v1.36`'s first tag hit, one step earlier. It was recorded here
+rather than fixed, because a release surface belongs to the release that cut it —
+and `c1ffa0fd` (PR #238, "Complete the contract-v1.37 cut: release digest
+inventory") shipped that inventory, at which commit `verify-commit` PASSED.
+
+IT IS RED AGAIN AT `8924838d`, and by the same habit: `e11a057b` (PR #242,
+install-repo naming) edited `contracts/CHANGELOG.md` — a v1.37 INVENTORY MEMBER —
+without rebuilding v1.37's inventory, so `verify-commit --commit origin/main`
+now exits 1 with `HGR-RELEASE-DIGEST-MISMATCH` on that file. Bisected: green at
+`c1ffa0fd`, red from `e11a057b` onward. That is the v1.37 lane's to repair, and
+it is exactly the habit this note names — recheck bundle availability against
+the CHANGELOG at the moment you allocate, and do not assume the preceding
+release surface verifies, including when it verified an hour ago.
+
+THIS CUT IS UNAFFECTED THROUGHOUT, in every one of those states:
+`resolve_committed_inventory` reads `contract_bundle_version` AT THE COMMIT, so
+it resolves v1.38 and checks against the v1.38 inventory that ships inside it —
+and this branch's own `verify-commit` passes.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+Three OPTIONAL properties are added to `$defs/model_entry`, together with one
+`dependentRequired` block and two `allOf` conditionals that constrain ONLY those
+three. Nothing previously valid becomes invalid, no required field is added to
+any existing shape, no shape is removed, and no existing catalog is
+reinterpreted: BOTH conditionals require `routing_rule` to be PRESENT, so an
+entry that declares no routing rule matches neither and is judged exactly as it
+was before, and `dependentRequired` cannot fire on keys that are absent. The
+schema's `contract_schema_version` stays `1`, and the manifest row's
+`schema_version` stays `1` with it. Verified case by case against the released
+bytes, including the pre-release entry shape and each malformed declaration.
+
+`$defs/model_entry` gains, all optional and all three travelling together:
+
+* `routing_rule` (boolean) — present-and-true means this entry is a ROUTING RULE
+  this capability owns, an `auto` entry that maps a turn to a model by role,
+  rather than a directly answering provider model. Absent means what absence has
+  always meant, and a plain entry acquires no new obligation of any kind.
+* `routes_to` — every model the rule MAY route to, as a non-empty, unique array
+  of `model_id` REFERENCES into the same catalog (same pattern and length bounds
+  as `model_id`, up to 64 members).
+* `resolved_model_id` — the model the rule CURRENTLY resolves to: the one that
+  ANSWERS, recorded as the turn's `model_id` beside the requested id in the
+  `workbench-chat-turn-v2-success` record's `selected_model`.
+
+They carry NO provider surface, and that is what keeps PUBLIC-ONLY BY
+CONSTRUCTION intact: both reference fields hold opaque catalog handles drawn
+from this catalog's own `model_id` values, so a routing declaration can name
+nothing a plain entry could not already name. §11.6's ruling that the harness
+provider id lives on `LaunchConfig.provider_id` and NOT on the catalog entry is
+untouched — the entry is still closed, `provider_id` on it is still refused
+structurally, and a companion test asserts that against these exact bytes.
+
+WHERE THE CREDENTIAL COMES FROM, named here because this is the release at which
+an operator can declare an API-backed routing entry and therefore has to know
+(§11.7's P3-23 sentence). An API-backed entry's credential is provisioned into
+the `doxbench-bridge` harness PROFILE by the ratified broker lane
+(`add-model-provider-broker`). The adapter neither holds nor fetches a raw
+secret: its child environment is an ALLOWLIST no credential-shaped variable can
+pass, which is why an empty profile makes the harness refuse ("no models
+available") rather than reach for an ambient key. A self-hosted, keyless
+provider needs no credential at all. Nothing in this release moves that
+boundary; it states it.
+
+SEVEN RULES THE SHAPE CANNOT EXPRESS are delegated to
+`scripts/validate-ideation-dashboard-contracts.py`, the family's declared owner,
+and enforced at catalog construction in
+`scripts/ideation_dashboard/doxbench_model.py` (an in-process catalog never
+becomes a validated file, and a file is never constructed through that type, so
+neither place substitutes for the other). That the two gates AGREE is asserted by
+a test over the packaged corpus, not claimed here: an earlier draft of this entry
+said "enforced identically" while rules 6 and 7 below existed only on the type,
+and the release's own adversarial review walked a catalog past the file gate to
+prove it:
+
+1. NO DANGLING TARGET — every `routes_to` id must name an entry in the same
+   catalog. A rule that routes somewhere the catalog does not offer has a badge
+   nobody can check.
+2. NO CHAINED RULE — a target must not itself be a routing rule, because
+   `resolved_model_id` is recorded as the model that ANSWERED and must therefore
+   name something that answers rather than another indirection.
+3. AN AVAILABLE RULE RESOLVES TO AN AVAILABLE MODEL. The turn gate checks
+   availability on the SELECTED entry, and the adapter then sets the harness to
+   the RESOLVED id; without this rule an available `auto` could dispatch to a
+   model the catalog itself calls unavailable. An unavailable rule is exempt —
+   nothing can select it.
+4. THE BADGE COVERING — the ratified THEN, as SEGMENT MEMBERSHIP over the
+   declared `" / "` separator: each target's `data_handling` must be one segment
+   of the rule's own, compared with whitespace collapsed, case folded and
+   trailing `.;,` dropped, and with interior characters never rewritten. Extra
+   segments are permitted; a routed badge that itself holds the separator is
+   refused as ill-formed, because it could never be one segment. See the
+   judgement call below for why this replaced substring containment.
+5. A RULE PROMISES NO MORE HEADROOM THAN THE MODEL THAT ANSWERS — the
+   effective turn limit is computed from the selected entry, which for a routed
+   turn is the rule, so an AVAILABLE rule's declared limits must not exceed
+   those of `resolved_model_id`'s entry. The bound is the RESOLVED model's
+   alone, deliberately NOT the minimum across `routes_to`; unavailable rules are
+   exempt, as they are from rule 3. See the judgement call below — this shape
+   was ruled after the release's adversarial review.
+6. `resolved_model_id` MUST BE A MEMBER OF `routes_to` — otherwise the model
+   that actually answers is the one model no covering check ever looked at,
+   since they all iterate `routes_to`.
+7. A RULE MUST NOT NAME ITSELF in `routes_to`.
+
+Every rule has a packaged negative that fails for exactly its own reason — ten
+of them — beside one positive (`workbench-model-catalog-routing-rule`) and a
+structural negative for a plain entry carrying a routing field. Four of the ten
+came from this release's adversarial review, packaged verbatim from the
+reviewer's own instances.
+
+JUDGEMENT CALL — THE BADGE COVERING IS SEGMENT MEMBERSHIP, AND THE MENU IS WHY.
+The requirement says a routing entry must "carry the handling badge of every
+model it may route to", *"because an entry that hid a routing decision behind a
+model-shaped id would report a handling posture it does not control"*. The
+entry's own `data_handling` is the ONE badge string the selector shows for it, so
+the covering rule has to be about that string.
+
+An earlier draft of this release enforced it as raw substring containment. THAT
+WAS WRONG, and this release's adversarial review broke it twice on these very
+bytes: a rule badged *"Routes to a non-tenant endpoint."* was accepted as
+carrying a target badged *"on-tenant"* — `"on-tenant" in "non-tenant"` is True,
+so the menu would have shown the INVERSE of the posture the rule routes to — and
+a rule ending *"...retain nothing."* was accepted as carrying a target badged
+*"retain"*. The same review found the predicate simultaneously OVER-strict in the
+harmless direction, refusing a badge that differed only by a trailing full stop,
+a capital, or a line wrap.
+
+The rule is therefore SEGMENT MEMBERSHIP, and the separator is DECLARED here and
+in the schema: `" / "` (space, slash, space). A routing rule's `data_handling` is
+a list of segments joined by it, and each routed model's own badge must be one of
+them. Comparison collapses whitespace, folds case, and ignores trailing `.;,`;
+it NEVER rewrites interior characters, which is the load-bearing part, because
+that is exactly where `on-tenant` and `non-tenant` differ. Extra segments are
+permitted, so a rule may carry its own lead-in beside the badges it must carry.
+The separator is `" / "` because a badge is free prose and any separator can
+collide with one — `;`, `.` and `,` all occur in the packaged badges and `/` does
+not — and the residual collision is refused rather than hoped away: a routed
+entry whose badge itself contains the separator could never be one segment, so
+that catalog is ill-formed.
+
+CONSUMER NOTE: a consumer that RENDERS a routing entry's badge may split it on
+`" / "` to show the routed postures separately, and one that does not may show
+the string whole; both are correct, and the string is authored to read as prose
+either way.
+
+The alternative considered and rejected was per-target badge OBJECTS on the wire
+(`{model_id, data_handling}` pairs) plus a view that composes them — rejected
+because it duplicates authored text that then drifts from the target's own entry.
+The consequence, stated rather than hidden: `data_handling`'s pre-existing
+500-byte ceiling is UNCHANGED and therefore bounds how many segments one rule can
+carry. A rule whose list does not fit must be split, or its members' badges
+written more tightly. Widening that ceiling was rejected as a consumer-visible
+change to an existing field, which this release's additive posture does not
+permit.
+
+JUDGEMENT CALL — RULE 5' BOUNDS AGAINST THE RESOLVED MODEL, RULED BY BRETT.
+This release first shipped rule 5 as a MINIMUM over every member of
+`routes_to`. Its adversarial review upheld it only WITH RESERVATION: it
+permanently caps an `auto` entry's declared limits at its narrowest destination
+in order to compensate for the runtime computing budgets from the SELECTED
+entry. Brett ruled on 2026-08-21 — "Swap to rule 5'" — and the bound is now the
+RESOLVED model's alone. Three reasons, recorded because the shape of a
+conformance rule is a design commitment:
+
+* under this release's STATIC resolution, the promise that matters is that the
+  menu's declared limits are honoured by the model that ACTUALLY ANSWERS, which
+  is exactly what the resolved-bound form checks;
+* the un-resolved destinations are not load-bearing — no turn reaches them while
+  the rule resolves elsewhere — so capping against them constrains a promise
+  nobody can call in;
+* min-capping would BAKE IN semantics contradicting the sanctioned future
+  direction: a per-turn, FIT-AWARE router that picks a destination by the
+  assembled packet's size and by other capability dimensions, staged as
+  `ideation/staging/doxchat-auto-fit-routing/`. Under that design a rule's
+  declared ceiling is the WIDEST thing it can serve, not the narrowest, and a
+  min-cap would have had to be undone to reach it.
+
+A packaged POSITIVE carries the difference rather than leaving it to prose:
+`workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member` declares
+800,000 bytes while a routable — but not resolved — member accepts 2,048, and is
+VALID. The first form of the rule would have refused it. Its mirror-image
+negative is `routing-rule-wider-than-its-resolution`.
+
+JUDGEMENT CALL — DISCLOSED ONLY WHEN DECLARED. This repository's projection
+(`ModelCatalogEntry.as_public_dict`) emits the three keys only for an entry that
+IS a routing rule, so a plain entry's public dict is byte-identical across the
+release boundary. Always emitting them with plain-model defaults was rejected: it
+would change the bytes of every catalog response that exists, hand every
+consumer a `resolved_model_id: null` it never asked for, and put `routes_to: []`
+on entries this schema forbids to carry it. The WIRE, being additive, tolerates
+BOTH producers — an explicit `routing_rule: false` with no siblings is valid,
+it is simply not what this projection emits — so a consumer must not treat
+omission and explicit-false as different facts.
+
+WHERE THE RESOLVED MODEL IS RECORDED, and a v1 LIMITATION that goes with it.
+The scenario's second THEN is that "the resolved model MUST be recorded on the
+turn, so a transcript names the model that actually answered", and there are TWO
+readers of that fact. The `workbench-chat-turn-v2-success` record carries it in
+`model_id`, beside `selected_model.requested_model_id` and
+`selected_model.routing_rule`. The turn's THREAD SIDECAR — the durable transcript
+on disk — carries it in the turn header. This release's adversarial review found
+the second one naming the RULE rather than the answering model (the derivation
+sat after the sidecar was written), which is now fixed: one derivation, above
+both readers.
+
+THE DEPRECATED v1 SUCCESS ENVELOPE CANNOT STATE BOTH FACTS, and is not changed to.
+`workbench-chat-turn-success` has one `model_id` field and no `selected_model`,
+so on a routed turn it carries the REQUESTED id — what every v1 consumer already
+reads and revalidates. Widening a deprecated closed shape whose whole promise is
+byte-identical stability is precisely what `contract-v1.34`'s deprecation
+forbids; the migration path is the v2 envelope, which exists and is where a
+routed turn should be recorded. The SIDECAR on the v1 lane does name the
+answering model, because it is not part of the v1 wire.
+
+NO VIEW CHANGE, and the reason is the covering rule. `doxbench-chat.js` already
+renders each option as `label — data_handling` and `sendDisclosure` already
+names the selected entry's `data_handling`, so for a conformant rule both
+already show every routed model's badge. A node probe mounts the SHIPPED rail
+over the packaged routing catalog and asserts exactly that, so the claim is
+evidence rather than argument; if a future release moved the badges off
+`data_handling`, that probe fails and a view change is then owed.
+`staging-workbench-model.js` reads only an approved-model COUNT and is untouched.
+
+RECONCILIATION with `add-doxchat-model-intake` (ratified 2026-08-21, UNBUILT).
+That change's proposal repeatedly describes the catalog entry as "the closed
+seven-field shape" and promises its own proposed-versus-approved distinction
+"does NOT widen" it. Both remain true of THAT change: its packet is another
+lane's and is not edited here, its descriptions were accurate when ratified, and
+its no-widening promise is about its own delta. What changes is the referent —
+the closed entry is now the v1.38 shape: seven required base fields plus the
+three optional routing-declaration fields. Its task 3.5 ("the closed seven-field
+public catalog entry does NOT widen") should be read against this shape when
+that lane builds; a proposed-versus-approved distinction is still not a widening
+of it.
+
+OWED CROSS-REPO FOLLOW-UP (recorded, not performed). This schema's description
+names `codexFactory specs/010-doxbench-editor-chat/contracts/model-catalog.md`
+as its consumer contract, and that document's Reconciliation section claims an
+exact match with the seven-field entry shape. That claim is STALE against this
+release — though it remains CORRECT while codexFactory pins `contract-v1.27`,
+which is the pin it declares, so nothing there is wrong today. It becomes wrong
+the moment that repository re-pins. Updating it is codexFactory's own governed act
+under the domain upgrade runbook; no file in that repository is touched here, and
+this entry is the notice.
+
+RELEASE OBLIGATION STILL OPEN AT THIS ENTRY: per the versioning policy,
+CHANGELOG presence is the availability test and the annotated tag is cut at the
+realization squash against the commit that actually lands. The release DIGEST
+INVENTORY (`releases/contract-v1.38.digests.yaml`) ships INSIDE this cut, as
+`contract-v1.34`, `contract-v1.35` and `contract-v1.36` all did. The consuming
+runtime repin ships with it and carries the `unpublished:contract-v1.38`
+sentinel for its ref, on `contract-v1.34`'s own precedent: until the release
+commit exists there is nothing honest to name, and the sentinel is spelled as a
+value no `stack.yaml` can declare, so a consumer comparing against it refuses
+rather than matching by accident. A follow-up commit resolves it.
+
+## contract-v1.37 — 2026-08-21 (additive; two new neutral families — identity brokering and trust anchors)
+
+Realizes the two ratified sibling changes of 2026-08-21 —
+`add-identity-brokering` through Speckit feature
+`008-identity-brokering-contracts`, and `add-trust-anchor` through
+`009-trust-anchor-contracts` — as TWO new neutral contract families. Fifteen
+NEW contract files land; **no existing released file's bytes change**, so
+every existing pin resolves byte-identically until it chooses to re-pin.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+lines 130-132 ("new optional fields, new contracts, new validator warnings").
+The test is that a domain repo on the same major version remains conformant
+WITHOUT CHANGES, and it holds trivially here: both families are entirely new,
+no existing shape gains a required field, no shape is removed, and no existing
+vocabulary is reinterpreted. Every new file declares
+`contract_schema_version: 1`, and NO `contract_schema_version` anywhere in the
+bundle is bumped. Both families are OPT-IN: a domain that records no persona,
+adoption, anchor or certificate publishes nothing and stays conformant, and
+each family's canonical validator exits 0 with a notice over a repository that
+holds none of its artifacts.
+
+**Nothing was pending.** The standing Unreleased items were cut at
+`contract-v1.32` (the `hermes_subject_overlay` kind and the openxWallet RSA
+signature-algorithm widening), and no Unreleased block accumulated between
+that cut and this one, so this entry folds no deferred item.
+
+### `contracts/identity-brokering/` — the neutral identity-brokering family (`add-identity-brokering`)
+
+The neutral contract for what any identity broker must assert about a human,
+what a governed record may store about an actor, and what a broker must never
+become. Keycloak is the realization being adopted and it appears in no schema,
+no enumeration and no requirement. SIX schemas, each with a per-file `sha256`
+in [`manifest.yaml`](manifest.yaml):
+
+- `persona-assertion.schema.yaml` — what a conformant broker asserts about an
+  authenticated human: issuing broker INSTANCE, stable opaque subject, display
+  name, federated upstreams, organization memberships, and nothing else. The
+  property set is a CLOSED ALLOW-LIST AT EVERY DEPTH, so a role, group, grant,
+  project, stack, layer or entitlement has nowhere to go — the never-mirror
+  rule enforced by the shape rather than by review. The membership's
+  `organization_id` uses a narrower pattern than the family's general
+  identifier (no `:` and no `/`), which was the rule's last doorway.
+- `broker-organization.schema.yaml` — a company boundary as the broker holds
+  it. `company_role` is `tenant` or `served`; the two are the SAME KIND of
+  record. A company boundary is NOT a Hermes layer, so the family carries an
+  explicit bridge (`tenant` -> `tenant`, `served` -> `subject`) whose targets
+  the canonical validator READS from
+  [`policies/layer-vocabulary.yaml`](policies/layer-vocabulary.yaml) at run
+  time, reserved terms included. `governed_record_refs` is bounded at ONE
+  closed item: the pointer-not-projection line.
+- `actor-subject-reference.schema.yaml` — the STRUCTURED reference a governed
+  record embeds when it names a human actor (issuer, opaque subject, display
+  name as it stood, provenance discriminator). Three provenance classes whose
+  wrong combinations are UNREPRESENTABLE, including a `pre_broker_username`
+  that admits no issuer or subject and carries a required constant
+  `presented_as_persona: false`.
+- `identity-link-record.schema.yaml` — a federated identity joining an
+  existing persona. EXACTLY TWO MODES, each requiring its actor by shape;
+  attribute-match auto-linking cannot be written at all; every pre-merge
+  subject is carried with the survivor it remains resolvable to.
+- `broker-client-declaration.schema.yaml` — a broker service client declared
+  as TRANSPORT, with three REQUIRED CONSTANTS (`is_transport: true`,
+  `actor_of_governed_acts: false`,
+  `organization_membership_as_authority: false`) and no property in which an
+  actor role or authority could be written. Non-human authority stays on
+  `credential-contracts` grants and `openxwallet` holders.
+- `surface-adoption.schema.yaml` — a surface's declared authorization posture,
+  the instance it authenticates against, the shared secret the adoption
+  retires, and the isolation its population requires. A write action cannot
+  hide under the weak posture (schema conditional both ways), `resolves_in`
+  has one legal value `governed_layer`, and isolation escalates by broker
+  INSTANCE while the contract stays SILENT on instance count.
+
+`contracts/identity-brokering/README.md` (`Status: ratified`) and the packaged
+corpus at `contracts/identity-brokering/examples/` — 14 positive examples and
+41 intended-invalid negatives, coverage closed in both directions at 9/9
+requirements — are content-addressed by commit, no per-file digest, per the
+openxWallet and client-identity-roster precedent. So is the canonical
+validator `scripts/validate-identity-brokering.py`: fourteen lettered rules
+(a)-(n) the shapes cannot express, with the closed allow-list DERIVED FROM THE
+SCHEMA (local `$ref`s resolved, branches unioned) rather than written as a
+second list, and the admissible linking bases, the authorization-resolution
+target and the layer vocabulary all READ AT RUN TIME from the contract or the
+policy so a check cannot drift from the thing it enforces.
+
+### `contracts/trust-anchor/` — the neutral trust-anchor family (`add-trust-anchor`)
+
+The neutral contract for what a governed system may assume about a certificate
+it trusts — product-agnostic, because the family runs two certificate
+authorities from two vendors for two populations (live Intune Cloud PKI;
+OpenXPKI planned). SEVEN schemas plus the chain-custody registry PAIR, each
+with a per-file `sha256` in [`manifest.yaml`](manifest.yaml):
+
+- `trust-anchor.schema.yaml` — the governed record a system TRUSTS; a
+  certificate is trusted only derivatively, through an anchor the evaluating
+  system already holds. Chain position is coherent or the record is refused,
+  an anchor's window BOUNDS its subordinates, and authority key material is a
+  `credential-contracts` record with its vault binding or a declared
+  obligation that neither can be produced.
+- `certificate-record.schema.yaml` — a certificate as a governed record.
+  `trust_evaluation.basis` is the constant `held_anchor_record` and the
+  standing check's basis is the constant `checked_at_use`, so trust cannot be
+  recorded on a certificate's own strength nor on issuance-time validity;
+  `evidences` is DERIVED from declared custody and recomputed.
+- `issuance-evidence.schema.yaml` — what an issuance record must ESTABLISH,
+  never the mechanism. Two `establishment_level` members and nothing weaker is
+  representable; the floor
+  (`per_policy_attestation_with_authority_log`) requires BOTH halves; asserted
+  provenance at `not_established` is forbidden by shape and requires a
+  resolvable `declared_shortfall_ref`.
+- `dependent-binding.schema.yaml` — one authority binding against a
+  certificate's key material, recorded so a renewal's rebind set is computable
+  BEFORE the renewal. The key GENERATION is the join, compared against the
+  CERTIFICATE with no renewal record in the way.
+- `renewal-record.schema.yaml` — a renewal and the rebind obligation it
+  creates. "Successful with an unevidenced dependent" is unrepresentable as a
+  SCHEMA constraint; `failure.attribution` is the constant
+  `issuing_workflow`; no rule anywhere keys on `renewal_mode`.
+- `revocation-propagation.schema.yaml` — revocation reaching the authority the
+  certificate supported, within a declared window whose arithmetic is
+  recomputed. `mechanism.realized_through` is the constant
+  `openxwallet_revocation_through_derivation` — one revocation vocabulary, not
+  two — and an unevidenced closed window must be recorded
+  `incomplete_open_exposure` with the escalation.
+- `conformance-declaration.schema.yaml` — obligation by obligation, what a
+  realization satisfies, partially satisfies, and cannot; CLOSED over the
+  capability's eight obligations with coverage checked in both directions and
+  a per-entry `declared_at`, so a gap declared afterwards does not validate
+  the claims made while the realization was silent.
+- `chain-custody-registry.schema.yaml` + `trust-anchor-chain-custody.registry.yaml`
+  — the CLOSED chain-custody enumeration and the ordered assurance ladder it
+  caps, as a schema plus its closed instance (the `openxwallet-custody`
+  registry pattern). `evidences` is DERIVED from two declared booleans and
+  never independently asserted, and each member declares the `openxwallet`
+  custody member it corresponds to, which the canonical validator RESOLVES
+  against [`openxwallet/openxwallet-custody.registry.yaml`](openxwallet/openxwallet-custody.registry.yaml)
+  at run time — so "composes with rather than restates" is structural rather
+  than a promise, and the two registries cannot drift into two custody
+  models. Operator escrow is a deliberate NON-MEMBER, modelled as a
+  relationship on the credential record rather than a custody tier (OQ2, ruled
+  as recommended).
+
+`contracts/trust-anchor/README.md` (`Status: ratified`) and the packaged
+corpus at `contracts/trust-anchor/examples/` — 34 positive examples and 65
+intended-invalid negatives, coverage closed in both directions at 8/8
+requirements — are content-addressed by commit, no per-file digest. So are the
+canonical validator `scripts/validate-trust-anchor.py` (34 lettered rules, a
+self-test layer and a repo-scan layer, exit 0/1/2) and its pytest wiring
+`tests/trust-anchor/` (validator exit code and reported corpus counts; every
+negative fixture adjudicated independently; the declaration-perimeter rules
+whose cases need two records that disagree).
+
+### Realization provenance and the review hardening in this cut
+
+Both families were ratified by Brett Heap on 2026-08-21 — identity brokering
+with its recommendations adopted as written and the OQ-5 co-residence gate
+discharged, trust anchors with OQ1 and OQ2 ruled as recommended — and both
+were realized the same day.
+
+**Each family was then hardened by an adversarial review panel independent of
+its author, and the hardening is IN the bytes this cut registers.** Identity
+brokering: 28 bypass probes, 14 verified findings, 14 new negative fixtures
+(negative corpus 27 -> 41), the validator's rule set (a)-(m) -> (a)-(n), and
+22 distinct finding codes red-proven; three findings tightened the CONTRACT
+rather than a check (a merge is not approved by one of its own parties;
+`prior_shared_credential` required; `restriction_ref` required for both
+answers) and are disclosed in
+`specs/008-identity-brokering-contracts/research.md`. Trust anchors: 52
+probes, 14 findings, all 14 closed, two new positives and twenty-two new
+negatives (32/43 -> 34/65), 27 -> 34 validator rules, and 50 non-`schema`
+finding codes red-proven. Zero ratified-corpus regressions on either side. The
+per-finding dispositions live in each feature's `traceability.yaml` under
+`review_hardening`.
+
+Both changes also ADD one requirement each to `repo-boundary-governance` — the
+`Keycloak-Install` (amended 2026-08-21: Opensoft-level naming ruling — see the
+changes' Ratification sections) and `OpenXPKI-Install` repository
+boundaries — as TWO DISTINCT ADDED requirements rather than one shared
+MODIFIED enumeration delta, so the sibling changes cannot collide on one
+requirement at archive time. Those are governance deltas, not contract files,
+and nothing in this cut depends on them.
+
+Per [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+"Bundle Realization Order", the minor number is allocated LATE: this entry,
+the manifest bump to `contract-v1.37` and the fifteen new contract files land
+atomically in one candidate commit, and the annotated tag `contract-v1.37` is
+applied POST-MERGE to the exact realized commit on published `origin/main` —
+never reserved ahead of merge order, and never moved once published.
+
+## contract-v1.36 — 2026-08-21 (additive; the `share-session` gate action)
+
+Realizes tasks.md §12 of `add-doxbench-editing-phase-b` — the ratified
+requirement *"Share-session hands a live session to a colleague"*. One CONTRACT
+changes: `schemas/gate-action-record.schema.yaml`. That schema is
+content-addressed by its per-file `sha256` in [`manifest.yaml`](manifest.yaml);
+that row's digest is RECOMPUTED in this cut, and its `consumption_rule` names
+the new action.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+An enum member is added to `action`, and one `allOf` conditional is added that
+constrains ONLY that new member. Nothing previously valid becomes invalid, no
+required field is added to any existing shape, no shape is removed, and no
+existing record is reinterpreted. This is the schema's own stated additive
+route — "no record has ever carried that action, so nothing pre-existing is
+narrowed" — the same posture under which `edit-document`, `open-pr`,
+`abandon-session` and the three wheel commissions landed. The schema's
+`contract_schema_version` stays `1`, and the manifest row's `schema_version`
+stays `1` with it.
+
+`action` gains `share-session`: the doxBench workbench verb that commits a
+session's DIRTY thread sidecars and PUSHES the session branch, so a colleague
+can resume the same session from the fetched branch. It is deliberately
+STRICTLY LESS than `open-pr` — it reuses that verb's existing remote-write path
+(`session_pr.PullRequestPort.push`), opens no pull request, requests no review,
+and holds no approval or merge authority. It exists because threads are LOCAL
+until a human says otherwise: a working note that leaves the machine without an
+explicit act is a disclosure nobody chose, so no Save, turn, compaction or
+scheduled task may push one.
+
+The new conditional requires `target.ref` and NO artifact kind. That is a
+decision, not an omission, and it is the one genuinely novel shape in this cut:
+`share-session` has TWO RECORD RESIDENCIES, because FR-006's one-commit-per-
+gate-action guard explicitly refuses an empty declared document set.
+
+* With dirty sidecars to publish, the action commits them WITH its record as
+  exactly one commit on the session branch, so the record is BRANCH-RESIDENT
+  and carries a `commit` artifact — and rides to the colleague, who can then
+  see why those threads landed.
+* With nothing dirty but commits the remote has not seen — the ordinary state
+  after a run of Saves, precisely because nothing pushes implicitly — the
+  action commits nothing, so its record is MAIN-RESIDENT exactly as `open-pr`'s
+  is.
+
+Requiring `commit` would therefore invalidate the second and commoner case, and
+requiring `pull-request` would assert a pull request this verb never opens.
+
+A FAMILY-WIDE NOTE, recorded here because it is a property of the whole
+per-action conditional family and not of this cut alone: a conditional of the
+form `if action then artifacts contains kind` requires a companion artifact; it
+does NOT forbid the others. So this schema does not prevent a `share-session`
+record from carrying a `pull-request` artifact — it simply never requires one.
+`abandon-session` has the identical hole and has had it since
+`add-workbench-branch-sessions`. What forbids it is the RUNTIME: the share verb
+reaches exactly one port member and a test asserts that against the port's own
+call log, so no path exists that could build such a record. Closing the hole
+schema-side would mean adding a `not`/`contains` clause to several pre-existing
+actions at once, which narrows shapes that already have valid records in the
+corpus — the one thing this schema's additive posture forbids. It is therefore
+recorded as a known, runtime-enforced boundary rather than fixed here.
+
+RELEASE OBLIGATION STILL OPEN AT THIS ENTRY: per the versioning policy,
+CHANGELOG presence is the availability test and the annotated tag is cut at the
+realization squash. Task 12.7 carries the tag + submodule-pin half. The release
+DIGEST INVENTORY (`releases/contract-v1.36.digests.yaml`) ships INSIDE this cut,
+as `contract-v1.34` and `contract-v1.35` both did — it is part of the cut, not
+part of the tagging.
+
+## contract-v1.35 — 2026-08-19 (additive; the `device` roster admission surface)
+
+Realizes `add-roster-device-admission-surface`, the ratified extension of the
+client-identity-roster closed `admission_surface` vocabulary. One CONTRACT
+changes — `schemas/xfactory-client-identity-roster.schema.yaml` — and the
+change adds a packaged `device` example to
+`examples/client-identity-roster/`. The roster schema is content-addressed by
+its per-file `sha256` in [`manifest.yaml`](manifest.yaml); that row's digest is
+RECOMPUTED in this cut. (The roster schema is not a release-inventory member,
+so this cut's digest inventory changes only where `manifest.yaml` and this
+changelog change.)
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+A `oneOf` const member is added to `$defs.admission_surface`; nothing
+previously valid becomes invalid, no required field is added to any existing
+shape, no shape is removed, and no existing roster is reinterpreted, so a
+domain on the same major version stays conformant WITHOUT CHANGES. The
+schema's own `contract_schema_version` stays `1`, and the roster row's
+`schema_version` stays `1` with it — vocabulary-member admission is governed by
+the schema's EXTENSION ROUTE text, not by the object-shape/key-space growth
+that would take a `contract_schema_version` bump.
+
+`$defs.admission_surface` gains a third member, `device`: the Microsoft tenant
+DEVICE ESTATE — Entra registered devices, Intune managed devices and Windows
+365 Cloud PCs — admitted as ONE tenant-wide READ surface. Its admission act is
+admin consent for the read-only application roles `Device.Read.All`,
+`DeviceManagementManagedDevices.Read.All` and `CloudPC.Read.All` on ONE Entra
+app registration; its scoping mechanism is tenant-wide read with exact
+effective scopes and no narrower provider selector (`enforcement_mode:
+logic_enforced`); it is read-only. Because the governed unit IS the tenant
+device estate, tenant-wide read is the GOVERNED scope, not excess. The
+extension-route prose is resliced so `device` is the READ surface for those
+three provider areas, while endpoint MUTATION (Intune write) and Entra
+DIRECTORY read remain SEPARATE future surfaces, each arriving with its own
+governing change. Evidence: the OpsxFactory node-inventory reader (a downstream
+consumer authored under OpsxFactory governance).
+
+The packaged positive example (`opsx-farheap-node-inventory-reader`, a
+`planned` entry in
+`examples/client-identity-roster/client-identity-roster-farheap-opsx.example.yaml`)
+demonstrates the shape: `admission_surface: device`,
+`authority_class_intended`/`_achieved: observe`, the three read roles each
+`achieves: observe`, `exceeds_governed_unit: false`, NO `declared_excess`,
+`per_unit_principal_available: {device: false}`, and a single
+`logic_enforced` act. The `admission-surface-out-of-vocabulary` negative
+(which uses `sharepoint`) still fires — `device` is now in-vocabulary,
+`sharepoint` is not.
+
+## contract-v1.34 — 2026-08-18 (additive + deprecating; the doxBench chat-turn widening)
+
+Realizes `add-doxbench-editing-phase-b` §13, the contract release its ratified
+"chat-turn contract release carries the bound buffer and the model" requirement
+names. One CONTRACT changes —
+`schemas/xfactory-workbench-chat-turn.schema.yaml` — and one normative document
+moves with it: [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+records this cut's deprecation in its "Deprecations Currently In Force" list.
+Both are release-surface members and both are digested in this cut's inventory.
+
+**Change class: ADDITIVE (minor) plus a DEPRECATION (minor)**, both under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+lines 128-135. Nothing here is breaking: no required field is added to an
+existing shape, no shape is removed, and no vocabulary is reinterpreted, so a
+consumer on the same major version remains conformant WITHOUT CHANGES.
+
+`xfactory-workbench-chat-turn.schema.yaml` gains a CO-RESIDENT SECOND ENVELOPE
+FAMILY beside its existing one — `workbench-chat-turn-v2`,
+`workbench-chat-turn-v2-success`, `workbench-chat-turn-v2-failure` — added to
+the file's top-level `oneOf` and discriminated by `kind`, exactly as the three
+v1 envelopes already discriminate each other. The widened family carries what
+the v1 shape had no room for: the outline plus EVERY loaded document buffer
+(`buffers` widens from `minItems: 2, maxItems: 2` to `minItems: 2, maxItems: 25`
+— the surface's declared 24-document loaded-set bound plus the reserved
+outline); the DECLARED `bound_buffer` key on both the request and the durable
+record; `observed_hashes` keyed by BUFFER KEY rather than by the two fixed names
+`outline` and `document`; `typed_proposal.target` as a buffer key rather than a
+two-value enum, with the proposal list bounded by the buffer set rather than by
+a literal 2; and `selected_model` metadata beside `model_id`, so a record states
+both which model ANSWERED and which entry the human CHOSE (the two differ
+exactly when the chosen entry is a routing rule). The v2 request carries no
+`active_document_path`: the binding is DECLARED, never inferred from an adjacent
+field that answers a different question.
+
+**The v1 request, success and failure blocks are BYTE-IDENTICAL to their
+contract-v1.31 bytes** and keep validating; a client that submits the previously
+released shape is still served. That byte identity is asserted by a test against
+a committed baseline, not by re-validation. The file's own
+`contract_schema_version` stays `1`, and the envelope-level `schema_version`
+stays `1` with it, because nothing previously valid becomes invalid.
+
+**Deprecation, with its removal target recorded.** The whole v1 family
+(`workbench-chat-turn`, `workbench-chat-turn-success`,
+`workbench-chat-turn-failure`) is DEPRECATED as of this release. The record is
+machine-readable in the schema's own top-level `deprecated_envelopes` block —
+placed outside every envelope precisely so the deprecated bytes do not move.
+Removal target: **contract-v2.0**, which is the next major and therefore the
+earliest release at which a removal is legal; this deprecation starts the
+"at least one full minor release where the old shape produced deprecation
+warnings" clock the policy's breaking path requires. Migration: submit
+`workbench-chat-turn-v2` instead of `workbench-chat-turn`; carry every loaded
+buffer in `buffers` rather than exactly two; replace `active_document_path` with
+`bound_buffer` (the key of the buffer the conversation is working ON, which must
+name one of the buffers the same request supplies); read `observed_hashes` and a
+proposal's `target` as buffer keys; and read the answering model from `model_id`
+with the chosen entry from `selected_model`.
+
+**What the deprecation does to your tooling.** The family's delegated validator
+(`scripts/validate-ideation-dashboard-contracts.py`) reads the schema's own
+`deprecated_envelopes` block and now emits ONE WARNING per validated v1 instance,
+naming the superseding kind and the removal target — that warning is what the
+deprecating change class requires, and the instance is still ACCEPTED, so the
+default invocation still exits 0. The consequence to plan for: under the opt-in
+`--strict` flag ("treat warnings as errors") a v1 instance now exits 1. That is
+strict mode working as documented, and it is the intended way to find the shapes
+that will not survive `contract-v2.0`; it is no longer the right command for
+gating a corpus that legitimately still holds v1 instances.
+
+## contract-v1.33 — 2026-08-15 (additive; the client-identity roster, and the credential-contracts registration gap closed)
+
+Realizes `add-client-identity-roster` through Speckit feature
+`007-client-identity-roster`: one new neutral contract family, one first-ever
+registration of an already-promoted schema, and additive growth in two
+existing capabilities. **Every change in this cut is ADDITIVE under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+lines 130-132** — the class is "new optional fields, new contracts, new
+validator warnings", and its test is that a domain repo on the same major
+version remains conformant WITHOUT CHANGES. Each item below is stated against
+that test explicitly, because the cut touches capabilities domains already
+consume.
+
+`schemas/xfactory-client-identity-roster.schema.yaml` is the NEW family: the
+record in which a domain factory declares every governed identity it holds
+standing inside a paying client's provider tenant, and the report-only drift
+finding that reports when observed state departs from that declaration. Two
+kinds behind one top-level `oneOf`, because the fragment and the drift record
+that cites it are produced and consumed by one lane and the five-element
+uniqueness tuple — (domain, admission surface, authority class, blast-radius
+unit, duty) — must be defined once and referenced by both. Entries carry
+verified admission with achieved scope (a claimed-but-unevidenced verification
+is unrepresentable, not merely discouraged), structural scoping preferred over
+name-based scoping, declared provider-forced breadth where the provider offers
+no narrower grant, and a fragment-scoped free-token legend. **Additive by the
+policy test: it is a NEW contract, so no existing record is reinterpreted and
+no domain repo needs an edit to stay conformant.** A domain that publishes no
+fragment stays conformant and its checks report a notice, never a finding.
+
+`schemas/xfactory-credential-contracts.schema.yaml` receives its **FIRST
+manifest registration** in this cut. The schema was promoted at DTN-004
+(`promote-credential-contracts`) without a manifest row, so the digest
+cross-repo consumers are told to verify did not exist for the file they pin;
+this cut closes that gap rather than refreshing anything. Registered together
+with its one growth: the OPTIONAL `issuance_preconditions` object on a
+credential requirement, a CLOSED vocabulary (`accepted_request_required`,
+`registered_active_subject`, `roster_drift_clear_required`) in which every
+value is `const: true`, because a precondition is DECLARED or NOT DECLARED —
+`false` is not a second meaning, it is a declaration that reads as governance
+while asserting nothing. **Additive by the policy test: the property is
+OPTIONAL, so a requirement record that declares nothing at all remains valid,
+and both live OpsxFactory records already carry `true`.**
+
+`schemas/consent-instrument.schema.yaml` (`contract_schema_version` 1 → 2) and
+`schemas/consent-instrument-class-registry.schema.yaml`
+(`contract_schema_version` 1 → 2) grow so the termination cascade reaches a
+standing identity in another party's tenant. The lifecycle enum gains
+`withdrawn` as a SECOND TERMINAL state, reachable once the instrument is past
+execution and a DISTINCT member — never an alias of `terminated`, because
+withdrawal by the consenting party and termination are distinct events that
+both raise the cascade obligation; the class registry's `status_aliases`
+target enum tracks that six-state lifecycle. `dependent_refs` gains the NAMED
+`governed_identity` kind with two evidence siblings
+(`identity_removal_evidence`, `admission_withdrawal_evidence`), because a
+credential revocation alone leaves the identity standing in the client's
+tenant with its admission intact, and removing one of the two keys is a
+half-cascade. **Additive by the policy test on both counts: an ADDED ENUM
+MEMBER and OPTIONAL properties. No existing instrument becomes invalid, no
+existing alias declaration becomes invalid, and no domain repo on the same
+major version needs a change** — which is why the RECORD envelope's
+`schema_version` stays `const: 1` in both schemas while the schema files'
+`contract_schema_version` bumps: bumping the record envelope would invalidate
+every instrument in the estate, the opposite of additive. The two manifest
+digests are refreshed with the bump recorded in their `consumption_rule`.
+
+Consumers pin this release and run
+`scripts/validate-client-identity-roster.py <domain-repo>` from the pinned
+checkout, never a copy inside a domain repository; the packaged corpus is
+`examples/client-identity-roster/` — 4 example YAMLs and a README, plus 31
+registered negatives under `negative/`, each failing for its own registered
+reason. The roster paths are content-addressed by commit and deliberately do
+NOT enter the release digest inventory, whose membership is unchanged from
+v1.30, v1.31 and v1.32. `scripts/validate-credential-contracts.py`'s
+skip-with-notice over `credentials/client-identity-roster/` is EXPECTED and
+BLESSED: the canonical roster validator claims exactly that path.
+
+## contract-v1.32 — 2026-08-15 (additive; the Subject Hermes overlay kind)
+
+Cuts the standing Unreleased items: the `hermes_subject_overlay` kind and
+validator dispatch (add-subject-overlay-contract, ratified 2026-08-15,
+PR #183 merged cb738ba5) and the openxwallet RSA signature-algorithm
+widening. Also corrects the `omnigent-domain-overlay` manifest digest,
+which drifted when df16f21 edited the schema without refreshing the
+recorded digest.
+
+- **Additive**: `contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml`
+  — the neutral `hermes_subject_overlay` kind for a Subject Hermes layer's
+  seedable document (add-subject-overlay-contract, ratified 2026-08-15).
+  Subject identity (`id`, not `ref` — a subject overlay DECLARES an identity
+  that exists in no prior registry), a `policy_namespace`, a declared
+  `relation_to_baseline` (single-value enum `additive_constraints_only`), and
+  a non-empty `policies` mapping keyed by policy id whose entries restate
+  their own `policy_id` and `policy_namespace` and keep an OPEN body — so a
+  named policy is addressable as `<policy_namespace>/<policy_id>` without the
+  neutral contract enumerating policy names, which is exactly what stopped the
+  tenant-layer override contract from carrying one. The kind name is canonical
+  (`subject`) while the runtime layer role key stays the frozen `customer`;
+  the mapping is recorded in the schema header, and neither side is renamed.
+  `scripts/validate-hermes-domain-overlay.py` gains the kind and now dispatches
+  descriptor-declared paths BY KIND instead of skipping everything that was not
+  a domain overlay, retaining the skip-with-notice for kinds owned by another
+  canonical validator (`hermes_client_overlay` →
+  `scripts/validate-client-content.py`); it adds address self-consistency and
+  uniqueness, the prohibited-block list, and cross-document identity
+  conformance against the domain's own `subject_hermes_template` (absent
+  template = skip with notice, no new refusal class). One positive example and
+  eleven negatives ship with it (eight document-shaped, three repo-shaped).
+  Additive only: no released file's bytes change, so existing pins — including
+  hermes-install's `contract-v1.18` pinned copies — resolve byte-identically
+  until they choose to re-pin. Manifest entry added; the bundle minor number
+  and annotated tag are allocated LATE at realization per the versioning
+  policy.
 - **Additive**: `openxwallet-record.schema.yaml` `signature_algorithm`
   enum widened with `rsa-2048-sha256` and `rsa-3072-sha256`
   (RSASSA-PKCS1-v1_5 over the named SHA-2 digest). Found by the first

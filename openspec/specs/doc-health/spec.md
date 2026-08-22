@@ -8,17 +8,23 @@ and ranked plan, the headline canon-share metric, and the ownership split
 between contract, implementation, and the nightly runner.
 ## Requirements
 ### Requirement: Deterministic check families
-The doc-health deterministic pass SHALL implement fifteen check families over
+The doc-health deterministic pass SHALL implement sixteen check families over
 the whole factory family's governance corpus: status validity, standard
 backing, ratified provenance, succession integrity, location conformance,
 record immutability, staged/candidate aging, register-lifecycle consistency,
 tag hygiene, submodule pin drift, contract-copy drift, notebook projection
-drift, document catalog, ideation routing, and proposal origin. Every check in this pass MUST be
+drift, document catalog, ideation routing, proposal origin, and client
+identity roster composition. Every check in this pass MUST be
 deterministic — identical inputs produce identical findings, with no model
 calls; semantic analysis belongs to the agentic semantic sweep and the separate
 document-cataloger and ideation-organizer lanes their owning capabilities
 define. Check families SHALL implement promoted spec wording; staged ideation
-fragments are inputs to contracts, never check definitions.
+fragments are inputs to contracts, never check definitions. The client
+identity roster composition family SHALL cover only the CROSS-DOMAIN
+concerns — assembling per-client fragments published by each domain and
+reporting shared identity material or undeclared cross-domain reach —
+because intra-repo roster conformance is a blocking domain gate rather than
+an advisory report.
 
 #### Scenario: A run executes the check families
 - **WHEN** a doc-health run executes
@@ -26,6 +32,7 @@ fragments are inputs to contracts, never check definitions.
 - **AND** document catalog MUST validate the shared inventory plus promoted specs and the aggregation-hosted catalog snapshots as its owning requirement defines
 - **AND** ideation routing MUST additionally inspect the aggregation root placement boundary and resolve explicitly referenced pinned repositories as its owning requirement defines
 - **AND** proposal origin MUST validate active and archived proposal packets, support manifests, and staging-header linkage as its owning requirements define
+- **AND** client identity roster composition MUST assemble the per-client roster fragments published by each pinned domain repository as its owning requirement in `client-identity-roster` defines
 - **AND** a family or reference check that cannot run (for example notebook drift without credentials or an unavailable external checkout) MUST be reported as skipped, never silently omitted
 
 #### Scenario: Lifecycle conformance checks fire
@@ -51,6 +58,11 @@ fragments are inputs to contracts, never check definitions.
 #### Scenario: Origin conformance checks fire
 - **WHEN** a proposal packet, support manifest, or staging-header linkage violates the promoted origin contract
 - **THEN** the run MUST emit a `proposal-origin` finding with the violated requirement and evidence
+
+#### Scenario: Roster composition is checked across domains
+- **WHEN** two or more pinned domain repositories publish client identity roster fragments for the same client
+- **THEN** the roster composition family assembles them and reports shared identity material or undeclared cross-domain reach
+- **AND** intra-repo entry conformance is NOT reported here, because it fails the owning domain's gate instead
 
 ### Requirement: Tag hygiene enforced by reference
 The tag-hygiene check family SHALL enforce the canonical `xspec:` marker
@@ -658,4 +670,29 @@ the contract.
 #### Scenario: The origin contract evolves
 - **WHEN** a later OpenSpec change modifies the promoted origin requirements
 - **THEN** the family MUST follow the owning requirements by reference rather than a stale implementation copy
+
+### Requirement: The deterministic pass reads a document's lifecycle header by real lines
+The deterministic pass SHALL locate a governed document's lifecycle header by counting the document's REAL lines — the three line endings CR, LF and CRLF — and MUST NOT count any other character as a line separator. The bounded header window is therefore a number of lines of the document rather than a number of fragments a wider splitting rule produced from it.
+
+This SHALL hold for every reader of that header, so that the status a document carries and the status the pass reports are the same fact. A reader that splits more aggressively than the writer can fail to find a header the writer just wrote correctly, and then reports a document as lacking a status it plainly has — a FALSE finding, which costs more trust than a crash because it accuses a correct document and leaves the operator no recourse but to disbelieve the checker.
+
+The line rule SHALL be shared with the writers of the same header rather than reimplemented per reader. Where the corpus cannot share an implementation across language boundaries, the divergence SHALL be held by an explicit agreement test rather than by convention.
+
+#### Scenario: A header carrying an exotic separator is read
+- **WHEN** the deterministic pass reads a governed document whose header region contains characters a wider splitting rule would treat as line breaks
+- **THEN** the document's lifecycle status MUST be found if it is present within the header window counted in real lines
+- **AND** the pass MUST NOT report the document as lacking a status it carries
+
+#### Scenario: The header window is counted
+- **WHEN** the deterministic pass applies its bounded header window to a document
+- **THEN** the bound MUST count real lines of the document
+
+#### Scenario: The reader and the writer are compared
+- **WHEN** a lifecycle header is written by a governed action and then read by the deterministic pass
+- **THEN** both MUST agree on where the document's lines begin and end
+
+#### Scenario: The corpus is unchanged by the correction
+- **WHEN** the deterministic pass runs over the governance corpus after this correction
+- **THEN** its findings MUST be identical to the run before it
+- **AND** any finding that does move MUST be explained rather than accepted, because a moved finding means a corpus document carries a separator the prior measurement did not see
 

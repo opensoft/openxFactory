@@ -1,0 +1,272 @@
+schema_version: 1
+kind: openxfactory-trust-anchor-contract-schema
+name: xfactory_trust_anchor
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/trust-anchor/v1/trust-anchor.schema.yaml"
+contract_id: trust-anchor
+contract_schema_version: 1
+title: Trust anchor record
+description: >-
+  The governed record a system TRUSTS (add-trust-anchor, requirement "Systems
+  trust anchors, never individual certificates"). A certificate is trusted only
+  derivatively, through an anchor record the evaluating system already holds.
+
+  The record names the anchor's identity, its position in a chain, its validity
+  window, the issuance authorities it ADMITS, and the declared custody of its
+  private key. It REFERENCES key material and never carries it: every object in
+  this family closes `additionalProperties`, so no key-shaped property can be
+  added at any depth, and the only key-adjacent value the shape admits is a
+  DIGEST (`public_key_fingerprint`), which cannot carry a private key. The
+  canonical validator additionally walks names AND values — including
+  reversible encodings — because a conformant shape can still carry a PEM block
+  inside a string field that legitimately exists.
+
+  WHY AN ANCHOR RATHER THAN A CERTIFICATE. Trusting certificates individually
+  produces a trust set nobody can enumerate and an anchor withdrawal that
+  withdraws nothing. Anchoring gives revocation and rotation somewhere to
+  attach: an anchor's validity window BOUNDS its subordinates (the validator
+  refuses a certificate outliving its anchor, and refuses a trusted evaluation
+  under an anchor that is withdrawn, revoked, or past its window), and a chain
+  terminating in no held anchor is refused with the missing anchor NAMED.
+
+  CHAIN POSITION IS COHERENT OR THE RECORD IS REFUSED. A `root` carries no
+  parent and sits at depth 0; a `subordinate` names its parent and sits exactly
+  one below it. A subordinate whose parent does not resolve is refused rather
+  than passed over — an unresolvable parent is a chain that terminates nowhere,
+  which is the case this capability exists to refuse.
+
+  AUTHORITY MATERIAL IS A CREDENTIAL RECORD. `declared_chain_custody` admits
+  exactly two shapes: the `credential-contracts` record reference WITH its vault
+  binding, or the obligation entry where the realization declared that neither
+  can be produced. So an anchor cannot be recorded without saying where its key
+  lives or why nobody can say — and it lives there, never here. The validator
+  resolves the declared entry and refuses one recorded as satisfied, one
+  belonging to another realization, or one declared after the record it excuses.
+
+  The same pairing holds the STRICTEST-TIER obligation. Anchor custody is held to
+  the strictest member the closed set declares (the ladder's top ceiling); an
+  anchor below it is conformant ONLY where the realization declares that
+  shortfall, which is the honest case for an authority the family does not
+  operate and the dishonest one for an authority it does. Both halves are
+  enforced: the validator refuses a shortfall citation whose realization declares
+  `authority_operated_by_family: true`, because an operator that can produce a
+  credential record has no shortfall to declare, and a shortfall citation
+  requires `declared_at` so the lateness guard always has both sides of its
+  comparison.
+
+  A READABLE ANCHOR KEY CAPS EVERYTHING BENEATH IT. Where an anchor's declared
+  custody leaves its private key readable by the using host, no subordinate
+  anchor and no certificate chaining to it may carry an assurance ceiling above
+  that anchor's: anyone with read access to that host can issue under the chain,
+  anywhere, indefinitely, so nothing beneath it can attribute an act to a named
+  holder. The shortfall stays conformant when declared — and this is what it
+  costs at point of use.
+type: object
+required:
+  - schema_version
+  - kind
+  - anchor_id
+  - realization_ref
+  - anchor_identity
+  - chain_position
+  - validity
+  - state
+  - admitted_issuance_authorities
+  - declared_chain_custody
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_trust_anchor]
+  anchor_id: {$ref: '#/$defs/identifier'}
+  realization_ref:
+    # The realization whose conformance declaration a consumer reads to learn
+    # which obligations this anchor's operator can meet. Required, because a
+    # declaration nobody can find from the record is a declaration nobody
+    # reads.
+    $ref: '#/$defs/identifier'
+  anchor_identity:
+    type: object
+    required: [subject_name]
+    additionalProperties: false
+    properties:
+      subject_name: {type: string, minLength: 1, maxLength: 300}
+      key_identifier_ref:
+        # An opaque reference to the anchor's key — a subject key identifier,
+        # a store handle. A REFERENCE, never material.
+        $ref: '#/$defs/identifier'
+      public_key_fingerprint:
+        # A DIGEST of the public key, which is what a system holding this
+        # anchor pins. Pattern-restricted to a named digest so the field
+        # cannot become a container for anything else.
+        type: string
+        pattern: '^(sha256|sha384|sha512|sha1):[0-9a-fA-F:]{16,160}$'
+      display_label: {type: string, maxLength: 300}
+  chain_position:
+    type: object
+    required: [role, path_depth]
+    additionalProperties: false
+    properties:
+      role:
+        type: string
+        enum: [root, subordinate]
+      parent_anchor_ref: {$ref: '#/$defs/identifier'}
+      path_depth: {type: integer, minimum: 0}
+      statement: {type: string, maxLength: 600}
+    allOf:
+      - if:
+          properties: {role: {const: root}}
+          required: [role]
+        then:
+          # A root with a parent is not a root. Unrepresentable rather than
+          # discouraged, because the chain rules downstream read `role`.
+          not: {required: [parent_anchor_ref]}
+          properties: {path_depth: {const: 0}}
+      - if:
+          properties: {role: {const: subordinate}}
+          required: [role]
+        then:
+          required: [parent_anchor_ref]
+          properties: {path_depth: {minimum: 1}}
+  validity:
+    type: object
+    required: [not_before, not_after]
+    additionalProperties: false
+    properties:
+      not_before: {type: string, format: date-time}
+      not_after: {type: string, format: date-time}
+  state:
+    # `held` is the only state under which certificates chaining here may be
+    # trusted. Withdrawal and revocation are distinct: a withdrawn anchor was
+    # removed from the trust set, a revoked one was repudiated, and both stop
+    # trust from that moment.
+    type: string
+    enum: [held, withdrawn, revoked]
+  withdrawal:
+    type: object
+    required: [withdrawn_at, reason_statement]
+    additionalProperties: false
+    properties:
+      withdrawn_at: {type: string, format: date-time}
+      reason_statement: {type: string, minLength: 1, maxLength: 800}
+  revocation:
+    type: object
+    required: [revoked_at, reason_statement]
+    additionalProperties: false
+    properties:
+      revoked_at: {type: string, format: date-time}
+      reason_statement: {type: string, minLength: 1, maxLength: 800}
+      propagation_ref:
+        # The revocation-propagation record carrying the bounded window and the
+        # per-authority evidence. Named here so an anchor's repudiation and the
+        # propagation it owes are one thread.
+        $ref: '#/$defs/identifier'
+  admitted_issuance_authorities:
+    # The grants or policies under which this anchor may issue. An issuance
+    # citing anything outside this set is recorded as unauthorized; the
+    # certificate's own validity does not ratify it retroactively.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      required: [authority_ref, authority_kind, statement]
+      additionalProperties: false
+      properties:
+        authority_ref: {$ref: '#/$defs/identifier'}
+        authority_kind:
+          type: string
+          enum: [grant, policy]
+        statement: {type: string, minLength: 1, maxLength: 600}
+        admitted_at: {type: string, format: date-time}
+  declared_chain_custody:
+    # The custody of THIS anchor's private key, declared from the closed
+    # registry, plus the credential record and vault binding that actually hold
+    # it. The credential record and the vault binding come as a PAIR, and the
+    # only conformant alternative to naming them is naming the obligation entry
+    # where the realization DECLARED that it cannot produce them — which is the
+    # honest position for an authority the family does not operate, and an
+    # unrepresentable one for silence. The validator resolves that entry and
+    # refuses one recorded as satisfied.
+    type: object
+    required: [custody_model, registry_id]
+    anyOf:
+      - required: [credential_record_ref, vault_binding_ref]
+      - required: [declared_shortfall_ref]
+    dependentRequired:
+      # A citation carries the MOMENT it was made. The ratified guard — declaring
+      # a gap afterwards does not validate the claims made while the realization
+      # was silent — is a comparison, and a comparison with one side missing is
+      # not a weaker check, it is no check: an adversarial review reached the
+      # excused-anchor case simply by OMITTING two optional timestamps. So
+      # naming a shortfall requires saying when this custody was declared.
+      declared_shortfall_ref: [declared_at]
+    additionalProperties: false
+    properties:
+      custody_model: {$ref: '#/$defs/identifier'}
+      registry_id: {$ref: '#/$defs/identifier'}
+      registry_version: {type: integer, minimum: 1}
+      credential_record_ref:
+        # The `credential-contracts` record. Private key material exists ONLY
+        # there, with declared custody and a vault binding, and is never
+        # committed to any repository in plaintext or in a reversible encoding
+        # — with no exception for test, demonstration or QA material.
+        $ref: '#/$defs/identifier'
+      vault_binding_ref: {$ref: '#/$defs/identifier'}
+      declared_at: {type: string, format: date-time}
+      declared_by: {type: string, maxLength: 200}
+      declared_shortfall_ref:
+        # The conformance-declaration obligation entry that declares this
+        # anchor's custody sits below the strictest member of the closed set, or
+        # that no credential record can be produced for its key material.
+        # Present only where that is true; the validator refuses an under-tier
+        # anchor whose shortfall is undeclared, and refuses a shortfall
+        # reference that resolves to an obligation recorded as satisfied.
+        $ref: '#/$defs/identifier'
+      statement: {type: string, maxLength: 900}
+  administration_credentials:
+    # Credentials authorizing issuance, revocation or anchor administration.
+    # References only: each names a credential record and the ephemeral scope
+    # it is brokered into, never a value. A workflow receives the credential BY
+    # REFERENCE and never writes it to its own storage or logs.
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      required: [credential_record_ref, authorizes, brokered_into_ephemeral_scope]
+      additionalProperties: false
+      properties:
+        credential_record_ref: {$ref: '#/$defs/identifier'}
+        authorizes:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum: [issuance, revocation, anchor_administration]
+        brokered_into_ephemeral_scope:
+          # `credential-contracts` brokering, restated as a constant rather
+          # than a boolean: a record cannot declare that this credential is
+          # held in a workflow's own storage, because that is not a conformant
+          # arrangement to record.
+          const: true
+        statement: {type: string, maxLength: 600}
+  record_version: {type: integer, minimum: 1}
+  created_at: {type: string, format: date-time}
+  notes: {type: string, maxLength: 1400}
+allOf:
+  - if:
+      properties: {state: {const: withdrawn}}
+      required: [state]
+    then: {required: [withdrawal]}
+  - if:
+      properties: {state: {const: revoked}}
+      required: [state]
+    then: {required: [revocation]}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

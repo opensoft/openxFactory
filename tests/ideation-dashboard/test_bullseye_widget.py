@@ -1568,11 +1568,25 @@ def test_the_drafted_body_is_actually_saved_and_the_verdict_is_read_correctly():
     assert "await Promise.all(" in write
     assert "[seams.hash(loaded.content), seams.hash(content)]" in write
 
-    # the verdict is an ARRAY of per-buffer rows, and is read as one
+    # the verdict is an ARRAY of per-buffer rows, and is read as one.
+    #
+    # RE-PINNED by `add-doxbench-editing-phase-b` (task 6.4): the outcome row's
+    # first field is now `key` -- the BUFFER KEY -- rather than `kind`. The row
+    # still carries exactly seven fields; what moved is that a field named `kind`
+    # would have had to carry `ideation/staging/x/y.md` once documents are keyed
+    # by path, which is a false statement about the field. This create seam
+    # declares no `key`, so `savePlanState` keys it by its `kind` and it lands on
+    # the reserved `document` slot -- exactly what a create's not-yet-keyed
+    # buffer is -- so the reader's target string is unchanged and only the field
+    # name moved. The assertion is not weakened: the row is still found by
+    # identity, never by index, and the map-shaped reading is still forbidden.
     assert "buffers: Object.freeze(rows)," in save
-    assert "verdict.buffers.find((r) => r && r.kind === \"document\")" in write
+    assert "verdict.buffers.find((r) => r && r.key === \"document\")" in write
     assert "Array.isArray(verdict.buffers)" in write
     assert "verdict.buffers.document" not in write
+    # …and the planner keys a seam row by its own declared key, falling back to
+    # `kind` for exactly this create request.
+    assert "[row.key ?? row.kind, row]" in save
 
 
 def test_a_created_draft_becomes_its_tile_so_the_held_tabs_come_back():

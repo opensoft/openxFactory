@@ -1,0 +1,36 @@
+# VALID issuance evidence recording an UNAUTHORIZED issuance. Authorization is
+# DERIVED from the anchor's admitted set rather than asserted here, and this
+# issuance cited a policy the anchor does not admit — so the only conformant
+# value is `unauthorized`. Recording it honestly is what lets the certificate be
+# refused; recording it as authorized would have made every reader downstream
+# adjudicate a fiction.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:core-strayed-06
+certificate_ref: cert:core-strayed-06
+anchor_ref: anchor:core-issuing
+realization_ref: realization:core-self-hosted-authority
+authority:
+  authority_ref: policy:decommissioned-legacy-policy
+  authority_kind: policy
+  statement: >-
+    A policy that was retired from the anchor's admitted set in 2026-04 and left
+    configured in an adapter's enrollment profile.
+establishment_level: per_certificate_record
+request_provenance:
+  establishment: established
+  requester_ref: system:legacy-adapter-enrollment
+  request_id: req:core-strayed-06-2026-06
+  requested_at: "2026-06-01T00:00:00Z"
+  statement: >-
+    Provenance is fully established, which is what makes the finding actionable:
+    we know exactly what asked, under what, and when.
+issued_at: "2026-06-01T00:00:00Z"
+authorization_state: unauthorized
+issuing_authority:
+  operated_by_family: true
+  statement: Operated by the family.
+notes: >-
+  The certificate's own validity does not ratify this retroactively, and the
+  certificate record refuses it for every use.
+record_version: 1

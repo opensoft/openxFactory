@@ -166,3 +166,11 @@ retroactively invalidate an old pin.
   contract-v2.0.
 - Layer/owner tokens beginning `openworkflow_` — replaced by `xfactory`.
   Warned since contract-v1.1; removal target contract-v2.0.
+- The doxBench chat-turn v1 envelope family (`workbench-chat-turn`,
+  `workbench-chat-turn-success`, `workbench-chat-turn-failure` in
+  `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`) — replaced by
+  the co-resident widened `-v2` family that carries the outline plus every
+  loaded document, the declared bound-buffer key on request and record, keyed
+  observed hashes, a buffer-key proposal target, and the selected-model
+  metadata. Deprecated at contract-v1.34; removal target contract-v2.0. The v1
+  bytes are unchanged and keep validating until then.

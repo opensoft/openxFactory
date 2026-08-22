@@ -1,0 +1,27 @@
+# VALID issuance evidence under a GRANT rather than a standing policy — the
+# anchor admits both kinds, and the record names which one was used.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:core-workload-02
+certificate_ref: cert:core-workload-02
+anchor_ref: anchor:core-issuing
+realization_ref: realization:core-self-hosted-authority
+authority:
+  authority_ref: grant:core-workload-issuance-grant
+  authority_kind: grant
+  statement: >-
+    A scoped grant, so the population of workload certificates is bounded by the
+    grant's own expiry rather than by a standing policy.
+establishment_level: per_certificate_record
+request_provenance:
+  establishment: established
+  requester_ref: role:core-platform-steward
+  request_id: req:core-workload-02-2026-07
+  requested_at: "2026-06-28T09:00:00Z"
+  statement: Established from the authority's issuance record.
+issued_at: "2026-07-01T00:00:00Z"
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: true
+  statement: Operated by the family.
+record_version: 1

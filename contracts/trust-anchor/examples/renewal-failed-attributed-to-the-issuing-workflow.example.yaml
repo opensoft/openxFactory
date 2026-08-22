@@ -1,0 +1,54 @@
+# VALID renewal recorded as FAILED, with the failure attributed to the ISSUING
+# WORKFLOW. The authority issued successfully; one of the two dependents was
+# re-bound and evidenced and the other was not, so the renewal is not complete —
+# and the thing that failed is the workflow that changed the key, not the mesh
+# that stopped authenticating.
+#
+# The attribution is a constant in the shape: there is no field in which to
+# record this as the dependent's failure. That is deliberate. Attributing the
+# outage to the dependent produces an incident report that teaches nothing, a fix
+# that is a re-bind with no obligation attached, and a guarantee of recurrence at
+# the next renewal.
+schema_version: 1
+kind: xfactory_certificate_renewal_record
+renewal_id: renewal:core-workload-02-2026-07
+certificate_ref: cert:core-workload-02
+anchor_ref: anchor:core-issuing
+renewal_mode: unattended
+planning:
+  planned_at: "2026-06-30T00:00:00Z"
+  certificate_enumeration_state: complete
+  outcome: proceeded
+key_change:
+  changed: true
+  superseded_key_generation_ref: keygen:core-workload-02-g1
+  new_key_generation_ref: keygen:core-workload-02-g2
+rebind_obligation:
+  arises: true
+  statement: >-
+    New key material. Two bindings referenced the superseded generation; both owe
+    a re-bind.
+enumerated_dependents:
+  - bind:core-workload-02-queue
+  - bind:core-workload-02-mesh
+dependent_rebinds:
+  - binding_ref: bind:core-workload-02-queue
+    rebind_evidence:
+      mode: authentication_against_new_material
+      performed_at: "2026-07-01T02:05:00Z"
+      result: succeeded
+      evidence_ref: evidence:core-workload-02-queue-rebind
+authority_outcome: issued
+completion_state: failed
+failure:
+  attribution: issuing_workflow
+  unbound_dependents:
+    - bind:core-workload-02-mesh
+  statement: >-
+    The mesh's peer-authentication policy pins the key generation and was not
+    re-bound. The mesh was configured correctly when it was configured; this
+    renewal is what changed beneath it, and the obligation stays open against the
+    issuing workflow until the rebind is evidenced.
+  remediation_ref: remediation:core-workload-02-mesh-rebind
+reported_at: "2026-07-01T03:00:00Z"
+record_version: 1

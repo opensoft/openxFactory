@@ -1,0 +1,32 @@
+# expected_failure: never-mirror-property
+# expected_failure_detail: 'organization_memberships[0].projects' is an undeclared property
+# requirement: IDB-R3
+# VIOLATES R3: the tenancy graph, projected one level down.
+#
+# The same mirror as `persona-assertion-carries-roles`, hidden where a reviewer
+# is less likely to look: not on the assertion but INSIDE a membership, where it
+# reads like a helpful denormalization of "which projects this membership gives
+# access to". That is the project register — governed state — copied into the
+# broker.
+#
+# This is why the allow-list walk is recursive: closing only the top level
+# would leave every nested object open, and the projection would arrive at
+# depth 2 instead of depth 1.
+schema_version: 1
+kind: persona_assertion
+assertion_id: pa-carries-project-scope-9002
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+subject: sub-9002aa22bb33cc44
+display_name: Project Scope Carrier
+linked_identities:
+  - provider_id: entra-opensoft
+    upstream_subject: 9002aa22-bb33-cc44-dd55-ee66ff778899
+organization_memberships:
+  - organization_id: opensoft
+    member_since: "2026-03-01"
+    projects:
+      - openxfactory
+      - opsxfactory
+asserted_at: "2026-08-21T12:05:00Z"

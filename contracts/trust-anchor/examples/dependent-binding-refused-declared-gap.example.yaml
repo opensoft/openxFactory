@@ -1,0 +1,44 @@
+# VALID dependent binding recorded as REFUSED because it requires an obligation
+# the realization DECLARES IT CANNOT SATISFY. This is what makes the
+# degraded-obligation rule something other than a loophole: the declaration is
+# readable, so a consumer can refuse the certificate for this use with the gap
+# named — and the gap is not closed by the realization asserting the evidence
+# instead.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:managed-device-05-audit-authority
+certificate_ref: cert:managed-device-05
+holding_system:
+  system_ref: system:core-audit-authority
+  inside_family: true
+  statement: >-
+    An audit authority that will only rely on certificates whose issuing
+    authority's own key custody is evidenced as a credential record.
+binds:
+  binding_kind: trust_store_entry
+  what_statement: >-
+    Admission of this device's certificate into the audit authority's trust
+    store.
+bound_key_reference:
+  key_generation_ref: keygen:managed-device-05-g1
+required_assurance: host_attributed_act
+required_obligations: [TA-R7]
+admission:
+  state: refused
+  decided_at: "2026-07-16T10:00:00Z"
+  refusal:
+    code: declared_obligation_gap
+    gap_obligation_ref: ob:managed:TA-R7
+    statement: >-
+      The realization declares that it cannot evidence the managed authority's
+      own key custody as a credential record. The declaration is what makes this
+      refusable rather than arguable, and declaring the gap is not permission to
+      assert the missing evidence.
+rebind_status:
+  state: current
+  as_of: "2026-07-16T10:00:00Z"
+discovery:
+  discovered_by: planned_review
+  discovered_at: "2026-07-16T00:00:00Z"
+  recorded_before_first_renewal: true
+record_version: 1

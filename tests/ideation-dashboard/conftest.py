@@ -109,3 +109,39 @@ from session_fixtures import (  # noqa: E402,F401  (fixture registration)
     fake_pull_requests,
     scratch_repo,
 )
+
+
+# --------------------------------------------------------------------------
+# add-doxbench-editing-phase-b §12.2 — NOTHING PUSHES IMPLICITLY.
+#
+# ONE canonical list, because two copies of a negative drift apart silently and
+# the drift is invisible by construction: both copies keep passing. §11 asserted
+# the first four modules (the turn, the thread writer, the harness bridge, the
+# MCP server); §12 owns the list now and adds three more — the turn assembler,
+# the packet builder, and the nightly lane, which is the "periodic task" the
+# requirement names.
+#
+# WHAT THIS LIST IS AND IS NOT, stated because the earlier wording overclaimed
+# (§12 review, P3-5). It is NOT "every place in the package that could reach a
+# remote". `register_edit_lane.py` is an automated lane that really does commit
+# and push, and it is deliberately absent: it is pre-existing and separately
+# ratified (`add-register-edit-lane`), and it pushes the aggregation-owned
+# project register by explicit pathspec — never a thread, a buffer, or any
+# session artifact, which is exactly what the §12 requirement scopes its
+# negative to. `branch_session.py`, `session_git.py`, `session_pr.py` and
+# `gate_routes.py` are absent for the plainer reason that they are the governed
+# remote-write path itself.
+#
+# So the claim this list makes is the narrow, checkable one: none of the seven
+# modules that carry a TURN, a SAVE, a COMPACTION, or a SCHEDULED doxBench task
+# can reach a remote write. The SHARE verb appears nowhere here either — it
+# lives in `gate_routes.py`, beside `open-pr` — and that placement is what lets
+# this list stay a pure absence.
+# --------------------------------------------------------------------------
+
+NO_IMPLICIT_PUSH_MODULES: tuple[str, ...] = (
+    "serve.py", "doxbench_threads.py", "doxbench_bridge.py", "doxbench_mcp.py",
+    "doxbench_turns.py", "doxbench_packet.py", "nightly_lane.py",
+)
+
+FORBIDDEN_PUSH_TOKENS: tuple[str, ...] = (".push(", "open_or_update(", "git push")

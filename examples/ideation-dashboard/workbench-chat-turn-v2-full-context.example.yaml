@@ -1,0 +1,33 @@
+# VALID widened success (contract-v1.40): the ORDINARY posture, STATED. The
+# knowledge service answered, the packet was assembled full, and the record says
+# so explicitly rather than leaving it to be inferred from a missing key.
+#
+# THE PAIR TO THIS INSTANCE IS `workbench-chat-turn-v2-success.example.yaml`,
+# which carries NO `context_packet` at all and is still valid: that is what makes
+# this release additive, and it is why absence must never be read as `full`. A
+# record without the key means its producer predates contract-v1.40; a record
+# with `posture: full` means the packet was assembled full and someone checked.
+# Both are conformant, and a consumer must be able to tell them apart — which it
+# can, because they are different bytes.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-v2-success",
+  "client_turn_id": "turn-v2-0004",
+  "assistant_turn_id": "srv-v2-0004",
+  "model_id": "local-authoring-1",
+  "selected_model": {
+    "requested_model_id": "local-authoring-1",
+    "routing_rule": false,
+    "data_handling": "Local process only; no content leaves this machine."
+  },
+  "context_packet": {
+    "posture": "full"
+  },
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "observed_hashes": {
+    "outline": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+    "ideation/staging/demo-topic/note.md": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825"
+  },
+  "assistant_prose": "The staged set has two notes that bear on the boundary the outline claims; both are behind this answer.",
+  "proposals": []
+}

@@ -1,0 +1,26 @@
+# VALID issuance evidence for a certificate under an anchor that has since been
+# revoked. The evidence does not change when the anchor's standing does — it
+# records what happened at issuance, and the anchor record is where standing
+# lives.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:retired-service-09
+certificate_ref: cert:retired-service-09
+anchor_ref: anchor:retired-root
+realization_ref: realization:core-self-hosted-authority
+authority:
+  authority_ref: policy:retired-root-issuance-policy
+  authority_kind: policy
+establishment_level: per_certificate_record
+request_provenance:
+  establishment: established
+  requester_ref: role:core-platform-steward
+  request_id: req:retired-service-09-2025-06
+  requested_at: "2025-05-28T10:00:00Z"
+  statement: Established from the pilot authority's issuance record.
+issued_at: "2025-06-01T00:00:00Z"
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: true
+  statement: Operated by the family while the pilot ran.
+record_version: 1

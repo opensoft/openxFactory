@@ -174,6 +174,56 @@ def test_end_to_end_self_test_passes(tmp_path):
         capture_output=True, text=True, timeout=300)
     assert proc.returncode == 0, proc.stdout + proc.stderr
     assert "0 error(s)" in proc.stdout
+    # …and it is NOT silent about the deprecated family (contract-v1.34): the
+    # four packaged v1 chat-turn examples each raise one warning and are each
+    # still ACCEPTED, which is the deprecating change class exactly — warn, do
+    # not refuse. The count is the pin, so a deprecation that stopped warning
+    # (or one that started refusing) fails here.
+    assert "4 warning(s)" in proc.stdout
+    assert proc.stdout.count("is DEPRECATED as of contract-v1.34") == 4
+
+
+def test_a_deprecated_kind_warns_and_is_still_accepted(vidc, registry_docs):
+    """The deprecating class, per instance: `docs/contract-versioning-policy.md`
+    says the conformance validator "emits warnings but still accepts it". Before
+    this, `deprecated_envelopes` was read by nothing, so the release could claim
+    to start the clock the breaking path requires while every conforming v1
+    instance validated in silence."""
+    f = _validate(vidc, registry_docs, "v1-request",
+                  _example("workbench-chat-turn-unsaved-edits.example.yaml"))
+    assert not f.errors, f.errors
+    assert any("is DEPRECATED" in w and "workbench-chat-turn" in w
+               for w in f.warnings), f.warnings
+    assert any("contract-v2.0" in w for w in f.warnings), (
+        "the warning names the removal target, which is the half a consumer "
+        "has to plan against")
+
+
+def test_the_widened_family_is_not_warned_about(vidc, registry_docs):
+    """The other half: the replacement must not carry the warning, or the signal
+    means nothing."""
+    f = _validate(vidc, registry_docs, "v2-request",
+                  _example("workbench-chat-turn-v2-loaded-set.example.yaml"))
+    assert not f.errors, f.errors
+    assert not any("DEPRECATED" in w for w in f.warnings), f.warnings
+
+
+def test_the_deprecated_list_is_read_from_the_schema_never_restated(vidc,
+                                                                    registry_docs):
+    """The validator carries no list of its own: it reads the schemas' declared
+    `deprecated_envelopes`. A second copy here would be a second authority that
+    could disagree with the bytes consumers pin."""
+    _registry, docs = registry_docs
+    declared = vidc.deprecated_kinds(docs)
+    assert set(declared) == {"workbench-chat-turn",
+                             "workbench-chat-turn-success",
+                             "workbench-chat-turn-failure"}
+    source = SCRIPT.read_text(encoding="utf-8")
+    # The kinds appear as SCHEMA ROUTING entries, never as a deprecation list.
+    assert "deprecated_envelopes" in source
+    for spelling in ('"workbench-chat-turn": "contract-v1.34"',
+                     "DEPRECATED_KINDS = "):
+        assert spelling not in source
 
 
 def test_websocket_endpoints_are_caught_by_the_spelling_scan(vidc, registry_docs):
@@ -239,3 +289,57 @@ def test_a_new_artifact_buffer_may_carry_a_null_path(vidc, registry_docs):
         "workbench-model-catalog-local.example.yaml"))
     f = _validate(vidc, registry_docs, "null-path", doc, ctx)
     assert not f.errors, f.errors
+
+
+# ---- CODEX-3 (Codex review of PR #210): the validator refuses what the route
+# refuses, per lane -------------------------------------------------------------
+
+def test_a_v2_document_at_a_reserved_path_is_refused(vidc, registry_docs):
+    """The certification gap Codex found: a widened instance whose document sits
+    at path `document` validated CLEAN while the route always refuses it.
+
+    The fixture shape matters — the outline plus exactly ONE document, so nothing
+    else claims that key. A fixture carrying the unbacked slot too would fail on
+    the duplicate-key rule and never reach this one, which is how the gap
+    survived."""
+    doc = _example("workbench-chat-turn-v2-loaded-set.example.yaml")
+    doc = copy.deepcopy(doc)
+    doc["buffers"] = [doc["buffers"][0], doc["buffers"][1]]
+    doc["buffers"][1]["path"] = "document"
+    doc["bound_buffer"] = "document"
+    f = _validate(vidc, registry_docs, "v2-reserved-document", doc)
+    assert any("reserved" in e for e in f.errors), f.errors
+
+
+def test_a_v1_document_at_the_outline_path_is_refused(vidc, registry_docs):
+    """The v1 lane's half — the OUTLINE spelling only."""
+    doc = copy.deepcopy(_example("workbench-chat-turn-unsaved-edits.example.yaml"))
+    doc["buffers"][1]["path"] = "outline"
+    doc["active_document_path"] = "outline"
+    f = _validate(vidc, registry_docs, "v1-reserved-outline", doc)
+    assert any("reserved" in e for e in f.errors), f.errors
+
+
+def test_a_v1_document_at_the_document_path_is_still_accepted(vidc, registry_docs):
+    """…and NOT the `document` spelling (CODEX-1): a v1 turn carrying a
+    repository-root file named exactly `document` was served before this release
+    and still is, so certifying it is correct. The validator's per-lane rule
+    tracks the route's, which is the only way conformance means anything."""
+    doc = copy.deepcopy(_example("workbench-chat-turn-unsaved-edits.example.yaml"))
+    doc["buffers"][1]["path"] = "document"
+    doc["active_document_path"] = "document"
+    f = _validate(vidc, registry_docs, "v1-reserved-document", doc)
+    assert not any("reserved" in e for e in f.errors), f.errors
+
+
+def test_the_validators_reserved_sets_agree_with_the_runtimes(vidc):
+    """The validator RESTATES these sets rather than importing them, because it
+    is published by exact commit and run against arbitrary target repositories —
+    so the pairing has to be asserted somewhere, and this is that somewhere."""
+    import sys
+    scripts = str(ROOT / "scripts")
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    from ideation_dashboard import doxbench_turns as turns
+    assert set(vidc.V2_RESERVED_DOCUMENT_PATHS) == set(turns.RESERVED_BUFFER_KEYS)
+    assert set(vidc.V1_RESERVED_DOCUMENT_PATHS) == set(turns.V1_RESERVED_BUFFER_KEYS)

@@ -1,0 +1,43 @@
+# expected_failure: bare-username-as-persona
+# expected_failure_detail: to ITSELF, so the durable identifier is still the bare username
+# requirement: IDB-R5
+# VIOLATES R5 and OQ-1's settlement: a mapping that resolved nothing.
+#
+# THE BACKFILL WEARING THE PAPERWORK OF A MAPPING. Provenance is
+# `mapped_historical_actor` — the honest class — and the mapping block is
+# complete: a source username, a mapper, a date, an evidence reference. And the
+# subject it resolves TO is the username it resolved FROM. The durable
+# identifier in the actor position is still `brett.heap.legacy`; the mapping
+# only makes it look adjudicated.
+#
+# This is what a bulk migration produces when nobody had the broker subjects
+# yet: the tooling fills the mapping table with identity rows so the shape
+# validates, and every historical record now claims a persona resolution that
+# never happened. It is worse than the pre-broker marking it replaced, because
+# a `pre_broker_username` record is HONEST about what it does not know.
+#
+# The subject clears every structural guard on purpose: 17 characters, no '@',
+# no whitespace, pattern-clean. The length floor cannot see this and neither
+# can the pattern, which is why the rule is a rule. It fails with NO schema
+# finding.
+#
+# Refused two ways: a subject equal to its own `mapped_from_username`, and a
+# subject that is any bare username the corpus records as pre-broker — the
+# second closes moving the substitution one field along.
+schema_version: 1
+kind: actor_subject_reference
+reference_id: asr-self-resolving-mapping-9028
+governed_record_ref:
+  record_type: gate_action
+  record_ref: "openxfactory:gate/add-openxwallet/ratify/2026-08-07"
+provenance: mapped_historical_actor
+issuer:
+  broker_instance_id: broker-opensoft-shared
+subject: brett.heap.legacy
+display_name_at_record: bheap
+mapping:
+  mapped_from_username: brett.heap.legacy
+  mapped_by: sub-ad91c740be6f5312
+  mapped_on: "2026-08-22"
+  evidence_ref: "opsx:keycloak-administration/actor-mapping/2026-08-22/bulk"
+recorded_at: "2026-08-22T12:30:00Z"

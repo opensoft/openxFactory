@@ -1,0 +1,59 @@
+# expected_failure: certificate-outside-validity-trusted
+# expected_failure_detail: after this certificate's own validity ended
+# requirement: TA-R6
+# VIOLATES TA-R6's at-use principle by the CLOCK rather than by the state field.
+# The state still says `valid` — nothing has updated it — and the evaluation
+# happened five days after the certificate's own `not_after`.
+#
+# The state field is a record somebody maintains; the validity window is
+# arithmetic on the record's own fields. Keying the rule only on `state` would
+# make it depend on the maintenance nobody did, which is exactly the condition
+# under which an expired certificate keeps being trusted. The comparison uses the
+# record's OWN moments — `evaluated_at` and the standing check's `checked_at` —
+# never the wall clock, so the record stays a stable statement about a moment
+# rather than a claim that decays into a finding the day after it is written.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:neg-evaluated-past-validity
+realization_ref: realization:core-self-hosted-authority
+anchor_ref: anchor:core-issuing
+subject:
+  identifier: "svc-late-evaluation.core.internal"
+  subject_class: service
+validity:
+  not_before: "2025-08-10T00:00:00Z"
+  not_after: "2026-08-10T00:00:00Z"
+state: valid
+key_generation:
+  generation_ref: keygen:neg-late-evaluation-g1
+declared_chain_custody:
+  custody_model: host_held
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  credential_record_ref: credential:neg-late-evaluation-key
+  vault_binding_ref: vaultbinding:core/neg-late-evaluation-key
+  declared_at: "2025-08-10T00:00:00Z"
+evidences: using_host
+assurance_ceiling: host_attributed_act
+issuance_evidence:
+  present: false
+  unexplained:
+    question_answered_as: unanswered
+    disposition: revocation_candidate
+    recorded_at: "2026-08-15T00:00:00Z"
+    statement: Absent, and recorded as absent.
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: "2026-08-15T00:00:00Z"
+  binding_refs: []
+trust_evaluation:
+  evaluated_at: "2026-08-15T09:00:00Z"
+  basis: held_anchor_record
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: "2026-08-15T09:00:00Z"
+    result: current_standing_active
+  outcome: trusted
+record_version: 1

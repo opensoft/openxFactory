@@ -1,4 +1,4 @@
-"""The fifteen contract check families.
+"""The sixteen contract check families.
 
 Each family is a function fam_<id>(ctx) -> list[Finding] | Skip. WHAT each
 family verifies is owned by the openxFactory `doc-health` contract; the
@@ -6,9 +6,10 @@ tag-hygiene grammar is owned by `document-lifecycle` and enforced here by
 reference (the regexes below transcribe, never extend, that grammar).
 `document_catalog.py` owns the thirteenth family's own implementation
 (add-document-cataloging), `ideation_routing.py` owns the fourteenth
-(add-cross-factory-ideation-routing), and `proposal_origin.py` owns the
-fifteenth (add-proposal-origin-contract); all three are only registered
-below.
+(add-cross-factory-ideation-routing), `proposal_origin.py` owns the
+fifteenth (add-proposal-origin-contract), and
+`client_identity_composition.py` owns the sixteenth
+(add-client-identity-roster); all four are only registered below.
 """
 
 from __future__ import annotations
@@ -21,8 +22,10 @@ from datetime import date
 from pathlib import Path
 
 from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
-               TAXONOMY, Finding, Skip)
-from . import corpus, document_catalog, ideation_routing, proposal_origin
+               TAXONOMY, Finding, Skip, recorded_rel)
+from . import (client_identity_composition, corpus, document_catalog,
+               ideation_routing, proposal_origin)
+from .lines import split_keepends
 
 # Per-family resolution class defaults (doc-health contract): contested
 # families suggest state-changing edits; everything else is mechanical.
@@ -71,9 +74,22 @@ def _resolves(doc_dir: Path, repo_path: Path, target: str) -> bool:
 
 
 def _header_line(doc, prefix: str) -> str | None:
-    for line in doc.text.splitlines()[:corpus.STATUS_SCAN_LINES]:
-        if line.startswith(prefix):
-            return line
+    """First `prefix`-matching REAL line within the doc's header window.
+
+    Real lines (CR/LF/CRLF only — `doc_health.lines`), not
+    `str.splitlines()` pseudo-lines: this is a reader of the SAME lifecycle
+    header `corpus.parse_status`/`parse_kind` read, and a wider splitting
+    rule here than there is exactly the divergence
+    `align-status-reader-to-real-lines` closes — demonstrated as a false
+    CRITICAL `ratified-provenance` finding ("Ratified by: missing") on a
+    document whose real header plainly carries the line, inflated past the
+    window by an exotic separator. Widened to every reader of the header by
+    the change's ruling (2026-08-19): the delta's "SHALL hold for every
+    reader of that header" governs.
+    """
+    for body, _ending in split_keepends(doc.text)[:corpus.STATUS_SCAN_LINES]:
+        if body.startswith(prefix):
+            return body
     return None
 
 
@@ -86,9 +102,30 @@ def _strip_inline_code(line: str) -> str:
 
 
 def _scan_lines(text: str):
-    """Yield (lineno, line, in_code_fence) with ``` fence tracking."""
+    """Yield (lineno, line, in_code_fence) with ``` fence tracking.
+
+    Real lines (CR/LF/CRLF only — `doc_health.lines`), not unbounded
+    `str.splitlines()`: before `align-status-reader-to-real-lines`'s wide
+    ruling, THIS FUNCTION was a live second Python line rule, disagreeing
+    with `round_trip.py`'s split on any form-feed/U+2028/NEL heading
+    fixture. Fixing it here does not make the corpus's "reduces the Python
+    side to one" claim true in general — TWO further unbounded
+    `str.splitlines()` scanners over document text carry the identical
+    pattern, independently, and remain unconverted (deliberately out of
+    this change's every-*header*-reader scope; see `tasks.md` §7 and
+    `doc_health.lines`'s module docstring): `_template_gaps` in this same
+    module, and `doc_health.ideation_routing._scan_lines` (finding F6, an
+    unconverted copy of this very function as it existed before this
+    change). The "reduces the Python side to one" claim is true for
+    lifecycle-header readers specifically, which is the claim this change
+    makes — not for every line-splitting rule in the corpus. Line NUMBERS
+    are unaffected for every document this repository's baseline measured
+    (zero exotic separators across 1227 governed aggregation files), since
+    real-line and pseudo-line numbering agree wherever no such separator
+    appears.
+    """
     fenced = False
-    for i, line in enumerate(text.splitlines(), start=1):
+    for i, (line, _ending) in enumerate(split_keepends(text), start=1):
         if line.lstrip().startswith("```"):
             fenced = not fenced
             yield i, line, True
@@ -140,6 +177,15 @@ def _active_support_findings(repo: str, repo_path: Path) -> list[Finding]:
                 "active proposal support lacks a valid manifest.yaml",
                 "create the proposal supporting-document manifest"))
         for path in sorted(support.rglob("*.md")):
+            # `source-snapshots/` holds BYTE-EXACT copies of the staged files as
+            # they were at the move, and the manifest proves that with a
+            # per-file sha256. Their `Status: staged` is therefore CORRECT — it
+            # is what the source said — and the usual remedy ("change proposed
+            # prose to draft") would falsify the snapshot and break the very
+            # checksum it exists to support. Proposal prose beside them is still
+            # checked; only the immutable record is exempt.
+            if "source-snapshots" in path.relative_to(support).parts:
+                continue
             if corpus.parse_status(path.read_text(errors="replace")) == "staged":
                 findings.append(Finding(
                     ERROR, "location-conformance", repo,
@@ -148,7 +194,7 @@ def _active_support_findings(repo: str, repo_path: Path) -> list[Finding]:
                     "change proposed prose to draft or immutable evidence to record"))
         if manifest is not None:
             for entry in manifest.get("files", []):
-                path = support / entry.get("path", "")
+                path = support / recorded_rel(entry.get("path", ""))
                 if (not path.is_file()
                         or _sha256(path) != entry.get("sha256")):
                     findings.append(Finding(
@@ -182,7 +228,7 @@ def _archive_support_findings(repo: str, repo_path: Path) -> list[Finding]:
                 "archived proposal support bundle checksum mismatch",
                 "rebuild the deterministic bundle and manifest"))
             continue
-        expected = {item.get("path"): item.get("sha256")
+        expected = {recorded_rel(item.get("path")): item.get("sha256")
                     for item in manifest.get("files", [])}
         actual = {}
         try:
@@ -671,8 +717,123 @@ def fam_notebook_projection_drift(ctx):
         "run the lifecycle notebook sync with --apply")]
 
 
+# --------------------------------------------------------------------------
+# staged-topic-template (add-staged-topic-outline-template, ratified 2026-08-15)
+#
+# A staged topic's primary fragment carries a required template so its live
+# state is extractable without opening the whole folder. This family reports
+# non-conformance and DELIBERATELY NEVER BLOCKS A GATE — Q2's ruling was
+# "doc-health treats non-conformance as a nudge, never a gate-blocking
+# finding", so every finding here is WARNING even for a topic where conformance
+# is REQUIRED. The required/opt-in distinction lives in the rule TEXT, which is
+# what a reader acts on, rather than in a severity that would fail a run.
+# Escalating this family to ERROR needs a new ruling, not a judgement call.
+
+TEMPLATE_RATIFIED = date(2026, 8, 15)
+
+# Matched case-insensitively against `## ` headings; a heading may carry a
+# parenthetical suffix (the canonical skeleton's own idea-notes heading does).
+_TEMPLATE_SECTIONS = (
+    ("idea notes", "pre-document idea notes"),
+    ("conflicts", "conflicts"),
+    ("open questions", "open questions"),
+)
+_QUESTION_SUBFIELDS = ("Context", "Recommended answer", "Explanation",
+                       "Disposition status")
+
+
+def _primary_fragment(topic: Path) -> Path | None:
+    """Mirror of `primaryFragmentPath` in wheel-model.js: the exact
+    `<topic>.md` first, else the shallowest markdown file. Path-only, never
+    content-sniffed — the one-path rule this template contract preserves."""
+    mds = sorted(p for p in topic.rglob("*.md"))
+    if not mds:
+        return None
+    named = f"{topic.name.lower()}.md"
+    for path in mds:
+        if path.name.lower() == named:
+            return path
+    return min(mds, key=lambda p: (len(p.relative_to(topic).parts), str(p)))
+
+
+def _template_gaps(text: str) -> list[str]:
+    """Which template obligations this fragment does not meet."""
+    gaps = []
+    headings, in_fence = [], False
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if not in_fence and line.startswith("## "):
+            headings.append(line[3:].strip().lower())
+    for needle, label in _TEMPLATE_SECTIONS:
+        if not any(needle in h for h in headings):
+            gaps.append(f"no {label} section")
+
+    # Every `### Q...` under Open questions carries all four sub-fields. The
+    # fragment is scanned outside fences for the same reason the headings are:
+    # the canonical skeleton is itself a fenced example.
+    in_questions, in_fence, current, seen = False, False, None, {}
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if line.startswith("## "):
+            in_questions = "open questions" in line[3:].strip().lower()
+            current = None
+        elif in_questions and line.startswith("### "):
+            current = line[4:].strip()
+            seen[current] = set()
+        elif current is not None:
+            for field in _QUESTION_SUBFIELDS:
+                if line.startswith(f"{field}:"):
+                    seen[current].add(field)
+    for question, fields in seen.items():
+        missing = [f for f in _QUESTION_SUBFIELDS if f not in fields]
+        if missing:
+            short = question if len(question) <= 48 else question[:45] + "..."
+            gaps.append(f"question '{short}' lacks {', '.join(missing)}")
+    return gaps
+
+
+def fam_staged_topic_template(ctx):
+    findings = []
+    for repo, repo_path in sorted(ctx.repo_paths.items()):
+        staging = repo_path / "ideation" / "staging"
+        if not staging.is_dir():
+            continue
+        for topic in sorted(p for p in staging.iterdir() if p.is_dir()):
+            primary = _primary_fragment(topic)
+            if primary is None:
+                continue  # an empty topic folder is another family's business
+            rel = primary.relative_to(repo_path).as_posix()
+            gaps = _template_gaps(primary.read_text(errors="replace"))
+            if not gaps:
+                continue
+            # Obligation follows the topic's STAGING date, never its last
+            # touch: editing an opt-in topic for an unrelated reason must not
+            # silently make it required. An unknown date is treated as opt-in.
+            staged_on = ctx.git.first_commit_date(repo_path, rel)
+            required = staged_on is not None and staged_on >= TEMPLATE_RATIFIED
+            scope = ("staged after the template ratified, so conformance is "
+                     "REQUIRED") if required else (
+                     "staged before the template ratified, so conformance is "
+                     "opt-in — rewrite it when the topic is next worked")
+            findings.append(Finding(
+                WARNING, "staged-topic-template", repo, rel,
+                f"primary fragment does not meet the outline template "
+                f"({'; '.join(gaps)}) — {scope}",
+                "add the missing sections, or give every open question its "
+                "Context / Recommended answer / Explanation / Disposition "
+                "status sub-fields"))
+    return findings
+
+
 FAMILIES = {
     "status-validity": fam_status_validity,
+    "staged-topic-template": fam_staged_topic_template,
     "standard-backing": fam_standard_backing,
     "ratified-provenance": fam_ratified_provenance,
     "succession-integrity": fam_succession_integrity,
@@ -687,4 +848,6 @@ FAMILIES = {
     "document-catalog": document_catalog.fam_document_catalog,
     "ideation-routing": ideation_routing.fam_ideation_routing,
     "proposal-origin": proposal_origin.fam_proposal_origin,
+    "client-identity-composition":
+        client_identity_composition.fam_client_identity_composition,
 }

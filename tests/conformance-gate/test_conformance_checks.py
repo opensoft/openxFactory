@@ -1,19 +1,31 @@
 """Fixture tests for the domain-conformance-checks scripts.
 
-Locks the three checks to the domain-conformance-checks capability spec
-(openspec/specs/domain-conformance-checks/spec.md; adopted with them from
-codexFactory's conformance-gate capability, adopt-neutral-utility-pack):
-inventory consistency, workflow md/yaml state parity (with the ``blocked``
-convention), and openxFactory pin reconciliation semantics.
+Locks the four checks to the domain-conformance-checks capability spec
+(openspec/specs/domain-conformance-checks/spec.md; the first three adopted with
+that capability from codexFactory's conformance-gate capability,
+adopt-neutral-utility-pack): inventory consistency, workflow md/yaml state
+parity (with the ``blocked`` convention), openxFactory pin reconciliation
+semantics, and — grown to four by add-client-identity-roster (Decision A) —
+client identity roster conformance.
+
+The fourth member is exercised HERE as a PACK MEMBER, which is a different
+measurement from `tests/client-identity-roster/`: pack membership is the only
+promoted mechanism that confers BLOCKING status, so what this file pins is the
+EXIT the domain gate reads. The roster suite proves the rules; these four tests
+prove that a nonconformance reaches the gate as a nonzero exit, that a
+conformant repo and a repo with no fragment both leave it green, and that the
+roster delta's mutate scenario is an ERROR rather than a report.
 """
 
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
 import pytest
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPTS = REPO_ROOT / "scripts"
@@ -37,6 +49,12 @@ def load(name: str):
 inventory = load("check-inventory-consistency")
 parity = load("check-workflow-state-parity")
 pin = load("check-openxfactory-pin")
+roster = load("validate-client-identity-roster")
+
+# The pack, by name. A member added to (or dropped from) the promoted
+# enumeration without a test here would leave its blocking status unmeasured.
+PACK = ("check-inventory-consistency", "check-workflow-state-parity",
+        "check-openxfactory-pin", "validate-client-identity-roster")
 
 
 # --- fixtures -------------------------------------------------------------
@@ -223,3 +241,161 @@ def test_pin_hands_git_absolute_directories(tmp_path, monkeypatch):
         directory = argv[argv.index("-C") + 1]
         assert Path(directory).is_absolute()
         assert not directory.startswith("-")
+
+
+# --- roster: the fourth pack member ---------------------------------------
+#
+# The four behaviours the deltas specify. THREE come from the
+# domain-conformance-checks delta (an entry nonconformance fails the gate; a
+# conformant repo passes; a repo publishing no fragment passes with an explicit
+# notice) and ONE from the client-identity-roster delta's "A mutate identity has
+# no ratified capability" scenario, which is an ERROR that fails the owning
+# domain's gate rather than a report-only finding.
+#
+# The EXIT is the measurement, so the check runs as a PROCESS. The rules
+# themselves, their negatives and their discriminations belong to
+# `tests/client-identity-roster/` and are not re-derived here.
+
+TENANT = "11111111-1111-1111-1111-111111111111"
+PLACEMENT = "/".join(roster.PLACEMENT_PARTS)
+
+
+def roster_entry(**over) -> dict:
+    base = {
+        "identity_ref": "pack-bc-observer",
+        "identity_kind": "entra_app_registration",
+        "home_tenant": TENANT,
+        "principal_locations": [TENANT],
+        "residency_model": "client_tenant_single",
+        "admission_surface": "business_central",
+        "duty": "observing",
+        "blast_radius_unit": "unit_a",
+        "authority_class_intended": "observe",
+        "authority_class_achieved": "observe",
+        "granted_permissions": [
+            {"id": "Pack.Read.All", "achieves": "observe",
+             "reaches": ["business_central"]},
+        ],
+        "admission": [
+            {"surface": "business_central",
+             "act": "per-environment application user created",
+             "achieved_scope": "Unit A environment",
+             "enforcement_mode": "provider_enforced",
+             "evidence_ref": {"repo": "opensoft/PackxFactory",
+                              "path": "tenants/pack-admission-evidence-v1.yaml"},
+             "verified_at": "2026-08-01T00:00:00Z",
+             "exceeds_governed_unit": False},
+        ],
+        "per_unit_principal_available": {"business_central": True},
+        "lifecycle_state": "enrolled",
+        "standing_credential_attestation": {
+            "no_standing_credential": True,
+            "attested_at": "2026-08-01T00:00:00Z",
+        },
+        "ratified_by": "packxfactory:pack-observation-capability",
+        "consent_ref": "pack-consent-v1",
+    }
+    base.update(over)
+    return base
+
+
+def roster_fragment(entries: list[dict]) -> dict:
+    return {
+        "schema_version": 1,
+        "kind": "xfactory_client_identity_roster",
+        "client_ref": "client-pack",
+        "client_tenant": TENANT,
+        "domain": "packxfactory",
+        "legend": {
+            "blast_radius_units": {"unit_a": "Unit A"},
+            "duties": {"observing": "Read-only observation"},
+        },
+        "entries": entries,
+    }
+
+
+CONSENT = {"schema_version": 1, "kind": "xfactory_consent_instrument",
+           "instrument_id": "pack-consent-v1", "status": "executed"}
+
+
+def make_roster_repo(tmp_path: Path, name: str, files: dict[str, dict]) -> Path:
+    root = tmp_path / name
+    root.mkdir(parents=True, exist_ok=True)
+    for rel, doc in files.items():
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(yaml.dump(doc, sort_keys=False), encoding="utf-8")
+    return root
+
+
+def run_roster_check(target: Path) -> subprocess.CompletedProcess:
+    """The pack consumption shape: the check handed its target as an explicit
+    argument, run from this (pinned) checkout and never copied into the repo."""
+    return subprocess.run(
+        [sys.executable, str(SCRIPTS / "validate-client-identity-roster.py"),
+         str(target)],
+        capture_output=True, text=True)
+
+
+def test_pack_conformant_repo_leaves_the_gate_green(tmp_path):
+    """The pack is FOUR members, each invocable from the pinned checkout
+    against a target handed as an argument, and a conformant repo exits 0."""
+    for member in PACK:
+        assert (SCRIPTS / f"{member}.py").is_file(), member
+    repo = make_roster_repo(tmp_path, "conformant", {
+        f"{PLACEMENT}/client-pack.yaml": roster_fragment([roster_entry()]),
+        "consent/pack-consent-v1.yaml": CONSENT,
+    })
+    result = run_roster_check(repo)
+    assert result.returncode == 0, result.stdout
+
+
+def test_pack_entry_nonconformance_exits_nonzero(tmp_path):
+    """A nonzero exit from any member fails the domain gate — measured on an
+    intra-repo entry rule (a verified act reaching beyond the governed unit
+    with no declared excess)."""
+    bad = roster_entry(admission=[dict(roster_entry()["admission"][0],
+                                       exceeds_governed_unit=True)])
+    repo = make_roster_repo(tmp_path, "nonconformant", {
+        f"{PLACEMENT}/client-pack.yaml": roster_fragment([bad]),
+        "consent/pack-consent-v1.yaml": CONSENT,
+    })
+    result = run_roster_check(repo)
+    assert result.returncode == 1, result.stdout
+    assert "undeclared-scope-excess" in result.stdout
+
+
+def test_pack_repo_with_no_roster_fragment_passes_with_an_explicit_notice(tmp_path):
+    """Absence is never a finding: the member passes with a notice NAMING the
+    absence, so a domain that publishes no fragment is not silently green and
+    not red either."""
+    repo = make_roster_repo(tmp_path, "no-fragment", {
+        "consent/pack-consent-v1.yaml": CONSENT,
+    })
+    result = run_roster_check(repo)
+    assert result.returncode == 0, result.stdout
+    assert "publishes no credentials/client-identity-roster/ directory" in result.stdout
+
+
+def test_pack_mutate_without_ratified_capability_errors_rather_than_reports(tmp_path):
+    """The roster delta's own gate scenario. A mutate entry with no
+    domain-qualified ratified capability is an ERROR that fails the owning
+    domain's gate — and the cross-domain composition classes, which are the
+    doc-health family's and leave the gate exit unchanged, appear nowhere in
+    this member's output."""
+    bad = roster_entry(
+        identity_ref="pack-bc-writer",
+        authority_class_intended="mutate",
+        authority_class_achieved="mutate",
+        granted_permissions=[{"id": "Pack.ReadWrite.All", "achieves": "mutate",
+                              "reaches": ["business_central"]}],
+        ratified_by="pack-mutation-capability")
+    repo = make_roster_repo(tmp_path, "mutate-no-capability", {
+        f"{PLACEMENT}/client-pack.yaml": roster_fragment([bad]),
+        "consent/pack-consent-v1.yaml": CONSENT,
+    })
+    result = run_roster_check(repo)
+    assert result.returncode == 1, result.stdout
+    assert "mutate-without-ratified-capability" in result.stdout
+    for cross_domain in ("shared-identity-material", "undeclared-cross-domain-reach"):
+        assert cross_domain not in result.stdout

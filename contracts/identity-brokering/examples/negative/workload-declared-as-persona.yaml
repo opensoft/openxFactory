@@ -1,0 +1,30 @@
+# expected_failure: workload-as-persona
+# expected_failure_detail: is declared by broker service client
+# requirement: IDB-R6
+# VIOLATES R6: a workload in the persona population.
+#
+# The oauth2-proxy service account, given a persona so that "the dashboard's
+# own requests show up in the same place as everybody else's". Reasonable
+# instinct, wrong mechanism: it puts a non-human actor into the population the
+# governed layer treats as humans, and it creates a second, weaker authority
+# vocabulary beside the ratified one.
+#
+# The ratified one is stronger in every dimension that matters — attenuated
+# grants, proof of possession, key-attributed audit, revocation that propagates
+# — and the weaker vocabulary would win by convenience if it were allowed to
+# exist. A workload's authority comes from `credential-contracts` grants and
+# `openxwallet` holders; no persona is created for it.
+schema_version: 1
+kind: persona_assertion
+assertion_id: pa-workload-persona-9013
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+subject: svc-1f70b8d2c9a34e61
+display_name: Workbench oauth2-proxy service account
+linked_identities:
+  - provider_id: broker-local
+    upstream_subject: workbench-oauth2-proxy-sa
+organization_memberships:
+  - organization_id: opensoft
+asserted_at: "2026-08-22T10:20:00Z"

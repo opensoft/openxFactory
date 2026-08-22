@@ -1,0 +1,31 @@
+# INVALID widened success (contract-v1.40): a FULL posture carrying a reduction
+# reason. The record states two contradictory facts — the context was complete,
+# and here is why it was not — and leaves the reader to pick one. A transcript
+# that can be read either way is worse than one that says nothing.
+#
+# THIS IS THE SECOND CONDITIONAL, not the inverse of the first: the two guard
+# DIFFERENT instances, and deleting either one leaves this file or its sibling
+# `-reduced-without-reason` accepted. Both are revert-tested individually.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-v2-success",
+  "client_turn_id": "turn-v2-0006",
+  "assistant_turn_id": "srv-v2-0006",
+  "model_id": "local-authoring-1",
+  "selected_model": {
+    "requested_model_id": "local-authoring-1",
+    "routing_rule": false,
+    "data_handling": "Local process only; no content leaves this machine."
+  },
+  "context_packet": {
+    "posture": "full",
+    "reduced_reason": "the staged-set knowledge service is unavailable, so this packet carries the selected thread and the loaded buffers only, with NO corpus evidence; no unbounded context was substituted and no rail was bypassed to reach a provider"
+  },
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "observed_hashes": {
+    "outline": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+    "ideation/staging/demo-topic/note.md": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825"
+  },
+  "assistant_prose": "An answer whose record cannot be trusted about its own context.",
+  "proposals": []
+}

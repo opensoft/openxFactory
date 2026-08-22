@@ -37,6 +37,12 @@ from ideation_dashboard.doxbench_model import (
     DuplicateModelIdError,
     FakeWorkbenchModelPort,
     InvalidCatalogEntryError,
+    InvalidRoutingRuleError,
+    MAX_ROUTING_TARGETS,
+    MODEL_REFERENCE_MAX_LENGTH,
+    MODEL_REFERENCE_PATTERN,
+    DECLARABLE_ENTRY_FIELDS,
+    ROUTING_ENTRY_FIELDS,
     ModelCatalog,
     ModelCatalogEntry,
     ModelCatalogError,
@@ -749,7 +755,7 @@ def test_wire_envelope_literals_are_confined_to_the_released_catalog_projection(
     `d09d5820de5b63b9528f6baea884a6dccde9b158`), so the literals are exactly
     as legitimate here as they were forbidden before. What the pin protects
     now is CONFINEMENT: the two discriminators may appear only as the wire
-    projection's own constants, they never leak into the seven-field ENTRY
+    projection's own constants, they never leak into the ENTRY
     surface, and they never appear in the internal `as_public_dict`
     projections that predate the release."""
     src = MODULE_PATH.read_text(encoding="utf-8")
@@ -772,8 +778,9 @@ def test_wire_envelope_literals_are_confined_to_the_released_catalog_projection(
     assert "kind" not in entry.as_public_dict()
     assert "schema_version" not in catalog.as_public_dict()
     assert "kind" not in catalog.as_public_dict()
-    # And in the envelope they are the ONLY additions: the entries themselves
-    # stay the seven-field public allowlist.
+    # And in the envelope they are the ONLY additions: a plain entry stays
+    # exactly the seven required base fields (contract-v1.38's three routing
+    # fields are disclosed only by an entry that declares itself a rule).
     envelope = catalog_wire_envelope(catalog)
     assert set(envelope) - {"models"} == {"schema_version", "kind"}
     assert set(envelope["models"][0]) == set(PUBLIC_ENTRY_FIELDS)
@@ -1167,3 +1174,542 @@ def test_the_entry_output_limit_bounds_prose_plus_proposal_content():
         fake2, "opaque", entry=entry, clock=_list_clock(0.0, 1.0),
         proposal_validator=lambda raw: _ValidatedWithin())
     assert isinstance(ok, doxbench_model.TurnDispatchSuccess)
+
+
+# ===========================================================================
+# THE ROUTING-RULE DECLARATION (contract-v1.38, add-doxbench-editing-phase-b
+# task 11.7)
+#
+# The release makes an `auto` entry constructible: three OPTIONAL fields that
+# travel together, defaulting to the plain-model posture. Every rule asserted
+# here mirrors one the released schema or its delegated validator enforces on
+# the wire -- the two are pinned to each other by the packaged
+# `workbench-model-catalog-routing-rule.example.yaml`, which this suite's
+# sibling (`test_doxbench_contracts.py`) validates against the real bytes.
+# ===========================================================================
+
+
+def _rule(model_id="auto", *, routes_to=("a", "b"), resolved="a",
+          badge=None, **overrides):
+    """A routing entry over `_entry("a")`/`_entry("b")`-shaped targets, whose
+    badge carries the target badge by default so the covering rule holds."""
+    kwargs = dict(CONTRACT_EXAMPLE)
+    kwargs.update(
+        model_id=model_id,
+        provider_class="routing-rule",
+        data_handling=badge if badge is not None else (
+            "Routes by role. / " + CONTRACT_EXAMPLE["data_handling"]),
+        routing_rule=True,
+        routes_to=tuple(routes_to),
+        resolved_model_id=resolved,
+    )
+    kwargs.update(overrides)
+    return ModelCatalogEntry(**kwargs)
+
+
+def test_the_routing_fields_are_declared_optional_and_default_to_a_plain_model():
+    """THE ADDITIVE PROPERTY, at the type. A construction that names none of
+    the three -- i.e. every construction written before this release -- means
+    exactly what it always meant, and the public dict it projects is
+    byte-identical to the pre-release one."""
+    plain = ModelCatalogEntry(**CONTRACT_EXAMPLE)
+    assert plain.routing_rule is False
+    assert plain.routes_to == ()
+    assert plain.resolved_model_id is None
+    assert plain.as_public_dict() == CONTRACT_EXAMPLE
+    assert list(plain.as_public_dict()) == list(PUBLIC_ENTRY_FIELDS)
+
+
+def test_the_field_tuples_are_the_base_seven_then_the_routing_three():
+    assert ROUTING_ENTRY_FIELDS == (
+        "routing_rule", "routes_to", "resolved_model_id")
+    assert DECLARABLE_ENTRY_FIELDS == PUBLIC_ENTRY_FIELDS + ROUTING_ENTRY_FIELDS
+    # The base seven are a PREFIX of the declarable set, which is what makes a
+    # routing entry's projection an append rather than a reshuffle.
+    assert DECLARABLE_ENTRY_FIELDS[:len(PUBLIC_ENTRY_FIELDS)] == PUBLIC_ENTRY_FIELDS
+
+
+def test_a_routing_entry_discloses_the_three_fields_after_the_base_seven():
+    rule = _rule()
+    public = rule.as_public_dict()
+    assert list(public) == list(DECLARABLE_ENTRY_FIELDS)
+    assert public["routing_rule"] is True
+    assert public["routes_to"] == ["a", "b"]
+    assert public["resolved_model_id"] == "a"
+    # `routes_to` projects as a LIST (JSON has no tuple) and shares no state
+    # with the frozen entry.
+    public["routes_to"].append("smuggled")
+    assert rule.routes_to == ("a", "b")
+
+
+def test_the_wire_envelope_carries_a_routing_entry_and_leaves_plain_ones_alone():
+    catalog = ModelCatalog.from_entries(
+        [_rule(routes_to=("a",), resolved="a"), _entry("a")])
+    envelope = catalog_wire_envelope(catalog)
+    assert list(envelope) == list(WIRE_ENVELOPE_FIELDS)
+    assert set(envelope["models"][0]) == set(DECLARABLE_ENTRY_FIELDS)
+    assert set(envelope["models"][1]) == set(PUBLIC_ENTRY_FIELDS)
+
+
+@pytest.mark.parametrize("overrides, match", [
+    ({"routes_to": ()}, "must declare the models it may route to"),
+    ({"resolved_model_id": None}, "must declare the model it currently resolves"),
+    ({"routes_to": ("auto", "a"), "resolved": "a"}, "must not route to itself"),
+    ({"resolved": "c"}, "is not among the models this rule declares"),
+    ({"routes_to": ("a", "a")}, "must not repeat a model id"),
+])
+def test_an_inconsistent_routing_declaration_refuses_at_construction(overrides,
+                                                                     match):
+    kwargs = {k: v for k, v in overrides.items() if k != "resolved"}
+    if "resolved" in overrides:
+        kwargs["resolved"] = overrides["resolved"]
+    with pytest.raises(InvalidCatalogEntryError, match=match):
+        _rule(**kwargs)
+
+
+# One SHARED badge across every target, so the rule's own badge stays one short
+# segment. The first version of this helper gave each target its own badge and
+# built a 901-byte rule badge — over `data_handling`'s 500 — which is half of why
+# its "accepted" catalog was one the wire refuses (review N6).
+_WIDE_BADGE = "Processed in the approved tenant boundary; no retention."
+
+# rule + targets <= `models.maxItems: 64`, so 63 is the largest WIRE-CONFORMANT
+# routable set even though `routes_to.maxItems` is 64. The helper defaults to the
+# number a real catalog can actually hold.
+MAX_WIRE_CONFORMANT_TARGETS = 63
+
+
+def _wide_rule(n=MAX_WIRE_CONFORMANT_TARGETS):
+    """A rule over `n` distinct targets, conformant on every other rule: unique
+    ids, one shared badge carried as the rule's single routed segment, limits
+    equal to the resolution's, and the resolution among them."""
+    ids = tuple(f"t{i}" for i in range(n))
+    badge = "Routes by role. / " + _WIDE_BADGE
+    rule = ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "model_id": "auto",
+                                "data_handling": badge, "routing_rule": True,
+                                "routes_to": ids, "resolved_model_id": ids[0]})
+    targets = [_entry(i, data_handling=_WIDE_BADGE) for i in ids]
+    return rule, targets
+
+
+def test_the_largest_wire_conformant_routable_set_constructs_and_SERVES():
+    """CODEX REVIEW OF PR #244, P2, CORRECTED BY THE FINAL REVIEW (N6).
+
+    The accepted case must be a catalog the WIRE accepts, or a two-sided
+    boundary claim is only one-sided. The first version built 64 targets plus the
+    rule — 65 models, over `models.maxItems: 64` — with a 901-byte rule badge,
+    over `data_handling`'s 500: the catalog it ACCEPTED was one the wire refused
+    on two grounds.
+
+    So the accepted case is now the largest set a conformant catalog can express
+    — 63 targets plus the rule, exactly 64 models — and it is checked THROUGH the
+    projection against the released schema, which is the only way this assertion
+    means what it says."""
+    rule, targets = _wide_rule()
+    catalog = ModelCatalog.from_entries([rule] + targets)
+    assert len(catalog.entries[0].routes_to) == MAX_WIRE_CONFORMANT_TARGETS == 63
+    assert len(catalog.entries) == 64
+
+    envelope = catalog_wire_envelope(catalog)
+    assert doxbench_contracts.validate_instance(
+        envelope, doxbench_contracts.REPO_ROOT) == [], (
+            "the accepted case must be one the released schema serves")
+
+
+def test_routes_to_above_the_released_cap_is_refused_by_the_type():
+    """The refusal half. 65 targets is over `routes_to.maxItems`, and the type
+    used to accept it while the wire refused — the F2 divergence in the other
+    direction, with the concrete consequence Codex named: such a rule constructs,
+    the turn route (which checks only `isinstance(catalog, ModelCatalog)`) could
+    dispatch it, and `GET /workbench/model-catalog` refuses to serve the catalog
+    holding it.
+
+    The 64/65 BOUNDARY itself is asserted where it is actually true — against the
+    entry subschema — in `test_doxbench_contracts.py`; a whole catalog cannot
+    reach 64 targets and stay conformant."""
+    with pytest.raises(InvalidCatalogEntryError,
+                       match=r"declares 65 models, above the 64"):
+        _wide_rule(MAX_ROUTING_TARGETS + 1)
+    assert MAX_ROUTING_TARGETS == 64
+    # …and the operative maximum is one less, because the rule needs a slot too.
+    assert MAX_WIRE_CONFORMANT_TARGETS == MAX_ROUTING_TARGETS - 1
+
+
+@pytest.mark.parametrize("reference, valid, why", [
+    ("m", True, "one character is the shortest legal id"),
+    ("ok.id-1_2", True, "dot, hyphen and underscore are all legal after the head"),
+    ("9starts-with-a-digit", True, "the head may be a digit"),
+    ("x" * MODEL_REFERENCE_MAX_LENGTH, True, "exactly at maxLength"),
+    ("x" * (MODEL_REFERENCE_MAX_LENGTH + 1), False, "one over maxLength"),
+    ("has spaces!", False, "space and bang are outside the pattern"),
+    ("_leading", False, "the head must be alphanumeric"),
+    (".leading", False, "the head must be alphanumeric"),
+    ("-leading", False, "the head must be alphanumeric"),
+    ("tráiling", False, "non-ASCII is refused though str.isalnum() accepts it"),
+    ("has/slash", False, "the badge separator's character is not an id character"),
+])
+def test_the_two_NEW_id_bearing_fields_are_held_to_the_schemas_item_bounds(
+        reference, valid, why):
+    """FINAL REVIEW N7. The type learned `routes_to`'s `maxItems` and stopped
+    there: its `items.maxLength`/`items.pattern` and the identical pair on
+    `resolved_model_id` still escaped, so the same type-weaker-than-wire
+    divergence survived on the two fields THIS release introduced.
+
+    The non-ASCII row is the one worth reading: `"tráiling".isalnum()` is True,
+    so a naive check passes it while the released pattern refuses it. That is
+    why the predicate guards on `isascii()` — see
+    `_is_conformant_model_reference`, which evaluates the pattern without
+    importing `re`."""
+    def build():
+        return ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "model_id": "auto",
+                                    "data_handling": "Routes. / " + CONTRACT_EXAMPLE[
+                                        "data_handling"],
+                                    "routing_rule": True,
+                                    "routes_to": (reference,),
+                                    "resolved_model_id": reference})
+    if valid:
+        assert build().resolved_model_id == reference, why
+    else:
+        with pytest.raises(InvalidCatalogEntryError):
+            build()
+
+
+def test_model_id_itself_keeps_its_PRE_EXISTING_laxity():
+    """The other half of N7's scope call, pinned so it is a recorded decision
+    rather than an oversight: `model_id` carries the SAME `maxLength`/`pattern`
+    in the schema and the type does NOT enforce them — it has accepted
+    over-length and out-of-pattern ids since the seven-field type shipped.
+    Tightening it here would be a behaviour change belonging to no release, so
+    the gap is recorded and left. If a future release closes it, this test is
+    the one that should fail and be rewritten."""
+    lax = ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "model_id": "has spaces!"})
+    assert lax.model_id == "has spaces!"
+    assert len(ModelCatalogEntry(
+        **{**CONTRACT_EXAMPLE, "model_id": "m" * 500}).model_id) == 500
+
+
+def test_the_pattern_predicate_needs_no_regex_import():
+    """`_is_conformant_model_reference` exists so this module's import list stays
+    `dataclasses` and `typing`, which its own docstring promises."""
+    src = MODULE_PATH.read_text(encoding="utf-8")
+    assert "import re" not in src
+    assert MODEL_REFERENCE_PATTERN == "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+
+
+def test_the_target_cap_is_an_ENTRY_refusal_not_a_catalog_one():
+    """Which exception, and why — the split this release documents is by how
+    much context a refusal needs, not by which field it names. The cap is
+    visible with no catalog at all, so it is `InvalidCatalogEntryError`, like
+    every other over-cap value. Codex suggested `InvalidRoutingRuleError`;
+    declined, because that class's own docstring says every member of it needs a
+    second entry to see."""
+    with pytest.raises(InvalidCatalogEntryError):
+        _wide_rule(MAX_ROUTING_TARGETS + 1)
+    # …and it is raised by the ENTRY, before any catalog exists.
+    assert not issubclass(InvalidRoutingRuleError, InvalidCatalogEntryError)
+    assert not issubclass(InvalidCatalogEntryError, InvalidRoutingRuleError)
+
+
+def test_a_plain_entry_may_not_carry_a_routing_only_field():
+    """The other direction of the schema's `dependentRequired`: a directly
+    answering model that resolves elsewhere is the hidden routing decision the
+    ratified requirement forbids."""
+    for field, value in (("routes_to", ("a",)), ("resolved_model_id", "a")):
+        with pytest.raises(InvalidCatalogEntryError,
+                           match="must declare neither"):
+            ModelCatalogEntry(**{**CONTRACT_EXAMPLE, field: value})
+
+
+def test_routing_field_types_are_refused_with_TypeError_not_a_value_error():
+    """The module's existing split, extended: a wrong PYTHON TYPE is a caller
+    programming error, a wrong VALUE is a catalog refusal."""
+    def _raw(**overrides):
+        # The DIRECT constructor, not the `_rule` helper: that helper coerces
+        # `routes_to` with `tuple(...)`, which would turn a bare string into a
+        # one-member tuple and hide the exact case under test.
+        return ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "routing_rule": True,
+                                    "routes_to": ("a",),
+                                    "resolved_model_id": "a", **overrides})
+
+    with pytest.raises(TypeError, match="routing_rule must be a bool"):
+        _raw(routing_rule="yes")
+    with pytest.raises(TypeError, match="not a single str"):
+        _raw(routes_to="a")
+    with pytest.raises(TypeError, match="not a single bytes"):
+        _raw(routes_to=b"a")
+    with pytest.raises(TypeError, match="routes_to must be an iterable"):
+        _raw(routes_to=7)
+    with pytest.raises(TypeError, match="routes_to member must be a str"):
+        _raw(routes_to=(7,))
+    with pytest.raises(TypeError, match="resolved_model_id must be a str"):
+        _raw(resolved_model_id=7)
+
+
+@pytest.mark.parametrize("entries_factory, match", [
+    # 1. no dangling target
+    (lambda: [_rule(routes_to=("ghost",), resolved="ghost"), _entry("a")],
+     "which is not in this catalog"),
+    # 2. no chained rule
+    (lambda: [
+        _rule("outer", routes_to=("inner",), resolved="inner",
+              badge="Routes by role (outer). / Routes by role (inner). / "
+                    + CONTRACT_EXAMPLE["data_handling"]),
+        _rule("inner", routes_to=("a",), resolved="a"),
+        _entry("a")],
+     "which is itself a routing rule"),
+    # 3. the badge covering
+    (lambda: [_rule(routes_to=("a", "b"), resolved="a",
+                    badge=CONTRACT_EXAMPLE["data_handling"]),
+              _entry("a"), _entry("b", data_handling="a different posture")],
+     "does not carry the data-handling badge"),
+    # 4. an available rule resolving to an unavailable model
+    (lambda: [_rule(routes_to=("a",), resolved="a"),
+              _entry("a", available=False)],
+     "is available but resolves to"),
+    # 5'. a rule wider than THE MODEL IT RESOLVES TO (Brett's ruling)
+    (lambda: [_rule(routes_to=("a",), resolved="a", input_limit_bytes=800_000),
+              _entry("a", input_limit_bytes=2048)],
+     "above the 2048 of 'a', the model it resolves to"),
+])
+def test_a_catalog_refuses_a_routing_rule_it_cannot_honestly_offer(
+        entries_factory, match):
+    """The five CROSS-ENTRY rules. The catalog refuses AS A WHOLE, exactly as a
+    duplicated model_id does: dropping the offending entry would leave the
+    operator's declaration silently unserved."""
+    with pytest.raises(InvalidRoutingRuleError, match=match):
+        ModelCatalog.from_entries(entries_factory())
+    # And the same refusal through the direct constructor, not only the
+    # intention-revealing wrapper.
+    with pytest.raises(InvalidRoutingRuleError, match=match):
+        ModelCatalog(entries=tuple(entries_factory()))
+
+
+def test_a_rule_MAY_be_wider_than_a_non_resolved_member__rule_5_prime():
+    """RULE 5' — BRETT'S RULING, 2026-08-21 ("Swap to rule 5'"), pinned here
+    because it is the case the FIRST form of the rule got wrong.
+
+    The rule declares 800,000 bytes while `narrow` — a model it MAY route to —
+    accepts 2,048. That is LAWFUL, because the bound is the model it RESOLVES
+    to (`wide`, which accepts 800,000). The first shipped form min-capped
+    against every member of `routes_to` and would have refused this catalog.
+
+    Three reasons the ruling gives, and the third is why this test is named for
+    it rather than folded into the rule-5 table: min-capping would BAKE IN
+    semantics that contradict the sanctioned per-turn fit-aware router staged as
+    `ideation/staging/doxchat-auto-fit-routing/`, under which a rule's declared
+    ceiling is the WIDEST thing it can serve and the router picks a destination
+    that fits each turn. A min-cap would have had to be undone to get there."""
+    catalog = ModelCatalog.from_entries([
+        _rule(routes_to=("wide", "narrow"), resolved="wide",
+              input_limit_bytes=800_000, output_limit_bytes=900_000,
+              badge="Routes by role. / " + CONTRACT_EXAMPLE["data_handling"]
+                    + " / a narrower posture"),
+        _entry("wide", input_limit_bytes=800_000, output_limit_bytes=900_000),
+        _entry("narrow", input_limit_bytes=2048, output_limit_bytes=8192,
+               data_handling="a narrower posture")])
+    rule = catalog.entries[0]
+    assert rule.input_limit_bytes == 800_000
+    # …and the discriminator, stated: the rule IS wider than a routable member.
+    assert rule.input_limit_bytes > catalog.entry_for("narrow").input_limit_bytes
+    assert rule.input_limit_bytes == catalog.entry_for("wide").input_limit_bytes
+
+    # The other side of the ruling, so it is a bound and not an absence: wider
+    # than the RESOLUTION is still refused.
+    with pytest.raises(InvalidRoutingRuleError,
+                       match="the model it resolves to"):
+        ModelCatalog.from_entries([
+            _rule(routes_to=("wide", "narrow"), resolved="narrow",
+                  input_limit_bytes=800_000, output_limit_bytes=8192,
+                  badge="Routes by role. / " + CONTRACT_EXAMPLE["data_handling"]
+                        + " / a narrower posture"),
+            _entry("wide", input_limit_bytes=800_000, output_limit_bytes=900_000),
+            _entry("narrow", input_limit_bytes=2048, output_limit_bytes=8192,
+                   data_handling="a narrower posture")])
+
+
+def test_an_unavailable_rule_may_resolve_to_an_unavailable_model():
+    """The availability rule's own boundary, and the reason the degraded-bridge
+    path still constructs: `OmpHarnessBridge.catalog()` marks EVERY entry
+    unavailable after a child dies, which would be unbuildable if the rule
+    applied to an unselectable rule."""
+    catalog = ModelCatalog.from_entries([
+        _rule(routes_to=("a",), resolved="a", available=False),
+        _entry("a", available=False)])
+    assert catalog.entries[0].routing_rule is True
+    # And that is exactly what the bridge's degraded projection produces.
+    degraded = ModelCatalog.from_entries(
+        dataclasses.replace(entry, available=False)
+        for entry in ModelCatalog.from_entries(
+            [_rule(routes_to=("a",), resolved="a"), _entry("a")]).entries)
+    assert degraded.entries[0].routes_to == ("a",)
+    assert all(entry.available is False for entry in degraded.entries)
+
+
+def test_a_routing_rule_is_selectable_and_looked_up_like_any_other_entry():
+    """No new lookup path: the rule is an entry, so the route's existing
+    step-7 revalidation (`selectable_entry_for`) governs it unchanged."""
+    catalog = ModelCatalog.from_entries(
+        [_rule(routes_to=("a",), resolved="a"), _entry("a")])
+    rule = catalog.selectable_entry_for("auto")
+    assert rule is not None and rule.resolved_model_id == "a"
+    assert catalog.entry_for("a").routing_rule is False
+    assert [entry.model_id for entry in catalog.available_entries()] == ["auto", "a"]
+
+
+# ---------------------------------------------------------------------------
+# THE TWO GATES SHARE ONE GRAMMAR (contract-v1.38; adversarial review round 1
+# F1/F2)
+#
+# The delegated validator is a standalone script that imports nothing from this
+# package, so the separator and the normalizer are RESTATED there. Two copies of
+# a rule drift apart invisibly because both copies keep passing — the same
+# hazard §12.2 recorded for its no-implicit-push list — so the copies are pinned
+# equal here, and the PARITY of the two gates is asserted over the packaged
+# negatives rather than merely claimed in a docstring (which is precisely the
+# claim review round 1 found untrue).
+# ---------------------------------------------------------------------------
+
+_VALIDATOR_PATH = REPO_ROOT / "scripts" / "validate-ideation-dashboard-contracts.py"
+
+
+@pytest.fixture(scope="module")
+def delegated_validator():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "vidc_badge_parity", _VALIDATOR_PATH)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_the_badge_grammar_is_one_spelling_in_both_gates(delegated_validator):
+    assert (delegated_validator.ROUTING_BADGE_SEPARATOR
+            == doxbench_model.ROUTING_BADGE_SEPARATOR == " / ")
+    assert (delegated_validator.ROUTING_BADGE_TRAILING_PUNCTUATION
+            == doxbench_model.ROUTING_BADGE_TRAILING_PUNCTUATION == ".;,")
+
+
+@pytest.mark.parametrize("text", [
+    "Processed in the approved tenant boundary; no retention.",
+    "  leading and trailing  ",
+    "collapsed\n   across a\twrap",
+    "ON-TENANT",
+    "trailing punctuation.;,",
+    "",
+    " / ",
+])
+def test_the_two_gates_normalize_a_segment_identically(delegated_validator, text):
+    assert (delegated_validator.normalized_badge_segment(text)
+            == doxbench_model.normalized_badge_segment(text))
+    assert (delegated_validator.badge_segments(text)
+            == doxbench_model.badge_segments(text))
+
+
+def test_the_normalizer_forgives_only_what_cannot_flip_a_posture():
+    """The three normalizations, and the one thing that must NEVER normalize.
+
+    `on-tenant` vs `non-tenant` is the pair the reviewer used to break substring
+    containment, so it is the pair pinned here: no amount of case, whitespace or
+    trailing-punctuation forgiveness may make them equal."""
+    n = doxbench_model.normalized_badge_segment
+    # forgiven, because none of these is a different posture
+    assert n("On-Tenant") == n("on-tenant") == n("  on-tenant  ") == n("on-tenant.")
+    assert n("no  retention") == n("no retention")
+    assert n("no retention;") == n("no retention,") == n("no retention")
+    # NOT forgiven
+    assert n("on-tenant") != n("non-tenant")
+    assert n("retain") != n("retain nothing")
+    assert n("zero retention") != n("no retention")
+
+
+@pytest.mark.parametrize("rule_badge, target_badge, why", [
+    ("Routes to a non-tenant endpoint.", "on-tenant",
+     "review instance A: the rule states the INVERSE of the target's posture, "
+     "and `'on-tenant' in 'non-tenant'` is True"),
+    ("All routed models are on approved tenant infrastructure and retain nothing.",
+     "retain",
+     "review instance D: the target's whole badge is a common word the rule's "
+     "prose contains by accident"),
+    ("Processed in the approved tenant boundary; no retention. and more",
+     "Processed in the approved tenant boundary; no retention.",
+     "a badge swallowed into a longer sentence is not a segment"),
+])
+def test_the_covering_refuses_what_raw_substring_containment_accepted(
+        rule_badge, target_badge, why):
+    """THE DIRECT PIN on the type's own predicate (adversarial review round 1
+    F1). Each row is a case the OLD `in` test accepted; each must now refuse,
+    and refuse HERE rather than only through the packaged-corpus parity test —
+    a rule that lives in only one gate's test is a rule the other gate can
+    lose."""
+    with pytest.raises(InvalidRoutingRuleError,
+                       match="as a segment of its own badge"):
+        ModelCatalog.from_entries([
+            _rule(routes_to=("a",), resolved="a", badge=rule_badge),
+            _entry("a", data_handling=target_badge)])
+
+
+def test_the_covering_accepts_a_badge_that_IS_a_segment():
+    """The other direction, so the predicate cannot have become a blanket
+    refusal: the same target badge, carried as a real segment, is accepted —
+    including across the three forgiven normalizations."""
+    badge = "Processed in the approved tenant boundary; no retention."
+    for rule_badge in (
+            "Routes by role. / " + badge,
+            badge + " / Routes by role.",
+            "Routes by role. / " + badge.upper(),
+            "Routes by role. /   " + badge.rstrip(".") + "   ",
+    ):
+        catalog = ModelCatalog.from_entries([
+            _rule(routes_to=("a",), resolved="a", badge=rule_badge),
+            _entry("a", data_handling=badge)])
+        assert catalog.entries[0].routing_rule is True
+
+
+@pytest.mark.parametrize("badge", [
+    "Read / write access.",          # holds the separator literally
+    "Read /  write access.",         # collapses onto it (doubled space)
+    "Read /\nwrite access.",         # collapses onto it (line wrap)
+])
+def test_a_target_badge_that_holds_the_separator_is_refused_as_ill_formed(badge):
+    """The grammar's own residual collision, closed rather than hoped away: a
+    badge containing " / " could never BE one segment, so the catalog refuses
+    instead of silently splitting the badge in half and matching a fragment.
+
+    THE COLLAPSING FORMS ARE THE POINT (review re-verify N3). The arm used to
+    test the RAW badge, so `"Read /\nwrite access."` — which holds no literal
+    " / " — slipped it AND THEN PASSED THE COVERING CHECK, because the rule's
+    own badge normalizes to exactly that segment. That was a full ACCEPT of an
+    ill-formed badge, not a misdirected message, which is why all three forms
+    are pinned and why the message is matched rather than just the refusal."""
+    with pytest.raises(InvalidRoutingRuleError,
+                       match="contains ' / ', the routing badge's own"):
+        ModelCatalog.from_entries([
+            _rule(routes_to=("a",), resolved="a",
+                  badge="Routes by role. / " + badge),
+            _entry("a", data_handling=badge)])
+
+
+def test_the_resolved_models_badge_is_covered_because_it_must_be_a_member():
+    """F2's note, asserted rather than assumed: `resolved_model_id ∈ routes_to`
+    plus the covering loop over `routes_to` means the ANSWERING model's badge is
+    necessarily carried. The construction below is the one the reviewer walked
+    past the file gate — a rule badged safe resolving to a model badged for
+    vendor training — and it is refused for the membership reason BEFORE any
+    covering question is asked."""
+    safe = CONTRACT_EXAMPLE["data_handling"]
+    leaky = "Content is retained and used for vendor model training."
+    with pytest.raises(InvalidCatalogEntryError,
+                       match="is not among the models this rule declares"):
+        _rule(routes_to=("safe",), resolved="leaky")
+    # And with membership held, the resolved model's badge IS one of the
+    # segments the covering rule just checked.
+    catalog = ModelCatalog.from_entries([
+        _rule(routes_to=("safe", "leaky"), resolved="leaky",
+              badge="Routes by role. / " + safe + " / " + leaky),
+        _entry("safe", data_handling=safe),
+        _entry("leaky", data_handling=leaky)])
+    rule = catalog.entries[0]
+    resolved = catalog.entry_for(rule.resolved_model_id)
+    assert rule.resolved_model_id in rule.routes_to
+    assert (doxbench_model.normalized_badge_segment(resolved.data_handling)
+            in doxbench_model.badge_segments(rule.data_handling))

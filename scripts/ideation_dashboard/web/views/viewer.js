@@ -13,7 +13,9 @@
 // resolution is always "regenerate", never a hand-edit. The ✎ escape hatch
 // does not edit anything itself (per the interactivity boundary): on a capable
 // local human console it asks the guarded action route to launch the selected
-// source file in the user's own editor.
+// source file in the user's own editor — which is why it is labelled "open in
+// editor" and not "edit" (add-doxbench-editing-phase-a: on a doxBench surface
+// the bare word "edit" is reserved for editing that happens INSIDE the app).
 //
 // Degrades gracefully with NO_SHIM_MESSAGE when there is no serve.py to talk
 // to (`file://` mode, or any fetch failure) — never a raw browser error.
@@ -259,7 +261,12 @@ function buildViewerChrome(root, path, doc, edit, mountGateHost) {
   head.appendChild(el("span", "viewer-path", path));
   if (doc?.stage) head.appendChild(el("span", "pill stage", doc.stage));
   if (doc?.kind) head.appendChild(el("span", "pill neutral", doc.kind));
-  const editBtn = el("button", "editbtn", "✎ edit");
+  // add-doxbench-editing-phase-a task 7.2: this button NAMES THE EXTERNAL
+  // EDITOR. It used to read "✎ edit" and edit nothing in the app — while
+  // `edit-document` / `edit-apply` are gate verbs and the doxBench canvas
+  // beside it does in-app editing for real, so one bare word named three
+  // structurally different acts. Behaviour is unchanged; only the claim is.
+  const editBtn = el("button", "editbtn", "✎ open in editor");
   editBtn.type = "button";
   editBtn.disabled = !edit?.enabled;
   editBtn.title = edit?.enabled
@@ -311,6 +318,15 @@ export async function renderViewer(root, opts) {
   // `fetch` directly — the ONE other legitimate network call in the whole
   // bundle besides app.js's snapshot fetch (D15 source pass-through).
   const injectedFetch = o.fetch;
+  // READ-BACK SEAM (add-staged-topic-outline-template task 3.1's wiring), and
+  // the reason it exists rather than a second fetch: this viewer OWNS the one
+  // /source read for these bytes (D15), so a caller that needs the loaded text
+  // for its own derivation — the outline tab, deriving the templated section
+  // index — is handed the text the viewer already has. Called ONLY on a
+  // successful load: a degraded or failed load leaves it silent, because the
+  // viewer has already said so in its own body and a caller must not derive a
+  // model from bytes that never arrived.
+  const onText = typeof o.onText === "function" ? o.onText : null;
 
   root.innerHTML = "";
   if (!path) {
@@ -356,4 +372,32 @@ export async function renderViewer(root, opts) {
 
   const text = await response.text();
   mountSafeMarkdown(body, text);
+  if (onText) {
+    // CONTAINED, IN BOTH SHAPES A CALLER CAN FAIL IN. Callers do not await this
+    // function (the outline pane mounts it and moves on), so a failure while a
+    // caller builds its own derivation would become a silent unhandled
+    // rejection — and it would be the LAST statement that failed, after the
+    // document itself had already rendered.
+    //
+    // A SYNCHRONOUS throw is caught below. An ASYNC `onText` never throws at
+    // all: it hands back a rejected promise, which sails past a bare try/catch
+    // untouched. Our one caller is synchronous today, so that half was latent —
+    // but a containment claim true of only one of the two shapes is worse than
+    // no claim, because this comment is what the next caller reads before
+    // writing an async one (PR #208 review).
+    //
+    // Nothing is said on the page either way, beyond the derivation simply being
+    // absent: the body above is already correct, and a message about a caller's
+    // bug would libel the document.
+    try {
+      const derived = onText(text);
+      // `.then(undefined, handler)` rather than `.catch`: only `then` is
+      // required of a thenable, and this settles the rejection WITHOUT awaiting
+      // it — the read is finished, and the viewer does not wait on anybody's
+      // derivation to call itself done.
+      if (derived && typeof derived.then === "function") {
+        derived.then(undefined, () => {});
+      }
+    } catch (unused) { /* the caller's derivation, not the viewer's read */ }
+  }
 }

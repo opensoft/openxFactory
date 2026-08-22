@@ -308,8 +308,10 @@ await controller.ready;                                    // load
 await controller.edit('outline', '# Outline edited\n');    // edit outline
 await controller.edit('document', '# Document A edited\n');// edit document
 await controller.flushPreview();                            // flush preview
-controller.setActiveTab('document');                        // switch tabs
-controller.setActiveTab('outline');                          //   both ways
+controller.setActiveBuffer('document');                     // switch buffers
+controller.setActiveBuffer('outline');                       //   both ways
+controller.setActiveView('editor');                          // and both views
+controller.setActiveView('preview');                         //   (Phase A)
 const blocked = await controller.selectDocument(DOC_B);      // blocked switch
 const storageBeforeSave = snapshotStorage(storage);
 const saveResolved = await controller.resolveGuard('save');  // resolveGuard("save")

@@ -1,0 +1,27 @@
+# VALID mapped historical actor: the SAME pre-broker username, resolved to a
+# persona because a specific record needed attribution. The mapping is an
+# explicitly recorded act — who mapped it, when, and the evidence — never an
+# inference from a matching name.
+#
+# This is the other half of OQ-1's settlement: mapping entries are added ON
+# DEMAND, where attribution is actually needed, so history stays readable
+# without anybody asserting a resolution they did not verify. The provenance
+# discriminator keeps the two cases apart: this record says a mapping resolved
+# it, and it does not claim the broker asserted it.
+schema_version: 1
+kind: actor_subject_reference
+reference_id: asr-mapped-historical-0003
+governed_record_ref:
+  record_type: gate_action
+  record_ref: "openxfactory:gate/add-openxwallet/ratify/2026-08-07"
+provenance: mapped_historical_actor
+issuer:
+  broker_instance_id: broker-opensoft-shared
+subject: sub-8f2c41d60a974d3b
+display_name_at_record: bheap
+mapping:
+  mapped_from_username: bheap
+  mapped_by: sub-ad91c740be6f5312
+  mapped_on: "2026-08-22"
+  evidence_ref: "opsx:keycloak-administration/actor-mapping/2026-08-22/0001"
+recorded_at: "2026-08-22T09:10:00Z"

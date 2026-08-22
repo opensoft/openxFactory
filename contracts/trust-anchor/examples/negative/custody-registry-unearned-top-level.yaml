@@ -1,0 +1,40 @@
+# expected_failure: custody-ceiling-unearned
+# expected_failure_detail: caps at 'holder_attributed_act', the HIGHEST level
+# requirement: TA-R3
+# VIOLATES TA-R3: a member that evidences only the USING HOST capping at the top
+# of the ladder — the level where nothing stands between the certificate and the
+# effect.
+#
+# The derivation itself is correct here, which is what makes this a separate
+# probe: the member admits it evidences the host and then claims the assurance
+# that requires evidence of the holder. Top-of-ladder authority is EARNED by
+# custody, and there is nothing else in the shape to earn it with.
+schema_version: 1
+kind: xfactory_trust_anchor_chain_custody_registry
+registry_id: trust-anchor-chain-custody-probe
+registry_version: 1
+assurance_levels:
+  - id: host_attributed_act
+    rank: 1
+    statement: An act attributed to the using host, reviewed before effect.
+  - id: holder_attributed_act
+    rank: 2
+    statement: An act attributed to the named holder, with nothing else in the way.
+custody_models:
+  - id: host_held
+    title: host held
+    key_readable_by_using_host: true
+    use_requires_authorization_outside_using_host: false
+    evidences: using_host
+    openxwallet_custody_model: holder_readable
+    evidences_statement: Probe member; see the fixture comment for what it violates.
+    assurance_ceiling: holder_attributed_act
+  - id: host_isolated_per_use_authorized
+    title: host isolated per use authorized
+    key_readable_by_using_host: false
+    use_requires_authorization_outside_using_host: true
+    evidences: named_holder
+    openxwallet_custody_model: isolated_per_use_authorized
+    evidences_statement: Probe member; see the fixture comment for what it violates.
+    assurance_ceiling: holder_attributed_act
+undeclared_custody_resolves_to: host_held

@@ -849,11 +849,25 @@ def _strip_inline_code(line: str) -> str:
 
 
 def _scan_lines(text: str):
-    """Yield (lineno, line, in_code_fence) with ``` fence tracking (families
-    `_scan_lines` precedent). Fenced and inline-code examples are ignored by
-    the provenance checks so a documented example never reads as a real
-    definition or reference (delta scenario "Duplicate-looking references
-    occur")."""
+    """Yield (lineno, line, in_code_fence) with ``` fence tracking. Fenced
+    and inline-code examples are ignored by the provenance checks so a
+    documented example never reads as a real definition or reference (delta
+    scenario "Duplicate-looking references occur").
+
+    NOT the `doc_health.lines`/real-line rule (finding F6, focused
+    re-verify, align-status-reader-to-real-lines, 2026-08-19): this is a
+    byte-for-byte copy of `families._scan_lines` as it existed BEFORE that
+    change converted it, and this copy was never itself converted. Its
+    docstring used to point at "families `_scan_lines` precedent" as if
+    following that pointer would land on matching behavior — it would not,
+    since `families._scan_lines` now scans real lines and this function
+    still scans `str.splitlines()` pseudo-lines. Deliberately left
+    unconverted: it is not a reader of a document's lifecycle header (it
+    scans for provenance references and fence state, never `Status:`/
+    `Kind:`/etc.), so it sits outside the wide ruling's every-*header*-
+    reader clause; recorded, with `_template_gaps`, in tasks.md §7 as a
+    latent (0-of-1227 files diverge) sibling the corrected sweep found.
+    """
     fenced = False
     for i, line in enumerate(text.splitlines(), start=1):
         if line.lstrip().startswith("```"):

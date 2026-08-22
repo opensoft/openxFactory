@@ -1,0 +1,39 @@
+# expected_failure: rebind-set-understated
+# expected_failure_detail: reported over a smaller set than exists
+# requirement: TA-R5
+# VIOLATES TA-R5: the renewal enumerates ONE dependent where the certificate
+# record enumerates two, evidences that one, and reports complete.
+#
+# Every individual statement in this record is true. That is what makes it the
+# interesting failure: the way to reach "complete" is not to lie about a rebind
+# but to shrink the set the completion is measured over. The certificate's record
+# is the authority on what depends on this key, so the renewal's set is checked
+# against it rather than taken as given.
+schema_version: 1
+kind: xfactory_certificate_renewal_record
+renewal_id: renewal:neg-understated-set
+certificate_ref: cert:core-workload-02
+anchor_ref: anchor:core-issuing
+renewal_mode: unattended
+planning:
+  planned_at: "2026-06-30T00:00:00Z"
+  certificate_enumeration_state: complete
+  outcome: proceeded
+key_change:
+  changed: true
+  superseded_key_generation_ref: keygen:core-workload-02-g1
+  new_key_generation_ref: keygen:core-workload-02-g2
+rebind_obligation:
+  arises: true
+  statement: New key material.
+enumerated_dependents:
+  - bind:core-workload-02-queue
+dependent_rebinds:
+  - binding_ref: bind:core-workload-02-queue
+    rebind_evidence:
+      mode: authentication_against_new_material
+      performed_at: "2026-07-01T02:05:00Z"
+      result: succeeded
+authority_outcome: issued
+completion_state: complete
+reported_at: "2026-07-01T02:10:00Z"

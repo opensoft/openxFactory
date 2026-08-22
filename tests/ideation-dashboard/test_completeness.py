@@ -84,6 +84,72 @@ def test_the_governance_header_contract_matches_the_shared_definition():
     assert C.HEADER_WINDOW == corpus.STATUS_SCAN_LINES
 
 
+def test_the_governance_header_contract_agrees_on_an_exotic_header_too():
+    """Finding F4: the constants-only check above passes even if the two
+    RULES for reading them disagree — it never runs either reader over any
+    document. `authoring.missing_required_headers` and `completeness`'s
+    `governance_header_block` element used to disagree on exactly this
+    shape: a header field pushed past the OLD pseudo-line window by an
+    exotic separator, while sitting plainly inside the real 15-line window
+    `authoring` (already fixed) reads correctly. Demonstrated: `authoring`
+    said the header block was COMPLETE while `completeness` said
+    `governance_header_block` was ABSENT, on the SAME document.
+    """
+    exotic = "\x0b\x0c\x1c\x1d\x1e\x85" + chr(0x2028) + chr(0x2029)
+    noise = "".join(f"seg{i}{c}" for i, c in enumerate(exotic * 2))
+    text = (
+        "# Staged: x\n"
+        f"{noise}tail\n"
+        "Status: staged\n"
+        "Kind: policy\n"
+        "Summary: a summary\n"
+        "Topics: x\n"
+        "Repository context: none\n"
+        "Captured: 2026-08-19\n"
+    )
+    # Sanity: the fixture actually overruns the OLD pseudo-line window while
+    # fitting the real one, or it pins nothing.
+    real_line_count = len(corpus.split_keepends(text))
+    pseudo_line_count = len(text.splitlines())
+    assert real_line_count <= C.HEADER_WINDOW
+    assert pseudo_line_count > C.HEADER_WINDOW
+
+    assert authoring.missing_required_headers(text) == []
+    prepared = C._Prepared(text)
+    assert C.ELEMENT_CHECKS["governance_header_block"](prepared) is True
+
+
+def test_mutation_reverting_prepared_lines_alone_reproduces_the_f4_divergence():
+    """MUTATION CHECK: reverting `_Prepared.lines` alone to
+    `text.splitlines()`, with `authoring.missing_required_headers` left as
+    this change fixed it, must reproduce the exact F4 divergence — authoring
+    says COMPLETE, completeness says `governance_header_block` ABSENT —
+    proving the test above is pinned to the defect, not passing by
+    accident."""
+    exotic = "\x0b\x0c\x1c\x1d\x1e\x85" + chr(0x2028) + chr(0x2029)
+    noise = "".join(f"seg{i}{c}" for i, c in enumerate(exotic * 2))
+    text = (
+        "# Staged: x\n"
+        f"{noise}tail\n"
+        "Status: staged\n"
+        "Kind: policy\n"
+        "Summary: a summary\n"
+        "Topics: x\n"
+        "Repository context: none\n"
+        "Captured: 2026-08-19\n"
+    )
+    assert authoring.missing_required_headers(text) == []
+
+    reverted = C._Prepared.__new__(C._Prepared)
+    reverted.text = text
+    reverted.lines = text.splitlines()
+    reverted.body_words = C._body_word_count(reverted.lines)
+
+    assert C.ELEMENT_CHECKS["governance_header_block"](reverted) is False, (
+        "reverting _Prepared.lines to splitlines() did not reproduce the "
+        "false ABSENT reading — the test above is not pinned to this defect")
+
+
 def test_the_expected_structure_sets_live_in_one_table_with_a_common_fallback():
     # ONE table (task 2.2): the fallback is its `None` entry, every kind's set is
     # a superset of the common three, and every named element has a predicate.
@@ -101,9 +167,12 @@ def test_the_expected_structure_sets_live_in_one_table_with_a_common_fallback():
 
 def test_the_scoring_module_touches_nothing_outside_its_arguments():
     # Purity is structural (design D1), so assert it on the parsed module rather
-    # than on prose: `re` and typing are the ONLY imports — no filesystem, no
-    # clock, no network, no randomness, no model call — and no builtin escape
-    # hatch is called either.
+    # than on prose: `re`, typing, and `doc_health.lines` (added
+    # align-status-reader-to-real-lines, finding F4) are the ONLY imports — no
+    # filesystem, no clock, no network, no randomness, no model call — and no
+    # builtin escape hatch is called either. `doc_health.lines` is admitted
+    # specifically because IT is itself pure by the same standard (asserted
+    # below, not assumed): it imports only `re`, and defines no I/O.
     tree = ast.parse((SCRIPTS / "ideation_dashboard" / "completeness.py").read_text("utf-8"))
     modules: set[str] = set()
     for node in ast.walk(tree):
@@ -111,10 +180,20 @@ def test_the_scoring_module_touches_nothing_outside_its_arguments():
             modules.update(alias.name for alias in node.names)
         elif isinstance(node, ast.ImportFrom):
             modules.add(node.module or "")
-    assert modules == {"__future__", "re", "collections.abc", "typing"}, modules
+    assert modules == {"__future__", "re", "collections.abc", "typing",
+                       "doc_health.lines"}, modules
     called = {node.func.id for node in ast.walk(tree)
               if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)}
     assert not called & {"open", "eval", "exec", "input", "print", "compile"}, called
+
+    lines_tree = ast.parse((SCRIPTS / "doc_health" / "lines.py").read_text("utf-8"))
+    lines_modules: set[str] = set()
+    for node in ast.walk(lines_tree):
+        if isinstance(node, ast.Import):
+            lines_modules.update(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            lines_modules.add(node.module or "")
+    assert lines_modules == {"__future__", "re"}, lines_modules
 
 
 # ============================================================================

@@ -30,6 +30,7 @@ if str(_SCRIPTS_DIR) not in sys.path:
 
 from ideation_dashboard import authoring as authoring_mod  # noqa: E402
 from ideation_dashboard import branch_session as branch_session_mod  # noqa: E402
+from ideation_dashboard import doxbench_knowledge as knowledge_mod  # noqa: E402
 from ideation_dashboard import gate_console as gate_mod  # noqa: E402
 from ideation_dashboard import gate_routes as gate_routes_mod  # noqa: E402
 from ideation_dashboard import human_seen as human_seen_mod  # noqa: E402
@@ -300,7 +301,15 @@ def cmd_generate_and_open(args: argparse.Namespace, *, opener=webbrowser.open) -
                                    # the ENTRYPOINT declares the real notebook
                                    # adapter; `build_server` never reaches for one
                                    # on a caller's behalf (PR #49 hardening item 1)
-                                   adapter_factory=serve_mod.real_notebook_adapter)
+                                   adapter_factory=serve_mod.real_notebook_adapter,
+                                   # and the same discipline for the doxBench
+                                   # knowledge service: the ENTRYPOINT makes the
+                                   # install-time retrieval-backend declaration
+                                   # (add-doxbench-editing-phase-b D11), which is
+                                   # the self-hosted half of the ratified
+                                   # two-case principle
+                                   knowledge_declaration=(
+                                       knowledge_mod.SELF_HOSTED_LOCAL_EMBEDDED))
     url = serve_mod.server_url(httpd, "/index.html")
     print(f"  serving {url}")
     print(f"  snapshot {serve_mod.server_url(httpd, '/snapshot.json')}")
@@ -420,8 +429,31 @@ def cmd_gate_demote(args: argparse.Namespace) -> int:
     print(f"  planned moves: {len(res.plan.moves)}; withdrawn picks: {list(res.plan.withdrawn_picks)}")
     if args.execute:
         ex = gate_mod.execute_demotion_plan(res.plan, repo_root)
-        print(f"  EXECUTED: {len(ex.moved)} file(s) moved into {res.plan.topic_path}/openspec/; "
+        # Not every move lands in openspec/ — supporting-docs restores and the
+        # outline restore (below) can land in the topic ROOT instead, so the
+        # summary counts both rather than naming a single destination
+        # (Copilot review, PR #215).
+        into_ws = sum(1 for _, to in ex.moved
+                      if to.startswith(res.plan.openspec_workspace + "/"))
+        into_root = len(ex.moved) - into_ws
+        print(f"  EXECUTED: {len(ex.moved)} file(s) moved back into {res.plan.topic_path}/ "
+              f"({into_ws} into openspec/, {into_root} into the topic root); "
               f"README+INDEX updated; change folder removed={ex.removed_change_folder}")
+        # THE OUTLINE'S OWN SENTENCE (align-demote-to-round-trip-rule). "We did not
+        # overwrite your work" is exactly the sentence a human needs to be able to
+        # check, and a disposition recorded only in a returned dataclass is a
+        # disposition nobody reads. It goes to the operator who ran the verb.
+        if ex.outline_path is not None:
+            print(f"  outline: {ex.outline_path.relative_to(repo_root)} "
+                  f"(snapshot {ex.snapshot_disposition})")
+            if ex.preserved_snapshot_path is not None:
+                print(f"    your fragment already existed and differed, so it was "
+                      f"REFRESHED IN PLACE — the change folder's snapshot was "
+                      f"preserved as "
+                      f"{ex.preserved_snapshot_path.relative_to(repo_root)}, "
+                      f"not applied over your work")
+            if ex.outline_refusal:
+                print(f"    REFRESH WITHHELD: {ex.outline_refusal}")
     else:
         print("  (plan only — rerun with --execute to apply the moves to this checkout)")
     return 0
@@ -1253,6 +1285,72 @@ def cmd_gate_open_pr(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_gate_share_session(args: argparse.Namespace) -> int:
+    """Commit the session's dirty thread sidecars and PUSH the session branch, so
+    a colleague can resume it (add-doxbench-editing-phase-b §12) — the CLI parity
+    surface of `POST /actions/gate/share-session`, driving the SAME engine.
+
+    It is `open-pr`'s sibling with the pull request removed, and it is the reason
+    threads are local until a human says otherwise. It opens no pull request,
+    requests no review, and holds no approval or merge authority.
+
+    The remote write uses the invoking engineer's own ambient `gh` authentication
+    (FR-034, D22) — the plane rule the Save already carries — so the port's own
+    refusal is reported VERBATIM.
+
+    FR-019 is a PER-VERB obligation here for the same reason it is on `open-pr`:
+    a CLI verb is a fresh process with no `serve.py` handler in front of it."""
+    repo_root = Path(args.repo_root).resolve()
+    refused = _session_identity_gate("share-session", repo_root, args)
+    if refused is not None:
+        return refused
+    repository = _session_repository_key(repo_root, args)
+    try:
+        session, git = gate_routes_mod.resolve_session(
+            (args.scope_kind, args.scope_id), checkout_root=repo_root,
+            registry=_session_registry(repo_root, repository),
+            repository=repository, records_dir=args.records_dir,
+            tile_inventory=gate_routes_mod.discover_tile_inventory(repo_root),
+            verb="share-session", require_live=True,
+            remedy=gate_routes_mod.SHARE_SESSION_REMEDY)
+        result = gate_routes_mod.execute_share_session(
+            gate_routes_mod.share_session_gate_factory(
+                args.actor, args.records_dir),
+            git, session=session, pull_requests=_pull_request_port(repo_root),
+            records_dir=args.records_dir, checkout_root=repo_root,
+            notes=args.notes, provenance=cli_provenance())
+    except branch_session_mod.SessionRefused as exc:
+        print(f"share-session refused: {exc.report()}", file=sys.stderr)
+        return 1
+    except BoundaryViolation as exc:
+        print(f"share-session refused: {exc.refusal.report()}", file=sys.stderr)
+        return 1
+    except gate_mod.GateRefused as exc:
+        print(f"share-session refused: {exc}", file=sys.stderr)
+        return 1
+    except session_pr_mod.PullRequestRefused as exc:   # `gh`'s own words, verbatim
+        print(f"share-session refused: {exc}", file=sys.stderr)
+        return 1
+    except session_git_mod.GitError as exc:
+        print(f"share-session refused: {exc}", file=sys.stderr)
+        return 1
+    except OSError as exc:
+        print(f"share-session refused: {exc}", file=sys.stderr)
+        return 1
+    if not result.get("shared"):
+        # Exit 0: "nothing new" is a correct answer, not a failure (§12.3).
+        print(f"share-session {result['branch']}: {result['reason']}")
+        return 0
+    print(f"share-session {result['pushed_ref']} (by {args.actor})")
+    print(f"  revision:           {result['revision']}")
+    print(f"  threads committed:  "
+          f"{', '.join(result['threads']) or '(none dirty)'}")
+    print(f"  gate-action record: {result['record']} "
+          f"({result['record_resident']}-resident)")
+    print(f"  {result['promotion']}")
+    return 0
+
+
 def cmd_gate_abandon_session(args: argparse.Namespace) -> int:
     """End the tile's branch session WITHOUT saving, carrying the required reason
     (007-workbench-branch-sessions T053, FR-021/FR-022/FR-020) — the CLI parity
@@ -1757,6 +1855,29 @@ def _add_open_pr_subcommand(gsub) -> None:
                       help="the registry key's repository half (default: the "
                            "checkout directory's name)")
     save.set_defaults(func=cmd_gate_open_pr)
+
+    # add-doxbench-editing-phase-b §12: the SHARE verb, the same flag surface with
+    # the pull-request half removed. No `--title` and no `--body-file`, because
+    # those name a pull request and this verb opens none; no token flag, for the
+    # same ruled reason as above; and nothing that overrides the nothing-new
+    # answer, because §12.3 says it is reported honestly rather than pushed past.
+    share = gsub.add_parser(
+        "share-session",
+        help="commit the session's dirty thread sidecars and push the branch so "
+             "a colleague can resume the session (opens NO pull request)")
+    _add_gate_identity_args(share)
+    share.add_argument("--scope-kind", required=True,
+                       choices=list(branch_session_mod.SCOPE_KINDS),
+                       help="the tile's scope kind — resolves the session to share")
+    share.add_argument("--scope-id", required=True,
+                       help="the tile id: a staging FOLDER name, a cl-*, or a pos-*")
+    share.add_argument("--notes", default=None,
+                       help="optional note recorded on the gate-action record — "
+                            "why this session is being handed over")
+    share.add_argument("--repository", default=None,
+                       help="the registry key's repository half (default: the "
+                            "checkout directory's name)")
+    share.set_defaults(func=cmd_gate_share_session)
 
 
 def _add_session_ending_subcommands(gsub) -> None:

@@ -29,14 +29,15 @@
 //     exported `tileOpacity`, which is the older FLAT-reel curve the drum
 //     superseded: a cylinder fades by its own foreshortening.
 //
-// WHY 0.4. The drum places tiles at `winH/2 ± R` for `R = winH × drumF`. At the
-// deck's default 1.0 that spans `[-0.5·winH, 1.5·winH]`: most of a column is
-// laid out outside its own window and survives only because the clip hides it —
-// affordable in a 430px deck window, useless in a ~380px pane where the whole
-// reel would be off-screen. At 0.4 the span is `[0.1·winH, 0.9·winH]`: every
-// tile lands INSIDE the subpane, and tiles leave by wrapping over the drum's own
-// horizon instead of running off the end. That is the operator's number, and it
-// is the number that makes a drum work at this size.
+// WHY 0.4. The drum places tiles at `winH/2 ± R` for `R = winH × drumF`. At
+// factor 1.0 (the deck's original default) that spans `[-0.5·winH, 1.5·winH]`:
+// most of a column is laid out outside its own window and survives only
+// because the clip hides it — affordable in a 430px deck window, useless in a
+// ~380px pane where the whole reel would be off-screen. At 0.4 the span is
+// `[0.1·winH, 0.9·winH]`: every tile lands INSIDE the subpane, and tiles leave
+// by wrapping over the drum's own horizon instead of running off the end.
+// That is the operator's number, and it is the number that makes a drum work
+// at this size.
 import {
   drumProject, tileBox, tileScale, inReelWindow,
   nextExpanded, isExpandedTile, EXPANDED, SPRING,
@@ -64,9 +65,55 @@ function sameCell(a, b) {
   return a.key === b.key && a.i === b.i;
 }
 
+// THE THREE TILE VERBS (add-doxbench-editing-phase-b, Q3 ruled: "add a load
+// button. read will still pull up an imersive reader experience of the doc in a
+// large window. the new <Edit> button will then load this into the chat context.
+// Once loaded and editable by chat, color this tile so we know is must be saved.
+// also add a save button here. So we have read, edit, save and save only active
+// if there are changes. the save acts same as the save button that is in the
+// preview panel.")
+//
+// The CONTRACT names are read / load-for-editing / save (design D8). `read`
+// replaces Phase A's `open`, which is a naming debt Phase A opened deliberately:
+// it reserved the bare word "edit" for editing that happens INSIDE the app so
+// this verb could exist without a third claimant to the word. The visible label
+// follows Brett's annotation.
+export const DOC_TILE_VERBS = Object.freeze(["read", "load-for-editing", "save"]);
+
+// The fixed sentences each unreachable verb states. Stated rather than failing
+// on activation, which is the delta's own rule: "load and save MUST be
+// unreachable and MUST state that absence rather than failing when activated".
+const READ_UNAVAILABLE = "the read-only viewer is not available in this embedding";
+const NOT_CATALOGUED = "not a catalogued corpus document";
+const LOAD_UNAVAILABLE =
+  "loading for editing needs the editing capability, which this surface does not have";
+const SAVE_UNAVAILABLE =
+  "the governed Save needs the editing capability, which this surface does not have";
+const SAVE_CONTEXT_ONLY =
+  "this document is read-only context in the opened tile, not the tile's own "
+  + "material, so it is not offered to the governed Save";
+const SAVE_NOT_LOADED =
+  "load this document for editing before saving it";
+const SAVE_NOTHING_TO_DO =
+  "this document has no unsaved changes";
+
 export function renderDocWheel(host, entries, opts = {}) {
   const onSelect = typeof opts.onSelect === "function" ? opts.onSelect : null;
-  const onOpen = typeof opts.onOpen === "function" ? opts.onOpen : null;
+  // `onRead` is the verb's contract name; `onOpen` is the retired Phase A
+  // spelling, still accepted so a caller that has not been re-pointed keeps its
+  // reader rather than losing it silently.
+  const onRead = typeof opts.onRead === "function"
+    ? opts.onRead
+    : (typeof opts.onOpen === "function" ? opts.onOpen : null);
+  const onLoad = typeof opts.onLoad === "function" ? opts.onLoad : null;
+  const onSave = typeof opts.onSave === "function" ? opts.onSave : null;
+  // LIVE buffer state for one path, or null. D9: the marking is driven off live
+  // session-local buffer state and is NEVER persisted — "has an open unsaved
+  // edit" is a fact about a browser, and the snapshot is a regenerated derived
+  // projection whose generator cannot observe one.
+  const bufferStateFor = typeof opts.bufferStateFor === "function"
+    ? opts.bufferStateFor
+    : () => null;
   const drumF = Number.isFinite(opts.drumF) ? opts.drumF : DOC_WHEEL.drumF;
 
   host.innerHTML = "";
@@ -235,6 +282,11 @@ export function renderDocWheel(host, entries, opts = {}) {
     tile.setAttribute("aria-selected", centred ? "true" : "false");
     tile.setAttribute("aria-expanded", isExpanded ? "true" : "false");
     tile.classList.toggle("wheelexpanded", isExpanded);
+    // The loaded/loaded-and-dirty marking is applied on EVERY layout pass, to
+    // every tile — expanded or not — because "this document has unsaved work" is
+    // a fact a human must be able to see across the whole reel, not only on the
+    // one tile they happen to have open.
+    markTile(tile, entries[i]);
 
     if (isExpanded) {
       tile.style.transform = "translate(0, " + y.toFixed(1) + "px) translateY(-50%) " +
@@ -262,29 +314,118 @@ export function renderDocWheel(host, entries, opts = {}) {
     }
   }
 
-  // The expanded tile's action row. The docs pane's one verb is the read-only
-  // viewer it has always offered — expanding brings it INSIDE the tile instead
-  // of requiring the human to find it elsewhere, which is what expansion is for.
+  // The expanded tile's action row: READ, LOAD FOR EDITING, SAVE. Expanding
+  // brings them INSIDE the tile instead of requiring the human to find them
+  // elsewhere, which is what expansion is for.
+  //
+  // The row is REBUILT on every expanded layout pass rather than mutated,
+  // because Save's reachability is a function of live buffer state and a control
+  // whose enabled state lagged the buffer it governs would be the one thing this
+  // row must never be: wrong about whether work is unsaved.
   function mountActions(tile, i) {
-    if (tile.querySelector(".wheelactions")) return;
+    const existing = tile.querySelector(".wheelactions");
+    if (existing) existing.remove();
     const row = el("div", "wheelactions");
     const entry = entries[i];
-    const open = el("button", "swb-docopen", "open");
-    open.type = "button";
-    open.title = "open " + entry.path + " in the read-only source viewer";
-    if (onOpen && entry.resolved) {
-      open.addEventListener("click", (ev) => {
+    const live = bufferStateFor(entry.path) || null;
+    const loaded = Boolean(live && live.loaded);
+    const dirty = Boolean(live && live.dirty);
+    // OWNERSHIP is the tile's own answer about its material, and a live buffer's
+    // answer wins when one exists (design D2): a context-only document is
+    // LOADABLE for grounding and conversation, and its buffer carries
+    // `owned: false`, which the governed Save already withholds.
+    const owned = live && typeof live.owned === "boolean"
+      ? live.owned
+      : entry.owned !== false;
+
+    // ---- READ: unchanged. Needs no gate capability, so it stays available
+    // wherever the document is catalogued at all.
+    const read = el("button", "swb-docopen swb-docread", "read");
+    read.type = "button";
+    read.title = "read " + entry.path + " in the immersive read-only viewer";
+    if (onRead && entry.resolved) {
+      read.addEventListener("click", (ev) => {
         ev.stopPropagation();
-        onOpen(entry.row, entry);
+        onRead(entry.row, entry);
       });
     } else {
-      open.disabled = true;
-      open.title = entry.resolved
-        ? "the read-only viewer is not available in this embedding"
-        : "not a catalogued corpus document";
+      read.disabled = true;
+      read.title = entry.resolved ? READ_UNAVAILABLE : NOT_CATALOGUED;
     }
-    row.appendChild(open);
+    row.appendChild(read);
+
+    // ---- LOAD FOR EDITING: how a document JOINS the loaded set, and the ONLY
+    // route in (design D5). Labelled with Brett's own word.
+    const load = el("button", "swb-docload", loaded ? "loaded" : "edit");
+    load.type = "button";
+    if (onLoad && entry.resolved) {
+      load.title = loaded
+        ? entry.path + " is loaded for editing — selecting it here brings the "
+          + "chat and the canvas back to it"
+        : "load " + entry.path + " into the chat context for editing";
+      load.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        onLoad(entry.row, entry);
+      });
+    } else {
+      load.disabled = true;
+      load.title = entry.resolved ? LOAD_UNAVAILABLE : NOT_CATALOGUED;
+    }
+    row.appendChild(load);
+
+    // ---- SAVE: the SAME governed pipeline the canvas Save reaches, scoped to
+    // this document plus the outline-ancestry step (design D4). A second ENTRY
+    // POINT, never a second save path, and it widens no authority: it is
+    // reachable only while this document's buffer is dirty, and visibly inert
+    // otherwise, so the control's own state answers "does this need saving"
+    // without a sentence of standing text.
+    const save = el("button", "swb-docsave", "save");
+    save.type = "button";
+    if (!onSave || !entry.resolved) {
+      save.disabled = true;
+      save.title = entry.resolved ? SAVE_UNAVAILABLE : NOT_CATALOGUED;
+    } else if (!owned) {
+      // D2: no reachable Save on a context-only tile, and — below — no
+      // must-save marking either, because marking a document "must be saved"
+      // when the tile may not save it would be a false statement about the
+      // surface's own authority.
+      save.disabled = true;
+      save.title = SAVE_CONTEXT_ONLY;
+    } else if (!loaded) {
+      save.disabled = true;
+      save.title = SAVE_NOT_LOADED;
+    } else if (!dirty) {
+      save.disabled = true;
+      save.title = SAVE_NOTHING_TO_DO;
+    } else {
+      save.title = "save " + entry.path + " through the governed Save";
+      save.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        onSave(entry.row, entry);
+      });
+    }
+    row.appendChild(save);
     tile.appendChild(row);
+  }
+
+  // THE TILE MARKING, in the wheel's existing class idiom rather than a second
+  // visual language. Two states are distinguishable because Brett named both:
+  // LOADED (the tile is in the chat context) and LOADED-AND-DIRTY (it must be
+  // saved). A context-only document can be loaded but is never marked as needing
+  // a save (design D2/D9).
+  function markTile(tile, entry) {
+    const live = bufferStateFor(entry.path) || null;
+    const loaded = Boolean(live && live.loaded);
+    const owned = live && typeof live.owned === "boolean"
+      ? live.owned
+      : entry.owned !== false;
+    const needsSave = loaded && owned && Boolean(live && live.dirty);
+    tile.classList.toggle("swb-docloaded", loaded);
+    tile.classList.toggle("swb-docneedssave", needsSave);
+    // Announced as well as coloured: colour alone is not an accessible state.
+    if (needsSave) tile.setAttribute("data-doxbench-buffer", "loaded-dirty");
+    else if (loaded) tile.setAttribute("data-doxbench-buffer", "loaded");
+    else tile.removeAttribute("data-doxbench-buffer");
   }
 
   // ---- input ----
@@ -337,6 +478,14 @@ export function renderDocWheel(host, entries, opts = {}) {
     selectPath(path) {
       const i = entries.findIndex((e) => e.path === path);
       if (i >= 0) setFocus(i);
+    },
+    // The pane's way of saying "the loaded set or a buffer's dirtiness moved":
+    // re-lay-out so every tile's marking and the expanded tile's Save
+    // reachability are re-derived from the live state. Nothing is cached here,
+    // which is what makes the marking impossible to leave stale.
+    refreshBufferState() {
+      if (destroyed) return;
+      layout();
     },
   };
 }

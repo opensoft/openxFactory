@@ -1,0 +1,34 @@
+# expected_failure: actor-identifier-not-opaque
+# expected_failure_detail: with its spaces and punctuation removed
+# requirement: IDB-R5
+# VIOLATES R5: the display name as the identifier, with the spaces taken out.
+#
+# `actor-reference-uses-display-name-as-id` is refused twice over: the
+# `opaque_subject` pattern admits no whitespace, and the validator refused a
+# subject byte-equal to its own display name. Remove the spaces and BOTH
+# mechanisms let it through — `BrettHeapOpensoft` is pattern-clean, long enough
+# to clear the length floor, and not byte-equal to `Brett Heap Opensoft`. The
+# structural half and the validator half were testing PUNCTUATION between them,
+# not the substitution they are named for.
+#
+# `Brett.Heap.Opensoft` and a display name with a trailing full stop work the
+# same way, and neither requires any intent to evade: joining a name with dots
+# is how half the world writes usernames.
+#
+# The comparison now runs on the ALPHANUMERIC SKELETON of both sides, case
+# folded. Removing the spaces does not make a name an opaque subject.
+#
+# This fixture fails with NO schema finding, which is what makes it a probe of
+# the rule rather than of the pattern.
+schema_version: 1
+kind: actor_subject_reference
+reference_id: asr-display-name-spaceless-9026
+governed_record_ref:
+  record_type: gate_action
+  record_ref: "openxfactory:gate/add-identity-brokering/close/2026-08-22"
+provenance: broker_asserted
+issuer:
+  broker_instance_id: broker-opensoft-shared
+subject: BrettHeapOpensoft
+display_name_at_record: Brett Heap Opensoft
+recorded_at: "2026-08-22T12:20:00Z"

@@ -62,6 +62,7 @@ except ImportError:  # pragma: no cover
 
 from . import CONTESTED, WARNING, Finding
 from . import corpus as corpus_mod
+from .lines import split_keepends
 
 # --- prompt contract ---------------------------------------------------------
 
@@ -297,20 +298,33 @@ def _is_clusterable_ideation_path(path: str) -> bool:
 def _parse_header(text: str) -> dict[str, str]:
     """Parse the contiguous header field block (H1 + blank skipped) up to the
     first ``## `` body section, joining continuation lines onto their field —
-    identical to the bootstrap's `parse_header`."""
+    identical to the bootstrap's `parse_header`
+    (`scripts/bootstrap-ideation-cross-reference.py`; both converted together,
+    finding F5, and pinned to agree by
+    `tests/doc-health/test_ideation_readiness.py`'s
+    `test_parse_header_agrees_with_the_bootstraps_own_parse_header`).
+
+    Real lines (CR/LF/CRLF only — `doc_health.lines`), not `str.splitlines()`
+    pseudo-lines: this feeds `derive_clusters`, which reads `Status` as the
+    document's stage on the SAME live path
+    (`ideation_readiness_dispatch`/`readiness_dispatch.py`) doc-health's own
+    `corpus.parse_status` reads for the SAME document — a wider split here
+    diverged 4-of-4 on exotic fixtures (readiness clustered a document as
+    'staged' while doc-health reported it as lacking a status entirely).
+    """
     fields: dict[str, str] = {}
     current: str | None = None
-    for line in text.splitlines():
-        if line.startswith("## "):
+    for body, _ending in split_keepends(text):
+        if body.startswith("## "):
             break
-        if line.startswith("# ") or not line.strip():
+        if body.startswith("# ") or not body.strip():
             continue
-        m = _FIELD_RE.match(line)
+        m = _FIELD_RE.match(body)
         if m:
             current = m.group(1).strip()
             fields[current] = m.group(2).strip()
         elif current is not None:
-            fields[current] = (fields[current] + " " + line.strip()).strip()
+            fields[current] = (fields[current] + " " + body.strip()).strip()
     return fields
 
 

@@ -1,0 +1,30 @@
+# INVALID (routing-target): the rule routes to a model id no entry in this
+# catalog answers to, so its badge covers a posture nobody can check and the
+# resolved model is unreachable.
+{
+  "schema_version": 1,
+  "kind": "workbench-model-catalog",
+  "models": [
+    {
+      "model_id": "auto-dangling",
+      "label": "Automatic (routes by role)",
+      "provider_class": "routing-rule",
+      "available": true,
+      "input_limit_bytes": 2048,
+      "output_limit_bytes": 8192,
+      "data_handling": "Routes by role. / Processed in the approved tenant boundary; no retention.",
+      "routing_rule": true,
+      "routes_to": ["dangling-never-offered"],
+      "resolved_model_id": "dangling-never-offered"
+    },
+    {
+      "model_id": "dangling-on-tenant",
+      "label": "Approved authoring model (routable)",
+      "provider_class": "on-tenant",
+      "available": true,
+      "input_limit_bytes": 800000,
+      "output_limit_bytes": 900000,
+      "data_handling": "Processed in the approved tenant boundary; no retention."
+    }
+  ]
+}

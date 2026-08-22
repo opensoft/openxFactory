@@ -1,0 +1,51 @@
+# expected_failure: dependent-rebind-state-contradicts-renewal
+# expected_failure_detail: the silent failure this contract exists to make loud
+# requirement: TA-R4
+# VIOLATES TA-R4: the renewal reports both dependents re-bound with succeeded
+# evidence while one of the binding records still names the SUPERSEDED key
+# generation and still says a re-bind is required.
+#
+# This is the trap in its purest form. The renewal record looks complete, the
+# evidence looks present, and the binding is pointing at a key the holder no
+# longer uses — so authentication will fail later, somewhere else, for reasons
+# nobody will connect to this record. The key GENERATION is what makes it a
+# comparison rather than an intuition: the records cannot both be right, and the
+# validator does not have to guess which one to believe, because a rebind claim
+# has to agree with the binding it claims to have re-bound.
+schema_version: 1
+kind: xfactory_certificate_renewal_record
+renewal_id: renewal:neg-rebind-at-superseded-generation
+certificate_ref: cert:core-workload-02
+anchor_ref: anchor:core-issuing
+renewal_mode: unattended
+planning:
+  planned_at: "2026-06-30T00:00:00Z"
+  certificate_enumeration_state: complete
+  outcome: proceeded
+key_change:
+  changed: true
+  superseded_key_generation_ref: keygen:core-workload-02-g1
+  new_key_generation_ref: keygen:core-workload-02-g2
+rebind_obligation:
+  arises: true
+  statement: New key material.
+enumerated_dependents:
+  - bind:core-workload-02-queue
+  - bind:core-workload-02-mesh
+dependent_rebinds:
+  - binding_ref: bind:core-workload-02-queue
+    rebind_evidence:
+      mode: authentication_against_new_material
+      performed_at: "2026-07-01T02:05:00Z"
+      result: succeeded
+  - binding_ref: bind:core-workload-02-mesh
+    rebind_evidence:
+      mode: holder_attested_verification
+      performed_at: "2026-07-01T02:06:00Z"
+      result: succeeded
+      statement: >-
+        The mesh team confirmed the policy was reloaded. Nothing read the stored
+        key back, and the stored key is still the previous generation.
+authority_outcome: issued
+completion_state: complete
+reported_at: "2026-07-01T03:00:00Z"

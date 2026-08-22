@@ -1,0 +1,35 @@
+# expected_failure: key-material-reversibly-encoded
+# expected_failure_detail: PKCS#8 PrivateKeyInfo
+# requirement: TA-R7
+# VIOLATES TA-R7 with the armor removed AND the encoding changed. Hex of the same
+# unarmored PKCS#8 structure — the combination that gets reached for once base64
+# is known to be scanned.
+#
+# It carries its own probe because the two evasions are independent: an
+# armor-dependent scan misses this whatever encoding it reverses, and an
+# encoding-specific scan misses it whatever structure it looks for. Both halves
+# have to be right at once, which is why both halves have a fixture.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:neg-hex-der-key
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "Laboratory Root Authority"
+chain_position:
+  role: root
+  path_depth: 0
+validity:
+  not_before: "2026-01-01T00:00:00Z"
+  not_after: "2027-01-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:laboratory-issuance-policy
+    authority_kind: policy
+    statement: Laboratory certificates only.
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  credential_record_ref: credential:neg-laboratory-root-key
+  vault_binding_ref: vaultbinding:laboratory/root-key
+notes: "byte dump for the lab runbook, hex so it diffs cleanly: 308165020100300d06092a864886f70d0101010500048150000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f"

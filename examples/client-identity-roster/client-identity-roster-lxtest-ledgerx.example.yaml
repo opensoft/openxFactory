@@ -1,0 +1,113 @@
+# CLIENT IDENTITY ROSTER FRAGMENT — client `lxtest_opensoft`, owning domain
+# `ledgerxfactory`. THE RETIRED CASE, and the corpus's only packaged instance of
+# the `exchange` admission surface.
+#
+# A TRUTHFUL WORKED CASE: the identity below really existed, really held
+# `Mail.Read` bounded to exactly one mailbox by an Exchange application access
+# policy, really proved that bound by attempted overreach, and was really torn
+# down — policy, then scope group, then app, then mailboxes — on 2026-07-26.
+# Every fact is cited inline by repo + path + commit.
+#
+# WHY A RETIRED ENTRY IS PACKAGED AT ALL. A retired entry RETAINS its record;
+# it is not deleted. Without an instance, that guarantee is asserted by nobody
+# and exercised by nothing, and the third member of the closed `lifecycle_state`
+# vocabulary has no worked case anywhere. This entry is that instance: it
+# validates with ZERO findings, is never reported as missing, incomplete or
+# stale, and its `verified_at` carries no freshness decay — this release draws
+# exactly one distinction, verified versus unverified.
+#
+# WHAT IS MEASURED ELSEWHERE, DELIBERATELY. A retired entry is EXEMPT from the
+# consent instrument's IN-FORCE test, because the ratified cascade runs
+# withdrawal or termination THROUGH to identity retirement while the record is
+# kept, so an ended instrument is the EXPECTED state beside a retired entry.
+# That exemption is a REPO-CONTEXT rule: it resolves `consent_ref` against the
+# target repository's own consent-instrument records, and this neutral
+# repository publishes none. The packaged corpus therefore STATES the case; the
+# resolution arms — a retired entry citing an ended instrument accepted, and a
+# NON-retired entry citing the same instrument REFUSED — are measured against
+# repo-shaped fixtures in `tests/client-identity-roster/`, where the instrument
+# records exist to resolve against.
+#
+# The citation below is the engagement's own consent record
+# (`lxtest-2026-001-consent`, LedgerxFactory
+# tenants/ledgerxcorp/clients/lxtest/consent-record.yaml, commit 037e6e9) whose
+# revocation clause is what the teardown executed: "operator decision; assets
+# carry a registered teardown plan — full removal, not just grant revocation."
+# The entry declares the CITATION and never the instrument's status; the
+# instrument record is the only authority on that.
+schema_version: 1
+kind: xfactory_client_identity_roster
+client_ref: lxtest_opensoft
+# The Opensoft tenant, which for this internal test client IS the client's own
+# tenant (the estate is self-owned). TENANT_CHECK=PASS against this GUID on
+# every call in the build, smoke-test and teardown evidence.
+client_tenant: 74ce1e7d-7455-4694-b00d-9ac83c6821ce
+domain: ledgerxfactory
+legend:
+  blast_radius_units:
+    ledgerx_test_intake: "ledgerx-test-intake@opensoft.one (Exchange shared mailbox, ExchangeGuid cbe7b324-…)"
+  duties:
+    mailbox_monitoring: >-
+      Read-only monitoring of one delegated intake mailbox — the transport
+      smoke-test rehearsal of the AP intake binding.
+entries:
+
+  - identity_ref: ledgerx-lxtest-ap-monitor
+    identity_kind: entra_app_registration
+    home_tenant: 74ce1e7d-7455-4694-b00d-9ac83c6821ce
+    principal_locations:
+      - 74ce1e7d-7455-4694-b00d-9ac83c6821ce
+    residency_model: client_tenant_single
+    provider_object_ref: 4c5be02c-2028-494c-b343-7c18b7a6dbac
+    admission_surface: exchange
+    duty: mailbox_monitoring
+    blast_radius_unit: ledgerx_test_intake
+    # Intended observation, ACHIEVED observation. Exchange offers what Business
+    # Central does not: a genuinely read-only application permission, bounded
+    # to a named mailbox set by a mechanism the provider itself enforces. There
+    # is no forced breadth here, and therefore no `declared_excess` — which is
+    # what a conformant narrow identity looks like.
+    authority_class_intended: observe
+    authority_class_achieved: observe
+    granted_permissions:
+      - id: Mail.Read
+        achieves: observe
+        reaches: [exchange]
+    admission:
+      - surface: exchange
+        act: >-
+          Exchange application access policy created in Exchange Online
+          PowerShell (New-ApplicationAccessPolicy -AccessRight RestrictAccess)
+          with the mail-enabled security group
+          ledgerx-lxtest-monitor-scope@opensoft.one as its scope
+        achieved_scope: >-
+          ledgerx-test-intake@opensoft.one — the sole mailbox covered by the
+          scope group; a read against any other mailbox in the tenant is
+          refused by the provider, proven by attempted overreach against
+          ledgerx-test-overreach@opensoft.one
+        enforcement_mode: provider_enforced
+        evidence_ref:
+          repo: opensoft/LedgerxFactory
+          path: tenants/ledgerxcorp/clients/lxtest/lxtest-smoke-test-evidence.md
+          sha: b408429
+        verified_at: "2026-07-26T06:47:04Z"
+        exceeds_governed_unit: false
+    per_unit_principal_available:
+      # TRUE, and USED: the mail-enabled security group is a principal scoped to
+      # exactly the governed mailbox, so the bound is the provider's and not
+      # ours. Structure before logic, satisfied structurally.
+      exchange: true
+    # RETIRED — torn down 2026-07-26T19:51:37Z in the recorded order (policy,
+    # group, app, mailboxes), each step with a before and an after read; the
+    # app deleted with passwordCredentials=0, so no orphaned secret survived it.
+    # The RECORD IS KEPT: retirement is a lifecycle state, not a deletion.
+    lifecycle_state: retired
+    standing_credential_attestation:
+      no_standing_credential: true
+      attested_at: "2026-07-26T19:51:13Z"
+      evidence_ref:
+        repo: opensoft/LedgerxFactory
+        path: tenants/ledgerxcorp/clients/lxtest/lxtest-teardown-evidence.md
+        sha: b408429
+    ratified_by: ledgerxfactory:ledgerx-ap-intake
+    consent_ref: lxtest-2026-001-consent

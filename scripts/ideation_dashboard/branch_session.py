@@ -235,11 +235,18 @@ class AbandonedBranchSurvives(SessionRefused):
         also = (f" The tile's other surviving branches are "
                 f"{', '.join(repr(b) for b in others)}; RESUME takes the most "
                 f"recent one." if others else "")
+        # The fetch instruction carries its REFSPEC. Without one, `git fetch
+        # origin <branch>` creates no local branch and the RESUME that follows
+        # refuses identically — the remedy read as if it worked (PR #234, Codex).
+        fetch_hint = "; ".join(
+            f"`git fetch origin refs/heads/{b}:refs/heads/{b}`"
+            for b in self.remote_only)
         remote = (f" NOTE: {', '.join(repr(b) for b in self.remote_only)} "
                   f"{'exists' if len(self.remote_only) == 1 else 'exist'} ONLY on "
                   "the remote (read with `git ls-remote --heads`; no session "
-                  "operation fetches, FR-026/D17) — fetch it yourself to RESUME "
-                  "it, or start a NEW ordinal beside it."
+                  "operation fetches, FR-026/D17) — fetch it yourself, WITH THE "
+                  f"DESTINATION REFSPEC ({fetch_hint}), to RESUME it, or start a "
+                  "NEW ordinal beside it."
                   if self.remote_only else "")
         answer = (f" Answer with continuation={CONTINUATION_RESUME!r} or "
                   f"continuation={CONTINUATION_NEW!r}.")
@@ -2187,11 +2194,35 @@ def _continue_abandoned(git: SessionGit, registry: Any, *, repository: str,
                 f"worktree would create a DIVERGENT local branch of the same name "
                 f"over work this machine has never seen, and no session operation "
                 f"fetches (FR-026, D17). Two real options: fetch it yourself "
-                f"(`git fetch origin {branch}`) and answer "
-                f"continuation={CONTINUATION_RESUME!r} again, or answer "
-                f"continuation={CONTINUATION_NEW!r} to start the next ordinal "
-                "beside it. Nothing was opened.")
+                f"with an EXPLICIT DESTINATION REFSPEC — "
+                f"`git fetch origin refs/heads/{branch}:refs/heads/{branch}` — "
+                f"and answer continuation={CONTINUATION_RESUME!r} again, or "
+                f"answer continuation={CONTINUATION_NEW!r} to start the next "
+                "ordinal beside it. Nothing was opened.\n\n"
+                "THE REFSPEC IS THE WHOLE INSTRUCTION, not decoration: "
+                f"`git fetch origin {branch}` succeeds, prints nothing alarming, "
+                "and creates NO local branch at all — it lands the objects in "
+                "FETCH_HEAD and stops — so answering `resume` after it returns "
+                "this identical refusal. Nor is `git checkout` a substitute: it "
+                "creates the ref but CHECKS IT OUT here, and a branch that is "
+                "checked out cannot also be given a worktree (PR #234, Codex).")
         worktree = worktree_path(root, branch)
+        # A branch git already has CHECKED OUT cannot also be given a worktree —
+        # git exits 128. Reached when a human materialized the ref with
+        # `git checkout <branch>` instead of a refspec fetch, which is the
+        # natural wrong move and was the one this refusal used to answer with a
+        # raw GitError naming neither the cause nor the fix (PR #234, Codex).
+        holder = git.checked_out_at(branch)
+        if holder is not None:
+            raise SessionRefused(
+                f"{branch!r} is already CHECKED OUT at {holder}, so a session "
+                f"worktree cannot be added for it — git allows a branch in one "
+                f"working tree at a time. This is what `git checkout {branch}` "
+                f"leaves behind; the session flow wants the branch PRESENT but "
+                f"NOT checked out. Switch that tree back "
+                f"(`git -C {holder} checkout {DEFAULT_BASE}`) and answer "
+                f"continuation={CONTINUATION_RESUME!r} again. Nothing was "
+                "opened.")
         git.worktree_add_existing(branch, worktree)
         # a RESUME is a live session again: the ending this branch had is over as
         # a fact about the PAST, and must not read as residue about the present
@@ -4495,7 +4526,8 @@ def commit_first_edit(git: SessionGit, registry: Any, *, repository: str,
                       base: str = DEFAULT_BASE, notebook: Any = None,
                       provenance: Any = None, summary: str | None = None,
                       continuation: str | None = None,
-                      proposal: "ProposalState | None" = None) -> FirstEditCommit:
+                      proposal: "ProposalState | None" = None,
+                      thread_paths_for: Any = None) -> FirstEditCommit:
     """One eligible first Save: create-or-join this tile's session, revalidate
     the source, and persist exactly this document in the resulting session as
     ONE existing governance action (FR-031, FR-032, FR-034).
@@ -4504,6 +4536,15 @@ def commit_first_edit(git: SessionGit, registry: Any, *, repository: str,
     the record both go through — injected so this module keeps constructing no
     gates of its own and so the HTTP route and any parity caller cannot diverge
     on how the gate is declared.
+
+    `thread_paths_for` is the SEAM that makes a thread ride its document's Save
+    (add-doxbench-editing-phase-b task 9.2). It is injected — the doxBench Save
+    route passes `doxbench_threads.thread_commit_paths` — for two reasons: this
+    module stays free of doxBench's own path rule, and the rule is applied to
+    the NORMALISED document path this transaction settles on rather than to the
+    caller's spelling of it, which is what keeps the committed sidecar the same
+    file a turn actually wrote. `None` is every other caller, whose behaviour is
+    byte-identical to before.
 
     On ANY failure the state the Save found is restored (FR-033). Which
     restoration depends on whether this Save opened the session or joined one,
@@ -4551,7 +4592,8 @@ def commit_first_edit(git: SessionGit, registry: Any, *, repository: str,
                     rel=rel, content=content, base_hash=base_hash,
                     records_dir=records_dir, at=at, stamp=stamp, notes=notes,
                     provenance=provenance, summary=summary,
-                    checkout_root=root, owned_prefix=owned_prefix, tile=tile)
+                    checkout_root=root, owned_prefix=owned_prefix, tile=tile,
+                    thread_paths_for=thread_paths_for)
         except SessionActionInProgress as exc:
             raise SessionRefused(str(exc)) from exc
     except BaseException as exc:
@@ -4570,7 +4612,8 @@ def _commit_first_edit_locked(git: SessionGit, session: SessionOpen, *,
                               notes: str | None, provenance: Any,
                               summary: str | None, checkout_root: Path,
                               owned_prefix: str | None,
-                              tile: "Tile") -> FirstEditCommit:
+                              tile: "Tile",
+                              thread_paths_for: Any = None) -> FirstEditCommit:
     """The body of one first Save, with this worktree's index owned exclusively.
 
     Order, and why: re-assert the branch, re-answer eligibility now that the
@@ -4615,9 +4658,21 @@ def _commit_first_edit_locked(git: SessionGit, session: SessionOpen, *,
         ref=session.branch)
     _refuse_embedded_sha(record, stamp)
     _refuse_missing_commit_artifact(record, stamp)
+    # THE THREAD RIDES ITS DOCUMENT'S SAVE (add-doxbench-editing-phase-b task
+    # 9.2), through the DECLARED path set `_commit_gate_action_locked` already
+    # commits as exactly ONE commit — that function is untouched, and this is
+    # the ratified one-commit-per-gate-action rule APPLIED to a second artifact
+    # rather than relaxed for it.
+    #
+    # ONLY A DIRTY SIDECAR JOINS, and the filter is not an optimisation: the
+    # declared set must be dirty or the action refuses as "already committed"
+    # (see the clause at the top of that function), so declaring a sidecar no
+    # turn has written since the last Save would refuse every Save on a tile
+    # whose thread had not moved.
+    declared = [rel, *_dirty_thread_paths(git, worktree, rel, thread_paths_for)]
     commit = _commit_gate_action_locked(
         human, git, root=worktree, branch=session.branch, record=record,
-        stamp=stamp, declared=[rel], records_dir=records_dir,
+        stamp=stamp, declared=declared, records_dir=records_dir,
         summary=summary or f"{verdict.action}: {rel}", session=session)
     return FirstEditCommit(
         action=verdict.action, document=rel, ref=session.branch,
@@ -4625,6 +4680,24 @@ def _commit_first_edit_locked(git: SessionGit, session: SessionOpen, *,
         content_hash=doxbench_hash.content_identity(content).as_dict(),
         joined=session.joined, session=commit.session or session, commit=commit,
         record=record)
+
+
+def _dirty_thread_paths(git: SessionGit, worktree: Path, rel: str,
+                        thread_paths_for: Any) -> tuple[str, ...]:
+    """The thread sidecars this Save's commit carries, in declared order.
+
+    Empty for every caller that injects no seam, and empty when the seam
+    refuses the path (a document with no derivable sidecar has no thread) — an
+    absence, never a failure of the Save."""
+
+    if not callable(thread_paths_for):
+        return ()
+    try:
+        candidates = tuple(thread_paths_for(rel))
+    except Exception:  # noqa: BLE001 - a path with no sidecar simply has none
+        return ()
+    dirty = set(git.dirty_paths(worktree))
+    return tuple(path for path in candidates if path in dirty)
 
 
 def _unwind_first_edit(git: SessionGit, session: SessionOpen | None, *,

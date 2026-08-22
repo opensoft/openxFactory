@@ -820,6 +820,10 @@ export const OPEN_PR_ROUTE = "/actions/gate/open-pr";
 // a session-bar affordance -- deliberately absent from SESSION_AFFORDANCES.
 export const FIRST_EDIT_ROUTE = "/actions/gate/first-edit";
 export const ABANDON_SESSION_ROUTE = "/actions/gate/abandon-session";
+// add-doxbench-editing-phase-b §12: the SHARE route, beside open-pr's because it
+// is the same class of act (a remote write with the engineer's own credential)
+// with the pull request removed.
+export const SHARE_SESSION_ROUTE = "/actions/gate/share-session";
 
 // THE HUMAN-CONSOLE HEADER (FR-019's third clause; PR #49 review finding 2).
 // The serve mints a token at start-up and publishes it on `/capabilities`, the
@@ -898,6 +902,7 @@ export const SESSION_EDIT = "edit";
 export const SESSION_FIRST_EDIT = "first-edit";
 export const SESSION_SAVE = "save";
 export const SESSION_ABANDON = "abandon";
+export const SESSION_SHARE = "share";
 export const SESSION_REFRESH_NOTEBOOK = "refresh-notebook";
 
 // FR-044's four affordances, and the split FR-046 + spec C10 impose on them:
@@ -906,15 +911,21 @@ export const SESSION_REFRESH_NOTEBOOK = "refresh-notebook";
 // subcommand — no artifact declares a transport for it — so giving it one here
 // would invent an FR-020 parity obligation and `fetch` arithmetic that no
 // ratified text asks for.
-export const SESSION_AFFORDANCES = [SESSION_EDIT, SESSION_SAVE, SESSION_ABANDON,
-                                    SESSION_REFRESH_NOTEBOOK];
-export const LIVE_SESSION_AFFORDANCES = [SESSION_EDIT, SESSION_SAVE, SESSION_ABANDON];
+//
+// §12 adds a FIFTH, SESSION_SHARE, and it is LIVE-or-descriptor like the first
+// three rather than descriptor-only: it IS a gate route and a `gate` subcommand,
+// so it carries the same FR-020 parity obligation the others do.
+export const SESSION_AFFORDANCES = [SESSION_EDIT, SESSION_SHARE, SESSION_SAVE,
+                                    SESSION_ABANDON, SESSION_REFRESH_NOTEBOOK];
+export const LIVE_SESSION_AFFORDANCES = [SESSION_EDIT, SESSION_SHARE,
+                                         SESSION_SAVE, SESSION_ABANDON];
 export const DESCRIPTOR_ONLY_AFFORDANCES = [SESSION_REFRESH_NOTEBOOK];
 
 const SESSION_ROUTES = {
   [SESSION_EDIT]: EDIT_DOCUMENT_ROUTE,
   [SESSION_SAVE]: OPEN_PR_ROUTE,
   [SESSION_ABANDON]: ABANDON_SESSION_ROUTE,
+  [SESSION_SHARE]: SHARE_SESSION_ROUTE,
   [SESSION_FIRST_EDIT]: FIRST_EDIT_ROUTE,
 };
 
@@ -924,12 +935,16 @@ export const SESSION_VERBS = {
   [SESSION_EDIT]: "edit-document",
   [SESSION_SAVE]: "open-pr",
   [SESSION_ABANDON]: "abandon-session",
+  [SESSION_SHARE]: "share-session",
 };
 
 export const SESSION_LABELS = {
   [SESSION_EDIT]: "✎ rewrite a document in this session",
   [SESSION_SAVE]: "⇪ save — open the pull request",
   [SESSION_ABANDON]: "⌧ abandon this session",
+  // Named for what it DOES and what it does not: a colleague can resume, and no
+  // pull request is opened. "share" alone reads like publishing to the world.
+  [SESSION_SHARE]: "⇧ share — push the branch for a colleague (no pull request)",
   [SESSION_REFRESH_NOTEBOOK]: "↻ re-sync the session notebook",
 };
 
@@ -1279,6 +1294,15 @@ export function sessionRequest(affordance, scope, values) {
     if (asId(v.body).trim()) body.body = asId(v.body).trim();
     return body;
   }
+  if (affordance === SESSION_SHARE) {
+    // The scope and nothing else is REQUIRED. No title and no body -- the route
+    // takes neither, because they name a pull request this verb does not open --
+    // and the note is optional. Returning before the `reason` line below matters:
+    // that line belongs to the abandon ending, and a share that fell through to
+    // it would post an empty required reason on every invocation.
+    if (asId(v.notes).trim()) body.notes = asId(v.notes).trim();
+    return body;
+  }
   body.reason = asId(v.reason).trim();
   return body;
 }
@@ -1312,6 +1336,11 @@ export function sessionCommand(affordance, opts) {
     parts.push("--document", q(asId(o.document) || "<path in the session worktree>"));
     // `--content-file`, never inline text, so a shell cannot mangle a document
     parts.push("--content-file", q(asId(o.contentFile) || "<file holding the replacement>"));
+    if (asId(o.notes).trim()) parts.push("--notes", q(o.notes));
+  } else if (affordance === SESSION_SHARE) {
+    // No `--title`, no `--body-file`: those name a pull request this verb does
+    // not open. The note is optional and never invented — an unfilled note is
+    // absent from the line rather than a placeholder somebody would paste.
     if (asId(o.notes).trim()) parts.push("--notes", q(o.notes));
   } else if (affordance === SESSION_SAVE) {
     // optional, and NOT invented when unfilled: a pull request titled `<title>`
@@ -1394,6 +1423,15 @@ export function presentationPosture(input) {
         "state inline.",
     };
   }
+  // `chat: true` MARKS THE RUNGS THAT ARE ABOUT CHAT rather than about the
+  // plane (Brett's 2026-08-18 annotation round 2). All three below leave the
+  // canvas offered — chat is what failed, not editing — and their sentence now
+  // belongs to the SEND BUTTON, whose tooltip and accessible description state
+  // it where the human is trying to act ("make this text the hover text for the
+  // send button if no model selected"). The plane rungs above carry no such
+  // flag: they explain a canvas that is WITHHELD, there is no send button to
+  // hang them on, and they keep their inline note.
+  //
   // T104 F10-1: the catalog-FAILURE rungs, above editor-only because a
   // failed catalog also reports zero approved models — the count alone
   // cannot tell "nothing is configured" from "the answer could not be
@@ -1404,21 +1442,21 @@ export function presentationPosture(input) {
   // both — chat is what failed, not editing (FR-025).
   if (facts.catalogFailure === "console_required") {
     return {
-      kind: "console-token-stale", canvas: true,
+      kind: "console-token-stale", canvas: true, chat: true,
       note: "chat is unavailable — this page's console token is stale; " +
         "reload the page to continue. Both editors remain fully usable.",
     };
   }
   if (facts.catalogFailure) {
     return {
-      kind: "catalog-unreadable", canvas: true,
+      kind: "catalog-unreadable", canvas: true, chat: true,
       note: "chat is unavailable — the model catalog could not be read; " +
         "both editors remain fully usable.",
     };
   }
   if (approvedModels === 0) {
     return {
-      kind: "editor-only", canvas: true,
+      kind: "editor-only", canvas: true, chat: true,
       note: "chat is unavailable — no approved model is configured; both " +
         "editors remain fully usable.",
     };

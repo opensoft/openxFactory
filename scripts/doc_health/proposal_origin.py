@@ -50,7 +50,7 @@ try:
 except ImportError:  # pragma: no cover
     yaml = None
 
-from . import CONTESTED, ERROR, WARNING, Finding, Skip
+from . import CONTESTED, ERROR, WARNING, Finding, Skip, recorded_rel
 
 FAMILY = "proposal-origin"
 
@@ -271,12 +271,25 @@ def check_change(repo: str, repo_path: Path, change_dir: Path,
                 "staged origin lacks `path` (the historical transition "
                 "source)", "record the original staging folder path"))
         else:
+            # ONE NORMALIZATION, TWO USES, so the two checks below cannot come
+            # to different conclusions about the same recorded path. Both
+            # resolve it — one against a git tree, one against the working
+            # checkout — and a backslash-spelled `origin.path` (what
+            # `str(PurePath)` wrote on a Windows checkout before PR #221 put
+            # the writer into POSIX) fails each of them differently: `ls-tree`
+            # matches no entry, so a sound record is reported as unresolvable
+            # provenance, while `is_dir()` is False, so the staging-header
+            # linkage check SKIPS. The false ERROR at least argues with you;
+            # the skip is silent, and a check that does not run cannot be seen
+            # to have missed anything. The findings below keep quoting `opath`
+            # AS RECORDED — that is the text an operator has to go and fix.
+            opath_rel = recorded_rel(str(opath))
             source_rev = None
             if isinstance(manifest, dict):
                 source_rev = manifest.get("source_revision")
             if isinstance(source_rev, str) and re.fullmatch(
                     r"[0-9a-f]{40}|[0-9a-f]{64}", source_rev):
-                exists = _git_path_exists(repo_path, source_rev, str(opath))
+                exists = _git_path_exists(repo_path, source_rev, opath_rel)
                 if exists is False:
                     findings.append(Finding(
                         ERROR, FAMILY, repo, rel,
@@ -286,7 +299,7 @@ def check_change(repo: str, repo_path: Path, change_dir: Path,
                         "folder; correct the manifest or the declaration",
                         resolution=CONTESTED))
             if not archived:
-                linked = _staging_header_matches(repo_path, str(opath),
+                linked = _staging_header_matches(repo_path, opath_rel,
                                                  str(oid))
                 if linked is False:
                     findings.append(Finding(

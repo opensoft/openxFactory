@@ -1,0 +1,160 @@
+# The closed chain-custody enumeration for the neutral `trust-anchor`
+# capability, and the ordered assurance ladder it caps. Ratified by:
+# add-trust-anchor (Brett Heap, 2026-08-21 — OQ2 ruled as recommended: "the
+# custody enumeration is CLOSED with `evidences` derived, and operator escrow
+# is modelled as a relationship on the credential record rather than a custody
+# tier"). Registered in contracts/manifest.yaml + contracts/CHANGELOG.md at
+# contract-v1.37 (2026-08-21), per docs/contract-versioning-policy.md.
+#
+# `evidences` is DERIVED from the two booleans, never independently asserted,
+# and the canonical validator enforces the derivation. Each member also
+# declares the `openxwallet` custody member it corresponds to, which the
+# validator resolves against contracts/openxwallet/openxwallet-custody.registry.yaml
+# at run time — so this set composes with that ratified rule instead of
+# restating a second custody model. See chain-custody-registry.schema.yaml for
+# the derivation and the reasoning.
+schema_version: 1
+kind: xfactory_trust_anchor_chain_custody_registry
+registry_id: trust-anchor-chain-custody
+registry_version: 1
+
+composes_with:
+  registry_id: openxwallet-custody
+  registry_path: contracts/openxwallet/openxwallet-custody.registry.yaml
+  statement: >-
+    The ratified openxWallet custody enumeration. Its two discriminating
+    questions are asked here of the USING HOST rather than of the holder's
+    execution context, which is the same question about the same hazard: a key
+    the thing presenting it can read cannot evidence anything about who decided
+    to present it. Each member below names its openxWallet counterpart and the
+    validator refuses a mapping whose booleans or derived `evidences` disagree,
+    so the two sets cannot drift into two custody models.
+
+assurance_levels:
+  - id: channel_authentication
+    rank: 0
+    statement: >-
+      Authenticate a channel or a transport. Nothing beyond the reachability of
+      the presenting host is established, so a false claim is bounded by the
+      session that carries it.
+  - id: host_attributed_act
+    rank: 1
+    statement: >-
+      Complete an act attributed to the USING HOST, with a distinct authority
+      reviewing before effect. Host-level evidence is survivable here precisely
+      because something else stands between the host and the effect.
+  - id: holder_attributed_act
+    rank: 2
+    statement: >-
+      Complete an act attributed to the NAMED HOLDER, with nothing else
+      standing between the certificate and the effect. This level requires
+      evidence that the holder acted rather than that its host did, which is
+      what hardware-bound custody supplies and host-held custody cannot.
+
+custody_models:
+  - id: host_held
+    title: Private key readable by the host that uses the certificate
+    key_readable_by_using_host: true
+    use_requires_authorization_outside_using_host: false
+    evidences: using_host
+    openxwallet_custody_model: holder_readable
+    evidences_statement: >-
+      An act authenticated by this certificate evidences that the USING HOST
+      acted. The private key sits in a readable file, a mounted secret, an
+      exportable store or process memory, so anything with read access to that
+      host can authenticate as the named subject — and can carry the key
+      elsewhere and authenticate there. It does NOT evidence that the named
+      holder acted, and an audit record must not be read as though it did.
+    assurance_ceiling: host_attributed_act
+    notes: >-
+      This member reaches `host_attributed_act` deliberately. Capping software
+      custody at channel authentication would make the contract unusable for
+      the service certificates every realization actually runs, and the ruling
+      declined to mandate hardware backing. Review before effect is the
+      compensating control at this level. It is also the FLOOR an undeclared
+      certificate resolves to, which is why the weakest member has to be one a
+      real deployment can live inside.
+
+  - id: host_isolated_invocable
+    title: Private key isolated from the using host, presentable by it without limit
+    key_readable_by_using_host: false
+    use_requires_authorization_outside_using_host: false
+    evidences: using_host
+    openxwallet_custody_model: isolated_invocable
+    evidences_statement: >-
+      An act authenticated by this certificate evidences that the USING HOST
+      acted. The key is held outside that host — a non-exportable platform
+      store, a separate signing process, a remote signing service — so it
+      cannot be read, exfiltrated or replayed elsewhere. But the host can use
+      it without limit, so a compromised host authenticates as the named
+      subject at will. Isolation here contains the KEY; it does not attribute
+      the ACT.
+    assurance_ceiling: host_attributed_act
+    notes: >-
+      Shares a ceiling with `host_held` and differs from it in blast radius
+      rather than in what a presentation proves. The difference is recorded
+      because it is real — a stolen key is portable and permanent where a
+      compromised host is neither — but it does not earn holder-attributed
+      assurance, and saying so plainly is the point. A hardware-bound key with
+      no per-use gate lands HERE, not in the member below: "hardware" is not
+      the discriminator, and treating it as one is how a key the host can use
+      at will ends up carrying a holder's authority.
+
+  - id: host_isolated_per_use_authorized
+    title: Private key isolated, and each use authorized outside the using host
+    key_readable_by_using_host: false
+    use_requires_authorization_outside_using_host: true
+    evidences: named_holder
+    openxwallet_custody_model: isolated_per_use_authorized
+    evidences_statement: >-
+      An act authenticated by this certificate evidences that the NAMED HOLDER
+      acted. The key is isolated from the using host AND each use requires an
+      authorization that host cannot itself supply — a hardware presence or
+      attestation gate, an external policy approval, a separate custodian. A
+      compromised host cannot obtain a presentation on its own, which is what
+      makes the act attributable to the named holder rather than to whatever is
+      running on its host.
+    assurance_ceiling: holder_attributed_act
+
+undeclared_custody_resolves_to: host_held
+
+excluded_models:
+  - id: operator_escrowed
+    reason: >-
+      Escrow is not a custody tier and cannot be made one. It answers "who else
+      can obtain this key", which is ORTHOGONAL to "can the using host read
+      it": an isolated key with an operator escrow copy is not the same object
+      as a host-readable key, and a single axis carrying both facts makes both
+      unreadable — the exact collapse the openxWallet ruling exists to prevent,
+      one dimension over. Escrow is a relationship on the
+      `credential-contracts` record that every custody block here references,
+      which is where the `client-credential-escrow-registry` topic is taking
+      it: one writer-moment (creation or rotation) and one reader-moment
+      (break-glass), both governed, and neither of them a change to what the
+      certificate evidences at the point of use. Ratified as OQ2's ruling on
+      2026-08-21.
+  - id: undeclared
+    reason: >-
+      The absence of a declaration is not a member of the set. A certificate
+      record with no custody block resolves to `undeclared_custody_resolves_to`
+      and may hold no authority above that member's ceiling, per the ratified
+      text. Admitting "undeclared" as a member would let a record decline to
+      answer and then negotiate its own ceiling, which is the same as having no
+      floor.
+  - id: asserted_hardware_backing
+    reason: >-
+      "Hardware-backed" as a self-standing member would re-open the hole from
+      the marketing side: the family's own live canary runs certificates whose
+      keys are hardware-resident and usable by the host without limit, and
+      those evidence the HOST. The discriminators are readability and per-use
+      authorization; where the key physically lives is a fact about blast
+      radius that belongs in `notes`, never a tier.
+  - id: shared_across_subjects
+    reason: >-
+      A private key presented by more than one named subject destroys
+      attribution, so it cannot be a custody model for a certificate. The
+      family already rules the case through `openxwallet`'s key-attribution
+      requirement — an act attributable only to a shared credential is recorded
+      as unattributed and the credential is transport, never the actor — and a
+      member for it here would contradict that requirement rather than extend
+      it.

@@ -1,0 +1,45 @@
+# VALID trust anchor for an authority the family does NOT operate. Two things
+# are worth reading here.
+#
+# First, the custody: the key is hardware-resident inside a managed service and
+# usable by that service without a per-use authorization the family can compel,
+# so it evidences the USING HOST — below the strictest member of the set. That is
+# not silently accepted: the record NAMES the obligation entry where the
+# realization declared the shortfall.
+#
+# Second, there is no credential record for the key, because no credential
+# record can exist for a key the family cannot hold. The same declared entry
+# covers that, which is exactly the arrangement the ratified degraded-obligation
+# rule admits — and it is the reason an undeclared version of this record does
+# not validate.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:managed-root
+realization_ref: realization:managed-cloud-authority-canary
+anchor_identity:
+  subject_name: "Managed Fleet Root Authority"
+  public_key_fingerprint: "sha256:44D1F0B7C2A98E5330761FDA0C4B8E27519A3D6E0FB8C721"
+chain_position:
+  role: root
+  path_depth: 0
+validity:
+  not_before: "2026-03-01T00:00:00Z"
+  not_after: "2036-03-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:managed-root-issuance-policy
+    authority_kind: policy
+    statement: Issues the managed issuing authority only.
+declared_chain_custody:
+  custody_model: host_isolated_invocable
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  declared_at: "2026-06-15T00:00:00Z"
+  declared_by: opensoft
+  declared_shortfall_ref: ob:managed:TA-R7
+  statement: >-
+    Hardware-resident inside the managed service and usable by it without an
+    authorization the family can compel. Isolation contains the key; it does not
+    attribute the act.
+record_version: 1
+created_at: "2026-03-01T00:00:00Z"

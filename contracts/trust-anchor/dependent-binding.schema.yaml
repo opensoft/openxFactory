@@ -1,0 +1,216 @@
+schema_version: 1
+kind: openxfactory-trust-anchor-contract-schema
+name: xfactory_certificate_dependent_binding
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/trust-anchor/v1/dependent-binding.schema.yaml"
+contract_id: trust-anchor-dependent-binding
+contract_schema_version: 1
+title: Certificate dependent binding
+description: >-
+  One authority binding that references a certificate's key material — in any
+  system, inside the family or outside it — recorded against that certificate
+  so the set of rebind obligations a renewal will create is computable BEFORE
+  the renewal happens (add-trust-anchor, requirement "Dependent bindings are
+  recorded against the certificate"; design D4).
+
+  WHY THIS RECORD EXISTS AT ALL. The rebind obligation has no teeth over a set
+  nobody enumerated: you cannot evidence the completion of an obligation across
+  dependents you never named. So the enumeration is contract content, the
+  canonical validator refuses a binding the certificate's own enumeration does
+  not name, and a renewal planned against an enumeration declared
+  `known_incomplete` is refused rather than run.
+
+  THE KEY GENERATION IS THE JOIN. `bound_key_reference.key_generation_ref`
+  names WHICH generation of the certificate's key this binding points at, so
+  "still pointing at superseded material" is a comparison rather than an
+  intuition. The validator holds `rebind_status` to it: a binding recorded
+  `current` or `rebound` must point at the certificate's CURRENT generation,
+  and one recorded `rebind_required` must not. A binding claiming it was
+  re-bound while still naming the superseded generation is the silent failure
+  this family exists to make loud, and it does not validate.
+
+  That comparison runs against the CERTIFICATE, with no renewal record in the
+  way. An earlier form of the check ran only through a renewal, so a dependent
+  left behind by a renewal recorded as key-preserving — or never recorded at all
+  — was compared against nothing, which is precisely the case where the failure
+  is silent.
+
+  ADMISSION IS WHERE CUSTODY AND DECLARED GAPS BITE. `required_assurance` is
+  what this binding's authority needs; if it exceeds the certificate's DERIVED
+  ceiling, the binding must be recorded `refused` with the ceiling NAMED — the
+  refusal names custody, never the certificate's contents. Likewise a binding
+  whose `required_obligations` include one the realization's conformance
+  declaration says it CANNOT satisfy must be refused with the declared gap
+  named: a declared gap is not permission to assert the missing evidence, so
+  recording such a binding as `admitted` does not validate.
+
+  A DEPENDENT DISCOVERED BY AN OUTAGE IS A RECORD DEFECT. Where
+  `discovery.discovered_by` is `authentication_failure`, the certificate record
+  must carry a defect entry naming this binding. The incident is not closed by
+  re-binding alone, and the validator refuses the pair where the defect is
+  missing.
+type: object
+required:
+  - schema_version
+  - kind
+  - binding_id
+  - certificate_ref
+  - holding_system
+  - binds
+  - bound_key_reference
+  - required_assurance
+  - required_obligations
+  - admission
+  - rebind_status
+  - discovery
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_certificate_dependent_binding]
+  binding_id: {$ref: '#/$defs/identifier'}
+  certificate_ref: {$ref: '#/$defs/identifier'}
+  holding_system:
+    # WHO HOLDS THE BINDING. `inside_family` is required because the obligation
+    # explicitly reaches outside: a binding in a system the family does not own
+    # is still a rebind obligation, and recording it is how the renewal
+    # workflow learns it exists.
+    type: object
+    required: [system_ref, inside_family, statement]
+    additionalProperties: false
+    properties:
+      system_ref: {$ref: '#/$defs/identifier'}
+      inside_family: {type: boolean}
+      statement: {type: string, minLength: 1, maxLength: 800}
+      counterparty_ref: {$ref: '#/$defs/identifier'}
+  binds:
+    # WHAT IT BINDS. Neutral kinds: what a realization calls the object is its
+    # own vocabulary, and the axis only has to be coarse enough for a reader to
+    # know what stops working when the key changes.
+    type: object
+    required: [binding_kind, what_statement]
+    additionalProperties: false
+    properties:
+      binding_kind:
+        type: string
+        enum:
+          - authentication_credential
+          - authority_grant
+          - signature_verification
+          - encryption_recipient
+          - trust_store_entry
+      what_statement: {type: string, minLength: 1, maxLength: 900}
+      authority_ref: {$ref: '#/$defs/identifier'}
+  bound_key_reference:
+    type: object
+    required: [key_generation_ref]
+    additionalProperties: false
+    properties:
+      key_generation_ref: {$ref: '#/$defs/identifier'}
+      public_key_fingerprint:
+        type: string
+        pattern: '^(sha256|sha384|sha512|sha1):[0-9a-fA-F:]{16,160}$'
+      bound_at: {type: string, format: date-time}
+  required_assurance:
+    # The assurance level this binding's authority requires, from the chain
+    # custody registry's ordered ladder.
+    $ref: '#/$defs/identifier'
+  required_obligations:
+    # The capability obligations this binding's use depends on. A consumer that
+    # needs an obligation the realization declares it cannot satisfy refuses
+    # the certificate FOR THAT USE, with the gap named.
+    #
+    # REQUIRED, and non-empty. This is where the declared-obligation rule gets
+    # its teeth: with the field optional, a realization could declare every
+    # obligation `cannot`, omit `required_obligations` from every binding, and
+    # meet no refusal anywhere — the loophole the design names and an
+    # adversarial review walked straight through. A binding that genuinely
+    # depends on nothing but the anchor framing still says so by naming TA-R1;
+    # what it may not do is decline to answer.
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: string
+      enum: [TA-R1, TA-R2, TA-R3, TA-R4, TA-R5, TA-R6, TA-R7, TA-R8]
+  admission:
+    type: object
+    required: [state, decided_at]
+    additionalProperties: false
+    properties:
+      state:
+        type: string
+        enum: [admitted, refused]
+      decided_at: {type: string, format: date-time}
+      refusal:
+        type: object
+        required: [code, statement]
+        additionalProperties: false
+        properties:
+          code:
+            type: string
+            enum: [custody_ceiling_exceeded, declared_obligation_gap]
+          ceiling_named: {$ref: '#/$defs/identifier'}
+          gap_obligation_ref: {$ref: '#/$defs/identifier'}
+          statement: {type: string, minLength: 1, maxLength: 900}
+        allOf:
+          - if:
+              properties: {code: {const: custody_ceiling_exceeded}}
+              required: [code]
+            then: {required: [ceiling_named]}
+          - if:
+              properties: {code: {const: declared_obligation_gap}}
+              required: [code]
+            then: {required: [gap_obligation_ref]}
+    allOf:
+      - if:
+          properties: {state: {const: refused}}
+          required: [state]
+        then: {required: [refusal]}
+      - if:
+          properties: {state: {const: admitted}}
+          required: [state]
+        then: {not: {required: [refusal]}}
+  rebind_status:
+    type: object
+    required: [state, as_of]
+    additionalProperties: false
+    properties:
+      state:
+        type: string
+        enum: [current, rebind_required, rebound]
+      as_of: {type: string, format: date-time}
+      rebind_evidence_ref:
+        # The renewal record's per-dependent evidence entry. A `rebound` state
+        # with no evidence reference is a claim, and the validator says so.
+        $ref: '#/$defs/identifier'
+      statement: {type: string, maxLength: 800}
+    allOf:
+      - if:
+          properties: {state: {const: rebound}}
+          required: [state]
+        then: {required: [rebind_evidence_ref]}
+  discovery:
+    # HOW THIS BINDING CAME TO BE RECORDED. The distinction is load-bearing:
+    # declared or reviewed dependents are the enumeration working; a dependent
+    # discovered by an authentication failure is the enumeration having failed,
+    # and it obliges a defect entry on the certificate record.
+    type: object
+    required: [discovered_by, discovered_at, recorded_before_first_renewal]
+    additionalProperties: false
+    properties:
+      discovered_by:
+        type: string
+        enum: [holder_declaration, planned_review, audit, authentication_failure]
+      discovered_at: {type: string, format: date-time}
+      recorded_before_first_renewal: {type: boolean}
+      statement: {type: string, maxLength: 800}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

@@ -1,0 +1,64 @@
+# expected_failure: record-defect-not-closed-by-record-correction
+# expected_failure_detail: not closed by re-binding alone
+# requirement: TA-R5
+# VIOLATES TA-R5: a defect entry resolved as `record_corrected`, naming a binding
+# that is NOT in the enumeration it was supposedly added to.
+#
+# The record even carries the rebind evidence, which is exactly how this happens:
+# the binding was re-bound, the outage ended, the defect got closed, and the
+# enumeration — the thing that will be read at the NEXT renewal — was never
+# actually corrected. Closing the incident is not correcting the record, and the
+# resolution cannot be recorded without naming a binding the enumeration holds.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:neg-defect-not-corrected
+realization_ref: realization:core-self-hosted-authority
+anchor_ref: anchor:core-issuing
+subject:
+  identifier: "half-fixed.core.internal"
+  subject_class: service
+validity:
+  not_before: "2026-08-01T00:00:00Z"
+  not_after: "2027-08-01T00:00:00Z"
+state: valid
+key_generation:
+  generation_ref: keygen:neg-defect-not-corrected-g1
+declared_chain_custody:
+  custody_model: host_held
+  registry_id: trust-anchor-chain-custody
+  credential_record_ref: credential:neg-defect-not-corrected-key
+  vault_binding_ref: vaultbinding:core/neg-defect-not-corrected-key
+evidences: using_host
+assurance_ceiling: host_attributed_act
+issuance_evidence:
+  present: false
+  unexplained:
+    question_answered_as: unanswered
+    disposition: revocation_candidate
+    recorded_at: "2026-08-01T00:00:00Z"
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: "2026-08-01T00:00:00Z"
+  binding_refs: []
+record_defects:
+  - defect_id: defect:neg-half-fixed
+    discovered_at: "2026-07-28T11:00:00Z"
+    discovered_by: authentication_failure
+    added_binding_ref: bind:neg-half-fixed-directory
+    resolution: record_corrected
+    corrected_at: "2026-07-28T12:00:00Z"
+    rebind_evidence_ref: evidence:neg-half-fixed-rebind
+    statement: Re-bound the directory entry and closed the incident.
+trust_evaluation:
+  evaluated_at: "2026-08-16T09:00:00Z"
+  basis: held_anchor_record
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: "2026-08-16T09:00:00Z"
+    result: current_standing_active
+  outcome: refused
+  refusal:
+    code: issuance_evidence_absent
+    statement: Refused for a missing issuance record.

@@ -116,6 +116,10 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 from ideation_dashboard import action_errors  # noqa: E402
+from ideation_dashboard import doxbench_knowledge  # noqa: E402
+from ideation_dashboard import doxbench_packet  # noqa: E402
+from ideation_dashboard import doxbench_telemetry  # noqa: E402
+from ideation_dashboard import doxbench_threads  # noqa: E402
 from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
 
 DEFAULT_HOST = "127.0.0.1"
@@ -152,6 +156,13 @@ ACTIONS_GATE_PREFIX = "/actions/gate/"
 # See the section banner above `_handle_workbench_model_catalog` for the
 # judgement calls their handlers make.
 WORKBENCH_MODEL_CATALOG_ROUTE = "/workbench/model-catalog"
+# add-doxbench-editing-phase-b task 9.5: the THREAD read route. A console-
+# internal surface, deliberately NOT a released contract envelope — no
+# openxFactory schema declares a thread shape, and inventing a `schema_version`
+# for one here would claim a release that was never cut. It carries the same
+# unversioned local shape `/capabilities` does, and the sidecar file itself is
+# the governed artifact.
+WORKBENCH_THREAD_ROUTE = "/workbench/thread"
 ACTIONS_WORKBENCH_CHAT_TURN_ROUTE = "/actions/workbench/chat-turn"
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 JSON_CTYPE = "application/json; charset=utf-8"
@@ -254,6 +265,15 @@ DOXBENCH_MODEL_CATALOG_KIND = "workbench-model-catalog"
 DOXBENCH_CHAT_TURN_KIND = "workbench-chat-turn"
 DOXBENCH_CHAT_TURN_SUCCESS_KIND = "workbench-chat-turn-success"
 DOXBENCH_CHAT_TURN_FAILURE_KIND = "workbench-chat-turn-failure"
+# The CO-RESIDENT WIDENED family (contract-v1.34, add-doxbench-editing-phase-b
+# §13). Both families are served: the v1 kinds above are DEPRECATED, not
+# withdrawn, and the route answers a request in the family it arrived in --
+# answering a v1 turn in a v2 envelope would break exactly the client the
+# deprecation exists to keep working, and answering a v2 turn in a deprecated
+# one would emit a shape with no room for what that turn declared.
+DOXBENCH_CHAT_TURN_V2_KIND = "workbench-chat-turn-v2"
+DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND = "workbench-chat-turn-v2-success"
+DOXBENCH_CHAT_TURN_V2_FAILURE_KIND = "workbench-chat-turn-v2-failure"
 
 # ---- fixed doxBench error catalog (mirrors action_errors.ERROR_CATALOG's shape) ----
 # The closed code set combines spellings pinned verbatim by the planning
@@ -283,6 +303,23 @@ DOXBENCH_ERR_MODEL_TIMEOUT = "model_timeout"
 DOXBENCH_ERR_MODEL_FAILED = "model_failed"
 DOXBENCH_ERR_RESPONSE_INVALID = "response_invalid"
 
+# add-doxbench-editing-phase-b §10, and BOTH are judgement-call spellings this
+# slice records rather than inherits. The released failure envelope's `error` is
+# a free-form `^[a-z][a-z0-9_]{2,63}$` string, not an enum, so naming a
+# server-side condition honestly needs no contract change — and reusing
+# `request_limit_exceeded` for either of these would state something FALSE:
+# that the CALLER's request was too large, when what exceeded a bound was
+# context the server itself selected or the session's own threads.
+DOXBENCH_ERR_CONTEXT_PACKET_INVALID = "context_packet_invalid"
+DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED = "context_packet_bound_exceeded"
+
+# add-doxbench-editing-phase-b §9.5, and the same class of judgement call: a
+# thread is session working memory on an unmerged branch, so where no branch
+# session can be opened there is nothing for a thread to be. Reusing
+# `model_capability_unavailable` would state a different absence, and reusing
+# `turn_scope_refused` would blame the scope for a capability verdict.
+DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE = "thread_capability_unavailable"
+
 # Fixed, module-level messages: never composed from request data, exactly
 # like `action_errors.ERROR_CATALOG`'s messages.
 _DOXBENCH_MSG_REQUEST_LIMIT_EXCEEDED = "the request exceeds the allowed size for this route"
@@ -298,6 +335,66 @@ _DOXBENCH_MSG_INVALID_TURN_REQUEST = "the turn request is malformed"
 _DOXBENCH_MSG_MODEL_TIMEOUT = "the model did not answer within the declared timeout"
 _DOXBENCH_MSG_MODEL_FAILED = "the model request failed"
 _DOXBENCH_MSG_RESPONSE_INVALID = "the model response could not be validated"
+_DOXBENCH_MSG_CONTEXT_PACKET_INVALID = (
+    "the bounded context for this turn could not be confirmed")
+_DOXBENCH_MSG_CONTEXT_PACKET_BOUND_EXCEEDED = (
+    "this session's own thread material exceeds the bounded context a turn may "
+    "carry; compacting the thread brings it back inside the bound")
+# The THIRD declared cause for an absent thread, beside `doxbench_threads`'
+# hosted-plane and no-gate-capability pair. It belongs here rather than there
+# because it is a fact about THIS serve's session registry, not about the
+# thread format — and it is deliberately generic: a cause naming the ref or the
+# tile would make this route an oracle for which of them exist.
+NO_LIVE_SESSION_CAUSE = (
+    "no branch session is open for this scope, so there is no session worktree "
+    "for a thread to live in")
+
+# The FOURTH declared cause (PR #223, Copilot CP1). An unresolved actor used to
+# borrow the no-gate-capability cause, which is a true sentence about a
+# different situation — the plane HAS the capability, there is simply no
+# identified human to attribute a gate action to. Exactly the class this
+# slice's own P3-19 fixed for the no-live-session branch, missed one clause
+# over.
+NO_RESOLVED_ACTOR_CAUSE = (
+    "this console resolved no human actor, and a thread is one human's working "
+    "memory on a session branch — so there is nobody to attribute it to")
+
+_DOXBENCH_MSG_THREAD_CAPABILITY_UNAVAILABLE = (
+    "threads exist only where branch sessions exist")
+
+# THE ONE CAUSE-NAMING ALTERNATE, and deliberately NOT a catalog entry.
+#
+# `invalid_turn_request` answers every way a well-formed JSON object can fail the
+# released envelope, so its catalog message has to hold for all of them and
+# therefore says only that the request is malformed. True, and useless for the
+# one violation a HUMAN reaches by hand: unloading the set down to the outline
+# and sending, which trips `request`/`request_v2`.`buffers`' `minItems: 2` floor.
+# The refusal was correct in class and named nothing actionable, while the
+# actionable half sat a few pixels away in the selector's empty state
+# (`LOADED_SELECTOR_EMPTY_NOTE`, web/views/doxbench-chat.js) -- recorded as a
+# follow-up in add-doxbench-editing-phase-b's Amendment 2, which RULED that this
+# act refuses at send, visibly, rather than being made unreachable. This message
+# is the send-side half of that ruling, and it deliberately echoes the selector's
+# own sentence so the two surfaces say the same thing about the same state.
+#
+# WHY A MESSAGE, AND NOT A CODE OR A FIELD. The code is unchanged because the
+# CLASS is unchanged: the request really is malformed against the release. A
+# `cause` key beside it -- the shape `thread_capability_unavailable` uses -- is
+# not available here: both released failure envelopes are
+# `additionalProperties: false` over exactly `{schema_version, kind,
+# client_turn_id, error, message, limit}`, so a body carrying one would fail
+# `_refuse_turn`'s own self-validation and fall back to the pre-identity shape.
+# The released `message` is free-form (`type: string, minLength: 1,
+# maxLength: 500` -- no `const`, no `enum`, no `pattern`), so saying something
+# more useful in it costs no schema byte, hence no digest refresh in
+# `doxbench_contracts.SCHEMA_DIGESTS` and no contract release.
+#
+# It stays a FIXED module-level constant composed from nothing the caller sent,
+# exactly like every catalog message: the choice BETWEEN the two strings is made
+# from the SHAPE of the violation, never from its content.
+_DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT = (
+    "the turn carries no document beside the outline — use a docs tile's load "
+    "verb to work on one")
 
 # code -> (HTTP status, fixed caller-safe message). `request_limit_exceeded`'s
 # 413 (Payload Too Large) is this slice's own judgement call: the planning
@@ -337,7 +434,62 @@ DOXBENCH_ERROR_CATALOG: dict[str, tuple[int, str]] = {
     DOXBENCH_ERR_MODEL_TIMEOUT: (504, _DOXBENCH_MSG_MODEL_TIMEOUT),
     DOXBENCH_ERR_MODEL_FAILED: (502, _DOXBENCH_MSG_MODEL_FAILED),
     DOXBENCH_ERR_RESPONSE_INVALID: (502, _DOXBENCH_MSG_RESPONSE_INVALID),
+    # 500: the server produced a bounded context it could not then use. No
+    # request the caller could send would fix it, so a 4xx would misdirect.
+    DOXBENCH_ERR_CONTEXT_PACKET_INVALID: (
+        500, _DOXBENCH_MSG_CONTEXT_PACKET_INVALID),
+    # 409: the turn conflicts with the current state of the session's own
+    # threads. Not 413 -- the REQUEST is not too large, the session's working
+    # memory is -- and the caller CAN act on it, which is what makes 409 right:
+    # compacting the thread is layer two, and it exists for exactly this.
+    DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED: (
+        409, _DOXBENCH_MSG_CONTEXT_PACKET_BOUND_EXCEEDED),
+    # 403: a capability verdict, the same status and the same class as
+    # `model_capability_unavailable`. The two DECLARED causes — the hosted
+    # plane, and a plane with no gate capability — ride the body's `reason`
+    # field, and both are fixed module-level strings from `doxbench_threads`.
+    DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE: (
+        403, _DOXBENCH_MSG_THREAD_CAPABILITY_UNAVAILABLE),
 }
+
+# The codes whose released envelope may carry the `limit` block. The released
+# failure envelope allows `limit` on any code; this set is the SERVER's own
+# rule about which refusals are dimension-bearing, kept in one place so the two
+# body builders cannot disagree about it.
+DOXBENCH_LIMIT_BEARING_CODES: frozenset[str] = frozenset({
+    DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
+    DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED,
+})
+
+
+# The sidecar format is LF-ONLY (`doxbench_threads._validated_body` refuses a
+# carriage return), and the wire carries whatever the browser and the provider
+# produced. Normalising HERE — at the one place a turn becomes a record — is
+# what keeps a CRLF answer storable instead of refused, and it is a
+# normalisation rather than an edit: the bytes the model returned still ride the
+# response envelope unchanged.
+def _sidecar_text(value: object) -> str:
+    text = "" if value is None else str(value)
+    return text.replace("\r\n", "\n").replace("\r", "\n").strip()
+
+
+def _no_dereference(value: str) -> str:
+    """The dereference seam a serve with NO bridge supplies: it resolves
+    nothing, so a body still carrying a harness pointer is refused by
+    `ThreadTurn` rather than persisted. Fail-closed, which is task 3.5's own
+    verdict — an unresolvable pointer in a shared sidecar is worse than an
+    unrecorded turn."""
+    return value
+
+
+def _thread_absence_body(reason: str) -> dict:
+    """The thread route's absence body: the FIXED catalog message, plus the
+    DECLARED cause. Both are module-level constants — `doxbench_threads` owns
+    the reason strings — so nothing request-derived reaches the wire."""
+    body = doxbench_error_body(DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE)
+    body["reason"] = doxbench_threads.THREAD_CAPABILITY_ABSENT_REASON
+    body["cause"] = reason
+    return body
 
 
 def doxbench_error_body(code: str, *, limit: dict | None = None) -> dict:
@@ -352,7 +504,7 @@ def doxbench_error_body(code: str, *, limit: dict | None = None) -> dict:
     the section banner above states."""
     _, message = DOXBENCH_ERROR_CATALOG[code]
     body: dict = {"ok": False, "error": code, "message": message}
-    if code == DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED and limit is not None:
+    if code in DOXBENCH_LIMIT_BEARING_CODES and limit is not None:
         body["limit"] = {
             "dimension": str(limit["dimension"]),
             "measured": int(limit["measured"]),
@@ -388,7 +540,9 @@ def doxbench_error_status(code: str) -> int:
 #     direction; the code and fixed message are identical either way.
 
 def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
-                               limit: dict | None = None) -> dict:
+                               limit: dict | None = None,
+                               kind: str = DOXBENCH_CHAT_TURN_FAILURE_KIND,
+                               message: str | None = None) -> dict:
     """The RELEASED `workbench-chat-turn-failure` envelope for `code` — a PURE
     module-level function, testable with no handler and no server.
 
@@ -396,18 +550,58 @@ def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
     `client_turn_id`, `error`, `message`, and — ONLY for
     `request_limit_exceeded` — the `limit` block, REBUILT from exactly three
     named fields exactly as `doxbench_error_body` rebuilds it, so nothing
-    request-derived can splice a key into a response. The message is the same
-    fixed module-level constant the pre-release shape used; only the envelope
-    changed."""
-    _, message = DOXBENCH_ERROR_CATALOG[code]
+    request-derived can splice a key into a response. The message defaults to the
+    same fixed module-level constant the pre-release shape used; only the
+    envelope changed.
+
+    `kind` selects the FAMILY the refusal is answered in (contract-v1.34). The
+    two failure envelopes are structurally identical -- a refusal discloses
+    nothing whichever family it answers -- so the only thing that varies is which
+    `kind` a caller is entitled to receive, and that is the family its request
+    arrived in.
+
+    `message` overrides the catalog's message for THIS refusal. The contract on
+    every caller is that it passes a FIXED module-level constant and never
+    anything derived from the request -- the released `message` is free-form, but
+    the redaction posture that keeps a refusal from being an oracle is a property
+    of the callers, not of the schema. Today every caller reaches this through
+    `_refuse_turn`, and all of them pass `_doxbench_invalid_turn_message`'s
+    verdict -- one of exactly two module-level constants; see
+    `_DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT` for the full record. `None` means the
+    catalog's own message, so every other refusal is byte-identical to before.
+
+    ENFORCED, not merely documented (Copilot review, PR #255). Only an actual
+    `str` overrides; anything else falls back to the catalog string. The earlier
+    `str(message)` would have coerced whatever it was handed, so a caller that
+    one day passed an exception, a response object, or a validation error --
+    every one of which stringifies to something that can carry request content --
+    would have spliced that content into a published refusal while this docstring
+    still claimed refusals disclose nothing. A type is a cheap thing to check and
+    the posture is too expensive to lose to a future caller's slip.
+
+    An EMPTY string falls back too. It is not a disclosure risk, but the released
+    envelope requires `minLength: 1`, so letting it through would fail
+    `_refuse_turn`'s self-validation and cost the refusal its `client_turn_id` --
+    the browser's only means of correlating it. One more condition buys a
+    correlatable refusal instead of an anonymous one.
+
+    QUIET, like every neighbouring fail-closed seam: `_wire_valid_turn_id`
+    answers a bad type with None and `_doxbench_wire_conforms` answers one with
+    False, rather than raising. This is on the RESPONSE path of a refusal, where
+    an exception would drop the connection and strand the turn's lease -- the
+    exact failure `test_a_v1_turn_whose_document_path_claims_the_outline_key_is_refused`
+    exists to forbid ("the connection must carry an envelope, never drop"). The
+    caller still gets a true, conformant refusal; it just gets the general one."""
+    _, catalog_message = DOXBENCH_ERROR_CATALOG[code]
     body: dict = {
         "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
-        "kind": DOXBENCH_CHAT_TURN_FAILURE_KIND,
+        "kind": str(kind),
         "client_turn_id": str(client_turn_id),
         "error": code,
-        "message": message,
+        "message": (message if isinstance(message, str) and message
+                    else catalog_message),
     }
-    if code == DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED and limit is not None:
+    if code in DOXBENCH_LIMIT_BEARING_CODES and limit is not None:
         body["limit"] = {
             "dimension": str(limit["dimension"]),
             "measured": int(limit["measured"]),
@@ -444,6 +638,217 @@ def doxbench_turn_success_body(*, client_turn_id: str, assistant_turn_id: str,
             "outline": str(observed_hashes["outline"]),
             "document": str(observed_hashes["document"]),
         },
+        "assistant_prose": str(assistant_prose),
+        "proposals": [
+            {"target": str(p.target), "base_hash": str(p.base_hash),
+             "summary": str(p.summary), "content": str(p.content)}
+            for p in proposals
+        ],
+    }
+
+
+def doxbench_selected_model(model_entry) -> dict:
+    """The SELECTED-MODEL metadata a widened record carries, derived from the
+    catalog entry the turn resolved — in ONE place (adversarial review of the §13
+    slice, F6).
+
+    SINCE contract-v1.38 (task 11.7) a conformant catalog entry CAN declare
+    itself a routing rule, and this function needed no change to report one:
+    it reads the entry duck-typed and defaults honestly, so an entry declaring
+    nothing still answers `routing_rule` false with the chosen model as the
+    answering model. Being one function rather than three literals at the call
+    site is what made that true — and it is also why the release's reviewer
+    could find, in one place, that the SIDECAR was being handed the requested id
+    while the wire record carried the resolved one (F3).
+
+    Its three CONSUMERS are now the v2 wire record, the thread sidecar's turn
+    header, and nothing else. The deprecated v1 success envelope does NOT
+    consult it: that envelope has room for exactly one model id and cannot state
+    both facts, which is recorded as a v1 limitation rather than papered over."""
+    requested = str(model_entry.model_id)
+    routing_rule = bool(getattr(model_entry, "routing_rule", False))
+    resolved = getattr(model_entry, "resolved_model_id", None)
+    return {
+        "requested_model_id": requested,
+        "routing_rule": routing_rule,
+        "data_handling": str(model_entry.data_handling),
+        # The model that ANSWERS. Equal to the requested id until a routing-rule
+        # entry resolves to something else, which is exactly when the two facts
+        # stop being one fact.
+        "resolved_model_id": str(resolved) if resolved else requested,
+    }
+
+
+# The released `context_packet.reduced_reason` ceiling, restated here as a
+# literal because this module does not parse the schema per turn — the
+# `MAX_ROUTING_TARGETS` precedent from contract-v1.38, and it is authoritative
+# for the same reason: a test reads the bound out of the RELEASED BYTES and pins
+# it equal, so the two cannot drift into two ceilings.
+#
+# THE UNIT IS CODE POINTS, exactly as JSON Schema's `maxLength` counts them, so
+# this guard refuses precisely what the shape refuses and nothing more. A
+# 500-code-point CJK reason is 1,500 UTF-8 bytes and is CONFORMANT; refusing it
+# for its byte count would refuse a record the released contract accepts.
+# (The shipped `REDUCED_*` constants are separately held to the stricter BYTE
+# count by a test — a belt on authored text this repository controls, not a
+# rule the wire imposes.)
+CONTEXT_REDUCED_REASON_MAX_LENGTH = 500
+
+
+def doxbench_context_packet(packet) -> dict:
+    """The ASSEMBLED CONTEXT's posture, as the widened record carries it since
+    contract-v1.40 (task 10.7) — derived in ONE place, from the packet the turn
+    ACTUALLY RAN UNDER, on `doxbench_selected_model`'s precedent one function up.
+
+    The ratified sentence is *"Where the knowledge service is unavailable the
+    turn SHALL degrade to a declared reduced packet … with the reduced posture
+    STATED"*. Until v1.40 it was stated only INSIDE the packet, where no reader
+    of the record and no human on the surface could consult it. This is the one
+    derivation that puts it on the wire, and it re-states the PACKET'S OWN
+    values — never a re-derivation from "was there a knowledge service?", which
+    would be a second authority that could disagree with the packet (the packet
+    also reduces when a live backend REFUSES a retrieval, and only the packet
+    knows which of the two happened).
+
+    THE REASON IS CARRIED VERBATIM. `ContextPacket` already refuses a reduced
+    packet with no reason and a full packet with one, so on the shipped path
+    these refusals cannot fire — but the packet assembler is an INJECTED seam
+    (`packet_assembler`), duck-typed like every other collaborator here, and a
+    collaborator that handed back a packet declaring `full` beside a reduction
+    would put a self-contradicting record on the wire and in the turn store.
+    Refused as a `PacketError`, which the route's existing packet boundary maps
+    to the fixed `invalid_turn_request` — fail-closed, never a guessed posture.
+    A test drives each refusal through that seam.
+
+    A RECORDED TENSION, not a resolved one (adversarial review S2). Every
+    refusal in this function has a SERVER-AUTHORED cause — a collaborator that
+    lied, or a reason constant this repository wrote too long — and none is
+    fixable by any request a caller could send. The route's
+    `context_packet_invalid` arm (500) exists for exactly that class and says so
+    in as many words ("never a 4xx blaming the turn"), so `invalid_turn_request`
+    (400) is arguably the wrong code for all four arms. They are kept on ONE
+    code deliberately: one function, one refusal shape, and the four cases are
+    unreachable in production (`ContextPacket` refuses three of them at
+    construction and a test holds the constants under the fourth). Moving the
+    whole function to the 500 arm is a follow-up, named here rather than
+    smuggled into a fix pass that four tests already pin."""
+    posture = getattr(packet, "posture", None)
+    reason = getattr(packet, "reduced_reason", None)
+    if posture == doxbench_packet.POSTURE_REDUCED:
+        # A NON-EMPTY STRING, not merely something truthy (Codex review of
+        # PR #256). `if not reason:` accepted any truthy value and `str(reason)`
+        # then MANUFACTURED a reason out of it: `123` became `"123"`, a list
+        # became `"['a', 'b']"`, and a bare `object()` became
+        # `"<object object at 0x…>"` — a heap address, in a durable record, on
+        # the degraded path. That is the same silent-normalisation class the
+        # presence findings were: malformed collaborator output turned into a
+        # conformant-LOOKING posture instead of a refusal. The released shape
+        # says `type: string`, so this boundary says it too, and the reason is
+        # carried VERBATIM rather than coerced.
+        if not isinstance(reason, str) or not reason:
+            raise doxbench_packet.PacketError(
+                "a reduced packet STATES the reduced posture's reason; a "
+                "record cannot carry a reduction nobody can read")
+        # THE RELEASED CEILING, ENFORCED WHERE THE REASON IS CARRIED
+        # (adversarial review S2). Without this the only thing standing between
+        # an over-long reason and the wire was the route's post-dispatch
+        # self-validation, which the review reproduced: a 501-code-point reason
+        # answered `response_invalid` (502) AFTER a provider dispatch had
+        # already been paid for and the human's turn was already gone. Refusing
+        # HERE is pre-dispatch, and it also covers a `REDUCED_*` constant added
+        # later that nobody thought to hold to the bound.
+        #
+        # NOT TRUNCATED, ever: truncating a statement about a degradation is how
+        # a degradation goes quiet, which is the failure this whole requirement
+        # is written against.
+        if len(reason) > CONTEXT_REDUCED_REASON_MAX_LENGTH:
+            raise doxbench_packet.PacketError(
+                "a reduction reason exceeds the released ceiling; the record "
+                "refuses rather than truncating a statement about a "
+                "degradation")
+        return {"posture": posture, "reduced_reason": reason}
+    if posture == doxbench_packet.POSTURE_FULL:
+        # PRESENCE, NOT TRUTHINESS (Copilot review of PR #256, finding 1). This
+        # arm used `if reason:`, so an EMPTY STRING passed it and the record was
+        # emitted with the key omitted — a lying assembler handing
+        # `{full, reduced_reason: ""}` was silently normalized instead of failing
+        # closed. The released shape forbids the key's PRESENCE on a full posture
+        # (`not: {required: [reduced_reason]}`), not its usefulness, so this
+        # boundary has to mean the same thing the shape does.
+        #
+        # ASYMMETRIC WITH THE REDUCED ARM ABOVE, DELIBERATELY, and the shape is
+        # asymmetric in exactly the same way: `reduced` REQUIRES a reason and
+        # bounds it at `minLength: 1`, so a blank one is refused there for being
+        # unusable; `full` refuses the field for being THERE. Do not "simplify"
+        # these two into one predicate — they are two rules.
+        if reason is not None:
+            raise doxbench_packet.PacketError(
+                "a full packet carries no reduction reason; a record cannot "
+                "state both postures and let a reader pick")
+        return {"posture": posture}
+    raise doxbench_packet.PacketError(
+        "a packet states its posture; a record cannot declare one the packet "
+        "does not have")
+
+
+def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str,
+                                  model_id: str, requested_model_id: str,
+                                  routing_rule: bool, data_handling: str,
+                                  bound_buffer: str, observed_hashes: dict,
+                                  assistant_prose: str, context_posture: str,
+                                  context_reduced_reason: str | None = None,
+                                  proposals=()) -> dict:
+    """The RELEASED `workbench-chat-turn-v2-success` envelope — the turn's
+    durable RECORD (contract-v1.34; add-doxbench-editing-phase-b §13).
+
+    Three things this envelope has room for that its predecessor did not, and
+    each is REBUILT here from named values so nothing caller-derived can splice a
+    key in:
+
+    * `bound_buffer` — the binding the REQUEST DECLARED, carried through
+      unchanged. Never derived from which document happened to be supplied: that
+      derivation is the one Phase A's review killed, because it recorded "bound
+      to the document" for a human working the outline with a document loaded.
+    * `observed_hashes` keyed by BUFFER KEY, one per buffer the turn carried,
+      rather than the two fixed names the v1 record could express.
+    * `selected_model` — what the human CHOSE, beside `model_id`'s what
+      ANSWERED. `routing_rule` is stated rather than inferred from the two ids
+      being unequal, because "these differ" and "this entry is a routing rule"
+      are different facts.
+
+    …and, SINCE contract-v1.40 (task 10.7), a fourth:
+
+    * `context_packet` — the POSTURE the turn's bounded context packet was
+      assembled under, plus the reduction's reason when there is one. Rebuilt
+      here from two named scalars for the same reason `selected_model` is: a
+      caller handing in a ready-made dict could splice a key past the builder,
+      and this envelope is closed. The posture is a REQUIRED argument, so no v2
+      record can be built that silently omits it — the WIRE key is optional
+      (that is what makes v1.40 additive), but this producer always states it,
+      and a full turn's record says `full` explicitly rather than by omission.
+      Omission on the wire means "a producer older than v1.40", never "full".
+
+    Like its v1 sibling this builder is never the last word on conformance: the
+    route self-validates the built envelope against the released schema before it
+    is stored or sent."""
+    context_packet = {"posture": str(context_posture)}
+    if context_reduced_reason is not None:
+        context_packet["reduced_reason"] = str(context_reduced_reason)
+    return {
+        "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
+        "kind": DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND,
+        "client_turn_id": str(client_turn_id),
+        "assistant_turn_id": str(assistant_turn_id),
+        "model_id": str(model_id),
+        "selected_model": {
+            "requested_model_id": str(requested_model_id),
+            "routing_rule": bool(routing_rule),
+            "data_handling": str(data_handling),
+        },
+        "context_packet": context_packet,
+        "bound_buffer": str(bound_buffer),
+        "observed_hashes": {str(key): str(value)
+                            for key, value in observed_hashes.items()},
         "assistant_prose": str(assistant_prose),
         "proposals": [
             {"target": str(p.target), "base_hash": str(p.base_hash),
@@ -931,6 +1336,28 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     # `doxbench_turns.TurnStore()` here -- ONE store per served process, never
     # shared across servers (see `test_turn_store_is_bound_per_server_process`).
     turn_store = None
+    # The doxBench STAGED-SET KNOWLEDGE SERVICE, declared at INSTALL time
+    # (add-doxbench-editing-phase-b D11, task 10.6). None means NO knowledge
+    # service, which is a declared POSTURE and not an error: the turn degrades
+    # to the reduced packet with its reduction stated, the rails still run, and
+    # the editors are untouched. NOTHING at runtime — no turn, no prompt, no
+    # heuristic — may choose a backend, which is why this is a serve-level
+    # declaration and why the route below only ever READS it.
+    knowledge_declaration = None
+    # The packet assembler this route reaches, bound by `build_server` to
+    # `doxbench_packet.assemble_packet`. INJECTED for the same reason every
+    # other collaborator on this route is (the model port, the notebook
+    # adapter, the schema validators): the packet is now a collaborator, and
+    # the leash it carries -- purpose, scope, expiry -- can only be exercised
+    # end to end by a route that was handed one it must reject. Unlike the
+    # capability seams, absence here is NOT a posture: the real assembler is
+    # the default, because assembling a packet is the pipeline, not a
+    # capability an install may decline.
+    packet_assembler = staticmethod(doxbench_packet.assemble_packet)
+    # The per-process content-free usage meter (task 10.8). None only in
+    # hand-constructed handlers; one meter per served process, beside the turn
+    # store and never shared across servers.
+    usage_meter = None
     actor: str | None = None
     # The repository half of every session key this process serves, BOUND at
     # `build_server` to the served checkout's own repository (finding R2-11). None
@@ -1078,6 +1505,417 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         except Exception:  # noqa: BLE001 - absence is a capability verdict
             return None
 
+    # The largest corpus one tile's index is built from. A bound, not a
+    # policy: a tile's staged set is a topic folder, and an index that grew
+    # without one would be a way to spend a serve's memory by loading a tile.
+    MAX_INDEXED_SOURCES = 200
+
+    def _indexed_sources(self, projection):
+        """This tile's staged set, as indexable sources.
+
+        Read through `snapshot_registry.resolve_within` — the SINGLE
+        containment authority `/source` already uses — rather than through a
+        second path check of this route's own, because two confinement rules
+        are how one of them drifts. A path that does not resolve, is not a
+        file, or cannot be decoded is SKIPPED: an unreadable document is one
+        the packet will not carry, never a reason to fail a turn.
+
+        The bytes come from the SERVED CHECKOUT, which is what "the tile's
+        staged set" means here: the corpus at the revision this tile projects.
+        A session's own edits ride the turn as BUFFERS, verbatim and
+        identity-verified, so nothing is read twice from two places.
+
+        THE BOUND IS ON WHAT IS INDEXED, NOT ON WHAT IS ATTEMPTED (Codex review
+        of PR #216, CODEX-C). Slicing `context_paths` before filtering let an
+        unreadable entry consume index capacity, so a tile whose first entries
+        were missing indexed FEWER than the bound and never even considered
+        readable documents behind them — and the coverage sentence then blamed
+        "the declared index bound" for omissions the bound had nothing to do
+        with. Reproduced at a bound of 2 over three paths: one indexed.
+
+        Returns the sources plus the refs that were UNREADABLE, so the packet
+        can tell the two omission classes apart instead of merging them.
+        """
+
+        sources = []
+        unreadable = []
+        for ref in projection.context_paths:
+            if len(sources) >= self.MAX_INDEXED_SOURCES:
+                break
+            resolved = registry_mod.resolve_within(self.checkout_root, ref)
+            if resolved is None:
+                unreadable.append(ref)
+                continue
+            try:
+                text = resolved.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                unreadable.append(ref)
+                continue
+            sources.append(doxbench_knowledge.IndexedSource(ref=ref, text=text))
+        return tuple(sources), tuple(unreadable)
+
+    def _knowledge_service_and_coverage(self, projection):
+        """The tool boundary over this install's DECLARED retrieval backend,
+        indexed for this tile's confined corpus — or None.
+
+        ABSENCE IS A POSTURE (design §3.4), exactly as it is for the model
+        port: no declaration means no knowledge service, the packet assembler
+        produces the DECLARED reduced packet with its reduction stated, and the
+        editors are unaffected. A failure to index is the same posture rather
+        than a turn failure, for the same reason.
+
+        A FRESH backend per request, built from the install-time declaration.
+        The declaration is process-wide; the INDEX is not, because this server
+        is threaded and one tile's index must never be visible to another
+        tile's turn. Nothing here consults the turn, the message, or the
+        prompt: the declaration is the only input to which backend exists.
+
+        COVERAGE, stated rather than left to silence (adversarial review, F6):
+        the index has a DECLARED BOUND and the confinement does not, so a tile
+        holding more documents than the bound has refs that are confined but
+        were never indexed -- not retrievable this turn, and NOT "one retrieval
+        call away" the way the packet's own lossless note would otherwise
+        imply. The actual indexed count is returned beside the boundary so the
+        packet can say so; an unreadable document counts as uncovered for the
+        same reason.
+        """
+
+        declaration = getattr(self, "knowledge_declaration", None)
+        if declaration is None:
+            return None, None
+        try:
+            backend = doxbench_knowledge.build_backend(declaration)
+            boundary = doxbench_knowledge.KnowledgeToolBoundary(backend)
+            # ONLY CONFINED SOURCES ARE EVER INDEXED: `_indexed_sources` reads
+            # `projection.context_paths`, which IS the tile's staged set and is
+            # exactly what `confined_refs` computes the admissible set from, so
+            # the index is a SUBSET of the confinement by construction rather
+            # than by filtering afterwards (Codex review of PR #216, CODEX-A).
+            sources, unreadable = self._indexed_sources(projection)
+            boundary.reindex(sources)
+        except Exception:  # noqa: BLE001 - absence is a capability verdict
+            return None, None
+        return boundary, doxbench_packet.CorpusCoverage(
+            indexed=len(sources), unreadable=len(unreadable),
+            total=len(projection.context_paths))
+
+    # ------------------------------------------------------------------
+    # THREADS (add-doxbench-editing-phase-b §9.2/§9.5/§11.5, design §4)
+    #
+    # THE SIDECAR IS THE RECORD. These helpers READ threads out of the session
+    # worktree for the packet and WRITE one back after a turn settles, through
+    # `doxbench_threads`' own single write route and the doxBench Save gate's
+    # own declared allowlist. Nothing here parses, renders, or path-derives a
+    # thread itself: every one of those rules has exactly one spelling, and it
+    # is in `doxbench_threads`.
+    # ------------------------------------------------------------------
+
+    def _thread_plane(self) -> str:
+        """Which plane this serve is, in `doxbench_threads`' own vocabulary. A
+        non-loopback serve is the HOSTED plane, which opens no branch session
+        and therefore has no threads (FR-048)."""
+        return (doxbench_threads.LOCAL_PLANE if self.loopback
+                else doxbench_threads.HOSTED_PLANE)
+
+    def _thread_capability_absence(self) -> str | None:
+        """`None` where threads exist, else the DECLARED cause. Fail-closed on
+        an unresolved actor: a thread is a human's working memory on a session
+        branch, and a session with no identified human is not one."""
+        if not self.actor:
+            return NO_RESOLVED_ACTOR_CAUSE
+        try:
+            doxbench_threads.require_thread_capability(
+                plane=self._thread_plane(),
+                gate_capability=bool(
+                    self.capabilities.get("actions", {}).get("session")))
+        except doxbench_threads.ThreadCapabilityAbsent as absent:
+            # `.cause` and NOT `str(absent)` (CP1). The exception's text is
+            # "<REASON> — <cause>", and the body carries the reason in its own
+            # `reason` field — so returning the string embedded the reason
+            # twice and made `cause` not a cause.
+            return absent.cause
+        return None
+
+    def _session_worktree_for(self, key):
+        """The SESSION WORKTREE this scope's threads live in, or None.
+
+        A thread lives on the session branch inside the session worktree, so a
+        scope that is not a live session entry has none — and that is an
+        ABSENCE, not a failure: the packet then declares the thread absent
+        rather than inventing an empty one.
+
+        `source_root` IS the worktree for a session entry (the turn route
+        already reads the session's own text through it).
+
+        SESSION-NESS COMES FROM THE LIVENESS AUTHORITY, not from the registry's
+        advisory markers — corrected 2026-08-19 after the adversarial review's
+        P2-10. This used to gate on `session_tile or session_base`, and
+        `snapshot_registry` documents BOTH as advisory: `session_tile` is "None
+        on a bootstrap-reconstructed entry", and `session_base` "degrades to the
+        original name-equality binding — advisory ... **and never the reason a
+        session fails**". This made them exactly that, and the consequences were
+        silent: a bootstrap-reconstructed entry with neither marker got `{}`
+        threads, no mirrored record, and a 403 from the thread route, with
+        nothing on the wire saying so.
+
+        `branch_session.live_session_branches` is what the Save path itself
+        trusts and what the turn route ALREADY reaches one step earlier through
+        `doxbench_scope.session_created_paths_for_scope`. This route asks it
+        through the SHARED `doxbench_scope.is_live_session_ref` rather than
+        calling it again here (re-verify N-6). Asking it means a
+        session this console can WRITE to is a session this console will RECORD
+        into, which is the property that actually matters."""
+        try:
+            entry = self.source.registry.resolve(key.repository, key.ref)
+        except Exception:  # noqa: BLE001 - an unresolvable scope has no threads
+            return None
+        if entry is None or entry.source_root is None:
+            return None
+        if not self._is_live_session_ref(key, entry):
+            return None
+        root = Path(entry.source_root)
+        return root if root.is_dir() else None
+
+    def _is_live_session_ref(self, key, entry) -> bool:
+        """Whether `key.ref` is one of this tile's LIVE session branches.
+
+        ONE spelling, in `doxbench_scope` beside the other consumer of the same
+        question (re-verify N-6). This method had grown as a second copy and had
+        already diverged from it — different ref comparison, different exception
+        breadth — which is precisely how the two would have drifted apart on the
+        next change to what counts as a live session."""
+        from ideation_dashboard import doxbench_scope
+        return doxbench_scope.is_live_session_ref(
+            self.source.registry, key,
+            repository=entry.repository or key.repository, ref=key.ref)
+
+    def _read_thread(self, worktree, document: str):
+        """One document's thread, or None where no sidecar exists or it cannot
+        be read as one.
+
+        An UNREADABLE sidecar is treated exactly as an absent one, and the
+        reason is the packet's: an invented or half-parsed thread would be a
+        claim that a conversation happened. Confinement is the same
+        `resolve_within` authority `/source` uses, so a thread path cannot
+        escape the worktree."""
+        if worktree is None:
+            return None
+        try:
+            relative = doxbench_threads.thread_path_for(document)
+        except doxbench_threads.ThreadError:
+            return None
+        target = registry_mod.resolve_within(worktree, relative)
+        if target is None or not target.is_file():
+            return None
+        try:
+            return doxbench_threads.parse_thread(
+                target.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, doxbench_threads.ThreadError):
+            return None
+
+    def _document_threads(self, key, document_keys) -> dict:
+        """The thread mapping `assemble_packet` takes — the seam §10 left for
+        §11 to fill (`tasks.md` 10.3's "Thread read side, and what waits on
+        §11").
+
+        Keyed by BUFFER KEY, so the packet's selected-thread and thread-state
+        sections name the same keys the turn's buffers do. For every
+        PATH-BACKED document buffer that key IS its path, which is also what the
+        WRITE side keys by since PR #223's C3 — so a read and a write name one
+        file. The one buffer where they differ is the reserved unbacked slot
+        (key `document`, path None): the write side records no sidecar for it at
+        all, so the read is always an honest absence rather than a lookup under
+        a key nothing writes."""
+        absent = self._thread_capability_absence()
+        if absent is not None:
+            return {}
+        worktree = self._session_worktree_for(key)
+        if worktree is None:
+            return {}
+        threads = {}
+        for document in document_keys:
+            thread = self._read_thread(worktree, document)
+            if thread is not None:
+                threads[document] = thread
+        return threads
+
+    def _thread_gate(self, worktree):
+        """The doxBench Save gate, rooted at the session worktree and DECLARING
+        it — the one gate on this surface whose allowlist carries the thread
+        prefix (`gate_routes.first_edit_gate_factory`, task 9.5). Built through
+        that factory rather than beside it, so the widening has one spelling."""
+        from ideation_dashboard import gate_console
+        from ideation_dashboard import gate_routes
+        return gate_routes.first_edit_gate_factory(
+            self.actor, gate_console.DEFAULT_RECORDS_DIR)(worktree)
+
+    def _mirror_turn_into_sidecar(self, key, *, document: str, turn_id: str,
+                                  model_id: str, bound_buffer_key: str,
+                                  human: str, assistant: str, mirror=None,
+                                  dereference=None) -> bool:
+        """Append this turn to the selected document's sidecar and write it
+        (tasks 9.2's write half, 11.5).
+
+        Order is `doxbench_threads`': the append is computed FIRST and
+        completely, and the mirror is consulted afterwards on the resulting
+        thread — the sidecar is the record, so nothing downstream of it decides
+        what the record says. `dereference` is the BRIDGE's seam; with none, a
+        body carrying a harness pointer is refused by `ThreadTurn` rather than
+        persisted, which is the fail-closed half of task 3.5's finding.
+
+        RETURNS whether the record was written, and NEVER raises into the turn.
+        THE JUDGEMENT CALL, STATED: the provider has already answered by the
+        time this runs, and there is no released refusal code for "the record
+        could not be written". Losing the human's answer to protect a record
+        that failed for an environment reason is the worse trade, so the answer
+        still ships and the failure goes to the serve's own log — where every
+        other non-wire diagnostic on this surface goes. The next turn's packet
+        then declares that document's thread ABSENT, honestly, rather than
+        implying a conversation that was never recorded."""
+        worktree = self._session_worktree_for(key)
+        if worktree is None or self._thread_capability_absence() is not None:
+            return False
+        try:
+            thread = self._read_thread(worktree, document)
+            if thread is None:
+                thread = doxbench_threads.DocumentThread(
+                    document=document,
+                    scope=doxbench_threads.ThreadScope(
+                        repository=key.repository, tile_kind=key.tile_kind,
+                        tile_id=key.tile_id))
+            turn = doxbench_threads.dereference_bodies(
+                turn_id, model_id, bound_buffer_key,
+                _sidecar_text(human), _sidecar_text(assistant),
+                dereference=dereference if callable(dereference)
+                else _no_dereference)
+            appended = doxbench_threads.mirror_turn(thread, turn, mirror=mirror)
+            doxbench_threads.write_thread(self._thread_gate(worktree), appended)
+            return True
+        except doxbench_threads.ThreadMirrorFailed:
+            # The MIRROR failed, not the record. The append is already computed
+            # and the sidecar is what the record is, so the write still happens
+            # — a harness that cannot be told is not a reason to lose the turn.
+            sys.stderr.write(
+                "[workbench/thread] the harness mirror refused a turn; the "
+                "sidecar is still the record\n")
+            return self._write_thread_after_mirror_failure(worktree, document,
+                                                           key, turn_id,
+                                                           model_id,
+                                                           bound_buffer_key,
+                                                           human, assistant,
+                                                           dereference)
+        except Exception:  # noqa: BLE001 - a record failure never kills a turn
+            sys.stderr.write(
+                "[workbench/thread] this turn could not be mirrored into its "
+                "sidecar; the answer stands and the thread stays absent\n")
+            return False
+
+    def _write_thread_after_mirror_failure(self, worktree, document, key,
+                                           turn_id, model_id,
+                                           bound_buffer_key, human, assistant,
+                                           dereference) -> bool:
+        try:
+            thread = self._read_thread(worktree, document)
+            if thread is None:
+                thread = doxbench_threads.DocumentThread(
+                    document=document,
+                    scope=doxbench_threads.ThreadScope(
+                        repository=key.repository, tile_kind=key.tile_kind,
+                        tile_id=key.tile_id))
+            turn = doxbench_threads.dereference_bodies(
+                turn_id, model_id, bound_buffer_key,
+                _sidecar_text(human), _sidecar_text(assistant),
+                dereference=dereference if callable(dereference)
+                else _no_dereference)
+            appended = doxbench_threads.mirror_turn(thread, turn, mirror=None)
+            doxbench_threads.write_thread(self._thread_gate(worktree), appended)
+            return True
+        except Exception:  # noqa: BLE001 - same verdict as the caller's
+            return False
+
+    def _handle_workbench_thread(self, head_only: bool) -> None:
+        """`GET`/`HEAD /workbench/thread` (task 9.5).
+
+        LOOPBACK-ONLY, fail-closed on an unresolved actor, absent without the
+        gate capability and on the hosted plane — the four clauses the task
+        names, in that order, and answered by `doxbench_threads`' own
+        capability rule rather than by a second copy of it here. The read is
+        confined by `resolve_within`, the same containment authority `/source`
+        uses.
+
+        WHAT IT IS FOR: the loaded-document selector switches the transcript to
+        the selected document's thread (task 7.2), and this is where the
+        browser reads that thread from. It writes nothing: a thread is written
+        by a TURN, through the Save gate, and there is no second write route."""
+
+        if not self.loopback:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE),
+                _thread_absence_body(doxbench_threads.HOSTED_PLANE_CAUSE))
+            return
+        absence = self._thread_capability_absence()
+        if absence is not None:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE),
+                _thread_absence_body(absence))
+            return
+        console_refusal = self._not_the_human_console()
+        if console_refusal is not None:
+            sys.stderr.write(
+                f"[workbench/thread] agent_invocation refused: {console_refusal}\n")
+            self._send_json(doxbench_error_status(DOXBENCH_ERR_CONSOLE_REQUIRED),
+                            doxbench_error_body(DOXBENCH_ERR_CONSOLE_REQUIRED))
+            return
+        query = urllib.parse.parse_qs(
+            urllib.parse.urlsplit(self.path).query, keep_blank_values=False)
+
+        def _one(name):
+            values = query.get(name) or []
+            return values[0] if len(values) == 1 else None
+
+        fields = {name: _one(name) for name in
+                  ("repository", "ref", "tile_kind", "tile_id", "document")}
+        if any(value is None or not str(value).strip()
+               for value in fields.values()):
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_INVALID_TURN_REQUEST),
+                doxbench_error_body(DOXBENCH_ERR_INVALID_TURN_REQUEST))
+            return
+        from ideation_dashboard import doxbench_scope
+        key = doxbench_scope.ScopeKey(
+            repository=fields["repository"], ref=fields["ref"],
+            tile_kind=fields["tile_kind"], tile_id=fields["tile_id"])
+        worktree = self._session_worktree_for(key)
+        if worktree is None:
+            # No live session on this scope. A DISTINCT cause (adversarial
+            # review P3-19): this used to answer the no-gate-capability cause,
+            # which is a true sentence about a different situation — the plane
+            # HAS the capability here, this scope simply has no open session.
+            # The non-oracle reasoning is unchanged and is what keeps the cause
+            # generic: it says "no session is open for this scope" and never
+            # which refs or tiles exist.
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE),
+                _thread_absence_body(NO_LIVE_SESSION_CAUSE))
+            return
+        thread = self._read_thread(worktree, fields["document"])
+        body = {
+            "ok": True,
+            "document": fields["document"],
+            "present": thread is not None,
+            "authority": doxbench_threads.NON_AUTHORITATIVE,
+            "regenerable_from": doxbench_threads.REGENERABLE_FROM_TRANSCRIPT,
+            "turns": [] if thread is None else [
+                {"turn_id": turn.turn_id, "model": turn.model,
+                 "bound_buffer_key": turn.bound_buffer_key,
+                 "human": turn.human, "assistant": turn.assistant}
+                for turn in thread.turns],
+            "state_header": ("" if thread is None
+                             else doxbench_threads.render_state_header(thread)),
+        }
+        self._serve_bytes(json.dumps(body).encode("utf-8"), JSON_CTYPE,
+                          head_only)
+
     def _doxbench_validators(self):
         """The RELEASED per-kind schema validators for this request, or None.
 
@@ -1123,6 +1961,97 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return not any(True for _ in validator.iter_errors(instance))
         except Exception:  # noqa: BLE001 - a broken validator is not a pass
             return False
+
+    @staticmethod
+    def _doxbench_violation_beside_the_buffers_floor(validators, kind: str,
+                                                     instance) -> bool:
+        """True when the released schema faults `instance` for ANYTHING other
+        than the `buffers` array's own `minItems` floor.
+
+        This is the guard that keeps a cause-naming refusal from sending a human
+        round a loop. Naming the missing document is only useful if loading one
+        is ENOUGH; where a blank message, a bad hash, or an unknown key is also
+        wrong, fixing the buffer set would just earn a second refusal, so the
+        caller falls back to the catch-all -- which is true of all of them.
+
+        Conservative in both failure directions: no validator for the kind, or a
+        validator that throws, means no verdict, and no verdict is treated as
+        "something else may be wrong" rather than as permission to be specific.
+        An EMPTY error list is False -- nothing else is wrong -- which is what
+        lets the delegated validator's own statement of the floor name the same
+        cause on a plane whose schema did not catch it first.
+
+        WHAT IT READS, AND WHAT IT REFUSES TO READ. Only `validator` (a schema
+        KEYWORD, `minItems`) and `absolute_path` (the INSTANCE location,
+        `buffers`). Never `error.message` -- that is the field
+        `_doxbench_wire_conforms` discards for cause, because a jsonschema
+        message can quote instance content. Nothing read here reaches the wire in
+        any case: the verdict only chooses between two fixed module-level
+        strings.
+
+        STREAMED, and stopping at the first disqualifying error (Copilot review,
+        PR #255). The answer is a bare "is there one?", so materializing every
+        violation of a large invalid request only to scan it was work and memory
+        spent on a question already settled by error number one.
+
+        The pass `_doxbench_wire_conforms` already made is deliberately NOT
+        reused. Carrying its errors out would mean that seam returning them, and
+        its whole posture is that it discards them precisely so a jsonschema
+        message -- which can quote instance content -- has nowhere to leak to.
+        Two cheap iterations on an already-failing request is the better trade
+        against widening that seam's contract."""
+        validator = validators.get(kind) if isinstance(validators, dict) else None
+        if validator is None:
+            return True
+        try:
+            for error in validator.iter_errors(instance):
+                if (error.validator != "minItems"
+                        or list(error.absolute_path) != ["buffers"]):
+                    return True
+        except Exception:  # noqa: BLE001 - a broken validator names no cause
+            return True
+        return False
+
+    @staticmethod
+    def _doxbench_turn_is_outline_only(payload) -> bool:
+        """True when the request's buffer set is exactly one buffer and that
+        buffer is the reserved outline -- the state a human reaches by unloading
+        the last document.
+
+        The floor is also short with ZERO buffers, and with one buffer that is a
+        document and no outline. Neither is the outline-only state, and telling
+        either of them that the turn 'carries no document beside the outline'
+        would state something false about a set that has no outline in it. Those
+        keep the catalog's generic message, which is true of both."""
+        buffers = payload.get("buffers") if isinstance(payload, dict) else None
+        if not isinstance(buffers, list) or len(buffers) != 1:
+            return False
+        only = buffers[0]
+        return isinstance(only, dict) and only.get("kind") == "outline"
+
+    @classmethod
+    def _doxbench_invalid_turn_message(cls, validators, kind: str, payload):
+        """Which fixed message an `invalid_turn_request` refusal of a request's
+        SHAPE carries: the cause-naming one when the buffer set is outline-only
+        and nothing else is wrong, else `None` for the catalog's generic message.
+
+        Both conditions are required, and each rules out a different way of
+        lying: the first that the message describes the set the caller actually
+        sent, the second that acting on it is enough to make the turn sendable.
+
+        Asked at BOTH shape gates, because the floor has TWO statements and
+        either can be the one that fires. The released schema's `minItems: 2`
+        answers first wherever the real release is bound, and the delegated
+        validator's outline-plus-document pairing rule answers where a validator
+        that does not express the floor let the request through. The CAUSE is a
+        fact about the request, not about which gate noticed it, so both name it
+        the same way rather than one of them staying mute."""
+        if not cls._doxbench_turn_is_outline_only(payload):
+            return None
+        if cls._doxbench_violation_beside_the_buffers_floor(
+                validators, kind, payload):
+            return None
+        return _DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT
 
     # ------------------------------------------------------------------
     # T050/T051 route handlers (change 010-doxbench-editor-chat).
@@ -1234,7 +2163,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return None
         return turn_id
 
-    def _refuse_turn(self, validators, code, turn_id, *, limit=None) -> None:
+    def _refuse_turn(self, validators, code, turn_id, *, limit=None,
+                     failure_kind=DOXBENCH_CHAT_TURN_FAILURE_KIND,
+                     message=None) -> None:
         """Emit one chat-turn refusal in the correct envelope.
 
         With a wire-valid `turn_id` this is the RELEASED
@@ -1251,30 +2182,38 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         release: then the wire-valid verdict is None and this emits the fixed
         shape, rather than putting an out-of-bounds id in an envelope that
         claims released conformance. The turn STORE keeps using the parsed id,
-        because idempotency is keyed on what the caller actually sent."""
+        because idempotency is keyed on what the caller actually sent.
+
+        `failure_kind` is the FAMILY the refusal is answered in (contract-v1.34).
+        It follows the family the request arrived in and defaults to the v1
+        envelope, which is what a request that never named a recognizable family
+        still gets.
+
+        `message` names the CAUSE inside an otherwise unchanged refusal, and is a
+        fixed module-level constant or nothing (see `doxbench_turn_failure_body`).
+        It rides only the RELEASED envelope: the pre-identity fallback below keeps
+        the catalog message unconditionally. That is not a gap. The fallback is
+        taken when the turn id is not wire-valid, and a turn id the released
+        schema rejects is itself a second schema violation -- so no caller whose
+        message depends on the violation being the SOLE one can reach it."""
         status = doxbench_error_status(code)
         if turn_id is not None:
-            body = doxbench_turn_failure_body(code, turn_id, limit=limit)
-            if self._doxbench_wire_conforms(
-                    validators, DOXBENCH_CHAT_TURN_FAILURE_KIND, body):
+            body = doxbench_turn_failure_body(code, turn_id, limit=limit,
+                                              kind=failure_kind, message=message)
+            if self._doxbench_wire_conforms(validators, failure_kind, body):
                 self._send_json(status, body)
                 return
         self._send_json(status, doxbench_error_body(code, limit=limit))
 
     @staticmethod
-    def _parse_workbench_chat_turn_body(payload):
-        """Structural, known-field extraction for `POST /actions/workbench/
-        chat-turn` (T051). Returns a tuple of coerced fields, or `None` on
-        ANY structural violation: a missing/wrong-typed field, a blank-or-
-        whitespace-only `message`, or a buffer list that is not exactly one
-        `outline` plus one `document`. Runs AFTER the released-schema gate, so
-        unknown extra keys are already refused by the CLOSED released envelope
-        rather than ignored here -- this parser no longer needs to decide that
-        question and deliberately still does not: it coerces the known fields
-        the chain needs. NEVER re-implements
-        `doxbench_turns.TurnBuffer`/`TranscriptTurn`'s own validation --
-        this only checks JSON *shape*, then hands the coerced values to
-        those constructors."""
+    def _parse_workbench_chat_turn_common(payload):
+        """The fields BOTH released chat-turn families spell identically, coerced
+        from one payload; `None` on any structural violation.
+
+        Split out at contract-v1.34 so the two family parsers below differ in
+        exactly what actually differs -- how the binding is DECLARED and how many
+        buffers may ride -- rather than in a second copy of the eight fields that
+        do not. Each family parser calls this, then adds its own half."""
         from ideation_dashboard import doxbench_turns
 
         if not isinstance(payload, dict):
@@ -1293,10 +2232,6 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             if not isinstance(value, str):
                 return None
             scope_fields[name] = value
-
-        active_document_path = payload.get("active_document_path")
-        if active_document_path is not None and not isinstance(active_document_path, str):
-            return None
 
         working_subject = payload.get("working_subject")
         if not isinstance(working_subject, str):
@@ -1334,10 +2269,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             transcript_turns.append(doxbench_turns.TranscriptTurn(role=role, text=text))
 
         buffers_raw = payload.get("buffers")
-        if not isinstance(buffers_raw, list) or len(buffers_raw) != 2:
+        if not isinstance(buffers_raw, list) or not buffers_raw:
             return None
         turn_buffers = []
-        kinds_seen = []
         for item in buffers_raw:
             if not isinstance(item, dict):
                 return None
@@ -1359,16 +2293,94 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 return None
             if not isinstance(dirty, bool):
                 return None
-            kinds_seen.append(kind)
             turn_buffers.append(doxbench_turns.TurnBuffer(
                 kind=kind, repository=repository, path=path, base_ref=base_ref,
                 base_revision=base_revision, base_hash=base_hash,
                 content_hash=content_hash, content=content, dirty=dirty))
-        if sorted(kinds_seen) != ["document", "outline"]:
-            return None
 
-        return (client_turn_id, scope_fields, active_document_path, working_subject,
-                message, model_id, last_assistant_turn_id, transcript_turns, turn_buffers)
+        return {
+            "client_turn_id": client_turn_id,
+            "scope_fields": scope_fields,
+            "working_subject": working_subject,
+            "message": message,
+            "model_id": model_id,
+            "last_assistant_turn_id": last_assistant_turn_id,
+            "transcript_turns": transcript_turns,
+            "turn_buffers": turn_buffers,
+        }
+
+    @classmethod
+    def _parse_workbench_chat_turn_body(cls, payload):
+        """Structural, known-field extraction for a RELEASED v1 `POST
+        /actions/workbench/chat-turn` (T051). Returns the coerced-field record,
+        or `None` on ANY structural violation: a missing/wrong-typed field, a
+        blank-or-whitespace-only `message`, or a buffer list that is not exactly
+        one `outline` plus one `document`. Runs AFTER the released-schema gate,
+        so unknown extra keys are already refused by the CLOSED released envelope
+        rather than ignored here -- this parser no longer needs to decide that
+        question and deliberately still does not: it coerces the known fields
+        the chain needs. NEVER re-implements
+        `doxbench_turns.TurnBuffer`/`TranscriptTurn`'s own validation --
+        this only checks JSON *shape*, then hands the coerced values to
+        those constructors.
+
+        THE V1 BINDING, unchanged and DEPRECATED with its family
+        (contract-v1.34): this envelope declares an `active_document_path` and
+        nothing else, so the binding it can express is that path -- reading its
+        KEY off a declared path is a spelling change, not the inference Phase A's
+        review killed. Where it is null the envelope declares NO binding at all,
+        `None` says so, and `doxbench_turns.revalidate_scope`'s own rule then
+        refuses a path-backed document rather than guessing."""
+        from ideation_dashboard import doxbench_turns
+
+        common = cls._parse_workbench_chat_turn_common(payload)
+        if common is None:
+            return None
+        active_document_path = payload.get("active_document_path")
+        if active_document_path is not None and not isinstance(active_document_path, str):
+            return None
+        buffers = common["turn_buffers"]
+        if sorted(buffer.kind for buffer in buffers) != ["document", "outline"]:
+            return None
+        return {
+            **common,
+            "active_document_path": active_document_path,
+            "bound_buffer_key": active_document_path,
+            "failure_kind": DOXBENCH_CHAT_TURN_FAILURE_KIND,
+            "success_kind": DOXBENCH_CHAT_TURN_SUCCESS_KIND,
+        }
+
+    @classmethod
+    def _parse_workbench_chat_turn_v2_body(cls, payload):
+        """The same extraction for the WIDENED family (contract-v1.34;
+        add-doxbench-editing-phase-b §13). Two differences, and only two:
+
+        * the binding is DECLARED as `bound_buffer` -- a buffer KEY, carried on
+          the wire, which the scope revalidation below requires to name one of
+          the buffers this same request supplied. There is no
+          `active_document_path` in this envelope to infer it from, and the
+          closed schema refuses one; the record therefore states the binding the
+          human declared rather than one derived from which document happened to
+          be supplied (design D17).
+        * the buffer set is the outline plus ONE OR MORE documents rather than
+          exactly one of each, keyed as `doxbench_turns` keys them.
+
+        The pairing itself is not restated here: `require_outline_and_documents`
+        is the authority and runs on this same list a few steps later."""
+        common = cls._parse_workbench_chat_turn_common(payload)
+        if common is None:
+            return None
+        bound_buffer = payload.get("bound_buffer")
+        if not isinstance(bound_buffer, str) or not bound_buffer:
+            return None
+        return {
+            **common,
+            # DELIBERATELY ABSENT: this family carries no active document path,
+            # so there is nothing here for any later step to read one from.
+            "bound_buffer_key": bound_buffer,
+            "failure_kind": DOXBENCH_CHAT_TURN_V2_FAILURE_KIND,
+            "success_kind": DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND,
+        }
 
     def _handle_workbench_chat_turn(self) -> None:
         """`POST /actions/workbench/chat-turn` (T051). See the section
@@ -1416,6 +2428,22 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # purpose only -- so a refusal the browser can correlate is possible
         # (see `_wire_valid_turn_id`). ----
         turn_id = self._wire_valid_turn_id(payload)
+        # WHICH FAMILY THIS TURN ARRIVED IN (contract-v1.34). Read off the raw
+        # payload's own `kind`, which is the only thing that distinguishes the
+        # two co-resident envelopes, exactly as the released file discriminates
+        # them. An unrecognized kind is answered in the v1 failure family: a
+        # request that never named a family it could be answered in gets the
+        # posture it would have got before this release, and the schema gate
+        # below refuses it in any case.
+        request_kind = (payload.get("kind")
+                        if isinstance(payload.get("kind"), str) else None)
+        if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:
+            failure_kind = DOXBENCH_CHAT_TURN_V2_FAILURE_KIND
+            parse_body = self._parse_workbench_chat_turn_v2_body
+        else:
+            request_kind = DOXBENCH_CHAT_TURN_KIND
+            failure_kind = DOXBENCH_CHAT_TURN_FAILURE_KIND
+            parse_body = self._parse_workbench_chat_turn_body
         validators = self._doxbench_validators()
         if validators is None:
             # No readable contract, so no validated turn is possible. Fail
@@ -1426,17 +2454,44 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 doxbench_error_status(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE),
                 doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
             return
-        if not self._doxbench_wire_conforms(
-                validators, DOXBENCH_CHAT_TURN_KIND, payload):
-            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST, turn_id)
+        if not self._doxbench_wire_conforms(validators, request_kind, payload):
+            # The verdict is already taken; this only asks WHICH violation, so
+            # the one a human can reach by hand -- unloading the set down to the
+            # outline -- is answered with a sentence naming the missing document
+            # instead of the catch-all. Same code, same status, same key set;
+            # every other violation still gets the catalog's message, because
+            # `_doxbench_invalid_turn_message` returns None for all of them.
+            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
+                              turn_id, failure_kind=failure_kind,
+                              message=self._doxbench_invalid_turn_message(
+                                  validators, request_kind, payload))
             return
 
-        fields = self._parse_workbench_chat_turn_body(payload)
+        fields = parse_body(payload)
         if fields is None:
-            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST, turn_id)
+            # The floor's OTHER statement (`require_outline_and_documents`). It
+            # is unreachable for this cause wherever the real release is bound --
+            # `minItems: 2` refuses an outline-only set above -- but a plane
+            # whose validator does not express the floor lands here instead, and
+            # the same act deserves the same sentence either way.
+            self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
+                              turn_id, failure_kind=failure_kind,
+                              message=self._doxbench_invalid_turn_message(
+                                  validators, request_kind, payload))
             return
-        (client_turn_id, scope_fields, active_document_path, working_subject, message,
-         model_id, _last_assistant_turn_id, transcript_turns, turn_buffers) = fields
+        client_turn_id = fields["client_turn_id"]
+        scope_fields = fields["scope_fields"]
+        # The v1 envelope's own field, absent from the widened one by
+        # construction. Read as an OPTIONAL member so the widened lane has
+        # nothing to read it from -- the point of the release, not an oversight.
+        active_document_path = fields.get("active_document_path")
+        bound_buffer_key = fields["bound_buffer_key"]
+        success_kind = fields["success_kind"]
+        working_subject = fields["working_subject"]
+        message = fields["message"]
+        model_id = fields["model_id"]
+        transcript_turns = fields["transcript_turns"]
+        turn_buffers = fields["turn_buffers"]
 
         from ideation_dashboard import doxbench_hash
         from ideation_dashboard import doxbench_model
@@ -1447,9 +2502,6 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                                       ref=scope_fields["ref"],
                                       tile_kind=scope_fields["tile_kind"],
                                       tile_id=scope_fields["tile_id"])
-        outline_buf = next((b for b in turn_buffers if b.kind == "outline"), None)
-        document_buf = next((b for b in turn_buffers if b.kind == "document"), None)
-
         # ---- step 5: scope, all from SERVER truth ----
         projection = None
         session_base = None
@@ -1510,11 +2562,21 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 if projection is None:
                     scope_refused = True
                 else:
+                    # add-doxbench-editing-phase-b: the pair became a SET, and
+                    # §13 released the wire that can say so. The DECLARED
+                    # binding arrives from the parser -- `bound_buffer` on the
+                    # widened envelope, the declared `active_document_path` on
+                    # the deprecated one -- and is never derived here from an
+                    # adjacent field, which is the mis-derivation Phase A's
+                    # review killed. A v1 turn that declares nothing passes
+                    # `None`, and the module's own rule then refuses a
+                    # path-backed document rather than guessing.
                     doxbench_turns.revalidate_scope(
                         projection=projection, request_scope=key,
-                        active_document_path=active_document_path,
-                        outline_path=outline_buf.path if outline_buf else None,
-                        document_path=document_buf.path if document_buf else None,
+                        bound_buffer_key=bound_buffer_key,
+                        buffer_keys=tuple(
+                            doxbench_turns.buffer_key_for(b) for b in turn_buffers),
+                        paths=tuple(b.path for b in turn_buffers),
                     )
         except (doxbench_turns.TurnScopeError, doxbench_scope.ScopeConfinementError,
                 ValueError, OSError):
@@ -1522,20 +2584,47 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 
         if scope_refused:
             self._refuse_turn(validators, DOXBENCH_ERR_TURN_SCOPE_REFUSED,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
 
         # ---- step 6: exact identity ----
+        # WHICH RESERVED PATHS THIS LANE REFUSES (Codex review of PR #210,
+        # CODEX-1). `outline` on both -- a document keyed there vanishes from the
+        # enumeration and killed the handler, reproduced at a4a6f6e. `document`
+        # on the WIDENED lane only, where it would shadow the reserved unbacked
+        # slot that may ride beside it; the v1 envelope carries exactly one
+        # document, so it has no such collision, and a v1 turn shaped that way
+        # was served at a4a6f6e. Refusing it here would break the additive class
+        # this release claims.
+        refused_paths = (doxbench_turns.RESERVED_BUFFER_KEYS
+                         if request_kind == DOXBENCH_CHAT_TURN_V2_KIND
+                         else doxbench_turns.V1_RESERVED_BUFFER_KEYS)
         try:
-            outline, document = doxbench_turns.require_outline_and_document(turn_buffers)
+            outline, turn_documents = \
+                doxbench_turns.require_outline_and_documents(
+                    turn_buffers, refused_paths=refused_paths)
+            # The DECLARED order, from the module that owns it. The v1 envelope
+            # carries exactly one document so this list has one member there;
+            # the widened one carries the loaded set, and every member of it is
+            # verified below rather than the first.
+            document_keys = doxbench_turns.ordered_document_keys(turn_documents)
         except doxbench_turns.TurnBufferKindError:
+            # The pairing rule is the floor's THIRD statement, and the one that
+            # actually fires for an outline-only widened turn on a plane whose
+            # validator did not express `minItems: 2`. Every other way to fail
+            # the pairing -- two outlines, a reserved-key claim, a document with
+            # no outline -- is not an outline-only set, so the chooser returns
+            # None for all of them and they keep the catch-all.
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind,
+                              message=self._doxbench_invalid_turn_message(
+                                  validators, request_kind, payload))
             return
 
         try:
             doxbench_turns.verify_buffer_identity(outline)
-            doxbench_turns.verify_buffer_identity(document)
+            for buffer_key in document_keys:
+                doxbench_turns.verify_buffer_identity(turn_documents[buffer_key])
         except doxbench_hash.ContentEncodingError:
             # T104 F5-8: a lone UTF-16 surrogate in buffer content. JSON's
             # `"\ud800"` escape decodes to a str no runtime can encode to
@@ -1550,15 +2639,16 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # identically across runtimes is MALFORMED -- the fixed
             # `invalid_turn_request`, refused before any hash comparison.
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         except doxbench_turns.TurnIdentityMismatchError:
             self._refuse_turn(validators, DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         except doxbench_turns.TurnLimitError as exc:
             self._refuse_turn(validators, DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
-                              turn_id, limit=exc.as_public_dict())
+                              turn_id, limit=exc.as_public_dict(),
+                              failure_kind=failure_kind)
             return
 
         # ---- step 7: model ----
@@ -1566,22 +2656,22 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if port is None:
             self._refuse_turn(validators,
                               DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         try:
             catalog = port.catalog()
         except Exception:  # noqa: BLE001 - never let a provider-shaped exception reach the wire
             self._refuse_turn(validators, DOXBENCH_ERR_CATALOG_UNAVAILABLE,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         if not isinstance(catalog, doxbench_model.ModelCatalog):
             self._refuse_turn(validators, DOXBENCH_ERR_CATALOG_UNAVAILABLE,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         model_entry = catalog.selectable_entry_for(model_id)
         if model_entry is None:
             self._refuse_turn(validators, DOXBENCH_ERR_MODEL_UNAVAILABLE,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
 
         effective_input_limit = doxbench_model.effective_limit_bytes(
@@ -1599,7 +2689,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # ONE try so every field class gets the same fixed refusal.
         try:
             outline_bytes = doxbench_hash.utf8_size(outline.content)
-            document_bytes = doxbench_hash.utf8_size(document.content)
+            # EVERY loaded document is measured, not the first: a bound that
+            # measured only some of the buffers it is bounding would be no bound
+            # at all, and the widened envelope carries N of them.
+            document_buffer_bytes = tuple(
+                doxbench_hash.utf8_size(turn_documents[buffer_key].content)
+                for buffer_key in document_keys)
+            document_bytes = sum(document_buffer_bytes)
             message_bytes = doxbench_hash.utf8_size(message)
             working_subject_bytes = doxbench_hash.utf8_size(working_subject)
             transcript_byte_total = doxbench_turns.transcript_bytes(transcript_turns)
@@ -1607,7 +2703,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             doxbench_turns.validate_message(message)
             doxbench_turns.validate_transcript(transcript_turns)
             doxbench_turns.validate_request_body_bytes(
-                outline_bytes=outline_bytes, document_bytes=document_bytes,
+                outline_bytes=outline_bytes,
+                document_buffer_bytes=document_buffer_bytes,
                 message_bytes=message_bytes, working_subject_bytes=working_subject_bytes,
                 transcript_bytes=transcript_byte_total)
         except doxbench_hash.ContentEncodingError:
@@ -1615,11 +2712,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # runtime can carry identically is a malformed request, answered
             # with an HTTP envelope rather than a killed handler.
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         except doxbench_turns.TurnLimitError as exc:
             self._refuse_turn(validators, DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
-                              turn_id, limit=exc.as_public_dict())
+                              turn_id, limit=exc.as_public_dict(),
+                              failure_kind=failure_kind)
             return
 
         # `validate_request_body_bytes` cannot accept a NARROWED ceiling (it
@@ -1634,7 +2732,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 validators, DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED, turn_id,
                 limit={"dimension": "request_body_bytes",
                        "measured": request_total_bytes,
-                       "maximum": effective_input_limit})
+                       "maximum": effective_input_limit},
+                failure_kind=failure_kind)
             return
 
         # ---- step 8: idempotency, LAST precondition. PEEK FIRST so the
@@ -1650,6 +2749,44 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # bound and honoured below -- discarding it dispatched the provider a
         # second time (FR-019) and then died on an uncaught `TurnConflictError`
         # out of `complete()`, dropping the connection with no envelope. ----
+        #
+        # BUFFER ORDER IS NOT PART OF THE REQUEST'S IDENTITY -- on the widened
+        # lane (Codex review of PR #210, CODEX-2). `json.dumps(sort_keys=True)`
+        # orders KEYS, never array members, so a retransmission that merely
+        # reordered the buffer array digested differently and came back
+        # `turn_id_conflict` instead of the recorded result -- reproduced: the
+        # same turn id with the same content and the same hashes, second send
+        # 409. The released contract says a repeated id with identical input
+        # hashes replays, and a reordered array carries identical hashes.
+        #
+        # Canonicalized by BUFFER KEY, in the same UTF-16 code-unit order the
+        # rest of this family declares, so the two runtimes cannot disagree about
+        # it either.
+        #
+        # The v1 lane's canonical form is DELIBERATELY untouched, and the reason
+        # is a TRADE rather than an impossibility -- stated plainly because the
+        # first spelling of this comment overclaimed. That envelope fixes the
+        # buffer COUNT (exactly two) and their KINDS (one outline, one document);
+        # it does NOT fix their ARRAY ORDER, so a v1 client that retransmits the
+        # same turn with its two buffers swapped gets the same 409 this fix
+        # closes on the widened lane. That wart is KNOWINGLY RETAINED: v1 digests
+        # are already recorded in live stores, and changing the form would make
+        # every turn in flight unreplayable -- a live break traded against a
+        # latent one on a lane that is deprecated and dies at contract-v2.0.
+        canonical_buffer_order = turn_buffers
+        if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:
+            canonical_buffer_order = sorted(
+                turn_buffers,
+                key=lambda buf: doxbench_turns.buffer_key_for(buf).encode(
+                    "utf-16-be", "surrogatepass"))
+        # THE DECLARED BINDING IS PART OF THE REQUEST'S IDENTITY
+        # (add-doxbench-editing-phase-b §13). Two widened turns that carry the
+        # same buffers and the same message but are bound to DIFFERENT documents
+        # are different requests, and a digest that could not tell them apart
+        # would replay one turn's answer for the other -- so `bound_buffer` joins
+        # the canonical form. The v1 lane's `active_document_path` stays exactly
+        # where it was, so its digests are unchanged; on that lane the two fields
+        # hold the same string anyway.
         canonical = {
             "repository": scope_fields["repository"], "ref": scope_fields["ref"],
             "tile_kind": scope_fields["tile_kind"], "tile_id": scope_fields["tile_id"],
@@ -1661,9 +2798,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                  "base_ref": buf.base_ref, "base_revision": buf.base_revision,
                  "base_hash": buf.base_hash, "content_hash": buf.content_hash,
                  "dirty": buf.dirty}
-                for buf in turn_buffers
+                for buf in canonical_buffer_order
             ],
         }
+        if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:
+            canonical["kind"] = request_kind
+            canonical["bound_buffer"] = bound_buffer_key
         try:
             digest = doxbench_hash.sha256_hex(
                 json.dumps(canonical, sort_keys=True, separators=(",", ":"),
@@ -1677,7 +2817,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # surrogate carriers). Same fixed refusal as the other three
             # sites: malformed request, HTTP envelope, never a dead handler.
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
 
         record = self.turn_store.snapshot(key, client_turn_id)
@@ -1685,7 +2825,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             if record.state == doxbench_turns.TURN_STATE_IN_FLIGHT:
                 code = (DOXBENCH_ERR_TURN_IN_FLIGHT if record.request_digest == digest
                        else DOXBENCH_ERR_TURN_ID_CONFLICT)
-                self._refuse_turn(validators, code, turn_id)
+                self._refuse_turn(validators, code, turn_id, failure_kind=failure_kind)
                 return
             if record.request_digest == digest:
                 # A resolved replay: the stored outcome is returned
@@ -1699,18 +2839,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json(outcome["status"], outcome["body"])
                 return
             self._refuse_turn(validators, DOXBENCH_ERR_TURN_ID_CONFLICT,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
 
         try:
             lease = self.turn_store.reserve(key, client_turn_id, digest)
         except doxbench_turns.TurnInFlightError:
             self._refuse_turn(validators, DOXBENCH_ERR_TURN_IN_FLIGHT,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
         except doxbench_turns.TurnConflictError:
             self._refuse_turn(validators, DOXBENCH_ERR_TURN_ID_CONFLICT,
-                              turn_id)
+                              turn_id, failure_kind=failure_kind)
             return
 
         if not lease.should_dispatch:
@@ -1741,22 +2881,155 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # (T049): fixed codes, fixed redacted diagnostics, injected
         # monotonic clock for the deadline.
         outcome_code = DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE
+        outcome_limit = None
         prompt_envelope = None
+        turn_port = None
+        # THE POSTURE THE TURN RAN UNDER (contract-v1.40, task 10.7), derived
+        # below beside the packet it describes and read again in the v2 arm.
+        # Seeded to None so a path that never assembles a packet cannot leave a
+        # stale posture in scope: only the success arm reads it, and that arm is
+        # reachable only when `prompt_envelope` was built, which happens after
+        # this is set.
+        context_packet_record = None
         try:
+            # ---- the PACKET, assembled BEFORE the prompt and before any
+            # provider (§10.3). Its rails run inside the assembler: the
+            # confinement is computed from the projection and HANDED to the
+            # retrieval boundary rather than left for it to respect, and the
+            # lifecycle-status exemption is applied from each item's own
+            # `Status:` header. `_knowledge_service` returning None is the
+            # DECLARED reduced posture, not a failure, so nothing here branches
+            # on it -- the reduction is stated inside the packet.
+            #
+            # PROMOTED FINDINGS are an empty set today, and deliberately so: a
+            # finding becomes a promoted one only when a human performs the
+            # reviewed act that creates the target object, and that object is
+            # then an ordinary document of the tile, which the tile's own
+            # staged set already carries. There is no promoted-findings
+            # register to read, and inventing one here would be the parallel
+            # decision store the contract forbids.
+            knowledge, coverage = self._knowledge_service_and_coverage(
+                projection)
+
+            # THE THREADS, at last (§11; the seam §10 shipped and could not
+            # fill). `assemble_packet` carries the selected document's thread
+            # IN FULL and every other loaded document's STATE HEADER, and it
+            # declares by name each loaded document that has no sidecar — so
+            # an absence is stated rather than inferred from silence. Read from
+            # the SESSION WORKTREE, which is the only place a thread lives; a
+            # scope with no live session answers `{}`, which is the same
+            # honest absence the route had before this slice, now for a reason
+            # instead of by omission.
+            threads = self._document_threads(key, document_keys)
+
+            def _new_packet():
+                return self.packet_assembler(
+                    projection=projection,
+                    scope=key,
+                    selected_key=bound_buffer_key,
+                    loaded_keys=document_keys,
+                    query=message,
+                    threads=threads,
+                    knowledge=knowledge,
+                    corpus_coverage=coverage,
+                    # THE PACKET'S BOUND COMPOSES WITH THE MODEL'S OWN INPUT
+                    # LIMIT (Codex review of PR #216, CODEX-B). The request
+                    # bytes were measured and accepted against
+                    # `effective_input_limit` above, but the packet is appended
+                    # AFTER that check, so a turn could be accepted and then
+                    # dispatch a prompt past the model's declared capacity —
+                    # failing at the provider instead of at a measured bound.
+                    # The packet is FITTED to what the request left, rather
+                    # than refused afterwards: refusing here would resurrect
+                    # exactly the un-actionable-refusal class the fit removed.
+                    max_packet_bytes=doxbench_packet.packet_budget_for(
+                        input_limit_bytes=effective_input_limit,
+                        request_bytes=request_total_bytes,
+                        # §11.5's DISCHARGED obligation. The reserve is no
+                        # longer flat: the prompt's rendered per-section
+                        # scaffolding is charged from the refs THIS turn will
+                        # carry — one section per thread, one per evidence slot
+                        # — because a flat number could only ever be right for
+                        # one section count, and the count is exactly what this
+                        # slice changed.
+                        thread_refs=tuple(threads),
+                        evidence_slots=doxbench_packet.DEFAULT_EVIDENCE_LIMIT),
+                    already_carried=(
+                        () if projection.outline_path is None
+                        else (projection.outline_path,)),
+                )
+
+            packet = _new_packet()
+            try:
+                doxbench_packet.require_valid(
+                    packet,
+                    purpose=doxbench_packet.PACKET_PURPOSE_CHAT_TURN,
+                    scope=key, now=time.monotonic())
+            except doxbench_packet.PacketRejected:
+                # THE DELTA'S OWN SENTENCE, realized literally: a consuming
+                # surface presented with a stale or foreign packet "MUST reject
+                # it and REQUEST A NEW ONE". So the route asks the service for
+                # a new packet exactly once; only a second failure is a refusal,
+                # because a leash that could not be reissued is a server that
+                # cannot bound its own context.
+                packet = _new_packet()
+
+            # DERIVED HERE, INSIDE THE PACKET BOUNDARY, and for the reason the
+            # boundary exists: this reads the packet, so its refusals are packet
+            # refusals and must land on the same fixed codes every other packet
+            # refusal does. Derived from the packet the turn will actually run
+            # under — after the one permitted re-request above, so a reissued
+            # packet's posture is the one recorded, never the rejected packet's.
+            context_packet_record = doxbench_context_packet(packet)
+
             prompt_envelope = doxbench_turns.build_prompt_envelope(
+                packet=packet, meter=self.usage_meter,
                 projection=projection, request_scope=key,
                 active_document_path=active_document_path,
                 model_id=model_id, model_data_handling=model_entry.data_handling,
                 model_input_limit_bytes=effective_input_limit,
                 model_output_limit_bytes=effective_output_limit,
                 working_subject=working_subject, transcript=tuple(transcript_turns),
-                buffers=(outline, document), message=message,
-                session_base=session_base)
+                buffers=turn_buffers, message=message,
+                session_base=session_base,
+                refused_paths=refused_paths,
+                # The DECLARED binding, checked against the supplied buffer set
+                # and NOT stored as a binding claim on the envelope (PR #207
+                # review F4): an internal field nothing serializes cannot
+                # discharge the obligation to name the bound buffer in a durable
+                # RECORD. §13's widened family carries it on the wire, which is
+                # the only place a reader can consult it, and the success body
+                # below is where it lands.
+                bound_buffer_key=bound_buffer_key)
         except doxbench_turns.TurnScopeError:
             outcome_code = DOXBENCH_ERR_TURN_SCOPE_REFUSED
         except doxbench_turns.TurnIdentityMismatchError:
             outcome_code = DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH
         except doxbench_turns.TurnBufferKindError:
+            outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
+        except doxbench_packet.PacketBoundExceeded as exc:
+            # THE BOUNDS RAIL'S REFUSAL ARM, on the wire (task 10.3, F2).
+            #
+            # RE-MAPPED after the adversarial review. This used to answer
+            # `request_limit_exceeded` (413, "the request exceeds the allowed
+            # size for this route"), which was FALSE twice over: the request
+            # was a few hundred bytes, and what exceeded the bound was context
+            # the SERVER selected. Evidence is now fitted by selecting less, so
+            # reaching here means the session's own THREADS exceed the bound
+            # alone -- a 409 against the session's state, with the measured
+            # dimension named and a message pointing at the act that fixes it.
+            outcome_code = DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED
+            outcome_limit = exc.limit
+        except doxbench_packet.PacketRejected:
+            # The re-requested packet was ALSO invalid. The server could not
+            # bound its own context for this turn, which no request the caller
+            # could send would fix -- so it is a 500 that says exactly that,
+            # never a 4xx blaming the turn.
+            outcome_code = DOXBENCH_ERR_CONTEXT_PACKET_INVALID
+        except doxbench_packet.PacketError:
+            # Any other packet refusal is a malformed turn, mapped to the same
+            # fixed code every other structural refusal uses. Its text names
+            # this module's own vocabulary and stays in this process.
             outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
         except doxbench_hash.ContentEncodingError:
             # T104 F5-8, the step-9 re-verification leg: `build_prompt_envelope`
@@ -1769,6 +3042,63 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # defect. Same verdict as the earlier legs: `invalid_turn_request`.
             outcome_code = DOXBENCH_ERR_INVALID_TURN_REQUEST
 
+        # ---- ONE HARNESS SESSION PER DOCUMENT THREAD (task 11.4, and the
+        # server half of task 7.2's thread switch). The adapter is asked to
+        # bind to the SELECTED document's thread BEFORE the turn is dispatched,
+        # so switching the selected document switches the harness session and
+        # one session never serves two threads. Duck-typed exactly as
+        # `dispatch` is: an adapter without the method is a catalog-only or
+        # sessionless one and keeps working unchanged.
+        #
+        # A BINDING FAILURE IS NOT A TURN. If the adapter cannot bind this
+        # thread — a dead child, or a session already serving another thread —
+        # dispatching anyway would ground the answer in another document's
+        # conversation, so the turn refuses with the route's existing fixed,
+        # redacted `model_failed` and nothing is dispatched.
+        # The capability is now `for_conversation` (PR #223, C2): an adapter
+        # that offers it binds and dispatches atomically, and one that does not
+        # is a catalog-only or sessionless adapter, unchanged.
+        if prompt_envelope is not None \
+                and callable(getattr(port, "for_conversation", None)):
+            # EVERY turn binds, including an outline-bound one (adversarial
+            # review P2-11). The bind used to be gated on
+            # `bound_buffer_key in document_keys`, so an outline turn was
+            # dispatched into whichever DOCUMENT session the harness was last
+            # switched to and contaminated that document's harness context. An
+            # outline conversation is a real conversation; it just is not a
+            # document's, so it binds under its own tile-scoped key.
+            # THE WHOLE SCOPE IS IN THE KEY (PR #223, Codex C1). The bare
+            # `bound_buffer_key` is a repository-relative path and nothing else,
+            # so two scopes loading the SAME path — one repository at two refs,
+            # or two repositories on a multi-repository plane — collided in the
+            # bridge's single per-serve session map and the second silently
+            # inherited the first's conversation.
+            conversation_key = (
+                (port.conversation_key(key, bound_buffer_key)
+                 if bound_buffer_key in document_keys
+                 else port.outline_conversation_key(key))
+                if callable(getattr(port, "conversation_key", None)) else None)
+            try:
+                if conversation_key is None:
+                    raise RuntimeError(
+                        "this adapter declares no conversation key")
+                # BOUND AS PART OF THE DISPATCH, not before it (Codex C2). The
+                # bind used to be a separate call, and under this threading
+                # server another handler could move the selection in between —
+                # sending this turn's prompt into that handler's session. The
+                # per-turn view binds and prompts inside ONE lock acquisition.
+                turn_port = port.for_conversation(conversation_key)
+            except Exception:  # noqa: BLE001 - never let an adapter's text reach the wire
+                sys.stderr.write(
+                    "[workbench/chat-turn] the harness bridge could not bind "
+                    "this document's thread; the turn is refused rather than "
+                    "grounded in another thread\n")
+                prompt_envelope = None
+                outcome_code = DOXBENCH_ERR_MODEL_FAILED
+
+        # The conversation-bound view where the adapter offers one, the adapter
+        # itself otherwise (a catalog-only or sessionless adapter is unchanged).
+        turn_port = turn_port if turn_port is not None else port
         if prompt_envelope is not None and callable(getattr(port, "dispatch", None)):
             # T061: typed proposals validate against the hashes THIS request
             # was shown — wrong base is a response-side defect mapped to the
@@ -1781,9 +3111,20 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # `doxbench_turns.validate_assistant_response`: such a turn is
             # chat grounded on the tile's context, with NO document-targeted
             # proposal. Every turn that DOES name a document is unchanged.
-            permitted_targets = (
-                doxbench_turns.PROPOSAL_TARGETS if active_document_path is not None
-                else ("outline",))
+            # The permitted set is the REQUEST'S OWN buffer keys
+            # (add-doxbench-editing-phase-b task 5.3 retired the fixed enum);
+            # G-1's narrowing is unchanged and is now expressed PER BUFFER,
+            # which is the same rule stated over a set: a document buffer backed
+            # by NO PATH names no document, so a proposal targeting it would be a
+            # rewrite of a document that does not exist. On the v1 lane that is
+            # exactly "active_document_path is null", because the one document
+            # buffer is then the unbacked one; on the widened lane the unbacked
+            # slot can ride beside real documents, and only IT is withheld.
+            permitted_targets = tuple(
+                buffer_key for buffer_key in
+                (doxbench_turns.OUTLINE_BUFFER_KEY,) + tuple(document_keys)
+                if buffer_key == doxbench_turns.OUTLINE_BUFFER_KEY
+                or turn_documents[buffer_key].path is not None)
 
             def _typed_response_validator(raw):
                 return doxbench_turns.validate_assistant_response(
@@ -1798,25 +3139,143 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # abandoned daemon thread. dispatch_turn's own post-hoc elapsed
             # check stays as the pure verdict for adapters that DO return.
             outcome = self._deadline_bound_dispatch(
-                port, prompt_envelope, model_entry, _typed_response_validator)
+                turn_port, prompt_envelope, model_entry,
+                _typed_response_validator)
             if isinstance(outcome, doxbench_model.TurnDispatchSuccess):
                 # `assistant_turn_id` derivation is this slice's judgement
                 # call: the released schema bounds it (1..128) without naming
                 # a scheme, so it is derived from the turn's own canonical
                 # request digest -- deterministic, request-unforgeable, and
                 # carrying no provider or content material.
-                success_body = doxbench_turn_success_body(
-                    client_turn_id=client_turn_id,
-                    assistant_turn_id="assistant-" + digest[:56],
-                    model_id=model_id,
-                    observed_hashes={
-                        "outline": prompt_envelope.observed_hashes.outline.hex,
-                        "document": prompt_envelope.observed_hashes.document.hex,
-                    },
-                    assistant_prose=outcome.assistant_prose,
-                    proposals=outcome.proposals)
+                observed = prompt_envelope.observed_hashes
+                # ---- THE SIDECAR IS THE RECORD (tasks 9.2, 11.5) ----
+                # Every turn is mirrored into the SELECTED document's thread,
+                # before the answer is stored or sent, through
+                # `doxbench_threads`' one write route and the doxBench Save
+                # gate's own declared allowlist. The turn id is the derived
+                # `assistant_turn_id` rather than the caller's own
+                # `client_turn_id`: the released schema bounds that field's
+                # LENGTH and nothing else, so a client could spell one carrying
+                # the sidecar's own turn-header separator, and a record cannot
+                # take its identity from a string a caller chose freely.
+                #
+                # An OUTLINE-bound turn writes no thread: a thread belongs to a
+                # DOCUMENT, and the outline buffer is the tile's, not a
+                # document's.
+                # THE SIDECAR IS THE DOCUMENT'S, SO IT COMES FROM THE
+                # DOCUMENT'S PATH (PR #223, Codex C3). It used to be derived
+                # from the buffer KEY, and the two differ for exactly one
+                # buffer: the reserved unbacked slot, whose key is `document`
+                # and whose path is None. A turn on it wrote
+                # `session-threads/document.thread.md` — a sidecar for a
+                # document that does not exist, which no Save can ever commit
+                # (`thread_commit_paths` is called with the real path), and
+                # which a later re-key strands while a second thread starts at
+                # the document's own path.
+                #
+                # A buffer with NO path has no document, so it records no
+                # thread — the same rule the outline already follows. The buffer
+                # key stays in the turn's metadata, where it belongs.
+                bound_document = (
+                    turn_documents[bound_buffer_key].path
+                    if bound_buffer_key in document_keys else None)
+                # DERIVED ONCE, AND BEFORE THE SIDECAR — corrected 2026-08-21
+                # (adversarial review of the §11.7 release, F3). This used to be
+                # computed inside the v2 arm below, so the sidecar was handed the
+                # REQUESTED id while the wire record carried the RESOLVED one:
+                # for a routing rule the durable transcript on disk named `auto`
+                # and no reader could learn which model answered. The ratified
+                # THEN's own purpose clause is "so a transcript names the model
+                # that actually answered", and the thread file IS a transcript.
+                selected_model = doxbench_selected_model(model_entry)
+                if bound_document is not None:
+                    self._mirror_turn_into_sidecar(
+                        key, document=bound_document,
+                        turn_id="assistant-" + digest[:56],
+                        model_id=selected_model["resolved_model_id"],
+                        bound_buffer_key=bound_buffer_key,
+                        human=message, assistant=outcome.assistant_prose,
+                        mirror=getattr(port, "mirror", lambda: None)(),
+                        dereference=getattr(port, "dereference", None))
+                if success_kind == DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND:
+                    # THE RECORD, at last able to say what the turn was about
+                    # (§13; design D17). It names the DECLARED bound buffer --
+                    # carried from the request, never derived -- states every
+                    # buffer's observed identity by key, and carries the
+                    # selected-model metadata beside the model that answered.
+                    #
+                    # The selected-model metadata is DERIVED from the catalog
+                    # entry, in one place (`doxbench_selected_model`), so
+                    # contract-v1.38's routing-rule entry changed that function
+                    # rather than three literals here. `selected_model` is
+                    # computed ABOVE, before the sidecar, because the sidecar
+                    # needs the resolved id too (F3).
+                    #
+                    # AND SINCE contract-v1.40 (task 10.7) the record STATES the
+                    # posture its context was assembled under. Derived above,
+                    # beside the packet, by the same one-place discipline: the
+                    # values are the PACKET's own, so the record and the packet's
+                    # own declaration cannot disagree.
+                    success_body = doxbench_turn_v2_success_body(
+                        client_turn_id=client_turn_id,
+                        assistant_turn_id="assistant-" + digest[:56],
+                        model_id=selected_model["resolved_model_id"],
+                        requested_model_id=selected_model["requested_model_id"],
+                        routing_rule=selected_model["routing_rule"],
+                        data_handling=selected_model["data_handling"],
+                        bound_buffer=bound_buffer_key,
+                        observed_hashes={
+                            buffer_key: observed.for_key(buffer_key).hex
+                            for buffer_key in observed.keys()
+                        },
+                        context_posture=context_packet_record["posture"],
+                        context_reduced_reason=context_packet_record.get(
+                            "reduced_reason"),
+                        assistant_prose=outcome.assistant_prose,
+                        proposals=outcome.proposals)
+                else:
+                    # The DEPRECATED v1 success envelope has room for EXACTLY
+                    # these two keys. The envelope's own identities are keyed by
+                    # BUFFER KEY, so the one document's key is read rather than
+                    # assumed; that lane still carries exactly one document,
+                    # which the closed v1 request schema guarantees.
+                    #
+                    # A RECORDED v1 LIMITATION (contract-v1.38, review F3): this
+                    # envelope has ONE `model_id` field and no `selected_model`,
+                    # so on a routed turn it cannot state both the requested and
+                    # the answering model. It carries the REQUESTED id, which is
+                    # what every v1 consumer already reads and revalidates. The
+                    # fix is the v2 envelope, which exists; widening a deprecated
+                    # closed shape whose whole promise is byte-identical
+                    # stability is the one thing contract-v1.34's deprecation
+                    # forbids. The SIDECAR on this lane does name the answering
+                    # model — it is written above, before this branch, and is not
+                    # part of the v1 wire.
+                    #
+                    # A SECOND RECORDED v1 LIMITATION (contract-v1.40, task
+                    # 10.7): this envelope has no `context_packet` either, so a
+                    # v1 turn that ran on a REDUCED context cannot say so on the
+                    # wire. The reduction is still stated where it always was —
+                    # inside the assembled packet, in the prompt's own
+                    # declaration section — and the v1 turn still SUCCEEDS,
+                    # which is the ratified "MUST NOT make the editors unusable"
+                    # half. What a v1 consumer cannot do is READ the posture; the
+                    # migration path is the v2 envelope, and widening a
+                    # deprecated closed shape is exactly what contract-v1.34's
+                    # deprecation forbids.
+                    document_key = document_keys[0]
+                    success_body = doxbench_turn_success_body(
+                        client_turn_id=client_turn_id,
+                        assistant_turn_id="assistant-" + digest[:56],
+                        model_id=model_id,
+                        observed_hashes={
+                            "outline": observed.outline.hex,
+                            "document": observed.for_key(document_key).hex,
+                        },
+                        assistant_prose=outcome.assistant_prose,
+                        proposals=outcome.proposals)
                 if self._doxbench_wire_conforms(
-                        validators, DOXBENCH_CHAT_TURN_SUCCESS_KIND, success_body):
+                        validators, success_kind, success_body):
                     body_bytes = json.dumps(success_body).encode("utf-8")
                     # The stored result IS the sent result (byte-identical
                     # replay, contracts/chat-turn.md "Idempotency").
@@ -1835,7 +3294,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     except doxbench_turns.TurnConflictError:
                         self._refuse_turn(validators,
                                           DOXBENCH_ERR_TURN_ID_CONFLICT,
-                                          turn_id)
+                                          turn_id, failure_kind=failure_kind)
                         return
                     self._send_json(200, success_body)
                     return
@@ -1851,11 +3310,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # stored or sent: what the turn store retains for a byte-identical
         # replay must be the same validated shape this response carries, or a
         # replay would answer differently from the original.
-        body = (doxbench_turn_failure_body(outcome_code, turn_id)
-                if turn_id is not None else doxbench_error_body(outcome_code))
-        if not self._doxbench_wire_conforms(
-                validators, DOXBENCH_CHAT_TURN_FAILURE_KIND, body):
-            body = doxbench_error_body(outcome_code)
+        body = (doxbench_turn_failure_body(outcome_code, turn_id,
+                                           limit=outcome_limit,
+                                           kind=failure_kind)
+                if turn_id is not None
+                else doxbench_error_body(outcome_code, limit=outcome_limit))
+        if not self._doxbench_wire_conforms(validators, failure_kind, body):
+            body = doxbench_error_body(outcome_code, limit=outcome_limit)
         body_bytes = json.dumps(body).encode("utf-8")
         # Planning-contract obligation 1 (contracts/chat-turn.md): a refused
         # finalization must not abandon the slot -- `fail` frees the
@@ -2001,11 +3462,25 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             writable = self._session_repository()
             if writable:
                 payload["repository"] = str(writable)
+            # THE HOSTED ACTOR (add-dashboard-account-menu), resolved PER REQUEST
+            # beside `repository`, `None` when the header is absent. Read from the
+            # gateway-stamped `X-Auth-Request-User` header; DISPLAY-ONLY — the
+            # dox-auth gateway remains the identity authority (it strips any
+            # client value before stamping its own), and the dashboard's trust in
+            # this header rests entirely on the NetworkPolicy boundary that lets
+            # only the gateway reach it. It feeds NO capability verdict and NO
+            # route consults it to authorize: reading a stamped identity for
+            # display does not make this credential-free surface a credential
+            # holder or an auth authority (design D16 nuance).
+            payload["hosted_actor"] = self.headers.get("X-Auth-Request-User") or None
             self._serve_bytes(json.dumps(payload).encode("utf-8"),
                               JSON_CTYPE, head_only)
             return True
         if path == WORKBENCH_MODEL_CATALOG_ROUTE:
             self._handle_workbench_model_catalog(head_only)
+            return True
+        if path == WORKBENCH_THREAD_ROUTE:
+            self._handle_workbench_thread(head_only)
             return True
         if path.startswith(SOURCE_PREFIX):
             self._serve_source(path[len(SOURCE_PREFIX):], head_only)
@@ -3116,6 +4591,8 @@ def build_server(
     project_register: Path | str | None = None,
     peek_ttl_seconds: float = registry_mod.PEEK_TTL_SECONDS,
     snapshot_source=None,
+    knowledge_declaration=None,
+    packet_assembler=None,
 ) -> http.server.ThreadingHTTPServer:
     """Build (but do not start) the loopback server. `port=0` binds an ephemeral
     port (read it back from `httpd.server_address`). `head` is injectable so a
@@ -3142,7 +4619,16 @@ def build_server(
     remains available as the baked/local fallback — so a server built exactly as
     every existing caller builds one serves exactly one `(repository, main)`
     entry and behaves as it always has. `snapshot_source` is injectable for
-    tests."""
+    tests.
+
+    `knowledge_declaration` is the INSTALL-TIME declaration of the doxBench
+    staged-set knowledge service's retrieval backend
+    (add-doxbench-editing-phase-b D11): unset means NO knowledge service, which
+    is the declared reduced-packet posture rather than an error, and the
+    production entrypoint declares `SELF_HOSTED_LOCAL_EMBEDDED` explicitly —
+    the same discipline `real_notebook_adapter` carries, and for the same
+    reason: an operator must be able to read what their install talks to, and a
+    library default that quietly built one would defeat that."""
     from ideation_dashboard import doxbench_turns
 
     web_dir = Path(web_dir).resolve()
@@ -3242,6 +4728,18 @@ def build_server(
                   if schema_validator_factory is not None else None)),
         # ONE fresh turn-idempotency ledger per served process (T050/T051).
         "turn_store": doxbench_turns.TurnStore(),
+        # The INSTALL-TIME retrieval-backend declaration (task 10.6). Bound
+        # once, here, and READ by the route; the backend instance itself is
+        # built per request from this declaration and from nothing else, so no
+        # tile's derived index is ever visible to another tile's turn.
+        "knowledge_declaration": knowledge_declaration,
+        # The packet assembler, defaulted to the real one (see the class
+        # attribute's own note on why absence is not a posture here).
+        "packet_assembler": staticmethod(
+            packet_assembler if packet_assembler is not None
+            else doxbench_packet.assemble_packet),
+        # ONE fresh content-free usage meter per served process (task 10.8).
+        "usage_meter": doxbench_telemetry.UsageMeter(),
         "actor": resolved_actor,
         # the session key's repository half, for this whole process (R2-11)
         "session_repository": session_repository,
@@ -3284,6 +4782,14 @@ def serve(
     rather than letting `build_server` reach for it on every caller's behalf. A
     caller that passes its own `adapter_factory` (a test, a harness) keeps it."""
     build_kwargs.setdefault("adapter_factory", real_notebook_adapter)
+    # The INSTALL-TIME retrieval-backend declaration, made by the ENTRYPOINT for
+    # the same reason the notebook adapter is: an operator must be able to read
+    # what their install talks to, and `build_server` reaching for one on every
+    # caller's behalf would put that decision out of sight. This is the
+    # self-hosted case of the ratified two-case principle; a tenant install
+    # declares its own here instead.
+    build_kwargs.setdefault("knowledge_declaration",
+                            doxbench_knowledge.SELF_HOSTED_LOCAL_EMBEDDED)
     httpd = build_server(web_dir, snapshot_path, checkout_root, host=host,
                          port=port, quiet=quiet, actor=actor, **build_kwargs)
     print(f"serving ideation dashboard at {server_url(httpd, '/index.html')}")

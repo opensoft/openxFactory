@@ -47,6 +47,7 @@ import { CONSOLE_TOKEN_FIELD } from "./views/staging-workbench-model.js";
 import { runSave, savePlanState } from "./views/doxbench-save.js";
 import { contentIdentity } from "./views/doxbench-state.js";
 import { initSettings } from "./views/settings.js";
+import { initAccountMenu } from "./views/account-menu.js";
 import { createNotebookAction, notebookCapable, postNotebookAction, probeCapabilities } from "./views/notebook.js";
 import { fetchIndex, fetchProjects, mountRepoSelector, projectViewState, renderStaleBanner, storeViewState } from "./views/repo-selector.js";
 import { composedView, isComposed, memberRef, readOnlyCaps, scopedSnapshot, visibleSnapshot } from "./views/composed-model.js";
@@ -240,6 +241,10 @@ export function createDoxBenchSourceLoader(sourceBaseOf, injectedFetch) {
 // which the browser holds none and can hold none (FR-020/FR-022).
 const CATALOG_ROUTE = "/workbench/model-catalog";
 const CHAT_TURN_ROUTE = "/actions/workbench/chat-turn";
+// add-doxbench-editing-phase-b task 9.5: the THREAD READ route. A GET, and only
+// a GET — a thread is written by a TURN, through the Save gate, and this seam
+// has no write to offer.
+const THREAD_ROUTE = "/workbench/thread";
 const CONSOLE_TOKEN_HEADER = "X-XF-Console-Token";
 
 export function createDoxBenchCatalogLoader(consoleTokenOf, injectedFetch) {
@@ -287,6 +292,34 @@ export function createDoxBenchCatalogLoader(consoleTokenOf, injectedFetch) {
     // read" -- NOT the editor-only configured-none posture this line used to
     // claim. An answer that cannot be read is a failure fact with its own
     // remedy, never evidence that nothing is configured (T104 F10-1).
+    return response.json().catch(() => null);
+  };
+}
+
+export function createDoxBenchThreadLoader(consoleTokenOf, injectedFetch) {
+  // A TRANSPORT MOVES BYTES. It names no field of the query it carries: the
+  // caller hands over an already-built parameter object, exactly as the turn
+  // submitter is handed an already-built request envelope, so this function
+  // cannot grow into the thing that decides what a thread request says.
+  return async function loadDoxBenchThread(query) {
+    // Same missing-token rule as the two transports above.
+    const consoleToken = consoleTokenOf();
+    const options = {
+      cache: "no-store",
+      headers: consoleToken ? { [CONSOLE_TOKEN_HEADER]: consoleToken } : {},
+    };
+    const threadUrl =
+      THREAD_ROUTE + "?" + new URLSearchParams(query || {}).toString();
+    const response = injectedFetch
+      ? await injectedFetch(threadUrl, options)
+      : await fetch(threadUrl, options);
+    // EVERY refusal is the SAME answer here, and deliberately: the four
+    // absences task 9.5 enumerates — the hosted plane, no gate capability, an
+    // unresolved actor, no live session — are one posture on this surface,
+    // "this document has no readable thread", and the rail renders it as the
+    // honest empty transcript. Nothing from the body is carried (FR-020/
+    // FR-022): the rail states an absence, it never quotes a server.
+    if (!response.ok) return null;
     return response.json().catch(() => null);
   };
 }
@@ -640,6 +673,14 @@ function renderHeader(snapshot, active) {
 // cannot be half-applied without the leak test noticing.
 let renderScope = null;
 
+// The account menu (views/account-menu.js) is a corner control like the
+// settings gear: bound ONCE for the life of the page (it owns no snapshot
+// state, so a re-render must not rebind it and leak listeners/asides). It reads
+// the signed-in identity + derived access level from the SAME `/capabilities`
+// object the render already probes, handed to it via `update()` after each
+// probe — so the menu needs no fetch of its own.
+let accountMenu = null;
+
 function nextRenderScope() {
   if (renderScope) renderScope.abort();
   renderScope = new AbortController();
@@ -654,6 +695,11 @@ async function main() {
   // snapshot fetch fails. Bound ONCE for the life of the page: it owns no
   // snapshot state, so a re-render must not rebind it.
   initSettings();
+  // The account menu, wired beside the settings gear and bound once. It has no
+  // capabilities yet (the render below probes `/capabilities`); it renders a
+  // graceful "local session" default until `render()` hands it the probed
+  // verdict via `accountMenu.update(...)`.
+  accountMenu = initAccountMenu({ buttonId: "accountbtn" });
   await render();
 }
 
@@ -761,6 +807,12 @@ async function render() {
     // and the static served image 404s. It also carries the per-serve console
     // token used by guarded human actions.
     const probedCaps = await probeCapabilities();
+    // Hand the corner account menu the freshly probed verdict — it reads the
+    // signed-in identity (`hosted_actor`) and derives the access level from this
+    // SAME object, so it needs no fetch of its own. The RAW probe (before the
+    // composed read-only strip below): the account menu states the serve's own
+    // posture and identity, not the composed view's stripped affordances.
+    if (accountMenu) accountMenu.update(probedCaps);
     // D10: a composed render strips every acting capability in ONE place, so
     // every view's existing capability check is the whole gating.
     const caps = composed ? readOnlyCaps(probedCaps) : probedCaps;
@@ -902,11 +954,33 @@ async function render() {
       storage: guardedSessionStorage(),
       loadSource: createDoxBenchSourceLoader(() => workbenchSourceBase),
       hash: contentIdentity,
+      // THE SAVE SCOPE RIDES THE REQUEST (add-doxbench-editing-phase-b, design
+      // D4), as DEFENCE IN DEPTH — and this note says so plainly because an
+      // earlier version of it claimed a guard it did not have (PR #207 review,
+      // F7).
+      //
+      // What actually narrows a `docs` tile's Save is the CANVAS: `save({only})`
+      // filters the buffer set to the named documents plus the outline BEFORE it
+      // builds the request, so the request already carries only those rows and
+      // `runSave` would persist only those rows whether or not the scope came with
+      // it. Forwarding it makes `runSave`'s own scope AGREE with the request's
+      // instead of being merely consistent with it, which is what keeps the
+      // guarantee true for a future caller that hands over a wider buffer set.
+      // The mechanism itself is pinned where it lives, on `runSave` over a
+      // four-buffer state (`test_doxbench_save.py`). The canvas Save sends no
+      // `only`, so its behaviour is byte-for-byte what it was.
       save: (request) => runSave(
         savePlanState(request),
-        { transport: firstEditTransport({ caps, repair: consoleRepair }) }),
+        { transport: firstEditTransport({ caps, repair: consoleRepair }),
+          ...(request && request.only !== undefined
+            ? { only: request.only } : {}) }),
       catalog: createDoxBenchCatalogLoader(() => caps?.console_token),
       chatTurn: createDoxBenchTurnSubmitter(() => caps?.console_token),
+      // add-doxbench-editing-phase-b task 7.2: the rail's loaded-document
+      // selector switches the transcript to that document's thread, and this
+      // is where it reads one. A READ seam only — there is no thread write on
+      // this bundle, because a thread is written by a turn.
+      thread: createDoxBenchThreadLoader(() => caps?.console_token),
     };
     const stagingWorkbench = mountStagingWorkbench(
       document.getElementById("staging-workbench-root"), snapshot,

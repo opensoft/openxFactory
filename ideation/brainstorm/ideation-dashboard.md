@@ -730,6 +730,48 @@ into a flat connector, and magnification is reserved for focus. Linked
 tiles get a teal edge only. Clicking a linked tile TRANSFERS focus —
 that wheel centres + magnifies and the pull radiates from it instead.
 
+> **The alignment MATH above is SUPERSEDED — Brett, 2026-08-21.** What a
+> wheel does now depends on how many CONNECTING STRINGS it is showing
+> (threads from the focused context to its own tiles — first-degree when
+> it has any, else the dimmed second-degree set):
+>
+> 1. **No connecting string** — nothing to align on, so the wheel rotates
+>    so its FILLED tiles are centred in the viewport: the group of real
+>    tiles centred on the visible band, biased toward no tile in
+>    particular. (Previously the wheel simply kept its position, which at
+>    load is the first item on the line with the upper half of the band
+>    blank filler.)
+> 2. **Exactly one connecting string** — the connected tile rests NEAR
+>    the centreline, deliberately NOT on it, at the named `ALIGN.near`
+>    offset. That offset IS the ~0.8 step above: the single-tile park is
+>    unchanged, it is now the canonical "near, not on" distance.
+> 3. **Several connecting strings** — one of the connected tiles MAY sit
+>    ON the centreline, and does: the one needing the smallest rotation
+>    from the wheel's current position (lowest index breaks a tie). The
+>    others stay visible where the geometry allows.
+>
+> Rule 3 is the inverse of the ±0.45 dead-centre nudge, so that nudge is
+> REMOVED rather than scoped, and the group no longer rests on a centroid
+> (nor on the span midpoint the 2026-07-23 delta had replaced it with).
+> Everything else in this paragraph stands: pulled wheels are still never
+> magnified, linked tiles still take a teal edge only, and clicking a
+> linked tile still TRANSFERS focus. These rules govern AUTOMATIC
+> alignment only — a human's own click still centres the clicked tile
+> dead on the line.
+>
+> Realized in `scripts/ideation_dashboard/web/views/wheel-model.js`
+> (`alignTarget` · `filledGroupCentre` · `centredChoice` · `ALIGN.near`),
+> consumed by `wheel.js`'s single `alignFor` call site, pinned by
+> `tests/ideation-dashboard/test_wheel_model.py`.
+>
+> Two earlier deltas to this paragraph, recorded here for the same
+> reason: the group target became the linked SPAN MIDPOINT rather than
+> the centroid (Brett, 2026-07-23 — now itself superseded by rule 3), and
+> a wheel with MANY linked tiles REARRANGES rather than stacking them,
+> seating the linked block in consecutive slots at the centre (Brett,
+> 2026-07-24, `computeReorder`; extended 2026-07-25 to gather the
+> second-degree tiles into the same block). Those two stand.
+
 **Physics ("mass" + elastic connectors).** Wheels are spring–damper
 systems: the user-driven wheel runs stiffness .020 / damping .84 (real
 inertia, slight overshoot before seating); pulled wheels run .008 / .90

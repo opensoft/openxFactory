@@ -263,6 +263,56 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
+- [add-identity-brokering](../openspec/changes/add-identity-brokering/proposal.md)
+  — raised, RATIFIED and REALIZED 2026-08-21 (registered at
+  `contract-v1.37`) as the FULL promotion of the `identity-brokering-plane`
+  staged topic, whose row and detail section leave
+  [staging/INDEX.md](staging/INDEX.md) with this pointer: exit 1 of the
+  topic's three exits, the neutral `identity-brokering` capability — one
+  persona per human within a broker INSTANCE, organizations realizing company
+  boundaries on the persona, the broker asserting identity and membership only
+  (never mirroring the tenancy graph), explicit linking or admin-approved
+  merge with no third mode, workloads-are-not-personas, broker credentials as
+  `credential-contracts` records, and isolation escalating by broker instance
+  with the contract SILENT on instance count. Owns the former
+  `identity-brokering-plane.md` fragment under `supporting-docs/`; design
+  history stays in the 2026-07-14
+  [keycloak-identity-brokering](brainstorm/keycloak-identity-brokering.md)
+  brainstorm. Sibling of `add-trust-anchor` from the same 2026-08-21 session —
+  rulings R1 (install repos) and R7 (the ownership split) were made ONCE for
+  both topics — and its repo admission landed as an ADDED per-repo
+  `repo-boundary-governance` requirement rather than the shared MODIFIED
+  enumeration, so the two siblings cannot collide on one requirement at
+  archive time. Exits 2 (`keycloak-administration` in OpsxFactory) and 3 (the
+  `Keycloak-Install` creation) remain, tracked as named successors on
+  the change.
+- [add-trust-anchor](../openspec/changes/add-trust-anchor/proposal.md)
+  — raised, RATIFIED and REALIZED 2026-08-21 (registered at
+  `contract-v1.37`) as the FULL promotion of the `pki-trust-anchor-plane`
+  staged topic, whose row and detail section leave
+  [staging/INDEX.md](staging/INDEX.md) with this pointer: exit 1 of three, the
+  neutral `trust-anchor` capability — anchors as governed records with
+  certificates trusted only derivatively, issuance only under recorded
+  authority, declared chain custody DERIVING what a certificate evidences
+  (composing with `openxwallet` at run time rather than restating it),
+  renewal-as-rebind over dependents enumerated in advance, revocation
+  propagating to the authority the certificate supported, CA material as a
+  `credential-contracts` record, and the declared-degraded-obligation rule —
+  product-agnostic because two realizations are real (live Intune Cloud PKI
+  canary; OpenXPKI planned for the Opensoft production core). Owns the former
+  `pki-trust-anchor-plane.md` fragment under `supporting-docs/`. **The one
+  deliberate divergence from the topic**, recorded here so a reader is not
+  left to infer it: the topic's R1 called for the `repo-boundary-governance`
+  install-repository enumeration to be MODIFIED, and the change instead ADDS a
+  per-repo requirement for the `OpenXPKI-Install` boundary (design
+  D8) — the collision avoidance the sibling `add-identity-brokering` mirrors.
+  Topic-folder and change ids differ deliberately (`pki-trust-anchor-plane`
+  vs `add-trust-anchor`), and R1/R7 were ruled once across this topic and
+  `identity-brokering-plane`. Exits 2 (`pki-administration` in OpsxFactory,
+  plus the time-critical `add-openxpki-qa-image-pipeline` Impact amendment)
+  and 3 (the `OpenXPKI-Install` creation, moving the QA deployment
+  topology in per R2 while image custody stays in `opensoft/Opensoft-Tenant`)
+  remain, tracked as named successors on the change.
 - [add-consent-instrument](../openspec/changes/archive/2026-08-06-add-consent-instrument/proposal.md)
   — raised 2026-08-03 (ratified same day; archived 2026-08-06 at contract-v1.30) as the full promotion of the
   `consent-instrument-contract` staged topic (both docs moved to

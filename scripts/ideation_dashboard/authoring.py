@@ -52,6 +52,7 @@ from pathlib import Path
 from typing import Sequence
 
 from doc_health import corpus
+from doc_health.lines import split_keepends
 
 from .boundary import HEADER_INCOMPLETE, AGENT, OutputBoundary
 from .workbench import slug
@@ -265,19 +266,27 @@ def edit_command(repo_root: Path | str, relpath: str, *, editor: str | None = No
 
 def missing_required_headers(text: str) -> list[str]:
     """Required ideation headers absent — OR value-empty — in `text`'s header
-    window. Faithfully mirrors `doc_health.corpus`'s header scan, which requires
-    a non-empty VALUE (`STATUS_RE = ^Status:\\s*(.+?)\\s*$`; `parse_kind` returns
-    `None` for a bare `Kind:`): a header line with no value is NOT a carried
-    header. Enforcing this at the agent gate closes the empty-header bypass — a
-    valueless `Status:` would otherwise pass the gate yet make the generator emit
-    `stage: null`, failing the pinned snapshot schema (`stage` is required and
-    enumerated)."""
-    lines = text.splitlines()[:corpus.STATUS_SCAN_LINES]
+    window. Faithfully mirrors `doc_health.corpus`'s header scan, which
+    requires a non-empty VALUE (`STATUS_RE = ^Status:\\s*(.+?)\\s*$`;
+    `parse_kind` returns `None` for a bare `Kind:`): a header line with no
+    value is NOT a carried header. Enforcing this at the agent gate closes
+    the empty-header bypass — a valueless `Status:` would otherwise pass the
+    gate yet make the generator emit `stage: null`, failing the pinned
+    snapshot schema (`stage` is required and enumerated).
+
+    "Faithfully mirrors" now also means the same REAL-line window
+    (`doc_health.lines.split_keepends`), not `str.splitlines()` fragments —
+    a wider split here than `corpus.parse_status` uses would let a
+    header-complete submission through the gate on an exotic-separator
+    header and then fail the corpus reader's own idea of completeness
+    downstream, which is the mirror this docstring already promised.
+    """
+    lines = split_keepends(text)[:corpus.STATUS_SCAN_LINES]
     present: set[str] = set()
-    for line in lines:
+    for body, _ending in lines:
         for field in REQUIRED_HEADER_FIELDS:
             prefix = field + ":"
-            if line.startswith(prefix) and line[len(prefix):].strip():
+            if body.startswith(prefix) and body[len(prefix):].strip():
                 present.add(field)
     return [f for f in REQUIRED_HEADER_FIELDS if f not in present]
 

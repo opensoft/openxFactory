@@ -1,0 +1,49 @@
+# VALID revocation propagation for an ANCHOR, complete. Revoking the anchor
+# revoked what its subordinate certificates supported, transitively, inside the
+# declared window — and the record enumerates the subordinate certificates
+# reached, so the closure is checkable rather than asserted.
+#
+# The mechanism is openxWallet's revocation-through-derivation rule, named as a
+# constant. This contract states the obligation and rides that mechanism; a
+# second revocation vocabulary would lag it and win locally by proximity.
+schema_version: 1
+kind: xfactory_certificate_revocation_propagation
+propagation_id: prop:retired-root-revocation
+realization_ref: realization:core-self-hosted-authority
+mechanism:
+  realized_through: openxwallet_revocation_through_derivation
+  statement: >-
+    Revoking the parent kills what derived from it, checked at exercise rather
+    than trusted from issuance. This record carries the obligation — bounded
+    window, evidenced propagation — and not a second vocabulary.
+revoked:
+  target_kind: anchor
+  target_ref: anchor:retired-root
+  revoked_at: "2026-05-01T00:00:00Z"
+  reason_statement: Pilot authority decommissioned; its trust was withdrawn.
+declared_window:
+  opens_at: "2026-05-01T00:00:00Z"
+  bounded_seconds: 172800
+  closes_at: "2026-05-03T00:00:00Z"
+  statement: Two days, declared in advance and not extended after the fact.
+assessed_at: "2026-05-03T06:00:00Z"
+subordinate_certificates_reached:
+  - cert:retired-service-09
+downstream_authorities:
+  - authority_ref: authority:pilot-service-api
+    reached_via: subordinate_certificate
+    subordinate_certificate_ref: cert:retired-service-09
+    state: propagated
+    propagation_evidence:
+      mode: standing_check_returned_revoked
+      performed_at: "2026-05-01T00:35:00Z"
+      evidence_ref: evidence:pilot-service-api-standing-revoked
+      statement: >-
+        A standing check at use returned revoked and the exercise was refused,
+        which is the propagation actually arriving rather than being requested.
+completion:
+  state: complete
+  statement: >-
+    Every downstream authority the anchor's subordinates supported carries
+    propagation evidence inside the window.
+record_version: 1

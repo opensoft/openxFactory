@@ -5,8 +5,12 @@
 // the workspace root as wheel-original.html): flat reels with a tanh bulge
 // and a CONTINUOUS magnification curve on the focused wheel only, a 40px
 // scroll accumulator for whole-tile spins, live spring–damper elastic pulls
-// (driven .020/.84, pulled .008/.90), balanced alignment that never seats a
-// linked tile dead on the line, class-coded bezier threads anchored at tile
+// (driven .020/.84, pulled .008/.90), AUTOMATIC alignment by the three
+// connecting-string rules (Brett 2026-08-21 — no string: the wheel centres its
+// FILLED tiles; one string: the connected tile rests NEAR the line, not on it;
+// several strings: one connected tile takes the line, minimal rotation wins —
+// see `alignTarget` in wheel-model.js; a human's own click still centres any
+// tile dead on the line), class-coded bezier threads anchored at tile
 // edges, a badge rail of connection chips BELOW the focused centre tile, a
 // discrete column carousel, and column hiding shipping BOTH candidate-3
 // affordances (header eye -> thin rail, dock chips) over one state.
@@ -57,7 +61,8 @@
 // structured refusal, so this view only maps a wheel to the backend's tile kind.
 
 import { actionRowIsStale,
-  buildWheelModel, connectionsOf, secondDegreeOf, gatherOf, alignTarget, computeReorder,
+  buildWheelModel, connectionsOf, secondDegreeOf, gatherOf,
+  alignTarget, filledGroupCentre, computeReorder,
   SPRING, REEL, tileScale, linkedDrawDistance, actionsFor,
   nextExpanded, isExpandedTile, EXPANDED, WHEEL_KEYS, WHEEL_LABELS,
   tileBox, inReelWindow, drumProject, threadAnchorX, endpointScale, badgeRailBand, bandsOverlap,
@@ -371,8 +376,15 @@ export function renderWheel(root, snapshot, ctx) {
 
   // ---- state ----
   const pos = {}, vel = {}, target = {}, acc = {};
+  // RULE 1 at rest (Brett 2026-08-21): a wheel showing no connecting string
+  // centres its FILLED tiles, and BEFORE the first focus every wheel is in
+  // exactly that state — so the deck OPENS centred rather than at slot 0 with
+  // the upper half of every band blank filler. The focus wheel overrides its
+  // own position a few lines below; every other wheel is retargeted by the
+  // rules on the first animation frame.
   for (const w of model.wheels) {
-    pos[w.key] = 0; vel[w.key] = 0; target[w.key] = 0; acc[w.key] = 0;
+    const centre = filledGroupCentre(w.items.length) ?? 0;
+    pos[w.key] = centre; vel[w.key] = 0; target[w.key] = centre; acc[w.key] = 0;
   }
   // Reorder permutation per wheel (Brett 2026-07-24): when a focus links
   // MANY tiles in one wheel, the old parking curve stacked them on top of
@@ -880,9 +892,18 @@ export function renderWheel(root, snapshot, ctx) {
     const { tiles } = cols[key];
     for (const tile of tiles.values()) tile.remove();
     tiles.clear();
-    const n = wheelByKey(key).items.length;
+    const w = wheelByKey(key);
+    const n = w.items.length;
     const mid = clamp(c.next.blockLo + (c.next.k - 1) / 2, 0, Math.max(0, n - 1));
-    pos[key] = mid + 6; vel[key] = 0; target[key] = mid;
+    // The re-seated wheel obeys the SAME three alignment rules as a plain pull
+    // — a reorder is automatic alignment too, and resting on the raw block
+    // centre would put a tile on the line (or half a step off it) by accident
+    // of the block's parity rather than by the rules. `mid` is only the
+    // REFERENCE position rule 3 measures its minimal rotation from: the whirl-
+    // out has driven `pos` several slots into nowhere by the time we get here.
+    const align = focus ? (gatherOf(model, focus.key, focus.i)[key]?.align || []) : [];
+    const t = alignFor(w, align, mid) ?? mid;
+    pos[key] = t + 6; vel[key] = 0; target[key] = t;
     c.state = "in";
     cols[key].win.classList.remove("wheelreorder");
   }
@@ -897,11 +918,23 @@ export function renderWheel(root, snapshot, ctx) {
       // align on the FIRST-degree tiles when the wheel has any (they rest on
       // the line; second-degree gather around them inside the seated block),
       // else on the second-degree set so a purely-second-degree wheel still
-      // comes into view rather than staying put.
-      const align = gather[w.key]?.align || [];
-      const t = alignTarget(align.map((i) => slotOf(w.key, i)));
-      if (t !== null) target[w.key] = clamp(t, 0, Math.max(0, w.items.length - 1));
+      // comes into view rather than staying put. An EMPTY align set is the
+      // rules' "no connecting string" case, not a no-op: rule 1 centres the
+      // wheel's filled tiles (see `alignFor`).
+      const t = alignFor(w, gather[w.key]?.align || [], pos[w.key]);
+      if (t !== null) target[w.key] = t;
     }
+  }
+
+  // THE ONE PLACE automatic alignment is decided. `alignTarget` (pure, in
+  // wheel-model.js) owns the three connecting-string rules AND the band clamp
+  // that keeps the drum out of blank filler — this only maps the align set from
+  // ITEM space into SLOT space, which is the deck's business because the
+  // reorder permutation lives here. `from` is the position rule 3 measures its
+  // minimal rotation against.
+  function alignFor(w, alignIdxs, from) {
+    return alignTarget(alignIdxs.map((i) => slotOf(w.key, i)),
+      { position: from, itemCount: w.items.length });
   }
 
   // ---- physics ----
@@ -1026,9 +1059,10 @@ export function renderWheel(root, snapshot, ctx) {
   // flat list. (Supersedes the flat reel + tanh bulge while we tune.)
   // Radius knob (the "wheel diameter" setting; `drumF` above): 1 -> R =
   // viewport height (gentle, ~±30° visible); 0.5 -> R = half height (full
-  // horizon at the viewport edges — the classic slot-drum wrap). Default 1 per
-  // Brett's opening spec. Both tuning paths stay open: `?drum=` still wins at
-  // load for compare-by-URL, and the header gear's slider tunes it live.
+  // horizon at the viewport edges — the classic slot-drum wrap). Default 0.5
+  // (was 1 per Brett's opening spec). Both tuning paths stay open: `?drum=`
+  // still wins at load for compare-by-URL, and the header gear's slider
+  // tunes it live.
 
   // The arithmetic moved to wheel-model.js's `drumProject` (2026-08-03) when
   // the docs pane's wheel became a second caller: "the same wheel" has to mean

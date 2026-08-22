@@ -43,7 +43,18 @@ NEGATIVE_EXPECTATIONS = {
     "dispatch-reuses-content-secret.yaml": "shared-secret-identity",
     "dispatch-grants-contents.yaml": "dispatch-scope-ceiling",
     "baked-secret-in-binding.yaml": "baked-secret",
+    "issuance-precondition-out-of-vocabulary.yaml": "issuance-precondition-unknown",
+    "issuance-precondition-valued-false.yaml": "issuance-precondition-unknown",
 }
+
+# add-client-identity-roster (Decision B): the CLOSED issuance-precondition
+# vocabulary. The schema declares it too, and this mirror is STRUCTURALLY
+# REQUIRED rather than decorative — the self-test above adjudicates registered
+# negatives against `_semantic_findings` ONLY, so a schema-only implementation
+# would make its own negatives unregisterable and leave the refusal with no
+# probe at all.
+ISSUANCE_PRECONDITIONS = ("accepted_request_required", "registered_active_subject",
+                          "roster_drift_clear_required")
 
 
 def _looks_like_raw_secret(value: str) -> bool:
@@ -51,16 +62,48 @@ def _looks_like_raw_secret(value: str) -> bool:
     return any(m in v for m in RAW_SECRET_MARKERS) or bool(_B64ISH.fullmatch(v))
 
 
+def _issuance_precondition_findings(rid: str, req: dict) -> list[str]:
+    """The closed issuance-precondition vocabulary, on BOTH failure shapes.
+
+    An out-of-vocabulary member and a member valued `false` are the same
+    defect wearing two faces: a record that reads as governance while binding
+    the mint surface to nothing. Both raise the same code, and the message
+    NAMES the closed set so a domain refused here knows where to go.
+    """
+    preconditions = req.get("issuance_preconditions")
+    if not isinstance(preconditions, dict):
+        return []
+    out: list[str] = []
+    for name in sorted(preconditions):
+        if name not in ISSUANCE_PRECONDITIONS:
+            out.append(f"issuance-precondition-unknown: requirement {rid!r} declares issuance "
+                       f"precondition {name!r}, which is outside the closed vocabulary "
+                       f"{sorted(ISSUANCE_PRECONDITIONS)}; grow the vocabulary through the "
+                       f"credential-contracts capability rather than declaring a local token "
+                       f"the mint surface cannot adjudicate")
+        elif preconditions[name] is not True:
+            out.append(f"issuance-precondition-unknown: requirement {rid!r} declares issuance "
+                       f"precondition {name!r} valued {preconditions[name]!r}; every member of "
+                       f"{sorted(ISSUANCE_PRECONDITIONS)} is declared TRUE or not declared at "
+                       f"all — a false-valued precondition reads as governance while asserting "
+                       f"nothing, so omit it instead")
+    return out
+
+
 def _semantic_findings(doc: dict) -> list[str]:
-    """Dispatch-credential invariants the shape schema cannot express. Returns
-    `code: message` strings (empty when the record conforms)."""
+    """Dispatch-credential invariants the shape schema cannot express, plus the
+    closed issuance-precondition vocabulary. Returns `code: message` strings
+    (empty when the record conforms)."""
     kind = doc.get("kind")
     out: list[str] = []
     if kind == "xfactory_credential_requirements":
         for req in doc.get("requirements") or []:
-            if req.get("access_mode") != "dispatch_only":
+            if not isinstance(req, dict):
                 continue
             rid = req.get("id", "<?>")
+            out.extend(_issuance_precondition_findings(rid, req))
+            if req.get("access_mode") != "dispatch_only":
+                continue
             bad = [s for s in (req.get("minimum_scopes") or []) if s not in DISPATCH_SCOPES]
             if bad:
                 out.append(f"dispatch-scope-ceiling: requirement {rid!r} is dispatch_only but "

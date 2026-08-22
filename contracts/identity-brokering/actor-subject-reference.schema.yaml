@@ -1,0 +1,183 @@
+schema_version: 1
+kind: openxfactory-identity-brokering-contract-schema
+name: actor_subject_reference
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/identity-brokering/v1/actor-subject-reference.schema.yaml"
+contract_id: identity-brokering-actor-subject-reference
+contract_schema_version: 1
+title: Identity-brokering actor subject reference
+description: >-
+  The reference a governed record embeds when it names a human actor
+  (add-identity-brokering, capability `identity-brokering`, requirement "A
+  governed record binds its actor to a stable opaque subject"). Settled at
+  realization per the change's task 2.3 and design OQ-3: the STRUCTURED
+  REFERENCE — issuer (the broker instance), the stable opaque subject, the
+  display name as it stood when the record was written, and a provenance
+  discriminator — not a bare identifier.
+
+  Why structured: with more than one broker instance an expected state
+  rather than a hypothetical (design D3), a bare subject is ambiguous
+  without knowing who issued it. The cost is a wider field; the cost of
+  guessing the other way is a schema major.
+
+  THREE PROVENANCE CLASSES, AND THE WRONG COMBINATIONS ARE UNREPRESENTABLE:
+
+  - `broker_asserted` requires the issuer AND the opaque subject, and
+    admits neither a `pre_broker` block nor a `mapping` block. A record
+    carrying a mapping is one whose actor was RESOLVED from a pre-broker
+    username, which is `mapped_historical_actor` and carries that class's
+    obligations; the combination was representable and it let an unverified
+    resolution travel inside a record that reads as a first-party assertion.
+  - `pre_broker_username` requires the `pre_broker` block — the bare
+    username and the PERSONA BOUNDARY DATE — and admits neither issuer nor
+    subject. Its `presented_as_persona` is a required constant `false`: the
+    record stays readable, and presenting it as a broker-asserted persona
+    is not something this shape can say. This is design OQ-1's settlement
+    (task 2.3): MARK THE BOUNDARY DATE and map on demand. A blanket
+    backfill would assert identity resolutions nobody verified — the
+    false-audit failure the merge ruling refuses — and a mapping table that
+    had to be complete before the broker was useful would stall the
+    adoption.
+  - `mapped_historical_actor` requires the issuer, the subject, AND the
+    mapping that resolved the bare username to it, with the mapper, the
+    date and an evidence reference. A mapping is an explicit recorded act,
+    never an inference.
+
+  The identifier position admits no display name, no email address and no
+  upstream account name: `opaque_subject` excludes '@' and whitespace by
+  pattern, and its length floor (16) means a bare upstream username cannot
+  sit there either. The canonical validator closes the remaining gap by
+  refusing a subject that equals its own display name, that matches an
+  email shape, or that equals a bare username the corpus records as
+  PRE-BROKER — because a bare username presented as a broker-asserted
+  persona is the exact substitution this requirement exists to refuse.
+type: object
+required:
+  - schema_version
+  - kind
+  - reference_id
+  - provenance
+  - display_name_at_record
+  - recorded_at
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [actor_subject_reference]
+  reference_id: {$ref: '#/$defs/identifier'}
+  governed_record_ref:
+    # The governed record this actor reference belongs to — a gate action, a
+    # ratification, an administration act. A pointer to the record, never a
+    # copy of it.
+    type: object
+    required: [record_type, record_ref]
+    additionalProperties: false
+    properties:
+      record_type: {$ref: '#/$defs/identifier'}
+      record_ref:
+        type: string
+        minLength: 1
+        maxLength: 300
+  provenance:
+    type: string
+    enum: [broker_asserted, pre_broker_username, mapped_historical_actor]
+  issuer:
+    # WHO issued the subject. A subject is only interpretable against its
+    # issuer once more than one broker instance exists.
+    type: object
+    required: [broker_instance_id]
+    additionalProperties: false
+    properties:
+      broker_instance_id: {$ref: '#/$defs/identifier'}
+  subject: {$ref: '#/$defs/opaque_subject'}
+  display_name_at_record:
+    # The display name IN FORCE WHEN THE RECORD WAS WRITTEN. Denormalized so
+    # the record stays readable without a live broker, and a later
+    # display-name change does not change who the record names.
+    type: string
+    minLength: 1
+    maxLength: 200
+  pre_broker:
+    type: object
+    required: [username, persona_boundary_date, presented_as_persona]
+    additionalProperties: false
+    properties:
+      username:
+        type: string
+        minLength: 1
+        maxLength: 200
+      persona_boundary_date:
+        # The date this surface's records began carrying broker-asserted
+        # personas. A record before it carries a bare username by design.
+        type: string
+        format: date
+      presented_as_persona:
+        # A REQUIRED CONSTANT. The obligation is that such a record is never
+        # presented as a broker-asserted persona; making the field required
+        # and its only legal value `false` turns the obligation into
+        # something the shape states rather than something a reader must
+        # remember.
+        type: boolean
+        const: false
+  mapping:
+    type: object
+    required: [mapped_from_username, mapped_by, mapped_on, evidence_ref]
+    additionalProperties: false
+    properties:
+      mapped_from_username:
+        type: string
+        minLength: 1
+        maxLength: 200
+      mapped_by: {$ref: '#/$defs/identifier'}
+      mapped_on: {type: string, format: date}
+      evidence_ref:
+        type: string
+        minLength: 1
+        maxLength: 300
+  recorded_at: {type: string, format: date-time}
+allOf:
+  - if:
+      properties: {provenance: {const: broker_asserted}}
+      required: [provenance]
+    then:
+      required: [issuer, subject]
+      allOf:
+        - not: {required: [pre_broker]}
+        # A broker-asserted reference admits NO MAPPING either. The
+        # provenance classes are exclusive: a record carrying a mapping is a
+        # record whose actor was RESOLVED from a pre-broker username, and
+        # that is `mapped_historical_actor` — the class whose obligations
+        # (the mapper, the date, the evidence) the validator then enforces.
+        # `broker_asserted` plus a mapping block was the one combination the
+        # conditionals left representable, and it is the useful one to an
+        # attacker: the mapping's evidence goes unchecked because no rule
+        # governing mappings applies, so an unverified resolution travels
+        # inside a record that reads as a first-party broker assertion.
+        - not: {required: [mapping]}
+  - if:
+      properties: {provenance: {const: pre_broker_username}}
+      required: [provenance]
+    then:
+      required: [pre_broker]
+      allOf:
+        - not: {required: [subject]}
+        - not: {required: [issuer]}
+        - not: {required: [mapping]}
+  - if:
+      properties: {provenance: {const: mapped_historical_actor}}
+      required: [provenance]
+    then:
+      required: [issuer, subject, mapping]
+      not: {required: [pre_broker]}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+  opaque_subject:
+    type: string
+    minLength: 16
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'
