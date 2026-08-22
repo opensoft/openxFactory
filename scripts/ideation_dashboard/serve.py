@@ -362,6 +362,40 @@ NO_RESOLVED_ACTOR_CAUSE = (
 _DOXBENCH_MSG_THREAD_CAPABILITY_UNAVAILABLE = (
     "threads exist only where branch sessions exist")
 
+# THE ONE CAUSE-NAMING ALTERNATE, and deliberately NOT a catalog entry.
+#
+# `invalid_turn_request` answers every way a well-formed JSON object can fail the
+# released envelope, so its catalog message has to hold for all of them and
+# therefore says only that the request is malformed. True, and useless for the
+# one violation a HUMAN reaches by hand: unloading the set down to the outline
+# and sending, which trips `request`/`request_v2`.`buffers`' `minItems: 2` floor.
+# The refusal was correct in class and named nothing actionable, while the
+# actionable half sat a few pixels away in the selector's empty state
+# (`LOADED_SELECTOR_EMPTY_NOTE`, web/views/doxbench-chat.js) -- recorded as a
+# follow-up in add-doxbench-editing-phase-b's Amendment 2, which RULED that this
+# act refuses at send, visibly, rather than being made unreachable. This message
+# is the send-side half of that ruling, and it deliberately echoes the selector's
+# own sentence so the two surfaces say the same thing about the same state.
+#
+# WHY A MESSAGE, AND NOT A CODE OR A FIELD. The code is unchanged because the
+# CLASS is unchanged: the request really is malformed against the release. A
+# `cause` key beside it -- the shape `thread_capability_unavailable` uses -- is
+# not available here: both released failure envelopes are
+# `additionalProperties: false` over exactly `{schema_version, kind,
+# client_turn_id, error, message, limit}`, so a body carrying one would fail
+# `_refuse_turn`'s own self-validation and fall back to the pre-identity shape.
+# The released `message` is free-form (`type: string, minLength: 1,
+# maxLength: 500` -- no `const`, no `enum`, no `pattern`), so saying something
+# more useful in it costs no schema byte, hence no digest refresh in
+# `doxbench_contracts.SCHEMA_DIGESTS` and no contract release.
+#
+# It stays a FIXED module-level constant composed from nothing the caller sent,
+# exactly like every catalog message: the choice BETWEEN the two strings is made
+# from the SHAPE of the violation, never from its content.
+_DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT = (
+    "the turn carries no document beside the outline — use a docs tile's load "
+    "verb to work on one")
+
 # code -> (HTTP status, fixed caller-safe message). `request_limit_exceeded`'s
 # 413 (Payload Too Large) is this slice's own judgement call: the planning
 # contracts do not pin an HTTP status for it the way model-catalog.md's table
@@ -507,7 +541,8 @@ def doxbench_error_status(code: str) -> int:
 
 def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
                                limit: dict | None = None,
-                               kind: str = DOXBENCH_CHAT_TURN_FAILURE_KIND) -> dict:
+                               kind: str = DOXBENCH_CHAT_TURN_FAILURE_KIND,
+                               message: str | None = None) -> dict:
     """The RELEASED `workbench-chat-turn-failure` envelope for `code` — a PURE
     module-level function, testable with no handler and no server.
 
@@ -515,22 +550,56 @@ def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
     `client_turn_id`, `error`, `message`, and — ONLY for
     `request_limit_exceeded` — the `limit` block, REBUILT from exactly three
     named fields exactly as `doxbench_error_body` rebuilds it, so nothing
-    request-derived can splice a key into a response. The message is the same
-    fixed module-level constant the pre-release shape used; only the envelope
-    changed.
+    request-derived can splice a key into a response. The message defaults to the
+    same fixed module-level constant the pre-release shape used; only the
+    envelope changed.
 
     `kind` selects the FAMILY the refusal is answered in (contract-v1.34). The
     two failure envelopes are structurally identical -- a refusal discloses
     nothing whichever family it answers -- so the only thing that varies is which
     `kind` a caller is entitled to receive, and that is the family its request
-    arrived in."""
-    _, message = DOXBENCH_ERROR_CATALOG[code]
+    arrived in.
+
+    `message` overrides the catalog's message for THIS refusal. The contract on
+    every caller is that it passes a FIXED module-level constant and never
+    anything derived from the request -- the released `message` is free-form, but
+    the redaction posture that keeps a refusal from being an oracle is a property
+    of the callers, not of the schema. Today every caller reaches this through
+    `_refuse_turn`, and all of them pass `_doxbench_invalid_turn_message`'s
+    verdict -- one of exactly two module-level constants; see
+    `_DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT` for the full record. `None` means the
+    catalog's own message, so every other refusal is byte-identical to before.
+
+    ENFORCED, not merely documented (Copilot review, PR #255). Only an actual
+    `str` overrides; anything else falls back to the catalog string. The earlier
+    `str(message)` would have coerced whatever it was handed, so a caller that
+    one day passed an exception, a response object, or a validation error --
+    every one of which stringifies to something that can carry request content --
+    would have spliced that content into a published refusal while this docstring
+    still claimed refusals disclose nothing. A type is a cheap thing to check and
+    the posture is too expensive to lose to a future caller's slip.
+
+    An EMPTY string falls back too. It is not a disclosure risk, but the released
+    envelope requires `minLength: 1`, so letting it through would fail
+    `_refuse_turn`'s self-validation and cost the refusal its `client_turn_id` --
+    the browser's only means of correlating it. One more condition buys a
+    correlatable refusal instead of an anonymous one.
+
+    QUIET, like every neighbouring fail-closed seam: `_wire_valid_turn_id`
+    answers a bad type with None and `_doxbench_wire_conforms` answers one with
+    False, rather than raising. This is on the RESPONSE path of a refusal, where
+    an exception would drop the connection and strand the turn's lease -- the
+    exact failure `test_a_v1_turn_whose_document_path_claims_the_outline_key_is_refused`
+    exists to forbid ("the connection must carry an envelope, never drop"). The
+    caller still gets a true, conformant refusal; it just gets the general one."""
+    _, catalog_message = DOXBENCH_ERROR_CATALOG[code]
     body: dict = {
         "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
         "kind": str(kind),
         "client_turn_id": str(client_turn_id),
         "error": code,
-        "message": message,
+        "message": (message if isinstance(message, str) and message
+                    else catalog_message),
     }
     if code in DOXBENCH_LIMIT_BEARING_CODES and limit is not None:
         body["limit"] = {
@@ -1870,6 +1939,97 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         except Exception:  # noqa: BLE001 - a broken validator is not a pass
             return False
 
+    @staticmethod
+    def _doxbench_violation_beside_the_buffers_floor(validators, kind: str,
+                                                     instance) -> bool:
+        """True when the released schema faults `instance` for ANYTHING other
+        than the `buffers` array's own `minItems` floor.
+
+        This is the guard that keeps a cause-naming refusal from sending a human
+        round a loop. Naming the missing document is only useful if loading one
+        is ENOUGH; where a blank message, a bad hash, or an unknown key is also
+        wrong, fixing the buffer set would just earn a second refusal, so the
+        caller falls back to the catch-all -- which is true of all of them.
+
+        Conservative in both failure directions: no validator for the kind, or a
+        validator that throws, means no verdict, and no verdict is treated as
+        "something else may be wrong" rather than as permission to be specific.
+        An EMPTY error list is False -- nothing else is wrong -- which is what
+        lets the delegated validator's own statement of the floor name the same
+        cause on a plane whose schema did not catch it first.
+
+        WHAT IT READS, AND WHAT IT REFUSES TO READ. Only `validator` (a schema
+        KEYWORD, `minItems`) and `absolute_path` (the INSTANCE location,
+        `buffers`). Never `error.message` -- that is the field
+        `_doxbench_wire_conforms` discards for cause, because a jsonschema
+        message can quote instance content. Nothing read here reaches the wire in
+        any case: the verdict only chooses between two fixed module-level
+        strings.
+
+        STREAMED, and stopping at the first disqualifying error (Copilot review,
+        PR #255). The answer is a bare "is there one?", so materializing every
+        violation of a large invalid request only to scan it was work and memory
+        spent on a question already settled by error number one.
+
+        The pass `_doxbench_wire_conforms` already made is deliberately NOT
+        reused. Carrying its errors out would mean that seam returning them, and
+        its whole posture is that it discards them precisely so a jsonschema
+        message -- which can quote instance content -- has nowhere to leak to.
+        Two cheap iterations on an already-failing request is the better trade
+        against widening that seam's contract."""
+        validator = validators.get(kind) if isinstance(validators, dict) else None
+        if validator is None:
+            return True
+        try:
+            for error in validator.iter_errors(instance):
+                if (error.validator != "minItems"
+                        or list(error.absolute_path) != ["buffers"]):
+                    return True
+        except Exception:  # noqa: BLE001 - a broken validator names no cause
+            return True
+        return False
+
+    @staticmethod
+    def _doxbench_turn_is_outline_only(payload) -> bool:
+        """True when the request's buffer set is exactly one buffer and that
+        buffer is the reserved outline -- the state a human reaches by unloading
+        the last document.
+
+        The floor is also short with ZERO buffers, and with one buffer that is a
+        document and no outline. Neither is the outline-only state, and telling
+        either of them that the turn 'carries no document beside the outline'
+        would state something false about a set that has no outline in it. Those
+        keep the catalog's generic message, which is true of both."""
+        buffers = payload.get("buffers") if isinstance(payload, dict) else None
+        if not isinstance(buffers, list) or len(buffers) != 1:
+            return False
+        only = buffers[0]
+        return isinstance(only, dict) and only.get("kind") == "outline"
+
+    @classmethod
+    def _doxbench_invalid_turn_message(cls, validators, kind: str, payload):
+        """Which fixed message an `invalid_turn_request` refusal of a request's
+        SHAPE carries: the cause-naming one when the buffer set is outline-only
+        and nothing else is wrong, else `None` for the catalog's generic message.
+
+        Both conditions are required, and each rules out a different way of
+        lying: the first that the message describes the set the caller actually
+        sent, the second that acting on it is enough to make the turn sendable.
+
+        Asked at BOTH shape gates, because the floor has TWO statements and
+        either can be the one that fires. The released schema's `minItems: 2`
+        answers first wherever the real release is bound, and the delegated
+        validator's outline-plus-document pairing rule answers where a validator
+        that does not express the floor let the request through. The CAUSE is a
+        fact about the request, not about which gate noticed it, so both name it
+        the same way rather than one of them staying mute."""
+        if not cls._doxbench_turn_is_outline_only(payload):
+            return None
+        if cls._doxbench_violation_beside_the_buffers_floor(
+                validators, kind, payload):
+            return None
+        return _DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT
+
     # ------------------------------------------------------------------
     # T050/T051 route handlers (change 010-doxbench-editor-chat).
     #
@@ -1981,7 +2141,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         return turn_id
 
     def _refuse_turn(self, validators, code, turn_id, *, limit=None,
-                     failure_kind=DOXBENCH_CHAT_TURN_FAILURE_KIND) -> None:
+                     failure_kind=DOXBENCH_CHAT_TURN_FAILURE_KIND,
+                     message=None) -> None:
         """Emit one chat-turn refusal in the correct envelope.
 
         With a wire-valid `turn_id` this is the RELEASED
@@ -2003,11 +2164,19 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         `failure_kind` is the FAMILY the refusal is answered in (contract-v1.34).
         It follows the family the request arrived in and defaults to the v1
         envelope, which is what a request that never named a recognizable family
-        still gets."""
+        still gets.
+
+        `message` names the CAUSE inside an otherwise unchanged refusal, and is a
+        fixed module-level constant or nothing (see `doxbench_turn_failure_body`).
+        It rides only the RELEASED envelope: the pre-identity fallback below keeps
+        the catalog message unconditionally. That is not a gap. The fallback is
+        taken when the turn id is not wire-valid, and a turn id the released
+        schema rejects is itself a second schema violation -- so no caller whose
+        message depends on the violation being the SOLE one can reach it."""
         status = doxbench_error_status(code)
         if turn_id is not None:
             body = doxbench_turn_failure_body(code, turn_id, limit=limit,
-                                              kind=failure_kind)
+                                              kind=failure_kind, message=message)
             if self._doxbench_wire_conforms(validators, failure_kind, body):
                 self._send_json(status, body)
                 return
@@ -2263,14 +2432,29 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
             return
         if not self._doxbench_wire_conforms(validators, request_kind, payload):
+            # The verdict is already taken; this only asks WHICH violation, so
+            # the one a human can reach by hand -- unloading the set down to the
+            # outline -- is answered with a sentence naming the missing document
+            # instead of the catch-all. Same code, same status, same key set;
+            # every other violation still gets the catalog's message, because
+            # `_doxbench_invalid_turn_message` returns None for all of them.
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id, failure_kind=failure_kind)
+                              turn_id, failure_kind=failure_kind,
+                              message=self._doxbench_invalid_turn_message(
+                                  validators, request_kind, payload))
             return
 
         fields = parse_body(payload)
         if fields is None:
+            # The floor's OTHER statement (`require_outline_and_documents`). It
+            # is unreachable for this cause wherever the real release is bound --
+            # `minItems: 2` refuses an outline-only set above -- but a plane
+            # whose validator does not express the floor lands here instead, and
+            # the same act deserves the same sentence either way.
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id, failure_kind=failure_kind)
+                              turn_id, failure_kind=failure_kind,
+                              message=self._doxbench_invalid_turn_message(
+                                  validators, request_kind, payload))
             return
         client_turn_id = fields["client_turn_id"]
         scope_fields = fields["scope_fields"]
@@ -2402,8 +2586,16 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # verified below rather than the first.
             document_keys = doxbench_turns.ordered_document_keys(turn_documents)
         except doxbench_turns.TurnBufferKindError:
+            # The pairing rule is the floor's THIRD statement, and the one that
+            # actually fires for an outline-only widened turn on a plane whose
+            # validator did not express `minItems: 2`. Every other way to fail
+            # the pairing -- two outlines, a reserved-key claim, a document with
+            # no outline -- is not an outline-only set, so the chooser returns
+            # None for all of them and they keep the catch-all.
             self._refuse_turn(validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                              turn_id, failure_kind=failure_kind)
+                              turn_id, failure_kind=failure_kind,
+                              message=self._doxbench_invalid_turn_message(
+                                  validators, request_kind, payload))
             return
 
         try:

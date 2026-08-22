@@ -24,6 +24,8 @@ import pytest
 
 from conftest import REPO_ROOT
 
+from ideation_dashboard import serve as serve_mod
+
 NODE = shutil.which("node")
 
 CHAT_MODEL_JS = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web" /
@@ -2652,6 +2654,42 @@ out.configuredNoneCatalog = await catalogPosture(
                        state: rail.state().workingSubject,
                        failure: rail.state().lastFailure };
 }
+// ---- BRETT'S SCENARIO, THE CLIENT HALF (Amendment 2 follow-up 1) ----------
+// A set unloaded down to the outline refuses AT SEND, and what the human reads
+// is the SERVER's sentence, verbatim -- not a marker the rail substitutes for
+// it. That distinction is live, not hypothetical: the CATALOG failure path
+// deliberately re-normalizes server text into a two-value vocabulary
+// (`recordCatalogFailure`), so "the rail renders whatever the route said" is a
+// property of THIS channel that a future tidy-up could quietly remove, taking
+// the whole improvement with it.
+//
+// The expected string is injected from `serve.py`'s own constant, so the rail
+// and the route cannot drift into saying different things about one state.
+{
+  const NO_DOCUMENT_FAILURE = {
+    schema_version: 1, kind: "workbench-chat-turn-v2-failure",
+    client_turn_id: "t-1", error: "invalid_turn_request",
+    message: __NO_DOCUMENT_MESSAGE__ };
+  const { host, rail } = mountRail({
+    chatTurn: async () => ({ ok: false, status: 400,
+                             payload: NO_DOCUMENT_FAILURE }) });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "which open question should we close next?";
+  await fire(composer, "input");
+  await fire(byClass(host, "doxchat-send")[0], "click");
+  const note = byClass(host, "doxchat-failure")[0];
+  out.noDocumentRefusal = {
+    phase: rail.state().phase,
+    error: rail.state().lastFailure && rail.state().lastFailure.error,
+    noteHidden: note.hidden,
+    noteText: note.textContent,
+    composer: composer.value,
+    composerState: rail.state().composer,
+  };
+}
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -2666,7 +2704,13 @@ def focus_throw_results(tmp_path_factory):
     (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
     shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
     harness = tmp_path / "focus-throw-harness.mjs"
-    harness.write_text(_FOCUS_THROW_HARNESS, encoding="utf-8")
+    # The route's OWN sentence, carried into the browser probe rather than
+    # retyped: a copy here would let the two halves drift and still pass.
+    harness.write_text(
+        _FOCUS_THROW_HARNESS.replace(
+            "__NO_DOCUMENT_MESSAGE__",
+            json.dumps(serve_mod._DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT)),
+        encoding="utf-8")
     proc = subprocess.run([NODE, str(harness)], capture_output=True,
                           text=True, timeout=30)
     assert proc.returncode == 0, proc.stderr
@@ -3035,6 +3079,42 @@ def test_a_tile_title_past_the_bound_seeds_nothing_rather_than_a_prefix(
     assert o["value"] == ""
     assert o["state"] == ""
     assert o["failure"] is None
+
+
+def test_the_no_document_refusal_reaches_the_rail_as_the_routes_own_sentence(
+        focus_throw_results):
+    """Amendment 2 follow-up 1, the client half: what the human READS when a set
+    unloaded down to the outline is sent.
+
+    The route now names the cause and the remedy instead of saying only that the
+    request is malformed, and this pins that the improvement actually arrives.
+    The rail must render the ROUTE's sentence verbatim -- the expected string is
+    `serve.py`'s own constant, injected into the probe, so a message changed on
+    one side and not the other fails here rather than shipping two surfaces that
+    describe one state differently.
+
+    NOT a redundant restatement of the composer-preservation tests above. Those
+    hold for any failure whatsoever; this one holds for THIS failure, and its
+    real target is the substitution risk: `recordCatalogFailure` deliberately
+    replaces server text with a fixed two-value marker on the catalog channel,
+    so a later tidy-up that "made the turn channel consistent" with it would
+    silently discard the sentence this change exists to deliver."""
+    r = focus_throw_results["noDocumentRefusal"]
+    assert r["error"] == "invalid_turn_request", (
+        "the CODE is deliberately unchanged: the class really is a malformed "
+        "request, and only the sentence got more useful")
+    assert r["noteHidden"] is False, "a refusal the human cannot see is no fix"
+    assert r["noteText"] == serve_mod._DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT
+    # The sentence has to carry BOTH halves to be worth the change: the cause
+    # (what is wrong) and the remedy (what to do). Named separately so a future
+    # edit that keeps the string non-empty but drops one half still fails.
+    assert "no document" in r["noteText"], "the cause is named"
+    assert "load" in r["noteText"], "the remedy is named"
+    # FR-016 for this refusal specifically: the question survives the trip, so
+    # loading a document and pressing Send again is all the human has to do.
+    assert r["composer"] == "which open question should we close next?"
+    assert r["composerState"] == r["composer"]
+    assert r["phase"] == "idle", "the rail is ready to send the fixed turn"
 
 
 # --- the pure model's own half: seeding, precedence, and the bounds ---------

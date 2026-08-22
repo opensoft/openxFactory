@@ -329,32 +329,114 @@ export function gatherOf(model, wheelKey, itemIndex) {
   return out;
 }
 
-// ---- elastic alignment target (the round-2 refinement that locked the spec)
+// ---- AUTOMATIC WHEEL ALIGNMENT: the three connecting-string rules ------------
+// (Brett 2026-08-21, superseding the locked prototype's `balancedTarget` and
+// the 2026-07-23 span-midpoint delta.)
 //
 // A wheel's POSITION p means the tile at fractional index p sits on the brass
-// focus line; a linked tile i then rests at offset (i - p) steps. The soft
-// turn rests linked tiles BALANCED around the centre, never dead on it — a
-// tile sitting exactly on the line collapses its thread into a flat line.
-// Ported VERBATIM from the locked prototype's `balancedTarget` (THE WHEEL
-// mockup, Brett-approved 2026-07-16): a single linked tile parks ~0.8 step
-// off-centre (below, unless it sits too near the top edge); a group rests on
-// its centroid, nudged 0.45 step AWAY from the nearest linked tile when that
-// tile would land within 0.35 of the line. Pure and deterministic —
-// unit-tested from Python.
-export function alignTarget(linkedIndices) {
-  const idxs = (linkedIndices || []).filter((i) => Number.isFinite(i));
-  if (!idxs.length) return null; // no pull: the wheel keeps its position
-  if (idxs.length === 1) {
-    const i = idxs[0];
-    return i >= 0.8 ? i - 0.8 : i + 0.8;
+// focus line; a tile i then rests at offset (i - p) steps.
+//
+// THESE RULES GOVERN AUTOMATIC ALIGNMENT ONLY — the pull a wheel takes because
+// something ELSE was focused. An explicit human click still centres any tile
+// dead on the line (wheel.js's `setFocus`), and nothing here may override that
+// intent; likewise prefers-reduced-motion still snaps to whatever target these
+// rules produce, and the locked SPRING constants are untouched.
+//
+// What changes is what a wheel does about the CONNECTING STRINGS it is showing
+// — the threads from the focused context to its own tiles (first-degree when it
+// has any, else the dimmed second-degree set; `gatherOf(...).align` is that
+// set, and it is empty exactly when no thread reaches this wheel at all):
+//
+//   RULE 1 · NO connecting string.  There is nothing to align ON, so the wheel
+//     rotates so its FILLED tiles are centred in the viewport band — the group
+//     of real tiles centred on the visible band, biased toward no tile in
+//     particular (`filledGroupCentre`). Before this ruling the function
+//     returned null here and the wheel simply KEPT its position, which at load
+//     is slot 0: the first item on the line and the whole upper half of the
+//     band blank filler.
+//
+//   RULE 2 · exactly ONE connecting string.  The connected tile rests NEAR the
+//     centreline but deliberately NOT ON it — a tile exactly on the line
+//     collapses its thread into a flat connector. The distance is `ALIGN.near`,
+//     which is the locked prototype's own single-tile park (0.8 step): below
+//     the line, unless the tile sits too near the top edge for that.
+//
+//   RULE 3 · SEVERAL connecting strings.  One of the connected tiles MAY sit ON
+//     the centreline, and does. `centredChoice` picks WHICH: the tile needing
+//     the smallest rotation from the wheel's current position, lowest index
+//     breaking a tie — the shortest turn that lands a real connection on the
+//     line. The other connected tiles stay visible where the geometry allows,
+//     by the machinery that already does that and is unchanged: `computeReorder`
+//     seats the gathered block contiguously, and `linkedDrawDistance` parks
+//     anything beyond the near band inside the edge-fade zone.
+//     The prototype's +0.45 dead-centre nudge existed precisely to PREVENT a
+//     tile landing on the line, so rule 3 is its inverse and it is REMOVED
+//     outright rather than scoped — there is no case left that wants it.
+//
+// Pure and deterministic — unit-tested from Python (test_wheel_model.py).
+
+// The ONE named distance in these rules: RULE 2's "near the line, not on it",
+// in whole-tile slots. It is the locked prototype's single-tile park value, so
+// the gesture a human already knows is unchanged; rule 2 only gives it a name
+// and makes it the canonical "near, not on" offset.
+export const ALIGN = { near: 0.8 };
+
+// RULE 1. The position that centres a wheel's FILLED tiles — the tiles carrying
+// real items — in the visible band. Filled slots are exactly `0 .. count-1`:
+// `computeReorder` is a bijection over that same range, so a REORDERED wheel's
+// filled slots are the same set, and every slot outside it draws as a blank
+// filler tile (wheel.js `tileFor`, "the drum stays full"). Demo/synthesized
+// possibles ARE filled tiles: the wheel renders them as real tiles under the
+// honesty rule, dash-brass, and this centres the same set it renders.
+// Returns null for an EMPTY wheel — nothing to centre, so it keeps its
+// position.
+export function filledGroupCentre(itemCount) {
+  const n = Number.isFinite(itemCount) ? Math.floor(itemCount) : 0;
+  return n > 0 ? (n - 1) / 2 : null;
+}
+
+// RULE 3's choice of WHICH connected tile takes the centreline: MINIMAL MOTION
+// — the smallest rotation from `position` (the wheel's current position, in the
+// same slot space as the indices) — with the LOWEST INDEX breaking a tie, so
+// the choice is deterministic and unit-testable rather than order-of-iteration
+// dependent. The epsilon keeps a floating-point hair's breadth from silently
+// deciding a tie the other way.
+const TIE_EPSILON = 1e-9;
+
+export function centredChoice(indices, position) {
+  const p = Number.isFinite(position) ? position : 0;
+  let best = null;
+  for (const i of [...(indices || [])].filter((i) => Number.isFinite(i)).sort((a, b) => a - b)) {
+    if (best === null || Math.abs(i - p) < Math.abs(best - p) - TIE_EPSILON) best = i;
   }
-  // Span midpoint, not centroid (Brett-approved delta 2026-07-23): the
-  // midpoint maximises how much of the linked SPAN fits the visible window,
-  // so banded tiles come into view rather than clustering the average.
-  let c = (Math.min(...idxs) + Math.max(...idxs)) / 2;
-  const near = idxs.reduce((a, b) => (Math.abs(b - c) < Math.abs(a - c) ? b : a));
-  if (Math.abs(near - c) < 0.35) c += near >= c ? -0.45 : 0.45;
-  return c;
+  return best;
+}
+
+// Automatic alignment never rotates the drum deep into blank filler: the target
+// stays inside the filled range, widened by `ALIGN.near` at each end so RULE 2
+// can still park an edge tile off the line. A wheel whose count is unknown
+// (0/absent) is left unclamped — the caller then owns the bound.
+function clampToFilledBand(t, itemCount) {
+  if (t === null || itemCount <= 0) return t;
+  return clamp(t, -ALIGN.near, (itemCount - 1) + ALIGN.near);
+}
+
+// `linkedIndices` — this wheel's connected tiles, in SLOT space (the caller maps
+// item indices through the reorder permutation). `options.position` is the
+// wheel's current position, read only by RULE 3; `options.itemCount` is how many
+// FILLED tiles it has, read by RULE 1 and by the band clamp.
+// Returns the position to spin to, or null when the wheel has nothing to align
+// (no strings AND no tiles) and must keep whatever position it holds.
+export function alignTarget(linkedIndices, options) {
+  const { position = 0, itemCount = 0 } = options || {};
+  const idxs = (linkedIndices || []).filter((i) => Number.isFinite(i));
+  const n = Number.isFinite(itemCount) ? Math.floor(itemCount) : 0;
+  if (!idxs.length) return filledGroupCentre(n);                     // RULE 1
+  if (idxs.length === 1) {                                           // RULE 2
+    const i = idxs[0];
+    return clampToFilledBand(i >= ALIGN.near ? i - ALIGN.near : i + ALIGN.near, n);
+  }
+  return clampToFilledBand(centredChoice(idxs, position), n);        // RULE 3
 }
 
 // Draw-distance for a LINKED tile on a pulled wheel (Brett-approved
