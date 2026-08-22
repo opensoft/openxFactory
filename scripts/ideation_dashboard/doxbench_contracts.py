@@ -142,11 +142,28 @@ from referencing.jsonschema import DRAFT202012
 # byte-exact, so a runtime pinned to v1.38's chat-turn digest cannot read
 # v1.40's schema at all. That is the check working.
 #
-# v1.40 WAS AVAILABLE WHEN THIS SLICE ALLOCATED IT, checked against the
-# CHANGELOG at the moment of allocation rather than assumed -- the habit the
-# v1.37/v1.38 episode earned, twice. At the branch base (66140613) the
-# CHANGELOG's newest heading was contract-v1.38 and the bundle read
-# contract-v1.38.
+# THE NUMBER THIS PIN CARRIES IS A RE-CUT, and the sequence matters for anyone
+# reading the provenance later. Checked against the CHANGELOG at the moment of
+# allocation rather than assumed -- the habit the v1.37/v1.38 episode earned:
+# at the branch base (66140613) the CHANGELOG's newest heading and the bundle
+# both read contract-v1.38, so contract-v1.39 was the next available number and
+# this slice ALLOCATED IT.
+#
+# IT THEN LOST IT. While this slice was in review,
+# add-roster-directory-admission-surface landed (PR #259, 5124fbcd, merged at
+# 1f45e427) and allocated contract-v1.39 for the `directory` roster admission
+# surface. CHANGELOG presence ON MAIN is the availability test, so v1.39 is
+# theirs and this pin re-cut to contract-v1.40 -- the v1.37 -> v1.38 shape a
+# second time, and the reason the habit is to recheck at the moment you LAND as
+# well as at the moment you allocate. Unlike that episode the preceding surface
+# is clean: their v1.39 digest inventory shipped complete and
+# `verify-commit --commit 1f45e427` passes against it.
+#
+# (Stated rather than overwritten. A blanket v1.39 -> v1.40 renumber had left
+# this paragraph claiming v1.40 "was available" at the branch base, which was
+# never true; the bot round caught it here after the same defect was corrected
+# in tasks.md, which is why the correction now names the sequence instead of
+# just the number.)
 #
 # THE REF IS THE UNRESOLVED-UNTIL-PUBLISHED SENTINEL across this realization
 # branch, on v1.34's and v1.38's own precedent: the versioning policy allocates
