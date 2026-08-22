@@ -131,11 +131,16 @@ human-only.
 ### Requirement: Pilot repository and reviewing domain
 `opensoft/openxFactory` SHALL be the pilot repository for the substantive
 review lane, reviewed by codexFactory's `gate_rules_council` and
-`merge_readiness_council` under the software-engineering domain reviewing the
-engineering-contracts repository, and extension of the lane to any further
-repository SHALL proceed only through a subsequent change naming that
-repository and, where the repository is not itself engineering-owned, the
-reviewing domain's persona home.
+`merge_readiness_council`; codexFactory's councils SHALL be the reviewing
+body for substantive pull requests in EVERY governed xFactory repository
+that adopts this lane, whatever domain that repository governs — a pull
+request's diff is software regardless of the domain — so no domain
+repository instantiates review personas or councils of its own for this
+lane, and the tenant `company-policy-lead` seat already seated in
+codexFactory's `gate_rules_council` carries the policy dimension for every
+adopting repository; extension of the lane to any further repository SHALL
+proceed only through a subsequent change naming that repository and
+affirming codexFactory as its reviewing body.
 
 #### Scenario: Pilot is codexFactory-reviewed
 - **WHEN** a substantive pull request against `opensoft/openxFactory` is
@@ -146,5 +151,153 @@ reviewing domain's persona home.
 #### Scenario: Extension requires a naming change
 - **WHEN** a repository beyond the pilot is proposed for the substantive
   review lane
-- **THEN** a subsequent change MUST name the repository and its reviewing
-  domain's persona home before the lane is enabled for it
+- **THEN** a subsequent change MUST name the repository and affirm
+  codexFactory's councils as its reviewing body before the lane is enabled
+  for it
+
+#### Scenario: No second persona home is instantiated
+- **WHEN** a governed repository outside codexFactory adopts the substantive
+  review lane
+- **THEN** it MUST NOT instantiate review personas or councils of its own
+  for this lane
+- **AND** its substantive pull requests are judged by codexFactory's
+  `gate_rules_council` and `merge_readiness_council`
+
+### Requirement: Adoption beyond the pilot qualifies on recorded evidence
+Extension of the substantive review lane beyond the pilot repository SHALL be
+authorized only by a named follow-up change raised on recorded pilot
+evidence, and that evidence MUST show at least three council-cleared
+substantive pull requests spanning at least two distinct candidate classes,
+zero enforcer incidents, and one completed gate-rules review cycle; where two
+candidate repositories otherwise both clear that bar, engineering-owned
+repositories SHALL be adopted before domain repositories unless the follow-up
+change records a reason to depart from that order.
+
+#### Scenario: Adoption proposed below the evidence bar
+- **WHEN** a follow-up change proposes extending the lane to a further
+  repository and the pilot's recorded evidence shows fewer than three
+  council-cleared substantive pull requests, fewer than two distinct
+  candidate classes, any enforcer incident, or no completed gate-rules
+  review cycle
+- **THEN** the extension MUST NOT be authorized
+- **AND** the follow-up change MUST record which element of the bar is unmet
+
+#### Scenario: Engineering-owned repositories go first
+- **WHEN** two candidate repositories both clear the evidence bar and one of
+  them is engineering-owned
+- **THEN** the engineering-owned repository is adopted first
+- **AND** any departure from that order MUST be recorded in the follow-up
+  change that departs from it
+
+### Requirement: Company-policy seat participation in per-PR councils
+The tenant `company-policy-lead` seat SHALL remain seated in the
+`gate_rules_council` only and MUST NOT join per-PR `merge_readiness_council`
+deliberation by default, preserving the rule-setting/rule-applying
+separation; as the sole exception, a candidate class MAY declare a
+company-policy pull-in condition, which the `gate_rules_council` — where that
+seat already sits — SHALL define at class-definition time and never per pull
+request, and when a pull request matches a class whose declared condition
+holds, the `company-policy-lead` seat MUST be convened into that pull
+request's `merge_readiness_council` and a convening that cannot seat it MUST
+be refused and the candidate parked rather than proceeding on the remaining
+seats.
+
+#### Scenario: Default posture is rules-council-only
+- **WHEN** a pull request matches a candidate class that declares no
+  company-policy pull-in condition
+- **THEN** its `merge_readiness_council` convenes with its domain seats only
+- **AND** the company-policy dimension is carried by the class rules the
+  `gate_rules_council` already set
+
+#### Scenario: A declared pull-in condition seats the tenant seat per-PR
+- **WHEN** a pull request matches a candidate class whose declared
+  company-policy pull-in condition holds
+- **THEN** the `company-policy-lead` seat MUST be convened into that pull
+  request's `merge_readiness_council`
+- **AND** its rationale MUST appear in that pull request's verdict record
+
+#### Scenario: A pull-in class fails closed without the seat
+- **WHEN** a convening for such a class cannot seat the
+  `company-policy-lead` seat
+- **THEN** the convening MUST be refused and the candidate parked
+- **AND** the enforcer MUST NOT approve the pull request on the remaining
+  seats
+
+#### Scenario: Only the rules council defines the condition
+- **WHEN** a company-policy pull-in condition is introduced for a candidate
+  class
+- **THEN** it MUST be defined by the `gate_rules_council` at
+  class-definition time
+- **AND** it MUST NOT be introduced or altered per pull request
+
+### Requirement: Ruleset interaction shape for the substantive review lane
+The merge-master App SHALL satisfy the required-review rule of every governed
+repository adopting the substantive review lane by casting a real `APPROVE`
+review; the council-verdict check-run SHALL remain
+verdict transport only and MUST NEVER be configured as a ruleset-accepted
+satisfier; and human review SHALL remain an always-available alternate
+satisfying path on every governed repository, so no repository's ruleset may
+be configured such that only the council-cleared App path satisfies it — any
+per-repo divergence from this default requires its own recorded decision
+inside that repository's adoption change.
+
+#### Scenario: Approval satisfies by a real review
+- **WHEN** a council verdict clears a candidate and the enforcer approves it
+- **THEN** the merge-master App casts a real `APPROVE` review
+- **AND** that review is what satisfies the repository's required-review rule
+
+#### Scenario: The check-run is never a ruleset satisfier
+- **WHEN** a repository's ruleset is wired for this lane
+- **THEN** the `council-verdict/merge-readiness` check-run MUST NOT be
+  configured as a satisfier of the review gate
+- **AND** the recorded reason is the lane's own anti-spoofing analysis: a
+  name-matched check-run emitted by a lesser App would otherwise buy an
+  approval
+
+#### Scenario: Human review is never removed
+- **WHEN** the council lane is unavailable, produces no verdict, or parks a
+  candidate
+- **THEN** a human review MUST still be able to satisfy that repository's
+  required-review rule
+- **AND** no repository's ruleset may be configured App-path-only
+
+#### Scenario: Divergence requires its own recorded decision
+- **WHEN** a repository proposes a ruleset interaction shape differing from
+  this default
+- **THEN** that repository's adoption change MUST record the divergence as
+  its own decision before the lane is enabled for it
+
+### Requirement: Constitutional floor for autonomous clearance
+The ratified never-clearable floor SHALL be tier-independent — identity
+mismatch, failed or pending required checks, secret findings,
+security-touching paths, and gate-weakening changes — and no risk tier,
+clearance rule, or unanimous council verdict SHALL ever override it; any
+candidate class
+touching contract bytes, gate or workflow definitions, credential surfaces,
+or security posture SHALL be permanently human-only regardless of unanimity;
+and autonomous clearance SHALL be eligible only for candidate classes whose
+blast radius is docs- or derived-artifact-shaped, which today is exactly the
+proven docs class. The enumerated, ordered tier vocabulary and its per-tier
+clearance eligibility are deliberately NOT fixed by this requirement; they
+are deferred to a named follow-up change raised on pilot evidence, and until
+then the "Substantive candidate classes defined by the gate-rules council"
+requirement's declare-presence-not-vocabulary rule governs tier naming.
+
+#### Scenario: Unanimity does not override the floor
+- **WHEN** a candidate trips any floor condition and the
+  `merge_readiness_council`'s verdict is nonetheless a unanimous ADMIT
+- **THEN** the enforcer MUST NOT approve the pull request
+- **AND** it parks the candidate for human review
+
+#### Scenario: Permanently human-only surfaces
+- **WHEN** a candidate class is defined whose matching pull requests can
+  touch contract bytes, gate or workflow definitions, credential surfaces,
+  or security posture
+- **THEN** the `gate_rules_council` MUST declare that class human-only
+- **AND** no verdict under it SHALL ever produce an autonomous approval
+
+#### Scenario: Autonomous eligibility is blast-radius bounded
+- **WHEN** a candidate class whose blast radius is not docs- or
+  derived-artifact-shaped is proposed as autonomously clearable
+- **THEN** the `gate_rules_council` MUST refuse to publish it as
+  autonomously clearable

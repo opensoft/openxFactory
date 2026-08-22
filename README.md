@@ -569,11 +569,32 @@ Active changes:
   a signed identity-bound check-run, and an audit artifact make review
   accountable; reviewer/enforcer identity stays separate from the PR
   author's; the envelope fails closed outside a defined candidate class or a
-  non-unanimous verdict. MODIFIES `roles-authority-model` (six ADDED
+  non-unanimous verdict. MODIFIES `roles-authority-model` (ten ADDED
   requirements). Pilot: `opensoft/openxFactory` reviewed by codexFactory's
-  councils. Rollout order, non-engineering persona homes, company-policy-lead
-  per-PR seating, per-repo ruleset shape, and risk-tiering taxonomy are
-  declared open questions, not decided.
+  councils. **All five questions the proposal declared open on 2026-08-15
+  were RULED by Brett Heap in-session 2026-08-22 and encoded** (proposal
+  "Decided questions"; four new requirements plus a rewritten pilot
+  requirement): rollout order DEFERRED to a named follow-up change on pilot
+  evidence, but the bar (≥3 council-cleared substantive PRs across ≥2
+  candidate classes, zero enforcer incidents, one completed gate-rules
+  review cycle) and the ordering principle (engineering-owned repos before
+  domain repos) are decided now; persona home — codexFactory's councils
+  review substantive PRs in EVERY governed repo, zero new persona homes
+  (Brett overrode the recommended two-axis split); company-policy-lead seat
+  rules-council-only BY DEFAULT with a bounded per-class pull-in a candidate
+  class may declare, defined by the gate-rules council at class-definition
+  time and fail-closed for those classes (Brett's third option, superseding
+  design.md Decision D in part); ruleset shape — the proven shape everywhere
+  (real `APPROVE` review satisfies required review; the council-verdict
+  check-run is transport only and never a satisfier; human review always
+  available, no App-path-only repo); and risk tiers — the constitutional
+  floor is ruled now (the ratified never-clearable floor is tier-independent
+  and unoverridable by unanimity; contract bytes, gate/workflow definitions,
+  credential surfaces, and security posture are permanently human-only;
+  autonomous clearance only ever for docs-/derived-artifact-shaped blast
+  radii) with the enumerated tier vocabulary DEFERRED to the same
+  evidence-driven follow-up path. Status stays `draft` — ratification of the
+  requirement set is Brett's separate read.
 - [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
   — authored 2026-08-13: two neutral `credential-contracts` requirements for the
   openXdox intent-plane dispatch credential — dispatch-only least privilege with

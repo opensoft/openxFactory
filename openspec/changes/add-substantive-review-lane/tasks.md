@@ -5,25 +5,35 @@
 - [ ] 1.1 `OPENSPEC_TELEMETRY=0 openspec validate add-substantive-review-lane
       --strict` and `--all --strict` green; change listed in the README
       OpenSpec Records block.
-- [ ] 1.2 RATIFICATION PENDING. The five open questions in `proposal.md`
-      (rollout order beyond the pilot; persona home for non-engineering
-      domain repos; whether company-policy-lead joins per-PR councils;
-      per-repo ruleset interaction shape; risk-tiering taxonomy) are
-      declared, not decided, by this proposal. At minimum the pilot-scoping
-      questions (Decision E) do not need to be settled before ratifying the
-      six ADDED requirements themselves, since the requirements only bind
-      the pilot and require every candidate class to DECLARE a risk tier
-      and clearance rule — not to use a specific vocabulary. Everything
-      below is parked behind this gate.
+- [x] 1.2 The five questions this proposal declared open on 2026-08-15 were
+      RULED by Brett Heap in-session 2026-08-22 and are encoded — see
+      `proposal.md` "Decided questions" and the four new requirements plus
+      the rewritten pilot requirement in
+      `specs/roles-authority-model/spec.md`. Two rulings departed from the
+      written recommendation: Q2 (Brett overrode the two-axis split —
+      codexFactory reviews every governed repo) and Q3 (Brett chose a
+      bounded conditional pull-in over flat rules-only). Two residues are
+      deliberately deferred to a named follow-up change raised on pilot
+      evidence: the adoption ORDER beyond the pilot (Q1) and the enumerated
+      risk-tier VOCABULARY (Q5).
+- [ ] 1.3 RATIFICATION PENDING — Brett's read of the requirement set itself.
+      `Status:` in `proposal.md` stays `draft` until he rules on it; nothing
+      in the 2026-08-22 rulings ratifies this change. Everything below is
+      parked behind this gate.
 
 ## 2. Neutral contract delta (this change's own surface)
 
-- [ ] 2.1 Six ADDED requirements on `roles-authority-model`
-      (`specs/roles-authority-model/spec.md`): substantive review authority
-      generalization; gate-rules-council-defined candidate classes;
-      substantive review accountability; reviewer/enforcer identity
-      separation from the author; fail-closed substantive review envelope;
-      pilot repository and reviewing domain.
+- [ ] 2.1 Ten ADDED requirements on `roles-authority-model`
+      (`specs/roles-authority-model/spec.md`). Six from the authored
+      principles: substantive review authority generalization;
+      gate-rules-council-defined candidate classes; substantive review
+      accountability; reviewer/enforcer identity separation from the author;
+      fail-closed substantive review envelope; pilot repository and
+      reviewing domain (whose persona-home clause the Q2 ruling rewrote).
+      Four from Brett's 2026-08-22 rulings: adoption beyond the pilot
+      qualifies on recorded evidence (Q1); company-policy seat participation
+      in per-PR councils (Q3); ruleset interaction shape for the substantive
+      review lane (Q4); constitutional floor for autonomous clearance (Q5).
 - [ ] 2.2 `docs/roles-and-authority.md` (or wherever the neutral roles doc
       lives per the "Neutral authority model ownership" requirement) gains a
       cross-reference to the new requirements, so the human-readable doc and
@@ -36,18 +46,31 @@
       `risk_tier` and `clearance_rule` field per candidate class (schema
       addition to the codexFactory-owned `merge-approval-envelope` mechanics
       contract referenced from `.github/merge-approval-envelope.yml`'s
-      header comment).
+      header comment), plus the Q5 constitutional floor as enforced data
+      rather than prose: a class whose matched PRs can touch contract bytes,
+      gate/workflow definitions, credential surfaces, or security posture
+      MUST be human-only, and autonomous clearance MUST be refusable for any
+      class whose blast radius is not docs-/derived-artifact-shaped.
 - [ ] 3.2 `gate_rules_council` produces a record defining
       `opensoft/openxFactory`'s substantive candidate classes (at minimum
       one to prove the generalization; risk tier and clearance rule
       declared per Decision B), with the company-policy-lead seat's
       compliance rationale and a domain seat's best-practice rationale on
       record per the "Substantive candidate classes" requirement.
-- [ ] 3.3 Confirm `merge_readiness_council`'s existing seat composition
-      (lead-quality, lead-security, lead-integration) is sufficient for the
-      pilot's first substantive class, or record the open question from
-      Decision D as still unresolved if a class seems to need the
-      company-policy-lead seat per-PR.
+- [ ] 3.3 Realize the Q3 conditional pull-in (Decision D's superseding
+      ruling, no longer an open question):
+      `hermes/domain/review-councils/merge-readiness.yaml` gains an OPTIONAL
+      `company-policy-lead` seat carrying a `when:` condition, mirroring
+      `gate-rules.yaml`'s existing `client-security-compliance-officer` /
+      `rule_touches_security_posture` conjunction; `gate-rules.yaml` gains
+      the per-candidate-class field that declares whether that condition
+      applies to the class, settable only by the `gate_rules_council` at
+      class-definition time. Both files' existing
+      `missing_required_seat: refused` gives the fail-closed behaviour with
+      no new mechanism — verify that a pull-in class with the seat
+      unavailable actually parks rather than convening on the remaining
+      seats, and that a class WITHOUT the declaration still convenes
+      domain-seats-only.
 
 ## 4. Aggregation / workflow realization (downstream; executed in xFactory aggregation repo)
 
@@ -68,15 +91,46 @@
       candidate's author identity matches a participating council seat's
       identity or the merge-master approving identity itself (the
       "Reviewer and enforcer identity separation" requirement's scenario).
+- [ ] 4.4 REALIZATION FACT, recorded here so the generalization does not
+      discover it late (verified by reading the code 2026-08-22, NOT a
+      blocker for ratification): the envelope matcher compares head refs by
+      EXACT STRING EQUALITY — codexFactory
+      `scripts/merge_master/envelope.py`'s `_find_surface` does
+      `head_ref == cand.get("expected_head_ref")`, with no glob, prefix, or
+      regex path, and the schema makes `expected_head_ref` a required,
+      non-empty field. Every candidate class expressible today is therefore
+      pinned to ONE literal branch name. A substantive class covering
+      human-authored PRs on arbitrary branches cannot be written against the
+      current matcher: §4.1 must add a pattern-capable head-ref predicate
+      (and a schema change to accept it) or the pilot's first substantive
+      class must itself be fixed-branch. Whichever is chosen, it is a
+      matcher change, not a config change.
+- [ ] 4.5 REALIZATION FACT, and a thing the realization MUST pin (verified
+      2026-08-22, NOT a blocker for ratification): the per-repo rule file's
+      `repository:` key has inconsistent semantics today. codexFactory's
+      `scripts/merge_master/nightly-sweep-council-clearance.yaml` declares
+      `rule.repository: opensoft/codexFactory` — "whose rules these are" —
+      while the PRs it actually governs are the aggregation repo's, whose
+      envelope entry declares `target_repos: [opensoft/xFactory]` — "which
+      repo's PRs". With one rule file and one governed repo the ambiguity is
+      invisible; with per-repo classes across several repos it is a
+      correctness hazard, because the same key would be read two ways. The
+      realization MUST pin one meaning explicitly (and, if it picks "which
+      repo's PRs", reconcile the existing file's value rather than leave it
+      silently reinterpreted).
 
 ## 5. Pilot-repo wiring + records (downstream; executed in openxFactory repo)
 
 - [ ] 5.1 `opensoft/openxFactory` gets its own workflow instance (or a
       cross-repo-capable instance of §4's generalized workflow) and its own
       ruleset wiring, since `pull_request_target` fires in the repo the PR
-      targets — decide the ruleset interaction shape (required-review vs
-      required-check-run, human review as an always-available alternate
-      path) per repo, per the declared open question.
+      targets. The ruleset interaction shape is no longer a per-repo blank
+      to fill: wire the Q4-decided standing default — the merge-master App's
+      real `APPROVE` review satisfies the required-review rule, the
+      `council-verdict/merge-readiness` check-run is NOT configured as a
+      ruleset satisfier, and human review stays an always-available
+      alternate satisfying path (never App-path-only). Any divergence needs
+      its own recorded decision in this repo's own adoption record.
 - [ ] 5.2 First live substantive candidate on `opensoft/openxFactory`:
       `gate_rules_council` record exists (§3.2), `merge_readiness_council`
       produces a per-PR verdict record, the signed check-run and audit
@@ -89,15 +143,25 @@
 
 ## 6. Validation and exit
 
-- [ ] 6.1 `openspec validate --all --strict` green; the six ADDED
+- [ ] 6.1 `openspec validate --all --strict` green; the ten ADDED
       requirements' scenarios reviewed against the six decided principles
-      for coverage (no principle without a requirement, no requirement
-      re-deciding an open question).
+      AND the five 2026-08-22 rulings for coverage (no principle and no
+      ruling without a requirement; no requirement deciding more than its
+      ruling decided — specifically, nothing here enumerates a risk-tier
+      vocabulary or names a next adoption repo).
 - [ ] 6.2 `scripts/doc-health.py --single-repo .` shows no NEW findings
-      beyond the pre-edit baseline captured at authoring time (3 critical,
-      6 error, 39 warning, 3 info as of 2026-08-15).
+      beyond a freshly measured, same-clock baseline. Baseline re-measured
+      2026-08-22 against `origin/main` at `ca0b9057` in a separate
+      openxFactory-basenamed checkout, `--as-of 2026-08-22`:
+      **4 critical, 6 error, 78 warning, 3 info**. (This supersedes the
+      2026-08-15 authoring-time figure of 3 critical / 6 error / 39 warning
+      / 3 info, which had gone stale — the warning count moved with staged
+      topics aging, not with anything this change did. Compare only against
+      a baseline measured on the same clock; `staged-candidate-aging`
+      findings are date-driven and a stale baseline manufactures phantom
+      regressions.)
 - [ ] 6.3 Archive on realization evidence per `release-realization`: the
-      six requirements alone do not gate archiving (they are the proposal's
+      ten requirements alone do not gate archiving (they are the proposal's
       own surface, §2), but downstream sections 3–5 are named follow-ups
       whose own realization changes (or a tracked completion of this one)
       carry their own archive evidence — this proposal itself may archive

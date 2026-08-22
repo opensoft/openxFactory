@@ -1,13 +1,16 @@
 ---
-code_surface: xFactory aggregation repo (.github/workflows/merge-master-approval.yml + .github/merge-approval-envelope.yml — additional substantive candidate classes and generalized council-verdict consumption; per-repo instances of these files for repos beyond opensoft/xFactory), codexFactory (hermes/domain/review-councils/gate-rules.yaml candidate-class + risk-tier additions, merge_readiness_council scope generalized to substantive human- and agent-authored PRs), openxFactory (this spec delta on roles-authority-model; opensoft/openxFactory as the pilot repo's ruleset + workflow wiring). This change's own diff is the spec delta; the workflow/council/ruleset realization across the three surfaces is downstream, tracked in tasks.md and archived only on merged, green realization evidence per release-realization.
+code_surface: xFactory aggregation repo (.github/workflows/merge-master-approval.yml + .github/merge-approval-envelope.yml — additional substantive candidate classes and generalized council-verdict consumption; per-repo instances of these files for repos beyond opensoft/xFactory), codexFactory (hermes/domain/review-councils/gate-rules.yaml candidate-class + risk-tier + per-class company-policy pull-in-condition additions, hermes/domain/review-councils/merge-readiness.yaml conditional company-policy-lead seat, merge_readiness_council scope generalized to substantive human- and agent-authored PRs), openxFactory (this spec delta on roles-authority-model; opensoft/openxFactory as the pilot repo's ruleset + workflow wiring). This change's own diff is the spec delta; the workflow/council/ruleset realization across the three surfaces is downstream, tracked in tasks.md and archived only on merged, green realization evidence per release-realization.
 target_release: none (no contract-bundle involvement — this generalizes the roles-authority-model authority doc and cross-repo rules-as-code, not a `contracts/schemas/` artifact; realization lands as workflow, council, and ruleset changes in the affected repos)
 ---
 
 # Proposal: add-substantive-review-lane
 
 Status: draft — not yet ratified. Authored 2026-08-15 from verified current
-state (`.openspec.yaml` origin block); the open questions below are declared
-for review, not decided by this proposal.
+state (`.openspec.yaml` origin block). The five questions this proposal
+originally declared open were RULED by Brett Heap in-session 2026-08-22 and
+are recorded below under "Decided questions"; each ruling is encoded as
+requirement text in this change's spec delta. Ratification of the requirement
+set itself remains Brett's read and has not happened.
 
 ## Why
 
@@ -80,63 +83,141 @@ judgment it does not already hold as a verdict.
 
 ## What Changes
 
-- **`roles-authority-model` (ADDED requirements)** — six new requirements
+- **`roles-authority-model` (ADDED requirements)** — ten new requirements
   generalizing the existing "Low-risk enforcement envelope" and "GitHub App
-  identity tiers" requirements into a named substantive review lane:
-  authority generalization, gate-rules-council-defined candidate classes,
-  accountability (rationale + signed check-run + audit artifact + dedicated
-  identity), reviewer/enforcer identity separation from the author,
-  fail-closed envelope generalization, and the pilot repository/reviewing
-  domain declaration. See `design.md` for why `roles-authority-model` is the
-  target rather than `workflow-gate-contract` or a new capability.
+  identity tiers" requirements into a named substantive review lane. Six
+  carry the decided principles above: authority generalization,
+  gate-rules-council-defined candidate classes, accountability (rationale +
+  signed check-run + audit artifact + dedicated identity), reviewer/enforcer
+  identity separation from the author, fail-closed envelope generalization,
+  and the pilot repository/reviewing domain declaration. Four more encode
+  Brett's 2026-08-22 rulings on the previously open questions: adoption
+  beyond the pilot qualifies on recorded evidence (Q1), company-policy seat
+  participation in per-PR councils (Q3), the ruleset interaction shape (Q4),
+  and the constitutional floor for autonomous clearance (Q5); the Q2 ruling
+  is encoded by rewriting the pilot requirement's persona-home clause rather
+  than by adding a requirement. See `design.md` for why
+  `roles-authority-model` is the target rather than `workflow-gate-contract`
+  or a new capability.
 - **Downstream realization (named, not performed by this change; tracked in
   `tasks.md`)**:
   - codexFactory's `gate-rules.yaml` gains a `risk_tier` and `clearance_rule`
     field per candidate class, and its `gate_rules_council` record for
     `opensoft/openxFactory` names the pilot's substantive candidate classes.
+  - codexFactory's `merge-readiness.yaml` gains the Q3 conditional pull-in:
+    an optional `company-policy-lead` seat with a per-class `when:` condition,
+    mirroring `gate-rules.yaml`'s existing
+    `client-security-compliance-officer` / `rule_touches_security_posture`
+    conjunction, under the file's existing `missing_required_seat: refused`
+    fail-closed rule.
   - The aggregation repo's `merge-master-approval.yml` and
     `merge-approval-envelope.yml` generalize their single-candidate,
     single-repo matching to a candidate-class list keyed by
     `(repo, author-shape, path/diff-shape, risk_tier)`, with the
     council-verdict transport and anti-spoofing binding unchanged.
-  - `opensoft/openxFactory` gets its own ruleset wiring (App approval
-    satisfying its required-review or required-check-run configuration) and
-    its own workflow instance, since `pull_request_target` events fire in
-    the repo the PR is opened against.
+  - `opensoft/openxFactory` gets its own ruleset wiring in the Q4-decided
+    shape (the merge-master App's real `APPROVE` review satisfying its
+    required-review rule; the council-verdict check-run never a satisfier;
+    human review still an always-available alternate path) and its own
+    workflow instance, since `pull_request_target` events fire in the repo
+    the PR is opened against.
   - A `gate_rules_council` record and, on first live candidate, a
     `merge_readiness_council` record for an `opensoft/openxFactory` PR,
     mirroring the 2026-08-14 xFactory precedent.
 
-## Open questions (declared here, not decided by this proposal)
+## Decided questions (ruled by Brett Heap 2026-08-22)
 
-- **Rollout order beyond the pilot.** Which repos come next, and in what
-  order, is not decided here.
-- **Persona home for non-engineering domain repos.** Do Medx/Ledgerx/Ops/Adx
-  instantiate their own review personas, or does codexFactory review all
-  *software* changes regardless of which repo they land in? Both are
-  consistent with the requirements above; this proposal picks neither.
-- **Company-policy-lead seat scope.** Whether the company-policy-lead seat
-  joins per-PR `merge_readiness_council` deliberation, or remains rules-only
-  (as it is today, seated only in `gate_rules_council`), is undecided.
-- **Ruleset interaction shape per repo.** Whether App approval satisfies a
-  required-review check or a required check-run, and whether human review
-  remains an always-available alternate path per repo, is a per-repo
-  ruleset-wiring decision this proposal does not make.
-- **Risk-tiering taxonomy.** The candidate-class risk tiers (for example
-  docs-only / config / contract / runtime-code) and which tiers are ever
-  eligible for autonomous clearance are not enumerated here; the
-  requirements above only require that every class DECLARE a risk tier and
-  a clearance rule, not what the tier vocabulary is.
+The five questions this proposal declared open on 2026-08-15 were ruled
+in-session by Brett Heap on 2026-08-22, against a written recommendation set
+built on full recon of this packet, codexFactory's council machinery, the
+aggregation repo's merge-master enforcer, and the two proven autonomous
+clearances (xFactory PRs #85/#100). Two rulings departed from the
+recommendation and are marked. Each ruling below names the requirement that
+encodes it; none of them is reopened by this change.
+
+- **Q1 — Rollout order beyond the pilot: DEFERRED TO PILOT EVIDENCE, WITH THE
+  BAR RECORDED NOW.** The adoption ORDER beyond the openxFactory pilot is
+  decided by a named follow-up change raised on pilot evidence, through the
+  one-change-per-repo mechanism the "Pilot repository and reviewing domain"
+  requirement already carries. The EVIDENCE BAR is decided now: the pilot
+  qualifies a next adoption only after ≥3 council-cleared substantive PRs
+  spanning ≥2 candidate classes, zero enforcer incidents, and one completed
+  gate-rules review cycle. The ordering principle is decided now too:
+  engineering-owned repos before domain repos. *Encoded as the "Adoption
+  beyond the pilot qualifies on recorded evidence" requirement. Route: this
+  proposal edit for the bar and the principle; a named follow-up change for
+  the order itself.*
+- **Q2 — Persona home: CODEXFACTORY REVIEWS EVERYTHING** *(Brett overrode the
+  recommended two-axis engineering-vs-domain-content split).* codexFactory's
+  `gate_rules_council` and `merge_readiness_council` review substantive PRs in
+  ALL governed xFactory repos, whatever domain the repo governs — a PR's diff
+  is software regardless of the domain. NO domain repo instantiates its own
+  review personas or councils for this lane; there are zero new persona homes.
+  The tenant `company-policy-lead` seat, cross-layer and domain-independent,
+  continues to carry the policy dimension inside codexFactory's councils. The
+  per-repo adoption change survives unchanged — what it names is the
+  repository, and it affirms codexFactory as the reviewer instead of naming a
+  persona home. *Encoded by rewriting the "Pilot repository and reviewing
+  domain" requirement's persona-home clause. Route: this proposal edit.*
+- **Q3 — Company-policy-lead per-PR seating: CONDITIONAL PULL-IN** *(Brett
+  chose a bounded third option over the recommended flat rules-only rule).*
+  The DEFAULT stands: the seat is rules-council-only, preserving the
+  2026-07-22 permanent rule-setting/rule-applying separation. The EXCEPTION is
+  bounded and declared: a candidate class MAY declare a company-policy pull-in
+  condition, and a PR matching such a class pulls the `company-policy-lead`
+  seat into THAT PR's `merge_readiness_council` convening — the same
+  conjunction shape as the existing
+  `client-security-compliance-officer` / `rule_touches_security_posture`
+  pull-in in codexFactory's `gate-rules.yaml`. The condition is defined PER
+  CANDIDATE CLASS by the `gate_rules_council` (where the seat already sits) at
+  class-definition time, so the seat itself decides, on the record, which
+  classes summon it per-PR. Fail-closed semantics follow the existing
+  `missing_required_seat: refused` rule: for a class that declares the
+  pull-in, a convening missing the seat is refused and parked. That
+  availability cost is accepted, bounded to policy-flagged classes only —
+  every other class keeps domain-seats-only per-PR councils. *Encoded as the
+  "Company-policy seat participation in per-PR councils" requirement; design.md
+  Decision D is superseded in part. Route: this proposal edit.*
+- **Q4 — Ruleset interaction shape: THE PROVEN SHAPE, EVERYWHERE.** The
+  merge-master App casts a REAL `APPROVE` review and that review satisfies the
+  repo's required-review rule. The council-verdict check-run remains verdict
+  TRANSPORT only and is never configured as a ruleset-accepted satisfier — the
+  workflow's own anti-spoofing analysis is the recorded reason. Human review
+  REMAINS an always-available alternate satisfying path on EVERY governed
+  repo; no repo's ruleset may be configured App-path-only, because a council
+  outage must never block humans. Per-repo divergence from this default, if
+  ever wanted, requires its own recorded decision inside that repo's adoption
+  change. *Encoded as the "Ruleset interaction shape for the substantive
+  review lane" requirement. Route: this proposal edit.*
+- **Q5 — Risk tiers: CONSTITUTIONAL FLOOR NOW, VOCABULARY LATER.** Ruled now,
+  in three clauses: (i) the ratified never-clearable floor — identity
+  mismatch, failed or pending required checks, secret findings,
+  security-touching paths, gate-weakening changes — is TIER-INDEPENDENT, and
+  no tier, clearance rule, or unanimous verdict ever overrides it; (ii) any
+  candidate class touching contract bytes, gate/workflow definitions,
+  credential surfaces, or security posture is PERMANENTLY human-only,
+  regardless of unanimity; (iii) autonomous clearance is only ever eligible
+  for classes whose blast radius is docs- or derived-artifact-shaped, which
+  today is exactly the proven docs class. The enumerated, ordered tier
+  vocabulary with per-tier clearance eligibility is explicitly DEFERRED to the
+  evidence-driven follow-up change — the same follow-up path Q1's rollout
+  order takes; they may share one change or come separately. *Encoded as the
+  "Constitutional floor for autonomous clearance" requirement, which also
+  records the deferral. Route: this proposal edit for the floor; a named
+  follow-up change for the vocabulary.*
 
 ## Capabilities
 
 ### Modified Capabilities
 
-- `roles-authority-model`: six ADDED requirements generalizing the
+- `roles-authority-model`: ten ADDED requirements generalizing the
   substantive-review authority, accountability, identity-separation, and
   fail-closed envelope machinery already partially present (Merge Master's
   low-risk envelope, GitHub App identity tiers) into a named, extensible
-  lane, plus a declared pilot.
+  lane, plus a declared pilot, the evidence bar and ordering principle for
+  adoption beyond it, the company-policy seat's default and its declared
+  per-class pull-in exception, the standing ruleset interaction shape, and
+  the constitutional floor for autonomous clearance.
 
 ## Impact
 
@@ -157,10 +238,16 @@ judgment it does not already hold as a verdict.
 
 ## Out of scope, deliberately
 
-- Deciding the risk-tiering taxonomy, rollout order, non-engineering persona
-  homes, company-policy-lead per-PR seating, or the per-repo ruleset
-  interaction shape — all five are declared as open questions above, for a
-  human or a follow-on change to settle.
+- Two residues of the 2026-08-22 rulings, both deliberately deferred to a
+  named follow-up change raised on pilot evidence (they may share one change
+  or come separately): the adoption ORDER beyond the pilot (Q1 — the evidence
+  bar and the engineering-before-domain ordering principle ARE decided here;
+  which repo is actually next is not), and the enumerated, ordered risk-tier
+  VOCABULARY with per-tier clearance eligibility (Q5 — the constitutional
+  floor IS decided here; the tier names are not). The other three questions —
+  the persona home, company-policy-lead per-PR seating, and the per-repo
+  ruleset interaction shape — are decided in full above and are not
+  reopened.
 - Retiring any existing `--admin` bypass usage on any repo — this proposal
   only makes a governed alternative available; removing bypass access is a
   separate, per-repo policy decision.

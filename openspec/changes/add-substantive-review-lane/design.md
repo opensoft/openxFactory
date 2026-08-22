@@ -36,8 +36,9 @@ Considered three homes for the ADDED requirements:
    in `roles-authority-model` (Merge Master, the low-risk envelope, GitHub
    App identity tiers, human-attention escalation), and splitting it into a
    second capability would force cross-capability requirement references
-   for what is fundamentally one authority model extended by six
-   requirements. If a later change adds enough NEW machinery (e.g. a
+   for what is fundamentally one authority model extended by a single
+   requirement set (six as authored 2026-08-15, ten after the 2026-08-22
+   rulings added four). If a later change adds enough NEW machinery (e.g. a
    full candidate-class schema family with its own validator, packaged
    examples, and manifest entry — the "neutral contract realization
    pattern" `add-client-identity-roster` used), promoting a dedicated
@@ -78,6 +79,23 @@ enumerate the vocabulary:
   `stack.yaml`-declared layer id — presence and validity, not a closed
   enumeration, at the neutral layer.
 
+**AMENDED 2026-08-22 by Brett's Q5 ruling.** Option 2 stands: the tier
+VOCABULARY is still not enumerated, and its deferral is now explicit rather
+than merely "open" — the enumerated, ordered vocabulary with per-tier
+clearance eligibility goes to a named follow-up change raised on pilot
+evidence. What the ruling adds on top of Option 2 is a CONSTITUTIONAL FLOOR
+that does not wait for the vocabulary, because it is expressible without one:
+the ratified never-clearable conditions are tier-independent and unoverridable
+by any tier, clearance rule, or unanimous verdict; classes touching contract
+bytes, gate/workflow definitions, credential surfaces, or security posture are
+permanently human-only; and autonomous clearance is eligible only for
+docs-/derived-artifact-shaped blast radii, which today is exactly the proven
+docs class. This is the omnigent permission matrix's constitutional-false
+precedent applied to clearance: a "never, regardless of verdict" band can be
+fixed before the graded band above it is named, and fixing it first is what
+keeps the deferral safe rather than merely convenient. Encoded as the
+"Constitutional floor for autonomous clearance" requirement.
+
 ## Decision C — Approval-transport: reuse the proven check-run + APPROVE pattern unchanged
 
 Considered redesigning the verdict transport for the generalized lane (for
@@ -95,10 +113,31 @@ the candidate-matching logic (author/head/path/repo shape) and which repos'
 councils are authorized to emit it, not the check-run/review mechanism
 itself. The per-repo *ruleset interaction shape* (does the App's review
 satisfy a required-reviewer rule, or does the repo instead require the
-check-run directly) is left as a declared open question because it is a
-per-repo GitHub configuration choice, not a transport-mechanism choice.
+check-run directly) was left as a declared open question here, because it is
+a per-repo GitHub configuration choice, not a transport-mechanism choice.
 
-## Decision D — Company-policy-lead seat stays rules-only for this proposal
+**AMENDED 2026-08-22 by Brett's Q4 ruling — the shape is no longer open.** The
+proven shape becomes the STANDING DEFAULT for every governed repo, not a
+per-repo choice made from scratch: the App casts a real `APPROVE` review and
+that review is what satisfies the required-review rule; the check-run stays
+verdict transport and is NEVER configured as a ruleset-accepted satisfier
+(this decision's own anti-spoofing analysis is the recorded reason — making
+the transport a satisfier would re-open exactly the forgery gap the
+`COUNCIL_LANE_APP_ID` binding was added to close); and human review remains an
+always-available alternate satisfying path on every repo, so no repo may be
+wired App-path-only and a council outage can never block humans. Per-repo
+divergence stays possible but is now an exception that must be recorded as its
+own decision inside that repo's adoption change, rather than a blank the
+adoption change fills in silently. Encoded as the "Ruleset interaction shape
+for the substantive review lane" requirement.
+
+## Decision D — Company-policy-lead seat stays rules-only for this proposal — SUPERSEDED IN PART 2026-08-22
+
+**Reading order.** The paragraph below is the decision as authored 2026-08-15
+and is kept verbatim, because its defense of the rules-only posture is still
+the reason that posture is the DEFAULT. What it no longer holds is its last
+clause — that per-PR seating is "left as a declared open question". Brett
+ruled Q3 on 2026-08-22 and the ruling is recorded immediately after it.
 
 `gate_rules_council` already seats `company-policy-lead` (tenant layer) for
 RULE-SETTING; `merge_readiness_council` seats only domain personas
@@ -115,6 +154,42 @@ explicitly designed to preserve — is left as a declared open question rather
 than decided here, because it is a seat-composition change to an already
 proven-live council, not a pure additive extension.
 
+**SUPERSEDING RULING (Brett Heap, 2026-08-22) — the default survives, a
+bounded exception is added.** Brett declined both flat answers. Rules-only
+remains the DEFAULT posture and the 2026-07-22 permanent separation stands
+for every class that says nothing; what is added is a per-class, declared
+EXCEPTION. A candidate class MAY declare a company-policy pull-in condition,
+and a PR matching such a class pulls the `company-policy-lead` seat into THAT
+PR's `merge_readiness_council` convening.
+
+Three properties are what make this narrower than the option this decision
+rejected, and they are the reason it is adoptable without re-litigating
+2026-07-22:
+
+1. **It reuses a shape the councils already run**, rather than inventing one.
+   `gate-rules.yaml` already seats `client-security-compliance-officer` with
+   `when: rule_touches_security_posture` — a conditional seat pulled in by a
+   declared trigger. Q3 is the same mechanism aimed at a different council and
+   a policy trigger.
+2. **The seat itself sets its own summons, on the record.** The pull-in
+   condition is defined PER CANDIDATE CLASS by the `gate_rules_council` — the
+   body the `company-policy-lead` seat already sits in — at class-definition
+   time, never per pull request. So the rule-setting act stays in the
+   rule-setting body; only the rule-APPLYING act reaches per-PR, and only for
+   classes the rule-setting body itself flagged. The separation is bent at a
+   declared, recorded point rather than dissolved.
+3. **The availability cost is bounded and priced.** `missing_required_seat:
+   refused` means a convening that cannot seat a required seat is refused and
+   parked — so for a pull-in class, tenant-seat unavailability parks the PR.
+   This decision's original objection (adding a tenant-availability failure
+   mode to EVERY PR) is answered by scope: only policy-flagged classes carry
+   it; every other class keeps domain-seats-only per-PR councils. Brett
+   accepted that cost explicitly for the flagged classes.
+
+Encoded as the "Company-policy seat participation in per-PR councils"
+requirement, whose default clause and exception clause map one-to-one onto
+this decision's surviving half and its superseding half.
+
 ## Decision E — Pilot scope is one repo before any rollout ordering
 
 `opensoft/openxFactory` is named as the sole pilot (decided principle 6)
@@ -127,3 +202,59 @@ live end-to-end (2026-08-14). Rollout order beyond the pilot is left open
 rather than sequenced here, because sequencing depends on the still-open
 "persona home for non-engineering domains" question — proposing an order
 before that question resolves would silently presuppose an answer to it.
+
+**AMENDED 2026-08-22 by Brett's Q1 and Q2 rulings.** The stated reason for
+leaving the order open is now discharged: Q2 answered the persona-home
+question (codexFactory reviews every governed repo), so an order no longer
+presupposes anything about who reviews. The order is nonetheless STILL not
+sequenced here — but for a different and narrower reason, which the ruling
+makes explicit: it is now deferred on EVIDENCE rather than on an unresolved
+dependency. What is decided now is the bar the pilot must clear before any
+next adoption (≥3 council-cleared substantive PRs spanning ≥2 candidate
+classes, zero enforcer incidents, one completed gate-rules review cycle) and
+the ordering principle that applies once repos clear it (engineering-owned
+before domain). The order itself lands in a named follow-up change raised on
+that evidence — the same follow-up path Q5's tier vocabulary takes. Encoded as
+the "Adoption beyond the pilot qualifies on recorded evidence" requirement.
+
+## Decision F — Reviewing persona home: codexFactory reviews every governed repo (Brett Heap, 2026-08-22)
+
+Recorded here because Q2 had no decision entry of its own — it was carried
+only as an open question, and Decision E's deferral leaned on it.
+
+The recommendation put to Brett was a TWO-AXIS split: the engineering
+dimension of every governed repo's PRs (code, contracts, validators,
+workflows) belongs to codexFactory, and the domain-content dimension
+(hermes/ overlays, clinical/ledger/ops templates) belongs to the owning
+domain, whose adoption change would name and instantiate its own review body
+at adoption time. That option was chosen to avoid asserting standing
+codexFactory has no claim to: a MedxFactory PR's CONTENT can be medical
+governance.
+
+**Brett OVERRODE it.** codexFactory's `gate_rules_council` and
+`merge_readiness_council` review substantive PRs in ALL governed xFactory
+repos, whatever domain the repo governs, on the ground that a PR's diff is
+software regardless of the domain. NO domain repo instantiates review
+personas or councils for this lane; zero new persona homes are created. The
+policy dimension continues to be carried by the tenant `company-policy-lead`
+seat, which is cross-layer and domain-independent and already sits in
+codexFactory's `gate_rules_council` (and now, under Decision D's superseding
+ruling, may be pulled per-PR for classes that declare it).
+
+What the ruling does NOT do, and the requirement text is careful about it:
+it does not delete the adoption-change-per-repo mechanism. Every repo beyond
+the pilot still adopts the lane through its own named change. What that
+change names changes — the repository, plus an affirmation that codexFactory
+is its reviewing body — instead of a per-domain persona home to be stood up.
+The persona-home FORK is what is removed, not the per-repo gate.
+
+The residual risk is recorded rather than argued away: for a domain repo
+whose PR content is domain governance rather than software, codexFactory's
+councils are reviewing material outside their domain expertise. Brett's
+ruling accepts that; the mitigations that exist today are the
+`needs_human_review` escalation available at every candidate class, the
+`gate_rules_council`'s power to declare any class human-only, and the Q5
+constitutional floor, which keeps contract bytes, gate/workflow definitions,
+credential surfaces, and security posture permanently human-only regardless
+of unanimity. A domain repo that needs more than that can record the need in
+its own adoption change.
