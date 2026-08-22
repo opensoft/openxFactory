@@ -37,6 +37,9 @@ what the served overlay renders beyond the one digest line.
       2026-07-28, is the precedent). Record which of `contents: write`,
       `pull_requests: write` and `actions: write` the installation actually
       carries.
+      > GATE OPEN (human/infra). Until the `XFACTORY_APP` installation includes
+      > Omnigent-Install, the delivery step's `repos/<recipe>` probe 403s and the
+      > pin PR parks fail-soft — the stage is code-complete behind this gate.
 - [ ] 1.3 If 1.2 shows the installation cannot be extended, record the
       contingency ruling and mint a dedicated refresh-lane App instead. Only
       the `expected_author` value in §6.2's envelope entry changes; nothing
@@ -76,6 +79,10 @@ an extra field — it needs a schema delta.
       The credential MUST be push-scoped to the single `ideation-dashboard`
       image repository — not registry-wide — and declared as a `vaultref`, the
       way every other credential in that manifest is.
+      > GATE OPEN (OMNIGENT-INSTALL infra). The `acr_push` schema delta +
+      > `cpc-omni01` manifest entry are Omnigent-Install's to land; the
+      > openxFactory stage assumes the host holds the push credential and never
+      > reads it. This gate also blocks the §4.2 worker-profile registration.
 - [ ] 2.3 Reconcile the credential onto the host through the Worker Host App and
       verify a push by hand from the host. The worker AGENT must never fetch or
       read it: it is host substrate, reconciled onto the host, and that is the
@@ -108,22 +115,47 @@ an extra field — it needs a schema delta.
       the parent-run/correlation/source-revision verification before it acts on
       any parent input, and the digest as its ONLY result artifact. It holds no
       repository write credential.
+      > CROSS-REPO (AGGREGATION). This child does NOT belong in openxFactory —
+      > every worker child dispatched by `doc-health-reusable.yml`
+      > (`doc-health-analysis-worker.yml`, `-cataloger-`, `-readiness-`,
+      > `-derive-possibles-`) lives in the aggregation, the caller repo
+      > `$GITHUB_REPOSITORY`, not here (openxFactory ships only
+      > `doc-health-reusable.yml` and `session-open-pr.yml`). The openxFactory
+      > stage now DISPATCHES `dashboard-image-worker.yml` and collects its one
+      > `digest.json` artifact (named `dashboard-image-digest-<correlation_id>`);
+      > the child itself, running `dashboard-refresh-nightly.py --phase build`
+      > (fresh checkout → `--strict` generate → docker build → ACR push), is the
+      > aggregation's to author and is NOT created in this repo.
 - [ ] 3.5 Confirm the child joins the existing `xfactory-artifact-worker`
       concurrency group so the singleton host is never double-booked by the
       nightly, the review lane and this lane at once.
+      > CROSS-REPO (AGGREGATION). The concurrency group is declared on the
+      > aggregation's nightly caller and the child workflow, alongside 3.4.
 
 ## 4. The nightly stage (openxFactory)
 
-- [ ] 4.1 Add the refresh stage to `.github/workflows/doc-health-reusable.yml`'s
+- [x] 4.1 Add the refresh stage to `.github/workflows/doc-health-reusable.yml`'s
       `finalize` job, ordered AFTER the "Commit report (deliver via rolling PR)"
       step, so the refresh can never jeopardise the report it follows.
-- [ ] 4.2 Gate it with the file's existing readiness idiom — the
+      > DONE. The "Ideation-dashboard IMAGE REFRESH stage" block sits
+      > immediately after the "Commit report (deliver via rolling PR — ruleset
+      > 18962101)" step and before "Open regression issue" in `finalize`.
+- [x] 4.2 Gate it with the file's existing readiness idiom — the
       `GROUP="xfactory-artifact-workers"` runner-group resolution plus the
       authenticated Hermes heartbeat, evaluated by
       `scripts/check-worker-readiness.py` — and SKIP fail-closed when unready.
       Add NO inline hosted fallback: the build and push belong to the host that
       holds the registry binding.
-- [ ] 4.3 Implement the no-change short-circuit ON INPUTS, BEFORE the build
+      > DONE. "Evaluate dashboard-refresh worker readiness" (id `dfr-readiness`)
+      > is a verbatim clone of the readiness-scorer idiom (runner-group + Hermes
+      > heartbeat → `check-worker-readiness.py`); `ready != 'true'` runs the
+      > "record skip (worker unavailable)" step and nothing else. No hosted
+      > fallback exists in the stage. The `--required-label dashboard-image` /
+      > `--required-profile dashboard-image-refresh` values and the matching
+      > worker-profile registration are the AGGREGATION/host gate (§1.4, §2);
+      > until they resolve, readiness is false and the stage skips fail-closed —
+      > the designed default.
+- [x] 4.3 Implement the no-change short-circuit ON INPUTS, BEFORE the build
       (design Decision 10). Read the two recorded revisions out of the pinned
       image's comment block, compute the current pair, and stop with a
       `no_change` outcome — no checkout, no snapshot, no build, no push, no
@@ -138,13 +170,18 @@ an extra field — it needs a schema delta.
       against the pinned digest — the build is not reproducible (fresh-checkout
       mtimes move the copied layers; `FROM python:3.12-slim` floats), so that
       predicate never fires.
-- [ ] 4.3a Define the provenance record's shape and make the overlay comment its
+      > DONE. `decide_refresh` is a pure path-scoped two-revision predicate
+      > (`CORPUS_BAKED_PATHS` / `RECIPE_BAKED_PATHS`); output-digest equality is
+      > banned and unspellable (`digest_note` is a note, never a trigger). The
+      > `dfr-decide` workflow step runs it BEFORE dispatch, so a quiet night
+      > dispatches no child and builds nothing.
+- [x] 4.3a Define the provenance record's shape and make the overlay comment its
       AUTHORITATIVE home: a stable, machine-readable key/value block carrying
       both input revisions and the scoping used to compute them, written into
       the pin's comment inside the `images:` entry. It must parse
       deterministically — no prose regex-guessing. Absent or unparseable ⇒ treat
       as CHANGED (bootstrap build), never as unchanged.
-- [ ] 4.4 Implement the pin-PR authoring on the fixed head branch
+- [x] 4.4 Implement the pin-PR authoring on the fixed head branch
       `bot/dox-dashboard-pin`, using the force-free rolling-branch mechanics the
       report step already proved: org ruleset 8981805 applies
       `non_fast_forward` to `~ALL` branches with NO bypass, so deliver by branch
@@ -152,19 +189,34 @@ an extra field — it needs a schema delta.
       whose FIRST parent is the current remote tip. Do not rediscover this — an
       earlier revision of the report step got it wrong and "succeeded solely on
       nights the push happened to CREATE the branch."
-- [ ] 4.5 Write the PR body provenance — the two input revisions, snapshot
+      > DONE. The "deliver pin PR to Omnigent-Install (force-free, fail-soft)"
+      > step reuses the report step's exact mechanics against `RECIPE_REPO`:
+      > branch CREATION (delete stale ref first) when no PR is open, else a
+      > fast-forward merge commit whose first parent is the remote tip; never
+      > `--force`. FAIL-SOFT: a `repos/<recipe>` read that 403s, a failed clone,
+      > or a rejected push logs `::warning::` and exits 0 — the App lacking
+      > Omnigent-Install scope (installation gate 1.2) never hard-fails the
+      > nightly; the refresh parks for the human gate.
+- [x] 4.5 Write the PR body provenance — the two input revisions, snapshot
       `source_revision`, pushed tag, new and previous digests,
       strict-validation counts, and the run URL — and mark it explicitly as a
       COURTESY restatement: the record the lane reads is the overlay comment
       (4.3a), never the PR body. Assert no label, title prefix or
       commit-message convention is used to CLAIM the diff shape — the receiving
       repository adjudicates it.
-- [ ] 4.6 Confirm the produced diff is exactly the `digest:` line plus its
+      > DONE. `render_pr_body` (module) writes exactly these fields, states it
+      > is a courtesy restatement, and the delivery step sets no shape-claiming
+      > label/title-prefix/commit convention.
+- [x] 4.6 Confirm the produced diff is exactly the `digest:` line plus its
       adjacent provenance comment on the `ideation-dashboard` entry, and touches
       no other line, block or file. Keep the human-readable facts the existing
       comment carries (see 1.5) and add the 4.3a key/value block beside them —
       the comment must serve both a reader and the parser.
-- [ ] 4.7 Write `health/ideation-dashboard/refresh-status.json` beside the
+      > DONE. `rewrite_pin` replaces only the digest value + machine-provenance
+      > comment lines and preserves the human prose; the delivery step's
+      > `git diff --cached --quiet` envelope guard confirms the overlay is the
+      > only file touched. Pinned by tests 5.3 / 5.2a.
+- [x] 4.7 Write `health/ideation-dashboard/refresh-status.json` beside the
       existing `lane-status.json`, following `nightly_lane.py`'s status idiom
       (diagnostic, not a projection; its own failure must never take the run
       down). Fields: result (`ok` / `no_change` / `skipped` / `strict_failed`),
@@ -173,23 +225,47 @@ an extra field — it needs a schema delta.
       (when a build occurred), tag, PR reference, `generated_at`, `run_id`. A
       `no_change` outcome MUST name the revisions that matched, so "nothing
       moved" is auditable rather than asserted.
+      > DONE. `refresh_status_payload` / `write_refresh_status` carry every
+      > field; the PR-reference field is patched post-delivery by a new
+      > `--phase record-pr` CLI seam — the SMALLEST wrapper needed, wiring the
+      > module's already-tested `record_pull_request()` to the CLI so the
+      > delivery step can call it once the cross-repo push knows the URL
+      > (covered by `test_the_record_pr_cli_phase_patches_the_delivered_status`).
 - [ ] 4.8 (HUMAN GATE) Resolve the reporting-lag choice (design Open Question 3):
       accept the one-run lag and have the report SAY which run's outcome it
       names, or add a second narrowly-scoped delivery for the status artifact
       after the stage. Record the choice.
-- [ ] 4.9 Add the report section for the refresh outcome, and the stuck-chain
+      > GATE OPEN (awaiting ratification). The implementation REALIZES the
+      > design's preferred resolution — the one-run lag, with the report section
+      > naming whose outcome it is ("this run" vs "the PREVIOUS run") — so no
+      > second delivery is wired. A reviewer may still fix the choice at
+      > ratification; switching to same-run delivery would be an added step.
+- [x] 4.9 Add the report section for the refresh outcome, and the stuck-chain
       signal: a `bot/dox-dashboard-pin` PR still open at the next run is
       reported, naming it.
-- [ ] 4.10 Emit `::notice::` / `::warning::` annotations for every outcome so a
+      > DONE. The "report previous outcome (one-run lag; Decision 6)" step
+      > (before delivery, gated on a fresh dated report) runs `--phase report`;
+      > `render_report_section` names the run and, given `--stuck-pull-request`
+      > (resolved fail-soft via `gh pr list` on Omnigent-Install), flags a STUCK
+      > CHAIN.
+- [x] 4.10 Emit `::notice::` / `::warning::` annotations for every outcome so a
       skip is never silent in the run itself, whatever the artifact-delivery
       lag turns out to be.
+      > DONE. `RefreshOutcome.annotation()` emits `::notice::` for ok/no_change
+      > and `::warning::` for skipped/strict_failed on every CLI run; the
+      > workflow adds explicit `::warning::` for dispatch/pin/delivery
+      > park-points and `::notice::` on a delivered pin PR.
 
 ## 5. Tests (openxFactory)
 
-- [ ] 5.1 Tests under `tests/ideation-dashboard/` for the refresh status
+- [x] 5.1 Tests under `tests/ideation-dashboard/` for the refresh status
       artifact: every outcome class, the bounded detail, and the invariant that
       a status-write failure does not fail the lane.
-- [ ] 5.2 Tests for the no-change short-circuit, pinning the ORDERING and not
+      > DONE. `test_dashboard_refresh_lane.py` — status per outcome class, the
+      > status-write-failure invariant, plus a new
+      > `test_the_record_pr_cli_phase_patches_the_delivered_status` for the
+      > record-pr CLI seam. 40 tests pass (was 39; +1 for the seam).
+- [x] 5.2 Tests for the no-change short-circuit, pinning the ORDERING and not
       just the outcome: (a) same-input night ⇒ the lane stops BEFORE the docker
       build — assert structurally that no checkout, no snapshot generation, no
       build and no push were invoked, not merely that no PR was opened, because
@@ -199,19 +275,31 @@ an extra field — it needs a schema delta.
       static ⇒ builds; (d) an unrelated commit on the served plane's repository,
       including a simulated previously-merged pin, ⇒ does NOT rebuild, which is
       the guard against a tip-versus-tip regression.
-- [ ] 5.2a A round-trip test over the REAL overlay file: the provenance block the
+      > DONE. Ordering asserted structurally via `RecordingBuild` (the build
+      > callable is never invoked on a no-change night); bootstrap, recipe-moved,
+      > and the unrelated-commit / simulated-merged-pin cases each pinned, with
+      > path-scoping asserted on the recipe-side query.
+- [x] 5.2a A round-trip test over the REAL overlay file: the provenance block the
       lane writes is parsed back to the same two revisions, and the surrounding
       human prose is preserved. This is the guard on the one comment that is now
       load-bearing state.
-- [ ] 5.3 A test that the produced diff is envelope-shaped: exactly the digest
+      > DONE. `test_provenance_round_trips_through_the_real_overlay` over the
+      > `dox-aks-qa-kustomization.yaml` fixture.
+- [x] 5.3 A test that the produced diff is envelope-shaped: exactly the digest
       line and its adjacent comment in the `images:` block of the one overlay
       file, over a fixture of the real file. This is the guard that keeps a
       future edit from quietly widening what the lane can produce.
-- [ ] 5.4 A test that the snapshot `source_revision` and the recorded corpus
+      > DONE. `test_the_produced_diff_is_the_digest_line_and_its_adjacent_comment`
+      > + `test_the_other_image_entries_keep_their_digests`.
+- [x] 5.4 A test that the snapshot `source_revision` and the recorded corpus
       revision are asserted EQUAL by the lane, so the two-revision trap is
       detectable rather than merely avoidable.
-- [ ] 5.5 Run the full suites and report the real exit status. Do not pipe the
+      > DONE. `test_verify_one_revision_rejects_a_two_revision_image` +
+      > `test_the_build_asserts_one_revision_before_it_builds`.
+- [x] 5.5 Run the full suites and report the real exit status. Do not pipe the
       run through `tail` or any filter that can mask a failure.
+      > DONE. `python3 -m pytest tests/ideation-dashboard/test_dashboard_refresh_lane.py -q`
+      > → 40 passed (full output, unfiltered). See the realization report.
 
 ## 6. The receiving side — shape check and approval (OMNIGENT-INSTALL)
 
@@ -226,6 +314,9 @@ This is the companion's task 7, unblocked by rulings (a) and (b). Ordered after
       `resources:`, `patches:`, `namespace:` or the header. It MUST ignore
       everything the author asserts — label, title, commit message: identity is
       an input to the predicate, never the verdict.
+      > GATE OPEN (OMNIGENT-INSTALL). The line-level shape check is the receiving
+      > repository's to author; the openxFactory lane's job is only to PRODUCE a
+      > conforming diff (rewrite_pin, envelope-guarded delivery), never certify it.
 - [ ] 6.2 Install the merge-master App on Omnigent-Install, add the
       `merge-master-approval` workflow and an envelope INSTANCE with ONE
       candidate class: `target_repos: [opensoft/Omnigent-Install]`,
@@ -235,6 +326,10 @@ This is the companion's task 7, unblocked by rulings (a) and (b). Ordered after
       `require_all_checks: true`,
       `check_exclusions: [merge-master-approval]`, `revert_suffices: true`.
       Set the `MERGE_MASTER_APP_ID` / `MERGE_MASTER_APP_KEY` bindings.
+      > GATE OPEN (OMNIGENT-INSTALL). The merge-master candidate class + workflow
+      > + required-check config land on Omnigent-Install; the openxFactory stage
+      > already delivers on the exact `bot/dox-dashboard-pin` head the envelope
+      > names. `expected_author` follows the §1.2/§1.3 App-identity ruling.
 - [ ] 6.3 Keep the base-branch security properties intact: the envelope config
       AND the workflow definition are read from the BASE branch, no PR-head
       content is checked out or executed, the approving identity is distinct
