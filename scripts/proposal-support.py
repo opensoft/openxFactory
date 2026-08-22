@@ -120,7 +120,7 @@ def load_manifest(path: Path) -> dict:
     return data
 
 
-def manifest_rel(value):
+def manifest_rel(value: object) -> object:
     """A recorded manifest path, in the spelling this module's readers resolve.
 
     Every path field in a support manifest — `files[].path`,
