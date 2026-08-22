@@ -2741,15 +2741,19 @@ the realization evidence for everything built is recorded in `proposal.md`.
       not restated here; what this tick adds is the tail it could not yet carry:
       §12 share-session realized under Brett's exit (a); §11.7 at
       `contract-v1.38`; §10.7 at `contract-v1.40`. Green on this branch at the
-      tick, measured AFTER merging `origin/main` at `0f9e14b4` into the branch
-      rather than before it, and RE-MEASURED after BOTH rounds of the
-      adversarial review's fixes: `tests/ideation-dashboard` 3930 passed / 15
-      skipped, `tests/ideation_dashboard` 63, `tests/doc-health` 691,
-      `openspec validate --all --strict` 65 passed / 0 failed, the contracts
-      validator 0 errors / 4 by-design warnings (41 valid + 66 negative
-      packaged examples confirmed), doc-health pre/post ZERO-new against a
-      same-clock `origin/main` baseline, and `validate-contract-release.py
-      verify-commit --commit HEAD` passing on the cut. The fifteenth skip is a
+      tick, measured AFTER merging `origin/main` at `1f45e427` into the branch
+      rather than before it — the FIFTH such merge, and the one that forced the
+      re-cut to `contract-v1.40` — and re-measured after both rounds of the
+      adversarial review's fixes and the bot round's:
+      `tests/ideation-dashboard` 3940 passed / 15 skipped,
+      `tests/ideation_dashboard` 63, `tests/doc-health` 704,
+      `openspec validate --all --strict` 66 passed / 0 failed (17 active changes
+      + 49 specs, counted fresh — `add-roster-directory-admission-surface`'s
+      packet is still active on main), the contracts validator 0 errors / 4
+      by-design warnings (41 valid + 68 negative packaged examples confirmed),
+      doc-health pre/post ZERO-new against a same-clock baseline at `1f45e427`,
+      and `validate-contract-release.py verify-commit --commit HEAD` passing on
+      the cut and resolving THIS release's `contract-v1.40` inventory. The fifteenth skip is a
       CHECKOUT-LAYOUT artifact and not a regression:
       `test_landed_parses_a_real_archived_change_delta` looks for a SIBLING
       `openxFactory` checkout two directories up, which this isolated clone has
