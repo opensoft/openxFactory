@@ -1301,7 +1301,14 @@ def check_context_packet(f: Findings, label: str, doc: dict) -> None:
         f.error("context-packet",
                 f"{label}: a reduced context_packet STATES its reason — a "
                 f"reduction nobody can read is a silent degradation")
-    if posture == "full" and reason is not None:
+    # KEY PRESENCE, which is what the shape's `not: {required: [...]}` means.
+    # `reason is not None` was closer than truthiness but still not it: a
+    # `reduced_reason: null` is a key that is PRESENT, and `.get()` cannot tell
+    # it from an absent one — so this gate accepted an instance the shape
+    # refuses. Found while fixing the same class at the type and the route
+    # (Copilot review of PR #256, finding 1); the reviewer named two gates and
+    # there were four.
+    if posture == "full" and "reduced_reason" in packet:
         f.error("context-packet",
                 f"{label}: a full context_packet carries no reduced_reason — a "
                 f"record cannot state both postures and let a reader pick")

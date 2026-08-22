@@ -473,6 +473,52 @@ def test_every_shipped_reduction_reason_fits_the_released_bound(tmp_path):
         assert 0 < len(reason.encode("utf-8")) <= bound, reason[:60]
 
 
+def test_the_construction_gate_and_the_derivation_agree_on_PRESENCE(tmp_path):
+    """THE RELEASE CLAIMS THREE GATES ASSERT ONE RULE, and at the blank string
+    they did not (Copilot review of PR #256, finding 1). The released shape
+    forbids `reduced_reason`'s PRESENCE on a full posture; `ContextPacket` and
+    `serve.doxbench_context_packet` both forbade only a TRUTHY one, so
+    `{full, ""}` sailed through both and the record was emitted with the key
+    silently dropped.
+
+    Pinned here as the agreement it is supposed to be — and pinned in BOTH
+    directions, because the fix must not have been a blanket tightening: the
+    REDUCED arm still refuses a blank (there a blank is unusable, which is the
+    shape's `minLength: 1`) and still accepts a real reason."""
+    scope = ScopeKey(repository="fixture-repo", ref="main",
+                     tile_kind="staged", tile_id="t")
+
+    def _packet(posture, reason):
+        return pk.ContextPacket(
+            purpose=pk.PACKET_PURPOSE_CHAT_TURN, scope=scope, posture=posture,
+            sources=(), issued_at=0.0, expires_at=1.0, reduced_reason=reason)
+
+    class _Duck:
+        def __init__(self, posture, reason):
+            self.posture, self.reduced_reason = posture, reason
+
+    # FULL: the key's presence is the refusal, whatever it holds.
+    for blocked in ("", "a real reason"):
+        with pytest.raises(pk.PacketError):
+            _packet(pk.POSTURE_FULL, blocked)
+        with pytest.raises(pk.PacketError):
+            serve_mod.doxbench_context_packet(_Duck(pk.POSTURE_FULL, blocked))
+    # …and absence is the only thing that passes.
+    assert _packet(pk.POSTURE_FULL, None).posture == pk.POSTURE_FULL
+    assert serve_mod.doxbench_context_packet(
+        _Duck(pk.POSTURE_FULL, None)) == {"posture": "full"}
+
+    # REDUCED: unweakened. A blank is still no reason; a real one still passes.
+    for blocked in (None, ""):
+        with pytest.raises(pk.PacketError):
+            _packet(pk.POSTURE_REDUCED, blocked)
+        with pytest.raises(pk.PacketError):
+            serve_mod.doxbench_context_packet(_Duck(pk.POSTURE_REDUCED, blocked))
+    assert serve_mod.doxbench_context_packet(
+        _Duck(pk.POSTURE_REDUCED, "why")) == {
+            "posture": "reduced", "reduced_reason": "why"}
+
+
 def test_the_serve_side_ceiling_is_pinned_to_the_RELEASED_maxLength():
     """`CONTEXT_REDUCED_REASON_MAX_LENGTH` is a literal in a module that does
     not parse the schema per turn. This is what makes it authoritative anyway —
@@ -621,6 +667,14 @@ def _lying_packet_assembler(mutate):
      "reduced, with its reason removed"),
     (lambda p: object.__setattr__(p, "posture", pk.POSTURE_FULL),
      "full, still carrying a reduction reason"),
+    # PRESENCE, NOT TRUTHINESS (Copilot review of PR #256, finding 1). This is
+    # the instance the derivation used to accept: `if reason:` let a BLANK
+    # through, and the record shipped with the key quietly dropped instead of
+    # the turn failing closed. The released shape refuses the key's presence on
+    # a full posture whatever it holds, so this boundary must too.
+    (lambda p: (object.__setattr__(p, "posture", pk.POSTURE_FULL),
+                object.__setattr__(p, "reduced_reason", "")),
+     "full, carrying a BLANK reduction reason"),
     (lambda p: object.__setattr__(p, "posture", "degraded"),
      "a posture outside the released vocabulary"),
     (lambda p: object.__delattr__(p, "posture"),

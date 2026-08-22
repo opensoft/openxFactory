@@ -3762,6 +3762,11 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
     { posture: "reduced" },                                   // no reason
     { posture: "reduced", reduced_reason: "" },               // empty reason
     { posture: "full", reduced_reason: REASON },              // full WITH one
+    // PRESENCE, NOT TRUTHINESS (Copilot review of PR #256, finding 2). Both of
+    // these adopted as a clean `full` before the fix, though the released shape
+    // refuses the KEY on a full posture whatever it holds.
+    { posture: "full", reduced_reason: "" },                  // full + blank
+    { posture: "full", reduced_reason: null },                // full + null
     { posture: "degraded", reduced_reason: REASON },          // unknown posture
     "reduced",                                                // not an object
   ];
@@ -3772,6 +3777,11 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
   // everything.
   out.goodBlobAdopts = restoreChatState(
     createChatState(KEY), blob, {}).contextPacket;
+  // …and a full posture with the key ABSENT is still ordinary and adoptable,
+  // so the presence rule refuses the key rather than the posture.
+  out.fullWithNoKeyAdopts = restoreChatState(
+    createChatState(KEY), { ...blob, context_packet: { posture: "full" } }, {})
+    .contextPacket;
 }
 
 // NEW-3: typing in the composer must not re-announce the same sentence.
@@ -3912,6 +3922,24 @@ def test_a_full_turn_shows_nothing_new(posture_results):
     assert full["transcript"] == 2
 
 
+def test_a_full_posture_carrying_the_KEY_at_all_is_refused(posture_results):
+    """Copilot review of PR #256, finding 2, at the exact boundary it names.
+    `hasReason` asked whether the reason was USABLE, so a stored blob reading
+    `{posture: "full", reduced_reason: ""}` — or `null` — adopted as a clean
+    full posture, though the released shape refuses either outright: its
+    `not: {required: [reduced_reason]}` is a statement about the KEY.
+
+    The adopter now asks two different questions, because the shape asks two:
+    `full` refuses the field for BEING THERE, `reduced` refuses it for being
+    UNUSABLE. This pins the first; the reduced cases in the list above pin the
+    second, unweakened."""
+    # indices 3 and 4 of the contradiction list are the blank and the null
+    assert posture_results["contradictoryBlobs"][3] is None
+    assert posture_results["contradictoryBlobs"][4] is None
+    # …while an absent key is still the ordinary, adoptable full posture.
+    assert posture_results["fullWithNoKeyAdopts"] == {"posture": "full"}
+
+
 def test_a_record_with_no_posture_renders_no_phantom_badge(posture_results):
     """A producer older than contract-v1.39 states no posture, and the surface
     says nothing rather than inventing one. Absence is not `full` and it is not
@@ -4024,7 +4052,7 @@ def test_a_contradictory_stored_posture_fails_closed_like_a_wire_one(
     satisfied even when the adopter trusts the blob whole — which a revert-test
     proved by coming back GREEN (R39) with the validation removed. The state is
     where the adopter's verdict lands, so that is what this pins."""
-    assert posture_results["contradictoryBlobs"] == [None, None, None, None, None]
+    assert posture_results["contradictoryBlobs"] == [None] * 7
     # …and the guard is discriminating, not merely refusing everything.
     assert posture_results["goodBlobAdopts"] == {
         "posture": "reduced",

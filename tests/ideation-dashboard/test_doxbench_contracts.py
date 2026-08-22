@@ -1343,6 +1343,13 @@ def test_the_released_bytes_accept_a_conformant_posture(
      "an empty reason, which is a reason nobody can read"),
     ({"posture": "reduced", "reduced_reason": "y" * 501},
      "a reason one byte past the released ceiling"),
+    # PRESENCE, NOT TRUTHINESS, on the full arm — the boundary three of the
+    # family's four gates accepted (Copilot review of PR #256, finding 1). The
+    # shape refuses the KEY on a full posture, whatever it holds.
+    ({"posture": "full", "reduced_reason": ""},
+     "a full posture carrying a BLANK reason — the key is still present"),
+    ({"posture": "full", "reduced_reason": None},
+     "a full posture carrying a NULL reason — the key is still present"),
     ({"posture": "reduced", "reduced_reason": _REASON,
       "provider_id": "vertex-hosted"},
      "a fourth fact on a closed object"),
@@ -1452,6 +1459,15 @@ _POSTURE_NEGATIVE_GATES = {
     "workbench-chat-turn-v2-context-extra-field": (True, None),
     "workbench-chat-turn-v2-context-reason-leaks-a-credential":
         (False, "credential"),
+    # The blank and the null on a FULL posture (Copilot review of PR #256,
+    # finding 1). Both are refused by the shape for the KEY's presence, and both
+    # are now refused by the delegated validator too — the blank always was, the
+    # null was not, because that gate read the value where the shape reads the
+    # key.
+    "workbench-chat-turn-v2-context-empty-reason-on-full":
+        (True, "context-packet"),
+    "workbench-chat-turn-v2-context-null-reason-on-full":
+        (True, "context-packet"),
 }
 
 

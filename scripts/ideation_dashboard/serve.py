@@ -758,7 +758,20 @@ def doxbench_context_packet(packet) -> dict:
                 "degradation")
         return {"posture": posture, "reduced_reason": str(reason)}
     if posture == doxbench_packet.POSTURE_FULL:
-        if reason:
+        # PRESENCE, NOT TRUTHINESS (Copilot review of PR #256, finding 1). This
+        # arm used `if reason:`, so an EMPTY STRING passed it and the record was
+        # emitted with the key omitted — a lying assembler handing
+        # `{full, reduced_reason: ""}` was silently normalized instead of failing
+        # closed. The released shape forbids the key's PRESENCE on a full posture
+        # (`not: {required: [reduced_reason]}`), not its usefulness, so this
+        # boundary has to mean the same thing the shape does.
+        #
+        # ASYMMETRIC WITH THE REDUCED ARM ABOVE, DELIBERATELY, and the shape is
+        # asymmetric in exactly the same way: `reduced` REQUIRES a reason and
+        # bounds it at `minLength: 1`, so a blank one is refused there for being
+        # unusable; `full` refuses the field for being THERE. Do not "simplify"
+        # these two into one predicate — they are two rules.
+        if reason is not None:
             raise doxbench_packet.PacketError(
                 "a full packet carries no reduction reason; a record cannot "
                 "state both postures and let a reader pick")

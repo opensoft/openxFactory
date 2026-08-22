@@ -628,7 +628,19 @@ class ContextPacket:
             raise PacketError(
                 "a reduced packet STATES the reduced posture's reason; a "
                 "reduction nobody can read is a silent degradation")
-        if self.posture == POSTURE_FULL and self.reduced_reason:
+        # `is not None`, NOT truthiness (Copilot review of PR #256, finding 1,
+        # extended to the CONSTRUCTION gate by the contract-v1.39 slice). This
+        # read `and self.reduced_reason`, so `reduced_reason=""` constructed a
+        # FULL packet carrying a reduction-reason field — and the release claims
+        # in writing that this type, the released shape and the delegated
+        # validator "assert this one rule". They did not agree at the blank
+        # string: the shape forbids the field's PRESENCE on a full posture and
+        # this forbade only a useful value. Aligned so the claim is true.
+        #
+        # The REDUCED arm above is deliberately left on truthiness: there a blank
+        # is refused for being unusable, which is the shape's `minLength: 1`. Two
+        # rules, not one predicate.
+        if self.posture == POSTURE_FULL and self.reduced_reason is not None:
             raise PacketError(
                 "a full packet carries no reduction reason")
         if self.expires_at <= self.issued_at:

@@ -1226,9 +1226,41 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       `contract-v1.34`'s deprecation forbids; the migration path is the v2
       envelope. Recorded at the v1 arm in `serve.py`, in the CHANGELOG, and
       pinned by a test that fails if the v1 record ever grows the key.
-      **REVERT-TESTED — 46 MUTATION RUNS over 41 distinct mutations, and FOUR
+      **PRESENCE IS NOT TRUTHINESS — the bot round's finding, and it reached
+      FOUR gates where the reviewer named two (Copilot on PR #256).** The
+      released shape forbids `reduced_reason`'s KEY on a `full` posture
+      (`not: {required: [reduced_reason]}`); three of the family's other gates
+      forbade only a USEFUL value, so `{posture: "full", reduced_reason: ""}`
+      passed them. Reproduced across all five gates before anything was
+      touched — the shape refused it, the delegated validator refused it, and
+      `ContextPacket.__post_init__`, `serve.doxbench_context_packet` and the
+      browser's `adoptContextPacket` all ACCEPTED it, the first two normalizing
+      it into a record with the key silently dropped.
+      A FOURTH GATE WAS FOUND WHILE FIXING THE OTHER THREE: the delegated
+      validator read `reason is not None` where the shape reads the key, and
+      `.get()` cannot tell `reduced_reason: null` from an absent one — so it
+      accepted a NULL on a full posture that the shape refuses. Copilot named
+      two; there were four.
+      Fixed at each: `is not None` at the type and the derivation (a Python
+      attribute has no key/value distinction, so that IS presence there), and
+      own-key presence in the validator and the adopter, which read JSON and do.
+      **THE REDUCED ARM IS DELIBERATELY UNCHANGED and the asymmetry is the
+      shape's own**: `full` refuses the field for BEING THERE, `reduced` refuses
+      it for being UNUSABLE (`required` plus `minLength: 1`). Two rules, not one
+      predicate — said at each site, because collapsing them is exactly how this
+      defect would come back. Both directions are pinned: a blank still refuses
+      on `reduced`, a real reason still passes, and an absent key still adopts
+      on `full`.
+      Two packaged negatives earn their own files, because each is the instance
+      a different gate missed: `-context-empty-reason-on-full` and
+      `-context-null-reason-on-full`. NO CONTRACT BYTE MOVES for any of it — the
+      shape was right all along — so the schema digest is unchanged at
+      `cc874fef…`, the inventory is untouched, and `verify-commit` still passes;
+      asserted rather than assumed, and the two new examples are confirmed NOT
+      inventory members.
+      **REVERT-TESTED — 52 MUTATION RUNS over 47 distinct mutations, and FOUR
       came back GREEN.** (29 before the adversarial review; nine at its first
-      round; eight at its second.)
+      round; eight at its second; six at the bot round.)
       Every schema clause was reverted individually WITH THE DIGEST REPINNED, so
       each case fired on the clause rather than on the pin: both conditionals,
       the posture enum, the object's closure, its `required`, the reason ceiling
@@ -1265,6 +1297,10 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       and nulling instead of adopting; the snapshot not carrying the posture and
       always writing the key; the stored posture trusted unvalidated; and the
       identical-text guard dropped.
+      THE BOT ROUND ADDED SIX: truthiness restored at the type, at the
+      derivation and at the adopter; the validator's key-presence check reverted
+      to a value check; and the reduced arm loosened at the type and at the
+      derivation, to prove the fix tightened `full` WITHOUT weakening `reduced`.
       **THE FOURTH GREEN WAS THE SAME CLASS AS THE THIRD, one layer along.**
       Removing the stored-blob VALIDATION (R39) left the contradictory-blob test
       passing, because `reducedContextNote` holds its own second guard on the

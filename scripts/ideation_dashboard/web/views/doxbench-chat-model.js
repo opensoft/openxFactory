@@ -360,11 +360,26 @@ function adoptContextPacket(carrier) {
   if (!raw || typeof raw !== "object") return null;
   const posture = raw.posture;
   const reason = raw.reduced_reason;
-  const hasReason = typeof reason === "string" && reason !== "";
+  // TWO DIFFERENT QUESTIONS, because the released shape asks two (Copilot
+  // review of PR #256, finding 2).
+  //
+  // `full` refuses the field for BEING THERE — `not: {required:
+  // [reduced_reason]}` is about the KEY, so presence is own-key presence and a
+  // value of `""` or `null` is still a key that is present. This read
+  // `hasReason` for both arms, so `{posture: "full", reduced_reason: ""}`
+  // adopted as a clean full posture though the shape refuses that instance
+  // outright.
+  //
+  // `reduced` refuses the field for being UNUSABLE — the shape requires it AND
+  // bounds it at `minLength: 1`, so a blank or null reason is refused there for
+  // a different reason and by a different test. Do not collapse these.
+  const reasonPresent = Object.prototype.hasOwnProperty.call(
+    raw, "reduced_reason");
+  const reasonUsable = typeof reason === "string" && reason !== "";
   if (posture === "full") {
-    return hasReason ? null : Object.freeze({ posture: "full" });
+    return reasonPresent ? null : Object.freeze({ posture: "full" });
   }
-  if (posture === "reduced" && hasReason) {
+  if (posture === "reduced" && reasonUsable) {
     return Object.freeze({ posture: "reduced", reduced_reason: reason });
   }
   return null;
