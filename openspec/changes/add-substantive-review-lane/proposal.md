@@ -78,8 +78,16 @@ judgment it does not already hold as a verdict.
    risk tier and a clearance rule — the council reviews for company-policy
    compliance AND domain best practices.
 6. **Pilot.** `opensoft/openxFactory` is reviewed by codexFactory's councils
-   (the software-engineering domain reviewing the engineering-contracts
-   repo), then extended per adoption.
+   — not because the pilot happens to be an engineering-contracts repo, but
+   on the ground Brett ruled for every repo (Q2, 2026-08-22): a pull
+   request's diff is software regardless of the domain the repository
+   governs, so codexFactory's councils review substantive PRs in all
+   governed repos — then extended per adoption. *(The original parenthetical
+   here read "the software-engineering domain reviewing the
+   engineering-contracts repo" — a domain-match rationale that would have
+   made the pilot a special case and non-engineering repos an open question.
+   That rationale is exactly what the Q2 ruling overrode, so it is corrected
+   rather than left standing under a "not reopened" heading.)*
 
 ## What Changes
 
@@ -191,9 +199,21 @@ encodes it; none of them is reopened by this change.
   review lane" requirement. Route: this proposal edit.*
 - **Q5 — Risk tiers: CONSTITUTIONAL FLOOR NOW, VOCABULARY LATER.** Ruled now,
   in three clauses: (i) the ratified never-clearable floor — identity
-  mismatch, failed or pending required checks, secret findings,
-  security-touching paths, gate-weakening changes — is TIER-INDEPENDENT, and
-  no tier, clearance rule, or unanimous verdict ever overrides it; (ii) any
+  mismatch, HEAD-REF mismatch, failed or pending required checks, secret
+  findings, security-touching paths, gate-weakening changes — is
+  TIER-INDEPENDENT, and no tier, clearance rule, or unanimous verdict ever
+  overrides it. (The floor has SIX members. The ruling as put to Brett, and
+  the recommendation behind it, both restated it with five — head-ref
+  mismatch was dropped somewhere upstream of the ruling. The ratifying record
+  is authoritative and lists six: codexFactory
+  `hermes/domain/review-councils/records/2026-07-23-gate-rules-nightly-sweep-clearance.md`
+  — "identity, head ref, any failed check, secret findings, security-touching
+  paths, gate-weakening changes". Restoring the sixth is FIDELITY to the
+  artifact the ruling names, not a new ruling: Brett ruled that "the ratified
+  floor" is tier-independent, and the ratified floor is what the record says
+  it is. The requirement therefore names the record as the floor's source of
+  truth, so a future divergence is caught against the artifact rather than
+  against a restated list.) (ii) any
   candidate class touching contract bytes, gate/workflow definitions,
   credential surfaces, or security posture is PERMANENTLY human-only,
   regardless of unanimity; (iii) autonomous clearance is only ever eligible

@@ -96,6 +96,27 @@ fixed before the graded band above it is named, and fixing it first is what
 keeps the deferral safe rather than merely convenient. Encoded as the
 "Constitutional floor for autonomous clearance" requirement.
 
+**FORM ELEVATION, flagged for the ratification read.** Brett's ruling said
+the floor is recorded "as proposal text". It is encoded as a promoted
+REQUIREMENT instead. The reason: a floor that binds every future candidate
+class and outranks every unanimous verdict is a constraint the enforcer and
+the `gate_rules_council` must be checkable against, and proposal prose is not
+checkable — it disappears at archive, while the requirement is promoted into
+`roles-authority-model` and survives. Nothing in the requirement decides more
+than the ruling decided; it deliberately does NOT enumerate a tier
+vocabulary, and it says so in its own text. But the elevation is an
+ENCODING CHOICE this change made, not something Brett asked for, so it is
+named here for him to accept or push back on at ratification.
+
+**FLOOR MEMBERSHIP — a fidelity correction, not a ruling.** The ruling and
+the recommendation behind it both restated the ratified floor with five
+members; the ratifying record has six. The requirement restores head-ref
+mismatch and names codexFactory's 2026-07-23 `gate_rules_council` record as
+the floor's SOURCE OF TRUTH, with the restated enumeration explicitly
+subordinate to it. Brett ruled that "the ratified floor" is tier-independent;
+the ratified floor is what that record says it is, so completing the list is
+obeying the ruling rather than extending it.
+
 ## Decision C — Approval-transport: reuse the proven check-run + APPROVE pattern unchanged
 
 Considered redesigning the verdict transport for the generalized lane (for
@@ -186,6 +207,22 @@ rejected, and they are the reason it is adoptable without re-litigating
    it; every other class keeps domain-seats-only per-PR councils. Brett
    accepted that cost explicitly for the flagged classes.
 
+**GRANULARITY — recorded, because two readings were available and only one
+is Brett's.** The pull-in could bind at CLASS MEMBERSHIP (a PR matching a
+declaring class always seats the CPL) or at CONDITION-HOLDS (a PR matching a
+declaring class seats the CPL only when that class's declared condition holds
+for that PR). The condensed ruling summary was ambiguous between them;
+Brett's own chosen option text is not, and it is the authority: a defined
+**per-PR** pull-in condition (like the security officer's
+`rule_touches_security_posture`) for policy-touching classes. CONDITION-HOLDS
+is therefore what is encoded. This matters for exactly one thing, and it is
+the availability cost: under class-membership, every PR of a declaring class
+inherits the tenant-seat failure mode; under condition-holds, only the PRs
+that actually trip the condition do, and the rest convene domain-seats-only.
+The requirement states the per-PR evaluation explicitly and carries a
+scenario for the declared-but-not-holding case, so the narrower reading
+cannot be lost to a later paraphrase.
+
 Encoded as the "Company-policy seat participation in per-PR councils"
 requirement, whose default clause and exception clause map one-to-one onto
 this decision's surviving half and its superseding half.
@@ -216,6 +253,29 @@ the ordering principle that applies once repos clear it (engineering-owned
 before domain). The order itself lands in a named follow-up change raised on
 that evidence — the same follow-up path Q5's tier vocabulary takes. Encoded as
 the "Adoption beyond the pilot qualifies on recorded evidence" requirement.
+
+**FORM ELEVATION, flagged for the ratification read.** As with Decision B's
+floor, Brett's ruling said the bar is recorded "in the proposal" and it is
+encoded as a promoted REQUIREMENT. The reason is narrower here: the bar's
+whole job is to gate a FUTURE adoption change, and a gate that lives only in
+this proposal's prose stops existing when this proposal archives. As a
+requirement it is what the follow-up change must be validated against. The
+ordering principle rides with it for the same reason. The elevation is this
+change's encoding choice, not Brett's instruction, and is named for him to
+accept or push back on.
+
+**ORDERING PRINCIPLE — encoded FLAT, as ruled.** An earlier draft of this
+requirement narrowed the principle to a two-candidate tie-break ("where two
+candidate repositories otherwise both clear that bar") and added a departure
+hatch ("unless the follow-up change records a reason to depart"). Neither is
+in the ruling, and both weaken it: the tie-break reading lets a lone domain
+repository qualify simply because no engineering repo happened to be proposed
+alongside it, and the hatch lets any follow-up change opt out by writing a
+sentence. The ruled principle is unconditional — engineering-owned repos
+before domain repos — so the requirement now says no domain repository is
+adopted while any engineering-owned governed repository remains unadopted,
+each adoption still meeting the bar in its own right, with a scenario
+covering the single-candidate case explicitly.
 
 ## Decision F — Reviewing persona home: codexFactory reviews every governed repo (Brett Heap, 2026-08-22)
 
@@ -258,3 +318,36 @@ constitutional floor, which keeps contract bytes, gate/workflow definitions,
 credential surfaces, and security posture permanently human-only regardless
 of unanimity. A domain repo that needs more than that can record the need in
 its own adoption change.
+
+## Decision G — What the rulings TOGETHER leave the pilot able to do (recorded for the ratification read)
+
+Each 2026-08-22 ruling is sound on its own. Read together with the machinery
+as it actually exists today, three of them squeeze the pilot's AUTONOMOUS
+surface much harder than any one of them suggests, and Brett should ratify
+with that in view rather than discover it during the pilot.
+
+- Q5 clause (ii) makes any class touching contract bytes, gate/workflow
+  definitions, credential surfaces, or security posture permanently
+  human-only. In openxFactory — a repository whose substance IS contracts,
+  validators, and workflow definitions — that removes most of what a
+  substantive PR here actually changes.
+- Q5 clause (iii) confines autonomous eligibility to docs-/derived-artifact-
+  shaped blast radii, "today exactly the proven docs class".
+- The envelope matcher compares head refs by exact string equality (tasks
+  §4.4), so until that matcher work lands, any autonomously clearable class
+  must also be pinned to ONE literal branch name.
+
+The intersection is narrow and worth naming plainly: the pilot's first
+autonomously clearable class will be **docs-shaped AND fixed-branch**, which
+is close in shape to the `doc-health-nightly` class already proven — so the
+pilot's early autonomous evidence will be thin, and the Q1 evidence bar (≥3
+council-cleared substantive PRs across ≥2 candidate classes) will take a
+while to satisfy honestly. That is not an argument against any ruling; it is
+the cost of ruling the floor before the vocabulary, and it is the right way
+round. What it does mean is that this change's "substantive human- and
+agent-authored PRs" ambition is exercised in the pilot mainly through the
+COUNCIL-REVIEWED-BUT-HUMAN-APPROVED path — real deliberation, real
+rationales, real audit artifacts, `needs_human_review` disposition, and a
+human casting the approving review — until the matcher work (§4.4) and the
+deferred tier vocabulary land. The lane is fully useful in that mode; it is
+simply not autonomous in it, and no requirement here claims otherwise.

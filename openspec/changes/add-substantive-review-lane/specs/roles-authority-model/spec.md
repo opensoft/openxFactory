@@ -105,16 +105,21 @@ result in no approval and a parked candidate carrying an explanation, and
 class, with the `gate_rules_council` empowered to declare any given class
 human-only. ADMIT is the neutral `roles-authority-model` verdict word, the
 same one the existing "Low-risk enforcement envelope" requirement already
-uses; the codexFactory realization of this lane expresses it as the
-merge-readiness predicate `verdict == ready` AND unanimous, so an enforcer
-checking `ready`+unanimous IS checking unanimous ADMIT. The two words name
-one condition at two layers and MUST NOT be read as two conditions.
+uses; the codexFactory realization of this lane expresses "unanimous ADMIT
+with no undispositioned conditions" as its three-conjunct merge-readiness
+predicate — `verdict == ready` AND every seat concurring AND
+`undispositioned_conditions == 0` (the `verdict_required: ready_unanimous`
+plus `undispositioned_conditions: 0` pair its rules-as-code carries) — so an
+enforcer checking that predicate IS checking this requirement's condition.
+The two vocabularies name one condition at two layers and MUST NOT be read as
+two conditions.
 
 #### Scenario: The neutral verdict word maps to the enforcement word
 - **WHEN** an enforcer realizing this lane evaluates a
   `merge_readiness_council` verdict for the unanimous-ADMIT condition
 - **THEN** the condition it checks is that realization's own verdict
-  vocabulary — in the codexFactory lane, `ready` with every seat concurring
+  vocabulary — in the codexFactory lane, `ready`, with every seat concurring,
+  and zero undispositioned conditions
 - **AND** no separate ADMIT-named verdict value is required to exist in the
   realization
 
@@ -181,10 +186,11 @@ Extension of the substantive review lane beyond the pilot repository SHALL be
 authorized only by a named follow-up change raised on recorded pilot
 evidence, and that evidence MUST show at least three council-cleared
 substantive pull requests spanning at least two distinct candidate classes,
-zero enforcer incidents, and one completed gate-rules review cycle; where two
-candidate repositories otherwise both clear that bar, engineering-owned
-repositories SHALL be adopted before domain repositories unless the follow-up
-change records a reason to depart from that order.
+zero enforcer incidents, and one completed gate-rules review cycle; and
+engineering-owned repositories SHALL be adopted before domain repositories,
+so no domain repository is adopted into the lane while any engineering-owned
+governed repository remains unadopted — each adoption still meeting the
+evidence bar in its own right.
 
 #### Scenario: Adoption proposed below the evidence bar
 - **WHEN** a follow-up change proposes extending the lane to a further
@@ -195,12 +201,19 @@ change records a reason to depart from that order.
 - **THEN** the extension MUST NOT be authorized
 - **AND** the follow-up change MUST record which element of the bar is unmet
 
+#### Scenario: A domain repository does not qualify while an engineering-owned one is unadopted
+- **WHEN** a follow-up change proposes a domain repository as the next
+  adoption, that repository clears the evidence bar, and it is the only
+  repository proposed
+- **THEN** the extension MUST NOT be authorized while any engineering-owned
+  governed repository has not yet adopted the lane
+- **AND** clearing the evidence bar does not by itself qualify a domain
+  repository for adoption
+
 #### Scenario: Engineering-owned repositories go first
-- **WHEN** two candidate repositories both clear the evidence bar and one of
-  them is engineering-owned
+- **WHEN** an engineering-owned repository and a domain repository are both
+  candidates for the next adoption
 - **THEN** the engineering-owned repository is adopted first
-- **AND** any departure from that order MUST be recorded in the follow-up
-  change that departs from it
 
 ### Requirement: Company-policy seat participation in per-PR councils
 The tenant `company-policy-lead` seat SHALL remain seated in the
@@ -209,11 +222,15 @@ deliberation by default, preserving the rule-setting/rule-applying
 separation; as the sole exception, a candidate class MAY declare a
 company-policy pull-in condition, which the `gate_rules_council` — where that
 seat already sits — SHALL define at class-definition time and never per pull
-request, and when a pull request matches a class whose declared condition
-holds, the `company-policy-lead` seat MUST be convened into that pull
-request's `merge_readiness_council` and a convening that cannot seat it MUST
-be refused and the candidate parked rather than proceeding on the remaining
-seats.
+request. The condition is evaluated PER PULL REQUEST: only when a pull
+request matches such a class AND that class's declared condition HOLDS for
+that pull request is the `company-policy-lead` seat required, and it MUST
+then be convened into that pull request's `merge_readiness_council`, with a
+convening that cannot seat it refused and the candidate parked rather than
+proceeding on the remaining seats. Where the condition does not hold, the
+seat is not required and the convening proceeds domain-seats-only, so the
+fail-closed cost falls on matched-and-triggered pull requests only and never
+on every pull request of a declaring class.
 
 #### Scenario: Default posture is rules-council-only
 - **WHEN** a pull request matches a candidate class that declares no
@@ -229,9 +246,17 @@ seats.
   request's `merge_readiness_council`
 - **AND** its rationale MUST appear in that pull request's verdict record
 
+#### Scenario: A declared condition that does not hold for this pull request
+- **WHEN** a pull request matches a candidate class that DOES declare a
+  company-policy pull-in condition, but that condition does not hold for this
+  particular pull request
+- **THEN** its `merge_readiness_council` convenes with its domain seats only
+- **AND** the `company-policy-lead` seat is not required, so its
+  unavailability MUST NOT park this pull request
+
 #### Scenario: A pull-in class fails closed without the seat
-- **WHEN** a convening for such a class cannot seat the
-  `company-policy-lead` seat
+- **WHEN** a convening cannot seat the `company-policy-lead` seat for a pull
+  request whose matched class declares a pull-in condition that DOES hold
 - **THEN** the convening MUST be refused and the candidate parked
 - **AND** the enforcer MUST NOT approve the pull request on the remaining
   seats
@@ -244,9 +269,11 @@ seats.
 - **AND** it MUST NOT be introduced or altered per pull request
 
 ### Requirement: Ruleset interaction shape for the substantive review lane
-The merge-master App SHALL satisfy the required-review rule of every governed
-repository adopting the substantive review lane by casting a real `APPROVE`
-review; the council-verdict check-run SHALL remain
+Where a candidate IS cleared under this lane, the approval SHALL satisfy the
+governed repository's required-review rule by the merge-master App casting a
+real `APPROVE` review — this requirement fixes the SHAPE of a clearance's
+effect on the ruleset and creates no obligation to clear or to approve any
+particular pull request; the council-verdict check-run SHALL remain
 verdict transport only and MUST NEVER be configured as a ruleset-accepted
 satisfier; and human review SHALL remain an always-available alternate
 satisfying path on every governed repository, so no repository's ruleset may
@@ -282,10 +309,17 @@ inside that repository's adoption change.
 
 ### Requirement: Constitutional floor for autonomous clearance
 The ratified never-clearable floor SHALL be tier-independent — identity
-mismatch, failed or pending required checks, secret findings,
-security-touching paths, and gate-weakening changes — and no risk tier,
-clearance rule, or unanimous council verdict SHALL ever override it; any
-candidate class
+mismatch, HEAD-REF mismatch, failed or pending required checks, secret
+findings, security-touching paths, and gate-weakening changes — and no risk
+tier, clearance rule, or unanimous council verdict SHALL ever override it.
+The floor's SOURCE OF TRUTH is the `gate_rules_council`'s ratifying record of
+2026-07-23 (codexFactory
+`hermes/domain/review-councils/records/2026-07-23-gate-rules-nightly-sweep-clearance.md`,
+whose `per_repo_gate_rules` block records the floor's six members: identity,
+head ref, any failed check, secret findings, security-touching paths,
+gate-weakening changes); the enumeration restated here is a convenience, and
+where it and that record ever diverge the record governs and this text MUST
+be corrected against it. Any candidate class
 touching contract bytes, gate or workflow definitions, credential surfaces,
 or security posture SHALL be permanently human-only regardless of unanimity;
 and autonomous clearance SHALL be eligible only for candidate classes whose
