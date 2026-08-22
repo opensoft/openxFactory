@@ -23,8 +23,8 @@ content-addressed by its per-file `sha256` in [`manifest.yaml`](manifest.yaml);
 that row's digest is RECOMPUTED in this cut, and its `consumption_rule` states
 what a consumer must now read and what it may still ignore.
 
-WHAT WAS ALREADY TRUE, AND WHAT WAS NOT. The packet half of §10.7 shipped at
-`contract-v1.34`'s slice and after: a `ContextPacket` cannot be REDUCED without
+WHAT WAS ALREADY TRUE, AND WHAT WAS NOT. The packet half of §10.7 shipped with
+§10 itself (PR #216): a `ContextPacket` cannot be REDUCED without
 stating its reason and cannot be FULL while carrying one — enforced at
 construction, not by convention — and the reduced posture is written into the
 prompt's own declaration section, which is where the ratified sentence puts it.
@@ -51,12 +51,18 @@ origin/main` PASSES at `66140613` against
 `contracts/releases/contract-v1.38.digests.yaml` — the v1.37 lane's
 `HGR-RELEASE-DIGEST-MISMATCH`, which `contract-v1.38`'s entry recorded as still
 red at `8924838d`, no longer applies: the bundle has moved to v1.38 and v1.38's
-own inventory reproduces. Recorded because the two preceding releases both found
-the surface broken when they got there, and "it verified an hour ago" is not the
-test. Nothing here depends on it either way:
+own inventory reproduces. Recorded because the PRECEDING release found the
+surface broken when it got there and then broken AGAIN an hour later (at
+`6cbb4495`, missing inventory; and from `e11a057b`, an inventory member edited
+without a rebuild), so "it verified last time" is not the test in either
+direction — including this one, where it verifies. Nothing here depends on it either way:
 `resolve_committed_inventory` reads `contract_bundle_version` AT THE COMMIT, so
 this cut resolves v1.39 and checks against the v1.39 inventory that ships inside
-it.
+it. MAIN MOVED AGAIN under this slice — to `2c69e743`, six commits, none of them
+touching `contracts/` — and it is merged in here rather than rebased over;
+`verify-commit` passes at the merge, and `contract-v1.39` was still unallocated
+at that tip (its CHANGELOG heading and bundle both still read `contract-v1.38`),
+rechecked at the merge rather than trusted from the allocation an hour earlier.
 
 **Change class: ADDITIVE (minor)** under
 [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
@@ -78,8 +84,11 @@ bytes, including the pre-release record shape and each malformed posture.
 * `posture` (required) — `full` or `reduced`. Exactly two values, because
   `ContextPacket` has exactly two: the wire does not get a third spelling of a
   fact the assembler already owns.
-* `reduced_reason` (1..500 bytes) — present IFF the posture is `reduced`. Free
-  prose about the ASSEMBLY, never about content; in the two reasons this
+* `reduced_reason` (`minLength` 1, `maxLength` 500 — JSON Schema counts those in
+  CODE POINTS, and the shipped-reason guard below checks the stricter UTF-8 BYTE
+  count against the same number, so a reason that passes the guard passes the
+  shape) — present IFF the posture is `reduced`. Free prose about the ASSEMBLY,
+  never about content; in the two reasons this
   capability ships it says in as many words that nothing unbounded was
   substituted and no rail was bypassed, which is the ratified sentence's own
   second and third clauses.
@@ -104,9 +113,14 @@ cross-field rule on a ten-key envelope. The ENVELOPE's key set is then identical
 for a full turn and a reduced one, so a consumer's presence check is on ONE key
 — which is the ratified independence claim (*"MUST NOT ... make the editors
 unusable"*) read on the wire: the two turns differ in what the record SAYS, not
-in the shape it arrives in, and an existing route-level test asserting exactly
-that key-set equality still passes UNCHANGED. And a reader who wants the posture
-reads one object rather than correlating two keys that could disagree.
+in the shape it arrives in. That is asserted rather than described, by a
+route-level test that drives the SAME widened request with and without a
+knowledge service and requires the two records' key sets to be equal — a test
+that could not have been written at all under two sibling keys, because a
+reduced record would then carry one key more than a full one. (The pre-existing
+key-set test on the DEPRECATED v1 lane is untouched and says nothing about this:
+that envelope gains no key at all.) And a reader who wants the posture reads one
+object rather than correlating two keys that could disagree.
 
 OMISSION IS NOT A POSTURE CLAIM, and this is the consumer note that matters
 most. An absent `context_packet` means the producer predates `contract-v1.39`.
@@ -117,8 +131,9 @@ opposite reason: there, omission and explicit-`false` had to be read as the SAME
 fact, because a plain catalog entry is not a routing rule whether or not it says
 so. Here they are DIFFERENT facts, because a turn always ran under some posture
 and the question is only whether the producer stated it. Both packaged: the
-unchanged pre-release record (`workbench-chat-turn-v2-success.example.yaml`,
-which states nothing) sits beside `workbench-chat-turn-v2-full-context`, which
+pre-release record (`workbench-chat-turn-v2-success.example.yaml`, whose
+INSTANCE is unchanged and states nothing — only its header comment gained a
+paragraph saying so) sits beside `workbench-chat-turn-v2-full-context`, which
 states `full` explicitly, and both are valid.
 
 JUDGEMENT CALL — THIS PRODUCER ALWAYS STATES THE POSTURE, INCLUDING `full`.
@@ -186,8 +201,7 @@ pass a dishonest one that quoted the sentence. What the wire can check is that a
 reduction is STATED; whether the statement is TRUE is the assembler's rail,
 enforced where the rails run.
 
-A FAIL-CLOSED HAZARD THE 500-BYTE CEILING CREATES, named because it is a real
-one. The route self-validates every success body against the released schema and
+A FAIL-CLOSED HAZARD THE CEILING CREATES, named because it is a real one. The route self-validates every success body against the released schema and
 answers `response_invalid` if it refuses — so a reduction reason longer than the
 ceiling would turn a degraded-but-successful turn into a refusal, on the one path
 nobody exercises by hand. A test reads the bound OUT OF THE SCHEMA and checks
@@ -243,10 +257,12 @@ record ever grows the key.
 
 OWED CROSS-REPO FOLLOW-UP (recorded, not performed). This schema's description
 names `codexFactory specs/010-doxbench-editor-chat/contracts/chat-turn.md` as its
-consumer contract. That document is STALE against this release in the same way
-`contract-v1.38`'s entry recorded for the model-catalog document — and remains
-CORRECT while codexFactory pins `contract-v1.27`, which is the pin it declares,
-so nothing there is wrong today. It becomes wrong the moment that repository
+consumer contract. That document is NOT in this checkout and was NOT read here,
+so this entry does not assert what it says — what it asserts is the obligation:
+if it enumerates the v2 success envelope's fields, it is now short by one, in the
+same way `contract-v1.38`'s entry recorded for the model-catalog document.
+Either way it remains CORRECT while codexFactory pins `contract-v1.27`, which is
+the pin it declares, so nothing there is wrong today. It becomes wrong the moment that repository
 re-pins. Updating it is codexFactory's own governed act under the domain upgrade
 runbook; no file in that repository is touched here, and this entry is the notice.
 
@@ -254,7 +270,9 @@ RELEASE OBLIGATION STILL OPEN AT THIS ENTRY: per the versioning policy, CHANGELO
 presence is the availability test and the annotated tag is cut at the realization
 squash against the commit that actually lands. The release DIGEST INVENTORY
 (`releases/contract-v1.39.digests.yaml`) ships INSIDE this cut, as
-`contract-v1.34` through `contract-v1.38` all did. The consuming runtime repin
+`contract-v1.34`, `contract-v1.35`, `contract-v1.36` and `contract-v1.38` did —
+and as `contract-v1.37` did NOT, which is the defect this file records against
+it and the reason the habit is written down. The consuming runtime repin
 ships with it and carries the `unpublished:contract-v1.39` sentinel for its ref,
 on `contract-v1.34`'s own precedent: until the release commit exists there is
 nothing honest to name, and the sentinel is spelled as a value no `stack.yaml`

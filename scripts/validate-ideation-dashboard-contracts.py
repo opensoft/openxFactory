@@ -1247,6 +1247,13 @@ def check_context_packet(f: Findings, label: str, doc: dict) -> None:
     gates now assert this pairing (the released shape's two conditionals,
     `ContextPacket.__post_init__`, and this), a test asserts they AGREE on the
     packaged corpus, and each of the two halves has its own packaged negative.
+    BE HONEST ABOUT WHAT IT IS, THOUGH: revert-testing this release found that
+    disabling BOTH arms below leaves this validator's own packaged self-test
+    GREEN, because the shape refuses the same two instances anyway. So they are
+    DEFENCE IN DEPTH and the diagnostic a reader of this output actually gets —
+    not an independent refusal — and their only guard is the test that pins
+    their finding CODE. Same class as the `contract-v1.38` arms whose own
+    revert-tests said the same thing.
     The second rule the shape CANNOT express and this is the only place it
     lives.
 

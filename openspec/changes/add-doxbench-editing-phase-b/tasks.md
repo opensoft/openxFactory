@@ -928,10 +928,13 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` grows ONE
       OPTIONAL property on `$defs/success_v2`, `context_packet`, referencing one
       new CLOSED `$def` with two members: `posture` (`full | reduced`, required)
-      and `reduced_reason` (1..500 bytes), present IFF the posture is reduced.
+      and `reduced_reason` (`minLength` 1, `maxLength` 500 — code points, which
+      the producer's own guard shadows with the stricter UTF-8 byte count),
+      present IFF the posture is reduced.
       ADDITIVE by construction and verified case by case against the released
       bytes: the key is optional, so the pre-release record shape still
-      validates (a packaged instance, unchanged, IS that proof), and
+      validates — a packaged instance whose INSTANCE bytes are unchanged (only
+      its header comment grew) IS that proof — and
       `contract_schema_version` stays 1 with the manifest row's `schema_version`
       beside it.
       The PACKET was not rebuilt, which was the point: `ContextPacket`,
@@ -988,7 +991,8 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       A FAIL-CLOSED HAZARD THE CEILING CREATES, found and guarded rather than
       shipped: the route self-validates every success body and answers
       `response_invalid` if the schema refuses it, so a reduction reason longer
-      than 500 bytes would turn a degraded-but-successful turn into a refusal —
+      than the released ceiling would turn a degraded-but-successful turn into a
+      refusal —
       on the one path nobody exercises by hand. A test reads the bound OUT OF
       THE SCHEMA and checks every `REDUCED_*` constant against it. Nothing is
       truncated to fit; truncating a statement about a degradation is how a
@@ -1018,9 +1022,14 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       present-iff rule stays LOCAL to the object that owns it instead of
       becoming a cross-field rule on a ten-key envelope; the ENVELOPE's key set
       is then IDENTICAL for a full turn and a reduced one, which is the ratified
-      independence claim read on the wire and which leaves the pre-existing
-      route test asserting exactly that equality passing UNCHANGED; and a reader
-      consults one object rather than correlating two keys that could disagree.
+      independence claim read on the wire — asserted by a NEW route-level test
+      that drives the same widened request with and without a knowledge service
+      and requires the two records' key sets to be equal, a test two sibling
+      keys would have made unwritable (a reduced record would carry one key
+      more than a full one), while the pre-existing equality test on the
+      DEPRECATED v1 lane is untouched and says nothing about this because that
+      envelope gains no key at all; and a reader consults one object rather than
+      correlating two keys that could disagree.
       Two sibling keys (`context_posture` / `context_reduced_reason`) were the
       alternative and were rejected on all three counts.
       **Judgement call, flagged — THIS PRODUCER ALWAYS STATES THE POSTURE,
@@ -1093,8 +1102,9 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       in BOTH directions (raised → the over-ceiling refusal stops firing;
       lowered → the shipped-reason guard fires), `context_packet` made required
       (additivity broken), removed altogether, and added to the v1 envelope.
-      Both pin constants were drifted in both directions (tag, module digest,
-      manifest digest). Serve: the derivation as a constant `full`, the reason
+      All THREE pin surfaces were drifted back to their v1.38 values, each on
+      its own and each RED on its own: `CONTRACT_TAG`, the module's chat-turn
+      digest, and the manifest row's digest. Serve: the derivation as a constant `full`, the reason
       re-derived rather than carried, the fail-open default, the key not
       emitted, and each of the three refusal arms on its own. Browser: the
       adopter not adopting, the adopter failing OPEN, `beginTurn` not clearing,
@@ -1119,11 +1129,15 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       dishonest one that quotes the sentence. What the wire can check is that a
       reduction is STATED; whether the statement is TRUE is the assembler's rail,
       enforced where the rails run.
-      OWED CROSS-REPO FOLLOW-UP, recorded and not performed: codexFactory's
-      `specs/010-doxbench-editor-chat/contracts/chat-turn.md` is stale against
-      this release in the same way §11.7's entry recorded for the model-catalog
-      document, and remains CORRECT while that repository pins `contract-v1.27`.
-      Updating it is its own governed act under the domain upgrade runbook.
+      OWED CROSS-REPO FOLLOW-UP, recorded and not performed: the schema's
+      description names codexFactory's
+      `specs/010-doxbench-editor-chat/contracts/chat-turn.md` as its consumer
+      contract. That file is NOT in this checkout and was NOT read, so the claim
+      here is the OBLIGATION and not a finding — if it enumerates the v2 success
+      envelope's fields it is now short by one, exactly as §11.7 recorded for the
+      model-catalog document. It remains CORRECT either way while that repository
+      pins `contract-v1.27`; updating it is its own governed act under the domain
+      upgrade runbook.
 - [x] 10.8 Per-turn and per-session token telemetry is emitted content-free.
       Where the metering requirement's client/domain/bill-to fields have no
       value on a self-hosted console, the absence is declared rather than
@@ -2481,11 +2495,18 @@ the realization evidence for everything built is recorded in `proposal.md`.
       not restated here; what this tick adds is the tail it could not yet carry:
       §12 share-session realized under Brett's exit (a); §11.7 at
       `contract-v1.38`; §10.7 at `contract-v1.39`. Green on this branch at the
-      tick: `tests/ideation-dashboard` 3894 passed / 15 skipped,
-      `tests/ideation_dashboard` 63, `tests/doc-health` 691,
-      `openspec validate --all --strict` 0 failed, the contracts validator 0
-      errors / 4 by-design warnings, and `validate-contract-release.py
-      verify-commit --commit HEAD` passing on the cut.
+      tick, measured AFTER merging `origin/main` at `2c69e743` into the branch
+      rather than before it: `tests/ideation-dashboard` 3896 passed / 15
+      skipped, `tests/ideation_dashboard` 63, `tests/doc-health` 691,
+      `openspec validate --all --strict` 65 passed / 0 failed, the contracts
+      validator 0 errors / 4 by-design warnings (41 valid + 66 negative
+      packaged examples confirmed), doc-health pre/post ZERO-new against a
+      same-clock `origin/main` baseline, and `validate-contract-release.py
+      verify-commit --commit HEAD` passing on the cut. The fifteenth skip is a
+      CHECKOUT-LAYOUT artifact and not a regression:
+      `test_landed_parses_a_real_archived_change_delta` looks for a SIBLING
+      `openxFactory` checkout two directories up, which this isolated clone has
+      no sibling for.
       **WHAT THIS TICK DOES NOT CLAIM, and the post-land step that completes it.**
       Three facts here are about a commit that does not exist while this branch
       is in flight, exactly as 11.7's tick was and 13.3's before it: the SQUASH

@@ -63,7 +63,7 @@ RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
-        "75c80b5dbec3ee074d1390f0c257e20c9362d82afeeea397906ce6220d488ce2",
+        "3de2a85323cc4c843a33d179e6ccabdc723280ba9243988adce3bbd6a0431a61",
 }
 
 # ---------------------------------------------------------------------------

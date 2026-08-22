@@ -10,7 +10,7 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:7c93baa7a8eafbff2e317f059e25144d1b76f5377b10e1360a7c5b54fab5c262
+  digest: sha256:00f71bfc967353e344dd2f0b717916d3b59826c63883fbf01d7e10c972c516b9
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
@@ -824,7 +824,7 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:3fb73f0777bafdd20aba15ec2f64df2068a29df81381fdba14c09f9a8b204035
+  digest: sha256:59452587525488982ba93cdeb2d67c7373459ecdbc8a9273eff7d375f55e4d66
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
@@ -850,7 +850,7 @@ entries:
   git_mode: '100644'
   schema_id: xfactory-workbench-chat-turn
   schema_version: 1
-  digest: sha256:75c80b5dbec3ee074d1390f0c257e20c9362d82afeeea397906ce6220d488ce2
+  digest: sha256:3de2a85323cc4c843a33d179e6ccabdc723280ba9243988adce3bbd6a0431a61
 - artifact_id: xfactory-workbench-model-catalog
   path: contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
   type: release-schema

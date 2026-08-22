@@ -305,9 +305,12 @@ $defs:
     # ("MUST NOT ... make the editors unusable") read on the wire, where the two
     # turns differ in what the record SAYS and not in the shape it arrives in.
     #
-    # `reduced_reason` is FREE PROSE with the same 500-byte ceiling every other
-    # authored string in this family carries (`data_handling`, a proposal
-    # `summary`, a failure `message`). It is a statement about the ASSEMBLY, not
+    # `reduced_reason` is FREE PROSE with the same 500-`maxLength` ceiling every
+    # other authored string in this family carries (`data_handling`, a proposal
+    # `summary`, a failure `message`). JSON Schema counts `maxLength` in CODE
+    # POINTS; the producer's own guard checks the stricter UTF-8 BYTE count
+    # against the same number, so nothing it emits can pass one and fail the
+    # other. It is a statement about the ASSEMBLY, not
     # about content: it names why the packet is reduced and, in the reasons this
     # capability ships, says in as many words that nothing unbounded was
     # substituted and no rail was bypassed. The delegated validator scans it for
