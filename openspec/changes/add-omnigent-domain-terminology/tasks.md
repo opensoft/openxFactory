@@ -148,12 +148,20 @@
       numbers are ever to ship in product configuration.
 - [x] 3b.5e BRIEFS WRITTEN for every remaining domain (2026-08-09). Adx's
       lives in its own repo (it has an active change);
-      opsx/codex/medx briefs live here in supporting-docs/ because codex and
+      opsx/codex/medx briefs live here in `research/` because codex and
       medx have no active omnigent change to attach to and this change owns
       the commissioning task. All four lead with REUSE RIGHTS framed as
       "may we embed element names in a YAML file shipped in a public repo",
       forbid guessed identifiers, and state that "no equivalent" and "do not
-      register" are useful answers.
+      register" are useful answers. FOLDER RULED (2026-08-22, Brett,
+      in-session multiple choice, recommended option adopted): these briefs
+      were authored in place by this change — no staging source, no
+      transition — so they do not live under `supporting-docs/`, whose
+      manifest is a transition artifact (`proposal-support verify` was
+      failing on the manifest's absence, and writing one by hand would have
+      invented a staging source). They live in `research/` instead; the
+      reserved folder name keeps meaning material the forward transition
+      MOVED, with source hashes.
       Per-domain risk each brief targets:
       - opsx (`opsx-it-operations-bodies-research-prompt.md`): 9 shipped
         ITIL 4 / SFIA crosswalks, none verified. Licence risk is real on
@@ -187,7 +195,7 @@
       published 2024-02-24) BUT its Function names could not be enumerated
       from the pages fetched, so no function-level mapping was authorised —
       recorded rather than guessed. Report:
-      `supporting-docs/opsx-it-operations-bodies-research-report.md`.
+      `research/opsx-it-operations-bodies-research-report.md`.
       PATTERN NOW THREE FOR THREE: every commercially stewarded body checked
       (APQC, SFIA, ITIL, COBIT) has failed the product-configuration reuse
       test, and every licence-clean answer has been O*NET. That is a finding
@@ -206,7 +214,7 @@
       its display label avoids the term, because "Scrum Master" is a human
       role holding facilitation authority over PEOPLE — a sharper version of
       the bookkeeper-includes-posting hazard. Report:
-      `supporting-docs/codex-engineering-bodies-research-report.md`.
+      `research/codex-engineering-bodies-research-report.md`.
 - [x] 3b.5i MEDX BRIEF RUN 2026-08-09. The only domain to fail on BOTH
       category and licence. Category: every clinical taxonomy names either
       humans with clinical standing (NUCC, FHIR PractitionerRole, O*NET
@@ -221,7 +229,7 @@
       because that is the mapping a contributor would reach for and it is
       the dangerous one. Recording the refusal in data was worth more here
       than a crosswalk. Report:
-      `supporting-docs/medx-clinical-bodies-research-report.md`.
+      `research/medx-clinical-bodies-research-report.md`.
 - [x] 3b.5j ALL FIVE DOMAINS VERIFIED. Result across the family: every
       commercially stewarded body assessed — APQC, SFIA, ITIL, COBIT,
       SWEBOK, ISO/IEC/IEEE 12207, GRADE, SNOMED CT — fails the
