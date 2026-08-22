@@ -366,10 +366,15 @@ Added-by: Claude Opus 5 (session, Brett's direction) · 2026-08-21
 ## Exit
 
 Iterate this fragment in doxBench until all six open questions carry a
-disposition other than `open`. Raise the OpenSpec change (or the first of the
-sequence Q5 recommends) AFTER the doxBench sprint archives — that is,
-after `add-doxbench-editing-phase-b` closes its remaining obligations (task 10.7
-and its 13.8 evidence tick) — so that this topic's release sequencing is planned
-against a settled contract baseline rather than against a moving one, and so the
-per-turn router is designed on top of a static resolution that has actually
-shipped and been consumed.
+disposition other than `open`. Then raise a NEW OpenSpec change — the first of
+the sequence Q5 recommends — which does not exist yet and is named nowhere in
+this section on purpose: this topic exits via its OWN change, never via the
+doxBench editing sprint it builds on.
+
+SEQUENCING, which is a different fact from the exit: raise it only AFTER that
+sprint archives (the Phase B change listed under Related work above, once its
+still-owed chat-turn-success release and its evidence tick close). Two reasons —
+this topic's own release sequencing should be planned against a settled contract
+baseline rather than a moving one, and the per-turn router should be designed on
+top of a static resolution that has actually shipped and been consumed rather
+than one still being cut.
