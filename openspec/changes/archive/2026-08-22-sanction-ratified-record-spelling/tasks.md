@@ -209,22 +209,81 @@ what makes it a rule rather than an observation.
       sentence refute itself in the very file it was making the claim about.
       Re-run after the fix lap: doc-health 724 passed (719 + 5 new),
       workbench 140 passed.
-- [ ] 4.3 README "OpenSpec Records" row updated from the Active block to the
+- [x] 4.3 README "OpenSpec Records" row updated from the Active block to the
       realization state as the change lands, and to the archived form at
-      archive. NOT DONE IN THIS SLICE, deliberately: the row moves at the
-      archive gate, which is a later slice.
-- [ ] 4.4 Archive only on merge-plus-green on the openxFactory main line, per
+      archive. Done at this gate, which is where the task said the row moves.
+      The active row was stale in two ways beyond its placement and both are
+      corrected rather than carried across: it read "**NOT YET RATIFIED**
+      (`Status: draft`)", which the 2026-08-22 ratification made false, and it
+      said "four added" scenarios and two unenumerated violation kinds, which
+      the fix lap's fifth scenario and fourth bullet (6.1) made false. The
+      rewritten row carries the archive date, the ratification, the four
+      realization commits `main` actually holds, and the verified promotion
+      arithmetic.
+- [x] 4.4 Archive only on merge-plus-green on the openxFactory main line, per
       `target_release: implemented`. No contract bundle is cut and no release
       tag is owed; the archive-gate evidence is the merged PR plus the green
-      runs, named in this file before the archive commit.
-- [ ] 4.5 On archive, confirm the promoted `document-lifecycle` requirement
+      runs, named in this file before the archive commit. DISCHARGED, and
+      re-verified at this gate rather than inherited from the realization
+      slice's own read-backs.
+      MERGED: PR #268, "Realize sanction-ratified-record-spelling: both
+      citation spellings enforced, one total, floor at CRITICAL", merged
+      2026-08-22T23:33:13Z by Brett Heap into `main`. It was REBASE-merged,
+      so its four branch commits (`aca8692`, `40ec1d9`, `648702d`, `c9d6f12`)
+      are NOT reachable on `main` and MUST NOT be cited — the lesson
+      `add-roster-device-admission-surface`'s archive recorded for the mirror
+      case. What `main` carries, each confirmed an ancestor of `origin/main`
+      by `git merge-base --is-ancestor`, is the four rewritten shas:
+      `c854814` (the realization — `docs/document-lifecycle.md`,
+      `scripts/doc_health/families.py`, the new
+      `tests/doc-health/test_ratified_citation_spellings.py`, tasks),
+      `8b874a0` (the six adversarial-review fixes, which also amended both
+      spec deltas per 6.1/6.2), `e8dc70b` (Copilot's count-not-pair note) and
+      `93d6216` (the 6.2 read-back correction, and the archive base). The
+      ratification landed earlier the same day as PR #267, merge `a316a10`.
+      GREEN, re-run on `93d6216` BEFORE any archive edit, exit codes read
+      directly: `openspec validate --all --strict` exit 0, 68 passed / 0
+      failed; `pytest tests/doc-health` exit 0, 724 passed; `pytest
+      tests/ideation-dashboard -k workbench` exit 0, 140 passed / 3858
+      deselected; `doc-health.py --single-repo .` exit 0 at 4 critical,
+      6 error, 68 warning, 4 info — identical to 3.8's pre-change measurement
+      and to 6.8's post-fix-lap one.
+      NO BUNDLE: `target_release` names no contract release, and none was
+      cut — nothing under `contracts/schemas/` moved in any of the four
+      commits, so there is no digest inventory or tag to verify here.
+      BARE CLI, on the checked predicate: this change owns no
+      `supporting-docs/` (its origin is `ad_hoc`, there is no staging topic
+      to carry), so `document-lifecycle`'s retention requirement — scoped in
+      its own first clause to a change WITH proposal supporting documents —
+      has nothing to bind, and `proposal-support.py archive` would refuse the
+      packet anyway on §5's deliberately unticked out-of-scope boxes. The
+      archive used `openspec archive … --yes`, following
+      `add-roster-device-admission-surface` rather than
+      `add-doxbench-editing-phase-b`. Origin retention verified against
+      pre-archive bytes rather than assumed: all six files hash identically
+      before and after the move, `.openspec.yaml` at `07a1ae074d`.
+- [x] 4.5 On archive, confirm the promoted `document-lifecycle` requirement
       carries all EIGHT scenarios (three restated, five added — the fifth
       added on the fix lap, see 6.1) and that the promoted `doc-health`
       requirement's other seven scenarios are byte-identical to their
       pre-change text — the MODIFIED-delta scenario-drop failure mode,
       checked rather than trusted. The whole-capability arithmetic to check
       against: `document-lifecycle` 52 → 57 scenarios, 13 requirements
-      unchanged.
+      unchanged. VERIFIED, by diffing the promoted specs' requirement maps
+      captured before the archive against the same maps after it, not by
+      reading the CLI's "~ 2 modified" summary.
+      `document-lifecycle`: 13 → 13 requirements, ZERO dropped and ZERO
+      added; 52 → 57 scenarios, exactly the predicted arithmetic; the
+      modified requirement 3 → 8 scenarios, so all three pre-existing
+      scenarios survive and five are added; and the twelve requirements the
+      delta does not name show ZERO drift, byte for byte.
+      `doc-health`: 24 → 24 requirements, 93 → 93 scenarios, the modified
+      requirement still at its eight, its other twenty-three requirements
+      byte-identical, and the whole promoted diff is the ONE widened WHEN
+      bullet the delta claims — now naming four ratification violation kinds
+      where it named one.
+      Both promoted requirement bodies compare byte-identical to their delta
+      text (5877 and 5212 characters, equal on both sides).
 
 ## 5. Explicitly out of scope
 

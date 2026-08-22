@@ -304,40 +304,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [sanction-ratified-record-spelling](openspec/changes/sanction-ratified-record-spelling/proposal.md)
-  — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). Closes the
-  gap between the one ratification-citation spelling
-  `docs/document-lifecycle.md` § Status Claim Rules sanctions
-  (`Ratified by: <change>`) and the two the corpus writes, which the
-  2026-08-22 adversarial review recorded in
-  `docs/archive-record-discrepancies.md` (B1, C2, C7) and which Brett's own
-  C2 ruling then made an instruction ("a citation line in whichever existing
-  spelling honestly fits"). Measured at `ca0b905`: under the governed roots,
-  29 documents carry `Ratified by:` — all 29 naming a resolvable change id,
-  13 of them naming ONLY the change id — and zero carry a `Ratified:`
-  header; under `openspec/`, 42 of 86 archived proposals plus 11 active ones
-  carry `Status: ratified`, split 38 `Ratified by:` / 15 `Ratified:`, and
-  only 20 of the 38 name a resolvable change id, so the primary spelling is
-  already half record-citing in practice. Not one of those 53 lines fails an
-  approver-or-date-or-record test. **The design intent:** `Ratified by:`
-  stays PRIMARY wherever an approving change exists; `Ratified:` is
-  sanctioned as the RECORD-CITING alternative ONLY where none does, and must
-  name at least one of an approver, a date, or a resolvable record path —
-  the three-way floor scoped to that form alone, because applying it to
-  `Ratified by:` would turn those 13 sound governed documents CRITICAL in one
-  commit. A bare uncited `Status: ratified` stays illegal in both spellings.
-  ONE MODIFIED requirement on `document-lifecycle` (`Controlled document
-  status taxonomy` — which promotes the citation rule for the FIRST time:
-  the promoted spec today carries scenarios for three of § Status Claim
-  Rules' four bullets and none for the ratified one; all three existing
-  scenarios restated, four added) and ONE MODIFIED on `doc-health`
-  (`Deterministic check families` — restated verbatim with one widened WHEN
-  bullet, since the realization emits two violation kinds the enumeration
-  does not carry; whether that second delta rides here is OQ-1). Realization
-  widens `fam_ratified_provenance` to two prefixes — never a prefix match on
-  the bare word, which would swallow body prose — plus mutation-validated
-  tests. No existing citation line in the corpus is rewritten.
-  `target_release: implemented`.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). The
   openxFactory COMPANION to Omnigent-Install's just-merged
@@ -854,6 +820,67 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [sanction-ratified-record-spelling](openspec/changes/archive/2026-08-22-sanction-ratified-record-spelling/proposal.md)
+  — **ARCHIVED 2026-08-22**, authored, ratified and realized the same day.
+  Closes the gap between the one ratification-citation spelling
+  `docs/document-lifecycle.md` § Status Claim Rules sanctioned
+  (`Ratified by: <change>`) and the two the corpus actually writes, which the
+  2026-08-22 adversarial review recorded in
+  `docs/archive-record-discrepancies.md` (B1, C2, C7) and which Brett's own
+  C2 ruling then made an instruction ("a citation line in whichever existing
+  spelling honestly fits"). Measured at `ca0b905`: under the governed roots,
+  29 documents carry `Ratified by:` — all 29 naming a resolvable change id,
+  13 of them naming ONLY the change id — and zero carry a `Ratified:`
+  header; under `openspec/`, 42 of 86 archived proposals plus 11 active ones
+  carry `Status: ratified`, split 38 `Ratified by:` / 15 `Ratified:`, and
+  only 20 of the 38 name a resolvable change id, so the primary spelling was
+  already half record-citing in practice. Not one of those 53 lines fails an
+  approver-or-date-or-record test — the rule is written to fit what the
+  corpus already does, and **no existing citation line anywhere was
+  rewritten**. **The ratified intent:** `Ratified by:` stays PRIMARY wherever
+  an approving change exists; `Ratified:` is sanctioned as the RECORD-CITING
+  alternative ONLY where none does, and must name at least one of an
+  approver, a date, or a resolvable record path — the three-way floor scoped
+  to that form alone, because applying it to `Ratified by:` would turn those
+  13 sound governed documents CRITICAL in one commit. Exactly ONE citation
+  line per document, counted as one TOTAL across both spellings, so the same
+  spelling twice is the same finding as one of each. A bare uncited
+  `Status: ratified` stays illegal either way. **RATIFIED 2026-08-22** by
+  Brett in an in-session multiple-choice round over all five Open Questions,
+  every recommendation adopted (PR #267, merge `a316a10`); each ruling is
+  recorded inline beside its question, and the proposal is its own first
+  conformance test — having no approving change to name, it cites itself in
+  the record-citing spelling it sanctions. **REALIZED the same day** as
+  **PR #268**, rebase-merged, so cite what `main` carries and not the branch:
+  `c854814` (the widened `fam_ratified_provenance`, the § Status Claim Rules
+  rewrite, and `tests/doc-health/test_ratified_citation_spellings.py`),
+  `8b874a0` (six adversarial-review fixes, two of which amended this change's
+  own deltas to transcribe the OQ-4 ruling the realization was already
+  obeying), `e8dc70b` (Copilot: report the duplicate-citation finding on the
+  count, not the pair) and `93d6216`. The family reads TWO prefixes and never
+  a prefix match on the bare word, which would swallow body prose; a new
+  `_header_lines` returns every matching header line so "exactly one" can be
+  counted rather than short-circuited at the first match. Eight mutations
+  were hand-applied and killed, three of them added after the review
+  demonstrated two loosenings the first five all survived. Promotion verified
+  by diffing the requirement maps either side of the archive: ONE MODIFIED
+  requirement on `document-lifecycle` (`Controlled document status taxonomy`
+  — the citation rule promoted for the FIRST time; 13 requirements unchanged,
+  52 → 57 scenarios, the modified requirement 3 → 8 with all three
+  pre-existing scenarios surviving) and ONE MODIFIED on `doc-health`
+  (`Deterministic check families` — 24 requirements and 93 scenarios
+  unchanged, the whole diff being one widened WHEN bullet that now names four
+  ratification violation kinds where it named one). No contract bundle and no
+  release tag: `target_release: implemented` owes neither. Gates at the
+  archive: `openspec validate --all --strict` 67/67 exit 0 (68 before),
+  `tests/doc-health` 724 passed, workbench 140 passed, and a `--single-repo`
+  doc-health run unmoved at 4 critical / 6 error / 68 warning / 4 info, which
+  is the measurement the change promised — the widening reaches no live
+  document. §5 stays unticked as a recorded scope boundary, not a gap:
+  whether `openspec/` joins `GOVERNED_ROOTS` (the event that makes the 15
+  latent `Ratified:` lines live), the two archived-record citation defects
+  the register routes through a ruling per record, and any rewrite of an
+  existing citation line are all deliberately outside it.
 - [add-dashboard-account-menu](openspec/changes/archive/2026-08-22-add-dashboard-account-menu/proposal.md)
   — **ARCHIVED 2026-08-22** (folder dated in UTC; the act fell just after
   midnight UTC on a machine reading 2026-08-21). Authored 2026-08-21. The
