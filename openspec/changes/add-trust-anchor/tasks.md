@@ -181,11 +181,30 @@ Each pins the released contract bundle rather than restating its shapes.
 
 ## 8. Deferred bookkeeping over ratified text
 
-- [ ] 8.1 After BOTH install repositories exist, one change refreshes the
+- [x] 8.1 After BOTH install repositories exist, one change refreshes the
       `repo-boundary-governance` "Install repository scope" requirement so
       the admitted install repos are enumerated in one place — a MODIFIED
       delta restating all its scenarios, run when nothing else is
       replacing that requirement (design D8).
+      **DONE 2026-08-21 by
+      [`admit-install-repos-to-aggregation`](../admit-install-repos-to-aggregation/specs/repo-boundary-governance/spec.md).**
+      Both preconditions held and were verified rather than assumed: both
+      install repositories exist and are seeded
+      (`opensoft/Keycloak-Install` at
+      `1aa184e891d4ba6e641a31260d3f64d2b335f175`,
+      `opensoft/OpenXPKI-Install` at
+      `05f440444d9091206778e838454ed9b5bb7bff60`), and **nothing else is
+      replacing that requirement** — the four active
+      `repo-boundary-governance` deltas name only the two boundary
+      requirements (ADDED by this change and `add-identity-brokering`,
+      MODIFIED by the two `implement-*` changes), and every other
+      non-archive mention of "Install repository scope" is prose. The
+      refresh is ONE MODIFIED delta: both scenarios restated verbatim, the
+      enumeration extended with `installs/keycloak-install` and
+      `installs/openxpki-install` as admitted 2026-08-21, and an explicit
+      statement that the enumeration is an index rather than a second
+      boundary. Grep evidence and reasoning:
+      [that change's design D-enumeration](../admit-install-repos-to-aggregation/design.md).
 
 ## 9. Verification bar
 

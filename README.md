@@ -301,6 +301,28 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [admit-install-repos-to-aggregation](openspec/changes/admit-install-repos-to-aggregation/proposal.md)
+  — authored and RATIFIED 2026-08-21 (Brett: "do the aggregation admission
+  change, the two repos are added to openXfactory github app"). The separate
+  reviewed change BOTH ratified install-repo boundary requirements demand
+  before a pin is supported, and which they forbid their own creation changes
+  from being: an eight-field admission record per repository — path, remote,
+  visibility, exact validated commit, checkout, compatibility, update,
+  rollback — for `installs/keycloak-install` (`opensoft/Keycloak-Install`,
+  private, `1aa184e`) and `installs/openxpki-install`
+  (`opensoft/OpenXPKI-Install`, private, `05f4404`). Every value is a
+  read-back: both pin `contract-v1.37` at contract commit `c1ffa0f`, and
+  neither carries a `.gitmodules`, so recursive checkout is plain checkout and
+  rollback is one revert of one gitlink. Discharges the long-deferred
+  `add-trust-anchor` tasks 8.1 with ONE MODIFIED delta on "Install repository
+  scope" (both scenarios verbatim, enumeration extended, no other requirement
+  touched) — its "run when nothing else is replacing that requirement"
+  precondition verified by grep. Also closes `implement-*` tasks 1.3/3.3 in
+  both changes: installation 145372182 now lists both repositories (19 total).
+  PENDING: the aggregation act itself — `.gitmodules`, the two gitlinks at the
+  recorded commits, and the README submodule documentation — lands by reviewed
+  PR on `opensoft/xFactory`. Authorizes no deployment and no pin advance
+  beyond the recorded commits. `target_release: repository-bootstrap`.
 - [implement-keycloak-install-repo](openspec/changes/implement-keycloak-install-repo/proposal.md)
   — authored, RATIFIED, and REALIZED 2026-08-21 (Brett: "do both install
   repos"). Created and seeded `opensoft/Keycloak-Install` (private, repo id
