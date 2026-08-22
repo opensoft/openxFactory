@@ -145,7 +145,7 @@ up no contemporaneous trace. What changed is not the evidence but the
 authority: the ratifier stated the fact, which is the one source the note above
 said it was waiting for ("Held for a Brett ruling, and it is a cheap one").
 
-**What was executed, all three of it.**
+**What was executed, all three of them.**
 
 1. `proposal.md`'s `Status: draft` became `Status: ratified`. The original
    value is preserved verbatim in prose — it "read `draft` from proposal
