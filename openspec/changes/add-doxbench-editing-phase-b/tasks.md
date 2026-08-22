@@ -963,11 +963,18 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       probe pins the ORDER by recording `hidden` AT THE MOMENT of the write,
       which is the only observation that tells the two apart. `styles.css`
       states the same rule in writing one region over.
+      **AND THE LIVE REGION IS NOT RE-ANNOUNCED (review NEW-3).** `render()` runs
+      on every composer keystroke, and re-writing a live region with the SAME
+      sentence re-announces it: the reviewer measured seven repeats of the same
+      227-character disclosure while typing one follow-up. The note is written
+      only when its text actually CHANGES, and a probe pins the write count
+      across seven keystrokes.
       `settleTurnSuccess` adopts the record's posture instead of projecting it
       away (the browser state model kept only `proposals` and `transcript`, so
-      the field would have been dropped on arrival); `beginTurn` and
-      `adoptThreadTranscript` clear it, so the note never outlives the answer it
-      describes. A node probe mounts the SHIPPED `doxbench-chat.js` bytes and
+      the field would have been dropped on arrival), and the three other
+      answer-replacing paths carry it too, so the note never outlives the answer
+      it describes and never survives one. A node probe mounts the SHIPPED
+      `doxbench-chat.js` bytes and
       drives real turns through it: reduced renders the note and the reason,
       full renders nothing, a record with no posture renders no phantom badge,
       and both self-contradicting records render silence rather than half a
@@ -1138,15 +1145,54 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       `recordLocalFailure` would each need the same restore, so ONE invariant
       would be re-implemented at three sites. Taken: DELETE the `beginTurn`
       clear, because a flight STARTING replaces no answer. Every path that does
-      replace the answer already replaces the posture beside it —
-      `settleTurnSuccess` adopts the new record's (null included, for a producer
-      older than v1.39), `adoptThreadTranscript` clears it with the transcript,
-      `rekeyChatState` starts fresh — so the invariant holds by not being
-      violated rather than by being restored. Both directions are probed
+      replace the answer already replaces the posture beside it — there are
+      FOUR, and this enumeration said THREE until the review's second round
+      (NEW-1): `settleTurnSuccess` adopts the new record's (null included, for a
+      producer older than v1.39), `adoptThreadTranscript` clears it with the
+      transcript, `rekeyChatState` starts fresh, and `restoreChatState` adopts
+      the SNAPSHOT's. So the invariant holds by not being violated rather than
+      by being restored. Both directions are probed
       (reduced -> failure KEEPS the note beside the failure note; reduced -> a
       full success CLEARS it) and both are revert-tested.
+      **THE FOURTH PATH, AND THE SNAPSHOT THAT MADE IT ONE (review NEW-1 and
+      NEW-2).** `restoreChatState` replaces the transcript WHOLESALE and left
+      `contextPacket` untouched, so a restored answer could be captioned by a
+      note that never described it — reproduced by the reviewer, and false in
+      three places that each claimed the enumeration was complete at three
+      paths. Reachability was nil (the sole caller restores onto a freshly
+      mounted rail, where the field is already null); the SENTENCE was the
+      defect, and it was about to be frozen into a released CHANGELOG.
+      **NEW-2 TAKEN AS (a) — CLOSE IT, WITH NO VERSION BUMP.** The chat snapshot
+      is a browser-local, versioned blob this release fully controls, and unlike
+      the thread sidecar there is no second reader and no migration — so the
+      disclosure can survive a tile being closed and reopened, which is the same
+      lost-badge class one lifecycle up from S4. `chatSnapshot` gains one
+      OPTIONAL field carrying the released posture object whole (named
+      `context_packet`, so ONE validator serves a stored blob and a wire record
+      and no third spelling exists), and `restoreChatState` adopts it through
+      that same validator — a hand-edited blob claiming `reduced` with no
+      readable reason fails closed to null rather than captioning the transcript
+      with a reduction nobody can check.
+      NO BUMP, because `CHAT_SNAPSHOT_VERSION` is a FAIL-CLOSED gate:
+      `restoreChatState` keeps the FRESH state on an unrecognized version, so
+      bumping would discard every stored blob on the first reopen after the
+      upgrade — the operator's composer text, subject, model choice and
+      proposals, spent to add a caption. An optional field invalidates nothing
+      instead: an old blob lacks the key and restores to posture-unknown, which
+      renders no note and is exactly the pre-release behaviour, and a NEW blob
+      read by an OLDER build is ignored because this restore reads named fields
+      and never enumerates. Both directions safe — the same additive reasoning
+      the released wire contracts use when they grow without moving
+      `contract_schema_version`, applied to a blob rather than a contract.
+      AN EXPLICIT `full` IS PERSISTED TOO, which the first version of the probe
+      called an oversight and which is in fact the doctrine: absent and `full`
+      are DIFFERENT facts everywhere else in this release, so dropping `full`
+      from the blob would restore "unknown" over a posture somebody checked and
+      re-introduce the inference-by-absence the release forbids. The key is
+      omitted only when there is no posture to state at all.
       **FLAGGED AS A GAP, NOT AS A DECISION SETTLED IN THIS RELEASE'S FAVOUR —
-      THE THREAD SIDECAR STILL CANNOT STATE THE POSTURE.** The durable
+      THE THREAD SIDECAR STILL CANNOT STATE THE POSTURE, and the contrast with
+      NEW-2 is exactly why one closed and the other did not.** The durable
       transcript on disk names the turn id, the model and the bound buffer, and
       gains nothing here. Extending it was considered and refused ON THE FORMAT:
       `doxbench_threads._parse_turn` refuses any turn header that does not split
@@ -2327,14 +2373,20 @@ realization-evidence tick that cannot be true until it lands. The headline is
 otherwise unchanged: what holds this change open is a contract release, not
 missing behaviour.
 
-**UPDATED 2026-08-22, after 10.7's release landed. TWO open rows became ZERO,
-and the table above has no unstruck row left.** `contract-v1.39` carries the
-chat-turn record's `context_packet` — the assembled context's posture and the
-reduction's own reason — and the browser surface states the reduced posture to
-the human, which was the half 10.7 stayed open for. 13.8 ticks with it, on its
-own terms: the sentence it waited on ("its code merged on the implemented
-target", over the WHOLE declared code surface) is true once the last of the
-three releases is cut, and it now is.
+**UPDATED 2026-08-22, after 10.7's release was CUT — not landed; see the verb
+below. TWO open rows became ZERO, and the table above has no unstruck row
+left.** `contract-v1.39` carries the chat-turn record's `context_packet` — the
+assembled context's posture and the reduction's own reason — and the browser
+surface states the reduced posture to the human, which was the half 10.7 stayed
+open for. 13.8 ticks with it, on its own terms.
+**THE VERB, HERE TOO (adversarial review S3, residual).** An earlier version of
+this paragraph said the release had "landed" and that the gate's sentence ("its
+code merged on the implemented target", over the WHOLE declared code surface)
+"is true … and it now is". Both are the same overclaim 13.8's own block was
+corrected for, sitting in the summary a reader reaches FIRST. What is true is
+that the whole surface is BUILT AND GATED on a branch off the implemented
+target; MERGED — and LANDED — become true at the landing squash and not one
+commit before it.
 
 **So this change is no longer blocked on anything it can do itself.** Every task
 box is checked. What remains is NOT a task: `contract-v1.39` is cut but its

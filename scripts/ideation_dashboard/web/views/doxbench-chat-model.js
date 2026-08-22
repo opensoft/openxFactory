@@ -240,12 +240,14 @@ export function beginTurn(stateValue) {
   // THE INVARIANT IS SIMPLER THAN THE CLEAR WAS: the note describes THE
   // TRANSCRIPT'S LAST ASSISTANT ANSWER. So it changes exactly when that answer
   // does, and every path that replaces the answer already replaces the posture
-  // beside it — `settleTurnSuccess` adopts the new record's (null included, for
-  // a producer older than contract-v1.39), `adoptThreadTranscript` clears it
-  // with the transcript it replaces, and `rekeyChatState` starts fresh. A
-  // flight STARTING replaces no answer, so it changes nothing: while a turn is
-  // in the air the note still describes the answer still on screen, which is
-  // true.
+  // beside it. There are FOUR of them, and the fourth was missing from this
+  // list until the adversarial review found it (NEW-1): `settleTurnSuccess`
+  // adopts the new record's (null included, for a producer older than
+  // contract-v1.39), `adoptThreadTranscript` clears it with the transcript it
+  // replaces, `rekeyChatState` starts fresh, and `restoreChatState` adopts the
+  // SNAPSHOT's — which is why the snapshot now carries one. A flight STARTING
+  // replaces no answer, so it changes nothing: while a turn is in the air the
+  // note still describes the answer still on screen, which is true.
   //
   // The alternative the review offered — restore the posture in
   // `settleTurnFailure` — was REJECTED: `beginTurn` would have to stash the
@@ -336,8 +338,14 @@ export function transcriptWireWindow(stateValue) {
 // exactly the "silent degradation" the requirement exists to prevent, and
 // showing the bare words "reduced context" with no reason would be that
 // degradation wearing a badge. Both drop to null.
-function adoptContextPacket(successPayload) {
-  const raw = successPayload && successPayload.context_packet;
+function adoptContextPacket(carrier) {
+  // ONE validator for BOTH readers, because they carry the SAME object: a
+  // success record's `context_packet` and the persisted snapshot's. Naming the
+  // stored field `context_packet` (and not a camelCase sibling) is deliberate —
+  // the released object shape travels whole, so no third spelling of the
+  // posture exists and a malformed stored blob fails closed by exactly the rule
+  // a malformed wire record does.
+  const raw = carrier && carrier.context_packet;
   if (!raw || typeof raw !== "object") return null;
   const posture = raw.posture;
   const reason = raw.reduced_reason;
@@ -655,6 +663,26 @@ export function chatSnapshot(stateValue) {
   return {
     schema_version: CHAT_SNAPSHOT_VERSION,
     kind: CHAT_SNAPSHOT_KIND,
+    // WHAT THE RESTORED ANSWER RAN ON (contract-v1.39; adversarial review
+    // NEW-2). The transcript survives a tile being closed and reopened, so its
+    // disclosure has to survive with it — a restored reduced answer with no
+    // note is the same lost-badge defect S4 found on the failure path, one
+    // lifecycle up. Omitted entirely when there is nothing to say, so a
+    // conversation with no posture writes the same blob it always did.
+    //
+    // NO VERSION BUMP, and that is a judgement call with a cost on the other
+    // side. `restoreChatState` fail-closes on an unrecognized `schema_version`
+    // and keeps the FRESH state, so bumping would discard every snapshot in
+    // existence on the first reopen after the upgrade — the operator's
+    // composer text, subject, model choice and proposals, to add a caption.
+    // An OPTIONAL field invalidates nothing instead: an old blob lacks the key
+    // and restores to posture-unknown, which renders no note and is exactly
+    // today's behaviour; a NEW blob read by an OLDER build is ignored, because
+    // this restore reads named fields and never enumerates. Both directions
+    // safe, nothing discarded — the same additive reasoning the released wire
+    // contracts use when they grow without moving `contract_schema_version`.
+    ...(stateValue.contextPacket
+      ? { context_packet: stateValue.contextPacket } : {}),
     workingSubject: stateValue.workingSubject,
     selectedModelId: stateValue.selectedModelId,
     composer: stateValue.composer,
@@ -754,6 +782,23 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
       ? snapshotValue.composer : "",
     transcript,
     proposals: Object.freeze(records),
+    // THE FOURTH ANSWER-REPLACING PATH (adversarial review NEW-1). This
+    // replaces the transcript WHOLESALE, so it replaces the answer the note
+    // describes — and it used to leave `contextPacket` untouched, which the
+    // reviewer reproduced: a restored answer captioned by a note that never
+    // described it. Reachability was nil (the sole caller restores onto a
+    // freshly mounted rail, where it is already null) and the SENTENCE was
+    // false, which is what mattered: three places claimed the enumeration was
+    // complete at three paths.
+    //
+    // It adopts the SNAPSHOT's posture rather than nulling, which is NEW-2's
+    // half: a blob that carries one restores the disclosure with the answer, a
+    // blob that does not restores to silence. Both go through the same
+    // `adoptContextPacket` a wire record does, so a hand-edited or
+    // future-versioned blob claiming `reduced` with no readable reason fails
+    // closed to null instead of captioning the transcript with a reduction
+    // nobody can check.
+    contextPacket: adoptContextPacket(snapshotValue),
   });
   // The re-score is the whole point of restoring these together.
   return currentHashes ? refreshProposalCurrency(restored, currentHashes)

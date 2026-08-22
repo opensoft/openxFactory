@@ -3434,7 +3434,8 @@ const fire = async (node, type) => {
 import { mountDoxBenchChatRail, reducedContextNote, REDUCED_CONTEXT_LEAD }
   from "./doxbench-chat.mjs";
 import { createChatState, settleTurnSuccess, beginTurn,
-         adoptThreadTranscript } from "./doxbench-chat-model.mjs";
+         adoptThreadTranscript, chatSnapshot, restoreChatState }
+  from "./doxbench-chat-model.mjs";
 
 const out = {};
 const KEY = { repository: "fixture-repo", ref: "main",
@@ -3619,6 +3620,93 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
     adoptThreadTranscript(settled, [{ human: "q", assistant: "a" }]));
 }
 
+// NEW-1/NEW-2: the SNAPSHOT round trip, which is the fourth answer-replacing
+// path and the one that survives a tile being closed.
+{
+  const reduced = settleTurnSuccess(
+    beginTurn({ ...createChatState(KEY), composer: "q" }),
+    recordWith({ posture: "reduced", reduced_reason: REASON }));
+  const full = settleTurnSuccess(
+    beginTurn({ ...createChatState(KEY), composer: "z" }),
+    recordWith({ posture: "full" }));
+
+  // (a) a snapshot of a reduced conversation CARRIES the posture …
+  const blob = chatSnapshot(reduced);
+  out.snapshotCarries = Boolean(blob.context_packet)
+    && blob.context_packet.posture === "reduced";
+  // … INCLUDING an explicitly full one, which is not a quirk: this release's
+  // own doctrine is that absent and `full` are DIFFERENT facts, so a snapshot
+  // that dropped `full` would restore "unknown" over a posture somebody
+  // checked — re-introducing the inference-by-absence the release forbids.
+  out.snapshotCarriesFull =
+    chatSnapshot(full).context_packet.posture === "full";
+  // The key is omitted only when there is NO posture to state: a conversation
+  // with no answer yet, or one whose answer came from a producer older than
+  // contract-v1.39. That is the case whose blob is unchanged from before.
+  out.snapshotOmitsWhenUnknown =
+    !("context_packet" in chatSnapshot(createChatState(KEY)));
+
+  // (b) restoring it onto a FRESH rail brings the disclosure back with the
+  //     answer it describes.
+  out.restoredReduced = reducedContextNote(
+    restoreChatState(createChatState(KEY), blob, {})) !== null;
+
+  // (c) NEW-1: restoring a DIFFERENT conversation over a reduced one must not
+  //     leave the old note captioning the new answer.
+  const otherBlob = chatSnapshot(full);
+  const crossed = restoreChatState(reduced, otherBlob, {});
+  out.restoreClearsStale = reducedContextNote(crossed) === null;
+  out.crossedLastAssistant =
+    crossed.transcript[crossed.transcript.length - 1].content;
+
+  // (d) an OLD blob — one written before contract-v1.39 — restores to silence
+  //     rather than being refused, which is what makes the field additive.
+  const legacy = { ...blob };
+  delete legacy.context_packet;
+  out.legacyBlobRestores = {
+    note: reducedContextNote(restoreChatState(createChatState(KEY), legacy, {})),
+    transcript: restoreChatState(createChatState(KEY), legacy, {})
+      .transcript.length,
+  };
+
+  // (e) a blob that CONTRADICTS itself fails closed by the same rule a wire
+  //     record does — no note, rather than a reduction nobody can check.
+  const bad = { ...blob, context_packet: { posture: "reduced" } };
+  out.contradictoryBlob = reducedContextNote(
+    restoreChatState(createChatState(KEY), bad, {})) === null;
+}
+
+// NEW-3: typing in the composer must not re-announce the same sentence.
+{
+  const host = new Node("div"); host.ownerDocument = doc;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => ({ ok: true, status: 200,
+        payload: recordWith({ posture: "reduced", reduced_reason: REASON }) }) },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "ask"; await fire(composer, "input");
+  await fire(byClass(host, "doxchat-send")[0], "click");
+  const note = byClass(host, "doxchat-context")[0];
+  const afterTurn = note.writes.length;
+  // seven keystrokes, the reviewer's own measurement
+  for (const ch of "abcdefg") {
+    composer.value += ch; await fire(composer, "input");
+  }
+  out.rewrites = {
+    afterTurn,
+    afterTyping: note.writes.length,
+    stillShown: !note.hidden,
+    text: note.textContent,
+  };
+}
+
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -3780,3 +3868,68 @@ def test_switching_documents_does_not_caption_the_new_thread_with_the_old_one(
     caption one conversation with a fact about another, which is the exact defect
     class P2-9 found for the transcript itself."""
     assert posture_results["afterThreadSwitch"] is None
+
+
+def test_the_snapshot_carries_the_posture_and_omits_it_when_there_is_none(
+        posture_results):
+    """NEW-2, taken as CLOSE rather than defer. Unlike the thread sidecar — a
+    durable on-disk format whose parser has fixed arity, correctly left alone —
+    the chat snapshot is a browser-local blob this release fully controls, so
+    the disclosure can survive a tile being closed and reopened without a
+    migration. A conversation with NO posture to state — no answer yet, or an
+    answer from a producer older than contract-v1.39 — writes the blob it
+    always did."""
+    assert posture_results["snapshotCarries"] is True
+    assert posture_results["restoredReduced"] is True
+    # An explicitly FULL posture is persisted too, and that is the doctrine
+    # rather than an oversight: absent and `full` are different facts
+    # everywhere else in this release, so dropping `full` here would restore
+    # "unknown" over a posture somebody checked.
+    assert posture_results["snapshotCarriesFull"] is True
+    # The key is absent only when there is no posture to state at all — which
+    # is the case whose blob is unchanged from before contract-v1.39.
+    assert posture_results["snapshotOmitsWhenUnknown"] is True
+
+
+def test_restoring_a_snapshot_does_not_leave_a_STALE_note_on_a_new_answer(
+        posture_results):
+    """NEW-1: `restoreChatState` is the FOURTH answer-replacing path, and it
+    used to leave `contextPacket` untouched while replacing the transcript
+    wholesale. The reviewer reproduced a restored answer captioned by a note
+    that never described it. Reachability was nil — the sole caller restores
+    onto a freshly mounted rail — but three places claimed the enumeration of
+    answer-replacing paths was complete at three, and it was four."""
+    assert posture_results["restoreClearsStale"] is True
+    assert posture_results["crossedLastAssistant"] == "answer"
+
+
+def test_a_snapshot_written_before_this_release_still_restores(posture_results):
+    """What makes the snapshot field ADDITIVE rather than a version bump: a
+    blob with no `context_packet` restores its transcript unharmed and simply
+    renders no note — exactly the behaviour before this release. Bumping
+    `CHAT_SNAPSHOT_VERSION` would instead have discarded every stored blob on
+    the first reopen, because `restoreChatState` fail-closes on an unrecognized
+    version and keeps the fresh state."""
+    legacy = posture_results["legacyBlobRestores"]
+    assert legacy["note"] is None
+    assert legacy["transcript"] == 2
+
+
+def test_a_contradictory_stored_posture_fails_closed_like_a_wire_one(
+        posture_results):
+    """One validator, both readers. A hand-edited blob claiming `reduced` with
+    no readable reason renders nothing, rather than captioning the restored
+    transcript with a reduction nobody can check."""
+    assert posture_results["contradictoryBlob"] is True
+
+
+def test_typing_does_not_RE_ANNOUNCE_the_same_disclosure(posture_results):
+    """NEW-3. `render()` runs on every keystroke, and re-writing a live region
+    with identical text re-announces it — the reviewer measured seven repeats
+    of the same 227-character sentence while typing one follow-up question. The
+    note is written only when its text actually changes, so the write count is
+    unmoved by typing while the note stays visible and unchanged."""
+    r = posture_results["rewrites"]
+    assert r["afterTyping"] == r["afterTurn"], "the disclosure was re-announced"
+    assert r["stillShown"] is True
+    assert r["text"] == posture_results["lead"] + posture_results["reason"]

@@ -1201,9 +1201,18 @@ export function mountDoxBenchChatRail(host, options = {}) {
     // this order. A probe pins the ORDER, not the attribute: it records
     // `hidden` AT THE MOMENT the text is written, because an attribute
     // assertion after the fact cannot tell the two orders apart.
-    const contextText = reducedContextNote(state);
-    contextNote.hidden = !contextText;
-    contextNote.textContent = contextText || "";
+    // ONLY WHEN IT CHANGES (adversarial review NEW-3). `render()` runs on every
+    // keystroke in the composer, and re-writing a live region with the SAME
+    // sentence re-announces it: the reviewer measured seven re-announcements of
+    // the same 227-character disclosure while typing one follow-up question. A
+    // screen-reader user would hear the reduction read out over and over while
+    // trying to compose. The guard is the comparison, and it also removes the
+    // second write that made the S1 order defect hard to see.
+    const contextText = reducedContextNote(state) || "";
+    if (contextNote.textContent !== contextText) {
+      contextNote.hidden = !contextText;
+      contextNote.textContent = contextText;
+    }
     renderCards();
     failureNote.hidden = !state.lastFailure;
     failureNote.textContent = state.lastFailure

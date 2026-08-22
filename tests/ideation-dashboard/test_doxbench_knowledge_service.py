@@ -33,8 +33,9 @@ from ideation_dashboard import serve as serve_mod  # noqa: E402
 from ideation_dashboard.doxbench_scope import ScopeKey  # noqa: E402
 
 from test_doxbench_routes import (  # noqa: E402
-    OUTLINE_PATH, _assert_refusal, _catalog, _CatalogOnlyPort, _port,
-    _post_turn, _turn, _turn_v2,
+    CHAT_ROUTE, OUTLINE_PATH, _assert_refusal, _capabilities, _catalog,
+    _CatalogOnlyPort, _console_headers, _port, _post_turn, _request, _serving,
+    _turn, _turn_v2, _UNSET, released_only,
 )
 
 # The two brainstorm notes this fixture tile's scope contains beside its own
@@ -506,20 +507,34 @@ def test_an_over_long_reason_refuses_BEFORE_a_provider_is_dispatched(tmp_path):
     assert port.calls.count("dispatch") == 0
 
 
+@released_only
 def test_a_long_MULTIBYTE_reason_is_conformant_and_is_SERVED(tmp_path):
     """THE OTHER HALF OF THE UNIT QUESTION, and the reason the guard counts code
     points rather than bytes. 500 CJK characters is 1,500 UTF-8 bytes and is
     CONFORMANT under `maxLength: 500`; a byte-counting guard would have refused
     a record the released contract accepts, which is a worse defect than the one
-    S2 found. The turn is served and the record carries the reason whole."""
+    S2 found. The turn is served and the record carries the reason whole.
+
+    DRIVEN THROUGH THE RELEASED VALIDATORS (adversarial review NEW-4), because
+    otherwise it proves the wrong thing. The fixture schema declares
+    `context_packet: {}` with no value rules, so under it this record would be
+    accepted whatever the released bound said — "conformant" would be a claim
+    about the fixture. Its sibling above needs no such treatment: the
+    producer-side guard fires BEFORE any validator is consulted, so which
+    validator is mounted cannot change that verdict."""
     cjk = "漢" * serve_mod.CONTEXT_REDUCED_REASON_MAX_LENGTH
     assert len(cjk.encode("utf-8")) == 1500
-    status, payload, port = _post_turn(
-        tmp_path, _turn_v2(),
-        packet_assembler=_lying_packet_assembler(
-            lambda p: object.__setattr__(p, "reduced_reason", cjk)))
-    assert status == 200
-    assert port.calls.count("dispatch") == 1
+    fake = _port()
+    with _serving(tmp_path, model_port_factory=(lambda: fake),
+                  packet_assembler=_lying_packet_assembler(
+                      lambda p: object.__setattr__(p, "reduced_reason", cjk)),
+                  schema_validator_factory=_UNSET) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        status, payload, _headers, _raw = _request(
+            host, prt, "POST", CHAT_ROUTE, body=_turn_v2(),
+            headers=_console_headers(caps))
+    assert status == 200, payload
+    assert fake.calls.count("dispatch") == 1
     assert payload["context_packet"]["reduced_reason"] == cjk
 
 

@@ -236,7 +236,9 @@ renders one live-announced note under the transcript, `reduced context: <the
 reason>`, for a turn that ran reduced, and NOTHING for a full one — un-hidden
 BEFORE its text is written, because a `hidden` node is out of the accessibility
 tree and text written into one is announced by nothing (the `aria-live`
-attribute reads the same either way, so the ORDER is what a probe has to pin): a standing
+attribute reads the same either way, so the ORDER is what a probe has to pin),
+and written only when its text CHANGES, because re-writing a live region with
+the same sentence re-announces it on every keystroke: a standing
 "full context" badge is a line every operator learns to stop reading, which is
 exactly how the reduced one would stop being noticed. A node probe mounts the
 SHIPPED `doxbench-chat.js` bytes and drives real turns through it — reduced
@@ -251,7 +253,13 @@ when a human switches documents, and the sidecar records no posture, so per-turn
 badges would be present on a lived-through turn and absent on the byte-identical
 restored one — a difference the reader would have to explain away. The note
 therefore changes exactly when that answer changes, and every path that replaces
-the answer already replaces the posture beside it. A flight STARTING replaces no
+the answer already replaces the posture beside it — FOUR of them:
+`settleTurnSuccess`, `adoptThreadTranscript`, `rekeyChatState`, and
+`restoreChatState`, which adopts the posture the browser-local chat SNAPSHOT now
+carries so the disclosure survives a tile being closed and reopened. That
+snapshot field is optional and needs no version bump: an older blob lacks it and
+restores to posture-unknown, which renders no note and is the pre-release
+behaviour exactly. A flight STARTING replaces no
 answer and moves nothing: an earlier draft cleared the note there, and a reduced
 answer followed by a FAILED follow-up then lost its disclosure while still
 holding the transcript — the same lost-badge defect the per-turn rejection was
