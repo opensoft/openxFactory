@@ -221,12 +221,16 @@ their `.openspec.yaml` staged-origin declarations. Both confirmed present.
 
 ## Ruled 2026-08-22 — the classes that were open, and what closed them
 
-The seven classes below were recorded OPEN when this register was written. Each
-now carries a **RULED** block stating Brett's ruling, the option adopted, and
+Seven classes are recorded below. Six were OPEN when this register was written
+and now carry a **RULED** block stating Brett's ruling, the option adopted, and
 what `archive-register-rulings` actually executed against it. The original
 entry above each block is left standing word for word — the append discipline
 Brett set on 2026-08-10 and this register invokes throughout — so the record
-still says what was true when the register was captured.
+still says what was true when the register was captured. The seventh, C4, was
+never OPEN — its own entry says "No action proposed" — and was never part of
+the ruling round; it carries no RULED block. That is the split this document's
+own `Disposition:` header counts: "Six of the seven classes are now closed or
+deliberately recorded as legacy."
 
 ### C1 — `target_release: implementation_pending` on six archived proposals
 
@@ -291,14 +295,15 @@ of them factual.**
 3. **`add-client-identity-roster` was fixed against a ledger that never closed
    its own archive gate.** Its tasks.md §5.1 and §5.3 — the strict-validation
    box and the "archive on realization evidence" box — are still unticked, as
-   are §3.3, §3.4, §4.1–4.3 and §5.2. On its own ledger this change reads as
-   never having passed the gate it archived through. The realization itself is
-   not in doubt (`71674ed`, PR #190, the v1.33 bundle files), and the ruling
-   named the archive commit and the README row as parts of "its own record", so
-   the fix stands and its front matter says where the evidence came from. But
-   the ledger gap is a C6-shaped anomaly that this round did not touch and did
-   not have a ruling for: **fifteen-odd unticked boxes on a change whose
-   README row claims realization.** Recorded here rather than annotated.
+   are §2.1–2.5, §3.1–3.4, §4.1–4.3 and §5.2 — every other box outside §1. On
+   its own ledger this change reads as never having passed the gate it archived
+   through. The realization itself is not in doubt (`71674ed`, PR
+   #190, the v1.33 bundle files), and the ruling named the archive commit and
+   the README row as parts of "its own record", so the fix stands and its front
+   matter says where the evidence came from. But the ledger gap is a C6-shaped
+   anomaly that this round did not touch and did not have a ruling for:
+   **fifteen-odd unticked boxes on a change whose README row claims
+   realization.** Recorded here rather than annotated.
 
 **Why `split-ideation-book-per-repo` was left.** Its record names no pull
 request, no merge sha other than the archive commit itself, no contract cut,
@@ -453,7 +458,8 @@ change archived under; but the citation line states the gap plainly and points
 a reader at 3.3 for the literal act. This is the weaker of the two backfills
 and is flagged as such rather than smoothed over.
 
-**Why the three 2026-07-25 changes were left, though each has an
+**Why the three remaining 2026-07-25 changes were left (the fourth,
+`add-lens-gate-verbs`, is the backfill above), though each has an
 `approved_by`/`approved_on` pair.** `add-staging-workbench`,
 `add-workbench-bullseye-and-create` and `add-wheel-action-verbs` each carry
 `approved_by: Brett (openxFactory operator authority)` / `approved_on:
@@ -553,6 +559,16 @@ warning. Twenty-one of the thirty warnings are archived changes; the other nine
 are active. All are reported at WARNING by design ("never fabricated, never a
 regression-gate break"). Listed here only so the ERROR pair in C3 is not
 mistaken for the whole population. No action proposed.
+
+**Re-measured 2026-08-22, after C3's account-menu ruling landed.** The same
+command — `python3 scripts/doc-health.py --single-repo . --family
+proposal-origin` — now reads **1 error, 30 warning**. The `.openspec.yaml` C3
+records for `add-dashboard-account-menu` closed one of the two ERROR-severity
+findings this entry counted when it was written; the survivor is
+`add-worker-credential-by-reference`, held open by the same ruling (see C3's
+RULED block). The warning count did not move. So "the ERROR pair in C3" above
+is no longer a pair — it is a singleton — and this addendum is the correction
+rather than a silent rewrite of the original count.
 
 ### C5 — `enable-live-openxfactory` declares four capabilities that were never promoted
 
@@ -794,12 +810,17 @@ nobody demonstrated:
 The reason is in the code, and it is not a bug. `fam_record_immutability`
 (`scripts/doc_health/families.py`) emits its findings unconditionally; nothing
 in the family, the runner, or the renderer filters a live finding by
-disposition. The dispositions file is loaded once in `runner.main` into a set of
+disposition. For record-immutability specifically — the family this revision
+measured — the dispositions file is loaded once in `runner.main` into a set of
 `(family, repo, path)` tuples, and that set is passed to exactly one consumer:
 `report.uncited_resolutions`. The file's own header says so in as many words —
 "a contested finding present in a previous report that is absent from the
 current report is normally re-emitted as an `uncited-resolution` ERROR unless a
-disposition here cites its resolution."
+disposition here cites its resolution." That does not generalize repo-wide:
+`neutrality_dispatch._load_dispositions` is a second loader, and there
+`disposition_suppressions`/`is_suppressed` DO suppress live findings, keyed by
+`(repo, path, content_sha256)` — a rejected candidate stays suppressed only
+while its content digest is unchanged.
 
 **So what a disposition actually buys, also measured end to end.** Against a
 previous report carrying the four contested `record-immutability` findings, a

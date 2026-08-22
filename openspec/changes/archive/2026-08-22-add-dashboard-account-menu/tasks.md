@@ -127,6 +127,12 @@ APPEND, in the shape of Brett's own 2026-08-10 ruling as recorded at
 `2026-08-13-align-doxbench-contract-pin-to-publisher` task 6.2, where the
 original open-item sentence was "left standing word for word and the resolution
 follows it, so the record still says what was true when the tranche closed."
+The forward pointer and the heading's second clause added above that note are
+a second extension of the same ruling, not an instance of it: the precedent as
+recorded appends strictly below the original sentence and never touches
+anything above it, while this addition sits above the preserved text —
+extending the discipline rather than instancing it, and named as such here
+too.
 
 **The one fact that was missing, and where it came from.** The note above is
 blocked on exactly one pair of facts — who ratified this change and when — and
