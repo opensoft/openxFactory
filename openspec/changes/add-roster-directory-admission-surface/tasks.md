@@ -8,7 +8,7 @@ only.
 
 ## 1. Admit `directory` into the schema vocabulary
 
-- [ ] 1.1 Add the `directory` `oneOf` const member to `$defs.admission_surface`
+- [x] 1.1 Add the `directory` `oneOf` const member to `$defs.admission_surface`
       in `contracts/schemas/xfactory-client-identity-roster.schema.yaml`,
       mirroring the shape of the existing `business_central`, `exchange` and
       `device` members: a `const: directory` with a `description` that names the
@@ -39,13 +39,13 @@ only.
       schema header rules that "THE NEUTRAL LAYER NEVER INFERS A PROVIDER FACT",
       so no validator can ever derive this boundary from the role tokens
       themselves.
-- [ ] 1.2 Leave `contract_schema_version` at `1` (design Ruling 5: adding a
+- [x] 1.2 Leave `contract_schema_version` at `1` (design Ruling 5: adding a
       `oneOf` const member is back-compatible — no existing roster is
       reinterpreted). Confirm the CLOSED-ON-PURPOSE header's "Growth takes a
       `contract_schema_version` bump" comment governs object-shape/key-space
       growth, not vocabulary-member admission (which the EXTENSION ROUTE text
       governs).
-- [ ] 1.3 Update the `admission_surface` `description` extension-route text:
+- [x] 1.3 Update the `admission_surface` `description` extension-route text:
       the closed vocabulary now reads "`business_central`, `exchange`,
       `device` and `directory`", and the "still to arrive" list drops
       Entra-directory READ (discharged here) while KEEPING endpoint MUTATION
@@ -75,7 +75,7 @@ only.
       `client-infrastructure-liaison`". It is a separate named route with its
       own owner, wholly unaffected by this admission, and rewriting the prose
       around it is exactly how such a clause gets dropped by accident.
-- [ ] 1.4 Amend the SECOND site in the schema that carries the Entra-directory
+- [x] 1.4 Amend the SECOND site in the schema that carries the Entra-directory
       futures claim: the `device` member's OWN `description`, which today closes
       "Endpoint MUTATION (Intune write) and Entra DIRECTORY read remain SEPARATE
       future surfaces, each arriving with its own governing change." §1.3 covers
@@ -91,19 +91,19 @@ only.
 
 ## 2. Keep the validator refusal string in sync
 
-- [ ] 2.1 The canonical validator DERIVES the closed vocabulary from the schema
+- [x] 2.1 The canonical validator DERIVES the closed vocabulary from the schema
       (`self.admission_surface = _consts(defs.get("admission_surface"))` in
       `scripts/validate-client-identity-roster.py`), so NO vocab-constant edit
       is needed — `directory` becomes admissible automatically once §1 lands.
       Confirm this by reading the code, not by assuming it: the `device`
       admission relied on the same derivation and it is the reason this section
       is one line of text and not a vocabulary edit.
-- [ ] 2.2 Update ONLY the human-facing `EXTENSION_ROUTE["admission_surface"]`
+- [x] 2.2 Update ONLY the human-facing `EXTENSION_ROUTE["admission_surface"]`
       refusal string in that validator to match the schema's revised
       extension-route text (§1.3): the "still to arrive" list becomes endpoint
       MUTATION / Intune write and Entra-directory MUTATION. This string is
       descriptive text a refusal cites; it is not the source of the vocabulary.
-- [ ] 2.3 Confirm no other validator rule keys on the vocabulary's SIZE or on a
+- [x] 2.3 Confirm no other validator rule keys on the vocabulary's SIZE or on a
       hardcoded surface tuple (search the script for each existing surface
       const). A rule that enumerated surfaces by hand would silently exclude
       `directory`; the same class of defect was found and fixed on the
@@ -111,7 +111,7 @@ only.
 
 ## 3. Package a `directory` example and confirm the negative stays valid
 
-- [ ] 3.1 Add a packaged positive example entry using
+- [x] 3.1 Add a packaged positive example entry using
       `admission_surface: directory` under `examples/client-identity-roster/`
       (an entry in the existing OpsxFactory fragment, transcribed from the
       merged `microsoft_service_discovery_reader` evidence — OpsxFactory `main`
@@ -148,7 +148,7 @@ only.
       omitted) exactly as the `device` example did. Do NOT invent a
       verification timestamp or a provider object id. List the example in
       `examples/client-identity-roster/README.md`.
-- [ ] 3.2 Confirm the `admission-surface-out-of-vocabulary` negative
+- [x] 3.2 Confirm the `admission-surface-out-of-vocabulary` negative
       (`examples/client-identity-roster/negative/admission-surface-out-of-vocabulary.yaml`,
       which uses `sharepoint`) STAYS a valid negative — `sharepoint` is still
       outside the closed vocabulary, so the negative still fires. Do not change
@@ -157,24 +157,24 @@ only.
 
 ## 4. Bundle bump contract-v1.38 → contract-v1.39 (digest refresh, additive)
 
-- [ ] 4.1 RE-READ `contracts/manifest.yaml` for the CURRENT
+- [x] 4.1 RE-READ `contracts/manifest.yaml` for the CURRENT
       `contract_bundle_version` before assuming the target. It reads
       `contract-v1.38` at authoring time (2026-08-22), so the target is
       contract-v1.39 — but bundles are cut frequently by other changes, and a
       cut landing between ratification and realization moves the target by one.
-- [ ] 4.2 Recompute the `client-identity-roster` schema-row `sha256` in
+- [x] 4.2 Recompute the `client-identity-roster` schema-row `sha256` in
       `contracts/manifest.yaml` for the edited schema file; leave the row's
       `schema_version: 1` unchanged (design Ruling 5).
-- [ ] 4.3 Set `contract_bundle_version` to the target version in
+- [x] 4.3 Set `contract_bundle_version` to the target version in
       `contracts/manifest.yaml`.
-- [ ] 4.4 Add the corresponding entry to `contracts/CHANGELOG.md` in the
+- [x] 4.4 Add the corresponding entry to `contracts/CHANGELOG.md` in the
       established style: state it is ADDITIVE under
       `docs/contract-versioning-policy.md` (new vocabulary member; a domain on
       the same major version stays conformant without changes), and record the
       `directory` admission-surface admission with its governing evidence
       (OpsxFactory `add-managed-service-inventory` §1–§6, `main` `824f8ef`) and
       the read/mutate boundary the member preserves.
-- [ ] 4.5 Regenerate the release digests via the tooling — never hand-add:
+- [x] 4.5 Regenerate the release digests via the tooling — never hand-add:
       `python3 scripts/validate-contract-release.py build --tag <target>
       --output contracts/releases/<target>.digests.yaml` (and update the
       release README/index if the repo tracks one). Confirm the new inventory
@@ -184,16 +184,16 @@ only.
 
 ## 5. Validate green
 
-- [ ] 5.1 Run the roster validator self-test (its packaged-corpus pass over
+- [x] 5.1 Run the roster validator self-test (its packaged-corpus pass over
       `examples/client-identity-roster/` including the new positive and the
       unchanged negatives) — green. Run it from a CLEAN path: `sweep_files`
       skips any path containing a `.git` segment, so a run from a linked
       worktree under `.git/modules/` silently measures less than it appears to.
-- [ ] 5.2 `OPENSPEC_TELEMETRY=0 openspec validate
+- [x] 5.2 `OPENSPEC_TELEMETRY=0 openspec validate
       add-roster-directory-admission-surface --strict` and
       `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — both green,
       exit codes read directly and never through a pipe.
-- [ ] 5.3 Any repo-wide contract/manifest validator
+- [x] 5.3 Any repo-wide contract/manifest validator
       (`python3 scripts/validate-contract-release.py verify-commit --commit
       <realization commit>` and the manifest/digest checks) — green.
 - [ ] 5.4 Re-verify the PROMOTED delta after archiving: the capability's
@@ -202,6 +202,53 @@ only.
       surface, not by product name" survive verbatim, and the promoted body
       diffs clean against this change's delta file apart from the delta's own
       scaffolding.
+      STAYS UNTICKED ON PURPOSE — the act it names happens AT ARCHIVE, and this
+      realization touches neither the delta nor the promoted spec. Its SUBSTANCE
+      is nonetheless measured here so the archiver inherits a reading rather
+      than a hope: the promoted requirement body (heading + prose + all three
+      existing scenarios, 1882 bytes) is a VERBATIM PREFIX of the delta's 2584
+      bytes, the only tail being the one added scenario "The directory
+      (service-inventory) surface is admitted"; the promoted capability holds 13
+      requirements and the delta names 1, so a MODIFIED replace leaves the count
+      at 13.
+
+## 5R. Realization record (what §1–§5 resolved, recorded where §3.1/§4.1/§4.5 ask)
+
+Realization commit `5124fbcd` on `change/add-roster-directory-admission-surface`.
+
+- **§4.1 resolved contract-v1.38 → contract-v1.39.** `contracts/manifest.yaml:3`
+  read `contract-v1.38` at realization, on this branch and on `origin/main`. One
+  caveat worth the ink: an UNLANDED branch,
+  `origin/change/doxbench-turn-posture-release` (`97aa19a7`), has also cut a
+  `contract-v1.39` in its own working state. It is not on `main`, and
+  `contracts/CHANGELOG.md`'s own recorded allocation rule — the version is
+  allocated AT REALIZATION against what is AVAILABLE, with CHANGELOG presence as
+  the availability test (the v1.38 heading states it) — makes v1.39 unallocated
+  when this ran. Whichever of the two lands SECOND re-cuts against the CHANGELOG
+  it then finds. Recorded so the collision is not discovered at merge.
+- **§3.1 decided `planned`.** No `evidence_ref`, no `verified_at`, no
+  `provider_object_ref` — the discovery reader is a downstream OpsxFactory
+  consumer not yet admitted, so the act is UNVERIFIED by derivation exactly as
+  the `device` entry's was. `standing_credential_attestation.attested_at` is the
+  commit timestamp of the merge that landed the reader class
+  (`2026-08-22T11:11:27Z`, OpsxFactory `main` `824f8ef`) rather than an invented
+  moment.
+- **§4.5's inventory check answered, in the negative, by design.** The roster
+  schema is NOT a release-inventory member: membership is the
+  `contracts/hermes-runtime/contract-index.yaml` catalog's `release_member`
+  entries plus the Decision-10 auxiliaries, and `contracts/schemas/
+  xfactory-client-identity-roster.schema.yaml` is in neither. So
+  `contract-v1.39.digests.yaml` holds 190 entries, the same count as v1.38, and
+  differs from it in exactly TWO rows — `contracts/CHANGELOG.md` and
+  `contracts/manifest.yaml`, both auxiliaries this cut edits. This is the same
+  answer `contract-v1.35` recorded for `device`, and it is the answer the check
+  was there to obtain; it is not the `contract-v1.37` omission class, which was
+  about catalog families genuinely missing from their own inventory.
+- **§2.2 mirrored the WHOLE revised route sentence, not only its futures list.**
+  The task names the futures half; matching only that half would have left the
+  validator saying "the promotion of the capability" while the schema says "the
+  ratified change" — two declarations of one route, disagreeing, which is the
+  defect F3 exists to remove. The string now tracks §1.3 verbatim.
 
 ## 6. Downstream (NOT part of this change)
 
