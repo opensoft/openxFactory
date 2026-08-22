@@ -1295,6 +1295,43 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .settingsnote { margin: 6px 10px 9px; color: var(--muted); font-size: 10px; line-height: 1.35; }
 .settingspanel :focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
 
+/* ---- account menu (header user icon, views/account-menu.js) ----------------
+   The user-account button reuses .themebtn's chrome (same header button family)
+   with the same open-state accent as the gear. The dropdown is FIXED and
+   anchored under its button by script for the same reason the settings panel is
+   — the app shell (.wrap) clips overflow. Every colour is a shared custom
+   property, so it themes in light/dark/auto with no second rule set. The menu
+   is DISPLAY-ONLY: it shows the signed-in identity and derived access level and
+   (hosted mode) a logout that delegates to the gateway; it authorizes nothing.
+   (add-dashboard-account-menu) */
+.accountbtn { padding: 3px 7px; }
+.accountbtn[aria-expanded="true"] { border-color: var(--st-staged); color: var(--st-staged); }
+.accountmenu {
+  position: fixed; top: 60px; left: 16px; z-index: 40; width: 240px;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2); font-size: 11px;
+}
+.accountmenu-head {
+  display: flex; align-items: center; padding: 6px 10px;
+  border-bottom: 1px solid var(--faint);
+}
+.accountmenu-title {
+  flex: 1; font-weight: 600; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.05em; font-size: 10px;
+}
+.accountmenu-close { border: none; background: none; color: var(--faint-ink); cursor: pointer; font-size: 11px; }
+.accountmenu-who { margin: 9px 10px 0; color: var(--ink); font-family: var(--mono); font-size: 11px; }
+.accountmenu-level { margin: 4px 10px 0; color: var(--muted); font-size: 10px; }
+.accountmenu-logoutrow { margin: 9px 10px; }
+.accountmenu-logout {
+  display: inline-block; font-family: var(--mono); font-size: 10px; cursor: pointer;
+  color: var(--muted); text-decoration: none;
+  background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 3px 9px;
+}
+.accountmenu-logout:hover { border-color: var(--st-staged); color: var(--st-staged); }
+.accountmenu :focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
+
 /* ---- staged tile health chrome (add-staging-workbench D10) ------------------
    Two levels, verbatim from the snapshot's `health` object (pure helpers in
    wheel-model.js): the FOCUSED tile face carries a compact tri-state indicator

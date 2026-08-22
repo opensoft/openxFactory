@@ -3076,6 +3076,17 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             writable = self._session_repository()
             if writable:
                 payload["repository"] = str(writable)
+            # THE HOSTED ACTOR (add-dashboard-account-menu), resolved PER REQUEST
+            # beside `repository`, `None` when the header is absent. Read from the
+            # gateway-stamped `X-Auth-Request-User` header; DISPLAY-ONLY — the
+            # dox-auth gateway remains the identity authority (it strips any
+            # client value before stamping its own), and the dashboard's trust in
+            # this header rests entirely on the NetworkPolicy boundary that lets
+            # only the gateway reach it. It feeds NO capability verdict and NO
+            # route consults it to authorize: reading a stamped identity for
+            # display does not make this credential-free surface a credential
+            # holder or an auth authority (design D16 nuance).
+            payload["hosted_actor"] = self.headers.get("X-Auth-Request-User") or None
             self._serve_bytes(json.dumps(payload).encode("utf-8"),
                               JSON_CTYPE, head_only)
             return True

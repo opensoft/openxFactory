@@ -47,6 +47,7 @@ import { CONSOLE_TOKEN_FIELD } from "./views/staging-workbench-model.js";
 import { runSave, savePlanState } from "./views/doxbench-save.js";
 import { contentIdentity } from "./views/doxbench-state.js";
 import { initSettings } from "./views/settings.js";
+import { initAccountMenu } from "./views/account-menu.js";
 import { createNotebookAction, notebookCapable, postNotebookAction, probeCapabilities } from "./views/notebook.js";
 import { fetchIndex, fetchProjects, mountRepoSelector, projectViewState, renderStaleBanner, storeViewState } from "./views/repo-selector.js";
 import { composedView, isComposed, memberRef, readOnlyCaps, scopedSnapshot, visibleSnapshot } from "./views/composed-model.js";
@@ -672,6 +673,14 @@ function renderHeader(snapshot, active) {
 // cannot be half-applied without the leak test noticing.
 let renderScope = null;
 
+// The account menu (views/account-menu.js) is a corner control like the
+// settings gear: bound ONCE for the life of the page (it owns no snapshot
+// state, so a re-render must not rebind it and leak listeners/asides). It reads
+// the signed-in identity + derived access level from the SAME `/capabilities`
+// object the render already probes, handed to it via `update()` after each
+// probe — so the menu needs no fetch of its own.
+let accountMenu = null;
+
 function nextRenderScope() {
   if (renderScope) renderScope.abort();
   renderScope = new AbortController();
@@ -686,6 +695,11 @@ async function main() {
   // snapshot fetch fails. Bound ONCE for the life of the page: it owns no
   // snapshot state, so a re-render must not rebind it.
   initSettings();
+  // The account menu, wired beside the settings gear and bound once. It has no
+  // capabilities yet (the render below probes `/capabilities`); it renders a
+  // graceful "local session" default until `render()` hands it the probed
+  // verdict via `accountMenu.update(...)`.
+  accountMenu = initAccountMenu({ buttonId: "accountbtn" });
   await render();
 }
 
@@ -793,6 +807,12 @@ async function render() {
     // and the static served image 404s. It also carries the per-serve console
     // token used by guarded human actions.
     const probedCaps = await probeCapabilities();
+    // Hand the corner account menu the freshly probed verdict — it reads the
+    // signed-in identity (`hosted_actor`) and derives the access level from this
+    // SAME object, so it needs no fetch of its own. The RAW probe (before the
+    // composed read-only strip below): the account menu states the serve's own
+    // posture and identity, not the composed view's stripped affordances.
+    if (accountMenu) accountMenu.update(probedCaps);
     // D10: a composed render strips every acting capability in ONE place, so
     // every view's existing capability check is the whole gating.
     const caps = composed ? readOnlyCaps(probedCaps) : probedCaps;
