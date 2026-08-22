@@ -185,7 +185,8 @@ per-finding dispositions live in each feature's `traceability.yaml` under
 `review_hardening`.
 
 Both changes also ADD one requirement each to `repo-boundary-governance` — the
-`xFactory-Keycloak-Install` and `xFactory-OpenXPKI-Install` repository
+`Keycloak-Install` (amended 2026-08-21: Opensoft-level naming ruling — see the
+changes' Ratification sections) and `OpenXPKI-Install` repository
 boundaries — as TWO DISTINCT ADDED requirements rather than one shared
 MODIFIED enumeration delta, so the sibling changes cannot collide on one
 requirement at archive time. Those are governance deltas, not contract files,

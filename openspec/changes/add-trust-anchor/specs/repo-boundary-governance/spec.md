@@ -4,9 +4,9 @@
 
 ### Requirement: OpenXPKI install repository boundary
 The deployable certificate-authority runtime SHALL live in a private,
-independently released repository named `xFactory-OpenXPKI-Install`, created
+independently released repository named `OpenXPKI-Install`, created
 by the `implement-openxpki-install-repo` successor change and following the
-`xFactory-Hermes-Install` naming and pattern. From creation it SHALL own the OpenXPKI server, client,
+`xFactory-Hermes-Install` pattern. From creation it SHALL own the OpenXPKI server, client,
 and web deployment topology for QA and any later environment, the
 per-client instantiation at `config/clients/<tenant>/runtime-manifest.yaml`
 (generated, never hand-edited, digest-pinned by its consumers), and its own
@@ -25,7 +25,7 @@ SHALL remain the owner of the governed administration procedure; the
 install repository realizes both and owns neither.
 
 #### Scenario: Install repository is created
-- **WHEN** the successor change creates `xFactory-OpenXPKI-Install`
+- **WHEN** the successor change creates `OpenXPKI-Install`
 - **THEN** it MUST be private and independently releasable, identify `openxFactory` as neutral contract owner and `opensoft/Opensoft-Tenant` as image-custody owner, and contain no image build sources, secrets, credentials, or key material
 
 #### Scenario: Image custody is proposed inside the install repository

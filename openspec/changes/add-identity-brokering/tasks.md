@@ -188,7 +188,7 @@ phase 1; phase 1's released bundle blocks every successor in phase 4.
       administration workflows because they share the registration work.
       Owns the merge-queue response time (design D4's risk).
 - [ ] 4.2 **`implement-keycloak-install-repo`** — creates
-      `opensoft/xFactory-Keycloak-Install` under the requirement this
+      `opensoft/Keycloak-Install` under the requirement this
       change adds, pins the released contract bundle, and lands the first
       generated `config/clients/opensoft/runtime-manifest.yaml` on the
       hermes-install precedent. Aggregation admission at

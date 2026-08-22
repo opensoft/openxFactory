@@ -10,13 +10,13 @@ and company boundaries are modelled as Keycloak Organizations on that persona
 rather than as separate realms. openxFactory owns the neutral persona/claims
 contract (what a surface may demand of a broker, what a governed record may
 store about an actor); OpsxFactory owns the `keycloak-administration` workflow;
-a new `xFactory-Keycloak-Install` repo owns the deployable runtime and its
+a new `Keycloak-Install` repo owns the deployable runtime and its
 per-client instantiation. Ruled 2026-08-21: single realm per environment plus
 Organizations, explicit account linking with an admin-approved merge queue,
 workloads stay out of the realm, isolation escalates by broker INSTANCE and
 never by realm split.
 Topics: identity-brokering, keycloak, single-persona, keycloak-organizations, sso, account-linking, actor-identity, ideation-dashboard, gate-console, roles-authority-model, credential-contracts, openxwallet, install-repo-boundary
-Repository context: openxFactory owns the neutral identity/persona contract (product-agnostic: persona, claims, org membership assertion, the never-mirror-the-tenancy-graph rule); OpsxFactory owns the governed administration workflow (`keycloak-administration`, sibling of `exchange-administration` / `aks-administration-workflow` / `github-administration-workflow` / `business-central-administration`, staged as `OpsxFactory:staging:identity-pki-administration`); a new install repo `opensoft/xFactory-Keycloak-Install` (aggregation path `installs/keycloak-install`) owns the deployable runtime and per-client instantiation
+Repository context: openxFactory owns the neutral identity/persona contract (product-agnostic: persona, claims, org membership assertion, the never-mirror-the-tenancy-graph rule); OpsxFactory owns the governed administration workflow (`keycloak-administration`, sibling of `exchange-administration` / `aks-administration-workflow` / `github-administration-workflow` / `business-central-administration`, staged as `OpsxFactory:staging:identity-pki-administration`); a new install repo `opensoft/Keycloak-Install` (aggregation path `installs/keycloak-install`) owns the deployable runtime and per-client instantiation
 Staging ID: openxFactory:staging:identity-brokering-plane
 Source: the 2026-07-14 brainstorm [keycloak-identity-brokering.md](../../../../ideation/brainstorm/keycloak-identity-brokering.md) (captured after the ideation dashboard shipped behind one shared htpasswd user), organized 2026-08-21 on Brett Heap's rulings in the xFactory family session — the brainstorm's exit clause named merge safety, realm topology, and the ownership split as the three blockers, and all three were ruled that day
 Target capabilities: ADDED neutral `identity-brokering` (openxFactory); new OpsxFactory-owned `keycloak-administration` workflow capability; MODIFIED `repo-boundary-governance` (two new install repositories in scope)
@@ -54,12 +54,12 @@ conformant.
 ### R1 — Install repos own the deployable runtime
 
 Two new install repositories, following the `xFactory-Hermes-Install`
-naming and pattern:
+pattern:
 
 | Repository | Aggregation path |
 | --- | --- |
-| `opensoft/xFactory-Keycloak-Install` | `installs/keycloak-install` |
-| `opensoft/xFactory-OpenXPKI-Install` | `installs/openxpki-install` |
+| `opensoft/Keycloak-Install` | `installs/keycloak-install` |
+| `opensoft/OpenXPKI-Install` | `installs/openxpki-install` |
 
 Per-client instantiation lives **inside** each install repo as
 `config/clients/<tenant>/runtime-manifest.yaml`, the hermes-install precedent
@@ -249,7 +249,7 @@ Three planned OpenSpec changes, in dependency order:
    (`xFactories/OpsxFactory/ideation/staging/identity-pki-administration/`),
    which covers both administration workflows because they share the
    service-subject registration work.
-3. **Aggregation + install** — create `opensoft/xFactory-Keycloak-Install`
+3. **Aggregation + install** — create `opensoft/Keycloak-Install`
    under `repo-boundary-governance` (a MODIFIED delta to its "Install
    repository scope" requirement), add the `installs/keycloak-install`
    submodule pin, and land the first `config/clients/opensoft/`
