@@ -1,6 +1,6 @@
 ---
 code_surface: openxFactory
-target_release: implementation_pending
+target_release: implemented — realized 2026-08-15 by Speckit feature `007-client-identity-roster` (PR #190, landed on main as `71674ed`) and cut as the `contract-v1.33` bundle the same day (`contracts/releases/contract-v1.33.digests.yaml`; `contracts/CHANGELOG.md` "contract-v1.33 — 2026-08-15 (additive; the client-identity roster, and the credential-contracts registration gap closed)"). Recorded as a BUNDLE cut, not a git tag: `contract-v1.33` was never tagged, as `contract-v1.35` was not either. Authored as a bare `implementation_pending`, whose merge-plus-green condition that cut discharged. Sourced deliberately from the archive commit `753d02d` ("Archive add-client-identity-roster: realized at contract-v1.33, promoted as client-identity-roster (PR #190)") and the README row, NOT from tasks.md, whose §5.1 and §5.3 archive-gate boxes are still unticked — that ledger gap is recorded in `docs/archive-record-discrepancies.md` and is not fixed here. Rewritten 2026-08-22 by `archive-register-rulings` (register C1)
 ---
 # Proposal: add-client-identity-roster
 
