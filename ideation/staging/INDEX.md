@@ -1355,9 +1355,12 @@ repo scope.
   archived change, per `document-lifecycle`'s `Supporting-document archive
   retention`, so the fragment is no longer a linkable file: it lives inside
   `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/supporting-docs.tar.gz`
-  (sha256 `16761d875d5603b75bfe4ab142669ccb435ba2a1b83b1988894e257830a6cd10`), with its per-file sha256 readable outside the
-  bundle in the sibling `supporting-docs.manifest.yaml`. Named rather than
-  linked, because a link would resolve to nothing.
+  (bundle sha256
+  `3d3db064b9b2a9127dd3a92802591780277a6bff140052d5a936ec6a77d9bfa6`), with the
+  fragment's OWN per-file sha256
+  `16761d875d5603b75bfe4ab142669ccb435ba2a1b83b1988894e257830a6cd10` readable
+  outside the bundle in the sibling `supporting-docs.manifest.yaml`. Named
+  rather than linked, because a link would resolve to nothing.
   - `doxbench-editing-model.md`
     — primary: 26 claims, live `xspec:candidate` Why/What changes/Impact
     sections, 7 idea notes, 6 conflicts, 7 open questions each with
