@@ -1085,7 +1085,8 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       `contract-v1.34`'s deprecation forbids; the migration path is the v2
       envelope. Recorded at the v1 arm in `serve.py`, in the CHANGELOG, and
       pinned by a test that fails if the v1 record ever grows the key.
-      **REVERT-TESTED, 26 CASES, and one of them came back GREEN and was fixed.**
+      **REVERT-TESTED — 29 MUTATION RUNS over 27 distinct mutations, and TWO
+      came back GREEN.**
       Every schema clause was reverted individually WITH THE DIGEST REPINNED, so
       each case fired on the clause rather than on the pin: both conditionals,
       the posture enum, the object's closure, its `required`, the reason ceiling
@@ -1098,9 +1099,9 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       emitted, and each of the three refusal arms on its own. Browser: the
       adopter not adopting, the adopter failing OPEN, `beginTurn` not clearing,
       the note rendering for a full turn, the note never hidden, and
-      `adoptThreadTranscript` not clearing. THE GREEN ONE was that last case —
+      `adoptThreadTranscript` not clearing. THE FIRST GREEN was that last case —
       deleting the thread-switch clear broke no test — and the probe now asserts
-      it.
+      it (re-run RED). The second is the validator arm below.
       **AND ONE ARM IS A DIAGNOSTIC RATHER THAN A GUARD, stated because
       revert-testing is what proved it.** Disabling BOTH pairing arms in the
       delegated validator leaves its own packaged self-test GREEN, because the
