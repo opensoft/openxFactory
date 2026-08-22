@@ -14,6 +14,7 @@ import tarfile
 
 from conftest import AS_OF, FakeGit, make_ctx
 
+import doc_health
 from doc_health import CRITICAL, ERROR, WARNING, INFO
 from doc_health import corpus
 from doc_health import families
@@ -175,8 +176,8 @@ def _load_proposal_support():
     """`scripts/proposal-support.py` as a module.
 
     A hyphenated standalone script, so it is loaded by path rather than
-    imported — the reason `families._manifest_rel` is a local copy of that
-    module's `manifest_rel` instead of an import."""
+    imported — the reason `doc_health.recorded_rel` is a second copy of that
+    module's `manifest_rel` instead of an import of it."""
     import importlib.util
 
     script = Path(__file__).resolve().parents[2] / "scripts" / "proposal-support.py"
@@ -186,17 +187,20 @@ def _load_proposal_support():
     return module
 
 
-def test_the_manifest_path_normalizations_agree(tmp_path):
+def test_the_recorded_path_normalizations_agree(tmp_path):
     """The two readers of one record must not disagree about its alphabet.
 
-    `proposal-support.py verify` and this family both resolve a support
-    manifest's `files[].path`, and a manifest the one called sound while the
-    other called it a checksum mismatch would be the worst of both. The copy
-    exists because the script is not importable; this pins it to the original."""
+    `proposal-support.py verify` and this suite both resolve a support
+    manifest's `files[].path` and a proposal's recorded origin path, and a
+    record the one called sound while the other called it a checksum mismatch
+    (or unresolvable provenance) would be the worst of both. There are exactly
+    TWO copies of the rule — one per process boundary: `doc_health.recorded_rel`
+    serves the whole package, and the mover keeps its own because a hyphenated
+    standalone script cannot be imported. This pins them to each other."""
     reference = _load_proposal_support().manifest_rel
     for value in ("notes/one.md", "notes\\one.md", "source-snapshots\\a\\b.md",
-                  "", "a/b", None, 7, ["x"]):
-        assert families._manifest_rel(value) == reference(value)
+                  "ideation\\staging\\topic-a", "", "a/b", None, 7, ["x"]):
+        assert doc_health.recorded_rel(value) == reference(value)
 
 
 def test_backslash_spelled_manifest_paths_still_resolve(tmp_path):
