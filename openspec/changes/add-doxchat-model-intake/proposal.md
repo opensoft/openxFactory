@@ -2,7 +2,7 @@
 code_surface: openxFactory (`scripts/ideation_dashboard/web/views/doxbench-chat.js` — the selector's option list gains a first intake affordance and the empty-catalog default selection, and the send-control refusal stays byte-identical; `scripts/ideation_dashboard/web/views/staging-workbench-model.js` — the `approvedModels === 0` rung keeps its sentence and gains the intake-offered fact, and the two `catalogFailure` rungs must NOT offer it; `scripts/ideation_dashboard/web/app.js` — the catalog transport gains no new call site, and any intake route it does gain is budgeted by the transport-pin suite; `scripts/ideation_dashboard/serve.py` — a pending-declaration surface and the approval gate action beside the existing `_workbench_model_port` seam, both under the reused `session` local-human verdict; `scripts/ideation_dashboard/doxbench_model.py` — a proposed-vs-approved distinction that does NOT widen the closed seven-field public catalog entry; `contracts/schemas/gate-action-record.schema.yaml` — one additive `action` enum member for the approval act plus its `allOf` conditional; and `tests/ideation-dashboard/` — the selector-order, default-selection, no-secret-anywhere and approval-gating assertions). The credential BROKER itself (openProfiler), its custody, its OAuth authorization flow, and the provider client that would use a minted token are `add-model-provider-broker`'s surface, NOT this change's.
 target_release: implementation_pending
 Status: ratified
-Ratified: 2026-08-21 by Brett Heap — in-session, verbatim: "proposal approved", after the proposal landed on PR #236. The five Open Questions were NOT individually ruled at ratification: their recommendations stand as the proposal's recorded positions, and each still needs Brett's explicit ruling before the slice it affects is built (OQ-3 in particular decides whether the approval record carries `consent_ref`).
+Ratified: 2026-08-21 by Brett Heap — in-session, verbatim: "proposal approved", after the proposal landed on PR #236. The five Open Questions were NOT individually ruled at ratification; they were ruled the same day in a follow-up in-session multiple-choice round (all five recommendations adopted — see the RULED lines in each Open Question below). No slice remains blocked on a ruling; the build stays sequenced behind `add-model-provider-broker` / openProfiler.
 Proposed: 2026-08-21
 Origin: Brett's browser annotation on the live doxbench chat rail, 2026-08-21, targeting `select.doxchat-model`
 Depends-on: add-model-provider-broker (the credential broker and the binding this flow writes into; that change is itself blocked on openProfiler, unbuilt)
@@ -15,8 +15,9 @@ Depends-on: add-model-provider-broker (the credential broker and the binding thi
 > pending-declaration surface or approval gate action exists beside
 > `_workbench_model_port`, and the gate-action `action` enum carries no approval
 > member. It is additionally sequenced behind `add-model-provider-broker` (itself
-> blocked on the unbuilt openProfiler) for everything credential-shaped, and its
-> Open Questions still need explicit rulings before their slices build. Under
+> blocked on the unbuilt openProfiler) for everything credential-shaped. Its five
+> Open Questions are all RULED (2026-08-21, recommendations adopted) — no slice
+> waits on a ruling, only on the broker. Under
 > `release-realization`'s archive gate it stays ACTIVE as approved intent until
 > its code merges with green realization evidence. Nothing here should be read
 > as shipped.
@@ -181,6 +182,8 @@ binding's `provider` field carry the answer, exactly as
 coded. A first provider is then a configuration fact, not a code change, and
 whichever subscription Brett actually holds is the one that gets tested.
 
+**RULED (2026-08-21, Brett, in-session multiple choice): recommendation adopted — provider-agnostic; the binding's `provider` field carries the answer, and the first provider is a configuration fact.**
+
 **OQ-2 — Where does the OAuth authorization flow live?** Three candidates: the
 broker's own surface as redirect target; the dashboard as redirect target
 handing the code straight to the broker; or the newly-ratified Keycloak
@@ -191,6 +194,8 @@ where the dashboard never touches an authorization code, and
 subscriptions would conflate who-the-user-is with what-they-have-bought.
 Deferred to openProfiler's own design, which that change already lists as its
 open question 2.
+
+**RULED (2026-08-21, Brett, in-session multiple choice): recommendation adopted — the broker's own surface is the redirect target; the dashboard never touches an authorization code, and identity brokering stays scoped to human identity. Detail defers to openProfiler's own design.**
 
 **OQ-3 — Does approval require a Hermes consent instrument, or is a recorded
 gate action enough?** The `consent-instrument` capability already models a
@@ -204,6 +209,8 @@ another party's material; that condition needs Brett's ruling before the
 approval act is implemented, because it determines whether the gate action
 carries a `consent_ref`.
 
+**RULED (2026-08-21, Brett, in-session multiple choice): recommendation adopted — split by install. A recorded gate action suffices on the single-operator loopback console; a consent instrument is REQUIRED where the model is enrolled on a tenant or shared install or where a turn will process another party's material, and only that case carries `consent_ref` on the approval record.**
+
 **OQ-4 — Should the empty-catalog default selection be the intake affordance
 even though the send control stays refused?** Brett asked for it explicitly
 and this proposal specifies it. RECOMMENDATION: keep it as asked — but note
@@ -212,6 +219,8 @@ option that is not a model while the rail says no model is configured. That
 reads correctly ("here is the thing to do about it") and it is worth
 confirming against the live console once the flow exists.
 
+**RULED (2026-08-21, Brett, in-session multiple choice): recommendation adopted — the intake affordance IS the empty-catalog default selection, consequence accepted as stated; confirm the reading against the live console once the flow exists.**
+
 **OQ-5 — Does the approval act belong on the gate console, or inside the
 intake flow's last step?** RECOMMENDATION: inside the flow's last step, as an
 explicit confirmation that is plainly an approval and is recorded as one. A
@@ -219,3 +228,5 @@ human who just authorized a subscription is the right approver at the right
 moment; routing them to a separate console to finish would make the pending
 state a trap rather than a safeguard. The RECORD is what matters, not where
 the button sits.
+
+**RULED (2026-08-21, Brett, in-session multiple choice): recommendation adopted — the approval act is the intake flow's own explicit last step, recorded as an approval.**
