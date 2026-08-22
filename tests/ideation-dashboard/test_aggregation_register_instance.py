@@ -44,7 +44,11 @@ def test_seed_register_lists_exactly_the_pinned_submodules():
     # `xfactory` projects. D8 (same day) made membership multi-parent, so
     # openxFactory lives in both `core` (primary — first declaring) and
     # `openxfactory`, and MedxFactory lives in both `domains` (primary) and
-    # `medx-clinical`. Pin the exact membership per role rather than diffing
+    # `medx-clinical`. The four untracked submodules were triaged 2026-08-22
+    # (aggregation b0ee23d): openAvatar -> core; keycloak-install,
+    # medx-roottruth-install, openxpki-install -> installs, with
+    # medx-roottruth-install also a medx-clinical satellite (D8).
+    # Pin the exact membership per role rather than diffing
     # the flattened list against the full .gitmodules pin set: newer
     # submodules (openAvatar 2026-08-03, medx-roottruth-install 2026-08-09,
     # keycloak-install/openxpki-install 2026-08-21) are real pins awaiting
@@ -56,12 +60,15 @@ def test_seed_register_lists_exactly_the_pinned_submodules():
     assert reg["schema_version"] == 1
     by_id = {p["id"]: sorted(p["repositories"]) for p in reg["projects"]}
     assert by_id == {
-        "core": ["openxFactory"],
+        "core": ["openAvatar", "openxFactory"],
         "domains": ["AdxFactory", "LedgerxFactory", "MedxFactory",
                      "OpsxFactory", "codexFactory"],
-        "medx-clinical": ["HealthLinc", "MedxEHR", "MedxFactory", "openChart"],
+        "medx-clinical": ["HealthLinc", "MedxEHR", "MedxFactory",
+                          "medx-roottruth-install", "openChart"],
         "installs": ["agenttower", "cloudpc-install", "hermes-install",
-                      "omnigent-install", "xfactory-installer"],
+                      "keycloak-install", "medx-roottruth-install",
+                      "omnigent-install", "openxpki-install",
+                      "xfactory-installer"],
         "openxfactory": ["openxFactory"],
         "xfactory": ["AdxFactory", "LedgerxFactory"],
     }
