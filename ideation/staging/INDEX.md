@@ -70,7 +70,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [agent-wallet-identity](#agent-wallet-identity) | ADDED neutral `openxwallet` (holder-agnostic core: key reference + declared custody, attenuated grants as the authority primitive, proof of possession, custody capping authority, key-attributed audit, revocation propagation, distinct-holder constraints, non-substrate rule) + ADDED `openxwallet-agent-profile` (composition + declared-change revocation + authority as grant scope); composes with `roles-authority-model` + `credential-contracts`; `openxVault` consumes the grants | 1 | **PROPOSED 2026-08-06 as `add-openxwallet`** (topic folder keeps the `agent-wallet-identity` name; the change was renamed on restructure). Restructured the same day after Brett asked whether the Medx/Ledgerx intersection lives in openxFactory — it did not, so the change now adds a HOLDER-AGNOSTIC core with GRANTS AS THE PRIMITIVE plus an agent profile, rather than a wallet shaped like an agent binding authority to a second vocabulary. **RATIFIED 2026-08-07** with all three decisions: grants as the primitive, the core holder-class agnostic, and key custody DECLARED and CAPPING authority. **REALIZED 2026-08-07** by Speckit feature `006-openxwallet-contracts`: two neutral contract families (`contracts/openxwallet/` core + `contracts/openxwallet-agent-profile/` as a sibling, so the profile seam is structural), `scripts/validate-openxwallet.py`, and a corpus of 16 positives and 33 negative confirmations covering 11/11 requirements, registered at `contract-v1.31`, and **ARCHIVED 2026-08-08** as `2026-08-08-add-openxwallet` with both capabilities promoted (`openxwallet` 8 requirements, `openxwallet-agent-profile` 3). The topic row stays because the staged fragment remains on disk as provenance carrying the deferred material — batteries, measured drift, qualification tiers and delegation chains, each a named successor gated on a consumer of its own. The feature settled the two decisions the ratification left it: the closed custody set is three members with `evidences` DERIVED from two declared booleans and enforced — so a readable key cannot claim an isolated key's authority, and the collapse is structurally impossible rather than discouraged — and the composition component set covers a retrieval corpus BY REFERENCE (identity plus governing configuration) rather than by contents, which dissolves the include-or-exclude binary. The closed custody enumeration and what each member evidences are now contract content rather than an implementation detail. Organized 2026-08-06 from the 2026-07-15/16 `agent-certification-wallets` brainstorm at the moment a consumer named itself (LedgerxFactory posting segregation of duties, `ledgerx:staging:posting-segregation-of-duties`). Scoped BELOW the brainstorm on purpose: identity + proof + declared-change decert first; batteries, measured drift, qualification levels and delegation chains are named successors, each gated on a consumer. Two ratified Medx specs constrain the design (a wallet address MUST NOT be identity proof; custody stays wallet-neutral), which makes verification rather than registration the load-bearing requirement. 6 open questions — key custody is hardest, since it decides whether a signature proves the AGENT acted or only that the HOST did |
 | [manager-review-approval-scope-kind](#manager-review-approval-scope-kind) | MODIFIED `hermes-domain-overlay` (additive `approval_scope_kinds` vocabulary extension — a dedicated `manager_review` kind) | 1 | Registered 2026-08-10 — origin is `xFactory-Hermes-Install` feature `011-three-layer-manager-review-gate`'s implementation plan (tension T2), ruled "register now" by Brett Heap the same day; the live gate proceeds on the `engineering_intent` fallback in the meantime; 2 open questions (envelope-vs-overlay home, naming/scope grain), neither blocking |
 | [openxdox-install-app-provisioning](#openxdox-install-app-provisioning) | MODIFIED `credential-contracts` (or a new `install-app-provisioning` capability: two-App manifest provisioning + naming convention + apply-repo home); realization in Omnigent-Install (installer) + codexFactory (manifests + install docs) | 1 | Ready to iterate — named by Brett 2026-08-14 from the openXdox dispatch-migration's manual App toil; GitHub-capability verified (no app-creates-app API; the App Manifest flow is the mechanism, Apps tenant-owned); 6 claims settled (two Apps stay two, manifest flow, tenant-owned, globally-unique-name convention, small apply-workflow repo, tenant only sets the content-App scope); 5 open questions (contract home + managed-vs-self-hosted flow hardest); gated on the QA dispatch migration completing |
-| [substantive-review-lane-questions](#substantive-review-lane-questions) | tracks `roles-authority-model` (MODIFIED by in-flight change `add-substantive-review-lane`, PR #178, draft) — no capability delta of its own | 1 | Registered 2026-08-15 — origin is Brett's direction to track the ad-hoc-authored proposal's five declared-open, not-decided questions (this topic is post-proposal tracking, NOT the proposal's origin; the proposal's own `.openspec.yaml` records `kind: ad_hoc`); six decided principles carried as settled context, not reopened; 5 open questions (rollout order, non-engineering persona home, company-policy-lead per-PR seating, per-repo ruleset shape, risk-tier taxonomy), none blocking the pilot; SEQUENCED after the doxBench UI sprint (Brett 2026-08-15) — after `doxbench-editing-model` Phase A, `staged-topic-outline-template`, and Phase B, so the review lane catches the workbench's steady state rather than blocking the sprint |
+| [substantive-review-lane-questions](#substantive-review-lane-questions) | tracks `roles-authority-model` (MODIFIED by in-flight change `add-substantive-review-lane`, PR #178, draft) — no capability delta of its own | 1 | Registered 2026-08-15 — origin is Brett's direction to track the ad-hoc-authored proposal's five declared-open, not-decided questions (this topic is post-proposal tracking, NOT the proposal's origin; the proposal's own `.openspec.yaml` records `kind: ad_hoc`); six decided principles carried as settled context, not reopened; 5 open questions (rollout order, non-engineering persona home, company-policy-lead per-PR seating, per-repo ruleset shape, risk-tier taxonomy), none blocking the pilot; SEQUENCED after the doxBench UI sprint (Brett 2026-08-15) — after `doxbench-editing-model` Phase A, `staged-topic-outline-template`, and Phase B, so the review lane catches the workbench's steady state rather than blocking the sprint. **CLOSED AND RETIRED FROM STAGING 2026-08-22** — all five questions ruled by Brett Heap in-session that day and encoded into the tracked proposal while it is still `Status: draft`: Q1 rollout order deferred to a named follow-up change on pilot evidence with the evidence bar and the engineering-before-domain ordering principle decided now; Q2 persona home ruled AGAINST the recommendation — codexFactory reviews every governed repo, zero new persona homes; Q3 company-policy-lead seating ruled as a bounded THIRD option — rules-council-only default plus a per-class declared pull-in defined by the gate-rules council at class-definition time, fail-closed for those classes; Q4 ruleset shape ruled as the proven shape everywhere; Q5 risk tiers ruled as a constitutional floor now with the tier vocabulary deferred to the same follow-up path as Q1. The topic met its own closing condition (all five dispositioned) and the folder is retired. Unlike the two prior exited topics, it could NOT exit into a `supporting-docs/` move — the tracked proposal's origin is `ad_hoc` and `proposal-support.py transition` refuses to restate an immutable origin as `staged` — so the fragment's final state is named, not linked; three conflicts are recorded as NOT resolved by the closure — see the detail section |
 | [staged-topic-outline-template](#staged-topic-outline-template) | MODIFIED `document-lifecycle` (the primary-fragment template contract: required sections, round-trip-on-demote refresh rule, section provenance, marker usage) and MODIFIED `ideation-dashboard` (the doxBench outline tab renders the template + gains an add-section affordance) | 1 | **PROPOSED 2026-08-15 as `add-staged-topic-outline-template`, RATIFIED the same day** (all 5 open questions accepted as recommended, closing the parallel decision track) — exited staging the same day, material moved to the change's `supporting-docs/` (see detail section below); Q4 corrected by Amendment 1 to `edit-document` (ratified text named `edit-apply`, the gate console's redline verb, which cannot reach a session branch). Sections 1-4 realized (contract text, doc-health's warning-tier nudge, the outline tab + tests) and bookkeeping 6.1-6.3 discharged (this row, the exit record, and the `doxbench-editing-model` Q4 handoff). **CHANGE ARCHIVED 2026-08-21** — all 22 tasks discharged, gates 5.1-5.3 green and task 5.4's live browser proof driven for real (one commit through `edit-document` on a session branch, the verb evidenced three ways); both ADDED requirements promoted, and the topic's material now sits in the archived change's `supporting-docs.tar.gz` bundle rather than a loose folder |
 | [notebook-projection-identity](#notebook-projection-identity) | MODIFIED `lifecycle-notebook-projection` (declared hosting-account field + share-out roster) and MODIFIED `credential-contracts` (two-case account-custody rule: company service account normal case, personal hosting the other legitimate case) | 1 | Registered 2026-08-15 — origin is Brett hitting a live "request access" wall on the personal-Gmail-hosted NotebookLM projection, the same disease as the just-retired openXdox personal PAT; 6 claims settled (company account is the normal case, hosting is a declared install-time intake decision, personal hosting stays legitimate as the other case, company account shares out to users, company-policy Hermes monitors + approves share requests, and this mirrors the ratified openXdox dispatch two-case precedent); first fresh conformer of `staged-topic-outline-template` carrying LIVE `xspec:candidate` markers (verified against the checker: no rejection found, only `record`-status docs are excluded); 5 open questions (contract home, company-account type, share-roster reuse of `add-client-identity-roster`, monitor/approve mechanics with no share API, and opensoft's own migration sequencing), none blocking; SEQUENCED last of today's four topics (Brett 2026-08-15) — behind `doxbench-editing-model` (both phases), the template, and the review-lane topic — since Q3's share-roster reuse waits on the in-flight `add-client-identity-roster` proposal |
 | [doxbench-editing-model](#doxbench-editing-model) | MODIFIED `ideation-dashboard` (left-panel dynamic document tabs generalizing the outline/document buffer pair to N document buffers; chat-context binding to the active left-panel selection; docs-wheel tile edit verb + dirty-tile marker; right-panel Editor/Preview tab redesign with Save/Cancel) | 1 | Registered 2026-08-15 — origin is Brett's direction settling the general doxBench interaction model: left panel selects the working document (docs/lens/outline plus dynamic numbered tabs per open edit), center chat binds to whatever is selected, right panel shows the result via Editor/Preview tabs with Save/Cancel (replacing today's split md/preview layout); 26 claims settled (includes the ruled two-plane chat memory design, Claims 13-21, and its 2026-08-18 second-pass addendum settling memory-gateway conformance, the three-layer compression stack with shake v1, and Headroom watch-listed not adopted, Claims 22-26); verified live that `BUFFER_KINDS`, the turn-assembly buffer requirement, and the save order are all hard-coded to exactly outline+document today, so the N-buffer generalization is the load-bearing engineering question; 7 open questions (tab overflow, Save/Cancel semantics, dirty-tile storage, chat-binding rule, Editor/Preview default, concurrent-edit safety, and the chat memory system — ruled 2026-08-18), none blocking; sibling of `staged-topic-outline-template` Open question 4 (content-contract vs. interaction-model halves of the same AI-edit act); SEQUENCED first, in two phases (Brett 2026-08-15) — Phase A (chat-on-outline + Editor/Preview tabs + Save/Cancel on the existing two-buffer machinery) built before the other three topics, Phase B (N-buffer generalization) following `staged-topic-outline-template`'s ratification. **EXITED STAGING 2026-08-21** — both phases raised and realized; `add-doxbench-editing-phase-a` ARCHIVED 2026-08-21 and its spec text promoted, `add-doxbench-editing-phase-b` carried the whole remainder (§4–§11 + §13 realized across PRs #207/#210/#216/#223, `contract-v1.34`) and remains ACTIVE pending §12 share-session, which Brett ruled 2026-08-21 trails as its own slice. The fragment moved to Phase B's `supporting-docs/`; two items are PARKED, not adopted — see the detail section |
@@ -1130,22 +1130,93 @@ repo scope.
   council-defined candidate classes carrying a risk tier and a clearance
   rule, reviewing for policy compliance AND best practices; and the
   `opensoft/openxFactory` pilot reviewed by codexFactory's councils.
-- Files:
-  - [substantive-review-lane-questions.md](substantive-review-lane-questions/substantive-review-lane-questions.md)
-    — primary: context, 6 settled claims (not reopened), 5 open questions,
-    exit.
-- Open questions (none blocking the pilot): (1) rollout order beyond the
-  pilot — which governed repo adopts the lane next and what gates each
-  adoption; (2) persona home for non-engineering domain repos — do
-  Medx/Ledgerx/Ops/Adx instantiate their own review personas/councils, or
-  does codexFactory review all software changes regardless of which repo
-  carries them; (3) whether the tenant `company-policy-lead` seat joins
-  per-PR `merge_readiness_council` deliberation, or stays rules-council-only
-  as today; (4) ruleset interaction shape per repo — App `APPROVE` review
-  vs. a required check-run, and whether human review remains an always-
-  available alternate path; (5) risk-tier taxonomy for candidate classes
-  (e.g. docs-only / config / contract / runtime-code) and which tiers, if
-  any, are ever autonomously clearable.
+- Files: **RETIRED FROM STAGING 2026-08-22.** The topic met its own closing
+  condition — all five questions dispositioned — so the folder is retired and
+  its content kept as provenance. It could NOT take the exit route the two
+  prior exited topics took (`scripts/proposal-support.py transition` into the
+  governing change's `supporting-docs/`): the tracked proposal's
+  `.openspec.yaml` declares `origin.kind: ad_hoc`, a transition must declare
+  `kind: staged`, and the tool refuses the disagreement outright ("origins are
+  immutable"). That refusal is correct — this topic never was the proposal's
+  origin, and its own honesty note has said so since capture — so forcing a
+  supporting-docs move would have falsified the record to satisfy a
+  convention. The fragment is therefore NAMED rather than linked, because a
+  link would resolve to nothing:
+  - `ideation/staging/substantive-review-lane-questions/substantive-review-lane-questions.md`
+    at its final committed state, openxFactory commit `f1acf0d0`
+    ("Disposition all five substantive-review-lane questions in the
+    fragment"), file sha256
+    `84d0ebb22a1f479cbbb9f97f5233bf816c415e1506bcafca6ff7751a8d503f2b`.
+    Recoverable with
+    `git show f1acf0d0:ideation/staging/substantive-review-lane-questions/substantive-review-lane-questions.md`.
+    That final state is the ratified outline template's full shape — context,
+    6 settled claims (not reopened), idea notes, conflicts, 5 questions each
+    with Context / Recommended answer / Explanation / Disposition status /
+    Added-by, and the exit — and it drew ZERO doc-health findings
+    (`_template_gaps` → `[]`, `_staged_exit_changes` → `[]`).
+  This row is KEPT, not deleted, as the topic's index entry and its exit
+  record — the same treatment `doxbench-editing-model` and
+  `staged-topic-outline-template` received. The "Full promotion" maintenance
+  rule above (delete the row) does not apply: nothing was promoted, and there
+  is no `ideation/README.md` promoted-proposal pointer to carry the record
+  instead.
+- Open questions — **ALL FIVE DISPOSITIONED 2026-08-22, ruled by Brett Heap
+  in-session.** None was blocking the pilot; none is open now. Route in
+  brackets:
+  1. **Rollout order beyond the pilot** — RULED as recommended. The ORDER
+     goes to a named follow-up change raised on pilot evidence; the EVIDENCE
+     BAR (≥3 council-cleared substantive PRs spanning ≥2 candidate classes,
+     zero enforcer incidents, one completed gate-rules review cycle) and the
+     ORDERING PRINCIPLE (engineering-owned repos before domain repos) are
+     decided now. [proposal edit for the bar and the principle; named
+     follow-up path for the order]
+  2. **Persona home for non-engineering domain repos** — RULED, and the
+     recommendation was OVERRIDDEN. The recommendation was a two-axis split
+     (codexFactory owns the engineering dimension, the owning domain stands
+     up its own body for domain content); Brett ruled instead that
+     codexFactory's councils review substantive PRs in ALL governed repos —
+     a PR's diff is software regardless of the domain — with NO domain repo
+     instantiating personas for this lane and the tenant
+     `company-policy-lead` seat carrying the policy dimension. The
+     adoption-change-per-repo mechanism survives; only the persona-home fork
+     is removed. [proposal edit]
+  3. **Company-policy-lead per-PR seating** — RULED, and Brett chose a
+     bounded THIRD option rather than either surveyed shape. Rules-council-
+     only remains the DEFAULT (the 2026-07-22 separation stands); as a
+     declared exception a candidate class MAY carry a company-policy pull-in
+     condition, defined by the `gate_rules_council` at class-definition time
+     and never per PR, which pulls the seat into that PR's
+     `merge_readiness_council` — fail-closed for those classes only, under
+     the existing `missing_required_seat: refused` rule. [proposal edit;
+     `design.md` Decision D marked SUPERSEDED IN PART, its text kept]
+  4. **Ruleset interaction shape per repo** — RULED as recommended: the
+     proven shape everywhere. Real App `APPROVE` satisfies required review;
+     the council-verdict check-run stays verdict transport and is NEVER a
+     ruleset-accepted satisfier; human review remains an always-available
+     alternate path on every repo (no App-path-only repo); divergence needs
+     its own recorded decision in that repo's adoption change. [proposal
+     edit]
+  5. **Risk-tier taxonomy** — RULED as recommended, split. The
+     CONSTITUTIONAL FLOOR is decided now in three clauses: the ratified
+     never-clearable floor is tier-independent and unoverridable by
+     unanimity; classes touching contract bytes, gate/workflow definitions,
+     credential surfaces, or security posture are permanently human-only;
+     autonomous clearance is eligible only for docs-/derived-artifact-shaped
+     blast radii. The enumerated, ordered tier VOCABULARY is deferred to the
+     same evidence-driven follow-up path as (1). [proposal edit for the
+     floor; named follow-up path for the vocabulary]
+- **NOT RESOLVED BY THIS CLOSURE — three conflicts the retired fragment
+  records rather than papers over**, named here because they must survive the
+  folder: (a) Q2's override leaves the objection the recommendation was built
+  around standing — a domain repo's PR whose CONTENT is domain governance is
+  reviewed by a council with no standing in that domain; the accepted
+  mitigations are `needs_human_review` at every class, the gate-rules
+  council's human-only power, and the Q5 floor. (b) Q3's exception is a real
+  inconsistency with the codexFactory council files' own "PERMANENTLY
+  DISTINCT" 2026-07-22 wording, deliberately bounded rather than repealed; if
+  that wording is ever amended, saying so is the amendment's job. (c) Q3
+  against `design.md` Decision D as authored — superseded in part, not
+  replaced, with the original text kept verbatim.
 - **SEQUENCED after the doxBench UI sprint (Brett 2026-08-15 ruling on
   today's four staging topics)** — deliberately iterated and realized only
   once `doxbench-editing-model` Phase A, `staged-topic-outline-template`,
@@ -1154,12 +1225,16 @@ repo scope.
   that is building it; the sibling `add-substantive-review-lane` proposal's
   own ratification read proceeds independently and is not gated by this
   ordering.
-- Exit: each question resolves independently into a pre-ratification edit
-  of the governing proposal, a named follow-up OpenSpec change (likeliest
-  for rollout order and the risk-tier taxonomy, once pilot evidence exists),
-  or a recorded decision Brett rules directly and notes back into the
-  fragment. This topic carries no exit change of its own; it closes once
-  all five questions carry a disposition.
+- Exit: each question resolved independently into a pre-ratification edit
+  of the governing proposal, a named follow-up OpenSpec change (which is
+  exactly where rollout order and the risk-tier vocabulary went, as this
+  entry predicted), or a recorded decision Brett ruled directly and noted
+  back into the fragment. This topic carried no exit change of its own.
+  **CLOSED 2026-08-22** on the fifth disposition, per its own stated
+  condition. What it did NOT do: it did not ratify the tracked proposal.
+  `add-substantive-review-lane` stays `Status: draft` — the rulings settled
+  its five parked questions, not the ratification of its requirement set,
+  which remains Brett's separate read.
 
 ## staged-topic-outline-template
 
