@@ -148,7 +148,7 @@
       numbers are ever to ship in product configuration.
 - [x] 3b.5e BRIEFS WRITTEN for every remaining domain (2026-08-09). Adx's
       lives in its own repo (it has an active change);
-      opsx/codex/medx briefs live here in research/ because codex and
+      opsx/codex/medx briefs live here in `research/` because codex and
       medx have no active omnigent change to attach to and this change owns
       the commissioning task. All four lead with REUSE RIGHTS framed as
       "may we embed element names in a YAML file shipped in a public repo",
