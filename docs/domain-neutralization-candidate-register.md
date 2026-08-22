@@ -573,8 +573,11 @@ zero domain vocabulary in 545 LOC.
 
 Evidence:
 
-- `xFactories/codexFactory/scripts/proposal-support.py` +
-  `tests/proposal-support/`
+- `openxFactory/scripts/proposal-support.py` +
+  `openxFactory/tests/proposal-support/` (the live home; the original
+  codexFactory evidence path was shed 2026-08-03 by
+  `change/shed-neutral-utility-pack`, as the implementation note below
+  records — the old path no longer exists)
 - `openxFactory/docs/doc-health.md` family 5 (the in-repo consumer)
 
 Domain-local exclusions: none identified — the tool is pure lifecycle
