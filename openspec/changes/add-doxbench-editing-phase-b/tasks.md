@@ -1168,8 +1168,9 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       `contract-v1.34`'s deprecation forbids; the migration path is the v2
       envelope. Recorded at the v1 arm in `serve.py`, in the CHANGELOG, and
       pinned by a test that fails if the v1 record ever grows the key.
-      **REVERT-TESTED — 29 MUTATION RUNS over 27 distinct mutations, and TWO
-      came back GREEN.**
+      **REVERT-TESTED — 38 MUTATION RUNS over 35 distinct mutations, and THREE
+      came back GREEN.** (29 runs before the adversarial review; the review's
+      own fixes added nine more.)
       Every schema clause was reverted individually WITH THE DIGEST REPINNED, so
       each case fired on the clause rather than on the pin: both conditionals,
       the posture enum, the object's closure, its `required`, the reason ceiling
@@ -1186,6 +1187,22 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       `adoptThreadTranscript` not clearing. THE FIRST GREEN was that last case —
       deleting the thread-switch clear broke no test — and the probe now asserts
       it (re-run RED). The second is the validator arm below.
+      THE REVIEW ROUND ADDED NINE MORE: the S1 write-order defect restored; the
+      S2 ceiling dropped, made to count bytes instead of code points, its
+      constant drifted, and the released `maxLength` drifted the other way; the
+      S4 `beginTurn` clear restored and `settleTurnSuccess` made to keep a stale
+      posture; and the N3 released-lane test driven against a posture emitted
+      without its reason.
+      **THE THIRD GREEN WAS THE S1 PROBE ITSELF, and it is the most useful
+      result in this table.** Restoring the write-order defect (R27) left the
+      new S1 test PASSING. Cause: under the wrong order a reduced turn produces
+      TWO non-empty writes — the settling render writes the text while the node
+      is still hidden, and a LATER re-render writes the identical text with it
+      already visible — and the probe read `writes[length - 1]`, which is the
+      benign one. It now asserts over EVERY non-empty write (none may happen
+      while hidden) and the re-run is RED. The reviewer predicted this class
+      exactly when they said an attribute assertion cannot catch the order; the
+      first attempt at the fix reproduced their point one level up.
       **AND ONE ARM IS A DIAGNOSTIC RATHER THAN A GUARD, stated because
       revert-testing is what proved it.** Disabling BOTH pairing arms in the
       delegated validator leaves its own packaged self-test GREEN, because the
