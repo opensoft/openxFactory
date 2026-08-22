@@ -440,6 +440,12 @@ def test_capabilities_route_reports_available_when_nlm_present(checkout):
     caps = json.loads(body)
     token = caps.pop("console_token")
     assert isinstance(token, str) and len(token) >= 32
+    # add-dashboard-account-menu: `hosted_actor` grew onto the payload the same
+    # additive way `console_token` did — resolved per request from the
+    # gateway-stamped `X-Auth-Request-User` header, `None` when absent, as here
+    # (no gateway in front of this loopback probe). Popped so the rest of the
+    # payload stays EXACT dict equality; the pin is not relaxed.
+    assert caps.pop("hosted_actor") is None
     assert caps == {
         "actions": {"notebook": True, "gate": True, "refresh": True,
                     "session": True, "edit": True},
