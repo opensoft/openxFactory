@@ -120,6 +120,39 @@ def load_manifest(path: Path) -> dict:
     return data
 
 
+def manifest_rel(value):
+    """A recorded manifest path, in the spelling this module's readers resolve.
+
+    Every path field in a support manifest — `files[].path`,
+    `files[].source_path`, `files[].source_snapshot_path`, `remaining_paths[]`
+    — is a KEY, not prose. Two of them are joined to the support folder to
+    find a file whose sha256 was recorded beside them, and `source_path` is
+    handed to `git show` as `<revision>:<path>`. `transition` now records all
+    of them in POSIX form (see the derivation there), but fixing a writer
+    cannot reach records already on disk, and a manifest written by
+    `str(PurePath)` on a Windows checkout spells every one of them with
+    backslashes. On that machine they resolve; verified anywhere else they
+    resolve to NOTHING — each becomes a single filename that happens to
+    contain backslashes, `git show <rev>:ideation\\staging\\t\\one.md` finds no
+    blob, and the recorded hashes could never be reconciled against the files
+    they describe. So the reader normalizes rather than assuming its own
+    spelling, exactly as `origin_errors` and
+    `generator._declared_origin_staging` already do for the origin path
+    (PR #221).
+
+    THE TRADEOFF, and it is WIDER here than it was for the origin path: a
+    POSIX filename may legally contain a backslash, and the staged-origin id
+    grammar that ruled the case out there governs an ID, not the names of the
+    files inside a topic — `select_files` takes whatever is in the folder. A
+    file so named would have its entry read as a nested lookup that misses, so
+    the trade is paid in a LOUD failure (`missing support file` / `missing
+    source snapshot`) rather than a silent pass, and an absurd case is traded
+    for a real one. Non-strings pass through untouched so a malformed manifest
+    still fails exactly the way it did before.
+    """
+    return value.replace("\\", "/") if isinstance(value, str) else value
+
+
 def ensure_inside(path: Path, parent: Path, label: str) -> Path:
     resolved = path.resolve()
     try:
@@ -152,7 +185,14 @@ def git_blob_sha256(root: Path, revision: str, source_path: str) -> str | None:
         return None
     if not re.fullmatch(r"(?:[0-9a-f]{40}|[0-9a-f]{64})", revision):
         raise SupportError(f"invalid repository revision: {revision}")
-    source = PurePosixPath(source_path)
+    # NORMALIZED BEFORE ANYTHING LOOKS AT IT, because both things that follow
+    # read the separators: `git show` resolves `<revision>:<path>` against a
+    # tree whose entries are POSIX, and the traversal guard below counts parts.
+    # A backslash-spelled `source_path` from a manifest written on Windows is
+    # ONE part here, so it resolves to no blob at all (the failure PR #221
+    # named and deferred) and `a\..\b` would slip past a check looking for a
+    # `..` component. Normalizing first fixes both.
+    source = PurePosixPath(manifest_rel(source_path))
     if (source.is_absolute() or not source.parts
             or ".." in source.parts or "" in source.parts):
         raise SupportError(f"invalid repository source path: {source_path}")
@@ -562,15 +602,27 @@ def transition(root: Path, change: str, source_arg: str, requested: list[str],
         for path in selected
     }
     revision = repo_revision(root)
+    # POSIX SPELLING FOR EVERY RECORDED PATH, the same rule and the same reason
+    # as `origin_rel` below (PR #221, whose fix named these fields as the next
+    # lap). Each of the three is a machine-readable KEY: `verify_active_support`
+    # joins `path` and `source_snapshot_path` to the support folder and
+    # doc-health's location-conformance family joins `path` to the same folder,
+    # while `source_path` becomes `<revision>:<path>` for `git show`.
+    # `str(PurePath)` spells all three with backslashes on a Windows checkout,
+    # so the manifest's KEYS would depend on the operating system of whoever ran
+    # the gate while the sha256s beside them — content hashes — stayed correct
+    # and unreconcilable. ONE DERIVATION PER PATH, so an entry cannot contradict
+    # itself: each field is the single `as_posix()` value of its own path, and
+    # the committed-blob check below reads `entry["source_path"]` back rather
+    # than deriving that path a second time.
     entries = [
         {
-            "path": str(mapping[path].relative_to(destination)),
+            "path": mapping[path].relative_to(destination).as_posix(),
             "sha256": sha256_bytes(rendered[path]),
-            "source_path": str(path.relative_to(root)),
+            "source_path": path.relative_to(root).as_posix(),
             "source_sha256": sha256_file(path),
-            "source_snapshot_path": str(
-                snapshots[path].relative_to(destination)
-            ),
+            "source_snapshot_path":
+                snapshots[path].relative_to(destination).as_posix(),
         }
         for path in selected
     ]
@@ -617,7 +669,11 @@ def transition(root: Path, change: str, source_arg: str, requested: list[str],
         # doc-health's `proposal-origin` family. One spelling, from one source, so
         # a manifest cannot contradict itself about the path it came from.
         "origin_path": origin_rel,
-        "remaining_paths": [str(path.relative_to(root)) for path in remaining],
+        # POSIX for the same reason as the entries above: this names material
+        # that stayed staged, and a reader that joins it to a repo root cannot
+        # be told which operating system wrote it.
+        "remaining_paths": [path.relative_to(root).as_posix()
+                            for path in remaining],
         "source_revision": revision,
         "transitioned_at": transition_date,
     }
@@ -655,14 +711,15 @@ def verify_active_support(directory: Path) -> list[str]:
     root = directory.parents[2]
     revision = manifest.get("source_revision")
     for entry in manifest.get("files", []):
-        path = ensure_inside(support / entry["path"], support, "manifest path")
+        path = ensure_inside(support / manifest_rel(entry["path"]), support,
+                             "manifest path")
         if not path.is_file():
             errors.append(f"missing support file: {path}")
         elif sha256_file(path) != entry.get("sha256"):
             errors.append(f"support checksum mismatch: {path}")
         source_sha256 = entry.get("source_sha256")
         snapshot_valid = False
-        snapshot_path = entry.get("source_snapshot_path")
+        snapshot_path = manifest_rel(entry.get("source_snapshot_path"))
         if source_sha256 and snapshot_path:
             snapshot = ensure_inside(
                 support / snapshot_path, support, "source snapshot path"
@@ -827,7 +884,13 @@ def verify_archive(directory: Path) -> list[str]:
         members = safe_tar_members(bundle)
     except (SupportError, tarfile.TarError, OSError) as exc:
         return errors + [str(exc)]
-    expected = {entry["path"]: entry["sha256"] for entry in manifest.get("files", [])}
+    # The bundle's member names are POSIX by construction (`deterministic_bundle`
+    # writes `as_posix()`, on every platform), so the manifest side is the only
+    # half of this comparison that a Windows writer could have spelled the other
+    # way. Normalize it and the two halves are the same alphabet again; without
+    # it the inventory sets differ and a sound bundle reads as corrupt.
+    expected = {manifest_rel(entry["path"]): entry["sha256"]
+                for entry in manifest.get("files", [])}
     if set(members) != set(expected):
         errors.append(f"bundle member inventory mismatch: {bundle}")
     for path, data in members.items():
