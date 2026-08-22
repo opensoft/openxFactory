@@ -3688,7 +3688,9 @@ out.omitted = await railCase(undefined);
 out.reducedNoReason = await railCase({ posture: "reduced" });
 out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON });
 
-// The note describes the LAST ANSWER, so a new flight clears it.
+// The note describes the TRANSCRIPT'S LAST ASSISTANT ANSWER, so a flight
+// STARTING does not move it — it replaces no answer (S4). This comment used to
+// say the opposite, directly above the probe that asserts it (fresh-eyes F4).
 {
   const settled = settleTurnSuccess(
     beginTurn(createChatState(KEY)),

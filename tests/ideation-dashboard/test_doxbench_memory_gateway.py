@@ -93,8 +93,14 @@ def test_the_untiered_requirement_really_is_absent_from_the_tier_block():
     published = _published_tiers()
     untiered = [name for name, tier in mg.CAPABILITY_REQUIREMENTS.items()
                 if tier == mg.TIER_UNTIERED]
+    # TWO since 2026-08-22: add-doxbench-editing-phase-b's archive promoted
+    # `Subject-Free Local Consumers…` into the capability, and the spec's tier
+    # block does not tier it either. The list stays EXACT rather than becoming
+    # a membership check — an untiered requirement is a fact about the spec, so
+    # a third one appearing should fail here and be looked at.
     assert untiered == [
-        "Derived memory bindings validate against the neutral schema"]
+        "Derived memory bindings validate against the neutral schema",
+        "Subject-Free Local Consumers Declare Their Inapplicable Rails"]
     for name in untiered:
         assert not any(line.lower().startswith(name.lower())
                        for line in published)

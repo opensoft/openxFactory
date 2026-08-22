@@ -1,0 +1,33 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "3d3db064b9b2a9127dd3a92802591780277a6bff140052d5a936ec6a77d9bfa6"
+  },
+  "change_id": "add-doxbench-editing-phase-b",
+  "files": [
+    {
+      "path": "doxbench-editing-model.md",
+      "sha256": "16761d875d5603b75bfe4ab142669ccb435ba2a1b83b1988894e257830a6cd10"
+    },
+    {
+      "path": "manifest.yaml",
+      "sha256": "5a1c75f78b7197eb1c134a817f0f1e208fb52d5c6965673daaf7549f506a7a6c"
+    },
+    {
+      "path": "source-snapshots/doxbench-editing-model.md",
+      "sha256": "c1732ee4321219908f940213455f23f0781d36572e65da9615ea5a86a521e209"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": {
+    "id": "openxFactory:staging:doxbench-editing-model",
+    "kind": "staged",
+    "path": "ideation/staging/doxbench-editing-model"
+  },
+  "origin_path": "ideation/staging/doxbench-editing-model",
+  "packaged_at": "2026-08-22",
+  "source_revision": "74022ea57354ab252abb0efa68c22474e4a2eb88",
+  "transitioned_at": "2026-08-21"
+}

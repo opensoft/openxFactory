@@ -5,8 +5,14 @@
 // and the view in doxbench-chat.js).
 //
 // Every function returns NEW frozen values and never mutates its input.
-// Bounds measure exact UTF-8 BYTES (never code points), mirroring
-// doxbench-state.js's utf8Size and the feature's content-identity rule.
+// The TEXT bounds — subject, message, transcript — measure exact UTF-8 BYTES
+// (never code points), mirroring doxbench-state.js's utf8Size and the feature's
+// content-identity rule. ONE bound does not, and the exception is deliberate
+// (fresh-eyes review F3, which caught this sentence claiming all of them do):
+// CONTEXT_REDUCED_REASON_MAX_LENGTH counts CODE POINTS, because it mirrors the
+// released schema's `maxLength` rather than a content identity, and JSON Schema
+// counts `maxLength` in code points. Counting that one in bytes would refuse
+// records the released contract accepts.
 // Wire spellings follow the RELEASED contract-v1.27 chat-turn schema:
 // transcript turns are `{role, content}` — the server-side dataclass's
 // `.text` is an internal name, not the wire — and an empty catalog `models`
