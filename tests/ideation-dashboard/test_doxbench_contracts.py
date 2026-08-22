@@ -1423,18 +1423,35 @@ def test_no_other_envelope_in_the_family_grows_a_posture(released_root):
 
 _POSTURE_NEGATIVE_GLOB = "workbench-chat-turn-v2-context-*.negative.yaml"
 
-# Each packaged posture negative fails for ITS OWN reason at the gate that owns
-# it. TWO of the four are pairing violations and are refused by BOTH the shape
-# and the delegated validator (with the `context-packet` finding code, which is
-# what keeps the restatement honest — see check_context_packet's docstring on
-# why the file gate restates a rule the shape can express). The other two are
-# the shape's alone, deliberately: the delegated validator does not restate the
-# enum or the closure, because those are exactly what a schema is for.
+# Each packaged posture negative fails for ITS OWN reason AT THE GATE THAT OWNS
+# IT, and the table records WHICH gate rather than settling for "something
+# refused it". The distribution is the release's design, stated:
+#
+#   * the two PAIRING violations are refused by BOTH the shape and the delegated
+#     validator, with the `context-packet` finding code — that overlap is
+#     deliberate and is what keeps the restatement honest (see
+#     check_context_packet's docstring on why a file gate restates a rule the
+#     shape can express);
+#   * the unknown posture and the extra field are the SHAPE's alone, also
+#     deliberately: the delegated validator restates neither an enum nor a
+#     closure, because those are exactly what a schema is for;
+#   * and the credential leak is the DELEGATED validator's alone, because the
+#     shape cannot express it — `reduced_reason` is free prose and the leaking
+#     instance is structurally perfect. It is the one rule this release
+#     delegates, so it is the one negative the shape must NOT catch; if it ever
+#     did, the rule would have stopped being the shape's blind spot and this
+#     table would be lying about why the rule exists.
+#
+# (shape refuses, expected file-gate finding code or None)
 _POSTURE_NEGATIVE_GATES = {
-    "workbench-chat-turn-v2-context-reduced-without-reason": True,
-    "workbench-chat-turn-v2-context-reason-on-full": True,
-    "workbench-chat-turn-v2-context-unknown-posture": False,
-    "workbench-chat-turn-v2-context-extra-field": False,
+    "workbench-chat-turn-v2-context-reduced-without-reason":
+        (True, "context-packet"),
+    "workbench-chat-turn-v2-context-reason-on-full":
+        (True, "context-packet"),
+    "workbench-chat-turn-v2-context-unknown-posture": (True, None),
+    "workbench-chat-turn-v2-context-extra-field": (True, None),
+    "workbench-chat-turn-v2-context-reason-leaks-a-credential":
+        (False, "credential"),
 }
 
 
@@ -1446,23 +1463,30 @@ def test_every_packaged_posture_negative_is_covered_by_that_pin(released_root):
     assert on_disk == set(_POSTURE_NEGATIVE_GATES)
 
 
-@pytest.mark.parametrize("stem, delegated", sorted(
-    _POSTURE_NEGATIVE_GATES.items()))
+@pytest.mark.parametrize("stem, shape_refuses, code", sorted(
+    (stem, shape, code)
+    for stem, (shape, code) in _POSTURE_NEGATIVE_GATES.items()))
 def test_each_packaged_posture_negative_is_refused_where_it_should_be(
-        released_root, stem, delegated):
+        released_root, stem, shape_refuses, code):
     path = (released_root / "examples" / "ideation-dashboard" / "negative"
             / f"{stem}.negative.yaml")
     doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-    assert contracts.validate_instance(doc, released_root) != [], (
-        f"{stem}: the SHAPE accepted it")
-    codes = [e for e in _file_gate_errors(released_root, path)
-             if "[context-packet]" in e]
-    assert bool(codes) is delegated, (
-        f"{stem}: delegated-gate expectation {delegated!r}, got {codes}")
+    assert bool(contracts.validate_instance(doc, released_root)) is shape_refuses, (
+        f"{stem}: SHAPE expectation {shape_refuses!r}")
+    errors = _file_gate_errors(released_root, path)
+    if code is None:
+        # The delegated validator stays out of it — but SOMETHING must refuse,
+        # and that something is the schema check the file gate also runs.
+        assert not [e for e in errors if "[context-packet]" in e], stem
+        assert errors, f"{stem}: nothing refused it at all"
+    else:
+        assert [e for e in errors if f"[{code}]" in e], (
+            f"{stem}: no {code!r} finding, got {errors}")
 
 
 @pytest.mark.parametrize("stem", sorted(
-    s for s, d in _POSTURE_NEGATIVE_GATES.items() if d))
+    s for s, (_shape, code) in _POSTURE_NEGATIVE_GATES.items()
+    if code == "context-packet"))
 def test_the_pairing_negatives_are_refused_by_the_PACKET_TYPE_TOO(stem):
     """THE THIRD GATE. `ContextPacket.__post_init__` refuses both pairing
     violations at construction, which is why no shipped path can produce one —
