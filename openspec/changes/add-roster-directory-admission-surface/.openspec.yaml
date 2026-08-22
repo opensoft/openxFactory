@@ -1,0 +1,46 @@
+schema: spec-driven
+created: 2026-08-22
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-22-add-roster-directory-admission-surface
+  reason: >-
+    Demanded by a ratified cross-repo ordering, and by the closed vocabulary's
+    own extension route, rather than by an unstaged idea. OpsxFactory
+    add-managed-service-inventory (RATIFIED 2026-08-21; §1-6 REALIZED and
+    merged 2026-08-22 as OpsxFactory main 824f8ef) carries the ratified
+    adversarial fix F1: "the MAP-stage openxFactory directory admission-surface
+    vocab extension is now stated as a PREREQUISITE of the whole §7 sweep,
+    justified on the DETERMINISTIC §1-6 contract (never a live snapshot)", with
+    task 7.1 restating it as blocking and conscious-acceptance note 1 adding
+    that it "gates the live realization - not the landing of this change". The
+    archived OpsxFactory add-tenant-reader-grant-pipeline had already named the
+    dependency, deferring the directory-discovery reader "to the
+    service-discovery change, which pins its exact read scopes and rides the
+    openxFactory directory admission-surface vocab extension" (promoted spec,
+    design, task 2.2). On this side, the client-identity-roster schema's own
+    admission_surface EXTENSION ROUTE names Entra-directory among the surfaces
+    still to arrive "with theirs", and the ratified F2 conscious-acceptance
+    note of add-roster-device-admission-surface (archived 2026-08-22, cut as
+    contract-v1.35) held that Entra-DIRECTORY "remains a SEPARATE FUTURE
+    surface with its own governing change". This is that change. The realized
+    microsoft_service_discovery_reader class carries admission_surface:
+    directory with read-only directory/service-enumeration Graph scopes,
+    exact_effective_scopes and reject_write_or_destructive_scopes, and its
+    issuance_preconditions refuse issuance without an admission-verified roster
+    entry that the closed vocabulary cannot yet express. No staging folder is
+    claimed: the organized source material is the ratified requirement and
+    ordering text itself, quoted in proposal.md and design.md, so ad_hoc is the
+    correct kind and is not a substitute for staging. Realization (schema,
+    validator refusal string, packaged example, bundle bump) waits for Brett's
+    ratification.
+  approved_by: >-
+    Brett, through his ratification of OpsxFactory add-managed-service-inventory
+    on 2026-08-21: its conscious-acceptance note 1 ("the directory
+    admission-surface vocab extension is an openxFactory prerequisite of §7's
+    live sweep... proposed on the deterministic §1-6 contract, not on a live
+    snapshot") and its blocking task 7.1 direct THIS openxFactory change to be
+    proposed on that contract. That is the approval of the ad-hoc exception —
+    the authority to author this change without a staging source. It is NOT
+    ratification of this change, which is a separate act still PENDING; see
+    proposal.md `Status: draft`.
+  approved_on: 2026-08-21
