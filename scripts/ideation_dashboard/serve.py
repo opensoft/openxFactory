@@ -568,14 +568,38 @@ def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
     `_refuse_turn`, and all of them pass `_doxbench_invalid_turn_message`'s
     verdict -- one of exactly two module-level constants; see
     `_DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT` for the full record. `None` means the
-    catalog's own message, so every other refusal is byte-identical to before."""
+    catalog's own message, so every other refusal is byte-identical to before.
+
+    ENFORCED, not merely documented (Copilot review, PR #255). Only an actual
+    `str` overrides; anything else falls back to the catalog string. The earlier
+    `str(message)` would have coerced whatever it was handed, so a caller that
+    one day passed an exception, a response object, or a validation error --
+    every one of which stringifies to something that can carry request content --
+    would have spliced that content into a published refusal while this docstring
+    still claimed refusals disclose nothing. A type is a cheap thing to check and
+    the posture is too expensive to lose to a future caller's slip.
+
+    An EMPTY string falls back too. It is not a disclosure risk, but the released
+    envelope requires `minLength: 1`, so letting it through would fail
+    `_refuse_turn`'s self-validation and cost the refusal its `client_turn_id` --
+    the browser's only means of correlating it. One more condition buys a
+    correlatable refusal instead of an anonymous one.
+
+    QUIET, like every neighbouring fail-closed seam: `_wire_valid_turn_id`
+    answers a bad type with None and `_doxbench_wire_conforms` answers one with
+    False, rather than raising. This is on the RESPONSE path of a refusal, where
+    an exception would drop the connection and strand the turn's lease -- the
+    exact failure `test_a_v1_turn_whose_document_path_claims_the_outline_key_is_refused`
+    exists to forbid ("the connection must carry an envelope, never drop"). The
+    caller still gets a true, conformant refusal; it just gets the general one."""
     _, catalog_message = DOXBENCH_ERROR_CATALOG[code]
     body: dict = {
         "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
         "kind": str(kind),
         "client_turn_id": str(client_turn_id),
         "error": code,
-        "message": catalog_message if message is None else str(message),
+        "message": (message if isinstance(message, str) and message
+                    else catalog_message),
     }
     if code in DOXBENCH_LIMIT_BEARING_CODES and limit is not None:
         body["limit"] = {
@@ -1833,17 +1857,30 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         `_doxbench_wire_conforms` discards for cause, because a jsonschema
         message can quote instance content. Nothing read here reaches the wire in
         any case: the verdict only chooses between two fixed module-level
-        strings."""
+        strings.
+
+        STREAMED, and stopping at the first disqualifying error (Copilot review,
+        PR #255). The answer is a bare "is there one?", so materializing every
+        violation of a large invalid request only to scan it was work and memory
+        spent on a question already settled by error number one.
+
+        The pass `_doxbench_wire_conforms` already made is deliberately NOT
+        reused. Carrying its errors out would mean that seam returning them, and
+        its whole posture is that it discards them precisely so a jsonschema
+        message -- which can quote instance content -- has nowhere to leak to.
+        Two cheap iterations on an already-failing request is the better trade
+        against widening that seam's contract."""
         validator = validators.get(kind) if isinstance(validators, dict) else None
         if validator is None:
             return True
         try:
-            errors = list(validator.iter_errors(instance))
+            for error in validator.iter_errors(instance):
+                if (error.validator != "minItems"
+                        or list(error.absolute_path) != ["buffers"]):
+                    return True
         except Exception:  # noqa: BLE001 - a broken validator names no cause
             return True
-        return any(error.validator != "minItems"
-                   or list(error.absolute_path) != ["buffers"]
-                   for error in errors)
+        return False
 
     @staticmethod
     def _doxbench_turn_is_outline_only(payload) -> bool:

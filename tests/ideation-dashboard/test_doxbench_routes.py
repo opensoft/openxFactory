@@ -3815,6 +3815,65 @@ def test_the_cause_naming_message_is_not_a_catalog_entry(tmp_path):
     assert body["message"] == serve_mod._DOXBENCH_MSG_INVALID_TURN_REQUEST
 
 
+class _LeakyMessage:
+    """A plausible future mistake: an object a caller passes as the override
+    whose `__str__` carries the human's own prose.
+
+    Deliberately shaped like the things that actually get passed by accident --
+    an exception, a validation error, a response wrapper -- rather than a
+    contrived sentinel, because those are what stringify to request content."""
+
+    def __init__(self, leaked):
+        self.leaked = leaked
+
+    def __str__(self):
+        return f"invalid buffer content: {self.leaked}"
+
+
+@pytest.mark.parametrize("override", [
+    _LeakyMessage("the human's unsent question"),
+    b"the human's unsent question",
+    ["the human's unsent question"],
+    123,
+    "",
+], ids=["object", "bytes", "list", "int", "empty"])
+def test_a_message_override_that_is_not_a_real_string_falls_back_to_the_catalog(
+        override):
+    """Copilot review (PR #255): the override is typed by CONTRACT, and now also
+    by construction.
+
+    The old `str(message)` would have coerced any of these, and the first case
+    shows why that matters -- its `__str__` carries the caller's own text
+    straight into a published refusal, which is exactly what the envelope's
+    redaction posture exists to prevent. The fallback is the catalog string, and
+    the leaked prose appears NOWHERE in the serialized body.
+
+    The empty string is here for a different reason: not disclosure, but the
+    released `minLength: 1`, which an empty override would violate."""
+    body = serve_mod.doxbench_turn_failure_body(
+        serve_mod.DOXBENCH_ERR_INVALID_TURN_REQUEST, "turn-1",
+        kind=doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE, message=override)
+    assert body["message"] == serve_mod._DOXBENCH_MSG_INVALID_TURN_REQUEST
+    assert "the human's unsent question" not in json.dumps(body), (
+        "a refusal must disclose nothing the caller sent")
+    # Still a conformant envelope: the hardening must not cost the correlation
+    # id, which is what a raise or a `minLength` violation would have done.
+    assert set(body) == {"schema_version", "kind", "client_turn_id",
+                         "error", "message"}
+    assert body["client_turn_id"] == "turn-1"
+
+
+def test_a_real_string_override_is_still_honoured_unchanged():
+    """The negative half: the hardening rejects TYPES, not the feature. A genuine
+    fixed constant still overrides, or the change above would have quietly
+    reverted this branch's whole point."""
+    body = serve_mod.doxbench_turn_failure_body(
+        serve_mod.DOXBENCH_ERR_INVALID_TURN_REQUEST, "turn-1",
+        kind=doxbench_contracts.KIND_CHAT_TURN_V2_FAILURE,
+        message=serve_mod._DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT)
+    assert body["message"] == serve_mod._DOXBENCH_MSG_TURN_HAS_NO_DOCUMENT
+
+
 def test_the_delegated_validators_own_refusals_keep_the_generic_message(
         tmp_path):
     """The floor has TWO statements: the schema's `minItems: 2` and the server's
