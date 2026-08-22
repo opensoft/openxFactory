@@ -12,16 +12,33 @@ only.
       in `contracts/schemas/xfactory-client-identity-roster.schema.yaml`,
       mirroring the shape of the existing `business_central`, `exchange` and
       `device` members: a `const: directory` with a `description` that names the
-      admission act and scoping mechanism per design Ruling 4 — ADMIN CONSENT
-      for the read-only directory and service-enumeration application roles on
-      ONE Entra app registration (the realized reader class holds
-      `Organization.Read.All`, `Application.Read.All` and `Domain.Read.All`:
-      organization profile and subscribed service plans, service
-      principals/applications, verified domains); scoping mechanism is
-      TENANT-WIDE READ with `exact_effective_scopes` and NO narrower provider
-      selector (unlike Exchange's per-group `RestrictAccess`, and exactly like
-      `device`); read-only — no granted role confers creation, modification or
-      deletion.
+      admission act and scoping mechanism per design Ruling 4.
+      HARD-ENUMERATE the admission act, in the `device` member's own
+      enumeration style and matching the spec delta's added scenario word for
+      word — ADMIN CONSENT for the read-only application roles
+      `Organization.Read.All`, `Application.Read.All` and `Domain.Read.All` on
+      ONE Entra app registration (the organization profile and its subscribed
+      service plans, the tenant's service principals/applications, and its
+      verified domains). Do NOT write a role FAMILY: the exact effective set is
+      pinned at CLASS REALIZATION, and that realization is already MERGED
+      (OpsxFactory `main` `824f8ef`, `microsoft_service_discovery_reader`
+      `minimum_scopes` = exactly those three roles, with
+      `exact_effective_scopes: true`), so there is no open pin left for loose
+      prose to accommodate. Scoping mechanism is TENANT-WIDE READ with
+      `exact_effective_scopes` and NO narrower provider selector (unlike
+      Exchange's per-group `RestrictAccess`, and exactly like `device`);
+      read-only — no granted role confers creation, modification or deletion.
+      Then add ONE EXCLUSION CLAUSE: a broader directory-wide read role such as
+      `Directory.Read.All` is NOT within this surface's admission act, because
+      it also reads the ALREADY-ADMITTED `device` surface (Entra registered
+      devices) and so would collapse two separately-consented, separately-scoped
+      and separately-revocable surfaces onto one act — the very collapse the
+      governing change rejected in its Decision 2 and design Ruling 2 rejects
+      here. That clause MUST live in the member `description`, because the
+      member description is the ONLY place the neutral layer can state it: the
+      schema header rules that "THE NEUTRAL LAYER NEVER INFERS A PROVIDER FACT",
+      so no validator can ever derive this boundary from the role tokens
+      themselves.
 - [ ] 1.2 Leave `contract_schema_version` at `1` (design Ruling 5: adding a
       `oneOf` const member is back-compatible — no existing roster is
       reinterpreted). Confirm the CLOSED-ON-PURPOSE header's "Growth takes a
@@ -36,6 +53,41 @@ only.
       administration) as SEPARATE future surfaces, each arriving with its own
       governing change (design Ruling 3). Do not drop the mutation half while
       editing the read half.
+      In the SAME edit, correct the GROUNDING of both the member set and the
+      route from PROMOTED to RATIFIED. The text today grounds the vocabulary on
+      promotion — "the client-tenant Entra-homed surfaces whose capabilities are
+      PROMOTED", and "a surface enters with the promotion of the capability that
+      governs it" — and that grounding has been FALSE since contract-v1.35:
+      neither `managed-node-inventory` nor `managed-service-inventory` is
+      promoted. Both are RATIFIED and still ACTIVE — unarchived, sitting in
+      OpsxFactory `openspec/changes/` — so on the schema's literal wording
+      `device` should never have been admitted either. Reword to the test the
+      capability actually states and actually MEETS: the surfaces "whose
+      governing change is RATIFIED", and "a surface enters with the ratified
+      change that governs it". This is a SCHEMA-PROSE correction only: the
+      promoted requirement's own normative sentence — "The closed surface
+      vocabulary SHALL be extended only by the change that governs a new
+      surface" — is already change-based, is satisfied here, and MUST NOT be
+      touched; no spec delta in this change covers it.
+      PRESERVE VERBATIM through the whole re-slice the route's non-Entra
+      SUCCESSOR clause: "non-Entra providers, including a client-org GitHub App
+      installation, are a NAMED SUCCESSOR routed by
+      `client-infrastructure-liaison`". It is a separate named route with its
+      own owner, wholly unaffected by this admission, and rewriting the prose
+      around it is exactly how such a clause gets dropped by accident.
+- [ ] 1.4 Amend the SECOND site in the schema that carries the Entra-directory
+      futures claim: the `device` member's OWN `description`, which today closes
+      "Endpoint MUTATION (Intune write) and Entra DIRECTORY read remain SEPARATE
+      future surfaces, each arriving with its own governing change." §1.3 covers
+      only the vocabulary-level extension-route prose; THIS is a second,
+      independent statement of the same claim, inside a sibling member. Amend it
+      to: "Endpoint MUTATION (Intune write) and Entra-directory MUTATION remain
+      SEPARATE future surfaces; Entra-directory READ is admitted as `directory`
+      (contract-v1.39)." Without this edit the ratified contract file
+      CONTRADICTS ITSELF — the `device` member announcing Entra directory read
+      as a future surface while the vocabulary immediately above it already
+      admits exactly that. Cite the bundle version §4.1 actually resolves, not
+      `contract-v1.39` on faith.
 
 ## 2. Keep the validator refusal string in sync
 
@@ -162,3 +214,23 @@ only.
       does not land with this change, and is authorized by nothing here. This
       box stays unticked deliberately: an unticked box here means "owned
       elsewhere", and ticking it would claim work this repository never did.
+- [ ] 6.2 RECORD, so no one mistakes landing this change for unblocking that
+      one: this change alone does NOT make task 7.2 runnable. OpsxFactory pins
+      contract-v1.35 (`stack.yaml` `contract_ref`
+      `78f8e016fbddcf1125c11b7f11234fb2478b0415`) and carries its OWN local
+      copy of the vocabulary —
+      `ROSTER_ADMITTED_SURFACE_VOCAB = frozenset({"business_central",
+      "exchange", "device"})` at `scripts/validate-domain-factory.py:1501`,
+      enforced at :1670 with a refusal that names `directory` explicitly as
+      riding its governing change. Until that repo re-pins, a `directory`
+      roster entry FAILS its own local validator no matter what this
+      vocabulary admits. So the FIRST downstream act is an OpsxFactory
+      CONTRACT RE-PIN to the bundle this change's realization cuts, plus the
+      matching `ROSTER_ADMITTED_SURFACE_VOCAB` / local-fence update — AHEAD of
+      7.2, which then becomes possible. Precedent, exactly parallel: the
+      `device` widening did not ride the openxFactory admission either, it
+      landed separately in OpsxFactory as PR #45 (`77f4b82`, "Add device
+      (node-inventory) planned roster entry + platform self-consent"), which
+      re-pinned and widened the local fence to contract-v1.35 in one change.
+      Also OpsxFactory's own work, listed here only so the ordering is not
+      mis-stated on this side.

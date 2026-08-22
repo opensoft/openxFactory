@@ -127,11 +127,14 @@ governing change, exactly as endpoint MUTATION (Intune write/remediation) does.
 This change admits no mutation surface.
 
 **Rationale.** This is the `device` change's own F2 ruling applied to its named
-successor. That ruling, accepted by Brett at ratification, held that admitting
-`device` reslices the extension-route prose along a read/mutate axis: `device`
-is the READ surface for Entra/Intune/Windows 365, "while endpoint-MUTATION
-(Intune write/remediation) and Entra-DIRECTORY remain SEPARATE future surfaces,
-each with its own governing change." This change is that Entra-directory
+successor. Brett's ratification record states the ruling as: "admitting `device`
+reslices the schema's extension-route prose so `device` is the READ surface for
+Entra/Intune/Windows 365, while endpoint-MUTATION and Entra-DIRECTORY remain
+SEPARATE FUTURE surfaces with their own governing changes" (archived
+`add-roster-device-admission-surface`, `review/ratification-2026-08-19.md`,
+conscious-acceptance note 2 — "Accepted"). That change's own design states the
+same F2 flag and specifies the mutation half further, as endpoint mutation
+covering Intune write and remediation. This change is that Entra-directory
 arrival — and it arrives on the READ half only, so the axis F2 established is
 preserved rather than crossed. The evidence that the read half is genuinely
 severable is in the realized reader class itself:
@@ -139,10 +142,11 @@ severable is in the realized reader class itself:
 over three `*.Read.All` roles. Note that OpsxFactory's long-standing
 `entra_directory_admin` credential class (delegated OAuth,
 `directory.readwrite.all`, human approval required) is the LATENT MUTATION
-identity on the other half of this axis: it exists in
-`credentials/requirements.yaml` today and is deliberately NOT admitted by this
-change, because no promoted capability governs an Entra-directory mutation
-surface yet.
+identity on the other half of this axis: it stands in
+`credentials/requirements.yaml` at OpsxFactory `main` `824f8ef` — the same
+commit this change's evidence is drawn from, so the citation is pinned rather
+than dated — and is deliberately NOT admitted by this change, because no
+ratified capability governs an Entra-directory mutation surface yet.
 
 **Rejected: admitting one `directory` surface covering read AND mutation.** A
 single member would let a future mutation identity inherit an admission-surface
@@ -161,15 +165,17 @@ Entra-directory READ expectation that this change discharges.
 **Adopted.** The `directory` member declares, in the same shape as the three
 existing members:
 
-- **Admission act:** ADMIN CONSENT for the read-only directory and
-  service-enumeration application roles on ONE Entra app registration. The
-  realized reader class carries `Organization.Read.All`,
-  `Application.Read.All` and `Domain.Read.All` (OpsxFactory
-  `credentials/requirements.yaml`, `main` `824f8ef`) — the organization
-  profile and its subscribed service plans, the tenant's service
-  principals/applications, and its verified domains. The exact EFFECTIVE set is
-  pinned at grant time and recorded on the roster entry's
-  `granted_permissions[]`, which is where per-entry provider fidelity belongs.
+- **Admission act:** ADMIN CONSENT for the read-only application roles
+  `Organization.Read.All`, `Application.Read.All` and `Domain.Read.All` on ONE
+  Entra app registration — the organization profile and its subscribed service
+  plans, the tenant's service principals/applications, and its verified
+  domains. Those three roles ARE the admission act, hard-enumerated: the exact
+  EFFECTIVE set is pinned at CLASS REALIZATION, and that realization is already
+  merged — `microsoft_service_discovery_reader` carries exactly those three as
+  its `minimum_scopes` under `exact_effective_scopes: true` (OpsxFactory
+  `credentials/requirements.yaml`, `main` `824f8ef`). Per-entry provider
+  fidelity is still recorded on the roster entry's `granted_permissions[]`; the
+  member description states the act.
 - **Scoping mechanism:** TENANT-WIDE READ. `exact_effective_scopes: true` and
   no narrower provider selector: the granted roles carry no directory-subset
   selector, so the exact effective scopes ARE the bound and the provider offers
@@ -205,19 +211,37 @@ entry claim a provider-enforced bound that does not exist — the exact
 structural→logical degradation the roster capability was built to expose. The
 member must record what the provider actually offers: tenant-wide read.
 
-**Deliberate departure from the `device` member's prose.** The `device` member
-enumerates its three roles as THE admission act because the node-inventory
-reader's effective set is exactly those three. Here the member names the role
-FAMILY (read-only directory and service-enumeration application roles) and
-cites the three the realized class holds, because the governing change fixes
-the exact EFFECTIVE set at grant time (its Decision 2: "pinned when the class is
-realized", with Business Central presence detected through the service-plan
-signal rather than a fourth role). The spec-delta scenario still names the three
-concretely, so the promoted requirement is as concrete as `device`'s; the
-schema member's prose is the place that records the family, because it must stay
-true across a grant-time pin. FLAGGED for the architect: the alternative is to
-hard-enumerate exactly three roles in the member description too, at the cost
-of a schema edit if the pinned effective set differs.
+**The three roles are hard-enumerated, exactly as `device`'s are — no role
+family.** The `device` member enumerates its three roles as THE admission act
+because the node-inventory reader's effective set is exactly those three. The
+`directory` member does the same, for the same reason: the service-discovery
+reader's effective set is exactly `Organization.Read.All`,
+`Application.Read.All` and `Domain.Read.All`. There is no open pin to keep the
+prose loose for. The governing change's Decision 2 says the exact effective
+scope set is "pinned when the class is realized" — pinned at CLASS REALIZATION,
+NOT at grant time — and that realization is MERGED: `minimum_scopes` is those
+three roles under `exact_effective_scopes: true` (OpsxFactory `main`
+`824f8ef`). Business Central presence is detected from the service-plan signal
+this same `directory` read already returns, so it adds no fourth role. Member
+prose, spec-delta scenario and realized class therefore all say the same three
+things, which is the only arrangement in which the schema's description is a
+truthful account of the act.
+
+**And the enumeration carries a boundary the schema can state nowhere else.**
+The member description must also EXCLUDE the broader directory-wide read roles:
+`Directory.Read.All` is not within this surface's admission act, because it
+reads the already-admitted `device` surface too (Entra registered devices are
+directory objects). Admitting it under `directory` would collapse two
+separately-consented, separately-scoped and separately-revocable surfaces onto
+one act — which is what Ruling 2 rejects on the vocabulary and what the
+governing change's Decision 2 rejected on the credential. A role FAMILY phrased
+as "read-only directory and service-enumeration application roles" would
+silently INCLUDE `Directory.Read.All` on its face, which is the concrete cost of
+the family wording. The neutral layer cannot enforce this exclusion mechanically
+— the schema header rules that it NEVER infers a provider fact from a token, so
+no validator can know that one Graph role subsumes another surface's estate. The
+member `description` is the only place the boundary can be stated at all, which
+is precisely why it must be stated there.
 
 ## Ruling 5 — Additive; no `contract_schema_version` bump, bundle bumps to contract-v1.39
 
@@ -231,20 +255,44 @@ change its digest, so the realization bumps the contract BUNDLE contract-v1.38
 digests.
 
 **Confirmation against the schema's own bump-condition comment.** The schema's
-CLOSED-ON-PURPOSE header says "Growth takes a `contract_schema_version` bump."
-Read in context, that sentence governs GROWTH OF THE CLOSED OBJECT SHAPES —
-adding properties to objects that set `additionalProperties: false`, or
-widening the key space of the two map-shaped properties closed with
-`propertyNames`. Admitting a new VALUE into a closed `oneOf` const vocabulary
-is a different, explicitly-named mechanism: the vocabulary's own EXTENSION
-ROUTE text describes how a member is added and does NOT couple that to a
-`contract_schema_version` bump. Adding an enum member changes the shape of no
-object and reinterprets no existing field; it admits a value that was
-previously refused. This matches the versioning policy's additive class, whose
-test is that a domain repo on the same major version stays conformant without
-changes — which every existing roster does. This is the same reading the
-`device` admission was ratified on (its Ruling 4) and cut on
-(contract-v1.35, CHANGELOG heading "additive").
+CLOSED-ON-PURPOSE header says "Growth takes a `contract_schema_version` bump",
+having just named the two MAP-shaped properties (`legend.*` and
+`per_unit_principal_available`) that close their KEY SPACE with `propertyNames`.
+So the coupling must be NAMED, not denied: `per_unit_principal_available`
+closes its key space with `propertyNames: {$ref: "#/$defs/admission_surface"}`,
+which means admitting `directory` to the vocabulary DOES widen that closed key
+space — a `directory` key becomes legal where it was refused. Any argument that
+this change touches no `propertyNames`-closed key space is simply false, and an
+argument resting on it would collapse on inspection.
+
+The correct reading of the bump condition is about WHAT IT PROTECTS. A
+`contract_schema_version` bump signals to a consumer that an EXISTING RECORD
+now means something different, or that a consumer must do something new to stay
+conformant. The growth that triggers it is growth of that kind: a new property
+on an `additionalProperties: false` object that records must now carry or
+account for, or a key-space change that re-reads existing keys. What lands here
+is a `oneOf` const admission, plus the key-space widening it IMPLIES in
+`per_unit_principal_available` by way of that `$ref` — and that implied widening
+is purely PERMISSIVE and purely DERIVED. It requires nothing new of any
+existing record: every fragment naming `business_central`, `exchange` or
+`device` validates byte-identically, no key it already carries is reinterpreted,
+and no key becomes required. A record can only encounter the widening by
+CHOOSING to write a `directory` key it had no reason to write before. The
+versioning policy's additive test — a domain repo on the same major version
+stays conformant without changes — is met by every existing roster in the
+corpus.
+
+Note also that "the two map-shaped properties" is imprecise as a statement of
+what this change reaches: `legend.*`'s sub-maps (`blast_radius_units`,
+`duties`) close on `free_token`, not on `admission_surface`, so they are
+entirely unaffected. Exactly ONE of the two is coupled to the vocabulary.
+
+This is the same reading the `device` admission was ratified on (its Ruling 4)
+and cut on (contract-v1.35, CHANGELOG heading "additive"), and the repair above
+is a repair to an argument INHERITED VERBATIM from that ratified design — this
+is its second landing, and the defeating clause went unremarked the first time.
+The outcome does not change: no `contract_schema_version` bump. The reasoning
+now survives the objection instead of walking into it.
 
 **The current bundle is contract-v1.38** (`contracts/manifest.yaml`;
 `contracts/CHANGELOG.md` heading "contract-v1.38 — 2026-08-21 (additive; the
@@ -270,3 +318,20 @@ snapshot and its human acceptance, the revocation proof — is a DOWNSTREAM
 CONSUMER of the extended vocabulary, authored in the OpsxFactory repo under its
 own governance. None of it lands with this change, and this change authorizes no
 live provider act. This change governs only the neutral surface admission.
+
+**And landing it does not by itself unblock task 7.2.** OpsxFactory pins
+contract-v1.35 (`stack.yaml` `contract_ref`
+`78f8e016fbddcf1125c11b7f11234fb2478b0415`) and keeps its own local copy of the
+vocabulary: `ROSTER_ADMITTED_SURFACE_VOCAB = frozenset({"business_central",
+"exchange", "device"})` at `scripts/validate-domain-factory.py:1501`, enforced
+at :1670 by a refusal that names `directory` as riding its governing change.
+While that pin and that fence stand, a `directory` roster entry is refused by
+OpsxFactory's OWN validator regardless of what this vocabulary admits. The first
+downstream act is therefore an OpsxFactory CONTRACT RE-PIN to the bundle this
+realization cuts, together with the matching local-fence update — and only then
+7.2. The precedent is exact: `device` did not become usable in OpsxFactory when
+contract-v1.35 admitted it either; the re-pin and fence widening landed
+separately, as OpsxFactory PR #45 (`77f4b82`). Stating this here so the
+cross-repo ordering is not overclaimed on the neutral side: this change removes
+the UPSTREAM blocker, which is a necessary and not a sufficient condition for
+the live sweep.

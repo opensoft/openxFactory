@@ -310,10 +310,12 @@ Active changes:
   `Application.Read.All` + `Domain.Read.All`, `exact_effective_scopes`,
   `reject_write_or_destructive_scopes`). Sibling of the archived
   `add-roster-device-admission-surface`, and the change its ratified F2 note
-  anticipated ("Entra-DIRECTORY remains a SEPARATE FUTURE surface with its own
-  governing change"). `directory` is ONE tenant-wide READ surface: one
-  admission act (admin consent for the read-only directory roles on one
-  registration), one scoping mechanism (tenant-wide read, no narrower provider
+  anticipated ("endpoint-MUTATION and Entra-DIRECTORY remain SEPARATE FUTURE
+  surfaces with their own governing changes"). `directory` is ONE tenant-wide
+  READ surface: one admission act (admin consent for exactly those three
+  read-only roles on one registration — a directory-wide role such as
+  `Directory.Read.All` is outside it, since it also reads the admitted `device`
+  surface), one scoping mechanism (tenant-wide read, no narrower provider
   selector, `enforcement_mode: logic_enforced`), and its governed unit IS the
   tenant directory/service estate — so tenant-wide read is the GOVERNED scope
   (`exceeds_governed_unit: false`, no `declared_excess`, no `spanned_surfaces`)

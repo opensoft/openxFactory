@@ -22,15 +22,22 @@ validator, example, or bundle edit lands with this proposal itself.
 The promoted `client-identity-roster` capability enumerates governed
 identities against a CLOSED `admission_surface` vocabulary holding exactly
 three members today — `business_central`, `exchange` and `device` — the
-client-tenant Entra-homed surfaces whose governing capabilities are PROMOTED.
-The schema's own extension-route text states both the rule and the surface
-still to arrive: "a surface enters with the promotion of the capability that
-governs it (endpoint MUTATION / Intune write and **Entra-directory** arrive
-with theirs)". The `device` change's ratified F2 conscious-acceptance note says
-the same thing from the other side: `device` is the READ surface for
-Entra/Intune/Windows 365 devices, while "Entra-DIRECTORY remains a SEPARATE
-FUTURE surface with its own governing change." THIS is that change, arriving
-exactly as anticipated.
+client-tenant Entra-homed surfaces admitted by their own governing changes. The
+capability's NORMATIVE extension route is change-based: "The closed surface
+vocabulary SHALL be extended only by the change that governs a new surface."
+The SCHEMA's prose around that route currently grounds itself on PROMOTION
+instead — "a surface enters with the promotion of the capability that governs it
+(endpoint MUTATION / Intune write and Entra-directory arrive with theirs)" — and
+that wording has been inaccurate since contract-v1.35: neither
+`managed-node-inventory` nor `managed-service-inventory` is promoted, both being
+RATIFIED and still ACTIVE in OpsxFactory `openspec/changes/`. Task 1.3 corrects
+the schema prose from PROMOTED to RATIFIED; the normative requirement is already
+change-based, is met by this change, and is not touched. Either way the schema
+names Entra-directory as the surface still to arrive. The `device` change's
+ratified F2 conscious-acceptance note says the same thing from the other side:
+`device` is the READ surface for Entra/Intune/Windows 365 devices, "while
+endpoint-MUTATION and Entra-DIRECTORY remain SEPARATE FUTURE surfaces with their
+own governing changes." THIS is that change, arriving exactly as anticipated.
 
 OpsxFactory `add-managed-service-inventory` is that governing capability:
 RATIFIED 2026-08-21 (7 ADDED requirements) and REALIZED §1–§6 (merged
@@ -40,7 +47,8 @@ service-surface DISCOVER capability. Its realized reader class
 `credentials/requirements.yaml`) is an app-only workload identity carrying
 `admission_surface: directory`, read-only directory/service-enumeration Graph
 scopes (`Organization.Read.All`, `Application.Read.All`, `Domain.Read.All` —
-the exact EFFECTIVE set pinned at grant time), `exact_effective_scopes: true`
+the exact EFFECTIVE set, pinned at class realization (OpsxFactory `main`
+`824f8ef`), not at grant time), `exact_effective_scopes: true`
 and `reject_write_or_destructive_scopes: true`, minted through the promoted
 `tenant-reader-grant-pipeline`. Its `issuance_preconditions` refuse issuance
 without an admission-verified roster entry — and no member of the closed
@@ -57,9 +65,12 @@ survives in its promoted spec, its design, and its task 2.2 deferral note.
 This change admits `directory` — the service-discovery read surface — into the
 closed `admission_surface` vocabulary through the exact extension route the
 capability defines: the change that governs the new surface adds the member, on
-the realization evidence of the deterministic contract. That unblocks
-OpsxFactory's `directory` roster entry and the whole of
-`add-managed-service-inventory` §7 downstream.
+the realization evidence of the deterministic contract. That clears the UPSTREAM
+blocker in front of OpsxFactory's `directory` roster entry and the whole of
+`add-managed-service-inventory` §7 — necessary, but not sufficient on its own:
+OpsxFactory still pins contract-v1.35 and fences `directory` out locally, so an
+OpsxFactory contract re-pin and fence update comes first on that side (see
+Impact).
 
 ## What Changes
 
@@ -112,11 +123,21 @@ OpsxFactory's `directory` roster entry and the whole of
   `examples/client-identity-roster/` (one added example), and the bundle
   (`contracts/manifest.yaml`, `contracts/CHANGELOG.md`,
   `contracts/releases/`).
-- **Downstream unblock (CONSUMERS, not in scope):** OpsxFactory's FarHeap
-  `directory` roster entry (`add-managed-service-inventory` task 7.2) and
-  therefore the whole of that change's §7 live sweep — the reader grant mint,
-  the authorized sweep, and the sealed snapshot — which its ratified F1
-  ordering blocks behind this vocab extension (task 7.1). Those are downstream
-  consumers of the extended vocabulary, authored in OpsxFactory under its own
-  governance; this change governs only the neutral surface admission and
-  authorizes no live provider act.
+- **Downstream (CONSUMERS, not in scope) — and this change is NOT sufficient on
+  its own:** landing here removes the UPSTREAM blocker that
+  `add-managed-service-inventory`'s ratified F1 ordering puts in front of its §7
+  live sweep (task 7.1), but it does not by itself make task 7.2 runnable.
+  OpsxFactory pins contract-v1.35 (`stack.yaml` `contract_ref`
+  `78f8e016fbddcf1125c11b7f11234fb2478b0415`) and carries its own local
+  vocabulary copy — `ROSTER_ADMITTED_SURFACE_VOCAB` holding exactly
+  `business_central`, `exchange` and `device` at
+  `scripts/validate-domain-factory.py:1501`, enforced at :1670 by a refusal
+  naming `directory` as riding its governing change — so a `directory` roster
+  entry fails OpsxFactory's OWN validator until that repo acts. The FIRST
+  downstream act is therefore an OpsxFactory CONTRACT RE-PIN to the bundle this
+  realization cuts plus the matching `ROSTER_ADMITTED_SURFACE_VOCAB` / local
+  fence update, AHEAD of 7.2; then 7.2, the consent ceremony, the grant mint,
+  the authorized sweep and the sealed snapshot. Precedent: the `device` widening
+  landed on the OpsxFactory side separately, as PR #45 (`77f4b82`). All of it is
+  authored in OpsxFactory under its own governance; this change governs only the
+  neutral surface admission and authorizes no live provider act.
