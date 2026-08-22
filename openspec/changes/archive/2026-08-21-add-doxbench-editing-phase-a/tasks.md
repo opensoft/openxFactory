@@ -252,3 +252,99 @@ something this change decided; `design.md` carries the reasoning.
       carrying it need not restate it visibly, and any heading that IS rendered
       must still use the exact casing. Directed by Brett's 2026-08-15
       annotation round; the accessible name may never be dropped in exchange.
+
+## Bookkeeping correction (2026-08-22, `archive-record-discrepancies`)
+
+The front matter's `Status:` header read `draft` at the archive. The
+ratification flip `document-lifecycle` requires in the same change as the
+transition was never made, and the transition is on this change's own record
+in four places. `.openspec.yaml` records `approved_by: Brett Heap (dispositions
+and phase sequencing relayed in-session)` and `approved_on: 2026-08-15`. §10
+above calls Brett "the ratifying authority" and speaks of "the ratified
+requirement" and "ratified text" as this change's own. Task 9.1 recorded the
+realization evidence at the archive gate under `release-realization`, which
+admits only a ratified change. And the archival promoted this change's text,
++5 ADDED and ~2 MODIFIED, into `openspec/specs/ideation-dashboard/spec.md` —
+which is precisely what gave Phase B's three Phase-A-relative MODIFIED
+requirements something to amend.
+
+Corrected here to `Status: ratified`, with a citation line beside it and this
+note rather than silently. The citation is required, not decorative:
+`docs/document-lifecycle.md` § Status Claim Rules says a `ratified` header
+names its ratification, so a bare flip would replace one defective header with
+another. The line added reads:
+
+> `Ratified: 2026-08-15 by Brett Heap — record: this change's .openspec.yaml
+> (approved_by, approved_on) …`
+
+**Which spelling, and why.** The corpus carries two, both already accepted by
+readers of these proposals, and both counted rather than guessed at:
+`Ratified by:` on twenty-nine archived proposals (folder-dated 2026-07-23
+through 2026-08-15), `Ratified:` on nine (2026-08-10 and later).
+
+`Ratified by:` is the rule's literal spelling, and fifteen of its twenty-nine
+do name their own change id ("Brett's approval of `<change>` on <date>"). The
+other fourteen name Brett, a date, and a quoted instruction instead, so the
+spelling does not strictly require a change id — but it does require one of
+those two, and this change has neither: no approving OpenSpec change exists to
+name, and no in-session utterance was written down to quote. What exists is a
+record file. `.openspec.yaml` carries `approved_by` and `approved_on`.
+
+The `Ratified:` spelling covers exactly that case. Eight of its nine instances
+read `Ratified: <date> by Brett Heap — in-session, verbatim: "…"`, and the
+ninth — the closest analogue of all,
+`2026-08-22-add-roster-device-admission-surface` — reads
+``Ratified: 2026-08-19 — record: `review/ratification-2026-08-19.md` (…)``: a
+date plus a pointer to the record that carries the ratification, no change id
+and no quote. That is precisely this case with `.openspec.yaml` in the record's
+place, so `Ratified:` with a `record:` pointer is what is used. Nothing
+invented: both the ratifier and the date are copied out of `.openspec.yaml`
+verbatim. Reaching for `Ratified by:` would have meant naming a change that
+does not exist, or manufacturing a quotation.
+
+**The precedent, stated with its constraint, and how this extends it.** Brett's
+2026-08-10 ruling is that a later change may correct an archived ledger — but
+the ruling as recorded at `2026-08-13-align-doxbench-contract-pin-to-publisher`
+task 6.2 carries an operative condition that must not be dropped in the
+retelling: the correction was made "as an APPEND: the original open-item
+sentence is left standing word for word and the resolution follows it, so the
+record still says what was true when the tranche closed." This edit cannot
+honour that literally. An append on the `Status:` line is mechanically
+impossible — `doc_health.corpus.STATUS_RE` is `^Status:\s*(.+?)\s*$`, so it
+swallows any trailing annotation into the value, and `Status: draft (corrected
+to ratified)` would register as a free-form status rather than as either value.
+So this is an in-place overwrite, and it is named as one: an **extension** of
+the 2026-08-10 ruling, not an instance of it. The append's purpose is served
+another way — the original value is preserved verbatim ("read `draft` at the
+archive") in this note and again in
+`docs/archive-record-discrepancies.md` B2, so a reader still finds what the
+record said before. Whether an overwrite on a single-valued header is inside
+the ruling is a question this change answers for itself and flags for Brett; it
+is not covered by the words he gave.
+
+The shape borrowed from `split-ideation-book-per-repo` 4.3 is likewise not
+identical. That precedent is an **inline suffix on the task line** ("— Discharged
+by the archive commit itself (e9a4be6, 2026-08-10); the box was left unchecked
+… and corrected here with this note rather than silently"). This is a separate
+`##` section appended to the ledger's end. Same spirit — the correction travels
+with the change it corrects, and never lands silently — different shape.
+
+This does NOT reopen what `efa42cf` closed, but the distinction is narrower
+than a paraphrase makes it sound and is stated here in that commit's own words.
+`efa42cf` says: "The archived change is therefore restored **byte-exact to
+main's version**." Byte-exact is broader than requirement text, and this edit
+is not byte-exact — it rewrites one line of this proposal's front matter and
+adds one. The distinction that carries the weight is the *reason* efa42cf
+gives, not the scope of the restoration it performed: "An archive amended after
+the fact would have claimed Phase A ratified a conditional slot while the spec
+its own archival produced said otherwise: a falsified record." What efa42cf
+forbids is
+an amendment that puts the archive into disagreement with the spec its archival
+promoted. A lifecycle header cannot create that disagreement: it promotes no
+requirement, and no reader consults it — `ideation_dashboard.generator` derives
+a change's status from its folder location and its ratifier from
+`.openspec.yaml`, "deliberately NOT the `Ratified by:` proposal header", and
+doc-health's corpus does not scan `openspec/` at all. So the extension past
+"byte-exact" is deliberate and named as such: the requirement text efa42cf was
+protecting is untouched, and the two front-matter lines touched are lifecycle
+bookkeeping that no promoted spec can contradict.

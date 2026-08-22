@@ -165,9 +165,12 @@ Core domain-neutral docs:
 - [NotebookLM Source Workspaces](docs/notebooklm-source-workspaces.md)
 - [Lifecycle Notebook Projection](docs/lifecycle-notebook-projection.md)
 - [NotebookLM Projection Sync — Open Operational Item](docs/notebooklm-sync-open-item.md)
-- [Support-Bundle Scope in the Archive Gate — Open Contract Item](docs/support-bundle-scope-open-item.md)
   (pending sync run, the auth blocker + the `scripts/nlm_auth.py` workaround,
   and the machine-account direction)
+- [Support-Bundle Scope in the Archive Gate — Open Contract Item](docs/support-bundle-scope-open-item.md)
+- [Archived-Change Record Discrepancies — Open Bookkeeping Register](docs/archive-record-discrepancies.md)
+  (the re-derived sweep of all 86 archived changes: one `Status:` header
+  corrected with its citation, seven classes recorded open)
 - [Ideation Work Area](ideation/README.md) (ratified convention; see
   [Document Lifecycle](docs/document-lifecycle.md))
 - [Workflow Contract](docs/workflow-contract.md)
