@@ -526,6 +526,52 @@ def test_a_reissued_packet_is_accepted_and_the_turn_proceeds(tmp_path, axis):
     assert assembler.calls["calls"] == 2
 
 
+def _lying_packet_assembler(mutate):
+    """An assembler whose packet CONTRADICTS ITSELF about its own posture.
+
+    `ContextPacket.__post_init__` refuses every one of these at construction,
+    so the mutation is applied AFTER it — through `object.__setattr__`, which
+    a frozen slotted dataclass cannot stop. That is not a contrived attack: the
+    packet assembler is an INJECTED, duck-typed seam
+    (`build_server(packet_assembler=…)`), and a collaborator behind it is under
+    no obligation to be a `ContextPacket` at all. What must hold is that a
+    record never states a posture the packet does not support."""
+    def _assemble(**kwargs):
+        packet = pk.assemble_packet(**kwargs)
+        mutate(packet)
+        return packet
+    return _assemble
+
+
+@pytest.mark.parametrize("mutate, why", [
+    (lambda p: object.__setattr__(p, "reduced_reason", None),
+     "reduced, with its reason removed"),
+    (lambda p: object.__setattr__(p, "posture", pk.POSTURE_FULL),
+     "full, still carrying a reduction reason"),
+    (lambda p: object.__setattr__(p, "posture", "degraded"),
+     "a posture outside the released vocabulary"),
+    (lambda p: object.__delattr__(p, "posture"),
+     "no posture at all"),
+])
+def test_a_packet_that_lies_about_its_posture_refuses_the_turn(
+        tmp_path, mutate, why):
+    """FAIL-CLOSED, never a guessed posture (contract-v1.39, task 10.7).
+
+    The derivation could have defaulted — `getattr(packet, "posture", "full")`
+    would have made every one of these turns succeed with a record claiming a
+    full context. It refuses instead, on the route's EXISTING packet boundary,
+    so the answer is the same fixed `invalid_turn_request` every other
+    structural packet refusal gives and nothing about the failure is new
+    surface. Nothing is dispatched, because the derivation runs before the
+    provider does."""
+    status, payload, port = _post_turn(
+        tmp_path, _turn_v2(),
+        packet_assembler=_lying_packet_assembler(mutate))
+    assert status == 400, why
+    assert payload["error"] == serve_mod.DOXBENCH_ERR_INVALID_TURN_REQUEST, why
+    assert port.calls.count("dispatch") == 0, why
+
+
 def test_a_rejected_packet_leaks_nothing_into_the_refusal(tmp_path):
     assembler = _bad_packet_assembler(axis="scope")
     status, payload, _port = _post_turn(

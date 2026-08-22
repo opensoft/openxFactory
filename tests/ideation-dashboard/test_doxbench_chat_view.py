@@ -3376,3 +3376,234 @@ def test_the_send_disclosure_for_a_routing_rule_is_the_union_badge(
         routing_menu_results["disclosure"])
     assert routing_menu_results["badges"]["hosted"] in (
         routing_menu_results["disclosure"])
+
+
+# ---------------------------------------------------------------------------
+# THE REDUCED POSTURE IS VISIBLE TO THE HUMAN (contract-v1.39,
+# add-doxbench-editing-phase-b task 10.7)
+#
+# This is the half of task 10.7 that was GATED, and the reason the task stayed
+# open after its packet half landed: the ratified sentence ends "with the
+# reduced posture STATED", the packet stated it, and no human could read it.
+# The release put the posture on the record; this probe is what makes "and on
+# the surface" evidence instead of an argument.
+#
+# It drives the SHIPPED `doxbench-chat.js` bytes through a real mount (P1-7 —
+# a probe executes shipped bytes, never a paraphrase), sends turns through the
+# real dispatcher, and reads the rendered note back off the DOM stub.
+# ---------------------------------------------------------------------------
+
+_POSTURE_HARNESS = """
+class Node {
+  constructor(tag) {
+    this.tagName = String(tag).toUpperCase();
+    this.children = []; this.attributes = {}; this.listeners = {};
+    this.className = ''; this._text = ''; this.hidden = false;
+    this.disabled = false; this.value = '';
+  }
+  get textContent() {
+    return this._text + this.children.map((c) => c.textContent).join('');
+  }
+  set textContent(value) { this.children = []; this._text = String(value); }
+  appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
+  append(...kids) { for (const k of kids) this.appendChild(k); }
+  setAttribute(name, value) { this.attributes[name] = String(value); }
+  getAttribute(name) {
+    return Object.prototype.hasOwnProperty.call(this.attributes, name)
+      ? this.attributes[name] : null;
+  }
+  addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }
+  focus() {}
+  walk() { return this.children.reduce((a, c) => a.concat(c.walk()), [this]); }
+}
+const doc = { createElement: (tag) => new Node(tag), activeElement: null };
+const byClass = (root, cls) => root.walk().filter(
+  (n) => String(n.className).split(' ').includes(cls));
+const fire = async (node, type) => {
+  for (const fn of node.listeners[type] || []) await fn({});
+};
+
+import { mountDoxBenchChatRail, reducedContextNote, REDUCED_CONTEXT_LEAD }
+  from "./doxbench-chat.mjs";
+import { createChatState, settleTurnSuccess, beginTurn }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "fixture-repo", ref: "main",
+              tile_kind: "staged", tile_id: "ideation-governance" };
+const ENTRY = { model_id: "model-a", label: "Approved", provider_class: "on-tenant",
+  available: true, input_limit_bytes: 800000, output_limit_bytes: 900000,
+  data_handling: "on-tenant" };
+const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
+  base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: "d".repeat(64) },
+  hash_pending: false, content: "# " + kind, dirty: false });
+const editorState = () => ({ active_buffer: "document", buffers: {
+  outline: bufferOf("outline", "docs/outline.md"),
+  document: bufferOf("document", "docs/detail.md") } });
+
+// The reason VERBATIM from `doxbench_packet.REDUCED_NO_KNOWLEDGE_SERVICE`, so
+// what this probe renders is what a real degraded turn actually carries.
+const REASON = "the staged-set knowledge service is unavailable, so this packet"
+  + " carries the selected thread and the loaded buffers only, with NO corpus"
+  + " evidence; no unbounded context was substituted and no rail was bypassed"
+  + " to reach a provider";
+out.reason = REASON;
+out.lead = REDUCED_CONTEXT_LEAD;
+
+const recordWith = (contextPacket) => {
+  const record = { schema_version: 1,
+    kind: "workbench-chat-turn-v2-success",
+    client_turn_id: "t", assistant_turn_id: "a", model_id: "model-a",
+    selected_model: { requested_model_id: "model-a", routing_rule: false,
+                      data_handling: "on-tenant" },
+    bound_buffer: "outline",
+    observed_hashes: { outline: "d".repeat(64), document: "d".repeat(64) },
+    assistant_prose: "answer", proposals: [] };
+  if (contextPacket !== undefined) record.context_packet = contextPacket;
+  return record;
+};
+
+// One mounted rail per case, each sending ONE real turn through the shipped
+// dispatcher and reading the rendered note back.
+async function railCase(contextPacket) {
+  const host = new Node("div"); host.ownerDocument = doc;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => ({ ok: true, status: 200,
+                               payload: recordWith(contextPacket) }) },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  composer.value = "what does the note say?"; await fire(composer, "input");
+  await fire(byClass(host, "doxchat-send")[0], "click");
+  const note = byClass(host, "doxchat-context")[0];
+  return {
+    exists: Boolean(note),
+    hidden: note ? note.hidden : null,
+    text: note ? note.textContent : null,
+    live: note ? note.getAttribute("aria-live") : null,
+    // the answer still arrived: a degraded turn is a SUCCESSFUL turn
+    transcript: rail.state().transcript.length,
+    statePosture: rail.state().contextPacket
+      ? rail.state().contextPacket.posture : null,
+  };
+}
+
+out.reduced = await railCase({ posture: "reduced", reduced_reason: REASON });
+out.full = await railCase({ posture: "full" });
+out.omitted = await railCase(undefined);
+// A record that contradicts itself. The released schema refuses both of these,
+// so they cannot come from a conformant producer -- the surface still has to
+// decide, and it decides SILENCE rather than a half-statement.
+out.reducedNoReason = await railCase({ posture: "reduced" });
+out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON });
+
+// The note describes the LAST ANSWER, so a new flight clears it.
+{
+  const settled = settleTurnSuccess(
+    beginTurn(createChatState(KEY)),
+    recordWith({ posture: "reduced", reduced_reason: REASON }));
+  out.afterSettle = reducedContextNote(settled);
+  out.duringNextFlight = reducedContextNote(beginTurn(settled));
+}
+
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def posture_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the context-posture probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-posture")
+    source = CHAT_VIEW_JS.read_text(encoding="utf-8").replace(
+        './doxbench-chat-model.js', './doxbench-chat-model.mjs')
+    (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "posture-harness.mjs"
+    harness.write_text(_POSTURE_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_reduced_turn_states_the_posture_and_its_reason_on_the_surface(
+        posture_results):
+    """THE RELEASE'S POINT, on the rendered surface. A turn that ran on the
+    declared reduced packet renders a visible, live-announced note naming the
+    reduction AND its reason — the reason verbatim, because "reduced context"
+    with no why is the silent degradation with a label on it.
+
+    The answer is still there: `transcript` is the human turn plus the
+    assistant's, which is the ratified "MUST NOT ... make the editors
+    unusable" half holding at the same time."""
+    reduced = posture_results["reduced"]
+    assert reduced["exists"] is True
+    assert reduced["hidden"] is False
+    assert reduced["text"] == posture_results["lead"] + posture_results["reason"]
+    assert "reduced context" in reduced["text"]
+    assert "no unbounded context was substituted" in reduced["text"]
+    assert reduced["live"] == "polite"
+    assert reduced["transcript"] == 2
+    assert reduced["statePosture"] == "reduced"
+
+
+def test_a_full_turn_shows_nothing_new(posture_results):
+    """The other half of the treatment, and it is deliberate rather than
+    unfinished: a standing "full context" badge is a line every operator learns
+    to stop reading, which is exactly how the reduced one would stop being
+    noticed. The note element still EXISTS (so nothing has to be created at the
+    moment it is needed) and renders hidden and empty."""
+    full = posture_results["full"]
+    assert full["exists"] is True
+    assert full["hidden"] is True
+    assert full["text"] == ""
+    assert full["statePosture"] == "full"
+    assert full["transcript"] == 2
+
+
+def test_a_record_with_no_posture_renders_no_phantom_badge(posture_results):
+    """A producer older than contract-v1.39 states no posture, and the surface
+    says nothing rather than inventing one. Absence is not `full` and it is not
+    `reduced`; it is silence, and silence is what it renders."""
+    omitted = posture_results["omitted"]
+    assert omitted["hidden"] is True
+    assert omitted["text"] == ""
+    assert omitted["statePosture"] is None
+    assert omitted["transcript"] == 2
+
+
+@pytest.mark.parametrize("case", ["reducedNoReason", "fullWithReason"])
+def test_a_self_contradicting_record_renders_nothing_rather_than_half_of_it(
+        posture_results, case):
+    """FAIL-CLOSED ON THE SURFACE TOO. The released schema refuses both of
+    these, so neither can come from a conformant producer — but the adopter is
+    the last thing between a record and a human, and the wrong move would be to
+    keep whichever half looked renderable. A `reduced` with no readable reason
+    would render the words "reduced context" over a reduction nobody can check,
+    which is the failure this requirement is written against."""
+    result = posture_results[case]
+    assert result["hidden"] is True
+    assert result["text"] == ""
+    assert result["statePosture"] is None
+    # …and the ANSWER is not withheld: a malformed posture is a defect in the
+    # record's metadata, never a reason to drop the turn the human asked for.
+    assert result["transcript"] == 2
+
+
+def test_the_note_describes_the_last_answer_and_a_new_flight_clears_it(
+        posture_results):
+    """The note is a claim about the answer on screen. While the next question
+    is in the air there is no answer for it to describe, so it goes — which is
+    also what keeps a FAILED follow-up from leaving "reduced context" standing
+    over nothing at all."""
+    assert posture_results["afterSettle"] == (
+        posture_results["lead"] + posture_results["reason"])
+    assert posture_results["duringNextFlight"] is None
