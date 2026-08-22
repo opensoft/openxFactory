@@ -343,8 +343,19 @@ function adoptContextPacket(carrier) {
   // success record's `context_packet` and the persisted snapshot's. Naming the
   // stored field `context_packet` (and not a camelCase sibling) is deliberate —
   // the released object shape travels whole, so no third spelling of the
-  // posture exists and a malformed stored blob fails closed by exactly the rule
-  // a malformed wire record does.
+  // posture exists, and a malformed stored blob fails closed on the same
+  // PAIRING rule a malformed wire record does.
+  //
+  // "THE SAME RULE" IS NOT "THE SAME VERDICT", and the difference is worth
+  // naming (adversarial review). This adopter NORMALIZES: it reads the two
+  // fields it knows and returns a fresh two-key object, so an extra key on a
+  // stored blob is silently dropped and the posture still adopts. The released
+  // shape is CLOSED and REFUSES that instance outright. Both are right for
+  // where they sit — a wire contract must refuse what it did not admit, and a
+  // browser-local blob that gained a key from a future build should still
+  // render the posture it does carry rather than going blank — but they are
+  // different verdicts, and only the pairing and the posture vocabulary are
+  // enforced identically on both sides.
   const raw = carrier && carrier.context_packet;
   if (!raw || typeof raw !== "object") return null;
   const posture = raw.posture;
