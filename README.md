@@ -304,6 +304,40 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [sanction-ratified-record-spelling](openspec/changes/sanction-ratified-record-spelling/proposal.md)
+  — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). Closes the
+  gap between the one ratification-citation spelling
+  `docs/document-lifecycle.md` § Status Claim Rules sanctions
+  (`Ratified by: <change>`) and the two the corpus writes, which the
+  2026-08-22 adversarial review recorded in
+  `docs/archive-record-discrepancies.md` (B1, C2, C7) and which Brett's own
+  C2 ruling then made an instruction ("a citation line in whichever existing
+  spelling honestly fits"). Measured at `ca0b905`: under the governed roots,
+  29 documents carry `Ratified by:` — all 29 naming a resolvable change id,
+  13 of them naming ONLY the change id — and zero carry a `Ratified:`
+  header; under `openspec/`, 42 of 86 archived proposals plus 11 active ones
+  carry `Status: ratified`, split 38 `Ratified by:` / 15 `Ratified:`, and
+  only 20 of the 38 name a resolvable change id, so the primary spelling is
+  already half record-citing in practice. Not one of those 53 lines fails an
+  approver-or-date-or-record test. **The design intent:** `Ratified by:`
+  stays PRIMARY wherever an approving change exists; `Ratified:` is
+  sanctioned as the RECORD-CITING alternative ONLY where none does, and must
+  name at least one of an approver, a date, or a resolvable record path —
+  the three-way floor scoped to that form alone, because applying it to
+  `Ratified by:` would turn those 13 sound governed documents CRITICAL in one
+  commit. A bare uncited `Status: ratified` stays illegal in both spellings.
+  ONE MODIFIED requirement on `document-lifecycle` (`Controlled document
+  status taxonomy` — which promotes the citation rule for the FIRST time:
+  the promoted spec today carries scenarios for three of § Status Claim
+  Rules' four bullets and none for the ratified one; all three existing
+  scenarios restated, four added) and ONE MODIFIED on `doc-health`
+  (`Deterministic check families` — restated verbatim with one widened WHEN
+  bullet, since the realization emits two violation kinds the enumeration
+  does not carry; whether that second delta rides here is OQ-1). Realization
+  widens `fam_ratified_provenance` to two prefixes — never a prefix match on
+  the bare word, which would swallow body prose — plus mutation-validated
+  tests. No existing citation line in the corpus is rewritten.
+  `target_release: implemented`.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). The
   openxFactory COMPANION to Omnigent-Install's just-merged
