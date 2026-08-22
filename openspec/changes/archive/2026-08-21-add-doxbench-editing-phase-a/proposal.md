@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (`scripts/ideation_dashboard/web/views/doxbench-editor.js` — the side-by-side textarea+preview pane replaced by an Editor/Preview view-tab pair over one active buffer, and the per-buffer Save/Discard toolbar replaced by one panel-level Save and one panel-level Cancel; `staging-workbench.js` — the context region's `outline` tab and scoped `docs` selection become the buffer selector, and the canvas mounts the active buffer; `doxbench-state.js` — `setActiveBuffer`/`discardBuffer` reused unchanged as the selection and Cancel primitives; `doxbench-chat.js` — the rail states the buffer the chat is working on, read live off the canvas's active-buffer key (naming the bound buffer in the durable TURN RECORD is deferred: F2 carve-out, Brett 2026-08-15 — see design.md, and `doxbench_turns.py` is left untouched); `viewer.js` — the external-editor escape hatch relabelled so the bare word "edit" stops naming two different acts on one surface; and the pinned tests `tests/ideation-dashboard/test_doxbench_view.py`, `test_doxbench_accessibility.py`, `test_doxbench_mutation_boundary.py`, `test_doxbench_turns.py`, `test_staging_workbench.py`, whose DOM, tablist, and buffer-shape assertions this change re-pins honestly rather than deletes)
 target_release: none
-Status: draft
+Status: ratified
+Ratified: 2026-08-15 by Brett Heap — record: this change's `.openspec.yaml` (`approved_by: Brett Heap (dispositions and phase sequencing relayed in-session)`, `approved_on: 2026-08-15`). No approving OpenSpec change exists to name, so this is the `Ratified:` record-citing spelling nine archived siblings already use, not `Ratified by: <change>`. Header and citation both added 2026-08-22 by `archive-record-discrepancies`; see tasks.md "Bookkeeping correction".
 ---
 
 # Proposal: add-doxbench-editing-phase-a
