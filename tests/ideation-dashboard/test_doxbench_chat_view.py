@@ -3776,6 +3776,9 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
   // live region, or the snapshot. The dispatcher checks only `ok` and `kind`.
   const overCeiling = "x".repeat(CONTEXT_REDUCED_REASON_MAX_LENGTH + 1);
   const atCeiling = "y".repeat(CONTEXT_REDUCED_REASON_MAX_LENGTH);
+  // ASTRAL: 300 code points, 600 UTF-16 units. Conformant under `maxLength:
+  // 500`, and the first version of this ceiling discarded it (Codex review).
+  const astral = "\u{1F600}".repeat(300);
   out.wireCeiling = {
     over: settleTurnSuccess(
       beginTurn({ ...createChatState(KEY), composer: "q" }),
@@ -3786,6 +3789,12 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
       recordWith({ posture: "reduced", reduced_reason: atCeiling }))
       .contextPacket || {}).reduced_reason === atCeiling,
     bound: CONTEXT_REDUCED_REASON_MAX_LENGTH,
+    astralCodePoints: [...astral].length,
+    astralUtf16Units: astral.length,
+    astralAdopted: (settleTurnSuccess(
+      beginTurn({ ...createChatState(KEY), composer: "q" }),
+      recordWith({ posture: "reduced", reduced_reason: astral }))
+      .contextPacket || {}).reduced_reason === astral,
   };
 
   out.contradictoryBlobs = contradictions.map((cp) =>
@@ -4117,6 +4126,15 @@ def test_an_oversized_reason_from_the_WIRE_is_not_adopted(posture_results):
     assert w["bound"] == 500
     assert w["over"] is None
     assert w["at"] is True
+    # …and the unit is CODE POINTS, not UTF-16 units. A conformant 300-emoji
+    # reason is 600 `.length`, and the first version of this ceiling discarded
+    # it — hiding the very disclosure the release exists to show. The same
+    # mistake this release argued against on the server side (where a
+    # byte-counting guard would refuse a conformant 1,500-byte CJK reason),
+    # arriving on the browser side in the other unit.
+    assert w["astralCodePoints"] == 300
+    assert w["astralUtf16Units"] == 600
+    assert w["astralAdopted"] is True
 
 
 def test_the_browser_ceiling_is_pinned_to_the_RELEASED_maxLength():

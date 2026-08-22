@@ -402,8 +402,17 @@ function adoptContextPacket(carrier) {
   // the live region, and from there the persisted snapshot. The server refuses
   // an over-ceiling reason pre-dispatch; this is the same rule on the reading
   // side, for the payloads the server did not author.
+  // COUNTED IN CODE POINTS, because that is what `maxLength` counts (Codex
+  // review of PR #256). `String.length` is UTF-16 code UNITS: a conformant
+  // 300-emoji reason has 300 code points and a `.length` of 600, so the first
+  // version of this ceiling DISCARDED a record the released contract accepts
+  // and hid the very disclosure the release exists to show. `[...reason]`
+  // iterates code points. Exactly the mistake this release argued against on
+  // the server side — where a byte-counting guard would have refused a
+  // conformant 1,500-byte CJK reason — arriving on the browser side in the
+  // other unit.
   const reasonUsable = typeof reason === "string" && reason !== ""
-    && reason.length <= CONTEXT_REDUCED_REASON_MAX_LENGTH;
+    && [...reason].length <= CONTEXT_REDUCED_REASON_MAX_LENGTH;
   if (posture === "full") {
     return reasonPresent ? null : Object.freeze({ posture: "full" });
   }
