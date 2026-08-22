@@ -47,7 +47,8 @@ def test_seed_register_lists_exactly_the_pinned_submodules():
     # `medx-clinical`. The four untracked submodules were triaged 2026-08-22
     # (aggregation b0ee23d): openAvatar -> core; keycloak-install,
     # medx-roottruth-install, openxpki-install -> installs, with
-    # medx-roottruth-install also a medx-clinical satellite (D8).
+    # medx-roottruth-install also a medx-clinical satellite (D8);
+    # openAvatar joined medx-clinical too on 2026-08-22 (aggregation 95623ec).
     # Pin the exact membership per role rather than diffing
     # the flattened list against the full .gitmodules pin set: newer
     # submodules (openAvatar 2026-08-03, medx-roottruth-install 2026-08-09,
@@ -64,7 +65,8 @@ def test_seed_register_lists_exactly_the_pinned_submodules():
         "domains": ["AdxFactory", "LedgerxFactory", "MedxFactory",
                      "OpsxFactory", "codexFactory"],
         "medx-clinical": ["HealthLinc", "MedxEHR", "MedxFactory",
-                          "medx-roottruth-install", "openChart"],
+                          "medx-roottruth-install", "openAvatar",
+                          "openChart"],
         "installs": ["agenttower", "cloudpc-install", "hermes-install",
                       "keycloak-install", "medx-roottruth-install",
                       "omnigent-install", "openxpki-install",
