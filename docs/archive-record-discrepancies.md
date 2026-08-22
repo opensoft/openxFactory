@@ -345,6 +345,29 @@ does C1's cleanup cover `add-worker-credential-by-reference`'s
 `target_release`, or does C3's "do not touch it" freeze the whole change?** The
 rewritten value is ready either way; only the permission is missing.
 
+**ADDENDUM 2026-08-22 (later the same day) — the word came back; five of six
+are now fixed.** Brett ruled, in a separate in-session round held after this
+entry and C3 were written, that C3's "do not touch it" was scoped to the
+ratification-and-origin axis — where C3 lives — and not to the release axis,
+so C1's cleanup does cover `add-worker-credential-by-reference`'s
+`target_release` after all. The rewritten value was written:
+`implemented — code surface green on the xFactory aggregation main line …`,
+naming task 2.3's lane wiring (`0af326a`), task 2.4's live evidence (the
+§11.4 smokes, "token source VAULT with SMOKE OK," then a proven rotation),
+task 2.5's remaining-lane migration and host cleanup (`6758046`, final smoke
+run `31833019258`), and task 3.1's closeout tick — corroborated by this
+change's own archive commit `b533a1f` and its README row. Sourced entirely
+from this change's own tasks.md §2.3–§2.5 and §3.1, the same record already
+quoted above; nothing new was inferred. **FOUR FIXED, TWO NOT** above is
+superseded by this addendum only in the count, not in its word-for-word
+text: read it as **FIVE FIXED, ONE NOT** from here forward. The one change
+still not fixed is `split-ideation-book-per-repo`, for the reason already
+given above (its only realization statement is the archive commit itself,
+which is circular). The open question this entry posed is answered: C1's
+cleanup covers `add-worker-credential-by-reference`; C3's freeze does not
+reach the release axis, only the ratification-and-origin axis where C3
+itself lives (see C3's own addendum).
+
 ### C2 — seven archived proposals were authored after the `Status:` convention began and carry no header
 
 This entry was re-derived on a second axis after the first draft got it wrong.
@@ -551,6 +574,13 @@ unchanged, it still carries no `.openspec.yaml`, and it is now the single
 2 error before the round and 1 after. The same instruction is what held C1's
 rewrite of this change's `target_release`; the scope question that raises is
 stated in full in C1's block.
+
+**ADDENDUM 2026-08-22 (later the same day).** The release-axis half of this
+hold was executed 2026-08-22: Brett ruled the freeze scoped to the
+ratification-and-origin axis only, and C1's addendum above records the
+`target_release` rewrite now written. The origin-and-ratification half
+recorded above — no `.openspec.yaml`, no approval pair, still the single
+`proposal-origin` ERROR — is unchanged and stays open.
 
 ### C4 — twenty-one archived changes are pre-contract-legacy origin warnings
 
