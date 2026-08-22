@@ -772,7 +772,10 @@ def check_committed_manifests(f: Findings, repo: Path) -> None:
 # Layered on schema conformance, mirroring each schema's own comments:
 #   Catalog   model_id uniqueness; a credential/endpoint SPELLING scan over
 #             every public string value (the schema already refuses extra
-#             fields structurally; this catches leakage THROUGH allowed ones).
+#             fields structurally; this catches leakage THROUGH allowed ones);
+#             and since contract-v1.38 the ROUTING-RULE resolution rules —
+#             dangling target, chained rule, available-rule-to-unavailable-
+#             model, and the badge covering (see check_routing_rules).
 #   Request   exactly one outline + one document buffer; segment-wise path
 #             confinement; EXACT content-hash parity (the validator recomputes
 #             SHA-256 over each buffer's content, so a mismatched identity is
@@ -794,6 +797,46 @@ _CREDENTIAL_RE = _re.compile(
     r"(?i)(bearer\s+\S|api[-_]?key|authorization\s*:|sk-[A-Za-z0-9]{6,}|"
     r"BEGIN [A-Z ]*PRIVATE KEY|secret[-_]?name)")
 _ENDPOINT_RE = _re.compile(r"(?i)\b(https?|wss?)://")
+
+# The routing badge's SEGMENT GRAMMAR (contract-v1.38; adversarial review round
+# 1 F1). RESTATED from `ideation_dashboard.doxbench_model` -- this validator is
+# standalone and imports nothing from that package (the same convention the
+# reserved-buffer-key note below records) -- and a companion test pins the two
+# spellings and the two normalizers equal, so the file gate and the type gate
+# cannot drift into two grammars.
+ROUTING_BADGE_SEPARATOR = " / "
+ROUTING_BADGE_TRAILING_PUNCTUATION = ".;,"
+
+
+def normalized_badge_segment(text: Any) -> str:
+    """One badge segment, in the form the covering rule compares: whitespace
+    collapsed, case folded, trailing `.;,` dropped. No normalization may
+    separate or merge two handling POSTURES — `on-tenant` and `non-tenant` must
+    stay different, which is the pair that broke the old substring predicate.
+
+    Note that `casefold` DOES rewrite interior characters for the
+    multi-character folds (German sharp s becomes `ss`, the `fi` ligature
+    expands), so "interior characters are never rewritten" would be false. The
+    property actually relied on is narrower and stronger: every fold casefold
+    performs maps case-or-orthography variants of one word onto one form, and
+    none of them adds, removes or negates a word. That is the test a future
+    normalization step must pass. Kept verbatim in step with
+    `ideation_dashboard.doxbench_model.normalized_badge_segment`, whose
+    docstring carries the same correction."""
+    collapsed = " ".join(str(text).split()).casefold()
+    return collapsed.rstrip(ROUTING_BADGE_TRAILING_PUNCTUATION).strip()
+
+
+def badge_segments(data_handling: Any) -> tuple[str, ...]:
+    """A rule's declared badge, split into normalized non-empty segments."""
+    return tuple(
+        segment
+        for segment in (
+            normalized_badge_segment(part)
+            for part in str(data_handling).split(ROUTING_BADGE_SEPARATOR)
+        )
+        if segment
+    )
 
 
 def _string_values(node):
@@ -829,6 +872,7 @@ def _scan_public_strings(f: Findings, label: str, node: Any) -> None:
 
 
 def check_model_catalog(f: Findings, label: str, doc: dict) -> None:
+    entries = [e for e in doc.get("models") or [] if isinstance(e, dict)]
     seen = set()
     for entry in doc.get("models") or []:
         mid = entry.get("model_id") if isinstance(entry, dict) else None
@@ -836,6 +880,154 @@ def check_model_catalog(f: Findings, label: str, doc: dict) -> None:
             f.error("catalog", f"{label}: duplicate model_id {mid!r}")
         seen.add(mid)
     _scan_public_strings(f, label, doc.get("models"))
+    check_routing_rules(f, label, entries)
+
+
+def check_routing_rules(f: Findings, label: str, entries: list[dict]) -> None:
+    """The contract-v1.38 routing declaration's rules that the released shape
+    cannot express (`$defs/model_entry` says so in its own comments, and
+    delegates them here). SEVEN of them, since adversarial review round 1.
+
+    The shape enforces what is expressible per entry: the three fields travel
+    together, `routes_to` is unique and non-empty, and a `routing_rule: false`
+    entry may carry neither routing field. Everything below needs either the
+    WHOLE catalog or a comparison the shape has no operator for — and the same
+    seven are enforced at catalog construction in
+    `scripts/ideation_dashboard/doxbench_model.py`
+    (`ModelCatalog._validate_routing_targets` plus the per-entry
+    `_validate_routing_declaration`, which is where rules 6 and 7 live on that
+    side because one entry is enough to see them). Neither place substitutes
+    for the other: an in-process catalog never becomes a file, and a file is
+    never constructed through that type. The claim that the two agree is
+    ASSERTED by a test over the packaged negatives, not merely stated here —
+    review round 1 found this docstring claiming parity that did not hold.
+
+    1. no dangling target;
+    2. no chained rule (`resolved_model_id` records the model that ANSWERED, so
+       it must name something that answers);
+    3. an available rule resolves to an available model;
+    4. THE BADGE COVERING — the ratified scenario's own THEN: a routing entry
+       MUST "carry the handling badge of every model it may route to", and the
+       entry's own `data_handling` is the one badge string the menu shows for
+       it, so each target's badge must be one SEGMENT of it (see
+       `normalized_badge_segment`; a target badge holding the separator is
+       ill-formed and refused);
+    5. a rule promises no more headroom than THE MODEL THAT ANSWERS — the
+       effective turn limit is computed from the SELECTED entry, which for a
+       routed turn is the RULE, so an AVAILABLE rule's declared limits must not
+       exceed those of `resolved_model_id`'s entry. RULED BY BRETT 2026-08-21
+       ("Swap to rule 5'"): this was first a MINIMUM over every member of
+       `routes_to`, which the adversarial review upheld only with reservation.
+       Under static resolution the promise that matters is the one the
+       ANSWERING model has to honour; the un-resolved destinations are not
+       load-bearing; and min-capping would bake in semantics that contradict
+       the sanctioned per-turn fit-aware router staged as
+       `ideation/staging/doxchat-auto-fit-routing/`. Unavailable rules are
+       exempt, as they are from rule 3;
+    6. `resolved_model_id` must be a MEMBER of `routes_to`;
+    7. a rule must not name ITSELF in `routes_to`.
+
+    RULES 6 AND 7 WERE ADDED AT ADVERSARIAL REVIEW ROUND 1 (F2), and the
+    docstring they replace claimed the opposite — that they were "the
+    schema's/type's per-entry business" and that "a structurally invalid
+    instance never reaches this function". That was FALSE in the direction that
+    matters: the schema cannot express either rule, so this file gate was
+    strictly WEAKER than the type gate, and the reviewer walked a catalog past
+    it whose rule was badged safe while resolving to a model badged "retained
+    and used for vendor model training". Rule 7 is checked EXPLICITLY rather
+    than left to fall out of rule 2, so a self-reference is reported as what it
+    is instead of as "routes to something that is itself a routing rule"."""
+    by_id = {str(entry.get("model_id")): entry for entry in entries}
+    for entry in entries:
+        if entry.get("routing_rule") is not True:
+            continue
+        rule_id = str(entry.get("model_id"))
+        declared_segments = badge_segments(entry.get("data_handling") or "")
+        targets = entry.get("routes_to")
+        target_ids = [str(t) for t in targets] if isinstance(targets, list) else []
+        for target_id in target_ids:
+            # ALSO A DIAGNOSTIC (F2b asked for it as one: "explicit check, not
+            # incidental via the chained-rule rule"). A rule that names itself
+            # names a routing rule, so the chained-rule arm below refuses the
+            # same catalog — reporting "routes to something that is itself a
+            # routing rule", which is true and useless. Guarded by a code test.
+            if target_id == rule_id:
+                f.error("routing-self-reference",
+                        f"{label}: routing rule {rule_id!r} names ITSELF in "
+                        f"routes_to — a rule resolves to a model that answers, "
+                        f"never back to the rule")
+                continue
+            target = by_id.get(target_id)
+            if target is None:
+                f.error("routing-target",
+                        f"{label}: routing rule {rule_id!r} routes to "
+                        f"{target_id!r}, which is not in this catalog")
+                continue
+            if target.get("routing_rule") is True:
+                f.error("routing-target",
+                        f"{label}: routing rule {rule_id!r} routes to "
+                        f"{target_id!r}, which is itself a routing rule — a "
+                        f"resolved model must be one that answers")
+                continue
+            target_badge = str(target.get("data_handling") or "")
+            # A DIAGNOSTIC, not an independent refusal — and revert-testing is
+            # what proved it. A badge holding the separator can never BE a
+            # segment, so the covering check below refuses the same catalog
+            # either way; it just refuses it with a message that sends the
+            # operator to add a badge which will still not match. This arm names
+            # the real cause. Its guard is therefore a test on the finding CODE,
+            # not on the mere fact of refusal.
+            #
+            # Against the NORMALIZED badge (review re-verify N3), and not merely
+            # for the message: a badge like `"read /\nwrite"` holds no raw
+            # " / " but collapses onto one, so it slipped this arm AND passed
+            # the covering check — a full ACCEPT of an ill-formed badge.
+            if ROUTING_BADGE_SEPARATOR in normalized_badge_segment(target_badge):
+                f.error("routing-badge",
+                        f"{label}: the data_handling badge of {target_id!r} "
+                        f"contains {ROUTING_BADGE_SEPARATOR!r}, the routing "
+                        f"badge's own segment separator, so it cannot be "
+                        f"carried as one")
+            elif normalized_badge_segment(target_badge) not in declared_segments:
+                f.error("routing-badge",
+                        f"{label}: routing rule {rule_id!r} does not carry the "
+                        f"data-handling badge of {target_id!r} as a SEGMENT of "
+                        f"its own badge — a routing entry reports the posture "
+                        f"of every model it may route to")
+        resolved_id = str(entry.get("resolved_model_id"))
+        resolved = by_id.get(resolved_id)
+        # RULE 5' (Brett's ruling 2026-08-21): the bound is the RESOLVED
+        # model's, not the minimum over `routes_to`, and it applies only while
+        # the rule is selectable — the same exemption rule 3 already carries.
+        if resolved is not None and entry.get("available") is True:
+            for field in ("input_limit_bytes", "output_limit_bytes"):
+                declared = entry.get(field)
+                answering = resolved.get(field)
+                if not (isinstance(declared, int) and isinstance(answering, int)):
+                    continue
+                if declared > answering:
+                    f.error("routing-limit",
+                            f"{label}: routing rule {rule_id!r} declares "
+                            f"{field} {declared}, above the {answering} of "
+                            f"{resolved_id!r}, the model it resolves to")
+        if resolved_id not in target_ids:
+            # F2: the SHAPE cannot express this, so without it a rule could be
+            # badged safe and resolve to a model whose posture it never states —
+            # every covering check above runs over `routes_to`, which such a
+            # resolved id is not in.
+            f.error("routing-resolution",
+                    f"{label}: routing rule {rule_id!r} resolves to "
+                    f"{resolved_id!r}, which it does not declare it may route "
+                    f"to (routes_to {sorted(target_ids)}) — so nothing checked "
+                    f"that its badge is carried")
+        if resolved is None:
+            f.error("routing-target",
+                    f"{label}: routing rule {rule_id!r} resolves to "
+                    f"{resolved_id!r}, which is not in this catalog")
+        elif entry.get("available") is True and resolved.get("available") is not True:
+            f.error("routing-availability",
+                    f"{label}: routing rule {rule_id!r} is available but "
+                    f"resolves to {resolved_id!r}, which is not")
 
 
 def _confined(f: Findings, label: str, where: str, path_value) -> None:

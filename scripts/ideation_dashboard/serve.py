@@ -583,14 +583,19 @@ def doxbench_selected_model(model_entry) -> dict:
     catalog entry the turn resolved — in ONE place (adversarial review of the §13
     slice, F6).
 
-    Today no catalog entry declares itself a routing rule: that declaration is
-    task 11.7's, and it needs a MODEL-CATALOG release to carry it, which is
-    recorded against 11.7 rather than assumed here. So this reads the entry
-    duck-typed and defaults honestly — `routing_rule` false, the answering model
-    the one the human chose — and a catalog entry that grows the fields answers
-    with them without this route changing at all. Written as one function
-    because the alternative is three literals at the call site, which is three
-    places 11.7 would have to find."""
+    SINCE contract-v1.38 (task 11.7) a conformant catalog entry CAN declare
+    itself a routing rule, and this function needed no change to report one:
+    it reads the entry duck-typed and defaults honestly, so an entry declaring
+    nothing still answers `routing_rule` false with the chosen model as the
+    answering model. Being one function rather than three literals at the call
+    site is what made that true — and it is also why the release's reviewer
+    could find, in one place, that the SIDECAR was being handed the requested id
+    while the wire record carried the resolved one (F3).
+
+    Its three CONSUMERS are now the v2 wire record, the thread sidecar's turn
+    header, and nothing else. The deprecated v1 success envelope does NOT
+    consult it: that envelope has room for exactly one model id and cannot state
+    both facts, which is recorded as a v1 limitation rather than papered over."""
     requested = str(model_entry.model_id)
     routing_rule = bool(getattr(model_entry, "routing_rule", False))
     resolved = getattr(model_entry, "resolved_model_id", None)
@@ -2837,11 +2842,21 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 bound_document = (
                     turn_documents[bound_buffer_key].path
                     if bound_buffer_key in document_keys else None)
+                # DERIVED ONCE, AND BEFORE THE SIDECAR — corrected 2026-08-21
+                # (adversarial review of the §11.7 release, F3). This used to be
+                # computed inside the v2 arm below, so the sidecar was handed the
+                # REQUESTED id while the wire record carried the RESOLVED one:
+                # for a routing rule the durable transcript on disk named `auto`
+                # and no reader could learn which model answered. The ratified
+                # THEN's own purpose clause is "so a transcript names the model
+                # that actually answered", and the thread file IS a transcript.
+                selected_model = doxbench_selected_model(model_entry)
                 if bound_document is not None:
                     self._mirror_turn_into_sidecar(
                         key, document=bound_document,
                         turn_id="assistant-" + digest[:56],
-                        model_id=model_id, bound_buffer_key=bound_buffer_key,
+                        model_id=selected_model["resolved_model_id"],
+                        bound_buffer_key=bound_buffer_key,
                         human=message, assistant=outcome.assistant_prose,
                         mirror=getattr(port, "mirror", lambda: None)(),
                         dereference=getattr(port, "dereference", None))
@@ -2853,10 +2868,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     # selected-model metadata beside the model that answered.
                     #
                     # The selected-model metadata is DERIVED from the catalog
-                    # entry, in one place (`doxbench_selected_model`), so task
-                    # 11.7's routing-rule entry changes that function rather than
-                    # three literals here.
-                    selected_model = doxbench_selected_model(model_entry)
+                    # entry, in one place (`doxbench_selected_model`), so
+                    # contract-v1.38's routing-rule entry changed that function
+                    # rather than three literals here. `selected_model` is
+                    # computed ABOVE, before the sidecar, because the sidecar
+                    # needs the resolved id too (F3).
                     success_body = doxbench_turn_v2_success_body(
                         client_turn_id=client_turn_id,
                         assistant_turn_id="assistant-" + digest[:56],
@@ -2877,6 +2893,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     # BUFFER KEY, so the one document's key is read rather than
                     # assumed; that lane still carries exactly one document,
                     # which the closed v1 request schema guarantees.
+                    #
+                    # A RECORDED v1 LIMITATION (contract-v1.38, review F3): this
+                    # envelope has ONE `model_id` field and no `selected_model`,
+                    # so on a routed turn it cannot state both the requested and
+                    # the answering model. It carries the REQUESTED id, which is
+                    # what every v1 consumer already reads and revalidates. The
+                    # fix is the v2 envelope, which exists; widening a deprecated
+                    # closed shape whose whole promise is byte-identical
+                    # stability is the one thing contract-v1.34's deprecation
+                    # forbids. The SIDECAR on this lane does name the answering
+                    # model — it is written above, before this branch, and is not
+                    # part of the v1 wire.
                     document_key = document_keys[0]
                     success_body = doxbench_turn_success_body(
                         client_turn_id=client_turn_id,

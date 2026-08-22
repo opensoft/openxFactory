@@ -593,10 +593,12 @@ def test_a_governance_label_sent_as_a_provider_is_refused_by_the_harness(tmp_pat
 
 
 def test_a_routing_rule_entry_would_set_the_RESOLVED_model(tmp_path):
-    """Task 11.7's RUNTIME half. No conformant catalog entry can declare a
-    routing rule today — the released catalog schema is a CLOSED seven-field
-    entry — so this drives a duck-typed entry that CAN, proving the adapter
-    already honours whatever a lawful catalog grows into without a change."""
+    """Task 11.7's RUNTIME half, written before the release existed and KEPT
+    AS IT WAS. It drives a DUCK-TYPED entry, and that is now its whole value:
+    the adapter reads the resolved id off whatever the catalog hands it, so the
+    contract-v1.38 shape is honoured because it satisfies this reading, not
+    because the adapter learned about it. The real-type sibling below is the
+    one that proves the release."""
 
     class _RoutingEntry:
         model_id = "auto"
@@ -629,13 +631,70 @@ def test_a_routing_rule_entry_would_set_the_RESOLVED_model(tmp_path):
     assert _turn_frames(seen)[0]["modelId"] == "opus"
 
 
-def test_every_entry_a_conformant_catalog_can_hold_is_truthfully_not_a_routing_rule():
-    """The other half of 11.7's honesty clause: nothing in the shipped catalog
-    type can claim to be a routing rule, so the record's `routing_rule` is
-    truthfully false for every entry that can exist today."""
-    entry = _entry()
-    assert not hasattr(entry, "routing_rule")
-    assert not hasattr(entry, "resolved_model_id")
+def test_a_CONFORMANT_routing_entry_sets_the_resolved_model_with_no_adapter_change(
+        tmp_path):
+    """THE RELEASE HALF (contract-v1.38). The same proof as the duck-typed
+    sibling above, driven through a REAL `ModelCatalogEntry` in a REAL
+    `ModelCatalog` — which is exactly what task 11.7's release made
+    constructible — and `_apply_model` is byte-identical to what §11 shipped.
+
+    The catalog is built by the ordinary constructor, so every cross-entry
+    routing rule (no dangling target, no chained rule, the badge covering, the
+    availability and headroom rules) had to hold before this test could even
+    reach the bridge."""
+    routed = _entry("opus")
+    rule = ModelCatalogEntry(
+        model_id="auto", label="Automatic (routes by role)",
+        provider_class="routing-rule", available=True,
+        input_limit_bytes=200_000, output_limit_bytes=64_000,
+        data_handling="Routes by role. / stays on this tenant",
+        routing_rule=True, routes_to=("opus",), resolved_model_id="opus")
+    bridge = _bridge(tmp_path, catalog=_catalog(rule, routed))
+    seen = []
+    original = br.HarnessChild.request
+
+    def _spy(self, frame, *, deadline, clock):
+        seen.append(dict(frame))
+        return original(self, frame, deadline=deadline, clock=clock)
+
+    br.HarnessChild.request = _spy
+    try:
+        _dispatch(bridge, _Envelope(model_id="auto"))
+    finally:
+        br.HarnessChild.request = original
+        bridge.stop()
+    assert _turn_frames(seen)[0]["modelId"] == "opus"
+
+
+def test_the_catalog_type_now_CARRIES_the_routing_declaration_and_defaults_it_false():
+    """THE FLIPPED PIN (contract-v1.38, add-doxbench-editing-phase-b §11.7).
+
+    Until this release the assertion here was the INVERSE — that
+    `ModelCatalogEntry` had NEITHER attribute — so that the turn record's
+    `routing_rule: false` was a fact about the TYPE rather than a default
+    nobody checked. The release makes a routing rule declarable, so the pin
+    inverts: the type carries both names, and an entry that declares NEITHER
+    still reports the same truthful `false`.
+
+    The antecedent is asserted first: without it, "a plain entry is not a
+    routing rule" would pass just as happily against a type that had lost the
+    field again."""
+    # The antecedent — the fields EXIST, so the negative below is about a
+    # declared default rather than about an absent attribute.
+    assert hasattr(_entry(), "routing_rule")
+    assert hasattr(_entry(), "resolved_model_id")
+    assert "routing_rule" in ModelCatalogEntry.__slots__
+    assert "resolved_model_id" in ModelCatalogEntry.__slots__
+
+    plain = _entry()
+    assert plain.routing_rule is False
+    assert plain.resolved_model_id is None
+    assert plain.routes_to == ()
+    # And the wire projection of a plain entry is unchanged by the release:
+    # the three keys are absent, not defaulted onto every consumer.
+    assert "routing_rule" not in plain.as_public_dict()
+    assert "resolved_model_id" not in plain.as_public_dict()
+    assert "routes_to" not in plain.as_public_dict()
 
 
 # ===========================================================================

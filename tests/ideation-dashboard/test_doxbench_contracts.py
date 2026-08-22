@@ -44,17 +44,24 @@ from ideation_dashboard import doxbench_contracts as contracts
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 
-# RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13). The chat-turn
-# digest moves because the release widens that file itself; the catalog's does
-# not. The REF carried an unresolved-until-published sentinel across the
-# realization branch — the policy publishes the annotated tag against the commit
-# that lands, so until then there was no release commit to name — and now names
-# that commit: `contract-v1.34^{}` == 5daa173, tag object 439d76b.
-RELEASED_REF = "5daa1731f24010356b044971328f8a7aa321994c"
-RELEASED_TAG = "contract-v1.34"
+# RE-PINNED at contract-v1.38 (add-doxbench-editing-phase-b §11.7). The MIRROR
+# IMAGE of the v1.34 repin: there the chat-turn digest moved and the catalog's
+# did not, because that release widened the chat-turn file; here the CATALOG
+# digest moves and the chat-turn's does not, because this release grows the
+# catalog entry with the routing-rule declaration.
+#
+# The REF is the unresolved-until-published sentinel again, on v1.34's own
+# precedent — the policy publishes the annotated tag against the commit that
+# LANDS, so across a realization branch there is no release commit to name and
+# the sentinel is spelled as a value no `stack.yaml` can declare, so a consumer
+# comparing against it refuses rather than matching by accident. A follow-up
+# commit resolves it, as 7c544c84 did for v1.34 (`contract-v1.34^{}` == 5daa173,
+# tag object 439d76b).
+RELEASED_REF = "unpublished:contract-v1.38"
+RELEASED_TAG = "contract-v1.38"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
-        "0e6e7e946268b220918a426c6df399a9e01d064ee5dcbe22f8381dbf39aef1e0",
+        "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
         "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
 }
@@ -776,10 +783,12 @@ def test_packaged_positives_validate_structurally(released_root):
     # 6 -> 7 at contract-v1.28: the release ADDS
     # workbench-chat-turn-outline-only.example.yaml, the instance proving a
     # null active_document_path is legal (G-1). 7 -> 9 at contract-v1.34, which
-    # adds the widened family's loaded-set request and its record. The exact
-    # count IS the pin, so it advances with the release rather than being
-    # loosened to an inequality.
-    assert len(positives) == 9, [p.name for p in positives]
+    # adds the widened family's loaded-set request and its record. 9 -> 10 at
+    # contract-v1.38, which adds the `auto` ROUTING RULE instance — and 10 -> 11
+    # within that release, for the rule-5' instance Brett's ruling made lawful
+    # (a rule wider than a NON-resolved member). The exact count IS the pin, so
+    # it advances with the release rather than being loosened to an inequality.
+    assert len(positives) == 11, [p.name for p in positives]
 
     for path in positives:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -791,6 +800,155 @@ def test_delegated_semantics_accept_the_packaged_positives(released_root):
     returncode, output = contracts.delegated_semantic_validation(positives,
                                                                  released_root)
     assert returncode == 0, output
+
+
+# ---------------------------------------------------------------------------
+# THE ROUTING-RULE GROWTH IS ADDITIVE (contract-v1.38,
+# add-doxbench-editing-phase-b task 11.7)
+#
+# Asserted against the REAL released bytes, through the same loader a serve
+# uses, because the class claim ("nothing previously valid becomes invalid") is
+# a claim about those bytes and not about a fixture. Each case below is one
+# clause of the released `$defs/model_entry`: the two `if`s both require
+# `routing_rule` to be PRESENT, and `dependentRequired` binds the three fields
+# to each other.
+# ---------------------------------------------------------------------------
+
+_PLAIN_ENTRY = {
+    "model_id": "plain-1",
+    "label": "Approved authoring model",
+    "provider_class": "on-tenant",
+    "available": True,
+    "input_limit_bytes": 2048,
+    "output_limit_bytes": 8192,
+    "data_handling": "Processed in the approved tenant boundary; no retention.",
+}
+
+
+def _catalog_instance(*models):
+    return {"schema_version": 1, "kind": "workbench-model-catalog",
+            "models": list(models)}
+
+
+def _entry_with(**overrides):
+    return {**_PLAIN_ENTRY, **overrides}
+
+
+def test_the_types_target_cap_is_pinned_to_the_RELEASED_schemas_maxItems(
+        released_root):
+    """`MAX_ROUTING_TARGETS` is a literal in a module that imports only
+    `dataclasses` and `typing` and so cannot read the schema. This is what makes
+    it authoritative anyway: the bound is read out of the RELEASED BYTES here
+    and pinned equal, so the two cannot drift into two caps (the hazard §12.2
+    recorded for its own duplicated list, and the reason Codex's P2 asked for
+    the bound by reference rather than a second literal)."""
+    from ideation_dashboard.doxbench_model import (
+        MAX_ROUTING_TARGETS, MODEL_REFERENCE_MAX_LENGTH, MODEL_REFERENCE_PATTERN)
+    entry = _model_entry_subschema(released_root)
+    routes_to = entry["properties"]["routes_to"]
+    assert routes_to["maxItems"] == MAX_ROUTING_TARGETS
+    # …and every other bound the type enforces on the same field, so a schema
+    # change to any of them fails here rather than only in production.
+    assert routes_to["minItems"] == 1
+    assert routes_to["uniqueItems"] is True
+    # THE ITEM BOUNDS (review N7). `routes_to`'s items and `resolved_model_id`
+    # carry the same maxLength/pattern, and the type now enforces both; the
+    # constants are pinned to the released bytes here rather than eyeballed.
+    resolved = entry["properties"]["resolved_model_id"]
+    for shape in (routes_to["items"], resolved):
+        assert shape["maxLength"] == MODEL_REFERENCE_MAX_LENGTH
+        assert shape["pattern"] == MODEL_REFERENCE_PATTERN
+    # `model_id`'s bounds are IDENTICAL and the type does NOT enforce them —
+    # a pre-existing gap this release deliberately did not close. Pinned so the
+    # sameness is a fact on the record rather than an assumption.
+    model_id = entry["properties"]["model_id"]
+    assert model_id["maxLength"] == MODEL_REFERENCE_MAX_LENGTH
+    assert model_id["pattern"] == MODEL_REFERENCE_PATTERN
+
+
+def _model_entry_subschema(released_root):
+    schema = yaml.safe_load(
+        (released_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE)
+        .read_text(encoding="utf-8"))
+    return schema["$defs"]["model_entry"]
+
+
+def _entry_with_targets(n):
+    """One ENTRY declaring `n` routable targets. Nothing else — the catalog-level
+    caps are not this shape's business, which is the point."""
+    return {**_PLAIN_ENTRY, "model_id": "auto", "routing_rule": True,
+            "routes_to": [f"t{i}" for i in range(n)], "resolved_model_id": "t0"}
+
+
+@pytest.mark.parametrize("count, valid", [(1, True), (63, True), (64, True),
+                                          (65, False), (200, False)])
+def test_the_routes_to_cap_boundary_holds_at_the_ENTRY_SUBSCHEMA(
+        released_root, count, valid):
+    """`routes_to.maxItems: 64` is a bound on ONE ENTRY, and this is the level at
+    which the 64/65 boundary is actually true (review N6).
+
+    It cannot be shown on a whole catalog: `models.maxItems` is also 64 and the
+    rule occupies a slot, so a conformant catalog tops out at 63 targets. Testing
+    the boundary against a full envelope would either fail for the wrong reason
+    or quietly assert something weaker. So the entry subschema is validated
+    directly — no `$ref`s inside it, so no registry is needed."""
+    from jsonschema import Draft202012Validator
+    validator = Draft202012Validator(_model_entry_subschema(released_root),
+                                     format_checker=contracts.FORMAT_CHECKER)
+    errors = list(validator.iter_errors(_entry_with_targets(count)))
+    assert (errors == []) is valid, (count, [e.message for e in errors][:1])
+
+
+def test_the_pre_release_entry_shape_is_still_valid(released_root):
+    """THE ADDITIVE TEST ITSELF: the entry every existing producer emits, with
+    none of the three new fields, validates against the grown schema."""
+    assert contracts.validate_instance(
+        _catalog_instance(_PLAIN_ENTRY), released_root) == []
+
+
+def test_a_routing_rule_entry_is_valid_against_the_released_bytes(released_root):
+    rule = _entry_with(model_id="auto", routing_rule=True,
+                       routes_to=["plain-1"], resolved_model_id="plain-1")
+    assert contracts.validate_instance(
+        _catalog_instance(rule, _PLAIN_ENTRY), released_root) == []
+
+
+def test_the_released_schema_tolerates_a_producer_that_states_false_explicitly(
+        released_root):
+    """Additive means the wire accepts BOTH producers. This repository's own
+    projection OMITS the three fields on a plain entry, but a consumer of this
+    contract may not assume omission — an explicit `routing_rule: false` with no
+    siblings is valid, and a reader that choked on it would be wrong."""
+    assert contracts.validate_instance(
+        _catalog_instance(_entry_with(routing_rule=False)), released_root) == []
+
+
+@pytest.mark.parametrize("models, why", [
+    ([_entry_with(model_id="auto", routing_rule=True)],
+     "a rule with neither sibling"),
+    ([_entry_with(model_id="auto", routing_rule=True, routes_to=["plain-1"])],
+     "a rule with no resolved model"),
+    ([_entry_with(resolved_model_id="plain-1")],
+     "a plain entry that resolves elsewhere"),
+    ([_entry_with(routes_to=["plain-1"])],
+     "a plain entry with a routable set"),
+    ([_entry_with(model_id="auto", routing_rule=False, routes_to=["plain-1"],
+                  resolved_model_id="plain-1")],
+     "an explicit non-rule carrying routing fields"),
+    ([_entry_with(model_id="auto", routing_rule=True,
+                  routes_to=["plain-1", "plain-1"],
+                  resolved_model_id="plain-1")],
+     "a repeated routable target"),
+    ([_entry_with(model_id="auto", routing_rule=True, routes_to=[],
+                  resolved_model_id="plain-1")],
+     "an empty routable set"),
+    ([_entry_with(provider_id="local-proxy")],
+     "a harness provider id smuggled onto the entry (task 11.6's ruling)"),
+])
+def test_the_released_schema_refuses_a_malformed_routing_declaration(
+        released_root, models, why):
+    assert contracts.validate_instance(
+        _catalog_instance(*models), released_root) != [], why
 
 
 # ---------------------------------------------------------------------------
@@ -961,3 +1119,143 @@ def test_the_deprecation_records_its_removal_target(released_root):
         assert entry["superseded_by"] in contracts.CHAT_TURN_DEFS
         assert entry["superseded_by"] not in contracts.DEPRECATED_CHAT_TURN_KINDS
         assert kind in contracts.CHAT_TURN_DEFS
+
+
+# ---------------------------------------------------------------------------
+# THE FILE GATE AND THE TYPE GATE AGREE (contract-v1.38; adversarial review
+# round 1 F2)
+#
+# The claim "the same rules are enforced at catalog construction" was in a
+# docstring and was FALSE: `resolved_model_id ∈ routes_to` and the
+# self-reference refusal existed only on the type, so the file gate was strictly
+# weaker and the reviewer walked a catalog past it. It is now asserted over the
+# packaged corpus, in both directions, so a rule added to one gate and forgotten
+# in the other fails here instead of passing twice.
+# ---------------------------------------------------------------------------
+
+_ROUTING_NEGATIVE_GLOB = "workbench-model-catalog-routing-*.negative.yaml"
+
+
+def _type_gate_refuses(doc) -> bool:
+    """Construct the catalog through the real type. True when it refuses."""
+    from ideation_dashboard.doxbench_model import (
+        ModelCatalog, ModelCatalogEntry, ModelCatalogError,
+    )
+    try:
+        ModelCatalog.from_entries(
+            [ModelCatalogEntry(**entry) for entry in doc["models"]])
+    except (ModelCatalogError, TypeError):
+        return True
+    return False
+
+
+def _file_gate_errors(root: Path, path: Path) -> list:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "vidc_gate_parity", root / "scripts"
+        / "validate-ideation-dashboard-contracts.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    registry, docs = module.build_registry()
+    findings = module.Findings()
+    module.validate_instance(findings, path.name, module.load_yaml(path),
+                             registry, docs, set(), model_ctx={})
+    return findings.errors
+
+
+def test_every_packaged_routing_negative_is_refused_by_BOTH_gates(released_root):
+    negatives = sorted((released_root / "examples" / "ideation-dashboard"
+                        / "negative").glob(_ROUTING_NEGATIVE_GLOB))
+    # The exact count IS the pin, so it advances with the corpus rather than
+    # being loosened to an inequality. TEN at contract-v1.38: the five rules'
+    # own negatives (badge-gap, dangling-target, chained, unavailable-resolution,
+    # wider-than-its-resolution), the FOUR the adversarial review contributed
+    # (inverted-substring, incidental-word, resolved-outside-routes-to,
+    # self-reference), and the separator-collision case the segment grammar
+    # brought with it.
+    assert len(negatives) == 10, [p.name for p in negatives]
+    for path in negatives:
+        doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+        assert _file_gate_errors(released_root, path) != [], (
+            f"{path.name}: the FILE gate accepted it")
+        assert _type_gate_refuses(doc), (
+            f"{path.name}: the TYPE gate accepted it")
+
+
+# Each packaged routing negative fails for ITS OWN NAMED reason in the file
+# gate. This is the guard for the two arms revert-testing proved are DIAGNOSTIC
+# rather than independent — the separator collision (the covering check would
+# refuse it anyway, with a message that misdirects) and the self-reference (the
+# chained-rule arm would refuse it anyway, calling it something else). Asserting
+# the CODE is what keeps those arms honest; asserting mere refusal would not.
+_EXPECTED_FINDING_CODE = {
+    "workbench-model-catalog-routing-badge-gap": "routing-badge",
+    "workbench-model-catalog-routing-badge-holds-the-separator": "routing-badge",
+    "workbench-model-catalog-routing-badge-incidental-word": "routing-badge",
+    "workbench-model-catalog-routing-badge-inverted-substring": "routing-badge",
+    "workbench-model-catalog-routing-dangling-target": "routing-target",
+    "workbench-model-catalog-routing-resolved-outside-routes-to": "routing-resolution",
+    "workbench-model-catalog-routing-rule-chained": "routing-target",
+    "workbench-model-catalog-routing-rule-unavailable-resolution": "routing-availability",
+    "workbench-model-catalog-routing-rule-wider-than-its-resolution": "routing-limit",
+    "workbench-model-catalog-routing-self-reference": "routing-self-reference",
+}
+
+
+def test_each_routing_negative_is_refused_for_its_OWN_named_reason(released_root):
+    negatives = sorted((released_root / "examples" / "ideation-dashboard"
+                        / "negative").glob(_ROUTING_NEGATIVE_GLOB))
+    assert {p.name.replace(".negative.yaml", "") for p in negatives} == set(
+        _EXPECTED_FINDING_CODE)
+    for path in negatives:
+        errors = _file_gate_errors(released_root, path)
+        codes = {e.split("[", 1)[1].split("]", 1)[0] for e in errors}
+        expected = _EXPECTED_FINDING_CODE[path.name.replace(".negative.yaml", "")]
+        assert expected in codes, (path.name, sorted(codes))
+
+
+def test_the_separator_collision_and_self_reference_name_their_real_cause(
+        released_root):
+    """The two diagnostic arms, pinned on their MESSAGES. Without these the
+    arms could be deleted and every other test would stay green, because the
+    covering rule and the chained-rule rule respectively refuse the same
+    catalogs under different names."""
+    base = released_root / "examples" / "ideation-dashboard" / "negative"
+    separator = _file_gate_errors(
+        released_root,
+        base / "workbench-model-catalog-routing-badge-holds-the-separator.negative.yaml")
+    assert any("segment separator" in e for e in separator), separator
+    self_ref = _file_gate_errors(
+        released_root,
+        base / "workbench-model-catalog-routing-self-reference.negative.yaml")
+    assert any("names ITSELF in routes_to" in e for e in self_ref), self_ref
+
+
+# BOTH packaged routing positives, not just the first (review re-verify N4).
+# The rule-5' instance was bound to the file gate by the example self-test and
+# to the schema by the positives count, but nothing held it against the TYPE
+# gate — and rule 5' is enforced in both places, so an accept that held on one
+# side only would have gone unnoticed.
+_ROUTING_POSITIVES = (
+    "workbench-model-catalog-routing-rule.example.yaml",
+    "workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member.example.yaml",
+)
+
+
+@pytest.mark.parametrize("filename", _ROUTING_POSITIVES)
+def test_the_packaged_routing_positives_are_accepted_by_BOTH_gates(
+        released_root, filename):
+    path = released_root / "examples" / "ideation-dashboard" / filename
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert contracts.validate_instance(doc, released_root) == []
+    assert _file_gate_errors(released_root, path) == []
+    assert not _type_gate_refuses(doc)
+
+
+def test_every_packaged_routing_positive_is_covered_by_that_pin(released_root):
+    """The table above is a list, so a positive added later could miss it. The
+    corpus is the authority: every packaged `workbench-model-catalog-routing-*`
+    positive must appear in `_ROUTING_POSITIVES`."""
+    on_disk = {p.name for p in (released_root / "examples" / "ideation-dashboard")
+               .glob("workbench-model-catalog-routing-*.example.yaml")}
+    assert on_disk == set(_ROUTING_POSITIVES)

@@ -1,0 +1,52 @@
+# VALID (contract-v1.38, rule 5' — Brett's ruling 2026-08-21): the rule declares
+# an input budget of 800000, which EXCEEDS that of `fit-narrow-spare` (2048), a
+# model it may route to. That is lawful, and it is the POINT of the ruling: the
+# bound is the RESOLVED model's alone.
+#
+# `fit-wide-resolved` is what answers, and it accepts 800000, so the menu's
+# declared limits are honoured by the model that actually serves the turn. The
+# narrow member takes no turn while the rule resolves elsewhere, so capping
+# against it would constrain a promise nobody can call in — and would bake in
+# semantics that contradict the sanctioned per-turn fit-aware router staged as
+# `ideation/staging/doxchat-auto-fit-routing/`, under which a rule's ceiling is
+# the widest thing it can serve rather than the narrowest.
+#
+# The first shipped form of this rule (a MINIMUM over `routes_to`) would have
+# REFUSED this catalog. Its mirror-image negative is
+# `negative/workbench-model-catalog-routing-rule-wider-than-its-resolution`.
+{
+  "schema_version": 1,
+  "kind": "workbench-model-catalog",
+  "models": [
+    {
+      "model_id": "auto-fit",
+      "label": "Automatic (routes by role)",
+      "provider_class": "routing-rule",
+      "available": true,
+      "input_limit_bytes": 800000,
+      "output_limit_bytes": 900000,
+      "data_handling": "Routes by role. / Processed in the approved tenant boundary; no retention. / Zero retention; content leaves the tenant boundary for inference only.",
+      "routing_rule": true,
+      "routes_to": ["fit-wide-resolved", "fit-narrow-spare"],
+      "resolved_model_id": "fit-wide-resolved"
+    },
+    {
+      "model_id": "fit-wide-resolved",
+      "label": "Approved authoring model (the resolution)",
+      "provider_class": "on-tenant",
+      "available": true,
+      "input_limit_bytes": 800000,
+      "output_limit_bytes": 900000,
+      "data_handling": "Processed in the approved tenant boundary; no retention."
+    },
+    {
+      "model_id": "fit-narrow-spare",
+      "label": "Hosted zero-retention model (routable, narrower, not resolved)",
+      "provider_class": "hosted-zero-retention",
+      "available": true,
+      "input_limit_bytes": 2048,
+      "output_limit_bytes": 8192,
+      "data_handling": "Zero retention; content leaves the tenant boundary for inference only."
+    }
+  ]
+}

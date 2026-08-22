@@ -17,6 +17,16 @@ description: >-
   authority (the id is revalidated on every turn). Instance kinds use the
   retained `workbench-*` identifier family (compatibility-migration checklist
   NOTES); the file name carries the manifest's `xfactory-` artifact prefix.
+  Since contract-v1.38 an entry MAY additionally declare itself a ROUTING
+  RULE (`routing_rule`/`routes_to`/`resolved_model_id`, all optional and all
+  three travelling together) — see `$defs/model_entry`. That growth changes
+  nothing about the credential posture: a routing entry names only opaque
+  catalog ids, and an API-backed entry's credential is provisioned into the
+  `doxbench-bridge` harness profile by the ratified broker lane
+  (`add-model-provider-broker`). The adapter neither holds nor fetches a raw
+  secret — its child environment is an allowlist no credential-shaped
+  variable can pass — and a self-hosted, keyless provider needs none. No
+  field here has ever carried a credential and none may be added that could.
 type: object
 additionalProperties: false
 required: [schema_version, kind, models]
@@ -29,7 +39,11 @@ properties:
     items: { $ref: "#/$defs/model_entry" }
 $defs:
   model_entry:
-    # The seven-field public allowlist, exactly (data-model.md Section 6).
+    # The public allowlist, exactly: the SEVEN REQUIRED base fields
+    # (data-model.md Section 6) plus, since contract-v1.38, the THREE OPTIONAL
+    # routing-declaration fields below. An entry that declares none of the
+    # three is byte-for-byte the entry this schema has always accepted, which
+    # is what makes the growth additive.
     type: object
     additionalProperties: false
     required: [model_id, label, provider_class, available,
@@ -45,6 +59,111 @@ $defs:
       available: { type: boolean }
       # A catalog entry may only NARROW the server ceilings (plan.md
       # Constraints): request bound 1,048,576 bytes; output bound 900,000.
+      #
+      # For an AVAILABLE ROUTING entry these must additionally not exceed the
+      # limits of `resolved_model_id`'s entry — the model that ANSWERS — because
+      # the effective turn limit is computed from the SELECTED entry, which for
+      # a routed turn is the rule. The bound is the RESOLVED model's alone and
+      # deliberately NOT the minimum over `routes_to`: an un-resolved
+      # destination takes no turn while the rule resolves elsewhere. Delegated
+      # to the validator, which the shape cannot express.
       input_limit_bytes: { type: integer, minimum: 1, maximum: 1048576 }
       output_limit_bytes: { type: integer, minimum: 1, maximum: 900000 }
+      # For a ROUTING entry this text is a SEPARATOR-JOINED LIST of badge
+      # segments, and it MUST carry the badge of every model the rule may route
+      # to as one of them. THE SEPARATOR IS SPACE SLASH SPACE (" / ").
+      #
+      # The covering rule is SEGMENT MEMBERSHIP, not substring containment: for
+      # each id in `routes_to`, that entry's own `data_handling` must equal one
+      # segment of this one, compared with whitespace collapsed, case folded and
+      # trailing `.;,` dropped — and with interior characters never rewritten,
+      # so `on-tenant` and `non-tenant` stay different. Extra segments are
+      # permitted: a rule may carry its own lead-in beside the badges it must
+      # carry. A ROUTED entry whose own badge contains the separator is refused,
+      # because such a badge could never be one segment. The delegated validator
+      # (`scripts/validate-ideation-dashboard-contracts.py`) enforces all of
+      # this; the shape can express none of it.
+      #
+      # The 500-byte ceiling is unchanged and therefore bounds how many distinct
+      # badges one rule can carry — a rule whose list does not fit is a rule
+      # that must be split, or whose members' badges must be written more
+      # tightly.
       data_handling: { type: string, minLength: 1, maxLength: 500 }
+      # --- the routing-rule declaration (contract-v1.38, additive) ---
+      #
+      # OPTIONAL, and all three travel together (see dependentRequired and the
+      # two conditionals below). Present-and-true means this entry is a ROUTING
+      # RULE this capability owns — an `auto` entry that maps a turn to a model
+      # by role — rather than a directly-answering provider model. ABSENT means
+      # exactly what absence has always meant: a plain model, with no new
+      # obligation of any kind.
+      #
+      # They carry NO provider surface. `routes_to` and `resolved_model_id` are
+      # opaque catalog handles drawn from this same catalog's `model_id` values,
+      # so a routing declaration can name nothing a plain entry could not
+      # already name. An API-backed entry's credential comes from the ratified
+      # broker lane (`add-model-provider-broker`), which provisions the
+      # `doxbench-bridge` profile; the adapter holds and fetches no secret, and
+      # a keyless self-hosted provider needs none.
+      routing_rule:
+        type: boolean
+        description: >-
+          True IFF this entry is a routing rule rather than a directly
+          answering model. A routing entry must declare `routes_to` and
+          `resolved_model_id`; a plain entry must declare neither.
+      routes_to:
+        type: array
+        minItems: 1
+        maxItems: 64
+        uniqueItems: true
+        description: >-
+          Every model this rule MAY route to, as `model_id` references into
+          this same catalog. The delegated validator resolves each one and
+          refuses a dangling reference, a self-reference, a target that is
+          itself a routing rule, a target whose own `data_handling` this
+          entry's `data_handling` does not carry as a " / "-separated SEGMENT,
+          and a target whose badge holds that separator itself.
+        items:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+      resolved_model_id:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        description: >-
+          The model this rule CURRENTLY resolves to — the one that ANSWERS the
+          turn, is recorded as the turn's `model_id` beside the requested id in
+          `selected_model`, and is the model the turn's thread sidecar names.
+          Must be a member of `routes_to` — so the badge covering above has
+          necessarily checked it — must be available whenever the routing entry
+          itself is available, and must accept at least the limits the routing
+          entry declares. All three are delegated-validator rules: the shape has
+          no operator for any of them.
+    dependentRequired:
+      # Neither routing field may ride on an entry that does not declare what
+      # it is, and neither is meaningful without the other.
+      routes_to: [routing_rule, resolved_model_id]
+      resolved_model_id: [routing_rule, routes_to]
+    allOf:
+      # BOTH conditionals constrain ONLY the three fields this release adds:
+      # each `if` requires `routing_rule` to be PRESENT, so an entry that
+      # declares no routing rule matches neither and is judged exactly as it
+      # was before contract-v1.38.
+      - if:
+          required: [routing_rule]
+          properties:
+            routing_rule: { const: true }
+        then:
+          required: [routes_to, resolved_model_id]
+      - if:
+          required: [routing_rule]
+          properties:
+            routing_rule: { const: false }
+        then:
+          not:
+            anyOf:
+              - required: [routes_to]
+              - required: [resolved_model_id]

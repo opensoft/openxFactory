@@ -9,6 +9,285 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.38 — 2026-08-21 (additive; the doxBench model-catalog routing rule)
+
+Realizes tasks.md §11.7 of `add-doxbench-editing-phase-b` — the ratified
+scenario *"The menu offers a routing rule"*. One CONTRACT changes:
+`schemas/xfactory-workbench-model-catalog.schema.yaml`. That schema is
+content-addressed by its per-file `sha256` in [`manifest.yaml`](manifest.yaml);
+that row's digest is RECOMPUTED in this cut, and its `consumption_rule` states
+what a consumer must now read and what it may still ignore.
+
+VERSION ALLOCATION, stated because it moved mid-flight. This slice was briefed
+as `contract-v1.37`. While it was in flight, `6cbb4495` (PR #235,
+identity-brokering + trust-anchor) landed on main and ALLOCATED v1.37 — a
+CHANGELOG heading plus `contract_bundle_version: contract-v1.37` — although its
+own squash message still says "at contract-v1.36". Under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+the version is allocated AT REALIZATION against what is available, and CHANGELOG
+presence is the availability test, so this release is `contract-v1.38`.
+
+A DEFECT ON THE PRECEDING RELEASE SURFACE, found here, repaired by its own lane,
+AND BACK. At `6cbb4495`, `scripts/validate-contract-release.py verify-commit`
+reported `HGR-RELEASE-INVENTORY-MISSING` and exited 1: that cut bumped the bundle
+to v1.37 without shipping `releases/contract-v1.37.digests.yaml`, the same class
+of miss `contract-v1.36`'s first tag hit, one step earlier. It was recorded here
+rather than fixed, because a release surface belongs to the release that cut it —
+and `c1ffa0fd` (PR #238, "Complete the contract-v1.37 cut: release digest
+inventory") shipped that inventory, at which commit `verify-commit` PASSED.
+
+IT IS RED AGAIN AT `8924838d`, and by the same habit: `e11a057b` (PR #242,
+install-repo naming) edited `contracts/CHANGELOG.md` — a v1.37 INVENTORY MEMBER —
+without rebuilding v1.37's inventory, so `verify-commit --commit origin/main`
+now exits 1 with `HGR-RELEASE-DIGEST-MISMATCH` on that file. Bisected: green at
+`c1ffa0fd`, red from `e11a057b` onward. That is the v1.37 lane's to repair, and
+it is exactly the habit this note names — recheck bundle availability against
+the CHANGELOG at the moment you allocate, and do not assume the preceding
+release surface verifies, including when it verified an hour ago.
+
+THIS CUT IS UNAFFECTED THROUGHOUT, in every one of those states:
+`resolve_committed_inventory` reads `contract_bundle_version` AT THE COMMIT, so
+it resolves v1.38 and checks against the v1.38 inventory that ships inside it —
+and this branch's own `verify-commit` passes.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+Three OPTIONAL properties are added to `$defs/model_entry`, together with one
+`dependentRequired` block and two `allOf` conditionals that constrain ONLY those
+three. Nothing previously valid becomes invalid, no required field is added to
+any existing shape, no shape is removed, and no existing catalog is
+reinterpreted: BOTH conditionals require `routing_rule` to be PRESENT, so an
+entry that declares no routing rule matches neither and is judged exactly as it
+was before, and `dependentRequired` cannot fire on keys that are absent. The
+schema's `contract_schema_version` stays `1`, and the manifest row's
+`schema_version` stays `1` with it. Verified case by case against the released
+bytes, including the pre-release entry shape and each malformed declaration.
+
+`$defs/model_entry` gains, all optional and all three travelling together:
+
+* `routing_rule` (boolean) — present-and-true means this entry is a ROUTING RULE
+  this capability owns, an `auto` entry that maps a turn to a model by role,
+  rather than a directly answering provider model. Absent means what absence has
+  always meant, and a plain entry acquires no new obligation of any kind.
+* `routes_to` — every model the rule MAY route to, as a non-empty, unique array
+  of `model_id` REFERENCES into the same catalog (same pattern and length bounds
+  as `model_id`, up to 64 members).
+* `resolved_model_id` — the model the rule CURRENTLY resolves to: the one that
+  ANSWERS, recorded as the turn's `model_id` beside the requested id in the
+  `workbench-chat-turn-v2-success` record's `selected_model`.
+
+They carry NO provider surface, and that is what keeps PUBLIC-ONLY BY
+CONSTRUCTION intact: both reference fields hold opaque catalog handles drawn
+from this catalog's own `model_id` values, so a routing declaration can name
+nothing a plain entry could not already name. §11.6's ruling that the harness
+provider id lives on `LaunchConfig.provider_id` and NOT on the catalog entry is
+untouched — the entry is still closed, `provider_id` on it is still refused
+structurally, and a companion test asserts that against these exact bytes.
+
+WHERE THE CREDENTIAL COMES FROM, named here because this is the release at which
+an operator can declare an API-backed routing entry and therefore has to know
+(§11.7's P3-23 sentence). An API-backed entry's credential is provisioned into
+the `doxbench-bridge` harness PROFILE by the ratified broker lane
+(`add-model-provider-broker`). The adapter neither holds nor fetches a raw
+secret: its child environment is an ALLOWLIST no credential-shaped variable can
+pass, which is why an empty profile makes the harness refuse ("no models
+available") rather than reach for an ambient key. A self-hosted, keyless
+provider needs no credential at all. Nothing in this release moves that
+boundary; it states it.
+
+SEVEN RULES THE SHAPE CANNOT EXPRESS are delegated to
+`scripts/validate-ideation-dashboard-contracts.py`, the family's declared owner,
+and enforced at catalog construction in
+`scripts/ideation_dashboard/doxbench_model.py` (an in-process catalog never
+becomes a validated file, and a file is never constructed through that type, so
+neither place substitutes for the other). That the two gates AGREE is asserted by
+a test over the packaged corpus, not claimed here: an earlier draft of this entry
+said "enforced identically" while rules 6 and 7 below existed only on the type,
+and the release's own adversarial review walked a catalog past the file gate to
+prove it:
+
+1. NO DANGLING TARGET — every `routes_to` id must name an entry in the same
+   catalog. A rule that routes somewhere the catalog does not offer has a badge
+   nobody can check.
+2. NO CHAINED RULE — a target must not itself be a routing rule, because
+   `resolved_model_id` is recorded as the model that ANSWERED and must therefore
+   name something that answers rather than another indirection.
+3. AN AVAILABLE RULE RESOLVES TO AN AVAILABLE MODEL. The turn gate checks
+   availability on the SELECTED entry, and the adapter then sets the harness to
+   the RESOLVED id; without this rule an available `auto` could dispatch to a
+   model the catalog itself calls unavailable. An unavailable rule is exempt —
+   nothing can select it.
+4. THE BADGE COVERING — the ratified THEN, as SEGMENT MEMBERSHIP over the
+   declared `" / "` separator: each target's `data_handling` must be one segment
+   of the rule's own, compared with whitespace collapsed, case folded and
+   trailing `.;,` dropped, and with interior characters never rewritten. Extra
+   segments are permitted; a routed badge that itself holds the separator is
+   refused as ill-formed, because it could never be one segment. See the
+   judgement call below for why this replaced substring containment.
+5. A RULE PROMISES NO MORE HEADROOM THAN THE MODEL THAT ANSWERS — the
+   effective turn limit is computed from the selected entry, which for a routed
+   turn is the rule, so an AVAILABLE rule's declared limits must not exceed
+   those of `resolved_model_id`'s entry. The bound is the RESOLVED model's
+   alone, deliberately NOT the minimum across `routes_to`; unavailable rules are
+   exempt, as they are from rule 3. See the judgement call below — this shape
+   was ruled after the release's adversarial review.
+6. `resolved_model_id` MUST BE A MEMBER OF `routes_to` — otherwise the model
+   that actually answers is the one model no covering check ever looked at,
+   since they all iterate `routes_to`.
+7. A RULE MUST NOT NAME ITSELF in `routes_to`.
+
+Every rule has a packaged negative that fails for exactly its own reason — ten
+of them — beside one positive (`workbench-model-catalog-routing-rule`) and a
+structural negative for a plain entry carrying a routing field. Four of the ten
+came from this release's adversarial review, packaged verbatim from the
+reviewer's own instances.
+
+JUDGEMENT CALL — THE BADGE COVERING IS SEGMENT MEMBERSHIP, AND THE MENU IS WHY.
+The requirement says a routing entry must "carry the handling badge of every
+model it may route to", *"because an entry that hid a routing decision behind a
+model-shaped id would report a handling posture it does not control"*. The
+entry's own `data_handling` is the ONE badge string the selector shows for it, so
+the covering rule has to be about that string.
+
+An earlier draft of this release enforced it as raw substring containment. THAT
+WAS WRONG, and this release's adversarial review broke it twice on these very
+bytes: a rule badged *"Routes to a non-tenant endpoint."* was accepted as
+carrying a target badged *"on-tenant"* — `"on-tenant" in "non-tenant"` is True,
+so the menu would have shown the INVERSE of the posture the rule routes to — and
+a rule ending *"...retain nothing."* was accepted as carrying a target badged
+*"retain"*. The same review found the predicate simultaneously OVER-strict in the
+harmless direction, refusing a badge that differed only by a trailing full stop,
+a capital, or a line wrap.
+
+The rule is therefore SEGMENT MEMBERSHIP, and the separator is DECLARED here and
+in the schema: `" / "` (space, slash, space). A routing rule's `data_handling` is
+a list of segments joined by it, and each routed model's own badge must be one of
+them. Comparison collapses whitespace, folds case, and ignores trailing `.;,`;
+it NEVER rewrites interior characters, which is the load-bearing part, because
+that is exactly where `on-tenant` and `non-tenant` differ. Extra segments are
+permitted, so a rule may carry its own lead-in beside the badges it must carry.
+The separator is `" / "` because a badge is free prose and any separator can
+collide with one — `;`, `.` and `,` all occur in the packaged badges and `/` does
+not — and the residual collision is refused rather than hoped away: a routed
+entry whose badge itself contains the separator could never be one segment, so
+that catalog is ill-formed.
+
+CONSUMER NOTE: a consumer that RENDERS a routing entry's badge may split it on
+`" / "` to show the routed postures separately, and one that does not may show
+the string whole; both are correct, and the string is authored to read as prose
+either way.
+
+The alternative considered and rejected was per-target badge OBJECTS on the wire
+(`{model_id, data_handling}` pairs) plus a view that composes them — rejected
+because it duplicates authored text that then drifts from the target's own entry.
+The consequence, stated rather than hidden: `data_handling`'s pre-existing
+500-byte ceiling is UNCHANGED and therefore bounds how many segments one rule can
+carry. A rule whose list does not fit must be split, or its members' badges
+written more tightly. Widening that ceiling was rejected as a consumer-visible
+change to an existing field, which this release's additive posture does not
+permit.
+
+JUDGEMENT CALL — RULE 5' BOUNDS AGAINST THE RESOLVED MODEL, RULED BY BRETT.
+This release first shipped rule 5 as a MINIMUM over every member of
+`routes_to`. Its adversarial review upheld it only WITH RESERVATION: it
+permanently caps an `auto` entry's declared limits at its narrowest destination
+in order to compensate for the runtime computing budgets from the SELECTED
+entry. Brett ruled on 2026-08-21 — "Swap to rule 5'" — and the bound is now the
+RESOLVED model's alone. Three reasons, recorded because the shape of a
+conformance rule is a design commitment:
+
+* under this release's STATIC resolution, the promise that matters is that the
+  menu's declared limits are honoured by the model that ACTUALLY ANSWERS, which
+  is exactly what the resolved-bound form checks;
+* the un-resolved destinations are not load-bearing — no turn reaches them while
+  the rule resolves elsewhere — so capping against them constrains a promise
+  nobody can call in;
+* min-capping would BAKE IN semantics contradicting the sanctioned future
+  direction: a per-turn, FIT-AWARE router that picks a destination by the
+  assembled packet's size and by other capability dimensions, staged as
+  `ideation/staging/doxchat-auto-fit-routing/`. Under that design a rule's
+  declared ceiling is the WIDEST thing it can serve, not the narrowest, and a
+  min-cap would have had to be undone to reach it.
+
+A packaged POSITIVE carries the difference rather than leaving it to prose:
+`workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member` declares
+800,000 bytes while a routable — but not resolved — member accepts 2,048, and is
+VALID. The first form of the rule would have refused it. Its mirror-image
+negative is `routing-rule-wider-than-its-resolution`.
+
+JUDGEMENT CALL — DISCLOSED ONLY WHEN DECLARED. This repository's projection
+(`ModelCatalogEntry.as_public_dict`) emits the three keys only for an entry that
+IS a routing rule, so a plain entry's public dict is byte-identical across the
+release boundary. Always emitting them with plain-model defaults was rejected: it
+would change the bytes of every catalog response that exists, hand every
+consumer a `resolved_model_id: null` it never asked for, and put `routes_to: []`
+on entries this schema forbids to carry it. The WIRE, being additive, tolerates
+BOTH producers — an explicit `routing_rule: false` with no siblings is valid,
+it is simply not what this projection emits — so a consumer must not treat
+omission and explicit-false as different facts.
+
+WHERE THE RESOLVED MODEL IS RECORDED, and a v1 LIMITATION that goes with it.
+The scenario's second THEN is that "the resolved model MUST be recorded on the
+turn, so a transcript names the model that actually answered", and there are TWO
+readers of that fact. The `workbench-chat-turn-v2-success` record carries it in
+`model_id`, beside `selected_model.requested_model_id` and
+`selected_model.routing_rule`. The turn's THREAD SIDECAR — the durable transcript
+on disk — carries it in the turn header. This release's adversarial review found
+the second one naming the RULE rather than the answering model (the derivation
+sat after the sidecar was written), which is now fixed: one derivation, above
+both readers.
+
+THE DEPRECATED v1 SUCCESS ENVELOPE CANNOT STATE BOTH FACTS, and is not changed to.
+`workbench-chat-turn-success` has one `model_id` field and no `selected_model`,
+so on a routed turn it carries the REQUESTED id — what every v1 consumer already
+reads and revalidates. Widening a deprecated closed shape whose whole promise is
+byte-identical stability is precisely what `contract-v1.34`'s deprecation
+forbids; the migration path is the v2 envelope, which exists and is where a
+routed turn should be recorded. The SIDECAR on the v1 lane does name the
+answering model, because it is not part of the v1 wire.
+
+NO VIEW CHANGE, and the reason is the covering rule. `doxbench-chat.js` already
+renders each option as `label — data_handling` and `sendDisclosure` already
+names the selected entry's `data_handling`, so for a conformant rule both
+already show every routed model's badge. A node probe mounts the SHIPPED rail
+over the packaged routing catalog and asserts exactly that, so the claim is
+evidence rather than argument; if a future release moved the badges off
+`data_handling`, that probe fails and a view change is then owed.
+`staging-workbench-model.js` reads only an approved-model COUNT and is untouched.
+
+RECONCILIATION with `add-doxchat-model-intake` (ratified 2026-08-21, UNBUILT).
+That change's proposal repeatedly describes the catalog entry as "the closed
+seven-field shape" and promises its own proposed-versus-approved distinction
+"does NOT widen" it. Both remain true of THAT change: its packet is another
+lane's and is not edited here, its descriptions were accurate when ratified, and
+its no-widening promise is about its own delta. What changes is the referent —
+the closed entry is now the v1.38 shape: seven required base fields plus the
+three optional routing-declaration fields. Its task 3.5 ("the closed seven-field
+public catalog entry does NOT widen") should be read against this shape when
+that lane builds; a proposed-versus-approved distinction is still not a widening
+of it.
+
+OWED CROSS-REPO FOLLOW-UP (recorded, not performed). This schema's description
+names `codexFactory specs/010-doxbench-editor-chat/contracts/model-catalog.md`
+as its consumer contract, and that document's Reconciliation section claims an
+exact match with the seven-field entry shape. That claim is STALE against this
+release — though it remains CORRECT while codexFactory pins `contract-v1.27`,
+which is the pin it declares, so nothing there is wrong today. It becomes wrong
+the moment that repository re-pins. Updating it is codexFactory's own governed act
+under the domain upgrade runbook; no file in that repository is touched here, and
+this entry is the notice.
+
+RELEASE OBLIGATION STILL OPEN AT THIS ENTRY: per the versioning policy,
+CHANGELOG presence is the availability test and the annotated tag is cut at the
+realization squash against the commit that actually lands. The release DIGEST
+INVENTORY (`releases/contract-v1.38.digests.yaml`) ships INSIDE this cut, as
+`contract-v1.34`, `contract-v1.35` and `contract-v1.36` all did. The consuming
+runtime repin ships with it and carries the `unpublished:contract-v1.38`
+sentinel for its ref, on `contract-v1.34`'s own precedent: until the release
+commit exists there is nothing honest to name, and the sentinel is spelled as a
+value no `stack.yaml` can declare, so a consumer comparing against it refuses
+rather than matching by accident. A follow-up commit resolves it.
+
 ## contract-v1.37 — 2026-08-21 (additive; two new neutral families — identity brokering and trust anchors)
 
 Realizes the two ratified sibling changes of 2026-08-21 —

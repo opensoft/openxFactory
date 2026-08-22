@@ -74,6 +74,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [staged-topic-outline-template](#staged-topic-outline-template) | MODIFIED `document-lifecycle` (the primary-fragment template contract: required sections, round-trip-on-demote refresh rule, section provenance, marker usage) and MODIFIED `ideation-dashboard` (the doxBench outline tab renders the template + gains an add-section affordance) | 1 | **PROPOSED 2026-08-15 as `add-staged-topic-outline-template`, RATIFIED the same day** (all 5 open questions accepted as recommended, closing the parallel decision track) — exited staging the same day, material moved to the change's `supporting-docs/` (see detail section below); Q4 corrected by Amendment 1 to `edit-document` (ratified text named `edit-apply`, the gate console's redline verb, which cannot reach a session branch). Sections 1-4 realized (contract text, doc-health's warning-tier nudge, the outline tab + tests) and bookkeeping 6.1-6.3 discharged (this row, the exit record, and the `doxbench-editing-model` Q4 handoff). **CHANGE ARCHIVED 2026-08-21** — all 22 tasks discharged, gates 5.1-5.3 green and task 5.4's live browser proof driven for real (one commit through `edit-document` on a session branch, the verb evidenced three ways); both ADDED requirements promoted, and the topic's material now sits in the archived change's `supporting-docs.tar.gz` bundle rather than a loose folder |
 | [notebook-projection-identity](#notebook-projection-identity) | MODIFIED `lifecycle-notebook-projection` (declared hosting-account field + share-out roster) and MODIFIED `credential-contracts` (two-case account-custody rule: company service account normal case, personal hosting the other legitimate case) | 1 | Registered 2026-08-15 — origin is Brett hitting a live "request access" wall on the personal-Gmail-hosted NotebookLM projection, the same disease as the just-retired openXdox personal PAT; 6 claims settled (company account is the normal case, hosting is a declared install-time intake decision, personal hosting stays legitimate as the other case, company account shares out to users, company-policy Hermes monitors + approves share requests, and this mirrors the ratified openXdox dispatch two-case precedent); first fresh conformer of `staged-topic-outline-template` carrying LIVE `xspec:candidate` markers (verified against the checker: no rejection found, only `record`-status docs are excluded); 5 open questions (contract home, company-account type, share-roster reuse of `add-client-identity-roster`, monitor/approve mechanics with no share API, and opensoft's own migration sequencing), none blocking; SEQUENCED last of today's four topics (Brett 2026-08-15) — behind `doxbench-editing-model` (both phases), the template, and the review-lane topic — since Q3's share-roster reuse waits on the in-flight `add-client-identity-roster` proposal |
 | [doxbench-editing-model](#doxbench-editing-model) | MODIFIED `ideation-dashboard` (left-panel dynamic document tabs generalizing the outline/document buffer pair to N document buffers; chat-context binding to the active left-panel selection; docs-wheel tile edit verb + dirty-tile marker; right-panel Editor/Preview tab redesign with Save/Cancel) | 1 | Registered 2026-08-15 — origin is Brett's direction settling the general doxBench interaction model: left panel selects the working document (docs/lens/outline plus dynamic numbered tabs per open edit), center chat binds to whatever is selected, right panel shows the result via Editor/Preview tabs with Save/Cancel (replacing today's split md/preview layout); 26 claims settled (includes the ruled two-plane chat memory design, Claims 13-21, and its 2026-08-18 second-pass addendum settling memory-gateway conformance, the three-layer compression stack with shake v1, and Headroom watch-listed not adopted, Claims 22-26); verified live that `BUFFER_KINDS`, the turn-assembly buffer requirement, and the save order are all hard-coded to exactly outline+document today, so the N-buffer generalization is the load-bearing engineering question; 7 open questions (tab overflow, Save/Cancel semantics, dirty-tile storage, chat-binding rule, Editor/Preview default, concurrent-edit safety, and the chat memory system — ruled 2026-08-18), none blocking; sibling of `staged-topic-outline-template` Open question 4 (content-contract vs. interaction-model halves of the same AI-edit act); SEQUENCED first, in two phases (Brett 2026-08-15) — Phase A (chat-on-outline + Editor/Preview tabs + Save/Cancel on the existing two-buffer machinery) built before the other three topics, Phase B (N-buffer generalization) following `staged-topic-outline-template`'s ratification. **EXITED STAGING 2026-08-21** — both phases raised and realized; `add-doxbench-editing-phase-a` ARCHIVED 2026-08-21 and its spec text promoted, `add-doxbench-editing-phase-b` carried the whole remainder (§4–§11 + §13 realized across PRs #207/#210/#216/#223, `contract-v1.34`) and remains ACTIVE pending §12 share-session, which Brett ruled 2026-08-21 trails as its own slice. The fragment moved to Phase B's `supporting-docs/`; two items are PARKED, not adopted — see the detail section |
+| [doxchat-auto-fit-routing](#doxchat-auto-fit-routing) | MODIFIED `ideation-dashboard` (per-turn fit-aware `auto` resolution; the no-fit warn/ask surface and its session-sticky consent; compress-to-fit as a turn outcome) + a likely ADDITIVE model-catalog release (capability dimensions beyond byte limits, at minimum modality) + a likely additive chat-turn release (the recorded fit decision) | 1 | Registered 2026-08-21 — origin is Brett's direction given at the `contract-v1.38` rule-5 ruling, quoted VERBATIM in the fragment; 6 claims settled (per-turn fit-aware resolution, filter out models too small for the turn, no-fit is a human decision, session-sticky continue-all consent, compress-to-fit on continue, and fit is multi-dimensional with raw size only one axis); 6 open questions (where the decision lives, what happens to the released `resolved_model_id`, the capability vocabulary and whether it closes, whether the consent is a governed record, one-change-or-three plus compression's home, and whether the union badge survives), none blocking; SEQUENCED after the doxBench sprint archives, so the per-turn router is designed on a static resolution that has actually shipped |
 
 ## hermes-stack-topology-per-client
 
@@ -1482,3 +1483,73 @@ repo scope.
 - Memory design COMPLETE 2026-08-18 (memory-gateway conformance +
   three-layer compression, shake-v1, Headroom watch-listed); Phase B
   proposal drafting NOW LAUNCHING.
+
+## doxchat-auto-fit-routing
+
+- Staging ID: `openxFactory:staging:doxchat-auto-fit-routing`
+- Repository context: openxFactory owns every piece — `ideation-dashboard`
+  (the doxBench capability and the chat-turn contracts),
+  `contracts/schemas/xfactory-workbench-model-catalog.schema.yaml` (the
+  routing declaration `contract-v1.38` released), and the runtime under
+  `scripts/ideation_dashboard/` (`doxbench_model.py`'s catalog types and
+  `effective_limit_bytes`, `doxbench_packet.py`'s assembled packet,
+  `doxbench_bridge.py`'s adapter). No domain repo is implicated;
+  codexFactory is a downstream CONSUMER of the catalog contract and would
+  re-pin, not co-author.
+- Source: Brett Heap, in-session 2026-08-21, immediately after ruling on
+  rule 5' of the `contract-v1.38` model-catalog release. The ruling itself
+  ("Swap to rule 5'" — bound a routing rule's declared limits against its
+  RESOLVED model rather than the minimum over `routes_to`) was made BECAUSE
+  a min-cap would have baked in semantics contradicting this direction;
+  Brett then said "Stage the topic". The fragment carries his requirements
+  as a VERBATIM origin quote, with the claim decomposition beside it so a
+  reader can check the interpretation against the source.
+- Claim: six settled claims, not reopened by the open questions —
+  `auto` resolution becomes PER-TURN and fit-aware, decided against the
+  assembled packet rather than declared once; a model too small for this
+  turn is filtered out of the candidate set before any "best" question is
+  asked; no fit is a HUMAN DECISION (warn and ask), never a silent failure;
+  the answer may be session-sticky at the human's option, which makes it a
+  standing consent with a scope and a subject rather than a UI preference;
+  continuing means COMPRESSING the context to fit the best-fitting model,
+  not truncating silently; and fit is MULTI-DIMENSIONAL — multi-modal need
+  constrains the routable set independently of bytes, and raw size is one
+  axis among several.
+- Files:
+  - [doxchat-auto-fit-routing.md](doxchat-auto-fit-routing/doxchat-auto-fit-routing.md)
+    — primary: the verbatim origin quote, 6 claims, Why/What changes/Impact,
+    5 idea notes, 4 conflicts, 6 open questions each with
+    Context/Recommended answer/Explanation/Disposition status, a related-work
+    section, and the exit. Conformant with `staged-topic-outline-template`
+    (staged after ratification, so conformance is REQUIRED).
+- Open questions (none blocking): (1) where the fit decision lives —
+  recommended the ROUTE, before dispatch at the existing precondition-7
+  revalidation, since the port is ratified at exactly three members and a
+  fourth would be "a second provider verb by another name"; (2) what happens
+  to the released `resolved_model_id` — recommended it STAYS as the declared
+  default rather than being removed, since removal breaks consumers pinned
+  weeks earlier for no gain, at the cost of a naming debt; (3) the capability
+  vocabulary beyond byte size — recommended ONE closed additive `modalities`
+  set and nothing else until a consumer names itself, on the roster's
+  `admission_surface` precedent; (4) whether the session-sticky continue-all
+  is a governed record — recommended that the TURN record state the posture
+  it ran under (browser state alone rejected), because the failure that
+  matters is a later reader not knowing the answer came from compressed
+  context, which is the same class of defect §11.7's review found in the
+  sidecar; (5) one change or three, and compression's home — recommended
+  three sequenced exits with compress-to-fit CONSUMING task 10.7's
+  posture-and-reason field rather than inventing a second way to say it, and
+  reusing `context-compression-runtime`'s vocabulary where they overlap;
+  (6) whether the union badge survives per-turn routing — recommended YES,
+  unchanged, because the human still chooses before the destination is known
+  and narrowing the badge would disclose after the fact.
+- Conflicts recorded (4): against `contract-v1.38`'s own static
+  `resolved_model_id`; against rule 5' itself, which loses its referent once
+  resolution is per-turn; against `dispatch_turn`'s CLOSED four-code refusal
+  set, which has no member for "no model fits, awaiting a human answer"; and
+  against the `add-doxchat-model-intake` lane, which touches the same
+  selector and the same catalog type.
+- **SEQUENCED after the doxBench sprint archives** — that is, after
+  `add-doxbench-editing-phase-b` closes task 10.7 and its 13.8 evidence tick
+  — so the per-turn router is designed on top of a static resolution that has
+  shipped and been consumed, rather than against a moving baseline.
