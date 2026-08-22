@@ -261,3 +261,40 @@ two pull_request rules apply — the org-level rule (count 0) and this
 repository rule (count 1, source: Repository). Rulesets combine, so the
 effective gate on `main` is one required approving review. The App
 installation read-back (tasks 3.3) remains pending on the org-owner act.
+
+## Addendum — App installation read-back (2026-08-21)
+
+Recorded while authoring `admit-install-repos-to-aggregation`, after Brett
+performed the organization-owner act the earlier HTTP 403 required ("the two
+repos are added to openXfactory github app").
+
+- **`opensoft/Keycloak-Install` is present on installation `145372182`** for
+  App `4253636` (`openxfactory`). Read back via `GET
+  user/installations/145372182/repositories` with an App-authorized token:
+  **19 repositories total**, both new install repositories among them. This
+  closes tasks **1.3** and **3.3**.
+- **Corroboration with the ordinary session token**, so the claim does not
+  rest on one read: `GET orgs/opensoft/installations` returns installation
+  `145372182`, `app_slug: openxfactory`, `repository_selection: selected`.
+  The per-repository list is not readable this way — a user token is refused
+  403 (*"You must authenticate with an access token authorized to a GitHub
+  App…"*), and `GET repos/opensoft/Keycloak-Install/installation` needs a JWT
+  (401, *"A JSON web token could not be decoded"*) — so the App-authorized
+  read above is the citable one and is named as such rather than paraphrased.
+- **App secrets unchanged**, still read back by NAME only, values never read:
+  `OPENXFACTORY_APP_ID`, `OPENXFACTORY_APP_PRIVATE_KEY`.
+- **What this does NOT establish.** The `session-open-pr` route has not been
+  exercised end to end in this repository: the seed had already landed by
+  direct push (§3.1), so there is no PR left to author through it. The
+  optional `openxfactory[bot]` authorship proof in tasks 3.3 is therefore
+  still not claimed — the first real PR will be it.
+
+**Repository state re-read the same day**, unchanged from §3.1-3.2: `private`
+(`private: true`, `visibility: "private"`), default branch `main`, repository
+id `1342329131`, `main` at `1aa184e891d4ba6e641a31260d3f64d2b335f175` — which
+is the commit `admit-install-repos-to-aggregation` records as the exact
+validated commit for the `installs/keycloak-install` pin. `GET
+repos/opensoft/Keycloak-Install/contents/.gitmodules?ref=main` returns 404, a
+genuine absence rather than an access failure (`commits/main` succeeded on the
+same token): this repository carries no submodules, so a recursive checkout of
+the aggregation reproduces its boundary with nothing nested.

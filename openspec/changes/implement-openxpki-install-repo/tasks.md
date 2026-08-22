@@ -7,13 +7,16 @@ tree), and §4 is the named work this change deliberately does NOT do.
 **Realization status, 2026-08-21.** The repository exists, is seeded, and its
 boundary validator is green; the creation record is
 [evidence/creation-record-2026-08-21.md](evidence/creation-record-2026-08-21.md).
-Four boxes remain open, each for a stated reason rather than by omission:
-**1.2** (the `main` ruleset — the orchestrator's post-seed act), **1.3** (the
-App-installation add — failed 403, needs Brett as organization owner),
-**3.2/3.3** (the halves of those read-backs that have nothing to read yet),
-and **3.5** (the parent `add-trust-anchor` has not archived, so this change
-must not either). §4 is untouched by design — the topology migration (4.2)
-is explicitly not part of this change's realization bar.
+**Updated 2026-08-21 (later the same day):** **1.2** landed post-seed
+(ruleset id 21177148) and **1.3 / 3.3** are now closed — Brett performed the
+org-owner act adding both new repositories to the `openxfactory` App
+installation, read back on installation `145372182`. One box remains open:
+**3.5** (the parent `add-trust-anchor` has not archived, so this change must
+not either). §4 is untouched by design — the topology migration (4.2) is
+explicitly not part of this change's realization bar; its
+aggregation-admission item (4.1) and enumeration-refresh item (4.6) are
+annotated with the change that executed each, and stay unticked because both
+are acts of another change.
 
 Reasoning for every decision below is in [design.md](design.md); the
 authoritative obligations are the ratified requirement restated in
@@ -43,14 +46,25 @@ Structurally parallel to the sibling
       `required_approving_review_count` is **0**), so the inherited pair is
       NOT this gate. Rulesets combine rather than override, so the
       repository-level one will be a third over the same ref.
-- [ ] 1.3 Add the repository to the **`openxfactory` GitHub App
+- [x] 1.3 Add the repository to the **`openxfactory` GitHub App
       installation** (App id `4253636`, installation `145372182`) so the
       content App can author PRs into it.
-      **PENDING — Brett (organization owner).** The add failed HTTP 403:
-      *"only an Organization Owner can modify this app"*. Both new
-      repositories need adding to the `openxfactory` App installation (App
-      `4253636`, installation `145372182`). Until then `session-open-pr` fails
-      closed, which is why the seed arrived by direct push (see 2.1).
+      **DONE 2026-08-21 — Brett (organization owner) performed the add**
+      ("the two repos are added to openXfactory github app"). Read back off
+      the installation, not asserted: `GET
+      user/installations/145372182/repositories` lists
+      `opensoft/OpenXPKI-Install` among **19** repositories on installation
+      `145372182` for App `4253636`. Corroborated with the token at hand via
+      `GET orgs/opensoft/installations` — installation `145372182`,
+      `app_slug: openxfactory`, `repository_selection: selected`; the
+      per-repository list itself needs an App-authorized token (a user token
+      is refused 403, and `repos/{repo}/installation` needs a JWT), so the
+      App-authorized read is the citable one. Recorded in
+      [evidence/creation-record-2026-08-21.md](evidence/creation-record-2026-08-21.md)
+      *"Addendum — App installation read-back"*. The earlier HTTP 403
+      (*"only an Organization Owner can modify this app"*) is why the seed
+      arrived by direct push (see 2.1); that deviation stands as recorded and
+      is not retroactively repaired.
 - [x] 1.4 Set the repository secrets **`OPENXFACTORY_APP_ID`** and
       **`OPENXFACTORY_APP_PRIVATE_KEY`** for that App. The
       `session-open-pr` workflow's preflight fails closed when either is
@@ -312,16 +326,25 @@ Structurally parallel to the sibling
       `main` ruleset showing **1 required approving review does not exist
       yet**, so this task stays open rather than claiming a read-back that has
       nothing to read.
-- [ ] 3.3 STILL PENDING 2026-08-21 — blocked with 1.3 on the org-owner act (403 on the installation-repositories API); read back once Brett adds both repos to the openxfactory App installation. App installation read-back: the repository present on
+- [x] 3.3 App installation read-back: the repository present on
       installation `145372182` for App `4253636`, and both App secrets
       present (names only, never values). Optionally prove the route end to
       end by opening the seed PR through `session-open-pr` and confirming the
       author is `openxfactory[bot]`.
-      **PARTIAL — waits on 1.3.** Both App secrets read back by name (values
-      never read). The installation read-back could not be taken: the
-      repository is not on installation `145372182` yet (403, organization
-      owner required). The optional end-to-end `openxfactory[bot]` authorship
-      proof is therefore **not claimed**.
+      **DONE 2026-08-21, after Brett's org-owner act (1.3).**
+      `opensoft/OpenXPKI-Install` is present on installation `145372182` for
+      App `4253636` — read back via `GET
+      user/installations/145372182/repositories`, 19 repositories total. Both
+      App secrets remain read back by name only, values never read
+      (`OPENXFACTORY_APP_ID`, `OPENXFACTORY_APP_PRIVATE_KEY`). The
+      **optional** end-to-end `openxfactory[bot]` authorship proof is still
+      **not claimed**: the seed had already landed by direct push, so there is
+      no PR left to open for it, and manufacturing one solely to exercise the
+      route would be theatre. The first real PR into this repository will be
+      the proof; the QA topology migration (4.2) or the CI-wiring follow-up
+      (4.5) is its natural occasion. Recorded in
+      [evidence/creation-record-2026-08-21.md](evidence/creation-record-2026-08-21.md)
+      *"Addendum — App installation read-back"*.
 - [x] 3.4 **Boundary validator green on the seeded tree**: `validate-boundary.py`
       exits 0 over the whole repository, AND its self-test passes — every
       `positive/` case accepted and every `negative/` case rejected with the
@@ -384,6 +407,19 @@ Each is a separate reviewed change. None is authorized by this ratification.
       exact validated commit, recursive checkout, compatibility, update, and
       rollback. The ratified requirement is explicit: repository creation
       MUST NOT be treated as aggregation admission.
+      **EXECUTED ELSEWHERE 2026-08-21 by
+      [`admit-install-repos-to-aggregation`](../admit-install-repos-to-aggregation/proposal.md)**
+      (ratified the same day: "do the aggregation admission change"). That
+      change carries the eight-field admission record for
+      `installs/openxpki-install` at the exact validated commit
+      `05f440444d9091206778e838454ed9b5bb7bff60` — including the recursive
+      checkout finding that this repository has no `.gitmodules` and does not
+      vendor `opensoft/Opensoft-Tenant`, so the image-custody split survives a
+      recursive checkout — and the `.gitmodules` + gitlink + README act lands
+      by reviewed PR on `opensoft/xFactory`. **Deliberately left unticked**:
+      this box is a follow-up that runs elsewhere, and the ratified
+      requirement forbids repository creation from being treated as
+      aggregation admission — a tick here would claim exactly that.
 - [ ] 4.2 **QA topology migration** — the amended OpsxFactory
       `add-openxpki-qa-image-pipeline` **tasks 3.4**: move the QA server /
       client / web deployment manifests of its 3.1-3.3 out of
@@ -423,6 +459,12 @@ Each is a separate reviewed change. None is authorized by this ratification.
       the admitted install repos are enumerated in one place, as a MODIFIED
       delta restating all its scenarios, run when nothing else is replacing
       that requirement. Explicitly NOT done here (design D-delta).
+      **EXECUTED ELSEWHERE 2026-08-21 by
+      [`admit-install-repos-to-aggregation`](../admit-install-repos-to-aggregation/specs/repo-boundary-governance/spec.md)** —
+      one MODIFIED delta, both scenarios restated verbatim, enumeration
+      extended with both admitted repositories; `add-trust-anchor` tasks 8.1
+      is ticked there. Left unticked here for the same reason as 4.1: it is
+      another change's act.
 - [ ] 4.7 **openxFactory bookkeeping: the `contract-v1.37` release digest
       inventory is missing both new families.**
       `contracts/releases/contract-v1.37.digests.yaml` carries the same 190
