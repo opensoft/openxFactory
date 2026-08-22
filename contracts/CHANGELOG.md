@@ -115,11 +115,13 @@ prove it:
    segments are permitted; a routed badge that itself holds the separator is
    refused as ill-formed, because it could never be one segment. See the
    judgement call below for why this replaced substring containment.
-5. A RULE PROMISES NO MORE HEADROOM THAN ITS NARROWEST DESTINATION — the
+5. A RULE PROMISES NO MORE HEADROOM THAN THE MODEL THAT ANSWERS — the
    effective turn limit is computed from the selected entry, which for a routed
-   turn is the rule, so its declared limits must not exceed the minimum across
-   `routes_to`. This is the entry-level restatement of the schema's own "a
-   catalog entry may only NARROW the server ceilings".
+   turn is the rule, so an AVAILABLE rule's declared limits must not exceed
+   those of `resolved_model_id`'s entry. The bound is the RESOLVED model's
+   alone, deliberately NOT the minimum across `routes_to`; unavailable rules are
+   exempt, as they are from rule 3. See the judgement call below — this shape
+   was ruled after the release's adversarial review.
 6. `resolved_model_id` MUST BE A MEMBER OF `routes_to` — otherwise the model
    that actually answers is the one model no covering check ever looked at,
    since they all iterate `routes_to`.
@@ -175,6 +177,34 @@ carry. A rule whose list does not fit must be split, or its members' badges
 written more tightly. Widening that ceiling was rejected as a consumer-visible
 change to an existing field, which this release's additive posture does not
 permit.
+
+JUDGEMENT CALL — RULE 5' BOUNDS AGAINST THE RESOLVED MODEL, RULED BY BRETT.
+This release first shipped rule 5 as a MINIMUM over every member of
+`routes_to`. Its adversarial review upheld it only WITH RESERVATION: it
+permanently caps an `auto` entry's declared limits at its narrowest destination
+in order to compensate for the runtime computing budgets from the SELECTED
+entry. Brett ruled on 2026-08-21 — "Swap to rule 5'" — and the bound is now the
+RESOLVED model's alone. Three reasons, recorded because the shape of a
+conformance rule is a design commitment:
+
+* under this release's STATIC resolution, the promise that matters is that the
+  menu's declared limits are honoured by the model that ACTUALLY ANSWERS, which
+  is exactly what the resolved-bound form checks;
+* the un-resolved destinations are not load-bearing — no turn reaches them while
+  the rule resolves elsewhere — so capping against them constrains a promise
+  nobody can call in;
+* min-capping would BAKE IN semantics contradicting the sanctioned future
+  direction: a per-turn, FIT-AWARE router that picks a destination by the
+  assembled packet's size and by other capability dimensions, staged as
+  `ideation/staging/doxchat-auto-fit-routing/`. Under that design a rule's
+  declared ceiling is the WIDEST thing it can serve, not the narrowest, and a
+  min-cap would have had to be undone to reach it.
+
+A packaged POSITIVE carries the difference rather than leaving it to prose:
+`workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member` declares
+800,000 bytes while a routable — but not resolved — member accepts 2,048, and is
+VALID. The first form of the rule would have refused it. Its mirror-image
+negative is `routing-rule-wider-than-its-resolution`.
 
 JUDGEMENT CALL — DISCLOSED ONLY WHEN DECLARED. This repository's projection
 (`ModelCatalogEntry.as_public_dict`) emits the three keys only for an entry that

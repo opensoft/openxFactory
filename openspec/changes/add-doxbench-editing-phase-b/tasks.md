@@ -1524,7 +1524,7 @@ untouched: mechanical, reversible, at the model boundary.
       a validated file; a file is never constructed through that type): no
       dangling target, no chained rule, an available rule resolves to an
       available model, THE BADGE COVERING, and a rule declaring no more headroom
-      than its narrowest destination. Each has a packaged negative that fails
+      than the model that ANSWERS. Each has a packaged negative that fails
       for exactly its own reason; each was revert-tested (disable the rules ->
       5 validator errors, restore -> 0), and every schema clause was
       revert-tested individually with the digest repinned so the case fired on
@@ -1657,20 +1657,45 @@ untouched: mechanical, reversible, at the model boundary.
       additive in both directions and tolerates an explicit `routing_rule: false`
       with no siblings — it is simply not what this projection emits — so a
       consumer must not read omission and explicit-false as different facts.
-      **Judgement call, flagged (two rules the ratified text does not literally
-      state).** Rule 3 (an AVAILABLE rule must resolve to an AVAILABLE model) and
-      rule 5 (a rule may declare no more headroom than its narrowest destination)
-      are inferred from how the turn gate actually works: `dispatch_turn` checks
-      availability and `effective_limit_bytes` computes the budget from the
-      SELECTED entry, which for a routed turn is the RULE — so without them an
-      available `auto` could dispatch to a model the catalog calls unavailable, or
-      admit a turn its destination cannot take. Rule 2 (no chained rule) is
-      inferred the same way from `selected_model`'s own meaning: the resolved id
-      is recorded as the model that ANSWERED, so it must name something that
-      answers. All three refuse the WHOLE catalog rather than dropping an entry,
-      matching the duplicate-`model_id` posture, and an UNAVAILABLE rule is
-      exempt from rule 3 — which is also what keeps the bridge's degraded
-      projection (`catalog()` marking every entry unavailable) constructible.
+      **Judgement call, flagged (three rules the ratified text does not literally
+      state) — and rule 5 was RULED BY BRETT after the review.** Rule 3 (an
+      AVAILABLE rule must resolve to an AVAILABLE model), rule 5 (a rule may
+      declare no more headroom than the model that answers) and rule 2 (no
+      chained rule) are all inferred from how the turn gate actually works:
+      `dispatch_turn` checks availability, `effective_limit_bytes` computes the
+      budget from the SELECTED entry — which for a routed turn is the RULE — and
+      `selected_model`'s resolved id is recorded as the model that ANSWERED, so
+      it must name something that answers. Without them an available `auto` could
+      dispatch to a model the catalog calls unavailable, admit a turn its
+      destination cannot take, or resolve to a second indirection. All three
+      refuse the WHOLE catalog rather than dropping an entry, matching the
+      duplicate-`model_id` posture, and an UNAVAILABLE rule is exempt from rules
+      3 and 5 — which is also what keeps the bridge's degraded projection
+      (`catalog()` marking every entry unavailable) constructible.
+      **RULE 5 -> RULE 5', RULED BY BRETT 2026-08-21, in-session: "Swap to rule
+      5'".** The adversarial review upheld rules 2 and 3 outright and upheld rule
+      5 only WITH RESERVATION — it permanently capped an `auto` entry's declared
+      limits at its NARROWEST destination to compensate for the runtime computing
+      budgets from the selected entry. The bound is now the RESOLVED model's
+      alone. Three reasons: under this release's STATIC resolution the promise
+      that matters is that the menu's declared limits are honoured by the model
+      that actually answers; the un-resolved destinations are not load-bearing,
+      because no turn reaches them while the rule resolves elsewhere; and
+      min-capping would BAKE IN semantics contradicting the sanctioned future
+      direction — a per-turn, FIT-AWARE router choosing a destination by the
+      assembled packet's size and by other capability dimensions, which Brett
+      ruled "Stage the topic" for the same day and which is now
+      `ideation/staging/doxchat-auto-fit-routing/` (registered with his
+      requirements as a VERBATIM origin quote, 6 claims, 6 open questions,
+      sequenced after this sprint archives). Under that design a rule's declared
+      ceiling is the WIDEST thing it can serve, not the narrowest, and a min-cap
+      would have had to be undone to get there. A packaged POSITIVE carries the
+      difference rather than leaving it to prose —
+      `workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member`
+      declares 800,000 bytes while a routable-but-not-resolved member accepts
+      2,048, and is VALID where the first form refused it — with a test named for
+      the ruling and a revert-test proving the old min-cap fails exactly that
+      test and nothing else.
       **NO VIEW CHANGE, and it is proved rather than argued.**
       `doxbench-chat.js` already renders each option as `label — data_handling`
       and `sendDisclosure` already names the selected entry's `data_handling`, so
