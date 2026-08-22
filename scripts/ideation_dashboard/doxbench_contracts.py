@@ -131,9 +131,34 @@ from referencing.jsonschema import DRAFT202012
 # `git ls-remote origin refs/tags/contract-v1.38^{}` peels to this commit, and
 # both `verify-commit --commit contract-v1.38` and
 # `verify-tag --remote origin --tag contract-v1.38` pass.
+#
+# Moved v1.38 -> v1.39 by `add-doxbench-editing-phase-b` §10.7. Not
+# digest-neutral, and could not be: the release grows
+# `xfactory-workbench-chat-turn.schema.yaml` itself with the assembled
+# context's POSTURE on `$defs/success_v2`, so the CHAT-TURN digest below is the
+# grown file's and the catalog's is unmoved -- the exact mirror image of the
+# v1.38 repin, and the same shape as the v1.34 one. The repin lands in the same
+# change as the release for the reason it did then: the fail-closed chain is
+# byte-exact, so a runtime pinned to v1.38's chat-turn digest cannot read
+# v1.39's schema at all. That is the check working.
+#
+# v1.39 WAS AVAILABLE WHEN THIS SLICE ALLOCATED IT, checked against the
+# CHANGELOG at the moment of allocation rather than assumed -- the habit the
+# v1.37/v1.38 episode earned, twice. At the branch base (66140613) the
+# CHANGELOG's newest heading was contract-v1.38 and the bundle read
+# contract-v1.38.
+#
+# THE REF IS THE UNRESOLVED-UNTIL-PUBLISHED SENTINEL across this realization
+# branch, on v1.34's and v1.38's own precedent: the versioning policy allocates
+# the version and builds the digest inventory AT REALIZATION (steps 1-2) and
+# publishes the annotated tag against the commit that actually LANDS (step 5),
+# so until that commit exists there is nothing honest to name. It is spelled as
+# a value no `stack.yaml` can declare, so a consumer comparing against it
+# REFUSES rather than matching by accident. A follow-up commit resolves it, as
+# 58e4aecd did for v1.38 and 7c544c84 for v1.34.
 
-CONTRACT_REF = "0f50b352b2b4a38dc237453bb8f1244e47c8e752"
-CONTRACT_TAG = "contract-v1.38"
+CONTRACT_REF = "unpublished:contract-v1.39"
+CONTRACT_TAG = "contract-v1.39"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
@@ -143,7 +168,7 @@ SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
-        "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
+        "75c80b5dbec3ee074d1390f0c257e20c9362d82afeeea397906ce6220d488ce2",
 }
 
 # The seven doxBench INSTANCE kinds. The catalog kind is a whole-document schema;

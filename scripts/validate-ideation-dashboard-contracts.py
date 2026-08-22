@@ -783,7 +783,11 @@ def check_committed_manifests(f: Findings, repo: Path) -> None:
 #             examples, or --context) unknown-model and per-model input-budget
 #             checks — without one those two are SKIPPED, never silently
 #             passed.
-#   Success   unique proposal targets.
+#   Success   unique proposal targets; and on the widened record, since
+#             contract-v1.39, the CONTEXT POSTURE's pairing (a reduced packet
+#             states its reason, a full one carries none) plus the same
+#             credential/endpoint spelling scan over that reason (see
+#             check_context_packet).
 #   Failure   the limit-pairing rule (`limit` appears IFF the error is the
 #             budget refusal) and the same spelling scan on the message.
 #   Sweep     duplicate client_turn_id with DIFFERENT request content across a
@@ -1229,6 +1233,61 @@ def check_turn_success_v2(f: Findings, label: str, doc: dict) -> None:
                 f"different model (requested "
                 f"{selected.get('requested_model_id')!r}, answered "
                 f"{doc.get('model_id')!r})")
+    check_context_packet(f, label, doc)
+
+
+def check_context_packet(f: Findings, label: str, doc: dict) -> None:
+    """The contract-v1.39 posture statement's own rules (task 10.7).
+
+    TWO of them, and they are different in kind. The first the SHAPE also
+    expresses, and it is restated here ON PURPOSE: it is this release's whole
+    truth-claim — the reason is present IFF the posture is reduced — and the
+    v1.38 review's F2 finding was precisely a file gate that had grown weaker
+    than the type gate beside it while its own docstring claimed parity. Three
+    gates now assert this pairing (the released shape's two conditionals,
+    `ContextPacket.__post_init__`, and this), a test asserts they AGREE on the
+    packaged corpus, and each of the two halves has its own packaged negative.
+    The second rule the shape CANNOT express and this is the only place it
+    lives.
+
+    1. THE PAIRING. A `reduced` posture STATES its reason; a `full` posture
+       carries none. A reduction nobody can read is a silent degradation, and a
+       record declaring `full` beside a reduction states two contradictory facts
+       and lets the reader pick.
+    2. THE REASON IS PUBLIC PROSE, and is scanned for credential and endpoint
+       spellings exactly as a failure's `message` is. It is the one free-prose
+       field this release adds, it describes an ASSEMBLY rather than content,
+       and the same leak-through-an-allowed-field class the failure lane guards
+       against applies to it unchanged.
+
+    A THIRD RULE WAS CONSIDERED AND REJECTED: requiring the reason to say in as
+    many words that nothing unbounded was substituted and no rail was bypassed
+    (which the two reasons this capability ships both do). It is prose-matching
+    a contract — it would refuse a conformant producer whose honest reason is
+    worded differently, and it would pass a dishonest one that quoted the
+    sentence. What the wire can check is that a reduction is STATED; whether the
+    statement is TRUE is the assembler's rail, which is where it is enforced."""
+    packet = doc.get("context_packet")
+    if packet is None:
+        # ABSENT IS LEGAL AND MEANS NOTHING ABOUT THE POSTURE: the key is
+        # optional, and a record from a producer older than contract-v1.39
+        # simply does not carry one. Absence is never read as `full`.
+        return
+    if not isinstance(packet, dict):
+        f.error("context-packet",
+                f"{label}: context_packet is the released posture object")
+        return
+    posture = packet.get("posture")
+    reason = packet.get("reduced_reason")
+    if posture == "reduced" and not reason:
+        f.error("context-packet",
+                f"{label}: a reduced context_packet STATES its reason — a "
+                f"reduction nobody can read is a silent degradation")
+    if posture == "full" and reason is not None:
+        f.error("context-packet",
+                f"{label}: a full context_packet carries no reduced_reason — a "
+                f"record cannot state both postures and let a reader pick")
+    _scan_public_strings(f, label, reason)
 
 
 def check_turn_failure(f: Findings, label: str, doc: dict) -> None:

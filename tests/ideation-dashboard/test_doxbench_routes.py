@@ -63,6 +63,7 @@ from ideation_dashboard import action_errors
 from ideation_dashboard import branch_session
 from ideation_dashboard import doxbench_contracts
 from ideation_dashboard import doxbench_hash
+from ideation_dashboard import doxbench_packet
 from ideation_dashboard import doxbench_turns
 from ideation_dashboard import gate_console
 from ideation_dashboard import serve as serve_mod
@@ -212,6 +213,14 @@ _FIXTURE_TURN_V2_SUCCESS_SCHEMA = {
         "client_turn_id": {}, "assistant_turn_id": {}, "model_id": {},
         "selected_model": {}, "bound_buffer": {},
         "observed_hashes": {}, "assistant_prose": {}, "proposals": {},
+        # contract-v1.39 (task 10.7). DECLARED HERE AND NOT REQUIRED, which
+        # mirrors the release exactly: the key is optional on the wire, and this
+        # fixture's whole job is discriminators and CLOSEDNESS — the released
+        # bytes hold the posture's value rules, and a test over those bytes is
+        # what checks them (`test_doxbench_contracts`). A fixture that restated
+        # them would be a second contract authority, which is the thing this
+        # fixture's own header refuses to be.
+        "context_packet": {},
     },
 }
 
@@ -3042,6 +3051,13 @@ _RELEASED_V2_SUCCESS_KEYS = {
     "schema_version", "kind", "client_turn_id", "assistant_turn_id",
     "model_id", "selected_model", "bound_buffer", "observed_hashes",
     "assistant_prose", "proposals",
+    # contract-v1.39 (task 10.7): the posture the turn's context packet was
+    # assembled under. OPTIONAL on the WIRE — that is what makes the release
+    # additive — but this producer always states it, so the key set it emits
+    # grew by exactly one and this pin grows with it. A record that omitted it
+    # would be conformant and would also be this server having stopped saying
+    # what it ran on, which is what the pin refuses.
+    "context_packet",
 }
 
 
@@ -3094,6 +3110,14 @@ def test_a_widened_turn_returns_the_widened_record_naming_its_declared_binding(
         "requested_model_id": "model-a",
         "routing_rule": False,
         "data_handling": "Processed in the approved tenant boundary",
+    }
+    # …and, since contract-v1.39, WHAT IT RAN ON. This harness declares no
+    # knowledge service (the library default is absence), so the packet is the
+    # DECLARED reduced one and the record now says so instead of leaving the
+    # reduction inside a prompt section nobody on the wire can read.
+    assert payload["context_packet"] == {
+        "posture": "reduced",
+        "reduced_reason": doxbench_packet.REDUCED_NO_KNOWLEDGE_SERVICE,
     }
     assert fake.calls.count("dispatch") == 1
     assert fake.calls[-1] == "dispatch"

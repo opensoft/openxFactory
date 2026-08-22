@@ -1,0 +1,31 @@
+# INVALID widened success (contract-v1.39): the posture object is CLOSED, and
+# this one carries a fourth fact the release did not admit — the retrieval
+# provider the packet named. That fact exists on `ContextPacket`, which is
+# exactly why the closure matters: the release states the POSTURE and its
+# reason, and nothing else, so a producer cannot quietly widen the record into a
+# packet dump with an install's provider profile in it. Growing this object is a
+# later release's act, through the same additive discipline.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-v2-success",
+  "client_turn_id": "turn-v2-0008",
+  "assistant_turn_id": "srv-v2-0008",
+  "model_id": "local-authoring-1",
+  "selected_model": {
+    "requested_model_id": "local-authoring-1",
+    "routing_rule": false,
+    "data_handling": "Local process only; no content leaves this machine."
+  },
+  "context_packet": {
+    "posture": "reduced",
+    "reduced_reason": "the staged-set knowledge service is unavailable, so this packet carries the selected thread and the loaded buffers only, with NO corpus evidence; no unbounded context was substituted and no rail was bypassed to reach a provider",
+    "provider_id": "vertex-hosted"
+  },
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "observed_hashes": {
+    "outline": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+    "ideation/staging/demo-topic/note.md": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825"
+  },
+  "assistant_prose": "An answer whose record cannot be trusted about its own context.",
+  "proposals": []
+}

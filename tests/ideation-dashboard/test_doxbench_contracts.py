@@ -44,25 +44,26 @@ from ideation_dashboard import doxbench_contracts as contracts
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 
-# RE-PINNED at contract-v1.38 (add-doxbench-editing-phase-b §11.7). The MIRROR
-# IMAGE of the v1.34 repin: there the chat-turn digest moved and the catalog's
-# did not, because that release widened the chat-turn file; here the CATALOG
-# digest moves and the chat-turn's does not, because this release grows the
-# catalog entry with the routing-rule declaration.
+# RE-PINNED at contract-v1.39 (add-doxbench-editing-phase-b §10.7), and the
+# MIRROR IMAGE OF THE PREVIOUS REPIN, which was itself the mirror of v1.34's: at
+# v1.38 the catalog digest moved and the chat-turn's did not; here the CHAT-TURN
+# digest moves and the catalog's does not, because this release grows
+# `$defs/success_v2` with the assembled context's posture.
 #
-# The REF carried the unresolved-until-published sentinel across the realization
-# branch, on v1.34's own precedent — the policy publishes the annotated tag
-# against the commit that LANDS, so until that commit existed there was nothing
-# honest to name — and now names it: `contract-v1.38^{}` == 0f50b35, the
-# squash-merge of PR #244, tag object 46cd169, peeled FROM THE REMOTE. (The v1.34
-# resolution was 7c544c84: `contract-v1.34^{}` == 5daa173, tag object 439d76b.)
-RELEASED_REF = "0f50b352b2b4a38dc237453bb8f1244e47c8e752"
-RELEASED_TAG = "contract-v1.38"
+# The REF is the unresolved-until-published sentinel again, on v1.34's and
+# v1.38's own precedent — the policy publishes the annotated tag against the
+# commit that LANDS, so across a realization branch there is no release commit
+# to name, and the sentinel is spelled as a value no `stack.yaml` can declare so
+# a consumer comparing against it refuses rather than matching by accident. A
+# follow-up commit resolves it, as 58e4aecd did for v1.38 (`contract-v1.38^{}`
+# == 0f50b35, tag object 46cd169) and 7c544c84 for v1.34.
+RELEASED_REF = "unpublished:contract-v1.39"
+RELEASED_TAG = "contract-v1.39"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
-        "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
+        "75c80b5dbec3ee074d1390f0c257e20c9362d82afeeea397906ce6220d488ce2",
 }
 
 # ---------------------------------------------------------------------------
@@ -785,9 +786,14 @@ def test_packaged_positives_validate_structurally(released_root):
     # adds the widened family's loaded-set request and its record. 9 -> 10 at
     # contract-v1.38, which adds the `auto` ROUTING RULE instance — and 10 -> 11
     # within that release, for the rule-5' instance Brett's ruling made lawful
-    # (a rule wider than a NON-resolved member). The exact count IS the pin, so
-    # it advances with the release rather than being loosened to an inequality.
-    assert len(positives) == 11, [p.name for p in positives]
+    # (a rule wider than a NON-resolved member). 11 -> 13 at contract-v1.39,
+    # which adds the two CONTEXT POSTURE records: one reduced-with-its-reason
+    # and one explicitly full. (The pre-release record that states NO posture is
+    # the unchanged `workbench-chat-turn-v2-success` instance already counted
+    # here — its continued validity is the additive claim, so the release adds
+    # two files rather than three.) The exact count IS the pin, so it advances
+    # with the release rather than being loosened to an inequality.
+    assert len(positives) == 13, [p.name for p in positives]
 
     for path in positives:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))
