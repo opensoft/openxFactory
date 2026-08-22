@@ -610,11 +610,56 @@ def doxbench_selected_model(model_entry) -> dict:
     }
 
 
+def doxbench_context_packet(packet) -> dict:
+    """The ASSEMBLED CONTEXT's posture, as the widened record carries it since
+    contract-v1.39 (task 10.7) — derived in ONE place, from the packet the turn
+    ACTUALLY RAN UNDER, on `doxbench_selected_model`'s precedent one function up.
+
+    The ratified sentence is *"Where the knowledge service is unavailable the
+    turn SHALL degrade to a declared reduced packet … with the reduced posture
+    STATED"*. Until v1.39 it was stated only INSIDE the packet, where no reader
+    of the record and no human on the surface could consult it. This is the one
+    derivation that puts it on the wire, and it re-states the PACKET'S OWN
+    values — never a re-derivation from "was there a knowledge service?", which
+    would be a second authority that could disagree with the packet (the packet
+    also reduces when a live backend REFUSES a retrieval, and only the packet
+    knows which of the two happened).
+
+    THE REASON IS CARRIED VERBATIM. `ContextPacket` already refuses a reduced
+    packet with no reason and a full packet with one, so on the shipped path
+    these refusals cannot fire — but the packet assembler is an INJECTED seam
+    (`packet_assembler`), duck-typed like every other collaborator here, and a
+    collaborator that handed back a packet declaring `full` beside a reduction
+    would put a self-contradicting record on the wire and in the turn store.
+    Refused as a `PacketError`, which the route's existing packet boundary maps
+    to the fixed `invalid_turn_request` — fail-closed, never a guessed posture.
+    A test drives each refusal through that seam."""
+    posture = getattr(packet, "posture", None)
+    reason = getattr(packet, "reduced_reason", None)
+    if posture == doxbench_packet.POSTURE_REDUCED:
+        if not reason:
+            raise doxbench_packet.PacketError(
+                "a reduced packet STATES the reduced posture's reason; a "
+                "record cannot carry a reduction nobody can read")
+        return {"posture": posture, "reduced_reason": str(reason)}
+    if posture == doxbench_packet.POSTURE_FULL:
+        if reason:
+            raise doxbench_packet.PacketError(
+                "a full packet carries no reduction reason; a record cannot "
+                "state both postures and let a reader pick")
+        return {"posture": posture}
+    raise doxbench_packet.PacketError(
+        "a packet states its posture; a record cannot declare one the packet "
+        "does not have")
+
+
 def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str,
                                   model_id: str, requested_model_id: str,
                                   routing_rule: bool, data_handling: str,
                                   bound_buffer: str, observed_hashes: dict,
-                                  assistant_prose: str, proposals=()) -> dict:
+                                  assistant_prose: str, context_posture: str,
+                                  context_reduced_reason: str | None = None,
+                                  proposals=()) -> dict:
     """The RELEASED `workbench-chat-turn-v2-success` envelope — the turn's
     durable RECORD (contract-v1.34; add-doxbench-editing-phase-b §13).
 
@@ -633,9 +678,24 @@ def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str
       being unequal, because "these differ" and "this entry is a routing rule"
       are different facts.
 
+    …and, SINCE contract-v1.39 (task 10.7), a fourth:
+
+    * `context_packet` — the POSTURE the turn's bounded context packet was
+      assembled under, plus the reduction's reason when there is one. Rebuilt
+      here from two named scalars for the same reason `selected_model` is: a
+      caller handing in a ready-made dict could splice a key past the builder,
+      and this envelope is closed. The posture is a REQUIRED argument, so no v2
+      record can be built that silently omits it — the WIRE key is optional
+      (that is what makes v1.39 additive), but this producer always states it,
+      and a full turn's record says `full` explicitly rather than by omission.
+      Omission on the wire means "a producer older than v1.39", never "full".
+
     Like its v1 sibling this builder is never the last word on conformance: the
     route self-validates the built envelope against the released schema before it
     is stored or sent."""
+    context_packet = {"posture": str(context_posture)}
+    if context_reduced_reason is not None:
+        context_packet["reduced_reason"] = str(context_reduced_reason)
     return {
         "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
         "kind": DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND,
@@ -647,6 +707,7 @@ def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str
             "routing_rule": bool(routing_rule),
             "data_handling": str(data_handling),
         },
+        "context_packet": context_packet,
         "bound_buffer": str(bound_buffer),
         "observed_hashes": {str(key): str(value)
                             for key, value in observed_hashes.items()},
@@ -2562,6 +2623,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         outcome_limit = None
         prompt_envelope = None
         turn_port = None
+        # THE POSTURE THE TURN RAN UNDER (contract-v1.39, task 10.7), derived
+        # below beside the packet it describes and read again in the v2 arm.
+        # Seeded to None so a path that never assembles a packet cannot leave a
+        # stale posture in scope: only the success arm reads it, and that arm is
+        # reachable only when `prompt_envelope` was built, which happens after
+        # this is set.
+        context_packet_record = None
         try:
             # ---- the PACKET, assembled BEFORE the prompt and before any
             # provider (§10.3). Its rails run inside the assembler: the
@@ -2644,6 +2712,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 # because a leash that could not be reissued is a server that
                 # cannot bound its own context.
                 packet = _new_packet()
+
+            # DERIVED HERE, INSIDE THE PACKET BOUNDARY, and for the reason the
+            # boundary exists: this reads the packet, so its refusals are packet
+            # refusals and must land on the same fixed codes every other packet
+            # refusal does. Derived from the packet the turn will actually run
+            # under — after the one permitted re-request above, so a reissued
+            # packet's posture is the one recorded, never the rejected packet's.
+            context_packet_record = doxbench_context_packet(packet)
 
             prompt_envelope = doxbench_turns.build_prompt_envelope(
                 packet=packet, meter=self.usage_meter,
@@ -2873,6 +2949,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     # rather than three literals here. `selected_model` is
                     # computed ABOVE, before the sidecar, because the sidecar
                     # needs the resolved id too (F3).
+                    #
+                    # AND SINCE contract-v1.39 (task 10.7) the record STATES the
+                    # posture its context was assembled under. Derived above,
+                    # beside the packet, by the same one-place discipline: the
+                    # values are the PACKET's own, so the record and the packet's
+                    # own declaration cannot disagree.
                     success_body = doxbench_turn_v2_success_body(
                         client_turn_id=client_turn_id,
                         assistant_turn_id="assistant-" + digest[:56],
@@ -2885,6 +2967,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                             buffer_key: observed.for_key(buffer_key).hex
                             for buffer_key in observed.keys()
                         },
+                        context_posture=context_packet_record["posture"],
+                        context_reduced_reason=context_packet_record.get(
+                            "reduced_reason"),
                         assistant_prose=outcome.assistant_prose,
                         proposals=outcome.proposals)
                 else:
@@ -2905,6 +2990,18 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     # forbids. The SIDECAR on this lane does name the answering
                     # model — it is written above, before this branch, and is not
                     # part of the v1 wire.
+                    #
+                    # A SECOND RECORDED v1 LIMITATION (contract-v1.39, task
+                    # 10.7): this envelope has no `context_packet` either, so a
+                    # v1 turn that ran on a REDUCED context cannot say so on the
+                    # wire. The reduction is still stated where it always was —
+                    # inside the assembled packet, in the prompt's own
+                    # declaration section — and the v1 turn still SUCCEEDS,
+                    # which is the ratified "MUST NOT make the editors unusable"
+                    # half. What a v1 consumer cannot do is READ the posture; the
+                    # migration path is the v2 envelope, and widening a
+                    # deprecated closed shape is exactly what contract-v1.34's
+                    # deprecation forbids.
                     document_key = document_keys[0]
                     success_body = doxbench_turn_success_body(
                         client_turn_id=client_turn_id,

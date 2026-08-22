@@ -43,6 +43,17 @@ description: >-
   valid becomes invalid). The v1 family is DEPRECATED by this release; see
   `deprecated_envelopes` below and `contracts/CHANGELOG.md` for the migration
   note and the removal target.
+
+  THE ASSEMBLED CONTEXT'S POSTURE (contract-v1.39, add-doxbench-editing-phase-b
+  task 10.7). `success_v2` gains ONE optional property, `context_packet`, and
+  the widened family gains nothing else: the posture (`full | reduced`) under
+  which the turn's bounded context packet was assembled, plus the reduction's
+  own reason when there is one. It exists so the ratified "with the reduced
+  posture STATED" clause is readable by a consumer and showable to the human
+  rather than stated only inside the packet. ADDITIVE: the key is OPTIONAL, its
+  ABSENCE is not a posture claim (it means a producer older than v1.39), no
+  existing shape changes, and the DEPRECATED v1 success envelope is deliberately
+  NOT widened — see the CHANGELOG for that recorded limitation.
 oneOf:
   - $ref: "#/$defs/request"
   - $ref: "#/$defs/success"
@@ -269,6 +280,62 @@ $defs:
       requested_model_id: { type: string, minLength: 1, maxLength: 128 }
       routing_rule: { type: boolean }
       data_handling: { type: string, minLength: 1, maxLength: 500 }
+  context_packet:
+    # WHAT THE TURN RAN UNDER (contract-v1.39, add-doxbench-editing-phase-b task
+    # 10.7). The ratified knowledge-service requirement ends "Where the knowledge
+    # service is unavailable the turn SHALL degrade to a declared reduced packet
+    # — the selected thread and the loaded buffers, with the reduced posture
+    # STATED". Until this release the posture was stated only INSIDE the
+    # assembled context, which no reader of the record and no human on the
+    # surface could consult: `success_v2` is a CLOSED envelope and had no field
+    # for it. This is that field.
+    #
+    # ITS VOCABULARY IS THE PACKET'S OWN, deliberately, so no third spelling of
+    # the same fact exists: `posture` and `reduced_reason` are the two members
+    # of `ContextPacket` this states, with the SAME two-value posture and the
+    # SAME truth-pairing the packet enforces at construction — a reduced packet
+    # STATES its reason and a full packet carries none. That pairing is not
+    # advisory here either: the two conditionals below refuse each half of it.
+    #
+    # WHY ONE OBJECT rather than two sibling keys on the envelope, on the
+    # `selected_model` precedent one $def above: the posture and its reason are
+    # one fact about one thing, grouping keeps the "present iff" rule local to
+    # the object that owns it, and it keeps the ENVELOPE's key set identical for
+    # a full turn and a reduced one — which is the ratified independence claim
+    # ("MUST NOT ... make the editors unusable") read on the wire, where the two
+    # turns differ in what the record SAYS and not in the shape it arrives in.
+    #
+    # `reduced_reason` is FREE PROSE with the same 500-byte ceiling every other
+    # authored string in this family carries (`data_handling`, a proposal
+    # `summary`, a failure `message`). It is a statement about the ASSEMBLY, not
+    # about content: it names why the packet is reduced and, in the reasons this
+    # capability ships, says in as many words that nothing unbounded was
+    # substituted and no rail was bypassed. The delegated validator scans it for
+    # public-only violations exactly as it scans a failure's `message`.
+    type: object
+    additionalProperties: false
+    required: [posture]
+    properties:
+      posture: { enum: [full, reduced] }
+      reduced_reason: { type: string, minLength: 1, maxLength: 500 }
+    allOf:
+      # A REDUCTION NOBODY CAN READ IS A SILENT DEGRADATION -- the packet's own
+      # words, and its own refusal, restated on the wire.
+      - if:
+          required: [posture]
+          properties: { posture: { const: reduced } }
+        then:
+          required: [reduced_reason]
+      # AND A FULL PACKET CARRIES NO REASON. A record that declared `full` while
+      # naming a reduction would state two contradictory facts and let a reader
+      # pick; the packet refuses that construction, so the record refuses it too.
+      # This is a SEPARATE conditional and not the inverse of the one above:
+      # they guard different instances, and each has its own packaged negative.
+      - if:
+          required: [posture]
+          properties: { posture: { const: full } }
+        then:
+          not: { required: [reduced_reason] }
   request_v2:
     # The widened request. It carries the outline plus every loaded document,
     # and it DECLARES which of them the chat is bound to. `active_document_path`
@@ -333,6 +400,13 @@ $defs:
       # produced which turn instead of leaving it to be inferred.
       model_id: { type: string, minLength: 1, maxLength: 128 }
       selected_model: { $ref: "#/$defs/selected_model" }
+      # WHAT THE TURN RAN UNDER (contract-v1.39, task 10.7). OPTIONAL, which is
+      # what makes this release additive: a record produced before v1.39 omits
+      # it and stays valid, and no reader of an older record has to change.
+      # OMISSION IS NOT A POSTURE CLAIM -- it means the producer predates this
+      # release, never that the context was full. A consumer that needs the
+      # posture must read this key and treat its absence as unknown.
+      context_packet: { $ref: "#/$defs/context_packet" }
       bound_buffer: { $ref: "#/$defs/buffer_key" }
       observed_hashes: { $ref: "#/$defs/keyed_observed_hashes" }
       assistant_prose: { type: string, maxLength: 900000 }
