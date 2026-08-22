@@ -928,9 +928,13 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` grows ONE
       OPTIONAL property on `$defs/success_v2`, `context_packet`, referencing one
       new CLOSED `$def` with two members: `posture` (`full | reduced`, required)
-      and `reduced_reason` (`minLength` 1, `maxLength` 500 — code points, which
-      the producer's own guard shadows with the stricter UTF-8 byte count),
-      present IFF the posture is reduced.
+      and `reduced_reason` (`minLength` 1, `maxLength` 500 — CODE POINTS, which
+      is what the producer enforces too: `serve.doxbench_context_packet` counts
+      `len(reason)`, and the browser adopter counts `[...reason].length`, both
+      pinned to the released bound. A separate test holds the shipped
+      `REDUCED_*` CONSTANTS to the stricter UTF-8 BYTE count, which is a rule
+      about text this repository authors and NOT one the guard imposes on the
+      wire), present IFF the posture is reduced.
       ADDITIVE by construction and verified case by case against the released
       bytes: the key is optional, so the pre-release record shape still
       validates — a packaged instance whose INSTANCE bytes are unchanged (only
