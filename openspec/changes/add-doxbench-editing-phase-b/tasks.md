@@ -1080,14 +1080,28 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       `unpublished:contract-v1.40` sentinel until a follow-up commit resolves
       it, exactly as 11.7 did for `contract-v1.38` and 13.3 for
       `contract-v1.34`.
-      **CHECKED AT ALLOCATION, and this time the surface was clean.**
-      `contract-v1.40` was available at the branch base `66140613` — CHANGELOG
-      heading and bundle both read `contract-v1.38` — and
+      **CHECKED AT ALLOCATION, AND CHECKED AGAIN AT LANDING — which is how this
+      release came to be v1.40 and not v1.39.** At the branch base `66140613`
+      the CHANGELOG heading and the bundle both read `contract-v1.38`, so
+      `contract-v1.39` was the next available number and this cut TOOK it; and
       `verify-commit --commit origin/main` PASSED there against v1.38's
       inventory, so the `HGR-RELEASE-DIGEST-MISMATCH` §11.7's tick left red on
-      the v1.37 lane no longer applies. Recorded because the two preceding
-      releases both found the surface broken when they got there, and the habit
-      is to check rather than to assume in either direction.
+      the v1.37 lane no longer applied.
+      **THEN v1.39 WAS TAKEN OUT FROM UNDER IT.** While this slice was in
+      review, `add-roster-directory-admission-surface` landed (PR #259,
+      `5124fbcd`, merged at `1f45e427`) and allocated `contract-v1.39` for the
+      `directory` roster admission surface. CHANGELOG presence ON MAIN is the
+      availability test, so v1.39 is theirs and this release re-cut to
+      `contract-v1.40` — the v1.37→v1.38 shape a second time, and the reason the
+      habit is to recheck at the moment you LAND as well as at the moment you
+      allocate. Their entry had named this branch and its working v1.39 by sha
+      and said whichever landed second would re-cut; this is that re-cut, and
+      `verify-commit --commit 1f45e427` passes against THEIR v1.39 inventory, so
+      unlike the v1.37 episode the preceding surface is clean.
+      (The sequence is stated rather than overwritten: an earlier version of
+      this paragraph was caught by the bot round saying `contract-v1.40` "was
+      available at the branch base", which it was not — v1.39 was, and a blanket
+      renumber had rewritten a historical record into a false one.)
       **Judgement call, flagged — ONE OBJECT, and its members carry the
       PACKET'S OWN NAMES.** The wire names are `context_packet.posture` and
       `context_packet.reduced_reason`, which are `ContextPacket`'s own two
