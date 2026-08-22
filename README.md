@@ -380,7 +380,7 @@ Active changes:
   `CloudPC.Read.All`, tenant-wide read, provider offers nothing narrower — the
   roster's Decision-3 motivating example). ONE surface, not three; the three
   provider areas ride the entry as declared provider-forced breadth.
-  Additive — no `contract_schema_version` bump; the realization bumps the
+  Additive — no `contract_schema_version` bump; the realization bumped the
   bundle contract-v1.34 → contract-v1.35 with a digest refresh. Proposed on the
   node-inventory realization evidence per the reader-grant clarify decision Q4.
   **RATIFIED 2026-08-19** (record: the change's
@@ -388,10 +388,16 @@ Active changes:
   adversarial review, F1 fixed pre-ratification and F2 accepted), and the
   post-ratification realization tasks §1–§5 are discharged — the `device`
   `oneOf` member is in `contracts/schemas/xfactory-client-identity-roster.schema.yaml`
-  and the bundle bumped to `contract-v1.35`. Only §6 stays open, and it is
+  and the bundle was cut as `contract-v1.35 — 2026-08-19` (CHANGELOG entry plus
+  its digests file; the bundle has since moved on to contract-v1.37). §6 is
   explicitly NOT part of this change: the downstream OpsxFactory `device`
-  roster entry and its §6 consent ceremony.
-  `target_release: implementation_pending`.
+  roster entry and its consent ceremony.
+  `target_release: implementation_pending` — CONDITION MET, not pending: the
+  code surface is merged on main and evidenced, so what the change still owes
+  is the archive-gate act (recording that evidence and archiving), not the
+  implementation. The proposal's own front matter and banner still read as
+  though realization were ahead of it; correcting them belongs to that archive
+  slice, not to this row sweep.
 - [add-doxbench-editing-phase-b](openspec/changes/add-doxbench-editing-phase-b/proposal.md)
   — authored 2026-08-18, Phase B and the EXIT of the `doxbench-editing-model`
   staged topic: all seven questions dispositioned, 26 claims settled (Brett's
