@@ -284,7 +284,7 @@ Active proposals promoted from staging:
   `repo-boundary-governance` requirement rather than the shared MODIFIED
   enumeration, so the two siblings cannot collide on one requirement at
   archive time. Exits 2 (`keycloak-administration` in OpsxFactory) and 3 (the
-  `xFactory-Keycloak-Install` creation) remain, tracked as named successors on
+  `Keycloak-Install` creation) remain, tracked as named successors on
   the change.
 - [add-trust-anchor](../openspec/changes/add-trust-anchor/proposal.md)
   — raised, RATIFIED and REALIZED 2026-08-21 (registered at
@@ -304,13 +304,13 @@ Active proposals promoted from staging:
   deliberate divergence from the topic**, recorded here so a reader is not
   left to infer it: the topic's R1 called for the `repo-boundary-governance`
   install-repository enumeration to be MODIFIED, and the change instead ADDS a
-  per-repo requirement for the `xFactory-OpenXPKI-Install` boundary (design
+  per-repo requirement for the `OpenXPKI-Install` boundary (design
   D8) — the collision avoidance the sibling `add-identity-brokering` mirrors.
   Topic-folder and change ids differ deliberately (`pki-trust-anchor-plane`
   vs `add-trust-anchor`), and R1/R7 were ruled once across this topic and
   `identity-brokering-plane`. Exits 2 (`pki-administration` in OpsxFactory,
   plus the time-critical `add-openxpki-qa-image-pipeline` Impact amendment)
-  and 3 (the `xFactory-OpenXPKI-Install` creation, moving the QA deployment
+  and 3 (the `OpenXPKI-Install` creation, moving the QA deployment
   topology in per R2 while image custody stays in `opensoft/Opensoft-Tenant`)
   remain, tracked as named successors on the change.
 - [add-consent-instrument](../openspec/changes/archive/2026-08-06-add-consent-instrument/proposal.md)

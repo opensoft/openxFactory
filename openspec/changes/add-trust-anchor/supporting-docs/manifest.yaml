@@ -3,7 +3,7 @@
   "files": [
     {
       "path": "pki-trust-anchor-plane.md",
-      "sha256": "8a41805ead49446c97b098043a745b7e2d703d36dfc46203863af0d4fcd15db6",
+      "sha256": "21ffd437d31e0ff5270358149a12f3c4afc4643c018ed75084dbd3a7c8b6ac06",
       "source_path": "ideation/staging/pki-trust-anchor-plane/pki-trust-anchor-plane.md",
       "source_sha256": "2081158b26a9dc5e8ee7f28b937e94a8095cb5ed56d67730a339e364efda47c6",
       "source_snapshot_path": "source-snapshots/pki-trust-anchor-plane.md"

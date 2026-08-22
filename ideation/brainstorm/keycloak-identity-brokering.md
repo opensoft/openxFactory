@@ -162,8 +162,8 @@ day:
   workflows as siblings of `exchange-administration` /
   `aks-administration-workflow` / `github-administration-workflow` /
   `business-central-administration`, and new install repos own the
-  deployable runtime (`opensoft/xFactory-Keycloak-Install` at
-  `installs/keycloak-install`, `opensoft/xFactory-OpenXPKI-Install` at
+  deployable runtime (`opensoft/Keycloak-Install` at
+  `installs/keycloak-install`, `opensoft/OpenXPKI-Install` at
   `installs/openxpki-install`, per-client instantiation as
   `config/clients/<tenant>/runtime-manifest.yaml` on the hermes-install
   precedent).

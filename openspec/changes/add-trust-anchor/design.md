@@ -150,7 +150,7 @@ runs along **custody**, not convenience:
   ACR digest. Deciding what binary a tenant's certificate authority runs is
   a tenant trust decision; moving it out of the tenant repo moves a trust
   decision away from its owner.
-- **Moves to `xFactory-OpenXPKI-Install`**: the QA deployment topology
+- **Moves to `OpenXPKI-Install`**: the QA deployment topology
   manifests (server / client / web), which CONSUME the pinned digest rather
   than produce it, plus per-client instantiation at
   `config/clients/<tenant>/runtime-manifest.yaml`.
@@ -183,7 +183,7 @@ Three reasons, in order of weight:
 1. **Two parallel changes cannot both replace one requirement.** A MODIFIED
    delta wholesale-replaces the named requirement and only it, restating all
    its scenarios. The sibling `add-identity-brokering` needs the same
-   admission for `xFactory-Keycloak-Install` in the same window. Two changes
+   admission for `Keycloak-Install` in the same window. Two changes
    each replacing "Install repository scope" produce a merge in which one
    repo's admission silently disappears — the later delta's restatement wins
    and it does not know about the earlier one. ADDED requirements compose;

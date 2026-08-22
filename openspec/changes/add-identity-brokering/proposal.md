@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory (a NEW `contracts/identity-brokering/` family — persona assertion, broker organization, actor-subject reference, identity link/merge record, broker service-client declaration, and surface adoption/posture schemas — plus a family README, packaged positive/negative examples, and the canonical `scripts/validate-identity-brokering.py`; registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` + the README contract index at the next additive bundle cut). The broker RUNTIME and its per-client instantiation (`xFactory-Keycloak-Install`), the OpsxFactory `keycloak-administration` workflow with its service-subject registration, the dashboard oauth2-proxy swap, and the gate-action `actor_subject` field are successor realization changes named in the impact map, not this change's surface.
+code_surface: openxFactory (a NEW `contracts/identity-brokering/` family — persona assertion, broker organization, actor-subject reference, identity link/merge record, broker service-client declaration, and surface adoption/posture schemas — plus a family README, packaged positive/negative examples, and the canonical `scripts/validate-identity-brokering.py`; registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` + the README contract index at the next additive bundle cut). The broker RUNTIME and its per-client instantiation (`Keycloak-Install`), the OpsxFactory `keycloak-administration` workflow with its service-subject registration, the dashboard oauth2-proxy swap, and the gate-action `actor_subject` field are successor realization changes named in the impact map, not this change's surface.
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
 Status: ratified
 Ratified by: Brett Heap, 2026-08-21 — "ratify both proposals"; all design decisions adopted as written, OQ-1 through OQ-4 recommendations adopted as the working recommendations at the settlement points their tasks name, and the OQ-5 pre-ratification gate discharged by review/co-residence-finding-2026-08-21.md (one population found: HealthLinc patients, pre-declared the first dedicated-instance client under D3)
@@ -115,7 +115,7 @@ to exist before the workflow or the runtime is built against it.
 ### Modified Capabilities
 
 - `repo-boundary-governance`: one ADDED requirement admitting the
-  `xFactory-Keycloak-Install` boundary. No existing requirement is
+  `Keycloak-Install` boundary. No existing requirement is
   modified or restated.
 
 ## Impact
@@ -135,7 +135,7 @@ to exist before the workflow or the runtime is built against it.
      covers both administration workflows because they share the
      service-subject registration work.
   2. **`implement-keycloak-install-repo`** — creates
-     `opensoft/xFactory-Keycloak-Install` under the requirement this
+     `opensoft/Keycloak-Install` under the requirement this
      change adds, lands the first `config/clients/opensoft/`
      runtime-manifest, and hands aggregation admission to its own
      separate reviewed change.
@@ -191,3 +191,11 @@ under design D3, binding realization to exclude clinical-patient
 populations from the shared instance by rule. Ratification authorizes
 exactly one Speckit realization feature for phase 1 and creates no broker,
 realm, organization, credential, or persona.
+
+Amendment (Brett Heap, 2026-08-21): the install repository is
+Opensoft-level — renamed `opensoft/Keycloak-Install` (unprefixed,
+CloudPC-Install precedent); the broker serves Opensoft-wide surfaces, not
+only the xFactory product family. Applied in place to the ratified delta
+before repository creation; aggregation path and successor change id
+unchanged. The source snapshot retains the pre-amendment name as
+provenance.

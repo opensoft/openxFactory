@@ -7,7 +7,7 @@ ruled as recommended; registered in `contracts/manifest.yaml` +
 [Contract Versioning Policy](../../docs/contract-versioning-policy.md))
 Kind: reference
 Repository context: openxFactory owns this neutral contract; the OpsxFactory
-`pki-administration` workflow and the `xFactory-OpenXPKI-Install` deployment
+`pki-administration` workflow and the `OpenXPKI-Install` deployment
 topology are named successors that consume its vocabulary rather than restate it
 
 The neutral contract for **what a governed system may assume about a certificate
