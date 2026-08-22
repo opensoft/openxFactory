@@ -27,7 +27,7 @@ name the admission act and scoping mechanism that make it a surface.
 - **THEN** `device` enters the closed admission-surface vocabulary
 - **AND** its entry names the admission act (admin-consented `Device.Read.All`, `DeviceManagementManagedDevices.Read.All` and `CloudPC.Read.All` on one identity) and the scoping mechanism (tenant-wide read, exact effective scopes, and no narrower provider selector)
 
-#### Scenario: The directory (service-discovery) surface is admitted
+#### Scenario: The directory (service-inventory) surface is admitted
 - **WHEN** the ratified service-inventory (`managed-service-inventory`) capability governs the directory read surface (the tenant directory and service estate — organization profile, subscribed service plans, applications and domains — read on one identity, and the provider offers nothing narrower)
 - **THEN** `directory` enters the closed admission-surface vocabulary
 - **AND** its entry names the admission act (admin-consented read-only `Organization.Read.All`, `Application.Read.All` and `Domain.Read.All` on one identity) and the scoping mechanism (tenant-wide read, exact effective scopes, and no narrower provider selector)
