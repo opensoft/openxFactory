@@ -3633,13 +3633,16 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
   // (a) a snapshot of a reduced conversation CARRIES the posture …
   const blob = chatSnapshot(reduced);
   out.snapshotCarries = Boolean(blob.context_packet)
-    && blob.context_packet.posture === "reduced";
+    && blob.context_packet.posture === "reduced"
+    && blob.context_packet.reduced_reason === REASON;
   // … INCLUDING an explicitly full one, which is not a quirk: this release's
   // own doctrine is that absent and `full` are DIFFERENT facts, so a snapshot
   // that dropped `full` would restore "unknown" over a posture somebody
   // checked — re-introducing the inference-by-absence the release forbids.
+  // Read defensively: if the key stops being written this must REPORT that,
+  // not crash the harness and make the failure look like a broken probe.
   out.snapshotCarriesFull =
-    chatSnapshot(full).context_packet.posture === "full";
+    (chatSnapshot(full).context_packet || {}).posture === "full";
   // The key is omitted only when there is NO posture to state: a conversation
   // with no answer yet, or one whose answer came from a producer older than
   // contract-v1.39. That is the case whose blob is unchanged from before.
@@ -3670,10 +3673,25 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
   };
 
   // (e) a blob that CONTRADICTS itself fails closed by the same rule a wire
-  //     record does — no note, rather than a reduction nobody can check.
-  const bad = { ...blob, context_packet: { posture: "reduced" } };
-  out.contradictoryBlob = reducedContextNote(
-    restoreChatState(createChatState(KEY), bad, {})) === null;
+  //     record does. ASSERTED ON THE ADOPTED STATE, not on the rendered note:
+  //     `reducedContextNote` carries its own second guard on the same rule, so
+  //     a note-level assertion passes even when the adopter trusts the blob —
+  //     measured, by a revert-test (R39) that came back GREEN reading the note.
+  //     The state is where the adopter's verdict actually lands.
+  const contradictions = [
+    { posture: "reduced" },                                   // no reason
+    { posture: "reduced", reduced_reason: "" },               // empty reason
+    { posture: "full", reduced_reason: REASON },              // full WITH one
+    { posture: "degraded", reduced_reason: REASON },          // unknown posture
+    "reduced",                                                // not an object
+  ];
+  out.contradictoryBlobs = contradictions.map((cp) =>
+    restoreChatState(createChatState(KEY), { ...blob, context_packet: cp }, {})
+      .contextPacket);
+  // …and the honest blob still adopts, so the guard is not simply refusing
+  // everything.
+  out.goodBlobAdopts = restoreChatState(
+    createChatState(KEY), blob, {}).contextPacket;
 }
 
 // NEW-3: typing in the composer must not re-announce the same sentence.
@@ -3918,9 +3936,20 @@ def test_a_snapshot_written_before_this_release_still_restores(posture_results):
 def test_a_contradictory_stored_posture_fails_closed_like_a_wire_one(
         posture_results):
     """One validator, both readers. A hand-edited blob claiming `reduced` with
-    no readable reason renders nothing, rather than captioning the restored
-    transcript with a reduction nobody can check."""
-    assert posture_results["contradictoryBlob"] is True
+    no readable reason adopts to NOTHING, rather than captioning the restored
+    transcript with a reduction nobody can check.
+
+    ASSERTED ON THE ADOPTED STATE, not on the rendered note. `reducedContextNote`
+    holds its own second guard on the same rule, so a note-level assertion is
+    satisfied even when the adopter trusts the blob whole — which a revert-test
+    proved by coming back GREEN (R39) with the validation removed. The state is
+    where the adopter's verdict lands, so that is what this pins."""
+    assert posture_results["contradictoryBlobs"] == [None, None, None, None, None]
+    # …and the guard is discriminating, not merely refusing everything.
+    assert posture_results["goodBlobAdopts"] == {
+        "posture": "reduced",
+        "reduced_reason": posture_results["reason"],
+    }
 
 
 def test_typing_does_not_RE_ANNOUNCE_the_same_disclosure(posture_results):
