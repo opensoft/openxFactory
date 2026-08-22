@@ -3149,6 +3149,43 @@ def test_a_widened_turn_whose_binding_names_no_supplied_buffer_is_refused(
     _assert_no_sentinels(payload)
 
 
+@released_only
+def test_a_reduced_turn_conforms_to_the_RELEASED_posture_rules_end_to_end(
+        tmp_path, released_validators):
+    """THE FIXTURE-SCHEMA GAP, closed (adversarial review N3).
+
+    Every other posture test in this suite runs against `_fixture_validators`,
+    whose v2-success schema declares `context_packet: {}` — discriminators and
+    closedness only, deliberately, because a fixture that restated the value
+    rules would be a second contract authority. The consequence is that nothing
+    was driving a REDUCED turn through the released `$defs/context_packet` at
+    the route: the posture's own rules were exercised as instances
+    (`test_doxbench_contracts`) and as a rendered surface (the node probe), but
+    never as bytes a serve actually produced and a released validator actually
+    blessed.
+
+    This is that test. `build_server`'s own default validator seam resolves the
+    PINNED checkout, the route self-validates the body it built against the
+    released bytes before storing or sending it, and the record is revalidated
+    here as an instance for good measure."""
+    fake = _port()
+    with _serving(tmp_path, model_port_factory=(lambda: fake),
+                  schema_validator_factory=_UNSET) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        status, payload, _headers, _raw = _request(
+            host, prt, "POST", CHAT_ROUTE, body=_turn_v2(),
+            headers=_console_headers(caps))
+    assert status == 200, payload
+    # The harness declares no knowledge service, so the turn ran reduced — and
+    # the record says so, through the RELEASED shape rather than a fixture's.
+    assert payload["context_packet"] == {
+        "posture": "reduced",
+        "reduced_reason": doxbench_packet.REDUCED_NO_KNOWLEDGE_SERVICE,
+    }
+    assert doxbench_contracts.validate_instance(payload) == []
+    _assert_no_sentinels(payload)
+
+
 def test_a_deprecated_v1_turn_is_still_served_in_its_own_family(tmp_path):
     """The deprecation's whole promise: the older shape keeps working, and it is
     answered in ITS envelope -- never in the widened one, which carries fields a

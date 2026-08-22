@@ -307,10 +307,14 @@ $defs:
     #
     # `reduced_reason` is FREE PROSE with the same 500-`maxLength` ceiling every
     # other authored string in this family carries (`data_handling`, a proposal
-    # `summary`, a failure `message`). JSON Schema counts `maxLength` in CODE
-    # POINTS; the producer's own guard checks the stricter UTF-8 BYTE count
-    # against the same number, so nothing it emits can pass one and fail the
-    # other. It is a statement about the ASSEMBLY, not
+    # `summary`, a failure `message`). THE UNIT IS CODE POINTS, which is what
+    # JSON Schema's `maxLength` counts — so a 500-character CJK reason is
+    # conformant at roughly 1,500 UTF-8 bytes, and a consumer sizing a buffer
+    # must size it in bytes rather than in `maxLength`. Producers are expected
+    # to refuse an over-long reason BEFORE emitting it rather than discovering
+    # the ceiling at validation; this repository's own producer does, in the one
+    # place the reason is carried onto the record. It is a statement about the
+    # ASSEMBLY, not
     # about content: it names why the packet is reduced and, in the reasons this
     # capability ships, says in as many words that nothing unbounded was
     # substituted and no rail was bypassed. The delegated validator scans it for

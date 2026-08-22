@@ -100,8 +100,12 @@ export function createChatState(keyValue, subjectDefaultValue) {
     // WHAT THE LAST ANSWER RAN ON (contract-v1.39, task 10.7). The released
     // record now STATES the posture its context packet was assembled under, and
     // this is where that statement lands so the rail can show it. Null means
-    // "no answer to describe" — a fresh conversation, a flight in the air, a
-    // thread just switched to — and is NOT a claim that the context was full.
+    // "no answer to describe, or an answer that stated no posture" — a fresh
+    // conversation, a thread just switched to, or a record from a producer
+    // older than contract-v1.39 — and is NOT a claim that the context was full.
+    // It describes THE TRANSCRIPT'S LAST ASSISTANT ANSWER and changes exactly
+    // when that answer does; see `beginTurn` for why a flight STARTING is not
+    // one of those moments (adversarial review S4).
     // Deliberately a fact about the MOST RECENT ANSWER rather than a per-turn
     // annotation on the transcript: a transcript restored from the server's
     // thread sidecar carries no posture (the sidecar's turn header is a
@@ -226,17 +230,32 @@ export function beginTurn(stateValue) {
   if (stateValue.phase !== "idle") {
     return stateValue;
   }
+  // THE POSTURE NOTE IS NOT CLEARED HERE, and an earlier version of this
+  // release cleared it here — which its adversarial review (S4) broke in one
+  // move: a reduced answer followed by a FAILED follow-up left the reduced
+  // answer holding the transcript with its disclosure GONE. That is precisely
+  // the lost-badge defect this release cited when it rejected per-turn badges,
+  // reappearing at rail level.
+  //
+  // THE INVARIANT IS SIMPLER THAN THE CLEAR WAS: the note describes THE
+  // TRANSCRIPT'S LAST ASSISTANT ANSWER. So it changes exactly when that answer
+  // does, and every path that replaces the answer already replaces the posture
+  // beside it — `settleTurnSuccess` adopts the new record's (null included, for
+  // a producer older than contract-v1.39), `adoptThreadTranscript` clears it
+  // with the transcript it replaces, and `rekeyChatState` starts fresh. A
+  // flight STARTING replaces no answer, so it changes nothing: while a turn is
+  // in the air the note still describes the answer still on screen, which is
+  // true.
+  //
+  // The alternative the review offered — restore the posture in
+  // `settleTurnFailure` — was REJECTED: `beginTurn` would have to stash the
+  // value for `settleTurnFailure` to hand back, and `abortTurn` and
+  // `recordLocalFailure` would each need the same restore, so ONE invariant
+  // would be re-implemented at three sites instead of not being violated at
+  // one.
   return next(stateValue, {
     phase: "in_flight",
     pendingMessage: stateValue.composer,
-    // THE POSTURE NOTE DESCRIBES THE LAST ANSWER, so it is cleared the moment a
-    // new question is in the air: leaving it up would let "reduced context"
-    // stand over a turn whose context has not been assembled yet, and — if that
-    // turn then FAILED — over no answer at all. Cleared here rather than in
-    // settleTurnFailure so every route out of a flight (failure, abort,
-    // abandonment) lands on the same honest silence, and only a SUCCESS puts a
-    // posture back.
-    contextPacket: null,
   });
 }
 

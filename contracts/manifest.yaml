@@ -1581,7 +1581,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 3de2a85323cc4c843a33d179e6ccabdc723280ba9243988adce3bbd6a0431a61
+    sha256: cc874fef63e387a5f16c9d7ed5235bc03fb4fc68537a31c42d3acc5259d76ffa
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

@@ -1261,11 +1261,22 @@ def check_context_packet(f: Findings, label: str, doc: dict) -> None:
        carries none. A reduction nobody can read is a silent degradation, and a
        record declaring `full` beside a reduction states two contradictory facts
        and lets the reader pick.
-    2. THE REASON IS PUBLIC PROSE, and is scanned for credential and endpoint
+    2. THE REASON IS PUBLIC PROSE, and is LINTED for credential and endpoint
        spellings exactly as a failure's `message` is. It is the one free-prose
        field this release adds, it describes an ASSEMBLY rather than content,
-       and the same leak-through-an-allowed-field class the failure lane guards
-       against applies to it unchanged.
+       and the same leak-through-an-allowed-field class the failure lane
+       already watches applies to it unchanged.
+       CALL IT A LINT, NOT A GUARD (adversarial review N1). `_CREDENTIAL_RE` and
+       `_ENDPOINT_RE` are spelling heuristics over free prose: they FALSE-POSITIVE
+       on innocent text that happens to say `api_key` (the reviewer's example,
+       "the apikey rotation lane", is refused) and they FALSE-NEGATIVE on real
+       secrets that do not look like their patterns (a bare
+       `github_pat_…`-shaped token passes). So this arm raises the cost of a
+       careless paste and catches the obvious shapes; it does NOT establish that
+       a reason is secret-free, and nothing downstream may treat a clean scan as
+       if it did. The structural protection is elsewhere and is real: the reason
+       this producer emits is a MODULE CONSTANT, not a formatted provider error,
+       so there is no value flowing into it for a scan to have to catch.
 
     A THIRD RULE WAS CONSIDERED AND REJECTED: requiring the reason to say in as
     many words that nothing unbounded was substituted and no rail was bypassed

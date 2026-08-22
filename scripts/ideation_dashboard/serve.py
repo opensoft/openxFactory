@@ -610,6 +610,22 @@ def doxbench_selected_model(model_entry) -> dict:
     }
 
 
+# The released `context_packet.reduced_reason` ceiling, restated here as a
+# literal because this module does not parse the schema per turn — the
+# `MAX_ROUTING_TARGETS` precedent from contract-v1.38, and it is authoritative
+# for the same reason: a test reads the bound out of the RELEASED BYTES and pins
+# it equal, so the two cannot drift into two ceilings.
+#
+# THE UNIT IS CODE POINTS, exactly as JSON Schema's `maxLength` counts them, so
+# this guard refuses precisely what the shape refuses and nothing more. A
+# 500-code-point CJK reason is 1,500 UTF-8 bytes and is CONFORMANT; refusing it
+# for its byte count would refuse a record the released contract accepts.
+# (The shipped `REDUCED_*` constants are separately held to the stricter BYTE
+# count by a test — a belt on authored text this repository controls, not a
+# rule the wire imposes.)
+CONTEXT_REDUCED_REASON_MAX_LENGTH = 500
+
+
 def doxbench_context_packet(packet) -> dict:
     """The ASSEMBLED CONTEXT's posture, as the widened record carries it since
     contract-v1.39 (task 10.7) — derived in ONE place, from the packet the turn
@@ -633,7 +649,20 @@ def doxbench_context_packet(packet) -> dict:
     would put a self-contradicting record on the wire and in the turn store.
     Refused as a `PacketError`, which the route's existing packet boundary maps
     to the fixed `invalid_turn_request` — fail-closed, never a guessed posture.
-    A test drives each refusal through that seam."""
+    A test drives each refusal through that seam.
+
+    A RECORDED TENSION, not a resolved one (adversarial review S2). Every
+    refusal in this function has a SERVER-AUTHORED cause — a collaborator that
+    lied, or a reason constant this repository wrote too long — and none is
+    fixable by any request a caller could send. The route's
+    `context_packet_invalid` arm (500) exists for exactly that class and says so
+    in as many words ("never a 4xx blaming the turn"), so `invalid_turn_request`
+    (400) is arguably the wrong code for all four arms. They are kept on ONE
+    code deliberately: one function, one refusal shape, and the four cases are
+    unreachable in production (`ContextPacket` refuses three of them at
+    construction and a test holds the constants under the fourth). Moving the
+    whole function to the 500 arm is a follow-up, named here rather than
+    smuggled into a fix pass that four tests already pin."""
     posture = getattr(packet, "posture", None)
     reason = getattr(packet, "reduced_reason", None)
     if posture == doxbench_packet.POSTURE_REDUCED:
@@ -641,6 +670,23 @@ def doxbench_context_packet(packet) -> dict:
             raise doxbench_packet.PacketError(
                 "a reduced packet STATES the reduced posture's reason; a "
                 "record cannot carry a reduction nobody can read")
+        # THE RELEASED CEILING, ENFORCED WHERE THE REASON IS CARRIED
+        # (adversarial review S2). Without this the only thing standing between
+        # an over-long reason and the wire was the route's post-dispatch
+        # self-validation, which the review reproduced: a 501-code-point reason
+        # answered `response_invalid` (502) AFTER a provider dispatch had
+        # already been paid for and the human's turn was already gone. Refusing
+        # HERE is pre-dispatch, and it also covers a `REDUCED_*` constant added
+        # later that nobody thought to hold to the bound.
+        #
+        # NOT TRUNCATED, ever: truncating a statement about a degradation is how
+        # a degradation goes quiet, which is the failure this whole requirement
+        # is written against.
+        if len(str(reason)) > CONTEXT_REDUCED_REASON_MAX_LENGTH:
+            raise doxbench_packet.PacketError(
+                "a reduction reason exceeds the released ceiling; the record "
+                "refuses rather than truncating a statement about a "
+                "degradation")
         return {"posture": posture, "reduced_reason": str(reason)}
     if posture == doxbench_packet.POSTURE_FULL:
         if reason:

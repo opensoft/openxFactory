@@ -3399,12 +3399,20 @@ class Node {
     this.tagName = String(tag).toUpperCase();
     this.children = []; this.attributes = {}; this.listeners = {};
     this.className = ''; this._text = ''; this.hidden = false;
-    this.disabled = false; this.value = '';
+    this.disabled = false; this.value = ''; this.writes = [];
   }
   get textContent() {
     return this._text + this.children.map((c) => c.textContent).join('');
   }
-  set textContent(value) { this.children = []; this._text = String(value); }
+  // S1's INSTRUMENT. The defect this probe exists to catch is an ORDER — a text
+  // mutation performed while the node is still `hidden`, i.e. while it is out
+  // of the accessibility tree and no live region can observe it. An assertion
+  // read AFTER render() cannot see that: both orders end with the same
+  // attributes. So the stub records `hidden` AT THE MOMENT the write happens.
+  set textContent(value) {
+    this.writes.push({ text: String(value), hiddenAtWrite: this.hidden });
+    this.children = []; this._text = String(value);
+  }
   appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
   append(...kids) { for (const k of kids) this.appendChild(k); }
   setAttribute(name, value) { this.attributes[name] = String(value); }
@@ -3483,11 +3491,16 @@ async function railCase(contextPacket) {
   composer.value = "what does the note say?"; await fire(composer, "input");
   await fire(byClass(host, "doxchat-send")[0], "click");
   const note = byClass(host, "doxchat-context")[0];
+  // S1: the LAST non-empty write, and whether the node was hidden when it
+  // happened. A write performed while hidden is a write no live region saw.
+  const written = note ? note.writes.filter((wr) => wr.text !== "") : [];
   return {
     exists: Boolean(note),
     hidden: note ? note.hidden : null,
     text: note ? note.textContent : null,
     live: note ? note.getAttribute("aria-live") : null,
+    hiddenAtWrite: written.length
+      ? written[written.length - 1].hiddenAtWrite : null,
     // the answer still arrived: a degraded turn is a SUCCESSFUL turn
     transcript: rail.state().transcript.length,
     statePosture: rail.state().contextPacket
@@ -3495,6 +3508,85 @@ async function railCase(contextPacket) {
   };
 }
 
+// S4: a reduced answer, then a FAILED follow-up. The reduced answer is STILL
+// the transcript's last assistant turn, so its disclosure must still be there.
+async function reducedThenFailure() {
+  const host = new Node("div"); host.ownerDocument = doc;
+  let turn = 0;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => {
+        turn += 1;
+        return turn === 1
+          ? { ok: true, status: 200,
+              payload: recordWith({ posture: "reduced", reduced_reason: REASON }) }
+          : { ok: false, status: 502,
+              payload: { schema_version: 1,
+                         kind: "workbench-chat-turn-v2-failure",
+                         client_turn_id: "t", error: "model_failed",
+                         message: "The model could not answer this turn." } };
+      } },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  const note = byClass(host, "doxchat-context")[0];
+  const send = byClass(host, "doxchat-send")[0];
+
+  composer.value = "first question"; await fire(composer, "input");
+  await fire(send, "click");
+  const afterReduced = { hidden: note.hidden, text: note.textContent };
+
+  composer.value = "second question"; await fire(composer, "input");
+  await fire(send, "click");
+  const afterFailure = {
+    hidden: note.hidden, text: note.textContent,
+    transcript: rail.state().transcript.length,
+    lastAssistant: rail.state().transcript[
+      rail.state().transcript.length - 1].content,
+    failureShown: !byClass(host, "doxchat-failure")[0].hidden,
+  };
+  return { afterReduced, afterFailure };
+}
+
+// …and the inverse: a reduced answer REPLACED by a full one clears the note,
+// because the answer the note described is no longer the last one.
+async function reducedThenFullSuccess() {
+  const host = new Node("div"); host.ownerDocument = doc;
+  let turn = 0;
+  const rail = mountDoxBenchChatRail(host, {
+    scopeKey: KEY,
+    transports: {
+      catalog: async () => ({ schema_version: 1,
+        kind: "workbench-model-catalog", models: [ENTRY] }),
+      chatTurn: async () => {
+        turn += 1;
+        return { ok: true, status: 200, payload: recordWith(
+          turn === 1 ? { posture: "reduced", reduced_reason: REASON }
+                     : { posture: "full" }) };
+      } },
+    editorState });
+  await rail.ready;
+  const selector = byClass(host, "doxchat-model")[0];
+  selector.value = "model-a"; await fire(selector, "change");
+  const composer = byClass(host, "doxchat-composer")[0];
+  const note = byClass(host, "doxchat-context")[0];
+  const send = byClass(host, "doxchat-send")[0];
+  composer.value = "first question"; await fire(composer, "input");
+  await fire(send, "click");
+  const afterReduced = { hidden: note.hidden, text: note.textContent };
+  composer.value = "second question"; await fire(composer, "input");
+  await fire(send, "click");
+  return { afterReduced,
+           afterFull: { hidden: note.hidden, text: note.textContent } };
+}
+
+out.s4Failure = await reducedThenFailure();
+out.s4FullSuccess = await reducedThenFullSuccess();
 out.reduced = await railCase({ posture: "reduced", reduced_reason: REASON });
 out.full = await railCase({ posture: "full" });
 out.omitted = await railCase(undefined);
@@ -3559,6 +3651,51 @@ def test_a_reduced_turn_states_the_posture_and_its_reason_on_the_surface(
     assert reduced["statePosture"] == "reduced"
 
 
+def test_the_note_is_UN_HIDDEN_BEFORE_its_text_is_written(posture_results):
+    """S1, and the reason the `aria-live` assertion above is not enough. A
+    `hidden` node is out of the accessibility tree, so text written into one
+    while it is still hidden is a mutation no live region observed — the
+    "live-announced" claim would be false and the attribute would still read
+    `polite`. This release shipped that order the wrong way round and its
+    adversarial review caught it.
+
+    The probe records `hidden` AT THE MOMENT of the write, because that is the
+    only observation that distinguishes the two orders; the failure note beside
+    it has always used this order and `styles.css` states the rule in writing
+    one region over."""
+    assert posture_results["reduced"]["hiddenAtWrite"] is False
+
+
+def test_a_reduced_answer_keeps_its_disclosure_through_a_FAILED_follow_up(
+        posture_results):
+    """S4, reproduced and closed. The reviewer's sequence: a reduced answer,
+    then a follow-up that FAILS. The reduced answer is still the transcript's
+    last assistant turn — it is still on screen, and it still ran without
+    corpus evidence — so stripping its disclosure is the lost-badge defect this
+    release cited when it rejected per-turn badges, reappearing at rail level.
+
+    The note now survives, because it is keyed to the ANSWER rather than to a
+    flight starting. The failure note appears beside it: two true statements,
+    about two different things."""
+    r = posture_results["s4Failure"]
+    assert r["afterReduced"]["hidden"] is False
+    assert r["afterFailure"]["hidden"] is False, "the disclosure was stripped"
+    assert r["afterFailure"]["text"] == r["afterReduced"]["text"]
+    assert r["afterFailure"]["transcript"] == 2
+    assert r["afterFailure"]["lastAssistant"] == "answer"
+    assert r["afterFailure"]["failureShown"] is True
+
+
+def test_a_full_answer_REPLACING_a_reduced_one_clears_the_note(posture_results):
+    """The other half of S4's invariant, and what stops the fix from becoming a
+    note that never goes away: when the answer the note described is replaced
+    by a FULL one, the note goes with it."""
+    r = posture_results["s4FullSuccess"]
+    assert r["afterReduced"]["hidden"] is False
+    assert r["afterFull"]["hidden"] is True
+    assert r["afterFull"]["text"] == ""
+
+
 def test_a_full_turn_shows_nothing_new(posture_results):
     """The other half of the treatment, and it is deliberate rather than
     unfinished: a standing "full context" badge is a line every operator learns
@@ -3602,15 +3739,21 @@ def test_a_self_contradicting_record_renders_nothing_rather_than_half_of_it(
     assert result["transcript"] == 2
 
 
-def test_the_note_describes_the_last_answer_and_a_new_flight_clears_it(
+def test_the_note_describes_the_last_answer_and_a_flight_does_not_move_it(
         posture_results):
-    """The note is a claim about the answer on screen. While the next question
-    is in the air there is no answer for it to describe, so it goes — which is
-    also what keeps a FAILED follow-up from leaving "reduced context" standing
-    over nothing at all."""
+    """THE INVARIANT, RESTATED AFTER S4 — and this test used to assert its
+    opposite. It read "a new flight clears it", which is what produced the
+    stripped-disclosure defect: a flight STARTING replaces no answer, so while
+    the next question is in the air the answer on screen is still the reduced
+    one and its disclosure is still true of it.
+
+    What the note tracks is the transcript's last assistant answer. Every path
+    that replaces that answer replaces the posture beside it, so nothing needs
+    to clear it on the way out."""
     assert posture_results["afterSettle"] == (
         posture_results["lead"] + posture_results["reason"])
-    assert posture_results["duringNextFlight"] is None
+    assert posture_results["duringNextFlight"] == (
+        posture_results["lead"] + posture_results["reason"])
 
 
 def test_switching_documents_does_not_caption_the_new_thread_with_the_old_one(

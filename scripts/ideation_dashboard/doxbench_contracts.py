@@ -168,7 +168,7 @@ SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
-        "3de2a85323cc4c843a33d179e6ccabdc723280ba9243988adce3bbd6a0431a61",
+        "cc874fef63e387a5f16c9d7ed5235bc03fb4fc68537a31c42d3acc5259d76ffa",
 }
 
 # The seven doxBench INSTANCE kinds. The catalog kind is a whole-document schema;

@@ -441,15 +441,22 @@ def test_the_deprecated_v1_record_still_succeeds_and_still_cannot_say_so(
 
 
 def test_every_shipped_reduction_reason_fits_the_released_bound(tmp_path):
-    """A FAIL-CLOSED HAZARD, guarded where it is cheap. The route
-    self-validates the success body against the released schema and answers
-    `response_invalid` if it refuses — so a reduction reason longer than the
-    released 500-byte ceiling would turn a degraded-but-successful turn into a
-    refusal, and it would do it only on the degraded path, which is the path
-    nobody exercises by hand.
+    """THE AUTHORED CONSTANTS, held to the STRICTER unit — and the unit is the
+    point (adversarial review S2 corrected this docstring, which used to call
+    the released ceiling a "500-byte" one).
 
-    Every reason this module can produce is checked against the released
-    bound, read out of the SCHEMA rather than restated here."""
+    The released bound is `maxLength: 500`, which JSON Schema counts in CODE
+    POINTS. This test checks the shipped reasons in UTF-8 BYTES against that
+    same number, which is STRICTER: bytes ≥ code points for every string, so a
+    reason that passes here cannot fail the shape. That is deliberate and it is
+    a rule about text THIS REPOSITORY AUTHORS, not a rule the wire imposes — a
+    conformant producer elsewhere may ship 500 CJK characters at 1,500 bytes and
+    this contract accepts it.
+
+    What enforces the WIRE bound is not this test: it is
+    `serve.doxbench_context_packet`, which refuses an over-long reason in code
+    points before any provider is dispatched (see the route test below). This
+    test is the belt on the constants; that is the braces on the record."""
     import yaml
 
     schema = yaml.safe_load(
@@ -463,6 +470,57 @@ def test_every_shipped_reduction_reason_fits_the_released_bound(tmp_path):
     assert reasons, "the reduction reasons moved; this guard found none"
     for reason in reasons:
         assert 0 < len(reason.encode("utf-8")) <= bound, reason[:60]
+
+
+def test_the_serve_side_ceiling_is_pinned_to_the_RELEASED_maxLength():
+    """`CONTEXT_REDUCED_REASON_MAX_LENGTH` is a literal in a module that does
+    not parse the schema per turn. This is what makes it authoritative anyway —
+    the same discipline `MAX_ROUTING_TARGETS` got at contract-v1.38: the bound
+    is read out of the RELEASED BYTES here and pinned equal, so the guard and
+    the shape cannot drift into two ceilings."""
+    import yaml
+
+    schema = yaml.safe_load(
+        (REPO_ROOT / "contracts" / "schemas"
+         / "xfactory-workbench-chat-turn.schema.yaml").read_text(
+             encoding="utf-8"))
+    assert serve_mod.CONTEXT_REDUCED_REASON_MAX_LENGTH == schema["$defs"][
+        "context_packet"]["properties"]["reduced_reason"]["maxLength"]
+
+
+def test_an_over_long_reason_refuses_BEFORE_a_provider_is_dispatched(tmp_path):
+    """THE S2 DEFECT, closed and pinned. Before this guard the only thing
+    between an over-long reason and the wire was the route's POST-dispatch
+    self-validation, and the review reproduced the cost: 502 `response_invalid`
+    with `dispatch` already counted — a provider call paid for, and the human's
+    answer produced and then thrown away.
+
+    Refused pre-dispatch now, on the route's existing packet boundary."""
+    over = "x" * (serve_mod.CONTEXT_REDUCED_REASON_MAX_LENGTH + 1)
+    status, payload, port = _post_turn(
+        tmp_path, _turn_v2(),
+        packet_assembler=_lying_packet_assembler(
+            lambda p: object.__setattr__(p, "reduced_reason", over)))
+    assert status == 400
+    assert payload["error"] == serve_mod.DOXBENCH_ERR_INVALID_TURN_REQUEST
+    assert port.calls.count("dispatch") == 0
+
+
+def test_a_long_MULTIBYTE_reason_is_conformant_and_is_SERVED(tmp_path):
+    """THE OTHER HALF OF THE UNIT QUESTION, and the reason the guard counts code
+    points rather than bytes. 500 CJK characters is 1,500 UTF-8 bytes and is
+    CONFORMANT under `maxLength: 500`; a byte-counting guard would have refused
+    a record the released contract accepts, which is a worse defect than the one
+    S2 found. The turn is served and the record carries the reason whole."""
+    cjk = "漢" * serve_mod.CONTEXT_REDUCED_REASON_MAX_LENGTH
+    assert len(cjk.encode("utf-8")) == 1500
+    status, payload, port = _post_turn(
+        tmp_path, _turn_v2(),
+        packet_assembler=_lying_packet_assembler(
+            lambda p: object.__setattr__(p, "reduced_reason", cjk)))
+    assert status == 200
+    assert port.calls.count("dispatch") == 1
+    assert payload["context_packet"]["reduced_reason"] == cjk
 
 
 # ===========================================================================

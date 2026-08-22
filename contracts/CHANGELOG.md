@@ -148,7 +148,12 @@ posture inferable only by absence — which is precisely the reading this releas
 forbids — and would leave a reader unable to distinguish "assembled full" from
 "nobody checked". The cost is stated rather than hidden: every v2 success body
 this server produces now carries one more key than it did at `contract-v1.38`,
-and its durable turn-store record does too.
+as does the copy the idempotency store replays. NOTHING DURABLY STORES A v2
+BODY (adversarial review N6, which caught this entry calling that store
+durable): `TurnStore` is per-process, in-memory and bounded, so a replayed
+record outlives the request and not the process. The durable record of a turn is
+the THREAD SIDECAR on disk, and it does not carry the wire body at all — the
+same boundary the sidecar gap below is about.
 
 THE DERIVATION IS ONE FUNCTION, AND IT READS THE PACKET. `serve.py`
 `doxbench_context_packet` sits beside `doxbench_selected_model` and re-states the
@@ -177,11 +182,20 @@ strictly weaker than the type gate beside it while its own docstring claimed
 parity. THREE gates now assert this one rule (the two conditionals,
 `ContextPacket.__post_init__`, and the validator), and a test asserts they AGREE
 on the packaged corpus rather than leaving it to prose. The second — that
-`reduced_reason` is scanned for credential and endpoint spellings exactly as a
+`reduced_reason` is LINTED for credential and endpoint spellings exactly as a
 failure's `message` is — the shape CANNOT express, and this is the only place it
 lives; it is the one new free-prose field the release adds, and the
-leak-through-an-allowed-field class the failure lane already guards against
-applies to it unchanged.
+leak-through-an-allowed-field class the failure lane already watches applies to
+it unchanged.
+
+THAT SECOND RULE IS A LINT AND THE ENTRY SAYS SO. It is a spelling heuristic
+over free prose, with misses in both directions: it refuses innocent text that
+happens to say `api_key`, and it passes a real token whose shape it does not
+know. It raises the cost of a careless paste; it does NOT establish that a
+reason is secret-free, and a consumer must not read a clean scan as if it did.
+What is structural here is the producer, not the scan: the reasons this
+capability emits are MODULE CONSTANTS rather than formatted provider errors, so
+no value flows into the field for a scan to have to catch.
 
 THE RESTATED PAIRING IS A DIAGNOSTIC, NOT AN INDEPENDENT GUARD — found by
 revert-testing, recorded rather than dressed up. Disabling both pairing arms in
@@ -201,18 +215,28 @@ pass a dishonest one that quoted the sentence. What the wire can check is that a
 reduction is STATED; whether the statement is TRUE is the assembler's rail,
 enforced where the rails run.
 
-A FAIL-CLOSED HAZARD THE CEILING CREATES, named because it is a real one. The route self-validates every success body against the released schema and
-answers `response_invalid` if it refuses — so a reduction reason longer than the
-ceiling would turn a degraded-but-successful turn into a refusal, on the one path
-nobody exercises by hand. A test reads the bound OUT OF THE SCHEMA and checks
-every `REDUCED_*` constant against it. The reason is never truncated to fit;
-truncating a statement about a degradation is how a degradation goes quiet.
+THE CEILING IS ENFORCED BY THE PRODUCER, PRE-DISPATCH, and an earlier draft of
+this entry claimed a guard that did not exist. The route self-validates every
+success body against the released schema and answers `response_invalid` if it
+refuses — so without a producer-side bound a reduction reason past the ceiling
+turned a degraded-but-successful turn into a 502 AFTER a provider dispatch had
+been paid for, on the one path nobody exercises by hand. Measured, not supposed.
+`serve.doxbench_context_packet` now refuses an over-long reason where the reason
+is carried onto the record, in CODE POINTS so it refuses exactly what this shape
+refuses and no conformant record more; its constant is pinned to this file's
+`maxLength` by a test. A second test holds every shipped `REDUCED_*` constant to
+the STRICTER UTF-8 byte count — a rule about text this repository authors, not
+one the wire imposes. The reason is never truncated to fit; truncating a
+statement about a degradation is how a degradation goes quiet.
 
 THE SURFACE HALF, which is why this release exists rather than being a
 record-only growth. §10.7's gap was never that the posture was unknown — it was
 that the human whose answer had quietly changed could not see it. The rail now
 renders one live-announced note under the transcript, `reduced context: <the
-reason>`, for a turn that ran reduced, and NOTHING for a full one: a standing
+reason>`, for a turn that ran reduced, and NOTHING for a full one — un-hidden
+BEFORE its text is written, because a `hidden` node is out of the accessibility
+tree and text written into one is announced by nothing (the `aria-live`
+attribute reads the same either way, so the ORDER is what a probe has to pin): a standing
 "full context" badge is a line every operator learns to stop reading, which is
 exactly how the reduced one would stop being noticed. A node probe mounts the
 SHIPPED `doxbench-chat.js` bytes and drives real turns through it — reduced
@@ -220,15 +244,18 @@ renders the note and the reason, full renders nothing, a record with no posture
 renders no phantom badge, and both self-contradicting records render silence
 rather than half a statement.
 
-JUDGEMENT CALL — THE NOTE IS RAIL-LEVEL AND DESCRIBES THE LAST ANSWER, not a
-per-turn badge in the transcript. Per-turn was designed and rejected: the browser
-transcript is restored from the SERVER'S THREAD SIDECAR when a human switches
-documents, and the sidecar records no posture, so per-turn badges would be
-present on a lived-through turn and absent on the byte-identical restored one —
-a difference the reader would have to explain away. The note is therefore cleared
-whenever it would stop describing what is on screen: at `beginTurn` (so a failed
-or abandoned follow-up cannot leave "reduced context" standing over nothing) and
-at a thread switch.
+JUDGEMENT CALL — THE NOTE IS RAIL-LEVEL AND DESCRIBES THE TRANSCRIPT'S LAST
+ASSISTANT ANSWER, not a per-turn badge in the transcript. Per-turn was designed
+and rejected: the browser transcript is restored from the SERVER'S THREAD SIDECAR
+when a human switches documents, and the sidecar records no posture, so per-turn
+badges would be present on a lived-through turn and absent on the byte-identical
+restored one — a difference the reader would have to explain away. The note
+therefore changes exactly when that answer changes, and every path that replaces
+the answer already replaces the posture beside it. A flight STARTING replaces no
+answer and moves nothing: an earlier draft cleared the note there, and a reduced
+answer followed by a FAILED follow-up then lost its disclosure while still
+holding the transcript — the same lost-badge defect the per-turn rejection was
+about, at rail level.
 
 JUDGEMENT CALL, FLAGGED — THE THREAD SIDECAR IS NOT EXTENDED. The durable
 transcript on disk names the turn id, the model and the bound buffer, and it does

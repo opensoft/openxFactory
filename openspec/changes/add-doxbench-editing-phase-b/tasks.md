@@ -954,6 +954,15 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       THE SURFACE, which is the half this task was open for. The rail renders
       one live-announced note under the transcript — `reduced context: <the
       reason>` — for a turn that ran reduced, and nothing at all for a full one.
+      **AND THE WORD "LIVE-ANNOUNCED" WAS NEARLY FALSE (adversarial review S1).**
+      The note was written and THEN un-hidden, so the text mutation happened
+      while the node was still out of the accessibility tree and no live region
+      observed it; the `aria-live` attribute read `polite` either way, which is
+      why the probe's attribute assertion could not catch it. The order now
+      matches the failure note beside it — un-hide first, then write — and the
+      probe pins the ORDER by recording `hidden` AT THE MOMENT of the write,
+      which is the only observation that tells the two apart. `styles.css`
+      states the same rule in writing one region over.
       `settleTurnSuccess` adopts the record's posture instead of projecting it
       away (the browser state model kept only `proposals` and `transcript`, so
       the field would have been dropped on arrival); `beginTurn` and
@@ -982,14 +991,52 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       one new free-prose field, and its packaged negative is structurally
       perfect, so the shape must not catch it — that is what makes it the rule
       worth delegating.
+      **AND THAT SECOND RULE IS A LINT, NOT A GUARD (review N1).** The
+      credential/endpoint patterns are spelling heuristics over free prose and
+      miss in both directions — they refuse innocent text saying `api_key` and
+      pass a real token shaped unlike their patterns. Kept, because it raises
+      the cost of a careless paste and catches the obvious shapes; reworded
+      everywhere it was called a guard, because a clean scan establishes
+      nothing. The structural protection is that this producer's reasons are
+      MODULE CONSTANTS rather than formatted provider errors, so no value flows
+      into the field for a scan to have to catch.
       FIVE PACKAGED NEGATIVES, each failing at the gate that owns it and the
       table recording WHICH: reduced-without-reason and reason-on-full (shape +
       delegated `context-packet`), an unknown posture and a fourth field on the
       closed object (shape alone — the validator restates neither an enum nor a
       closure), and the leaking reason (delegated alone). Two positives beside
       them, and the unchanged pre-release record as the third shape.
-      A FAIL-CLOSED HAZARD THE CEILING CREATES, found and guarded rather than
-      shipped: the route self-validates every success body and answers
+      **THE CEILING IS ENFORCED WHERE THE REASON IS CARRIED — corrected at
+      adversarial review (S2), which found the claim that it already was to be
+      FALSE, in released bytes.** The schema comment said "the producer's own
+      guard checks the stricter UTF-8 BYTE count"; no such guard existed
+      anywhere. Reproduced through the real route against the RELEASED
+      validators: a 500-code-point CJK reason (1,500 UTF-8 bytes) was SERVED
+      200, and a 501-code-point reason answered 502 `response_invalid` with
+      `dispatch` ALREADY COUNTED — a provider call paid for and the human's
+      answer produced and thrown away.
+      Three fixes. The schema comment now says what is true (the unit is CODE
+      POINTS, so 500 CJK characters is conformant at ~1,500 bytes and a consumer
+      sizing a buffer must size it in bytes). The constants test's docstring,
+      which called the ceiling "500-byte", now names its unit and says why it
+      uses the STRICTER byte count on text this repository authors. And
+      `serve.doxbench_context_packet` gained the bound itself, in CODE POINTS so
+      it refuses exactly what the shape refuses and no conformant record more —
+      pre-dispatch, on the route's existing packet boundary, which also covers a
+      `REDUCED_*` constant added later that nobody thought to hold to the bound.
+      `CONTEXT_REDUCED_REASON_MAX_LENGTH` is pinned to the released `maxLength`
+      by a test, on `MAX_ROUTING_TARGETS`' precedent. Nothing is truncated:
+      truncating a statement about a degradation is how a degradation goes quiet.
+      **AND A TENSION RECORDED RATHER THAN RESOLVED**: all four refusals in that
+      function have SERVER-AUTHORED causes and none is caller-fixable, which is
+      exactly the class the route's `context_packet_invalid` (500) arm exists for
+      and says so ("never a 4xx blaming the turn") — yet they answer
+      `invalid_turn_request` (400). They are kept on one code because one
+      function should have one refusal shape and all four are unreachable in
+      production; moving the whole function to the 500 arm is a named follow-up,
+      not something smuggled into a fix pass that four tests pin.
+      THE ORIGINAL HAZARD NOTE STANDS: the route self-validates every success
+      body and answers
       `response_invalid` if the schema refuses it, so a reduction reason longer
       than the released ceiling would turn a degraded-but-successful turn into a
       refusal —
@@ -1043,7 +1090,11 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       stated it — so omitting on a full turn would make the posture inferable
       only by ABSENCE, which is exactly the reading this release forbids. The
       cost is stated rather than hidden: every v2 success body this server
-      produces, and every durable turn-store record, now carries one more key.
+      produces now carries one more key, as does the copy the idempotency store
+      replays. NOTHING DURABLY STORES A v2 BODY (review N6 caught the earlier
+      wording calling that store durable): `TurnStore` is per-process, in-memory
+      and bounded. The durable record of a turn is the thread sidecar, and it
+      does not carry the wire body at all.
       **Judgement call, flagged — OMISSION IS NOT A POSTURE CLAIM.** An absent
       `context_packet` means the producer predates `contract-v1.39`; it does NOT
       mean the context was full, and a consumer that needs the posture must
@@ -1066,11 +1117,34 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       document switch, and the sidecar records no posture, so a badge would be
       present on a lived-through turn and absent on the byte-identical restored
       one — a difference a reader would have to explain away. The note is
-      therefore cleared at `beginTurn` (so a failed or abandoned follow-up cannot
-      leave "reduced context" standing over nothing) and at a thread switch. A
-      full turn shows NOTHING new, also deliberately: a standing "full context"
-      badge is a line every operator learns to stop reading, which is exactly how
-      the reduced one would stop being noticed.
+      therefore a function of THE TRANSCRIPT'S LAST ASSISTANT ANSWER, and it
+      changes exactly when that answer does. A full turn shows NOTHING new, also
+      deliberately: a standing "full context" badge is a line every operator
+      learns to stop reading, which is exactly how the reduced one would stop
+      being noticed.
+      **Judgement call, flagged — WHAT THE NOTE IS KEYED TO, corrected at
+      adversarial review (S4), which upheld the rail-level shape only ON
+      CONDITION that this was fixed.** The first version cleared the note at
+      `beginTurn`, and the reviewer broke it in one move: a reduced answer
+      followed by a FAILED follow-up left the reduced answer holding the
+      transcript with its disclosure GONE — the very lost-badge defect this task
+      cited when it rejected per-turn badges, reappearing at rail level.
+      Reproduced before fixing (`reduced answer -> note: true`; `FAILED
+      follow-up -> note: false`, transcript unchanged, last assistant turn still
+      the reduced answer).
+      The review offered two shapes and this slice took the SECOND. Rejected:
+      restoring the posture in `settleTurnFailure` — `beginTurn` would have to
+      stash a value for it to hand back, and `abortTurn` and
+      `recordLocalFailure` would each need the same restore, so ONE invariant
+      would be re-implemented at three sites. Taken: DELETE the `beginTurn`
+      clear, because a flight STARTING replaces no answer. Every path that does
+      replace the answer already replaces the posture beside it —
+      `settleTurnSuccess` adopts the new record's (null included, for a producer
+      older than v1.39), `adoptThreadTranscript` clears it with the transcript,
+      `rekeyChatState` starts fresh — so the invariant holds by not being
+      violated rather than by being restored. Both directions are probed
+      (reduced -> failure KEEPS the note beside the failure note; reduced -> a
+      full success CLEARS it) and both are revert-tested.
       **FLAGGED AS A GAP, NOT AS A DECISION SETTLED IN THIS RELEASE'S FAVOUR —
       THE THREAD SIDECAR STILL CANNOT STATE THE POSTURE.** The durable
       transcript on disk names the turn id, the model and the bound buffer, and
@@ -2482,15 +2556,37 @@ the realization evidence for everything built is recorded in `proposal.md`.
       The correction is made HERE, by this slice, because 11.7's own tick
       deliberately did not edit this task's prose (it said so: "its owner's to
       re-adjudicate"), and this is the owner arriving.
-      **AND THE BOX IS NOW CHECKED, because the set the sentence names is
-      EMPTY.** The three releases it waits on are all cut: `contract-v1.36`
-      (§12.7, tagged and pinned), `contract-v1.38` (§11.7, tagged and pinned),
-      and `contract-v1.39` (§10.7, cut on this branch — CHANGELOG entry, manifest
+      **READ THIS FIRST — THREE FACTS BELOW ARE STILL PENDING, and one of them
+      is the gate's own verb (adversarial review S3).** While this branch is in
+      flight NOTHING here is merged, pushed or tagged, so:
+      (1) the SQUASH SHA this slice lands as does not exist yet;
+      (2) the annotated `contract-v1.39` tag is not published — the versioning
+      policy publishes it against the commit that ACTUALLY LANDS, and every gate
+      reruns at that squash first, because promotion creates a commit nothing
+      has gated;
+      (3) `doxbench_contracts.CONTRACT_REF` still carries the
+      `unpublished:contract-v1.39` sentinel.
+      The post-land step is therefore the same three-part one §11.7 performed at
+      `58e4aecd`: rerun the gates at the squash, publish and REMOTELY verify the
+      tag, then a follow-up commit resolves the sentinel and fills in the SHA
+      line at the foot of this block. Until it runs, read every claim below as
+      "built and gated", not as "landed".
+      **AND THE BOX IS CHECKED, because the set the sentence names is EMPTY.**
+      The three releases it waits on are all CUT: `contract-v1.36` (§12.7,
+      tagged and pinned), `contract-v1.38` (§11.7, tagged and pinned), and
+      `contract-v1.39` (§10.7, cut on this branch — CHANGELOG entry, manifest
       digest, bundle bump, and the 190-entry inventory built after it, with
-      `verify-commit --commit HEAD` passing on the cut). With them the change's
-      WHOLE declared `code_surface:` is built and merged on the implemented
-      target, which is the sentence `release-realization`'s archive gate actually
-      makes — and it is now true without proportion or interpretation.
+      `verify-commit --commit HEAD` passing on the cut).
+      **THE VERB, STATED EXACTLY** — an earlier version of this tick said the
+      gate's sentence was "now true without proportion or interpretation", which
+      was itself an overclaim in the one word that matters. The gate reads "its
+      code merged on the implemented target". What is true HERE is that the
+      whole declared `code_surface:` is BUILT AND GATED on a branch off the
+      implemented target, with nothing owed but the landing; MERGED becomes true
+      at the landing squash and not one commit before it. The box is checked on
+      the surface being whole, which is the substantive condition and the one
+      this task could not meet for four months; the verb is completed by the
+      merge, which is not this slice's act.
       THE EVIDENCE BLOCK AT THE HEAD OF `proposal.md` STANDS AS WRITTEN and is
       not restated here; what this tick adds is the tail it could not yet carry:
       §12 share-session realized under Brett's exit (a); §11.7 at
@@ -2507,20 +2603,10 @@ the realization evidence for everything built is recorded in `proposal.md`.
       `test_landed_parses_a_real_archived_change_delta` looks for a SIBLING
       `openxFactory` checkout two directories up, which this isolated clone has
       no sibling for.
-      **WHAT THIS TICK DOES NOT CLAIM, and the post-land step that completes it.**
-      Three facts here are about a commit that does not exist while this branch
-      is in flight, exactly as 11.7's tick was and 13.3's before it: the SQUASH
-      SHA this slice lands as, the published annotated `contract-v1.39` tag, and
-      the resolution of the `unpublished:contract-v1.39` sentinel in
-      `doxbench_contracts.CONTRACT_REF`. Per the versioning policy the tag is
-      published against the commit that ACTUALLY LANDS, and every gate reruns at
-      that squash before anything is tagged, because promotion creates a new
-      commit nothing has gated. So the post-land step is the same three-part one
-      §11.7 performed: rerun the gates at the squash, publish and remotely verify
-      the tag, then a follow-up commit resolves the sentinel and records the
-      squash sha in this block. The BOX is checked on the code surface being
-      whole, which is what the gate asks; the SHA line below is what the
-      follow-up fills in.
+      THE THREE PENDING FACTS ARE STATED AT THE HEAD OF THIS BLOCK, where a
+      reader meets them before any claim they qualify (S3 moved them there;
+      they used to trail every green number in the tick). The line below is what
+      the post-land follow-up fills in, exactly as 11.7's did.
       §10.7 — PR #___ / `_______`, annotated tag `contract-v1.39` (to be
       published against the landing commit and verified from the remote).
       **NOTHING IS ARCHIVED BY THIS SLICE.** `proposal-support.py archive` is

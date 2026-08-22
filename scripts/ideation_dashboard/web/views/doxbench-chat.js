@@ -1188,9 +1188,22 @@ export function mountDoxBenchChatRail(host, options = {}) {
     // THE REDUCED POSTURE, STATED WHERE THE HUMAN READS THE ANSWER
     // (contract-v1.39, task 10.7). One selector, one note, and nothing at all
     // when the last answer ran on a full context.
+    //
+    // UN-HIDE FIRST, THEN WRITE — the order is load-bearing and this release's
+    // adversarial review (S1) caught it the wrong way round. A `hidden` node is
+    // out of the accessibility tree, so a text mutation performed while it is
+    // still hidden is a mutation no live region observed; un-hiding afterwards
+    // reveals text that was never announced, and the CHANGELOG's
+    // "live-announced" claim would have been false. `styles.css` states the
+    // same rule in writing one region over ("NOT `display: none` and NOT
+    // `hidden`, either of which would take the live region out of the tree
+    // along with the text"), and the failure note below has always done it in
+    // this order. A probe pins the ORDER, not the attribute: it records
+    // `hidden` AT THE MOMENT the text is written, because an attribute
+    // assertion after the fact cannot tell the two orders apart.
     const contextText = reducedContextNote(state);
-    contextNote.textContent = contextText || "";
     contextNote.hidden = !contextText;
+    contextNote.textContent = contextText || "";
     renderCards();
     failureNote.hidden = !state.lastFailure;
     failureNote.textContent = state.lastFailure
