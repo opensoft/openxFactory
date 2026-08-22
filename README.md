@@ -1726,7 +1726,7 @@ Archived changes:
   credential, historical git ciphertext remaining recoverable. Ratification is
   conferred by an OpenSpec change under the document lifecycle and the
   omnigent-install record already cited this ruling as ratified in its
-  Amendment 3, so this change is that missing record;
+  Amendment 3, so this change is that missing record.
   `docs/credential-access-model.md` §1.1 now cites it. No retroactive blessing
   of base64 or ad hoc encryption — those remain raw credentials. First approved
   realization is the xFactory QA environment: one QA-wide age identity, durable
