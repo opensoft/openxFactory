@@ -624,7 +624,12 @@ class ContextPacket:
         if self.posture not in (POSTURE_FULL, POSTURE_REDUCED):
             raise PacketError(
                 f"a packet posture is {POSTURE_FULL!r} or {POSTURE_REDUCED!r}")
-        if self.posture == POSTURE_REDUCED and not self.reduced_reason:
+        # A NON-EMPTY STRING (Codex review of PR #256, aligned here for the
+        # same reason the presence rule was): a truthy non-string reason is not
+        # a reason, and letting one construct means every reader downstream has
+        # to coerce it into one. The released shape says `type: string`.
+        if self.posture == POSTURE_REDUCED and not (
+                isinstance(self.reduced_reason, str) and self.reduced_reason):
             raise PacketError(
                 "a reduced packet STATES the reduced posture's reason; a "
                 "reduction nobody can read is a silent degradation")

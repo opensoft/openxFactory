@@ -735,7 +735,17 @@ def doxbench_context_packet(packet) -> dict:
     posture = getattr(packet, "posture", None)
     reason = getattr(packet, "reduced_reason", None)
     if posture == doxbench_packet.POSTURE_REDUCED:
-        if not reason:
+        # A NON-EMPTY STRING, not merely something truthy (Codex review of
+        # PR #256). `if not reason:` accepted any truthy value and `str(reason)`
+        # then MANUFACTURED a reason out of it: `123` became `"123"`, a list
+        # became `"['a', 'b']"`, and a bare `object()` became
+        # `"<object object at 0x…>"` — a heap address, in a durable record, on
+        # the degraded path. That is the same silent-normalisation class the
+        # presence findings were: malformed collaborator output turned into a
+        # conformant-LOOKING posture instead of a refusal. The released shape
+        # says `type: string`, so this boundary says it too, and the reason is
+        # carried VERBATIM rather than coerced.
+        if not isinstance(reason, str) or not reason:
             raise doxbench_packet.PacketError(
                 "a reduced packet STATES the reduced posture's reason; a "
                 "record cannot carry a reduction nobody can read")
@@ -751,12 +761,12 @@ def doxbench_context_packet(packet) -> dict:
         # NOT TRUNCATED, ever: truncating a statement about a degradation is how
         # a degradation goes quiet, which is the failure this whole requirement
         # is written against.
-        if len(str(reason)) > CONTEXT_REDUCED_REASON_MAX_LENGTH:
+        if len(reason) > CONTEXT_REDUCED_REASON_MAX_LENGTH:
             raise doxbench_packet.PacketError(
                 "a reduction reason exceeds the released ceiling; the record "
                 "refuses rather than truncating a statement about a "
                 "degradation")
-        return {"posture": posture, "reduced_reason": str(reason)}
+        return {"posture": posture, "reduced_reason": reason}
     if posture == doxbench_packet.POSTURE_FULL:
         # PRESENCE, NOT TRUTHINESS (Copilot review of PR #256, finding 1). This
         # arm used `if reason:`, so an EMPTY STRING passed it and the record was

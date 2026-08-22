@@ -508,8 +508,12 @@ def test_the_construction_gate_and_the_derivation_agree_on_PRESENCE(tmp_path):
     assert serve_mod.doxbench_context_packet(
         _Duck(pk.POSTURE_FULL, None)) == {"posture": "full"}
 
-    # REDUCED: unweakened. A blank is still no reason; a real one still passes.
-    for blocked in (None, ""):
+    # REDUCED: unweakened, and a reason must be a STRING (Codex review of
+    # PR #256). `if not reason:` let any truthy value through and `str()` then
+    # MANUFACTURED a reason from it — `123` became "123", and a bare `object()`
+    # became "<object object at 0x…>", a heap address in a durable record on the
+    # degraded path. Same silent-normalisation class as the presence findings.
+    for blocked in (None, "", 123, ["a", "b"], {"why": "x"}, object()):
         with pytest.raises(pk.PacketError):
             _packet(pk.POSTURE_REDUCED, blocked)
         with pytest.raises(pk.PacketError):
