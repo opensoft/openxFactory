@@ -103,7 +103,20 @@ or conditioned verdict, and any stale or missing gate-rules version SHALL
 result in no approval and a parked candidate carrying an explanation, and
 `needs_human_review` escalation SHALL remain available at every candidate
 class, with the `gate_rules_council` empowered to declare any given class
-human-only.
+human-only. ADMIT is the neutral `roles-authority-model` verdict word, the
+same one the existing "Low-risk enforcement envelope" requirement already
+uses; the codexFactory realization of this lane expresses it as the
+merge-readiness predicate `verdict == ready` AND unanimous, so an enforcer
+checking `ready`+unanimous IS checking unanimous ADMIT. The two words name
+one condition at two layers and MUST NOT be read as two conditions.
+
+#### Scenario: The neutral verdict word maps to the enforcement word
+- **WHEN** an enforcer realizing this lane evaluates a
+  `merge_readiness_council` verdict for the unanimous-ADMIT condition
+- **THEN** the condition it checks is that realization's own verdict
+  vocabulary — in the codexFactory lane, `ready` with every seat concurring
+- **AND** no separate ADMIT-named verdict value is required to exist in the
+  realization
 
 #### Scenario: Outside every candidate class
 - **WHEN** a pull request matches no `gate_rules_council`-defined candidate
