@@ -393,33 +393,6 @@ Active changes:
   (14 + 14 confirmed findings — 52 and 28 bypass probes respectively — all
   fixed, ruled, or documented, with zero ratified-corpus regressions), and
   **registered at `contract-v1.37`**.
-- [add-roster-device-admission-surface](openspec/changes/add-roster-device-admission-surface/proposal.md)
-  — authored 2026-08-19. Admits the single `device` (node-inventory) admission
-  surface into the closed `admission_surface` vocabulary of
-  `client-identity-roster`, through the capability's own extension route, so
-  OpsxFactory can enroll its ratified `microsoft_managed_node_inventory_reader`
-  (`Device.Read.All` + `DeviceManagementManagedDevices.Read.All` +
-  `CloudPC.Read.All`, tenant-wide read, provider offers nothing narrower — the
-  roster's Decision-3 motivating example). ONE surface, not three; the three
-  provider areas ride the entry as declared provider-forced breadth.
-  Additive — no `contract_schema_version` bump; the realization bumped the
-  bundle contract-v1.34 → contract-v1.35 with a digest refresh. Proposed on the
-  node-inventory realization evidence per the reader-grant clarify decision Q4.
-  **RATIFIED 2026-08-19** (record: the change's
-  `review/ratification-2026-08-19.md`; clarify rulings plus a cross-model
-  adversarial review, F1 fixed pre-ratification and F2 accepted), and the
-  post-ratification realization tasks §1–§5 are discharged — the `device`
-  `oneOf` member is in `contracts/schemas/xfactory-client-identity-roster.schema.yaml`
-  and the bundle was cut as `contract-v1.35 — 2026-08-19` (CHANGELOG entry plus
-  its digests file; the bundle has since moved on to contract-v1.37). §6 is
-  explicitly NOT part of this change: the downstream OpsxFactory `device`
-  roster entry and its consent ceremony.
-  `target_release: implementation_pending` — CONDITION MET, not pending: the
-  code surface is merged on main and evidenced, so what the change still owes
-  is the archive-gate act (recording that evidence and archiving), not the
-  implementation. The proposal's own front matter and banner still read as
-  though realization were ahead of it; correcting them belongs to that archive
-  slice, not to this row sweep.
 - [add-doxbench-editing-phase-b](openspec/changes/add-doxbench-editing-phase-b/proposal.md)
   — authored 2026-08-18, Phase B and the EXIT of the `doxbench-editing-model`
   staged topic: all seven questions dispositioned, 26 claims settled (Brett's
@@ -697,6 +670,49 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-roster-device-admission-surface](openspec/changes/archive/2026-08-22-add-roster-device-admission-surface/proposal.md)
+  — **ARCHIVED 2026-08-22** (folder dated in UTC; the act fell just after
+  midnight UTC on a machine reading 2026-08-21). Authored 2026-08-19. Admits
+  the single `device` (node-inventory) admission surface into the closed
+  `admission_surface` vocabulary of `client-identity-roster`, through the
+  capability's own extension route, so OpsxFactory can enroll its ratified
+  `microsoft_managed_node_inventory_reader` (`Device.Read.All` +
+  `DeviceManagementManagedDevices.Read.All` + `CloudPC.Read.All`, tenant-wide
+  read, provider offers nothing narrower — the roster's Decision-3 motivating
+  example). ONE surface, not three — and the three provider areas are NOT
+  declared provider-forced breadth, which is the framing adversarial finding F1
+  rejected before ratification: the governed unit IS the tenant device estate,
+  so tenant-wide read is the GOVERNED scope (`exceeds_governed_unit: false`, no
+  `declared_excess`, no `spanned_surfaces`), and Entra / Intune / Windows 365
+  are named only in the member's `description` prose because the schema would
+  refuse them anywhere structured. Additive — no `contract_schema_version`
+  bump. Proposed on the node-inventory realization evidence per the
+  reader-grant clarify decision Q4. **RATIFIED 2026-08-19** (record: the
+  change's `review/ratification-2026-08-19.md`; clarify rulings plus a
+  cross-model adversarial review, F1 fixed pre-ratification and F2 accepted,
+  the latter being the read/mutate reslice that keeps endpoint MUTATION and
+  Entra-directory as separate future surfaces). Realized the same day as
+  **PR #220** (`78f8e01` — squash-merged, so its four branch commits are
+  reachable on `main` only through that one commit): the `device` `oneOf`
+  member in `contracts/schemas/xfactory-client-identity-roster.schema.yaml`,
+  the resliced extension-route prose, the validator's refusal string in sync,
+  a packaged `device` example on the governed-tenant-scope shape, and the
+  bundle cut as `contract-v1.35 — 2026-08-19` with its digests file (the
+  bundle has since moved on to contract-v1.37; a later cut does not unmake
+  it). The archive gate closed on its own re-measurements rather than the
+  merge run's: roster validator self-test PASS from a clean path (4 positives
+  clean, 31 negatives refused for their registered reason),
+  `openspec validate --all --strict` 65/65 exit 0 (66 before this archive),
+  `validate-contract-release.py verify-commit` pass on `78f8e01`,
+  `tests/doc-health` clean from a clean path, and a doc-health run diffed
+  against its own base with zero findings moved. Its ONE MODIFIED requirement
+  promoted with the device scenario as its third, the capability's requirement
+  count unchanged at 13. `target_release` was corrected from a bare
+  `implementation_pending` to `implemented` on this archive, and the
+  pre-realization banner replaced, since both read as though merged work were
+  still owed. §6 stays unticked as a recorded boundary, not a gap: the
+  downstream OpsxFactory `device` roster entry and its consent ceremony are
+  authored in that repository under its own governance.
 - [add-doxbench-editing-phase-a](openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/proposal.md)
   — **ARCHIVED 2026-08-21** (realization evidence recorded at the gate: PR #196
   / `6ac42ed`, plus its own annotation round at #199 / `224bf22` and #201 /
