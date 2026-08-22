@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory (`scripts/doc_health/families.py` — `fam_ratified_provenance` learns the second, record-citing citation spelling and gains the three-way floor check on it, and its `_header_line` read widens from one prefix to two WITHOUT becoming a prefix match on the bare word "Ratified", which would swallow body prose; `tests/doc-health/` — positive and negative cases for both spellings, for the floor, and for the body-prose boundary, mutation-validated. `docs/document-lifecycle.md` § Status Claim Rules is prose rather than runtime code, but it is the text the family implements and it lands in the same slice.)
+code_surface: openxFactory (`scripts/doc_health/families.py` — `fam_ratified_provenance` learns the second, record-citing citation spelling and gains the three-way floor check on it, and its `_header_line` read widens from one prefix to two WITHOUT becoming a prefix match on the bare word "Ratified", which would swallow body prose; a sibling `_header_lines` returns ALL matching header lines so the "exactly one citation" rule can be COUNTED rather than short-circuited at the first match, with `_header_line` delegating to it and unchanged for its other call sites; `tests/doc-health/` — positive and negative cases for both spellings, for the floor, and for the body-prose boundary, mutation-validated. `docs/document-lifecycle.md` § Status Claim Rules is prose rather than runtime code, but it is the text the family implements and it lands in the same slice.)
 target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed. The archive gate is therefore merge-plus-green on main, full stop — `python3 -m pytest tests/doc-health` and `-k workbench` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health run whose severity counts are unchanged against the pre-change baseline. The bare `implementation_pending` token is deliberately NOT used: `docs/archive-record-discrepancies.md` C1 records that it is a house token the realization axis does not define, and Brett's 2026-08-22 ruling rewrote four archived proposals off it; its legality on the ACTIVE phase was left open by that ruling and this change does not presume an answer.
 Status: ratified
 Ratified: 2026-08-22 by Brett Heap — in-session, multiple-choice ruling round over all five Open Questions (every recommended option adopted, OQ-3 unopposed in prose), recorded in this proposal's Open Questions section and in design.md; this change has no approving OpenSpec change to name, so it cites itself in the record-citing spelling it here sanctions.
@@ -116,16 +116,18 @@ uncited `Status: ratified` is illegal.
    four bullets — and none for the ratified citation. The delta restates
    the requirement in full with the citation rule, the two-spelling
    condition of use, and the three-way floor folded in; all three existing
-   scenarios are restated unchanged, and four are added (an approving
+   scenarios are restated unchanged, and five are added (an approving
    change exists; no approving change exists; a record-citing line names
-   nothing checkable; a ratified header carries no citation at all).
+   nothing checkable; a ratified header carries no citation at all; a
+   ratified header carries more than one citation).
 
 2. **`doc-health` — MODIFIED `Deterministic check families`.** The
    `Lifecycle conformance checks fire` scenario enumerates the lifecycle
    violations the run reports, and its list names only "a dangling
-   `Ratified by:` reference". Widening the family adds two violation kinds
+   `Ratified by:` reference". Widening the family adds three violation kinds
    the enumeration does not carry: a `ratified` header with no citation in
-   either spelling, and a `Ratified:` line failing the floor. The delta
+   either spelling, a `Ratified:` line failing the floor, and a `ratified`
+   header carrying more than one citation. The delta
    restates the requirement body and all eight scenarios verbatim and
    changes exactly that one bullet. Without it the realization in §3 would
    emit findings the promoted contract does not authorize. Whether this
@@ -165,8 +167,11 @@ to fit what the corpus already does.
 - **Findings:** the realization must be baseline-identical on severity
   counts. If it is not, the widening is wrong, not the corpus.
 - **Promoted specs:** `document-lifecycle` keeps its 13 requirements and
-  gains 4 scenarios on an existing one (52 → 56); `doc-health` gains no
-  requirement and no scenario, only one widened WHEN bullet.
+  gains 5 scenarios on an existing one (52 → 57 — recounted in-tree against
+  `openspec/specs/document-lifecycle/spec.md`, which carries 52 scenarios
+  across 13 requirements, three of them on the requirement this delta
+  modifies); `doc-health` gains no requirement and no scenario, only one
+  widened WHEN bullet.
 - **Downstream readers:** none. `ideation_dashboard.generator` derives a
   change's ratifier from `.openspec.yaml` `ratified_by`/`ratifier`,
   "deliberately NOT the `Ratified by:` proposal header"

@@ -51,8 +51,15 @@ what makes it a rule rather than an observation.
       the prose is what authors actually read at authoring time. Done:
       `Ratified by:` is "required wherever an approving OpenSpec change
       exists to name"; `Ratified:` is "legal only where no approving OpenSpec
-      change exists to name", with the delta's four examples (in-session
-      ruling, disposition, `.openspec.yaml` approval pair, archive commit).
+      change exists to name", with the delta's list carried whole: its FOUR
+      named examples (in-session ruling, disposition, `.openspec.yaml`
+      approval pair, archive or ratification commit) AND its catch-all, "or
+      another durable record". FIX LAP (adversarial review F6): the prose
+      first shipped with the list truncated — "an archive commit", full stop,
+      dropping both the "or ratification" half of the fourth example and the
+      catch-all — which read as a CLOSED list of four and would have made
+      every honest record outside those four look illegal. Recounted and
+      restored to match the delta word for word.
 - [x] 2.3 State that the floor applies to `Ratified:` only, and that a
       `Ratified by:` line naming its change and nothing else is complete.
       Done, both in one place each: "That floor applies to `Ratified:` alone
@@ -144,6 +151,8 @@ what makes it a rule rather than an observation.
       `..._past_the_window_is_not_found`. Two extra tests cover the OQ-4
       both-lines rule, one of them with both lines individually valid so the
       rule is pinned as structural rather than as a fallback.
+      FIX LAP: five more tests, taking the module to 20 — see 6.2 (three on
+      the one-total count) and 6.3 (two on the primary path's rejection).
 - [x] 3.7 Mutation-validate the new assertions: revert each behavioural change
       one at a time and confirm the matching test fails. Per the
       platform-inert-mutation lesson, a mutation that survives because the
@@ -159,6 +168,11 @@ what makes it a rule rather than an observation.
       M5 floor also applied to `Ratified by:` → 3 failed, led by the
       13-document regression guard, which is the mutation this change was
       most likely to ship.
+      FIX LAP: this round of five was not enough — the adversarial review
+      hand-applied two loosenings that ALL of it survived (F4 and F5). Three
+      more mutations, M6-M8, are recorded at 6.4, each one run twice: once
+      with the new guard deselected, to prove it really was surviving the
+      whole suite before, and once with it active, to prove the kill.
 - [x] 3.8 Measure, do not assume: run doc-health before and after over the
       same tree and record that the severity counts are identical. A moved
       count means the widening reached a document it should not have.
@@ -187,8 +201,14 @@ what makes it a rule rather than an observation.
       `python3 -m pytest tests/ideation-dashboard -k workbench`, both green,
       exit codes read directly (`pipefail` discipline: never `| tail`).
       Both exit 0: doc-health 719 passed (704 baseline + 15 new), workbench
-      140 passed / 3858 deselected. No uppercase "POST" appears in any prose
-      this change adds.
+      140 passed / 3858 deselected. Every line this change adds is free of
+      the upper-case four-letter HTTP verb whose presence anywhere in prose
+      breaks the staging-workbench no-write-path test — checked by grep over
+      the diff, not assumed. FIX LAP (adversarial review F7): this read-back
+      first stated that claim by spelling the token out, which made the
+      sentence refute itself in the very file it was making the claim about.
+      Re-run after the fix lap: doc-health 724 passed (719 + 5 new),
+      workbench 140 passed.
 - [ ] 4.3 README "OpenSpec Records" row updated from the Active block to the
       realization state as the change lands, and to the archived form at
       archive. NOT DONE IN THIS SLICE, deliberately: the row moves at the
@@ -198,10 +218,13 @@ what makes it a rule rather than an observation.
       tag is owed; the archive-gate evidence is the merged PR plus the green
       runs, named in this file before the archive commit.
 - [ ] 4.5 On archive, confirm the promoted `document-lifecycle` requirement
-      carries all seven scenarios (three restated, four added) and that the
-      promoted `doc-health` requirement's other seven scenarios are
-      byte-identical to their pre-change text — the MODIFIED-delta
-      scenario-drop failure mode, checked rather than trusted.
+      carries all EIGHT scenarios (three restated, five added — the fifth
+      added on the fix lap, see 6.1) and that the promoted `doc-health`
+      requirement's other seven scenarios are byte-identical to their
+      pre-change text — the MODIFIED-delta scenario-drop failure mode,
+      checked rather than trusted. The whole-capability arithmetic to check
+      against: `document-lifecycle` 52 → 57 scenarios, 13 requirements
+      unchanged.
 
 ## 5. Explicitly out of scope
 
@@ -212,3 +235,136 @@ what makes it a rule rather than an observation.
       Both are archived-record edits, which the register routes through a
       citing change and a ruling per record.
 - [ ] 5.3 Rewriting any existing citation line to a preferred shape.
+
+## 6. Fix lap (adversarial review, 2026-08-22)
+
+The review of the realization returned FIX FIRST on six confirmed findings,
+each with a demonstration. This section records what each fix changed, and —
+where a fix amended this change's own deltas — the ruling already on record
+that the amendment EXECUTES. No amendment here decides anything new; each one
+writes down a decision Brett already made.
+
+- [x] 6.1 **F1 — the both-lines finding was a kind no delta enumerated.**
+      The realization emits CRITICAL `carries both Ratified by: and Ratified:
+      citations`, correctly and on instruction: OQ-4 was RULED on 2026-08-22
+      as "EXACTLY ONE citation line per document; a document carrying both is
+      itself a finding" (proposal.md, OQ-4). But the enforcement contract did
+      not carry it — the `doc-health` delta's `Lifecycle conformance checks
+      fire` WHEN clause enumerated three ratification violation kinds, not
+      four, and the `document-lifecycle` delta carried the exactly-one rule
+      in its requirement BODY with no scenario. The check therefore emitted a
+      finding class the promoted contract did not authorize, which is the
+      precise defect the §2 delta exists to prevent for the other kinds.
+      **AMENDMENT TO THIS CHANGE'S OWN DELTAS, executing OQ-4's recorded
+      ruling** — the ruling is the authority, this is only its transcription:
+      (a) `specs/doc-health/spec.md` gains a fourth ratification bullet in
+      the WHEN enumeration, "a `ratified` document whose lifecycle header
+      carries more than one ratification citation (one of each spelling, or
+      the same spelling twice)"; (b) `specs/document-lifecycle/spec.md` gains
+      a fifth scenario, `A ratified header carries more than one citation`,
+      in the sibling scenarios' WHEN/THEN/AND voice. Arithmetic recounted
+      in-tree rather than carried forward: `openspec/specs/document-lifecycle/spec.md`
+      holds 52 scenarios across 13 requirements today, three of them on the
+      modified requirement, so the Impact line moves 52 → 56 to 52 → 57 and
+      task 4.5's "seven scenarios (three restated, four added)" becomes eight
+      (three restated, five added).
+- [x] 6.2 **F4 — "exactly one citation" was enforced only ACROSS spellings.**
+      `_header_line` returns the FIRST match per prefix, so two `Ratified by:`
+      lines, or two `Ratified:` lines, passed clean; the reviewer demonstrated
+      both. That is not what the requirement says — "a document SHALL carry
+      exactly one ratification citation" is ONE TOTAL — nor what OQ-4 ruled
+      ("EXACTLY ONE citation line per document"). A rule that says exactly one
+      cannot be enforced by a reader that stops at the first one.
+      Realization: new `_header_lines` returns ALL matching real lines in the
+      window and `_header_line` now delegates to it (first match or None,
+      unchanged for its four remaining call sites — `Backed by:`,
+      `Superseded by:`, `Retired:`, `Reason:`); `fam_ratified_provenance` fires
+      when `len(by_lines) + len(record_lines) > 1`. The message distinguishes
+      the cases honestly rather than calling a same-spelling pair "both":
+      `carries both Ratified by: and Ratified: citations` for one of each,
+      `carries N Ratified by: citation lines, not one` / `carries N Ratified:
+      citation lines, not one` for a duplicate.
+      **AMENDMENT, executing OQ-4:** the delta's clause is sharpened from "and
+      MUST NOT carry both" to state the count is one TOTAL and that the same
+      spelling twice is the same violation — the reading the ruling's own
+      words carry, made unmissable so no future reader repeats the
+      first-match implementation.
+      Three tests added: two `Ratified by:` where the FIRST resolves; two
+      `Ratified:` where the FIRST clears the floor (both chosen so a
+      first-match reader calls the document clean); and the cross-spelling
+      pair in the REVERSE order, so the rule is pinned as order-independent.
+      Baseline verified before enforcing: the governed corpus carries 22
+      `ratified` documents, all 22 citing with `Ratified by:`, ZERO carrying
+      a duplicate in either spelling and zero carrying both — so this
+      enforcement moves no live count, which 6.5 confirms end to end.
+- [x] 6.3 **F5 — nothing pinned the primary path's rejection.** Letting the
+      floor rescue a non-resolving `Ratified by:` turned CRITICAL → CLEAN and
+      the whole 719-test suite stayed green: the only dangling fixture,
+      `Ratified by: ghost-change`, trips neither floor axis, so it cannot
+      observe a rescue. The delta forbids the rescue ("The named change IS the
+      citation"), and the shape at risk is the one the corpus writes 18 times
+      under `openspec/` — `Ratified by: Brett Heap on 2026-08-22, in-session`
+      — which goes live the moment 5.1 happens. No code change was needed;
+      the defect was a missing guard. Two parametrized cases added, one
+      tripping the DATE axis and one the APPROVER axis, because a rescue could
+      be written on either. Each asserts its fixture really trips its axis
+      before asserting the finding stands. The `document-lifecycle` prose
+      gains the matching sentence: naming an approver and a date after
+      `Ratified by:` instead of a change does not complete that spelling.
+- [x] 6.4 **Mutations M6-M8, each run twice.** Every one is hand-applied to
+      `families.py`, run against the FULL `tests/doc-health` suite (not the
+      new module alone) first with the new guard deselected and then with it
+      active, and reverted with a SHA-256 byte-equality assertion afterwards.
+      M6 — count reduced to the both-spellings pair (`if by_lines and
+      record_lines:`): 722 passed with the two 6.2 duplicate guards
+      deselected, i.e. it was surviving everything shipped; 2 failed with them
+      active.
+      M7 — the exactly-one check disabled outright: 5 failed, the two 6.2
+      guards plus all three both-lines tests.
+      M8 — the three-way floor allowed to rescue a non-resolving `Ratified
+      by:`: 722 passed with the two 6.3 guards deselected — the review's
+      demonstration reproduced exactly — and 2 failed with them active.
+- [x] 6.5 **F2 — approver-axis false CRITICALs, closed by DISCLOSURE.**
+      `_CITATION_APPROVER` is `\bby\s+[A-Z][\w.'-]*`, which does not recognize
+      an approver named inside a parenthetical — design D1's own row-3 shape,
+      `Ratified: ruling round (Brett Heap presiding)`. Live impact is zero
+      (no governed `Ratified:` line exists at all), so the choice was between
+      widening the pattern and disclosing its edge. DISCLOSURE was chosen:
+      a wider pattern guessing at proper names inside free prose would trade a
+      rule an author can read for one an author discovers from a finding, and
+      guessing is the failure OQ-3's reasoning rules against. Three places
+      now say so — `docs/document-lifecycle.md` § Status Claim Rules states
+      the recognized form is `by <Name>` and names the remedy (add the clause;
+      never invent a date), the pattern's comment in `families.py` records the
+      narrowing as deliberate and disclosed, and design D1 gains a paragraph
+      stating the narrowing against its own table row and why widening was
+      refused.
+- [x] 6.6 **F6 — prose dropped the delta's catch-all**; fixed at 2.2, which
+      also carries the corrected count.
+      **F7 — a self-refuting read-back**; fixed at 4.2, reworded so the claim
+      is true of the file that makes it.
+- [x] 6.7 **A pre-existing guard the fix lap had to repair, called out rather
+      than buried.** 6.2's `_header_lines` introduction moved the seam that
+      `test_families_real_lines.py::test_mutation_reverting_header_line_alone_reproduces_the_false_finding`
+      monkeypatches: that guard reverts the header reader to
+      `str.splitlines()` and asserts the false CRITICAL reappears, and it
+      patched `families._header_line`, which `fam_ratified_provenance` no
+      longer calls. Left alone it went RED, so the refactor was caught by it
+      immediately. The patch target is re-pointed at `_header_lines`, the
+      reader the family now reads through and the one `_header_line`
+      delegates to — so the mutation reverts BOTH readers at once, which is
+      strictly the same single-seam mutation aimed at the seam's current
+      name. Its intent, fixture and assertion are untouched, and it is
+      self-checking: if the patch stopped reaching the family the fixture
+      would come back clean and the guard would fail.
+- [x] 6.8 **Gates re-run after the fix lap**, exit codes read directly.
+      `openspec validate sanction-ratified-record-spelling --strict` exit 0;
+      `--all --strict` exit 0, 68 passed / 0 failed (68 items, unchanged —
+      `origin/main` is still `a316a10`, so nothing moved under this branch).
+      `pytest tests/doc-health` exit 0, 724 passed (719 + 5 new).
+      `pytest tests/ideation-dashboard -k workbench` exit 0, 140 passed.
+      doc-health `--single-repo` over the same tree: 4 critical, 6 error,
+      68 warning, 4 info — identical to the pre-fix-lap baseline and to §3.8's
+      pre-change measurement, and `ratified-provenance` still reads "No
+      findings". The one-total enforcement added in 6.2 moves nothing,
+      exactly as the zero-duplicate census predicted.

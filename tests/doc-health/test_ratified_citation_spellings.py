@@ -7,13 +7,22 @@ legal only where no approving OpenSpec change exists to name, and it is held
 to the three-way floor instead — an approver, a date, or a resolvable record
 path, any ONE of which suffices.
 
-Two boundaries here are load-bearing rather than incidental, and each has a
+Four boundaries here are load-bearing rather than incidental, and each has a
 test whose only job is to fail if the boundary moves:
 
 - the floor MUST NOT reach `Ratified by:`. Thirteen of the governed
   documents carrying that spelling name their change and nothing else — no
   approver, no date, no path — and applying the floor across both spellings
   would convert all thirteen from correct to CRITICAL in one commit.
+- the floor MUST NOT RESCUE `Ratified by:` either — the mirror loosening.
+  A primary line naming an approver and a date but no resolvable change is
+  still a finding, because the named change IS that spelling's citation.
+  The corpus writes that shape eighteen times under `openspec/`, so the day
+  those roots become governed is the day a rescue would go quietly live.
+- "exactly one citation" is counted as ONE TOTAL across both spellings, so
+  the SAME spelling twice is the same violation as one of each. A reader
+  that stops at the first match per prefix cannot enforce that, which is
+  why `fam_ratified_provenance` reads through `_header_lines`.
 - the reader MUST stay two distinct prefixes and MUST NOT collapse to
   `_header_line(doc, "Ratified")`. `_header_line` matches with
   `body.startswith(prefix)`, so the short prefix also matches body prose
@@ -163,6 +172,47 @@ def test_both_spellings_is_a_finding_even_when_each_would_pass_alone(repo):
     assert len(findings) == 1 and "both" in findings[0].rule, _rules(findings)
 
 
+def test_both_spellings_in_the_reverse_order_is_the_same_finding(repo):
+    """Order-independence: the rule counts citations, it does not privilege
+    whichever spelling the author happened to type first."""
+    rule = _only_rule(_run(
+        "# Subject\n\nStatus: ratified\n"
+        "Ratified: 2026-08-22 by Brett Heap\n"
+        "Ratified by: real-change\n\nBody.\n", repo))
+    assert rule == "carries both Ratified by: and Ratified: citations"
+
+
+def test_two_primary_citations_are_a_finding_even_when_one_resolves(repo):
+    """Exactly-one is ONE TOTAL, not one per spelling. Two
+    `Ratified by:` lines carry the identical defect as one of each — nothing
+    on the page says which is current — and a reader that stopped at the
+    first match would call this document clean because the FIRST line happens
+    to resolve."""
+    findings = _run(
+        "# Subject\n\nStatus: ratified\n"
+        "Ratified by: real-change\n"
+        "Ratified by: ghost-change\n\nBody.\n", repo)
+    rule = _only_rule(findings)
+    assert rule == "carries 2 Ratified by: citation lines, not one"
+    assert "both" not in rule, (
+        "a same-spelling duplicate must not be reported as carrying both "
+        "spellings — the document carries one spelling, twice")
+
+
+def test_two_record_citations_are_a_finding_even_when_one_clears_the_floor(repo):
+    """The same one-total rule on the record-citing spelling. The first line
+    clears the floor on two axes, so a first-match reader sees a clean
+    document; the second line is a competing claim about the same
+    ratification."""
+    findings = _run(
+        "# Subject\n\nStatus: ratified\n"
+        "Ratified: 2026-08-22 by Brett Heap\n"
+        "Ratified: yes, it was agreed\n\nBody.\n", repo)
+    rule = _only_rule(findings)
+    assert rule == "carries 2 Ratified: citation lines, not one"
+    assert "both" not in rule
+
+
 # --------------------------------------- the primary spelling, unchanged
 
 
@@ -200,6 +250,46 @@ def test_ratified_by_dangling_is_still_critical(repo):
         "Ratified by: ghost-change\n\nBody.\n", repo))
     assert rule == (
         "Ratified by: missing or does not resolve to an OpenSpec change")
+
+
+@pytest.mark.parametrize("line, axis", [
+    ("Ratified by: Brett Heap on 2026-08-22, in-session", "date"),
+    ("Ratified by: approved by Brett Heap, in-session", "approver"),
+])
+def test_the_floor_must_not_rescue_a_non_resolving_primary_citation(
+        repo, line, axis):
+    """THE LOOSENING GUARD, and the mirror of the 13-document one above.
+
+    Each line here names a person and a record-shaped justification, trips
+    ONE of the floor's axes, and names no change that resolves. The first is
+    the shape the corpus writes eighteen times under `openspec/`, outside
+    the governed roots. The requirement is one-directional: the floor is what
+    makes the RECORD-CITING spelling checkable, and "the named change IS the
+    citation" is what makes the primary one checkable. Letting the floor
+    rescue a primary line would silently sanction `Ratified by: <a person>`
+    as a substitute for naming the change — dissolving the condition of use
+    the two spellings exist to keep apart, and doing it to the eighteen lines
+    the corpus already carries the moment `openspec/` joins the governed
+    roots.
+
+    Without this the loosening survives every other test: `ghost-change`
+    above trips NEITHER axis, so the dangling case alone cannot observe a
+    floor rescue. Both axes are parametrized because a rescue could be
+    written on either one.
+    """
+    from doc_health.families import _CITATION_APPROVER, _CITATION_DATE
+    body = line.split(":", 1)[1]
+    tripped = {"approver": _CITATION_APPROVER, "date": _CITATION_DATE}[axis]
+    assert tripped.search(body), (
+        f"fixture is broken: it must trip the floor's {axis} axis, or it "
+        "cannot observe a floor rescue")
+    rule = _only_rule(_run(
+        f"# Subject\n\nStatus: ratified\n{line}\n\nBody.\n", repo))
+    assert rule == (
+        "Ratified by: missing or does not resolve to an OpenSpec change"), (
+        "the three-way floor rescued a Ratified by: line that names no "
+        "resolvable change — the primary spelling's whole rule is that the "
+        "named change is the citation")
 
 
 # ------------------------------------------------ no citation at all
