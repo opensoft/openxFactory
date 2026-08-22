@@ -77,12 +77,12 @@ is implied by this change's own record three times over: the realization commit
 archive commit `afd7b33` archived it under `release-realization`'s gate, which
 admits only a ratified change; and the archival promoted this change's four
 requirements into `openspec/specs/ideation-dashboard/spec.md`, which is an act
-a proposal that never ratified cannot reach.
+a proposal that was never ratified cannot reach.
 
 Why the flip was declined anyway. `docs/document-lifecycle.md` § Status Claim
 Rules does not merely permit a `ratified` header — it requires that header to
 name its ratification ("A `ratified` header names the approving OpenSpec
-change"). Every one of the thirty-eight archived proposals that reads
+change"). Every one of the thirty-eight archived proposals that read
 `Status: ratified` carries such a citation, in one of two spellings
 (`Ratified by:` on twenty-nine, `Ratified:` on nine), and each names an
 approver, a date, or a resolvable record. This change's record supplies none of
