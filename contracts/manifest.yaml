@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.39
+contract_bundle_version: contract-v1.40
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1581,7 +1581,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
     type: schema
     schema_version: 1
-    sha256: cc874fef63e387a5f16c9d7ed5235bc03fb4fc68537a31c42d3acc5259d76ffa
+    sha256: d8ee5624f2136977044971b17fe67fe31b057bbf621e14853069fd082019b254
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1596,12 +1596,12 @@ contracts:
       outline plus every LOADED document, DECLARES its bound-buffer key, and its
       record states that key, the per-buffer observed hashes by key, a
       buffer-key proposal target, and the selected-model metadata. SINCE
-      contract-v1.39 the v2 RECORD also carries `context_packet` — the POSTURE
+      contract-v1.40 the v2 RECORD also carries `context_packet` — the POSTURE
       (`full | reduced`) the turn's bounded context packet was assembled under,
       plus that reduction's own reason. A consumer that reports how a turn was
       grounded MUST read it; a consumer that does not may ignore it, exactly as
       before. Its ABSENCE is not a posture claim: it means the producer predates
-      contract-v1.39, never that the context was full. The reason is present IFF
+      contract-v1.40, never that the context was full. The reason is present IFF
       the posture is `reduced` (two schema conditionals, restated in the
       delegated validator). The DEPRECATED v1 success envelope is NOT widened
       and cannot state a posture — a recorded limitation, not an omission; the
@@ -1994,7 +1994,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-client-identity-roster.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 5f21c72724bfa2624a20c827b1ee3e68bbbb36746017883ab565e7f43fb23a6b
+    sha256: 786a1e4426ff4e84c63f7384fa248adeb38c4a402288b638fa4402efee5c8330
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

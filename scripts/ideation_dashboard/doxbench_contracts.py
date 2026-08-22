@@ -132,7 +132,7 @@ from referencing.jsonschema import DRAFT202012
 # both `verify-commit --commit contract-v1.38` and
 # `verify-tag --remote origin --tag contract-v1.38` pass.
 #
-# Moved v1.38 -> v1.39 by `add-doxbench-editing-phase-b` §10.7. Not
+# Moved v1.38 -> v1.40 by `add-doxbench-editing-phase-b` §10.7. Not
 # digest-neutral, and could not be: the release grows
 # `xfactory-workbench-chat-turn.schema.yaml` itself with the assembled
 # context's POSTURE on `$defs/success_v2`, so the CHAT-TURN digest below is the
@@ -140,9 +140,9 @@ from referencing.jsonschema import DRAFT202012
 # v1.38 repin, and the same shape as the v1.34 one. The repin lands in the same
 # change as the release for the reason it did then: the fail-closed chain is
 # byte-exact, so a runtime pinned to v1.38's chat-turn digest cannot read
-# v1.39's schema at all. That is the check working.
+# v1.40's schema at all. That is the check working.
 #
-# v1.39 WAS AVAILABLE WHEN THIS SLICE ALLOCATED IT, checked against the
+# v1.40 WAS AVAILABLE WHEN THIS SLICE ALLOCATED IT, checked against the
 # CHANGELOG at the moment of allocation rather than assumed -- the habit the
 # v1.37/v1.38 episode earned, twice. At the branch base (66140613) the
 # CHANGELOG's newest heading was contract-v1.38 and the bundle read
@@ -157,8 +157,8 @@ from referencing.jsonschema import DRAFT202012
 # REFUSES rather than matching by accident. A follow-up commit resolves it, as
 # 58e4aecd did for v1.38 and 7c544c84 for v1.34.
 
-CONTRACT_REF = "unpublished:contract-v1.39"
-CONTRACT_TAG = "contract-v1.39"
+CONTRACT_REF = "unpublished:contract-v1.40"
+CONTRACT_TAG = "contract-v1.40"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
@@ -168,7 +168,7 @@ SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
-        "cc874fef63e387a5f16c9d7ed5235bc03fb4fc68537a31c42d3acc5259d76ffa",
+        "d8ee5624f2136977044971b17fe67fe31b057bbf621e14853069fd082019b254",
 }
 
 # The seven doxBench INSTANCE kinds. The catalog kind is a whole-document schema;

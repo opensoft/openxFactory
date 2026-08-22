@@ -313,8 +313,9 @@ class Vocabularies:
 # Extension routes, named in every closed-set refusal (FR-007, FR-031, FR-034).
 EXTENSION_ROUTE = {
     "admission_surface":
-        "a surface enters with the promotion of the capability that governs it "
-        "(endpoint MUTATION / Intune write and Entra-directory arrive with theirs); "
+        "a surface enters with the ratified change that governs it "
+        "(endpoint MUTATION / Intune write, and Entra-directory MUTATION / "
+        "user, group and application administration, arrive with theirs); "
         "non-Entra providers, including a client-org GitHub App installation, "
         "are a named successor routed by client-infrastructure-liaison",
     "authority_class":

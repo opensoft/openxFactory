@@ -304,12 +304,12 @@ def test_the_reduced_posture_does_not_change_the_turns_own_success_shape(
 
 def test_the_widened_record_keeps_the_same_shape_and_says_what_it_ran_on(
         tmp_path):
-    """THE SAME CLAIM ON THE WIDENED LANE, and what contract-v1.39 changed
+    """THE SAME CLAIM ON THE WIDENED LANE, and what contract-v1.40 changed
     about it.
 
     The clause above is unchanged and still holds: the two turns answer in the
     SAME envelope with the SAME keys, so nothing a consumer parses moves when
-    the knowledge service disappears. What v1.39 adds is that the two records
+    the knowledge service disappears. What v1.40 adds is that the two records
     now DIFFER in what they say — one states `full`, the other `reduced` with
     its reason — which is the whole point of the release and is the difference
     that used to be invisible to every reader of the record.
@@ -332,7 +332,7 @@ def test_the_widened_record_keeps_the_same_shape_and_says_what_it_ran_on(
 
 
 # ===========================================================================
-# THE REDUCED POSTURE IS STATED ON THE RECORD (task 10.7, contract-v1.39)
+# THE REDUCED POSTURE IS STATED ON THE RECORD (task 10.7, contract-v1.40)
 #
 # The ratified sentence ends "with the reduced posture STATED", and until this
 # release the statement lived only inside the assembled packet — where the
@@ -427,7 +427,7 @@ def test_a_backend_that_REFUSES_records_its_own_reason_not_the_absent_one(
 def test_the_deprecated_v1_record_still_succeeds_and_still_cannot_say_so(
         tmp_path):
     """THE RECORDED v1 LIMITATION, pinned as a limitation rather than left to
-    prose. The deprecated envelope is CLOSED and contract-v1.39 does not widen
+    prose. The deprecated envelope is CLOSED and contract-v1.40 does not widen
     it, so a v1 turn that ran reduced succeeds — the ratified "MUST NOT make
     the editors unusable" half — and carries no posture on the wire. The
     reduction is still stated inside the packet, which is where it always was.
@@ -682,7 +682,7 @@ def _lying_packet_assembler(mutate):
 ])
 def test_a_packet_that_lies_about_its_posture_refuses_the_turn(
         tmp_path, mutate, why):
-    """FAIL-CLOSED, never a guessed posture (contract-v1.39, task 10.7).
+    """FAIL-CLOSED, never a guessed posture (contract-v1.40, task 10.7).
 
     The derivation could have defaulted — `getattr(packet, "posture", "full")`
     would have made every one of these turns succeed with a record claiming a

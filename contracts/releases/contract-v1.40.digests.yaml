@@ -1,6 +1,6 @@
 schema_version: 1
 kind: openxfactory-contract-release-digest-inventory
-bundle_tag: contract-v1.39
+bundle_tag: contract-v1.40
 repository: opensoft/openxFactory
 digest_algorithm: sha256
 digest_source: raw_git_blob
@@ -10,12 +10,12 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:dddbb7f28dcd33049a94fb39c2dbc13548a8d59d96811d426cccbcccac1fde91
+  digest: sha256:2a11e9ba205c72314117fb8e8bc304da3c7863b86f591acf45ec4f98c849e760
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:ac8d48bbf43019836edeb10f3bd1ee8d05dd6371bc001ef4091f0fd37d36fbe7
+  digest: sha256:5d2c2a3bdbde9d2e081827c5da9f7f05a9b1b83773f3f342398f62598348fd04
 - artifact_id: hermes-runtime-contract-readme
   path: contracts/hermes-runtime/README.md
   type: documentation
@@ -824,7 +824,7 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:d9e149af892b1b8f2de6ae2f815372fb66e06ee863279cdd7ef48cf5ec82ca6d
+  digest: sha256:c3f38c70632d17e5ef024771e910ede07027f7b1cbbe95ec660ee0a58d5eba3b
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
@@ -850,7 +850,7 @@ entries:
   git_mode: '100644'
   schema_id: xfactory-workbench-chat-turn
   schema_version: 1
-  digest: sha256:2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5
+  digest: sha256:d8ee5624f2136977044971b17fe67fe31b057bbf621e14853069fd082019b254
 - artifact_id: xfactory-workbench-model-catalog
   path: contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
   type: release-schema

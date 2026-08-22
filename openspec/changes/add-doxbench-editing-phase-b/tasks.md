@@ -919,7 +919,7 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       is CLOSED and shipped and carries nothing forward; §11.7 records its
       obligation by naming its OWN future release and staying open — which is
       what recording looks like, and is what this task now does.
-      **SURFACE HALF LANDED 2026-08-22 — `contract-v1.39`, and the box is now
+      **SURFACE HALF LANDED 2026-08-22 — `contract-v1.40`, and the box is now
       CHECKED because the ratified `The knowledge service is unavailable`
       scenario is claimable in full.** Its THEN is that the turn "MUST degrade
       to the declared reduced packet with the reduced posture stated", and the
@@ -1072,16 +1072,16 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       truncated to fit; truncating a statement about a degradation is how a
       degradation goes quiet.
       THE TAG IS NOT CUT HERE. Per the versioning policy the annotated
-      `contract-v1.39` tag is published against the commit that actually lands,
+      `contract-v1.40` tag is published against the commit that actually lands,
       so this tick claims the CHANGELOG entry (the availability test), the
       recomputed manifest digest, the bundle bump and the 190-entry digest
       inventory built AFTER that bump — `verify-commit --commit HEAD` passes on
       the cut, exactly four digests moved — and the consuming repin carries the
-      `unpublished:contract-v1.39` sentinel until a follow-up commit resolves
+      `unpublished:contract-v1.40` sentinel until a follow-up commit resolves
       it, exactly as 11.7 did for `contract-v1.38` and 13.3 for
       `contract-v1.34`.
       **CHECKED AT ALLOCATION, and this time the surface was clean.**
-      `contract-v1.39` was available at the branch base `66140613` — CHANGELOG
+      `contract-v1.40` was available at the branch base `66140613` — CHANGELOG
       heading and bundle both read `contract-v1.38` — and
       `verify-commit --commit origin/main` PASSED there against v1.38's
       inventory, so the `HGR-RELEASE-DIGEST-MISMATCH` §11.7's tick left red on
@@ -1123,7 +1123,7 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       and bounded. The durable record of a turn is the thread sidecar, and it
       does not carry the wire body at all.
       **Judgement call, flagged — OMISSION IS NOT A POSTURE CLAIM.** An absent
-      `context_packet` means the producer predates `contract-v1.39`; it does NOT
+      `context_packet` means the producer predates `contract-v1.40`; it does NOT
       mean the context was full, and a consumer that needs the posture must
       treat absence as UNKNOWN. Both readings are packaged so the difference is
       instances rather than prose: the unchanged pre-release record states
@@ -1168,7 +1168,7 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       replace the answer already replaces the posture beside it — there are
       FOUR, and this enumeration said THREE until the review's second round
       (NEW-1): `settleTurnSuccess` adopts the new record's (null included, for a
-      producer older than v1.39), `adoptThreadTranscript` clears it with the
+      producer older than v1.40), `adoptThreadTranscript` clears it with the
       transcript, `rekeyChatState` starts fresh, and `restoreChatState` adopts
       the SNAPSHOT's. So the invariant holds by not being violated rather than
       by being restored. Both directions are probed
@@ -2417,7 +2417,7 @@ only one of them is §12:
 
 | open | what it needs | who can close it |
 |---|---|---|
-| ~~**10.7**~~ | ~~an additive **chat-turn-success** release carrying the assembled context's posture (`full \| reduced`) and its reason — the packet half is built and the browser half has no field to land in~~ | **CLOSED 2026-08-22** — cut as `contract-v1.39`; the record now carries `context_packet` (posture + the reduction's own reason, present iff reduced), the rail states the reduced posture to the human, the packet's ASSEMBLY was not rebuilt (`assemble_packet` and both `REDUCED_*` constants byte-identical, `test_doxbench_packet.py` unmodified; the construction gate's full-arm predicate was tightened at the bot round so the three-gates-one-rule claim holds), and `verify-commit` passes on the cut |
+| ~~**10.7**~~ | ~~an additive **chat-turn-success** release carrying the assembled context's posture (`full \| reduced`) and its reason — the packet half is built and the browser half has no field to land in~~ | **CLOSED 2026-08-22** — cut as `contract-v1.40`; the record now carries `context_packet` (posture + the reduction's own reason, present iff reduced), the rail states the reduced posture to the human, the packet's ASSEMBLY was not rebuilt (`assemble_packet` and both `REDUCED_*` constants byte-identical, `test_doxbench_packet.py` unmodified; the construction gate's full-arm predicate was tightened at the bot round so the three-gates-one-rule claim holds), and `verify-commit` passes on the cut |
 | ~~**11.7**~~ | ~~an additive **model-catalog** release — the released entry is a CLOSED seven-field shape, so no conformant catalog can declare `auto` as a routing rule; the runtime already honours one~~ | **CLOSED 2026-08-21** — cut as `contract-v1.38` (v1.37 was taken mid-flight by PR #235); the entry now carries `routing_rule`/`routes_to`/`resolved_model_id`, the runtime was not rebuilt, and `verify-commit` passes on the cut |
 | ~~**12.1–12.6**~~ | ~~share-session: the verb, the no-implicit-push negative, the nothing-new report, the four postures, the colleague resume path (which also carries P3-17's uncommitted-sidecar tail), and 12.6's own scope call~~ | **CLOSED 2026-08-21** — realized as its own slice under Brett's exit (a); P3-17 discharged |
 | ~~**12.7**~~ | ~~the annotated tag + submodule pin for `contract-v1.36`, the additive `share-session` enum growth 12.4 turned out to require (the in-branch half is done; see the task for why it was unavoidable)~~ | **CLOSED** — struck 2026-08-21 as a bookkeeping correction, on the authority of the task's OWN already-ticked discharge: `contract-v1.36` is tagged and the aggregation repo's pin landed at `04366e3`, and 12.7's body ends "Nothing on this task remains." The row simply outlived it |
@@ -2456,7 +2456,7 @@ missing behaviour.
 
 **UPDATED 2026-08-22, after 10.7's release was CUT — not landed; see the verb
 below. TWO open rows became ZERO, and the table above has no unstruck row
-left.** `contract-v1.39` carries the chat-turn record's `context_packet` — the
+left.** `contract-v1.40` carries the chat-turn record's `context_packet` — the
 assembled context's posture and the reduction's own reason — and the browser
 surface states the reduced posture to the human, which was the half 10.7 stayed
 open for. 13.8 ticks with it, on its own terms.
@@ -2470,11 +2470,11 @@ target; MERGED — and LANDED — become true at the landing squash and not one
 commit before it.
 
 **So this change is no longer blocked on anything it can do itself.** Every task
-box is checked. What remains is NOT a task: `contract-v1.39` is cut but its
+box is checked. What remains is NOT a task: `contract-v1.40` is cut but its
 annotated tag is published against the commit that actually LANDS, so the
 post-land step is the one §11.7 performed — rerun every gate at the squash,
 publish and remotely verify the tag, then resolve the
-`unpublished:contract-v1.39` sentinel in `doxbench_contracts.CONTRACT_REF` and
+`unpublished:contract-v1.40` sentinel in `doxbench_contracts.CONTRACT_REF` and
 record the squash sha in 13.8's block.
 
 **ARCHIVING IS STILL BRETT'S ACT AND WAS NOT PERFORMED.** The mechanical refusal
@@ -2710,12 +2710,12 @@ the realization evidence for everything built is recorded in `proposal.md`.
       is the gate's own verb (adversarial review S3).** While this branch is in
       flight NOTHING here is merged, pushed or tagged, so:
       (1) the SQUASH SHA this slice lands as does not exist yet;
-      (2) the annotated `contract-v1.39` tag is not published — the versioning
+      (2) the annotated `contract-v1.40` tag is not published — the versioning
       policy publishes it against the commit that ACTUALLY LANDS, and every gate
       reruns at that squash first, because promotion creates a commit nothing
       has gated;
       (3) `doxbench_contracts.CONTRACT_REF` still carries the
-      `unpublished:contract-v1.39` sentinel.
+      `unpublished:contract-v1.40` sentinel.
       The post-land step is therefore the same three-part one §11.7 performed at
       `58e4aecd`: rerun the gates at the squash, publish and REMOTELY verify the
       tag, then a follow-up commit resolves the sentinel and fills in the SHA
@@ -2724,7 +2724,7 @@ the realization evidence for everything built is recorded in `proposal.md`.
       **AND THE BOX IS CHECKED, because the set the sentence names is EMPTY.**
       The three releases it waits on are all CUT: `contract-v1.36` (§12.7,
       tagged and pinned), `contract-v1.38` (§11.7, tagged and pinned), and
-      `contract-v1.39` (§10.7, cut on this branch — CHANGELOG entry, manifest
+      `contract-v1.40` (§10.7, cut on this branch — CHANGELOG entry, manifest
       digest, bundle bump, and the 190-entry inventory built after it, with
       `verify-commit --commit HEAD` passing on the cut).
       **THE VERB, STATED EXACTLY** — an earlier version of this tick said the
@@ -2740,7 +2740,7 @@ the realization evidence for everything built is recorded in `proposal.md`.
       THE EVIDENCE BLOCK AT THE HEAD OF `proposal.md` STANDS AS WRITTEN and is
       not restated here; what this tick adds is the tail it could not yet carry:
       §12 share-session realized under Brett's exit (a); §11.7 at
-      `contract-v1.38`; §10.7 at `contract-v1.39`. Green on this branch at the
+      `contract-v1.38`; §10.7 at `contract-v1.40`. Green on this branch at the
       tick, measured AFTER merging `origin/main` at `0f9e14b4` into the branch
       rather than before it, and RE-MEASURED after BOTH rounds of the
       adversarial review's fixes: `tests/ideation-dashboard` 3930 passed / 15
@@ -2758,7 +2758,7 @@ the realization evidence for everything built is recorded in `proposal.md`.
       reader meets them before any claim they qualify (S3 moved them there;
       they used to trail every green number in the tick). The line below is what
       the post-land follow-up fills in, exactly as 11.7's did.
-      §10.7 — PR #___ / `_______`, annotated tag `contract-v1.39` (to be
+      §10.7 — PR #___ / `_______`, annotated tag `contract-v1.40` (to be
       published against the landing commit and verified from the remote).
       **NOTHING IS ARCHIVED BY THIS SLICE.** `proposal-support.py archive` is
       the sanctioned path and it is Brett's act on his explicit word, not a

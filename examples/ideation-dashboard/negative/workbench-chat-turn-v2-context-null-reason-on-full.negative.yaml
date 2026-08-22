@@ -1,4 +1,4 @@
-# INVALID widened success (contract-v1.39): a FULL posture carrying a NULL
+# INVALID widened success (contract-v1.40): a FULL posture carrying a NULL
 # reduction reason. The same class as `-context-empty-reason-on-full` one step
 # further, and it is packaged because it is the case the DELEGATED VALIDATOR
 # missed on its own: that gate read the value (`reason is not None`) where the

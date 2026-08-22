@@ -784,7 +784,7 @@ def check_committed_manifests(f: Findings, repo: Path) -> None:
 #             checks — without one those two are SKIPPED, never silently
 #             passed.
 #   Success   unique proposal targets; and on the widened record, since
-#             contract-v1.39, the CONTEXT POSTURE's pairing (a reduced packet
+#             contract-v1.40, the CONTEXT POSTURE's pairing (a reduced packet
 #             states its reason, a full one carries none) plus the same
 #             credential/endpoint spelling scan over that reason (see
 #             check_context_packet).
@@ -1237,7 +1237,7 @@ def check_turn_success_v2(f: Findings, label: str, doc: dict) -> None:
 
 
 def check_context_packet(f: Findings, label: str, doc: dict) -> None:
-    """The contract-v1.39 posture statement's own rules (task 10.7).
+    """The contract-v1.40 posture statement's own rules (task 10.7).
 
     TWO of them, and they are different in kind. The first the SHAPE also
     expresses, and it is restated here ON PURPOSE: it is this release's whole
@@ -1288,7 +1288,7 @@ def check_context_packet(f: Findings, label: str, doc: dict) -> None:
     packet = doc.get("context_packet")
     if packet is None:
         # ABSENT IS LEGAL AND MEANS NOTHING ABOUT THE POSTURE: the key is
-        # optional, and a record from a producer older than contract-v1.39
+        # optional, and a record from a producer older than contract-v1.40
         # simply does not carry one. Absence is never read as `full`.
         return
     if not isinstance(packet, dict):

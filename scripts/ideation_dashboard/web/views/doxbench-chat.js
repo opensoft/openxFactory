@@ -301,10 +301,10 @@ export function sendDisclosure(stateValue) {
   return handling ? String(handling) : null;
 }
 
-// THE REDUCED POSTURE, ON THE SURFACE (contract-v1.39,
+// THE REDUCED POSTURE, ON THE SURFACE (contract-v1.40,
 // add-doxbench-editing-phase-b task 10.7). The ratified sentence is *"Where the
 // knowledge service is unavailable the turn SHALL degrade to a declared reduced
-// packet … with the reduced posture STATED"*, and until v1.39 the statement
+// packet … with the reduced posture STATED"*, and until v1.40 the statement
 // lived only inside the assembled packet — true, and unreadable by the human
 // whose answer it changed. The record now carries it, and this is the pure
 // selector that turns it into the one sentence the rail shows.
@@ -313,7 +313,7 @@ export function sendDisclosure(stateValue) {
 // a standing "full context" badge would be a line every operator learns to stop
 // reading, which is exactly how the reduced one would stop being noticed. Null
 // for everything that is not a reduced answer — no answer yet, a turn in the
-// air, a full answer, or a record from a producer older than v1.39.
+// air, a full answer, or a record from a producer older than v1.40.
 export const REDUCED_CONTEXT_LEAD = "reduced context: ";
 
 export function reducedContextNote(stateValue) {
@@ -879,7 +879,7 @@ export function mountDoxBenchChatRail(host, options = {}) {
   const failureNote = el("div", "doxchat-failure");
   failureNote.hidden = true;
   failureNote.setAttribute("aria-live", "polite");
-  // THE POSTURE NOTE (contract-v1.39, task 10.7). It sits directly under the
+  // THE POSTURE NOTE (contract-v1.40, task 10.7). It sits directly under the
   // transcript, beside the failure note, because it is the same class of thing:
   // a fixed, server-derived statement about the answer just rendered. A live
   // region for the same reason that one is — the operator whose turn quietly
@@ -1186,7 +1186,7 @@ export function mountDoxBenchChatRail(host, options = {}) {
       transcriptList.appendChild(item);
     }
     // THE REDUCED POSTURE, STATED WHERE THE HUMAN READS THE ANSWER
-    // (contract-v1.39, task 10.7). One selector, one note, and nothing at all
+    // (contract-v1.40, task 10.7). One selector, one note, and nothing at all
     // when the last answer ran on a full context.
     //
     // UN-HIDE FIRST, THEN WRITE — the order is load-bearing and this release's

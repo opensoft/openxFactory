@@ -1,4 +1,4 @@
-# INVALID widened success (contract-v1.39): a FULL posture carrying an EMPTY
+# INVALID widened success (contract-v1.40): a FULL posture carrying an EMPTY
 # reduction reason. Its sibling `-context-reason-on-full` carries a real
 # sentence; this one carries the blank, and THAT is why it earns its own file —
 # it is the exact instance three of the family's four gates accepted while the

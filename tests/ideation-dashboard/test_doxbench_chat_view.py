@@ -3459,7 +3459,7 @@ def test_the_send_disclosure_for_a_routing_rule_is_the_union_badge(
 
 
 # ---------------------------------------------------------------------------
-# THE REDUCED POSTURE IS VISIBLE TO THE HUMAN (contract-v1.39,
+# THE REDUCED POSTURE IS VISIBLE TO THE HUMAN (contract-v1.40,
 # add-doxbench-editing-phase-b task 10.7)
 #
 # This is the half of task 10.7 that was GATED, and the reason the task stayed
@@ -3725,7 +3725,7 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
     (chatSnapshot(full).context_packet || {}).posture === "full";
   // The key is omitted only when there is NO posture to state: a conversation
   // with no answer yet, or one whose answer came from a producer older than
-  // contract-v1.39. That is the case whose blob is unchanged from before.
+  // contract-v1.40. That is the case whose blob is unchanged from before.
   out.snapshotOmitsWhenUnknown =
     !("context_packet" in chatSnapshot(createChatState(KEY)));
 
@@ -3742,7 +3742,7 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
   out.crossedLastAssistant =
     crossed.transcript[crossed.transcript.length - 1].content;
 
-  // (d) an OLD blob — one written before contract-v1.39 — restores to silence
+  // (d) an OLD blob — one written before contract-v1.40 — restores to silence
   //     rather than being refused, which is what makes the field additive.
   const legacy = { ...blob };
   delete legacy.context_packet;
@@ -3941,7 +3941,7 @@ def test_a_full_posture_carrying_the_KEY_at_all_is_refused(posture_results):
 
 
 def test_a_record_with_no_posture_renders_no_phantom_badge(posture_results):
-    """A producer older than contract-v1.39 states no posture, and the surface
+    """A producer older than contract-v1.40 states no posture, and the surface
     says nothing rather than inventing one. Absence is not `full` and it is not
     `reduced`; it is silence, and silence is what it renders."""
     omitted = posture_results["omitted"]
@@ -4003,7 +4003,7 @@ def test_the_snapshot_carries_the_posture_and_omits_it_when_there_is_none(
     the chat snapshot is a browser-local blob this release fully controls, so
     the disclosure can survive a tile being closed and reopened without a
     migration. A conversation with NO posture to state — no answer yet, or an
-    answer from a producer older than contract-v1.39 — writes the blob it
+    answer from a producer older than contract-v1.40 — writes the blob it
     always did."""
     assert posture_results["snapshotCarries"] is True
     assert posture_results["restoredReduced"] is True
@@ -4013,7 +4013,7 @@ def test_the_snapshot_carries_the_posture_and_omits_it_when_there_is_none(
     # "unknown" over a posture somebody checked.
     assert posture_results["snapshotCarriesFull"] is True
     # The key is absent only when there is no posture to state at all — which
-    # is the case whose blob is unchanged from before contract-v1.39.
+    # is the case whose blob is unchanged from before contract-v1.40.
     assert posture_results["snapshotOmitsWhenUnknown"] is True
 
 

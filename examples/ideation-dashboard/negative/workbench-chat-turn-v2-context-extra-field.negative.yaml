@@ -1,4 +1,4 @@
-# INVALID widened success (contract-v1.39): the posture object is CLOSED, and
+# INVALID widened success (contract-v1.40): the posture object is CLOSED, and
 # this one carries a fourth fact the release did not admit — the retrieval
 # provider the packet named. That fact exists on `ContextPacket`, which is
 # exactly why the closure matters: the release states the POSTURE and its

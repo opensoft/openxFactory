@@ -697,12 +697,12 @@ CONTEXT_REDUCED_REASON_MAX_LENGTH = 500
 
 def doxbench_context_packet(packet) -> dict:
     """The ASSEMBLED CONTEXT's posture, as the widened record carries it since
-    contract-v1.39 (task 10.7) — derived in ONE place, from the packet the turn
+    contract-v1.40 (task 10.7) — derived in ONE place, from the packet the turn
     ACTUALLY RAN UNDER, on `doxbench_selected_model`'s precedent one function up.
 
     The ratified sentence is *"Where the knowledge service is unavailable the
     turn SHALL degrade to a declared reduced packet … with the reduced posture
-    STATED"*. Until v1.39 it was stated only INSIDE the packet, where no reader
+    STATED"*. Until v1.40 it was stated only INSIDE the packet, where no reader
     of the record and no human on the surface could consult it. This is the one
     derivation that puts it on the wire, and it re-states the PACKET'S OWN
     values — never a re-derivation from "was there a knowledge service?", which
@@ -806,7 +806,7 @@ def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str
       being unequal, because "these differ" and "this entry is a routing rule"
       are different facts.
 
-    …and, SINCE contract-v1.39 (task 10.7), a fourth:
+    …and, SINCE contract-v1.40 (task 10.7), a fourth:
 
     * `context_packet` — the POSTURE the turn's bounded context packet was
       assembled under, plus the reduction's reason when there is one. Rebuilt
@@ -814,9 +814,9 @@ def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str
       caller handing in a ready-made dict could splice a key past the builder,
       and this envelope is closed. The posture is a REQUIRED argument, so no v2
       record can be built that silently omits it — the WIRE key is optional
-      (that is what makes v1.39 additive), but this producer always states it,
+      (that is what makes v1.40 additive), but this producer always states it,
       and a full turn's record says `full` explicitly rather than by omission.
-      Omission on the wire means "a producer older than v1.39", never "full".
+      Omission on the wire means "a producer older than v1.40", never "full".
 
     Like its v1 sibling this builder is never the last word on conformance: the
     route self-validates the built envelope against the released schema before it
@@ -2874,7 +2874,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         outcome_limit = None
         prompt_envelope = None
         turn_port = None
-        # THE POSTURE THE TURN RAN UNDER (contract-v1.39, task 10.7), derived
+        # THE POSTURE THE TURN RAN UNDER (contract-v1.40, task 10.7), derived
         # below beside the packet it describes and read again in the v2 arm.
         # Seeded to None so a path that never assembles a packet cannot leave a
         # stale posture in scope: only the success arm reads it, and that arm is
@@ -3201,7 +3201,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     # computed ABOVE, before the sidecar, because the sidecar
                     # needs the resolved id too (F3).
                     #
-                    # AND SINCE contract-v1.39 (task 10.7) the record STATES the
+                    # AND SINCE contract-v1.40 (task 10.7) the record STATES the
                     # posture its context was assembled under. Derived above,
                     # beside the packet, by the same one-place discipline: the
                     # values are the PACKET's own, so the record and the packet's
@@ -3242,7 +3242,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     # model — it is written above, before this branch, and is not
                     # part of the v1 wire.
                     #
-                    # A SECOND RECORDED v1 LIMITATION (contract-v1.39, task
+                    # A SECOND RECORDED v1 LIMITATION (contract-v1.40, task
                     # 10.7): this envelope has no `context_packet` either, so a
                     # v1 turn that ran on a REDUCED context cannot say so on the
                     # wire. The reduction is still stated where it always was —

@@ -44,7 +44,7 @@ from ideation_dashboard import doxbench_contracts as contracts
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 
-# RE-PINNED at contract-v1.39 (add-doxbench-editing-phase-b §10.7), and the
+# RE-PINNED at contract-v1.40 (add-doxbench-editing-phase-b §10.7), and the
 # MIRROR IMAGE OF THE PREVIOUS REPIN, which was itself the mirror of v1.34's: at
 # v1.38 the catalog digest moved and the chat-turn's did not; here the CHAT-TURN
 # digest moves and the catalog's does not, because this release grows
@@ -57,13 +57,13 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # a consumer comparing against it refuses rather than matching by accident. A
 # follow-up commit resolves it, as 58e4aecd did for v1.38 (`contract-v1.38^{}`
 # == 0f50b35, tag object 46cd169) and 7c544c84 for v1.34.
-RELEASED_REF = "unpublished:contract-v1.39"
-RELEASED_TAG = "contract-v1.39"
+RELEASED_REF = "unpublished:contract-v1.40"
+RELEASED_TAG = "contract-v1.40"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
-        "cc874fef63e387a5f16c9d7ed5235bc03fb4fc68537a31c42d3acc5259d76ffa",
+        "d8ee5624f2136977044971b17fe67fe31b057bbf621e14853069fd082019b254",
 }
 
 # ---------------------------------------------------------------------------
@@ -786,7 +786,7 @@ def test_packaged_positives_validate_structurally(released_root):
     # adds the widened family's loaded-set request and its record. 9 -> 10 at
     # contract-v1.38, which adds the `auto` ROUTING RULE instance — and 10 -> 11
     # within that release, for the rule-5' instance Brett's ruling made lawful
-    # (a rule wider than a NON-resolved member). 11 -> 13 at contract-v1.39,
+    # (a rule wider than a NON-resolved member). 11 -> 13 at contract-v1.40,
     # which adds the two CONTEXT POSTURE records: one reduced-with-its-reason
     # and one explicitly full. (The pre-release record that states NO posture is
     # the unchanged `workbench-chat-turn-v2-success` instance already counted
@@ -1267,7 +1267,7 @@ def test_every_packaged_routing_positive_is_covered_by_that_pin(released_root):
 
 
 # ---------------------------------------------------------------------------
-# THE CONTEXT-POSTURE GROWTH IS ADDITIVE (contract-v1.39,
+# THE CONTEXT-POSTURE GROWTH IS ADDITIVE (contract-v1.40,
 # add-doxbench-editing-phase-b task 10.7)
 #
 # Asserted against the REAL released bytes, through the same loader a serve

@@ -9,7 +9,7 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
-## contract-v1.39 — 2026-08-22 (additive; the doxBench chat-turn record states its assembled context's posture)
+## contract-v1.40 — 2026-08-22 (additive; the doxBench chat-turn record states its assembled context's posture)
 
 Realizes tasks.md §10.7 of `add-doxbench-editing-phase-b` — the ratified
 scenario *"The knowledge service is unavailable"* and the requirement sentence
@@ -37,32 +37,58 @@ server-side value nobody can read. §10.7 therefore stayed open with its
 obligation recorded against ITSELF, naming the release that would carry it.
 This is that release.
 
-VERSION ALLOCATION, checked at the moment of allocation rather than assumed —
-the habit the v1.37/v1.38 episode earned twice over. At this slice's branch base
-(`66140613`) `contracts/CHANGELOG.md`'s newest heading was `contract-v1.38` and
-`contract_bundle_version` read `contract-v1.38`, so `contract-v1.39` was the next
-available number. CHANGELOG presence is the availability test under
-[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md),
-not tag presence.
+VERSION ALLOCATION, RE-CUT — this release was `contract-v1.39` until the number
+was taken out from under it. At this slice's branch base (`66140613`) the
+CHANGELOG's newest heading and `contract_bundle_version` both read
+`contract-v1.38`, so v1.39 was the next available number and this cut took it.
+While it was in review, `add-roster-directory-admission-surface` landed on main
+(PR #259, `5124fbcd`, merged at `1f45e427`) and ALLOCATED `contract-v1.39` for
+the `directory` roster admission surface. Under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+the version is allocated AT REALIZATION against what is available, and CHANGELOG
+PRESENCE ON MAIN is the availability test — so v1.39 is theirs and this release
+is `contract-v1.40`.
+
+BOTH SIDES SAW IT COMING, which is what makes this an orderly re-cut rather than
+a collision. That entry names this branch and says so in as many words: *"an
+UNLANDED branch (`change/doxbench-turn-posture-release`, `97aa19a7`) has also cut
+a `contract-v1.39` in its own working state … Whichever of the two lands second
+re-cuts against the CHANGELOG it then finds."* This is that re-cut. The two
+releases are INDEPENDENT — theirs grows
+`xfactory-client-identity-roster.schema.yaml`, this one grows
+`xfactory-workbench-chat-turn.schema.yaml`, and neither touches the other's file
+— so only the shared release surface merged, and their v1.39 digest inventory
+ships beside this one's v1.40 untouched.
+
+THE SAME SHAPE AS `contract-v1.38`, which was briefed as v1.37 until PR #235 took
+that number mid-flight, and the difference is worth recording. v1.37 was
+allocated by a cut whose own squash message still said v1.36 and which shipped NO
+digest inventory, so it had to be discovered and left a red release surface
+behind it. Here the taking release announced itself in its own entry and shipped
+`releases/contract-v1.39.digests.yaml` complete — verified present at
+`1f45e427` before this renumber — so there is no `HGR-RELEASE-INVENTORY-MISSING`
+landmine on the preceding surface this time. The habit that caught it is
+unchanged and has now paid three times: recheck bundle availability against the
+CHANGELOG at the moment you allocate, and again at the moment you land.
 
 THE PRECEDING RELEASE SURFACE IS GREEN, checked rather than assumed (the other
-half of that habit). `validate-contract-release.py verify-commit --commit
-origin/main` PASSES at `66140613` against
-`contracts/releases/contract-v1.38.digests.yaml` — the v1.37 lane's
-`HGR-RELEASE-DIGEST-MISMATCH`, which `contract-v1.38`'s entry recorded as still
-red at `8924838d`, no longer applies: the bundle has moved to v1.38 and v1.38's
-own inventory reproduces. Recorded because the PRECEDING release found the
-surface broken when it got there and then broken AGAIN an hour later (at
-`6cbb4495`, missing inventory; and from `e11a057b`, an inventory member edited
-without a rebuild), so "it verified last time" is not the test in either
-direction — including this one, where it verifies. Nothing here depends on it either way:
+half of that habit) — and the preceding release is now v1.39 rather than v1.38,
+because of the re-cut above. `validate-contract-release.py verify-commit --commit
+1f45e427` PASSES against `contracts/releases/contract-v1.39.digests.yaml`.
+Recorded because a preceding surface has been broken when a release got there
+twice in this family's recent history (`6cbb4495`, missing inventory; and from
+`e11a057b`, an inventory member edited without a rebuild), so "it verified last
+time" is not the test in either direction — including this one, where it
+verifies. Nothing here depends on it either way:
 `resolve_committed_inventory` reads `contract_bundle_version` AT THE COMMIT, so
-this cut resolves v1.39 and checks against the v1.39 inventory that ships inside
-it. MAIN MOVED AGAIN under this slice — to `2c69e743`, six commits, none of them
-touching `contracts/` — and it is merged in here rather than rebased over;
-`verify-commit` passes at the merge, and `contract-v1.39` was still unallocated
-at that tip (its CHANGELOG heading and bundle both still read `contract-v1.38`),
-rechecked at the merge rather than trusted from the allocation an hour earlier.
+this cut resolves v1.40 and checks against the v1.40 inventory that ships inside
+it, and their v1.39 inventory is untouched beside it.
+
+MAIN MOVED UNDER THIS SLICE FIVE TIMES, and each time it was merged in rather
+than rebased over, with availability rechecked at the merge rather than trusted
+from the allocation: `2c69e743`, `0f9e14b4`, `ede82ef9` and `135d52d6` touched no
+`contracts/` file and left the number free; `1f45e427` took it, which is what
+this entry's allocation note is about. `verify-commit` passes at every merge.
 
 **Change class: ADDITIVE (minor)** under
 [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
@@ -123,7 +149,7 @@ that envelope gains no key at all.) And a reader who wants the posture reads one
 object rather than correlating two keys that could disagree.
 
 OMISSION IS NOT A POSTURE CLAIM, and this is the consumer note that matters
-most. An absent `context_packet` means the producer predates `contract-v1.39`.
+most. An absent `context_packet` means the producer predates `contract-v1.40`.
 It does NOT mean the context was full. A consumer that needs the posture must
 read the key and treat its absence as UNKNOWN. This is the mirror image of
 `contract-v1.38`'s disclosure call and the opposite conclusion, reached for the
@@ -304,15 +330,137 @@ runbook; no file in that repository is touched here, and this entry is the notic
 RELEASE OBLIGATION STILL OPEN AT THIS ENTRY: per the versioning policy, CHANGELOG
 presence is the availability test and the annotated tag is cut at the realization
 squash against the commit that actually lands. The release DIGEST INVENTORY
-(`releases/contract-v1.39.digests.yaml`) ships INSIDE this cut, as
+(`releases/contract-v1.40.digests.yaml`) ships INSIDE this cut, as
 `contract-v1.34`, `contract-v1.35`, `contract-v1.36` and `contract-v1.38` did —
 and as `contract-v1.37` did NOT, which is the defect this file records against
 it and the reason the habit is written down. The consuming runtime repin
-ships with it and carries the `unpublished:contract-v1.39` sentinel for its ref,
+ships with it and carries the `unpublished:contract-v1.40` sentinel for its ref,
 on `contract-v1.34`'s own precedent: until the release commit exists there is
 nothing honest to name, and the sentinel is spelled as a value no `stack.yaml`
 can declare, so a consumer comparing against it refuses rather than matching by
 accident. A follow-up commit resolves it.
+## contract-v1.39 — 2026-08-22 (additive; the `directory` roster admission surface)
+
+Realizes `add-roster-directory-admission-surface` §1–§5, the ratified extension
+of the client-identity-roster closed `admission_surface` vocabulary. One
+CONTRACT changes — `schemas/xfactory-client-identity-roster.schema.yaml` — and
+the change adds a packaged `directory` example to
+`examples/client-identity-roster/`. The roster schema is content-addressed by
+its per-file `sha256` in [`manifest.yaml`](manifest.yaml); that row's digest is
+RECOMPUTED in this cut. (The roster schema is not a release-inventory member —
+inventory membership is the `contracts/hermes-runtime/contract-index.yaml`
+catalog plus the Decision-10 auxiliaries — so this cut's digest inventory
+changes only where `manifest.yaml` and this changelog change. Checked, not
+assumed, per task 4.5.)
+
+VERSION ALLOCATION. `contracts/manifest.yaml` read `contract-v1.38` at
+realization, so this cut allocates `contract-v1.39`. Noted because an UNLANDED
+branch (`change/doxbench-turn-posture-release`, `97aa19a7`) has also cut a
+`contract-v1.39` in its own working state; under the availability test this
+changelog itself records at v1.38 — the version is allocated AT REALIZATION
+against what is AVAILABLE, and CHANGELOG PRESENCE on `main` is the availability
+test — v1.39 was unallocated when this ran. Whichever of the two lands second
+re-cuts against the CHANGELOG it then finds.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+A `oneOf` const member is added to `$defs.admission_surface`; nothing
+previously valid becomes invalid, no required field is added to any existing
+shape, no shape is removed, and no existing roster is reinterpreted, so a
+domain on the same major version stays conformant WITHOUT CHANGES. The one
+coupling is NAMED rather than denied: `per_unit_principal_available` closes its
+key space with `propertyNames: {$ref: "#/$defs/admission_surface"}`, so
+admitting `directory` DOES widen that closed key space — but purely
+PERMISSIVELY and purely by DERIVATION. A record can only meet the widening by
+CHOOSING to write a `directory` key it had no reason to write before; every
+fragment naming `business_central`, `exchange` or `device` validates
+byte-identically. `legend.*`'s sub-maps close on `free_token`, not on
+`admission_surface`, and are untouched. The schema's own
+`contract_schema_version` stays `1`, and the roster row's `schema_version`
+stays `1` with it — vocabulary-member admission is governed by the schema's
+EXTENSION ROUTE text, not by the object-shape/key-space growth that would take
+a `contract_schema_version` bump.
+
+`$defs.admission_surface` gains a fourth member, `directory`: the Microsoft
+tenant DIRECTORY AND SERVICE ESTATE — the organization profile and its
+subscribed service plans, the tenant's service principals/applications, and its
+verified domains — admitted as ONE tenant-wide READ surface. Its admission act
+is admin consent for the read-only application roles `Organization.Read.All`,
+`Application.Read.All` and `Domain.Read.All` on ONE Entra app registration;
+its scoping mechanism is tenant-wide read with exact effective scopes and no
+narrower provider selector (`enforcement_mode: logic_enforced`, no per-unit
+principal available); it is read-only. Because the governed unit IS the tenant
+directory and service estate — a complete tenant service-surface inventory is
+what read-only DISCOVER is for — tenant-wide read is the GOVERNED scope, not
+excess.
+
+THE READ/MUTATE BOUNDARY THE MEMBER PRESERVES, in two parts. First, an
+EXCLUSION inside the read half: a broader directory-wide read role such as
+`Directory.Read.All` is NOT within this surface's admission act, because it
+also reads the ALREADY-ADMITTED `device` surface (Entra registered devices are
+directory objects) and would therefore collapse two separately-consented,
+separately-scoped and separately-revocable surfaces onto one act. The neutral
+layer NEVER INFERS A PROVIDER FACT, so no validator can derive that boundary
+from the role tokens; the member `description` is the only place it can be
+stated, and it is stated there. Second, the mutation half stays out: the
+extension-route prose is resliced so `directory` is the READ surface for the
+tenant directory and service estate, while endpoint MUTATION (Intune write) and
+Entra-directory MUTATION (user, group and application administration) remain
+SEPARATE future surfaces, each arriving with its own governing change. The
+`device` member's own closing sentence is amended in the same cut so the
+contract file cannot contradict itself — it announced Entra-directory READ as a
+future surface, and now records it as admitted here.
+
+Also corrected in the same edit, and PROSE ONLY: the vocabulary's grounding
+moves from PROMOTED to RATIFIED. The text grounded both the member set and the
+extension route on capability PROMOTION, and that has been false since
+`contract-v1.35` — neither `managed-node-inventory` nor
+`managed-service-inventory` is promoted; both are RATIFIED and still active in
+OpsxFactory `openspec/changes/`, so on the old literal wording `device` should
+never have been admitted either. The vocabulary now names the surfaces "whose
+governing change is RATIFIED", and a surface "enters with the ratified change
+that governs it". The promoted requirement's own normative sentence — "The
+closed surface vocabulary SHALL be extended only by the change that governs a
+new surface" — is already change-based, is satisfied here, and is UNTOUCHED.
+`scripts/validate-client-identity-roster.py`'s human-facing
+`EXTENSION_ROUTE["admission_surface"]` refusal string is resynced to the
+revised schema text; the VOCABULARY itself needs no validator edit, because
+that validator DERIVES the closed set from the schema
+(`_consts(defs.get("admission_surface"))`) rather than restating it.
+
+GOVERNING EVIDENCE. OpsxFactory `add-managed-service-inventory` (read-only
+tenant service-surface DISCOVER, ratified 2026-08-21), §1–§6 realized and
+MERGED at OpsxFactory `main` `824f8ef`. The realized
+`microsoft_service_discovery_reader` credential requirement there
+(`credentials/requirements.yaml`) carries `admission_surface: directory` with
+`minimum_scopes` exactly those three roles under `exact_effective_scopes: true`
+and `reject_write_or_destructive_scopes: true` — which is why the member
+HARD-ENUMERATES the act instead of naming a role family. Per that change's
+ratified F1 ordering this extension is grounded on the DETERMINISTIC §1–§6
+contract, never on a live snapshot, and it authorizes no provider act.
+
+The packaged positive example (`opsx-farheap-service-discovery-reader`, a
+`planned` entry in
+`examples/client-identity-roster/client-identity-roster-farheap-opsx.example.yaml`)
+demonstrates the shape: `admission_surface: directory`,
+`authority_class_intended`/`_achieved: observe`, the three read roles each
+`achieves: observe` and `reaches: [directory]`, `exceeds_governed_unit: false`,
+NO `declared_excess`, no `spanned_surfaces`,
+`per_unit_principal_available: {directory: false}`, and a single
+`logic_enforced` act that is UNVERIFIED by derivation (no `evidence_ref`, no
+`verified_at`, `provider_object_ref` omitted) because the discovery reader is a
+DOWNSTREAM OpsxFactory consumer not yet admitted. The
+`admission-surface-out-of-vocabulary` negative (which uses `sharepoint`) still
+fires — `directory` is now in-vocabulary, `sharepoint` is not, and `sharepoint`
+being a service DISCOVER may DETECT is not admission.
+
+DOWNSTREAM, so the ordering is not overclaimed: landing this cut is NECESSARY
+but NOT SUFFICIENT for the OpsxFactory live sweep. OpsxFactory pins
+`contract-v1.35` and keeps its own local `ROSTER_ADMITTED_SURFACE_VOCAB`
+(`scripts/validate-domain-factory.py`), so a `directory` roster entry is
+refused by that repository's own validator until it RE-PINS to this bundle and
+widens that fence — the precedent being OpsxFactory PR #45 (`77f4b82`) for
+`device`.
 
 ## contract-v1.38 — 2026-08-21 (additive; the doxBench model-catalog routing rule)
 

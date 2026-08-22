@@ -629,7 +629,7 @@ class ContextPacket:
                 "a reduced packet STATES the reduced posture's reason; a "
                 "reduction nobody can read is a silent degradation")
         # `is not None`, NOT truthiness (Copilot review of PR #256, finding 1,
-        # extended to the CONSTRUCTION gate by the contract-v1.39 slice). This
+        # extended to the CONSTRUCTION gate by the contract-v1.40 slice). This
         # read `and self.reduced_reason`, so `reduced_reason=""` constructed a
         # FULL packet carrying a reduction-reason field — and the release claims
         # in writing that this type, the released shape and the delegated

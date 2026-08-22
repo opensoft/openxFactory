@@ -213,7 +213,7 @@ _FIXTURE_TURN_V2_SUCCESS_SCHEMA = {
         "client_turn_id": {}, "assistant_turn_id": {}, "model_id": {},
         "selected_model": {}, "bound_buffer": {},
         "observed_hashes": {}, "assistant_prose": {}, "proposals": {},
-        # contract-v1.39 (task 10.7). DECLARED HERE AND NOT REQUIRED, which
+        # contract-v1.40 (task 10.7). DECLARED HERE AND NOT REQUIRED, which
         # mirrors the release exactly: the key is optional on the wire, and this
         # fixture's whole job is discriminators and CLOSEDNESS — the released
         # bytes hold the posture's value rules, and a test over those bytes is
@@ -3096,7 +3096,7 @@ _RELEASED_V2_SUCCESS_KEYS = {
     "schema_version", "kind", "client_turn_id", "assistant_turn_id",
     "model_id", "selected_model", "bound_buffer", "observed_hashes",
     "assistant_prose", "proposals",
-    # contract-v1.39 (task 10.7): the posture the turn's context packet was
+    # contract-v1.40 (task 10.7): the posture the turn's context packet was
     # assembled under. OPTIONAL on the WIRE — that is what makes the release
     # additive — but this producer always states it, so the key set it emits
     # grew by exactly one and this pin grows with it. A record that omitted it
@@ -3156,7 +3156,7 @@ def test_a_widened_turn_returns_the_widened_record_naming_its_declared_binding(
         "routing_rule": False,
         "data_handling": "Processed in the approved tenant boundary",
     }
-    # …and, since contract-v1.39, WHAT IT RAN ON. This harness declares no
+    # …and, since contract-v1.40, WHAT IT RAN ON. This harness declares no
     # knowledge service (the library default is absence), so the packet is the
     # DECLARED reduced one and the record now says so instead of leaving the
     # reduction inside a prompt section nobody on the wire can read.

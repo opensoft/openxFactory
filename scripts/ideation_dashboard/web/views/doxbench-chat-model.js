@@ -97,12 +97,12 @@ export function createChatState(keyValue, subjectDefaultValue) {
     transcript: Object.freeze([]),
     lastFailure: null,
     proposals: NO_PROPOSALS,
-    // WHAT THE LAST ANSWER RAN ON (contract-v1.39, task 10.7). The released
+    // WHAT THE LAST ANSWER RAN ON (contract-v1.40, task 10.7). The released
     // record now STATES the posture its context packet was assembled under, and
     // this is where that statement lands so the rail can show it. Null means
     // "no answer to describe, or an answer that stated no posture" — a fresh
     // conversation, a thread just switched to, or a record from a producer
-    // older than contract-v1.39 — and is NOT a claim that the context was full.
+    // older than contract-v1.40 — and is NOT a claim that the context was full.
     // It describes THE TRANSCRIPT'S LAST ASSISTANT ANSWER and changes exactly
     // when that answer does; see `beginTurn` for why a flight STARTING is not
     // one of those moments (adversarial review S4).
@@ -243,7 +243,7 @@ export function beginTurn(stateValue) {
   // beside it. There are FOUR of them, and the fourth was missing from this
   // list until the adversarial review found it (NEW-1): `settleTurnSuccess`
   // adopts the new record's (null included, for a producer older than
-  // contract-v1.39), `adoptThreadTranscript` clears it with the transcript it
+  // contract-v1.40), `adoptThreadTranscript` clears it with the transcript it
   // replaces, `rekeyChatState` starts fresh, and `restoreChatState` adopts the
   // SNAPSHOT's — which is why the snapshot now carries one. A flight STARTING
   // replaces no answer, so it changes nothing: while a turn is in the air the
@@ -327,7 +327,7 @@ export function transcriptWireWindow(stateValue) {
 }
 
 // THE RELEASED `context_packet` OBJECT, adopted from a success record
-// (contract-v1.39, task 10.7). Total by refusal, in the shape every other
+// (contract-v1.40, task 10.7). Total by refusal, in the shape every other
 // adopter in this module uses: anything that is not the released two-field
 // statement becomes null, and null renders nothing.
 //
@@ -399,10 +399,10 @@ export function settleTurnSuccess(stateValue, successPayload) {
     pendingMessage: null,
     lastFailure: null,
     proposals: adoptProposals(successPayload),
-    // THE RELEASED POSTURE, ADOPTED (contract-v1.39, task 10.7). Read from the
+    // THE RELEASED POSTURE, ADOPTED (contract-v1.40, task 10.7). Read from the
     // record and never re-derived here: the server assembled the packet, so the
     // browser has no second way to know. A record from a producer older than
-    // v1.39 carries no `context_packet` at all, which adopts as null — silence,
+    // v1.40 carries no `context_packet` at all, which adopts as null — silence,
     // not a claim that the context was full.
     contextPacket: adoptContextPacket(successPayload),
     transcript: boundedAppend(
@@ -689,7 +689,7 @@ export function chatSnapshot(stateValue) {
   return {
     schema_version: CHAT_SNAPSHOT_VERSION,
     kind: CHAT_SNAPSHOT_KIND,
-    // WHAT THE RESTORED ANSWER RAN ON (contract-v1.39; adversarial review
+    // WHAT THE RESTORED ANSWER RAN ON (contract-v1.40; adversarial review
     // NEW-2). The transcript survives a tile being closed and reopened, so its
     // disclosure has to survive with it — a restored reduced answer with no
     // note is the same lost-badge defect S4 found on the failure path, one

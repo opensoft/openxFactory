@@ -1,4 +1,4 @@
-# INVALID widened success (contract-v1.39): a posture outside the released
+# INVALID widened success (contract-v1.40): a posture outside the released
 # vocabulary. There are exactly TWO postures, `full` and `reduced`, because
 # there are exactly two in `ContextPacket` — the wire does not get a third
 # spelling of the same fact, and a plausible-looking `degraded` would be a

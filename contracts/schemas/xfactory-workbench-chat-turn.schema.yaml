@@ -44,14 +44,14 @@ description: >-
   `deprecated_envelopes` below and `contracts/CHANGELOG.md` for the migration
   note and the removal target.
 
-  THE ASSEMBLED CONTEXT'S POSTURE (contract-v1.39, add-doxbench-editing-phase-b
+  THE ASSEMBLED CONTEXT'S POSTURE (contract-v1.40, add-doxbench-editing-phase-b
   task 10.7). `success_v2` gains ONE optional property, `context_packet`, and
   the widened family gains nothing else: the posture (`full | reduced`) under
   which the turn's bounded context packet was assembled, plus the reduction's
   own reason when there is one. It exists so the ratified "with the reduced
   posture STATED" clause is readable by a consumer and showable to the human
   rather than stated only inside the packet. ADDITIVE: the key is OPTIONAL, its
-  ABSENCE is not a posture claim (it means a producer older than v1.39), no
+  ABSENCE is not a posture claim (it means a producer older than v1.40), no
   existing shape changes, and the DEPRECATED v1 success envelope is deliberately
   NOT widened — see the CHANGELOG for that recorded limitation.
 oneOf:
@@ -281,7 +281,7 @@ $defs:
       routing_rule: { type: boolean }
       data_handling: { type: string, minLength: 1, maxLength: 500 }
   context_packet:
-    # WHAT THE TURN RAN UNDER (contract-v1.39, add-doxbench-editing-phase-b task
+    # WHAT THE TURN RAN UNDER (contract-v1.40, add-doxbench-editing-phase-b task
     # 10.7). The ratified knowledge-service requirement ends "Where the knowledge
     # service is unavailable the turn SHALL degrade to a declared reduced packet
     # — the selected thread and the loaded buffers, with the reduced posture
@@ -407,8 +407,8 @@ $defs:
       # produced which turn instead of leaving it to be inferred.
       model_id: { type: string, minLength: 1, maxLength: 128 }
       selected_model: { $ref: "#/$defs/selected_model" }
-      # WHAT THE TURN RAN UNDER (contract-v1.39, task 10.7). OPTIONAL, which is
-      # what makes this release additive: a record produced before v1.39 omits
+      # WHAT THE TURN RAN UNDER (contract-v1.40, task 10.7). OPTIONAL, which is
+      # what makes this release additive: a record produced before v1.40 omits
       # it and stays valid, and no reader of an older record has to change.
       # OMISSION IS NOT A POSTURE CLAIM -- it means the producer predates this
       # release, never that the context was full. A consumer that needs the
