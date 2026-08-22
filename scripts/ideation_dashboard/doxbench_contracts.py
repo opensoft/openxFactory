@@ -165,16 +165,24 @@ from referencing.jsonschema import DRAFT202012
 # in tasks.md, which is why the correction now names the sequence instead of
 # just the number.)
 #
-# THE REF IS THE UNRESOLVED-UNTIL-PUBLISHED SENTINEL across this realization
-# branch, on v1.34's and v1.38's own precedent: the versioning policy allocates
-# the version and builds the digest inventory AT REALIZATION (steps 1-2) and
-# publishes the annotated tag against the commit that actually LANDS (step 5),
-# so until that commit exists there is nothing honest to name. It is spelled as
-# a value no `stack.yaml` can declare, so a consumer comparing against it
-# REFUSES rather than matching by accident. A follow-up commit resolves it, as
-# 58e4aecd did for v1.38 and 7c544c84 for v1.34.
+# THE REF IS RESOLVED: `contract-v1.40` is published (annotated tag object
+# 3c82f6b820517b63e12d763b652064be9ccd2a71) and this names the commit it
+# DEREFERENCES to -- 671a6908, the squash-merge of PR #256 -- exactly as the
+# v1.38, v1.34 and v1.31 pins named their own, and never the tag object. It
+# carried the `unpublished:contract-v1.40` sentinel across the realization
+# branch, because the versioning policy allocates the version and builds the
+# digest inventory AT REALIZATION (steps 1-2) and publishes the annotated tag
+# against the commit that actually LANDS (step 5) -- so until that commit
+# existed there was nothing honest to name, and the sentinel was spelled as a
+# value no `stack.yaml` can declare so a consumer comparing against it REFUSED
+# rather than matching by accident.
+#
+# Verified from the REMOTE rather than from the local ref that created it:
+# `git ls-remote origin 'refs/tags/contract-v1.40^{}'` peels to this commit, and
+# both `verify-commit --commit contract-v1.40` and
+# `verify-tag --remote origin --tag contract-v1.40` pass.
 
-CONTRACT_REF = "unpublished:contract-v1.40"
+CONTRACT_REF = "671a69082492e3bda01a916e52211686d6598d1a"
 CONTRACT_TAG = "contract-v1.40"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"

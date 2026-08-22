@@ -2783,8 +2783,25 @@ the realization evidence for everything built is recorded in `proposal.md`.
       reader meets them before any claim they qualify (S3 moved them there;
       they used to trail every green number in the tick). The line below is what
       the post-land follow-up fills in, exactly as 11.7's did.
-      §10.7 — PR #___ / `_______`, annotated tag `contract-v1.40` (to be
-      published against the landing commit and verified from the remote).
+      §10.7 — PR #256 / `671a6908`, annotated tag `contract-v1.40` PUBLISHED
+      (tag object `3c82f6b8`, dereferencing to `671a6908`) and verified FROM THE
+      REMOTE: `git ls-remote origin 'refs/tags/contract-v1.40^{}'` peels to that
+      commit, `verify-commit --commit contract-v1.40` reproduces every digest in
+      `contracts/releases/contract-v1.40.digests.yaml` from the tag's own
+      objects, and `verify-tag --remote origin --tag contract-v1.40` passes.
+      Every gate reran AT THE SQUASH before anything was tagged, which is the
+      point of the policy's realization order — the squash is a new commit, and
+      main moved six times under this branch, so the tree that got tagged was
+      one nothing had gated until then: `tests/ideation-dashboard` 3943 passed /
+      15 skipped, `tests/ideation_dashboard` 63, `tests/doc-health` 704, the
+      contracts validator 0 errors / 4 by-design warnings, `openspec validate
+      --all --strict` 67 passed / 0 failed, and `verify-commit --commit
+      671a6908` passing on the v1.40 inventory.
+      **THE POST-LAND STEP IS THEREFORE COMPLETE**, and with it 13.8's three
+      pending facts: the squash sha exists, the tag is published and remotely
+      verified, and the sentinel is resolved in the same commit that writes this
+      line. `release-realization`'s "its code merged on the implemented target"
+      is now true in the verb as well as in substance.
       **NOTHING IS ARCHIVED BY THIS SLICE.** `proposal-support.py archive` is
       the sanctioned path and it is Brett's act on his explicit word, not a
       consequence of this box being checked. With 10.7 and 13.8 ticked the

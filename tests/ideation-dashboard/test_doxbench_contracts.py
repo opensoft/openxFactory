@@ -50,14 +50,14 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # digest moves and the catalog's does not, because this release grows
 # `$defs/success_v2` with the assembled context's posture.
 #
-# The REF is the unresolved-until-published sentinel again, on v1.34's and
-# v1.38's own precedent — the policy publishes the annotated tag against the
-# commit that LANDS, so across a realization branch there is no release commit
-# to name, and the sentinel is spelled as a value no `stack.yaml` can declare so
-# a consumer comparing against it refuses rather than matching by accident. A
-# follow-up commit resolves it, as 58e4aecd did for v1.38 (`contract-v1.38^{}`
-# == 0f50b35, tag object 46cd169) and 7c544c84 for v1.34.
-RELEASED_REF = "unpublished:contract-v1.40"
+# The REF carried the unresolved-until-published sentinel across the realization
+# branch, on v1.34's and v1.38's own precedent — the policy publishes the
+# annotated tag against the commit that LANDS, so until that commit existed
+# there was nothing honest to name — and now names it: `contract-v1.40^{}` ==
+# 671a6908, the squash-merge of PR #256, tag object 3c82f6b8, peeled FROM THE
+# REMOTE. (v1.38's resolution was 58e4aecd: `contract-v1.38^{}` == 0f50b35, tag
+# object 46cd169; v1.34's was 7c544c84.)
+RELEASED_REF = "671a69082492e3bda01a916e52211686d6598d1a"
 RELEASED_TAG = "contract-v1.40"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
