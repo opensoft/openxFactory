@@ -3514,7 +3514,8 @@ const fire = async (node, type) => {
 import { mountDoxBenchChatRail, reducedContextNote, REDUCED_CONTEXT_LEAD }
   from "./doxbench-chat.mjs";
 import { createChatState, settleTurnSuccess, beginTurn,
-         adoptThreadTranscript, chatSnapshot, restoreChatState }
+         adoptThreadTranscript, chatSnapshot, restoreChatState,
+         CONTEXT_REDUCED_REASON_MAX_LENGTH }
   from "./doxbench-chat-model.mjs";
 
 const out = {};
@@ -3770,6 +3771,23 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
     { posture: "degraded", reduced_reason: REASON },          // unknown posture
     "reduced",                                                // not an object
   ];
+  // The RELEASED CEILING on the reading side (Codex review of PR #256): a
+  // malformed transport's oversized reason must not reach browser state, the
+  // live region, or the snapshot. The dispatcher checks only `ok` and `kind`.
+  const overCeiling = "x".repeat(CONTEXT_REDUCED_REASON_MAX_LENGTH + 1);
+  const atCeiling = "y".repeat(CONTEXT_REDUCED_REASON_MAX_LENGTH);
+  out.wireCeiling = {
+    over: settleTurnSuccess(
+      beginTurn({ ...createChatState(KEY), composer: "q" }),
+      recordWith({ posture: "reduced", reduced_reason: overCeiling }))
+      .contextPacket,
+    at: (settleTurnSuccess(
+      beginTurn({ ...createChatState(KEY), composer: "q" }),
+      recordWith({ posture: "reduced", reduced_reason: atCeiling }))
+      .contextPacket || {}).reduced_reason === atCeiling,
+    bound: CONTEXT_REDUCED_REASON_MAX_LENGTH,
+  };
+
   out.contradictoryBlobs = contradictions.map((cp) =>
     restoreChatState(createChatState(KEY), { ...blob, context_packet: cp }, {})
       .contextPacket);
@@ -3798,6 +3816,15 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
       withTranscript([{ role: "human", content: "q1" },
                       { role: "assistant", content: "older answer" },
                       { role: "human", content: "q2" },
+                      { role: "assistant", content: null }]), {}).contextPacket,
+    // …and the case that BROKE the first version of this guard: filtering the
+    // malformed final row leaves an OLDER assistant as the tail, so a guard
+    // that reads only the filtered transcript still adopts and captions the
+    // wrong answer (Codex review of PR #256).
+    newestDroppedOlderTail: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q" },
+                      { role: "assistant", content: "older answer" },
                       { role: "assistant", content: null }]), {}).contextPacket,
     intact: restoreChatState(
       createChatState(KEY),
@@ -4072,10 +4099,45 @@ def test_a_restored_posture_never_outlives_the_answer_it_describes(
     assert r["empty"] is None
     assert r["humanOnly"] is None
     assert r["newestDropped"] is None
+    assert r["newestDroppedOlderTail"] is None
     assert r["intact"] == {
         "posture": "reduced",
         "reduced_reason": posture_results["reason"],
     }
+
+
+def test_an_oversized_reason_from_the_WIRE_is_not_adopted(posture_results):
+    """Codex review of PR #256. The dispatcher validates only `ok` and `kind`,
+    so a malformed transport's over-ceiling reason would reach browser state,
+    the live region, and from there the persisted snapshot. The server refuses
+    one pre-dispatch; this is the same rule on the reading side, for payloads
+    the server did not author. A reason exactly AT the ceiling still adopts, so
+    the bound is a bound and not an off-by-one."""
+    w = posture_results["wireCeiling"]
+    assert w["bound"] == 500
+    assert w["over"] is None
+    assert w["at"] is True
+
+
+def test_the_browser_ceiling_is_pinned_to_the_RELEASED_maxLength():
+    """The JS constant cannot read the schema, so it is pinned to the released
+    bytes here — the same discipline `serve.CONTEXT_REDUCED_REASON_MAX_LENGTH`
+    gets. Three restatements of one bound, and a test for each pair, so they
+    cannot drift into three ceilings."""
+    import re
+    import yaml
+
+    schema = yaml.safe_load(
+        (REPO_ROOT / "contracts" / "schemas"
+         / "xfactory-workbench-chat-turn.schema.yaml").read_text(
+             encoding="utf-8"))
+    released = schema["$defs"]["context_packet"]["properties"][
+        "reduced_reason"]["maxLength"]
+    source = CHAT_MODEL_JS.read_text(encoding="utf-8")
+    match = re.search(
+        r"export const CONTEXT_REDUCED_REASON_MAX_LENGTH = (\d+);", source)
+    assert match, "the browser-side ceiling constant moved or was renamed"
+    assert int(match.group(1)) == released
 
 
 def test_a_snapshot_written_before_this_release_still_restores(posture_results):

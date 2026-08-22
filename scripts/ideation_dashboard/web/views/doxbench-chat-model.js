@@ -326,6 +326,27 @@ export function transcriptWireWindow(stateValue) {
   return Object.freeze(window);
 }
 
+// The released `context_packet.reduced_reason` ceiling, restated here because
+// this module cannot read the schema — the same discipline
+// `serve.CONTEXT_REDUCED_REASON_MAX_LENGTH` gets, and a test pins BOTH to the
+// released `maxLength` so the three cannot drift into three ceilings. CODE
+// POINTS, matching what JSON Schema counts and what the server enforces.
+export const CONTEXT_REDUCED_REASON_MAX_LENGTH = 500;
+
+// Did the answer a stored posture BELONGS TO survive the restore? The posture
+// describes the transcript's last assistant answer, and `restoreChatState`
+// drops malformed rows WHOLE — so the question is about the SNAPSHOT's own
+// terminal row, not about whatever the filter happened to leave at the tail.
+// Same well-formedness test the transcript filter uses, so the two cannot
+// disagree about what "survived" means.
+function storedTerminalAnswerSurvived(snapshotValue) {
+  const rows = snapshotValue && Array.isArray(snapshotValue.transcript)
+    ? snapshotValue.transcript : [];
+  const last = rows.length ? rows[rows.length - 1] : null;
+  return Boolean(last) && last.role === "assistant"
+    && typeof last.content === "string";
+}
+
 // THE RELEASED `context_packet` OBJECT, adopted from a success record
 // (contract-v1.40, task 10.7). Total by refusal, in the shape every other
 // adopter in this module uses: anything that is not the released two-field
@@ -375,7 +396,14 @@ function adoptContextPacket(carrier) {
   // a different reason and by a different test. Do not collapse these.
   const reasonPresent = Object.prototype.hasOwnProperty.call(
     raw, "reduced_reason");
-  const reasonUsable = typeof reason === "string" && reason !== "";
+  // …AND WITHIN THE RELEASED CEILING (Codex review of PR #256). "Usable" used
+  // to mean "a non-empty string", so a malformed transport's oversized reason
+  // — the dispatcher validates only `ok` and `kind` — reached browser state,
+  // the live region, and from there the persisted snapshot. The server refuses
+  // an over-ceiling reason pre-dispatch; this is the same rule on the reading
+  // side, for the payloads the server did not author.
+  const reasonUsable = typeof reason === "string" && reason !== ""
+    && reason.length <= CONTEXT_REDUCED_REASON_MAX_LENGTH;
   if (posture === "full") {
     return reasonPresent ? null : Object.freeze({ posture: "full" });
   }
@@ -836,12 +864,21 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
     // wrong-answer caption this invariant exists to prevent, arriving by a
     // third route after S4 and NEW-1.
     //
-    // The test is the invariant itself: the restored transcript must END with
-    // an assistant turn, because that is the answer a posture would describe. A
-    // transcript ending in a human turn has no answer on screen for it to
-    // describe — including the ordinary case of a tile closed mid-question.
-    contextPacket: (transcript.length
-                    && transcript[transcript.length - 1].role === "assistant")
+    // The test is THE SNAPSHOT'S OWN TERMINAL TURN, not the filtered tail —
+    // corrected after Codex broke the first version of this guard on exactly
+    // the case its shape could not see. Checking only the filtered transcript
+    // cannot tell the original terminal answer from an EARLIER retained one:
+    // `[human, assistant "older", assistant(malformed)]` filters down to a tail
+    // that IS an assistant turn, so the guard passed and captioned the older
+    // answer with the newer answer's posture — the very defect it was added to
+    // prevent, one layer in.
+    //
+    // So adoption asks whether the answer the posture BELONGS TO survived: the
+    // snapshot's own last transcript row must be a well-formed assistant turn.
+    // If it was dropped, or if the conversation ended on a human turn (a tile
+    // closed mid-question), there is no answer on screen for the posture to
+    // describe and it goes.
+    contextPacket: storedTerminalAnswerSurvived(snapshotValue)
       ? adoptContextPacket(snapshotValue) : null,
   });
   // The re-score is the whole point of restoring these together.

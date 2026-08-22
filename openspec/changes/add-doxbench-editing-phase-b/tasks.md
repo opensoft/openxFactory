@@ -1050,18 +1050,21 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       function should have one refusal shape and all four are unreachable in
       production; moving the whole function to the 500 arm is a named follow-up,
       not something smuggled into a fix pass that four tests pin.
-      **A SECOND FOLLOW-UP, NAMED AND DELIBERATELY NOT CODED HERE (review, last
-      note).** `adoptContextPacket` applies NO length bound to a RESTORED
-      reason, so a tampered browser-local snapshot renders a note of arbitrary
-      length — the reviewer's instance was 200,000 code points. It is neither a
-      security nor a correctness defect: the blob is browser-local and
-      per-viewer, so the only party who can tamper with it is the person who
-      would then read it, and nothing it produces reaches the wire, the server,
-      or another viewer. The fix is one line
-      (`reason.length <= CONTEXT_REDUCED_REASON_MAX_LENGTH` in the adopter) and
-      it belongs to the slice that touches this function next; adding it in a
-      round whose whole purpose was closing NAMED review findings would be
-      exactly the unreviewed drive-by this discipline exists to prevent.
+      **A SECOND FOLLOW-UP WAS NAMED AND DEFERRED HERE — AND THEN CODED, because
+      the deferral's own reasoning turned out to be too narrow.** The adversarial
+      review noted that `adoptContextPacket` applies no length bound to a
+      RESTORED reason, and this task recorded it as a one-line fix for the next
+      slice on the grounds that the blob is browser-local and self-tamper only.
+      The BOT ROUND showed that rationale covered the wrong half of the surface:
+      the same adopter also reads the WIRE, the dispatcher validates only `ok`
+      and `kind`, and so a malformed transport's oversized reason reaches
+      browser state, the live region, and from there the persisted snapshot. The
+      deferral was sound for the path it considered and unsound for the path it
+      did not, so the bound is IN — `reason.length <=
+      CONTEXT_REDUCED_REASON_MAX_LENGTH`, pinned to the released `maxLength` by
+      its own test, with a reason exactly AT the ceiling still adopting so the
+      bound is a bound and not an off-by-one. Recorded as a reversal rather than
+      quietly done, because the deferral is on the record above it.
       THE ORIGINAL HAZARD NOTE STANDS: the route self-validates every success
       body and answers
       `response_invalid` if the schema refuses it, so a reduction reason longer
