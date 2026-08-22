@@ -1,8 +1,13 @@
 # VALID (contract-v1.38): an `auto` ROUTING RULE beside the two approved models
-# it may route to. Its own badge CARRIES BOTH of theirs verbatim (the ratified
+# it may route to. Its own badge CARRIES BOTH of theirs as SEGMENTS (the ratified
 # "carry the handling badge of every model it may route to"), it resolves to one
-# of them, that one is available, and its declared limits are the NARROWEST of
-# the two — a rule promises no more headroom than its narrowest destination.
+# of them, and that one is available.
+#
+# Its declared limits are bounded by `routed-hosted-zr-1`, THE MODEL IT RESOLVES
+# TO (rule 5'), not by the narrowest member of `routes_to` — the two happen to
+# coincide here because the resolution IS the narrower of the two. The instance
+# that separates them is
+# `workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member`.
 {
   "schema_version": 1,
   "kind": "workbench-model-catalog",

@@ -810,9 +810,19 @@ ROUTING_BADGE_TRAILING_PUNCTUATION = ".;,"
 
 def normalized_badge_segment(text: Any) -> str:
     """One badge segment, in the form the covering rule compares: whitespace
-    collapsed, case folded, trailing `.;,` dropped. Interior characters are
-    NEVER rewritten — `on-tenant` and `non-tenant` must stay different, which is
-    the pair that broke the old substring predicate."""
+    collapsed, case folded, trailing `.;,` dropped. No normalization may
+    separate or merge two handling POSTURES — `on-tenant` and `non-tenant` must
+    stay different, which is the pair that broke the old substring predicate.
+
+    Note that `casefold` DOES rewrite interior characters for the
+    multi-character folds (German sharp s becomes `ss`, the `fi` ligature
+    expands), so "interior characters are never rewritten" would be false. The
+    property actually relied on is narrower and stronger: every fold casefold
+    performs maps case-or-orthography variants of one word onto one form, and
+    none of them adds, removes or negates a word. That is the test a future
+    normalization step must pass. Kept verbatim in step with
+    `ideation_dashboard.doxbench_model.normalized_badge_segment`, whose
+    docstring carries the same correction."""
     collapsed = " ".join(str(text).split()).casefold()
     return collapsed.rstrip(ROUTING_BADGE_TRAILING_PUNCTUATION).strip()
 

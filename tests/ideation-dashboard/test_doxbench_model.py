@@ -38,6 +38,7 @@ from ideation_dashboard.doxbench_model import (
     FakeWorkbenchModelPort,
     InvalidCatalogEntryError,
     InvalidRoutingRuleError,
+    MAX_ROUTING_TARGETS,
     DECLARABLE_ENTRY_FIELDS,
     ROUTING_ENTRY_FIELDS,
     ModelCatalog,
@@ -1262,6 +1263,55 @@ def test_an_inconsistent_routing_declaration_refuses_at_construction(overrides,
         kwargs["resolved"] = overrides["resolved"]
     with pytest.raises(InvalidCatalogEntryError, match=match):
         _rule(**kwargs)
+
+
+def _wide_rule(n):
+    """A rule over `n` distinct targets, conformant on every other rule: unique
+    ids, the badge carrying each target's as a segment, limits equal to theirs,
+    and the resolution among them."""
+    ids = tuple(f"t{i}" for i in range(n))
+    badge = "Routes by role. / " + " / ".join(f"posture-{i}" for i in ids)
+    rule = ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "model_id": "auto",
+                                "data_handling": badge, "routing_rule": True,
+                                "routes_to": ids, "resolved_model_id": ids[0]})
+    targets = [_entry(i, data_handling=f"posture-{i}") for i in ids]
+    return rule, targets
+
+
+def test_routes_to_is_capped_at_the_released_schemas_64_targets():
+    """CODEX REVIEW OF PR #244, P2 — the TYPE gate was WEAKER than the WIRE.
+
+    The released schema caps `routes_to` at `maxItems: 64`; the tuple conversion
+    accepted any number of unique valid ids. A 65-target rule therefore
+    constructed fine and could be dispatched by the turn route (which checks
+    only `isinstance(catalog, ModelCatalog)`), while `GET
+    /workbench/model-catalog` refused to serve the catalog holding it, because
+    the route self-validates the projected envelope against the released schema.
+    That is the F2 divergence in the other direction.
+
+    The BOUNDARY is asserted from both sides, so the cap is a cap and not an
+    off-by-one: 64 constructs, 65 refuses."""
+    rule, targets = _wide_rule(MAX_ROUTING_TARGETS)
+    catalog = ModelCatalog.from_entries([rule] + targets)
+    assert len(catalog.entries[0].routes_to) == MAX_ROUTING_TARGETS == 64
+
+    with pytest.raises(InvalidCatalogEntryError,
+                       match=r"declares 65 models, above the 64"):
+        _wide_rule(MAX_ROUTING_TARGETS + 1)
+
+
+def test_the_target_cap_is_an_ENTRY_refusal_not_a_catalog_one():
+    """Which exception, and why — the split this release documents is by how
+    much context a refusal needs, not by which field it names. The cap is
+    visible with no catalog at all, so it is `InvalidCatalogEntryError`, like
+    every other over-cap value. Codex suggested `InvalidRoutingRuleError`;
+    declined, because that class's own docstring says every member of it needs a
+    second entry to see."""
+    with pytest.raises(InvalidCatalogEntryError):
+        _wide_rule(MAX_ROUTING_TARGETS + 1)
+    # …and it is raised by the ENTRY, before any catalog exists.
+    assert not issubclass(InvalidRoutingRuleError, InvalidCatalogEntryError)
+    assert not issubclass(InvalidCatalogEntryError, InvalidRoutingRuleError)
 
 
 def test_a_plain_entry_may_not_carry_a_routing_only_field():

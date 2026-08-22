@@ -122,6 +122,13 @@ DECLARABLE_ENTRY_FIELDS: tuple[str, ...] = (
 # (a standalone validator that imports nothing from this package, the same
 # convention `RESERVED_BUFFER_KEYS` follows) and a companion test pins the two
 # equal, so the two gates cannot drift into two grammars.
+# The released schema's `maxItems` on `routes_to`. RESTATED, not read: this
+# module's whole import list is `dataclasses` and `typing`, so it cannot open the
+# schema -- the same reason `SERVER_MAX_INPUT_LIMIT_BYTES` is a literal here. The
+# companion test reads the RELEASED BYTES and pins this equal to them, so the two
+# cannot drift; that pin, not this literal, is what makes the bound authoritative.
+MAX_ROUTING_TARGETS = 64
+
 ROUTING_BADGE_SEPARATOR = " / "
 
 # The closed set of trailing characters a segment comparison ignores. See
@@ -223,18 +230,38 @@ class DuplicateModelIdError(ModelCatalogError):
 
 class InvalidRoutingRuleError(ModelCatalogError):
     """A routing declaration is not consistent with the catalog it sits in
-    (contract-v1.38). ONE class for every CROSS-ENTRY routing refusal --
-    a `routes_to` reference no entry answers to, a target that is itself a
-    routing rule, an available rule resolving to an unavailable model, and a
-    rule whose own ``data_handling`` does not carry a target's badge --
-    because they share one consequence: this catalog cannot honestly offer
-    this routing rule, so the whole catalog refuses rather than serving a
-    menu entry that misstates what it routes to.
+    (contract-v1.38). ONE class for every CROSS-ENTRY routing refusal, and the
+    list is exhaustive -- an incomplete one is what the PR #244 bot round caught
+    here. Raised for:
 
-    PER-ENTRY routing inconsistencies (the three fields not travelling
-    together, a rule naming itself, a resolved id outside ``routes_to``) are
-    ``InvalidCatalogEntryError`` instead: they need no second entry to see,
-    exactly like a blank label or an over-cap limit."""
+    1. a ``routes_to`` reference no entry in this catalog answers to;
+    2. a target that is itself a routing rule (no chained resolution);
+    3. a target whose own ``data_handling`` this rule's badge does not carry as
+       a SEGMENT (the covering rule);
+    4. a target whose badge holds the segment separator, so it could never BE a
+       segment -- a DIAGNOSTIC arm, since (3) would refuse the same catalog
+       under a message that misdirects;
+    5. an AVAILABLE rule whose declared limits exceed those of the model it
+       resolves to (rule 5', Brett's ruling 2026-08-21);
+    6. an AVAILABLE rule resolving to a model that is not available.
+
+    They share one consequence: this catalog cannot honestly offer this routing
+    rule, so the whole catalog refuses rather than serving a menu entry that
+    misstates what it routes to.
+
+    EVERY ONE OF THE SIX NEEDS A SECOND ENTRY TO SEE, which is what makes
+    "cross-entry" the honest framing rather than a label. PER-ENTRY routing
+    inconsistencies are ``InvalidCatalogEntryError`` instead -- the three fields
+    not travelling together, a rule naming itself, a resolved id outside
+    ``routes_to``, a repeated target, and ``routes_to`` above the released
+    schema's 64-target cap. They need no second entry, exactly like a blank
+    label or an over-cap ``input_limit_bytes``, and the cap is precisely that:
+    an over-cap value on one field of one entry.
+
+    (Codex's P2 suggested raising the cap as an ``InvalidRoutingRuleError``.
+    Declined, and flagged: doing so would make this class's own first sentence
+    false, since the cap is visible without a catalog at all. The split is by
+    HOW MUCH CONTEXT THE REFUSAL NEEDS, not by which field it names.)"""
 
 
 class AdapterTimeoutError(ValueError):
@@ -351,6 +378,22 @@ class ModelCatalogEntry:
         if len(set(targets)) != len(targets):
             raise InvalidCatalogEntryError(
                 "routes_to must not repeat a model id")
+        # THE 64-TARGET CAP (Codex review of PR #244, P2). Without it the type
+        # accepted a 65-member `routes_to` that the released schema refuses, so
+        # the TYPE gate was weaker than the WIRE gate -- the F2 divergence in the
+        # other direction. The consequence was concrete: such a rule constructed
+        # fine and could be dispatched by the turn route (which checks only
+        # `isinstance(catalog, ModelCatalog)`), while `GET /workbench/model-catalog`
+        # refused to serve the very catalog holding it, because serve.py validates
+        # the projected envelope against the released schema.
+        #
+        # `InvalidCatalogEntryError`, NOT `InvalidRoutingRuleError` -- see that
+        # class's docstring for the split this keeps: one entry is enough to see
+        # this, exactly like an over-cap `input_limit_bytes`.
+        if len(targets) > MAX_ROUTING_TARGETS:
+            raise InvalidCatalogEntryError(
+                f"routes_to declares {len(targets)} models, above the "
+                f"{MAX_ROUTING_TARGETS} the released catalog schema permits")
         if self.resolved_model_id is not None:
             _require_non_blank_str("resolved_model_id", self.resolved_model_id)
         # The three travel together, in both directions.
@@ -450,12 +493,17 @@ class ModelCatalog:
     def _validate_routing_targets(
         entries: tuple[ModelCatalogEntry, ...],
     ) -> None:
-        """The CROSS-ENTRY half of the contract-v1.38 routing rules -- the four
+        """The CROSS-ENTRY half of the contract-v1.38 routing rules -- the SIX
         the released schema cannot express and the delegated validator
         (`scripts/validate-ideation-dashboard-contracts.py`) enforces on the
-        wire. Both places enforce the same four; neither is the other's
+        wire. Both places enforce the same six; neither is the other's
         substitute, because a catalog assembled in-process never becomes a
         validated file and a catalog file is never constructed here.
+
+        Numbered 1-5 below, with the separator-collision DIAGNOSTIC folded into
+        rule 4 because it is that rule's well-formedness precondition rather
+        than a rule of its own. `InvalidRoutingRuleError`'s docstring lists all
+        six as raised, which is the view a caller catching it needs.
 
         1. NO DANGLING TARGET. Every `routes_to` id must name an entry in this
            same catalog. A rule that routes somewhere the catalog does not

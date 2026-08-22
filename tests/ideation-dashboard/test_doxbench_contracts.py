@@ -834,6 +834,26 @@ def _entry_with(**overrides):
     return {**_PLAIN_ENTRY, **overrides}
 
 
+def test_the_types_target_cap_is_pinned_to_the_RELEASED_schemas_maxItems(
+        released_root):
+    """`MAX_ROUTING_TARGETS` is a literal in a module that imports only
+    `dataclasses` and `typing` and so cannot read the schema. This is what makes
+    it authoritative anyway: the bound is read out of the RELEASED BYTES here
+    and pinned equal, so the two cannot drift into two caps (the hazard §12.2
+    recorded for its own duplicated list, and the reason Codex's P2 asked for
+    the bound by reference rather than a second literal)."""
+    from ideation_dashboard.doxbench_model import MAX_ROUTING_TARGETS
+    schema = yaml.safe_load(
+        (released_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE)
+        .read_text(encoding="utf-8"))
+    routes_to = schema["$defs"]["model_entry"]["properties"]["routes_to"]
+    assert routes_to["maxItems"] == MAX_ROUTING_TARGETS
+    # …and the other two bounds the type enforces on the same field, so a schema
+    # change to any of them fails here rather than only in production.
+    assert routes_to["minItems"] == 1
+    assert routes_to["uniqueItems"] is True
+
+
 def test_the_pre_release_entry_shape_is_still_valid(released_root):
     """THE ADDITIVE TEST ITSELF: the entry every existing producer emits, with
     none of the three new fields, validates against the grown schema."""
