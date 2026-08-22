@@ -98,6 +98,13 @@ CAPABILITY_REQUIREMENTS: Mapping[str, str] = {
     "Erasure Is Distinct From Revocation": TIER_M1,
     "Gateway Conformance Is Testable": TIER_M0,
     "Derived memory bindings validate against the neutral schema": TIER_UNTIERED,
+    # PROMOTED 2026-08-22 by add-doxbench-editing-phase-b's own archive: this is
+    # the requirement THIS change added to the capability to describe what this
+    # surface does, so the roster grew the moment the delta promoted. UNTIERED
+    # because the spec's tier block does not tier it (checked, not assumed — a
+    # companion test asserts its absence there).
+    "Subject-Free Local Consumers Declare Their Inapplicable Rails":
+        TIER_UNTIERED,
 }
 
 # The dispositions a declaration may give a requirement. There is deliberately
@@ -580,6 +587,15 @@ DOXBENCH_DISPOSITIONS: tuple[RequirementDisposition, ...] = (
        "a hermes_memory_binding is the projection of a LAYER's seeded memory "
        "boundary; this surface is not a Hermes layer, seeds no boundary, and "
        "produces no binding for rails to consume"),
+    _D("Subject-Free Local Consumers Declare Their Inapplicable Rails",
+       REALIZED,
+       "this declaration IS the act that requirement describes: the whole "
+       "roster carries a disposition and a reason, every inapplicable rail is "
+       "named with why, the constructor REFUSES the declaration to a consumer "
+       "holding a credential, addressing a customer subject, or routing to a "
+       "networked provider, and nothing here reduces what stays applicable — "
+       "the seven requirements the delta forbids narrowing are dispositioned "
+       "realized or partial, never inapplicable, and a test asserts that"),
 )
 
 # The surface's declaration, built through the same refusing constructor any
