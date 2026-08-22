@@ -190,7 +190,11 @@ zero enforcer incidents, and one completed gate-rules review cycle; and
 engineering-owned repositories SHALL be adopted before domain repositories,
 so no domain repository is adopted into the lane while any engineering-owned
 governed repository remains unadopted — each adoption still meeting the
-evidence bar in its own right.
+evidence bar in its own right. A pull request counts toward that bar on the
+strength of its unanimous council verdict, whether the approving review was
+then cast by the merge-master App or by a human: the bar measures COUNCIL
+QUALITY, not enforcer autonomy, and a council-cleared pull request whose
+approval a human cast is evidence of exactly the thing the bar is testing.
 
 #### Scenario: Adoption proposed below the evidence bar
 - **WHEN** a follow-up change proposes extending the lane to a further
@@ -200,6 +204,15 @@ evidence bar in its own right.
   review cycle
 - **THEN** the extension MUST NOT be authorized
 - **AND** the follow-up change MUST record which element of the bar is unmet
+
+#### Scenario: A human-approved council-cleared pull request still counts
+- **WHEN** a substantive pull request receives a unanimous
+  `merge_readiness_council` verdict and the approving review is cast by a
+  human rather than by the merge-master App
+- **THEN** that pull request counts toward the evidence bar's council-cleared
+  total
+- **AND** the bar MUST NOT be read as requiring autonomously approved pull
+  requests
 
 #### Scenario: A domain repository does not qualify while an engineering-owned one is unadopted
 - **WHEN** a follow-up change proposes a domain repository as the next

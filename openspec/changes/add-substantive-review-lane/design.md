@@ -107,6 +107,8 @@ than the ruling decided; it deliberately does NOT enumerate a tier
 vocabulary, and it says so in its own text. But the elevation is an
 ENCODING CHOICE this change made, not something Brett asked for, so it is
 named here for him to accept or push back on at ratification.
+**ACCEPTED by Brett Heap at the ratification read, 2026-08-22** — the floor
+stays a promoted requirement (record: `review/ratification-2026-08-22.md`).
 
 **FLOOR MEMBERSHIP — a fidelity correction, not a ruling.** The ruling and
 the recommendation behind it both restated the ratified floor with five
@@ -263,6 +265,9 @@ requirement it is what the follow-up change must be validated against. The
 ordering principle rides with it for the same reason. The elevation is this
 change's encoding choice, not Brett's instruction, and is named for him to
 accept or push back on.
+**ACCEPTED by Brett Heap at the ratification read, 2026-08-22** — the bar and
+the ordering principle stay promoted requirements (record:
+`review/ratification-2026-08-22.md`).
 
 **ORDERING PRINCIPLE — encoded FLAT, as ruled.** An earlier draft of this
 requirement narrowed the principle to a two-candidate tie-break ("where two
@@ -276,6 +281,19 @@ before domain repos — so the requirement now says no domain repository is
 adopted while any engineering-owned governed repository remains unadopted,
 each adoption still meeting the bar in its own right, with a scenario
 covering the single-candidate case explicitly.
+
+**AND IT STAYS ABSOLUTE — Brett Heap, ratification read 2026-08-22.** The
+literal consequence was put to him before he ruled: read flat, the principle
+means a DORMANT engineering-owned repository — one nobody is proposing, one
+with no adoption work under way — still blocks every domain repository's
+adoption, indefinitely, simply by remaining unadopted. Two softenings were
+available (a recorded-waiver clause, or scoping the block to
+actively-maintained engineering repos) and Brett declined BOTH: leave it
+absolute. The escape path, when one is genuinely needed, is a direct
+escalation to Brett inside the future adoption change that needs it — a human
+decision made in the open — not a clause in this requirement that lets the
+order be routed around quietly. Recorded here so the consequence is a ruled
+cost rather than an oversight a later reader "discovers".
 
 ## Decision F — Reviewing persona home: codexFactory reviews every governed repo (Brett Heap, 2026-08-22)
 
@@ -340,14 +358,30 @@ with that in view rather than discover it during the pilot.
 The intersection is narrow and worth naming plainly: the pilot's first
 autonomously clearable class will be **docs-shaped AND fixed-branch**, which
 is close in shape to the `doc-health-nightly` class already proven — so the
-pilot's early autonomous evidence will be thin, and the Q1 evidence bar (≥3
-council-cleared substantive PRs across ≥2 candidate classes) will take a
-while to satisfy honestly. That is not an argument against any ruling; it is
-the cost of ruling the floor before the vocabulary, and it is the right way
-round. What it does mean is that this change's "substantive human- and
-agent-authored PRs" ambition is exercised in the pilot mainly through the
-COUNCIL-REVIEWED-BUT-HUMAN-APPROVED path — real deliberation, real
-rationales, real audit artifacts, `needs_human_review` disposition, and a
-human casting the approving review — until the matcher work (§4.4) and the
-deferred tier vocabulary land. The lane is fully useful in that mode; it is
-simply not autonomous in it, and no requirement here claims otherwise.
+pilot's early AUTONOMOUS evidence will be thin. That is not an argument
+against any ruling; it is the cost of ruling the floor before the vocabulary,
+and it is the right way round. What it does mean is that this change's
+"substantive human- and agent-authored PRs" ambition is exercised in the
+pilot mainly through the COUNCIL-REVIEWED-BUT-HUMAN-APPROVED path — real
+deliberation, real rationales, real audit artifacts, `needs_human_review`
+disposition, and a human casting the approving review — until the matcher
+work (§4.4) and the deferred tier vocabulary land. The lane is fully useful
+in that mode; it is simply not autonomous in it, and no requirement here
+claims otherwise.
+
+**AND THE Q1 BAR IS NOT AUTONOMY-GATED — Brett Heap, ratification read
+2026-08-22.** This decision's first draft drew the wrong conclusion from the
+squeeze above: it said the bar would "take a while to satisfy honestly",
+reading "≥3 council-cleared substantive PRs" as ≥3 AUTONOMOUSLY APPROVED
+ones. Brett overrode that reading. A unanimous council verdict counts toward
+the bar whether the approving review was cast by the merge-master App or by a
+human, because the bar measures COUNCIL QUALITY, not enforcer autonomy — a
+council that deliberated well and whose verdict a human then executed is
+precisely the evidence the bar exists to collect. So the squeeze analysis
+above stands in full and its conclusion narrows: what is thin is the pilot's
+AUTONOMY, not its countable evidence. The
+council-reviewed-but-human-approved path both exercises the ambition AND
+accrues the bar. Encoded in the "Adoption beyond the pilot qualifies on
+recorded evidence" requirement and its "A human-approved council-cleared pull
+request still counts" scenario; tasks §5.2's counting rule corrected to
+match.

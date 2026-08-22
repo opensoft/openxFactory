@@ -19,10 +19,20 @@
       deliberately deferred to a named follow-up change raised on pilot
       evidence: the adoption ORDER beyond the pilot (Q1) and the enumerated
       risk-tier VOCABULARY (Q5).
-- [ ] 1.3 RATIFICATION PENDING — Brett's read of the requirement set itself.
-      `Status:` in `proposal.md` stays `draft` until he rules on it; nothing
-      in the 2026-08-22 rulings ratifies this change. Everything below is
-      parked behind this gate.
+- [x] 1.3 **RATIFIED 2026-08-22 by Brett Heap** — in-session via question
+      prompts at the ratification read. Record:
+      `review/ratification-2026-08-22.md`; `proposal.md` `Status:` is
+      `ratified` with a `Ratified:` line naming the same record. Four
+      read-items were ruled in that round: form elevation of the Q1 bar and
+      Q5 floor into promoted requirements ACCEPTED; the Q1 bar counts ANY
+      council-cleared verdict, App-approved or human-approved (this overrode
+      the encoder's autonomous-only reading — see §5.2); the ordering
+      principle stays ABSOLUTE with no waiver clause and no activity scoping,
+      escalation to Brett inside a future adoption change being the escape
+      path; and ratify. The earlier same-day clarify round (the five Q1–Q5
+      rulings, §1.2) is a distinct act and is cross-referenced from the
+      ratification record. Sections 3–5 below are now authorized realization
+      work rather than parked work.
 
 ## 2. Neutral contract delta (this change's own surface)
 
@@ -189,8 +199,18 @@
       meanwhile through the council-reviewed-but-human-approved path (real
       deliberation, rationales, audit artifact, `needs_human_review`
       disposition, human casting the approving review). Record BOTH kinds of
-      run under §5.3 — only the autonomous ones count toward the Q1 evidence
-      bar.
+      run under §5.3.
+      COUNTING RULE — **RULED BY BRETT HEAP 2026-08-22** at the ratification
+      read, OVERRIDING this task's earlier draft, which said "only the
+      autonomous ones count toward the Q1 evidence bar": ANY COUNCIL-CLEARED
+      VERDICT COUNTS. A unanimous `merge_readiness_council` verdict counts
+      toward the ≥3 bar whether the approving review was cast by the
+      merge-master App or by a human. The bar measures COUNCIL QUALITY, not
+      enforcer autonomy — a council that deliberated well and whose verdict a
+      human then executed is exactly the evidence the bar exists to collect.
+      So the narrow autonomous surface described above slows AUTONOMY, not
+      the bar: council-reviewed-but-human-approved runs are countable
+      evidence and MUST be recorded under §5.3 as such.
 - [ ] 5.3 Record the pilot run's evidence (council records, check-run,
       audit artifact, approval) under this change's own evidence trail for
       the eventual archive.

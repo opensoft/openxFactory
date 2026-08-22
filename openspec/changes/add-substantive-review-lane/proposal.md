@@ -5,12 +5,26 @@ target_release: none (no contract-bundle involvement — this generalizes the ro
 
 # Proposal: add-substantive-review-lane
 
-Status: draft — not yet ratified. Authored 2026-08-15 from verified current
-state (`.openspec.yaml` origin block). The five questions this proposal
-originally declared open were RULED by Brett Heap in-session 2026-08-22 and
-are recorded below under "Decided questions"; each ruling is encoded as
-requirement text in this change's spec delta. Ratification of the requirement
-set itself remains Brett's read and has not happened.
+Status: ratified
+Ratified: 2026-08-22 by Brett Heap — in-session via question prompts at the
+ratification read; record: `review/ratification-2026-08-22.md`. Four
+read-items were ruled in that round: (1) the FORM ELEVATION of Q1's evidence
+bar and Q5's constitutional floor from proposal text into promoted
+requirements is ACCEPTED; (2) the Q1 bar's COUNTING RULE is that any
+council-cleared verdict counts — a unanimous council verdict counts toward
+the ≥3 bar whether the approving review was cast by the merge-master App or
+by a human, because the bar measures council quality, not enforcer autonomy
+(this OVERRODE the encoder's autonomous-only reading); (3) the ordering
+principle stays ABSOLUTE — no waiver clause and no activity scoping, the
+dormant-engineering-repo consequence accepted, with a direct Brett escalation
+inside a future adoption change as the escape path rather than requirement
+text; and (4) RATIFY. Authored 2026-08-15 from verified current state
+(`.openspec.yaml` origin block). Separately and earlier the same day, the
+five questions this proposal originally declared open were RULED by Brett
+Heap in-session and are recorded below under "Decided questions", each
+encoded as requirement text in this change's spec delta; that clarify round
+is distinct from this ratification and is cross-referenced from the
+ratification record.
 
 ## Why
 

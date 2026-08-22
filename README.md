@@ -560,7 +560,10 @@ Active changes:
   requirements it MODIFIES relative to that change's outcome.
   `target_release: implemented`.
 - [add-substantive-review-lane](openspec/changes/add-substantive-review-lane/proposal.md)
-  — proposed 2026-08-15, not yet ratified: generalizes codexFactory's proven
+  — proposed 2026-08-15, **RATIFIED 2026-08-22** by Brett Heap (in-session
+  via question prompts; record
+  `openspec/changes/add-substantive-review-lane/review/ratification-2026-08-22.md`):
+  generalizes codexFactory's proven
   `gate_rules_council` + `merge_readiness_council` + Merge Master machinery
   (live autonomous deliberation 2026-08-14, xFactory PRs #85/#100) beyond its
   one rules-as-code candidate class (`doc-health-nightly`,
@@ -593,8 +596,17 @@ Active changes:
   credential surfaces, and security posture are permanently human-only;
   autonomous clearance only ever for docs-/derived-artifact-shaped blast
   radii) with the enumerated tier vocabulary DEFERRED to the same
-  evidence-driven follow-up path. Status stays `draft` — ratification of the
-  requirement set is Brett's separate read.
+  evidence-driven follow-up path. The ratification read (also 2026-08-22, a
+  distinct act from the clarify round) ruled four further items: the FORM
+  ELEVATION of Q1's bar and Q5's floor from proposal text into promoted
+  requirements is ACCEPTED; the Q1 bar counts ANY council-cleared verdict,
+  App-approved or human-approved, because it measures council quality rather
+  than enforcer autonomy (overriding the encoder's autonomous-only reading);
+  the ordering principle stays ABSOLUTE, the dormant-engineering-repo
+  consequence accepted, with escalation to Brett inside a future adoption
+  change as the escape path rather than requirement text; and RATIFY.
+  `target_release: none` — no contract bytes move; realization across the
+  three repos (tasks §3–§5) is now authorized, tracked-not-performed work.
 - [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
   — authored 2026-08-13: two neutral `credential-contracts` requirements for the
   openXdox intent-plane dispatch credential — dispatch-only least privilege with
