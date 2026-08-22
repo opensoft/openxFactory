@@ -301,6 +301,53 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
+  — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). The
+  openxFactory COMPANION to Omnigent-Install's just-merged
+  `add-dox-gitops-reconciliation` (its `main` `7d0370d`, 2026-08-22), which took
+  the APPLY and deliberately deferred two open questions to this change. Gives
+  the nightly a sixth lane: an ideation-dashboard IMAGE REFRESH stage on the
+  `cpc-omni01` artifact worker, ordered after the report delivery — fresh
+  openxFactory `main` checkout, `--strict` snapshot generation from THAT
+  checkout (0 errors / 0 warnings, and the gate precedes the push, so a strict
+  failure publishes nothing), image build from Omnigent-Install's
+  `containers/ideation-dashboard/Dockerfile` at ITS `main` over the assembled
+  workspace context, date-stamped push to `acropensoftxfactoryqa.azurecr.io`,
+  digest captured. One revision for snapshot and baked `/source` corpus by
+  construction, which is what keeps the freshness header honest. The no-change
+  short-circuit is decided on INPUT REVISIONS BEFORE the build — unmoved corpus
+  and unmoved build recipe ⇒ no checkout, no build, no push, no PR, no deploy —
+  explicitly NOT on built-vs-pinned digest equality, which can never hold
+  (fresh-checkout mtimes move the copied layers; the base image tag floats) and
+  would therefore redeploy content-equivalent images nightly. Provenance for
+  that check is a machine-readable block in the pin's own overlay comment (the
+  precedent the two hand-written pins already set in prose), scoped to each
+  repository's BAKED INPUTS rather than its branch tip so the lane's own merged
+  pin cannot force the next rebuild; absent/unparseable provenance counts as
+  changed and bootstraps. RULES both deferred questions: **(a)** the auto-merge
+  mechanism is the aggregation's existing Merge Master pattern extended to
+  Omnigent-Install with a SECOND candidate class in its reviewed
+  `candidates:` list (author + fixed head `bot/dox-dashboard-pin` + base +
+  one-file `path_allowlist` + `require_all_checks`, with the LINE-level
+  digest-shape predicate contributed by a repository-side required check,
+  because no envelope field expresses it) — fail-closed, base-branch-only
+  rules and logic, revocable in one config edit, no org-ruleset bypass;
+  **(b)** the lane identity is the EXISTING `XFACTORY_APP` the reusable
+  workflow already mints per run, requiring its installation on
+  Omnigent-Install at `contents: write` + `pull_requests: write` (verified by a
+  real authenticated call, not a settings page), with a dedicated App as the
+  recorded contingency. Worker/App/approver/GitHub/Flux hold four separate
+  rungs; `execute_final_action` and `access_secrets` stay false; the only new
+  grant is a push-scoped, host-local, by-reference ACR credential (needs an
+  Omnigent-Install schema delta — `acr_pull` is
+  `additionalProperties: false`). SIX ADDED requirements on `doc-health` (the
+  lane contract, where every sibling nightly lane already lives) plus ONE ADDED
+  and ONE MODIFIED on `ideation-dashboard` (the served plane's rebake bound;
+  the MODIFIED restates all four promoted scenarios verbatim, preserves "an
+  image rebuild MUST NOT be required to reflect newly published snapshots"
+  exactly, and RECORDS the standing conformance gap that the hosted image
+  performs no runtime fetch today, so its baked artifacts are its data).
+  `target_release: implementation_pending`.
 - [add-roster-directory-admission-surface](openspec/changes/add-roster-directory-admission-surface/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). Admits the
   single `directory` (service-discovery) admission surface into the closed
