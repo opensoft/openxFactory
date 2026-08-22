@@ -6,19 +6,34 @@ what makes it a rule rather than an observation.
 
 ## 1. Ratification (Brett)
 
-- [ ] 1.1 Brett reads the proposal and rules OQ-1 through OQ-5.
-- [ ] 1.2 Brett ratifies or declines. On ratification, flip `Status: draft` →
+- [x] 1.1 Brett reads the proposal and rules OQ-1 through OQ-5. RULED
+      2026-08-22, in-session, multiple-choice round: every recommended
+      option adopted (OQ-3 unopposed in prose) — OQ-1 KEEP the `doc-health`
+      delta; OQ-2 sanction BOTH spellings; OQ-3 floor stays at ONE of
+      approver/date/resolvable-record; OQ-4 EXACTLY ONE citation line per
+      document; OQ-5 a floor violation is CRITICAL, same tier as a dangling
+      `Ratified by:` reference.
+- [x] 1.2 Brett ratifies or declines. On ratification, flip `Status: draft` →
       `Status: ratified` in `proposal.md` front matter and add the citation
       line in the spelling this change itself sanctions: `Ratified by:` if an
       approving OpenSpec change is named, otherwise `Ratified:` naming
       approver, date, or record. The change is its own first conformance test.
-- [ ] 1.3 If OQ-1 is ruled "defer", delete `specs/doc-health/spec.md` from
+      Ratified 2026-08-22; `proposal.md` front matter now carries
+      `Status: ratified` and a `Ratified:` line (no approving OpenSpec change
+      exists for this proposal, so it cites itself in the record-citing
+      spelling it sanctions — approver, date, and a resolvable record all
+      named, exceeding its own one-of-three floor).
+- [x] 1.3 If OQ-1 is ruled "defer", delete `specs/doc-health/spec.md` from
       this change and record the deferral here, naming the follow-up.
-      Re-validate `--all --strict` after the deletion.
-- [ ] 1.4 Record each ruling inline under its Open Question in `proposal.md`
+      Re-validate `--all --strict` after the deletion. NOT TAKEN — OQ-1 was
+      ruled KEEP, not defer; `specs/doc-health/spec.md` stays in this change.
+- [x] 1.4 Record each ruling inline under its Open Question in `proposal.md`
       (the RULED-line convention `add-doxchat-model-intake` uses), so a later
       reader finds the decision beside the question rather than only in a
-      commit message.
+      commit message. Done: each of the five Open Questions in `proposal.md`
+      carries its own RULED line in place (alternatives' text kept, not
+      deleted), and design.md's D1 and D3 (where OQ-3 and OQ-1 are discussed)
+      each carry a matching RULED note pointing back to proposal.md.
 
 ## 2. Realize the prose (`docs/document-lifecycle.md`)
 
