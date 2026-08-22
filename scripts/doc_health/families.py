@@ -73,8 +73,8 @@ def _resolves(doc_dir: Path, repo_path: Path, target: str) -> bool:
     return (doc_dir / target).exists() or (repo_path / target).exists()
 
 
-def _header_line(doc, prefix: str) -> str | None:
-    """First `prefix`-matching REAL line within the doc's header window.
+def _header_lines(doc, prefix: str) -> list[str]:
+    """EVERY `prefix`-matching REAL line within the doc's header window.
 
     Real lines (CR/LF/CRLF only — `doc_health.lines`), not
     `str.splitlines()` pseudo-lines: this is a reader of the SAME lifecycle
@@ -86,11 +86,22 @@ def _header_line(doc, prefix: str) -> str | None:
     window by an exotic separator. Widened to every reader of the header by
     the change's ruling (2026-08-19): the delta's "SHALL hold for every
     reader of that header" governs.
+
+    All matches, not the first: a rule that says a document carries EXACTLY
+    ONE of something cannot be enforced by a reader that stops at the first
+    one. `fam_ratified_provenance` counts with this; the single-line readers
+    below keep first-match semantics via `_header_line`.
     """
-    for body, _ending in split_keepends(doc.text)[:corpus.STATUS_SCAN_LINES]:
-        if body.startswith(prefix):
-            return body
-    return None
+    return [body for body, _ending
+            in split_keepends(doc.text)[:corpus.STATUS_SCAN_LINES]
+            if body.startswith(prefix)]
+
+
+def _header_line(doc, prefix: str) -> str | None:
+    """First `prefix`-matching REAL line within the doc's header window,
+    or None. See `_header_lines` for the real-line rule this inherits."""
+    lines = _header_lines(doc, prefix)
+    return lines[0] if lines else None
 
 
 # --- ratification citation spellings (`document-lifecycle`) -------------
@@ -124,6 +135,18 @@ _CITATION_DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 # actually writes. Citations that name their approver some other way (inside
 # a record parenthetical, say) are carried by the other two axes; the floor
 # is disjunctive precisely so a narrow axis costs nothing.
+#
+# DISCLOSED NARROWING, not an oversight: `by <Name>` is the ONLY approver
+# spelling this axis recognizes. A line naming its approver in another form
+# — `Ratified: ruling round (Brett Heap presiding)`, design D1's row-3
+# shape — is not read as naming an approver, and must clear the floor on the
+# date or record axis instead. The remedy for an author is to write
+# `by <Name>`, never to invent a date the record does not carry (OQ-3), and
+# `docs/document-lifecycle.md` § Status Claim Rules states the recognized
+# form so an author reads it at authoring time rather than discovering it
+# from a finding. Widening this pattern to guess at approver names inside
+# free prose would trade a disclosed narrow rule for an undisclosed
+# guess — the invention the floor exists to prevent.
 _CITATION_APPROVER = re.compile(r"\bby\s+[A-Z][\w.'-]*")
 
 
@@ -334,21 +357,37 @@ def fam_ratified_provenance(ctx):
     document that names its change and nothing else into a CRITICAL finding
     in one commit. Every violation here is CRITICAL: the header asserts an
     approval that nothing backs, however it is spelled.
+
+    "Exactly one citation" is counted as ONE TOTAL across both spellings,
+    which is what the requirement says and what OQ-4 ruled ("EXACTLY ONE
+    citation line per document"). Two lines in the SAME spelling carry the
+    identical defect as one of each — nothing on the page says which is
+    current — so the count, not the pair, is what fires.
     """
     findings = []
     for doc in ctx.docs:
         if doc.status != "ratified":
             continue
-        by_line = _header_line(doc, _RATIFIED_BY_PREFIX)
-        record_line = _header_line(doc, _RATIFIED_RECORD_PREFIX)
+        by_lines = _header_lines(doc, _RATIFIED_BY_PREFIX)
+        record_lines = _header_lines(doc, _RATIFIED_RECORD_PREFIX)
 
-        if by_line and record_line:
+        if len(by_lines) + len(record_lines) > 1:
+            if by_lines and record_lines:
+                rule = "carries both Ratified by: and Ratified: citations"
+            elif by_lines:
+                rule = (f"carries {len(by_lines)} Ratified by: citation "
+                        f"lines, not one")
+            else:
+                rule = (f"carries {len(record_lines)} Ratified: citation "
+                        f"lines, not one")
             findings.append(Finding(
-                CRITICAL, "ratified-provenance", doc.repo, doc.path,
-                "carries both Ratified by: and Ratified: citations",
+                CRITICAL, "ratified-provenance", doc.repo, doc.path, rule,
                 "keep exactly one: Ratified by: where an approving OpenSpec "
                 "change exists, Ratified: where none does"))
             continue
+
+        by_line = by_lines[0] if by_lines else None
+        record_line = record_lines[0] if record_lines else None
 
         if by_line:
             body = by_line.split(":", 1)[1]

@@ -48,6 +48,22 @@ rule change nobody asked for. The scoping is written into the requirement text
 rather than left to the implementation, because it is the single most likely
 way for the realization to go wrong.
 
+**The approver axis is narrower than the table, deliberately and on the
+record.** The realization reads the approver axis as a `by <Name>` clause and
+nothing else. That is narrower than row 3 of the table above, whose approver
+sits inside a record parenthetical (`… (Brett; …)`) — a line of that shape is
+not read as naming an approver, and clears the floor on its date or its record
+path instead. Row 3's own examples do carry both, so nothing in the corpus
+fails; the narrowing is latent, and it is disclosed rather than papered over.
+The alternative — a wider pattern that guesses at proper names inside free
+prose — trades a rule an author can read for a rule an author must discover
+from a finding, and guessing is the failure OQ-3's reasoning rules against:
+where a line clears none of the three axes, the author's remedy is to write
+`by <Name>`, never to invent a date the record does not carry. The recognized
+form is therefore stated in `docs/document-lifecycle.md` § Status Claim Rules,
+where an author reads it at authoring time, and mirrored in the pattern's own
+comment in `families.py`.
+
 **RULED (2026-08-22, Brett, in-session multiple choice): recommendation adopted, unopposed in prose — the floor stays at ONE of the three (OQ-3); a stricter floor would force invented dates. See proposal.md for the full ruling.**
 
 ## D2 — The widened read is two prefixes, never one shorter prefix
