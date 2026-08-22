@@ -382,8 +382,15 @@ Active changes:
   provider areas ride the entry as declared provider-forced breadth.
   Additive — no `contract_schema_version` bump; the realization bumps the
   bundle contract-v1.34 → contract-v1.35 with a digest refresh. Proposed on the
-  node-inventory realization evidence per the reader-grant clarify decision Q4;
-  the schema/bundle edit waits for Brett's ratification.
+  node-inventory realization evidence per the reader-grant clarify decision Q4.
+  **RATIFIED 2026-08-19** (record: the change's
+  `review/ratification-2026-08-19.md`; clarify rulings plus a cross-model
+  adversarial review, F1 fixed pre-ratification and F2 accepted), and the
+  post-ratification realization tasks §1–§5 are discharged — the `device`
+  `oneOf` member is in `contracts/schemas/xfactory-client-identity-roster.schema.yaml`
+  and the bundle bumped to `contract-v1.35`. Only §6 stays open, and it is
+  explicitly NOT part of this change: the downstream OpsxFactory `device`
+  roster entry and its §6 consent ceremony.
   `target_release: implementation_pending`.
 - [add-doxbench-editing-phase-b](openspec/changes/add-doxbench-editing-phase-b/proposal.md)
   — authored 2026-08-18, Phase B and the EXIT of the `doxbench-editing-model`
@@ -434,61 +441,6 @@ Active changes:
   Sequenced AFTER `add-doxbench-editing-phase-a`, three of whose ADDED
   requirements it MODIFIES relative to that change's outcome.
   `target_release: implemented`.
-
-- `add-subject-overlay-contract` — ARCHIVED 2026-08-15
-  (`openspec/changes/archive/2026-08-15-add-subject-overlay-contract/`):
-  the neutral `hermes_subject_overlay` kind is RELEASED as **`contract-v1.32`**
-  (annotated tag verified; 190-entry digest inventory) and CONSUMED —
-  hermes-install pins the family at the tag with parity floors covering the
-  kind (1 positive + 8 negatives), and the first instance
-  (codexFactory `hermes/subject/project-alfa/overlay.yaml`) is LIVE-SEEDED on
-  the QA stack (repin+seed window 2026-08-15). OQ-1 ruled: kind name
-  canonical, identity `subject.id`, `stricter_only` refused for
-  `relation_to_baseline: additive_constraints_only`. Related landing surface
-  for staged topic `subject-establishment` (DTN-017).
-
-- [add-doxbench-editing-phase-a](openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/proposal.md)
-  — **ARCHIVED 2026-08-21** (realization evidence recorded at the gate: PR #196
-  / `6ac42ed`, plus its own annotation round at #199 / `224bf22` and #201 /
-  `96975c1`; its spec text promoted, +5 ADDED and ~2 MODIFIED, which is what
-  gave Phase B's three Phase-A-relative MODIFIED requirements something to
-  amend). Authored 2026-08-15, Phase A of the `doxbench-editing-model` staged
-  topic
-  (sequenced first of Brett's four 2026-08-15 topics; its four Phase-A open
-  questions were dispositioned accepted-as-recommended the same day). Brett's
-  model is one sentence — left selects, center chat works, right shows the
-  result — and Phase A is the half of it that fits the EXISTING two-buffer
-  machinery with no invariant break: the authoring canvas presents the ACTIVE
-  buffer, chosen by the context region rather than by a second tablist of its
-  own; an Editor/Preview VIEW-TAB pair replaces the side-by-side
-  textarea+preview split, with Preview the default and a flush on every switch
-  into it; one Save and one Cancel replace the duplicated per-buffer toolbar
-  pair (Save keeps its ratified branch-session semantics unchanged — reading
-  the code showed `save()` was ALREADY whole-canvas and merely drawn twice —
-  while Cancel discards the ACTIVE buffer to its `base_content`); the chat
-  binds to the active buffer immediately with no confirm step and STATES that
-  binding on the rail; and the per-buffer staleness guard is
-  asserted to survive the consolidation. Phase B — numbered multi-document
-  tabs, the docs-wheel edit verb, the dirty-tile marker, and the N-buffer
-  generalization of `BUFFER_KINDS`/`require_outline_and_document`/`SAVE_BUFFER_ORDER`
-  — is explicitly out of scope. No contract release. **Realized 2026-08-15**
-  on `change/realize-doxbench-editing-phase-a`: `doxbench-editor.js` carries
-  the Editor/Preview view tablist and the panel's one Save / one Cancel,
-  `staging-workbench.js` drives the active buffer from the context region's
-  selection, `doxbench-chat.js` states the bound buffer above the transcript,
-  and `viewer.js`'s external-editor escape hatch is relabelled. Naming the
-  bound buffer in the durable TURN RECORD is deferred to Phase B (F2 carve-out,
-  Brett 2026-08-15: it needs a chat-turn contract release this change forbids,
-  so `doxbench_turns.py` is untouched and the obligation is recorded on the
-  staged topic) — and that F2 obligation is DISCHARGED by Phase B's §13
-  release, `contract-v1.34`, which is why Phase A archived first. Task 9.1's
-  merged-commit evidence is recorded in the archived proposal.
-- `add-worker-credential-by-reference` — ARCHIVED 2026-08-14
-  (`openspec/changes/archive/2026-08-14-add-worker-credential-by-reference/`):
-  credential-by-reference is LIVE on all three CPC claude lanes — vault
-  source + rotation proven (§11.4 smokes), and the host is fully
-  credential-free (final smoke run 31833019258). Vault deletion is the
-  single kill switch; rotation is one vault write.
 - [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
   — authored 2026-08-13: two neutral `credential-contracts` requirements for the
   openXdox intent-plane dispatch credential — dispatch-only least privilege with
@@ -570,6 +522,38 @@ Active changes:
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
 
+- [add-omnigent-domain-terminology](openspec/changes/add-omnigent-domain-terminology/proposal.md)
+  — DRAFT, authored 2026-08-09 from Brett's direction ("we have a neutral
+  spine cross domain, but we also need all notices to users and logs shown in
+  domain best-practice and well-adopted terminology"); **UNRATIFIED** — task
+  1.2, Brett's ratification of the block, is the change's one open gate.
+  ANNOTATE, NEVER RENAME: an optional `terminology` block on the
+  omnigent-domain-overlay contract carries display labels for the ids an
+  overlay declares (`workers`, `job_types`, `stop_conditions`, `routing`),
+  presentation only, so a label never changes an archetype, permission,
+  credential tier, or authority; plus an optional per-worker
+  `standards_alignment` crosswalk that is descriptive, asserts no
+  conformance, and requires `no_clean_equivalent` WITH a note rather than a
+  forced mapping. Extends the pattern this family already runs twice —
+  `permission_aliases`, and the Hermes layer model's fixed-roles /
+  specializable-display-names rule. Contract half is realized on main
+  (`target_release: implemented`): the schema block, semantic checks in
+  `scripts/validate-omnigent-contracts.py` for orphan keys, duplicate labels
+  and unnoted `no_clean_equivalent`, three negative fixtures under
+  `contracts/omnigent/examples/fixtures/negative/`, and the canonical
+  `contracts/policies/standards-bodies.yaml` registry (43 bodies, every one
+  jurisdiction-tagged after the China round exposed an all-Anglo-American
+  skew). The §3b research rounds produced the change's blunt finding: EVERY
+  commercially stewarded body assessed (APQC, SFIA, ITIL, COBIT, SWEBOK,
+  ISO/IEC/IEEE 12207, GRADE, SNOMED CT) fails the product-configuration reuse
+  test, O*NET (CC BY 4.0) is the only licence-clean crosswalk in four
+  domains, and MedxFactory registers none — its eleven workers record
+  `no_clean_equivalent` against the PROVIDER taxonomy specifically, because
+  labelling a reasoning agent with a role carrying clinical standing is the
+  mapping a contributor would reach for and the dangerous one. Open: 1.2
+  ratification, the APQC licence question (3b.5d), the remaining ledgerx/adx
+  brief results (3b.5f), and the §4 consumer follow-up naming domain surfaces
+  that render their own vocabulary outside the overlay.
 - [add-model-provider-broker](openspec/changes/add-model-provider-broker/proposal.md)
   — DRAFT, authored 2026-08-08, awaiting ratification (task 0). doxBench has
   a model seam and no model: there is no provider adapter in this repository
@@ -618,6 +602,35 @@ Active changes:
   fallbacks painted a white popover behind light text. (code surface:
   openxFactory; target release: none)
 
+- [add-shared-identity-seeds](openspec/changes/add-shared-identity-seeds/proposal.md)
+  — ratified 2026-08-07 (Brett's "yes, lets start that now", accepting the
+  successor named at the close of `add-repository-lens`). Implements the FIRST
+  of the promotion process's four ways a DTN candidate is born — "two or more
+  domain repos use the same structure with different domain nouns" — which had
+  never been automated: none of the neutrality-drift lane's four stage-1
+  signals asks whether two DOMAIN repositories carry the same thing, so that
+  rule was served by manual search passes only. The repository lens already
+  computes exactly that population (ring 2 and inward on the carrier-count
+  plot), so the change adds `doc_health/shared_identity.py` (the deterministic
+  detector plus a seed drafter emitting the register's own row and
+  `### DTN-NNN:` detail section, numbered from the register so a
+  drafted-but-unmerged gap never collides), a loopback drafting route on the
+  dashboard serve that recomputes carriers from the serve's own composed view
+  and returns TEXT, and the lens drill-in affordance (convergent regions
+  draftable, single-carrier regions refused with the reason). SEED-FIRST,
+  NEVER A WRITE: the register is never opened for writing and a candidate
+  enters the lifecycle only when a human merges the seed — which is what makes
+  the affordance legitimate on a composed READ-ONLY view and leaves D10
+  untouched. No contract growth: no schema, no gate verb, no gate-action
+  record. Tasks 1.1–4.4 are discharged, including the 2026-08-07 live browser
+  check on the real five-factory `domains` project (three convergent regions
+  enabled, five single-carrier rows disabled with their reason, the 3-carrier
+  sector drafting DTN-025 for `docs/credentialing.md`, checkout unchanged).
+  Open: 4.5, Brett merging that first drafted seed — the register's highest
+  entry is still DTN-024. Named successor: promoting the detector to a FIFTH
+  neutrality-drift stage-1 signal so the nightly lane files these seeds
+  unattended. (code surface: openxFactory; target release: none)
+
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived
@@ -640,6 +653,42 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [add-doxbench-editing-phase-a](openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/proposal.md)
+  — **ARCHIVED 2026-08-21** (realization evidence recorded at the gate: PR #196
+  / `6ac42ed`, plus its own annotation round at #199 / `224bf22` and #201 /
+  `96975c1`; its spec text promoted, +5 ADDED and ~2 MODIFIED, which is what
+  gave Phase B's three Phase-A-relative MODIFIED requirements something to
+  amend). Authored 2026-08-15, Phase A of the `doxbench-editing-model` staged
+  topic
+  (sequenced first of Brett's four 2026-08-15 topics; its four Phase-A open
+  questions were dispositioned accepted-as-recommended the same day). Brett's
+  model is one sentence — left selects, center chat works, right shows the
+  result — and Phase A is the half of it that fits the EXISTING two-buffer
+  machinery with no invariant break: the authoring canvas presents the ACTIVE
+  buffer, chosen by the context region rather than by a second tablist of its
+  own; an Editor/Preview VIEW-TAB pair replaces the side-by-side
+  textarea+preview split, with Preview the default and a flush on every switch
+  into it; one Save and one Cancel replace the duplicated per-buffer toolbar
+  pair (Save keeps its ratified branch-session semantics unchanged — reading
+  the code showed `save()` was ALREADY whole-canvas and merely drawn twice —
+  while Cancel discards the ACTIVE buffer to its `base_content`); the chat
+  binds to the active buffer immediately with no confirm step and STATES that
+  binding on the rail; and the per-buffer staleness guard is
+  asserted to survive the consolidation. Phase B — numbered multi-document
+  tabs, the docs-wheel edit verb, the dirty-tile marker, and the N-buffer
+  generalization of `BUFFER_KINDS`/`require_outline_and_document`/`SAVE_BUFFER_ORDER`
+  — is explicitly out of scope. No contract release. **Realized 2026-08-15**
+  on `change/realize-doxbench-editing-phase-a`: `doxbench-editor.js` carries
+  the Editor/Preview view tablist and the panel's one Save / one Cancel,
+  `staging-workbench.js` drives the active buffer from the context region's
+  selection, `doxbench-chat.js` states the bound buffer above the transcript,
+  and `viewer.js`'s external-editor escape hatch is relabelled. Naming the
+  bound buffer in the durable TURN RECORD is deferred to Phase B (F2 carve-out,
+  Brett 2026-08-15: it needs a chat-turn contract release this change forbids,
+  so `doxbench_turns.py` is untouched and the obligation is recorded on the
+  staged topic) — and that F2 obligation is DISCHARGED by Phase B's §13
+  release, `contract-v1.34`, which is why Phase A archived first. Task 9.1's
+  merged-commit evidence is recorded in the archived proposal.
 - [add-staged-topic-outline-template](openspec/changes/archive/2026-08-21-add-staged-topic-outline-template/proposal.md)
   — **ARCHIVED 2026-08-21**, all 22 tasks discharged and the realization
   evidence recorded at the gate. THIS CHANGE'S OWN REALIZATION CHAIN is eight
@@ -858,6 +907,23 @@ Archived changes:
   fragment nor a missing entry is a finding — and scoped completeness, plus
   the live refuse-then-allow proof at a domain mint surface, are named
   successors.
+- [add-subject-overlay-contract](openspec/changes/archive/2026-08-15-add-subject-overlay-contract/proposal.md)
+  — ARCHIVED 2026-08-15:
+  the neutral `hermes_subject_overlay` kind is RELEASED as **`contract-v1.32`**
+  (annotated tag verified; 190-entry digest inventory) and CONSUMED —
+  hermes-install pins the family at the tag with parity floors covering the
+  kind (1 positive + 8 negatives), and the first instance
+  (codexFactory `hermes/subject/project-alfa/overlay.yaml`) is LIVE-SEEDED on
+  the QA stack (repin+seed window 2026-08-15). OQ-1 ruled: kind name
+  canonical, identity `subject.id`, `stricter_only` refused for
+  `relation_to_baseline: additive_constraints_only`. Related landing surface
+  for staged topic `subject-establishment` (DTN-017).
+- [add-worker-credential-by-reference](openspec/changes/archive/2026-08-14-add-worker-credential-by-reference/proposal.md)
+  — ARCHIVED 2026-08-14:
+  credential-by-reference is LIVE on all three CPC claude lanes — vault
+  source + rotation proven (§11.4 smokes), and the host is fully
+  credential-free (final smoke run 31833019258). Vault deletion is the
+  single kill switch; rotation is one vault write.
 
 - [qualify-avatar-brokered-call-feasibility](openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/proposal.md)
   — tenant-data-free F0 harness for sideband-before-answer ordering, retries,

@@ -18,5 +18,5 @@ origin:
     an admission_surface member, and device is not yet in the closed
     vocabulary. This change admits it through the capability's own extension
     route. Realization (schema/bundle edit) waits for Brett's ratification.
-  approved_by: pending Brett ratification
-  approved_on: null
+  approved_by: Brett
+  approved_on: 2026-08-19
