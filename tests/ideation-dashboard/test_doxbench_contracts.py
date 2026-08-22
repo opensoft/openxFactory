@@ -1500,26 +1500,84 @@ def test_each_packaged_posture_negative_is_refused_where_it_should_be(
             f"{stem}: no {code!r} finding, got {errors}")
 
 
+# The TYPE-GATE instance for each packaged pairing negative — one per stem,
+# spelled out (review N-2). This used to be a two-branch conditional
+# (`reduced-without-reason` or else `(FULL, _REASON)`), so the two negatives the
+# bot round added both collapsed onto the SAME instance as the pre-existing
+# one: four parameterisations constructing two distinct packets, reporting
+# per-stem coverage it did not provide. The blank stem in particular — the exact
+# instance the type used to accept — was never actually constructed here.
+#
+# `refuses=False` is not a gap being waved through, it is a REPRESENTATIONAL
+# LIMIT stated: a Python attribute has no key/value distinction, so
+# `reduced_reason=None` IS absence and there is no way to hand this constructor
+# "the key, present, holding null". The instance the WIRE can express has no
+# counterpart here, so the honest thing is to assert what the type really does
+# with the nearest expressible input rather than to pretend otherwise.
+_TYPE_GATE_INSTANCE = {
+    # FULL stem -> (posture, reduced_reason, refuses). Keyed on the whole stem,
+    # not a suffix: `-reason-on-full` is a suffix of `-empty-reason-on-full` and
+    # of `-null-reason-on-full`, so suffix matching is ambiguous here — which
+    # the companion test below caught on its first run, having been written to
+    # catch exactly that.
+    "workbench-chat-turn-v2-context-reduced-without-reason":
+        ("reduced", None, True),
+    "workbench-chat-turn-v2-context-reason-on-full":
+        ("full", _REASON, True),
+    "workbench-chat-turn-v2-context-empty-reason-on-full":
+        ("full", "", True),
+    "workbench-chat-turn-v2-context-null-reason-on-full":
+        ("full", None, False),
+}
+
+
 @pytest.mark.parametrize("stem", sorted(
     s for s, (_shape, code) in _POSTURE_NEGATIVE_GATES.items()
     if code == "context-packet"))
 def test_the_pairing_negatives_are_refused_by_the_PACKET_TYPE_TOO(stem):
-    """THE THIRD GATE. `ContextPacket.__post_init__` refuses both pairing
+    """THE THIRD GATE. `ContextPacket.__post_init__` refuses the pairing
     violations at construction, which is why no shipped path can produce one —
     and asserting it HERE, beside the shape and the file gate, is what makes
     "three gates, one rule" evidence rather than a claim in a docstring. It is
     the same parity discipline contract-v1.38's review had to add after finding
-    its file gate strictly weaker than its type gate."""
+    its file gate strictly weaker than its type gate.
+
+    ONE STEM IS ASSERTED AS ACCEPTED, and that is the honest reading rather than
+    a hole: `-null-reason-on-full` names an instance only a WIRE format can
+    express (a key that is present and holds null), and a Python attribute
+    cannot hold it — `reduced_reason=None` is absence. The shape and the
+    delegated validator refuse that instance and are pinned doing so above; what
+    the type owns is the PRESENCE rule over the inputs it can actually receive,
+    and `test_the_construction_gate_and_the_derivation_agree_on_PRESENCE` is the
+    faithful pin for it."""
     from ideation_dashboard import doxbench_packet as pk
     from ideation_dashboard.doxbench_scope import ScopeKey
 
-    posture, reason = ((pk.POSTURE_REDUCED, None)
-                       if stem.endswith("reduced-without-reason")
-                       else (pk.POSTURE_FULL, _REASON))
-    with pytest.raises(pk.PacketError):
-        pk.ContextPacket(
-            purpose=pk.PACKET_PURPOSE_CHAT_TURN,
-            scope=ScopeKey(repository="fixture-repo", ref="main",
-                           tile_kind="staged", tile_id="t"),
-            posture=posture, sources=(), issued_at=0.0, expires_at=1.0,
-            reduced_reason=reason)
+    posture, reason, refuses = _TYPE_GATE_INSTANCE[stem]
+    scope = ScopeKey(repository="fixture-repo", ref="main",
+                     tile_kind="staged", tile_id="t")
+
+    def _construct():
+        return pk.ContextPacket(
+            purpose=pk.PACKET_PURPOSE_CHAT_TURN, scope=scope, posture=posture,
+            sources=(), issued_at=0.0, expires_at=1.0, reduced_reason=reason)
+
+    if refuses:
+        with pytest.raises(pk.PacketError):
+            _construct()
+    else:
+        assert _construct().posture == posture
+
+
+def test_every_pairing_negative_has_its_OWN_type_gate_instance():
+    """The table above is a map, so a stem added later could fall through it —
+    and the silent fallthrough is exactly the defect N-2 found. Every stem the
+    parametrization drives must match exactly one entry, and no two stems may
+    share an instance."""
+    stems = [s for s, (_shape, code) in _POSTURE_NEGATIVE_GATES.items()
+             if code == "context-packet"]
+    assert set(stems) == set(_TYPE_GATE_INSTANCE), (
+        f"table and corpus disagree: {set(stems) ^ set(_TYPE_GATE_INSTANCE)}")
+    instances = [_TYPE_GATE_INSTANCE[stem] for stem in stems]
+    assert len(set(instances)) == len(stems), (
+        f"two stems share one instance: {dict(zip(stems, instances))}")

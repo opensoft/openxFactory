@@ -937,11 +937,19 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       its header comment grew) IS that proof — and
       `contract_schema_version` stays 1 with the manifest row's `schema_version`
       beside it.
-      The PACKET was not rebuilt, which was the point: `ContextPacket`,
+      The PACKET'S ASSEMBLY was not rebuilt, which was the point:
       `assemble_packet` and both `REDUCED_*` reasons are byte-identical to what
-      §10 shipped, and every one of their tests is KEPT VERBATIM and still
-      green. The release reads the packet; it does not re-derive anything the
-      packet already knows.
+      §10 shipped, `tests/ideation-dashboard/test_doxbench_packet.py` is
+      unmodified and still green, and the release reads the packet rather than
+      re-deriving anything the packet already knows.
+      **ONE LINE OF `ContextPacket` DID MOVE, and an earlier version of this
+      sentence said none did (review N-1).** The bot round tightened the
+      CONSTRUCTION gate's full-arm predicate from truthiness to presence
+      (`self.reduced_reason is not None`) — one predicate, no other byte of the
+      type or the module. It is not a carve-out from "not rebuilt", it is the
+      cost of the three-gates-one-rule claim being TRUE: the released shape
+      forbids the field's presence on a full posture, and a type that forbade
+      only a useful value did not assert the same rule.
       `serve.doxbench_context_packet` is the ONE derivation, beside
       `doxbench_selected_model` and on its precedent, and it runs INSIDE the
       route's existing packet boundary so its refusals land on the fixed
@@ -2409,7 +2417,7 @@ only one of them is §12:
 
 | open | what it needs | who can close it |
 |---|---|---|
-| ~~**10.7**~~ | ~~an additive **chat-turn-success** release carrying the assembled context's posture (`full \| reduced`) and its reason — the packet half is built and the browser half has no field to land in~~ | **CLOSED 2026-08-22** — cut as `contract-v1.39`; the record now carries `context_packet` (posture + the reduction's own reason, present iff reduced), the rail states the reduced posture to the human, the packet was not rebuilt, and `verify-commit` passes on the cut |
+| ~~**10.7**~~ | ~~an additive **chat-turn-success** release carrying the assembled context's posture (`full \| reduced`) and its reason — the packet half is built and the browser half has no field to land in~~ | **CLOSED 2026-08-22** — cut as `contract-v1.39`; the record now carries `context_packet` (posture + the reduction's own reason, present iff reduced), the rail states the reduced posture to the human, the packet's ASSEMBLY was not rebuilt (`assemble_packet` and both `REDUCED_*` constants byte-identical, `test_doxbench_packet.py` unmodified; the construction gate's full-arm predicate was tightened at the bot round so the three-gates-one-rule claim holds), and `verify-commit` passes on the cut |
 | ~~**11.7**~~ | ~~an additive **model-catalog** release — the released entry is a CLOSED seven-field shape, so no conformant catalog can declare `auto` as a routing rule; the runtime already honours one~~ | **CLOSED 2026-08-21** — cut as `contract-v1.38` (v1.37 was taken mid-flight by PR #235); the entry now carries `routing_rule`/`routes_to`/`resolved_model_id`, the runtime was not rebuilt, and `verify-commit` passes on the cut |
 | ~~**12.1–12.6**~~ | ~~share-session: the verb, the no-implicit-push negative, the nothing-new report, the four postures, the colleague resume path (which also carries P3-17's uncommitted-sidecar tail), and 12.6's own scope call~~ | **CLOSED 2026-08-21** — realized as its own slice under Brett's exit (a); P3-17 discharged |
 | ~~**12.7**~~ | ~~the annotated tag + submodule pin for `contract-v1.36`, the additive `share-session` enum growth 12.4 turned out to require (the in-branch half is done; see the task for why it was unavoidable)~~ | **CLOSED** — struck 2026-08-21 as a bookkeeping correction, on the authority of the task's OWN already-ticked discharge: `contract-v1.36` is tagged and the aggregation repo's pin landed at `04366e3`, and 12.7's body ends "Nothing on this task remains." The row simply outlived it |
