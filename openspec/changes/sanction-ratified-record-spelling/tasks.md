@@ -279,11 +279,12 @@ writes down a decision Brett already made.
       window and `_header_line` now delegates to it (first match or None,
       unchanged for its four remaining call sites — `Backed by:`,
       `Superseded by:`, `Retired:`, `Reason:`); `fam_ratified_provenance` fires
-      when `len(by_lines) + len(record_lines) > 1`. The message distinguishes
-      the cases honestly rather than calling a same-spelling pair "both":
-      `carries both Ratified by: and Ratified: citations` for one of each,
-      `carries N Ratified by: citation lines, not one` / `carries N Ratified:
-      citation lines, not one` for a duplicate.
+      when `len(by_lines) + len(record_lines) > 1`. The message was first
+      landed as a three-way split (a pair-shaped string for one-of-each,
+      count-shaped strings for a same-spelling duplicate); Copilot's review
+      of PR #268 read the delta's own words back — "reported on the count,
+      not on the pair" — and the split was unified to one count-based string,
+      `carries N ratification citation lines, not one`, for every shape.
       **AMENDMENT, executing OQ-4:** the delta's clause is sharpened from "and
       MUST NOT carry both" to state the count is one TOTAL and that the same
       spelling twice is the same violation — the reading the ruling's own
