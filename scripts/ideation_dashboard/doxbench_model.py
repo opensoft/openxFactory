@@ -129,6 +129,60 @@ DECLARABLE_ENTRY_FIELDS: tuple[str, ...] = (
 # cannot drift; that pin, not this literal, is what makes the bound authoritative.
 MAX_ROUTING_TARGETS = 64
 
+# ...and its OPERATIVE maximum is 63, not 64. `models` is itself capped at 64,
+# and a routing rule occupies one of those slots, so the largest routable set a
+# WIRE-CONFORMANT catalog can express is rule + 63 targets. 64 is the right
+# number to enforce here -- it is `routes_to`'s own bound, and this type must not
+# invent the catalog-level one it has never enforced -- but a reader reasoning
+# about real catalogs should reason about 63.
+
+# The released schema's `items.maxLength` / `items.pattern` on `routes_to`, which
+# `resolved_model_id` repeats. RESTATED for the same reason the cap is, and
+# pinned to the released bytes by the same companion test.
+MODEL_REFERENCE_MAX_LENGTH = 128
+MODEL_REFERENCE_PATTERN = "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+
+
+def _is_conformant_model_reference(value: str) -> bool:
+    """``MODEL_REFERENCE_PATTERN``, evaluated WITHOUT importing ``re``.
+
+    This module's whole import list is ``dataclasses`` and ``typing`` and the
+    docstring at the top says so; a regex import to check four character classes
+    would be the wrong trade. The pattern is "one ASCII alphanumeric, then ASCII
+    alphanumerics and ``. _ -``", which is exactly what this evaluates -- the
+    ``isascii()`` guards matter, because ``str.isalnum()`` is True for plenty of
+    non-ASCII characters the released pattern refuses.
+
+    The equivalence is not asserted by eye: the companion test reads the pattern
+    out of the RELEASED BYTES, pins it equal to the constant above, and exercises
+    this predicate against the boundary cases."""
+    if not value:
+        return False
+    head, tail = value[0], value[1:]
+    if not (head.isascii() and head.isalnum()):
+        return False
+    return all(c.isascii() and (c.isalnum() or c in "._-") for c in tail)
+
+
+def _require_model_reference(field: str, value: object) -> None:
+    """A model-id REFERENCE, held to the released schema's own bounds.
+
+    Applied to ``routes_to`` members and ``resolved_model_id`` -- the two
+    id-bearing fields contract-v1.38 introduced. Deliberately NOT applied to
+    ``model_id`` itself: that field has accepted over-length and
+    out-of-pattern values since the seven-field type shipped, and tightening it
+    here would be a behaviour change belonging to no release. That gap is
+    recorded, not fixed (review N7)."""
+    _require_non_blank_str(field, value)
+    if len(value) > MODEL_REFERENCE_MAX_LENGTH:
+        raise InvalidCatalogEntryError(
+            f"{field} is {len(value)} characters, above the "
+            f"{MODEL_REFERENCE_MAX_LENGTH} the released catalog schema permits")
+    if not _is_conformant_model_reference(value):
+        raise InvalidCatalogEntryError(
+            f"{field} {value!r} does not match the released catalog schema's "
+            f"model-id pattern {MODEL_REFERENCE_PATTERN}")
+
 ROUTING_BADGE_SEPARATOR = " / "
 
 # The closed set of trailing characters a segment comparison ignores. See
@@ -374,7 +428,7 @@ class ModelCatalogEntry:
                             f"{type(self.routes_to).__name__}") from error
         object.__setattr__(self, "routes_to", targets)
         for target in targets:
-            _require_non_blank_str("routes_to member", target)
+            _require_model_reference("routes_to member", target)
         if len(set(targets)) != len(targets):
             raise InvalidCatalogEntryError(
                 "routes_to must not repeat a model id")
@@ -395,7 +449,7 @@ class ModelCatalogEntry:
                 f"routes_to declares {len(targets)} models, above the "
                 f"{MAX_ROUTING_TARGETS} the released catalog schema permits")
         if self.resolved_model_id is not None:
-            _require_non_blank_str("resolved_model_id", self.resolved_model_id)
+            _require_model_reference("resolved_model_id", self.resolved_model_id)
         # The three travel together, in both directions.
         if self.routing_rule is True:
             if not targets:

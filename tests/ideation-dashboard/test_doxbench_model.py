@@ -39,6 +39,8 @@ from ideation_dashboard.doxbench_model import (
     InvalidCatalogEntryError,
     InvalidRoutingRuleError,
     MAX_ROUTING_TARGETS,
+    MODEL_REFERENCE_MAX_LENGTH,
+    MODEL_REFERENCE_PATTERN,
     DECLARABLE_ENTRY_FIELDS,
     ROUTING_ENTRY_FIELDS,
     ModelCatalog,
@@ -1265,39 +1267,133 @@ def test_an_inconsistent_routing_declaration_refuses_at_construction(overrides,
         _rule(**kwargs)
 
 
-def _wide_rule(n):
+# One SHARED badge across every target, so the rule's own badge stays one short
+# segment. The first version of this helper gave each target its own badge and
+# built a 901-byte rule badge — over `data_handling`'s 500 — which is half of why
+# its "accepted" catalog was one the wire refuses (review N6).
+_WIDE_BADGE = "Processed in the approved tenant boundary; no retention."
+
+# rule + targets <= `models.maxItems: 64`, so 63 is the largest WIRE-CONFORMANT
+# routable set even though `routes_to.maxItems` is 64. The helper defaults to the
+# number a real catalog can actually hold.
+MAX_WIRE_CONFORMANT_TARGETS = 63
+
+
+def _wide_rule(n=MAX_WIRE_CONFORMANT_TARGETS):
     """A rule over `n` distinct targets, conformant on every other rule: unique
-    ids, the badge carrying each target's as a segment, limits equal to theirs,
-    and the resolution among them."""
+    ids, one shared badge carried as the rule's single routed segment, limits
+    equal to the resolution's, and the resolution among them."""
     ids = tuple(f"t{i}" for i in range(n))
-    badge = "Routes by role. / " + " / ".join(f"posture-{i}" for i in ids)
+    badge = "Routes by role. / " + _WIDE_BADGE
     rule = ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "model_id": "auto",
                                 "data_handling": badge, "routing_rule": True,
                                 "routes_to": ids, "resolved_model_id": ids[0]})
-    targets = [_entry(i, data_handling=f"posture-{i}") for i in ids]
+    targets = [_entry(i, data_handling=_WIDE_BADGE) for i in ids]
     return rule, targets
 
 
-def test_routes_to_is_capped_at_the_released_schemas_64_targets():
-    """CODEX REVIEW OF PR #244, P2 — the TYPE gate was WEAKER than the WIRE.
+def test_the_largest_wire_conformant_routable_set_constructs_and_SERVES():
+    """CODEX REVIEW OF PR #244, P2, CORRECTED BY THE FINAL REVIEW (N6).
 
-    The released schema caps `routes_to` at `maxItems: 64`; the tuple conversion
-    accepted any number of unique valid ids. A 65-target rule therefore
-    constructed fine and could be dispatched by the turn route (which checks
-    only `isinstance(catalog, ModelCatalog)`), while `GET
-    /workbench/model-catalog` refused to serve the catalog holding it, because
-    the route self-validates the projected envelope against the released schema.
-    That is the F2 divergence in the other direction.
+    The accepted case must be a catalog the WIRE accepts, or a two-sided
+    boundary claim is only one-sided. The first version built 64 targets plus the
+    rule — 65 models, over `models.maxItems: 64` — with a 901-byte rule badge,
+    over `data_handling`'s 500: the catalog it ACCEPTED was one the wire refused
+    on two grounds.
 
-    The BOUNDARY is asserted from both sides, so the cap is a cap and not an
-    off-by-one: 64 constructs, 65 refuses."""
-    rule, targets = _wide_rule(MAX_ROUTING_TARGETS)
+    So the accepted case is now the largest set a conformant catalog can express
+    — 63 targets plus the rule, exactly 64 models — and it is checked THROUGH the
+    projection against the released schema, which is the only way this assertion
+    means what it says."""
+    rule, targets = _wide_rule()
     catalog = ModelCatalog.from_entries([rule] + targets)
-    assert len(catalog.entries[0].routes_to) == MAX_ROUTING_TARGETS == 64
+    assert len(catalog.entries[0].routes_to) == MAX_WIRE_CONFORMANT_TARGETS == 63
+    assert len(catalog.entries) == 64
 
+    envelope = catalog_wire_envelope(catalog)
+    assert doxbench_contracts.validate_instance(
+        envelope, doxbench_contracts.REPO_ROOT) == [], (
+            "the accepted case must be one the released schema serves")
+
+
+def test_routes_to_above_the_released_cap_is_refused_by_the_type():
+    """The refusal half. 65 targets is over `routes_to.maxItems`, and the type
+    used to accept it while the wire refused — the F2 divergence in the other
+    direction, with the concrete consequence Codex named: such a rule constructs,
+    the turn route (which checks only `isinstance(catalog, ModelCatalog)`) could
+    dispatch it, and `GET /workbench/model-catalog` refuses to serve the catalog
+    holding it.
+
+    The 64/65 BOUNDARY itself is asserted where it is actually true — against the
+    entry subschema — in `test_doxbench_contracts.py`; a whole catalog cannot
+    reach 64 targets and stay conformant."""
     with pytest.raises(InvalidCatalogEntryError,
                        match=r"declares 65 models, above the 64"):
         _wide_rule(MAX_ROUTING_TARGETS + 1)
+    assert MAX_ROUTING_TARGETS == 64
+    # …and the operative maximum is one less, because the rule needs a slot too.
+    assert MAX_WIRE_CONFORMANT_TARGETS == MAX_ROUTING_TARGETS - 1
+
+
+@pytest.mark.parametrize("reference, valid, why", [
+    ("m", True, "one character is the shortest legal id"),
+    ("ok.id-1_2", True, "dot, hyphen and underscore are all legal after the head"),
+    ("9starts-with-a-digit", True, "the head may be a digit"),
+    ("x" * MODEL_REFERENCE_MAX_LENGTH, True, "exactly at maxLength"),
+    ("x" * (MODEL_REFERENCE_MAX_LENGTH + 1), False, "one over maxLength"),
+    ("has spaces!", False, "space and bang are outside the pattern"),
+    ("_leading", False, "the head must be alphanumeric"),
+    (".leading", False, "the head must be alphanumeric"),
+    ("-leading", False, "the head must be alphanumeric"),
+    ("tráiling", False, "non-ASCII is refused though str.isalnum() accepts it"),
+    ("has/slash", False, "the badge separator's character is not an id character"),
+])
+def test_the_two_NEW_id_bearing_fields_are_held_to_the_schemas_item_bounds(
+        reference, valid, why):
+    """FINAL REVIEW N7. The type learned `routes_to`'s `maxItems` and stopped
+    there: its `items.maxLength`/`items.pattern` and the identical pair on
+    `resolved_model_id` still escaped, so the same type-weaker-than-wire
+    divergence survived on the two fields THIS release introduced.
+
+    The non-ASCII row is the one worth reading: `"tráiling".isalnum()` is True,
+    so a naive check passes it while the released pattern refuses it. That is
+    why the predicate guards on `isascii()` — see
+    `_is_conformant_model_reference`, which evaluates the pattern without
+    importing `re`."""
+    def build():
+        return ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "model_id": "auto",
+                                    "data_handling": "Routes. / " + CONTRACT_EXAMPLE[
+                                        "data_handling"],
+                                    "routing_rule": True,
+                                    "routes_to": (reference,),
+                                    "resolved_model_id": reference})
+    if valid:
+        assert build().resolved_model_id == reference, why
+    else:
+        with pytest.raises(InvalidCatalogEntryError):
+            build()
+
+
+def test_model_id_itself_keeps_its_PRE_EXISTING_laxity():
+    """The other half of N7's scope call, pinned so it is a recorded decision
+    rather than an oversight: `model_id` carries the SAME `maxLength`/`pattern`
+    in the schema and the type does NOT enforce them — it has accepted
+    over-length and out-of-pattern ids since the seven-field type shipped.
+    Tightening it here would be a behaviour change belonging to no release, so
+    the gap is recorded and left. If a future release closes it, this test is
+    the one that should fail and be rewritten."""
+    lax = ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "model_id": "has spaces!"})
+    assert lax.model_id == "has spaces!"
+    assert len(ModelCatalogEntry(
+        **{**CONTRACT_EXAMPLE, "model_id": "m" * 500}).model_id) == 500
+
+
+def test_the_pattern_predicate_needs_no_regex_import():
+    """`_is_conformant_model_reference` exists so this module's import list stays
+    `dataclasses` and `typing`, which its own docstring promises."""
+    src = MODULE_PATH.read_text(encoding="utf-8")
+    assert "import re" not in src
+    assert MODEL_REFERENCE_PATTERN == "^[A-Za-z0-9][A-Za-z0-9._-]*$"
 
 
 def test_the_target_cap_is_an_ENTRY_refusal_not_a_catalog_one():

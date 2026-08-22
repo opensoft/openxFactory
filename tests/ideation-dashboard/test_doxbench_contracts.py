@@ -842,16 +842,61 @@ def test_the_types_target_cap_is_pinned_to_the_RELEASED_schemas_maxItems(
     and pinned equal, so the two cannot drift into two caps (the hazard §12.2
     recorded for its own duplicated list, and the reason Codex's P2 asked for
     the bound by reference rather than a second literal)."""
-    from ideation_dashboard.doxbench_model import MAX_ROUTING_TARGETS
-    schema = yaml.safe_load(
-        (released_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE)
-        .read_text(encoding="utf-8"))
-    routes_to = schema["$defs"]["model_entry"]["properties"]["routes_to"]
+    from ideation_dashboard.doxbench_model import (
+        MAX_ROUTING_TARGETS, MODEL_REFERENCE_MAX_LENGTH, MODEL_REFERENCE_PATTERN)
+    entry = _model_entry_subschema(released_root)
+    routes_to = entry["properties"]["routes_to"]
     assert routes_to["maxItems"] == MAX_ROUTING_TARGETS
-    # …and the other two bounds the type enforces on the same field, so a schema
+    # …and every other bound the type enforces on the same field, so a schema
     # change to any of them fails here rather than only in production.
     assert routes_to["minItems"] == 1
     assert routes_to["uniqueItems"] is True
+    # THE ITEM BOUNDS (review N7). `routes_to`'s items and `resolved_model_id`
+    # carry the same maxLength/pattern, and the type now enforces both; the
+    # constants are pinned to the released bytes here rather than eyeballed.
+    resolved = entry["properties"]["resolved_model_id"]
+    for shape in (routes_to["items"], resolved):
+        assert shape["maxLength"] == MODEL_REFERENCE_MAX_LENGTH
+        assert shape["pattern"] == MODEL_REFERENCE_PATTERN
+    # `model_id`'s bounds are IDENTICAL and the type does NOT enforce them —
+    # a pre-existing gap this release deliberately did not close. Pinned so the
+    # sameness is a fact on the record rather than an assumption.
+    model_id = entry["properties"]["model_id"]
+    assert model_id["maxLength"] == MODEL_REFERENCE_MAX_LENGTH
+    assert model_id["pattern"] == MODEL_REFERENCE_PATTERN
+
+
+def _model_entry_subschema(released_root):
+    schema = yaml.safe_load(
+        (released_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE)
+        .read_text(encoding="utf-8"))
+    return schema["$defs"]["model_entry"]
+
+
+def _entry_with_targets(n):
+    """One ENTRY declaring `n` routable targets. Nothing else — the catalog-level
+    caps are not this shape's business, which is the point."""
+    return {**_PLAIN_ENTRY, "model_id": "auto", "routing_rule": True,
+            "routes_to": [f"t{i}" for i in range(n)], "resolved_model_id": "t0"}
+
+
+@pytest.mark.parametrize("count, valid", [(1, True), (63, True), (64, True),
+                                          (65, False), (200, False)])
+def test_the_routes_to_cap_boundary_holds_at_the_ENTRY_SUBSCHEMA(
+        released_root, count, valid):
+    """`routes_to.maxItems: 64` is a bound on ONE ENTRY, and this is the level at
+    which the 64/65 boundary is actually true (review N6).
+
+    It cannot be shown on a whole catalog: `models.maxItems` is also 64 and the
+    rule occupies a slot, so a conformant catalog tops out at 63 targets. Testing
+    the boundary against a full envelope would either fail for the wrong reason
+    or quietly assert something weaker. So the entry subschema is validated
+    directly — no `$ref`s inside it, so no registry is needed."""
+    from jsonschema import Draft202012Validator
+    validator = Draft202012Validator(_model_entry_subschema(released_root),
+                                     format_checker=contracts.FORMAT_CHECKER)
+    errors = list(validator.iter_errors(_entry_with_targets(count)))
+    assert (errors == []) is valid, (count, [e.message for e in errors][:1])
 
 
 def test_the_pre_release_entry_shape_is_still_valid(released_root):
