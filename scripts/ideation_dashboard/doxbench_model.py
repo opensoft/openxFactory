@@ -147,7 +147,18 @@ def normalized_badge_segment(text: object) -> str:
     characters. Hyphens, negations and stop words all stay, because that is
     exactly where the difference between `on-tenant` and `non-tenant` lives --
     the pair the review used to break the old predicate. A normalization that
-    could flip a posture would be worse than no normalization at all."""
+    could flip a posture would be worse than no normalization at all.
+
+    ONE PRECISION on "interior characters are never rewritten" (review re-verify
+    N2): ``casefold`` IS an interior rewrite for the multi-character folds --
+    German sharp s becomes `ss`, the `ﬁ` ligature becomes `fi`, and a handful of
+    others expand rather than merely lowercase. The claim is therefore not that
+    no byte inside a segment ever changes; it is that no fold CASEFOLD PERFORMS
+    can separate or merge two handling POSTURES. Every such fold maps
+    case-or-orthography variants of the same word onto one form, which is the
+    property being relied on -- none of them adds, removes or negates a word, so
+    none can turn a posture into a different one. If a future normalization step
+    is added, that is the test it has to pass, not "leaves the bytes alone"."""
     collapsed = " ".join(str(text).split()).casefold()
     return collapsed.rstrip(ROUTING_BADGE_TRAILING_PUNCTUATION).strip()
 
@@ -521,7 +532,16 @@ class ModelCatalog:
                 # telling the operator to add a badge that still would not
                 # match. Proven redundant-as-a-refusal by revert-test; kept
                 # because naming the real cause is worth one branch.
-                if ROUTING_BADGE_SEPARATOR in target.data_handling:
+                #
+                # Tested against the NORMALIZED badge, not the raw string
+                # (review re-verify N3), and this is NOT only about the message:
+                # a badge written `"read /\nwrite"` does not contain " / "
+                # raw, but DOES after whitespace collapse -- so it slipped this
+                # arm AND then satisfied the covering check, because the rule's
+                # own badge normalizes to the same segment. That is a full
+                # ACCEPT of an ill-formed badge, not a misdirected message.
+                if ROUTING_BADGE_SEPARATOR in normalized_badge_segment(
+                        target.data_handling):
                     raise InvalidRoutingRuleError(
                         f"the data_handling badge of {target_id!r} contains "
                         f"{ROUTING_BADGE_SEPARATOR!r}, the routing badge's own "

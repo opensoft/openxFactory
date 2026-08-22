@@ -967,7 +967,12 @@ def check_routing_rules(f: Findings, label: str, entries: list[dict]) -> None:
             # operator to add a badge which will still not match. This arm names
             # the real cause. Its guard is therefore a test on the finding CODE,
             # not on the mere fact of refusal.
-            if ROUTING_BADGE_SEPARATOR in target_badge:
+            #
+            # Against the NORMALIZED badge (review re-verify N3), and not merely
+            # for the message: a badge like `"read /\nwrite"` holds no raw
+            # " / " but collapses onto one, so it slipped this arm AND passed
+            # the covering check — a full ACCEPT of an ill-formed badge.
+            if ROUTING_BADGE_SEPARATOR in normalized_badge_segment(target_badge):
                 f.error("routing-badge",
                         f"{label}: the data_handling badge of {target_id!r} "
                         f"contains {ROUTING_BADGE_SEPARATOR!r}, the routing "

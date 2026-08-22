@@ -111,7 +111,10 @@ from referencing.jsonschema import DRAFT202012
 # main, its own squash message still saying v1.36. CHANGELOG presence is the
 # availability test, not tag presence, so v1.38 is the next available number.
 # (That cut also shipped no v1.37 digest inventory, so `verify-commit` failed on
-# main until PR #238 completed it. Nothing here depended on either fact.)
+# main until PR #238 completed it -- and fails again from PR #242, which edited
+# the CHANGELOG, an inventory member, without rebuilding v1.37's inventory.
+# Nothing here depends on any of it: this module pins SCHEMA digests, and the
+# v1.38 release surface verifies on its own.)
 #
 # THE REF IS THE SENTINEL AGAIN, deliberately, and on the same precedent: the
 # tag is cut at the realization squash, so on this branch there is no release

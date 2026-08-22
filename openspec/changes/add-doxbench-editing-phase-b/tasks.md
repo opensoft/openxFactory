@@ -1582,15 +1582,20 @@ untouched: mechanical, reversible, at the model boundary.
       `contract-v1.37` while this was in flight, although its own squash message
       still says "at contract-v1.36". CHANGELOG presence is the availability
       test, so v1.37 was taken and the next available number is v1.38.
-      **FLAGGED, NOT this task's to fix — and SINCE FIXED by its own lane.** At
-      `6cbb4495`, `validate-contract-release.py verify-commit` exited 1 with
+      **FLAGGED, NOT this task's to fix — repaired by its own lane, AND BACK.**
+      At `6cbb4495`, `validate-contract-release.py verify-commit` exited 1 with
       `HGR-RELEASE-INVENTORY-MISSING`: that cut bumped the bundle to v1.37
       without shipping `contracts/releases/contract-v1.37.digests.yaml`, the same
       class of miss `contract-v1.36`'s first tag hit, one step earlier. Recorded
       rather than repaired here, because a release surface belongs to the release
-      that cut it — and `c1ffa0fd` (PR #238) has since shipped that inventory, so
-      main verifies again. This cut resolved its own v1.38 inventory throughout
-      and was never affected.
+      that cut it — and `c1ffa0fd` (PR #238) shipped that inventory, at which
+      commit `verify-commit` PASSED. It is RED AGAIN at `8924838d`: `e11a057b`
+      (PR #242) edited `contracts/CHANGELOG.md`, a v1.37 inventory MEMBER,
+      without rebuilding v1.37's inventory, so `verify-commit --commit
+      origin/main` exits 1 with `HGR-RELEASE-DIGEST-MISMATCH` on that file
+      (bisected: green at `c1ffa0fd`, red from `e11a057b`). Still that lane's to
+      repair, and still the same habit this note names. This cut resolved its own
+      v1.38 inventory throughout and was never affected in any of those states.
       **Judgement call, flagged — the badge covering is SEGMENT MEMBERSHIP over a
       DECLARED SEPARATOR, and the first answer was WRONG.** The ratified THEN is
       that a routing entry "MUST ... carry the handling badge of every model it
@@ -2015,10 +2020,15 @@ missing behaviour.
 Note for whoever cuts that release — 11.7's realization found that PR #235 had
 taken `contract-v1.37` mid-flight AND left
 `contracts/releases/contract-v1.37.digests.yaml` absent, so
-`verify-commit --commit 6cbb4495` exited 1. PR #238 has since shipped that
-inventory, so main verifies again; the two habits the episode earns are
-unchanged. Recheck bundle availability against the CHANGELOG at the moment you
-allocate, and do not assume the preceding release surface verifies.
+`verify-commit --commit 6cbb4495` exited 1. PR #238 shipped that inventory and
+`verify-commit` PASSED at `c1ffa0fd` — then PR #242 (`e11a057b`) edited
+`contracts/CHANGELOG.md`, a v1.37 inventory member, without rebuilding v1.37's
+inventory, and main is RED again at `8924838d` with
+`HGR-RELEASE-DIGEST-MISMATCH`. So expect to find the preceding release surface
+failing when you get there, and check rather than assume. The two habits the
+episode earns are unchanged and now doubly earned: recheck bundle availability
+against the CHANGELOG at the moment you allocate, and REBUILD THE INVENTORY
+whenever you touch an inventory member — the CHANGELOG is one.
 
 Whichever Brett picks, the next session starts here. Nothing else in the wave-2
 landing is blocked by it: Phase A is archived, the staged topic is exited, and

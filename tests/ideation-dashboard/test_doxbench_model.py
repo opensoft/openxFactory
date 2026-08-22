@@ -1519,16 +1519,28 @@ def test_the_covering_accepts_a_badge_that_IS_a_segment():
         assert catalog.entries[0].routing_rule is True
 
 
-def test_a_target_badge_that_holds_the_separator_is_refused_as_ill_formed():
+@pytest.mark.parametrize("badge", [
+    "Read / write access.",          # holds the separator literally
+    "Read /  write access.",         # collapses onto it (doubled space)
+    "Read /\nwrite access.",         # collapses onto it (line wrap)
+])
+def test_a_target_badge_that_holds_the_separator_is_refused_as_ill_formed(badge):
     """The grammar's own residual collision, closed rather than hoped away: a
     badge containing " / " could never BE one segment, so the catalog refuses
-    instead of silently splitting the badge in half and matching a fragment."""
+    instead of silently splitting the badge in half and matching a fragment.
+
+    THE COLLAPSING FORMS ARE THE POINT (review re-verify N3). The arm used to
+    test the RAW badge, so `"Read /\nwrite access."` — which holds no literal
+    " / " — slipped it AND THEN PASSED THE COVERING CHECK, because the rule's
+    own badge normalizes to exactly that segment. That was a full ACCEPT of an
+    ill-formed badge, not a misdirected message, which is why all three forms
+    are pinned and why the message is matched rather than just the refusal."""
     with pytest.raises(InvalidRoutingRuleError,
                        match="contains ' / ', the routing badge's own"):
         ModelCatalog.from_entries([
             _rule(routes_to=("a",), resolved="a",
-                  badge="Routes by role. / Read / write access."),
-            _entry("a", data_handling="Read / write access.")])
+                  badge="Routes by role. / " + badge),
+            _entry("a", data_handling=badge)])
 
 
 def test_the_resolved_models_badge_is_covered_because_it_must_be_a_member():

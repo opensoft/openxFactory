@@ -1166,10 +1166,31 @@ def test_the_separator_collision_and_self_reference_name_their_real_cause(
     assert any("names ITSELF in routes_to" in e for e in self_ref), self_ref
 
 
-def test_the_packaged_routing_positive_is_accepted_by_BOTH_gates(released_root):
-    path = (released_root / "examples" / "ideation-dashboard"
-            / "workbench-model-catalog-routing-rule.example.yaml")
+# BOTH packaged routing positives, not just the first (review re-verify N4).
+# The rule-5' instance was bound to the file gate by the example self-test and
+# to the schema by the positives count, but nothing held it against the TYPE
+# gate — and rule 5' is enforced in both places, so an accept that held on one
+# side only would have gone unnoticed.
+_ROUTING_POSITIVES = (
+    "workbench-model-catalog-routing-rule.example.yaml",
+    "workbench-model-catalog-routing-rule-wider-than-a-non-resolved-member.example.yaml",
+)
+
+
+@pytest.mark.parametrize("filename", _ROUTING_POSITIVES)
+def test_the_packaged_routing_positives_are_accepted_by_BOTH_gates(
+        released_root, filename):
+    path = released_root / "examples" / "ideation-dashboard" / filename
     doc = yaml.safe_load(path.read_text(encoding="utf-8"))
     assert contracts.validate_instance(doc, released_root) == []
     assert _file_gate_errors(released_root, path) == []
     assert not _type_gate_refuses(doc)
+
+
+def test_every_packaged_routing_positive_is_covered_by_that_pin(released_root):
+    """The table above is a list, so a positive added later could miss it. The
+    corpus is the authority: every packaged `workbench-model-catalog-routing-*`
+    positive must appear in `_ROUTING_POSITIVES`."""
+    on_disk = {p.name for p in (released_root / "examples" / "ideation-dashboard")
+               .glob("workbench-model-catalog-routing-*.example.yaml")}
+    assert on_disk == set(_ROUTING_POSITIVES)
