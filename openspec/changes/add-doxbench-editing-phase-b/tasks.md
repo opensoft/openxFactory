@@ -882,7 +882,7 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       unreadable-at-this-revision versus beyond-the-bound, since the first
       stays absent until someone fixes it and the second would return under a
       larger bound.
-- [ ] 10.7 Degraded posture: no knowledge service → the declared reduced packet
+- [x] 10.7 Degraded posture: no knowledge service → the declared reduced packet
       with the posture stated, no unbounded substitute, no rail bypass, editors
       unaffected.
       **PACKET HALF LANDED, SURFACE HALF GATED** — half-open in the same shape
@@ -919,6 +919,184 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       is CLOSED and shipped and carries nothing forward; §11.7 records its
       obligation by naming its OWN future release and staying open — which is
       what recording looks like, and is what this task now does.
+      **SURFACE HALF LANDED 2026-08-22 — `contract-v1.39`, and the box is now
+      CHECKED because the ratified `The knowledge service is unavailable`
+      scenario is claimable in full.** Its THEN is that the turn "MUST degrade
+      to the declared reduced packet with the reduced posture stated", and the
+      half that was missing was never the degrading — it was that the posture
+      was stated only where no reader and no human could consult it.
+      `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` grows ONE
+      OPTIONAL property on `$defs/success_v2`, `context_packet`, referencing one
+      new CLOSED `$def` with two members: `posture` (`full | reduced`, required)
+      and `reduced_reason` (1..500 bytes), present IFF the posture is reduced.
+      ADDITIVE by construction and verified case by case against the released
+      bytes: the key is optional, so the pre-release record shape still
+      validates (a packaged instance, unchanged, IS that proof), and
+      `contract_schema_version` stays 1 with the manifest row's `schema_version`
+      beside it.
+      The PACKET was not rebuilt, which was the point: `ContextPacket`,
+      `assemble_packet` and both `REDUCED_*` reasons are byte-identical to what
+      §10 shipped, and every one of their tests is KEPT VERBATIM and still
+      green. The release reads the packet; it does not re-derive anything the
+      packet already knows.
+      `serve.doxbench_context_packet` is the ONE derivation, beside
+      `doxbench_selected_model` and on its precedent, and it runs INSIDE the
+      route's existing packet boundary so its refusals land on the fixed
+      `invalid_turn_request` every other structural packet refusal uses. Four
+      lying-assembler cases go through the injected `packet_assembler` seam —
+      reduced-with-no-reason, full-carrying-a-reason, an unknown posture, and no
+      posture at all — and each refuses with nothing dispatched. A defaulting
+      derivation would have shipped a record claiming a full context for all
+      four.
+      THE SURFACE, which is the half this task was open for. The rail renders
+      one live-announced note under the transcript — `reduced context: <the
+      reason>` — for a turn that ran reduced, and nothing at all for a full one.
+      `settleTurnSuccess` adopts the record's posture instead of projecting it
+      away (the browser state model kept only `proposals` and `transcript`, so
+      the field would have been dropped on arrival); `beginTurn` and
+      `adoptThreadTranscript` clear it, so the note never outlives the answer it
+      describes. A node probe mounts the SHIPPED `doxbench-chat.js` bytes and
+      drives real turns through it: reduced renders the note and the reason,
+      full renders nothing, a record with no posture renders no phantom badge,
+      and both self-contradicting records render silence rather than half a
+      statement.
+      END TO END, at the REAL route and on the WIDENED lane: no knowledge
+      service records `reduced` with `REDUCED_NO_KNOWLEDGE_SERVICE`; the
+      declared local-embedded backend records `full` with no reason; the wire
+      record and the packet's own prompt declaration are pinned EQUAL; and a
+      DECLARED backend that REFUSES a retrieval records
+      `REDUCED_RETRIEVAL_REFUSED` — the case an implementation that asked "did
+      this serve have a knowledge service?" would get exactly backwards.
+      TWO RULES ARE DELEGATED to
+      `scripts/validate-ideation-dashboard-contracts.py`
+      (`check_context_packet`). The pairing, which the shape also expresses and
+      which is RESTATED on purpose — §11.7's F2 found a file gate strictly
+      weaker than the type gate beside it while claiming parity, so THREE gates
+      now assert this one rule (the two conditionals,
+      `ContextPacket.__post_init__`, and the validator) and a test asserts they
+      AGREE on the packaged corpus. And the credential/endpoint spelling scan
+      over `reduced_reason`, which the shape CANNOT express: it is the release's
+      one new free-prose field, and its packaged negative is structurally
+      perfect, so the shape must not catch it — that is what makes it the rule
+      worth delegating.
+      FIVE PACKAGED NEGATIVES, each failing at the gate that owns it and the
+      table recording WHICH: reduced-without-reason and reason-on-full (shape +
+      delegated `context-packet`), an unknown posture and a fourth field on the
+      closed object (shape alone — the validator restates neither an enum nor a
+      closure), and the leaking reason (delegated alone). Two positives beside
+      them, and the unchanged pre-release record as the third shape.
+      A FAIL-CLOSED HAZARD THE CEILING CREATES, found and guarded rather than
+      shipped: the route self-validates every success body and answers
+      `response_invalid` if the schema refuses it, so a reduction reason longer
+      than 500 bytes would turn a degraded-but-successful turn into a refusal —
+      on the one path nobody exercises by hand. A test reads the bound OUT OF
+      THE SCHEMA and checks every `REDUCED_*` constant against it. Nothing is
+      truncated to fit; truncating a statement about a degradation is how a
+      degradation goes quiet.
+      THE TAG IS NOT CUT HERE. Per the versioning policy the annotated
+      `contract-v1.39` tag is published against the commit that actually lands,
+      so this tick claims the CHANGELOG entry (the availability test), the
+      recomputed manifest digest, the bundle bump and the 190-entry digest
+      inventory built AFTER that bump — `verify-commit --commit HEAD` passes on
+      the cut, exactly four digests moved — and the consuming repin carries the
+      `unpublished:contract-v1.39` sentinel until a follow-up commit resolves
+      it, exactly as 11.7 did for `contract-v1.38` and 13.3 for
+      `contract-v1.34`.
+      **CHECKED AT ALLOCATION, and this time the surface was clean.**
+      `contract-v1.39` was available at the branch base `66140613` — CHANGELOG
+      heading and bundle both read `contract-v1.38` — and
+      `verify-commit --commit origin/main` PASSED there against v1.38's
+      inventory, so the `HGR-RELEASE-DIGEST-MISMATCH` §11.7's tick left red on
+      the v1.37 lane no longer applies. Recorded because the two preceding
+      releases both found the surface broken when they got there, and the habit
+      is to check rather than to assume in either direction.
+      **Judgement call, flagged — ONE OBJECT, and its members carry the
+      PACKET'S OWN NAMES.** The wire names are `context_packet.posture` and
+      `context_packet.reduced_reason`, which are `ContextPacket`'s own two
+      members, so no third vocabulary for the same fact exists. Nesting follows
+      the `selected_model` `$def` one line above and buys three things: the
+      present-iff rule stays LOCAL to the object that owns it instead of
+      becoming a cross-field rule on a ten-key envelope; the ENVELOPE's key set
+      is then IDENTICAL for a full turn and a reduced one, which is the ratified
+      independence claim read on the wire and which leaves the pre-existing
+      route test asserting exactly that equality passing UNCHANGED; and a reader
+      consults one object rather than correlating two keys that could disagree.
+      Two sibling keys (`context_posture` / `context_reduced_reason`) were the
+      alternative and were rejected on all three counts.
+      **Judgement call, flagged — THIS PRODUCER ALWAYS STATES THE POSTURE,
+      INCLUDING `full`, which is the OPPOSITE of §11.7's disclosure call.**
+      `doxbench_turn_v2_success_body` takes the posture as a REQUIRED argument,
+      so no v2 record this repository builds can omit it. §11.7 rejected
+      always-emitting for the catalog projection because there omission and
+      explicit-`false` were the SAME fact and emitting changed every existing
+      response's bytes for nothing. Here they are DIFFERENT facts — a turn always
+      ran under some posture, and the only question is whether the producer
+      stated it — so omitting on a full turn would make the posture inferable
+      only by ABSENCE, which is exactly the reading this release forbids. The
+      cost is stated rather than hidden: every v2 success body this server
+      produces, and every durable turn-store record, now carries one more key.
+      **Judgement call, flagged — OMISSION IS NOT A POSTURE CLAIM.** An absent
+      `context_packet` means the producer predates `contract-v1.39`; it does NOT
+      mean the context was full, and a consumer that needs the posture must
+      treat absence as UNKNOWN. Both readings are packaged so the difference is
+      instances rather than prose: the unchanged pre-release record states
+      nothing, `workbench-chat-turn-v2-full-context` states `full`, and both are
+      valid.
+      **Judgement call, flagged — NO `dependentRequired`, deliberately.**
+      §11.7's growth used one beside its conditionals and its review found the
+      two guard different paths. Here `posture` is REQUIRED, so
+      `dependentRequired: {reduced_reason: [posture]}` could never fire — a
+      clause no revert-test can make fail documents rather than enforces. What
+      IS taken from that lesson is the testing discipline: each conditional was
+      reverted on its own and each has its own negative, and the case NEITHER
+      conditional touches (an unknown posture, refused by the `enum` underneath
+      them) has its own negative too.
+      **Judgement call, flagged — THE NOTE IS RAIL-LEVEL AND DESCRIBES THE LAST
+      ANSWER.** Per-turn badges in the transcript were designed and REJECTED: the
+      browser transcript is restored from the SERVER'S THREAD SIDECAR on a
+      document switch, and the sidecar records no posture, so a badge would be
+      present on a lived-through turn and absent on the byte-identical restored
+      one — a difference a reader would have to explain away. The note is
+      therefore cleared at `beginTurn` (so a failed or abandoned follow-up cannot
+      leave "reduced context" standing over nothing) and at a thread switch. A
+      full turn shows NOTHING new, also deliberately: a standing "full context"
+      badge is a line every operator learns to stop reading, which is exactly how
+      the reduced one would stop being noticed.
+      **FLAGGED AS A GAP, NOT AS A DECISION SETTLED IN THIS RELEASE'S FAVOUR —
+      THE THREAD SIDECAR STILL CANNOT STATE THE POSTURE.** The durable
+      transcript on disk names the turn id, the model and the bound buffer, and
+      gains nothing here. Extending it was considered and refused ON THE FORMAT:
+      `doxbench_threads._parse_turn` refuses any turn header that does not split
+      into EXACTLY three fields, so a fourth would make every sidecar already on
+      disk unreadable by the new parser and every new sidecar unreadable by the
+      old one — a breaking change to a record people trust, inside an additive
+      release. So a reader of a thread file can learn WHICH MODEL answered
+      (§11.7's F3 fixed that) and cannot learn WHAT CONTEXT it answered on.
+      That is the honest counterpart to F3 and it is recorded rather than
+      papered over; closing it needs a sidecar format migration, which is a
+      successor change's act.
+      **A SECOND RECORDED v1 LIMITATION** (the first was §11.7's, about the
+      requested versus the answering model). The DEPRECATED
+      `workbench-chat-turn-success` has no `context_packet` and gains none, so a
+      v1 turn that ran reduced SUCCEEDS — the ratified "MUST NOT make the editors
+      unusable" half — and cannot say so on the wire. The reduction is still
+      stated inside the packet, where it always was. Widening a deprecated closed
+      shape whose whole promise is byte-identical stability is what
+      `contract-v1.34`'s deprecation forbids; the migration path is the v2
+      envelope. Recorded at the v1 arm in `serve.py`, in the CHANGELOG, and
+      pinned by a test that fails if the v1 record ever grows the key.
+      A THIRD DELEGATED RULE WAS CONSIDERED AND REJECTED: requiring the reason to
+      SAY that nothing unbounded was substituted and no rail was bypassed. Both
+      shipped reasons do say it, and a rule to that effect is prose-matching a
+      contract — it refuses a conformant producer worded differently and passes a
+      dishonest one that quotes the sentence. What the wire can check is that a
+      reduction is STATED; whether the statement is TRUE is the assembler's rail,
+      enforced where the rails run.
+      OWED CROSS-REPO FOLLOW-UP, recorded and not performed: codexFactory's
+      `specs/010-doxbench-editor-chat/contracts/chat-turn.md` is stale against
+      this release in the same way §11.7's entry recorded for the model-catalog
+      document, and remains CORRECT while that repository pins `contract-v1.27`.
+      Updating it is its own governed act under the domain upgrade runbook.
 - [x] 10.8 Per-turn and per-session token telemetry is emitted content-free.
       Where the metering requirement's client/domain/bill-to fields have no
       value on a self-hosted console, the absence is declared rather than
@@ -1980,11 +2158,11 @@ only one of them is §12:
 
 | open | what it needs | who can close it |
 |---|---|---|
-| **10.7** | an additive **chat-turn-success** release carrying the assembled context's posture (`full \| reduced`) and its reason — the packet half is built and the browser half has no field to land in | a contract release |
+| ~~**10.7**~~ | ~~an additive **chat-turn-success** release carrying the assembled context's posture (`full \| reduced`) and its reason — the packet half is built and the browser half has no field to land in~~ | **CLOSED 2026-08-22** — cut as `contract-v1.39`; the record now carries `context_packet` (posture + the reduction's own reason, present iff reduced), the rail states the reduced posture to the human, the packet was not rebuilt, and `verify-commit` passes on the cut |
 | ~~**11.7**~~ | ~~an additive **model-catalog** release — the released entry is a CLOSED seven-field shape, so no conformant catalog can declare `auto` as a routing rule; the runtime already honours one~~ | **CLOSED 2026-08-21** — cut as `contract-v1.38` (v1.37 was taken mid-flight by PR #235); the entry now carries `routing_rule`/`routes_to`/`resolved_model_id`, the runtime was not rebuilt, and `verify-commit` passes on the cut |
 | ~~**12.1–12.6**~~ | ~~share-session: the verb, the no-implicit-push negative, the nothing-new report, the four postures, the colleague resume path (which also carries P3-17's uncommitted-sidecar tail), and 12.6's own scope call~~ | **CLOSED 2026-08-21** — realized as its own slice under Brett's exit (a); P3-17 discharged |
 | ~~**12.7**~~ | ~~the annotated tag + submodule pin for `contract-v1.36`, the additive `share-session` enum growth 12.4 turned out to require (the in-branch half is done; see the task for why it was unavoidable)~~ | **CLOSED** — struck 2026-08-21 as a bookkeeping correction, on the authority of the task's OWN already-ticked discharge: `contract-v1.36` is tagged and the aggregation repo's pin landed at `04366e3`, and 12.7's body ends "Nothing on this task remains." The row simply outlived it |
-| **13.8** | the realization-evidence tick, which cannot be true until the code surface is whole | whichever of the above lands last |
+| ~~**13.8**~~ | ~~the realization-evidence tick, which cannot be true until the code surface is whole~~ | **CLOSED 2026-08-22** — every row above is struck, so the code surface IS whole; ticked at 10.7's release, which was the last to land. The published tag and the landing sha are the post-land step the task names, not a claim it makes |
 
 So the two contract-release obligations are NOT waiting on §12 and do not become
 satisfiable by carving it out: even with share-session gone, 10.7 and 11.7 would
@@ -2016,6 +2194,30 @@ chat-turn-success release carrying the assembled context's posture, and the
 realization-evidence tick that cannot be true until it lands. The headline is
 otherwise unchanged: what holds this change open is a contract release, not
 missing behaviour.
+
+**UPDATED 2026-08-22, after 10.7's release landed. TWO open rows became ZERO,
+and the table above has no unstruck row left.** `contract-v1.39` carries the
+chat-turn record's `context_packet` — the assembled context's posture and the
+reduction's own reason — and the browser surface states the reduced posture to
+the human, which was the half 10.7 stayed open for. 13.8 ticks with it, on its
+own terms: the sentence it waited on ("its code merged on the implemented
+target", over the WHOLE declared code surface) is true once the last of the
+three releases is cut, and it now is.
+
+**So this change is no longer blocked on anything it can do itself.** Every task
+box is checked. What remains is NOT a task: `contract-v1.39` is cut but its
+annotated tag is published against the commit that actually LANDS, so the
+post-land step is the one §11.7 performed — rerun every gate at the squash,
+publish and remotely verify the tag, then resolve the
+`unpublished:contract-v1.39` sentinel in `doxbench_contracts.CONTRACT_REF` and
+record the squash sha in 13.8's block.
+
+**ARCHIVING IS STILL BRETT'S ACT AND WAS NOT PERFORMED.** The mechanical refusal
+that stood in the way ("`proposal-support.py archive` raises 'change has
+incomplete tasks' on any `- [ ]`") no longer applies, and that is a statement
+about the gate rather than permission to walk through it: the exits above are
+Brett's call, the archive runs through `proposal-support` on his explicit word,
+and nothing here decides it.
 
 Note for whoever cuts that release — 11.7's realization found that PR #235 had
 taken `contract-v1.37` mid-flight AND left
@@ -2189,7 +2391,7 @@ the realization evidence for everything built is recorded in `proposal.md`.
       and the promoted spec would keep Phase A's F2 deferral clause with nothing
       discharging it (design §9). Verify Phase A's archive before archiving
       this change.
-- [ ] 13.8 Realization evidence for the archive gate: merged on the implemented
+- [x] 13.8 Realization evidence for the archive gate: merged on the implemented
       target through the engineering gates, plus a green run of the runnable
       surface (`release-realization`'s realization archive gate).
       **THE EVIDENCE FOR EVERYTHING REALIZED IS RECORDED** in the block at the
@@ -2229,3 +2431,53 @@ the realization evidence for everything built is recorded in `proposal.md`.
       tasks" on any `- [ ]`, and four remain.
       So this ticks when 10.7, 11.7 and 12.7 have landed — whichever is last —
       and NOT before. Nothing was archived by this slice.
+      **RE-ADJUDICATED 2026-08-22, AT 10.7's RELEASE — AND THE SENTENCE ABOVE IS
+      NOW STALE IN ONE PARTICULAR, corrected rather than left to mislead.** It
+      says "**11.7** owes an additive model-catalog release". 11.7 does not owe
+      one any more: it was CUT as `contract-v1.38` on 2026-08-21 (PR #244, squash
+      `0f50b352`, annotated tag published and its pin resolved at `58e4aecd`),
+      and 11.7's own box has been checked since. 12.7 is likewise discharged —
+      `contract-v1.36` is tagged and the aggregation pin landed at `04366e3`.
+      The correction is made HERE, by this slice, because 11.7's own tick
+      deliberately did not edit this task's prose (it said so: "its owner's to
+      re-adjudicate"), and this is the owner arriving.
+      **AND THE BOX IS NOW CHECKED, because the set the sentence names is
+      EMPTY.** The three releases it waits on are all cut: `contract-v1.36`
+      (§12.7, tagged and pinned), `contract-v1.38` (§11.7, tagged and pinned),
+      and `contract-v1.39` (§10.7, cut on this branch — CHANGELOG entry, manifest
+      digest, bundle bump, and the 190-entry inventory built after it, with
+      `verify-commit --commit HEAD` passing on the cut). With them the change's
+      WHOLE declared `code_surface:` is built and merged on the implemented
+      target, which is the sentence `release-realization`'s archive gate actually
+      makes — and it is now true without proportion or interpretation.
+      THE EVIDENCE BLOCK AT THE HEAD OF `proposal.md` STANDS AS WRITTEN and is
+      not restated here; what this tick adds is the tail it could not yet carry:
+      §12 share-session realized under Brett's exit (a); §11.7 at
+      `contract-v1.38`; §10.7 at `contract-v1.39`. Green on this branch at the
+      tick: `tests/ideation-dashboard` 3894 passed / 15 skipped,
+      `tests/ideation_dashboard` 63, `tests/doc-health` 691,
+      `openspec validate --all --strict` 0 failed, the contracts validator 0
+      errors / 4 by-design warnings, and `validate-contract-release.py
+      verify-commit --commit HEAD` passing on the cut.
+      **WHAT THIS TICK DOES NOT CLAIM, and the post-land step that completes it.**
+      Three facts here are about a commit that does not exist while this branch
+      is in flight, exactly as 11.7's tick was and 13.3's before it: the SQUASH
+      SHA this slice lands as, the published annotated `contract-v1.39` tag, and
+      the resolution of the `unpublished:contract-v1.39` sentinel in
+      `doxbench_contracts.CONTRACT_REF`. Per the versioning policy the tag is
+      published against the commit that ACTUALLY LANDS, and every gate reruns at
+      that squash before anything is tagged, because promotion creates a new
+      commit nothing has gated. So the post-land step is the same three-part one
+      §11.7 performed: rerun the gates at the squash, publish and remotely verify
+      the tag, then a follow-up commit resolves the sentinel and records the
+      squash sha in this block. The BOX is checked on the code surface being
+      whole, which is what the gate asks; the SHA line below is what the
+      follow-up fills in.
+      §10.7 — PR #___ / `_______`, annotated tag `contract-v1.39` (to be
+      published against the landing commit and verified from the remote).
+      **NOTHING IS ARCHIVED BY THIS SLICE.** `proposal-support.py archive` is
+      the sanctioned path and it is Brett's act on his explicit word, not a
+      consequence of this box being checked. With 10.7 and 13.8 ticked the
+      mechanical refusal ("change has incomplete tasks") no longer stands in the
+      way — which is a statement about the gate, not an instruction to walk
+      through it.
