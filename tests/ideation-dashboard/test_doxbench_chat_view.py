@@ -3491,16 +3491,26 @@ async function railCase(contextPacket) {
   composer.value = "what does the note say?"; await fire(composer, "input");
   await fire(byClass(host, "doxchat-send")[0], "click");
   const note = byClass(host, "doxchat-context")[0];
-  // S1: the LAST non-empty write, and whether the node was hidden when it
+  // S1: EVERY non-empty write, and whether the node was hidden when it
   // happened. A write performed while hidden is a write no live region saw.
+  //
+  // READ ALL OF THEM, NOT THE LAST ONE — measured, and this is the trap the
+  // reviewer named. Under the defect order a reduced turn produces TWO
+  // non-empty writes: the render that settles the turn writes the text while
+  // the node is still hidden (the announcement is lost there), and a LATER
+  // re-render writes the same text again with the node already visible. Reading
+  // `writes[writes.length - 1]` sees only the benign second one and reports
+  // clean — which is exactly what it did, and the revert-test caught it.
   const written = note ? note.writes.filter((wr) => wr.text !== "") : [];
   return {
+    // true iff SOME text was written into the note while it was hidden
+    anyWriteWhileHidden: written.some((wr) => wr.hiddenAtWrite === true),
+    firstWriteHidden: written.length ? written[0].hiddenAtWrite : null,
+    nonEmptyWrites: written.length,
     exists: Boolean(note),
     hidden: note ? note.hidden : null,
     text: note ? note.textContent : null,
     live: note ? note.getAttribute("aria-live") : null,
-    hiddenAtWrite: written.length
-      ? written[written.length - 1].hiddenAtWrite : null,
     // the answer still arrived: a degraded turn is a SUCCESSFUL turn
     transcript: rail.state().transcript.length,
     statePosture: rail.state().contextPacket
@@ -3659,11 +3669,17 @@ def test_the_note_is_UN_HIDDEN_BEFORE_its_text_is_written(posture_results):
     `polite`. This release shipped that order the wrong way round and its
     adversarial review caught it.
 
-    The probe records `hidden` AT THE MOMENT of the write, because that is the
-    only observation that distinguishes the two orders; the failure note beside
-    it has always used this order and `styles.css` states the rule in writing
-    one region over."""
-    assert posture_results["reduced"]["hiddenAtWrite"] is False
+    ASSERTED OVER EVERY WRITE, not the last one. Under the defect order the
+    settling render writes the text while the node is still hidden and a LATER
+    re-render writes the identical text with it already visible; an assertion
+    that reads only the final write sees the benign one and passes. That is not
+    hypothetical — this test was written that way first, and the R27
+    revert-test came back GREEN with the defect restored, which is how the
+    weakness was found."""
+    reduced = posture_results["reduced"]
+    assert reduced["nonEmptyWrites"] >= 1
+    assert reduced["firstWriteHidden"] is False
+    assert reduced["anyWriteWhileHidden"] is False
 
 
 def test_a_reduced_answer_keeps_its_disclosure_through_a_FAILED_follow_up(
