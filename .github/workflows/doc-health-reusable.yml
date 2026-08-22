@@ -2251,6 +2251,34 @@ jobs:
             --aggregate medx-clinical \
             --aggregate-members MedxFactory,openChart,MedxEHR,HealthLinc \
             --aggregate-display-name "Medx clinical"
+      - name: Ideation-dashboard image refresh — report previous outcome (one-run lag; Decision 6)
+        # The refresh STAGE runs AFTER report delivery (below), so the
+        # refresh-status.json present in the tree is the PREVIOUS run's. Decision
+        # 6's preferred resolution: name whose outcome it is and say so (the
+        # module's render_report_section does), and surface a bot/dox-dashboard-pin
+        # PR still open on Omnigent-Install as a STUCK CHAIN. Best-effort: it
+        # never fails the nightly, and only annotates a FRESH dated report
+        # (steps.run.outputs.commit == 'true') so the immutable dated record a
+        # same-day rerun leaves in the tree is never mutated. THIS run's own
+        # outcome is carried immediately by the stage's ::notice::/::warning::
+        # annotations below, which is why the one-run report lag is acceptable.
+        if: steps.run.outputs.commit == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_DATE: ${{ steps.run.outputs.run_date }}
+        run: |
+          REPORT="health/reports/${RUN_DATE}.md"
+          [ -f "$REPORT" ] || { echo "no dated report to annotate this run"; exit 0; }
+          # A stuck chain is the clearest parked-refresh signal (task 4.9). The
+          # lookup is fail-soft: an App token without Omnigent-Install scope
+          # simply yields no stuck PR, never an error.
+          STUCK="$(gh pr list --repo opensoft/Omnigent-Install \
+            --head bot/dox-dashboard-pin --base main --state open \
+            --json url -q '.[0].url' 2>/dev/null || true)"
+          ARGS=(--repo-root . --phase report --report-in "$REPORT")
+          [ -n "$STUCK" ] && ARGS+=(--stuck-pull-request "$STUCK")
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py "${ARGS[@]}"
       # Delivers living health/ artifacts. NOT gated on steps.run.outputs.commit:
       # a same-day rerun redirects only the DATED report/inventory to
       # RUNNER_TEMP (records are immutable — they never re-enter the tree, so
@@ -2399,6 +2427,472 @@ jobs:
           GH_TOKEN="$DISPATCH_TOKEN" gh workflow run merge-master-approval.yml \
             --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH" \
             || echo "::warning::approval-workflow dispatch failed — PR parks for the human gate"
+      # ===================================================================
+      # Ideation-dashboard IMAGE REFRESH stage (add-nightly-dashboard-refresh
+      # §4). Ordered HERE — strictly AFTER "Commit report" delivery — so a
+      # refresh can never jeopardise the report it follows (design Decision 4).
+      # Worker-gated, dispatched artifact-only child on cpc-omni01, fail-closed
+      # SKIP when no ready worker, and NO inline hosted fallback: the build and
+      # the ACR push belong to the host that holds the registry binding
+      # (Decision 5 / spec "never falls back to a hosted runner"). The child
+      # `dashboard-image-worker.yml` lives in the AGGREGATION (the caller repo,
+      # $GITHUB_REPOSITORY), like every other worker child dispatched above;
+      # this stage dispatches it, collects its one result (the digest), renders
+      # the pin, and delivers the envelope-shaped PR to Omnigent-Install.
+      # ===================================================================
+      - name: Evaluate dashboard-refresh worker readiness
+        id: dfr-readiness
+        # Cloned verbatim from "Evaluate readiness-scorer worker readiness":
+        # same GROUP="xfactory-artifact-workers" runner-group resolution +
+        # authenticated Hermes heartbeat, handed to check-worker-readiness.py,
+        # ready=false ⇒ fail-closed skip (task 4.2). Only the required
+        # label/profile identify THIS lane's worker capability; those and the
+        # matching worker-profile registration are an AGGREGATION/host concern
+        # (see tasks §1.4, §2) — until they resolve, readiness is false and the
+        # stage skips fail-closed, which is the designed default.
+        env:
+          WORKER_ENABLED: ${{ needs.prepare.outputs.omnigent }}
+          HERMES_READINESS_URL: ${{ vars.HERMES_READINESS_URL }}
+          HERMES_WORKER_ID: ${{ vars.OMNIGENT_WORKER_ID }}
+          HERMES_READINESS_TOKEN: ${{ secrets.HERMES_READINESS_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          REQUIRED_TENANT: ${{ inputs.worker-tenant-boundary }}
+          REQUIRED_DATA_BOUNDARY: ${{ inputs.worker-data-boundary }}
+          REQUIRED_HANDLING: ${{ inputs.worker-handling-class }}
+          MAX_AGE: ${{ inputs.worker-heartbeat-max-age-seconds }}
+        run: |
+          GROUP="xfactory-artifact-workers"
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          QUERY_ERROR=""
+          : > dfr-runners-api.json
+          if [ "$WORKER_ENABLED" = "true" ]; then
+            GROUP_ID=""
+            if gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups?per_page=100" \
+                > dfr-runner-groups-api.json 2>/dev/null; then
+              GROUP_ID="$(python3 - "$GROUP" <<'PY'
+          import json
+          import sys
+          try:
+              pages = json.load(open("dfr-runner-groups-api.json", encoding="utf-8"))
+              if not isinstance(pages, list):
+                  raise ValueError("runner group pages must be an array")
+              groups = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runner_groups"), list):
+                      raise ValueError("runner group page is malformed")
+                  groups.extend(page["runner_groups"])
+              print(next((item.get("id") for item in groups
+                          if isinstance(item, dict)
+                          and item.get("name") == sys.argv[1]
+                          and isinstance(item.get("id"), int)), ""))
+          except (OSError, json.JSONDecodeError, AttributeError, ValueError):
+              print("")
+          PY
+              )"
+            else
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+            if [ -n "$GROUP_ID" ]; then
+              gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups/${GROUP_ID}/runners?per_page=100" \
+                > dfr-runners-api.json 2>/dev/null || QUERY_ERROR="runner_query_failed"
+            elif [ -z "$QUERY_ERROR" ]; then
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+          fi
+          python3 - "$GROUP" "$QUERY_ERROR" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          group, error = sys.argv[1:]
+          try:
+              pages = json.loads(Path("dfr-runners-api.json").read_text() or "[]")
+              if not isinstance(pages, list):
+                  raise ValueError("runner response must be an array")
+              runners = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runners"), list):
+                      raise ValueError("runner response page is malformed")
+                  runners.extend(page["runners"])
+          except (json.JSONDecodeError, ValueError):
+              runners, error = [], error or "invalid_runner_response"
+          Path("dfr-runner-group.json").write_text(json.dumps({
+              "group": group, "query_error": error,
+              "runners": runners,
+          }))
+          PY
+          if [ "$WORKER_ENABLED" = "true" ] && \
+             [ -n "$HERMES_READINESS_URL" ] && \
+             [ -n "$HERMES_WORKER_ID" ]; then
+            AUTH=()
+            [ -n "$HERMES_READINESS_TOKEN" ] && \
+              AUTH=(-H "Authorization: Bearer ${HERMES_READINESS_TOKEN}")
+            if curl --fail --silent --show-error \
+                 "${AUTH[@]}" \
+                 "${HERMES_READINESS_URL%/}/api/readiness/workers/${HERMES_WORKER_ID}" \
+                 > dfr-hermes-worker.json; then
+              if ! python3 - <<'PY'
+          import json
+          from pathlib import Path
+          response = json.load(open("dfr-hermes-worker.json", encoding="utf-8"))
+          if not isinstance(response, dict):
+              raise ValueError("readiness response must be an object")
+          worker = response.get("worker", {})
+          if not isinstance(worker, dict):
+              raise ValueError("readiness worker must be an object")
+          metadata = worker.get("metadata", {})
+          heartbeat = dict(metadata) if isinstance(metadata, dict) else {}
+          heartbeat.setdefault("host_id", worker.get("id"))
+          heartbeat.setdefault("observed_at", worker.get("last_seen_at"))
+          heartbeat["status"] = worker.get("status")
+          heartbeat["current_jobs"] = worker.get("current_jobs")
+          Path("dfr-heartbeat.json").write_text(json.dumps(heartbeat),
+                                              encoding="utf-8")
+          PY
+              then
+                printf '%s\n' '{"query_error":"invalid_heartbeat_response"}' \
+                  > dfr-heartbeat.json
+              fi
+            else
+              printf '%s\n' '{"query_error":"heartbeat_query_failed"}' \
+                > dfr-heartbeat.json
+            fi
+          else
+            printf '%s\n' '{"query_error":"heartbeat_endpoint_unconfigured"}' \
+              > dfr-heartbeat.json
+          fi
+          ENABLED=()
+          [ "$WORKER_ENABLED" = "true" ] && ENABLED=(--enabled)
+          python3 scripts/check-worker-readiness.py \
+            --runner-group dfr-runner-group.json \
+            --heartbeat dfr-heartbeat.json \
+            "${ENABLED[@]}" \
+            --required-group "$GROUP" \
+            --required-label dashboard-image \
+            --required-profile dashboard-image-refresh \
+            --required-profile-version 1 \
+            --required-tenant "$REQUIRED_TENANT" \
+            --required-data-boundary "$REQUIRED_DATA_BOUNDARY" \
+            --required-handling "$REQUIRED_HANDLING" \
+            --required-policy-version artifact-worker-v1 \
+            --max-age-seconds "$MAX_AGE" \
+            --output dfr-readiness.json
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          value = json.load(open("dfr-readiness.json", encoding="utf-8"))
+          print(f"ready={str(value['ready']).lower()}")
+          print(f"reason={value['reason']}")
+          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          print(f"correlation_id=dashboard-refresh-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
+          PY
+      - name: Ideation-dashboard image refresh — record skip (worker unavailable)
+        # Fail-closed SKIP: an unready worker records the lane as skipped and the
+        # nightly continues (spec "skips when its worker is unavailable"). No
+        # hosted fallback — deliberately. The lane reads no input at all here.
+        if: steps.dfr-readiness.outputs.ready != 'true'
+        continue-on-error: true
+        env:
+          REASON: ${{ steps.dfr-readiness.outputs.reason }}
+        run: |
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase decide \
+            --skip-reason "worker unavailable: ${REASON:-not_ready}"
+      - name: Ideation-dashboard image refresh — decide (no-change short-circuit, before any build)
+        id: dfr-decide
+        # The input-revision decision (design Decision 10), which precedes the
+        # checkout: it reads the corpus baked-input revision from the initialised
+        # openxFactory submodule at origin/main and the recipe revision + pinned
+        # provenance from Omnigent-Install via the App token. Both inputs are
+        # PATH-SCOPED to the baked inputs, never a branch tip. An input it cannot
+        # read (e.g. the App lacks Omnigent-Install scope) ⇒ undecidable ⇒
+        # fail-closed skip, build=false, nothing dispatched.
+        if: steps.dfr-readiness.outputs.ready == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase decide \
+            --corpus-checkout openxFactory \
+            --run-url "$RUN_URL" \
+            --decision-out dfr-decision.json
+          BUILD="$(python3 -c 'import json;print(str(json.load(open("dfr-decision.json"))["build"]).lower())' 2>/dev/null || echo false)"
+          echo "build=${BUILD}" >> "$GITHUB_OUTPUT"
+      - name: Dispatch artifact-only dashboard-image child
+        id: dfr-dispatch
+        # Cloned from "Dispatch artifact-only readiness child". The child lives
+        # in the AGGREGATION (do not look for it in openxFactory), dispatched
+        # only when the worker is ready AND the inputs moved. It holds no
+        # repository credential; its ONLY result is the digest.
+        if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
+          DISPATCH_LABEL: ${{ steps.dfr-readiness.outputs.dispatch_label }}
+        run: |
+          if gh workflow run dashboard-image-worker.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f source_run_id="$GITHUB_RUN_ID" \
+            -f source_sha="$GITHUB_SHA" \
+            -f correlation_id="$CORRELATION_ID" \
+            -f dispatch_label="$DISPATCH_LABEL"; then
+            echo "dispatched=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dispatched=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::dashboard-image child dispatch failed — refresh skips this cycle, next run catches up in one hop"
+          fi
+      - name: Collect bounded dashboard-image result
+        # Cloned from "Collect bounded readiness result" verbatim — identical
+        # 120s discovery / 600s queue-timeout / 1800s run-timeout deadlines and
+        # cancel-on-timeout. The child uploads exactly one file, digest.json.
+        if: steps.dfr-dispatch.outputs.dispatched == 'true'
+        continue-on-error: true
+        timeout-minutes: 45
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCHED: ${{ steps.dfr-dispatch.outputs.dispatched }}
+          CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
+        run: |
+          mkdir -p dfr-digest
+          REASON="child_dispatch_failed"
+          if [ "$DISPATCHED" = "true" ]; then
+            TITLE="dashboard-image-${CORRELATION_ID}"
+            DISCOVERY_DEADLINE=$((SECONDS + 120))
+            CHILD_ID=""
+            REASON="child_not_observed"
+            while [ $SECONDS -lt $DISCOVERY_DEADLINE ]; do
+              if ! gh run list \
+                  --repo "$GITHUB_REPOSITORY" \
+                  --workflow dashboard-image-worker.yml \
+                  --limit 50 \
+                  --json databaseId,displayTitle \
+                  > dfr-child-runs.json 2>/dev/null; then
+                REASON="worker_result_query_failed"
+                break
+              fi
+              if ! CHILD_ID="$(python3 - "$TITLE" <<'PY'
+          import json
+          import sys
+          try:
+              runs = json.load(open("dfr-child-runs.json", encoding="utf-8"))
+              if not isinstance(runs, list):
+                  raise ValueError("run list is not an array")
+              print(next((str(run.get("databaseId")) for run in runs
+                          if isinstance(run, dict)
+                          and run.get("displayTitle") == sys.argv[1]
+                          and isinstance(run.get("databaseId"), int)), ""))
+          except (OSError, json.JSONDecodeError, ValueError):
+              raise SystemExit(1)
+          PY
+              )"; then
+                REASON="worker_result_response_invalid"
+                break
+              fi
+              [ -n "$CHILD_ID" ] && break
+              sleep 10
+            done
+            if [ -n "$CHILD_ID" ]; then
+              COMPLETED="false"
+              RUNNING="false"
+              QUEUE_DEADLINE=$((SECONDS + 600))
+              REASON="child_queue_timeout"
+              while [ $SECONDS -lt $QUEUE_DEADLINE ]; do
+                if ! STATUS="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json status --jq .status 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  break
+                fi
+                if [ "$STATUS" = "completed" ]; then
+                  COMPLETED="true"
+                  break
+                fi
+                if [ "$STATUS" = "in_progress" ]; then
+                  RUNNING="true"
+                  break
+                fi
+                sleep 15
+              done
+              if [ "$RUNNING" = "true" ]; then
+                RUN_DEADLINE=$((SECONDS + 1800))
+                REASON="child_timeout"
+                while [ $SECONDS -lt $RUN_DEADLINE ]; do
+                  if ! STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    REASON="worker_result_query_failed"
+                    break
+                  fi
+                  if [ "$STATUS" = "completed" ]; then
+                    COMPLETED="true"
+                    break
+                  fi
+                  sleep 15
+                done
+                if [ "$COMPLETED" != "true" ] && \
+                   [ "$REASON" = "child_timeout" ]; then
+                  if STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    [ "$STATUS" = "completed" ] && COMPLETED="true"
+                  else
+                    REASON="worker_result_query_failed"
+                  fi
+                fi
+              fi
+              if [[ "$COMPLETED" != "true" && \
+                    ( "$REASON" = "child_timeout" || \
+                      "$REASON" = "child_queue_timeout" ) ]]; then
+                gh run cancel "$CHILD_ID" --repo "$GITHUB_REPOSITORY" \
+                  >/dev/null 2>&1 || true
+              fi
+              if [ "$COMPLETED" = "true" ]; then
+                if ! CONCLUSION="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json conclusion --jq .conclusion 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  CONCLUSION=""
+                fi
+                # The child uploads exactly one file, digest.json, so the
+                # download always lands at dfr-digest/digest.json.
+                if [ "$CONCLUSION" = "success" ] && \
+                   gh run download "$CHILD_ID" \
+                     --repo "$GITHUB_REPOSITORY" \
+                     --name "dashboard-image-digest-${CORRELATION_ID}" \
+                     --dir dfr-digest; then
+                  REASON="ready"
+                elif [ -n "$CONCLUSION" ]; then
+                  REASON="child_${CONCLUSION:-artifact_unavailable}"
+                fi
+              fi
+            fi
+          fi
+          printf '%s\n' "$REASON" > dfr-digest/unavailable-reason.txt
+      - name: Ideation-dashboard image refresh — render pin proposal
+        id: dfr-pin
+        # The module RENDERS the pin (rewritten overlay + PR body) from the
+        # child's returned digest; it opens no PR and pushes no branch (that is
+        # the delivery step below). Re-reads the inputs so the pin is never
+        # rendered on inputs that moved out from under the build. Writes this
+        # run's RESULT_OK refresh-status.json — which rides the NEXT delivery
+        # (Decision 6 one-run lag), reported by the section step above.
+        if: steps.dfr-dispatch.outputs.dispatched == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ ! -f dfr-digest/digest.json ]; then
+            echo "::warning::no digest artifact from the dashboard-image child ($(cat dfr-digest/unavailable-reason.txt 2>/dev/null || echo unknown)) — nothing to pin this cycle"
+            echo "pinned=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase pin \
+            --corpus-checkout openxFactory \
+            --digest-in dfr-digest/digest.json \
+            --pin-out dfr-pin \
+            --run-url "$RUN_URL"
+          if [ -f dfr-pin/kustomization.yaml ] && [ -f dfr-pin/pr-body.md ]; then
+            echo "pinned=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pinned=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::pin was not rendered this cycle — refresh parks, next run retries"
+          fi
+      - name: Ideation-dashboard image refresh — deliver pin PR to Omnigent-Install (force-free, fail-soft)
+        # Envelope-shaped delivery of the ONE-file digest pin to the served
+        # plane's repository, on the FIXED head branch bot/dox-dashboard-pin,
+        # authored by the minted App token — mirroring the report step's
+        # force-free rolling-branch mechanics (org ruleset 8981805 forbids
+        # non-fast-forward on ~ALL branches, so deliver by branch CREATION or a
+        # fast-forward merge commit whose FIRST parent is the remote tip; never
+        # --force). RESILIENT / FAIL-SOFT: if the App token lacks
+        # Omnigent-Install scope (installation gate task 1.2 unsatisfied) the
+        # step logs and returns 0 — the nightly never hard-fails. The lane sets
+        # NO label, title prefix or commit-message convention that claims the
+        # diff shape: the receiving repository adjudicates the actual diff.
+        if: steps.dfr-pin.outputs.pinned == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        run: |
+          set -uo pipefail
+          RECIPE_REPO="opensoft/Omnigent-Install"
+          OVERLAY="deploy/kubernetes/overlays/aks-qa/kustomization.yaml"
+          BRANCH="bot/dox-dashboard-pin"
+          # Fail-soft scope probe: a read that 403s means the App installation
+          # does not yet include Omnigent-Install (task 1.2). Log and park.
+          if ! gh api "repos/${RECIPE_REPO}" >/dev/null 2>&1; then
+            echo "::warning::the minted App token cannot reach ${RECIPE_REPO} (installation gate 1.2 unsatisfied) — pin PR not opened; refresh parks for the human gate"
+            exit 0
+          fi
+          BOT_LOGIN="$(gh api /user -q .login 2>/dev/null || echo 'xfactory-app[bot]')"
+          WORK="$RUNNER_TEMP/omnigent-install-pin"
+          rm -rf "$WORK"
+          if ! git clone --depth 1 --branch main \
+              "https://x-access-token:${GH_TOKEN}@github.com/${RECIPE_REPO}.git" "$WORK" 2>/dev/null; then
+            echo "::warning::could not clone ${RECIPE_REPO} with the App token — pin PR not opened; refresh parks"
+            exit 0
+          fi
+          cp dfr-pin/kustomization.yaml "$WORK/$OVERLAY"
+          git -C "$WORK" config user.name "$BOT_LOGIN"
+          git -C "$WORK" config user.email "${BOT_LOGIN}@users.noreply.github.com"
+          git -C "$WORK" add "$OVERLAY"
+          # Envelope guard: the ONLY diff is the overlay. If nothing changed, the
+          # served plane already carries this pin — nothing to propose.
+          if git -C "$WORK" diff --cached --quiet; then
+            echo "the rendered overlay is byte-identical to ${RECIPE_REPO} main — nothing to propose"
+            exit 0
+          fi
+          MAIN_TIP="$(git -C "$WORK" rev-parse HEAD)"
+          git -C "$WORK" commit -q -m "dox: refresh ideation-dashboard image pin"
+          DELIVERY_TREE="$(git -C "$WORK" write-tree)"
+          OPEN_PR="$(gh pr list --repo "$RECIPE_REPO" --head "$BRANCH" --base main --state open --json number -q '.[0].number' 2>/dev/null || true)"
+          PR_URL=""
+          if [ -n "$OPEN_PR" ]; then
+            # Preserve the open PR + its thread. Fast-forward the branch: merge
+            # commit, first parent = current remote branch tip, second = main.
+            git -C "$WORK" fetch origin "$BRANCH" 2>/dev/null || true
+            REMOTE_TIP="$(git -C "$WORK" rev-parse FETCH_HEAD 2>/dev/null || echo "$MAIN_TIP")"
+            NEW_TIP="$(git -C "$WORK" commit-tree "$DELIVERY_TREE" -p "$REMOTE_TIP" -p "$MAIN_TIP" -m "dox: refresh ideation-dashboard image pin")"
+            git -C "$WORK" update-ref "refs/heads/${BRANCH}" "$NEW_TIP"
+            if ! git -C "$WORK" push origin "$BRANCH" 2>/dev/null; then
+              echo "::warning::could not advance ${BRANCH} on ${RECIPE_REPO} (App scope? installation gate 1.2) — refresh parks for the human gate"
+              exit 0
+            fi
+            PR_URL="$(gh pr view "$OPEN_PR" --repo "$RECIPE_REPO" --json url -q .url 2>/dev/null || echo "")"
+          else
+            # No open PR: (re)create the branch by CREATION (ref deletion is
+            # unrestricted), then a single fresh commit atop main — no --force.
+            if git -C "$WORK" ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+              git -C "$WORK" push origin --delete "$BRANCH" 2>/dev/null || true
+            fi
+            NEW_TIP="$(git -C "$WORK" commit-tree "$DELIVERY_TREE" -p "$MAIN_TIP" -m "dox: refresh ideation-dashboard image pin")"
+            git -C "$WORK" update-ref "refs/heads/${BRANCH}" "$NEW_TIP"
+            if ! git -C "$WORK" push origin "$BRANCH" 2>/dev/null; then
+              echo "::warning::could not create ${BRANCH} on ${RECIPE_REPO} (App scope? installation gate 1.2) — pin PR not opened; refresh parks for the human gate"
+              exit 0
+            fi
+            PR_URL="$(gh pr create --repo "$RECIPE_REPO" \
+              --base main --head "$BRANCH" \
+              --title "dox: refresh ideation-dashboard image pin" \
+              --body-file dfr-pin/pr-body.md 2>/dev/null || echo "")"
+          fi
+          if [ -n "$PR_URL" ]; then
+            echo "::notice::ideation-dashboard-refresh: pin PR delivered — ${PR_URL}"
+            # Patch this run's status with the PR reference (task 4.7). Rides the
+            # next delivery, like the status itself. Best-effort.
+            python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+              --repo-root . --phase record-pr --pull-request "$PR_URL" || true
+          else
+            echo "::warning::pin branch delivered but the PR reference could not be resolved — refresh may need a manual PR open"
+          fi
+      # =================== end image refresh stage =======================
       - name: Open regression issue (one per run, contract regression rule)
         if: steps.run.outputs.new_count != '0'
         env:
