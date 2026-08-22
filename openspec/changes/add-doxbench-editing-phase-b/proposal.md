@@ -468,7 +468,15 @@ they survive as work rather than as a test docstring's parenthetical: (1) a turn
 sent with the loaded set emptied to the outline is refused by the released wire
 shape (`buffers.minItems: 2`) with the fixed catalog message "the turn request
 is malformed", which does not name the missing document — improving that
-sentence is a change to a published failure envelope; (2) the promoted working
+sentence is a change to a published failure envelope; **DISCHARGED 2026-08-22 on
+`change/one-buffer-refusal-names-its-cause`**, and the envelope turned out not to
+be the obstacle the note assumed: the released `message` is free-form (`minLength:
+1, maxLength: 500`, no `const`/`enum`/`pattern`) and no promoted requirement
+ratifies the string, so the route now answers this one violation with "the turn
+carries no document beside the outline — use a docs tile's load verb to work on
+one" — the selector's own remedy — while the code, status, and envelope key set
+stay byte-identical and both schema files and `SCHEMA_DIGESTS` are untouched, so
+no contract release is involved; (2) the promoted working
 subject requirement's "SHALL default from the tile's title or summary" is
 unrealized — `createChatState` seeds an empty subject and nothing fills it —
 which is a realization gap in an already-promoted requirement, needing its own
