@@ -301,6 +301,28 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [implement-keycloak-install-repo](openspec/changes/implement-keycloak-install-repo/proposal.md)
+  — authored, RATIFIED, and REALIZED 2026-08-21 (Brett: "do both install
+  repos"). Created and seeded `opensoft/Keycloak-Install` (private, repo id
+  1342329131, seed `1aa184e`) under the ratified "Keycloak install repository
+  boundary" requirement: boundary README, `contract-v1.37` pin (manifest
+  digests re-derived from the tag's blobs), credential-free deploy templates,
+  boundary validator with red-proven self-test, session-open-pr mirror,
+  1-review main ruleset. PENDING: the org-owner act adding the repo to the
+  openxfactory App installation (tasks 1.3/3.3); aggregation admission is a
+  named separate change. Sibling of `implement-openxpki-install-repo`.
+- [implement-openxpki-install-repo](openspec/changes/implement-openxpki-install-repo/proposal.md)
+  — authored, RATIFIED, and REALIZED 2026-08-21 (same instruction). Created
+  and seeded `opensoft/OpenXPKI-Install` (private, repo id 1342329163, seed
+  `05f4404`) under the ratified "OpenXPKI install repository boundary"
+  requirement: boundary README, `contract-v1.37` pin, the digest-only
+  deploy home (no manifests — the QA topology migrates per the amended
+  `add-openxpki-qa-image-pipeline` tasks 3.4 once that draft lands),
+  boundary validator with red-proven self-test incl. DER-structure and
+  build-source classes, session-open-pr mirror, 1-review main ruleset. Same
+  PENDING org-owner act; found and booked: the `contract-v1.37` release
+  digest inventory omits both new families (tasks 4.7/4.8 bookkeeping).
+  Sibling of `implement-keycloak-install-repo`.
 - [add-doxchat-model-intake](openspec/changes/add-doxchat-model-intake/proposal.md)
   — authored 2026-08-21 from Brett's live browser annotation on the doxBench
   chat rail ("this model selector is not working… we need to have add model as
