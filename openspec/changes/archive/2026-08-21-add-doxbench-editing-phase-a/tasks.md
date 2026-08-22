@@ -317,7 +317,7 @@ So this is an in-place overwrite, and it is named as one: an **extension** of
 the 2026-08-10 ruling, not an instance of it. The append's purpose is served
 another way — the original value is preserved verbatim ("read `draft` at the
 archive") in this note and again in
-`docs/archive-record-discrepancies.md` B2, so a reader still finds what the
+`docs/archive-record-discrepancies.md` B1, so a reader still finds what the
 record said before. Whether an overwrite on a single-valued header is inside
 the ruling is a question this change answers for itself and flags for Brett; it
 is not covered by the words he gave.
