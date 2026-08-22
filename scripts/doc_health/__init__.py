@@ -78,7 +78,7 @@ FAMILY_IDS = [
 ]
 
 
-def recorded_rel(value):
+def recorded_rel(value: object) -> object:
     """A recorded repository-relative path, in the spelling this suite resolves.
 
     Governed records carry paths as machine-readable KEYS: a proposal packet's
