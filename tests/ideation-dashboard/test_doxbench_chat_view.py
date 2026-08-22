@@ -3425,8 +3425,8 @@ const fire = async (node, type) => {
 
 import { mountDoxBenchChatRail, reducedContextNote, REDUCED_CONTEXT_LEAD }
   from "./doxbench-chat.mjs";
-import { createChatState, settleTurnSuccess, beginTurn }
-  from "./doxbench-chat-model.mjs";
+import { createChatState, settleTurnSuccess, beginTurn,
+         adoptThreadTranscript } from "./doxbench-chat-model.mjs";
 
 const out = {};
 const KEY = { repository: "fixture-repo", ref: "main",
@@ -3511,6 +3511,10 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
     recordWith({ posture: "reduced", reduced_reason: REASON }));
   out.afterSettle = reducedContextNote(settled);
   out.duringNextFlight = reducedContextNote(beginTurn(settled));
+  // …and switching documents replaces the transcript with the SERVER's thread,
+  // which carries no posture of its own.
+  out.afterThreadSwitch = reducedContextNote(
+    adoptThreadTranscript(settled, [{ human: "q", assistant: "a" }]));
 }
 
 process.stdout.write(JSON.stringify(out));
@@ -3607,3 +3611,13 @@ def test_the_note_describes_the_last_answer_and_a_new_flight_clears_it(
     assert posture_results["afterSettle"] == (
         posture_results["lead"] + posture_results["reason"])
     assert posture_results["duringNextFlight"] is None
+
+
+def test_switching_documents_does_not_caption_the_new_thread_with_the_old_one(
+        posture_results):
+    """The same rule at the other exit. `adoptThreadTranscript` replaces the
+    transcript with the SERVER'S record of the newly selected document, and that
+    record carries no posture — so leaving the previous document's note up would
+    caption one conversation with a fact about another, which is the exact defect
+    class P2-9 found for the transcript itself."""
+    assert posture_results["afterThreadSwitch"] is None
