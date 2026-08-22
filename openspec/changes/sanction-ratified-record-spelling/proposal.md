@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (`scripts/doc_health/families.py` — `fam_ratified_provenance` learns the second, record-citing citation spelling and gains the three-way floor check on it, and its `_header_line` read widens from one prefix to two WITHOUT becoming a prefix match on the bare word "Ratified", which would swallow body prose; `tests/doc-health/` — positive and negative cases for both spellings, for the floor, and for the body-prose boundary, mutation-validated. `docs/document-lifecycle.md` § Status Claim Rules is prose rather than runtime code, but it is the text the family implements and it lands in the same slice.)
 target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed. The archive gate is therefore merge-plus-green on main, full stop — `python3 -m pytest tests/doc-health` and `-k workbench` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health run whose severity counts are unchanged against the pre-change baseline. The bare `implementation_pending` token is deliberately NOT used: `docs/archive-record-discrepancies.md` C1 records that it is a house token the realization axis does not define, and Brett's 2026-08-22 ruling rewrote four archived proposals off it; its legality on the ACTIVE phase was left open by that ruling and this change does not presume an answer.
-Status: draft
+Status: ratified
+Ratified: 2026-08-22 by Brett Heap — in-session, multiple-choice ruling round over all five Open Questions (every recommended option adopted, OQ-3 unopposed in prose), recorded in this proposal's Open Questions section and in design.md; this change has no approving OpenSpec change to name, so it cites itself in the record-citing spelling it here sanctions.
 Proposed: 2026-08-22
 ---
 
@@ -188,6 +189,8 @@ widening ride under "a dangling `Ratified by:` reference" as a shorthand for
 "a ratification citation that does not resolve", deferring the doc-health
 text.
 
+**RULED (2026-08-22, Brett, in-session multiple choice): recommendation adopted — KEEP the `doc-health` delta in this change.**
+
 **OQ-2 — Is `Ratified:` the right spelling to sanction, or should the
 corpus converge on one?**
 *Context:* a third option exists — keep ONE spelling, `Ratified by:`, and
@@ -199,6 +202,8 @@ and the convergence option would rewrite 13 archived records, which the
 register's own discipline treats as a contested act requiring a ruling per
 record. *Alternative:* converge, and pay that cost once.
 
+**RULED (2026-08-22, Brett, in-session multiple choice): recommendation adopted — sanction BOTH spellings: `Ratified by: <change>` primary where an approving OpenSpec change exists, `Ratified:` record-citing only where none does.**
+
 **OQ-3 — Should the floor require MORE than one of the three?**
 *Context:* every one of the 15 live `Ratified:` lines names a date, and 14
 name an approver too; a "date AND one other" floor would pass all 15 today.
@@ -207,6 +212,8 @@ nothing on the current corpus and would, on the next honest citation that
 carries only a record pointer, force the invention of a date — the exact
 failure the register refused twice (C2's "no invented provenance anywhere",
 C7's "nothing was inferred"). *Alternative:* require a date unconditionally.
+
+**RULED (2026-08-22, Brett, in-session multiple choice): recommendation adopted, unopposed in prose — the floor stays at ONE of approver, date, or resolvable record; a stricter floor would force invented dates.**
 
 **OQ-4 — Should a `ratified` document be allowed to carry BOTH lines?**
 *Context:* the delta says exactly one citation, no document carries both
@@ -217,6 +224,8 @@ is the identical defect the promoted "records its authorship once per
 document, not once per attempt" requirement already rules on for a
 neighbouring header. *Alternative:* permit both and define precedence.
 
+**RULED (2026-08-22, Brett, in-session multiple choice): recommendation adopted — EXACTLY ONE citation line per document; a document carrying both is itself a finding.**
+
 **OQ-5 — Severity of a floor violation.**
 *Context:* `fam_ratified_provenance` emits CRITICAL today. A `Ratified:`
 line naming nothing checkable is a weaker defect than a dangling change
@@ -225,3 +234,5 @@ CRITICAL, same tier, because the header's claim is unbacked either way and
 a second tier for the same rule invites arguing the tier instead of fixing
 the line. *Alternative:* ERROR for the floor, CRITICAL reserved for a
 dangling reference.
+
+**RULED (2026-08-22, Brett, in-session multiple choice): recommendation adopted — a floor violation is CRITICAL, the same tier as a dangling `Ratified by:` reference.**

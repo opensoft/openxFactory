@@ -48,6 +48,8 @@ rule change nobody asked for. The scoping is written into the requirement text
 rather than left to the implementation, because it is the single most likely
 way for the realization to go wrong.
 
+**RULED (2026-08-22, Brett, in-session multiple choice): recommendation adopted, unopposed in prose — the floor stays at ONE of the three (OQ-3); a stricter floor would force invented dates. See proposal.md for the full ruling.**
+
 ## D2 — The widened read is two prefixes, never one shorter prefix
 
 **Decision.** `fam_ratified_provenance` reads `Ratified by:` and `Ratified:`
@@ -97,3 +99,5 @@ Correcting the prose alone would leave that standing. The delta promotes the
 rule in the same act that widens it, which is also what makes the doc-health
 enumeration change (OQ-1) coherent: the check family can then cite a promoted
 requirement for both spellings instead of one prose bullet for one of them.
+
+**RULED (2026-08-22, Brett, in-session multiple choice): recommendation adopted — KEEP the `doc-health` delta in this change (OQ-1); see proposal.md for the full ruling.**
