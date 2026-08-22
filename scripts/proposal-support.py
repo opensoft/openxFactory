@@ -306,8 +306,11 @@ def origin_errors(root: Path, directory: Path, *, strict: bool,
             # the same reason: a backslash-spelled path recorded on a Windows
             # checkout joins to one nonexistent component here, so `is_dir()`
             # fails and this coherence check SKIPS instead of running. A check
-            # that silently does not run is worse than one that fails.
-            header = staging_header_id(root / str(opath).replace("\\", "/"))
+            # that silently does not run is worse than one that fails. Through
+            # `manifest_rel` rather than an inline replace so this module states
+            # the rule ONCE — the origin path and the file paths beside it in the
+            # same record cannot be normalized two different ways.
+            header = staging_header_id(root / manifest_rel(str(opath)))
             if header is not None and header != oid:
                 errors.append(
                     f"{name}: staging folder {opath!r} exists but its "

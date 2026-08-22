@@ -78,6 +78,41 @@ FAMILY_IDS = [
 ]
 
 
+def recorded_rel(value):
+    """A recorded repository-relative path, in the spelling this suite resolves.
+
+    Governed records carry paths as machine-readable KEYS: a proposal packet's
+    `origin.path`, and a support manifest's `origin_path`, `files[].path`,
+    `files[].source_path` and `source_snapshot_path`. Every one of them was
+    written by `str(PurePath)` at some point in this tooling's history, which
+    on a Windows checkout spells them with backslashes. Read on any other
+    machine each becomes a SINGLE component that resolves to nothing, and the
+    two failure modes are both bad in their own way: `git ls-tree` matches no
+    entry, so a sound record reports as unresolvable provenance (a false
+    ERROR); and `Path(repo) / <that>` is not a directory, so a check
+    SKIPS instead of running, which is worse — a check that silently does not
+    run cannot be seen to have missed anything.
+
+    So every reader here normalizes rather than assuming its own spelling. The
+    writers were fixed first (PR #221 for the origin path, and its follow-up
+    for the manifest's file paths), but fixing a writer cannot reach the
+    records already on disk.
+
+    THE SAME RULE as `proposal-support.py`'s `manifest_rel`, and deliberately a
+    second copy: that mover is a hyphenated standalone script and cannot be
+    imported. The two are pinned to each other by test, because two readers of
+    one record that disagree about its alphabet would have one call a manifest
+    sound while the other called it corrupt. Non-strings pass through
+    untouched, so a malformed record still fails exactly as it did before.
+
+    THE TRADEOFF: a POSIX path component may legally contain a backslash and
+    would be split here. The staged-origin id grammar does not admit it, and
+    for the file names inside a topic — which nothing constrains — the cost is
+    a loud miss rather than a silent pass. An absurd case traded for a real one.
+    """
+    return value.replace("\\", "/") if isinstance(value, str) else value
+
+
 @dataclass(frozen=True)
 class Finding:
     severity: str

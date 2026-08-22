@@ -22,7 +22,7 @@ from datetime import date
 from pathlib import Path
 
 from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
-               TAXONOMY, Finding, Skip)
+               TAXONOMY, Finding, Skip, recorded_rel)
 from . import (client_identity_composition, corpus, document_catalog,
                ideation_routing, proposal_origin)
 from .lines import split_keepends
@@ -159,23 +159,6 @@ def _load_support_manifest(path: Path) -> dict | None:
     return value if isinstance(value, dict) and value.get("format_version") == 1 else None
 
 
-def _manifest_rel(value):
-    """A support-manifest path field in the spelling this checker resolves.
-
-    The SAME normalization `proposal-support.py manifest_rel` applies, and it
-    has to be: this family joins `files[].path` to the support folder and
-    compares the archived manifest's paths against bundle member names, so if
-    the two readers of one record disagreed about its alphabet, `verify` would
-    call a manifest sound while doc-health called it a checksum mismatch. A
-    manifest written by `str(PurePath)` on a Windows checkout spells those
-    fields with backslashes; read here they become one filename that resolves
-    to nothing, and every entry reports a false ERROR. (Local rather than
-    imported: `proposal-support.py` is a hyphenated standalone script, not an
-    importable module. The two copies are pinned to each other by test.)
-    """
-    return value.replace("\\", "/") if isinstance(value, str) else value
-
-
 def _active_support_findings(repo: str, repo_path: Path) -> list[Finding]:
     findings = []
     changes = repo_path / "openspec" / "changes"
@@ -211,7 +194,7 @@ def _active_support_findings(repo: str, repo_path: Path) -> list[Finding]:
                     "change proposed prose to draft or immutable evidence to record"))
         if manifest is not None:
             for entry in manifest.get("files", []):
-                path = support / _manifest_rel(entry.get("path", ""))
+                path = support / recorded_rel(entry.get("path", ""))
                 if (not path.is_file()
                         or _sha256(path) != entry.get("sha256")):
                     findings.append(Finding(
@@ -245,7 +228,7 @@ def _archive_support_findings(repo: str, repo_path: Path) -> list[Finding]:
                 "archived proposal support bundle checksum mismatch",
                 "rebuild the deterministic bundle and manifest"))
             continue
-        expected = {_manifest_rel(item.get("path")): item.get("sha256")
+        expected = {recorded_rel(item.get("path")): item.get("sha256")
                     for item in manifest.get("files", [])}
         actual = {}
         try:
