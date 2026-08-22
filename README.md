@@ -495,70 +495,6 @@ Active changes:
   (14 + 14 confirmed findings — 52 and 28 bypass probes respectively — all
   fixed, ruled, or documented, with zero ratified-corpus regressions), and
   **registered at `contract-v1.37`**.
-- [add-doxbench-editing-phase-b](openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md)
-  — **ARCHIVED 2026-08-22** on Brett's explicit word, the doxBench editing
-  sprint complete. Realization evidence at the gate: §3 verify list PR #206 /
-  `e7e7a84`; §4–§9 core PR #207 / `a4a6f6e`; §13 contract release PR #210 /
-  `5daa173` (`contract-v1.34`); §10 knowledge service PR #216 / `ece236a`;
-  §11 harness bridge PR #223 / `7312c25`; §12 share-session; §11.7 PR #244 /
-  `0f50b352` (`contract-v1.38`); and §10.7 PR #256 / `671a6908`
-  (`contract-v1.40` — re-cut from v1.39 when PR #259 took that number
-  mid-review). Its spec text promoted, **+9 ADDED and ~8 MODIFIED** into
-  `ideation-dashboard` (78 → 87 requirements) and **+1 ADDED** into
-  `memory-gateway` (21 → 22), verified byte-for-byte against the deltas with
-  zero drift across the 91 untouched requirements; supporting-docs packaged as
-  `supporting-docs.tar.gz` (3 files) beside its manifest. One follow-up is
-  recorded as issue #263 (a whitespace-only `reduced_reason` passes all five
-  posture gates — unreachable from this repository's producer, real for a
-  third-party one). Authored 2026-08-18, Phase B and the EXIT of the
-  `doxbench-editing-model` staged topic:
-  staged topic: all seven questions dispositioned, 26 claims settled (Brett's
-  live-UI annotations and in-session rulings 2026-08-15 → 2026-08-18). Where
-  Phase A was a layout-and-binding change on proven substrate, Phase B is the
-  state-model generalization plus the working-session model Brett's memory
-  ruling added on top of it. Ten pieces: the buffer set widens from exactly two
-  to `outline` + N loaded documents (the three pinned layers re-cut together —
-  the state validator, `require_outline_and_document`/`PROPOSAL_TARGETS`, and
-  `SAVE_BUFFER_ORDER`, whose fixed pair becomes a RULE: outline first as session
-  ancestry, then documents independently, so one document's refusal stops no
-  other); the chat rail header becomes a DROPDOWN of the loaded documents whose
-  selection IS the active buffer (Q1's numbered chips and LRU fold are
-  overridden — the dropdown is the overflow policy, and the set is bounded and
-  refuses rather than evicting text); the docs-wheel tile carries read / edit /
-  save with a colored loaded-and-dirty state (Q3); each loaded document gets a
-  persisted THREAD with a structured thread-state header (goal, accepted facts,
-  open questions, decisions, evidence refs, pending actions) committing on that
-  document's Save; share-session is an explicit commit-push-return-the-ref verb
-  reusing the pull-request port's EXISTING `push` member and opening no PR; and
-  per-turn context becomes a `memory-gateway` BOUNDED CONTEXT PACKET assembled
-  by a Staged-Set Knowledge Service behind ONE MCP boundary (search, get_source,
-  promote_finding, reindex; `graph_query` reserved and unimplemented) over an
-  internal assembly port — v1 GRAPH-LESS local hybrid on the recorded Mem0-v3
-  caution, graph admitted only on a named graduation trigger, backend an
-  install-time declaration, approved/ratified content exempt from aggressive
-  compression BY THE ASSEMBLER because only it can read a lifecycle `Status:`.
-  Compression is three layers with three fidelity contracts (selection,
-  semantic compaction, mechanical reversible offload); Headroom is WATCH-LISTED
-  with its adoption gates recorded and is deliberately not a dependency. The
-  harness is oh-my-pi behind a thin stdlib bridge that is an ADAPTER for the
-  unchanged three-member `WorkbenchModelPort` — no fourth port member, one
-  harness session per thread, sidecars remain the record, `auto` declares itself
-  a routing rule rather than a model. Carries a chat-turn contract release
-  discharging Phase A's F2 carve-out (the turn record names the DECLARED bound
-  buffer, plus selected-model metadata), realized as a co-resident envelope
-  family so the release is ADDITIVE and the bundle minor is allocated at
-  realization, never reserved. `memory-gateway` gets ONE delta of its own after
-  a full read: a declared SUBJECT-FREE LOCAL CONSUMER CLASS that must name every
-  rail it declares inapplicable, refused to any consumer holding provider
-  credentials or addressing a subject — because the contract's M0 set assumes a
-  customer subject and a credentialed provider this consumer has neither of, and
-  "inapplicable" must be declared rather than silently skipped. Seven verify-list
-  items (harness memory backends, MCP depth, `SYSTEM.md` cadence, Cognee's
-  embedded backend, the artifact store's location, `/shake`'s RPC surface,
-  memory-gateway's realization depth) are BLOCKING pre-realization tasks.
-  Sequenced AFTER `add-doxbench-editing-phase-a`, three of whose ADDED
-  requirements it MODIFIES relative to that change's outcome.
-  `target_release: implemented`.
 - [add-substantive-review-lane](openspec/changes/add-substantive-review-lane/proposal.md)
   — proposed 2026-08-15, **RATIFIED 2026-08-22** by Brett Heap (in-session
   via question prompts; record
@@ -881,6 +817,70 @@ Archived changes:
   latent `Ratified:` lines live), the two archived-record citation defects
   the register routes through a ruling per record, and any rewrite of an
   existing citation line are all deliberately outside it.
+- [add-doxbench-editing-phase-b](openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md)
+  — **ARCHIVED 2026-08-22** on Brett's explicit word, the doxBench editing
+  sprint complete. Realization evidence at the gate: §3 verify list PR #206 /
+  `e7e7a84`; §4–§9 core PR #207 / `a4a6f6e`; §13 contract release PR #210 /
+  `5daa173` (`contract-v1.34`); §10 knowledge service PR #216 / `ece236a`;
+  §11 harness bridge PR #223 / `7312c25`; §12 share-session; §11.7 PR #244 /
+  `0f50b352` (`contract-v1.38`); and §10.7 PR #256 / `671a6908`
+  (`contract-v1.40` — re-cut from v1.39 when PR #259 took that number
+  mid-review). Its spec text promoted, **+9 ADDED and ~8 MODIFIED** into
+  `ideation-dashboard` (78 → 87 requirements) and **+1 ADDED** into
+  `memory-gateway` (21 → 22), verified byte-for-byte against the deltas with
+  zero drift across the 91 untouched requirements; supporting-docs packaged as
+  `supporting-docs.tar.gz` (3 files) beside its manifest. One follow-up is
+  recorded as issue #263 (a whitespace-only `reduced_reason` passes all five
+  posture gates — unreachable from this repository's producer, real for a
+  third-party one). Authored 2026-08-18, Phase B and the EXIT of the
+  `doxbench-editing-model` staged topic:
+  staged topic: all seven questions dispositioned, 26 claims settled (Brett's
+  live-UI annotations and in-session rulings 2026-08-15 → 2026-08-18). Where
+  Phase A was a layout-and-binding change on proven substrate, Phase B is the
+  state-model generalization plus the working-session model Brett's memory
+  ruling added on top of it. Ten pieces: the buffer set widens from exactly two
+  to `outline` + N loaded documents (the three pinned layers re-cut together —
+  the state validator, `require_outline_and_document`/`PROPOSAL_TARGETS`, and
+  `SAVE_BUFFER_ORDER`, whose fixed pair becomes a RULE: outline first as session
+  ancestry, then documents independently, so one document's refusal stops no
+  other); the chat rail header becomes a DROPDOWN of the loaded documents whose
+  selection IS the active buffer (Q1's numbered chips and LRU fold are
+  overridden — the dropdown is the overflow policy, and the set is bounded and
+  refuses rather than evicting text); the docs-wheel tile carries read / edit /
+  save with a colored loaded-and-dirty state (Q3); each loaded document gets a
+  persisted THREAD with a structured thread-state header (goal, accepted facts,
+  open questions, decisions, evidence refs, pending actions) committing on that
+  document's Save; share-session is an explicit commit-push-return-the-ref verb
+  reusing the pull-request port's EXISTING `push` member and opening no PR; and
+  per-turn context becomes a `memory-gateway` BOUNDED CONTEXT PACKET assembled
+  by a Staged-Set Knowledge Service behind ONE MCP boundary (search, get_source,
+  promote_finding, reindex; `graph_query` reserved and unimplemented) over an
+  internal assembly port — v1 GRAPH-LESS local hybrid on the recorded Mem0-v3
+  caution, graph admitted only on a named graduation trigger, backend an
+  install-time declaration, approved/ratified content exempt from aggressive
+  compression BY THE ASSEMBLER because only it can read a lifecycle `Status:`.
+  Compression is three layers with three fidelity contracts (selection,
+  semantic compaction, mechanical reversible offload); Headroom is WATCH-LISTED
+  with its adoption gates recorded and is deliberately not a dependency. The
+  harness is oh-my-pi behind a thin stdlib bridge that is an ADAPTER for the
+  unchanged three-member `WorkbenchModelPort` — no fourth port member, one
+  harness session per thread, sidecars remain the record, `auto` declares itself
+  a routing rule rather than a model. Carries a chat-turn contract release
+  discharging Phase A's F2 carve-out (the turn record names the DECLARED bound
+  buffer, plus selected-model metadata), realized as a co-resident envelope
+  family so the release is ADDITIVE and the bundle minor is allocated at
+  realization, never reserved. `memory-gateway` gets ONE delta of its own after
+  a full read: a declared SUBJECT-FREE LOCAL CONSUMER CLASS that must name every
+  rail it declares inapplicable, refused to any consumer holding provider
+  credentials or addressing a subject — because the contract's M0 set assumes a
+  customer subject and a credentialed provider this consumer has neither of, and
+  "inapplicable" must be declared rather than silently skipped. Seven verify-list
+  items (harness memory backends, MCP depth, `SYSTEM.md` cadence, Cognee's
+  embedded backend, the artifact store's location, `/shake`'s RPC surface,
+  memory-gateway's realization depth) are BLOCKING pre-realization tasks.
+  Sequenced AFTER `add-doxbench-editing-phase-a`, three of whose ADDED
+  requirements it MODIFIES relative to that change's outcome.
+  `target_release: implemented`.
 - [add-dashboard-account-menu](openspec/changes/archive/2026-08-22-add-dashboard-account-menu/proposal.md)
   — **ARCHIVED 2026-08-22** (folder dated in UTC; the act fell just after
   midnight UTC on a machine reading 2026-08-21). Authored 2026-08-21. The
