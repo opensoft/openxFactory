@@ -1320,10 +1320,10 @@ def test_routing_field_types_are_refused_with_TypeError_not_a_value_error():
     (lambda: [_rule(routes_to=("a",), resolved="a"),
               _entry("a", available=False)],
      "is available but resolves to"),
-    # 5. a rule wider than a model it may route to
+    # 5'. a rule wider than THE MODEL IT RESOLVES TO (Brett's ruling)
     (lambda: [_rule(routes_to=("a",), resolved="a", input_limit_bytes=800_000),
               _entry("a", input_limit_bytes=2048)],
-     "above the 2048 of a model it may route to"),
+     "above the 2048 of 'a', the model it resolves to"),
 ])
 def test_a_catalog_refuses_a_routing_rule_it_cannot_honestly_offer(
         entries_factory, match):
@@ -1336,6 +1336,49 @@ def test_a_catalog_refuses_a_routing_rule_it_cannot_honestly_offer(
     # intention-revealing wrapper.
     with pytest.raises(InvalidRoutingRuleError, match=match):
         ModelCatalog(entries=tuple(entries_factory()))
+
+
+def test_a_rule_MAY_be_wider_than_a_non_resolved_member__rule_5_prime():
+    """RULE 5' — BRETT'S RULING, 2026-08-21 ("Swap to rule 5'"), pinned here
+    because it is the case the FIRST form of the rule got wrong.
+
+    The rule declares 800,000 bytes while `narrow` — a model it MAY route to —
+    accepts 2,048. That is LAWFUL, because the bound is the model it RESOLVES
+    to (`wide`, which accepts 800,000). The first shipped form min-capped
+    against every member of `routes_to` and would have refused this catalog.
+
+    Three reasons the ruling gives, and the third is why this test is named for
+    it rather than folded into the rule-5 table: min-capping would BAKE IN
+    semantics that contradict the sanctioned per-turn fit-aware router staged as
+    `ideation/staging/doxchat-auto-fit-routing/`, under which a rule's declared
+    ceiling is the WIDEST thing it can serve and the router picks a destination
+    that fits each turn. A min-cap would have had to be undone to get there."""
+    catalog = ModelCatalog.from_entries([
+        _rule(routes_to=("wide", "narrow"), resolved="wide",
+              input_limit_bytes=800_000, output_limit_bytes=900_000,
+              badge="Routes by role. / " + CONTRACT_EXAMPLE["data_handling"]
+                    + " / a narrower posture"),
+        _entry("wide", input_limit_bytes=800_000, output_limit_bytes=900_000),
+        _entry("narrow", input_limit_bytes=2048, output_limit_bytes=8192,
+               data_handling="a narrower posture")])
+    rule = catalog.entries[0]
+    assert rule.input_limit_bytes == 800_000
+    # …and the discriminator, stated: the rule IS wider than a routable member.
+    assert rule.input_limit_bytes > catalog.entry_for("narrow").input_limit_bytes
+    assert rule.input_limit_bytes == catalog.entry_for("wide").input_limit_bytes
+
+    # The other side of the ruling, so it is a bound and not an absence: wider
+    # than the RESOLUTION is still refused.
+    with pytest.raises(InvalidRoutingRuleError,
+                       match="the model it resolves to"):
+        ModelCatalog.from_entries([
+            _rule(routes_to=("wide", "narrow"), resolved="narrow",
+                  input_limit_bytes=800_000, output_limit_bytes=8192,
+                  badge="Routes by role. / " + CONTRACT_EXAMPLE["data_handling"]
+                        + " / a narrower posture"),
+            _entry("wide", input_limit_bytes=800_000, output_limit_bytes=900_000),
+            _entry("narrow", input_limit_bytes=2048, output_limit_bytes=8192,
+                   data_handling="a narrower posture")])
 
 
 def test_an_unavailable_rule_may_resolve_to_an_unavailable_model():

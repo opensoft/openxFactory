@@ -902,9 +902,18 @@ def check_routing_rules(f: Findings, label: str, entries: list[dict]) -> None:
        it, so each target's badge must be one SEGMENT of it (see
        `normalized_badge_segment`; a target badge holding the separator is
        ill-formed and refused);
-    5. a rule promises no more headroom than its narrowest destination — the
+    5. a rule promises no more headroom than THE MODEL THAT ANSWERS — the
        effective turn limit is computed from the SELECTED entry, which for a
-       routed turn is the RULE;
+       routed turn is the RULE, so an AVAILABLE rule's declared limits must not
+       exceed those of `resolved_model_id`'s entry. RULED BY BRETT 2026-08-21
+       ("Swap to rule 5'"): this was first a MINIMUM over every member of
+       `routes_to`, which the adversarial review upheld only with reservation.
+       Under static resolution the promise that matters is the one the
+       ANSWERING model has to honour; the un-resolved destinations are not
+       load-bearing; and min-capping would bake in semantics that contradict
+       the sanctioned per-turn fit-aware router staged as
+       `ideation/staging/doxchat-auto-fit-routing/`. Unavailable rules are
+       exempt, as they are from rule 3;
     6. `resolved_model_id` must be a MEMBER of `routes_to`;
     7. a rule must not name ITSELF in `routes_to`.
 
@@ -926,7 +935,6 @@ def check_routing_rules(f: Findings, label: str, entries: list[dict]) -> None:
         declared_segments = badge_segments(entry.get("data_handling") or "")
         targets = entry.get("routes_to")
         target_ids = [str(t) for t in targets] if isinstance(targets, list) else []
-        resolvable = []
         for target_id in target_ids:
             # ALSO A DIAGNOSTIC (F2b asked for it as one: "explicit check, not
             # incidental via the chained-rule rule"). A rule that names itself
@@ -971,20 +979,22 @@ def check_routing_rules(f: Findings, label: str, entries: list[dict]) -> None:
                         f"data-handling badge of {target_id!r} as a SEGMENT of "
                         f"its own badge — a routing entry reports the posture "
                         f"of every model it may route to")
-            resolvable.append(target)
-        for field in ("input_limit_bytes", "output_limit_bytes"):
-            declared = entry.get(field)
-            limits = [target.get(field) for target in resolvable
-                      if isinstance(target.get(field), int)]
-            if not (isinstance(declared, int) and limits):
-                continue
-            if declared > min(limits):
-                f.error("routing-limit",
-                        f"{label}: routing rule {rule_id!r} declares {field} "
-                        f"{declared}, above the {min(limits)} of a model it may "
-                        f"route to")
         resolved_id = str(entry.get("resolved_model_id"))
         resolved = by_id.get(resolved_id)
+        # RULE 5' (Brett's ruling 2026-08-21): the bound is the RESOLVED
+        # model's, not the minimum over `routes_to`, and it applies only while
+        # the rule is selectable — the same exemption rule 3 already carries.
+        if resolved is not None and entry.get("available") is True:
+            for field in ("input_limit_bytes", "output_limit_bytes"):
+                declared = entry.get(field)
+                answering = resolved.get(field)
+                if not (isinstance(declared, int) and isinstance(answering, int)):
+                    continue
+                if declared > answering:
+                    f.error("routing-limit",
+                            f"{label}: routing rule {rule_id!r} declares "
+                            f"{field} {declared}, above the {answering} of "
+                            f"{resolved_id!r}, the model it resolves to")
         if resolved_id not in target_ids:
             # F2: the SHAPE cannot express this, so without it a rule could be
             # badged safe and resolve to a model whose posture it never states —

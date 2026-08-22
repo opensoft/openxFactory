@@ -61,7 +61,7 @@ RELEASED_REF = "unpublished:contract-v1.38"
 RELEASED_TAG = "contract-v1.38"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
-        "7d0b8947d2a01c567a1f5920a9bccf99dcf0532dc846e84ce5060e2528a9c66d",
+        "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
         "2eb2a834d4cd50a15838e0e7197b6ddaa6f33aee7d24ff8075e0df8deab0b7e5",
 }
@@ -784,10 +784,11 @@ def test_packaged_positives_validate_structurally(released_root):
     # workbench-chat-turn-outline-only.example.yaml, the instance proving a
     # null active_document_path is legal (G-1). 7 -> 9 at contract-v1.34, which
     # adds the widened family's loaded-set request and its record. 9 -> 10 at
-    # contract-v1.38, which adds the `auto` ROUTING RULE instance. The exact
-    # count IS the pin, so it advances with the release rather than being
-    # loosened to an inequality.
-    assert len(positives) == 10, [p.name for p in positives]
+    # contract-v1.38, which adds the `auto` ROUTING RULE instance — and 10 -> 11
+    # within that release, for the rule-5' instance Brett's ruling made lawful
+    # (a rule wider than a NON-resolved member). The exact count IS the pin, so
+    # it advances with the release rather than being loosened to an inequality.
+    assert len(positives) == 11, [p.name for p in positives]
 
     for path in positives:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -1103,7 +1104,7 @@ def test_every_packaged_routing_negative_is_refused_by_BOTH_gates(released_root)
     # The exact count IS the pin, so it advances with the corpus rather than
     # being loosened to an inequality. TEN at contract-v1.38: the five rules'
     # own negatives (badge-gap, dangling-target, chained, unavailable-resolution,
-    # wider-than-target), the FOUR the adversarial review contributed
+    # wider-than-its-resolution), the FOUR the adversarial review contributed
     # (inverted-substring, incidental-word, resolved-outside-routes-to,
     # self-reference), and the separator-collision case the segment grammar
     # brought with it.
@@ -1131,7 +1132,7 @@ _EXPECTED_FINDING_CODE = {
     "workbench-model-catalog-routing-resolved-outside-routes-to": "routing-resolution",
     "workbench-model-catalog-routing-rule-chained": "routing-target",
     "workbench-model-catalog-routing-rule-unavailable-resolution": "routing-availability",
-    "workbench-model-catalog-routing-rule-wider-than-target": "routing-limit",
+    "workbench-model-catalog-routing-rule-wider-than-its-resolution": "routing-limit",
     "workbench-model-catalog-routing-self-reference": "routing-self-reference",
 }
 

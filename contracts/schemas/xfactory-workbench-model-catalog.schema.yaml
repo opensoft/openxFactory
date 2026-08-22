@@ -59,6 +59,14 @@ $defs:
       available: { type: boolean }
       # A catalog entry may only NARROW the server ceilings (plan.md
       # Constraints): request bound 1,048,576 bytes; output bound 900,000.
+      #
+      # For an AVAILABLE ROUTING entry these must additionally not exceed the
+      # limits of `resolved_model_id`'s entry — the model that ANSWERS — because
+      # the effective turn limit is computed from the SELECTED entry, which for
+      # a routed turn is the rule. The bound is the RESOLVED model's alone and
+      # deliberately NOT the minimum over `routes_to`: an un-resolved
+      # destination takes no turn while the rule resolves elsewhere. Delegated
+      # to the validator, which the shape cannot express.
       input_limit_bytes: { type: integer, minimum: 1, maximum: 1048576 }
       output_limit_bytes: { type: integer, minimum: 1, maximum: 900000 }
       # For a ROUTING entry this text is a SEPARATOR-JOINED LIST of badge
@@ -130,9 +138,10 @@ $defs:
           turn, is recorded as the turn's `model_id` beside the requested id in
           `selected_model`, and is the model the turn's thread sidecar names.
           Must be a member of `routes_to` — so the badge covering above has
-          necessarily checked it — and must be available whenever the routing
-          entry itself is available. Both are delegated-validator rules: the
-          shape has no operator for either.
+          necessarily checked it — must be available whenever the routing entry
+          itself is available, and must accept at least the limits the routing
+          entry declares. All three are delegated-validator rules: the shape has
+          no operator for any of them.
     dependentRequired:
       # Neither routing field may ride on an entry that does not declare what
       # it is, and neither is meaningful without the other.

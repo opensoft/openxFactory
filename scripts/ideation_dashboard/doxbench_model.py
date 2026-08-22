@@ -471,19 +471,40 @@ class ModelCatalog:
            containment, which the reviewer broke twice on the released bytes.
            See ``normalized_badge_segment`` for the whole argument and for what
            is deliberately NOT normalized.
-        5. A RULE PROMISES NO MORE HEADROOM THAN ITS NARROWEST DESTINATION.
+        5. A RULE PROMISES NO MORE HEADROOM THAN THE MODEL THAT ANSWERS.
            ``effective_limit_bytes`` is computed from the SELECTED entry, which
-           for a routed turn is the RULE -- so a rule declaring limits above a
-           target's would pass a turn the model it routed to cannot take. The
-           rule's declared limits must therefore not exceed the minimum across
-           every model it may route to, which is the entry-level restatement of
-           the schema's own "a catalog entry may only NARROW the ceilings"."""
+           for a routed turn is the RULE -- so a rule declaring limits above the
+           model that actually answers would pass a turn that model cannot take.
+           An AVAILABLE rule's declared limits must therefore not exceed those
+           of ``resolved_model_id``'s entry. Unavailable rules are exempt for
+           the same reason they are exempt from rule 3: nothing can select one,
+           so its promise is not load-bearing -- and that exemption is what
+           keeps the bridge's degraded projection constructible.
+           RULED BY BRETT 2026-08-21 ("Swap to rule 5'"). This was first
+           shipped as a MINIMUM over every member of ``routes_to``, which the
+           adversarial review upheld only WITH RESERVATION, and the ruling
+           narrowed it to the resolved model alone. Three reasons, recorded
+           because the shape of the rule is a design commitment and not an
+           implementation detail:
+           * under this release's STATIC resolution the promise that matters is
+             that the menu's declared limits are honoured by the model that
+             actually answers -- which is precisely what this checks;
+           * the un-resolved destinations are not load-bearing: no turn reaches
+             them while the rule resolves elsewhere, so capping against them
+             constrains a promise nobody can call in;
+           * min-capping would BAKE IN semantics that contradict the sanctioned
+             future direction -- a per-turn, fit-aware router that chooses a
+             destination BY the assembled packet's size (and by other
+             capability dimensions), staged as
+             ``ideation/staging/doxchat-auto-fit-routing/``. Under that design a
+             rule's declared ceiling is the widest thing it can serve, not the
+             narrowest, and a min-cap would have had to be undone to get
+             there."""
         by_id = {entry.model_id: entry for entry in entries}
         for entry in entries:
             if entry.routing_rule is not True:
                 continue
             declared_segments = badge_segments(entry.data_handling)
-            resolvable = []
             for target_id in entry.routes_to:
                 target = by_id.get(target_id)
                 if target is None:
@@ -511,20 +532,24 @@ class ModelCatalog:
                         f"routing rule {entry.model_id!r} does not carry the "
                         f"data-handling badge of {target_id!r} as a segment of "
                         f"its own badge")
-                resolvable.append(target)
-            for field in ("input_limit_bytes", "output_limit_bytes"):
-                declared = getattr(entry, field)
-                narrowest = min(getattr(target, field) for target in resolvable)
-                if declared > narrowest:
-                    raise InvalidRoutingRuleError(
-                        f"routing rule {entry.model_id!r} declares {field} "
-                        f"{declared}, above the {narrowest} of a model it may "
-                        f"route to")
             resolved = by_id[entry.resolved_model_id]
-            if entry.available is True and resolved.available is not True:
-                raise InvalidRoutingRuleError(
-                    f"routing rule {entry.model_id!r} is available but resolves "
-                    f"to {entry.resolved_model_id!r}, which is not")
+            if entry.available is True:
+                # RULE 5' — the bound is the RESOLVED model's, not the minimum
+                # over `routes_to`. Both halves of that are Brett's ruling; see
+                # `_validate_routing_targets`' docstring for the argument.
+                for field in ("input_limit_bytes", "output_limit_bytes"):
+                    declared = getattr(entry, field)
+                    answering = getattr(resolved, field)
+                    if declared > answering:
+                        raise InvalidRoutingRuleError(
+                            f"routing rule {entry.model_id!r} declares {field} "
+                            f"{declared}, above the {answering} of "
+                            f"{entry.resolved_model_id!r}, the model it "
+                            f"resolves to")
+                if resolved.available is not True:
+                    raise InvalidRoutingRuleError(
+                        f"routing rule {entry.model_id!r} is available but "
+                        f"resolves to {entry.resolved_model_id!r}, which is not")
 
     @classmethod
     def from_entries(cls, entries) -> "ModelCatalog":
