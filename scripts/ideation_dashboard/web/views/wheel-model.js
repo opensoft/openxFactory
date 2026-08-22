@@ -1164,7 +1164,7 @@ export function bandsOverlap(a, b) {
 // (Brett's opening spec), 2 flattens back toward the old flat reel. Bounds,
 // step, and default live HERE beside the rest of the wheel's pure geometry so
 // settings.js, wheel.js, and the pytest node harness read one source of truth.
-export const DRUM = { min: 0.3, max: 2.0, step: 0.05, default: 1 };
+export const DRUM = { min: 0.3, max: 2.0, step: 0.05, default: 0.5 };
 
 // One candidate factor, parsed defensively: `raw` may be a URL query value, a
 // localStorage string, a number, or absent/corrupt. A candidate COUNTS only when
