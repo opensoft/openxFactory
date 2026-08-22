@@ -301,6 +301,34 @@ export function sendDisclosure(stateValue) {
   return handling ? String(handling) : null;
 }
 
+// THE REDUCED POSTURE, ON THE SURFACE (contract-v1.39,
+// add-doxbench-editing-phase-b task 10.7). The ratified sentence is *"Where the
+// knowledge service is unavailable the turn SHALL degrade to a declared reduced
+// packet … with the reduced posture STATED"*, and until v1.39 the statement
+// lived only inside the assembled packet — true, and unreadable by the human
+// whose answer it changed. The record now carries it, and this is the pure
+// selector that turns it into the one sentence the rail shows.
+//
+// A FULL TURN SHOWS NOTHING NEW, deliberately: full is the ordinary posture, and
+// a standing "full context" badge would be a line every operator learns to stop
+// reading, which is exactly how the reduced one would stop being noticed. Null
+// for everything that is not a reduced answer — no answer yet, a turn in the
+// air, a full answer, or a record from a producer older than v1.39.
+export const REDUCED_CONTEXT_LEAD = "reduced context: ";
+
+export function reducedContextNote(stateValue) {
+  const packet = stateValue && stateValue.contextPacket;
+  if (!packet || packet.posture !== "reduced") return null;
+  const reason = packet.reduced_reason;
+  // The REASON IS THE NOTE, not an optional tail: the requirement's own words
+  // are that a reduction is STATED, and "reduced context" with no why is the
+  // silent degradation with a label on it. The adopter already refuses a
+  // reduced packet with no reason, so this is the second guard on the same rule
+  // rather than a new one — a state hand-built by a caller cannot get past it.
+  if (typeof reason !== "string" || reason === "") return null;
+  return REDUCED_CONTEXT_LEAD + reason;
+}
+
 function bufferSettled(bufferValue) {
   return Boolean(bufferValue) && bufferValue.hash_pending !== true
     && Boolean(bufferValue.current_hash);
@@ -851,6 +879,15 @@ export function mountDoxBenchChatRail(host, options = {}) {
   const failureNote = el("div", "doxchat-failure");
   failureNote.hidden = true;
   failureNote.setAttribute("aria-live", "polite");
+  // THE POSTURE NOTE (contract-v1.39, task 10.7). It sits directly under the
+  // transcript, beside the failure note, because it is the same class of thing:
+  // a fixed, server-derived statement about the answer just rendered. A live
+  // region for the same reason that one is — the operator whose turn quietly
+  // ran without corpus evidence has to be told, and a note that only appears
+  // for sighted readers is half a disclosure.
+  const contextNote = el("div", "doxchat-context");
+  contextNote.hidden = true;
+  contextNote.setAttribute("aria-live", "polite");
   const cardsHost = el("div", "doxchat-proposals");
   cardsHost.setAttribute("aria-label", "typed proposals");
   // T100 P2: the applied/rejected outcome is ANNOUNCED, not whispered — a
@@ -885,7 +922,7 @@ export function mountDoxBenchChatRail(host, options = {}) {
   sendBtn.setAttribute("aria-describedby", unavailableNote.id);
   host.append(loadedSelect, loadedNote, loadedEmpty,
               loadedFull, subjectInput,
-              unavailableNote, transcriptList,
+              unavailableNote, transcriptList, contextNote,
               cardsHost, announce, failureNote, composer, disclosure, sendrow);
 
   // SELECTING IS IMMEDIATE, and it is not a state authority: the seam owns the
@@ -1148,6 +1185,12 @@ export function mountDoxBenchChatRail(host, options = {}) {
       item.setAttribute("dir", "auto");
       transcriptList.appendChild(item);
     }
+    // THE REDUCED POSTURE, STATED WHERE THE HUMAN READS THE ANSWER
+    // (contract-v1.39, task 10.7). One selector, one note, and nothing at all
+    // when the last answer ran on a full context.
+    const contextText = reducedContextNote(state);
+    contextNote.textContent = contextText || "";
+    contextNote.hidden = !contextText;
     renderCards();
     failureNote.hidden = !state.lastFailure;
     failureNote.textContent = state.lastFailure

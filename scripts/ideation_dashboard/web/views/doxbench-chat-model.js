@@ -97,6 +97,18 @@ export function createChatState(keyValue, subjectDefaultValue) {
     transcript: Object.freeze([]),
     lastFailure: null,
     proposals: NO_PROPOSALS,
+    // WHAT THE LAST ANSWER RAN ON (contract-v1.39, task 10.7). The released
+    // record now STATES the posture its context packet was assembled under, and
+    // this is where that statement lands so the rail can show it. Null means
+    // "no answer to describe" — a fresh conversation, a flight in the air, a
+    // thread just switched to — and is NOT a claim that the context was full.
+    // Deliberately a fact about the MOST RECENT ANSWER rather than a per-turn
+    // annotation on the transcript: a transcript restored from the server's
+    // thread sidecar carries no posture (the sidecar's turn header is a
+    // fixed-arity format this release does not change), so per-turn badges
+    // would be present on a lived-through turn and absent on the identical
+    // restored one — a difference the reader would have to explain away.
+    contextPacket: null,
   });
   return editSubject(fresh, subjectDefaultValue);
 }
@@ -217,6 +229,14 @@ export function beginTurn(stateValue) {
   return next(stateValue, {
     phase: "in_flight",
     pendingMessage: stateValue.composer,
+    // THE POSTURE NOTE DESCRIBES THE LAST ANSWER, so it is cleared the moment a
+    // new question is in the air: leaving it up would let "reduced context"
+    // stand over a turn whose context has not been assembled yet, and — if that
+    // turn then FAILED — over no answer at all. Cleared here rather than in
+    // settleTurnFailure so every route out of a flight (failure, abort,
+    // abandonment) lands on the same honest silence, and only a SUCCESS puts a
+    // posture back.
+    contextPacket: null,
   });
 }
 
@@ -285,6 +305,33 @@ export function transcriptWireWindow(stateValue) {
   return Object.freeze(window);
 }
 
+// THE RELEASED `context_packet` OBJECT, adopted from a success record
+// (contract-v1.39, task 10.7). Total by refusal, in the shape every other
+// adopter in this module uses: anything that is not the released two-field
+// statement becomes null, and null renders nothing.
+//
+// FAIL-CLOSED ON A CONTRADICTION, not fail-open. The released schema refuses a
+// `reduced` with no reason and a `full` WITH one, so a payload carrying either
+// did not come from a conformant producer — and the wrong answer would be to
+// keep the half of it that looked usable. `reduced` with no readable reason is
+// exactly the "silent degradation" the requirement exists to prevent, and
+// showing the bare words "reduced context" with no reason would be that
+// degradation wearing a badge. Both drop to null.
+function adoptContextPacket(successPayload) {
+  const raw = successPayload && successPayload.context_packet;
+  if (!raw || typeof raw !== "object") return null;
+  const posture = raw.posture;
+  const reason = raw.reduced_reason;
+  const hasReason = typeof reason === "string" && reason !== "";
+  if (posture === "full") {
+    return hasReason ? null : Object.freeze({ posture: "full" });
+  }
+  if (posture === "reduced" && hasReason) {
+    return Object.freeze({ posture: "reduced", reduced_reason: reason });
+  }
+  return null;
+}
+
 export function settleTurnSuccess(stateValue, successPayload) {
   if (stateValue.phase !== "in_flight") {
     return stateValue;
@@ -299,6 +346,12 @@ export function settleTurnSuccess(stateValue, successPayload) {
     pendingMessage: null,
     lastFailure: null,
     proposals: adoptProposals(successPayload),
+    // THE RELEASED POSTURE, ADOPTED (contract-v1.39, task 10.7). Read from the
+    // record and never re-derived here: the server assembled the packet, so the
+    // browser has no second way to know. A record from a producer older than
+    // v1.39 carries no `context_packet` at all, which adopts as null — silence,
+    // not a claim that the context was full.
+    contextPacket: adoptContextPacket(successPayload),
     transcript: boundedAppend(
       stateValue.transcript,
       stateValue.pendingMessage === null ? "" : stateValue.pendingMessage,
@@ -399,6 +452,11 @@ export function adoptThreadTranscript(stateValue, turnsValue) {
     transcript,
     proposals: NO_PROPOSALS,
     lastFailure: null,
+    // …and the posture goes with them, for the same reason: it is a fact about
+    // the PREVIOUS document's last answer, and the restored thread carries no
+    // posture of its own (the server's sidecar does not record one). Leaving it
+    // would caption this document's conversation with another's context.
+    contextPacket: null,
   });
 }
 
