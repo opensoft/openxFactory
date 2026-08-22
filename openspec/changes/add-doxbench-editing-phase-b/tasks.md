@@ -1214,9 +1214,9 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       `contract-v1.34`'s deprecation forbids; the migration path is the v2
       envelope. Recorded at the v1 arm in `serve.py`, in the CHANGELOG, and
       pinned by a test that fails if the v1 record ever grows the key.
-      **REVERT-TESTED — 38 MUTATION RUNS over 35 distinct mutations, and THREE
-      came back GREEN.** (29 runs before the adversarial review; the review's
-      own fixes added nine more.)
+      **REVERT-TESTED — 46 MUTATION RUNS over 41 distinct mutations, and FOUR
+      came back GREEN.** (29 before the adversarial review; nine at its first
+      round; eight at its second.)
       Every schema clause was reverted individually WITH THE DIGEST REPINNED, so
       each case fired on the clause rather than on the pin: both conditionals,
       the posture enum, the object's closure, its `required`, the reason ceiling
@@ -1249,6 +1249,24 @@ starts. Items are cited from the fragment's VERIFY LIST (a)–(g).
       while hidden) and the re-run is RED. The reviewer predicted this class
       exactly when they said an attribute assertion cannot catch the order; the
       first attempt at the fix reproduced their point one level up.
+      THE SECOND ROUND ADDED EIGHT: `restoreChatState` keeping the stale posture
+      and nulling instead of adopting; the snapshot not carrying the posture and
+      always writing the key; the stored posture trusted unvalidated; and the
+      identical-text guard dropped.
+      **THE FOURTH GREEN WAS THE SAME CLASS AS THE THIRD, one layer along.**
+      Removing the stored-blob VALIDATION (R39) left the contradictory-blob test
+      passing, because `reducedContextNote` holds its own second guard on the
+      same rule and the probe was reading the rendered NOTE. It now reads the
+      ADOPTED STATE across five contradictions, and also asserts the honest blob
+      still adopts, so the guard is shown to be discriminating rather than
+      merely refusing everything; the re-run is RED. Twice now a probe has been
+      satisfied by a downstream guard rather than by the thing it names — worth
+      recording as a habit to check, not just as two fixed tests.
+      (A PROCESS NOTE, since the table would otherwise show a phantom fifth
+      GREEN: the revert harness restores with `git checkout -- .`, so a
+      strengthening that has not been COMMITTED is reverted before the mutation
+      is applied and the old probe is what runs. That happened once here. Commit
+      before revert-testing.)
       **AND ONE ARM IS A DIAGNOSTIC RATHER THAN A GUARD, stated because
       revert-testing is what proved it.** Disabling BOTH pairing arms in the
       delegated validator leaves its own packaged self-test GREEN, because the
