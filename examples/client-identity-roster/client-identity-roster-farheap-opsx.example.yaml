@@ -39,6 +39,26 @@
 #      the OpsxFactory node-inventory reader is a DOWNSTREAM consumer not yet
 #      admitted — mirroring entry 2's unverified convention, and asserting no
 #      verified provider fact this neutral repository cannot cite.
+#
+#   4. THE `directory` (SERVICE-INVENTORY) WORKED CASE (entry 4), added by
+#      add-roster-directory-admission-surface (contract-v1.39). The `directory`
+#      surface is ONE tenant-wide READ surface covering the tenant DIRECTORY AND
+#      SERVICE ESTATE — the organization profile and its subscribed service
+#      plans, the tenant's service principals/applications, and its verified
+#      domains. Its governed unit IS that estate, so tenant-wide read is the
+#      GOVERNED scope, not excess: `exceeds_governed_unit: false`, NO
+#      `declared_excess`, and NO `spanned_surfaces` (those provider areas are
+#      not `admission_surface` consts — they are prose in the `directory`
+#      member's description, and the schema would refuse them in a structured
+#      breadth field). It is READ-ONLY (`observe`/`observe`), its single act is
+#      `logic_enforced`, and `per_unit_principal_available: {directory: false}`.
+#      A `planned` entry with an UNVERIFIED act, on the same reasoning as
+#      entries 2 and 3. Every provider fact is transcribed from the MERGED
+#      `microsoft_service_discovery_reader` credential requirement
+#      (opensoft/OpsxFactory, `credentials/requirements.yaml`, commit
+#      `824f8ef`), whose `minimum_scopes` are exactly the three roles below
+#      under `exact_effective_scopes: true` and
+#      `reject_write_or_destructive_scopes: true`.
 schema_version: 1
 kind: xfactory_client_identity_roster
 client_ref: farheap
@@ -64,6 +84,14 @@ legend:
       tenant 96d3fa6b-5547-49ca-9af1-dba9bec50c2b. Tenant-wide read is the
       GOVERNED scope for this unit, not excess: the provider offers no narrower
       selector on the read-only device roles.
+    tenant_directory_estate: >-
+      The FarHeap tenant DIRECTORY AND SERVICE ESTATE as one unit — the
+      organization profile and its subscribed service plans, every service
+      principal and application registration, and every verified domain in
+      tenant 96d3fa6b-5547-49ca-9af1-dba9bec50c2b. Tenant-wide read is the
+      GOVERNED scope for this unit, not excess: a complete tenant
+      service-surface inventory is what read-only DISCOVER is for, and the
+      provider offers no narrower selector on the read-only directory roles.
   duties:
     environment_observation: >-
       Business Central ENVIRONMENT observation — extension deployment status,
@@ -73,6 +101,12 @@ legend:
       Read-only enumeration of the tenant device estate — Entra registered
       devices, Intune managed devices and Windows 365 Cloud PCs — producing a
       node inventory. No device is created, modified, wiped or retired.
+    service_inventory: >-
+      Read-only enumeration of the tenant directory and service estate — the
+      organization profile and its subscribed service plans, service
+      principals/applications, and verified domains — producing a tenant
+      service-surface inventory. No directory object is created, modified or
+      deleted.
 entries:
 
   # ------------------------------------------------------------------
@@ -364,3 +398,107 @@ entries:
       attested_at: "2026-08-08T07:32:53Z"
     ratified_by: opsxfactory:managed-node-inventory
     consent_ref: farheap-node-inventory-consent-v1
+
+  # ------------------------------------------------------------------
+  # ENTRY 4 — the `directory` (service-inventory) worked case
+  # (add-roster-directory-admission-surface, contract-v1.39).
+  # ------------------------------------------------------------------
+  # The tenant DIRECTORY AND SERVICE ESTATE read as ONE tenant-wide surface.
+  # Its governed unit IS that estate — a COMPLETE tenant service-surface
+  # inventory is what read-only DISCOVER is for — so tenant-wide read is the
+  # GOVERNED scope (`exceeds_governed_unit: false`, no `declared_excess`):
+  # there is nothing to declare as excess, because the provider offers no
+  # narrower selector on the read-only directory roles and the whole estate is
+  # what this entry governs. The provider areas read (organization profile and
+  # subscribed service plans / service principals and applications / verified
+  # domains) are NOT `admission_surface` consts — they are prose in the
+  # `directory` member's schema description and appear in NO structured breadth
+  # field, which the schema would refuse. A `planned` entry (the service
+  # DISCOVERY reader is a DOWNSTREAM OpsxFactory consumer not yet admitted), so
+  # its single act is UNVERIFIED by derivation — no `evidence_ref` and no
+  # `verified_at`, exactly as entries 2 and 3 — and `provider_object_ref` is
+  # omitted because the registration does not yet exist in the provider.
+  #
+  # SEPARATE FROM `device`, DELIBERATELY. `Directory.Read.All` would read the
+  # already-admitted `device` surface too, so it is OUTSIDE this surface's
+  # admission act; the three roles below are the exact effective set, which is
+  # what keeps the two surfaces separately consented, separately scoped and
+  # separately revocable.
+  - identity_ref: opsx-farheap-service-discovery-reader
+    identity_kind: entra_app_registration
+    home_tenant: 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    principal_locations:
+      - 96d3fa6b-5547-49ca-9af1-dba9bec50c2b
+    residency_model: client_tenant_single
+    admission_surface: directory
+    duty: service_inventory
+    blast_radius_unit: tenant_directory_estate
+    # Intended observation, ACHIEVED observation. The realized reader class
+    # carries `reject_write_or_destructive_scopes: true` over three `*.Read.All`
+    # roles (OpsxFactory credentials/requirements.yaml, commit 824f8ef), so
+    # there is no forced class overshoot and therefore no `declared_excess`.
+    authority_class_intended: observe
+    authority_class_achieved: observe
+    granted_permissions:
+      # The three read-only application roles the admission act consents to,
+      # VERBATIM from `microsoft_service_discovery_reader.minimum_scopes` under
+      # `exact_effective_scopes: true` (OpsxFactory
+      # credentials/requirements.yaml, commit 824f8ef). All `observe`; each
+      # reaches the single `directory` surface. `Organization.Read.All` reads the
+      # organization profile and its subscribed service plans,
+      # `Application.Read.All` reads the tenant's service principals and
+      # applications, `Domain.Read.All` reads its verified domains — one
+      # tenant-wide read surface, three provider areas. Business Central
+      # presence is detected from the service-plan signal this same read already
+      # returns, so it adds no fourth role.
+      - id: Organization.Read.All
+        achieves: observe
+        reaches: [directory]
+      - id: Application.Read.All
+        achieves: observe
+        reaches: [directory]
+      - id: Domain.Read.All
+        achieves: observe
+        reaches: [directory]
+    admission:
+      # THE SINGLE ACT — admin consent for the three read-only roles on ONE
+      # Entra app registration. `logic_enforced`: the read is bounded by the
+      # exact read-only roles, and there is NO provider scoping selector (unlike
+      # Exchange's RestrictAccess), so no per-unit principal exists to use. The
+      # act is UNVERIFIED — no `evidence_ref`/`verified_at` — because the
+      # registration is not yet admitted; it contributes nothing to effective
+      # reach until it is. The credential itself is never standing: it is
+      # presented BY REFERENCE through the promoted `tenant-reader-grant-pipeline`
+      # as an app-only workload identity, never a delegated user session
+      # (`access_mode: workload_identity`, `max_grant_minutes: 60`, same record).
+      - surface: directory
+        act: >-
+          admin consent to be granted for the read-only application roles
+          Organization.Read.All, Application.Read.All and Domain.Read.All on one
+          Entra app registration in the FarHeap tenant — not yet performed;
+          enters by separate instruction under the downstream OpsxFactory
+          service-inventory consent ceremony
+        achieved_scope: >-
+          tenant-wide directory and service-estate read (intended; the read-only
+          roles carry no narrower selector, so the exact effective scopes ARE the
+          bound and the provider offers nothing narrower)
+        enforcement_mode: logic_enforced
+        exceeds_governed_unit: false
+    per_unit_principal_available:
+      # FALSE — the governed unit is the whole tenant directory and service
+      # estate and the read-only roles carry no scope selector, so no principal
+      # is scoped to a narrower unit. `logic_enforced` beside a `false` answer is
+      # conformant: the bound is our gate logic and the read-only role set, with
+      # the provider reason recorded (there is no narrower selector to use).
+      directory: false
+    lifecycle_state: planned
+    standing_credential_attestation:
+      # The claim is made against the MERGED reader class, so the attestation
+      # moment is that merge's own commit timestamp (OpsxFactory `main`
+      # `824f8ef`, 2026-08-22T11:11:27Z) rather than an invented one. The class
+      # is `access_mode: workload_identity` with `max_grant_minutes: 60`: no
+      # credential exists between uses.
+      no_standing_credential: true
+      attested_at: "2026-08-22T11:11:27Z"
+    ratified_by: opsxfactory:managed-service-inventory
+    consent_ref: farheap-service-inventory-consent-v1
