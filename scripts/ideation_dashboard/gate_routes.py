@@ -2135,7 +2135,7 @@ def first_edit_gate_factory(actor: str, records_dir: str):
 
     TWO declared allowances, and no third: the records tree, exactly as
     `_edit_document` grants it, and — since add-doxbench-editing-phase-b (task
-    9.5, `openspec/changes/add-doxbench-editing-phase-b/tasks.md`) — the THREAD
+    9.5, `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/tasks.md`) — the THREAD
     SIDECAR tree.
 
     THE WIDENING IS AS NARROW AS THE TASK ALLOWS, and this note is the record of

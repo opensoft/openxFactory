@@ -312,8 +312,14 @@ export function sendDisclosure(stateValue) {
 // A FULL TURN SHOWS NOTHING NEW, deliberately: full is the ordinary posture, and
 // a standing "full context" badge would be a line every operator learns to stop
 // reading, which is exactly how the reduced one would stop being noticed. Null
-// for everything that is not a reduced answer — no answer yet, a turn in the
-// air, a full answer, or a record from a producer older than v1.40.
+// for everything that is not a reduced answer — no answer yet, a full answer, or
+// a record from a producer older than v1.40.
+//
+// A TURN IN THE AIR IS NOT ONE OF THOSE, and this comment used to say it was
+// (fresh-eyes review F2). A flight STARTING replaces no answer, so the note
+// keeps describing the answer still on screen and a probe asserts exactly that
+// — see `beginTurn`'s note in doxbench-chat-model.js for why the clear that
+// used to live there was removed.
 export const REDUCED_CONTEXT_LEAD = "reduced context: ";
 
 export function reducedContextNote(stateValue) {

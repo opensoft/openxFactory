@@ -495,8 +495,23 @@ Active changes:
   (14 + 14 confirmed findings — 52 and 28 bypass probes respectively — all
   fixed, ruled, or documented, with zero ratified-corpus regressions), and
   **registered at `contract-v1.37`**.
-- [add-doxbench-editing-phase-b](openspec/changes/add-doxbench-editing-phase-b/proposal.md)
-  — authored 2026-08-18, Phase B and the EXIT of the `doxbench-editing-model`
+- [add-doxbench-editing-phase-b](openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md)
+  — **ARCHIVED 2026-08-22** on Brett's explicit word, the doxBench editing
+  sprint complete. Realization evidence at the gate: §3 verify list PR #206 /
+  `e7e7a84`; §4–§9 core PR #207 / `a4a6f6e`; §13 contract release PR #210 /
+  `5daa173` (`contract-v1.34`); §10 knowledge service PR #216 / `ece236a`;
+  §11 harness bridge PR #223 / `7312c25`; §12 share-session; §11.7 PR #244 /
+  `0f50b352` (`contract-v1.38`); and §10.7 PR #256 / `671a6908`
+  (`contract-v1.40` — re-cut from v1.39 when PR #259 took that number
+  mid-review). Its spec text promoted, **+9 ADDED and ~8 MODIFIED** into
+  `ideation-dashboard` (78 → 87 requirements) and **+1 ADDED** into
+  `memory-gateway` (21 → 22), verified byte-for-byte against the deltas with
+  zero drift across the 91 untouched requirements; supporting-docs packaged as
+  `supporting-docs.tar.gz` (3 files) beside its manifest. One follow-up is
+  recorded as issue #263 (a whitespace-only `reduced_reason` passes all five
+  posture gates — unreachable from this repository's producer, real for a
+  third-party one). Authored 2026-08-18, Phase B and the EXIT of the
+  `doxbench-editing-model` staged topic:
   staged topic: all seven questions dispositioned, 26 claims settled (Brett's
   live-UI annotations and in-session rulings 2026-08-15 → 2026-08-18). Where
   Phase A was a layout-and-binding change on proven substrate, Phase B is the
