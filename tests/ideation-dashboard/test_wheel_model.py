@@ -833,7 +833,7 @@ def test_reel_geometry_matches_the_locked_prototype(tmp_path):
 #
 # (id, urlRaw, storedRaw) -> the factor wheel.js draws with. The knob's whole
 # contract: an explicit `?drum=` URL param WINS (the compare-by-URL tuning tool),
-# else the saved setting, else the default 1; a parseable POSITIVE number is
+# else the saved setting, else the default 0.5; a parseable POSITIVE number is
 # clamped into [0.3, 2.0] rather than discarded (a stale tuning URL still renders
 # a legible wheel); anything else — absent, non-numeric, zero, negative — is "no
 # opinion" and falls through to the next source.
@@ -860,7 +860,7 @@ DRUM_CASES = [
 def test_drum_bounds_are_the_settings_knob(tmp_path):
     """The slider's range/step/default are wheel geometry, not UI trivia."""
     r = _run_drum(DRUM_CASES, tmp_path)
-    assert r["bounds"] == {"min": 0.3, "max": 2.0, "step": 0.05, "default": 1}
+    assert r["bounds"] == {"min": 0.3, "max": 2.0, "step": 0.05, "default": 0.5}
 
 
 def test_drum_url_param_wins_over_the_saved_setting(tmp_path):
@@ -879,9 +879,9 @@ def test_drum_invalid_inputs_fall_back_through_precedence(tmp_path):
     assert r["url-negative-uses-stored"] == pytest.approx(1.25)
     # ...and an unusable stored value (corrupt JSON left in localStorage,
     # negative) lands on the default rather than a broken cylinder
-    assert r["both-absent-default"] == 1
-    assert r["stored-garbage-default"] == 1
-    assert r["stored-negative-default"] == 1
+    assert r["both-absent-default"] == pytest.approx(0.5)
+    assert r["stored-garbage-default"] == pytest.approx(0.5)
+    assert r["stored-negative-default"] == pytest.approx(0.5)
     # the single-candidate view of the same rule
     assert out["candidates"]["url-garbage-uses-stored"] is None
     assert out["candidates"]["url-zero-uses-stored"] is None

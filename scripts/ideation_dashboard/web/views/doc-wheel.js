@@ -29,14 +29,15 @@
 //     exported `tileOpacity`, which is the older FLAT-reel curve the drum
 //     superseded: a cylinder fades by its own foreshortening.
 //
-// WHY 0.4. The drum places tiles at `winH/2 ± R` for `R = winH × drumF`. At the
-// deck's default 1.0 that spans `[-0.5·winH, 1.5·winH]`: most of a column is
-// laid out outside its own window and survives only because the clip hides it —
-// affordable in a 430px deck window, useless in a ~380px pane where the whole
-// reel would be off-screen. At 0.4 the span is `[0.1·winH, 0.9·winH]`: every
-// tile lands INSIDE the subpane, and tiles leave by wrapping over the drum's own
-// horizon instead of running off the end. That is the operator's number, and it
-// is the number that makes a drum work at this size.
+// WHY 0.4. The drum places tiles at `winH/2 ± R` for `R = winH × drumF`. At
+// factor 1.0 (the deck's original default) that spans `[-0.5·winH, 1.5·winH]`:
+// most of a column is laid out outside its own window and survives only
+// because the clip hides it — affordable in a 430px deck window, useless in a
+// ~380px pane where the whole reel would be off-screen. At 0.4 the span is
+// `[0.1·winH, 0.9·winH]`: every tile lands INSIDE the subpane, and tiles leave
+// by wrapping over the drum's own horizon instead of running off the end.
+// That is the operator's number, and it is the number that makes a drum work
+// at this size.
 import {
   drumProject, tileBox, tileScale, inReelWindow,
   nextExpanded, isExpandedTile, EXPANDED, SPRING,

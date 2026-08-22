@@ -1026,9 +1026,10 @@ export function renderWheel(root, snapshot, ctx) {
   // flat list. (Supersedes the flat reel + tanh bulge while we tune.)
   // Radius knob (the "wheel diameter" setting; `drumF` above): 1 -> R =
   // viewport height (gentle, ~±30° visible); 0.5 -> R = half height (full
-  // horizon at the viewport edges — the classic slot-drum wrap). Default 1 per
-  // Brett's opening spec. Both tuning paths stay open: `?drum=` still wins at
-  // load for compare-by-URL, and the header gear's slider tunes it live.
+  // horizon at the viewport edges — the classic slot-drum wrap). Default 0.5
+  // (was 1 per Brett's opening spec). Both tuning paths stay open: `?drum=`
+  // still wins at load for compare-by-URL, and the header gear's slider
+  // tunes it live.
 
   // The arithmetic moved to wheel-model.js's `drumProject` (2026-08-03) when
   // the docs pane's wheel became a second caller: "the same wheel" has to mean
