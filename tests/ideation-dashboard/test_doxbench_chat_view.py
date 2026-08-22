@@ -3782,6 +3782,29 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
   out.fullWithNoKeyAdopts = restoreChatState(
     createChatState(KEY), { ...blob, context_packet: { posture: "full" } }, {})
     .contextPacket;
+
+  // (f) THE ANSWER THE POSTURE DESCRIBES MUST SURVIVE THE RESTORE (Codex review
+  //     of PR #256). This restore drops malformed turns WHOLE, so a valid
+  //     stored posture can outlive the answer it belonged to.
+  const withTranscript = (turns) => ({ ...blob, transcript: turns });
+  out.restoreDropsOrphanedPosture = {
+    empty: restoreChatState(
+      createChatState(KEY), withTranscript([]), {}).contextPacket,
+    humanOnly: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q" }]), {}).contextPacket,
+    newestDropped: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q1" },
+                      { role: "assistant", content: "older answer" },
+                      { role: "human", content: "q2" },
+                      { role: "assistant", content: null }]), {}).contextPacket,
+    intact: restoreChatState(
+      createChatState(KEY),
+      withTranscript([{ role: "human", content: "q" },
+                      { role: "assistant", content: "answer" }]), {})
+      .contextPacket,
+  };
 }
 
 // NEW-3: typing in the composer must not re-announce the same sentence.
@@ -4027,6 +4050,32 @@ def test_restoring_a_snapshot_does_not_leave_a_STALE_note_on_a_new_answer(
     answer-replacing paths was complete at three, and it was four."""
     assert posture_results["restoreClearsStale"] is True
     assert posture_results["crossedLastAssistant"] == "answer"
+
+
+def test_a_restored_posture_never_outlives_the_answer_it_describes(
+        posture_results):
+    """Codex review of PR #256. `restoreChatState` drops malformed turns WHOLE,
+    so a perfectly valid stored posture can arrive with no answer to describe —
+    and in the worst variant, with the WRONG answer to describe.
+
+    Three reproduced cases, all now cleared: an empty transcript rendering a
+    reduction note for nothing; the assistant turn filtered out while the human
+    turn survives; and the NEWEST assistant turn dropped, which captioned the
+    OLDER answer with the newer one's posture. That last is the wrong-answer
+    caption this invariant exists to prevent, arriving by a third route after
+    the failed-follow-up (S4) and the cross-restore (NEW-1).
+
+    The test is the invariant: the restored transcript must END with an
+    assistant turn. The honest case still adopts, so this is a condition rather
+    than a blanket refusal."""
+    r = posture_results["restoreDropsOrphanedPosture"]
+    assert r["empty"] is None
+    assert r["humanOnly"] is None
+    assert r["newestDropped"] is None
+    assert r["intact"] == {
+        "posture": "reduced",
+        "reduced_reason": posture_results["reason"],
+    }
 
 
 def test_a_snapshot_written_before_this_release_still_restores(posture_results):

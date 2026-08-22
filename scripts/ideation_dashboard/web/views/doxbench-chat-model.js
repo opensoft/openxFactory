@@ -824,7 +824,25 @@ export function restoreChatState(stateValue, snapshotValue, currentHashes) {
     // future-versioned blob claiming `reduced` with no readable reason fails
     // closed to null instead of captioning the transcript with a reduction
     // nobody can check.
-    contextPacket: adoptContextPacket(snapshotValue),
+    //
+    // …AND ONLY IF THE ANSWER IT DESCRIBES SURVIVED THE RESTORE (Codex review
+    // of PR #256). The posture describes THE TRANSCRIPT'S LAST ASSISTANT
+    // ANSWER, and this restore drops malformed turns WHOLE (P3-6(a)/(b) above),
+    // so the answer the stored posture belonged to may simply not be here.
+    // Three reproduced cases: an empty transcript with a valid packet rendered
+    // a reduction note for no answer at all; a blob whose assistant turn was
+    // filtered did the same; and dropping only the NEWEST assistant turn
+    // captioned the OLDER answer with the newer one's posture — the
+    // wrong-answer caption this invariant exists to prevent, arriving by a
+    // third route after S4 and NEW-1.
+    //
+    // The test is the invariant itself: the restored transcript must END with
+    // an assistant turn, because that is the answer a posture would describe. A
+    // transcript ending in a human turn has no answer on screen for it to
+    // describe — including the ordinary case of a tile closed mid-question.
+    contextPacket: (transcript.length
+                    && transcript[transcript.length - 1].role === "assistant")
+      ? adoptContextPacket(snapshotValue) : null,
   });
   // The re-score is the whole point of restoring these together.
   return currentHashes ? refreshProposalCurrency(restored, currentHashes)
