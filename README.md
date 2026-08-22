@@ -559,6 +559,54 @@ Active changes:
   Sequenced AFTER `add-doxbench-editing-phase-a`, three of whose ADDED
   requirements it MODIFIES relative to that change's outcome.
   `target_release: implemented`.
+- [add-substantive-review-lane](openspec/changes/add-substantive-review-lane/proposal.md)
+  — proposed 2026-08-15, **RATIFIED 2026-08-22** by Brett Heap (in-session
+  via question prompts; record
+  `openspec/changes/add-substantive-review-lane/review/ratification-2026-08-22.md`):
+  generalizes codexFactory's proven
+  `gate_rules_council` + `merge_readiness_council` + Merge Master machinery
+  (live autonomous deliberation 2026-08-14, xFactory PRs #85/#100) beyond its
+  one rules-as-code candidate class (`doc-health-nightly`,
+  `docs_only_path_overflow`) into a named substantive review lane: councils
+  judge, Merge Master stays the mechanical enforcer; every seat's rationale,
+  a signed identity-bound check-run, and an audit artifact make review
+  accountable; reviewer/enforcer identity stays separate from the PR
+  author's; the envelope fails closed outside a defined candidate class or a
+  non-unanimous verdict. MODIFIES `roles-authority-model` (ten ADDED
+  requirements). Pilot: `opensoft/openxFactory` reviewed by codexFactory's
+  councils. **All five questions the proposal declared open on 2026-08-15
+  were RULED by Brett Heap in-session 2026-08-22 and encoded** (proposal
+  "Decided questions"; four new requirements plus a rewritten pilot
+  requirement): rollout order DEFERRED to a named follow-up change on pilot
+  evidence, but the bar (≥3 council-cleared substantive PRs across ≥2
+  candidate classes, zero enforcer incidents, one completed gate-rules
+  review cycle) and the ordering principle (engineering-owned repos before
+  domain repos) are decided now; persona home — codexFactory's councils
+  review substantive PRs in EVERY governed repo, zero new persona homes
+  (Brett overrode the recommended two-axis split); company-policy-lead seat
+  rules-council-only BY DEFAULT with a bounded per-class pull-in a candidate
+  class may declare, defined by the gate-rules council at class-definition
+  time and fail-closed for those classes (Brett's third option, superseding
+  design.md Decision D in part); ruleset shape — the proven shape everywhere
+  (real `APPROVE` review satisfies required review; the council-verdict
+  check-run is transport only and never a satisfier; human review always
+  available, no App-path-only repo); and risk tiers — the constitutional
+  floor is ruled now (the ratified never-clearable floor is tier-independent
+  and unoverridable by unanimity; contract bytes, gate/workflow definitions,
+  credential surfaces, and security posture are permanently human-only;
+  autonomous clearance only ever for docs-/derived-artifact-shaped blast
+  radii) with the enumerated tier vocabulary DEFERRED to the same
+  evidence-driven follow-up path. The ratification read (also 2026-08-22, a
+  distinct act from the clarify round) ruled four further items: the FORM
+  ELEVATION of Q1's bar and Q5's floor from proposal text into promoted
+  requirements is ACCEPTED; the Q1 bar counts ANY council-cleared verdict,
+  App-approved or human-approved, because it measures council quality rather
+  than enforcer autonomy (overriding the encoder's autonomous-only reading);
+  the ordering principle stays ABSOLUTE, the dormant-engineering-repo
+  consequence accepted, with escalation to Brett inside a future adoption
+  change as the escape path rather than requirement text; and RATIFY.
+  `target_release: none` — no contract bytes move; realization across the
+  three repos (tasks §3–§5) is now authorized, tracked-not-performed work.
 - [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
   — authored 2026-08-13: two neutral `credential-contracts` requirements for the
   openXdox intent-plane dispatch credential — dispatch-only least privilege with
