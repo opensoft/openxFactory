@@ -1,15 +1,49 @@
 ---
 code_surface: openxFactory (schema/contract)
-target_release: implementation_pending
+target_release: implemented — realized on the openxFactory main line and cut as contract-v1.35 (2026-08-19); authored under `implementation_pending`, whose merge-plus-green condition that cut discharged
 ---
 # Proposal: add-roster-device-admission-surface
+
+> **REALIZED AND ARCHIVED 2026-08-22.** Realization tasks §1–§5 are all
+> discharged and the code is merged on the implemented target as PR #220
+> (merged 2026-08-19T20:42:27Z; squash-merged, so the four branch commits
+> `06d6875`, `6b158d9`, `52622d3`, `f69f61e` are reachable on `main` only as the
+> single commit `78f8e01`). The `device` `oneOf` const member and its
+> admission-act/scoping description are in
+> `contracts/schemas/xfactory-client-identity-roster.schema.yaml`, the
+> extension-route prose is resliced so endpoint MUTATION and Entra-directory
+> remain separate future surfaces, the validator's refusal string matches it,
+> a packaged `device` example rides the governed-tenant-scope shape F1
+> established, and the bundle was cut as `contract-v1.35 — 2026-08-19`
+> (CHANGELOG heading: "additive; the `device` roster admission surface") with
+> `contracts/releases/contract-v1.35.digests.yaml` beside it. The
+> bundle has since moved on to contract-v1.37; a later cut does not unmake this
+> one. Green re-verified at the archive tip rather than quoted from the merge
+> run: the roster validator's packaged-corpus self-test PASS (4 positives clean,
+> 31 negatives refused for their registered reason),
+> `openspec validate --all --strict` exit 0, and
+> `validate-contract-release.py verify-commit` pass on `78f8e01`. Task detail,
+> the per-task evidence and the archive-gate checks are in `tasks.md` §7.
+>
+> §6 is the ONE unticked box and it is a recorded boundary, not a gap: the
+> downstream OpsxFactory `device` roster entry and its consent ceremony are
+> authored in that repository under its own governance and never landed here.
+>
+> This block REPLACED the "the schema/bundle realization (tasks §1–§5) runs
+> post-ratification; no schema, bundle bump, or merge landed with the proposal
+> itself" framing rather than carrying it through the archive. Both of that
+> sentence's clauses were literally true of the proposal commit, but read from
+> an archived record they describe a change still waiting on work that had in
+> fact been merged the same day — the same reason `refine-demote-round-trip-mechanics`
+> and `align-demote-to-round-trip-rule` replaced their own pre-realization
+> banners on archiving.
 
 Status: ratified
 Ratified: 2026-08-19 — record: `review/ratification-2026-08-19.md` (Brett;
 clarify rulings + cross-model adversarial review with F1 fixed and F2 accepted;
-`device` admitted as one tenant-wide read surface). The schema/bundle
-realization (tasks §1–§5) runs post-ratification; no schema, bundle bump, or
-merge landed with the proposal itself.
+`device` admitted as one tenant-wide read surface). That ratification
+authorized the realization; it landed no schema, bundle bump, or merge by
+itself, and the realization followed the same day in the same pull request.
 Proposed: 2026-08-19 on the node-inventory realization evidence, per the
 ratified reader-grant clarify decision Q4 (OpsxFactory
 `add-tenant-reader-grant-pipeline`), which named the openxFactory

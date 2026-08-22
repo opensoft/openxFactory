@@ -23,6 +23,11 @@ name the admission act and scoping mechanism that make it a surface.
 - **WHEN** a provider product is admitted through two independent admission acts with different scoping mechanisms
 - **THEN** each act is its own admission surface
 
+#### Scenario: The device (node-inventory) surface is admitted
+- **WHEN** the ratified node-inventory capability governs the device read surface (Entra registered devices, Intune managed devices and Windows 365 Cloud PCs read on one identity, and the provider offers nothing narrower)
+- **THEN** `device` enters the closed admission-surface vocabulary
+- **AND** its entry names the admission act (admin-consented `Device.Read.All`, `DeviceManagementManagedDevices.Read.All` and `CloudPC.Read.All` on one identity) and the scoping mechanism (tenant-wide read, exact effective scopes, and no narrower provider selector)
+
 ### Requirement: Identity uniqueness is keyed on surface, class, blast-radius unit and duty
 Roster uniqueness SHALL be keyed on the tuple (owning domain, admission
 surface, authority class, blast-radius unit, duty). Authority class SHALL be
