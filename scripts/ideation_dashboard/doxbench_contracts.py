@@ -116,13 +116,23 @@ from referencing.jsonschema import DRAFT202012
 # Nothing here depends on any of it: this module pins SCHEMA digests, and the
 # v1.38 release surface verifies on its own.)
 #
-# THE REF IS THE SENTINEL AGAIN, deliberately, and on the same precedent: the
-# tag is cut at the realization squash, so on this branch there is no release
-# commit to name and `unpublished:contract-v1.38` is the only honest value. A
-# follow-up commit resolves it to the published commit, exactly as 7c544c84 did
-# for v1.34 while ticking 13.3.
+# THE REF IS RESOLVED: `contract-v1.38` is published (annotated tag object
+# 46cd169a5a2aeecd21e84f8684aa20a6053b1f75) and this names the commit it
+# dereferences to -- the squash-merge of PR #244 -- exactly as the v1.34 and
+# v1.31 pins named their own, and never the tag object. It carried the
+# `unpublished:contract-v1.38` sentinel across the realization branch, because
+# the versioning policy allocates the version and builds the digest inventory AT
+# REALIZATION (steps 1-2) and publishes the tag against the commit that actually
+# lands (step 5) -- so until that commit existed there was nothing honest to
+# name, and the sentinel was spelled as a value no `stack.yaml` can declare so a
+# consumer comparing against it REFUSED rather than matched by accident.
+#
+# Verified from the REMOTE rather than from the local ref that created it:
+# `git ls-remote origin refs/tags/contract-v1.38^{}` peels to this commit, and
+# both `verify-commit --commit contract-v1.38` and
+# `verify-tag --remote origin --tag contract-v1.38` pass.
 
-CONTRACT_REF = "unpublished:contract-v1.38"
+CONTRACT_REF = "0f50b352b2b4a38dc237453bb8f1244e47c8e752"
 CONTRACT_TAG = "contract-v1.38"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"

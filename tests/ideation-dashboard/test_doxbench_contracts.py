@@ -50,14 +50,13 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # digest moves and the chat-turn's does not, because this release grows the
 # catalog entry with the routing-rule declaration.
 #
-# The REF is the unresolved-until-published sentinel again, on v1.34's own
-# precedent — the policy publishes the annotated tag against the commit that
-# LANDS, so across a realization branch there is no release commit to name and
-# the sentinel is spelled as a value no `stack.yaml` can declare, so a consumer
-# comparing against it refuses rather than matching by accident. A follow-up
-# commit resolves it, as 7c544c84 did for v1.34 (`contract-v1.34^{}` == 5daa173,
-# tag object 439d76b).
-RELEASED_REF = "unpublished:contract-v1.38"
+# The REF carried the unresolved-until-published sentinel across the realization
+# branch, on v1.34's own precedent — the policy publishes the annotated tag
+# against the commit that LANDS, so until that commit existed there was nothing
+# honest to name — and now names it: `contract-v1.38^{}` == 0f50b35, the
+# squash-merge of PR #244, tag object 46cd169, peeled FROM THE REMOTE. (The v1.34
+# resolution was 7c544c84: `contract-v1.34^{}` == 5daa173, tag object 439d76b.)
+RELEASED_REF = "0f50b352b2b4a38dc237453bb8f1244e47c8e752"
 RELEASED_TAG = "contract-v1.38"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
