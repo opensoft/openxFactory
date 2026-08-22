@@ -579,6 +579,22 @@ Active changes:
   reaches the browser. (code surface: openxFactory; target release: none;
   depends on openProfiler)
 
+- [add-dashboard-account-menu](openspec/changes/add-dashboard-account-menu/proposal.md)
+  — authored 2026-08-21. In hosted mode the dashboard sits behind the dox-auth
+  gateway with a verified per-user identity, but the UI shows no account
+  affordance and no way to sign out. ADDS a user-account menu in the top-right
+  corner controls (beside theme + settings) showing the signed-in username, the
+  session's access level, and a logout control. The serve surfaces the identity
+  ADDITIVELY on `/capabilities` as a per-request `hosted_actor` field read from
+  the gateway-stamped `X-Auth-Request-User` header (`null` off the gateway) —
+  same additive pattern as the prior `model` and `repository` fields, no
+  version bump. The field is DISPLAY-ONLY: the gateway remains the identity
+  authority, trust rests on the NetworkPolicy boundary, and the dashboard
+  authorizes nothing on it (the D16 credential-free boundary holds). Logout
+  delegates to the gateway-owned `/logout`; the dashboard terminates no session
+  itself. Depends only on infrastructure already live. (code surface:
+  openxFactory; target release: none)
+
 - [add-composed-view-authoring](openspec/changes/add-composed-view-authoring/proposal.md)
   — ratified 2026-08-08 ("yes, we need to draft from a project view").
   `Composed views are read-only with a repository jump` states its reason as
