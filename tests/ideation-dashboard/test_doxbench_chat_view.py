@@ -3778,7 +3778,7 @@ out.fullWithReason = await railCase({ posture: "full", reduced_reason: REASON })
   const atCeiling = "y".repeat(CONTEXT_REDUCED_REASON_MAX_LENGTH);
   // ASTRAL: 300 code points, 600 UTF-16 units. Conformant under `maxLength:
   // 500`, and the first version of this ceiling discarded it (Codex review).
-  const astral = "\u{1F600}".repeat(300);
+  const astral = String.fromCodePoint(0x1F600).repeat(300);
   out.wireCeiling = {
     over: settleTurnSuccess(
       beginTurn({ ...createChatState(KEY), composer: "q" }),
