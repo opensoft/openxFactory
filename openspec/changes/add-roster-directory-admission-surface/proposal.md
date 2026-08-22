@@ -4,7 +4,10 @@ target_release: implementation_pending
 ---
 # Proposal: add-roster-directory-admission-surface
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-22 — record: `review/ratification-2026-08-22.md` (Brett;
+cross-model adversarial review, F1–F4 fixed pre-ratification; realization
+tasks §1–§5 authorized, nothing landed by the ratification itself).
 Proposed: 2026-08-22 on the realization evidence of OpsxFactory
 `add-managed-service-inventory` §1–§6, per its ratified F1 ordering — that
 change's own ratification records the openxFactory `directory`
