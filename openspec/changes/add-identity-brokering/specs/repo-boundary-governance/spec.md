@@ -5,7 +5,7 @@
 ### Requirement: Keycloak install repository boundary
 
 The identity-broker runtime SHALL live in a private, independently
-released repository named `xFactory-Keycloak-Install`, created by the
+released repository named `Keycloak-Install`, created by the
 `implement-keycloak-install-repo` successor change and, when admitted,
 pinned into the top-level xFactory aggregation at
 `installs/keycloak-install`.
@@ -38,7 +38,7 @@ as aggregation admission.
 
 #### Scenario: Broker install repository is created
 
-- **WHEN** the `implement-keycloak-install-repo` successor change creates `xFactory-Keycloak-Install`
+- **WHEN** the `implement-keycloak-install-repo` successor change creates `Keycloak-Install`
 - **THEN** it MUST be private and independently releasable, identify `openxFactory` as the owner of the neutral identity contracts it pins, and contain no credential values or key material
 
 #### Scenario: Per-client broker instance is instantiated

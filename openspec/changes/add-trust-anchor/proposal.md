@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory (a NEW `contracts/trust-anchor/` family — trust-anchor record, certificate record with declared chain custody, issuance-evidence record, dependent-binding record, renewal/rebind-evidence record, revocation-propagation record, and realization conformance declaration — plus packaged positive and negative examples and the canonical `scripts/validate-trust-anchor.py`; registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut). No certificate authority, no key, no issuance service, no deployment. The OpsxFactory `pki-administration` workflow capability, the `xFactory-OpenXPKI-Install` repository and its QA deployment topology, the aggregation pin, and the governed record for the live cloud-PKI canary are successor realization changes named in the impact map, NOT this change's surface.
+code_surface: openxFactory (a NEW `contracts/trust-anchor/` family — trust-anchor record, certificate record with declared chain custody, issuance-evidence record, dependent-binding record, renewal/rebind-evidence record, revocation-propagation record, and realization conformance declaration — plus packaged positive and negative examples and the canonical `scripts/validate-trust-anchor.py`; registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut). No certificate authority, no key, no issuance service, no deployment. The OpsxFactory `pki-administration` workflow capability, the `OpenXPKI-Install` repository and its QA deployment topology, the aggregation pin, and the governed record for the live cloud-PKI canary are successor realization changes named in the impact map, NOT this change's surface.
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
 Status: ratified
 Ratified by: Brett Heap, 2026-08-21 — "ratify both proposals"; all design decisions adopted as written; OQ1 ruled as recommended (issuance evidence stays an establish-obligation with a declared floor, set before schema authoring per tasks 4.2) and OQ2 ruled as recommended (closed custody enumeration with derived evidences; operator escrow is a relationship on the credential record, not a custody tier, settled with client-credential-escrow-registry per tasks 4.1)
@@ -89,7 +89,7 @@ exit 1, recording Brett Heap's rulings of 2026-08-21 (R8, R2, R1, R7).
 
 - **ADD one requirement to `repo-boundary-governance`** — the OpenXPKI
   install repository boundary, on the ratified avatar-client template: a
-  private, independently released `xFactory-OpenXPKI-Install` created by
+  private, independently released `OpenXPKI-Install` created by
   the `implement-openxpki-install-repo` successor change, aggregation path
   `installs/openxpki-install`,
   owning the server / client / web QA deployment topology and per-client
@@ -134,7 +134,7 @@ exit 1, recording Brett Heap's rulings of 2026-08-21 (R8, R2, R1, R7).
   `opensoft/Opensoft-Tenant` as the home of the QA deployment manifests:
   its **Impact** section, its **"What Changes" bullet 3**, and its
   **tasks §3**. The deployment-manifest half of that scope belongs to
-  `xFactory-OpenXPKI-Install`; the image-custody half stays exactly where
+  `OpenXPKI-Install`; the image-custody half stays exactly where
   it is. The amendment is small, and it must land before ratification
   rather than after, because the Impact section is what a reviewer reads to
   decide whether the boundary is right. Amending after ratification would
@@ -150,7 +150,7 @@ exit 1, recording Brett Heap's rulings of 2026-08-21 (R8, R2, R1, R7).
      topic `OpsxFactory:staging:identity-pki-administration`, which is
      shared with the identity half because both need the same
      service-subject registration work.
-  2. **`xFactory-OpenXPKI-Install` creation** — `implement-openxpki-install-repo`,
+  2. **`OpenXPKI-Install` creation** — `implement-openxpki-install-repo`,
      the successor change this proposal's `repo-boundary-governance`
      requirement names:
      create the repository, move the QA deployment topology per the
@@ -169,7 +169,7 @@ exit 1, recording Brett Heap's rulings of 2026-08-21 (R8, R2, R1, R7).
 - **Sibling proposal, same session, same rulings**: `add-identity-brokering`
   (staged topic `openxFactory:staging:identity-brokering-plane`) carries the
   neutral persona/claims contract and its own install-repository boundary
-  requirement for `xFactory-Keycloak-Install`. R1 (install repos own the
+  requirement for `Keycloak-Install`. R1 (install repos own the
   deployable runtime) and R7 (the three-way ownership split, on the
   `github-administration-plane` precedent) were ruled once for both topics.
   The two changes are independent by construction: each adds its own
@@ -230,3 +230,12 @@ settlement points. Ratification authorizes exactly one Speckit contract
 feature and creates no authority, anchor, key, or runtime. The
 time-critical §2 amendment of `add-openxpki-qa-image-pipeline` remains
 open and must precede THAT change's ratification.
+
+Amendment (Brett Heap, 2026-08-21): the install repository is
+Opensoft-level — renamed `opensoft/OpenXPKI-Install` (unprefixed,
+CloudPC-Install precedent); OpenXPKI is intended for the Opensoft
+production core — operator infrastructure, not product-family-only.
+Applied in place to the ratified delta before repository creation;
+aggregation path (`installs/openxpki-install`) and successor change id
+(`implement-openxpki-install-repo`) unchanged. The source snapshot retains
+the pre-amendment name as provenance.

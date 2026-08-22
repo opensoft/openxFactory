@@ -31,12 +31,12 @@ single Speckit feature §5 hands off to; do not duplicate it there.
 Not gated on this change's ratification. Gated by the OTHER change's
 ratification, which it must precede (design D7).
 
-- [x] 2.1 DONE 2026-08-21 — all three sites amended (Impact split into the tenant-owned image-custody surface and the xFactory-OpenXPKI-Install topology home; What-Changes bullet 3 re-pointed; tasks gained a 3.4 migration obligation, since the change's QA tasks were already executed with the manifests authored in Opensoft-Tenant during bring-up — the amendment records that location as transitional, not governed). In the OpsxFactory repo, amend the active change
+- [x] 2.1 DONE 2026-08-21 — all three sites amended (Impact split into the tenant-owned image-custody surface and the OpenXPKI-Install topology home; What-Changes bullet 3 re-pointed; tasks gained a 3.4 migration obligation, since the change's QA tasks were already executed with the manifests authored in Opensoft-Tenant during bring-up — the amendment records that location as transitional, not governed). In the OpsxFactory repo, amend the active change
       `add-openxpki-qa-image-pipeline` in three places that today home the
       QA deployment manifests in `opensoft/Opensoft-Tenant`: its **Impact**
       section, its **"What Changes" bullet 3**, and its **tasks §3**.
       Re-point the deployment-manifest scope to
-      `xFactory-OpenXPKI-Install`; leave the image-custody scope (build,
+      `OpenXPKI-Install`; leave the image-custody scope (build,
       release / package / configuration / base-image pins, offline and
       integration harness, ACR digest) exactly where it is.
 - [x] 2.2 DONE 2026-08-21 — `openspec validate add-openxpki-qa-image-pipeline --strict` green post-amendment; the cross-reference to this proposal is recorded in its Impact. Re-validate that change `--strict` after the amendment and record
@@ -132,7 +132,7 @@ So the family adds `chain-custody-registry.schema.yaml` plus the closed instance
       `ideation/staging/pki-trust-anchor-plane/pki-trust-anchor-plane.md`
       into this change's `supporting-docs/`, preserving its `Status:`
       header per `document-lifecycle`.
-- [x] 6.2 DONE 2026-08-21 — FULL promotion, so the INDEX maintenance rule's full-promotion branch governs and OVERRIDES this task's "update its detail section" phrasing: no staged file remains, so the row AND the detail section are DELETED from `ideation/staging/INDEX.md`, and the pointer — carrying the exit record this task asked for — moves to `ideation/README.md`'s "Active proposals promoted from staging" list. THE ONE DELIBERATE DIVERGENCE IS STATED THERE EXPLICITLY rather than left to inference: the topic's R1 called for the `repo-boundary-governance` install-repository enumeration to be MODIFIED, and the change instead ADDS a per-repo requirement for the `xFactory-OpenXPKI-Install` boundary (design D8), which is the sibling-collision avoidance `add-identity-brokering` mirrors. Row/section parity re-verified: 33/33 -> 31/31, with neither retired slug present in either list. Retire the `pki-trust-anchor-plane` row in
+- [x] 6.2 DONE 2026-08-21 — FULL promotion, so the INDEX maintenance rule's full-promotion branch governs and OVERRIDES this task's "update its detail section" phrasing: no staged file remains, so the row AND the detail section are DELETED from `ideation/staging/INDEX.md`, and the pointer — carrying the exit record this task asked for — moves to `ideation/README.md`'s "Active proposals promoted from staging" list. THE ONE DELIBERATE DIVERGENCE IS STATED THERE EXPLICITLY rather than left to inference: the topic's R1 called for the `repo-boundary-governance` install-repository enumeration to be MODIFIED, and the change instead ADDS a per-repo requirement for the `OpenXPKI-Install` boundary (design D8), which is the sibling-collision avoidance `add-identity-brokering` mirrors. Row/section parity re-verified: 33/33 -> 31/31, with neither retired slug present in either list. Retire the `pki-trust-anchor-plane` row in
       `ideation/staging/INDEX.md` and update its detail section to record
       the exit — including the one deliberate divergence from the topic
       (R1's MODIFIED enumeration became an ADDED requirement; design D8),
@@ -157,7 +157,7 @@ Each pins the released contract bundle rather than restating its shapes.
       `stack.yaml` in the same change, with grant ceilings in
       `credentials/requirements.yaml`. Developed in
       `OpsxFactory:staging:identity-pki-administration`.
-- [ ] 7.2 **`xFactory-OpenXPKI-Install` creation** — the named successor
+- [ ] 7.2 **`OpenXPKI-Install` creation** — the named successor
       the `repo-boundary-governance` requirement points at: create the
       private repository, move the QA deployment topology (server /
       client / web) per the custody split, and land the first
@@ -174,7 +174,7 @@ Each pins the released contract bundle rather than restating its shapes.
       about how TPM-backed keys are issued, attested, and rotated is
       answered from this contract, not twice.
 - [ ] 7.5 **Sibling coordination** — `add-identity-brokering` carries the
-      matching boundary requirement for `xFactory-Keycloak-Install`.
+      matching boundary requirement for `Keycloak-Install`.
       Confirm before either ratifies that the two
       `repo-boundary-governance` deltas are both ADDED and therefore do not
       collide.

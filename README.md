@@ -333,7 +333,7 @@ Active changes:
   and membership only (never mirroring the tenancy graph), explicit
   linking/admin-merge only, workloads-are-not-personas, broker credentials as
   credential-contract records, and isolation escalating by broker instance.
-  Also ADDS the `xFactory-Keycloak-Install` repository boundary to
+  Also ADDS the `Keycloak-Install` repository boundary to
   `repo-boundary-governance` (avatar-client template; creation by successor
   `implement-keycloak-install-repo`). Sibling of `add-trust-anchor`.
   **REALIZED 2026-08-21** by Speckit feature
@@ -356,7 +356,7 @@ Active changes:
   `credential-contracts` records, and the declared-degraded-obligation rule —
   product-agnostic across the two converging realizations (live Intune Cloud
   PKI canary; OpenXPKI planned for the Opensoft production core). Also ADDS
-  the `xFactory-OpenXPKI-Install` repository boundary to
+  the `OpenXPKI-Install` repository boundary to
   `repo-boundary-governance` (creation by successor
   `implement-openxpki-install-repo`; image custody stays in
   `opensoft/Opensoft-Tenant`). Time-critical rider: the OpsxFactory

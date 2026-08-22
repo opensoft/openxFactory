@@ -9,7 +9,7 @@ Registered in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at
 Kind: reference
 Repository context: openxFactory owns this neutral capability; OpsxFactory owns
 the governed `keycloak-administration` workflow, and a new
-`xFactory-Keycloak-Install` repository owns the deployable runtime
+`Keycloak-Install` repository owns the deployable runtime
 
 The neutral contract for **what any identity broker must assert about a human,
 what a governed record may store about an actor, and what a broker must never
@@ -187,7 +187,7 @@ Each pins the released contract bundle rather than copying a shape:
   `aks-administration-workflow`, `github-administration-workflow` and
   `business-central-administration`, expressed in this vocabulary. It owns the
   merge queue's response time.
-- **`xFactory-Keycloak-Install`** — the deployable runtime and its per-client
+- **`Keycloak-Install`** — the deployable runtime and its per-client
   `config/clients/<tenant>/runtime-manifest.yaml`, on the hermes-install
   precedent.
 - **The workbench oauth2-proxy swap** — the first adoption, retiring the

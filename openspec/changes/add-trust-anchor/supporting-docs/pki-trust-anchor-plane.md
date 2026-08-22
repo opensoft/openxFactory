@@ -9,14 +9,14 @@ planned: Microsoft Intune Cloud PKI (device and host-broker certificates — the
 live canary track) and OpenXPKI (intended for the Opensoft production core).
 openxFactory owns the neutral contract (trust anchors, issuance evidence,
 chain custody, revocation obligations); OpsxFactory owns the
-`pki-administration` workflow; a new `xFactory-OpenXPKI-Install` repo owns the
+`pki-administration` workflow; a new `OpenXPKI-Install` repo owns the
 deployable topology. Ruled 2026-08-21: image custody stays with the tenant
 repo while QA deployment topology moves to the install repo, and the neutral
 contract composes with `openxwallet` revocation propagation and
 `credential-contracts` declared custody rather than inventing a parallel
 authority vocabulary.
 Topics: pki, trust-anchor, openxpki, intune-cloud-pki, scep, device-identity, certificate-lifecycle, revocation-propagation, credential-contracts, openxwallet, digest-pin, install-repo-boundary
-Repository context: openxFactory owns the neutral trust-anchor contract (product-agnostic: anchors, issuance evidence, chain custody tiers, renewal and revocation obligations); OpsxFactory owns the governed administration workflow (`pki-administration`, sibling of `exchange-administration` / `aks-administration-workflow` / `github-administration-workflow` / `business-central-administration`, staged as `OpsxFactory:staging:identity-pki-administration`); `opensoft/Opensoft-Tenant` keeps image custody (build, pin, test harness); a new install repo `opensoft/xFactory-OpenXPKI-Install` (aggregation path `installs/openxpki-install`) owns the deployable topology consuming the pinned digest
+Repository context: openxFactory owns the neutral trust-anchor contract (product-agnostic: anchors, issuance evidence, chain custody tiers, renewal and revocation obligations); OpsxFactory owns the governed administration workflow (`pki-administration`, sibling of `exchange-administration` / `aks-administration-workflow` / `github-administration-workflow` / `business-central-administration`, staged as `OpsxFactory:staging:identity-pki-administration`); `opensoft/Opensoft-Tenant` keeps image custody (build, pin, test harness); a new install repo `opensoft/OpenXPKI-Install` (aggregation path `installs/openxpki-install`) owns the deployable topology consuming the pinned digest
 Staging ID: openxFactory:staging:pki-trust-anchor-plane
 Source: Brett Heap's rulings 2026-08-21 in the xFactory family session, taken together with the active OpsxFactory change `add-openxpki-qa-image-pipeline` (a tenant-owned OpenXPKI image build with QA acceptance) and the live Intune Cloud PKI canary track (tenant root CA `Opensoft xFactory Root CA` plus an issuing CA, SCEP profiles, a TPM-bound broker certificate); sibling of [identity-brokering-plane](../../add-identity-brokering/supporting-docs/identity-brokering-plane.md), whose R1/R7 rulings were made once for both topics
 Target capabilities: ADDED neutral `trust-anchor` (openxFactory); new OpsxFactory-owned `pki-administration` workflow capability; MODIFIED `repo-boundary-governance` (two new install repositories in scope); amendment to the active `add-openxpki-qa-image-pipeline` Impact section
@@ -90,7 +90,7 @@ convenience:
   decides what binary its CA runs, and the digest-pin convention governs
   native-manifest workloads exactly here. Moving the build out of the tenant
   repo would move a trust decision away from the party who owns it.
-- **Moves to `xFactory-OpenXPKI-Install`**: the QA deployment topology
+- **Moves to `OpenXPKI-Install`**: the QA deployment topology
   manifests (server / client / web), which **consume the pinned ACR digest**
   rather than producing it, and the per-client instantiation under
   `config/clients/<tenant>/runtime-manifest.yaml`.
@@ -106,8 +106,8 @@ convenience:
 
 Recorded once for both topics (see
 [identity-brokering-plane](../../add-identity-brokering/supporting-docs/identity-brokering-plane.md)
-§R1). For this topic: `opensoft/xFactory-OpenXPKI-Install` at aggregation path
-`installs/openxpki-install`, following the `xFactory-Hermes-Install` naming and
+§R1). For this topic: `opensoft/OpenXPKI-Install` at aggregation path
+`installs/openxpki-install`, following the `xFactory-Hermes-Install`
 pattern, with per-client instantiation as
 `config/clients/<tenant>/runtime-manifest.yaml` (generated, never hand-edited,
 digest-pinned by consumers). Repo creation rides `repo-boundary-governance`
@@ -236,7 +236,7 @@ Three planned OpenSpec changes:
    (`xFactories/OpsxFactory/ideation/staging/identity-pki-administration/`),
    shared with the identity half because both need the same service-subject
    registration work.
-3. **Aggregation + install** — create `opensoft/xFactory-OpenXPKI-Install`
+3. **Aggregation + install** — create `opensoft/OpenXPKI-Install`
    under `repo-boundary-governance` (the MODIFIED "Install repository scope"
    delta, shared with the Keycloak install repo), add the
    `installs/openxpki-install` submodule pin, and move the QA deployment
