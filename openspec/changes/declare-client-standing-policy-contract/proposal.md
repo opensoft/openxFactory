@@ -1,7 +1,11 @@
 ---
 code_surface: openxFactory — `contracts/client-content/client-overlay.schema.yaml` (two OPTIONAL properties added INLINE under `client`; NO new sibling file and NO new manifest row), an extension of the canonical validator `scripts/validate-client-content.py` (the `hermes_client_overlay` structural branch gains the standing-policy rules, and `self_test` sweeps every packaged positive instead of one hardcoded filename), one new positive example plus eight `# expected_failure:`-declaring negatives under `contracts/client-content/examples/`, the family `README.md`, and the release surface `contracts/manifest.yaml` (the `client-overlay` row's sha256 RECOMPUTED — no row added) + `contracts/CHANGELOG.md` + `contracts/releases/<tag>.digests.yaml`. NO client overlay INSTANCE is authored here — the seedable instance is `config/clients/<client_ref>/overlay.yaml` in the install repo. NO hermes-install code changes: the runtime already implements this, ratified and landed 2026-08-22; the re-pin and its parity admission are its own follow-ups.
 target_release: contract-v<next minor> — allocated LATE at realization per `docs/contract-versioning-policy.md` (v1.40 is the current bundle; a proposal MUST NOT reserve a minor number before merge order is known), and the cut is SHARED with whatever other next-additive-bundle changes fold into the same `Unreleased` section. Archives only on ALL of: ratified with the three D-positions confirmed; schema, fixtures and validator extension landed on openxFactory main with `validate-client-content.py` green; the bundle released — manifest, changelog, digest inventory, and a verified annotated tag; and CONSUMED — hermes-install re-pinning the client-content family at that release and admitting `hermes_client_overlay` to its `PARITY_KINDS` sweep. A declaration nothing validates against and nobody pins is not realized.
-Status: draft
+Status: ratified — Brett Heap (openxFactory operator authority), 2026-08-23,
+in-session ruling: D1 (inline, no sibling schema), D4 (subtree-scoped scan,
+the asymmetry deliberate), D5 (message/constant adoptions) all ratified as
+built. The contract shape itself was not re-litigated — it mirrors the shape
+ratified in hermes-install add-client-overlay-standing-policy.
 ---
 
 # Proposal: declare-client-standing-policy-contract

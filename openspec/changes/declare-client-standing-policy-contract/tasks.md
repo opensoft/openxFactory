@@ -12,7 +12,7 @@ mechanical positions that belong to this repository.
 
 ## 1. Ratification
 
-- [ ] 1.1 **(OPERATOR)** Ratify the declaration. The shape itself is already
+- [x] 1.1 **(OPERATOR)** Ratify the declaration. The shape itself is already
       ruled; ratification here confirms or corrects the three positions this
       repository owns, because the implementation branches on each:
       **(a) D1 — INLINE, not a fourth sibling schema file.** Position: declare
@@ -197,7 +197,7 @@ that change lands and are not scheduled here"*.
       --strict` and `--all --strict` stay clean through ratification and any
       amendment.
       (Clean at authoring; re-run at ratification and at release.)
-- [ ] 5.3 Close `opensoft/openxFactory#254` with the released tag and the
+- [x] 5.3 Close `opensoft/openxFactory#254` with the released tag and the
       landed commit recorded, and note the closure on hermes-install
       `add-client-overlay-standing-policy` design §7 OQ-1 and task 1.2, whose
       accepted window this ends.

@@ -323,7 +323,7 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [declare-client-standing-policy-contract](openspec/changes/declare-client-standing-policy-contract/proposal.md)
-  — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). Closes
+  — authored and ratified 2026-08-23 (Brett Heap, in-session). Closes
   `opensoft/openxFactory#254`: `hermes_client_overlay` is a contract THIS repo
   owns, and a live runtime already validates and seeds two blocks on it that no
   file here declares. hermes-install `add-client-overlay-standing-policy`
@@ -422,7 +422,7 @@ Active changes:
   68 standing violations to **zero critical and zero error over the scan set**
   before §2's enforcement code may merge.
 - [add-notebook-projection-identity](openspec/changes/add-notebook-projection-identity/proposal.md)
-  — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The single exit
+  — authored and ratified 2026-08-23 (Brett Heap, in-session). The single exit
   of the staged topic `notebook-projection-identity`, raised the day its last
   precondition was met. The whole governed NotebookLM projection — every
   per-repo Ideation book, `xf-drafts`, `xf-canon`, every live `xf-session-*` —
