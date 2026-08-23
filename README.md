@@ -210,6 +210,23 @@ Medical-domain implementation docs belong in `opensoft/MedxFactory`.
 
 IT operations-domain implementation docs now belong in `opensoft/OpsxFactory`.
 
+## Wallet validation gate
+
+Every PR to main runs the `wallet-validation` check, including drafts. The
+check is advisory until an operator marks it required.
+
+Mark it required via the active ruleset governing main:
+Repo Settings → Rules → Rulesets → edit the ruleset targeting `main` →
+Require status checks → add `wallet-validation`.
+
+If using a classic branch protection rule instead:
+Settings → Branches → `main` → Require status checks → select
+`wallet-validation`.
+
+The gate surfaces — `.github/workflows/`, `/scripts/validate-openxwallet.py`,
+and `/scripts/wallet-yaml-syntax-gate.py` — are owner-routed via
+[.github/CODEOWNERS](.github/CODEOWNERS) so changes to them need owner review.
+
 ## Domain Implementations
 
 - `opensoft/codexFactory` — software, code, repo, and engineering xFactory domain stack.

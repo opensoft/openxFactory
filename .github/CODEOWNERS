@@ -1,0 +1,4 @@
+# Review routing for assembly-class gate surfaces (convener ruling 2026-08-23). Routing only - enforcement remains the review plane.
+.github/workflows/ @brettheap
+/scripts/validate-openxwallet.py @brettheap
+/scripts/wallet-yaml-syntax-gate.py @brettheap
