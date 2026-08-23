@@ -403,8 +403,9 @@ here. After the fix the out-of-window count is zero.
 **The fix is a pure reorder; no character of the record changed.** The header
 block (former lines 41-52: `Status:`, the five-line `Ratified:` citation, the
 six-line `Proposed:` line) and the banner block (former lines 7-39) exchanged
-places, with the three blank separator lines at 6, 40 and 53 left standing
-where they were. The lifecycle lines now read at real line 7 (`Status:`), 8
+places, with the three blank separator lines preserved as lines — formerly at
+6, 40 and 53, they now sit at 6, 19 and 53, the middle one moving with the
+exchange. The lifecycle lines now read at real line 7 (`Status:`), 8
 (`Ratified:`) and 13 (`Proposed:`) — all inside the window, and all still
 adjacent to one another in the order they were written.
 
