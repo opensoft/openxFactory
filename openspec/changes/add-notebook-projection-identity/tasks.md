@@ -129,15 +129,35 @@ first thing to run under a declared account.
   was deliberately left OPEN by the disposition round (PR #272 added only a
   dated pointer), because it closes on this change's realization and not on the
   rulings. Its "Strategic direction" section is what §4 executes.
-- [ ] 5.2 Gates: `pytest tests/ideation-dashboard`, `pytest
+- [x] 5.2 Gates: `pytest tests/ideation-dashboard`, `pytest
   tests/ideation_dashboard`, `pytest tests/doc-health`, `OPENSPEC_TELEMETRY=0
   openspec validate --all --strict`, doc-health zero-new against a fresh
   `origin/main` baseline, and `scripts/validate-ideation-dashboard-contracts.py`
   at its 0-error / 4-warning baseline.
-- [ ] 5.3 If §2.1 lands a contract-family artifact, register it in
+  - GREEN AT THE LANDING SQUASH 2026-08-23 (`40b33845`, PR #277): 3983
+    passed / 15 skipped (ideation-dashboard); 902 passed / 13 subtests
+    (notebooklm + doc-health + ideation_dashboard) pre-merge and 839 + 13 at
+    the squash; `openspec --all --strict` 72/72 fresh-counted at the squash (69
+    before three other sessions' changes landed alongside); dashboard validator
+    0 error / 4 warning; hosting validator 0 error. doc-health ZERO NEW
+    attributable to this squash, measured against a baseline taken at
+    `7431f033` — the commit immediately before it — because main had advanced
+    by fourteen commits from other sessions and a plain pre-merge comparison
+    would have charged this change with two `proposal-origin` errors belonging
+    to the MedxChart/MedxPractice boundary changes.
+- [x] 5.3 If §2.1 lands a contract-family artifact, register it in
   `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive
   bundle cut and follow `docs/contract-versioning-policy.md`. If it lands a
   lighter governed record, say so explicitly and cut no bundle.
+  - RESOLVED 2026-08-23, SAID EXPLICITLY: §2.1 landed a LIGHTER GOVERNED
+    RECORD (`examples/notebook-projection-hosting.yaml` plus
+    `scripts/validate-notebook-projection-hosting.py`), NOT a contract-family
+    artifact. **No bundle was cut and no contract-release ritual fired**: no
+    CHANGELOG allocation, no `contracts/manifest.yaml` row or digest, no
+    `contract_bundle_version` bump, no inventory rebuild, no verify-commit, no
+    tag. `contracts/` is byte-untouched across the whole realization, asserted
+    at every gate run and again at the squash. The published bundle remains
+    `contract-v1.40`.
 
 ## 6. Bookkeeping
 
