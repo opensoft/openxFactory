@@ -72,7 +72,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [openxdox-install-app-provisioning](#openxdox-install-app-provisioning) | MODIFIED `credential-contracts` (or a new `install-app-provisioning` capability: two-App manifest provisioning + naming convention + apply-repo home); realization in Omnigent-Install (installer) + codexFactory (manifests + install docs) | 1 | Ready to iterate — named by Brett 2026-08-14 from the openXdox dispatch-migration's manual App toil; GitHub-capability verified (no app-creates-app API; the App Manifest flow is the mechanism, Apps tenant-owned); 6 claims settled (two Apps stay two, manifest flow, tenant-owned, globally-unique-name convention, small apply-workflow repo, tenant only sets the content-App scope); 5 open questions (contract home + managed-vs-self-hosted flow hardest); gated on the QA dispatch migration completing |
 | [substantive-review-lane-questions](#substantive-review-lane-questions) | tracks `roles-authority-model` (MODIFIED by `add-substantive-review-lane`, PR #178 — RATIFIED 2026-08-22) — no capability delta of its own | 1 | Registered 2026-08-15 — origin is Brett's direction to track the ad-hoc-authored proposal's five declared-open, not-decided questions (this topic is post-proposal tracking, NOT the proposal's origin; the proposal's own `.openspec.yaml` records `kind: ad_hoc`); six decided principles carried as settled context, not reopened; 5 open questions (rollout order, non-engineering persona home, company-policy-lead per-PR seating, per-repo ruleset shape, risk-tier taxonomy), none blocking the pilot; SEQUENCED after the doxBench UI sprint (Brett 2026-08-15) — after `doxbench-editing-model` Phase A, `staged-topic-outline-template`, and Phase B, so the review lane catches the workbench's steady state rather than blocking the sprint. **CLOSED AND RETIRED FROM STAGING 2026-08-22** — all five questions ruled by Brett Heap in-session that day and encoded into the tracked proposal, which Brett then RATIFIED the same day in a separate ratification read (record `openspec/changes/add-substantive-review-lane/review/ratification-2026-08-22.md`): Q1 rollout order deferred to a named follow-up change on pilot evidence with the evidence bar and the engineering-before-domain ordering principle decided now; Q2 persona home ruled AGAINST the recommendation — codexFactory reviews every governed repo, zero new persona homes; Q3 company-policy-lead seating ruled as a bounded THIRD option — rules-council-only default plus a per-class declared pull-in defined by the gate-rules council at class-definition time, fail-closed for those classes; Q4 ruleset shape ruled as the proven shape everywhere; Q5 risk tiers ruled as a constitutional floor now with the tier vocabulary deferred to the same follow-up path as Q1. The topic met its own closing condition (all five dispositioned) and the folder is retired. Unlike the two prior exited topics, it could NOT exit into a `supporting-docs/` move — the tracked proposal's origin is `ad_hoc` and `proposal-support.py transition` refuses to restate an immutable origin as `staged` — so the fragment's final state is named, not linked; three conflicts are recorded as NOT resolved by the closure — see the detail section |
 | [staged-topic-outline-template](#staged-topic-outline-template) | MODIFIED `document-lifecycle` (the primary-fragment template contract: required sections, round-trip-on-demote refresh rule, section provenance, marker usage) and MODIFIED `ideation-dashboard` (the doxBench outline tab renders the template + gains an add-section affordance) | 1 | **PROPOSED 2026-08-15 as `add-staged-topic-outline-template`, RATIFIED the same day** (all 5 open questions accepted as recommended, closing the parallel decision track) — exited staging the same day, material moved to the change's `supporting-docs/` (see detail section below); Q4 corrected by Amendment 1 to `edit-document` (ratified text named `edit-apply`, the gate console's redline verb, which cannot reach a session branch). Sections 1-4 realized (contract text, doc-health's warning-tier nudge, the outline tab + tests) and bookkeeping 6.1-6.3 discharged (this row, the exit record, and the `doxbench-editing-model` Q4 handoff). **CHANGE ARCHIVED 2026-08-21** — all 22 tasks discharged, gates 5.1-5.3 green and task 5.4's live browser proof driven for real (one commit through `edit-document` on a session branch, the verb evidenced three ways); both ADDED requirements promoted, and the topic's material now sits in the archived change's `supporting-docs.tar.gz` bundle rather than a loose folder |
-| [notebook-projection-identity](#notebook-projection-identity) | MODIFIED `lifecycle-notebook-projection` (declared hosting-account field + share-out roster) and MODIFIED `credential-contracts` (two-case account-custody rule: company service account normal case, personal hosting the other legitimate case) | 1 | Registered 2026-08-15 — origin is Brett hitting a live "request access" wall on the personal-Gmail-hosted NotebookLM projection, the same disease as the just-retired openXdox personal PAT; 6 claims settled (company account is the normal case, hosting is a declared install-time intake decision, personal hosting stays legitimate as the other case, company account shares out to users, company-policy Hermes monitors + approves share requests, and this mirrors the ratified openXdox dispatch two-case precedent); first fresh conformer of `staged-topic-outline-template` carrying LIVE `xspec:candidate` markers (verified against the checker: no rejection found, only `record`-status docs are excluded); 5 open questions (contract home, company-account type, share-roster reuse of `add-client-identity-roster`, monitor/approve mechanics with no share API, and opensoft's own migration sequencing), none blocking; SEQUENCED last of today's four topics (Brett 2026-08-15) — behind `doxbench-editing-model` (both phases), the template, and the review-lane topic — since Q3's share-roster reuse waits on the in-flight `add-client-identity-roster` proposal |
+| [notebook-projection-identity](#notebook-projection-identity) | MODIFIED `lifecycle-notebook-projection` (declared hosting-account field + share-out roster) and MODIFIED `credential-contracts` (two-case account-custody rule: company service account normal case, personal hosting the other legitimate case) | 1 | Registered 2026-08-15 — origin is Brett hitting a live "request access" wall on the personal-Gmail-hosted NotebookLM projection, the same disease as the just-retired openXdox personal PAT; 6 claims settled (company account is the normal case, hosting is a declared install-time intake decision, personal hosting stays legitimate as the other case, company account shares out to users, company-policy Hermes monitors + approves share requests, and this mirrors the ratified openXdox dispatch two-case precedent); first fresh conformer of `staged-topic-outline-template` carrying LIVE `xspec:candidate` markers (verified against the checker: no rejection found, only `record`-status docs are excluded); 5 open questions (contract home, company-account type, share-roster reuse of `add-client-identity-roster`, monitor/approve mechanics with no share API, and opensoft's own migration sequencing), none blocking; SEQUENCED last of today's four topics (Brett 2026-08-15) — behind `doxbench-editing-model` (both phases), the template, and the review-lane topic — since Q3's share-roster reuse waits on the in-flight `add-client-identity-roster` proposal. **DISPOSITIONED 2026-08-23 — all five questions now carry a disposition, none `open`**: Q2 and the account timing RULED BY BRETT HEAP in session (a Google Workspace USER account in the operating tenant's own domain, working name `xfactory-books@opensoft.one`, created now/soon — reinforced by the platform fact that a GCP service account cannot drive NotebookLM at all), and Q1/Q3/Q4/Q5 adjudicated against executed evidence. Q1 CORRECTED its own context (the two-case fork is ALREADY a promoted `credential-contracts` requirement, not merely runbook prose beside one) and closed the one-vs-two-changes fork to ONE COMBINED change. Q3 RAN the mapping against the realized client-identity-roster schema and validator — 11 errors when the share-out facts are stated honestly; the force-fit variant passes with one grantee and FAILS with two on `duplicate-identity-key`, because the grantee is not in the uniqueness tuple — proving the two shapes are transposed (one principal / many scopes vs one scope / many principals) and ruling a DISTINCT small share-out roster. Q4 kept the governed manual lane and unified the approval record WITH that roster entry (one artifact, not an audit trail beside it). Q5 adopted the `split-ideation-book-per-repo` retirement runbook, parity reconciled against the corpus scan rather than the legacy books. The 2026-08-15 sequencing rationale is spent — `add-client-identity-roster` archived, and its shape was tested and found structurally unable to carry this. Now AWAITING BRETT'S CONFIRMATION that the `opensoft.one` account exists and what its address is; the combined change raises on that confirmation, and the topic stays staged-and-dispositioned until it does |
 | [doxbench-editing-model](#doxbench-editing-model) | MODIFIED `ideation-dashboard` (left-panel dynamic document tabs generalizing the outline/document buffer pair to N document buffers; chat-context binding to the active left-panel selection; docs-wheel tile edit verb + dirty-tile marker; right-panel Editor/Preview tab redesign with Save/Cancel) | 1 | Registered 2026-08-15 — origin is Brett's direction settling the general doxBench interaction model: left panel selects the working document (docs/lens/outline plus dynamic numbered tabs per open edit), center chat binds to whatever is selected, right panel shows the result via Editor/Preview tabs with Save/Cancel (replacing today's split md/preview layout); 26 claims settled (includes the ruled two-plane chat memory design, Claims 13-21, and its 2026-08-18 second-pass addendum settling memory-gateway conformance, the three-layer compression stack with shake v1, and Headroom watch-listed not adopted, Claims 22-26); verified live that `BUFFER_KINDS`, the turn-assembly buffer requirement, and the save order are all hard-coded to exactly outline+document today, so the N-buffer generalization is the load-bearing engineering question; 7 open questions (tab overflow, Save/Cancel semantics, dirty-tile storage, chat-binding rule, Editor/Preview default, concurrent-edit safety, and the chat memory system — ruled 2026-08-18), none blocking; sibling of `staged-topic-outline-template` Open question 4 (content-contract vs. interaction-model halves of the same AI-edit act); SEQUENCED first, in two phases (Brett 2026-08-15) — Phase A (chat-on-outline + Editor/Preview tabs + Save/Cancel on the existing two-buffer machinery) built before the other three topics, Phase B (N-buffer generalization) following `staged-topic-outline-template`'s ratification. **EXITED STAGING 2026-08-21** — both phases raised and realized; `add-doxbench-editing-phase-a` ARCHIVED 2026-08-21 and its spec text promoted, `add-doxbench-editing-phase-b` carried the whole remainder (§4–§11 + §13 realized across PRs #207/#210/#216/#223, `contract-v1.34`) and remains ACTIVE pending §12 share-session, which Brett ruled 2026-08-21 trails as its own slice. The fragment moved to Phase B's `supporting-docs/`; two items are PARKED, not adopted — see the detail section |
 | [doxchat-auto-fit-routing](#doxchat-auto-fit-routing) | MODIFIED `ideation-dashboard` (per-turn fit-aware `auto` resolution; the no-fit warn/ask surface and its session-sticky consent; compress-to-fit as a turn outcome) + a likely ADDITIVE model-catalog release (capability dimensions beyond byte limits, at minimum modality) + a likely additive chat-turn release (the recorded fit decision) | 1 | Registered 2026-08-21 — origin is Brett's direction given at the `contract-v1.38` rule-5 ruling, quoted VERBATIM in the fragment; 6 claims settled (per-turn fit-aware resolution, filter out models too small for the turn, no-fit is a human decision, session-sticky continue-all consent, compress-to-fit on continue, and fit is multi-dimensional with raw size only one axis); 6 open questions (where the decision lives, what happens to the released `resolved_model_id`, the capability vocabulary and whether it closes, whether the consent is a governed record, one-change-or-three plus compression's home, and whether the union badge survives), none blocking; SEQUENCED after the doxBench sprint archives, so the per-turn router is designed on a static resolution that has actually shipped |
 
@@ -1367,9 +1367,60 @@ repo scope.
   - [notebook-projection-identity.md](notebook-projection-identity/notebook-projection-identity.md)
     — primary: 6 claims, live `xspec:candidate` Why/What changes/Impact
     sections (first fresh conformer of `staged-topic-outline-template`),
-    4 idea notes, 3 conflicts, 5 open questions each with
-    Context/Recommended answer/Explanation/Disposition status, exit.
-- Open questions (none blocking): (1) which capability owns the
+    4 idea notes, 3 conflicts, 5 questions each with
+    Context/Recommended answer/Explanation/Disposition status — all five
+    DISPOSITIONED 2026-08-23, each carrying a dated disposition paragraph
+    and a `Dispositioned-by:` line beneath its status line, plus two dated
+    in-place corrections: the contract-home error (fixed in Q1's context,
+    in its recommended answer and in the Impact section's matching clause)
+    and Q3's "in-flight proposal" framing — exit.
+- **Dispositioned 2026-08-23 — none of the five remains `open`.** Q2 and
+  the account timing were RULED BY BRETT HEAP in session: the hosting
+  identity is a dedicated Google Workspace USER account in the operating
+  tenant's own domain (working name `xfactory-books@opensoft.one`, actual
+  address confirmed at creation), never a consumer Gmail, and the account
+  is created now/soon. A platform fact the 2026-08-15 capture predates
+  reinforces it — a GCP service account CANNOT drive NotebookLM (no API,
+  consumer web UI only), so the hosting identity must be a Google user
+  account, which is what a Workspace user is; that also settles the
+  fragment's own loose "company service account" wording.
+  Q1/Q3/Q4/Q5 were adjudicated against executed evidence. Q1: the
+  recommended split stands, but its context was CORRECTED — the two-case
+  fork is already a PROMOTED `credential-contracts` requirement ("The
+  credential vault operator is an execution binding, never contract
+  content"), not merely runbook prose, so the custody delta GENERALIZES an
+  existing requirement and needs no new record kind (that schema has one
+  closure against the roster schema's fourteen); the one-vs-two-changes
+  fork closes to ONE COMBINED change. Q3: the mapping the question
+  demanded was PERFORMED against the realized roster schema and its
+  validator — 11 errors stated honestly (closed `identity_kind`, closed
+  `admission_surface` routing non-Entra surfaces out of scope, closed
+  residency, unresolvable `consent_ref`, no home for
+  granted_by/granted_at/hosting_account), and a force-fit variant with
+  eight marked lies that PASSES with one grantee and FAILS with two on
+  `duplicate-identity-key`, because the grantee is not in the uniqueness
+  tuple. The shapes are transposed (one principal / many scopes vs one
+  scope / many principals), so the disposition is a DISTINCT small roster
+  keyed on `(hosting_account, user, book_or_alias, role, granted_at,
+  granted_by)` — the honest fallback, now proven rather than assumed. Two
+  post-capture facts ride with it: the ratified identity-brokering family
+  models the human-persona half (roster entries should reference a persona
+  where one resolves), and its surface-adoption schema requires
+  `human_accounts_held_by_surface: false`, so sharing to arbitrary
+  unresolvable Google accounts is a shape the governed layer refuses —
+  reinforcing the company-account direction. Q4: the governed MANUAL lane
+  as recommended (no NotebookLM share/admin API exists, re-verified), with
+  one unification the capture missed — the approval act's record IS the Q3
+  roster entry, which also gives the lane the home the Impact section said
+  it lacked. Q5: the `split-ideation-book-per-repo` retirement runbook is
+  the template — one `--apply` re-creation, parity as per-book title-set
+  equality plus a union reconciliation against THE CORPUS SCAN (not the
+  legacy books) plus a final zero-pending dry run, then retirement by
+  recorded manual act (archive-rename, delete the alias, retire the
+  workspace record); realization note: the sync passes NO profile today
+  (`subprocess.run(["nlm", *args])`), so profile selection is real code.
+- Open questions AS CAPTURED 2026-08-15 (all five now dispositioned above;
+  kept for the record): (1) which capability owns the
   declared-hosting-location delta — `lifecycle-notebook-projection` for
   the mechanism, `credential-contracts` for the two-case custody rule;
   neither `client-infrastructure-request` nor `client-infrastructure-liaison`
@@ -1393,13 +1444,21 @@ repo scope.
   because its Open question 3 (share-roster reuse) waits on the in-flight
   `add-client-identity-roster` proposal rather than on workbench capacity;
   the manual owner-account-approval workaround holds the operational pain
-  in the meantime.
-- Exit: iterate in doxBench until all five open questions carry a
-  disposition other than `open`; likely lands as one or two OpenSpec
-  changes (a `lifecycle-notebook-projection` delta and a
-  `credential-contracts` delta, combined or sequenced per question 1's
-  resolution), raised only once a real company account exists to prove
-  the mechanism against.
+  in the meantime. That sequencing rationale is SPENT as of 2026-08-23:
+  `add-client-identity-roster` archived, its shape was actually tested,
+  and the answer came back negative — the wait it imposed is over.
+- Exit (updated 2026-08-23): ONE COMBINED OpenSpec change — MODIFIED
+  `lifecycle-notebook-projection` (declared hosting-account field, `nlm`
+  profile selection at sync time, share-out-from-the-account rule, and the
+  amendment of the shared-account model that spec currently ratifies in
+  text), MODIFIED `credential-contracts` (the two-case account-custody
+  rule, generalizing the vault-operator-custody requirement already
+  promoted there), the new small share-out roster shape, and one code
+  surface (the sync's profile selection). It raises once Brett confirms
+  the `opensoft.one` Workspace account exists and names its address —
+  ruled create-now/soon 2026-08-23, so this is a confirmation the topic
+  waits on, not an open-ended precondition. The topic stays
+  staged-and-dispositioned until then, and exits via that change.
 
 ## doxbench-editing-model
 
