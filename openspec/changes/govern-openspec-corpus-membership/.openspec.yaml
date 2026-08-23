@@ -1,0 +1,37 @@
+schema: spec-driven
+created: 2026-08-23
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-23-govern-openspec-corpus-membership
+  reason: >-
+    Raised by a written instruction to author this proposal, issued in session
+    on 2026-08-23 and quoted in `proposal.md` § Why. The instruction asks one
+    question — should `openspec/` join doc-health's `GOVERNED_ROOTS` — and
+    directs that the answer be settled by measurement rather than by
+    principle. There is no staging folder to claim and staging one would mean
+    staging a fragment whose whole content is a quotation of an existing
+    record: the question is already written down, as
+    `sanction-ratified-record-spelling`'s archived task 5.1, "`openspec/`
+    joining `GOVERNED_ROOTS` — the event that makes the 15 latent lines live.
+    Separate decision, much larger blast radius." That task is the last
+    unticked box of a change whose other out-of-scope items have all been
+    discharged (5.2 by PR #270 and by `roster-device-header-window`, both
+    2026-08-23), and `docs/archive-record-discrepancies.md` § "What the
+    tooling does and does not enforce here" is the organized source material,
+    having already measured the gap this change proposes to close:
+    "record-immutability ... does not reach any file under `openspec/`" and
+    "nothing mechanical blocked B1, and nothing mechanical would block C1-C7
+    either". ad_hoc is therefore the correct kind and is not a substitute for
+    staging.
+  approved_by: >-
+    Brett, through the 2026-08-23 in-session instruction that commissioned
+    this proposal by name, directory, and scope ("This slice authors the
+    PROPOSAL ONLY — no realization. Brett ratifies after reading it"), and
+    behind it the standing authority of `sanction-ratified-record-spelling`
+    task 5.1, which named this decision as a separate one to be taken rather
+    than as work already refused. This is approval of the AD-HOC EXCEPTION
+    ONLY. It is NOT ratification of this change: no ruling has been taken on
+    the membership question, on the scan set, on which families read it, or
+    on any of the six open questions, and `proposal.md` carries
+    `Status: draft` accordingly.
+  approved_on: 2026-08-23

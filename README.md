@@ -304,6 +304,46 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [govern-openspec-corpus-membership](openspec/changes/govern-openspec-corpus-membership/proposal.md)
+  — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). Takes the last
+  unticked box of `sanction-ratified-record-spelling` (task 5.1: "`openspec/`
+  joining `GOVERNED_ROOTS` — the event that makes the 15 latent lines live.
+  Separate decision, much larger blast radius"). MEASURED rather than argued,
+  in this tree at `20f3e7e`, by patching `corpus.GOVERNED_ROOTS` in memory so
+  no tracked file was ever at risk; restoration verified by a byte-identical
+  re-run. **Full membership costs 573 findings** (82 → 655; 4 → 27 critical,
+  6 → 556 error), **13.2 points of the canon-share headline** (31.3% → 18.1%
+  here, 28.9% → 16.7% across the six-repo aggregation) and **123 of 724
+  doc-health tests** — 121 of them one structural collision, `duplicate
+  inventory key` on promoted specs arriving twice, plus two pinned invariants
+  it contradicts outright. At least five of the new fires are demonstrably
+  false: `supporting-docs/source-snapshots/` byte-exact copies reported for
+  the `Status: staged` they exist to preserve (re-breaking a 2026-08-15
+  carve-out through a different family), and the change that DEFINED the
+  `xspec:` grammar reported for the illustrative markers it must carry.
+  RECOMMENDS instead a **scoped lifecycle scan set** — `openspec/changes/**/proposal.md`
+  plus `openspec/changes/**/review/*.md`, 118 documents, read by exactly four
+  families (status validity, standard backing, ratified provenance,
+  succession integrity) and by nothing that computes a census, a word count,
+  a canon share, an inventory entry or a catalog record. Cost: **+68 findings
+  (20 critical, 48 error), zero corpus-shape movement, zero test failures.**
+  Both families are needed, not just the ratification one: the two defects the
+  last two slices fixed by hand were replayed against their real pre-fix blobs
+  and split — phase-b's uncited `ratified` header is caught by
+  `ratified-provenance`, roster-device's line-41 header is invisible to it
+  (`parse_status` returns `None`, so the document is not `ratified` to that
+  family) and is caught only by `status-validity`. Six open questions for
+  Brett: the option; the scan set; the family set; the 17 `Ratified by:` lines
+  that cite a record rather than a change (the case
+  `sanction-ratified-record-spelling` §5.3 parked); the three `review/`
+  records using a third `Ratifier:`/`Decision date:` vocabulary; and the 47
+  headerless proposals, where the recommendation is `proposal-origin`'s
+  existing pre-contract-legacy grandfather rather than 44 archived-record
+  edits. Deltas: `doc-health` (MODIFIED `Deterministic check families`, ADDED
+  `Governed corpus membership and the lifecycle scan set`),
+  `document-lifecycle` (ADDED `Proposal packets carry the lifecycle header`).
+  Proposal only — no realization until the rulings land, and §5 of tasks
+  discharges the 68 standing violations before §2's code may merge.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). The
   openxFactory COMPANION to Omnigent-Install's just-merged
