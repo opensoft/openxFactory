@@ -164,6 +164,7 @@ Core domain-neutral docs:
 - [Hermes Mixture Of Agents For xFactory](docs/hermes-mixture-of-agents-for-xfactory.md)
 - [NotebookLM Source Workspaces](docs/notebooklm-source-workspaces.md)
 - [Lifecycle Notebook Projection](docs/lifecycle-notebook-projection.md)
+- [NotebookLM Projection — Hosting Migration Runbook](docs/notebook-projection-migration-runbook.md)
 - [NotebookLM Projection Sync — Open Operational Item](docs/notebooklm-sync-open-item.md)
   (pending sync run, the auth blocker + the `scripts/nlm_auth.py` workaround,
   and the machine-account direction)
@@ -361,6 +362,9 @@ Active changes:
   digest inventory and the tag happen once, with the other next-additive-bundle
   changes. Archives only when hermes-install re-pins and admits
   `hermes_client_overlay` to its `PARITY_KINDS` sweep.
+- [create-medxpractice-overlay-boundary](openspec/changes/create-medxpractice-overlay-boundary/proposal.md)
+  — MedxPractice owns the private practice-operations composition boundary and
+  pins the independent public openPractice application at an immutable commit.
 - [govern-openspec-corpus-membership](openspec/changes/govern-openspec-corpus-membership/proposal.md)
   — authored and **RATIFIED 2026-08-23** (Brett Heap, in-session
   multiple-choice round over all six Open Questions; no approving OpenSpec

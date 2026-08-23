@@ -10,6 +10,7 @@ runner — no test in this file may create a real notebook or invoke the real
 from __future__ import annotations
 
 import contextlib
+import functools
 import importlib.util
 import io
 import itertools
@@ -1662,3 +1663,573 @@ class SessionSweepTests(unittest.TestCase):
                       "a session opened from a feature worktree is LIVE, and "
                       "asking only the canonical checkout would have called it "
                       "dead and retired its notebook")
+
+
+# --------------------------- the declared hosting identity ---------------------------
+# add-notebook-projection-identity (ratified 2026-08-23): WHICH account the
+# projection is written to is contract conformance, so a run that cannot prove
+# it refuses rather than falling back.
+
+HOSTING_DECLARED = """schema_version: 1
+kind: notebook_projection_hosting
+hosting:
+  case: operator_hosted
+  account: xFactor001@opensoft.one
+  account_type: google_workspace_user
+  domain: opensoft.one
+  nlm_profile: company
+  declared_at: "2026-08-23"
+  declared_by: Brett Heap
+share_out: []
+"""
+
+HOSTING_PENDING = """schema_version: 1
+kind: notebook_projection_hosting
+hosting:
+  case: operator_hosted
+  account: xFactor001@opensoft.one
+  account_type: google_workspace_user
+  domain: opensoft.one
+  nlm_profile: company
+  migration:
+    state: pending
+    from_account: brettheap@gmail.com
+    from_nlm_profile: personal
+share_out: []
+"""
+
+
+def _declare_hosting(root: Path, text: str) -> None:
+    path = root / "openxFactory/examples/notebook-projection-hosting.yaml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+
+
+def _profile_runner(active: str | None):
+    """A runner answering only `config get auth.default_profile`."""
+    def run(*args, parse=True):
+        if args[:3] == ("config", "get", "auth.default_profile"):
+            if active is None:
+                raise RuntimeError("nlm config get: no configuration")
+            return active
+        return {}
+    return run
+
+
+class HostingDeclarationTests(unittest.TestCase):
+    """The declaration is READ, and the run is BOUND to it or refused."""
+
+    def test_undeclared_install_is_reported_as_a_transition_state_not_a_case(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                got = sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("personal"))
+        self.assertIsNone(got, "an undeclared install has no declaration to return")
+        self.assertIn("NO DECLARED HOSTING IDENTITY", out.getvalue())
+        self.assertIn("transition state", out.getvalue(),
+                      "undeclared must be reported as nonconforming, never as "
+                      "a third legitimate case")
+
+    def test_declared_profile_active_binds_the_run(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                got = sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("company"))
+        self.assertEqual(got["account"], "xFactor001@opensoft.one")
+        self.assertIn("verified active", out.getvalue())
+
+    def test_a_run_pointed_at_another_account_refuses(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            with self.assertRaises(SystemExit) as caught:
+                sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("personal"))
+        message = str(caught.exception)
+        self.assertIn("Refusing", message,
+                      "writing a governed projection into an undeclared "
+                      "account is the failure this capability retires")
+        self.assertIn("nlm login switch company", message,
+                      "the refusal must carry the exact remediation command")
+
+    def test_an_unreadable_profile_refuses_rather_than_guessing(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            with self.assertRaises(SystemExit) as caught:
+                sync.enforce_hosting_profile(
+                    root, runner=_profile_runner(None))
+        self.assertIn("cannot prove", str(caught.exception))
+
+    def test_a_pending_migration_binds_to_the_account_that_holds_the_books(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_PENDING)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                got = sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("personal"))
+        self.assertIsNotNone(got)
+        self.assertIn("MIGRATION PENDING", out.getvalue())
+        self.assertIn("brettheap@gmail.com", out.getvalue(),
+                      "a declaration is not a migration: until the books move, "
+                      "the run binds where they actually live")
+
+    def test_a_pending_migration_still_refuses_a_third_account(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_PENDING)
+            with self.assertRaises(SystemExit):
+                sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("someone-else"))
+
+    def test_the_reader_ignores_comments_and_nested_blocks(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, "# leading comment\n" + HOSTING_PENDING)
+            got = sync.read_hosting_declaration(root)
+        self.assertEqual(got["nlm_profile"], "company")
+        self.assertEqual(got["migration_from_nlm_profile"], "personal")
+        self.assertEqual(got["case"], "operator_hosted")
+
+
+class ParityReportTests(unittest.TestCase):
+    """Parity is proven against THE CORPUS SCAN, never against other books."""
+
+    @staticmethod
+    def _world(root: Path) -> None:
+        (root / "openxFactory/examples").mkdir(parents=True, exist_ok=True)
+        (root / "openxFactory/examples/lifecycle-notebook-workspaces.yaml"
+         ).write_text("workspaces:\n", encoding="utf-8")
+        for g in sync.GROUNDING:
+            p = root / g
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("# Grounding\n", encoding="utf-8")
+        base = root / "openxFactory/ideation/brainstorm"
+        base.mkdir(parents=True, exist_ok=True)
+        (base / "idea-00.md").write_text("# Idea\n\nStatus: brainstorm\n",
+                                         encoding="utf-8")
+
+    def _run_parity(self, root: Path, fake) -> tuple[int, str]:
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            with patch.object(sync, "nlm", fake):
+                code = sync.parity_report(root)
+        return code, out.getvalue()
+
+    def test_a_book_missing_a_derived_title_fails_parity(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
+                            for i, k in enumerate(sorted(desired))])
+            code, text = self._run_parity(root, fake)
+        self.assertEqual(code, 1, "an empty live book cannot be at parity with "
+                                  "a scan that derives members")
+        self.assertIn("PARITY FAIL", text)
+        self.assertIn("MISSING", text)
+
+    def test_matching_books_prove_parity_with_nothing_pending(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
+                            for i, k in enumerate(sorted(desired))])
+            for i, key in enumerate(sorted(desired)):
+                fake.sources[f"nb{i}"] = [
+                    {"id": f"s{i}-{j}", "title": title}
+                    for j, title in enumerate(sorted(desired[key].values()))]
+            code, text = self._run_parity(root, fake)
+        self.assertEqual(code, 0, text)
+        self.assertIn("parity: PROVEN", text)
+        self.assertIn("0 pending ADD/DEL/UPD", text)
+
+    def test_parity_never_mutates(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
+                            for i, k in enumerate(sorted(desired))])
+            self._run_parity(root, fake)
+            verbs = {call[:2] for call in fake.calls}
+        # `alias set` belongs in this blocklist: the alias store is a single
+        # flat file shared across profiles, so registering one during a parity
+        # proof repoints xf-canon for every account on the host.
+        for mutating in (("source", "add"), ("source", "delete"),
+                         ("notebook", "create"), ("notebook", "delete"),
+                         ("alias", "set"), ("alias", "delete")):
+            self.assertNotIn(mutating, verbs,
+                             "a parity proof that changes the thing it measures "
+                             "is not a proof")
+
+    def test_a_non_string_profile_answer_is_unknown_not_a_crash(self):
+        """A runner that answers with anything but text means 'unknown'.
+
+        The refusal path depends on this returning None rather than raising:
+        an exception here would escape the guard instead of becoming the
+        governed refusal.
+        """
+        for answer in ({}, [], None, 42):
+            with self.subTest(answer=answer):
+                self.assertIsNone(
+                    sync.active_nlm_profile(lambda *a, parse=True: answer))
+
+
+class ProfileBindingHoldsForTheWholeRunTests(unittest.TestCase):
+    """The binding is re-asserted before EVERY invocation, not once.
+
+    Found in review: profile selection is process-global, so another terminal
+    running `nlm login switch` after the opening check would silently redirect
+    every later add and delete into a different account — across a re-derivation
+    that takes about forty minutes.
+    """
+
+    def tearDown(self):
+        sync.bind_profile(None)
+        sync._CONFIG_CACHE = None
+
+    @staticmethod
+    def _config(root: Path, profile: str) -> Path:
+        path = root / "config.toml"
+        path.write_text(f'[output]\nformat = "table"\n\n[auth]\n'
+                        f'browser = "auto"\ndefault_profile = "{profile}"\n',
+                        encoding="utf-8")
+        return path
+
+    def test_the_configured_profile_is_read_from_the_file(self):
+        with TemporaryDirectory() as td:
+            path = self._config(Path(td), "company")
+            self.assertEqual(sync.configured_nlm_profile(path), "company")
+
+    def test_an_absent_config_is_unknown(self):
+        with TemporaryDirectory() as td:
+            self.assertIsNone(
+                sync.configured_nlm_profile(Path(td) / "nope.toml"))
+
+    def test_an_unbound_run_asserts_nothing(self):
+        sync.bind_profile(None)
+        sync.assert_still_bound()  # must not raise
+
+    def test_a_profile_switched_mid_run_refuses_the_next_invocation(self):
+        with TemporaryDirectory() as td:
+            path = self._config(Path(td), "company")
+            with patch.object(sync, "NLM_CONFIG", path):
+                sync.bind_profile("company")
+                sync.assert_still_bound()          # still bound: no raise
+                self._config(Path(td), "personal")  # another terminal switches
+                sync._CONFIG_CACHE = None
+                with self.assertRaises(SystemExit) as caught:
+                    sync.assert_still_bound()
+        message = str(caught.exception)
+        self.assertIn("changed mid-run", message)
+        self.assertIn("nlm login switch company", message)
+
+    def test_the_cache_does_not_hide_a_switch(self):
+        with TemporaryDirectory() as td:
+            path = self._config(Path(td), "company")
+            with patch.object(sync, "NLM_CONFIG", path):
+                sync._CONFIG_CACHE = None
+                sync.bind_profile("company")
+                sync.assert_still_bound()
+                # rewrite with a different size so the (mtime_ns, size) stamp
+                # moves even inside one filesystem timestamp tick
+                path.write_text('[auth]\ndefault_profile = "a-different-one"\n',
+                                encoding="utf-8")
+                with self.assertRaises(SystemExit):
+                    sync.assert_still_bound()
+
+
+class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
+    """The refusals must fire during an ordinary run, not only in the validator.
+
+    Found in review: nothing the sync runs invoked the validator, so a
+    declaration naming a consumer or service account would have been accepted
+    by `--apply`.
+    """
+
+    def tearDown(self):
+        sync.bind_profile(None)
+
+    def _enforce(self, root: Path, text: str, active: str = "company"):
+        _declare_hosting(root, text)
+        return sync.enforce_hosting_profile(root, runner=_profile_runner(active))
+
+    def test_a_service_account_is_refused_by_the_sync_itself(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            text = HOSTING_DECLARED.replace(
+                "account: xFactor001@opensoft.one",
+                "account: books@xf.iam.gserviceaccount.com").replace(
+                "domain: opensoft.one", "domain: xf.iam.gserviceaccount.com")
+            with self.assertRaises(SystemExit) as caught:
+                self._enforce(root, text)
+        self.assertIn("service account", str(caught.exception))
+
+    def test_a_consumer_account_is_refused_for_the_operator_hosted_case(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            text = HOSTING_DECLARED.replace(
+                "account_type: google_workspace_user",
+                "account_type: consumer_google_account")
+            with self.assertRaises(SystemExit) as caught:
+                self._enforce(root, text)
+        self.assertIn("google_workspace_user", str(caught.exception))
+
+    def test_an_account_outside_the_declared_domain_is_refused(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            text = HOSTING_DECLARED.replace("domain: opensoft.one",
+                                            "domain: elsewhere.example")
+            with self.assertRaises(SystemExit) as caught:
+                self._enforce(root, text)
+        self.assertIn("not in the declared domain", str(caught.exception))
+
+    def test_a_third_case_is_refused(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            text = HOSTING_DECLARED.replace("case: operator_hosted",
+                                            "case: partly_hosted")
+            with self.assertRaises(SystemExit) as caught:
+                self._enforce(root, text)
+        self.assertIn("exactly one of", str(caught.exception))
+
+    def test_a_conforming_declaration_binds_the_run(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                got = self._enforce(root, HOSTING_DECLARED)
+        self.assertEqual(got["account"], "xFactor001@opensoft.one")
+        self.assertEqual(sync._BOUND_PROFILE, "company",
+                         "a bound run must pin the profile it verified")
+
+    def test_an_undeclared_install_releases_the_pin(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            sync.bind_profile("stale")
+            with contextlib.redirect_stdout(io.StringIO()):
+                sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("personal"))
+        self.assertIsNone(sync._BOUND_PROFILE)
+
+    def test_a_self_hosted_personal_declaration_is_accepted(self):
+        text = """schema_version: 1
+kind: notebook_projection_hosting
+hosting:
+  case: self_hosted
+  account: someone@gmail.com
+  nlm_profile: personal
+share_out: []
+"""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            with contextlib.redirect_stdout(io.StringIO()):
+                got = self._enforce(root, text, active="personal")
+        self.assertEqual(got["case"], "self_hosted",
+                         "an individual's own account is a complete binding")
+
+    def test_nlm_itself_reasserts_the_binding_before_running(self):
+        """The wire, not just the check.
+
+        `assert_still_bound()` is only worth anything if `nlm()` calls it: a
+        drift detector nothing invokes is decoration. Asserted by driving the
+        REAL `nlm()` with a drifted config and a stubbed subprocess, so the
+        refusal must come from the binding rather than from the CLI.
+        """
+        with TemporaryDirectory() as td:
+            path = Path(td) / "config.toml"
+            path.write_text('[auth]\ndefault_profile = "someone-else"\n',
+                            encoding="utf-8")
+            ran = []
+            with patch.object(sync, "NLM_CONFIG", path), \
+                 patch.object(sync.subprocess, "run",
+                              lambda *a, **k: ran.append(a)):
+                sync._CONFIG_CACHE = None
+                sync.bind_profile("company")
+                with self.assertRaises(SystemExit) as caught:
+                    sync.nlm("notebook", "list", "--json")
+        self.assertIn("changed mid-run", str(caught.exception))
+        self.assertEqual(ran, [], "the invocation must be refused BEFORE the "
+                                  "subprocess, not after it has written")
+
+
+class UnreadableDeclarationFailsClosedTests(unittest.TestCase):
+    """A declaration the sync cannot read is NOT an absent one.
+
+    Found in review: the narrow reader wants the `hosting:` block's own
+    two-space scalars. Flow style, four-space indentation and tabs are all
+    valid YAML — the validator passes them — and all yielded nothing here, so
+    the run took the UNDECLARED branch, bound nothing, and left
+    `assert_still_bound()` a no-op for the whole job.
+    """
+
+    def tearDown(self):
+        sync.bind_profile(None)
+
+    FLOW = ("schema_version: 1\nkind: notebook_projection_hosting\n"
+            "hosting: {case: operator_hosted, account: x@opensoft.one, "
+            "nlm_profile: company}\nshare_out: []\n")
+    FOUR = ("schema_version: 1\nkind: notebook_projection_hosting\nhosting:\n"
+            "    case: operator_hosted\n    account: x@opensoft.one\n"
+            "    nlm_profile: company\nshare_out: []\n")
+    TABS = ("schema_version: 1\nkind: notebook_projection_hosting\nhosting:\n"
+            "\tcase: operator_hosted\n\taccount: x@opensoft.one\n"
+            "\tnlm_profile: company\nshare_out: []\n")
+
+    def test_an_existing_file_always_yields_a_dict_never_none(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, self.FLOW)
+            got = sync.read_hosting_declaration(root)
+        self.assertEqual(got, {}, "present-but-unparsed must be distinguishable "
+                                  "from absent")
+
+    def test_an_absent_file_is_the_only_undeclared_case(self):
+        with TemporaryDirectory() as td:
+            self.assertIsNone(sync.read_hosting_declaration(Path(td)))
+
+    def test_each_unreadable_shape_refuses_instead_of_running_unbound(self):
+        for label, text in (("flow", self.FLOW), ("four-space", self.FOUR),
+                            ("tabs", self.TABS)):
+            with self.subTest(shape=label), TemporaryDirectory() as td:
+                root = Path(td)
+                _declare_hosting(root, text)
+                with self.assertRaises(SystemExit) as caught:
+                    sync.enforce_hosting_profile(
+                        root, runner=_profile_runner("personal"))
+                self.assertIn("no declaration could be read",
+                              str(caught.exception))
+
+
+class MigrationStateVocabularyTests(unittest.TestCase):
+    """The sync owns the state vocabulary too — one rule, not two gates.
+
+    Found in review: `state: in_progress` FAILED the validator and PASSED the
+    sync, which then bound the DECLARED profile while the books were still in
+    the previous account — a premature migration under `--apply`.
+    """
+
+    def tearDown(self):
+        sync.bind_profile(None)
+
+    BASE = """schema_version: 1
+kind: notebook_projection_hosting
+hosting:
+  case: operator_hosted
+  account: xFactor001@opensoft.one
+  account_type: google_workspace_user
+  domain: opensoft.one
+  nlm_profile: company
+  migration:
+    state: {state}
+    from_account: brettheap@gmail.com
+    from_nlm_profile: personal
+share_out: []
+"""
+
+    def _enforce(self, text: str, active: str):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, text)
+            with contextlib.redirect_stdout(io.StringIO()):
+                return sync.enforce_hosting_profile(
+                    root, runner=_profile_runner(active))
+
+    def test_an_unrecognized_state_is_refused(self):
+        with self.assertRaises(SystemExit) as caught:
+            self._enforce(self.BASE.format(state="in_progress"), "company")
+        self.assertIn("migration.state", str(caught.exception))
+
+    def test_pending_and_complete_are_both_accepted(self):
+        self.assertIsNotNone(
+            self._enforce(self.BASE.format(state="pending"), "personal"))
+        self.assertIsNotNone(
+            self._enforce(self.BASE.format(state="complete"), "company"))
+
+    def test_a_pending_migration_without_a_from_profile_is_refused(self):
+        text = self.BASE.format(state="pending").replace(
+            "    from_nlm_profile: personal\n", "")
+        with self.assertRaises(SystemExit) as caught:
+            self._enforce(text, "personal")
+        self.assertIn("from_nlm_profile", str(caught.exception))
+
+    def test_the_top_level_profile_is_required_even_while_pending(self):
+        text = self.BASE.format(state="pending").replace(
+            "  nlm_profile: company\n", "")
+        with self.assertRaises(SystemExit) as caught:
+            self._enforce(text, "personal")
+        self.assertIn("no top-level nlm_profile", str(caught.exception))
+
+
+class ProfileAccountIsCheckedWhenTheCliRecordedOneTests(unittest.TestCase):
+    """The CLI DOES store a profile's email — this change first claimed it did not.
+
+    `profiles/<name>/metadata.json` carries `email`: populated by a recent
+    login, left null by an older one. Null means UNKNOWN and is reported; a
+    populated address that disagrees with the declaration is a refusal.
+    """
+
+    def tearDown(self):
+        sync.bind_profile(None)
+
+    @staticmethod
+    def _home(root: Path, profile: str, email) -> Path:
+        home = root / "cli-home"
+        d = home / "profiles" / profile
+        d.mkdir(parents=True)
+        body = "null" if email is None else f'"{email}"'
+        (d / "metadata.json").write_text('{"email": %s}' % body,
+                                         encoding="utf-8")
+        return home
+
+    def test_a_recorded_address_is_read(self):
+        with TemporaryDirectory() as td:
+            home = self._home(Path(td), "company", "xFactor001@opensoft.one")
+            self.assertEqual(sync.profile_account("company", home=home),
+                             "xFactor001@opensoft.one")
+
+    def test_a_null_address_is_unknown_not_empty_string(self):
+        with TemporaryDirectory() as td:
+            home = self._home(Path(td), "company", None)
+            self.assertIsNone(sync.profile_account("company", home=home))
+
+    def test_a_missing_profile_directory_is_unknown(self):
+        with TemporaryDirectory() as td:
+            self.assertIsNone(
+                sync.profile_account("nope", home=Path(td) / "cli-home"))
+
+    def test_the_right_profile_name_signed_in_as_the_wrong_account_refuses(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            home = self._home(root, "company", "someone-else@elsewhere.test")
+            # the REAL reader, pointed at a synthetic CLI home
+            real = functools.partial(sync.profile_account, home=home)
+            with patch.object(sync, "profile_account", real):
+                with self.assertRaises(SystemExit) as caught:
+                    sync.enforce_hosting_profile(
+                        root, runner=_profile_runner("company"))
+        message = str(caught.exception)
+        self.assertIn("signed in as someone-else@elsewhere.test", message)
+        self.assertIn("nlm login --profile company", message)
+
+    def test_an_unknown_address_is_reported_not_treated_as_a_mismatch(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            out = io.StringIO()
+            with patch.object(sync, "profile_account", lambda *a, **k: None):
+                with contextlib.redirect_stdout(out):
+                    got = sync.enforce_hosting_profile(
+                        root, runner=_profile_runner("company"))
+        self.assertIsNotNone(got, "an older login that recorded no address must "
+                                  "not block the run")
+        self.assertIn("records no account address", out.getvalue())

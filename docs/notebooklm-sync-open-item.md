@@ -128,6 +128,17 @@ questions all carry dispositions now — Brett ruled a Google Workspace USER
 account in `opensoft.one` — but THIS operational item stays open, because
 it closes on the eventual change's realization, not on the rulings.
 
+RATIFIED and REALIZED 2026-08-23 as `add-notebook-projection-identity`, except
+for the migration itself. The declared account is `xFactor001@opensoft.one`;
+the declaration lives in `examples/notebook-projection-hosting.yaml`, and the
+sync now refuses to run against an account nobody declared. THIS ITEM STAYS
+OPEN by its own terms: it closes on the migration, which is gated on an
+interactive `nlm login --profile company` that only Brett can perform, on a
+host with a browser. The sequencing — re-derive, migrate live sessions, replace
+the workspace records, prove parity against the corpus scan, retire the legacy
+books by recorded act — is
+[the hosting migration runbook](notebook-projection-migration-runbook.md).
+
 ## Related known bug (own change, not this item)
 
 A routine `sync-notebooklm-books.py --apply` in one checkout can delete another
