@@ -390,3 +390,13 @@ Each is a separate reviewed change. None is authorized by this ratification.
       extended with both admitted repositories; `add-trust-anchor` tasks 8.1
       is ticked there. Left unticked here for the same reason as 4.1: it is
       another change's act.
+
+## Ratification-citation respell (2026-08-23)
+
+- `proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by
+  `govern-openspec-corpus-membership` slice 5A.1, under OQ-4's 2026-08-23
+  ruling — prefix only, the bytes after the colon carried verbatim. The record
+  that justifies the line is Brett Heap's 2026-08-21 session instruction,
+  quoted on the line itself: "do both install repos", following his same-day
+  rulings that the install repositories are Opensoft-level and unprefixed (the
+  parent proposal's Amendment) and on the identity/PKI workstream as a whole.

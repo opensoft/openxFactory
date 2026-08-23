@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (credential-contracts spec requirements; openXdox naming record draft->ratified; example dispatch/content credential records + validator support), omnigent-install (dispatch-App token-minter delivering short-lived tokens by reference into the inbox's env-named secret; QA dispatch-secret repoint), operator binding (org-owned "openXdox Intent Dispatch" GitHub App — org-admin provisioning, not code)
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
-Status: draft
+Status: ratified
+Ratified: 2026-08-13 by Brett Heap — the landing of PR `#168` (merged 2026-08-13T18:46:52Z, merge commit 4e4190c) was the approval act this change's own task 1.2 conditioned on: the PR body states "Merging this ratifies the openXdox naming record (`draft` to `ratified`, its task 1.2)", task 1.2 is ticked in tasks.md, docs/openxdox-naming.md carries "Ratified by `add-dispatch-credential-contract` (2026-08-13) ... landing that change is its lifecycle ratification", and the realization PRs `#171` (2026-08-13) and `#172` (2026-08-14) merged on main. Slice 5A of `govern-openspec-corpus-membership` first derived `draft` here on an incomplete hunt that missed all four of those record points; the value is corrected under Brett's 2026-08-23 in-session ruling.
 ---
 
 # Proposal: add-dispatch-credential-contract

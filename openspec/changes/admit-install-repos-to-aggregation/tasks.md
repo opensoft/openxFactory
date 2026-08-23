@@ -218,3 +218,12 @@ Each is a separate reviewed change. None is authorized by this ratification.
 - [ ] 5.7 **Any pin advance** for either repository — a new reviewed
       aggregation PR on the recorded update discipline, never an extension of
       this ratification.
+
+## Ratification-citation respell (2026-08-23)
+
+- `proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by
+  `govern-openspec-corpus-membership` slice 5A.1, under OQ-4's 2026-08-23
+  ruling — prefix only, the bytes after the colon carried verbatim. The record
+  that justifies the line is Brett Heap's 2026-08-21 session instruction,
+  quoted on the line itself: "do the aggregation admission change, the two
+  repos are added to openXfactory github app".

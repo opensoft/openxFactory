@@ -244,7 +244,11 @@ where the ruling went WIDER than this section first proposed.
    a **prefix change only** — `Ratified by:` becomes `Ratified:` and the
    content after the colon is carried verbatim — because each of these lines
    is already substantively sound and merely spelled under the rule that does
-   not fit it.
+   not fit it. **Extended 2026-08-23 to 33** by OQ-4's RULED-extension note:
+   the 16 self-citing lines, which pass the family only by naming their own
+   change id, are the same class and take the same respell. They are LATENT —
+   they clear no finding — so the count of findings this change discharges is
+   unchanged by the extension and only the count of edits grows.
 
 ## Impact
 
@@ -260,7 +264,9 @@ where the ruling went WIDER than this section first proposed.
   backfills. Up to 56 archived records are edited by this change's §5 (11
   proposal respells, 44 proposal backfills less whatever stops and reports,
   1 archived review record), and the register is where archived-record edits
-  are accounted for.
+  are accounted for. **Revised 2026-08-23 to up to 71** by OQ-4's
+  RULED-extension: the 15 archived self-citers are archived-record edits too,
+  and 5B.4's register entry accounts for 27 archived documents rather than 12.
 - Nightly: the canon-share metric does not move. Under option (a) it would
   fall 12.2 points on the six-repo aggregation, which would read as a corpus
   collapse and would be an artifact of the measurement changing.
@@ -361,6 +367,73 @@ replaces it is this:
   no finding. It is named here so a later reader who counts 18 by eye knows
   the 17 is the enforced set and not an arithmetic slip. Respelling it is not
   ruled.
+
+**RULED — EXTENSION (2026-08-23, Brett, in-session, after the slice-5A
+adversarial review): the 16 SELF-CITING `Ratified by:` lines are the same
+class and take the same remedy. The ruled set grows from 17 to 33.**
+
+The review found a shape the boundary paragraph above did not: a `Ratified by:`
+line whose named change id is the DOCUMENT'S OWN change id. It passes
+`fam_ratified_provenance` because the family's primary-spelling branch asks
+only whether the line names *an* id in `ctx.change_ids` — and a proposal that
+writes "user approval of \`add-hermes-domain-overlay-contract\` on 2026-07-23"
+names one, its own. **A change is not its own approving change.** Substantively
+these lines do exactly what the 17 do: they name an approver and a date, which
+is the record-citing spelling's content written under the primary spelling's
+prefix. Same defect, same remedy — prefix respell `Ratified by:` to
+`Ratified:`, content carried VERBATIM, one per-record justification each, and
+the archived ones under the B1/B2 append-correction discipline with a
+bookkeeping note.
+
+**The one difference from the 17, and it changes how the work is reported:
+the 17 are LIVE CRITICALs and the 16 are LATENT.** The 16 emit nothing today,
+so respelling them clears no finding from the census and 5D's zero gate does
+not depend on them. Their respell is corrective, not finding-driven, and 5B
+says so at the tick rather than claiming a discharge it did not make.
+
+The 16, derived by replaying the primary-spelling resolution over the ruled
+scan set through the real helpers and testing each line's named ids against
+the document's own change id (and against its date-prefixed archive-folder
+spelling) — **1 active, 15 archived**:
+
+| # | change | the id its `Ratified by:` line names |
+| --- | --- | --- |
+| 1 | `add-hermes-customer-subject-runtime-contract` (ACTIVE) | itself, "user approval … on 2026-07-12" |
+| 2 | `archive/2026-07-23-add-hermes-domain-overlay-contract` | itself, 2026-07-23 |
+| 3 | `archive/2026-07-23-adopt-subject-tenant-domain-vocabulary` | itself, 2026-07-23 |
+| 4 | `archive/2026-07-24-add-client-layer-tuning-contracts` | itself, 2026-07-24 |
+| 5 | `archive/2026-07-24-add-hermes-domain-content-manifest` | itself, 2026-07-24 |
+| 6 | `archive/2026-07-24-add-omnigent-domain-overlay` | itself, 2026-07-22 |
+| 7 | `archive/2026-07-29-add-crystallizer-contracts` | itself, 2026-07-29 |
+| 8 | `archive/2026-07-29-add-pattern-ledger` | itself, 2026-07-29 |
+| 9 | `archive/2026-07-30-add-capability-steward` | itself, 2026-07-29 |
+| 10 | `archive/2026-07-30-add-deployment-handoff-boundary` | itself, 2026-07-29 |
+| 11 | `archive/2026-07-30-add-domain-ontology-layer` | itself, 2026-07-28 |
+| 12 | `archive/2026-08-01-add-dashboard-repo-selector` | itself, 2026-07-29 |
+| 13 | `archive/2026-08-01-add-workbench-branch-sessions` | itself, 2026-07-26 |
+| 14 | `archive/2026-08-05-add-neutrality-drift-lane` | itself, 2026-08-04 |
+| 15 | `archive/2026-08-05-adopt-neutral-tooling-home` | itself, 2026-08-03 |
+| 16 | `archive/2026-08-06-add-consent-instrument` | itself, 2026-08-03 |
+
+One correction to the review's own shape, made rather than inherited: the
+review reported "16 archived proposals". The replay returns **15 archived and
+1 active** — `add-hermes-customer-subject-runtime-contract` is a live change.
+The count and the class are the review's; only the archived/active split is
+corrected, and it matters because the active one takes no archive discipline.
+
+**Boundary, measured rather than assumed, exactly as the 17's boundary was.**
+Four further scan-set documents pass the primary spelling by naming some
+OTHER change id in passing prose rather than an approving change:
+`add-shared-identity-seeds` (its line names `add-repository-lens` as the
+successor relationship, and its approval is Brett's "yes, lets start that now"
+on 2026-08-07), and `archive/2026-07-30-add-omnigent-semantic-wiring`,
+`archive/2026-07-30-add-ontology-term-lifecycle-enforcement` and
+`archive/2026-07-30-publish-semantic-kernel`, each of which names
+`add-domain-ontology-layer` as the change it follows on from. These are
+substantively record-citing too, and they are NOT self-citers; they are
+OUTSIDE the ruled 33 and respelling them is not ruled. They are named for the
+same reason `add-identity-brokering` is named above — so a later reader who
+counts 37 by eye knows which set was ruled and which was measured.
 
 **OQ-5 — The three `review/ratification-*.md` records use a THIRD vocabulary.**
 They carry `Ratifier:` and `Decision date:` headers — better provenance than
