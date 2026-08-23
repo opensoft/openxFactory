@@ -164,6 +164,7 @@ Core domain-neutral docs:
 - [Hermes Mixture Of Agents For xFactory](docs/hermes-mixture-of-agents-for-xfactory.md)
 - [NotebookLM Source Workspaces](docs/notebooklm-source-workspaces.md)
 - [Lifecycle Notebook Projection](docs/lifecycle-notebook-projection.md)
+- [NotebookLM Projection — Hosting Migration Runbook](docs/notebook-projection-migration-runbook.md)
 - [NotebookLM Projection Sync — Open Operational Item](docs/notebooklm-sync-open-item.md)
   (pending sync run, the auth blocker + the `scripts/nlm_auth.py` workaround,
   and the machine-account direction)

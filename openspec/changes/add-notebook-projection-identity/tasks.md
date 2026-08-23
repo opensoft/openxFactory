@@ -15,45 +15,52 @@ first thing to run under a declared account.
 
 ## 1. The declared hosting identity, read and honored
 
-- [ ] 1.1 Define where an install declares its hosting identity, and the shape
+- [x] 1.1 Define where an install declares its hosting identity, and the shape
   of the declaration: the case (operator-hosted / self-hosted), the account
   address, and — for the operator-hosted case — the domain the operating party
   administers. Name the intake surface that carries it; no such flow was named
   at capture, and choosing it is part of this task rather than a prerequisite.
-- [ ] 1.2 Teach `scripts/sync-notebooklm-books.py` to READ the declaration.
+  - REALIZED 2026-08-23: Declared in `examples/notebook-projection-hosting.yaml`, beside the workspace registry for this same projection. FLAGGED: the packet left the intake surface unnamed; for the only live install the declaration must be somewhere `sync-notebooklm-books.py` can read, and that file is where the projection's other governed record already lives. A future multi-install intake flow can source it from there without moving it.
+- [x] 1.2 Teach `scripts/sync-notebooklm-books.py` to READ the declaration.
   An undeclared install does not BREAK — it keeps today's default-profile
   behavior — but it is reported as NOT MEETING the requirement, a transition
   state rather than a third legitimate case, and is never silently presented as
   governed.
-- [ ] 1.3 Bind every CLI invocation to the declared identity's `nlm` profile.
+  - REALIZED 2026-08-23: `read_hosting_declaration()` — a narrow scalar reader, not a YAML parse, because this script carries no YAML dependency (the workspace registry beside it is text-handled for the same reason). Undeclared reports a transition state and proceeds.
+- [x] 1.3 Bind every CLI invocation to the declared identity's `nlm` profile.
   The script passes NO profile today — `subprocess.run(["nlm", *args])`, no
   flag, no environment — so this touches the single `nlm()` helper rather than
   each call site. A run that cannot resolve the declared profile FAILS; it must
   not fall back to the default profile silently.
-- [ ] 1.4 Refuse an operator-hosted declaration naming a consumer account, and
+  - REALIZED 2026-08-23: `enforce_hosting_profile()`. CHANGED BY A VERIFIED CLI FACT: of the verbs this sync issues, NONE accepts a per-invocation `--profile` — selection is process-global via `auth.default_profile`. So the binding is VERIFIED and the run REFUSES when the active profile is not the declared one, carrying the exact `nlm login switch` remediation. The sync never switches the profile itself: shared user state, and other sessions race on it. While a migration is pending it binds to the account that still holds the books.
+- [x] 1.4 Refuse an operator-hosted declaration naming a consumer account, and
   refuse any non-user principal, each with a message naming the reason (missing
   administrative control; the platform's no-API/user-account-only constraint)
   rather than a bare validation failure.
-- [ ] 1.5 Record Opensoft's own declaration: operator-hosted,
+  - REALIZED 2026-08-23: `scripts/validate-notebook-projection-hosting.py` refuses a consumer account for the operator-hosted case (naming the missing administrative control) and any service account (naming the platform constraint), plus a domain mismatch and a third case.
+- [x] 1.5 Record Opensoft's own declaration: operator-hosted,
   `xFactor001@opensoft.one`.
 
 ## 2. The share-out roster and the governed approval lane
-
-- [ ] 2.1 Decide and build the roster's artifact form — a contract-family schema
+  - REALIZED 2026-08-23: Opensoft's declaration: operator-hosted, `xFactor001@opensoft.one`, Workspace user in `opensoft.one`, profile `company`, migration pending from `brettheap@gmail.com`/`personal`.
+- [x] 2.1 Decide and build the roster's artifact form — a contract-family schema
   with a validator, or a lighter governed record. The requirement fixes the six
   fields an entry carries, the stable `(hosting_account, user, book_or_alias)`
   uniqueness key with the decision fields as attributes, and the roster's role
   as the approval record; the artifact shape is this task's call (see design.md,
   "Honest limitations").
-- [ ] 2.2 Make the grantee part of the uniqueness key, and prove it with the
+  - REALIZED 2026-08-23: DECIDED: a governed YAML **outside `contracts/`**, at `examples/notebook-projection-hosting.yaml`, validated by a dedicated script. Reasoning, flagged rather than left implicit: the record is the operator's own governance artifact for ONE install's tooling account — no other repository, install or domain consumes it and nothing pins it, which is what `contracts/` membership is for — and its sibling `lifecycle-notebook-workspaces.yaml`, the workspace registry for this same projection read and written by the same script, sits there for exactly that reason. The decision is made on the consumer/ownership test, NOT on the cost of the contract-release ritual; promoting the shape into `contracts/` stays available as a later deliberate act if a second install ever needs to interoperate. **No contract-release ritual fires: `contracts/` is untouched.**
+- [x] 2.2 Make the grantee part of the uniqueness key, and prove it with the
   case that broke the client-identity roster: two grantees, one book, one
   hosting account — both entries must stand. Prove the converse too: one
   grantee re-approved or re-roled on the same book UPDATES their single live
   entry, leaving no stale grant asserted beside the current one.
-- [ ] 2.3 Reference an identity-brokering persona where one resolves, with a
+  - REALIZED 2026-08-23: Uniqueness is the stable `(hosting_account, user, book_or_alias)` triple. Both directions are tested: two grantees on one book stay distinct (the case that broke the client-identity roster), and a re-decision on one is refused as a duplicate key so it must update the live entry.
+- [x] 2.3 Reference an identity-brokering persona where one resolves, with a
   bare address only where none does. `add-identity-brokering` is ACTIVE and its
   capability is not yet promoted, so this is a soft reference today; do not
   create a hard dependency on an unpromoted capability.
+  - REALIZED 2026-08-23: Soft reference by design — `add-identity-brokering` is ACTIVE and unpromoted, so the roster carries addresses today and gains persona references when that capability lands. No hard dependency created.
 - [ ] 2.4 Write the approval lane's procedure: who the designated
   company-policy actor is, where they act (the hosting account's own UI), and
   how approving WRITES the roster entry and denying is recorded in the same
@@ -64,34 +71,39 @@ first thing to run under a declared account.
 
 ## 3. Documentation amendments
 
-- [ ] 3.1 `docs/lifecycle-notebook-projection.md` section 1: the "quota is one
+- [x] 3.1 `docs/lifecycle-notebook-projection.md` section 1: the "quota is one
   shared account" framing becomes the DECLARED hosting account, with the quota
   point preserved (it is still one account per install; that is now a declared
   fact rather than an accident).
-- [ ] 3.2 Section 6's operator runbook: rewrite the auth flow for a declared
+  - REALIZED 2026-08-23: §1 now names the declared hosting identity and the two cases; §9's quota sentence attributes the ceiling to the install's one declared account rather than to "one shared account", keeping the capacity point intact.
+- [x] 3.2 Section 6's operator runbook: rewrite the auth flow for a declared
   account, including the profile selection. State honestly what is still
   unsolved about authenticating a Workspace user to the CLI rather than
   implying it is routine.
-- [ ] 3.3 Cross-link the two-case custody rule to `credential-contracts` so the
+  - REALIZED 2026-08-23: §6 gains step 0 (read and bind the profile) and step 2b (`--parity`), and says plainly that profile selection is process-global and what is verified is the profile NAME, not the address — the CLI stores no email.
+- [x] 3.3 Cross-link the two-case custody rule to `credential-contracts` so the
   runbook does not restate the principle it now consumes.
+  - REALIZED 2026-08-23: §12 cross-links the rule to `credential-contracts` rather than restating it.
 
 ## 4. Opensoft's own migration — the evidence gate
-
-- [ ] 4.1 Add a parity/report mode to the sync. 2026-08-10's parity was
+- [x] 4.1 Add a parity/report mode to the sync. 2026-08-10's parity was
   hand-assembled from `nlm source list`; the migration requirement asks for
   parity to be PROVEN, and proving it by hand a second time is how the first
   gap got missed.
+  - REALIZED 2026-08-23: `--parity`: per-book title-set equality plus a union reconciliation against THE CORPUS SCAN, reporting only. A test asserts it issues no mutating verb — a parity proof that changes what it measures is not a proof.
 - [ ] 4.2 Add a bulk session-migration mode, or an explicit per-session
   procedure. VERIFIED GAP: a plain `--apply` never creates live `xf-session-*`
   notebooks — `--session-ref` handles one named session and returns before the
   lifecycle loop, `--session-sweep` only retires. Without this, live sessions
   stay on the account being abandoned.
+  - PROCEDURE LANDED, code deferred to the migration itself: runbook step 4 gives the explicit per-session procedure the task allows as the alternative to a bulk mode (`--session-ref <branch> --apply`, once per live session, enumerated across every worktree). A bulk mode stays worth adding; nothing is migrated until Brett authenticates, so it is not on this landing's critical path.
 - [ ] 4.3 Add the explicit workspace-record REPLACEMENT step. VERIFIED GAP:
   `ensure_workspace_record()` derives `record_id` from `spec.key`, unchanged in
   the new account; finding that id with a different `provider_notebook_id` it
   returns WITHOUT registering the replacement. Retiring the old record on top of
   that leaves the company-hosted book unregistered. Leave exactly one active
   record per live book.
+  - PROCEDURE LANDED, code gap OPEN and stated: runbook step 5 makes the record replacement an explicit numbered step with the reason `ensure_workspace_record()` will not do it. The function still returns `reconcile by hand`; teaching it to replace is a code change that belongs with the migration run, not before it.
 - [ ] 4.4 Re-derive the three lifecycle books under `xFactor001@opensoft.one`
   in one `--apply` (precedent: 314 sources, roughly 40 minutes), then migrate
   every live session notebook per §4.2.

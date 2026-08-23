@@ -23,7 +23,20 @@ repository; invoked from the workspace root as
 
 The NotebookLM books project the family's governance corpus by lifecycle
 state. Membership is always derived from `Status:` headers — never
-hand-curated. Ideation is ONE BOOK PER GOVERNED REPOSITORY
+hand-curated.
+
+**Which Google account holds them is DECLARED, not incidental**
+(`add-notebook-projection-identity`, 2026-08-23). An install declares its
+hosting identity in `examples/notebook-projection-hosting.yaml`, in one of two
+legitimate cases: **operator-hosted**, a company-owned Google Workspace USER
+account in a domain the operating party administers, or **self-hosted**, an
+individual installer's own personal account. The identity must be a Google
+*user* account — NotebookLM has no API and a service account cannot drive its
+consumer web UI, so no service principal can host a projection. An install that
+declares nothing is in a nonconforming transition state, not a third case: the
+sync still runs under the CLI's default profile, but reports that the
+projection is not governed by a declared account. Section 12 carries the
+mechanics. Ideation is ONE BOOK PER GOVERNED REPOSITORY
 (split-ideation-book-per-repo, after the shared book hit the platform's
 300-source cap on 2026-08-10): each repo's ideation corpus gets its own full
 cap, and growth in one domain can never block another's projection. A repo's
@@ -139,14 +152,27 @@ the run.
 ## 6. Operator Runbook
 
 ```bash
+# 0. Bind the shell to the install's DECLARED account. Profile selection is
+#    PROCESS-GLOBAL (auth.default_profile): of the verbs this sync issues,
+#    none takes a per-invocation --profile, so the sync VERIFIES the active
+#    profile and refuses when it is not the declared one.
+nlm config get auth.default_profile     # what the CLI would use right now
+nlm login switch <declared-profile>     # bind this host to the declared one
+
 # 1. Authenticate (host shell with a browser; ~20 min session lifetime).
 #    Credentials land in ~/.notebooklm-mcp-cli/, shared with containers
 #    that mount the same home. WSL without a Linux browser: nlm login --wsl.
+#    First time for a profile, name it and sign in AS the declared account:
+#      nlm login --profile <declared-profile>
 nlm login
 
 # 2. Preview, then apply, from the workspace root.
 python3 openxFactory/scripts/sync-notebooklm-books.py . 
 python3 openxFactory/scripts/sync-notebooklm-books.py . --apply
+
+# 2b. Prove the live books against THE CORPUS SCAN (never against another
+#     account's books): per-book title-set equality + a union reconciliation.
+python3 openxFactory/scripts/sync-notebooklm-books.py . --parity
 
 # 3. Books are aliased: xf-ideation-<repo-slug> (per-repo ideation family),
 #    xf-drafts, xf-canon (all tagged: xfactory,lifecycle). Aliases are
@@ -255,9 +281,13 @@ must outlive its branch, the route is an explicit conversion to a section 7
 hybrid under that section's charter and seeding rules — a future change, not a
 silent re-point. A notebook is optional throughout: when the NotebookLM quota
 is exhausted the session opens anyway, without one, and the human is told
-whose limit was hit (the quota is one shared account, consumed by the three
-books, every live `xf-wb-*` reference set, and every live `xf-session-*`, so
-it scales with concurrent tiles across everyone).
+whose limit was hit (the quota belongs to the install's ONE DECLARED HOSTING
+ACCOUNT — section 1 — consumed by the three books, every live `xf-wb-*`
+reference set, and every live `xf-session-*`, so it scales with concurrent
+tiles across everyone sharing that account). The account being declared does
+not make the ceiling bigger; it makes the ceiling's OWNER nameable, and
+per-install accounts shard it the way per-repo books shard the per-notebook
+source cap.
 
 Aliases are `xf-session-<repository>-<transformed-branch>`, derived from the
 (repository, branch) pair — the repository segment is required for
@@ -337,3 +367,83 @@ registered: it is derived state bound to a branch that outlives nothing, and
   delete + re-add cycle on the affected sources.
 - Notebook synthesis can be stale between syncs; the repo is always the
   system of record.
+
+## 12. Declared Hosting Identity, And Sharing Out From It
+
+Ratified by `add-notebook-projection-identity` (2026-08-23), which exists
+because the whole governed projection was created under one person's personal
+consumer Gmail — the CLI's default profile, chosen by whoever ran `nlm login`
+first — until a colleague's access request landed in that private inbox and
+sat there.
+
+### The declaration
+
+`examples/notebook-projection-hosting.yaml` names the install's hosting
+identity and carries its share-out roster. Opensoft's own install declares the
+operator-hosted case on `xFactor001@opensoft.one`, a Google Workspace user in
+`opensoft.one`. `scripts/validate-notebook-projection-hosting.py` enforces the
+shape: the two-case vocabulary, the Workspace-user rule, the refusal of any
+service account, the profile the sync binds through, and the roster's key.
+
+The record deliberately does NOT live under `contracts/`. It is the operator's
+own governance artifact for one install's tooling account — nothing else
+consumes it and nothing pins it — and its sibling
+`lifecycle-notebook-workspaces.yaml` sits here for the same reason.
+
+### How a run is bound to the declared account
+
+Profile selection in the `nlm` CLI is **process-global**, through
+`auth.default_profile`. Of the verbs this sync issues — `notebook`, `source`,
+`alias`, `tag`, `chat` — **none accepts a per-invocation `--profile`**; only
+the newer `share` and `login` verbs do. So the sync **verifies** the binding
+rather than passing it, and refuses to run when the active profile is not the
+declared one, printing the exact `nlm login switch` remediation. It never
+switches the profile itself: that is shared user state, and other sessions on
+the same host race on it.
+
+What is verified is the profile NAME against the declaration, not the address:
+the CLI stores no email for a profile (an account is identified by the books it
+shows). The address is the governance fact; the profile name is the mechanism
+that binds to it.
+
+While a declared migration is `pending`, the run binds to the account that
+still HOLDS the books and says so. A declaration is not a migration — flipping
+the binding before the books move would break every sync rather than move
+anything.
+
+### Sharing out, and the roster that records it
+
+Individual users never authenticate against the hosting account's own
+credentials. They are shared out TO, from that account, and every share act is
+a governed decision that is recorded — the roster entry IS the record, not an
+audit trail beside one. Uniqueness is the stable
+`(hosting_account, user, book_or_alias)` triple; the role, the grant time and
+the granting actor are attributes, so a re-approval or a role change updates
+the one live entry instead of asserting a stale grant beside a current one.
+
+**A platform correction worth recording.** The proposal reasoned that
+NotebookLM "exposes no share or admin API". That is true of the half it was
+about — there is still **no pending-request queue and no approval surface**, so
+the approval remains a human act in the account's own UI — but it is NOT true
+of sharing generally: the CLI does expose outbound share management, and these
+verbs DO take `--profile`:
+
+```bash
+nlm share status <notebook> --json --profile <declared-profile>   # collaborators
+nlm share invite <notebook> <email> --role viewer --profile <declared-profile>
+nlm share batch  ...                                              # many at once
+```
+
+That makes two things practical which the ratified text treats as manual: a
+recorded grant can be APPLIED by tooling, and the roster can be RECONCILED
+against `nlm share status` to prove it matches reality. Neither changes who
+decides. This correction is recorded here rather than folded into the ratified
+requirement text, which permits automation of detection and relay while keeping
+the approval a governed human act either way.
+
+### Migrating to a declared account
+
+See [the migration runbook](notebook-projection-migration-runbook.md). The
+short form: re-derive under the declared account, prove parity against the
+CORPUS SCAN with `--parity`, then retire the legacy books by recorded act — and
+do NOT retire the workspace record the replacement made current.
