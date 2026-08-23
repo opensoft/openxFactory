@@ -3,6 +3,7 @@
 Status: ratified
 Decision date: 2026-08-19
 Ratifier: Brett (repository owner)
+Ratified: 2026-08-19 by Brett (repository owner)
 Ratified baseline: this change as committed in the ratification commit carrying
 this record (proposal.md, design.md, tasks.md,
 specs/client-identity-roster/spec.md — validated `--strict` and `--all --strict`,

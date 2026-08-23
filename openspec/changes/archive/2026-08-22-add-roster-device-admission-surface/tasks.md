@@ -457,3 +457,24 @@ promoted spec, no register entry, and no code is touched.
 file and no severity count can move on this commit. Census after the fix: 44
 archived proposals parse `Status: ratified` — 43 before, this one joining
 them — and all 44 carry exactly one in-window citation.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`review/ratification-2026-08-19.md` gained ONE line at real line 6, directly
+beneath the `Ratifier:` line it derives from: `Ratified: 2026-08-19 by Brett
+(repository owner)`. The ruling is OQ-5 of `govern-openspec-corpus-membership`
+(Brett Heap, in-session, 2026-08-23): the `Ratifier:` + `Decision date:`
+vocabulary this record uses is a third spelling no rule knows, and rather than
+sanction it, each such record gains a conforming citation derived from its own
+two headers. Both source headers stay standing word for word — they stop being
+the only thing that says it, not saying it. The record that justifies the line
+is therefore this document's own `Decision date: 2026-08-19` and `Ratifier:
+Brett (repository owner)`, and nothing is invented. This was a live CRITICAL
+(`ratified header carries no citation in either sanctioned spelling`) and the
+added line clears it; measured through the real helpers the document now
+reports exactly one citation, at real line 6, inside the fifteen-real-line
+window, clearing the three-way floor on approver and date. Unlike the
+twenty-six archived respells beside it in this slice, this is a pure addition,
+so Brett's 2026-08-10 append ruling is honoured literally rather than extended
+the way a single-valued header forces. Entered in
+`docs/archive-record-discrepancies.md`.

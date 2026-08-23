@@ -1,7 +1,7 @@
 code_surface: openxFactory
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
 Status: ratified
-Ratified by: user approval of `add-omnigent-domain-overlay` on 2026-07-22
+Ratified: user approval of `add-omnigent-domain-overlay` on 2026-07-22
 Realized: contracts registered at contract-v1.16; all gated realizations landed (final: worker-readiness cutover, 2026-07-24)
 
 ## Why

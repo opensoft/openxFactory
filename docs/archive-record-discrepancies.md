@@ -960,3 +960,151 @@ rule that an archived change must not be amended into disagreement with the
 spec its own archival promoted. B1 satisfies the second and extends the first,
 saying so. C1–C7 either require a judgement the record does not supply, or
 would put invented content into a governed record.
+
+## Corrected 2026-08-23 — twenty-seven archived ratification citations (`govern-openspec-corpus-membership` slice 5B)
+
+Nothing above this line is edited. This section is an append, in the discipline
+the register asks of everyone else.
+
+**The authority.** Brett Heap ruled all six Open Questions of
+`govern-openspec-corpus-membership` in an in-session multiple-choice round on
+2026-08-23, and extended OQ-4 the same day after that change's slice-5A
+adversarial review. The rulings are recorded question by question in
+`openspec/changes/govern-openspec-corpus-membership/proposal.md`. Two of them
+reach archived records, and slice 5B executes both:
+
+- **OQ-4** — a `Ratified by:` line that names a person and a date rather than
+  an approving OpenSpec change is substantively the record-citing form and is
+  spelled wrong. The remedy is a **prefix respell**: `Ratified by:` becomes
+  `Ratified:` and every byte after the colon is carried VERBATIM. Nothing is
+  rephrased, added or dropped. The recommendation to cover the archived block
+  with ONE ruling was rejected: each line is justified from its own record.
+- **OQ-4's RULED extension** — a `Ratified by:` line whose named change id is
+  the DOCUMENT'S OWN id passes `fam_ratified_provenance` only by
+  self-reference. A change is not its own approving change. Same class, same
+  remedy.
+- **OQ-5** — a `review/ratification-*.md` record carrying `Ratifier:` and
+  `Decision date:` gains a conforming `Ratified:` line derived from those two
+  headers, which stay standing.
+
+**Twenty-seven archived records, on TWO different grounds, kept apart on
+purpose.**
+
+| ground | count | what the finding was |
+| --- | --- | --- |
+| live CRITICAL, respell | 11 | `ratified-provenance`: "Ratified by: missing or does not resolve to an OpenSpec change" |
+| live CRITICAL, added line | 1 | `ratified-provenance`: "ratified header carries no citation in either sanctioned spelling" |
+| LATENT, respell | 15 | none — the family accepted the line by self-reference |
+| **total archived records touched** | **27** | 12 findings cleared |
+
+The fifteen latent ones **cleared no finding**. They emitted nothing before the
+edit and they emit nothing after it; the census does not move by one on their
+account. They are corrected because the ruling says the spelling is wrong, not
+because anything reported them. Saying "27 corrections, 27 discharges" would be
+exactly the overstatement `govern-openspec-corpus-membership` exists to make
+impossible.
+
+A twenty-eighth document was edited in the same slice and is deliberately NOT a
+register entry: `add-hermes-customer-subject-runtime-contract` is an ACTIVE
+change, so no archive rule is engaged. It is named here so a reader who counts
+28 in the commit knows why 27 appear below.
+
+**The per-record justifications live in each change's own `tasks.md`**, as a
+trailing `## Bookkeeping correction (2026-08-23, ...)` section — twenty-seven
+of them, one per record, each naming the record that justifies its line. That
+placement is deliberate and it is the correction slice 5A had to make to
+itself: a consolidated table is a fine index and a poor substitute, because a
+reader of one archived change should not have to know that a different
+document holds the answer. The table below is the index.
+
+| # | archived change | ground | the record that justifies its line |
+| --- | --- | --- | --- |
+| 1 | `2026-07-30-add-ontology-stewardship-hardening` | CRITICAL | Brett's 2026-07-30 direction quoted on the line ("yes, fold it into that hardening pass"), written by commit `5667de5` of the same day |
+| 2 | `2026-08-04-adopt-neutral-utility-pack` | CRITICAL | Brett's 2026-08-03 approval of the DTN-018/019/021 scope quoted on the line, written by commit `2c53b27` of the same day |
+| 3 | `2026-08-06-add-opendox-project-header` | CRITICAL | Brett's 2026-08-06 "ratify both and realize them in order", quoted on the line and again in the body of commit `8121f5f` |
+| 4 | `2026-08-06-add-project-scoped-selection` | CRITICAL | Brett's 2026-08-06 "ratify exit 1 and realize it", quoted on the line and again in the body of commit `db3e00c` |
+| 5 | `2026-08-07-add-project-merged-projection` | CRITICAL | the same 2026-08-06 instruction, on this change's own line and in the same commit `8121f5f`, which realized it |
+| 6 | `2026-08-07-add-register-edit-lane` | CRITICAL | Brett's 2026-08-06 "automate that step 2" directive, quoted on the line and echoed in commit `23c0f6c` |
+| 7 | `2026-08-08-add-openxwallet` | CRITICAL | Brett Heap's 2026-08-07 ruling "declared and capping authority", recorded by commit `c5b41ca` |
+| 8 | `2026-08-09-add-project-visible-set` | CRITICAL | Brett's 2026-08-07 view-selector ruling (topic `dashboard-project-scoping` D19), recorded by commit `2eca313` |
+| 9 | `2026-08-09-add-repository-lens` | CRITICAL | Brett's 2026-08-07 lens observation and instruction (D21), recorded by commit `864bb12` |
+| 10 | `2026-08-13-add-session-notebook-reconciliation` | CRITICAL | Brett's 2026-08-10 "fix the session teardown notebook gap", quoted in commit `1b964ba` (PR #163) |
+| 11 | `2026-08-15-add-subject-overlay-contract` | CRITICAL | Brett Heap's 2026-08-15 confirmation of the three OQ-1 positions, recorded by commit `9744fbe` |
+| 12 | `2026-08-22-add-roster-device-admission-surface` (`review/ratification-2026-08-19.md`) | CRITICAL | the document's own `Decision date: 2026-08-19` and `Ratifier: Brett (repository owner)` — derived, not invented |
+| 13 | `2026-07-23-add-hermes-domain-overlay-contract` | latent | the 2026-07-23 user approval named on the line, carried by archive commit `5ad71a7` of the same day |
+| 14 | `2026-07-23-adopt-subject-tenant-domain-vocabulary` | latent | the 2026-07-23 user approval named on the line, recorded by commit `7d47b0a` of the same day |
+| 15 | `2026-07-24-add-client-layer-tuning-contracts` | latent | the 2026-07-24 user approval named on the line, carried by archive commit `95ac6dd` of the same day |
+| 16 | `2026-07-24-add-hermes-domain-content-manifest` | latent | the 2026-07-24 user approval named on the line, carried by archive commit `6785435` of the same day |
+| 17 | `2026-07-24-add-omnigent-domain-overlay` | latent | the 2026-07-22 user approval named on the line, recorded by commit `aa636e1` of that same 2026-07-22 |
+| 18 | `2026-07-29-add-crystallizer-contracts` | latent | Brett's 2026-07-29 approval, recorded by commit `57b5e70` of the same day |
+| 19 | `2026-07-29-add-pattern-ledger` | latent | Brett's 2026-07-29 approval, recorded by commit `1842e1c` of the same day |
+| 20 | `2026-07-30-add-capability-steward` | latent | Brett's 2026-07-29 approval, recorded by commit `aa04319` of that same 2026-07-29 |
+| 21 | `2026-07-30-add-deployment-handoff-boundary` | latent | Brett's 2026-07-29 approval, recorded by commit `c06dc0f` of that same 2026-07-29 |
+| 22 | `2026-07-30-add-domain-ontology-layer` | latent | Brett's 2026-07-28 approval, recorded by commit `e32c690` of that same 2026-07-28 |
+| 23 | `2026-08-01-add-dashboard-repo-selector` | latent | Brett's 2026-07-29 approval, recorded by commit `c14cecc` of that same 2026-07-29 |
+| 24 | `2026-08-01-add-workbench-branch-sessions` | latent | Brett's 2026-07-26 approval, recorded by commit `6b59614` of that same 2026-07-26 |
+| 25 | `2026-08-05-add-neutrality-drift-lane` | latent | Brett's 2026-08-04 approval (PR #64 review), recorded by commit `5a4747c` of the same day |
+| 26 | `2026-08-05-adopt-neutral-tooling-home` | latent | Brett's 2026-08-03 approval, recorded by commit `6a90bd6` of the same day |
+| 27 | `2026-08-06-add-consent-instrument` | latent | Brett's 2026-08-03 approval, recorded by commit `4ebb742` of the same day |
+
+Every commit named above is dated the day its citation line names. That
+agreement was checked commit by commit, not assumed, and it is what makes each
+line's approver-and-date a fact of the record rather than a claim on the page.
+
+**How the original line survives, given B1's mechanical problem.** B1 states it
+and it applies unchanged here: `doc_health.corpus.STATUS_RE` is
+`^Status:\s*(.+?)\s*$` and swallows any trailing annotation, so an append on a
+single-valued header is impossible. Each of the twenty-six respells is
+therefore an **in-place overwrite and an extension of Brett's 2026-08-10 append
+ruling, named as one**, exactly as B1 was. The original line is preserved in a
+stronger form than a re-quotation would give: a respell changes only the three
+bytes ` by`, so the original reads exactly as the line now on the page with
+`Ratified by:` in place of `Ratified:`, and each travelling note says so. That
+identity was asserted mechanically at the edit rather than trusted — the bytes
+after the prefix were compared before and after on all twenty-six, and
+`git diff --word-diff` shows one changed token per file and nothing else. Entry
+12 is not a respell but a pure addition of one line, so it honours the
+2026-08-10 ruling literally rather than extending it.
+
+**What did NOT change.** No `Status:` value moved. The archived population still
+reads 44 `Status: ratified`, 0 `draft` and 44 headerless over 88 archived
+proposals, counted in-tree at the executing commit — the same split the
+2026-08-22 rulings left, over two more archived changes than existed then. What
+moved is the spelling of citation lines: B1's 2026-08-22 count of twenty-nine
+`Ratified by:` and nine `Ratified:` among the archived ratified proposals now
+reads **3 and 41**. B1's counts are left standing as the measurement they were.
+
+**The three that keep `Ratified by:`, measured and deliberately out of the
+ruling.** `2026-07-30-add-omnigent-semantic-wiring`,
+`2026-07-30-add-ontology-term-lifecycle-enforcement` and
+`2026-07-30-publish-semantic-kernel` each name `add-domain-ontology-layer` —
+another change, in passing prose, not themselves — so they are neither
+resolution failures nor self-citers. Two ACTIVE proposals sit in the same
+position (`add-shared-identity-seeds`, and `add-identity-brokering` whose line
+names a record path that resolves). Respelling any of the five is not ruled.
+They are named so a later reader who counts by eye knows which set was ruled
+and which was measured.
+
+**The record-immutability cost of this append, measured.** Editing this
+`Status: record` document trips `record-immutability` — the cost the "Why this
+file exists" section accepted. That critical was ALREADY standing before this
+append, from the 2026-08-22 revision, and this append does not add a second
+one: the whole-repo single-repo run reads **4 critical / 8 error / 68 warning /
+4 info** both before and after, 0 new regressions, with
+`docs/archive-record-discrepancies.md` among the four on both sides. Measured
+in this git tree, not assumed, because the family reads git history. Two lines
+of that report DO move, and they are this section's own bulk rather than any
+finding: the `record` stage's word total rises 32,260 → 33,994 and canon share
+reads 31.4% against 31.5%, on unchanged canon words (169,417). That is the
+corpus-size effect the register recorded for itself once before. The
+dispositions entry drafted in "The
+record-immutability cost of this revision, measured" covers this document and
+still applies; as that section proves, it does not silence the live critical
+and is not expected to.
+
+**Nothing under `openspec/` is read by doc-health.** The twenty-seven proposal
+and review edits and the twenty-seven travelling notes all live under
+`openspec/changes/`, outside `corpus.GOVERNED_ROOTS`, so they move no
+whole-repo finding at all. The scoped scan set that `govern-openspec-corpus-membership`
+defines DOES read them, and there the slice takes `ratified-provenance` from 12
+CRITICAL to 0.

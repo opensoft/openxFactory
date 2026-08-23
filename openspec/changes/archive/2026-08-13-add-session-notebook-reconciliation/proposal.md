@@ -2,7 +2,7 @@
 code_surface: openxFactory (a fourth `sync-notebooklm-books.py` mode reconciling the `xf-session-` namespace against live sessions — forward-derived, fail-closed, workspace-scoped, report-only by default; unit coverage over the derivation and every refusal)
 target_release: none
 Status: ratified
-Ratified by: Brett, 2026-08-10 — "fix the session teardown notebook gap"
+Ratified: Brett, 2026-08-10 — "fix the session teardown notebook gap"
 Realized: merged to openxFactory main as 1b964ba (PR #163, 2026-08-10) and green on the implemented target — `tests/ideation-dashboard` 2850 passed / 5 skipped / exit 0 (2026-08-13), which carries this change's derivation and refusal coverage including `test_a_session_opened_from_a_feature_worktree_is_seen_as_live`. Recorded at the archive gate, which requires the evidence to exist rather than merely to be true.
 ---
 
