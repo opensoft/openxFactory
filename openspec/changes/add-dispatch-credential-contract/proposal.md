@@ -1,6 +1,7 @@
 ---
 code_surface: openxFactory (credential-contracts spec requirements; openXdox naming record draft->ratified; example dispatch/content credential records + validator support), omnigent-install (dispatch-App token-minter delivering short-lived tokens by reference into the inbox's env-named secret; QA dispatch-secret repoint), operator binding (org-owned "openXdox Intent Dispatch" GitHub App — org-admin provisioning, not code)
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
+Status: draft
 ---
 
 # Proposal: add-dispatch-credential-contract

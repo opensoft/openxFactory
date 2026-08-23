@@ -1,6 +1,8 @@
 ---
 code_surface: openxFactory (a NEW `contracts/worker-enrollment/` family — enrollment request, enrollment grant, lease, lease renewal, enrollment policy, and enrollment audit-record schemas — plus packaged positive/negative examples and the canonical `scripts/validate-worker-enrollment.py`; registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut). The broker SERVICE, the Omnigent-Install registration/renewal integration, and the OpsxFactory custody/policy/runner-group work are successor realization changes named in the impact map, not this change's surface.
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
+Status: ratified
+Ratified: 2026-07-26 by Brett Heap — D1-D10 recommendations adopted as decided; phase-1 contract realization authorized, recorded in commit e535a3a and on the Approved line below
 ---
 
 # Proposal: add-worker-enrollment-broker

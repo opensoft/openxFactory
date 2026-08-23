@@ -5,9 +5,10 @@ target_release: implemented (the doc-only pair; no contract bundle is cut)
 
 # Proposal: add-wallet-carried-review-authority
 
-Status: ratified — Brett Heap (openxFactory operator authority), 2026-08-23,
-in-session ruling (the same mechanism that ratified add-substantive-review-lane
-on 2026-08-22). Realization proceeds per tasks.md, S1 first.
+Status: ratified
+Ratified: 2026-08-23 by Brett Heap (openxFactory operator authority) — in-session
+ruling (the same mechanism that ratified add-substantive-review-lane on
+2026-08-22). Realization proceeds per tasks.md, S1 first.
 
 ## Ratification record, 2026-08-23
 

@@ -3,6 +3,7 @@
 Status: ratified
 Decision date: 2026-08-23
 Ratifier: Brett Heap (repository owner) — in-session via question prompts
+Ratified: 2026-08-23 by Brett Heap (repository owner) — in-session via question prompts
 Ratified baseline: this change as committed in the ratification commit
 carrying this record (proposal.md, design.md, tasks.md, .openspec.yaml,
 specs/lifecycle-notebook-projection/spec.md — 3 ADDED and 2 MODIFIED

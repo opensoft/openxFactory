@@ -3,6 +3,7 @@
 Status: ratified
 Decision date: 2026-08-22
 Ratifier: Brett Heap (repository owner) — in-session via question prompts
+Ratified: 2026-08-22 by Brett Heap (repository owner) — in-session via question prompts
 Ratified baseline: this change as committed in the ratification commit
 carrying this record (proposal.md, design.md, tasks.md,
 specs/roles-authority-model/spec.md, .openspec.yaml — ten ADDED requirements,

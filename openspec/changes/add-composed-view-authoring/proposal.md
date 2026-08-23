@@ -2,7 +2,7 @@
 code_surface: openxFactory (the serve declares its writable repository on /capabilities; the lens's drafted-seed hand-off and the workbench's openDraft read the unstripped capability; tests)
 target_release: none
 Status: ratified
-Ratified by: Brett, 2026-08-08 — "yes, we need to draft from a project view", after the hand-off was found unavailable on every project-scoped view
+Ratified: Brett, 2026-08-08 — "yes, we need to draft from a project view", after the hand-off was found unavailable on every project-scoped view
 ---
 
 # Proposal: add-composed-view-authoring
