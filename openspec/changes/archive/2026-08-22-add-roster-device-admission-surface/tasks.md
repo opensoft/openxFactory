@@ -366,3 +366,93 @@ archive-gate record, added at the archive rather than at authoring.
         looked like a clean result while measuring almost nothing. `--single-repo`
         is the flag for a lone repository checkout, and the numbers above are
         from that.
+
+## Bookkeeping correction (2026-08-23, `roster-device-header-window`)
+
+The archived proposal's lifecycle header sat **outside every reader's header
+window**. `Status: ratified` was at real line 41 and its `Ratified:` citation
+at 42, pushed there by the two-line release front matter, the H1, and the
+thirty-three-line **REALIZED AND ARCHIVED** banner standing between them. The
+window is the first FIFTEEN real lines: `scripts/doc_health/corpus.py:24`
+(`STATUS_SCAN_LINES = 15`), read by `corpus.parse_status`
+(`scripts/doc_health/corpus.py:72-86`), `corpus.parse_kind`
+(`scripts/doc_health/corpus.py:89-98`), `families._header_lines`
+(`scripts/doc_health/families.py:76-97`, the reader
+`fam_ratified_provenance` at `families.py:347` counts citations with), and
+`ideation_dashboard.generator._header_value`
+(`scripts/ideation_dashboard/generator.py:126-135`, whose `HEADER_SCAN_LINES`
+is `corpus.STATUS_SCAN_LINES` by assignment at `generator.py:74`).
+
+The defect was therefore NOT the citation, which was well formed and sat
+correctly beside its status line. It was that neither line existed as far as
+any lifecycle reader was concerned. Measured before the fix,
+`corpus.parse_status` on this file returned `None` and the archived census
+counted the document as headerless rather than as a `ratified` record: 43
+archived proposals parsed `ratified`, 45 parsed nothing at all. The document
+claimed a status no census could see.
+
+**A sweep, so the scope is measured and not assumed.** All 107
+`openspec/changes/**/proposal.md` files were compared two ways — a raw
+whole-file `^Status:` match against the fifteen-real-line window parse.
+EXACTLY ONE carried a `Status:` line the window could not see, and it was this
+one; the other 59 in-window readings agreed with their raw match. Forty-seven
+proposals carry no `Status:` line anywhere in the file. That is an older and
+different class — an absent header, not a displaced one — and it is untouched
+here. After the fix the out-of-window count is zero.
+
+**The fix is a pure reorder; no character of the record changed.** The header
+block (former lines 41-52: `Status:`, the five-line `Ratified:` citation, the
+six-line `Proposed:` line) and the banner block (former lines 7-39) exchanged
+places, with the three blank separator lines at 6, 40 and 53 left standing
+where they were. The lifecycle lines now read at real line 7 (`Status:`), 8
+(`Ratified:`) and 13 (`Proposed:`) — all inside the window, and all still
+adjacent to one another in the order they were written.
+
+Stated as a measurement rather than an intention: the file's line multiset is
+IDENTICAL before and after — 130 real lines on both sides, sorted-line-list
+equality holds, `collections.Counter` equality over the lines holds, and the
+sorted byte sequences of the whole file are equal, which no rewording could
+survive. Order is the only thing that differs.
+
+**The citation line is untouched.** It was judged valid where it stood, and
+this slice does not relitigate it — `sanction-ratified-record-spelling` 5.3
+puts "rewriting any existing citation line to a preferred shape" explicitly
+out of scope. Re-verified after the move through the real helpers rather than
+by eye: `corpus.parse_status` returns `ratified`; `_header_lines` finds ONE
+citation in total (zero `Ratified by:`, one `Ratified:`), which is the count
+`fam_ratified_provenance` enforces; and the record-citing three-way floor
+passes on TWO of its three axes — DATE (`2026-08-19`) and RECORD
+(`review/ratification-2026-08-19.md`, resolving relative to this change
+folder). The APPROVER axis does not fire, because `_CITATION_APPROVER` is
+`\bby\s+[A-Z][\w.'-]*` and this line names its approver as a parenthetical
+`(Brett; …)` rather than "by Brett". One axis is the floor; two is a pass with
+room to spare.
+
+**Why `code_surface` and `target_release` did not move below the header.**
+They are read through the SAME fifteen-line window
+(`generator.HEADER_SCAN_LINES = corpus.STATUS_SCAN_LINES`), so pushing them
+down to make room would have traded one invisible header for another and
+blanked the dashboard's release-realization tile for this change. Both are
+single lines, so both stay at 2 and 3 and everything still fits: front matter
+at 1-4, the H1 at 5, the lifecycle block at 7-18, the banner from 20.
+
+**Which discipline this follows.** Brett's 2026-08-10 append ruling
+(`2026-08-13-align-doxbench-contract-pin-to-publisher` 6.2) asks that the
+original record be "left standing word for word". This honours that literally
+on CONTENT and departs from it on ORDER alone: every word of the archived
+record still stands in its original spelling, and nothing above this section
+was added, removed, or reworded. It is a narrower departure than B1 in
+`docs/archive-record-discrepancies.md`, which had to overwrite a single-valued
+`Status:` value in place; here no value is overwritten at all. What a reader
+loses is the banner's former position at the top of the document, which is a
+presentation fact rather than a recorded one — and the banner still precedes
+every section of the body.
+
+**Scope.** This section and the reorder are the whole of the edit here, plus
+the tick this discharges on `sanction-ratified-record-spelling` 5.2. No
+promoted spec, no register entry, and no code is touched.
+`openspec/changes/` is outside `corpus.GOVERNED_ROOTS` (`contracts`, `docs`,
+`examples`, `ideation`, `templates`), so no doc-health family reads either
+file and no severity count can move on this commit. Census after the fix: 44
+archived proposals parse `Status: ratified` — 43 before, this one joining
+them — and all 44 carry exactly one in-window citation.
