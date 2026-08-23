@@ -210,6 +210,23 @@ Medical-domain implementation docs belong in `opensoft/MedxFactory`.
 
 IT operations-domain implementation docs now belong in `opensoft/OpsxFactory`.
 
+## Wallet validation gate
+
+Every PR to main runs the `wallet-validation` check, including drafts. The
+check is advisory until an operator marks it required.
+
+Mark it required via the active ruleset governing main:
+Repo Settings → Rules → Rulesets → edit the ruleset targeting `main` →
+Require status checks → add `wallet-validation`.
+
+If using a classic branch protection rule instead:
+Settings → Branches → `main` → Require status checks → select
+`wallet-validation`.
+
+The gate surfaces — `.github/workflows/`, `/scripts/validate-openxwallet.py`,
+and `/scripts/wallet-yaml-syntax-gate.py` — are owner-routed via
+[.github/CODEOWNERS](.github/CODEOWNERS) so changes to them need owner review.
+
 ## Domain Implementations
 
 - `opensoft/codexFactory` — software, code, repo, and engineering xFactory domain stack.
@@ -360,6 +377,39 @@ Active changes:
   Realization is the LAST slice, not the first: §5's campaign discharges all
   68 standing violations to **zero critical and zero error over the scan set**
   before §2's enforcement code may merge.
+- [add-notebook-projection-identity](openspec/changes/add-notebook-projection-identity/proposal.md)
+  — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The single exit
+  of the staged topic `notebook-projection-identity`, raised the day its last
+  precondition was met. The whole governed NotebookLM projection — every
+  per-repo Ideation book, `xf-drafts`, `xf-canon`, every live `xf-session-*` —
+  is created under one person's personal consumer Gmail, because the `nlm` CLI's
+  default profile is whoever ran `nlm login` first; proven live 2026-08-15 when
+  Brett hit a "request access" wall on a dashboard notebook link and the request
+  landed in that personal inbox. This makes the hosting identity a DECLARED
+  TWO-CASE INTAKE FACT: operator-hosted (a company-owned Google Workspace USER
+  account in the operating party's own domain) or self-hosted/personal, both
+  legitimate. A Google USER account is a platform constraint, not a preference —
+  NotebookLM has no API and a service account cannot drive its consumer web UI.
+  Opensoft declares Case A on `xFactor001@opensoft.one` (confirmed by Brett
+  2026-08-23, who also authorized raising this change). The sync runs under the
+  declared account's profile; access is shared out FROM that account and never
+  by handing out its credentials; a governed manual approval act WRITES the
+  share-out roster, which IS the record rather than an audit trail beside one,
+  keyed `(hosting_account, user, book_or_alias, role, granted_at, granted_by)`.
+  The custody rule GENERALIZES `credential-contracts`' promoted vault-operator
+  execution-binding requirement rather than adding beside it — no new record
+  kind. Encodes the five dispositions merged as PR #272, of which Q3 is the
+  evidence centerpiece: the mapping onto `client-identity-roster` was RUN, not
+  assumed, and refused the shape structurally (11 honest errors; the force-fit
+  passes with one grantee and fails with two on `duplicate-identity-key`,
+  because the grantee is not in the uniqueness tuple — that roster is one
+  principal / many scopes, a share-out list is one scope / many principals).
+  Migration follows the 2026-08-10 retirement runbook with parity proven against
+  THE CORPUS SCAN, carrying two review-verified gaps as scope: a plain `--apply`
+  never creates live session notebooks, and `ensure_workspace_record()` refuses
+  to re-register a same-key book under a new provider id.
+  `target_release: implementation_pending` — it archives only on Opensoft's own
+  cutover, proven parity, and the personal-hosted books retired by recorded act.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). The
   openxFactory COMPANION to Omnigent-Install's just-merged

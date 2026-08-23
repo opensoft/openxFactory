@@ -138,9 +138,12 @@ rather than an unmanaged inbox item.
 - Affected specs: `lifecycle-notebook-projection` (MODIFIED — a declared
   hosting-account field, `nlm` profile selection at sync time, and a
   share-out-from-the-account rule); `credential-contracts` (MODIFIED — the
-  two-case account-custody rule, paralleling the dispatch-credential
-  binding shape already ratified there in spirit via
-  `docs/openxdox-dispatch-credential-binding.md`).
+  two-case account-custody rule, GENERALIZING the vault-operator-custody
+  requirement that spec already promotes. Correction 2026-08-23: this
+  bullet first said that shape was ratified there only "in spirit via
+  `docs/openxdox-dispatch-credential-binding.md`" — it is ratified there
+  as an actual requirement, and the runbook doc is its downstream
+  realization; see the Q1 correction).
 - Affected code: `scripts/sync-notebooklm-books.py` (profile/account
   selection), `docs/lifecycle-notebook-projection.md` (section 1's "one
   shared account" framing and section 6's operator runbook, both written
@@ -255,15 +258,26 @@ Exchange) under a liaison/execution-binding model — a different bounded
 context from an operator's own internal governance tooling account.
 `credential-contracts` already owns the shape of the two-case
 operator-hosted-vs-self-hosted binding the openXdox dispatch credential
-uses, but that precedent is a runbook doc
-(`docs/openxdox-dispatch-credential-binding.md`), not a spec requirement —
-the two-case principle itself may not be formally owned by
-`credential-contracts` today so much as documented beside it.
+uses — as a PROMOTED SPEC REQUIREMENT, not merely as prose standing beside
+one.
+Correction 2026-08-23: this context originally said that precedent "is a
+runbook doc (`docs/openxdox-dispatch-credential-binding.md`), not a spec
+requirement", and that "the two-case principle itself may not be formally
+owned by `credential-contracts` today so much as documented beside it";
+the Recommended answer below echoed it with "in runbook form", corrected
+in place to match. All of it was wrong, and load-bearing to the question:
+`openspec/specs/credential-contracts/spec.md` carries the requirement "The
+credential vault operator is an execution binding, never contract content"
+(lines 133-145), with an operations-factory-operated scenario and a
+client-operated scenario — the two-case fork itself, already promoted. The
+runbook doc is that requirement's downstream realization, not the
+principle's only home.
 Recommended answer: `lifecycle-notebook-projection` carries the declared
 hosting-account field and the share-out-from-the-account rule (Claim 2 and
 4); `credential-contracts` carries the two-case account-custody rule
-itself (Claim 6), extending the same principle it already houses in
-runbook form for openXdox dispatch. Neither `client-infrastructure-request`
+itself (Claim 6), extending the same principle it already houses as a
+promoted requirement for openXdox dispatch (corrected 2026-08-23; this
+read "in runbook form"). Neither `client-infrastructure-request`
 nor `client-infrastructure-liaison` is the right home — both are scoped to
 a client's own tenant, not the operator's tooling identity — and no new
 capability is proposed unless the eventual draft proves these two too
@@ -278,7 +292,33 @@ contract, audit policy) are all CREDENTIAL-shaped, and a Google-account
 identity choice may not map cleanly onto any of the five without an
 extension — that mapping is exactly what a future draft would need to
 prove or disprove.
-Disposition status: open
+Disposition status: resolved 2026-08-23 — architect adjudication
+Disposition (2026-08-23, architect): the recommended split STANDS, on the
+corrected context above. `lifecycle-notebook-projection` carries the
+declared hosting-account field, the profile-selection-at-sync-time rule,
+and the share-out-from-the-account rule — and because its promoted spec
+currently RATIFIES the shared-account model in its own text ("The account
+is shared between workspaces",
+`openspec/specs/lifecycle-notebook-projection/spec.md`), that delta is a
+MODIFIED requirement amending the model, not an addition placed beside it.
+`credential-contracts` carries the two-case account-custody rule as a
+GENERALIZATION of the requirement it already promotes: vault-operator
+custody widens to hosting-account custody. No new record kind is needed,
+which retires this Explanation's five-record-kinds risk — that spec
+already carries requirements bound to no record kind at all, and its
+schema is open where the mapping would have to land: one
+`additionalProperties: false` closure in
+`contracts/schemas/xfactory-credential-contracts.schema.yaml`, against
+eleven in the client-identity-roster schema Q3 tested (counted at the
+parsed-schema level; a raw grep says fourteen because the roster schema's
+own header prose mentions the closure convention three times — corrected
+2026-08-23 on Copilot's review note). Neither
+client-infrastructure capability is the home (both are client-tenant
+scoped, as this fragment already argued), and no new capability is
+proposed. The exit's one-vs-two-changes fork therefore resolves to ONE
+COMBINED CHANGE: one mechanism, one custody rule, and one code surface
+(the sync's profile selection) land together.
+Dispositioned-by: Claude Opus 5 (session, architect adjudication) · 2026-08-23
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
 
 ### Q2. Company account type — Workspace user vs. consumer Gmail for the company case?
@@ -298,13 +338,41 @@ A consumer Gmail labeled "company" inherits every personal-account failure
 mode this topic exists to retire (single recovery email/phone, no admin
 console, no enforced org policy); it would be Case A's account type
 wearing Case B's actual risk profile.
-Disposition status: open
+Disposition status: ruled 2026-08-23 — Brett Heap, in session
+Disposition (2026-08-23, RULED BY BRETT HEAP): a dedicated Google Workspace
+USER account in the operating tenant's own domain — ruled first against a
+working name, `xfactory-books@opensoft.one`, with the actual address to be
+confirmed at creation. Not a consumer Gmail, not even one designated "the
+company account" by convention.
+CONFIRMED the same day (2026-08-23, Brett Heap): the account EXISTS and is
+**`xFactor001@opensoft.one`** — a Google Workspace user in `opensoft.one`,
+exactly the ruled shape. That address supersedes the working name above;
+`xfactory-books@opensoft.one` was never created and should not be used.
+Opensoft's own install is therefore a declared Case A instance, and the
+exit's account precondition is MET.
+A platform fact this capture predates reinforces the ruling rather than
+merely permitting it: a GCP service account CANNOT drive NotebookLM —
+there is no API, and a service account cannot drive the consumer web UI
+(recorded in `docs/notebooklm-sync-open-item.md`'s "Strategic direction"
+section) — so the hosting identity MUST be a Google USER account, which is
+exactly what a Workspace user is. That also settles a loose wording inside
+this fragment: where the Summary says "company service account" it means a
+company-owned Google USER account, as Claim 4 already spells out ("company
+xFactory user account (Google)") — never a GCP/IAM service account, which
+the platform cannot use at all.
+Brett additionally ruled the account will be CREATED NOW/SOON (2026-08-23),
+which turned the exit's "raised only once a real company account exists"
+precondition into a confirmation this topic was waiting on rather than an
+open-ended one — and that confirmation arrived the same day, above. Brett
+authorized raising the combined change on it.
+Dispositioned-by: Brett Heap (in-session ruling, encoded by Claude Opus 5) · 2026-08-23
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
 
 ### Q3. Does the share-out roster consume the in-flight `add-client-identity-roster` proposal?
 
-Context: `add-client-identity-roster` (ratified 2026-08-14,
-`openspec/changes/add-client-identity-roster/`) governs identities standing
+Context: `add-client-identity-roster` (ratified 2026-08-14; then active at
+`openspec/changes/add-client-identity-roster/`, archived since — the live
+path is in the correction below) governs identities standing
 in a PAYING CLIENT's tenant — app registrations and service principals on
 a declared admission surface (Business Central, Exchange, and so on), keyed
 on `(domain, surface, class, blast-radius unit, duty)`, with verified
@@ -312,6 +380,16 @@ provider-side admission as a first-class fact. The share-out roster this
 topic needs is a different shape on its face: a list of HUMAN users an
 internal Google account has shared specific notebooks with, not
 provider-admitted service principals in a client's estate.
+Correction 2026-08-23: this context, and the Recommended answer below,
+treat `add-client-identity-roster` as an in-flight proposal whose shape
+could not yet be tested against. It is neither in flight nor untestable
+now — it ratified and archived as
+`openspec/changes/archive/2026-08-15-add-client-identity-roster`, and both
+halves of it are real and runnable:
+`contracts/schemas/xfactory-client-identity-roster.schema.yaml` (published
+through `contract-v1.40`) and `scripts/validate-client-identity-roster.py`.
+The mapping this question named as its own settling method was therefore
+PERFORMED rather than estimated; the disposition carries its results.
 Recommended answer: lean toward NOT inventing a second, structurally
 similar contract without first checking whether
 `client-identity-roster`'s shape can carry it — but this is unproven, not
@@ -330,7 +408,49 @@ but that discipline applies to genuinely overlapping ground, and a
 human-user Google Docs sharing list may simply not be the same ground as
 client-tenant service-principal admission. This question should be settled
 by attempting the mapping, not by assumption either way.
-Disposition status: open
+Disposition status: resolved 2026-08-23 — executed-mapping adjudication
+Disposition (2026-08-23, architect, ON EXECUTED EVIDENCE): a DISTINCT,
+small share-out roster — this question's own honest fallback, now proven
+necessary rather than assumed. The mapping was RUN against the realized
+schema and its real validator, in two variants:
+- Honest variant (the share-out facts stated truthfully): 11 validator
+  errors. `identity_kind` is CLOSED to `entra_app_registration`;
+  `admission_surface` is CLOSED to `business_central`, `exchange`,
+  `device` and `directory` — the schema itself routes every non-Entra
+  surface to `client-infrastructure-liaison`, which is to say OUT of
+  roster scope; `residency_model` is closed to `client_tenant_single` and
+  `vendor_tenant_multi`; `consent_ref` must resolve intra-repo against a
+  consent-instrument record and here resolves to nothing; and
+  `granted_by`, `granted_at` and the hosting account have nowhere to live
+  under the schema's eleven `additionalProperties: false` closures (the
+  parsed count; corrected from fourteen 2026-08-23 — see Q1).
+- Force-fit variant (eight fields knowingly falsified, each marked as a
+  lie): PASSES with one grantee and FAILS with two grantees on the same
+  book — `duplicate-identity-key`, because THE GRANTEE IS NOT IN THE
+  UNIQUENESS TUPLE. That tuple is `(domain, admission_surface,
+  authority_class_intended, blast_radius_unit, duty)`
+  (`identity_key` in `scripts/validate-client-identity-roster.py`), so two
+  people sharing one book collide by construction.
+The failure is STRUCTURAL, not a vocabulary gap: the client-identity
+roster models ONE PRINCIPAL / MANY SCOPES, and a share-out list is the
+transposed shape — ONE SCOPE / MANY PRINCIPALS. Widening enums cannot fix
+a transposed key. The share-out roster is therefore its own small
+contract, keyed on `(hosting_account, user, book_or_alias, role,
+granted_at, granted_by)`.
+Two post-capture facts belong recorded beside it, both from the
+identity-brokering family ratified after this topic was captured
+(`add-identity-brokering`; its contracts are on main, the capability not
+yet promoted): (1) that family models the HUMAN-persona half of this same
+ground, so share-out roster entries SHOULD reference a persona wherever
+one resolves, falling back to a bare email address only where none does;
+and (2) its `contracts/identity-brokering/surface-adoption.schema.yaml`
+requires `human_accounts_held_by_surface` as a const `false`, on the
+stated reasoning that "an account that resolves nowhere is an identity the
+governed layer cannot name". An account sharing out to arbitrary
+unresolvable Google accounts is a shape the governed layer refuses — which
+REINFORCES the company-account-plus-explicit-roster direction rather than
+merely coexisting with it.
+Dispositioned-by: Claude Opus 5 (session, architect adjudication) · 2026-08-23
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
 
 ### Q4. What does the company-policy-Hermes monitor/approve lane look like mechanically, given no NotebookLM share API?
@@ -355,7 +475,24 @@ acting party has no privileged API to automate against — a governed manual
 act, evidenced and recorded, is strictly better than either an ungoverned
 manual act (today's status quo) or a fictional automated one the platform
 cannot actually support.
-Disposition status: open
+Disposition status: resolved 2026-08-23 — architect adjudication
+Disposition (2026-08-23, architect): the governed MANUAL lane, exactly as
+recommended — a share request lands in the hosting account's own UI, a
+designated company-policy actor approves or denies it there, and the act
+is RECORDED. Re-verified at disposition time: nothing in this repository
+and nothing in the platform models third-party share-request approval, and
+NotebookLM still exposes no share or admin API, so nothing here is
+designed against a surface that does not exist.
+ONE UNIFICATION this capture missed: the approval act's record IS the Q3
+share-out roster entry. Approving a request WRITES (or updates) the
+share-out roster; a denial is recorded in the same lane. That is one
+artifact, not an audit trail sitting beside a roster — and it gives the
+monitor/approve lane the mechanical home the Impact section honestly
+recorded it as lacking (neither `workflow-gate-contract` nor
+`roles-authority-model` had to be stretched to hold it).
+If a real API surface ever appears, the detection and relay steps may be
+automated; the approval itself stays a governed human act either way.
+Dispositioned-by: Claude Opus 5 (session, architect adjudication) · 2026-08-23
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
 
 ### Q5. What is the migration sequencing for opensoft's current, personally-hosted books?
@@ -379,16 +516,68 @@ anyone declared it "old" and split it (the incident behind
 `split-ideation-book-per-repo`). A declared retirement avoids repeating
 that pattern for the personal-hosted books once the company-hosted ones
 are proven equivalent.
-Disposition status: open
+Disposition status: resolved 2026-08-23 — architect adjudication
+Disposition (2026-08-23, architect): the `split-ideation-book-per-repo`
+retirement runbook is the template, applied step for step. Re-create the
+books under the declared account on the next `--apply` after the declared
+field is readable — ONE run, because the projection is derived (precedent:
+314 sources, roughly 40 minutes). Verify parity as title-set equality per
+book PLUS a union reconciliation against THE CORPUS SCAN — not against the
+legacy books, which are the very artifact whose fidelity is in question —
+and then a final dry run showing zero pending ADD/DEL/UPD. Only once that
+holds, retire the personal-hosted books by RECORDED MANUAL ACT, exactly as
+2026-08-10 did: archive-rename the legacy book, DELETE its alias (never
+repoint it), and retire its workspace record in place.
+Realization facts for the eventual change's tasks. (1) The sync passes NO
+profile today — `subprocess.run(["nlm", *args])` in
+`scripts/sync-notebooklm-books.py`, with no flag and no environment
+selection — so profile selection and the declared-field read are real
+code, not configuration. (2) A parity/report mode is worth adding to the
+sync, because 2026-08-10's parity check was hand-assembled from `nlm
+source list` output.
+Two further facts, found in review 2026-08-23 (Codex on PR #272) and
+verified against the script — they do not change the runbook, they bound
+what "ONE run" actually covers:
+(3) THE ONE RUN COVERS THE LIFECYCLE BOOKS ONLY. A plain `--apply` never
+enumerates live sessions for creation, and the `--session-ref` path
+handles exactly one named session and returns before the lifecycle loop
+("A SESSION run is only ever about one session's notebook: it never syncs
+a lifecycle book"); `--session-sweep` reconciles and retires but never
+creates. Every live `xf-session-*` notebook therefore needs its own run —
+or a bulk migration mode — before the personal account is retired, or
+those notebooks stay hosted there. Q5's context named the live session
+books explicitly, so this is scope the migration owes them.
+(4) THE WORKSPACE RECORD NEEDS EXPLICIT REPLACEMENT, NOT RETIREMENT ALONE.
+`ensure_workspace_record()` derives `record_id` from `spec.key`, which is
+unchanged in the new account; finding that id already present with a
+different `provider_notebook_id`, it prints "reconcile by hand" and
+returns WITHOUT registering the replacement. Retiring the old record then
+leaves the company-hosted book with no active `external_source_workspace`
+record. The 2026-08-10 precedent does not cover this: its successors were
+new per-repo keys with NEW record ids, so nothing collided. This cutover
+needs a declared record replacement (or versioning) step.
+Dispositioned-by: Claude Opus 5 (session, architect adjudication) · 2026-08-23
 Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
 
 ## Exit
 
-Iterate this fragment in doxBench until all five open questions above
-carry a disposition other than `open`. The likely landing is one or two
-OpenSpec changes — a `lifecycle-notebook-projection` delta for the
-declared-hosting-account mechanism and share-out rule, and a
-`credential-contracts` delta for the two-case custody principle, either as
-one combined change or sequenced separately depending on Q1's resolution —
-raised only once a real company account exists to prove the declared-field
-and re-creation path against.
+All five questions above now carry a disposition (2026-08-23): Q2 and the
+account timing RULED BY BRETT HEAP in session, Q1/Q3/Q4/Q5 adjudicated
+against executed evidence. The one-or-two-changes fork is closed with
+them.
+
+The landing is ONE COMBINED OpenSpec change carrying, together: MODIFIED
+`lifecycle-notebook-projection` (the declared hosting-account field, `nlm`
+profile selection at sync time, the share-out-from-the-account rule, and
+the amendment of the shared-account model that spec currently ratifies in
+text); MODIFIED `credential-contracts` (the two-case account-custody rule,
+generalizing the vault-operator-custody requirement already promoted
+there); the new small share-out roster shape Q3 proved is its own
+contract; and one code surface, the sync's profile selection.
+
+The account precondition is MET. Brett confirmed on 2026-08-23 that the
+Workspace account exists — `xFactor001@opensoft.one`, a Google Workspace
+user in `opensoft.one` — and authorized raising the change on it, so the
+topic exits via that change rather than waiting on anything further.
+Opensoft's own install is the declared Case A instance the change's
+migration path applies to.

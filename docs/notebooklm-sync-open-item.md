@@ -123,6 +123,11 @@ sharing them to human accounts. Because projection is derived, migrating is
 one `--apply` run in the new account. Staged: `ideation/staging/
 notebook-projection-identity/notebook-projection-identity.md`.
 
+Dispositioned 2026-08-23: that staged topic's five hosting-identity
+questions all carry dispositions now — Brett ruled a Google Workspace USER
+account in `opensoft.one` — but THIS operational item stays open, because
+it closes on the eventual change's realization, not on the rulings.
+
 ## Related known bug (own change, not this item)
 
 A routine `sync-notebooklm-books.py --apply` in one checkout can delete another
