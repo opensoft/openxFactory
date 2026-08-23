@@ -97,7 +97,8 @@ first thing to run under a declared account.
   notebooks — `--session-ref` handles one named session and returns before the
   lifecycle loop, `--session-sweep` only retires. Without this, live sessions
   stay on the account being abandoned.
-  - PROCEDURE LANDED, code deferred to the migration itself: runbook step 4 gives the explicit per-session procedure the task allows as the alternative to a bulk mode (`--session-ref <branch> --apply`, once per live session, enumerated across every worktree). A bulk mode stays worth adding; nothing is migrated until Brett authenticates, so it is not on this landing's critical path.
+  - N1 (review 2026-08-23): `scripts/ideation_dashboard/workbench.py` creates session notebooks through its OWN `subprocess.run(["nlm", ...])`, outside this sync's profile binding — a second unbound path to the same account. Scope-adjacent and explicitly covered by this deferral: binding it rides whichever change gives sessions a bulk migration mode. The runbook says meanwhile to migrate sessions through the sync, not the workbench.
+  - PROCEDURE LANDED, code deferred to the migration itself: runbook step 5 gives the explicit per-session procedure the task allows as the alternative to a bulk mode (`--session-ref <branch> --apply`, once per live session, enumerated across every worktree). A bulk mode stays worth adding; nothing is migrated until Brett authenticates, so it is not on this landing's critical path.
 - [ ] 4.3 Add the explicit workspace-record REPLACEMENT step. VERIFIED GAP:
   `ensure_workspace_record()` derives `record_id` from `spec.key`, unchanged in
   the new account; finding that id with a different `provider_notebook_id` it
@@ -144,6 +145,51 @@ first thing to run under a declared account.
   material has moved, per the index's own maintenance rule.
 - [ ] 6.2 README OpenSpec Records: move this change from active to archived when
   it archives, on merged code with green realization evidence.
+
+- [x] 6.3 Adversarial review round (2026-08-23, PR #277): 1 blocking + 5
+  should-fix, all reproduced before fixing, all fixed on the branch.
+  - **B1** the runbook's re-derivation repointed the aliases its retirement
+    step was required to DELETE — the alias store is one flat,
+    profile-independent file and `resolve_or_create_book()` registers on the
+    FOUND path too. The runbook now records the legacy notebook ids and
+    deletes the aliases in step 1, before any `--apply`, per the 2026-08-10
+    order; steps renumbered accordingly.
+  - **S1** `--parity` issued three `alias set` calls while claiming never to
+    mutate. Alias binding is now switchable and off for the read-only caller,
+    and the test's blocklist covers `alias set`/`alias delete`.
+  - **S2** a hosting file the narrow reader could not parse (flow style,
+    four-space, tabs) took the UNDECLARED branch and ran the whole job
+    unbound, while the validator passed the same file. An existing file now
+    always yields a dict, and an empty one REFUSES.
+  - **S3** `migration.state: in_progress` failed the validator and passed the
+    sync, which bound the declared profile while the books were elsewhere.
+    `_refuse_unusable_declaration()` now owns the state vocabulary and the
+    pending-requires-`from_nlm_profile` rule — one rule, one owner.
+  - **S4** "the CLI stores no email for a profile" was FALSE:
+    `profiles/<name>/metadata.json` carries `email` (`farheap` populated,
+    `personal` null). The sync now compares it to the declared account when
+    present, reports null as unknown, and the claim is corrected in the
+    docstring, §12 and the runbook.
+  - **S5** runbook step references were off by one at the stranding point;
+    corrected, and the deliberate refuse-window between binding the host and
+    flipping the state is now stated.
+  - All five new guards revert-tested individually.
+- [x] 6.4 Notes recorded rather than fixed (review N2-N5):
+  - **N2** a microsecond TOCTOU remains between `assert_still_bound()` and the
+    `subprocess.run` after it. It cannot be closed without a per-invocation
+    profile flag the CLI does not offer for these verbs; STATED in §12 rather
+    than left implicit.
+  - **N3** the hosting validator is not wired into CI. The pytest gate
+    exercises it against the committed record
+    (`test_the_committed_record_conforms`), which mitigates but does not
+    replace a CI wiring; a follow-up may add it beside the other validators.
+  - **N4** `self_hosted` declarations ignore `account_type` and `domain`, and
+    the `denied:` list has no field discipline. Both are realization
+    follow-ups: the self-hosted case deliberately carries no organizational
+    obligation, and no denial has been recorded yet.
+  - **N5** the runbook's `nlm share invite` and §12's "in the account's own UI"
+    now describe ONE act with two interfaces, with the decision human either
+    way, rather than reading as two different lanes.
 
 ## 7. NOT part of this change
 

@@ -768,7 +768,8 @@ def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str) -> Non
 
 
 def resolve_or_create_book(root: Path, spec: BookSpec, apply: bool,
-                           notebooks: list[dict] | None = None
+                           notebooks: list[dict] | None = None,
+                           *, bind_alias: bool = True
                            ) -> tuple[str | None, bool]:
     """Resolve a book to its notebook id BY TITLE; lazily create it in apply
     mode. Returns (notebook_id | None, fully_ok). A dry run over a missing
@@ -779,7 +780,12 @@ def resolve_or_create_book(root: Path, spec: BookSpec, apply: bool,
     by_title = {r.get("title"): r.get("id") for r in rows if r.get("id")}
     nid = by_title.get(spec.title)
     if nid:
-        _ensure_alias(spec, nid)
+        # `bind_alias=False` is the READ-ONLY caller's contract. The alias store
+        # is a single flat, PROFILE-INDEPENDENT file, so registering here is a
+        # write with cross-account consequences — a parity proof that repoints
+        # xf-canon is not a proof, it is a migration nobody asked for.
+        if bind_alias:
+            _ensure_alias(spec, nid)
         return nid, True
     if not apply:
         print(f"[{spec.key}] CREATE {spec.title} (book missing; created on --apply)")
@@ -1658,6 +1664,24 @@ def configured_nlm_profile(path: Path | None = None) -> str | None:
     return profile
 
 
+def profile_account(profile: str, home: Path | None = None) -> str | None:
+    """The Google address the CLI recorded for `profile`, when it has one.
+
+    Corrects a claim this change shipped with: the CLI DOES store an email, in
+    `profiles/<name>/metadata.json`. It is populated by a recent login and left
+    null by an older one, so a None here means UNKNOWN — not "no such thing" —
+    and an unknown address is reported rather than treated as a mismatch.
+    """
+    base = home or (Path.home() / ".notebooklm-mcp-cli")
+    path = base / "profiles" / profile / "metadata.json"
+    try:
+        meta = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    email = meta.get("email") if isinstance(meta, dict) else None
+    return email.strip() or None if isinstance(email, str) else None
+
+
 def bind_profile(profile: str | None) -> None:
     """Pin the run to `profile`; None releases the pin (undeclared installs)."""
     global _BOUND_PROFILE
@@ -1700,7 +1724,7 @@ def read_hosting_declaration(root: Path) -> dict[str, str] | None:
     """
     path = root / HOSTING_REL
     if not path.is_file():
-        return None
+        return None          # genuinely undeclared: the only undeclared case
     found: dict[str, str] = {}
     in_hosting = in_migration = False
     for raw in path.read_text(encoding="utf-8").splitlines():
@@ -1722,7 +1746,12 @@ def read_hosting_declaration(root: Path) -> dict[str, str] | None:
                 found[key] = value
         elif indent == 4 and in_migration and key in _HOSTING_MIGRATION_SCALARS:
             found[f"migration_{key}"] = value
-    return found or None
+    # An EXISTING file always yields a dict — empty when this narrow reader
+    # could not make sense of it (flow style, other indentation, tabs).
+    # Returning None there would route a present-but-unparsed declaration into
+    # the UNDECLARED branch: the sync would bind nothing and run unbound for the
+    # whole job while the full validator passed the very same file. Fail closed.
+    return found
 
 
 def active_nlm_profile(runner=None) -> str | None:
@@ -1754,6 +1783,9 @@ def active_nlm_profile(runner=None) -> str | None:
 _NON_USER_MARKERS = (".iam.gserviceaccount.com", ".gserviceaccount.com")
 
 
+_MIGRATION_STATES = (None, "", "pending", "complete")
+
+
 def _refuse_unusable_declaration(declared: dict[str, str]) -> None:
     """Enforce the declaration rules that must hold ON THE OPERATIONAL PATH.
 
@@ -1764,8 +1796,34 @@ def _refuse_unusable_declaration(declared: dict[str, str]) -> None:
     here too, inline and dependency-free; the validator remains the authority
     on the parts a sync never reads.
     """
+    if not declared:
+        raise SystemExit(
+            f"hosting: {HOSTING_REL} EXISTS but no declaration could be read "
+            f"from it. The sync reads the `hosting:` block's own two-space "
+            f"scalars; flow style, other indentation or tabs parse as valid "
+            f"YAML for the validator and as nothing here. Refusing rather than "
+            f"running unbound — an unreadable declaration is not an absent "
+            f"one. Re-indent it to match "
+            f"examples/notebook-projection-hosting.yaml.")
     case = declared.get("case")
     account = declared.get("account", "")
+    state = declared.get("migration_state")
+    if state not in _MIGRATION_STATES:
+        raise SystemExit(
+            f"hosting: migration.state is {state!r}; it is 'pending', "
+            f"'complete', or absent. An unrecognized state would otherwise "
+            f"bind the run to the DECLARED profile while the books are still "
+            f"in the previous account — a premature migration under --apply.")
+    if state == "pending" and not declared.get("migration_from_nlm_profile"):
+        raise SystemExit(
+            f"hosting: a PENDING migration must name "
+            f"migration.from_nlm_profile — the sync binds there until the "
+            f"books move, and cannot bind to a profile nobody named.")
+    if not declared.get("nlm_profile"):
+        raise SystemExit(
+            f"hosting: {HOSTING_REL} names no top-level nlm_profile. It is "
+            f"required in every state: it is what the run binds to once a "
+            f"migration completes.")
     if case not in ("operator_hosted", "self_hosted"):
         raise SystemExit(
             f"hosting: {HOSTING_REL} declares case {case!r}; an install "
@@ -1813,10 +1871,11 @@ def enforce_hosting_profile(root: Path, *, runner=None) -> dict[str, str] | None
     declaration is not a migration — flipping the binding before the books move
     would break every sync rather than move anything.
 
-    HONEST LIMIT: the CLI stores no email for a profile (the account is
-    identified by the books it shows), so what is verified is the profile NAME
-    against the declaration, not the address. The address is governance; the
-    profile name is the mechanism that binds to it.
+    WHAT IS VERIFIED. The profile NAME always, and the ACCOUNT ADDRESS whenever
+    the CLI recorded one: `profiles/<name>/metadata.json` carries an `email`,
+    populated by a recent login and left null by an older one. A null is
+    reported as unknown rather than treated as a match — this change originally
+    claimed the CLI stored no email at all, which review disproved.
     """
     declared = read_hosting_declaration(root)
     if declared is None:
@@ -1835,12 +1894,6 @@ def enforce_hosting_profile(root: Path, *, runner=None) -> dict[str, str] | None
     profile = declared.get("migration_from_nlm_profile") if pending else target
     holder = declared.get("migration_from_account", "the previous account") if pending else account
 
-    if not profile:
-        raise SystemExit(
-            f"hosting: {HOSTING_REL} declares {account} but names no "
-            f"{'migration.from_nlm_profile' if pending else 'nlm_profile'}; "
-            f"the run cannot bind to an account it cannot name")
-
     active = active_nlm_profile(runner)
     if active is None:
         raise SystemExit(
@@ -1855,6 +1908,25 @@ def enforce_hosting_profile(root: Path, *, runner=None) -> dict[str, str] | None
             f"retire.\n"
             f"  switch it with:   nlm login switch {profile}\n"
             f"  first time:       nlm login --profile {profile}")
+
+    # The profile NAME proves which store is used; the address it recorded, if
+    # it recorded one, proves WHICH ACCOUNT that store holds. Check it when
+    # available — a name can point anywhere after a re-login.
+    expected = holder if pending else account
+    signed_in = profile_account(profile)
+    if signed_in and expected and signed_in.lower() != expected.lower():
+        raise SystemExit(
+            f"hosting: profile {profile!r} is signed in as {signed_in}, but "
+            f"this install expects {expected}. Refusing: the profile name "
+            f"matches and the ACCOUNT does not, which is exactly the mix-up a "
+            f"declared identity exists to catch.\n"
+            f"  re-authenticate with:  nlm login --profile {profile}  "
+            f"(as {expected})")
+    if signed_in is None:
+        print(f"hosting: profile {profile!r} records no account address "
+              f"(an older login leaves it null) — the binding is verified by "
+              f"profile NAME only; confirm with `nlm notebook list` that it "
+              f"shows {expected}.")
 
     bind_profile(profile)
     if pending:
@@ -1875,8 +1947,10 @@ def parity_report(root: Path, *, book: str | None = None,
     The scan is the reference on purpose: after a hosting migration the legacy
     books are the artifact whose fidelity is in question, so proving the new
     account against them proves nothing. Reports per-book title-set equality
-    plus a union reconciliation, and never mutates. Returns 0 when every book
-    in scope matches with nothing pending, 1 otherwise.
+    plus a union reconciliation, and never mutates — including the ALIAS STORE,
+    a single flat file shared across profiles, so registering an alias is a
+    cross-account write rather than a local convenience. Returns 0 when every
+    book in scope matches with nothing pending, 1 otherwise.
     """
     desired, specs = scan(root)
     if book and book not in desired:
@@ -1895,7 +1969,8 @@ def parity_report(root: Path, *, book: str | None = None,
             continue
         derived = set(items.values())
         derived_union |= derived
-        nid, _ok = resolve_or_create_book(root, specs[key], False, notebooks)
+        nid, _ok = resolve_or_create_book(root, specs[key], False, notebooks,
+                                          bind_alias=False)
         if nid is None:
             print(f"[{key}] PARITY FAIL: no live notebook titled "
                   f"{specs[key].title!r} ({len(derived)} derived members)")

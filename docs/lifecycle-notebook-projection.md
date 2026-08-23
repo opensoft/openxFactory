@@ -401,10 +401,13 @@ declared one, printing the exact `nlm login switch` remediation. It never
 switches the profile itself: that is shared user state, and other sessions on
 the same host race on it.
 
-What is verified is the profile NAME against the declaration, not the address:
-the CLI stores no email for a profile (an account is identified by the books it
-shows). The address is the governance fact; the profile name is the mechanism
-that binds to it.
+Both the profile NAME and, when the CLI recorded one, the ACCOUNT ADDRESS are
+verified. `profiles/<name>/metadata.json` carries an `email`, populated by a
+recent login and left null by an older one; where it is present and disagrees
+with the declared account the run refuses, and where it is null the run says so
+and falls back to verifying the name alone. (An earlier draft of this section
+claimed the CLI stored no email at all. Review disproved it: `farheap` carries
+`brett.heap@farheap.com`, `personal` carries null.)
 
 The binding is re-asserted **before every invocation**, not once at the start.
 Because selection is process-global, another terminal running
@@ -414,6 +417,13 @@ sync reads `~/.notebooklm-mcp-cli/config.toml` directly for this — a stat, not
 a subprocess, cached on the file's own stamp — and refuses the next invocation
 the moment the value moves, naming the re-bind command. The sync is idempotent,
 so a resumed run is a no-op over whatever finished.
+
+One limit remains and is stated rather than papered over: between the
+assertion and the `subprocess.run` that follows it there is a microsecond
+window in which the profile could still change. It cannot be closed without a
+per-invocation profile flag the CLI does not offer for these verbs. What the
+check removes is the realistic failure — a switch that happens minutes into a
+forty-minute run and silently redirects everything after it.
 
 The declaration's load-bearing rules are enforced on this path too — the
 two-case vocabulary, the Workspace-user requirement for the operator-hosted
@@ -429,7 +439,10 @@ anything.
 
 Individual users never authenticate against the hosting account's own
 credentials. They are shared out TO, from that account, and every share act is
-a governed decision that is recorded — the roster entry IS the record, not an
+a governed decision that is recorded. The DECISION is a human one either way;
+where it is executed — the account's own sharing UI, or `nlm share invite` from
+a terminal under the declared profile — is the actor's choice, and the runbook
+shows both. What is not optional is the record — the roster entry IS the record, not an
 audit trail beside one. Uniqueness is the stable
 `(hosting_account, user, book_or_alias)` triple; the role, the grant time and
 the granting actor are attributes, so a re-approval or a role change updates
@@ -454,6 +467,22 @@ against `nlm share status` to prove it matches reality. Neither changes who
 decides. This correction is recorded here rather than folded into the ratified
 requirement text, which permits automation of detection and relay while keeping
 the approval a governed human act either way.
+
+### The alias store is shared, and that shapes the migration
+
+`~/.notebooklm-mcp-cli/aliases.json` is ONE FLAT FILE, not per-profile, and the
+sync registers an alias whenever it resolves a book — on the found path as well
+as the created one. Two consequences, both load-bearing:
+
+- A read-only run must not touch it. `--parity` therefore resolves books with
+  alias binding switched OFF, and its test asserts that no `alias set` or
+  `alias delete` is issued. An alias write during a parity proof would repoint
+  `xf-canon` for every account on the host.
+- A migration must DELETE the legacy aliases BEFORE the first `--apply` in the
+  new account, not after. Running the re-derivation first repoints them, and
+  the ratified "deleted rather than repointed" rule can no longer be honoured —
+  nor the legacy notebook ids recovered from the store. The runbook's step 1
+  exists for exactly this, and it is the 2026-08-10 precedent's order.
 
 ### Migrating to a declared account
 
