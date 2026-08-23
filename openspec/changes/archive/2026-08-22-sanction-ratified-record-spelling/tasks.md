@@ -293,6 +293,19 @@ what makes it a rule rather than an observation.
       `2026-08-22-add-roster-device-admission-surface`'s out-of-window one.
       Both are archived-record edits, which the register routes through a
       citing change and a ruling per record.
+      — **Phase B's half discharged** by `phase-b-ratification-citation`,
+      2026-08-23: the citing change this box asks for. The `Ratified:`
+      record-citing line now sits beside that proposal's `Status: ratified`,
+      naming Brett Heap, 2026-08-22, and the archive act it cites (commit
+      `02a71d6` / PR #264, "Archived on Brett's explicit word", and `bdd09c2`
+      inside it, the commit that wrote the `ratified` value on the recorded
+      reasoning "a change whose spec deltas have PROMOTED is ratified by
+      construction"). The `.openspec.yaml` origin pair was deliberately NOT
+      cited — it is dated to the proposal day and approved the topic exit, the
+      C2 error. Reasoning recorded in that change's tasks.md "Bookkeeping
+      correction"; measured after: 44 archived `ratified` proposals, 44
+      citations, 0 missing. **The roster-device half of this box stays OPEN**
+      and is untouched, so the box stays unticked.
 - [ ] 5.3 Rewriting any existing citation line to a preferred shape.
 
 ## 6. Fix lap (adversarial review, 2026-08-22)
