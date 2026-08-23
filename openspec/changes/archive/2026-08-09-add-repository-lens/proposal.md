@@ -2,7 +2,7 @@
 code_surface: openxFactory (dashboard runtime — composed-model repository-vocabulary projection + drill-in scoping, the lens tab's vocabulary switch and drill-in pane, app shell scope/banner wiring, styles; tests)
 target_release: none
 Status: ratified
-Ratified by: Brett's 2026-08-07 observation and instruction (topic `dashboard-project-scoping` D21) — "our repo selector is now very similar to the lens function but for documents in repos vs keywords in documents. figure out how to make a lense widget for this repo selector where the repos would be our selector checkboxes instead of keywords. we can then make a drill in dashboard that looks at that set of documents only" — with the three realization choices answered the same day (vocabulary toggle inside the Lens tab; the filter keeps its own control and the lens is the deep view; drill-in is a scoped view with no new persistence)
+Ratified: Brett's 2026-08-07 observation and instruction (topic `dashboard-project-scoping` D21) — "our repo selector is now very similar to the lens function but for documents in repos vs keywords in documents. figure out how to make a lense widget for this repo selector where the repos would be our selector checkboxes instead of keywords. we can then make a drill in dashboard that looks at that set of documents only" — with the three realization choices answered the same day (vocabulary toggle inside the Lens tab; the filter keeps its own control and the lens is the deep view; drill-in is a scoped view with no new persistence)
 ---
 
 # Proposal: add-repository-lens

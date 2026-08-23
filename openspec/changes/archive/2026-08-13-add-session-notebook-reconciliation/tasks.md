@@ -75,3 +75,21 @@
       `implemented` or a named release; `none` belongs to `code_surface`. Five
       sibling changes carry the same mis-spelling, so it is left as-declared here
       rather than corrected under cover of an archive commit.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by slice
+5B of `govern-openspec-corpus-membership` — the prefix only. Every byte after
+the colon is carried verbatim, asserted identical at the edit, so the original
+line is recovered exactly by reading `Ratified by:` back in its place and
+nothing else on the page moved. The ruling is OQ-4 (Brett Heap, in-session,
+2026-08-23): a `Ratified by:` line that names a person and a date rather than
+an approving OpenSpec change is substantively the record-citing form and takes
+the record-citing prefix. This line was a live CRITICAL `ratified-provenance`
+finding and the respell clears it. The record that justifies this line is
+Brett's 2026-08-10 instruction quoted on the line — "fix the session teardown
+notebook gap" — quoted again in the body of commit `1b964ba` (PR #163) of the
+same day. An append on a single-valued header is mechanically impossible —
+`doc_health.corpus.STATUS_RE` swallows any trailing annotation — so this is an
+in-place overwrite and an extension of Brett's 2026-08-10 append ruling, named
+as one, and it is entered in `docs/archive-record-discrepancies.md`.

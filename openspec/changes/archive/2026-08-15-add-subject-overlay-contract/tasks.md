@@ -263,3 +263,23 @@ prerequisites.
       §3.1 and §3.2 done, with a parity suite that actually covers the new
       kind. A ratified contract that nothing validates and nobody pins is not
       realized, and does not archive.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by slice
+5B of `govern-openspec-corpus-membership` — the prefix only. Every byte after
+the colon is carried verbatim, asserted identical at the edit, so the original
+line is recovered exactly by reading `Ratified by:` back in its place and
+nothing else on the page moved. The ruling is OQ-4 (Brett Heap, in-session,
+2026-08-23): a `Ratified by:` line that names a person and a date rather than
+an approving OpenSpec change is substantively the record-citing form and takes
+the record-citing prefix. This line was a live CRITICAL `ratified-provenance`
+finding and the respell clears it. The record that justifies this line is
+Brett Heap's 2026-08-15 confirmation, as reviewer of record, of the three OQ-1
+positions the line then names one by one (D2 kind, D3 identity, D4
+`relation_to_baseline`), recorded by commit `9744fbe` of the same day, "Record
+ratification of add-subject-overlay-contract (OQ-1 a/b/c as written)". An
+append on a single-valued header is mechanically impossible —
+`doc_health.corpus.STATUS_RE` swallows any trailing annotation — so this is an
+in-place overwrite and an extension of Brett's 2026-08-10 append ruling, named
+as one, and it is entered in `docs/archive-record-discrepancies.md`.

@@ -1,7 +1,7 @@
 code_surface: openxFactory
 target_release: implemented
 Status: ratified
-Ratified by: user approval of `add-hermes-customer-subject-runtime-contract` on 2026-07-12
+Ratified: user approval of `add-hermes-customer-subject-runtime-contract` on 2026-07-12
 
 ## Why
 

@@ -2,7 +2,7 @@
 code_surface: openxFactory (dashboard runtime — register_edit_lane module + watch mode, the apply route, the header apply button; tests; runbook)
 target_release: none
 Status: ratified
-Ratified by: Brett's "we need to automate that step 2. we need an update button plus a job that watches" on 2026-08-06, with the two-fork ruling (edit+commit+push with pathspec discipline; the serve runs the lane) carried as decided
+Ratified: Brett's "we need to automate that step 2. we need an update button plus a job that watches" on 2026-08-06, with the two-fork ruling (edit+commit+push with pathspec discipline; the serve runs the lane) carried as decided
 ---
 
 # Proposal: add-register-edit-lane

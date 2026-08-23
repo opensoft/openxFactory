@@ -223,3 +223,23 @@
       noted). Selector sweep verbatim: "Medx populated fine, Adx and
       Ledgerx sparse but honest, nothing looked broken." Evidence:
       `add-workbench-integrated-editor-chat/evidence/d10/c-62-*`.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by slice
+5B of `govern-openspec-corpus-membership` — the prefix only. Every byte after
+the colon is carried verbatim, asserted identical at the edit, so the original
+line is recovered exactly by reading `Ratified by:` back in its place and
+nothing else on the page moved. The ruling is OQ-4's RULED extension of
+2026-08-23 (Brett Heap, in-session), which widens the class to the sixteen
+lines whose named change id is the DOCUMENT'S OWN. A change is not its own
+approving change, and such a line passed `fam_ratified_provenance` only by
+self-reference. This one emitted NO finding, so the respell is corrective
+rather than a discharge and clears nothing from the census. The record that
+justifies this line is Brett's approval of 2026-07-29 named on the line,
+recorded by commit `c14cecc` of that same 2026-07-29, "Record ratification of
+add-dashboard-repo-selector", on the three binding rulings of 2026-07-26 the
+line quotes. An append on a single-valued header is mechanically impossible —
+`doc_health.corpus.STATUS_RE` swallows any trailing annotation — so this is an
+in-place overwrite and an extension of Brett's 2026-08-10 append ruling, named
+as one, and it is entered in `docs/archive-record-discrepancies.md`.

@@ -327,3 +327,24 @@
 - 5.3 handoff: relocation recorded in this ledger + the change README
   entry; the codexFactory README Relocated Tooling section is the
   in-repo pointer for sessions with muscle memory.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by slice
+5B of `govern-openspec-corpus-membership` — the prefix only. Every byte after
+the colon is carried verbatim, asserted identical at the edit, so the original
+line is recovered exactly by reading `Ratified by:` back in its place and
+nothing else on the page moved. The ruling is OQ-4's RULED extension of
+2026-08-23 (Brett Heap, in-session), which widens the class to the sixteen
+lines whose named change id is the DOCUMENT'S OWN. A change is not its own
+approving change, and such a line passed `fam_ratified_provenance` only by
+self-reference. This one emitted NO finding, so the respell is corrective
+rather than a discharge and clears nothing from the census. The record that
+justifies this line is Brett's approval of 2026-08-03 named on the line,
+recorded by commit `6a90bd6` of that same 2026-08-03, "Record Brett's
+2026-08-03 ratification of adopt-neutral-tooling-home", with design D1–D8
+carried as decided. An append on a single-valued header is mechanically
+impossible — `doc_health.corpus.STATUS_RE` swallows any trailing annotation —
+so this is an in-place overwrite and an extension of Brett's 2026-08-10 append
+ruling, named as one, and it is entered in
+`docs/archive-record-discrepancies.md`.

@@ -74,3 +74,25 @@
       realization commit a06acd4 merged and green (crystallizer 4/9,
       omnigent all green, --all --strict 51/51); contract-v1.20 allocated
       at the 2026-07-29 archive cut with its annotated tag and inventory.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` real line 4 was respelled `Ratified by:` to `Ratified:` by slice
+5B of `govern-openspec-corpus-membership` — the prefix only. Every byte after
+the colon is carried verbatim, asserted identical at the edit, so the original
+line is recovered exactly by reading `Ratified by:` back in its place and
+nothing else on the page moved. The ruling is OQ-4's RULED extension of
+2026-08-23 (Brett Heap, in-session), which widens the class to the sixteen
+lines whose named change id is the DOCUMENT'S OWN. A change is not its own
+approving change, and such a line passed `fam_ratified_provenance` only by
+self-reference. This one emitted NO finding, so the respell is corrective
+rather than a discharge and clears nothing from the census. The record that
+justifies this line is Brett's approval of 2026-07-29 named on the line,
+recorded by commit `57b5e70` of the same day, "Ratify
+add-crystallizer-contracts (Brett, 2026-07-29)", over the
+recurrence-crystallization staging decision record D1–D11 + V1–V2 the line
+itself enumerates. An append on a single-valued header is mechanically
+impossible — `doc_health.corpus.STATUS_RE` swallows any trailing annotation —
+so this is an in-place overwrite and an extension of Brett's 2026-08-10 append
+ruling, named as one, and it is entered in
+`docs/archive-record-discrepancies.md`.

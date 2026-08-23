@@ -2,7 +2,7 @@
 code_surface: openxFactory (neutral contracts + schemas under contracts/, a validator under scripts/; no runtime, no key material)
 target_release: contract-v1.31
 Status: ratified
-Ratified by: Brett Heap, 2026-08-07 — "declared and capping authority", ruling the one open decision
+Ratified: Brett Heap, 2026-08-07 — "declared and capping authority", ruling the one open decision
 ---
 
 # Proposal: add-openxwallet

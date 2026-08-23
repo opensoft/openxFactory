@@ -2,7 +2,7 @@
 code_surface: openxFactory (contracts/schemas consent-instrument record family + vocabulary, canonical validator scripts/validate-consent-instruments.py, packaged examples/negatives — contracts, examples, validators only; the Ledgerx and Medx conformance DECLARATIONS are coordination tasks in their own repos, and no runtime/broker realization rides this change)
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
 Status: ratified
-Ratified by: Brett's approval of `add-consent-instrument` on 2026-08-03, on the nine 2026-07-31 D10 rulings carried as design decisions D1–D9 with zero open questions
+Ratified: Brett's approval of `add-consent-instrument` on 2026-08-03, on the nine 2026-07-31 D10 rulings carried as design decisions D1–D9 with zero open questions
 ---
 
 # Proposal: add-consent-instrument

@@ -2,7 +2,7 @@
 code_surface: openxFactory (receives the three domain-conformance check scripts + tests/conformance-gate/, scripts/proposal-support.py + tests/proposal-support/, and the Hermes layer-template schema at contracts/hermes-domain-overlay/hermes-layer-template.schema.json), codexFactory (sheds the same surface in a named follow-up PR — change/shed-neutral-utility-pack: validate-docs.sh repoints to the pinned-checkout copies; stack.yaml + schemas/README.md drop the hermes-template inventory entries)
 target_release: none
 Status: ratified
-Ratified by: Brett's 2026-08-03 approval of the presented DTN-018/019/021 scope ("do both - the utility pack change and the runbook move")
+Ratified: Brett's 2026-08-03 approval of the presented DTN-018/019/021 scope ("do both - the utility pack change and the runbook move")
 ---
 
 # Proposal: adopt-neutral-utility-pack

@@ -2,7 +2,7 @@
 code_surface: openxFactory (the `contracts/domain-ontology/` family and core kernel package, the canonical semantic validator and its fixtures, `scripts/apply-domain-starter.py` and the pre-run questionnaire, the Hermes domain content-manifest schema and validator, memory-gateway context-packet contracts, and the `contracts/policies/layer-vocabulary.yaml` role text); DomainxFactory and hermes-install adoption lands through their own governed changes
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
 Status: ratified
-Ratified by: Brett's approval of `add-domain-ontology-layer` on 2026-07-28, after a two-stage adversarial review (red-team pass, 22 findings fixed across all five deltas; independent implementability pass adding the draft-kernel adoption bootstrap) with strict validation green across the change and all 47 repo items
+Ratified: Brett's approval of `add-domain-ontology-layer` on 2026-07-28, after a two-stage adversarial review (red-team pass, 22 findings fixed across all five deltas; independent implementability pass adding the draft-kernel adoption bootstrap) with strict validation green across the change and all 47 repo items
 ---
 
 # Proposal: add-domain-ontology-layer

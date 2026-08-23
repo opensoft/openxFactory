@@ -337,3 +337,23 @@ review APPROVED at 5d39bb4 + MedxFactory pin landed.
 
 - [x] 8.5 Allocate the next available additive contract bundle only after integration order is known, generate the exact digest inventory, publish the immutable reviewed commit/tag, and independently verify remote bytes and provenance.
 - [x] 8.6 Record consumer adoption or explicit deferral evidence and archive the change only after the implementation feature, release proof, and required downstream pins have landed.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by slice
+5B of `govern-openspec-corpus-membership` — the prefix only. Every byte after
+the colon is carried verbatim, asserted identical at the edit, so the original
+line is recovered exactly by reading `Ratified by:` back in its place and
+nothing else on the page moved. The ruling is OQ-4's RULED extension of
+2026-08-23 (Brett Heap, in-session), which widens the class to the sixteen
+lines whose named change id is the DOCUMENT'S OWN. A change is not its own
+approving change, and such a line passed `fam_ratified_provenance` only by
+self-reference. This one emitted NO finding, so the respell is corrective
+rather than a discharge and clears nothing from the census. The record that
+justifies this line is Brett's approval of 2026-07-28 named on the line,
+recorded by commit `e32c690` of that same 2026-07-28, "Record ratification of
+add-domain-ontology-layer", after the two-stage adversarial review the line
+describes. An append on a single-valued header is mechanically impossible —
+`doc_health.corpus.STATUS_RE` swallows any trailing annotation — so this is an
+in-place overwrite and an extension of Brett's 2026-08-10 append ruling, named
+as one, and it is entered in `docs/archive-record-discrepancies.md`.

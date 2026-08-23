@@ -31,3 +31,24 @@
 - [x] 3.3 README OpenSpec Records entry; staging INDEX
       (`layer-content-materialization`) updated; note the hermes-install
       adoption handoff (seeding increment 2 pins the released bundle).
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by slice
+5B of `govern-openspec-corpus-membership` — the prefix only. Every byte after
+the colon is carried verbatim, asserted identical at the edit, so the original
+line is recovered exactly by reading `Ratified by:` back in its place and
+nothing else on the page moved. The ruling is OQ-4's RULED extension of
+2026-08-23 (Brett Heap, in-session), which widens the class to the sixteen
+lines whose named change id is the DOCUMENT'S OWN. A change is not its own
+approving change, and such a line passed `fam_ratified_provenance` only by
+self-reference. This one emitted NO finding, so the respell is corrective
+rather than a discharge and clears nothing from the census. The record that
+justifies this line is the user approval of 2026-07-23 named on the line,
+carried into the record by commit `5ad71a7` of the same day, "Archive
+add-hermes-domain-overlay-contract (ratified 2026-07-23, released
+contract-v1.15)". An append on a single-valued header is mechanically
+impossible — `doc_health.corpus.STATUS_RE` swallows any trailing annotation —
+so this is an in-place overwrite and an extension of Brett's 2026-08-10 append
+ruling, named as one, and it is entered in
+`docs/archive-record-discrepancies.md`.

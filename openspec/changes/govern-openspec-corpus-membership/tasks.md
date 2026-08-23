@@ -703,7 +703,7 @@ tree green; the count in the slice title is the findings it clears.
         arithmetic §5's recount warns about for the 47 backfills. Both lines
         landed in one edit; re-measured, the document emits nothing from
         either family.
-- [ ] **5B — the respells: 12 live CRITICALs plus the 16 latent self-citers
+- [x] **5B — the respells: 12 live CRITICALs plus the 16 latent self-citers
       (28 documents; clears 12C).** Same prefix respell as
       5A.1, same verbatim content, plus the discipline archived records take.
       Blocked on 5A only in the sense that the shape should be settled first.
@@ -768,7 +768,84 @@ tree green; the count in the slice title is the findings it clears.
       review record); archived records touched **27** (12 + 15), which is what
       5B.4's register entry accounts for; active records touched **1**
       (`add-hermes-customer-subject-runtime-contract`).
-  - [ ] 5B.1 For each of the eleven, name the record that justifies its line
+
+      **DONE 2026-08-23**, branched from `origin/main` at `450735f`. All 28
+      documents edited and every count above held: 27 prefix respells (11 live
+      CRITICAL + 15 archived latent + 1 active latent) and 1 derived
+      review-record line, 27 archived records touched and 1 active. Nothing was
+      stopped on and no document resisted — every respelled line clears the
+      three-way floor, checked per document through the real helpers BEFORE the
+      write, so the "STOP rather than edit content" branch was never reached.
+
+      **The worklist was DERIVED, not inherited.** The four ruled families were
+      replayed over the two ruled globs with `doc_health.corpus`/`families`
+      themselves (documents built with `corpus.Doc` +
+      `corpus.parse_status`/`parse_kind`, because `corpus.iter_doc_paths` does
+      not reach `openspec/` and §2 has not landed). That replay returned exactly
+      the 11 CRITICAL respells and the 1 archived review record tasks §5B names.
+      The self-citer detection was re-run the same way — for every scan-set
+      document with exactly one citation under the primary spelling, the ids its
+      line names were resolved against `corpus.change_ids` and tested against the
+      document's own folder id and its date-stripped spelling — and returned
+      exactly the 16 of OQ-4's extension table and exactly the 4 other-id
+      passers it measures as out. Neither list was taken on trust.
+
+      **Scan-set census, same helpers, same globs, same four families:**
+
+      | | before 5B | after 5B | delta |
+      | --- | --- | --- | --- |
+      | scan set documents | 124 | 124 | 0 |
+      | `ratified-provenance` | 12 CRITICAL | **0** | −12 |
+      | `status-validity` | 46 ERROR | 46 ERROR | 0 |
+      | `standard-backing` | 0 | 0 | 0 |
+      | `succession-integrity` | 0 | 0 | 0 |
+      | **total** | **58** | **46** | **−12** |
+      | of which on ACTIVE documents | 2 | 2 | 0 |
+      | scan-set documents `ratified` AND cited | 65 | **66** | +1 |
+
+      Four readings a later reader should not have to re-derive. **First, 124
+      documents, not the 123 the fix lap measured**: `declare-client-standing-policy-contract`
+      landed on `main` in `525ac8b` between 5A's merge base and its own landing.
+      It carries a well-formed header and emits nothing, so the set grew by one
+      document and by zero findings. **Second, the 46 ERROR are untouched and
+      are 5C's**, 44 archived backfills plus the two headerless ACTIVE MedxChart
+      and MedxPractice proposals that 5D's moving-target note assigns elsewhere;
+      this slice does not edit them, which is why "of which on ACTIVE documents"
+      reads 2 on both sides rather than 0. **Third, `ratified-provenance` reads
+      0 — the family is fully discharged over the scan set**, and what remains
+      between here and 5D's zero gate is entirely `status-validity`. **Fourth,
+      +1 ratified-and-cited** is the roster-device review record, which had a
+      `ratified` header and no citation at all until this slice derived one.
+
+      **The 16 self-citers cleared nothing, and the census proves it rather
+      than the prose asserting it.** The 12 CRITICAL discharged are the 11
+      respells plus the review record. Respelling the 16 moved the total by
+      zero: they were accepted by the primary-spelling branch before the edit
+      and are accepted by the record-citing branch after it. Documents edited
+      **28**; findings cleared **12**. The two numbers are different on purpose.
+
+      **Whole-repo run, measured before and after rather than predicted.**
+      `python3 scripts/doc-health.py --single-repo . --as-of 2026-08-23` reads
+      **4 critical / 8 error / 68 warning / 4 info, 0 new regressions** on both
+      sides. Exactly two lines of the report differ, and neither is a finding:
+      the `record` stage's word total rises 32,260 → 33,994 and canon share
+      reads 31.4% against 31.5%, on unchanged canon words (169,417) — the bulk
+      of 5B.4's register entry, nothing else. Every one of the 55 other edited
+      files lives under `openspec/`, which `corpus.GOVERNED_ROOTS` does not
+      reach, so they could not move that report and did not. The register's own
+      `record-immutability` critical was **already standing before this slice**
+      (it is one of the four in the before run, left by the 2026-08-22
+      revision), so 5B.4 adds no new critical — verified by comparing the two
+      runs line by line, not assumed from the accepted disposition.
+
+      **Gates.** `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` →
+      **73 passed, 0 failed (73 items)**, exit 0 — 73 rather than 5A's 72 for
+      the same reason the scan set reads 124. `python3 -m pytest tests/doc-health`
+      → **724 passed**, exit 0. `python3 -m pytest tests/ideation-dashboard -k
+      workbench` → **140 passed**, 3858 deselected, exit 0 — and no upper-cased
+      HTTP write verb appears in any line this slice adds, checked over the
+      whole diff rather than over the prose it was written into.
+  - [x] 5B.1 For each of the eleven, name the record that justifies its line
         — the line's own approver-and-date is the substance, and the task is
         to say where that came from. Eleven justifications, not one block
         ruling: OQ-4 rejected the block form on the grounds that it records a
@@ -780,18 +857,124 @@ tree green; the count in the slice title is the findings it clears.
         task is to say which record that approver-and-date came from, one
         document at a time. Record each justification the way 5A.1 did, in
         each change's OWN `tasks.md`, per the review's S3 adjudication.
-  - [ ] 5B.2 Each respell is an **in-place overwrite and an extension of
+
+        **DONE — 28 per-record justifications, written where S3 says they
+        belong.** Each of the 27 archived records carries its own justification
+        in its own `tasks.md` (5B.3's travelling note), and the active
+        self-citer carries none because no archive rule reaches it — 5A.1's
+        precedent for a live document. `docs/archive-record-discrepancies.md`
+        carries the same 27 as an INDEX, and says so in as many words, which is
+        the correction 5A had to make to itself: a consolidated table is a fine
+        index and a poor substitute.
+
+        **What each justification names, and why it is checkable.** For the 11
+        and the 15, the line's own approver-and-date is the substance, so the
+        justification names where that came from: the in-session direction or
+        approval the line itself quotes or dates, plus the commit that wrote the
+        line into the record. Every one of those 26 commits is dated **the same
+        day the line names** — checked commit by commit with
+        `git log -S"Ratified by:"` over each proposal's path, not assumed. Three
+        of the 26 differ from their archive-folder date and say so in their own
+        note (`add-omnigent-domain-overlay` names 2026-07-22 in a folder dated
+        2026-07-24; `add-capability-steward` and `add-deployment-handoff-boundary`
+        name 2026-07-29 in folders dated 2026-07-30). The 12th CRITICAL is not
+        a respell: its justification is the document's own `Decision date:` and
+        `Ratifier:` pair, which is what OQ-5 rules and is why that one invents
+        nothing.
+
+        **Floor axes, recorded per class and measured per document through
+        `_CITATION_APPROVER` / `_CITATION_DATE` / `_link_targets` + `_resolves`
+        BEFORE any byte was written:**
+
+        | class | documents | floor axes cleared |
+        | --- | --- | --- |
+        | the 11 archived respells | 11 | **date** on all eleven |
+        | the 15 archived self-citers | 15 | **date** on all fifteen |
+        | the 1 active self-citer | 1 | **date** |
+        | the 1 derived review-record line | 1 | **approver + date** |
+
+        Twenty-seven of the 28 clear on the date axis alone, and that is
+        correct rather than thin for the same disclosed reason 5A.1 recorded:
+        `_CITATION_APPROVER` recognizes only the `by <Name>` form, and every one
+        of these lines names its approver as `Brett's approval of …`, `Brett
+        Heap, …` or `user approval of …`. Inserting `by` would rephrase content
+        the ruling requires be carried VERBATIM, so the lines stand as written
+        and clear on the date. The floor is disjunctive exactly so a narrow axis
+        costs nothing. The 28th is the derived line, which was composed rather
+        than carried and so could be written in the `by <Name>` shape 5A.2 used.
+
+        **Nothing was stopped on.** The check was run as a gate, not a report:
+        the respell tool refuses to write a file whose respelled line would
+        clear no axis. All 27 passed it. Verified again after the writes — every
+        one of the 28 documents reports **exactly one** citation line through
+        `families._header_lines`, at real line 4, 5 or 6, well inside
+        `corpus.STATUS_SCAN_LINES` (15).
+  - [x] 5B.2 Each respell is an **in-place overwrite and an extension of
         Brett's 2026-08-10 append ruling, named as one**, for the mechanical
         reason B1 states: `doc_health.corpus.STATUS_RE` is
         `^Status:\s*(.+?)\s*$` and swallows any trailing annotation, so an
         append on a single-valued header is impossible. Preserve the original
         line VERBATIM in the bookkeeping note, so a reader still finds what
         the record said before.
-  - [ ] 5B.3 Each bookkeeping note travels with the change it corrects —
+
+        **DONE, and the verbatim rule was proved mechanically three ways rather
+        than by care.** Each of the 27 respells is named in its own note as an
+        in-place overwrite and an extension of Brett's 2026-08-10 append ruling,
+        with B1's mechanical reason restated at the point of the edit. The
+        proof: **(1)** the writer asserted, per file, that the substring after
+        the new `Ratified:` prefix is the identical object — and the identical
+        UTF-8 bytes — as the substring after the old `Ratified by:` prefix, and
+        refused to write otherwise; **(2)** it asserted the whole new text
+        equals the old text with that one line substituted once, and that the
+        file shrank by **exactly 3 bytes** (` by`), which no rewording could
+        survive; **(3)** after the writes, `git diff --word-diff` over all 27
+        proposals reports **27 `-Ratified by:` and 27 `+Ratified:` and nothing
+        else**, and `git diff --numstat` over them sums to 27 files / +27 / −27.
+
+        **How the original line is preserved, and why not as a re-quotation.**
+        5B.2 asks that a reader still find what the record said before. Because
+        the edit changes only the three bytes ` by`, each note states the exact
+        reconstruction rule — the original is the line now on the page with
+        `Ratified by:` read back in place of `Ratified:`, nothing else moved —
+        which recovers the original byte-exactly and cannot drift the way a
+        re-quotation can. It is also the only shape that stays honest at scale:
+        several of these citation lines run to a full paragraph
+        (`add-crystallizer-contracts`, `add-repository-lens`), and copying them
+        would double the record while adding a second place for them to
+        diverge. The choice is stated in every note and again in the register
+        entry, so it is a disclosed method rather than a silent shortcut.
+  - [x] 5B.3 Each bookkeeping note travels with the change it corrects —
         `split-ideation-book-per-repo` 4.3's inline-suffix shape or B1's
         trailing `##` section, whichever fits the document; the invariant is
         that the correction never lands silently, not that the shape matches.
-  - [ ] 5B.4 Append an entry to `docs/archive-record-discrepancies.md`
+
+        **DONE — 27 travelling notes, one per changed archive folder, none on
+        the active one.** Every one is B1's trailing `##` shape rather than
+        `split-ideation-book-per-repo`'s inline suffix, appended to the archived
+        change's own `tasks.md` under the heading
+        `## Bookkeeping correction (2026-08-23, govern-openspec-corpus-membership)`
+        — the same shape `phase-b-ratification-citation` and
+        `roster-device-header-window` used on this same archive tree. The
+        inline-suffix shape does not fit here: these corrections are to a
+        proposal's front matter and there is no task line to suffix.
+
+        **Each note is one paragraph, deliberately.** It states the respell (or
+        the added line), the ruling that authorizes it, the record that
+        justifies that document's line, and the reconstruction rule for the
+        original. Three variants, because the grounds genuinely differ: the 11
+        say plainly that the line was a live CRITICAL and the respell clears it;
+        the 15 say plainly that the line **emitted no finding**, so the respell
+        is corrective and clears nothing; the roster-device note describes a
+        pure addition and says it honours the 2026-08-10 append ruling literally
+        rather than extending it, which is the one place in this slice where
+        that is true.
+
+        **The active self-citer carries no note**, and that is 5A.1's precedent
+        rather than an omission: `add-hermes-customer-subject-runtime-contract`
+        is a live change, no archive rule is engaged, and its respell is
+        recorded here and in the commit rather than in a bookkeeping section
+        addressed to a reader of an archived record.
+  - [x] 5B.4 Append an entry to `docs/archive-record-discrepancies.md`
         recording the block, its 2026-08-23 authority, and the eleven
         per-record justifications. The register is where archived-record
         edits are accounted for; eleven of them going unrecorded there would
@@ -805,6 +988,46 @@ tree green; the count in the slice title is the findings it clears.
         active self-citer
         (`add-hermes-customer-subject-runtime-contract`) is NOT a register
         entry — it is a live document and no archive rule is engaged.
+
+        **DONE.** One new trailing section, `## Corrected 2026-08-23 — twenty-seven
+        archived ratification citations (govern-openspec-corpus-membership
+        slice 5B)`, appended to the register. Nothing above it is edited, which
+        is the append discipline the register asks of everyone else and the one
+        thing B1 could not honour on a single-valued header. It records the
+        2026-08-23 authority (OQ-4, its RULED extension, and OQ-5, each stated
+        in its own terms), the two grounds in a four-row count table — 11 live
+        CRITICAL respells, 1 live CRITICAL added line, 15 LATENT respells, 27
+        archived records touched, 12 findings cleared — and the 27 per-record
+        justifications as an index pointing at the notes that travel with each
+        change. It names the active 28th and says why it is not an entry.
+
+        **It also records three things a later reader would otherwise
+        re-derive.** The archived `Status:` population did not move (44
+        `ratified`, 0 `draft`, 44 headerless over 88 archived proposals,
+        counted in-tree); B1's 2026-08-22 spelling count of 29 `Ratified by:`
+        against 9 `Ratified:` now reads **3 against 41**, with B1's own numbers
+        left standing as the measurement they were; and the three archived
+        proposals that keep `Ratified by:` are named
+        (`add-omnigent-semantic-wiring`, `add-ontology-term-lifecycle-enforcement`,
+        `publish-semantic-kernel` — each naming `add-domain-ontology-layer` in
+        passing prose), together with the two ACTIVE ones in the same position,
+        so the ruled set stays distinguishable from the measured one. Verified:
+        after this slice those five are the ONLY `Ratified by:` lines left
+        anywhere in the scan set.
+
+        **The record-immutability cost, measured rather than assumed.** Editing
+        this `Status: record` document trips `record-immutability` — and that
+        critical was **already standing** before the edit, left by the
+        2026-08-22 revision, so this entry adds none. Before and after runs both
+        read 4 critical / 8 error / 68 warning / 4 info with
+        `docs/archive-record-discrepancies.md` among the four on both sides, 0
+        new regressions. The only report lines that move are the `record`
+        stage's word total (32,260 → 33,994) and canon share (31.5% → 31.4%) on
+        unchanged canon words — this section's own bulk, which the register
+        states about itself. The aggregation-root dispositions entry the
+        register already drafted covers this document and still does not silence
+        the live critical, exactly as that section proves; nothing here depends
+        on it.
 - [ ] **5C — the 44 archived backfills (clears 44E). The long pole.** Do not
       start this before 5A and 5B have settled the two edit shapes. Expect
       per-record research, not mechanical application.

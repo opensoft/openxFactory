@@ -91,3 +91,23 @@ whichever change first drives a real domain toward publication (the
 kernel-publication / domain-publication line).
 
 - [x] 5.4 Reviewer verification of F21/F24–F27 + the adoption mode against the release candidate; docs updated (family README, guide, versioning notes); archive with README moved Active → Archived.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by slice
+5B of `govern-openspec-corpus-membership` — the prefix only. Every byte after
+the colon is carried verbatim, asserted identical at the edit, so the original
+line is recovered exactly by reading `Ratified by:` back in its place and
+nothing else on the page moved. The ruling is OQ-4 (Brett Heap, in-session,
+2026-08-23): a `Ratified by:` line that names a person and a date rather than
+an approving OpenSpec change is substantively the record-citing form and takes
+the record-citing prefix. This line was a live CRITICAL `ratified-provenance`
+finding and the respell clears it. The record that justifies this line is
+Brett's direction of 2026-07-30 quoted on the line itself — "yes, fold it into
+that hardening pass" — written into the record by commit `5667de5` of the same
+day, the realization commit that closed F21/F24–F27 and landed the
+`--ontology-only` adoption mode the quotation approves. An append on a
+single-valued header is mechanically impossible —
+`doc_health.corpus.STATUS_RE` swallows any trailing annotation — so this is an
+in-place overwrite and an extension of Brett's 2026-08-10 append ruling, named
+as one, and it is entered in `docs/archive-record-discrepancies.md`.
