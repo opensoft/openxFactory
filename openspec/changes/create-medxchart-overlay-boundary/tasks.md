@@ -20,20 +20,20 @@
 
 ## 3. Replace aggregate boundary
 
-- [ ] 3.1 Replace the xFactory `.gitmodules` entry and gitlink from
+- [x] 3.1 Replace the xFactory `.gitmodules` entry and gitlink from
   `xFactories/openChart` to `xFactories/MedxChart` using a portable relative
   submodule URL.
-- [ ] 3.2 Update the xFactory project register and repository documentation to
+- [x] 3.2 Update the xFactory project register and repository documentation to
   identify MedxChart as the Medx clinical satellite and openChart as upstream.
-- [ ] 3.3 Update affected MedxFactory documentation links and local path
+- [x] 3.3 Update affected MedxFactory documentation links and local path
   references without rewriting unrelated dirty files or immutable source-digest
   evidence.
 
 ## 4. Verification
 
-- [ ] 4.1 Verify the nested MedxChart/openChart gitlink, pin manifest, and
+- [x] 4.1 Verify the nested MedxChart/openChart gitlink, pin manifest, and
   aggregate MedxChart gitlink all resolve to the expected commits.
-- [ ] 4.2 Verify no committed file contains a host-absolute path and no direct
+- [x] 4.2 Verify no committed file contains a host-absolute path and no direct
   aggregate `xFactories/openChart` submodule remains.
-- [ ] 4.3 Run targeted YAML/Markdown/Git consistency checks and report any
+- [x] 4.3 Run targeted YAML/Markdown/Git consistency checks and report any
   pre-existing dirty work left untouched.
