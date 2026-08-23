@@ -25,5 +25,5 @@
 
 - [x] 4.1 Validate the OpenSpec change and verify the nested gitlink/manifest
   revision agreement.
-- [ ] 4.2 Verify remote reachability, recursive submodule status, and clean
+- [x] 4.2 Verify remote reachability, recursive submodule status, and clean
   status for the newly changed repositories.
