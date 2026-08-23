@@ -9,6 +9,60 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## Unreleased — pending bundle registration (fold into the next cut)
+
+- **Additive (minor)**: `contracts/client-content/client-overlay.schema.yaml`
+  — `hermes_client_overlay` gains the OPTIONAL `client.policy_namespace` +
+  `client.policies` pair, so a **Tenant** layer may carry FREESTANDING
+  company-wide standing policy and not only deviations from the domain
+  baseline (`declare-client-standing-policy-contract`, closing
+  `opensoft/openxFactory#254`). `policies` is a non-empty mapping keyed by
+  policy id whose entries restate their own `policy_id` and `policy_namespace`
+  and keep an OPEN body, so a named tenant policy is addressable as
+  `<policy_namespace>/<policy_id>` and materializes to `policy_position` — the
+  same content kind, and therefore the same row shape, that the Domain and
+  Subject seats already use, which is the entire point of a namespaced
+  address. A faithful mirror of `subject.policy_namespace` +
+  `subject.policies` in
+  `contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml` one
+  layer up, with ONE deliberate difference: **no `relation_to_*` field**. A
+  tenant's standing policy is a POSITION, not a deviation, so there is no
+  baseline for it to declare a relation to.
+- **Declared INLINE, no new file, no new manifest row.** The three sibling
+  `client-*.schema.yaml` files each govern a self-identifying sub-document
+  that dispatches on its own inner `kind:`; these two entries carry no `kind`
+  and are not documents, so a fourth sibling would add a schema nothing
+  dispatches to. The subject family answered the same question the same way.
+- **`client.required` is byte-frozen** at `[ref, display_name,
+  policy_overrides]`. An overlay that declares neither key takes exactly the
+  verdict it took before the block existed, and no consumer is forced to
+  re-pin; only a consumer that wants to USE the block needs the new tag.
+  `contracts/manifest.yaml`'s `client-overlay` row digest is RECOMPUTED in
+  this cut (the schema file's bytes changed) and its `consumption_rule` states
+  what a consumer must now read and what it may still ignore.
+- **`scripts/validate-client-content.py`** learns the six rules the shape
+  cannot express — non-empty map with a DECLARED-BUT-EMPTY REFUSAL and a
+  distinct wrong-type finding; per-entry mapping; `policy_id` non-empty and
+  equal to its key; entry `policy_namespace` non-empty and equal to
+  `client.policy_namespace`; `client.policy_namespace` required non-empty
+  WHEN AND ONLY WHEN `policies` is present; `<namespace>/<id>` uniqueness —
+  plus a prohibited-domain-block and credential-value scan **scoped to the
+  `client.policies` subtree only**, deliberately narrower than the subject
+  path's whole-document walk so an ADDITIVE change cannot re-decide the
+  verdict of an overlay that uses none of it. Its self-test now sweeps EVERY
+  packaged positive rather than one hardcoded filename; one new positive and
+  eight new negatives ship with it.
+- **Realization is shared, and is NOT performed here.** No minor number is
+  allocated and no tag is cut: `docs/contract-versioning-policy.md` allocates
+  the version LATE, at realization, against what is then available, and
+  forbids reserving one in a proposal. `contract_bundle_version` stays at
+  `contract-v1.40`. The digest inventory
+  (`scripts/validate-contract-release.py build` / `verify-commit` /
+  `verify-promotion`) and the annotated tag are published against the exact
+  commit that lands on `origin/main`, in ONE cut shared with whatever other
+  next-additive-bundle changes are folded into this same `Unreleased`
+  section.
+
 ## contract-v1.40 — 2026-08-22 (additive; the doxBench chat-turn record states its assembled context's posture)
 
 Realizes tasks.md §10.7 of `add-doxbench-editing-phase-b` — the ratified

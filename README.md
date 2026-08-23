@@ -321,6 +321,46 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [declare-client-standing-policy-contract](openspec/changes/declare-client-standing-policy-contract/proposal.md)
+  — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). Closes
+  `opensoft/openxFactory#254`: `hermes_client_overlay` is a contract THIS repo
+  owns, and a live runtime already validates and seeds two blocks on it that no
+  file here declares. hermes-install `add-client-overlay-standing-policy`
+  (ratified 2026-08-22, merged) gave a **Tenant** layer an optional
+  `client.policies` map plus a `client.policy_namespace` it is address-validated
+  against, so company-wide standing policy can seed at the tenant-operator seat
+  — closing the design/code half of `xFactory-Hermes-Install#34`. Brett's
+  sequencing ruling landed that deliberately rather than gating it upstream
+  ("nothing in the current runtime enforces against the unknown field … But
+  `client.policies`/`client.policy_namespace` are currently an UNDECLARED
+  extension of a contract this repo owns"); this change formalizes it.
+  DECLARES both properties INLINE under `client` — not as a fourth sibling
+  schema file, because the three existing siblings each dispatch on a
+  self-identifying inner `kind:` these entries do not carry, and the subject
+  family answered the same question the same way. `client.required` stays
+  byte-frozen at `[ref, display_name, policy_overrides]`, so an overlay that
+  declares neither key takes exactly its previous verdict and no consumer is
+  forced to re-pin. A faithful mirror of `subject.policies` one layer up with
+  ONE ruled difference: **no `relation_to_*` field**, because a tenant's
+  standing policy is a POSITION and not a deviation.
+  `scripts/validate-client-content.py` learns the six rules the shape cannot
+  express (JSON Schema in this family has no `if`/`then`, so the conditional
+  namespace requirement lives in the validator) plus a prohibited-block and
+  credential scan **scoped to the `client.policies` subtree only** — the
+  asymmetry with the subject path's whole-document walk is DELIBERATE, since
+  widening it would re-decide the verdict of released overlays that use none of
+  the block and would invert the one-directional divergence the sequencing
+  ruling was granted on. Its self-test hardcoded exactly one positive filename,
+  so it now sweeps every packaged positive; one new positive and eight
+  negatives ship. Delta: `client-layer-tuning` (MODIFIED
+  `Client content shapes are contract-validated`, ADDED
+  `Tenant standing policy is address-resolvable and validated` and
+  `A declared standing-policy block is never empty and never carries key
+  material`). Release is SHARED: the manifest digest is recomputed and a
+  `## Unreleased` section opened, but **no minor is allocated** — the cut, the
+  digest inventory and the tag happen once, with the other next-additive-bundle
+  changes. Archives only when hermes-install re-pins and admits
+  `hermes_client_overlay` to its `PARITY_KINDS` sweep.
 - [govern-openspec-corpus-membership](openspec/changes/govern-openspec-corpus-membership/proposal.md)
   — authored and **RATIFIED 2026-08-23** (Brett Heap, in-session
   multiple-choice round over all six Open Questions; no approving OpenSpec

@@ -1,0 +1,35 @@
+schema: spec-driven
+created: 2026-08-23
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-23-declare-client-standing-policy-contract
+  commissioned_by: hermes-install:change:add-client-overlay-standing-policy#task-1.2
+  reason: >-
+    Not from an openxFactory staged topic: commissioned as a named follow-up
+    by another repository's ratified change — hermes-install
+    `add-client-overlay-standing-policy`, ratified 2026-08-22 by Brett Heap,
+    whose task 1.2 ruled OPTION (i) (land the runtime now, follow up upstream
+    separately) and recorded that "a follow-up openxFactory issue formally
+    declaring `client.policies` in the canonical
+    `contracts/client-content/client-overlay.schema.yaml` (and in
+    `validate-client-content.py`) will be filed separately by Brett Heap".
+    Filed as `opensoft/openxFactory#254` — the tracking id for the window
+    that ruling accepts — and this change closes it.
+    The gap is measured, not preferred: `hermes_client_overlay` is a contract
+    THIS repository owns, and a live runtime already validates and seeds two
+    blocks on it that no file here declares. `client-overlay.schema.yaml`
+    lists five `client` properties and neither of them is among them;
+    `scripts/validate-client-content.py::validate_structure` inspects
+    `ref`, `display_name` and `policy_overrides` and returns, rejecting no
+    unknown block; and no schema in the family sets
+    `additionalProperties: false`. That is why the sequencing ruling was safe
+    — nothing breaks and no consumer re-pins — and it is also exactly why the
+    shape must not be left permanently implicit: canon is silent, so the
+    install repository is the de facto source of truth for a neutral tenant
+    contract it does not own.
+  approved_by: Brett Heap (openxFactory operator authority)
+  approved_on: 2026-08-22
+related:
+  - hermes-install:change:add-client-overlay-standing-policy   # the implemented reality this declares
+  - openxFactory:change:archive/2026-08-15-add-subject-overlay-contract   # the mirrored shape, one layer up
+  - hermes-install:issue:34   # the standing-policy veto seat this unblocks upstream of

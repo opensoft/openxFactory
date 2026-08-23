@@ -984,13 +984,26 @@ contracts:
     source_path: openxFactory/contracts/client-content/client-overlay.schema.yaml
     type: schema
     schema_version: 1
-    sha256: f67a341295b4a20284279ed5617430f56848eef4771a9b6bdae3fb11ff039b63
+    sha256: 7e74f7c0feb347c8646b0d852a9e120e43b2f9076973c78bab50a5e6b07b8ddc  # recomputed by declare-client-standing-policy-contract
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
-      Consumed through the pinned openxFactory checkout at the contract-v1.17
-      tag; per-file sha256 verified before any copy is treated as current.
-      Comparability semantics live only in the canonical validator.
+      Consumed through the pinned openxFactory checkout at the tag whose
+      bundle carries this digest; per-file sha256 verified before any copy is
+      treated as current. Comparability semantics live only in the canonical
+      validator.
+      GREW ADDITIVELY at the next bundle after contract-v1.17
+      (declare-client-standing-policy-contract, closing openxFactory#254):
+      `client` gains the OPTIONAL `policy_namespace` + `policies` pair, a
+      Tenant layer's freestanding standing policy addressed
+      `<policy_namespace>/<policy_id>` and materializing to `policy_position`.
+      `client.required` is UNCHANGED, so a consumer that ignores the block
+      reads this schema exactly as it read the contract-v1.17 copy and needs
+      no re-pin. A consumer that USES the block must also honour the rules the
+      shape cannot express — the conditional namespace requirement, address
+      self-consistency and uniqueness, the declared-but-empty refusal, and the
+      `client.policies`-subtree credential scan — which live, as ever, only in
+      `scripts/validate-client-content.py`.
   - id: pattern-ledger-episode
     path: contracts/schemas/pattern-ledger-episode.schema.yaml
     source_path: openxFactory/contracts/schemas/pattern-ledger-episode.schema.yaml

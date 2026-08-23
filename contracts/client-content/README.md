@@ -19,8 +19,25 @@ writes and the seeding runtime validates.
   via the repo's `hermes_overlay_descriptor`, digest-pinned in the install's
   `client_overlays[]`). Composes the three content kinds as the enforceable
   tenant slice.
-- `examples/` — the positive overlay + domain baseline + intended-reason
-  negatives the canonical validator self-tests against.
+- `client.policy_namespace` + `client.policies` (inside
+  `client-overlay.schema.yaml`, declared by
+  `declare-client-standing-policy-contract`) — the OPTIONAL standing-policy
+  block: a Tenant layer's FREESTANDING company-wide policy, keyed by policy
+  id, addressable as `<policy_namespace>/<policy_id>` and materializing to
+  `policy_position`. Mirrors `subject.policies` in
+  `../hermes-domain-overlay/hermes-subject-overlay.schema.yaml` one layer up,
+  and declares no `relation_to_*` field because a position is not a deviation.
+  Declared inline rather than as a fourth sibling file: these entries carry no
+  inner `kind:` to dispatch on. `client.required` is unchanged, so an overlay
+  that omits the block is unaffected. The rules the shape cannot express —
+  the conditional namespace requirement, address self-consistency and
+  uniqueness, the declared-but-empty refusal, and a prohibited-block /
+  credential scan over the `client.policies` subtree ONLY — live in the
+  canonical validator.
+- `examples/` — the positive overlays + domain baseline + intended-reason
+  negatives the canonical validator self-tests against. Every packaged
+  `*.example.yaml` other than the baseline is swept as a positive, so a new
+  example cannot be added and silently never run.
 
 Canonical validator: `scripts/validate-client-content.py` — structural
 checks + the stricter-only comparability spec (allowlists ⊆, denylists ⊇,
