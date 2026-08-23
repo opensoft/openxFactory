@@ -1601,10 +1601,210 @@ def _session_source_count(row) -> int | None:
     return None
 
 
+# --------------------------- the declared hosting identity ---------------------------
+# add-notebook-projection-identity (ratified 2026-08-23). WHICH Google account
+# the projection is created in is contract conformance, not a property of
+# whoever ran `nlm login` first.
+
+HOSTING_REL = "openxFactory/examples/notebook-projection-hosting.yaml"
+_HOSTING_SCALARS = ("case", "account", "nlm_profile")
+_HOSTING_MIGRATION_SCALARS = ("state", "from_account", "from_nlm_profile")
+
+
+def read_hosting_declaration(root: Path) -> dict[str, str] | None:
+    """The install's declared hosting identity, or None when undeclared.
+
+    Deliberately a NARROW SCALAR READER rather than a YAML parse: this script
+    carries no YAML dependency (the workspace registry beside it is handled as
+    text for the same reason), and the full shape — required fields, the
+    two-case vocabulary, the roster's key — is enforced by
+    `scripts/validate-notebook-projection-hosting.py`. Only the `hosting:`
+    block's own scalars and its `migration:` sub-block are read here, which is
+    all the sync needs to bind a run to an account.
+    """
+    path = root / HOSTING_REL
+    if not path.is_file():
+        return None
+    found: dict[str, str] = {}
+    in_hosting = in_migration = False
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.split("#", 1)[0].rstrip()
+        if not line.strip():
+            continue
+        indent = len(line) - len(line.lstrip())
+        if indent == 0:
+            in_hosting = line.strip() == "hosting:"
+            in_migration = False
+            continue
+        if not in_hosting:
+            continue
+        key, sep, value = line.strip().partition(":")
+        value = value.strip().strip('"').strip("'")
+        if indent == 2:
+            in_migration = (key == "migration" and not value)
+            if sep and key in _HOSTING_SCALARS:
+                found[key] = value
+        elif indent == 4 and in_migration and key in _HOSTING_MIGRATION_SCALARS:
+            found[f"migration_{key}"] = value
+    return found or None
+
+
+def active_nlm_profile(runner=None) -> str | None:
+    """The profile the CLI will actually use, or None when it cannot be read.
+
+    The CLI selects a profile PROCESS-GLOBALLY, through `auth.default_profile`:
+    of the verbs this sync issues (`notebook`, `source`, `alias`, `tag`,
+    `chat`), NONE accepts a per-invocation `--profile`, so the binding is
+    VERIFIED rather than passed. Only the newer `share` and `login` verbs take
+    the flag.
+    """
+    run = runner or nlm
+    try:
+        out = run("config", "get", "auth.default_profile", parse=False)
+    except Exception:  # noqa: BLE001 - an unreadable profile is "unknown"
+        return None
+    return out.strip() or None if isinstance(out, str) else None
+
+
+def enforce_hosting_profile(root: Path, *, runner=None) -> dict[str, str] | None:
+    """Bind this run to the declared hosting identity, or refuse to run.
+
+    Returns the declaration when the run may proceed, None when the install has
+    not declared. Exits when an install HAS declared and the CLI is pointed
+    somewhere else: writing a governed projection into an account nobody
+    declared is precisely the failure this capability exists to retire, so the
+    run fails rather than falling back to the default profile.
+
+    While a declared migration is PENDING the run binds to the account that
+    still HOLDS the books (`migration.from_nlm_profile`) and says so, because a
+    declaration is not a migration — flipping the binding before the books move
+    would break every sync rather than move anything.
+
+    HONEST LIMIT: the CLI stores no email for a profile (the account is
+    identified by the books it shows), so what is verified is the profile NAME
+    against the declaration, not the address. The address is governance; the
+    profile name is the mechanism that binds to it.
+    """
+    declared = read_hosting_declaration(root)
+    if declared is None:
+        print("hosting: NO DECLARED HOSTING IDENTITY. This install does not "
+              "meet the declared-hosting requirement — a transition state, not "
+              "a third legitimate case. Running under the CLI's default "
+              "profile; this projection is not governed by a declared account.")
+        return None
+
+    account = declared.get("account") or "<unnamed>"
+    case = declared.get("case") or "<unstated>"
+    target = declared.get("nlm_profile")
+    pending = declared.get("migration_state") == "pending"
+    profile = declared.get("migration_from_nlm_profile") if pending else target
+    holder = declared.get("migration_from_account", "the previous account") if pending else account
+
+    if not profile:
+        raise SystemExit(
+            f"hosting: {HOSTING_REL} declares {account} but names no "
+            f"{'migration.from_nlm_profile' if pending else 'nlm_profile'}; "
+            f"the run cannot bind to an account it cannot name")
+
+    active = active_nlm_profile(runner)
+    if active is None:
+        raise SystemExit(
+            f"hosting: cannot read the CLI's active profile, so this run "
+            f"cannot prove which account it would write to. Refusing rather "
+            f"than guessing.")
+    if active != profile:
+        raise SystemExit(
+            f"hosting: expected the {profile!r} profile but the CLI's active "
+            f"profile is {active!r}. Refusing: a run that cannot prove which "
+            f"account it writes to is the failure this declaration exists to "
+            f"retire.\n"
+            f"  switch it with:   nlm login switch {profile}\n"
+            f"  first time:       nlm login --profile {profile}")
+
+    if pending:
+        print(f"hosting: MIGRATION PENDING. Declared {case} {account}, but the "
+              f"books still live in {holder} under profile {profile!r} "
+              f"(verified active). This run reconciles them THERE. See "
+              f"docs/notebook-projection-migration-runbook.md.")
+    else:
+        print(f"hosting: {case} — {account} "
+              f"(nlm profile {profile!r}, verified active)")
+    return declared
+
+
+def parity_report(root: Path, *, book: str | None = None,
+                  notebooks: list[dict] | None = None) -> int:
+    """Prove parity of the live books against THE CORPUS SCAN.
+
+    The scan is the reference on purpose: after a hosting migration the legacy
+    books are the artifact whose fidelity is in question, so proving the new
+    account against them proves nothing. Reports per-book title-set equality
+    plus a union reconciliation, and never mutates. Returns 0 when every book
+    in scope matches with nothing pending, 1 otherwise.
+    """
+    desired, specs = scan(root)
+    if book and book not in desired:
+        print(f"parity: {book!r} is not a book this scan derives; available: "
+              f"{', '.join(sorted(desired))}")
+        return 1
+    if notebooks is None:
+        notebooks = list_notebooks()
+
+    derived_union: set[str] = set()
+    live_union: set[str] = set()
+    mismatched: list[str] = []
+
+    for key, items in sorted(desired.items()):
+        if book and key != book:
+            continue
+        derived = set(items.values())
+        derived_union |= derived
+        nid, _ok = resolve_or_create_book(root, specs[key], False, notebooks)
+        if nid is None:
+            print(f"[{key}] PARITY FAIL: no live notebook titled "
+                  f"{specs[key].title!r} ({len(derived)} derived members)")
+            mismatched.append(key)
+            continue
+        rows = nlm("source", "list", nid, "--json")
+        rows = rows if isinstance(rows, list) else []
+        # managed members are the bracket-titled ones; the charter and any
+        # hand-added source are deliberately preserved and not parity subjects
+        live = {r.get("title", "") for r in rows
+                if str(r.get("title", "")).startswith("[")}
+        live_union |= live
+        missing, extra = sorted(derived - live), sorted(live - derived)
+        if not missing and not extra:
+            print(f"[{key}] PARITY OK: {len(derived)} titles match")
+            continue
+        mismatched.append(key)
+        print(f"[{key}] PARITY FAIL: {len(missing)} missing, {len(extra)} extra "
+              f"(derived {len(derived)}, live {len(live)})")
+        for title in missing[:5]:
+            print(f"[{key}]   MISSING {title}")
+        for title in extra[:5]:
+            print(f"[{key}]   EXTRA   {title}")
+
+    print(f"parity union: {len(derived_union)} derived titles, "
+          f"{len(live_union)} live managed titles, "
+          f"{len(derived_union - live_union)} unprojected, "
+          f"{len(live_union - derived_union)} unaccounted")
+    if mismatched:
+        print(f"parity: FAILED for {len(mismatched)} book(s): "
+              f"{', '.join(mismatched)} — pending changes remain")
+        return 1
+    print("parity: PROVEN — every book in scope matches the corpus scan, "
+          "0 pending ADD/DEL/UPD")
+    return 0
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("root", type=Path)
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--parity", action="store_true",
+                    help="prove the live books against the CORPUS SCAN "
+                         "(per-book title-set equality + a union "
+                         "reconciliation); reports, never mutates")
     ap.add_argument("--book", help="sync one book only (a scan-derived key: "
                                    "drafts, canon, or ideation-<repo-slug>)")
     ap.add_argument("--session-ref", metavar="BRANCH",
@@ -1631,6 +1831,15 @@ def main() -> None:
                     default=datetime.now(timezone.utc).date().isoformat(),
                     help="date stamp for imported idea files (YYYY-MM-DD)")
     args = ap.parse_args()
+
+    # Bind the run to the declared hosting identity BEFORE any branch that
+    # reaches the CLI — session notebooks and imports are created in the same
+    # account as the lifecycle books, so they are bound by the same rule. A run
+    # that cannot prove which account it writes to must not write at all.
+    enforce_hosting_profile(args.root)
+
+    if args.parity:
+        raise SystemExit(parity_report(args.root, book=args.book))
 
     if args.session_sweep:
         # RECONCILIATION, not a targeted operation. Mutually exclusive with

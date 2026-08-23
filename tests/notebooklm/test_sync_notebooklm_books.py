@@ -1662,3 +1662,205 @@ class SessionSweepTests(unittest.TestCase):
                       "a session opened from a feature worktree is LIVE, and "
                       "asking only the canonical checkout would have called it "
                       "dead and retired its notebook")
+
+
+# --------------------------- the declared hosting identity ---------------------------
+# add-notebook-projection-identity (ratified 2026-08-23): WHICH account the
+# projection is written to is contract conformance, so a run that cannot prove
+# it refuses rather than falling back.
+
+HOSTING_DECLARED = """schema_version: 1
+kind: notebook_projection_hosting
+hosting:
+  case: operator_hosted
+  account: xFactor001@opensoft.one
+  account_type: google_workspace_user
+  domain: opensoft.one
+  nlm_profile: company
+  declared_at: "2026-08-23"
+  declared_by: Brett Heap
+share_out: []
+"""
+
+HOSTING_PENDING = """schema_version: 1
+kind: notebook_projection_hosting
+hosting:
+  case: operator_hosted
+  account: xFactor001@opensoft.one
+  account_type: google_workspace_user
+  domain: opensoft.one
+  nlm_profile: company
+  migration:
+    state: pending
+    from_account: brettheap@gmail.com
+    from_nlm_profile: personal
+share_out: []
+"""
+
+
+def _declare_hosting(root: Path, text: str) -> None:
+    path = root / "openxFactory/examples/notebook-projection-hosting.yaml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+
+
+def _profile_runner(active: str | None):
+    """A runner answering only `config get auth.default_profile`."""
+    def run(*args, parse=True):
+        if args[:3] == ("config", "get", "auth.default_profile"):
+            if active is None:
+                raise RuntimeError("nlm config get: no configuration")
+            return active
+        return {}
+    return run
+
+
+class HostingDeclarationTests(unittest.TestCase):
+    """The declaration is READ, and the run is BOUND to it or refused."""
+
+    def test_undeclared_install_is_reported_as_a_transition_state_not_a_case(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                got = sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("personal"))
+        self.assertIsNone(got, "an undeclared install has no declaration to return")
+        self.assertIn("NO DECLARED HOSTING IDENTITY", out.getvalue())
+        self.assertIn("transition state", out.getvalue(),
+                      "undeclared must be reported as nonconforming, never as "
+                      "a third legitimate case")
+
+    def test_declared_profile_active_binds_the_run(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                got = sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("company"))
+        self.assertEqual(got["account"], "xFactor001@opensoft.one")
+        self.assertIn("verified active", out.getvalue())
+
+    def test_a_run_pointed_at_another_account_refuses(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            with self.assertRaises(SystemExit) as caught:
+                sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("personal"))
+        message = str(caught.exception)
+        self.assertIn("Refusing", message,
+                      "writing a governed projection into an undeclared "
+                      "account is the failure this capability retires")
+        self.assertIn("nlm login switch company", message,
+                      "the refusal must carry the exact remediation command")
+
+    def test_an_unreadable_profile_refuses_rather_than_guessing(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_DECLARED)
+            with self.assertRaises(SystemExit) as caught:
+                sync.enforce_hosting_profile(
+                    root, runner=_profile_runner(None))
+        self.assertIn("cannot prove", str(caught.exception))
+
+    def test_a_pending_migration_binds_to_the_account_that_holds_the_books(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_PENDING)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                got = sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("personal"))
+        self.assertIsNotNone(got)
+        self.assertIn("MIGRATION PENDING", out.getvalue())
+        self.assertIn("brettheap@gmail.com", out.getvalue(),
+                      "a declaration is not a migration: until the books move, "
+                      "the run binds where they actually live")
+
+    def test_a_pending_migration_still_refuses_a_third_account(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, HOSTING_PENDING)
+            with self.assertRaises(SystemExit):
+                sync.enforce_hosting_profile(
+                    root, runner=_profile_runner("someone-else"))
+
+    def test_the_reader_ignores_comments_and_nested_blocks(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _declare_hosting(root, "# leading comment\n" + HOSTING_PENDING)
+            got = sync.read_hosting_declaration(root)
+        self.assertEqual(got["nlm_profile"], "company")
+        self.assertEqual(got["migration_from_nlm_profile"], "personal")
+        self.assertEqual(got["case"], "operator_hosted")
+
+
+class ParityReportTests(unittest.TestCase):
+    """Parity is proven against THE CORPUS SCAN, never against other books."""
+
+    @staticmethod
+    def _world(root: Path) -> None:
+        (root / "openxFactory/examples").mkdir(parents=True, exist_ok=True)
+        (root / "openxFactory/examples/lifecycle-notebook-workspaces.yaml"
+         ).write_text("workspaces:\n", encoding="utf-8")
+        for g in sync.GROUNDING:
+            p = root / g
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("# Grounding\n", encoding="utf-8")
+        base = root / "openxFactory/ideation/brainstorm"
+        base.mkdir(parents=True, exist_ok=True)
+        (base / "idea-00.md").write_text("# Idea\n\nStatus: brainstorm\n",
+                                         encoding="utf-8")
+
+    def _run_parity(self, root: Path, fake) -> tuple[int, str]:
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            with patch.object(sync, "nlm", fake):
+                code = sync.parity_report(root)
+        return code, out.getvalue()
+
+    def test_a_book_missing_a_derived_title_fails_parity(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
+                            for i, k in enumerate(sorted(desired))])
+            code, text = self._run_parity(root, fake)
+        self.assertEqual(code, 1, "an empty live book cannot be at parity with "
+                                  "a scan that derives members")
+        self.assertIn("PARITY FAIL", text)
+        self.assertIn("MISSING", text)
+
+    def test_matching_books_prove_parity_with_nothing_pending(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
+                            for i, k in enumerate(sorted(desired))])
+            for i, key in enumerate(sorted(desired)):
+                fake.sources[f"nb{i}"] = [
+                    {"id": f"s{i}-{j}", "title": title}
+                    for j, title in enumerate(sorted(desired[key].values()))]
+            code, text = self._run_parity(root, fake)
+        self.assertEqual(code, 0, text)
+        self.assertIn("parity: PROVEN", text)
+        self.assertIn("0 pending ADD/DEL/UPD", text)
+
+    def test_parity_never_mutates(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, specs = sync.scan(root)
+            fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
+                            for i, k in enumerate(sorted(desired))])
+            self._run_parity(root, fake)
+            verbs = {call[:2] for call in fake.calls}
+        for mutating in (("source", "add"), ("source", "delete"),
+                         ("notebook", "create"), ("notebook", "delete")):
+            self.assertNotIn(mutating, verbs,
+                             "a parity proof that changes the thing it measures "
+                             "is not a proof")
