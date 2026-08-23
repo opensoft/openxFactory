@@ -54,8 +54,21 @@ shape: ONE SCOPE against MANY PRINCIPALS. Widening enums cannot fix a transposed
 key, and the family's "no second roster competing for the same ground"
 discipline does not apply, because this is not the same ground.
 
-Hence a distinct, small roster keyed on `(hosting_account, user, book_or_alias,
+Hence a distinct, small roster carrying `(hosting_account, user, book_or_alias,
 role, granted_at, granted_by)`.
+
+**A refinement to that tuple, from the PR #273 review (Codex, P2).** The
+disposition named those six fields, and all six stay. What review caught is that
+using all six as the UNIQUENESS key contradicts the roster's own stated job:
+re-approving a person, changing their role, or a grant by a different actor
+would each mint a second record, so a roster defined as the record of CURRENT
+access could assert a stale grant beside a live one. Uniqueness is therefore
+keyed on the stable `(hosting_account, user, book_or_alias)` triple, with
+`role`, `granted_at` and `granted_by` as attributes and superseded decisions
+kept as history. This preserves the disposition's finding exactly — THE GRANTEE
+IS IN THE KEY, which is what the client-identity roster lacked — and fixes a
+drafting-level defect rather than reopening the ruling. Flagged here so the
+ratification read sees it as a refinement rather than a silent change.
 
 **Two facts from the identity-brokering family bear on it**, both post-dating
 the capture (`add-identity-brokering`, active; contracts on main, capability not
@@ -151,6 +164,16 @@ both bound what "one run" covers, and both are carried into tasks §4:
    that leaves the company-hosted book with no active
    `external_source_workspace` record. The 2026-08-10 precedent escaped this
    because its successors were new per-repo keys with new record ids.
+
+A THIRD defect, found in the PR #273 review (Codex, P1), was in this change's
+own first draft rather than in the script: the requirement inherited "retire its
+workspace record in place" from the 2026-08-10 runbook while ALSO requiring the
+replacement step to reuse that same key-derived record id. Followed in order,
+the retirement would have retired the replacement — reproducing precisely the
+unregistered-book failure the replacement exists to prevent. The requirement now
+retires the legacy PROVIDER NOTEBOOK and preserves the act in the record's
+history, and retires a workspace record in place only where the migration leaves
+a genuinely separate one under a distinct id, as the per-repo split did.
 
 ## Ruling 5 — The hosting identity must be a Google user account, and Opensoft's is `xFactor001@opensoft.one`
 

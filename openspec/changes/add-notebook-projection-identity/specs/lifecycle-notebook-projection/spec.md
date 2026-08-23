@@ -9,7 +9,7 @@ The declared identity SHALL be a Google USER account. This is a platform constra
 
 An operator-hosted declaration SHALL name a Google Workspace user account in a domain the operating party controls, and SHALL NOT name a consumer account merely designated as the company's. A consumer account carries a personal recovery path back to one individual, no administrative console, and no enforceable organizational policy — it would be the operator-hosted case wearing the self-hosted case's risk.
 
-An install that declares NOTHING SHALL be treated as undeclared rather than as either case: the sync falls back to the CLI's default profile, which is today's behavior, and the projection SHALL be reported as carrying no declared hosting identity rather than silently presented as governed.
+An install that declares NOTHING is NONCONFORMING with this requirement — a transition state, not a third case. Every install predating this requirement is in it, so the sync SHALL NOT break on it: it falls back to the CLI's default profile, which is today's behavior. What it SHALL NOT do is present that install as governed. The projection SHALL be reported as carrying no declared hosting identity, and the undeclared state SHALL be reported as unmet rather than as a legitimate configuration, so an implementation and a validator agree about what is expected of it.
 
 #### Scenario: An operating party declares the company account
 - **WHEN** an install's intake declares operator-hosted and names a Google Workspace user account in the operating party's own domain
@@ -28,17 +28,23 @@ An install that declares NOTHING SHALL be treated as undeclared rather than as e
 - **WHEN** a declaration names a provider service account or any non-user principal
 - **THEN** the declaration is refused on the platform constraint: NotebookLM has no API and the identity could never drive the projection
 
-#### Scenario: An install declares nothing
+#### Scenario: An install has not declared yet
 - **WHEN** no hosting identity is declared for an install
-- **THEN** the sync runs under the CLI's default profile as it does today
-- **AND** the projection is reported as having no declared hosting identity, rather than being treated as either declared case
+- **THEN** the sync runs under the CLI's default profile as it does today, rather than breaking
+- **AND** the install is reported as NOT MEETING this requirement — a transition state, never a third legitimate case
 
 ### Requirement: Access to the projection is shared out from the hosting account, and each share act is recorded
 Where an install declares the operator-hosted case, individual users SHALL reach the projection only through an explicit share-out FROM the hosting account, and SHALL NOT each authenticate independently against the hosting account's own credentials. A shared login is not an access model: it defeats attribution, cannot be revoked per person, and is exactly the posture this declaration exists to retire.
 
 A pending share request SHALL be decided by a designated company-policy actor as a GOVERNED ACT, in the hosting account's own interface, and SHALL NOT be left to whoever happens to read the account's mail. The decision SHALL be recorded whether it grants or denies.
 
-The record of a granted share act SHALL BE the share-out roster entry itself, not a separate audit trail beside a list. Approving a request writes or updates the roster; denying one is recorded in the same lane. A roster entry SHALL be keyed on `(hosting_account, user, book_or_alias, role, granted_at, granted_by)`, and SHALL reference a governed persona wherever the identity-brokering family resolves one for that human, falling back to a bare address only where no persona resolves.
+The record of a granted share act SHALL BE the share-out roster entry itself, not a separate audit trail beside a list. Approving a request writes or updates the roster; denying one is recorded in the same lane.
+
+A roster entry SHALL carry the hosting account, the person, the book or alias, the role, the grant time and the granting actor. Its UNIQUENESS SHALL be keyed on the stable scope-and-principal triple `(hosting_account, user, book_or_alias)`, with `role`, `granted_at` and `granted_by` held as ATTRIBUTES of that entry rather than as parts of its key. A re-approval, a role change, or a grant by a different actor therefore UPDATES the one live entry instead of creating a second: a roster that is the record of current access cannot simultaneously assert a stale grant and a current one for the same person on the same book. Superseded decisions SHALL be retained as history rather than as competing live entries.
+
+The grantee SHALL be part of the key. That is the whole structural difference from the client-identity roster, whose uniqueness tuple omits the grantee and therefore collides when one scope is granted to two people.
+
+An entry SHALL reference a governed persona wherever the identity-brokering family resolves one for that human, falling back to a bare address only where no persona resolves.
 
 The share-out roster SHALL be its own artifact and SHALL NOT be carried by the client-identity roster, whose uniqueness key admits one principal against many scopes while a share-out list is the transposed shape — one scope against many principals.
 
@@ -58,6 +64,12 @@ Detection and relay of pending requests MAY be automated if and when the platfor
 - **WHEN** two different people are granted access to one book on one hosting account
 - **THEN** both entries stand as distinct roster records, because the grantee is part of the key
 
+#### Scenario: An existing grantee's access is re-decided
+- **WHEN** a person already holding a recorded grant on a book is re-approved, has their role changed, or is granted again by a different actor
+- **THEN** the existing entry is UPDATED, carrying the new role, grant time and granting actor
+- **AND** no second live entry is created, so the roster never asserts a stale grant beside the current one
+- **AND** the superseded decision is retained as history
+
 #### Scenario: Individual authentication against the hosting account is attempted
 - **WHEN** a user is given the hosting account's own credentials instead of a share
 - **THEN** that is a violation of this requirement, not an alternative access route
@@ -71,7 +83,9 @@ The migration SHALL account for the SESSION namespace explicitly. A lifecycle-bo
 
 The migration SHALL replace each book's workspace record rather than merely retiring it. A re-created book keeps its derived key and therefore its record id, but carries a NEW provider notebook id; a registration step that refuses to overwrite an existing record, combined with retiring that record, would leave the new book with no active workspace record at all. The replacement SHALL be explicit and SHALL leave exactly one active record per live book.
 
-Only once parity holds SHALL the previous account's books be RETIRED BY RECORDED ACT — archive-renamed, their aliases DELETED rather than repointed, and their workspace records retired in place. Retirement SHALL be declared, never implicit: a book left merely untouched is a book no one has judged, which is how the shared Ideation book reached its source cap before anyone called it old.
+Only once parity holds SHALL the previous account's books be RETIRED BY RECORDED ACT — archive-renamed, and their aliases DELETED rather than repointed. Retirement SHALL be declared, never implicit: a book left merely untouched is a book no one has judged, which is how the shared Ideation book reached its source cap before anyone called it old.
+
+The retirement SHALL NOT retire the workspace record the replacement step just made current. Because the record id is derived from the book's key and that key is unchanged, the replaced record IS the live book's registration; retiring it would reproduce the unregistered-book failure the replacement exists to prevent. What is retired is the legacy PROVIDER NOTEBOOK, and the retirement is preserved in the recorded act and in the record's own history. Only where a migration leaves a genuinely SEPARATE legacy record — a distinct record id, as the 2026-08-10 per-repo split produced — SHALL that record be retired in place.
 
 #### Scenario: The lifecycle books are re-derived under a new account
 - **WHEN** an install's declared hosting identity changes and the sync next applies
@@ -93,8 +107,17 @@ Only once parity holds SHALL the previous account's books be RETIRED BY RECORDED
 
 #### Scenario: The previous account's books are retired
 - **WHEN** parity has been proven and the new account's books are live
-- **THEN** the previous books are archive-renamed, their aliases deleted rather than repointed, and their workspace records retired in place
+- **THEN** the previous books are archive-renamed and their aliases deleted rather than repointed
 - **AND** the retirement is recorded as an act rather than left implicit
+
+#### Scenario: The retirement is asked to retire the replacement record
+- **WHEN** the retirement step would retire a workspace record whose id the replacement step reused for the live book
+- **THEN** it is refused, because that record is the live book's registration and retiring it leaves the book unregistered
+- **AND** the legacy provider notebook is retired instead, with the act preserved in the record's history
+
+#### Scenario: A migration leaves a genuinely separate legacy record
+- **WHEN** the migration produces a successor under a NEW record id, leaving the legacy record distinct and unreferenced
+- **THEN** that legacy record is retired in place, as the 2026-08-10 split precedent did
 
 ## MODIFIED Requirements
 

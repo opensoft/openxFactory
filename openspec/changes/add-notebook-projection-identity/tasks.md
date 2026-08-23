@@ -18,8 +18,10 @@ first thing to run under a declared account.
   administers. Name the intake surface that carries it; no such flow was named
   at capture, and choosing it is part of this task rather than a prerequisite.
 - [ ] 1.2 Teach `scripts/sync-notebooklm-books.py` to READ the declaration.
-  Undeclared stays legal and keeps today's behavior, reported as undeclared —
-  never silently presented as governed.
+  An undeclared install does not BREAK — it keeps today's default-profile
+  behavior — but it is reported as NOT MEETING the requirement, a transition
+  state rather than a third legitimate case, and is never silently presented as
+  governed.
 - [ ] 1.3 Bind every CLI invocation to the declared identity's `nlm` profile.
   The script passes NO profile today — `subprocess.run(["nlm", *args])`, no
   flag, no environment — so this touches the single `nlm()` helper rather than
@@ -35,13 +37,16 @@ first thing to run under a declared account.
 ## 2. The share-out roster and the governed approval lane
 
 - [ ] 2.1 Decide and build the roster's artifact form — a contract-family schema
-  with a validator, or a lighter governed record. The requirement fixes the key
-  `(hosting_account, user, book_or_alias, role, granted_at, granted_by)` and
-  the roster's role as the approval record; the artifact shape is this task's
-  call (see design.md, "Honest limitations").
+  with a validator, or a lighter governed record. The requirement fixes the six
+  fields an entry carries, the stable `(hosting_account, user, book_or_alias)`
+  uniqueness key with the decision fields as attributes, and the roster's role
+  as the approval record; the artifact shape is this task's call (see design.md,
+  "Honest limitations").
 - [ ] 2.2 Make the grantee part of the uniqueness key, and prove it with the
   case that broke the client-identity roster: two grantees, one book, one
-  hosting account — both entries must stand.
+  hosting account — both entries must stand. Prove the converse too: one
+  grantee re-approved or re-roled on the same book UPDATES their single live
+  entry, leaving no stale grant asserted beside the current one.
 - [ ] 2.3 Reference an identity-brokering persona where one resolves, with a
   bare address only where none does. `add-identity-brokering` is ACTIVE and its
   capability is not yet promoted, so this is a soft reference today; do not
@@ -90,9 +95,13 @@ first thing to run under a declared account.
 - [ ] 4.5 Prove parity: per-book title-set equality plus a union reconciliation
   against THE CORPUS SCAN — not against the legacy books — then a final dry run
   showing zero pending ADD/DEL/UPD. Record the output as the evidence.
-- [ ] 4.6 Retire the personal-hosted books by RECORDED ACT, exactly as
-  2026-08-10 did: archive-rename each legacy book, DELETE its alias (never
-  repoint), retire its workspace record in place. Record the act.
+- [ ] 4.6 Retire the personal-hosted books by RECORDED ACT: archive-rename each
+  legacy book and DELETE its alias (never repoint). Do NOT retire the workspace
+  record §4.3 just made current — its id is key-derived and unchanged, so it IS
+  the live book's registration; retire the legacy PROVIDER NOTEBOOK and preserve
+  the act in the record's history. (This is where the 2026-08-10 runbook does
+  not transfer: its successors carried new record ids, so there was a separate
+  legacy record to retire.) Record the act.
 - [ ] 4.7 Share out to the current human readers from the new account through
   the §2.4 lane, so the first roster entries are written by the governed act
   rather than backfilled.

@@ -80,9 +80,13 @@ recorded.** Individual users never authenticate independently against a shared
 login. A share request lands in the hosting account's own UI; a designated
 company-policy actor approves or denies it there; and the approval act WRITES
 the share-out roster. The roster is the record — one artifact, not an audit
-trail beside a list — keyed on `(hosting_account, user, book_or_alias, role,
-granted_at, granted_by)`, referencing an identity-brokering persona wherever
-one resolves.
+trail beside a list. An entry carries the account, the person, the book, the
+role, the grant time and the granting actor, and references an
+identity-brokering persona wherever one resolves. Its UNIQUENESS is keyed on
+the stable `(hosting_account, user, book_or_alias)` triple, with the decision
+fields held as attributes, so re-approving or re-roling a person UPDATES their
+one live entry rather than adding a second — the grantee is in the key, which
+is the whole structural difference from the client-identity roster.
 
 **The custody rule generalizes an existing requirement rather than inventing
 one.** `credential-contracts` already promotes "The credential vault operator
