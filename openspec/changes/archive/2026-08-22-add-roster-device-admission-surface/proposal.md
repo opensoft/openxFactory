@@ -4,6 +4,19 @@ target_release: implemented — realized on the openxFactory main line and cut a
 ---
 # Proposal: add-roster-device-admission-surface
 
+Status: ratified
+Ratified: 2026-08-19 — record: `review/ratification-2026-08-19.md` (Brett;
+clarify rulings + cross-model adversarial review with F1 fixed and F2 accepted;
+`device` admitted as one tenant-wide read surface). That ratification
+authorized the realization; it landed no schema, bundle bump, or merge by
+itself, and the realization followed the same day in the same pull request.
+Proposed: 2026-08-19 on the node-inventory realization evidence, per the
+ratified reader-grant clarify decision Q4 (OpsxFactory
+`add-tenant-reader-grant-pipeline`), which named the openxFactory
+`client-identity-roster` `admission_surface` vocabulary extension for the
+device surface as a cross-repo dependency, to be proposed on evidence and
+bundled with the surface's governing change (node-inventory).
+
 > **REALIZED AND ARCHIVED 2026-08-22.** Realization tasks §1–§5 are all
 > discharged and the code is merged on the implemented target as PR #220
 > (merged 2026-08-19T20:42:27Z; squash-merged, so the four branch commits
@@ -37,19 +50,6 @@ target_release: implemented — realized on the openxFactory main line and cut a
 > fact been merged the same day — the same reason `refine-demote-round-trip-mechanics`
 > and `align-demote-to-round-trip-rule` replaced their own pre-realization
 > banners on archiving.
-
-Status: ratified
-Ratified: 2026-08-19 — record: `review/ratification-2026-08-19.md` (Brett;
-clarify rulings + cross-model adversarial review with F1 fixed and F2 accepted;
-`device` admitted as one tenant-wide read surface). That ratification
-authorized the realization; it landed no schema, bundle bump, or merge by
-itself, and the realization followed the same day in the same pull request.
-Proposed: 2026-08-19 on the node-inventory realization evidence, per the
-ratified reader-grant clarify decision Q4 (OpsxFactory
-`add-tenant-reader-grant-pipeline`), which named the openxFactory
-`client-identity-roster` `admission_surface` vocabulary extension for the
-device surface as a cross-repo dependency, to be proposed on evidence and
-bundled with the surface's governing change (node-inventory).
 
 ## Why
 

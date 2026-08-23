@@ -289,7 +289,7 @@ what makes it a rule rather than an observation.
 
 - [ ] 5.1 `openspec/` joining `GOVERNED_ROOTS` — the event that makes the 15
       latent lines live. Separate decision, much larger blast radius.
-- [ ] 5.2 `2026-08-22-add-doxbench-editing-phase-b`'s missing citation and
+- [x] 5.2 `2026-08-22-add-doxbench-editing-phase-b`'s missing citation and
       `2026-08-22-add-roster-device-admission-surface`'s out-of-window one.
       Both are archived-record edits, which the register routes through a
       citing change and a ruling per record.
@@ -306,6 +306,30 @@ what makes it a rule rather than an observation.
       correction"; measured after: 44 archived `ratified` proposals, 44
       citations, 0 missing. **The roster-device half of this box stays OPEN**
       and is untouched, so the box stays unticked.
+      — **BOX NOW TICKED, 2026-08-23: both halves are discharged.** The
+      sentence above is left standing word for word under the 2026-08-10
+      append discipline, so it still says what was true when it was written;
+      it is history, not the current state. (1) The phase-b half — landed
+      2026-08-23 as **PR #270** (`phase-b-ratification-citation`, "Give
+      phase-b's archived proposal the ratification citation its header owed"),
+      the discharge the paragraph above records. (2) The roster-device half —
+      landed 2026-08-23 by `roster-device-header-window`, whose pull-request
+      number cannot be stated from inside the commit that makes the claim; it
+      is the single commit whose message opens "Bring roster-device's
+      lifecycle header inside the fifteen-line window". Its defect was NOT a
+      missing citation but a displaced one: `Status: ratified` at real line 41
+      and `Ratified:` at 42, both past the fifteen-real-line window that
+      `corpus.STATUS_SCAN_LINES` sets and `parse_status`,
+      `families._header_lines` and `generator._header_value` all read, so
+      `parse_status` returned `None` and every census counted the document
+      headerless. Fixed by a PURE REORDER — the header block and the archive
+      banner exchanged places, line multiset and sorted file bytes identical
+      before and after, the citation line's text untouched (5.3 still holds).
+      Reasoning recorded in that change's tasks.md "Bookkeeping correction".
+      A corpus-wide sweep of all 107 `openspec/changes/**/proposal.md` found
+      roster-device to be the ONLY out-of-window `Status:` line; it is now
+      zero. Measured after: 44 archived proposals parse `Status: ratified`
+      (43 before) and all 44 carry exactly one in-window citation.
 - [ ] 5.3 Rewriting any existing citation line to a preferred shape.
 
 ## 6. Fix lap (adversarial review, 2026-08-22)
