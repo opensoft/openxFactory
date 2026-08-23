@@ -32,6 +32,7 @@ first thing to run under a declared account.
   flag, no environment — so this touches the single `nlm()` helper rather than
   each call site. A run that cannot resolve the declared profile FAILS; it must
   not fall back to the default profile silently.
+  - HARDENED 2026-08-23 on review (Codex P1 + P2, PR #277): the binding is re-asserted BEFORE EVERY invocation from the CLI's own config file, because a single opening check does not bind a forty-minute run when another terminal can switch the process-global profile; and the declaration's load-bearing rules are enforced inline on the operational path, because nothing the sync ran invoked the validator.
   - REALIZED 2026-08-23: `enforce_hosting_profile()`. CHANGED BY A VERIFIED CLI FACT: of the verbs this sync issues, NONE accepts a per-invocation `--profile` — selection is process-global via `auth.default_profile`. So the binding is VERIFIED and the run REFUSES when the active profile is not the declared one, carrying the exact `nlm login switch` remediation. The sync never switches the profile itself: shared user state, and other sessions race on it. While a migration is pending it binds to the account that still holds the books.
 - [x] 1.4 Refuse an operator-hosted declaration naming a consumer account, and
   refuse any non-user principal, each with a message naming the reason (missing

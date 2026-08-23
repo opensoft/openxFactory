@@ -406,6 +406,20 @@ the CLI stores no email for a profile (an account is identified by the books it
 shows). The address is the governance fact; the profile name is the mechanism
 that binds to it.
 
+The binding is re-asserted **before every invocation**, not once at the start.
+Because selection is process-global, another terminal running
+`nlm login switch` part-way through a forty-minute re-derivation would
+otherwise redirect every later add and delete into a different account. The
+sync reads `~/.notebooklm-mcp-cli/config.toml` directly for this — a stat, not
+a subprocess, cached on the file's own stamp — and refuses the next invocation
+the moment the value moves, naming the re-bind command. The sync is idempotent,
+so a resumed run is a no-op over whatever finished.
+
+The declaration's load-bearing rules are enforced on this path too — the
+two-case vocabulary, the Workspace-user requirement for the operator-hosted
+case, the service-account refusal, and the account-in-declared-domain check —
+because a validator nothing runs is not a refusal.
+
 While a declared migration is `pending`, the run binds to the account that
 still HOLDS the books and says so. A declaration is not a migration — flipping
 the binding before the books move would break every sync rather than move

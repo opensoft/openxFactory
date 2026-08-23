@@ -213,6 +213,7 @@ class ImportTarget:
 
 
 def nlm(*args: str, parse: bool = True):
+    assert_still_bound()
     res = subprocess.run(["nlm", *args], capture_output=True, text=True)
     if res.returncode != 0:
         raise RuntimeError(f"nlm {' '.join(args[:3])}...: {res.stderr.strip()[:300]}")
@@ -1607,8 +1608,83 @@ def _session_source_count(row) -> int | None:
 # whoever ran `nlm login` first.
 
 HOSTING_REL = "openxFactory/examples/notebook-projection-hosting.yaml"
-_HOSTING_SCALARS = ("case", "account", "nlm_profile")
+_HOSTING_SCALARS = ("case", "account", "account_type", "domain",
+                    "nlm_profile")
 _HOSTING_MIGRATION_SCALARS = ("state", "from_account", "from_nlm_profile")
+
+
+NLM_CONFIG = Path.home() / ".notebooklm-mcp-cli" / "config.toml"
+# Set once the run is bound; re-asserted before EVERY CLI invocation, because
+# the CLI's profile selection is process-global and any other terminal can
+# `nlm login switch` mid-run. A single check before a 40-minute apply binds
+# nothing.
+_BOUND_PROFILE: str | None = None
+_CONFIG_CACHE: tuple[tuple[int, int], str | None] | None = None
+
+
+def configured_nlm_profile(path: Path | None = None) -> str | None:
+    """`auth.default_profile` as it stands ON DISK right now.
+
+    Read from the config FILE rather than by shelling out: this runs before
+    every invocation, so it must cost a stat, not a subprocess. The parse is
+    cached on (mtime_ns, size) and redone only when the file actually moves.
+    """
+    global _CONFIG_CACHE
+    path = path or NLM_CONFIG
+    try:
+        stat = path.stat()
+    except OSError:
+        return None
+    stamp = (stat.st_mtime_ns, stat.st_size)
+    if _CONFIG_CACHE is not None and _CONFIG_CACHE[0] == stamp:
+        return _CONFIG_CACHE[1]
+    profile = None
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    section = None
+    for raw in text.splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if line.startswith("[") and line.endswith("]"):
+            section = line[1:-1].strip()
+            continue
+        if section == "auth":
+            key, sep, value = line.partition("=")
+            if sep and key.strip() == "default_profile":
+                profile = value.strip().strip('"').strip("'") or None
+                break
+    _CONFIG_CACHE = (stamp, profile)
+    return profile
+
+
+def bind_profile(profile: str | None) -> None:
+    """Pin the run to `profile`; None releases the pin (undeclared installs)."""
+    global _BOUND_PROFILE
+    _BOUND_PROFILE = profile
+
+
+def assert_still_bound() -> None:
+    """Refuse the invocation if the CLI's profile drifted out from under us.
+
+    The window this closes is real and was found in review: another terminal
+    running `nlm login switch` after the run's opening check would silently
+    redirect every later add and delete into a different Google account. The
+    declaration exists to make that impossible, so the run dies here rather
+    than writing one more source into an account nobody declared.
+    """
+    if _BOUND_PROFILE is None:
+        return
+    active = configured_nlm_profile()
+    if active == _BOUND_PROFILE:
+        return
+    raise SystemExit(
+        f"hosting: the CLI's active profile changed mid-run — bound to "
+        f"{_BOUND_PROFILE!r}, now {active!r}. Refusing every further "
+        f"invocation: the remaining work would land in an account this "
+        f"install has not declared. Re-bind with "
+        f"`nlm login switch {_BOUND_PROFILE}` and re-run; the sync is "
+        f"idempotent, so a resumed run is a no-op over what finished.")
 
 
 def read_hosting_declaration(root: Path) -> dict[str, str] | None:
@@ -1658,12 +1734,69 @@ def active_nlm_profile(runner=None) -> str | None:
     VERIFIED rather than passed. Only the newer `share` and `login` verbs take
     the flag.
     """
-    run = runner or nlm
+    if runner is None:
+        # ONE source of truth in production: the same config file
+        # `assert_still_bound()` re-reads before every invocation. Two readers
+        # of one fact can disagree, and this one gates the other.
+        return configured_nlm_profile()
     try:
-        out = run("config", "get", "auth.default_profile", parse=False)
+        out = runner("config", "get", "auth.default_profile", parse=False)
     except Exception:  # noqa: BLE001 - an unreadable profile is "unknown"
         return None
-    return out.strip() or None if isinstance(out, str) else None
+    if not isinstance(out, str):
+        return None
+    return out.strip() or None
+
+
+# The account shapes a Google USER account never has. A projection host must be
+# one: NotebookLM has no API and a service principal cannot drive its consumer
+# web UI, so such a declaration could never work.
+_NON_USER_MARKERS = (".iam.gserviceaccount.com", ".gserviceaccount.com")
+
+
+def _refuse_unusable_declaration(declared: dict[str, str]) -> None:
+    """Enforce the declaration rules that must hold ON THE OPERATIONAL PATH.
+
+    `scripts/validate-notebook-projection-hosting.py` checks the whole record,
+    including the roster — but review found it was invoked by nothing the sync
+    runs, so a declaration naming a consumer or service account would have been
+    accepted by an ordinary `--apply`. These few rules are therefore enforced
+    here too, inline and dependency-free; the validator remains the authority
+    on the parts a sync never reads.
+    """
+    case = declared.get("case")
+    account = declared.get("account", "")
+    if case not in ("operator_hosted", "self_hosted"):
+        raise SystemExit(
+            f"hosting: {HOSTING_REL} declares case {case!r}; an install "
+            f"declares exactly one of operator_hosted or self_hosted")
+    if "@" not in account:
+        raise SystemExit(
+            f"hosting: {HOSTING_REL} names no usable account address")
+    if any(marker in account for marker in _NON_USER_MARKERS):
+        raise SystemExit(
+            f"hosting: {account} is a service account. The hosting identity "
+            f"MUST be a Google USER account — NotebookLM has no API and a "
+            f"service account cannot drive its consumer web UI, so this "
+            f"declaration could never work")
+    if case != "operator_hosted":
+        return
+    if declared.get("account_type") != "google_workspace_user":
+        raise SystemExit(
+            f"hosting: {account} is declared operator-hosted but its "
+            f"account_type is {declared.get('account_type')!r}. The "
+            f"operator-hosted case requires a google_workspace_user: a "
+            f"consumer account keeps a personal recovery path and no admin "
+            f"console, which is what this case exists to remove")
+    domain = declared.get("domain", "")
+    if not domain:
+        raise SystemExit(
+            f"hosting: an operator-hosted declaration must name the domain "
+            f"the operating party administers")
+    if not account.lower().endswith("@" + domain.lower()):
+        raise SystemExit(
+            f"hosting: {account} is not in the declared domain {domain} — "
+            f"the operating party must administer the account it declares")
 
 
 def enforce_hosting_profile(root: Path, *, runner=None) -> dict[str, str] | None:
@@ -1687,12 +1820,14 @@ def enforce_hosting_profile(root: Path, *, runner=None) -> dict[str, str] | None
     """
     declared = read_hosting_declaration(root)
     if declared is None:
+        bind_profile(None)
         print("hosting: NO DECLARED HOSTING IDENTITY. This install does not "
               "meet the declared-hosting requirement — a transition state, not "
               "a third legitimate case. Running under the CLI's default "
               "profile; this projection is not governed by a declared account.")
         return None
 
+    _refuse_unusable_declaration(declared)
     account = declared.get("account") or "<unnamed>"
     case = declared.get("case") or "<unstated>"
     target = declared.get("nlm_profile")
@@ -1721,6 +1856,7 @@ def enforce_hosting_profile(root: Path, *, runner=None) -> dict[str, str] | None
             f"  switch it with:   nlm login switch {profile}\n"
             f"  first time:       nlm login --profile {profile}")
 
+    bind_profile(profile)
     if pending:
         print(f"hosting: MIGRATION PENDING. Declared {case} {account}, but the "
               f"books still live in {holder} under profile {profile!r} "
