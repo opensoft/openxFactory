@@ -325,7 +325,8 @@ Active changes:
   carve-out through a different family), and the change that DEFINED the
   `xspec:` grammar reported for the illustrative markers it must carry.
   RECOMMENDS instead a **scoped lifecycle scan set** — `openspec/changes/**/proposal.md`
-  plus `openspec/changes/**/review/*.md`, 118 documents, read by exactly four
+  plus `openspec/changes/**/review/*.md` (118 documents at measurement, 119
+  once this change's own proposal joins the set), read by exactly four
   families (status validity, standard backing, ratified provenance,
   succession integrity) and by nothing that computes a census, a word count,
   a canon share, an inventory entry or a catalog record. Cost: **+68 findings

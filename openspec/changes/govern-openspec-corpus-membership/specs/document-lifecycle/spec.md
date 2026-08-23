@@ -6,7 +6,7 @@
 An OpenSpec change packet's `proposal.md`, and any `review/` record whose subject is the ratification of that change, SHALL be governance documents for the purposes of the controlled status taxonomy and the ratification-citation rule.
 
 Both carry a claim about the document's standing — a proposal says whether it
-is drafted or ratified, a review record says a ratification happened — and a
+is `draft` or `ratified`, a review record says a ratification happened — and a
 claim of standing is what the taxonomy exists to make checkable. The rest of
 the packet is deliberately NOT ruled here: `tasks.md`, `design.md`, spec
 delta files, `supporting-docs/` and `evidence/` are working files of the

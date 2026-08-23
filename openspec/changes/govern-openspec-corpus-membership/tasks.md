@@ -337,8 +337,10 @@ tree green; the count in the slice title is the findings it clears.
         `approved_by`/`approved_on` recording permission to author, dated six
         to eleven days before archive, plus a task sign-off — two
         near-misses, neither a ratification), and
-        `add-workbench-integrated-editor-chat`, which **must stay
-        headerless**: its archive commit `354ded9` records a decision AGAINST
+        `add-workbench-integrated-editor-chat`, which was raised to Brett as
+        5D.2a and **RULED 2026-08-23: backfill it too** — see 5D.2a for the
+        supersession discipline. Its history: its archive commit `354ded9`
+        records a decision AGAINST
         writing a status value, register entry A2 verifies that decision as
         deliberate, and a `Status: ratified` beside its existing lowercase
         `status: proposed` would put two status fields on one proposal and
@@ -385,6 +387,17 @@ tree green; the count in the slice title is the findings it clears.
         `health/dispositions.yaml` does not silence every family, so
         assuming it silences this one is the kind of unmeasured claim this
         change exists to stop.
+        **RULED (2026-08-23, Brett, in-session): BACKFILL IT TOO.** The
+        2026-08-02 decision's stated reason — "no post-archive vocabulary
+        owns that field" — is dissolved by the promoted rule that now does
+        own it, so the decision is superseded on its own terms rather than
+        overturned. The supersession is recorded on the change (its
+        bookkeeping note quotes the original decision word for word and
+        leaves it standing) and in the register (entry A2 gains a dated
+        supersession addendum; its original text stands). 5C.4's "must stay
+        headerless" is amended accordingly, and no carve-out or disposition
+        route is taken — the gate reads zero because the corpus satisfies
+        the rule, not because a document was excused from it.
   - [ ] 5D.3 Only then does §2 land. §2 is the LAST slice of this change, not
         the first: the enforcement code merges onto a corpus that already
         satisfies it.

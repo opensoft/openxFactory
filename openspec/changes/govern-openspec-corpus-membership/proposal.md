@@ -152,7 +152,12 @@ tallies below are unchanged):
 | `standard-backing` | 0 | — |
 | `succession-integrity` | 0 | — |
 | `location-conformance` | **0** | — the source-snapshot false positives are outside the set |
-| `tag-hygiene` | 1 | the grammar-defining proposal — reason it stays out |
+| `tag-hygiene` | (1)* | NOT a reader of the set — measured only to justify its exclusion |
+
+\* `tag-hygiene` is outside the four ruled families, so its one would-be
+fire (the grammar-defining proposal, a false positive) never surfaces; it is
+shown here as the measurement that keeps it out, and it is NOT in the scoped
+totals below.
 
 | | baseline | scoped | delta |
 | --- | --- | --- | --- |
