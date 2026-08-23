@@ -607,6 +607,41 @@ Active changes:
   change as the escape path rather than requirement text; and RATIFY.
   `target_release: none` — no contract bytes move; realization across the
   three repos (tasks §3–§5) is now authorized, tracked-not-performed work.
+- [add-wallet-carried-review-authority](openspec/changes/add-wallet-carried-review-authority/proposal.md)
+  — authored 2026-08-22, RESTRUCTURED 2026-08-23 on the convener's ruling after
+  council review; **NOT YET RATIFIED** (`Status: draft`). The successor to
+  `add-substantive-review-lane`, acting on finding LS-A3 from the
+  `codexfactory-routine-code-clearance` convening (the widen-only validator did
+  not enforce the widenings it was given, so non-self-review cannot rest on an
+  in-tree path rule alone). Circulated first as `add-assembly-plane-separation`,
+  a three-repository topology; reshaped on the convener's ruling that a topology
+  fights the ratified single-reviewing-home model, whereas wallet-carried
+  authority travels to any repository without restructuring it. **The doctrine:**
+  review authority is held as an `openxwallet` grant and by nothing else —
+  spec authority and code authority as two grant scopes, a general refusal-only
+  non-self-review rule, ownership conferring nothing, and the three-repository
+  layout demoted to a project schema a human (`PA`) elects and that confers
+  nothing. **The substrate, named with nothing pretended** after three council
+  seats independently found the proposal treating described controls as existing
+  ones: S1 wires `validate-openxwallet` into CI as a required check (it runs in
+  no workflow today, so no grant is operative); S2 anchors the issuer (root
+  issuer = the responsible operator, standing under the Human Escalation
+  Contract, no wallet needed); S3 records the exercise at verdict conformance in
+  the Hermes runtime (audit-trail-evidenced exercise REJECTED — it records
+  `unauthenticated_request`/`unattributed` and confers nothing checkable); S4
+  lands the register and its reader TOGETHER as a ratification condition, at a
+  one-file/one-holder MVP, declared permanently human-only; S5 reconciles
+  revocation with the runtime's admission stamp and pins composition so a
+  provider alias roll is a governed re-issuance, not a silent fleet-wide
+  revocation. **The narrowed floor amendment is DECLINED** — digest-disjointness
+  measures byte identity and is anti-correlated with independence; the
+  constitutional floor stands whole and assembly-class surfaces stay permanently
+  human-only. This change ends no `--admin` merge directly and says so in its
+  Why: it is a PRECONDITION. `review-authority-intake` (12 ADDED) plus
+  `roles-authority-model` (2 ADDED, 1 MODIFIED declared relative to
+  `add-substantive-review-lane`'s outcome per `release-realization:64-74`).
+  `target_release: implemented` — no contract bytes move; S1–S5 are named
+  successors.
 - [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
   — authored 2026-08-13: two neutral `credential-contracts` requirements for the
   openXdox intent-plane dispatch credential — dispatch-only least privilege with
