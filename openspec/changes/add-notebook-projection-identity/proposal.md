@@ -93,7 +93,8 @@ operated-identity custody, so the hosting account falls under the rule the
 family already ratified. No new record kind: that spec already carries
 requirements bound to no record kind, and its schema is open where the mapping
 would land (one `additionalProperties: false` closure, against eleven in the
-client-identity-roster schema).
+client-identity-roster schema — parsed objects; a raw grep says fourteen there
+because three matches are the schema's own header prose, see design.md).
 
 **Opensoft's own books migrate, and the old ones are retired by recorded act.**
 The projection is derived, never curated, so re-creating the lifecycle books

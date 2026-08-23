@@ -32,6 +32,15 @@ through `contract-v1.40`) and its real validator
 - `granted_by`, `granted_at` and the hosting account have nowhere to live under
   the schema's eleven `additionalProperties: false` closures.
 
+A NOTE ON THAT COUNT, because two review passes have now disagreed about it in
+opposite directions. Eleven is the count of OBJECTS whose `additionalProperties`
+is literally `false`, obtained by parsing the schema. A raw
+`grep -c "additionalProperties: false"` returns FOURTEEN, because three of its
+matches are backtick-quoted prose inside the schema's own header block scalar
+(lines 37, 40 and 43), which explains the closure convention rather than
+applying it. Eleven is the number that means anything here; fourteen counts the
+schema talking about itself.
+
 **Force-fit variant — eight fields knowingly falsified, each marked: passes with
 ONE grantee, FAILS with two.** With two people sharing one book the validator
 raises `duplicate-identity-key`. The reason is the load-bearing one: THE GRANTEE
@@ -84,7 +93,8 @@ Two consequences follow, and both are why this change is shaped as it is:
   That spec already carries requirements bound to no record kind, and its schema
   is open where a mapping would land: ONE `additionalProperties: false` closure
   in `xfactory-credential-contracts.schema.yaml`, against ELEVEN in the roster
-  schema.
+  schema (parsed objects, per the note in Ruling 1 — not the raw grep's
+  fourteen).
 
 **An open naming question for the ratification read.** The MODIFIED requirement
 keeps its vault-specific HEADER while its body now states the general rule.
