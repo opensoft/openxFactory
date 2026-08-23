@@ -120,3 +120,27 @@ Residual risks ledger appended (encoded-kind spellings; pre-existing pytest coll
 Final gates: QA PASS-WITH-NOTES (round 7) · Reviewer **APPROVE**, no findings (round 4) ·
 openspec strict 68/68 · gate+sweep+self-test green in clean venv · red/green probes
 correct (broken kind-file fails with attribution; unrelated broken file still skipped).
+
+## Round 7 — Merge + Path B (council lane) verification
+
+- **PR #274 admin-merged** on convener's explicit order (ruleset code-owner requirement
+  bypassed; parent change preserves `--admin` as inherited control). main @ `b88ada4`.
+- **Path B finding: the council lane was already registered** — App ID var+secrets
+  (`4397053`), all six §4 variables, stale `HERMES_RUNTIME_TOKEN` correctly absent.
+  The 2026-07-26 first-version App work stands per the runbook's own table; the
+  2026-07-27 QA-stack rehearsal recorded in `add-council-clearance-lane-wiring`
+  covers the Entra federation and principal row.
+- **§6.1 PASS by construction**: `vars.COUNCIL_LANE_APP_ID` set → the "transport
+  unverifiable" warning precondition is false. Live dispatch of
+  `merge-master-approval` succeeded (early-exit "no governed head refs" — expected,
+  nothing open at dispatch time).
+- **§6.2 configuration guard PASSED**: dispatching `council-convening-lane` with
+  pr_number=274 showed `HAS_APP_ID/KEY: true` and all runtime vars loaded before
+  failing on wrong-target lookup — #274 is an **openxFactory** PR while this lane's
+  installation resolves candidates in **opensoft/xFactory** only.
+- **Follow-up decisions surfaced**: (a) extend lane App installation (+ target support)
+  if openxFactory-repo PRs are to receive verdict check-runs directly; (b) choose the
+  first live commissioning candidate among open aggregation PRs (#141/#22/#21/#5);
+  (c) confirm intended tier-2 activation state (job label reads "tier 2, active";
+  runbook §7 and the `activate-nightly-sweep-council-clearance` proposal describe the
+  gate-flip as its own recorded event).
