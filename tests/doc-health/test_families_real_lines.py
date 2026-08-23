@@ -94,29 +94,37 @@ def test_a_ratified_document_with_an_exotic_header_is_not_falsely_flagged():
 
 
 def test_mutation_reverting_header_line_alone_reproduces_the_false_finding():
-    """MUTATION CHECK (tasks.md 4.7): reverting `_header_line` alone to the
+    """MUTATION CHECK (tasks.md 4.7): reverting the header reader alone to the
     pre-fix `str.splitlines()[:N]` idiom, with EVERYTHING ELSE (including
     `corpus.parse_status`) left as this change fixed it, must reproduce
     exactly the false CRITICAL finding C1 demonstrated — proving the tests
     above actually exercise the defect this change closes, not some other
     accident of the fixture.
+
+    The patch target is `_header_lines`, the all-matches reader
+    `sanction-ratified-record-spelling` introduced so the "exactly one
+    citation" rule could be counted rather than short-circuited at the first
+    match. `_header_line` now delegates to it, so reverting `_header_lines`
+    reverts BOTH readers at once — the same single-seam mutation this test
+    has always applied, aimed at the seam's current name. Patching
+    `_header_line` instead would silently stop reaching
+    `fam_ratified_provenance`, which reads through `_header_lines`, and this
+    guard would pass while pinning nothing.
     """
     doc = _ratified_doc_with_exotic_header()
     assert doc.status == "ratified"  # corpus's real-line fix still applies
 
-    def _reverted_header_line(doc, prefix):
-        for line in doc.text.splitlines()[:corpus.STATUS_SCAN_LINES]:
-            if line.startswith(prefix):
-                return line
-        return None
+    def _reverted_header_lines(doc, prefix):
+        return [line for line in doc.text.splitlines()[:corpus.STATUS_SCAN_LINES]
+                if line.startswith(prefix)]
 
     import doc_health.families as families_module
-    original = families_module._header_line
-    families_module._header_line = _reverted_header_line
+    original = families_module._header_lines
+    families_module._header_lines = _reverted_header_lines
     try:
         findings = fam_ratified_provenance(_ctx(doc))
     finally:
-        families_module._header_line = original
+        families_module._header_lines = original
 
     assert [(f.severity, f.family) for f in findings] == [
         (CRITICAL, "ratified-provenance")], (

@@ -73,8 +73,8 @@ def _resolves(doc_dir: Path, repo_path: Path, target: str) -> bool:
     return (doc_dir / target).exists() or (repo_path / target).exists()
 
 
-def _header_line(doc, prefix: str) -> str | None:
-    """First `prefix`-matching REAL line within the doc's header window.
+def _header_lines(doc, prefix: str) -> list[str]:
+    """EVERY `prefix`-matching REAL line within the doc's header window.
 
     Real lines (CR/LF/CRLF only — `doc_health.lines`), not
     `str.splitlines()` pseudo-lines: this is a reader of the SAME lifecycle
@@ -86,11 +86,68 @@ def _header_line(doc, prefix: str) -> str | None:
     window by an exotic separator. Widened to every reader of the header by
     the change's ruling (2026-08-19): the delta's "SHALL hold for every
     reader of that header" governs.
+
+    All matches, not the first: a rule that says a document carries EXACTLY
+    ONE of something cannot be enforced by a reader that stops at the first
+    one. `fam_ratified_provenance` counts with this; the single-line readers
+    below keep first-match semantics via `_header_line`.
     """
-    for body, _ending in split_keepends(doc.text)[:corpus.STATUS_SCAN_LINES]:
-        if body.startswith(prefix):
-            return body
-    return None
+    return [body for body, _ending
+            in split_keepends(doc.text)[:corpus.STATUS_SCAN_LINES]
+            if body.startswith(prefix)]
+
+
+def _header_line(doc, prefix: str) -> str | None:
+    """First `prefix`-matching REAL line within the doc's header window,
+    or None. See `_header_lines` for the real-line rule this inherits."""
+    lines = _header_lines(doc, prefix)
+    return lines[0] if lines else None
+
+
+# --- ratification citation spellings (`document-lifecycle`) -------------
+#
+# TWO sanctioned spellings, read as TWO distinct prefixes and deliberately
+# never as one shorter prefix (sanction-ratified-record-spelling, design
+# D2). `_header_line` matches with `body.startswith(prefix)`, so a prefix of
+# `"Ratified"` would also match body prose that merely opens with the word —
+# a section label (`Ratified: YAML-serialized JSON-Schema contracts under…`)
+# or a sentence (`Ratified together with the two decisions…`). Both such
+# lines sit well below the header window in today's corpus, which is exactly
+# what makes the short prefix dangerous: it would pass every test written
+# against today's corpus and mis-fire on the first document whose HEADER
+# window opens with one.
+#
+# The two prefixes are disjoint by construction — a `Ratified by:` line does
+# not start with `Ratified:` — which is what keeps the two rules separable:
+# change-id resolution runs for the primary spelling, the three-way floor
+# runs for the record-citing one.
+_RATIFIED_BY_PREFIX = "Ratified by:"     # primary: names an approving change
+_RATIFIED_RECORD_PREFIX = "Ratified:"    # record-citing: no approving change
+
+# The floor's DATE axis. ISO calendar dates are the only date shape the
+# corpus's citation lines write, and the only one this reads.
+_CITATION_DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
+
+# The floor's APPROVER axis: a `by <Proper Name>` clause, as in
+# `Ratified: 2026-08-10 by Brett Heap — in-session, verbatim: "ratified"`.
+# A heuristic, and deliberately a narrow one — there is no roster of
+# approvers to resolve against, so this reads the one shape the corpus
+# actually writes. Citations that name their approver some other way (inside
+# a record parenthetical, say) are carried by the other two axes; the floor
+# is disjunctive precisely so a narrow axis costs nothing.
+#
+# DISCLOSED NARROWING, not an oversight: `by <Name>` is the ONLY approver
+# spelling this axis recognizes. A line naming its approver in another form
+# — `Ratified: ruling round (Brett Heap presiding)`, design D1's row-3
+# shape — is not read as naming an approver, and must clear the floor on the
+# date or record axis instead. The remedy for an author is to write
+# `by <Name>`, never to invent a date the record does not carry (OQ-3), and
+# `docs/document-lifecycle.md` § Status Claim Rules states the recognized
+# form so an author reads it at authoring time rather than discovering it
+# from a finding. Widening this pattern to guess at approver names inside
+# free prose would trade a disclosed narrow rule for an undisclosed
+# guess — the invention the floor exists to prevent.
+_CITATION_APPROVER = re.compile(r"\bby\s+[A-Z][\w.'-]*")
 
 
 def _age_days(as_of: date, when: date | None) -> int | None:
@@ -288,14 +345,48 @@ def fam_standard_backing(ctx):
 
 
 def fam_ratified_provenance(ctx):
+    """Both sanctioned ratification citation spellings, each under its own
+    rule (`document-lifecycle`, sanction-ratified-record-spelling).
+
+    `Ratified by:` keeps the change-id resolution it has always had.
+    `Ratified:` — legal only where no approving change exists to name — is
+    held to the three-way floor instead: an approver, a date, or a
+    resolvable record path, ANY ONE of which makes the claim checkable by a
+    reader. The floor is never applied to `Ratified by:`, whose named change
+    is itself the resolvable record; doing so would convert every governed
+    document that names its change and nothing else into a CRITICAL finding
+    in one commit. Every violation here is CRITICAL: the header asserts an
+    approval that nothing backs, however it is spelled.
+
+    "Exactly one citation" is counted as ONE TOTAL across both spellings,
+    which is what the requirement says and what OQ-4 ruled ("EXACTLY ONE
+    citation line per document"). Two lines in the SAME spelling carry the
+    identical defect as one of each — nothing on the page says which is
+    current — so the count, not the pair, is what fires: one shared,
+    count-based rule string for every shape of duplicate, mixed-spelling
+    pair or same-spelling repeat alike.
+    """
     findings = []
     for doc in ctx.docs:
         if doc.status != "ratified":
             continue
-        line = _header_line(doc, "Ratified by:")
-        ok = False
-        if line:
-            body = line.split(":", 1)[1]
+        by_lines = _header_lines(doc, _RATIFIED_BY_PREFIX)
+        record_lines = _header_lines(doc, _RATIFIED_RECORD_PREFIX)
+
+        count = len(by_lines) + len(record_lines)
+        if count > 1:
+            findings.append(Finding(
+                CRITICAL, "ratified-provenance", doc.repo, doc.path,
+                f"carries {count} ratification citation lines, not one",
+                "keep exactly one: Ratified by: where an approving OpenSpec "
+                "change exists, Ratified: where none does"))
+            continue
+
+        by_line = by_lines[0] if by_lines else None
+        record_line = record_lines[0] if record_lines else None
+
+        if by_line:
+            body = by_line.split(":", 1)[1]
             names = set(re.findall(r"[\w][\w-]{3,}", body))
             ids = set().union(*ctx.change_ids.values()) if ctx.change_ids else set()
             ok = bool(names & ids)
@@ -303,16 +394,53 @@ def fam_ratified_provenance(ctx):
                 repo_path = ctx.repo_paths[doc.repo]
                 doc_dir = (repo_path / doc.path).parent
                 ok = any(_resolves(doc_dir, repo_path, t)
-                         for t in _link_targets(line))
+                         for t in _link_targets(by_line))
             if not ok and "openxFactory" in body and \
                     "openxFactory" not in ctx.repo_paths:
                 ok = True  # cross-repo provenance; unverifiable in this
                 # scope, verified by full aggregation runs
-        if not ok:
-            findings.append(Finding(
-                CRITICAL, "ratified-provenance", doc.repo, doc.path,
-                "Ratified by: missing or does not resolve to an OpenSpec change",
-                "point Ratified by: at an existing active or archived change"))
+            if not ok:
+                findings.append(Finding(
+                    CRITICAL, "ratified-provenance", doc.repo, doc.path,
+                    "Ratified by: missing or does not resolve to an OpenSpec change",
+                    "point Ratified by: at an existing active or archived change"))
+            continue
+
+        if record_line:
+            # The floor, cheapest axis first — mirroring the primary path's
+            # own shape (a cheap read, then `_resolves` only if it fails).
+            # The RECORD axis is read exactly as every other citation family
+            # reads one, `_link_targets` + `_resolves`: a markdown link
+            # target or a bare slash-bearing token that exists relative to
+            # the document's directory or the repo root. That is what
+            # "resolvable record path" means mechanically — a path-shaped
+            # token the repo actually contains — and reusing the shared
+            # helpers keeps it from becoming a second resolution rule.
+            body = record_line.split(":", 1)[1]
+            ok = bool(_CITATION_APPROVER.search(body)
+                      or _CITATION_DATE.search(body))
+            if not ok:
+                repo_path = ctx.repo_paths[doc.repo]
+                doc_dir = (repo_path / doc.path).parent
+                ok = any(_resolves(doc_dir, repo_path, t)
+                         for t in _link_targets(record_line))
+            if not ok:
+                findings.append(Finding(
+                    CRITICAL, "ratified-provenance", doc.repo, doc.path,
+                    "Ratified: names none of an approver, a date, or a "
+                    "resolvable record path",
+                    "name at least one of an approver, a date, or a "
+                    "resolvable record path — or cite the approving change "
+                    "with Ratified by: if one exists"))
+            continue
+
+        findings.append(Finding(
+            CRITICAL, "ratified-provenance", doc.repo, doc.path,
+            "ratified header carries no citation in either sanctioned "
+            "spelling",
+            "add Ratified by: <change> where an approving OpenSpec change "
+            "exists, otherwise Ratified: naming an approver, a date, or a "
+            "resolvable record path"))
     return findings
 
 

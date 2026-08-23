@@ -1,0 +1,36 @@
+schema: spec-driven
+created: 2026-08-22
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-22-sanction-ratified-record-spelling
+  reason: >-
+    Raised by an adversarial review of the archived-record register on
+    2026-08-22, not by an unstaged idea, and there is no staging folder to
+    claim. The organized source material is
+    `docs/archive-record-discrepancies.md` itself, whose B1 and C7 entries
+    already argue the two-spelling question at length and count both
+    populations, and whose C2 ruling instructs authors to add a citation line
+    "in whichever existing spelling honestly fits". That instruction operates
+    a rule the promoted corpus does not carry: `docs/document-lifecycle.md`
+    § Status Claim Rules sanctions one spelling
+    (`Ratified by: <change>`), the promoted `document-lifecycle` spec carries
+    no ratification-citation requirement at all, and
+    `fam_ratified_provenance` enforces the single spelling at CRITICAL over
+    the governed roots. Fifteen `Ratified:` lines live under `openspec/`,
+    which `GOVERNED_ROOTS` excludes, so the conflict is latent rather than
+    firing. Staging this would mean staging a fragment whose whole content is
+    a quotation of an existing record, so ad_hoc is the correct kind and is
+    not a substitute for staging.
+  approved_by: >-
+    Brett, through the 2026-08-22 in-session ruling round over
+    `docs/archive-record-discrepancies.md`, whose adopted C2 option directs
+    that a backfilled ratification carry "a citation line in whichever
+    existing spelling honestly fits" (the register's rendering of the ruling,
+    executed the same day by `archive-register-rulings`). Directing authors to
+    choose between two spellings while the governed rule names one is what
+    makes a change necessary and what supplies the authority to author it
+    without a staging source. This is approval of the AD-HOC EXCEPTION ONLY.
+    It is NOT ratification of this change: no ruling has been taken on the
+    two-spelling rule, the three-way floor, or any of the five open questions,
+    and `proposal.md` carries `Status: draft` accordingly.
+  approved_on: 2026-08-22

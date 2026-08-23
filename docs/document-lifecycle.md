@@ -41,7 +41,7 @@ controlled list. Status is *state*, never genre.
 | `brainstorm` | captured | Non-normative; contradiction legal; lives in `ideation/brainstorm/` |
 | `staged` | organized | Structured toward a proposal; not yet policy |
 | `draft` | proposed (or awaiting proposal) | Normative intent, not yet ratified |
-| `ratified` | ratified / implemented | Backed by an approved OpenSpec change; header names it |
+| `ratified` | ratified / implemented | Backed by an approved OpenSpec change, or by a durable ratification record where no such change exists; header names it |
 | `standard` | promoted | Backed by a promoted spec or canonical contract; the only status allowed to claim shared-standard authority |
 | `superseded` | superseded | Kept for provenance; header names the successor |
 | `retired` | retired | Withdrawn; header names the reason or decision record |
@@ -55,8 +55,31 @@ reference`.
 
 - No document may claim `standard` status — in its header or its prose —
   unless a promoted OpenSpec spec or canonical contract backs the claim.
-- A `ratified` header names the approving OpenSpec change
-  (`Ratified by: <change>`).
+- A `ratified` header names its ratification on exactly ONE citation line in
+  the lifecycle header, written in one of two spellings — never two lines
+  (not one of each spelling, and not the same spelling twice), and never
+  none: a bare, uncited `Status: ratified` is a violation whatever else the
+  document says, two lines each claiming to name the ratification say
+  nothing about which is current, and prose elsewhere in the document that
+  opens with the same word is body text, not a citation.
+  - `Ratified by: <change>` is the primary spelling, required wherever an
+    approving OpenSpec change exists to name. The named change is the
+    citation; a line naming its change and nothing else is complete. It is
+    also the only thing that completes this spelling: naming an approver and
+    a date after `Ratified by:` instead of a change does not satisfy it.
+  - `Ratified:` is the record-citing alternative, legal only where no
+    approving OpenSpec change exists to name — an in-session ruling, a
+    disposition, an `.openspec.yaml` approval pair, an archive or
+    ratification commit, or another durable record. It names at least one of
+    an approver, a date, or a resolvable record path. That floor applies to
+    `Ratified:` alone and never reaches `Ratified by:`, whose named change is
+    itself the record.
+  - The recognized approver form is `by <Name>` — write it that way. A line
+    that names its approver some other way (inside a record parenthetical,
+    say) is not read as naming one, and must clear the floor on its date or
+    its resolvable record path instead. Where it clears none of the three,
+    add `by <Name>`; never invent a date or a record the evidence does not
+    carry.
 - A `superseded` header names the successor artifact.
 - Generated evidence (simulation output, runbook transcripts, audit reports)
   is always `record`, regardless of how normative its content sounds.
