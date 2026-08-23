@@ -234,14 +234,71 @@ carried:
 Four mergeable slices. Each is a commit or a small series; each leaves the
 tree green; the count in the slice title is the findings it clears.
 
-- [ ] **5A — active-record edits (13 documents, clears 9C + 4E).** Twelve of
+- [x] **5A — active-record edits (13 documents, clears 9C + 4E).** Twelve of
       the thirteen are live documents, so no archive discipline is engaged
       and no bookkeeping note is owed on them; the thirteenth (5A.2's third
       review record) sits under `archive/` and takes 5B's discipline even
       though it is grouped here. First because it is the cheapest proof that
       the respell and backfill shapes are right before they are applied to
       the remaining 55 findings.
-  - [ ] 5A.1 The 6 ACTIVE proposals whose `Ratified by:` names a record
+
+      **DONE 2026-08-23**, branched from `origin/main` at `eb12aa5`. Thirteen
+      documents edited, and all thirteen are ACTIVE — the slice took every
+      finding on a non-archive document, which is what "active-record edits"
+      means, rather than the thirteen names the draft listed. The one
+      substitution: 5A.2's third record is under `archive/` and was LEFT for
+      5B, and a review record that did not exist when the proposal was
+      measured (`add-notebook-projection-identity/review/ratification-2026-08-23.md`)
+      took its place. The count is unchanged at 13 documents / 9C + 4E; only
+      the membership moved, and it moved in the direction the slice boundary
+      says it should.
+
+      **Scan-set census, measured through the real helpers in
+      `scripts/doc_health/` over the ruled globs and the four ruled families**
+      (`openspec/changes/**/proposal.md` + `openspec/changes/**/review/*.md`;
+      `status-validity`, `standard-backing`, `ratified-provenance`,
+      `succession-integrity`):
+
+      | | before 5A | after 5A | delta |
+      | --- | --- | --- | --- |
+      | scan set documents | 121 | 121 | 0 |
+      | `ratified-provenance` | 21 CRITICAL | **12 CRITICAL** | −9 |
+      | `status-validity` | 48 ERROR | **44 ERROR** | −4 |
+      | `standard-backing` | 0 | 0 | 0 |
+      | `succession-integrity` | 0 | 0 | 0 |
+      | **total** | **69** | **56** | **−13** |
+      | of which on ACTIVE documents | 13 | **0** | −13 |
+
+      Two honest corrections to the arithmetic §5 opened with. The pre-slice
+      figure is **69, not 68**: the scan set has grown from the 119 documents
+      the proposal measured to 121, and one of the two new documents is
+      `add-notebook-projection-identity`'s ratification record, which carries
+      the same third-vocabulary shape OQ-5 ruled on and so added a 21st
+      CRITICAL. The proposal's 68 was correct when taken and is not
+      retro-edited; this is the number a re-measurement returns today, and
+      5D.1's re-measure is the one §4.3 checks against. Second: the remaining
+      **56 are every one of them under `archive/`** — 12 CRITICAL (5B's eleven
+      respells plus the archived review record 5A.2 handed over) and 44 ERROR
+      (5C's backfills). Zero active findings remain in the scan set.
+
+      **Whole-repo run unmoved, verified by byte comparison rather than by
+      eye.** `python3 scripts/doc-health.py --single-repo . --as-of 2026-08-23`
+      produces a report BYTE-IDENTICAL to the pre-edit baseline — 4 critical /
+      6 error / 68 warning / 4 info, canon share 31.2%, 327 documents. That is
+      the predicted result and it is also the thing worth checking: the scan
+      set is not yet enforced (§2 has not landed), so an edit inside
+      `openspec/` that moved the whole-repo report would mean something else
+      had changed. Nothing did. (The 31.2% reads against the proposal's
+      31.3% because main has moved since that measurement, not because of
+      this slice — the before and after runs here agree to the byte.)
+
+      **Gates.** `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` →
+      **70 passed, 0 failed (70 items)**. `python3 -m pytest tests/doc-health`
+      → **724 passed**. `python3 -m pytest tests/ideation-dashboard -k
+      workbench` → **140 passed**, 3858 deselected — and no upper-cased HTTP
+      write verb enters any prose this slice writes, the substring the
+      workbench's no-write-path assertion trips on.
+  - [x] 5A.1 The 6 ACTIVE proposals whose `Ratified by:` names a record
         rather than a change (`add-composed-view-authoring`,
         `add-lens-document-selection`, `add-trust-anchor`,
         `admit-install-repos-to-aggregation`,
@@ -250,7 +307,45 @@ tree green; the count in the slice title is the findings it clears.
         VERBATIM, and record in each change's own `tasks.md` which record
         justifies its line. Do NOT rewrite the content — a respell that also
         improves the prose is two edits wearing one name.
-  - [ ] 5A.2 The 3 `review/` ratification records on the third vocabulary
+
+        **DONE.** All six respelled, all six at real line 5, inside the
+        window. The verbatim rule was enforced mechanically rather than by
+        care: the edit asserted that the bytes following the prefix are
+        IDENTICAL before and after, and `git diff --word-diff` shows one
+        changed token per file — `Ratified by:` → `Ratified:` — and nothing
+        else. Per-record justification, consolidated HERE rather than into
+        each of the six changes' own `tasks.md` (one slice, one record, and
+        each of these six lines carries its justification on its own face):
+
+        | change | the record that justifies the line | floor |
+        | --- | --- | --- |
+        | `add-composed-view-authoring` | Brett's 2026-08-08 in-session direction, quoted on the line — "yes, we need to draft from a project view" — given when the hand-off was found unavailable on every project-scoped view | date |
+        | `add-lens-document-selection` | Brett's three annotations of 2026-08-08, all three quoted on the line (the unreadable relationship tiles and their unlabelled count, "this is taking up too much space. what value does it bring?", and the hover/checkbox instruction) | date |
+        | `add-trust-anchor` | Brett Heap's 2026-08-21 in-session ruling, quoted — "ratify both proposals" — with OQ1 and OQ2 both ruled as recommended on the same line | date |
+        | `admit-install-repos-to-aggregation` | Brett Heap's 2026-08-21 session instruction, quoted — "do the aggregation admission change, the two repos are added to openXfactory github app" | date |
+        | `implement-keycloak-install-repo` | Brett Heap's 2026-08-21 session instruction, quoted — "do both install repos" — following his same-day rulings on the install-repo naming and the identity/PKI workstream | date |
+        | `implement-openxpki-install-repo` | the same 2026-08-21 instruction and the same same-day rulings, recorded on its own line in its own words | date |
+
+        **Two measured notes a later reader will otherwise re-derive.**
+        First, the latent-eighteenth check OQ-4 asks for came back clean:
+        none of the six names a resolvable OpenSpec change. That is not an
+        eyeball reading — `fam_ratified_provenance`'s primary-spelling branch
+        had already run change-id resolution and `_resolves` against each of
+        the six and rejected all six, which is why they were findings at all.
+        `add-identity-brokering` remains the only member of that class and
+        stays unrespelled, as ruled.
+
+        Second, **each of the six clears the three-way floor on the DATE axis
+        alone, not on approver-plus-date**, and that is correct rather than
+        thin. Every one of them names its approver in prose (`Brett,
+        2026-08-08`, `Brett Heap, 2026-08-21`), and `_CITATION_APPROVER`
+        recognizes only the `by <Name>` form — the disclosed narrowing
+        `families.py` documents at the pattern. Inserting `by` would rephrase
+        content the ruling requires be carried VERBATIM, so the lines stand as
+        written and clear on the date. The floor is disjunctive precisely so a
+        narrow axis costs nothing; this is the case it was made disjunctive
+        for.
+  - [x] 5A.2 The 3 `review/` ratification records on the third vocabulary
         (`add-roster-directory-admission-surface/review/ratification-2026-08-22.md`,
         `add-substantive-review-lane/review/ratification-2026-08-22.md`,
         `archive/2026-08-22-add-roster-device-admission-surface/review/ratification-2026-08-19.md`):
@@ -258,13 +353,114 @@ tree green; the count in the slice title is the findings it clears.
         `Ratifier:`/`Decision date:` pair already on the page. Leave that
         pair standing. The third of these lives under `archive/`, so it takes
         5B's bookkeeping note even though it is grouped here for shape.
-  - [ ] 5A.3 The 3 ACTIVE headerless proposals
+
+        **DONE, and the membership of this box changed under it.** The
+        archived record named third above was NOT edited here: it takes 5B's
+        bookkeeping discipline, and the honest place to apply that discipline
+        is the commit that applies it to the other eleven archived records.
+        It is handed to 5B, where it is now the twelfth archived CRITICAL.
+        In its place this box took a review record that did not exist when the
+        proposal was measured. The three edited, each line derived from the
+        page's own two headers and inventing nothing, each inserted directly
+        beneath the `Ratifier:` line it derives from and each landing at real
+        line 6:
+
+        | record | derived line | floor |
+        | --- | --- | --- |
+        | `add-notebook-projection-identity/review/ratification-2026-08-23.md` | `Ratified: 2026-08-23 by Brett Heap (repository owner) — in-session via question prompts` | approver + date |
+        | `add-roster-directory-admission-surface/review/ratification-2026-08-22.md` | `Ratified: 2026-08-22 by Brett (repository owner)` | approver + date |
+        | `add-substantive-review-lane/review/ratification-2026-08-22.md` | `Ratified: 2026-08-22 by Brett Heap (repository owner) — in-session via question prompts` | approver + date |
+
+        The `Ratifier:` and `Decision date:` lines stay exactly as written on
+        all three — OQ-5 ruled that they stop being the ONLY thing that says
+        it, not that they stop saying it. `add-notebook-projection-identity`'s
+        record is why the pre-slice census reads 21 CRITICAL rather than the
+        proposal's 20: it landed on main after the measurement and carried the
+        identical third-vocabulary shape, which is a small piece of evidence
+        that OQ-5 ruled on a live convention and not on a closed legacy set of
+        three. A `Ratified baseline:` line sits two lines below each new
+        citation on all three pages and is NOT a second citation — the two
+        sanctioned prefixes are read with `startswith`, and `Ratified
+        baseline:` starts with neither. Verified rather than assumed: each of
+        the three reports exactly ONE citation line through
+        `families._header_lines`, so the one-total rule holds.
+  - [x] 5A.3 The 3 ACTIVE headerless proposals
         (`add-dispatch-credential-contract`, `add-ideation-intent-plane`,
         `add-worker-enrollment-broker`): derive and write a `Status:` header,
         plus a citation if and only if the derived value is `ratified`. Two
         of the three carry no `.openspec.yaml` at all; that is a
         `proposal-origin` matter and is NOT fixed here.
-  - [ ] 5A.4 The 1 free-form status
+
+        **DONE. Two ratified, one draft — and the draft is the point of the
+        exercise.** Active does not mean ratified, and one of these three
+        proves it. Each status was derived by hunting the sources C2
+        established (the packet's `.openspec.yaml`, the change's own
+        `tasks.md`, the README `OpenSpec Records` row, the archive and
+        ratification commits) and by a repo-wide grep for the change id. All
+        three headers went INSIDE the front matter, directly beneath
+        `target_release:`, which is where every already-conforming proposal in
+        this corpus carries them and which keeps `code_surface` and
+        `target_release` where `ideation_dashboard.generator._header_value`
+        already reads them.
+
+        **`add-ideation-intent-plane` → `Status: ratified`** plus
+        `Ratified: 2026-07-23 by Brett — "we are there, this is ready now to
+        lock", recorded in the proposal commit cf1c3d0 and in the README
+        OpenSpec Records row`. Evidence: the proposal commit `cf1c3d0`
+        (2026-07-23) states in its body "Ratified by Brett 2026-07-23 ('we are
+        there, this is ready now to lock')", and the README row says "ratified
+        2026-07-23". What was deliberately NOT used: this packet's
+        `.openspec.yaml` carries an `origin:`-nested
+        `approved_by: Brett (openxFactory operator authority)` /
+        `approved_on: 2026-07-23` pair, and C2 already ruled that such a pair
+        records permission to AUTHOR. It happens to agree with the date here,
+        which is exactly why it is worth saying it was not the source — a
+        coincidence is not a citation. Floor: approver + date.
+
+        **`add-worker-enrollment-broker` → `Status: ratified`** plus
+        `Ratified: 2026-07-26 by Brett Heap — D1-D10 recommendations adopted
+        as decided; phase-1 contract realization authorized, recorded in
+        commit e535a3a and on the Approved line below`. Evidence: commit
+        `e535a3a` (2026-07-26) is titled "Record Brett's approval of
+        add-worker-enrollment-broker (D1-D10 adopted)" and is the commit that
+        wrote the `Approved: 2026-07-26 by Brett Heap — D1-D10
+        recommendations adopted as decided; phase-1 contract realization
+        authorized.` line the proposal already carried in its body; the README
+        row says the contract was "ratified BEFORE its three realizations are
+        built". This is a decision ON CONTENT (D1-D10 adopted, realization
+        authorized), not an `origin:`-nested permission to author, so it is a
+        ratification and C2's distinction is respected rather than stretched.
+        The `Approved:` line stays exactly where it was. Floor: approver +
+        date.
+
+        **`add-dispatch-credential-contract` → `Status: draft`, no citation
+        written, because none is owed and none exists.** This is the honest
+        answer and it took the most looking. Everything the record carries
+        points AWAY from ratified: the authoring commit `4e4190c`
+        (2026-08-13) calls it "the add-dispatch-credential-contract **draft**";
+        the README row says "authored 2026-08-13" and never says ratified;
+        its own task 4.2 lists ratification as a step still ahead ("current
+        through ratification, realization, and archive"); it carries no
+        `.openspec.yaml`; and a repo-wide grep for the change id across every
+        `.md` and `.yaml` returns no ratifier and no ratification date
+        anywhere. A `draft` header needs no citation, so nothing was invented
+        to accompany it.
+
+        **One flag raised, not fixed, because it is outside this change's
+        scope and inside somebody's.** `docs/openxdox-naming.md` carries
+        `Status: ratified` / `Ratified by: add-dispatch-credential-contract` —
+        a governed document whose primary-spelling citation names a change
+        that is, on its own record, still a draft. No family fires on it: the
+        change id resolves, which is all `fam_ratified_provenance` asks of the
+        primary spelling. It is named here so that the next reader of that
+        document does not have to rediscover it, and so that whoever ratifies
+        `add-dispatch-credential-contract` knows a document is already
+        depending on the act.
+
+        Nothing stopped and reported in this box. All three records supported
+        a status; the one that could not support `ratified` supported `draft`,
+        which is a derivation and not a fallback.
+  - [x] 5A.4 The 1 free-form status
         (`add-wallet-carried-review-authority/proposal.md`, whose `Status:`
         value at real line 7 runs on into a ratification clause): split the
         value from the clause. The taxonomy value and the citation are two
@@ -272,6 +468,40 @@ tree green; the count in the slice title is the findings it clears.
         and on `by <Name>` if the approver is written in the recognized form
         — `Brett Heap (openxFactory operator authority)` is not read as an
         approver unless `by` precedes the name.
+
+        **DONE.** The document is
+        `openspec/changes/add-wallet-carried-review-authority/proposal.md`,
+        the only free-form status in the scan set and an ACTIVE one, so it
+        belongs to this slice. Its `Status:` at real line 8 read
+        `ratified — Brett Heap (openxFactory operator authority),
+        2026-08-23,` — `STATUS_RE` is `^Status:\s*(.+?)\s*$`, so it swallowed
+        the whole first physical line of a three-line ratification sentence
+        and handed `TAXONOMY` a value no taxonomy contains. Split into two
+        headers, nothing dropped:
+
+        ```
+        Status: ratified
+        Ratified: 2026-08-23 by Brett Heap (openxFactory operator authority) — in-session
+        ruling (the same mechanism that ratified add-substantive-review-lane on
+        2026-08-22). Realization proceeds per tasks.md, S1 first.
+        ```
+
+        `by` was written before the name, as this box directs, so the
+        approver axis reads it; date and approver both clear, and only the
+        FIRST real line of the citation is read for the floor, which is why
+        both axes sit on it. The citation lands at real line 9, in window.
+
+        **The coupling this box demonstrates, stated because it is the
+        general case and not a quirk of this document.** Before the edit
+        `fam_ratified_provenance` never looked at this file at all — it
+        guards on `doc.status != "ratified"`, and a free-form status is not
+        `"ratified"`. Fixing the `status-validity` ERROR is therefore the act
+        that makes the document VISIBLE to the citation rule for the first
+        time. Had the split landed without the citation, this slice would have
+        traded one ERROR for one CRITICAL and discharged nothing — the exact
+        arithmetic §5's recount warns about for the 47 backfills. Both lines
+        landed in one edit; re-measured, the document emits nothing from
+        either family.
 - [ ] **5B — the 11 archived respells (clears 11C).** Same prefix respell as
       5A.1, same verbatim content, plus the discipline archived records take.
       Blocked on 5A only in the sense that the shape should be settled first.
@@ -284,6 +514,19 @@ tree green; the count in the slice title is the findings it clears.
       `2026-08-09-add-project-visible-set`, `2026-08-09-add-repository-lens`,
       `2026-08-13-add-session-notebook-reconciliation`,
       `2026-08-15-add-subject-overlay-contract`.
+
+      **HANDED OVER BY 5A (2026-08-23): a twelfth archived document, and it
+      is not a respell.**
+      `archive/2026-08-22-add-roster-device-admission-surface/review/ratification-2026-08-19.md`
+      is 5A.2's third record — the archived member of the three-vocabulary
+      review set. Its EDIT is 5A.2's (a conforming `Ratified:` line derived
+      from its own `Ratifier:`/`Decision date:` pair, the pair left standing),
+      but its DISCIPLINE is 5B's, and the honest place to apply 5B's
+      discipline is the commit that applies it to the other eleven. So 5B
+      clears **12 CRITICAL, not 11**: eleven prefix respells and one derived
+      review-record line, each under 5B.2's in-place-overwrite discipline with
+      5B.3's travelling bookkeeping note, and 5B.4's register entry should
+      account for twelve rather than eleven.
   - [ ] 5B.1 For each of the eleven, name the record that justifies its line
         — the line's own approver-and-date is the substance, and the task is
         to say where that came from. Eleven justifications, not one block

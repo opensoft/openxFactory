@@ -2,7 +2,7 @@
 code_surface: opensoft/Keycloak-Install (a NEW private repository — its SEED tree only: a README stating the ownership boundary verbatim from the ratified requirement, `config/contracts/identity-brokering/manifest.yaml` pinning `contract-v1.37` by tag plus per-file sha256, the `config/clients/opensoft/` placeholder, the `deploy/` and `docs/` skeleton, `scripts/validate-boundary.py` with its self-test corpus, and the `.github/workflows/session-open-pr.yml` mirror). No openxFactory code surface beyond this change's own records.
 target_release: repository-bootstrap (the archived `add-xfactory-installer-repository` precedent for a repo-creation act; no contract bundle is cut — the new repository PINS the released `contract-v1.37` and realization lands on `opensoft/Keycloak-Install`'s own `main`)
 Status: ratified
-Ratified by: Brett Heap, 2026-08-21 — session instruction "do both install repos", following his same-day rulings that the install repositories are Opensoft-level and unprefixed (the parent proposal's Amendment) and on the identity/PKI workstream as a whole
+Ratified: Brett Heap, 2026-08-21 — session instruction "do both install repos", following his same-day rulings that the install repositories are Opensoft-level and unprefixed (the parent proposal's Amendment) and on the identity/PKI workstream as a whole
 ---
 
 # Proposal: implement-keycloak-install-repo

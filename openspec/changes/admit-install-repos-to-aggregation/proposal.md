@@ -2,7 +2,7 @@
 code_surface: the xFactory aggregation act in `opensoft/xFactory` (two `.gitmodules` entries — `installs/keycloak-install` -> `git@github.com:opensoft/Keycloak-Install.git` and `installs/openxpki-install` -> `git@github.com:opensoft/OpenXPKI-Install.git` — the two gitlinks at the exact validated commits `1aa184e891d4ba6e641a31260d3f64d2b335f175` and `05f440444d9091206778e838454ed9b5bb7bff60`, and the README topology / current-submodule documentation update), plus this change's own admission records in openxFactory. No change to either admitted repository's tree.
 target_release: repository-bootstrap (the archived `add-xfactory-installer-repository` precedent for a repository-boundary act against the aggregation; no contract bundle is cut — both admitted repositories PIN the already-released `contract-v1.37`, and realization lands on `opensoft/xFactory`'s `main`)
 Status: ratified
-Ratified by: Brett Heap, 2026-08-21 — session instruction "do the aggregation admission change, the two repos are added to openXfactory github app"
+Ratified: Brett Heap, 2026-08-21 — session instruction "do the aggregation admission change, the two repos are added to openXfactory github app"
 ---
 
 # Proposal: admit-install-repos-to-aggregation
