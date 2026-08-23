@@ -5,7 +5,31 @@ target_release: implemented (the doc-only pair; no contract bundle is cut)
 
 # Proposal: add-wallet-carried-review-authority
 
-Status: draft
+Status: ratified — Brett Heap (openxFactory operator authority), 2026-08-23,
+in-session ruling (the same mechanism that ratified add-substantive-review-lane
+on 2026-08-22). Realization proceeds per tasks.md, S1 first.
+
+## Ratification record, 2026-08-23
+
+Three rulings, recorded verbatim from the convener's in-session answers:
+
+1. **Ratified as restructured** — PART I (the doctrine), PART II (the
+   substrate, S1–S5, nothing pretended), PART III (the narrowed floor
+   DECLINED; assembly-class surfaces stay permanently human-only; no
+   independence-test successor named). Q9 and Q10 stay open as carried
+   items — they amend or interpret `add-substantive-review-lane`'s text
+   and are not this change's to settle.
+2. **All four lead constructions confirmed** (each remains overturnable
+   by a later ruling): register ≠ revocation surface; the intake register
+   itself floored permanently human-only; the no-schema conclusion as
+   no-new-GRANT-schema with the register shape and job-envelope field as
+   declared successors; the project-schema section kept and trimmed rather
+   than coupled to the declined floor or cut to staging.
+3. **Q8 deferred to S5's design**: the composition-drift reissuance policy
+   (standing reissue as a first-class intake act, drift-vs-cause survival,
+   operator notification) is proposed by S5's implementer, with the
+   model-family-pin question surfaced for the convener's ruling at that
+   point, informed by real wallet mechanics.
 Proposed: 2026-08-22, on direction from the convener, Brett Heap — the same day
 `add-substantive-review-lane` was ratified and the `gate_rules_council`
 returned its `codexfactory-routine-code-clearance` convening. This change acts
