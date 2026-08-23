@@ -1,6 +1,7 @@
 # Design: add-notebook-projection-identity
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-23 — `review/ratification-2026-08-23.md`
 
 The five decisions this change encodes were dispositioned on the staged topic
 `notebook-projection-identity` on 2026-08-23 and merged as PR #272. This

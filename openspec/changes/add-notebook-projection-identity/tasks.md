@@ -1,6 +1,9 @@
 # Tasks: add-notebook-projection-identity
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-23 — `review/ratification-2026-08-23.md`. Realization mode: DIRECT
+(Brett, at the read). These tasks are AUTHORIZED, not performed, by the
+ratification.
 
 NOTHING BELOW RUNS BEFORE RATIFICATION. This change's own diff is the spec
 deltas and these records; every task here is realization, authorized by the

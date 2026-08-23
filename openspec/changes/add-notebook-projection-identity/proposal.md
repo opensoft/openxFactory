@@ -5,11 +5,22 @@ target_release: implementation_pending — the requirements land now; the change
 
 # Proposal: add-notebook-projection-identity
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-23 — record: `review/ratification-2026-08-23.md` (Brett Heap,
+in-session via question prompts). TWO rulings in the one read: **ratify** the
+requirement set as it stands, and **realization mode = DIRECT** (the
+`add-roster-device-admission-surface` precedent, not a Speckit flow). The three
+items this proposal flagged for the read were all before him and he ratified
+with them in view: the generalized `credential-contracts` requirement KEEPS its
+vault-specific header (renaming is a remove-plus-add the disposition did not
+ask for); the share-out roster's ARTIFACT FORM stays a realization call, to be
+decided and flagged during realization; and the direct route is the one chosen.
+The change stays ACTIVE — `target_release: implementation_pending` archives it
+only on merged code with green realization evidence.
 Proposed: 2026-08-23, the day the staged topic's last precondition was met.
 All five of its questions carry dispositions (merged as PR #272), and Brett
 Heap confirmed the hosting account — `xFactor001@opensoft.one` — and
-authorized raising this change. Ratification is a separate act, still PENDING.
+authorized raising this change.
 
 THE REALIZATION RUNS POST-RATIFICATION. No sync-script, roster, doc or intake
 edit lands with this proposal itself; its own diff is spec text plus these
