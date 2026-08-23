@@ -321,6 +321,9 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [create-medxpractice-overlay-boundary](openspec/changes/create-medxpractice-overlay-boundary/proposal.md)
+  — MedxPractice owns the private practice-operations composition boundary and
+  pins the independent public openPractice application at an immutable commit.
 - [govern-openspec-corpus-membership](openspec/changes/govern-openspec-corpus-membership/proposal.md)
   — authored and **RATIFIED 2026-08-23** (Brett Heap, in-session
   multiple-choice round over all six Open Questions; no approving OpenSpec
