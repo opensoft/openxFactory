@@ -2808,3 +2808,85 @@ the realization evidence for everything built is recorded in `proposal.md`.
       mechanical refusal ("change has incomplete tasks") no longer stands in the
       way — which is a statement about the gate, not an instruction to walk
       through it.
+
+## Bookkeeping correction (2026-08-23, `phase-b-ratification-citation`)
+
+The archived proposal carried `Status: ratified` with **no ratification
+citation line**. Under the now-promoted rule in
+`openspec/specs/document-lifecycle/spec.md` ("Controlled document status
+taxonomy") a bare, uncited `ratified` header is a violation whatever else the
+document says, because the header asserts an approval the document does not
+point at. This change was the ONE such proposal among the forty-four archived
+ratified ones; the defect was found by `sanction-ratified-record-spelling`'s
+authoring measurement and parked, deliberately out of scope, at that change's
+tasks.md 5.2. One line was added beside the `Status:` header. **Nothing above
+this section is edited** — the original record stands word for word, so the
+2026-08-10 append ruling is honoured literally here rather than extended the
+way Phase A's own bookkeeping correction had to extend it (there the `Status:`
+value itself had to be overwritten; here only a line is added).
+
+**Where the ratification evidence lives.** Three points on this change's own
+record, quoted rather than paraphrased:
+
+1. The archive commit `02a71d6` (PR #264, 2026-08-22): *"Archived on Brett's
+   explicit word, through proposal-support.py's archive verb (never bare
+   openspec -- the standing rule)"*. PR #264's body opens *"Brett's word
+   given."*
+2. Task 13.8 above, written before the archive: *"`proposal-support.py archive`
+   is the sanctioned path and it is Brett's act on his explicit word, not a
+   consequence of this box being checked"* — and §13's earlier prose,
+   *"ARCHIVING IS STILL BRETT'S ACT AND WAS NOT PERFORMED … the archive runs
+   through `proposal-support` on his explicit word, and nothing here decides
+   it."*
+3. The commit inside PR #264 that actually WROTE the `ratified` value —
+   `bdd09c2`, *"Bot round on the archive: a mislabelled sha and a stale
+   proposal Status"* — recording its reasoning: *"Codex, the archived proposal:
+   it still said `Status: draft`. Phase A -- the precedent this archive was
+   told to follow exactly -- says `Status: ratified`, as do the other recent
+   archives; a change whose spec deltas have PROMOTED is ratified by
+   construction."*
+
+So the ratification cited is the archive act itself and the promotion it
+performed (`ideation-dashboard` 78 → 87 requirements, `memory-gateway`
+21 → 22), on Brett's explicit word, 2026-08-22. That is an approver, a date,
+and a resolvable record — all three axes of the record-citing form's floor.
+
+**The header's real history, which is not what a reader would assume.** The
+proposal read `Status: draft` from its proposing commit `d3d7f58` (2026-08-18,
+PR #205) through **every** realization slice — `e7e7a84` (#206), `a4a6f6e`
+(#207), `5daa173` (#210), `ece236a` (#216), `4926b7c` (#228), `08c5aa9` (#234),
+`0f50b35`, `671a690` (#256) — and `ratified` was written only at the archive,
+on a bot review finding. Checked commit by commit, not assumed.
+
+**Why the origin pair was NOT cited.** `.openspec.yaml` carries `approved_by:
+Brett Heap (live-UI annotations and in-session rulings, 2026-08-15 through
+2026-08-18 …)` and `approved_on: 2026-08-18`. Those fields are nested under
+`origin:`, and they record approval of the staged topic's EXIT and of this
+change's authoring — dated to the proposal day, four days before the header
+stopped saying `draft`. Citing them as the ratification is the error
+`docs/archive-record-discrepancies.md` C2 names: *"Reading them as ratification
+would date each change's ratification to the day it was proposed."* B1's
+phase-a citation, which DID cite an `.openspec.yaml` pair, is not a precedent
+here — the register states its two conditions plainly, *"its `approved_on`
+coincided with the ratification, and its `reason` narrates Brett's dispositions
+on the change's substance rather than permission to author it"* — and the first
+of those fails for Phase B.
+
+PRs #206 and #207 each describe this as *"ratified change
+`add-doxbench-editing-phase-b`"* in their bodies. That is builder prose written
+against a header that still read `draft`, and no ratification act distinct from
+the 2026-08-18 origin approval is recorded on that date, so it is reported here
+rather than cited.
+
+**Which spelling.** `Ratified:`, the record-citing form. No approving OpenSpec
+change exists to name: the only other changes referencing this one are Phase A
+(its predecessor), `add-staged-topic-outline-template` and
+`add-doxchat-model-intake` (which cite it, not approve it), and
+`sanction-ratified-record-spelling` (which FOUND this defect and parked it).
+Reaching for `Ratified by:` would have meant naming a change that does not
+exist.
+
+**Scope.** This section and the one citation line are the whole of the edit.
+No promoted spec, no register entry (Phase B was never one of its entries), and
+no code is touched. Census after the fix: 44 archived proposals carry
+`Status: ratified` and all 44 carry exactly one citation.
