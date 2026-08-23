@@ -292,12 +292,79 @@ tree green; the count in the slice title is the findings it clears.
       31.3% because main has moved since that measurement, not because of
       this slice — the before and after runs here agree to the byte.)
 
+      **[Provenance of "327 documents", added 2026-08-23 (review N2).** The
+      report prints no documents-examined field, so that figure was cited as
+      though quoted when it is DERIVED — the Per-Stage Counts table's Docs
+      column sums to 327 (2 + 127 + 69 + 1 + 22 + 29 + 1 + 68 + 6 + 2). The
+      number is right; only its provenance was missing, and it is recorded
+      now so the next reader can check it in the report rather than take it on
+      trust. `4 critical / 6 error / 68 warning / 4 info` and `canon share
+      31.2%` are quoted from the Headline block and were always checkable.**]
+
+      **RE-MEASURED 2026-08-23 on the fix lap, after merging `origin/main`
+      into this branch.** The merge brought in another session's MedxChart and
+      MedxPractice boundary work (`origin/main` at `7431f03`, six commits),
+      and the fix lap corrected `add-dispatch-credential-contract`. Both move
+      the numbers, in opposite directions and for unrelated reasons, so the
+      census is restated rather than patched:
+
+      | | after 5A | + merge + fix lap | delta |
+      | --- | --- | --- | --- |
+      | scan set documents | 121 | **123** | +2 |
+      | `ratified-provenance` | 12 CRITICAL | **12 CRITICAL** | 0 |
+      | `status-validity` | 44 ERROR | **46 ERROR** | +2 |
+      | `standard-backing` | 0 | 0 | 0 |
+      | `succession-integrity` | 0 | 0 | 0 |
+      | **total** | **56** | **58** | **+2** |
+      | of which on ACTIVE documents | 0 | **2** | +2 |
+      | scan-set documents `ratified` AND cited | 64 | **65** | +1 |
+
+      Reading the three moves honestly:
+
+      - **+2 documents, +2 ERROR, and both on ACTIVE documents:**
+        `openspec/changes/create-medxchart-overlay-boundary/proposal.md` and
+        `openspec/changes/create-medxpractice-overlay-boundary/proposal.md`,
+        both headerless, both landed on `main` from another session while 5A
+        was in flight. **This slice does not edit them** — see 5D's
+        moving-target note. 5A's "zero findings left on any active document"
+        was true of the tree 5A measured and is no longer true of `main`;
+        that is the gate moving, not the slice being wrong.
+      - **+1 ratified-and-cited document, +0 findings:**
+        `add-dispatch-credential-contract` moved from an uncited `draft` to a
+        cited `ratified`. Neither state emits a finding, which is precisely
+        why no gate caught the wrong value.
+      - **12 CRITICAL unchanged**, and every one of the 58 that is not one of
+        the two new actives is under `archive/` — 12 for 5B (now 12 of 28
+        documents, the other 16 being latent) and 44 for 5C.
+
+      Measured through the same real helpers over the same ruled globs and
+      the same four ruled families. The census taken on the merged tree BEFORE
+      this lap's edits and the one taken AFTER are byte-identical, which is
+      the point: the whole +2 is the merge's and none of it is the fix's.
+
+      **Whole-repo run on the merged base: `4 critical / 8 error / 68 warning
+      / 4 info`, canon share 31.2%.** The two extra errors against 5A's
+      recorded `4 / 6 / 68 / 4` are the merge's, not this lap's: they are
+      `proposal-origin` "proposal carries no origin declaration" errors on the
+      same two new MedxChart/MedxPractice packets. This lap's edits leave that
+      report unmoved — measured before and after, not assumed. §4.3's
+      "unchanged baseline" prediction is therefore against `4 / 8 / 68 / 4` as
+      of this merge, and against whatever 5D.1 measures at enforcement time.
+
       **Gates.** `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` →
       **70 passed, 0 failed (70 items)**. `python3 -m pytest tests/doc-health`
       → **724 passed**. `python3 -m pytest tests/ideation-dashboard -k
       workbench` → **140 passed**, 3858 deselected — and no upper-cased HTTP
       write verb enters any prose this slice writes, the substring the
       workbench's no-write-path assertion trips on.
+
+      **Gates re-run on the 2026-08-23 fix lap, after the merge:**
+      `openspec validate --all --strict` → **72 passed, 0 failed (72 items)**
+      (70 plus the two changes the merge brought in);
+      `pytest tests/doc-health` → **724 passed**;
+      `pytest tests/ideation-dashboard -k workbench` → **140 passed**, 3858
+      deselected; the whole-repo doc-health report **byte-identical** to the
+      merged base; no upper-cased HTTP write verb in any added line.
   - [x] 5A.1 The 6 ACTIVE proposals whose `Ratified by:` names a record
         rather than a change (`add-composed-view-authoring`,
         `add-lens-document-selection`, `add-trust-anchor`,
@@ -326,6 +393,21 @@ tree green; the count in the slice title is the findings it clears.
         | `implement-keycloak-install-repo` | Brett Heap's 2026-08-21 session instruction, quoted — "do both install repos" — following his same-day rulings on the install-repo naming and the identity/PKI workstream | date |
         | `implement-openxpki-install-repo` | the same 2026-08-21 instruction and the same same-day rulings, recorded on its own line in its own words | date |
 
+        **CORRECTED 2026-08-23 (review S3): the consolidation above did not
+        satisfy the box, and the six per-change notes have now been written.**
+        This box directs "record in each change's own `tasks.md` which record
+        justifies its line", and the slice recorded them here instead. The
+        table is a fine index and a poor substitute: a reader of
+        `implement-openxpki-install-repo` who wonders why its citation was
+        rewritten has to know that a different change's tasks file holds the
+        answer. On the fix lap each of the six gained its own one-line
+        justification note, quoting the same record this table names —
+        five as a trailing `## Ratification-citation respell (2026-08-23)`
+        section, and `add-trust-anchor` inline under its task 3.2, which is
+        the box that set the `Ratified by:` header in the first place and is
+        the least invasive home in that file. The table above stays as the
+        index it always was; the tick is now honest.
+
         **Two measured notes a later reader will otherwise re-derive.**
         First, the latent-eighteenth check OQ-4 asks for came back clean:
         none of the six names a resolvable OpenSpec change. That is not an
@@ -334,6 +416,19 @@ tree green; the count in the slice title is the findings it clears.
         the six and rejected all six, which is why they were findings at all.
         `add-identity-brokering` remains the only member of that class and
         stays unrespelled, as ruled.
+
+        **NARROWED 2026-08-23 (review S4).** The check above covered THE SIX
+        and only the six; it was never a corpus-wide sweep, and the slice had
+        no standing for the sentence "the only member of that class". It is
+        not. Replaying the same primary-spelling resolution over the whole
+        scan set finds **16 self-citing lines** that pass the family only by
+        naming their OWN change id, plus **4 more** that pass by naming some
+        other change in passing prose. The 16 are ruled into 5B by OQ-4's
+        RULED-extension note of the same date; the 4 are measured and
+        deliberately out. The corpus-wide finding and its ruling live there,
+        not here. What this box can honestly claim is narrower and still
+        useful: none of ITS six names a resolvable change, so none of the six
+        was a false positive.
 
         Second, **each of the six clears the three-way floor on the DATE axis
         alone, not on approver-plus-date**, and that is correct rather than
@@ -345,7 +440,9 @@ tree green; the count in the slice title is the findings it clears.
         written and clear on the date. The floor is disjunctive precisely so a
         narrow axis costs nothing; this is the case it was made disjunctive
         for.
-  - [x] 5A.2 The 3 `review/` ratification records on the third vocabulary
+  - [x] 5A.2 **(2 of the 3 listed here + 1 substitute; the archived third was
+        HANDED TO 5B — see the read-back and 5B's handover block)**
+        The 3 `review/` ratification records on the third vocabulary
         (`add-roster-directory-admission-surface/review/ratification-2026-08-22.md`,
         `add-substantive-review-lane/review/ratification-2026-08-22.md`,
         `archive/2026-08-22-add-roster-device-admission-surface/review/ratification-2026-08-19.md`):
@@ -446,20 +543,124 @@ tree green; the count in the slice title is the findings it clears.
         anywhere. A `draft` header needs no citation, so nothing was invented
         to accompany it.
 
-        **One flag raised, not fixed, because it is outside this change's
-        scope and inside somebody's.** `docs/openxdox-naming.md` carries
-        `Status: ratified` / `Ratified by: add-dispatch-credential-contract` —
-        a governed document whose primary-spelling citation names a change
-        that is, on its own record, still a draft. No family fires on it: the
-        change id resolves, which is all `fam_ratified_provenance` asks of the
-        primary spelling. It is named here so that the next reader of that
-        document does not have to rediscover it, and so that whoever ratifies
-        `add-dispatch-credential-contract` knows a document is already
-        depending on the act.
+        **One flag raised — and RESOLVED on 2026-08-23, see the correction
+        below.** `docs/openxdox-naming.md` carries `Status: ratified` /
+        `Ratified by: add-dispatch-credential-contract`. When this box was
+        written that read as a governed document whose primary-spelling
+        citation names a change that is, on its own record, still a draft, and
+        it was flagged as somebody's future problem. It was not a future
+        problem and it was not somebody else's: it was the strongest single
+        piece of evidence AGAINST the derivation this box had just made, and
+        the box treated it as a downstream consequence instead of reading it
+        as a record. Under the correction below the citation names a change
+        that IS ratified, on the very date the naming record states. **The
+        flag is closed, not pending.** No family ever fired on it — the change
+        id resolves, which is all `fam_ratified_provenance` asks of the
+        primary spelling — so nothing in the census moves either way; what
+        changes is that the document is no longer depending on an act that
+        had not happened.
 
         Nothing stopped and reported in this box. All three records supported
         a status; the one that could not support `ratified` supported `draft`,
         which is a derivation and not a fallback.
+
+        ---
+
+        **CORRECTION, 2026-08-23 (appended, nothing above struck): the
+        `add-dispatch-credential-contract` derivation was WRONG, and the
+        paragraph that argued for it was false at the sentence level.**
+        Slice 5A's read-back is left standing verbatim above because the
+        append discipline this change enforces on other people's records
+        applies first to its own; what follows is the correction, not a
+        rewrite.
+
+        An adversarial review of the slice demonstrated that the hunt missed
+        the record. The claim "everything the record carries points AWAY from
+        ratified" was false. What the review found, none of which the slice
+        looked at:
+
+        - **PR `#168`**, merged **2026-08-13T18:46:52Z** (merge commit
+          `4e4190c` — the SAME commit the slice cited as the authoring commit
+          for "the add-dispatch-credential-contract **draft**"), whose body
+          states in bold: "**Merging this ratifies the openXdox naming
+          record** (`draft` to `ratified`, its task 1.2)". The slice read the
+          commit and did not read the pull request that landed it.
+        - **This change's own task 1.2 is TICKED** — "Ratify the openXdox
+          naming on approval" — which is the act that PR body says merging
+          performs. A ticked task conditioned on approval is a record that the
+          approval happened.
+        - **`docs/openxdox-naming.md` line 11**: "Ratified by
+          `add-dispatch-credential-contract` (2026-08-13) … landing that
+          change is its lifecycle ratification." The slice READ this document
+          — it is the flag raised in the paragraph above — and treated it as a
+          dangling dependency rather than as the sentence that says what the
+          landing means.
+        - **Realization PRs `#171` (merged 2026-08-13) and `#172` (merged
+          2026-08-14)** are on `main`. Realization of an unratified contract
+          change is not a thing this corpus does.
+
+        **The one ground the slice did cite is not evidence at all (review
+        S1).** The box argued that "its own task 4.2 lists ratification as a
+        step still ahead ('current through ratification, realization, and
+        archive')". That sentence is house boilerplate for a README-currency
+        task, and the SAME slice, in the SAME box, ruled
+        `add-ideation-intent-plane` **ratified** while its task 5.2 carries
+        the identical unticked line ("Keep the README 'OpenSpec Records' entry
+        current through ratification, realization, and archive"). A ground
+        that the slice itself treated as non-evidence one document earlier
+        cannot carry a derivation one document later. Four further archived
+        changes carry the same sentence, ticked at archive with a realization
+        summary — `2026-07-29-add-ideation-dashboard`,
+        `2026-08-04-add-ideation-cross-reference-readiness`,
+        `2026-08-04-add-possibles-derivation-lane` and
+        `2026-08-06-add-proposal-origin-contract`. All four are themselves
+        headerless and belong to 5C's backfill population, so they are cited
+        for what they DO show and nothing more: the sentence is a
+        README-currency chore whose lifetime spans the whole change, not a
+        marker that ratification is still ahead.
+
+        **Superseded by Brett's ruling (2026-08-23, in-session).** The landing
+        of PR `#168` WAS the approval act this change's own task 1.2
+        conditioned on, so `add-dispatch-credential-contract` is **ratified
+        2026-08-13**. `proposal.md` now reads `Status: ratified` with a
+        record-citing `Ratified:` line at real line 5 — the record-citing
+        spelling because no approving OpenSpec change exists to name — citing
+        all four record points above and stating plainly that the value was
+        first derived `draft` by slice 5A on an incomplete hunt and corrected
+        under this ruling. Measured through the real helpers: the line clears
+        the three-way floor on **all three axes** (approver `by Brett Heap`,
+        date `2026-08-13`, resolvable record path `docs/openxdox-naming.md`),
+        it is the document's only citation line, and it sits at real line 5,
+        inside `corpus.STATUS_SCAN_LINES`.
+
+        **The census does not move.** A `draft` proposal with no citation
+        emits nothing from either ruled family, and a `ratified` proposal with
+        a floor-clearing citation emits nothing either. The correction
+        therefore adds one ratified-and-cited document to the scan set and
+        zero findings to the count — which is worth stating, because "no
+        finding moved" is exactly what let the wrong value sit unchallenged in
+        the first place. A gate cannot catch a derivation error; only a reader
+        can, and one did.
+
+        **Two further corrections to the 5A commit message, which is pushed
+        and therefore cannot be edited (review S2, N3).** They are recorded
+        here because this read-back is the record that can be appended to:
+
+        - The commit message states "all thirteen report exactly one citation
+          line via `families._header_lines`". **That was false when it was
+          written — twelve did.** `add-dispatch-credential-contract` was
+          given `Status: draft` and no citation, so it reported ZERO. The
+          verification was run and its result was over-reported by one.
+          **After this fix all thirteen genuinely do**, re-measured through
+          `families._header_lines` over the same thirteen documents:
+          13/13 exactly one, every citation inside the window (real line 5 on
+          eleven, line 6 on the three review records, line 9 on
+          `add-wallet-carried-review-authority`).
+        - The commit message states "both pairs stay standing" of the
+          `Ratifier:`/`Decision date:` pairs left untouched by 5A.2. There are
+          **three** such records and therefore three pairs, which is what the
+          5A.2 read-back above says correctly ("stay exactly as written on all
+          three"). The commit message undercounts; the tree is right.
   - [x] 5A.4 The 1 free-form status
         (`add-wallet-carried-review-authority/proposal.md`, whose `Status:`
         value at real line 7 runs on into a ratification clause): split the
@@ -502,7 +703,8 @@ tree green; the count in the slice title is the findings it clears.
         arithmetic §5's recount warns about for the 47 backfills. Both lines
         landed in one edit; re-measured, the document emits nothing from
         either family.
-- [ ] **5B — the 11 archived respells (clears 11C).** Same prefix respell as
+- [ ] **5B — the respells: 12 live CRITICALs plus the 16 latent self-citers
+      (28 documents; clears 12C).** Same prefix respell as
       5A.1, same verbatim content, plus the discipline archived records take.
       Blocked on 5A only in the sense that the shape should be settled first.
       The eleven: `2026-07-30-add-ontology-stewardship-hardening`,
@@ -527,11 +729,57 @@ tree green; the count in the slice title is the findings it clears.
       review-record line, each under 5B.2's in-place-overwrite discipline with
       5B.3's travelling bookkeeping note, and 5B.4's register entry should
       account for twelve rather than eleven.
+
+      **GROWN BY OQ-4's RULED EXTENSION (2026-08-23): the 16 self-citing
+      `Ratified by:` lines join this slice.** The slice-5A adversarial review
+      found 16 documents whose `Ratified by:` line names the document's OWN
+      change id and so passes `fam_ratified_provenance` by self-reference. A
+      change is not its own approving change; the lines are substantively
+      record-citing, and Brett ruled them the same class with the same remedy.
+      The enumeration and its measured boundary are in proposal.md's OQ-4
+      RULED-extension note. Split: **1 ACTIVE**
+      (`add-hermes-customer-subject-runtime-contract`, which takes no archive
+      discipline) and **15 archived** (`2026-07-23-add-hermes-domain-overlay-contract`,
+      `2026-07-23-adopt-subject-tenant-domain-vocabulary`,
+      `2026-07-24-add-client-layer-tuning-contracts`,
+      `2026-07-24-add-hermes-domain-content-manifest`,
+      `2026-07-24-add-omnigent-domain-overlay`,
+      `2026-07-29-add-crystallizer-contracts`, `2026-07-29-add-pattern-ledger`,
+      `2026-07-30-add-capability-steward`,
+      `2026-07-30-add-deployment-handoff-boundary`,
+      `2026-07-30-add-domain-ontology-layer`,
+      `2026-08-01-add-dashboard-repo-selector`,
+      `2026-08-01-add-workbench-branch-sessions`,
+      `2026-08-05-add-neutrality-drift-lane`,
+      `2026-08-05-adopt-neutral-tooling-home`,
+      `2026-08-06-add-consent-instrument`).
+
+      **These 16 are LATENT, and 5B must say so at its own tick.** They fire
+      NOTHING today — the family accepts them — so their respell **clears no
+      finding**, does not move 5D.1's census by one, and is not what makes
+      5D.2 read zero. It is a corrective edit made because the ruling says the
+      spelling is wrong, not a discharge. A tick that reports "28 documents,
+      28 discharges" would be the same overstatement this whole change exists
+      to make impossible.
+
+      **The counts this slice now owes**, kept apart on purpose:
+      documents edited **28** (12 finding-driven + 16 corrective);
+      findings cleared **12 CRITICAL** (11 archived respells + 1 archived
+      review record); archived records touched **27** (12 + 15), which is what
+      5B.4's register entry accounts for; active records touched **1**
+      (`add-hermes-customer-subject-runtime-contract`).
   - [ ] 5B.1 For each of the eleven, name the record that justifies its line
         — the line's own approver-and-date is the substance, and the task is
         to say where that came from. Eleven justifications, not one block
         ruling: OQ-4 rejected the block form on the grounds that it records a
-        class decision rather than per-record backing.
+        class decision rather than per-record backing. **Extended to 28**
+        (2026-08-23): the twelfth live document (5A.2's handed-over archived
+        review record) and each of the 16 self-citers take the same per-record
+        justification. The block form stays rejected for them too — a self-
+        citer's line names an approver and a date on its own face, and the
+        task is to say which record that approver-and-date came from, one
+        document at a time. Record each justification the way 5A.1 did, in
+        each change's OWN `tasks.md`, per the review's S3 adjudication.
   - [ ] 5B.2 Each respell is an **in-place overwrite and an extension of
         Brett's 2026-08-10 append ruling, named as one**, for the mechanical
         reason B1 states: `doc_health.corpus.STATUS_RE` is
@@ -548,6 +796,15 @@ tree green; the count in the slice title is the findings it clears.
         per-record justifications. The register is where archived-record
         edits are accounted for; eleven of them going unrecorded there would
         be the same defect the register exists to report.
+        **Scope revised 2026-08-23: the entry accounts for 27 archived
+        records, not eleven** — the 11 archived respells, the 1 archived
+        review record 5A.2 handed over, and the 15 archived self-citers from
+        OQ-4's extension. It must distinguish the two grounds plainly: 12 were
+        live CRITICAL findings and 15 were latent lines that no family
+        reported, corrected because the ruling says the spelling is wrong. The
+        active self-citer
+        (`add-hermes-customer-subject-runtime-contract`) is NOT a register
+        entry — it is a live document and no archive rule is engaged.
 - [ ] **5C — the 44 archived backfills (clears 44E). The long pole.** Do not
       start this before 5A and 5B have settled the two edit shapes. Expect
       per-record research, not mechanical application.
@@ -602,9 +859,44 @@ tree green; the count in the slice title is the findings it clears.
         C2's per-record FINDINGS standing word for word. C2's execution table
         is evidence, not a decision, and the append discipline protects it.
 - [ ] **5D — re-measure to zero, then release §2.**
+
+      **THE ZERO GATE IS A MOVING TARGET, and the campaign must be planned
+      around that rather than surprised by it (review S5, 2026-08-23).** The
+      scan set is `openspec/changes/**` — the busiest directory in the
+      repository — so every session that lands a new change adds a document to
+      the set, and a new proposal authored without a `Status:` header adds a
+      `status-validity` ERROR the moment it merges. This is not hypothetical
+      and it is not a forecast: it happened DURING 5A. Two headerless ACTIVE
+      proposals landed on `main` from another session's MedxChart/MedxPractice
+      boundary work while 5A was in flight —
+      `openspec/changes/create-medxchart-overlay-boundary/proposal.md` and
+      `openspec/changes/create-medxpractice-overlay-boundary/proposal.md` —
+      and merging `origin/main` into this branch carried both in. 5A's
+      read-back had just recorded ZERO findings left on any active document;
+      the merge made that two. **Neither file is edited by this change.** They
+      are another session's in-flight work, they are `status-validity`
+      stragglers of exactly the shape 5D exists to catch, and editing another
+      session's uncommitted-in-spirit packet to make a gate green is the
+      wrong remedy for the right finding.
+
+      Three consequences, stated so nobody re-derives them at the gate:
+      **(1)** every census in this file is a measurement with a timestamp, not
+      a standing fact — 68 at proposal, 69 at 5A's start, 56 at 5A's close, 58
+      after the merge; **(2)** 5D.1's re-measure at enforcement time is the
+      number that BINDS, and it is the only one §4.3 checks against; **(3)**
+      discharging whatever stragglers exist at that moment belongs to whoever
+      lands §2, not to 5A/5B/5C — the discharge slices own the population they
+      enumerated, and the enforcement slice owns the delta. The durable fix is
+      the enforcement itself: once §2 lands, a headerless proposal is a red
+      gate on the PR that writes it, which is the whole point.
   - [ ] 5D.1 Re-run the scan-set measurement after 5A–5C and record the
         resulting counts in this file. The number §4.3 checks against is
         whatever this task measures, not whatever the proposal predicted.
+        Re-measure the ACTIVE stragglers too, by name, and discharge whatever
+        the set has accumulated since 5A/5B/5C closed — see 5D's moving-target
+        note. As of the 2026-08-23 merge of `origin/main` that is the two
+        MedxChart/MedxPractice proposals, and the honest expectation is that
+        it will be a different list by the time §2 is ready.
   - [ ] 5D.2 **The merge gate, stated as a number: the scoped scan over
         `openspec/changes/**/proposal.md` + `openspec/changes/**/review/*.md`
         MUST report ZERO CRITICAL and ZERO ERROR across all four ruled

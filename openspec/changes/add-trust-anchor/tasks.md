@@ -56,6 +56,13 @@ ratification, which it must precede (design D7).
       set the front-matter `Status:` to `ratified` with `Ratified by:`.
       Ratification authorizes exactly one Speckit contract feature and
       creates no authority, anchor, key, or runtime.
+      **Respelled 2026-08-23** by `govern-openspec-corpus-membership` slice
+      5A.1 under OQ-4's ruling: real line 5's prefix became `Ratified:`, the
+      bytes after the colon carried verbatim, because the line names an
+      approver and a date rather than an approving OpenSpec change. The record
+      that justifies it is Brett Heap's 2026-08-21 in-session ruling, quoted on
+      the line itself — "ratify both proposals" — with OQ1 and OQ2 both ruled
+      as recommended, which is what 3.1 above records.
 
 ## 4. Settle before the schema is authored
 

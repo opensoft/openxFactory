@@ -475,3 +475,13 @@ Each is a separate reviewed change. None is authorized by this ratification.
       pin's digest source; it is a defect in the released bundle's records,
       belongs to openxFactory, and this change deliberately does not edit a
       released bundle to seed a repository.
+
+## Ratification-citation respell (2026-08-23)
+
+- `proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by
+  `govern-openspec-corpus-membership` slice 5A.1, under OQ-4's 2026-08-23
+  ruling — prefix only, the bytes after the colon carried verbatim. The record
+  that justifies the line is the same 2026-08-21 session instruction that
+  justifies its sibling, quoted on this change's own line in its own words:
+  "do both install repos", following Brett Heap's same-day rulings on
+  install-repository naming and on the identity/PKI workstream as a whole.

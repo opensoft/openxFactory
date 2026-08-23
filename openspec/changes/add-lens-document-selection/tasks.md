@@ -50,3 +50,15 @@
       signatures (largest 17)", hover lighting dot + grid row + table row,
       and a real drafted fragment with 9 unwritten sections. Zero page
       errors.
+
+## Ratification-citation respell (2026-08-23)
+
+- `proposal.md` real line 5 was respelled `Ratified by:` to `Ratified:` by
+  `govern-openspec-corpus-membership` slice 5A.1, under OQ-4's 2026-08-23
+  ruling — prefix only, the bytes after the colon carried verbatim. The record
+  that justifies the line is Brett's three annotations of 2026-08-08, all three
+  quoted on the line itself — the unreadable relationship tiles and their
+  unlabelled count, "this is taking up too much space. what value does it
+  bring?", and "when I hover on one of these documents, the corresponding dot
+  should light up. I should have a checkbox on each one to generate the seed
+  from checked".
