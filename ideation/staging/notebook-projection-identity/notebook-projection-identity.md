@@ -370,8 +370,9 @@ Added-by: Claude Opus 4.8 (session, Brett's direction) · 2026-08-15
 
 ### Q3. Does the share-out roster consume the in-flight `add-client-identity-roster` proposal?
 
-Context: `add-client-identity-roster` (ratified 2026-08-14,
-`openspec/changes/add-client-identity-roster/`) governs identities standing
+Context: `add-client-identity-roster` (ratified 2026-08-14; then active at
+`openspec/changes/add-client-identity-roster/`, archived since — the live
+path is in the correction below) governs identities standing
 in a PAYING CLIENT's tenant — app registrations and service principals on
 a declared admission surface (Business Central, Exchange, and so on), keyed
 on `(domain, surface, class, blast-radius unit, duty)`, with verified
