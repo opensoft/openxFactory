@@ -48,6 +48,11 @@ four call sites — which is also, honestly, its risk: a fifth family added
 later will read `ctx.docs` alone unless somebody remembers. §3 of tasks makes
 that a test rather than a memory.
 
+**RULED (2026-08-23, Brett, in-session multiple choice): this decision is adopted — a second path set, `GOVERNED_ROOTS` unchanged (OQ-1).** Worth
+recording that the measurement did the work here rather than the argument:
+Brett's first lean was the wider root, and the three bullets above are what
+moved him. See proposal.md for the full ruling.
+
 ## Decision 2 — globs, not a directory
 
 **Chosen:** `openspec/changes/**/proposal.md` and
@@ -82,6 +87,11 @@ is not "OpenSpec is governance prose". It is "a proposal's lifecycle header
 is a lifecycle header". A glob says that; a directory says something larger
 that the measurement does not support.
 
+**RULED (2026-08-23, Brett, in-session multiple choice): this decision is adopted, unopposed in prose — the two globs, declared as a pattern set (OQ-2).** The glob-not-directory boundary is the claim, so tasks §3.6
+mutation-pins it structurally: flipping the set to bare `("openspec",)` must
+fail §3.1, and the assertion is on the declared pattern set rather than only
+on the resulting counts, because a count can pass for the wrong set.
+
 ## Decision 3 — four families, chosen by measurement rather than by category
 
 **Chosen:** `status-validity`, `standard-backing`, `ratified-provenance`,
@@ -105,6 +115,20 @@ contradicts the governing discipline would put the two rules in a race the
 first time an archived record is legitimately amended. That is a ruling to
 take deliberately (OQ-6's neighbour), not a freebie to collect because the
 count happens to be zero.
+
+**RULED (2026-08-23, Brett, in-session multiple choice): this decision is adopted, unopposed in prose — the four families read the set (OQ-3).** The
+`record-immutability` exclusion changed character on the same day and is
+recorded here because the paragraph above now understates it. When it was
+written, the race between the family's "revert the content edit" remedy and
+the register's append discipline was hypothetical — zero fires, a hazard
+argued from principle. OQ-6's ruling makes it certain: the campaign edits
+**up to 56 archived records** (11 proposal respells + 44 proposal backfills
+less whatever stops and reports + 1
+archived review record), each an in-place overwrite named as an extension of
+the 2026-08-10 append ruling — and every one of them is a document IN the
+scan set, because the scan set is what the campaign is discharging. A family
+whose remedy is "revert the content edit" would fire on the discharge
+campaign itself. Left out on a zero count; kept out on a measured collision.
 
 `standard-backing` fires zero times over the set and is included anyway,
 because its absence would be the asymmetry: a proposal claiming

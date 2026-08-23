@@ -20,12 +20,21 @@ rule; inventing a third spelling for documents whose whole subject is
 ratification would undo the single-rule result the two-spelling sanction
 reached.
 
-The pre-existing population is a matter of enforcement severity, not of the
-rule: a packet authored before this requirement's contract date and never
-migrated is reported at a reduced severity naming it as pre-contract legacy,
-in the same shape the proposal-origin contract already uses for packets
-predating its own date. Backfilling a header onto an archived packet is an
+The pre-existing population SHALL be discharged rather than grandfathered:
+this requirement defines NO contract date and NO reduced-severity legacy
+class, so a packet carrying no `Status:` header is a current violation
+whenever it was authored. Backfilling a header onto an archived packet is an
 archived-record edit and takes the route archived-record edits take.
+
+Deriving a header is nevertheless authoring, not correcting, and the rule is
+bounded accordingly: a `Status:` value and, where that value is `ratified`,
+its citation SHALL be derived from the packet's own record — its origin
+declaration, its ratification or archive commit, its own task record, or the
+index row that announced it. Where the record supports neither, the document
+SHALL be reported by name, stating what its record does and does not carry,
+and SHALL NOT be given a header the record does not support. A packet whose
+own archive record states a decision against carrying a status value keeps
+that decision; overturning it takes a ruling naming it, not a backfill pass.
 
 #### Scenario: A proposal declares its standing
 - **WHEN** a change packet's `proposal.md` is authored or amended
@@ -37,10 +46,16 @@ archived-record edit and takes the route archived-record edits take.
 - **THEN** it MUST carry `Status: ratified` and one ratification citation in a sanctioned spelling
 - **AND** a `Ratifier:` or `Decision date:` header MAY accompany the citation but MUST NOT stand in place of it
 
-#### Scenario: A packet predates the contract date
-- **WHEN** a proposal packet authored before this requirement's contract date carries no `Status:` header
-- **THEN** it MUST be reported as pre-contract legacy at a reduced severity rather than as a current violation
-- **AND** the reduced severity MUST NOT be extended to a packet authored after that date
+#### Scenario: A pre-existing packet carries no header
+- **WHEN** a proposal packet authored at any date carries no `Status:` header
+- **THEN** it MUST be reported as a current violation at full severity, because this requirement defines no contract date and no pre-contract legacy class
+- **AND** the remedy MUST be a header derived from that packet's own record, not a reduced severity that leaves the claim unmade
+
+#### Scenario: A record cannot support a derived header
+- **WHEN** a packet's own record supports neither a `Status:` value nor, for a `ratified` value, a citation clearing the ratification floor
+- **THEN** the document MUST be reported by name together with what its record does and does not carry
+- **AND** a header the record does not support MUST NOT be written, because an invented provenance is a worse defect than the missing one it hides
+- **AND** where the packet's archive record states a decision against carrying a status value, that decision stands until a ruling names it
 
 #### Scenario: A packet working file carries no lifecycle header
 - **WHEN** a change packet's `tasks.md`, `design.md`, spec delta, supporting document, or evidence file carries no `Status:` header

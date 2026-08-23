@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (`scripts/doc_health/corpus.py` — a SECOND path set beside `GOVERNED_ROOTS`, named `LIFECYCLE_SCAN` and built by explicit glob rather than by directory, plus the loader that turns it into a second document list; `scripts/doc_health/runner.py` — `Context` gains one field carrying that list, and the four lifecycle-conformance families read it in addition to `ctx.docs`; `scripts/doc_health/families.py` — `fam_status_validity`, `fam_standard_backing`, `fam_ratified_provenance` and `fam_succession_integrity` iterate the union rather than `ctx.docs` alone, and nothing else in the module changes; `tests/doc-health/` — positive and negative cases for the set's membership, for each of the four families over it, for the exclusion of the other twelve, and for the invariant that `ctx.docs`, the per-stage census, the canon-share headline, the shared inventory and the catalog are byte-identical before and after, mutation-validated. `docs/document-lifecycle.md` is prose rather than runtime code, but it is the text the status rule implements and any ruling that makes proposal packets governance documents lands in the same slice.)
 target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed. The archive gate is therefore merge-plus-green on main, full stop — `python3 -m pytest tests/doc-health` and `tests/ideation-dashboard -k workbench` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly the amount this proposal predicts and in no other line. The bare `implementation_pending` token is deliberately NOT used: `docs/archive-record-discrepancies.md` C1 records that it is a house token the realization axis does not define, and Brett's 2026-08-22 ruling rewrote four archived proposals off it.
-Status: draft
+Status: ratified
+Ratified: 2026-08-23 by Brett Heap — in-session, multiple-choice ruling round over all six Open Questions; OQ-1, OQ-2, OQ-3 and OQ-5 adopt the recommendation, OQ-4 and OQ-6 DEPART from it and rule the wider campaign in both cases; the round is recorded question by question in the Open Questions section of openspec/changes/govern-openspec-corpus-membership/proposal.md, which is this file. No approving OpenSpec change exists to name, so this cites the record in the spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and it clears that spelling's three-way floor on all three axes rather than on the one it needs: approver (`by Brett Heap`), date (`2026-08-23`), and a resolvable record path.
 Proposed: 2026-08-23
 ---
 
@@ -129,7 +130,7 @@ are pinned invariants that full membership contradicts outright:
 headline to buy 20 findings' worth of enforcement, and at least five of the
 new fires are demonstrably wrong.** It is not the honest option.
 
-### Option (b) — a scoped lifecycle scan set — RECOMMENDED
+### Option (b) — a scoped lifecycle scan set — RECOMMENDED, AND RULED 2026-08-23
 
 A second path set beside `GOVERNED_ROOTS`, read only by the
 lifecycle-conformance families. `ctx.docs` never changes, so the per-stage
@@ -139,7 +140,10 @@ its corpus-shape distortion came from.
 
 The set is `openspec/changes/**/proposal.md` plus
 `openspec/changes/**/review/*.md` — **118 documents, not all 663**. Measured
-over that set:
+over that set (119 once this change's own `proposal.md` exists; it carries a
+valid header and a floor-clearing citation, so it adds a document to the set
+and no finding to the count — re-verified after ratification, both family
+tallies below are unchanged):
 
 | family | fires | severity |
 | --- | --- | --- |
@@ -186,7 +190,9 @@ code — a second rule beside the first, which is the exact hazard
 ## What Changes
 
 The recommendation is **option (b)**, at the scan set and family set the
-measurement picked.
+measurement picked. **RULED as recommended on 2026-08-23** — see Open
+Questions for the round in full, and items 5 and 6 below for the two places
+where the ruling went WIDER than this section first proposed.
 
 1. **`openspec/` does NOT join `GOVERNED_ROOTS`.** Corpus membership stays as
    it is, and the decision is recorded rather than left implicit — the
@@ -208,12 +214,32 @@ measurement picked.
    `review/` ratification records are governance documents** subject to the
    controlled `Status:` taxonomy and to the ratification-citation rule. That
    is what makes the 48 `status-validity` fires legitimate rather than
-   arbitrary, and it is the sentence Brett is actually being asked to ratify.
-   The rest of the packet — `tasks.md`, `design.md`, spec deltas,
+   arbitrary, and it was the sentence Brett was actually being asked to
+   ratify. He did, on 2026-08-23. The rest of the packet — `tasks.md`, `design.md`, spec deltas,
    `supporting-docs/`, `evidence/` — is deliberately NOT ruled here.
-5. **The 68 standing violations are sequenced before the code lands**, not
-   after. A gate that goes red on the commit that introduces it teaches
-   people to skip the gate.
+5. **All 68 standing violations are DISCHARGED before the code lands**, not
+   after and not grandfathered. A gate that goes red on the commit that
+   introduces it teaches people to skip the gate. This is the first of the
+   two places the 2026-08-23 ruling went wider than the draft: the draft
+   recommended discharging 24 by hand and reducing the other 44 to a
+   `pre-contract legacy` severity class (OQ-6's recommendation), and the
+   ruling took the backfill instead. There is therefore **no reduced-severity
+   class in this change at all** — no contract date to set, no legacy rule
+   string to write, and no residual backlog left visible-but-unfixed. The
+   measured target at §2's merge is **zero CRITICAL and zero ERROR from the
+   scoped scan**, with the whole-repo report standing at its unchanged
+   baseline of 4 critical / 6 error / 68 warning / 4 info.
+6. **Every one of the 17 record-citing `Ratified by:` lines is respelled**,
+   active and archived alike, each justified from its own record. This is the
+   second widening: the draft recommended rewriting the 6 active ones in
+   place and covering the 11 archived ones with a single block ruling
+   (OQ-4's recommendation), and the ruling requires the same per-record
+   justification for all 17, with the archived eleven carrying the
+   bookkeeping note the register's append discipline requires. The respell is
+   a **prefix change only** — `Ratified by:` becomes `Ratified:` and the
+   content after the colon is carried verbatim — because each of these lines
+   is already substantively sound and merely spelled under the rule that does
+   not fit it.
 
 ## Impact
 
@@ -223,12 +249,20 @@ measurement picked.
 - Affected code: `scripts/doc_health/{corpus,runner,families}.py`,
   `tests/doc-health/`. No contract schema, no digest set, no release tag.
 - Affected docs: `docs/document-lifecycle.md` § Status Claim Rules, README
-  Active row.
+  Active row, and — added by the 2026-08-23 ruling —
+  `docs/archive-record-discrepancies.md`, which gains an entry for the 11
+  archived respells and a successor entry to C2 for the 44 archived
+  backfills. Up to 56 archived records are edited by this change's §5 (11
+  proposal respells, 44 proposal backfills less whatever stops and reports,
+  1 archived review record), and the register is where archived-record edits
+  are accounted for.
 - Nightly: the canon-share metric does not move. Under option (a) it would
   fall 12.2 points on the six-repo aggregation, which would read as a corpus
   collapse and would be an artifact of the measurement changing.
-- New standing findings on the day the code lands: 20 critical + 48 error,
-  unless §5 of tasks discharges them first, which is what §5 is for.
+- New standing findings on the day the code lands: **zero.** The scan set
+  carries 20 critical + 48 error today, and under the 2026-08-23 ruling §5 of
+  tasks discharges all 68 before §2 may merge. That is what §5 is for, and it
+  is now the whole of §5 rather than most of it.
 
 ## Open Questions
 
@@ -236,6 +270,15 @@ measurement picked.
 (a) full membership costs 573 findings, 13 canon-share points and 123 test
 failures, and fires falsely at least five times. (c) test-only costs the same
 68 dispositions with no severity, no class and no disposition route.
+
+**RULED (2026-08-23, Brett, in-session multiple choice): recommendation adopted — (b), the scoped lifecycle scan set.** Recorded honestly because the
+route to the answer is part of the record: Brett's first lean was **(a), full
+membership** — the larger, simpler claim — and he moved to (b) after reading
+the measured costs, specifically the 121-of-123 `duplicate inventory key`
+collision and the 12.2-point fall in the six-repo canon-share headline he
+watches nightly. The measurement changed the ruling; that is what it was taken
+for, and a ruling that merely confirmed a prior lean would be weaker evidence
+that the numbers were read.
 
 **OQ-2 — What exactly is in the scan set?** RECOMMENDED:
 `openspec/changes/**/proposal.md` + `openspec/changes/**/review/*.md`, 118
@@ -246,6 +289,11 @@ record a ratification); or the whole of `openspec/` (663 documents — adds 488
 "missing status header" errors on working files and reintroduces the
 source-snapshot and grammar-marker false positives).
 
+**RULED (2026-08-23, Brett, in-session multiple choice): recommendation adopted, unopposed in prose — the scan set is the two globs, `openspec/changes/**/proposal.md` and `openspec/changes/**/review/*.md`.** Neither alternative
+was argued for. The set is declared as a pattern pair and not as a directory,
+which is the claim design.md Decision 2 makes and the boundary tasks §3.6
+mutation-pins.
+
 **OQ-3 — Which families read it?** RECOMMENDED: the four lifecycle-conformance
 families — `status-validity`, `standard-backing`, `ratified-provenance`,
 `succession-integrity`. Explicitly out: `location-conformance` and
@@ -253,6 +301,13 @@ families — `status-validity`, `standard-backing`, `ratified-provenance`,
 `record-immutability` (its meaning over an archived packet is genuinely
 unsettled — see OQ-6), and every census, word-count, canon-share, inventory
 and catalog consumer.
+
+**RULED (2026-08-23, Brett, in-session multiple choice): recommendation adopted, unopposed in prose — four families read the set: `status-validity`, `standard-backing`, `ratified-provenance`, `succession-integrity`.** The
+exclusions stand as written, `record-immutability` included: OQ-6's ruling
+requires 44 archived proposals to be edited, which is precisely the traffic
+that would put the family's "revert the content edit" remedy against the
+register's append discipline. Leaving it out was a hedge when this section
+was drafted; after OQ-6 it is load-bearing.
 
 **OQ-4 — The 17 `Ratified by:` lines that cite a record, not a change.**
 These are the largest single block of new criticals, and they are the case
@@ -269,6 +324,39 @@ back to the three-way floor (cheap, but it erases the spelling distinction
 `sanction-ratified-record-spelling` was ratified to draw); or disposition the
 17 as a closed legacy set.
 
+**RULED (2026-08-23, Brett, in-session multiple choice): the recommendation was NOT adopted. Rewrite ALL 17 — 11 archived and 6 active — to the same standard.** The recommendation above is kept verbatim as history, and what
+replaces it is this:
+
+- **The edit is a prefix respell.** `Ratified by:` becomes `Ratified:` and
+  everything after the colon is carried **verbatim**. Nothing is rephrased,
+  nothing is added, nothing is dropped. Each of these lines already names an
+  approver and a date, so each already clears the record-citing spelling's
+  three-way floor on the day it is respelled; the defect being fixed is the
+  spelling and only the spelling.
+- **Each line is justified from its own record, all 17.** The recommendation
+  would have covered the archived eleven with one block ruling. It is
+  rejected because a block ruling records that a class was decided and not
+  that any individual record supports its own line — and the one thing this
+  whole change exists to make checkable is whether a document's citation is
+  backed by something. Seventeen one-record justifications cost more and
+  prove more.
+- **The archived eleven travel under the B1/B2 append-correction
+  discipline** (`docs/archive-record-discrepancies.md`, B1 and the C7
+  execution note). A respell on a single-valued header cannot be an append
+  for the mechanical reason B1 states, so each is an **in-place overwrite and
+  an extension of Brett's 2026-08-10 append ruling, named as one**, and each
+  carries a bookkeeping note that preserves the original line verbatim and
+  travels with the change it corrects.
+- **Boundary, measured rather than assumed.** The ruled set is the 17 the
+  family fires on. A LATENT eighteenth exists and is deliberately outside it:
+  `add-identity-brokering`'s `Ratified by:` line is substantively
+  record-citing too, but it happens to name a path
+  (`review/co-residence-finding-2026-08-21.md`) that resolves, so
+  `fam_ratified_provenance`'s primary-spelling branch accepts it and it emits
+  no finding. It is named here so a later reader who counts 18 by eye knows
+  the 17 is the enforced set and not an arithmetic slip. Respelling it is not
+  ruled.
+
 **OQ-5 — The three `review/ratification-*.md` records use a THIRD vocabulary.**
 They carry `Ratifier:` and `Decision date:` headers — better provenance than
 most of the corpus, in a spelling no rule knows. RECOMMENDED: add a
@@ -278,6 +366,14 @@ this is one line and invents nothing). Alternative: sanction `Ratifier:` +
 `sanction-ratified-record-spelling` closed six weeks ago. Alternative:
 exclude `review/` from the set, which costs the three fires OQ-2 exists to
 keep.
+
+**RULED (2026-08-23, Brett, in-session multiple choice): recommendation adopted — add a conforming `Ratified:` line to each of the three.** No third
+spelling enters the rule. `Ratifier:` and `Decision date:` stay on the page
+and keep saying what they say; they simply stop being the only thing that
+says it. Each of the three already names its ratifier and its decision date,
+so the conforming line is derived from the document's own headers and invents
+nothing — which is the whole reason this one was cheap enough to rule as
+recommended while OQ-4 and OQ-6 were not.
 
 **OQ-6 — The 47 proposals with no `Status:` header at all** (44 archived, 3
 active) are the whole of the `status-validity` cost bar one free-form value.
@@ -290,6 +386,58 @@ each needing the register's route — a large ruling round for a mechanical
 gain); or rule that a headerless archived proposal is legal, which would mean
 `document-lifecycle`'s "Every governance document SHALL carry a `Status:`
 header" does not reach proposals, and OQ-1's whole premise with it.
+
+**RULED (2026-08-23, Brett, in-session multiple choice): the recommendation was NOT adopted. Backfill ALL 47 — 44 archived and 3 active. No grandfather, no contract date, no reduced-severity class.** The recommendation above is kept
+verbatim as history. What replaces it:
+
+- **Every headerless proposal gets a `Status:` header derived from its own
+  record**, in the same per-record way OQ-4 requires of the respells. The
+  derivation sources are the ones the register already hunts: the packet's
+  `.openspec.yaml`, the archive and ratification commits, the change's own
+  `tasks.md`, the README row.
+- **Where the derived status is `ratified`, a floor-satisfying citation is
+  written in the SAME edit.** This is not an optional extra: the promoted
+  rule holds that a bare, uncited `Status: ratified` is a violation whatever
+  else the document says, so backfilling a status alone would convert a
+  `status-validity` ERROR into a `ratified-provenance` CRITICAL and discharge
+  nothing. **Measured: not one of the 47 carries a ratification citation
+  anywhere in its file**, in either spelling, inside the header window or
+  out. So the two axes are coupled for this whole population and the backfill
+  writes up to two header lines per document, not one.
+- **Where the record genuinely cannot support a status or a citation, the
+  campaign STOPS AND REPORTS that document.** It does not invent one. The
+  anti-invented-provenance principle survives this ruling unchanged — it is
+  the principle C2 stated as "no invented provenance anywhere" and C7 as
+  "nothing was inferred, and nothing was discovered", and widening the
+  population does not weaken it. A stopped document is reported by name with
+  what its record does and does not carry; it is not silently skipped, and it
+  is not given a plausible-looking header.
+- **This ruling supersedes the class half of C2's 2026-08-22 ruling, and says
+  so.** One day earlier, C2 ruled the archived half of this same question
+  narrowly: "backfill the seven true anomalies where the records allow, and
+  only there … The
+  forty-six-wide option was not taken." The wide option is now taken. What
+  C2's execution FOUND is not superseded and is the campaign's best evidence
+  about its own difficulty: of those seven, two were backfilled, and **five
+  were examined record by record and left headerless** —
+  `add-propose-verb` (its record names no ratifier and no ratification date
+  at all), `add-staging-workbench`, `add-workbench-bullseye-and-create` and
+  `add-wheel-action-verbs` (each carries an `origin:`-nested
+  `approved_by`/`approved_on` pair that records permission to author without
+  a staging source, dated six to eleven days before archive, plus a task
+  sign-off — two near-misses, neither a ratification), and
+  `add-workbench-integrated-editor-chat`, which is stronger than
+  insufficient-evidence: its archive commit `354ded9` records a decision
+  AGAINST writing a status value, and register entry A2 verifies that
+  decision as deliberate. Those five are the first five stop-and-report
+  candidates, already adjudicated once. The remaining 39 archived documents
+  are the pre-convention population C2 explicitly left out of scope and
+  nobody has yet examined.
+- **The 3 active headerless proposals** — `add-dispatch-credential-contract`,
+  `add-ideation-intent-plane`, `add-worker-enrollment-broker` — are current
+  documents, not archived records, and take no discipline beyond deriving the
+  right value. Two of the three additionally carry no `.openspec.yaml`, which
+  is a `proposal-origin` matter and not this change's to fix.
 
 ## Non-Goals
 

@@ -305,7 +305,10 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [govern-openspec-corpus-membership](openspec/changes/govern-openspec-corpus-membership/proposal.md)
-  — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). Takes the last
+  — authored and **RATIFIED 2026-08-23** (Brett Heap, in-session
+  multiple-choice round over all six Open Questions; no approving OpenSpec
+  change exists, so the proposal carries the record-citing `Ratified:`
+  spelling). Takes the last
   unticked box of `sanction-ratified-record-spelling` (task 5.1: "`openspec/`
   joining `GOVERNED_ROOTS` — the event that makes the 15 latent lines live.
   Separate decision, much larger blast radius"). MEASURED rather than argued,
@@ -332,18 +335,30 @@ Active changes:
   and split — phase-b's uncited `ratified` header is caught by
   `ratified-provenance`, roster-device's line-41 header is invisible to it
   (`parse_status` returns `None`, so the document is not `ratified` to that
-  family) and is caught only by `status-validity`. Six open questions for
-  Brett: the option; the scan set; the family set; the 17 `Ratified by:` lines
-  that cite a record rather than a change (the case
-  `sanction-ratified-record-spelling` §5.3 parked); the three `review/`
-  records using a third `Ratifier:`/`Decision date:` vocabulary; and the 47
-  headerless proposals, where the recommendation is `proposal-origin`'s
-  existing pre-contract-legacy grandfather rather than 44 archived-record
-  edits. Deltas: `doc-health` (MODIFIED `Deterministic check families`, ADDED
+  family) and is caught only by `status-validity`. **All six open questions
+  ruled 2026-08-23**, four as recommended and two WIDER: the scoped option;
+  the two globs; the four families; and OQ-5's conforming line on the three
+  `review/` records that use a third `Ratifier:`/`Decision date:` vocabulary.
+  The two departures — **OQ-4**, rewrite ALL 17 `Ratified by:` lines that cite
+  a record rather than a change (the case `sanction-ratified-record-spelling`
+  §5.3 parked), a prefix respell to `Ratified:` with the content carried
+  verbatim and each of the 17 justified from its own record, rather than the
+  recommended 6-in-place-plus-one-block-ruling split; and **OQ-6**, backfill
+  ALL 47 headerless proposals from their own records rather than granting
+  `proposal-origin`'s pre-contract-legacy grandfather, with the campaign
+  required to STOP AND REPORT any document whose record cannot support a
+  status or citation rather than invent one. OQ-6 supersedes the class half of
+  `docs/archive-record-discrepancies.md` C2's 2026-08-22 ruling ("The
+  forty-six-wide option was not taken"), while C2's per-record findings — five
+  documents already examined and left headerless, one of them protected by a
+  recorded decision against ever carrying a status value — stand as the
+  campaign's first stop-and-report candidates. Deltas: `doc-health` (MODIFIED
+  `Deterministic check families`, ADDED
   `Governed corpus membership and the lifecycle scan set`),
   `document-lifecycle` (ADDED `Proposal packets carry the lifecycle header`).
-  Proposal only — no realization until the rulings land, and §5 of tasks
-  discharges the 68 standing violations before §2's code may merge.
+  Realization is the LAST slice, not the first: §5's campaign discharges all
+  68 standing violations to **zero critical and zero error over the scan set**
+  before §2's enforcement code may merge.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). The
   openxFactory COMPANION to Omnigent-Install's just-merged

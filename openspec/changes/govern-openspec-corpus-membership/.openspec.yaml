@@ -29,9 +29,17 @@ origin:
     PROPOSAL ONLY — no realization. Brett ratifies after reading it"), and
     behind it the standing authority of `sanction-ratified-record-spelling`
     task 5.1, which named this decision as a separate one to be taken rather
-    than as work already refused. This is approval of the AD-HOC EXCEPTION
-    ONLY. It is NOT ratification of this change: no ruling has been taken on
-    the membership question, on the scan set, on which families read it, or
-    on any of the six open questions, and `proposal.md` carries
-    `Status: draft` accordingly.
+    than as work already refused. This field is approval of the AD-HOC
+    EXCEPTION ONLY, and it stays that: the origin axis and the ratification
+    axis are separate, and this pair records that authoring the change
+    without a staging source was permitted, not that the change was
+    approved. C2 of `docs/archive-record-discrepancies.md` is explicit that
+    an `origin:`-nested `approved_by`/`approved_on` pair is not a
+    ratification record, and nothing here should be read as one.
+    Ratification followed LATER THE SAME DAY, separately and on the other
+    axis: Brett ruled all six open questions in an in-session
+    multiple-choice round on 2026-08-23 — four as recommended, OQ-4 and OQ-6
+    wider than recommended — and `proposal.md` now carries
+    `Status: ratified` with a record-citing `Ratified:` line. Its Open
+    Questions section is the record of that round.
   approved_on: 2026-08-23
