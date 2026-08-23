@@ -410,6 +410,16 @@ Active changes:
   to re-register a same-key book under a new provider id.
   `target_release: implementation_pending` — it archives only on Opensoft's own
   cutover, proven parity, and the personal-hosted books retired by recorded act.
+ - [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
+   — local topology realization completed 2026-08-23: MedxChart now owns the
+   Medx composition boundary, pins openChart at an immutable commit, and the
+   xFactory aggregate no longer tracks openChart directly. The intended
+   `opensoft/MedxChart` remote still requires a separate publication act.
+- [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
+  — local topology realization completed 2026-08-23: MedxChart now owns the
+  Medx composition boundary, pins openChart at an immutable commit, and the
+  xFactory aggregate no longer tracks openChart directly. The intended
+  `opensoft/MedxChart` remote still requires a separate publication act.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). The
   openxFactory COMPANION to Omnigent-Install's just-merged
