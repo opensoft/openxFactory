@@ -321,6 +321,62 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [govern-openspec-corpus-membership](openspec/changes/govern-openspec-corpus-membership/proposal.md)
+  — authored and **RATIFIED 2026-08-23** (Brett Heap, in-session
+  multiple-choice round over all six Open Questions; no approving OpenSpec
+  change exists, so the proposal carries the record-citing `Ratified:`
+  spelling). Takes the last
+  unticked box of `sanction-ratified-record-spelling` (task 5.1: "`openspec/`
+  joining `GOVERNED_ROOTS` — the event that makes the 15 latent lines live.
+  Separate decision, much larger blast radius"). MEASURED rather than argued,
+  in this tree at `20f3e7e`, by patching `corpus.GOVERNED_ROOTS` in memory so
+  no tracked file was ever at risk; restoration verified by a byte-identical
+  re-run. **Full membership costs 573 findings** (82 → 655; 4 → 27 critical,
+  6 → 556 error), **13.2 points of the canon-share headline** (31.3% → 18.1%
+  here, 28.9% → 16.7% across the six-repo aggregation) and **123 of 724
+  doc-health tests** — 121 of them one structural collision, `duplicate
+  inventory key` on promoted specs arriving twice, plus two pinned invariants
+  it contradicts outright. At least five of the new fires are demonstrably
+  false: `supporting-docs/source-snapshots/` byte-exact copies reported for
+  the `Status: staged` they exist to preserve (re-breaking a 2026-08-15
+  carve-out through a different family), and the change that DEFINED the
+  `xspec:` grammar reported for the illustrative markers it must carry.
+  RECOMMENDS instead a **scoped lifecycle scan set** — `openspec/changes/**/proposal.md`
+  plus `openspec/changes/**/review/*.md` (118 documents at measurement, 119
+  once this change's own proposal joins the set), read by exactly four
+  families (status validity, standard backing, ratified provenance,
+  succession integrity) and by nothing that computes a census, a word count,
+  a canon share, an inventory entry or a catalog record. Cost: **+68 findings
+  (20 critical, 48 error), zero corpus-shape movement, zero test failures.**
+  Both families are needed, not just the ratification one: the two defects the
+  last two slices fixed by hand were replayed against their real pre-fix blobs
+  and split — phase-b's uncited `ratified` header is caught by
+  `ratified-provenance`, roster-device's line-41 header is invisible to it
+  (`parse_status` returns `None`, so the document is not `ratified` to that
+  family) and is caught only by `status-validity`. **All six open questions
+  ruled 2026-08-23**, four as recommended and two WIDER: the scoped option;
+  the two globs; the four families; and OQ-5's conforming line on the three
+  `review/` records that use a third `Ratifier:`/`Decision date:` vocabulary.
+  The two departures — **OQ-4**, rewrite ALL 17 `Ratified by:` lines that cite
+  a record rather than a change (the case `sanction-ratified-record-spelling`
+  §5.3 parked), a prefix respell to `Ratified:` with the content carried
+  verbatim and each of the 17 justified from its own record, rather than the
+  recommended 6-in-place-plus-one-block-ruling split; and **OQ-6**, backfill
+  ALL 47 headerless proposals from their own records rather than granting
+  `proposal-origin`'s pre-contract-legacy grandfather, with the campaign
+  required to STOP AND REPORT any document whose record cannot support a
+  status or citation rather than invent one. OQ-6 supersedes the class half of
+  `docs/archive-record-discrepancies.md` C2's 2026-08-22 ruling ("The
+  forty-six-wide option was not taken"), while C2's per-record findings — five
+  documents already examined and left headerless, one of them protected by a
+  recorded decision against ever carrying a status value — stand as the
+  campaign's first stop-and-report candidates. Deltas: `doc-health` (MODIFIED
+  `Deterministic check families`, ADDED
+  `Governed corpus membership and the lifecycle scan set`),
+  `document-lifecycle` (ADDED `Proposal packets carry the lifecycle header`).
+  Realization is the LAST slice, not the first: §5's campaign discharges all
+  68 standing violations to **zero critical and zero error over the scan set**
+  before §2's enforcement code may merge.
 - [add-notebook-projection-identity](openspec/changes/add-notebook-projection-identity/proposal.md)
   — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The single exit
   of the staged topic `notebook-projection-identity`, raised the day its last
