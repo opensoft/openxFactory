@@ -1442,6 +1442,17 @@ Each is a named, durable item. None is discharged by
   taxonomy value covers. That last block is the one worth flagging to
   OpsxFactory first: it is a live authoring convention, not a legacy
   backlog, so it will keep producing findings until the convention changes.
+  **DISCHARGED 2026-08-24** (OpsxFactory PR #88, merged `87ca884`;
+  aggregation pin `fd60112`), under Brett's in-session adopt-and-discharge
+  ruling: OpsxFactory adopted the neutral taxonomy and citation grammar, all
+  55 findings at its tip (the population had grown 53 → 55 since this
+  entry's pinned measurement, plus a 56th found in the doing — an
+  out-of-window `Status:` line, the roster-device shape in a second repo)
+  were discharged by the established per-shape mappings with zero
+  stop-and-reports, and the convention is codified in OpsxFactory's
+  `docs/packet-lifecycle-headers.md` so the live habit stops regenerating
+  findings. The four lifecycle families read 0 CRITICAL / 0 ERROR over its
+  78-document scan set at `87ca884`.
 - **FU-DOM-CODEX — codexFactory (7 CRITICAL, 8 ERROR).** Seven unresolvable
   `Ratified by:` lines and eight missing headers, fourteen of the fifteen
   archived.
