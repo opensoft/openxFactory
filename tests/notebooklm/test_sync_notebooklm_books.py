@@ -521,6 +521,37 @@ class SessionNotebookAliasTests(unittest.TestCase):
             self.assertTrue(any(t.startswith(STAGED_DOC) for t in titles), titles)
             self.assertEqual(result.documents, (STAGED_DOC,))
 
+    def test_a_session_over_the_provider_source_cap_is_refused_before_any_mutation(self):
+        """Step 5 of the 2026-08-24 hosting migration: the session resync route
+        is deliberately unbounded (workbench finding 21 — the human-waiting
+        route completes what the bounded gate-route creation deferred), so a
+        session worktree whose derived corpus outgrew NotebookLM's per-notebook
+        source cap would be applied as a dead run — adds failing past the cap
+        mid-flight, exactly how the shared Ideation book died on 2026-08-10.
+        The lifecycle books' capacity guard therefore applies here too: refuse
+        BEFORE any mutation, name the excess, and leave every notebook
+        untouched."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _checkout, _worktree = _session_world(root)
+            fake = FakeNlm(LIFECYCLE_BOOKS)
+            adapter = wb.NotebookAdapter(fake, available=True)
+
+            oversize = [(f"docs/doc-{n}.md", _doc(f"body {n}"))
+                        for n in range(sync.NOTEBOOK_SOURCE_CAP + 1)]
+            original = sync.session_source_set
+            sync.session_source_set = lambda target: oversize
+            try:
+                result = sync.sync_session_notebook(
+                    root, "draft/demo-topic", apply=True, adapter=adapter)
+            finally:
+                sync.session_source_set = original
+
+            self.assertTrue(result.skipped, "over-cap is a refusal, not a sync")
+            self.assertIn(str(sync.NOTEBOOK_SOURCE_CAP), result.detail or "")
+            self.assertEqual(fake.created_titles(), [],
+                             "nothing may be created when the plan cannot fit")
+
     def test_the_same_branch_in_a_second_repository_gets_a_different_alias(self):
         with TemporaryDirectory() as td:
             root = Path(td)
@@ -1663,6 +1694,49 @@ class SessionSweepTests(unittest.TestCase):
                       "a session opened from a feature worktree is LIVE, and "
                       "asking only the canonical checkout would have called it "
                       "dead and retired its notebook")
+
+    def test_session_ref_sees_a_session_opened_from_a_feature_worktree(self):
+        """F3, migration evidence 2026-08-24: the single-branch path never got
+        the sweep's every-worktree enumeration, so `--session-ref` refused the
+        two LIVE draft/* sessions the sweep could see — their session notebooks
+        stayed hosted on the account being abandoned, exactly what runbook
+        step 5 warns about. Same harness as the sweep's near-miss test above,
+        asserted at the level that broke: `live_session_targets` over a real
+        repository whose session was opened from a feature worktree."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            canonical = root / "openxFactory"
+            canonical.mkdir()
+
+            def git(*args, cwd=canonical):
+                subprocess.run(["git", *args], cwd=cwd, check=True,
+                               capture_output=True, text=True)
+
+            git("init", "--initial-branch=main")
+            git("config", "user.email", "h@example.invalid")
+            git("config", "user.name", "Harness")
+            git("config", "commit.gpgsign", "false")
+            (canonical / "seed.md").write_text("# seed\n", encoding="utf-8")
+            git("add", "seed.md")
+            git("commit", "-m", "seed")
+
+            # a FEATURE worktree of the same repository…
+            feature = root / "openxFactory-worktrees" / "feature-x"
+            git("worktree", "add", "-b", "feature-x", str(feature))
+            # …and a SESSION worktree whose container belongs to THAT checkout
+            session = bs.sessions_root(feature) / bs.flatten_branch("draft/topic")
+            session.parent.mkdir(parents=True, exist_ok=True)
+            git("worktree", "add", "-b", "draft/topic", str(session))
+
+            targets = sync.live_session_targets(
+                root, "draft/topic", "openxFactory")
+
+        self.assertEqual(len(targets), 1,
+                         "the session opened from a feature worktree is LIVE; "
+                         "deriving one path from the canonical container alone "
+                         "refuses it and strands its notebook")
+        self.assertEqual(targets[0].repository, "openxFactory")
+        self.assertEqual(targets[0].branch, "draft/topic")
 
 
 # --------------------------- the declared hosting identity ---------------------------
