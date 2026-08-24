@@ -1510,6 +1510,29 @@ Each is a named, durable item. None is discharged by
   aggregation. Scan set reads 0/0 in BOTH scopes at `3167dc1`, codex
   validators green and byte-comparable to baseline. codexFactory: 15
   discharged, plus 9 latent (8 respelled, 1 named and standing).
+  **ADDENDUM 2026-08-24 (later the same day) — one NEW open finding from
+  the duplicate build.** A parallel session, resumed across a process
+  crash, independently re-derived this discharge (codexFactory PR #84,
+  closed unmerged as the duplicate of #83) and its derivation surfaced a
+  defect #83's record does not carry: **the archived change
+  `2026-08-08-activate-nightly-sweep-council-clearance` ratified a MODIFIED
+  delta that was never applied to the promoted spec.** Verified
+  independently against codex main at `3167dc1`: the delta's requirement
+  "Tier-2 ships inactive with report-only classification" carries SIX
+  scenarios; the promoted `openspec/specs/merge-master-approval/spec.md`
+  carries the requirement title with only TWO — the four activation
+  scenarios ("Activation requires a freshly accepted record", "Active
+  without a verdict still parks", "Active with exact-head unanimous-ready
+  evidence clears", "Removing verdict visibility fails closed") are absent
+  from canon, and the archive commit never touched that file. No check
+  reports this class (`openspec --strict` does not compare archived deltas
+  to promoted specs; the lifecycle families read headers, not bodies).
+  Same family as this register's C5, but sharper: C5's deltas were
+  deliberately unpromoted by a recorded --skip-specs decision; these were
+  ratified FOR promotion and silently did not land. OPEN — needs a
+  codexFactory decision: apply the ratified delta via a proper change, or
+  record the non-promotion as deliberate. Also on the record: PR #84's
+  close comment carries the first statement of the finding.
 - **MedxChart and MedxPractice** pin no OpenSpec packets and owe nothing here.
   Their two ACTIVE headerless proposals, named repeatedly in this change's
   task record, live in the openxFactory tree as
