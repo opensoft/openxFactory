@@ -802,6 +802,30 @@ _CREDENTIAL_RE = _re.compile(
     r"BEGIN [A-Z ]*PRIVATE KEY|secret[-_]?name)")
 _ENDPOINT_RE = _re.compile(r"(?i)\b(https?|wss?)://")
 
+# THE FAMILY'S NON-BLANK RULE, RESTATED (issue #263). Canonical statement and
+# the measurement behind it live in
+# `scripts/ideation_dashboard/doxbench_packet.states_something`; this file is a
+# CONTRACT validator and is standalone by design — it validates artifacts and
+# must not import the runtime package whose output it checks, or it could pass
+# an instance simply because both sides share a bug. So the rule is restated,
+# and a test asserts the two implementations agree on every recorded class.
+#
+# The rule: a reason STATES SOMETHING iff it has at least one character outside
+# `White_Space ∪ Cc ∪ Cf ∪ Mn ∪ Mc ∪ Me`. `.strip()` is not it — it catches
+# space/tab/NBSP/newline and misses ZWSP, BOM, bidi overrides, lone combining
+# marks and controls, which are zero-visible-width rather than whitespace.
+import unicodedata as _unicodedata
+
+_BLANK_CATEGORIES = frozenset({"Cc", "Cf", "Mn", "Mc", "Me"})
+
+
+def _states_something(text: Any) -> bool:
+    if not isinstance(text, str):
+        return False
+    return any(
+        not (ch.isspace() or _unicodedata.category(ch) in _BLANK_CATEGORIES)
+        for ch in text)
+
 # The routing badge's SEGMENT GRAMMAR (contract-v1.38; adversarial review round
 # 1 F1). RESTATED from `ideation_dashboard.doxbench_model` -- this validator is
 # standalone and imports nothing from that package (the same convention the
@@ -1239,7 +1263,7 @@ def check_turn_success_v2(f: Findings, label: str, doc: dict) -> None:
 def check_context_packet(f: Findings, label: str, doc: dict) -> None:
     """The contract-v1.40 posture statement's own rules (task 10.7).
 
-    TWO of them, and they are different in kind. The first the SHAPE also
+    THREE of them now, and they are different in kind. The first the SHAPE also
     expresses, and it is restated here ON PURPOSE: it is this release's whole
     truth-claim — the reason is present IFF the posture is reduced — and the
     v1.38 review's F2 finding was precisely a file gate that had grown weaker
@@ -1254,8 +1278,26 @@ def check_context_packet(f: Findings, label: str, doc: dict) -> None:
     not an independent refusal — and their only guard is the test that pins
     their finding CODE. Same class as the `contract-v1.38` arms whose own
     revert-tests said the same thing.
-    The second rule the shape CANNOT express and this is the only place it
-    lives.
+    The second and third rules the shape CANNOT express. The second lives ONLY
+    here. The third — the NON-BLANK rule (issue #263) — is a DELEGATED rule
+    with four homes, and this docstring used to say the pairing was the only
+    restated one, which stopped being true when that rule landed:
+
+      * `doxbench_packet.states_something` — the canonical statement, with the
+        measurement of which blank classes `.strip()` misses;
+      * `doxbench_packet.ContextPacket.__post_init__` and
+        `serve.doxbench_context_packet`, which IMPORT it;
+      * `_states_something` in this file, which RESTATES it because a contract
+        validator must not import the runtime package it validates artifacts
+        for — a shared bug would pass both;
+      * `NON_BLANK_REASON` in `web/views/doxbench-chat-model.js`, restated as a
+        Unicode-property regex.
+
+    A test asserts the Python restatement and the JS regex agree with the
+    canonical predicate on every recorded class. The released schema cannot
+    express any of this: `minLength: 1` counts CHARACTERS, and every blank class
+    is exactly one character. Tightening the shape itself is a `contract-v2.0`
+    question, not an additive one.
 
     1. THE PAIRING. A `reduced` posture STATES its reason; a `full` posture
        carries none. A reduction nobody can read is a silent degradation, and a
@@ -1278,7 +1320,15 @@ def check_context_packet(f: Findings, label: str, doc: dict) -> None:
        this producer emits is a MODULE CONSTANT, not a formatted provider error,
        so there is no value flowing into it for a scan to have to catch.
 
-    A THIRD RULE WAS CONSIDERED AND REJECTED: requiring the reason to say in as
+    3. THE REASON IS NON-BLANK — it contains at least one character outside
+       `White_Space ∪ Cc ∪ Cf ∪ Mn ∪ Mc ∪ Me`. "A reduction nobody can read"
+       was implemented as NON-EMPTY, and nine blank classes passed every gate
+       and rendered as a disclosure with nothing in it (issue #263). Not
+       reachable from this repository's producer — the two shipped reasons are
+       module constants — but real for the third-party producers this contract
+       is published for.
+
+    A FOURTH RULE WAS CONSIDERED AND REJECTED: requiring the reason to say in as
     many words that nothing unbounded was substituted and no rail was bypassed
     (which the two reasons this capability ships both do). It is prose-matching
     a contract — it would refuse a conformant producer whose honest reason is
@@ -1297,7 +1347,11 @@ def check_context_packet(f: Findings, label: str, doc: dict) -> None:
         return
     posture = packet.get("posture")
     reason = packet.get("reduced_reason")
-    if posture == "reduced" and not reason:
+    # NON-BLANK, not truthy (issue #263). `not reason` is the released shape's
+    # `minLength: 1` restated, and that bound counts CHARACTERS — so a reason
+    # of one space, one ZWSP, one BOM, one bidi override, one combining mark or
+    # one control satisfied it and rendered as a disclosure with nothing in it.
+    if posture == "reduced" and not _states_something(reason):
         f.error("context-packet",
                 f"{label}: a reduced context_packet STATES its reason — a "
                 f"reduction nobody can read is a silent degradation")

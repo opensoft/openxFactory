@@ -1616,7 +1616,16 @@ contracts:
       before. Its ABSENCE is not a posture claim: it means the producer predates
       contract-v1.40, never that the context was full. The reason is present IFF
       the posture is `reduced` (two schema conditionals, restated in the
-      delegated validator). The DEPRECATED v1 success envelope is NOT widened
+      delegated validator). TWO DELEGATED RULES now sit beside that pairing,
+      and neither is expressible in the released shape. The reason is LINTED
+      for credential and endpoint spellings as public prose. And the reason is
+      NON-BLANK — at least one character outside
+      `White_Space | Cc | Cf | Mn | Mc | Me` — which `minLength: 1` cannot say,
+      because it counts CHARACTERS and a lone space, ZWSP, BOM, bidi override,
+      combining mark or control is one of them (issue #263). A producer
+      conformant by the letter could ship a reduction nobody can read;
+      consumers MUST NOT treat a schema-valid reason as a readable one.
+      Tightening the shape itself is a contract-v2.0 question. The DEPRECATED v1 success envelope is NOT widened
       and cannot state a posture — a recorded limitation, not an omission; the
       migration path is the v2 envelope. The v1 family is DEPRECATED at
       contract-v1.34 with removal target contract-v2.0
