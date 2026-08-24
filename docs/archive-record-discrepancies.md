@@ -1598,6 +1598,14 @@ Each is a named, durable item. None is discharged by
   archived deltas to promoted specs, so the class stays unreported. That
   prevention question is scoped to openxFactory's neutral tooling and
   recorded both in the packet and in PR #85's body — named, not dropped.
+  **VETOES CLEARED 2026-08-24 (same day).** Brett approved BOTH
+  dispositions this entry flagged, so the window closed with both taken up
+  and nothing to revert: `add-software-team-execution-lane` stands at
+  `Status: ratified` on its explicit 2026-07-12 act, its local lowercase
+  `status: active` line standing; and `adopt-domain-ontology-package`
+  stands as measured-not-ruled latent, the deferral-versus-authorization
+  ambiguity still named rather than respelled. Both stand exactly as
+  codexFactory PR #83 applied them — the approval required no repo edit.
 - **MedxChart and MedxPractice** pin no OpenSpec packets and owe nothing here.
   Their two ACTIVE headerless proposals, named repeatedly in this change's
   task record, live in the openxFactory tree as
