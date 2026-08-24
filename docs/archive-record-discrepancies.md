@@ -1480,6 +1480,36 @@ Each is a named, durable item. None is discharged by
 - **FU-DOM-CODEX — codexFactory (7 CRITICAL, 8 ERROR).** Seven unresolvable
   `Ratified by:` lines and eight missing headers, fourteen of the fifteen
   archived.
+  **DISCHARGED 2026-08-24** (codexFactory PR #83, merged `3167dc1`;
+  aggregation pin `9db2712`), the fourth domain slice under the standing
+  adopt-and-discharge ruling, and the second no-drift domain after
+  MedxFactory: 7 CRITICAL / 8 ERROR over the same 27 scan-set docs at both
+  the pinned `e61f24d` and the pre-merge tip `24adc1ec`. All 7 CRITICALs
+  were OQ-4 respells with content byte-verbatim, two past a plain prefix
+  swap — one ISO date sat on a WRAPPED continuation line the header reader
+  never reaches, a new shape for the record; one was folded in from a
+  codex-local `Ratified at:` header so the citation count stayed exactly
+  one. The 8 ERRORs derived per OQ-6 from each packet's own record: 5 on
+  route (a), an explicit act, and 3 on route (b), the archive act with
+  every promoted requirement verified by title in `openspec/specs/`. Zero
+  stop-and-reports. EIGHT latent self-citers respelled under the OQ-4
+  extension — `Ratified by: user approval of <own-id>`, the codex-local
+  idiom. Two dispositions taken under the standing rulings and flagged for
+  veto: the one active packet, `add-software-team-execution-lane`, read to
+  `Status: ratified` on an explicit 2026-07-12 act in its own tasks, its
+  lowercase `status: active` left standing as OQ-5 leaves local headers
+  standing; and `adopt-domain-ontology-package` left STANDING as
+  measured-not-ruled latent, its `Ratified by:` resolving through two
+  openxFactory ids that recorded a DEFERRAL rather than the authorization —
+  the ambiguity named, not quietly respelled. Convention codified in
+  codexFactory's `docs/packet-lifecycle-headers.md`, naming the codex traps
+  (wrapped citations, case-sensitive `Status:` against lowercase `status:`,
+  `Ratified at:`, ratification kept in the packet README, the self-citing
+  idiom) and the single-repo caveat, where the `fam_ratified_provenance`
+  escape hatch masks one finding: 6 CRITICAL single-repo against 7 in
+  aggregation. Scan set reads 0/0 in BOTH scopes at `3167dc1`, codex
+  validators green and byte-comparable to baseline. codexFactory: 15
+  discharged, plus 9 latent (8 respelled, 1 named and standing).
 - **MedxChart and MedxPractice** pin no OpenSpec packets and owe nothing here.
   Their two ACTIVE headerless proposals, named repeatedly in this change's
   task record, live in the openxFactory tree as
