@@ -166,7 +166,10 @@ merging it early is the failure mode the whole ordering exists to prevent.
 - [ ] 4.3 A doc-health single-repo run whose severity counts move by exactly
       the predicted amount and in no other line. There is now exactly ONE
       prediction, because OQ-6 removed the dispositioned branch: **the
-      unchanged baseline, 4 critical / 6 error / 68 warning / 4 info.** Any
+      unchanged baseline, measured at the enforcement commit's own base** —
+      4/6/68/4 when this box was written, 4/8/68/4 at `d615da5` after two
+      proposal-origin errors arrived with another session's packets; the
+      binding number is the base's, re-measured, not a figure frozen here. Any
       other number is a defect in §2 or an incomplete §5, not a surprise to
       accept. The draft's second branch (24 / 54 / 68 / 4, §5
       dispositioned rather than discharged) is void, and so is the third the
@@ -1406,8 +1409,10 @@ tree green; the count in the slice title is the findings it clears.
         `openspec/changes/**/proposal.md` + `openspec/changes/**/review/*.md`
         MUST report ZERO CRITICAL and ZERO ERROR across all four ruled
         families at the moment §2 merges**, and the whole-repo single-repo
-        run MUST read its unchanged baseline of 4 critical / 6 error / 68
-        warning / 4 info. Any stop-and-report document from 5C.3 is a
+        run MUST read its unchanged baseline — measured at the enforcement
+        commit's own base, not a count frozen here (4/6/68/4 when this box
+        was written, 4/8/68/4 at `d615da5`; other sessions' packets move it).
+        Any stop-and-report document from 5C.3 is a
         NON-ZERO result and blocks the merge until it is ruled — it does not
         get waved through as a known exception, because a known exception is
         the grandfather OQ-6 refused, re-entering by the back door.
@@ -1463,8 +1468,12 @@ tree green; the count in the slice title is the findings it clears.
         `doc_health.corpus.STATUS_RE` is case-sensitive exactly ONE of the two lines
         is machine-read, so the proposal carries one status of record. No carve-out,
         no disposition, no scan-set exclusion was taken. NOTE for 5D.2: this document
-        no longer blocks the zero gate, but `enable-live-openxfactory` (5C.3) now
-        does, on different and independently-ruled grounds — see 5C's read-back.
+        no longer blocks the zero gate. (An earlier draft of this note said
+        `enable-live-openxfactory` still did — that was true only between 5C's
+        stop-and-report and Brett's same-day `Status: draft` ruling, executed
+        in this same commit; it no longer blocks either. The gate's remaining
+        blockers are the two active MedxChart/MedxPractice stragglers, 5D
+        scope.)
   - [ ] 5D.3 Only then does §2 land. §2 is the LAST slice of this change, not
         the first: the enforcement code merges onto a corpus that already
         satisfies it.
