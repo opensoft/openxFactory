@@ -325,6 +325,38 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
+  — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
+  staged topic `doxchat-auto-fit-routing`, whose six questions were
+  dispositioned the same day. `contract-v1.38` gave the catalog a routing rule
+  whose resolution is STATIC; Brett's direction at that release's rule-5 ruling
+  was that the destination be chosen PER TURN by whether the model can
+  accommodate the turn — and he named a dimension the catalog cannot express
+  ("if we need multi modal then we have to select from that"). The entry says
+  how MUCH a model accepts (`input_limit_bytes`) and nothing about WHAT KIND, so
+  a router asked to keep an image turn away from a text-only model has nothing
+  to read. Adds ONE optional, closed `modalities` declaration — exactly `text`
+  and `image` — extended only by the change that governs a new member, the rule
+  the client-identity roster already applies to admission surfaces. Optional and
+  absence-tolerant because requiring it would break every catalog released
+  before it: absence means "a producer older than the field" and is read as
+  text-only for routing, reusing the chat-turn family's own idiom. Per Q3's
+  batching obligation it also DECIDES the two recorded catalog follow-ups rather
+  than passing them by, and TAKES both after reproducing each: the released
+  64-entry cap is unenforced type-side (a 65-entry catalog constructs), and
+  `model_id` is not held to its released length and pattern (a 200-character id,
+  and one containing a space, both construct) — the same type-weaker-than-wire
+  divergence this capability already closed once for `routes_to`, and N7's
+  recorded reason for deferring ("a behaviour change belonging to no release")
+  is dissolved because this IS that release. Requirements are ADDED, not
+  MODIFIED: the requirement governing the catalog already carries a live
+  MODIFIED delta from the ratified-but-unbuilt intake lane. **Realization is a
+  CONTRACT RELEASE** — schema bytes move — but the bundle number is deliberately
+  NOT allocated in the proposal: `contract-v1.41` only if the pending Unreleased
+  block has not folded first, fresh-counted at allocation. Exits (b) fit-aware
+  routing and (c) compress-to-fit disclosure are named successors; (a) touches
+  only the schema, the type and the validator, which is why it is safe to raise
+  while (b) must be sequenced against the intake build.
 - [add-notebook-hosting-credential-custody](openspec/changes/add-notebook-hosting-credential-custody/proposal.md)
   — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The follow-up
   to `add-notebook-projection-identity`, on Brett Heap's direction the same day:
