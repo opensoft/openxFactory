@@ -62,6 +62,7 @@ from __future__ import annotations
 import dataclasses
 import re
 import time
+import unicodedata
 from collections.abc import Callable, Mapping, Sequence
 
 from doc_health.lines import split_keepends
@@ -355,6 +356,70 @@ class CorpusCoverage:
     def complete(self) -> bool:
         return self.indexed == self.total
 
+# ---------------------------------------------------------------------------
+# THE NON-BLANK RULE — stated ONCE here, restated identically at every gate
+# that carries a `reduced_reason` value (issue #263, fresh-eyes F1).
+# ---------------------------------------------------------------------------
+#
+# THE RULE: a reduction reason STATES SOMETHING iff it contains at least one
+# character outside `White_Space ∪ Cc ∪ Cf ∪ Mn ∪ Mc ∪ Me` — that is, at least
+# one character a reader can actually see.
+#
+# WHY NOT `.strip()`, which is what the family had and what a reviewer would
+# reach for first: it catches four of the nine blank classes and misses five.
+# Measured, not assumed:
+#
+#   class                cat  `.strip()` empties it
+#   space                Zs   yes
+#   tab                  Cc   yes
+#   NBSP      U+00A0     Zs   yes
+#   newline              Cc   yes
+#   ZWSP      U+200B     Cf   NO
+#   BOM       U+FEFF     Cf   NO
+#   bidi ovr  U+202E     Cf   NO
+#   combining U+0301     Mn   NO
+#   control   U+0001     Cc   NO
+#
+# The last five survive `.strip()` because they are not White_Space: they are
+# ZERO-VISIBLE-WIDTH, which is a different property. `U+200B` is `Cf` (it has
+# not been `Zs` since Unicode 4.0.1), a lone combining mark has no base to
+# attach to, and `U+0001` is a control that `str.strip()` leaves alone. So the
+# predicate is written over CATEGORIES, not over whitespace.
+#
+# `Mn`/`Mc`/`Me` are refused only when a string is combining marks and nothing
+# else — a real reason containing "á" has a base letter and passes, which the
+# tests pin alongside CJK and emoji so this cannot quietly become a filter on
+# non-Latin prose.
+#
+# THE THREE RESTATEMENTS, kept identical on purpose (this rule is the family's
+# SECOND delegated rule — the released schema cannot express it, because
+# `minLength: 1` counts characters and every blank above is one character):
+#   * `serve.doxbench_context_packet` — imports this function, so the server
+#     boundary and the type share one implementation rather than two spellings.
+#   * `check_context_packet` in `scripts/validate-ideation-dashboard-contracts.py`
+#     — RESTATES it, because that validator is standalone by design and must
+#     not import the runtime package it validates artifacts for. A test asserts
+#     the two implementations agree on every class above.
+#   * `adoptContextPacket` in `web/views/doxbench-chat-model.js` — restates it
+#     as a Unicode-property regex. A cross-runtime test drives the same nine
+#     inputs through both and asserts identical verdicts.
+_BLANK_CATEGORIES = frozenset({"Cc", "Cf", "Mn", "Mc", "Me"})
+
+
+def states_something(text: object) -> bool:
+    """Whether `text` is a reason a human could actually read (issue #263).
+
+    Non-strings are False rather than an error: every caller here is a
+    boundary that already has its own refusal to raise, and a predicate that
+    raised would make each of them handle two failure shapes instead of one."""
+
+    if not isinstance(text, str):
+        return False
+    return any(
+        not (ch.isspace() or unicodedata.category(ch) in _BLANK_CATEGORIES)
+        for ch in text)
+
+
 REDUCED_NO_KNOWLEDGE_SERVICE = (
     "the staged-set knowledge service is unavailable, so this packet carries "
     "the selected thread and the loaded buffers only, with NO corpus evidence; "
@@ -624,12 +689,19 @@ class ContextPacket:
         if self.posture not in (POSTURE_FULL, POSTURE_REDUCED):
             raise PacketError(
                 f"a packet posture is {POSTURE_FULL!r} or {POSTURE_REDUCED!r}")
-        # A NON-EMPTY STRING (Codex review of PR #256, aligned here for the
-        # same reason the presence rule was): a truthy non-string reason is not
-        # a reason, and letting one construct means every reader downstream has
-        # to coerce it into one. The released shape says `type: string`.
-        if self.posture == POSTURE_REDUCED and not (
-                isinstance(self.reduced_reason, str) and self.reduced_reason):
+        # A NON-BLANK STRING (Codex review of PR #256 made it non-empty; issue
+        # #263 makes it non-blank). A truthy non-string reason is not a reason,
+        # and letting one construct means every reader downstream has to coerce
+        # it into one. The released shape says `type: string`.
+        #
+        # NON-BLANK, not non-empty, and this is now the same strictness `ref`
+        # and `provider_id` have had two fields up all along — the inconsistency
+        # issue #263 named. `states_something` is the family's rule, stated once
+        # where it is defined; nine blank classes reach this constructor and
+        # `minLength: 1` blesses every one of them, because each is exactly one
+        # character.
+        if self.posture == POSTURE_REDUCED and not states_something(
+                self.reduced_reason):
             raise PacketError(
                 "a reduced packet STATES the reduced posture's reason; a "
                 "reduction nobody can read is a silent degradation")
@@ -642,9 +714,12 @@ class ContextPacket:
         # string: the shape forbids the field's PRESENCE on a full posture and
         # this forbade only a useful value. Aligned so the claim is true.
         #
-        # The REDUCED arm above is deliberately left on truthiness: there a blank
-        # is refused for being unusable, which is the shape's `minLength: 1`. Two
-        # rules, not one predicate.
+        # The REDUCED arm above refuses a blank for being UNUSABLE; this arm
+        # refuses the field for being THERE. Two rules, not one predicate —
+        # still true, and still the reason these must not be "simplified" into
+        # one. What changed at issue #263 is only the reduced arm's strictness:
+        # it no longer stops at the shape's `minLength: 1`, because that bound
+        # counts characters and a blank one is still a character.
         if self.posture == POSTURE_FULL and self.reduced_reason is not None:
             raise PacketError(
                 "a full packet carries no reduction reason")

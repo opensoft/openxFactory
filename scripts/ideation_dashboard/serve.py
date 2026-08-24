@@ -118,6 +118,12 @@ if str(_SCRIPTS_DIR) not in sys.path:
 from ideation_dashboard import action_errors  # noqa: E402
 from ideation_dashboard import doxbench_knowledge  # noqa: E402
 from ideation_dashboard import doxbench_packet  # noqa: E402
+# The family's NON-BLANK rule (issue #263), imported rather than
+# restated: the type gate and this server boundary share one
+# implementation so they cannot drift into two spellings of one rule.
+from ideation_dashboard.doxbench_packet import (  # noqa: E402
+    states_something,
+)
 from ideation_dashboard import doxbench_telemetry  # noqa: E402
 from ideation_dashboard import doxbench_threads  # noqa: E402
 from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
@@ -745,7 +751,14 @@ def doxbench_context_packet(packet) -> dict:
         # conformant-LOOKING posture instead of a refusal. The released shape
         # says `type: string`, so this boundary says it too, and the reason is
         # carried VERBATIM rather than coerced.
-        if not isinstance(reason, str) or not reason:
+        # NON-BLANK, not merely non-empty (issue #263). This read
+        # `or not reason`, which is the released shape's `minLength: 1` — and
+        # that bound counts CHARACTERS, so all nine recorded blank classes are
+        # one character long and every one of them passed. `states_something`
+        # is the family's rule, defined once in `doxbench_packet`; this
+        # boundary IMPORTS it rather than restating it, so the type gate and
+        # the server gate cannot drift into two spellings of one rule.
+        if not states_something(reason):
             raise doxbench_packet.PacketError(
                 "a reduced packet STATES the reduced posture's reason; a "
                 "record cannot carry a reduction nobody can read")
@@ -831,9 +844,32 @@ def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str
     Like its v1 sibling this builder is never the last word on conformance: the
     route self-validates the built envelope against the released schema before it
     is stored or sent."""
-    context_packet = {"posture": str(context_posture)}
+    # NO `str()` COERCION (issue #263, folded finding F5). This built
+    # `{"posture": str(context_posture)}` and coerced the reason the same way,
+    # which is the LAST coercion on the posture path — the others went when the
+    # derivation stopped coercing, and this one was missed because its only
+    # caller hands it values `doxbench_context_packet` has already validated.
+    #
+    # RESOLVED THE WAY THE DERIVATION RESOLVED ITS OWN, deliberately rather than
+    # by inventing a second answer: REFUSE a non-string instead of manufacturing
+    # one out of it. `str()` on a malformed value is how `<object object at
+    # 0x…>` reaches a durable record — a heap address standing in for a posture.
+    # The refusal is a `PacketError` on the same recorded 400-vs-500 tension the
+    # derivation carries: the cause is server-authored and unreachable from any
+    # request, and both refusals stay on ONE shape until that tension is
+    # resolved for the whole path at once.
+    if not isinstance(context_posture, str):
+        raise doxbench_packet.PacketError(
+            "a turn record states its context posture as the packet declared "
+            "it; a coerced posture is a manufactured one")
+    context_packet = {"posture": context_posture}
     if context_reduced_reason is not None:
-        context_packet["reduced_reason"] = str(context_reduced_reason)
+        if not states_something(context_reduced_reason):
+            raise doxbench_packet.PacketError(
+                "a turn record carries the reduction's reason as the packet "
+                "stated it; a reduction nobody can read is a silent "
+                "degradation")
+        context_packet["reduced_reason"] = context_reduced_reason
     return {
         "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
         "kind": DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND,
