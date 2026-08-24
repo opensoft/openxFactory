@@ -1574,6 +1574,30 @@ Each is a named, durable item. None is discharged by
   codexFactory decision: apply the ratified delta via a proper change, or
   record the non-promotion as deliberate. Also on the record: PR #84's
   close comment carries the first statement of the finding.
+  **RESOLVED 2026-08-24 (same day).** Brett ruled the first of the two
+  options this entry names, verbatim — "apply the ratified delta via a
+  proper change" — and that ruling is the ratification act. codexFactory
+  PR #85 (merged `49601c9`; aggregation pin `8f70329`) carries the change
+  `apply-nightly-sweep-activation-delta`: `code_surface: none`, ratified on
+  the ruling with one in-window `Ratified:` citation clearing approver and
+  date, archived on landing at
+  `2026-08-24-apply-nightly-sweep-activation-delta`. Drift was checked
+  BEFORE applying — the Tier-2 requirement region of the promoted
+  `merge-master-approval` spec was byte-identical, sha-tracked, from its
+  2026-07-28 introduction through the archive and both later spec commits,
+  which were pure end-of-file appends — so the ratified text clobbered no
+  later work. Canon went from 2 scenarios to 6, and the fidelity is proven
+  by sha256 rather than asserted: the packet's delta hashed identical to
+  the archived delta, and the requirement block extracted from canon after
+  promotion diffs identical to the delta's. The four activation scenarios
+  landed word for word, and the delta's own "tier-2" to "tier 2"
+  normalization inside an existing WHEN line was kept as part of the
+  ratified text. The scan set is now 28 documents — the new archived packet
+  joined it — and reads 0 CRITICAL / 0 ERROR in both scopes, codex
+  validators at baseline. What does NOT close: no check yet compares
+  archived deltas to promoted specs, so the class stays unreported. That
+  prevention question is scoped to openxFactory's neutral tooling and
+  recorded both in the packet and in PR #85's body — named, not dropped.
 - **MedxChart and MedxPractice** pin no OpenSpec packets and owe nothing here.
   Their two ACTIVE headerless proposals, named repeatedly in this change's
   task record, live in the openxFactory tree as
