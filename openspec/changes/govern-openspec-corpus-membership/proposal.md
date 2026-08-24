@@ -305,6 +305,39 @@ was argued for. The set is declared as a pattern pair and not as a directory,
 which is the claim design.md Decision 2 makes and the boundary tasks §3.6
 mutation-pins.
 
+**RULED AGAIN, SAME DAY, ON THE SAME QUESTION (2026-08-23, Brett, in-session,
+after slice 5D's adversarial review): the RAW GLOB STANDS and the DELTA TEXT
+WIDENS to match it.** The review found a divergence rather than a defect: the
+ruled glob is `**/review/*.md`, which reaches EVERY review record, while the
+`document-lifecycle` delta had narrowed it in prose to "any `review/` record
+whose subject is the ratification of that change", and
+`docs/document-lifecycle.md` had already been written to the wider reading. Two
+ways to close it — narrow the glob to match the delta, or widen the delta to
+match the glob. **Brett ruled the second: every `review/` record under a packet
+is a governance document.** The globs are untouched; the
+`document-lifecycle` and `doc-health` deltas were amended, and the widened
+rule was stated as the two obligations it actually creates rather than as one:
+the taxonomy reaches every review record, the ratification-citation rule
+reaches only those whose status IS `ratified`. MEASURED, because a widening
+that moved the gate would be a different ruling: openxFactory carries 13
+`review/` records, 5 `ratified` (each already cited, per OQ-5) and 8 carrying
+`Status: record` — every one of the 8 a conforming taxonomy value, so the
+widened rule produces **zero new findings** and the 5D.2 gate stays 0/0.
+
+**A SEPARATE correction landed in the same lap, and it is a code change rather
+than a wording one.** The first cut disclosed that
+`openspec/changes/**/proposal.md` matches at ANY depth — so a byte-exact
+snapshot filed as `<packet>/supporting-docs/source-snapshots/proposal.md` would
+enter the set — and left the gap open on the measurement that no corpus file
+occupied it. The capability's own "byte-exact evidence" scenario is a MUST NOT
+on MEMBERSHIP, not an observation about today's file names, so leaving it to a
+census was the wrong reading. `corpus.EVIDENCE_PARTS` now excludes any path
+carrying a `supporting-docs`, `source-snapshots` or `evidence` segment,
+applied AFTER the ruled globs resolve — the globs themselves stay exactly as
+OQ-2 ruled them. Measured: the filter removes **nothing** from the real corpus
+at the aggregation's pinned SHAs (285 scan-set documents before and after), so
+it changes no number and closes a rule.
+
 **OQ-3 — Which families read it?** RECOMMENDED: the four lifecycle-conformance
 families — `status-validity`, `standard-backing`, `ratified-provenance`,
 `succession-integrity`. Explicitly out: `location-conformance` and
@@ -452,6 +485,16 @@ says it. Each of the three already names its ratifier and its decision date,
 so the conforming line is derived from the document's own headers and invents
 nothing — which is the whole reason this one was cheap enough to rule as
 recommended while OQ-4 and OQ-6 were not.
+
+**TOUCHED BY OQ-2's SAME-DAY WIDENING, and its reach is unchanged.** OQ-2 now
+puts every `review/` record in the scan set, not only the ratification ones, so
+a reader could take this ruling as newly reaching all of them. It does not.
+This ruling is about the CITATION spelling, and the citation rule binds a
+`ratified` status; the 8 openxFactory `review/` records that are not
+ratifications carry `Status: record` and owe no citation at all. What OQ-2's
+widening adds for them is the TAXONOMY obligation alone — a `Status:` value
+from the controlled set — which all 8 already satisfy. The three records this
+question ruled on are still the three it ruled on.
 
 **OQ-6 — The 47 proposals with no `Status:` header at all** (44 archived, 3
 active) are the whole of the `status-validity` cost bar one free-form value.

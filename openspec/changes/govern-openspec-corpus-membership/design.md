@@ -92,6 +92,23 @@ mutation-pins it structurally: flipping the set to bare `("openspec",)` must
 fail §3.1, and the assertion is on the declared pattern set rather than only
 on the resulting counts, because a count can pass for the wrong set.
 
+**AMENDED ON THE FIX LAP (2026-08-23), in two ways that pull in opposite
+directions and are both the ruling being applied rather than revised.** The
+`review/*.md` half is WIDER than this decision's prose implied: Brett ruled
+that every `review/` record under a packet is a governance document, not only
+a ratification record, so the delta text widened to the glob rather than the
+glob narrowing to the delta. Zero new findings followed — all eight of
+openxFactory's non-ratification review records already carry
+`Status: record`. Separately, membership is NARROWER by one explicit rule:
+a path carrying a `supporting-docs`, `source-snapshots` or `evidence` segment
+is excluded (`corpus.EVIDENCE_PARTS`), applied after the globs resolve. That
+is the capability's own "byte-exact evidence" MUST NOT, which the first cut
+disclosed as an open gap and left to a census. **The GLOBS themselves are
+byte-identical to what was ruled**, which is the point of doing the exclusion
+as a second, separately named rule rather than by editing the pattern: the
+ruled artifact stays the ruled artifact, and the exclusion can be read,
+tested and argued with on its own.
+
 ## Decision 3 — four families, chosen by measurement rather than by category
 
 **Chosen:** `status-validity`, `standard-backing`, `ratified-provenance`,

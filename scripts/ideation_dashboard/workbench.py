@@ -1423,7 +1423,18 @@ def run_readiness(wb: Workbench | None = None, *, now: str | None = None) -> Act
 
 # doc-health families safe to scope to a doc SUBSET: pure per-document checks
 # that need neither the full corpus nor git (verified against
-# scripts/doc_health/families.py — both read only `ctx.docs`).
+# scripts/doc_health/families.py).
+#
+# `tag-hygiene` reads `ctx.docs` alone. `status-validity` does NOT, since
+# `govern-openspec-corpus-membership` (2026-08-23): it reads
+# `families._lifecycle_scope(ctx)`, which is `ctx.docs` PLUS
+# `ctx.lifecycle_docs`. The scoping below is still exact, and by construction
+# rather than by luck — `run_scoped_doc_health` builds its `Context` without
+# a `lifecycle_docs` argument, so that field defaults to the empty list and
+# the union is the scoped doc list itself. If a caller ever passes a
+# populated `lifecycle_docs` here, `status-validity` would report documents
+# outside `documents`; the defensive filter at the end of the function is the
+# second line against that, not the first.
 DEFAULT_SCOPED_FAMILIES = ("status-validity", "tag-hygiene")
 
 
@@ -1438,8 +1449,9 @@ def run_scoped_doc_health(
     set's `documents` (repo-relative posix paths == the snapshot's `document.id`
     in this repo). Only the pure per-document families run (see
     DEFAULT_SCOPED_FAMILIES) — subprocess is unnecessary because the suite is
-    importable and these families consume nothing but the doc list, so an
-    in-process call with a filtered `ctx.docs` is faithful and cheap.
+    importable and these families consume nothing but the doc lists the
+    `Context` carries, so an in-process call with a filtered `ctx.docs` and an
+    empty `ctx.lifecycle_docs` is faithful and cheap.
 
     Degrades gracefully: if the doc-health package is unimportable the action is
     recorded not-available rather than crashing."""

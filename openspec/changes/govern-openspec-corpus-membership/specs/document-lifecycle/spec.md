@@ -3,21 +3,37 @@
 ## ADDED Requirements
 
 ### Requirement: Proposal packets carry the lifecycle header
-An OpenSpec change packet's `proposal.md`, and any `review/` record whose subject is the ratification of that change, SHALL be governance documents for the purposes of the controlled status taxonomy and the ratification-citation rule.
+An OpenSpec change packet's `proposal.md`, and EVERY `review/` record under that packet, SHALL be governance documents for the purposes of the controlled status taxonomy and the ratification-citation rule.
 
 Both carry a claim about the document's standing — a proposal says whether it
-is `draft` or `ratified`, a review record says a ratification happened — and a
-claim of standing is what the taxonomy exists to make checkable. The rest of
-the packet is deliberately NOT ruled here: `tasks.md`, `design.md`, spec
-delta files, `supporting-docs/` and `evidence/` are working files of the
-change rather than documents making a standing claim, and whether they are
-governance documents is a separate question this capability leaves open.
+is `draft` or `ratified`; a review record says what standing its own finding
+has, whether that is a ratification, a captured `record` of a review that
+happened, or a superseded earlier round. A claim of standing is what the
+taxonomy exists to make checkable, and a review record makes one whatever its
+subject. The rest of the packet is deliberately NOT ruled here: `tasks.md`,
+`design.md`, spec delta files, `supporting-docs/` and `evidence/` are working
+files of the change rather than documents making a standing claim, and whether
+they are governance documents is a separate question this capability leaves
+open.
 
-A `review/` ratification record that names its ratifier and decision date in
-its own vocabulary SHALL additionally carry a citation in one of the two
-sanctioned spellings. Recording the same fact twice is the cost of having one
-rule; inventing a third spelling for documents whose whole subject is
-ratification would undo the single-rule result the two-spelling sanction
+The two obligations this requirement creates are DIFFERENT in reach, and
+conflating them would over-state the rule:
+
+- The **taxonomy** obligation reaches every document named above. A
+  `review/` record SHALL carry a `Status:` header drawn from the controlled
+  taxonomy, within the lifecycle header window, whatever its subject. A
+  review record that is not about a ratification most often carries
+  `Status: record`, which is a conforming value and needs nothing further.
+- The **ratification-citation** obligation reaches only those documents whose
+  status IS `ratified`. A `review/` record carrying any other taxonomy value
+  owes no citation, and demanding one of a `record` would be demanding
+  provenance for a claim the document does not make.
+
+A `review/` record whose status IS `ratified` and which names its ratifier and
+decision date in its own vocabulary SHALL additionally carry a citation in one
+of the two sanctioned spellings. Recording the same fact twice is the cost of
+having one rule; inventing a third spelling for documents whose whole subject
+is ratification would undo the single-rule result the two-spelling sanction
 reached.
 
 The pre-existing population SHALL be discharged rather than grandfathered:
@@ -45,6 +61,11 @@ that decision; overturning it takes a ruling naming it, not a backfill pass.
 - **WHEN** a `review/` document under a change packet records that the change was ratified
 - **THEN** it MUST carry `Status: ratified` and one ratification citation in a sanctioned spelling
 - **AND** a `Ratifier:` or `Decision date:` header MAY accompany the citation but MUST NOT stand in place of it
+
+#### Scenario: A review record is not about a ratification
+- **WHEN** a `review/` document under a change packet records a finding, a disposition, a captured review round, or any other subject that is not the ratification of that change
+- **THEN** it MUST still carry a `Status:` header drawn from the controlled taxonomy, within the lifecycle header window, because it is a governance document under this requirement whatever its subject
+- **AND** it MUST NOT be required to carry a ratification citation, because the citation rule binds a `ratified` status and this document does not claim one
 
 #### Scenario: A pre-existing packet carries no header
 - **WHEN** a proposal packet authored at any date carries no `Status:` header
