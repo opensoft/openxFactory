@@ -83,6 +83,33 @@ reference`.
 - A `superseded` header names the successor artifact.
 - Generated evidence (simulation output, runbook transcripts, audit reports)
   is always `record`, regardless of how normative its content sounds.
+- An OpenSpec change packet's `proposal.md`, and every `review/` record under
+  that packet, are governance documents for these rules — the status taxonomy
+  and the ratification-citation rule reach them exactly as they reach a
+  document under `docs/`. Both make a claim about standing (a proposal says
+  whether it is `draft` or `ratified`; a review record says a ratification
+  happened), and a claim of standing is what the taxonomy exists to make
+  checkable. Ratified by `govern-openspec-corpus-membership` (2026-08-23).
+  - **The REST of the packet is not ruled.** `tasks.md`, `design.md`, the
+    spec delta files, `supporting-docs/` and `evidence/` are working files of
+    the change rather than documents making a standing claim, and no finding
+    is emitted against them under these rules. Whether they are governance
+    documents is a separate question, deliberately left open.
+  - There is **no legacy class and no contract date**: a proposal carrying no
+    `Status:` header is a current violation whenever it was authored. The
+    remedy is a header DERIVED from that packet's own record — its origin
+    declaration, its ratification or archive commit, its own task record, or
+    the index row that announced it — not a reduced severity that leaves the
+    claim unmade. Where the record supports neither a status nor, for
+    `ratified`, a citation that clears the floor, report the document by name
+    with what its record does and does not carry; an invented provenance is a
+    worse defect than the missing one it hides.
+  - A `review/` record that states its ratifier and decision date in its own
+    vocabulary — a `Ratifier:` or `Decision date:` header — still carries one
+    of the two sanctioned citation spellings. Those headers **accompany** a
+    citation and never stand in place of one: recording the same fact twice is
+    the cost of having one rule, and a third spelling for the documents whose
+    whole subject is ratification would undo it.
 
 ## The Explicit Delta Rule
 

@@ -150,6 +150,31 @@ _CITATION_DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 _CITATION_APPROVER = re.compile(r"\bby\s+[A-Z][\w.'-]*")
 
 
+def _lifecycle_scope(ctx):
+    """The document scope of the FOUR lifecycle families, and of no others.
+
+    `govern-openspec-corpus-membership` (ruled 2026-08-23) declares two
+    document sets. `ctx.docs` is the governed corpus, which every family
+    reads. `ctx.lifecycle_docs` is the lifecycle scan set — each OpenSpec
+    change packet's `proposal.md` and its `review/` records — which only
+    `fam_status_validity`, `fam_standard_backing`, `fam_ratified_provenance`
+    and `fam_succession_integrity` read, because those four check a claim of
+    STANDING and a proposal makes one.
+
+    ONE accessor, not four copies of the concatenation, for two reasons the
+    ruling names. A fifth reader becomes a one-line opt-in: swap `ctx.docs`
+    for `_lifecycle_scope(ctx)` in that family. And an audit finds every
+    reader by call site — `grep -n _lifecycle_scope` is the complete list,
+    which is what makes the "the other twelve families do not read the scan
+    set" test enforceable rather than aspirational.
+
+    A finding lands on the document's own path either way: the same `Doc`
+    shape, the same `doc.repo` key into `ctx.repo_paths`, so nothing
+    downstream of a family needs to know which set a document came from.
+    """
+    return [*ctx.docs, *ctx.lifecycle_docs]
+
+
 def _age_days(as_of: date, when: date | None) -> int | None:
     return (as_of - when).days if when else None
 
@@ -311,7 +336,7 @@ def _archive_support_findings(repo: str, repo_path: Path) -> list[Finding]:
 
 def fam_status_validity(ctx):
     findings = []
-    for doc in ctx.docs:
+    for doc in _lifecycle_scope(ctx):
         if doc.status is None:
             findings.append(Finding(
                 ERROR, "status-validity", doc.repo, doc.path,
@@ -327,7 +352,7 @@ def fam_status_validity(ctx):
 
 def fam_standard_backing(ctx):
     findings = []
-    for doc in ctx.docs:
+    for doc in _lifecycle_scope(ctx):
         if doc.status != "standard":
             continue
         line = _header_line(doc, "Backed by:")
@@ -367,7 +392,7 @@ def fam_ratified_provenance(ctx):
     pair or same-spelling repeat alike.
     """
     findings = []
-    for doc in ctx.docs:
+    for doc in _lifecycle_scope(ctx):
         if doc.status != "ratified":
             continue
         by_lines = _header_lines(doc, _RATIFIED_BY_PREFIX)
@@ -446,7 +471,7 @@ def fam_ratified_provenance(ctx):
 
 def fam_succession_integrity(ctx):
     findings = []
-    for doc in ctx.docs:
+    for doc in _lifecycle_scope(ctx):
         if doc.status == "superseded":
             line = _header_line(doc, "Superseded by:")
             repo_path = ctx.repo_paths[doc.repo]
