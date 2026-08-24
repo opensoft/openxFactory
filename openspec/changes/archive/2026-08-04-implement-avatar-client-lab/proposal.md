@@ -1,5 +1,7 @@
 code_surface: openxFactory, codexFactory
 target_release: implemented
+Status: ratified
+Ratified: 2026-08-04 — record: the archive act, commit `25d8e1c` "Archive implement-avatar-client-lab under Brett's 9.1 disposition; record the F0 archive-hold ruling", which applied this change's spec delta into `openspec/specs/avatar-client-lab/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. The archive act was taken on Brett's word, named in the commit subject and body: "9.1 discharged by disposition (ruled 2026-08-04) ... 9.4 archived on the recorded 9.3 merge evidence", and in the change's own tasks.md 9.1, "DISCHARGED by disposition, ruled by Brett 2026-08-04 (option b, decision round)". That disposition discharged a REALIZATION gate rather than ratifying the change, so it is recorded here as the word the archive act was taken on, not as the ratification itself. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 ## Why
 

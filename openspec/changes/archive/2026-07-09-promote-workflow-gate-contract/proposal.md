@@ -1,5 +1,8 @@
 # Promote Workflow Gate Contract
 
+Status: ratified
+Ratified: 2026-07-09 — record: the archive act, commit `a1a2802` "Archive promote-workflow-gate-contract; promote eleventh capability", which applied this change's spec delta into `openspec/specs/workflow-gate-contract/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. The commit body records the promotion in words: "Sync the workflow-gate-contract spec to canonical ... Strict 11/11". Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
+
 ## Why
 
 All five DomainxFactories independently converged on the same workflow

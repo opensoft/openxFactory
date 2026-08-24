@@ -1,3 +1,6 @@
+Status: ratified
+Ratified: 2026-06-26 — record: the archive act, commit `d7b66d7` "Archive canonical policy migration change (#18)", which applied this change's spec delta into `openspec/specs/canonical-contract-migration/spec.md`, `openspec/specs/canonical-policy-migration/spec.md`, `openspec/specs/reference-proof-placement/spec.md`, `openspec/specs/repo-boundary-governance/spec.md`, `openspec/specs/shared-contract-ownership/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. The date is the archive folder's own 2026-06-26; PR #18 merged 2026-06-26 and the commit carries the 2026-06-25 local authoring date. The `.openspec.yaml` origin pair (`approved_by: Brett`, `approved_on: 2026-06-26`) is deliberately NOT cited: it records permission to author, which the register's C2 ruling holds is not a ratification. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
+
 ## Why
 
 The repo-boundary work established that `openxFactory` owns canonical factory

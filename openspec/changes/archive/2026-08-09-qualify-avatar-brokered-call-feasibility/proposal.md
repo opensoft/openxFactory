@@ -1,5 +1,7 @@
 code_surface: openxFactory
 target_release: implemented
+Status: ratified
+Ratified: 2026-08-09 — record: the archive act, commit `e34dce6` "Archive F0 feasibility: the gate follows its pin into the packaged archive (#30)", which applied this change's spec delta into `openspec/specs/avatar-brokered-call-feasibility/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. The archive act was taken on Brett's word, named in the commit body: "Option C of issue #30, accepted by Brett 2026-08-09, superseding the 2026-08-04 hold". That acceptance lifted an archive HOLD rather than ratifying the change, so it is recorded here as the word the archive act was taken on, not as the ratification itself. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 > **Archive hold (ruled by Brett, 2026-08-04): kept active by design.** The
 > avatar-client kernel's `contracts/avatar-client/interface-lock.yaml`
