@@ -397,62 +397,6 @@ Active changes:
 - [create-medxpractice-overlay-boundary](openspec/changes/create-medxpractice-overlay-boundary/proposal.md)
   — MedxPractice owns the private practice-operations composition boundary and
   pins the independent public openPractice application at an immutable commit.
-- [govern-openspec-corpus-membership](openspec/changes/govern-openspec-corpus-membership/proposal.md)
-  — authored and **RATIFIED 2026-08-23** (Brett Heap, in-session
-  multiple-choice round over all six Open Questions; no approving OpenSpec
-  change exists, so the proposal carries the record-citing `Ratified:`
-  spelling). Takes the last
-  unticked box of `sanction-ratified-record-spelling` (task 5.1: "`openspec/`
-  joining `GOVERNED_ROOTS` — the event that makes the 15 latent lines live.
-  Separate decision, much larger blast radius"). MEASURED rather than argued,
-  in this tree at `20f3e7e`, by patching `corpus.GOVERNED_ROOTS` in memory so
-  no tracked file was ever at risk; restoration verified by a byte-identical
-  re-run. **Full membership costs 573 findings** (82 → 655; 4 → 27 critical,
-  6 → 556 error), **13.2 points of the canon-share headline** (31.3% → 18.1%
-  here, 28.9% → 16.7% across the six-repo aggregation) and **123 of 724
-  doc-health tests** — 121 of them one structural collision, `duplicate
-  inventory key` on promoted specs arriving twice, plus two pinned invariants
-  it contradicts outright. At least five of the new fires are demonstrably
-  false: `supporting-docs/source-snapshots/` byte-exact copies reported for
-  the `Status: staged` they exist to preserve (re-breaking a 2026-08-15
-  carve-out through a different family), and the change that DEFINED the
-  `xspec:` grammar reported for the illustrative markers it must carry.
-  RECOMMENDS instead a **scoped lifecycle scan set** — `openspec/changes/**/proposal.md`
-  plus `openspec/changes/**/review/*.md` (118 documents at measurement, 119
-  once this change's own proposal joins the set), read by exactly four
-  families (status validity, standard backing, ratified provenance,
-  succession integrity) and by nothing that computes a census, a word count,
-  a canon share, an inventory entry or a catalog record. Cost: **+68 findings
-  (20 critical, 48 error), zero corpus-shape movement, zero test failures.**
-  Both families are needed, not just the ratification one: the two defects the
-  last two slices fixed by hand were replayed against their real pre-fix blobs
-  and split — phase-b's uncited `ratified` header is caught by
-  `ratified-provenance`, roster-device's line-41 header is invisible to it
-  (`parse_status` returns `None`, so the document is not `ratified` to that
-  family) and is caught only by `status-validity`. **All six open questions
-  ruled 2026-08-23**, four as recommended and two WIDER: the scoped option;
-  the two globs; the four families; and OQ-5's conforming line on the three
-  `review/` records that use a third `Ratifier:`/`Decision date:` vocabulary.
-  The two departures — **OQ-4**, rewrite ALL 17 `Ratified by:` lines that cite
-  a record rather than a change (the case `sanction-ratified-record-spelling`
-  §5.3 parked), a prefix respell to `Ratified:` with the content carried
-  verbatim and each of the 17 justified from its own record, rather than the
-  recommended 6-in-place-plus-one-block-ruling split; and **OQ-6**, backfill
-  ALL 47 headerless proposals from their own records rather than granting
-  `proposal-origin`'s pre-contract-legacy grandfather, with the campaign
-  required to STOP AND REPORT any document whose record cannot support a
-  status or citation rather than invent one. OQ-6 supersedes the class half of
-  `docs/archive-record-discrepancies.md` C2's 2026-08-22 ruling ("The
-  forty-six-wide option was not taken"), while C2's per-record findings — five
-  documents already examined and left headerless, one of them protected by a
-  recorded decision against ever carrying a status value — stand as the
-  campaign's first stop-and-report candidates. Deltas: `doc-health` (MODIFIED
-  `Deterministic check families`, ADDED
-  `Governed corpus membership and the lifecycle scan set`),
-  `document-lifecycle` (ADDED `Proposal packets carry the lifecycle header`).
-  Realization is the LAST slice, not the first: §5's campaign discharges all
-  68 standing violations to **zero critical and zero error over the scan set**
-  before §2's enforcement code may merge.
 - [add-notebook-projection-identity](openspec/changes/add-notebook-projection-identity/proposal.md)
   — authored and ratified 2026-08-23 (Brett Heap, in-session). The single exit
   of the staged topic `notebook-projection-identity`, raised the day its last
@@ -486,11 +430,6 @@ Active changes:
   to re-register a same-key book under a new provider id.
   `target_release: implementation_pending` — it archives only on Opensoft's own
   cutover, proven parity, and the personal-hosted books retired by recorded act.
- - [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
-   — local topology realization completed 2026-08-23: MedxChart now owns the
-   Medx composition boundary, pins openChart at an immutable commit, and the
-   xFactory aggregate no longer tracks openChart directly. The intended
-   `opensoft/MedxChart` remote still requires a separate publication act.
 - [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
   — local topology realization completed 2026-08-23: MedxChart now owns the
   Medx composition boundary, pins openChart at an immutable commit, and the
@@ -983,6 +922,105 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [govern-openspec-corpus-membership](openspec/changes/archive/2026-08-24-govern-openspec-corpus-membership/proposal.md)
+  — **ARCHIVED 2026-08-24**; authored, ratified and fully realized 2026-08-23.
+  (The folder date is the CLI's UTC stamp and the archive act ran at 22:57
+  local — the shape `2026-08-22-add-roster-device-admission-surface` and
+  `2026-08-22-add-dashboard-account-menu` already set.) **RATIFIED 2026-08-23**
+  by Brett Heap in an in-session multiple-choice round over all six Open
+  Questions; no approving OpenSpec change exists, so the proposal carries the
+  record-citing `Ratified:` spelling `sanction-ratified-record-spelling`
+  sanctioned. Takes — and this archive ticks — the last unticked box of that
+  change (task 5.1: "`openspec/` joining `GOVERNED_ROOTS` — the event that
+  makes the 15 latent lines live. Separate decision, much larger blast
+  radius"). MEASURED rather than argued, at `20f3e7e`, by patching
+  `corpus.GOVERNED_ROOTS` in memory so no tracked file was ever at risk;
+  restoration verified by a byte-identical re-run. **Full membership would
+  have cost 573 findings** (82 → 655; 4 → 27 critical, 6 → 556 error),
+  **13.2 points of the canon-share headline** (31.3% → 18.1% here, 28.9% →
+  16.7% across the six-repo aggregation) and **123 of 724 doc-health tests** —
+  121 of them one structural collision, `duplicate inventory key` on promoted
+  specs arriving twice, plus two pinned invariants it contradicts outright —
+  with at least five of its new fires demonstrably false. **RULED AND BUILT
+  instead: a scoped lifecycle scan set**, `openspec/changes/**/proposal.md`
+  plus `openspec/changes/**/review/*.md`, read by exactly four families
+  (status validity, standard backing, ratified provenance, succession
+  integrity) and by nothing that computes a census, a word count, a canon
+  share, an inventory entry or a catalog record. Both families are needed, not
+  just the ratification one: the two hand-fixed defects that prompted the
+  question were replayed against their real pre-fix blobs and split —
+  phase-b's uncited `ratified` header is caught by `ratified-provenance`,
+  roster-device's line-41 header is invisible to it (`parse_status` returns
+  `None`) and is caught only by `status-validity`. **All six questions ruled
+  2026-08-23**, four as recommended and two WIDER. **OQ-4**: rewrite every
+  `Ratified by:` line that cites a record rather than a change as a prefix
+  respell to `Ratified:`, content carried verbatim and each justified from its
+  own record — **17, extended the same day to 33** when the slice-5A review
+  found 16 lines naming the document's OWN change id, which passes the family
+  by self-reference and should not (a change is not its own approving change);
+  those 16 are LATENT, so the extension grew the edits and not the findings.
+  **OQ-6**: backfill ALL 47 headerless proposals from their own records rather
+  than granting `proposal-origin`'s pre-contract-legacy grandfather, with the
+  campaign required to STOP AND REPORT any document whose record cannot
+  support a header rather than invent one; this supersedes the class half of
+  `docs/archive-record-discrepancies.md` C2's 2026-08-22 ruling ("The
+  forty-six-wide option was not taken"), while C2's per-record findings stand.
+  **OQ-2 was ruled TWICE.** The second time, after slice 5D's adversarial
+  review found the ruled glob `**/review/*.md` wider than the delta's prose
+  ("any `review/` record whose subject is the ratification"), Brett kept the
+  RAW GLOB and widened the DELTA: every `review/` record under a packet is a
+  governance document, with the taxonomy obligation reaching all of them and
+  the ratification-citation obligation reaching only those whose status IS
+  `ratified`. Measured at **zero new findings** — openxFactory's 13 review
+  records are 5 `ratified` (each already cited under OQ-5) and 8 `record`
+  (a conforming value) — so the widening changed what the rule says and not
+  what the corpus owes. A separate correction in the same lap made the
+  byte-exact-evidence MUST NOT enforceable on MEMBERSHIP rather than left to a
+  census: `corpus.EVIDENCE_PARTS` excludes any path carrying a
+  `supporting-docs`, `source-snapshots` or `evidence` segment, applied AFTER
+  the ruled globs resolve so the globs themselves are untouched, and it
+  removes **nothing** from the real corpus at the aggregation's pinned SHAs
+  (285 scan-set documents before and after). **REALIZED across four merged
+  PRs, every one rebase-merged, so what is cited is what `main` carries and
+  not the branch commits**: **PR #279** (`da1b0e9`, `450735f`) slice 5A, the
+  thirteen active lifecycle-header defects, 9 critical + 4 error; **PR #280**
+  (`d615da5`) slice 5B, twenty-eight archived-record citations — twelve live
+  criticals cleared and the sixteen latent self-citers respelled — under the
+  B1/B2 in-place-overwrite discipline with a travelling bookkeeping note per
+  record; **PR #283** (`64d8087`, `4246592`) slice 5C, forty-four archived
+  backfills by two named derivation routes, 43 direct and one stop-and-report
+  (`enable-live-openxfactory`) resolved the same day by ruling, 44 error; and
+  **PR #284** (`d4ab3ba`, `7157fa3`, `bf0bda0`) slice 5D — four stragglers that
+  landed from other sessions mid-campaign discharged FIRST, on a tree where the
+  gate did not yet exist, then the enforcement, then the review's fix lap.
+  The enforcement itself is `LIFECYCLE_SCAN` + `EVIDENCE_PARTS` and
+  `load_lifecycle_docs` in `scripts/doc_health/corpus.py`, one `Context` field
+  in `runner.py`, and `_lifecycle_scope(ctx)` at exactly four call sites in
+  `families.py`, with `tests/doc-health` at **744** (724 + 20, every new test
+  mutation-validated). **New standing findings on the day it landed: zero** —
+  §5 discharged the whole standing population first (68 at proposal, 69 by
+  5A's start, plus the four that arrived mid-campaign), which is why the gate
+  reads **0 critical / 0 error over the 126-document scan set measured through
+  `runner.build_context`**, the code CI runs, rather than through a replay.
+  **The corpus did not move**: the whole `--single-repo` report is
+  byte-identical with the scan set present and with it neutralized in memory,
+  and stands at 4 critical / 8 error / 68 warning / 4 info over 328 documents.
+  The domain repositories' own **36 critical / 75 error** across 159 packet
+  documents at the aggregation's pinned SHAs are ADVISORY BY RULING and are
+  not silenced — no contract date, no reduced-severity class, no exclusion —
+  and are recorded as seven named follow-ups (FU-DOM-ADX, -HEALTHLINC,
+  -LEDGERX, -MEDXEHR, -MEDXFACTORY, -OPSX, -CODEX) in
+  `docs/archive-record-discrepancies.md`, durably rather than only in a packet
+  that would archive. **PROMOTED**: `doc-health` (MODIFIED `Deterministic
+  check families` — sixteen families corrected to seventeen, the four scan-set
+  readers named, and the census/word-count/canon-share/inventory/catalog
+  exclusion stated; ADDED `Governed corpus membership and the lifecycle scan
+  set`, 5 scenarios) and `document-lifecycle` (ADDED `Proposal packets carry
+  the lifecycle header`, 6 scenarios). Verified by requirement-map diff either
+  side of the archive: 24 → 25 and 13 → 14 requirements, 93 → 98 and 57 → 63
+  scenarios, ZERO requirements dropped, all eight of the modified
+  requirement's scenarios surviving, and zero drift byte-for-byte on every
+  requirement the deltas do not name.
 - [sanction-ratified-record-spelling](openspec/changes/archive/2026-08-22-sanction-ratified-record-spelling/proposal.md)
   — **ARCHIVED 2026-08-22**, authored, ratified and realized the same day.
   Closes the gap between the one ratification-citation spelling

@@ -601,18 +601,271 @@ Still no test outside this module edited. Per-box detail in 3.1, 3.3, 3.4 and
       documents examined stays 328, and the scan set stays 126. The full
       line-by-line account, with the word deltas measured per file, is in
       5D.4.
-- [ ] 4.4 Re-run the corpus-shape measurement and assert the canon-share
+- [x] 4.4 Re-run the corpus-shape measurement and assert the canon-share
       headline, documents examined, and governance word total are UNCHANGED
       from baseline. This is the claim that distinguishes the ruled option
       from the one that was rejected, so it is measured rather than asserted.
-- [ ] 4.5 README Active row updated when the change lands, moved to the
+
+      **DONE at the archive gate, and measured at BYTE granularity rather
+      than by comparing three figures.** The claim this box exists to test is
+      that the SCAN SET moves nothing, so the comparison that tests it is the
+      same corpus with and without the set — not this month's numbers against
+      the proposal's, which drifted for reasons that have nothing to do with
+      the ruled option.
+
+      **Arm 1 — the invariance itself, and it is total.**
+      `python3 scripts/doc-health.py --single-repo . --as-of 2026-08-23` on
+      the archive base `bf0bda0`, then the IDENTICAL run in a process where
+      `corpus.LIFECYCLE_SCAN` was patched to `()` in memory (no tracked file
+      touched, the same technique the proposal's own measurement used).
+      `diff` between the two reports returns **nothing**: every finding, every
+      per-stage row and Docs count, both word totals, the canon-share line and
+      the catalog section are the SAME BYTES. Not "the three headline figures
+      match" — the whole report matches.
+
+      **The harness is live, not a no-op, and that is measured too.** A
+      positive control patching the set to `("openspec/changes/**/tasks.md",)`
+      instead moves the same report to **4 critical / 118 error** (+110) over
+      226 diff lines. So the empty-set arm's byte-identity is a result and not
+      an artifact of a patch that never took.
+
+      **Arm 2 — the figures, against the number that binds.** Canon share
+      **31.2%** (169864 canon / 544131 governance words), **328 documents
+      examined** (the Docs column sums), findings **4 critical / 8 error /
+      68 warning / 4 info, 0 new regressions**, exit 0 — every figure
+      identical to 5D.4's post-fix-lap measurement, which is the enforcement
+      slice's own binding baseline. The proposal's 327 / 31.3% / 532,162 at
+      `20f3e7e` is NOT the comparison and was never going to be: other
+      sessions' packets moved the corpus, and §2.5 and 5D.4's M1 addendum
+      added 1537 governance words to two governed documents by design. Saying
+      so is the point — a corpus measurement whose scope changes silently
+      reports the scope rather than the corpus, which is this change's own
+      promoted sentence.
+
+      **The archive act itself DOES move the report, in exactly one line, and
+      it is not this box's claim.** Promoting the two deltas adds words to
+      `openspec/specs/`, which counts toward canon as promoted specs. The
+      after-archive figures are in 4.6.
+- [x] 4.5 README Active row updated when the change lands, moved to the
       archived block on archive.
-- [ ] 4.6 Archive on merged-plus-green per `target_release: implemented` —
+
+      **DONE at this gate, which is where the row moves.** The row left the
+      Active block and now heads the Archived block, above
+      `2026-08-22-sanction-ratified-record-spelling`; the link is repointed to
+      `openspec/changes/archive/2026-08-24-govern-openspec-corpus-membership/proposal.md`
+      and the archived block stays date-ordered newest-first with zero
+      out-of-order adjacent pairs, checked by script rather than by eye.
+
+      **Six things the row still misstated are corrected on the move rather
+      than carried across, each because the final state made it false.**
+      (1) It said the scan set is "118 documents at measurement, 119 once this
+      change's own proposal joins" — the enforcement measures **126**.
+      (2) It said the cost is "**+68 findings** (20 critical, 48 error)" —
+      that was the pre-discharge population; §5 discharged all of it first, so
+      the landed cost is **zero new findings**. (3) It said OQ-4 rewrites
+      "ALL 17" — the same-day RULED extension took it to **33**. (4) It
+      carried nothing about OQ-2's SECOND ruling (raw glob stands, delta
+      widens) or the `EVIDENCE_PARTS` membership correction, both of which
+      changed what the capability says. (5) It read "Realization is the LAST
+      slice … before §2's enforcement code may merge" in the future tense of a
+      thing now done. (6) It described the change as a RECOMMENDATION
+      ("RECOMMENDS instead a scoped lifecycle scan set") when the option was
+      ruled and built. The rewritten row carries the archive date, the six
+      rulings, the four merged PRs by the shas `main` actually holds, the
+      enforcement surface, the zero gate, the advisory domain populations and
+      the verified promotion arithmetic.
+
+      **One unrelated README defect fixed on the way past, and disclosed
+      rather than folded in silently.** `create-medxchart-overlay-boundary`
+      appeared TWICE in the Active block — 5D.1's derivation table had already
+      found and named this ("an unrelated pre-existing duplication noted but
+      not fixed here"). The two entries are byte-identical modulo one leading
+      space, and the malformed one-space-indented copy is the one removed; the
+      well-formed copy stands untouched. It is fixed here because a presence
+      sweep cannot be exact while it stands, and this box owes an exact sweep.
+- [x] 4.6 Archive on merged-plus-green per `target_release: implemented` —
       no contract bundle is cut, so no release tag is owed.
-- [ ] 4.7 Tick `sanction-ratified-record-spelling` task 5.1 with a pointer to
+
+      **DONE. Branched from `origin/main` at `bf0bda0`; realization
+      re-verified at this gate rather than inherited from §5's read-backs.**
+
+      **MERGED — four PRs, every one REBASE-merged, so the branch commits are
+      unreachable on `main` and are NOT cited.** What `main` carries, each
+      confirmed an ancestor of `origin/main` by `git merge-base --is-ancestor`:
+      **PR #279** (slice 5A, merged 2026-08-23T21:15:28Z) → `da1b0e9`,
+      `450735f`; **PR #280** (slice 5B, 2026-08-23T21:39:47Z) → `d615da5`;
+      **PR #283** (slice 5C, 2026-08-24T00:14:54Z) → `64d8087`, `4246592`;
+      **PR #284** (slice 5D and the enforcement, 2026-08-24T02:51:44Z) →
+      `d4ab3ba` (the four straggler discharges, landing FIRST on a tree with
+      no gate), `7157fa3` (the enforcement) and `bf0bda0` (the fix lap).
+      5D.3's branch-local shas `c8356cd` and `abc26d1` are the pre-rebase
+      spellings of `d4ab3ba` and `7157fa3`; both were checked and are NOT
+      ancestors of `origin/main`, the lesson
+      `add-roster-device-admission-surface`'s archive recorded for the mirror
+      case.
+
+      **The realized surface was READ on the base before anything moved**, not
+      taken from the read-backs that claim it: `LIFECYCLE_SCAN`,
+      `EVIDENCE_PARTS`, `_is_evidence`, `iter_lifecycle_paths` and
+      `load_lifecycle_docs` in `scripts/doc_health/corpus.py`; the
+      `lifecycle_docs` field and its `build_context` loop in `runner.py`; and
+      `_lifecycle_scope(ctx)` at EXACTLY four call sites in `families.py`
+      (lines 339, 355, 395, 474) — the audit-by-grep the helper's own docstring
+      promises.
+
+      **GREEN on the base `bf0bda0`, BEFORE any archive edit, exit codes read
+      directly and not through a pipe:** `OPENSPEC_TELEMETRY=0 openspec
+      validate --all --strict` exit 0, **74 passed / 0 failed (74 items)**;
+      `python3 -m pytest tests/doc-health` exit 0, **744 passed** (4.2's
+      read-back says 741 and is left standing as what was true at `abc26d1`;
+      5D.4's fix lap took it to 744); `pytest tests/ideation-dashboard -k
+      workbench` exit 0, **140 passed, 3858 deselected**; `doc-health.py
+      --single-repo .` exit 0 at **4 critical / 8 error / 68 warning / 4 info,
+      0 new regressions**; and the **5D.2 zero gate through
+      `runner.build_context`** — the enforcement path, not a replay —
+      **0 CRITICAL / 0 ERROR across all four ruled families over a
+      126-document scan set**, 328 governed corpus documents, overlap 0.
+
+      **NO BUNDLE.** `target_release` names no contract release and none was
+      cut: nothing under `contracts/schemas/` moved in any of the EIGHT
+      realization commits — checked one commit at a time with
+      `git show --name-only`, zero hits on each — so there is no digest
+      inventory and no tag to verify. Merge-plus-green is the whole gate, as
+      the front matter says.
+
+      **BARE CLI, on the checked predicate.** `.openspec.yaml` declares
+      `origin.kind: ad_hoc` with no staging topic, and the packet owns no
+      `supporting-docs/` — so `document-lifecycle`'s retention requirement,
+      scoped in its own first clause to a change WITH proposal supporting
+      documents, has nothing to bind. `openspec archive
+      govern-openspec-corpus-membership --yes`, following
+      `sanction-ratified-record-spelling` and
+      `add-roster-device-admission-surface`. The CLI reported
+      `doc-health: + 1 added, ~ 1 modified` and `document-lifecycle: + 1
+      added`, warned on the 8 deliberately-unticked §6 boxes, and dropped
+      nothing.
+
+      **THE FOLDER IS DATED 2026-08-24 AND THAT IS THE HOUSE SHAPE, not a
+      slip.** The CLI stamps UTC; the archive act ran at 2026-08-23 22:57
+      local, which is 2026-08-24 02:57Z. The same one-day-ahead spelling is
+      already on record twice —
+      `2026-08-22-add-roster-device-admission-surface` was archived by a
+      commit dated 2026-08-21 22:26 local and
+      `2026-08-22-add-dashboard-account-menu` by one dated 2026-08-21 23:09.
+      The folder was NOT renamed to match the local date, because renaming the
+      tool's own output to look tidier is the kind of unmeasured tidying this
+      change exists to stop.
+
+      **ORIGIN RETENTION verified against pre-archive bytes rather than
+      assumed:** all six packet files hash IDENTICALLY either side of the
+      move — `.openspec.yaml` `0ad2cbd2bd`, `design.md` `34fc6af383`,
+      `proposal.md` `b47de62f72`, `specs/doc-health/spec.md` `2498f04228`,
+      `specs/document-lifecycle/spec.md` `595e93e484`, `tasks.md`
+      `515dbe9614` (this file's own hash is its pre-tick one; the §4 ticks
+      below are written after the move, in the archived location).
+
+      **THE PACKET STAYS INSIDE ITS OWN GATE, which is worth checking rather
+      than assuming.** `LIFECYCLE_SCAN`'s `openspec/changes/**/proposal.md`
+      matches at any depth, so `archive/` paths match too: measured, the scan
+      set holds **126 documents before and 126 after** the archive, of which
+      the count under `openspec/changes/archive/` moves 96 → 97 — this
+      packet's own `proposal.md`, now at
+      `archive/2026-08-24-govern-openspec-corpus-membership/proposal.md`, with
+      `parse_status` reading `ratified` and its record-citing `Ratified:` line
+      clearing the floor. The change that wrote the rule is still governed by
+      it after archiving, which is the outcome that would have been quietly
+      wrong had `**` not reached `archive/`.
+
+      **GATES AFTER THE ARCHIVE, exit codes read directly.**
+      `openspec validate --all --strict` exit 0, **73 passed / 0 failed
+      (73 items)** — down EXACTLY one from the base's 74, which is this
+      change leaving the active set; the item count is changes plus specs, and
+      promoting into two existing capabilities adds no spec item.
+      `pytest tests/doc-health` exit 0, **744 passed**, unchanged — the
+      enforcement's own tests do not depend on which side of `archive/` a
+      packet sits on. `pytest tests/ideation-dashboard -k workbench` exit 0,
+      **140 passed**, unchanged. The **5D.2 zero gate re-run through
+      `runner.build_context`**: **0 CRITICAL / 0 ERROR** over the four ruled
+      families, scan set 126, governed corpus 328, overlap 0. And 4.4's
+      invariance arm re-run on the archived tree: the report is still
+      byte-identical with the scan set neutralized.
+
+      **THE WHOLE-REPO REPORT MOVES EXACTLY TWO LINES, and neither is a
+      finding.** Compared LINE BY LINE with `diff` against the base run.
+      `Findings: 4 critical, 8 error, 68 warning, 4 info. New regressions vs
+      previous report: 0` is unchanged, every per-stage row's Docs and Words
+      are unchanged, every finding line is byte-identical, and documents
+      examined stays 328 — the packet moved between two directories neither of
+      which is a governed root, so no census could move. What did move:
+      - `Canon share by words:` **31.2% → 31.4%**, 169864 → **171559** canon
+        words and 544131 → **545826** governance words, **+1695 on both**;
+      - the `| (promoted specs) |` word total 116827 → **118522**, the same
+        **+1695**.
+
+      Measured rather than inferred: `len(new.split()) - len(old.split())`
+      over the two promoted spec files returns **+918** on
+      `openspec/specs/document-lifecycle/spec.md` and **+777** on
+      `openspec/specs/doc-health/spec.md`, and 918 + 777 = 1695. Both totals
+      move by the same amount because a promoted spec counts toward canon and
+      toward governance alike, which is why the share ticks up rather than
+      down. This is the archive ACT's movement, not the scan set's, and 4.4's
+      claim is untouched by it.
+
+      **PROMOTION VERIFIED BY REQUIREMENT-MAP DIFF** captured before the
+      archive and re-captured after, per requirement and by name rather than
+      by reading the CLI's `+ 2, ~ 1` summary — the MODIFIED-delta
+      scenario-drop failure mode, checked rather than trusted.
+      `document-lifecycle`: **13 → 14 requirements**, ZERO dropped;
+      **57 → 63 scenarios**; the ADDED `Proposal packets carry the lifecycle
+      header` arrives with its **6 scenarios** (a proposal declares its
+      standing; a review record records a ratification; a review record is not
+      about a ratification; a pre-existing packet carries no header; a record
+      cannot support a derived header; a packet working file carries no
+      lifecycle header — the third is OQ-2's same-day widening, written as its
+      own scenario); and all **13 pre-existing requirements are byte-identical**.
+      `doc-health`: **24 → 25 requirements**, ZERO dropped; **93 → 98
+      scenarios**; the ADDED `Governed corpus membership and the lifecycle
+      scan set` arrives with its **5 scenarios**; the MODIFIED `Deterministic
+      check families` keeps **all 8** of its scenarios (none lost, none
+      gained) and grows 5194 → 5980 bytes, which is S4's sixteen-to-seventeen
+      correction plus the four-scan-set-readers sentence and its WHEN bullet;
+      and the other **23 requirements are byte-identical**. All three promoted
+      requirement bodies compare **byte-identical to their delta text** (5758,
+      5980 and 4102 bytes). One caveat on method, stated so nobody re-derives
+      it: a naive extractor reports a spurious one-byte delta on whichever
+      requirement was LAST in each file before the promotion, because it
+      absorbs the file's trailing blank line; the two such cases here were
+      inspected byte by byte and are exactly that and nothing else.
+
+      **PRESENCE SWEEP after the move, exact BOTH directions**, by script:
+      **24 active directories ↔ 24 active rows** and **89 archive directories
+      ↔ 89 archived rows**, zero orphans either way, zero duplicate rows on
+      either side, and the archived block date-ordered newest-first with zero
+      out-of-order adjacent pairs. The duplicate-row fix 4.5 discloses is what
+      makes the active side exact.
+- [x] 4.7 Tick `sanction-ratified-record-spelling` task 5.1 with a pointer to
       this change and to the option ruled, under the append discipline that
       change's own §5.2 established. That box is the reason this change
       exists and closing it is part of finishing.
+
+      **DONE — and it is that change's LAST unticked box, so
+      `sanction-ratified-record-spelling` is now fully discharged.** Box 5.1
+      in
+      `openspec/changes/archive/2026-08-22-sanction-ratified-record-spelling/tasks.md`
+      is ticked with a dated inline discharge suffix in the shape 5.2 set on
+      2026-08-23: the original sentence is left standing WORD FOR WORD as
+      history under the 2026-08-10 append discipline, and the discharge is
+      appended beneath it naming this change, the option ruled (b, the scoped
+      lifecycle scan set), the answer to the question the box actually asked
+      (`openspec/` does NOT join `GOVERNED_ROOTS`), and what became of the "15
+      latent lines" the box named. Its sibling 5.3 ("Rewriting any existing
+      citation line to a preferred shape") stays UNTICKED and is correct to,
+      even though this change did exactly that to 33 lines. An out-of-scope
+      box records what ITS change declined to do, and OQ-4 says so in as many
+      words — "they are the case `sanction-ratified-record-spelling` task 5.3
+      parked". Another change taking up a parked case later does not tick the
+      box that parked it; it cites it, which OQ-4 does. Same reading as §6
+      below.
 
 ## 5. The discharge campaign — all 68, to zero
 
