@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory (`examples/notebook-projection-hosting.yaml` — a `custody:` block carrying a BY-REFERENCE pointer to the governed binding, never secret material; `scripts/validate-notebook-projection-hosting.py` — the rule enforcing that, including the refusal of anything secret-shaped in the record; `docs/lifecycle-notebook-projection.md` §12 and `docs/notebook-projection-migration-runbook.md` — the custody story and its honest reach; optionally one packaged reference fixture under `examples/credential-contracts/`, which forces the self-test count in `tests/credential_contracts/` to be updated with it). The LIVE binding instances are NOT an openxFactory surface — see "Where the bindings live". No `contracts/` artifact is added or changed.
+code_surface: openxFactory (`examples/notebook-projection-hosting.yaml` — a `custody:` block carrying a BY-REFERENCE pointer to the governed binding, never secret material; `scripts/validate-notebook-projection-hosting.py` — the rule enforcing that, including the refusal of anything secret-shaped in the record; `docs/lifecycle-notebook-projection.md` §12 and `docs/notebook-projection-migration-runbook.md` — the custody story and its honest reach). No fixture is added under `examples/credential-contracts/` — review found a two-consuming-system example would trip the validator's `shared-secret-identity` rule, so the requirement text carries the shape instead. The LIVE binding instances are NOT an openxFactory surface — see "Where the bindings live". No `contracts/` artifact is added or changed.
 target_release: none — this change moves no contract bytes. The credential binding-template shape it uses is already published (`xfactory_credential_binding_template`, `contracts/schemas/xfactory-credential-contracts.schema.yaml`), so no schema changes, no manifest row, no bundle. Realization lands as spec text plus the hosting-record and documentation surfaces named above; the bundle stays at `contract-v1.40`.
 ---
 
@@ -85,10 +85,14 @@ repos provide templates only."*
 So the split this change proposes:
 
 - **openxFactory** carries the neutral obligations (the three requirements
-  below) and, optionally, ONE packaged reference fixture under
-  `examples/credential-contracts/` showing the two-consuming-system shape.
-  Everything under `examples/` there is a fixture, not a live record — the one
-  existing binding example is literally named `*.binding-template.example.yaml`.
+  below) and NO fixture. A packaged two-consuming-system example under
+  `examples/credential-contracts/` was considered and DECLINED on review: the
+  validator's `shared-secret-identity` rule fires whenever two bindings in one
+  template share a `secret_ref`, and two systems reaching ONE account's
+  password is exactly that shape. Distinct references to pass the rule would
+  misrepresent the estate; relaxing the rule would weaken a check that exists
+  to keep the dispatch and content credentials apart. The requirement text
+  carries the shape instead.
 - **The live xFactory sync-lane binding** is declared where the estate is
   governed: the install's `credentials/` tree, the same place the deployment
   handoff already puts `cir-opensoft-qa-dox-dispatch-minter`.
@@ -112,11 +116,18 @@ instances here, and the repository's rule says they go there.
   which is ratified but NOT YET PROMOTED — it promotes when that change
   archives on its migration evidence. Modifying the same requirement from a
   second active change would put two live deltas on one requirement text.
-- **Affected code, at realization**: the hosting record's `custody:` block, the
-  validator rule enforcing by-reference-only, and the two documentation
-  surfaces. A packaged example under `examples/credential-contracts/` would
-  additionally require updating the self-test count asserted in
-  `tests/credential_contracts/`.
+- **Affected code, at realization**: the hosting record's `custody:` block —
+  the binding's IDENTIFIER, not its `secret_ref`, which is binding detail and
+  would invite the rest of the binding to follow — the validator rule enforcing
+  by-reference-only, and the two documentation surfaces.
+- **The per-system authority invariant is NOT machine-enforceable today, and
+  this change does not pretend otherwise.** The published binding shape carries
+  no consumer or access-identity field and the credential validator compares no
+  authorities, so two bindings using the same vault principal validate cleanly.
+  Today the invariant is held by review and by estate wiring; making it
+  provable means extending `contracts/schemas/`, which DOES carry the
+  contract-release ritual — named as an owed successor (tasks §4.5) rather than
+  smuggled in here.
 - **`contracts/` is untouched.** The binding-template shape is already
   published; nothing here changes a schema, a manifest row or a digest, and no
   bundle is cut. `target_release: none`.
@@ -138,5 +149,11 @@ instances here, and the repository's rule says they go there.
 - **The session profile is NOT a custody subject.** See the design: this family
   already refuses to distribute refreshable session state, and the `nlm`
   profile is exactly that class.
+- **Per-system bindings are not per-system containment.** Revoking a binding
+  stops that system's future fetches; it cannot un-disclose a password already
+  fetched or end a session already established. Evicting a consumer that has
+  read the secret requires ROTATION, which necessarily reaches every consumer —
+  the one act these bindings cannot separate. The requirement says so rather
+  than implying an isolation the credential class cannot deliver.
 - **The generalization this builds on is unpromoted** until
   `add-notebook-projection-identity` archives, which waits on the migration.

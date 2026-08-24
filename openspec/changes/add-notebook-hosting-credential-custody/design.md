@@ -103,11 +103,12 @@ is. It names `provider: azure_key_vault`, `vault: kv-opensoft-xfactory-qa`,
 because a packaged fixture is a fixture; the no-hard-coding rule binds contract
 artifacts, lane definitions and domain repositories.
 
-So the split: neutral obligations here; one optional packaged fixture here
-showing the two-binding shape; the live xFactory sync-lane binding in the
-install's `credentials/` tree beside `cir-opensoft-qa-dox-dispatch-minter`; the
-live openXdox binding as its own successor packet in its own lane, exactly as
-the ruling already directs for that half.
+So the split: neutral obligations here, and no fixture (see the shape section
+— a two-consuming-system example would trip `shared-secret-identity`); the live
+xFactory sync-lane binding in the install's `credentials/` tree beside
+`cir-opensoft-qa-dox-dispatch-minter`; the live openXdox binding as its own
+successor packet in its own lane, exactly as the ruling already directs for
+that half.
 
 **This is flagged, not decided quietly.** The ruling asked for the instances
 here; the repository's rule puts them there. If the ratifier prefers the
@@ -120,11 +121,25 @@ Already published, so nothing is invented: `xfactory_credential_binding_template
 in `contracts/schemas/xfactory-credential-contracts.schema.yaml` requires
 `[provider, secret_ref, owner, rotation_policy]` per binding, with `vault`
 optional, under a `credential_bindings` map keyed by requirement id, inside a
-`client` envelope. Two entries, one per consuming system, is the whole shape:
-distinct `secret_ref` is not required of them (both resolve the same account's
-password) but distinct OWNER and distinct access identity are the point, and the
-validator already carries a `shared-secret-identity` check for bindings that
-collapse into one.
+`client` envelope. Two entries, one per consuming system, is the intended shape — but the
+published record cannot yet carry what makes them two AUTHORITIES, and review
+found two concrete reasons to say so plainly.
+
+First, the binding object has NO consumer or access-identity field, and
+`scripts/validate-credential-contracts.py` compares no authorities. Two
+bindings naming the same vault principal validate cleanly. So the per-system
+invariant is, today, held by review and estate wiring rather than proven by the
+record; extending the shape is a `contracts/schemas/` change carrying the full
+release ritual, and is named as an owed successor.
+
+Second, the validator's `shared-secret-identity` check fires whenever two
+bindings in one template share a `secret_ref` — and two consumers of ONE
+account password is exactly that shape. The check exists to stop the dispatch
+and content credentials collapsing into one, which is a different fault from
+two consumers of one deliberately-shared identity, but it cannot tell them
+apart. That is why no packaged fixture is added here: distinct references would
+misrepresent the estate, and relaxing the rule is a change to a check with its
+own good reason to exist.
 
 ## The contracts-or-not decision
 

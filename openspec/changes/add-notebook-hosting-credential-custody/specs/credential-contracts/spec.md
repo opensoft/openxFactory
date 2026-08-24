@@ -32,7 +32,9 @@ Custody SHALL NOT be claimed to deliver automation. Holding a password governs W
 ### Requirement: Each consuming system reaches a shared operated identity through its own binding
 Where more than one system authenticates as the SAME operated identity, each consuming system SHALL reach that identity's credential through its OWN binding: its own access identity against the secret store, its own grant, its own rotation visibility, and its own audit trail. One identity MAY be shared; one AUTHORITY SHALL NOT. A system SHALL NOT borrow another system's binding, and SHALL NOT consume the identity through a session another system established.
 
-Per-system bindings are what make the consequential acts separable. With one shared route, revoking either system's access revokes both, the store's access log cannot say which system read the secret, and a compromise of one is indistinguishable from a compromise of the other. Separate bindings SHALL be revocable independently, and revoking one SHALL NOT disturb the other.
+Per-system bindings are what make the consequential acts separable. With one shared route, revoking either system's access revokes both, the store's access log cannot say which system read the secret, and a compromise of one is indistinguishable from a compromise of the other. Each binding SHALL therefore be revocable on its own, and revoking one SHALL NOT disturb the other's ability to fetch.
+
+WHAT REVOCATION REACHES, STATED HONESTLY, because a shared bearer secret bounds it. Revoking a binding stops that system's FUTURE fetches and nothing more: it cannot un-disclose a password already fetched, and it cannot terminate a session already established with it. Evicting a consumer that has already read the secret requires ROTATING it, and rotation necessarily reaches EVERY consumer of that identity — the one act per-system bindings cannot make independent. A change adopting this requirement SHALL record that cost rather than let per-system bindings read as per-system containment, and SHALL NOT claim an isolation the credential class cannot deliver.
 
 A shared ambient session SHALL NOT be used as a substitute for a second binding. This restates, for operated identities, what this capability already refuses for worker credentials: a refreshable session-state credential is the wrong class to distribute, because an ephemeral copy's refresh silently stales the master. Two systems sharing one live session is that same defect with the copy left implicit.
 
@@ -42,13 +44,23 @@ A shared ambient session SHALL NOT be used as a substitute for a second binding.
 - **AND** it does not reuse the first system's binding or its established session
 
 #### Scenario: One system's access is revoked
-- **WHEN** one consuming system's access to the operated identity is revoked
-- **THEN** the other system's binding is unaffected and its lane keeps working
+- **WHEN** one consuming system's binding is revoked
+- **THEN** that system can no longer FETCH the credential, the other system's binding is unaffected, and its lane keeps working
 - **AND** the revocation is attributable to exactly one system
+
+#### Scenario: A consumer that already holds the secret must be evicted
+- **WHEN** a consuming system has already fetched the shared credential, or already established a session with it, and must be evicted
+- **THEN** revoking its binding is insufficient — the credential is rotated, and the rotation reaches every consumer of that identity
+- **AND** that shared cost is recorded rather than described as independent revocation
 
 #### Scenario: The access log is asked which system read the secret
 - **WHEN** the secret store's access log is examined after a fetch
 - **THEN** it names which consuming system's identity performed it, because each has its own
+
+#### Scenario: The published binding shape cannot yet express the access identity
+- **WHEN** two bindings for one operated identity are recorded in the promoted binding-template shape
+- **THEN** the shape carries no consumer or access-identity field, so the per-system authority is asserted by the binding's owner and its estate wiring rather than proven by the record
+- **AND** the gap is recorded as owed to a successor that extends the shape, not left implied as enforced
 
 #### Scenario: A shared session is proposed instead of a second binding
 - **WHEN** a second system proposes to consume the identity through a session the first system established

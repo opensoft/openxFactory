@@ -11,9 +11,11 @@ that operator act rather than as work this change performs.
 ## 1. The hosting record declares its custody
 
 - [ ] 1.1 Add a `custody:` block to `examples/notebook-projection-hosting.yaml`
-  carrying a BY-REFERENCE pointer only: the binding's identifier, the secret
-  reference, and what the custody covers. No password, recovery code, TOTP
-  seed, session cookie, or exported profile — in this file or any other.
+  carrying a BY-REFERENCE pointer only: the BINDING'S IDENTIFIER and what the
+  custody covers. NOT the `secret_ref` — that field belongs to the binding
+  instance, and duplicating it here would invite the rest of the binding to
+  follow (review note, 2026-08-23). No password, recovery code, TOTP seed,
+  session cookie, or exported profile — in this file or any other.
 - [ ] 1.2 State the custody's honest reach in the record itself: which secrets
   the binding holds, and that the sign-in's interactive step remains. A
   reference that implies unattended access invites a reader to plan on it.
@@ -23,8 +25,9 @@ that operator act rather than as work this change performs.
 ## 2. The validator enforces by-reference-only
 
 - [ ] 2.1 Teach `scripts/validate-notebook-projection-hosting.py` the custody
-  rule: an operator-hosted declaration carries a custody reference; a
-  self-hosted one need not.
+  rule: an operator-hosted declaration carries a custody BINDING IDENTIFIER; a
+  self-hosted one need not. Refuse a `secret_ref` in the hosting record too —
+  it is binding detail, and the record's job is to point at the binding.
 - [ ] 2.2 REFUSE anything secret-shaped in the record — a `password`,
   `totp`/`otp_seed`, `recovery_code`, `cookie`, `session` or `profile` field,
   and any value that looks like credential material rather than a reference.
@@ -46,12 +49,20 @@ that operator act rather than as work this change performs.
 
 ## 4. The bindings — one per consuming system
 
-- [ ] 4.1 OPTIONAL, and decide explicitly: a packaged reference fixture under
-  `examples/credential-contracts/` showing the two-consuming-system shape. If
-  taken, the self-test count string asserted in
-  `tests/credential_contracts/test_dispatch_credential_contract.py` ("3
-  positive + 5 negative") MUST be updated in the same commit or the suite
-  fails. If declined, say so and rely on the requirement text.
+- [ ] 4.1 DECLINED BY DEFAULT, with the reason recorded — a packaged fixture
+  under `examples/credential-contracts/` showing two consuming systems would
+  TRIP the validator: `shared-secret-identity` fires whenever two bindings in
+  one template share a `secret_ref`
+  (`scripts/validate-credential-contracts.py`), and two systems reaching ONE
+  account's password is exactly that shape. Giving them distinct `secret_ref`s
+  to satisfy the rule would misrepresent the estate (there is one secret), and
+  relaxing the rule is a change to a check that exists to keep the dispatch and
+  content credentials apart. So the requirement text carries the shape and no
+  fixture is added. If a later change wants one, it must first decide whether
+  `shared-secret-identity` should distinguish "two credentials collapsed into
+  one" from "two consumers of one credential" — and updating the self-test
+  count asserted in `tests/credential_contracts/` ("3 positive + 5 negative")
+  rides with it.
 - [ ] 4.2 NOT AN OPENXFACTORY SURFACE: the live xFactory sync-lane binding is
   declared in the install's `credentials/` tree, per the residency rule in
   `contracts/manifest.yaml` ("openxFactory ships no instance records"). Named
@@ -65,6 +76,18 @@ that operator act rather than as work this change performs.
   TOTP seed) is placed into `kv-opensoft-xfactory-qa` by Brett or an operator,
   under the landed custody rule, evidenced per `credential-contracts`. Nothing
   in this repository performs or witnesses that write.
+
+- [ ] 4.5 NAMED SUCCESSOR, owed: extend the published binding shape so the
+  per-system authority is REPRESENTABLE. Today
+  `xfactory_credential_binding_template` requires only `[provider, secret_ref,
+  owner, rotation_policy]` with optional `vault`, carries no consumer or
+  access-identity field, and the validator compares no authorities — so two
+  bindings using the same vault principal validate cleanly and the invariant is
+  held by review rather than by the record. Adding that field is a
+  `contracts/schemas/` change and therefore DOES carry the contract-release
+  ritual (CHANGELOG allocation, manifest digest, `contract_bundle_version`
+  bump, inventory rebuild, verify-commit, tag) — which is precisely why it is a
+  successor and not smuggled into this change.
 
 ## 5. Validate green
 
