@@ -1,6 +1,7 @@
 ---
 code_surface: xFactory aggregation and Medx clinical repository topology
 target_release: implementation_pending
+Status: draft
 ---
 # Proposal: create-medxchart-overlay-boundary
 
