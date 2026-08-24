@@ -5491,6 +5491,58 @@ async function contextOnlyTileSave() {
   };
 }
 
+// ---- R-5 (#81): the ONE visible Save line leads with the FIRST failing
+// ---- cause, never with a downstream consequence of it --------------------
+//
+// THE REAL ORCHESTRATOR again, with a transport that refuses the ANCESTRY step.
+// `runSave` then reports the outline `refused` with the transport's own reason
+// and every document behind it `not_attempted` with the missing-ancestry reason
+// -- a root and its consequences, in save order -- which is precisely the shape
+// a single transient line has to choose from. A scripted stand-in could not
+// produce it: the `not_attempted` rows are the orchestrator's own answer.
+const ANCESTRY_REFUSAL = 'the outline base moved under this buffer';
+
+function refusingSeam(calls, refusals) {
+  return (request) => runSave(savePlanState(request), {
+    only: request.only,
+    transport: async (req) => {
+      calls.push({ kind: req.kind, document: req.document });
+      const refusal = refusals[req.kind];
+      if (refusal) return { ok: false, message: refusal };
+      return {
+        ok: true, action: req.action, ref: SESSION_REF,
+        revision: 'rev-' + calls.length,
+        content_hash: identity(String(req.document) + 'saved'),
+      };
+    },
+  });
+}
+
+async function refusedAncestryLeadsTheSummary() {
+  const calls = [];
+  const { controller } = await mount({
+    save: refusingSeam(calls, { outline: ANCESTRY_REFUSAL }),
+  });
+  await controller.loadDocumentForEditing(DOC_A);
+  await controller.loadDocumentForEditing(DOC_B);
+  await controller.edit('outline', '# Outline edited\n');
+  await controller.edit(DOC_A, '# Document A edited\n');
+  await controller.edit(DOC_B, '# Document B edited\n');
+  const outcome = await controller.save();
+  const note = controller.elements().eventNote();
+  const read = {
+    outcome, calls,
+    eventNote: String(note.textContent),
+    eventNoteHidden: note.hidden === true,
+    // every buffer's OWN durable sentence, which is where the per-buffer
+    // detail lives whichever row the transient line leads with
+    statuses: Object.fromEntries(controller.bufferKeys().map(
+      (k) => [k, String(controller.elements().status(k).textContent)])),
+  };
+  controller.destroy();   // releases the note's own timer
+  return read;
+}
+
 // ---- two loaded documents sharing a basename stay distinguishable --------
 async function basenameCollision() {
   const { controller } = await mount();
@@ -5608,6 +5660,7 @@ console.log(JSON.stringify({
   outlineStaysReserved: await outlineStaysReserved(),
   tileSave: await tileSave(),
   contextOnlyTileSave: await contextOnlyTileSave(),
+  refusedAncestry: await refusedAncestryLeadsTheSummary(),
   basenameCollision: await basenameCollision(),
   alreadyLoaded: await alreadyLoaded(),
 }));
@@ -5861,6 +5914,55 @@ def test_a_context_only_document_loads_but_has_no_reachable_tile_save(
     assert "read-only context" in result["refused"]["error"]
     # nothing reached the governed action at all
     assert result["calls"] == []
+
+
+def test_the_one_visible_save_line_leads_with_the_first_failing_cause(
+    loaded_set_results,
+):
+    """R-5 (openxFactory #81): the operator MUST read the ROOT, not a
+    consequence of it.
+
+    A partial/refused ordered Save produces one row per buffer in SAVE ORDER,
+    and when the ancestry step is the thing that failed, every document behind
+    it is `not_attempted` *because of it*. There is exactly ONE transient
+    visible line, so the row it carries is a choice — and the only truthful
+    choice is the FIRST failing row in save order, the cause the other rows are
+    consequences of. Leading with a downstream row hands the human the
+    missing-ancestry sentence and never names the refusal that produced it.
+
+    Asserted as the SEMANTIC, not as a sentence: the visible line must be the
+    lead row's own stated outcome, which is exactly the opening of that
+    buffer's own durable status region — and must not be any later row's.
+    Nothing is hidden by the choice: every row keeps its own sr-only sentence,
+    which is what the per-buffer reporting rule (FR-035) requires.
+    """
+    result = loaded_set_results["refusedAncestry"]
+    rows = result["outcome"]["buffers"]
+    withheld = [row for row in rows
+                if row["status"] in ("refused", "not_attempted")]
+    # the shape this defect needs: a ROOT and its CONSEQUENCES, in save order
+    assert [row["status"] for row in withheld] == [
+        "refused", "not_attempted", "not_attempted"], rows
+    lead, *downstream = withheld
+    assert lead["key"] == "outline"
+    note = result["eventNote"]
+    assert result["eventNoteHidden"] is False
+    assert note
+
+    # THE LEAD. The visible line is the first failing row's own verdict — the
+    # same sentence, attributed to the same buffer, that row's status region
+    # opens with.
+    statuses = result["statuses"]
+    assert statuses[lead["key"]].startswith(note), (note, statuses)
+    assert lead["message"] in note
+
+    # …and it is NOT a downstream row's. Each consequence keeps its own
+    # sentence in its own region, and none of them is what the human reads
+    # first.
+    for row in downstream:
+        assert not statuses[row["key"]].startswith(note), (note, row)
+        assert row["message"] not in note
+        assert row["message"] in statuses[row["key"]]
 
 
 def test_two_loaded_documents_sharing_a_basename_stay_distinguishable(
