@@ -5491,6 +5491,130 @@ async function contextOnlyTileSave() {
   };
 }
 
+// ---- R-5 (#81): the ONE visible Save line leads with the FIRST failing
+// ---- cause, never with a downstream consequence of it --------------------
+//
+// THE REAL ORCHESTRATOR again, with a transport that refuses the ANCESTRY step.
+// `runSave` then reports the outline `refused` with the transport's own reason
+// and every document behind it `not_attempted` with the missing-ancestry reason
+// -- a root and its consequences, in save order -- which is precisely the shape
+// a single transient line has to choose from. A scripted stand-in could not
+// produce it: the `not_attempted` rows are the orchestrator's own answer.
+const ANCESTRY_REFUSAL = 'the outline base moved under this buffer';
+
+function refusingSeam(calls, refusals) {
+  return (request) => runSave(savePlanState(request), {
+    only: request.only,
+    transport: async (req) => {
+      calls.push({ kind: req.kind, document: req.document });
+      const refusal = refusals[req.kind];
+      if (refusal) return { ok: false, message: refusal };
+      return {
+        ok: true, action: req.action, ref: SESSION_REF,
+        revision: 'rev-' + calls.length,
+        content_hash: identity(String(req.document) + 'saved'),
+      };
+    },
+  });
+}
+
+async function refusedAncestryLeadsTheSummary() {
+  const calls = [];
+  const { controller } = await mount({
+    save: refusingSeam(calls, { outline: ANCESTRY_REFUSAL }),
+  });
+  await controller.loadDocumentForEditing(DOC_A);
+  await controller.loadDocumentForEditing(DOC_B);
+  await controller.edit('outline', '# Outline edited\n');
+  await controller.edit(DOC_A, '# Document A edited\n');
+  await controller.edit(DOC_B, '# Document B edited\n');
+  const outcome = await controller.save();
+  const note = controller.elements().eventNote();
+  const read = {
+    outcome, calls,
+    eventNote: String(note.textContent),
+    eventNoteHidden: note.hidden === true,
+    // every buffer's OWN durable sentence, which is where the per-buffer
+    // detail lives whichever row the transient line leads with
+    statuses: Object.fromEntries(controller.bufferKeys().map(
+      (k) => [k, String(controller.elements().status(k).textContent)])),
+  };
+  controller.destroy();   // releases the note's own timer
+  return read;
+}
+
+// ---- …and an `unchanged` row is not something to report ------------------
+//
+// The companion case to the one above. A tile Save scopes to ONE document and
+// the outline always rides along; when the outline is CLEAN it reports
+// `unchanged`, which is a row with nothing to say. It arrives FIRST in save
+// order, so a lead chosen from "every row that is not committed" takes it and
+// the refusal behind it never reaches the human -- the #81 defect again, from
+// the other end. `tileSaveVerdict` already filters to the withheld set
+// (`refused`/`not_attempted`); the visible line must use the SAME set, which is
+// what makes "the two surfaces agree" true rather than nearly true.
+async function cleanOutlineDoesNotTakeTheLead() {
+  const { controller } = await mount({
+    save: (request) => runSave(savePlanState(request), {
+      only: request.only,
+      transport: async () => ({
+        ok: false, message: 'the document base moved under this buffer' }),
+    }),
+  });
+  await controller.loadDocumentForEditing(DOC_A);
+  // the outline is deliberately NOT edited: it stays clean and reports `unchanged`
+  await controller.edit(DOC_A, '# Document A edited\n');
+  const outcome = await controller.saveDocument(DOC_A);
+  const read = {
+    rows: outcome.buffers.map((row) => ({ key: row.key, status: row.status })),
+    tileError: outcome.error,
+    eventNote: String(controller.elements().eventNote().textContent),
+    statusA: String(controller.elements().status(DOC_A).textContent),
+    statusOutline: String(controller.elements().status('outline').textContent),
+  };
+  controller.destroy();
+  return read;
+}
+
+// ---- …and when nothing failed, the line stays away entirely --------------
+//
+// The third case in the same family, and the one Brett RULED (2026-08-24):
+// a Save with nothing withheld says nothing on the transient line. Narrowing
+// the lead to the withheld set (above) realized that as a side effect -- a
+// fully successful tile save used to flash `Outline: nothing to save in this
+// buffer`, because the clean outline's `unchanged` row was "not committed" and
+// took the line. That is a report about the one buffer the human did not act
+// on, standing in for the one they did.
+//
+// Realized-but-unpinned is how a ruling quietly stops being true, so it is
+// pinned here rather than left to the code that happens to produce it. What
+// must NOT change with it: every buffer's own sr-only region still carries its
+// own outcome sentence (FR-035), and the tile still reports its success. The
+// line going quiet is the absence of a PROBLEM, never the absence of a report.
+async function nothingToSayTakesNoLine() {
+  const calls = [];
+  const { controller } = await mount({ save: realSeam(calls) });
+  await controller.loadDocumentForEditing(DOC_A);
+  // again the outline is deliberately NOT edited: it rides along `unchanged`
+  await controller.edit(DOC_A, '# Document A edited\n');
+  const outcome = await controller.saveDocument(DOC_A);
+  const note = controller.elements().eventNote();
+  const read = {
+    rows: outcome.buffers.map((row) => ({
+      key: row.key, status: row.status, action: row.action || null,
+      ref: row.ref || null })),
+    ok: outcome.ok === true,
+    error: outcome.error,
+    eventNoteText: String(note.textContent),
+    eventNoteHidden: note.hidden === true,
+    // the durable per-buffer regions, which is where the report actually lives
+    statuses: Object.fromEntries(controller.bufferKeys().map(
+      (k) => [k, String(controller.elements().status(k).textContent)])),
+  };
+  controller.destroy();
+  return read;
+}
+
 // ---- two loaded documents sharing a basename stay distinguishable --------
 async function basenameCollision() {
   const { controller } = await mount();
@@ -5608,6 +5732,9 @@ console.log(JSON.stringify({
   outlineStaysReserved: await outlineStaysReserved(),
   tileSave: await tileSave(),
   contextOnlyTileSave: await contextOnlyTileSave(),
+  refusedAncestry: await refusedAncestryLeadsTheSummary(),
+  cleanOutlineLead: await cleanOutlineDoesNotTakeTheLead(),
+  nothingToSay: await nothingToSayTakesNoLine(),
   basenameCollision: await basenameCollision(),
   alreadyLoaded: await alreadyLoaded(),
 }));
@@ -5861,6 +5988,134 @@ def test_a_context_only_document_loads_but_has_no_reachable_tile_save(
     assert "read-only context" in result["refused"]["error"]
     # nothing reached the governed action at all
     assert result["calls"] == []
+
+
+def test_the_one_visible_save_line_leads_with_the_first_failing_cause(
+    loaded_set_results,
+):
+    """R-5 (openxFactory #81): the operator MUST read the ROOT, not a
+    consequence of it.
+
+    A partial/refused ordered Save produces one row per buffer in SAVE ORDER,
+    and when the ancestry step is the thing that failed, every document behind
+    it is `not_attempted` *because of it*. There is exactly ONE transient
+    visible line, so the row it carries is a choice — and the only truthful
+    choice is the FIRST failing row in save order, the cause the other rows are
+    consequences of. Leading with a downstream row hands the human the
+    missing-ancestry sentence and never names the refusal that produced it.
+
+    Asserted as the SEMANTIC, not as a sentence: the visible line must be the
+    lead row's own stated outcome, which is exactly the opening of that
+    buffer's own durable status region — and must not be any later row's.
+    Nothing is hidden by the choice: every row keeps its own sr-only sentence,
+    which is what the per-buffer reporting rule (FR-035) requires.
+    """
+    result = loaded_set_results["refusedAncestry"]
+    rows = result["outcome"]["buffers"]
+    withheld = [row for row in rows
+                if row["status"] in ("refused", "not_attempted")]
+    # the shape this defect needs: a ROOT and its CONSEQUENCES, in save order
+    assert [row["status"] for row in withheld] == [
+        "refused", "not_attempted", "not_attempted"], rows
+    lead, *downstream = withheld
+    assert lead["key"] == "outline"
+    note = result["eventNote"]
+    assert result["eventNoteHidden"] is False
+    assert note
+
+    # THE LEAD. The visible line is the first failing row's own verdict — the
+    # same sentence, attributed to the same buffer, that row's status region
+    # opens with.
+    statuses = result["statuses"]
+    assert statuses[lead["key"]].startswith(note), (note, statuses)
+    assert lead["message"] in note
+
+    # …and it is NOT a downstream row's. Each consequence keeps its own
+    # sentence in its own region, and none of them is what the human reads
+    # first.
+    for row in downstream:
+        assert not statuses[row["key"]].startswith(note), (note, row)
+        assert row["message"] not in note
+        assert row["message"] in statuses[row["key"]]
+
+
+def test_an_unchanged_row_never_takes_the_one_visible_save_line(
+    loaded_set_results,
+):
+    """R-5 (openxFactory #81), the companion case: `unchanged` is not a report.
+
+    A tile Save scopes to one document and the outline rides along. A CLEAN
+    outline reports `unchanged` -- a row with nothing to say -- and it arrives
+    FIRST in save order, ahead of the document that was actually refused. A
+    lead chosen from "every row that is not `committed`" therefore takes the
+    vacuous row and the refusal never reaches the human, which is the #81
+    defect arriving from the other end.
+
+    The line must come from the SAME set the tile verdict already uses -- the
+    withheld rows, `refused` and `not_attempted` -- so that the two surfaces
+    agree in fact and not only in the common case.
+    """
+    result = loaded_set_results["cleanOutlineLead"]
+    statuses = [(row["key"], row["status"]) for row in result["rows"]]
+    # the shape: a vacuous row FIRST, the real failure behind it
+    assert statuses[0][1] == "unchanged", statuses
+    refused = [row for row in result["rows"] if row["status"] == "refused"]
+    assert len(refused) == 1, statuses
+
+    note = result["eventNote"]
+    # the line is the refused row's own verdict, the opening of its own region
+    assert result["statusA"].startswith(note), (note, result["statusA"])
+    # …and NOT the clean outline's "nothing to save in this buffer"
+    assert "nothing to save" not in note, note
+    assert not result["statusOutline"].startswith(note), (note, result)
+    # …and it is the very sentence the tile verdict leads with (same set)
+    assert result["tileError"] in note, (note, result["tileError"])
+
+
+def test_a_save_with_nothing_withheld_leaves_the_visible_line_alone(
+    loaded_set_results,
+):
+    """R-5 (openxFactory #81), Brett's ruling of 2026-08-24: a Save with
+    nothing withheld says NOTHING on the one transient line.
+
+    The third case in the family. A tile Save scopes to one document and the
+    outline rides along `unchanged`; before the lead was narrowed to the
+    withheld set, that vacuous row was "not committed" and took the line, so a
+    fully SUCCESSFUL save flashed `Outline: nothing to save in this buffer` --
+    a report about the buffer the human did not act on, standing in for the one
+    they did. Narrowing the lead realized the ruling; this pins it, because a
+    ruled behaviour that nothing asserts is one refactor away from silently
+    ceasing to hold.
+
+    The line going quiet is the absence of a PROBLEM, not the absence of a
+    report, so the second half matters as much as the first: the committed
+    buffer's own region must still state the outcome it committed under. A
+    change that satisfied this test by reporting LESS would be the failure it
+    exists to prevent.
+    """
+    result = loaded_set_results["nothingToSay"]
+    rows = result["rows"]
+    statuses = [(row["key"], row["status"]) for row in rows]
+    # the shape: nothing withheld, and a vacuous `unchanged` row riding along
+    assert not [row for row in rows
+                if row["status"] in ("refused", "not_attempted")], statuses
+    assert ("outline", "unchanged") in statuses, statuses
+    committed = [row for row in rows if row["status"] == "committed"]
+    assert len(committed) == 1, statuses
+
+    # THE RULING: no visible line at all, and the region is hidden rather than
+    # left showing an empty box.
+    assert result["eventNoteText"] == "", result["eventNoteText"]
+    assert result["eventNoteHidden"] is True, result
+
+    # …and nothing was lost by the silence. The tile reports its success…
+    assert result["ok"] is True, result
+    assert result["error"] is None, result["error"]
+    # …and the committed buffer's own region still states what it committed as
+    # and where, which is the per-buffer report FR-035 requires.
+    landed = result["statuses"][committed[0]["key"]]
+    assert committed[0]["action"] in landed, (landed, committed[0])
+    assert committed[0]["ref"] in landed, (landed, committed[0])
 
 
 def test_two_loaded_documents_sharing_a_basename_stay_distinguishable(

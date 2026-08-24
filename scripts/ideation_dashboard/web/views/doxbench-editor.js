@@ -2008,6 +2008,19 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     // proposal currency against, and ONLY those (a refused buffer's identity
     // did not move, so no notification may claim it did).
     const adoptedKeys = [];
+    // R-5 (#81): THE ONE VISIBLE LINE IS A CHOICE, so it is made ONCE, here,
+    // rather than by whichever row happened to be reported last. Rows arrive in
+    // SAVE ORDER, and a Save that refused the ancestry step reports the outline's
+    // refusal followed by one `not_attempted` per document BECAUSE OF IT -- a
+    // cause and its consequences. Calling `stateEvent` per row let every later
+    // consequence overwrite the cause, so the human read "the outline did not
+    // land" off the last document and the refusal that produced it never
+    // appeared. The line therefore carries the FIRST row with something to
+    // report, which in save order is the first failing cause. Nothing is hidden
+    // by choosing: every row still gets its own durable sr-only sentence, which
+    // is where the per-buffer report lives (FR-035).
+    let leadEvent = null;
+    const leadWith = (text) => { if (leadEvent === null) leadEvent = text; };
     for (const row of outcomeRowsOf(outcome)) {
       // A verdict about a buffer this canvas does not hold is skipped, not
       // applied: `holdsBufferKey` asks the STATE, so an outcome row naming an
@@ -2031,19 +2044,33 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
           statedOutcomes[row.key] = "Save reported a commit this canvas could not "
             + "adopt -- " + ((error && error.message) || "unknown error")
             + "; this buffer keeps its unsaved text";
-          stateEvent(bufferLabel(row.key) + ": " + statedOutcomes[row.key]);
+          leadWith(bufferLabel(row.key) + ": " + statedOutcomes[row.key]);
           continue;
         }
       }
       statedOutcomes[row.key] = saveOutcomeSentence(row);
       // A committed buffer needs no event: Save going disabled and the buffer
-      // going clean IS the report. Anything else -- refused, not attempted, a
-      // commit this canvas could not adopt -- is exactly what a human must not
-      // miss, so it takes the transient line as well as its own sr-only region.
-      if (row.status !== "committed") {
-        stateEvent(bufferLabel(row.key) + ": " + saveOutcomeSentence(row));
+      // going clean IS the report. Neither does an `unchanged` one -- there was
+      // nothing to save in it, which is not something a human must be told over
+      // the thing that actually failed. A tile Save scopes to one document and
+      // the outline rides along, so a CLEAN outline reports `unchanged` FIRST,
+      // ahead of the document that was refused; offering the line from "not
+      // committed" handed it that vacuous row and buried the refusal -- #81
+      // again, from the other end.
+      //
+      // The offer therefore comes from the WITHHELD set, which is the same set
+      // `tileSaveVerdict` leads with (`refused`/`not_attempted`), so the two
+      // surfaces agree in fact rather than only in the common case. A commit
+      // this canvas could not adopt offers the line too, from its own branch
+      // above. There is one line and there may be several such rows, so the
+      // offer is only taken by the first of them (`leadWith`, above).
+      if (row.status === "refused" || row.status === "not_attempted") {
+        leadWith(bufferLabel(row.key) + ": " + saveOutcomeSentence(row));
       }
     }
+    // …and the chosen line is shown once, after every row has been read, so the
+    // one on screen is the first failing cause and not the last consequence.
+    stateEvent(leadEvent);
     const previousRef = scopeKey().ref;
     if (landedRef !== null) rekeyTo(landedRef);
     for (const key of scope) syncBufferDom(key);
