@@ -20,7 +20,12 @@
 # `GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1` to deny the ambient git
 # identity a runner does not have:
 #
-#   SIM_PLACEHOLDER
+#   5877 passed, 17 skipped, 338 deselected, 15 subtests passed, 0 failed
+#   925s (15m25s), exit 0
+#
+# That count is identical to the simulation run before the two fixture repairs,
+# which is the point: the repairs removed environment dependence without
+# skipping or losing a single test.
 #
 # The real gate on GitHub's runner (PR #304, run 32778659788) took 714s
 # (11m54s) — FASTER than any local simulation, so the timeout below is sized off
