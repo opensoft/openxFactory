@@ -39,23 +39,26 @@ The declaration SHALL describe INPUT acceptance only. Output modality, tool-call
 ### Requirement: The catalog type enforces every bound the released schema enforces
 The server-side catalog type SHALL refuse every catalog the RELEASED SCHEMA would refuse on a bound it declares. A type gate weaker than the wire gate lets a catalog be constructed and dispatched in-process that `GET /workbench/model-catalog` then refuses to serve, because the route validates the projected envelope against the released schema — a divergence this capability has already had to close once, for a routing rule's target list.
 
-This change closes TWO of those divergences and SHALL NOT be read as closing all of them. The type SHALL hold the entry COUNT and the entry IDENTIFIER to the released bounds: a catalog SHALL NOT exceed the released maximum number of entries, and a `model_id` SHALL satisfy the released length and character bounds — the same bounds already applied to the id-bearing REFERENCE fields, applied now to the identifier those references name.
+EVERY STRING BOUND THE RELEASED SCHEMA DECLARES SHALL BE ENFORCED AT CONSTRUCTION, with no residue. The schema bounds five string-valued fields — `model_id`, `label`, `provider_class`, `data_handling` and `resolved_model_id` — by maximum length, and two of them (`model_id` and `resolved_model_id`) additionally by character pattern. All five SHALL be held to those bounds by the type. The catalog's ENTRY COUNT SHALL likewise not exceed the released maximum.
 
-THE REMAINING DIVERGENCES SHALL BE NAMED RATHER THAN IMPLIED CLOSED. The released schema also bounds the length of `label`, `provider_class` and `data_handling`, and the type checks those three only for blankness, so over-length values still construct and are still unservable. Those SHALL be closed by a named follow-up rather than silently by this requirement; a reader SHALL be able to tell which bounds this capability enforces at construction and which it does not.
-
-Where a bound is restated in the type rather than read from the schema, the restatement SHALL name the released bound it mirrors, so a later reader can see the two are meant to agree and can find the other one.
+Partial parity SHALL NOT be claimed as parity. A capability that enforces some of its released bounds and not others leaves a reader unable to tell which construction failures are real, and leaves the type gate weaker than the wire gate in exactly the places nobody checked. Where a bound is restated in the type rather than read from the schema, the restatement SHALL name the released bound it mirrors, so a later reader can see the two are meant to agree and can find the other one.
 
 #### Scenario: A catalog exceeds the released entry maximum
 - **WHEN** a catalog is constructed with more entries than the released schema permits
 - **THEN** construction is refused, naming the measured count and the released maximum
 - **AND** the refusal happens at construction rather than at the moment the route declines to serve it
 
-#### Scenario: A string field the type does not yet bound is over-length
-- **WHEN** an entry is constructed with a `label`, `provider_class` or `data_handling` longer than the released schema permits
-- **THEN** construction still succeeds, because this change does not claim those bounds
-- **AND** that residue is recorded as a named follow-up rather than presented as enforced
-
 #### Scenario: An identifier exceeds the released bounds
 - **WHEN** an entry is constructed with a `model_id` longer than the released maximum, or outside the released character pattern
 - **THEN** construction is refused on the same bounds the released schema states
 - **AND** the refusal matches what the reference-bearing fields already enforce for the same values
+
+#### Scenario: A descriptive string field exceeds its released maximum
+- **WHEN** an entry is constructed with a `label`, `provider_class` or `data_handling` longer than the released schema permits
+- **THEN** construction is refused, naming the measured length and the released maximum for that field
+- **AND** no such field is left checked for blankness alone
+
+#### Scenario: Every declared string bound is covered
+- **WHEN** the released schema declares a maximum length or a character pattern on any catalog string field
+- **THEN** the type refuses a value violating it at construction
+- **AND** a field the schema bounds but the type does not is a defect in this requirement, not an accepted residue

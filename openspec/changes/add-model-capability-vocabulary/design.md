@@ -1,6 +1,7 @@
 # Design: add-model-capability-vocabulary
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-24 — `review/ratification-2026-08-24.md`
 
 Three decisions and one non-decision, each recorded with what was checked.
 

@@ -1,6 +1,7 @@
 # Tasks: add-model-capability-vocabulary
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-24 — `review/ratification-2026-08-24.md`. These are AUTHORIZED, not performed, by the ratification.
 
 NOTHING BELOW RUNS BEFORE RATIFICATION. This change's own diff is the spec
 delta and these records. Realization cuts a contract bundle; the number is
@@ -49,18 +50,20 @@ allocated at §4, not here.
   200-character id and an id containing a space both construct today. Remove
   the deferral note, which says the fix "belongs to no release" — this is that
   release.
-- [ ] 2.4 Both fixes are BEHAVIOUR CHANGES that tighten construction toward the
+- [ ] 2.4 These are BEHAVIOUR CHANGES that tighten construction toward the
   released schema. Record them in the change's own realization notes, and
   check the existing corpus and fixtures for values that would now be refused
   before landing.
-- [ ] 2.5 NAMED FOLLOW-UP, not taken here: the type bounds neither `label`
-  (released `maxLength: 200`), `provider_class` (64) nor `data_handling` (500),
-  checking all three only for blankness, so over-length values construct and
-  are unservable — the same divergence class as §2.2 and §2.3. Review surfaced
-  them while checking whether this change's parity requirement was true. They
-  are recorded rather than absorbed because the batching obligation named two
-  follow-ups, and quietly growing that to five is the opposite of deciding
-  each one; the requirement is worded so it does not claim them.
+- [ ] 2.5 WIDENED BY BRETT'S RULING (2026-08-24): enforce the remaining
+  schema-declared string bounds too — `label` (released `maxLength: 200`),
+  `provider_class` (64) and `data_handling` (500), each checked type-side only
+  for blankness today. The proposal had recorded these as a named follow-up
+  because the batching obligation named two; Brett widened the scope to ALL
+  FIVE string-bounded fields, so there is no residue. Reproduced 2026-08-24:
+  201, 65 and 501 characters respectively all construct cleanly.
+  `resolved_model_id` is the fifth and is ALREADY enforced through
+  `_require_model_reference`, which is the proof the pattern works — reuse it
+  rather than writing a fourth spelling.
 
 ## 3. Validator, examples and tests
 

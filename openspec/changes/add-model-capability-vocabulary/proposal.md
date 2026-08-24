@@ -5,10 +5,15 @@ target_release: implementation_pending — the requirements land now; realizatio
 
 # Proposal: add-model-capability-vocabulary
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-24 — record: `review/ratification-2026-08-24.md` (Brett Heap,
+in-session via question prompts). TWO rulings in the one read: **ratify** the
+requirement set, and **the parity scope is ALL FIVE** — every string bound the
+released schema declares gets type-side enforcement in this release, with no
+residue and no follow-up. That second ruling OVERRODE this proposal's own
+recommendation, which had closed two bounds and recorded three as a follow-up.
 Proposed: 2026-08-24, as exit (a) of the staged topic `doxchat-auto-fit-routing`
-on the day its six questions were dispositioned. Ratification is a separate
-act, still PENDING.
+on the day its six questions were dispositioned.
 
 THE REALIZATION RUNS POST-RATIFICATION. No schema, type, validator or example
 edit lands with this proposal, and NO BUNDLE IS CUT at proposal time.
@@ -58,7 +63,7 @@ validates against.
 are different questions with different consumers; one set answering several
 would mean different things to different readers.
 
-## The two batched follow-ups — both TAKEN, and why
+## The batched follow-ups — taken, then widened to all five
 
 The topic's Q3 disposition obliged this release to DECIDE the two recorded
 catalog follow-ups that touch the same `$defs/model_entry` and the same
@@ -75,7 +80,15 @@ reproduced before deciding:
    200-character id and an id containing a space both construct cleanly
    (verified by construction).
 
-Both are the SAME DIVERGENCE CLASS this capability has already closed once —
+A third gap class surfaced in review and Brett RULED THE SCOPE WIDER
+(2026-08-24): `label`, `provider_class` and `data_handling` are bounded by the
+schema at 200, 64 and 500 and checked type-side for blankness only, so
+over-length values construct too (201, 65 and 501 characters, all reproduced).
+All of them close here. There is no residue and no follow-up: after this
+release every string bound the schema declares is enforced at construction,
+which is what makes the parity requirement checkable rather than aspirational.
+
+All are the SAME DIVERGENCE CLASS this capability has already closed once —
 the type gate weaker than the wire gate — and it was closed for `routes_to`'s
 64-target cap with a concrete consequence recorded in the code: such a catalog
 "constructed fine and could be dispatched by the turn route... while
@@ -145,12 +158,14 @@ bound. It does not affect (a).
 - **Two behaviour changes, both refusals that tighten a type toward its own
   released schema.** A 65-entry catalog and an out-of-bounds `model_id` stop
   constructing. Both were already unservable; the change is where they fail.
-- **Three parity gaps NAMED but not closed** (surfaced in review): the type
-  bounds neither `label` (released `maxLength: 200`), `provider_class` (64) nor
-  `data_handling` (500), checking all three only for blankness. Same divergence
-  class; recorded as a named follow-up and explicitly excluded from the
-  requirement's wording, because the batching obligation named two follow-ups
-  and quietly growing that to five is the opposite of deciding each one.
+- **All five string bounds close here, with no residue** (Brett's ruling,
+  2026-08-24). Review surfaced three further gaps — `label` (released
+  `maxLength: 200`), `provider_class` (64) and `data_handling` (500), each
+  checked type-side for blankness only — and the proposal first recorded them
+  as a named follow-up, on the reasoning that the batching obligation named
+  two. Brett widened the scope instead: every string bound the schema declares
+  is enforced in this release. `resolved_model_id` is the fifth and is already
+  enforced, which is what shows the remaining four are cheap.
 - **The declaration must reach the wire, and that is not automatic.** The public
   projection emits an explicit key list, so the realization has to project
   `modalities` deliberately — following the present-only-when-declared idiom the
