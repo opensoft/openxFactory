@@ -217,19 +217,34 @@ this reason, and this topic is the other half of that ruling.
   (see Q1's disposition). The route's own `error` string is free-form rather
   than an enum, so the no-fit code costs no contract act and `dispatch_turn`'s
   four closed codes stay untouched.
-- **Trim-to-fit ALREADY HAPPENS, silently, and nothing on the wire says so.**
-  Found 2026-08-24 while adjudicating Q5. Under today's `posture: full` path the
-  server already fits the packet to the selected model's budget rather than
-  refusing over-budget context: `serve.py:2935-2956` computes
+- **A FIT-REDUCING ACT ALREADY HAPPENS, silently, and nothing on the wire says
+  so.** Found 2026-08-24 while adjudicating Q5; its NAME corrected the same day
+  on review (Codex, PR #296), because this repository is unusually strict about
+  the distinction and was right to be. What already happens is LAYER-1
+  SELECTION, lossless by reference — not compression. Under today's
+  `posture: full` path the server fits the packet to the selected model's budget
+  rather than refusing over-budget context: `serve.py:2935-2956` computes
   `max_packet_bytes` from what the request left and comments that "the packet is
   FITTED to what the request left, rather than refused afterwards";
-  `doxbench_packet.bounds_rail` (`:845`, applied `:1013`) performs the trim and
-  returns what it dropped as `dropped_evidence` (`:607`, `:1025`). That field is
-  a Python dataclass member and appears in NO released schema — it reaches no
-  wire field, so a transcript reader cannot tell a trimmed turn from an untrimmed
-  one. This does not contradict any claim; it REFRAMES exit (c). Compression is
-  not a behaviour this topic introduces — it is a behaviour already running
-  undisclosed, and (c)'s real content is making it honest. — Added-by: Claude
+  `doxbench_packet.bounds_rail` (`:845`, applied `:1013`) drops whole
+  lowest-ranked evidence sources and returns what it dropped as
+  `dropped_evidence` (`:607`, `:1025`). That field is a Python dataclass member
+  and appears in NO released schema — it reaches no wire field, so a transcript
+  reader cannot tell a reduced turn from an unreduced one.
+  TWO LIMITS this note first blurred, both from the rail's own docstring. It
+  never shortens anything — "No source is ever shortened: a source is carried
+  whole or not at all, which is what keeps this selection rather than
+  truncation" — and it CANNOT fit mandatory context: "if they alone exceed the
+  bound the packet REFUSES", because threads are the session's own working
+  memory and there is nothing to drop. Real compression is a DIFFERENT layer the
+  module already models: `COMPRESSION_LAYERS` (`:215`) declares layer 1
+  selection LOSSLESS BY REFERENCE and layer 2 semantic compaction
+  (`doxbench_threads.compact_thread`) LOSSY BY DESIGN, and `assert_fidelity`
+  (`:254`) exists precisely to refuse conflating them — "selection is not lossy,
+  semantic compaction is not lossless".
+  So this REFRAMES exit (c) without excusing it: what runs undisclosed today is
+  SELECTION, and (c) owes both the disclosure of that AND the real layer-2
+  compression Claim 5 requires when threads alone overflow. — Added-by: Claude
   Opus 5 (session, architect adjudication) · 2026-08-24
 - **Against the `add-doxchat-model-intake` lane.** That ratified-but-unbuilt
   change owns the selector's operator path (a proposed-versus-approved
@@ -279,6 +294,19 @@ refusal or suspend code needs NO contract act. And `dispatch_turn`'s four closed
 codes stay untouched, because the no-fit path resolves before dispatch is
 reached. That is also how conflict item 3 resolves: exactly as it guessed, if
 not where it guessed.
+CONSTRAINT found in review 2026-08-24 (Codex, PR #296) and verified — it does
+not move the decision, it bounds what exit (b) must also change. The step-9
+placement fits the PACKET, but the REQUEST bytes are bounded earlier and
+against the SELECTED entry: `effective_input_limit` is computed at
+`serve.py:2677` from the selected `auto` entry, and `:2730` refuses with
+`request_limit_exceeded` before idempotency and before assembly. So a request
+sized for a WIDER member of `routes_to` would be rejected before routing could
+ever choose that member. Exit (b) must therefore either move the
+candidate-limit decision ahead of that guard or redefine the pre-assembly bound
+for routing entries — bounding a routed request by the union over `routes_to`,
+say, and re-checking against the chosen model after selection. Recorded rather
+than decided: it is (b)'s design problem, and it would otherwise have been
+found late.
 Dispositioned-by: Claude Opus 5 (session, architect adjudication) · 2026-08-24
 Added-by: Claude Opus 5 (session, Brett's direction) · 2026-08-21
 
@@ -418,15 +446,19 @@ catalog follow-ups.
 surface with its session consent (Q4), and the turn-record facts (chosen-by-fit,
 and BOTH badges per Q6). If the v2 record lacks fields for those, that is an
 additive chat-turn growth following the §13 and §11.7 obligation pattern.
-(c) **Compress-to-fit DISCLOSURE** — no longer what the recommendation thought
-it was. Trim-to-fit ALREADY HAPPENS SILENTLY under `posture: full` (see the
-Conflicts entry added the same day: `serve.py:2935-2956` fits the packet to the
-selected model's budget, `bounds_rail` performs the trim, and `dropped_evidence`
-reaches no wire field). So (c) does not INVENT compression — it makes an
-existing act honest. Its content is a third REASON constant under
-`posture: reduced`, riding the RELEASED `contract-v1.40` field with ZERO
-contract change (free prose, 500 code points; the serve ceiling anticipated
-later constants), plus the ruled fit-compression behaviour.
+(c) **Compress-to-fit DISCLOSURE, AND the real compression** — not what the
+recommendation thought it was, and not only disclosure either (that second half
+corrected 2026-08-24 on review). A fit-reducing act ALREADY HAPPENS SILENTLY
+under `posture: full` — but it is LAYER-1 SELECTION, lossless by reference, and
+it REFUSES rather than reduces when mandatory threads alone exceed the bound
+(see the Conflicts entry). So (c) carries TWO things: the DISCLOSURE of that
+existing selection — a third REASON constant under `posture: reduced`, riding
+the RELEASED `contract-v1.40` field with ZERO contract change (free prose, 500
+code points; the serve ceiling anticipated later constants) — AND the ruled
+fit-compression behaviour of Claim 5, which needs LAYER-2 semantic compaction
+(`compact_thread`), because dropping evidence cannot make an over-budget thread
+set fit. Conflating those two layers is exactly what `assert_fidelity` refuses,
+so the change must not describe one as the other.
 A third posture VALUE is REJECTED: it would need an enum release and four gates,
 and the browser adopter silently drops unknown postures — which would mean no
 disclosure at all, the opposite of the point. (c) also takes issue #263's
