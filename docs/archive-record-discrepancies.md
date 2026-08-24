@@ -1349,3 +1349,115 @@ verified by running the whole-repo report after the proposal-and-note commit
 and before this append, and reading the same four numbers. The scoped scan
 set that `govern-openspec-corpus-membership` defines DOES read them, and
 there the slice takes `status-validity` from 46 to 2.
+
+## Addendum 2026-08-23 — the per-domain lifecycle-header populations the enforcement surfaces (`govern-openspec-corpus-membership` slice 5D, M1)
+
+**Why this addendum exists.** Slice 5D lands the enforcement: the four
+lifecycle families read the OpenSpec scan set. openxFactory's own scan set is
+discharged and the 5D.2 gate reads zero. The nine DomainxFactory repos the
+aggregation pins are a different matter — their own OpenSpec packets carry a
+substantial pre-existing lifecycle-header population that the enforcement now
+SURFACES, in the aggregation-root (`--repo-root`) scope CI runs. An adversarial
+review lap raised that as a reason to hold the change. **Brett ruled the
+opposite on 2026-08-23: land it.** The findings are true, surfacing them is the
+tool working, and each domain owes its own discharge under its own governance.
+
+The population is therefore **advisory by ruling**, not silenced and not
+grandfathered: no contract date, no reduced-severity class, no scan-set
+exclusion. What is ruled is only WHO discharges it and WHEN — the owning
+domain, under its own change process, not this change. This addendum is the
+durable enumeration, written here for the same reason this whole register
+exists: the finding must not evaporate when
+`govern-openspec-corpus-membership` archives.
+
+### How this was measured, and why the numbers differ from the review's
+
+The review's numbers (~27 CRITICAL / 76 ERROR) came from the LOCAL domain
+checkouts, which are ahead of what the aggregation repo pins. The table below
+was re-measured **at the aggregation repo's pinned submodule SHAs**
+(`git -C <aggregation> ls-tree -r origin/main`, the current canonical pins), by
+building a scratch layout of ten clones each detached at its pinned commit and
+running `runner.build_context` + the four families over it — the same code path
+CI runs, not a replay script. **Every pinned SHA was reachable locally**, so no
+row is a substitute state. Only findings whose path is in that repo's own
+lifecycle scan set are counted; governed-corpus findings, which the enforcement
+does not move, are excluded.
+
+| repo | pinned SHA | scan-set docs | CRITICAL | ERROR | shape |
+| --- | --- | --- | --- | --- | --- |
+| openxFactory | `ded0826` (this change's base) | 126 | 1 | 3 | the four stragglers slice 5D itself discharges — **0 / 0 at the branch tip** |
+| AdxFactory | `45eaf55` | 2 | 0 | 1 | 1 missing status header (archived) |
+| HealthLinc | `76008ec` | 1 | 1 | 0 | 1 unresolvable `Ratified by:` (archived) |
+| LedgerxFactory | `f9488ae` | 27 | 0 | 26 | 26 missing status headers (24 archived, 2 active) |
+| MedxChart | `68d2f1f` | 0 | 0 | 0 | no OpenSpec packets pinned |
+| MedxEHR | `9e23424` | 1 | 1 | 0 | 1 unresolvable `Ratified by:` (archived) |
+| MedxFactory | `f3d9550` | 25 | 13 | 1 | 13 unresolvable `Ratified by:`, 1 missing header (all archived) |
+| MedxPractice | `d8d7319` | 0 | 0 | 0 | no OpenSpec packets pinned |
+| OpsxFactory | `7908016` | 76 | 14 | 39 | 8 unresolvable `Ratified by:`, 6 uncited `ratified` review records, 16 missing headers, 23 free-form statuses (45 active, 8 archived) |
+| codexFactory | `e61f24d` | 27 | 7 | 8 | 7 unresolvable `Ratified by:`, 8 missing status headers (14 archived, 1 active) |
+| **total** | | **285** | **37** | **78** | |
+
+**Domain subtotal, excluding openxFactory: 36 CRITICAL / 75 ERROR over 159
+scan-set documents in seven repositories.** Higher than the review's count
+because the pinned states differ from the local checkouts, in both directions;
+the pinned figure is the one that binds, because the pins are what CI assembles.
+
+### The follow-ups, one per domain, owed to that domain's governance
+
+Each is a named, durable item. None is discharged by
+`govern-openspec-corpus-membership`, and none is dispositioned away by it.
+
+- **FU-DOM-ADX — AdxFactory (1 ERROR).** One archived proposal,
+  `2026-07-23-add-adx-object-model`, carries no `Status:` header. Derivable
+  from its own archive record; a one-header backfill on the archived-record
+  route.
+- **FU-DOM-HEALTHLINC — HealthLinc (1 CRITICAL).**
+  `2026-08-06-add-one-patient-intake-experience` carries a `Ratified by:`
+  naming no resolvable OpenSpec change. This is exactly the OQ-4 shape: a
+  substantively sound citation in the wrong spelling. The remedy that change
+  ruled — rewrite to the sanctioned record-citing `Ratified:` where no
+  approving change exists to name — applies unchanged.
+- **FU-DOM-LEDGERX — LedgerxFactory (26 ERROR).** The largest
+  missing-header block outside openxFactory: 24 archived and 2 active
+  proposals with no `Status:` at all. Same shape and same remedy as this
+  change's own slice 5C — derive each header from the packet's own record,
+  report by name where the record supports none.
+- **FU-DOM-MEDXEHR — MedxEHR (1 CRITICAL).**
+  `2026-08-06-add-patient-reconciliation-overlay`, the OQ-4 spelling shape.
+- **FU-DOM-MEDXFACTORY — MedxFactory (13 CRITICAL, 1 ERROR).** Thirteen
+  archived proposals with unresolvable `Ratified by:` lines — the root-truth
+  and terminology series — plus one missing header
+  (`2026-08-11-add-root-truth-index-embedding`). All archived, so all on the
+  archived-record route.
+- **FU-DOM-OPSX — OpsxFactory (14 CRITICAL, 39 ERROR).** The largest
+  population and the only one whose bulk is ACTIVE (45 of 53). Three distinct
+  shapes, and they do not share a remedy: eight proposals with unresolvable
+  `Ratified by:` lines; six `review/ratification-*.md` records carrying
+  `Status: ratified` with no citation in either sanctioned spelling; and
+  thirty-nine status defects concentrated in the `add-cloudpc-worker-fleet-
+  management`, `add-endpoint-management-workflow` and
+  `add-managed-node-inventory` packets, where `review/` records use a local
+  vocabulary (`complete`, `RATIFIED FOR IMPLEMENTATION`,
+  `**RATIFIED FOR DEPENDENT DETERMINISTIC CONSUMPTION ONLY**`) that no
+  taxonomy value covers. That last block is the one worth flagging to
+  OpsxFactory first: it is a live authoring convention, not a legacy
+  backlog, so it will keep producing findings until the convention changes.
+- **FU-DOM-CODEX — codexFactory (7 CRITICAL, 8 ERROR).** Seven unresolvable
+  `Ratified by:` lines and eight missing headers, fourteen of the fifteen
+  archived.
+- **MedxChart and MedxPractice** pin no OpenSpec packets and owe nothing here.
+  Their two ACTIVE headerless proposals, named repeatedly in this change's
+  task record, live in the openxFactory tree as
+  `create-medxchart-overlay-boundary` and
+  `create-medxpractice-overlay-boundary` and were discharged by slice 5D's
+  own straggler commit — they are not domain-repo items.
+
+### What this addendum does NOT claim
+
+It does not claim these are new defects: every one predates the enforcement
+and was invisible only because `openspec/` was outside the governed corpus.
+It does not claim a date by which any domain must discharge its population —
+that is the domain's to set. And it does not disposition any of them: a
+`health/dispositions.yaml` entry would suppress a neutrality finding, not a
+lifecycle one, and suppressing them is precisely what the ruling declined to
+do.

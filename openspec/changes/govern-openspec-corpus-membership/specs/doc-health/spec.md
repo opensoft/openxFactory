@@ -3,9 +3,10 @@
 ## MODIFIED Requirements
 
 ### Requirement: Deterministic check families
-The doc-health deterministic pass SHALL implement sixteen check families over
+The doc-health deterministic pass SHALL implement seventeen check families over
 the whole factory family's governance corpus: status validity, standard
-backing, ratified provenance, succession integrity, location conformance,
+backing, ratified provenance, succession integrity, staged-topic template,
+location conformance,
 record immutability, staged/candidate aging, register-lifecycle consistency,
 tag hygiene, submodule pin drift, contract-copy drift, notebook projection
 drift, document catalog, ideation routing, proposal origin, and client
@@ -19,11 +20,11 @@ identity roster composition family SHALL cover only the CROSS-DOMAIN
 concerns — assembling per-client fragments published by each domain and
 reporting shared identity material or undeclared cross-domain reach —
 because intra-repo roster conformance is a blocking domain gate rather than
-an advisory report. Four of the sixteen — status validity, standard backing,
+an advisory report. Four of the seventeen — status validity, standard backing,
 ratified provenance, and succession integrity — SHALL additionally read the
 lifecycle scan set this capability declares, so that a lifecycle header
 carried by a document outside the governed corpus is still checked; the other
-twelve families and every corpus census, word count, canon-share figure,
+thirteen families and every corpus census, word count, canon-share figure,
 shared-inventory entry, and catalog record SHALL be computed from the
 governed corpus alone and MUST NOT move because the lifecycle scan set
 exists.
@@ -85,10 +86,19 @@ governed corpus.
 The **lifecycle scan set** is a separately declared set of paths carrying
 lifecycle headers outside the governed corpus. It SHALL be declared as an
 explicit path pattern set rather than as a directory, and it SHALL comprise
-each change packet's `proposal.md` and each `review/` ratification record
-under `openspec/changes/`. A document in the lifecycle scan set is subject to
-the `document-lifecycle` status and ratification-citation rules and to no
-other family's rules.
+each change packet's `proposal.md` and EVERY `review/` record under
+`openspec/changes/`, whether or not that record's subject is a ratification.
+A document in the lifecycle scan set is subject to the `document-lifecycle`
+status and ratification-citation rules and to no other family's rules; the
+citation half of that pair binds only a document whose status is `ratified`,
+so a `review/` record carrying another taxonomy value is checked for its
+status and for nothing else.
+
+The scan set SHALL NOT reach a document that is byte-exact evidence rather
+than live prose. A path carrying a `supporting-docs`, `source-snapshots` or
+`evidence` segment SHALL be excluded from the set even where it otherwise
+matches a declared pattern, because a frozen record reported for the state it
+preserves is a false finding.
 
 Widening either set is a governed change: a promoted OpenSpec change SHALL
 record the new membership together with the measured effect on finding

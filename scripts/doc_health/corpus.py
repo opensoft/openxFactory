@@ -15,8 +15,10 @@ headline, the shared inventory, and the document catalog.
 
 The **lifecycle scan set** (`LIFECYCLE_SCAN`, `load_lifecycle_docs`) is a
 separately declared set of paths that carry lifecycle headers OUTSIDE the
-governed corpus: each OpenSpec change packet's `proposal.md` and each
-`review/` record. It is read by exactly four families — status validity,
+governed corpus: each OpenSpec change packet's `proposal.md` and EVERY
+`review/` record under it — whatever that record's subject — minus any path
+carrying a byte-exact-evidence segment (`EVIDENCE_PARTS`). It is read by
+exactly four families — status validity,
 standard backing, ratified provenance, succession integrity — and by nothing
 else. It never enters `load_docs`, so no census, word total, canon-share
 figure, inventory entry, or catalog record moves because it exists. That
@@ -48,21 +50,36 @@ GOVERNED_ROOTS = ("contracts", "docs", "examples", "ideation", "templates")
 # (`openspec/changes/archive/<dated-id>/proposal.md`); the second reaches both
 # packets' `review/` records.
 #
-# DISCLOSED BOUNDARY, measured rather than assumed: the first pattern matches a
-# file named `proposal.md` at ANY depth under `openspec/changes/`, so a
+# The RULED PATTERNS ARE UNCHANGED (OQ-2, re-affirmed 2026-08-23 when the
+# `review/` half was widened to every review record). The first pattern matches
+# a file named `proposal.md` at ANY depth under `openspec/changes/`, so a
 # byte-exact snapshot stored as `<packet>/supporting-docs/source-snapshots/
-# proposal.md` would enter the set, which the capability's "byte-exact
-# evidence" scenario says it must not. Zero such files exist in this corpus
-# (measured at the enforcement commit: 124 scan-set documents, none under
-# `supporting-docs/`, `source-snapshots/` or `evidence/` — snapshots are named
-# after the fragment they preserve, never `proposal.md`). Narrowing the ruled
-# pattern to close a gap nothing occupies would be re-ruling OQ-2 in code, so
-# the boundary is stated here instead: if a snapshot ever takes that name, this
-# tuple is the line to change, under a governed change that measures the effect.
+# proposal.md` would otherwise enter the set — which the capability's
+# "byte-exact evidence" scenario states as a MUST NOT, not as an observation
+# about how many such files happen to exist. The first cut disclosed that gap
+# and left it open on the measurement that nothing occupied it; that was the
+# wrong reading of a MUST. The membership rule is now enforced by
+# `EVIDENCE_PARTS` below, which `iter_lifecycle_paths` applies as a segment
+# filter AFTER the ruled globs resolve. The globs stay exactly as ruled; the
+# evidence exclusion is a separate, separately-stated rule that the ruling's
+# own scenario requires.
 LIFECYCLE_SCAN = (
     "openspec/changes/**/proposal.md",
     "openspec/changes/**/review/*.md",
 )
+
+# Path segments that mark a document as byte-exact EVIDENCE rather than live
+# prose (doc-health capability, "A document is byte-exact evidence rather than
+# live prose"). A path carrying any of these is excluded from the lifecycle
+# scan set even where it matches a ruled glob: reporting a frozen record for
+# the state it preserves is a false finding, and the frozen record's whole
+# value is that its bytes do not move to satisfy a checker.
+#
+# Deliberately NOT folded into `EXCLUDED_PARTS`: that blacklist governs BOTH
+# document sets, and a `supporting-docs/` fragment is a legitimate governed
+# document when it sits under a governed root. This one governs the lifecycle
+# scan set alone.
+EVIDENCE_PARTS = frozenset({"supporting-docs", "source-snapshots", "evidence"})
 
 EXCLUDED_PARTS = {".git", "installs", "node_modules", "tests", "__pycache__"}
 STATUS_RE = re.compile(r"^Status:\s*(.+?)\s*$")
@@ -207,12 +224,22 @@ def load_docs(repo_name: str, repo_path: Path) -> list[Doc]:
     return docs
 
 
+def _is_evidence(rel: Path) -> bool:
+    """Byte-exact evidence, by path segment (see `EVIDENCE_PARTS`)."""
+    return any(part in EVIDENCE_PARTS for part in rel.parts)
+
+
 def iter_lifecycle_paths(repo_path: Path) -> list[Path]:
-    """Resolve `LIFECYCLE_SCAN` against one repo, deduplicated and sorted.
+    """Resolve `LIFECYCLE_SCAN` against one repo, deduplicated and sorted,
+    with byte-exact evidence filtered out.
 
     Shares `_excluded` with `iter_doc_paths` rather than re-deriving the
     exclusion rule: one path-segment blacklist, read the same way for both
-    sets. A `set` because the two patterns could in principle name the same
+    sets. `_is_evidence` is the SECOND filter and belongs to this set alone —
+    the capability's "byte-exact evidence" scenario is a MUST NOT on
+    MEMBERSHIP, so it is enforced here, at the point membership is decided,
+    rather than left to the observation that no such file exists today.
+    A `set` because the two patterns could in principle name the same
     file, and a document counted twice would double every finding it carries.
     """
     paths: set[Path] = set()
@@ -221,7 +248,7 @@ def iter_lifecycle_paths(repo_path: Path) -> list[Path]:
             if not match.is_file():
                 continue
             rel = match.relative_to(repo_path)
-            if not _excluded(rel):
+            if not _excluded(rel) and not _is_evidence(rel):
                 paths.add(rel)
     return sorted(paths)
 

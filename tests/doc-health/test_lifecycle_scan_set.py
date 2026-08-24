@@ -49,17 +49,20 @@ HEAD = "0" * 40
 # `test_every_family_is_classified_as_reader_or_non_reader` fails — which is
 # what makes §2.3's "one-line opt-in" safe rather than merely cheap.
 #
-# MEASURED DISCREPANCY, recorded rather than smoothed over. The doc-health
-# capability's "Deterministic check families" requirement says SIXTEEN, and
-# `FAMILIES` holds SEVENTEEN: `staged-topic-template` was registered on
-# 2026-08-15 by `add-staged-topic-outline-template` and the count sentence was
-# never updated with it. The arithmetic "four readers, the other twelve" in
-# this change's tasks §3.3 inherits that sixteen. The non-reader list below is
-# therefore THIRTEEN, which is what the code actually holds — this test is
-# driven from `FAMILIES`, so it reports the corpus rather than the sentence.
-# The count sentence is a pre-existing prose defect in the promoted spec, is
-# not introduced or fixed here, and takes its own ruling: nothing about which
-# families read the scan set is ambiguous, only how many there are in total.
+# MEASURED DISCREPANCY, recorded and then FIXED. The doc-health capability's
+# "Deterministic check families" requirement said SIXTEEN while `FAMILIES`
+# holds SEVENTEEN: `staged-topic-template` was registered on 2026-08-15 by
+# `add-staged-topic-outline-template` and the count sentence was never updated
+# with it. The first cut of this change recorded that as a pre-existing defect
+# and left it for its own ruling — wrongly, because this change's spec delta
+# MODIFIES that requirement and would have re-ratified the stale count under
+# its own authorship. The delta now reads "seventeen", enumerates
+# `staged-topic template`, and says "the other thirteen families".
+#
+# The list below is unchanged by that correction and always was: it is driven
+# from `FAMILIES`, so it reports the corpus rather than the sentence, and the
+# `len(FAMILIES) - 4 == 13` assertion is the one that would have caught the
+# sentence drifting again.
 READERS = {
     "status-validity",
     "standard-backing",
@@ -81,6 +84,30 @@ NON_READERS = {
     "proposal-origin",
     "client-identity-composition",
 }
+
+
+# The four byte-exact-evidence PROBES. Each one MATCHES a ruled glob — three
+# are literally named `proposal.md`, the fourth sits in a `review/` directory
+# — and each is kept out of the scan set by `EVIDENCE_PARTS` and by nothing
+# else. Each also carries a live defect (an uncited `ratified` header, a
+# free-form status), so a build that drops the filter does not merely grow the
+# membership list, it REPORTS a frozen record: the false finding the
+# capability's "byte-exact evidence" scenario forbids.
+#
+# The bare `source-snapshots/` probe exists because the first draft of this
+# fixture made that segment UNPINNED and the segment-by-segment assertion
+# below caught it: in today's corpus every `source-snapshots/` directory is
+# nested under `supporting-docs/`, so the outer segment excluded them all and
+# dropping `source-snapshots` from the rule changed nothing observable. That
+# is the platform-inert class again — a clause of the rule no test could see.
+EVIDENCE_PROBES = (
+    "openspec/changes/alpha-uncited-ratified/supporting-docs/"
+    "source-snapshots/proposal.md",
+    "openspec/changes/alpha-uncited-ratified/source-snapshots/proposal.md",
+    "openspec/changes/alpha-uncited-ratified/evidence/proposal.md",
+    "openspec/changes/alpha-uncited-ratified/supporting-docs/review/"
+    "frozen-review-2026-01-02.md",
+)
 
 
 # The capture blob `record-immutability` compares against for the `record`
@@ -145,6 +172,7 @@ def test_scan_set_is_the_resolved_path_list():
     got = [p.as_posix() for p in corpus.iter_lifecycle_paths(repo)]
     assert got == [
         "openspec/changes/alpha-uncited-ratified/proposal.md",
+        "openspec/changes/alpha-uncited-ratified/review/finding-2026-01-04.md",
         "openspec/changes/alpha-uncited-ratified/review/ratification-2026-01-03.md",
         "openspec/changes/archive/2026-01-01-zeta-archived/proposal.md",
         "openspec/changes/beta-out-of-window/proposal.md",
@@ -157,7 +185,10 @@ def test_scan_set_is_the_resolved_path_list():
 
     # Stated as exclusions too, because the list above reads as an inclusion
     # list and the ruling's boundary is what it leaves OUT. Each of these
-    # exists in the fixture packet and none may appear.
+    # exists in the fixture packet and none may appear. The last three are
+    # the EVIDENCE PROBES: each matches a ruled glob and is kept out by
+    # `EVIDENCE_PARTS` alone — see
+    # `test_byte_exact_evidence_is_excluded_from_membership`.
     excluded = [
         "openspec/changes/alpha-uncited-ratified/tasks.md",
         "openspec/changes/alpha-uncited-ratified/design.md",
@@ -166,10 +197,134 @@ def test_scan_set_is_the_resolved_path_list():
         "openspec/changes/alpha-uncited-ratified/supporting-docs/"
         "source-snapshots/fragment.md",
         "openspec/changes/alpha-uncited-ratified/evidence/run-record.md",
+        *EVIDENCE_PROBES,
     ]
     for rel in excluded:
         assert (repo / rel).is_file(), f"fixture lost {rel}"
         assert rel not in got
+
+
+def test_byte_exact_evidence_is_excluded_from_membership():
+    """The capability's byte-exact-evidence scenario is a MUST NOT on
+    MEMBERSHIP, so it is enforced at the point membership is decided.
+
+    The first cut of this change disclosed the gap and left it open on the
+    measurement that no corpus file occupied it. That reads a MUST as an
+    observation about today's file names. It is closed now by
+    `corpus.EVIDENCE_PARTS`, applied by `iter_lifecycle_paths` AFTER the
+    ruled globs resolve — the globs themselves are untouched, because OQ-2
+    ruled them and narrowing a ruled glob in code would be re-ruling it.
+
+    Three things are asserted, and they fail in different directions:
+
+    1. Each probe really does MATCH a ruled glob, computed rather than
+       claimed. Without this the test would pass over a build with no filter
+       at all if the probes happened not to match — which is precisely how
+       the reviewer's `location-conformance` mutation survived.
+    2. Each probe is absent from the resolved set.
+    3. Every excluded segment is load-bearing INDIVIDUALLY: dropping any one
+       member of `EVIDENCE_PARTS` re-admits at least one probe.
+    """
+    repo = FIXTURES / "lifecycle-scan" / "openxFactory"
+
+    matched = {p.relative_to(repo).as_posix()
+               for pattern in corpus.LIFECYCLE_SCAN
+               for p in repo.glob(pattern) if p.is_file()}
+    resolved = {p.as_posix() for p in corpus.iter_lifecycle_paths(repo)}
+
+    for probe in EVIDENCE_PROBES:
+        assert (repo / probe).is_file(), f"fixture lost {probe}"
+        assert probe in matched, (
+            f"{probe} no longer matches a ruled glob, so it cannot pin the "
+            "evidence filter — the probe is inert, not the filter")
+        assert probe not in resolved
+
+    # The filter is EXACTLY the set difference: nothing else was dropped.
+    assert matched - resolved == set(EVIDENCE_PROBES)
+
+    # Each segment individually kills. `frozenset` minus one member, applied
+    # by the same predicate, must re-admit something.
+    for segment in sorted(corpus.EVIDENCE_PARTS):
+        weakened = corpus.EVIDENCE_PARTS - {segment}
+        readmitted = {
+            p for p in matched
+            if not any(part in weakened for part in Path(p).parts)}
+        assert readmitted - resolved, (
+            f"dropping {segment!r} from EVIDENCE_PARTS re-admits nothing, so "
+            "that segment is unpinned")
+
+
+def test_the_evidence_probes_would_fire_if_admitted():
+    """The membership test above is a path assertion; this is the behavioural
+    half, and it is what makes the mutation kill real rather than cosmetic.
+
+    Each probe is run through the four families AS IF it had been admitted —
+    a `Context` whose `lifecycle_docs` is the probe list — and each must be
+    reported. A probe nothing reports proves nothing about the filter.
+    """
+    repo = FIXTURES / "lifecycle-scan" / "openxFactory"
+    probes = [corpus.Doc(
+        repo.name, rel, (repo / rel).read_text(encoding="utf-8"),
+        corpus.parse_status((repo / rel).read_text(encoding="utf-8")),
+        corpus.parse_kind((repo / rel).read_text(encoding="utf-8")))
+        for rel in EVIDENCE_PROBES]
+
+    admitted = Context(
+        repo_paths={repo.name: repo}, docs=[], lifecycle_docs=probes,
+        capabilities={repo.name: corpus.spec_capabilities(repo)},
+        change_ids={repo.name: corpus.change_ids(repo)},
+        git=FakeGit(heads={repo.name: HEAD}),
+        thresholds=dict(DEFAULT_THRESHOLDS), as_of=AS_OF, agg_root=None)
+
+    reported = {f.path for family in sorted(READERS)
+                for f in _fired(admitted, family)}
+    assert reported == set(EVIDENCE_PROBES), (
+        "a probe the four families would not report cannot pin the filter: "
+        f"unreported {sorted(set(EVIDENCE_PROBES) - reported)}")
+
+    # ...and on the REAL set they are reported by nobody, because they are
+    # not in it.
+    live = _ctx("lifecycle-scan")
+    live_reported = {f.path for family in sorted(READERS)
+                     for f in _fired(live, family)}
+    assert not live_reported & set(EVIDENCE_PROBES)
+
+
+def test_a_non_ratification_review_record_needs_a_status_and_no_citation():
+    """The WIDENED `review/` rule (Brett, 2026-08-23), stated as the two
+    obligations it actually creates rather than as one.
+
+    Every `review/` record under a packet is a governance document, whatever
+    its subject — so `finding-2026-01-04.md` is IN the set (asserted on the
+    membership list above, and again here). The taxonomy obligation reaches
+    it: it carries `Status: record`, a conforming value. The
+    ratification-citation obligation does NOT reach it, because that rule
+    binds a `ratified` status and this document claims none — so
+    `ratified-provenance` must be silent about it, and demanding a citation
+    would be demanding provenance for a claim the document does not make.
+    """
+    ctx = _ctx("lifecycle-scan")
+    rel = "openspec/changes/alpha-uncited-ratified/review/finding-2026-01-04.md"
+    doc = next(d for d in ctx.lifecycle_docs if d.path == rel)
+    assert doc.status == "record"
+
+    for family in sorted(READERS):
+        assert not [f for f in _fired(ctx, family) if f.path == rel], \
+            f"{family} fired on a conforming non-ratification review record"
+
+    # The other half of the widened rule, so this test is not merely
+    # asserting that a conforming document conforms: a review record with NO
+    # taxonomy status IS reported, subject notwithstanding.
+    bare = corpus.Doc(doc.repo, "openspec/changes/alpha-uncited-ratified/"
+                      "review/finding-no-header.md",
+                      "# A review finding with no header\n", None, None)
+    widened = Context(
+        repo_paths=ctx.repo_paths, docs=[], lifecycle_docs=[bare],
+        capabilities=ctx.capabilities, change_ids=ctx.change_ids, git=ctx.git,
+        thresholds=ctx.thresholds, as_of=AS_OF, agg_root=None)
+    assert _keys(_fired(widened, "status-validity")) == [
+        (ERROR, bare.path, "missing status header")]
+    assert not _fired(widened, "ratified-provenance")
 
 
 def test_scan_set_declares_exactly_the_two_ruled_patterns():
@@ -306,10 +461,11 @@ def test_every_family_is_classified_as_reader_or_non_reader():
         f"{sorted((READERS | NON_READERS) - set(FAMILIES))}")
     assert not READERS & NON_READERS
     # Four readers, as ruled (OQ-3). Thirteen non-readers, as MEASURED — see
-    # the note on NON_READERS: the promoted requirement's "sixteen families"
-    # predates `staged-topic-template`, so the ruling's "the other twelve" is
-    # arithmetic from a stale total, not a claim about a thirteenth family
-    # having the wider scope. Which four read the set is what the ruling
+    # the note on NON_READERS. The promoted requirement's "sixteen families"
+    # predated `staged-topic-template`, so the original "the other twelve"
+    # was arithmetic from a stale total, not a claim about a thirteenth
+    # family having the wider scope; this change's MODIFIED block now says
+    # seventeen and thirteen. Which four read the set is what the ruling
     # settles, and that half is asserted exactly.
     assert READERS == {"status-validity", "standard-backing",
                        "ratified-provenance", "succession-integrity"}
@@ -437,6 +593,29 @@ def test_the_scan_set_moves_no_corpus_measurement(tmp_path):
            [(d.repo, d.path, d.status) for d in empty.docs]
     scan_paths = {d.path for d in full.lifecycle_docs}
     assert scan_paths and not scan_paths & {d.path for d in full.docs}
+
+    # SECOND, INDEPENDENT PIN on the two runner mutations, in a different test
+    # from `test_build_context_populates_the_scan_set` and reached by a
+    # different route. That test was the ONLY killer for both "build_context
+    # never populates lifecycle_docs" and "build_context extends `docs` with
+    # the scan set" — a single killer means a single test edit hides both.
+    # This arm goes through `build_context` itself and states the governed
+    # corpus POSITIVELY: `ctx.docs` is exactly `iter_doc_paths`, no more and
+    # no less, so a build that folded the scan set into `docs` fails here even
+    # if every disjointness assertion elsewhere were deleted.
+    from types import SimpleNamespace
+
+    from doc_health import runner
+
+    repo = FIXTURES / "lifecycle-scan" / "openxFactory"
+    built = runner.build_context(SimpleNamespace(
+        single_repo=str(repo), repo_root=None, config=None, family=None,
+        as_of=AS_OF.isoformat(), routing_strict=False))
+    assert [d.path for d in built.docs] == \
+        [p.as_posix() for p in corpus.iter_doc_paths(repo)]
+    assert [d.path for d in built.lifecycle_docs] == \
+        [p.as_posix() for p in corpus.iter_lifecycle_paths(repo)]
+    assert built.lifecycle_docs
 
     def sections(ctx):
         spec_words = sum(

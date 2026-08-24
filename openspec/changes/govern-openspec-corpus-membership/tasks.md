@@ -182,7 +182,7 @@ see it. Per-box read-backs below, and the slice-level measurements in
       citation rather than replacing it. Authors read this file, not the
       family source.
 
-      **DONE — one bullet with three sub-bullets, appended to § Status Claim
+      **DONE — one bullet, appended to § Status Claim
       Rules beside the rules it joins.** It says all four things the box
       asks: the proposal and every `review/` record are governance documents
       for these rules; the rest of the packet is not ruled and emits nothing;
@@ -190,8 +190,31 @@ see it. Per-box read-backs below, and the slice-level measurements in
       remedy stated in the author's own terms; and `Ratifier:`/`Decision
       date:` accompany a sanctioned citation rather than standing in place of
       one. It cites the ratifying change by name so the reader can find the
-      ruling. This is the ONE governed-corpus file this slice edits, and it
-      is the whole of the whole-repo report's movement (see 5D.2).
+      ruling.
+
+      **CORRECTION, fix lap 2026-08-23. The first read-back said this bullet
+      matched the `document-lifecycle` delta. It did not, and the box's own
+      wording is where the divergence started.** The box asked for the
+      proposal and its "`review/` ratification records"; the delta was
+      written narrowly to match ("any `review/` record whose subject is the
+      ratification of that change"); the prose was written WIDELY ("every
+      `review/` record under that packet"); and the read-back asserted the
+      match without comparing the two sentences. The adversarial review found
+      it. **Brett ruled the wide reading on 2026-08-23: the raw glob
+      `**/review/*.md` stands, and the delta text widens to match it** — see
+      OQ-2's second RULED note. The delta and the prose now agree, and the
+      prose gained the thing NEITHER of them said before: the two obligations
+      differ in reach. Every `review/` record owes a taxonomy `Status:`; only
+      a `ratified` one owes a citation. The bullet also gained the
+      byte-exact-evidence exclusion, which is a rule the capability always
+      carried and the prose never stated.
+
+      This remains the ONE governed-corpus file this slice edits for the
+      rule's sake, and its 308 words were the whole of the whole-repo
+      report's movement at 5D.2. The fix lap moves that number again (this
+      bullet grows) and appends to `docs/archive-record-discrepancies.md`,
+      which is a SECOND governed-corpus file — both accounted for line by
+      line in the fix-lap read-back under 5D.4.
 - [x] 2.6 Update `corpus.py`'s module docstring, which today says governance
       Markdown "lives under docs/, templates/, contracts/, examples/, and
       ideation/" and stops there. After this change that sentence is true of
@@ -214,6 +237,18 @@ purpose-built packet tree; `fixtures/lifecycle-historical/` holds the two
 frozen pre-fix records. `tests/doc-health` reads **741 passed** (724 + 17),
 exit 0, with no pre-existing test edited at all.
 
+**FIX LAP 2026-08-23 — the module is now 20 tests and
+`tests/doc-health` reads 744 passed**, exit 0. Three tests were added
+(`test_byte_exact_evidence_is_excluded_from_membership`,
+`test_the_evidence_probes_would_fire_if_admitted`,
+`test_a_non_ratification_review_record_needs_a_status_and_no_citation`), five
+fixture documents were added to `lifecycle-scan/` (four evidence probes and one
+non-ratification `review/` record), and two existing tests in this module grew:
+`test_scan_set_is_the_resolved_path_list`'s two lists, and
+`test_the_scan_set_moves_no_corpus_measurement`'s new `build_context` arm.
+Still no test outside this module edited. Per-box detail in 3.1, 3.3, 3.4 and
+3.6.
+
 - [x] 3.1 Membership: the scan set contains a packet's `proposal.md` and its
       `review/*.md`, and does NOT contain `tasks.md`, `design.md`,
       `specs/*/spec.md`, `supporting-docs/**` (including
@@ -233,6 +268,28 @@ exit 0, with no pre-existing test edited at all.
       directory deeper than an active packet — the member a glob rooted at
       `openspec/changes/*/` drops silently, and the mutation matrix shows
       that exact mistake being caught (M2b).
+
+      **FIX LAP — the exclusion half was a LIST, not a RULE, and that was
+      the defect the review found.** Every excluded fixture above is a file
+      the ruled globs never matched in the first place (`tasks.md`,
+      `design.md`, `spec.md`, `fragment.md`), so the test proved the globs
+      were narrow and proved nothing about the capability's "byte-exact
+      evidence" MUST NOT — which is a rule about files that DO match. Four
+      PROBE fixtures now close that: three named `proposal.md` (under
+      `supporting-docs/source-snapshots/`, under a bare `source-snapshots/`,
+      and under `evidence/`) and one `review/` record under
+      `supporting-docs/`. Each is asserted to MATCH a ruled glob — computed,
+      not claimed — and to be absent from the resolved set, so the assertion
+      is about the FILTER rather than about the glob.
+      `test_byte_exact_evidence_is_excluded_from_membership` also asserts the
+      set difference exactly (nothing else was dropped) and that each of the
+      three `EVIDENCE_PARTS` segments is individually load-bearing.
+
+      **One `review/` fixture was ADDED to the membership list, not
+      excluded**: `alpha-uncited-ratified/review/finding-2026-01-04.md`,
+      carrying `Status: record`. It is the widened rule's positive case (S1)
+      — a review record whose subject is not a ratification, which belongs to
+      the set and owes a taxonomy status and no citation.
 - [x] 3.2 Each of the four families fires over a scan-set document, with a
       fixture per rule: uncited `ratified`, out-of-window `Status:`,
       free-form status, unbacked `standard`, `superseded` without successor.
@@ -249,24 +306,44 @@ exit 0, with no pre-existing test edited at all.
       is the negative: the review record and the archived packet satisfy
       every rule and no reader may name them — without it, every test here
       would also pass for a family that fires on everything in the set.
-- [x] 3.3 Each of the other twelve families does NOT fire over a scan-set
+- [x] 3.3 Each of the other **thirteen** families (the box originally said
+      twelve, inheriting the stale total — see the read-back) does NOT fire
+      over a scan-set
       document. Drive this from `FAMILIES` itself so a family added later is
       covered by construction, and fail loudly if a new family appears in
       neither list. This is the test that makes §2.3's "one-line opt-in"
       safe.
 
-      **DONE, and the box's arithmetic is off by one against the code —
-      reported, not smoothed over.** `FAMILIES` holds **seventeen** entries,
-      not sixteen: `staged-topic-template` was registered on 2026-08-15 by
-      `add-staged-topic-outline-template` and the doc-health capability's
-      "SHALL implement sixteen check families" sentence was never updated
-      with it. This change's own spec delta MODIFIES that requirement and
-      carries the stale count forward verbatim. So the non-reader list is
-      **thirteen**, not twelve. Nothing about WHICH four families read the
-      set is ambiguous — OQ-3 ruled those four and the code implements
-      exactly them — but the total is wrong in a promoted requirement and
-      needs its own correction. The test is driven from `FAMILIES`, so it
-      reports the corpus rather than the sentence.
+      **DONE, and the box's arithmetic was off by one against the code —
+      reported, then FIXED on the fix lap.** `FAMILIES` holds **seventeen**
+      entries, not sixteen: `staged-topic-template` was registered on
+      2026-08-15 by `add-staged-topic-outline-template` and the doc-health
+      capability's "SHALL implement sixteen check families" sentence was
+      never updated with it. So the non-reader list is **thirteen**, not
+      twelve. Nothing about WHICH four families read the set is ambiguous —
+      OQ-3 ruled those four and the code implements exactly them — but the
+      total was wrong in a promoted requirement. The test is driven from
+      `FAMILIES`, so it reports the corpus rather than the sentence.
+
+      **The first cut recorded the discrepancy and left it for "its own
+      correction". The adversarial review found that was the wrong call, and
+      it was right: this change's own spec delta MODIFIES that very
+      requirement, so landing it would RE-RATIFY the stale count under this
+      change's authorship.** A defect you re-enact is a defect you own.
+      Corrected inside the MODIFIED block on the fix lap: "sixteen" →
+      "seventeen", the enumeration gains `staged-topic template` (placed
+      after the four lifecycle families it now follows in the sentence),
+      "Four of the sixteen" → "Four of the seventeen", and "the other twelve
+      families" → "the other thirteen families". This is a factual
+      correction to text this change authors, not a silent widening of the
+      requirement: no family is added, removed, or reclassified, and the
+      test's `len(NON_READERS) == len(FAMILIES) - 4 == 13` assertion — which
+      already read the code rather than the sentence — is unchanged and
+      still passes. The two `the other twelve` instances in `proposal.md`
+      (its `code_surface:` line and OQ-3's prose) are left as authored: that
+      document is `ratified` and those sentences are the record of what was
+      ruled with the arithmetic available at the time. The delta is the
+      normative text and the delta is now right.
 
       **Three tests, because one was not enough.**
       `test_every_family_is_classified_as_reader_or_non_reader` is the loud
@@ -366,8 +443,12 @@ exit 0, with no pre-existing test edited at all.
       | M4 | `location-conformance` ADDED to the list | 3.3, both tests — **survived the first cut** |
       | M4b | `tag-hygiene` ADDED to the list | 3.3, both tests |
       | M4c | `record-immutability` ADDED to the list | 3.3, both tests |
-      | M5 | `build_context` never populates the set | `test_build_context_populates_the_scan_set` |
-      | M6 | the scan set joins `ctx.docs` | `test_build_context_populates_the_scan_set` |
+      | M5 | `build_context` never populates the set | `test_build_context_populates_the_scan_set` **+ `test_the_scan_set_moves_no_corpus_measurement`** (fix lap) |
+      | M6 | the scan set joins `ctx.docs` | `test_build_context_populates_the_scan_set` **+ `test_the_scan_set_moves_no_corpus_measurement`** (fix lap) |
+      | M7 | the `EVIDENCE_PARTS` filter dropped entirely | 3.1, `test_byte_exact_evidence_is_excluded_from_membership`, `test_the_evidence_probes_would_fire_if_admitted`, and 3.2's `ratified-provenance` AND `status-validity` — 5 tests |
+      | M7b | `"evidence"` dropped from `EVIDENCE_PARTS` | the same, minus `ratified-provenance` — 4 tests |
+      | M7c | `"source-snapshots"` dropped | 4 tests |
+      | M7d | `"supporting-docs"` dropped | 4 tests |
 
       **M4 survived, and the reason is exactly the platform-inert class this
       box warns about.** Adding `location-conformance` to the reader list
@@ -398,11 +479,23 @@ exit 0, with no pre-existing test edited at all.
       alone cannot distinguish it from M1. The declared tuple is the ruled
       contract (OQ-2), so it is asserted as the tuple.
 
-      **M6 is killed by one test only**, `test_build_context_populates_the_scan_set`,
-      through its disjointness assertion — the invariance test builds its own
-      contexts and structurally cannot see the runner's wiring. One kill is a
-      kill, and the single point of failure is named here so a reviewer can
-      weigh it.
+      **M5 and M6 were killed by ONE test each — and the fix lap gave each a
+      SECOND, independent killer.** Both fell only to
+      `test_build_context_populates_the_scan_set`, because the invariance
+      test built its own contexts and structurally could not see the runner's
+      wiring. One kill is a kill, but a single point of failure means one
+      test edit hides both mutations, and the adversarial review was right to
+      press it. `test_the_scan_set_moves_no_corpus_measurement` now carries a
+      `build_context` arm that states the governed corpus POSITIVELY —
+      `[d.path for d in ctx.docs]` equals
+      `[p.as_posix() for p in corpus.iter_doc_paths(repo)]`, so a build
+      folding the scan set into `docs` fails even with every disjointness
+      assertion deleted — and asserts `lifecycle_docs` equals
+      `iter_lifecycle_paths` and is non-empty. Re-run against both mutants:
+      each now fails **two** named tests. The evidence-filter mutations
+      (M7–M7d) were pinned the same way from the start: four or five killers
+      apiece, spanning the path list, the segment-by-segment assertion, the
+      admitted-probe behavioural test, and the two family tests.
 - [x] 3.7 Confirm `tests/doc-health` is 724 + N and that no pre-existing test
       changed meaning. If any existing test needs editing, that is a finding
       about the design, not a chore: say so before editing it.
@@ -418,6 +511,14 @@ exit 0, with no pre-existing test edited at all.
       existing fixture corpus acquired a scan set by accident (three of them
       contain an `openspec/changes/**/proposal.md` that would otherwise have
       started firing).
+
+      **FIX LAP — 724 + 20 = 744 passed, exit 0, and the claim above holds
+      with one honest narrowing.** Still zero pre-existing test FILES edited.
+      Two tests INSIDE this change's own new module were edited — the
+      membership list and the invariance test — which is editing this
+      change's own work, not a pre-existing test changing meaning. Nothing
+      outside `tests/doc-health/test_lifecycle_scan_set.py` and its
+      `fixtures/lifecycle-scan/` tree was touched.
 
 ## 4. Gates, index, archive
 
@@ -490,6 +591,16 @@ exit 0, with no pre-existing test edited at all.
       reached the four families in the same run. That number not moving is
       the ruled option's whole claim, measured on the real corpus rather than
       on a fixture.
+
+      **SUPERSEDED BY THE FIX LAP, and the earlier figures stand as what was
+      true at `abc26d1`.** The lap edits a SECOND governed-corpus file
+      (`docs/archive-record-discrepancies.md`, the M1 addendum), so the
+      base-to-tip comparison is now THREE moved lines rather than two: the
+      canon-share line, `| standard |` at +447, and `| record |` at +1090.
+      The findings line is unchanged at `4 / 8 / 68 / 4, 0 new regressions`,
+      documents examined stays 328, and the scan set stays 126. The full
+      line-by-line account, with the word deltas measured per file, is in
+      5D.4.
 - [ ] 4.4 Re-run the corpus-shape measurement and assert the canon-share
       headline, documents examined, and governance word total are UNCHANGED
       from baseline. This is the claim that distinguishes the ruled option
@@ -1797,10 +1908,21 @@ tree green; the count in the slice title is the findings it clears.
 
         | document | derived | route and evidence |
         | --- | --- | --- |
-        | `declare-client-standing-policy-contract/proposal.md` | `Status: ratified` + one `Ratified:` line | **The document's own page.** Its free-form value already carried the ratification: `ratified — Brett Heap (openxFactory operator authority), 2026-08-23,` running on into a three-line clause. Split into two headers per 5A.4's precedent, `by` written before the name so the approver axis reads it, and every word of the clause kept. Corroborated but not needed: commit `f7769e2`'s own title, and the README Records row "authored and ratified 2026-08-23 (Brett Heap, in-session)". |
-        | `create-medxchart-overlay-boundary/proposal.md` | `Status: draft`, no citation | **The record names no ratification act.** `.openspec.yaml` carries `schema:` and `created: 2026-08-23` only — no `approved_by`/`approved_on` pair at all, so C2's distinction never even arises; `tasks.md` is implementation and verification throughout with no ratification task and no approval line; the five landing commits (`86f4372`, `bf82594`, `a324868`, `a497874`, `7431f03`) are single-line implementation messages; no pull request exists; and the README row says "local topology realization completed 2026-08-23", never "ratified". A repo-wide grep for the change id outside its own packet returns the README row and this file. |
+        | `declare-client-standing-policy-contract/proposal.md` | `Status: ratified` + one `Ratified:` line | **The document's own page.** Its free-form value already carried the ratification: `ratified — Brett Heap (openxFactory operator authority), 2026-08-23,` running on into a three-line clause. Split into two headers per 5A.4's precedent. **The clause's words were REORDERED AND REPUNCTUATED, not kept verbatim — disclosed here because the first read-back said "every word of the clause kept" and that was over-stated.** Precisely: the date moved ahead of the name (`Brett Heap …, 2026-08-23,` → `2026-08-23 by Brett Heap …`), the word `by` was ADDED so the approver axis reads it, the em dash after `ratified` was dropped, and the comma closing the parenthetical became an em dash introducing the run-on clause. No word of the clause was DELETED and no fact was changed — the derivation is still the document's own page and still invents nothing — but "every word kept" claims byte-preservation the edit does not have. Corroborated but not needed: commit `f7769e2`'s own title, and the README Records row "authored and ratified 2026-08-23 (Brett Heap, in-session)". |
+        | `create-medxchart-overlay-boundary/proposal.md` | `Status: draft`, no citation | **The record names no ratification act.** `.openspec.yaml` carries `schema:` and `created: 2026-08-23` only — no `approved_by`/`approved_on` pair at all, so C2's distinction never even arises; `tasks.md` is implementation and verification throughout with no ratification task and no approval line; **SIX landing commits across the two packets, not five, and the first read-back listed the wrong mix** — MedxChart's are `86f4372`, `f879070` and `bf82594`, MedxPractice's are `a324868`, `a497874` and `7431f03`; all six are single-line implementation messages. `f879070` ("Register MedxChart boundary change") is the one the first pass missed, because it touches `README.md` alone and a `git log` scoped to the packet directory cannot see it — the correction is a real finding about the method, not a typo. No pull request exists for either packet. The README says "local topology realization completed 2026-08-23", never "ratified" — **and that sentence is MedxChart's alone**; MedxPractice's row says `target_release: implementation_pending` and describes the boundary, making no completion claim at all. A repo-wide grep for the change id outside its own packet returns **TWO README lines** (the MedxChart entry appears twice in `README.md`, an unrelated pre-existing duplication noted but not fixed here) and four lines of this file. |
         | `create-medxpractice-overlay-boundary/proposal.md` | `Status: draft`, no citation | **The same, on its own record.** Same `.openspec.yaml` shape, same all-implementation `tasks.md`, same single-line commits, no pull request, and a README row that describes the boundary and says nothing about ratification. |
         | `add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md` | one derived `Ratified:` line | **The page's own `Ratifier:`/`Decision date:` pair**, per OQ-5 and 5A.2's precedent. Nothing outside the document was needed and nothing outside it was used. |
+
+        **CORROBORATED by this campaign's own two merged PRs, added on the
+        fix lap.** Neither was needed for the derivation and both point the
+        same way, which is why they are cited rather than relied on. PR #279
+        (slice 5A, merged 2026-08-23) records in its own body that "two new
+        headerless actives landed from the MedxChart/MedxPractice session
+        mid-slice — 5D re-measures at enforcement, their files untouched".
+        PR #283 (slice 5C, merged 2026-08-24) closes its census with "46 → 2
+        (only the two headerless ACTIVE MedxChart/MedxPractice proposals — 5D
+        scope)". Two independent, contemporaneous, merged records describing
+        both packets as headerless ACTIVE proposals and neither as ratified.
 
         **Route (b) — the archive act and the promotion it performed — was
         considered and does not reach either MedxChart packet**: both are
@@ -1964,17 +2086,240 @@ tree green; the count in the slice title is the findings it clears.
 
         **DONE — and the ordering is visible in the history rather than only
         in this read-back.** The slice is TWO commits, in the order the
-        section requires: the three straggler discharges land FIRST, on a
+        section requires: the **four** straggler discharges land FIRST
+        (`c8356cd`), on a
         tree where the gate does not yet exist, and the enforcement code
-        lands SECOND, onto a corpus that already satisfies it. A single
+        lands SECOND (`abc26d1`), onto a corpus that already satisfies it. A
+        single
         commit would have been defensible and would have hidden the one thing
         worth being able to check later — that the gate was not introduced
         red and then quietly fixed in the same breath. The check that the
         ordering was real is 5D.2's, run on the finished tree: the
         enforcement path reports zero over the scan set, so nothing about
-        this landing depends on the gate being lenient. The three discharges
-        are 5D's own scope under the moving-target note, not a fourth
-        discharge slice smuggled in.
+        this landing depends on the gate being lenient. The four discharges
+        are 5D's own scope under the moving-target note, not a fifth
+        discharge slice smuggled in. (**Corrected on the fix lap: this
+        read-back said "three" three times.** The derivation table two boxes
+        up lists four documents and the commit's own subject line says four —
+        `declare-client-standing-policy-contract`,
+        `create-medxchart-overlay-boundary`,
+        `create-medxpractice-overlay-boundary` and
+        `add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md`.
+        Only the prose was wrong; nothing was left undischarged, which 5D.2's
+        zero over the scan set is the independent check on.)
+  - [x] 5D.4 **The fix lap (2026-08-23), after an adversarial review returned
+        FIX FIRST and Brett ruled its two open points in session.** Nothing
+        was pushed, so the lap is one additional commit on top of `c8356cd`
+        and `abc26d1` rather than a rewrite of either — the record of what
+        the first cut got wrong stays legible.
+
+        `git fetch origin` first: **`origin/main` had NOT moved past
+        `ded0826`**, so no merge was needed and the base is unchanged.
+
+        **M1 — the enforcement LANDS; the domain populations are ADVISORY BY
+        RULING.** The review measured, in CI's real `--repo-root` scope,
+        roughly 27 CRITICAL + 76 ERROR of lifecycle-header findings across
+        the DOMAIN repos' own OpenSpec packets, and offered that as a reason
+        to hold. **Brett ruled: land it.** The findings are true, surfacing
+        them is the tool working, and each domain owes its own discharge
+        under its own governance. Three things were then executed.
+
+        *(1) The measurement was REDONE at the aggregation repo's PINNED
+        submodule SHAs.* The review's numbers came from the local domain
+        checkouts, which are ahead of the pins; a number CI would not
+        reproduce is not the number to rule on. A scratch layout of ten
+        clones was built from
+        `git -C <aggregation> ls-tree -r origin/main`, each detached at its
+        pinned commit, and `runner.build_context` plus the four families were
+        run over it — the enforcement code path, not a replay. **Every pinned
+        SHA was reachable locally, so no row is a substitute state.**
+
+        | repo | pinned SHA | scan-set docs | CRITICAL | ERROR |
+        | --- | --- | --- | --- | --- |
+        | openxFactory | `ded0826` (this change's base) | 126 | 1 | 3 |
+        | AdxFactory | `45eaf55` | 2 | 0 | 1 |
+        | HealthLinc | `76008ec` | 1 | 1 | 0 |
+        | LedgerxFactory | `f9488ae` | 27 | 0 | 26 |
+        | MedxChart | `68d2f1f` | 0 | 0 | 0 |
+        | MedxEHR | `9e23424` | 1 | 1 | 0 |
+        | MedxFactory | `f3d9550` | 25 | 13 | 1 |
+        | MedxPractice | `d8d7319` | 0 | 0 | 0 |
+        | OpsxFactory | `7908016` | 76 | 14 | 39 |
+        | codexFactory | `e61f24d` | 27 | 7 | 8 |
+        | **total** | | **285** | **37** | **78** |
+
+        openxFactory's four are the stragglers `c8356cd` discharges — the
+        pin IS this change's base, so that row is the undischarged corpus by
+        construction and reads **0 / 0 at the branch tip** (5D.2). **Domain
+        subtotal: 36 CRITICAL / 75 ERROR over 159 documents in seven
+        repositories** — higher than the review's count, in both directions,
+        because the pinned states differ from the local checkouts. The pinned
+        figure is the one that binds, because the pins are what CI assembles.
+
+        *(2) The 5D.2 zero gate is openxFactory's scan set, and it is MET.*
+        The domain populations are advisory BY RULING and are not silenced:
+        no contract date, no reduced-severity class, no scan-set exclusion.
+        What the ruling settles is WHO discharges them and WHEN — the owning
+        domain, under its own change process. Each is a named follow-up:
+        **FU-DOM-ADX** (1 ERROR), **FU-DOM-HEALTHLINC** (1 CRITICAL),
+        **FU-DOM-LEDGERX** (26 ERROR), **FU-DOM-MEDXEHR** (1 CRITICAL),
+        **FU-DOM-MEDXFACTORY** (13 CRITICAL / 1 ERROR), **FU-DOM-OPSX**
+        (14 CRITICAL / 39 ERROR) and **FU-DOM-CODEX** (7 CRITICAL / 8 ERROR).
+        MedxChart and MedxPractice pin no OpenSpec packets and owe nothing.
+        FU-DOM-OPSX is the one worth raising first and the reason is not its
+        size: 45 of its 53 findings are on ACTIVE packets, and the bulk are
+        `review/` records using a LIVE local vocabulary (`complete`,
+        `RATIFIED FOR IMPLEMENTATION`) that no taxonomy value covers. That is
+        an authoring convention still in use, not a legacy backlog, so it
+        keeps producing findings until the convention changes.
+
+        *(3) The enumeration is DURABLE.* A dated addendum was appended to
+        `docs/archive-record-discrepancies.md` — the append-only register
+        whose `record-immutability` critical is already standing and
+        dispositioned — carrying the ruling, the method, the per-repo table
+        and the seven named follow-ups. Written there and not only here for
+        the reason that register exists at all: a finding recorded only in a
+        change packet evaporates when the change archives.
+
+        **S1 — the raw glob STANDS; the delta text WIDENS.** See OQ-2's
+        second RULED note, the amended `document-lifecycle` and `doc-health`
+        deltas, §2.5's read-back and `docs/document-lifecycle.md`'s bullet.
+        The widened rule was written as the TWO obligations it actually
+        creates rather than as one, because over-stating it would have been
+        the same class of error in the other direction: the taxonomy reaches
+        every `review/` record; the ratification-citation rule reaches only a
+        document whose status IS `ratified`.
+
+        **MEASURED, and it is the measurement the ruling turns on.**
+        openxFactory carries **13 `review/` records**. Five are ratification
+        records carrying `Status: ratified`, each already cited under OQ-5.
+        **Eight are non-ratification records and every one carries
+        `Status: record`** — a conforming taxonomy value, so each satisfies
+        the widened rule as it stands and none owes a citation. They are
+        `add-identity-brokering/review/co-residence-finding-2026-08-21.md`,
+        `archive/2026-08-04-add-ideation-cross-reference-readiness/review/2026-07-14-pre-realization-review.md`,
+        `archive/2026-08-10-split-ideation-book-per-repo/review/decision-review-2026-08-10.md`
+        and `.../migration-evidence-2026-08-10.md`, and the four
+        `archive/2026-08-15-add-client-identity-roster/review/` records
+        (`amendment-record-2026-08-14.md`, `amendment-record-2026-08-15.md`,
+        `amendment-record-2026-08-15b.md`,
+        `decision-review-2026-08-14.md`). **ZERO new findings, and the 5D.2
+        gate stays 0 / 0** — so no new discharge was owed and none was
+        performed. The widening changed what the rule SAYS and not what the
+        corpus OWES, which is the outcome that made "widen the delta" the
+        cheap side of the ruling.
+
+        **S2 — the byte-exact-evidence MUST NOT is now enforced on
+        MEMBERSHIP.** `corpus.EVIDENCE_PARTS` excludes any path carrying a
+        `supporting-docs`, `source-snapshots` or `evidence` segment, applied
+        by `iter_lifecycle_paths` AFTER the ruled globs resolve — the globs
+        are untouched, because narrowing a ruled glob in code would be
+        re-ruling OQ-2. Four probe fixtures were added, each MATCHING a ruled
+        glob and each carrying a live defect, so the mutation dies
+        behaviourally and not only on the path list. Measured: **the filter
+        removes NOTHING from the real corpus at the pinned SHAs** — 285
+        scan-set documents before and after, and openxFactory's own set stays
+        126 — so it closes a rule and moves no number, which is exactly the
+        claim the first cut made and then declined to enforce.
+
+        The fourth probe exists because the test caught a real gap: a bare
+        `source-snapshots/` under a packet. In today's corpus every
+        `source-snapshots/` directory is nested under `supporting-docs/`, so
+        the outer segment excluded them all and dropping `source-snapshots`
+        from the rule changed nothing observable. The segment-by-segment
+        assertion made that visible and the fourth probe pins it.
+
+        **S3 — M5 and M6 now have TWO independent killers each.** They had
+        one: `test_build_context_populates_the_scan_set`, so a single test
+        edit hid both. `test_the_scan_set_moves_no_corpus_measurement` gained
+        an arm built through `build_context` itself which states the governed
+        corpus POSITIVELY — `[d.path for d in ctx.docs]` equals
+        `iter_doc_paths(repo)` — and asserts `lifecycle_docs` is populated and
+        equals `iter_lifecycle_paths(repo)`. Re-verified by running both
+        mutations: `lifecycle_docs.extend([])` (M5) and
+        `docs.extend(load_lifecycle_docs(...))` alongside (M6) each now fail
+        **two** named tests instead of one.
+
+        **S4 — the stale family count is corrected inside the MODIFIED block
+        this change authors.** See §3.3's read-back for the reasoning and the
+        exact four edits.
+
+        **NITs.** `workbench.py`'s `DEFAULT_SCOPED_FAMILIES` comment said
+        "both read only `ctx.docs`", which §2 made false — corrected
+        truthfully rather than deleted: `status-validity` reads
+        `_lifecycle_scope(ctx)`, and the scoping stays exact because
+        `run_scoped_doc_health` builds its `Context` without a
+        `lifecycle_docs` argument, so the union is the scoped list itself.
+        The straggler read-back's corrections are in the derivation table and
+        5D.3 above (six landing commits not five, the missed `f879070` and
+        WHY a packet-scoped `git log` missed it, the README sentence
+        belonging to MedxChart alone, two README lines not one, PR
+        #279/#283's corroboration, and "three stragglers" → four). The
+        `declare-client-standing-policy-contract` note's "every word kept" is
+        replaced by the disclosed truth: reordered and repunctuated, with
+        `by` added and two marks changed, no word deleted and no fact moved.
+
+        **GATES, exit codes read directly.**
+
+        - **5D.2 through the real code path: `0 CRITICAL / 0 ERROR` over
+          openxFactory's 126-document scan set** (328 governed docs, overlap
+          0). Unchanged from the pre-fix-lap measurement in every figure.
+        - **Whole-repo doc-health `--single-repo .`: `4 critical / 8 error /
+          68 warning / 4 info, 0 new regressions`** — the base's own numbers.
+          Compared LINE BY LINE against a detached clone of `ded0826` running
+          THAT tree's `scripts/`. **Exactly THREE lines differ and none is a
+          finding**, each attributable to the word count of one edited
+          governed document:
+          - `Canon share by words:` 169417 → **169864** canon words and
+            542594 → **544131** governance words. The percentage reads
+            **31.2% on both sides** — it moved to 31.3% at `abc26d1` and back
+            to 31.2% here, because the second edited file is a `record` and
+            adds to the denominator only.
+          - the per-stage `| standard |` word total 10387 → **10834**, which
+            is `docs/document-lifecycle.md`'s **+447** words;
+          - the per-stage `| record |` word total 36494 → **37584**, which is
+            `docs/archive-record-discrepancies.md`'s **+1090** words.
+
+            Measured, not inferred: `len(new.split()) - len(old.split())`
+            over the two files returns exactly 447 and 1090, and
+            447 + 1090 = 1537 = the governance-word delta, with 447 = the
+            canon-word delta. Every other line is byte-identical, including
+            every finding, every stage's document count, and the `Docs`
+            column.
+        - **`openspec validate --all --strict`: 74 passed, 0 failed** (74
+          items). The amended deltas stay strict-valid. The count is
+          UNCHANGED by the fix lap — `abc26d1` also reads 74/74, verified on
+          a detached clone — because the item count is changes plus specs and
+          the lap added a scenario to an existing requirement rather than a
+          requirement or a file.
+        - **`pytest tests/doc-health`: 744 passed**, exit 0 — 741 plus the
+          three new tests
+          (`test_byte_exact_evidence_is_excluded_from_membership`,
+          `test_the_evidence_probes_would_fire_if_admitted`,
+          `test_a_non_ratification_review_record_needs_a_status_and_no_citation`).
+          No pre-existing test was edited except the two whose fixture list
+          grew.
+        - **`pytest tests/ideation-dashboard -k workbench`: 140 passed**,
+          unchanged.
+        - **No uppercase `POST` in authored prose**: zero added lines in the
+          whole working-tree diff contain the substring, and
+          `tests/ideation-dashboard/test_staging_workbench.py` reads 84
+          passed. The frozen phase-b fixture's `POSTURE` is evidence and was
+          not touched.
+
+        **One PRE-EXISTING environment artifact, recorded rather than
+        worked around silently.** A bare `pytest tests -k workbench` cannot
+        collect: `tests/doc-health/test_header_value_readers.py` and
+        `tests/ideation-dashboard/test_header_value_readers.py` share a
+        basename with no package `__init__.py`, so pytest reports an import
+        file mismatch. Verified pre-existing by running the identical command
+        against detached clones of BOTH `ded0826` and `abc26d1` — the same
+        single collection error at each. Clearing `__pycache__` does not fix
+        it. With that one module ignored the same run reads **161 passed at
+        the base and 161 at the working tree**. Not fixed here: renaming a
+        test module is outside this change's surface, and the gate this
+        change's record has always quoted is the directory-scoped 140, which
+        is green.
 
 ## 6. Explicitly out of scope
 

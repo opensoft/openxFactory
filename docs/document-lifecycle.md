@@ -84,12 +84,21 @@ reference`.
 - Generated evidence (simulation output, runbook transcripts, audit reports)
   is always `record`, regardless of how normative its content sounds.
 - An OpenSpec change packet's `proposal.md`, and every `review/` record under
-  that packet, are governance documents for these rules — the status taxonomy
-  and the ratification-citation rule reach them exactly as they reach a
-  document under `docs/`. Both make a claim about standing (a proposal says
-  whether it is `draft` or `ratified`; a review record says a ratification
-  happened), and a claim of standing is what the taxonomy exists to make
-  checkable. Ratified by `govern-openspec-corpus-membership` (2026-08-23).
+  that packet — whatever that record's subject — are governance documents for
+  these rules. Both make a claim about standing (a proposal says whether it is
+  `draft` or `ratified`; a review record says what standing its own finding
+  has, whether that is a ratification, a captured `record` of a review round,
+  or a superseded earlier one), and a claim of standing is what the taxonomy
+  exists to make checkable. Ratified by
+  `govern-openspec-corpus-membership` (2026-08-23).
+  - **The two obligations differ in reach, and only one reaches every review
+    record.** The TAXONOMY rule reaches all of them: a `review/` record
+    carries a `Status:` from the controlled taxonomy, in the header window,
+    whatever it is about — most often `Status: record`, which is conforming
+    and needs nothing further. The RATIFICATION-CITATION rule reaches only a
+    document whose status IS `ratified`. A review record carrying any other
+    taxonomy value owes no citation; demanding one would be demanding
+    provenance for a claim the document does not make.
   - **The REST of the packet is not ruled.** `tasks.md`, `design.md`, the
     spec delta files, `supporting-docs/` and `evidence/` are working files of
     the change rather than documents making a standing claim, and no finding
@@ -104,12 +113,16 @@ reference`.
     `ratified`, a citation that clears the floor, report the document by name
     with what its record does and does not carry; an invented provenance is a
     worse defect than the missing one it hides.
-  - A `review/` record that states its ratifier and decision date in its own
-    vocabulary — a `Ratifier:` or `Decision date:` header — still carries one
-    of the two sanctioned citation spellings. Those headers **accompany** a
-    citation and never stand in place of one: recording the same fact twice is
-    the cost of having one rule, and a third spelling for the documents whose
-    whole subject is ratification would undo it.
+  - A `ratified` `review/` record that states its ratifier and decision date
+    in its own vocabulary — a `Ratifier:` or `Decision date:` header — still
+    carries one of the two sanctioned citation spellings. Those headers
+    **accompany** a citation and never stand in place of one: recording the
+    same fact twice is the cost of having one rule, and a third spelling for
+    the documents whose whole subject is ratification would undo it.
+  - Byte-exact evidence is **not** in scope, by path: a document whose path
+    carries a `supporting-docs`, `source-snapshots` or `evidence` segment is
+    excluded even where its name would otherwise match, because reporting a
+    frozen record for the state it preserves is a false finding.
 
 ## The Explicit Delta Rule
 
