@@ -6,9 +6,19 @@ workspaces:
 # step 6). Every record below now carries the provider_notebook_id of the
 # COMPANY-hosted (xFactor001@opensoft.one) notebook. The record ids are
 # key-derived and therefore unchanged, so each record IS still the live book's
-# registration and none was retired; what was retired is the legacy PROVIDER
-# NOTEBOOK in brettheap@gmail.com, recorded in the migration evidence. Legacy
-# -> new notebook ids:
+# registration, and no record was retired.
+#
+# THE LEGACY NOTEBOOKS ARE NOT RETIRED. Runbook step 8 is HELD by Brett's
+# 2026-08-24 ruling: parity does not hold until the oversized
+# `openspec/specs/ideation-dashboard/spec.md` has a projected form, so the
+# legacy provider notebooks were NOT archive-renamed and NOT touched. They
+# remain LIVE and intact in brettheap@gmail.com under the left-hand ids below,
+# which is exactly why those ids are recorded here: they are how the retirement
+# act, when it happens, will address them. Do not read this block as evidence
+# that retirement occurred, and do not skip it. Status: PENDING RETIREMENT.
+# See docs/notebook-projection-migration-evidence-2026-08-24.md.
+#
+# Legacy (still live, pending retirement) -> new (live, registered) ids:
 #   b83e63e3-262a-4dfe-9b9f-332b3d27d1bb -> 991f0af7-2077-4c26-ac1d-d92e2af9f99c
 #   6f10282a-7b5b-41c5-9109-55e603890730 -> b331ed13-fa0b-456a-8004-184f66939ecd
 #   99b1ff52-2a93-43c2-b8fc-a153328ccd77 -> 2c2ba7ae-65e1-436a-ba4c-0a5f8f2a99bb

@@ -4,7 +4,7 @@ Status: record
 Kind: report
 Captured: 2026-08-24
 Repository context: openxFactory
-Summary: Evidence for the hosting migration of the lifecycle notebook projection from the personal account (brettheap@gmail.com, profile `personal`) to the declared operator account (xFactor001@opensoft.one, profile `company`) — the recorded ids, the re-derivation, the parity numbers, and the three steps that are HELD rather than done.
+Summary: Evidence for the hosting migration of the lifecycle notebook projection from the personal account (brettheap@gmail.com, profile `personal`) to the declared operator account (xFactor001@opensoft.one, profile `company`) — the recorded ids, the re-derivation, the parity numbers, Brett's 2026-08-24 rulings, and the three steps that are HELD rather than done.
 Topics: notebooklm, lifecycle-notebook-projection, hosting-migration, parity, acceptance-evidence
 
 Executed against
@@ -13,9 +13,18 @@ numbered as that runbook numbers them.
 
 ## Outcome in one line
 
-The projection is **re-derived and live in the company account** (7 books, 638
-managed sources, 0 unaccounted); **steps 5, 8 and 10 are HELD** — one on a
-tooling defect, two on the runbook's own "only once parity holds" precondition.
+The projection is **re-derived and live in the company account** — 7 books,
+**626 managed sources** (633 total, counting each book's charter source), 608
+unique managed titles, **0 unaccounted**. **Steps 5, 8 and 10 are HELD**: one on
+a tooling defect, two on the runbook's own "only once parity holds"
+precondition, which Brett has ruled stays unmet for now.
+
+The counts reconcile as: the per-book table below sums to 626 managed sources;
+adding the seven `00 [charter] Read me first` sources gives 633 total; and 626
+managed sources carry 608 DISTINCT titles, because eighteen grounding documents
+(`document-lifecycle`, `architecture`, `terminology-and-repo-topology`) are
+projected into more than one book. 608 is therefore the number parity compares,
+and it matches exactly.
 
 ## The gate — how the account was authenticated
 
@@ -151,15 +160,28 @@ fresh derivation and both now converged: three MedxFactory staging documents
 that derive one identical title (`[staged] MedxFactory: topic`) and one such
 OpsxFactory duplicate were deleted by the sync's own plan.
 
-## Step 8 — HELD: legacy books NOT retired
+## Step 8 — HELD by ruling: legacy books NOT retired
 
-The runbook conditions retirement on parity holding. It does not hold. The
-legacy books were therefore **not archive-renamed and not touched**; they
+The runbook conditions retirement on parity holding. It does not hold, and
+**Brett ruled on 2026-08-24 that it does not**:
+
+> RETIREMENT HELD — parity does NOT hold for step 8 until the
+> oversized-document handling gives the 228KB spec a projected form; legacy
+> books stay untouched.
+
+The legacy books were therefore **not archive-renamed and not touched**; they
 remain live and intact in brettheap@gmail.com under the ids recorded in step 1.
-This is the guard working, and clearing it is a ruling for Brett, not an
-inference for the operator: the failing item is provider-imposed and
-pre-existing, so a reasonable ruling is that parity "holds" for retirement
-purposes — but that is his call.
+The operator's reading — that a provider-imposed, pre-existing gap might be
+treated as parity "holding" — was NOT adopted. The gate stands until the
+document is projectable.
+
+**What unblocks it.** F4's oversized-document handling must give
+`openspec/specs/ideation-dashboard/spec.md` a projected form — chunking it into
+provider-sized sources, or another representation that carries its content —
+so canon reaches title-set equality and `--parity` exits zero. Skipping the
+document does NOT clear this gate: the ruling requires a projected form, not an
+excuse. Retirement then proceeds per step 8 against the step 1 ids, which is why
+those ids and the `from_account` / `from_nlm_profile` history are kept.
 
 ## Step 9 — readers listed, NOTHING granted
 
@@ -174,9 +196,50 @@ through the provider's sharing API and must be resolved from whatever record
 originated it.
 
 New books (company account) — all seven: sole collaborator
-`xfactor001@opensoft.one (owner)`, but `is_public: true` /
-`access_level: public`. See F5: this is an account-level default, not an act of
-this migration, and it is a posture decision for the company-policy actor.
+`xfactor001@opensoft.one (owner)`. The CLI additionally reported
+`is_public: true` / `access_level: public`; **that report is false**, and F5
+below carries the proof.
+
+### The posture ruling, and the act taken under it
+
+Brett ruled on 2026-08-24:
+
+> SHARING POSTURE: RESTRICT — Google-side deny-by-default; the app is the SOLE
+> grantor (org-visible rejected on the logic-enforced-bound doctrine).
+
+Acting on that ruling, the operator re-opened the live `xFactor001` browser
+session and went to tighten all seven books through the provider UI, the CLI
+toggle having no-opped. **No tightening was necessary: the books were already
+Google-side deny-by-default**, and the provider offers no control to change
+that would have made them more restricted.
+
+Verified per book, 2026-08-24, as `xFactor001@opensoft.one`, driven by the
+governed lane under Brett's ruling:
+
+| book | collaborators | sharing-policy triple | link sharing |
+| --- | --- | --- | --- |
+| `xf-canon` | owner only | `[1, false, false]` | none |
+| `xf-drafts` | owner only | `[1, false, false]` | none |
+| `xf-ideation-openxfactory` | owner only | `[1, false, false]` | none |
+| `xf-ideation-ledgerxfactory` | owner only | `[1, false, false]` | none |
+| `xf-ideation-medxfactory` | owner only | `[1, false, false]` | none |
+| `xf-ideation-opsxfactory` | owner only | `[1, false, false]` | none |
+| `xf-ideation-codexfactory` | owner only | `[1, false, false]` | none |
+
+The provider's own share dialog, read directly in the browser for `xf-canon`,
+lists **only** `xFactor001 Notebook LM (Owner)` under "People with access" and
+**contains no general-access control at all** — no "Anyone with the link", no
+audience selector, nothing to switch off. The ruling's required end state was
+therefore already the actual state; the only change made to any book's sharing
+was none.
+
+**The ruling's standing consequence:** from here the app is the sole grantor.
+`share_out` stays `[]` until a governed grant is approved and recorded, and no
+grant may be made by hand in the provider UI. Org-visible access is rejected,
+so the Workspace default must never be relaxed to it.
+
+The wallet-mediated access-control design that will implement app-sole-grantor
+is being **staged separately** and is not part of this record.
 
 ## Step 10 — HELD
 
@@ -221,17 +284,43 @@ canon and were deleted by hand; canon is now clean at 103 (charter + 102
 managed). Two defects to fix: verify the add, and either chunk or skip a
 document over the provider's limit.
 
-**F5 — new books default to `public`, `nlm share private` silently fails.** All
-seven new books report `is_public: true` with a public link, where the legacy
-books were `restricted`. This is an account default, not an act of this
-migration: the one pre-existing notebook in the company account, which the sync
-never touched, is public too. It is also **not anonymous exposure** — fetching
-the public link unauthenticated redirects to Google sign-in, so the plausible
-reading is a Workspace "anyone in the organisation with the link" default.
-`nlm share private` was attempted on all seven, reported success on each, and
-changed nothing — the same silent-failure class as F4. The posture therefore
-still differs from the legacy one and needs a ruling plus, most likely, a
-Workspace admin setting.
+**F5 — `nlm share status` misreports Workspace notebooks as public.** All seven
+new books report `is_public: true` with a public link. **The report is wrong,
+and the books are not shared.** The CLI derives the flag heuristically in
+`notebooklm_tools/core/sharing.py`, scanning every top-level list in the RPC
+response and declaring the notebook public if any of them begins with the
+integer `1`:
+
+```python
+for item in result:
+    if isinstance(item, list) and len(item) >= 1:
+        if item[0] == 1:  # Public access indicator
+            is_public = True
+            break
+```
+
+The comment above it already concedes "Position varies". What it actually
+matches is a sharing-policy triple at position 6, whose first element is a MODE
+CODE, not a boolean. Raw responses:
+
+- new canon (Workspace): `… , [1, false, false], false]` → mode 1, both flags off
+- legacy canon (consumer): `… , [3, true, true], false]` → mode 3, both flags on
+
+So the heuristic fires on the mode code of the **more** restricted notebook and
+stays silent on the less restricted one — it reports the posture backwards. Four
+independent checks agree the new books are not exposed: the provider's share
+dialog offers no general-access control and lists only the owner; an
+unauthenticated fetch of the "public link" redirects to Google sign-in; the one
+pre-existing notebook in the account, which the sync never touched, reports
+`public` too; and `nlm share private` reports success while changing nothing —
+because there is nothing to change.
+
+Two consequences. The CLI's `is_public` / `access_level` **cannot be trusted for
+Workspace-hosted notebooks** and should not be used as the roster's evidence of
+posture; read the policy triple or the UI instead. And the "unapproved public
+exposure" this run first reported was a tooling artifact, not a governance
+breach — recorded here because the false positive is itself the defect worth
+fixing.
 
 ## Corpus state this evidence was derived from
 
