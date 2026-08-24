@@ -39,7 +39,9 @@ The declaration SHALL describe INPUT acceptance only. Output modality, tool-call
 ### Requirement: The catalog type enforces every bound the released schema enforces
 The server-side catalog type SHALL refuse every catalog the RELEASED SCHEMA would refuse on a bound it declares. A type gate weaker than the wire gate lets a catalog be constructed and dispatched in-process that `GET /workbench/model-catalog` then refuses to serve, because the route validates the projected envelope against the released schema — a divergence this capability has already had to close once, for a routing rule's target list.
 
-Specifically, the type SHALL hold the entry count and the entry identifier to the released bounds: a catalog SHALL NOT exceed the released maximum number of entries, and a `model_id` SHALL satisfy the released length and character bounds — the same bounds already applied to the id-bearing REFERENCE fields, applied now to the identifier those references name.
+This change closes TWO of those divergences and SHALL NOT be read as closing all of them. The type SHALL hold the entry COUNT and the entry IDENTIFIER to the released bounds: a catalog SHALL NOT exceed the released maximum number of entries, and a `model_id` SHALL satisfy the released length and character bounds — the same bounds already applied to the id-bearing REFERENCE fields, applied now to the identifier those references name.
+
+THE REMAINING DIVERGENCES SHALL BE NAMED RATHER THAN IMPLIED CLOSED. The released schema also bounds the length of `label`, `provider_class` and `data_handling`, and the type checks those three only for blankness, so over-length values still construct and are still unservable. Those SHALL be closed by a named follow-up rather than silently by this requirement; a reader SHALL be able to tell which bounds this capability enforces at construction and which it does not.
 
 Where a bound is restated in the type rather than read from the schema, the restatement SHALL name the released bound it mirrors, so a later reader can see the two are meant to agree and can find the other one.
 
@@ -47,6 +49,11 @@ Where a bound is restated in the type rather than read from the schema, the rest
 - **WHEN** a catalog is constructed with more entries than the released schema permits
 - **THEN** construction is refused, naming the measured count and the released maximum
 - **AND** the refusal happens at construction rather than at the moment the route declines to serve it
+
+#### Scenario: A string field the type does not yet bound is over-length
+- **WHEN** an entry is constructed with a `label`, `provider_class` or `data_handling` longer than the released schema permits
+- **THEN** construction still succeeds, because this change does not claim those bounds
+- **AND** that residue is recorded as a named follow-up rather than presented as enforced
 
 #### Scenario: An identifier exceeds the released bounds
 - **WHEN** an entry is constructed with a `model_id` longer than the released maximum, or outside the released character pattern

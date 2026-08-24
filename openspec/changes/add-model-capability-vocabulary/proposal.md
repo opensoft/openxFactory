@@ -36,7 +36,9 @@ This change adds the one field that gap requires, and stops there.
 
 **One optional, closed capability declaration.** A catalog entry MAY declare
 the input modalities it accepts, from a closed vocabulary of exactly `text` and
-`image`. Optional and absence-tolerant, because requiring it would break every
+`image` — enforced at the WIRE as well as in the type, so the schema itself
+requires `text` membership rather than leaving a schema-only consumer to accept
+an image-only set the type would refuse. Optional and absence-tolerant, because requiring it would break every
 catalog released before it: an entry that declares nothing is read as text-only
 for routing and recorded as having declared nothing — the same
 absence-is-not-a-claim rule the chat-turn family already uses for handling
@@ -143,5 +145,15 @@ bound. It does not affect (a).
 - **Two behaviour changes, both refusals that tighten a type toward its own
   released schema.** A 65-entry catalog and an out-of-bounds `model_id` stop
   constructing. Both were already unservable; the change is where they fail.
+- **Three parity gaps NAMED but not closed** (surfaced in review): the type
+  bounds neither `label` (released `maxLength: 200`), `provider_class` (64) nor
+  `data_handling` (500), checking all three only for blankness. Same divergence
+  class; recorded as a named follow-up and explicitly excluded from the
+  requirement's wording, because the batching obligation named two follow-ups
+  and quietly growing that to five is the opposite of deciding each one.
+- **The declaration must reach the wire, and that is not automatic.** The public
+  projection emits an explicit key list, so the realization has to project
+  `modalities` deliberately — following the present-only-when-declared idiom the
+  routing fields already use, so an undeclared entry's bytes are unchanged.
 - **No routing behaviour changes here.** The field is declared and validated;
   reading it to choose a destination is (b).

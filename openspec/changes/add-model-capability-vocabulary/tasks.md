@@ -12,6 +12,13 @@ allocated at §4, not here.
   `contracts/schemas/xfactory-workbench-model-catalog.schema.yaml`: an array,
   `uniqueItems: true`, `minItems: 1`, items constrained to the closed set
   `text` and `image`. Not added to `required` — absence must stay valid.
+  THE SCHEMA MUST ALSO REQUIRE `text` MEMBERSHIP where the property is present
+  (`contains: {const: text}` or equivalent). Review found that `minItems` plus
+  an item enum would accept `modalities: [image]`, which the requirement and
+  its negative scenario refuse — and a schema-only consumer would then treat
+  that instance as a conformant released catalog even though the type and the
+  standalone validator reject it. The wire gate must not be the weakest one;
+  that is the very divergence class §2 exists to close.
 - [ ] 1.2 State in the schema's own prose why the set is closed and how it
   extends (the change that governs a new member), mirroring how
   `admission_surface` states its extension route.
@@ -23,6 +30,15 @@ allocated at §4, not here.
 - [ ] 2.1 `doxbench_model.py`: read and validate `modalities` on
   `ModelCatalogEntry`. Refuse a member outside the closed set, an empty set,
   and a set omitting `text`.
+- [ ] 2.1b PROJECT IT ONTO THE WIRE, with a test. Review found the gap: the
+  projection is not automatic — `ModelCatalogEntry.as_public_dict()` emits an
+  EXPLICIT key list (`PUBLIC_ENTRY_FIELDS`, plus the routing fields when the
+  entry is a rule), so a declared `modalities` would be validated in process
+  and then silently dropped by `GET /workbench/model-catalog`, leaving
+  consumers and the routing successor with nothing to read. Follow the
+  PRESENT-ONLY-WHEN-DECLARED idiom the routing fields already use, and for the
+  same stated reason: an undeclared entry's public dict must stay byte-identical
+  across the release boundary.
 - [ ] 2.2 TAKEN follow-up 1 — enforce the released entry-count cap on the
   catalog type. Reproduced: a 65-entry catalog constructs today while the
   released schema caps `models` at 64. Restate the bound with a comment naming
@@ -37,16 +53,27 @@ allocated at §4, not here.
   released schema. Record them in the change's own realization notes, and
   check the existing corpus and fixtures for values that would now be refused
   before landing.
+- [ ] 2.5 NAMED FOLLOW-UP, not taken here: the type bounds neither `label`
+  (released `maxLength: 200`), `provider_class` (64) nor `data_handling` (500),
+  checking all three only for blankness, so over-length values construct and
+  are unservable — the same divergence class as §2.2 and §2.3. Review surfaced
+  them while checking whether this change's parity requirement was true. They
+  are recorded rather than absorbed because the batching obligation named two
+  follow-ups, and quietly growing that to five is the opposite of deciding
+  each one; the requirement is worded so it does not claim them.
 
 ## 3. Validator, examples and tests
 
 - [ ] 3.1 `scripts/validate-ideation-dashboard-contracts.py`: cover the new
   refusals, including a packaged NEGATIVE for an out-of-vocabulary modality and
-  one for an image-only set.
+  one for an image-only set — the latter must be refused by the SCHEMA as well
+  as the validator, per §1.1.
 - [ ] 3.2 A packaged POSITIVE example declaring `[text, image]`, and one
   declaring nothing, so absence is exercised as a valid shape.
-- [ ] 3.3 Tests under `tests/ideation-dashboard/` for each refusal and for the
-  absence default; revert-test the two bound fixes so a weakened gate fails.
+- [ ] 3.3 Tests under `tests/ideation-dashboard/` for each refusal, for the
+  absence default, and for the WIRE PROJECTION (a declared set reaches
+  `GET /workbench/model-catalog`; an undeclared entry's bytes are unchanged);
+  revert-test the two bound fixes so a weakened gate fails.
 
 ## 4. The contract release
 
