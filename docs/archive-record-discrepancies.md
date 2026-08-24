@@ -1422,6 +1422,17 @@ Each is a named, durable item. None is discharged by
   proposals with no `Status:` at all. Same shape and same remedy as this
   change's own slice 5C — derive each header from the packet's own record,
   report by name where the record supports none.
+  **DISCHARGED 2026-08-24** (LedgerxFactory PR #22, merged `a645858`;
+  aggregation pin `4279472`), the OpsxFactory precedent applied: the 26
+  turned out to be one shape in two variants — 15 packets carrying a LOCAL
+  front-matter vocabulary (`governance_status:`/`ratified_by:`/`ratified_on:`)
+  invisible to the checker, each given a conforming `Ratified:` line derived
+  from its own front matter with dates kept distinct from folder dates, and
+  11 whose act lived only in the archive commit's subject, derived
+  archive-act-where-deltas-promoted (all 11 promotion targets verified).
+  Zero stop-and-reports. The habit was live (both active packets carried
+  it), so the convention is codified in LedgerxFactory's
+  `docs/packet-lifecycle-headers.md`. Scan set reads 0/0 at `a645858`.
 - **FU-DOM-MEDXEHR — MedxEHR (1 CRITICAL).**
   `2026-08-06-add-patient-reconciliation-overlay`, the OQ-4 spelling shape.
 - **FU-DOM-MEDXFACTORY — MedxFactory (13 CRITICAL, 1 ERROR).** Thirteen
