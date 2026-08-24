@@ -35,6 +35,15 @@ def _corpus(tmp_path) -> tuple[Path, str, Path]:
     (root / "ideation" / "cross-reference.md").write_text("seed\n",
                                                           encoding="utf-8")
     _git(root, "init", "-q", "-b", "main")
+    # Repo-LOCAL identity, not just `-c` on the calls below. The apply lane
+    # commits through its own `git commit` invocation, which carries no `-c`
+    # flags and so falls back to ambient identity — present on a developer's
+    # machine, absent on a CI runner, where all 21 tests in this file died with
+    # "Author identity unknown (rolled back)". Setting it in the repo keeps the
+    # fixture hermetic with respect to the host's global git config; reproduce
+    # the failure with GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1.
+    _git(root, "config", "user.name", "t")
+    _git(root, "config", "user.email", "t@t")
     _git(root, "-c", "user.name=t", "-c", "user.email=t@t", "add", "-A")
     _git(root, "-c", "user.name=t", "-c", "user.email=t@t",
          "commit", "-q", "-m", "seed corpus")
@@ -553,6 +562,10 @@ def test_rejected_push_resets_the_decided_commit(tmp_path):
     # someone else lands on the remote after our clone
     other = tmp_path / "other"
     subprocess.run(["git", "clone", "-q", str(bare), str(other)], check=True)
+    # Same reason as _corpus: repo-local identity so nothing here depends on
+    # the host having a global git config.
+    _git(other, "config", "user.name", "o")
+    _git(other, "config", "user.email", "o@o")
     (other / "someone-elses.md").write_text("x\n", encoding="utf-8")
     _git(other, "-c", "user.name=o", "-c", "user.email=o@o", "add", "-A")
     _git(other, "-c", "user.name=o", "-c", "user.email=o@o",

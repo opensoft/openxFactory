@@ -15,11 +15,19 @@
 #
 # WHY THE FULL SUITE IN ONE JOB. Measured by simulating this job exactly — a
 # fresh clone into a directory named `openxFactory` with no aggregation
-# workspace above it, a clean venv holding only the hash-pinned lock, node 22 on
-# PATH, Python 3.12:
+# workspace above it, a clean venv holding only the hash-pinned lock, node 22
+# and the pinned openspec CLI on PATH, Python 3.12, and
+# `GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1` to deny the ambient git
+# identity a runner does not have:
 #
-#   5877 passed, 17 skipped, 338 deselected, 15 subtests passed, 0 failed
-#   937s (15m37s), exit 0
+#   SIM_PLACEHOLDER
+#
+# The real gate on GitHub's runner (PR #304, run 32778659788) took 714s
+# (11m54s) — FASTER than any local simulation, so the timeout below is sized off
+# the slower local figures, not this one. That first run also failed, 23 tests
+# in two classes, both of them environment dependencies a developer machine
+# hides rather than defects in this workflow; both are fixed in the tests and
+# described below.
 #
 # 5877 + 17 + 338 = 6232, which is exactly what `--collect-only` reports, so the
 # run covers everything collection sees. Roughly a quarter-hour is comfortably
@@ -45,10 +53,24 @@
 # registers its date-time format checker only when that package is importable,
 # and the canonical validators fail closed without it.
 #
-# Nothing beyond the lock is needed: the suite is structurally hermetic —
-# tests/hermeticity.py makes the real `nlm` and `gh` unreachable (FR-043), and
-# every test that needs git builds its own repository with its own identity in
-# tmp_path, so no ambient git config, network, or external binary is involved.
+# Beyond the lock the suite needs only git and node — plus the openspec CLI,
+# below. It is largely hermetic: tests/hermeticity.py makes the real `nlm` and
+# `gh` unreachable (FR-043), and tests that need git build their own repository
+# in tmp_path.
+#
+# "Their own repository with their own identity" was NOT true everywhere, and
+# the first CI run proved it: 21 tests in
+# tests/ideation-dashboard/test_intent_apply_lane.py failed with
+# `git commit failed (rolled back): Author identity unknown`. Those fixtures
+# passed `-c user.name/-c user.email` on their OWN git calls, but the apply lane
+# under test runs its own `git commit`, which carries no such flags and fell
+# back to an ambient identity that a developer has and a runner does not. The
+# repair belongs in the fixture, not here: it now sets repo-LOCAL identity after
+# `git init`. Deliberately NOT fixed by exporting GIT_AUTHOR_*/GIT_COMMITTER_*
+# in this workflow — that would paper over a real hermeticity defect and leave
+# the suite dependent on the host's global git config. Reproduce the original
+# failure locally with `GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1`; the
+# rest of the suite was swept the same way and was already clean.
 #
 # WHY `-m "not postgres"`. The `postgres` marker selects the isolated
 # PostgreSQL conformance harness under `tests/hermes_runtime_contracts/postgres/`,
@@ -93,6 +115,20 @@
 # worth of assertions and still report this gate green — precisely the
 # green-but-enforcing-nothing failure that issue #292 is about. Pinning node
 # makes the probes deterministic instead of incidental.
+#
+# WHY THE openspec CLI IS INSTALLED. tests/proposal-support/test_proposal_support.py
+# drives the REAL `openspec` binary through the archive wrapper — it is a
+# genuine external dependency of that suite, not a mock. Most of those tests
+# already carried `@unittest.skipUnless(shutil.which("openspec"), ...)`; two did
+# not, and on the first CI run they failed with `FileNotFoundError: 'openspec'`
+# instead of skipping. Both now carry the same guard, so a local run without the
+# CLI skips cleanly.
+#
+# Guards alone would leave this gate green while silently testing nothing, which
+# is the failure mode this whole workflow exists to prevent — so the CLI is
+# installed here too, pinned, and the tests actually RUN. Measured both ways:
+# with openspec absent the file reports 33 passed / 3 skipped; with it present,
+# 36 passed / 0 skipped.
 #
 # WHY NO PATH FILTER. An earlier draft filtered to `tests/**`, `scripts/**`,
 # and `pytest.ini`. That was wrong twice over. First, a large group of tests
@@ -171,6 +207,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+
+      - run: npm install -g @fission-ai/openspec@1.2.0
 
       - run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
 
