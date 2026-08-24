@@ -111,11 +111,12 @@ thing rather than an implicit property of whoever can run the sync.
 attenuated grants, proof-of-possession on use, key-attributed exercise, and
 revocation propagating through a chain — which is the shape a share-granting
 authority wants. What a wallet grant may hold is the first open question, and
-the schema answers much of it already: the grant's `scope` is closed, its
-`audience` must be a wallet, and there is nowhere to write a provider or an
-external role. So the authority to PERFORM the granting act is what the wallet
-can carry; "user X may view Google notebook Y" is not representable there at
-all.
+the schema answers much of it already: the grant's `audience` must be a
+wallet, and its `scope` has no property for a provider or a provider-side role.
+So the authority to PERFORM the granting act is what the wallet can carry,
+narrowed to particular books through `scope.objects` — while the GRANTEE, who
+holds no wallet, cannot appear in a grant at all. "User X may view Google
+notebook Y" is not a statement this record can make.
 <!-- /xspec:candidate -->
 
 <!-- xspec:candidate target=lifecycle-notebook-projection -->
@@ -220,12 +221,18 @@ declaration, is open question 5.
 
 Context: checked against the schema rather than assumed, and the answer is
 narrower than the question expects. `openxwallet`'s grant record
-(`contracts/openxwallet/openxwallet-grant.schema.yaml`) closes its `scope`:
-`additionalProperties: false`, required `acts` and `authority_tier`, optional
-`objects` and `approval_posture`. There is NO property in which a provider, an
-external resource or a provider-side role could be written, and inventing one
-is a named validation failure (`authority-vocabulary-parallel`). Its `audience`
-requires a `wallet_ref` — "always a wallet, because exercise requires proof of
+(`contracts/openxwallet/openxwallet-grant.schema.yaml`) closes its `scope`'s
+PROPERTY SET: `additionalProperties: false`, required `acts` and
+`authority_tier`, optional `objects` and `approval_posture`. Two distinctions
+matter and were initially blurred here. There is no property in which a
+PROVIDER or a PROVIDER-SIDE ROLE could be written, and adding one is refused by
+that closure. But `scope.objects` is an array of free-form identifiers, so an
+object identifier — including a book's — IS writable there; what it does is
+narrow acts our own surface authorizes, and it confers nothing at the provider,
+which never sees it. (The `authority-vocabulary-parallel` failure is narrower
+than first stated too: the validator raises it on unknown `approval_posture`
+KEYS specifically, not on `objects` values.) The decisive bound is elsewhere:
+`audience` requires a `wallet_ref` — "always a wallet, because exercise requires proof of
 possession of that wallet's key" — so a grantee who is an ordinary human with
 no wallet cannot even be the audience. The capability's eighth promoted
 requirement then bounds the whole thing as "an authority control, never an
@@ -234,12 +241,15 @@ is the exercise record, and it points the other way: the presenting wallet key
 is recorded as the actor and the third-party credential "as transport, never as
 the actor" (`openspec/specs/openxwallet/spec.md`). The external platform is
 downstream plumbing, not the subject of a grant.
-(Correction, same day: this question was first drafted saying the grant's scope
+(Corrections, same day, both from review. First draft said the grant's scope
 was open by construction and that a Google-notebook scope "would VALIDATE
-today". That was wrong on the decisive point — the scope is closed. The binding
-modes the framing also asked after do exist, but they are `content` and
-`reference` in the agent-composition schema and govern what a component hash
-covers, not how a grant composes.)
+today"; the scope's property set is closed, so that was wrong. The correction
+then over-swung into "there is nowhere to write an external resource", which is
+also wrong — `objects` takes free-form identifiers. The accurate statement is
+the one above: the grantee and the provider-side role are unrepresentable, an
+object identifier is not. The binding modes the framing also asked after do
+exist, but they are `content` and `reference` in the agent-composition schema,
+governing what a component hash covers rather than how a grant composes.)
 Recommended answer: NO — and the corrected reading makes this close to
 determined rather than a preference. The wallet holds the AUTHORITY TO PERFORM
 THE GRANTING ACT: a wallet-bearing actor holds a grant whose `acts` name the
