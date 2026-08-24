@@ -1,0 +1,41 @@
+# Custody ATTESTATION row for wallet wal-agent-mrc-0001 — task 4.3 of the
+# ratified change add-wallet-carried-review-authority.
+#
+# DELIBERATELY KINDLESS: no contract schema for custody attestation exists in
+# the openxwallet family, tasks §4 authorizes none, and inventing one would be
+# an unratified contract release. Carrying no `kind:` keeps repo_scan treating
+# this file as context rather than a family record.
+#
+# Without a recorded attestation, the intake caps review-authority grants to
+# this wallet at authority tier `request` (ratified unattested-custody rule).
+# This row is what lets S4's MVP target tier `act`.
+attestation_id: attest-custody-wal-agent-mrc-0001
+subject_wallet_ref: wal-agent-mrc-0001
+custody_model_attested: holder_readable
+verified_by:
+  name: Brett Heap
+  role: responsible operator
+  standing: Human Escalation Contract (docs/roles-and-authority.md:103-140)
+verified_at: "2026-08-24T23:23:54Z"
+verified_against:
+  method: operator-minted ed25519 keypair
+  basis: >
+    The private half was generated and retained operator-side, outside every
+    governed repository; only the public half entered the tree inside the
+    wallet record's key_reference. What is attested is that the DECLARED
+    custody model matches reality.
+  isolation_claimed: none
+  posture: >
+    holder_readable declares the key readable in the holder execution
+    context; signatures evidence the ENVIRONMENT. No isolation exists or is
+    claimed at this tier — the attestation records the honest posture, not an
+    assurance of isolation.
+compensating_control: >
+  Tier `act` requires approval before apply, already in force by the
+  constitutional floor. openxwallet-custody.registry.yaml designs
+  holder_readable to reach exactly this tier under no-key-infrastructure
+  conditions (clarifications N13).
+cap_effect_if_absent: >
+  With no recorded attestation row, review-authority grants whose audience
+  resolves to wal-agent-mrc-0001 cap at authority_tier request.
+governing_task: add-wallet-carried-review-authority tasks 4.3
