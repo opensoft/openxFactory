@@ -1440,6 +1440,19 @@ Each is a named, durable item. None is discharged by
   and terminology series — plus one missing header
   (`2026-08-11-add-root-truth-index-embedding`). All archived, so all on the
   archived-record route.
+  **DISCHARGED 2026-08-24** (MedxFactory PR #8, merged `7c6c76f6`;
+  aggregation pin `39a53c5`), the third domain slice under the standing
+  adopt-and-discharge ruling. No drift from the pinned figure — the first
+  domain that didn't move. The 13 respells byte-verbatim; the one header
+  derived to ratified on all three floor axes with its promotion verified
+  requirement-by-title; NINE latent self-citers respelled under the OQ-4
+  extension; two citations measured and left standing as the not-ruled
+  class (one authorized by another change, one passing on an incidental
+  path token — flagged latent). Medical-domain care: review-gate acceptance
+  language untouched; the derived header disclaims clinical/diagnostic/
+  regulatory standing. Convention codified in MedxFactory's
+  `docs/packet-lifecycle-headers.md` (the habit was live — the newest
+  packet was the headerless one). Scan set reads 0/0 at `7c6c76f6`.
 - **FU-DOM-OPSX — OpsxFactory (14 CRITICAL, 39 ERROR).** The largest
   population and the only one whose bulk is ACTIVE (45 of 53). Three distinct
   shapes, and they do not share a remedy: eight proposals with unresolvable
