@@ -11,6 +11,16 @@ without fabricating historical tags.
 
 ## Unreleased — pending bundle registration (fold into the next cut)
 
+- **Additive (minor)**: `contracts/openxwallet/openxwallet-grant.schema.yaml`
+  gains an `issuer_identifier` def and `issued_by` moves to it — the issuer
+  grammar is the identifier grammar plus `@`, so a review-authority root grant
+  can record its issuer as the responsible OPERATOR's email address
+  (`Brett.Heap@opensoft.one`), anchored outside the register under the Human
+  Escalation Contract. Every other identifier field keeps the strict
+  machine-id grammar unchanged (`012-wallet-issuer-anchor`, S2 of
+  `add-wallet-carried-review-authority`; convener-authorized schema widening
+  2026-08-24, overriding that substrate item's initial no-schema-edit
+  posture, with the manifest entry's sha256 refreshed to match).
 - **Additive (minor)**: `contracts/client-content/client-overlay.schema.yaml`
   — `hermes_client_overlay` gains the OPTIONAL `client.policy_namespace` +
   `client.policies` pair, so a **Tenant** layer may carry FREESTANDING

@@ -87,7 +87,15 @@ properties:
         minProperties: 1
   expires_at: {type: string, format: date-time}
   issued_at: {type: string, format: date-time}
-  issued_by: {$ref: '#/$defs/identifier'}
+  issued_by:
+    # The issuer identity. Review-authority roots anchor to the responsible
+    # OPERATOR, whose standing is recorded outside this register (Human
+    # Escalation Contract), so this field must be able to carry an operator's
+    # email address — hence its own def rather than the machine-id grammar
+    # every other identifier keeps. Convener-authorized widening 2026-08-24
+    # (S2, 012-wallet-issuer-anchor), overriding that change's initial
+    # no-schema-edit posture.
+    $ref: '#/$defs/issuer_identifier'
   parent_grant_ref:
     # Present iff this grant is derived. Attenuation is checked against the
     # parent named here, and revocation propagates down this edge.
@@ -115,3 +123,14 @@ $defs:
     minLength: 1
     maxLength: 200
     pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+  issuer_identifier:
+    # issued_by only. Same grammar as `identifier` plus `@`, so an issuer can
+    # be recorded as an email address — the form operator identities take
+    # under the Human Escalation Contract anchor (convener-authorized
+    # widening 2026-08-24). Every OTHER identifier in this family keeps the
+    # strict machine-id grammar; only issuer identity needed a human-address
+    # form.
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/-]*$'

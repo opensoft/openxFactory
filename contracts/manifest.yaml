@@ -1934,7 +1934,7 @@ contracts:
     source_path: openxFactory/contracts/openxwallet/openxwallet-grant.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 33a8ccc2a4316b48d4a2cd39d0505246c5d1015ff96e5559cbf71dc97004d093
+    sha256: fde433c5821e2e6f62926a72c58a67a784961d2e9e27e9f2b3520fcc8e738e88
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
