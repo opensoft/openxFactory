@@ -1444,10 +1444,17 @@ _POSTURE_NEGATIVE_GLOB = "workbench-chat-turn-v2-context-*.negative.yaml"
 #     closure, because those are exactly what a schema is for;
 #   * and the credential leak is the DELEGATED validator's alone, because the
 #     shape cannot express it — `reduced_reason` is free prose and the leaking
-#     instance is structurally perfect. It is the one rule this release
-#     delegates, so it is the one negative the shape must NOT catch; if it ever
-#     did, the rule would have stopped being the shape's blind spot and this
-#     table would be lying about why the rule exists.
+#     instance is structurally perfect. It is the one negative in THIS TABLE
+#     the shape must NOT catch; if it ever did, the rule would have stopped
+#     being the shape's blind spot and this table would be lying about why the
+#     rule exists.
+#     CORRECTED (issue #263): this used to read "the one rule this release
+#     delegates", which stopped being true when the NON-BLANK rule landed. That
+#     rule is also undelegatable to the shape — `minLength: 1` counts
+#     CHARACTERS and every blank class is one character — so the family now
+#     delegates TWO. It has no packaged negative here because adding one would
+#     touch the released example surface; it is asserted instead, across all
+#     four gates and both runtimes, in test_doxbench_blank_reason.py.
 #
 # (shape refuses, expected file-gate finding code or None)
 _POSTURE_NEGATIVE_GATES = {
