@@ -322,6 +322,38 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-notebook-hosting-credential-custody](openspec/changes/add-notebook-hosting-credential-custody/proposal.md)
+  — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The follow-up
+  to `add-notebook-projection-identity`, on Brett Heap's direction the same day:
+  *"this is a xFactor001 login. and we want to store the password in a kv and
+  have xFactory and openXdox login with its own authority."* The declared
+  hosting identity change named the account and said nothing about its
+  CREDENTIAL, leaving the password wherever its creator put it — the
+  personal-account failure moved one level down rather than removed. Adds the
+  POSITIVE custody obligation the ratified generalization lacks (that
+  generalization forbids hard-coding a credential; it does not require custody
+  to exist, so an account whose password lives only in its creator's head
+  satisfies it), extends custody to the whole credential set including a
+  second factor's seed, and rules ONE IDENTITY / PER-SYSTEM AUTHORITY: each
+  consuming system reaches the shared account through its own binding, access
+  identity, grant, rotation visibility and audit trail — one identity may be
+  shared, one authority may not. The hosting record gains a BY-REFERENCE
+  custody pointer, never secret material. Two findings shaped it: the promoted
+  by-reference requirement already refuses distributing refreshable session
+  state, and the `nlm` profile is exactly that class — so Brett's
+  no-shared-session ruling is independently required on credential-class
+  grounds, not just accountability; and the live binding INSTANCES do not
+  belong here at all, because `contracts/manifest.yaml` records that
+  *"openxFactory ships no instance records (they live in client installs,
+  credential-contracts residency model)"* — so the neutral obligations land
+  here and the concrete bindings land in the install lane and openXdox's own,
+  a redirection of the ruling's route that is FLAGGED for the ratification
+  read rather than decided quietly. Honest gaps recorded, not assumed away:
+  **custody is not automation** (the sign-in is a browser flow with ~20-minute
+  sessions and possible 2FA; automated login stays future work), a TOTP seed
+  may itself need custody, and **no live secret is created, moved or read by
+  this change**. `target_release: none` — the binding-template shape is already
+  published, `contracts/` is untouched, no bundle is cut.
 - [declare-client-standing-policy-contract](openspec/changes/declare-client-standing-policy-contract/proposal.md)
   — authored and ratified 2026-08-23 (Brett Heap, in-session). Closes
   `opensoft/openxFactory#254`: `hermes_client_overlay` is a contract THIS repo
