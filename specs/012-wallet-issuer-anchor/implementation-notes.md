@@ -1,6 +1,38 @@
 # Implementation Notes — 012-wallet-issuer-anchor
 
-## Phase status: clarify closed; implementation not yet started
+## Round 1 — Implementation landed (2026-08-24)
+
+Validator widened per data-model.md; three specimens joined
+`contracts/openxwallet/examples/negative/`; boundary guard added to self-test.
+
+Gate evidence (all run on this branch):
+
+- Baseline (pre-S2 tree, stashed): exit 0 — `17 positives / 33 negatives across
+  11/11 requirements`.
+- Post-S2 sweep: exit 0 — `17 positives / 36 negatives across 13/13 requirements`.
+  The five packaged grant positives pass unchanged (FR-007); all three new
+  negatives fail for exactly their declared reasons, machine specimen pinned on
+  its subject token, legacy specimen pinned on the branch wording.
+- Boundary guard (US3): synthesized non-review root grant without `issued_by`
+  validates clean inside the self-test.
+- `pytest tests/wallet_yaml_syntax_gate/ -q`: 4 passed (S1's gate untouched).
+- `openspec validate --all --strict`: 73 passed, 0 failed.
+
+**SC-002 count disclosure**: the spec phrased coverage as "17→20
+positives-equivalent"; actual positive FILE count stays 17 — S2 adds only the
+three negatives FR-005 names, and no requirement of S2 adds a positive fixture.
+The negative and requirement counts match the spec exactly (33→36, 11→13).
+Flagged at PR review as an arithmetic slip in SC-002's first clause, to be
+corrected in that review rather than silently reinterpreted here.
+
+## Phase status
+
+Clarify CLOSED; Round 1 implementation LANDED with gate evidence above. Pending
+before merge: independent QA adversarial round and code-reviewer verdict
+(recorded here when they return, or declared pending per house discipline), then
+PR.
+
+## Grounding facts (researcher, 2026-08-23)
 
 Spec authored and clarified (see [clarify-questions.md](clarify-questions.md));
 checklist all-pass. Plan, tasks, and code realization follow in later phases.
