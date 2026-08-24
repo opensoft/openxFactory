@@ -165,6 +165,9 @@ Core domain-neutral docs:
 - [NotebookLM Source Workspaces](docs/notebooklm-source-workspaces.md)
 - [Lifecycle Notebook Projection](docs/lifecycle-notebook-projection.md)
 - [NotebookLM Projection — Hosting Migration Runbook](docs/notebook-projection-migration-runbook.md)
+- [NotebookLM Projection — Hosting Migration Evidence (2026-08-24)](docs/notebook-projection-migration-evidence-2026-08-24.md)
+  (the 2026-08-24 run of that runbook: recorded legacy ids, the re-derived
+  books, the parity numbers, and the steps held open)
 - [NotebookLM Projection Sync — Open Operational Item](docs/notebooklm-sync-open-item.md)
   (pending sync run, the auth blocker + the `scripts/nlm_auth.py` workaround,
   and the machine-account direction)
