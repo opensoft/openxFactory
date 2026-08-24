@@ -1,6 +1,8 @@
 ---
 code_surface: codexFactory (the derive-possibles worker + versioned prompt contract, the nightly workflow lane, and the next-run merge into the openxFactory-hosted possibles_register), openxFactory (the additive possibles-register kernel delta — origin + derivation $defs — plus the packaged example and the delegated register validator), xFactory aggregation (nightly child dispatch + submodule commit-back), omnigent-install (one bounded read-only derive-possibles worker profile)
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
+Status: ratified
+Ratified: 2026-08-04 — record: the archive act, commit `6d1994c` "Archive add-possibles-derivation-lane (the derivation lane is live; 5.2 discharged)", which applied this change's spec delta into `openspec/specs/doc-health/spec.md`, `openspec/specs/ideation-cross-reference/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. The `.openspec.yaml` origin pair (`approved_on: 2026-07-16`) is permission to author and is NOT cited, per C2. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 ---
 
 # Proposal: add-possibles-derivation-lane

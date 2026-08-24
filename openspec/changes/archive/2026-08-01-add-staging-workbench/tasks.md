@@ -185,3 +185,13 @@
       affirmed; the scorer's severity-blind open-question counting is the
       V2 work. Evidence: `add-workbench-integrated-editor-chat/evidence/d10/`
       (`a-65-*`, `session-findings.md`, `signoff-matrix.md`).
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` gained TWO header lines in one edit — `Status: ratified` and a single `Ratified:` citation, at real lines 4 and 5, both well inside the fifteen-real-line header window. Nothing else on the page moved: the writer asserted per file that deleting exactly those two lines recovers the original bytes, and refused to write otherwise. The ruling is OQ-6's of 2026-08-23 (Brett Heap, in-session multiple-choice round), which DEPARTED from its own recommendation — no grandfather, no contract date, no reduced-severity class — and backfills every headerless proposal from its OWN record, stopping and reporting rather than inventing where a record cannot carry one. The status and the citation are coupled because the promoted rule in `openspec/specs/document-lifecycle/spec.md` holds that a bare, uncited `Status: ratified` is a violation whatever else the document says.
+
+This document's citation takes derivation route (b), the archive act itself, because no explicit ratification act appears anywhere on the record: the archive commit `849f026` applied this change's spec delta into the canonical specs, and a change whose spec deltas have PROMOTED is ratified by construction — the reasoning `bdd09c2` recorded and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites as its own. The three-way floor is cleared on the DATE axis and a resolvable RECORD PATH, measured through `doc_health.families` before the line was written, not assumed.
+
+**Why this reverses no finding.** C2 of `docs/archive-record-discrepancies.md` examined this record on 2026-08-22 and left it headerless, finding the `origin:`-nested `approved_by`/`approved_on: 2026-07-25` pair to record permission to author without a staging source, and task 6.5's Brett sign-off to be task acceptance. Both findings stand word for word and NEITHER is cited here. What C2 did not have is OQ-6's later ruling and the phase-b derivation, which make the archive act the citable record.
+
+It is entered in `docs/archive-record-discrepancies.md` as C2's successor. This note travels with the change, as 5B's twenty-seven do.

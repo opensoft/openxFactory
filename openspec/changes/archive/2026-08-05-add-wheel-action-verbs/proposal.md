@@ -1,6 +1,8 @@
 ---
 code_surface: codexFactory (gate-console verbs + engine guards, executing loopback routes, CLI entrypoints, the wheel's WHEEL_ACTIONS / ACTION_MOUNTERS expanded-tile rows), openxFactory (gate-intent + gate-action-record additive enum/target extension)
 target_release: contract-v1.29 (allocated at realization per docs/contract-versioning-policy.md; the branch's original contract-v1.28 allocation was consumed by the published chat-turn release)
+Status: ratified
+Ratified: 2026-08-05 — record: the archive act, commit `1eb617e` "Archive add-wheel-action-verbs; promote its four requirements into ideation-dashboard", which applied this change's spec delta into `openspec/specs/ideation-dashboard/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. STATED PRECISELY: the register's C2 examined this record and left it headerless, finding its `origin:`-nested `approved_by`/`approved_on: 2026-07-25` pair to be permission to author dated eleven days before archive. That finding stands word for word and the pair is not cited here. What C2 did not have is OQ-6's 2026-08-23 ruling and the phase-b derivation. The commit body records the promotion in words: "the ideation-dashboard spec gains the four ADDED requirements". Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 ---
 
 # Proposal: add-wheel-action-verbs

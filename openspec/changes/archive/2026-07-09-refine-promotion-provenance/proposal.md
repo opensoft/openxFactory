@@ -1,5 +1,8 @@
 # Refine Promotion Provenance
 
+Status: ratified
+Ratified: 2026-07-09 — record: the archive act, commit `55c314a` "Archive refine-promotion-provenance and adopt-workflow-visualization-stack", which applied this change's spec delta into `openspec/specs/document-lifecycle/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. The commit body records the promotion in words: "Sync the promotion-binding modification into the canonical document-lifecycle spec (5 scenarios)". Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
+
 ## Why
 
 The promoted `document-lifecycle` capability binds promotion to the

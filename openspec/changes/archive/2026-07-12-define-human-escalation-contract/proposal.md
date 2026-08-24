@@ -2,6 +2,8 @@
 
 code_surface: none
 target_release: implemented
+Status: ratified
+Ratified: 2026-07-12 — record: this change's own tasks.md 1.1, which closes its one open question "resolved by 2026-07-12 ratification: drafted position stands"; the archive act followed the same day in `5d95fdf`, "Realize and archive define-human-escalation-contract", whose body records "Spec delta (7 requirements) merged into the promoted roles-authority-model capability; archived on landing per code_surface: none". The DATE ONLY is recorded: the task line names no ratifier in prose, so none is claimed. Corroborated by `docs/roles-and-authority.md`'s own header, verified against the live file — "Ratified by: define-human-escalation-contract; amended by add-github-app-identity-tiers". Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 ## Why
 

@@ -1,5 +1,8 @@
 # Add Lifecycle Notebook Hybrid Imports
 
+Status: ratified
+Ratified: 2026-07-09 — record: the ratify gate recorded on the archive commit `e55724c`, "Archive add-lifecycle-notebook-hybrid-imports (ratified and realized)", whose body opens "Ratify gate approved; importer implemented in codexFactory ...; lifecycle-notebook-projection spec updated (+5 requirements)". The DATE ONLY is recorded: the gate line names no ratifier in prose, so none is claimed. The same act promoted this change's delta into `openspec/specs/lifecycle-notebook-projection/spec.md`. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
+
 ## Why
 
 The lifecycle notebook projection now gives xFactory Ideation, Working Drafts,

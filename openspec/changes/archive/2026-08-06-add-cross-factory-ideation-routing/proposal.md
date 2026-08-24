@@ -1,5 +1,7 @@
 code_surface: openxFactory, codexFactory, xFactory, DomainxFactories, omnigent-install, cloudpc-install
 target_release: implemented
+Status: ratified
+Ratified: 2026-08-06 — record: the archive act, commit `6082996` "Archive add-cross-factory-ideation-routing (the routing plane promotes; 33/33)", which applied this change's spec delta into `openspec/specs/doc-health/spec.md`, `openspec/specs/document-lifecycle/spec.md`, `openspec/specs/ideation-routing/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 ## Why
 

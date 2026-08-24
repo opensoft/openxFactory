@@ -1,5 +1,7 @@
 code_surface: openxFactory
 target_release: implemented
+Status: ratified
+Ratified: 2026-07-13 — record: the archive act, commit `44f523b` "Archive 3 realized avatar changes (kernel, revocation clarify, reference runtime)", which applied this change's spec delta into `openspec/specs/avatar-reference-runtime/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. One archive act closed three avatar changes, "promoting their capability specs (avatar-client-runtime, avatar-reference-runtime) into openspec/specs/". Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 ## Why
 
