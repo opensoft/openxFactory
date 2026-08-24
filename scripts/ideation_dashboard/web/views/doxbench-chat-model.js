@@ -648,6 +648,31 @@ export function proposalsOf(stateValue) {
   return stateValue.proposals || NO_PROPOSALS;
 }
 
+// WHAT A CLEAR WOULD ACTUALLY COST THE OPERATOR (#80, ruled 2026-08-24: "no
+// pending proposal set is ever cleared without a fixed-vocabulary notice").
+//
+// `applied` and `rejected` are TERMINAL — reviewed, decided, and already acted
+// on — so a clear that takes only those takes nothing a human still has to look
+// at, and warning about them would be exactly the nagging the ruling refuses.
+// `current` and `stale` are both UNREVIEWED, and both belong here: a stale
+// record's ONLY recovery is a new turn (the banner above), which is precisely
+// the act that discards it, so it is lost by the same act and must be named by
+// the same sentence.
+//
+// THE DECLARED ORDER, from the same selector the cards render in, because this
+// list is the SUBJECT of the fixed sentences the view composes — one order, so
+// the sentence a human reads and the sentence a two-press arm remembers cannot
+// come out in two different shapes for one set. The view owns the sentences and
+// this module owns the set; the KEYS are all that crosses, so no proposal's
+// summary or content can reach a notice through here.
+export function pendingProposalTargets(stateValue) {
+  const records = proposalsOf(stateValue);
+  return orderedProposalTargets(records).filter((target) => {
+    const status = records[target].status;
+    return status === "current" || status === "stale";
+  });
+}
+
 export function refreshProposalCurrency(stateValue, currentHashes) {
   const before = proposalsOf(stateValue);
   const records = { ...before };

@@ -2420,6 +2420,12 @@ out.configuredNoneCatalog = await catalogPosture(
   await propose(host);                              // turn 1: proposals render
   const composer = byClass(host, "doxchat-composer")[0];
   composer.value = "a follow-up question"; await fire(composer, "input");
+  // #80: turn 1 left a PENDING proposal, so the first press of Send arms the
+  // discard rather than dispatching (the ruling: no pending set is cleared
+  // without a fixed-vocabulary notice). This probe is about the Apply/settle
+  // race and not about the arm, so it presses through it -- the second press is
+  // the dispatch this scenario has always been about.
+  await fire(byClass(host, "doxchat-send")[0], "click");   // arms
   const turnSettled = fire(byClass(host, "doxchat-send")[0], "click");
   const apply = byClass(host, "doxchat-card-apply")[0];
   const applySettled = fire(apply, "click");        // Apply spans the flight
@@ -4201,3 +4207,190 @@ def test_typing_does_not_RE_ANNOUNCE_the_same_disclosure(posture_results):
     assert r["afterTyping"] == r["afterTurn"], "the disclosure was re-announced"
     assert r["stillShown"] is True
     assert r["text"] == posture_results["lead"] + posture_results["reason"]
+
+
+# ---------------------------------------------------------------------------
+# #287 (2026-08-24): A TIMEOUT MUST NOT READ AS A TRANSPORT REFUSAL.
+#
+# serve.py's turn route self-validates the RELEASED failure envelope before it
+# ships it, and falls back to `doxbench_error_body` — the pre-identity
+# {ok, error, message} shape, with NO `kind` — when that self-validation fails
+# (the validators are unavailable, or the body faults the released schema). The
+# rail's kind check then dropped the code on the floor and rendered
+# TRANSPORT_REFUSED, so a genuine 504 `model_timeout` told the operator "the
+# chat transport refused this turn" — a vocabulary loss, and a misdiagnosis:
+# nothing refused, the model ran out of time.
+#
+# THE FIX IS THE RAIL'S EXISTING CODE-WHITELIST IDIOM, one entry wider. The
+# sentence is chosen from the CODE and composed here (never echoed from the
+# body's own `message`), exactly as `console_required`/`agent_invocation` are
+# already answered with the rail's own reload sentence rather than the server's.
+#
+# WHAT STAYS A TRANSPORT REFUSAL, deliberately: a v1-shaped failure body (it
+# HAS a `kind`, just not this family's — the rail has no released reader for it)
+# and an unparseable body (`payload: null` — nothing was read, so nothing can be
+# mapped). Both are pinned below as UNCHANGED.
+# ---------------------------------------------------------------------------
+
+_TIMEOUT_HARNESS = """
+import { createTurnDispatcher } from "./doxbench-chat.mjs";
+import { createChatState, adoptCatalog, selectModel, editComposer }
+  from "./doxbench-chat-model.mjs";
+
+const out = {};
+const KEY = { repository: "fixture-repo", ref: "main",
+              tile_kind: "staged", tile_id: "ideation-governance" };
+const LIVE = "d".repeat(64);
+const ENTRY = { model_id: "model-a", label: "Approved", provider_class: "on-tenant",
+  available: true, input_limit_bytes: 800000, output_limit_bytes: 900000,
+  data_handling: "on-tenant" };
+const ENVELOPE = { schema_version: 1, kind: "workbench-model-catalog",
+                   models: [ENTRY] };
+const bufferOf = (kind, path) => ({ kind, path, base_ref: "main",
+  base_revision: "r1", base_hash: { algorithm: "sha256", hex: "c".repeat(64) },
+  current_hash: { algorithm: "sha256", hex: LIVE },
+  hash_pending: false, content: "# " + kind, dirty: false });
+const editorState = () => ({ active_buffer: "document", buffers: {
+  outline: bufferOf("outline", "docs/outline.md"),
+  document: bufferOf("document", "docs/detail.md") } });
+const idle = () => editComposer(selectModel(
+  adoptCatalog(createChatState(KEY), ENVELOPE), "model-a"), "a question");
+
+async function answeredWith(response) {
+  const dispatcher = createTurnDispatcher({
+    turnIdFactory: (n) => "turn-" + n,
+    transports: { chatTurn: async () => response } });
+  const result = await dispatcher.submit(idle(), { scopeKey: KEY, editorState });
+  const failure = result.state.lastFailure;
+  return { error: failure && failure.error, message: failure && failure.message,
+           phase: result.state.phase, composer: result.state.composer };
+}
+
+// The RELEASED failure envelope: unchanged, and still the server's own sentence.
+out.releasedTimeout = await answeredWith({ ok: false, status: 504, payload: {
+  schema_version: 1, kind: "workbench-chat-turn-v2-failure",
+  client_turn_id: "turn-1", error: "model_timeout",
+  message: "__SERVER_TIMEOUT_MESSAGE__" } });
+
+// THE FINDING: the same 504, delivered in the pre-identity FALLBACK shape.
+out.fallbackTimeout = await answeredWith({ ok: false, status: 504, payload: {
+  ok: false, error: "model_timeout",
+  message: "__SERVER_TIMEOUT_MESSAGE__" } });
+
+// A v1-SHAPED body: it carries a kind, and not this family's -- unchanged.
+out.v1ShapedTimeout = await answeredWith({ ok: false, status: 504, payload: {
+  schema_version: 1, kind: "workbench-chat-turn-failure",
+  client_turn_id: "turn-1", error: "model_timeout",
+  message: "__SERVER_TIMEOUT_MESSAGE__" } });
+
+// An UNPARSEABLE body: nothing was read -- unchanged.
+out.unparseable = await answeredWith({ ok: false, status: 504, payload: null });
+
+// A fallback-shape code the whitelist does NOT carry -- unchanged, deliberately:
+// the whitelist maps only codes with a fixed client sentence, never a guess.
+out.fallbackOtherCode = await answeredWith({ ok: false, status: 502, payload: {
+  ok: false, error: "model_failed", message: "the model request failed" } });
+
+// The console gate's own fallback-shape refusal: unchanged (R-3's mapping).
+out.fallbackConsole = await answeredWith({ ok: false, status: 403, payload: {
+  ok: false, error: "console_required", message: "console only" } });
+
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def timeout_vocabulary_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the timeout-vocabulary probe")
+    tmp_path = tmp_path_factory.mktemp("doxbench-timeout-vocabulary")
+    source = CHAT_VIEW_JS.read_text(encoding="utf-8").replace(
+        './doxbench-chat-model.js', './doxbench-chat-model.mjs')
+    (tmp_path / "doxbench-chat.mjs").write_text(source, encoding="utf-8")
+    shutil.copy(CHAT_MODEL_JS, tmp_path / "doxbench-chat-model.mjs")
+    harness = tmp_path / "timeout-vocabulary-harness.mjs"
+    # The SERVER's own fixed sentence, carried in rather than retyped — the
+    # point of the probe is that the rail never echoes it.
+    harness.write_text(
+        _TIMEOUT_HARNESS.replace(
+            "__SERVER_TIMEOUT_MESSAGE__",
+            json.dumps(serve_mod._DOXBENCH_MSG_MODEL_TIMEOUT)[1:-1]),
+        encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True,
+                          text=True, timeout=30)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_a_released_timeout_envelope_is_unchanged(timeout_vocabulary_results):
+    """The conforming path is the one that already worked: the released
+    envelope's own two fixed fields are retained verbatim, as FR-020/FR-022
+    allow for a body the released schema blessed."""
+    t = timeout_vocabulary_results["releasedTimeout"]
+    assert t["error"] == "model_timeout"
+    assert t["message"] == serve_mod._DOXBENCH_MSG_MODEL_TIMEOUT
+
+
+def test_a_fallback_shape_timeout_is_a_timeout_not_a_transport_refusal(
+        timeout_vocabulary_results):
+    """#287's whole finding. The same 504 in the fallback shape rendered "the
+    chat transport refused this turn" — nothing refused, and the operator was
+    told to suspect their connection instead of the deadline. The code is
+    whitelisted onto the rail's OWN fixed timeout sentence."""
+    t = timeout_vocabulary_results["fallbackTimeout"]
+    assert t["error"] == "model_timeout"
+    assert t["error"] != "transport_refused"
+    assert "transport refused" not in t["message"]
+    assert "time" in t["message"], "the sentence must name the deadline"
+    # chosen from the CODE, never echoed: the server's own sentence for the same
+    # code is a DIFFERENT string, and the rail composes its own with the local
+    # recovery in it — the same discipline the console-token mapping follows.
+    assert t["message"] != serve_mod._DOXBENCH_MSG_MODEL_TIMEOUT
+    # …and the turn still settles honestly: idle again, composer preserved.
+    assert t["phase"] == "idle"
+    assert t["composer"] == "a question"
+
+
+def test_a_v1_shaped_failure_body_stays_a_transport_refusal(
+        timeout_vocabulary_results):
+    """UNCHANGED, deliberately: a body carrying a `kind` this rail has no
+    released reader for is not a body it may interpret field by field. The
+    fallback shape is recognizable precisely because it carries NO kind."""
+    t = timeout_vocabulary_results["v1ShapedTimeout"]
+    assert t["error"] == "transport_refused"
+
+
+def test_an_unparseable_body_stays_a_transport_refusal(
+        timeout_vocabulary_results):
+    """UNCHANGED: `payload: null` is a body that was never read, so there is no
+    code to choose a sentence from."""
+    assert timeout_vocabulary_results["unparseable"]["error"] == \
+        "transport_refused"
+
+
+def test_the_whitelist_maps_only_codes_it_has_a_sentence_for(
+        timeout_vocabulary_results):
+    """THE WHITELIST DECISION, pinned. `model_failed` reaches the fallback
+    shape by exactly the same route as `model_timeout`, and it is deliberately
+    NOT mapped: the rail has no fixed sentence for it, and inventing one here
+    would be a broad code→prose mapping rather than the narrow whitelist the
+    idiom is. Adding a sibling stays a one-line, one-sentence act when one is
+    ruled — and until then the generic refusal is the honest answer."""
+    assert timeout_vocabulary_results["fallbackOtherCode"]["error"] == \
+        "transport_refused"
+    # the sibling that IS mapped, still mapped (R-3), on the same shape
+    assert timeout_vocabulary_results["fallbackConsole"]["error"] == \
+        "console_token_stale"
+
+
+def test_the_fallback_shape_the_rail_reads_is_the_one_serve_py_emits():
+    """The two halves of the finding, pinned against each other rather than
+    described: `doxbench_error_body` really does emit `{ok, error, message}`
+    with NO `kind`, and `model_timeout` really is a 504 in the released
+    catalog. If either moves, this mapping needs re-reading."""
+    body = serve_mod.doxbench_error_body(serve_mod.DOXBENCH_ERR_MODEL_TIMEOUT)
+    assert sorted(body) == ["error", "message", "ok"]
+    assert "kind" not in body
+    assert body["error"] == "model_timeout"
+    assert serve_mod.doxbench_error_status(
+        serve_mod.DOXBENCH_ERR_MODEL_TIMEOUT) == 504

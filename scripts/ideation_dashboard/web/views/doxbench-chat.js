@@ -21,7 +21,7 @@ import {
   transcriptWindow, transcriptWireWindow, rekeyChatState, proposalsOf,
   adoptThreadTranscript,
   refreshProposalCurrency, rejectProposal, markProposalApplied,
-  markProposalAppliedAfterSwap, clearLocalFailure,
+  markProposalAppliedAfterSwap, clearLocalFailure, pendingProposalTargets,
   recordLocalFailure, recordCatalogFailure, chatSnapshot, restoreChatState,
   canSend, MAX_MESSAGE_BYTES, MAX_WORKING_SUBJECT_BYTES,
 } from "./doxbench-chat-model.js";
@@ -118,6 +118,152 @@ function proposalApplyFailureFor(result) {
   if (result && result.code === "stale") return PROPOSAL_APPLY_REFUSED;
   if (result && result.code === "unsettled") return PROPOSAL_APPLY_UNSETTLED;
   return PROPOSAL_APPLY_FAILED;
+}
+
+// ---------------------------------------------------------------------------
+// #287 (2026-08-24): A TIMEOUT MUST NOT READ AS A TRANSPORT REFUSAL.
+//
+// serve.py self-validates the RELEASED failure envelope before it either stores
+// or sends it, and falls back to `doxbench_error_body` -- the PRE-IDENTITY
+// `{ok, error, message}` shape, with NO `kind` -- when that self-validation
+// cannot bless the body (the released validators are unavailable, or the body
+// faults the schema). The kind check below then dropped the code unread and
+// answered TRANSPORT_REFUSED, so a genuine 504 `model_timeout` told the operator
+// "the chat transport refused this turn": a vocabulary loss AND a misdiagnosis,
+// pointing at the connection when nothing refused and the model simply ran out
+// of time.
+//
+// THE RAIL'S OWN SENTENCE, chosen from the CODE. Never the body's `message` --
+// the fallback body's sentence is fixed and server-authored, and reading it here
+// would make this rail's vocabulary depend on text it is required to drop
+// (FR-020/FR-022). This is the same move `console_required` already gets: the
+// server says "this route is available only from the local human console" and
+// the rail says what the human can DO about it.
+const MODEL_TIMED_OUT = Object.freeze({
+  error: "model_timeout",
+  message: "the model did not answer in time — the message is preserved; try "
+    + "again",
+});
+
+// THE FALLBACK SHAPE, recognized STRUCTURALLY rather than assumed from a status
+// code: `doxbench_error_body` emits exactly `{ok: false, error, message}` and no
+// `kind` at all. Own-key absence is the test, because a body carrying
+// `kind: null` is a body from something else. A V1-SHAPED failure envelope has a
+// `kind` (just not this family's) and therefore does NOT match: a released shape
+// this rail has no reader for is not a shape it may pick fields out of. An
+// unparseable body is `payload: null` -- nothing was read, so nothing can be
+// mapped -- and both stay transport refusals, which is what they honestly are.
+function fallbackShapedPayload(payload) {
+  return Boolean(payload) && typeof payload === "object"
+    && payload.ok === false
+    && !Object.prototype.hasOwnProperty.call(payload, "kind")
+    && typeof payload.error === "string";
+}
+
+// The CODE whitelist for that shape, spelled as an explicit comparison exactly
+// like `proposalApplyFailureFor` above rather than as a lookup table (a table
+// answers for inherited keys no server ever sends).
+//
+// ONE ENTRY, and the narrowness is the decision, not an oversight. Every other
+// code reaches the fallback shape by the same route -- `model_failed`,
+// `response_invalid`, `content_identity_mismatch` -- and none of them has a
+// fixed sentence on this rail, so mapping them would mean INVENTING prose for
+// conditions this fix never measured: a broad code->sentence table, which is the
+// opposite of a whitelist. Until a sibling is ruled, the generic refusal is the
+// honest answer for a body the released contract could not bless, and adding one
+// stays a one-line, one-sentence act.
+function fallbackShapeFailureFor(payload) {
+  if (!fallbackShapedPayload(payload)) return null;
+  if (payload.error === "model_timeout") return MODEL_TIMED_OUT;
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// #80, RULED by Brett Heap 2026-08-24: NO PENDING PROPOSAL SET IS EVER CLEARED
+// WITHOUT A FIXED-VOCABULARY NOTICE.
+//
+// The filed defect was one path: a Send replaces the pending proposal set with
+// the new turn's, and the operator's unreviewed work went with nothing said. The
+// REPLACEMENT is a RULING and is untouched here -- a new turn is the only
+// stale-proposal recovery there is (see the proposals banner in
+// doxbench-chat-model.js, pinned by test_doxbench_proposals.py). THE DEFECT IS
+// THE SILENCE, and the silence is on three paths, so all three answer for it.
+//
+// TWO FORMS, one rule. Which form a path gets follows the path's own nature:
+//
+//   SEND is a human press and nothing has moved yet, so it is refusable -- it
+//   gets the house TWO-PRESS ARM. (`repo-selector.js`'s filter trash: the first
+//   click ARMS and relabels itself, the second commissions. This rail carried
+//   the same idiom on its own Unload control until that act moved to the canvas.)
+//
+//   REKEY and the DOCUMENT SWITCH are consequences, not presses. By the time
+//   either reaches the clear the thing that caused it has already happened -- the
+//   tile is on a new scope key, or the canvas has already moved its active buffer
+//   and the thread has already been read -- and refusing at that point would leave
+//   this rail disagreeing with the surface beside it, which is the defect each
+//   path exists to prevent. Neither is refusable, so each gets the honest form for
+//   an unrefusable clear: the fixed notice, announced ON the clear, naming what
+//   went.
+//
+// THE SUBJECT OF EVERY SENTENCE IS A KEY LIST. `pendingProposalTargets` answers
+// which records a clear would cost (non-terminal only: no nagging about
+// proposals already reviewed), and the phrase below is built from those BUFFER
+// KEYS -- the card badge's own `title` idiom -- so no summary and no proposal
+// content can reach a sentence.
+// ---------------------------------------------------------------------------
+
+function pendingTargetPhrase(targets) {
+  return (targets.length === 1
+    ? "unreviewed proposal on " : "unreviewed proposals on ")
+    + targets.join(", ");
+}
+
+const PROPOSALS_DISCARD_ARMED = (targets) => Object.freeze({
+  error: "proposals_discard_armed",
+  message: "sending replaces the " + pendingTargetPhrase(targets)
+    + " — press Send again to send this turn and discard "
+    + (targets.length === 1 ? "it" : "them"),
+});
+
+const PROPOSALS_DISCARDED_ON_REKEY = (targets) => Object.freeze({
+  error: "proposals_discarded_on_rekey",
+  message: "this tile moved onto a different snapshot — the "
+    + pendingTargetPhrase(targets)
+    + " went with the conversation; ask again in a new turn",
+});
+
+const PROPOSALS_DISCARDED_ON_SWITCH = (targets) => Object.freeze({
+  error: "proposals_discarded_on_switch",
+  message: "switching documents replaced this conversation — the "
+    + pendingTargetPhrase(targets)
+    + " went with it; ask again in a new turn",
+});
+
+// WHAT THE ARM IS KEYED BY, and therefore WHAT DISARMS IT.
+//
+// The house arm lives in the RENDER: `repo-selector.js` rebuilds its rows, so
+// its `armed` flag dies with the button it was set on, and it is closed over
+// ONE repository name so it can never apply to a different row. Send's control
+// is built once at mount and never rebuilt, so "the node was replaced" is not
+// available as an expiry -- and the same guarantee is expressed instead as a
+// match against the SENTENCE'S OWN SUBJECT: the arm holds only while the pending
+// target list is still the one the refusal named.
+//
+// So every relevant state change disarms, structurally rather than by a list of
+// remembered cases: reviewing, applying or rejecting a proposal between the
+// presses changes the list, and the next press refuses again with the narrowed
+// sentence; a set that empties disarms; a settled turn or a rekey replaces the
+// set. NO TIMER and no blur, deliberately -- this rail owns no clock (the model's
+// purity rule forbids one and this view has never had one), and a wall-clock
+// window would be a second authority on "is the arm still good" that nothing on
+// the surface displays.
+//
+// Only the TOKEN is remembered, never a state or a record: there is no
+// click-time snapshot to go stale, because each press recomputes the token from
+// the state that press was handed.
+function discardArmToken(stateValue) {
+  const targets = pendingProposalTargets(stateValue);
+  return targets.length === 0 ? null : JSON.stringify(targets);
 }
 
 // T104 F5-9 residual: the rail's OWN posture when it is offered (the
@@ -346,6 +492,31 @@ export function createTurnDispatcher(options) {
     || ((n) => "turn-" + Date.now().toString(36) + "-" + n);
   let pending = false;
   let accepted = 0;
+  // #80: the two-press arm's ONE authority — a remembered token, never a
+  // remembered state. `null` is disarmed. It lives beside `pending` because it
+  // is the same class of fact: something this dispatcher knows about the press
+  // in front of it, which no state object can carry.
+  let discardArm = null;
+
+  // …and the view READS it rather than tracking a second copy, so the control's
+  // own label and the gate below can never disagree about whether the next press
+  // sends. Recomputed against whatever state is handed in, which is what makes a
+  // changed pending set show up on the control without anything having to
+  // remember to clear a flag.
+  function discardArmedFor(stateValue) {
+    const token = discardArmToken(stateValue);
+    // AN EMPTIED SET DISARMS AT THE FIRST OBSERVATION, which is this rail's
+    // version of the house arm's render-time expiry: `repo-selector.js`'s flag
+    // dies when the row is re-rendered, and this predicate is what the render
+    // below calls on every state change. Without it an arm could outlive the
+    // set it was about — a rekey or a full review empties the set, and a LATER
+    // set that happened to name the same buffers would inherit a press nobody
+    // ever made about it. (`submit` clears it on the same condition, so the rule
+    // holds for a dispatcher driven with no view at all; this only makes it hold
+    // sooner.)
+    if (token === null) discardArm = null;
+    return token !== null && token === discardArm;
+  }
 
   async function submit(stateValue, contextValue) {
     // ONE turn in flight per dispatcher (FR-018), mirrored by the model's
@@ -386,6 +557,33 @@ export function createTurnDispatcher(options) {
         return { refused: true,
                  state: settleTurnFailure(begun, NO_MODEL_SELECTED) };
       }
+      // #80's TWO-PRESS ARM, and it is the LAST gate before the turn is
+      // adopted, deliberately. The refusals above are about whether a turn can
+      // be BUILT at all; this one is about a CONSEQUENCE of sending, and warning
+      // a human about the cost of an act that is going to be refused anyway
+      // would make the ladder alternate between two sentences forever. So the
+      // impossible is refused first, and only a turn that would really go asks.
+      //
+      // THE FLIGHT IS ABANDONED, NOT SETTLED. `begun` was computed above for the
+      // one-turn-in-flight guard and nothing has adopted it — `onBegin` is the
+      // very next statement — so the rail never entered `in_flight` and there is
+      // no flight to settle. `recordLocalFailure` is the primitive for exactly
+      // that: a fixed refusal at idle, on the same visible channel
+      // (`lastFailure` → the rendered note and the live region) every other
+      // refusal on this surface renders through. The composer is untouched, so
+      // FR-016 holds by construction rather than by a preserving branch.
+      const armToken = discardArmToken(stateValue);
+      if (armToken !== null && armToken !== discardArm) {
+        discardArm = armToken;
+        return { refused: true, armed: true,
+                 state: recordLocalFailure(
+                   stateValue,
+                   PROPOSALS_DISCARD_ARMED(
+                     pendingProposalTargets(stateValue))) };
+      }
+      // Armed and matched (or nothing pending): the press goes through and the
+      // arm is CONSUMED — a second turn later must ask again for its own set.
+      discardArm = null;
       // (The `no_active_document` pre-flight refusal stood here too.) It existed
       // because the v1 envelope made a turn declare ONE active document path and
       // an operator with several candidates had a choice to make before one could
@@ -429,6 +627,11 @@ export function createTurnDispatcher(options) {
                  state: settleTurnSuccess(settleBase, response.payload) };
       }
       let failure = TRANSPORT_REFUSED;
+      // #287: computed before the ladder because it is a pure question about the
+      // body's SHAPE and CODE; `null` for every body that is not a whitelisted
+      // fallback-shape refusal, which leaves the ladder below exactly as it was.
+      const fallbackFailure = fallbackShapeFailureFor(
+        response ? response.payload : null);
       if (response && response.payload
           && response.payload.kind === CHAT_FAILURE_KIND) {
         failure = response.payload;
@@ -441,6 +644,11 @@ export function createTurnDispatcher(options) {
         // latter, which is why the operator still saw the generic refusal on a
         // stale token. Both spellings now name the reload remedy.
         failure = CONSOLE_TOKEN_STALE;
+      } else if (fallbackFailure) {
+        // #287: a released failure body that did not survive the route's own
+        // wire self-validation arrives in the pre-identity fallback shape. Its
+        // CODE is still true, and one of them has a fixed sentence here.
+        failure = fallbackFailure;
       }
       return { ok: false, clientTurnId,
                state: settleTurnFailure(settleBase, failure) };
@@ -449,7 +657,7 @@ export function createTurnDispatcher(options) {
     }
   }
 
-  return { submit };
+  return { submit, discardArmedFor };
 }
 
 // ---------------------------------------------------------------------------
@@ -481,10 +689,18 @@ const _CARD_NOTES = Object.freeze({
 // selector (`unavailabilityNote`), so the two can never drift. The generic
 // "…and type a message" line is kept for the case where a model IS selected and
 // the composer is simply empty, which is a different reason.
-function sendTitle(inFlight, disabled, unavailableReason) {
+//
+// #80 adds a FOURTH case and puts it LAST among the reachable ones: while the
+// discard arm is set, the hover text is the arm's own sentence — the same string
+// the note is showing, from the same one factory, so the two cannot drift. It
+// sits after the disabled reasons because a control that cannot be pressed owes
+// the reader why it cannot be pressed before it owes them what pressing would
+// do.
+function sendTitle(inFlight, disabled, unavailableReason, armedReason) {
   if (inFlight) return "a turn is in flight — one turn at a time per conversation";
   if (disabled && unavailableReason) return unavailableReason;
   if (disabled) return "type a message to send";
+  if (armedReason) return armedReason;
   return "send this turn";
 }
 
@@ -1024,7 +1240,32 @@ export function mountDoxBenchChatRail(host, options = {}) {
     // the only place the selection can have moved.
     if (generation !== threadGeneration) return;
     const turns = answer && Array.isArray(answer.turns) ? answer.turns : [];
-    adopt(adoptThreadTranscript(state, turns));
+    // #80(c), THE NOTICE FORM. The thread switch clears the pending proposals
+    // with the transcript, and that clear is RIGHT — they are facts about the
+    // previous document's turn, and a live Apply against a buffer the human has
+    // walked away from is the stale control the currency rules exist to prevent.
+    // What was wrong was doing it in silence.
+    //
+    // A NOTICE AND NOT AN ARM, because there is nothing left to refuse by the
+    // time this runs: the selection has ALREADY moved through the canvas's own
+    // seam (the order contract above: selection first, transcript second) and
+    // the thread has already been read, so refusing here would leave document B
+    // on the canvas showing document A's conversation — the exact defect the
+    // switch exists to close. Arming the SELECTION instead was considered and
+    // rejected: this surface's own ruling is that changing which buffer is
+    // selected needs no confirmation because it replaces no content, and that
+    // ruling is not this fix's to overturn.
+    //
+    // MEASURED BEFORE, STATED AFTER: the targets come from the state that still
+    // holds them, and the sentence is only recorded when a clear really happened
+    // (an in-flight switch is refused by the model with the identical state, and
+    // says nothing).
+    const discarded = pendingProposalTargets(state);
+    const adopted = adoptThreadTranscript(state, turns);
+    const notice = adopted !== state && discarded.length
+      ? PROPOSALS_DISCARDED_ON_SWITCH(discarded) : null;
+    adopt(notice ? recordLocalFailure(adopted, notice) : adopted);
+    if (notice) announce.textContent = notice.message;
   }
 
   // The selector is rebuilt from the live state on every render, which is what
@@ -1235,12 +1476,25 @@ export function mountDoxBenchChatRail(host, options = {}) {
     // no selection this surface must refuse to send, and the gate goes with the
     // posture rather than lingering as a branch that can never be true.
     sendBtn.disabled = !canSend(state);
-    sendBtn.textContent = inFlight ? "Sending…" : "Send";
+    // #80: THE ARMED CONTROL SAYS WHAT THE SECOND PRESS DOES, which is the half
+    // of the house two-press idiom that lives on the control rather than in the
+    // handler (`repo-selector.js`'s trash becomes "remove?"; this rail's retired
+    // Unload became "Discard and unload"). Read from the dispatcher, which is
+    // the ONE authority for the arm, and re-derived on every render against the
+    // live state — so the moment the pending set changes, the label and the gate
+    // change together.
+    const discardArmed = dispatcher.discardArmedFor(state);
+    sendBtn.textContent = inFlight ? "Sending…"
+      : (discardArmed ? "Send and discard" : "Send");
     // The reason is a MODEL reason only while no model is actually selectable or
     // selected; once one is chosen, an empty composer is a different reason and
     // must not borrow this sentence.
     const modelReason = state.selectedModelId ? null : unavailabilityNote(state);
-    sendBtn.title = sendTitle(inFlight, sendBtn.disabled, modelReason);
+    sendBtn.title = sendTitle(
+      inFlight, sendBtn.disabled, modelReason,
+      discardArmed
+        ? PROPOSALS_DISCARD_ARMED(pendingProposalTargets(state)).message
+        : null);
     if (typeof onState === "function") onState(state);
   }
 
@@ -1306,6 +1560,17 @@ export function mountDoxBenchChatRail(host, options = {}) {
         liveState: () => state,
       });
       if (result.state) adopt(result.state);
+      // #80: the ARM REFUSAL IS ANNOUNCED as well as rendered — the same pair
+      // T104 F5-5 gave the refused Apply (the visible note plus the live
+      // region), and for the stronger version of the same reason: this is the
+      // one send-path refusal that asks the operator for a DECISION rather than
+      // reporting an outcome, and a decision a screen-reader user never hears is
+      // a decision made for them. No new channel: both already exist, and the
+      // sentence written here is the one `recordLocalFailure` just put on the
+      // note.
+      if (result.armed === true && state.lastFailure) {
+        announce.textContent = state.lastFailure.message;
+      }
       succeeded = result.ok === true;
       // P3-3 (wave re-review P3 tail): proposals adopted from an in-flight
       // turn scored `current` unconditionally — a document switch or Discard
@@ -1407,6 +1672,9 @@ export function mountDoxBenchChatRail(host, options = {}) {
     state: () => state,
     rekey(keyValue) {
       currentScopeKey = keyValue;
+      // #80(b), THE NOTICE FORM. Measured BEFORE the reset, because the fresh
+      // state has no proposals left to name.
+      const discarded = pendingProposalTargets(state);
       let next = rekeyChatState(state, keyValue, subjectDefault);
       // A FRESH conversation on the new key (transcript, composer, subject,
       // proposals and failure all cleared — FR-011; the subject then takes the
@@ -1423,7 +1691,19 @@ export function mountDoxBenchChatRail(host, options = {}) {
       } else if (next !== state && state.catalogFailure) {
         next = recordCatalogFailure(next, state.catalogFailure);
       }
+      // …and the unreviewed proposals that went with the conversation are NAMED.
+      // A NOTICE AND NOT AN ARM: a re-key is not a press on this rail at all —
+      // the tile has already moved (a governed Save landing on a session ref is
+      // the usual mover), the buffers moved with it, and a rail that refused to
+      // follow would go on declaring the pre-session ref on the wire, which is
+      // the disagreement T104 F1 fixed. `next !== state` is the same
+      // key-really-moved test the two branches above use: a re-key to the
+      // unchanged key clears nothing and therefore says nothing.
+      const notice = next !== state && discarded.length
+        ? PROPOSALS_DISCARDED_ON_REKEY(discarded) : null;
+      if (notice) next = recordLocalFailure(next, notice);
       adopt(next);
+      if (notice) announce.textContent = notice.message;
     },
     refreshCurrency(currentHashes) {
       adopt(refreshProposalCurrency(state, currentHashes));

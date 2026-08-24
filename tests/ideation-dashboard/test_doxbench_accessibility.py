@@ -222,7 +222,15 @@ def test_the_model_selector_sits_by_send_and_states_why_send_is_unreachable():
     assert 'sendBtn.setAttribute("aria-describedby", unavailableNote.id)' in rail
     assert '"doxchat-unavailable doxchat-sronly"' in rail
     # the title carries the same sentence, from the same one selector
-    assert "sendBtn.title = sendTitle(inFlight, sendBtn.disabled, modelReason)" in rail
+    #
+    # PIN EVOLUTION (#80, ruled 2026-08-24): `sendTitle` gained a FOURTH case —
+    # while the discard arm is set, the hover text is the arm's own sentence, so
+    # a human who is about to discard unreviewed proposals can read that off the
+    # control. The claim this pin exists for is untouched and is what is asserted
+    # here: ONE selector still composes the title, and the unavailability
+    # sentence still reaches it as `modelReason`. Only the call's arity moved.
+    assert "sendBtn.title = sendTitle(" in rail
+    assert "inFlight, sendBtn.disabled, modelReason," in rail
     assert "unavailabilityNote(state)" in rail
     styles = _styles()
     assert ".doxchat-sendrow" in styles
