@@ -5,10 +5,18 @@ target_release: none — this change moves no contract bytes. The credential bin
 
 # Proposal: add-notebook-hosting-credential-custody
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-23 — record: `review/ratification-2026-08-23.md` (Brett Heap,
+in-session via question prompts). TWO rulings in the one read: **ratify** the
+requirement set as it stands, and **the residency redirect is ACCEPTED** —
+neutral obligations here, the live binding instances in the consuming installs
+as named successors, with the repository's own manifest rule holding unchanged.
+All three items this packet flagged were before him and he ratified with them
+in view: the residency redirect, the unpromoted-generalization sequencing, and
+the admitted enforcement gap with its schema successor named.
 Proposed: 2026-08-23, the same day `add-notebook-projection-identity` was
 ratified and realized. This is its follow-up, authored on Brett Heap's
-direction; ratification is a separate act, still PENDING.
+direction.
 
 THE REALIZATION RUNS POST-RATIFICATION. No hosting-record, validator, doc or
 example edit lands with this proposal itself, and **no live secret is created,

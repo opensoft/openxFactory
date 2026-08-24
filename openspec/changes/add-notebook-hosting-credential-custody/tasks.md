@@ -1,6 +1,7 @@
 # Tasks: add-notebook-hosting-credential-custody
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-23 — `review/ratification-2026-08-23.md`. These are AUTHORIZED, not performed, by the ratification.
 
 NOTHING BELOW RUNS BEFORE RATIFICATION. This change's own diff is the spec
 deltas and these records. **No task here creates, moves, or reads a live

@@ -1,6 +1,7 @@
 # Design: add-notebook-hosting-credential-custody
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-23 — `review/ratification-2026-08-23.md`
 
 Brett's ruling is the input; this records what the repository's own evidence
 said when the ruling was checked against it, including the two places where the
