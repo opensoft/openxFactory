@@ -36,3 +36,7 @@
   validator constant citing HEC :103–140; three negative specimens specified) and
   convener ruling (operator token exact string `Brett Heap`). Review act token
   `review` confirmed by architect mini-consult against ratified vocabulary.
+- Supersession (2026-08-24): operator token re-ruled to `Brett.Heap@opensoft.one`
+  with a convener-authorized surgical schema widening after implementation's
+  anchored-root assertion proved the original token could not satisfy the
+  identifier grammar. All items still pass.

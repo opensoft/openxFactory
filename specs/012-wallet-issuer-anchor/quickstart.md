@@ -48,7 +48,7 @@ scope:
       - irreversible_external_effect
 expires_at: "2027-12-31T23:59:59Z"
 issued_at: "2026-08-24T00:00:00Z"
-issued_by: Brett Heap                    # exact; root grants accept ONLY this
+issued_by: Brett.Heap@opensoft.one      # exact; root grants accept ONLY this
 state: active
 ```
 
@@ -59,7 +59,7 @@ Refusals you can provoke:
 | no `issued_by` | `issuer-unrecorded` |
 | root + `issued_by: sub-0123456789abcdef` | `root-issuer-unanchored` (machine-named pin) |
 | root + `issued_by: opensoft` | `root-issuer-unanchored` (legacy pin) — legacy values do NOT grandfather |
-| root + `issued_by: " brett heap"` | `root-issuer-unanchored` (generic) — exact match, never normalized |
+| root + `issued_by: "Brett.Heap@opensoft.x"` | `root-issuer-unanchored` (generic) — exact match, never normalized |
 
 Negative specimens live in `contracts/openxwallet/examples/negative/` and MUST
 carry the three-line header contract (`expected_failure`, optional detail,

@@ -25,6 +25,10 @@ Scope guard (ratified tasks §3.1): NO schema edit, NO manifest entry, NO CHANGE
 
 - [x] T008 [US3] Self-test boundary guard: synthesized schema-valid `post_transaction` root grant with NO `issued_by` must validate with ZERO findings inside the self-test (fails loudly as `boundary-guard-failed` otherwise).
 
+## Round 2 — verdict-driven hardening + authorized widening (2026-08-24)
+
+- [x] T009 Fix QA BLOCKER (type-guard unhashable issued_by); add anchor-assertion self-test block killing all six mutants; correct SC-002 per reviewer; land convener-authorized issuer_identifier schema def with manifest sha refresh + CHANGELOG Unreleased entry; record token re-ruling across spec/data-model/quickstart/clarify/checklist.
+
 ## Phase 5 — Polish & Cross-Cutting
 
 - [x] T007x Gates: full sweep exit 0 with post-S2 counts recorded as SC-002 evidence; five packaged positives unchanged; `pytest tests/wallet_yaml_syntax_gate/ -q`; `openspec validate --all --strict`.

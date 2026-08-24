@@ -11,9 +11,18 @@
 **Governance source**: Implements ratified requirement *"Every review-authority grant
 names its issuer, and a root grant's issuer is anchored outside the register"*
 (`openspec/changes/add-wallet-carried-review-authority/specs/review-authority-intake/spec.md:84-106`)
-and substrate item **S2** of that change. Per its tasks §3.1: **no `contracts/` edit,
-no manifest entry, no CHANGELOG line, no bundle cut** — this is a composing-capability
-restriction enforced by the validator, never a schema change.
+and substrate item **S2** of that change. Its tasks §3.1 originally demanded
+**no schema edit, no manifest entry, no CHANGELOG line, no bundle cut**, and S2
+was authored within that posture — until the anchored-root case exposed that
+the grant identifier grammar could not carry an operator identity at all (no
+`@`). The convener explicitly re-ruled 2026-08-24: the anchor token is the
+operator's email address and a SURGICAL schema widening is authorized for
+exactly one field (`issued_by` → new `issuer_identifier` def; all other
+identifier fields keep the strict machine-id grammar). The widening rides the
+Contract Versioning Policy: manifest sha256 refreshed, CHANGELOG Unreleased
+entry added, bundle cut still deferred to the next release. Packaged example
+FIXTURES under `contracts/openxwallet/examples/` remain corpus content, not
+contract surface.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -51,7 +60,7 @@ machine-named root makes every downstream property strictly local fiction.
 
 **Independent Test**: Two negative specimens fail with `root-issuer-unanchored`
 (detail-pinned separately: machine token vs `opensoft`), while an anchored root
-naming `Brett Heap` validates clean.
+naming `Brett.Heap@opensoft.one` validates clean.
 
 **Acceptance Scenarios**:
 
@@ -61,7 +70,8 @@ naming `Brett Heap` validates clean.
 2. **Given** a root review-class grant with `issued_by: opensoft`, **When**
    validation runs, **Then** it FAILS `root-issuer-unanchored` with the
    legacy-value detail pin.
-3. **Given** a root review-class grant with `issued_by: Brett Heap`, **When**
+3. **Given** a root review-class grant with
+   `issued_by: Brett.Heap@opensoft.one`, **When**
    validation runs, **Then** it PASSES.
 
 ---
@@ -110,7 +120,8 @@ grant without `issued_by` passes.
 - **FR-003**: A REVIEW-CLASS grant with no `issued_by` MUST FAIL with code
   `issuer-unrecorded` (scenario: "A grant omits its issuer").
 - **FR-004**: A ROOT review-class grant (no `parent_grant_ref`) whose `issued_by`
-  is not exactly `Brett Heap` MUST FAIL with code `root-issuer-unanchored`; the
+  is not exactly `Brett.Heap@opensoft.one`
+  MUST FAIL with code `root-issuer-unanchored`; the
   message distinguishes machine-token values from other unanchored values (detail
   pin support). The accepted operator constant cites `docs/roles-and-authority.md:103-140`
   (Human Escalation Contract) as its authority — the code points at the standing
@@ -124,8 +135,9 @@ grant without `issued_by` passes.
 - **FR-006**: The validator's REQUIREMENTS map MUST register the new REQ-IDs so the
   coverage-closure invariant stays satisfied in both directions.
 - **FR-007**: The five existing packaged grant positives (transaction-act class)
-  MUST continue to pass unchanged; no schema file, manifest, CHANGELOG line, or
-  bundle version is touched.
+  MUST continue to pass unchanged; the only contract-surface touch is the
+  convener-authorized `issuer_identifier` def (FR-004), with its manifest
+  hash refresh and CHANGELOG entry; no bundle cut.
 - **FR-008**: A self-test assertion MUST prove the boundary guard: a
   post_transaction-style grant with no `issued_by` passes (US3 regression guard).
 
@@ -134,8 +146,10 @@ grant without `issued_by` passes.
 - **Review-class grant**: `kind: xfactory_wallet_grant` whose `scope.acts` contains
   the canonical `review` token.
 - **Root grant**: review-class grant with no `parent_grant_ref`.
-- **Operator anchor token**: the literal string `Brett Heap` — the only accepted
-  root-issuer value, backed by the Human Escalation Contract citation.
+- **Operator anchor token**: the literal string `Brett.Heap@opensoft.one` — the
+  only accepted root-issuer value, backed by the Human Escalation Contract
+  citation (display-name form `Brett Heap` superseded by convener re-ruling
+  2026-08-24 after the identifier-grammar discovery).
 - **Negative specimens**: three packaged fixtures with declared expected failures
   feeding the layer-1 corpus assertion.
 
@@ -145,17 +159,21 @@ grant without `issued_by` passes.
 
 - **SC-001**: All three new negatives fail for exactly their declared reasons
   (rehearsed in CI self-test, evidenced in implementation notes).
-- **SC-002**: Full sweep exits 0 on the tree — 17→20 positives-equivalent coverage,
-  33→36 negative confirmations, 11/11→13/13 requirements coverage (counts asserted
-  at implementation; recorded as evidence).
+- **SC-002**: Full sweep exits 0 on the tree — positives remain at their
+   pre-S2 count of 17 with zero behavior change; negatives 33→36;
+   requirements coverage 11/11→13/13 (counts asserted at implementation;
+   recorded as evidence).
 - **SC-003**: Zero behavior change for non-review grants (boundary guard green).
 
 ## Assumptions
 
 - Canonical review act token is `review` (named once here per the architect's
   obligation); confirmed by architect mini-consult before implementation.
-- Operator token `Brett Heap` ruled by convener 2026-08-23 (exact match, no
-  normalization).
+- Operator token ruled by convener 2026-08-23 as `Brett Heap`; RE-RULED
+  2026-08-24 as `Brett.Heap@opensoft.one` with an explicit surgical schema
+  widening after the anchored-root assertion proved the original token could
+  never satisfy the identifier grammar (exact match, no normalization,
+  retained).
 - Child-grant issuer inheritance beyond root checks remains governed by existing
   attenuation logic; S2 adds no child-specific rule unless clarify surfaces a
   ratified gap.

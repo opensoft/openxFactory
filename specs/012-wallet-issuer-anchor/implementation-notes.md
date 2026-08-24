@@ -25,12 +25,49 @@ The negative and requirement counts match the spec exactly (33→36, 11→13).
 Flagged at PR review as an arithmetic slip in SC-002's first clause, to be
 corrected in that review rather than silently reinterpreted here.
 
+## Round 2 — verdicts, blocker fix, hardening, authorized schema widening (2026-08-24)
+
+Independent verdicts on commit 9e85277b:
+
+- **Code-reviewer (gpt-5.6-terra route): REVISE** — one MAJOR: SC-002's
+  "17→20 positives-equivalent" arithmetic slip. ADDRESSED: SC-002 corrected to
+  actual counts (positives 17 unchanged; negatives 33→36; coverage 11→13).
+- **QA (adversarial): FAIL** — one BLOCKER + six surviving mutants.
+  - BLOCKER (schema-invalid non-string `issued_by` reached `in ctx.wallets`,
+    unhashable → exit-2 harness crash): FIXED with a type guard; regression
+    probe now exits 1 with named findings instead of crashing.
+  - Mutant survivors exposed self-test blind spots: no anchored-root positive,
+    no drift-negative, no child/root separation probe, unnamed fixture
+    reliance, strippable detail pins. FIXED: S2 anchor-assertion block in
+    self_test (anchored root clean; ` brett heap` refused without
+    normalization; machine and legacy wordings pinned; synthetic parent+child
+    pair proving child exemption; named-probe presence + mandatory detail pins
+    for the three S2 fixtures).
+- **MINOR (spec conflict)**: §3.1 "no contracts/ edit" vs FR-005 fixtures —
+  resolved by precision edit (fixtures are corpus content) … then superseded by
+  the discovery below.
+
+**Material discovery at the hardening step**: the new anchored-root assertion
+failed — the grant schema's identifier grammar (`^[A-Za-z0-9][A-Za-z0-9._:/-]*$`)
+cannot carry ANY operator identity: no spaces (killing `Brett Heap`) AND no `@`
+(killing even an email form). No packaged anchored positive had ever existed to
+expose this. Escalated twice; convener re-ruled: anchor token =
+`Brett.Heap@opensoft.one`, with explicit authorization for a SURGICAL schema
+widening — `$defs/issuer_identifier` used by `issued_by` alone; every other
+identifier field keeps the strict grammar. Landed per Contract Versioning
+Policy: manifest sha256 refreshed, CHANGELOG Unreleased additive bullet, bundle
+cut still deferred. The initial display-name ruling is recorded as superseded in
+clarify Q3/Q4.
+
+Gate evidence after Round 2: sweep exit 0 (`17 positives / 36 negatives across
+13/13 requirements`, anchored-root assertion green); unhashable-issued_by
+regression probe exits 1 with named findings; pytest wallet_yaml_syntax_gate 4
+passed; openspec validate --all --strict rerun at commit.
+
 ## Phase status
 
-Clarify CLOSED; Round 1 implementation LANDED with gate evidence above. Pending
-before merge: independent QA adversarial round and code-reviewer verdict
-(recorded here when they return, or declared pending per house discipline), then
-PR.
+Clarify CLOSED; Rounds 1–2 LANDED with gate evidence above. Pending before
+merge: nothing outstanding from reviewer or QA; PR next.
 
 ## Grounding facts (researcher, 2026-08-23)
 

@@ -48,8 +48,29 @@ root-issuer string needed the convener's word.
 normalization (identity strings do not get fuzzy).
 **Disposition**: encoded — FR-004, Key Entities, US2 acceptance scenario 3.
 
+### Q4 — Anchor token vs the identifier grammar (implementation-time escalation)
+
+**Discovery**: the anchored-root self-test assertion (added in the QA round)
+proved the ruled token `Brett Heap` can never satisfy the grant schema's
+identifier pattern (`^[A-Za-z0-9][A-Za-z0-9._:/-]*$` — no spaces, and no `@`
+either, so even an email fails it). No packaged anchored positive existed to
+expose this earlier.
+
+**Convener re-rulings 2026-08-24**: (1) anchor = standard of email address,
+exact string `Brett.Heap@opensoft.one`, superseding the display-name ruling;
+(2) on learning `@` is outside the grammar: explicit authorization to amend the
+grant schema — surgical, one field — over keeping a non-expressible token.
+Landed as the new `$defs/issuer_identifier` def; every other identifier field
+keeps the strict grammar; manifest sha256 refreshed; CHANGELOG Unreleased
+bullet added per the Contract Versioning Policy.
+
+**Disposition**: encoded — FR-004/FR-007 rewritten, Key Entities and
+Assumptions updated, §3.1 posture recorded as explicitly overridden for this
+one widening.
+
 ## Session totals
 
-1 architect round (+1 mini-consult) · researcher facts consult · 1 escalation to
-convener (resolved) · stopped on resolution rule. No [NEEDS CLARIFICATION] markers
+1 architect round (+1 mini-consult) · researcher facts consult · 2 escalations
+to convener (both resolved: Q3 initial token, Q4 grammar conflict) · stopped on
+resolution rule. No [NEEDS CLARIFICATION] markers
 remain; checklist all-pass (see checklists/requirements.md).

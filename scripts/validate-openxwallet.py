@@ -214,8 +214,14 @@ ENVELOPE_SCHEMA_PATH = ROOT / "contracts" / "schemas" / "hermes-job-envelope.sch
 # root review-authority grants is recorded under the Human Escalation
 # Contract, and this code points at that standing record rather than
 # duplicating or re-deriving it.
+# Contract note: the anchor token is the operator's email address. The grant
+# schema's original identifier grammar could not carry one (no `@`), which the
+# anchored-root self-test assertion caught before merge; the convener
+# re-ruled 2026-08-24: token = Brett.Heap@opensoft.one AND a schema widening
+# (issuer_identifier def) authorized for exactly this field. The initial
+# display-name ruling `Brett Heap` is superseded.
 REVIEW_ACT_TOKEN = "review"
-ROOT_ISSUER_OPERATOR_TOKEN = "Brett Heap"
+ROOT_ISSUER_OPERATOR_TOKEN = "Brett.Heap@opensoft.one"
 ISSUER_ANCHOR_AUTHORITY = "docs/roles-and-authority.md:103-140"
 # Detail-pin classification ONLY: a machine-shaped issuer value gets the
 # machine-named refusal wording. This regex never weakens the rule — every
@@ -694,10 +700,18 @@ def check_grant(f: Findings, label: str, doc: dict, ctx: Context) -> None:
                     f"review-authority grant names its issuer")
         elif not doc.get("parent_grant_ref"):
             if issued_by != ROOT_ISSUER_OPERATOR_TOKEN:
+                # Schema-invalid values still reach the rules (findings
+                # accumulate; validation never stops), so every read here
+                # must tolerate a non-string issued_by: a list or mapping is
+                # unhashable, and `in` against a dict keyset would crash the
+                # whole run as a harness error instead of reporting the
+                # refusal. Non-strings simply take the generic branch — the
+                # schema finding is the precise report, this one refuses the
+                # anchor either way.
                 machine_named = (
-                    issued_by in ctx.wallets
-                    or (isinstance(issued_by, str)
-                        and _MACHINE_ISSUER_RE.match(issued_by)))
+                    isinstance(issued_by, str)
+                    and (issued_by in ctx.wallets
+                         or bool(_MACHINE_ISSUER_RE.match(issued_by))))
                 if machine_named:
                     why = (f"{issued_by!r}, a MACHINE-named issuer; a root "
                            f"issuer cannot be an agent holder")
@@ -1424,6 +1438,160 @@ def self_test(f: Findings, docs: dict[str, dict], ctx: Context) -> None:
         f.error("boundary-guard-failed",
                 f"a non-review root grant without issued_by must validate "
                 f"cleanly (US3); got {local.errors}")
+
+    # S2 anchor assertions. The packaged specimens prove the corpus fails on
+    # the violations; these synthetic probes pin the RULE's own edges so no
+    # single edit or deleted fixture can silence an invariant while the
+    # self-test stays green: the anchored-root positive, whitespace/case
+    # drift refused without normalization, child grants exempt from the root
+    # check, and both refusal wordings the detail pins name.
+    def _anchor_probe(label, doc, expect_code=None, expect_sub=None):
+        probe = Findings()
+        validate_record(probe, label, doc, docs, ctx)
+        errs = probe.errors
+        if expect_code is None:
+            if errs:
+                f.error("anchor-assertion-failed",
+                        f"{label}: expected clean, got {errs}")
+            return
+        if not any(expect_code in e for e in errs):
+            f.error("anchor-assertion-failed",
+                    f"{label}: expected {expect_code!r}, got "
+                    f"{sorted(codes_of(errs))} {errs}")
+        elif expect_sub and not any(
+                expect_sub in e for e in errs if expect_code in e):
+            f.error("anchor-assertion-failed",
+                    f"{label}: {expect_code!r} fired but without the "
+                    f"{expect_sub!r} wording")
+
+    review_scope = {
+        "acts": [REVIEW_ACT_TOKEN],
+        "authority_tier": "act",
+        "approval_posture": {
+            "hermes_approval_required_before_apply": True,
+            "authority_agents_may_approve": False,
+            "human_escalation_required_for": ["irreversible_external_effect"],
+        },
+    }
+    _anchor_probe("self-test/anchor-anchored-root", {
+        "schema_version": 1, "kind": "xfactory_wallet_grant",
+        "grant_id": "grant-anchor-assert-anchored-0001",
+        "audience": {"wallet_ref": "wal-agent-poster-0001",
+                     "holder_ref": "agent:ledger-poster"},
+        "scope": dict(review_scope),
+        "expires_at": "2027-12-31T23:59:59Z",
+        "issued_at": "2026-08-24T00:00:00Z",
+        "issued_by": ROOT_ISSUER_OPERATOR_TOKEN, "state": "active",
+    })
+    _anchor_probe("self-test/anchor-drift-not-normalized", {
+        "schema_version": 1, "kind": "xfactory_wallet_grant",
+        "grant_id": "grant-anchor-assert-drift-0001",
+        "audience": {"wallet_ref": "wal-agent-poster-0001",
+                     "holder_ref": "agent:ledger-poster"},
+        "scope": dict(review_scope),
+        "expires_at": "2027-12-31T23:59:59Z",
+        "issued_at": "2026-08-24T00:00:00Z",
+        "issued_by": " brett heap", "state": "active",
+    }, expect_code="root-issuer-unanchored")
+    _anchor_probe("self-test/anchor-machine-wording", {
+        "schema_version": 1, "kind": "xfactory_wallet_grant",
+        "grant_id": "grant-anchor-assert-machine-0001",
+        "audience": {"wallet_ref": "wal-agent-poster-0001",
+                     "holder_ref": "agent:ledger-poster"},
+        "scope": dict(review_scope),
+        "expires_at": "2027-12-31T23:59:59Z",
+        "issued_at": "2026-08-24T00:00:00Z",
+        "issued_by": "sub-deadbeefdeadbeef", "state": "active",
+    }, expect_code="root-issuer-unanchored", expect_sub="MACHINE")
+    _anchor_probe("self-test/anchor-legacy-wording", {
+        "schema_version": 1, "kind": "xfactory_wallet_grant",
+        "grant_id": "grant-anchor-assert-legacy-0001",
+        "audience": {"wallet_ref": "wal-agent-poster-0001",
+                     "holder_ref": "agent:ledger-poster"},
+        "scope": dict(review_scope),
+        "expires_at": "2027-12-31T23:59:59Z",
+        "issued_at": "2026-08-24T00:00:00Z",
+        "issued_by": _LEGACY_ORG_ISSUER, "state": "active",
+    }, expect_code="root-issuer-unanchored", expect_sub="LEGACY")
+
+    # Child exemption needs a RESOLVING parent, which the packaged corpus
+    # cannot supply without tripping attenuation (no packaged parent confers
+    # the review act), so the parent is synthesized into a copied context.
+    family_ctx = Context(ctx.registry, ctx.vocabulary)
+    family_ctx.wallets = dict(ctx.wallets)
+    family_ctx.grants = dict(ctx.grants)
+    family_ctx.constraints = dict(ctx.constraints)
+    family_ctx.wallets_by_key = {k: list(v)
+                                 for k, v in ctx.wallets_by_key.items()}
+    family_ctx.duplicate_ids = set(ctx.duplicate_ids)
+    family_ctx.index({
+        "schema_version": 1, "kind": "xfactory_wallet_grant",
+        "grant_id": "grant-anchor-assert-parent-0001",
+        "audience": {"wallet_ref": "wal-agent-poster-0001",
+                     "holder_ref": "agent:ledger-poster"},
+        "scope": {
+            "acts": ["create_transaction", "post_transaction"],
+            "authority_tier": "act",
+            "approval_posture": {
+                "hermes_approval_required_before_apply": True,
+                "authority_agents_may_approve": False,
+                "human_escalation_required_for": [
+                    "irreversible_external_effect"],
+            },
+        },
+        "expires_at": "2027-12-31T23:59:59Z",
+        "issued_at": "2026-08-24T00:00:00Z",
+        "state": "active",
+    })
+    child_doc = {
+        "schema_version": 1, "kind": "xfactory_wallet_grant",
+        "grant_id": "grant-anchor-assert-child-0001",
+        "parent_grant_ref": "grant-anchor-assert-parent-0001",
+        "audience": {"wallet_ref": "wal-agent-poster-0001",
+                     "holder_ref": "agent:ledger-poster"},
+        "scope": {
+            "acts": ["post_transaction"], "authority_tier": "act",
+            "approval_posture": {
+                "hermes_approval_required_before_apply": True,
+                "authority_agents_may_approve": False,
+                "human_escalation_required_for": [
+                    "irreversible_external_effect"],
+            },
+        },
+        "expires_at": "2027-06-30T23:59:59Z",
+        "issued_at": "2026-08-24T00:00:00Z",
+        "issued_by": "sub-0123456789abcdef", "state": "active",
+    }
+    child_probe = Findings()
+    validate_record(child_probe, "self-test/anchor-child-exempt",
+                    child_doc, docs, family_ctx)
+    if child_probe.errors:
+        f.error("anchor-assertion-failed",
+                f"self-test/anchor-child-exempt: a review-class CHILD with "
+                f"a machine-shaped issuer inherits attenuation semantics, "
+                f"not the root check; expected clean, got "
+                f"{child_probe.errors}")
+
+    # The three S2 fixtures are named probes, not interchangeable coverage:
+    # their absence or a stripped detail pin must be loud even though the
+    # requirement rows would still look covered.
+    by_name = {p.name: p for p in negatives}
+    for name in ("grant-review-authority-omits-issued-by.yaml",
+                 "grant-review-root-issuer-is-a-machine.yaml",
+                 "grant-review-root-issuer-says-opensoft.yaml"):
+        path = by_name.get(name)
+        if path is None:
+            f.error("examples-missing",
+                    f"S2 named probe negative/{name} is absent from the "
+                    f"packaged corpus; each branch of rule (t) keeps its own "
+                    f"standing fixture")
+            continue
+        _, detail, _ = expected_failure(path)
+        if name != "grant-review-authority-omits-issued-by.yaml" and not detail:
+            f.error("negative-wrong-reason",
+                    f"negative/{name}: S2 branch probes MUST carry an "
+                    f"expected_failure_detail pin naming their branch; an "
+                    f"unpinned probe can be mutated into testing nothing")
 
     # Coverage closure: a negative confirmation PER REQUIREMENT.
     for requirement, statement in REQUIREMENTS.items():

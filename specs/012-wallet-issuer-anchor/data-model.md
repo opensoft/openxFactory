@@ -7,7 +7,7 @@
 | Constant | Value | Authority |
 |---|---|---|
 | `REVIEW_ACT_TOKEN` | `"review"` | review-authority-intake requirement 1 ("scope.acts names the review act") |
-| `ROOT_ISSUER_OPERATOR_TOKEN` | `"Brett Heap"` | Convener ruling 2026-08-23; anchor authority = Human Escalation Contract, cited as `docs/roles-and-authority.md:103-140` |
+| `ROOT_ISSUER_OPERATOR_TOKEN` | `"Brett.Heap@opensoft.one"` | Convener re-ruling 2026-08-24 (supersedes display-name ruling of 2026-08-23 after the identifier-grammar discovery); anchor authority = Human Escalation Contract, cited as `docs/roles-and-authority.md:103-140` |
 | `_MACHINE_ISSUER_RE` | machine-token shape | Detail-pin classification only; never weakens the exact-match refusal |
 
 ## Class detection
@@ -48,6 +48,14 @@ Family prefix follows the established pattern (core `OXW-R*`, profile
 
 Machine specimen pins its issuer token (proves the machine branch); legacy
 specimen pins the word `legacy` (proves the legacy branch, not merely the code).
+
+## Convener-authorized schema widening (2026-08-24)
+
+`openxwallet-grant.schema.yaml`: `issued_by` moves to a new `$defs/issuer_identifier`
+— the identifier grammar plus `@`. Every other identifier field keeps the strict
+machine-id grammar. Manifest entry sha256 refreshed; CHANGELOG Unreleased bullet
+added; bundle cut still deferred. Recorded here because FR-004's exact-match
+anchor is only satisfiable through this widening.
 
 ## Boundary guard (self-test)
 
