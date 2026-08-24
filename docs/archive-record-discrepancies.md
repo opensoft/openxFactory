@@ -1598,6 +1598,35 @@ Each is a named, durable item. None is discharged by
   archived deltas to promoted specs, so the class stays unreported. That
   prevention question is scoped to openxFactory's neutral tooling and
   recorded both in the packet and in PR #85's body — named, not dropped.
+  **ROOT CAUSE AND SWEEP, 2026-08-24 (the #301 investigation, run after
+  the fix landed and verified independently of it).** WHY it never
+  promoted: plain omission by a HAND-ROLLED archive — `38ded44` is a
+  single-parent commit with no associated PR, pushed straight to main; its
+  whole diffstat is a README row removal plus seven pure renames. Not a
+  tooling defect (the real `openspec archive`, replayed on the pre-fix
+  tree in a throwaway export, applied all six scenarios correctly) and
+  not a skip decision (repo-wide, no `skip-specs` anywhere — this is NOT
+  the C5 class). The omission was then CERTIFIED by the discharge's
+  title-only promotion check — the exact check this defect class passes —
+  and the packet's provenance line credited `38ded44` with the promotion;
+  corrected 2026-08-24 by codexFactory PR #86, and the lesson stands:
+  route-(b) derivations must compare SCENARIO SETS, never titles alone.
+  Corpus-wide sweep (all 26 archived delta files, 108 ADDED + 4 MODIFIED
+  requirement-deltas vs promoted specs by requirement and scenario): NO
+  other silent promotion gap in codexFactory; one cosmetic
+  rewording-at-promotion noted (`add-merge-master-credential-contract`,
+  "useless"→"bounded" in a scenario title, body substantively identical —
+  a note, not a change). Currency verified in code: tier-2 is ACTIVE
+  (`nightly-sweep-council-clearance.yaml` `active: true`) and all four
+  landed scenarios hold, each cited to its enforcing line; one caveat
+  recorded — the delta prose names THREE activation prerequisites, the
+  rule's machine gate lists two (the tier-1-history condition was honored
+  in the act, not machine-enforced). FORWARD RISK, named for whoever
+  archives it: `add-regular-pr-council-clearance` is open with a
+  15-requirement MODIFIED delta against this same spec — the
+  highest-exposure archive this repo has yet faced for this class; the
+  missing archived-delta-vs-canon check remains the open prevention
+  question.
   **VETOES CLEARED 2026-08-24 (same day).** Brett approved BOTH
   dispositions this entry flagged, so the window closed with both taken up
   and nothing to revert: `add-software-team-execution-lane` stands at
