@@ -1411,12 +1411,39 @@ Each is a named, durable item. None is discharged by
   `2026-07-23-add-adx-object-model`, carries no `Status:` header. Derivable
   from its own archive record; a one-header backfill on the archived-record
   route.
+  **DISCHARGED 2026-08-24** (AdxFactory PR #3, merged `403ac27`;
+  aggregation pin `9b0abf6`). No drift: 0 CRITICAL / 1 ERROR over the same
+  2 scan-set docs at both the pinned `45eaf559` and the tip. The one
+  header — on the repo's first, pre-convention packet — derived per OQ-6
+  route (a), `Status: ratified` plus one `Ratified:` citation clearing ALL
+  THREE floor axes on its first real line (date 2026-07-23, `by Brett`, a
+  resolvable record path), corroborated by the archive act with all 12
+  promoted delta requirements verified by title. One latent named and left
+  standing: `ideation/README.md` already carries the CORRECT primary
+  spelling, naming the real openxFactory change
+  `add-document-lifecycle-vocabulary` — so no convention doc was written,
+  the habit there being live and already right. Validators byte-identical,
+  including the repo's documented pre-existing `validate-domain-factory`
+  warning baseline. Scan set reads 0/0 in both scopes at `403ac27`.
 - **FU-DOM-HEALTHLINC — HealthLinc (1 CRITICAL).**
   `2026-08-06-add-one-patient-intake-experience` carries a `Ratified by:`
   naming no resolvable OpenSpec change. This is exactly the OQ-4 shape: a
   substantively sound citation in the wrong spelling. The remedy that change
   ruled — rewrite to the sanctioned record-citing `Ratified:` where no
   approving change exists to name — applies unchanged.
+  **DISCHARGED 2026-08-24** (HealthLinc PR #2, merged `ce844c1`;
+  aggregation pin `9b0abf6`), the remedy applied exactly as ruled: an OQ-4
+  prefix-only respell, content carried byte-verbatim (-3 bytes), clearing
+  the floor on the DATE axis alone. The approver phrase is possessive —
+  "Brett Heap's direction" — and was deliberately NOT rephrased to
+  `by <Name>`, because that would edit the record rather than respell it.
+  Corroborated by ratify commit `7e82e9a` and the archive promotion, 7 of 7
+  requirement titles verified. The count never moved from the pinned
+  `76008ec5` through the pre-merge tip, though the sync carries one
+  intervening commit that gave the executive summary its header. Two latent
+  free-form `Status: accepted …` feature-spec docs sit OUTSIDE both
+  document sets — named, untouched. `make validate` and openspec
+  byte-identical. Scan set reads 0/0 in both scopes at `ce844c1`.
 - **FU-DOM-LEDGERX — LedgerxFactory (26 ERROR).** The largest
   missing-header block outside openxFactory: 24 archived and 2 active
   proposals with no `Status:` at all. Same shape and same remedy as this
@@ -1435,6 +1462,20 @@ Each is a named, durable item. None is discharged by
   `docs/packet-lifecycle-headers.md`. Scan set reads 0/0 at `a645858`.
 - **FU-DOM-MEDXEHR — MedxEHR (1 CRITICAL).**
   `2026-08-06-add-patient-reconciliation-overlay`, the OQ-4 spelling shape.
+  **DISCHARGED 2026-08-24** (MedxEHR PR #2, merged `7a1427c`; aggregation
+  pin `9b0abf6`). No drift: 1 CRITICAL / 0, the same OQ-4 prefix-only
+  respell, byte-verbatim (-3 bytes), floor cleared on the DATE axis alone.
+  Its citation's only path-shaped token — `assign/review/dispose`,
+  incidental open-questions prose — does NOT resolve, and the bookkeeping
+  note says so: the sound position named against the incidental-token trap
+  rather than counted as a record path. Corroborated by ratify commit
+  `c3c7e55` and the archive promotion, 7 of 7 titles verified; the note
+  also states that the header confers no clinical, diagnostic or regulatory
+  standing. The same latent free-form pair sits outside the document sets —
+  named, untouched. `make validate` and openspec byte-identical. Scan set
+  reads 0/0 in both scopes at `7a1427c`. With FU-DOM-ADX and
+  FU-DOM-HEALTHLINC discharged in the same commit, every domain follow-up
+  named in this section is now discharged.
 - **FU-DOM-MEDXFACTORY — MedxFactory (13 CRITICAL, 1 ERROR).** Thirteen
   archived proposals with unresolvable `Ratified by:` lines — the root-truth
   and terminology series — plus one missing header
