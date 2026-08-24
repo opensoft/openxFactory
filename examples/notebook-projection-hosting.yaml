@@ -27,12 +27,14 @@ hosting:
   nlm_profile: company
   declared_at: "2026-08-23"
   declared_by: Brett Heap
-  # Recorded honestly: the projection is still hosted on the personal account
-  # below until the migration runs. The migration is gated on an interactive
-  # `nlm login` that only Brett can perform (see
+  # Recorded honestly: the migration ran on 2026-08-24 and the books now live
+  # in the declared account above. `from_account` / `from_nlm_profile` are kept
+  # as the history of where the projection came from — they are what the
+  # retirement record in the migration evidence addresses (see
   # docs/notebook-projection-migration-runbook.md).
   migration:
-    state: pending
+    state: complete
+    completed_at: "2026-08-24"
     from_account: brettheap@gmail.com
     from_nlm_profile: personal
 
