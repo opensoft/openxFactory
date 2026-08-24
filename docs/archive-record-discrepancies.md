@@ -183,6 +183,31 @@ are recorded in that change's `tasks.md` and in its README row. Verified still
 true: it is the only change in the repository, active or archived, carrying a
 `status:` field.
 
+**SUPERSESSION ADDENDUM, 2026-08-23 — the SECOND act only.** Everything above
+stands as written and is not edited: the twenty-four open tasks are still
+annotated rather than force-ticked, the lowercase `status: proposed` field is
+still untouched, and this change is still the only one in the repository
+carrying such a field. What is superseded is the consequence this entry and C2
+drew from the second act — that the proposal must therefore stay headerless.
+**RULED 2026-08-23 (Brett, in-session), recorded as task 5D.2a of
+`govern-openspec-corpus-membership`: backfill it too**, and the change's
+`proposal.md` now carries `Status: ratified` plus one `Ratified:` citation
+derived from its own tasks.md 1.7. The supersession is ON THE 2026-08-02
+DECISION'S OWN TERMS rather than an overturning of it. That decision's stated
+reason was that "no vocabulary for a post-archive value is defined in `docs/` or
+the `release-realization` capability"; the ratification-citation rule in
+`openspec/specs/document-lifecycle/spec.md` is now promoted, it owns the
+`Status:` field for proposals, and it requires the header the decision declined
+to invent. Nothing that decision asserted about the corpus of 2026-08-02 has
+been contradicted, and slice 5C's travelling note in the change's own `tasks.md`
+quotes it in full and leaves it standing. The "two status fields on one
+proposal" hazard C2 named is measured rather than argued away: `Status:` and
+`status:` are two different keys to `doc_health.corpus.STATUS_RE`, which is
+case-sensitive, so exactly ONE of the two lines is machine-read and the
+proposal carries one status of record, not two. The first act — the
+twenty-four open tasks — is untouched by this ruling and remains correctly
+recorded above.
+
 ### A3 — `add-roster-device-admission-surface`'s realization axis
 
 `8924838` recorded that this change's front matter still read a bare
@@ -626,6 +651,30 @@ none should be by a later one absent a governance act that actually promotes
 the capabilities. This entry is closed as RULED — legacy, not as a defect
 awaiting repair, so a future sweep that rediscovers the unpromoted deltas
 should read this line and stop rather than re-open the question.
+
+**SUPERSESSION ADDENDUM, 2026-08-23 — ONE HEADER LINE ONLY.** Everything above
+stands as written and is not edited: the four capabilities were deliberately
+not promoted, they stay unpromoted, `openspec/specs/` gains nothing from
+them, and the folder-id-versus-self-name mismatch stays exactly the
+bootstrap-era artifact this entry called it. What is superseded, narrowly, is
+this entry's "no file … was changed by this round, and none should be by a
+later one absent a governance act that actually promotes the capabilities" as
+applied to the proposal's missing `Status:` header specifically. **RULED
+2026-08-23 (Brett, in-session), recorded as task 5C.3 of
+`govern-openspec-corpus-membership`: backfill `Status: draft` too**, and the
+change's `proposal.md` now carries that one line and nothing else — no
+`Ratified:`/`Ratified by:` citation, because `openspec/specs/document-lifecycle/spec.md`
+requires a citation only for `Status: ratified`, and "absent such backing the
+document MUST carry `draft` or lower status". `draft` records the honest
+value this folder has always supported: never ratified, archived by Brett's
+own PR #28 with `--skip-specs`, retaining the four spec deltas as archived
+design evidence rather than promoting them. Nothing this entry found about
+the four capabilities, the archive act, or the `--skip-specs` reasoning is
+contradicted, and the change's own `tasks.md` quotes this entry's ruling in
+full and leaves it standing. This is C2's successor's amended stop-and-report
+(`docs/archive-record-discrepancies.md`'s 2026-08-23 slice-5C section, C5
+addendum cross-reference); slice 5C's own STOP AND REPORT on this document is
+resolved by this addendum, not by re-opening C2 or C5's class findings.
 
 ### C6 — four 2026-07-13 avatar changes archived with unticked ledgers
 
@@ -1108,3 +1157,195 @@ and review edits and the twenty-seven travelling notes all live under
 whole-repo finding at all. The scoped scan set that `govern-openspec-corpus-membership`
 defines DOES read them, and there the slice takes `ratified-provenance` from 12
 CRITICAL to 0.
+
+## Corrected 2026-08-23 — forty-three archived proposal headers, and C2's successor (`govern-openspec-corpus-membership` slice 5C)
+
+Nothing above this line is edited except entries A2 and C5, each of which
+gains a dated supersession addendum under its own text — A2 at the express
+direction of task 5D.2a, C5 at the express direction of a same-day ruling
+recorded as task 5C.3, both of `govern-openspec-corpus-membership`; both
+entries' original text stands word for word. Everything else here is an
+append, in the discipline the register asks of everyone else.
+
+**C2's CLASS DECISION IS SUPERSEDED. C2's per-record FINDINGS ARE NOT.** This
+is the whole of what changed, and the two halves must not be run together.
+
+C2 closed on 2026-08-22 with "backfill the seven true anomalies where the
+records allow, and only there" and, in as many words, "**The forty-six-wide
+option was not taken**". On 2026-08-23 Brett ruled OQ-6 of
+`govern-openspec-corpus-membership` in an in-session multiple-choice round and
+**DEPARTED from that change's own recommendation**: backfill ALL forty-seven
+headerless proposals, forty-four archived and three active. No grandfather, no
+contract date, no reduced-severity class. The wide option is now taken. The
+ruling is recorded question by question in
+`openspec/changes/govern-openspec-corpus-membership/proposal.md`, and it names
+this supersession itself — "This ruling supersedes the class half of C2's
+2026-08-22 ruling, and says so."
+
+C2's execution table is EVIDENCE, NOT A DECISION, and the append discipline
+protects it. Every per-record finding it made is re-verified by slice 5C and
+stands unaltered:
+
+| C2's finding | still true? | what 5C did with it |
+| --- | --- | --- |
+| `add-propose-verb`: "Nothing. Its front matter, its whole directory, its created and archive commits, and its README row name no ratifier and no ratification date." | YES, re-verified | not cited; the archive act is cited instead |
+| `add-staging-workbench`, `add-workbench-bullseye-and-create`, `add-wheel-action-verbs`: an `origin:`-nested `approved_by`/`approved_on` pair recording permission to author, six to eleven days before archive, plus a Brett-named task sign-off — "Two near-misses on the same record is a reason for care, not a reason to pick one" | YES, re-verified | NEITHER near-miss cited on any of the three; the archive act is cited instead |
+| `add-workbench-integrated-editor-chat`: "a recorded decision AGAINST writing a status value", verified deliberate as A2 | YES, re-verified and quoted in full in the change's own note | superseded on its own terms by 5D.2a; see the A2 addendum above |
+| the thirty-nine pre-convention headerless proposals "were out of scope for this ruling and stay exactly as they were" | YES — that was true of C2's ruling | they are IN scope for OQ-6's, and thirty-eight of the thirty-nine are backfilled here |
+
+**What C2 did not have, and what makes the wide backfill possible without
+inventing anything.** Two things arrived after 2026-08-22. First, OQ-6's
+ruling itself. Second, and the load-bearing one, the **archive-act
+derivation**: `2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites the
+archive act as its ratification on the reasoning `bdd09c2` records — "a change
+whose spec deltas have PROMOTED is ratified by construction". That derivation
+does not read any packet approval into meaning it never had; it reads the
+ARCHIVE, which is a governance act, and the promotion it performed, which is
+checkable in `openspec/specs/`. C2 was hunting for provenance on the packet and
+correctly found none on five records. The archive act was never on that list.
+
+**Forty-four archived documents in scope, forty-three corrected directly, one
+stopped and reported — then resolved the same day by a dedicated ruling.**
+
+| | count |
+| --- | ---: |
+| archived headerless proposals in the ruled scan set | 44 |
+| corrected — `Status: ratified` plus one `Ratified:` citation | **43** |
+| of those, derivation route (a): an explicit ratification act on the record | 11 |
+| of those, derivation route (b): the archive act and its promotion | 32 |
+| STOPPED AND REPORTED — no header written at this pass | 1 |
+| of the one stopped, later corrected under a dedicated ruling — `Status: draft`, uncited | **1** |
+| left stopped after the dedicated ruling | **0** |
+
+Every one of the 43 clears the three-way floor on axes measured through
+`doc_health.families` before the line was written, never assumed: **30** on
+date plus a resolvable record path, **10** on approver plus date plus a record
+path, **2** on approver plus date, **1** on date alone. Of the twelve that
+clear the approver axis by a mechanical regex match, only NINE attribute the
+ratifying act to a named ratifier; the other three — `adopt-avatar-client-lab-candidates`,
+`implement-avatar-client-lab` and `qualify-avatar-brokered-call-feasibility` —
+take derivation route (b) and match "by Brett" only inside quoted prose their
+own citation lines disclaim as something else (a PR-merge Tier-1 approval, a
+realization-gate disposition, an archive-hold acceptance), not as the
+ratifying act itself. Four carry a
+ratification date EARLIER than their own archive folder date — by 1, 4, 23 and
+25 days — and each says so on its own line rather than smoothing the date to
+match the folder.
+
+**THE ONE STOP-AND-REPORT: `enable-live-openxfactory`.** Reported by name, with
+what its record does and does not carry, exactly as OQ-6 requires of a document
+that cannot support a header.
+
+- What it carries: an archive act that is unambiguously Brett's — he authored
+  and merged PR #28, "Archive live factory OpenSpec change", at
+  2026-06-26T05:55:09Z, over a merge-readiness report reading "Decision: READY"
+  with all six council reviewers Pass, and a phase-9 closeout reading "Decision:
+  READY TO ARCHIVE". Also an `.openspec.yaml` origin pair
+  (`approved_by: Brett`, `approved_on: 2026-06-26`).
+- What it does not carry: any ratification act, in any wording, anywhere on the
+  record. The origin pair is permission to author, which C2 ruled is not a
+  ratification.
+- Why route (b) cannot rescue it, and this is the decisive fact: **its archive
+  act promoted nothing.** PR #28's own body records the command as
+  `openspec archive enable-live-openworkflow-factory --skip-specs -y`, and its
+  merge-readiness report states the reason in words — "The archive is
+  intentionally performed with `--skip-specs` because this change recorded
+  infrastructure/runtime proof and retained the delta specs as archived design
+  evidence rather than promoting them into standing product specs." The single
+  leg the by-construction derivation stands on is affirmatively negated by the
+  record itself. It is the only archived change in the corpus in that position,
+  as **C5 of this register independently found**: "It is the only archived
+  change in the corpus with an unpromoted delta — its two 2026-06-26 siblings
+  both promoted".
+- And C5 already ruled the folder, on 2026-08-22, in terms that reach this
+  slice directly: "leave it recorded as legacy … **No file in
+  `archive/2026-06-26-enable-live-openxfactory/` was changed by this round, and
+  none should be by a later one absent a governance act that actually promotes
+  the capabilities.** This entry is closed as RULED — legacy, not as a defect
+  awaiting repair, so a future sweep that rediscovers the unpromoted deltas
+  should read this line and stop rather than re-open the question." OQ-6
+  superseded C2's class decision. It did not reach C5. So this slice read that
+  line and stopped, which is what it says to do.
+- Consequence, stated rather than left to be discovered at a gate: this
+  document is a live `status-validity` ERROR and it is a NON-ZERO result for
+  task 5D.2 of `govern-openspec-corpus-membership`. It blocks that merge until
+  Brett rules it, and it must not be waved through as a known exception,
+  because a known exception is the grandfather OQ-6 refused re-entering by the
+  back door.
+- **RESOLVED the same day.** RULED 2026-08-23 (Brett, in-session), recorded as
+  task 5C.3: backfill `Status: draft` too. C5's no-edit ruling above is
+  SUPERSEDED, narrowly and for this one header line only — the freeze on the
+  four capabilities otherwise stands, they stay unpromoted, and no other line
+  of the folder is touched. `draft` needs no citation: the promoted rule
+  requires one only for `Status: ratified`, and "absent such backing the
+  document MUST carry `draft` or lower status". C5 gains a dated 2026-08-23
+  supersession addendum under its own text, above, with C5's original text
+  standing byte-for-byte; the change's own `tasks.md` quotes C5's ruling in
+  full and leaves it standing. This document is no longer a live
+  `status-validity` ERROR and no longer a NON-ZERO result for 5D.2.
+
+**Where the per-record justifications live.** Not here. Each of the 43 archived
+packets carries its own as a trailing "## Bookkeeping correction" section in
+its own `tasks.md` — phase-b's and 5B's shape — naming the derivation route,
+the record cited, the floor axes measured, and the real line numbers the two
+new lines occupy. Nine carry an extra paragraph where the record needed one:
+the four C2 re-verifications above; two realization-disposition cautions
+(`implement-avatar-client-lab` and `qualify-avatar-brokered-call-feasibility`,
+where Brett's named decision is a realization disposition or an archive-hold
+lift and the citation says so rather than calling it a ratification — the same
+gap C2 flagged for `add-lens-gate-verbs`); two corroboration-not-citation
+cautions (`adopt-avatar-client-lab-candidates`' sign-off on the candidate's open
+questions, and `add-document-cataloging`'s Brett gate on a different artifact);
+and one where promotion and archive fall a day apart
+(`reconcile-domain-neutral-and-engineering-spec-ownership`).
+
+**The scan-set census, same helpers, same globs, same four families as 5B.**
+
+| | before 5C | after 5C | delta |
+| --- | --- | --- | --- |
+| scan set documents | 124 | 124 | 0 |
+| `status-validity` | 46 ERROR | **2 ERROR** | −44 |
+| `ratified-provenance` | 0 | **0** | 0 |
+| `standard-backing` | 0 | 0 | 0 |
+| `succession-integrity` | 0 | 0 | 0 |
+| **total** | **46** | **2** | **−44** |
+| of which on ACTIVE documents | 2 | 2 | 0 |
+
+`ratified-provenance` reads 0 on BOTH sides, and that is the number to watch
+rather than to assume: 43 documents newly read `Status: ratified`, so 43
+documents newly entered that family's scope, and every one of them carries
+exactly one citation clearing the floor. A backfill that wrote statuses without
+citations would have moved this row from 0 to 43. The 44th,
+`enable-live-openxfactory`, reads `Status: draft`, which `ratified-provenance`
+never inspects. The two remaining ERRORs are the two headerless ACTIVE
+MedxChart and MedxPractice proposals, which are another session's in-flight
+work and are untouched by this change.
+
+**The record-immutability cost of this append, measured.** Editing this
+`Status: record` document trips `record-immutability` — the cost the "Why this
+file exists" section accepted. That critical was ALREADY standing before this
+append, and this append does not add a second one: the whole-repo single-repo
+run reads **4 critical / 8 error / 68 warning / 4 info, 0 new regressions**
+both before and after, with `docs/archive-record-discrepancies.md` among the
+four on both sides. Measured in this git tree rather than assumed, because the
+family reads git history. Exactly TWO lines of that report differ between the
+two runs, compared line by line rather than summed, and neither is a finding:
+the `record` stage's word total rises 33,994 → 36,494 and canon share reads
+31.2% against 31.4%, on unchanged canon words (169,417). That is this
+section's own bulk (including its C5 addendum and the adversarial spot-check's
+corrections, folded into the same commit) and nothing else — the same
+corpus-size effect the register recorded for itself at the 2026-08-22
+revision and again at 5B. Re-verified a second way: the intermediate
+33,994 → 35,916 step this slice's own commit produced, and the further
+35,916 → 36,494 the fix-lap corrections added on top of it, were each
+measured before being combined — the fix lap moved no finding, only this
+one word count, confirmed by comparing the two reports line by line.
+
+**Nothing under `openspec/` is read by doc-health.** All 44 proposal edits
+(43 backfilled directly plus `enable-live-openxfactory`'s dedicated-ruling
+backfill) and all 44 travelling notes live under `openspec/changes/archive/`,
+outside `corpus.GOVERNED_ROOTS`, so they move no whole-repo finding at all —
+verified by running the whole-repo report after the proposal-and-note commit
+and before this append, and reading the same four numbers. The scoped scan
+set that `govern-openspec-corpus-membership` defines DOES read them, and
+there the slice takes `status-validity` from 46 to 2.

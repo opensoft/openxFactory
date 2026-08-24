@@ -1,5 +1,7 @@
 code_surface: openxFactory, codexFactory, xFactory, omnigent-install
 target_release: implemented
+Status: ratified
+Ratified: 2026-07-12 by Brett — record: the commit `1efa575`, "Archive exclude-worktrees-from-notebook-projection; record ratifications", whose body opens "Brett ratified all three active changes 2026-07-12" and names this one — "add-proposal-origin-contract and add-ideation-cross-reference-readiness: ratified as admitted intent; both carry code surfaces so they stay active until realization evidence lands". The date recorded is the ratification's, 23 days before this change's own archive act (`7bf79c6`, 2026-08-04, which promoted the delta into `openspec/specs/ideation-cross-reference/spec.md` and `openspec/specs/doc-health/spec.md`) — exactly the ratified-then-realized gap that commit describes. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 ## Why
 

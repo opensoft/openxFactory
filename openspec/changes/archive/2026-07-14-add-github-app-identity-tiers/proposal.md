@@ -1,5 +1,7 @@
 code_surface: none
 target_release: implemented
+Status: ratified
+Ratified: 2026-07-14 by Brett — record: the archive commit `1e10742`, "Realize + archive add-github-app-identity-tiers (GitHub App identity tiers)", whose body opens "Ratified 2026-07-14", together with this change's own tasks.md 3.1 under its "## 3. Ratification and realization evidence" heading — "Obtain Brett's ratify-gate approval for this change ... this task is the formal OpenSpec ratify step for the change itself", ticked. The same act folded the delta into `openspec/specs/roles-authority-model/spec.md`. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 ## Why
 

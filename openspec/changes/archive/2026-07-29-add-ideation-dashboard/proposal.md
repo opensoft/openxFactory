@@ -1,5 +1,7 @@
 code_surface: openxFactory, codexFactory, xFactory
 target_release: implemented
+Status: ratified
+Ratified: 2026-07-29 — record: the archive act, commit `366f04f` "Archive add-ideation-dashboard: capability promoted, evidence green", which applied this change's spec delta into `openspec/specs/doc-health/spec.md`, `openspec/specs/document-lifecycle/spec.md`, `openspec/specs/ideation-cross-reference/spec.md`, `openspec/specs/ideation-dashboard/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. The commit body records the promotion in words: "openspec archive 2026-07-29: promotes the ideation-dashboard capability (15 requirements), creates ideation-cross-reference (2), and grows doc-health and document-lifecycle by one each". Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 ## Why
 
