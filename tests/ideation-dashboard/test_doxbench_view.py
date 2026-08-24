@@ -5543,6 +5543,39 @@ async function refusedAncestryLeadsTheSummary() {
   return read;
 }
 
+// ---- …and an `unchanged` row is not something to report ------------------
+//
+// The companion case to the one above. A tile Save scopes to ONE document and
+// the outline always rides along; when the outline is CLEAN it reports
+// `unchanged`, which is a row with nothing to say. It arrives FIRST in save
+// order, so a lead chosen from "every row that is not committed" takes it and
+// the refusal behind it never reaches the human -- the #81 defect again, from
+// the other end. `tileSaveVerdict` already filters to the withheld set
+// (`refused`/`not_attempted`); the visible line must use the SAME set, which is
+// what makes "the two surfaces agree" true rather than nearly true.
+async function cleanOutlineDoesNotTakeTheLead() {
+  const { controller } = await mount({
+    save: (request) => runSave(savePlanState(request), {
+      only: request.only,
+      transport: async () => ({
+        ok: false, message: 'the document base moved under this buffer' }),
+    }),
+  });
+  await controller.loadDocumentForEditing(DOC_A);
+  // the outline is deliberately NOT edited: it stays clean and reports `unchanged`
+  await controller.edit(DOC_A, '# Document A edited\n');
+  const outcome = await controller.saveDocument(DOC_A);
+  const read = {
+    rows: outcome.buffers.map((row) => ({ key: row.key, status: row.status })),
+    tileError: outcome.error,
+    eventNote: String(controller.elements().eventNote().textContent),
+    statusA: String(controller.elements().status(DOC_A).textContent),
+    statusOutline: String(controller.elements().status('outline').textContent),
+  };
+  controller.destroy();
+  return read;
+}
+
 // ---- two loaded documents sharing a basename stay distinguishable --------
 async function basenameCollision() {
   const { controller } = await mount();
@@ -5661,6 +5694,7 @@ console.log(JSON.stringify({
   tileSave: await tileSave(),
   contextOnlyTileSave: await contextOnlyTileSave(),
   refusedAncestry: await refusedAncestryLeadsTheSummary(),
+  cleanOutlineLead: await cleanOutlineDoesNotTakeTheLead(),
   basenameCollision: await basenameCollision(),
   alreadyLoaded: await alreadyLoaded(),
 }));
@@ -5963,6 +5997,39 @@ def test_the_one_visible_save_line_leads_with_the_first_failing_cause(
         assert not statuses[row["key"]].startswith(note), (note, row)
         assert row["message"] not in note
         assert row["message"] in statuses[row["key"]]
+
+
+def test_an_unchanged_row_never_takes_the_one_visible_save_line(
+    loaded_set_results,
+):
+    """R-5 (openxFactory #81), the companion case: `unchanged` is not a report.
+
+    A tile Save scopes to one document and the outline rides along. A CLEAN
+    outline reports `unchanged` -- a row with nothing to say -- and it arrives
+    FIRST in save order, ahead of the document that was actually refused. A
+    lead chosen from "every row that is not `committed`" therefore takes the
+    vacuous row and the refusal never reaches the human, which is the #81
+    defect arriving from the other end.
+
+    The line must come from the SAME set the tile verdict already uses -- the
+    withheld rows, `refused` and `not_attempted` -- so that the two surfaces
+    agree in fact and not only in the common case.
+    """
+    result = loaded_set_results["cleanOutlineLead"]
+    statuses = [(row["key"], row["status"]) for row in result["rows"]]
+    # the shape: a vacuous row FIRST, the real failure behind it
+    assert statuses[0][1] == "unchanged", statuses
+    refused = [row for row in result["rows"] if row["status"] == "refused"]
+    assert len(refused) == 1, statuses
+
+    note = result["eventNote"]
+    # the line is the refused row's own verdict, the opening of its own region
+    assert result["statusA"].startswith(note), (note, result["statusA"])
+    # …and NOT the clean outline's "nothing to save in this buffer"
+    assert "nothing to save" not in note, note
+    assert not result["statusOutline"].startswith(note), (note, result)
+    # …and it is the very sentence the tile verdict leads with (same set)
+    assert result["tileError"] in note, (note, result["tileError"])
 
 
 def test_two_loaded_documents_sharing_a_basename_stay_distinguishable(

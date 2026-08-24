@@ -2050,12 +2050,21 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       }
       statedOutcomes[row.key] = saveOutcomeSentence(row);
       // A committed buffer needs no event: Save going disabled and the buffer
-      // going clean IS the report. Anything else -- refused, not attempted, a
-      // commit this canvas could not adopt -- is exactly what a human must not
-      // miss, so it OFFERS the transient line as well as keeping its own sr-only
-      // region. There is one line and there may be several such rows, so the
+      // going clean IS the report. Neither does an `unchanged` one -- there was
+      // nothing to save in it, which is not something a human must be told over
+      // the thing that actually failed. A tile Save scopes to one document and
+      // the outline rides along, so a CLEAN outline reports `unchanged` FIRST,
+      // ahead of the document that was refused; offering the line from "not
+      // committed" handed it that vacuous row and buried the refusal -- #81
+      // again, from the other end.
+      //
+      // The offer therefore comes from the WITHHELD set, which is the same set
+      // `tileSaveVerdict` leads with (`refused`/`not_attempted`), so the two
+      // surfaces agree in fact rather than only in the common case. A commit
+      // this canvas could not adopt offers the line too, from its own branch
+      // above. There is one line and there may be several such rows, so the
       // offer is only taken by the first of them (`leadWith`, above).
-      if (row.status !== "committed") {
+      if (row.status === "refused" || row.status === "not_attempted") {
         leadWith(bufferLabel(row.key) + ": " + saveOutcomeSentence(row));
       }
     }
