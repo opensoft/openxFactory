@@ -1252,9 +1252,12 @@ export function mountDoxBenchChatRail(host, options = {}) {
     // the thread has already been read, so refusing here would leave document B
     // on the canvas showing document A's conversation — the exact defect the
     // switch exists to close. Arming the SELECTION instead was considered and
-    // rejected: this surface's own ruling is that changing which buffer is
-    // selected needs no confirmation because it replaces no content, and that
-    // ruling is not this fix's to overturn.
+    // rejected, on what the selector actually does rather than on a ruling
+    // anyone recorded: it refuses a change for exactly one reason (a turn in
+    // flight, P2-9) and it refuses BEFORE `select()` commits; every other
+    // change commits with no confirmation. An arm for pending proposals would
+    // have to be hoisted into that same pre-commit position, which changes how
+    // the selector behaves for a reason that is not this fix's to decide.
     //
     // MEASURED BEFORE, STATED AFTER: the targets come from the state that still
     // holds them, and the sentence is only recorded when a clear really happened

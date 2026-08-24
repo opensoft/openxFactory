@@ -240,6 +240,33 @@ const failureOf = (s) => (s.lastFailure
   out.emptiedSet = { armed: dispatcher.discardArmedFor(cleared) };
 }
 
+// ---- the RENDER-TIME observer clears on its OWN, with no press in between ----
+//
+// `emptiedSet` above cannot tell whether `discardArmedFor` CLEARED the token or
+// merely declined to match it: an empty set has a null token, which fails the
+// match either way. So the clear inside that predicate was unpinned, and the
+// only other observer -- `submit`'s fall-through -- needs a press to run.
+//
+// This drives the predicate alone: arm, empty the set and let the RENDER see it
+// (one `discardArmedFor` call, exactly what a re-render does), then hand back a
+// set naming the same buffer WITHOUT any press in between. Armed must be false:
+// the second set is a different set and has to earn its own press. With the
+// clear removed the token survives the emptying, the token of the new set is
+// equal to it, and this reads true -- a control labelled "Send and discard" for
+// a set nobody was ever warned about.
+{
+  const { dispatcher } = rig();
+  const first = await dispatcher.submit(withPending(["outline"]), context);
+  const cleared = rejectProposal(first.state, "outline");
+  const observedByRender = dispatcher.discardArmedFor(cleared);
+  const sameKeysAgain = withPending(["outline"]);
+  out.renderTimeClear = {
+    armedWhileEmpty: observedByRender,
+    armedForTheNewSet: dispatcher.discardArmedFor(sameKeysAgain),
+    newSetKeys: pendingProposalTargets(sameKeysAgain),
+  };
+}
+
 // ---- …and the arm cannot OUTLIVE that set: a LATER set naming the same
 // buffers must earn its own press ----
 {
@@ -401,12 +428,41 @@ def test_an_emptied_pending_set_disarms(arm_results):
     assert arm_results["emptiedSet"]["armed"] is False
 
 
+def test_the_render_time_observer_clears_the_token_by_itself(arm_results):
+    """The SECOND observer, pinned on its own.
+
+    `test_an_emptied_pending_set_disarms` cannot distinguish a predicate that
+    CLEARS the token from one that merely declines to match it — an empty set
+    has a null token and fails the match either way — so the clear inside
+    `discardArmedFor` was asserted by nothing. Removing it failed no test, which
+    for a guard described as one of two independent observers is a coverage gap,
+    not a design one: `submit`'s fall-through still covers every sequence a view
+    can actually produce, because a new pending set only ever arrives through a
+    turn that press already cleared.
+
+    This drives the predicate with no press between the emptying and the next
+    set, which is the one thing `submit` cannot answer for. The later set names
+    the same buffer and must still be unarmed: it is a different set and has to
+    earn its own press.
+    """
+    r = arm_results["renderTimeClear"]
+    assert r["armedWhileEmpty"] is False
+    assert r["newSetKeys"] == ["outline"], "precondition: the same key came back"
+    assert r["armedForTheNewSet"] is False, (
+        "the render-time observer must clear the token, not just fail to match "
+        "it — otherwise a set nobody was warned about inherits the press")
+
+
 def test_the_arm_cannot_outlive_the_set_it_was_about(arm_results):
     """The token is a MATCH, not a latch — so the emptying has to clear it, or a
     later set that happens to name the same buffers would inherit a press nobody
     made about it and be discarded in silence: the filed defect again, one
-    conversation later. Both observers clear it (the render-time predicate and
-    the next press), so a dispatcher driven with no view at all is covered too."""
+    conversation later. This drives the NEXT-PRESS observer — `submit`'s
+    fall-through — which is the one that covers a dispatcher driven with no view
+    at all. The render-time predicate is the other observer and is pinned
+    separately by `test_the_render_time_observer_clears_the_token_by_itself`;
+    this case cannot speak for it, because the press it makes would clear the
+    token even if the predicate never did."""
     a = arm_results["armDoesNotOutliveTheSet"]
     assert a["dispatchedWithNothingPending"] is True
     assert a["newSetKeys"] == ["outline"], "precondition: the same key came back"
