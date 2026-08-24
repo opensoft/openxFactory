@@ -54,6 +54,16 @@ class Context:
     # (catalog.load_snapshot) both key off this one field — no other
     # context extension is needed.
     catalog_root: Path | None = field(default=None)
+    # govern-openspec-corpus-membership §2.2: the lifecycle scan set —
+    # `corpus.LIFECYCLE_SCAN` resolved per repo. Read by exactly four
+    # families through `families._lifecycle_scope`, and by NOTHING else:
+    # not `semantic.build_inventory`, not `inventory.build_inventory`, not
+    # the catalog, not `report.render`'s per-stage census or canon share.
+    # Every one of those reads `ctx.docs`, which this field deliberately
+    # does not join — the whole ruled option is that the scan set moves
+    # findings and moves no measurement. Defaults to empty so a Context
+    # built without one behaves exactly as it did before this change.
+    lifecycle_docs: list = field(default_factory=list)
 
 
 def _real_notebook_dryrun(agg_root: Path | None):
@@ -83,9 +93,14 @@ def build_context(args) -> Context:
         agg_root = Path(args.repo_root).resolve()
         repos = corpus.discover_repos(agg_root)
     repo_paths = dict(repos)
-    docs, capabilities, change_ids = [], {}, {}
+    docs, lifecycle_docs, capabilities, change_ids = [], [], {}, {}
     for name, path in repos:
         docs.extend(corpus.load_docs(name, path))
+        # Same loop, same repos in scope, separate list (§2.2). Kept apart
+        # from `docs` at the point of construction rather than filtered out
+        # downstream: every consumer that must not see the scan set reads
+        # `ctx.docs`, so the boundary holds by construction.
+        lifecycle_docs.extend(corpus.load_lifecycle_docs(name, path))
         capabilities[name] = corpus.spec_capabilities(path)
         change_ids[name] = corpus.change_ids(path)
 
@@ -118,6 +133,7 @@ def build_context(args) -> Context:
         repos[0][1] if len(repos) == 1 else None)
 
     ctx = Context(repo_paths=repo_paths, docs=docs,
+                  lifecycle_docs=lifecycle_docs,
                   capabilities=capabilities, change_ids=change_ids,
                   git=corpus.RealGit(), thresholds=thresholds,
                   as_of=date.fromisoformat(args.as_of),

@@ -76,25 +76,83 @@ FINAL slice: it merges only after §5A–§5C have taken the scan set to zero
 CRITICAL and zero ERROR, verified by §5D.2. Building §2 early is fine;
 merging it early is the failure mode the whole ordering exists to prevent.
 
-- [ ] 2.1 `scripts/doc_health/corpus.py`: add `LIFECYCLE_SCAN`, a tuple of
+**DONE 2026-08-23**, branched from `origin/main` at `4246592` and landed at
+`ded0826` after `origin/main` moved mid-slice (5D.1 records what arrived and
+what it cost). The four families read the scan set live; the census does not
+see it. Per-box read-backs below, and the slice-level measurements in
+5D.1/5D.2.
+
+- [x] 2.1 `scripts/doc_health/corpus.py`: add `LIFECYCLE_SCAN`, a tuple of
       explicit glob patterns (`openspec/changes/**/proposal.md`,
       `openspec/changes/**/review/*.md` as ruled), and
       `load_lifecycle_docs(repo_name, repo_path)` beside `load_docs`. Reuse
       `_excluded`, `parse_status` and `parse_kind` — do not write a second
       header reader; `align-status-reader-to-real-lines` exists because the
       corpus grew seven of those.
-- [ ] 2.2 `scripts/doc_health/runner.py`: one new `Context` field,
+
+      **DONE, and the reuse is asserted rather than intended.** (The
+      "124 scan-set documents" figures in this box were taken at `4246592`;
+      the set is **126** at the landing base `ded0826` — see 5D.1. The
+      boundary measurement below was re-run at `ded0826` and still returns
+      zero.)
+      `LIFECYCLE_SCAN` is the ruled two-tuple verbatim;
+      `iter_lifecycle_paths` resolves it per repo through `Path.glob`,
+      filters with the SAME `_excluded` the governed corpus uses, and
+      deduplicates through a `set` because a document counted twice would
+      double every finding it carries. `load_lifecycle_docs` is
+      `load_docs` with one line changed — the path source — and builds the
+      same `corpus.Doc` through the same `parse_status`/`parse_kind`. No
+      eighth header reader was written, and
+      `test_lifecycle_docs_are_built_by_the_one_header_reader` asserts it by
+      RESULT: every scan-set `Doc`'s status equals `parse_status` of its own
+      text, including the free-form value, which survives unnormalized.
+
+      **One disclosed boundary, measured rather than assumed.**
+      `openspec/changes/**/proposal.md` matches a file named `proposal.md`
+      at ANY depth, so a byte-exact snapshot stored as
+      `<packet>/supporting-docs/source-snapshots/proposal.md` would enter the
+      set — which the delta's "byte-exact evidence" scenario says it must
+      not. Measured at the landing base `ded0826`: **zero such files** across
+      the 126 scan-set documents (and zero at `4246592` across 124);
+      snapshots in this corpus are named after the fragment they
+      preserve, never `proposal.md`. Narrowing the ruled pattern to close a
+      gap nothing occupies would be re-ruling OQ-2 in code, so the boundary
+      is stated at the constant instead of legislated around. See the
+      REPORT-level note: this is the first thing a reviewer should attack.
+- [x] 2.2 `scripts/doc_health/runner.py`: one new `Context` field,
       `lifecycle_docs`, populated in `build_context` for every repo in scope
       by the same loop that builds `docs`. It MUST NOT feed
       `inventory`, `catalog_root`, the per-stage census, or the canon-share
       computation.
-- [ ] 2.3 `scripts/doc_health/families.py`: `fam_status_validity`,
+
+      **DONE — one field, `default_factory=list`, populated in the same
+      `for name, path in repos` loop.** The default matters: every Context
+      built before this change (and every one the test harness builds) keeps
+      its exact previous behaviour, which is why no pre-existing test changed
+      meaning. The negative half is structural rather than promised — every
+      consumer that must not see the set reads `ctx.docs`
+      (`semantic.build_inventory`, `inventory.build_inventory`,
+      `catalog.mechanical_entries`, `report.render`'s census and canon
+      share), and `lifecycle_docs` is kept apart at the point of
+      construction rather than filtered out downstream. Measured on the real
+      corpus at the landing base: 328 governed documents, **126** scan-set
+      documents, **zero overlap**.
+- [x] 2.3 `scripts/doc_health/families.py`: `fam_status_validity`,
       `fam_standard_backing`, `fam_ratified_provenance` and
       `fam_succession_integrity` iterate `ctx.docs` plus
       `ctx.lifecycle_docs`. Introduce one shared accessor rather than four
       copies of the concatenation, so a fifth reader is a one-line opt-in
       and an audit can find every reader by call site.
-- [ ] 2.4 **No severity special-casing of any kind.** OQ-6 refused the
+
+      **DONE — `_lifecycle_scope(ctx)`, four call sites, nothing else in the
+      module touched.** `grep -n "_lifecycle_scope(ctx)"` returns exactly
+      four lines, one per ruled family, and
+      `test_the_reader_list_is_structural_not_incidental` asserts that
+      inventory from `inspect.getsource` over `FAMILIES` itself — a family
+      whose source calls the accessor and is not in the declared reader list
+      fails by name, and so does the reverse. No other module in the package
+      calls it.
+- [x] 2.4 **No severity special-casing of any kind.** OQ-6 refused the
       pre-contract-legacy grandfather, so the draft's reduced-severity rule
       string, its contract date and its date table are all deleted work: a
       headerless proposal is a `status-validity` ERROR whenever it was
@@ -105,46 +163,185 @@ merging it early is the failure mode the whole ordering exists to prevent.
       you find yourself adding a legacy tier here, the ruling says not to.
       The population that would have taken the reduced tier is discharged by
       §5C instead, and §5D's zero-finding gate is what replaces the tier.
-- [ ] 2.5 `docs/document-lifecycle.md` § Status Claim Rules: state that a
+
+      **HONOURED — nothing was added.** No contract date, no date table, no
+      reduced-severity rule string, no legacy tier, and no scan-set
+      carve-out. A headerless proposal is a `status-validity` ERROR at full
+      severity and an uncited `ratified` header is a `ratified-provenance`
+      CRITICAL at full severity, on the same code path and with the same
+      rule strings a governed-corpus document gets — which is exactly why
+      the four family functions differ from their pre-change selves by ONE
+      TOKEN each and by nothing else. The temptation this box names is real
+      and was met: `proposal_origin.py` does carry a
+      "(pre-contract legacy, no recorded migration)" reduced tier, three
+      lines away in the same package, and it was deliberately not copied.
+- [x] 2.5 `docs/document-lifecycle.md` § Status Claim Rules: state that a
       change packet's `proposal.md` and its `review/` ratification records
       are governance documents, that the rest of the packet is not ruled,
       and that a `Ratifier:`/`Decision date:` pair accompanies a sanctioned
       citation rather than replacing it. Authors read this file, not the
       family source.
-- [ ] 2.6 Update `corpus.py`'s module docstring, which today says governance
+
+      **DONE — one bullet with three sub-bullets, appended to § Status Claim
+      Rules beside the rules it joins.** It says all four things the box
+      asks: the proposal and every `review/` record are governance documents
+      for these rules; the rest of the packet is not ruled and emits nothing;
+      there is no legacy class and no contract date, with the derive-or-report
+      remedy stated in the author's own terms; and `Ratifier:`/`Decision
+      date:` accompany a sanctioned citation rather than standing in place of
+      one. It cites the ratifying change by name so the reader can find the
+      ruling. This is the ONE governed-corpus file this slice edits, and it
+      is the whole of the whole-repo report's movement (see 5D.2).
+- [x] 2.6 Update `corpus.py`'s module docstring, which today says governance
       Markdown "lives under docs/, templates/, contracts/, examples/, and
       ideation/" and stops there. After this change that sentence is true of
       the governed corpus and incomplete about what the pass reads.
 
+      **DONE.** The docstring now opens by naming TWO document sets and
+      keeping them distinct: the governed corpus (the old sentence, kept
+      verbatim, now labelled as what it always described, plus the list of
+      measurements it is the sole input to) and the lifecycle scan set (what
+      it comprises, which four families read it, and that it never enters
+      `load_docs`). It closes by saying the invariance is measured by test
+      rather than asserted in the docstring — a docstring that claims an
+      invariant is prose, and the claim belongs to §3.4.
+
 ## 3. Tests (mutation-validated)
 
-- [ ] 3.1 Membership: the scan set contains a packet's `proposal.md` and its
+**DONE 2026-08-23 — one new module, `tests/doc-health/test_lifecycle_scan_set.py`,
+17 tests, and two fixture corpora.** `fixtures/lifecycle-scan/` is a
+purpose-built packet tree; `fixtures/lifecycle-historical/` holds the two
+frozen pre-fix records. `tests/doc-health` reads **741 passed** (724 + 17),
+exit 0, with no pre-existing test edited at all.
+
+- [x] 3.1 Membership: the scan set contains a packet's `proposal.md` and its
       `review/*.md`, and does NOT contain `tasks.md`, `design.md`,
       `specs/*/spec.md`, `supporting-docs/**` (including
       `source-snapshots/**`), or `evidence/**`. Assert on the resolved path
       list, not on a count — a count passes for the wrong set.
-- [ ] 3.2 Each of the four families fires over a scan-set document, with a
+
+      **DONE — `test_scan_set_is_the_resolved_path_list` asserts the whole
+      list, in one equality, and then asserts the exclusions by name.** The
+      fixture packet `alpha-uncited-ratified` carries all eight document
+      kinds this box lists, so the exclusion half is a real measurement and
+      not an empty set: `tasks.md`, `design.md`, `specs/widget/spec.md`,
+      `supporting-docs/fragment.md`,
+      `supporting-docs/source-snapshots/fragment.md` and
+      `evidence/run-record.md` all exist on disk (asserted, so a lost fixture
+      fails rather than passes) and none may appear in the resolved list. The
+      list also carries `archive/2026-01-01-zeta-archived/proposal.md`, one
+      directory deeper than an active packet — the member a glob rooted at
+      `openspec/changes/*/` drops silently, and the mutation matrix shows
+      that exact mistake being caught (M2b).
+- [x] 3.2 Each of the four families fires over a scan-set document, with a
       fixture per rule: uncited `ratified`, out-of-window `Status:`,
       free-form status, unbacked `standard`, `superseded` without successor.
-- [ ] 3.3 Each of the other twelve families does NOT fire over a scan-set
+
+      **DONE — five rules, five fixture packets, four tests, plus the
+      negative that keeps them honest.** `alpha-uncited-ratified` →
+      `ratified-provenance` CRITICAL; `beta-out-of-window` (a `Status:` at
+      real line 41, the roster-device shape) → `status-validity` missing
+      header; `gamma-free-form-status` → `status-validity` free-form;
+      `delta-unbacked-standard` → `standard-backing` CRITICAL;
+      `epsilon-superseded` → `succession-integrity` ERROR. Each test asserts
+      the FULL finding list for its family, so an extra finding fails as
+      loudly as a missing one. `test_a_conforming_scan_set_document_fires_nothing`
+      is the negative: the review record and the archived packet satisfy
+      every rule and no reader may name them — without it, every test here
+      would also pass for a family that fires on everything in the set.
+- [x] 3.3 Each of the other twelve families does NOT fire over a scan-set
       document. Drive this from `FAMILIES` itself so a family added later is
       covered by construction, and fail loudly if a new family appears in
       neither list. This is the test that makes §2.3's "one-line opt-in"
       safe.
-- [ ] 3.4 The invariance test, which is the load-bearing one: over a fixture
+
+      **DONE, and the box's arithmetic is off by one against the code —
+      reported, not smoothed over.** `FAMILIES` holds **seventeen** entries,
+      not sixteen: `staged-topic-template` was registered on 2026-08-15 by
+      `add-staged-topic-outline-template` and the doc-health capability's
+      "SHALL implement sixteen check families" sentence was never updated
+      with it. This change's own spec delta MODIFIES that requirement and
+      carries the stale count forward verbatim. So the non-reader list is
+      **thirteen**, not twelve. Nothing about WHICH four families read the
+      set is ambiguous — OQ-3 ruled those four and the code implements
+      exactly them — but the total is wrong in a promoted requirement and
+      needs its own correction. The test is driven from `FAMILIES`, so it
+      reports the corpus rather than the sentence.
+
+      **Three tests, because one was not enough.**
+      `test_every_family_is_classified_as_reader_or_non_reader` is the loud
+      failure: a family in neither list fails BY NAME, and so does a listed
+      family that no longer exists.
+      `test_only_the_four_declared_families_read_the_scan_set` is the
+      behavioural claim, and it is stated as EQUALITY rather than as absence
+      — each non-reader must return the identical findings whether the scan
+      set is present or empty, which also catches a family letting a
+      scan-set document change a finding it reports against some other path
+      — with the converse asserted for the four, so the test cannot pass
+      over a build where nothing was wired.
+      `test_the_reader_list_is_structural_not_incidental` pins the same
+      boundary through `inspect.getsource`.
+- [x] 3.4 The invariance test, which is the load-bearing one: over a fixture
       corpus with a non-empty scan set, `ctx.docs`, the per-stage counts, the
       governance and canon word totals, the canon-share string, the shared
       inventory entries and the catalog snapshot bytes are identical to the
       same run with an empty scan set. Compare rendered bytes, not summed
       integers.
-- [ ] 3.5 The two historical defects, as regression fixtures rather than as
+
+      **DONE — `test_the_scan_set_moves_no_corpus_measurement`, five byte
+      comparisons and one inequality.** The same fixture corpus is built
+      twice, differing only in whether `lifecycle_docs` is populated, and the
+      full suite is run over both. Compared as RENDERED BYTES: the
+      `Canon share by words:` line (which carries the percentage, the canon
+      word total and the governance word total in one string), the WHOLE
+      `## Per-Stage Counts` section (every stage row, every count, every word
+      total, the promoted-spec row), `semantic.build_inventory` and
+      `inventory.build_inventory` as sorted JSON, and the catalog snapshot
+      through `catalog.render`, the catalog's own byte-stable renderer.
+
+      **The last assertion is the one that keeps it honest: the two REPORTS
+      must DIFFER.** Every comparison above would pass over a build where the
+      scan set was never read at all, so the test also asserts that the
+      uncited-ratified proposal appears in one report and not the other.
+      Proven at real-corpus scale too, not only on the fixture: the
+      whole-repo run's **documents examined is 328 on both sides** of this
+      slice while 126 scan-set documents reached the four families (5D.2).
+- [x] 3.5 The two historical defects, as regression fixtures rather than as
       prose: phase-b's uncited `ratified` header must produce a
       `ratified-provenance` finding, and roster-device's line-41 header must
       produce a `status-validity` missing-header finding and NOT a
       `ratified-provenance` one. Both were replayed against the real pre-fix
       blobs (`02a71d6` and `280fc8b`) while authoring this proposal; the
       fixtures freeze that result.
-- [ ] 3.6 Mutation-validate 3.1 through 3.5. At minimum: flip the scan set to
+
+      **DONE — both fixtures are the REAL pre-fix records, extracted from
+      those blobs, and both were re-replayed against the live blobs before
+      being frozen.**
+
+      `roster-device` is frozen **byte-exactly and whole** — all 130 real
+      lines, 8042 bytes — because its defect IS a line number and any
+      truncation would move the line under test. Verified: the fixture is
+      byte-identical to
+      `280fc8b:openspec/changes/archive/2026-08-22-add-roster-device-admission-surface/proposal.md`,
+      its `Status: ratified` sits at real line 41, and the test asserts that
+      position directly as well as the two findings. Both halves matter and
+      the second is the one a reader gets wrong: `status-validity` reports a
+      missing header, and `ratified-provenance` reports NOTHING, because a
+      document whose status does not parse is not a `ratified` document to
+      that family. The citation rule can never be what catches this.
+
+      `phase-b` is frozen as its **fifteen-real-line header window, byte
+      exact**, with the remaining 559 lines elided under a stated marker
+      inside the fixture itself — `corpus.STATUS_SCAN_LINES` is 15 and no
+      reader in this suite reads past it, so everything any reader touches is
+      verbatim. The elision is disclosed rather than silent, and the claim
+      was MEASURED before it was written: the full 41 KB blob and the frozen
+      fixture produce the identical single finding, `ratified header carries
+      no citation in either sanctioned spelling`, and identical (empty)
+      `status-validity` output. `test_the_frozen_fixtures_are_the_real_records`
+      asserts the provenance so a later edit cannot quietly replace evidence
+      with a plausible reconstruction.
+- [x] 3.6 Mutation-validate 3.1 through 3.5. At minimum: flip the scan set to
       the empty tuple (3.1–3.3, 3.5 must fail), flip it to bare `("openspec",)`
       (3.1 must fail — the glob boundary is the claim), remove one family from
       the reader list (3.2 must fail), and add one family to it (3.3 must
@@ -152,18 +349,102 @@ merging it early is the failure mode the whole ordering exists to prevent.
       class: a mutation that leaves observable values unchanged on this
       platform proves nothing, so pin the boundary with a structural assertion
       on the declared pattern set, not only on the resulting counts.
-- [ ] 3.7 Confirm `tests/doc-health` is 724 + N and that no pre-existing test
+
+      **DONE — twelve mutations, every one killed, and ONE SURVIVED FIRST
+      and is the most useful thing in this box.**
+
+      | # | mutation | killed by |
+      | --- | --- | --- |
+      | M1 | `LIFECYCLE_SCAN = ()` | 13 tests, incl. 3.1, all four of 3.2, 3.3, 3.4, both of 3.5 |
+      | M2 | `LIFECYCLE_SCAN = ("openspec",)` | the same 13 |
+      | M2b | `**` → `*` (the archive dropped) | 3.1, the pattern-set assertion, both of 3.5 |
+      | M2c | `("openspec/changes/**/*.md",)` (working files swept in) | 3.1, the pattern-set assertion, 3.2's status-validity |
+      | M3 | `ratified-provenance` off the reader list | 3.2, 3.3 (both), 3.4, 3.5 |
+      | M3b | `status-validity` off the list | 3.2, 3.3 (both), 3.4, 3.5 |
+      | M3c | `standard-backing` off the list | 3.2, 3.3 (both) |
+      | M3d | `succession-integrity` off the list | 3.2, 3.3 (both) |
+      | M4 | `location-conformance` ADDED to the list | 3.3, both tests — **survived the first cut** |
+      | M4b | `tag-hygiene` ADDED to the list | 3.3, both tests |
+      | M4c | `record-immutability` ADDED to the list | 3.3, both tests |
+      | M5 | `build_context` never populates the set | `test_build_context_populates_the_scan_set` |
+      | M6 | the scan set joins `ctx.docs` | `test_build_context_populates_the_scan_set` |
+
+      **M4 survived, and the reason is exactly the platform-inert class this
+      box warns about.** Adding `location-conformance` to the reader list
+      changed NOTHING observable, because no document in the first cut of the
+      fixture happened to violate a location rule — the mutant read a wider
+      set and found the same nothing in it. Two fixes, both kept, because
+      either alone is weak. **(1) Bait**: the fixture gained
+      `eta-non-reader-bait` (`Status: brainstorm` plus an
+      `xspec:candidate` marker naming a capability nothing resolves — loud to
+      `location-conformance` and `tag-hygiene`, silent to all four readers
+      because `brainstorm` is a controlled value that is not `ratified`,
+      `standard` or `superseded`) and `theta-record-bait` (`Status: record`,
+      with a differing capture blob supplied to `FakeGit`, so
+      `record-immutability` would fire if it read the set).
+      `test_the_non_reader_bait_is_live` asserts the bait really fires, so a
+      later taxonomy or grammar change that makes it inert fails HERE rather
+      than silently weakening the boundary test. **(2) Structure**:
+      `test_the_reader_list_is_structural_not_incidental` reads
+      `inspect.getsource` for every entry in `FAMILIES` and asserts
+      `_lifecycle_scope(` appears in exactly the four declared readers, that
+      no other module in the package calls it, and that the module carries
+      exactly four `for doc in _lifecycle_scope(ctx):` lines.
+
+      **The pattern-set assertion this box asks for is
+      `test_scan_set_declares_exactly_the_two_ruled_patterns`**, and M2 is
+      why it earns its place: bare `("openspec",)` resolves to a DIRECTORY,
+      which `.is_file()` drops, so the resolved set is empty and the counts
+      alone cannot distinguish it from M1. The declared tuple is the ruled
+      contract (OQ-2), so it is asserted as the tuple.
+
+      **M6 is killed by one test only**, `test_build_context_populates_the_scan_set`,
+      through its disjointness assertion — the invariance test builds its own
+      contexts and structurally cannot see the runner's wiring. One kill is a
+      kill, and the single point of failure is named here so a reviewer can
+      weigh it.
+- [x] 3.7 Confirm `tests/doc-health` is 724 + N and that no pre-existing test
       changed meaning. If any existing test needs editing, that is a finding
       about the design, not a chore: say so before editing it.
 
+      **DONE — 724 + 17 = 741 passed, exit 0, and NOT ONE pre-existing test
+      file was opened for editing.** `git status` over `tests/` shows three
+      untracked additions and zero modifications: the new module and the two
+      new fixture directories. `tests/doc-health/conftest.py` is untouched
+      too, which was not a given — `make_ctx` builds a `Context` without a
+      scan set, and it keeps working unchanged because `lifecycle_docs`
+      defaults to empty. The new module builds its own context by mirroring
+      `build_context`'s loop rather than widening the shared harness, so no
+      existing fixture corpus acquired a scan set by accident (three of them
+      contain an `openspec/changes/**/proposal.md` that would otherwise have
+      started firing).
+
 ## 4. Gates, index, archive
 
-- [ ] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate govern-openspec-corpus-membership --strict`
+- [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate govern-openspec-corpus-membership --strict`
       and `--all --strict` green (69 items at authoring; re-check the total
       against whatever else has landed).
-- [ ] 4.2 `python3 -m pytest tests/doc-health` green;
+
+      **DONE — `--all --strict` reads 74 passed, 0 failed (74 items), exit 0**
+      taken directly and not through a pipe, and
+      `validate govern-openspec-corpus-membership --strict` exit 0. 74 rather
+      than the 69 at authoring, and rather than the 73 this slice read at
+      `4246592`: other sessions' packets keep landing, and `ded0826`'s
+      `add-notebook-hosting-credential-custody` is the 74th.
+- [x] 4.2 `python3 -m pytest tests/doc-health` green;
       `python3 -m pytest tests/ideation-dashboard -k workbench` at 140.
-- [ ] 4.3 A doc-health single-repo run whose severity counts move by exactly
+
+      **DONE — `tests/doc-health` 741 passed, exit 0** (724 + the 17 this
+      slice adds); **`tests/ideation-dashboard -k workbench` 140 passed,
+      3858 deselected, exit 0.** No upper-cased HTTP write verb appears in
+      any line this slice authors, checked over the whole diff and over the
+      new untracked files rather than over the prose it was written into.
+      ONE occurrence exists inside the byte-exact frozen phase-b fixture —
+      the word POSTURE, carried verbatim in that record's own
+      `contract_release:` line — and it is evidence rather than authored
+      prose; the workbench suite is green with the fixture present, which is
+      the measurement rather than the assumption.
+- [x] 4.3 A doc-health single-repo run whose severity counts move by exactly
       the predicted amount and in no other line. There is now exactly ONE
       prediction, because OQ-6 removed the dispositioned branch: **the
       unchanged baseline, measured at the enforcement commit's own base** —
@@ -175,6 +456,40 @@ merging it early is the failure mode the whole ordering exists to prevent.
       dispositioned rather than discharged) is void, and so is the third the
       grandfather would have produced (4 / 6 / 112 / 4, the 44 archived
       headerless proposals reported as reduced-severity warnings).
+
+      **DONE — the baseline measured at this slice's own landing base is
+      `4 critical / 8 error / 68 warning / 4 info, 0 new regressions`, and
+      the run through the new code path reads exactly that.** Base
+      `ded0826`, `python3 scripts/doc-health.py --single-repo . --as-of
+      2026-08-23`, compared LINE BY LINE with `diff`. The baseline arm was
+      run against a DETACHED WORKTREE of `ded0826` using THAT tree's own
+      `scripts/`, so it is the base corpus through the base code and not the
+      base corpus through this slice's code — the second is a different
+      measurement and is reported in 5D.2. (The same numbers, 4/8/68/4, were
+      measured at the earlier base `4246592`; the mid-slice merge moved
+      neither.)
+      **Exactly two lines differ and neither is a finding**, and both are
+      named to the word:
+
+      - `Canon share by words:` 31.2% → **31.3%** (169417 → 169725 canon
+        words, 542594 → 542902 governance words — **+308 on both**, which is
+        what a `Status: standard` document contributes to each);
+      - the per-stage `| standard |` row's word total 10387 → **10695**,
+        **+308**.
+
+      Both are the SAME 308 words, and they are §2.5's bullet in
+      `docs/document-lifecycle.md` — measured, not inferred:
+      `len(new.split()) - len(old.split())` over that one file returns
+      **exactly 308**, and it is the only governed-corpus file this slice
+      touches. Every other line of the report is byte-identical, including
+      every stage's document count, every finding, and the per-stage
+      `| ratified |`, `| record |` and `| draft |` word totals.
+
+      **Documents examined: 328 before and 328 after** (the Docs column sums,
+      the derivation 5A's review N2 recorded), while 126 scan-set documents
+      reached the four families in the same run. That number not moving is
+      the ruled option's whole claim, measured on the real corpus rather than
+      on a fixture.
 - [ ] 4.4 Re-run the corpus-shape measurement and assert the canon-share
       headline, documents examined, and governance word total are UNCHANGED
       from baseline. This is the claim that distinguishes the ruled option
@@ -1363,7 +1678,15 @@ tree green; the count in the slice title is the findings it clears.
         supersession addendum apiece. The section says in as many words that the
         per-record justifications live with the records rather than here — the
         correction 5A had to make to itself.
-- [ ] **5D — re-measure to zero, then release §2.**
+- [x] **5D — re-measure to zero, then release §2.**
+
+      **DONE 2026-08-23**, branched from `origin/main` at `4246592` and
+      landed at `ded0826`. The straggler set was **THREE at the first base
+      and FOUR at the landing base**, against the two 5C's census predicted —
+      the moving-target note's own point proving itself twice more while the
+      fix for it was being written. All four discharged; the scoped scan
+      reads ZERO through the new code path; the whole-repo run reads its
+      measured baseline. Detail in 5D.1 and 5D.2.
 
       **THE ZERO GATE IS A MOVING TARGET, and the campaign must be planned
       around that rather than surprised by it (review S5, 2026-08-23).** The
@@ -1397,7 +1720,7 @@ tree green; the count in the slice title is the findings it clears.
       enumerated, and the enforcement slice owns the delta. The durable fix is
       the enforcement itself: once §2 lands, a headerless proposal is a red
       gate on the PR that writes it, which is the whole point.
-  - [ ] 5D.1 Re-run the scan-set measurement after 5A–5C and record the
+  - [x] 5D.1 Re-run the scan-set measurement after 5A–5C and record the
         resulting counts in this file. The number §4.3 checks against is
         whatever this task measures, not whatever the proposal predicted.
         Re-measure the ACTIVE stragglers too, by name, and discharge whatever
@@ -1405,7 +1728,116 @@ tree green; the count in the slice title is the findings it clears.
         note. As of the 2026-08-23 merge of `origin/main` that is the two
         MedxChart/MedxPractice proposals, and the honest expectation is that
         it will be a different list by the time §2 is ready.
-  - [ ] 5D.2 **The merge gate, stated as a number: the scoped scan over
+
+        **DONE — re-measured twice, because `origin/main` moved WHILE THIS
+        SLICE WAS BEING BUILT, and the expectation in the last sentence of
+        this box was right both times.** The list is not the one 5C left, and
+        it was not even the one 5D started with.
+
+        | | at 5C's close | at `4246592` (5D's first base) | at `ded0826` (the landing base) | after 5D |
+        | --- | --- | --- | --- | --- |
+        | scan set documents | 124 | 124 | **126** | 126 |
+        | `status-validity` | 2 ERROR | **3 ERROR** | 3 ERROR | **0** |
+        | `ratified-provenance` | 0 | 0 | **1 CRITICAL** | **0** |
+        | `standard-backing` | 0 | 0 | 0 | 0 |
+        | `succession-integrity` | 0 | 0 | 0 | 0 |
+        | **total** | **2** | **3** | **4** | **0** |
+
+        **FOUR stragglers, arriving in three separate waves, none of them
+        predicted by the slice before.** 5C's census said two. `4246592` had
+        three. `ded0826` — which landed mid-build, after §2's code and §3's
+        tests were already written and green — had four. The moving-target
+        note (review S5) said this would happen and it happened twice more
+        while the fix for it was being written. Nothing about that is a
+        defect in 5A/5B/5C's arithmetic: each census was true of the tree it
+        measured, and this one is true of `ded0826`.
+
+        **The third straggler is `declare-client-standing-policy-contract`,
+        and it did not exist as a defect when 5B measured that document.**
+        5B's read-back says of it: "It carries a well-formed header and emits
+        nothing." That was TRUE at `525ac8b`, the commit 5B saw. Commit
+        `f7769e2`, "Ratify declare-client-standing-policy-contract (Brett
+        Heap, 2026-08-23)", then landed a ratification by writing the whole
+        ratification sentence INTO the `Status:` value — the exact free-form
+        shape 5A.4 had already fixed once on
+        `add-wallet-carried-review-authority`. The same defect was reborn on
+        a new document three commits later, by an author who had no way to
+        know the rule, which is the clearest argument this campaign has
+        produced for why §2 has to land: the shape recurs, and until the gate
+        exists nothing catches it.
+
+        **The FOURTH straggler is
+        `add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md`,
+        and it is 5A.2's OQ-5 shape for the fourth time.** The whole packet
+        landed in `ded0826` (PR #282) between this slice's first measurement
+        and its landing. Its `proposal.md` is exemplary — `Status: ratified`
+        at real line 8 with a floor-clearing `Ratified:` at line 9 — and its
+        review record carries `Status: ratified` with a `Decision date:` and
+        a `Ratifier:` and **no sanctioned citation at all**, which is a
+        CRITICAL. 5A.2's read-back predicted this in as many words: the
+        third-vocabulary review record "ruled on a live convention and not on
+        a closed legacy set of three." It is now a set of five.
+
+        Discharged by 5A.2's own remedy, unchanged: one conforming
+        `Ratified: 2026-08-23 by Brett Heap (repository owner) — in-session
+        via question prompts`, derived from the page's own
+        `Ratifier:`/`Decision date:` pair and inventing nothing, inserted
+        directly beneath the `Ratifier:` line it derives from, with that pair
+        left standing exactly as written. Verified through the real helpers
+        before the commit: the citation lands at real line 6, the document
+        reports **exactly ONE** citation line through `families._header_lines`
+        (the `Ratified baseline:` line two rows below is not a second one —
+        the prefixes are read with `startswith`, and `Ratified baseline:`
+        starts with neither), and it clears the floor on **approver and
+        date**.
+
+        **The four, with the route each derived to and the evidence.** All
+        four are other sessions' ACTIVE packets, so each took the smallest
+        possible edit and nothing else in those packets was touched.
+
+        | document | derived | route and evidence |
+        | --- | --- | --- |
+        | `declare-client-standing-policy-contract/proposal.md` | `Status: ratified` + one `Ratified:` line | **The document's own page.** Its free-form value already carried the ratification: `ratified — Brett Heap (openxFactory operator authority), 2026-08-23,` running on into a three-line clause. Split into two headers per 5A.4's precedent, `by` written before the name so the approver axis reads it, and every word of the clause kept. Corroborated but not needed: commit `f7769e2`'s own title, and the README Records row "authored and ratified 2026-08-23 (Brett Heap, in-session)". |
+        | `create-medxchart-overlay-boundary/proposal.md` | `Status: draft`, no citation | **The record names no ratification act.** `.openspec.yaml` carries `schema:` and `created: 2026-08-23` only — no `approved_by`/`approved_on` pair at all, so C2's distinction never even arises; `tasks.md` is implementation and verification throughout with no ratification task and no approval line; the five landing commits (`86f4372`, `bf82594`, `a324868`, `a497874`, `7431f03`) are single-line implementation messages; no pull request exists; and the README row says "local topology realization completed 2026-08-23", never "ratified". A repo-wide grep for the change id outside its own packet returns the README row and this file. |
+        | `create-medxpractice-overlay-boundary/proposal.md` | `Status: draft`, no citation | **The same, on its own record.** Same `.openspec.yaml` shape, same all-implementation `tasks.md`, same single-line commits, no pull request, and a README row that describes the boundary and says nothing about ratification. |
+        | `add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md` | one derived `Ratified:` line | **The page's own `Ratifier:`/`Decision date:` pair**, per OQ-5 and 5A.2's precedent. Nothing outside the document was needed and nothing outside it was used. |
+
+        **Route (b) — the archive act and the promotion it performed — was
+        considered and does not reach either MedxChart packet**: both are
+        ACTIVE, neither is archived, and neither's spec deltas are promoted.
+        There was no third route to try, and `draft` is the value the record
+        supports rather than the value left over. That both packets'
+        realization work is COMPLETE and every task ticked is not evidence of
+        ratification: 5A.3 established that active does not mean ratified,
+        and 5A's own correction on `add-dispatch-credential-contract` shows
+        what the opposite evidence looks like when it exists — a pull-request
+        body stating that merging performs the ratification, a ticked task
+        conditioned on approval, and a governed document naming the change as
+        its ratifier. None of those three exists here.
+
+        **Where each header landed, measured through the real helpers before
+        the commit.** `declare-client-standing-policy-contract`:
+        `Status: ratified` at real line 4, its ONE citation at real line 5,
+        clearing the floor on approver AND date. `create-medxchart-overlay-boundary`:
+        `Status: draft` at real line 4, inside the front matter directly
+        beneath `target_release:` (5A.3's placement, which keeps
+        `code_surface`/`target_release` where
+        `ideation_dashboard.generator._header_value` already reads them —
+        both still at lines 2 and 3). `create-medxpractice-overlay-boundary`:
+        the file carries no front matter at all, so `Status: draft` sits at
+        real line 1 with a blank separator at line 2 — 5C's shape for the 17
+        archived proposals in the same position. Neither `draft` document
+        carries a citation, and none is owed: the promoted rule requires one
+        only for `Status: ratified`.
+
+        **PR #281 added ZERO scan-set documents — measured, not assumed.**
+        It landed `specs/011-council-feature-clearance/`, a Speckit feature
+        directory, not an OpenSpec change packet, so nothing under
+        `openspec/changes/` moved. The scan set was 124 documents on both
+        sides of it. **PR #282 added TWO** — a `proposal.md` and a `review/`
+        record — which is where the fourth straggler came from and why the
+        set reads 126 at the landing base.
+  - [x] 5D.2 **The merge gate, stated as a number: the scoped scan over
         `openspec/changes/**/proposal.md` + `openspec/changes/**/review/*.md`
         MUST report ZERO CRITICAL and ZERO ERROR across all four ruled
         families at the moment §2 merges**, and the whole-repo single-repo
@@ -1423,6 +1855,58 @@ tree green; the count in the slice title is the findings it clears.
         ERROR before 5C, 2 ERROR after), which are 5D's own scope, not a
         stop-and-report — 5D.1's re-measure at enforcement time is still the
         number that binds.
+
+        **GATE MET, and measured through the ENFORCEMENT CODE PATH rather
+        than through the replay script the discharge slices used.** 5A/5B/5C
+        each had to replay the families by hand, because `corpus` could not
+        reach `openspec/` until §2 landed. This measurement does not: it
+        calls `runner.build_context` on the repo and runs
+        `FAMILIES[...]` over the real `Context`, which is the code that will
+        run in CI. What it reads:
+
+        ```
+        governed corpus docs : 328
+        lifecycle scan docs  : 126
+        overlap              : 0
+          status-validity      : 0 on scan set (0 CRITICAL, 0 ERROR)
+          standard-backing     : 0 on scan set (0 CRITICAL, 0 ERROR)
+          ratified-provenance  : 0 on scan set (0 CRITICAL, 0 ERROR)
+          succession-integrity : 0 on scan set (0 CRITICAL, 0 ERROR)
+        ```
+
+        **ZERO CRITICAL and ZERO ERROR across all four ruled families over
+        the 126-document scan set.** The three findings `status-validity`
+        still reports are governed-corpus documents that predate this
+        campaign and are outside its scope — two pilot `README.md`s under
+        `contracts/domain-ontology/examples/pilots/` and
+        `docs/notebooklm-sync-open-item.md`'s `open (operational)` value —
+        all three present in the base run and unmoved by this slice.
+
+        **The whole-repo run reads its measured baseline, `4 critical /
+        8 error / 68 warning / 4 info, 0 new regressions`**, with exactly two
+        non-finding lines moved and both attributed to §2.5's 308 words —
+        the full line-by-line account is in §4.3's read-back.
+
+        **What the new code surfaces on the UNDISCHARGED base, measured
+        rather than reasoned about.** Running this slice's code against the
+        `ded0826` worktree — the enforcement over a corpus that has not had
+        the four stragglers fixed — reads `5 critical / 11 error / 68 warning
+        / 4 info`: exactly the baseline plus the four stragglers, by name and
+        with no fifth. That is the number the gate would have shown had this
+        slice landed §2 without §5D, and it is why the discharge commit goes
+        first.
+
+        **The two `proposal-origin` errors on the MedxChart/MedxPractice
+        packets are NOT cleared by this slice, and were never going to be.**
+        They read "proposal carries no origin declaration" and are about a
+        missing `origin:` key in each packet's `.openspec.yaml`; a `Status:`
+        header is a different field in a different file. Verified rather than
+        predicted: both errors are present in the base run AND in the after
+        run, word for word, and the error count is 8 on both sides —
+        `2026-08-14-add-worker-credential-by-reference` plus those two. The
+        temptation to report a straggler discharge as having cleared them
+        would have been an overstatement of exactly the kind this change
+        exists to make impossible.
   - [x] 5D.2a **One such ruling is foreseeable NOW and should be raised early
         rather than discovered at the gate.**
         `add-workbench-integrated-editor-chat` must stay headerless (5C.4),
@@ -1474,9 +1958,23 @@ tree green; the count in the slice title is the findings it clears.
         in this same commit; it no longer blocks either. The gate's remaining
         blockers are the two active MedxChart/MedxPractice stragglers, 5D
         scope.)
-  - [ ] 5D.3 Only then does §2 land. §2 is the LAST slice of this change, not
+  - [x] 5D.3 Only then does §2 land. §2 is the LAST slice of this change, not
         the first: the enforcement code merges onto a corpus that already
         satisfies it.
+
+        **DONE — and the ordering is visible in the history rather than only
+        in this read-back.** The slice is TWO commits, in the order the
+        section requires: the three straggler discharges land FIRST, on a
+        tree where the gate does not yet exist, and the enforcement code
+        lands SECOND, onto a corpus that already satisfies it. A single
+        commit would have been defensible and would have hidden the one thing
+        worth being able to check later — that the gate was not introduced
+        red and then quietly fixed in the same breath. The check that the
+        ordering was real is 5D.2's, run on the finished tree: the
+        enforcement path reports zero over the scan set, so nothing about
+        this landing depends on the gate being lenient. The three discharges
+        are 5D's own scope under the moving-target note, not a fourth
+        discharge slice smuggled in.
 
 ## 6. Explicitly out of scope
 
