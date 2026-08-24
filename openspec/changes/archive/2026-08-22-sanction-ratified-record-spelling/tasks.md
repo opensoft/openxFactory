@@ -287,8 +287,45 @@ what makes it a rule rather than an observation.
 
 ## 5. Explicitly out of scope
 
-- [ ] 5.1 `openspec/` joining `GOVERNED_ROOTS` — the event that makes the 15
+- [x] 5.1 `openspec/` joining `GOVERNED_ROOTS` — the event that makes the 15
       latent lines live. Separate decision, much larger blast radius.
+      — **BOX NOW TICKED, 2026-08-23: the separate decision was taken.** The
+      sentence above stands word for word under the 2026-08-10 append
+      discipline, so it still says what was true when it was written; it is
+      history, not the current state. The deciding change is
+      `govern-openspec-corpus-membership`
+      (`openspec/changes/archive/2026-08-24-govern-openspec-corpus-membership/proposal.md`,
+      authored, ratified and realized 2026-08-23, archived 2026-08-24), which
+      quotes this box as the reason it exists.
+      **THE ANSWER IS NO, and it was settled by measurement rather than by
+      principle.** `openspec/` does NOT join `GOVERNED_ROOTS`; corpus
+      membership is unchanged. Full membership was measured at `20f3e7e` and
+      would have cost 573 findings (82 → 655), 13.2 points of the canon-share
+      headline and 123 of 724 doc-health tests, with at least five
+      demonstrably false fires — the "much larger blast radius" this box
+      predicted, quantified. **Option (b) was ruled instead** by Brett on
+      2026-08-23: a SECOND declared path set beside `GOVERNED_ROOTS`, the
+      lifecycle scan set `openspec/changes/**/proposal.md` plus
+      `openspec/changes/**/review/*.md`, read by exactly four families —
+      status validity, standard backing, ratified provenance, succession
+      integrity — and by nothing that computes a census, a word count, a canon
+      share, an inventory entry or a catalog record. Landed as PR #284
+      (`d4ab3ba`, `7157fa3`, `bf0bda0`).
+      **THE 15 LATENT LINES ARE LIVE, and then some.** They went live over the
+      scan set rather than over the governed roots, which is the difference
+      between the two options; and the same review that measured them found
+      the population was wider than 15 — the ruled set of record-citing
+      respells reached 17, extended the same day to 33 once the self-citing
+      lines were found. All of them are discharged: the whole standing
+      population went to ZERO before the enforcement was allowed to merge, so
+      the gate landed green rather than red. Measured through
+      `runner.build_context` at 0 CRITICAL / 0 ERROR over a 126-document scan
+      set.
+      **This was the last unticked box of this change.** 5.2 discharged
+      2026-08-23 (PR #270 and `roster-device-header-window`); 5.3 stays
+      unticked as this change's recorded scope boundary, not as a gap — a
+      later change taking up a parked case cites the box rather than ticking
+      it, and `govern-openspec-corpus-membership`'s OQ-4 does exactly that.
 - [x] 5.2 `2026-08-22-add-doxbench-editing-phase-b`'s missing citation and
       `2026-08-22-add-roster-device-admission-surface`'s out-of-window one.
       Both are archived-record edits, which the register routes through a
