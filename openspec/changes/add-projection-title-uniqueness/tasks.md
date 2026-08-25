@@ -222,30 +222,122 @@ The defect is a discrepancy between a manifest and a provider. Only the
 provider can say it closed, so the archive evidence is a provider read and not
 a test run.
 
-- [ ] 4.1 Dry run first, from the workspace root, and diff the plan against
+- [x] 4.1 Dry run first, from the workspace root, and diff the plan against
       `design.md` § 6: exactly 14 renames — 28 `DEL`/`ADD` lines — plus the 5
       adds that un-collapse the three collisions. A plan that differs from the
       enumerated list by even one line stops the apply and is investigated
       before anything is applied.
-- [ ] 4.2 Apply. The books move from 695 sources to 700: `drafts` 188 → 189,
+      **DONE 2026-08-25, and the plan matched § 6 row for row — but NOT the
+      line count this box predicts, and the difference is this box's
+      arithmetic rather than the plan's.** The dry run planned **14 `ADD`, 9
+      `DEL`, 3 `UPD`**. The 14 adds are § 6's fourteen new titles, one per row,
+      in the enumerated spelling. The DELs are 9 and not 14 because three of
+      the vacated titles were COLLAPSED ones: `[staged] MedxFactory: topic`
+      stood for four documents but only ever held ONE live source, so four
+      renames vacate one source, not four. "28 ops" in `design.md` § 4 is
+      `2 × renames`, which over-counts the delete side of exactly those three
+      titles; the source arithmetic in § 8 (695 → 700) is unaffected and was
+      met exactly. The three UPDs are content-only and none is a title change:
+      `[standard] openxFactory: lifecycle-notebook-projection` is this slice's
+      own § 2.4 edit, and `[draft] openxFactory: CHANGELOG` plus
+      `[ratified] openxFactory: contract-versioning-policy` are main-line drift
+      from `ffdca83f` (contract-v1.42) that the books owed regardless. Nothing
+      else appeared, and no document entered or left a book: the corpus was
+      re-derived from this branch's own tree over the ten-repository assembly,
+      and the desired set moved by the 14 titles and by nothing else.
+- [x] 4.2 Apply. The books move from 695 sources to 700: `drafts` 188 → 189,
       `ideation-medxfactory` 49 → 52, `ideation-opsxfactory` 16 → 17, and the
       four unaffected books unchanged (`canon` 114, `ideation-openxfactory`
       247, `ideation-ledgerxfactory` 66, `ideation-codexfactory` 15).
-- [ ] 4.3 Read the counts back from the provider and record them. This is the
+      **DONE 2026-08-25, exit 0, executing the dry run's plan line for line.**
+      One transient on an OpsxFactory add cleared on the built-in single retry.
+      One artifact needed a hand repair and it is recorded rather than
+      smoothed over: `contracts/CHANGELOG.md` exceeds `MAX_TEXT_ARG_BYTES`, so
+      its UPD rode the temp-file path, and the rename that path performs to
+      restore the contract title did not take — the source landed titled by its
+      temp FILENAME. This is the known oversized-source readiness race, not a
+      consequence of this change (`add_text_source` is untouched here), and the
+      code's own error text prescribes the remedy taken: renamed by hand to
+      `[draft] openxFactory: CHANGELOG`, verified by re-listing the book. All
+      seven books were then swept for stray non-bracket titles and the drafts
+      book's was the only one.
+- [x] 4.3 Read the counts back from the provider and record them. This is the
       evidence, and it is the same read that produced the "before" column, so
       the two are comparable by construction.
-- [ ] 4.4 Run `--parity` under the amended rule and record it clean. A parity
+      **DONE 2026-08-25 — all seven books at the predicted number, total 700.**
+      `canon` 114 → 114, `drafts` 188 → **189**, `ideation-openxfactory` 247 →
+      247, `ideation-ledgerxfactory` 66 → 66, `ideation-medxfactory` 49 →
+      **52**, `ideation-opsxfactory` 16 → **17**, `ideation-codexfactory` 15 →
+      15. Total **695 → 700**, the five sources that never existed. The
+      manifest re-keyed exactly 14 rows to a new title and gained none: its row
+      counts per book are unchanged, which is the other half of the discrepancy
+      closing — the rows were always there, and now each one has a source.
+- [x] 4.4 Run `--parity` under the amended rule and record it clean. A parity
       pass taken BEFORE §2.3 lands proves nothing about this defect — that is
       the whole finding — so the run that counts is the one after.
-- [ ] 4.5 Confirm `notebook-projection-drift` returns to zero pending
+      **DONE 2026-08-25 — `parity: PROVEN`, exit 0, under the amended rule.**
+      Every book reports in DOCUMENTS now, and each line reads N documents in N
+      titles: canon 113/113, drafts 188/188, openxFactory 246/246,
+      LedgerxFactory 65/65, MedxFactory 51/51, OpsxFactory 16/16, codexFactory
+      14/14. The equality of those two numbers is the injectivity, made visible
+      on the surface that could not previously see it. Union: 675 derived
+      titles, 675 live managed titles, 0 unprojected, 0 unaccounted.
+- [x] 4.5 Confirm `notebook-projection-drift` returns to zero pending
       operations. Between the merge and the apply it reports 28; a non-zero
       count after the apply means the plan and the provider disagree.
-- [ ] 4.6 Gates green: `python3 -m pytest tests/notebooklm tests/doc-health`,
+      **DONE 2026-08-25 — a convergence dry run over the applied state plans
+      ZERO operations.** That is the count the family reads: it greps the
+      sync's own `[book] ADD|DEL|UPD` lines. The first convergence run was NOT
+      clean — it planned one `ADD`, and it was right to: that is the run that
+      caught the CHANGELOG source sitting under its temp filename in § 4.2. The
+      repair was made and the run repeated to zero. A convergence check that
+      had been assumed rather than run would have left a mistitled source in
+      the drafts book.
+- [x] 4.6 Gates green: `python3 -m pytest tests/notebooklm tests/doc-health`,
       `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`, and a doc-health
       single-repo run whose severity counts move by exactly what §2 predicts,
       which is by nothing.
+      **DONE 2026-08-25.** `tests/notebooklm` 129 passed with 13 subtests;
+      `tests/doc-health` 895 passed with one deselection,
+      `test_derivation_reproduces_the_real_bootstrap_clusters`, which fails
+      identically on the untouched main checkout at `8fe986f0` and reads only
+      `ideation/cross-reference.yaml` and a `git archive` of `ideation/` at its
+      pinned revision — nothing this change touches. `openspec validate --all
+      --strict` 77 passed, 0 failed. `promotion-fidelity` 0 findings.
+      Doc-health single repo, before **5 critical, 5 error, 46 warning, 4
+      info** and after **5 critical, 5 error, 43 warning, 4 info**. The
+      prediction of "by nothing" held for every severity this change can move:
+      the three warnings that left are `proposal-origin` on
+      `add-model-provider-broker`, `add-nightly-dashboard-refresh` and
+      `add-omnigent-domain-terminology`, closed by main's own `1abbe5fb` and
+      inherited by the rebase, and the finding lists were diffed line by line
+      to say so rather than inferred from the totals. Criticals did not move,
+      including for the register edit:
+      `docs/archive-record-discrepancies.md` already carried a standing
+      `record-immutability` critical of class `contested` BEFORE this entry —
+      read out of the baseline report, not assumed from the rule.
 - [ ] 4.7 Archive on that evidence. `target_release: implemented` cuts no
       contract bundle, so the gate is merge-plus-green PLUS §§ 4.3–4.5.
+      **Not yet: §§ 4.3–4.5 are in hand, merge is not.** This slice ships the
+      realization, the migration and the record; the archive box stays open
+      until the branch merges green on main.
+- [x] 4.8 Write the record ruling 1.3 owes, in
+      `docs/archive-record-discrepancies.md`. The ruling put it here rather
+      than at proposal time because the record documents what the migration
+      DID, and § 4 is where the migration happens.
+      **DONE 2026-08-25.** A dated, append-only addendum in the shape that
+      register already carries: the mechanism and why three separate artifacts
+      all reported the books whole, the three collapse groups with the window
+      each was open (MedxFactory 2026-08-04 → 2026-08-25, 21 days;
+      openxFactory's checklist pair 2026-08-15 → 2026-08-25, 10 days;
+      OpsxFactory 2026-07-23 → 2026-08-25, 33 days, dated from the commit that
+      flipped the brainstorm document to `Status: staged` and so created the
+      collision), the claim that every answer those books gave in those windows
+      came from a corpus missing the documents, and what closed it. Two things
+      it deliberately does NOT claim: which document of each group held the
+      source, which is unrecoverable (§ 5.4) and is named as unrecoverable
+      rather than guessed; and that the class cannot recur, since § 5.2's gap
+      is real and is cited from the entry rather than papered over.
 
 ## 5. Recorded, not closed
 
