@@ -1,8 +1,8 @@
 ---
 code_surface: openxFactory (the doxBench docs subpane's abstract region, its pure view-model, and the explicit human control that invokes generation; a model-derived per-document abstract behind the existing server-side `WorkbenchModelPort` seam, reached by ONE new same-origin route and ONE new `app.js` call site; a NON-CHAT prompt assembler — `doxbench_turns.build_abstract_envelope` with its own section-order constant, plus a second `PACKET_PURPOSE_*` in `doxbench_packet.py`, because the existing assembler is chat-shaped; a new frozen `DocumentAbstract` type with its own document-shaped verifier; the layer-2-class SIBLING-ARTIFACT declaration; the subject-eligibility rule read off `doxbench_scope.py`/`doxbench_turns.py`; an entrypoint declaration binding `OmpHarnessBridge` as `model_port_factory`, which no entrypoint does today; `omp` added to test hermeticity's guarded binaries; the captioning vocabulary and its relocated test pin; conditionally the snapshot schema and generator)
-target_release: contract-v<next minor> — allocated LATE at realization per docs/contract-versioning-policy.md (v1.41 is the current bundle; a proposal MUST NOT reserve a minor number before merge order is known — `openspec/specs/ideation-dashboard/spec.md:2013` and its scenario at `:2020-2022`); conditional on ruling 2(a), and `none` under ruling 2(b)
-Status: draft
-Ratified: (pending Brett)
+target_release: none — RULED 2(b), session-only. No contract bundle is cut. `none` does NOT mean doc-only: `code_surface` is non-empty, so the archive gate stays merge-plus-green plus the operator run named in Impact (`release-realization/spec.md:23-32`)
+Status: ratified
+Ratified: Brett, 2026-08-25 — all eight rulings taken as recommended, recorded as a comment on `opensoft/openxFactory#84`
 ---
 
 # Proposal: add-doxbench-distilled-abstract
@@ -10,17 +10,37 @@ Ratified: (pending Brett)
 Closes the derivation half of `opensoft/openxFactory#84` — "doxBench R-8 (V2
 family): lens subtabs + docs subpane wheel split with distilled abstracts".
 
-**Spec deltas are deliberately withheld.** Rulings 0 through 7 below decide
-whether this change is one change or two, where the derivation runs, whether a
-contract field exists, what the artifact IS, which documents are even eligible
-subjects, and what the captions say — and every one of those changes the
-requirement text. Authoring deltas first would mean authoring several and
-discarding most. `openspec validate --strict` therefore reports a no-deltas
-error until the rulings land; that is the intended state of this change, not an
-oversight. Group A item 6's delta text has a second reason to wait: it modifies
-the requirement `add-doxchat-model-intake` also modifies, and per
-`release-realization/spec.md:64-74` it must be authored relative to that
-change's OUTCOME, which does not exist until that change realizes.
+## Ratified
+
+Brett ruled every recommendation as written on 2026-08-25, recorded as a comment
+on `#84`. One line per ruling:
+
+- **0 — SPLIT.** The doc-only half is now
+  `ratify-doxbench-landed-context-surfaces`, ratified the same day. **BREAKING #2
+  and every Group B item moved THERE**; this change's deltas are authored
+  RELATIVE TO ITS OUTCOME (`release-realization/spec.md:64-74`).
+- **1 — (c)** on-demand through the existing server-side port seam, with a
+  digest-keyed cache.
+- **1(c)(i) — a NEW same-origin route**, not a scoped chat turn. The `app.js`
+  fetch pin widens 5 → 6, declared by name.
+- **2 — (b) session-only.** `target_release: none`. 2(a) is WITHDRAWN as an
+  evolution and re-declared as a separate future change that must first amend
+  `spec.md:7`'s byte-identical scenario.
+- **3 — stale-shown-and-labelled, with a regenerating state in flight.** For an
+  unloaded subject the digest is the served SAVED content's digest.
+- **4 — the `compact_thread` DISCIPLINE in a new `DocumentAbstract` type**,
+  declared a layer-2-class SIBLING artifact; base = the snapshot's declared
+  topics and destinations; the check named honestly as subject-mention coverage;
+  plus the subject-path rule.
+- **5 — the five captions**, each with its declared accessibility carrier.
+- **6 — the abstract follows the WHEEL TILE**, and the region is renamed so the
+  selector keeps sole claim on the selected buffer's name.
+- **7 — (a) `editable_paths` now**, with (b) — widening to `context_paths` by an
+  explicit delta — named as the follow-on ruling rather than taken silently.
+
+Spec deltas are now authored: `specs/ideation-dashboard/spec.md` carries three
+MODIFIED requirements and seven ADDED. `clarifications.md` carries the five
+council constraints the design honours.
 
 **Disambiguation, first, because the issue title invites exactly one misreading.**
 "V2 family" in #84 and in the codexFactory T100 residual register means a SECOND
@@ -189,9 +209,12 @@ surface and B′ is the fixing surface, and B′ remains available afterwards.
   FIELD per abstract object: the deterministic one must not claim a
   distillation, and the model-derived one must claim exactly the
   model-derived / non-authoritative / regenerable posture.
-- **BREAKING (governance) #2: `spec.md:439`'s "MUST NOT become a toggle-only
-  alternate" is replaced**, ratifying the shipped subtabs. See the inventory
-  below for the replacement wording and the rewritten scenario.
+- **BREAKING (governance) #2 MOVED.** `spec.md:439`'s "MUST NOT become a
+  toggle-only alternate" clause, which the shipped subtabs falsified, is
+  replaced by `ratify-doxbench-landed-context-surfaces` under ruling 0. The
+  argument is unchanged and is recorded there; this change neither restates it
+  nor depends on it beyond authoring its own `:863` delta against the text that
+  change lands.
 - **The deterministic abstract survives** as its own thing. `documentAbstract`
   (`staging-workbench-model.js:1545-1592`) is not replaced; the two are
   separately labelled, because "what the document declares about itself" and
@@ -395,118 +418,74 @@ disagree about one pane.
 beside, because adding a requirement that permits a new analysis while an
 existing one forbids it is how a spec starts contradicting itself.
 
-**Group A — the derivation and its authority (six):**
+**Group A — the derivation and its authority. THREE requirements MODIFIED, and
+the delta says so; the earlier draft listed six, and ruling 0 plus a closer read
+account for the other three.**
 
-1. **doxBench scoped view** (`:864`) — the docs context's "verbatim from the
-   snapshot, never recomputing" and the lens's "MUST NOT introduce a new
-   analysis, a new score, or a new snapshot field" are scoped to the COMPLETENESS
-   SIGNALS and the KEYWORD/EDGE DERIVATION they were written about; the
-   model-derived abstract is admitted as an explicitly non-authoritative,
-   separately captioned artifact feeding no score, no gate, no readiness tier.
-   The lens subtabs and the docs split are stated here too. **Scenario `:896-899`
-   is NOT disturbed**: the abstract RE-PRESENTS the snapshot's `completeness`
-   signals and never computes, adjusts, or re-weights one — "MUST NOT compute,
-   adjust, or re-weight any signal" survives verbatim.
-2. **Workbench lens bullseye at tile scope** (`:439`) — two edits. The
-   no-new-analysis clause narrows to the bullseye's own geometry, so the
-   abstract's derivation is not read as licensed by it. And the
-   simultaneity clause is replaced: the bullseye and the flat matrix SHALL each
-   be a NAMED, ALWAYS-REACHABLE SECTION of one APG tablist; neither SHALL be a
-   toggle-only alternate reachable only by dismissing the other; and the spatial
-   "above" relation is discharged by the tablist's declared section order rather
-   than by simultaneous rendering. Scenario `:441-444` is rewritten to match:
-   *WHEN a human opens the workbench's `lens` tab on any topic-bearing tile*,
-   *THEN the bullseye MUST be a named always-reachable section of that panel's
-   tablist, rendered at that tile's scope*, *AND the flat matrix MUST be an
-   equally named always-reachable section of the same tablist*, *AND neither MUST
-   be reachable only by toggling the other off*.
-3. **Snapshot projection contract** (`:7`) — a model-derived field, if ruling 2
-   admits one, is a projection like every other field: never a source of truth,
-   regeneration on disagreement, and byte-identical output when generation did
-   not run.
-4. **Delivery and regeneration** (`:263`) — where abstract generation runs, and
-   the standing obligation that it never blocks, delays, or fails a snapshot.
-5. **Context compression is a three-layer stack with declared fidelity**
-   (`:1971`) — modified ONLY to admit a LAYER-2-CLASS SIBLING ARTIFACT and to
-   name its fidelity word (lossy-by-design). Layer 2 itself is untouched: it
-   stays compaction into the thread-state header, owned by one function, because
-   the abstract neither writes that header nor "preserves commitments and
-   discards narrative". What binds the abstract is the requirement's UNIVERSAL
-   final clause — non-authoritative, regenerable, never truth by being
-   compressed or cached — together with the `:1986` "cited as truth" scenario,
-   which is unchanged and now covers this artifact too. The sibling is
-   **promotion-gated** (not promotable except by a human creating a new document
-   through a gate verb) and **human-reviewable by inheritance but NOT
-   discharged** in this slice — stated as an open obligation rather than claimed,
-   because presentation is not review.
-6. **doxBench model catalog and provider boundary** (`:1046`) — the port
+1. **Context compression is a three-layer stack with declared fidelity**
+   (`:1971`) — modified to admit a LAYER-2-CLASS SIBLING ARTIFACT and name its
+   fidelity word (lossy-by-design). Layer 2 itself is untouched: it stays
+   compaction into the thread-state header, owned by ONE component, because the
+   abstract neither writes that header nor "preserves commitments and discards
+   narrative". What binds the abstract is the requirement's UNIVERSAL final
+   clause — non-authoritative, regenerable, never truth by being compressed or
+   cached — plus the `:1986` "cited as truth" scenario, unchanged and now
+   covering this artifact too. The sibling is **promotion-gated** and
+   **human-reviewable by inheritance but NOT discharged** in this slice, stated
+   as an open obligation rather than claimed, because presentation is not review.
+2. **doxBench model catalog and provider boundary** (`:1046`) — the port
    resolution and the loopback-console-only gate are written about *a chat
-   turn*; they widen to EVERY model consumer on this surface, so a second
-   consumer cannot be argued to sit outside them. The three-member port surface
-   does NOT widen — pinned by `test_doxbench_model.py:482`
-   (`FORBIDDEN_PORT_MEMBERS`) and `:522`
-   (`declared == {"timeout_seconds", "catalog", "dispatch"}`). This requirement
-   is also the MECHANISM that makes ruling 2(b)'s hosted-plane absence
-   mandatory rather than a design preference: "the hosted/read-only plane MUST
-   offer neither route" already forbids the hosted plane from generating an
-   abstract, so under 2(b) the honest note is the only lawful thing that plane
-   can show.
+   turn*; they widen to EVERY model consumer, so a second consumer cannot be
+   argued to sit outside them. Three further clauses land here: a new consumer
+   MUST NOT be smuggled through the chat-turn envelope, MUST NOT open a second
+   provider path, and the port must be DECLARED AT AN ENTRYPOINT for any
+   consumer to reach a provider at all — with an absent declaration read as an
+   absent capability rather than an error, which is the state of the tree today.
+   The three-member port surface does NOT widen, pinned by
+   `test_doxbench_model.py:482` (`FORBIDDEN_PORT_MEMBERS`) and `:522`. This
+   requirement is also the MECHANISM that makes ruling 2(b)'s hosted-plane
+   absence mandatory rather than a design preference.
+3. **doxBench scoped view** (`:864`) — the lens's "MUST NOT introduce a new
+   analysis" clause is narrowed to the BULLSEYE'S OWN GEOMETRY and the
+   completeness signals, the derivations it was written about, so it is not read
+   as forbidding an artifact this capability's own requirements govern; and a
+   model-derived artifact is required to be presented BESIDE snapshot-derived
+   material, never merged into it. **Scenario `:896-899` is NOT disturbed** —
+   "MUST NOT compute, adjust, or re-weight any signal" survives verbatim, and the
+   added text says the abstract RE-PRESENTS. Authored against
+   `ratify-doxbench-landed-context-surfaces`'s landed version of this
+   requirement, not against canon.
 
-**Group B — the integration surface the wheel and the abstract actually land
-in (six). These are the gaps the alignment review found; each is named for
-Brett to rule on rather than assumed:**
+**The three that are NOT modified, and why** — a proposal that quietly drops
+three claimed modifications should say so:
 
-7. **A docs tile carries read, load-for-editing, and save** (`:1854`) — the
-   requirement describes verbs on a docs TILE, and the wheel replaced the tile
-   list. Amended by the split+wheel promotion so the three verbs are stated
-   against whatever the docs pane's selection surface is.
-8. **The canvas controls stay inside the per-buffer staleness guard** (`:1686`)
-   — this, not `:1081`, is the ACTUAL constraint governing ruling 3: its settled
-   content-identity notification is the mechanism a "regenerating" state would
-   ride. `:1081` (Typed AI proposals and stale-application protection) stays as
-   PRECEDENT for the refuse-and-offer-inspection posture, not as the governing
-   rule.
-9. **The canvas view surface is expressed over the buffer set, not over two
-   names** (`:1706`) — it requires that a second selection surface be a change
-   to the BUFFER CONTRACT alone. The wheel selects the abstract's SUBJECT, so
-   the delta must declare that relation explicitly: either the wheel is not a
-   buffer-selection surface (recommended — it selects a subject to describe, not
-   a buffer to edit), or it is and the buffer contract changes.
-10. **doxBench editor buffer contract** (`:949`) — the other half of item 9; the
-    abstract's subject is stated as distinct from the selected buffer, or the
-    contract absorbs it.
-11. **Each loaded document carries a session thread with a structured state
-    header** (`:1881`) — the spec home of layer 2's non-authoritative /
-    regenerable / commitments-preserved clauses. Listed as modified because the
-    `DocumentAbstract` type inherits those clauses without inheriting
-    `DocumentThread`.
-12. **The loaded-document selector names the working document** (`:1828`) —
-    its scenario at `:1844-1846` requires the selector, the canvas, and the chat
-    to "all agree about which buffer is selected", and the abstract region's
-    `aria-label` is literally `"selected document"`
-    (`staging-workbench.js:250`). Two things now claim that phrase. Ruling 6
-    settles which, and the region is renamed accordingly.
+- **Workbench lens bullseye at tile scope** (`:439`) — MOVED to the split change
+  under ruling 0. Its no-new-analysis narrowing is stated inside `:864`'s delta,
+  which names the bullseye requirement explicitly, so the narrowing binds both
+  without editing the same requirement from two changes.
+- **Snapshot projection contract** (`:7`) — NOT modified, because ruling 2(b)
+  means no model-derived value ever becomes a snapshot field. `:7` is HONOURED
+  and cited; the obligation lives in this change's own added requirement, which
+  is where a future 2(a) change would have to come and amend it.
+- **Delivery and regeneration** (`:263`) — NOT modified, for the same reason:
+  with generation session-local and outside every lane, nothing about delivery or
+  regeneration cadence changes. The never-blocks obligation is stated in the
+  added requirement instead of loosening a lane requirement that currently says
+  something true.
 
-**Also modified: doxBench surface identity (`:931`)** for the accessibility
-consequence. `test_doxbench_accessibility.py:281-311` pins the house region
-idiom — `role=region` announced BY its `aria-label`, with no heading of its own,
-and the exact `doxBench` casing. Two abstracts mean two regions, so they need
-two DISTINCT accessible names, and each caption must declare whether it is an
-`aria-label`, visible text, or both. Under ruling 5 as recommended: the
-model-derived and deterministic captions are BOTH (visible text a sighted reader
-needs, and part of the region name a screen reader hears on entry); the stale
-and not-yet-generated captions are visible text only, inside an already-named
-region.
-
-**Also modified, on the shared height budget** (a named constraint, not a
-ruling): the upper half is bounded at a measured 280px
-(`test_doxbench_context_panes.py:231-240`, which pins the rule after a measured
-failure at 2445px), and `.swb-docabstract` contains its own overflow
-(`:264-269`). Two abstracts cannot both have that budget. Proposed: exactly ONE
-abstract region renders at a time, switched by an explicit control, with the
-DETERMINISTIC one first — it is the one that always exists, and defaulting to
-the model-derived one would show an empty or not-yet-generated box on first
-open.
+**Group B — MOVED to `ratify-doxbench-landed-context-surfaces` (ruling 0).** All
+six integration-surface requirements the alignment review found — the docs tile
+verbs against a wheel rather than a list (`:1853`), the per-buffer staleness
+guard (`:1685`), the canvas view surface and the buffer contract
+(`:1705` / `:948`), the session thread (`:1880`), and the selector's claim on the
+accessible name (`:1827`) — belong to the surfaces that ALREADY SHIPPED, not to
+the model-derived abstract. Four of them are modified by that change; `:1685` and
+`:1880` are honoured here without modification, because ruling 3's digest rule
+and ruling 4's sibling-artifact framing both sit inside what those requirements
+already say. Surface identity (`:931`) and the shared-height budget also move
+there, except for the two-accessible-names consequence of having a SECOND
+abstract, which is this change's own and is stated in its added captioning
+requirement.
 
 `governed-derived-model`: modified ONLY if ruling 4 takes the full-conformance
 option. Under the recommended framing it is honoured and cited, not changed.

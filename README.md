@@ -384,10 +384,12 @@ Active changes:
   own `:863` delta against the text this change lands.
 
 - [add-doxbench-distilled-abstract](openspec/changes/add-doxbench-distilled-abstract/proposal.md)
-  — authored 2026-08-25, **NOT YET RATIFIED** (`Status: draft`); spec deltas
-  deliberately WITHHELD until six rulings land, so `--strict` reports a
-  no-deltas error by design. The derivation half of `#84`, and a change whose
-  whole substance is two reversals owned out loud. The first is asked for: Brett
+  — authored and **ratified 2026-08-25** (Brett, all eight rulings taken as
+  recommended); `target_release: none` under ruling 2(b), but `code_surface` is
+  non-empty so the archive gate stays merge-plus-green PLUS one operator run on
+  the real corpus through a real adapter. Deltas authored: three requirements
+  MODIFIED, seven ADDED. The derivation half of `#84`. Its first reversal is the
+  one that was asked for: Brett
   ruled option C in session on 2026-08-25 — build the REAL per-document
   distilled abstract, produced by a model — reversing his own 2026-08-03 scope
   ruling that the docs-subpane abstract be "header + structure, honestly
@@ -429,10 +431,11 @@ Active changes:
   fresh-counted at realization. Sequenced behind ratified
   `add-doxchat-model-intake`, which modifies the same provider-boundary
   requirement. **Council-reviewed 2026-08-25** (product / architect / adversary),
-  and all three landed on the same recommendation, carried as **ruling 0: SPLIT**
-  — the doc-only half (promote the three surfaces, replace the simultaneity
-  clause, the integration-surface gaps) should not wait on seven rulings, because
-  every day it waits is a day `:439` stays falsified. Three findings changed the
+  and all three landed on the same recommendation — **ruling 0: SPLIT, now ruled
+  and executed.** The doc-only half is
+  `ratify-doxbench-landed-context-surfaces`, which took BREAKING #2 and all six
+  Group B integration-surface items and archives FIRST, so this change's deltas
+  are authored relative to its outcome. Three council findings changed the
   substance rather than the wording. A real adapter EXISTS —
   `OmpHarnessBridge` (`doxbench_bridge.py:869`) supervises an `omp --mode rpc`
   child with no credential — so the blocker was never "no provider"; it is that
@@ -454,8 +457,14 @@ Active changes:
   EDIT AUTHORITY (`doxbench_scope.py:390`), `editable_paths` is fed only by
   `owned` sections and exactly one section is owned, so on a cluster tile the
   eligible subject set is EMPTY — either the abstract is refused there or a
-  feature PR quietly opens a new disclosure path. `clarifications.md` carries the
-  five noted constraints.
+  feature PR quietly opens a new disclosure path. Ruled 7(a): the subject is
+  restricted to `editable_paths`, and the widening is NAMED as a follow-on ruling
+  rather than taken by an implementation choice inside a UI pull request.
+  `clarifications.md` carries the five council constraints the design answers by
+  name — chief among them that the abstract cache MUST NOT be the chat
+  `TurnStore`, whose 64-entry / 16 MB bound abstract churn would evict, and whose
+  same-key-different-digest conflict rule forces the content digest INTO the
+  cache key.
 
 - [add-duplicate-packet-check](openspec/changes/add-duplicate-packet-check/proposal.md)
   — authored and ratified 2026-08-24, commissioned in-session ("commission the
