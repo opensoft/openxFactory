@@ -21,31 +21,43 @@ the post-ratification contract realization and evidence gates.
 - [ ] 2.1 Create `contracts/intent-compliance/` with schema-versioned
       `veto-class-vocabulary`, `policy-allowance`,
       `policy-allowance-registry` and `compliance-decision` schemas.
-- [ ] 2.2 Encode closed decision outcomes, stable allowance IDs, immutable
-      approval facts, additive revocation facts and unique registry lookup.
-- [ ] 2.3 Require bindings/decisions to carry allowance IDs only and reject
-      embedded allowance payloads as authority evidence.
+- [ ] 2.2 Encode closed decision outcomes, class-ID uniqueness within a
+      vocabulary, registry-qualified allowance references, immutable approval
+      facts, additive revocation facts and deterministic registry revisions.
+- [ ] 2.3 Require bindings/decisions to carry `(registry_id,
+      registry_version, allowance_id)` only and reject embedded allowance
+      payloads as authority evidence.
 - [ ] 2.4 Add `.template.yaml` files for all four record kinds and ensure every
-      YAML template carries `schema_version` and `kind`.
-- [ ] 2.5 Add a codexFactory-shaped first-conformer vocabulary example carrying
-      the five ratified standing-policy classes without making those five the
-      neutral closed set.
+      contract file carries `contract_schema_version`, `schema_version` and
+      `kind`, with their version relationship documented and validated.
+- [ ] 2.5 Add shape-only neutral examples with placeholder classes; keep the
+      five concrete codexFactory standing-policy classes and their evidence in
+      successor `add-intent-compliance-gate`.
 
 ## 3. Canonical validator and corpus
 
 - [ ] 3.1 Implement `scripts/validate-intent-compliance.py` with parse-once
       typed validation for all four record kinds.
-- [ ] 3.2 Validate source-reference/digest presence, class/issuer closure,
-      registry-ID uniqueness, allowance scope/validity, immutable approval
-      facts and additive revocation fields.
-- [ ] 3.3 Validate decision/content digest binding, closed outcomes,
-      correlation facts and allowance-resolution evidence.
-- [ ] 3.4 Add packaged positive examples for no-class allow, current-allowance
+- [ ] 3.2 Validate source-reference/digest presence, class-ID uniqueness,
+      issuer closure, registry-qualified reference uniqueness, allowance
+      validity, immutable approval facts and additive revocation fields.
+- [ ] 3.3 Validate decision/content + vocabulary/policy digest binding,
+      registry revision, allowance-record digests, domain scope-verdict
+      evidence, closed outcomes and bounded opaque correlation facts.
+- [ ] 3.4 Enforce evidence redaction/bounds: reject raw intent, provider
+      prompt/response, tenant content, credentials and unbounded rationale or
+      identifiers.
+- [ ] 3.5 Enforce classifier hard caps (one invocation/turn, 65,536 input
+      bytes, 8,192 output bytes, 4,096 output tokens, 60 seconds) and the
+      `needs_human_review` outcome for absent limits, breach, timeout or error.
+- [ ] 3.6 Add packaged positive examples for no-class allow, current-allowance
       allow, ambiguous-reference review and revoked-allowance block.
-- [ ] 3.5 Add negative examples for duplicate IDs, embedded allowance payloads,
-      unauthorized issuers, stale policy digests, missing evidence fields and
-      classifier override of a deterministic finding.
-- [ ] 3.6 Prove every negative fixture fails for its intended reason and every
+- [ ] 3.7 Add negative examples for duplicate class/allowance IDs, ambiguous
+      registry references, embedded allowance payloads, unauthorized issuers,
+      stale policy/vocabulary digests, undefined scope verdicts, raw evidence,
+      missing `contract_schema_version`, unbounded classifiers and classifier
+      override of a deterministic finding.
+- [ ] 3.8 Prove every negative fixture fails for its intended reason and every
       positive fixture passes through the canonical validator.
 
 ## 4. Contract registration and release
@@ -64,7 +76,8 @@ the post-ratification contract realization and evidence gates.
 
 - [ ] 5.1 Raise codexFactory `add-intent-compliance-gate` against the released
       openxFactory bundle, adding allowance references and compliance evidence
-      to the approved-intent binding.
+      to the approved-intent binding and instantiating the five concrete
+      standing-policy classes in codexFactory's own corpus.
 - [ ] 5.2 Realize binding-approval compliance validation and the permanent
       deterministic pre-dispatch recheck before coding-worker invocation.
 - [ ] 5.3 Realize bounded classifier escalation only for declared ambiguity or

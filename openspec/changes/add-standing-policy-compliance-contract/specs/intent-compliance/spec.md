@@ -6,8 +6,9 @@
 
 openxFactory SHALL define a machine-readable veto-class vocabulary record that
 names its ratified policy source, records the source digest, gives every class
-a stable identifier and declares the authority allowed to issue allowances for
-that class. The record MAY carry domain-owned detection metadata, but the
+a stable identifier unique within that vocabulary and declares the authority
+allowed to issue allowances for that class. The record MAY carry domain-owned
+detection metadata, but the
 schema SHALL NOT prescribe one universal class list or treat detection signals
 as policy authority.
 
@@ -16,6 +17,11 @@ as policy authority.
 - **WHEN** a veto-class vocabulary record is validated
 - **THEN** its declared policy source and digest resolve to the ratified authority it claims
 - **AND** every class has a stable identifier and declared allowance issuer authority
+
+#### Scenario: vocabulary repeats a class identifier
+
+- **WHEN** two entries in one veto-class vocabulary carry the same class identifier
+- **THEN** the vocabulary is invalid and no compliance decision may use it
 
 #### Scenario: vocabulary drifts from policy
 
@@ -29,13 +35,22 @@ openxFactory SHALL define a compliance-decision record with a closed outcome
 of `allow`, `block`, or `needs_human_review`, plus the evaluated-content digest,
 evaluator identity/version, class findings, rationale, policy source,
 allowance-reference resolution facts, correlation identifiers and evaluation
-time. Every evaluation SHALL emit the record, including `allow` outcomes.
+time. Evidence fields SHALL be bounded and redacted: rationale uses bounded
+codes/redacted detail, correlation identifiers are bounded opaque references,
+and raw intent, provider prompt/response, tenant content and credentials SHALL
+NOT be persisted. Every evaluation SHALL emit the record, including `allow`
+outcomes.
 
 #### Scenario: compliant intent is allowed with evidence
 
 - **WHEN** an evaluator finds no veto class in an evaluated intent
 - **THEN** it emits an `allow` decision bound to the evaluated-content digest
 - **AND** the record carries the evaluator version and correlation identifiers
+
+#### Scenario: decision contains raw evidence content
+
+- **WHEN** a decision embeds raw intent, provider payload, tenant content or credential material
+- **THEN** contract validation fails and the decision is not admissible evidence
 
 #### Scenario: veto class has no allowance
 
@@ -66,20 +81,41 @@ and why without rewriting the original approval.
 ### Requirement: Allowance registry resolves by identifier and never by copied payload
 
 openxFactory SHALL define a governed policy-allowance registry with unique
-allowance identifiers, registry identity/version and deterministic lookup.
-Bindings and decision records SHALL reference allowance identifiers and SHALL
-NOT embed copied allowance payloads as authority evidence.
+allowance identifiers, registry identity/version, a monotonically identified
+revision and deterministic lookup. Bindings and decision records SHALL carry a
+registry-qualified reference `(registry_id, registry_version, allowance_id)`
+and SHALL NOT embed copied allowance payloads as authority evidence.
 
 #### Scenario: binding references a registry allowance
 
 - **WHEN** a binding claims an exception to a veto class
-- **THEN** it carries the allowance identifier resolved from the governed registry
+- **THEN** it carries registry identity/version and the allowance identifier resolved from that registry
 - **AND** an embedded allowance object is a contract-validation failure
 
 #### Scenario: duplicate identifiers enter the registry
 
 - **WHEN** two registry records carry the same allowance identifier
 - **THEN** the registry is invalid and all resolution from the ambiguous identifier fails closed
+
+### Requirement: Allowance scope is resolved by domain evidence under neutral outcomes
+
+openxFactory SHALL require an allowance to bind a neutral scope reference
+(`scope_kind`, `scope_ref`, operations and scope digest) and SHALL require the
+consuming domain's versioned resolver to emit `covers`, `does_not_cover`, or
+`indeterminate` evidence bound to the evaluated-content and scope digests. The
+neutral outcome mapping SHALL be fixed: `covers` may satisfy the class,
+`does_not_cover` blocks, and `indeterminate` needs human review.
+
+#### Scenario: allowance scope covers the evaluated intent
+
+- **WHEN** the domain scope resolver emits `covers` for the evaluated-content and allowance-scope digests
+- **THEN** that allowance may satisfy its class if all other validity checks pass
+- **AND** resolver identity/version and verdict are recorded in the decision
+
+#### Scenario: scope resolver cannot decide
+
+- **WHEN** the domain scope resolver emits `indeterminate` or cannot produce digest-bound evidence
+- **THEN** the compliance outcome is `needs_human_review` and dispatch does not occur
 
 ### Requirement: Missing and revoked allowances fail closed differently
 
@@ -122,17 +158,25 @@ review. Evaluation failure SHALL fail closed before worker tokens are spent.
 
 ### Requirement: Bounded classification only escalates deterministic evaluation
 
-openxFactory SHALL permit a consuming domain to invoke one bounded classifier
-only after deterministic evaluation marks ambiguity or a declared sensitive
-surface. Classifier cost/turn limits and version SHALL be recorded, and its
-output SHALL NOT erase a deterministic class finding or authorize an
-allowance.
+openxFactory SHALL permit a consuming domain to invoke a classifier only after
+deterministic evaluation marks ambiguity or a declared sensitive surface, with
+exactly one invocation and one turn, no more than 65,536 input bytes, 8,192
+output bytes, 4,096 output tokens and 60 seconds. Limits and classifier version
+SHALL be recorded; missing limits, limit breach, timeout or invocation failure
+SHALL produce `needs_human_review` and no dispatch. Classifier output SHALL NOT
+erase a deterministic class finding or authorize an allowance.
 
 #### Scenario: ambiguous intent escalates
 
 - **WHEN** deterministic evaluation marks an intent ambiguous under declared rules
 - **THEN** one bounded classifier evaluation may run under recorded limits
 - **AND** its output is joined into the compliance-decision evidence
+
+#### Scenario: classifier fails or exceeds a hard limit
+
+- **WHEN** classifier invocation times out, fails, lacks its limit envelope or exceeds any hard cap
+- **THEN** the outcome is `needs_human_review` and worker dispatch does not occur
+- **AND** failure evidence is bounded and excludes raw provider payloads
 
 #### Scenario: classifier disagrees with a deterministic finding
 
@@ -143,10 +187,11 @@ allowance.
 ### Requirement: All enforcement points verify the same intent and allowance state
 
 openxFactory SHALL require intent approval, pre-dispatch evaluation and
-post-build admission to bind decisions to the evaluated-content digest and to
-resolve the same allowance identifiers against current registry state. A
-decision for a different digest or stale allowance state SHALL NOT authorize
-the next enforcement point.
+post-build admission to bind decisions to the evaluated-content digest, veto-
+class vocabulary/policy-source digest, registry identity/revision, resolved
+allowance-record digests and domain scope-verdict evidence. A decision with a
+different digest, registry revision, allowance digest or scope verdict SHALL
+NOT authorize the next enforcement point.
 
 #### Scenario: content changes after approval
 
