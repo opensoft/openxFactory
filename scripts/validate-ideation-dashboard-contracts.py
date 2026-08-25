@@ -802,6 +802,40 @@ _CREDENTIAL_RE = _re.compile(
     r"BEGIN [A-Z ]*PRIVATE KEY|secret[-_]?name)")
 _ENDPOINT_RE = _re.compile(r"(?i)\b(https?|wss?)://")
 
+# THE FAMILY'S NON-BLANK RULE, RESTATED (issue #263). Canonical statement and
+# the measurement behind it live in
+# `scripts/ideation_dashboard/doxbench_packet.states_something`; this file is a
+# CONTRACT validator and is standalone by design — it validates artifacts and
+# must not import the runtime package whose output it checks, or it could pass
+# an instance simply because both sides share a bug. So the rule is restated,
+# and a test asserts the two implementations agree on every recorded class.
+#
+# The rule: a reason STATES SOMETHING iff it has at least one character in
+# `L* ∪ N* ∪ P* ∪ S*` — a letter, number, punctuation mark or symbol.
+#
+# STATED AS WHAT IT ADMITS, NOT WHAT IT EXCLUDES (issue #263 review, P2-1). The
+# first version excluded the blank categories, which is a rule over a set that
+# GROWS WITH THE UNICODE TABLE: a full sweep found 51 code points where this
+# validator's Python (15.0.0) and the browser's ICU (16) disagreed, all
+# unassigned in 15.0 and newly assigned combining marks in 16 — and the
+# disagreement ran the dangerous way, with the server side ACCEPTING what the
+# browser refused. `Cn` is never `L`/`N`/`P`/`S` in any table, so an admission
+# rule is stable by construction.
+#
+# `.strip()` is not it either: it catches space/tab/NBSP/newline and misses
+# ZWSP, BOM, bidi overrides, lone combining marks and controls, which are
+# zero-visible-width rather than whitespace.
+import unicodedata as _unicodedata
+
+_STATED_CATEGORIES = ("L", "N", "P", "S")
+
+
+def _states_something(text: Any) -> bool:
+    if not isinstance(text, str):
+        return False
+    return any(
+        _unicodedata.category(ch)[0] in _STATED_CATEGORIES for ch in text)
+
 # The routing badge's SEGMENT GRAMMAR (contract-v1.38; adversarial review round
 # 1 F1). RESTATED from `ideation_dashboard.doxbench_model` -- this validator is
 # standalone and imports nothing from that package (the same convention the
@@ -1239,7 +1273,7 @@ def check_turn_success_v2(f: Findings, label: str, doc: dict) -> None:
 def check_context_packet(f: Findings, label: str, doc: dict) -> None:
     """The contract-v1.40 posture statement's own rules (task 10.7).
 
-    TWO of them, and they are different in kind. The first the SHAPE also
+    THREE of them now, and they are different in kind. The first the SHAPE also
     expresses, and it is restated here ON PURPOSE: it is this release's whole
     truth-claim — the reason is present IFF the posture is reduced — and the
     v1.38 review's F2 finding was precisely a file gate that had grown weaker
@@ -1254,8 +1288,32 @@ def check_context_packet(f: Findings, label: str, doc: dict) -> None:
     not an independent refusal — and their only guard is the test that pins
     their finding CODE. Same class as the `contract-v1.38` arms whose own
     revert-tests said the same thing.
-    The second rule the shape CANNOT express and this is the only place it
-    lives.
+    The second and third rules the shape CANNOT express. The second lives ONLY
+    here. The third — the NON-BLANK rule (issue #263) — is a DELEGATED rule
+    with four homes, and this docstring used to say the pairing was the only
+    restated one, which stopped being true when that rule landed:
+
+      * `doxbench_packet.states_something` — the canonical statement, with the
+        measurement of which blank classes `.strip()` misses;
+      * `doxbench_packet.ContextPacket.__post_init__` and
+        `serve.doxbench_context_packet`, which IMPORT it;
+      * `_states_something` in this file, which RESTATES it because a contract
+        validator must not import the runtime package it validates artifacts
+        for — a shared bug would pass both;
+      * `NON_BLANK_REASON` in `web/views/doxbench-chat-model.js`, restated as a
+        Unicode-property regex.
+
+    A test asserts the Python restatement and the JS regex agree with the
+    canonical predicate across the WHOLE code-point space, not on a sample.
+
+    The four homes agree on the predicate and differ on the CONSEQUENCE: this
+    validator WARNS (contract-v1.40 accepted these records, and the versioning
+    policy makes a new validator warning additive and a new rejection breaking),
+    while the three runtime gates REFUSE, because a server may hold itself to
+    more than the wire requires and none of them is judging a third party. The released schema cannot
+    express any of this: `minLength: 1` counts CHARACTERS, and every blank class
+    is exactly one character. Tightening the shape itself is a `contract-v2.0`
+    question, not an additive one.
 
     1. THE PAIRING. A `reduced` posture STATES its reason; a `full` posture
        carries none. A reduction nobody can read is a silent degradation, and a
@@ -1278,7 +1336,40 @@ def check_context_packet(f: Findings, label: str, doc: dict) -> None:
        this producer emits is a MODULE CONSTANT, not a formatted provider error,
        so there is no value flowing into it for a scan to have to catch.
 
-    A THIRD RULE WAS CONSIDERED AND REJECTED: requiring the reason to say in as
+    3. THE REASON STATES SOMETHING — it contains at least one character in
+       `L* ∪ N* ∪ P* ∪ S*` (a letter, number, punctuation mark or symbol).
+       "A reduction nobody can read" was implemented as NON-EMPTY, and nine
+       blank classes passed every gate and rendered as a disclosure with
+       nothing in it (issue #263). Not reachable from this repository's
+       producer — the two shipped reasons are module constants — but real for
+       the third-party producers this contract is published for.
+
+       STATED AS WHAT IT ADMITS, and the difference is not cosmetic. The rule
+       was first written as an EXCLUSION ("outside White_Space ∪ Cc ∪ Cf ∪ Mn ∪
+       Mc ∪ Me"), which is a rule over a set that grows with the Unicode table:
+       a full code-point sweep found 51 points where this file's Python
+       (unicodedata 15.0.0) and the browser's ICU (Unicode 16) disagreed, all
+       unassigned here and newly assigned combining marks there — with the
+       server side ACCEPTING what the browser refused, which is the original
+       bug. `Cn` is never L/N/P/S in any table, so admission is stable by
+       construction.
+
+       THE ADMISSION RULE IS STRICTLY NARROWER, and the delta is named here
+       because a reader comparing the two spellings must not have to derive it
+       (PR #314, Codex P2). Beyond every blank class above it also refuses
+       `Co` (PRIVATE USE, e.g. U+E000), `Cn` (unassigned) and `Cs`
+       (surrogates). That is deliberate and rides the same fail-closed
+       rationale: a private-use code point has no meaning outside the font that
+       defines it, so a reason made only of them renders as tofu for every
+       reader who lacks that font — which is the disclosure-with-nothing-in-it
+       this rule exists to prevent, in a different disguise.
+
+       THIS GATE WARNS; THE RUNTIME GATES REFUSE — see the arm itself for why.
+       The rule is one rule and the four homes agree on the VERDICT of the
+       predicate; they differ only in what each surface does with it, because
+       only this one is a conformance verdict on somebody else's record.
+
+    A FOURTH RULE WAS CONSIDERED AND REJECTED: requiring the reason to say in as
     many words that nothing unbounded was substituted and no rail was bypassed
     (which the two reasons this capability ships both do). It is prose-matching
     a contract — it would refuse a conformant producer whose honest reason is
@@ -1297,10 +1388,67 @@ def check_context_packet(f: Findings, label: str, doc: dict) -> None:
         return
     posture = packet.get("posture")
     reason = packet.get("reduced_reason")
+    # NON-BLANK, AS A WARNING (issue #263, and PR #314's Codex P1). `not reason`
+    # is the released shape's `minLength: 1` restated, and that bound counts
+    # CHARACTERS — so a reason of one space, one ZWSP, one BOM, one bidi
+    # override, one combining mark or one control satisfied it and rendered as
+    # a disclosure with nothing in it.
+    #
+    # WHY A WARNING AND NOT AN ERROR, which is where this rule started. THIS
+    # FILE IS THE PUBLISHED CONFORMANCE VALIDATOR: its verdict on a third
+    # party's record IS the contract surface, so turning a previously-accepted
+    # record into a rejected one changes what the PUBLISHED
+    # `contract-v1.40` means — and the bundle version, the changelog entry and
+    # the tag all still say v1.40. Reproduced at the tag: the released
+    # validator answers `{posture: "reduced", reduced_reason: " "}` with zero
+    # errors and zero warnings.
+    #
+    # `docs/contract-versioning-policy.md` decides this, in as many words.
+    # ADDITIVE (minor) is "new optional fields, new contracts, NEW VALIDATOR
+    # WARNINGS", under which "domain repos on the same major version remain
+    # conformant without changes". Rejecting a shape that was accepted is the
+    # BREAKING (major) class, which requires a migration note, a full minor
+    # release of deprecation warnings first, and a validator that "rejects the
+    # old one ONLY AT THE NEW MAJOR VERSION".
+    #
+    # The pairing rule two arms down IS an error, and that is not a licence for
+    # this one: `check_context_packet` and all three of its error arms were
+    # introduced BY the v1.40 cut itself (671a6908, the tagged release commit),
+    # so their strictness was published WITH the contract rather than added to
+    # it afterwards. A warning here is the same mechanism the v1 chat-turn
+    # family already rides — deprecated, warned on, still accepted, with a
+    # removal target recorded — and it becomes an ERROR at contract-v2.0, where
+    # the shape's own `minLength: 1` is due to be tightened.
+    #
+    # THE RUNTIME GATES STILL REFUSE. A server may hold ITSELF to more than the
+    # wire requires: `ContextPacket.__post_init__` guards this repo's own
+    # injected assembler seam, `doxbench_context_packet` guards what this server
+    # writes into its own durable record, and the browser adopter guards what
+    # this repo's own surface renders. None of those is a conformance verdict on
+    # somebody else's record, and this producer cannot emit a blank anyway — its
+    # two reasons are module constants, pinned under the released ceiling.
+    # TWO ARMS, SPLIT ON EXACTLY WHAT contract-v1.40 ALREADY REFUSED. Caught by
+    # the packaged-negative suite when the first version of this fix collapsed
+    # them: one predicate served BOTH the pairing rule and the blank rule, so
+    # downgrading it to a warning silently downgraded the PAIRING too — and that
+    # one shipped as an error WITH v1.40 and must stay one.
+    #
+    # v1.40's predicate was `not reason`, which is true for a MISSING key, an
+    # explicit `null`, and `""`. Those stay ERRORS: refusing them changes
+    # nothing about what the published version accepted.
     if posture == "reduced" and not reason:
         f.error("context-packet",
                 f"{label}: a reduced context_packet STATES its reason — a "
                 f"reduction nobody can read is a silent degradation")
+    # A reason that is PRESENT and non-empty but says nothing is the new rule,
+    # and it is the one contract-v1.40 accepted — so it warns and is accepted.
+    elif posture == "reduced" and not _states_something(reason):
+        f.warn("context-packet-blank",
+               f"{label}: a reduced context_packet STATES its reason — a "
+               f"reduction nobody can read is a silent degradation. Accepted "
+               f"at contract-v1.40 (the released shape's `minLength: 1` counts "
+               f"CHARACTERS, and every blank class is one character); this "
+               f"becomes an ERROR at contract-v2.0")
     # KEY PRESENCE, which is what the shape's `not: {required: [...]}` means.
     # `reason is not None` was closer than truthiness but still not it: a
     # `reduced_reason: null` is a key that is PRESENT, and `.get()` cannot tell
