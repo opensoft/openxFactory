@@ -23,13 +23,17 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
       additions (the one-non-model-INTAKE-affordance paragraph, the widened
       "browser loads model choices" bullet, the "The intake affordance is
       submitted as a model" scenario, and the "Hosted doxBench is opened"
-      intake-affordance-absence bullet) PLUS this change's own widening —
-      folded in now rather than deferred, so whichever archives second does
-      not drop the other's text.
+      intake-affordance-absence bullet) PLUS this change's own widening. The
+      fold is ASYMMETRIC, not mutual: archive replaces canon's block with the
+      archiving delta's raw markdown, no merge. This change's delta already
+      carries intake's text, so this change archiving second is safe; intake's
+      delta does NOT carry this change's EVERY-MODEL-CONSUMER widening or its
+      four added scenarios, so intake archiving second would revert them.
+      ORDERING CONSTRAINT: `add-doxchat-model-intake` MUST archive BEFORE
+      `add-doxbench-distilled-abstract`.
       2026-08-25 — intake's hosted-plane bullet folded per #351.
-- [ ] 1.2a Note for the coordinator, NOT fixed here: intake's own delta restates
-      an OLDER `:1045` and would silently revert canon on archive. Confirm the
-      filed issue exists before either change archives.
+- [x] 1.2a 2026-08-25 — intake's delta re-authored against canon (#351, this
+      branch); the remaining hazard is ORDER: intake archives first (see 1.2).
 - [ ] 1.3 `OPENSPEC_TELEMETRY=0 openspec validate add-doxbench-distilled-abstract
       --strict` and `--all --strict` green; README OpenSpec Records entry present.
 - [ ] 1.4 Re-read `clarifications.md`. N1–N5 are constraints, not suggestions:
