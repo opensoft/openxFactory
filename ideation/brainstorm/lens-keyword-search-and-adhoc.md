@@ -3,9 +3,10 @@
 Status: brainstorm
 Kind: architecture
 Summary: Feat request against the realized keyword lens — a search/typeahead over the keyword rail, plus the ability to add an AD-HOC keyword that is not in the declared vocabulary and have it participate in the bullseye; explores what an ad-hoc keyword can honestly match (declared Topics only vs summary text vs a proposed-tag invitation) inside the snapshot-only data path.
-Topics: feat-request, ideation-dashboard, keyword-lens, user-management, doc-management, doc-workflow
+Topics: dashboard-workbench, feat-request, ideation-dashboard, keyword-lens, user-management, doc-management, doc-workflow
 Repository context: openxFactory (capability owner; realization would be a codexFactory delta)
 Captured: 2026-07-14
+
 Origin: Brett, 2026-07-14, using the deployed dashboard at
 ideation-dashboard.xforge.us.
 

@@ -7,7 +7,7 @@ worker profile with one responsibility, typed inputs and outputs, a minimal
 tool and semantic-context set, explicit budgets and stop rules, and no
 decision or enforcement authority, allowing larger workflows to compose many
 cheap verifiable steps instead of relying on one broad agent.
-Topics: omnigent, omnigent-domain-overlay, micro-agents, single-purpose-agent,
+Topics: omnigent-micro-agent, omnigent, omnigent-domain-overlay, micro-agents, single-purpose-agent,
 worker-profile, worker-archetypes, typed-artifacts, task-envelope,
 failure-containment, cost-accountability, feat-request
 Repository context: openxFactory (neutral Omnigent worker and overlay

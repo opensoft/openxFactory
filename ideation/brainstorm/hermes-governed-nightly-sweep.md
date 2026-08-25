@@ -13,7 +13,7 @@ Hermes implements the GitHub Action on the repo. Companions:
 and `practice-clearance-and-project-realization.md` (how policy clears
 and the project realizes). Substrate: `hermes-layer-content-seeding.md`
 (how the three layers get the content this pipeline assumes they have).
-Topics: nightly-sweep, doc-health, practice-adoption, three-layer-hermes,
+Topics: practice-adoption, hermes, nightly-sweep, doc-health, three-layer-hermes,
 github-actions, self-hosting
 Repository context: openxFactory (umbrella; realized via codexFactory + hermes-install)
 Captured: 2026-07-20

@@ -11,12 +11,20 @@ into a domain-neutral one, and gives the seam-by-seam software→medical
 projection. Companion artifact: a machine-readable draft of the MedxFactory
 Omnigent overlay staged at
 `MedxFactory/ideation/staging/medical-omnigent-overlay/`.
-Topics: omnigent, medical-harness, worker-archetypes, permission-matrix,
+Topics: medical-domain, omnigent, medical-harness, worker-archetypes, permission-matrix,
 artifact-only-lane, review-lanes, source-trace, external-enforcement,
 omnigent-core-domain-split, medxfactory
 Repository context: openxFactory (spans installs/omnigent-install,
 xFactories/codexFactory, xFactories/MedxFactory)
 Captured: 2026-07-22
+
+## Possible feats
+
+- **Domain-neutral worker archetype contract** — express frame, generate,
+  verify, challenge, assemble, and external-enforcement boundaries without
+  software-specific job vocabulary.
+- **MedxFactory Omnigent overlay** — bind medical worker classes, tools,
+  permissions, and human enforcement points to the neutral worker contract.
 
 ## What the harness is (research findings, 2026-07-22)
 

@@ -13,11 +13,12 @@ memory side feeds the ratified customer memory gateway (never a parallel store);
 the catalog side is the generation input to the practice-adoption pipeline.
 Parent: `codexfactory-domain-hermes-content.md`; consumes the memory gateway
 (ratified) and feeds `domain-practice-suggestion-generation.md`.
-Topics: codexfactory, domain-hermes, domain-memory, memory-boundaries,
+Topics: codexfactory-domain, codexfactory, domain-hermes, domain-memory, memory-boundaries,
 memory-gateway, practice-catalog, adoption-profile, promoted-capabilities,
 domain-learning, layer-content-seeding
 Repository context: openxFactory (targets codexFactory hermes/domain/memory-boundaries.yaml + practice catalog)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (write-authority + catalog-signing + de-id decisions; provenance verified; cost-model wiring)
 
 ## Decided (2026-07-22)

@@ -16,11 +16,12 @@ consent, tenant isolation, and source-authority/provenance. Especially useful
 for the client layer, whose knowledge lives across the operating org's real,
 messy systems. Parent: `client-layer-scaffold.md`; consumes the ratified memory
 gateway.
-Topics: knowledge-base, memory-gateway, retrieval, embeddings, ingestion,
+Topics: memory-retrieval, hermes, knowledge-base, memory-gateway, retrieval, embeddings, ingestion,
 evidence-rows, planner-executor-synthesizer, hybrid-search, tenant-isolation,
 consent, source-authority, client-hermes, cerebras
 Repository context: openxFactory (memory gateway + client scaffold; applies to all layers)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (row-kernel / adapter-authority / rank-params decisions; cost hook; exit path)
 
 ## Decided (2026-07-22)
