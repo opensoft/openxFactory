@@ -14,7 +14,7 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
 
 ## 1. Gate and ground
 
-- [ ] 1.1 Confirm `ratify-doxbench-landed-context-surfaces` is archived and that
+- [x] 1.1 Confirm `ratify-doxbench-landed-context-surfaces` is archived and that
       the canonical `doxBench scoped view` text matches the base this change's
       delta was authored against; if it drifted, re-author the delta against what
       landed rather than editing canon.
@@ -29,7 +29,7 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
       bullseye's geometry and the completeness signals, and adds the two
       scenarios that take it to 18). NO DRIFT, no re-authoring owed. Re-confirm
       and tick when §1 actually starts.
-- [ ] 1.2 Confirm the INTAKE FOLD still matches `add-doxchat-model-intake`'s
+- [x] 1.2 Confirm the INTAKE FOLD still matches `add-doxchat-model-intake`'s
       delta at archive time. This change's `:1045` text is canon PLUS intake's
       additions (the one-non-model-INTAKE-affordance paragraph, the widened
       "browser loads model choices" bullet, the "The intake affordance is
@@ -45,9 +45,9 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
       2026-08-25 — intake's hosted-plane bullet folded per #351.
 - [x] 1.2a 2026-08-25 — intake's delta re-authored against canon (#351, this
       branch); the remaining hazard is ORDER: intake archives first (see 1.2).
-- [ ] 1.3 `OPENSPEC_TELEMETRY=0 openspec validate add-doxbench-distilled-abstract
+- [x] 1.3 (2026-08-25 — valid; --all --strict 78/78; README entry present.) `OPENSPEC_TELEMETRY=0 openspec validate add-doxbench-distilled-abstract
       --strict` and `--all --strict` green; README OpenSpec Records entry present.
-- [ ] 1.4 Re-read `clarifications.md`. N1–N5 are constraints, not suggestions:
+- [x] 1.4 (2026-08-25 — N1–N5 carried verbatim into every apply-wave agent brief.) Re-read `clarifications.md`. N1–N5 are constraints, not suggestions:
       N1 forbids sharing the chat `TurnStore`, N5 forbids relying on the default
       fake for verifier coverage.
 
@@ -176,11 +176,11 @@ nothing to make them fail today. What proves they have teeth is mutation 9.5,
 which emits an abstract into a document object and must break 6.1 and 6.2. Do not
 mark this section done without running 9.5.
 
-- [ ] 6.1 RED: the generator produces BYTE-IDENTICAL snapshots for one unchanged
+- [x] 6.1 RED: the generator produces BYTE-IDENTICAL snapshots for one unchanged
       tree, once with abstracts generated in-session and once without.
-- [ ] 6.2 RED: no snapshot field carries a model-derived value — assert over the
+- [x] 6.2 RED: no snapshot field carries a model-derived value — assert over the
       emitted document objects, not over the schema.
-- [ ] 6.3 RED: with the port absent, raising, and timing out, the snapshot is
+- [x] 6.3 RED: with the port absent, raising, and timing out, the snapshot is
       unaffected and no lane or gate action fails.
 
 ## 7. Renderer, interaction, accessibility
