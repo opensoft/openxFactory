@@ -1427,7 +1427,22 @@ def check_context_packet(f: Findings, label: str, doc: dict) -> None:
     # this repo's own surface renders. None of those is a conformance verdict on
     # somebody else's record, and this producer cannot emit a blank anyway — its
     # two reasons are module constants, pinned under the released ceiling.
-    if posture == "reduced" and not _states_something(reason):
+    # TWO ARMS, SPLIT ON EXACTLY WHAT contract-v1.40 ALREADY REFUSED. Caught by
+    # the packaged-negative suite when the first version of this fix collapsed
+    # them: one predicate served BOTH the pairing rule and the blank rule, so
+    # downgrading it to a warning silently downgraded the PAIRING too — and that
+    # one shipped as an error WITH v1.40 and must stay one.
+    #
+    # v1.40's predicate was `not reason`, which is true for a MISSING key, an
+    # explicit `null`, and `""`. Those stay ERRORS: refusing them changes
+    # nothing about what the published version accepted.
+    if posture == "reduced" and not reason:
+        f.error("context-packet",
+                f"{label}: a reduced context_packet STATES its reason — a "
+                f"reduction nobody can read is a silent degradation")
+    # A reason that is PRESENT and non-empty but says nothing is the new rule,
+    # and it is the one contract-v1.40 accepted — so it warns and is accepted.
+    elif posture == "reduced" and not _states_something(reason):
         f.warn("context-packet-blank",
                f"{label}: a reduced context_packet STATES its reason — a "
                f"reduction nobody can read is a silent degradation. Accepted "

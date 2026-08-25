@@ -757,3 +757,56 @@ def test_every_textual_home_states_the_admission_rule():
         text = path.read_text(encoding="utf-8")
         assert ("L* ∪ N* ∪ P* ∪ S*" in text or "L* | N* | P* | S*" in text), (
             f"{label} does not state the admission rule")
+
+
+# ---------------------------------------------------------------------------
+# THE VALIDATOR'S TWO ARMS, SPLIT ON EXACTLY WHAT contract-v1.40 REFUSED
+#
+# Found by the packaged-negative suite when the first version of the P1 fix
+# collapsed them: ONE predicate had served both the pairing rule and the blank
+# rule, so downgrading it to a warning silently downgraded the PAIRING — and
+# that rule shipped as an error WITH v1.40, where this one did not.
+# ---------------------------------------------------------------------------
+
+V140_ERRORED: tuple[tuple[str, dict], ...] = (
+    ("missing key", {"posture": "reduced"}),
+    ("explicit null", {"posture": "reduced", "reduced_reason": None}),
+    ("empty string", {"posture": "reduced", "reduced_reason": ""}),
+)
+
+
+@pytest.mark.parametrize("name,packet", V140_ERRORED,
+                         ids=[n for n, _p in V140_ERRORED])
+def test_the_pairing_rule_is_still_an_error(name, packet):
+    """`not reason` was contract-v1.40's own predicate and it ERRORED. Those
+    verdicts are unchanged: keeping them is not a new rejection, and relaxing
+    them would weaken a rule the release ratified."""
+    module = _validator()
+    findings = module.Findings()
+    module.check_context_packet(findings, "probe", {"context_packet": packet})
+    assert any("context-packet]" in e or "[context-packet]" in e
+               for e in findings.errors), (name, findings.errors)
+
+
+def test_no_record_contract_v140_accepted_is_now_rejected():
+    """THE ADDITIVE PROPERTY, asserted directly rather than argued in prose.
+
+    A record the published version accepted must still be accepted; the most a
+    new rule may do on the published major is warn. This is the whole of
+    Codex's P1 on PR #314, turned into a check."""
+    module = _validator()
+    # DERIVED from the shared matrix rather than retyped: a literal
+    # control character does not survive being written by hand, and an
+    # empty string is NOT in this list — contract-v1.40 errored on that.
+    accepted_at_v140 = [value for _n, value, _c, _s in BLANK_CLASSES] + [
+        pk.REDUCED_NO_KNOWLEDGE_SERVICE, "漢字",
+    ]
+    for reason in accepted_at_v140:
+        findings = module.Findings()
+        module.check_context_packet(
+            findings, "probe",
+            {"context_packet": {"posture": "reduced",
+                                "reduced_reason": reason}})
+        assert findings.errors == [], (
+            f"reduced_reason={reason!r} was ACCEPTED at contract-v1.40 and is "
+            f"now rejected — that is a breaking change on a published minor")
