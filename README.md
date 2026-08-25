@@ -774,7 +774,14 @@ Active changes:
   three repos (tasks §3–§5) is now authorized, tracked-not-performed work.
 - [add-wallet-carried-review-authority](openspec/changes/add-wallet-carried-review-authority/proposal.md)
   — authored 2026-08-22, RESTRUCTURED 2026-08-23 on the convener's ruling after
-  council review; **NOT YET RATIFIED** (`Status: draft`). The successor to
+  council review, and **RATIFIED 2026-08-23** (Brett Heap, in-session — the
+  same mechanism that ratified `add-substantive-review-lane` the day before).
+  The proposal carries the ruling record verbatim: ratified as restructured
+  (PART I doctrine, PART II substrate, PART III the declined floor), all four
+  lead constructions confirmed and each overturnable by a later ruling, and Q8
+  deferred to S5's design; Q9 and Q10 stay open as carried items because they
+  amend `add-substantive-review-lane`'s text rather than this change's. The
+  successor to
   `add-substantive-review-lane`, acting on finding LS-A3 from the
   `codexfactory-routine-code-clearance` convening (the widen-only validator did
   not enforce the widenings it was given, so non-self-review cannot rest on an
@@ -788,8 +795,10 @@ Active changes:
   layout demoted to a project schema a human (`PA`) elects and that confers
   nothing. **The substrate, named with nothing pretended** after three council
   seats independently found the proposal treating described controls as existing
-  ones: S1 wires `validate-openxwallet` into CI as a required check (it runs in
-  no workflow today, so no grant is operative); S2 anchors the issuer (root
+  ones: S1 wires `validate-openxwallet` into CI (advisory until an
+  operator marks it required — see "Wallet validation gate" above; at
+  authoring it ran in no workflow at all, so no grant was operative); S2
+  anchors the issuer (root
   issuer = the responsible operator, standing under the Human Escalation
   Contract, no wallet needed); S3 records the exercise at verdict conformance in
   the Hermes runtime (audit-trail-evidenced exercise REJECTED — it records
@@ -806,7 +815,18 @@ Active changes:
   `roles-authority-model` (2 ADDED, 1 MODIFIED declared relative to
   `add-substantive-review-lane`'s outcome per `release-realization:64-74`).
   `target_release: implemented` — no contract bytes move; S1–S5 are named
-  successors.
+  successors, each carrying its OWN `code_surface` and archiving on its own
+  merged, green evidence, so this change's own ledger does not tick from a
+  successor's landing. **Successors landed so far** (Speckit features in this
+  repository): S1 as `010-wallet-validator-ci` (PR #275, 2026-08-23) —
+  `.github/workflows/wallet-validation.yml` now runs
+  `scripts/wallet-yaml-syntax-gate.py` and `scripts/validate-openxwallet.py`
+  on every pull request to `main`; S2 as `012-wallet-issuer-anchor` (PR #299,
+  2026-08-24); the first-wallet cold start as `013-first-wallet` (PR #308,
+  2026-08-25); and S4 as `014-register-and-reader` (PR #341, 2026-08-25),
+  landing `governance/review-authority/register.yaml` at the ruled
+  one-row MVP together with its reader. S3 (`[hermes-install]`) and S5 remain
+  outstanding.
 - [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
   — authored 2026-08-13: two neutral `credential-contracts` requirements for the
   openXdox intent-plane dispatch credential — dispatch-only least privilege with

@@ -93,3 +93,47 @@ mechanically impossible — `doc_health.corpus.STATUS_RE` swallows any trailing
 annotation — so this is an in-place overwrite and an extension of Brett's
 2026-08-10 append ruling, named as one, and it is entered in
 `docs/archive-record-discrepancies.md`.
+
+## Bookkeeping annotation — box 3.1 archived open and unannotated (2026-08-25)
+
+No box is ticked here and no task text above is altered. This section records
+what this change's own record shows about box **3.1**, which archived as a
+bare open box with no reason beside it. It is the second of the two lines the
+register entry A4 in `docs/archive-record-discrepancies.md` singled out when
+`archive-register-rulings` re-read A4 on 2026-08-22 and found that two of its
+six open boxes carry no annotation — the other being
+`add-crystallizer-contracts` 3.1, whose text is byte-identical to this one
+because the two changes are consecutive exits of the same staged topic. The
+shape is the trailing `##` section and the discipline is C6's: **annotate,
+tick nothing**, and assert nothing the record does not carry.
+
+Box 3.1 reads "OpenSpec Records entry at raise; doc-index links land with the
+promoted specs at archive". It is two claims about README bookkeeping, and
+this change's own commit history answers both.
+
+**The raise half.** `README.md`'s `## OpenSpec Records` entry for this change
+was added by commit `e20a8198`, "Raise add-capability-steward (exit 3 of
+recurrence-crystallization)" — the raise commit itself, which is exactly when
+the box says it should land. The entry stands today in the `Archived changes`
+block, pointing at
+`openspec/changes/archive/2026-07-30-add-capability-steward/proposal.md`.
+
+**The archive half.** The `Capability Steward` doc-index entry was added by
+commit `44799d80`, "Archive add-capability-steward; cut contract-v1.21
+(crystallization flywheel closes)" — the same commit that created this archive
+folder, again exactly when the box says. That entry links three promoted specs
+and all three resolve in the tree today:
+`openspec/specs/crystallized-capability-registry/spec.md`,
+`openspec/specs/crystallization-dispatch/spec.md`, and
+`openspec/specs/capability-health/spec.md`.
+
+**So the box's subject was discharged on schedule and the box was simply never
+ticked back.** That is the whole finding, and it is a bookkeeping gap rather
+than an evidence gap. The box stays open regardless: Brett's 2026-08-22 ruling
+on C6 was to annotate rather than force-tick, this box was recorded rather
+than annotated at that round because that ruling named only the four avatar
+changes, and closing the gap by ticking now would substitute this annotation's
+author for the ratifying record. Nothing above is altered.
+
+The closure of the two-line remainder is appended to A4's entry in
+`docs/archive-record-discrepancies.md` under the same date.
