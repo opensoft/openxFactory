@@ -455,6 +455,18 @@ export function boundReachedReason(bound, measured) {
     + "make room, because a loaded buffer may hold unsaved work";
 }
 
+// #290: the sentence EVERY surface uses for a commit this canvas could not
+// adopt -- the buffer's own status region, the one transient line, the tile's
+// verdict, and the document-switch guard's reason. Built here, once, and
+// exported for the same reason the two reasons above are: a test asserting a
+// copy of it pins the copy, so a reword leaves the pin describing nothing while
+// still passing. Three surfaces agreeing "in fact" means agreeing on THIS
+// string, not on three hand-written near-matches of it.
+export function unadoptedCommitReason(detail) {
+  return "Save reported a commit this canvas could not adopt -- "
+    + (detail || "unknown error") + "; this buffer keeps its unsaved text";
+}
+
 const DESTROYED_REASON = "this doxBench canvas has been destroyed";
 const DEFAULT_PREVIEW_DELAY_MS = 150;
 // Long enough to be read at reading speed, short enough that it is plainly an
@@ -2066,9 +2078,7 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
           // A commit whose reported identity the state module refuses is NOT
           // adopted: the buffer keeps its text and its dirty flag, and the
           // human is told, rather than being handed a base nothing can verify.
-          statedOutcomes[row.key] = "Save reported a commit this canvas could not "
-            + "adopt -- " + ((error && error.message) || "unknown error")
-            + "; this buffer keeps its unsaved text";
+          statedOutcomes[row.key] = unadoptedCommitReason(error && error.message);
           leadWith(bufferLabel(row.key) + ": " + statedOutcomes[row.key]);
           // THE SAME SENTENCE, carried out of here (#290). Not a second wording
           // of the same fact: the verdict a tile reads and the region a human

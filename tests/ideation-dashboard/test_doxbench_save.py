@@ -533,7 +533,8 @@ STATE_JS = SAVE_JS.parent / "doxbench-state.js"
 # T071 set: the scenarios are independent, so they are all run and returned
 # together (the same economy `mutation_results` uses).
 _SAVE_HARNESS = r"""
-const { runSave, saveOrder, saveBufferOrder, SAVE_DOCUMENT_ORDER_RULE } =
+const { runSave, saveOrder, saveBufferOrder, SAVE_DOCUMENT_ORDER_RULE,
+        IDENTITY_NOT_STATED, IDENTITY_NOT_ADOPTABLE } =
   await import('./doxbench-save.js');
 // #290: the OTHER judge of a content identity, imported by the HARNESS (both
 // modules stay import-free themselves) so the two can be asked the same
@@ -623,6 +624,12 @@ const IDENTITY_CANDIDATES = {
   nonHex: { algorithm: 'sha256', hex: 'z'.repeat(64) },
   tooShort: { algorithm: 'sha256', hex: 'b'.repeat(63) },
   tooLong: { algorithm: 'sha256', hex: 'b'.repeat(65) },
+  // AN ARRAY CARRYING BOTH PROPERTIES. `typeof [] === "object"`, so a shape
+  // test that stops there admits it while the adopting module's `plainObject`
+  // refuses it. No JSON transport can produce this one -- and the claim under
+  // test is that the two modules AGREE, which is a claim about every value they
+  // can both be handed, not only the ones a wire happens to carry.
+  arrayWithProps: Object.assign([], { algorithm: 'sha256', hex: hex('committed') }),
   absent: null,
 };
 
@@ -647,6 +654,10 @@ async function identityAgreement() {
     out[name] = { status: row.status, message: row.message, adopted,
                   dirty: outcome.state.buffers.document.dirty };
   }
+  // The module's OWN words for the two ways an identity fails, carried out so
+  // the pin asserts against them rather than against a copy of them.
+  out.clauses = { notStated: IDENTITY_NOT_STATED,
+                  notAdoptable: IDENTITY_NOT_ADOPTABLE };
   return out;
 }
 
@@ -849,7 +860,8 @@ def test_the_reader_and_the_writer_judge_a_content_identity_identically(
     isolation: committed if and only if adoptable, for every candidate. A future
     loosening on either side fails here, whichever side moves.
     """
-    agreement = save_results["identityAgreement"]
+    agreement = dict(save_results["identityAgreement"])
+    clauses = agreement.pop("clauses")
 
     # THE AGREEMENT ITSELF, candidate by candidate.
     for name, row in agreement.items():
@@ -861,7 +873,7 @@ def test_the_reader_and_the_writer_judge_a_content_identity_identically(
     assert agreement["lowercaseSha256"]["adopted"] is True
     assert agreement["lowercaseSha256"]["dirty"] is False
     for name in ("uppercaseHex", "mixedCaseHex", "sha512", "emptyAlgorithm",
-                 "nonHex", "tooShort", "tooLong", "absent"):
+                 "nonHex", "tooShort", "tooLong", "arrayWithProps", "absent"):
         assert agreement[name]["status"] == "refused", (name, agreement[name])
         assert agreement[name]["adopted"] is False, name
         # a refusal keeps the human's text: nothing landed, nothing is clean
@@ -869,12 +881,15 @@ def test_the_reader_and_the_writer_judge_a_content_identity_identically(
 
     # THE REFUSAL IS A REPORT, not a status code: it names what was wrong, and
     # it distinguishes an identity that was never stated from one that was
-    # stated in a form nothing can verify later.
+    # stated in a form nothing can verify later. Asserted through the module's
+    # OWN exported clauses -- a sentence copied into a test pins the copy, and
+    # goes on passing after a reword has left it describing nothing.
     malformed = agreement["uppercaseHex"]["message"]
-    assert "lowercase SHA-256" in malformed, malformed
-    assert "base was not advanced" in malformed, malformed
+    assert clauses["notAdoptable"] in malformed, (malformed, clauses)
     absent = agreement["absent"]["message"]
-    assert "without naming the content identity it committed" in absent, absent
+    assert clauses["notStated"] in absent, (absent, clauses)
+    # …and the two are genuinely different reports, not one sentence twice
+    assert clauses["notAdoptable"] not in absent, (absent, clauses)
 
     # …and the rule is SPELLED the same in both homes. Neither module may import
     # the other (test_doxbench_mutation_boundary.py pins them import-free so the

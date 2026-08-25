@@ -2982,8 +2982,11 @@ _SAVE_SEAM_HARNESS = _EDITOR_DOM_SHIM + r"""
 import { createRequire } from 'node:module';
 globalThis.markdownit = createRequire(import.meta.url)('../vendor/markdown-it.min.js');
 
-const { mountDoxBenchCanvas, SAVE_UNAVAILABLE_REASON } =
+const { mountDoxBenchCanvas, SAVE_UNAVAILABLE_REASON, unadoptedCommitReason } =
   await import('./doxbench-editor.js');
+// #290: the adopting module, so the guard scenario can ask it for the exact
+// refusal the canvas caught instead of transcribing one.
+const { adoptSavedBase } = await import('./doxbench-state.js');
 
 const OUTLINE_PATH = 'ideation/staging/topic-x/topic-x.md';
 const DOC_A = 'ideation/staging/topic-x/detail.md';
@@ -3241,8 +3244,24 @@ async function guardSaveMeetsUnadoptableCommit() {
   const blocked = await controller.selectDocument(OUTLINE_PATH);
   const resolved = await controller.resolveGuard('save');
   const buffer = controller.state().buffers.document;
+  // the sentence the two owning modules BUILD for this failure, so the pin
+  // compares against them and not against a copy that a reword would orphan
+  let adoptDetail = null;
+  try {
+    adoptSavedBase(buffer, { ref: SESSION_REF, revision: 'newrev-document',
+                             content_hash: { algorithm: 'sha256',
+                                             hex: 'A'.repeat(64) } });
+  } catch (error) {
+    adoptDetail = String(error && error.message);
+  }
   const read = {
     blocked, resolved,
+    expectedReason: unadoptedCommitReason(adoptDetail) + '.',
+    adoptDetail,
+    // the DATA a landing would have named -- the ref it landed on and the
+    // action it performed. A reason carrying either is reporting a commit.
+    sessionRef: SESSION_REF,
+    committedAction: 'edit-document',
     guardText: String(controller.elements().guard().textContent),
     guardHidden: controller.elements().guard().hidden === true,
     statusDocument: String(controller.elements().status('document').textContent),
@@ -3792,17 +3811,25 @@ def test_the_guard_says_the_commit_was_not_adopted_not_that_it_was_saved(
     assert result["resolved"]["status"] == "refused", result["resolved"]
 
     reason = result["resolved"]["reason"]
-    # THE SENTENCE. The adoption failure, not the row's "saved as …".
-    assert "could not adopt" in reason, reason
-    assert "keeps its unsaved text" in reason, reason
-    assert "saved as" not in reason, reason
+    # THE SENTENCE, asserted as the one the two owning modules BUILD -- the state
+    # module's own refusal for this identity, inside the canvas's exported
+    # reason. Not a phrase copied into this file: a copy pins the copy, and a
+    # consistent reword of the module would leave it passing while describing
+    # nothing.
+    assert result["adoptDetail"], "the state module must refuse this identity"
+    assert reason == result["expectedReason"], (reason, result["expectedReason"])
     # …and it is the buffer's OWN durable sentence, not a second wording of it
     assert reason.rstrip(".") in result["statusDocument"], (
         reason, result["statusDocument"])
+    # …and it names NEITHER thing a landing would have named. Asserted as DATA
+    # (the ref, the action) rather than as the committed sentence's wording, so
+    # the negative survives a reword too.
+    assert result["sessionRef"] not in reason, reason
+    assert result["committedAction"] not in reason, reason
     # …and it is what the human actually reads, in the guard that stayed open
     assert result["guardHidden"] is False
     assert reason in result["guardText"], result["guardText"]
-    assert "saved as" not in result["guardText"], result["guardText"]
+    assert result["sessionRef"] not in result["guardText"], result["guardText"]
 
     # BEHAVIOUR UNCHANGED: the guard stays open over a buffer that kept its
     # text, and no base advanced onto an identity nothing can verify.
@@ -5279,9 +5306,13 @@ _LOADED_SET_HARNESS = _EDITOR_DOM_SHIM + r"""
 import { createRequire } from 'node:module';
 globalThis.markdownit = createRequire(import.meta.url)('../vendor/markdown-it.min.js');
 
-const { mountDoxBenchCanvas, boundReachedReason } =
+const { mountDoxBenchCanvas, boundReachedReason, unadoptedCommitReason } =
   await import('./doxbench-editor.js');
-const { runSave, savePlanState } = await import('./doxbench-save.js');
+const { runSave, savePlanState, IDENTITY_NOT_ADOPTABLE } =
+  await import('./doxbench-save.js');
+// #290: the ADOPTING module, so a scenario can ask it for the very refusal the
+// canvas will have caught rather than transcribing one and hoping they match.
+const { adoptSavedBase } = await import('./doxbench-state.js');
 
 const OUTLINE_PATH = 'ideation/staging/topic-x/topic-x.md';
 const DOC_A = 'ideation/staging/topic-x/detail.md';
@@ -5683,6 +5714,9 @@ async function nothingToSayTakesNoLine() {
       ref: row.ref || null })),
     ok: outcome.ok === true,
     error: outcome.error,
+    // #290: the field is an array on EVERY answer a seam returned, so a fully
+    // adopted Save reports an EMPTY one rather than omitting it
+    unadopted: outcome.unadopted,
     eventNoteText: String(note.textContent),
     eventNoteHidden: note.hidden === true,
     // the durable per-buffer regions, which is where the report actually lives
@@ -5742,6 +5776,9 @@ async function unadoptableIdentityThroughTheRealOrchestrator() {
     baseHexA: buffer.base_hash.hex,
     statusA: String(controller.elements().status(DOC_A).textContent),
     eventNote: String(controller.elements().eventNote().textContent),
+    // the SAVE MODULE's own words for this refusal, so the pin compares against
+    // the module rather than against a transcription of it
+    identityNotAdoptable: IDENTITY_NOT_ADOPTABLE,
   };
   controller.destroy();   // releases the note's own timer
   return read;
@@ -5769,8 +5806,21 @@ async function committedRowThisCanvasCannotAdopt() {
   const outcome = await controller.saveDocument(DOC_A);
   const buffer = controller.state().buffers[DOC_A];
   const note = controller.elements().eventNote();
+  // THE SENTENCE THE CANVAS SHOULD BE SHOWING, assembled from the two modules
+  // that own its halves: the adopting module's own refusal for this identity,
+  // wrapped in the canvas's own exported reason. Nothing here is transcribed,
+  // so a reword of either half moves the expectation with the code.
+  let adoptDetail = null;
+  try {
+    adoptSavedBase(buffer, { ref: SESSION_REF, revision: 'rev-1',
+                             content_hash: UPPERCASE_IDENTITY });
+  } catch (error) {
+    adoptDetail = String(error && error.message);
+  }
   const read = {
     seen,
+    expectedError: unadoptedCommitReason(adoptDetail),
+    adoptDetail,
     ok: outcome.ok === true,
     error: outcome.error,
     status: outcome.status,
@@ -5785,6 +5835,39 @@ async function committedRowThisCanvasCannotAdopt() {
     eventNoteHidden: note.hidden === true,
     // the scope key must not have followed a ref nothing was adopted onto
     ref: controller.state().key.ref,
+  };
+  controller.destroy();
+  return read;
+}
+
+// ---- …and a seam that THREW is not a tile success either ----------------
+//
+// The other half of the same `ok` computation, and the half no row can speak
+// for: when the seam throws, `save()` returns before any buffer row exists at
+// all -- `{status: "refused", reason}` and nothing else. `ok` is false there
+// only because it also requires the whole-Save status to be a landing, which is
+// the clause that has no pin of its own: drop it and every rowless answer (a
+// thrown seam, a destroyed canvas, an unloaded one) reads as a tile SUCCESS.
+async function throwingSeamIsNotOk() {
+  const boom = 'the console lost the gate mid-request';
+  const { controller } = await mount({
+    save: async () => { throw new Error(boom); },
+  });
+  await controller.loadDocumentForEditing(DOC_A);
+  await controller.edit(DOC_A, '# Document A edited\n');
+  const outcome = await controller.saveDocument(DOC_A);
+  const buffer = controller.state().buffers[DOC_A];
+  const read = {
+    boom,
+    ok: outcome.ok === true,
+    error: outcome.error,
+    status: outcome.status,
+    reason: outcome.reason,
+    // there are no rows to reason from: this is the rowless answer
+    rows: outcome.buffers === undefined ? null : outcome.buffers,
+    dirtyA: buffer.dirty,
+    contentA: buffer.content,
+    statusA: String(controller.elements().status(DOC_A).textContent),
   };
   controller.destroy();
   return read;
@@ -5912,6 +5995,7 @@ console.log(JSON.stringify({
   nothingToSay: await nothingToSayTakesNoLine(),
   unadoptableIdentity: await unadoptableIdentityThroughTheRealOrchestrator(),
   unadoptableRow: await committedRowThisCanvasCannotAdopt(),
+  throwingSeam: await throwingSeamIsNotOk(),
   basenameCollision: await basenameCollision(),
   alreadyLoaded: await alreadyLoaded(),
 }));
@@ -6288,6 +6372,11 @@ def test_a_save_with_nothing_withheld_leaves_the_visible_line_alone(
     # …and nothing was lost by the silence. The tile reports its success…
     assert result["ok"] is True, result
     assert result["error"] is None, result["error"]
+    # …with the adoption result stated as EMPTY rather than omitted (#290): the
+    # field is an array on every answer a seam returned, so no reader has to
+    # tell "adopted everything" apart from an answer that never said. Making it
+    # conditional on there being something to report passes every other test.
+    assert result["unadopted"] == [], result["unadopted"]
     # …and the committed buffer's own region still states what it committed as
     # and where, which is the per-buffer report FR-035 requires.
     landed = result["statuses"][committed[0]["key"]]
@@ -6326,8 +6415,11 @@ def test_an_identity_the_canvas_cannot_adopt_is_refused_before_it_is_committed(
     row = [r for r in result["rows"] if r["key"] == "ideation/staging/topic-x/detail.md"]
     assert len(row) == 1, result["rows"]
     assert row[0]["status"] == "refused", row
-    assert "lowercase SHA-256" in row[0]["message"], row
-    assert "base was not advanced" in row[0]["message"], row
+    # the SAVE MODULE's own clause for "stated, but not in a form anything can
+    # adopt" -- asserted as its exported constant, because a test that carries
+    # its own copy of a sentence stops describing the module the moment the
+    # module is reworded, and goes on passing while it does
+    assert result["identityNotAdoptable"] in row[0]["message"], row
 
     # …and the tile's one line is the buffer's OWN sentence, so the two surfaces
     # cannot contradict each other whatever else changes.
@@ -6371,16 +6463,19 @@ def test_a_commit_the_canvas_cannot_adopt_never_reads_as_a_tile_success(
     by_key = {row["key"]: row["status"] for row in result["rows"]}
     assert by_key["ideation/staging/topic-x/detail.md"] == "committed", by_key
 
-    # THE VERDICT. Not ok, and the reason is the adoption failure by name.
+    # THE VERDICT. Not ok, and the reason is the adoption failure itself --
+    # asserted as the sentence the two owning modules BUILD (the state module's
+    # own refusal for this identity, inside the canvas's exported reason), never
+    # as a phrase copied into this file.
     assert result["ok"] is False, result
-    assert "could not adopt" in (result["error"] or ""), result
+    assert result["adoptDetail"], "the state module must refuse this identity"
+    assert result["error"] == result["expectedError"], result
     assert result["unadopted"] == ["ideation/staging/topic-x/detail.md"], result
 
     # …and it is WORD FOR WORD the buffer's own durable sentence, which is the
     # contradiction the issue reported: the tile claimed success while this
     # region said the text was still unsaved.
     assert result["error"] in result["statusA"], result
-    assert "keeps its unsaved text" in result["statusA"], result["statusA"]
     assert result["statusA"].endswith("unsaved changes"), result["statusA"]
     # …and the one visible line carries it too, rather than staying silent about
     # the only thing that went wrong.
@@ -6394,6 +6489,42 @@ def test_a_commit_the_canvas_cannot_adopt_never_reads_as_a_tile_success(
     assert result["baseRefA"] == "main"
     assert result["baseHexA"] != "A" * 64, result["baseHexA"]
     assert result["ref"] == "main", result["ref"]
+
+
+def test_a_save_seam_that_threw_is_never_a_tile_success(loaded_set_results):
+    """openxFactory #290, the rowless half of the same verdict.
+
+    `tileSaveVerdict` reads two things: the failing causes among the rows, and
+    the whole-Save status. The rows are what the adopt fix taught it to read
+    properly -- but a Save whose SEAM THREW has no rows at all. `save()` catches
+    the throw, tells every buffer it was handed, and returns
+    `{status: "refused", reason}` with no `buffers` key, so "no failing causes"
+    is trivially true of it. What makes the tile answer honestly there is the
+    OTHER clause, that the whole-Save status must itself be a landing --
+    `committed` or `unchanged`.
+
+    That clause was load-bearing and unpinned: dropping it passes the whole
+    suite while turning every rowless answer (a thrown seam, a destroyed canvas,
+    an unloaded one) into `ok: true` on the tile. It is pinned here at the
+    shape that reaches a human first -- a governed Save that could not be
+    performed at all -- and the buffer keeps its text, which is the fact the
+    tile must not contradict.
+    """
+    result = loaded_set_results["throwingSeam"]
+    # the precondition that makes this test what it claims to be: NO rows
+    assert result["rows"] is None, result["rows"]
+    assert result["status"] == "refused", result
+
+    assert result["ok"] is False, result
+    assert result["error"], result
+    # the reason names what actually happened, and reaches the buffer's region
+    assert result["boom"] in result["error"], result
+    assert result["error"] == result["reason"], result
+    assert result["boom"] in result["statusA"], result["statusA"]
+
+    # …and the human's text is untouched, which is why a success would be a lie
+    assert result["dirtyA"] is True
+    assert result["contentA"] == "# Document A edited\n"
 
 
 def test_two_loaded_documents_sharing_a_basename_stay_distinguishable(

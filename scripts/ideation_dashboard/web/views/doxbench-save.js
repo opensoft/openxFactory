@@ -179,8 +179,24 @@ function validatedState(value) {
 const CONTENT_IDENTITY_ALGORITHM = "sha256";
 const CONTENT_IDENTITY_HEX = /^[0-9a-f]{64}$/;
 
+// THE TWO WAYS A STATED IDENTITY FAILS, in the words the refusal is built from.
+// Exported because a test that copies a sentence pins the COPY: reword the
+// module and the copy silently stops describing it, which is how a pin quietly
+// becomes decoration. Asserting the module's own constant is the same move
+// `boundReachedReason` makes in doxbench-editor.js, and it keeps the two facts
+// -- never stated, versus stated unusably -- distinguishable by test as well as
+// by eye.
+export const IDENTITY_NOT_STATED = "the content identity it committed";
+export const IDENTITY_NOT_ADOPTABLE =
+  IDENTITY_NOT_STATED + " as a lowercase SHA-256 identity";
+
 function statedIdentity(value) {
-  if (!value || typeof value !== "object") return null;
+  // AN ARRAY IS NOT AN IDENTITY, even carrying both properties. `typeof [] ===
+  // "object"`, so the shape test above admitted one while the adopting module's
+  // `plainObject` refuses it -- a fourth divergence, unreachable through JSON
+  // but reachable from any caller that hands this module a live value, and one
+  // that falsifies the agreement the companion test exists to assert.
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   if (value.algorithm !== CONTENT_IDENTITY_ALGORITHM
       || typeof value.hex !== "string"
       || !CONTENT_IDENTITY_HEX.test(value.hex)) {
@@ -336,8 +352,8 @@ function readVerdict(key, row, answer) {
     // verdict, though: `refused`, in the vocabulary this module already has,
     // because a base advanced onto either is unverifiable from then on.
     missing.push(answer.content_hash == null
-      ? "the content identity it committed"
-      : "the content identity it committed as a lowercase SHA-256 identity");
+      ? IDENTITY_NOT_STATED
+      : IDENTITY_NOT_ADOPTABLE);
   }
   if (missing.length) {
     return outcomeRow(key, {
