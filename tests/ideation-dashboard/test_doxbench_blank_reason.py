@@ -14,9 +14,26 @@ that already exist are extended, never weakened — the released ceiling, the
 pairing, and the two shipped constants are still asserted where they were.
 
 THE PREDICATE: a reason states something iff it contains at least one character
-outside `White_Space ∪ Cc ∪ Cf ∪ Mn ∪ Mc ∪ Me`. `.strip()`/`.trim()` is NOT it
-and the table below is why — it empties four of the nine and leaves five
-untouched, because those five are zero-visible-width rather than whitespace.
+IN `L* ∪ N* ∪ P* ∪ S*` — a letter, number, punctuation mark or symbol. Stated as
+what it ADMITS, which makes it version-stable: `Cn` is never L/N/P/S in any
+Unicode table, so a newer table can never turn a blank into a stated reason. It
+is strictly narrower than the blank categories, additionally refusing `Co`
+(private use), `Cn` (unassigned) and `Cs` (surrogates).
+
+HISTORY, because this file is the agreement's home and a stale statement of the
+rule here is the worst place for one: the rule was FIRST written as an
+EXCLUSION — "outside `White_Space ∪ Cc ∪ Cf ∪ Mn ∪ Mc ∪ Me`" — and a full
+code-point sweep found 51 points where the two runtimes' Unicode tables
+disagreed, with the server accepting what the browser refused. That form is
+history and is not the rule.
+
+`.strip()`/`.trim()` was never it either, and the table below is why — it
+empties four of the nine and leaves five untouched, because those five are
+zero-visible-width rather than whitespace.
+
+WHAT EACH GATE DOES WITH THE VERDICT DIFFERS, and the tests say so: the
+published conformance validator WARNS and still accepts (contract-v1.40
+accepted these records), while the three runtime gates REFUSE.
 """
 
 from __future__ import annotations
@@ -753,10 +770,19 @@ def test_every_textual_home_states_the_admission_rule():
         "browser": CHAT_MODEL_JS,
         "manifest": REPO_ROOT / "contracts" / "manifest.yaml",
     }
+    stale = "at least one character outside"
     for label, path in homes.items():
         text = path.read_text(encoding="utf-8")
         assert ("L* ∪ N* ∪ P* ∪ S*" in text or "L* | N* | P* | S*" in text), (
             f"{label} does not state the admission rule")
+        # AND THE OLD FORM IS NOT STATED AS CURRENT. Presence alone is not
+        # enough: a home carrying BOTH statements reads as ambiguous to the
+        # next author, and ambiguity is how four homes drift. The exclusion
+        # form may appear only as HISTORY, which every home spells with a
+        # past-tense marker rather than as a definition of the rule.
+        assert stale not in text, (
+            f"{label} still states the exclusion form as the current rule "
+            f"({stale!r}); it may appear only as recorded history")
 
 
 # ---------------------------------------------------------------------------
