@@ -78,6 +78,7 @@ The dashboard backend SHALL expose a same-origin workbench model catalog whose e
 - **WHEN** doxBench runs on the hosted plane
 - **THEN** the model catalog and turn capabilities MUST be absent
 - **AND** no chat or editor control implying unavailable authority MUST be reachable
+- **AND** the intake affordance MUST be absent with them, because a plane that may not run a turn may not enrol a provider either
 
 #### Scenario: A second model consumer is added
 - **WHEN** a capability adds a model consumer that is not a chat turn

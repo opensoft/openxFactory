@@ -80,3 +80,9 @@
 - [ ] 4.2 Realization evidence recorded per `release-realization`. This change
       has a code surface, so it archives only on merged plus green — never on
       authoring alone.
+
+## Amendment Record
+
+- 2026-08-25 — delta re-authored against canon per #351; the block previously
+  restated a pre-2026-08-22 version and would have reverted six clauses and
+  two scenarios on archive.
