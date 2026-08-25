@@ -34,7 +34,8 @@ WHAT WAS FALSE. Q2's premise — "the envelope schema v1 supports only EXACT-str
 `expected_head_ref` (no ref patterns)" — was already untrue when the question was
 asked. `head_ref_pattern` is part of schema **v1 itself** (`schema_version` is
 `{"const": 1}`; the member is a `oneOf` alternative to `expected_head_ref`), with
-glob matching in `scripts/merge_master/envelope.py`. It shipped in codexFactory
+glob matching in **codexFactory's** `scripts/merge_master/envelope.py` — that tree
+exists in `opensoft/codexFactory`, not in this repository. It shipped in codexFactory
 `9ebe805` on **2026-08-21**, two days before this clarify, and codexFactory runs a
 pattern class in production today (`head_ref_pattern: change/**`). So the ground
 "no schema change (codexFactory-minor explicitly rejected as premature cross-repo

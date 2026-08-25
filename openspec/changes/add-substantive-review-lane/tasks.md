@@ -157,13 +157,18 @@
         cannot be written against the current matcher" is false, and "it is a
         matcher change, not a config change" is exactly inverted: for §4.1 it is
         now a CONFIG change and no schema work is owed.
-      HOW THE ERROR HAPPENED, recorded so it is not repeated: the original was
-      verified 2026-08-22 by reading the aggregation repo's `xFactories/`
-      codexFactory SUBMODULE CHECKOUT, whose pin was then `e61f24da` — a commit
-      predating `9ebe805`. The reading was accurate about the bytes in front of
-      it and wrong about codexFactory. This is the submodule-pin-drift trap:
-      verify realization facts against the submodule's own `origin/main`, never
-      against the pin the aggregation happens to carry.
+      HOW THE ERROR HAPPENED, recorded so it is not repeated, and named from
+      THIS repository's point of view since none of these paths exist here: the
+      original was verified 2026-08-22 by reading a working copy of
+      `opensoft/codexFactory` — specifically the copy that the `opensoft/xFactory`
+      AGGREGATION repo carries as its submodule at `xFactories/codexFactory`,
+      which on that date was pinned at `e61f24da`, a commit predating `9ebe805`.
+      Neither that path nor `scripts/merge_master/` exists in openxFactory; to
+      re-verify any of this from here, read `opensoft/codexFactory` directly.
+      The 2026-08-22 reading was accurate about the bytes in front of it and
+      wrong about codexFactory. This is the submodule-pin-drift trap: verify
+      realization facts against the source repository's own `origin/main`, never
+      against the pin an aggregation checkout happens to carry.
       WHAT §4.1 MAY ACTUALLY DO. Pattern classes are available at zero schema
       cost, but availability is not permission. **Brett ruled 2026-08-25** that
       intake-per-effort stands for first-tranche classes — one reviewed exact-ref
@@ -208,7 +213,8 @@
       both directions. What changed, all in codexFactory `9ebe805`
       (**2026-08-21**, the same commit as §4.4's matcher work, and likewise
       missed at ratification because the aggregation's submodule pin was the
-      older `e61f24da`):
+      older `e61f24da`). ALL PATHS BELOW ARE IN `opensoft/codexFactory`, not in
+      this repository:
       - `rule.repository` is NO LONGER descriptive-only. `council_clearance.py`'s
         `select_rule` cross-checks it against the resolved surface's
         `target_repos` and REFUSES the rule when they contradict — fail-closed,
@@ -260,9 +266,20 @@
       gate/workflow definitions, credential surfaces, and security posture
       permanently human-only — most of what an openxFactory PR touches;
       Q5 (iii) confines autonomous eligibility to docs-/derived-artifact-
-      shaped blast radii; and §4.4's exact-string head-ref matcher pins any
-      class to one literal branch until that work lands. The intersection is
-      docs-shaped AND fixed-branch. So the pilot's AUTONOMOUS evidence
+      shaped blast radii; and first-tranche classes are fixed-branch. The
+      intersection is docs-shaped AND fixed-branch.
+      **CORRECTED 2026-08-25, consistent with §4.4's correction above:** this
+      passage originally derived fixed-branch-ness from "§4.4's exact-string
+      head-ref matcher... until that work lands". That work already landed —
+      `head_ref_pattern` ships in envelope schema v1 and codexFactory runs
+      `change/**` in production — so the mechanism no longer constrains anything
+      and nothing is being waited on. First-tranche classes are fixed-branch
+      **BY RULING**: Brett reaffirmed intake-per-effort on 2026-08-25 on the
+      anti-spoofing ground alone (Principle VII). The narrowness this task
+      predicts is therefore real and unchanged, but it is a chosen security
+      posture rather than a temporary mechanical limit — do not expect it to
+      lift when some matcher work lands, and do not cite a matcher gap as the
+      reason a class is fixed-branch. So the pilot's AUTONOMOUS evidence
       accumulates slowly, and the substantive-PR ambition is exercised
       meanwhile through the council-reviewed-but-human-approved path (real
       deliberation, rationales, audit artifact, `needs_human_review`

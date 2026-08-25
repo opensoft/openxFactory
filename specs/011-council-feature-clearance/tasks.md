@@ -19,18 +19,34 @@ root checkout carries unrelated operator WIP (`.azure/plan.md`, `installs/cloudp
 
 ## Phase 3 — User Story 1: recorded verdicts on feature PRs (P1)
 
-**ESCALATED — blocked on convener classification-mechanics ruling (research.md R4).**
+**BLOCKED — the ruling landed and did NOT unblock these tasks; it named what must
+land first (research.md R4; ruling recorded 2026-08-23 in implementation-notes.md
+§ Round 8).**
 Under ACTIVE tier-2, a human-authored feature candidate whose facts prove clearable
 could be autonomously approved by the merge-master App; advisory-first intent cannot
-be encoded in the envelope (schema fact). Options (a)/(b)/(c) presented to the
-convener. No live candidate entry for any human-authored PR lands until ruled.
+be encoded in the envelope (schema fact). Options (a)/(b)/(c) were presented to the
+convener.
+
+**THE GATE IS THE SUCCESSOR, NOT THE RULING.** Brett ruled **C→B**: stay parked now,
+land the codexFactory advisory-intent successor next, pilot entry follows *under its
+protections*. Option A — accept eventual autonomous approval for narrowly-scoped
+classes — was REJECTED. So "the convener has ruled" is TRUE and unblocks NOTHING: it
+is what put the successor in front of these tasks. Reading the ruling's existence as
+the release condition would land live entries on exactly the autonomy path the ruling
+rejected.
+
+No live candidate entry for any human-authored PR lands until **both**: (i) the
+codexFactory classification-intent successor change has LANDED, and (ii) its
+advisory-intent protections are ACTIVE — a feature-PR candidate structurally excluded
+from the autonomy branch, not merely intended to be. Until (i) and (ii) hold, the
+correct state of these tasks is blocked.
 
 - [ ] T005 [US1] **(ESCALATED)** Add the pilot exact-ref envelope entry (proposed subject: existing low-risk PR #22 or the next qualifying effort branch), rehearse Scenario 3 end-to-end: awaiting_verdict → auto-commission → identity-bound verdict check-run.
 - [ ] T010 [US1] **(ESCALATED)** Observe and record the first real verdict artifact (SC-001 completion evidence).
 
 ## Phase 4 — User Story 2: floor refusals stay loud (P2)
 
-- [ ] T006 [US2] **(ESCALATED, shares T005's gate)** Rehearse the named-refusal path on an assembly-class candidate (#141 proposed): dispatch → configuration guard passes → preflight refuses with never-clearable outcome → zero runtime jobs; idempotent re-dispatch. Requires the class entry from the same ruling.
+- [ ] T006 [US2] **(ESCALATED, shares T005's gate)** Rehearse the named-refusal path on an assembly-class candidate (#141 proposed): dispatch → configuration guard passes → preflight refuses with never-clearable outcome → zero runtime jobs; idempotent re-dispatch. Requires the class entry, which is gated on the same successor as T005 — not on the ruling.
 
 ## Phase 5 — Polish & Cross-Cutting
 
@@ -39,7 +55,7 @@ convener. No live candidate entry for any human-authored PR lands until ruled.
 
 ## Dependencies
 
-- T002 → T003/T004 independent of each other; T005/T006 blocked by convener ruling (not by code); T007 after all landing moves; T008 last.
+- T002 → T003/T004 independent of each other; T005/T006/T010 blocked by the codexFactory classification-intent successor LANDING and its advisory-intent protections being ACTIVE (the R4 ruling's C→B sequence — not by the ruling's existence, which has already happened and released nothing); T007 after all landing moves; T008 last.
 
 ## Parallel execution examples
 
@@ -48,5 +64,10 @@ convener. No live candidate entry for any human-authored PR lands until ruled.
 ## Implementation strategy
 
 Safe scaffolding (T001–T004, T007–T008) lands and is review-gated immediately; the
-live-entry pair (T005/T006/T010) executes in one focused pass once the convener rules
-on classification mechanics — estimated Quick (<1h) including both rehearsals.
+live-entry pair (T005/T006/T010) executes in one focused pass once the codexFactory
+classification-intent successor has LANDED and its advisory-intent protections are
+ACTIVE — estimated Quick (<1h) including both rehearsals, once that precondition
+holds. The convener's R4 ruling is already made and is NOT that precondition: it is
+the instruction that created it (C→B). Executing this pass on the strength of the
+ruling alone would put human-authored feature PRs on the tier-2 autonomy path the
+same ruling rejected.
