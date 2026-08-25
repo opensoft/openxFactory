@@ -7,7 +7,7 @@ per-run cost ledger measuring validity, semantic accuracy, evidence support,
 latency, tokens, retries, escalation, cache utility, and downstream acceptance,
 so routing can favor the cheapest profile that meets the required quality
 without training on private live subject data.
-Topics: omnigent, omnigent-domain-overlay, micro-agents, evaluation,
+Topics: omnigent-micro-agent, omnigent, omnigent-domain-overlay, micro-agents, evaluation,
 cost-accountability, latency, token-budget, quality-metrics, routing-policy,
 cache-utility, model-tiering, feat-request
 Repository context: openxFactory (worker evaluation, spend evidence and routing

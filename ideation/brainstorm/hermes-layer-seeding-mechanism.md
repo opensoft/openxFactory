@@ -15,11 +15,12 @@ knowledge binds to the gateway (federated, not copied); and reference content
 (a client-consented event), and fails closed — an unseeded layer stays
 structural-only, which is safe. Runs in hermes-install. Parent:
 `hermes-layer-content-seeding.md`.
-Topics: seeding-mechanism, seed-layer-content, overlay-ref, hybrid-seam,
+Topics: hermes, seeding-mechanism, seed-layer-content, overlay-ref, hybrid-seam,
 materialization, digest-pinning, determinism, fail-closed, memory-gateway,
 runtime-records, hermes-install, lifecycle-verb
 Repository context: hermes-install runtime (consumes openxFactory/domain/client/project content)
 Captured: 2026-07-21
+
 Updated: 2026-07-24 (render-ownership + slim-4b decisions; increment 3 realized in hermes-install)
 
 ## Decided (2026-07-22)

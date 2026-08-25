@@ -13,7 +13,7 @@ don't improvise, escalate" stance legal established, because reputation and
 liability are as high-stakes and as un-improvisable as law. They can convene
 together as a launch/release Risk & Assurance review. Parent:
 `client-layer-roster-draft.md`; legal member: `hermes-legal-compliance-model.md`.
-Topics: client-hermes, risk-and-assurance, reputation, brand, product-liability,
+Topics: client, client-hermes, risk-and-assurance, reputation, brand, product-liability,
 insurance, errors-and-omissions, legal-compliance, fail-closed, human-escalation,
 launch-review
 Repository context: openxFactory (NEUTRAL client-scaffold roles — every client, all domains)

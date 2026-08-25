@@ -17,12 +17,13 @@ already have content; this doc is how the content gets there. Content is
 assembled by a pinned overlay stack (`Hermes-Install-Core` ops engine →
 xFactory generic → domain → client → project) and the running Hermes seeds
 the enforceable slice of it into records — the two axes and the seam below.
-Topics: three-layer-hermes-runtime, layer-content-seeding, domain-hermes,
+Topics: hermes, three-layer-hermes-runtime, layer-content-seeding, domain-hermes,
 client-hermes, project-hermes, personality, memory-gateway, practice-catalog,
 overlay-ref, provision-project, client-policy-wizard, project-type-templates,
 hermes-install-core, composition-overlay-stack, openworkflow-lineage
 Repository context: openxFactory (spans codexFactory + installs/hermes-install)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (increment 1 realized; seam/naming/re-pin decisions recorded)
 
 ## Decided (2026-07-22)

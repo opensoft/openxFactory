@@ -1,0 +1,11 @@
+schema_version: 1
+kind: ideation_readiness_run
+status: record
+run_id: brainstorm-packet-migration-final-20260824
+source_revision: f13a3b6007736292e1e157febef1ac733e534de9
+generated_at: '2026-08-24T00:00:00Z'
+prompt_contract_version: 1
+readiness_profile: ideation-readiness
+generator_version: ideation-xref-scorer-0.1.0
+envelopes: []
+scored_clusters: []

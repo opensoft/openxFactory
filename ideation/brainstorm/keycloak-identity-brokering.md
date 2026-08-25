@@ -3,18 +3,19 @@
 Status: staged
 Kind: architecture
 Summary: Proposes self-hosted Keycloak as the family's identity broker — users log in with whatever upstream IdP their organization chooses (GitHub, Google, Entra ID, any OIDC/SAML), federated identities link/merge into ONE persistent persona per human, and organization membership (a user working at multiple companies or repo orgs) is modeled on the persona rather than fragmenting it — replacing the dashboard's htpasswd Basic Auth first and satisfying the gate console's authenticated-principal hardening prerequisite.
-Topics: identity-brokering, keycloak, user-management, single-persona, sso, ideation-dashboard, roles-authority-model, credential-contracts
+Topics: identity-custody, identity-brokering, keycloak, user-management, single-persona, sso, ideation-dashboard, roles-authority-model, credential-contracts
 Repository context: openxFactory (contract-level, cross-factory; deployment mechanics land in Omnigent-Install; identity operations ownership likely OpsxFactory)
 Captured: 2026-07-14
+
 Origin: Brett, 2026-07-14, after the ideation-dashboard deployment shipped
 with single-user htpasswd Basic Auth and the question "how do we manage
 users?" — and the final review's accepted risks named authenticated actor
 identity as the prerequisite for any write-enabled host phase.
 Organized: 2026-08-21 into the
-[identity-brokering-plane staged topic](../staging/identity-brokering-plane/identity-brokering-plane.md)
+[identity-brokering-plane supporting document](../../openspec/changes/add-identity-brokering/supporting-docs/identity-brokering-plane.md)
 and the sibling
-[pki-trust-anchor-plane staged topic](../staging/pki-trust-anchor-plane/pki-trust-anchor-plane.md)
-(both staged); kept as design history. See "Exit executed" below.
+[pki-trust-anchor-plane supporting document](../../openspec/changes/add-trust-anchor/supporting-docs/pki-trust-anchor-plane.md)
+(both ratified and realized); kept as design history. See "Exit executed" below.
 
 Brainstorm — contradiction and half-formed options are legal here.
 
@@ -175,13 +176,13 @@ something genuinely needs an OIDC token.
 
 The successors:
 
-- [identity-brokering-plane](../staging/identity-brokering-plane/identity-brokering-plane.md)
-  (`openxFactory:staging:identity-brokering-plane`) — the persona/claims
+- [identity-brokering-plane](../../openspec/changes/add-identity-brokering/supporting-docs/identity-brokering-plane.md)
+  (promoted by `add-identity-brokering`) — the persona/claims
   side, carrying the rulings above and the integration path (dashboard
   oauth2-proxy swap, gate `actor_subject` binding, editor login, then the
   later candidates this doc listed).
-- [pki-trust-anchor-plane](../staging/pki-trust-anchor-plane/pki-trust-anchor-plane.md)
-  (`openxFactory:staging:pki-trust-anchor-plane`) — the PKI side, which
+- [pki-trust-anchor-plane](../../openspec/changes/add-trust-anchor/supporting-docs/pki-trust-anchor-plane.md)
+  (promoted by `add-trust-anchor`) — the PKI side, which
   this brainstorm did not anticipate: two realizations (a live Intune
   Cloud PKI canary and OpenXPKI for the production core) force one
   product-agnostic trust-anchor contract.

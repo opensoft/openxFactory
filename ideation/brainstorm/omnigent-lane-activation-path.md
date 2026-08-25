@@ -13,7 +13,7 @@ are not real until policy content is seeded and gates enforce it. The omnigent
 converge before the first managed run. The foundations are hand-built (Speckit +
 operator) because the lane cannot build the plumbing it depends on; once the path
 is live, the factory can self-host. Parent: `hermes-layer-content-seeding.md`.
-Topics: omnigent-lane, execution-lane, hermes-managed, autonomous-coding,
+Topics: worker-execution, omnigent-lane, execution-lane, hermes-managed, autonomous-coding,
 job-dispatch, clearance, credentials, review-lane, merge-master, self-hosting,
 sequencing, bootstrap
 Repository context: openxFactory (roadmap spanning hermes-install runtime + codexFactory omnigent/review/merge)

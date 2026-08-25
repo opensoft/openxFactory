@@ -43,14 +43,14 @@ State manifest: <workspace-root>/.claude/nlm-sync-manifest.json
 The default (book-sync) mode also runs the ideation-dashboard workbench
 orphan sweep (`workbench_orphan_sweep` below): --apply deletes `xf-wb-*`
 scratch notebooks no live workbench manifest binds; the dry run prints the
-plan. Only `xf-wb-*` titles are ever candidates — the three lifecycle books
-above can never be swept.
+plan. Only `xf-wb-*` titles are ever candidates — the lifecycle books above
+can never be swept.
 
 The --session-ref mode is the fourth family: ONE
 `xf-session-<repository>-<branch>` notebook per LIVE branch session
 (007-workbench-branch-sessions, FR-036-FR-040), created / re-synced / retired
 from that session's WORKTREE. It is deliberately independent of everything
-above: the three books stay MAIN-ONLY (a session worktree lives in
+above: the lifecycle books stay MAIN-ONLY (a session worktree lives in
 `<repo>-worktrees/`, outside every book's walk — the exclusion is never
 relaxed), the session leaves no manifest for the sweep to trip over, and the
 `xf-session-` namespace is disjoint from the swept `xf-wb-` one. See
@@ -1054,7 +1054,7 @@ def workbench_orphan_sweep(root: Path, apply: bool, adapter=None) -> None:
 # --------------------------------------------------------------------------
 # BRANCH-SESSION notebooks (007-workbench-branch-sessions T073; FR-036-FR-040)
 #
-# A fourth notebook family beside the three lifecycle books and the swept
+# A fourth notebook family beside the lifecycle books and the swept
 # `xf-wb-*` reference sets: ONE `xf-session-<repository>-<branch>` notebook per
 # live branch session, synced FROM that session's WORKTREE.
 #
@@ -1163,12 +1163,26 @@ def live_session_targets(root: Path, branch: str,
     residue whose git association had been pruned AND whose branch had been
     deleted it still returned a target — and then drove notebook create /
     re-sync / RETIRE against a session that did not exist. Handed the identical
-    directory, `branch_session.bootstrap_sessions` answered `live=()` and reported
-    it stale: two liveness answers for one input, and the divergent one was the
+    directory, `branch_session.bootstrap_sessions` answered `live=()` and
+    reported it stale: two liveness answers for one input, and the divergent one was the
     one holding the `nlm` credential. `branch_session.live_session_worktree` is
     the bootstrap's own per-branch rule — git must list the directory as a
     worktree ON THIS BRANCH, the branch must exist, and no ending marker may say
-    the session is over (FR-008, FR-021, D10)."""
+    the session is over (FR-008, FR-021, D10).
+
+    THE CONTAINER QUESTION got the sweep's own fix (F3, migration evidence
+    2026-08-24): a session's container is `<checkout>-worktrees/sessions/`,
+    keyed on the checkout the session was OPENED from, and sessions are
+    routinely opened from a FEATURE worktree. Asking only each repository's
+    canonical checkout derived one path and never saw those sessions —
+    `--session-ref` refused two LIVE draft/* branches while `--session-sweep`
+    (which enumerates every worktree) saw both, leaving their notebooks hosted
+    on the account being abandoned. So this enumeration is complete the same
+    way the sweep's is: every worktree git lists for the repository is asked,
+    each as a potential container owner, through the SAME joint signal. An
+    unreadable worktree list still degrades to the canonical root alone —
+    safe here because this mode only ever REFUSES when it finds nothing; it
+    has no retire arm."""
     bs = _dashboard_module("branch_session")
     sg = _dashboard_module("session_git")
     root = Path(root).resolve()
@@ -1176,16 +1190,25 @@ def live_session_targets(root: Path, branch: str,
     for name, checkout in session_repositories(root):
         if repository and name != repository:
             continue
+        roots: list[Path] = [Path(checkout)]
         try:
-            worktree = bs.live_session_worktree(sg.SessionGit(checkout), checkout,
-                                                branch)
+            for record in sg.SessionGit(checkout).worktree_records():
+                candidate = Path(record.path)
+                if candidate not in roots:
+                    roots.append(candidate)
         except Exception:  # noqa: BLE001 - a tree with no git has no sessions
-            worktree = None
-        if worktree is not None:
-            found.append(SessionTarget(repository=name, branch=branch,
-                                       worktree=worktree,
-                                       alias=bs.notebook_alias(name, branch),
-                                       checkout=checkout))
+            pass
+        for checkout_root in roots:
+            try:
+                worktree = bs.live_session_worktree(sg.SessionGit(checkout_root),
+                                                    checkout_root, branch)
+            except Exception:  # noqa: BLE001 - a tree with no git has no sessions
+                worktree = None
+            if worktree is not None:
+                found.append(SessionTarget(repository=name, branch=branch,
+                                           worktree=worktree,
+                                           alias=bs.notebook_alias(name, branch),
+                                           checkout=checkout))
     return found
 
 
@@ -1216,11 +1239,19 @@ def resolve_session_target(root: Path, branch: str,
             "retires it")
     if len(found) > 1:
         names = ", ".join(t.repository for t in found)
+        paths = ", ".join(str(t.worktree) for t in found)
+        if len({t.repository for t in found}) > 1:
+            advice = (f"; a session notebook alias is keyed on "
+                      "(repository, branch) (FR-037, spec C9), so name one "
+                      "with --session-repository")
+        else:
+            advice = ("; the same branch is live under more than one session "
+                      "container IN this repository, which no alias can "
+                      "disambiguate — end or clean up all but one before "
+                      "addressing its notebook")
         raise SessionNotebookRefused(
-            f"[session] branch {branch!r} names a live session in more than one "
-            f"repository ({names}); a session notebook alias is keyed on "
-            "(repository, branch) (FR-037, spec C9), so name one with "
-            "--session-repository")
+            f"[session] branch {branch!r} names a live session in more than "
+            f"one place ({names}: {paths}){advice}")
     return found[0]
 
 
@@ -1385,6 +1416,24 @@ def sync_session_notebook(root: Path, branch: str, apply: bool = False, *,
           f"({rel})")
     for path in paths:
         print(f"[session]   source {path}")
+    # ---- capacity guard (before any mutation) ----
+    # This route is deliberately unbounded (workbench finding 21: the
+    # human-waiting terminal completes what a bounded gate-route creation
+    # deferred), so nothing downstream would stop a session whose derived
+    # corpus outgrew the provider's per-notebook cap — adds would fail past
+    # the cap mid-flight, the shared Ideation book's 2026-08-10 death. The
+    # books' guard therefore applies here too: refuse before ANY mutation,
+    # name the excess and the remedy.
+    if len(paths) > NOTEBOOK_SOURCE_CAP:
+        print(f"[session] {target.alias} REFUSED: {len(paths)} desired sources "
+              f"exceed the provider's {NOTEBOOK_SOURCE_CAP}-source per-notebook "
+              f"cap by {len(paths) - NOTEBOOK_SOURCE_CAP}. Applying would die "
+              "mid-run; scope the session membership rule down or split the "
+              "projection first (see split-ideation-book-per-repo). Nothing "
+              "was created, added, or retired.")
+        return SessionSync(target=target, documents=paths, skipped=True,
+                           detail=f"{len(paths)} desired sources exceed the "
+                                  f"{NOTEBOOK_SOURCE_CAP}-source provider cap")
     if not apply:
         print("[session] dry-run: re-run with --apply to sync")
         return SessionSync(target=target, documents=paths,

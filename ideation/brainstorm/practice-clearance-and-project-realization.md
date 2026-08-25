@@ -9,7 +9,7 @@ the contested tail — and how the Project (Customer) Hermes realizes a
 cleared practice on the actual repo through the factory's own PR and
 review machinery. Umbrella: `hermes-governed-nightly-sweep.md`;
 generation side: `domain-practice-suggestion-generation.md`.
-Topics: practice-clearance, auto-clear-envelope, project-realization,
+Topics: practice-adoption, practice-clearance, auto-clear-envelope, project-realization,
 client-policy, merge-master-pattern, practice-adoption
 Repository context: openxFactory (client clearance + project realization behavior)
 Captured: 2026-07-20

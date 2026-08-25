@@ -279,7 +279,7 @@ def test_the_worktrees_pattern_covers_the_sessions_sub_path(tmp_path):
 def test_session_worktrees_never_reach_a_lifecycle_book(tmp_path):
     """FR-039 / research R7's second half: the book scan excludes the worktree
     container by name AND anything under a nested `.git`, so a session worktree
-    contributes NO source, title, or repository to any of the three books."""
+    contributes NO source, title, or repository to any of the lifecycle books."""
     doc = "Status: staged\n"
     root = tmp_path / "workspace"
     (root / "openxFactory/ideation/staging/real").mkdir(parents=True)
