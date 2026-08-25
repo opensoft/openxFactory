@@ -3,9 +3,10 @@
 Status: brainstorm
 Kind: architecture
 Summary: Supporting documents relate to features one-to-many, so packets should LINK to docs in a general home instead of copying them — and for each topic we want a generated, tree-structured compilation doc: a one-line-summary index that opens to per-passage abstracts, each linked to the full source doc.
-Topics: ideation-tooling, doc-management, doc-workflow, supporting-docs, possibles-register, document-cataloging, ideation-dashboard
+Topics: dashboard-workbench, ideation-tooling, doc-management, doc-workflow, supporting-docs, possibles-register, document-cataloging, ideation-dashboard
 Repository context: openxFactory
 Captured: 2026-07-19
+
 Source: Brett, live session — prompted by the add-possibles-derivation-lane
 packet showing no supporting docs while the idea's substance sits scattered
 across other docs.

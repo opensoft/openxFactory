@@ -1,14 +1,9 @@
 """Duplicate discharge of one ruling across two archived packets
 (`add-duplicate-packet-check`).
 
-THE ORDINAL, stated once and carefully, because two changes are in flight for
-it. This is the NINETEENTH family registered in `families.FAMILIES`, and the
-`doc-health` requirement it lands under counts TWENTY — because
-`add-release-inventory-drift-check` (issue #312, ratified the same day)
-commissioned a family whose checker is an explicit follow-on slice. The
-promoted requirement counts COMMISSIONED families; `FAMILIES` counts BUILT
-ones, and the two are allowed to differ for exactly as long as that slice is
-open. `FAMILIES` is the count, as its own module docstring says.
+THE TWENTIETH family registered in `families.FAMILIES`, behind
+`release_inventory.py`'s nineteenth, which realized while this one was being
+written. `FAMILIES` is the count, as its own module docstring says.
 
 WHAT IT ANSWERS. The eighteenth family asks whether a ratified delta REACHED
 canon. Its neighbour, discovered the night the eighteenth family's first
@@ -92,13 +87,32 @@ keeps that sentence true. The cost is bounded and the catch point is the right
 one anyway: a duplicate arrives in the PULL REQUEST that adds the second
 packet, and a repository's self-gate run reads its own tree at that tip.
 
-CLASSIFICATION AT LAUNCH IS ADVISORY IN BOTH HALVES, the eighteenth family's
-precedent exactly: every finding is WARNING, so `--fail-on error` and
-`--fail-on critical` cannot red on it, and the family is deliberately ABSENT
-from `families.FAMILY_RESOLUTION` so a resolved finding cannot become an
-`error` through `report.uncited_resolutions`. The flip to enforcing raises
-severity and adds the contested classification TOGETHER, by ruling, and it is
-an open task box in `openspec/changes/add-duplicate-packet-check/tasks.md`.
+CLASSIFICATION AT LAUNCH IS ADVISORY IN BOTH HALVES — every finding is
+WARNING, so `--fail-on error` and `--fail-on critical` cannot red on it, and
+the family is deliberately ABSENT from `families.FAMILY_RESOLUTION` so a
+resolved finding cannot become an `error` through `report.uncited_resolutions`.
+
+READ THAT AGAINST THE NEIGHBOUR'S CURRENT STATE, not against its history. The
+promotion-fidelity family FLIPPED to `ERROR` + `CONTESTED` on 2026-08-24 (its
+task 4.2, PR #325). Copying the flipped values here would be copying a
+conclusion without its premise: that flip was ruled "ENFORCING, SEQUENCED" and
+sequenced BEHIND the discharge of a measured standing population, on
+`govern-openspec-corpus-membership`'s rule that "a gate that goes red on the
+commit that introduces it teaches everyone to route around the gate". This
+class has no discharged population — it has a corpus measured at zero and one
+near miss — so it launches where its neighbour launched, and it flips by its
+own ruling on its own evidence. The flip raises severity and adds the contested
+classification TOGETHER, and it is an open task box in
+`openspec/changes/add-duplicate-packet-check/tasks.md` §5.1.
+
+THE FLIPPED NEIGHBOUR IS ALSO A HAZARD THIS FAMILY MUST NOT CREATE.
+`report.uncited_resolutions` reads a finding's OWN `family` — `runner` applies
+`FAMILY_RESOLUTION.get(f.family, f.resolution)` — so a `duplicate-packet`
+finding can never inherit `promotion-fidelity`'s `CONTESTED` class no matter
+what path it lands on, even when both families report against the same archived
+delta. That separation is asserted rather than assumed:
+`test_launch_is_advisory_by_resolution_class` and
+`test_a_disposition_for_the_neighbouring_family_disposes_nothing`.
 """
 
 from __future__ import annotations
@@ -114,11 +128,11 @@ from .promotion_fidelity import (CHECKED_OPS, WorkingTree, _archive_date,
 
 FAMILY = "duplicate-packet"
 
-# The launch severity, named once — `promotion_fidelity._LAUNCH_SEVERITY`'s
-# note carries the full reasoning for both halves of the advisory launch, and
-# it applies here unchanged. WARNING keeps the family out of `runner.main`'s
-# `{CRITICAL}` / `{CRITICAL, ERROR}` gates; absence from `FAMILY_RESOLUTION`
-# keeps it out of the uncited-resolution ERROR path.
+# The launch severity, named once. WARNING keeps the family out of
+# `runner.main`'s `{CRITICAL}` and `{CRITICAL, ERROR}` gates; absence from
+# `families.FAMILY_RESOLUTION` keeps it out of the uncited-resolution ERROR
+# path. Both halves, and why they do not copy the neighbour's now-flipped
+# values, are in this module's docstring.
 _LAUNCH_SEVERITY = WARNING
 
 _ACTION = ("name the packet this one restates in its proposal, or withdraw "

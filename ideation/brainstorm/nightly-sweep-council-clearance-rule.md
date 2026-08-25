@@ -18,14 +18,22 @@ and parks with a fix-the-generator flag) and ships `configured_but_inactive`
 behind an activation gate until council orchestration lands in the Omnigent
 lane. Widening what auto-clears is a per-repo gate rule, so ratifying this is
 the **Gate-Rules Council's first real exercise**.
-Topics: codexfactory, merge-master, autonomous-approval, doc-health-sweep,
+Topics: practice-adoption, codexfactory, merge-master, autonomous-approval, doc-health-sweep,
 merge-readiness-council, gate-rules-council, auto-clear-envelope, tier-2,
 nightly-sweep, omnigent-lane, activation-gate, cost-accountability
 Repository context: codexFactory (envelope rules-as-code + per-repo gate rule); openxFactory (this leaf)
 Captured: 2026-07-23
+
 Updated: 2026-07-23 (Q1+Q4 decided; convening packet assembled; CONVENED —
 rule ratified as amended, record at codexFactory
 `hermes/domain/review-councils/records/2026-07-23-gate-rules-nightly-sweep-clearance.md`)
+
+## Possible feats
+
+- **Tier-2 council-clearance contract** — permit a pinned unanimous council
+  verdict to clear only explicitly declared nightly-sweep envelope failures.
+- **Clearance normalization sentinel** — park repeatedly cleared conditions
+  and require the generator or policy source to be corrected.
 
 ## Convened (2026-07-23)
 

@@ -13,10 +13,17 @@ roster: the codexFactory precedent locked its roster in a brainstorm decision
 round before change A; this doc is the Medx equivalent awaiting that round.
 Parent: `openxFactory:staging:medxfactory-domain-hermes-content`; character
 model: `hermes-persona-character-model.md` (Option-E spine reused unchanged).
-Topics: medxfactory, domain-hermes, plane-1, clinical-roster,
+Topics: medical-domain, medxfactory, domain-hermes, plane-1, clinical-roster,
 authority-personas, trait-framework, mxd-mrr, root-truth, worker-coverage
 Repository context: openxFactory (drafts target MedxFactory hermes/domain/roles/)
 Captured: 2026-07-24
+
+## Possible feats
+
+- **MedxFactory Plane-1 roster** — define the clinical-domain decider and
+  coordinator personas that govern the ratified worker classes.
+- **Clinical authority-coverage validator** — verify that each domain worker
+  has one directing persona without assigning human-only clinical acts.
 
 ## What is already fixed (not roster decisions)
 

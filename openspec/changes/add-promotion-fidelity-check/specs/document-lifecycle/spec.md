@@ -33,7 +33,7 @@ not by leaving the question unanswered.
 
 THE PRESUMPTION RUNS IN THE CONSERVATIVE DIRECTION. An unexamined ratified
 delta is a governance gap that reports itself healthy; a wrongly examined one
-is an advisory finding that a `draft` header or a recorded disposition
+is a reported finding that a `draft` header or a recorded disposition
 retires. The first spelling of this rule ran the other way, and more than
 fifty requirements across two repositories went unexamined for a decision
 nobody took — one packet's ratification annotated in prose, three others

@@ -98,6 +98,12 @@ NON_READERS = {
     # eighteenth family's own `declares_pre_ratification`, so there is one
     # reader of that header between them rather than two.
     "duplicate-packet",
+    # add-release-inventory-drift-check. It reads CONTRACT ARTIFACT BYTES — a
+    # release digest inventory and the blobs it names, at a commit — so it
+    # takes neither the governed corpus nor the lifecycle scan set, and reads
+    # no lifecycle header at all. Its document list is the inventory's own
+    # member set, which is fixed by the release rather than by any scan.
+    "release-inventory-drift",
 }
 
 
@@ -484,7 +490,7 @@ def test_every_family_is_classified_as_reader_or_non_reader():
     # settles, and that half is asserted exactly.
     assert READERS == {"status-validity", "standard-backing",
                        "ratified-provenance", "succession-integrity"}
-    assert len(NON_READERS) == len(FAMILIES) - 4 == 15
+    assert len(NON_READERS) == len(FAMILIES) - 4 == 16
     assert "staged-topic-template" in NON_READERS
     assert "promotion-fidelity" in NON_READERS
     assert "duplicate-packet" in NON_READERS

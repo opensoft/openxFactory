@@ -10,9 +10,10 @@ reference (the regexes below transcribe, never extend, that grammar).
 fifteenth (add-proposal-origin-contract),
 `client_identity_composition.py` owns the sixteenth
 (add-client-identity-roster), `promotion_fidelity.py` owns the
-eighteenth (add-promotion-fidelity-check), and `duplicate_packet.py` owns
-the nineteenth (add-duplicate-packet-check); all six are only registered
-below.
+eighteenth (add-promotion-fidelity-check), `release_inventory.py` owns
+the nineteenth (add-release-inventory-drift-check), and
+`duplicate_packet.py` owns the twentieth (add-duplicate-packet-check); all
+seven are only registered below.
 
 The count is deliberately no longer written into this docstring's first
 line. It was wrong for three months — `staged-topic-template` registered on
@@ -35,7 +36,7 @@ from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
                TAXONOMY, Finding, Skip, recorded_rel)
 from . import (client_identity_composition, corpus, document_catalog,
                duplicate_packet, ideation_routing, promotion_fidelity,
-               proposal_origin)
+               proposal_origin, release_inventory)
 from .lines import split_keepends
 
 # Per-family resolution class defaults (doc-health contract): contested
@@ -55,6 +56,14 @@ from .lines import split_keepends
 # (delta "safe mechanical defects") and its `external-path` skips are
 # informational; every other class is `contested`. ideation_routing.py
 # sets `resolution=` per finding — a table entry would force one class.
+#
+# "promotion-fidelity" was ABSENT here for its whole advisory launch, and is
+# PRESENT now: the entry below is one half of the flip to enforcing ruled on
+# 2026-08-24 (Brett, add-promotion-fidelity-check task 4.1, PR #315). Its
+# remedy is a governance act — apply the ratified delta, or record the
+# non-promotion deliberately — so `contested` is the honest class, and it
+# moved in the same commit as the severity because either alone gates the
+# family in a shape nobody chose. See `promotion_fidelity._LAUNCH_SEVERITY`.
 FAMILY_RESOLUTION = {
     "location-conformance": CONTESTED,
     "standard-backing": CONTESTED,
@@ -62,6 +71,7 @@ FAMILY_RESOLUTION = {
     "record-immutability": CONTESTED,
     "staged-candidate-aging": CONTESTED,
     "uncited-resolution": CONTESTED,
+    "promotion-fidelity": CONTESTED,
 }
 
 # ---------------------------------------------------------------- helpers
@@ -1014,15 +1024,36 @@ FAMILIES = {
     "proposal-origin": proposal_origin.fam_proposal_origin,
     "client-identity-composition":
         client_identity_composition.fam_client_identity_composition,
-    # The eighteenth family (add-promotion-fidelity-check). Deliberately
-    # ABSENT from FAMILY_RESOLUTION above: it launches ADVISORY, and a
-    # `contested` class would route it back into `report.uncited_resolutions`
-    # — an ERROR — the first time one of its findings was resolved. See
+    # The eighteenth family (add-promotion-fidelity-check). It launched
+    # ADVISORY and is now ENFORCING: registered `contested` in
+    # FAMILY_RESOLUTION above and emitting ERROR. The absence recorded here
+    # through the launch was deliberate and is SUPERSEDED, not forgotten —
+    # a `contested` class routes a resolved finding into
+    # `report.uncited_resolutions` as an ERROR, which was a back door under
+    # an advisory family and is the intended discipline under an enforcing
+    # one. Flipped by ruling 2026-08-24 (task 4.1, PR #315), after the
+    # standing population was discharged (§4.3). See
     # `promotion_fidelity._LAUNCH_SEVERITY`.
     "promotion-fidelity": promotion_fidelity.fam_promotion_fidelity,
-    # The nineteenth family (add-duplicate-packet-check), and ABSENT from
-    # FAMILY_RESOLUTION for exactly the same reason at exactly the same
-    # launch. See `duplicate_packet._LAUNCH_SEVERITY`.
+    # NINETEENTH FAMILY (add-release-inventory-drift-check). Also ABSENT from
+    # FAMILY_RESOLUTION above, and for a sharper version of the reason
+    # promotion-fidelity is: BOTH of this family's findings are resolved by a
+    # RELEASE CUT, which is precisely the act that makes them vanish between
+    # reports. A `contested` class would route every correctly performed cut
+    # through `report.uncited_resolutions` as a NEW ERROR — an enforcement
+    # channel arriving through the back door on the runs that prove the family
+    # working. The editorial band is `info` for the same family of reasons: it
+    # is the expected steady state between cuts, and a permanent yellow row for
+    # a condition nobody should act on is how a report stops being read.
+    "release-inventory-drift": release_inventory.fam_release_inventory_drift,
+    # The TWENTIETH family (add-duplicate-packet-check), and ABSENT from
+    # FAMILY_RESOLUTION for the reason promotion-fidelity was absent at ITS
+    # launch — which is worth saying carefully now that promotion-fidelity has
+    # since flipped to `error` + `CONTESTED`. That flip was earned by a
+    # measured, discharged population; a brand-new class has no such
+    # population, so this family launches advisory in both halves exactly as
+    # its neighbour did, and flips only by its own ruling.
+    # See `duplicate_packet._LAUNCH_SEVERITY`.
     "duplicate-packet": duplicate_packet.fam_duplicate_packet,
 }
 

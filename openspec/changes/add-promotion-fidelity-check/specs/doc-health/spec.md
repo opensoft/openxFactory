@@ -89,24 +89,37 @@ A recorded disposition in the aggregation checkout's `health/dispositions.yaml`
 requirement — SHALL suppress the findings it names. Nothing else suppresses:
 a label, a title, or a claim in prose is not a disposition.
 
-**This family SHALL be advisory at launch.** Every finding it emits carries
-`warning` severity, so it publishes into the report and the ranked plan without
-failing any run configured to fail on `error` or `critical`, and it is
-deliberately NOT classified `contested`, because a contested finding that
-resolves without a citation becomes an `error` under this capability's
-uncited-resolution rule — which would make the family gate-blocking through
-the back door on the first finding anyone fixed. Raising the severity and
-adding the contested classification are ONE later decision taken together by
-ruling, never a judgement call inside an implementation.
+**This family SHALL be enforcing, in both halves of what that means.** Every
+finding it emits SHALL carry `error` severity, so a run configured to fail on
+`error` fails on a ratified delta that never reached canon; and the family
+SHALL be classified `contested`, so a finding that stops being reported
+without a recorded citation becomes an `error` under this capability's
+uncited-resolution rule. The two SHALL move together and MUST NOT be taken
+apart: severity alone gates the family without the disposition discipline
+that makes a disappearing finding accountable, and the contested class alone
+gates it through `uncited-resolution` under a family name that does not say
+what happened.
+
+The family SHIPPED ADVISORY and was flipped by ruling, which is the sequence
+this requirement records rather than a history it has replaced. At launch
+every finding carried `warning` and the family was deliberately unclassified,
+because no run had yet measured what the domain factories' archives would say
+and a `contested` advisory family would have gated through the back door on
+the first finding anyone fixed. The flip SHALL be taken as one decision by
+ruling, never as a judgement call inside an implementation, and SHALL follow
+the discharge of the standing population rather than precede it — a gate that
+goes red on the commit introducing it teaches everyone to route around the
+gate.
 
 #### Scenario: A ratified delta did not reach canon
 - **WHEN** the authoritative archived delta for a capability and requirement ADDED or MODIFIED it, and the promoted `openspec/specs/<capability>/spec.md` lacks that requirement title, or lacks a scenario title the delta states under it
-- **THEN** the run MUST emit a `warning` finding against the archived delta's path, naming the requirement, the promoted spec, and each absent scenario
-- **AND** the finding MUST NOT cause a run to fail under `--fail-on error` or `--fail-on critical`
+- **THEN** the run MUST emit an `error` finding against the archived delta's path, naming the requirement, the promoted spec, and each absent scenario
+- **AND** the finding MUST cause a run configured `--fail-on error` to fail, and MUST NOT cause a run configured `--fail-on critical` to fail
+- **AND** the finding MUST carry the `contested` resolution class
 
 #### Scenario: A ratified removal did not reach canon
 - **WHEN** the authoritative archived delta REMOVED a requirement and the promoted spec still carries it
-- **THEN** the run MUST emit a `warning` finding naming the requirement and the promoted spec that still carries it
+- **THEN** the run MUST emit an `error` finding naming the requirement and the promoted spec that still carries it
 
 #### Scenario: A capability was never promoted at all
 - **WHEN** an authoritative archived delta ADDED or MODIFIED a requirement for a capability with no promoted spec file

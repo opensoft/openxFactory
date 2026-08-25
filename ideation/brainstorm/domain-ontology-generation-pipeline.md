@@ -7,7 +7,7 @@ ontology scaffold filled from taxonomy intake, approved structured
 terminologies, existing domain artifacts, and provenance-bound candidate
 extraction, then remain non-operational until Domain Hermes resolves gaps,
 reviews fixtures, and publishes an immutable package.
-Topics: ontology, domain-ontology-lifecycle, xfactory-semantic-kernel,
+Topics: domain-ontology, ontology, domain-ontology-lifecycle, xfactory-semantic-kernel,
 domain-generation, domain-starter, domain-hermes, ontology-seeding,
 source-authority, candidate-extraction, semantic-fixtures
 Repository context: openxFactory (domain starter, questionnaire, ontology

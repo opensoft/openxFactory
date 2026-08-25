@@ -13,7 +13,7 @@ archetype *content* is codex-owned (`hermes/customer/templates/<type>.yaml`);
 the archetype *schema* is neutral (openxFactory). Parent:
 `project-layer-scaffold.md`; consumes the practice catalog
 (`codexfactory-domain-memory-and-practices.md`).
-Topics: project-hermes, project-type-template, archetype, template-library,
+Topics: project, project-hermes, project-type-template, archetype, template-library,
 project-policy, expected-practices, manual-writer, spike, infra-iac,
 provisioning, subject
 Repository context: openxFactory (schema neutral; content codexFactory hermes/customer/templates/)

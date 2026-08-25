@@ -54,19 +54,25 @@ implementation plan the follow-on slice executes (§3, §5).
       CHANGE, and the read-through it required found four defects — see §4.
 - [x] 2.5 The change is ratified. The checker is a follow-on realization slice.
 
-## 3. Implementation — the FOLLOW-ON SLICE, not this packet
+## 3. Implementation — DONE
 
-- [ ] 3.1 `scripts/doc_health/corpus.py` — one new `RealGit` reader returning a
-      blob's RAW BYTES at a commit. Every existing reader decodes to text, and
-      the inventory's identity rule names text canonicalization an invalid
-      digest source, so an existing reader cannot be reused.
-- [ ] 3.2 `scripts/doc_health/release_inventory.py` — the family: declared
-      bundle, inventory parse, per-member comparison, editorial split.
-- [ ] 3.3 The two registrations — `families.FAMILIES` and `__init__.FAMILY_IDS`
-      — and DELIBERATELY NOT `FAMILY_RESOLUTION`, with the reason recorded at
+- [x] 3.1 `scripts/doc_health/corpus.py` — TWO new `RealGit` readers, not one:
+      `blobs_at` (raw bytes, one `cat-file --batch` for the whole member set)
+      and `tree_modes` (one `ls-tree -r`). The second was not in the plan and is
+      required by the tightened delta's `git_mode` clause. Both degrade to
+      `None` only on a git failure; per-path ABSENCE is data, which is the
+      distinction the taxonomy turns on.
+- [x] 3.2 `scripts/doc_health/release_inventory.py` — the family.
+- [x] 3.3 Registered in `families.FAMILIES` and `__init__.FAMILY_IDS`, and
+      DELIBERATELY NOT in `FAMILY_RESOLUTION`, with the structural reason at
       the registration site.
-- [ ] 3.4 `tests/doc-health/conftest.py` — the `FakeGit` shim for the new
-      reader.
+- [x] 3.4 `tests/doc-health/conftest.py` — the `FakeGit` shim for both readers,
+      including `git_unavailable=True` as the only way to reach the skip arm.
+- [x] 3.5 NOT IN THE PLAN, required by an exhaustive registry:
+      `tests/doc-health/test_lifecycle_scan_set.py` classifies every family as a
+      lifecycle-scan reader or non-reader. The new family is a NON-READER
+      (it reads contract artifact bytes, no lifecycle header at all), and the
+      count literal follows the corpus: nineteen families, fifteen non-readers.
 
 ## 4. The versioning policy — DONE, landed with this change
 
@@ -91,15 +97,36 @@ implementation plan the follow-on slice executes (§3, §5).
       `adopt-subject-tenant-domain-vocabulary` (ratified 2026-07-23). Corrected
       and pointed at `contracts/policies/layer-vocabulary.yaml`.
 
-## 5. Acceptance evidence, both directions — the FOLLOW-ON SLICE
+## 5. Acceptance evidence, both directions — DONE (24 tests)
 
-- [ ] 5.1 True positive from history: a fixture reconstructing `08c5aa9` fires
-      one `error` naming `gate-action-record.schema.yaml`.
-- [ ] 5.2 True negative on today's tree: `origin/main` produces `info` findings
-      only and reddens no gate.
-- [ ] 5.3 The editorial split is load-bearing: a mutation moving a
-      non-editorial member proves the two bands are not the same code path.
-- [ ] 5.4 The raw-bytes rule is pinned by a BYTE-DISTINGUISHING fixture, and
+- [x] 5.1 True positive: the forgot-to-bump shape fires one `error` on the
+      schema the cut changed. SYNTHESIZED rather than pointed at `08c5aa9`, per
+      this task list's own instruction — a test depending on a real sha stops
+      testing anything the day someone prunes or rewrites it.
+- [x] 5.2 **SATISFIED, VIA A RELEASE CUT — and the route there is the record
+      worth keeping.** The criterion was "`origin/main` produces `info` findings
+      only and reddens no gate", measured 188/2/0/0 when the packet was drafted.
+      By realization time main was 187/2/1/0: the family reported ONE `error`,
+      on `docs/contract-versioning-policy.md`, because the single commit to
+      touch that member since the `contract-v1.40` tag was `57c26e1a` — PR #319,
+      **the change that commissioned this check**. The member is in the
+      inventory because the membership clause covers "every modified normative
+      contract **or versioning document**".
+      A TRUE POSITIVE, proven both directions rather than argued: run at the
+      `contract-v1.40` tag the family reported 0 errors and 0 info; run at main
+      it named exactly the one member that had moved.
+      Two remedies existed and ONE WAS REFUSED: reclassifying the policy into
+      the editorial set would have been the "hand-edit to make the check pass"
+      that the ratified policy forbids in writing. **Brett ruled 2026-08-25: cut
+      a release.** Done as `contract-v1.41` (additive, no schema bytes), and the
+      family now reports **0 error, 0 info** at branch HEAD — every one of the
+      190 members re-baselined.
+      The `#312` symptom resolves with it: `verify-commit --commit HEAD` PASSES
+      for the first time since the v1.40 tag, while `origin/main` remains red on
+      all three drifted members.
+- [x] 5.3 The editorial split is load-bearing: both bands are driven at once and
+      neither promotes nor demotes the other.
+- [x] 5.4 The raw-bytes rule is pinned by a BYTE-DISTINGUISHING fixture, and
       the distinction matters: a non-ASCII member is NOT one. `é` encodes and
       decodes through a UTF-8 text-mode round trip to the identical bytes, so
       the obvious fixture would pass with the very reader the rule forbids
@@ -110,14 +137,51 @@ implementation plan the follow-on slice executes (§3, §5).
       DIRECTLY — that it returns the CRLF bytes — rather than only asserting
       that the family reports no drift, so the pin fails on a text-mode reader
       instead of merely happening to agree with one.
-- [ ] 5.5 Both skips are exercised: no declared bundle, and unreadable history.
-- [ ] 5.6 Suite counts move by exactly the predicted amount and in no other
-      line.
+- [x] 5.5 Both skips are exercised, and ABSENCE IS TESTED AGAINST
+      UNAVAILABILITY in one test, because their conflation is the defect the
+      review tightening fixed.
+- [x] 5.6 Suite counts: `tests/doc-health` 771 -> 795 (+24, all this family's).
+      doc-health's own report moves by exactly the family's findings and no
+      other line: 4/8/82/3 -> 4/9/82/5. The two `info` findings are NOT
+      regressions — `report.regressions` filters to critical/error — so the
+      only new regression is the one true positive 5.2 records.
 
 ## 6. Archive
 
 - [ ] 6.1 Archive ONLY after merge with green realization evidence. This change
       ships ACTIVE, following both precedents.
+      **THE REALIZATION EVIDENCE IS COMPLETE — recorded here so the archive does
+      not have to re-derive it.** Merged as PR #324, squash **`0780875b`**, with
+      a tree byte-identical to the reviewed branch tip `39965995`
+      (`8cbbdc845128c363a69a7388cf5edb3ea05ef38b`). Every gate reran at that
+      exact commit before anything was tagged: `tests/doc-health` 839 passed,
+      `tests/ideation_dashboard` + `tests/proposal-support` 99 passed,
+      `openspec validate --all --strict` 76 passed / 0 failed, the dashboard
+      validator 0 errors / 4 by-design warnings, manifest digests 150 verify,
+      and doc-health zero-new against a same-clock `4e57009c` baseline
+      (5/8/82/3 both sides, new findings `[]`).
+      **THE CAPABILITY'S OWN MEASUREMENT, at the squash:** the
+      `release-inventory-drift` family reports **0 error, 0 info**, and
+      `validate-contract-release.py verify-commit` PASSES — the issue #312
+      symptom, resolved.
+      **THE TAG IS PUBLISHED AND VERIFIED.** `contract-v1.41`, annotated, tag
+      object `48efdfbebc114671c0f9fb1ad25a34779f4707ba` dereferencing to
+      `0780875b7d7d5541098de2677b741cdc9d50d7bc` — read from the REMOTE
+      (`git ls-remote --tags origin`) rather than from the local ref that
+      created it, with both `verify-commit --commit contract-v1.41` and
+      `verify-tag --remote origin --tag contract-v1.41` passing, and the pair
+      re-run from an INDEPENDENTLY CLONED checkout as the realization order's
+      step 5 requires.
+      **THE RITUAL FOUND NOTHING THIS TIME, and that is the result worth
+      recording.** It caught a real defect at exactly this step on both prior
+      tags this arc — `contract-v1.34`'s sentinel and `contract-v1.36`'s
+      un-bumped `contract_bundle_version`. This cut was built with the v1.36
+      lesson applied in the order it teaches: bundle version bumped INSIDE the
+      cut, inventory built LAST so the manifest self-reference and the changelog
+      digest are consistent rather than one-commit stale. A clean tag
+      verification is what that ordering buys.
+      STILL OWED: nothing in this repository. The aggregation-repo submodule pin
+      is the orchestrator's, and the archive follows on the standing rule.
 
 ## 7. Recorded, not fixed
 

@@ -80,7 +80,10 @@ FAMILY_IDS = [
     # its own report section — the omission that left "proposal-origin"
     # sectionless above is a known defect, not a pattern to copy.
     "promotion-fidelity",
-    # nineteenth family (add-duplicate-packet-check; doc-health delta
+    # nineteenth family (add-release-inventory-drift-check; doc-health delta
+    # "Deterministic check families").
+    "release-inventory-drift",
+    # twentieth family (add-duplicate-packet-check; doc-health delta
     # "Deterministic check families"). The eighteenth family's neighbour:
     # it asks whether ONE ruling was discharged by TWO archived packets,
     # which promotion fidelity reads as healthy either way.

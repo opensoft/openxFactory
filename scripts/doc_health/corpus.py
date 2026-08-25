@@ -431,6 +431,88 @@ class RealGit:
                 return blob
         return None
 
+    # ---- release-surface readers (add-release-inventory-drift-check) ----
+    #
+    # BOTH RETURN RAW BYTES OR MODES, NEVER DECODED TEXT. Every reader above
+    # runs `_run`, which passes `text=True` and therefore applies universal
+    # newlines — a blob committed with CRLF comes back with LF, different bytes
+    # and a different SHA-256. The release digest identity is "the SHA-256 of
+    # the raw Git blob bytes", and the versioning policy names text
+    # canonicalization an INVALID digest source, so a text-mode read here would
+    # not merely be imprecise: it would compute a number the contract forbids.
+    #
+    # Both degrade to None on ANY git failure, which the caller reads as "git
+    # could not be consulted" and turns into a skip. A path that is simply
+    # ABSENT at the commit is NOT a failure and must not look like one — that
+    # is why `tree_modes` returns a mapping (absence is a missing key) rather
+    # than raising, and why `blobs_at` reports per-path absence in its result.
+
+    def tree_modes(self, repo: Path, commit: str) -> dict[str, str] | None:
+        """`{path: git_mode}` for every regular file at `commit`, or None.
+
+        One `ls-tree -r` rather than a call per member: the inventories this
+        serves carry ~190 entries, and per-path process spawning is the
+        difference between a family that runs in the nightly and one nobody
+        keeps."""
+        out = self._run(repo, "ls-tree", "-r", commit)
+        if out is None:
+            return None
+        modes: dict[str, str] = {}
+        for line in out.splitlines():
+            meta, _, path = line.partition("\t")
+            parts = meta.split()
+            if path and len(parts) >= 3:
+                modes[path] = parts[0]
+        return modes
+
+    def blobs_at(self, repo: Path, commit: str,
+                 relpaths) -> dict[str, bytes | None] | None:
+        """`{path: raw bytes}` at `commit`, with None for a path ABSENT there.
+
+        One `cat-file --batch` process for the whole member set. The batch
+        protocol answers a missing object with `<spec> missing`, which is
+        exactly the distinction the contract needs: absence is data, and only a
+        failure of git itself collapses to None."""
+        specs = list(relpaths)
+        if not specs:
+            return {}
+        payload = "\n".join(f"{commit}:{p}" for p in specs) + "\n"
+        try:
+            proc = subprocess.run(
+                ["git", "-C", str(repo), "cat-file", "--batch"],
+                input=payload.encode("utf-8"), capture_output=True)
+        except OSError:
+            return None
+        if proc.returncode != 0:
+            return None
+        out: dict[str, bytes | None] = {}
+        buf = proc.stdout
+        pos = 0
+        for spec in specs:
+            nl = buf.find(b"\n", pos)
+            if nl < 0:
+                return None
+            header = buf[pos:nl].decode("utf-8", "replace")
+            pos = nl + 1
+            if header.endswith(" missing") or header.endswith(" ambiguous"):
+                # `ambiguous` FOLDS INTO ABSENCE, and that is a deliberate
+                # narrowing rather than an oversight (PR review P3-3). git
+                # answers `ambiguous` for a bare name that could be several
+                # objects; every spec this reader sends is a fully-qualified
+                # `<commit>:<path>`, which cannot be ambiguous. The branch
+                # exists so an unexpected answer degrades to "not there" rather
+                # than desynchronising the batch parser, and if it ever fires it
+                # will surface as drift on a member — loud, in the right place.
+                out[spec] = None
+                continue
+            fields = header.split()
+            if len(fields) < 3 or not fields[2].isdigit():
+                return None
+            size = int(fields[2])
+            out[spec] = buf[pos:pos + size]
+            pos += size + 1  # the trailing newline the batch protocol adds
+        return out
+
     def gitlink_pins(self, agg_root: Path) -> dict[str, str] | None:
         out = self._run(agg_root, "ls-tree", "-r", "HEAD")
         if out is None:

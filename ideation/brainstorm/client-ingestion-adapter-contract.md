@@ -14,7 +14,7 @@ under the client's Integrations & Credentials Steward and the consent gate —
 never holding a secret, never crossing a tenant boundary. Neutral (openxFactory)
 contract; per-source adapters are client instances. Parent:
 `hermes-knowledge-base-architecture.md`.
-Topics: ingestion-adapter, evidence-rows, memory-gateway, provider-binding,
+Topics: memory-retrieval, client, ingestion-adapter, evidence-rows, memory-gateway, provider-binding,
 consent, tenant-isolation, source-authority, structure-before-embed,
 differential-sync, client-hermes, plane-2, cerebras
 Repository context: openxFactory (neutral adapter contract; instances per client under config/clients/<client>/)

@@ -17,7 +17,7 @@ sibling capability **openxVault**
 ([git-native-record-vault.md](git-native-record-vault.md)), whose gate
 consumes openxWallet grants.
 
-Topics: openxwallet, agent-identity, did, verifiable-credentials,
+Topics: identity-custody, openxwallet, agent-identity, did, verifiable-credentials,
 capability-grants, delegation-chains, agent-certification, drift-recertification
 Repository context: openxFactory (neutral openxWallet capability)
 Origin: 2026-07-15 session with Brett, extending the patient/practitioner

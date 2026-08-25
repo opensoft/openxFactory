@@ -12,11 +12,12 @@ already in the Omnigent overlay is elevated and remapped onto the roster
 personas; and the two councils (per-PR merge-readiness vs. cross-layer
 gate-rules) are given concrete membership. Parent:
 `codexfactory-domain-hermes-content.md`; roster: `codexfactory-domain-roster-draft.md`.
-Topics: codexfactory, domain-hermes, agent-mixes, moa, mixture-of-agents,
+Topics: codexfactory-domain, codexfactory, domain-hermes, agent-mixes, moa, mixture-of-agents,
 escalation-rules, review-councils, gate-rules-council, merge-readiness-council,
 deliberation, plane-3
 Repository context: openxFactory (targets codexFactory hermes/domain/{agent-mixes,escalation-rules}.yaml + review-councils/)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (two-tier councils; enumerated triggers; roster governance; distinct-councils confirmed)
 
 ## Decided (2026-07-22)
