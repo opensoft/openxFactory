@@ -27,7 +27,9 @@ stays visible rather than becoming a silent later commit.
       arrival in canon and reads clean when a delta arrives twice. Neither
       reaches two archived packets restating one ruling identically.
 - [x] 1.3 `doc-health` gains the family and its own requirement, MODIFYING the
-      family count and the "other fifteen" arithmetic that goes with it. The
+      family count to twenty and the "other sixteen" arithmetic that goes with
+      it — stacked on `add-release-inventory-drift-check`'s nineteen, which is
+      still ACTIVE, as is `add-promotion-fidelity-check`'s eighteen. The
       count is re-derived rather than copied — that sentence has drifted before
       (`staged-topic-template`, registered 2026-08-15, uncounted until
       2026-08-23).
@@ -54,8 +56,8 @@ stays visible rather than becoming a silent later commit.
       `FAMILY_IDS` entry in `__init__.py` so the family gets its own report
       section, and the `families.py` module docstring's owner list.
 - [x] 2.4 `tests/doc-health/test_lifecycle_scan_set.py`: the family classified
-      as a non-reader, and `len(NON_READERS) == len(FAMILIES) - 4` moved from
-      14 to 15. That test FAILED loudly on the unclassified family before the
+      as a non-reader, and `len(NON_READERS) == len(FAMILIES) - 4` moved to 16
+      (15 on main after #324's nineteenth family, 14 before it). That test FAILED loudly on the unclassified family before the
       edit, which is what it was built to do.
 - [ ] 2.5 ARCHIVE AFTER REALIZATION. This change ships ACTIVE and archives only
       on merged-plus-green, following `add-promotion-fidelity-check` and
@@ -83,7 +85,9 @@ stays visible rather than becoming a silent later commit.
 
 ## 4. Evidence
 
-- [x] 4.1 THE REAL CORPUS READS ZERO. At branch point `700c1a19`, openxFactory's
+- [x] 4.1 THE REAL CORPUS READS ZERO. Re-measured at `44505d1e` after merging
+      main (the branch point was `700c1a19`; #316, #320, #322, #323, #324 and
+      #325 landed in between), openxFactory's
       91 archived packets yield 543 distinct (capability, requirement, content)
       identities. TWO are restated by more than one packet, and both are
       `2026-08-01-add-workbench-branch-sessions` with its landed remedial
@@ -117,19 +121,37 @@ stays visible rather than becoming a silent later commit.
       real matcher fires on the pair and the substring test a first draft
       reaches for silences it.
 - [x] 4.7 THE SUITE. `python3 -m pytest tests/doc-health` reads
-      **821 passed, 7 skipped** on this branch against **796 passed, 7
-      skipped** re-measured on clean `700c1a19` — +25, all in
-      `test_duplicate_packet.py`.
+      **862 passed, 7 skipped** on this branch against **837 passed, 7
+      skipped** re-measured on a clean `44505d1e` worktree — +25, all in
+      `test_duplicate_packet.py`. (The pre-merge figures were 821 against a
+      796 baseline; main gained 41 tests across #320/#324/#325 while this
+      branch was down, and both numbers were re-measured rather than carried.)
 - [x] 4.8 THE REPORT MOVES BY NOTHING. `python3 scripts/doc-health.py
-      --single-repo .` on this branch differs from the same run at the branch
-      point by exactly four lines, all of them the new family's own empty
-      section. Headline unchanged both runs: `4 critical, 8 error, 73 warning,
-      4 info. New regressions vs previous report: 0.`
+      --single-repo .` on this branch differs from the same run on a clean
+      `44505d1e` worktree by exactly four lines, all of them the new family's
+      own empty section, with the repository label normalized between the two
+      checkout directories. Headline unchanged both runs: `5 critical, 8 error,
+      73 warning, 4 info. New regressions vs previous report: 0.`
 - [x] 4.9 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` reads
       **77 passed, 0 failed (77 items)** on this branch against **76 passed,
-      0 failed (76 items)** at the branch point — +1, this change being one
-      item however many capability deltas it carries. Measured rather than
-      assumed: the first cut of this line predicted +2 and was wrong.
+      0 failed (76 items)** on a clean `44505d1e` worktree — +1, this change
+      being one item however many capability deltas it carries. Measured rather
+      than assumed: the first cut of this line predicted +2 and was wrong. The
+      single-change gate is green too: `openspec validate
+      add-duplicate-packet-check --strict` reports valid, exit 0.
+
+- [x] 4.10 THE NEIGHBOUR'S FLIP DOES NOT REACH THIS FAMILY. `promotion-fidelity`
+      became `error` + `CONTESTED` in PR #325 while this branch was down, and
+      PR #324 realized `release-inventory-drift` as the nineteenth family
+      (this one is now the twentieth). Re-derived rather than mechanically
+      kept: `runner` applies `FAMILY_RESOLUTION.get(f.family, f.resolution)`
+      on the finding's OWN family, so a `duplicate-packet` finding cannot
+      inherit the contested class even when both families report against the
+      same archived delta — the #325 skip-path hazard class. Asserted by
+      `test_launch_is_advisory_by_resolution_class` and
+      `test_a_disposition_for_the_neighbouring_family_disposes_nothing`, and
+      confirmed by the report diff above: this branch's single-repo run adds
+      zero `error` findings and zero `uncited-resolution` findings.
 
 ## 5. Open: the flip to enforcing
 

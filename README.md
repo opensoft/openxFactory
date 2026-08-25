@@ -368,7 +368,10 @@ Active changes:
   either proposal names the other's change id stays quiet, while two remedials
   of one ruling that do NOT name each other fire. ADVISORY at launch in both
   halves — `warning` severity and deliberate absence from `FAMILY_RESOLUTION` —
-  with the enforcement flip a recorded task box. Measured before proposing: the
+  with the enforcement flip a recorded task box. Deliberately NOT the
+  neighbour's current `error` + `CONTESTED`: that flip was ruled
+  ENFORCING-SEQUENCED behind a discharged standing population, and this class
+  has none. Measured before proposing and re-measured after merging main: the
   real corpus reads 0 findings through the exemption and 2 without it, and the
   single-repo report moves by nothing but the family's own empty section.
 

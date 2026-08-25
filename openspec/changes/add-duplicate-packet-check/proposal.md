@@ -83,7 +83,9 @@ not.
   A single-repo run at the branch point and the same run on this branch differ
   by four lines, and all four are the new family's own empty report section
   ("### duplicate-packet / Basis line absent by design / No findings."). The
-  headline is `4 critical, 8 error, 73 warning, 4 info` before and after.
+  headline is `5 critical, 8 error, 73 warning, 4 info` before and after.
+  **It adds no `error` finding**, which matters now that its neighbour gates:
+  see § The neighbour flipped while this was in flight.
 - **Measured effect on the real corpus, and it is the acceptance evidence that
   matters**: openxFactory's 91 archived packets yield 543 distinct
   (capability, requirement, content) identities. TWO of them are restated by
@@ -158,8 +160,15 @@ its findings are not classified `contested` — a contested finding that resolve
 without a citation becomes an `error` under this capability's uncited-resolution
 rule, which would red the nightly the first time anyone withdrew a duplicate
 this family reported. The precedent is the eighteenth family's D3, taken for
-exactly this reason four hours earlier. **The flip to enforcing is an open task
-box in `tasks.md`, and it raises severity and adds the contested classification
+exactly this reason on the same day — and NOT its state today, which is
+`error` + `CONTESTED` after PR #325. Copying the flipped values would be
+copying a conclusion without its premise: that flip was ruled "ENFORCING,
+SEQUENCED" and sequenced behind the discharge of a MEASURED STANDING
+POPULATION, on `govern-openspec-corpus-membership`'s rule that "a gate that
+goes red on the commit that introduces it teaches everyone to route around the
+gate". This class has no discharged population — it has a corpus measured at
+zero and one near miss. **The flip to enforcing is an open task box in
+`tasks.md` §5.1, and it raises severity and adds the contested classification
 TOGETHER.**
 
 **D4 — Acceptance runs both directions, and the real corpus is one of the
@@ -170,6 +179,37 @@ lawful patterns are asserted quiet: the PR #85 shape, successive MODIFIEDs with
 different content, two pre-ratification packets restating one block. And the
 REAL corpus at the branch point must read 0 through the lineage exemption,
 which it does — measured, with the counterfactual measured beside it.
+
+## The neighbour flipped while this was in flight
+
+This change was authored against a promotion-fidelity family that had launched
+advisory hours earlier. Between authoring and this branch's merge of main, four
+things landed that touch it, and each was re-derived against rather than
+mechanically kept:
+
+- **PR #325 flipped promotion-fidelity to `error` + `CONTESTED`**, both halves
+  together, after its standing population was discharged. This family stays
+  advisory in both halves — D3 above says why, and the difference in premise is
+  the whole argument.
+- **PR #324 realized `release-inventory-drift`** as doc-health's nineteenth
+  family. This one is therefore the TWENTIETH registered in `FAMILIES`, and the
+  spec delta's count chain is unchanged: both of those changes are still
+  ACTIVE, so seventeen -> eighteen -> nineteen -> twenty still holds and the
+  `Sequenced-after:` header still names the right two packets.
+- **PR #320 relaxed the exemption to explicit-draft-only and added the
+  live-`main` basis.** This family reads the relaxed exemption through
+  `declares_pre_ratification`, which is the point of borrowing it; it stays on
+  the pinned basis, which is what keeps #320's own report sentence true.
+- **`44505d1e`'s skip-path fix** — `unavailable_families` now honours
+  `--skip-family` and single-`--family` runs — is the hazard class this family
+  must not re-create. It cannot: `runner` applies
+  `FAMILY_RESOLUTION.get(f.family, f.resolution)` on a finding's OWN family, so
+  a `duplicate-packet` finding never inherits the neighbour's contested class,
+  even on an archived delta both families report against. Asserted by
+  `test_launch_is_advisory_by_resolution_class` and
+  `test_a_disposition_for_the_neighbouring_family_disposes_nothing`, and
+  confirmed by the report diff: zero new `error` lines, zero new
+  `uncited-resolution` lines.
 
 ## Architecture: a sibling family, not a finding kind inside the eighteenth
 

@@ -4,10 +4,12 @@ Status: ratified
 Ratified by: add-duplicate-packet-check
 
 The decisions this change had to take, and the measurements each rests on.
-Every number below was taken against this repository's checkout at branch point
-`700c1a19` on 2026-08-24 — 91 archived packets, 543 distinct
-(capability, requirement, content) identities — before the proposal was
-written, not after.
+Every number below was taken against this repository's checkout — 91 archived
+packets, 543 distinct (capability, requirement, content) identities — before
+the proposal was written, and RE-TAKEN at `44505d1e` after this branch merged
+main. The figures are identical across both measurements; they are re-stated
+rather than carried, because #316, #320, #322, #323, #324 and #325 all landed
+in between.
 
 ## D1 — A sibling family, not a finding kind inside promotion fidelity
 
@@ -179,8 +181,24 @@ real checkout does.
 
 ## D6 — Advisory at launch, in both halves
 
-Identical to the neighbouring family's D3 and taken for the same reason four
-hours later. `warning` severity keeps the family out of `runner.main`'s
+Identical to the neighbouring family's D3 AS THAT FAMILY LAUNCHED, and taken
+for the same reason on the same day. Not identical to that family's state
+today: PR #325 flipped promotion fidelity to `error` + `CONTESTED`, both halves
+together, and copying the flipped values here would copy a conclusion without
+its premise. That flip was ruled "ENFORCING, SEQUENCED" and sequenced behind
+the discharge of a measured standing population, on
+`govern-openspec-corpus-membership`'s rule that "a gate that goes red on the
+commit that introduces it teaches everyone to route around the gate". This
+class has no discharged population; it has a corpus measured at zero and one
+near miss.
+
+The flipped neighbour is also a hazard this family must not create, and the
+`44505d1e` skip-path fix is the shape of it — a contested family's findings
+being read as resolved by a run that never ran them, manufacturing
+`uncited-resolution` errors. It cannot reach here: `runner` applies
+`FAMILY_RESOLUTION.get(f.family, f.resolution)` on a finding's OWN family, so a
+`duplicate-packet` finding never inherits the neighbour's class even when both
+families report against the same archived delta. `warning` severity keeps the family out of `runner.main`'s
 `{CRITICAL}` and `{CRITICAL, ERROR}` gates. Absence from `FAMILY_RESOLUTION` is
 the half that is easy to lose: `report.uncited_resolutions` turns a `contested`
 finding that vanishes between reports into an `error`, so a `contested` entry
