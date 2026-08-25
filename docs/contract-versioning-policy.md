@@ -159,6 +159,34 @@ place as immutable provenance: nothing retroactively invalidates the
 evidence of consumers that verified against it, and its version number is
 never reused.
 
+### contract-v1.36 Was Moved — a recorded breach, disposed of
+
+`contract-v1.36` was published on 2026-08-21 at one commit and then deleted and
+re-pushed to another, minutes later in the same session, to correct a cut whose
+`contract_bundle_version` had been left at the previous release. That is a
+breach of the rule immediately above, which forbids moving a published tag
+**even for a defective release**. The tag today points at the corrected commit;
+the superseded tag object and the reasoning are recorded in
+`openspec/changes/add-release-inventory-drift-check/proposal.md` and in the
+moving commit's own message.
+
+**DISPOSITION — RECORD ONLY (Brett, 2026-08-24).** The breach stands recorded
+and nothing further is owed.
+
+TWO MOVES A LATER READER MUST NOT MAKE on discovering this:
+
+1. **Do not move or re-point the tag again**, including to "restore" it to its
+   original commit. A second move compounds the breach instead of repairing it,
+   and the original commit does not carry a release that verifies.
+2. **Do not cut a superseding release to "fix" it.** That is the sanctioned
+   remedy for a DEFECTIVE RELEASE, and the release itself is not defective —
+   it verifies at its tag. Spending a version number here would correct
+   provenance that this record already carries accurately.
+
+This subsection exists because the disposition would otherwise live only in a
+change packet, which archives out of the path of anyone running `verify-tag`
+and landing on the rule above (PR #319 review).
+
 ## Supported-Domain Regression Denominator
 
 Publication is gated on a versioned regression inventory, never on an

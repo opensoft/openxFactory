@@ -345,9 +345,9 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-release-inventory-drift-check](openspec/changes/add-release-inventory-drift-check/proposal.md)
-  — authored and ratified 2026-08-24 from issue #312. `validate-contract-release.py
-  verify-commit` had been failing at `origin/main` since the `contract-v1.40`
-  tag, and NO gate in any session's set runs it, so the state was invisible
+  — authored and ratified 2026-08-24 from issue #312. The release verifier
+  (`validate-contract-release.py verify-commit`) had been failing at
+  `origin/main` since the `contract-v1.40` tag, and NO gate in any session's set runs it, so the state was invisible
   until a session ran it by hand for an unrelated reason — a release-inventory
   gate that nothing runs is a gate in name only. Adds the capability
   `release-surface-integrity` ("the declared bundle describes the release

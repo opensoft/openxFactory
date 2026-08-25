@@ -34,9 +34,9 @@ SPECS — bodies rather than headers — and therefore takes neither the governe
 corpus nor the lifecycle scan set as its document list; it moves no census,
 word count, canon-share figure, inventory entry, or catalog record either. The
 release-inventory drift family reads CONTRACT ARTIFACT BYTES — a release digest
-inventory and the blobs it names — and likewise takes neither document list and
-moves no census, word count, canon-share figure, inventory entry, or catalog
-record.
+inventory and the blobs it names — and likewise takes neither document list,
+and it moves no census, word count, canon-share figure, inventory entry, or
+catalog record.
 
 #### Scenario: A run executes the check families
 - **WHEN** a doc-health run executes
@@ -57,6 +57,15 @@ The release-inventory drift family SHALL compare, for every repository in
 scope that declares a contract bundle, each member of that bundle's release
 digest inventory against the blob the repository carries at the checked commit,
 and report where they differ.
+
+THE COMPARISON SHALL COVER THE RECORDED `git_mode` AS WELL AS THE DIGEST. An
+inventory entry records both, and a mode-only change — an executable bit set or
+cleared on a validator — leaves the blob bytes and therefore the digest
+identical. A family that compared digests alone would report a validator whose
+executability had changed as MATCHING, which is the silent-drift class this
+whole capability exists to close. The canonical verifier already distinguishes
+them (`HGR-RELEASE-DIGEST-MISMATCH` and `HGR-RELEASE-MODE-MISMATCH`); this
+family SHALL NOT be weaker than the verifier whose gap it exists to cover.
 
 The obligation being checked belongs to `release-surface-integrity` ("The
 declared bundle describes the release surface"), the capability this change
@@ -110,9 +119,20 @@ absent, or where version control cannot answer for the blobs.
 - **THEN** the family MUST emit no finding
 
 #### Scenario: A repository declares no bundle
-- **WHEN** a repository in scope carries no declared contract bundle, or the declared bundle's inventory file is absent
+- **WHEN** a repository in scope carries no declared contract bundle at all
 - **THEN** the family MUST report a skip naming the reason, never an empty pass
 
-#### Scenario: Version control cannot answer
-- **WHEN** the blobs at the checked commit cannot be read from version control
+#### Scenario: A declared bundle has no inventory
+- **WHEN** a repository DECLARES a bundle and that bundle's inventory file is absent
+- **THEN** the family MUST emit an `error`, never a skip — a declaration naming an inventory that does not exist is an INVALID RELEASE DECLARATION, not an absent capability, and it is what a mistyped bundle name or a half-created release looks like
+- **AND** the canonical verifier already reports this condition as `HGR-RELEASE-INVENTORY-MISSING` rather than declining to answer
+
+#### Scenario: An inventory member is absent at the commit
+- **WHEN** a member the declared bundle's inventory names does not exist at the checked commit
+- **THEN** the family MUST report it as NON-EDITORIAL DRIFT at `error`, never as a skip — a deleted normative member is the strongest form of the drift this family exists to catch, and a skip would make deletion indistinguishable from unavailability
+- **AND** this MUST hold even where the underlying blob read degrades to a null result, so the family MUST distinguish "this path is absent at this commit" from "version control could not be consulted"
+
+#### Scenario: Version control cannot answer at all
+- **WHEN** the git dependency is unavailable, or the checked commit itself cannot be resolved
 - **THEN** the family MUST report a skip rather than fall back to working-tree bytes, because an uncommitted edit is not drift from the declared bundle
+- **AND** the skip MUST NOT be used for any per-member absence, which the scenario above governs

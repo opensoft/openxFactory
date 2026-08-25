@@ -99,8 +99,17 @@ implementation plan the follow-on slice executes (§3, §5).
       only and reddens no gate.
 - [ ] 5.3 The editorial split is load-bearing: a mutation moving a
       non-editorial member proves the two bands are not the same code path.
-- [ ] 5.4 The raw-bytes rule is pinned by a member whose bytes are not pure
-      ASCII, so a text-mode reader would compute a different digest and fail.
+- [ ] 5.4 The raw-bytes rule is pinned by a BYTE-DISTINGUISHING fixture, and
+      the distinction matters: a non-ASCII member is NOT one. `é` encodes and
+      decodes through a UTF-8 text-mode round trip to the identical bytes, so
+      the obvious fixture would pass with the very reader the rule forbids
+      (PR #319, Codex). The fixture SHALL be a committed blob containing CRLF
+      line endings, because Python's universal-newline text mode rewrites
+      `\r\n` to `\n` and therefore yields different bytes and a different
+      digest than the blob holds. The test SHALL assert the raw reader
+      DIRECTLY — that it returns the CRLF bytes — rather than only asserting
+      that the family reports no drift, so the pin fails on a text-mode reader
+      instead of merely happening to agree with one.
 - [ ] 5.5 Both skips are exercised: no declared bundle, and unreadable history.
 - [ ] 5.6 Suite counts move by exactly the predicted amount and in no other
       line.
@@ -121,6 +130,11 @@ implementation plan the follow-on slice executes (§3, §5).
       would spend a version number to correct provenance this record already
       carries accurately. No further action is owed, and a later session
       noticing the mismatch should read this line rather than act.
+      **ALSO RECORDED IN THE POLICY ITSELF** — `docs/contract-versioning-policy.md`
+      § "contract-v1.36 Was Moved", added because this packet archives out of
+      the path of anyone running `verify-tag` and landing on the immutability
+      rule (PR #319 review, P2-1). The packet record is kept as the reasoning;
+      the policy subsection is the one a discoverer will actually hit.
 - [x] 7.2 Two schemas changed after the v1.40 tag without a cut
       (`client-overlay.schema.yaml`, `openxwallet-grant.schema.yaml`). Both are
       tracked and currently matching in the manifest's per-file digests, so

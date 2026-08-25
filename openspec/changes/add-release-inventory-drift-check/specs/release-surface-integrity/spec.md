@@ -41,9 +41,9 @@ the window measured, so its inclusion is a decision about what may legitimately
 move between cuts rather than a description of what has.
 
 A published annotated tag is NOT the reference point, deliberately: a declared
-bundle need not have one. `contract-v1.33` and `contract-v1.35` are recorded in
-the changelog and the manifest with no published tag, so a rule anchored on a
-tag would be unevaluable for them. The inventory FILE at the commit is the
+bundle need not have one. `contract-v1.33`, `contract-v1.35` and
+`contract-v1.39` are recorded in the changelog and the manifest with no
+published tag, so a rule anchored on a tag would be unevaluable for them. The inventory FILE at the commit is the
 reference, and it is present whenever the bundle is declared.
 
 #### Scenario: A normative contract drifts from the declared bundle
