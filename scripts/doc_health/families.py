@@ -1,4 +1,4 @@
-"""The sixteen contract check families.
+"""The contract check families.
 
 Each family is a function fam_<id>(ctx) -> list[Finding] | Skip. WHAT each
 family verifies is owned by the openxFactory `doc-health` contract; the
@@ -7,9 +7,18 @@ reference (the regexes below transcribe, never extend, that grammar).
 `document_catalog.py` owns the thirteenth family's own implementation
 (add-document-cataloging), `ideation_routing.py` owns the fourteenth
 (add-cross-factory-ideation-routing), `proposal_origin.py` owns the
-fifteenth (add-proposal-origin-contract), and
+fifteenth (add-proposal-origin-contract),
 `client_identity_composition.py` owns the sixteenth
-(add-client-identity-roster); all four are only registered below.
+(add-client-identity-roster), and `promotion_fidelity.py` owns the
+eighteenth (add-promotion-fidelity-check); all five are only registered
+below.
+
+The count is deliberately no longer written into this docstring's first
+line. It was wrong for three months — `staged-topic-template` registered on
+2026-08-15 and the "sixteen" here and in the promoted requirement both
+stayed put until `govern-openspec-corpus-membership` caught them — and a
+number that only a human re-reads is a number that drifts. `FAMILIES` at the
+bottom of this module is the count.
 """
 
 from __future__ import annotations
@@ -24,7 +33,7 @@ from pathlib import Path
 from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
                TAXONOMY, Finding, Skip, recorded_rel)
 from . import (client_identity_composition, corpus, document_catalog,
-               ideation_routing, proposal_origin)
+               ideation_routing, promotion_fidelity, proposal_origin)
 from .lines import split_keepends
 
 # Per-family resolution class defaults (doc-health contract): contested
@@ -1003,4 +1012,10 @@ FAMILIES = {
     "proposal-origin": proposal_origin.fam_proposal_origin,
     "client-identity-composition":
         client_identity_composition.fam_client_identity_composition,
+    # The eighteenth family (add-promotion-fidelity-check). Deliberately
+    # ABSENT from FAMILY_RESOLUTION above: it launches ADVISORY, and a
+    # `contested` class would route it back into `report.uncited_resolutions`
+    # — an ERROR — the first time one of its findings was resolved. See
+    # `promotion_fidelity._LAUNCH_SEVERITY`.
+    "promotion-fidelity": promotion_fidelity.fam_promotion_fidelity,
 }

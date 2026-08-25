@@ -35,9 +35,16 @@ AS_OF = date(2026, 7, 9)
 
 class FakeGit:
     def __init__(self, last_dates=None, line_dates=None, captures=None,
-                 pins=None, remotes=None, heads=None, first_dates=None):
+                 pins=None, remotes=None, heads=None, first_dates=None,
+                 first_stamps=None):
         self.last_dates = last_dates or {}
         self.first_dates = first_dates or {}
+        # add-promotion-fidelity-check: archive-commit order to SECOND
+        # resolution, which is what breaks a tie between two packets
+        # archived on the same DAY. Absent an entry the shim answers None,
+        # exactly as RealGit does when git cannot answer — which is the
+        # fallback path the tie-break tests exercise deliberately.
+        self.first_stamps = first_stamps or {}
         self.line_dates = line_dates or {}
         self.captures = captures or {}
         self.pins = pins
@@ -49,6 +56,9 @@ class FakeGit:
 
     def first_commit_date(self, repo: Path, relpath: str):
         return self.first_dates.get((repo.name, relpath))
+
+    def first_commit_timestamp(self, repo: Path, relpath: str):
+        return self.first_stamps.get((repo.name, relpath))
 
     def line_commit_date(self, repo: Path, relpath: str, line: int):
         return self.line_dates.get((repo.name, relpath, line))

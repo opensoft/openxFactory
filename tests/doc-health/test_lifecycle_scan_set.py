@@ -83,6 +83,13 @@ NON_READERS = {
     "ideation-routing",
     "proposal-origin",
     "client-identity-composition",
+    # add-promotion-fidelity-check. It reads archived spec DELTAS and
+    # promoted SPECS — bodies, not headers — so it never wants the
+    # lifecycle scan set. It does read ONE header, an archived proposal's
+    # `Status:`, and it reads it through `corpus.parse_status` on the file
+    # directly rather than through `_lifecycle_scope`, because it needs the
+    # status of a NAMED packet rather than a sweep over a document list.
+    "promotion-fidelity",
 }
 
 
@@ -469,8 +476,9 @@ def test_every_family_is_classified_as_reader_or_non_reader():
     # settles, and that half is asserted exactly.
     assert READERS == {"status-validity", "standard-backing",
                        "ratified-provenance", "succession-integrity"}
-    assert len(NON_READERS) == len(FAMILIES) - 4 == 13
+    assert len(NON_READERS) == len(FAMILIES) - 4 == 14
     assert "staged-topic-template" in NON_READERS
+    assert "promotion-fidelity" in NON_READERS
 
 
 def test_the_reader_list_is_structural_not_incidental():

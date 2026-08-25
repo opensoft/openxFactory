@@ -1598,6 +1598,35 @@ Each is a named, durable item. None is discharged by
   archived deltas to promoted specs, so the class stays unreported. That
   prevention question is scoped to openxFactory's neutral tooling and
   recorded both in the packet and in PR #85's body — named, not dropped.
+  **ROOT CAUSE AND SWEEP, 2026-08-24 (the #301 investigation, run after
+  the fix landed and verified independently of it).** WHY it never
+  promoted: plain omission by a HAND-ROLLED archive — `38ded44` is a
+  single-parent commit with no associated PR, pushed straight to main; its
+  whole diffstat is a README row removal plus seven pure renames. Not a
+  tooling defect (the real `openspec archive`, replayed on the pre-fix
+  tree in a throwaway export, applied all six scenarios correctly) and
+  not a skip decision (repo-wide, no `skip-specs` anywhere — this is NOT
+  the C5 class). The omission was then CERTIFIED by the discharge's
+  title-only promotion check — the exact check this defect class passes —
+  and the packet's provenance line credited `38ded44` with the promotion;
+  corrected 2026-08-24 by codexFactory PR #86, and the lesson stands:
+  route-(b) derivations must compare SCENARIO SETS, never titles alone.
+  Corpus-wide sweep (all 26 archived delta files, 108 ADDED + 4 MODIFIED
+  requirement-deltas vs promoted specs by requirement and scenario): NO
+  other silent promotion gap in codexFactory; one cosmetic
+  rewording-at-promotion noted (`add-merge-master-credential-contract`,
+  "useless"→"bounded" in a scenario title, body substantively identical —
+  a note, not a change). Currency verified in code: tier-2 is ACTIVE
+  (`nightly-sweep-council-clearance.yaml` `active: true`) and all four
+  landed scenarios hold, each cited to its enforcing line; one caveat
+  recorded — the delta prose names THREE activation prerequisites, the
+  rule's machine gate lists two (the tier-1-history condition was honored
+  in the act, not machine-enforced). FORWARD RISK, named for whoever
+  archives it: `add-regular-pr-council-clearance` is open with a
+  15-requirement MODIFIED delta against this same spec — the
+  highest-exposure archive this repo has yet faced for this class; the
+  missing archived-delta-vs-canon check remains the open prevention
+  question.
   **VETOES CLEARED 2026-08-24 (same day).** Brett approved BOTH
   dispositions this entry flagged, so the window closed with both taken up
   and nothing to revert: `add-software-team-execution-lane` stands at
@@ -1606,6 +1635,28 @@ Each is a named, durable item. None is discharged by
   stands as measured-not-ruled latent, the deferral-versus-authorization
   ambiguity still named rather than respelled. Both stand exactly as
   codexFactory PR #83 applied them — the approval required no repo edit.
+  **PREVENTION COMMISSIONED AND LANDED, 2026-08-24/25** — the open question
+  both addenda above leave named. Brett commissioned it verbatim on the
+  24th, "commission the archived-delta-vs-promoted-spec check", and
+  openxFactory PR #310 merged `73766b48` on the 25th (aggregation pin
+  `ec7dba9`), shipping `add-promotion-fidelity-check` ACTIVE on this
+  campaign's own archive-after-realization precedent, its archive box
+  recorded in its tasks. The class now has a doc-health FAMILY of its own:
+  the obligation stated in document-lifecycle, the check in doc-health,
+  ADVISORY at launch in both halves — severity and resolution — with the
+  enforcement flip a recorded task box, latest-writer-wins resolution
+  tie-broken on archive-commit order, and exemptions confined to the
+  recorded deliberate-skip class (keyed on the archived proposal's own
+  `Status:` header, where C5's `draft` is the only one in the corpus) plus
+  `health/dispositions.yaml`. Acceptance ran BOTH directions: the
+  reconstructed pre-#85 codex gap fires, while C5's deliberate skips and
+  later-superseded requirements stay quiet. Its FIRST LIVE CATCH is in
+  openxFactory itself — `2026-08-01-add-workbench-branch-sessions` ratified
+  an ADDED requirement that never reached canon and a MODIFIED one that
+  arrived a scenario short — reported by the family, recorded in the
+  commissioning change's tasks as its own follow-up, and deliberately not
+  fixed inside it. The class this entry surfaced is no longer unreported:
+  "named, not dropped" is discharged.
 - **MedxChart and MedxPractice** pin no OpenSpec packets and owe nothing here.
   Their two ACTIVE headerless proposals, named repeatedly in this change's
   task record, live in the openxFactory tree as

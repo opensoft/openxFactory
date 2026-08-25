@@ -340,6 +340,24 @@ class RealGit:
                 return date.fromisoformat(line.strip())
         return None
 
+    def first_commit_timestamp(self, repo: Path, relpath: str) -> int | None:
+        """Committer epoch seconds of the commit that first added `relpath`.
+
+        `first_commit_date` answers the same question to DAY resolution,
+        which is exactly the resolution that cannot break a tie between two
+        packets archived on the same day — the tie the promotion-fidelity
+        family has to break (nineteen such tie groups in this repository).
+        Same shape as its sibling: None whenever git cannot answer, so the
+        caller falls back rather than crashing.
+        """
+        out = self._run(repo, "log", "--reverse", "--format=%ct", "--", relpath)
+        if not out:
+            return None
+        for line in out.splitlines():
+            if line.strip():
+                return int(line.strip())
+        return None
+
     def line_commit_date(self, repo: Path, relpath: str, line: int) -> date | None:
         out = self._run(repo, "blame", "--porcelain",
                         f"-L{line},{line}", "--", relpath)
