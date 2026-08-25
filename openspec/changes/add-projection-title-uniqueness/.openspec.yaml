@@ -29,11 +29,13 @@ origin:
   approved_by: >-
     Brett's session — the in-session instruction of 2026-08-25 to author this
     proposal against the measured defect. That authorization covers the
-    DECISION TO RAISE A PROPOSAL and nothing else. This packet ships
-    `Status: draft` and is NOT ratified: Brett rules after reading. Every
-    design decision the authoring session took under measurement — the rule
-    candidate, its uniqueness scope, the parity amendment, and whether the
-    un-collapsed sources ride the realization's own sync slice — is flagged in
+    DECISION TO RAISE A PROPOSAL and nothing else. This packet shipped
+    `Status: draft` and NOT ratified: Brett was to rule after reading. He
+    did, the same day — `Status: ratified` 2026-08-25, per `proposal.md`'s
+    `Ratified:` line. Every design decision the authoring session took under
+    measurement — the rule candidate, its uniqueness scope, the parity
+    amendment, and whether the un-collapsed sources ride the realization's
+    own sync slice — is flagged in
     `proposal.md` § Orchestrator Decisions and § Open Questions for ruling or
     veto, and reverting any one of them is an edit to this change rather than
     a new one.

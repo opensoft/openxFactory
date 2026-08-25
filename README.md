@@ -345,7 +345,7 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-projection-title-uniqueness](openspec/changes/add-projection-title-uniqueness/proposal.md)
-  — authored 2026-08-25, **NOT YET RATIFIED** (`Status: draft`). Raised off that
+  — authored and ratified 2026-08-25 (Brett Heap, in-session). Raised off that
   morning's lifecycle-notebook sync report, which recorded FOUR MedxFactory
   staging topics synced into a book holding ONE source for them. A source title
   is the projection's identity key — the sync keys its desired set by path and
