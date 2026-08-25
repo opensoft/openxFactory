@@ -344,6 +344,109 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [ratify-doxbench-landed-context-surfaces](openspec/changes/ratify-doxbench-landed-context-surfaces/proposal.md)
+  — authored and **ratified 2026-08-25** (Brett, ruling 0 of
+  `add-doxbench-distilled-abstract`); doc-only, `code_surface: none`, archives on
+  landing. The half of `#84` that needed no ruling and should not have waited for
+  seven. Three surfaces shipped into the doxBench context panes on 2026-08-03 —
+  the lens in three subtabs, the docs subpane split into an abstract region above
+  a document wheel, and the deterministic per-document abstract those two exist to
+  carry — and the spec mentions NONE of them: grep `abstract` or `subtab` over
+  `ideation-dashboard/spec.md` and it returns nothing. One of them does worse than
+  go unmentioned. `spec.md:439` requires the bullseye "above the always-present
+  flat matrix" and says in those words that the matrix "MUST NOT become a
+  toggle-only alternate"; the shipped subtabs make the three sections mutually
+  exclusive tabpanels (`staging-workbench.js:488` sets
+  `subPanes.get(name).hidden = !on`), so the requirement has been FALSE about
+  this surface every day since the subtabs landed. That is what a council split
+  bought: a doc-only change that removes a live falsified requirement in one pass
+  rather than waiting on a model-derived abstract's adapter wiring and prompt
+  assembler. The reversal is taken on what the clause was actually protecting —
+  ACCESS to the matrix, not simultaneous rendering — so each section becomes a
+  named, always-reachable member of one APG tablist, the `above` ordering is
+  discharged by the tablist's declared section order, and a keyboard-reachability
+  scenario is added because the guarantee moved from geometry to a widget and a
+  tablist without arrow keys is a worse promise than the one it replaced. Six
+  requirements MODIFIED whole (`:438`, `:863`, `:1853`, `:1705`, `:948`) plus one
+  ADDED for what is already true of the deterministic abstract: never captioned
+  as a distillation (pinned at `test_doxbench_context_panes.py:144-152`), an
+  absence STATED rather than rendered as an empty box (shipped verbatim at
+  `staging-workbench-model.js:1578-1581`), and a named field OMITTED rather than
+  placeheld. Ruling 6 is settled here only where it needs no code: a surface that
+  selects a subject to DESCRIBE is not a second buffer-selection surface, so the
+  buffer contract needs no change and pointing at a document neither loads nor
+  keys nor dirties a buffer. **Packet review CUT two clauses that would have made
+  this change not doc-only** — the region's accessible name is the static string
+  `"selected document"` today (`staging-workbench.js:250`) and no provenance
+  caption exists at all (`renderAbstract` emits none), so ruling 6's rename, the
+  loaded-document-selector requirement (`:1827`, consequently NOT modified here),
+  and the POSITIVE "From the document's own headers" caption all move to
+  `add-doxbench-distilled-abstract`, which owns that line. Asks for no code: the
+  tasks are records plus a cross-check that every promoted sentence describes what
+  already ships, against `test_doxbench_context_panes.py`, `test_doc_wheel.py` and
+  `test_doxbench_accessibility.py` — and if the text is wrong, the text is what
+  gets fixed. The cross-check has three EXPECTED findings it records rather than
+  repairs: a stale comment at `staging-workbench.js:508` still claiming the
+  bullseye sits "ABOVE the always-present matrix", and two suites still asserting
+  the wheel is DEFERRED (`test_doxbench_context_panes.py:19-25` and `:217-229`)
+  when the wheel shipped. Archives BEFORE `add-doxbench-distilled-abstract`, which authors its
+  own `:863` delta against the text this change lands.
+
+- [add-doxbench-distilled-abstract](openspec/changes/add-doxbench-distilled-abstract/proposal.md)
+  — authored and **ratified 2026-08-25** (Brett, all eight rulings as
+  recommended); `target_release: none` under ruling 2(b), but `code_surface` is
+  non-empty, so the archive gate is merge-plus-green PLUS one operator run on the
+  real corpus through a real adapter, recorded in `realization-evidence.md`.
+  Three requirements MODIFIED, seven ADDED. The MODEL half of `#84`: the
+  distilled per-document abstract the docs subpane was built to carry. Ruling 0
+  SPLIT this change — the doc-only half is
+  `ratify-doxbench-landed-context-surfaces`, which took the `:439` simultaneity
+  reversal and all six integration-surface items and archives FIRST, so this
+  change's `:863` delta is authored against that change's landed text. What is
+  left here is the reversal that was actually asked for: Brett's 2026-08-03 ruling
+  that the abstract be "header + structure, honestly labelled ... NOT an AI
+  distillation" is reversed, and its test pin — a whole-file substring sweep
+  (`test_doxbench_context_panes.py:144-152`) that bans "distilled" while missing
+  "distillation" — is RELOCATED onto the Node harness as a per-abstract caption
+  assertion rather than deleted, because after this change both captions live in
+  one file and a file-level sweep cannot tell them apart. Council review then
+  found the first draft describing a feature that could not run. A real adapter
+  EXISTS — `OmpHarnessBridge` (`doxbench_bridge.py:869`) supervises an
+  `omp --mode rpc` child with no credential — but NO ENTRYPOINT declares
+  `model_port_factory`, so `_workbench_model_port` returns `None` on every real
+  serve. Packet review sharpened that twice more: `serve()` has no callers at all,
+  so the declaration belongs at `cli.py:298` beside the notebook adapter and the
+  knowledge declaration; and the bridge is unconstructible bare (keyword-only
+  `session_root`, no default) and INERT if given only that (catalog defaults to
+  `EMPTY_CATALOG`), so the entrypoint must declare catalog, session root and
+  launch config install-time — and must build ONE instance for the process, since
+  the bridge is stateful and `spec.md:1991` requires one harness session per
+  document thread. The prompt ASSEMBLER is new surface, not a reuse:
+  `build_prompt_envelope` is chat-shaped to its bones — outline plus documents, a
+  non-blank human message, a transcript — so an abstract request needs its own
+  assembler, whose pin is that it REFUSES a context packet of any purpose (a new
+  purpose constant would have been dead code, since the request carries no packet
+  at all). Layer 2 is NOT widened: a comma-joined second owner in a one-owner
+  field would degrade the fidelity checker to a comment, so the abstract is a
+  layer-2-CLASS SIBLING under the requirement's universal non-authoritative
+  clause and `compact_thread` keeps sole ownership with its equality pin green
+  unchanged. The verifier's base is the SNAPSHOT'S declared topics and
+  destinations — so it fires on the FIRST generation, not only on a regeneration
+  — and its check is named SUBJECT-MENTION COVERAGE rather than fidelity, because
+  `dispatch_turn` returns one opaque string and claiming more would be this change
+  committing the sin it exists to prevent; the one structurally decidable clause
+  is that the abstract must name its subject and no path its request did not
+  carry, which is also what discharges the injection-leak case. Ruling 7 was the
+  sharpest finding: disclosure on this surface REQUIRES EDIT AUTHORITY
+  (`doxbench_scope.py:390`), `editable_paths` is fed only by `owned` sections and
+  exactly ONE section is owned, so on a cluster tile the eligible subject set is
+  EMPTY — either the abstract is refused there or a feature PR quietly opens a new
+  disclosure path. Ruled 7(a), with the widening named as a follow-on ruling.
+  `clarifications.md` carries the five council constraints (N1-N5), chief among
+  them that the abstract cache MUST NOT be the chat `TurnStore`, whose 64-entry /
+  16 MB bound abstract churn would evict and whose same-key-different-digest
+  conflict rule forces the content digest INTO the cache key.
+
 - [add-family-enumeration-check](openspec/changes/add-family-enumeration-check/proposal.md)
   — authored and ratified 2026-08-25, commissioned in-session ("commission the
   §5.5 enumeration check"). `doc-health`'s own "Deterministic check families"
