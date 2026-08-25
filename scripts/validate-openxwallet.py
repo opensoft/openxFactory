@@ -1691,10 +1691,10 @@ def self_test(f: Findings, docs: dict[str, dict], ctx: Context) -> None:
         probe = Findings()
         check_register(probe, base, c, now=now)
         got = {e.split("]")[0].replace("ERROR [", "") for e in probe.errors}
-        missing = set(expect_codes) - got
-        extra = got - set(expect_codes) - {"register-minimal-shape-exceeded"} \
-            if len(expect_codes) != 1 else set()
-        if missing or (expect_codes and extra):
+        expected = set(expect_codes)
+        missing = expected - got
+        extra = got - expected
+        if missing or extra:
             f.error("register-assertion-failed",
                     f"{label}: expected {sorted(expect_codes)}, got "
                     f"{sorted(got)}")
@@ -1711,6 +1711,11 @@ def self_test(f: Findings, docs: dict[str, dict], ctx: Context) -> None:
     _register_probe("self-test/register-computed-expiry", base, c,
                     {"register-row-expired", "grant-state-stale",
                      "register-no-active-row"})
+
+    naive_row = dict(s4_row, expires_at="2026-11-23T12:00:00")
+    base, c = _s4_tree([naive_row])
+    _register_probe("self-test/register-naive-timestamp", base, c,
+                    {"register-row-malformed", "register-no-active-row"})
 
     # Grant without any backing row: the headline obligation.
     empty_reg = dict({"register_version": 1, "rows": []})
@@ -1773,9 +1778,10 @@ def _parse_dt(value: Any) -> datetime | None:
     if not isinstance(value, str) or not value:
         return None
     try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError:
         return None
+    return parsed if parsed.utcoffset() is not None else None
 
 
 def _load_attestations(f: Findings, attest_dir: Path,
