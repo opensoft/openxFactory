@@ -79,7 +79,7 @@ tags. That was true when written and is deliberately NOT edited: a record is
 immutable, exactly as an archived change packet is, and rewriting one to match
 today's state would destroy the evidence of what was true then.
 
-### Recovered Legacy Baseline### Recovered Legacy Baseline
+### Recovered Legacy Baseline
 
 The historical `contract-v1.1` through `contract-v1.6` changelog entries were
 created before tag enforcement and have no corresponding repository tags.
