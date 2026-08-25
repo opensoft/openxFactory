@@ -148,8 +148,17 @@ implementation plan the follow-on slice executes (§3, §5).
 
 ## 6. Archive
 
-- [ ] 6.1 Archive ONLY after merge with green realization evidence. This change
-      ships ACTIVE, following both precedents.
+- [x] 6.1 Archive ONLY after merge with green realization evidence. This change
+      shipped ACTIVE, following both precedents, and is ARCHIVED on Brett's
+      ruling of 2026-08-25. Discharged BY the archive act, which is the only
+      way it can be: the archive gate refuses on any open task, so a task
+      whose completion IS the archive must tick as part of it.
+      **THE FIRST ARCHIVE ATTEMPT WAS REVERTED UNCOMMITTED**, because the
+      byte-for-byte promotion check found this change's own MODIFIED block
+      would have dropped seven ratified scenarios from doc-health's
+      `Deterministic check families` — `MODIFIED` replaces wholesale, and the
+      block restated one of eight. Corrected scenario-complete on Brett's
+      ruling (see the delta's dated CORRECTED note) and archived from there.
       **THE REALIZATION EVIDENCE IS COMPLETE — recorded here so the archive does
       not have to re-derive it.** Merged as PR #324, squash **`0780875b`**, with
       a tree byte-identical to the reviewed branch tip `39965995`

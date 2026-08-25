@@ -375,27 +375,6 @@ Active changes:
   real corpus reads 0 findings through the exemption and 2 without it, and the
   single-repo report moves by nothing but the family's own empty section.
 
-- [add-release-inventory-drift-check](openspec/changes/add-release-inventory-drift-check/proposal.md)
-  — authored and ratified 2026-08-24 from issue #312. The release verifier
-  (`validate-contract-release.py verify-commit`) had been failing at
-  `origin/main` since the `contract-v1.40` tag, and NO gate in any session's set runs it, so the state was invisible
-  until a session ran it by hand for an unrelated reason — a release-inventory
-  gate that nothing runs is a gate in name only. Adds the capability
-  `release-surface-integrity` ("the declared bundle describes the release
-  surface", with three editorial members allowed to drift between cuts) and
-  commissions doc-health's nineteenth family to check it; the CHECKER itself is
-  a follow-on realization slice. Measured before proposing: 188 of the declared
-  bundle's 190 inventory members match at `origin/main`, two are editorial, and
-  NON-editorial drift is zero — and the same comparison at `08c5aa9` reproduces
-  the `contract-v1.36` defect, proving the "forgot to bump the bundle" class is
-  detectable at the commit rather than only at tag-verify. This change also
-  RATIFIES [`docs/contract-versioning-policy.md`](docs/contract-versioning-policy.md),
-  correcting the four defects that read-through found — three modern bundles
-  published with no annotated tag (recorded as an undischarged gap, the rule
-  NOT relaxed), a stale present-tense baseline claim, a superseded layer
-  vocabulary called "canonical", and the undocumented meaning of a red
-  `verify-commit` at HEAD.
-
 - [add-promotion-fidelity-check](openspec/changes/add-promotion-fidelity-check/proposal.md)
   — authored and ratified 2026-08-24, commissioned in-session ("commission the
   archived-delta-vs-promoted-spec check"). Closes the prevention question
@@ -1057,6 +1036,31 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-release-inventory-drift-check](openspec/changes/archive/2026-08-25-add-release-inventory-drift-check/proposal.md)
+  — **ARCHIVED 2026-08-25** on Brett's ruling; authored and ratified 2026-08-24
+  from issue #312, realized and released the same arc. `validate-contract-release.py
+  verify-commit` had been failing at `origin/main` since the `contract-v1.40`
+  tag with NO gate running it — a release-inventory gate that nothing runs is a
+  gate in name only. Promotes the NEW capability `release-surface-integrity`
+  ("the declared bundle describes the release surface", three editorial members
+  allowed to drift between cuts) and doc-health's NINETEENTH deterministic
+  family, which checks it. Realized at PR #324 / `0780875b`, with
+  `contract-v1.41` published and verified from the remote (object `48efdfbe` →
+  `0780875b`), and the family reporting 0 error / 0 info at that commit —
+  issue #312's symptom, resolved.
+  **THE ARCHIVE ITSELF CAUGHT A DEFECT IN THIS CHANGE'S OWN RATIFIED DELTA,
+  and the first attempt was reverted uncommitted.** Its `MODIFIED` block for
+  doc-health's `Deterministic check families` restated one of eight scenarios,
+  and `MODIFIED` REPLACES A REQUIREMENT WHOLESALE — so promotion would have
+  dropped seven ratified scenarios silently, the file-level count staying at 98
+  because the seven lost exactly offset the seven this change adds. Corrected
+  scenario-complete on Brett's ruling of 2026-08-25 and re-verified
+  byte-for-byte: 8 of 8 promoted identical, doc-health 98 → 105 scenarios.
+  Two issues were filed from that finding — the sibling changes carrying the
+  same latent loss, and the `promotion-fidelity` blind spot that cannot see it
+  (that family compares delta→promoted, so scenarios lost from a promoted spec
+  the delta never mentions are invisible).
 
 - [reconcile-lifecycle-books-count](openspec/changes/archive/2026-08-25-reconcile-lifecycle-books-count/proposal.md)
   — **ARCHIVED 2026-08-25** (the CLI's UTC stamp; the act ran 2026-08-24
