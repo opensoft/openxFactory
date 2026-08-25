@@ -1,18 +1,21 @@
 # Tasks: add-projection-title-uniqueness
 
-This packet is PROPOSAL-ONLY. Nothing under §2 or later has run: its diff is
-spec text, records, and this list. The authorization behind it covers RAISING
-the proposal against a measured defect and nothing more — `Status: draft`,
-Brett rules after reading, and the four decisions in `proposal.md`
-§ Orchestrator Decisions plus the four questions in § Open Questions are the
-subject of that read.
+**§1 is COMPLETE — ratified 2026-08-25.** Nothing under §2 or later has run:
+its diff, at the moment of ruling, was spec text, records, and this list. The
+in-session authorization behind the packet covered RAISING the proposal
+against a measured defect and nothing more; Brett then read it and ruled
+OQ-1 through OQ-4 in one multiple-choice round, adopting the recommendation
+throughout and folding OQ-4 into OQ-1. The ruling is recorded question by
+question in `proposal.md` § Open Questions; the four decisions in § Orchestrator
+Decisions were read in the same pass and none was vetoed. The six read-backs
+are in §1.1–1.6 below.
 
 **§5 is deliberately OPEN and stays open.** What this change does not close is
 recorded there rather than implied.
 
 ## 1. Ratification and open questions
 
-- [ ] 1.1 Brett reads the measurement and rules on **Q1, the rule candidate**.
+- [x] 1.1 Brett reads the measurement and rules on **Q1, the rule candidate**.
       The recommendation is (a), collision-triggered minimal repository-relative
       suffix: 14 renames and 28 book operations against 611 and 1222 for the
       always-fully-qualified alternative, both reaching zero collisions. (b1)
@@ -20,35 +23,48 @@ recorded there rather than implied.
       collision — and the elimination is in `design.md` § 4 with the reason.
       Ruling (b2) instead is an edit to the delta's third paragraph and to
       §§ 2.1–2.2, not a new change.
-- [ ] 1.2 Rule on **Q2, whether the migration rides the realization's own sync
+      **RULED 2026-08-25: recommendation adopted — (a) at REPOSITORY scope,
+      folding Q4's scope sub-question into the same pick (`proposal.md` §
+      Open Questions).** 14 renames, 28 operations, zero collisions, and the
+      three latent pairs close as a side effect.
+- [x] 1.2 Rule on **Q2, whether the migration rides the realization's own sync
       slice**. §4 is written for ONE SLICE: the realization merges and an
       apply-mode sync follows immediately, so the books are correct on merge
       and the archive evidence exists at once. The alternative leaves the books
       visibly drifted — `notebook-projection-drift` reporting 28 pending
       operations — until a separately scheduled apply.
-- [ ] 1.3 Rule on **Q3, whether the arrival of five never-projected documents
+      **RULED 2026-08-25: recommendation adopted — one slice, as § 4 already
+      assumes.** No drift window opens; § 4 needs no edit.
+- [x] 1.3 Rule on **Q3, whether the arrival of five never-projected documents
       warrants a record** beyond this packet. Three MedxFactory staging topics,
       one openxFactory draft checklist and one OpsxFactory staging fragment
       have never held a source; every answer any book gave about those subjects
       was given from a corpus missing them. If a record is owed, the place is
       `docs/archive-record-discrepancies.md`.
-- [ ] 1.4 Rule on **Q4, the uniqueness scope**. Repository scope costs four of
+      **RULED 2026-08-25: a record is owed.** A dated, append-only entry in
+      `docs/archive-record-discrepancies.md`, written at realization (§ 4
+      below), not now.
+- [x] 1.4 Rule on **Q4, the uniqueness scope**. Repository scope costs four of
       the fourteen renames and pre-empts the three latent pairs
       (`memory-gateway/README`, `company-provisioning`,
       `codexfactory-domain-hermes-content`), each of which is one `Status:`
       edit from a live collapse. The tightest correct scope is eight renames
       and leaves them latent. `design.md` § 7 measures all three scopes.
-- [ ] 1.5 NO `document-lifecycle` delta, and the absence is deliberate. This
+      **RULED 2026-08-25: folded into 1.1 above — no independent ruling.**
+      Repository scope stands, ruled as part of Q1.
+- [x] 1.5 NO `document-lifecycle` delta, and the absence is deliberate. This
       change states an obligation about a PROJECTION — that a derived source
       set be injective over the documents it derives from — not about how
       documents carry lifecycle state. The obligation belongs in
       `lifecycle-notebook-projection` and nowhere else.
-- [ ] 1.6 NO `Projection capacity guard` delta, and the absence is MEASURED
+      **Confirmed by the ratification read, 2026-08-25: unvetoed.**
+- [x] 1.6 NO `Projection capacity guard` delta, and the absence is MEASURED
       rather than assumed. That requirement defines projected occupancy over
       "the desired managed set plus the charter plus every unmanaged source",
       and the implementation counts DOCUMENTS for it. No guard-computed number
       moves; actual occupancy rises to meet the number the guard already used.
       `design.md` § 8 carries the per-book table.
+      **Confirmed by the ratification read, 2026-08-25: unvetoed.**
 
 ## 2. Realization — the derivation
 
