@@ -2008,6 +2008,15 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     // proposal currency against, and ONLY those (a refused buffer's identity
     // did not move, so no notification may claim it did).
     const adoptedKeys = [];
+    // #290: …and the buffers whose commit this canvas COULD NOT adopt --
+    // the exact complement, and a fact NO outcome row carries. The row says
+    // `committed`, because the server did commit; the adoption that failed is
+    // this canvas's own act, discovered here and nowhere else. Left here it was
+    // reported to the human (their buffer stayed dirty and said so) and hidden
+    // from every reader of the Save's answer, so `tileSaveVerdict` computed
+    // success from rows that had no way to know. It therefore travels WITH the
+    // outcome, below, in the same sentence the buffer's own region carries.
+    const unadopted = [];
     // R-5 (#81): THE ONE VISIBLE LINE IS A CHOICE, so it is made ONCE, here,
     // rather than by whichever row happened to be reported last. Rows arrive in
     // SAVE ORDER, and a Save that refused the ancestry step reports the outline's
@@ -2045,6 +2054,12 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
             + "adopt -- " + ((error && error.message) || "unknown error")
             + "; this buffer keeps its unsaved text";
           leadWith(bufferLabel(row.key) + ": " + statedOutcomes[row.key]);
+          // THE SAME SENTENCE, carried out of here (#290). Not a second wording
+          // of the same fact: the verdict a tile reads and the region a human
+          // reads are then incapable of contradicting each other, which is the
+          // whole complaint -- `ok: true` over a region saying "unsaved".
+          unadopted.push(Object.freeze({
+            key: row.key, message: statedOutcomes[row.key] }));
           continue;
         }
       }
@@ -2071,6 +2086,21 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     // …and the chosen line is shown once, after every row has been read, so the
     // one on screen is the first failing cause and not the last consequence.
     stateEvent(leadEvent);
+    // #290: THE ADOPTION RESULT TRAVELS WITH THE OUTCOME. What the seam
+    // returned is what the governed Save DID, and it is not touched -- a row
+    // that committed still says `committed`, because rewriting the server's own
+    // verdict would be a false statement in the other direction. What is added
+    // is what this canvas then did with it, which no row could carry and which
+    // every reader of this answer needs: the commits it could not adopt, named,
+    // with the reason the human is already reading. It is an array on EVERY
+    // answer a seam returned -- empty when everything was adopted -- so a
+    // reader never has to tell an empty list apart from a silent one. (The
+    // refusals above return before a seam is reached: there is no outcome to
+    // annotate, and `tileSaveVerdict` reads the field defensively for exactly
+    // that reason.)
+    const settled = outcome && typeof outcome === "object"
+      ? Object.freeze({ ...outcome, unadopted: Object.freeze(unadopted) })
+      : outcome;
     const previousRef = scopeKey().ref;
     if (landedRef !== null) rekeyTo(landedRef);
     for (const key of scope) syncBufferDom(key);
@@ -2092,12 +2122,12 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     if (landedRef !== null && landedRef !== previousRef
         && typeof onSaveLanded === "function") {
       try {
-        await onSaveLanded(landedRef, outcome);
+        await onSaveLanded(landedRef, settled);
       } catch (unused) {
         // the seam's own detail is dropped unread; the Save still landed
       }
     }
-    return outcome;
+    return settled;
   }
 
   // THE TILE SAVE (design D4, and the `docs`-tile requirement's SAVE verb). ONE
@@ -2115,17 +2145,45 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // unattempted, so a PARTIAL — the outline landed, the document did not, or the
   // reverse — reads as NOT ok on the tile while staying separately readable per
   // buffer, which is the case the ratified per-buffer reporting rule exists for.
+  //
+  // #290: `ok` IS COMPUTED FROM BOTH HALVES OF WHAT HAPPENED -- what the
+  // governed Save reported per buffer, AND what this canvas could do with it.
+  // It used to read the rows alone, which cannot see an adoption failure: the
+  // row of a commit this canvas refused to adopt says `committed` (the server
+  // committed it) and the whole-Save status says `committed` too, so the tile
+  // reported `ok: true, error: null` over a buffer whose own status region said
+  // it kept its unsaved text. A tile MUST NOT be able to claim a success the
+  // buffer beside it contradicts, so the unadopted set is a failing cause here
+  // exactly as a refusal is -- whatever future trigger reaches that branch.
+  //
+  // The chosen sentence follows the SAME rule as the one visible line (#81):
+  // the FIRST failing cause in save order, since rows arrive as a cause and its
+  // consequences. `outcome.status` is left exactly as the Save stated it; it is
+  // the governed action's own verdict, and this canvas's failure to adopt is
+  // not a fact about what the server did.
   function tileSaveVerdict(outcome) {
     const rows = outcomeRowsOf(outcome);
-    const withheld = rows.filter(
-      (row) => row.status === "refused" || row.status === "not_attempted");
-    const ok = withheld.length === 0
+    const unadopted = new Map((Array.isArray(outcome.unadopted)
+      ? outcome.unadopted : []).map((row) => [row.key, row.message]));
+    let lead = null;
+    let failed = false;
+    for (const row of rows) {
+      // An unadopted row is read FIRST: it is a `committed` row, so asking the
+      // withheld question about it would answer "nothing wrong here".
+      const failure = unadopted.has(row.key)
+        ? unadopted.get(row.key)
+        : ((row.status === "refused" || row.status === "not_attempted")
+          ? saveOutcomeSentence(row)
+          : null);
+      if (failure === null) continue;
+      failed = true;
+      if (lead === null) lead = failure;
+    }
+    const ok = !failed
       && (outcome.status === "committed" || outcome.status === "unchanged");
     const error = ok
       ? null
-      : (withheld.length
-        ? saveOutcomeSentence(withheld[0])
-        : (outcome.reason || "the governed Save reported no verdict"));
+      : (lead || outcome.reason || "the governed Save reported no verdict");
     return { ...outcome, ok, error };
   }
 

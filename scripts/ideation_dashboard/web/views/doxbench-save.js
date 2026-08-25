@@ -153,22 +153,42 @@ function validatedState(value) {
 // Never coerced into existence: an absent or malformed identity is reported as
 // absent, because inventing one is how an unverifiable claim becomes a fact.
 //
-// SHAPE, not charset. The lowercase-SHA-256 rule belongs where an identity is
-// COMPUTED -- doxbench-state.js's own hashing authority -- and re-deciding it
-// here would make this module a second, differently strict judge of a value it
-// only ever reads and forwards. What it does insist on is that the identity
-// names its algorithm and carries a digest of the declared width, because a
-// base advanced onto a half-stated identity is unverifiable later.
-const IDENTITY_HEX_LENGTH = 64;
+// THE SAME RULE THE ADOPTING MODULE APPLIES (#290). This used to insist on
+// SHAPE ONLY -- any non-empty algorithm, any 64 characters -- on the reasoning
+// that the lowercase-SHA-256 rule belongs where an identity is COMPUTED
+// (doxbench-state.js's own hashing authority) and that re-deciding it here would
+// make this module a second, differently strict judge of a value it only reads
+// and forwards. The second half of that reasoning was wrong, and the divergence
+// it licensed was the defect: the identity accepted HERE is the identity the
+// canvas immediately WRITES into working state through `adoptSavedBase`, which
+// accepts only a lowercase SHA-256 one. So an uppercase-hex or `sha512` answer
+// read `committed` in this module and threw in that one -- a buffer left dirty
+// under a Save reported as landed. Two rules for one value, read and written one
+// step apart, is not defence in depth; it is a gap. There is now ONE rule, and
+// this module applies it where the value is READ: a stated identity nothing can
+// adopt is not a landing, and saying so here is what makes the report true.
+//
+// It is SPELLED here rather than imported because this module stays
+// import-free -- pinned by test_doxbench_mutation_boundary.py's
+// `test_the_save_module_has_no_import_statement`, so the Node harness executes
+// the browser's exact bytes -- exactly as the document-order rule above is
+// re-spelled rather than imported. A companion test
+// (test_doxbench_save.py::test_the_reader_and_the_writer_judge_a_content_identity_identically)
+// asks BOTH modules the same candidate identities and asserts their answers
+// agree, so the two spellings cannot drift apart again unnoticed.
+const CONTENT_IDENTITY_ALGORITHM = "sha256";
+const CONTENT_IDENTITY_HEX = /^[0-9a-f]{64}$/;
 
 function statedIdentity(value) {
   if (!value || typeof value !== "object") return null;
-  const algorithm = nonEmptyString(value.algorithm);
-  if (!algorithm || typeof value.hex !== "string"
-      || value.hex.length !== IDENTITY_HEX_LENGTH) {
+  if (value.algorithm !== CONTENT_IDENTITY_ALGORITHM
+      || typeof value.hex !== "string"
+      || !CONTENT_IDENTITY_HEX.test(value.hex)) {
     return null;
   }
-  return Object.freeze({ algorithm, hex: value.hex });
+  return Object.freeze({
+    algorithm: CONTENT_IDENTITY_ALGORITHM, hex: value.hex,
+  });
 }
 
 // WHICH existing action this path implies. A path the console loaded from a
@@ -308,7 +328,17 @@ function readVerdict(key, row, answer) {
   const missing = [];
   if (!ref) missing.push("the session ref it landed on");
   if (!revision) missing.push("the revision it produced");
-  if (!identity) missing.push("the content identity it committed");
+  if (!identity) {
+    // An identity that was never stated and one stated in a form nothing can
+    // verify later are DIFFERENT facts about the same answer, so the refusal
+    // says which happened rather than collapsing them -- the same reason
+    // `not_attempted` is kept distinct from `refused` above. Both are the same
+    // verdict, though: `refused`, in the vocabulary this module already has,
+    // because a base advanced onto either is unverifiable from then on.
+    missing.push(answer.content_hash == null
+      ? "the content identity it committed"
+      : "the content identity it committed as a lowercase SHA-256 identity");
+  }
   if (missing.length) {
     return outcomeRow(key, {
       status: "refused", action: row.action,
