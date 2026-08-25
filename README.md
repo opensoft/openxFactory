@@ -987,6 +987,43 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [apply-branch-sessions-deltas](openspec/changes/archive/2026-08-25-apply-branch-sessions-deltas/proposal.md)
+  — **ARCHIVED 2026-08-25** (the CLI's UTC stamp; the act ran 2026-08-24
+  local, the shape `2026-08-24-govern-openspec-corpus-membership` below
+  already set); authored and ratified 2026-08-24. **RATIFIED** on Brett's
+  ruling "apply via a proper change", recorded in `add-promotion-fidelity-check`
+  task 5.1; no approving OpenSpec change exists to name, so the proposal
+  carries the record-citing `Ratified:` spelling
+  `sanction-ratified-record-spelling` sanctioned, clearing its three-way floor
+  on approver and date. The openxFactory equivalent of codexFactory PR #85: a
+  ratified delta that never reached canon is applied through its own change
+  rather than by a silent edit. `2026-08-01-add-workbench-branch-sessions`
+  carried a `lifecycle-notebook-projection` delta whose ADDED
+  `Branch-session notebooks` was absent from the promoted spec entirely and
+  whose MODIFIED `Corpus scan scope` had arrived carrying its PREVIOUS
+  writer's text — three scenarios where the ratified text says four, and none
+  of the amendment that scopes the exclusion to the three lifecycle books,
+  names branch-session worktrees inside it, and makes session notebooks the
+  ONLY notebook surface permitted to read a worktree while never contributing
+  a source, title, or repository name to a lifecycle book. Archive commit
+  `a0ea7666` moved the packet and never touched the promoted spec. Both gaps
+  are the promotion-fidelity family's first live catch, reported against this
+  repository's own archive and deliberately left by the change that found
+  them. Drift was checked BEFORE applying: the `Corpus scan scope` region
+  hashes to `bbb402c4…` at its 2026-07-12 introduction (`1efa5756`), at the
+  source archive (`a0ea7666`), and at all three later commits touching the
+  file (`d5e6d428`, `e9a4be6e`, `18a4ffc3` — which touched other requirements
+  only), and `Branch-session notebooks` had never been in canon at any commit,
+  so the ratified text clobbered no later work. Fidelity is proven by sha256
+  rather than asserted: the packet's delta file hashed identical to the
+  archived one (`f6ffd39a…`), and each requirement block extracted from canon
+  after promotion hashes identical to the ratified delta's (`99fa2a84…`,
+  `107ede78…`). Canon gains one requirement and one scenario; behavior moves
+  nowhere, because the branch-session realization landed in 2026-07 and only
+  the text lagged. `code_surface: none`, so it archived on landing, and its
+  landing ticks `add-promotion-fidelity-check` task 5.1 — the box that RULED
+  note said closes when this change lands. The family reads ZERO
+  promotion-fidelity findings in openxFactory after it.
 - [govern-openspec-corpus-membership](openspec/changes/archive/2026-08-24-govern-openspec-corpus-membership/proposal.md)
   — **ARCHIVED 2026-08-24**; authored, ratified and fully realized 2026-08-23.
   (The folder date is the CLI's UTC stamp and the archive act ran at 22:57
