@@ -1,14 +1,21 @@
 # Tasks: add-projection-title-uniqueness
 
-**§1 is COMPLETE — ratified 2026-08-25.** Nothing under §2 or later has run:
-its diff, at the moment of ruling, was spec text, records, and this list. The
-in-session authorization behind the packet covered RAISING the proposal
-against a measured defect and nothing more; Brett then read it and ruled
-OQ-1 through OQ-4 in one multiple-choice round, adopting the recommendation
-throughout and folding OQ-4 into OQ-1. The ruling is recorded question by
-question in `proposal.md` § Open Questions; the four decisions in § Orchestrator
-Decisions were read in the same pass and none was vetoed. The six read-backs
-are in §1.1–1.6 below.
+**§1 is COMPLETE — ratified 2026-08-25.** At the moment of ruling nothing
+under §2 or later had run: this packet's diff was spec text, records, and this
+list. The in-session authorization behind the packet covered RAISING the
+proposal against a measured defect and nothing more; Brett then read it and
+ruled OQ-1 through OQ-4 in one multiple-choice round, adopting the
+recommendation throughout and folding OQ-4 into OQ-1. The ruling is recorded
+question by question in `proposal.md` § Open Questions; the four decisions in
+§ Orchestrator Decisions were read in the same pass and none was vetoed. The
+six read-backs are in §1.1–1.6 below.
+
+**§§2–4 THEN RAN, and §4 closed at the archive gate.** The realization and the
+migration merged as PR #353 (`79bec8a7`, `839e0d8e`), and §4.7 carries the
+gate's own read-back. The sentence above is left standing as a statement about
+the ruling moment rather than deleted, because it is what §1 was ticked
+against; this paragraph is what makes it non-current, and the tense of the
+first was corrected at the archive act to say so.
 
 **§5 is deliberately OPEN and stays open.** What this change does not close is
 recorded there rather than implied.
@@ -316,11 +323,81 @@ a test run.
       `docs/archive-record-discrepancies.md` already carried a standing
       `record-immutability` critical of class `contested` BEFORE this entry —
       read out of the baseline report, not assumed from the rule.
-- [ ] 4.7 Archive on that evidence. `target_release: implemented` cuts no
+- [x] 4.7 Archive on that evidence. `target_release: implemented` cuts no
       contract bundle, so the gate is merge-plus-green PLUS §§ 4.3–4.5.
-      **Not yet: §§ 4.3–4.5 are in hand, merge is not.** This slice ships the
-      realization, the migration and the record; the archive box stays open
-      until the branch merges green on main.
+      **MERGED, GREEN, AND ARCHIVED 2026-08-25.** PR #353 landed by REBASE, so
+      the shas that exist on `main` are NOT the ones the PR's commit list
+      shows: the branch tips `58af80ee` and `e4ff1f93` are not ancestors of
+      `origin/main`, and the merged pair is **`79bec8a7`** (§§ 2.1–2.4 and
+      § 3 — the derivation, the parity amendment, the doc rule, the test file;
+      4 files, +730/−38) and **`839e0d8e`** (§ 4.8's register addendum plus
+      this list; 2 files, +213/−6). Both were re-verified here with `git
+      merge-base --is-ancestor <sha> origin/main`, which is the check that
+      distinguishes them from the tips — the lesson this repository's archive
+      record already paid for once, where a `source_revision` pins a branch
+      tip that never landed.
+      **REALIZATION RE-READ FROM `main`, not from the PR body.** The tree at
+      `839e0d8e` carries `derive_stems()` (`scripts/sync-notebooklm-books.py`
+      :704) fed by `title_segments()` (:692), the two named scope boundaries
+      `PROJECTED_STATUSES` (:674) and `STEM_SCOPE_EXCLUDES` (:683) with
+      `scan()` dropping unprojected statuses BEFORE the uniqueness pass
+      (:773, :777), and the document-level parity failure `COLLAPSED` (:2132).
+      `docs/lifecycle-notebook-projection.md` § 2 states the injective rule
+      and carries `Amended by: add-projection-title-uniqueness (ratified
+      2026-08-25)` at line 13; the § 4.8 record is
+      `docs/archive-record-discrepancies.md` § "Addendum 2026-08-25 — five
+      documents the projection never held".
+      **GATES BEFORE THE ARCHIVE ACT, on `origin/main` at `839e0d8e`:**
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` → **77 passed,
+      0 failed**; `pytest tests/doc-health` → **895 passed, 1 deselected**
+      (`test_derivation_reproduces_the_real_bootstrap_clusters`, the
+      enumerated environment artifact of § 4.6, excluded by name rather than
+      by a blanket allowance); `pytest tests/notebooklm` → **129 passed, 13
+      subtests**; `pytest tests -k workbench` → **161 passed**;
+      `promotion-fidelity` → **0 findings**.
+      **THE ARCHIVE ACT, VERIFIED BY REQUIREMENT MAP RATHER THAN BY THE CLI's
+      SUMMARY.** Every requirement of `lifecycle-notebook-projection` was
+      hashed before and after: **14 → 14 requirements, 48 → 52 scenarios**,
+      nothing REMOVED, and **13 of 14 hash BYTE-FOR-BYTE IDENTICAL** across
+      the act. The one that moved is the delta's own `Authority framing`,
+      2 → 6 scenarios and 13 → 64 body lines — and its restatement was checked
+      against canon BEFORE the act, not trusted: the promoted opening
+      paragraph and BOTH pre-existing scenarios (`An idea is discussed in
+      chat`, `Output is consumed downstream`) appear in the delta verbatim,
+      so the restatement amends rather than truncates. That is the § 5.5
+      completeness hazard `add-promotion-fidelity-check` named and left
+      without code, and it is the only reason to run this check by hand. After
+      the act the promoted requirement equals the delta's block byte for byte
+      (64 lines each), and the promoted file diffs as **51 lines inserted, 0
+      deleted** — a pure addition.
+      **CLOSING SYMMETRY.** `promotion-fidelity` post-archive at `--fail-on
+      error` → **0 findings, exit 0**, matching the pre-archive run exactly:
+      the family that would report an unarrived delta reports nothing about
+      the delta this act just landed. The packet's own header still parses at
+      its NEW path — the lifecycle scan set (`openspec/changes/**/proposal.md`,
+      121 documents) picks up
+      `archive/2026-08-25-add-projection-title-uniqueness/proposal.md` reading
+      `Status: ratified` on line 4 with the record-citing `Ratified:` line on
+      line 5, both inside the 15-line header window, approver `Brett Heap` and
+      date `2026-08-25`. That `Ratified:` line cites its own path, so the path
+      was re-pointed at the archive location in this same commit: a citation
+      the archive act would otherwise have left unresolvable, and no other
+      file in the repository referenced the active path.
+      **POST-ARCHIVE GATES.** `openspec validate --all --strict` → **76
+      passed, 0 failed**, one fewer item than the 77 before, which is this
+      packet leaving the active set; `pytest tests/doc-health` → **895 passed,
+      1 deselected** (the same enumerated artifact, unmoved); `pytest
+      tests/notebooklm` → **129 passed, 13 subtests**; `pytest tests -k
+      workbench` → **161 passed**. The full single-repo doc-health run's
+      FINDINGS are byte-identical to the pre-gate baseline — **5 critical, 5
+      error, 43 warning, 4 info**, 0 new regressions — and the whole report
+      diff is TWO lines, both the same fact: `(promoted specs)` 125799 →
+      126392 words and the canon-share headline that follows from it (canon
+      181973 → 182566, total 614962 → 615555, both **+593**, share 29.6% →
+      29.7%). Nothing else in the report moved, because `README.md` and
+      `openspec/changes/` sit outside `GOVERNED_ROOTS` — which is also why the
+      README move and this read-back had to be verified by reading them rather
+      than by watching a number.
 - [x] 4.8 Write the record ruling 1.3 owes, in
       `docs/archive-record-discrepancies.md`. The ruling put it here rather
       than at proposal time because the record documents what the migration
