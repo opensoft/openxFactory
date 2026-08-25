@@ -11,11 +11,12 @@ domain-suggested default (codexFactory `hermes/client/`) and a client-tuned
 instance (wizard → `config/clients/<client>/`). Applies the store-the-delta
 principle: the client stores its specific choices, not generic policy. Parent:
 `client-layer-scaffold.md`; wizard: `client-policy-wizard.md`.
-Topics: client-hermes, company-policy, policy-overrides, memory-boundaries,
+Topics: client, client-hermes, company-policy, policy-overrides, memory-boundaries,
 integration-boundaries, auto-clear-envelope, store-the-delta, per-tenant-memory,
 credential-references, client-layer
 Repository context: openxFactory (targets codexFactory hermes/client/ defaults + hermes-install config/clients/<client>/)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (stricter-only mechanics + envelope ratification + memory-seam decisions; cost wiring; validator package)
 
 ## Decided (2026-07-22)

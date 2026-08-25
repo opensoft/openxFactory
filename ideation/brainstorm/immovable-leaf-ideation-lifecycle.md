@@ -16,11 +16,18 @@ declared topics/keywords; chartered deliberately) and **possibles**
 with a feat outline). Staging becomes a state plus a thin index doc — files
 never move into it. Generalizes `topic-compilation-tree.md`'s
 link-don't-copy instinct to the whole lifecycle.
-Topics: ideation-lifecycle, document-lifecycle, brainstorm-leaves, clusters,
+Topics: release-lifecycle, ideation-lifecycle, document-lifecycle, brainstorm-leaves, clusters,
 possibles, topic-clusters, staging, pin-manifest, provenance, attribution,
 cross-reference-index, possibles-derivation, ai-generated-docs
 Repository context: openxFactory (document-lifecycle spec + ideation-cross-reference index + possibles derivation lane)
 Captured: 2026-07-22
+
+## Possible feats
+
+- **Immovable brainstorm-leaf contract** — keep captured documents at stable
+  paths while lifecycle indexes and pin manifests carry organization state.
+- **Pinned proposal-support manifest** — bind proposal evidence to a leaf path,
+  revision, and digest without moving or silently rewriting the source.
 
 ## The principle
 

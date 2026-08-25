@@ -15,7 +15,7 @@ layer** runs a reporting-to-accounting function tracking company-wide costs and
 sub-project task spend. Sibling of `codexfactory-domain-roster-draft.md`
 (where the domain slice is captured); grandchild of
 `hermes-layer-content-seeding.md`.
-Topics: cost-accountability, credits, clock-in, efficiency-audit,
+Topics: practice-adoption, cost-accountability, credits, clock-in, efficiency-audit,
 practice-catalog, domain-hermes, client-hermes, project-hermes, accounting,
 spend-tracking, granularity-contract, layer-content-seeding
 Repository context: openxFactory (spans domain/client/subject content + hermes-install runtime evidence)

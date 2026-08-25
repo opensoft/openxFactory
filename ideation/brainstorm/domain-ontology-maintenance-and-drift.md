@@ -7,7 +7,7 @@ candidate queue triggered by authoritative-source changes, unknown terms,
 mapping failures, workflow drift, quality degradation, and reviewed promotion
 candidates, publishing only compatibility-classified successor packages with
 historical pins preserved.
-Topics: ontology, domain-ontology-lifecycle, domain-hermes,
+Topics: domain-ontology, ontology, domain-ontology-lifecycle, domain-hermes,
 ontology-maintenance, semantic-drift, source-change, unknown-terms,
 mapping-failure, compatibility, supersession, quality-metrics
 Repository context: openxFactory (Domain Hermes ontology stewardship and

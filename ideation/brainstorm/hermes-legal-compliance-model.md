@@ -15,7 +15,7 @@ cross-layer: the client owns the legal *authority*, the domain carries
 engineering-legal *practices* (license/IP scanning), and project archetypes
 carry audience-specific *expectations*. Parent: `client-layer-roster-draft.md`;
 principle: `codexfactory-domain-policy-model.md`.
-Topics: legal-compliance, client-hermes, ip-law, licensing, age-appropriate,
+Topics: hermes, legal-compliance, client-hermes, ip-law, licensing, age-appropriate,
 financial-regulation, data-protection, accessibility, legal-counsel,
 human-escalation, fail-closed, cross-layer, plane-3
 Repository context: openxFactory (NEUTRAL client-scaffold role; cross-layer legal practices)
