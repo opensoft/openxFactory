@@ -14,8 +14,11 @@ THE COMPARISON, per the ratified delta:
 
   * the DECLARED bundle is read from `contracts/manifest.yaml` AT THE COMMIT;
   * its inventory is resolved as the FILE at that commit — never via the tag,
-    because a declared bundle need not have one (`contract-v1.33`,
-    `contract-v1.35` and `contract-v1.39` are declared and untagged);
+    because a declared bundle need not have one — `contract-v1.33`,
+    `contract-v1.35` and `contract-v1.39` were each declared and UNTAGGED for
+    weeks, which is what this rule was written against; they were
+    retro-published 2026-08-25 and the design stands on the general fact rather
+    than on those three;
   * every member is compared on RAW BYTES digest AND recorded `git_mode`.
 
 THE TAXONOMY IS EXHAUSTIVE AND DISJOINT, which is the part worth reading twice
