@@ -344,6 +344,80 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-doxbench-distilled-abstract](openspec/changes/add-doxbench-distilled-abstract/proposal.md)
+  — authored 2026-08-25, **NOT YET RATIFIED** (`Status: draft`); spec deltas
+  deliberately WITHHELD until six rulings land, so `--strict` reports a
+  no-deltas error by design. The derivation half of `#84`, and a change whose
+  whole substance is two reversals owned out loud. The first is asked for: Brett
+  ruled option C in session on 2026-08-25 — build the REAL per-document
+  distilled abstract, produced by a model — reversing his own 2026-08-03 scope
+  ruling that the docs-subpane abstract be "header + structure, honestly
+  labelled ... NOT an AI distillation", a ruling pinned not as a comment but as
+  a test (`test_doxbench_context_panes.py:144-152`). That pin is RELOCATED, never
+  deleted: after this change both captions live in one file, so a whole-file
+  substring sweep cannot tell "the model-derived abstract says distilled" from
+  "the deterministic one does" — and the sweep was already weaker than it read,
+  banning `distilled` but not `distillation`. It moves onto the node harness as a
+  per-abstract caption assertion, and the OBLIGATION inverts rather than lapses:
+  the new abstract MUST be captioned model-derived, non-authoritative,
+  regenerable. The second reversal was FOUND while grounding the first, and
+  nobody asked for it: the lens subtabs shipped 2026-08-03 make bullseye and
+  matrix mutually exclusive tabpanels (`staging-workbench.js:488`), which the
+  ratified requirement at `spec.md:439` forbids in those words — "MUST NOT become
+  a toggle-only alternate". A ratified requirement the code has quietly falsified
+  for three weeks is worse than a reversal, so the requirement is rewritten
+  around what it was actually protecting (ACCESS to the matrix, not simultaneity)
+  and the subtabs are ratified. Three landed surfaces — the subtabs, the
+  abstract-above/wheel-below split, the deterministic abstract itself — carry ZERO
+  requirement text today (grep `abstract`/`subtab` → 0 hits) and are promoted in
+  the same delta. The authority frame is `compact_thread`'s DISCIPLINE ("summarizing
+  is a model's job and verifying is this module's") in a NEW type, because its
+  TYPE does not transfer: `DocumentThread` hard-codes `regenerable_from =
+  transcript` and refuses anything else, and its refusal rule keys on evidence
+  refs and pending actions a document abstract has none of. So `DocumentAbstract`,
+  `regenerable_from = document`, refused if a regeneration drops a `Topics:`
+  subject or a `destinations` entry the previous one carried. Twelve requirements
+  modified, six of them integration-surface gaps the alignment review found
+  rather than the derivation itself — the wheel replaced the tile list the docs
+  verbs are written against, and two surfaces now both claim the accessible name
+  "selected document". The port surface does NOT widen (three members, pinned);
+  generation is server-side behind the reused `session` local-human verdict, never
+  from a view module, and its failure is OBSERVABLE by construction — port
+  raises, times out or absent, and the snapshot must be byte-identical to a run
+  with no abstract while the pane states the not-yet-generated caption. No release
+  number is reserved: `spec.md:2013` requires late allocation and its scenario
+  rejects early reservation, so the cut — if ruling 2 needs one at all — is
+  fresh-counted at realization. Sequenced behind ratified
+  `add-doxchat-model-intake`, which modifies the same provider-boundary
+  requirement. **Council-reviewed 2026-08-25** (product / architect / adversary),
+  and all three landed on the same recommendation, carried as **ruling 0: SPLIT**
+  — the doc-only half (promote the three surfaces, replace the simultaneity
+  clause, the integration-surface gaps) should not wait on seven rulings, because
+  every day it waits is a day `:439` stays falsified. Three findings changed the
+  substance rather than the wording. A real adapter EXISTS —
+  `OmpHarnessBridge` (`doxbench_bridge.py:869`) supervises an `omp --mode rpc`
+  child with no credential — so the blocker was never "no provider"; it is that
+  NO ENTRYPOINT DECLARES `model_port_factory` (`cli.py:298` omits it, `serve()`'s
+  setdefault block covers the notebook adapter and the knowledge declaration and
+  not a model port), so `_workbench_model_port` returns `None` on every real
+  serve and realization now requires one operator run through a real adapter, not
+  a green suite against a constant-returning fake. The prompt ASSEMBLER is new
+  surface the first draft missed: `build_prompt_envelope` is chat-shaped to its
+  bones — outline-plus-documents, non-blank human message, transcript, and the
+  only packet purpose that exists — so a non-chat `build_abstract_envelope` and a
+  second purpose constant are required. And layer 2 is NOT widened: a
+  comma-joined second owner in a one-owner field would degrade the fidelity
+  checker to a comment, so the abstract is declared a layer-2-CLASS SIBLING under
+  the requirement's universal non-authoritative clause, `compact_thread` keeps
+  its sole ownership, and layer 2's "human-reviewable" adjective is recorded as
+  inherited-but-not-discharged because presentation is not review. Ruling 7 is
+  the one that could invalidate ruling 6: disclosure on this surface REQUIRES
+  EDIT AUTHORITY (`doxbench_scope.py:390`), `editable_paths` is fed only by
+  `owned` sections and exactly one section is owned, so on a cluster tile the
+  eligible subject set is EMPTY — either the abstract is refused there or a
+  feature PR quietly opens a new disclosure path. `clarifications.md` carries the
+  five noted constraints.
+
 - [add-duplicate-packet-check](openspec/changes/add-duplicate-packet-check/proposal.md)
   — authored and ratified 2026-08-24, commissioned in-session ("commission the
   duplicate-packet check"). The neighbour class of promotion fidelity, and the

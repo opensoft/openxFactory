@@ -1,0 +1,9 @@
+schema: spec-driven
+created: 2026-08-25
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-25-doxbench-distilled-abstract
+  reason: >-
+    Closes the derivation half of opensoft/openxFactory#84 ("doxBench R-8 (V2 family): lens subtabs + docs subpane wheel split with distilled abstracts"), whose body states that the abstract "is new derived content ... so it needs its own derivation/generation story, not just UI". Brett ruled option C in session on 2026-08-25 — build the REAL per-document distilled abstract, produced by a model — reversing his own 2026-08-03 scope ruling ("header + structure, honestly labelled ... NOT an AI distillation"), which is pinned by tests/ideation-dashboard/test_doxbench_context_panes.py:144-152 and stated at scripts/ideation_dashboard/web/views/staging-workbench-model.js:1530-1544. No staging topic preceded it; the issue is the durable record and carries the ruling as a comment
+  approved_by: Brett
+  approved_on: 2026-08-25
