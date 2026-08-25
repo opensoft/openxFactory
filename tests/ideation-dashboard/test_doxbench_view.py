@@ -3220,6 +3220,40 @@ async function guardSave() {
            guardHidden: !!controller.elements().guard().hidden };
 }
 
+// ---- #290: the guard's sentence is the BUFFER's, never the row's ---------
+//
+// The third surface of the same defect. The guard asks "why is this buffer
+// still dirty?" and answered from the outcome ROW, which for a commit this
+// canvas could not adopt reads `committed` -- so it printed "Save did not land
+// the Document buffer: saved as edit-document on draft/topic-x." Its BEHAVIOUR
+// was already right (it keys off `dirty`, so it stays open); the sentence it
+// showed contradicted the buffer's own status region beside it.
+async function guardSaveMeetsUnadoptableCommit() {
+  const { controller } = await mount({
+    save: seamFor({ document: {
+      status: 'committed', action: 'edit-document', ref: SESSION_REF,
+      revision: 'newrev-document',
+      // uppercase hex: a `committed` row the state module refuses to adopt
+      content_hash: { algorithm: 'sha256', hex: 'A'.repeat(64) },
+      message: null } }),
+  });
+  await controller.edit('document', '# Document A edited\n');
+  const blocked = await controller.selectDocument(OUTLINE_PATH);
+  const resolved = await controller.resolveGuard('save');
+  const buffer = controller.state().buffers.document;
+  const read = {
+    blocked, resolved,
+    guardText: String(controller.elements().guard().textContent),
+    guardHidden: controller.elements().guard().hidden === true,
+    statusDocument: String(controller.elements().status('document').textContent),
+    dirty: buffer.dirty,
+    content: buffer.content,
+    baseHex: buffer.base_hash.hex,
+  };
+  controller.destroy();   // releases the transient line's own timer
+  return read;
+}
+
 // ---- W-8: the guard's Save arm survives the remount its own Save triggers --
 async function guardSaveIntoRemount() {
   const identitySettled = [];
@@ -3331,6 +3365,7 @@ console.log(JSON.stringify({
   rekey: await rekey(),
   nothingDirty: await nothingDirty(),
   guardSave: await guardSave(),
+  guardUnadoptableCommit: await guardSaveMeetsUnadoptableCommit(),
   guardSaveIntoRemount: await guardSaveIntoRemount(),
   panelSaveMovedIdentity: await panelSaveMeetsMovedIdentity(),
   panelAuthority: await panelControlsGrantNoNewAuthority(),
@@ -3731,6 +3766,49 @@ def test_the_guard_save_choice_becomes_reachable_and_resolves_the_switch(
     assert result["resolved"]["status"] in ("switched", "committed")
     assert result["afterDirty"] is False
     assert result["guardHidden"] is True
+
+
+def test_the_guard_says_the_commit_was_not_adopted_not_that_it_was_saved(
+        save_seam_results):
+    """openxFactory #290, the third surface: the guard's sentence must agree
+    with the buffer beside it.
+
+    `resolveGuard("save")` asks one question -- why is this buffer STILL dirty?
+    -- and answered it from the outcome ROW, which for a commit this canvas
+    could not adopt says `committed`, because the server did commit. So the
+    guard printed "Save did not land the Document buffer: saved as
+    edit-document on draft/topic-x", a sentence that contradicts itself and the
+    buffer's own status region in the same breath. Its BEHAVIOUR was never
+    wrong -- it keys off `dirty`, so it correctly stays open -- which is exactly
+    why the wrong sentence could survive: nothing that moves was broken.
+
+    The reason now comes from the SAME unadopted list the tile verdict reads,
+    so the three surfaces (tile note, buffer region, guard) state one fact in
+    one wording. A future reader who trusts the row again fails here.
+    """
+    result = save_seam_results["guardUnadoptableCommit"]
+    # preconditions: the guard really opened, and the Save really was taken
+    assert result["blocked"] == {"status": "blocked", "reason": "dirty_document"}
+    assert result["resolved"]["status"] == "refused", result["resolved"]
+
+    reason = result["resolved"]["reason"]
+    # THE SENTENCE. The adoption failure, not the row's "saved as …".
+    assert "could not adopt" in reason, reason
+    assert "keeps its unsaved text" in reason, reason
+    assert "saved as" not in reason, reason
+    # …and it is the buffer's OWN durable sentence, not a second wording of it
+    assert reason.rstrip(".") in result["statusDocument"], (
+        reason, result["statusDocument"])
+    # …and it is what the human actually reads, in the guard that stayed open
+    assert result["guardHidden"] is False
+    assert reason in result["guardText"], result["guardText"]
+    assert "saved as" not in result["guardText"], result["guardText"]
+
+    # BEHAVIOUR UNCHANGED: the guard stays open over a buffer that kept its
+    # text, and no base advanced onto an identity nothing can verify.
+    assert result["dirty"] is True
+    assert result["content"] == "# Document A edited\n"
+    assert result["baseHex"] != "A" * 64, result["baseHex"]
 
 
 def test_the_guard_no_longer_names_the_unavailable_reason_when_wired(

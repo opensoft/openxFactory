@@ -1898,7 +1898,23 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
     return outcome && Array.isArray(outcome.buffers) ? outcome.buffers : [];
   }
 
+  // The commits `save()` could not adopt, off the outcome it annotated (#290).
+  // ONE reader for the field, so every surface that reports "why is this buffer
+  // still dirty" answers from the same list rather than from its own idea of it.
+  function unadoptedRowsOf(outcome) {
+    return outcome && Array.isArray(outcome.unadopted) ? outcome.unadopted : [];
+  }
+
   function outcomeReasonFor(key, outcome) {
+    // #290: A COMMIT THIS CANVAS COULD NOT ADOPT IS ASKED ABOUT FIRST. Its row
+    // says `committed` -- the server did commit -- so answering from the row
+    // hands the caller "saved as edit-document on draft/…" about a buffer that
+    // is still dirty, which is the sentence the document-switch guard printed
+    // under "Save did not land the Document buffer". The honest answer is the
+    // one the buffer's own status region is already showing.
+    for (const row of unadoptedRowsOf(outcome)) {
+      if (row && row.key === key) return row.message + ".";
+    }
     for (const row of outcomeRowsOf(outcome)) {
       if (row && row.key === key) return saveOutcomeSentence(row) + ".";
     }
@@ -2163,8 +2179,8 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
   // not a fact about what the server did.
   function tileSaveVerdict(outcome) {
     const rows = outcomeRowsOf(outcome);
-    const unadopted = new Map((Array.isArray(outcome.unadopted)
-      ? outcome.unadopted : []).map((row) => [row.key, row.message]));
+    const unadopted = new Map(
+      unadoptedRowsOf(outcome).map((row) => [row.key, row.message]));
     let lead = null;
     let failed = false;
     for (const row of rows) {
