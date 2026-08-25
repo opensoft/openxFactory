@@ -2308,3 +2308,470 @@ class ProfileAccountIsCheckedWhenTheCliRecordedOneTests(unittest.TestCase):
         self.assertIsNotNone(got, "an older login that recorded no address must "
                                   "not block the run")
         self.assertIn("records no account address", out.getvalue())
+
+
+# ---------------------------------------------------------------------------
+# add-projection-title-uniqueness — the title derivation is INJECTIVE.
+#
+# A source title is the projection's identity key: `scan()` derives a set keyed
+# by document PATH and `sync_book()` reconciles it against a live book BY
+# TITLE, holding each title at one source. Until 2026-08-25 the derivation
+# special-cased the literal filename `README` and let everything else fall
+# through to a bare stem, so four MedxFactory staging topics shared one source
+# while the manifest recorded four documents as synced.
+# ---------------------------------------------------------------------------
+
+# `design.md` § 6's enumeration, transcribed row for row:
+# (book, relpath, status, title BEFORE this change, title AFTER).
+# The apply that migrated the live books was diffed against this list, so a
+# derivation change that moves any of these fourteen rows must move this
+# constant too, in front of a reader.
+TITLE_MIGRATION = [
+    ("canon", "openxFactory/contracts/memory-gateway/README.md", "standard",
+     "[standard] openxFactory: memory-gateway/README",
+     "[standard] openxFactory: contracts/memory-gateway/README"),
+    ("canon", "xFactories/LedgerxFactory/docs/company-provisioning.md",
+     "ratified",
+     "[ratified] LedgerxFactory: company-provisioning",
+     "[ratified] LedgerxFactory: docs/company-provisioning"),
+    ("drafts", "openxFactory/examples/memory-gateway/README.md", "draft",
+     "[draft] openxFactory: memory-gateway/README",
+     "[draft] openxFactory: examples/memory-gateway/README"),
+    ("drafts",
+     "openxFactory/specs/005-customer-subject-runtime/checklists/"
+     "requirements.md", "draft",
+     "[draft] openxFactory: requirements",
+     "[draft] openxFactory: 005-customer-subject-runtime/checklists/"
+     "requirements"),
+    ("drafts",
+     "openxFactory/specs/007-client-identity-roster/checklists/"
+     "requirements.md", "draft",
+     "[draft] openxFactory: requirements",
+     "[draft] openxFactory: 007-client-identity-roster/checklists/"
+     "requirements"),
+    ("ideation-ledgerxfactory",
+     "xFactories/LedgerxFactory/ideation/staging/company-provisioning/"
+     "company-provisioning.md", "staged",
+     "[staged] LedgerxFactory: company-provisioning",
+     "[staged] LedgerxFactory: company-provisioning/company-provisioning"),
+    ("ideation-medxfactory",
+     "xFactories/MedxFactory/ideation/staging/root-truth-grounding/topic.md",
+     "staged",
+     "[staged] MedxFactory: topic",
+     "[staged] MedxFactory: root-truth-grounding/topic"),
+    ("ideation-medxfactory",
+     "xFactories/MedxFactory/ideation/staging/root-truth-target-claims/"
+     "topic.md", "staged",
+     "[staged] MedxFactory: topic",
+     "[staged] MedxFactory: root-truth-target-claims/topic"),
+    ("ideation-medxfactory",
+     "xFactories/MedxFactory/ideation/staging/terminology-normalization/"
+     "topic.md", "staged",
+     "[staged] MedxFactory: topic",
+     "[staged] MedxFactory: terminology-normalization/topic"),
+    ("ideation-medxfactory",
+     "xFactories/MedxFactory/ideation/staging/treatment-plan-generation/"
+     "topic.md", "staged",
+     "[staged] MedxFactory: topic",
+     "[staged] MedxFactory: treatment-plan-generation/topic"),
+    ("ideation-openxfactory",
+     "openxFactory/ideation/brainstorm/"
+     "codexfactory-domain-hermes-content.md", "brainstorm",
+     "[brainstorm] openxFactory: codexfactory-domain-hermes-content",
+     "[brainstorm] openxFactory: brainstorm/"
+     "codexfactory-domain-hermes-content"),
+    ("ideation-openxfactory",
+     "openxFactory/ideation/staging/codexfactory-domain-hermes-content/"
+     "codexfactory-domain-hermes-content.md", "staged",
+     "[staged] openxFactory: codexfactory-domain-hermes-content",
+     "[staged] openxFactory: codexfactory-domain-hermes-content/"
+     "codexfactory-domain-hermes-content"),
+    ("ideation-opsxfactory",
+     "xFactories/OpsxFactory/ideation/brainstorm/"
+     "exchange-execution-bringup.md", "staged",
+     "[staged] OpsxFactory: exchange-execution-bringup",
+     "[staged] OpsxFactory: brainstorm/exchange-execution-bringup"),
+    ("ideation-opsxfactory",
+     "xFactories/OpsxFactory/ideation/staging/exchange-execution-bringup/"
+     "exchange-execution-bringup.md", "staged",
+     "[staged] OpsxFactory: exchange-execution-bringup",
+     "[staged] OpsxFactory: exchange-execution-bringup/"
+     "exchange-execution-bringup"),
+]
+
+# Documents that are NOT in the migration and must not move, each one a scope
+# claim: a lone `topic.md` stays bare (the rule qualifies on collision, never
+# pre-emptively), a unique README keeps its parent-directory floor, a
+# repository-root README keeps the repository as its parent, a `record`
+# document qualifies nobody because it projects nowhere, and a stem that
+# matches a promoted capability name is not qualified by the `[spec]` family.
+TITLE_UNMOVED = [
+    ("xFactories/OpsxFactory/ideation/staging/opensoft-tenant-governance/"
+     "topic.md", "staged", "[staged] OpsxFactory: topic"),
+    ("xFactories/OpsxFactory/ideation/README.md", "ratified",
+     "[ratified] OpsxFactory: ideation/README"),
+    ("xFactories/OpsxFactory/README.md", "standard",
+     "[standard] OpsxFactory: OpsxFactory/README"),
+    ("openxFactory/docs/lifecycle-notebook-projection.md", "standard",
+     "[standard] openxFactory: lifecycle-notebook-projection"),
+]
+
+# A `record` document is scanned and projected by no book, so it is outside the
+# uniqueness scope: it must not push the standard document below into a
+# qualifier it does not need.
+RECORD_NAMESAKE = ("openxFactory/ideation/gate-records/"
+                   "lifecycle-notebook-projection.md", "record")
+
+
+def _legacy_stem(rel: str) -> str:
+    """The derivation this change replaced, kept so the BEFORE column of
+    TITLE_MIGRATION is produced rather than transcribed twice."""
+    path = Path(rel)
+    return (f"{path.parent.name}/{path.stem}"
+            if path.stem.lower() == "readme" else path.stem)
+
+
+def _bare_stem_derivation(documents):
+    """Mutation (i): the pre-2026-08-25 derivation, with even the README floor
+    removed. Nothing may pass under this."""
+    return {rel: segs[-1] for rel, _repo, segs in documents}
+
+
+def _one_level_derivation(documents):
+    """Mutation (ii): candidate (b1), always `<parent>/<stem>`. Looks like a
+    fix and leaves `checklists/requirements` colliding with itself — the
+    platform-inert class in disguise, where the changed code yields an equal
+    value."""
+    return {rel: "/".join(segs[-2:]) for rel, _repo, segs in documents}
+
+
+class TitleUniquenessTests(unittest.TestCase):
+    """One projected document, one source — asserted over the derived set."""
+
+    @staticmethod
+    def _write(root: Path, rel: str, status: str) -> None:
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(f"# {Path(rel).stem}\n\nStatus: {status}\n",
+                        encoding="utf-8")
+
+    @classmethod
+    def _world(cls, root: Path) -> None:
+        """The three real collision shapes plus the latent README pair, at
+        their real paths (§ 3.1): four documents sharing a stem inside one
+        directory family; two whose PARENT directories match as well; a pair
+        split across two directory families; and a same-stem pair kept apart
+        today only by a status difference."""
+        (root / "openxFactory").mkdir(parents=True, exist_ok=True)
+        for grounding in sync.GROUNDING:
+            cls._write(root, grounding, "standard")
+        for _book, rel, status, _before, _after in TITLE_MIGRATION:
+            cls._write(root, rel, status)
+        for rel, status, _title in TITLE_UNMOVED:
+            cls._write(root, rel, status)
+        cls._write(root, *RECORD_NAMESAKE)
+        promoted = root / "openxFactory/openspec/specs/ideation-dashboard"
+        promoted.mkdir(parents=True, exist_ok=True)
+        (promoted / "spec.md").write_text("# Spec\n\nStatus: ratified\n",
+                                          encoding="utf-8")
+
+    @staticmethod
+    def _documents(root: Path):
+        """(relpath, repository, segments) for every projected document —
+        the input `scan()` hands the derivation."""
+        desired, _specs = sync.scan(root)
+        rels = {rel for book in desired.values() for rel in book}
+        out = []
+        for rel in sorted(rels):
+            parts = Path(rel).parts
+            repo = parts[1] if parts[0] == "xFactories" else parts[0]
+            out.append((rel, repo, sync.title_segments(Path(rel))))
+        return out
+
+    def test_the_fourteen_enumerated_titles_move_exactly_as_designed(self):
+        """§ 3.1 — the migration is checked against a list, not trusted."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, _specs = sync.scan(root)
+            for book, rel, status, before, after in TITLE_MIGRATION:
+                self.assertEqual(f"[{status}] "
+                                 f"{before.split(']', 1)[1].split(':', 1)[0].strip()}"
+                                 f": {_legacy_stem(rel)}", before,
+                                 f"the BEFORE column of {rel} is not what the "
+                                 f"replaced derivation produced")
+                self.assertIn(rel, desired[book], f"{rel} left book {book}")
+                self.assertEqual(desired[book][rel], after,
+                                 f"{rel} did not land on design.md § 6's title")
+                self.assertNotEqual(desired[book][rel], before,
+                                    f"{rel} was enumerated as a rename")
+
+    def test_documents_outside_the_migration_keep_their_titles(self):
+        """The rule qualifies on collision. Nothing else moves — including the
+        five scope claims in TITLE_UNMOVED."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, _specs = sync.scan(root)
+            titles = {rel: title
+                      for book in desired.values()
+                      for rel, title in book.items()}
+            for rel, _status, expected in TITLE_UNMOVED:
+                self.assertEqual(titles[rel], expected)
+
+    def _assert_injective(self, desired) -> None:
+        """§ 3.2 — the assertion whose absence let the class exist.
+
+        Written over the DERIVED set, never over an expected-title table, so a
+        future derivation cannot satisfy it by agreeing with itself. One
+        method so the mutation check below runs THIS assertion rather than a
+        paraphrase of it.
+        """
+        self.assertTrue(desired, "a fixture that derives nothing proves "
+                                 "injectivity vacuously")
+        for book, items in desired.items():
+            self.assertEqual(
+                len(set(items.values())), len(items),
+                f"book {book} derives fewer titles than it has documents: "
+                f"the shortfall is documents the book cannot hold")
+
+    def test_every_book_derives_one_title_per_document(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            self._assert_injective(sync.scan(root)[0])
+
+    def test_a_status_change_moves_no_other_title(self):
+        """§ 3.3 — the repository-scope choice, pinned structurally.
+
+        Under a (book, status) scope the two `memory-gateway/README`
+        documents are qualified only while their statuses differ, so flipping
+        one moves the other's title and this test reds. That is the point.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            before, _specs = sync.scan(root)
+            before_titles = {rel: title
+                             for book in before.values()
+                             for rel, title in book.items()}
+            moved = "openxFactory/examples/memory-gateway/README.md"
+            self._write(root, moved, "standard")
+            after, _specs = sync.scan(root)
+            after_titles = {rel: title
+                            for book in after.values()
+                            for rel, title in book.items()}
+            for rel, title in before_titles.items():
+                if rel == moved:
+                    continue
+                self.assertEqual(after_titles.get(rel), title,
+                                 f"{rel} was retitled by another document's "
+                                 f"Status: header")
+            self.assertEqual(after_titles[moved],
+                             "[standard] openxFactory: examples/memory-gateway/"
+                             "README",
+                             "the moved document keeps its own qualifier; only "
+                             "its status prefix changes")
+
+    def test_a_unique_readme_still_carries_its_parent_directory(self):
+        """§ 3.5 — the FLOOR. The amendment never SHORTENS a title, including
+        for a repository-root README whose parent IS the repository."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, _specs = sync.scan(root)
+            titles = {rel: title
+                      for book in desired.values()
+                      for rel, title in book.items()}
+            for rel, title in titles.items():
+                if Path(rel).stem.lower() != "readme":
+                    continue
+                stem = title.split(": ", 1)[1]
+                self.assertGreaterEqual(
+                    len(stem.split("/")), 2,
+                    f"{rel} lost its parent-directory floor")
+                self.assertEqual(stem.split("/")[-2:],
+                                 _legacy_stem(rel).split("/"),
+                                 f"{rel}'s floor is not the title the replaced "
+                                 f"rule produced")
+
+    def test_the_spec_and_grounding_families_are_outside_the_scope(self):
+        """§ 2.2 — the exclusion is measured, not a convenience.
+
+        `[spec]` is keyed by a promoted capability's DIRECTORY name and
+        `[grounding]` by a fixed document set. Folding either into the
+        uniqueness scope over-qualified a title for no reason.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            # a governance document whose stem is the promoted capability's
+            # directory name: two families, one spelling, no collision
+            self._write(root, "openxFactory/docs/ideation-dashboard.md",
+                        "standard")
+            desired, _specs = sync.scan(root)
+            canon = desired["canon"]
+            self.assertIn("[spec] openxFactory: ideation-dashboard",
+                          canon.values())
+            self.assertEqual(
+                canon["openxFactory/docs/ideation-dashboard.md"],
+                "[standard] openxFactory: ideation-dashboard",
+                "a `[spec]` title must not qualify a `[status]` one")
+            for family in sync.STEM_SCOPE_EXCLUDES:
+                self.assertTrue(
+                    any(t.startswith(family) for t in canon.values()),
+                    f"the fixture must exercise the {family} family it "
+                    f"claims to hold outside the scope")
+            grounding = [t for book in desired.values() for t in book.values()
+                         if t.startswith("[grounding]")]
+            self.assertTrue(grounding)
+            for title in grounding:
+                self.assertNotIn("/", title.split(": ", 1)[1],
+                                 "the grounding set is keyed by a fixed "
+                                 "document list, never qualified")
+
+    def test_a_record_document_qualifies_nobody(self):
+        """The scope is the PROJECTED set. A `record` document reaches no book,
+        so it cannot cost a projected namesake its bare stem."""
+        rel, _status = RECORD_NAMESAKE
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            desired, _specs = sync.scan(root)
+            placed = [book for book, items in desired.items() if rel in items]
+            self.assertEqual(placed, [], "a record document projects nowhere")
+            self.assertEqual(
+                desired["canon"]["openxFactory/docs/"
+                                 "lifecycle-notebook-projection.md"],
+                "[standard] openxFactory: lifecycle-notebook-projection")
+
+    def test_titles_are_derived_from_structure_not_from_a_rendered_path(self):
+        """§ 3.6 (iii) — a `str(Path)` or separator substitution is inert on
+        POSIX against a value-equality check, so assert the STRUCTURE."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            documents = self._documents(root)
+            segments = dict((rel, segs) for rel, _repo, segs in documents)
+            checklist = ("openxFactory/specs/005-customer-subject-runtime/"
+                         "checklists/requirements.md")
+            self.assertEqual(
+                segments[checklist],
+                ("openxFactory", "specs", "005-customer-subject-runtime",
+                 "checklists", "requirements"))
+            for rel, segs in segments.items():
+                self.assertIsInstance(segs, tuple, f"{rel}")
+                for part in segs:
+                    self.assertIsInstance(part, str, f"{rel}")
+                    self.assertNotIn("/", part, f"{rel}: a segment is a path")
+                    self.assertNotIn("\\", part, f"{rel}: a segment is a path")
+            stems = sync.derive_stems(documents)
+            self.assertEqual(
+                stems[checklist].split("/"),
+                ["005-customer-subject-runtime", "checklists", "requirements"],
+                "the qualifier is three segments deep because two segments "
+                "still collide")
+
+    def test_reverting_the_rule_to_a_bare_stem_reds_the_injectivity_check(self):
+        """§ 3.6 (i) — an assertion that passes against the defective
+        derivation is not the assertion."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            with patch.object(sync, "derive_stems", _bare_stem_derivation):
+                desired, _specs = sync.scan(root)
+            with self.assertRaises(AssertionError):
+                self._assert_injective(desired)
+            offenders = {book: len(items) - len(set(items.values()))
+                         for book, items in desired.items()
+                         if len(set(items.values())) != len(items)}
+            self.assertEqual(
+                sorted(offenders), ["drafts", "ideation-medxfactory",
+                                    "ideation-opsxfactory"],
+                "the fixture must reproduce the three real collisions when the "
+                "rule is reverted")
+            self.assertEqual(sum(offenders.values()), 5,
+                             "five documents were displaced in the live books")
+
+    def test_a_one_level_qualifier_leaves_the_checklists_pair_colliding(self):
+        """§ 3.6 (ii) — candidate (b1) is eliminated on CORRECTNESS.
+
+        Both checklist documents live in a directory named `checklists`, so
+        `<parent>/<stem>` collides with itself. 572 renames and the defect
+        survives; a one-level qualifier is a longer version of the same
+        assumption, not a fix.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            with patch.object(sync, "derive_stems", _one_level_derivation):
+                desired, _specs = sync.scan(root)
+            drafts = desired["drafts"]
+            self.assertNotEqual(
+                len(set(drafts.values())), len(drafts),
+                "a one-level qualifier must still collapse the checklist pair")
+            self.assertEqual(
+                drafts["openxFactory/specs/005-customer-subject-runtime/"
+                       "checklists/requirements.md"],
+                drafts["openxFactory/specs/007-client-identity-roster/"
+                       "checklists/requirements.md"])
+            # and the real rule does not
+            desired, _specs = sync.scan(root)
+            drafts = desired["drafts"]
+            self.assertEqual(len(set(drafts.values())), len(drafts))
+
+
+class ParityProvesDocumentsTests(unittest.TestCase):
+    """§ 3.4 — the check that could not see the defect it existed to catch."""
+
+    def _run_parity(self, root: Path, fake) -> tuple[int, str]:
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            with patch.object(sync, "nlm", fake):
+                code = sync.parity_report(root)
+        return code, out.getvalue()
+
+    @staticmethod
+    def _books_holding(root: Path, desired, specs):
+        """A live account whose bracket-titled sources are EXACTLY the derived
+        title set — the state the old parity called OK."""
+        fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
+                        for i, k in enumerate(sorted(desired))])
+        for i, key in enumerate(sorted(desired)):
+            fake.sources[f"nb{i}"] = [
+                {"id": f"s{i}-{j}", "title": title}
+                for j, title in enumerate(sorted(set(desired[key].values())))]
+        return fake
+
+    def test_a_collapsed_title_fails_parity_though_the_title_sets_are_equal(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            TitleUniquenessTests._world(root)
+            with patch.object(sync, "derive_stems", _bare_stem_derivation):
+                desired, specs = sync.scan(root)
+                fake = self._books_holding(root, desired, specs)
+                for key, items in desired.items():
+                    self.assertEqual(
+                        {r.get("title") for r in fake.sources_of(specs[key].title)},
+                        set(items.values()),
+                        "the fixture must put the live book at TITLE-set "
+                        "equality, which is the state the old check passed")
+                code, text = self._run_parity(root, fake)
+        self.assertEqual(code, 1, "a book missing five documents is not at "
+                                  "parity, however equal its title sets are")
+        self.assertIn("carry more than one document", text)
+        self.assertIn("COLLAPSED", text)
+        self.assertIn("xFactories/MedxFactory/ideation/staging/"
+                      "root-truth-grounding/topic.md", text)
+
+    def test_the_injective_derivation_proves_parity_over_documents(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            TitleUniquenessTests._world(root)
+            desired, specs = sync.scan(root)
+            fake = self._books_holding(root, desired, specs)
+            code, text = self._run_parity(root, fake)
+        self.assertEqual(code, 0, text)
+        self.assertIn("parity: PROVEN", text)
+        self.assertIn("documents in", text)
+        self.assertNotIn("COLLAPSED", text)
