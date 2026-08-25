@@ -55,6 +55,14 @@ from .lines import split_keepends
 # (delta "safe mechanical defects") and its `external-path` skips are
 # informational; every other class is `contested`. ideation_routing.py
 # sets `resolution=` per finding — a table entry would force one class.
+#
+# "promotion-fidelity" was ABSENT here for its whole advisory launch, and is
+# PRESENT now: the entry below is one half of the flip to enforcing ruled on
+# 2026-08-24 (Brett, add-promotion-fidelity-check task 4.1, PR #315). Its
+# remedy is a governance act — apply the ratified delta, or record the
+# non-promotion deliberately — so `contested` is the honest class, and it
+# moved in the same commit as the severity because either alone gates the
+# family in a shape nobody chose. See `promotion_fidelity._LAUNCH_SEVERITY`.
 FAMILY_RESOLUTION = {
     "location-conformance": CONTESTED,
     "standard-backing": CONTESTED,
@@ -62,6 +70,7 @@ FAMILY_RESOLUTION = {
     "record-immutability": CONTESTED,
     "staged-candidate-aging": CONTESTED,
     "uncited-resolution": CONTESTED,
+    "promotion-fidelity": CONTESTED,
 }
 
 # ---------------------------------------------------------------- helpers
@@ -1014,10 +1023,15 @@ FAMILIES = {
     "proposal-origin": proposal_origin.fam_proposal_origin,
     "client-identity-composition":
         client_identity_composition.fam_client_identity_composition,
-    # The eighteenth family (add-promotion-fidelity-check). Deliberately
-    # ABSENT from FAMILY_RESOLUTION above: it launches ADVISORY, and a
-    # `contested` class would route it back into `report.uncited_resolutions`
-    # — an ERROR — the first time one of its findings was resolved. See
+    # The eighteenth family (add-promotion-fidelity-check). It launched
+    # ADVISORY and is now ENFORCING: registered `contested` in
+    # FAMILY_RESOLUTION above and emitting ERROR. The absence recorded here
+    # through the launch was deliberate and is SUPERSEDED, not forgotten —
+    # a `contested` class routes a resolved finding into
+    # `report.uncited_resolutions` as an ERROR, which was a back door under
+    # an advisory family and is the intended discipline under an enforcing
+    # one. Flipped by ruling 2026-08-24 (task 4.1, PR #315), after the
+    # standing population was discharged (§4.3). See
     # `promotion_fidelity._LAUNCH_SEVERITY`.
     "promotion-fidelity": promotion_fidelity.fam_promotion_fidelity,
     # NINETEENTH FAMILY (add-release-inventory-drift-check). Also ABSENT from

@@ -17,11 +17,15 @@ different directions:
    requirement rewritten by a LATER archived change, and a requirement
    RENAMED by a later archived change.
 
-3. **The advisory launch is pinned structurally** (`test_launch_is_advisory`
-   and its siblings), not left to the severity that happens to be written on
-   a finding. Decision 3 of the change is "report-only at launch", and both
-   halves of it — WARNING severity AND absence from `FAMILY_RESOLUTION` —
-   are asserted, because enforcement can arrive through either.
+3. **The ENFORCING state is pinned structurally** (`test_enforcement_*`),
+   not left to the severity that happens to be written on a finding. These
+   tests pinned the ADVISORY launch until 2026-08-24 — WARNING severity AND
+   absence from `FAMILY_RESOLUTION` — and they now pin its opposite, because
+   Brett ruled the flip ("ENFORCING, SEQUENCED", task 4.1, PR #315) and it
+   was taken in one commit after the standing population was discharged
+   (§4.2/§4.3). The assertions are still BOTH halves, and still for the same
+   reason: enforcement can arrive through either, so a half-flip in either
+   direction has to fail here by name.
 
 4. **The tie-break is load-bearing**, proven by running the SAME fixture
    twice: once with archive-commit order available and once without. The
@@ -39,7 +43,7 @@ import pytest
 
 from conftest import AS_OF, FIXTURES, FakeGit, make_ctx
 
-from doc_health import Skip, TAXONOMY, WARNING
+from doc_health import CONTESTED, ERROR, Skip, TAXONOMY, WARNING
 from doc_health import corpus, promotion_fidelity, runner
 from doc_health.families import FAMILIES, FAMILY_NOTES, FAMILY_RESOLUTION
 from doc_health.promotion_fidelity import FAMILY
@@ -237,31 +241,90 @@ def test_latest_writer_wins_is_load_bearing():
                    for f in findings)
 
 
-# ------------------------------------------------- 3. the advisory launch, pinned
+# ------------------------------------------------ 3. the enforcing state, pinned
+#
+# THESE THREE TESTS CHANGED MEANING on 2026-08-24, and that is a design fact
+# rather than a weakened assertion. Through the advisory launch they pinned
+# WARNING severity and ABSENCE from `FAMILY_RESOLUTION`; they now pin ERROR
+# and a `contested` entry. The flip is Brett's ruling (task 4.1's
+# four-question round, PR #315, verbatim "ENFORCING, SEQUENCED"), realized in
+# §4.2 after §4.3's discharge. What did NOT change is why there are two of
+# them: enforcement can arrive through severity or through the resolution
+# class, so each half is pinned separately and a half-flip fails by name.
 
 
-def test_launch_is_advisory_by_severity():
-    """Decision 3, first half. Every finding is WARNING, so `--fail-on
-    error` and `--fail-on critical` (whose gates are `{CRITICAL, ERROR}` and
-    `{CRITICAL}`) cannot red on this family."""
+def test_enforcement_by_severity():
+    """The flip's first half. Every finding is ERROR, so `--fail-on error`
+    (gate `{CRITICAL, ERROR}`) reds on a ratified delta that never reached
+    canon. Was WARNING for the advisory launch."""
     findings = _run()
-    assert findings, "the advisory claim is vacuous over an empty run"
-    assert {f.severity for f in findings} == {WARNING}
-    assert promotion_fidelity._LAUNCH_SEVERITY == WARNING
+    assert findings, "the severity claim is vacuous over an empty run"
+    assert {f.severity for f in findings} == {ERROR}
+    assert promotion_fidelity._LAUNCH_SEVERITY == ERROR
+    assert promotion_fidelity._LAUNCH_SEVERITY != WARNING
 
 
-def test_launch_is_advisory_by_resolution_class():
-    """Decision 3, second half, and the one that is easy to lose.
+def test_enforcement_by_resolution_class():
+    """The flip's second half, and the one that is easy to lose.
 
     `report.uncited_resolutions` turns a CONTESTED finding that vanishes
-    between reports into an ERROR under the `uncited-resolution` family. A
-    `contested` entry here would therefore red the nightly the first time
-    anyone actually promoted a delta this family had reported — enforcement
-    arriving through the back door on the run that proves the advisory
-    launch worked. The flip raises severity and adds this entry TOGETHER.
+    between reports into an ERROR under the `uncited-resolution` family.
+    Under the advisory launch that was a back door — the nightly would have
+    gone red the first time anyone actually promoted a delta this family
+    reported. Under enforcement it is the discipline the ruling wanted: the
+    remedy is a governance act, so a finding that disappears owes a citation.
+
+    Asserted at BOTH ends. The table entry is the declaration; `runner.main`
+    is the only thing that applies it, so a `FAMILY_RESOLUTION` row that some
+    future refactor stopped reading would pass the first assertion and fail
+    the second.
     """
-    assert FAMILY not in FAMILY_RESOLUTION
+    assert FAMILY_RESOLUTION.get(FAMILY) == CONTESTED
+    # The family function itself still labels findings `auto-fixable`; the
+    # table is applied in `runner.main`, which is what the next assertion
+    # exercises end to end.
     assert {f.resolution for f in _run()} == {"auto-fixable"}
+
+
+def test_both_halves_reach_the_emitted_findings(tmp_path):
+    """END TO END for the flip: run the CLI over the fixture and read both
+    halves off the REPORT rather than off the constants.
+
+    `runner.main` is the only thing that applies `FAMILY_RESOLUTION`, so a
+    table entry some future refactor stopped reading would still satisfy the
+    declaration test above and fail here.
+    """
+    out = tmp_path / "report.md"
+    repo = tmp_path / REPO
+    shutil.copytree(FIXTURES / "promotion-fidelity" / REPO, repo)
+    assert runner.main([
+        "--single-repo", str(repo),
+        "--family", FAMILY, "--as-of", AS_OF.isoformat(),
+        "--report-out", str(out)]) == 0
+    emitted = [ln for ln in out.read_text(encoding="utf-8").splitlines()
+               if f"family={FAMILY}" in ln]
+    assert emitted
+    assert all("severity=error" in ln for ln in emitted), emitted
+    assert all('class="contested"' in ln for ln in emitted), emitted
+
+
+def test_an_enforcing_run_reds_a_fail_on_error_gate(tmp_path):
+    """The point of the flip, measured rather than asserted: the SAME fixture
+    that returned 0 under `--fail-on error` for the whole advisory launch now
+    returns non-zero. `--fail-on critical` still passes — the flip raised the
+    family to ERROR, not to CRITICAL."""
+    repo = tmp_path / REPO
+    shutil.copytree(FIXTURES / "promotion-fidelity" / REPO, repo)
+
+    def run(fail_on):
+        return runner.main([
+            "--single-repo", str(repo), "--family", FAMILY,
+            "--as-of", AS_OF.isoformat(),
+            "--report-out", str(tmp_path / f"{fail_on}.md"),
+            "--fail-on", fail_on])
+
+    assert run("error") != 0
+    assert run("critical") == 0
 
 
 def test_the_family_is_registered_for_reporting():
@@ -510,7 +573,7 @@ def test_the_presumption_fixture_fires_exactly_three_times():
     findings = _beta()
     assert len(findings) == 3, _rules(findings)
     assert {f.repo for f in findings} == {GAMMA}
-    assert {f.severity for f in findings} == {WARNING}
+    assert {f.severity for f in findings} == {ERROR}
 
 
 def test_inverting_the_presumption_loses_every_one_of_them(monkeypatch):
@@ -848,7 +911,7 @@ def test_the_report_states_the_basis_under_the_family_heading():
     assert "Basis: the pinned checkout" in section
     # BEFORE the findings, so the tree is named before anything is read as a
     # verdict about it
-    assert section.index("Basis:") < section.index("- [warning]")
+    assert section.index("Basis:") < section.index("- [error]")
 
 
 def test_the_report_states_the_basis_on_a_family_with_no_findings():
