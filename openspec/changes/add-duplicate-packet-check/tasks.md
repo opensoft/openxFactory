@@ -202,14 +202,17 @@ new: the flip's one unmeasured exposure, recorded rather than left implicit.
       exempt and the repository reads zero. Had the exemption been wrong, the
       flip would have turned the archetype of the lawful remedy into a gating
       error in another repository.
-      **WHAT THE PREREQUISITE ASKED FOR AND DID NOT GET, stated plainly rather
-      than reported as satisfied.** This box asked for "at least one
-      aggregation run across every pinned domain factory". That is NOT what was
-      taken: five repositories were measured, not fourteen, and four of the
-      five from scratch checkouts at their own shas rather than from a fresh
-      aggregation fetch. The ruling was given on this evidence and supersedes
-      its own prerequisite; the residual is §5.4 and is not hidden inside this
-      tick.
+      **THE PREREQUISITE WAS SHORT WHEN THE FLIP WAS TAKEN, AND IS NOW MET.**
+      This box asked for "at least one aggregation run across every pinned
+      domain factory". The flip did not have that: five repositories were
+      measured, not the full population, and four of the five from scratch
+      checkouts at their own shas rather than at the aggregation's pins. That
+      shortfall was recorded as §5.4 rather than folded in here — and §5.4 is
+      now DISCHARGED. The complete pinned population reads zero: **19
+      repositories, 207 archived packets, 1124 identities, 3 restated groups,
+      0 findings**, each repository read at the exact sha the aggregation
+      pins. The ruling no longer rests on a superseded prerequisite; the
+      prerequisite is satisfied. Table and method: §5.4.
 - [ ] 5.2 CONSIDER, only by ruling, whether this family should join the
       promotion fidelity family on the live-`main` basis. Today it reads the
       pinned checkout, structurally, because the 2026-08-24 ruling scoped that
@@ -230,16 +233,64 @@ new: the flip's one unmeasured exposure, recorded rather than left implicit.
       making the count derived rather than restated — belongs to its own
       change.
 
-- [ ] 5.4 THE FLIP'S ONE UNMEASURED EXPOSURE, opened by the 5.1 tick rather
-      than left implicit in it. Nine of the fourteen governed repositories were
-      not measured before the flip, so a duplicate discharge standing in one of
-      them will now surface as a gating `error` on the first aggregation
-      nightly rather than as an advisory warning. The exposure is bounded and
-      the shape of the remedy is known — a finding is either a real double
-      discharge (withdraw it, or name the lineage) or a lineage the record
-      states in a spelling this family cannot read (a `health/dispositions.yaml`
-      entry with a cite, then a rule fix) — but it is a real difference from
+- [x] 5.4 THE FLIP'S UNMEASURED EXPOSURE — OPENED BY THE 5.1 TICK, AND CLOSED
+      2026-08-25 BY MEASURING THE WHOLE PINNED POPULATION AT ZERO.
+      When the flip was taken, nine of the pinned repositories were unmeasured,
+      so a duplicate discharge standing in one of them would have surfaced as a
+      gating `error` on the first aggregation nightly rather than as an
+      advisory warning. That is a real difference from
       `add-promotion-fidelity-check` §4.3, which discharged its population
-      across fourteen submodules with live mains fetched fresh BEFORE its flip.
-      The first corpus-wide run after this flip closes this box. If it reds,
-      the honest reading is that this box should have been closed first.
+      across the full submodule set BEFORE its own flip, and it was recorded
+      here rather than left implicit in §5.1.
+      **THE GAP IS NOW CLOSED ON THE SAME TERMS §4.3 SET.** The population was
+      enumerated from the aggregation repository's own `origin/main` — its
+      `.gitmodules` and its gitlinks, read-only — giving **19 pinned
+      repositories**. Every one was cloned FRESH and checked out at the EXACT
+      SHA the aggregation pins (asserted per repository: the measurement aborts
+      if a checked-out HEAD does not equal its pin), and the family was run
+      over each on the PINNED BASIS — the basis it enforces on.
+      **THE COMPLETE TABLE. No repository is omitted, and a repository with no
+      archive is recorded as a zero rather than skipped.**
+
+      | pinned repository | pinned sha | packets | identities | restated | findings |
+      | --- | --- | --- | --- | --- | --- |
+      | `openxFactory` | `d5f447e89cf6` | 91 | 543 | 2 | **0** |
+      | `xFactories/codexFactory` | `dff2a3e9f0af` | 24 | 112 | 1 | **0** |
+      | `xFactories/LedgerxFactory` | `a64585865066` | 24 | 136 | 0 | **0** |
+      | `xFactories/MedxFactory` | `7577431aa5b4` | 24 | 110 | 0 | **0** |
+      | `installs/hermes-install` | `2a4d719c4a40` | 17 | 64 | 0 | **0** |
+      | `xFactories/OpsxFactory` | `bf79a9b0b7a4` | 13 | 77 | 0 | **0** |
+      | `installs/omnigent-install` | `e1d94db9e4b0` | 9 | 29 | 0 | **0** |
+      | `installs/medx-roottruth-install` | `89dca824de6c` | 2 | 27 | 0 | **0** |
+      | `xFactories/AdxFactory` | `403ac272f446` | 1 | 12 | 0 | **0** |
+      | `xFactories/HealthLinc` | `ce844c14f78b` | 1 | 7 | 0 | **0** |
+      | `xFactories/MedxEHR` | `7a1427c41498` | 1 | 7 | 0 | **0** |
+      | `xFactories/MedxChart` | `68d2f1f5db93` | 0 | 0 | 0 | **0** (archive directory present and empty) |
+      | `xFactories/MedxPractice` | `d8d73195609d` | 0 | 0 | 0 | **0** (no `openspec/`) |
+      | `installs/agenttower` | `8a27d21613fc` | 0 | 0 | 0 | **0** (no `openspec/`) |
+      | `installs/cloudpc-install` | `344439e93192` | 0 | 0 | 0 | **0** (no `openspec/`) |
+      | `installs/keycloak-install` | `ddfb007982b3` | 0 | 0 | 0 | **0** (no `openspec/`) |
+      | `installs/openxpki-install` | `3ee98d63dcb5` | 0 | 0 | 0 | **0** (no `openspec/`) |
+      | `installs/xfactory-installer` | `4b3a14b95442` | 0 | 0 | 0 | **0** (no `openspec/`) |
+      | `openAvatar` | `1998dcf80e99` | 0 | 0 | 0 | **0** (no `openspec/`) |
+      | **TOTAL** | **19 repositories** | **207** | **1124** | **3** | **0** |
+
+      **ALL THREE RESTATED GROUPS ARE RECORDED LINEAGE, which is the exemption
+      carrying the entire population rather than a fixture.** codexFactory's is
+      `merge-master-approval` / "Tier-2 ships inactive with report-only
+      classification", restated by `2026-08-24-apply-nightly-sweep-activation-
+      delta` — PR #85, the archetype of the lawful remedy — whose proposal names
+      its original 4 times. openxFactory's two are
+      `lifecycle-notebook-projection` / "Branch-session notebooks" and
+      "Corpus scan scope", restated by `2026-08-25-apply-branch-sessions-deltas`,
+      whose proposal names its original 6 times. Nothing else in 1124
+      identities is restated at all.
+      **THREE SHAS MOVED against the pre-flip corroboration**, and they are
+      re-stated rather than carried: AdxFactory, HealthLinc and MedxEHR were
+      previously read from another session's scratch checkouts at
+      `d302d27b519b`, `52860649ad80` and `004486ac704d`, which are NOT the
+      aggregation's pins. Re-measured at the pins above; the counts happen to be
+      identical, and the earlier figures are superseded by these.
+      **THE AGGREGATION CHECKOUT WAS NEVER TOUCHED** — its `origin/main` was
+      read with `ls-tree` and `show`, never checked out, and every measured tree
+      is a fresh clone in this session's own scratch area.
