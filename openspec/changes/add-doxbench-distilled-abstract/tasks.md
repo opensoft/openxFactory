@@ -96,7 +96,7 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
       both are false today: the banner at `serve.py:2128-2134` ("no code below
       calls it") and `_workbench_model_port`'s docstring at `:1542-1544` ("no
       route below calls it ... the dispatch arm is T051's").
-- [ ] 2.5 Handed over from `ratify-doxbench-landed-context-surfaces` (§2.7):
+- [x] 2.5 Handed over from `ratify-doxbench-landed-context-surfaces` (§2.7):
       write the missing PIN for the lens tablist's arrows/Home/End
       reachability. `test_doxbench_context_panes.py:166-175` checks `role`,
       `aria-selected` and `tabIndex` only; the behaviour lives at
@@ -246,16 +246,16 @@ mark this section done without running 9.5.
 **Ordering:** 8.1 and 8.3 run BEFORE §7.8. Everything else in this section can
 follow the captions it describes, but the pin relocation cannot — see 7.8.
 
-- [ ] 8.1 Move the pin off the whole-file sweep at
+- [x] 8.1 Move the pin off the whole-file sweep at
       `test_doxbench_context_panes.py:144-152` and onto the node harness fixture
       (`:83-94`) as a per-abstract CAPTION FIELD assertion.
 - [ ] 8.2 Pin all five captions with their declared carriers: model-derived and
       deterministic as visible text AND part of the region's accessible name;
       stale, ungenerated and hosted-plane as visible text inside a named region.
-- [ ] 8.3 Rewrite the module docstring's scope statement (`:26-29`) to RECORD the
+- [x] 8.3 Rewrite the module docstring's scope statement (`:26-29`) to RECORD the
       2026-08-03 → 2026-08-25 reversal rather than erase the old ruling. Leave the
       `:31-34` operator-rig note standing.
-- [ ] 8.4 Pin that the deterministic abstract is never captioned as a
+- [x] 8.4 Pin that the deterministic abstract is never captioned as a
       distillation — the half of the old guard that stays true.
 
 ## 9. Mutation rounds

@@ -16,17 +16,38 @@ SOURCE. Two operator annotations, verbatim (vibe-annotations MCP, both
     shows the doc slected distilled summary abstract. it is an abstract that
     is the surfaces the key items delivered by doc."
 
-SCOPE RULED BY BRETT, 2026-08-03. The mini-wheel is NOT in this slice:
-`renderWheel` renders all six columns from a snapshot with a viewport-derived
-radius, so "the same wheel at 0.4 radius" needs a reusable single-wheel widget
-extracted from that module — its own piece of work, deliberately not rushed
-against the most visually complex module in the dashboard. The lower half
-carries a compact document selector until that lands.
+THE WHEEL LANDED (2026-08-03, later the same day this scope note was first
+written — see `test_doc_wheel.py`). The mini-wheel this note once deferred —
+"the same wheel at 0.4 radius" needing a reusable single-wheel widget
+extracted from `renderWheel`, which draws all six deck columns at a
+viewport-derived radius — was extracted into its own module, `doc-wheel.js`
+(`renderDocWheel`), and the lower half of this split is that widget at its
+own 0.4 radius: the deck's own drum reused, not a placeholder list. The
+compact document selector this note describes existed only until then. This
+file pins that the split MOUNTS the wheel and wires its selection to the
+abstract above (`test_the_docs_pane_is_split_into_selector_and_abstract`
+below); the wheel's own derivation, radius and gesture pins live in
+`test_doc_wheel.py`.
 
-THE ABSTRACT is "header + structure, honestly labelled" (ruled): the facts the
-snapshot ALREADY indexes for that document — its own Summary, declared Topics,
-stage/kind, where it lands, and the five completeness signals. It is not an
-AI distillation and must not be captioned as one.
+THE DETERMINISTIC ABSTRACT was RULED "header + structure, honestly labelled"
+(Brett, 2026-08-03): the facts the snapshot ALREADY indexes for that
+document — its own Summary, declared Topics, stage/kind, where it lands, and
+the five completeness signals. That ruling said it is not an AI distillation
+and must not be captioned as one — true of THIS abstract, and it still is.
+
+REVERSED IN PART, 2026-08-25 (Brett ruled option C on #84, recorded on the
+issue): the deterministic abstract above SURVIVES exactly as ruled, captioned
+"From the document's own headers" — never "distilled". Beside it, doxBench
+now ALSO generates a SEPARATE, model-derived abstract on explicit human
+request (`add-doxbench-distilled-abstract`) — a sibling artifact, not a
+replacement, captioned "Distilled by a model — not authoritative; regenerable
+from the document." The two are captioned so a reader can never mistake one
+for the other. The whole-file source sweep that used to pin the 08-03 ruling
+here is gone: with both captions living in this one file, only a source
+sweep could no longer tell "the model-derived abstract correctly says
+distilled" from "the deterministic one wrongly does" — so the pin now lives
+on the Node harness fixture below, as a per-abstract CAPTION FIELD assertion
+against `doxbench_knowledge.RULED_CAPTIONS`.
 
 WHAT THESE PROVE. Structure and derivation, in Node and by source contract.
 They do not prove rendered geometry — that stays with the operator rig
@@ -43,7 +64,15 @@ import subprocess
 
 import pytest
 
-from conftest import REPO_ROOT
+from conftest import REPO_ROOT  # noqa: F401  (sys.path side effect)
+
+from ideation_dashboard import doxbench_knowledge as kn  # noqa: E402
+# The SAME DOM instrument the full-shell composition suite drives, imported
+# rather than copied (`test_doxbench_composition.py`'s own reasoning): a
+# second shim is a second set of behaviours to keep in step, and a keydown
+# harness that quietly drifted from the canvas one is exactly how a
+# behavioural pin would stop meaning anything.
+from test_doxbench_view import _EDITOR_DOM_SHIM  # noqa: E402
 
 NODE = shutil.which("node")
 WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
@@ -141,15 +170,90 @@ def test_the_abstract_refuses_no_document(abstract):
     assert abstract["none"] is None
 
 
-def test_the_abstract_is_never_captioned_as_a_distillation():
-    """RULED (Brett, 2026-08-03): this is 'header + structure, honestly
-    labelled' — the facts already indexed, NOT an AI distillation. Calling it
-    one would be the surface claiming an analysis nobody ran."""
-    source = SHELL_JS.read_text(encoding="utf-8")
-    lowered = source.lower()
-    for claim in ("distilled", "ai summary", "ai-generated"):
-        assert claim not in lowered, (
-            f"the abstract is captioned '{claim}' but nothing distils it")
+def _flatten_strings(value):
+    """Yield every string value inside a JSON-shaped structure, depth-first.
+
+    Used by the two captioning pins below to check a claim never appears
+    ANYWHERE in a model object — every field, every nested list/dict entry —
+    not only in the fields an author remembered to name, which is the same
+    generality the retired whole-file source sweep had (it read the entire
+    file, not a hand-picked set of lines) and which a field-by-field
+    assertion would quietly lose."""
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for v in value.values():
+            yield from _flatten_strings(v)
+    elif isinstance(value, list):
+        for v in value:
+            yield from _flatten_strings(v)
+
+
+def test_the_deterministic_caption_field_matches_ruled_text_once_present(abstract):
+    """THE RELOCATED PIN (add-doxbench-distilled-abstract, ruling 5 / task
+    8.1). This replaces `test_the_abstract_is_never_captioned_as_a_distillation`,
+    which used to sweep the WHOLE `staging-workbench.js` source for
+    "distilled"/"ai summary"/"ai-generated" (RULED, Brett, 2026-08-03; see the
+    module docstring above for the full 2026-08-25 reversal this pin now
+    honours). Once the model-derived abstract's own caption ships containing
+    "Distilled by a model..." (§7.8), a file-level sweep can no longer tell
+    that caption FROM a violation on the deterministic one — both abstracts
+    live in the same file — so the pin moves onto this Node harness fixture,
+    per-abstract, keyed on `doxbench_knowledge.RULED_CAPTIONS`.
+
+    TWO-PHASE, deliberately, and that is the point of this docstring:
+    `documentAbstract()` has no `caption` field yet — §7.8 lands the pure
+    formatter that adds one — so a pin that hard-required the field today
+    would be a KNOWINGLY RED section boundary, which this change's own rules
+    forbid. WHEN the field is present, this test asserts it literally equals
+    `RULED_CAPTIONS[CAPTION_DETERMINISTIC]` ("From the document's own
+    headers") and never contains "distill" (case-insensitive, so it also
+    catches "distillation" — the exact gap the old sweep had, since it banned
+    "distilled" but not "distillation"). WHILE the field is absent, this
+    falls back to the OLD invariant checked at the MODEL level instead of the
+    source level: no string value anywhere in the deterministic abstract's
+    output contains "distill". The test is GREEN TODAY on that fallback and
+    TIGHTENS ITSELF the moment the caption field appears — no one has to
+    remember to come back and un-relax it.
+
+    TODO(§7.8): once `documentAbstract()` returns a `caption` field, delete
+    the `else` fallback branch below so this test asserts ONLY the
+    caption-field equality. The §7 agent removes this TODO along with the
+    fallback when the formatter lands.
+    """
+    full = abstract["full"]
+    ruled = kn.RULED_CAPTIONS[kn.CAPTION_DETERMINISTIC]
+    if "caption" in full:
+        assert full["caption"] == ruled
+        assert "distill" not in full["caption"].lower()
+    else:
+        for value in _flatten_strings(full):
+            assert "distill" not in value.lower(), (
+                f"the deterministic abstract value {value!r} claims a "
+                "distillation before any caption field exists to say so")
+
+
+def test_the_deterministic_abstract_is_never_captioned_as_a_distillation(abstract):
+    """The half of the 2026-08-03 guard that STAYS TRUE after the 2026-08-25
+    reversal (task 8.4 — kept from the deleted whole-file sweep this test
+    replaces, at the model level rather than the source level). The
+    DETERMINISTIC abstract — `documentAbstract()`'s own output, "header +
+    structure" lifted verbatim from the document's own declared fields — must
+    never claim a distillation. What FLIPS is the separate model-derived
+    sibling abstract (§7.8), which IS captioned as one on purpose; this test
+    is scoped to the deterministic abstract only and must never be widened to
+    cover that sibling.
+
+    Unlike the test above, this one is UNCONDITIONAL and permanent — it does
+    not tighten or wait on the caption field, because "the deterministic
+    abstract never claims a distillation" is true regardless of whether a
+    `caption` field exists to say so explicitly.
+    """
+    for label, doc in (("full", abstract["full"]), ("bare", abstract["bare"])):
+        for value in _flatten_strings(doc):
+            assert "distill" not in value.lower(), (
+                f"the deterministic {label} abstract value {value!r} claims "
+                "a distillation nothing produced")
 
 
 # ---------------------------------------------------------------------------
@@ -172,6 +276,221 @@ def test_the_lens_subtabs_are_a_real_tablist():
         assert needle in strip[:4000], (
             f"the lens subtab strip is missing {needle} — the APG pattern the "
             "context strip already implements")
+
+
+# ---------------------------------------------------------------------------
+# the lens subtabs' KEYBOARD reachability (task 2.5, handed over from
+# `ratify-doxbench-landed-context-surfaces` §2.7): the source-text pin above
+# only checks that `role`/`aria-selected`/`tabIndex` APPEAR somewhere in the
+# strip. It proves nothing about whether Arrow/Home/End actually MOVE
+# anything — the behaviour lives in the keydown handler at
+# `staging-workbench.js:491-503`, and this is the missing behavioural half.
+#
+# The file had no DOM double capable of mounting `staging-workbench.js` and
+# dispatching real events at it — the `abstract` harness above only imports
+# the pure `staging-workbench-model.js`. Rather than build a second DOM shim
+# for this one file (a second shim is a second thing to keep in step with the
+# full-shell one, which is exactly the drift this suite's captioning pin
+# elsewhere exists to avoid), this EXTENDS the harness in this file only by
+# reusing `test_doxbench_view._EDITOR_DOM_SHIM` UNMODIFIED — the same DOM
+# double `test_doxbench_composition.py` already drives against a real,
+# fully-mounted `mountStagingWorkbench` — and adding a small local
+# `fire()`/keydown-dispatch helper scoped to this harness string alone, the
+# same technique every harness file in this suite already uses locally
+# rather than sharing one dispatch helper across files.
+# ---------------------------------------------------------------------------
+
+_LENS_TABLIST_HARNESS = _EDITOR_DOM_SHIM + r"""
+import { createRequire } from 'node:module';
+
+globalThis.markdownit = createRequire(import.meta.url)('../vendor/markdown-it.min.js');
+globalThis.window = { location: { href: 'http://localhost/' } };
+
+// EXTENDING THE SHARED SHIM, IN THIS FILE ONLY (task 2.5(i) covers this too):
+// the imported `_EDITOR_DOM_SHIM` has no `document.createElementNS`
+// (`bullseye.js` draws its rings as SVG) and each node's `style` is a bare
+// object with no `setProperty` (the lens's keyword rail sets a `--h` CSS
+// custom property per chip). Neither gap is `test_doxbench_view.py`'s to
+// carry — it never mounts the lens's bullseye subtab — so both are patched
+// HERE, over the shim's own `document.createElement`, local to this harness
+// string and invisible to every other file that imports the shim unmodified.
+{
+  const rawCreateElement = document.createElement;
+  function withStyleMethods(node) {
+    node.style.setProperty = (name, value) => { node.style[name] = value; };
+    node.style.removeProperty = (name) => { delete node.style[name]; };
+    node.style.getPropertyValue = (name) => node.style[name] || '';
+    return node;
+  }
+  document.createElement = (tag) => withStyleMethods(rawCreateElement(tag));
+  // `bullseye.js`'s own `svg()` helper only calls
+  // `setAttribute`/`textContent`/`appendChild`/`addEventListener` on what it
+  // creates — every one already supported by the shim's generic node — so
+  // the SVG namespace is served that SAME generic node rather than a second
+  // element class this harness would have to maintain.
+  document.createElementNS = (_ns, tag) => document.createElement(tag);
+}
+
+const { mountStagingWorkbench } = await import('./staging-workbench.js');
+
+function snapshotFor() {
+  const path = 'ideation/staging/topic-x/topic-x.md';
+  return {
+    repository: 'fixture-repo',
+    generation: { source_revision: '1'.repeat(40) },
+    documents: [{ id: path, path, topics: ['alpha', 'beta'],
+                  destinations: { staged_topics: ['topic-x'] } }],
+    clusters: [], possibles: [],
+    staged_topics: [{ staging_id: 'topic-x', files: [path] }],
+  };
+}
+
+// Dispatches DIRECTLY on the node the production code registered the
+// listener on (the tablist itself, per `staging-workbench.js:491`) rather
+// than simulating bubbling from a focused child — this shim has no bubbling
+// model, and the production listener is on the tablist regardless.
+async function fire(node, type, extra = {}) {
+  let prevented = false;
+  for (const fn of (node.listeners && node.listeners[type]) || []) {
+    await fn({ target: node, stopPropagation() {},
+               preventDefault() { prevented = true; }, ...extra });
+  }
+  return prevented;
+}
+const settle = () => new Promise((r) => setTimeout(r, 0));
+async function quiesce(n = 10) { for (let i = 0; i < n; i += 1) await settle(); }
+
+const container = document.createElement('div');
+const doxbench = {
+  loadSource: async (path) => ({ content: '# ' + path + '\n', ref: 'main' }),
+  storage: { getItem: () => null, setItem() {}, removeItem() {} },
+  catalog: async () => ({ schema_version: 1, kind: 'workbench-model-catalog',
+                          models: [] }),
+  chatTurn: async () => ({ ok: false, status: 502, payload: {} }),
+  save: async () => ({ status: 'committed', buffers: [] }),
+};
+const workbench = mountStagingWorkbench(container, snapshotFor(), {
+  caps: { actions: {}, actor: 'brett' },
+  fetcher: async () => ({ ok: false }),
+  active: { repository: 'fixture-repo', ref: 'main' },
+  index: { entries: [] },
+  doxbench,
+  sourceBase: '/source/',
+  edit: null,
+  onSessionRekey: async () => null,
+  onSessionEnded: async () => null,
+  onScopeOpened: () => null,
+});
+workbench.open('staged', 'topic-x');
+await quiesce();
+
+const byClass = (cls) => container.walk().filter(
+  (n) => String(n.className).split(' ').includes(cls));
+const one = (cls) => byClass(cls)[0] || null;
+
+// the lens tab is not the default (docs is) — switch to it for real, through
+// the same click a human would use, not by reaching into module state
+const lensTabBtn = byClass('swb-tab').find((b) => b.textContent === 'lens');
+if (!lensTabBtn) throw new Error('no lens tab button found');
+await fire(lensTabBtn, 'click');
+await quiesce();
+
+const subtabs = one('swb-subtabs');
+const subButtons = byClass('swb-subtab');
+if (!subtabs || subButtons.length !== 3) {
+  throw new Error('lens subtabs did not mount as expected: ' +
+                   subButtons.length + ' buttons, tablist ' + !!subtabs);
+}
+
+function state() {
+  return {
+    selected: subButtons.map((b) => b.getAttribute('aria-selected') === 'true'),
+    tabIndex: subButtons.map((b) => b.tabIndex),
+    focusedIndex: subButtons.indexOf(document.activeElement),
+  };
+}
+
+const steps = [];
+function record(label, prevented) { steps.push({ label, prevented, ...state() }); }
+
+record('initial', null);
+record('arrowRight1', await fire(subtabs, 'keydown', { key: 'ArrowRight' }));
+record('arrowRight2', await fire(subtabs, 'keydown', { key: 'ArrowRight' }));
+// a THIRD ArrowRight from the last section must WRAP back to the first
+record('arrowRight3_wraps', await fire(subtabs, 'keydown', { key: 'ArrowRight' }));
+// ArrowLeft from the first section must WRAP to the last
+record('arrowLeft_wraps', await fire(subtabs, 'keydown', { key: 'ArrowLeft' }));
+record('home', await fire(subtabs, 'keydown', { key: 'Home' }));
+record('end', await fire(subtabs, 'keydown', { key: 'End' }));
+// an unrelated key must move nothing and must not be consumed
+record('unrelated_key', await fire(subtabs, 'keydown', { key: 'a' }));
+
+process.stdout.write(JSON.stringify({
+  steps, subtabLabels: subButtons.map((b) => b.textContent),
+}));
+"""
+
+
+@pytest.fixture(scope="module")
+def lens_tablist(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the lens-tablist probe")
+    root = tmp_path_factory.mktemp("doxbench-lens-tablist")
+    views = root / "views"
+    shutil.copytree(VIEWS, views)
+    shutil.copytree(WEB / "vendor", root / "vendor")
+    (root / "package.json").write_text('{"type": "module"}', encoding="utf-8")
+    (root / "vendor" / "package.json").write_text('{"type": "commonjs"}',
+                                                   encoding="utf-8")
+    harness = views / "lens-tablist-harness.mjs"
+    harness.write_text(_LENS_TABLIST_HARNESS, encoding="utf-8")
+    proc = subprocess.run([NODE, str(harness)], capture_output=True, text=True,
+                          timeout=120)
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+# index of the section [keywords, bullseye, matrix] that must be selected AND
+# focused after each step, and whether that step's key must be consumed
+_LENS_TABLIST_EXPECTED = {
+    "initial": (0, None),
+    "arrowRight1": (1, True),
+    "arrowRight2": (2, True),
+    "arrowRight3_wraps": (0, True),
+    "arrowLeft_wraps": (2, True),
+    "home": (0, True),
+    "end": (2, True),
+    "unrelated_key": (2, False),
+}
+
+
+def test_the_lens_tablist_moves_focus_and_selection_on_arrows_home_and_end(
+        lens_tablist):
+    """THE MISSING BEHAVIOURAL PIN (task 2.5(i)). The APG roving-tabindex
+    pattern is not "the right attributes are somewhere in the source" (that
+    is `test_the_lens_subtabs_are_a_real_tablist` above, and it is not
+    replaced by this) — it is that ArrowRight/ArrowLeft wrap through the
+    three sections, Home/End jump to the ends, focus MOVES WITH selection
+    (one roving tabbable tab, always the selected one), the four navigation
+    keys are CONSUMED (`ev.preventDefault()`, or the page would scroll
+    instead — the exact CHK007 failure mode this pattern exists to avoid),
+    and an unrelated key is left alone. Dispatched as real keydown events at
+    a really-mounted tablist in the Node harness above, not inferred from
+    source text.
+    """
+    assert lens_tablist["subtabLabels"] == list(LENS_SUBTABS)
+    for step in lens_tablist["steps"]:
+        label = step["label"]
+        expected_index, expected_prevented = _LENS_TABLIST_EXPECTED[label]
+        assert step["selected"] == [
+            i == expected_index for i in range(3)], label
+        assert step["tabIndex"] == [
+            0 if i == expected_index else -1 for i in range(3)], label
+        assert step["prevented"] == expected_prevented, label
+        if label != "initial":
+            # focus follows selection — the one roving tabbable tab is the
+            # one actually holding focus, not merely marked selected
+            assert step["focusedIndex"] == expected_index, label
 
 
 def test_the_forming_line_survives_the_subtab_split():
@@ -214,18 +533,21 @@ def test_the_docs_split_gives_the_selector_the_lower_half():
         "the abstract on top and the selector in the lower half")
 
 
-def test_the_deferred_wheel_is_recorded_where_the_selector_stands():
-    """Brett ruled the mini-wheel out of THIS slice because it needs a
-    reusable single-wheel widget extracted from `renderWheel` (which today
-    renders all six columns at a viewport-derived radius). The placeholder
-    must say so, so the next reader knows the list is an interim selector and
-    not a decision against the wheel."""
-    source = SHELL_JS.read_text(encoding="utf-8")
-    idx = source.index('"swb-docselector"')
-    window = source[max(0, idx - 1600):idx]
-    assert "wheel" in window.lower(), (
-        "nothing near the selector records that a wheel is the intended "
-        "affordance and why it is not here yet")
+# `test_the_deferred_wheel_is_recorded_where_the_selector_stands` — the pin
+# that a "wheel is deferred" note stood near `"swb-docselector"` — was DELETED
+# here (task 2.5, handed over from `ratify-doxbench-landed-context-surfaces`
+# §2.7), not replaced, because the wheel it was deferring landed 2026-08-03
+# (see the module docstring above) and it had gone green ONLY BY ACCIDENT
+# since: the placeholder note it looked for is long gone, and what it
+# actually matched by then was unrelated "wheel" prose that happens to sit
+# near the selector. It is FULLY REDUNDANT with two tests already in
+# `test_doc_wheel.py`, run in the same suite invocation as this file:
+# `test_the_docs_pane_mounts_the_wheel` (`renderDocWheel` / `doc-wheel.js`
+# are present where the selector stands) and `test_the_deferral_note_is_gone`
+# (the retired "NOT YET A WHEEL" / "ruled out of this slice" notes are
+# actually gone). Keeping a third pin for the same fact here would be a
+# second copy of one claim to keep in sync, which is the drift this file's
+# own captioning-pin relocation exists to avoid elsewhere.
 
 
 def test_the_restructured_panes_are_height_constrained():

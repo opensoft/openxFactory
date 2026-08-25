@@ -505,8 +505,13 @@ function renderLensPanel(pane, snapshot, scope, session, create) {
     subPanes.get("keywords").appendChild(rail);
     pane.appendChild(dialog);
 
-    // the SHARED bullseye widget, ABOVE the always-present matrix (design
-    // D1/D3). EVERY region is an activatable create gesture — the matches-ALL
+    // the SHARED bullseye widget, its own named tablist section beside the
+    // matrix's (design D1/D3; spec.md :439 post-ratify-doxbench-landed-
+    // context-surfaces — each is an ALWAYS-REACHABLE section of the ONE
+    // tablist above, not simultaneously rendered; the ordering the earlier
+    // "above the always-present matrix" wording expressed is now the
+    // tablist's declared section order). EVERY region is an activatable
+    // create gesture — the matches-ALL
     // centre AND each ring sector (Brett's 2026-07-25 ruling on open question
     // 2) — ONLY when the create affordance is offered at all. A sector seeds
     // `Topics:` from its OWN matched combination; the centre seeds the whole
