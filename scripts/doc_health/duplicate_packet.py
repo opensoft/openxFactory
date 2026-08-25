@@ -87,31 +87,42 @@ keeps that sentence true. The cost is bounded and the catch point is the right
 one anyway: a duplicate arrives in the PULL REQUEST that adds the second
 packet, and a repository's self-gate run reads its own tree at that tip.
 
-CLASSIFICATION AT LAUNCH IS ADVISORY IN BOTH HALVES — every finding is
-WARNING, so `--fail-on error` and `--fail-on critical` cannot red on it, and
-the family is deliberately ABSENT from `families.FAMILY_RESOLUTION` so a
-resolved finding cannot become an `error` through `report.uncited_resolutions`.
+THIS FAMILY IS ENFORCING, IN BOTH HALVES OF WHAT THAT MEANS. Every finding is
+ERROR, so a run configured `--fail-on error` fails on a ruling discharged
+twice; and the family is registered `contested` in
+`families.FAMILY_RESOLUTION`, so a finding that stops being reported without a
+recorded citation becomes an `error` under the uncited-resolution rule. The two
+move TOGETHER and must not be taken apart: severity alone gates without the
+discipline that makes a disappearing finding accountable, and the contested
+class alone gates through `uncited-resolution` under a family name that does
+not say what happened. `test_the_two_halves_cannot_drift_apart` fails by name
+on a half-flip in either direction.
 
-READ THAT AGAINST THE NEIGHBOUR'S CURRENT STATE, not against its history. The
-promotion-fidelity family FLIPPED to `ERROR` + `CONTESTED` on 2026-08-24 (its
-task 4.2, PR #325). Copying the flipped values here would be copying a
-conclusion without its premise: that flip was ruled "ENFORCING, SEQUENCED" and
-sequenced BEHIND the discharge of a measured standing population, on
+IT SHIPPED ADVISORY, and that is a sequence rather than a history this
+docstring has replaced. At launch every finding carried WARNING and the family
+was deliberately unclassified, because nobody had measured what any archive
+outside this repository would say and a `contested` advisory family would have
+gated through the back door on the first duplicate anyone withdrew. The flip
+came by ruling — **Brett, 2026-08-25, verbatim: "flip the duplicate-packet
+check to enforcing"** — and it was taken behind a corpus MEASURED AT ZERO
+rather than over a standing population, on
 `govern-openspec-corpus-membership`'s rule that "a gate that goes red on the
-commit that introduces it teaches everyone to route around the gate". This
-class has no discharged population — it has a corpus measured at zero and one
-near miss — so it launches where its neighbour launched, and it flips by its
-own ruling on its own evidence. The flip raises severity and adds the contested
-classification TOGETHER, and it is an open task box in
+commit that introduces it teaches everyone to route around the gate". The
+measurement is recorded in
 `openspec/changes/add-duplicate-packet-check/tasks.md` §5.1.
 
-THE FLIPPED NEIGHBOUR IS ALSO A HAZARD THIS FAMILY MUST NOT CREATE.
-`report.uncited_resolutions` reads a finding's OWN `family` — `runner` applies
-`FAMILY_RESOLUTION.get(f.family, f.resolution)` — so a `duplicate-packet`
-finding can never inherit `promotion-fidelity`'s `CONTESTED` class no matter
-what path it lands on, even when both families report against the same archived
-delta. That separation is asserted rather than assumed:
-`test_launch_is_advisory_by_resolution_class` and
+WHAT THE FLIP DOES NOT SETTLE. §5.2's question — whether this family should
+join promotion fidelity on the live-`main` basis — stays OPEN. This family
+enforces on the PINNED CHECKOUT, which is the basis it was measured at zero on
+and the basis it reads; moving it is still its own ruling, and enforcing on a
+tree is not an argument for enforcing on a different one.
+
+THE NEIGHBOUR'S CLASS STILL DOES NOT REACH THIS ONE, and now the reverse is
+equally true. `runner` applies `FAMILY_RESOLUTION.get(f.family, f.resolution)`
+on a finding's OWN family, so the two families' classes cannot cross even when
+both report against the same archived delta — which matters in both directions
+now that both are `contested`. Asserted, not assumed:
+`test_enforcement_by_resolution_class` and
 `test_a_disposition_for_the_neighbouring_family_disposes_nothing`.
 """
 
@@ -121,19 +132,28 @@ import hashlib
 import re
 from pathlib import Path
 
-from . import Finding, Skip, WARNING
+from . import ERROR, Finding, Skip
 from . import promotion_fidelity
 from .promotion_fidelity import (CHECKED_OPS, WorkingTree, _archive_date,
                                  norm, parse_delta)
 
 FAMILY = "duplicate-packet"
 
-# The launch severity, named once. WARNING keeps the family out of
-# `runner.main`'s `{CRITICAL}` and `{CRITICAL, ERROR}` gates; absence from
-# `families.FAMILY_RESOLUTION` keeps it out of the uncited-resolution ERROR
-# path. Both halves, and why they do not copy the neighbour's now-flipped
-# values, are in this module's docstring.
-_LAUNCH_SEVERITY = WARNING
+# This family's severity, named once. The NAME records where the value
+# STARTED — the identifier is deliberately not renamed, because it is the grep
+# that ties every reader of the launch decision together — and the VALUE
+# records the ruling that moved it: ERROR now, so `runner.main`'s `--fail-on
+# error` gate (`{CRITICAL, ERROR}`) reds on a ruling discharged twice. It was
+# WARNING for the advisory launch.
+#
+# The family is ALSO registered `contested` in `families.FAMILY_RESOLUTION`,
+# and that is the less obvious half of the SAME decision — the two cannot move
+# apart, and `test_the_two_halves_cannot_drift_apart` fails by name if they do.
+# FLIPPED 2026-08-25 by ruling (Brett, verbatim "flip the duplicate-packet
+# check to enforcing"), on a corpus measured at zero at `d5f447e8`. Both
+# halves, and what the flip deliberately leaves open, are in this module's
+# docstring.
+_LAUNCH_SEVERITY = ERROR
 
 _ACTION = ("name the packet this one restates in its proposal, or withdraw "
            "the duplicate discharge")

@@ -1,4 +1,4 @@
-"""The nineteenth family: one ruling discharged by two archived packets.
+"""The twentieth family: one ruling discharged by two archived packets.
 
 `add-duplicate-packet-check`. Five things are under test, and they fail in
 different directions:
@@ -22,9 +22,14 @@ different directions:
    twice, once with the real matcher and once with the substring test a first
    draft would reach for, and asserting the two DISAGREE.
 
-4. **The advisory launch is pinned structurally** — WARNING severity AND
-   absence from `FAMILY_RESOLUTION` — because enforcement can arrive through
-   either half.
+4. **The ENFORCING state is pinned structurally** (`test_enforcement_*`) —
+   ERROR severity AND a `contested` entry in `FAMILY_RESOLUTION`. These tests
+   pinned the ADVISORY launch until 2026-08-25, and they now pin its opposite,
+   because Brett ruled the flip ("flip the duplicate-packet check to
+   enforcing") and it was taken in one commit on a corpus measured at zero.
+   The assertions are still BOTH halves, for the unchanged reason that
+   enforcement can arrive through either — plus one invariant test that fails
+   by name if the two ever drift apart in either direction.
 
 5. **The reuse is real reuse.** The module owns no delta grammar, no status
    reader and no disposition reader of its own; it borrows the eighteenth
@@ -33,14 +38,16 @@ different directions:
 
 from __future__ import annotations
 
+import shutil
+from datetime import date
 from pathlib import Path
 
 import pytest
 
-from conftest import FIXTURES, FakeGit, make_ctx
+from conftest import AS_OF, FIXTURES, FakeGit, make_ctx
 
-from doc_health import Skip, WARNING
-from doc_health import duplicate_packet, promotion_fidelity
+from doc_health import CONTESTED, ERROR, Skip, WARNING
+from doc_health import duplicate_packet, promotion_fidelity, report, runner
 from doc_health.families import FAMILIES, FAMILY_NOTES, FAMILY_RESOLUTION
 from doc_health.duplicate_packet import FAMILY
 
@@ -271,25 +278,223 @@ def test_a_renamed_block_states_no_body_and_pairs_with_nothing():
                for statements in groups.values() for s in statements)
 
 
-# ------------------------------------------------- 5. the advisory launch, pinned
+# ------------------------------------------------ 5. the enforcing state, pinned
+#
+# THESE TWO TESTS CHANGED MEANING on 2026-08-25, and that is a design fact
+# rather than a weakened assertion. Through the advisory launch they pinned
+# WARNING severity and ABSENCE from `FAMILY_RESOLUTION`; they now pin ERROR and
+# a `contested` entry. The flip is Brett's ruling, verbatim "flip the
+# duplicate-packet check to enforcing", taken on a corpus measured at zero
+# (tasks §5.1). A test that still asserted `warning` would have had to be
+# DELETED, and a deleted pin is how a ruled state quietly stops being pinned.
+#
+# What did NOT change is why there are two of them: enforcement can arrive
+# through severity or through the resolution class, so each half is pinned
+# separately — and `test_the_two_halves_cannot_drift_apart` pins the pair.
 
 
-def test_launch_is_advisory_by_severity():
-    """First half. Every finding is WARNING, so `--fail-on error` and
-    `--fail-on critical` cannot red on this family."""
+def test_enforcement_by_severity():
+    """The flip's first half. Every finding is ERROR, so `--fail-on error`
+    (gate `{CRITICAL, ERROR}`) reds on a ruling discharged twice. Was WARNING
+    for the advisory launch."""
     findings = _run()
-    assert findings, "the advisory claim is vacuous over an empty run"
-    assert {f.severity for f in findings} == {WARNING}
-    assert duplicate_packet._LAUNCH_SEVERITY == WARNING
+    assert findings, "the severity claim is vacuous over an empty run"
+    assert {f.severity for f in findings} == {ERROR}
+    assert duplicate_packet._LAUNCH_SEVERITY == ERROR
+    assert duplicate_packet._LAUNCH_SEVERITY != WARNING
 
 
-def test_launch_is_advisory_by_resolution_class():
-    """Second half, and the one that is easy to lose. A CONTESTED entry
-    would route a resolved finding into `report.uncited_resolutions` as an
-    ERROR — enforcement through the back door on the first duplicate anyone
-    withdrew. The flip raises severity and adds this entry TOGETHER."""
-    assert FAMILY not in FAMILY_RESOLUTION
+def test_enforcement_by_resolution_class():
+    """The flip's second half, and the one that is easy to lose.
+
+    `report.uncited_resolutions` turns a CONTESTED finding that vanishes
+    between reports into an ERROR under the `uncited-resolution` family. Under
+    the advisory launch that was a back door — the nightly would have gone red
+    the first time anyone withdrew a duplicate this family reported. Under
+    enforcement it is the discipline the ruling wanted: the remedy is a
+    governance act (name the packet you restate, or withdraw the discharge), so
+    a finding that disappears owes a citation.
+
+    Asserted at BOTH ends. The table entry is the declaration; `runner.main` is
+    the only thing that applies it, so a `FAMILY_RESOLUTION` row some future
+    refactor stopped reading would pass the first assertion and fail the
+    end-to-end one below.
+    """
+    assert FAMILY_RESOLUTION.get(FAMILY) == CONTESTED
+    # The family function itself still labels findings `auto-fixable`; the
+    # table is applied in `runner.main`, which the end-to-end pin exercises.
     assert {f.resolution for f in _run()} == {"auto-fixable"}
+
+
+def test_the_two_halves_cannot_drift_apart():
+    """THE INVARIANT, pinned as one statement rather than inferred from two.
+
+    A half-flip is the failure mode the ruling's own wording guards against —
+    severity alone gates without the disposition discipline; the contested
+    class alone gates through `uncited-resolution` under a family name that
+    does not say what happened. Both of those are silent: the suite would be
+    green on either. So the pair is asserted as a biconditional, and the
+    message names which half moved, because "assert False" on a half-flip
+    tells a reader nothing about which half to look at.
+    """
+    gating_severity = duplicate_packet._LAUNCH_SEVERITY == ERROR
+    contested = FAMILY_RESOLUTION.get(FAMILY) == CONTESTED
+    assert gating_severity == contested, (
+        f"the two halves of the enforcement flip have drifted apart: "
+        f"_LAUNCH_SEVERITY is "
+        f"{duplicate_packet._LAUNCH_SEVERITY!r} "
+        f"({'gating' if gating_severity else 'NOT gating'}) while "
+        f"FAMILY_RESOLUTION[{FAMILY!r}] is "
+        f"{FAMILY_RESOLUTION.get(FAMILY)!r} "
+        f"({'contested' if contested else 'NOT contested'}). "
+        f"They move together by ruling or not at all.")
+    # and the pair is in the ENFORCING position, not merely consistent — two
+    # `False`s would satisfy the biconditional above and un-gate the family
+    assert gating_severity and contested
+
+
+def test_both_halves_reach_the_emitted_findings(tmp_path):
+    """END TO END: run the CLI over the fixture and read both halves off the
+    REPORT rather than off the constants.
+
+    `runner.main` is the only thing that applies `FAMILY_RESOLUTION`, so a
+    table entry some future refactor stopped reading would still satisfy the
+    declaration test above and fail here.
+    """
+    out = tmp_path / "report.md"
+    repo = tmp_path / REPO
+    shutil.copytree(FIXTURES / "duplicate-packet" / REPO, repo)
+    assert runner.main([
+        "--single-repo", str(repo),
+        "--family", FAMILY, "--as-of", AS_OF.isoformat(),
+        "--report-out", str(out)]) == 0
+    emitted = [ln for ln in out.read_text(encoding="utf-8").splitlines()
+               if f"family={FAMILY}" in ln]
+    assert emitted
+    assert all("severity=error" in ln for ln in emitted), emitted
+    assert all('class="contested"' in ln for ln in emitted), emitted
+
+
+def test_an_enforcing_run_reds_a_fail_on_error_gate(tmp_path):
+    """The point of the flip, measured rather than asserted: the SAME fixture
+    that returned 0 under `--fail-on error` for the whole advisory launch now
+    returns non-zero. `--fail-on critical` still passes — the flip raised the
+    family to ERROR, not to CRITICAL."""
+    repo = tmp_path / REPO
+    shutil.copytree(FIXTURES / "duplicate-packet" / REPO, repo)
+
+    def run(fail_on):
+        return runner.main([
+            "--single-repo", str(repo), "--family", FAMILY,
+            "--as-of", AS_OF.isoformat(),
+            "--report-out", str(tmp_path / f"{fail_on}.md"),
+            "--fail-on", fail_on])
+
+    assert run("error") != 0
+    assert run("critical") == 0
+
+
+# ------------------------------------- the uncited-resolution direction the flip
+#                                        creates, tested rather than assumed
+#
+# Becoming CONTESTED puts this family into `report.uncited_resolutions` for the
+# first time: a finding that stops being reported without a citation now
+# becomes an `uncited-resolution` ERROR. That is the intended discipline, and
+# it is also the exposure `44505d1e` fixed for every contested family — a run
+# CONFIGURED not to execute a family never got a chance to re-confirm its prior
+# findings, so its absence read as "resolved" and manufactured a spurious
+# error. That fix is family-AGNOSTIC (`unavailable_families.update(
+# args.skip_family)` plus `set(FAMILIES) - {args.family}`, no family named), so
+# it already covers this family — but "already covered" is exactly the kind of
+# claim that rots, so all three directions are pinned here for THIS family's
+# own name rather than inferred from the neighbour's tests.
+
+
+def _previous_report_with_a_contested_duplicate(path: str):
+    from doc_health import Finding
+    finding = Finding(
+        ERROR, FAMILY, REPO, path,
+        "archived packet `promote-branch-sessions-delta` restates the ADDED "
+        "requirement 'Branch-session notebooks' of capability "
+        "'notebook-projection' byte-identically from "
+        "`apply-branch-sessions-deltas` (block sha256 f874d38a), and neither "
+        "packet's proposal names the other — one ruling discharged twice",
+        "name the packet this one restates in its proposal, or withdraw the "
+        "duplicate discharge",
+        resolution="contested")
+    return report.render(date(2026, 8, 24), [finding], [], [], [], 0, [], [])
+
+
+_FIXTURE_FINDING_PATH = (
+    f"openspec/changes/archive/{REMEDIAL_TWO}/specs/"
+    "notebook-projection/spec.md")
+
+
+def _copy_fixture(tmp_path):
+    repo = tmp_path / REPO
+    shutil.copytree(FIXTURES / "duplicate-packet" / REPO, repo)
+    return repo
+
+
+def test_a_skipped_duplicate_packet_run_manufactures_no_uncited_resolution(
+        tmp_path):
+    """`--skip-family duplicate-packet` must not read the family's own prior
+    contested finding as resolved. The duplicate is still sitting in the
+    fixture; a skipped family never looked, so the absence proves nothing."""
+    repo = _copy_fixture(tmp_path)
+    prev = tmp_path / "previous.md"
+    prev.write_text(
+        _previous_report_with_a_contested_duplicate(_FIXTURE_FINDING_PATH),
+        encoding="utf-8")
+    out = tmp_path / "report.md"
+    rc = runner.main([
+        "--single-repo", str(repo), "--skip-family", FAMILY,
+        "--as-of", AS_OF.isoformat(),
+        "--previous-report", str(prev), "--report-out", str(out)])
+    assert rc == 0
+    assert "family=uncited-resolution" not in out.read_text(encoding="utf-8")
+
+
+def test_a_single_other_family_run_manufactures_no_uncited_resolution(
+        tmp_path):
+    """A `--family` run executes ONLY the named family, so selecting an
+    unrelated one must suppress exactly like `--skip-family` does."""
+    repo = _copy_fixture(tmp_path)
+    prev = tmp_path / "previous.md"
+    prev.write_text(
+        _previous_report_with_a_contested_duplicate(_FIXTURE_FINDING_PATH),
+        encoding="utf-8")
+    out = tmp_path / "report.md"
+    rc = runner.main([
+        "--single-repo", str(repo), "--family", "tag-hygiene",
+        "--as-of", AS_OF.isoformat(),
+        "--previous-report", str(prev), "--report-out", str(out)])
+    assert rc == 0
+    assert "family=uncited-resolution" not in out.read_text(encoding="utf-8")
+
+
+def test_a_genuinely_withdrawn_duplicate_still_owes_a_citation(tmp_path):
+    """The mechanism the flip exists to buy, and the one the skip-path fix must
+    NOT have broken: the family RAN, the duplicate is genuinely gone, and the
+    disappearance without a recorded citation is an `uncited-resolution` error.
+
+    The withdrawal here is the real remedy — the redundant packet removed from
+    the archive — so this is the flip working on the corpus, not a contrivance.
+    """
+    repo = _copy_fixture(tmp_path)
+    shutil.rmtree(repo / "openspec" / "changes" / "archive" / REMEDIAL_TWO)
+    prev = tmp_path / "previous.md"
+    prev.write_text(
+        _previous_report_with_a_contested_duplicate(_FIXTURE_FINDING_PATH),
+        encoding="utf-8")
+    out = tmp_path / "report.md"
+    runner.main([
+        "--single-repo", str(repo), "--family", FAMILY,
+        "--as-of", AS_OF.isoformat(),
+        "--previous-report", str(prev), "--report-out", str(out)])
+    text = out.read_text(encoding="utf-8")
+    assert "family=uncited-resolution" in text
+    assert _FIXTURE_FINDING_PATH in text
 
 
 def test_the_family_is_registered_for_reporting():

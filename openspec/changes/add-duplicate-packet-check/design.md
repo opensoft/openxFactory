@@ -179,7 +179,35 @@ carries the path. A rule needing no history is the right cost for a cosmetic
 ordering, and it makes a fixture tree with no commits report exactly what a
 real checkout does.
 
-## D6 — Advisory at launch, in both halves
+## D6 — Advisory at launch, in both halves — FLIPPED TO ENFORCING 2026-08-25
+
+**Ruled by Brett, verbatim: "flip the duplicate-packet check to enforcing".**
+Both halves in one commit: `_LAUNCH_SEVERITY = ERROR` and
+`FAMILY_RESOLUTION["duplicate-packet"] = CONTESTED`. The reasoning below is the
+launch reasoning and is kept, not rewritten — it is what the flip flipped FROM,
+and the sequencing rule it states is the rule the flip had to satisfy.
+
+It did satisfy it, and on the full population rather than a sample. Measured on
+the basis this family enforces on (the pinned checkout), across every repository
+the aggregation's `origin/main` pins — **19 repositories, 207 archived packets,
+1124 identities, 3 restated groups, 0 findings**, each read at its exact pinned
+sha. Decisively including codexFactory, whose single restated identity is PR
+#85's remedial, the archetype of the lawful pattern D3's exemption exists to
+protect: all three restated groups in the entire population are recorded
+lineage, so the exemption is what carries the population, not a fixture.
+
+The flip itself was taken on five repositories, and the shortfall against
+`add-promotion-fidelity-check` §4.3's full-submodule discharge was carried as an
+open box (`tasks.md` §5.4) rather than folded into the tick. That box is now
+discharged, so the precondition is met rather than superseded — which is the
+difference between a gate whose sequencing rule was followed and one whose
+sequencing rule was excused.
+
+The flip settles nothing about D4: this family enforces on the PINNED basis,
+which is the basis it was measured at zero on. Enforcing on a tree is not an
+argument for enforcing on a different one, so §5.2 stays open.
+
+### The launch reasoning, kept
 
 Identical to the neighbouring family's D3 AS THAT FAMILY LAUNCHED, and taken
 for the same reason on the same day. Not identical to that family's state

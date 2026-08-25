@@ -366,14 +366,19 @@ Active changes:
   exemption is what keeps the lawful remedy legal: applying a ratified delta
   byte-faithfully (codexFactory PR #85's shape) is prescribed, so a pair where
   either proposal names the other's change id stays quiet, while two remedials
-  of one ruling that do NOT name each other fire. ADVISORY at launch in both
-  halves — `warning` severity and deliberate absence from `FAMILY_RESOLUTION` —
-  with the enforcement flip a recorded task box. Deliberately NOT the
-  neighbour's current `error` + `CONTESTED`: that flip was ruled
-  ENFORCING-SEQUENCED behind a discharged standing population, and this class
-  has none. Measured before proposing and re-measured after merging main: the
-  real corpus reads 0 findings through the exemption and 2 without it, and the
-  single-repo report moves by nothing but the family's own empty section.
+  of one ruling that do NOT name each other fire. Launched ADVISORY in both
+  halves and **ENFORCING since 2026-08-25** — ruled by Brett ("flip the
+  duplicate-packet check to enforcing"), both halves in one commit: `error`
+  severity plus a `CONTESTED` `FAMILY_RESOLUTION` entry, pinned together by an
+  invariant test that fails by name on a half-flip. Sequenced behind a measured
+  population, never over a standing one — and the population is the FULL pinned
+  set, enumerated from the aggregation repo's own `origin/main` and read at each
+  repository's exact pinned sha: **19 repositories, 207 archived packets, 1124
+  identities, 3 restated groups, 0 findings**. All three restated groups are
+  recorded lineage, codexFactory's PR #85 remedial among them — the archetype of
+  the lawful pattern the exemption protects. The pinned-vs-live basis question
+  stays open (tasks §5.2); the measurement gap the flip was taken over is
+  closed (§5.4).
 
 - [add-promotion-fidelity-check](openspec/changes/add-promotion-fidelity-check/proposal.md)
   — authored and ratified 2026-08-24, commissioned in-session ("commission the
