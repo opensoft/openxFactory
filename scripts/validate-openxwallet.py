@@ -1650,8 +1650,10 @@ def self_test(f: Findings, docs: dict[str, dict], ctx: Context) -> None:
     s4_grant = {
         "schema_version": 1, "kind": "xfactory_wallet_grant",
         "grant_id": "grant-s4-probe-0001",
-        "audience": {"wallet_ref": "wal-s4-probe-0001"},
-        "scope": {"acts": [REVIEW_ACT_TOKEN], "authority_tier": "act"},
+        "audience": {"wallet_ref": "wal-s4-probe-0001",
+                     "holder_ref": "agent:s4-probe"},
+        "scope": {"acts": [REVIEW_ACT_TOKEN], "authority_tier": "act",
+                  "objects": ["opensoft/openxFactory"]},
         "expires_at": future, "state": "active",
         "issued_by": ROOT_ISSUER_OPERATOR_TOKEN,
     }
@@ -1711,6 +1713,17 @@ def self_test(f: Findings, docs: dict[str, dict], ctx: Context) -> None:
     _register_probe("self-test/register-computed-expiry", base, c,
                     {"register-row-expired", "grant-state-stale",
                      "register-no-active-row"})
+
+    wrong_binding = dict(
+        s4_grant,
+        audience={"wallet_ref": "wal-s4-probe-0001",
+                  "holder_ref": "agent:other-holder"},
+        scope={"acts": [REVIEW_ACT_TOKEN], "authority_tier": "act",
+               "objects": ["opensoft/other-repo"]},
+    )
+    base, c = _s4_tree([s4_row], grant=wrong_binding)
+    _register_probe("self-test/register-grant-binding", base, c,
+                    {"register-grant-mismatch"})
 
     naive_row = dict(s4_row, expires_at="2026-11-23T12:00:00")
     base, c = _s4_tree([naive_row])
@@ -1966,8 +1979,12 @@ def check_register(f: Findings, base_dir: Path, ctx: Context,
         mismatches = []
         if g_aud.get("wallet_ref") != row["wallet_ref"]:
             mismatches.append("audience.wallet_ref")
+        if g_aud.get("holder_ref") != row["holder_ref"]:
+            mismatches.append("audience.holder_ref")
         if REVIEW_ACT_TOKEN not in _hashable_set(g_scope.get("acts")):
             mismatches.append("acts lacks the review token")
+        if _hashable_set(g_scope.get("objects")) != {row["target_repo"]}:
+            mismatches.append("objects differs from target_repo")
         if g_scope.get("authority_tier") != row["authority_tier"]:
             mismatches.append("authority_tier")
         g_exp = _parse_dt(grant.get("expires_at"))
