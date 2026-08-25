@@ -2098,9 +2098,9 @@ export function mountDoxBenchCanvas(host, projection, options = {}) {
       // outline key prepended whether the state held one or not), so offering
       // the line to every row that was not committed handed it the vacuous row
       // and buried the refusal -- #81 again, from the other end. Issue #291
-      // stopped the orchestrator inventing that row; the offer still comes from the
-      // withheld set, because the rows this loop reads are whatever the SEAM
-      // reports and `unchanged` remains a status a seam may state.
+      // stopped the orchestrator inventing that row, and the guard below still
+      // stands regardless: the rows this loop reads are whatever the SEAM
+      // reports, and `unchanged` remains a status a seam may state.
       //
       // The offer therefore comes from the WITHHELD set, which is the same set
       // `tileSaveVerdict` leads with (`refused`/`not_attempted`), so the two
