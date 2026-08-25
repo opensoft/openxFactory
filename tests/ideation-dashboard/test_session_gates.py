@@ -178,8 +178,22 @@ def _land_proposal(repo, *, topic=TOPIC, change_id=CHANGE):
     }, sort_keys=False))
     repo.write(f"openspec/changes/{change_id}/proposal.md",
                "# Why\n\nA landed proposal for the tile.\n")
+    # When this helper follows an abandon, pin the proposal commit to that
+    # durable record's second-resolution timestamp. Git commits made from the
+    # served checkout and Python records made around a session worktree can
+    # otherwise observe a small clock skew and make an after-abandon fixture
+    # look older. Equality is deliberately admissible ("no earlier than") and
+    # the explicit older-evidence test below still proves the refusal boundary.
+    abandon_records = sorted((repo.root / RECORDS).rglob(
+        "abandon-session-*.gate-action.yaml"))
+    recorded_at = None
+    if abandon_records:
+        abandonment = yaml.safe_load(
+            abandon_records[-1].read_text(encoding="utf-8"))
+        if isinstance(abandonment, dict) and isinstance(abandonment.get("at"), str):
+            recorded_at = abandonment["at"]
     repo.commit("Land a proposal on the tile", "ideation/cross-reference.yaml",
-                f"openspec/changes/{change_id}/proposal.md")
+                f"openspec/changes/{change_id}/proposal.md", at=recorded_at)
 
 
 def _write_staged_origin(repo, folder, *, topic=TOPIC):
