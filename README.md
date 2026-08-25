@@ -667,28 +667,6 @@ Active changes:
   no `contract_schema_version` bump; realization (tasks §1–§5, post-ratification)
   bumps the bundle contract-v1.38 → contract-v1.39.
   `target_release: implementation_pending`.
-- [admit-install-repos-to-aggregation](openspec/changes/admit-install-repos-to-aggregation/proposal.md)
-  — authored and RATIFIED 2026-08-21 (Brett: "do the aggregation admission
-  change, the two repos are added to openXfactory github app"). The separate
-  reviewed change BOTH ratified install-repo boundary requirements demand
-  before a pin is supported, and which they forbid their own creation changes
-  from being: an eight-field admission record per repository — path, remote,
-  visibility, exact validated commit, checkout, compatibility, update,
-  rollback — for `installs/keycloak-install` (`opensoft/Keycloak-Install`,
-  private, `1aa184e`) and `installs/openxpki-install`
-  (`opensoft/OpenXPKI-Install`, private, `05f4404`). Every value is a
-  read-back: both pin `contract-v1.37` at contract commit `c1ffa0f`, and
-  neither carries a `.gitmodules`, so recursive checkout is plain checkout and
-  rollback is one revert of one gitlink. Discharges the long-deferred
-  `add-trust-anchor` tasks 8.1 with ONE MODIFIED delta on "Install repository
-  scope" (both scenarios verbatim, enumeration extended, no other requirement
-  touched) — its "run when nothing else is replacing that requirement"
-  precondition verified by grep. Also closes `implement-*` tasks 1.3/3.3 in
-  both changes: installation 145372182 now lists both repositories (19 total).
-  PENDING: the aggregation act itself — `.gitmodules`, the two gitlinks at the
-  recorded commits, and the README submodule documentation — lands by reviewed
-  PR on `opensoft/xFactory`. Authorizes no deployment and no pin advance
-  beyond the recorded commits. `target_release: repository-bootstrap`.
 - [implement-keycloak-install-repo](openspec/changes/implement-keycloak-install-repo/proposal.md)
   — authored, RATIFIED, and REALIZED 2026-08-21 (Brett: "do both install
   repos"). Created and seeded `opensoft/Keycloak-Install` (private, repo id
@@ -1097,6 +1075,44 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [admit-install-repos-to-aggregation](openspec/changes/archive/2026-08-25-admit-install-repos-to-aggregation/proposal.md)
+  — **ARCHIVED 2026-08-25** on merged realization in another repository, which
+  is the only place this change's code surface could land. Authored and
+  RATIFIED 2026-08-21 (Brett: "do the aggregation admission change, the two
+  repos are added to openXfactory github app"). The separate reviewed change
+  BOTH ratified install-repo boundary requirements demand before a pin is
+  supported, and which they forbid their own creation changes from being: an
+  eight-field admission record per repository — path, remote, visibility,
+  exact validated commit, checkout, compatibility, update, rollback — for
+  `installs/keycloak-install` (`opensoft/Keycloak-Install`, private,
+  `1aa184e`) and `installs/openxpki-install` (`opensoft/OpenXPKI-Install`,
+  private, `05f4404`). Every value is a read-back: both pin `contract-v1.37`
+  at contract commit `c1ffa0f`, and neither carries a `.gitmodules`, so
+  recursive checkout is plain checkout and rollback is one revert of one
+  gitlink. **The aggregation act LANDED** — the "PENDING" this row carried
+  while active is discharged, not still open: xFactory PR **#127** merged at
+  **`e02d0a8`**, verified an ANCESTOR of aggregation `main` at the gate
+  (`behind_by: 0`) rather than trusted as a branch tip, carrying exactly the
+  five recorded paths — `.gitmodules`, `README.md`, both gitlinks at exactly
+  the validated commits, and the folded `openxFactory` pointer `eeb095d`. Read
+  back on `main`: both stanzas live, `path` + `url` only, **no `branch` key**.
+  Discharges the long-deferred `add-trust-anchor` tasks 8.1 with ONE MODIFIED
+  delta on "Install repository scope" — verified at the archive gate as a
+  canon-complete restatement (both promoted scenarios byte-identical,
+  enumeration extended, canon last amended 2026-07-13 so no later writer's
+  amendment was overwritten), and the promotion touched that requirement and
+  no other: 473 requirements across 50 capabilities before and after, 0 added,
+  0 removed, 1 modified. Also closed `implement-*` tasks 1.3/3.3 in both
+  changes: installation 145372182 lists both repositories (19 total).
+  Authorized no deployment and no pin advance beyond the recorded commits, and
+  all **seven §5 not-this-change boxes are archived OPEN** as the recorded
+  boundary, on the `roster-device` precedent. **Named, not resolved:** both
+  pins have since advanced past the validated commits (`ddfb007`, `3ee98d6`) —
+  permitted by §5.7, which fixes the ROUTE rather than forbidding the act, and
+  both advances took it (aggregation PRs #135 and #142), so the recorded
+  update discipline held on its first two exercises; 5.7 stays open as a
+  standing boundary on every future advance. `target_release:
+  repository-bootstrap`.
 - [ratify-doxbench-landed-context-surfaces](openspec/changes/archive/2026-08-25-ratify-doxbench-landed-context-surfaces/proposal.md)
   — **ARCHIVED 2026-08-25**; authored and ratified the same day (Brett, ruling 0
   of `add-doxbench-distilled-abstract`, recorded as a comment on
