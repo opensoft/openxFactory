@@ -576,12 +576,71 @@ def validate_gate_action_record(record: Mapping[str, Any]) -> None:
     _validate_contract_document(
         record, schema_filename="gate-action-record.schema.yaml",
         label="gate-action record")
+    if record.get("action") != ACTION_CLEANUP_ABANDONED_BRANCH:
+        return
+    target = record.get("target")
+    cleanup = record.get("cleanup")
+    release = cleanup.get("retention_release") if isinstance(
+        cleanup, Mapping) else None
+    if not isinstance(target, Mapping) or not isinstance(release, Mapping):
+        raise GateRefused("cleanup record is missing target/release evidence")
+    scope_fields = {
+        "staged-topic": "topic_id", "cluster": "cluster_id",
+        "possible": "possible_id",
+    }
+    scope_kind = str(release.get("scope_kind") or "")
+    scope_field = scope_fields.get(scope_kind)
+    populated = [
+        field for field in scope_fields.values()
+        if str(target.get(field) or "").strip()
+    ]
+    if scope_field is None or populated != [scope_field] or str(
+            target.get(scope_field) or "") != str(release.get("scope_id") or ""):
+        raise GateRefused(
+            "cleanup target scope must exactly match retention-release "
+            "scope_kind/scope_id")
+    kind = str(release.get("kind") or "")
+    references = release.get("references")
+    if kind != "explicit-human-release":
+        if not str(release.get("change_id") or "").strip():
+            raise GateRefused(
+                "machine cleanup evidence requires the preserving change_id")
+        if not isinstance(references, list) or not references:
+            raise GateRefused(
+                "machine cleanup evidence requires at least one reference")
+        if not str(release.get("recorded_at") or "").strip():
+            raise GateRefused(
+                "machine cleanup evidence requires its durable recording time")
+    else:
+        reason = str(record.get("reason") or "").strip()
+        if reason != str(release.get("reason") or "").strip():
+            raise GateRefused(
+                "explicit cleanup reason must exactly match the release evidence")
 
 
 def validate_demotion_execution_receipt(receipt: Mapping[str, Any]) -> None:
     _validate_contract_document(
         receipt, schema_filename="demotion-execution-receipt.schema.yaml",
         label="demotion execution receipt")
+    destination = receipt.get("destination")
+    if not isinstance(destination, Mapping) or str(destination.get("path") or "") \
+            != f"ideation/staging/{destination.get('id')}":
+        raise GateRefused(
+            "demotion receipt destination.path must exactly match destination.id")
+    path_values = [str(receipt.get("transition_manifest") or "")]
+    path_values.extend(str(path) for path in receipt.get("returned_artifacts") or [])
+    for move in receipt.get("returned_moves") or []:
+        if isinstance(move, Mapping):
+            path_values.extend((str(move.get("from") or ""),
+                                str(move.get("to") or "")))
+    for reference in path_values:
+        parts = Path(reference).parts
+        if (not reference or "\\" in reference
+                or Path(reference).is_absolute() or ".." in parts
+                or "." in parts):
+            raise GateRefused(
+                f"demotion receipt path {reference!r} must be a contained "
+                "repository-relative reference")
 
 
 def gate_action_record_relpath(records_dir: str, action: str, target_id: str, at: str) -> str:
@@ -629,7 +688,29 @@ def ref_target_id(ref: str) -> str:
     return slug(str(ref or "").replace("/", "-"))
 
 
-def write_gate_action_record(gate: HumanGate, records_dir: str, record: dict) -> Path:
+def _gate_action_target_id(record: Mapping[str, Any]) -> str:
+    target = record["target"]
+    if (record.get("action") == ACTION_CLEANUP_ABANDONED_BRANCH
+            and target.get("ref")):
+        return ref_target_id(target["ref"])
+    target_id = (target.get("change_id") or target.get("possible_id")
+                 or target.get("topic_id") or target.get("cluster_id")
+                 or target.get("project_id"))
+    if not target_id and target.get("document"):
+        target_id = document_target_id(target["document"])
+    if not target_id and target.get("ref"):
+        target_id = ref_target_id(target["ref"])
+    if not target_id:
+        raise GateRefused(
+            "a gate-action record must name what it acted on "
+            "(change_id, possible_id, topic_id, cluster_id, project_id, "
+            "document, or a session ref)")
+    return str(target_id)
+
+
+def write_gate_action_record(
+    gate: HumanGate, records_dir: str, record: dict, *, exclusive: bool = False,
+) -> Path:
     """Write the record under `<records_dir>/<target_id>/<action>-<stamp>...`.
 
     The `target_id` derivation accepts, in order, the change/possible/topic
@@ -643,28 +724,27 @@ def write_gate_action_record(gate: HumanGate, records_dir: str, record: dict) ->
     document exactly where `create-document` already files. Existing verbs'
     filenames are unchanged: they still resolve on the first three keys exactly
     as before."""
-    target = record["target"]
-    # `cluster_id` joins the first-class keys additively (add-wheel-action-verbs
-    # 011): `derive-possibles` is the first verb whose target is a cluster, and
-    # without it a cluster-targeted record has no filename to file under.
-    # Appended AFTER the existing three so every pre-existing verb's filename is
-    # byte-identical. `project_id` joins the same way
-    # (add-project-scoped-selection): `create-project` is the first verb whose
-    # target is a register project.
-    target_id = (target.get("change_id") or target.get("possible_id")
-                 or target.get("topic_id") or target.get("cluster_id")
-                 or target.get("project_id"))
-    if not target_id and target.get("document"):
-        target_id = document_target_id(target["document"])
-    if not target_id and target.get("ref"):
-        target_id = ref_target_id(target["ref"])
-    if not target_id:
-        raise GateRefused(
-            "a gate-action record must name what it acted on "
-            "(change_id, possible_id, topic_id, cluster_id, project_id, "
-            "document, or a session ref)")
+    target_id = _gate_action_target_id(record)
     rel = gate_action_record_relpath(records_dir, record["action"], target_id, record["at"])
-    return gate.write_gate_artifact(rel, _render_yaml(record, _RECORD_BANNER))
+    rendered = _render_yaml(record, _RECORD_BANNER)
+    try:
+        return (gate.create_gate_artifact(rel, rendered) if exclusive
+                else gate.write_gate_artifact(rel, rendered))
+    except FileExistsError as exc:
+        raise GateRefused(
+            f"gate-action record {rel} already exists; a concurrent or repeated "
+            "attempt may not overwrite it") from exc
+
+
+def replace_gate_action_record(
+    gate: HumanGate, records_dir: str, record: dict,
+) -> Path:
+    """Atomically replace the exact action record created by this transaction."""
+    target_id = _gate_action_target_id(record)
+    rel = gate_action_record_relpath(
+        records_dir, record["action"], target_id, record["at"])
+    return gate.replace_gate_artifact(
+        rel, _render_yaml(record, _RECORD_BANNER))
 
 
 # ==========================================================================
@@ -736,7 +816,12 @@ def classify_change_file(rel_within_change: str) -> tuple[str, str, str | None]:
     if re.search(r"(^|/)specs/", rel_within_change):
         return "spec-delta", f"openspec/{rel_within_change}", flip
     if re.search(r"(^|/)supporting-docs/", rel_within_change):
-        return "supporting-doc", base, flip
+        # Preserve nested provenance paths. Flattening every supporting document
+        # to its basename makes `supporting-docs/README.md` collide with
+        # `supporting-docs/source-snapshots/README.md` and silently overwrites
+        # one during execution.
+        supporting_rel = rel_within_change.split("supporting-docs/", 1)[1]
+        return "supporting-doc", supporting_rel, flip
     return "other", f"openspec/{rel_within_change}", flip
 
 
@@ -1297,6 +1382,16 @@ def _restore_outline(
     result.outline_refreshed = result.outline_refusal is None
 
 
+def _contained_tree_path(root: Path, reference: str, *, label: str) -> Path:
+    candidate = Path(reference)
+    if not reference or "\\" in reference or candidate.is_absolute():
+        raise GateRefused(f"{label} must be a repository-relative path")
+    resolved = (root / candidate).resolve()
+    if not resolved.is_relative_to(root):
+        raise GateRefused(f"{label} escapes the repository root: {reference!r}")
+    return resolved
+
+
 def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str | None = None) -> DemotionExecution:
     """APPLY the reverse transition to a real tree — the legitimate way material
     (re-)enters `ideation/staging/` is exactly this human gate action. v1
@@ -1314,16 +1409,33 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
     at = at or _utcnow()
     result = DemotionExecution()
 
+    if not plan.moves:
+        raise GateRefused(
+            f"demotion plan for {plan.change_id!r} contains no proposal artifacts")
+    planned_destinations: set[Path] = set()
+    for move in plan.moves:
+        source = _contained_tree_path(
+            root, move.from_path, label="demotion source")
+        destination = _contained_tree_path(
+            root, move.to_path, label="demotion destination")
+        if not source.is_file():
+            raise GateRefused(
+                f"demotion cannot start: planned source {move.from_path!r} "
+                "is missing; no files were moved")
+        if destination in planned_destinations:
+            raise GateRefused(
+                f"demotion plan targets destination {move.to_path!r} more than once")
+        planned_destinations.add(destination)
+    _contained_tree_path(root, plan.change_folder, label="change folder")
+
     # BEFORE the moves: the raised date lives in the change's supporting-docs
     # manifest, which is itself a returning supporting-doc, and the change folder
     # is removed at the end of this function.
     raised = _read_raised_date(root, plan)
 
     for m in plan.moves:
-        src = root / m.from_path
-        dst = root / m.to_path
-        if not src.is_file():
-            continue
+        src = _contained_tree_path(root, m.from_path, label="demotion source")
+        dst = _contained_tree_path(root, m.to_path, label="demotion destination")
         if m.outline:
             # Deferred to its own pass below, after every ordinary move has landed:
             # the refresh reads the RETURNED `proposal.md` from its destination, so
@@ -1443,10 +1555,32 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
     result.index_path = index
 
     # Remove the now-empty change folder (best effort).
-    change_dir = root / plan.change_folder
+    change_dir = _contained_tree_path(
+        root, plan.change_folder, label="change folder")
     if change_dir.is_dir():
-        shutil.rmtree(change_dir, ignore_errors=True)
+        shutil.rmtree(change_dir)
         result.removed_change_folder = not change_dir.exists()
+
+    expected_moves = sorted((move.from_path, move.to_path) for move in plan.moves)
+    if sorted(result.moved) != expected_moves:
+        raise GateRefused(
+            f"demotion execution was incomplete: planned {len(expected_moves)} "
+            f"moves but completed {len(result.moved)}; no executed receipt will "
+            "be written")
+    missing_destinations = [
+        destination for _source, destination in expected_moves
+        if not _contained_tree_path(
+            root, destination, label="returned artifact").is_file()
+    ]
+    if missing_destinations or not result.removed_change_folder:
+        problems = []
+        if missing_destinations:
+            problems.append(f"missing destinations {missing_destinations}")
+        if not result.removed_change_folder:
+            problems.append("the source change folder was not removed")
+        raise GateRefused(
+            "demotion execution was incomplete: " + "; ".join(problems)
+            + "; no executed receipt will be written")
 
     return result
 
@@ -1456,18 +1590,38 @@ def demotion_execution_receipt(
     root: Path,
 ) -> dict[str, Any]:
     """The durable statement written only after a demotion execution returns."""
+    expected_moves = sorted(
+        (move.from_path, move.to_path) for move in result.plan.moves)
+    if not expected_moves or sorted(execution.moved) != expected_moves:
+        raise GateRefused(
+            "an executed demotion receipt requires every planned move exactly once")
+    if not execution.removed_change_folder or _contained_tree_path(
+            root, result.plan.change_folder, label="change folder").exists():
+        raise GateRefused(
+            "an executed demotion receipt requires the source change folder to "
+            "be removed")
     returned: list[str] = [to_path for _from_path, to_path in execution.moved]
     for path in (execution.readme_path, execution.index_path,
                  execution.preserved_snapshot_path):
         if path is not None:
             try:
                 returned.append(path.relative_to(root).as_posix())
-            except ValueError:
-                returned.append(path.as_posix())
+            except ValueError as exc:
+                raise GateRefused(
+                    f"returned artifact {path} escapes the repository root") from exc
+    for reference in returned:
+        if not _contained_tree_path(
+                root, reference, label="returned artifact").is_file():
+            raise GateRefused(
+                f"returned artifact {reference!r} does not exist at receipt time")
     try:
-        manifest_ref = result.manifest_path.relative_to(root).as_posix()
-    except ValueError:
-        manifest_ref = result.manifest_path.as_posix()
+        manifest_ref = result.manifest_path.resolve().relative_to(
+            root.resolve()).as_posix()
+    except ValueError as exc:
+        raise GateRefused(
+            "the transition manifest escapes the repository root") from exc
+    if not (root / manifest_ref).is_file():
+        raise GateRefused("the transition manifest is missing at receipt time")
     return {
         "schema_version": 1,
         "kind": DEMOTION_EXECUTION_KIND,
@@ -1481,6 +1635,10 @@ def demotion_execution_receipt(
         },
         "executed_at": at,
         "transition_manifest": manifest_ref,
+        "returned_moves": [
+            {"from": source, "to": destination}
+            for source, destination in expected_moves
+        ],
         "returned_artifacts": sorted(set(returned)),
         "removed_change_folder": execution.removed_change_folder,
     }
@@ -1499,11 +1657,16 @@ def write_demotion_execution_receipt(
     validate_demotion_execution_receipt(receipt)
     rel = (f"{_prefix(records_dir)}{result.plan.change_id}/demote-"
            f"{_stamp(at)}.execution-receipt.yaml")
-    return human.write_gate_artifact(
-        rel, _render_yaml(
-            receipt,
-            "# demotion execution receipt — written only after the returned "
-            "artifacts land.\n"))
+    try:
+        return human.create_gate_artifact(
+            rel, _render_yaml(
+                receipt,
+                "# demotion execution receipt — written only after the returned "
+                "artifacts land.\n"))
+    except FileExistsError as exc:
+        raise GateRefused(
+            f"demotion execution receipt {rel} already exists; refusing to "
+            "overwrite another execution") from exc
 
 
 # ==========================================================================

@@ -162,9 +162,97 @@ def test_successful_demotion_execution_writes_a_schema_valid_receipt(tmp_path):
     assert receipt["change_id"] == CHANGE
     assert receipt["destination"]["id"] == TOPIC
     assert receipt["transition_manifest"] == res.manifest_path.relative_to(root).as_posix()
+    assert receipt["returned_moves"] == [
+        {"from": move.from_path, "to": move.to_path}
+        for move in sorted(res.plan.moves, key=lambda item: (
+            item.from_path, item.to_path))
+    ]
     assert receipt["returned_artifacts"]
     proc = _validate(receipt_path)
     assert proc.returncode == 0, proc.stdout + proc.stderr
+
+
+def test_demotion_preflights_every_planned_source_before_moving_anything(tmp_path):
+    root = _tree(tmp_path)
+    plan = gc.plan_demotion(_snapshot(root), CHANGE, reason="Reworking scope.")
+    first = root / plan.moves[0].from_path
+    missing = root / plan.moves[-1].from_path
+    before = first.read_bytes()
+    missing.unlink()
+
+    with pytest.raises(gc.GateRefused, match="no files were moved"):
+        gc.execute_demotion_plan(plan, root, at=AT)
+
+    assert first.read_bytes() == before
+    assert not (root / plan.moves[0].to_path).exists()
+
+
+def test_execution_receipt_refuses_partial_or_zero_move_results(tmp_path):
+    root = _tree(tmp_path)
+    result = gc.GateConsole(_gate(root)).demote(
+        _snapshot(root), CHANGE, reason="Reworking scope.", at=AT)
+    with pytest.raises(gc.GateRefused, match="every planned move"):
+        gc.demotion_execution_receipt(
+            result, gc.DemotionExecution(), actor="brett", at=AT, root=root)
+
+
+def _cleanup_record_for(ref: str, *, scope_id: str = TOPIC) -> dict:
+    return gc.build_gate_action_record(
+        actor="brett", action=gc.ACTION_CLEANUP_ABANDONED_BRANCH,
+        at=AT, topic_id=scope_id, ref=ref,
+        reason="reviewed and superseded",
+        artifacts=[{"kind": gc.ART_OTHER, "reference": f"refs/heads/{ref}@"
+                    + "a" * 40}],
+        cleanup={
+            "status": "completed", "pre_delete_head": "a" * 40,
+            "abandonment": {
+                "kind": "abandon-session-record",
+                "reference": "ideation/dashboard/gate-records/abandon.yaml",
+                "summary": "The record names this ref.",
+            },
+            "retention_release": {
+                "kind": "explicit-human-release",
+                "scope_kind": "staged-topic", "scope_id": scope_id,
+                "references": [], "reason": "reviewed and superseded",
+            },
+        })
+
+
+def test_cleanup_records_with_same_tile_and_stamp_are_keyed_by_exact_ref(tmp_path):
+    root = _tree(tmp_path)
+    gate = _gate(root)
+    first = _cleanup_record_for(f"draft/{TOPIC}")
+    second = _cleanup_record_for(f"draft/{TOPIC}-2")
+
+    first_path = gc.write_gate_action_record(
+        gate, gc.DEFAULT_RECORDS_DIR, first, exclusive=True)
+    second_path = gc.write_gate_action_record(
+        gate, gc.DEFAULT_RECORDS_DIR, second, exclusive=True)
+
+    assert first_path != second_path
+    assert first_path.parent.name != second_path.parent.name
+    with pytest.raises(gc.GateRefused, match="may not overwrite"):
+        gc.write_gate_action_record(
+            gate, gc.DEFAULT_RECORDS_DIR, first, exclusive=True)
+
+
+def test_cleanup_record_semantics_require_exact_target_scope_identity():
+    record = _cleanup_record_for(f"draft/{TOPIC}")
+    record["cleanup"]["retention_release"]["scope_id"] = "another-topic"
+
+    with pytest.raises(gc.GateRefused, match="exactly match"):
+        gc.validate_gate_action_record(record)
+
+
+def test_nested_supporting_documents_keep_unique_return_destinations(tmp_path):
+    root = _tree(tmp_path)
+    _reach_proposal(root, _fragment_reaching_proposal(ASPIRATIONAL_GUESS))
+    plan = gc.plan_demotion(_snapshot(root), CHANGE, reason="Reworking scope.")
+    destinations = [move.to_path for move in plan.moves]
+
+    assert len(destinations) == len(set(destinations))
+    assert (f"ideation/staging/{TOPIC}/source-snapshots/README.md"
+            in destinations)
 
 
 def test_demote_plan_routes_proposal_to_openspec_workspace_and_withdraws_the_pick(tmp_path):

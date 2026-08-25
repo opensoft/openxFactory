@@ -11,6 +11,11 @@ destination:
   path: ideation/staging/subject-contract
 executed_at: "2026-08-25T02:45:00Z"
 transition_manifest: ideation/dashboard/gate-records/add-returned-subject-contract/demote-20260825T024000Z.transition-manifest.yaml
+returned_moves:
+  - from: openspec/changes/add-returned-subject-contract/proposal.md
+    to: ideation/staging/subject-contract/openspec/proposal.md
+  - from: openspec/changes/add-returned-subject-contract/tasks.md
+    to: ideation/staging/subject-contract/openspec/tasks.md
 returned_artifacts:
   - ideation/staging/subject-contract/README.md
   - ideation/staging/subject-contract/openspec/INDEX.md

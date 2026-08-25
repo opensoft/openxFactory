@@ -67,12 +67,35 @@ The human supplies scope kind/id and ref. Existing branch-family and cross-tile 
 
 Both the machine-evidence and explicit-release lanes write the additive cleanup action record and return its path, the pre-delete head, the verified abandon proof, and the selected retention-release evidence. The gate-action schema grows additively; no existing record is invalidated. The CLI and HTTP route remain human-only and local cleanup continues to delete no remote ref.
 
+### 7. Machine evidence is correlated to the abandonment and exact branch head
+
+An `abandon-session` record captures the abandoned branch head, and machine-resolved retention evidence carries a durable recording time. Cleanup accepts machine evidence only when it is at least as recent as the abandonment and the branch still points at the recorded abandoned head. Older evidence can describe an earlier lifecycle for the same tile and therefore cannot release newer abandoned work. Legacy abandonment records without an exact head, and uncommitted or otherwise undated lifecycle evidence, remain eligible only through a fresh explicit human retention release.
+
+Alternative rejected: treat tile identity alone as sufficient correlation. Tile ids are intentionally reused across staging, proposal, archive, and later sessions, so identity does not prove that historical evidence preserved the branch being deleted.
+
+### 8. Executed demotion receipts prove complete, exact execution
+
+Before mutating the corpus, demotion execution verifies that every planned source artifact exists. An `executed` receipt is emitted only when every planned move occurred, every exact destination artifact exists, the source change folder was removed, and all recorded repository paths remain contained below the repository root. Receipt validation compares the receipt to its transition manifest rather than trusting matching change and destination ids alone.
+
+Alternative rejected: accept zero or partial returned files as an executed demotion. Such a receipt can be syntactically valid while preserving none of the proposal material cleanup is meant to protect.
+
+### 9. Cleanup is a collision-safe prepared/completed transaction
+
+Cleanup records are keyed by the exact ref as well as the tile, created exclusively, and move from `prepared` to `completed` only after deletion. The transaction runs under the repository session-action lock, verifies that the human gate and Git service address the same checkout, and uses atomic file replacement for completion. A failed completion write restores the branch at the expected head when possible; a surviving `prepared` record never claims that deletion succeeded.
+
+Alternative rejected: a second-resolution tile-only filename with overwrite semantics. Concurrent or repeated cleanups can otherwise overwrite another attempt and one caller can unlink the other caller's successful record.
+
+### 10. Branch deletion uses an expected-value ref transaction
+
+Cleanup deletes `refs/heads/<branch>` with Git's expected-old-value semantics after checking worktree and ownership constraints. If another process advances the ref between validation and deletion, the delete fails instead of destroying the newer ref. Contract schemas, examples, manifest digests, changelog, and release inventory advance together in the next available contract bundle.
+
 ## Risks / Trade-offs
 
 - **Legacy demotions may lack enough corroborating output** → keep them blocked on the machine lane and require an explicit human retention-release reason rather than guessing execution.
 - **Origin metadata can be malformed or duplicated** → fail closed on malformed entries, require exact normalized staged-topic identity, and select evidence deterministically.
+- **Historical evidence can share a tile id with newer work** → require post-abandon evidence and an unchanged abandoned branch head for machine release; otherwise require a fresh explicit release.
 - **An explicit release can discard genuinely unique work** → require prior abandonment, console presence, a fresh nonblank reason, the exact head SHA, and a durable main-resident record before deletion.
-- **Writing a record before deleting can overstate a failed cleanup** → unwind the record if the local branch deletion fails, mirroring the abandon transaction's record/teardown behavior.
+- **Writing a record before deleting can overstate a failed cleanup** → distinguish prepared from completed state, use exclusive ref-keyed records, and restore the expected ref if finalization fails.
 - **Scanning all archived changes and demotion records adds work** → confine the scan to an explicitly invoked destructive cleanup and keep it deterministic; no nightly or render path changes.
 
 ## Migration Plan

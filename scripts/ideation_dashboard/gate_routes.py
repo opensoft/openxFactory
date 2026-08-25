@@ -2968,6 +2968,11 @@ def execute_abandon_session(gate, git, *, session, reason: str, records_dir: str
             f"{checkout_root}: an abandon record is MAIN-RESIDENT — written into "
             "the SERVED checkout's gate-records tree, never onto the session "
             "branch, which FR-028's cleanup deletes (FR-022, plan Constraint 10)")
+    abandoned_head = git.branch_sha(session.branch)
+    if not abandoned_head:
+        raise branch_session.SessionRefused(
+            f"cannot abandon {session.branch!r}: its exact branch head could not "
+            "be resolved for the durable abandonment record")
     _refuse_record_stamp_collision(
         root, action=gate_console.ACTION_ABANDON_SESSION,
         target_id=gate_console.ref_target_id(session.branch), at=at,
@@ -2984,7 +2989,10 @@ def execute_abandon_session(gate, git, *, session, reason: str, records_dir: str
         # record naming one would name something that does not exist (FR-022).
         # The branch itself is the artifact, referenced as `other` — the schema
         # requires at least one (`artifacts.minItems: 1`).
-        artifacts=[{"kind": gate_console.ART_OTHER, "reference": session.branch}])
+        artifacts=[{
+            "kind": gate_console.ART_OTHER,
+            "reference": f"refs/heads/{session.branch}@{abandoned_head}",
+        }])
     # FIRST — see the ORDER note above. The reason is the one artifact this verb
     # exists to leave behind and the record write is the only irrecoverable step,
     # so it happens while the session is still LIVE and the retry still works.
@@ -3180,102 +3188,154 @@ def execute_cleanup_abandoned_branch(gate, git, *, tile, ref: str, registry,
     adds one main-resident audit record and deletes only the local ref."""
     human = gate_console.require_human_gate(gate)   # agent path -> BoundaryViolation
     branch = str(ref or "").strip()
-    root = Path(checkout_root)
-    # Machine custody is resolved first. An explicit reason is a distinct human
-    # decision, not a way to relabel an in-flight proposal commission as proof.
-    retention = branch_session.retention_release_for(
-        root, tile, records_dir=records_dir)
-    state = proposal if proposal is not None else branch_session.proposal_state_for(
-        tile, records_root=root / records_dir, checkout_root=root)
-    if retention is None and state.dispatch_in_flight:
+    root = Path(checkout_root).resolve()
+    gate_root = Path(human.output.root).resolve()
+    git_root = Path(git.served_root).resolve()
+    if gate_root != root or git_root != root:
         raise branch_session.SessionRefused(
-            f"no cleanup of {branch!r}: a `propose` commission for tile "
-            f"{tile.scope_id!r} was dispatched and the proposal has not landed "
-            "yet. A dispatch is a commission, not retention-release evidence; "
-            "finish or resolve that authoring before cleanup.")
-    if retention is None:
-        retention = branch_session.retention_release_for(
-            root, tile, records_dir=records_dir,
-            explicit_reason=retention_release_reason,
-            superseding_references=superseding_references)
-    # The fifth precondition RETURNS the proof that this session was abandoned, so
-    # the hint below reports what was verified rather than asserting it (PR #49
-    # second-review finding 3: the old hint attested to a record that need not
-    # have existed, over a branch the same call had just deleted).
-    proof = branch_session.assert_branch_cleanup_permitted(
-        git, registry, repository=repository or "", tile=tile, branch=branch,
-        retention=retention, checkout_root=root, inventory=tile_inventory,
-        records_dir=records_dir)
-    abandonment = branch_session.abandon_evidence(
-        root, branch, records_dir=records_dir)
-    if abandonment is None:  # guarded above; keep the transaction typed
-        raise branch_session.SessionRefused(
-            f"no cleanup of {branch!r}: abandonment evidence disappeared while "
-            "the cleanup was being prepared")
-    head = git.branch_sha(branch)
-    if not head:
-        raise branch_session.SessionRefused(
-            f"no cleanup of {branch!r}: its exact pre-delete head could not be "
-            "resolved")
+            "cleanup requires the human gate, Git service, and checkout_root to "
+            f"name the same repository; got gate={gate_root}, git={git_root}, "
+            f"checkout={root}")
 
-    evidence_references = list(retention.references) if retention else []
-    artifacts = [
-        {"kind": gate_console.ART_OTHER,
-         "reference": f"refs/heads/{branch}@{head}"},
-        {"kind": gate_console.ART_OTHER,
-         "reference": abandonment.reference},
-    ]
-    artifacts.extend(
-        {"kind": gate_console.ART_OTHER, "reference": reference}
-        for reference in evidence_references)
-    at = gate_console._utcnow()
-    target_args = {
-        "topic_id": tile.scope_id if tile.scope_kind == branch_session.STAGED_TOPIC else None,
-        "cluster_id": tile.scope_id if tile.scope_kind == branch_session.CLUSTER else None,
-        "possible_id": tile.scope_id if tile.scope_kind == branch_session.POSSIBLE else None,
-    }
-    record = gate_console.build_gate_action_record(
-        actor=human.human_actor,
-        action=gate_console.ACTION_CLEANUP_ABANDONED_BRANCH,
-        at=at, ref=branch, artifacts=artifacts,
-        reason=retention.reason if retention else None,
-        provenance=provenance,
-        cleanup={
-            "pre_delete_head": head,
-            "abandonment": {
-                "kind": abandonment.kind,
-                "reference": abandonment.reference,
-                "summary": abandonment.summary,
+    # The served checkout's git-dir lock serializes record creation, evidence
+    # revalidation, and ref deletion across CLI and HTTP processes.
+    with git.worktree_action_lock(
+            root, action=f"cleanup abandoned branch {branch}"):
+        machine_retention = branch_session.retention_release_for(
+            root, tile, records_dir=records_dir)
+        abandonment = branch_session.abandon_evidence(
+            root, branch, records_dir=records_dir)
+        head = git.branch_sha(branch)
+        correlation_error = None
+        if machine_retention is not None and abandonment is not None and head:
+            correlation_error = branch_session.machine_release_correlation_error(
+                machine_retention, abandonment, head)
+            if correlation_error:
+                machine_retention = None
+
+        state = proposal if proposal is not None else branch_session.proposal_state_for(
+            tile, records_root=root / records_dir, checkout_root=root)
+        if machine_retention is None and state.dispatch_in_flight:
+            raise branch_session.SessionRefused(
+                f"no cleanup of {branch!r}: a `propose` commission for tile "
+                f"{tile.scope_id!r} was dispatched and the proposal has not landed "
+                "yet. A dispatch is a commission, not retention-release evidence; "
+                "finish or resolve that authoring before cleanup.")
+
+        retention = machine_retention
+        explicit_reason = str(retention_release_reason or "").strip()
+        if retention is None and explicit_reason:
+            retention = branch_session.explicit_retention_release(
+                tile, explicit_reason, superseding_references)
+        if retention is None and correlation_error:
+            raise branch_session.SessionRefused(
+                f"no cleanup of {branch!r} through machine evidence: "
+                f"{correlation_error}. Record a fresh disposition after "
+                "abandonment or provide a new explicit human retention-release "
+                "reason for the current head.")
+
+        proof = branch_session.assert_branch_cleanup_permitted(
+            git, registry, repository=repository or "", tile=tile, branch=branch,
+            retention=retention, checkout_root=root, inventory=tile_inventory,
+            records_dir=records_dir)
+        abandonment = branch_session.abandon_evidence(
+            root, branch, records_dir=records_dir)
+        if abandonment is None:
+            raise branch_session.SessionRefused(
+                f"no cleanup of {branch!r}: abandonment evidence disappeared "
+                "while cleanup was being prepared")
+        head = git.branch_sha(branch)
+        if not head:
+            raise branch_session.SessionRefused(
+                f"no cleanup of {branch!r}: its exact pre-delete head could not "
+                "be resolved")
+        if retention.kind != branch_session.RETENTION_EXPLICIT_HUMAN:
+            correlation_error = branch_session.machine_release_correlation_error(
+                retention, abandonment, head)
+            if correlation_error:
+                raise branch_session.SessionRefused(
+                    f"no cleanup of {branch!r}: {correlation_error}")
+
+        evidence_references = list(retention.references)
+        artifacts = [
+            {"kind": gate_console.ART_OTHER,
+             "reference": f"refs/heads/{branch}@{head}"},
+            {"kind": gate_console.ART_OTHER,
+             "reference": abandonment.reference},
+        ]
+        artifacts.extend(
+            {"kind": gate_console.ART_OTHER, "reference": reference}
+            for reference in evidence_references)
+        at = gate_console._utcnow()
+        target_args = {
+            "topic_id": tile.scope_id if tile.scope_kind == branch_session.STAGED_TOPIC else None,
+            "cluster_id": tile.scope_id if tile.scope_kind == branch_session.CLUSTER else None,
+            "possible_id": tile.scope_id if tile.scope_kind == branch_session.POSSIBLE else None,
+        }
+        record = gate_console.build_gate_action_record(
+            actor=human.human_actor,
+            action=gate_console.ACTION_CLEANUP_ABANDONED_BRANCH,
+            at=at, ref=branch, artifacts=artifacts,
+            reason=retention.reason,
+            provenance=provenance,
+            cleanup={
+                "status": "prepared",
+                "pre_delete_head": head,
+                "abandonment": {
+                    "kind": abandonment.kind,
+                    "reference": abandonment.reference,
+                    "summary": abandonment.summary,
+                },
+                "retention_release": retention.as_record(),
             },
-            "retention_release": retention.as_record() if retention else {},
-        },
-        **target_args)
-    gate_console.validate_gate_action_record(record)
-    record_path = gate_console.write_gate_action_record(
-        human, records_dir, record)
-    # Local only: a session branch that was never pushed has no remote to clean,
-    # and one that WAS pushed carries the pull request the human may still be
-    # reading. Deleting a remote branch is the MERGE path's business (FR-033).
-    try:
-        git.delete_branch(branch, expect_sha=head)
-    except BaseException:
-        # A failed delete must not leave a durable artifact claiming success.
-        with contextlib.suppress(OSError):
-            record_path.unlink()
-        raise
-    return {
-        "ok": True,
-        "verb": "cleanup-abandoned-branch",
-        "ref": branch,
-        "deleted": True,
-        "abandon_proof": proof,
-        "pre_delete_head": head,
-        "retention_release": retention.as_record() if retention else None,
-        "record": str(record_path.relative_to(root)),
-        "hint": f"the abandoned session's branch is gone, and the abandon it ends "
-                f"was VERIFIED before the delete: {proof}; retention released by "
-                f"{retention.kind if retention else 'none'} (FR-022, FR-028)",
-    }
+            **target_args)
+        gate_console.validate_gate_action_record(record)
+        record_path = gate_console.write_gate_action_record(
+            human, records_dir, record, exclusive=True)
+        try:
+            # Local only. Atomic expected-old-value deletion preserves any ref
+            # advanced after the observation above.
+            git.delete_branch(branch, expect_sha=head)
+        except BaseException:
+            with contextlib.suppress(OSError):
+                record_path.unlink()
+            raise
+
+        record["cleanup"]["status"] = "completed"
+        gate_console.validate_gate_action_record(record)
+        try:
+            gate_console.replace_gate_action_record(human, records_dir, record)
+        except BaseException as finalize_error:
+            try:
+                git.restore_branch_if_absent(branch, head)
+            except BaseException as restore_error:
+                raise branch_session.SessionRefused(
+                    f"cleanup deleted {branch!r} at {head}, but could not "
+                    "finalize its record or restore the ref. The surviving "
+                    f"record is PREPARED and requires manual recovery: "
+                    f"finalize={finalize_error}; restore={restore_error}") \
+                    from finalize_error
+            with contextlib.suppress(OSError):
+                record_path.unlink()
+            raise branch_session.SessionRefused(
+                f"cleanup record finalization failed after deleting {branch!r}; "
+                "the exact ref was restored and the prepared record removed, so "
+                f"the operation is safely retryable: {finalize_error}") \
+                from finalize_error
+
+        return {
+            "ok": True,
+            "verb": "cleanup-abandoned-branch",
+            "ref": branch,
+            "deleted": True,
+            "abandon_proof": proof,
+            "pre_delete_head": head,
+            "retention_release": retention.as_record(),
+            "record": str(record_path.relative_to(root)),
+            "hint": f"the abandoned session's branch is gone, and the abandon "
+                    f"it ends was VERIFIED before the delete: {proof}; retention "
+                    f"released by {retention.kind} (FR-022, FR-028)",
+        }
 
 
 def _cleanup_abandoned_branch(body: dict, root: Path, actor: str,

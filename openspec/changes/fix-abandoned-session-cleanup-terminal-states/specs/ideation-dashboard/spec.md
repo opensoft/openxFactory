@@ -44,6 +44,16 @@ Where no machine-resolved preservation evidence exists, cleanup MAY proceed only
 - **THEN** the archived change MUST release retention even though it is not a live proposal and no current pick edge survives
 - **AND** the cleanup record MUST name the archived change and its origin evidence
 
+#### Scenario: Historical evidence predates the abandonment
+- **WHEN** matching active, archived, or demotion evidence was recorded before the session was abandoned
+- **THEN** that historical evidence MUST NOT release retention for the newer abandoned work
+- **AND** cleanup MUST require a fresh machine disposition or explicit human retention release
+
+#### Scenario: The abandoned branch moved after abandonment
+- **WHEN** the branch no longer points at the exact head recorded by `abandon-session`
+- **THEN** machine-resolved retention evidence MUST NOT authorize deletion
+- **AND** cleanup MUST preserve the moved ref until a new explicit human retention release names the current head
+
 #### Scenario: An executed demotion preserves the abandoned exploration
 - **WHEN** cleanup is invoked for an abandoned branch and a demotion execution receipt proves that the proposal returned to the exact staged topic
 - **THEN** the executed demotion MUST release retention
@@ -58,6 +68,11 @@ Where no machine-resolved preservation evidence exists, cleanup MAY proceed only
 - **WHEN** a transition manifest and plan exist but no execution receipt or exact returned-topic artifact proves execution
 - **THEN** cleanup MUST NOT infer that the proposal was demoted
 - **AND** the machine-evidence lane MUST refuse without deleting the branch
+
+#### Scenario: Demotion execution is incomplete
+- **WHEN** any planned source artifact is missing, any move is skipped, the source change remains, or a returned artifact does not occupy its exact planned destination
+- **THEN** demotion MUST NOT emit an `executed` receipt
+- **AND** cleanup MUST NOT treat the partial result as retention-release evidence
 
 #### Scenario: The current tile is absent but exact disposition survives
 - **WHEN** the supplied tile is absent from the current inventory but branch-family ownership, abandonment proof, and accepted retention-release evidence all resolve to its exact identity
@@ -82,6 +97,11 @@ Where no machine-resolved preservation evidence exists, cleanup MAY proceed only
 - **WHEN** active, archived, demoted, or operator-supplied evidence resolves to a different tile identity than the branch's supplied owner
 - **THEN** cleanup MUST refuse with the mismatch and persist nothing
 
+#### Scenario: Origin metadata is non-staged or malformed
+- **WHEN** a change declares an ad-hoc, unsupported, or malformed origin
+- **THEN** cleanup MUST NOT reinterpret that change through the possibles-pick compatibility fallback
+- **AND** ambiguity unrelated to the requested tile MUST NOT globally block exact evidence for the requested tile
+
 #### Scenario: Cleanup is attempted on live or unattested work
 - **WHEN** the session is live, a worktree remains attached, the branch is outside the tile's branch family, or no durable `abandon-session` proof names the ref
 - **THEN** cleanup MUST refuse regardless of proposal or retention-release evidence
@@ -90,3 +110,17 @@ Where no machine-resolved preservation evidence exists, cleanup MAY proceed only
 - **WHEN** local branch deletion fails after the cleanup action prepared its main-resident record
 - **THEN** the record MUST be unwound so no durable artifact claims a deletion that did not occur
 - **AND** the branch and prior abandonment evidence MUST remain available for retry
+
+#### Scenario: Concurrent cleanup attempts share a tile and timestamp
+- **WHEN** cleanup attempts target different refs for the same tile during the same second, or two attempts race for the same ref
+- **THEN** their records MUST NOT overwrite or unlink one another
+- **AND** only a record whose exact ref deletion completed MAY enter completed state
+
+#### Scenario: The branch changes during cleanup
+- **WHEN** the ref advances after its head is inspected but before deletion
+- **THEN** the expected-value deletion MUST fail atomically and preserve the advanced ref
+- **AND** no cleanup record may claim that the advanced ref was deleted
+
+#### Scenario: Cleanup services address different repositories
+- **WHEN** the human gate output root and the Git service root do not resolve to the same checkout
+- **THEN** cleanup MUST refuse before writing a record or touching a branch

@@ -21,6 +21,7 @@ artifacts:
   - kind: other
     reference: openspec/changes/archive/2026-08-20-add-subject-establishment
 cleanup:
+  status: completed
   pre_delete_head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
   abandonment:
     kind: abandon-session-record

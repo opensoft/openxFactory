@@ -205,6 +205,11 @@ def _write_demotion_manifest(repo, *, topic=TOPIC, change_id=CHANGE):
             "path": f"ideation/staging/{topic}",
         },
         "origin": {"kind": "change", "path": f"openspec/changes/{change_id}"},
+        "transitioned_at": "2099-08-20T12:00:00Z",
+        "files": [{
+            "from": f"openspec/changes/{change_id}/proposal.md",
+            "to": f"ideation/staging/{topic}/README.md",
+        }],
     }, sort_keys=False))
     return rel
 
@@ -1359,7 +1364,54 @@ def test_cleanup_deletes_the_branch_once_the_proposal_exists(scratch_repo,
     loaded = yaml.safe_load(cleanup_record.read_text(encoding="utf-8"))
     assert loaded["action"] == gc.ACTION_CLEANUP_ABANDONED_BRANCH
     assert loaded["cleanup"]["pre_delete_head"] == payload["pre_delete_head"]
+    assert loaded["cleanup"]["status"] == "completed"
     assert loaded["cleanup"]["retention_release"]["scope_id"] == TOPIC
+
+
+def test_matching_proposal_evidence_from_before_abandonment_requires_fresh_release(
+        scratch_repo, tmp_path, monkeypatch):
+    archived = f"openspec/changes/archive/2026-08-20-{CHANGE}"
+    _write_staged_origin(scratch_repo, archived)
+    scratch_repo.write(f"{archived}/proposal.md", "# Older archived proposal\n")
+    scratch_repo.commit(
+        "Archive older proposal custody",
+        f"{archived}/.openspec.yaml", f"{archived}/proposal.md")
+    registry, _created, _worktree = _session(scratch_repo, tmp_path)
+    monkeypatch.setattr(gc, "_utcnow", lambda: "2099-08-25T12:00:00Z")
+    _abandon(scratch_repo, registry, reason="parked after older proposal work")
+
+    status, payload = _cleanup(scratch_repo, registry)
+    assert status == 409, payload
+    assert "before the session was abandoned" in payload["message"]
+    assert sg.SessionGit(scratch_repo.root).branch_exists(DRAFT) is True
+
+    status, payload = _cleanup(
+        scratch_repo, registry,
+        retention_release_reason="reviewed the exact abandoned head separately")
+    assert status == 200, payload
+    assert payload["retention_release"]["kind"] == bs.RETENTION_EXPLICIT_HUMAN
+
+
+def test_branch_advanced_after_abandonment_requires_explicit_current_head_release(
+        scratch_repo, tmp_path):
+    registry, _created, _worktree = _session(scratch_repo, tmp_path)
+    _abandon(scratch_repo, registry, reason="parked")
+    abandoned_head = sg.SessionGit(scratch_repo.root).branch_sha(DRAFT)
+    _land_proposal(scratch_repo)
+    advanced_head = scratch_repo.head("main")
+    scratch_repo.git(
+        "update-ref", f"refs/heads/{DRAFT}", advanced_head, abandoned_head)
+
+    status, payload = _cleanup(scratch_repo, registry)
+    assert status == 409, payload
+    assert "branch now points" in payload["message"]
+    assert sg.SessionGit(scratch_repo.root).branch_sha(DRAFT) == advanced_head
+
+    status, payload = _cleanup(
+        scratch_repo, registry,
+        retention_release_reason="reviewed and released the advanced current head")
+    assert status == 200, payload
+    assert payload["pre_delete_head"] == advanced_head
 
 
 def test_active_declared_origin_releases_cleanup_without_a_pick_edge(
@@ -1368,6 +1420,10 @@ def test_active_declared_origin_releases_cleanup_without_a_pick_edge(
     _abandon(scratch_repo, registry, reason="parked")
     _write_staged_origin(scratch_repo, f"openspec/changes/{CHANGE}")
     scratch_repo.write(f"openspec/changes/{CHANGE}/proposal.md", "# Why\n")
+    scratch_repo.commit(
+        "Record proposal custody after abandonment",
+        f"openspec/changes/{CHANGE}/.openspec.yaml",
+        f"openspec/changes/{CHANGE}/proposal.md")
 
     status, payload = _cleanup(scratch_repo, registry)
 
@@ -1385,6 +1441,9 @@ def test_archived_exact_origin_releases_cleanup_after_the_tile_disappears(
     archived = f"openspec/changes/archive/2026-08-20-{CHANGE}"
     _write_staged_origin(scratch_repo, archived)
     scratch_repo.write(f"{archived}/proposal.md", "# Archived proposal\n")
+    scratch_repo.commit(
+        "Archive proposal custody after abandonment",
+        f"{archived}/.openspec.yaml", f"{archived}/proposal.md")
     shutil.rmtree(scratch_repo.root / "ideation" / "staging" / TOPIC)
 
     status, payload = _cleanup(scratch_repo, registry)
@@ -1411,8 +1470,12 @@ def test_execution_receipt_releases_cleanup_for_the_exact_destination(
                 "kind": "staged", "id": TOPIC,
                 "path": f"ideation/staging/{TOPIC}",
             },
-            "executed_at": "2026-08-20T12:01:00Z",
+            "executed_at": "2099-08-20T12:01:00Z",
             "transition_manifest": manifest,
+            "returned_moves": [{
+                "from": f"openspec/changes/{CHANGE}/proposal.md",
+                "to": f"ideation/staging/{TOPIC}/README.md",
+            }],
             "returned_artifacts": [f"ideation/staging/{TOPIC}/README.md"],
             "removed_change_folder": True,
         }, sort_keys=False))
@@ -1432,6 +1495,12 @@ def test_legacy_manifest_requires_an_exact_returned_artifact(
     refused, payload = _cleanup(scratch_repo, registry)
     assert refused == 409, payload
     assert sg.SessionGit(scratch_repo.root).branch_exists(DRAFT) is True
+
+    scratch_repo.write(
+        f"ideation/staging/{TOPIC}/openspec/INDEX.md",
+        f"Draft proposals returned from demoted change {CHANGE}-long.\n")
+    near_match, payload = _cleanup(scratch_repo, registry)
+    assert near_match == 409, payload
 
     scratch_repo.write(
         f"ideation/staging/{TOPIC}/openspec/INDEX.md",
@@ -1464,6 +1533,61 @@ def test_ambiguous_active_pick_fallbacks_fail_closed(scratch_repo, tmp_path):
     assert status == 409, payload
     assert "ambiguous" in payload["message"]
     assert sg.SessionGit(scratch_repo.root).branch_exists(DRAFT) is True
+
+
+def test_ad_hoc_origin_is_not_reinterpreted_through_pick_fallback(
+        scratch_repo, tmp_path):
+    registry, _created, _worktree = _session(scratch_repo, tmp_path)
+    _abandon(scratch_repo, registry, reason="parked")
+    scratch_repo.write(f"openspec/changes/{CHANGE}/proposal.md", "# Why\n")
+    scratch_repo.write(
+        f"openspec/changes/{CHANGE}/.openspec.yaml",
+        "schema: spec-driven\norigin:\n  kind: ad_hoc\n")
+    scratch_repo.write("ideation/cross-reference.yaml", yaml.safe_dump({
+        "schema_version": 1, "kind": "ideation-cross-reference",
+        "repository": scratch_repo.repository,
+        "generation": {
+            "source_revision": "e" * 40, "generator_version": "test"},
+        "possibles_register": [{
+            "id": "pos-demo", "title": "Demo", "claim": "c",
+            "state": "picked",
+            "pick": {"staging_id": TOPIC, "change_id": CHANGE},
+        }],
+    }, sort_keys=False))
+    scratch_repo.commit(
+        "Record ad hoc proposal",
+        f"openspec/changes/{CHANGE}/proposal.md",
+        f"openspec/changes/{CHANGE}/.openspec.yaml",
+        "ideation/cross-reference.yaml")
+
+    status, payload = _cleanup(scratch_repo, registry)
+    assert status == 409, payload
+    assert "no accepted retention-release evidence" in payload["message"]
+    assert sg.SessionGit(scratch_repo.root).branch_exists(DRAFT) is True
+
+
+def test_unrelated_ambiguous_pick_does_not_block_exact_declared_origin(
+        scratch_repo):
+    exact = "add-exact"
+    ambiguous = "add-ambiguous"
+    _write_staged_origin(
+        scratch_repo, f"openspec/changes/{exact}", topic=TOPIC)
+    scratch_repo.write(f"openspec/changes/{exact}/proposal.md", "# Exact\n")
+    scratch_repo.write(f"openspec/changes/{ambiguous}/proposal.md", "# Other\n")
+    scratch_repo.write("ideation/cross-reference.yaml", yaml.safe_dump({
+        "schema_version": 1, "kind": "ideation-cross-reference",
+        "repository": scratch_repo.repository,
+        "generation": {
+            "source_revision": "e" * 40, "generator_version": "test"},
+        "possibles_register": [
+            {"id": "pos-a", "title": "A", "claim": "a", "state": "picked",
+             "pick": {"staging_id": "other-a", "change_id": ambiguous}},
+            {"id": "pos-b", "title": "B", "claim": "b", "state": "picked",
+             "pick": {"staging_id": "other-b", "change_id": ambiguous}},
+        ],
+    }, sort_keys=False))
+
+    assert bs.landed_proposal_ids(scratch_repo.root)[TOPIC] == exact
 
 
 def test_receipt_and_manifest_destination_mismatch_is_not_execution_proof(
@@ -1586,6 +1710,48 @@ def test_cleanup_unwinds_its_record_when_branch_deletion_fails(
         "cleanup-abandoned-branch-*.gate-action.yaml"))
     assert after == before
     assert git.branch_exists(DRAFT) is True
+
+
+def test_cleanup_restores_the_exact_ref_when_record_finalization_fails(
+        scratch_repo, tmp_path, monkeypatch):
+    registry, _created, _worktree = _session(scratch_repo, tmp_path)
+    _abandon(scratch_repo, registry, reason="parked")
+    _land_proposal(scratch_repo)
+    git = sg.SessionGit(scratch_repo.root)
+    expected = git.branch_sha(DRAFT)
+    tile = bs.Tile(bs.STAGED_TOPIC, TOPIC)
+
+    def fail_finalize(*_args, **_kwargs):
+        raise OSError("injected finalization failure")
+
+    monkeypatch.setattr(gc, "replace_gate_action_record", fail_finalize)
+    with pytest.raises(bs.SessionRefused, match="exact ref was restored"):
+        gr.execute_cleanup_abandoned_branch(
+            gr.HumanGate(scratch_repo.root, [RECORDS], human_actor="brett"),
+            git, tile=tile, ref=DRAFT, registry=registry, repository=REPO,
+            checkout_root=scratch_repo.root, records_dir=RECORDS,
+            tile_inventory=bs.TileInventory((tile,)))
+
+    assert git.branch_sha(DRAFT) == expected
+    assert not tuple((scratch_repo.root / RECORDS).rglob(
+        "cleanup-abandoned-branch-*.gate-action.yaml"))
+
+
+def test_cleanup_refuses_gate_and_git_roots_that_do_not_match(
+        scratch_repo, tmp_path):
+    registry, _created, _worktree = _session(scratch_repo, tmp_path)
+    other = tmp_path / "other"
+    other.mkdir()
+    with pytest.raises(bs.SessionRefused, match="same repository"):
+        gr.execute_cleanup_abandoned_branch(
+            gr.HumanGate(other, [RECORDS], human_actor="brett"),
+            sg.SessionGit(scratch_repo.root),
+            tile=bs.Tile(bs.STAGED_TOPIC, TOPIC), ref=DRAFT,
+            registry=registry, repository=REPO,
+            checkout_root=scratch_repo.root, records_dir=RECORDS,
+            tile_inventory=bs.TileInventory(
+                (bs.Tile(bs.STAGED_TOPIC, TOPIC),)),
+            retention_release_reason="would release if roots matched")
 
 
 def test_explicit_release_body_rejects_blank_superseding_references(
@@ -1730,12 +1896,15 @@ def test_the_durable_ending_marker_is_the_second_admissible_proof(scratch_repo,
     assert bs.abandon_proof(scratch_repo.root, DRAFT) is None
     bs.write_ending_marker(scratch_repo.root, DRAFT, ending=bs.ENDING_ABANDON)
 
-    status, payload = _cleanup(scratch_repo, registry)
+    status, payload = _cleanup(
+        scratch_repo, registry,
+        retention_release_reason="legacy marker reviewed against current head")
 
     assert status == 200, payload
     assert bs.ENDING_ABANDON in payload["abandon_proof"]
     assert ".ended.json" in payload["abandon_proof"]
     assert sg.SessionGit(scratch_repo.root).branch_exists(DRAFT) is False
+    assert payload["retention_release"]["kind"] == bs.RETENTION_EXPLICIT_HUMAN
 
 
 def test_a_merge_ending_marker_is_not_an_abandon(scratch_repo, tmp_path):

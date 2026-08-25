@@ -1,0 +1,17 @@
+schema_version: 1
+kind: demotion-execution-receipt
+actor: brett
+change_id: add-returned-contract
+status: executed
+destination:
+  kind: staged
+  id: exact-topic
+  path: ideation/staging/exact-topic
+executed_at: "2026-08-25T02:45:00Z"
+transition_manifest: ../../outside.yaml
+returned_moves:
+  - from: openspec/changes/add-returned-contract/proposal.md
+    to: ideation/staging/exact-topic/openspec/proposal.md
+returned_artifacts:
+  - ideation/staging/exact-topic/openspec/proposal.md
+removed_change_folder: true

@@ -428,9 +428,29 @@ def cmd_gate_demote(args: argparse.Namespace) -> int:
     print(f"  register-update:     {res.register_update_path.relative_to(repo_root)}")
     print(f"  planned moves: {len(res.plan.moves)}; withdrawn picks: {list(res.plan.withdrawn_picks)}")
     if args.execute:
-        ex = gate_mod.execute_demotion_plan(res.plan, repo_root)
-        receipt_path = gate_mod.write_demotion_execution_receipt(
-            _human_gate(repo_root, args), res, ex, records_dir=args.records_dir)
+        executed_at = gate_mod._utcnow()
+        try:
+            ex = gate_mod.execute_demotion_plan(
+                res.plan, repo_root, at=executed_at)
+        except (gate_mod.GateRefused, OSError, UnicodeError) as exc:
+            print(
+                "  DEMOTION EXECUTION FAILED; no executed receipt was written. "
+                f"Inspect the planned destinations for partial filesystem work: {exc}",
+                file=sys.stderr)
+            return 1
+        try:
+            receipt_path = gate_mod.write_demotion_execution_receipt(
+                _human_gate(repo_root, args), res, ex, at=executed_at,
+                records_dir=args.records_dir)
+        except (gate_mod.GateRefused, BoundaryViolation, OSError) as exc:
+            print(
+                "  DEMOTION EXECUTED BUT RECEIPT NOT WRITTEN. Returned material "
+                "has already moved; repair the receipt failure before treating "
+                f"this demotion as cleanup evidence: {exc}", file=sys.stderr)
+            print(f"  moved: {ex.moved}", file=sys.stderr)
+            print(f"  change folder removed: {ex.removed_change_folder}",
+                  file=sys.stderr)
+            return 1
         # Not every move lands in openspec/ — supporting-docs restores and the
         # outline restore (below) can land in the topic ROOT instead, so the
         # summary counts both rather than naming a single destination
@@ -1435,6 +1455,11 @@ def cmd_gate_cleanup_abandoned_branch(args: argparse.Namespace) -> int:
     if refused is not None:
         return refused
     repository = _session_repository_key(repo_root, args)
+    superseding_references = tuple(args.superseding_reference or ())
+    if any(not str(reference).strip() for reference in superseding_references):
+        print("cleanup-abandoned-branch refused: every --superseding-reference "
+              "must be nonblank", file=sys.stderr)
+        return 1
     try:
         result = gate_routes_mod.execute_cleanup_abandoned_branch(
             HumanGate(repo_root, [args.records_dir], human_actor=args.actor),
@@ -1445,7 +1470,8 @@ def cmd_gate_cleanup_abandoned_branch(args: argparse.Namespace) -> int:
             records_dir=args.records_dir,
             tile_inventory=gate_routes_mod.discover_tile_inventory(repo_root),
             retention_release_reason=args.retention_release_reason,
-            superseding_references=tuple(args.superseding_reference or ()),
+            superseding_references=tuple(
+                str(reference).strip() for reference in superseding_references),
             provenance=cli_provenance())
     except branch_session_mod.SessionRefused as exc:
         print(f"cleanup-abandoned-branch refused: {exc.report()}", file=sys.stderr)
@@ -1458,6 +1484,12 @@ def cmd_gate_cleanup_abandoned_branch(args: argparse.Namespace) -> int:
         print(f"cleanup-abandoned-branch refused: {exc}", file=sys.stderr)
         return 1
     except session_git_mod.GitError as exc:
+        print(f"cleanup-abandoned-branch refused: {exc}", file=sys.stderr)
+        return 1
+    except gate_mod.GateRefused as exc:
+        print(f"cleanup-abandoned-branch refused: {exc}", file=sys.stderr)
+        return 1
+    except (OSError, UnicodeError) as exc:
         print(f"cleanup-abandoned-branch refused: {exc}", file=sys.stderr)
         return 1
     print(f"cleanup-abandoned-branch {result['ref']} deleted (by {args.actor})")

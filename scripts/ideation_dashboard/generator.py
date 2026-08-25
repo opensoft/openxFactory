@@ -291,12 +291,36 @@ def declared_origin_staging(folder: Path) -> str | None:
     returning file. A path that is not below `ideation/staging/` answers NOTHING
     rather than being guessed at: the origin contract puts staged sources there,
     and a malformed declaration is a refusal case, not a parsing challenge."""
-    origin = load_openspec_meta(folder).get("origin")
-    if not isinstance(origin, dict) or origin.get("kind") != "staged":
-        return None
+    _state, staging_id = declared_origin_state(folder)
+    return staging_id
+
+
+def declared_origin_state(folder: Path) -> tuple[str, str | None]:
+    """Classify a change origin without collapsing invalid data into absence.
+
+    The possibles-register compatibility fallback is safe only for old changes
+    that truly have no origin declaration.  An ad-hoc or malformed declaration
+    is an affirmative statement that the fallback must not reinterpret.
+    """
+    metadata_path = folder / ".openspec.yaml"
+    if not metadata_path.is_file():
+        return "absent", None
+    try:
+        loaded = yaml.safe_load(_read(metadata_path))
+    except (OSError, UnicodeError, yaml.YAMLError):
+        return "invalid", None
+    if not isinstance(loaded, dict):
+        return "invalid", None
+    if "origin" not in loaded:
+        return "absent", None
+    origin = loaded.get("origin")
+    if not isinstance(origin, dict):
+        return "invalid", None
+    if origin.get("kind") != "staged":
+        return "non-staged", None
     path = origin.get("path")
     if not isinstance(path, str):
-        return None
+        return "invalid", None
     # BACKSLASHES ARE TOLERATED ON THE WAY IN. The forward gate now records this
     # path in POSIX form, but it used to record `str(Path.relative_to(...))`,
     # which on a Windows checkout yields `ideation\staging\<topic>` — so a record
@@ -309,8 +333,8 @@ def declared_origin_staging(folder: Path) -> str | None:
     normalized = path.strip().replace("\\", "/")
     parts = [part for part in normalized.split("/") if part not in ("", ".")]
     if parts[:2] != ["ideation", "staging"] or len(parts) < 3:
-        return None
-    return parts[2]
+        return "invalid", None
+    return "staged", parts[2]
 
 
 # Compatibility aliases. Cleanup now consumes the same declared origin reader

@@ -11,6 +11,8 @@ Abandoned-session cleanup currently recognizes only an exact staged topic linked
 - Add an explicit human retention-release lane for abandoned branches whose material was deliberately discarded or superseded outside the exact proposal lineage, with a required reason and a main-resident record naming the tile, branch tip, and prior abandonment proof.
 - Keep refusing dispatch-only proposals, unexplained missing tiles, crashed or merely non-live sessions, live worktrees, mismatched branch families, and any cleanup lacking durable abandonment proof.
 - Record and report the exact evidence that released retention so a deletion remains auditable after the branch is gone.
+- Bind machine-resolved retention evidence to the abandonment event and exact abandoned branch head so older lifecycle evidence cannot authorize cleanup of newer work.
+- Make demotion receipts complete, cleanup records collision-safe, and branch deletion atomic against the expected ref value.
 
 ## Capabilities
 
@@ -27,6 +29,7 @@ None.
 - Affected specification: `openspec/specs/ideation-dashboard/spec.md`.
 - Affected implementation: `scripts/ideation_dashboard/branch_session.py`, cleanup routing/CLI reporting, demotion execution recording, and the lifecycle evidence readers used to resolve active, archived, and demoted changes.
 - Affected contracts: additive `cleanup-abandoned-branch` gate-action vocabulary and its exact scope/head/evidence record shape in `contracts/schemas/gate-action-record.schema.yaml`.
+- Affected release metadata: register both changed schemas in a new contract bundle with validator fixtures and a release digest inventory.
 - Affected tests: abandoned-session cleanup, archive-origin resolution, demotion transition evidence, orphaned-tile handling, and negative evidence/mismatch cases under `tests/ideation-dashboard/`.
 - Affected documentation: `docs/ideation-dashboard-session-runbook.md` and related operator guidance.
 - No GitHub branch-protection, remote-branch deletion, or automatic cleanup behavior changes; cleanup remains local, explicit, and human-invoked.

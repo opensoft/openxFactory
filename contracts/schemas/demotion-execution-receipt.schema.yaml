@@ -16,6 +16,7 @@ required:
   - destination
   - executed_at
   - transition_manifest
+  - returned_moves
   - returned_artifacts
   - removed_change_folder
 properties:
@@ -29,15 +30,35 @@ properties:
     required: [kind, id, path]
     properties:
       kind: {const: staged}
-      id: {type: string, minLength: 1}
+      id:
+        type: string
+        pattern: '^[A-Za-z0-9][A-Za-z0-9._-]*$'
       path:
         type: string
-        pattern: ^ideation/staging/[^/]+$
+        pattern: '^ideation/staging/[A-Za-z0-9][A-Za-z0-9._-]*$'
   executed_at: {type: string, format: date-time}
-  transition_manifest: {type: string, minLength: 1}
+  transition_manifest:
+    type: string
+    pattern: '^(?!/)(?!.*[\\])(?!.*(?:^|/)\.\.?(/|$)).+'
+  returned_moves:
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: object
+      required: [from, to]
+      properties:
+        from:
+          type: string
+          pattern: '^(?!/)(?!.*[\\])(?!.*(?:^|/)\.\.?(/|$)).+'
+        to:
+          type: string
+          pattern: '^(?!/)(?!.*[\\])(?!.*(?:^|/)\.\.?(/|$)).+'
   returned_artifacts:
     type: array
     minItems: 1
     uniqueItems: true
-    items: {type: string, minLength: 1}
-  removed_change_folder: {type: boolean}
+    items:
+      type: string
+      pattern: '^(?!/)(?!.*[\\])(?!.*(?:^|/)\.\.?(/|$)).+'
+  removed_change_folder: {const: true}

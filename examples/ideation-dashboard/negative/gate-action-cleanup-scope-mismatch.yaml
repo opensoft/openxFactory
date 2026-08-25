@@ -1,0 +1,25 @@
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: cleanup-abandoned-branch
+target:
+  topic_id: one-topic
+  ref: draft/one-topic
+at: "2026-08-25T03:20:00Z"
+reason: Deliberately superseded.
+artifacts:
+  - kind: other
+    reference: refs/heads/draft/one-topic@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+cleanup:
+  status: completed
+  pre_delete_head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  abandonment:
+    kind: abandon-session-record
+    reference: ideation/dashboard/gate-records/draft-one-topic/abandon-session.gate-action.yaml
+    summary: The abandonment record names this ref.
+  retention_release:
+    kind: explicit-human-release
+    scope_kind: staged-topic
+    scope_id: another-topic
+    references: []
+    reason: Deliberately superseded.

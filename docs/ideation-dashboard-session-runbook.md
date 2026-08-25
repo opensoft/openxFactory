@@ -816,7 +816,18 @@ machine-evidence set is:
 3. an executed demotion to that exact topic. New `gate demote --execute` runs
    write a `demotion-execution-receipt`; legacy demotions require both their
    transition manifest and an exact returned README, INDEX, or round-trip
-   fragment. A transition plan or manifest alone never proves execution.
+   fragment. A transition plan or manifest alone never proves execution. An
+   execution receipt is accepted only when it accounts for every planned move,
+   every returned path stays inside the checkout and exists, and the source
+   change folder is gone.
+
+Machine evidence is correlated to this abandonment, not merely to the same tile
+id. A new `abandon-session` record captures the exact branch head; active/archive
+evidence must be committed, and its commit time (or a demotion receipt's
+execution time) must be no earlier than the abandonment. If the evidence is
+older, the branch advanced after abandonment, or only a legacy ending marker is
+available, the machine lane stays closed and the operator must review the
+current head through a fresh explicit retention release.
 
 Cluster, possible, renamed, missing, duplicate, superseded, and otherwise true
 orphan branches use `--retention-release-reason`. The reason is mandatory on
@@ -828,9 +839,13 @@ Every successful cleanup remains human-invoked and local-only. Before deletion
 it verifies branch ownership, no live session or attached worktree, and a durable
 `abandon-session` proof; then it validates and writes a main-resident
 `cleanup-abandoned-branch` gate-action record containing the exact pre-delete
-head and retention evidence. It never deletes the remote branch. If local branch
-deletion fails, the prepared cleanup record is removed so it cannot claim an
-outcome that did not occur.
+head and retention evidence. The record is filed under the exact ref and moves
+from `prepared` to `completed` only after Git atomically deletes that expected
+head. The operation holds the repository action lock and refuses if the gate,
+Git service, and checkout roots differ. It never deletes the remote branch. If
+deletion fails, the prepared record is removed; if record finalization fails,
+the exact ref is restored when safe. A surviving `prepared` record therefore
+signals recovery work and never claims a completed deletion.
 
 Four flags are easy to miss, and each answers a question the surface asks:
 

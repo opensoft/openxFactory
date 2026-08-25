@@ -12,6 +12,7 @@ artifacts:
   - kind: other
     reference: refs/heads/draft/abandoned-onboarding-intake@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 cleanup:
+  status: completed
   pre_delete_head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
   abandonment:
     kind: abandon-session-record

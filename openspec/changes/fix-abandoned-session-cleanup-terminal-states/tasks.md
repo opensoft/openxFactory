@@ -33,3 +33,18 @@
 - [x] 5.1 Update the ideation dashboard runbook to explain active, archived, demoted, and explicit human retention-release paths and the evidence each path requires.
 - [x] 5.2 Validate all new schemas, fixtures, and gate-action examples with the repository validators.
 - [x] 5.3 Run strict OpenSpec validation for this change and resolve every reported issue before implementation is considered complete.
+
+## 6. Review-driven evidence hardening
+
+- [x] 6.1 Bind abandonment records to the exact branch head and require machine retention evidence to be durably recorded no earlier than the abandonment.
+- [x] 6.2 Distinguish absent origin metadata from ad-hoc or malformed origins, scope ambiguous possibles-pick fallback failures to the requested tile, and remove duplicate change scans.
+- [x] 6.3 Require executed demotion receipts to prove every planned move, exact contained destinations, source removal, and exact transition-manifest correspondence.
+- [x] 6.4 Add semantic cleanup-record validation for exact target/scope identity, nonempty machine references, required change ids and recording times, and explicit-release reasons.
+
+## 7. Review-driven transaction and release hardening
+
+- [x] 7.1 Make cleanup a repository-locked, ref-keyed, exclusive `prepared`/`completed` transaction and refuse mismatched gate/Git roots.
+- [x] 7.2 Delete local refs atomically with the expected abandoned head and restore the ref when record finalization fails safely.
+- [x] 7.3 Align CLI and HTTP validation/error handling, reject blank superseding references, and report post-mutation receipt failures as partial execution.
+- [x] 7.4 Add regression tests for historical evidence, moved refs, incomplete demotion, unsafe paths, record collisions, atomic deletion, malformed origins, and command-surface parity.
+- [x] 7.5 Update operator guidance, realize the next contract bundle, run focused/full validation, and resolve every remaining review or CI failure.

@@ -593,8 +593,11 @@ $defs:
         # ingress-authenticated identity — the record names the third door.
   cleanup:
     type: object
-    required: [pre_delete_head, abandonment, retention_release]
+    required: [status, pre_delete_head, abandonment, retention_release]
     properties:
+      status:
+        type: string
+        enum: [prepared, completed]
       pre_delete_head:
         type: string
         pattern: "^[0-9a-f]{40,64}$"
@@ -629,11 +632,22 @@ $defs:
             type: array
             uniqueItems: true
             items: {type: string, minLength: 1}
+          recorded_at: {type: string, format: date-time}
         allOf:
           - if:
               properties: {kind: {const: explicit-human-release}}
               required: [kind]
             then: {required: [reason]}
+          - if:
+              properties:
+                kind:
+                  enum: [active-proposal, archived-change, executed-demotion,
+                         legacy-executed-demotion]
+              required: [kind]
+            then:
+              required: [change_id, recorded_at]
+              properties:
+                references: {minItems: 1}
   # --- an artifact this action produced ---
   artifact:
     type: object
