@@ -149,11 +149,39 @@ implementation plan the follow-on slice executes (§3, §5).
 ## 6. Archive
 
 - [ ] 6.1 Archive ONLY after merge with green realization evidence. This change
-      ships ACTIVE, following both precedents. NOTE the extra item this change's
-      realization carries: `contract-v1.41`'s annotated tag is cut AT THE SQUASH
-      after landing, per the ratified realization order — the bundle is
-      allocated and its inventory shipped in the cut commit, and CHANGELOG
-      presence is the availability test, not tag presence.
+      ships ACTIVE, following both precedents.
+      **THE REALIZATION EVIDENCE IS COMPLETE — recorded here so the archive does
+      not have to re-derive it.** Merged as PR #324, squash **`0780875b`**, with
+      a tree byte-identical to the reviewed branch tip `39965995`
+      (`8cbbdc845128c363a69a7388cf5edb3ea05ef38b`). Every gate reran at that
+      exact commit before anything was tagged: `tests/doc-health` 839 passed,
+      `tests/ideation_dashboard` + `tests/proposal-support` 99 passed,
+      `openspec validate --all --strict` 76 passed / 0 failed, the dashboard
+      validator 0 errors / 4 by-design warnings, manifest digests 150 verify,
+      and doc-health zero-new against a same-clock `4e57009c` baseline
+      (5/8/82/3 both sides, new findings `[]`).
+      **THE CAPABILITY'S OWN MEASUREMENT, at the squash:** the
+      `release-inventory-drift` family reports **0 error, 0 info**, and
+      `validate-contract-release.py verify-commit` PASSES — the issue #312
+      symptom, resolved.
+      **THE TAG IS PUBLISHED AND VERIFIED.** `contract-v1.41`, annotated, tag
+      object `48efdfbebc114671c0f9fb1ad25a34779f4707ba` dereferencing to
+      `0780875b7d7d5541098de2677b741cdc9d50d7bc` — read from the REMOTE
+      (`git ls-remote --tags origin`) rather than from the local ref that
+      created it, with both `verify-commit --commit contract-v1.41` and
+      `verify-tag --remote origin --tag contract-v1.41` passing, and the pair
+      re-run from an INDEPENDENTLY CLONED checkout as the realization order's
+      step 5 requires.
+      **THE RITUAL FOUND NOTHING THIS TIME, and that is the result worth
+      recording.** It caught a real defect at exactly this step on both prior
+      tags this arc — `contract-v1.34`'s sentinel and `contract-v1.36`'s
+      un-bumped `contract_bundle_version`. This cut was built with the v1.36
+      lesson applied in the order it teaches: bundle version bumped INSIDE the
+      cut, inventory built LAST so the manifest self-reference and the changelog
+      digest are consistent rather than one-commit stale. A clean tag
+      verification is what that ordering buys.
+      STILL OWED: nothing in this repository. The aggregation-repo submodule pin
+      is the orchestrator's, and the archive follows on the standing rule.
 
 ## 7. Recorded, not fixed
 
