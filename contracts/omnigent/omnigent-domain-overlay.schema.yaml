@@ -20,7 +20,13 @@ description: >-
   the `domain_installation_overlay` operations with
   `stricter_rule_wins: true`. Cross-file semantics the schema cannot
   express — tier disjointness, vocabulary lint, fixture behavior — are
-  enforced by `scripts/validate-omnigent-contracts.py`.
+  enforced by `scripts/validate-omnigent-contracts.py`. The
+  crystallized-executor binding and per-category rung ceilings
+  (`add-crystallizer-contracts`) are additive: a crystallized class maps
+  to an EXISTING archetype so the constitutional booleans bind verbatim,
+  and authority conservation (permissions and credential families never
+  exceed the replaced configuration) plus ceiling-category uniqueness are
+  validator-enforced.
 type: object
 additionalProperties: false
 required:
@@ -75,6 +81,75 @@ properties:
           - write_artifacts
           - run_validations
           - propose_admission
+  terminology:
+    description: >-
+      Domain-expert-facing display vocabulary for the ids this overlay
+      declares. PRESENTATION ONLY — a display label never changes a worker's
+      archetype, permissions, credential tier, or authority. This is the
+      sibling of permission_aliases above, and the same separation the Hermes
+      layer model states for role vs display_name ("display names may be
+      specialized by an installation without changing role or authority
+      ownership"). Human-facing surfaces (notices, logs, approval packets,
+      escalations, refusals) render these labels so domain experts read their
+      own terminology; the ids remain the machine identifiers and the neutral
+      archetype spine is never renamed to match an external framework.
+    type: object
+    minProperties: 1
+    additionalProperties: false
+    properties:
+      workers:
+        type: object
+        minProperties: 1
+        additionalProperties: false
+        patternProperties:
+          "^[a-z][a-z0-9_-]*$":
+            type: object
+            additionalProperties: false
+            required: [display_label]
+            properties:
+              display_label:
+                type: string
+                minLength: 1
+              standards_alignment:
+                description: >-
+                  Optional crosswalks to professional frameworks, keyed by
+                  body id from contracts/policies/standards-bodies.yaml —
+                  MULTIPLE bodies are expected where a domain has more than
+                  one widely adopted one (for example ITIL practices AND
+                  SFIA skills AND APQC processes for IT operations), at most
+                  one entry per body. Descriptive only: a crosswalk never
+                  asserts conformance, certification, or endorsement, never
+                  confers authority, and never becomes the class identity.
+                  The registry's `names` field states what each body's terms
+                  denote (practice / process / skill / role / control /
+                  competency / terminology), because mapping a worker to a
+                  PROCESS is a different claim than mapping it to a ROLE.
+                type: object
+                minProperties: 1
+                additionalProperties: false
+                patternProperties:
+                  "^[a-z][a-z0-9_-]*$":
+                    type: object
+                    additionalProperties: false
+                    required: [mapping]
+                    properties:
+                      mapping:
+                        description: >-
+                          That body's term for this class, or the literal
+                          `no_clean_equivalent` when the class has no honest
+                          counterpart in THAT body — which REQUIRES a note.
+                          A forced mapping is worse than an honest absence.
+                        type: string
+                        minLength: 1
+                      note:
+                        type: string
+                        minLength: 1
+      job_types:
+        $ref: "#/$defs/label_map"
+      stop_conditions:
+        $ref: "#/$defs/label_map"
+      routing:
+        $ref: "#/$defs/label_map"
   workers:
     type: array
     minItems: 1
@@ -164,10 +239,45 @@ properties:
     uniqueItems: true
     items:
       $ref: "#/$defs/identifier"
+  rung_ceilings:
+    description: >-
+      Per-task-category crystallization rung ceilings with reasons
+      (`add-crystallizer-contracts`). Where a family's category carries no
+      declared ceiling the effective ceiling defaults to L3 — the code
+      rungs (L4-L6) are reachable only through an explicit, reasoned
+      declaration here. Category uniqueness is validator-enforced.
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [category, ceiling, reason]
+      properties:
+        category:
+          $ref: "#/$defs/identifier"
+        ceiling:
+          $ref: "#/$defs/automation_rung"
+        reason:
+          type: string
+          minLength: 1
 $defs:
+  automation_rung:
+    description: The frozen crystallization rung vocabulary (add-crystallizer-contracts D7).
+    enum: [L0, L1, L2, L3, L4, L5, L6]
   identifier:
     type: string
     pattern: "^[a-z][a-z0-9_-]*$"
+  label_map:
+    description: >-
+      id -> domain-expert display label. Presentation only; every key must
+      resolve to an id this overlay declares.
+    type: object
+    minProperties: 1
+    additionalProperties: false
+    patternProperties:
+      "^[a-z][a-z0-9_-]*$":
+        type: string
+        minLength: 1
   relative_path:
     type: string
     pattern: "^[^/].*[^/]$"
@@ -211,6 +321,51 @@ $defs:
           class — the deciders-direct-workers linkage domains declare in
           their hermes/domain/roles tree.
         $ref: "#/$defs/identifier"
+      crystallized:
+        description: >-
+          Marks a crystallized-executor binding (`add-crystallizer-contracts`):
+          a capability serving work previously done by the
+          `replaces_configuration` class. Constitutional booleans bind
+          verbatim via this schema; the authority-conservation subset check
+          is enforced by the canonical validator.
+        type: boolean
+      capability_ref:
+        type: string
+        minLength: 1
+      automation_rung:
+        $ref: "#/$defs/automation_rung"
+      replaces_configuration:
+        $ref: "#/$defs/identifier"
+      throttle:
+        type: object
+        additionalProperties: false
+        required: [schedule_ref]
+        properties:
+          schedule_ref:
+            type: string
+            minLength: 1
+      semantic_context:
+        description: >-
+          Optional worker-scoped semantic-context declaration
+          (`add-omnigent-semantic-wiring`; the Omnigent seam of
+          add-domain-ontology-layer design decision 13). Identity ONLY —
+          the profile lives inventoried in the domain's own ontology
+          package and package pins belong to consumers and compiled
+          artifacts, so the declaration stays valid across compatible
+          ontology releases. Repo-mode validation resolves the profile and
+          requires worker_scope agreement (archetype or class). Carries no
+          permission field; the six-boolean matrix is unchanged by its
+          presence.
+        type: object
+        additionalProperties: false
+        required: [profile_id, package_id]
+        properties:
+          profile_id:
+            type: string
+            pattern: "^prof-[a-z0-9][a-z0-9-]{0,63}$"
+          package_id:
+            type: string
+            pattern: "^xf/[a-z0-9_]+$"
       responsibility:
         type: string
         minLength: 1

@@ -1,0 +1,41 @@
+# INVALID consent instrument — violates spec requirement "The Lifecycle Enum
+# Is Closed With Declared Aliases" (ruling D3): status `executed` under class
+# `engagement_letter`, whose registry entry declares signature_phase TRUE,
+# with no `pending_signatures` anywhere in the transition trace.
+# Class-appropriate skipping is DECLARED (portal_acceptance's
+# signature_phase: false), never silent — the canonical validator
+# cross-checks the trace against the registry (finding
+# undeclared-lifecycle-skip). Schema-valid on purpose: only the validator's
+# registry cross-check can see this.
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: "ci-demo-advisory-0005"
+domain: demo-advisory
+instrument_class: engagement_letter
+parties:
+  - party: "Acme Advisors LLP"
+    rung: 1
+    role: tenant_firm
+    authority_basis: direct
+  - party: "Meridian Retail Ltd"
+    rung: 2
+    role: subject_client_company
+    authority_basis: direct
+scope:
+  purposes: [bookkeeping]
+  out_of_scope: [payroll-support]
+autonomy_position: "hypothesis_only"
+revocation:
+  right: "Either party may revoke delegated access by written notice."
+  sla: "P1D"
+custody:
+  locator: "opaque:demo-advisory/instruments/ci-demo-advisory-0005"
+  sha256: "4b7a2f0e6d1c9b8a5f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a"
+status: executed
+status_history:
+  - status: draft
+    at: "2026-07-20T09:00:00Z"
+  - status: executed
+    at: "2026-07-24T10:30:00Z"
+data_consent:
+  mapping: none

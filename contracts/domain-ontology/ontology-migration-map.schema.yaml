@@ -1,0 +1,68 @@
+schema_version: 1
+name: xfactory_ontology_migration_map
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-migration-map.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, task 2.1; lifecycle spec
+# "Immutable ontology evolution and compatibility"). The migration map a
+# breaking or retiring release must ship: how every affected identifier is
+# interpreted across the compatibility line. Historical artifacts keep their
+# original pins; this map serves consumers moving forward, never rewrites.
+type: object
+required:
+  - schema_version
+  - kind
+  - from_package
+  - to_package
+  - compatibility_class
+  - migrations
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_ontology_migration_map
+  from_package:
+    $ref: "#/$defs/package_pin"
+  to_package:
+    $ref: "#/$defs/package_pin"
+  compatibility_class:
+    enum: [breaking, retiring]
+  migrations:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [from_id, disposition]
+      additionalProperties: false
+      properties:
+        from_id:
+          $ref: "#/$defs/term_id"
+        disposition:
+          enum: [replaced, retired, split, merged, narrowed, reparented]
+        to_ids:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/$defs/term_id"
+        note:
+          type: string
+          minLength: 1
+          maxLength: 400
+$defs:
+  package_pin:
+    type: object
+    required: [package_id, package_version, package_digest]
+    additionalProperties: false
+    properties:
+      package_id:
+        type: string
+        pattern: "^xf/[a-z0-9_]+$"
+      package_version:
+        type: string
+        pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      package_digest:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+  term_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"

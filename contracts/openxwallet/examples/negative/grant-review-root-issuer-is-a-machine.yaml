@@ -1,0 +1,27 @@
+# US2 negative probe (S2, OXWR-R2, machine-named branch). A ROOT review-class
+# grant naming a machine-shaped issuer — a subject-id handle, the way agents
+# name themselves in this ecosystem. A root issuer's authority cannot be
+# conferred by the register it writes into, and an agent holder is exactly
+# what a root issuer must not be.
+# expected_failure: root-issuer-unanchored
+# expected_failure_detail: sub-8f2c41d60a974d3b
+# requirement: OXWR-R2
+schema_version: 1
+kind: xfactory_wallet_grant
+grant_id: grant-review-root-machine-issuer-0001
+audience:
+  wallet_ref: wal-agent-poster-0001
+  holder_ref: agent:ledger-poster
+scope:
+  acts:
+    - review
+  authority_tier: act
+  approval_posture:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: false
+    human_escalation_required_for:
+      - irreversible_external_effect
+expires_at: "2027-06-30T23:59:59Z"
+issued_at: "2026-08-24T00:00:00Z"
+issued_by: sub-8f2c41d60a974d3b
+state: active

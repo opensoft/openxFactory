@@ -1,0 +1,29 @@
+# expected_failure: mutable-verdict
+# An episode storing a quality verdict — quality is a fold over the
+# append-only outcome_label stream; a stored verdict cannot be re-graded by
+# a late correction.
+schema_version: 1
+kind: episode
+episode_id: "ep:opensoft:2026-07-28:verdict-stored"
+tenant_ref: "tenant:opensoft"
+envelope:
+  job_type: brainstorm_packet_capture
+plan_ref:
+  digest: "sha256:727cccd0bcb1264e6efb7f5bf15ba019680d24900356b012f7f5ea72fad7d2be"
+spans:
+  - agent: "session:x"
+    steps:
+      - tool: write-docs
+        io_digest: "sha256:112defca56079698373a1383fb92d687b9a38f333fa4827d7308671c756082f8"
+cost:
+  credits: null
+  wall_ms: 1000
+  human_touches: []
+  meter_ref: null
+replayability: live-only
+consent:
+  episode_use: true
+  automation: false
+  pooling: false
+labels_ref: "labels:x"
+quality: positive

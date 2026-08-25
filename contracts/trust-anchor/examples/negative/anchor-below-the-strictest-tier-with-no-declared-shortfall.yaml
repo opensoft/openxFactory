@@ -1,0 +1,42 @@
+# expected_failure: anchor-custody-below-strictest-tier
+# expected_failure_detail: no shortfall is declared
+# requirement: TA-R7
+# VIOLATES TA-R7: an anchor whose key custody sits below the strictest member of
+# the closed set, with nothing declared about it.
+#
+# The realization here is the SELF-HOSTED one, which is what makes the record
+# dishonest rather than merely degraded. The managed anchors in the positive
+# corpus declare exactly this shortfall and are conformant on the strength of the
+# declaration; this record says nothing, and silence reads as the strongest case
+# to anyone who does not go looking.
+#
+# An undeclared shortfall is non-conformance even where the identical shortfall,
+# declared, would be conformant. Declaring it is cheap. Leaving a reader to assume
+# is what the rule refuses.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:neg-undeclared-weak-custody
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "Convenience Issuing Authority"
+chain_position:
+  role: subordinate
+  parent_anchor_ref: anchor:core-root
+  path_depth: 1
+validity:
+  not_before: "2026-02-01T00:00:00Z"
+  not_after: "2031-02-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:core-service-issuance-policy
+    authority_kind: policy
+    statement: Service certificates.
+declared_chain_custody:
+  custody_model: host_isolated_invocable
+  registry_id: trust-anchor-chain-custody
+  credential_record_ref: credential:neg-convenience-issuing-key
+  vault_binding_ref: vaultbinding:core/convenience-issuing-key
+  declared_at: "2026-02-01T00:00:00Z"
+  statement: >-
+    Signing runs against a local agent with no per-use approval, because the
+    approval step was slowing issuance down.

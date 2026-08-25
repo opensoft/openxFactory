@@ -1,0 +1,10 @@
+schema_version: 1
+kind: xfactory_ontology_concepts
+package_id: xf/core
+concepts:
+  - id: xf/core/fixture_term
+    label: Fixture Term
+    definition: A fixture concept.
+    lifecycle_state: published
+    adoption: {status: evidenced, adopters: [{kind: shared_subsystem_contract, ref: docs/architecture.md}, {kind: shared_subsystem_contract, ref: docs/architecture.md}]}
+    effective_version: 1.0.0

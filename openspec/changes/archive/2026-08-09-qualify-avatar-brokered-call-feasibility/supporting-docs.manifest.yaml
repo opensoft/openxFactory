@@ -1,0 +1,41 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "9fb4dacece50e4cfc739fc1c9efcf4d6db0f328814d221e4b8c9d77c9976b6ae"
+  },
+  "change_id": "qualify-avatar-brokered-call-feasibility",
+  "files": [
+    {
+      "path": "avatar-brokered-call-acceptance-map.yaml",
+      "sha256": "fc8ccb3ed65a423a1adff79b828be0078eb3148587f80c3fc3c5818ae9620321"
+    },
+    {
+      "path": "avatar-brokered-call-acceptance-traceability.md",
+      "sha256": "53667bfc3f741bd093477314fc570d9d62759622dea8f262136170d707d7bbdc"
+    },
+    {
+      "path": "f0-brokered-call-spike-protocol.md",
+      "sha256": "51354251f8e8ac68d806fe29945eb586e3ca115dbcb33761cfc2c25fe73b78b7"
+    },
+    {
+      "path": "f0-interface-impact.schema.yaml",
+      "sha256": "bedaab2c1a621aa2c513d0f45c5b2e1c09343b92805e75054b7622fd94e6fd53"
+    },
+    {
+      "path": "f0-results.schema.yaml",
+      "sha256": "6a94e4a38e08ba5f1eb32dfa3956cec15d9393a4f63019757a270ecb8ee3dc6f"
+    },
+    {
+      "path": "manifest.yaml",
+      "sha256": "f17ff6ec80d76a8e1924e2b005c396d3c50dede98ac10b546fcf2c8ddb519d41"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": null,
+  "origin_path": null,
+  "packaged_at": "2026-08-09",
+  "source_revision": "uncommitted-worktree",
+  "transitioned_at": "2026-07-10"
+}

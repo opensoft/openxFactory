@@ -1,0 +1,36 @@
+schema: spec-driven
+created: 2026-08-18
+origin:
+  kind: staged
+  id: openxFactory:staging:doxbench-editing-model
+  path: ideation/staging/doxbench-editing-model
+  reason: >-
+    Phase B of the staged topic, and its EXIT. Phase A (2026-08-15) took the
+    four questions that fit the existing two-buffer machinery; the topic kept
+    Q1 and Q3 open and later gained Q7. All three are now ruled and the topic
+    carries 26 settled claims: Brett's live-UI annotations of 2026-08-18
+    replaced numbered chips with a loaded-document dropdown (Q1) and put
+    read/edit/save on the docs-wheel tile (Q3), and his in-session ruling of
+    2026-08-18 — extended the same day by a verification pass — settled the
+    two-plane chat memory design, its memory-gateway conformance, and the
+    three-layer compression stack (Q7). Phase B carries every remaining claim:
+    the N-buffer generalization of `BUFFER_KINDS`,
+    `require_outline_and_document`/`PROPOSAL_TARGETS` and `SAVE_BUFFER_ORDER`;
+    the loaded-set selector; the tile verbs; per-document threads with a
+    structured thread-state header; share-session; the Staged-Set Knowledge
+    Service as a memory-gateway consumer; the oh-my-pi harness behind the
+    existing model port; and the chat-turn contract release that discharges
+    Phase A's F2 carve-out. Every open question reaches a disposition other
+    than `open`, so this change exits the topic.
+  approved_by: >-
+    Brett Heap (live-UI annotations and in-session rulings, 2026-08-15 through
+    2026-08-18; every disposition recorded on the topic fragment)
+  approved_on: 2026-08-18
+sequencing:
+  after: add-doxbench-editing-phase-a
+  reason: >-
+    Per `release-realization`'s ordered-deltas requirement: three requirements
+    this change MODIFIES were ADDED by `add-doxbench-editing-phase-a`, which is
+    active and unarchived, so its deltas are declared relative to Phase A's
+    OUTCOME and its spec text must promote first. Phase A's F2 carve-out
+    explicitly records the turn-record naming obligation as riding this change.

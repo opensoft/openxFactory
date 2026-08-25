@@ -1,0 +1,68 @@
+# MVP corpus completion: three junction decisions — a served instance
+# (illustrative post-promotion shape), a fence-miss fallback (frontier
+# evidence), and a sentinel dual-run (the counterfactual anchor's source).
+schema_version: 1
+kind: dispatch_record
+dispatch_id: "disp:opensoft:2026-08-04:packet-capture:0007"
+envelope_ref: "env:opensoft:brainstorm_packet_capture:0007"
+family_match:
+  family_ref: "fam:opensoft:packet-capture-mechanics"
+  confidence: 0.97
+  matcher_version: "manual-0"
+capability_ref: "cap:opensoft:packet-capture-playbook"
+effect_class: idempotent
+path: crystallized
+fallback_cause: null
+postconditions:
+  evaluated: true
+  passed: true
+  breaches: []
+provenance: "served by cap:opensoft:packet-capture-playbook@1 (rung L3)"
+overhead:
+  decision_ms: 42
+  decision_credits: null
+at: "2026-08-04"
+---
+schema_version: 1
+kind: dispatch_record
+dispatch_id: "disp:opensoft:2026-08-04:packet-capture:0008"
+envelope_ref: "env:opensoft:brainstorm_packet_capture:0008"
+family_match:
+  family_ref: "fam:opensoft:packet-capture-mechanics"
+  confidence: 0.88
+  matcher_version: "manual-0"
+capability_ref: "cap:opensoft:packet-capture-playbook"
+effect_class: idempotent
+path: ai
+fallback_cause: fence-miss   # 31 docs > fence's doc_count <= 25: frontier evidence
+postconditions:
+  evaluated: false
+  passed: null
+  breaches: []
+provenance: null
+overhead:
+  decision_ms: 12
+  decision_credits: null
+at: "2026-08-04"
+---
+schema_version: 1
+kind: dispatch_record
+dispatch_id: "disp:opensoft:2026-08-05:packet-capture:0009"
+envelope_ref: "env:opensoft:brainstorm_packet_capture:0009"
+family_match:
+  family_ref: "fam:opensoft:packet-capture-mechanics"
+  confidence: 0.96
+  matcher_version: "manual-0"
+capability_ref: "cap:opensoft:packet-capture-playbook"
+effect_class: idempotent
+path: dual                   # sentinel dual-run: both paths, compared
+fallback_cause: sentinel
+postconditions:
+  evaluated: true
+  passed: true
+  breaches: []
+provenance: "dual-run: cap:opensoft:packet-capture-playbook@1 vs AI path (sentinel)"
+overhead:
+  decision_ms: 40
+  decision_credits: null
+at: "2026-08-05"

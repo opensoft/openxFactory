@@ -1,0 +1,13 @@
+schema_version: 1
+kind: xfactory_ontology_release_record
+release_id: rel-<slug>
+package_id: xf/<domain-slug>
+package_version: <x.y.z>
+package_digest: <64-hex from the published manifest>
+compatibility_class: additive
+decided_by: <accountable-steward-id>
+approvals:
+  - approver: "<council or domain authority>"
+    approval_kind: council
+    approval_ref: "<review record>"
+quality_report_ref: <beside-package quality report>

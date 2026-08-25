@@ -1,0 +1,17 @@
+schema_version: 1
+kind: xfactory_ontology_candidate_record
+candidate_id: cand-care-gap
+package_id: xf/medx
+mode: extend
+proposed:
+  concepts:
+    - id: xf/medx/care_gap
+      label: "Care Gap"
+      definition: "A gap between planned and delivered care, proposed from intake notes."
+      parents: [xf/core/focal_item]
+provenance:
+  method: model_extraction
+  extraction_run_id: run-medx-pilot-0001
+  confidence: 0.7
+  source_refs: [medx-intake-notes]
+review_state: open

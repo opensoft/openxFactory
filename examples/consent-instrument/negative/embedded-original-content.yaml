@@ -1,0 +1,41 @@
+# INVALID consent instrument — violates spec requirement "The Signed
+# Original Never Enters A Product Repo" (ruling D9): custody carries the
+# signed original's CONTENT (a base64 body) beside the locator. Custody is a
+# pointer, not a payload — the schema closes the custody block to
+# locator + sha256, and the canonical validator flags the blob-shaped value
+# regardless of schema outcome (finding embedded-original-content).
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: "ci-demo-advisory-0004"
+domain: demo-advisory
+instrument_class: engagement_letter
+parties:
+  - party: "Acme Advisors LLP"
+    rung: 1
+    role: tenant_firm
+    authority_basis: direct
+  - party: "Meridian Retail Ltd"
+    rung: 2
+    role: subject_client_company
+    authority_basis: direct
+scope:
+  purposes: [bookkeeping]
+  out_of_scope: [payroll-support]
+autonomy_position: "hypothesis_only"
+revocation:
+  right: "Either party may revoke delegated access by written notice."
+  sla: "P1D"
+custody:
+  locator: "opaque:demo-advisory/instruments/ci-demo-advisory-0004"
+  sha256: "9c1185a5c5e9fc54612808977ee8f548b2258d31a537b2c0b1c1b1e4f7a2d9c3"
+  content: "JVBERi0xLjQKJcOkw7zDtsOfCjIgMCBvYmoKPDwvTGVuZ3RoIDMgMCBSL0ZpbHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQp4nDPQM1Qo5ypUMFAwALKMLU31jBQsTA31jBWKUrnCtRTyuQIVAIcdB3IKZW5kc3RyZWFtCmVuZG9iagozIDAgb2JqCjQ0CmVuZG9iagoyIDAgb2JqCjw8L1R5cGUvUGFnZS9NZWRpYUJveFswIDAgNTk1IDg0Ml0+PgplbmRvYmoK"
+status: executed
+status_history:
+  - status: draft
+    at: "2026-07-20T09:00:00Z"
+  - status: pending_signatures
+    at: "2026-07-21T15:00:00Z"
+  - status: executed
+    at: "2026-07-24T10:30:00Z"
+data_consent:
+  mapping: none

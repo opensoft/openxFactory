@@ -1,0 +1,40 @@
+# expected_failure: presenting-key-unresolved
+# expected_failure_detail: an exercise presented by an unknown key
+# requirement: OXW-R3
+# VIOLATES core R3: a presenting key no wallet record declares.
+#
+# The signature verifies and the grant resolves, but key-unknown-0099 is no
+# wallet's key_reference, so there is no wallet to hold the audience binding
+# against. Passing over that case would make the binding optional in
+# practice: present any key the corpus has never seen and the check that
+# secures the grant to its audience never runs.
+#
+# Same fail-closed asymmetry the grant and custody-ceiling bindings already
+# close: what cannot be checked is refused, not skipped.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-unknown-key-0027
+grant_ref: grant-posting-derived-0002
+act: post_transaction
+object_ref: purchase-invoice:LXRP0033
+occurred_at: "2026-08-08T10:05:00Z"
+event_class: authenticated
+proof_of_possession:
+  presented: true
+  verified: true
+  signature_algorithm: ed25519
+  signed_over: request
+  presenting_key_ref: key-unknown-0099
+attribution:
+  mode: key_attributed
+  presenting_key_ref: key-unknown-0099
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+constraint_evaluations:
+  - constraint_ref: dhc-posting-sod-0001
+    prior_act_holder_ref: agent:ledger-intake-alt
+    this_holder_ref: agent:ledger-poster
+    satisfied: true
+outcome: permitted

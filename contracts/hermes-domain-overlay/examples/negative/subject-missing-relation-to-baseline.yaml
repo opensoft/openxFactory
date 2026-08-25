@@ -1,0 +1,15 @@
+# expected_failure: missing or empty subject.relation_to_baseline
+# No relation is inferred by default: a document that does not declare how it
+# stands to the composed baseline has not taken a position.
+schema_version: 1
+kind: hermes_subject_overlay
+
+subject:
+  id: project-alfa
+  subject_kind: project
+  display_name: Project Alfa Subject Hermes
+  policy_namespace: opensoft.codexfactory.project-alfa
+  policies:
+    admission-conditions:
+      policy_id: admission-conditions
+      policy_namespace: opensoft.codexfactory.project-alfa

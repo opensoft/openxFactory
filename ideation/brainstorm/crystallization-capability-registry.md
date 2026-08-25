@@ -1,6 +1,6 @@
 # The Crystallized-Capability Registry — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: The registry is the packet's data spine — a governed contract
 artifact (YAML with `schema_version` + `kind`, git as source of truth,
@@ -17,6 +17,9 @@ digest-pinning, status-lifecycle, dispatch, governed-derived-model
 Repository context: openxFactory (neutral registry schema; per-domain
 registries as content)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

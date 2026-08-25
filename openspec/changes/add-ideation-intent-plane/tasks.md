@@ -37,9 +37,14 @@ this change.
       validator's schema list + kind map; applied->record and
       refused->reason enforced at the schema layer; self-test green
       (0 errors, 0 warnings, --strict).
-- [ ] 2.4 Register the delta in contracts/manifest.yaml / CHANGELOG.md /
+- [x] 2.4 Register the delta in contracts/manifest.yaml / CHANGELOG.md /
       README.md at the realization commit (registration-at-realization
       precedent).
+      Realized 2026-08-02 in the release candidate published as
+      `contract-v1.29` (renumbered 2026-08-03 after the chat-turn release
+      consumed `contract-v1.28`): the gate-intent kernel is registered for
+      the first time at its wheel-expanded shape, with raw-byte digest and
+      closed release-inventory membership.
 
 ## 3. Local Action Center (codexFactory Speckit realization — D5 first)
 
@@ -69,13 +74,49 @@ this change.
 
 ## 4. Hosted Intent Plane (codexFactory + omnigent-install + aggregation)
 
-- [ ] 4.1 Intent-inbox service (dispatch-only credential, ingress-actor
+UNBLOCKED 2026-08-09 — hosting venue DECIDED by Brett (design D7): the QA
+AKS cluster behind the dashboard's ingress, per-user Basic Auth as identity
+rung 1; realization evidence rides a deployment-handoff request to
+OpsxFactory (managed-subject rule).
+
+- [x] 4.1 Intent-inbox service (dispatch-only credential, ingress-actor
       stamping, per-actor verb allowlist config, rate limit + idempotency
       key); deployment via omnigent-install (hosting shape decided at
       realization: sidecar vs own deployment).
-- [ ] 4.2 Per-user Basic Auth entries + ingress actor forwarding (replaces
+      (Service + committed allowlist + 13 real-HTTP tests proposed
+      2026-08-09 as Omnigent-Install PR #67 — actor stamped over
+      body claims, allowlist fail-closed, one-workflow dispatch with the
+      token named-not-carried, refusals and dispatch failures recorded and
+      served. Ticks on merge; the k8s/ingress half rides 4.2 with the
+      OpsxFactory deployment handoff.
+      MERGED 2026-08-10: PR #67 (squashed 3a5b524) landed with a RED
+      validate job — the suite was pytest in a unittest-discovery CI — and
+      PR #68 repaired it same-day with the 13 scenarios as unittest
+      TestCases, checks green before merge.)
+- [x] 4.2 Per-user Basic Auth entries + ingress actor forwarding (replaces
       the shared secret); Keycloak swap stays contract-invisible.
-- [ ] 4.3 Apply-lane workflow + orchestration module (doc-health lane family
+      (Deploy tree MERGED 2026-08-10 as Omnigent-Install PR #69, checks
+      green before merge: deploy/kubernetes base + aks-qa overlay — dox
+      namespace, credential-free dashboard pod, the inbox in its OWN
+      deployment (D2 shape resolved: one credential, one pod), ingress on
+      dox-opensoft-qa.xforge.us with per-user htpasswd Basic Auth and
+      X-Auth-Request-User forwarded from $remote_user, /intents -> inbox,
+      Key Vault CSI for both secrets, unittest shape guards, human-gated
+      apply runbook. TICKS when the live apply lands via the OpsxFactory
+      deployment handoff — CIR request + intake case + Brett's approval
+      record + grant-held apply + read-back checks, the dispatch-junction
+      precedent.)
+      DONE 2026-08-13: the live v7 apply landed on QA AKS (dashboard + inbox +
+      dox-auth Ready on the approved digests) and the readiness walk passed all
+      six mandatory checks — anon 401; brett 200 over the Let's Encrypt dox-tls
+      cert; auditor 403 with the refusal stamped actor=auditor; dispatch token
+      Actions:write on opensoft/xFactory only; three images digest-pinned;
+      dashboard pod credential-free. The CIR cir-opensoft-qa-dox-intent-plane
+      walked acknowledged -> completed (trusted_validator, hermes-install PR #21)
+      against the fresh passing readiness result dox-qa-intent-plane-ready. The
+      dispatch-credential ownership hardening (personal PAT -> org-owned App)
+      rides add-dispatch-credential-contract.)
+- [x] 4.3 Apply-lane workflow + orchestration module (doc-health lane family
       pattern): replay via console engine, stale-view refusal, atomic
       intent+record+artifact commit, rolling intents PR with auto-merge,
       optional on-apply snapshot rebake.
@@ -84,6 +125,22 @@ this change.
       GET intents.
 - [ ] 4.5 Flutter verdict-terminal client consumes the same two endpoints
       (own feature; contract fixed here).
+
+      (REALIZED 2026-08-10: openxFactory PR #157 — intent_apply_lane.py in
+      the register-edit lane's family, replaying through run_gate_action
+      with the new intent-plane/ingress-auth provenance pair (additive
+      schema + manifest growth), full server-side revalidation, D4
+      stale-view CAS, atomic intent+record+artifact commits, committed
+      refusals, payload-equivalent idempotency, whole-pass rollback;
+      40 lane tests. MERGED a6fdb77 after TWELVE Codex rounds closing 26
+      findings (25 fixed, 1 disposed: the edit-project register CAS —
+      aggregation-owned register, D18 queueing + fulfilment-time member
+      checks are the material guard). The aggregation gained
+      .github/workflows/intent-apply.yml (5539eb9): content-App token,
+      fresh clone on intents/rolling, allowlist fetched from
+      Omnigent-Install, env-only intent input, fail-on-rejected-push,
+      one custody PR. The rolling PR's auto-merge custody wiring and the
+      hosted tray flip ride 4.4.)
 
 ## 5. Tests And Records
 

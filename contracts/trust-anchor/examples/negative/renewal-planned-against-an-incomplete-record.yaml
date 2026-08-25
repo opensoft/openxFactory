@@ -1,0 +1,42 @@
+# expected_failure: renewal-planned-on-incomplete-record
+# expected_failure_detail: cannot proceed by misdeclaring the state
+# requirement: TA-R5
+# VIOLATES TA-R5: a renewal that PROCEEDED while declaring the certificate's
+# dependent enumeration `known_incomplete`.
+#
+# Two layers catch it, which is deliberate. The shape forces the planning outcome
+# to `refused` whenever the enumeration is known incomplete, so the recorded form
+# above cannot be authored — you cannot write down "I knew the set was incomplete
+# and I renewed anyway". And because the escape from a shape like that is to
+# misdeclare the state, the validator compares the declared state against the
+# certificate record itself: this renewal claims incomplete where the record says
+# complete, and a renewal claiming complete over a record that says otherwise
+# fails the same comparison.
+#
+# You cannot evidence the completion of an obligation over a set you never
+# enumerated, which is why planning is refused rather than best-effort.
+schema_version: 1
+kind: xfactory_certificate_renewal_record
+renewal_id: renewal:neg-planned-on-incomplete
+certificate_ref: cert:core-workload-02
+anchor_ref: anchor:core-issuing
+renewal_mode: requested
+planning:
+  planned_at: "2026-06-30T00:00:00Z"
+  certificate_enumeration_state: known_incomplete
+  outcome: proceeded
+  statement: >-
+    The enumeration was known to be missing at least one directory binding; the
+    renewal window was closing, so it went ahead.
+key_change:
+  changed: false
+rebind_obligation:
+  arises: false
+  statement: The authority reissued against the existing key.
+enumerated_dependents:
+  - bind:core-workload-02-queue
+  - bind:core-workload-02-mesh
+dependent_rebinds: []
+authority_outcome: issued
+completion_state: complete
+reported_at: "2026-07-01T00:10:00Z"

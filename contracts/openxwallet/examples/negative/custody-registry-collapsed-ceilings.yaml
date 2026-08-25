@@ -1,0 +1,41 @@
+# expected_failure: custody-collapse
+# expected_failure_detail: can claim the stronger
+# requirement: OXW-R4
+# VIOLATES core R4: the two cases are distinguished in NAME and collapsed in
+# EFFECT.
+#
+# This is the subtlest of the three, and the one a reviewer is most likely to
+# wave through. Every member declares `evidences` correctly. No ceiling is
+# unearned. The enumeration does distinguish a readable key from an isolated
+# one — exactly as the handoff requires — and then gives them THE SAME
+# CEILING, so the distinction buys nothing and the readable case holds every
+# authority the isolated case holds.
+#
+# Distinguishing the two members in the enumeration is necessary and not
+# sufficient; the cap has to differ, or the ruling is decorative.
+schema_version: 1
+kind: xfactory_wallet_custody_registry
+registry_id: openxwallet-custody-collapsed-b
+registry_version: 1
+authority_tiers:
+  - id: act
+    rank: 2
+    statement: Complete an effecting act, with approval required before apply.
+  - id: act_unsupervised
+    rank: 3
+    statement: Complete an effecting act with no approval before apply.
+custody_models:
+  - id: holder_readable
+    title: Key material readable by the holder's own execution context
+    key_readable_by_holder_execution_context: true
+    use_requires_authorization_outside_holder_execution_context: false
+    evidences: environment
+    evidences_statement: A signature evidences that the ENVIRONMENT acted.
+    authority_ceiling: act
+  - id: isolated_per_use_authorized
+    title: Key isolated, each use authorized outside the holder's context
+    key_readable_by_holder_execution_context: false
+    use_requires_authorization_outside_holder_execution_context: true
+    evidences: holder
+    evidences_statement: A signature evidences that the HOLDER acted.
+    authority_ceiling: act

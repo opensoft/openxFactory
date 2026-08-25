@@ -1,0 +1,48 @@
+# expected_failure: custody-floor-not-weakest
+# expected_failure_detail: absence of a declaration BUYS authority
+# requirement: TA-R3
+# VIOLATES TA-R3's undeclared-custody rule in a registry that RENAMED ITS MEMBERS.
+# The floor points at `isolated_gated` — this registry's holder-evidencing member
+# — so declaring no custody at all would buy holder-attributed assurance.
+#
+# The renaming is the point. The rule used to resolve `undeclared_custody_resolves_to`
+# in the CANONICAL registry rather than in the document being validated, so a
+# registry with its own member names reported "not a member of this registry" —
+# `custody-floor-unknown`, about a member that is right there — and the
+# weakest-member comparison was never reached at all. A check that fails open on
+# exactly the document it exists to adjudicate is worse than no check, because the
+# green bar is evidence of nothing.
+schema_version: 1
+kind: xfactory_trust_anchor_chain_custody_registry
+registry_id: trust-anchor-chain-custody-variant
+registry_version: 1
+assurance_levels:
+  - {id: channel_only, rank: 0, statement: Channel authentication only.}
+  - {id: host_attributed, rank: 1, statement: An act attributed to the using host.}
+  - {id: holder_attributed, rank: 2, statement: An act attributed to the named holder.}
+custody_models:
+  - id: soft_file_held
+    title: Readable by the using host
+    key_readable_by_using_host: true
+    use_requires_authorization_outside_using_host: false
+    evidences: using_host
+    openxwallet_custody_model: holder_readable
+    evidences_statement: The using host acted; the key is a file it can read.
+    assurance_ceiling: host_attributed
+  - id: isolated_invocable_local
+    title: Isolated, invocable without limit
+    key_readable_by_using_host: false
+    use_requires_authorization_outside_using_host: false
+    evidences: using_host
+    openxwallet_custody_model: isolated_invocable
+    evidences_statement: The using host acted; isolation contains the key only.
+    assurance_ceiling: host_attributed
+  - id: isolated_gated
+    title: Isolated, per-use authorized
+    key_readable_by_using_host: false
+    use_requires_authorization_outside_using_host: true
+    evidences: named_holder
+    openxwallet_custody_model: isolated_per_use_authorized
+    evidences_statement: The named holder acted.
+    assurance_ceiling: holder_attributed
+undeclared_custody_resolves_to: isolated_gated

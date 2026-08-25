@@ -1,6 +1,6 @@
 # Task Fingerprints and Recurrence Families — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: "The same task, again" needs a two-tier identity — a task family
 (the recurring, crystallizable pattern) and a task instance (one occurrence
@@ -15,6 +15,9 @@ dispatch
 Repository context: openxFactory (neutral fingerprint/family schema; per-domain
 canonicalization in overlays)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

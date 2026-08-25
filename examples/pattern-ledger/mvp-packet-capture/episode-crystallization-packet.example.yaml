@@ -1,0 +1,45 @@
+# MVP fixture corpus: the recurrence-crystallization brainstorm packet
+# capture of 2026-07-28 (openxFactory commit 05aec45, 19 docs, plus the
+# aggregation-repo pointer sync 397a495) — the second same-shape run.
+schema_version: 1
+kind: episode
+episode_id: "ep:opensoft:2026-07-28:crystallization-packet-capture"
+tenant_ref: "tenant:opensoft"
+envelope:
+  job_type: brainstorm_packet_capture
+  domain: codexFactory
+  refs:
+    repository: openxFactory
+    commit: 05aec45
+    pointer_sync_commit: 397a495
+    doc_count: 19
+plan_ref:
+  digest: "sha256:727cccd0bcb1264e6efb7f5bf15ba019680d24900356b012f7f5ea72fad7d2be"
+spans:
+  - agent: "session:crystallization-packet"
+    steps:
+      - tool: write-docs
+        io_digest: "sha256:4a0082909f15d41550acaab6cdd3aecb2aa62b8e87f8e4b8ff2b4d6b27c0cd66"
+        payload_ref: null
+      - tool: edit-readme-index
+        io_digest: "sha256:359da8137146ac21cfb82aa321182c6e81a7565feff65681976abf5ece75641e"
+        payload_ref: null
+      - tool: git-commit-push
+        io_digest: "sha256:827287b2bdba2f2fa7bd3a68a30f11973fcb71c9ad604f2929a49946eff8323b"
+        payload_ref: null
+      - tool: git-pointer-sync
+        io_digest: "sha256:6bbd13a3f6fb0642c64cded435472adf96fece399cd6ce5daad8f6de19e286b6"
+        payload_ref: null
+cost:
+  credits: null
+  wall_ms: 2700000         # ~45 min authoring-to-push
+  human_touches:
+    - "packet request"
+    - "commit approval"
+  meter_ref: null
+replayability: live-only
+consent:
+  episode_use: true
+  automation: false
+  pooling: false
+labels_ref: "labels:opensoft:crystallization-packet-capture"

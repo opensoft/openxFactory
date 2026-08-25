@@ -1,0 +1,10 @@
+schema_version: 1
+kind: xfactory_ontology_concepts
+package_id: xf/core
+concepts:
+  - id: xf/core/pair_term
+    label: Pair Term
+    definition: A fixture concept.
+    lifecycle_state: published
+    adoption: {status: evidenced, adopters: [{kind: shared_subsystem_contract, ref: docs/architecture.md}, {kind: shared_subsystem_contract, ref: README.md}]}
+    effective_version: 1.0.0

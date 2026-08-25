@@ -1,0 +1,27 @@
+# VALID pre-broker actor reference: a record written BEFORE the broker existed,
+# carrying the bare username it has always carried. It stays readable, it is
+# marked as predating the persona boundary, and `presented_as_persona: false`
+# says so in the shape rather than leaving a reader to remember.
+#
+# This is design OQ-1's settlement (change task 2.3): MARK THE BOUNDARY DATE
+# and map on demand. No blanket backfill — a backfill asserts identity
+# resolutions nobody verified, which is the false-audit failure the merge
+# ruling refuses, and a mapping table that had to be complete before the broker
+# was useful would stall the whole adoption.
+#
+# The shape admits neither an issuer nor an opaque subject here: there was no
+# broker to issue one, and inventing one would be the assertion this record
+# exists to avoid.
+schema_version: 1
+kind: actor_subject_reference
+reference_id: asr-pre-broker-0002
+governed_record_ref:
+  record_type: gate_action
+  record_ref: "openxfactory:gate/add-openxwallet/ratify/2026-08-07"
+provenance: pre_broker_username
+display_name_at_record: bheap
+pre_broker:
+  username: bheap
+  persona_boundary_date: "2026-08-21"
+  presented_as_persona: false
+recorded_at: "2026-08-07T11:20:00Z"

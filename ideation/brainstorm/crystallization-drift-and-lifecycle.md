@@ -1,6 +1,6 @@
 # Capability Drift, Renewal, and Retirement — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Drift is the expected operating condition of a crystallized
 capability, arriving in four classes (input, world, requirement, dependency)
@@ -16,6 +16,9 @@ retirement, doc-health, fence, sentinel, lifecycle
 Repository context: openxFactory (neutral drift-signal and health-report
 schemas; thresholds are domain/tenant policy)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

@@ -1,0 +1,27 @@
+# VALID surface adoption proving the SILENCE IS LOAD-BEARING: a
+# single-organization deployment — one clinic, its own stack, no operator layer
+# above it — running its own broker with NO co-residence restriction at all.
+#
+# It is conformant, and nothing requires it to join a shared instance. A
+# contract mandating one shared broker would make this deployment
+# non-conformant for no governance benefit, which is why the capability is
+# deliberately silent on instance count in BOTH directions: a dedicated
+# instance needs no restriction to justify it, and a restriction cannot be
+# answered by anything less.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-clinica-norte-portal-0004
+surface_ref: clinica-norte-staff-portal
+surface_display_name: Clinica Norte staff portal (single-organization install)
+broker_instance:
+  instance_id: broker-clinica-norte
+  deployment: dedicated
+authorization_posture: authenticated_persona
+governed_write_actions:
+  offered: false
+human_accounts_held_by_surface: false
+prior_shared_credential: none
+isolation:
+  co_residence_restriction: none
+  restriction_ref: "openspec/changes/add-identity-brokering/review/co-residence-finding-2026-08-21.md#clinica-norte-single-organization"
+declared_at: "2026-08-21T16:30:00Z"

@@ -1,0 +1,33 @@
+# expected_failure: outcome-shape
+# A declined candidate carrying spend fields — a not_yet outcome never
+# carries rung or budget.
+schema_version: 1
+kind: crystallization_decision
+decision_id: "dec:opensoft:neg:notyet-spend"
+candidate_ref: "cand:opensoft:neg:notyet-spend"
+family_ref: "fam:opensoft:neg"
+ceiling:
+  rung: L3
+  source: default
+  reason_ref: null
+valuation:
+  - rung: L3
+    expected_value: 100000
+    deflation_factor: 0.85
+    survival_factor: 0.9
+outcome: not_yet
+funded:
+  rung: L3
+  budget_cap: 100000
+  abort_rule: "stop at 120%"
+  proof_obligations: [replay-parity]
+not_yet:
+  reasons: ["stability outlook too short"]
+  renominate_when: "half-life estimate exceeds 90 days"
+approvals:
+  domain_fitness_ref: "gate:codexFactory:fitness"
+  tenant_budget_ref: "budget:opensoft:crystallization"
+  consent_check:
+    automation_tier: granted
+decision_ladder_rung: 1
+calibration_refs: []

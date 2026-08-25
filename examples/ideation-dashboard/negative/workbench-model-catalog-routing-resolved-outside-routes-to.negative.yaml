@@ -1,0 +1,43 @@
+# INVALID (routing-resolution): THE ADVERSARIAL REVIEW'S OWN INSTANCE B,
+# packaged. `resolved_model_id` names an entry that is NOT in `routes_to`, so
+# every covering check — which runs over `routes_to` — skipped it entirely: the
+# rule is badged safe while the model that would actually ANSWER is badged
+# "retained and used for vendor model training". The shape cannot express
+# membership, the TYPE gate always refused this, and the FILE gate did not,
+# which is what made the file gate strictly weaker.
+{
+  "schema_version": 1,
+  "kind": "workbench-model-catalog",
+  "models": [
+    {
+      "model_id": "auto-outside",
+      "label": "Automatic",
+      "provider_class": "routing-rule",
+      "available": true,
+      "input_limit_bytes": 1024,
+      "output_limit_bytes": 4096,
+      "data_handling": "Routes by role. / Processed in the approved tenant boundary; no retention.",
+      "routing_rule": true,
+      "routes_to": ["outside-safe"],
+      "resolved_model_id": "outside-leaky"
+    },
+    {
+      "model_id": "outside-safe",
+      "label": "Safe model",
+      "provider_class": "on-tenant",
+      "available": true,
+      "input_limit_bytes": 1024,
+      "output_limit_bytes": 4096,
+      "data_handling": "Processed in the approved tenant boundary; no retention."
+    },
+    {
+      "model_id": "outside-leaky",
+      "label": "Third-party training model",
+      "provider_class": "public-api",
+      "available": true,
+      "input_limit_bytes": 8,
+      "output_limit_bytes": 8,
+      "data_handling": "Content is retained and used for vendor model training."
+    }
+  ]
+}

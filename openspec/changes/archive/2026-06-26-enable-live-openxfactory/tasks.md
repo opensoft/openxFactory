@@ -65,3 +65,53 @@
 - [x] 9.3 Run applicable install repo smoke tests.
 - [x] 9.4 Confirm all feature slices have evidence and merge readiness reports.
 - [x] 9.5 Archive the OpenSpec change after approved slices complete.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` gained ONE header line — `Status: draft` — plus a blank
+separator, at real lines 1 and 2, both well inside the fifteen-real-line
+header window. Nothing else on the page moved: the writer asserted that
+deleting the header line plus the blank separator recovers the original
+bytes, and refused to write otherwise. No `Ratified:`/`Ratified by:` citation
+is written or owed: `openspec/specs/document-lifecycle/spec.md` requires a
+citation only where `Status: ratified` is asserted, and "absent such backing
+the document MUST carry `draft` or lower status" — `draft` is exactly that
+lower status, uncited by design.
+
+This document was slice 5C's ONE stop-and-report (`docs/archive-record-discrepancies.md`
+"Corrected 2026-08-23" section): route (a) finds no ratification act on the
+record, and route (b) is affirmatively negated by the record itself — the
+archive act ran `openspec archive … --skip-specs` and promoted none of the
+change's four capabilities, so the by-construction reasoning cannot reach it.
+That stop stood on register entry C5, ruled 2026-08-22, QUOTED HERE VERBATIM
+and left standing:
+
+> **RULED 2026-08-22 (Brett, in-session multiple-choice round; recommended
+> option adopted): leave it recorded as legacy.** The four capabilities were
+> deliberately not promoted and stay unpromoted; the folder-id-versus-self-name
+> mismatch stays as the bootstrap-era artifact it is. **No file in
+> `archive/2026-06-26-enable-live-openxfactory/` was changed by this round**,
+> and none should be by a later one absent a governance act that actually
+> promotes the capabilities. This entry is closed as RULED — legacy, not as a
+> defect awaiting repair, so a future sweep that rediscovers the unpromoted
+> deltas should read this line and stop rather than re-open the question.
+
+**RULED 2026-08-23 (Brett, in-session): backfill `Status: draft` too.**
+C5's no-edit ruling is SUPERSEDED, narrowly and for this one header line
+only — the freeze on the four capabilities otherwise stands unchanged: they
+stay unpromoted, `openspec/specs/` gains nothing, and no other line of
+`archive/2026-06-26-enable-live-openxfactory/` is touched. `draft` costs
+nothing C5 protected: it asserts no ratification, cites no promoting act, and
+is the exact honest value this record has always supported — never ratified,
+archived by Brett's own PR #28 with `--skip-specs` retaining the four spec
+deltas as archived design evidence rather than promoting them. This is the
+same discipline as 5D.2a's treatment of register entry A2: the original
+ruling is quoted in full above and not one word of it is altered, edited, or
+withdrawn; only its scope is narrowed by a later, dated ruling on the same
+question. Register entry C5 gains a dated 2026-08-23 supersession addendum
+under its own text, appended rather than edited, with C5's original text
+standing byte-for-byte.
+
+It is entered in `docs/archive-record-discrepancies.md` as C5's addendum and
+as C2's successor's amended stop-and-report. This note travels with the
+change, as 5B's twenty-seven and 5C's forty-three do.

@@ -1,5 +1,7 @@
 code_surface: codexFactory
 target_release: implemented
+Status: ratified
+Ratified: 2026-07-12 by Brett — record: the archive commit `1efa575`, "Archive exclude-worktrees-from-notebook-projection; record ratifications", whose body opens "Brett ratified all three active changes 2026-07-12" and names this one first — "realization evidence complete (merged codexFactory d71f45b, tests green, clean reconciliation run), so it archives now and the corpus scan scope requirement promotes into the lifecycle-notebook-projection spec". Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 ## Why
 

@@ -38,12 +38,25 @@ description: >-
   extended the same per-action shape to `dispose-possible`
   (`register-update`), `propose` (`workflow-job`), `create-document`
   (`document`), and — `add-workbench-branch-sessions` — `edit-document`
-  (`commit`) and `open-pr` (`pull-request`); `abandon-session` is constrained
+  (`commit`) and `open-pr` (`pull-request`); `share-session`
+  (`add-doxbench-editing-phase-b` §12) is constrained on `target.ref` alone,
+  with no artifact-kind requirement, because it is the one action whose record
+  RESIDENCY depends on whether it had anything to commit — the conditional
+  below states both halves; `abandon-session` is constrained
   on `target.ref` + `reason` with NO artifact-kind requirement (see below).
   Each was safe at the time it landed because no existing record carried that
   action. This does NOT narrow the additive posture below: new action kinds
   and new artifact kinds stay unconstrained, and no PRE-EXISTING action ever
   gains a required companion artifact.
+
+  WHEEL ACTION COMMISSIONS (`add-wheel-action-verbs`; additive growth of
+  `contract_schema_version: 1`): `promote-to-staging`, `derive-possibles`,
+  and `research-brief` each record a governed dispatch and therefore MUST
+  reference a `workflow-job` artifact. The first and third target a
+  `possible_id`; the cluster-scoped derivation targets a `cluster_id`.
+  `demote` is unchanged by that change: it was already enumerated with a
+  `change_id` target and required `reason`, and it still records a plan whose
+  execution is a separate human act.
 
   BRANCH SESSIONS (`add-workbench-branch-sessions`, design D13; landed
   2026-07-26 as an ADDITIVE growth of `contract_schema_version: 1` — no bump,
@@ -151,7 +164,9 @@ properties:
     type: string
     enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
            lens-save-recipe, lens-add-as-cluster, create-document,
-           edit-document, open-pr, abandon-session]
+           edit-document, open-pr, abandon-session, promote-to-staging,
+           derive-possibles, research-brief, create-project, edit-project,
+           share-session]
     # The gate-console actions (spec "Human gate console" + D17 kickoff):
     # reject-to-staging, AI-redline-apply, approve/ratify, post-ratification
     # workflow dispatch, and — add-possibles-derivation-lane ("One-way
@@ -177,7 +192,27 @@ properties:
     # approve, self-review, or bypass protection, and consults NO readiness
     # signal — D21); `abandon-session` ends a session without saving and
     # carries the durable "why", exactly as a demotion does. All three are
-    # ADDITIVE enum extensions; every prior record stays valid.
+    # ADDITIVE enum extensions; every prior record stays valid. The three
+    # `add-wheel-action-verbs` values are also ADDITIVE recorded commissions:
+    # they require a workflow-job below but add no authoring or disposition
+    # authority to the record. `create-project`
+    # (add-project-scoped-selection) is the same commission mechanic one
+    # register over: it targets a `project_id` and requires its workflow-job
+    # descriptor (workflow `project-register-edit`); the aggregation-owned
+    # project register is edited only by the commission's fulfilment, never
+    # by the recording surface (ADDITIVE; every prior record stays valid).
+    # `edit-project` (add-opendox-project-header) is that mechanic for an
+    # EXISTING project's membership — the descriptor carries the added and
+    # removed member lists; same boundary, same companion rule (ADDITIVE).
+    # `share-session` (add-doxbench-editing-phase-b §12) hands a live workbench
+    # session to a colleague: it commits the session's DIRTY thread sidecars and
+    # PUSHES the session branch, so the threads a human has been working in stop
+    # being local-only. It is deliberately STRICTLY LESS than `open-pr` — it
+    # reuses that verb's existing remote-write path, opens no pull request,
+    # requests no review, and holds no approval or merge authority — and it is
+    # the reason threads are local until a human says otherwise: a working note
+    # that leaves the machine without an explicit act is a disclosure nobody
+    # chose (ADDITIVE; every prior record stays valid).
   target: {$ref: "#/$defs/target"}
   provenance: {$ref: "#/$defs/provenance"}
   at:
@@ -266,6 +301,54 @@ allOf:
           contains:
             required: [kind]
             properties: {kind: {const: workflow-job}}
+  # The three wheel generative actions are commissions, never the work. Each
+  # therefore targets its governed source and MUST reference the workflow-job
+  # descriptor it dispatched (`add-wheel-action-verbs`, design D2).
+  - if: {properties: {action: {const: promote-to-staging}}, required: [action]}
+    then:
+      properties:
+        target: {required: [possible_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
+  - if: {properties: {action: {const: derive-possibles}}, required: [action]}
+    then:
+      properties:
+        target: {required: [cluster_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
+  - if: {properties: {action: {const: research-brief}}, required: [action]}
+    then:
+      properties:
+        target: {required: [possible_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
+  # A create-project record is the same commission shape against the project
+  # register (`add-project-scoped-selection`): it targets the slugged
+  # project id and MUST reference the workflow-job descriptor it dispatched.
+  - if: {properties: {action: {const: create-project}}, required: [action]}
+    then:
+      properties:
+        target: {required: [project_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
+  # An edit-project record (`add-opendox-project-header`) is that shape for
+  # an existing project's membership edit.
+  - if: {properties: {action: {const: edit-project}}, required: [action]}
+    then:
+      properties:
+        target: {required: [project_id]}
+        artifacts:
+          contains:
+            required: [kind]
+            properties: {kind: {const: workflow-job}}
   # A create-document record names the document it brought into existence
   # (add-workbench-bullseye-and-create): a create record that does not name
   # the created path audits nothing. Safe as a per-action conditional — no
@@ -336,14 +419,43 @@ allOf:
       required: [reason]
       properties:
         target: {required: [ref]}
+  # A `share-session` record (add-doxbench-editing-phase-b §12) names the session
+  # branch it PUSHED — that branch ref IS the pushed ref, because the verb
+  # publishes `refs/heads/<branch>` and nothing else. ADDITIVE: no record has
+  # ever carried this action, so nothing pre-existing is narrowed.
+  #
+  # NO artifact kind is required, and that is a DECISION rather than an
+  # oversight, for the same reason `abandon-session` requires none: this action
+  # has TWO RESIDENCIES and only one of them produces a commit.
+  #
+  #   * With DIRTY thread sidecars to publish, the action commits them WITH this
+  #     record as exactly one commit on the session branch (FR-006's rule, met by
+  #     `commit_gate_action`), so the record is BRANCH-RESIDENT and does carry a
+  #     `commit` artifact. It rides the branch to the colleague, which is a
+  #     virtue: they can see why those threads landed.
+  #   * With nothing dirty but commits the remote has not seen — the ordinary
+  #     state after a run of Saves, since NOTHING pushes implicitly — the action
+  #     commits nothing at all. FR-006's own guard refuses an empty declared set
+  #     ("an action that produced no document has nothing to co-commit"), so the
+  #     record is MAIN-RESIDENT here, exactly as `open-pr`'s is.
+  #
+  # Requiring a `commit` artifact would therefore invalidate the second, which is
+  # the COMMON case, and requiring `pull-request` would be a lie: this verb opens
+  # none, requests no review, and holds no approval or merge authority.
+  - if: {properties: {action: {const: share-session}}}
+    then:
+      properties:
+        target: {required: [ref]}
 $defs:
   # --- what the action acted on ---
   target:
     type: object
     # Per-action required fields live in the allOf conditionals above: the
     # four change-lifecycle actions require `change_id`; `dispose-possible`
-    # requires `possible_id` + `outcome`; `edit-document` requires `document`
-    # + `ref`; `open-pr` and `abandon-session` require `ref`. (The
+    # requires `possible_id` + `outcome`; the wheel commissions require
+    # `possible_id`, `cluster_id`, and `possible_id` respectively;
+    # `edit-document` requires `document` + `ref`; `open-pr`,
+    # `abandon-session` and `share-session` require `ref`. (The
     # unconditional `change_id` requirement moved into the conditional when the
     # disposition action landed — every previously valid record stays valid.)
     properties:
@@ -355,8 +467,22 @@ $defs:
       possible_id:
         type: string
         minLength: 1
-        # The possibles-register entry a dispose-possible action targets
-        # (matches a `register_entry.id`).
+        # The possibles-register entry a dispose-possible,
+        # promote-to-staging, or research-brief action targets (matches a
+        # `register_entry.id`).
+      cluster_id:
+        type: string
+        minLength: 1
+        # The cross-reference cluster a derive-possibles action scopes. The
+        # console revalidates its existence against the pinned snapshot; this
+        # schema records the target identity only.
+      project_id:
+        type: string
+        minLength: 1
+        # The project-register project a create-project action commissions
+        # (add-project-scoped-selection; ADDITIVE — every prior record stays
+        # valid). Slugged from the proposed name at commission time; the
+        # register edit itself is the commission's fulfilment.
       set:
         type: string
         minLength: 1
@@ -420,14 +546,14 @@ $defs:
     properties:
       surface:
         type: string
-        enum: [http, cli]
+        enum: [http, cli, intent-plane]
         # The gateway the invocation arrived on: the loopback HTTP console, or
         # the CLI parity verb. Recorded because the two doors have different
         # presence tests and different residuals, and an auditor asking "how did
         # this happen" needs the door named.
       console_presence:
         type: string
-        enum: [console-token, tty, declared]
+        enum: [console-token, tty, declared, ingress-auth]
         # HOW the console-presence test was satisfied: the per-serve console
         # token issued at `/capabilities` (`console-token`, the HTTP door), an
         # interactive terminal (`tty`), or an explicit operator declaration
@@ -436,7 +562,10 @@ $defs:
         # console presence is REFUSED before a record is written, so no record
         # can honestly carry one. `declared` is the WEAKEST of the three and is
         # named as its own value rather than folded into the others precisely so
-        # an audit consumer can filter for it.
+        # an audit consumer can filter for it. `intent-plane` + `ingress-auth`
+        # (ADDITIVE growth, add-ideation-intent-plane task 4.3): the apply lane
+        # replaying a gate-intent whose actor the inbox stamped from the
+        # ingress-authenticated identity — the record names the third door.
   # --- an artifact this action produced ---
   artifact:
     type: object

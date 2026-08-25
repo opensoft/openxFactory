@@ -1,0 +1,33 @@
+# VALID exercise recording an act that CANNOT be attributed. No wallet key can
+# be established, so the record says `unattributed` and names no holder. This
+# is the measured 2026-08-06 case: the act reached the platform through one
+# shared application user, and the shared credential is recorded as TRANSPORT,
+# never as the actor. Assigning a holder here on the strength of the
+# credential used is precisely the laundering the requirement forbids.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-unattributed-0002
+grant_ref: grant-posting-parent-0001
+act: post_transaction
+object_ref: purchase-invoice:LXRP0002
+occurred_at: "2026-08-06T16:20:00Z"
+event_class: unauthenticated_request
+proof_of_possession:
+  presented: false
+attribution:
+  mode: unattributed
+  transport:
+    shared_credential_ref: bc-application-user:xforge-svc
+    role: transport
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+outcome: refused
+refusal:
+  code: missing_proof_of_possession
+  statement: >-
+    The grant was supplied; the proof was not. The refusal names the missing
+    proof rather than a missing grant, because the grant is not what was
+    lacking.
+  names: key-poster-0001

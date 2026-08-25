@@ -1,0 +1,16 @@
+# expected_failure: policy namespace mismatch
+# A policy claiming a namespace the subject does not declare would materialize
+# a row addressable under a namespace no layer owns.
+schema_version: 1
+kind: hermes_subject_overlay
+
+subject:
+  id: project-alfa
+  subject_kind: project
+  display_name: Project Alfa Subject Hermes
+  policy_namespace: opensoft.codexfactory.project-alfa
+  relation_to_baseline: additive_constraints_only
+  policies:
+    admission-conditions:
+      policy_id: admission-conditions
+      policy_namespace: opensoft.codexfactory.project-bravo

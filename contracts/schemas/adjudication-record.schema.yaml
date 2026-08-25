@@ -1,0 +1,47 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "adjudication-record.schema.yaml"
+title: "Adjudication record (one kind across parity and sentinels)"
+contract_schema_version: 1
+description: >-
+  A bidirectional disagreement adjudication (add-capability-steward,
+  requirement "Disagreements Are Adjudicated Bidirectionally"; LC-Q5 lean
+  adopted: parity contexts and sentinel comparisons share this one kind).
+  The verdict may fault the capability, the historical AI episode, or the
+  spec, and the consequence pairs with the verdict — capability_wrong ->
+  corpus_counterexample, ai_wrong -> episode_relabel (through the pattern
+  ledger's outcome-label stream), spec_underdetermined -> spec_revision
+  ("adjudication-pairing" in the canonical validator). Sometimes the code
+  is right: crystallized determinism exposes sloppy historical solves, and
+  this record is how the corpus quietly improves either way. Canonical
+  validator: scripts/validate-capability-steward.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - adjudication_id
+  - context
+  - capability_ref
+  - episode_ref
+  - disagreement
+  - verdict
+  - consequence
+  - adjudicator
+properties:
+  schema_version: {const: 1}
+  kind: {const: adjudication_record}
+  adjudication_id: {type: string, pattern: "^adj:"}
+  context: {enum: [replay, shadow, canary, sentinel]}
+  capability_ref: {type: string, pattern: "^cap:"}
+  episode_ref: {type: string, pattern: "^ep:"}
+  disagreement: {type: string, minLength: 1}
+  verdict: {enum: [capability_wrong, ai_wrong, spec_underdetermined]}
+  consequence: {enum: [corpus_counterexample, episode_relabel, spec_revision]}
+  adjudicator:
+    type: object
+    additionalProperties: false
+    required: [kind, ref]
+    properties:
+      kind: {enum: [human, persona, judge_panel]}
+      ref: {type: string, minLength: 1}
+  at: {type: string, pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"}

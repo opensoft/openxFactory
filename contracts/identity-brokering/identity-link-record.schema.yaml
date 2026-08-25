@@ -1,0 +1,166 @@
+schema_version: 1
+kind: openxfactory-identity-brokering-contract-schema
+name: identity_link_record
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/identity-brokering/v1/identity-link-record.schema.yaml"
+contract_id: identity-brokering-identity-link-record
+contract_schema_version: 1
+title: Identity-brokering identity link record
+description: >-
+  The record of a federated identity joining an existing persona
+  (add-identity-brokering, capability `identity-brokering`, requirement
+  "Identities link explicitly or merge by decision, never silently"; design
+  D4). EXACTLY TWO MODES EXIST, and each REQUIRES ITS ACTOR BY SHAPE:
+
+  - `self_link` — an EXPLICIT link initiated by the human from a session
+    already holding that persona. `initiated_by` is required, and it names
+    both the initiating persona and the subject the session already held.
+    A self link without an initiator is unrepresentable.
+  - `admin_merge` — an ADMINISTRATIVE MERGE approved through the governed
+    administration workflow. `approved_by` is required, naming the
+    approving administrator, the approval record and the time. A merge
+    without an approver is unrepresentable.
+
+  There is no third mode, and `basis` is closed to the two acts those modes
+  are: an explicit user action, or a governed administration approval.
+  LINKING ON AN ATTRIBUTE MATCH — an email address above all — cannot be
+  written here. An upstream provider may assert an address it never
+  verified, and addresses are reassigned, so attribute-match auto-linking is
+  an account-takeover primitive whose resulting merge cannot be undone from
+  the audit record. The canonical validator reads the legal bases OUT OF
+  THIS SCHEMA at run time rather than restating them, so the check and the
+  shape cannot drift apart.
+
+  EVERY PRE-MERGE SUBJECT IS CARRIED. A merge names every prior subject
+  identifier and, for each, the surviving subject it remains resolvable to —
+  so records already written against a losing identifier stay attributable.
+  Without that, a merge silently orphans every record written against the
+  losing subject, re-creating at merge time exactly the attribution loss the
+  capability exists to prevent (design D4).
+
+  Personas do not span broker instances. The record names its instance, and
+  the canonical validator refuses a record whose subjects resolve to
+  personas in different instances.
+type: object
+required:
+  - schema_version
+  - kind
+  - link_record_id
+  - broker_instance_ref
+  - mode
+  - basis
+  - subjects
+  - surviving_subject
+  - occurred_at
+  - evidence_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [identity_link_record]
+  link_record_id: {$ref: '#/$defs/identifier'}
+  broker_instance_ref: {$ref: '#/$defs/identifier'}
+  mode:
+    type: string
+    enum: [self_link, admin_merge]
+  basis:
+    # CLOSED to the two admissible acts. `attribute_match` is not a member,
+    # and the omission is the requirement.
+    type: string
+    enum: [explicit_user_action, governed_administration_approval]
+  subjects:
+    # The subjects involved. One for a self link (the persona the identity
+    # joins); two or more for a merge (every prior subject identifier).
+    type: array
+    minItems: 1
+    items: {$ref: '#/$defs/opaque_subject'}
+  surviving_subject: {$ref: '#/$defs/opaque_subject'}
+  linked_identity:
+    # SELF LINK ONLY: the upstream identity being attached. A provider id
+    # and the subject that provider issued — never a token or a credential.
+    type: object
+    required: [provider_id, upstream_subject]
+    additionalProperties: false
+    properties:
+      provider_id: {$ref: '#/$defs/identifier'}
+      upstream_subject:
+        type: string
+        minLength: 1
+        maxLength: 200
+  initiated_by:
+    # SELF LINK ONLY, and required there. `session_holds_subject` is the
+    # persona the session ALREADY held: an explicit link is initiated from
+    # inside the persona it adds to, which is what makes "explicit"
+    # falsifiable rather than a claim.
+    type: object
+    required: [subject, session_holds_subject, initiated_at]
+    additionalProperties: false
+    properties:
+      subject: {$ref: '#/$defs/opaque_subject'}
+      session_holds_subject: {$ref: '#/$defs/opaque_subject'}
+      initiated_at: {type: string, format: date-time}
+  approved_by:
+    # ADMIN MERGE ONLY, and required there. A merge is an administrative act
+    # with a record, through the governed queue like every other
+    # administrative act.
+    type: object
+    required: [administrator_subject, approval_record_ref, approved_at]
+    additionalProperties: false
+    properties:
+      administrator_subject: {$ref: '#/$defs/opaque_subject'}
+      approval_record_ref:
+        type: string
+        minLength: 1
+        maxLength: 300
+      approved_at: {type: string, format: date-time}
+  pre_merge_subjects:
+    # ADMIN MERGE ONLY, and required there. Every prior subject identifier
+    # and the surviving subject it remains resolvable to.
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [subject, remains_resolvable_to]
+      additionalProperties: false
+      properties:
+        subject: {$ref: '#/$defs/opaque_subject'}
+        remains_resolvable_to: {$ref: '#/$defs/opaque_subject'}
+  occurred_at: {type: string, format: date-time}
+  evidence_ref:
+    type: string
+    minLength: 1
+    maxLength: 300
+allOf:
+  - if:
+      properties: {mode: {const: self_link}}
+      required: [mode]
+    then:
+      required: [initiated_by, linked_identity]
+      properties:
+        basis: {const: explicit_user_action}
+      allOf:
+        - not: {required: [approved_by]}
+        - not: {required: [pre_merge_subjects]}
+  - if:
+      properties: {mode: {const: admin_merge}}
+      required: [mode]
+    then:
+      required: [approved_by, pre_merge_subjects]
+      properties:
+        basis: {const: governed_administration_approval}
+        subjects: {minItems: 2}
+      allOf:
+        - not: {required: [initiated_by]}
+        - not: {required: [linked_identity]}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+  opaque_subject:
+    type: string
+    minLength: 16
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'

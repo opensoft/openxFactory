@@ -1038,6 +1038,15 @@ the Hermes memory call surface.
 
 ## 18. Rails
 
+Semantic-context preflight (ratified `add-domain-ontology-layer`): when a
+customer or expert context packet carries a `semantic_context` block, the
+gateway verifies it BEFORE provider I/O — exact context id and content
+digest, exact kernel and domain package pins, published-or-deprecated
+package lifecycle (retired fails closed), purpose agreement with the
+packet, and a non-empty bounded term subset; an authority-named key inside
+the block is a violation. Presence of semantic context never changes any
+rail, and inference never becomes authority.
+
 Rails run before provider I/O whenever the operation is governed.
 
 ### Read Rail

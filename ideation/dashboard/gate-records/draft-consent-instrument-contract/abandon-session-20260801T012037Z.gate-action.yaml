@@ -1,0 +1,26 @@
+# gate-action record — a HUMAN-gate console action audit entry
+# (gate-action-record.schema.yaml). A session verb is reachable only from the
+# human console: a caller that cannot show it originates there is rejected and
+# reported before any record is written. That is a console-PRESENCE control,
+# not authentication (design D23) — `provenance`, where present, names the
+# door this action came through and how presence was shown.
+schema_version: 1
+kind: gate-action-record
+actor: brettheap
+action: abandon-session
+target:
+  ref: draft/consent-instrument-contract
+provenance:
+  surface: http
+  console_presence: console-token
+at: '2026-08-01T01:20:37Z'
+artifacts:
+- kind: other
+  reference: draft/consent-instrument-contract
+reason: 'Session content fully merged as openxFactory PR #47 merge commit 52153ce
+  (create b280542 + edits 8599f60, 9674dc8, all on origin/main and in the published
+  snapshot). The open-pr merge-ending cannot observe the merge in this environment:
+  the served checkout is a dedicated D10 worktree and the shared refs/heads/main is
+  held at c782d6d by another live session; advancing it would sweep that session.
+  Abandoning per the propose refusals own guidance to clear the commission path; branch
+  survives, nothing unsaved.'

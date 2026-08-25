@@ -1,0 +1,60 @@
+schema_version: 1
+kind: xfactory_ontology_stewardship_policy
+package_id: xf/negx
+council:
+  name: "Fixture Ontology Review Council"
+  members:
+    - ghost-council-member
+  quorum: 1
+  high_impact_requires: [council]
+source_review:
+  default_review_days: 180
+  expired_source_mode: refresh
+modes:
+  seed:
+    required_inputs: [candidate_record]
+    review_evidence: [steward_review]
+    outputs: [candidate_disposition]
+    blocked_states: [awaiting_review]
+  extend:
+    required_inputs: [candidate_record]
+    review_evidence: [steward_review]
+    outputs: [candidate_disposition]
+    blocked_states: [awaiting_review]
+  refresh:
+    required_inputs: [candidate_record]
+    review_evidence: [steward_review]
+    outputs: [candidate_disposition]
+    blocked_states: [awaiting_review]
+  reconcile:
+    required_inputs: [candidate_record]
+    review_evidence: [steward_review]
+    outputs: [candidate_disposition]
+    blocked_states: [awaiting_review]
+  correct:
+    required_inputs: [candidate_record]
+    review_evidence: [steward_review]
+    outputs: [candidate_disposition]
+    blocked_states: [awaiting_review]
+  deprecate:
+    required_inputs: [candidate_record]
+    review_evidence: [steward_review]
+    outputs: [candidate_disposition]
+    blocked_states: [awaiting_review]
+  retire:
+    required_inputs: [candidate_record]
+    review_evidence: [steward_review]
+    outputs: [candidate_disposition]
+    blocked_states: [awaiting_review]
+triggers:
+  unknown_term_count_threshold: 25
+  mapping_failure_count_threshold: 10
+  low_confidence_threshold: 0.5
+  low_confidence_count_threshold: 20
+quality_gate:
+  required_signals:
+    - signal: intake_scope_coverage
+      min_value: 0.5
+aggregation_floor:
+  distinct_subjects: 5
+  distinct_tenants: 1

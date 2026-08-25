@@ -20,7 +20,7 @@ topic defines, so no bespoke overlay machinery is invented; the tool
 triangle (chat rail, canvas outline, NotebookLM) follows the branch;
 "saving" is a gated `open-pr` verb that hands the work to the existing
 Merge-Master ritual.
-Topics: ideation-dashboard, doc-workflow, document-lifecycle, workbench, git-worktree, branch-sessions, lifecycle-projection, gate-console, merge-master
+Topics: ideation-dashboard, doxbench, doc-workflow, document-lifecycle, workbench, git-worktree, branch-sessions, lifecycle-projection, gate-console, merge-master
 Repository context: openxFactory owns the `ideation-dashboard` capability
 delta (branch sessions, the commit-per-gate-action rule, session-local
 snapshots, the `open-pr` verb, draft-visibility confinement) and the
@@ -199,7 +199,18 @@ owns the seam this topic consumes;
 [add-workbench-bullseye-and-create](../../../openspec/changes/add-workbench-bullseye-and-create/proposal.md)
 is the change that landed the workbench's first write (the gated
 create-only document creation and the lens/bullseye create gestures) and
-whose create verb these sessions relocate onto the branch; Track C — the
-workbench's AI chat layer, locked in
-`ideation/brainstorm/ideation-dashboard.md` — is what claim 7's chat rail
-belongs to, and the branch is the working state that layer will edit.
+whose create verb these sessions relocate onto the branch; **doxBench** — the
+integrated editor/chat successor historically called Track C — is what claim
+7's chat rail belongs to, and the branch is the working state that surface will
+edit.
+
+**Governed doxBench continuation (2026-07-28):**
+[`add-workbench-integrated-editor-chat`](../../../openspec/changes/add-workbench-integrated-editor-chat/proposal.md)
+now defines doxBench concretely: retained docs/lens
+context, an editable `Outline / Document` canvas, a chat rail with Working
+subject + transcript + server-declared model + composer, current-buffer
+grounding on every turn, typed proposals with stale-hash refusal, and explicit
+human Apply then Save through this topic's branch-session gates. Its D0 start
+gate requires this change and its predecessor chain to archive first; nothing
+in the continuation retroactively changes the branch-session realization until
+that successor is ratified and implemented.

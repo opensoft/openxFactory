@@ -1,0 +1,32 @@
+# INVALID (routing-availability): an AVAILABLE rule resolving to a model the
+# catalog itself marks unavailable. The turn gate checks availability on the
+# SELECTED entry — the rule — and the adapter then sets the harness to the
+# RESOLVED id, so this shape would dispatch to a model the catalog says is not
+# there. An operator whose target is down marks the RULE unavailable.
+{
+  "schema_version": 1,
+  "kind": "workbench-model-catalog",
+  "models": [
+    {
+      "model_id": "auto-unavailable-resolution",
+      "label": "Automatic (routes by role)",
+      "provider_class": "routing-rule",
+      "available": true,
+      "input_limit_bytes": 2048,
+      "output_limit_bytes": 8192,
+      "data_handling": "Routes by role. / Processed in the approved tenant boundary; no retention.",
+      "routing_rule": true,
+      "routes_to": ["unavailable-on-tenant"],
+      "resolved_model_id": "unavailable-on-tenant"
+    },
+    {
+      "model_id": "unavailable-on-tenant",
+      "label": "Approved authoring model (offline)",
+      "provider_class": "on-tenant",
+      "available": false,
+      "input_limit_bytes": 800000,
+      "output_limit_bytes": 900000,
+      "data_handling": "Processed in the approved tenant boundary; no retention."
+    }
+  ]
+}

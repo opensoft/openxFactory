@@ -1,6 +1,8 @@
 ---
 code_surface: codexFactory apps/avatar-client-lab contract-pin resync (contract_pin.yaml + vendored assets swap; interim P10 checklist guard retirement)
 target_release: contract-v1.12
+Status: ratified
+Ratified: 2026-07-16 — record: the archive act, commit `10181df` "Archive adopt-avatar-client-lab-candidates: v1.12 realization complete (codexFactory PR #17)", which applied this change's spec delta into `openspec/specs/avatar-first-ui/spec.md`, `openspec/specs/avatar-lab-evidence/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. The commit body records both the gate and the promotion in words: "Realization gate satisfied: PR #17 merged by Brett (Tier-1 approval) at 0fed12c (2026-07-16) ... Applies the avatar-lab-evidence capability (new) and the avatar-first-ui deterministic-acceptance modification to openspec/specs/". The change's own tasks.md 4.1 records product-owner sign-off on the candidate's six OPEN QUESTIONS, not on the change, so it corroborates and is not the citation. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 ---
 
 # Proposal: adopt-avatar-client-lab-candidates

@@ -1,0 +1,77 @@
+schema_version: 1
+name: xfactory_ontology_source_inventory
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-source-inventory.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, tasks 2.1 and 2.6). The
+# governed source inventory of one ontology package: every authority the
+# package's terms and mappings cite, with license class and permitted use
+# recorded at registration (spec: New-domain ontology generation inputs,
+# scenario "A source has redistribution limits").
+#
+# ONLY sources with an external `source_kind` are legal external-mapping
+# targets; internal kinds exist for kernel/domain terms to cite their owning
+# contracts and governed material. Tenant-internal systems are never
+# registered here — a tenant binding is Tenant Hermes content and stays out
+# of published packages.
+type: object
+required:
+  - schema_version
+  - kind
+  - package_id
+  - sources
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_ontology_source_inventory
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  sources:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [system_id, name, source_kind, license_class]
+      additionalProperties: false
+      properties:
+        system_id:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        source_kind:
+          enum:
+            - external_terminology
+            - external_standard
+            - external_registry
+            - internal_contract
+            - internal_document
+            - governed_dataset
+        version:
+          type: string
+          minLength: 1
+          maxLength: 80
+        license_class:
+          enum: [open, attribution, restricted, no_redistribution]
+        permitted_use:
+          type: array
+          items:
+            enum: [reference, definition_quote, redistribution]
+        authority_ref:
+          # Repo-relative path or stable URL identifying the authority record.
+          type: string
+          minLength: 1
+          maxLength: 300
+        review_by:
+          # ISO date the registration must be re-reviewed by (maintenance
+          # trigger: source expiry).
+          type: string
+          pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        notes:
+          type: string
+          minLength: 1
+          maxLength: 400

@@ -153,7 +153,57 @@ properties:
     properties:
       records_root:
         $ref: "#/$defs/relative_path"
+  semantic_contexts:
+    description: >-
+      Install-pinned worker semantic contexts (`add-omnigent-semantic-wiring`).
+      Required exactly when the pinned domain overlay declares worker
+      `semantic_context` profiles (both-direction completeness is enforced
+      by the canonical validator over the pinned overlay, not by this
+      schema). Pins are EXACT: the kernel and domain ontology package
+      digests every compiled artifact must embed, and one entry per
+      declaring worker naming the compiled artifact's identity, content
+      digest, and install-relative path. The artifact itself is the
+      ratified xfactory_semantic_context kind — closure, authority
+      firewall, and privacy stay the ontology validator's jurisdiction.
+    type: object
+    additionalProperties: false
+    required: [kernel, ontology_package, contexts]
+    properties:
+      kernel:
+        $ref: "#/$defs/ontology_pin"
+      ontology_package:
+        $ref: "#/$defs/ontology_pin"
+      contexts:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          required: [worker_class, context_id, content_digest, path]
+          properties:
+            worker_class:
+              $ref: "#/$defs/identifier"
+            context_id:
+              type: string
+              pattern: "^ctx-[a-z0-9][a-z0-9-]{0,63}$"
+            content_digest:
+              $ref: "#/$defs/sha256_digest"
+            path:
+              $ref: "#/$defs/relative_path"
 $defs:
+  ontology_pin:
+    type: object
+    additionalProperties: false
+    required: [package_id, package_version, package_digest]
+    properties:
+      package_id:
+        type: string
+        pattern: "^xf/[a-z0-9_]+$"
+      package_version:
+        type: string
+        pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      package_digest:
+        $ref: "#/$defs/sha256_digest"
   identifier:
     type: string
     pattern: "^[a-z][a-z0-9_-]*$"

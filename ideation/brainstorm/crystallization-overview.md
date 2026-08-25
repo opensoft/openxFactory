@@ -1,6 +1,6 @@
 # Recurrence Crystallization: Turning Repeated AI Work into Governed Software — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: reference
 Summary: This overview anchors a nineteen-document packet proposing
 recurrence crystallization — the factory notices which expensively-AI-solved
@@ -20,6 +20,9 @@ domain-hermes, efficiency-audit, dtn-register
 Repository context: openxFactory (cross-factory; a future crystallization
 contract family)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 
@@ -200,7 +203,8 @@ spec extraction can cite atomically.
 
 ## MVP slice (prove the loop before the machinery)
 
-One domain (codexFactory), one family chosen from real ledger evidence, and
+One domain (codexFactory), one family picked retrospectively from audit
+history and operator knowledge (the ledger it seeds does not exist yet), and
 the thinnest honest version of every stage: episodes as a manual projection
 over existing audit for that family only; nomination by count threshold;
 human decision with an evidence packet; an L3 playbook (no code rungs);

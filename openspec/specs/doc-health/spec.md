@@ -8,26 +8,44 @@ and ranked plan, the headline canon-share metric, and the ownership split
 between contract, implementation, and the nightly runner.
 ## Requirements
 ### Requirement: Deterministic check families
-The doc-health deterministic pass SHALL implement thirteen check families
-over the whole factory family's governance corpus: status validity,
-standard backing, ratified provenance, succession integrity, location
-conformance, record immutability, staged/candidate aging,
-register-lifecycle consistency, tag hygiene, submodule pin drift,
-contract-copy drift, notebook projection drift, and document catalog. Every
-check in this pass MUST be deterministic — identical inputs produce identical
-findings, with no model calls; semantic analysis belongs to the agentic
-semantic sweep and separate document-cataloger lane their owning capabilities
+The doc-health deterministic pass SHALL implement seventeen check families over
+the whole factory family's governance corpus: status validity, standard
+backing, ratified provenance, succession integrity, staged-topic template,
+location conformance,
+record immutability, staged/candidate aging, register-lifecycle consistency,
+tag hygiene, submodule pin drift, contract-copy drift, notebook projection
+drift, document catalog, ideation routing, proposal origin, and client
+identity roster composition. Every check in this pass MUST be
+deterministic — identical inputs produce identical findings, with no model
+calls; semantic analysis belongs to the agentic semantic sweep and the separate
+document-cataloger and ideation-organizer lanes their owning capabilities
 define. Check families SHALL implement promoted spec wording; staged ideation
-fragments are inputs to contracts, never check definitions.
+fragments are inputs to contracts, never check definitions. The client
+identity roster composition family SHALL cover only the CROSS-DOMAIN
+concerns — assembling per-client fragments published by each domain and
+reporting shared identity material or undeclared cross-domain reach —
+because intra-repo roster conformance is a blocking domain gate rather than
+an advisory report. Four of the seventeen — status validity, standard backing,
+ratified provenance, and succession integrity — SHALL additionally read the
+lifecycle scan set this capability declares, so that a lifecycle header
+carried by a document outside the governed corpus is still checked; the other
+thirteen families and every corpus census, word count, canon-share figure,
+shared-inventory entry, and catalog record SHALL be computed from the
+governed corpus alone and MUST NOT move because the lifecycle scan set
+exists.
 
 #### Scenario: A run executes the check families
 - **WHEN** a doc-health run executes
 - **THEN** every check family MUST run over every family repo the aggregation repo pins (openxFactory and each DomainxFactory), plus the per-repo validators as a preflight
 - **AND** document catalog MUST validate the shared inventory plus promoted specs and the aggregation-hosted catalog snapshots as its owning requirement defines
-- **AND** a family that cannot run (for example notebook drift without credentials) MUST be reported as skipped, never silently omitted
+- **AND** ideation routing MUST additionally inspect the aggregation root placement boundary and resolve explicitly referenced pinned repositories as its owning requirement defines
+- **AND** proposal origin MUST validate active and archived proposal packets, support manifests, and staging-header linkage as its owning requirements define
+- **AND** client identity roster composition MUST assemble the per-client roster fragments published by each pinned domain repository as its owning requirement in `client-identity-roster` defines
+- **AND** status validity, standard backing, ratified provenance, and succession integrity MUST additionally read the declared lifecycle scan set, reporting a finding against the document's own path exactly as they do for a governed-corpus document
+- **AND** a family or reference check that cannot run (for example notebook drift without credentials or an unavailable external checkout) MUST be reported as skipped, never silently omitted
 
 #### Scenario: Lifecycle conformance checks fire
-- **WHEN** a governance document violates a `document-lifecycle` rule — a free-form or missing `Status:` value, an unbacked `standard` claim, a dangling `Ratified by:` reference, a `superseded` doc without a successor, a `brainstorm` doc outside `ideation/brainstorm/`, a `staged` doc that is outside `ideation/staging/` and is not a candidate register (`Kind: register`), or a content edit to a `record` doc after capture
+- **WHEN** a governance document violates a `document-lifecycle` rule — a free-form or missing `Status:` value, an unbacked `standard` claim, a `ratified` document whose lifecycle header carries no ratification citation in either sanctioned spelling, a dangling `Ratified by:` reference, a record-citing `Ratified:` line naming none of an approver, a date, or a resolvable record path, a `ratified` document whose lifecycle header carries more than one ratification citation (one of each spelling, or the same spelling twice), a `superseded` doc without a successor, a `brainstorm` doc outside `ideation/brainstorm/`, a `staged` doc that is outside `ideation/staging/` and is not a candidate register (`Kind: register`), or a content edit to a `record` doc after capture
 - **THEN** the run MUST emit a finding naming the check family, the repo, the path, and the violated rule
 
 #### Scenario: A register carries staged status
@@ -41,6 +59,19 @@ fragments are inputs to contracts, never check definitions.
 #### Scenario: Catalog conformance checks fire
 - **WHEN** governed-document coverage, catalog identity, freshness, taxonomy, provenance, override standing, or record immutability violates the promoted catalog contract
 - **THEN** the run MUST emit a `document-catalog` finding with the violated requirement and evidence
+
+#### Scenario: Routing conformance checks fire
+- **WHEN** a routed idea, claim, destination, proposal manifest, repository ID or gitlink, or aggregation placement violates the promoted routing contract
+- **THEN** the run MUST emit an `ideation-routing` finding with the violated requirement and evidence
+
+#### Scenario: Origin conformance checks fire
+- **WHEN** a proposal packet, support manifest, or staging-header linkage violates the promoted origin contract
+- **THEN** the run MUST emit a `proposal-origin` finding with the violated requirement and evidence
+
+#### Scenario: Roster composition is checked across domains
+- **WHEN** two or more pinned domain repositories publish client identity roster fragments for the same client
+- **THEN** the roster composition family assembles them and reports shared identity material or undeclared cross-domain reach
+- **AND** intra-repo entry conformance is NOT reported here, because it fails the owning domain's gate instead
 
 ### Requirement: Tag hygiene enforced by reference
 The tag-hygiene check family SHALL enforce the canonical `xspec:` marker
@@ -116,10 +147,13 @@ across runs: staged topics and `xspec:candidate` blocks untouched 30 days are
 `warning` findings escalating to `error` at 90 days; an `xspec:supersedes`
 marker without `change=` is `warning` at 14 days escalating to `error` at 45
 days; `draft` documents have their age distribution reported always (`info`)
-with a `warning` at 60 days without a lifecycle transition; and, after catalog
+with a `warning` at 60 days without a lifecycle transition; after catalog
 baseline, a document classification that remains `pending` for 30 days SHALL be
 a `warning` and SHALL escalate to `error` at 90 days from its preserved
-facet-level `state_since`.
+facet-level `state_since`; and routing records in `intake`, `triaging`, or
+incomplete `split` state whose latest transition is 30 days old are `warning`
+findings escalating to `error` at 90 days. `routed`, `rejected`, and explicitly
+`deferred` routing records SHALL NOT age as unresolved work.
 
 #### Scenario: An item crosses an aging threshold
 - **WHEN** an item's untouched age crosses a threshold
@@ -138,21 +172,40 @@ facet-level `state_since`.
 - **WHEN** a run uses non-default catalog-pending thresholds
 - **THEN** the report MUST disclose the configured thresholds
 
+#### Scenario: Active routing work ages
+- **WHEN** an `intake`, `triaging`, or incomplete `split` record's latest transition reaches 30 or 90 days
+- **THEN** the run MUST emit a warning at 30 days and an error at 90 days
+
+#### Scenario: Deferred routing is intentional
+- **WHEN** a routing record is explicitly `deferred` with its reason recorded
+- **THEN** it MUST NOT be reported as abandoned unresolved intake
+
+#### Scenario: Routing threshold is overridden
+- **WHEN** a run uses non-default routing-aging thresholds
+- **THEN** the report MUST disclose the configured thresholds
+
 ### Requirement: Ownership and hosting split
-The doc-health contract and report schema SHALL be owned by openxFactory;
-the implementation (checker scripts, report generator, reusable workflow)
-SHALL be owned by codexFactory; the nightly runner SHALL be hosted by the
-xFactory aggregation repo as the only repo pinning every submodule; and
-content authority SHALL stay with each owning factory — health tooling
-reports and stages, it never approves or merges another factory's content.
+The doc-health contract, report schema, and implementation SHALL all be owned by openxFactory
+(checker scripts, report generator, and the reusable workflow move home
+with the contract they follow); the nightly runner SHALL be hosted by the xFactory
+aggregation repo as the only repo pinning every submodule; and content
+authority SHALL stay with each owning factory — health tooling reports
+and stages, it never approves or merges another factory's content.
 
 #### Scenario: The pipeline changes shape
+
 - **WHEN** a check family, report schema element, severity rule, or threshold default changes
-- **THEN** the change MUST be an OpenSpec delta to this capability in openxFactory, and the implementation follows it
+- **THEN** the change MUST be an OpenSpec delta to this capability in openxFactory, and the in-repo implementation follows in the same change or a named successor
 
 #### Scenario: A finding concerns a domain factory's content
+
 - **WHEN** the ranked plan proposes work on a DomainxFactory's documents
 - **THEN** the item enters that work as a staged proposal; approval remains with the owning factory's authority, and the health pipeline MUST NOT auto-apply content changes
+
+#### Scenario: A neutral artifact cites the implementation
+
+- **WHEN** a neutral schema, validator, or doc references a checker implementation file
+- **THEN** the reference resolves inside openxFactory itself — a neutral artifact citing a domain-repo implementation path is a conformance defect of this capability
 
 ### Requirement: Proposal supporting-document integrity checks
 The deterministic doc-health pass SHALL validate proposal supporting-document
@@ -406,4 +459,309 @@ progress without emitting one missing-entry regression per legacy document.
 #### Scenario: Catalog contract evolves
 - **WHEN** a later OpenSpec change modifies catalog corpus, schema, taxonomy, or authority rules
 - **THEN** the family MUST follow the owning requirements by reference rather than a stale implementation copy
+
+### Requirement: Ideation dashboard snapshot lane
+The nightly doc-health run SHALL include a deterministic ideation-dashboard
+snapshot lane: after the deterministic pass, the generator defined by the
+`ideation-dashboard` capability regenerates the snapshot and commits it
+beside the dated reports. The lane is an output artifact of the run — like
+the report itself — and adds no deterministic check family; strict snapshot
+and workbench-manifest validation runs in the existing per-repo validator
+preflight. A skipped or failed snapshot lane MUST be reported as skipped
+and MUST NOT affect deterministic results.
+
+#### Scenario: The nightly run completes
+- **WHEN** the deterministic pass finishes
+- **THEN** the snapshot lane regenerates and commits the snapshot beside the dated report
+- **AND** the report links the committed snapshot
+
+#### Scenario: The snapshot lane fails
+- **WHEN** snapshot generation errors or is unavailable
+- **THEN** the run records the lane as skipped and deterministic findings land unaffected
+
+#### Scenario: A snapshot violates its schema
+- **WHEN** a generated snapshot fails strict validation in the preflight
+- **THEN** the run MUST report the validator failure rather than committing an invalid snapshot
+
+### Requirement: Possibles derivation lane
+The doc-health capability SHALL include a possibles-derivation lane: a bounded,
+non-mutating worker pass — following the same execution split and bounded-worker
+pattern as the agentic semantic sweep, the document-cataloger lane, and the
+ideation-readiness lane — that derives candidate possibles from the promoted
+`ideation-cross-reference` index and proposes `possibles_register` entries.
+
+Lane output SHALL be recommendations with `pending_review` disposition,
+resolution class `contested`, and severity at most `warning`; derived-but-
+undisposed possibles SHALL appear in the report as their own section, excluded
+from the Ranked Plan; the lane MUST NOT block merges, MUST NOT open regression
+issues in v1, and SHALL add no deterministic check family — the strict register
+validator that enforces derived-entry shape and one-way disposition runs in the
+existing per-repo validator preflight (delegated to
+`validate-ideation-dashboard-contracts.py`).
+
+#### Scenario: The nightly lane executes
+- **WHEN** the possibles-derivation lane runs in the nightly workflow
+- **THEN** it runs after the deterministic pass against the same inventory/index snapshot
+- **AND** the dated report links the updated index and its immutable derivation evidence
+
+#### Scenario: Derived possibles are reported
+- **WHEN** a run has undisposed derived possibles
+- **THEN** the report MUST list them in their own section and MUST NOT rank them in the Ranked Plan
+
+#### Scenario: The lane is skipped
+- **WHEN** the derivation worker is unavailable or fails
+- **THEN** the run MUST record the lane as skipped and the deterministic results MUST land unaffected
+- **AND** prior derived possibles absent only because the lane did not run MUST NOT be treated as disposed
+
+#### Scenario: Lane output fails its contract
+- **WHEN** worker output does not satisfy the register evidence contract or the additive kernel shape
+- **THEN** the output MUST be rejected before persistence and the rejection reported in the run
+
+### Requirement: Ideation readiness lane
+The doc-health capability SHALL include an ideation readiness lane: a
+bounded, non-mutating worker pass — following the same execution split and
+bounded-worker pattern as the agentic semantic sweep and the
+document-cataloger lane — that maintains the
+promoted `ideation-cross-reference` index and emits `ideation-readiness`
+findings, including the extension-fit citation finding when a fit note
+cites only an archived change folder rather than a promoted spec or
+capability. Lane output SHALL be recommendations with `pending_review`
+disposition, resolution class `contested`, and severity at most `warning`;
+the lane MUST NOT block merges and MUST NOT open regression issues in v1.
+The strict index validator runs in the existing per-repo validator
+preflight; this lane adds no deterministic check family.
+
+#### Scenario: The nightly lane executes
+- **WHEN** the readiness lane runs in the nightly workflow
+- **THEN** it runs after the deterministic pass against the same inventory snapshot
+- **AND** the dated report links the updated index and its evidence artifacts
+
+#### Scenario: An archive-pointer-only fit note is found
+- **WHEN** a topic entry's extension-fit note cites only an archived change folder
+- **THEN** the lane MUST emit an `ideation-readiness` finding naming the entry and the citation requirement
+
+#### Scenario: The lane is skipped
+- **WHEN** the readiness worker is unavailable or fails
+- **THEN** the run MUST record the lane as skipped and the deterministic results MUST land unaffected
+- **AND** a prior finding absent only because the lane did not run MUST NOT be treated as resolved
+
+#### Scenario: Lane output fails its contract
+- **WHEN** worker output does not satisfy the promoted evidence contract or index schema
+- **THEN** the output MUST be rejected before persistence and the rejection reported in the run
+
+### Requirement: Neutrality drift is scouted nightly
+The doc-health pipeline SHALL include a neutrality-drift lane that reviews domain-factory content against the domain-neutral boundary on the nightly cadence: deterministic pre-filter signals (near-duplication of a neutral artifact, absence of domain vocabulary in a schema or script, cross-repo consumers, tooling absent from the domain's declared inventory) select candidates, and a model-driven scout under a versioned prompt contract judges the survivors and content changed since the lane's last run, returning structured candidates with neutrality evidence, counter-evidence, and domain-local exclusions.
+
+#### Scenario: A neutral-shaped artifact appears in a domain repo
+
+- **WHEN** a domain factory gains a schema, script, or process doc that another domain would need essentially unchanged
+- **THEN** a nightly run within the lane's incremental window MUST surface it as a neutrality candidate with evidence and counter-evidence
+- **AND** the scout's judgment MUST cite the file's own content, never only its location
+
+#### Scenario: Scope is the domain factories
+
+- **WHEN** the lane selects subjects
+- **THEN** it reviews the pinned `xFactories/*` domain repos and MUST NOT review openxFactory, openAvatar, or the install realizations in v1
+
+### Requirement: Candidates become staged proposals under human approval
+The lane's findings SHALL be delivered as drafted DTN-register seed candidates (register row plus detail section in the register's own format) and ranked-plan items through the existing rolling health PR; a candidate advances only by Brett's approval of the seed, movement follows the domain-to-neutral promotion process, and the lane SHALL NOT edit any domain repo, open any move PR, or modify any contract.
+
+#### Scenario: A candidate is proposed and approved
+
+- **WHEN** the lane files a neutrality candidate
+- **THEN** the rolling health PR carries the drafted register seed and the plan item
+- **AND** only the human approval of that seed admits it to the register's lifecycle
+
+#### Scenario: A rejected candidate stays rejected
+
+- **WHEN** Brett dispositions a candidate as not-neutral or not-now
+- **THEN** the disposition is recorded in the health dispositions register keyed by repo, path, and content digest
+- **AND** the lane MUST NOT re-file the candidate while that content is unchanged
+
+#### Scenario: Authority never transfers
+
+- **WHEN** the lane finds even an unambiguous misplacement
+- **THEN** it reports and stages only — content authority stays with the owning factory and every move lands through its own ratified change
+
+### Requirement: Ideation-routing checks enforced by reference
+The `ideation-routing` deterministic check family SHALL enforce the promoted
+`ideation-routing` and related `document-lifecycle` requirements by reference.
+It SHALL validate routing schemas and controlled vocabulary; central Idea-ID
+allocation; unique Idea-ID and Claim-ID definitions; paired-document identity;
+one canonical routing record; legal transitions; destination-owner acceptance;
+structured repository, path, and revision references; source and destination
+resolution; staged Claim-ID pointers; proposal provenance; routed destinations
+or explicit unresolved blockers; copied full routing records; routing aging;
+and the absence of a general ideation backlog in the aggregation repository.
+
+Duplicate detection SHALL distinguish canonical definitions from lightweight
+references and SHALL ignore examples in Markdown code fences and inline code.
+The family MAY auto-fix only safe mechanical defects permitted by existing
+finding policy, such as path-separator normalization. It MUST NOT choose an
+owner, split a claim, accept a destination, move a document, dispose an
+organizer recommendation, or promote policy.
+
+Repository resolution SHALL use reserved root ID `xFactory` plus exact
+aggregation-relative `.gitmodules` paths and their gitlinks. The family SHALL
+scan the governed openxFactory and DomainxFactory corpus, inspect the xFactory
+root only for forbidden ideation placement and locator integrity, and resolve
+referenced install/runtime paths without treating those repositories as
+governance corpora. Strict organize/proposal mode SHALL materialize every
+referenced pinned repository; a nightly unavailable external-path check SHALL
+be reported as skipped rather than passed.
+
+#### Scenario: Structural routing violation is found
+- **WHEN** a routing record violates its promoted schema, vocabulary, transition, acceptance, identity, or reference contract
+- **THEN** the run MUST emit an `ideation-routing` finding naming the repository, path, and owning requirement
+
+#### Scenario: Ordinary document lacks routing metadata
+- **WHEN** a document has not entered a routed lifecycle
+- **THEN** the family MUST NOT emit a finding merely because it has no Idea ID or sidecar
+
+#### Scenario: Unresolved claim has a blocker
+- **WHEN** a claim remains `unresolved` and names an explicit blocker or blocking question
+- **THEN** destination validation MUST accept that state while the record remains incomplete
+
+#### Scenario: Duplicate-looking references occur
+- **WHEN** one canonical Claim-ID definition has valid lightweight references or fenced examples elsewhere
+- **THEN** the family MUST NOT report those references or examples as duplicate definitions
+
+#### Scenario: Full routing record is copied
+- **WHEN** a destination document contains the routing-record schema rather than lightweight provenance pointers
+- **THEN** the family MUST emit a drift finding
+
+#### Scenario: Safe path defect is found
+- **WHEN** a structured reference differs only by a safely normalizable path separator
+- **THEN** the finding MAY be classified `auto-fixable`
+
+#### Scenario: Ownership decision is incomplete
+- **WHEN** resolving a finding would require choosing an owner, accepting a destination, or splitting a claim
+- **THEN** the finding MUST be `contested` and MUST NOT be auto-fixed
+
+#### Scenario: External path is unavailable during nightly validation
+- **WHEN** a pinned external repository needed only for reference resolution is not materialized
+- **THEN** the path check MUST be reported as skipped
+- **AND** strict organize or proposal validation MUST still require the path to resolve
+
+#### Scenario: Routing contract evolves
+- **WHEN** a later OpenSpec change modifies the promoted routing contract
+- **THEN** the checker MUST follow the owning requirements by reference rather than a stale staged definition
+
+### Requirement: Proposal-origin checks enforced by reference
+The `proposal-origin` deterministic check family SHALL enforce the promoted
+origin requirements of `document-lifecycle` and `release-realization` by
+reference. It SHALL report an active or archived proposal with no origin
+declaration; an unknown or malformed origin kind or id; a staged origin
+whose id, path, or staging-header linkage does not resolve against its
+recorded provenance; a mismatch among staging header, proposal packet, and
+support manifest; an ad-hoc origin lacking reason or approval provenance;
+and mutation of an origin declaration after ratification. Backfilled
+origins SHALL be validated against recorded migration provenance; the
+family MUST NOT fabricate or infer staging history for changes that predate
+the contract.
+
+#### Scenario: A proposal lacks an origin declaration
+- **WHEN** an active or archived proposal carries no origin declaration and no recorded migration exemption
+- **THEN** the run MUST emit a `proposal-origin` finding naming the change and the violated requirement
+
+#### Scenario: Origin declarations disagree
+- **WHEN** the staging header, the `.openspec.yaml` declaration, and the support manifest do not agree on origin kind, id, or path
+- **THEN** the run MUST emit a `proposal-origin` finding identifying each disagreeing record
+
+#### Scenario: An origin was mutated after ratification
+- **WHEN** an origin declaration differs from the declaration recorded at ratification
+- **THEN** the run MUST emit an `error` finding with resolution class `contested` — resolving it reverses a gate decision
+
+#### Scenario: A pre-contract change carries a backfilled origin
+- **WHEN** an archived change's origin was backfilled by the recorded migration
+- **THEN** the family MUST validate it against the migration provenance record and MUST NOT report it merely for having been declared late
+
+#### Scenario: The origin contract evolves
+- **WHEN** a later OpenSpec change modifies the promoted origin requirements
+- **THEN** the family MUST follow the owning requirements by reference rather than a stale implementation copy
+
+### Requirement: The deterministic pass reads a document's lifecycle header by real lines
+The deterministic pass SHALL locate a governed document's lifecycle header by counting the document's REAL lines — the three line endings CR, LF and CRLF — and MUST NOT count any other character as a line separator. The bounded header window is therefore a number of lines of the document rather than a number of fragments a wider splitting rule produced from it.
+
+This SHALL hold for every reader of that header, so that the status a document carries and the status the pass reports are the same fact. A reader that splits more aggressively than the writer can fail to find a header the writer just wrote correctly, and then reports a document as lacking a status it plainly has — a FALSE finding, which costs more trust than a crash because it accuses a correct document and leaves the operator no recourse but to disbelieve the checker.
+
+The line rule SHALL be shared with the writers of the same header rather than reimplemented per reader. Where the corpus cannot share an implementation across language boundaries, the divergence SHALL be held by an explicit agreement test rather than by convention.
+
+#### Scenario: A header carrying an exotic separator is read
+- **WHEN** the deterministic pass reads a governed document whose header region contains characters a wider splitting rule would treat as line breaks
+- **THEN** the document's lifecycle status MUST be found if it is present within the header window counted in real lines
+- **AND** the pass MUST NOT report the document as lacking a status it carries
+
+#### Scenario: The header window is counted
+- **WHEN** the deterministic pass applies its bounded header window to a document
+- **THEN** the bound MUST count real lines of the document
+
+#### Scenario: The reader and the writer are compared
+- **WHEN** a lifecycle header is written by a governed action and then read by the deterministic pass
+- **THEN** both MUST agree on where the document's lines begin and end
+
+#### Scenario: The corpus is unchanged by the correction
+- **WHEN** the deterministic pass runs over the governance corpus after this correction
+- **THEN** its findings MUST be identical to the run before it
+- **AND** any finding that does move MUST be explained rather than accepted, because a moved finding means a corpus document carries a separator the prior measurement did not see
+
+### Requirement: Governed corpus membership and the lifecycle scan set
+The doc-health capability SHALL declare two document sets and SHALL keep them distinct.
+
+The **governed corpus** is the set of Markdown documents under the governed
+roots `contracts/`, `docs/`, `examples/`, `ideation/` and `templates/` of each
+repository in scope, excluding `installs/`, `tests/`, `node_modules/`,
+`__pycache__/` and any nested git working copy. It is the sole input to the
+per-stage census, the governance and canon word totals, the canon-share
+headline, the shared inventory, and the document catalog. `openspec/` is NOT
+a governed root: promoted specs join the inventory as promoted specs and are
+counted toward canon, and no other document under `openspec/` enters the
+governed corpus.
+
+The **lifecycle scan set** is a separately declared set of paths carrying
+lifecycle headers outside the governed corpus. It SHALL be declared as an
+explicit path pattern set rather than as a directory, and it SHALL comprise
+each change packet's `proposal.md` and EVERY `review/` record under
+`openspec/changes/`, whether or not that record's subject is a ratification.
+A document in the lifecycle scan set is subject to the `document-lifecycle`
+status and ratification-citation rules and to no other family's rules; the
+citation half of that pair binds only a document whose status is `ratified`,
+so a `review/` record carrying another taxonomy value is checked for its
+status and for nothing else.
+
+The scan set SHALL NOT reach a document that is byte-exact evidence rather
+than live prose. A path carrying a `supporting-docs`, `source-snapshots` or
+`evidence` segment SHALL be excluded from the set even where it otherwise
+matches a declared pattern, because a frozen record reported for the state it
+preserves is a false finding.
+
+Widening either set is a governed change: a promoted OpenSpec change SHALL
+record the new membership together with the measured effect on finding
+counts by family, on the canon-share headline, and on the existing test
+suite, because a corpus measurement whose scope changes silently reports the
+scope rather than the corpus.
+
+#### Scenario: A proposal carries an uncited ratified header
+- **WHEN** a document in the lifecycle scan set carries `Status: ratified` with no ratification citation in either sanctioned spelling
+- **THEN** the run MUST emit a `ratified-provenance` finding against that document's path
+- **AND** the finding MUST carry the same severity it would carry for a governed-corpus document, because the defect is the same defect
+
+#### Scenario: A proposal's lifecycle header sits outside the header window
+- **WHEN** a document in the lifecycle scan set carries its `Status:` header past the header window, so the header reads as absent
+- **THEN** the run MUST emit a `status-validity` finding of missing status header
+- **AND** the run MUST NOT rely on `ratified-provenance` to catch it, because a document whose status does not parse is not a `ratified` document to that family
+
+#### Scenario: The lifecycle scan set does not move the corpus metrics
+- **WHEN** a doc-health run executes with a non-empty lifecycle scan set
+- **THEN** the per-stage counts, the governance and canon word totals, the canon-share headline, the shared inventory, and the catalog snapshot MUST be identical to a run with an empty lifecycle scan set over the same corpus
+- **AND** only the four families that read the set MAY report additional findings
+
+#### Scenario: A family outside the declared four is added later
+- **WHEN** a check family not named as a reader of the lifecycle scan set executes
+- **THEN** it MUST read the governed corpus alone
+- **AND** an automated check MUST hold that boundary, so that a family added later does not acquire or lose the wider scope by accident
+
+#### Scenario: A document is byte-exact evidence rather than live prose
+- **WHEN** a change packet holds a byte-exact snapshot of a staged fragment, illustrative malformed markers, or other evidence whose content is fixed by what it records
+- **THEN** it MUST NOT be in the lifecycle scan set, because reporting a frozen record for the state it preserves is a false finding
 

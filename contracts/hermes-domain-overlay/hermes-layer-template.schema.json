@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openxfactory.local/contracts/hermes-domain-overlay/hermes-layer-template.schema.json",
+  "title": "xFactory Hermes Layer Template",
+  "description": "Covers the subject (customer) and client (tenant/operator) Hermes layer templates, which carry no top-level domain object; the domain Hermes overlay is governed by hermes-domain-overlay.schema.yaml in this family. The client_hermes_template kind and its role const keep the frozen v1 machine spelling `client` for the Tenant layer per contracts/policies/layer-vocabulary.yaml. Adopted from codexFactory schemas/hermes-template.schema.json (adopt-neutral-utility-pack).",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "kind"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "kind": {
+      "enum": [
+        "subject_hermes_template",
+        "client_hermes_template"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "subject_hermes_template" } } },
+      "then": {
+        "required": ["subject_hermes"],
+        "properties": {
+          "subject_hermes": {
+            "type": "object",
+            "required": ["subject_kinds", "required_subject_fields"],
+            "properties": {
+              "subject_kinds": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "required_subject_fields": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 },
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "client_hermes_template" } } },
+      "then": {
+        "required": ["client_hermes"],
+        "properties": {
+          "client_hermes": {
+            "type": "object",
+            "required": ["layer_name", "role", "owns", "must_not_own"],
+            "properties": {
+              "layer_name": { "type": "string", "minLength": 1 },
+              "role": { "const": "client" },
+              "owns": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 },
+                "minItems": 1
+              },
+              "must_not_own": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 },
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

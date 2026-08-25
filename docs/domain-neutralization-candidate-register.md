@@ -43,8 +43,15 @@ implemented/promoted, `adopted` = adopted.
 | DTN-013 | Neutral roles and authority model | `split` | P0 | `adopted` | abstract roles-and-authority doc; engineering instantiation moves to codexFactory |
 | DTN-014 | Governed derived model (non-authoritative models and scenarios, tiered conformance) | `promote` | P2 | `implemented` | `governed-derived-model` capability: conformance schema, invariant vocabulary, `validate-derived-models.py` |
 | DTN-015 | Learned handling rule / correction-promotion loop | `promote` | P2 | `seed` | handling-rule invariant vocabulary + correction→promotion lifecycle (governed-derived-model profile) |
-| DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `staged` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
+| DTN-016 | Consent instrument (the rung-1↔rung-2 authority root as a schema'd object) | `promote` | P1 | `adopted` | `xfactory_consent_instrument` schema + vocabulary; mapping to memory-gateway consent-profile |
 | DTN-017 | Subject establishment (facts → neutral best-practice design → platform realization → verified apply; plus the audit-lift mirror) | `promote` | P1 | `staged` | neutral subject-design + platform-realization artifact kinds, provenance-graded fact set, reference-archetype lifecycle, conformance-tiering dial, verify-by-read-back obligation |
+| DTN-018 | Domain-repo conformance-gate check pack | `promote` | P1 | `adopted` | neutral inventory/parity/pin checks run from the pinned openxFactory checkout |
+| DTN-019 | Proposal-support lifecycle tool | `promote` | P1 | `adopted` | `scripts/proposal-support.py` beside its in-repo doc-health consumer (family 5) |
+| DTN-020 | Change-ratification workflow contract | `promote` | P2 | `seed` | neutral reference ratification workflow (pre-implementation governance sidecar) |
+| DTN-021 | Subject/tenant Hermes layer template schema | `promote` | P2 | `adopted` | fold into the `hermes-domain-overlay` / installation-overlay schema family |
+| DTN-022 | Avatar client lab neutral home | `split` | P2 | `adopted` | own repo `opensoft/openAvatar` (ruled 2026-08-03); domain descendants are pin-and-profile distributions |
+| DTN-023 | Governance change-review lane | `split` | P2 | `seed` | change-review half of the review lane (ten governance-document dimensions) |
+| DTN-024 | Governed recommendation artifact (evidence-cited, hypothesis-only, authority-slotted proposal) | `split` | P2 | `seed` | neutral recommendation-artifact skeleton: evidence-citation + knowledge_basis vocabulary, empty-authority-slot invariant, refusal documents, seeded-defect critique harness pattern |
 
 ## Candidate Details
 
@@ -416,7 +423,7 @@ promotion review seats, calibration cadence.
 ### DTN-016: Consent instrument (the rung-1↔rung-2 authority root as a schema'd object)
 
 Staged 2026-07-23→2026-07-24: staging topic
-[consent-instrument-contract](../ideation/staging/consent-instrument-contract/consent-instrument-contract.md)
+[consent-instrument-contract](../openspec/changes/archive/2026-08-06-add-consent-instrument/supporting-docs.tar.gz)
 (named by Brett Heap during the Meds Rx, Inc onboarding). Every
 domain's rung-1↔rung-2 relationship starts with a consent instrument —
 engagement letter, patient consent, agency agreement, operating
@@ -430,13 +437,27 @@ digest, status lifecycle) and composes with memory-gateway
 consent-profile (instrument authorizes ACTION; profile governs DATA),
 document-cataloging, and credential-contracts.
 
+Realized by `add-consent-instrument` (proposed as the topic's full
+promotion 2026-08-03; archived 2026-08-06 — the topic docs live in the
+archived change's verified supporting-docs bundle): the three neutral schemas, the packaged corpus, and
+the canonical validator landed 2026-08-03 and were registered at
+**contract-v1.30** (2026-08-06) — `adopted`.
+
 Evidence:
 
 - `xFactories/LedgerxFactory/docs/engagement-letter-template.md` +
   `xFactories/LedgerxFactory/tenants/ledgerxcorp/clients/medsrx/consent-record.yaml`
   (first schema'd instance, kind `ledgerx_engagement_consent_record`)
 - `xFactories/MedxFactory/hermes/patient/consent-model.yaml` +
-  `contracts/memory-gateway/consent-profile.schema.yaml`
+  `contracts/memory-gateway/consent-profile.schema.yaml`; **second
+  schema'd instance COMPLETE** —
+  `add-patient-consent-instrument` authored, ratified, realized, and
+  archived 2026-07-30 (canonical Medx spec `patient-consent-instrument`,
+  8 requirements): custody-bearing `medx_patient_consent_record`
+  (template + schema pair + fictional example + negative-tested
+  validator cross-checks) with the declared consent-profile derivation.
+  The staged exit condition (second domain instantiates) is met —
+  `add-consent-instrument` is unblocked
 - `docs/party-ladder.md` (rung model; estate-host third parties)
 
 Domain-local exclusions: instrument names, legal form and execution
@@ -497,8 +518,12 @@ surfaced the finding Ledgerx structurally could not: the DESIGNING
 domain and the APPLYING administrator can be different factories
 (GitHub administration is OpsxFactory's `github-administration-workflow`,
 not codexFactory's), so the realization artifact must be handoff-shaped
-with correlation between design, handoff, and applied result — very
-likely the same seam as the staged `deployment-handoff-boundary` topic.
+with correlation between design, handoff, and applied result — the seam
+is now RATIFIED as the `deployment-handoff-boundary` capability
+(`add-deployment-handoff-boundary`, 2026-07-29): the codexFactory second
+consumer's realization artifacts cross as `client_infrastructure_request`
+handoffs with correlation identifiers, exactly the crossing that
+capability defines (linkage recorded 2026-07-30, its task 2.3).
 
 Composes rather than restates: DTN-016 (consent instrument), DTN-015
 (correction→promotion, the archetype-harvest loop), governed-derived-
@@ -508,3 +533,201 @@ Domain-local exclusions: the CONTENT of any design or archetype (chart
 of accounts, care-plan template, branch-protection baseline), which
 external systems are supported and their mapping tables, and the expert
 seat that reviews a deviating design.
+
+### DTN-018: Domain-repo conformance-gate check pack
+
+Surfaced by the 2026-08-03 codexFactory neutrality sweep (evidence record
+under the merged `adopt-neutral-tooling-home` change's `supporting-docs/`).
+Three generic domain-repo conformance checks live in codexFactory with no
+engineering vocabulary: stack.yaml ↔ on-disk ↔ README required-artifact
+agreement, workflow `.md` transition targets ↔ `.yaml` gate `produces[]`
+parity, and stack.yaml `contract_ref` ancestry vs the aggregation pin.
+Every domain factory has a `stack.yaml`, workflow doc pairs, and an
+openxFactory pin; the workflow-gate-contract rule already says canonical
+validators run from the pinned checkout, never copied into domain repos,
+and `check-openxfactory-pin.py` partially duplicates
+`validate-domain-openxfactory-pins.py`.
+
+Evidence:
+
+- `xFactories/codexFactory/scripts/check-inventory-consistency.py`,
+  `check-workflow-state-parity.py`, `check-openxfactory-pin.py`
+  (~310 LOC + `tests/conformance-gate/`)
+- `openxFactory/scripts/validate-domain-openxfactory-pins.py` (the
+  neutral home for exactly this class)
+
+Domain-local exclusions: `scripts/validate-docs.sh` (the codex wrapper
+and its required-files list stay).
+
+Implemented 2026-08-03 by `adopt-neutral-utility-pack` (adopted at codexFactory main@1568c54b65e0de1dc63d9eef771f299ddbe60fcf; `adopted` follows the codexFactory shed + validate-docs.sh repoint, change/shed-neutral-utility-pack).
+
+### DTN-019: Proposal-support lifecycle tool
+
+Surfaced by the same sweep; sharpened by `adopt-neutral-tooling-home`:
+the doc-health checker (family 5, proposal supporting-document
+integrity) now lives in openxFactory while the only producer of the
+artifacts it checks remains a codexFactory script. The tool moves staged
+supporting documents into an active change, rewrites links, and
+preserves the bundle through OpenSpec archive with sha256 manifests —
+zero domain vocabulary in 545 LOC.
+
+Evidence:
+
+- `scripts/proposal-support.py` + `tests/proposal-support/` (the live
+  home; the original
+  codexFactory evidence path was shed 2026-08-03 by
+  `change/shed-neutral-utility-pack`, as the implementation note below
+  records — the old path no longer exists)
+- `docs/doc-health.md` family 5 (the in-repo consumer)
+
+Domain-local exclusions: none identified — the tool is pure lifecycle
+mechanics.
+
+Implemented 2026-08-03 by `adopt-neutral-utility-pack` (adopted byte-identical at codexFactory main@1568c54b65e0de1dc63d9eef771f299ddbe60fcf; `adopted` follows the codexFactory shed, change/shed-neutral-utility-pack).
+
+### DTN-020: Change-ratification workflow contract
+
+Surfaced by the same sweep. codexFactory's `change-ratification`
+workflow pair is a pre-implementation governance sidecar (its own
+README's words): inputs are committed change, strict validation
+evidence, governed review record, dispositions, human ratifier; output a
+ratification record. Zero engineering vocabulary; every domain factory
+ratifies OpenSpec changes. The promotion shape is a neutral REFERENCE
+contract upstream (DTN-001/002 lineage) with the codex instance
+declaring conformance — not a relocation.
+
+Evidence:
+
+- `xFactories/codexFactory/workflows/change-ratification.md` + `.yaml`
+- `openxFactory/contracts/schemas/xfactory-workflow.schema.yaml` (the
+  neutral workflow contract family it instantiates)
+
+Domain-local exclusions: the nine engineering workflows beside it
+(branch-review, pr-admission, merge-readiness, spec-kit-execution, …).
+
+### DTN-021: Subject/tenant Hermes layer template schema
+
+Surfaced by the same sweep. `hermes-template.schema.json` carries no
+domain vocabulary at all — `subject_kinds`, `required_subject_fields`,
+`layer_name`, `role`, `owns`, `must_not_own` — and the neutral home
+family already exists (`contracts/hermes-domain-overlay/`,
+`domain-installation-overlay.schema.yaml`).
+
+Evidence:
+
+- `xFactories/codexFactory/schemas/hermes-template.schema.json` (2.4 KB)
+- `openxFactory/contracts/hermes-domain-overlay/` (receiving family)
+
+Domain-local exclusions: the `$id` host string and codex layer
+instances under `hermes/`.
+
+Implemented 2026-08-03 by `adopt-neutral-utility-pack` as `contracts/hermes-domain-overlay/hermes-layer-template.schema.json` (neutralized `$id`, JSON retained; adopted at codexFactory main@1568c54b65e0de1dc63d9eef771f299ddbe60fcf; `adopted` follows the codexFactory shed — its stack.yaml/schemas README inventory entries drop with the file — and a later additive bundle release).
+
+### DTN-022: Avatar client lab neutral home
+
+Surfaced by the same sweep as the special case: the lab (240 files,
+~22.9k LOC Dart) is the reference client of the NEUTRAL avatar-first-ui
+standard and even ships a MedxFactory patient-intake profile from inside
+the engineering repo — but openxFactory's `avatar-reference-runtime`
+spec FORBIDS deployable surfaces (no network listener, deployment
+manifest, live provider SDK) in its reference package, so the neutral
+home cannot be openxFactory. The open fork this entry carries: a
+dedicated repo vs the aggregation layer. Upstream drafts already flowed
+from the lab into `contracts/avatar-client-lab/` by provenance note.
+
+Evidence:
+
+- `xFactories/codexFactory/apps/avatar-client-lab/` +
+  `specs/002-avatar-client-lab/upstream-drafts/`
+- `openxFactory/contracts/avatar-client-lab/avatar-state-derivation-table.md`
+  (provenance: adopted from the lab)
+
+Domain-local exclusions: codex-specific lab pilots and engineering CI
+wiring.
+
+**Resolution (2026-08-03, Brett):** own repo. `opensoft/openAvatar`
+carries the lab with full subtree-split history (codexFactory
+main@25e46fd1 -> openAvatar main@1998dcf8), pinned at the aggregation's
+neutral root (xFactory@6a2f418); codexFactory shed as PR #74 (a461cabd).
+MedxAvatar / LedgerxAvatar and kin are pin-and-profile DISTRIBUTIONS
+(branding + avatar-first-ui profile bundle + deployment overlay over a
+pinned openAvatar version), never code forks. Follow-up: whether the
+promoted codexFactory `avatar-patient-intake-demo` capability follows the
+lab is its own change.
+
+### DTN-023: Governance change-review lane
+
+Surfaced by the same sweep; this entry is the designed revisit hook for
+the credential tax `adopt-neutral-tooling-home` design D6 explicitly
+accepted. The review lane's change-review half reviews GOVERNANCE
+documents — its ten dimensions are normative-coverage,
+vocabulary-conformance, authority-isolation, provenance,
+scenario-completeness, evidence-levels, security, ownership-boundaries,
+traceability, open-questions — and resolves `change:<repo>:<change-id>`
+targets across every submodule from the aggregation's committed
+`.gitmodules`, proven on an accepted OpsxFactory record. The
+PR-admission half (PR verdicts, changed-path allowlists) is legitimately
+engineering and stays.
+
+Evidence:
+
+- `xFactories/codexFactory/scripts/review_lane/` (change-review half of
+  2,085 LOC) + `.github/workflows/review-lane-reusable.yml`
+- `xFactory/.github/workflows/review-lane.yml` (the aggregation caller
+  paying the private-sibling token cost)
+
+Domain-local exclusions: `pr:`/`candidate:` target types, PR verdict
+vocabulary, `merge_master`, the execution lane.
+
+
+### DTN-024: Governed recommendation artifact (evidence-cited, hypothesis-only, authority-slotted proposal)
+
+Seeded 2026-08-05 from the first ratified domain instance: MedxFactory's
+`treatment-plan-generation` capability (`add-treatment-plan-generation`,
+archived 2026-08-05, 9 requirements). A factory that reasons over governed
+subject data eventually emits a PROPOSAL — and the governance skeleton of
+that proposal is domain-invariant even though its content never is:
+
+- every claim cites subject evidence by pinned-run locator + sha256 with a
+  coding/normalization status;
+- every reasoning statement declares its `knowledge_basis`
+  (`model_parametric` visible and limitation-flagged, grounded-reference
+  tier binding the moment grounded records exist — the two-leg
+  source-trace discipline);
+- the artifact is constitutionally inert: hypothesis-only, with an
+  authority slot (attestation/approval) that is PRESENT AND EMPTY at
+  generation time, filled only by a named human downstream;
+- generation refuses with evidence (typed refusal documents) on missing
+  consent/authority coverage, off-policy models, or out-of-boundary
+  requests, rather than degrading silently;
+- critique efficacy is a tested property: a seeded-defect failure corpus
+  the deterministic critique core must flag, re-run on every validate.
+
+Medx deliberately kept the skeleton's field names domain-neutral
+(`evidence_ref`, `knowledge_basis`, `attestation`, `refusal_class`;
+change design D7) so this lift is rename-free. Sibling wants: Ledgerx
+adjustment/close proposals, Opsx change plans, Adx campaign
+recommendations, codex design proposals.
+
+Evidence:
+
+- `xFactories/MedxFactory/openspec/specs/treatment-plan-generation/spec.md`
+  (canonical spec) + `schemas/treatment-plan/`,
+  `scripts/treatment_plan/`, `examples/treatment-plan/` (golden plan,
+  ten-fixture failure corpus, plan-G1 gate re-executed on every
+  `make validate`)
+- `xFactories/MedxFactory/openspec/specs/medical-omnigent-overlay/spec.md`
+  (the modified hypothesis-only stance carrying the two-leg discipline)
+- staging positions:
+  `xFactories/MedxFactory/ideation/staging/treatment-plan-generation/topic.md`
+  (claim 10 / disposition: Medx-first, DTN row on ratification)
+
+Domain-local exclusions: clinical candidate content (problems,
+regimens, safety-check semantics), the consent-model purpose ids, the
+authoring-model policy content, gate names, and everything a domain's
+recommendation actually SAYS — the register candidate is the skeleton,
+never the medicine.
+
+Exit condition (per the DTN-016 pattern): a second domain instantiates
+the skeleton; then `add-recommendation-artifact` (or fold into
+governed-derived-model as a profile) stages in openxFactory.

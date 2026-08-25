@@ -1,0 +1,20 @@
+# A bidirectional adjudication from the sentinel dual-run: the AI path's
+# comparison run skipped the INDEX detail section — the code was right.
+# Consequence: the historical episode is relabeled through the pattern
+# ledger's outcome-label stream; the corpus quietly improves.
+schema_version: 1
+kind: adjudication_record
+adjudication_id: "adj:opensoft:packet-capture:2026-08-05:0001"
+context: sentinel
+capability_ref: "cap:opensoft:packet-capture-playbook"
+episode_ref: "ep:opensoft:2026-08-05:sentinel-comparison-0009"
+disagreement: >-
+  The AI comparison run omitted the staging INDEX detail section the
+  playbook emits; the header contract passed both, but the index surface
+  was incomplete on the AI side.
+verdict: ai_wrong
+consequence: episode_relabel
+adjudicator:
+  kind: human
+  ref: "human:brett"
+at: "2026-08-05"

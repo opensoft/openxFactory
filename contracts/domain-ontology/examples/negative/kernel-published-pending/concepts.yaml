@@ -1,0 +1,10 @@
+schema_version: 1
+kind: xfactory_ontology_concepts
+package_id: xf/core
+concepts:
+  - id: xf/core/fixture_term
+    label: Fixture Term
+    definition: A fixture concept.
+    lifecycle_state: published
+    adoption: {status: pending}
+    effective_version: 1.0.0

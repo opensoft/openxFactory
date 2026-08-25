@@ -1,0 +1,34 @@
+# INVALID widened success (contract-v1.40): a FULL posture carrying a NULL
+# reduction reason. The same class as `-context-empty-reason-on-full` one step
+# further, and it is packaged because it is the case the DELEGATED VALIDATOR
+# missed on its own: that gate read the value (`reason is not None`) where the
+# shape reads the KEY, and `.get()` cannot tell a `null` value from an absent
+# one. Found while fixing the reviewer's two findings — they named two gates and
+# there were four.
+#
+# `reduced_reason: null` is a key that is PRESENT. The shape refuses it for that
+# alone (`not: {required: [reduced_reason]}`), before the type constraint on the
+# value is ever reached.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-v2-success",
+  "client_turn_id": "turn-v2-0011",
+  "assistant_turn_id": "srv-v2-0011",
+  "model_id": "local-authoring-1",
+  "selected_model": {
+    "requested_model_id": "local-authoring-1",
+    "routing_rule": false,
+    "data_handling": "Local process only; no content leaves this machine."
+  },
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "observed_hashes": {
+    "outline": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+    "ideation/staging/demo-topic/note.md": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825"
+  },
+  "assistant_prose": "An answer whose record is ambiguous about its own context.",
+  "proposals": [],
+  "context_packet": {
+    "posture": "full",
+    "reduced_reason": null
+  }
+}

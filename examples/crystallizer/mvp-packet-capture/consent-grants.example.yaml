@@ -1,0 +1,28 @@
+# MVP corpus continuation: the tenant's consent grants. Absence of a grant
+# is denial; these two records are why episode mining and the funded L3
+# decision were legal. No pooling grant exists (default deny; consumer-less
+# this wave regardless).
+schema_version: 1
+kind: crystallization_consent
+grant_id: "grant:opensoft:episode-use:2026-07-28"
+tenant_ref: "tenant:opensoft"
+tier: episode_use
+scope: null
+condition: null
+granted_by: "human:brett"
+state: granted
+at: "2026-07-28"
+---
+schema_version: 1
+kind: crystallization_consent
+grant_id: "grant:opensoft:automation:doc-workflow:2026-07-29"
+tenant_ref: "tenant:opensoft"
+tier: automation
+scope:
+  family_category: doc-workflow
+condition:
+  spot_check:
+    rate: 0.2               # MVP: every fifth crystallized run human-checked
+granted_by: "human:brett"
+state: granted
+at: "2026-07-29"

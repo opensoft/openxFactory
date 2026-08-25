@@ -1,0 +1,29 @@
+# expected_failure: credential-value-embedded
+# expected_failure_detail: a bearer-token-shaped value
+# requirement: IDB-R7
+# VIOLATES R7: a linked identity carrying the token that proved it.
+#
+# A linked upstream identity is a provider id plus the subject that provider
+# issued — a REFERENCE PAIR. Here the id token that established the link is
+# stored beside it, because "then we do not have to call the provider again".
+# The assertion becomes a bearer credential at rest, replayable by anyone who
+# can read a persona record, and it is not even long-lived enough to be useful
+# — the storage buys nothing and costs everything.
+#
+# Both halves of the scan fire: the property name is credential-shaped, and the
+# VALUE is a serialized bearer token whatever the property had been called.
+schema_version: 1
+kind: persona_assertion
+assertion_id: pa-token-at-rest-9016
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+subject: sub-9016aa22bb33cc44
+display_name: Token At Rest
+linked_identities:
+  - provider_id: entra-opensoft
+    upstream_subject: 9016aa22-bb33-cc44-dd55-ee66ff778899
+    id_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5MDE2YWEyMiIsImF1ZCI6Im9wZW5kb3gifQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+organization_memberships:
+  - organization_id: opensoft
+asserted_at: "2026-08-22T10:50:00Z"

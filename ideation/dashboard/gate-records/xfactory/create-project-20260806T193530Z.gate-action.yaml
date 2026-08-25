@@ -1,0 +1,16 @@
+# gate-action record — a HUMAN-gate console action audit entry
+# (gate-action-record.schema.yaml). A session verb is reachable only from the
+# human console: a caller that cannot show it originates there is rejected and
+# reported before any record is written. That is a console-PRESENCE control,
+# not authentication (design D23) — `provenance`, where present, names the
+# door this action came through and how presence was shown.
+schema_version: 1
+kind: gate-action-record
+actor: brettheap
+action: create-project
+target:
+  project_id: xfactory
+at: '2026-08-06T19:35:30Z'
+artifacts:
+- kind: workflow-job
+  reference: ideation/dashboard/gate-records/xfactory/create-project-20260806T193530Z.workflow-job.yaml

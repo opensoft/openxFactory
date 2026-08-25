@@ -1,0 +1,31 @@
+# expected_failure: surface-holds-human-accounts
+# expected_failure_detail: human_accounts_held_by_surface=True
+# requirement: IDB-R1
+# VIOLATES R1, second clause: a surface holding human accounts of its own.
+#
+# The adoption is otherwise exemplary — persona login, honest posture, no write
+# actions — and it keeps a local account table "for service accounts and the
+# two contractors who are not in any directory yet". Those accounts resolve
+# nowhere: the broker cannot name them, so the governed layer cannot either,
+# and an act taken under one is an act by nobody in particular.
+#
+# The field is a required constant `false` precisely because this arrives as an
+# exception rather than as a design: making the claim mandatory means the
+# exception has to be written down, and the only value the shape admits refuses
+# it.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-local-accounts-9005
+surface_ref: opendox-workbench-local-accounts
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+authorization_posture: authenticated_persona
+governed_write_actions:
+  offered: false
+human_accounts_held_by_surface: true
+prior_shared_credential: none
+isolation:
+  co_residence_restriction: none
+  restriction_ref: "openspec/changes/add-identity-brokering/review/co-residence-finding-2026-08-21.md#fixture-no-restricted-population"
+declared_at: "2026-08-21T12:35:00Z"

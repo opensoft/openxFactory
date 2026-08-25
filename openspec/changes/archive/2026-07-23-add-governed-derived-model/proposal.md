@@ -1,6 +1,20 @@
 code_surface: openxFactory
 target_release: contract-v1.16
 
+Status: ratified
+Ratified: 2026-07-23 — record: the archive commit `e8c2970`, titled "Ratify and
+archive add-governed-derived-model; DTN-014 -> implemented" and opening
+"Ratified 2026-07-23"; corroborated by this change's own tasks.md
+("Ratified and archived 2026-07-23") and by the README row ("**ratified,
+realized, and archived 2026-07-23**"). The DATE ONLY is recorded: no file,
+commit body, or row in this change's record names a ratifier in prose, so none
+is claimed here — the `Ratified:` record-citing spelling is used exactly as
+`2026-08-22-add-roster-device-admission-surface` uses it, a date plus a pointer
+to the record that carries the ratification. Header and citation added
+2026-08-22 by `archive-register-rulings` under Brett's ruling on C2 of
+`docs/archive-record-discrepancies.md`; the proposal carried no `Status:` line
+from authoring through archive.
+
 ## Why
 
 Three domains independently converged on the same safety-critical object

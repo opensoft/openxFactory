@@ -1,0 +1,45 @@
+# INVALID widened request: `bound_buffer` names a document this request did not
+# supply. The turn declares it is working on a buffer the model will never be
+# shown, which is refused before any provider call — the same refusal discipline
+# the v1 active-path revalidation carried, restated over the buffer SET.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-v2",
+  "client_turn_id": "turn-v2-0002",
+  "scope": {
+    "repository": "openxFactory",
+    "ref": "doxbench/session/demo-topic",
+    "tile_kind": "staged",
+    "tile_id": "demo-topic"
+  },
+  "bound_buffer": "ideation/staging/demo-topic/never-supplied.md",
+  "working_subject": "Clarify the acceptance boundary",
+  "message": "Does the note still say what the outline claims?",
+  "model_id": "local-authoring-1",
+  "last_assistant_turn_id": null,
+  "transcript": [],
+  "buffers": [
+    {
+      "kind": "outline",
+      "repository": "openxFactory",
+      "path": "ideation/staging/demo-topic/demo-topic.md",
+      "base_ref": "doxbench/session/demo-topic",
+      "base_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "base_hash": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+      "content_hash": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+      "content": "# Demo topic\n\nOutline line.\n",
+      "dirty": false
+    },
+    {
+      "kind": "document",
+      "repository": "openxFactory",
+      "path": "ideation/staging/demo-topic/note.md",
+      "base_ref": "doxbench/session/demo-topic",
+      "base_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "base_hash": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825",
+      "content_hash": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825",
+      "content": "# Note\n\nBody.\n",
+      "dirty": false
+    }
+  ]
+}

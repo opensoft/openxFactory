@@ -23,3 +23,65 @@
 - [ ] 4.1 Verify the shared-contract and repository-boundary deltas against the realized files, including content-addressed consumer pinning, canonical fixture execution, private-client boundaries, and separately approved production deployment.
 - [ ] 4.2 Publish a machine-readable kernel handoff containing the release tag, exact commit, per-file digests, interface-lock digest, acceptance-map digest, and compatibility instructions for the reference-runtime and UI-standard siblings.
 - [ ] 4.3 Run strict target/all OpenSpec validation, `validate-avatar-client.py`, manifest/changelog/tag consistency, supporting-document hashes, `git diff --check`, and the recorded DomainxFactory compatibility validators. Block regressions introduced by this change, not dated pre-existing domain debt.
+
+## Bookkeeping annotation — archived with 13 of 14 boxes open (2026-08-22, `archive-register-rulings`)
+
+No box is ticked here and no task text above is altered. This section records
+what the archive evidence actually shows, because this ledger and this change's
+README row disagree with no reconciliation on the record — the anomaly
+enumerated as C6 in `docs/archive-record-discrepancies.md`, ruled on 2026-08-22
+by Brett (in-session, multiple-choice round) to be annotated rather than
+force-ticked.
+
+**What the ledger says.** Fourteen boxes across four sections — the interface
+baseline and publication gate (§1), the AVC schemas and registries (§2),
+conformance and contract release (§3), governance, handoffs and realization
+(§4). Exactly one is ticked, §1.1; the other thirteen are open. It archived
+that way on 2026-07-13 in `44f523b` ("Archive 3 realized avatar changes"),
+whose message reports the gates green ("kernel --require-realization … openspec
+--all --strict (25 passed)") and says nothing about the open boxes.
+
+**What the README row claims.** "canonical eight-contract AVC kernel,
+registries, fixtures, validator, and repository-boundary rules; realized as
+`contract-v1.7`, archived 2026-07-13."
+
+**Where the realization evidence actually lives — not in this ledger.** This is
+the best-evidenced of the four:
+
+- `contract-v1.7` is a real annotated tag: `ddff475`, 2026-07-12, "Realize
+  avatar-client contract kernel: contract-v1.7 (001 T044–T049)", with its
+  `contracts/CHANGELOG.md` section "contract-v1.7 — 2026-07-12 (additive; first
+  annotated-tag release)".
+- The eight AVC contracts §2 names, plus their registries, fixtures and
+  redaction rules, are on disk under `contracts/avatar-client/`, registered in
+  `contracts/manifest.yaml`, with §3.2's fail-closed
+  `scripts/validate-avatar-client.py` beside them.
+- §1.3's frozen decisions exist as `contracts/avatar-client/interface-lock.yaml`.
+- §4.2's machine-readable handoff exists as
+  `contracts/avatar-client/kernel-handoff.yaml`, carrying the release tag, the
+  interface-lock and acceptance-map digests, and the per-file digest set — the
+  exact artifact that box specifies.
+- Three capabilities were promoted by this change's archival:
+  `openspec/specs/avatar-client-runtime/spec.md`,
+  `openspec/specs/repo-boundary-governance/spec.md`, and
+  `openspec/specs/shared-contract-ownership/spec.md`.
+- **The ticking happened elsewhere.** The execution ledger was the Speckit
+  feature `specs/001-avc-contract-kernel/tasks.md`, at 54 of 54 tasks done, 0
+  open. It was never mirrored back into these fourteen boxes.
+
+One stale pointer worth flagging rather than fixing: §1.2 cites
+`openspec/changes/qualify-avatar-brokered-call-feasibility/evidence/f0-results.json`,
+a path that stopped resolving when that sibling archived on 2026-08-09. The
+file now lives under
+`openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/evidence/`.
+The task text is left as written; this note is the correction.
+
+So the gap is bookkeeping, not evidence.
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` gained TWO header lines in one edit — `Status: ratified` and a single `Ratified:` citation, at real lines 3 and 4, both well inside the fifteen-real-line header window. Nothing else on the page moved: the writer asserted per file that deleting exactly those two lines recovers the original bytes, and refused to write otherwise. The ruling is OQ-6's of 2026-08-23 (Brett Heap, in-session multiple-choice round), which DEPARTED from its own recommendation — no grandfather, no contract date, no reduced-severity class — and backfills every headerless proposal from its OWN record, stopping and reporting rather than inventing where a record cannot carry one. The status and the citation are coupled because the promoted rule in `openspec/specs/document-lifecycle/spec.md` holds that a bare, uncited `Status: ratified` is a violation whatever else the document says.
+
+This document's citation takes derivation route (b), the archive act itself, because no explicit ratification act appears anywhere on the record: the archive commit `44f523b` applied this change's spec delta into the canonical specs, and a change whose spec deltas have PROMOTED is ratified by construction — the reasoning `bdd09c2` recorded and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites as its own. The three-way floor is cleared on the DATE axis and a resolvable RECORD PATH, measured through `doc_health.families` before the line was written, not assumed.
+
+It is entered in `docs/archive-record-discrepancies.md` as C2's successor. This note travels with the change, as 5B's twenty-seven do.

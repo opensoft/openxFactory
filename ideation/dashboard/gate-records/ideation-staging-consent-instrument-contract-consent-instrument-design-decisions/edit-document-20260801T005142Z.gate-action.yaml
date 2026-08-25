@@ -1,0 +1,20 @@
+# gate-action record — a HUMAN-gate console action audit entry
+# (gate-action-record.schema.yaml). A session verb is reachable only from the
+# human console: a caller that cannot show it originates there is rejected and
+# reported before any record is written. That is a console-PRESENCE control,
+# not authentication (design D23) — `provenance`, where present, names the
+# door this action came through and how presence was shown.
+schema_version: 1
+kind: gate-action-record
+actor: brettheap
+action: edit-document
+target:
+  document: ideation/staging/consent-instrument-contract/consent-instrument-design-decisions.md
+  ref: draft/consent-instrument-contract
+provenance:
+  surface: http
+  console_presence: console-token
+at: '2026-08-01T00:51:42Z'
+artifacts:
+- kind: commit
+  reference: 20260801T005142Z

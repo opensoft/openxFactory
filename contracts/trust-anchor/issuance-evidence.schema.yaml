@@ -1,0 +1,185 @@
+schema_version: 1
+kind: openxfactory-trust-anchor-contract-schema
+name: xfactory_certificate_issuance_evidence
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/trust-anchor/v1/issuance-evidence.schema.yaml"
+contract_id: trust-anchor-issuance-evidence
+contract_schema_version: 1
+title: Certificate issuance evidence
+description: >-
+  What an issuance record must ESTABLISH — which anchor issued, under which
+  admitted authority, on whose request, and when — never the mechanism that
+  produces it (add-trust-anchor, requirement "A certificate issues only under
+  recorded authority"; OQ1 ruled by Brett Heap on 2026-08-21 as recommended).
+
+  THE DECLARED FLOOR IS IN THE SHAPE. `establishment_level` has exactly two
+  members and nothing weaker is representable:
+
+    * `per_certificate_record` — the strictest honest form, required where the
+      authority exposes per-certificate request provenance. It REQUIRES the
+      requester, the request identity, and the request time.
+    * `per_policy_attestation_with_authority_log` — the declared floor where
+      the authority does not. It requires BOTH halves: the policy attestation
+      AND the authority's own log. "Plus" is a conjunction, so a record citing
+      an attestation with no log, or a log with no attestation, does not
+      validate.
+
+  The middle option — writing the weaker form into the obligation itself — was
+  refused at ratification, because it would let a self-hosted authority that
+  can do better stop at the floor. The obligation stays what the record must
+  ESTABLISH; the LEVEL records which form this realization actually achieved,
+  and the conformance declaration carries the same fact where a consumer looks
+  for it.
+
+  AN ASSERTED-BUT-UNESTABLISHED RECORD IS WORSE THAN A DECLARED GAP, so at the
+  floor level asserting provenance is UNREPRESENTABLE: `establishment:
+  not_established` forbids the requester and request fields by shape and
+  requires a `declared_shortfall_ref`. The canonical validator then resolves
+  that reference and refuses it if the obligation it names is recorded as
+  satisfied, or was declared LATER than this record's own `issued_at` —
+  declaring a gap afterwards does not validate the claims made while the
+  realization was silent.
+
+  AUTHORIZATION IS DERIVED, NOT ASSERTED. `authorization_state` is checked
+  against the resolved anchor's `admitted_issuance_authorities`: an issuance
+  citing an authority the anchor does not admit MUST be recorded
+  `unauthorized`, and a record claiming `authorized` there is refused. The
+  certificate's own validity does not ratify it retroactively — the validator
+  additionally refuses a certificate recorded as `trusted` whose issuance
+  evidence is `unauthorized`.
+type: object
+required:
+  - schema_version
+  - kind
+  - issuance_evidence_id
+  - certificate_ref
+  - anchor_ref
+  - realization_ref
+  - authority
+  - establishment_level
+  - request_provenance
+  - issued_at
+  - authorization_state
+  - issuing_authority
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_certificate_issuance_evidence]
+  issuance_evidence_id: {$ref: '#/$defs/identifier'}
+  certificate_ref: {$ref: '#/$defs/identifier'}
+  anchor_ref:
+    # WHICH ANCHOR ISSUED. Resolved against the anchor corpus, because the
+    # admitted-authority check is only as good as the anchor it reads.
+    $ref: '#/$defs/identifier'
+  realization_ref: {$ref: '#/$defs/identifier'}
+  authority:
+    # UNDER WHICH AUTHORITY. A grant or a policy reference; whether the anchor
+    # ADMITS it is derived from the anchor record, never asserted here.
+    type: object
+    required: [authority_ref, authority_kind]
+    additionalProperties: false
+    properties:
+      authority_ref: {$ref: '#/$defs/identifier'}
+      authority_kind:
+        type: string
+        enum: [grant, policy]
+      statement: {type: string, maxLength: 600}
+  establishment_level:
+    type: string
+    enum: [per_certificate_record, per_policy_attestation_with_authority_log]
+  request_provenance:
+    # ON WHOSE REQUEST. Established or explicitly not established; there is no
+    # third state, and there is no way to record a requester the authority
+    # cannot evidence.
+    type: object
+    required: [establishment, statement]
+    additionalProperties: false
+    properties:
+      establishment:
+        type: string
+        enum: [established, not_established]
+      requester_ref: {$ref: '#/$defs/identifier'}
+      request_id: {$ref: '#/$defs/identifier'}
+      requested_at: {type: string, format: date-time}
+      declared_shortfall_ref:
+        # The conformance-declaration obligation entry declaring this
+        # shortfall. Resolved and checked: an obligation recorded as satisfied,
+        # or declared after this record's issuance, does not cover it.
+        $ref: '#/$defs/identifier'
+      statement: {type: string, minLength: 1, maxLength: 900}
+    allOf:
+      - if:
+          properties: {establishment: {const: established}}
+          required: [establishment]
+        then: {required: [requester_ref, request_id, requested_at]}
+      - if:
+          properties: {establishment: {const: not_established}}
+          required: [establishment]
+        then:
+          # Record only what can be established. The fields that would assert
+          # provenance are unrepresentable here rather than merely discouraged.
+          required: [declared_shortfall_ref]
+          not:
+            anyOf:
+              - {required: [requester_ref]}
+              - {required: [request_id]}
+              - {required: [requested_at]}
+  authority_attestation:
+    # The floor's two halves. Required together at the floor level, and
+    # meaningful at the strict level only as corroboration.
+    type: object
+    required: [policy_attestation_ref, authority_log_ref]
+    additionalProperties: false
+    properties:
+      policy_attestation_ref: {$ref: '#/$defs/identifier'}
+      authority_log_ref: {$ref: '#/$defs/identifier'}
+      retrieved_at: {type: string, format: date-time}
+      statement: {type: string, maxLength: 900}
+  issued_at:
+    # WHEN. The validator holds the certificate's own validity window to this.
+    type: string
+    format: date-time
+  authorization_state:
+    type: string
+    enum: [authorized, unauthorized]
+  issuing_authority:
+    # The conformance axis that OQ1 turns on: an authority the family does not
+    # operate constrains what can be extracted from it. Recorded as a fact
+    # about the authority, not as an excuse — the shortfall still has to be
+    # declared.
+    type: object
+    required: [operated_by_family, statement]
+    additionalProperties: false
+    properties:
+      operated_by_family: {type: boolean}
+      statement: {type: string, minLength: 1, maxLength: 800}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+allOf:
+  - if:
+      properties: {establishment_level: {const: per_certificate_record}}
+      required: [establishment_level]
+    then:
+      properties:
+        request_provenance:
+          properties: {establishment: {const: established}}
+  - if:
+      properties:
+        establishment_level: {const: per_policy_attestation_with_authority_log}
+      required: [establishment_level]
+    then:
+      # The floor is a conjunction, and it is the floor precisely because the
+      # per-certificate provenance is NOT available: claiming it here would be
+      # claiming the level above while declaring this one.
+      required: [authority_attestation]
+      properties:
+        request_provenance:
+          properties: {establishment: {const: not_established}}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

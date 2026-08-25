@@ -1,3 +1,6 @@
+Status: ratified
+Ratified: 2026-07-09 by Brett — record: the ratification commit `71c7028`, "Ratify proposal supporting-document lifecycle", whose body opens "Approved by Brett 2026-07-09"; the archive act followed the same day in `7b172d8`, "Archive proposal supporting-document lifecycle", which applied this change's four deltas into `openspec/specs/doc-health/spec.md`, `openspec/specs/document-lifecycle/spec.md`, `openspec/specs/lifecycle-notebook-projection/spec.md` and `openspec/specs/release-realization/spec.md`. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
+
 ## Why
 
 Completed staged topics remain physically under `ideation/staging/` after an

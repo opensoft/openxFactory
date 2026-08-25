@@ -1,0 +1,163 @@
+schema_version: 1
+name: xfactory_ontology_maintenance_input
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-maintenance-input.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, task 5.4). One
+# governed maintenance observation set — the deterministic INPUT to
+# `scripts/ontology-maintenance.py`. `as_of` is data, never a wall clock, so
+# trigger evaluation is reproducible.
+#
+# PRIVACY: term-level entries carry normalized term forms and aggregate
+# counts ONLY, and must meet the package's aggregation floor — no free text,
+# no subject/tenant/record identifiers (lifecycle spec: Subject and tenant
+# knowledge cannot silently become ontology). The canonical validator and
+# the maintenance tool both fail closed on a below-floor entry.
+type: object
+required:
+  - schema_version
+  - kind
+  - package_id
+  - as_of
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_ontology_maintenance_input
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  as_of:
+    type: string
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+  window:
+    type: object
+    required: [from, to]
+    additionalProperties: false
+    properties:
+      from:
+        type: string
+        pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+      to:
+        type: string
+        pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+  unknown_terms:
+    type: array
+    items:
+      type: object
+      required: [term_form, count, distinct_subjects, distinct_tenants]
+      additionalProperties: false
+      properties:
+        term_form:
+          type: string
+          minLength: 1
+          maxLength: 80
+        count:
+          type: integer
+          minimum: 1
+        distinct_subjects:
+          type: integer
+          minimum: 1
+        distinct_tenants:
+          type: integer
+          minimum: 1
+  mapping_failures:
+    type: array
+    items:
+      type: object
+      required: [system_id, count]
+      additionalProperties: false
+      properties:
+        system_id:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
+        code:
+          type: string
+          minLength: 1
+          maxLength: 120
+        count:
+          type: integer
+          minimum: 1
+  low_confidence:
+    type: array
+    items:
+      type: object
+      required: [concept_id, count, mean_confidence]
+      additionalProperties: false
+      properties:
+        concept_id:
+          type: string
+          pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+        count:
+          type: integer
+          minimum: 1
+        mean_confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+  workflow_drift:
+    type: array
+    items:
+      type: object
+      required: [workflow_ref, description]
+      additionalProperties: false
+      properties:
+        workflow_ref:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+          maxLength: 400
+  subdomain_requests:
+    type: array
+    items:
+      type: object
+      required: [request_id, description]
+      additionalProperties: false
+      properties:
+        request_id:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9-]{0,63}$"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 400
+  appeals:
+    type: array
+    items:
+      type: object
+      required: [appeal_id, concept_id, description]
+      additionalProperties: false
+      properties:
+        appeal_id:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9-]{0,63}$"
+        concept_id:
+          type: string
+          pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 400
+  promotion_candidates:
+    # Reviewed, de-identified promotion candidates arriving through the
+    # existing consent/de-identification/promotion gates — references only.
+    type: array
+    items:
+      type: object
+      required: [promotion_ref, review_evidence_ref]
+      additionalProperties: false
+      properties:
+        promotion_ref:
+          type: string
+          minLength: 1
+          maxLength: 300
+        review_evidence_ref:
+          type: string
+          minLength: 1
+          maxLength: 300
+        proposed_concept_slug:
+          type: string
+          pattern: "^[a-z0-9_]{1,64}$"

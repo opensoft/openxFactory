@@ -1,0 +1,122 @@
+schema_version: 1
+name: xfactory_ontology_concepts
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-concepts.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, task 2.1). The concept
+# registry of one ontology package.
+#
+# IDENTITY IS SEPARATE FROM LABELS (spec: Stable specialization and relation
+# semantics). `id` is immutable and follows the namespace grammar
+# `xf/<namespace>/<term>` (deeper segments allowed; the namespace prefix must
+# equal the owning package's namespace). Labels, aliases, and definitions may
+# evolve without changing identity; preferred labels and aliases are unique
+# within a package namespace — a collision is a validation error, never a
+# resolution choice.
+#
+# SPECIALIZATION IS AN ACYCLIC MULTI-PARENT DAG: `parents` holds exact term
+# IDs (kernel or same-package). Kernel concepts are roots and declare no
+# parents. Adding or removing a parent of a published concept is BREAKING.
+#
+# NO AUTHORITY CONTENT: the closed shape carries no effect, permission, grant,
+# credential, scope, or routing field, and no free-form attribute map exists
+# to smuggle one in (spec: Deterministic semantic conformance / Semantic
+# inference cannot authorize).
+type: object
+required:
+  - schema_version
+  - kind
+  - package_id
+  - concepts
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_ontology_concepts
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  concepts:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [id, label, definition, lifecycle_state, effective_version]
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/$defs/term_id"
+        label:
+          $ref: "#/$defs/label_text"
+        aliases:
+          type: array
+          items:
+            $ref: "#/$defs/label_text"
+        definition:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        category:
+          # Presentational grouping only — carries no specialization or
+          # classification semantics (design decision 5's kernel groups).
+          enum: [party_layer, work, subject_view, knowledge, governance, domain]
+        lifecycle_state:
+          enum: [draft, published, deprecated, retired]
+        parents:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/$defs/term_id"
+        owning_contract:
+          # Kernel terms MUST name the contract or governance doc that owns
+          # their runtime shape (spec: Neutral semantic kernel ownership);
+          # repo-relative path, resolved by the validator.
+          type: string
+          pattern: "^[A-Za-z0-9._/-]{1,200}$"
+        adoption:
+          # Kernel-only per-term adoption evidence; pending is legal only
+          # while the kernel package is draft.
+          type: object
+          required: [status]
+          additionalProperties: false
+          properties:
+            status:
+              enum: [pending, evidenced]
+            adopters:
+              type: array
+              items:
+                type: object
+                required: [kind, ref]
+                additionalProperties: false
+                properties:
+                  kind:
+                    enum: [domain_package, shared_subsystem_contract]
+                  ref:
+                    type: string
+                    pattern: "^[A-Za-z0-9._/@-]{1,200}$"
+        sources:
+          type: array
+          items:
+            $ref: "#/$defs/slug"
+        steward:
+          $ref: "#/$defs/slug"
+        effective_version:
+          type: string
+          pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        superseded_by:
+          $ref: "#/$defs/term_id"
+        notes:
+          type: string
+          minLength: 1
+          maxLength: 400
+$defs:
+  term_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+  label_text:
+    type: string
+    minLength: 1
+    maxLength: 80
+  slug:
+    type: string
+    pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"

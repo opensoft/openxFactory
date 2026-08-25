@@ -1,0 +1,42 @@
+# VALID trust anchor: the managed issuing authority. Same declared shortfall as
+# its parent, and a shorter window inside it.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:managed-issuing
+realization_ref: realization:managed-cloud-authority-canary
+anchor_identity:
+  subject_name: "Managed Fleet Issuing Authority"
+  public_key_fingerprint: "sha256:7C05A2E4B1D93F6820A7F13CD9E4B0625F8A1D37C0B69E42"
+chain_position:
+  role: subordinate
+  parent_anchor_ref: anchor:managed-root
+  path_depth: 1
+validity:
+  not_before: "2026-03-01T00:00:00Z"
+  not_after: "2029-03-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:managed-device-issuance-profile
+    authority_kind: policy
+    statement: >-
+      Device and host-broker certificates, enrolled through the device
+      management path.
+declared_chain_custody:
+  custody_model: host_isolated_invocable
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  declared_at: "2026-06-15T00:00:00Z"
+  declared_by: opensoft
+  declared_shortfall_ref: ob:managed:TA-R7
+administration_credentials:
+  - credential_record_ref: credential:managed-authority-api-client
+    authorizes: [issuance, revocation]
+    brokered_into_ephemeral_scope: true
+    statement: >-
+      The credential the family DOES hold — its client credential for the
+      managed authority's administrative interface. A credential record with a
+      vault binding, brokered into ephemeral scope. The authority's own key
+      custody is the part that cannot be evidenced, and that is what the
+      declared shortfall covers.
+record_version: 1
+created_at: "2026-03-01T00:00:00Z"

@@ -1,0 +1,12 @@
+# VALID project-register: repository `openxFactory` lives in TWO projects.
+# Repository membership is MULTI-PARENT (add-project-scoped-selection,
+# Brett's 2026-08-06 ruling) — a project is a named view over repositories,
+# not an owner. The first-declaring project (`p-a`, register order) is the
+# snapshot's PRIMARY `project`; both appear in its additive `projects` list.
+schema_version: 1
+kind: project-register
+projects:
+  - id: p-a
+    repositories: [openxFactory]
+  - id: p-b
+    repositories: [openxFactory]

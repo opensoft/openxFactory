@@ -10,6 +10,16 @@ baked, credential-free, Basic-Auth'd, with no write routes. The rolling-PR
 delivery pattern (doc-health nightly, derive-possibles commit-back) is the
 proven way unattended machinery lands governed commits under org rulesets.
 
+## Naming
+
+This capability is named **openXdox** (short handle `dox`, surface `doxBench`)
+— the domain-neutral review-and-disposition workbench, locked by Brett
+2026-08-13. See the [openXdox Capability Naming Record](../../../docs/openxdox-naming.md)
+for the rationale, the per-domain instance labels, and the rejected
+`openXnotes` alternative. "openDox" (taken) survives only as legacy branding
+in the QA deploy (dashboard `<title>`, admin runbook) pending the next deploy
+touch.
+
 ## Goals / Non-Goals
 
 **Goals**: hosted + mobile actions with zero write authority on serving
@@ -70,6 +80,18 @@ A committed config maps actor -> permitted verbs (disposing possibles vs
 ratifying proposals are different authorities). Binding to the full
 roles-authority-model is deferred to a later delta; the config's SHAPE
 anticipates it.
+
+### D7 — Hosting venue: the QA AKS cluster (Brett, 2026-08-09)
+The intent-inbox deploys on the QA AKS cluster — the same cluster serving
+the hermes QA install — behind the same ingress as the hosted dashboard,
+via omnigent-install per the code surface. Per-user Basic Auth (htpasswd +
+ingress actor forwarding) is CONFIRMED as identity rung 1; Keycloak
+replaces the authenticator later without touching the intent contract. The
+sidecar-vs-own-deployment shape stays a realization question (D2). Because
+that cluster is administered under OpsxFactory's aks-administration
+capability, the phase-4 realization evidence rides a deployment-handoff
+request to OpsxFactory and cites its correlation identifier, per the
+release-realization managed-subject rule.
 
 ## Risks / Trade-offs
 

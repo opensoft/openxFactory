@@ -1,0 +1,21 @@
+# expected_failure: tenant-mismatch
+# A family whose member carries another tenant's episode — structurally
+# identical work from two tenants lands in two families, never one.
+schema_version: 1
+kind: recurrence_family
+family_id: "fam:opensoft:packet-capture-mechanics"
+tenant_ref: "tenant:opensoft"
+lane: whole-job
+state: forming
+fingerprint:
+  structural:
+    job_type: brainstorm_packet_capture
+  semantic_ref: null
+members:
+  - episode_ref: "ep:opensoft:2026-07-28:ontology-packet-capture"
+    confidence: 0.95
+    tenant_ref: "tenant:opensoft"
+  - episode_ref: "ep:other:2026-07-28:lookalike-run"
+    confidence: 0.91
+    tenant_ref: "tenant:other"
+transitions: []

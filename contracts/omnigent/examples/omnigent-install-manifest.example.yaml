@@ -35,3 +35,23 @@ effective_profiles:
 
 evidence:
   records_root: evidence/omnigent-compose
+
+# Install-pinned worker semantic contexts (add-omnigent-semantic-wiring):
+# exact kernel/package pins plus one compiled artifact per worker class
+# the pinned overlay declares. Both-direction completeness and per-artifact
+# pin agreement are cross-checked over the pinned overlay by the canonical
+# validator's wiring checks, not by this schema.
+semantic_contexts:
+  kernel:
+    package_id: xf/core
+    package_version: 1.0.0
+    package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+  ontology_package:
+    package_id: xf/example
+    package_version: 1.0.0
+    package_digest: 3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b
+  contexts:
+    - worker_class: check_runner
+      context_id: ctx-example-verify
+      content_digest: 4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c
+      path: rendered/semantic-contexts/ctx-example-verify.yaml

@@ -1,0 +1,283 @@
+schema_version: 1
+kind: openxfactory-identity-brokering-contract-schema
+name: broker_surface_adoption
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/identity-brokering/v1/surface-adoption.schema.yaml"
+contract_id: identity-brokering-surface-adoption
+contract_schema_version: 1
+title: Identity-brokering surface adoption
+description: >-
+  A surface's adoption record: the posture it declares, the instance it
+  authenticates against, the shared secret the adoption retires, and the
+  isolation the population it serves requires (add-identity-brokering,
+  capability `identity-brokering`, requirements "A surface declares its
+  authorization posture", "Broker credentials are credential-contract
+  records" and "Isolation escalates by instance, never by fragmenting
+  personas"; design D3, D8, D9).
+
+  THE POSTURE IS DECLARED, AND A WRITE ACTION CANNOT HIDE UNDER THE WEAK
+  ONE. `governed_write_actions.offered: true` requires
+  `authorization_posture: resolved_authorization` AND a named governed
+  decision point — by shape, not by review. A NON-EMPTY `actions` LIST
+  REQUIRES `offered: true` by the same shape: naming a write action is
+  offering one, and `offered: false` beside a populated list was the quiet
+  transition already half-made in the record. The failure this closes is the
+  quiet one: a surface ships read-only under "any authenticated persona",
+  then gains a write action before per-action authorization exists, and the
+  login is silently doing work it was never designed to do. Declaring the
+  posture makes acquiring a write action a VISIBLE CHANGE OF POSTURE rather
+  than an unremarked commit.
+
+  `resolved_authorization.resolves_in` has ONE legal value,
+  `governed_layer`. Resolving authorization in broker state — organization
+  membership offered as permission to act — is not representable: membership
+  records association, and it is an INPUT to a decision taken elsewhere,
+  never the decision itself. The enumeration is closed and the REFS beside
+  it are free text, so the canonical validator also walks the
+  decision-point locator by shape: a record declaring `governed_layer` and
+  then naming the broker's own administration API is the same substitution
+  one field to the left. That walk is a blocklist over the locator classes
+  it knows — an opaque ref cannot be adjudicated — and the residue is
+  recorded in the family README.
+
+  `human_accounts_held_by_surface` is a required constant `false`. A surface
+  in scope does not hold human accounts the broker cannot resolve to a
+  persona, because an account that resolves nowhere is an identity the
+  governed layer cannot name.
+
+  ISOLATION ESCALATES BY INSTANCE. Where a commitment, a regulation or a
+  population's sensitivity forbids co-residence, the record declares the
+  restriction and `satisfied_by: dedicated_broker_instance` — the only
+  member of that enumeration — and the instance it names must be
+  `dedicated`. Partitioning personas inside a shared instance pays the full
+  persona-fragmentation cost while buying weaker isolation: the
+  administrative plane, the datastore and the blast radius stay shared. The
+  contract is deliberately SILENT ON INSTANCE COUNT: an unrestricted surface
+  on a dedicated instance — a single-organization deployment with no
+  operator layer above it — is equally conformant, and nothing here requires
+  it to join a shared instance.
+
+  AND THE CO-RESIDENCE ANSWER IS RECORDED EITHER WAY. `restriction_ref` is
+  required for BOTH values of `co_residence_restriction`: the commitment
+  that imposes a restriction, or the written finding that there is none.
+  `none` is the answer a record reaches by default rather than by inquiry,
+  and an unrecorded negative is indistinguishable from an unasked question.
+
+  RETIRING THE OLD SECRET IS PART OF THE ADOPTION, AND THE CLAIM IS ALWAYS
+  MADE. `prior_shared_credential` is required: `replaced` names the
+  credential's `credential-contracts` requirement in `replaced_credential`
+  and the validator then requires its retirement and the retirement date, so
+  the credential inventory shrinks by the adoption instead of growing;
+  `none` is the auditable claim that there was no shared static credential
+  to retire. Without the required claim the obligation was enforced only on
+  records that volunteered the block — and the adoption most likely to leave
+  a shared secret live is exactly the one that never mentions it.
+type: object
+required:
+  - schema_version
+  - kind
+  - adoption_id
+  - surface_ref
+  - broker_instance
+  - authorization_posture
+  - governed_write_actions
+  - human_accounts_held_by_surface
+  - prior_shared_credential
+  - isolation
+  - declared_at
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [broker_surface_adoption]
+  adoption_id: {$ref: '#/$defs/identifier'}
+  surface_ref: {$ref: '#/$defs/identifier'}
+  surface_display_name:
+    type: string
+    minLength: 1
+    maxLength: 200
+  broker_instance:
+    type: object
+    required: [instance_id, deployment]
+    additionalProperties: false
+    properties:
+      instance_id: {$ref: '#/$defs/identifier'}
+      deployment:
+        type: string
+        enum: [shared, dedicated]
+  authorization_posture:
+    type: string
+    enum: [authenticated_persona, resolved_authorization]
+  governed_write_actions:
+    type: object
+    required: [offered]
+    additionalProperties: false
+    properties:
+      offered: {type: boolean}
+      actions:
+        type: array
+        items:
+          type: string
+          minLength: 1
+          maxLength: 200
+  resolved_authorization:
+    type: object
+    required: [decision_point_ref, resolves_in]
+    additionalProperties: false
+    properties:
+      decision_point_ref:
+        # WHERE the per-action decision is taken. A declaration a reader can
+        # audit; the contract cannot check that the resolution happens, and
+        # says so rather than pretending otherwise.
+        type: string
+        minLength: 1
+        maxLength: 300
+      resolves_in:
+        type: string
+        enum: [governed_layer]
+      grants_ref:
+        type: string
+        minLength: 1
+        maxLength: 300
+  human_accounts_held_by_surface:
+    type: boolean
+    const: false
+  prior_shared_credential:
+    # A REQUIRED CLAIM, because the retirement obligation was previously
+    # enforced only on records that volunteered a `replaced_credential`
+    # block. An adoption that named nothing was silently exempt — and the
+    # adoption most likely to leave a shared secret live is exactly the one
+    # that does not mention it. `none` is the AUDITABLE CLAIM that persona
+    # login replaced no shared static credential; `replaced` requires the
+    # `replaced_credential` block, and the validator then requires the
+    # retirement and its date. Two words, and the requirement stops being
+    # satisfiable by omission.
+    type: string
+    enum: [none, replaced]
+  replaced_credential:
+    type: object
+    required: [credential_requirement, retired]
+    additionalProperties: false
+    properties:
+      credential_requirement: {$ref: '#/$defs/credential_reference'}
+      retired: {type: boolean}
+      retired_at: {type: string, format: date-time}
+      evidence_ref:
+        type: string
+        minLength: 1
+        maxLength: 300
+  isolation:
+    type: object
+    required: [co_residence_restriction, restriction_ref]
+    additionalProperties: false
+    properties:
+      co_residence_restriction:
+        type: string
+        enum: [none, population_restricted]
+      restriction_ref:
+        # REQUIRED FOR BOTH ANSWERS. The commitment consulted — a contract, a
+        # regulation, a recorded finding — when a restriction exists; the
+        # WRITTEN FINDING that there is none when there is not.
+        #
+        # `none` was previously the one answer that needed no evidence, so
+        # the co-residence question could be answered without anybody having
+        # asked it: `none` is what a record says by default. An unrecorded
+        # NEGATIVE is indistinguishable from an unasked question — the OQ-5
+        # finding's own rule, applied to its own output — and the finding
+        # that a population may co-reside is the one worth being able to
+        # re-read later, because it is the one that will be revisited when
+        # the population changes.
+        type: string
+        minLength: 1
+        maxLength: 300
+      restricted_population:
+        type: string
+        minLength: 1
+        maxLength: 200
+      satisfied_by:
+        # ONE member. Partitioning personas inside a shared instance is not
+        # an answer this enumeration can give.
+        type: string
+        enum: [dedicated_broker_instance]
+  declared_at: {type: string, format: date-time}
+allOf:
+  - if:
+      properties:
+        governed_write_actions:
+          properties: {offered: {const: true}}
+          required: [offered]
+      required: [governed_write_actions]
+    then:
+      required: [resolved_authorization]
+      properties:
+        authorization_posture: {const: resolved_authorization}
+  - if:
+      properties: {authorization_posture: {const: resolved_authorization}}
+      required: [authorization_posture]
+    then:
+      required: [resolved_authorization]
+  # NAMING A WRITE ACTION IS OFFERING ONE. The conditional above keys on
+  # `offered`, so a populated `actions` list beside `offered: false` satisfied
+  # every shape in this file: the actions written down, the posture not, and
+  # the surface one commit away from the failure R9 exists to prevent — with
+  # the commit already made in the record. A record that lists what it writes
+  # offers what it lists.
+  - if:
+      properties:
+        governed_write_actions:
+          properties: {actions: {type: array, minItems: 1}}
+          required: [actions]
+      required: [governed_write_actions]
+    then:
+      properties:
+        governed_write_actions:
+          properties: {offered: {const: true}}
+  # `prior_shared_credential: replaced` NAMES THE CREDENTIAL IT REPLACED, and
+  # `none` names nothing — the claim and the block cannot disagree.
+  - if:
+      properties:
+        prior_shared_credential: {const: replaced}
+      required: [prior_shared_credential]
+    then:
+      required: [replaced_credential]
+  - if:
+      properties:
+        prior_shared_credential: {const: none}
+      required: [prior_shared_credential]
+    then:
+      not: {required: [replaced_credential]}
+  - if:
+      properties:
+        isolation:
+          properties:
+            co_residence_restriction: {const: population_restricted}
+          required: [co_residence_restriction]
+      required: [isolation]
+    then:
+      properties:
+        isolation:
+          required: [restriction_ref, restricted_population, satisfied_by]
+        broker_instance:
+          properties: {deployment: {const: dedicated}}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+  credential_reference:
+    type: object
+    required: [requirement_id, requirements_document_ref, holder_ref, custody_declared_in]
+    additionalProperties: false
+    properties:
+      requirement_id: {$ref: '#/$defs/identifier'}
+      requirements_document_ref:
+        type: string
+        minLength: 1
+        maxLength: 300
+      holder_ref: {$ref: '#/$defs/identifier'}
+      custody_declared_in:
+        type: string
+        minLength: 1
+        maxLength: 300

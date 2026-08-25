@@ -1,0 +1,2482 @@
+/* Ideation-dashboard renderer styles — grown verbatim from the staged
+   supporting-docs/dashboard-mockup.html (add-ideation-dashboard). The design
+   system (light+dark CSS variables, card/column structure, SVG edge layer, the
+   six-column funnel with the five-column collapse modifier) is preserved so the
+   renderer cannot silently regress the mockup's look. US2 grows the funnel,
+   pipeline board, doc list, and lineage/stats views; the canvas/lens/tray rules
+   are carried forward for later stories. No external assets — every colour,
+   font stack, and rule is local (offline, CSP-safe). */
+
+:root {
+  --surface: #F7F8FA;
+  --panel: #FFFFFF;
+  --ink: #1C232E;
+  --muted: #5A6472;
+  --faint-ink: #8A93A0;
+  --border: #DDE2E9;
+  --faint: #EEF1F5;
+  --st-brainstorm: #7A5AD0;
+  --st-staged: #0D9488;
+  --st-proposal: #B96A1B;
+  --st-realized: #3B6FD4;
+  --good: #2E7D43;
+  --good-bg: #E4F1E8;
+  --blocked: #B0433C;
+  --blocked-bg: #F7E7E5;
+  --edge-pick: #0D9488;
+  --edge-flow: #B4BCC7;
+  /* A chosen-by-the-human SELECTION. Deliberately its own hue: every other
+     accent already means a stage, and `--edge-pick` is the same teal as
+     `--st-staged`, so a selected dot drawn in it was indistinguishable from
+     an unselected one (measured rgb(31,168,152) both). */
+  --picked: #C2185B;
+  /* The lens's per-term HUE is chosen in code; its saturation and lightness
+     are chosen HERE, per theme. Writing a whole hsl() in JS is what put a
+     42%-light tint on a near-black panel (Brett, 2026-08-08: "several tiles
+     are black on black and user cannot read"). */
+  --tint-s: 45%;
+  --tint-l: 42%;      /* on a light ground */
+  --tint-arc-l: 55%;  /* the ring arc, which sits under everything */
+  --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #15181E;
+    /* a hue must be LIGHT to read on the dark ground */
+    --tint-l: 72%;
+    --tint-arc-l: 62%;
+    --panel: #1C2028;
+    --ink: #E7EAEF;
+    --muted: #97A0AC;
+    --faint-ink: #6E7885;
+    --border: #2C323C;
+    --faint: #22262E;
+    --st-brainstorm: #9678DE;
+    --st-staged: #1FA898;
+    --st-proposal: #C0742A;
+    --st-realized: #5E8BE0;
+    --good: #4CAF6E;
+    --good-bg: #1E3226;
+    --blocked: #E06A5F;
+    --blocked-bg: #3A2422;
+    --edge-pick: #1FA898;
+    --edge-flow: #3A414D;
+    --picked: #F06292;
+  }
+}
+:root[data-theme="dark"] {
+  --surface: #15181E;
+  /* a hue must be LIGHT to read on the dark ground */
+  --tint-l: 72%;
+  --tint-arc-l: 62%;
+  --panel: #1C2028;
+  --ink: #E7EAEF;
+  --muted: #97A0AC;
+  --faint-ink: #6E7885;
+  --border: #2C323C;
+  --faint: #22262E;
+  --st-brainstorm: #9678DE;
+  --st-staged: #1FA898;
+  --st-proposal: #C0742A;
+  --st-realized: #5E8BE0;
+  --good: #4CAF6E;
+  --good-bg: #1E3226;
+  --blocked: #E06A5F;
+  --blocked-bg: #3A2422;
+  --edge-pick: #1FA898;
+  --edge-flow: #3A414D;
+    --picked: #F06292;
+}
+:root[data-theme="light"] {
+  --surface: #F7F8FA;
+  --panel: #FFFFFF;
+  --ink: #1C232E;
+  --muted: #5A6472;
+  --faint-ink: #8A93A0;
+  --border: #DDE2E9;
+  --faint: #EEF1F5;
+  --st-brainstorm: #7A5AD0;
+  --st-staged: #0D9488;
+  --st-proposal: #B96A1B;
+  --st-realized: #3B6FD4;
+  --good: #2E7D43;
+  --good-bg: #E4F1E8;
+  --blocked: #B0433C;
+  --blocked-bg: #F7E7E5;
+  --edge-pick: #0D9488;
+  --edge-flow: #B4BCC7;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.45;
+  overflow: hidden; /* the app shell owns scrolling — the page never scrolls */
+}
+
+/* ============================================================================
+   v4 LAYOUT CONTRACT — fixed-viewport app shell (one scroll context per region)
+
+   The shell is a full-height flex column. The header block (brand row, roll-up,
+   stats tiles) and the tab strip are FIXED; the active view fills the remaining
+   height (`flex: 1; min-height: 0`) and every column/list inside it owns its OWN
+   scrollbar (`overflow-y: auto`). Page-level vertical scroll is gone, so no
+   column can run off the bottom of the viewport and there is exactly one scroll
+   context per region. This supersedes the v3 per-view height caps (the board's
+   `max-height: calc(100vh - N)` columns and the roll-up body px cap) that
+   stacked an inner scrollbar against the page scrollbar (the "mystery second
+   scrollbar"): the flex shell bounds every region instead.
+   ============================================================================ */
+.wrap {
+  max-width: 1360px; margin: 0 auto; padding: 16px 24px 12px;
+  height: 100vh; height: 100dvh;
+  display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+}
+/* everything in the shell is fixed chrome except the active view */
+.wrap > header.top, .wrap > #rollup, .wrap > .tiles,
+.wrap > .tabs, .wrap > .docstatus, .wrap > .foot { flex: none; }
+/* the active view fills the rest and lays its own children out as a column */
+.view { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+/* inside a view, controls (variant/filter/legend/head/picker/status) are fixed;
+   exactly one child is the scroll region and takes the remaining height. */
+.view > * { flex: none; }
+.view > .scroller, .view > .doclist, .view > .lens, .view > .lineage-list {
+  flex: 1 1 auto; min-height: 0;
+}
+
+header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16px; margin-bottom: 6px; }
+.brand { font-family: var(--mono); font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.brand .dim { color: var(--muted); font-weight: 400; }
+/* The repo FILTER + project controls (add-opendox-project-header D13/D14/D15).
+   The popover is a plain inline panel: absolute under its icon, one row per
+   member repository, textContent-only content. */
+.repofilter { position: relative; display: inline-block; }
+/* an explicit display on these panels would defeat the `hidden` attribute's
+   UA rule — restate it, or the popover/panel can never close */
+.filterpop[hidden], .projectform.projectpanel[hidden] { display: none; }
+.filterpop {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 40;
+  display: flex; flex-direction: column; gap: 2px; min-width: 240px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 4px; padding: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+.filterrow {
+  font-family: var(--mono); font-size: 12px; text-align: left;
+  border: 0; background: none; padding: 3px 6px; border-radius: 3px; cursor: pointer;
+}
+.filterrow:hover:not(:disabled) { background: rgba(127,127,127,0.12); }
+.filterrow:disabled { color: var(--muted); cursor: default; }
+.filteractive { font-weight: 700; }
+.filterall { border-bottom: 1px solid var(--border); border-radius: 0; padding-bottom: 5px; }
+.filteradd { border-bottom: 1px solid var(--border); border-radius: 0; padding-bottom: 5px; color: var(--muted); }
+.managepane { display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 4px 6px; }
+.filterline { display: flex; align-items: center; gap: 4px; }
+.filterline .filterrow { flex: 1; }
+/* A live branch session, offered under its repository. Indented and muted
+   because it is a different VIEW of that repository, never another member of
+   the merged view (Brett, 2026-08-10). */
+.filtersessionline { padding-left: 22px; }
+.filtersession { color: var(--muted); }
+.filtersessionnote {
+  font-size: 10px; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--muted); white-space: nowrap;
+}
+.filtereye { font-size: 11px; width: 18px; text-align: center; color: var(--muted); }
+.filtereye.filtervisible { color: inherit; }
+.filtertrash {
+  border: 0; background: none; cursor: pointer; font-size: 11px;
+  color: var(--muted); padding: 2px 4px; border-radius: 3px;
+}
+.filtertrash:hover { background: rgba(127,127,127,0.12); }
+.filtertrash.filterarmed { color: #b04030; font-weight: 700; }
+/* D19 — the VIEW row: mode toggle, the visible count, and the two bulk
+   moves, on one line above the members it describes. */
+.filterviewline { border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+.filterviewline .filterrow { flex: 0 0 auto; }
+.filtermode {
+  font-family: var(--mono); font-size: 12px; font-weight: 700; text-align: left;
+  border: 0; background: none; padding: 3px 6px; border-radius: 3px; cursor: pointer;
+}
+.filtermode:hover:not(:disabled) { background: rgba(127,127,127,0.12); }
+.filtermode:disabled { font-weight: 400; color: var(--muted); cursor: default; }
+.filtercount { flex: 1; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.filterbulk {
+  border: 1px solid var(--border); background: none; cursor: pointer;
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  padding: 1px 6px; border-radius: 3px;
+}
+.filterbulk:hover:not(:disabled) { background: rgba(127,127,127,0.12); }
+.filterbulk:disabled { opacity: 0.45; cursor: default; }
+/* the eyeball is a CONTROL when the project can compose (D19) */
+button.filtereye { border: 0; background: none; cursor: pointer; padding: 2px 0; }
+button.filtereye:hover:not(:disabled) { background: rgba(127,127,127,0.12); border-radius: 3px; }
+button.filtereye:disabled { opacity: 0.4; cursor: default; }
+.repopicker { position: relative; }
+/* The create form is a LABELED PANEL anchored under the header controls,
+   the same visual family as the filter popover. */
+.projectform.projectpanel {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 40;
+  display: flex; flex-direction: column; gap: 6px; min-width: 260px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 4px; padding: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+.panelhead { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+.panelnote { font-size: 11px; color: var(--muted); max-width: 300px; }
+.panelfield { display: flex; flex-direction: column; gap: 2px; }
+.panellabel { font-size: 11px; color: var(--muted); letter-spacing: 0.04em; }
+.panelmembers {
+  display: flex; flex-direction: column; gap: 2px;
+  max-height: 220px; overflow-y: auto;
+}
+.panelbuttons { display: flex; gap: 6px; }
+.projectform .projectmember { font-size: 12px; display: inline-flex; align-items: center; gap: 3px; }
+.projectname { font-family: var(--mono); font-size: 12px; padding: 2px 6px; }
+.filteraddselect { border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+.asof { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+/* Repository selector + the ONE refresh affordance, and the freshness header
+   (add-dashboard-repo-selector, design D7/D11). The selector renders only when
+   the serving side offers a snapshot index, so a static image keeps today's
+   header exactly. */
+.repopicker { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.repopick {
+  font-family: var(--mono); font-size: 11px; color: var(--ink);
+  background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 3px 6px;
+  max-width: 260px;
+}
+.repobtn {
+  font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--muted);
+  background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 3px 9px;
+}
+.repobtn:hover { border-color: var(--st-staged); color: var(--st-staged); }
+.repobtn:disabled { opacity: 0.6; cursor: progress; }
+.repohint {
+  font-family: var(--mono); font-size: 11px; cursor: pointer;
+  color: var(--st-proposal); background: transparent;
+  border: 1px dashed var(--st-proposal); border-radius: 3px; padding: 2px 7px;
+}
+.repohint[hidden] { display: none; }
+.repopick-msg { color: var(--blocked); font-size: 11px; }
+.repopick-msg:empty { display: none; }
+.freshness {
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  margin-left: auto; font-variant-numeric: tabular-nums;
+}
+.freshness.fallback { color: var(--st-proposal); font-weight: 600; }
+.freshness:empty { display: none; }
+
+/* The stale-fallback banner: loud by design (D6) — the degradation must never
+   be silent — plus the sparse-station note (D10), which says what is absent in
+   the selected repository rather than leaving a blank region. */
+.stalebanner {
+  border: 1px solid var(--st-proposal); border-left-width: 4px; border-radius: 4px;
+  background: var(--faint); padding: 7px 10px; margin: 6px 0 4px; font-size: 12px;
+}
+.stalebanner[hidden] { display: none; }
+.stalebanner-line { color: var(--st-proposal); }
+.stalebanner-line.sparse { color: var(--muted); margin-top: 3px; }
+.themebtn {
+  font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--muted);
+  background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 3px 9px;
+}
+.themebtn:hover { border-color: var(--st-staged); color: var(--st-staged); }
+
+/* The stage tiles head the wheel's columns, so they share its grid: six equal
+   columns and the deck's own 14px gap (Brett, 2026-08-08). The wheel fits its
+   columns to the same port width, so the two rows line up. */
+.tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; margin: 10px 0 12px; }
+.tile { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px 9px; }
+.tile .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.tile .v { font-family: var(--mono); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.tile .s { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.tile .v .unit { font-size: 13px; font-weight: 400; color: var(--muted); }
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 12px; overflow-x: auto; flex: none; }
+.tab {
+  font-family: var(--mono); font-size: 13px; background: none; border: none; color: var(--muted);
+  padding: 8px 14px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  flex: 0 0 auto; white-space: nowrap;
+}
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--st-staged); font-weight: 700; }
+.tab:focus-visible, .card:focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--muted); margin: 0 0 14px; align-items: center; }
+.legend .g { display: inline-flex; align-items: center; gap: 6px; }
+.edge-key { width: 22px; height: 2px; display: inline-block; }
+.edge-key.dashed { height: 0; border-top: 2px dashed var(--st-brainstorm); background: none; }
+
+/* The horizontal scroll wrapper for the wide funnel/board/canvas. As a view's
+   flex scroll region it also owns the region's height (`min-height: 0`). The
+   funnel scrolls as ONE unit (both axes) so its SVG edge layer stays aligned;
+   the board/canvas scroll horizontally here and let each column/pane own its
+   vertical scroll (see below), so no scrollbar is ever orphaned off the fold. */
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+#view-funnel .scroller { overflow-y: auto; }
+#view-board .scroller, #view-canvas .scroller { overflow-y: hidden; }
+.funnel-inner { position: relative; min-width: 1430px; }
+svg.edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+svg.edges path { fill: none; stroke-width: 1.6; opacity: 0.85; transition: opacity 120ms, stroke-width 120ms; }
+svg.edges path.pick { stroke: var(--edge-pick); }
+svg.edges path.flow { stroke: var(--edge-flow); }
+svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opacity: 0.45; }
+.funnel-inner.focused svg.edges path { opacity: 0.08; }
+.funnel-inner.focused svg.edges path.hot { opacity: 1; stroke-width: 2.4; }
+.funnel-inner.focused .card { opacity: 0.3; }
+.funnel-inner.focused .card.hot { opacity: 1; }
+.card.pinned { outline: 2px solid var(--st-staged); outline-offset: 1px; }
+.funnel-inner.focused .card.pinned { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  svg.edges path, .card { transition: none; }
+}
+
+.colheads, .funnel-cols { display: grid; grid-template-columns: 0.95fr 0.95fr 1.25fr 1.05fr 1.25fr 0.95fr; gap: 0 26px; }
+.colheads { position: relative; z-index: 2; margin-bottom: 10px; }
+.colhead { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+.colhead .n { background: var(--faint); border: 1px solid var(--border); border-radius: 10px; padding: 0 7px; font-variant-numeric: tabular-nums; }
+.gatehead { font-size: 10px; color: var(--faint-ink); letter-spacing: 0.05em; text-transform: none; font-family: var(--mono); }
+
+.funnel-cols { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 14px 0; align-items: start; }
+.col-stack { display: flex; flex-direction: column; gap: 8px; }
+.gap { height: 16px; flex: none; }
+
+.card {
+  position: relative; background: var(--panel); border: 1px solid var(--border); border-radius: 5px;
+  padding: 7px 10px 7px 12px; transition: border-color 120ms, opacity 120ms;
+}
+.card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 5px 0 0 5px; background: var(--stripe, transparent); }
+.card.stage-brainstorm { --stripe: var(--st-brainstorm); }
+.card.stage-staged { --stripe: var(--st-staged); }
+.card.stage-proposal { --stripe: var(--st-proposal); }
+.card.stage-realized { --stripe: var(--st-realized); }
+.card:hover { border-color: var(--faint-ink); }
+.card .title { font-weight: 600; font-size: 13px; text-wrap: balance; }
+.card .meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.card .id { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+.cluster-card .title { font-family: var(--mono); font-size: 13.5px; }
+.cluster-card .meta { margin-top: 4px; }
+.tally { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; font-family: var(--mono); font-size: 11px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.tally b { color: var(--ink); }
+
+.possible { padding: 5px 9px 5px 10px; display: flex; align-items: flex-start; gap: 8px; }
+.possible .dot { flex: none; width: 9px; height: 9px; border-radius: 50%; margin-top: 4px; }
+.possible.latent { border-style: dashed; }
+.possible.latent .dot { border: 1.5px dashed var(--faint-ink); background: transparent; }
+.possible.picked .dot { background: var(--st-staged); }
+.possible.rejected .dot { background: var(--blocked); }
+.possible.rejected .title { color: var(--muted); }
+.possible.superseded .dot { background: transparent; border: 1.5px solid var(--faint-ink); }
+.possible.superseded .title { text-decoration: line-through; color: var(--muted); font-weight: 400; }
+.possible .title { font-size: 12.5px; font-weight: 500; }
+.possible .meta { font-size: 11px; }
+.possible.shared { border-color: var(--st-brainstorm); }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 4px; border-radius: 3px; padding: 1px 6px;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.02em; margin-top: 4px;
+}
+.pill.good { color: var(--good); background: var(--good-bg); }
+.pill.blocked { color: var(--blocked); background: var(--blocked-bg); }
+.pill.neutral { color: var(--muted); background: var(--faint); }
+.pill.stage { background: var(--faint); color: var(--muted); font-weight: 500; }
+
+/* readiness heat — rendered VERBATIM from cluster.readiness when the cross-ref
+   index supplies it; absent means absent (no synthetic score). */
+.heat { display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+.heat .cell { width: 14px; height: 8px; border-radius: 2px; background: var(--faint); border: 1px solid var(--border); }
+.heat .cell.hot { background: var(--good); border-color: var(--good); }
+.heat .cell.warm { background: var(--st-proposal); border-color: var(--st-proposal); }
+.heat .cell.cold { background: var(--blocked); border-color: var(--blocked); }
+
+/* progress bar for change task_progress */
+.progress { margin-top: 5px; height: 6px; background: var(--faint); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.progress > span { display: block; height: 100%; background: var(--st-realized); }
+
+/* The board fills the view height; the first grid row (the four columns) takes
+   the flexible space and the "everything else" footer sits in the auto row
+   beneath it. */
+.board { display: grid; grid-template-columns: repeat(4, minmax(250px, 1fr)); grid-template-rows: minmax(0, 1fr) auto; gap: 18px; min-width: 1080px; height: 100%; }
+/* #12 (v4): each pipeline column scrolls INDEPENDENTLY within the viewport-
+   bounded board — its height comes from the flex shell (not a `100vh - N` magic
+   number that overshot the fold), so the column's own scrollbar always ends on
+   screen. The header stays put (position: sticky) while the cards below scroll. */
+.board .col { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 2px; }
+.board .col > .colhead { position: sticky; top: 0; z-index: 1; background: var(--surface); padding-bottom: 4px; }
+.board .colhead { margin-bottom: 4px; }
+.board .colhead .stagebar { width: 10px; height: 10px; border-radius: 2px; }
+.divider { border: none; border-top: 1px dashed var(--border); margin: 4px 0; }
+.ghost { border-style: dashed; background: transparent; }
+.ghost .title { color: var(--muted); font-weight: 500; }
+
+.foot { margin-top: 10px; font-size: 12px; color: var(--muted); max-width: 78ch; }
+.foot code { font-family: var(--mono); font-size: 11px; background: var(--faint); padding: 0 4px; border-radius: 3px; }
+.view[hidden] { display: none; }
+.empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+
+.variant { display: flex; gap: 4px; margin: 0 0 10px; }
+.vbtn {
+  font-family: var(--mono); font-size: 11px; padding: 3px 10px; cursor: pointer;
+  background: var(--faint); color: var(--muted); border: 1px solid var(--border); border-radius: 3px;
+}
+.vbtn[aria-pressed="true"] { color: var(--ink); border-color: var(--st-staged); font-weight: 700; }
+/* Six-column docs-first funnel is the structural default (spec: primary view
+   SHALL be six-column). The five-column collapse is the opt-in modifier, so a
+   renderer grown from this skeleton cannot silently regress to five columns by
+   dropping a mode class. */
+.funnel-inner.collapsed-docs .only-docs { display: none; }
+.funnel-inner.collapsed-docs { min-width: 1240px; }
+.funnel-inner.collapsed-docs .colheads, .funnel-inner.collapsed-docs .funnel-cols {
+  grid-template-columns: 1.05fr 1.35fr 1.15fr 1.35fr 1.05fr;
+}
+.card.stage-doc { --stripe: var(--faint-ink); }
+.card.stage-doc.shared { border-color: var(--st-brainstorm); }
+
+.doclist { display: flex; flex-direction: column; gap: 6px; max-width: 900px; overflow-y: auto; padding-right: 2px; }
+.docgroup { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 10px 0 2px; }
+.docrow { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 7px 12px; }
+/* The hover affordance belongs to a row that OPENS something (T092 acceptance
+   sweep, defect 7). It used to be on every `.docrow`, so all 177 rows of the
+   corpus-wide list offered an interactive response and none of them had a click
+   handler. `docrow-open` is stamped by docs.js only when a caller wires
+   `onOpenDoc`, so an inert row is visibly inert — cursor and hover both. The
+   rule also names `.explorer-row`, which reuses `.docrow` and has always opened
+   its file, so the overlay's rows keep the hover they had. */
+.docrow-open, .explorer-row { cursor: pointer; }
+.docrow-open:hover, .explorer-row:hover { border-color: var(--faint-ink); }
+.docrow-open:focus-visible { outline: 2px solid var(--st-realized); outline-offset: 1px; }
+.docrow .name { font-family: var(--mono); font-size: 12px; }
+.docrow .where { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.docrow .chips { margin-left: auto; display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.tchip { font-family: var(--mono); font-size: 10px; color: var(--muted); background: var(--faint); border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
+
+/* project/project-group roll-up control (US3/T015) — repo/project/group
+   scoping mounted on the funnel, pipeline board, and stats strip. Aggregate
+   tallies are summed VERBATIM from already-loaded snapshot(s), never
+   re-derived; descriptive navigation only, no lifecycle semantics. */
+.rollup { margin: 0 0 14px; }
+.rollup-variant { margin-bottom: 8px; }
+/* The roll-up is fixed shell chrome; cap it relative to the viewport so a
+   many-repo aggregate can't crowd out the view, and it only grows a scrollbar
+   when it genuinely overflows (dormant for the single-repo default). */
+.rollup-body { display: flex; flex-direction: column; gap: 8px; max-height: 22vh; overflow-y: auto; }
+.rollup-group, .rollup-project {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px;
+}
+.rollup-project.implicit { border-style: dashed; }
+.rollup-group-head, .rollup-project-head, .rollup-repo {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px;
+}
+.rollup-group-name { font-family: var(--mono); font-size: 12.5px; font-weight: 700; }
+.rollup-project-name { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+.rollup-project.implicit .rollup-project-name { color: var(--muted); font-weight: 500; }
+.rollup-group-tallies, .rollup-project-tallies, .rollup-repo-tallies {
+  font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums;
+}
+.rollup-projects { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+.rollup-repos { margin-top: 6px; padding-left: 12px; border-left: 2px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+.rollup-repo-name { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+
+/* lineage strip — the cluster blocks scroll as the view's one region */
+.lineage-list { display: flex; flex-direction: column; overflow-y: auto; padding-right: 2px; }
+.lineage-cluster { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; }
+.lineage-cluster .cname { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+.lineage-row { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; font-size: 12px; align-items: center; }
+.lineage-row .lk { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.lchip { font-family: var(--mono); font-size: 11px; background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 1px 7px; }
+.lchip.staged { border-color: var(--st-staged); }
+.lchip.proposal { border-color: var(--st-proposal); }
+.lchip.realized { border-color: var(--st-realized); }
+
+/* muted single-line status caption (loading/select-to-edit messages) */
+.docstatus { color: var(--muted); font-size: 12px; padding: 6px 0; }
+
+/* drill-down "open folder" affordance on staged/proposal/realized cards
+   (T017) — a separate button so it never interferes with the funnel card's
+   own hover-to-trace/click-to-pin gesture. */
+.openbtn {
+  display: block; margin-top: 6px; font-family: var(--mono); font-size: 10.5px; cursor: pointer;
+  color: var(--muted); background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 2px 7px;
+}
+.openbtn:hover { border-color: var(--st-staged); color: var(--st-staged); }
+
+/* "Open in NotebookLM" tile action (v2 local-backend seam). Mounted only when
+   the /capabilities probe reports the action available (loopback local backend
+   with nlm + a real checkout); the static served image never serves that route
+   so the affordance never appears there. Its own click gesture stops
+   propagation so it never trips the funnel card's hover-trace/click-pin. */
+.nb-action { display: block; margin-top: 6px; }
+.nbbtn {
+  font-family: var(--mono); font-size: 10.5px; cursor: pointer;
+  color: var(--muted); background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 2px 7px;
+}
+.nbbtn:hover:not(:disabled) { border-color: var(--edge-pick); color: var(--edge-pick); }
+.nbbtn:disabled { opacity: 0.6; cursor: default; }
+.nb-msg { display: block; margin-top: 3px; font-size: 10px; color: var(--blocked); }
+.nb-msg:empty { display: none; }
+
+/* explorer + viewer overlay (T017/T018): a single centred panel over a
+   dimmed backdrop, two-pane body (folder listing | read-only viewer). Reuses
+   the same tokens/`.doclist`/`.docrow`/`.docgroup`/`.tchip` classes as the
+   doc-list view rather than forking the design system. */
+.explorer-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 20;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.explorer-overlay[hidden] { display: none; }
+.explorer-panel {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  width: min(1180px, 100%); max-height: min(860px, 100%); display: flex; flex-direction: column;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); overflow: hidden;
+}
+.explorer-head {
+  display: flex; align-items: baseline; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border);
+  background: var(--panel); flex: none;
+}
+.explorer-titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.explorer-title { font-family: var(--mono); font-size: 14px; font-weight: 700; }
+.explorer-subtitle { font-size: 11.5px; color: var(--muted); }
+.explorer-close {
+  margin-left: auto; font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--muted);
+  background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 3px 9px; flex: none;
+}
+.explorer-close:hover { border-color: var(--blocked); color: var(--blocked); }
+.explorer-body { display: grid; grid-template-columns: minmax(260px, 380px) 1fr; gap: 0; min-height: 0; flex: 1; }
+.explorer-list { padding: 12px 14px; overflow-y: auto; border-right: 1px solid var(--border); max-width: none; }
+.explorer-row { cursor: pointer; }
+.explorer-row:focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
+.explorer-viewer { padding: 14px 18px; overflow-y: auto; }
+
+/* read-only Markdown viewer (T018) */
+.viewer-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 6px; }
+.viewer-path { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.viewer-summary { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
+.viewer-banner {
+  font-family: var(--mono); font-size: 11.5px; color: var(--blocked); background: var(--blocked-bg);
+  border: 1px solid var(--blocked); border-radius: 4px; padding: 5px 9px; margin-bottom: 10px;
+}
+.viewer-banner[hidden] { display: none; }
+.viewer-editline[hidden] { display: none; }
+.editbtn {
+  font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--muted);
+  background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 2px 8px; margin-left: auto;
+}
+.editbtn:hover { border-color: var(--st-staged); color: var(--st-staged); }
+.markdown-body { font-size: 13.5px; line-height: 1.6; }
+.markdown-body :is(h1, h2, h3, h4) { font-family: var(--mono); line-height: 1.3; margin: 1.1em 0 0.4em; }
+.markdown-body h1 { font-size: 19px; }
+.markdown-body h2 { font-size: 16.5px; }
+.markdown-body h3, .markdown-body h4 { font-size: 14px; color: var(--muted); }
+.markdown-body p, .markdown-body ul, .markdown-body ol { margin: 0.5em 0; }
+.markdown-body code {
+  font-family: var(--mono); font-size: 12px; background: var(--faint); border-radius: 3px; padding: 0 4px;
+}
+.markdown-body pre {
+  font-family: var(--mono); font-size: 12px; background: var(--faint); border: 1px solid var(--border);
+  border-radius: 5px; padding: 10px 12px; overflow-x: auto;
+}
+.markdown-body pre code { background: none; padding: 0; }
+.markdown-body blockquote {
+  margin: 0.6em 0; padding: 2px 12px; border-left: 3px solid var(--border); color: var(--muted);
+}
+.markdown-body a { color: var(--st-realized); }
+@media (max-width: 860px) {
+  .explorer-body { grid-template-columns: 1fr; }
+  .explorer-list { border-right: none; border-bottom: 1px solid var(--border); max-height: 40%; }
+}
+
+/* ---- cluster canvas working surface (D12, T020/T021) ---- */
+.canvas-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.canvas-head .cname { font-family: var(--mono); font-size: 15px; font-weight: 700; }
+.canvas-note { font-size: 11.5px; color: var(--muted); max-width: 72ch; }
+/* The cluster picker can carry many buttons; cap it to a few rows with its own
+   scroll so it never starves the panes below it in the fixed shell. */
+.canvas-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; max-height: 92px; overflow-y: auto; padding-right: 2px; }
+.cpick {
+  font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--muted);
+  background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 3px 9px;
+}
+.cpick:hover { border-color: var(--faint-ink); }
+.cpick[aria-pressed="true"] { color: var(--ink); border-color: var(--st-realized); background: var(--faint); }
+.canvas { display: grid; grid-template-columns: 1fr 1.15fr 1.15fr; gap: 18px; min-width: 1080px; height: 100%; align-items: stretch; }
+.pane { display: flex; flex-direction: column; gap: 8px; }
+/* each canvas pane owns its vertical scroll, bounded by the flex view height */
+.canvas .pane { min-height: 0; overflow-y: auto; padding-right: 2px; }
+/* pane children keep their natural height and let the PANE scroll — never
+   flex-shrink to squeeze (which would spawn a spurious inner scrollbar, e.g. on
+   the lens matrix whose overflow-x forces overflow-y). */
+.canvas .pane > *, .lens .pane > * { flex: none; }
+.pane-rail .pane-h { flex-wrap: nowrap; overflow: hidden; }
+.pane-h { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+/* the count pill wraps as a UNIT — "5 MEMBERS" split across two lines in the
+   250px rail once the vocabulary switch joined it in the header */
+.pane-h .n { white-space: nowrap; }
+.pane-h .n { background: var(--faint); border: 1px solid var(--border); border-radius: 10px; padding: 0 7px; font-variant-numeric: tabular-nums; }
+.member .summ { font-size: 11.5px; color: var(--muted); margin: 3px 0 4px; }
+.member .pill { margin-right: 5px; }
+.passage { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--st-brainstorm); border-radius: 5px; padding: 7px 10px; }
+.passage .ptitle { font-size: 12.5px; font-weight: 600; }
+.passage .src { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 4px; }
+.gapslot { border: 1.5px dashed var(--blocked); border-radius: 5px; padding: 8px 10px; }
+.gapslot .title { color: var(--blocked); font-weight: 600; font-size: 12.5px; }
+.gapslot .meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.optset { border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; background: var(--faint); display: flex; flex-direction: column; gap: 6px; }
+.optset .oh { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.cbtn { font-family: var(--mono); font-size: 10.5px; font-weight: 600; cursor: pointer; background: none; border: 1px solid var(--border); border-radius: 3px; padding: 3px 8px; color: var(--muted); text-align: left; }
+.cbtn:hover:not(:disabled) { border-color: var(--st-staged); color: var(--st-staged); }
+.cbtn:disabled { opacity: 0.55; cursor: default; }
+.lineage-strip { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.lineage-strip > .lk { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.canvas-status { font-family: var(--mono); font-size: 11px; color: var(--muted); min-height: 15px; margin: 10px 0 0; }
+
+/* ---- canvas composer + draft confirmation (T021) ---- */
+.composer { border: 1px solid var(--st-staged); border-radius: 6px; padding: 9px 11px; background: var(--panel); display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.composer .ch { font-family: var(--mono); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--st-staged); }
+.composer input, .composer textarea { font-family: var(--sans); font-size: 12px; color: var(--ink); background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 4px 8px; width: 100%; resize: vertical; box-sizing: border-box; }
+.composer .attach { display: flex; flex-direction: column; gap: 3px; }
+.composer .attach-row { display: flex; align-items: center; gap: 6px; font-size: 11.5px; cursor: pointer; }
+.composer .attach-row input { width: 14px; height: 14px; flex: none; accent-color: var(--st-staged); }
+.canvas-ai-note { font-size: 10.5px; color: var(--faint-ink); font-style: italic; margin-top: 6px; }
+.canvas-confirm { margin-top: 12px; }
+.draft-confirm { border: 1.5px dashed var(--st-realized); border-radius: 6px; padding: 10px 12px; background: var(--panel); }
+.draft-confirm .dc-h { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--st-realized); margin-bottom: 5px; }
+.draft-confirm .dc-line { font-family: var(--mono); font-size: 11px; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.draft-confirm .dc-note { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+/* ---- keyword lens (bullseye set-builder, T023/T024) — ported from the sketch,
+   re-themed to the shared CSS variables. Geometry is computed in lens-model.js;
+   these rules only style the rail, bullseye, matrix, and forming-set panes. ---- */
+/* ONE scroll context for the lens (T092 acceptance sweep, defects 9d and 16).
+   Three panes each owning a scrollbar inside a `height: 100%` grid gave every
+   pane 203-351px at every tested viewport while the bullseye alone is 418-540px
+   and the matrix — which lens.js documents as "ALWAYS-PRESENT … never a
+   toggle-only alternate" — started 263-588px below the pane top, invisible at
+   ALL of 1920x1080, 1440x900, 1366x768, 1280x800 and 1024x768, with nothing
+   indicating an inner scroll. Below the 900px breakpoint it was worse: `.lens`
+   kept `height: 100%` while the panes switched to `overflow-y: visible`, so
+   they flowed at natural height inside a 149-335px box and were positioned
+   1,459-1,794px ABOVE the visible area — the tab opened mid-rail on a dangling
+   hint fragment.
+
+   The lens region is ALREADY the view's one scroll region (`.view > .lens`
+   below), so it scrolls as one — the v4 layout contract kept, the panes freed.
+   `align-items: start` is what stops a short pane being stretched to the
+   tallest one's height. */
+/* THE LENS SCREEN takes the page (Brett, 2026-08-08). The region itself does
+   not scroll: each pane owns its own scroll, so the radar stays put while the
+   documents under it and the vocabulary rail beside it move. */
+.lens {
+  display: grid; grid-template-columns: 250px minmax(420px, 1fr) 270px;
+  gap: 20px; align-items: stretch;
+  flex: 1 1 auto; min-height: 0; overflow: hidden;
+}
+/* the lens hides the stage tiles, which head the STAGE views and say nothing
+   about a keyword or repository set */
+.wrap.lensfull > #stats { display: none; }
+/* the radar holds; the matrix beneath it takes the remaining height and
+   scrolls. Both panes beside it scroll on their own. */
+.lens .pane-bullseye { min-height: 0; }
+.lens .pane-bullseye > .bullseye { flex: none; }
+.lens .pane-bullseye > .lensmatrix { flex: 1 1 auto; min-height: 0; overflow: auto; margin-top: 8px; }
+.lens .pane-drill { min-height: 0; overflow-y: auto; padding-right: 2px; }
+.lens .pane { display: flex; flex-direction: column; gap: 7px; }
+/* ...with ONE exception, and it is the reason the panes were boxed in the first
+   place: the declared keyword rail is 151 rows / ~10,370px on the real corpus,
+   and left unbounded it would set the height of the region the bullseye lives
+   in. It keeps its own scroll, bounded by the viewport rather than by a grid
+   row, so the rail scrolls and the lens still reaches the matrix. */
+/* A VISIBLE scrollbar: 155 rows scroll in a 1,049px pane, and an overlay
+   scrollbar that fades reads as "this list is all there is" (Brett,
+   2026-08-08: "we lost the scrollbar for it"). */
+.lens .pane-rail, .lens .pane-drill, .lens .pane-bullseye > .lensmatrix, .gridwrap {
+  /* `stable` RESERVES the gutter, so the bar is part of the layout instead of
+     an overlay that fades out and takes the only cue that there is more. */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+}
+.lens .pane-rail::-webkit-scrollbar, .lens .pane-drill::-webkit-scrollbar,
+.lens .pane-bullseye > .lensmatrix::-webkit-scrollbar, .gridwrap::-webkit-scrollbar { width: 10px; }
+.lens .pane-rail::-webkit-scrollbar-thumb, .lens .pane-drill::-webkit-scrollbar-thumb,
+.lens .pane-bullseye > .lensmatrix::-webkit-scrollbar-thumb, .gridwrap::-webkit-scrollbar-thumb {
+  background: var(--border); border-radius: 5px;
+}
+.lens .pane-rail { min-height: 0; overflow-y: auto; padding-right: 2px; }
+.kwrow { display: flex; align-items: center; gap: 7px; background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 6px 9px; cursor: pointer; }
+.kwrow input { accent-color: var(--st-staged); width: 14px; height: 14px; flex: none; margin: 0; }
+.kwrow .kw { font-family: var(--mono); font-size: 12px; }
+.kwrow .cnt { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--muted); background: var(--faint); border: 1px solid var(--border); border-radius: 10px; padding: 0 7px; }
+.kwrow .pinbtn { background: none; border: none; cursor: pointer; font-size: 12px; color: var(--faint-ink); padding: 0 2px; }
+.kwrow .pinbtn:hover { color: var(--st-proposal); }
+.kwrow .pinbtn.pinned { color: var(--st-proposal); }
+.kwhint { font-size: 10.5px; color: var(--faint-ink); margin: -3px 0 2px 30px; }
+.bullseye { display: block; width: 100%; max-width: 540px; margin: 0 auto; }
+.bullseye .ring { fill: none; stroke: var(--border); }
+.bullseye .zone0 { fill: var(--faint); opacity: 0.55; }
+.bullseye .sector { stroke: var(--border); stroke-dasharray: 3 3; }
+.bullseye .dot { fill: var(--st-staged); cursor: pointer; }
+.bullseye .dot.inferred { fill: none; stroke: var(--st-staged); stroke-width: 1.5; }
+.bullseye .dot:hover { stroke: var(--ink); stroke-width: 2; }
+.bullseye text { font-family: var(--mono); fill: var(--muted); }
+.bullseye .ringlab { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+/* The sector's letters carry the mapping, so they are sized to be read at a
+   glance rather than squinted at (Brett: "the letters denoting repos are not
+   large enough"). */
+.bullseye .seclab { font-size: 14px; font-weight: 700; fill: var(--faint-ink);
+  letter-spacing: 0.04em; }
+/* a single-term sector wears that term's hue; a combination stays neutral */
+.bullseye .seclab[data-tinted] { fill: hsl(var(--h) var(--tint-s) var(--tint-l)); }
+/* The sector's own arc, in its keywords' hues. SUBTLE by construction: the
+   hue is all the widget chooses, and the weight and opacity live here — so
+   the theme keeps the last word and the colour reads as a tint on the ring
+   rather than as a second foreground. */
+.bullseye .secarc {
+  fill: none; stroke-width: 2; opacity: 0.28; stroke-linecap: round;
+  stroke: hsl(var(--h, 0) var(--tint-s) var(--tint-arc-l));
+}
+.bullseye .doclab { font-size: 10px; fill: var(--ink); }
+/* The number a roomy dot carries INSIDE itself: reversed out of the dot's
+   own fill, and never a hit target of its own so the dot keeps the hover. */
+.bullseye .dotnum {
+  font-size: 10px; font-weight: 700; fill: #fff;
+  pointer-events: none;
+}
+.lensmatrix { border-collapse: collapse; font-size: 11.5px; margin-top: 12px; display: block; overflow-x: auto; }
+.lensmatrix th, .lensmatrix td { border: 1px solid var(--border); padding: 3px 9px; text-align: center; }
+.lensmatrix td:first-child, .lensmatrix th:first-child { text-align: left; font-family: var(--mono); font-size: 11px; }
+.lensmatrix th { background: var(--faint); font-family: var(--mono); font-size: 10.5px; }
+.setrow { display: flex; align-items: center; gap: 7px; background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 6px 9px; }
+.setrow.candidate { border-style: dashed; }
+.setrow .nm { font-family: var(--mono); font-size: 11.5px; }
+.setrow .why { font-size: 10.5px; color: var(--faint-ink); margin-top: 1px; }
+.setrow .pm { margin-left: auto; display: flex; gap: 4px; }
+.setrow .pm .cbtn { text-align: center; min-width: 24px; }
+.recipe { font-family: var(--mono); font-size: 10.5px; color: var(--muted); background: var(--faint); border: 1px dashed var(--border); border-radius: 5px; padding: 7px 9px; }
+.lens-persist { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
+.lens-pending { font-size: 10.5px; color: var(--faint-ink); font-style: italic; }
+@media (max-width: 900px) {
+  /* single column: the lens scrolls as one region, panes flow at natural height
+     — which is now what it does at EVERY width, so the breakpoint only changes
+     the track count and gives the rail a smaller share of the fold. */
+  .lens { grid-template-columns: 1fr; }
+  .lens .pane-rail { max-height: 55vh; }
+}
+
+/* Human gate console bar (US9; D16/D17). Read-only web v1 — the affordances
+   reveal the CLI action descriptor (the command a human runs); nothing
+   executes server-side. */
+.viewer-gate { margin: 8px 0; }
+.gatebar { border: 1px solid var(--st-proposal); border-radius: 6px; padding: 8px 10px; background: var(--faint); }
+.gatebar-title { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--st-proposal); margin-bottom: 6px; }
+.gatebar-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.gatebtn { font-family: var(--sans); font-size: 11.5px; padding: 4px 9px; border: 1px solid var(--border); border-radius: 5px; background: var(--panel); color: var(--ink); cursor: pointer; }
+.gatebtn:hover { border-color: var(--st-proposal); }
+.gatebar-cmd { font-family: var(--mono); font-size: 11px; color: var(--ink); background: var(--panel); border: 1px dashed var(--border); border-radius: 5px; padding: 7px 9px; margin-top: 7px; user-select: all; word-break: break-all; }
+
+/* ============================================================================
+   v3 frontend sweep — search/filter controls, staleness stamp, singleton
+   collapse, external-image placeholder, in-page reason form (#8/#12/#13/#15/
+   #19/#20). Grown from the same tokens; no new colours, no external assets.
+   ============================================================================ */
+
+/* #13 global search (header) + per-view filter bars */
+.search {
+  font-family: var(--sans); font-size: 12.5px; color: var(--ink);
+  background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+  padding: 4px 9px; min-width: 210px;
+}
+.search:focus-visible { outline: 2px solid var(--st-realized); outline-offset: 1px; border-color: var(--st-realized); }
+.filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0 0 12px; }
+.filterbar label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; }
+.filterbar select, .filterbar input {
+  font-family: var(--sans); font-size: 12px; color: var(--ink);
+  background: var(--panel); border: 1px solid var(--border); border-radius: 3px; padding: 3px 7px;
+}
+.filterbar .count { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.filterbar select:focus-visible, .filterbar input:focus-visible, .kwfilter:focus-visible {
+  outline: 2px solid var(--st-realized); outline-offset: 1px;
+}
+/* #13 lens keyword-rail text filter */
+.kwfilter {
+  width: 100%; font-family: var(--sans); font-size: 12px; color: var(--ink);
+  background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; margin-bottom: 4px;
+}
+/* the boolean `hidden` attribute must beat .kwrow's display:flex (same pattern
+   the codebase uses for .view[hidden] / .explorer-overlay[hidden]) */
+.kwrow[hidden] { display: none; }
+
+/* #8 always-visible staleness stamp — amber past 24h, red past 72h (age is
+   computed client-side from generation.generated_at). */
+.asof .stampdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--good); margin-right: 5px; vertical-align: middle; }
+.asof.stale-amber { color: var(--st-proposal); }
+.asof.stale-amber .stampdot { background: var(--st-proposal); }
+.asof.stale-red { color: var(--blocked); font-weight: 600; }
+.asof.stale-red .stampdot { background: var(--blocked); }
+
+/* #15 singleton-topic collapse in the funnel's cluster column: the many
+   one-member clusters fold into one expandable group so multi-member clusters
+   read as the signal. */
+.singleton-group { background: var(--panel); border: 1px dashed var(--border); border-radius: 5px; }
+.singleton-group > summary {
+  cursor: pointer; font-family: var(--mono); font-size: 12px; color: var(--muted);
+  padding: 6px 9px; list-style: none; display: flex; align-items: center; gap: 6px;
+}
+.singleton-group > summary::-webkit-details-marker { display: none; }
+.singleton-group > summary::before { content: "\25B8"; color: var(--faint-ink); }
+.singleton-group[open] > summary::before { content: "\25BE"; }
+.singleton-group[open] > summary { color: var(--ink); border-bottom: 1px solid var(--border); }
+.singleton-group:focus-within > summary, .singleton-group > summary:focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
+.singleton-group .col-stack { padding: 6px; }
+
+/* #20 stripped external-image placeholder + user-initiated click-to-load */
+.ext-img {
+  display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  font-size: 12px; color: var(--muted); background: var(--faint);
+  border: 1px dashed var(--border); border-radius: 4px; padding: 3px 8px;
+}
+.ext-img-load {
+  font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--st-realized);
+  background: var(--panel); border: 1px solid var(--border); border-radius: 3px; padding: 1px 7px;
+}
+.ext-img-load:hover { border-color: var(--st-realized); }
+.ext-img-loaded { max-width: 100%; height: auto; }
+
+/* #19 in-page reason form replacing the lens window.prompt override capture */
+.reason-form {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin: 6px 0; padding: 7px 9px; background: var(--panel);
+  border: 1px solid var(--st-staged); border-radius: 5px;
+}
+.reason-form .rf-label { flex-basis: 100%; font-size: 11px; color: var(--muted); }
+.reason-form input {
+  flex: 1 1 160px; font-family: var(--sans); font-size: 12px; color: var(--ink);
+  background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 4px 8px;
+}
+.reason-form input:focus-visible { outline: 2px solid var(--st-realized); outline-offset: 1px; }
+
+/* #18 board "everything else" footer link into the doc list */
+.board-else {
+  grid-column: 1 / -1; margin-top: 6px; font-size: 12px; color: var(--muted);
+  border-top: 1px dashed var(--border); padding-top: 8px;
+}
+.board-else b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* ==== THE WHEEL (locked interaction spec, Track C, 2026-07-16) ============
+   Six wheels in funnel order crossed by one brass focus line. Teal =
+   --st-staged, brass = --st-proposal (theme-aware via the existing vars).
+   Thread classes drive styling: solid teal = indexed, dashed teal =
+   inferred, dashed brass = synthesized/demo. */
+.wheelbar { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+.wheelnav {
+  border: 1px solid var(--border); background: var(--panel); color: var(--ink);
+  border-radius: 6px; padding: 2px 10px; cursor: pointer; font-size: 14px;
+}
+.wheelnav:hover { border-color: var(--st-staged); }
+.wheelhint { color: var(--faint-ink); font-size: 11px; flex: 1; }
+.wheeldemo-note { color: var(--st-proposal); font-size: 11px; }
+
+.wheelport {
+  --wheel-scale: 1;  /* geometry multiplier; JS reads it for the reel math */
+  /* the expanded tile's box height (see .wheeltile.wheelexpanded) — ONE knob,
+     because the badge rail's pushed offset is derived from it below */
+  --wheel-expanded-h: 132px;
+  position: relative; overflow: hidden; outline: none;
+  border: 1px solid var(--border); border-radius: 10px;
+  background: var(--panel); padding: 6px 0;
+}
+.wheelfull { margin-left: auto; }
+/* Full-screen (the bar's expand toggle fullscreens the wheel view root):
+   the reel windows stretch to the viewport and the JS re-measures winH. */
+:fullscreen { background: var(--surface); overflow: auto; padding: 10px 14px; }
+/* full-screen balance (operator-directed 2026-07-24): wheels + tiles 33%
+   larger, inter-wheel gap doubled, deck centred when it fits the viewport */
+:fullscreen .wheelport { --wheel-scale: 1.33; }
+:fullscreen .wheeldeck { gap: 28px; justify-content: center; }
+:fullscreen .wheelwin { height: calc(100vh - 170px); }
+:fullscreen .wheelcol.wheelhidden .wheelrail { height: calc(100vh - 170px); }
+.wheelport:focus-visible { border-color: var(--st-staged); }
+.wheeldeck {
+  display: flex; gap: 14px; padding: 0;
+  transition: transform 220ms ease;
+  scroll-snap-type: x mandatory;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wheeldeck { transition: none; }
+  .wheelwin { transition: none; }
+  /* the expanded tile snaps to size (and the badge rail with it) — same posture
+     as the springs, which wheel.js disables under the same query */
+  .wheeltile.wheelexpanded { transition: border-color 120ms ease; }
+  .wheelbadges { transition: none; }
+}
+.wheelwin.wheelreorder { opacity: 0; }
+.wheelthreads {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 5;
+}
+.wheelthread { fill: none; }
+.thread-indexed { stroke: var(--st-staged); stroke-width: 1.6; opacity: 0.75; }
+.thread-inferred { stroke: var(--st-staged); stroke-width: 1.3; stroke-dasharray: 5 4; opacity: 0.6; }
+.thread-synthesized { stroke: var(--st-proposal); stroke-width: 1.3; stroke-dasharray: 3 4; opacity: 0.6; }
+/* second-degree connectors (Brett 2026-07-25: always-on second-degree,
+   dimmed) — one hop beyond the focused tile's direct links, always drawn,
+   noticeably fainter/thinner than a first-degree thread: a low-opacity
+   hairline, never dashed (dashes already mean "inferred"/"synthesized" data
+   provenance here, which a second-degree hop says nothing about). --st-staged
+   is themed in both light and dark already, so one rule covers both. */
+.thread-seconddeg { stroke: var(--st-staged); stroke-width: 0.75; opacity: 0.25; }
+
+.wheelcol {
+  flex: 0 0 calc(220px * var(--wheel-scale, 1));
+  width: calc(220px * var(--wheel-scale, 1)); scroll-snap-align: start;
+  display: flex; flex-direction: column; min-width: 0; position: relative;
+}
+/* The column head is now just its hide control: the stage tiles above the
+   deck carry the name and the count (Brett, 2026-08-08). Right-aligned and
+   shallow, so it reads as a control rather than a title bar. */
+.wheelhead {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 6px; padding: 0 4px 4px;
+  border-bottom: 1px solid var(--faint);
+}
+.wheeleye {
+  border: none; background: none; cursor: pointer; font-size: 12px;
+  color: var(--faint-ink); padding: 0 2px;
+}
+.wheeleye:hover { color: var(--ink); }
+.wheelwin {
+  /* fill the browser viewport below the page chrome (~385px of header,
+     cards, tabs, and wheel bar) plus a small bottom margin, so the drum's
+     bottom horizon isn't clipped */
+  position: relative; height: clamp(430px, calc(100vh - 405px), 900px);
+  /* reorder choreography: the window fades while its tiles whirl out, the
+     linked tiles re-seat into consecutive slots hidden, then roll back in */
+  transition: opacity 0.22s ease;
+  /* vertical-only mask: the reel stays clipped top/bottom, but the
+     focused tile (scale 1.35 = ~22px past each column edge) overhangs
+     into the 14px inter-wheel gaps instead of being sheared off
+     (overflow-x:visible cannot combine with overflow-y:hidden). */
+  clip-path: inset(0 -40px);
+}
+.wheelcenterband {
+  position: absolute; left: 0; right: 0;
+  top: calc(50% - 46px * var(--wheel-scale, 1));
+  height: calc(92px * var(--wheel-scale, 1));
+  background: var(--faint); opacity: 0.5; pointer-events: none; z-index: 0;
+}
+.wheelbadges {
+  position: absolute; left: 0; right: 0;
+  top: calc(50% + 46px * var(--wheel-scale, 1));
+  display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; z-index: 7;
+  transition: top 170ms ease; /* it steps down for an expanded tile */
+}
+.wheelchip-none { border-color: var(--border); color: var(--faint-ink); cursor: default; }
+.wheelrail { display: none; }
+
+/* column hiding: the col collapses to a thin vertical rail */
+.wheelcol:has(.wheeltile.wheelfocused) { z-index: 3; }
+.wheelcol.wheelhidden { flex-basis: 30px; width: 30px; }
+.wheelcol.wheelhidden .wheelhead, .wheelcol.wheelhidden .wheelwin { display: none; }
+.wheelcol.wheelhidden .wheelrail {
+  display: block; height: 430px; width: 28px; cursor: pointer;
+  border: 1px dashed var(--border); border-radius: 6px; background: var(--faint);
+  color: var(--faint-ink); font-size: 11px;
+  writing-mode: vertical-rl; text-orientation: mixed;
+}
+.wheeldock { display: flex; gap: 6px; margin-top: 6px; }
+.wheeldockchip {
+  border: 1px dashed var(--border); background: var(--faint); color: var(--muted);
+  border-radius: 999px; padding: 2px 10px; font-size: 11px; cursor: pointer;
+}
+.wheeldockchip:hover { border-color: var(--st-staged); color: var(--ink); }
+
+@keyframes wheelpulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--st-staged) 55%, transparent); }
+  100% { box-shadow: 0 0 0 12px transparent; }
+}
+.wheelcol.wheelpulse { animation: wheelpulse 700ms ease-out 2; border-radius: 8px; }
+
+/* The tile is a DIV with role=button (not a <button>) because an EXPANDED tile
+   hosts real action buttons inside itself — hence the explicit font-family and
+   user-select the UA button style used to provide. */
+.wheeltile {
+  position: absolute; left: calc(12px * var(--wheel-scale, 1)); top: 0;
+  width: calc(196px * var(--wheel-scale, 1));
+  height: calc(56px * var(--wheel-scale, 1));
+  display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--ink);
+  padding: 4px 8px; text-align: center; cursor: pointer;
+  font-family: inherit; user-select: none; -webkit-user-select: none;
+  transition: border-color 120ms ease; will-change: transform, opacity;
+  transform-origin: center;
+}
+.wheeltile:hover { border-color: var(--st-staged); }
+/* OFF-WINDOW TILES (T092 acceptance sweep, defect 6). The drum lays ~31 tiles
+   per column and the window holds 7; the rest are placed over the page header,
+   the stat tiles and the tab strip. `.wheelport`'s overflow and `.wheelwin`'s
+   clip-path already stop them painting and already stop the mouse — the sweep
+   measured 9 of 31 reachable — but neither touches the tab order, so all 31
+   kept `tabindex=0` and a keyboard user walked 25 invisible tiles. wheel.js
+   stamps this class from the SAME `inReelWindow` predicate it drives
+   `tabindex` and `aria-hidden` from, and the rule below makes the mouse
+   agreement explicit rather than an accident of two clips. */
+.wheeltile.wheeloffwindow { pointer-events: none; }
+/* The tile the focused tile's badge rail crosses (defect 14b): ceded to the
+   rail the way a parked link's covered tile already is, so the chips read as
+   floating chrome instead of half-hiding a neighbour's sub-line. */
+.wheeltile.wheelrailcovered { pointer-events: none; }
+.wheeltile.wheelfocused {
+  border-color: var(--st-proposal); background: var(--panel);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
+}
+.wheeltile.wheellinked { border-color: var(--st-staged); }        /* teal edge only */
+/* second-degree tile (Brett 2026-07-25: always-on second-degree, dimmed): a
+   faint edging only — much fainter than the full teal `.wheellinked` border,
+   so a second-degree hit reads as a hint, not a connection. Never overrides
+   `.wheellinked` (a tile cannot be both — secondItems excludes anything
+   already first-degree) or the focused/demo/derived borders, which paint
+   after this rule in source order below. */
+.wheeltile.wheel-seconddeg { border-color: color-mix(in srgb, var(--st-staged) 30%, var(--border)); }
+/* Blank filler slots: the drum always renders full — empty positions past a
+   sparse wheel's items get quiet slot chrome (no content, no interaction). */
+.wheeltile.wheelblank {
+  pointer-events: none; background: var(--faint);
+  border-color: var(--border); box-shadow: none;
+}
+.wheeltile.wheel-demo { border-style: dashed; border-color: var(--st-proposal); }
+.wheeltile.wheel-derived { border-style: dashed; border-color: var(--st-staged); }
+.wheellabel {
+  font-size: calc(12px * var(--wheel-scale, 1)); line-height: 1.25; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; /* two-line label */
+}
+/* Focused: the box magnifies 1.35x, but the label drops to 10.5px (visually
+   ~14px) and unclamps to three lines — magnification buys CHARACTERS, not
+   just larger glyphs, so long topic names stay readable. */
+.wheeltile.wheelfocused .wheellabel {
+  font-size: calc(10.5px * var(--wheel-scale, 1)); -webkit-line-clamp: 3;
+}
+.wheelsub { font-size: calc(10px * var(--wheel-scale, 1)); color: var(--faint-ink); display: flex; gap: 6px; align-items: center; justify-content: center; }
+
+/* ---- the expanded tile (Brett 2026-07-25) ----------------------------------
+   A second click on the already-focused CENTRE tile expands it IN PLACE: the box
+   grows on the drum axis — taller AND wider than the 1.35x focus magnification
+   (wheel-model.js EXPANDED.scale) — to hold an action row, and paints above
+   every tile, chip, and thread. wheel.js places it by its CENTRE
+   (translateY(-50%)), so the height growth animates symmetrically about the
+   axis; only the GROW transitions, because the collapsed placement is
+   height-dependent and would slide on the way back. Colours are the shared
+   custom properties, so light and dark are both correct with one rule set. */
+.wheeltile.wheelexpanded {
+  height: calc(var(--wheel-expanded-h) * var(--wheel-scale, 1));
+  justify-content: flex-start; gap: 3px; padding: 8px 8px 6px;
+  border-color: var(--st-proposal); background: var(--panel);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.24);
+  transition: height 170ms ease, border-color 120ms ease;
+}
+/* the extra room buys CHARACTERS: the label unclamps to four lines */
+.wheeltile.wheelexpanded .wheellabel { -webkit-line-clamp: 4; }
+/* A summary-bearing expanded tile (the staged wheel) has to hold three more
+   lines of prose. The label gives up two of its four in exchange — a staging id
+   is legible in two — so the box itself grows by only 12px. It re-points the SAME
+   one knob on the WINDOW rather than adding a second height rule, so everything
+   derived from --wheel-expanded-h (the tile height AND the badge rail's pushed
+   offset below) still follows from one number. */
+.wheelwin:has(.wheeltile.wheelexpanded.wheel-hassummary) { --wheel-expanded-h: 144px; }
+.wheeltile.wheelexpanded.wheel-hassummary .wheellabel { -webkit-line-clamp: 2; }
+/* the fragment summary itself: left-aligned prose, CLAMPED to three display
+   lines (the pure fragmentSummary already trims it to summary length) */
+.wheelsummary {
+  width: 100%; text-align: left;
+  font-size: calc(8.5px * var(--wheel-scale, 1)); line-height: 1.35;
+  color: var(--muted); overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+}
+/* the pending / unavailable / no-summary-text states, all quiet by design */
+.wheelsummary-quiet { color: var(--faint-ink); font-style: italic; }
+/* clear the thread layer (.wheelthreads, z-index 5) so the beziers do not paint
+   over the expanded tile (the focused-column rule above only reaches 3) */
+.wheelcol:has(.wheeltile.wheelexpanded) { z-index: 6; }
+/* ...and drop the badge rail below the taller box instead of behind it, so the
+   connection chips and the possibles dispose tray stay visible while expanded.
+   The offset is DERIVED from the one height knob: half of the expanded box
+   (0.69 == EXPANDED.scale / 2) plus 8px clearance. The chips gain a solid
+   backdrop there because they now float over a reel tile instead of the gap. */
+.wheelwin:has(.wheeltile.wheelexpanded) .wheelbadges {
+  top: calc(50% + (var(--wheel-expanded-h) * 0.69 + 8px) * var(--wheel-scale, 1));
+}
+.wheelactions {
+  margin-top: auto; width: 100%;
+  display: flex; flex-wrap: wrap; gap: 4px;
+  align-items: center; justify-content: center;
+  border-top: 1px solid var(--faint); padding-top: 5px;
+}
+.wheelactions-none {
+  font-size: calc(9px * var(--wheel-scale, 1)); color: var(--faint-ink);
+}
+.wheeldegree {
+  font-family: var(--mono); font-size: 10px;
+  border: 1px solid var(--border); border-radius: 999px; padding: 0 6px;
+  color: var(--muted); background: var(--faint);
+}
+.wheelchip {
+  border: 1px solid var(--st-staged); background: transparent; cursor: pointer;
+  color: var(--st-staged); border-radius: 999px; padding: 0 7px; font-size: 10px;
+}
+.wheelchip:hover { background: var(--st-staged); color: var(--panel); }
+/* ...and the chips carry that solid backdrop in EVERY posture, not only the
+   expanded one (T092 acceptance sweep, defect 14b). A focused tile's rail floats
+   over the next reel tile whatever the reel is doing; a translucent chip over a
+   tile's sub-line is what read as a rendering fault. `:not(:hover)` so the hover
+   fill still wins. */
+.wheelchip:not(:hover) {
+  background: var(--panel);
+}
+
+/* ==== local action center: dispose tray + refusal panel (intent-plane §3) */
+.disposetray { display: inline-flex; gap: 4px; margin-left: 6px; }
+.disposetray.is-busy { opacity: 0.5; pointer-events: none; }
+.disposebtn {
+  border: 1px solid var(--border); background: var(--panel); color: var(--ink);
+  border-radius: 999px; padding: 0 8px; font-size: 10px; cursor: pointer;
+}
+.dispose-accepted { border-color: var(--good); color: var(--good); }
+.dispose-accepted:hover { background: var(--good); color: var(--panel); }
+.dispose-rejected { border-color: var(--blocked); color: var(--blocked); }
+.dispose-rejected:hover { background: var(--blocked); color: var(--panel); }
+.dispose-deferred:hover { border-color: var(--st-proposal); color: var(--st-proposal); }
+.dispose-propose { border-color: var(--st-proposal); color: var(--st-proposal); }
+.dispose-propose:hover:not(:disabled) { background: var(--st-proposal); color: var(--panel); }
+.dispose-propose:disabled { opacity: 0.55; cursor: default; }
+/* the IN-TILE mount (mountProposeButton `compact`): smaller chrome so the verb
+   fits the expanded tile's action row, which the tile's own transform magnifies */
+.dispose-intile {
+  font-size: calc(9px * var(--wheel-scale, 1)); padding: 1px 7px;
+  line-height: 1.5; max-width: 100%;
+}
+/* the READ-ONLY in-tile verbs (read · lens · canvas · landed): the same compact
+   chrome as .dispose-intile in the teal reading colour, because nothing they do
+   writes anything. Two of them share one row (clusters), so they shrink to fit
+   rather than wrapping the tile taller. */
+.wheelnavbtn {
+  border-color: var(--st-staged); color: var(--st-staged);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wheelnavbtn:hover:not(:disabled) { background: var(--st-staged); color: var(--panel); }
+.wheelnavbtn:disabled { opacity: 0.5; cursor: default; }
+/* the IN-TILE mount of the SHARED "Open in NotebookLM" action (clusters ·
+   staged · active): the card affordance's block wrap dissolves into the action
+   row so its button sits BESIDE the other verbs and its inline refusal message
+   takes a full-width line beneath them. The button keeps .nbbtn's own accent
+   (it writes to NotebookLM — it is not one of the teal read verbs) and only
+   borrows .dispose-intile's compact pill. */
+.wheelactions .nb-action { display: contents; }
+.wheelactions .nbbtn {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wheelactions .nb-msg {
+  flex: 0 0 100%; margin-top: 2px; text-align: center;
+  font-size: calc(8.5px * var(--wheel-scale, 1)); line-height: 1.3;
+}
+
+/* ---- the anchored flyout (archived "landed" · active "packet") --------------
+   A FIXED panel anchored to the expanded tile by script — the same reason the
+   settings panel is fixed: the app shell clips overflow and the reel window
+   clips vertically, so an in-column panel would be sheared off. ONE chrome for
+   both verbs (wheel.js openFlyout): head/title/close/body plus the body parts
+   (-line facts, -kind group labels, -req/-cap requirement rows, -file packet
+   entries, -note/-err quiet messages). Colours are the shared custom properties,
+   so light/dark need one rule set. */
+.wheelfly {
+  position: fixed; z-index: 30; width: 320px; max-height: 52vh; overflow-y: auto;
+  background: var(--panel); border: 1px solid var(--st-proposal);
+  border-radius: 10px; box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+  font-size: 11px; color: var(--ink);
+}
+.wheelfly-head {
+  display: flex; align-items: baseline; gap: 6px; padding: 6px 10px;
+  border-bottom: 1px solid var(--faint); position: sticky; top: 0;
+  background: var(--panel); border-radius: 10px 10px 0 0;
+}
+.wheelfly-title {
+  flex: 1; font-family: var(--mono); font-size: 11px; color: var(--st-proposal);
+  word-break: break-word;
+}
+.wheelfly-close { border: none; background: none; color: var(--faint-ink); cursor: pointer; font-size: 11px; }
+.wheelfly-close:hover { color: var(--ink); }
+.wheelfly-body { padding: 6px 10px 9px; display: flex; flex-direction: column; gap: 3px; }
+.wheelfly-line { color: var(--muted); }
+.wheelfly-kind {
+  margin-top: 5px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
+  color: var(--st-staged); text-transform: uppercase;
+  border-top: 1px solid var(--faint); padding-top: 4px;
+}
+.wheelfly-req { color: var(--ink); padding-left: 8px; text-indent: -8px; }
+.wheelfly-cap {
+  margin-left: 5px; font-family: var(--mono); font-size: 9px; color: var(--faint-ink);
+  border: 1px solid var(--border); border-radius: 999px; padding: 0 5px;
+}
+/* a packet entry: a full-width row button that jumps the file into the viewer
+   (the teal reading colour of the in-tile read verbs — it only reads) */
+.wheelfly-file {
+  text-align: left; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--st-staged); cursor: pointer;
+  font-family: var(--mono); font-size: 10px; padding: 2px 7px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wheelfly-file:hover:not(:disabled) { background: var(--st-staged); color: var(--panel); }
+.wheelfly-file:disabled { opacity: 0.5; cursor: default; color: var(--muted); }
+.wheelfly-note { color: var(--faint-ink); }
+.wheelfly-err { margin-top: 5px; color: var(--blocked); }
+
+.wheeltile.wheelapplied { border-style: solid; border-color: var(--good); }
+.wheeltile.wheelapplied::after {
+  content: attr(data-applied) " ✓ (regenerate to fold in)";
+  font-size: 9px; color: var(--good);
+}
+.refusalpanel {
+  position: fixed; right: 14px; bottom: 14px; z-index: 30; width: 340px;
+  max-height: 40vh; overflow-y: auto; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2); font-size: 11px;
+}
+.refusalpanel-head {
+  display: flex; align-items: center; padding: 6px 10px;
+  border-bottom: 1px solid var(--faint);
+}
+.refusalpanel-title { font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; flex: 1; }
+.refusalpanel-clear { border: none; background: none; color: var(--faint-ink); cursor: pointer; font-size: 10px; }
+.refusalpanel-list { list-style: none; margin: 0; padding: 4px 10px 8px; }
+.refusalpanel-item { display: flex; gap: 6px; padding: 3px 0; align-items: baseline; }
+.refusalpanel-kind { flex: none; font-family: var(--mono); font-size: 9px; border-radius: 999px; padding: 0 6px; }
+.is-refused .refusalpanel-kind { background: var(--blocked-bg); color: var(--blocked); }
+.is-ok .refusalpanel-kind { background: var(--good-bg); color: var(--good); }
+.refusalpanel-msg { color: var(--ink); }
+.gatebtn-live { border-color: var(--good); }
+
+/* ---- settings panel (header gear, views/settings.js) -----------------------
+   The gear reuses .themebtn's chrome (same header button family) with an
+   open-state accent. The panel is FIXED and anchored under the gear by script
+   because the app shell (.wrap) clips overflow — an in-header absolute popover
+   would be cut off. Every colour is one of the shared custom properties, so the
+   panel themes correctly in light, dark, and auto without a second rule set
+   (same approach as .refusalpanel). */
+.settingsbtn { padding: 3px 7px; }
+.settingsbtn[aria-expanded="true"] { border-color: var(--st-staged); color: var(--st-staged); }
+.settingspanel {
+  position: fixed; top: 60px; left: 16px; z-index: 40; width: 306px;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2); font-size: 11px;
+}
+.settingspanel-head {
+  display: flex; align-items: center; padding: 6px 10px;
+  border-bottom: 1px solid var(--faint);
+}
+.settingspanel-title {
+  flex: 1; font-weight: 600; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.05em; font-size: 10px;
+}
+.settingspanel-close { border: none; background: none; color: var(--faint-ink); cursor: pointer; font-size: 11px; }
+.settingsrow { display: flex; align-items: center; gap: 8px; padding: 9px 10px 0; flex-wrap: wrap; }
+.settingslabel { flex: 1 0 100%; font-family: var(--mono); font-size: 11px; color: var(--ink); }
+.settingsrange { flex: 1 1 130px; min-width: 0; margin: 0; accent-color: var(--st-staged); cursor: pointer; }
+.settingsval {
+  flex: none; min-width: 44px; text-align: right; font-family: var(--mono);
+  font-variant-numeric: tabular-nums; color: var(--st-staged); font-weight: 700;
+}
+.settingsreset {
+  flex: none; font-family: var(--mono); font-size: 10px; cursor: pointer; color: var(--muted);
+  background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 2px 7px;
+}
+.settingsreset:hover { border-color: var(--st-staged); color: var(--st-staged); }
+.settingsnote { margin: 6px 10px 9px; color: var(--muted); font-size: 10px; line-height: 1.35; }
+.settingspanel :focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
+
+/* ---- account menu (header user icon, views/account-menu.js) ----------------
+   The user-account button reuses .themebtn's chrome (same header button family)
+   with the same open-state accent as the gear. The dropdown is FIXED and
+   anchored under its button by script for the same reason the settings panel is
+   — the app shell (.wrap) clips overflow. Every colour is a shared custom
+   property, so it themes in light/dark/auto with no second rule set. The menu
+   is DISPLAY-ONLY: it shows the signed-in identity and derived access level and
+   (hosted mode) a logout that delegates to the gateway; it authorizes nothing.
+   (add-dashboard-account-menu) */
+.accountbtn { padding: 3px 7px; }
+.accountbtn[aria-expanded="true"] { border-color: var(--st-staged); color: var(--st-staged); }
+.accountmenu {
+  position: fixed; top: 60px; left: 16px; z-index: 40; width: 240px;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2); font-size: 11px;
+}
+.accountmenu-head {
+  display: flex; align-items: center; padding: 6px 10px;
+  border-bottom: 1px solid var(--faint);
+}
+.accountmenu-title {
+  flex: 1; font-weight: 600; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.05em; font-size: 10px;
+}
+.accountmenu-close { border: none; background: none; color: var(--faint-ink); cursor: pointer; font-size: 11px; }
+.accountmenu-who { margin: 9px 10px 0; color: var(--ink); font-family: var(--mono); font-size: 11px; }
+.accountmenu-level { margin: 4px 10px 0; color: var(--muted); font-size: 10px; }
+.accountmenu-logoutrow { margin: 9px 10px; }
+.accountmenu-logout {
+  display: inline-block; font-family: var(--mono); font-size: 10px; cursor: pointer;
+  color: var(--muted); text-decoration: none;
+  background: var(--faint); border: 1px solid var(--border); border-radius: 3px; padding: 3px 9px;
+}
+.accountmenu-logout:hover { border-color: var(--st-staged); color: var(--st-staged); }
+.accountmenu :focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
+
+/* ---- staged tile health chrome (add-staging-workbench D10) ------------------
+   Two levels, verbatim from the snapshot's `health` object (pure helpers in
+   wheel-model.js): the FOCUSED tile face carries a compact tri-state indicator
+   (shape- AND colour-coded — ● ready / ◐ developing / ○ stub); the EXPANDED
+   tile renders the full block. Resting drum faces stay unadorned, and a
+   pre-growth snapshot mounts neither. Colours are the shared custom
+   properties, so light/dark need one rule set. The display never gates. */
+.wheelhealth-ind {
+  position: absolute; top: 3px; right: 6px;
+  font-size: calc(10px * var(--wheel-scale, 1)); line-height: 1;
+}
+.wheelhealth-ready { color: var(--good); }
+.wheelhealth-developing { color: var(--st-proposal); }
+.wheelhealth-stub { color: var(--faint-ink); }
+.wheelhealth-block {
+  width: 100%; text-align: left; overflow-y: auto;
+  font-size: calc(8.5px * var(--wheel-scale, 1)); line-height: 1.35;
+  border-top: 1px solid var(--faint); padding-top: 3px;
+}
+.wheelhealth-status { font-weight: 700; }
+.wheelhealth-line { color: var(--muted); }
+.wheelhealth-blocker { color: var(--blocked); padding-left: 8px; text-indent: -8px; }
+/* a health-bearing expanded tile needs room for the block: re-point the SAME
+   one height knob on the window (the wheel-hassummary pattern), so the badge
+   rail's derived offset follows. Health + summary together get the tallest. */
+.wheelwin:has(.wheeltile.wheelexpanded.wheel-hashealth) { --wheel-expanded-h: 184px; }
+.wheelwin:has(.wheeltile.wheelexpanded.wheel-hashealth.wheel-hassummary) { --wheel-expanded-h: 196px; }
+.wheeltile.wheelexpanded.wheel-hashealth .wheelhealth-block {
+  max-height: calc(64px * var(--wheel-scale, 1));
+}
+
+/* ---- the staging workbench (add-staging-workbench D4–D7) --------------------
+   A full-screen READ-ONLY overlay scoped to one topic-bearing tile, with the
+   docs / lens / outline tab set. The explorer overlay's panel idiom (dimmed
+   backdrop, centred panel, shared .doclist tokens) at a LOWER z-index than the
+   explorer (20), so a docs row's jump into the explorer/viewer overlay paints
+   above the workbench it came from. `swb-` = Staging WorkBench — deliberately
+   NOT the `ideation-workbench` reference-set family (design D5). */
+.swb-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 18;
+  display: flex; align-items: center; justify-content: center; padding: 10px;
+}
+/* FULL SCREEN (operator ask): the panel takes the whole window. A class, not
+   the Fullscreen API — a real fullscreen request takes the document with it
+   and strips the browser chrome the operator uses to move between the
+   dashboard and their editor. */
+.swb-overlay.is-fullscreen { padding: 0; }
+.swb-overlay.is-fullscreen .swb-panel {
+  width: 100%; height: 100%; border-radius: 0; border: none;
+}
+.swb-overlay[hidden] { display: none; }
+.swb-panel {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  width: min(1180px, 100%); height: min(940px, 100%);
+  display: flex; flex-direction: column;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); overflow: hidden;
+}
+.swb-head {
+  /* Vertical padding is PINNED at <= 8px by test_doxbench_workspace.py: the
+     operator's complaint was that this row and the session bar owned the top
+     of the panel while the three working panes shared the remainder. */
+  display: flex; align-items: baseline; gap: 12px; padding: 7px 14px;
+  border-bottom: 1px solid var(--border); background: var(--panel); flex: none;
+}
+.swb-titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.swb-title { font-family: var(--mono); font-size: 14px; font-weight: 700; }
+.swb-subtitle { font-size: 11.5px; color: var(--muted); }
+.swb-close {
+  font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--muted);
+  background: var(--faint); border: 1px solid var(--border); border-radius: 3px;
+  padding: 3px 9px; flex: none;
+}
+.swb-close:hover { border-color: var(--st-staged); color: var(--st-staged); }
+.swb-tabs {
+  display: flex; gap: 6px; padding: 8px 16px 0; background: var(--panel);
+  border-bottom: 1px solid var(--border); flex: none;
+}
+.swb-tab {
+  font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--muted);
+  background: none; border: 1px solid transparent; border-bottom: none;
+  border-radius: 6px 6px 0 0; padding: 5px 14px;
+}
+.swb-tab:hover { color: var(--ink); }
+.swb-tab-active {
+  color: var(--st-staged); border-color: var(--border);
+  background: var(--surface); font-weight: 700;
+}
+.swb-body { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 16px; }
+.swb-pane { display: flex; flex-direction: column; gap: 6px; }
+.swb-sectionhead {
+  display: flex; align-items: baseline; gap: 10px; margin-top: 8px;
+  border-bottom: 1px solid var(--faint); padding-bottom: 3px;
+}
+.swb-sectionlabel {
+  font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.swb-sectionnote { font-size: 10.5px; color: var(--faint-ink); }
+/* the possible's INHERITED section: visibly a different class of membership —
+   an inference from the claiming clusters, never cited evidence */
+.swb-inheritedhead .swb-sectionlabel { color: var(--st-proposal); }
+.swb-inheritedhead { border-bottom-style: dashed; border-bottom-color: var(--st-proposal); }
+.swb-row {
+  display: flex; align-items: center; gap: 14px; padding: 5px 6px;
+  border: 1px solid var(--faint); border-radius: 6px; background: var(--panel);
+}
+.swb-row[role="button"] { cursor: pointer; }
+.swb-row[role="button"]:hover { border-color: var(--st-staged); }
+.swb-row:focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
+.swb-unresolved { border-style: dashed; }
+.swb-rowinfo { flex: 1; min-width: 0; }
+.swb-name { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+.swb-where { font-size: 10.5px; color: var(--faint-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.swb-completeness { flex: 0 0 320px; display: flex; flex-direction: column; gap: 3px; }
+.swb-bar {
+  height: 7px; border-radius: 999px; background: var(--faint);
+  border: 1px solid var(--border); overflow: hidden;
+}
+.swb-bar-fill { height: 100%; background: var(--st-staged); border-radius: 999px; }
+.swb-signals { display: flex; flex-wrap: wrap; gap: 4px 8px; font-size: 9.5px; color: var(--muted); font-family: var(--mono); }
+.swb-score { font-weight: 700; color: var(--ink); }
+.swb-nobar { flex: 0 0 320px; font-size: 10px; color: var(--faint-ink); font-style: italic; }
+.swb-empty { color: var(--faint-ink); font-size: 11.5px; font-style: italic; padding: 4px 2px; }
+.swb-lensnote { font-size: 10.5px; color: var(--muted); }
+.swb-lensrail { display: flex; flex-wrap: wrap; gap: 6px; }
+.swb-kw {
+  display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px;
+  font-size: 11px; background: var(--panel);
+}
+.swb-kw:hover { border-color: var(--st-staged); }
+.swb-kwname { font-family: var(--mono); }
+.swb-kwcount { font-size: 9.5px; color: var(--faint-ink); }
+.swb-matrix { margin-top: 4px; }
+/* the SHARED bullseye widget inside the workbench's lens pane
+   (add-workbench-bullseye-and-create D1/D3): the global .bullseye rules above
+   already style rings/sectors/dots — only the panel sizing is scoped here, so
+   the widget stays smaller than the full-tab lens and the always-present matrix
+   below it remains on screen without scrolling past the SVG. */
+.swb-pane-lens .bullseye { max-width: 420px; margin: 4px auto 0; }
+.swb-forming {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  border: 1px solid var(--faint); border-radius: 6px; padding: 6px 10px;
+  background: var(--panel); margin-top: 4px;
+}
+.swb-formingline { font-size: 11px; color: var(--muted); flex: 1; min-width: 220px; }
+.swb-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+/* create affordance (task 5.4–5.7): a live button with the gate capability, a
+   copyable CLI descriptor without it — never a greyed-out control. */
+.swb-cwrap { display: flex; flex-direction: column; gap: 6px; }
+.swb-cbtn { white-space: nowrap; }
+.swb-cslot:empty { display: none; }
+.swb-cform {
+  display: flex; flex-direction: column; gap: 6px; margin-top: 6px;
+  border: 1px solid var(--st-staged); border-radius: 6px; padding: 10px 12px;
+  background: var(--panel);
+}
+.swb-ch { font-family: var(--mono); font-size: 11.5px; font-weight: 700; }
+.swb-cline { font-size: 11px; font-family: var(--mono); word-break: break-all; }
+.swb-cnote { font-size: 10.5px; color: var(--faint-ink); }
+.swb-csource { font-size: 10.5px; color: var(--muted); font-family: var(--mono); word-break: break-word; }
+.swb-cfield { display: flex; align-items: center; gap: 8px; }
+.swb-clabel { font-family: var(--mono); font-size: 10.5px; color: var(--muted); flex: 0 0 120px; }
+.swb-cfield input {
+  flex: 1; min-width: 0; font: inherit; font-size: 11.5px; padding: 3px 6px;
+  border: 1px solid var(--border); border-radius: 3px;
+  background: var(--surface); color: var(--ink);
+}
+.swb-cactions { display: flex; gap: 8px; }
+.swb-cresult:empty { display: none; }
+.swb-clanded { border-left: 3px solid var(--st-realized); padding-left: 8px; }
+.swb-crefused { border-left: 3px solid var(--blocked); padding-left: 8px; }
+.swb-cdescriptor {
+  display: flex; flex-direction: column; gap: 4px;
+  border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px;
+  background: var(--faint);
+}
+.swb-ccmd {
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink);
+  white-space: pre-wrap; word-break: break-all; user-select: all;
+}
+.swb-cfield textarea {
+  flex: 1; min-width: 0; font-family: var(--mono); font-size: 11px; padding: 4px 6px;
+  border: 1px solid var(--border); border-radius: 3px; resize: vertical;
+  background: var(--surface); color: var(--ink);
+}
+.swb-cfield select {
+  flex: 1; min-width: 0; font: inherit; font-size: 11.5px; padding: 3px 6px;
+  border: 1px solid var(--border); border-radius: 3px;
+  background: var(--surface); color: var(--ink);
+}
+/* THE SESSION BAR (007-workbench-branch-sessions FR-044/FR-045): its own row
+   under the head, deliberately NOT the capability pill beside the title. The
+   pill states this plane's AUTHORITY; the chip below states which BRANCH the
+   view is on and whether it is a draft view — two different honesties. */
+.swb-sessionbar {
+  display: flex; flex-direction: column; gap: 4px; flex: none;
+  padding: 5px 14px; background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+.swb-sessionbar[hidden] { display: none; }
+.swb-posture {
+  align-self: flex-start; font-family: var(--mono); font-size: 10.5px;
+  color: var(--muted); border: 1px solid var(--border); border-radius: 10px;
+  padding: 2px 9px; letter-spacing: 0.02em;
+}
+/* a DRAFT view is the one posture that must never be mistaken for `main` */
+.swb-posture.is-draft {
+  color: var(--st-proposal); border-color: var(--st-proposal); font-weight: 700;
+}
+.swb-posture.is-live { color: var(--st-staged); border-color: var(--st-staged); }
+.swb-sessionhost { display: flex; flex-direction: column; gap: 6px; }
+.swb-sessionhost:empty { display: none; }
+.swb-sessionactions { display: flex; flex-wrap: wrap; gap: 6px; }
+.swb-sessionbtn { white-space: nowrap; }
+.swb-sessionbtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.swb-sessiondescriptors { display: flex; flex-direction: column; gap: 6px; }
+.swb-notice { color: var(--st-staged); }
+.swb-outline { border: 1px solid var(--faint); border-radius: 6px; padding: 10px 14px; background: var(--panel); }
+.swb-outline-empty { padding: 12px 4px; }
+/* the create gesture (design D6, extended to every ring sector by Brett's
+   2026-07-25 ruling): transparent, focusable hit regions over the matches-ALL
+   centre zone and each sector's ring band. Absent entirely when no caller wires
+   an activation handler, which is why the keyword-lens tab looks unchanged. */
+.bullseye .bullseye-centre,
+.bullseye .bullseye-sector { fill: transparent; pointer-events: all; cursor: pointer; }
+.bullseye .bullseye-centre:hover,
+.bullseye .bullseye-sector:hover { fill: var(--st-staged); fill-opacity: 0.12; }
+.bullseye .bullseye-centre:focus-visible,
+.bullseye .bullseye-sector:focus-visible { outline: 2px solid var(--st-realized); }
+
+/* ============================================================================
+   doxBench authoring canvas (010-doxbench-editor-chat, T038): the third
+   staging-workbench region, beside the existing docs/lens context — no rule
+   above this block is touched. `.swb-regions` is a row so a later chat rail
+   can slot in behind a `.swb-regions.has-rail` modifier without a re-layout;
+   this slice never renders a rail element, so nothing here is visible until
+   that change lands.
+   ============================================================================ */
+.swb-regions { flex: 1; min-height: 0; display: flex; gap: 12px; }
+.swb-context { flex: 1 1 60%; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.doxbench-canvas {
+  flex: 1 1 40%; min-width: 0; min-height: 0; display: flex; flex-direction: column;
+  gap: 8px; overflow-y: auto; padding: 12px 16px; border-left: 1px solid var(--border);
+}
+.doxbench-canvas[hidden] { display: none; }
+.swb-regions.has-rail .doxbench-canvas { flex-basis: 32%; }
+
+/* Brett's 2026-08-15 annotation round: `.doxbench-heading` is retired — the
+   region's accessible name carries "doxBench · <scope>" and the h2 duplicated
+   it visibly for no gain. The TAB ROW takes that slot: view tabs left, the
+   panel's Save/Cancel right, in one line. */
+.doxbench-tabrow {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 8px; flex: none; min-width: 0;
+}
+.doxbench-actions { display: flex; align-items: center; gap: 6px; flex: none; }
+/* add-doxbench-editing-phase-a: the VIEW tabs (Editor/Preview) took over the
+   strip the retired BUFFER tablist used to occupy, so they inherit its look
+   verbatim — the selected-tab rule below still keys on aria-selected, which
+   stays selection's one and only spelling. */
+.doxbench-viewtabs { display: flex; gap: 6px; flex: none; }
+.doxbench-viewtab {
+  font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--muted);
+  background: none; border: 1px solid var(--border); border-bottom: none;
+  border-radius: 5px 5px 0 0; padding: 4px 12px;
+}
+.doxbench-viewtab:hover { color: var(--ink); }
+.doxbench-panes { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.doxbench-viewpane {
+  flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px;
+  border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px;
+  padding: 10px 12px; background: var(--panel);
+}
+.doxbench-viewpane[hidden] { display: none; }
+.doxbench-bufferbox { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.doxbench-bufferbox[hidden] { display: none; }
+/* the panel chrome: the document picker, one status region per buffer, and the
+   one Save / one Cancel — all OUTSIDE both view tabs, so each control and its
+   answer are on screen from either view. */
+/* The status row under the tab row. Brett's 2026-08-18 annotation round 2
+   retired its STANDING text — the controls' own enabled state says what the
+   sentences used to — so what remains is sr-only (the per-buffer live regions,
+   for assistive technology and for the partial-Save contract), the gate-absent
+   reason, and ONE transient visible line for events. */
+.doxbench-statusbar {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
+  flex: none; min-width: 0;
+}
+/* The house sr-only idiom, the same one `.doxchat-announce` uses one region
+   over: out of the visual flow, still in the accessibility tree, still
+   announced. NOT `display: none` and NOT `hidden`, either of which would take
+   the live region out of the tree along with the text. */
+.doxbench-sronly {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+/* The EVENT line: a refusal, or a Save that did not wholly land. Visible only
+   while it has something to say, and it says it briefly — standing text is what
+   annotation round 2 removed. */
+.doxbench-eventnote {
+  flex-basis: 100%; min-width: 0; font-size: 11px; color: var(--blocked);
+  overflow-wrap: anywhere;
+}
+.doxbench-eventnote[hidden] { display: none; }
+.doxbench-save-note[hidden] { display: none; }
+.doxbench-unload-note[hidden] { display: none; }
+.doxbench-status { font-size: 10.5px; color: var(--faint-ink); flex: 1; }
+.doxbench-status.is-dirty { color: var(--st-proposal); font-weight: 600; }
+/* Amendment 1 (2026-08-21): Unload shares the slot with the Save/Cancel pair and
+   is never on screen beside them, so it takes the same look — the slot's
+   occupancy is what changes, not its shape. */
+.doxbench-cancel, .doxbench-save, .doxbench-unload {
+  font-family: var(--mono); font-size: 10.5px; cursor: pointer; color: var(--muted);
+  background: var(--faint); border: 1px solid var(--border); border-radius: 4px;
+  padding: 2px 9px;
+}
+.doxbench-cancel:hover, .doxbench-unload:hover {
+  border-color: var(--st-staged); color: var(--st-staged);
+}
+.doxbench-cancel:disabled, .doxbench-save:disabled,
+.doxbench-unload:disabled { opacity: 0.5; cursor: not-allowed; }
+.doxbench-unload[hidden], .doxbench-save[hidden],
+.doxbench-cancel[hidden] { display: none; }
+.doxbench-textarea { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.doxbench-textarea {
+  font-family: var(--mono); font-size: 12px; color: var(--ink); background: var(--panel);
+  border: 1px solid var(--border); border-radius: 5px; padding: 8px 10px;
+  min-height: 110px; resize: vertical;
+}
+.doxbench-textarea:focus-visible { outline: 2px solid var(--st-realized); outline-offset: 1px; }
+.doxbench-preview {
+  flex: 1; min-height: 70px; overflow-y: auto; font-size: 12.5px; color: var(--ink);
+  border: 1px dashed var(--border); border-radius: 5px; padding: 8px 10px;
+}
+
+/* the document-switch guard (FR-007 / acceptance scenario 4): Save is
+   offered disabled with the same fixed reason as the per-buffer control;
+   Discard and Cancel are the two keyboard-reachable choices. */
+.doxbench-guard {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px;
+  padding: 8px 10px; background: var(--faint); border: 1px solid var(--st-proposal);
+  border-radius: 5px;
+}
+.doxbench-guard[hidden] { display: none; }
+.doxbench-guard-status { flex-basis: 100%; margin: 0; font-size: 11px; color: var(--ink); }
+.doxbench-guard-save, .doxbench-guard-discard, .doxbench-guard-cancel {
+  font-family: var(--mono); font-size: 10.5px; cursor: pointer; color: var(--muted);
+  background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+  padding: 3px 10px;
+}
+.doxbench-guard-discard:hover, .doxbench-guard-cancel:hover {
+  border-color: var(--st-proposal); color: var(--st-proposal);
+}
+.doxbench-guard-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* narrow viewport (010-doxbench-editor-chat T038): stack the three regions —
+   docs/lens context, then the doxBench canvas — vertically. This is a
+   SECOND, independent occurrence of the (max-width: 900px) breakpoint,
+   appended after the existing block above; it never touches the panes'
+   scroll model that block owns, and its own scroll model is a fixed
+   max-height on the canvas alone (never the natural-height flow the earlier
+   defect was about). */
+@media (max-width: 900px) {
+  .swb-regions { flex-direction: column; gap: 8px; }
+  .swb-context, .doxbench-canvas { flex: none; }
+  .doxbench-canvas { border-left: none; border-top: 1px solid var(--border); max-height: 45vh; }
+}
+
+/* doxBench fix round (010-doxbench-editor-chat, Phase C, S1c/S2/S3): the
+   Save-unavailable reason as VISIBLE text beside each disabled Save control
+   (legible without a hover), the document picker that reaches
+   selectDocument, and the refused-edit status state. Append-only — no rule
+   above this comment is touched. */
+.doxbench-save-note, .doxbench-guard-save-note, .doxbench-unload-note {
+  font-size: 10px; color: var(--faint-ink); font-style: italic; flex-basis: 100%;
+}
+.doxbench-status-error { color: var(--blocked); font-weight: 600; }
+
+/* ---- doxBench posture note + forced-colors modes (US5, T091/T093) ------- */
+/* The inline posture explanation (FR-040/FR-025): visible, wrapped, never
+   displacing the retained context beside it. */
+.swb-posture-note {
+  margin: 6px 14px 0;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+/* Forced-colors / high-contrast (FR-041, US5 edge case): status and
+   authority boundaries must stay VISIBLE when the system repaints colors —
+   backgrounds collapse there, so the boundaries become borders, and the
+   completeness fill maps to a system color instead of vanishing. */
+@media (forced-colors: active) {
+  .pill,
+  .swb-posture-note,
+  .swb-tab,
+  .doxbench-viewtab,
+  .doxbench-save-note {
+    border: 1px solid ButtonText;
+  }
+  .swb-bar-fill {
+    background: Highlight;
+  }
+  .swb-tab[aria-selected="true"],
+  .doxbench-viewtab[aria-selected="true"] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}
+
+/* ============================================================================
+   doxBench three-region shell + chat rail styling wave (T100 P1-1 fix,
+   2026-08-01). Adopted from the operator's proven T100 rig patch; realizes
+   vibe annotation vibe_1785561229002_13j8c18kk ("1/3 for each section") with
+   its update: equal thirds ordered context | CHAT | canvas. Colors ride the
+   existing custom properties, so both schemes and the forced-colors block
+   apply unchanged. CHK015's send-moment disclosure badge is styled here.
+   ============================================================================ */
+.swb-regions.has-rail .swb-context,
+.swb-regions.has-rail .doxbench-canvas,
+.swb-regions.has-rail .doxbench-rail { flex: 1 1 33.33%; min-width: 0; }
+.doxbench-rail {
+  display: flex; flex-direction: column; gap: 8px; min-height: 0;
+  padding: 12px 16px;
+}
+.doxbench-rail[hidden] { display: none; }
+/* annotation update: the rail takes the CENTER third. */
+.swb-regions.has-rail .swb-context { order: 1; }
+.swb-regions.has-rail .doxbench-rail {
+  order: 2;
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+}
+.swb-regions.has-rail .doxbench-canvas { order: 3; border-left: none; }
+.doxchat-subject, .doxchat-model, .doxchat-composer {
+  width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.doxchat-composer { min-height: 64px; resize: vertical; }
+/* THE LOADED-DOCUMENT SELECTOR (add-doxbench-editing-phase-b, Q1 ruled). A
+   native scrolling select IS the overflow policy (design D6): no folding, no
+   chip row, no least-recently-used eviction, because every loaded buffer may
+   hold unsaved work. `size` is left to the platform so the list scrolls in its
+   own popup exactly as the approved-model selector's does. */
+.doxchat-loaded {
+  width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.doxchat-loaded:disabled { opacity: .5; cursor: not-allowed; }
+/* A context-only entry is loadable for grounding but has no reachable Save, and
+   the option says so rather than looking like an owned document (design D2). */
+.doxchat-loaded-option[data-owned="false"] { font-style: italic; }
+.doxchat-loaded-option[data-dirty="true"] { font-weight: 700; }
+/* (`.doxchat-unload` went with its control: Brett's 2026-08-21 annotation moved
+   the loaded set's one way out onto the canvas slot, where `.doxbench-unload`
+   now carries it beside the Save and Cancel it stands in for.) */
+.doxchat-loaded-note {
+  font-size: 11px; color: var(--faint-ink); padding: 4px 8px;
+}
+/* The HONEST empty state — rendered, never hidden. */
+.doxchat-loaded-empty {
+  font-size: 11px; color: var(--faint-ink); padding: 4px 8px;
+}
+/* The selected entry's FULL name, for assistive technology. Visually hidden and
+   still a live region — the same idiom `doxchat-announce` uses one region over.
+   The visible label may be a basename or a distinguishing suffix; "the full name
+   MUST be available to assistive technology" is a separate obligation, and a
+   title attribute alone does not discharge it. */
+.doxchat-loaded-full {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+.doxchat-card-target {
+  align-self: flex-start; font: 10px/1.4 ui-monospace, monospace;
+  letter-spacing: .06em; padding: 1px 6px; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--faint);
+  color: var(--ink);
+}
+.doxchat-disclosure {
+  font-size: 12px; color: var(--muted); padding: 6px 8px;
+  border: 1px dashed var(--border); border-radius: 6px;
+}
+.doxchat-disclosure[hidden] { display: none; }
+/* T104 F5-9: the rail's own posture when no model is selectable — it stands
+   in for the selector, so it reads as the same class of quiet inline note as
+   the disclosure, never as an error. */
+.doxchat-unavailable {
+  font-size: 12px; color: var(--muted); padding: 6px 8px;
+  border: 1px dashed var(--border); border-radius: 6px;
+}
+.doxchat-unavailable[hidden] { display: none; }
+.doxchat-transcript {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0; padding: 0;
+  list-style: none; display: flex; flex-direction: column; gap: 8px;
+}
+.doxchat-turn {
+  padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.doxchat-human { background: var(--faint); }
+.doxchat-assistant { background: var(--panel); }
+.doxchat-proposals { display: flex; flex-direction: column; gap: 6px; }
+.doxchat-card {
+  display: flex; flex-direction: column; gap: 6px; padding: 8px 10px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--panel);
+}
+.doxchat-card-summary { font-weight: 600; }
+.doxchat-card-note { font-size: 12px; color: var(--muted); }
+/* T100 P2: the applied terminal state must be unmissable, not a whisper. */
+.doxchat-card-applied { border-style: double; border-width: 3px; }
+.doxchat-card-applied .doxchat-card-note { font-weight: 600; color: var(--ink); }
+.doxchat-card-stale { border-style: dashed; }
+.doxchat-card-current { border-color: var(--border); }
+.doxchat-card-rejected { opacity: .65; }
+.doxchat-card-apply, .doxchat-card-reject, .doxchat-send {
+  align-self: flex-start; font: inherit; padding: 5px 12px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--faint); color: var(--ink);
+}
+/* THE SEND ROW (Brett's 2026-08-18 annotation round 2): the approved-model
+   selector sits beside Send, where the choice it governs is used. The selector
+   takes the slack so a long model label truncates rather than pushing Send off
+   the row; Send keeps its intrinsic width. */
+.doxchat-sendrow {
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  min-width: 0;
+}
+.doxchat-sendrow .doxchat-model { flex: 1 1 auto; min-width: 0; }
+.doxchat-sendrow .doxchat-send { flex: none; }
+.doxchat-model:disabled { opacity: .5; cursor: not-allowed; }
+/* The same sr-only idiom `.doxchat-announce` uses: the unavailability sentence
+   is the send button's programmatic description now, not a standing line, so it
+   must stay in the accessibility tree while leaving the visual flow. */
+.doxchat-sronly {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+.doxchat-send { align-self: flex-end; }
+.doxchat-card-apply:disabled, .doxchat-card-reject:disabled,
+.doxchat-send:disabled { opacity: .5; cursor: not-allowed; }
+.doxchat-failure { color: var(--blocked); font-size: 12px; }
+.doxchat-failure[hidden] { display: none; }
+/* contract-v1.40 (task 10.7): the assembled context's REDUCED posture, stated
+   under the transcript it describes. `--muted`, not `--blocked`: a reduced
+   packet is a turn that SUCCEEDED under a declared degradation, not a refusal,
+   and colouring it like one would misreport what happened. */
+.doxchat-context { color: var(--muted); font-size: 12px; }
+.doxchat-context[hidden] { display: none; }
+/* T100 P2: screen-reader announcement region (visually hidden, aria-live). */
+.doxchat-announce {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+/* ---- canvas editor internals (same operator patch, part 3) ----
+   add-doxbench-editing-phase-a re-pointed this block from the retired BUFFER
+   tablist onto the VIEW tablist that replaced it, and from the per-buffer
+   toolbar onto the panel chrome. Nothing about the LOOK changed: the same
+   strip, in the same place, answering a different question. */
+.doxbench-viewtabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); }
+.doxbench-viewtab {
+  font: inherit; padding: 6px 14px; cursor: pointer; color: var(--muted);
+  background: transparent; border: 1px solid transparent;
+  border-bottom: none; border-radius: 6px 6px 0 0;
+}
+.doxbench-viewtab[aria-selected="true"] {
+  color: var(--ink); background: var(--panel);
+  border-color: var(--border); font-weight: 600;
+}
+.doxbench-statusbar {
+  display: flex; align-items: baseline; gap: 4px 10px; flex-wrap: wrap;
+  padding: 4px 0 6px;
+}
+.doxbench-eventnote { font-size: 12px; }
+.doxbench-tabrow { padding-top: 2px; }
+.doxbench-panes { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.doxbench-viewpane { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.doxbench-viewpane[hidden] { display: none; }
+.doxbench-bufferbox { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.doxbench-bufferbox[hidden] { display: none; }
+.doxbench-textarea {
+  flex: 1 1 auto; min-height: 120px; width: 100%; box-sizing: border-box;
+  resize: none; padding: 10px; font: 13px/1.5 ui-monospace, monospace;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+/* the Preview view tab is the LARGE rendered pane it names, not the sliver a
+   split pane could spare it. */
+.doxbench-preview {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 8px 10px;
+  border: 1px dashed var(--border); border-radius: 6px; font-size: 13px;
+}
+.doxbench-status { font-size: 12px; color: var(--muted); }
+.doxbench-save, .doxbench-cancel, .doxbench-unload, .doxbench-guard-save,
+.doxbench-guard-discard, .doxbench-guard-cancel {
+  font: inherit; padding: 5px 12px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--faint); color: var(--ink);
+}
+.doxbench-save:disabled, .doxbench-cancel:disabled { opacity: .5; cursor: not-allowed; }
+.doxbench-save-note, .doxbench-guard-save-note { font-size: 12px; color: var(--muted); }
+.doxbench-guard {
+  display: flex; flex-direction: column; gap: 8px; padding: 10px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--faint);
+}
+.doxbench-guard[hidden] { display: none; }
+.doxbench-guard-status { font-weight: 600; }
+
+
+/* ============================================================================
+   WORKSPACE CONTROLS — full screen, and per-pane expand (operator ask,
+   2026-08-02: "This will make this useable").
+
+   EQUAL THIRDS REMAINS THE DEFAULT (ruling on annotation
+   vibe_1785561229002_13j8c18kk). Everything below is a TEMPORARY OVERRIDE
+   applied by one `is-expanded-<region>` class at a time.
+
+   The compressed panes THIN, they never hide: each keeps a `min-width` floor
+   so the context it holds stays readable. `display: none` here would lose the
+   thing the operator was reading, which is the opposite of the ask.
+   ============================================================================ */
+.swb-fullscreen, .swb-expand {
+  font: inherit; line-height: 1; cursor: pointer; padding: 2px 7px;
+  background: var(--faint); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.swb-fullscreen { flex: none; align-self: center; }
+.swb-expand {
+  position: absolute; top: 6px; right: 8px; z-index: 2; opacity: 0.55;
+  font-size: 12px;
+}
+.swb-expand:hover, .swb-expand:focus-visible { opacity: 1; }
+.swb-expand[aria-pressed="true"] { opacity: 1; background: var(--panel); }
+/* the expand control anchors to its own pane */
+.swb-context, .doxbench-canvas, .doxbench-rail { position: relative; }
+
+.swb-regions.is-expanded-context .swb-context,
+.swb-regions.is-expanded-rail .doxbench-rail,
+.swb-regions.is-expanded-canvas .doxbench-canvas { flex: 1 1 74%; }
+
+.swb-regions.is-expanded-context .doxbench-rail,
+.swb-regions.is-expanded-context .doxbench-canvas,
+.swb-regions.is-expanded-rail .swb-context,
+.swb-regions.is-expanded-rail .doxbench-canvas,
+.swb-regions.is-expanded-canvas .swb-context,
+.swb-regions.is-expanded-canvas .doxbench-rail {
+  flex: 0 1 13%; min-width: 104px;
+}
+
+@media (max-width: 900px) {
+  /* narrow: an expanded pane takes nearly everything, the slivers stay
+     reachable rather than vanishing */
+  .swb-regions.is-expanded-context .doxbench-rail,
+  .swb-regions.is-expanded-context .doxbench-canvas,
+  .swb-regions.is-expanded-rail .swb-context,
+  .swb-regions.is-expanded-rail .doxbench-canvas,
+  .swb-regions.is-expanded-canvas .swb-context,
+  .swb-regions.is-expanded-canvas .doxbench-rail { min-width: 72px; }
+}
+
+/* THE ACTUAL SPACE HOG (measured, 2026-08-02): the head is 55px; the session
+   host is 222px. It carries the session verbs AND the notebook re-sync
+   descriptor with its two full CLI command lines — reference material that was
+   permanently occupying a quarter of the panel above the working area.
+
+   Capped, not hidden: the block scrolls inside its own box, so every command
+   stays selectable and copyable while the three panes get the height back.
+   Hiding it would lose the descriptor the degrade-to-CLI path depends on. */
+.swb-sessionhost { max-height: 96px; overflow-y: auto; }
+.swb-overlay.is-fullscreen .swb-sessionhost { max-height: 150px; }
+
+
+/* ============================================================================
+   CONTEXT PANE RESTRUCTURE — the lens in three subtabs, and a docs pane split
+   between the selected document's abstract and the selector beneath it
+   (operator annotations vibe_1785602062606_397p8iakz and
+   vibe_1785602331813_gvku9sh2s).
+   ============================================================================ */
+.swb-subtabs {
+  display: flex; gap: 4px; margin: 6px 0 4px;
+  border-bottom: 1px solid var(--border);
+}
+.swb-subtab {
+  font: inherit; font-size: 11.5px; padding: 3px 10px; cursor: pointer;
+  color: var(--muted); background: transparent;
+  border: 1px solid transparent; border-bottom: none;
+  border-radius: 6px 6px 0 0;
+}
+.swb-subtab-active {
+  color: var(--ink); background: var(--panel);
+  border-color: var(--border); font-weight: 600;
+}
+.swb-subtabpanes { flex: 1; min-height: 0; overflow-y: auto; }
+.swb-subtabpane[hidden] { display: none; }
+
+/* the docs pane: abstract ABOVE, selector BELOW, each scrolling on its own so
+   a long document list never pushes the abstract out of view */
+.swb-docsplit {
+  flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px;
+}
+.swb-docabstract {
+  flex: 0 0 auto; max-height: 42%; overflow-y: auto;
+  padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--panel);
+}
+/* THE WHEEL WINDOW. This half stopped scrolling when it stopped being a list
+   (2026-08-03): a drum bounds itself — it places a fixed reel inside its own
+   window and spins, so it can neither grow nor need a scrollbar. The invariant
+   the previous slice's `overflow-y: auto` protected (a long document list must
+   never push the abstract out of view) is now enforced by the drum instead,
+   which is strictly stronger: the list cannot get long. It CLIPS, because tiles
+   past the horizon are placed outside the window by design. */
+.swb-docselector {
+  flex: 1 1 auto; min-height: 0; overflow: hidden; position: relative;
+}
+.swb-docwheel {
+  position: relative; height: 100%; outline: none;
+  /* PINNED. `.wheeltile`'s box is `56px * var(--wheel-scale)` and doc-wheel.js
+     projects against a hard-coded 56. In full screen the deck sets the scale to
+     1.33; inheriting that here would make the CSS box and the projected box
+     disagree by 18px per tile and the reel would drift apart. */
+  --wheel-scale: 1;
+}
+.swb-docwheel:focus-visible { outline: 2px solid var(--st-staged); outline-offset: -2px; }
+.swb-docwheelport { position: absolute; inset: 0; }
+/* The deck's tile is a fixed 196px in a six-column deck; here one reel owns the
+   pane, so the tile spans it. */
+.swb-doctile { left: 8px; right: 8px; width: auto; }
+.swb-doctile.swb-doctile-inherited { border-style: dashed; }
+.swb-doctile.swb-doctile-unresolved { color: var(--faint-ink); }
+.swb-docopen {
+  font: inherit; font-size: 10px; padding: 2px 8px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--ink);
+}
+.swb-docopen:disabled { opacity: 0.5; cursor: not-allowed; }
+/* THE TILE'S THREE VERBS (add-doxbench-editing-phase-b, Q3 ruled). Load and
+   Save share the read verb's chrome, because they are three verbs on one row
+   rather than three visual languages. */
+.swb-docload, .swb-docsave {
+  font: inherit; font-size: 10px; padding: 2px 8px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--ink);
+}
+.swb-docload:disabled, .swb-docsave:disabled { opacity: 0.5; cursor: not-allowed; }
+/* THE TILE MARKING, in the wheel's existing badge/colour idiom (design D9).
+   LOADED and LOADED-AND-DIRTY are separately distinguishable, because Brett
+   named both: one says "this is in the chat context", the other says "this must
+   be saved". Driven off live buffer state; never written into the snapshot. */
+.swb-doctile.swb-docloaded {
+  border-color: var(--st-staged); box-shadow: inset 0 0 0 1px var(--st-staged);
+}
+.swb-doctile.swb-docneedssave {
+  border-color: var(--st-proposal); background: var(--faint);
+  box-shadow: inset 0 0 0 2px var(--st-proposal);
+}
+/* Where a tile verb's outcome lands — a refused load (the measured loaded-set
+   bound) or a Save the governed pipeline declined. */
+.swb-docverbnote {
+  font-size: 11px; color: var(--faint-ink);
+  padding: 4px 8px; border-top: 1px solid var(--border);
+}
+.swb-row-selected {
+  outline: 2px solid var(--st-staged); outline-offset: -2px;
+  background: var(--faint);
+}
+.swb-abstracttitle { font-family: var(--mono); font-size: 12.5px; font-weight: 700; }
+.swb-abstractmeta { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.swb-abstractsummary { font-size: 12px; margin: 4px 0 6px; overflow-wrap: anywhere; }
+.swb-abstractlabel {
+  font-size: 10.5px; color: var(--muted); letter-spacing: 0.04em;
+  text-transform: uppercase; margin-top: 6px;
+}
+.swb-abstractlands, .swb-abstracttopics, .swb-abstractsignals {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px;
+}
+.swb-abstractchip {
+  font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 10px; padding: 1px 8px;
+}
+
+/* HEIGHT CHAIN (measured, 2026-08-03). `.swb-body` scrolls and `.swb-pane` is
+   unconstrained, so a restructured pane grew to its content — the docs
+   selector measured 2445px and the lens subtab pane 1079px, and every
+   `overflow-y: auto` inside them was inert because nothing bounded them.
+   These two panes now FILL the body instead of growing it, which is what
+   makes their internal scrolling real. The outline pane is untouched: it has
+   always scrolled as a whole and still should. */
+.swb-pane-docs, .swb-pane-lens { height: 100%; min-height: 0; }
+
+/* NARROW + RAIL (T104 F9-5). The T038 narrow block already parks
+   `.swb-context`/`.doxbench-canvas` at `flex: none` for the stacked column —
+   but the equal-thirds default (`.swb-regions.has-rail …{ flex: 1 1 33.33% }`)
+   outranks it (0,3,0 vs 0,1,0, and later in source), and the rail was never
+   in that block at all, so a railed workbench kept fighting for thirds of the
+   column's HEIGHT under 900px. Same selectors, later in source: with equal
+   specificity, source order alone hands the narrow posture the win. The
+   canvas's 45vh cap from the T038 block still applies — this only settles
+   the flex contest that block lost. Append-only, as ever. */
+@media (max-width: 900px) {
+  .swb-regions.has-rail .swb-context,
+  .swb-regions.has-rail .doxbench-canvas,
+  .swb-regions.has-rail .doxbench-rail { flex: none; }
+}
+
+/* W-12 (wave re-review): the flex:none block above ties the is-expanded
+   geometry on specificity (0,3,0 both) and, later in source, BEAT it — so
+   under 900px with the rail the expand controls toggled aria-pressed and
+   moved nothing. And with all three regions at natural height inside
+   .swb-panel's overflow:hidden, a tall transcript pushed the canvas below
+   the fold with no scrollbar anywhere. In the stacked column, expansion
+   means HEIGHT: the expanded pane takes the column's share, the others
+   compress to bounded, still-scrollable strips — and the railed column owns
+   its own scrolling. Later in source than the flex:none block, because with
+   equal specificity source order is the whole contest. Append-only. */
+@media (max-width: 900px) {
+  .swb-regions.has-rail { overflow-y: auto; }
+  .swb-regions.is-expanded-context .swb-context,
+  .swb-regions.is-expanded-rail .doxbench-rail,
+  .swb-regions.is-expanded-canvas .doxbench-canvas { flex: 1 1 auto; }
+  .swb-regions.is-expanded-context .doxbench-rail,
+  .swb-regions.is-expanded-context .doxbench-canvas,
+  .swb-regions.is-expanded-rail .swb-context,
+  .swb-regions.is-expanded-rail .doxbench-canvas,
+  .swb-regions.is-expanded-canvas .swb-context,
+  .swb-regions.is-expanded-canvas .doxbench-rail {
+    flex: none; max-height: 20vh; overflow-y: auto;
+  }
+}
+
+/* Theme + settings pinned to the page's top-right (Brett's 2026-08-06
+   annotations) — page chrome, out of the header's working controls. */
+.cornerbtns {
+  position: fixed; top: 10px; right: 14px; z-index: 60;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* D21 — the repository lens: the vocabulary switch, the drill-in pane, and
+   the scope banner. */
+/* the switch lives in the rail's pane header, which is the lens's only
+   chrome now — no left margin, and it must not inherit the header's
+   uppercase/tracking treatment */
+/* one nowrap row, so overflowing the rail header is what tells `fitVocabSwitch`
+   the full spelling does not fit */
+.vocabswitch { display: inline-flex; gap: 2px; text-transform: none; letter-spacing: 0; flex: none; white-space: nowrap; }
+.vocabbtn {
+  font-family: var(--mono); font-size: 11px; cursor: pointer;
+  border: 1px solid var(--border); background: none; color: var(--muted);
+  padding: 1px 7px; border-radius: 3px;
+}
+.vocabbtn:hover:not(:disabled) { background: rgba(127,127,127,0.12); }
+.vocabbtn.vocabon { color: inherit; font-weight: 700; cursor: default; opacity: 1; }
+/* offered but UNAVAILABLE (one repository: nothing to compare). Distinct from
+   `vocabon`, which is disabled only because it is the current vocabulary. */
+.vocabbtn:disabled:not(.vocabon) { opacity: .45; cursor: not-allowed; }
+.pane-drill { display: flex; flex-direction: column; gap: 2px; }
+.drill-note { font-size: 11px; color: var(--muted); line-height: 1.45; margin: 2px 0 6px; }
+/* One row = one SET: what it is on its own line, what you can do with it on
+   the next. Crammed onto one line at 270px these read as a run-on string. */
+.drill-row {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 5px 0; border-top: 1px solid var(--border);
+}
+.drill-what { font-size: 12px; line-height: 1.35; }
+.drill-acts { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.drill-count { font-family: var(--mono); font-size: 11px; color: var(--muted); flex: 1; }
+.drill-empty { font-size: 11px; color: var(--muted); padding: 4px 0; }
+.drillbanner[hidden] { display: none; }
+.drillbanner { display: flex; align-items: center; gap: 8px; }
+.drillnote { font-family: var(--mono); font-size: 11px; }
+/* add-shared-identity-seeds — the drafted register seed: read-only text the
+   human merges, so it reads as a document rather than a form. */
+.seedtext {
+  font-family: var(--mono); font-size: 11px; white-space: pre-wrap;
+  background: rgba(127,127,127,0.08); border: 1px solid var(--border);
+  border-radius: 3px; padding: 8px; margin: 6px 0; max-height: 320px;
+  overflow: auto;
+}
+/* Radar numbering (Brett's 2026-08-07 ruling): the rail and the matrix are
+   the legend, so their number column reads as a key rather than as data. */
+.kwnum[style*="--h"], .swb-kwnum[style*="--h"], .sigrid-collab[style*="--h"] {
+  color: hsl(var(--h) var(--tint-s) var(--tint-l));
+}
+.kwnum, .lensmatrix td.docnum {
+  font-family: var(--mono); font-size: 10px; color: var(--muted);
+  min-width: 18px; text-align: right;
+}
+.kwrow .kwnum { margin-right: 2px; }
+.swb-kwnum { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-right: 2px; }
+/* "what is this?" — a link where a standing paragraph used to be, and the
+   paragraph itself in a modal that costs no layout until opened. */
+.footlink {
+  border: none; background: none; cursor: pointer; padding: 0;
+  font: inherit; color: var(--muted); text-decoration: underline dotted;
+}
+.footlink:hover { color: var(--ink); }
+.aboutdialog {
+  max-width: 70ch; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--panel); color: var(--ink); padding: 16px 18px 12px;
+}
+.aboutdialog::backdrop { background: rgba(0, 0, 0, 0.35); }
+.aboutdialog p { font-size: 13px; line-height: 1.5; margin: 0 0 12px; }
+.aboutdialog code { font-family: var(--mono); font-size: 11.5px; background: var(--faint); padding: 0 4px; border-radius: 3px; }
+/* The rail says what the radar is showing — the bullseye's old header, in the
+   pane that had room for it (Brett, 2026-08-08). */
+.railsummary {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+  padding: 9px 11px; margin-bottom: 8px;
+}
+.railsum-v { font-family: var(--mono); font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.railsum-k { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.railsum-note { font-size: 11px; color: var(--muted); line-height: 1.45; margin-top: 7px; border-top: 1px solid var(--border); padding-top: 6px; }
+/* A REPOSITORY row is a tile: there are a handful of them and a tall pane. */
+.kwrow.repotile { flex-wrap: wrap; padding: 9px 11px; row-gap: 3px; }
+.kwrow.repotile .kwnum { font-size: 13px; font-weight: 700; }
+.kwrow.repotile .kw { font-size: 13px; }
+.kwrow.repotile .repostat { flex-basis: 100%; font-size: 11px; color: var(--muted); }
+/* The rail's SEARCH row: the box finds rows, the two bulk moves act on the
+   rows it shows. Nothing here changes the applied set except a tick. */
+.railsearch { display: flex; align-items: center; gap: 6px; }
+.railsearch .kwfilter { flex: 1; min-width: 0; }
+.railbulk { display: inline-flex; gap: 4px; flex: none; }
+/* The relationships the corpus already has — the lens's entry point. */
+.railrel { margin: 10px 0 6px; }
+.railrel-note { font-size: 11px; color: var(--muted); line-height: 1.4; margin-bottom: 5px; }
+/* `color: var(--ink)` is NOT redundant: a <button> does not inherit colour,
+   it gets the UA's `buttontext` — black — so this row rendered black on the
+   dark panel at contrast 1.18 (Brett, 2026-08-08: "in dark mode it is black
+   on black and not visible"). Every button reset here must state a colour. */
+.relrow {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  background: none; border: none; border-bottom: 1px solid var(--border);
+  padding: 4px 2px; cursor: pointer; text-align: left; font: inherit;
+  color: var(--ink);
+}
+.relrow:hover { background: rgba(127,127,127,0.12); }
+.relpair { flex: 1; font-family: var(--mono); font-size: 11px; }
+.reln { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.railmore {
+  background: none; border: 1px dashed var(--border); border-radius: 5px;
+  color: var(--muted); cursor: pointer; font-size: 11px; padding: 5px 8px;
+  margin-top: 6px; width: 100%;
+}
+.railmore:hover { color: var(--ink); }
+/* The SIGNATURE GRID's styles left with it (Brett, 2026-08-08: "we do not
+   need this in this view"); `signatureSummary` stays in the model for the
+   surface that wants the picture next. */
+/* The matrix selection: a column of boxes and the bar that says what they are
+   for. The bar sticks to the bottom of the scrolling pane — a selection you
+   cannot see the size of is a selection you cannot trust. */
+.lensmatrix .pickcol { width: 22px; text-align: center; padding-right: 0; }
+.lensmatrix .pickcol input { margin: 0; cursor: pointer; }
+/* clear LEFT (under the checkbox column it undoes), the draft action CENTRED
+   (the one thing this bar is for), and the empty-state hint right — three
+   grid cells, so the centre is the bar's true centre and does not drift with
+   the label's length (Brett, 2026-08-08). */
+.pickbar {
+  position: sticky; bottom: 0; display: grid; align-items: center;
+  grid-template-columns: 1fr auto 1fr; gap: 8px;
+  background: var(--panel); border-top: 1px solid var(--border);
+  padding: 6px 2px; margin-top: 4px;
+}
+.pickbar > .cbtn:first-child { justify-self: start; }
+.pickn { font-size: 11px; color: var(--muted); justify-self: end; text-align: right; }
+/* The drafted-seed panel sits directly under the radar (Brett, 2026-08-08).
+   It is a VIEWPORT and does NOT scroll — the document inside it does. Two
+   nested scrollers put the panel's own chrome out of reach of the very scroll
+   that was trying to read the text. */
+.pane-bullseye .canvas-confirm { flex: none; margin-top: 10px; overflow: visible; }
+.pane-bullseye .canvas-confirm:empty { display: none; }
+.dc-h { display: flex; align-items: center; gap: 8px; }
+.dc-title { flex: 1; cursor: help; }
+/* the refusal that stands in for the doxBench button on a read-only merged
+   view — stated where the button would be, not after a click */
+.dc-why { font-size: 11px; color: var(--muted); cursor: help; flex: none; }
+.dc-close {
+  background: none; border: 1px solid var(--border); border-radius: 4px;
+  color: var(--muted); cursor: pointer; font-size: 13px; line-height: 1;
+  padding: 2px 7px; flex: none;
+}
+.dc-close:hover { color: var(--ink); }
+/* the ONE scroller: the drafted document itself */
+.draft-confirm .seedtext { max-height: 300px; overflow: auto; scrollbar-gutter: stable; }
+/* THE JOIN: hovering any view of a document lights every other view of it —
+   the dot, its table row, its grid row (Brett, 2026-08-08). */
+tr.lit > td { background: rgba(127, 127, 127, 0.16); }
+.sigrid-row.lit .sigrid-rowlab { color: var(--ink); font-weight: 700; }
+.bullseye .lensdot.lit .dot {
+  stroke: var(--ink); stroke-width: 2; paint-order: stroke;
+}
+.bullseye .lensdot.lit .doclab, .bullseye .lensdot.lit .dotnum { font-weight: 700; }
+/* The lit dot PULSES (Brett, 2026-08-08: "we need more for the hover over
+   doc… make the dot pulse"). A ring of 32 dots is a field of identical
+   circles: a static outline has to be FOUND, and motion is the one channel
+   the eye locates without searching. It fades toward transparent rather than
+   changing size — the packing put these dots as close as they can legibly
+   sit, so a dot that grew would touch its neighbours. */
+@keyframes lensdot-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.15; }
+}
+.bullseye .lensdot.lit .dot { animation: lensdot-pulse 1.1s ease-in-out infinite; }
+/* SELECTED dots (Brett: "if I do check boxes, those dots need to change
+   color. those are the ones I am thinking of making a document about"). A
+   selection is a standing state, not a momentary one, so it reads without a
+   pointer: its own fill, and a halo so a selected dot is findable in a
+   crowded ring. `--edge-pick` is the theme's existing PICK colour — the same
+   one the funnel uses for a chosen edge — so the palette gains no new term. */
+.bullseye .lensdot.picked .dot {
+  fill: var(--picked); stroke: var(--ink); stroke-width: 1.5;
+  paint-order: stroke;
+}
+.bullseye .lensdot.picked .dot.inferred { fill: none; stroke: var(--picked); stroke-width: 2.5; }
+.bullseye .lensdot.picked .dotnum { fill: #fff; }
+.bullseye .lensdot.picked .doclab { fill: var(--picked); font-weight: 700; }
+/* the matrix row and the grid row carry the same mark, so the selection reads
+   the same in all three views */
+.lensmatrix tr.picked > td { background: color-mix(in srgb, var(--picked) 14%, transparent); }
+.lensmatrix tr.picked .docnum { color: var(--picked); font-weight: 700; }
+.sigrid-row.picked .sigrid-rowlab { color: var(--picked); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) {
+  /* the pulse is an ATTENTION cue, not information: without it the lit dot
+     still carries its outline and bold label, so removing the motion removes
+     nothing a reader needs */
+  .bullseye .lensdot.lit .dot { animation: none; }
+}
+
+/* doxBench's DRAFT view (a lens seed carried in): the document first, its
+   header fields behind a tab. The overlay's own docs/lens/outline tabs are
+   scope-bound and a draft has no scope, which is what left this region
+   empty. */
+.swb-drafttabs { display: flex; gap: 4px; margin-bottom: 8px; }
+.swb-drafttab {
+  background: none; border: 1px solid var(--border); border-radius: 5px;
+  color: var(--muted); cursor: pointer; font: inherit; font-size: 12px;
+  padding: 3px 10px;
+}
+.swb-drafttab[aria-selected="true"] { color: var(--ink); font-weight: 700; border-color: var(--ink); cursor: default; }
+.swb-draftpane { display: flex; flex-direction: column; gap: 8px; min-height: 0;
+                 flex: 1; height: 100%; }
+.swb-draftnote { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.swb-draftpane .seedtext { max-height: 460px; overflow: auto; scrollbar-gutter: stable; }
+.swb-draftpane .cbtn { align-self: flex-start; }
+/* THE BODY IS THE WORK (Brett, 2026-08-10: "the viewport of the doc body is 2
+   lines tall. this should be the entire size of the window as large as we can
+   make it"). This textarea carried NO rule at all, so it rendered at the HTML
+   default of TWO ROWS — on the one screen whose entire purpose is writing
+   prose. The pane fills the overlay body and the editor takes what is left, and
+   `resize: vertical` leaves the last word with the human. Monospace because
+   this is Markdown source, like every other editing surface here.
+
+   THE VIEWPORT-PROPORTIONAL FLOOR IS GONE (Brett, 2026-08-11, two annotations:
+   "we do not want a scroll bar on the main window. make the doc window a
+   viewport keep the our window frame steady" and, on the existing-documents
+   notice, "this widget is too small. make it taller"). Both were ONE defect,
+   and it was this floor. `min-height: 55vh` is measured against the VIEWPORT
+   while the panel is only `min(940px, 100%)` tall, so on a 1261px window the
+   editor demanded 693px of a 940px panel and:
+
+     1. crushed its flex sibling — the existing-documents notice has
+        `max-height: 30vh` but shrank to SIXTEEN PIXELS, its padding and nothing
+        else, because a column flex child with default `flex-shrink: 1` loses to
+        a sibling's honoured minimum; and
+     2. overflowed the panel, so `.swb-body`'s `overflow-y: auto` engaged and
+        the whole frame scrolled — the scroll bar Brett is pointing at.
+
+   `flex: 1` with `min-height: 0` keeps the original intent exactly — the editor
+   still takes everything left over — while letting the pane RESOLVE inside the
+   panel instead of demanding more than it has. The floor was belt-and-braces
+   for "where the flex chain cannot resolve a definite height"; the chain does
+   resolve (`.swb-panel` has a definite height, and every link between it and
+   here declares `flex: 1; min-height: 0`), so the braces were only cutting in. */
+/* The two panes and the chrome the ONE action lives in (Brett's ruling,
+   2026-08-10: keep the tabs, put one `save` on both). Only the panes swap; the
+   chrome never moves, so `save` and the answer it gives are always on screen. */
+.swb-draftbodypane {
+  flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px;
+}
+.swb-draftbodypane[hidden], .swb-draftdetails[hidden] { display: none; }
+.swb-draftdetails { flex: 1; min-height: 0; overflow-y: auto; scrollbar-gutter: stable; }
+.swb-draftchrome {
+  display: flex; flex-direction: column; gap: 8px;
+  border-top: 1px solid var(--border); padding-top: 8px;
+}
+.swb-draftchrome .swb-cactions { justify-content: flex-end; }
+/* "you already have N of this topic" — stated BEFORE the save, because the
+   engine's create-only refusal states it after (Brett, 2026-08-10). A notice,
+   not an error: a second document on a shared topic is ordinary. */
+.swb-draftexisting {
+  border: 1px solid var(--border); border-left: 3px solid var(--st-staged);
+  border-radius: 5px; padding: 7px 10px; font-size: 12px;
+  display: flex; flex-direction: column; gap: 3px;
+  /* NOT CRUSHABLE. A notice that shrinks to its own padding has stopped being a
+     notice — measured at 16px before this (Brett, 2026-08-11: "this widget is
+     too small. make it taller"). `flex-shrink: 0` makes it size to its content
+     and scroll INTERNALLY at the cap, which is what `max-height` + `overflow-y`
+     were always for; without it, default `flex-shrink: 1` handed the space to
+     the editor beside it. */
+  flex-shrink: 0;
+  max-height: 30vh; overflow-y: auto; scrollbar-gutter: stable;
+}
+.swb-draftexistinghead { font-weight: 700; }
+.swb-draftexistingrow { display: flex; gap: 8px; align-items: baseline; }
+.swb-dxpath { font-family: var(--mono); font-size: 11px; }
+.swb-dxterms { color: var(--muted); font-size: 11px; }
+.swb-dxsame {
+  font-size: 10px; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--blocked); white-space: nowrap;
+}
+.swb-dxnote { color: var(--muted); line-height: 1.5; margin-top: 3px; }
+.swb-draftbody {
+  flex: 1; min-height: 0; width: 100%; box-sizing: border-box;
+  resize: vertical; padding: 10px 12px;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px; line-height: 1.6;
+}
+
+/* The create form's per-field help, and the mark on a field only a human can
+   fill: empty means two different things here, and the form could not say
+   which (Brett, 2026-08-09). */
+.swb-chelp { display: block; font-size: 11px; color: var(--muted); line-height: 1.45; margin-top: 3px; }
+.swb-creq {
+  margin-left: 6px; font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--picked); cursor: help;
+}
+
+/* The outline tab's TEMPLATED SECTION INDEX and its add-section affordance
+   (add-staged-topic-outline-template tasks 3.2-3.4). Deliberately quiet: a
+   pre-template fragment is the normal case for most of the corpus while
+   conformance is opt-in, so nothing here reaches for the blocked/warning
+   palette — the state line is prose in the same muted voice as the lens notes. */
+.swb-outlineindex { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.swb-outlinerow { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.swb-outlinetitleline { font-family: var(--mono); font-size: 11.5px; font-weight: 600; }
+.swb-outlineline, .swb-outlineprov { font-size: 10.5px; color: var(--faint-ink); }
+.swb-outlinegap {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 11px; color: var(--muted);
+}
+.swb-outlineform { flex-wrap: wrap; margin-top: 4px; }
+.swb-outlinetitle { flex: 1; min-width: 160px; }
+.swb-outlineadd:disabled { opacity: 0.5; cursor: not-allowed; }
+.swb-outlinenote { font-size: 11px; color: var(--muted); line-height: 1.45; }

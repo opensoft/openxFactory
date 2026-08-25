@@ -1,0 +1,12 @@
+# workflow-job commissioning descriptor — recorded + gated; the authoring runs externally.
+kind: workflow-job
+schema_version: 1
+topic_id: consent-instrument-contract
+workflow: proposal-authoring
+gate_contract: workflow-gate
+authoring_outline: 'Author the OpenSpec change for staging topic ''consent-instrument-contract'':
+  proposal, design decisions, tasks, spec deltas, strict validation, README record
+  — delivered for human review and ratification.'
+status: dispatched
+dispatched_by: brettheap
+dispatched_at: '2026-08-01T01:21:34Z'

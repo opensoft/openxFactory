@@ -1,0 +1,27 @@
+# VALID parent grant. Authority travels as a GRANT, never as access to the key
+# itself: a raw key can be neither expired nor revoked, and a shared key
+# destroys attribution. The grant names audience, scope and expiry, and there
+# is no property here that could carry a key or a bearer token — possession of
+# this record confers nothing without proof of possession at exercise.
+schema_version: 1
+kind: xfactory_wallet_grant
+grant_id: grant-posting-parent-0001
+audience:
+  wallet_ref: wal-agent-poster-0001
+  holder_ref: agent:ledger-poster
+scope:
+  acts:
+    - create_transaction
+    - post_transaction
+  authority_tier: act
+  approval_posture:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: false
+    human_escalation_required_for:
+      - irreversible_external_effect
+expires_at: "2026-12-31T23:59:59Z"
+issued_at: "2026-08-07T09:00:00Z"
+issued_by: opensoft
+state: active
+distinct_holder_constraint_refs:
+  - dhc-posting-sod-0001

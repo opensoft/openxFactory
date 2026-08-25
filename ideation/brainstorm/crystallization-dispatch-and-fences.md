@@ -1,6 +1,6 @@
 # Dispatch, Scope Fences, and Fallback — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Crystallized capabilities are reached through exactly one junction —
 at job admission, before any planner runs: fingerprint → registry lookup →
@@ -15,6 +15,9 @@ post-conditions, neutral-job-envelope, capability-registry, audit-continuity
 Repository context: openxFactory (dispatch contract at the xFactory routing
 layer; fences authored per capability)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

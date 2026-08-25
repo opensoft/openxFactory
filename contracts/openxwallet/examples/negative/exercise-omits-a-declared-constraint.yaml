@@ -1,0 +1,37 @@
+# expected_failure: distinct-holder-violated
+# expected_failure_detail: not escaped by silence
+# requirement: OXW-R7
+# VIOLATES core R7 by SAYING NOTHING.
+#
+# The grant declares `dhc-posting-sod-0001`. This exercise is permitted and
+# simply carries no `constraint_evaluations` block at all — so the earlier
+# check, which iterated only over evaluations the exercise chose to record,
+# had nothing to iterate and passed it.
+#
+# A constraint that binds only when the party subject to it volunteers an
+# evaluation is not a control. Declaration lives on the GRANT, so that is where
+# the check now reads it from.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-silent-constraint-0009
+grant_ref: grant-posting-derived-0002
+act: post_transaction
+object_ref: purchase-invoice:LXRP0022
+occurred_at: "2026-08-07T13:00:00Z"
+event_class: authenticated
+proof_of_possession:
+  presented: true
+  verified: true
+  signature_algorithm: ed25519
+  signed_over: request
+  presenting_key_ref: key-poster-0001
+attribution:
+  mode: key_attributed
+  presenting_key_ref: key-poster-0001
+  wallet_ref: wal-agent-poster-0001
+  holder_ref: agent:ledger-poster
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+outcome: permitted

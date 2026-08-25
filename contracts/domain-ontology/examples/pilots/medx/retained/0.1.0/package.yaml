@@ -1,0 +1,48 @@
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+# Starter-generated DRAFT ontology package manifest
+# (add-domain-ontology-layer §4). NOT PUBLISHABLE until Domain Hermes
+# review resolves every unresolved input recorded in the rerun report
+# and the coverage-gap report; publication is a governed release
+# decision by the accountable steward, never a starter action.
+package_id: xf/medx
+package_version: 0.1.0
+namespace: xf/medx
+is_kernel: false
+lifecycle_state: superseded
+owner:
+  layer: domain_hermes
+  name: "MedxFactory Domain Hermes"
+stewards:
+  - steward_id: medx-ontology-steward
+    role: accountable_steward
+    identity_kind: human
+    name: "Medx Ontology Steward"
+  - steward_id: medx-review-council
+    role: council
+    identity_kind: council
+    name: "Medx Ontology Review Council"
+kernel_import:
+  package_id: xf/core
+  package_version: 1.0.0
+  package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+inventory:
+  - path: profile-generate.yaml
+    sha256: 04399f8d5adec683d2400f86e93a596d879ca1bd5ee8c4194b9687a15a8ecb1a
+  - path: profile-verify.yaml
+    sha256: 2a87c080745c66ca32fcdeeaa9d0301c5ef2e4196f10a39ff7c31e204eefec26
+  - path: STARTER.yaml
+    sha256: 55be4ae0ca33a9a9bb02be40e337dd3495d539e011fdcc40c7de631e57b7d756
+  - path: concepts.yaml
+    sha256: aae92ef4e9b98c6bfb19173e97411ccc1e925816c93326e720540dcea04b946a
+  - path: sources.yaml
+    sha256: 43df48ee9e7c87c1523c0e60eb0cfebf15e9eef19a17eb65535f16fc32f95f02
+  - path: stewardship.yaml
+    sha256: aaa9121eb251a75025b1976dc1989dbd4b637b851d94d8e9ff892cab64c4ac6e
+package_digest: f5af84120d8cf0b92bcfa1dc9f333a77752ee243cdf1c63d180c10e655b3bea6
+compatibility:
+  class: initial
+  line: xf/medx@1
+notes: >-
+  Starter-seeded draft awaiting Domain Hermes review; unresolved
+  semantic inputs at generation: 0.

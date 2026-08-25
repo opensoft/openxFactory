@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.18
+contract_bundle_version: contract-v1.40
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -403,7 +403,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-document-catalog-snapshot.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 6c39a6ac674ffaa2278a191ece209fd5113f5518f9e13f8b674b4191c0695d79
+    sha256: d64f2b3c7133511bdfad7ddb6fa5e2482679396a099024e6e850608b7ac1cc0d
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -829,7 +829,7 @@ contracts:
     source_path: openxFactory/contracts/hermes-domain-overlay/content-manifest.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 9511794f7a97828d1c072060ccb1bd3e26046f6b51d965b7f37bb3b7e879cc10
+    sha256: d45a8c89dd404e35f85e3778bb01ea5573b72cecc0823f3067456f5c65c13b29  # refreshed 2026-07-30 — stale since 403c2b5 (domain_ontology content kind, add-domain-ontology-layer §4); caught by review finding N7
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -840,6 +840,42 @@ contracts:
       declared-location existence is enforced by the canonical validator
       (scripts/validate-hermes-domain-overlay.py) when a repo path is
       supplied, and a consumer never loads an undeclared kind silently.
+  # ---- subject overlay — add-subject-overlay-contract realization ----
+  # The Subject layer's seedable document: the INSTANCE of a subject kind the
+  # domain's own subject_hermes_template declares, carrying policies addressed
+  # as <policy_namespace>/<policy_id>. Neither existing overlay kind could
+  # carry that address — hermes_domain_overlay hard-enums its kind and requires
+  # the domain authority block, and client-policy-overrides enumerates a CLOSED
+  # set of seven policies with no namespace and no named-policy identity.
+  # Instances live ONLY in domain repositories; openxFactory describes the kind
+  # and never hosts one. The bundle tag is allocated LATE at release per
+  # docs/contract-versioning-policy.md and recorded in contracts/CHANGELOG.md.
+  - id: hermes-subject-overlay
+    path: contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml
+    source_path: openxFactory/contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 5cd792fba0b39a83bae2937ead705397eef324704bca872dc197a80aa786ca72
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A domain repo ships its subject overlay at the path its
+      hermes/overlay-descriptor.yaml declares under the frozen `customer` role
+      key (canonical layer: `subject`, per
+      contracts/policies/layer-vocabulary.yaml legacy_mapping). Consumers
+      (the hermes-install seeder, DomainxFactory validate chains) verify this
+      per-file sha256 before treating a copy as current. Address
+      self-consistency and uniqueness (every policies key equals its policy_id;
+      every policy namespace equals the subject's), the prohibited-block list
+      (authority_boundaries / approval_scope_kinds / required_approval_fields
+      and any credential value — a subject adds constraints and never grants,
+      widens, or waives), and cross-document identity conformance against the
+      domain's own hermes/subject/template.yaml are enforced by
+      scripts/validate-hermes-domain-overlay.py (canonical), never
+      re-implemented by consumers. Two invariants openxFactory cannot check
+      without a live stack are the consumer's to enforce at seed time:
+      subject.id == the seeded layer_id, and subject.policy_namespace == that
+      layer's policy_namespace.
   # ---- omnigent contract family + layer vocabulary — contract-v1.16 realization (add-omnigent-domain-overlay; adopt-subject-tenant-domain-vocabulary) ----
   # The Omnigent execution layer's domain tier: per-domain overlay payload
   # (five neutral worker archetypes, generalized permission matrix with
@@ -860,7 +896,7 @@ contracts:
     source_path: openxFactory/contracts/omnigent/omnigent-domain-overlay.schema.yaml
     type: schema
     schema_version: 1
-    sha256: d5e090687b4da494e11bae0e1d7c663aa817c1125a75968639b1bc74f5286099
+    sha256: 54aa4308909841f08a50b9f3c191b320728a02a331a318718535ab2af00b378e  # contract-v1.23 (additive: worker semantic_context declaration; add-omnigent-semantic-wiring)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -876,7 +912,7 @@ contracts:
     source_path: openxFactory/contracts/omnigent/omnigent-install-manifest.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 27a36744c580545e2d7ede606e54bbccf0576d80ecda3016ee9a8093ea616626
+    sha256: 25ce9cfcfe451bed5e0b5ffce4cb782ebb17f33838091f45d49519d0b80e1233  # contract-v1.23 (additive: semantic_contexts install pins; add-omnigent-semantic-wiring)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -892,7 +928,7 @@ contracts:
     source_path: openxFactory/contracts/policies/layer-vocabulary.yaml
     type: policy
     schema_version: 1
-    sha256: 65f7c61a0f1338b41b479c6c0f96b82caa4f50322ca0726699484555640f26af
+    sha256: ab899563babc0840cd746a2101a77ee44b0918cf1cf1d502ff5b04360b269457  # contract-v1.22 (role text: ontology stewardship / semantic bindings)
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -948,10 +984,1437 @@ contracts:
     source_path: openxFactory/contracts/client-content/client-overlay.schema.yaml
     type: schema
     schema_version: 1
-    sha256: f67a341295b4a20284279ed5617430f56848eef4771a9b6bdae3fb11ff039b63
+    sha256: 7e74f7c0feb347c8646b0d852a9e120e43b2f9076973c78bab50a5e6b07b8ddc  # recomputed by declare-client-standing-policy-contract
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
-      Consumed through the pinned openxFactory checkout at the contract-v1.17
+      Consumed through the pinned openxFactory checkout at the tag whose
+      bundle carries this digest; per-file sha256 verified before any copy is
+      treated as current. Comparability semantics live only in the canonical
+      validator.
+      GREW ADDITIVELY at the next bundle after contract-v1.17
+      (declare-client-standing-policy-contract, closing openxFactory#254):
+      `client` gains the OPTIONAL `policy_namespace` + `policies` pair, a
+      Tenant layer's freestanding standing policy addressed
+      `<policy_namespace>/<policy_id>` and materializing to `policy_position`.
+      `client.required` is UNCHANGED, so a consumer that ignores the block
+      reads this schema exactly as it read the contract-v1.17 copy and needs
+      no re-pin. A consumer that USES the block must also honour the rules the
+      shape cannot express — the conditional namespace requirement, address
+      self-consistency and uniqueness, the declared-but-empty refusal, and the
+      `client.policies`-subtree credential scan — which live, as ever, only in
+      `scripts/validate-client-content.py`.
+  - id: pattern-ledger-episode
+    path: contracts/schemas/pattern-ledger-episode.schema.yaml
+    source_path: openxFactory/contracts/schemas/pattern-ledger-episode.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d4d88973db1bc72a2e49bf46177f14ccdd0c6d7737228ea8337e8c109b93bd00  # contract-v1.19 (add-pattern-ledger)
+    intended_consumers:
+      - Domain Hermes pattern-ledger sweep (codexFactory first conformer)
+      - crystallizer decision lane (successor change)
+      - capability steward accounting (successor change)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
       tag; per-file sha256 verified before any copy is treated as current.
-      Comparability semantics live only in the canonical validator.
+      Policy rules (consent-tiers, candidate-evidence, forecast-min-evidence,
+      score-pairing, ...) live only in the canonical validator
+      scripts/validate-pattern-ledger.py.
+  - id: pattern-ledger-outcome-label
+    path: contracts/schemas/pattern-ledger-outcome-label.schema.yaml
+    source_path: openxFactory/contracts/schemas/pattern-ledger-outcome-label.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b6fd69185fa684ec5e780333dd50a43fb6af3464fa32e652d54bb87846ac3a86  # contract-v1.19 (add-pattern-ledger)
+    intended_consumers:
+      - Domain Hermes pattern-ledger sweep (codexFactory first conformer)
+      - crystallizer decision lane (successor change)
+      - capability steward accounting (successor change)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (consent-tiers, candidate-evidence, forecast-min-evidence,
+      score-pairing, ...) live only in the canonical validator
+      scripts/validate-pattern-ledger.py.
+  - id: pattern-ledger-recurrence-family
+    path: contracts/schemas/pattern-ledger-recurrence-family.schema.yaml
+    source_path: openxFactory/contracts/schemas/pattern-ledger-recurrence-family.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d487edb25a839ca795e3eb2804b7f5eba144a7c1e3bcc04831764ff71f04c0b3  # contract-v1.19 (add-pattern-ledger)
+    intended_consumers:
+      - Domain Hermes pattern-ledger sweep (codexFactory first conformer)
+      - crystallizer decision lane (successor change)
+      - capability steward accounting (successor change)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (consent-tiers, candidate-evidence, forecast-min-evidence,
+      score-pairing, ...) live only in the canonical validator
+      scripts/validate-pattern-ledger.py.
+  - id: pattern-ledger-recurrence-forecast
+    path: contracts/schemas/pattern-ledger-recurrence-forecast.schema.yaml
+    source_path: openxFactory/contracts/schemas/pattern-ledger-recurrence-forecast.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: ad76812fc633d1b53516359bce25cb1d72aef5003f86f5fc03ba54045c7f0224  # contract-v1.19 (add-pattern-ledger)
+    intended_consumers:
+      - Domain Hermes pattern-ledger sweep (codexFactory first conformer)
+      - crystallizer decision lane (successor change)
+      - capability steward accounting (successor change)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (consent-tiers, candidate-evidence, forecast-min-evidence,
+      score-pairing, ...) live only in the canonical validator
+      scripts/validate-pattern-ledger.py.
+  - id: pattern-ledger-crystallization-candidate
+    path: contracts/schemas/pattern-ledger-crystallization-candidate.schema.yaml
+    source_path: openxFactory/contracts/schemas/pattern-ledger-crystallization-candidate.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 9dbf08482c38da0e5e4ebaa2fe65d1845e190cfdb6c79aa3d94df0e95e4a339c  # contract-v1.19 (add-pattern-ledger)
+    intended_consumers:
+      - Domain Hermes pattern-ledger sweep (codexFactory first conformer)
+      - crystallizer decision lane (successor change)
+      - capability steward accounting (successor change)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (consent-tiers, candidate-evidence, forecast-min-evidence,
+      score-pairing, ...) live only in the canonical validator
+      scripts/validate-pattern-ledger.py.
+  - id: xfactory-derived-model-conformance
+    path: contracts/schemas/xfactory-derived-model-conformance.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-derived-model-conformance.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 90f3281718042dc0368beedf6e2803d52b56f618cb8c7e714f19541906a2397f  # registered at contract-v1.19 (realized 2026-07-23 by archived add-governed-derived-model; the v1.16-v1.18 cuts missed it)
+    intended_consumers:
+      - MedxFactory (governed tier)
+      - AdxFactory (calibrated tier)
+      - LedgerxFactory (calibrated tier)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.19
+      tag; per-file sha256 verified before any copy is treated as current.
+      Invariant and tier rules live only in the canonical validator
+      scripts/validate-derived-models.py. DTN-014 flips implemented ->
+      adopted in the candidate register as domain pins advance past this
+      registering ref.
+  - id: crystallization-decision
+    path: contracts/schemas/crystallization-decision.schema.yaml
+    source_path: openxFactory/contracts/schemas/crystallization-decision.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 89477dea9e6db92ea8b6c65da8c1ec3f76ac0e07f2f93c87288f19daf94e3bf4  # contract-v1.20 (add-crystallizer-contracts)
+    intended_consumers:
+      - Domain Hermes crystallization decision lane
+      - codexFactory crystallization build lane
+      - capability steward (successor change add-capability-steward)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.20
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (candidate-required, ceiling-exceeded, braid-complete,
+      counterexample-floor, byte-golden, ...) live only in the canonical
+      validator scripts/validate-crystallizer-contracts.py.
+  - id: crystallization-spec
+    path: contracts/schemas/crystallization-spec.schema.yaml
+    source_path: openxFactory/contracts/schemas/crystallization-spec.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: e95565dfeb7d66a32496e26708d965249853eb8692a19446efbab2c30949f310  # contract-v1.20 (add-crystallizer-contracts)
+    intended_consumers:
+      - Domain Hermes crystallization decision lane
+      - codexFactory crystallization build lane
+      - capability steward (successor change add-capability-steward)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.20
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (candidate-required, ceiling-exceeded, braid-complete,
+      counterexample-floor, byte-golden, ...) live only in the canonical
+      validator scripts/validate-crystallizer-contracts.py.
+  - id: crystallization-build
+    path: contracts/schemas/crystallization-build.schema.yaml
+    source_path: openxFactory/contracts/schemas/crystallization-build.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 270472fb1d2d5ab6b83349cc0fe7513241958351612046a9a904c7eaf3c288b2  # contract-v1.20 (add-crystallizer-contracts)
+    intended_consumers:
+      - Domain Hermes crystallization decision lane
+      - codexFactory crystallization build lane
+      - capability steward (successor change add-capability-steward)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.20
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (candidate-required, ceiling-exceeded, braid-complete,
+      counterexample-floor, byte-golden, ...) live only in the canonical
+      validator scripts/validate-crystallizer-contracts.py.
+  - id: crystallization-consent
+    path: contracts/schemas/crystallization-consent.schema.yaml
+    source_path: openxFactory/contracts/schemas/crystallization-consent.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: fa600d3fc5db6b78a3bcd82f181a90dc981e53095e85a1add38bf3ff6207a3dc  # contract-v1.20 (add-crystallizer-contracts)
+    intended_consumers:
+      - Domain Hermes crystallization decision lane
+      - codexFactory crystallization build lane
+      - capability steward (successor change add-capability-steward)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.20
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (candidate-required, ceiling-exceeded, braid-complete,
+      counterexample-floor, byte-golden, ...) live only in the canonical
+      validator scripts/validate-crystallizer-contracts.py.
+  - id: crystallized-capability-registry
+    path: contracts/schemas/crystallized-capability-registry.schema.yaml
+    source_path: openxFactory/contracts/schemas/crystallized-capability-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: eb6b25754e10bb6f2409dfb38cb1d7b6f62d493fee90c19943c620b3fcb4bdc7  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: dispatch-record
+    path: contracts/schemas/dispatch-record.schema.yaml
+    source_path: openxFactory/contracts/schemas/dispatch-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b5f30c3b01f8097f62eaf4ee30df086df72dad84d05609f52a3402771428376d  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: adjudication-record
+    path: contracts/schemas/adjudication-record.schema.yaml
+    source_path: openxFactory/contracts/schemas/adjudication-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4a0d2eea86dfad0dd6cecc66e909aded3c4f3ebf10fb53cd73b06de6b80dcbda  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: sentinel-policy
+    path: contracts/schemas/sentinel-policy.schema.yaml
+    source_path: openxFactory/contracts/schemas/sentinel-policy.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 621ec7482cf1b761439a3aefa90eba1cb15ba2fa7a50666bfc91870d0ab139a4  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: capability-health-report
+    path: contracts/schemas/capability-health-report.schema.yaml
+    source_path: openxFactory/contracts/schemas/capability-health-report.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 1985360570d1f619c75185c06a8c9d837c293eee38b7f00d4c8ce24764861cf2  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: savings-entry
+    path: contracts/schemas/savings-entry.schema.yaml
+    source_path: openxFactory/contracts/schemas/savings-entry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 1cf832f99f8c605058d812237f3da67bcfb4f2551a9c65bae19a7fa87ff8ef3c  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  - id: calibration-score
+    path: contracts/schemas/calibration-score.schema.yaml
+    source_path: openxFactory/contracts/schemas/calibration-score.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 7aee1c807dfbf9ebd908f7ebca3bb9c9780d94dc88970c3df3d165744ea6c208  # contract-v1.21 (add-capability-steward)
+    intended_consumers:
+      - hermes-install dispatch junction (D9 first realization)
+      - codexFactory steward and accounting lanes
+      - domain factory repos (registry content)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: hermes-install and domain factory repos
+    consumption_rule: >-
+      Consumed through the pinned openxFactory checkout at the contract-v1.21
+      tag; per-file sha256 verified before any copy is treated as current.
+      Policy rules (digests-only, status-transition, demotion-bundle,
+      effect-class-admission, sentinel-floor, savings-anchor, ...) live only
+      in the canonical validator scripts/validate-capability-steward.py.
+  # ---- domain-ontology contract family — contract-v1.22 realization (add-domain-ontology-layer) ----
+  # The eighteen-kind semantic-plane meta-contract + the xf/core kernel
+  # (PUBLISHED 1.0.0 at digest
+  # 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038 —
+  # first governed publication 2026-07-30, publish-semantic-kernel). The canonical
+  # validator (scripts/validate-domain-ontology.py), the stewardship and
+  # compile tools, and examples/ (incl. the retained MedxFactory/
+  # codexFactory pilots and 43 indexed negatives) are content-addressed
+  # by commit; no per-file digest.
+  - id: ontology-package-manifest
+    path: contracts/domain-ontology/ontology-package-manifest.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-package-manifest.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b29cae1aa8ed6352111504cc4a3215e46148772fc6e382dc47bc887b84b1776a  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Identity, namespace, stewards, exact kernel import, digest-covered inventory, compatibility line, adoption evidence. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-concepts
+    path: contracts/domain-ontology/ontology-concepts.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-concepts.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: f217143f380c0f551f2483042cd6649e24e8592aa47c95272755ad0beee82548  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Concept registry: immutable ids, labels/aliases, definitions, acyclic multi-parent specialization. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-relations
+    path: contracts/domain-ontology/ontology-relations.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-relations.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: e349c42687b68cf6d124aba12668b25c4ed82d9dd4f260c1c5ece2ef3b71a4a2  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Relation registry with exact domain/range, deterministic characteristics, owning contract, adoption evidence. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-external-mappings
+    path: contracts/domain-ontology/ontology-external-mappings.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-external-mappings.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d83b6b02e72fb584822ed7a167181c37744364758d6a2ecb0f07a67591c52eb1  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      By-reference external code mappings; license-gated quoting, no mirrored content. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-source-inventory
+    path: contracts/domain-ontology/ontology-source-inventory.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-source-inventory.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 35717898977ef459602cde6f039bd59e314b01da47a70aa6c07f8e68ea1a8bad  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Registered authorities with license class, permitted use, review deadline. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-candidate-record
+    path: contracts/domain-ontology/ontology-candidate-record.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-candidate-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 45a433ea0f9073b7a89b20061f185f49637161d3f3d1fb93e4fc0f8585b05e57  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Append-only proposed changes; extraction run identity; steward-decided dispositions. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-release-record
+    path: contracts/domain-ontology/ontology-release-record.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-release-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 26895a9c3449e5595d66e62d5727f75c43cb39757b4f488db63464f43dc6ea1f  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Accountable publication record; per-signal quality exceptions; consumer-impact reference. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-migration-map
+    path: contracts/domain-ontology/ontology-migration-map.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-migration-map.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 39abd0ded94028d6f9e59ee4758bee21d8124853ec65307d239c5dc61b0ef245  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Breaking/retiring term dispositions across a compatibility line. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: semantic-context
+    path: contracts/domain-ontology/semantic-context.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/semantic-context.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 484efc41b2e32fc2cc35be4b9c13c4c1bf2664783da9e3f3175133da2bfd4910  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Bounded closed-or-truncated term subset with exact pins; the omnigent worker seam. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-quality-report
+    path: contracts/domain-ontology/ontology-quality-report.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-quality-report.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 0afdb31992d186a3d65753cd3a99901bf31c3848986bc5f54c0da0603dc524a6  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Computable per-release quality signals under the privacy aggregation floor. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-stewardship-policy
+    path: contracts/domain-ontology/ontology-stewardship-policy.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-stewardship-policy.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: c27c1cd48fae9992b7d9e1a4593a61cc4de1b89c7a59c8fa2f3e1cd5deae17a8  # contract-v1.24 (additive: min-or-max quality bounds; add-ontology-stewardship-hardening)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Council, mode workflows, trigger thresholds, quality gate, standing privacy floor. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-maintenance-input
+    path: contracts/domain-ontology/ontology-maintenance-input.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-maintenance-input.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 2e0452c8751105448e9c4d309aa4d465b16406ff13e30e83b977a128978d09ff  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Governed floor-respecting maintenance observations; as_of is data. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-maintenance-report
+    path: contracts/domain-ontology/ontology-maintenance-report.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-maintenance-report.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: a134548ab87a7f89f9131810280140aff8d3c79bea7b78dc6cf0d9f2608f73c1  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Append-only trigger-evaluation record; a clean check is evidence. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: semantic-context-profile
+    path: contracts/domain-ontology/semantic-context-profile.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/semantic-context-profile.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: ef8e4e53a642e8472a0e41b81d64874dc624ee16369d8f96b4b639ab0707dc9d  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Worker-scoped term subset per archetype/class, compiled per worker. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-review-fixtures
+    path: contracts/domain-ontology/ontology-review-fixtures.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-review-fixtures.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 61c7f826797c27910687f0b5391eb844fab948404442c43e344a15e0ada25df9  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Labeled positive/negative/representative review cases per term. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-coverage-gap-report
+    path: contracts/domain-ontology/ontology-coverage-gap-report.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-coverage-gap-report.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 6a498d4d264bf53a7ee7bdead3e9045f2512b7e2baa7336f18ad046d92bd9136  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Starter-refreshed inventory of unanswered ontology scope. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-starter-provenance
+    path: contracts/domain-ontology/ontology-starter-provenance.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-starter-provenance.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 135e74205584cc44e72f62675ea1062d8b5fc3c14cd40668f12e20905310c9f9  # contract-v1.24 (additive: structural placeholders; add-ontology-stewardship-hardening)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The starter marker: generating starter version, ontology-aware. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-consumer-impact-report
+    path: contracts/domain-ontology/ontology-consumer-impact-report.schema.yaml
+    source_path: openxFactory/contracts/domain-ontology/ontology-consumer-impact-report.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 1436375cf9c8412f4ef4d481e612282e2d0ec681f0f461a91d829eeba8949394  # contract-v1.22 (add-domain-ontology-layer)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Breaking/retiring impact: affected domain terms + consumer pins, never tenant bindings. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-kernel-manifest
+    path: contracts/domain-ontology/core/package.yaml
+    source_path: openxFactory/contracts/domain-ontology/core/package.yaml
+    type: semantic_kernel
+    schema_version: 1
+    sha256: 10105bd76dbdc87ca1d8eb244df886634127691eb146c6cbce6e707fe09e7058  # refreshed post-v1.25 (P3 notes correction; the v1.25 inventory is a tag snapshot)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The xf/core kernel package manifest (draft, digest-covered inventory). Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-kernel-concepts
+    path: contracts/domain-ontology/core/concepts.yaml
+    source_path: openxFactory/contracts/domain-ontology/core/concepts.yaml
+    type: semantic_kernel
+    schema_version: 1
+    sha256: 07ba15b6146dec5fb417d147fac43513800f04bdc249ea7abf77c25877fd54a5  # contract-v1.25 (kernel published 1.0.0; publish-semantic-kernel)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The 24 kernel concept primitives, each naming its owning contract with evidenced adoption. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  - id: ontology-kernel-relations
+    path: contracts/domain-ontology/core/relations.yaml
+    source_path: openxFactory/contracts/domain-ontology/core/relations.yaml
+    type: semantic_kernel
+    schema_version: 1
+    sha256: 9034114930ca7a3c197ec97777e5c5e252d051ee55c42ca0a50c959fc5250205  # contract-v1.25 (kernel published 1.0.0; publish-semantic-kernel)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The 9 kernel relation primitives with exact domain/range, owning contracts, evidenced adoption. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
+  # ---- ideation-dashboard workbench contract surface — contract-v1.26 realization (add-staging-workbench 1.7, add-workbench-bullseye-and-create 1.6, add-dashboard-repo-selector 1.6, add-workbench-branch-sessions 1.6) ----
+  # The family's FIRST manifest registration beyond contracts/README.md's doc
+  # index (the ideation-possibles-register precedent, contract-v1.14): the
+  # dashboard projection snapshot (staged-topic growth, add-staging-workbench),
+  # the gate-action record (create/document action growth per
+  # add-workbench-bullseye-and-create; session-verb 1.1/1.2 growth plus the
+  # D23 `provenance` block per add-workbench-branch-sessions 1.8), and the NEW
+  # snapshot-index locator (add-dashboard-repo-selector). All growth is
+  # additive — no contract_schema_version bump. Per-file sha256 over each
+  # schema's bytes. The delegated strict validator
+  # (scripts/validate-ideation-dashboard-contracts.py) stays content-addressed
+  # by commit; no per-file digest. Realized at the contract-v1.26 additive
+  # cut per docs/contract-versioning-policy.md.
+  - id: ideation-dashboard-snapshot
+    path: contracts/schemas/ideation-dashboard-snapshot.schema.yaml
+    source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 6a3b496c59cea9cfb232e35d21b4864a928287c7b98b5436aac0c83d9c14e9b3
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The deterministic ideation-dashboard projection snapshot, including the
+      staging-workbench staged-topic growth (add-staging-workbench).
+      Consumers read snapshots emitted against this schema through their
+      pinned openxFactory checkout at the contract-v1.26 tag and MUST verify
+      the per-file sha256 before treating a copy as current. Snapshot referential integrity and every rule the shape
+      cannot express are enforced by
+      scripts/validate-ideation-dashboard-contracts.py (the family's
+      delegated owner), never re-implemented by consumers.
+  - id: xfactory-workbench-model-catalog
+    path: contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The doxBench approved-model catalog wire envelope
+      (add-workbench-integrated-editor-chat 2.1): the GET
+      /workbench/model-catalog success body, public allowlist only,
+      structurally closed against credentials/endpoints/secret names. An
+      empty models array is the successful editor-only posture. The allowlist
+      is the SEVEN REQUIRED base fields plus, since contract-v1.38, the THREE
+      OPTIONAL routing-declaration fields — routing_rule, routes_to,
+      resolved_model_id — which travel together and are ABSENT from a plain
+      entry, so a consumer that reads only the seven stays correct against
+      every catalog it could already read. A consumer that offers an `auto`
+      entry MUST read all three: routing_rule says the entry is a rule rather
+      than a model, resolved_model_id is the model that ANSWERS (and is what
+      a turn record's model_id carries), and the entry's own data_handling
+      states the posture of every model in routes_to. Consumed through the
+      pinned openxFactory checkout at the contract-v1.38 tag; per-file sha256
+      verified before any copy is treated as current. Catalog rules the shape
+      cannot express — routing resolution, the badge covering, the
+      availability and headroom rules — are enforced by
+      scripts/validate-ideation-dashboard-contracts.py (the family's
+      delegated owner), never re-implemented by consumers.
+  - id: xfactory-workbench-chat-turn
+    path: contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d8ee5624f2136977044971b17fe67fe31b057bbf621e14853069fd082019b254
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The doxBench grounded chat-turn wire family
+      (add-workbench-integrated-editor-chat 2.1): one file, now SIX closed
+      envelopes discriminated by kind — the v1 request, validated success and
+      fixed redacted failure, plus the co-resident widened v2 family
+      contract-v1.34 adds (add-doxbench-editing-phase-b design D15).
+      Exact-UTF-8 SHA-256 content identity; working_subject is non-identity by
+      type; only limit failures carry measured data. The v1 request carries
+      exactly one outline and one document buffer; the v2 request carries the
+      outline plus every LOADED document, DECLARES its bound-buffer key, and its
+      record states that key, the per-buffer observed hashes by key, a
+      buffer-key proposal target, and the selected-model metadata. SINCE
+      contract-v1.40 the v2 RECORD also carries `context_packet` — the POSTURE
+      (`full | reduced`) the turn's bounded context packet was assembled under,
+      plus that reduction's own reason. A consumer that reports how a turn was
+      grounded MUST read it; a consumer that does not may ignore it, exactly as
+      before. Its ABSENCE is not a posture claim: it means the producer predates
+      contract-v1.40, never that the context was full. The reason is present IFF
+      the posture is `reduced` (two schema conditionals, restated in the
+      delegated validator). The DEPRECATED v1 success envelope is NOT widened
+      and cannot state a posture — a recorded limitation, not an omission; the
+      migration path is the v2 envelope. The v1 family is DEPRECATED at
+      contract-v1.34 with removal target contract-v2.0
+      (schema `deprecated_envelopes`; CHANGELOG migration note); it keeps
+      validating and is still served until then. Consumed through the pinned
+      openxFactory checkout at the declared tag; per-file sha256 verified before
+      any copy is treated as current. Hash parity, budget, unknown-model,
+      duplicate turn-id, proposal-target, bound-buffer membership,
+      context-posture pairing, and failure-pairing rules are enforced by
+      scripts/validate-ideation-dashboard-contracts.py, never
+      re-implemented by consumers.
+  # ---- action-plane + worker-enrollment contract surface — contract-v1.29 realization ----
+  # Registers add-ideation-intent-plane 2.4, add-wheel-action-verbs 1.5,
+  # and add-worker-enrollment-broker 1.11 in one additive bundle. The
+  # gate-action record grows three commission actions and cluster_id without
+  # invalidating any prior record; gate-intent is registered for the first
+  # time at its wheel-expanded shape. Worker enrollment publishes seven
+  # schema kinds for the contract-first broker/host/policy realization.
+  # Canonical validators and packaged fixtures are content-addressed by the
+  # exact release commit; every schema below carries a raw-byte sha256.
+  - id: gate-action-record
+    path: contracts/schemas/gate-action-record.schema.yaml
+    source_path: openxFactory/contracts/schemas/gate-action-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 445a7e09c47a6c6da952e790ab423510804252685106f0759069c886ff291a17
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The human-authenticated gate-console action audit record (D16/D17),
+      including the create/document action growth
+      (add-workbench-bullseye-and-create), the branch-session verb growth
+      (add-workbench-branch-sessions 1.1/1.2), and the D23 `provenance`
+      block — surface + console_presence, stamped where the fact is known
+      (add-workbench-branch-sessions 1.8) — plus the contract-v1.29 wheel
+      commissions `promote-to-staging`, `derive-possibles`, and
+      `research-brief`, with verb-specific targets and required workflow-job
+      companions, and the contract-v1.36 `share-session` action — the doxBench
+      workbench verb that commits a session's dirty thread sidecars and pushes
+      the session branch, constrained on `target.ref` with NO artifact-kind
+      requirement because its record is branch-resident when it commits and
+      main-resident when it has nothing to commit. Consumed through the pinned
+      openxFactory checkout at the contract-v1.36 tag; per-file sha256 verified
+      before any copy is treated as current. The kickoff-ratification precondition, transition legality,
+      and wheel commission pairings are
+      enforced by scripts/validate-ideation-dashboard-contracts.py (the
+      family's delegated owner), never re-implemented by consumers.
+  - id: gate-intent
+    path: contracts/schemas/gate-intent.schema.yaml
+    source_path: openxFactory/contracts/schemas/gate-intent.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 649aa0160397f6a320c2991a52b9b0e04a7bb846a5e9c0a7e853750989eba3b4
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The attributed request envelope for zero-write-authority dashboard and
+      mobile actions: actor, verb, target, args, snapshot revision, idempotency
+      key, and pending/applied/refused lifecycle. Registered for the first time
+      at contract-v1.29 with the three wheel commission verbs in lockstep with
+      gate-action-record. Consumers MUST pin the release commit and verify this
+      digest; status conditionals, request-to-record linkage, and verb-specific
+      targets are enforced by scripts/validate-ideation-dashboard-contracts.py.
+  - id: worker-enrollment-audit-record
+    path: contracts/worker-enrollment/worker-enrollment-audit-record.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-enrollment-audit-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4b6fc81aa1e2a80e6a8a8dcbc1162182bb041b1891864bcecb40703291d61b88
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The redaction-by-shape audit record for enrollment, renewal, refusal,
+      revocation, and remove-token decisions. Consumers pin contract-v1.29
+      and run scripts/validate-worker-enrollment.py from that checkout.
+  - id: worker-enrollment-grant
+    path: contracts/worker-enrollment/worker-enrollment-grant.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-enrollment-grant.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 9a86604a55fa29b97d8b6487040d7511cb87a49d387ed770ee018276b993f0d3
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: worker-enrollment-policy
+    path: contracts/worker-enrollment/worker-enrollment-policy.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-enrollment-policy.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b4f98d5406ef073b656a3976e51d2cb71d2cfa0236229ede73accb30c514a597
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: worker-enrollment-request
+    path: contracts/worker-enrollment/worker-enrollment-request.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-enrollment-request.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d33c82288112033fabd88e5a36c9aa395bb714f761af7379ccb3da3621716739
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: worker-lease-renewal
+    path: contracts/worker-enrollment/worker-lease-renewal.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-lease-renewal.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b77fb5ce5668f4319082e4c309797ff01c199f8ad755fe4b6bcae0a7424e7735
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: worker-lease
+    path: contracts/worker-enrollment/worker-lease.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-lease.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 9c293401c8c75c5da3bb1e9ce3b26b114ef0e1055aa2de64a73bc655b55872c8
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: worker-removal-grant
+    path: contracts/worker-enrollment/worker-removal-grant.schema.yaml
+    source_path: openxFactory/contracts/worker-enrollment/worker-removal-grant.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: fead90e6ae91430ded30c449a2b0523c778e626bc634584165c1c2f9c5a2384c
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: ideation-dashboard-snapshot-index
+    path: contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml
+    source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 43acf0bb92abf95fc09b3705338b0fb68cfd0319a00bfc44d25811a6e2290000
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The thin (repository, ref) locator that enumerates available
+      ideation-dashboard snapshots and where each lives
+      (add-dashboard-repo-selector; design D3). The repository selector
+      renders this index and refresh re-fetches it. Consumed through the
+      pinned openxFactory checkout at the contract-v1.26 tag; per-file
+      sha256 verified before any copy is treated as current. Locator-side rules the shape cannot express are enforced by
+      scripts/validate-ideation-dashboard-contracts.py (the family's
+      delegated owner), never re-implemented by consumers.
+  # ---- cross-factory ideation routing — contract-v1.30 registration (add-cross-factory-ideation-routing task 2.4) ----
+  # The packaged corpus (examples/ideation-routing/, 8 valid + 8 invalid) and the
+  # strict validator (scripts/validate-ideation-routing.py) are content-addressed
+  # by commit; no per-file digest (the possibles-register precedent).
+  - id: xfactory-idea-routing-record
+    path: contracts/schemas/xfactory-idea-routing-record.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-idea-routing-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4e182210fdb6b4a4b604a479a3073fd59018c25a230ef9856ab41f7dddccd64d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Canonical cross-factory idea routing record (routing.yaml): one per unclassified, mixed, cross-domain, or claim-split idea, with the controlled state vocabulary, transition graph, destination acceptance, numeric confidence, and evidence references.
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: xfactory-idea-routing-reference
+    path: contracts/schemas/xfactory-idea-routing-reference.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-idea-routing-reference.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 103217fc7a0ea06b7d2c2e225612d57b0924c0b4d8fd64f99fa080525768d5ef
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Reusable structured repository/path/revision reference $defs kernel (the routing-reference kernel other ideation families $ref); no top-level envelope.
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: xfactory-ideation-routing-index
+    path: contracts/schemas/xfactory-ideation-routing-index.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-ideation-routing-index.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: e570f72297b2cead0cb109d144d0d2eec1236bc5f829ae6fc386956ac4bd9671
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Central Idea-ID allocation ledger (ideation/routing-index.yaml): the single uniqueness authority for Idea IDs and Claim IDs.
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: xfactory-ideation-organizer-recommendations
+    path: contracts/schemas/xfactory-ideation-organizer-recommendations.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-ideation-organizer-recommendations.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 8ae32616a62379f8bc5d5a71863e8a13d4e7c113b94fb53d2557757d837d0d37
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Immutable, non-mutating ideation-organizer recommendation evidence: bounded model output linked from reports, never a routing mutation.
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  # ---- consent-instrument family — contract-v1.30 registration (add-consent-instrument task 1.6; DTN-016) ----
+  # The packaged corpus (examples/consent-instrument/, 5 valid + 5 invalid + purpose
+  # probes) and the canonical validator (scripts/validate-consent-instruments.py)
+  # are content-addressed by commit; no per-file digest.
+  - id: consent-instrument
+    path: contracts/schemas/consent-instrument.schema.yaml
+    source_path: openxFactory/contracts/schemas/consent-instrument.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 13b0fe46fdb8791020b426dcd763aced2a3280a82923b32d3a0d0877ab6ad441
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The xfactory_consent_instrument record kind — the authority-chain root: parties by rung (incl. estate hosts), scope with stated out-of-scope, delegation clauses, autonomy position, authority_basis, revocation right + SLA, opaque signed-original custody, the closed six-state lifecycle with declared aliases, amendment deltas, dependent-artifact references, and the declared consent-profile mapping (or explicit data_consent: none).
+      Registered at contract-v1.30; digest refreshed at contract-v1.33 by
+      add-client-identity-roster, which bumps this schema's
+      contract_schema_version 1 -> 2 for two ADDITIVE growths: the
+      lifecycle enum gains `withdrawn` as a SECOND TERMINAL state (a
+      DISTINCT member, never an alias of `terminated`, because
+      withdrawal by the consenting party and termination are distinct
+      events that both raise the cascade obligation), and dependent_refs
+      gains the named `governed_identity` kind with its two evidence
+      siblings (identity_removal_evidence, admission_withdrawal_evidence)
+      so the cascade reaches a standing identity in another party's
+      tenant. The RECORD envelope's schema_version stays const 1 — the
+      per-row schema_version below mirrors that const, not the schema
+      file's contract_schema_version — because bumping it would
+      invalidate every instrument in the estate, which is the opposite
+      of additive. Consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: consent-instrument-class-registry
+    path: contracts/schemas/consent-instrument-class-registry.schema.yaml
+    source_path: openxFactory/contracts/schemas/consent-instrument-class-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: fc4c574fc7ee71dbd18cb94662926354cf5a542d5e2cae211e31d0b885143457
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The domain-owned CLOSED instrument-class registry: every class declares its custody-anchor and execution-evidence kinds, its signature_phase posture (false is the declared direct-to-executed skip), and any per-domain status aliases.
+      Registered at contract-v1.30; digest refreshed at contract-v1.33 by
+      add-client-identity-roster, which bumps this schema's
+      contract_schema_version 1 -> 2: the status_aliases target enum
+      tracks the instrument schema's six-state lifecycle, so a domain
+      spelling MAY now map to `withdrawn`. ADDITIVE — no existing alias
+      declaration becomes invalid — but declaring `withdrawn` ITSELF as
+      an alias of `terminated` is nonconformant. The per-row
+      schema_version below mirrors the RECORD envelope's const, not this
+      contract_schema_version. Consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: consent-purpose-model
+    path: contracts/schemas/consent-purpose-model.schema.yaml
+    source_path: openxFactory/contracts/schemas/consent-purpose-model.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d00cf6ee3f600321c223f950aab44e964230c2cf2888b3ab5b98104df873e5bb
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The domain-declared purpose model the neutral purpose-resolution check (D4) resolves instrument purposes against; access SHAPES stay technical contracts owned elsewhere.
+      Registered at contract-v1.30; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  # ---- openxWallet core + agent profile — contract-v1.31 registration (add-openxwallet, feature 006-openxwallet-contracts) ----
+  # The packaged corpus (contracts/openxwallet*/examples/, 16 valid + 33
+  # intended-invalid) and the strict validator (scripts/validate-openxwallet.py)
+  # are content-addressed by commit; no per-file digest (the possibles-register
+  # and ideation-routing precedent). Five digests below refreshed 2026-08-08
+  # (docs-truth pass, pre-tag: description/comment corrections only — see
+  # specs/006-openxwallet-contracts/traceability.yaml `review_docs`).
+  - id: openxwallet-record
+    path: contracts/openxwallet/openxwallet-record.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 2012ef432616e73ddaead17c5e79aefacef712c2049ff649c15d7230b1d4eb08
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The wallet record: holder, a key REFERENCE, and a declared custody model. Every object closes additionalProperties so no key-shaped property can be added at any depth.
+      Registered at contract-v1.31; digest refreshed by the additive
+      signature-algorithm widening (rsa-2048-sha256, rsa-3072-sha256 —
+      measured against BC 28.3 AL by the first consumer), which was
+      pending in the CHANGELOG's Unreleased block and is FOLDED INTO the
+      contract-v1.32 cut; the digest itself is unchanged by that fold.
+      Consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before
+      any copy is treated as current.
+  - id: openxwallet-custody-registry-schema
+    path: contracts/openxwallet/openxwallet-custody-registry.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-custody-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: df72638497a7f90c2a4dff47c429cb794bc4b6e270ce2dd2b17116478ae3b51a
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The shape of the closed custody enumeration, including the derivation that makes `evidences` checkable rather than asserted.
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-custody-registry
+    path: contracts/openxwallet/openxwallet-custody.registry.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-custody.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: 94d631d6ee76dab015628a1856afd82582b98d6a3733622c9afe8b13b5278539
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE CLOSED CUSTODY SET and the ordered authority ladder it caps: three members, what each evidences, and the two deliberate non-members (asserted identity, shared credentials).
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-grant
+    path: contracts/openxwallet/openxwallet-grant.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-grant.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: fde433c5821e2e6f62926a72c58a67a784961d2e9e27e9f2b3520fcc8e738e88
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The attenuated capability grant: audience, scope, expiry, optional parent. Carries no key and no bearer token; possession confers nothing.
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-grant-exercise
+    path: contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: f16ad31246186cec36e142ae39bd831d98fbc5c0afd48685057bc39e113c8858
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The exercise record: proof of possession, event class, key attribution, the revocation check performed at use, and distinct-holder evaluations.
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-distinct-holder-constraint
+    path: contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: c2a6d2fd23fb3743fdaf0e165dabc4cb1dff24e52a8262a38c86ed1482374b25
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A consuming capability's opt-in declaration that two named acts on one object must be exercised by different holders.
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-subject-attestation
+    path: contracts/openxwallet/openxwallet-subject-attestation.schema.yaml
+    source_path: openxFactory/contracts/openxwallet/openxwallet-subject-attestation.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d29eca519462aff7871de3786f19c820e9fc3b95115ce30e57d1f1cc2bc0c0b2
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The optional wallet reference a subject may carry: attestation, never identity, with the wrong reading made unrepresentable.
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: openxwallet-agent-composition
+    path: contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
+    source_path: openxFactory/contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: aed3978e8ae952f3ff5b3de1f672bba5da350d5aaeb442feafaa870b4de4be91
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The agent profile's composition declaration: the hash, the component set it covers, and each component's binding mode (content digests it; reference covers a corpus's identity and governing configuration but not its contents).
+      Registered at contract-v1.31; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  # ---- client-identity-roster + the credential-contracts first registration —
+  # contract-v1.33 registration (add-client-identity-roster, feature
+  # 007-client-identity-roster) ----
+  # The packaged corpus (examples/client-identity-roster/, 4 example YAMLs + a
+  # README + 31 registered negatives) and the canonical validator
+  # (scripts/validate-client-identity-roster.py) are content-addressed by
+  # commit; no per-file digest (the consent-instrument and openxWallet
+  # precedent).
+  - id: client-identity-roster
+    path: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 786a1e4426ff4e84c63f7384fa248adeb38c4a402288b638fa4402efee5c8330
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      TWO KINDS BEHIND ONE top-level oneOf: the roster FRAGMENT — one client as seen by one owning domain, every governed identity standing in that client's provider tenant keyed on the five-element tuple (domain, admission surface, authority class, blast-radius unit, duty), with verified admission and achieved scope, structural scoping preferred, declared provider-forced breadth, and the fragment-scoped free-token legend — and the report-only DRIFT FINDING that cites an entry when observed state departs from the declaration.
+      DECLARED PLACEMENT (FR-020, FR-036): a domain's fragments live at
+      credentials/client-identity-roster/<client_ref>.yaml in the domain
+      repository — ONE FILE PER (client, domain) PAIR, a DIRECT CHILD of
+      that directory and never nested beneath it. That tree sits inside
+      the tree scripts/validate-credential-contracts.py already scans
+      recursively, and THAT VALIDATOR'S SKIP-WITH-NOTICE OVER THESE
+      FILES IS EXPECTED AND BLESSED, not a coverage gap: the canonical
+      roster validator (scripts/validate-client-identity-roster.py)
+      claims exactly that path, and additionally sweeps the whole target
+      repository for this kind so a misplaced fragment is reported
+      rather than unseen. The DRIFT kind carries no placement rule in
+      this release. Both kinds declare schema_version const 1, which is
+      what the per-row schema_version above mirrors — not the schema
+      file's contract_schema_version. A placement change is a contract
+      change. Registered at contract-v1.33; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  - id: credential-contracts
+    path: contracts/schemas/xfactory-credential-contracts.schema.yaml
+    source_path: openxFactory/contracts/schemas/xfactory-credential-contracts.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 08e180683d8a3cfae2656a2aee508f1d17e9d696f4f57814ecf960c9d71a6180
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The five credential-contract record kinds promoted from OpsxFactory evidence (promote-credential-contracts, DTN-004): credential requirements, runtime capability grant, credential binding, credential broker contract, and credential audit policy. Domain content — families, scopes, workflow and action names, providers — is domain-local; this schema constrains SHAPE only, and the semantic invariants stay in docs/credential-access-model.md.
+      FIRST registration at contract-v1.33. The schema was promoted at
+      DTN-004 without a manifest row; add-client-identity-roster
+      registers it here, so the digest cross-repo consumers verify now
+      exists for the file they pin. Registered in the same cut as its
+      one ADDITIVE growth: the OPTIONAL issuance_preconditions object on
+      a credential-requirement, a CLOSED vocabulary
+      (accepted_request_required, registered_active_subject,
+      roster_drift_clear_required) in which every value is const true,
+      because a precondition is DECLARED or NOT DECLARED — false would
+      read as governance while asserting nothing. Declaring nothing at
+      all leaves a requirement record valid. Consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any
+      copy is treated as current.
+  # ---- identity-brokering contract family — contract-v1.37 registration (add-identity-brokering, feature 008-identity-brokering-contracts) ----
+  # The packaged corpus (contracts/identity-brokering/examples/, 14 positive
+  # examples + 41 intended-invalid negatives, coverage closed in both
+  # directions at 9/9 requirements), the family README, and the strict
+  # validator (scripts/validate-identity-brokering.py) are content-addressed
+  # by commit; no per-file digest (the openxWallet and client-identity-roster
+  # precedent). The six schemas below carry per-file sha256 over their bytes.
+  - id: identity-brokering-persona-assertion
+    path: contracts/identity-brokering/persona-assertion.schema.yaml
+    source_path: openxFactory/contracts/identity-brokering/persona-assertion.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: cfa4718dc2014e516c41e6cb4a59dddc9819bb7c3d898a2bdac50196048c698e
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      What a conformant broker asserts about an authenticated human: the issuing broker INSTANCE, the stable opaque subject, the display name, the federated upstream identities and the organization memberships — and nothing else.
+      THE PROPERTY SET IS A CLOSED ALLOW-LIST AT EVERY DEPTH, so a role,
+      group, grant, project, stack, layer or entitlement has nowhere to go
+      and the never-mirror rule is enforced by the SHAPE rather than by
+      review; the canonical validator re-derives that allow-list from this
+      schema and refuses an unrecognized property BY NAME, never by
+      denylist. A membership records ASSOCIATION and carries no role, scope
+      or permission, and its `organization_id` uses a NARROWER pattern than
+      the family's general identifier (no ':' and no '/') so a tenancy path
+      cannot be smuggled in as a membership. Registered at contract-v1.37;
+      consumed through the pinned openxFactory checkout with per-file
+      sha256 verified before any copy is treated as current.
+  - id: identity-brokering-broker-organization
+    path: contracts/identity-brokering/broker-organization.schema.yaml
+    source_path: openxFactory/contracts/identity-brokering/broker-organization.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 7ebfb3386485394eb68df451a6cd11e994d8df4cc7e235e79a28d77f18226679
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A company boundary as the broker holds it. `company_role` is `tenant` or `served`, and the tenant/operator company and the subject/served company are the SAME KIND of record — an organization a persona belongs to, never a separate persona and never a separate identity population.
+      A COMPANY BOUNDARY IS NOT A HERMES LAYER: the family carries an
+      explicit bridge (`tenant` -> `tenant`, `served` -> `subject`) whose
+      TARGETS the canonical validator READS at run time from
+      contracts/policies/layer-vocabulary.yaml, together with that policy's
+      reserved terms, so renaming a canonical layer fails loudly instead of
+      leaving this family speaking a second spelling of the layer model.
+      THE POINTER-NOT-PROJECTION LINE LIVES HERE: `governed_record_refs` is
+      bounded at ONE item, closed to a record kind, a reference and the
+      declaration that it resolves in the governed layer. Registered at
+      contract-v1.37; consumed through the pinned openxFactory checkout
+      with per-file sha256 verified before any copy is treated as current.
+  - id: identity-brokering-actor-subject-reference
+    path: contracts/identity-brokering/actor-subject-reference.schema.yaml
+    source_path: openxFactory/contracts/identity-brokering/actor-subject-reference.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: a71cefc1eece07741b49c04bba06dd4548a7f9b5afa7afa63267a809e30bf591
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The reference a governed record embeds when it names a human actor: issuer (the broker instance), the stable opaque subject, the display name as it stood when the record was written, and a provenance discriminator — the STRUCTURED reference, not a bare identifier (design OQ-3, settled at realization per the change's task 2.3).
+      THREE PROVENANCE CLASSES, AND THE WRONG COMBINATIONS ARE
+      UNREPRESENTABLE: `broker_asserted` admits neither a pre-broker block
+      nor a mapping; `pre_broker_username` admits neither issuer nor
+      subject and carries the PERSONA BOUNDARY DATE plus a required
+      constant `presented_as_persona: false`; `mapped_historical_actor`
+      requires the mapping that resolved the bare username, with its
+      mapper, date and evidence reference. That is OQ-1's settlement —
+      mark the boundary date and map on demand, never blanket-backfill,
+      because a backfill asserts identity resolutions nobody verified.
+      Registered at contract-v1.37; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: identity-brokering-identity-link-record
+    path: contracts/identity-brokering/identity-link-record.schema.yaml
+    source_path: openxFactory/contracts/identity-brokering/identity-link-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: f333495eb490fc072e2e0d44c5959f3a1e50d75c9da2bd113d15f1a3f50e0f54
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The record of a federated identity joining an existing persona. EXACTLY TWO MODES EXIST AND EACH REQUIRES ITS ACTOR BY SHAPE: a `self_link` without an initiating persona and an `admin_merge` without an approving administrator are both unrepresentable, and there is no third mode.
+      LINKING ON AN ATTRIBUTE MATCH — an email address above all — cannot
+      be written here: an upstream provider may assert an address it never
+      verified, so attribute-match auto-linking is an account-takeover
+      primitive whose resulting merge cannot be undone from the audit
+      record. The canonical validator READS the admissible bases out of
+      this schema at run time, so the check and the shape cannot drift
+      apart. EVERY PRE-MERGE SUBJECT IS CARRIED, each with the surviving
+      subject it remains resolvable to, so records already written against
+      a losing identifier stay attributable. Registered at contract-v1.37;
+      consumed through the pinned openxFactory checkout with per-file
+      sha256 verified before any copy is treated as current.
+  - id: identity-brokering-broker-client-declaration
+    path: contracts/identity-brokering/broker-client-declaration.schema.yaml
+    source_path: openxFactory/contracts/identity-brokering/broker-client-declaration.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: fa578d2392e6f9d4a419797fa1485104303a782a50dca8a89466f9ab59d0e62c
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A broker service client, declared as TRANSPORT: a client may be provisioned only where a surface genuinely needs OIDC tokens, and the declaration must STATE THAT REASON, so provisioning one is a visible act rather than a default.
+      THE SHAPE CARRIES NO ACTOR ROLE AND NO AUTHORITY — there is no
+      property in which an organization membership, role, group or grant
+      could be written, and the three transport declarations are REQUIRED
+      CONSTANTS (`is_transport: true`, `actor_of_governed_acts: false`,
+      `organization_membership_as_authority: false`), so a client
+      asserting itself an actor, or asserting membership as authority, is
+      not something this shape can say. Non-human authority stays where
+      the family already ratified it — `credential-contracts` grants and
+      `openxwallet` holders — and EVERY CREDENTIAL HERE IS A REFERENCE to
+      a credential-contracts requirement with a named holder and declared
+      custody, stored nowhere in this family. Registered at
+      contract-v1.37; consumed through the pinned openxFactory checkout
+      with per-file sha256 verified before any copy is treated as current.
+  - id: identity-brokering-surface-adoption
+    path: contracts/identity-brokering/surface-adoption.schema.yaml
+    source_path: openxFactory/contracts/identity-brokering/surface-adoption.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 2c34399421a29b480abdfdf4ea81cb04384999f4efdb9734b4f78d0f7f9657d7
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A surface's adoption record: the authorization posture it declares, the instance it authenticates against, the shared secret the adoption retires, and the isolation the population it serves requires.
+      A WRITE ACTION CANNOT HIDE UNDER THE WEAK POSTURE:
+      `governed_write_actions.offered: true` requires
+      `authorization_posture: resolved_authorization` AND a named governed
+      decision point by shape, and a NON-EMPTY `actions` list requires
+      `offered: true`, so acquiring a write action is a VISIBLE CHANGE OF
+      POSTURE rather than an unremarked commit.
+      `resolved_authorization.resolves_in` has ONE legal value,
+      `governed_layer` — membership is an INPUT to a decision taken
+      elsewhere, never the decision itself — and
+      `human_accounts_held_by_surface` is a required constant `false`.
+      Isolation escalates by broker INSTANCE, and the contract stays
+      SILENT on instance count so a non-tenanted per-clinic deploy stays
+      conformant. Registered at contract-v1.37; consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before
+      any copy is treated as current.
+  # ---- trust-anchor contract family — contract-v1.37 registration (add-trust-anchor, feature 009-trust-anchor-contracts) ----
+  # The packaged corpus (contracts/trust-anchor/examples/, 34 positive
+  # examples + 65 intended-invalid negatives, coverage closed in both
+  # directions at 8/8 requirements), the family README, the strict validator
+  # (scripts/validate-trust-anchor.py) and its pytest wiring
+  # (tests/trust-anchor/) are content-addressed by commit; no per-file digest
+  # (the openxWallet and client-identity-roster precedent). The seven schemas
+  # below, the chain-custody registry SCHEMA and the closed registry INSTANCE
+  # carry per-file sha256 over their bytes.
+  - id: trust-anchor
+    path: contracts/trust-anchor/trust-anchor.schema.yaml
+    source_path: openxFactory/contracts/trust-anchor/trust-anchor.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 81a75a73c22fc3a1dac2fc5fc0c8ec4cae91e9e9eddd10c691dcd5a292dbbb8a
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The governed record a system TRUSTS: a certificate is trusted only derivatively, through an anchor record the evaluating system already holds.
+      The record names the anchor's identity, its chain position, its
+      validity window, the issuance authorities it ADMITS and the declared
+      custody of its private key — and it REFERENCES key material without
+      ever carrying it (every object closes `additionalProperties`; the
+      only key-adjacent value the shape admits is a DIGEST). CHAIN
+      POSITION IS COHERENT OR THE RECORD IS REFUSED: a `root` carries no
+      parent at depth 0, a `subordinate` names its parent exactly one
+      below, an unresolvable parent is refused rather than passed over,
+      and an anchor's validity window BOUNDS its subordinates. AUTHORITY
+      MATERIAL IS A CREDENTIAL RECORD: `declared_chain_custody` admits
+      exactly the `credential-contracts` reference WITH its vault binding,
+      or the obligation entry declaring that neither can be produced.
+      Registered at contract-v1.37; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: trust-anchor-certificate-record
+    path: contracts/trust-anchor/certificate-record.schema.yaml
+    source_path: openxFactory/contracts/trust-anchor/certificate-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 0d8d825c69efdb6a8f151db19eae6274bc199284057312d5a50835f11a02b589
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A certificate as a governed record: the anchor it is trusted THROUGH, its declared chain custody and the `evidences` DERIVED from it, the issuance evidence that answers "should this exist?", and the dependent-binding set that makes a renewal's rebind obligations computable BEFORE the renewal.
+      TRUST HAS ONE REPRESENTABLE BASIS — `trust_evaluation.basis` is the
+      constant `held_anchor_record`, and the refusal vocabulary contains
+      no member for "it parsed"; a refusal for a chain terminating nowhere
+      must NAME the missing anchor. STANDING IS CHECKED AT USE: every
+      evaluation carries a `revocation_standing_check` whose basis is the
+      constant `checked_at_use`, so a record cannot read `trusted` while
+      those facts disagree. `evidences` IS DERIVED, NEVER ASSERTED — from
+      the declared custody member through the closed chain-custody
+      registry, recomputed by the canonical validator, with an
+      undeclared-custody record resolving to the registry's declared FLOOR
+      — so raising assurance is a custody change rather than a claim.
+      Registered at contract-v1.37; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: trust-anchor-issuance-evidence
+    path: contracts/trust-anchor/issuance-evidence.schema.yaml
+    source_path: openxFactory/contracts/trust-anchor/issuance-evidence.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: db93f86fd82aa07f3836b4e05ec24cfd47f302311c9ede06de86cf5b74330f97
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      What an issuance record must ESTABLISH — which anchor issued, under which admitted authority, on whose request, and when — never the mechanism that produces it (OQ1, ruled as recommended 2026-08-21).
+      THE DECLARED FLOOR IS IN THE SHAPE: `establishment_level` has
+      exactly two members and nothing weaker is representable —
+      `per_certificate_record`, which REQUIRES the requester, the request
+      identity and the request time, and the floor
+      `per_policy_attestation_with_authority_log`, which requires BOTH
+      halves, so a record citing an attestation with no log (or a log with
+      no attestation) does not validate. AN ASSERTED-BUT-UNESTABLISHED
+      RECORD IS WORSE THAN A DECLARED GAP: `establishment:
+      not_established` forbids the provenance fields by shape and
+      requires a `declared_shortfall_ref`, which the canonical validator
+      resolves and refuses if the obligation it names is recorded
+      satisfied, or was declared LATER than this record's own
+      `issued_at`. Registered at contract-v1.37; consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before
+      any copy is treated as current.
+  - id: trust-anchor-dependent-binding
+    path: contracts/trust-anchor/dependent-binding.schema.yaml
+    source_path: openxFactory/contracts/trust-anchor/dependent-binding.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 8e4b1dad1f762ffa95d3d39181d742d09acf4914f9d11068326ecb6aaf2be189
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      One authority binding that references a certificate's key material — in any system, inside the family or outside it — recorded against that certificate so the set of rebind obligations a renewal will create is computable BEFORE the renewal happens.
+      The rebind obligation has no teeth over a set nobody enumerated, so
+      the enumeration is CONTRACT CONTENT: the validator refuses a binding
+      the certificate's own enumeration does not name, and a renewal
+      planned against an enumeration declared `known_incomplete` is
+      refused rather than run. THE KEY GENERATION IS THE JOIN —
+      `bound_key_reference.key_generation_ref` names which generation the
+      binding points at, and `rebind_status` is held to it against the
+      CERTIFICATE with no renewal record in the way, so a binding
+      recorded `current` or `rebound` while still naming the superseded
+      generation does not validate. ADMISSION IS WHERE CUSTODY AND
+      DECLARED GAPS BITE: a `required_assurance` above the certificate's
+      DERIVED ceiling must be recorded `refused` with the ceiling NAMED.
+      Registered at contract-v1.37; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: trust-anchor-renewal-record
+    path: contracts/trust-anchor/renewal-record.schema.yaml
+    source_path: openxFactory/contracts/trust-anchor/renewal-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 0c2670516e2eb860f3416f8f562ea0aa7d12a873c338ba72f885dd065916a9d2
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A renewal, and the rebind obligation it creates: a renewal producing new key material leaves every binding made against the old material pointing at a key the holder no longer uses, so the renewal is INCOMPLETE until each dependent binding is re-bound and each rebind evidenced.
+      "SUCCESSFUL WITH AN UNEVIDENCED DEPENDENT" IS UNREPRESENTABLE,
+      STRUCTURALLY: `completion_state: complete` forces every
+      `dependent_rebinds` entry to carry evidence whose result is
+      `succeeded` as a SCHEMA constraint, and the canonical validator
+      closes the half the schema cannot see by requiring the enumerated
+      dependents to be exactly the set the CERTIFICATE record enumerates.
+      THE FAILURE BELONGS TO THE ISSUING WORKFLOW and there is no other
+      representable attribution — `failure.attribution` is the constant
+      `issuing_workflow`. AN UNATTENDED RENEWAL IS NOT EXEMPT: no rule
+      anywhere keys on `renewal_mode`, because silence is not evidence.
+      Registered at contract-v1.37; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: trust-anchor-revocation-propagation
+    path: contracts/trust-anchor/revocation-propagation.schema.yaml
+    source_path: openxFactory/contracts/trust-anchor/revocation-propagation.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 3033eb49f649a9f332b96236b7c81812f7b6c0f8b02c556378232b98c0a93363
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Revoking a certificate or an anchor revokes the authority it SUPPORTED — within a declared bounded window, with the propagation evidenced.
+      ONE REVOCATION VOCABULARY, NOT TWO: `mechanism.realized_through` is
+      the constant `openxwallet_revocation_through_derivation`, so this
+      contract states the OBLIGATION and rides the ratified mechanism
+      rather than offering a second vocabulary that would lag the first
+      and win locally by proximity. THE WINDOW IS DECLARED AND
+      ARITHMETICALLY CHECKED — the validator recomputes `closes_at` from
+      `opens_at` and `bounded_seconds` rather than trusting it. AN
+      UNEVIDENCED CLOSED WINDOW IS AN OPEN EXPOSURE, NOT A COMPLETION:
+      `completion.state: complete` requires propagation evidence on EVERY
+      downstream authority by shape, and where `assessed_at` is past
+      `closes_at` with any authority unevidenced the record must be
+      `incomplete_open_exposure` with the escalation recorded. REVOKING
+      AN ANCHOR IS TRANSITIVE, and the validator computes the closure
+      over the anchor chain from the corpus. Registered at
+      contract-v1.37; consumed through the pinned openxFactory checkout
+      with per-file sha256 verified before any copy is treated as
+      current.
+  - id: trust-anchor-conformance-declaration
+    path: contracts/trust-anchor/conformance-declaration.schema.yaml
+    source_path: openxFactory/contracts/trust-anchor/conformance-declaration.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 57fbcc5062661a3eb3c14caf07f9a475508dc87eb67395e8a0af4643c9abb8f1
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Obligation by obligation, what a realization of this capability satisfies fully, satisfies partially, and cannot satisfy — with the reason in each case.
+      AN UNDECLARED SHORTFALL IS NON-CONFORMANCE EVEN WHERE THE IDENTICAL
+      SHORTFALL, DECLARED, WOULD BE CONFORMANT, so the declaration is
+      CLOSED over the capability's EIGHT obligations: exactly eight
+      entries drawn from a closed enumeration, each with a reason, and the
+      canonical validator checks coverage in BOTH directions. A DECLARED
+      GAP IS NOT PERMISSION TO ASSERT THE MISSING EVIDENCE — the
+      validator enforces that across records rather than in prose — and
+      DECLARING A GAP AFTERWARDS DOES NOT VALIDATE THE CLAIMS MADE WHILE
+      THE REALIZATION WAS SILENT: each entry carries its own
+      `declared_at`, and a record citing an entry declared LATER than the
+      record's own moment is refused. Registered at contract-v1.37;
+      consumed through the pinned openxFactory checkout with per-file
+      sha256 verified before any copy is treated as current.
+  - id: trust-anchor-chain-custody-registry-schema
+    path: contracts/trust-anchor/chain-custody-registry.schema.yaml
+    source_path: openxFactory/contracts/trust-anchor/chain-custody-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: c55c1b287932368816b1e8dd49a16f89bf35af7aba0a7fbaa7ffb88f3c973f4d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The shape of the CLOSED chain-custody enumeration and the ordered assurance ladder it caps, including the derivation that makes `evidences` checkable rather than asserted.
+      This registry does NOT define a second custody model: every member
+      declares the `openxwallet` custody model it corresponds to, and the
+      canonical validator RESOLVES that correspondence against
+      contracts/openxwallet/openxwallet-custody.registry.yaml AT RUN TIME,
+      refusing a member whose declared booleans disagree with the member
+      it claims to be — which is what makes "composes with rather than
+      restates" structural instead of a promise. `evidences` is DERIVED
+      from two declared booleans and never independently asserted:
+      `named_holder` iff the key is NOT readable by the using host AND use
+      requires an authorization that host cannot itself supply,
+      `using_host` otherwise. Registered at contract-v1.37; consumed
+      through the pinned openxFactory checkout with per-file sha256
+      verified before any copy is treated as current.
+  - id: trust-anchor-chain-custody-registry
+    path: contracts/trust-anchor/trust-anchor-chain-custody.registry.yaml
+    source_path: openxFactory/contracts/trust-anchor/trust-anchor-chain-custody.registry.yaml
+    type: registry
+    schema_version: 1
+    sha256: b140fae269ce31701afbadef5d6c94002e2a683084c4c9912ddc0d8b321609f3
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE CLOSED CHAIN-CUSTODY SET and the ordered assurance ladder it caps: each member's two declared booleans, what it evidences, the openxWallet member it corresponds to, and the declared FLOOR an undeclared-custody record resolves to.
+      What differs from openxWallet is the SUBJECT of the two axes, not
+      the axes: a certificate's private key is asked about with respect to
+      the USING HOST — the host that presents the certificate — because a
+      key readable by the thing presenting it cannot evidence anything
+      about who decided to present it. So a member readable by its using
+      host and claiming to evidence the named holder does not validate.
+      Operator escrow is a DELIBERATE NON-MEMBER, modelled as a
+      relationship on the credential record rather than a custody tier
+      (Brett Heap's ratification of 2026-08-21, OQ2 ruled as
+      recommended). Registered at contract-v1.37; consumed through the
+      pinned openxFactory checkout with per-file sha256 verified before
+      any copy is treated as current.

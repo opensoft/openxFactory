@@ -1,6 +1,8 @@
 ---
 code_surface: codexFactory (dispose tray + intent-feed overlay + refusal panel in the dashboard bundle, local executing gate routes behind the loopback gate, apply-lane orchestration module), openxFactory (gate-intent kernel schema + examples + delegated validator rules, document-lifecycle delta), omnigent-install (intent-inbox service deployment + per-user ingress auth), xFactory aggregation (apply-lane workflow wiring)
 target_release: next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)
+Status: ratified
+Ratified: 2026-07-23 by Brett — "we are there, this is ready now to lock", recorded in the proposal commit cf1c3d0 and in the README OpenSpec Records row
 ---
 
 # Proposal: add-ideation-intent-plane

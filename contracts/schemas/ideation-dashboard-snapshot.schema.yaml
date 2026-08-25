@@ -64,6 +64,17 @@ properties:
     minLength: 1
     # Resolved from the project register (D10); ABSENT = ungrouped, rendered as
     # its own implicit project (spec scenario "A repository is absent ...").
+    # Since multi-project membership (add-project-scoped-selection, Brett's
+    # 2026-08-06 ruling) this is the PRIMARY project — the first project in
+    # register order declaring this repository — so grouped roll-ups keep
+    # rendering each repository under exactly one heading.
+  projects:
+    type: array
+    items: {type: string, minLength: 1}
+    # ADDITIVE (multi-project membership): EVERY project declaring this
+    # repository, in register order; `project` is always its first element
+    # when both are present. Absent = ungrouped (or a pre-growth snapshot);
+    # consumers needing full membership read this, never re-derive it.
   project_group:
     type: string
     minLength: 1

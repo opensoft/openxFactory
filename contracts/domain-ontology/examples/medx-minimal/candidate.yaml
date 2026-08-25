@@ -1,0 +1,17 @@
+schema_version: 1
+kind: xfactory_ontology_candidate_record
+candidate_id: cand-medx-0001
+package_id: xf/medx
+mode: extend
+proposed:
+  concepts:
+    - id: xf/medx/care_plan
+      label: Care Plan
+      definition: A proposed clinical focal item.
+      parents: [xf/core/focal_item]
+provenance:
+  method: model_extraction
+  extraction_run_id: run-medx-0001
+  confidence: 0.72
+  source_refs: [example-clinical-terms]
+review_state: open

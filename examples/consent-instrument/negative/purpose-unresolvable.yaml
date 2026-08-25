@@ -1,0 +1,40 @@
+# INVALID consent instrument — violates spec requirement "The Neutral Check
+# Verifies Purpose Resolution Only" (ruling D4): the scope purpose
+# `crypto-custody` appears in no demo-advisory purpose-model entry and
+# resolves through no chain — the validator finding names the missing link
+# (finding purpose-unresolvable). Schema-valid on purpose: the schema cannot
+# see the domain purpose model; only the canonical validator can.
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: "ci-demo-advisory-0006"
+domain: demo-advisory
+instrument_class: engagement_letter
+parties:
+  - party: "Acme Advisors LLP"
+    rung: 1
+    role: tenant_firm
+    authority_basis: direct
+  - party: "Meridian Retail Ltd"
+    rung: 2
+    role: subject_client_company
+    authority_basis: direct
+scope:
+  purposes: [bookkeeping, crypto-custody]
+  out_of_scope: [payroll-support]
+autonomy_position: "hypothesis_only"
+revocation:
+  right: "Either party may revoke delegated access by written notice."
+  sla: "P1D"
+custody:
+  locator: "opaque:demo-advisory/instruments/ci-demo-advisory-0006"
+  sha256: "9c1185a5c5e9fc54612808977ee8f548b2258d31a537b2c0b1c1b1e4f7a2d9c3"
+status: executed
+status_history:
+  - status: draft
+    at: "2026-07-20T09:00:00Z"
+  - status: pending_signatures
+    at: "2026-07-21T15:00:00Z"
+  - status: executed
+    at: "2026-07-24T10:30:00Z"
+data_consent:
+  mapping: none

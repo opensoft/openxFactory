@@ -1,0 +1,5 @@
+# Fragment: append under `adoptions:` of the version's release record when a
+# consumer explicitly re-pins (adoption is always an explicit pin update).
+- consumer: "<consumer repo or install id>"
+  pin_digest: <64-hex package digest adopted>
+  adopted_at: '<YYYY-MM-DD>'

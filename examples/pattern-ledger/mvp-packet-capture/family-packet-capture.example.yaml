@@ -1,0 +1,36 @@
+# The MVP recurrence family (whole-job lane, tenant-scoped): packet-capture
+# mechanics — author header-conformant docs, update index surfaces, commit
+# with explicit paths, push, sync the aggregation pointer. The authoring
+# judgment stays L0/L1; the MECHANICS are the family.
+schema_version: 1
+kind: recurrence_family
+family_id: "fam:opensoft:packet-capture-mechanics"
+tenant_ref: "tenant:opensoft"
+lane: whole-job
+state: established
+fingerprint:
+  structural:
+    job_type: brainstorm_packet_capture
+    workflow_shape: [write-docs, update-index, git-commit-push, git-pointer-sync]
+    tool_surface: [write-docs, edit-readme-index, update-staging-index, git-commit-push, git-pointer-sync]
+  semantic_ref: null
+members:
+  - episode_ref: "ep:opensoft:2026-07-28:ontology-packet-capture"
+    confidence: 0.95
+    tenant_ref: "tenant:opensoft"
+  - episode_ref: "ep:opensoft:2026-07-28:crystallization-packet-capture"
+    confidence: 0.98
+    tenant_ref: "tenant:opensoft"
+  - episode_ref: "ep:opensoft:2026-07-29:staging-topic-capture"
+    confidence: 0.90
+    tenant_ref: "tenant:opensoft"
+transitions:
+  - kind: state
+    at: "2026-07-28"
+    provenance: "seeded from two same-shape runs observed the same day"
+  - kind: state
+    at: "2026-07-29"
+    provenance: "third run (staging variant) observed; seed -> established"
+matcher:
+  version: "manual-0"
+  dispatch_precision: null

@@ -1,0 +1,66 @@
+schema_version: 1
+name: xfactory_ontology_consumer_impact_report
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-consumer-impact-report.schema.yaml"
+# The breaking/retiring consumer-impact report (lifecycle spec "Immutable
+# ontology evolution and compatibility"; release-review finding 16):
+# affected DOMAIN-OWNED terms and consumer pins ONLY — the closed shape
+# carries no tenant field, because tenant bindings are tenant-private and
+# each tenant re-validates its own bindings at adoption.
+type: object
+required: [schema_version, kind, from_package, to_package, affected_terms]
+additionalProperties: false
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_ontology_consumer_impact_report}
+  from_package: {$ref: "#/$defs/package_pin"}
+  to_package:
+    # The impact report is prepared BEFORE the release computes the new
+    # digest, so the target names id + version; the release record beside
+    # this report carries the exact published digest.
+    type: object
+    required: [package_id, package_version]
+    additionalProperties: false
+    properties:
+      package_id:
+        type: string
+        pattern: "^xf/[a-z0-9_]+$"
+      package_version:
+        type: string
+        pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      package_digest:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+  affected_terms:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+  consumer_pins:
+    type: array
+    items:
+      type: object
+      required: [consumer, pin_digest]
+      additionalProperties: false
+      properties:
+        consumer: {type: string, maxLength: 200}
+        pin_digest:
+          type: string
+          pattern: "^[a-f0-9]{64}$"
+  note: {type: string, maxLength: 400}
+$defs:
+  package_pin:
+    type: object
+    required: [package_id, package_version, package_digest]
+    additionalProperties: false
+    properties:
+      package_id:
+        type: string
+        pattern: "^xf/[a-z0-9_]+$"
+      package_version:
+        type: string
+        pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      package_digest:
+        type: string
+        pattern: "^[a-f0-9]{64}$"

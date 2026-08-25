@@ -1,6 +1,6 @@
 # The Automation Ladder: Rungs Between Cold AI and Pure Code — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Crystallization is not AI-versus-code but a seven-rung spectrum —
 cold solve, recall-assisted solve (today's ceiling), memoized results,
@@ -15,6 +15,9 @@ recurrence
 Repository context: openxFactory (neutral rung vocabulary; ceilings are
 domain overlay policy)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

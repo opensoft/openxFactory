@@ -3,6 +3,7 @@ created: 2026-07-23
 origin:
   kind: staged
   id: openxFactory:staging:ideation-action-plane
+  path: ideation/staging/ideation-action-plane
   reason: >-
     Organized 2026-07-23 from the dashboard-action-center and
     cloud-workstation-topology brainstorms (both Brett-locked the day the

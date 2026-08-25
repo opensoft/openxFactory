@@ -1,0 +1,93 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "pattern-ledger-recurrence-forecast.schema.yaml"
+title: "Pattern-ledger recurrence-forecast record (stored, maturity-dated, scored)"
+contract_schema_version: 1
+description: >-
+  A stored predictive instrument for one family (add-pattern-ledger,
+  requirement "Forecasts Are Scored Predictive Records"): a distribution
+  over a declared horizon — never a point count — with its evidence window,
+  its cost-regime assumption (demand is price-elastic, so the assumption is
+  declared, and post-crystallization actuals are scored against a
+  regime-adjusted expectation), and a stability half-life estimate. The
+  record is emitted only at or above the minimum-evidence dial
+  ("forecast-min-evidence" in the canonical validator; staged default 3)
+  and is scored when its maturity date passes — score_ref and scored_at are
+  required-but-nullable so the pairing rule ("score-pairing") is checkable:
+  both null before scoring, both set at or after matures_at once scored.
+  volumes reports raw family volume alongside fence-eligible volume
+  (null until a scope fence exists) so downstream economics never price
+  traffic a fence will not claim. Canonical validator:
+  scripts/validate-pattern-ledger.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - forecast_id
+  - family_ref
+  - horizon_days
+  - evidence_window
+  - distribution
+  - cost_regime
+  - stability_half_life_days
+  - volumes
+  - matures_at
+  - score_ref
+  - scored_at
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: recurrence_forecast
+  forecast_id:
+    type: string
+    pattern: "^fc:"
+  family_ref:
+    type: string
+    pattern: "^fam:"
+  horizon_days:
+    type: integer
+    minimum: 1
+  evidence_window:
+    type: object
+    additionalProperties: false
+    required: [from, to, instances]
+    properties:
+      from:
+        type: string
+        pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+      to:
+        type: string
+        pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+      instances:
+        type: integer
+        minimum: 0
+  distribution:
+    type: object
+    minProperties: 1
+    description: "Predictive distribution over instance counts in the horizon (shape open: quantiles, parameters, or samples ref)."
+  cost_regime:
+    type: string
+    minLength: 1
+  stability_half_life_days:
+    type: ["number", "null"]
+    minimum: 0
+  volumes:
+    type: object
+    additionalProperties: false
+    required: [raw, fence_eligible]
+    properties:
+      raw:
+        type: integer
+        minimum: 0
+      fence_eligible:
+        type: ["integer", "null"]
+        minimum: 0
+  matures_at:
+    type: string
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+  score_ref:
+    type: ["string", "null"]
+  scored_at:
+    type: ["string", "null"]
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"

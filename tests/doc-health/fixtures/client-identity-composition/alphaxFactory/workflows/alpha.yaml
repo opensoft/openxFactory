@@ -1,0 +1,10 @@
+# The gate the spanning entry's declared_excess names. Present so the gate
+# obligation RESOLVES intra-repo — an unresolvable obligation would make this
+# repo fail the blocking gate and measure nothing about composition.
+schema_version: 1
+kind: xfactory_workflow
+workflow:
+  id: alpha_observation
+  gates:
+    - id: alpha_out_of_unit_refusal
+      description: refuses any target outside the governed unit

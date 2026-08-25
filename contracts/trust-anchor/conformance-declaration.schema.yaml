@@ -1,0 +1,143 @@
+schema_version: 1
+kind: openxfactory-trust-anchor-contract-schema
+name: xfactory_trust_anchor_conformance_declaration
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/trust-anchor/v1/conformance-declaration.schema.yaml"
+contract_id: trust-anchor-conformance-declaration
+contract_schema_version: 1
+title: Trust-anchor realization conformance declaration
+description: >-
+  Obligation by obligation, what a realization of this capability satisfies
+  fully, satisfies partially, and cannot satisfy — with the reason in each case
+  (add-trust-anchor, requirement "A realization declares the obligations it
+  cannot meet"; design D6).
+
+  AN UNDECLARED SHORTFALL IS NON-CONFORMANCE EVEN WHERE THE IDENTICAL
+  SHORTFALL, DECLARED, WOULD BE CONFORMANT. So the declaration is CLOSED over
+  the capability's eight obligations: exactly eight entries, drawn from a closed
+  enumeration, each with a reason. The canonical validator checks the coverage
+  in both directions — an obligation with no entry is refused, and so is an
+  entry naming an obligation this capability does not have — because a
+  declaration that can quietly omit an obligation is how a silent gap gets
+  recorded as conformance.
+
+  A DECLARED GAP IS NOT PERMISSION TO ASSERT THE MISSING EVIDENCE. The
+  validator enforces this across records rather than in prose: an issuance
+  record whose provenance is `not_established` must name an obligation entry
+  that actually declares that shortfall (one recorded `satisfied` does not
+  cover it), an anchor whose custody sits below the strictest member of the
+  closed set must name one too, and a dependent binding requiring an obligation
+  this declaration records as `cannot` may not be recorded as admitted.
+
+  DECLARING A GAP AFTERWARDS DOES NOT VALIDATE THE CLAIMS MADE WHILE THE
+  REALIZATION WAS SILENT. Each entry carries its own `declared_at`, and a
+  record citing an entry declared LATER than the record's own moment is
+  refused. Without the per-entry date the late declaration would be
+  indistinguishable from a timely one, which is exactly the loophole the
+  ratified guard names.
+
+  A REALIZATION OPERATING AN AUTHORITY THE FAMILY DOES NOT RUN STAYS
+  CONFORMANT ON THE STRENGTH OF ITS DECLARATION. That is the whole point:
+  `authority_operated_by_family: false` is a fact to record, not a defect, and
+  the obligations only a self-hosted authority could meet are declared partial
+  or cannot with the reason stated. What is NOT conformant is the same
+  realization asserting the evidence instead.
+type: object
+required:
+  - schema_version
+  - kind
+  - declaration_id
+  - capability
+  - realization
+  - declared_at
+  - obligations
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_trust_anchor_conformance_declaration]
+  declaration_id: {$ref: '#/$defs/identifier'}
+  capability:
+    const: trust-anchor
+  realization:
+    type: object
+    required: [realization_id, statement, authority_operated_by_family]
+    additionalProperties: false
+    properties:
+      realization_id:
+        # The value anchors, certificates, issuance records and propagation
+        # records carry as `realization_ref`. This is how a consumer gets from
+        # a certificate to the declaration it must read.
+        $ref: '#/$defs/identifier'
+      statement: {type: string, minLength: 1, maxLength: 900}
+      authority_operated_by_family: {type: boolean}
+      authority_statement: {type: string, maxLength: 900}
+      population_statement: {type: string, maxLength: 900}
+  declared_at: {type: string, format: date-time}
+  obligations:
+    # Exactly the capability's eight obligations. minItems/maxItems are the
+    # first line of defence; the validator closes coverage in both directions,
+    # because uniqueItems cannot see that two entries name the same obligation
+    # with different reasons.
+    type: array
+    minItems: 8
+    maxItems: 8
+    uniqueItems: true
+    items:
+      type: object
+      required: [entry_id, obligation, satisfaction, reason, declared_at]
+      additionalProperties: false
+      properties:
+        entry_id:
+          # The address other records cite. An anchor declaring custody below
+          # the strictest tier, and an issuance record whose provenance is not
+          # established, must NAME the entry that declares that shortfall — so
+          # the entry needs an identity a reference can resolve, and the
+          # validator can then check that the entry really declares it, belongs
+          # to the same realization, and was declared in time.
+          $ref: '#/$defs/identifier'
+        obligation:
+          type: string
+          enum: [TA-R1, TA-R2, TA-R3, TA-R4, TA-R5, TA-R6, TA-R7, TA-R8]
+        obligation_statement: {type: string, maxLength: 600}
+        satisfaction:
+          type: string
+          enum: [satisfied, partial, cannot]
+        reason:
+          # Required for every satisfaction value, including `satisfied`. "With
+          # the reason in each case" is the ratified wording, and a reason on a
+          # satisfied obligation is what a consumer reads to see WHAT was
+          # satisfied and how.
+          type: string
+          minLength: 1
+          maxLength: 1400
+        declared_at:
+          # Per-entry, so a late declaration is visible as one. A record citing
+          # an entry declared after the record's own moment is refused.
+          type: string
+          format: date-time
+        evidence_ref: {$ref: '#/$defs/identifier'}
+        achieved_establishment_level:
+          # OQ1's ruling made readable where a consumer looks: which form of
+          # issuance evidence this realization actually achieves. Required on
+          # the issuance obligation wherever it is satisfied or partial.
+          type: string
+          enum: [per_certificate_record, per_policy_attestation_with_authority_log]
+        compensating_control: {type: string, maxLength: 900}
+      allOf:
+        - if:
+            properties:
+              obligation: {const: TA-R2}
+              satisfaction: {enum: [satisfied, partial]}
+            required: [obligation, satisfaction]
+          then: {required: [achieved_establishment_level]}
+  supersedes_declaration_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

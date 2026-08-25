@@ -1,0 +1,29 @@
+schema: spec-driven
+created: 2026-08-21
+origin:
+  kind: staged
+  id: openxFactory:staging:pki-trust-anchor-plane
+  path: ideation/staging/pki-trust-anchor-plane
+  reason: >-
+    Exit 1 of the staged topic — the neutral trust-anchor contract. The
+    topic was organized 2026-08-21 from Brett Heap's rulings the same day;
+    the forcing fact is TWO realizations converging on no shared contract
+    (the live Intune Cloud PKI canary for device/host-broker certificates
+    and OpenXPKI planned for the Opensoft production core), so the contract
+    is authored product-agnostic or it will be written twice and diverge.
+    The rulings carried: the image-custody/deployment-topology seam with
+    the active OpsxFactory `add-openxpki-qa-image-pipeline` change (image
+    custody stays in `opensoft/Opensoft-Tenant`; QA deployment topology
+    moves to `OpenXPKI-Install`, whose Impact must be amended
+    before that change ratifies), composition with `openxwallet` (declared
+    custody derives what a certificate evidences; revocation propagation)
+    and `credential-contracts` (CA material custody, never committed), and
+    the install-repo admission on the avatar-client template. This change
+    carries the neutral half only; the OpsxFactory `pki-administration`
+    workflow (exit 2) and the `implement-openxpki-install-repo` runtime
+    creation (exit 3) are named successors that consume this contract's
+    vocabulary, which is why it ratifies first.
+  approved_by: >-
+    Brett Heap (xFactory family session rulings R1, R2, R7 and R8,
+    2026-08-21; recorded on the staged topic fragment)
+  approved_on: 2026-08-21

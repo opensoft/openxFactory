@@ -1,0 +1,27 @@
+schema_version: 1
+kind: xfactory_ontology_coverage_gap_report
+# Starter-owned report; regenerated on rerun when inputs change.
+package_id: xf/codex
+seed_gaps:
+  empty_seed_lists: []
+  skipped_placeholders: 0
+  duplicate_intake_items: 0
+kernel_concepts_without_domain_specialization:
+  - xf/core/state
+  - xf/core/transition
+  - xf/core/gate
+  - xf/core/artifact
+  - xf/core/interaction
+  - xf/core/source
+  - xf/core/claim
+  - xf/core/hypothesis
+  - xf/core/observation
+  - xf/core/knowledge_atom
+external_systems_registered_without_mappings:
+  - example-eng-standard
+unresolved_inputs:
+  []
+carried_assumptions:
+  []
+domain_boundaries:
+  - "no production deployment interpretation"

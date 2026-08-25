@@ -1,0 +1,30 @@
+# Neutral registry fixture, shaped per the add-document-cataloging
+# supporting template (document-tag-registry.template.yaml): the neutral
+# registry registers ALL namespace owners (neutral and domain) plus
+# neutral tags.
+schema_version: 1
+kind: xfactory_document_tag_registry
+registry_version: 1
+namespaces:
+  - id: neutral
+    owner: openxFactory
+    description: Neutral tags reusable across factory domains.
+  - id: alpha
+    owner: alpha
+    description: Alpha-owned domain tags.
+tags:
+  - id: neutral.governance
+    namespace: neutral
+    label: Governance
+    description: Governance process documentation.
+    aliases: []
+    status: active
+  - id: neutral.lifecycle
+    namespace: neutral
+    label: Document lifecycle
+    description: Document lifecycle and status vocabulary.
+    aliases:
+      - neutral.doc-lifecycle
+    status: active
+proposed_tags: []
+retired_tags: []

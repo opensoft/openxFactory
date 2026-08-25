@@ -1,0 +1,26 @@
+# expected_failure: link-actor-unnamed
+# requirement: IDB-R4
+# VIOLATES R4: a link record that can name nobody who acted.
+#
+# The mode says `self_link` and the basis says `explicit_user_action`, so the
+# record CLAIMS to be the explicit case — and there is no initiating human in
+# it. Without a named actor "explicit" is unfalsifiable: every auto-link can be
+# recorded as a self link, and the distinction the requirement rests on stops
+# meaning anything.
+#
+# This is one of the two obligations design D4 added to the ruling. The other
+# is the pre-merge resolvability the merge probes cover.
+schema_version: 1
+kind: identity_link_record
+link_record_id: lnk-no-actor-9007
+broker_instance_ref: broker-opensoft-shared
+mode: self_link
+basis: explicit_user_action
+subjects:
+  - sub-8f2c41d60a974d3b
+surviving_subject: sub-8f2c41d60a974d3b
+linked_identity:
+  provider_id: github-opensoft
+  upstream_subject: "48219073"
+occurred_at: "2026-08-22T09:15:00Z"
+evidence_ref: "broker-audit://broker-opensoft-shared/link/2026-08-22/09-15-00"

@@ -7,7 +7,7 @@ catalog and its engineer-workstation projection. The deployed company runtime
 is authoritative for projects, repository composition, and principal access;
 the workstation keeps only a tenant- and principal-scoped cache plus local
 preferences in native operating-system config, state, and cache locations.
-Topics: project, tenant-project-catalog, project-register, project-hermes,
+Topics: tenant-project-catalog, project-register, project-hermes,
 principal-project-projection, engineer-project-assignment, project-manifest,
 workstation-cache, ideation-dashboard, codexfactory, runtime-plane,
 feat-request

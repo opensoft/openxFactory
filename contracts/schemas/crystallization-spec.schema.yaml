@@ -1,0 +1,165 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "crystallization-spec.schema.yaml"
+title: "Crystallization micro-spec (episode-mined; the corpus is the contract)"
+contract_schema_version: 1
+description: >-
+  The episode-mined micro-spec a funded decision commissions
+  (add-crystallizer-contracts, requirements "Specs Are Mined From
+  Episodes", "The Acceptance Corpus Is The Operative Contract", "The Scope
+  Fence Is A Requirement Artifact", "Effect Class Is Declared At Spec
+  Time"). Every mined element (invariant, parameter, branch,
+  counterexample) cites episode references; the digest-pinned acceptance
+  corpus with declared equivalence predicates and cassettes is what the
+  build must satisfy and what parity replays forever after; the scope
+  fence declares jurisdiction and is consumed verbatim by dispatch; the
+  effect class (pure | idempotent | compensable | irreversible) is part of
+  the capability's identity. Shape-only posture: counterexample floors,
+  per-element evidence citation, the byte-golden rejection, and the
+  missing-effect-class rejection are named rules in the canonical
+  validator (counterexample-floor, evidence-citation, byte-golden,
+  effect-class-missing) — comparator deliberately includes `byte-equality`
+  in the vocabulary so its rejection is a named policy act, and
+  effect_class is optional in shape so the validator carries the refusal.
+  Canonical validator: scripts/validate-crystallizer-contracts.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - spec_id
+  - decision_ref
+  - family_ref
+  - mined
+  - acceptance_corpus
+  - scope_fence
+  - miner
+  - ratification
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: crystallization_spec
+  spec_id:
+    type: string
+    pattern: "^cspec:"
+  decision_ref:
+    type: string
+    pattern: "^dec:"
+  family_ref:
+    type: string
+    pattern: "^fam:"
+  mined:
+    type: object
+    additionalProperties: false
+    required: [invariants, parameters, branches, counterexamples]
+    properties:
+      invariants:
+        type: array
+        items:
+          $ref: "#/$defs/mined_element"
+      parameters:
+        type: array
+        items:
+          $ref: "#/$defs/mined_element"
+      branches:
+        type: array
+        items:
+          $ref: "#/$defs/mined_element"
+      counterexamples:
+        type: array
+        items:
+          $ref: "#/$defs/mined_element"
+  acceptance_corpus:
+    type: object
+    additionalProperties: false
+    required: [episode_refs, equivalence_predicates, cassettes_ref, corpus_digest]
+    properties:
+      episode_refs:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          pattern: "^ep:"
+      equivalence_predicates:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          required: [output_type, comparator]
+          properties:
+            output_type:
+              type: string
+              minLength: 1
+            comparator:
+              enum: [structural-exact, semantic, byte-equality]
+            rubric:
+              type: string
+      cassettes_ref:
+        type: ["string", "null"]
+      corpus_digest:
+        type: string
+        pattern: "^sha256:[0-9a-f]{64}$"
+  scope_fence:
+    type: object
+    additionalProperties: false
+    required: [predicate, derived_from, digest]
+    properties:
+      predicate:
+        type: string
+        minLength: 1
+      derived_from:
+        type: string
+        minLength: 1
+      digest:
+        type: string
+        pattern: "^sha256:[0-9a-f]{64}$"
+  effect_class:
+    enum: [pure, idempotent, compensable, irreversible]
+  miner:
+    type: object
+    additionalProperties: false
+    required: [version, evidence_bounds]
+    properties:
+      version:
+        type: string
+        minLength: 1
+      evidence_bounds:
+        type: object
+        additionalProperties: false
+        required: [episodes, span]
+        properties:
+          episodes:
+            type: integer
+            minimum: 1
+          span:
+            type: string
+            minLength: 1
+  ratification:
+    type: object
+    additionalProperties: false
+    required: [mode, scaled_by]
+    properties:
+      mode:
+        enum: [auto, human]
+      scaled_by:
+        type: array
+        items:
+          type: string
+$defs:
+  mined_element:
+    type: object
+    additionalProperties: false
+    required: [claim, episode_refs]
+    properties:
+      claim:
+        type: string
+        minLength: 1
+      episode_refs:
+        type: array
+        items:
+          type: string
+          pattern: "^ep:"
+      observed:
+        type: string
+        description: "Optional observed range/values for parameters."

@@ -1,0 +1,28 @@
+schema: spec-driven
+created: 2026-08-22
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-22-add-wallet-carried-review-authority
+  reason: >-
+    Authored on direction from the convener the same day
+    add-substantive-review-lane was ratified and the gate_rules_council
+    returned its codexfactory-routine-code-clearance convening; this change
+    acts on finding LS-A3 from that convening — the widen-only validator
+    proved not to enforce the widenings it was given, so the non-self-review
+    property cannot rest on an in-tree path rule alone. Circulated first as
+    add-assembly-plane-separation (a three-repository topology); reshaped the
+    same day, before the origin was fixed, on the convener's ruling that a
+    repository topology imposes a shape on every repository codexFactory
+    reviews and so fights the ratified single-reviewing-home model, whereas
+    wallet-carried authority travels to any repository without restructuring
+    it. The topology is retained not as a bench question but as a
+    RECOMMENDED PROJECT SCHEMA a human elects per project (convener
+    refinement, same day): electing it changes no gate, no floor and no
+    grant, and a project that declines it is not less governed.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — authorized authoring this
+    ad-hoc proposal and, on 2026-08-22 after reviewing both alignment
+    reports, ruled the spine. This records authorization to AUTHOR, not
+    ratification of content: the carried options and open questions are
+    declared, not decided.
+  approved_on: 2026-08-22

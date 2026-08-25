@@ -1,0 +1,51 @@
+# INVALID roster fragment — violates FR-034's legend rule: the token `unit_a`
+# is declared in BOTH `blast_radius_units` and `duties`. The legend is a
+# MAPPING, so "declared twice for the same key on one axis" is unrepresentable
+# at the schema level; the checkable duplicate is a token bound on both axes
+# at once, which makes its provider-native binding ambiguous (finding
+# legend-token-declared-twice).
+schema_version: 1
+kind: xfactory_client_identity_roster
+client_ref: demo-client
+client_tenant: 11111111-1111-1111-1111-111111111111
+domain: demoxfactory
+legend:
+  blast_radius_units:
+    unit_a: Unit A
+  duties:
+    unit_a: Unit A
+entries:
+- identity_ref: demo-bc-identity
+  identity_kind: entra_app_registration
+  home_tenant: 11111111-1111-1111-1111-111111111111
+  principal_locations:
+  - 11111111-1111-1111-1111-111111111111
+  residency_model: client_tenant_single
+  admission_surface: business_central
+  duty: unit_a
+  blast_radius_unit: unit_a
+  authority_class_intended: observe
+  authority_class_achieved: observe
+  granted_permissions:
+  - id: Demo.Read.All
+    achieves: observe
+    reaches:
+    - business_central
+  admission:
+  - surface: business_central
+    act: per-environment application user created
+    achieved_scope: Unit A environment
+    enforcement_mode: provider_enforced
+    evidence_ref:
+      repo: opensoft/DemoxFactory
+      path: tenants/demo-admission-evidence-v1.yaml
+    verified_at: '2026-08-01T00:00:00Z'
+    exceeds_governed_unit: false
+  per_unit_principal_available:
+    business_central: true
+  lifecycle_state: enrolled
+  standing_credential_attestation:
+    no_standing_credential: true
+    attested_at: '2026-08-01T00:00:00Z'
+  ratified_by: demoxfactory:demo-observation-capability
+  consent_ref: demo-consent-v1

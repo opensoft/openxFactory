@@ -1,0 +1,19 @@
+schema_version: 1
+kind: xfactory_ontology_candidate_record
+candidate_id: cand-<slug>
+package_id: xf/<domain-slug>
+mode: extend
+proposed:
+  concepts:
+    - id: xf/<domain-slug>/<term>
+      label: "<Label>"
+      definition: "<reviewed definition>"
+      parents: [xf/core/<kernel-parent>]
+provenance:
+  method: human_authored
+  source_refs: ["<registered-system-id>"]
+review_state: accepted
+disposition:
+  decided_by: <steward-id-from-manifest-roster>
+  decision: accepted
+  decision_ref: "<review evidence reference>"

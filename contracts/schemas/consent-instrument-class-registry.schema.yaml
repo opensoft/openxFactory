@@ -1,0 +1,86 @@
+# Grown by `add-consent-instrument` (DTN-016): the domain-owned CLOSED
+# instrument-class registry under neutral constraints (ruling D2). Canonical
+# validator: scripts/validate-consent-instruments.py.
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "consent-instrument-class-registry.schema.yaml"
+title: "xFactory consent-instrument class registry: domain-owned classes under neutral constraints"
+# 1 -> 2 (add-client-identity-roster): `status_aliases` values track the
+# instrument schema's six-state lifecycle. Additive — no existing alias
+# declaration becomes invalid.
+contract_schema_version: 2
+type: object
+description: >-
+  Each domain declares its own CLOSED registry of consent-instrument classes
+  (spec requirement "Domain-Owned Instrument-Class Registries Under Neutral
+  Constraints", ruling D2): the neutral contract constrains what every class
+  DECLARES — its custody-anchor kind and its execution-evidence kind — never
+  which classes a domain may have. A neutral class vocabulary would have
+  refused either Medx's four medical classes or Ledgerx's mid-engagement
+  `internal_beta_authorization`; under this shape both conform as-is.
+
+  Each class also declares its lifecycle posture (ruling D3):
+  `signature_phase: false` is the DECLARED direct-to-executed skip (portal
+  acceptance), and `status_aliases` maps domain status spellings onto the
+  closed neutral enum (Ledgerx `active` -> `executed`) at conformance time,
+  with the underlying domain record keeping its own spelling. The canonical
+  validator refuses an alias that remaps a neutral spelling and refuses an
+  instrument whose class is absent from the registry in scope.
+additionalProperties: false
+required: [schema_version, kind, domain, classes]
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_consent_instrument_class_registry
+  domain:
+    type: string
+    minLength: 1
+    # The domain whose instruments this registry adjudicates; instruments
+    # carry the same `domain` value.
+  classes:
+    type: array
+    minItems: 1
+    # CLOSED: this list is the domain's WHOLE instrument-class vocabulary —
+    # an instrument naming a class outside it is nonconformant (validator
+    # finding unknown-instrument-class).
+    items:
+      type: object
+      additionalProperties: false
+      required: [name, custody_anchor_kind, execution_evidence_kind, signature_phase]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          # Domain-owned naming; no neutral vocabulary constrains it (D2).
+        custody_anchor_kind:
+          type: string
+          minLength: 1
+          # What the custody locator points at for this class (e.g. a
+          # countersigned PDF, an acceptance-event export). REQUIRED: a
+          # class without it is refused (spec R3 scenario "A class without
+          # evidence declaration is refused").
+        execution_evidence_kind:
+          type: string
+          minLength: 1
+          # What proves execution for this class (e.g. a dual signature
+          # page, a portal acceptance event). REQUIRED, same refusal.
+        signature_phase:
+          type: boolean
+          # false is the DECLARED direct-to-executed skip (D3): instruments
+          # of this class may enter `executed` without `pending_signatures`.
+          # true means the signature phase must appear in the instrument's
+          # transition trace — an undeclared skip is a validator finding.
+        status_aliases:
+          type: object
+          minProperties: 1
+          propertyNames:
+            minLength: 1
+          additionalProperties:
+            type: string
+            enum: [draft, pending_signatures, executed, amended, terminated, withdrawn]
+          # Domain spelling -> neutral enum value, DECLARED at conformance
+          # time (D3). Keys are domain spellings only; the validator refuses
+          # an alias whose key is itself a neutral spelling.
+          # A domain spelling MAY target `withdrawn`; declaring `withdrawn`
+          # itself as an alias of `terminated` is nonconformant, because the
+          # two are distinct events that both raise the cascade obligation.

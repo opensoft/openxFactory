@@ -1,0 +1,54 @@
+# expect: archetype
+# A crystallized class inventing a sixth archetype — crystallized
+# executors bind to the EXISTING five so the constitutional matrix and
+# neutral tooling cover them verbatim.
+schema_version: 1
+kind: omnigent_domain_overlay
+domain:
+  id: example-engineering
+  orchestrator_profile: software
+composition:
+  operations_contract: domain_installation_overlay
+  stricter_rule_wins: true
+workers:
+  - id: change_author
+    archetype: generate
+    responsibility: Produce bounded implementation artifacts.
+    inputs: [scope_frame]
+    outputs: [implementation_artifact]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: true
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+  - id: invented_archetype_playbook
+    archetype: crystallized_execute
+    crystallized: true
+    capability_ref: cap-example-invented
+    automation_rung: L3
+    replaces_configuration: change_author
+    throttle:
+      schedule_ref: dials.young_throttle
+    responsibility: Crystallized class claiming a new archetype.
+    inputs: [scope_frame]
+    outputs: [implementation_artifact]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: true
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+job_types:
+  - change_generation
+credential_requirements:
+  all_classes:
+    - workspace_read
+  never_assignable:
+    - final_action_execute
+routing:
+  scope_ambiguity: intent_owner
+stop_conditions:
+  - required_validation_failed

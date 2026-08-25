@@ -1,0 +1,150 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "crystallization-decision.schema.yaml"
+title: "Crystallization decision record (the only path from candidate to spend)"
+contract_schema_version: 1
+description: >-
+  The investment decision consuming one open pattern-ledger candidate
+  (add-crystallizer-contracts, requirements "Decisions Are The Only Path To
+  Spend", "Ceilings Resolve Before Valuation", "Valuation Discounts Like An
+  Investor", "Decisions Select A Shape", "Declined Candidates Are
+  Recorded", "The Decision Ladder Matures With Evidence", "The Rung
+  Vocabulary Is Frozen"). Evaluation order is fixed: the family's rung
+  ceiling resolves FIRST (overlay declaration or the neutral L3 default),
+  valuation rows exist only for eligible rungs, and a funded rung comes
+  from those rows. A funded outcome carries rung + budget cap + abort rule
+  + proof obligations, never a boolean; a declined outcome is a recorded
+  not_yet with reasons and re-nomination conditions. The schema is
+  deliberately shape-only where the named policy rules live in the
+  canonical validator (candidate-required, ceiling-exceeded, funded-rung,
+  outcome-shape, braid-complete, not-yet-complete, ladder-maturity,
+  valuation-discounting): candidate_ref is nullable, discount factors are
+  optional, and approvals are nullable so the validator, not the shape,
+  rejects them. Canonical validator:
+  scripts/validate-crystallizer-contracts.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - decision_id
+  - candidate_ref
+  - family_ref
+  - ceiling
+  - valuation
+  - outcome
+  - funded
+  - not_yet
+  - approvals
+  - decision_ladder_rung
+  - calibration_refs
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: crystallization_decision
+  decision_id:
+    type: string
+    pattern: "^dec:"
+  candidate_ref:
+    type: ["string", "null"]
+    pattern: "^cand:"
+    description: "Nullable in shape; the canonical validator requires an open candidate reference."
+  family_ref:
+    type: string
+    pattern: "^fam:"
+  ceiling:
+    type: object
+    additionalProperties: false
+    required: [rung, source]
+    properties:
+      rung:
+        $ref: "#/$defs/automation_rung"
+      source:
+        enum: [overlay, default]
+      reason_ref:
+        type: ["string", "null"]
+  valuation:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [rung, expected_value]
+      properties:
+        rung:
+          $ref: "#/$defs/automation_rung"
+        expected_value:
+          type: number
+        deflation_factor:
+          type: number
+          minimum: 0
+          maximum: 1
+        survival_factor:
+          type: number
+          minimum: 0
+          maximum: 1
+        nontoken_value:
+          type: object
+  outcome:
+    enum: [funded, not_yet]
+  funded:
+    type: ["object", "null"]
+    additionalProperties: false
+    required: [rung, budget_cap, abort_rule, proof_obligations]
+    properties:
+      rung:
+        enum: [L2, L3, L4, L5, L6]
+      budget_cap:
+        type: number
+        exclusiveMinimum: 0
+      abort_rule:
+        type: string
+        minLength: 1
+      proof_obligations:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          minLength: 1
+  not_yet:
+    type: ["object", "null"]
+    additionalProperties: false
+    required: [reasons, renominate_when]
+    properties:
+      reasons:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          minLength: 1
+      renominate_when:
+        type: string
+        minLength: 1
+  approvals:
+    type: object
+    additionalProperties: false
+    required: [domain_fitness_ref, tenant_budget_ref, consent_check]
+    properties:
+      domain_fitness_ref:
+        type: ["string", "null"]
+      tenant_budget_ref:
+        type: ["string", "null"]
+      consent_check:
+        type: object
+        additionalProperties: false
+        required: [automation_tier]
+        properties:
+          automation_tier:
+            enum: [granted, conditional, missing]
+  decision_ladder_rung:
+    enum: [1, 2, 3]
+  calibration_refs:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  at:
+    type: string
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+$defs:
+  automation_rung:
+    enum: [L0, L1, L2, L3, L4, L5, L6]

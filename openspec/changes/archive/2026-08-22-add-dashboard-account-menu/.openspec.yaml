@@ -1,0 +1,28 @@
+schema: spec-driven
+created: 2026-08-21
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-21-add-dashboard-account-menu
+  reason: >-
+    Authored directly against a gap the hosted deployment exposed, with no
+    staging topic behind it: the dashboard had been running behind the
+    dox-auth gateway with a verified per-user identity arriving on every
+    request (`X-Auth-Request-User`) and a gateway-owned `/logout` already in
+    place, while the UI showed no account affordance, no signed-in username,
+    no access level, and no way to leave. No organized source material
+    existed to stage — the requirement was read off the deployed surface —
+    so the ad-hoc exception is the honest declaration rather than a
+    substitute for staging.
+    PROVENANCE OF THIS FILE, stated rather than implied. This declaration was
+    written on 2026-08-22 by the `archive-register-rulings` bookkeeping slice,
+    not at the proposal transition, and the change therefore carried no origin
+    declaration from creation through archive — the `proposal-origin` ERROR
+    recorded as C3 in `docs/archive-record-discrepancies.md`. The
+    `approved_by`/`approved_on` pair below is likewise not a contemporaneous
+    record: it is the fact Brett supplied in the 2026-08-22 in-session ruling
+    round captured in that register, declaring that he ratified this change
+    in-session on 2026-08-21, its authoring date. Nothing here is inferred
+    from the archive gate or from the realization commit's wording; the pair
+    would still be absent had Brett not named it.
+  approved_by: Brett Heap
+  approved_on: 2026-08-21

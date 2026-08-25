@@ -1,0 +1,54 @@
+# expect: duplicate worker_class
+schema_version: 1
+kind: omnigent_install_manifest
+
+stack_identity:
+  hermes_runtime_manifest:
+    repository: opensoft/xFactory-Hermes-Install
+    commit: 0123456789abcdef0123456789abcdef01234567
+    path: config/runtime-manifest.yaml
+    digest: 9f2c8e1a7b4d5f60312a8c9e0d1f2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c
+
+domain_overlays:
+  - domain_id: example-engineering
+    repository: opensoft/codexFactory
+    commit: 89abcdef0123456789abcdef0123456789abcdef
+    overlay_root: omnigent
+    overlay_manifest_path: omnigent/overlay-manifest.yaml
+    overlay_manifest_digest: 1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f809
+
+subject_workloads:
+  - workload_id: wl-demo-01
+    subject_ref: subject-demo-0001
+    activation_state: dormant_foundation
+    validator_mode: render
+    workload_root: clients/example/workloads/demo
+
+effective_profiles:
+  rendered_root: rendered/effective-profiles
+  provenance:
+    core_revision: fedcba9876543210fedcba9876543210fedcba98
+    overlay_manifest_digest: 1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f809
+    tenant_params_digest: 2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a
+
+evidence:
+  records_root: evidence/omnigent-compose
+
+semantic_contexts:
+  kernel:
+    package_id: xf/core
+    package_version: 0.1.0
+    package_digest: 9d4ea5fa3e44505bbe1c3e00c5f007941cf0a30f6cbd0f2030cd83250dd505a5
+  ontology_package:
+    package_id: xf/example
+    package_version: 1.0.0
+    package_digest: 3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b
+  contexts:
+    - worker_class: check_runner
+      context_id: ctx-example-verify
+      content_digest: 4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c
+      path: rendered/semantic-contexts/ctx-example-verify.yaml
+    - worker_class: check_runner
+      context_id: ctx-example-verify-b
+      content_digest: 5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d
+      path: rendered/semantic-contexts/ctx-example-verify-b.yaml

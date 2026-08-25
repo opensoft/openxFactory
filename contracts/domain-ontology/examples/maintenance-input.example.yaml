@@ -1,0 +1,11 @@
+schema_version: 1
+kind: xfactory_ontology_maintenance_input
+package_id: xf/medx
+as_of: '2026-07-28'
+window: {from: '2026-07-01', to: '2026-07-28'}
+unknown_terms:
+  - term_form: example unmapped term
+    count: 12
+    distinct_subjects: 8
+    distinct_tenants: 2
+mapping_failures: []

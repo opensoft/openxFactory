@@ -1,0 +1,40 @@
+# Positive fixture: a minimal medical specialization of the kernel
+# (task 3.5). Patient specializes xf/core/subject; Treatment
+# specializes xf/core/focal_item; one by-reference external mapping
+# with a restrictive license and NO quoted definition.
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/medx
+package_version: 1.0.0
+namespace: xf/medx
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: medx-ontology-steward
+    role: accountable_steward
+    identity_kind: human
+  - steward_id: medx-review-council
+    role: council
+    identity_kind: council
+kernel_import:
+  package_id: xf/core
+  package_version: 1.0.0
+  package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+inventory:
+  - path: profile-verify.yaml
+    sha256: d21807472792003f39e9f9bef2abf68643967758039a53c7ea84413967ace39d
+  - path: stewardship.yaml
+    sha256: 48fc4cda9d280940ee9fafd7fc10ff7c26032172bfa6f634791bce321df0705e
+  - path: concepts.yaml
+    sha256: 75169f3b6414903c716f79fbc786a8eefed99b5ad8cc8891acd266fd4143f3c2
+  - path: mappings.yaml
+    sha256: b8dbe95dd3c2d25d5b5316591ae9df987063c2589ea13a5e4a4c06ce6fc8df65
+  - path: sources.yaml
+    sha256: cb56dd5258e363465519bf79695cfb8d252684d2b9061601042722b6c4c8fb93
+package_digest: 344dcb456fd67a6d3f81077261108a4240d3ef3ed500eb716a47bbdc7c885b2a
+compatibility:
+  class: initial
+  line: xf/medx@1

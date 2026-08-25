@@ -1,0 +1,12 @@
+# INVALID gate-action record: promote-to-staging must reference the
+# workflow-job descriptor it dispatched.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: promote-to-staging
+target:
+  possible_id: pos-cluster-canvas
+at: "2026-07-25T14:01:00Z"
+artifacts:
+  - kind: other
+    reference: notes/promote-to-staging.txt

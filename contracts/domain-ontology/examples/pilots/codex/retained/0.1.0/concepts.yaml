@@ -1,0 +1,115 @@
+schema_version: 1
+kind: xfactory_ontology_concepts
+# Starter-seeded DRAFT concept registry (deterministic; see
+# hermes/domain/ontology/README.md). Domain Hermes reviews, edits,
+# and publishes; the starter never overwrites this file.
+package_id: xf/codex
+concepts:
+  - id: xf/codex/project
+    label: "Project"
+    definition: "Starter-seeded subject kind specialization from intake item 'Project'; awaiting Domain Hermes review."
+    parents: [xf/core/subject]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/repository
+    label: "Repository"
+    definition: "Starter-seeded focal item kind specialization from intake item 'Repository'; awaiting Domain Hermes review."
+    parents: [xf/core/focal_item]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/feature
+    label: "Feature"
+    definition: "Starter-seeded focal item kind specialization from intake item 'Feature'; awaiting Domain Hermes review."
+    parents: [xf/core/focal_item]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/execution_lane
+    label: "Execution Lane"
+    definition: "Starter-seeded workflow specialization from intake item 'Execution Lane'; awaiting Domain Hermes review."
+    parents: [xf/core/workflow]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/review_lane
+    label: "Review Lane"
+    definition: "Starter-seeded workflow specialization from intake item 'Review Lane'; awaiting Domain Hermes review."
+    parents: [xf/core/workflow]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/code_review
+    label: "Code Review"
+    definition: "Starter-seeded activity specialization from intake item 'Code Review'; awaiting Domain Hermes review."
+    parents: [xf/core/activity]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/decomposition
+    label: "Decomposition"
+    definition: "Starter-seeded activity specialization from intake item 'Decomposition'; awaiting Domain Hermes review."
+    parents: [xf/core/activity]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/intake
+    label: "Intake"
+    definition: "Starter-seeded journey state specialization from intake item 'Intake'; awaiting Domain Hermes review."
+    parents: [xf/core/journey_state]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/decomposed
+    label: "Decomposed"
+    definition: "Starter-seeded journey state specialization from intake item 'Decomposed'; awaiting Domain Hermes review."
+    parents: [xf/core/journey_state]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/in_execution
+    label: "In Execution"
+    definition: "Starter-seeded journey state specialization from intake item 'In Execution'; awaiting Domain Hermes review."
+    parents: [xf/core/journey_state]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/in_review
+    label: "In Review"
+    definition: "Starter-seeded journey state specialization from intake item 'In Review'; awaiting Domain Hermes review."
+    parents: [xf/core/journey_state]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/admitted
+    label: "Admitted"
+    definition: "Starter-seeded journey state specialization from intake item 'Admitted'; awaiting Domain Hermes review."
+    parents: [xf/core/journey_state]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/merged
+    label: "Merged"
+    definition: "Starter-seeded outcome specialization from intake item 'Merged'; awaiting Domain Hermes review."
+    parents: [xf/core/outcome]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/reverted
+    label: "Reverted"
+    definition: "Starter-seeded outcome specialization from intake item 'Reverted'; awaiting Domain Hermes review."
+    parents: [xf/core/outcome]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/revert
+    label: "Revert"
+    definition: "Starter-seeded intervention specialization from intake item 'Revert'; awaiting Domain Hermes review."
+    parents: [xf/core/intervention]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/escalation
+    label: "Escalation"
+    definition: "Starter-seeded intervention specialization from intake item 'Escalation'; awaiting Domain Hermes review."
+    parents: [xf/core/intervention]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/test_run
+    label: "Test Run"
+    definition: "Starter-seeded evidence type specialization from intake item 'Test Run'; awaiting Domain Hermes review."
+    parents: [xf/core/evidence]
+    lifecycle_state: published
+    effective_version: 0.1.0
+  - id: xf/codex/review_record
+    label: "Review Record"
+    definition: "Starter-seeded evidence type specialization from intake item 'Review Record'; awaiting Domain Hermes review."
+    parents: [xf/core/evidence]
+    lifecycle_state: published
+    effective_version: 0.1.0

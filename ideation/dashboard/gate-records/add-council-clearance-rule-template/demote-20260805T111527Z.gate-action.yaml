@@ -1,0 +1,22 @@
+# gate-action record — a HUMAN-gate console action audit entry
+# (gate-action-record.schema.yaml). A session verb is reachable only from the
+# human console: a caller that cannot show it originates there is rejected and
+# reported before any record is written. That is a console-PRESENCE control,
+# not authentication (design D23) — `provenance`, where present, names the
+# door this action came through and how presence was shown.
+schema_version: 1
+kind: gate-action-record
+actor: brettheap
+action: demote
+target:
+  change_id: add-council-clearance-rule-template
+at: '2026-08-05T11:15:27Z'
+artifacts:
+- kind: transition-manifest
+  reference: ideation/dashboard/gate-records/add-council-clearance-rule-template/demote-20260805T111527Z.transition-manifest.yaml
+- kind: other
+  reference: ideation/dashboard/gate-records/add-council-clearance-rule-template/demote-20260805T111527Z.plan.yaml
+- kind: register-update
+  reference: ideation/dashboard/gate-records/add-council-clearance-rule-template/demote-20260805T111527Z.register-update.md
+reason: rule-of-three trigger not fired — no second consumer has named itself; return
+  the template to staging until one does.

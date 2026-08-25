@@ -1,0 +1,42 @@
+# reverse-transition (demotion) manifest — the demotion record.
+format_version: 1
+transition: demote
+change_id: add-council-clearance-rule-template
+destination:
+  kind: staged
+  id: tier2-council-clearance-pattern
+  path: ideation/staging/tier2-council-clearance-pattern
+  openspec_workspace: ideation/staging/tier2-council-clearance-pattern/openspec
+origin:
+  kind: change
+  path: openspec/changes/add-council-clearance-rule-template
+actor: brettheap
+reason: rule-of-three trigger not fired — no second consumer has named itself; return
+  the template to staging until one does.
+transitioned_at: '2026-08-05T11:15:27Z'
+source_revision: b8ef31abda93823681528eefe9e61af78e201806
+files:
+- from: openspec/changes/add-council-clearance-rule-template/design.md
+  to: ideation/staging/tier2-council-clearance-pattern/openspec/design.md
+  role: design-draft
+  status_flip: draft
+- from: openspec/changes/add-council-clearance-rule-template/proposal.md
+  to: ideation/staging/tier2-council-clearance-pattern/openspec/proposal.md
+  role: proposal-draft
+  status_flip: draft
+- from: openspec/changes/add-council-clearance-rule-template/specs/council-clearance-gate-rule/spec.md
+  to: ideation/staging/tier2-council-clearance-pattern/openspec/specs/council-clearance-gate-rule/spec.md
+  role: spec-delta
+  status_flip: draft
+- from: openspec/changes/add-council-clearance-rule-template/tasks.md
+  to: ideation/staging/tier2-council-clearance-pattern/openspec/tasks.md
+  role: tasks
+  status_flip: null
+register_edits:
+  withdraw_pick_edges:
+  - pos-derived-reusable-tier-2-council-clearance-pattern-beyond
+  note: each listed possible's pick edge (change_id inheritance) is withdrawn — the
+    returning idea keeps its id (it was never terminal, so no resurrection is required).
+readme_index_update: ideation/staging/tier2-council-clearance-pattern/README.md gains
+  a 'Returned drafts' record and ideation/staging/tier2-council-clearance-pattern/openspec/INDEX.md
+  lists the returned draft proposals.

@@ -1,0 +1,33 @@
+# VALID issuance evidence at the STRICT level: the authority exposes
+# per-certificate request provenance, so the record establishes which anchor
+# issued, under which admitted authority, on whose request, and when. This is
+# the level a self-hosted authority is held to precisely because it can reach it
+# — the ratification refused the option of writing the weaker form into the
+# obligation, which would have let it stop at the floor.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:core-service-01
+certificate_ref: cert:core-service-01
+anchor_ref: anchor:core-issuing
+realization_ref: realization:core-self-hosted-authority
+authority:
+  authority_ref: policy:core-service-issuance-policy
+  authority_kind: policy
+  statement: The service-issuance policy the anchor admits by name.
+establishment_level: per_certificate_record
+request_provenance:
+  establishment: established
+  requester_ref: role:core-platform-steward
+  request_id: req:core-service-01-2026-08
+  requested_at: "2026-07-30T14:00:00Z"
+  statement: >-
+    The request, the requester and the request time are all read from the
+    authority's own issuance record, not reconstructed from a change ticket.
+issued_at: "2026-08-01T00:00:00Z"
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: true
+  statement: >-
+    Operated by the family, so per-certificate provenance is extractable and the
+    strict level is the honest one.
+record_version: 1

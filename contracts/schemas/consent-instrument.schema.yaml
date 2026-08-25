@@ -1,0 +1,354 @@
+# Grown by `add-consent-instrument` (DTN-016): the neutral rung-1<->rung-2
+# consent instrument — the ROOT OF THE AUTHORITY CHAIN that credential grants
+# cite, gates verify, adapters activate on, and whose termination cascades
+# through declared dependent references. Canonical validator:
+# scripts/validate-consent-instruments.py (ruling D8).
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "consent-instrument.schema.yaml"
+title: "xFactory consent instrument: the neutral rung-1<->rung-2 authority-chain root"
+# 1 -> 2 (add-client-identity-roster): the lifecycle enum grows by `withdrawn`
+# and dependent_refs gains the `governed_identity` kind with its two evidence
+# siblings. Both are ADDITIVE — the RECORD envelope's `schema_version` stays
+# `const: 1`, because changing it would invalidate every instrument in the
+# estate, which is the opposite of additive.
+contract_schema_version: 2
+type: object
+description: >-
+  Every domain's rung-1<->rung-2 consent instrument — the engagement letter,
+  the patient consent, the agency agreement — instantiates this neutral shape
+  (spec requirement "The Instrument Is A Neutral Governed Record"). Existing
+  schema'd instances (the Ledgerx engagement consent record, the Medx patient
+  consent record) declare conformance with field and lifecycle mappings; they
+  are not rewritten.
+
+  CLOSED ON PURPOSE. This record object sets additionalProperties: false and
+  carries NO parent_ref property anywhere, because amendments are status
+  TRANSITIONS carrying deltas on the existing instrument, never new
+  instruments referencing a parent (requirement "Amendments Are Transitions,
+  Never New Instruments", ruling D7) — the closed shape is what keeps every
+  citation target stable. This family trades the additive-open posture for
+  that rule; growth takes a contract_schema_version bump.
+
+  CUSTODY IS A POINTER. The signed original is referenced by opaque locator +
+  sha256 only (the document-cataloging custody pattern, ruling D9); there is
+  no property its content could sit in, and the canonical validator rejects
+  blob-shaped custody values regardless of schema outcome.
+
+  ONE ENFORCEMENT TRUTH PER CONCERN. Delegation clauses carry the technical
+  access shape FREE-SHAPE (ruling D4): permission strings, constraints,
+  read-only limits, and verification evidence are credential-contracts
+  enforcement, so neither this schema nor the canonical validator inspects
+  them. The neutral check verifies PURPOSE resolution only, against the
+  domain's declared purpose model (kind xfactory_consent_purpose_model).
+
+  The domain's CLOSED class registry (kind
+  xfactory_consent_instrument_class_registry, ruling D2) — not this schema —
+  owns the instrument-class vocabulary, the per-class evidence declarations,
+  the declared signature-phase skip (ruling D3), and the declared status
+  aliases (Ledgerx `active` -> `executed`).
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - instrument_id
+  - domain
+  - instrument_class
+  - parties
+  - scope
+  - autonomy_position
+  - revocation
+  - custody
+  - status
+  - data_consent
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_consent_instrument
+  instrument_id:
+    type: string
+    minLength: 1
+    # The stable citation target: consent citations on grants, gates, and
+    # adapter activations resolve to THIS identifier, and amendments never
+    # change it (spec "The Instrument Is The Authority-Chain Root", D7).
+  domain:
+    type: string
+    minLength: 1
+    # Names the domain whose class registry and purpose model adjudicate this
+    # record (the registry and model carry the same `domain` value).
+  instrument_class:
+    type: string
+    minLength: 1
+    # A name from the domain's CLOSED class registry (D2). Deliberately
+    # enum-free here: the neutral contract constrains what a class DECLARES,
+    # never which classes a domain may have. Membership is checked by the
+    # VALIDATOR against the registry in scope, not by this schema.
+  parties:
+    type: array
+    minItems: 2
+    # At minimum the tenant (rung 1) and the served subject (rung 2). A third
+    # party whose authorization a delegation needs — an estate host, the
+    # Medxcorp pattern — appears HERE at its rung as part of the executed
+    # instrument, never as an out-of-band arrangement (spec R1 scenario "An
+    # estate host is a party, not a footnote").
+    items:
+      type: object
+      additionalProperties: false
+      required: [party, rung, authority_basis]
+      properties:
+        party:
+          type: string
+          minLength: 1
+        rung:
+          type: integer
+          minimum: 0
+          maximum: 3
+          # The party-ladder rung (docs/party-ladder.md, four-rung model):
+          # 0 product author/operator, 1 tenant, 2 served subject, 3 modeled
+          # third party (estate hosts sit at 3; `role` names what they host).
+        role:
+          type: string
+          minLength: 1
+        authority_basis:
+          type: string
+          enum: [direct, guardian, delegated, court_ordered]
+          # First-class per party (spec "Authority Basis Is First-Class", D6
+          # — the Medx enum precedent). Signer and execution mechanics stay
+          # domain policy; distinct signers across rungs are a SHOULD in
+          # related-party engagements, recorded, never silent.
+  scope:
+    type: object
+    additionalProperties: false
+    required: [purposes, out_of_scope]
+    properties:
+      purposes:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          minLength: 1
+        # Every entry must resolve in the domain's declared purpose model —
+        # direct membership or a resolves_to chain (validator, spec "The
+        # Neutral Check Verifies Purpose Resolution Only", D4).
+      out_of_scope:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          minLength: 1
+        # STATED out-of-scope is part of the neutral shape (spec R1): an
+        # instrument that excludes nothing still says so explicitly.
+  delegation_clauses:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [access]
+      properties:
+        clause_id:
+          type: string
+          minLength: 1
+        summary:
+          type: string
+          minLength: 1
+        access:
+          type: object
+          minProperties: 1
+          # FREE-SHAPE by ruling D4: the technical access shape (permission +
+          # constraint + read-only limits + verification evidence) is carried
+          # here but constrained and enforced ONLY by credential-contracts.
+          # The canonical consent validator passes this block over untouched.
+  autonomy_position:
+    type: string
+    minLength: 1
+    # Deliberately enum-free: Medx fixes `hypothesis_only` as DOMAIN policy;
+    # the neutral shape only requires that the position be stated.
+  revocation:
+    type: object
+    additionalProperties: false
+    required: [right, sla]
+    properties:
+      right:
+        type: string
+        minLength: 1
+      sla:
+        type: string
+        minLength: 1
+        # The bound every declared dependent reference falls due under on
+        # termination or withdrawal (spec "Termination Cascades Through
+        # Declared Dependent References") — e.g. an ISO-8601 duration "P1D".
+  custody:
+    type: object
+    additionalProperties: false
+    # CLOSED on purpose (spec "The Signed Original Never Enters A Product
+    # Repo", D9): locator + sha256 and NOTHING else — there is no property
+    # the signed original's content could occupy. Record-INSTANCE placement
+    # (repo tenant tree vs governed store) is declared domain policy.
+    required: [locator, sha256]
+    properties:
+      locator:
+        type: string
+        minLength: 1
+        # OPAQUE (the document-cataloging custody pattern): a pointer into
+        # the domain's declared store, never a payload and never parsed here.
+      sha256:
+        type: string
+        pattern: "^[0-9a-f]{64}$"
+  status:
+    type: string
+    enum: [draft, pending_signatures, executed, amended, terminated, withdrawn]
+    # CLOSED six-state lifecycle (spec "The Lifecycle Enum Is Closed With
+    # Declared Aliases", D3). Domain spellings never widen this enum — they
+    # map via status_aliases DECLARED on the class registry entry (Ledgerx
+    # `active` -> `executed`), with the underlying domain record keeping its
+    # own spelling.
+    # `withdrawn` (add-client-identity-roster) is a SECOND TERMINAL state,
+    # reachable once the instrument is past execution, and a DISTINCT member —
+    # never an alias of `terminated`. Withdrawal by the consenting party and
+    # termination are distinct EVENTS, and both raise the cascade obligation
+    # below, so collapsing them would lose the event while keeping the duty.
+  status_history:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [status, at]
+      properties:
+        status:
+          type: string
+          enum: [draft, pending_signatures, executed, amended, terminated, withdrawn]
+        at:
+          type: string
+          format: date-time
+    # The transition trace the D3 declared-skip check reads: under a class
+    # whose registry entry declares signature_phase true, an executed (or
+    # later) instrument must show pending_signatures here — a silent skip is
+    # a validator finding (undeclared-lifecycle-skip). A class declaring
+    # signature_phase false enters `executed` directly, legally.
+  amendments:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [at, delta]
+      properties:
+        at:
+          type: string
+          format: date-time
+        delta:
+          type: string
+          minLength: 1
+    # Amendments are TRANSITIONS carrying their deltas on THIS instrument
+    # (spec "Amendments Are Transitions, Never New Instruments", D7). This
+    # schema has NO parent_ref property and the record object is closed, so
+    # an "amendment" modeled as a child instrument is schema-rejected.
+  dependent_refs:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [kind, ref]
+      properties:
+        kind:
+          type: string
+          enum: [consent_profile, credential_grant, adapter_activation,
+                 governed_identity, other]
+          # CLOSED plus `other` (spec R8): an unforeseen dependent kind rides
+          # `other` WITH a note (conditional below) — never a bare string.
+          # `governed_identity` (add-client-identity-roster) is a NAMED member
+          # rather than an `other` rider: a standing identity in another
+          # party's tenant is exactly what the cascade must reach, and a kind
+          # that rides the escape hatch cannot carry an obligation of its own.
+        ref:
+          type: string
+          minLength: 1
+          description: >-
+            A DECLARED POINTER, never resolved by this validator. For a
+            `governed_identity` the convention is the roster FRAGMENT PATH plus
+            the entry's `identity_ref` (for example
+            `credentials/client-identity-roster/acme.yaml#farheap-bc-observer`).
+            The validator opens no fragment, confirms no entry's existence and
+            crosses no repository boundary — the same posture as `evidence_ref`
+            in the roster contract, and for the same reason: these validators
+            are network-free and read ONE repository. Resolution belongs to the
+            cross-domain pass that assembles from pinned repos.
+        note:
+          type: string
+          minLength: 1
+        cascade_evidence:
+          type: string
+          minLength: 1
+          # Optional while the instrument lives; the VALIDATOR requires it on
+          # every reference once status is terminated OR WITHDRAWN (spec R8)
+          # — the evidence obligation under the record's revocation SLA.
+          # Cascade MECHANICS stay in the owning contract families (D5).
+        identity_removal_evidence:
+          type: string
+          minLength: 1
+          # For a `governed_identity`: evidence that the identity itself was
+          # removed. Required by the VALIDATOR (not by a root-level if/then,
+          # following this family's own precedent above) once the instrument is
+          # terminated or withdrawn — a credential revocation alone leaves the
+          # standing identity in the client's tenant with its admission intact.
+        admission_withdrawal_evidence:
+          type: string
+          minLength: 1
+          # For a `governed_identity`: evidence that the ADMISSION ACT was
+          # withdrawn. Admission and identity are two separate keys — the
+          # measured finding this contract family exists for is that consented
+          # permissions returned 401 until the admission act landed — so
+          # removing one and leaving the other is a half-cascade.
+      allOf:
+        - if:
+            properties:
+              kind:
+                const: other
+            required: [kind]
+          then:
+            required: [note]
+  data_consent:
+    type: object
+    additionalProperties: false
+    required: [mapping]
+    # REQUIRED, never silently omitted (spec "The Consent-Profile Mapping Is
+    # Declared", D1): the instrument authorizes ACTION; the derived
+    # memory-gateway consent profile governs DATA. An engagement with no
+    # data-consent implication DECLARES `mapping: none`.
+    properties:
+      mapping:
+        type: string
+        enum: [none, consent_profile]
+      profile_ref:
+        type: string
+        minLength: 1
+      derivation_basis:
+        type: string
+        minLength: 1
+    allOf:
+      - if:
+          properties:
+            mapping:
+              const: consent_profile
+          required: [mapping]
+        then:
+          required: [profile_ref, derivation_basis]
+      - if:
+          properties:
+            mapping:
+              const: none
+          required: [mapping]
+        then:
+          not:
+            anyOf:
+              - required: [profile_ref]
+              - required: [derivation_basis]
+  effective:
+    type: object
+    additionalProperties: false
+    properties:
+      executed_on:
+        type: string
+        format: date
+      terminated_on:
+        type: string
+        format: date

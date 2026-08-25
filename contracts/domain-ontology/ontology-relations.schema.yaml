@@ -1,0 +1,120 @@
+schema_version: 1
+name: xfactory_ontology_relations
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-relations.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, task 2.1). The relation
+# registry of one ontology package.
+#
+# EVERY RELATION NAMES EXACT DOMAIN AND RANGE CONCEPTS (spec: Stable
+# specialization and relation semantics); widening OR narrowing either set on
+# a published relation is BREAKING. `characteristics` is the closed set of
+# deterministic properties a consumer may rely on — no executable rules, no
+# open-world axioms, and no authority effects exist in this shape (spec:
+# Deterministic semantic conformance).
+type: object
+required:
+  - schema_version
+  - kind
+  - package_id
+  - relations
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_ontology_relations
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  relations:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required:
+        - id
+        - label
+        - definition
+        - domain
+        - range
+        - lifecycle_state
+        - effective_version
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/$defs/term_id"
+        label:
+          type: string
+          minLength: 1
+          maxLength: 80
+        definition:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        domain:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/$defs/term_id"
+        range:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/$defs/term_id"
+        characteristics:
+          type: array
+          items:
+            enum: [transitive, symmetric, asymmetric, functional, inverse_functional, irreflexive]
+        lifecycle_state:
+          enum: [draft, published, deprecated, retired]
+        parents:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/$defs/term_id"
+        owning_contract:
+          # Kernel relations name the contract/doc owning their runtime
+          # semantics, exactly like concepts (release-review finding 14).
+          type: string
+          pattern: "^[A-Za-z0-9._/-]{1,200}$"
+        adoption:
+          type: object
+          required: [status]
+          additionalProperties: false
+          properties:
+            status:
+              enum: [pending, evidenced]
+            adopters:
+              type: array
+              items:
+                type: object
+                required: [kind, ref]
+                additionalProperties: false
+                properties:
+                  kind:
+                    enum: [domain_package, shared_subsystem_contract]
+                  ref:
+                    type: string
+                    pattern: "^[A-Za-z0-9._/@-]{1,200}$"
+        sources:
+          type: array
+          items:
+            $ref: "#/$defs/slug"
+        steward:
+          $ref: "#/$defs/slug"
+        effective_version:
+          type: string
+          pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        superseded_by:
+          $ref: "#/$defs/term_id"
+        notes:
+          type: string
+          minLength: 1
+          maxLength: 400
+$defs:
+  term_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+  slug:
+    type: string
+    pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"

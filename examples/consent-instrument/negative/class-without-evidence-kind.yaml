@@ -1,0 +1,15 @@
+# INVALID instrument-class registry — violates spec requirement
+# "Domain-Owned Instrument-Class Registries Under Neutral Constraints"
+# (scenario "A class without evidence declaration is refused", ruling D2):
+# the `verbal_authorization` class omits its execution_evidence_kind. The
+# neutral contract never constrains which classes a domain may have, but a
+# class that declares no execution evidence is refused (finding
+# class-without-evidence-kind, fired by the validator's registry rule
+# regardless of the schema's own required-property error).
+schema_version: 1
+kind: xfactory_consent_instrument_class_registry
+domain: demo-advisory
+classes:
+  - name: verbal_authorization
+    custody_anchor_kind: call_recording_ref
+    signature_phase: false

@@ -1,0 +1,86 @@
+# expected_failure: family-operated-shortfall-claimed
+# expected_failure_detail: nothing prevents the credential record
+# requirement: TA-R7
+# VIOLATES TA-R7 at the place the claim is MADE. The realization declares that it
+# operates the authority end to end, and in the same document declares that it
+# CANNOT put that authority's key material in a credential record with a vault
+# binding.
+#
+# Both halves of the ratified sentence matter: authority material sits "at the
+# strictest custody tier THE FAMILY OPERATES", and the declared-shortfall shape
+# exists for the authority whose internals the family cannot reach. An operator
+# that can produce a credential record and declares that it cannot is not
+# declaring a shortfall — it is using the declaration as an exemption, which is
+# the one thing the honest-shortfall rule must never become. The conformant
+# answer here is to produce the credential record.
+#
+# `authority_operated_by_family` was REQUIRED by the schema and READ BY NOTHING,
+# which is how a ruling ends up existing only in prose.
+schema_version: 1
+kind: xfactory_trust_anchor_conformance_declaration
+declaration_id: decl:neg-family-operated-shortfall
+capability: trust-anchor
+realization:
+  realization_id: realization:neg-self-hosted-excusing-itself
+  statement: >-
+    A certificate authority the family operates end to end — the same estate,
+    the same administrators, the same vault.
+  authority_operated_by_family: true
+  authority_statement: >-
+    Operated by the family. The anchor keys, the issuance path and the logs are
+    all inside the estate the family administers.
+  population_statement: Service certificates for an internal platform.
+declared_at: "2026-08-01T00:00:00Z"
+obligations:
+  - entry_id: ob:neg-excusing:TA-R1
+    obligation: TA-R1
+    satisfaction: satisfied
+    reason: Anchors are held as records and trust decisions name them.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-excusing:TA-R2
+    obligation: TA-R2
+    satisfaction: satisfied
+    reason: >-
+      The authority exposes per-certificate request provenance and every issuance
+      record carries it.
+    declared_at: "2026-08-01T00:00:00Z"
+    achieved_establishment_level: per_certificate_record
+  - entry_id: ob:neg-excusing:TA-R3
+    obligation: TA-R3
+    satisfaction: satisfied
+    reason: Custody is declared from the closed registry on every record.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-excusing:TA-R4
+    obligation: TA-R4
+    satisfaction: satisfied
+    reason: The issuing workflow owns the rebind and evidences each one.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-excusing:TA-R5
+    obligation: TA-R5
+    satisfaction: satisfied
+    reason: Bindings are recorded against the certificate before service.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-excusing:TA-R6
+    obligation: TA-R6
+    satisfaction: satisfied
+    reason: Propagation rides the ratified derivation rule inside a window.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-excusing:TA-R7
+    obligation: TA-R7
+    obligation_statement: >-
+      Authority material and issuance credentials are credential records, never
+      committed
+    satisfaction: cannot
+    reason: >-
+      The root key is a readable file on the CA host and the bring-up script
+      needs it there, so a credential record with a vault binding is not
+      something this realization can produce today. Declared rather than hidden.
+    declared_at: "2026-08-01T00:00:00Z"
+    compensating_control: >-
+      Host access is limited to the platform team, and the file is mode 0600.
+  - entry_id: ob:neg-excusing:TA-R8
+    obligation: TA-R8
+    satisfaction: satisfied
+    reason: This declaration is the artifact, refreshed when standing changes.
+    declared_at: "2026-08-01T00:00:00Z"
+record_version: 1

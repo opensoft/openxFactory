@@ -1,0 +1,24 @@
+# VALID distinct-holder constraint: the first consumer's control, expressed in
+# the grant model instead of reimplemented in a domain. LedgerxFactory needs
+# "the agent that created the transaction may not post it" — maker-checker,
+# which is not an agent property and applies equally to practitioners, so it
+# belongs in the holder-agnostic core.
+#
+# It is OPT-IN. A capability declaring no constraint is subject to none; a
+# silent default here would make every two-step flow in the family suddenly
+# require two actors.
+schema_version: 1
+kind: xfactory_wallet_distinct_holder_constraint
+constraint_id: dhc-posting-sod-0001
+declared_by: ledgerx:posting-segregation-of-duties
+object_kind: purchase_invoice
+acts:
+  prior: create_transaction
+  subsequent: post_transaction
+comparison_basis: recorded_holder_of_prior_act
+distinctness_floor: holder_id
+statement: >-
+  The holder posting a purchase invoice must differ from the holder recorded
+  as having created it. Today both reach the platform through one application
+  user, so the platform cannot tell them apart; this constraint is what makes
+  the difference expressible.

@@ -1,6 +1,6 @@
 # Synthesis: The Capability Steward — Run, Watch, Renew — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: The run/renew arc composes seven atomic pieces — registry,
 dispatch, parity, drift/lifecycle, learning-loop coupling, accounting, and
@@ -17,6 +17,9 @@ capability-registry, accounting, cross-tenant, synthesis
 Repository context: openxFactory (the run/renew-arc contract family as one
 subsystem)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

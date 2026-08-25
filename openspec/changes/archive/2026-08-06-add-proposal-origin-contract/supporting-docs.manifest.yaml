@@ -1,0 +1,29 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "d6ac51197563a29143f3cab69fa73e41badd417f08edbff80c9716f2c9f50076"
+  },
+  "change_id": "add-proposal-origin-contract",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "2c239d6f71cd638a344a420f558cdb09e081230bd2e970b2a5f5da5f29065bfe"
+    },
+    {
+      "path": "origin-contract.md",
+      "sha256": "8e869c3717ee262415d0318322219658c26db3196f992711457d6e5b921638d6"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": {
+    "id": "openxFactory:staging:proposal-origin-contract",
+    "kind": "staged",
+    "path": "ideation/staging/proposal-origin-contract"
+  },
+  "origin_path": "ideation/staging/proposal-origin-contract",
+  "packaged_at": "2026-08-06",
+  "source_revision": "154fae4d81e4340270f9de605b01bf69da810175",
+  "transitioned_at": "2026-07-12"
+}

@@ -2,7 +2,7 @@
 code_surface: openxFactory (templates/client-layer/roles/ + scaffold delta, contracts/client-content/ schemas + fixtures, scripts/validate-client-content.py)
 target_release: contract-v1.17 (released at realization 2026-07-23; annotated tag verified)
 Status: ratified
-Ratified by: user approval of `add-client-layer-tuning-contracts` on 2026-07-24
+Ratified: user approval of `add-client-layer-tuning-contracts` on 2026-07-24
 Realized: live-proven — the opensoft tenant tuned and seeded on aks-opensoft-platform-qa-01
   (hermes-install docs/release/phase-2-flip-evidence.md)
 ---

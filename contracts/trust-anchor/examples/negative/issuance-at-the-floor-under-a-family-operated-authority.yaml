@@ -1,0 +1,46 @@
+# expected_failure: issuance-floor-under-a-family-operated-authority
+# expected_failure_detail: the middle option the ratification refused
+# requirement: TA-R2
+# VIOLATES OQ1's ruling. The record declares the DECLARED FLOOR — per-policy
+# attestation plus the authority's own log — while declaring, in the same record,
+# that the family OPERATES the issuing authority.
+#
+# The ruling is explicit about which option it refused: "Reject the tempting
+# middle option of writing the weaker form into the requirement itself: that
+# would let the self-hosted authority, which can do better, stop at the floor."
+# The floor was never a choice — it is the honest form where the authority's
+# internals are out of reach. An operator that can extract per-certificate
+# provenance and records the floor instead IS the refused middle option, arriving
+# one record at a time rather than as a change to the requirement.
+#
+# `issuing_authority.operated_by_family` was REQUIRED by the schema and read by
+# nothing, so the ruling lived in the schema's description and nowhere else.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:neg-floor-under-operated-authority
+certificate_ref: cert:managed-device-05
+anchor_ref: anchor:managed-issuing
+realization_ref: realization:managed-cloud-authority-canary
+authority:
+  authority_ref: policy:managed-device-issuance-profile
+  authority_kind: policy
+  statement: The enrollment profile the anchor admits.
+establishment_level: per_policy_attestation_with_authority_log
+request_provenance:
+  establishment: not_established
+  declared_shortfall_ref: ob:managed:TA-R2
+  statement: >-
+    Not extracted. The authority is ours and it does expose the request, but
+    pulling it into the record is work nobody has scheduled.
+authority_attestation:
+  policy_attestation_ref: attestation:managed-device-issuance-profile-2026-08
+  authority_log_ref: authoritylog:managed-issuing-2026-08-01
+  retrieved_at: "2026-08-02T01:00:00Z"
+issued_at: "2026-08-02T00:00:00Z"
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: true
+  statement: >-
+    Operated by the family after the migration: the issuance path, the profile
+    and the logs are all inside the estate now.
+record_version: 1

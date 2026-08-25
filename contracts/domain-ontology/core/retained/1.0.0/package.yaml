@@ -1,0 +1,42 @@
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+# Version 1.0.0 published by scripts/ontology-release.py;
+# supersedes 0.1.0 (retained at retained/0.1.0/).
+package_id: xf/core
+package_version: 1.0.0
+namespace: xf/core
+is_kernel: true
+lifecycle_state: published
+owner:
+  layer: openxfactory
+  name: "openxFactory contract maintainers"
+stewards:
+  - steward_id: openxfactory-maintainers
+    role: accountable_steward
+    identity_kind: council
+    name: "openxFactory contract maintainers"
+inventory:
+  - path: concepts.yaml
+    sha256: 07ba15b6146dec5fb417d147fac43513800f04bdc249ea7abf77c25877fd54a5
+  - path: relations.yaml
+    sha256: 9034114930ca7a3c197ec97777e5c5e252d051ee55c42ca0a50c959fc5250205
+  - path: sources.yaml
+    sha256: c7a24dcc83052e03f5fa2b10233f3882a4f295be99880b866bf0af0a105ba715
+package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+compatibility:
+  class: additive
+  line: xf/core@1
+  previous:
+    package_version: 0.1.0
+    package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+supersedes:
+  - package_version: 0.1.0
+    package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+adoption:
+  status: evidenced
+  adopters:
+    - kind: domain_package
+      ref: xf/medx
+    - kind: domain_package
+      ref: xf/codex
+notes: "First governed publication 2026-07-30 (publish-semantic-kernel): xf/core 1.0.0, every term adoption-evidenced, released by the accountable openxfactory-maintainers council."

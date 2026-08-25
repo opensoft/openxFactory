@@ -1,0 +1,44 @@
+# expected_failure: attribution-laundered
+# expected_failure_detail: the key that actually signed
+# requirement: OXW-R5
+# VIOLATES core R5: the attribution block claims the audience's key while the
+# verified proof names another wallet's.
+#
+# The first audience-binding fix derived the presenting wallet from
+# `attribution.presenting_key_ref` — self-declared data, the same trust
+# mistake one field over, found by review on the fix itself. Here the proof
+# block records what actually happened (key-creator-0002 signed and
+# verified) while attribution narrates the story the binding wants to hear
+# (key-poster-0001, the audience's key, and the audience's wallet).
+#
+# Attribution follows the key that actually signed. The attribution block
+# may narrate the proof; it may not contradict it.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-proof-contradicted-0028
+grant_ref: grant-posting-derived-0002
+act: post_transaction
+object_ref: purchase-invoice:LXRP0034
+occurred_at: "2026-08-08T11:20:00Z"
+event_class: authenticated
+proof_of_possession:
+  presented: true
+  verified: true
+  signature_algorithm: ed25519
+  signed_over: request
+  presenting_key_ref: key-creator-0002
+attribution:
+  mode: key_attributed
+  presenting_key_ref: key-poster-0001
+  wallet_ref: wal-agent-poster-0001
+  holder_ref: agent:ledger-poster
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+constraint_evaluations:
+  - constraint_ref: dhc-posting-sod-0001
+    prior_act_holder_ref: agent:ledger-intake-alt
+    this_holder_ref: agent:ledger-poster
+    satisfied: true
+outcome: permitted

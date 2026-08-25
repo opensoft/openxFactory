@@ -1,0 +1,23 @@
+schema_version: 1
+kind: xfactory_semantic_context
+context_id: ctx-medx-generate-pilot
+purpose: drafting context for a generate worker
+worker_scope:
+  worker_archetype: generate
+kernel_pin:
+  package_id: xf/core
+  package_version: 1.0.0
+  package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+package_pin:
+  package_id: xf/medx
+  package_version: 2.0.0
+  package_digest: 2362431138380cf1c4d58f531c768956ad8649edacf51943d2f689e006780644
+terms:
+  - xf/core/focal_item
+  - xf/core/journey_state
+  - xf/core/state
+  - xf/medx/care_plan
+  - xf/medx/intake
+closure:
+  status: closed
+content_digest: 86507cb499afb6698811ac9091c989b6a16033ce8b9a6ec71ea8112ee0b80d68

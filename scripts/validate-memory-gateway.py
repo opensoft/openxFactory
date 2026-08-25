@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import sys
 from pathlib import Path
 from typing import Any
@@ -13,9 +14,31 @@ except ImportError:
     print("ERROR PyYAML is required", file=sys.stderr)
     sys.exit(2)
 
+try:
+    import jsonschema
+except ImportError:
+    print("ERROR jsonschema is required", file=sys.stderr)
+    sys.exit(2)
+
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_DIR = ROOT / "contracts" / "memory-gateway"
 EXAMPLE_DIR = ROOT / "examples" / "memory-gateway"
+ONTOLOGY_DIR = ROOT / "contracts" / "domain-ontology"
+
+
+def _load_ontology_validator():
+    """The canonical ontology validator owns the reserved authority-name set
+    (release-review finding 22): one definition, imported here, so the two
+    validators can never drift apart silently."""
+    spec = importlib.util.spec_from_file_location(
+        "ontology_validator", ROOT / "scripts" / "validate-domain-ontology.py")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["ontology_validator"] = module  # dataclasses resolve __module__
+    spec.loader.exec_module(module)
+    return module
+
+
+_ONTOLOGY_VALIDATOR = _load_ontology_validator()
 
 REQUIRED_CONTRACTS = {
     "README.md",
@@ -41,6 +64,7 @@ REQUIRED_CONTRACTS = {
 }
 
 REQUIRED_EXAMPLES = {
+    "semantic-context-packet.example.yaml",
     "gbrain-provider-profile.yaml",
     "honcho-provider-profile.yaml",
     "agentmemory-provider-profile.yaml",
@@ -65,7 +89,21 @@ REQUIRED_EXAMPLES = {
     "memory-binding.example.yaml",
 }
 
-REQUIRED_FIXTURE_IDS = {
+# The semantic-context fixture family is EXECUTED, never merely declared
+# (add-ontology-stewardship-hardening, F27): each carries a probe run
+# through the same preflight the examples get, or names its executed proof.
+SEMANTIC_FIXTURE_IDS = {
+    "semantic_context_digest_mismatch_rejected",
+    "semantic_context_unpinned_package_rejected",
+    "semantic_context_retired_package_rejected",
+    "semantic_context_cross_purpose_rejected",
+    "semantic_context_tenant_binding_mismatch_rejected",
+    "semantic_context_unrestricted_corpus_refused",
+    "semantic_context_provider_replacement_stable",
+    "semantic_inference_cannot_authorize",
+}
+
+REQUIRED_FIXTURE_IDS = SEMANTIC_FIXTURE_IDS | {
     "read_denied_missing_consent",
     "read_denied_withdrawn_consent",
     "write_denied_missing_source_refs",
@@ -268,6 +306,200 @@ def validate_memory_bindings(errors: list[str]) -> None:
         _binding_surface_violations(binding, "binding", errors, where)
 
 
+# Reserved authority names come from the canonical ontology validator
+# (release-review finding 22) plus the gateway's own "approval"; the
+# gateway rejects them anywhere inside a packet, not only in the
+# semantic_context block (release-review finding 11).
+SEMANTIC_AUTHORITY_KEYS = set(_ONTOLOGY_VALIDATOR.RESERVED_FIELD_NAMES) | {"approval"}
+
+
+def _packet_schemas() -> dict[str, Any]:
+    return {
+        "context_packet": load_yaml(CONTRACT_DIR / "context-packet.schema.yaml"),
+        "expert_context_packet": load_yaml(CONTRACT_DIR / "expert-context-packet.schema.yaml"),
+    }
+
+
+def validate_packet_schemas(errors: list[str]) -> None:
+    """Apply the packet schemas to every example packet (release-review
+    finding 11): the closed shapes are enforced by an actual validator run,
+    not asserted in prose — an undeclared key anywhere in a packet fails."""
+    schemas = _packet_schemas()
+    checked = 0
+    for example in sorted(EXAMPLE_DIR.glob("*.yaml")):
+        doc = load_yaml(example)
+        if not isinstance(doc, dict):
+            continue
+        for packet_key, schema in schemas.items():
+            if packet_key not in doc:
+                continue
+            checked += 1
+            validator = jsonschema.validators.validator_for(schema)(schema)
+            for err in sorted(validator.iter_errors(doc), key=lambda e: str(e.path)):
+                loc = "/".join(str(p) for p in err.absolute_path)
+                errors.append(f"{example.name} {packet_key} schema: {loc}: {err.message}")
+    if checked == 0:
+        errors.append("no example exercises the packet schemas")
+
+
+def _known_package_digests() -> dict[str, set[str]]:
+    """Every package manifest under contracts/domain-ontology (kernel,
+    examples, retained history) by package_id -> digests. Example packet pins
+    must resolve here (release-review finding 12): a fabricated pin that
+    resolves nowhere fails closed exactly as the runtime gateway would fail
+    it against the consumer's pinned tree."""
+    known: dict[str, set[str]] = {}
+    for manifest_path in sorted(ONTOLOGY_DIR.rglob("package.yaml")):
+        doc = load_yaml(manifest_path)
+        if isinstance(doc, dict) and doc.get("package_id") and doc.get("package_digest"):
+            known.setdefault(str(doc["package_id"]), set()).add(str(doc["package_digest"]))
+    return known
+
+
+def packet_semantic_errors(packet: dict, where: str,
+                           known: dict[str, set[str]]) -> list[str]:
+    """The per-packet semantic preflight core — the SAME checks whether the
+    packet comes from an example file or a conformance-fixture probe
+    (add-ontology-stewardship-hardening, F27)."""
+    import re as _re
+    errors: list[str] = []
+    ctx = packet.get("semantic_context")
+    if ctx is None:
+        return errors
+    for key in ("semantic_context_id", "content_digest", "purpose",
+                "kernel_pin", "package_pin", "term_subset", "lifecycle"):
+        if key not in ctx:
+            errors.append(f"{where} semantic_context missing {key}")
+    if not _re.match(r"^[a-f0-9]{64}$", str(ctx.get("content_digest", ""))):
+        errors.append(f"{where} semantic_context content_digest is not a sha256")
+    for pin_name in ("kernel_pin", "package_pin"):
+        pin = ctx.get(pin_name) or {}
+        digest = str(pin.get("package_digest", ""))
+        if not _re.match(r"^[a-f0-9]{64}$", digest):
+            errors.append(f"{where} {pin_name} lacks an exact digest; "
+                          "an unpinned package fails closed")
+        elif digest not in known.get(str(pin.get("package_id")), set()):
+            errors.append(f"{where} {pin_name} {pin.get('package_id')}@"
+                          f"{digest[:12]}... does not resolve to any package "
+                          "manifest under contracts/domain-ontology; a pin "
+                          "that resolves nowhere fails closed")
+    if ctx.get("purpose") != packet.get("purpose"):
+        errors.append(f"{where} semantic_context purpose differs from the packet "
+                      "purpose; cross-purpose reuse requires a new packet")
+    state = (ctx.get("lifecycle") or {}).get("package_lifecycle_state")
+    if state not in ("published", "deprecated"):
+        errors.append(f"{where} semantic_context package lifecycle {state!r} "
+                      "rejected before provider I/O")
+    if not ctx.get("term_subset"):
+        errors.append(f"{where} semantic_context term_subset is empty; an "
+                      "unrestricted ontology corpus is never issued")
+    # The whole packet, not only the semantic block, is walked for
+    # authority-named keys (release-review finding 11).
+    stack: list[Any] = [packet]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if k.lower() in SEMANTIC_AUTHORITY_KEYS:
+                    errors.append(f"{where} packet carries authority-named "
+                                  f"key {k!r}; semantic context never grants")
+                stack.append(v)
+        elif isinstance(node, list):
+            stack.extend(node)
+    return errors
+
+
+def validate_semantic_context(errors: list[str]) -> None:
+    """Semantic-context preflight (add-domain-ontology-layer, tasks 6.2/6.3):
+    every example packet carrying a semantic_context block is checked the way
+    the gateway must check it BEFORE provider I/O — exact ids and digests,
+    pins resolving to real package manifests in this repo's ontology tree,
+    published-or-deprecated package lifecycle (retired fails closed), purpose
+    agreement with the packet (cross-purpose reuse is a new-packet event),
+    and a non-empty bounded term subset. The block can never widen anything:
+    an authority-named key anywhere in the packet is a violation, and both
+    packet kinds (customer and expert) must exercise the block."""
+    checked_kinds: set[str] = set()
+    known = _known_package_digests()
+    for example in sorted(EXAMPLE_DIR.glob("*.example.yaml")):
+        doc = load_yaml(example)
+        for packet_key in ("context_packet", "expert_context_packet"):
+            packet = doc.get(packet_key)
+            if not isinstance(packet, dict):
+                continue
+            if packet.get("semantic_context") is None:
+                continue
+            checked_kinds.add(packet_key)
+            errors.extend(packet_semantic_errors(
+                packet, f"{example.name}:{packet_key}", known))
+    for packet_key in ("context_packet", "expert_context_packet"):
+        if packet_key not in checked_kinds:
+            errors.append(f"no {packet_key} example exercises semantic_context")
+
+
+def _apply_probe(packet: dict, probe: dict) -> dict:
+    """Apply a fixture probe (dotted-path set/delete mutations) to a deep
+    copy of the canonical packet."""
+    import copy
+    mutated = copy.deepcopy(packet)
+
+    def walk(path: str):
+        parts = path.split(".")
+        node = mutated
+        for part in parts[:-1]:
+            node = node.setdefault(part, {})
+        return node, parts[-1]
+
+    for path, value in (probe.get("set") or {}).items():
+        node, leaf = walk(str(path))
+        node[leaf] = value
+    for path in probe.get("delete") or []:
+        node, leaf = walk(str(path))
+        node.pop(leaf, None)
+    return mutated
+
+
+def validate_fixture_probes(errors: list[str]) -> None:
+    """Executable conformance fixtures (add-ontology-stewardship-hardening,
+    F27): every semantic-context fixture either carries a probe — a mutation
+    of the canonical example packet EXECUTED through the same preflight the
+    examples get, asserting rejection — or names the artifact that executes
+    the behavior, whose resolution is verified. Declarative-only semantic
+    fixtures fail."""
+    data = load_yaml(EXAMPLE_DIR / "conformance-fixtures.yaml")
+    fixtures = {f.get("id"): f for f in data.get("fixtures", [])}
+    canonical = load_yaml(EXAMPLE_DIR / "semantic-context-packet.example.yaml")
+    base_packet = canonical.get("context_packet") or {}
+    known = _known_package_digests()
+    schema = _packet_schemas()["context_packet"]
+    validator = jsonschema.validators.validator_for(schema)(schema)
+    for fixture_id in sorted(SEMANTIC_FIXTURE_IDS):
+        fixture = fixtures.get(fixture_id)
+        if fixture is None:
+            continue  # absence reported by validate_fixtures
+        probe = fixture.get("probe")
+        executed_by = fixture.get("executed_by")
+        if probe:
+            mutated = _apply_probe(base_packet, probe)
+            probe_errors = packet_semantic_errors(mutated, fixture_id, known)
+            probe_errors += [e.message for e in
+                             validator.iter_errors({"schema_version": 1,
+                                                    "context_packet": mutated})]
+            if not probe_errors:
+                errors.append(f"fixture {fixture_id}: probe executed but the "
+                              "mutated packet was NOT rejected — the fixture "
+                              "promises behavior nothing enforces")
+        elif executed_by:
+            if not (ROOT / str(executed_by)).exists():
+                errors.append(f"fixture {fixture_id}: executed_by "
+                              f"{executed_by!r} does not resolve — a dangling "
+                              "delegate is a declarative fixture")
+        else:
+            errors.append(f"fixture {fixture_id}: neither probe nor executed_by "
+                          "— semantic-context fixtures are executed, never "
+                          "merely declared")
+
+
 def validate_fixtures(errors: list[str]) -> None:
     data = load_yaml(EXAMPLE_DIR / "conformance-fixtures.yaml")
     fixtures = data.get("fixtures", [])
@@ -362,7 +594,10 @@ def main() -> int:
     validate_provider_profiles(errors)
     validate_examples(errors)
     validate_memory_bindings(errors)
+    validate_packet_schemas(errors)
+    validate_semantic_context(errors)
     validate_fixtures(errors)
+    validate_fixture_probes(errors)
     validate_runtime_smoke(errors)
     if errors:
         for error in errors:

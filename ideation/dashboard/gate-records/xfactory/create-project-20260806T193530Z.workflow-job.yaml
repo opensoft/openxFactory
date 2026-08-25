@@ -1,0 +1,18 @@
+# workflow-job commissioning descriptor — recorded + gated; the commissioned work runs externally.
+kind: workflow-job
+schema_version: 1
+project_id: xfactory
+workflow: project-register-edit
+gate_contract: workflow-gate
+authoring_outline: 'Apply the recorded project-register edit: add project ''xfactory''
+  (''xFactory'') with member repositories  to the aggregation-owned project-register.yaml;
+  validate against the pinned schema (id uniqueness; membership is multi-parent) before
+  landing.'
+status: delivered
+dispatched_by: brettheap
+dispatched_at: '2026-08-06T19:35:30Z'
+project_name: xFactory
+repositories: []
+# Delivered 2026-08-06 by the fulfilling terminal session: EMPTY project
+# 'xfactory' added to the aggregation register (commit d1ea422; D17's
+# create-first flow) — it awaits members via edit-project.

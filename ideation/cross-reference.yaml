@@ -1,3 +1,11 @@
+# GENERATED — ideation cross-reference readiness index (source of truth).
+# Produced by the openxFactory readiness scorer (scripts/doc_health/ideation_readiness.py;
+# add-ideation-cross-reference-readiness tasks 3.1-3.5). Regenerate deterministically;
+# ideation/cross-reference.md is a projection of THIS file. Cluster rule + scoring contract:
+# specs/003-ideation-readiness/ (codexFactory).
+# possibles_register section maintained by the derive-possibles lane
+# (scripts/doc_health/derive_possibles.py; add-possibles-derivation-lane tasks 3.1-3.5;
+# specs/004-derive-possibles).
 schema_version: 1
 kind: ideation-cross-reference
 repository: openxFactory
@@ -8106,11 +8114,12 @@ possibles_register:
     from the already-staged council/catalog content.'
 - id: pos-derived-reusable-tier-2-council-clearance-pattern-beyond
   title: Reusable tier-2 council-clearance pattern beyond the doc-health sweep
-  claim: The nightly-sweep-specific tier-2 council-clearance rule could become a generalized
-    per-repo gate-rule pattern â€” a template other autonomous sweeps or repos can
-    instantiate through their own Gate-Rules Council exercise, rather than a one-off
-    doc-health carve-out.
-  state: latent
+  claim: The nightly-sweep-specific tier-2 council-clearance rule could become a generalized per-repo
+    gate-rule pattern â€” a template other autonomous sweeps or repos can instantiate through their own
+    Gate-Rules Council exercise, rather than a one-off doc-health carve-out.
+  state: picked
+  pick:
+    staging_id: tier2-council-clearance-pattern
   origin: ai-derived
   provenance:
     document: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
@@ -8133,11 +8142,37 @@ possibles_register:
   - document: ideation/brainstorm/nightly-sweep-council-clearance-rule.md
     section: Summary
     passage_sha256: 86f3e04dcfb886081362d8b4f51ee6c9ecb38eb874731f05c791ec1a07001d8a
-  rationale: The nightly-sweep document explicitly frames itself as the Gate-Rules
-    Council's first exercise of a general capability (widening what auto-clears is
-    itself a per-repo gate rule), while the deliberation and hermes-content documents
-    define the Gate-Rules Council and merge-readiness council as reusable, cross-repo
-    governance bodies rather than single-purpose ones. Connecting the concrete rehearsal
-    artifact to the abstract council machinery suggests a durable, reusable authoring
-    pattern for future tier-2 rules, which no existing possible or the staged Change
-    B currently names.
+  rationale: The nightly-sweep document explicitly frames itself as the Gate-Rules Council's first exercise
+    of a general capability (widening what auto-clears is itself a per-repo gate rule), while the deliberation
+    and hermes-content documents define the Gate-Rules Council and merge-readiness council as reusable,
+    cross-repo governance bodies rather than single-purpose ones. Connecting the concrete rehearsal artifact
+    to the abstract council machinery suggests a durable, reusable authoring pattern for future tier-2
+    rules, which no existing possible or the staged Change B currently names.
+- id: pos-derived-governed-kill-switch-custody-contract
+  title: Governed kill-switch custody contract
+  claim: The pilot's kill-switch custody question — who may flip the per-profile / all-session / per-cohort
+    switch, and whether the flip is audited and consented — could be answered once as a neutral Hermes-governed
+    control contract (custody, granularity, audit, consent) that any factory's live surface instantiates,
+    instead of each pilot deciding custody ad hoc.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md
+    section: derived-from cluster cl-kill-switch
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-ce481777af8d
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-kill-switch
+  supporting_evidence:
+  - document: ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md
+    section: Open questions — 5. Rollback granularity and kill-switch custody
+    passage_sha256: 37a134686e447f733cd9406b65f19987536d32f45ea72a3ef3c6098cd23c4ac8
+  rationale: The avatar-pilot-hardening fragment leaves kill-switch custody explicitly unresolved (open
+    question 5) and frames it as a governance fork — Hermes-governed control vs ops-plane control — while
+    FR-031's switch already exists in code. No staged topic or existing possible names a neutral custody
+    contract, and the same custody/audit/consent questions recur for every future live surface carrying
+    an emergency stop, so the answer is capability-shaped rather than pilot-shaped.

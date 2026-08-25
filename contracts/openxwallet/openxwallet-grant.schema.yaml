@@ -1,0 +1,136 @@
+schema_version: 1
+kind: openxfactory-openxwallet-contract-schema
+name: xfactory_wallet_grant
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/openxwallet/v1/openxwallet-grant.schema.yaml"
+contract_id: openxwallet-grant
+contract_schema_version: 1
+title: openxWallet capability grant
+description: >-
+  The attenuated capability grant (add-openxwallet, capability `openxwallet`,
+  requirement "Authority travels as attenuated grants, never as keys").
+
+  Every authority a wallet confers is a GRANT, never access to the key itself:
+  a raw key can be neither expired nor revoked, and a shared key destroys
+  attribution. The grant names its audience, its scope and its expiry, and
+  derivation from a parent is MONOTONICALLY NARROWING — a derived grant may
+  reduce scope or lifetime and may never widen either. Without that, delegation
+  is key-sharing with extra steps.
+
+  There is no property here that could carry a key, and none that could carry a
+  bearer token: possession of this record confers nothing. Exercise requires a
+  signature from the audience wallet's key over the request, recorded in
+  `openxwallet-grant-exercise.schema.yaml`.
+
+  AUTHORITY IS ONE VOCABULARY. `scope.authority_tier` is a tier from the
+  custody registry's ladder, and `scope.approval_posture` — when present —
+  draws its KEYS from the neutral job envelope's `approval_policy` properties
+  rather than restating them. The canonical validator reads that property set
+  out of `contracts/schemas/hermes-job-envelope.schema.yaml` at run time, so
+  the two cannot drift; a key outside it is a parallel authority vocabulary and
+  a validation failure. Posture and tier are bound to each other so they cannot
+  disagree either (see the validator's rules (f) and (g)).
+type: object
+required:
+  - schema_version
+  - kind
+  - grant_id
+  - audience
+  - scope
+  - expires_at
+  - state
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_wallet_grant]
+  grant_id: {$ref: '#/$defs/identifier'}
+  audience:
+    # WHO may exercise this grant — always a wallet, because exercise requires
+    # proof of possession of that wallet's key. The custody ceiling that
+    # bounds this grant's authority is the custody declared by this wallet.
+    type: object
+    required: [wallet_ref]
+    additionalProperties: false
+    properties:
+      wallet_ref: {$ref: '#/$defs/identifier'}
+      holder_ref: {$ref: '#/$defs/identifier'}
+  scope:
+    type: object
+    required: [acts, authority_tier]
+    additionalProperties: false
+    properties:
+      acts:
+        # The named acts this grant authorises. Attenuation compares these as
+        # a set: a derived grant's acts must be a SUBSET of its parent's.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {$ref: '#/$defs/identifier'}
+      objects:
+        # Optional narrowing to named objects. Absent means the acts are not
+        # object-narrowed; a derived grant may add this narrowing but a
+        # derived grant may not widen or drop a narrowing its parent declared.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {$ref: '#/$defs/identifier'}
+      authority_tier: {$ref: '#/$defs/identifier'}
+      approval_posture:
+        # Keys are the neutral job envelope's `approval_policy` properties and
+        # nothing else. Validated against the canonical envelope schema at run
+        # time; `additionalProperties: false` cannot express "whatever that
+        # schema says", so the shape stays open here and the validator closes
+        # it against the real vocabulary.
+        type: object
+        minProperties: 1
+  expires_at: {type: string, format: date-time}
+  issued_at: {type: string, format: date-time}
+  issued_by:
+    # The issuer identity. Review-authority roots anchor to the responsible
+    # OPERATOR, whose standing is recorded outside this register (Human
+    # Escalation Contract), so this field must be able to carry an operator's
+    # email address — hence its own def rather than the machine-id grammar
+    # every other identifier keeps. Convener-authorized widening 2026-08-24
+    # (S2, 012-wallet-issuer-anchor), overriding that change's initial
+    # no-schema-edit posture.
+    $ref: '#/$defs/issuer_identifier'
+  parent_grant_ref:
+    # Present iff this grant is derived. Attenuation is checked against the
+    # parent named here, and revocation propagates down this edge.
+    $ref: '#/$defs/identifier'
+  state:
+    type: string
+    enum: [active, expired, revoked]
+  revocation:
+    type: object
+    required: [revoked_at, reason]
+    additionalProperties: false
+    properties:
+      revoked_at: {type: string, format: date-time}
+      reason: {type: string, minLength: 1, maxLength: 600}
+      propagated_from: {$ref: '#/$defs/identifier'}
+  distinct_holder_constraint_refs:
+    # Constraints a consuming capability declared over the acts in scope.
+    # Available, never implied: a grant naming none is subject to none.
+    type: array
+    uniqueItems: true
+    items: {$ref: '#/$defs/identifier'}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+  issuer_identifier:
+    # issued_by only. Same grammar as `identifier` plus `@`, so an issuer can
+    # be recorded as an email address — the form operator identities take
+    # under the Human Escalation Contract anchor (convener-authorized
+    # widening 2026-08-24). Every OTHER identifier in this family keeps the
+    # strict machine-id grammar; only issuer identity needed a human-address
+    # form.
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/-]*$'

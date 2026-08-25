@@ -1,0 +1,15 @@
+# expected_failure: idempotency-missing
+# A candidate without an idempotency key — regeneration while one is open
+# must suppress to a no-op, which needs the key.
+schema_version: 1
+kind: crystallization_candidate
+candidate_id: "cand:opensoft:packet-capture-mechanics:dup"
+family_ref: "fam:opensoft:packet-capture-mechanics"
+forecast_ref: "fc:opensoft:packet-capture-mechanics:2026-07-29:h90"
+evidence:
+  episode_refs:
+    - "ep:opensoft:2026-07-28:ontology-packet-capture"
+  cost_baseline: null
+rationale: "same family, regenerated without a key"
+suggested_rung: L3
+state: open

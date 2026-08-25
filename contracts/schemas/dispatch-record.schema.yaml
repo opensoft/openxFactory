@@ -1,0 +1,72 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "dispatch-record.schema.yaml"
+title: "Dispatch record (one per junction decision)"
+contract_schema_version: 1
+description: >-
+  One record per dispatch-junction decision (add-capability-steward,
+  requirements "The Junction Is The Single Entry Before Planning", "Fences
+  Are Deterministic And Ambiguity Falls To The AI Path", "Effect-Class
+  Admission Is Enforced", "Post-Conditions Always Run", "Fallbacks Carry
+  Causes And Feed The Frontier", "Dispatch Overhead Is Budgeted And
+  Metered", "Run Records Are Path-Invariant"). The record shape is
+  identical whichever path served the instance — provenance is the only
+  difference an auditor sees. Policy lives in the canonical validator
+  (effect-class-admission: crystallized path only for pure/idempotent;
+  fallback-cause: an AI-path record for a family with a serving capability
+  carries a cause from the six-value taxonomy; postconditions-required and
+  provenance-required on the crystallized path). Canonical validator:
+  scripts/validate-capability-steward.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - dispatch_id
+  - envelope_ref
+  - family_match
+  - capability_ref
+  - effect_class
+  - path
+  - fallback_cause
+  - postconditions
+  - provenance
+  - overhead
+properties:
+  schema_version: {const: 1}
+  kind: {const: dispatch_record}
+  dispatch_id: {type: string, pattern: "^disp:"}
+  envelope_ref: {type: string, minLength: 1}
+  family_match:
+    type: object
+    additionalProperties: false
+    required: [family_ref, confidence, matcher_version]
+    properties:
+      family_ref: {type: ["string", "null"]}
+      confidence: {type: ["number", "null"], minimum: 0, maximum: 1}
+      matcher_version: {type: string, minLength: 1}
+  capability_ref: {type: ["string", "null"]}
+  effect_class:
+    description: "Copied from the registry at admission; null when no capability matched."
+    enum: [pure, idempotent, compensable, irreversible, null]
+  path: {enum: [crystallized, ai, dual]}
+  fallback_cause:
+    enum: [no-family-match, fence-miss, execution-error, postcondition-fail, risk-override, sentinel, null]
+  postconditions:
+    type: object
+    additionalProperties: false
+    required: [evaluated, passed, breaches]
+    properties:
+      evaluated: {type: boolean}
+      passed: {type: ["boolean", "null"]}
+      breaches:
+        type: array
+        items: {type: string}
+  provenance: {type: ["string", "null"]}
+  overhead:
+    type: object
+    additionalProperties: false
+    required: [decision_ms, decision_credits]
+    properties:
+      decision_ms: {type: integer, minimum: 0}
+      decision_credits: {type: ["number", "null"]}
+  at: {type: string, pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"}

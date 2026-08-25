@@ -1,0 +1,42 @@
+# expected_failure: issuance-level-above-the-declared-achievement
+# expected_failure_detail: asserting the evidence instead
+# requirement: TA-R2
+# VIOLATES TA-R8's closing clause through a TA-R2 record: the realization's
+# declaration says it achieves the floor
+# (`achieved_establishment_level: per_policy_attestation_with_authority_log`)
+# and this record asserts the strict level, with a requester, a request id and a
+# request time filled in.
+#
+# Every record-local rule passes — the strict level requires established
+# provenance and established provenance requires exactly these three fields, and
+# they are all here. The contradiction is with the DECLARATION, which is where a
+# consumer reads which form of evidence to expect. "The gap is not closed by the
+# realization asserting the evidence instead" is the ratified sentence, and
+# `achieved_establishment_level` is the field that makes it checkable — which it
+# was not, being required by the schema and read by nothing.
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:neg-level-above-declared
+certificate_ref: cert:managed-device-05
+anchor_ref: anchor:managed-issuing
+realization_ref: realization:managed-cloud-authority-canary
+authority:
+  authority_ref: policy:managed-device-issuance-profile
+  authority_kind: policy
+  statement: The enrollment profile the anchor admits.
+establishment_level: per_certificate_record
+request_provenance:
+  establishment: established
+  requester_ref: role:fleet-enrollment-operator
+  request_id: req:managed-device-05-reissue
+  requested_at: "2026-08-02T09:00:00Z"
+  statement: >-
+    Reconstructed from the change ticket that was open at the time. Reads exactly
+    like provenance the authority established, which is why the level is a
+    declaration rather than a habit.
+issued_at: "2026-08-02T10:00:00Z"
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: false
+  statement: A managed service; the family administers the profile only.
+record_version: 1

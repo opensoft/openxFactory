@@ -1,0 +1,66 @@
+# Positive reference example — modeled on the pending codexFactory instance
+# `hermes/subject/project-alfa/overlay.yaml` (add-project-alfa-subject-overlay),
+# whose manager-profile binding already addresses its standing policy as
+# `opensoft.codexfactory.project-alfa/admission-conditions`.
+#
+# THIS IS A REFERENCE EXAMPLE, NOT A SEEDABLE DOCUMENT. Subject overlay
+# INSTANCES live only in domain repositories; openxFactory describes the kind
+# and validates it, and never hosts one.
+schema_version: 1
+kind: hermes_subject_overlay
+
+subject:
+  id: project-alfa
+  subject_kind: project
+  display_name: Project Alfa Subject Hermes
+  policy_namespace: opensoft.codexfactory.project-alfa
+  # Declared, never inferred. A subject may ADD constraints; it may not grant,
+  # widen, or waive — which is why no `authority_boundaries`,
+  # `approval_scope_kinds`, or `required_approval_fields` appears anywhere in
+  # this document.
+  relation_to_baseline: additive_constraints_only
+
+  # Domain-declared identity fields. codexFactory's own subject template
+  # (`hermes/subject/template.yaml`, kind `subject_hermes_template`) declares
+  # `required_subject_fields.project: [id, owner, repositories]`; the neutral
+  # schema never names them. When a repo path is supplied the canonical
+  # validator enforces THAT list, not a neutral one.
+  owner: engineering-directorate
+  repositories:
+    - opensoft/codexFactory
+
+  policies:
+    # Addressable as <policy_namespace>/<policy_id>. The key IS the address,
+    # and the payload restates its own namespace and id so a materialized
+    # policy row resolves on its own without joining to the identity record.
+    admission-conditions:
+      policy_id: admission-conditions
+      policy_namespace: opensoft.codexfactory.project-alfa
+      # OPEN body below this line: the policy vocabulary is the domain's.
+      # Enumerating policy names is exactly what stops the tenant-layer
+      # override contract from carrying a domain's named policy.
+      summary: >-
+        Conditions a work packet must satisfy before this project's Hermes
+        admits it. Additive: each condition is a refusal this subject adds to
+        the composed baseline, never a relaxation of it.
+      conditions:
+        - id: packet-digest-binding
+          statement: >-
+            An admission decision cites the sha256 of the exact packet bytes
+            it admitted.
+          blocking: true
+        - id: approved-scope-citation
+          statement: >-
+            A packet names the approved scope reference it executes under.
+          blocking: true
+    review-conditions:
+      policy_id: review-conditions
+      policy_namespace: opensoft.codexfactory.project-alfa
+      summary: >-
+        Conditions this project adds to review before a change is mergeable.
+      conditions:
+        - id: adversarial-review-on-contract-change
+          statement: >-
+            A change touching a pinned contract carries an adversarial review
+            recorded against the exact candidate commit.
+          blocking: true

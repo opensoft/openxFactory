@@ -74,9 +74,23 @@ Core domain-neutral docs:
 
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
+- [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
+- [openXdox Dispatch-Credential Binding Runbook](docs/openxdox-dispatch-credential-binding.md) (operator-hosted vs self-hosted binding for the intent-plane dispatch credential)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
 - [Governed Derived Model](docs/governed-derived-model.md)
+- [Domain-Ontology Semantic Inventory And Decisions](docs/domain-ontology-semantic-decisions.md)
+  (the kernel's term-by-term owners, collision/leak/gap registers, identifier
+  grammar, compatibility rubric; realization record of `add-domain-ontology-layer`
+  tasks 1.1–1.6 — the contract family lives at
+  [contracts/domain-ontology/](contracts/domain-ontology/README.md);
+  pilot evidence: [Pilot Report](docs/domain-ontology-pilot-report.md) ·
+  [Adoption Handoff](docs/domain-ontology-adoption-handoff.md) ·
+  [Guide](docs/domain-ontology-guide.md))
+- [Deployment-Handoff Realization Handoff](docs/deployment-handoff-realization-handoff.md)
+  (the OpsxFactory + codexFactory successor-change packets for the ratified
+  `deployment-handoff-boundary` capability, with the deferred decisions and
+  topic-exit conditions)
 - [xFactory Taxonomy Model](docs/factory-taxonomy-model.md)
 - [Domain Factory Implementation Checklist](docs/domain-factory-implementation-checklist.md)
 - [Domain Stack Pin Implementation Plan](docs/domain-stack-pin-implementation-plan.md)
@@ -98,6 +112,15 @@ Core domain-neutral docs:
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
 - [Doc-Health Contract](docs/doc-health.md)
+  (implementation in-repo since `adopt-neutral-tooling-home`:
+  `scripts/doc_health/` + `scripts/doc-health.py`, the reusable nightly
+  workflow, and `scripts/sync-notebooklm-books.py`; the ideation dashboard
+  runtime lives at `scripts/ideation_dashboard/` with its
+  [session runbook](docs/ideation-dashboard-session-runbook.md); the
+  neutrality-drift lane — the nightly scout that drafts DTN-register
+  seeds from domain-factory content, `add-neutrality-drift-lane` — lives
+  at `scripts/doc_health/neutrality.py` + `neutrality_dispatch.py` with
+  its state under `health/neutrality-drift/`)
 - [Document Catalog Adoption Guide](docs/document-catalog-adoption.md)
 - [Cross-Factory Ideation Routing Adoption Guide](docs/ideation-routing-adoption.md)
 - [Domain-To-Neutral Promotion Process](docs/domain-to-neutral-promotion-process.md)
@@ -119,13 +142,21 @@ Core domain-neutral docs:
 - [xFactory Memory Gateway Contracts](contracts/memory-gateway/README.md)
 - [Omnigent Contract Family](contracts/omnigent/README.md)
   (domain-overlay payload + install manifest; realized by
-  `add-omnigent-domain-overlay`, pending bundle registration)
+  `add-omnigent-domain-overlay`; bundle-registered)
 - [Worker Enrollment Contract Family](contracts/worker-enrollment/README.md)
   (one enrollment point / two authentication modes, renewable LEASES instead of
   registrations, fail-closed minimum-app-version floor, temp-estate segregation
   by trust tier, the brokered remove-token issuance shape, and audit records no
   token value can enter; realized by
-  `add-worker-enrollment-broker`, pending bundle registration)
+  `add-worker-enrollment-broker`; registered at `contract-v1.29`)
+- [Consent Instrument Contract Family](examples/consent-instrument/README.md)
+  (the neutral rung-1↔rung-2 consent instrument — the authority-chain root
+  credential grants cite and termination cascades from: schemas
+  `contracts/schemas/consent-instrument.schema.yaml`,
+  `consent-instrument-class-registry.schema.yaml`, and
+  `consent-purpose-model.schema.yaml`; canonical validator
+  `scripts/validate-consent-instruments.py`; realized by
+  `add-consent-instrument`, registered at `contract-v1.30`)
 - [Tenant Hermes Product And Service Scaffold](docs/client-hermes-product-service-scaffold.md)
 - [Client Infrastructure Liaison](docs/client-infrastructure-liaison.md)
 - [Client Installation Discovery And Workflow Migration](docs/client-installation-discovery-and-migration.md)
@@ -133,6 +164,17 @@ Core domain-neutral docs:
 - [Hermes Mixture Of Agents For xFactory](docs/hermes-mixture-of-agents-for-xfactory.md)
 - [NotebookLM Source Workspaces](docs/notebooklm-source-workspaces.md)
 - [Lifecycle Notebook Projection](docs/lifecycle-notebook-projection.md)
+- [NotebookLM Projection — Hosting Migration Runbook](docs/notebook-projection-migration-runbook.md)
+- [NotebookLM Projection — Hosting Migration Evidence (2026-08-24)](docs/notebook-projection-migration-evidence-2026-08-24.md)
+  (the 2026-08-24 run of that runbook: recorded legacy ids, the re-derived
+  books, the parity numbers, and the steps held open)
+- [NotebookLM Projection Sync — Open Operational Item](docs/notebooklm-sync-open-item.md)
+  (pending sync run, the auth blocker + the `scripts/nlm_auth.py` workaround,
+  and the machine-account direction)
+- [Support-Bundle Scope in the Archive Gate — Open Contract Item](docs/support-bundle-scope-open-item.md)
+- [Archived-Change Record Discrepancies — Open Bookkeeping Register](docs/archive-record-discrepancies.md)
+  (the re-derived sweep of all 86 archived changes: one `Status:` header
+  corrected with its citation, seven classes recorded open)
 - [Ideation Work Area](ideation/README.md) (ratified convention; see
   [Document Lifecycle](docs/document-lifecycle.md))
 - [Workflow Contract](docs/workflow-contract.md)
@@ -140,12 +182,54 @@ Core domain-neutral docs:
 - [Roles and Authority](docs/roles-and-authority.md)
 - [Repository Boundary Governance](openspec/specs/repo-boundary-governance/spec.md)
 - [Shared Contract Ownership](openspec/specs/shared-contract-ownership/spec.md)
+- [Pattern Ledger](openspec/specs/pattern-ledger/spec.md) (recurrence-crystallization
+  sensing contracts; realized at `contract-v1.19` — schemas
+  `contracts/schemas/pattern-ledger-*.schema.yaml`, canonical validator
+  `scripts/validate-pattern-ledger.py`, MVP fixture corpus
+  `examples/pattern-ledger/`)
+- [Crystallizer Contracts](openspec/specs/crystallization-decision/spec.md)
+  ([decision](openspec/specs/crystallization-decision/spec.md) ·
+  [build](openspec/specs/crystallization-build/spec.md) ·
+  [consent](openspec/specs/crystallization-consent/spec.md) — the
+  only-path-to-spend decision, episode-mined build contracts, and
+  default-deny consent tiers; realized at `contract-v1.20` together with
+  the crystallized-executor + rung-ceiling additions to the
+  [omnigent overlay spec](openspec/specs/omnigent-domain-overlay/spec.md);
+  canonical validator `scripts/validate-crystallizer-contracts.py`, MVP
+  corpus continuation `examples/crystallizer/`)
+- [Capability Steward](openspec/specs/crystallized-capability-registry/spec.md)
+  ([registry](openspec/specs/crystallized-capability-registry/spec.md) ·
+  [dispatch](openspec/specs/crystallization-dispatch/spec.md) ·
+  [health](openspec/specs/capability-health/spec.md) — the single-source
+  registry with pins-vs-live-authority (D10), the dispatch junction with
+  deterministic fences and pure/idempotent admission (D11), and the
+  proof/sentinel/drift/accounting surface with contractual renewal
+  write-backs; realized at `contract-v1.21`; canonical validator
+  `scripts/validate-capability-steward.py`, MVP corpus completion
+  `examples/capability-steward/`)
 
 Engineering-domain implementation docs now belong in `opensoft/codexFactory`.
 
 Medical-domain implementation docs belong in `opensoft/MedxFactory`.
 
 IT operations-domain implementation docs now belong in `opensoft/OpsxFactory`.
+
+## Wallet validation gate
+
+Every PR to main runs the `wallet-validation` check, including drafts. The
+check is advisory until an operator marks it required.
+
+Mark it required via the active ruleset governing main:
+Repo Settings → Rules → Rulesets → edit the ruleset targeting `main` →
+Require status checks → add `wallet-validation`.
+
+If using a classic branch protection rule instead:
+Settings → Branches → `main` → Require status checks → select
+`wallet-validation`.
+
+The gate surfaces — `.github/workflows/`, `/scripts/validate-openxwallet.py`,
+and `/scripts/wallet-yaml-syntax-gate.py` — are owner-routed via
+[.github/CODEOWNERS](.github/CODEOWNERS) so changes to them need owner review.
 
 ## Domain Implementations
 
@@ -169,11 +253,63 @@ Every DomainxFactory must validate against the canonical contract:
   — run from the pinned openxFactory checkout, never copied into domain repos.
 - Credential contracts: [xfactory-credential-contracts schema](contracts/schemas/xfactory-credential-contracts.schema.yaml)
   and `scripts/validate-credential-contracts.py <domain-repo>` — the five
-  credential record kinds under `credentials/` (DTN-004).
+  credential record kinds under `credentials/` (DTN-004). Registered in
+  `contracts/manifest.yaml` for the first time at `contract-v1.33`, which also
+  adds the optional `issuance_preconditions` vocabulary
+  (`add-client-identity-roster`).
+- Client identity roster: [xfactory-client-identity-roster schema](contracts/schemas/xfactory-client-identity-roster.schema.yaml),
+  `scripts/validate-client-identity-roster.py <domain-repo>` and the packaged
+  corpus at [examples/client-identity-roster](examples/client-identity-roster/README.md)
+  — which identities a domain holds STANDING inside a paying client's provider
+  tenant, keyed on (domain, admission surface, authority class, blast-radius
+  unit, duty), with verified admission and achieved scope, and a report-only
+  drift finding that mutates nothing. A domain publishes its fragments at
+  `credentials/client-identity-roster/<client_ref>.yaml`, one file per
+  (client, domain) pair; a domain that publishes none stays conformant and the
+  check reports a notice. Registered at `contract-v1.33`
+  (`add-client-identity-roster`).
+- openxWallet: [contracts/openxwallet](contracts/openxwallet/README.md) (the
+  holder-agnostic core) and
+  [contracts/openxwallet-agent-profile](contracts/openxwallet-agent-profile/README.md)
+  (its first profile), validated by `scripts/validate-openxwallet.py
+  [<repo-path>] [--strict]` — a wallet is a key REFERENCE with a declared
+  custody model and never key material; authority travels as attenuated
+  grants; custody CAPS what a signature evidences; and wallets stay optional
+  for every domain (`add-openxwallet`).
+- Identity brokering: [contracts/identity-brokering](contracts/identity-brokering/README.md),
+  validated by `scripts/validate-identity-brokering.py [<repo-path>]
+  [--strict]` — one persona per human within a broker INSTANCE; organizations
+  realize company boundaries ON the persona; the broker asserts identity and
+  membership only, with the property set a CLOSED ALLOW-LIST at every depth
+  (derived from the schema, never a denylist) so the tenancy graph is never
+  mirrored; explicit self-link or admin-approved merge only; workloads are not
+  personas; and broker credentials are `credential-contracts` references.
+  Registered at `contract-v1.37` (`add-identity-brokering`). Opt-in: a domain
+  holding none of these artifacts stays conformant and the check reports a
+  notice.
+- Trust anchors: [contracts/trust-anchor](contracts/trust-anchor/README.md),
+  validated by `scripts/validate-trust-anchor.py [<repo-path>] [--strict]`
+  with its pytest wiring at `tests/trust-anchor/` — systems trust ANCHORS and
+  certificates only derivatively; issuance happens only under recorded
+  authority; declared chain custody DERIVES what a certificate evidences,
+  through a closed registry that composes with `openxwallet`'s custody rule at
+  run time rather than restating it; renewal that changes key material is a
+  rebind obligation over dependents enumerated in advance; revocation
+  propagates to the authority the certificate supported; and a realization
+  DECLARES the obligations it cannot meet. Registered at `contract-v1.37`
+  (`add-trust-anchor`). Product-agnostic and opt-in on the same terms.
 - Workflow contracts: [xfactory-workflow schema](contracts/schemas/xfactory-workflow.schema.yaml)
   and `scripts/validate-workflow-contracts.py <domain-repo>` — every
   `<domain>_workflow_contract` under `workflows/` validates against the
   neutral shape (DTN-001/002).
+- Domain conformance checks + proposal support (the neutral utility pack,
+  DTN-018/019/021): `scripts/check-inventory-consistency.py <domain-repo>`,
+  `scripts/check-workflow-state-parity.py <domain-repo>/workflows`, and
+  `scripts/check-openxfactory-pin.py <domain-repo>` — inventory/parity/pin
+  checks run from the pinned openxFactory checkout, never copied into
+  domain repos — plus `scripts/proposal-support.py <repo-root>`, the
+  canonical supporting-document mover whose manifests doc-health family 5
+  checks (adopt-neutral-utility-pack).
 - Memory gateway: [contracts/memory-gateway](contracts/memory-gateway/README.md)
   and `scripts/validate-memory-gateway.py` validate the canonical gateway
   schemas, provider examples, conformance fixtures, and first runtime smoke
@@ -189,38 +325,436 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-domain-ontology-layer](openspec/changes/add-domain-ontology-layer/proposal.md)
-  — authored 2026-07-28: the ontology layer for the xFactory system. Two new
-  capabilities (`xfactory-semantic-kernel`, `domain-ontology-lifecycle`) plus
-  deltas to layer-vocabulary, hermes-domain-overlay, and memory-gateway.
-  openxFactory owns a small neutral semantic kernel — a kernel term PUBLISHES
-  only with two independent resolvable adopters, while draft terms may record
-  pending adoption so the initial kernel bootstraps before the pilot packages
-  exist; each DomainxFactory owns its domain ontology as an immutable
-  content-addressed package stewarded by Domain Hermes, which answers for
-  MEASURABLE quality: a per-release quality report with declared
-  numerators/denominators (intake coverage, unknown-term rate, mapping
-  resolution, classification fixture accuracy, open-candidate age), domain
-  thresholds acting as maintenance triggers and blocking publication absent a
-  recorded reviewed exception. Ontology is meaning, never authority — the
-  separation is enforced STRUCTURALLY (closed field vocabulary; no
-  authority-plane record as relation endpoint, mapping target, or attribute
-  value), not by reading prose. External terminologies map by REFERENCE with
-  license classes; packages never mirror licensed code systems (decisive for
-  Medx clinical terminologies). Bounded semantic-context artifacts — term
-  subsets closed over specialization ancestors and relation endpoints, or
-  explicitly truncated — are the consumption seam for every Hermes layer AND
-  for the Omnigent layer: worker-scoped profiles give each small bounded
-  worker only the term subset its archetype needs with the permission matrix
-  untouched (profile + compilation contract defined here; overlay declaration
-  and runtime wiring are the named follow-up omnigent change). Emitted
-  telemetry, candidate registers, reports, and fixtures sit under the same
-  privacy rules as packages, with a distinct-subject/distinct-tenant
-  aggregation floor on term-level signals. Hardened 2026-07-28 by a two-stage
-  adversarial review (22 findings fixed, including realization front matter,
-  retention/rollback mechanics, compatibility edge classification,
-  steward-attributed publication, and the generation determinism boundary).
-  Pilot pair: MedxFactory + codexFactory.
+- [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
+  — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
+  staged topic `doxchat-auto-fit-routing`, whose six questions were
+  dispositioned the same day. `contract-v1.38` gave the catalog a routing rule
+  whose resolution is STATIC; Brett's direction at that release's rule-5 ruling
+  was that the destination be chosen PER TURN by whether the model can
+  accommodate the turn — and he named a dimension the catalog cannot express
+  ("if we need multi modal then we have to select from that"). The entry says
+  how MUCH a model accepts (`input_limit_bytes`) and nothing about WHAT KIND, so
+  a router asked to keep an image turn away from a text-only model has nothing
+  to read. Adds ONE optional, closed `modalities` declaration — exactly `text`
+  and `image` — extended only by the change that governs a new member, the rule
+  the client-identity roster already applies to admission surfaces. Optional and
+  absence-tolerant because requiring it would break every catalog released
+  before it: absence means "a producer older than the field" and is read as
+  text-only for routing, reusing the chat-turn family's own idiom. Per Q3's
+  batching obligation it also DECIDES the two recorded catalog follow-ups rather
+  than passing them by, and TAKES both after reproducing each: the released
+  64-entry cap is unenforced type-side (a 65-entry catalog constructs), and
+  `model_id` is not held to its released length and pattern (a 200-character id,
+  and one containing a space, both construct) — the same type-weaker-than-wire
+  divergence this capability already closed once for `routes_to`, and N7's
+  recorded reason for deferring ("a behaviour change belonging to no release")
+  is dissolved because this IS that release. Requirements are ADDED, not
+  MODIFIED: the requirement governing the catalog already carries a live
+  MODIFIED delta from the ratified-but-unbuilt intake lane. **Realization is a
+  CONTRACT RELEASE** — schema bytes move — but the bundle number is deliberately
+  NOT allocated in the proposal: `contract-v1.41` only if the pending Unreleased
+  block has not folded first, fresh-counted at allocation. Exits (b) fit-aware
+  routing and (c) compress-to-fit disclosure are named successors; (a) touches
+  only the schema, the type and the validator, which is why it is safe to raise
+  while (b) must be sequenced against the intake build.
+- [add-notebook-hosting-credential-custody](openspec/changes/add-notebook-hosting-credential-custody/proposal.md)
+  — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The follow-up
+  to `add-notebook-projection-identity`, on Brett Heap's direction the same day:
+  *"this is a xFactor001 login. and we want to store the password in a kv and
+  have xFactory and openXdox login with its own authority."* The declared
+  hosting identity change named the account and said nothing about its
+  CREDENTIAL, leaving the password wherever its creator put it — the
+  personal-account failure moved one level down rather than removed. Adds the
+  POSITIVE custody obligation the ratified generalization lacks (that
+  generalization forbids hard-coding a credential; it does not require custody
+  to exist, so an account whose password lives only in its creator's head
+  satisfies it), extends custody to the whole credential set including a
+  second factor's seed, and rules ONE IDENTITY / PER-SYSTEM AUTHORITY: each
+  consuming system reaches the shared account through its own binding, access
+  identity, grant, rotation visibility and audit trail — one identity may be
+  shared, one authority may not. The hosting record gains a BY-REFERENCE
+  custody pointer, never secret material. Two findings shaped it: the promoted
+  by-reference requirement already refuses distributing refreshable session
+  state, and the `nlm` profile is exactly that class — so Brett's
+  no-shared-session ruling is independently required on credential-class
+  grounds, not just accountability; and the live binding INSTANCES do not
+  belong here at all, because `contracts/manifest.yaml` records that
+  *"openxFactory ships no instance records (they live in client installs,
+  credential-contracts residency model)"* — so the neutral obligations land
+  here and the concrete bindings land in the install lane and openXdox's own,
+  a redirection of the ruling's route that is FLAGGED for the ratification
+  read rather than decided quietly. Honest gaps recorded, not assumed away:
+  **custody is not automation** (the sign-in is a browser flow with ~20-minute
+  sessions and possible 2FA; automated login stays future work), a TOTP seed
+  may itself need custody, and **no live secret is created, moved or read by
+  this change**. `target_release: none` — the binding-template shape is already
+  published, `contracts/` is untouched, no bundle is cut.
+- [declare-client-standing-policy-contract](openspec/changes/declare-client-standing-policy-contract/proposal.md)
+  — authored and ratified 2026-08-23 (Brett Heap, in-session). Closes
+  `opensoft/openxFactory#254`: `hermes_client_overlay` is a contract THIS repo
+  owns, and a live runtime already validates and seeds two blocks on it that no
+  file here declares. hermes-install `add-client-overlay-standing-policy`
+  (ratified 2026-08-22, merged) gave a **Tenant** layer an optional
+  `client.policies` map plus a `client.policy_namespace` it is address-validated
+  against, so company-wide standing policy can seed at the tenant-operator seat
+  — closing the design/code half of `xFactory-Hermes-Install#34`. Brett's
+  sequencing ruling landed that deliberately rather than gating it upstream
+  ("nothing in the current runtime enforces against the unknown field … But
+  `client.policies`/`client.policy_namespace` are currently an UNDECLARED
+  extension of a contract this repo owns"); this change formalizes it.
+  DECLARES both properties INLINE under `client` — not as a fourth sibling
+  schema file, because the three existing siblings each dispatch on a
+  self-identifying inner `kind:` these entries do not carry, and the subject
+  family answered the same question the same way. `client.required` stays
+  byte-frozen at `[ref, display_name, policy_overrides]`, so an overlay that
+  declares neither key takes exactly its previous verdict and no consumer is
+  forced to re-pin. A faithful mirror of `subject.policies` one layer up with
+  ONE ruled difference: **no `relation_to_*` field**, because a tenant's
+  standing policy is a POSITION and not a deviation.
+  `scripts/validate-client-content.py` learns the six rules the shape cannot
+  express (JSON Schema in this family has no `if`/`then`, so the conditional
+  namespace requirement lives in the validator) plus a prohibited-block and
+  credential scan **scoped to the `client.policies` subtree only** — the
+  asymmetry with the subject path's whole-document walk is DELIBERATE, since
+  widening it would re-decide the verdict of released overlays that use none of
+  the block and would invert the one-directional divergence the sequencing
+  ruling was granted on. Its self-test hardcoded exactly one positive filename,
+  so it now sweeps every packaged positive; one new positive and eight
+  negatives ship. Delta: `client-layer-tuning` (MODIFIED
+  `Client content shapes are contract-validated`, ADDED
+  `Tenant standing policy is address-resolvable and validated` and
+  `A declared standing-policy block is never empty and never carries key
+  material`). Release is SHARED: the manifest digest is recomputed and a
+  `## Unreleased` section opened, but **no minor is allocated** — the cut, the
+  digest inventory and the tag happen once, with the other next-additive-bundle
+  changes. Archives only when hermes-install re-pins and admits
+  `hermes_client_overlay` to its `PARITY_KINDS` sweep.
+- [create-medxpractice-overlay-boundary](openspec/changes/create-medxpractice-overlay-boundary/proposal.md)
+  — MedxPractice owns the private practice-operations composition boundary and
+  pins the independent public openPractice application at an immutable commit.
+- [add-notebook-projection-identity](openspec/changes/add-notebook-projection-identity/proposal.md)
+  — authored and ratified 2026-08-23 (Brett Heap, in-session). The single exit
+  of the staged topic `notebook-projection-identity`, raised the day its last
+  precondition was met. The whole governed NotebookLM projection — every
+  per-repo Ideation book, `xf-drafts`, `xf-canon`, every live `xf-session-*` —
+  is created under one person's personal consumer Gmail, because the `nlm` CLI's
+  default profile is whoever ran `nlm login` first; proven live 2026-08-15 when
+  Brett hit a "request access" wall on a dashboard notebook link and the request
+  landed in that personal inbox. This makes the hosting identity a DECLARED
+  TWO-CASE INTAKE FACT: operator-hosted (a company-owned Google Workspace USER
+  account in the operating party's own domain) or self-hosted/personal, both
+  legitimate. A Google USER account is a platform constraint, not a preference —
+  NotebookLM has no API and a service account cannot drive its consumer web UI.
+  Opensoft declares Case A on `xFactor001@opensoft.one` (confirmed by Brett
+  2026-08-23, who also authorized raising this change). The sync runs under the
+  declared account's profile; access is shared out FROM that account and never
+  by handing out its credentials; a governed manual approval act WRITES the
+  share-out roster, which IS the record rather than an audit trail beside one,
+  keyed `(hosting_account, user, book_or_alias, role, granted_at, granted_by)`.
+  The custody rule GENERALIZES `credential-contracts`' promoted vault-operator
+  execution-binding requirement rather than adding beside it — no new record
+  kind. Encodes the five dispositions merged as PR #272, of which Q3 is the
+  evidence centerpiece: the mapping onto `client-identity-roster` was RUN, not
+  assumed, and refused the shape structurally (11 honest errors; the force-fit
+  passes with one grantee and fails with two on `duplicate-identity-key`,
+  because the grantee is not in the uniqueness tuple — that roster is one
+  principal / many scopes, a share-out list is one scope / many principals).
+  Migration follows the 2026-08-10 retirement runbook with parity proven against
+  THE CORPUS SCAN, carrying two review-verified gaps as scope: a plain `--apply`
+  never creates live session notebooks, and `ensure_workspace_record()` refuses
+  to re-register a same-key book under a new provider id.
+  `target_release: implementation_pending` — it archives only on Opensoft's own
+  cutover, proven parity, and the personal-hosted books retired by recorded act.
+- [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
+  — local topology realization completed 2026-08-23: MedxChart now owns the
+  Medx composition boundary, pins openChart at an immutable commit, and the
+  xFactory aggregate no longer tracks openChart directly. The intended
+  `opensoft/MedxChart` remote still requires a separate publication act.
+- [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
+  — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). The
+  openxFactory COMPANION to Omnigent-Install's just-merged
+  `add-dox-gitops-reconciliation` (its `main` `7d0370d`, 2026-08-22), which took
+  the APPLY and deliberately deferred two open questions to this change. Gives
+  the nightly a sixth lane: an ideation-dashboard IMAGE REFRESH stage on the
+  `cpc-omni01` artifact worker, ordered after the report delivery — fresh
+  openxFactory `main` checkout, `--strict` snapshot generation from THAT
+  checkout (0 errors / 0 warnings, and the gate precedes the push, so a strict
+  failure publishes nothing), image build from Omnigent-Install's
+  `containers/ideation-dashboard/Dockerfile` at ITS `main` over the assembled
+  workspace context, date-stamped push to `acropensoftxfactoryqa.azurecr.io`,
+  digest captured. One revision for snapshot and baked `/source` corpus by
+  construction, which is what keeps the freshness header honest. The no-change
+  short-circuit is decided on INPUT REVISIONS BEFORE the build — unmoved corpus
+  and unmoved build recipe ⇒ no checkout, no build, no push, no PR, no deploy —
+  explicitly NOT on built-vs-pinned digest equality, which can never hold
+  (fresh-checkout mtimes move the copied layers; the base image tag floats) and
+  would therefore redeploy content-equivalent images nightly. Provenance for
+  that check is a machine-readable block in the pin's own overlay comment (the
+  precedent the two hand-written pins already set in prose), scoped to each
+  repository's BAKED INPUTS rather than its branch tip so the lane's own merged
+  pin cannot force the next rebuild; absent/unparseable provenance counts as
+  changed and bootstraps. RULES both deferred questions: **(a)** the auto-merge
+  mechanism is the aggregation's existing Merge Master pattern extended to
+  Omnigent-Install with a SECOND candidate class in its reviewed
+  `candidates:` list (author + fixed head `bot/dox-dashboard-pin` + base +
+  one-file `path_allowlist` + `require_all_checks`, with the LINE-level
+  digest-shape predicate contributed by a repository-side required check,
+  because no envelope field expresses it) — fail-closed, base-branch-only
+  rules and logic, revocable in one config edit, no org-ruleset bypass;
+  **(b)** the lane identity is the EXISTING `XFACTORY_APP` the reusable
+  workflow already mints per run, requiring its installation on
+  Omnigent-Install at `contents: write` + `pull_requests: write` (verified by a
+  real authenticated call, not a settings page), with a dedicated App as the
+  recorded contingency. Worker/App/approver/GitHub/Flux hold four separate
+  rungs; `execute_final_action` and `access_secrets` stay false; the only new
+  grant is a push-scoped, host-local, by-reference ACR credential (needs an
+  Omnigent-Install schema delta — `acr_pull` is
+  `additionalProperties: false`). SIX ADDED requirements on `doc-health` (the
+  lane contract, where every sibling nightly lane already lives) plus ONE ADDED
+  and ONE MODIFIED on `ideation-dashboard` (the served plane's rebake bound;
+  the MODIFIED restates all four promoted scenarios verbatim, preserves "an
+  image rebuild MUST NOT be required to reflect newly published snapshots"
+  exactly, and RECORDS the standing conformance gap that the hosted image
+  performs no runtime fetch today, so its baked artifacts are its data).
+  `target_release: implementation_pending`.
+- [add-roster-directory-admission-surface](openspec/changes/add-roster-directory-admission-surface/proposal.md)
+  — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). Admits the
+  single `directory` (service-discovery) admission surface into the closed
+  `admission_surface` vocabulary of `client-identity-roster`, through the
+  capability's own extension route, so OpsxFactory can enroll its realized
+  `microsoft_service_discovery_reader` (`Organization.Read.All` +
+  `Application.Read.All` + `Domain.Read.All`, `exact_effective_scopes`,
+  `reject_write_or_destructive_scopes`). Sibling of the archived
+  `add-roster-device-admission-surface`, and the change its ratified F2 note
+  anticipated ("endpoint-MUTATION and Entra-DIRECTORY remain SEPARATE FUTURE
+  surfaces with their own governing changes"). `directory` is ONE tenant-wide
+  READ surface: one admission act (admin consent for exactly those three
+  read-only roles on one registration — a directory-wide role such as
+  `Directory.Read.All` is outside it, since it also reads the admitted `device`
+  surface), one scoping mechanism (tenant-wide read, no narrower provider
+  selector, `enforcement_mode: logic_enforced`), and its governed unit IS the
+  tenant directory/service estate — so tenant-wide read is the GOVERNED scope
+  (`exceeds_governed_unit: false`, no `declared_excess`, no `spanned_surfaces`)
+  and the provider areas read live only in the member's `description` prose.
+  Entra-directory MUTATION and endpoint MUTATION stay separate future surfaces.
+  Proposed on the realization evidence of OpsxFactory
+  `add-managed-service-inventory` §1–§6 (merged 2026-08-22, `main` `824f8ef`),
+  per that change's ratified F1 ordering, which makes this vocab extension a
+  blocking PREREQUISITE of its §7 live sweep and requires it to be justified on
+  the DETERMINISTIC contract, never on a live snapshot. ONE MODIFIED delta on
+  "Identities are enumerated by admission surface, not by product name" (all
+  three promoted scenarios restated verbatim, one scenario added). Additive —
+  no `contract_schema_version` bump; realization (tasks §1–§5, post-ratification)
+  bumps the bundle contract-v1.38 → contract-v1.39.
+  `target_release: implementation_pending`.
+- [admit-install-repos-to-aggregation](openspec/changes/admit-install-repos-to-aggregation/proposal.md)
+  — authored and RATIFIED 2026-08-21 (Brett: "do the aggregation admission
+  change, the two repos are added to openXfactory github app"). The separate
+  reviewed change BOTH ratified install-repo boundary requirements demand
+  before a pin is supported, and which they forbid their own creation changes
+  from being: an eight-field admission record per repository — path, remote,
+  visibility, exact validated commit, checkout, compatibility, update,
+  rollback — for `installs/keycloak-install` (`opensoft/Keycloak-Install`,
+  private, `1aa184e`) and `installs/openxpki-install`
+  (`opensoft/OpenXPKI-Install`, private, `05f4404`). Every value is a
+  read-back: both pin `contract-v1.37` at contract commit `c1ffa0f`, and
+  neither carries a `.gitmodules`, so recursive checkout is plain checkout and
+  rollback is one revert of one gitlink. Discharges the long-deferred
+  `add-trust-anchor` tasks 8.1 with ONE MODIFIED delta on "Install repository
+  scope" (both scenarios verbatim, enumeration extended, no other requirement
+  touched) — its "run when nothing else is replacing that requirement"
+  precondition verified by grep. Also closes `implement-*` tasks 1.3/3.3 in
+  both changes: installation 145372182 now lists both repositories (19 total).
+  PENDING: the aggregation act itself — `.gitmodules`, the two gitlinks at the
+  recorded commits, and the README submodule documentation — lands by reviewed
+  PR on `opensoft/xFactory`. Authorizes no deployment and no pin advance
+  beyond the recorded commits. `target_release: repository-bootstrap`.
+- [implement-keycloak-install-repo](openspec/changes/implement-keycloak-install-repo/proposal.md)
+  — authored, RATIFIED, and REALIZED 2026-08-21 (Brett: "do both install
+  repos"). Created and seeded `opensoft/Keycloak-Install` (private, repo id
+  1342329131, seed `1aa184e`) under the ratified "Keycloak install repository
+  boundary" requirement: boundary README, `contract-v1.37` pin (manifest
+  digests re-derived from the tag's blobs), credential-free deploy templates,
+  boundary validator with red-proven self-test, session-open-pr mirror,
+  1-review main ruleset. PENDING: the org-owner act adding the repo to the
+  openxfactory App installation (tasks 1.3/3.3); aggregation admission is a
+  named separate change. Sibling of `implement-openxpki-install-repo`.
+- [implement-openxpki-install-repo](openspec/changes/implement-openxpki-install-repo/proposal.md)
+  — authored, RATIFIED, and REALIZED 2026-08-21 (same instruction). Created
+  and seeded `opensoft/OpenXPKI-Install` (private, repo id 1342329163, seed
+  `05f4404`) under the ratified "OpenXPKI install repository boundary"
+  requirement: boundary README, `contract-v1.37` pin, the digest-only
+  deploy home (no manifests — the QA topology migrates per the amended
+  `add-openxpki-qa-image-pipeline` tasks 3.4 once that draft lands),
+  boundary validator with red-proven self-test incl. DER-structure and
+  build-source classes, session-open-pr mirror, 1-review main ruleset. Same
+  PENDING org-owner act; found and booked: the `contract-v1.37` release
+  digest inventory omits both new families (tasks 4.7/4.8 bookkeeping).
+  Sibling of `implement-keycloak-install-repo`.
+- [add-doxchat-model-intake](openspec/changes/add-doxchat-model-intake/proposal.md)
+  — authored 2026-08-21 from Brett's live browser annotation on the doxBench
+  chat rail ("this model selector is not working… we need to have add model as
+  the first option… bring up a wizard that helps the user auth with oauth to
+  their subscription or add a api"). Diagnosis first: the selector is not
+  broken but structurally empty — `serve.py`'s `main()` has no model flag, so
+  `reserve-dashboard.sh`'s `python3 -m ideation_dashboard.serve` declares no
+  `model_port_factory` and the catalog route honestly returns the empty
+  editor-only posture; nothing is hardcoded and no model list was ever
+  withheld. The change adds the intake affordance FIRST in the selector and
+  default when the catalog is empty (never when it could not be READ), an
+  intake flow that hands an API key or an OAuth authorization to the declared
+  credential broker and keeps only a `credential-contracts` binding, and the
+  seam nobody had written down: intake PROPOSES and a recorded human gate
+  action APPROVES, so supplying a payment credential never doubles as
+  approving a provider for governed work. Sequencing is a requirement, not a
+  note — the affordance never ships ahead of the flow. Depends on
+  `add-model-provider-broker` (custody, minting, the narrowed provider
+  boundary), which is itself blocked on openProfiler; needs an additive
+  `gate-action-record` action enum member at realization.
+  `target_release: implementation_pending`.
+- [add-identity-brokering](openspec/changes/add-identity-brokering/proposal.md)
+  — authored and **RATIFIED 2026-08-21** (recommendations adopted as written;
+  the OQ-5 co-residence gate discharged: HealthLinc patients found and
+  pre-declared the first dedicated-instance client — see the change's
+  review/ finding). The neutral identity-brokering capability (exit 1 of
+  the `identity-brokering-plane` staged topic, from Brett's 2026-08-21
+  rulings): one persona per human within a broker instance, organizations
+  realizing company boundaries on the persona, the broker asserting identity
+  and membership only (never mirroring the tenancy graph), explicit
+  linking/admin-merge only, workloads-are-not-personas, broker credentials as
+  credential-contract records, and isolation escalating by broker instance.
+  Also ADDS the `Keycloak-Install` repository boundary to
+  `repo-boundary-governance` (avatar-client template; creation by successor
+  `implement-keycloak-install-repo`). Sibling of `add-trust-anchor`.
+  **REALIZED 2026-08-21** by Speckit feature
+  `008-identity-brokering-contracts` (six schemas at
+  `contracts/identity-brokering/`, canonical validator
+  `scripts/validate-identity-brokering.py`, 14 positive + 41 negative
+  fixtures at 9/9 requirement coverage), hardened by a two-panel adversarial
+  review across the sibling families (14 + 14 confirmed findings — 28 and 52
+  bypass probes respectively — all fixed, ruled, or documented, with zero
+  ratified-corpus regressions), and **registered at `contract-v1.37`**.
+- [add-trust-anchor](openspec/changes/add-trust-anchor/proposal.md)
+  — authored and **RATIFIED 2026-08-21** (OQ1 and OQ2 ruled per their
+  recommendations: establish-obligation with a declared floor; closed
+  custody enumeration, escrow as a relationship not a tier). The neutral trust-anchor capability (exit 1 of the
+  `pki-trust-anchor-plane` staged topic): anchors as governed records,
+  issuance only under recorded authority with evidence obligations, declared
+  chain custody deriving what a certificate evidences (composing with
+  `openxwallet`), renewal-as-rebind with dependent bindings recorded against
+  the certificate, revocation propagation, CA material as
+  `credential-contracts` records, and the declared-degraded-obligation rule —
+  product-agnostic across the two converging realizations (live Intune Cloud
+  PKI canary; OpenXPKI planned for the Opensoft production core). Also ADDS
+  the `OpenXPKI-Install` repository boundary to
+  `repo-boundary-governance` (creation by successor
+  `implement-openxpki-install-repo`; image custody stays in
+  `opensoft/Opensoft-Tenant`). Time-critical rider: the OpsxFactory
+  `add-openxpki-qa-image-pipeline` Impact amendment must land before that
+  change ratifies. Sibling of `add-identity-brokering`.
+  **REALIZED 2026-08-21** by Speckit feature `009-trust-anchor-contracts`
+  (seven schemas plus the closed chain-custody registry pair at
+  `contracts/trust-anchor/`, canonical validator
+  `scripts/validate-trust-anchor.py` with its `tests/trust-anchor/` pytest
+  wiring, 34 positive + 65 negative fixtures at 8/8 requirement coverage),
+  hardened by a two-panel adversarial review across the sibling families
+  (14 + 14 confirmed findings — 52 and 28 bypass probes respectively — all
+  fixed, ruled, or documented, with zero ratified-corpus regressions), and
+  **registered at `contract-v1.37`**.
+- [add-substantive-review-lane](openspec/changes/add-substantive-review-lane/proposal.md)
+  — proposed 2026-08-15, **RATIFIED 2026-08-22** by Brett Heap (in-session
+  via question prompts; record
+  `openspec/changes/add-substantive-review-lane/review/ratification-2026-08-22.md`):
+  generalizes codexFactory's proven
+  `gate_rules_council` + `merge_readiness_council` + Merge Master machinery
+  (live autonomous deliberation 2026-08-14, xFactory PRs #85/#100) beyond its
+  one rules-as-code candidate class (`doc-health-nightly`,
+  `docs_only_path_overflow`) into a named substantive review lane: councils
+  judge, Merge Master stays the mechanical enforcer; every seat's rationale,
+  a signed identity-bound check-run, and an audit artifact make review
+  accountable; reviewer/enforcer identity stays separate from the PR
+  author's; the envelope fails closed outside a defined candidate class or a
+  non-unanimous verdict. MODIFIES `roles-authority-model` (ten ADDED
+  requirements). Pilot: `opensoft/openxFactory` reviewed by codexFactory's
+  councils. **All five questions the proposal declared open on 2026-08-15
+  were RULED by Brett Heap in-session 2026-08-22 and encoded** (proposal
+  "Decided questions"; four new requirements plus a rewritten pilot
+  requirement): rollout order DEFERRED to a named follow-up change on pilot
+  evidence, but the bar (≥3 council-cleared substantive PRs across ≥2
+  candidate classes, zero enforcer incidents, one completed gate-rules
+  review cycle) and the ordering principle (engineering-owned repos before
+  domain repos) are decided now; persona home — codexFactory's councils
+  review substantive PRs in EVERY governed repo, zero new persona homes
+  (Brett overrode the recommended two-axis split); company-policy-lead seat
+  rules-council-only BY DEFAULT with a bounded per-class pull-in a candidate
+  class may declare, defined by the gate-rules council at class-definition
+  time and fail-closed for those classes (Brett's third option, superseding
+  design.md Decision D in part); ruleset shape — the proven shape everywhere
+  (real `APPROVE` review satisfies required review; the council-verdict
+  check-run is transport only and never a satisfier; human review always
+  available, no App-path-only repo); and risk tiers — the constitutional
+  floor is ruled now (the ratified never-clearable floor is tier-independent
+  and unoverridable by unanimity; contract bytes, gate/workflow definitions,
+  credential surfaces, and security posture are permanently human-only;
+  autonomous clearance only ever for docs-/derived-artifact-shaped blast
+  radii) with the enumerated tier vocabulary DEFERRED to the same
+  evidence-driven follow-up path. The ratification read (also 2026-08-22, a
+  distinct act from the clarify round) ruled four further items: the FORM
+  ELEVATION of Q1's bar and Q5's floor from proposal text into promoted
+  requirements is ACCEPTED; the Q1 bar counts ANY council-cleared verdict,
+  App-approved or human-approved, because it measures council quality rather
+  than enforcer autonomy (overriding the encoder's autonomous-only reading);
+  the ordering principle stays ABSOLUTE, the dormant-engineering-repo
+  consequence accepted, with escalation to Brett inside a future adoption
+  change as the escape path rather than requirement text; and RATIFY.
+  `target_release: none` — no contract bytes move; realization across the
+  three repos (tasks §3–§5) is now authorized, tracked-not-performed work.
+- [add-wallet-carried-review-authority](openspec/changes/add-wallet-carried-review-authority/proposal.md)
+  — authored 2026-08-22, RESTRUCTURED 2026-08-23 on the convener's ruling after
+  council review; **NOT YET RATIFIED** (`Status: draft`). The successor to
+  `add-substantive-review-lane`, acting on finding LS-A3 from the
+  `codexfactory-routine-code-clearance` convening (the widen-only validator did
+  not enforce the widenings it was given, so non-self-review cannot rest on an
+  in-tree path rule alone). Circulated first as `add-assembly-plane-separation`,
+  a three-repository topology; reshaped on the convener's ruling that a topology
+  fights the ratified single-reviewing-home model, whereas wallet-carried
+  authority travels to any repository without restructuring it. **The doctrine:**
+  review authority is held as an `openxwallet` grant and by nothing else —
+  spec authority and code authority as two grant scopes, a general refusal-only
+  non-self-review rule, ownership conferring nothing, and the three-repository
+  layout demoted to a project schema a human (`PA`) elects and that confers
+  nothing. **The substrate, named with nothing pretended** after three council
+  seats independently found the proposal treating described controls as existing
+  ones: S1 wires `validate-openxwallet` into CI as a required check (it runs in
+  no workflow today, so no grant is operative); S2 anchors the issuer (root
+  issuer = the responsible operator, standing under the Human Escalation
+  Contract, no wallet needed); S3 records the exercise at verdict conformance in
+  the Hermes runtime (audit-trail-evidenced exercise REJECTED — it records
+  `unauthenticated_request`/`unattributed` and confers nothing checkable); S4
+  lands the register and its reader TOGETHER as a ratification condition, at a
+  one-file/one-holder MVP, declared permanently human-only; S5 reconciles
+  revocation with the runtime's admission stamp and pins composition so a
+  provider alias roll is a governed re-issuance, not a silent fleet-wide
+  revocation. **The narrowed floor amendment is DECLINED** — digest-disjointness
+  measures byte identity and is anti-correlated with independence; the
+  constitutional floor stands whole and assembly-class surfaces stay permanently
+  human-only. This change ends no `--admin` merge directly and says so in its
+  Why: it is a PRECONDITION. `review-authority-intake` (12 ADDED) plus
+  `roles-authority-model` (2 ADDED, 1 MODIFIED declared relative to
+  `add-substantive-review-lane`'s outcome per `release-realization:64-74`).
+  `target_release: implemented` — no contract bytes move; S1–S5 are named
+  successors.
+- [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
+  — authored 2026-08-13: two neutral `credential-contracts` requirements for the
+  openXdox intent-plane dispatch credential — dispatch-only least privilege with
+  serving-tier separation (the trigger credential must be a distinct binding from
+  the content-write App; the credential-free serving pod must never hold
+  contents-write-capable key material), and reference-delivered credential with
+  operator-as-binding (generalizing the two-case worker-credential principle:
+  vault-referenced, ephemeral, operator per-install, neutral home). Ratifies
+  `docs/openxdox-naming.md`; realizes the dispatch binding as an org-owned GitHub
+  App + token-minter, retiring the personal PAT `dox-intent-inbox-qa-20260810`.
+
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -258,89 +792,9 @@ Active changes:
   first decision), the Omnigent-Install registration/renewal integration, and
   the OpsxFactory custody/policy/runner-group work are named successor
   changes.
-- [add-workbench-branch-sessions](openspec/changes/add-workbench-branch-sessions/proposal.md)
-  — authored AND RATIFIED 2026-07-26, the single exit of the
-  `workbench-branch-sessions` staged topic; TWENTY-THREE decisions locked
-  (D1-D23) and no open questions, after a five-lens adversarial review (two
-  findings confirmed and fixed) and a rename-completeness audit. Realization is
-  unblocked; it archives on merged plus green realization evidence, not on
-  ratification. AMENDED 2026-07-27 by Brett's D23 ruling, after the adversarial
-  review of the realization: the human/agent boundary is a CONSOLE-PRESENCE
-  control (anti-CSRF / same-origin) and not authentication, so the residual — a
-  process running as the identified human, on the human's own machine, can read
-  the per-serve console token and act as the human — is ACCEPTED and deferred to
-  the xForge-host identity work under D22; the two ratified scenarios that
-  promised an agent-refusal the mechanism cannot deliver are NARROWED to what is
-  enforced (their superseded wording is quoted in design.md, not deleted); and
-  every gate-action record now carries OPTIONAL `provenance` naming the SURFACE
-  it arrived on (`http` | `cli`) and how console presence was shown
-  (`console-token` | `tty` | `declared`), which makes an accepted-but-invisible
-  residual auditable.
-  The workbench becomes a place to CREATE and EDIT documents
-  without loosening a gate, because the working state moves onto a git branch
-  and the PULL REQUEST is the formal re-entry into the governed doc system.
-  The first gate write against a tile spawns `draft/<topic-folder>` (named for
-  the TILE, so two humans join one session) and materializes a git WORKTREE —
-  the served checkout never switches branches, which dissolves the
-  shared-checkout hazard by construction. Every gate action is ONE commit
-  carrying its documents and its gate-action record together, so the audit
-  trail falls out of version control; on-branch edits arrive as a new gated
-  `edit-document` verb valid ONLY inside a session (the PR review is the
-  governance — the ratified gates-happen-on-main rule read forwards), while
-  the `edit-apply` redline path keeps its ceremony for main-resident
-  documents. Session panels read a snapshot addressed `(repository,
-  session-branch)` through the registry `add-dashboard-repo-selector` lands —
-  no overlay machinery — regenerated after every gate action, with the
-  freshness header naming the branch; drafts are visible ONLY inside their
-  session, so `main` stays the shared truth on the wheel, the funnel, and the
-  hosted site. "Saving" is a gated `open-pr` verb that pushes the branch into
-  the existing Merge-Master ritual and holds no approval authority; merge (or
-  explicit abandon) tears down the worktree, the registry entry, and the
-  session notebook, and a MERGE additionally deletes the session branch, whose
-  work `main` now holds. Because proposal ends the staging pipeline, `propose`
-  REFUSES while a tile carries an unresolved session, naming both resolutions
-  — merge the pull request, or abandon to discard — so a proposal is never
-  commissioned from drafts stranded on an unmerged branch. Canon notebooks
-  stay MAIN-ONLY; per-session `xf-session-<topic>` notebooks sync from the
-  worktree, in a namespace deliberately disjoint from the workbench's swept
-  `xf-wb-*` scratch notebooks. Local plane only until the intent plane's apply
-  lane (§4) can produce a ref. Sequenced strictly after
-  `add-dashboard-repo-selector` and `add-propose-verb`.
-- [add-dashboard-repo-selector](openspec/changes/add-dashboard-repo-selector/proposal.md)
-  — authored 2026-07-26, exit 1 of the `dashboard-repo-selector` staged
-  topic: a repository selector whose roster is the project register (sparse
-  repositories render whatever stations they have data for and are never
-  refused), a snapshot source keyed on the PAIR (repository, ref) with
-  `ref` defaulting to `main` and one serving-side registry behind it, a new
-  additive snapshot-INDEX contract (its own schema — the snapshot schema is
-  not grown), and the snapshot/image decoupling Brett decided 2026-07-25
-  after a document landed minutes past a rebake and stayed invisible: bake
-  the APP and fetch the DATA at runtime, with the baked snapshot demoted to
-  a first-boot/offline fallback that shows a never-silent stale banner, a
-  freshness header (`repo @ ref · source_revision · generated-at`), one
-  refresh affordance with two plane bindings (served re-fetch; local
-  regenerate), and `workflow_dispatch` on the publication lane — the pod
-  gains no build or rollout authority by any path. Sequenced strictly
-  before `add-workbench-branch-sessions`, which consumes the seam.
-- [add-workbench-bullseye-and-create](openspec/changes/add-workbench-bullseye-and-create/proposal.md)
-  — authored 2026-07-25: two coupled deltas to the staged workbench — the
-  `lens` panel renders the match-count bullseye at tile scope (the scoped
-  derivation already computes the geometry) above the always-present matrix,
-  with the checked-keyword selection persisting across tab switches; and a
-  human-only `create-document` gate verb drives the existing tested
-  authoring scaffold (create-only; an existing target refuses) with per-tab
-  seeding — the tile's keywords on `docs`, the live checked set plus a
-  recipe citation on `lens` (the brainstorm's centre-ring gesture), a new
-  fragment in the topic on `outline` for staged scopes — recorded as a
-  gate-action record, rendered as copyable CLI descriptors where the gate
-  capability is off.
-- [add-lens-gate-verbs](openspec/changes/add-lens-gate-verbs/proposal.md)
-  — authored 2026-07-25: two human-only gate-console verbs executing the
-  keyword lens's plans through the tested engines (`lens-save-recipe` →
-  workbench manifest; `lens-add-as-cluster` → manifest + pending_review
-  human-seen submission), recorded dispatches with the engines' refusals
-  surfaced at the route; the generated cross-reference index stays
-  untouched; plan-only posture preserved where the gate capability is off.
+
+
+
 - [add-hermes-customer-subject-runtime-contract](openspec/changes/add-hermes-customer-subject-runtime-contract/proposal.md)
   — ratified 2026-07-12: domain-neutral Hermes runtime-topology and
   governed-record-integrity contracts separating the Customer/Client/Domain
@@ -354,89 +808,6 @@ Active changes:
   acceptance-gate stage — its tasks accept Speckit realization evidence;
   Hermes Install Gate G0/T009 stays closed until the published evidence
   independently reproduces)
-- [add-ideation-dashboard](openspec/changes/add-ideation-dashboard/proposal.md)
-  — re-proposed 2026-07-13 and **re-ratified 2026-07-14** (D1–D17; the
-  07-12 ratification was set aside at a design-round demotion);
-  staged-origin change for the generated ideation dashboard: realization
-  funnel snapshot over a possibles register, cluster canvas working
-  surface (D12), keyword lens set-builder with cluster-as-recipe
-  persistence (D13), project grouping roll-ups (D10), drill-down explorer
-  and read-only Markdown viewer (D14/D15), the human gate console and
-  next-step kickoff (D16/D17), per-actor authoring authority, non-mutating
-  machinery, and the nightly snapshot lane; web-based v1 served per
-  Option C on the internal xForge plane. **Realized + deployed
-  2026-07-14**: codexFactory feature 002-ideation-dashboard merged
-  (231 tests, adversarial review ACCEPT), nightly lane green (first
-  snapshot committed), live at ideation-dashboard.xforge.us (Nextest,
-  boundary validator PASSED). At 26/27 — remaining: task 3.5 human-seen
-  submission, gated on add-ideation-cross-reference-readiness's
-  pending_review intake contract (landed 2026-07-14 — 3.5 is now
-  unblocked pending its codexFactory implementation); archives on the archive-gate
-  ledger (contract registration + additive snapshot-schema deltas)
-  once those land (code surface: openxFactory, codexFactory, xFactory;
-  ideation-cross-reference delta sequenced with
-  add-ideation-cross-reference-readiness)
-- [add-proposal-origin-contract](openspec/changes/add-proposal-origin-contract/proposal.md)
-  — staged-origin proposal requiring every OpenSpec change to declare one
-  durable staged or approved ad-hoc origin in `.openspec.yaml`, with gate
-  rejections, archive retention, history migration, and the fifteenth
-  deterministic doc-health family (code surface: codexFactory; ratified
-  2026-07-12 — admitted intent, active until realization evidence lands;
-  implementation follows ideation routing)
-- [add-ideation-cross-reference-readiness](openspec/changes/add-ideation-cross-reference-readiness/proposal.md)
-  — staged-origin proposal for the unified cross-stage ideation topic index,
-  three-tier Hermes readiness panel (min >= 8 recommendation gate), and the
-  nightly ideation-readiness doc-health lane (code surface: openxFactory,
-  codexFactory, xFactory, omnigent-install; ratified 2026-07-12).
-  **Realized 2026-07-14**: index contract + strict validator + the living
-  bootstrap index (`ideation/cross-reference.yaml` + generated md; 11
-  clusters after the 2026-07-16 staging exits);
-  scorer worker merged (codexFactory 003-ideation-readiness at 1fc0bd7,
-  pre-merge review ACCEPT WITH FIXES); nightly lane + readiness-scorer
-  profile landed (lane SKIPPED until host deployment — valid landed
-  state). **First-lane-run evidence 2026-07-23** (nightly run
-  30000105423): the readiness-scorer child ran on the deployed CPC rider
-  profile and 2 clusters persisted scored readiness panels into
-  `ideation/cross-reference.yaml` (openxFactory PR #38, delivered by the
-  derive lane's rolling commit-back; a readiness-only run still lacks its
-  own commit-back — scores persist when the derive lane also merges).
-  At 15/16 (5.2 records through archive); archives on the
-  release-realization flow
-- [add-possibles-derivation-lane](openspec/changes/add-possibles-derivation-lane/proposal.md)
-  — ad-hoc-origin proposal (ideation-dashboard brainstorm v5 candidate 1 +
-  the Brett-approved THE WHEEL locked spec, 2026-07-16) for the AI-assisted
-  derive-possibles worker lane: a bounded read-only Omnigent lane that derives
-  CANDIDATE possibles from the landed cross-reference index and proposes
-  `possibles_register` entries carrying `origin: ai-derived`, worker-run
-  provenance, and `pending_review` disposition, humans disposing on the gate
-  console. Adds the small ADDITIVE possibles-register kernel delta (`origin` +
-  a `derivation` $def, no `contract_schema_version` bump) modelled on the
-  human-seen intake pair; carries the document-cataloger lane's artifact-worker,
-  model-worker (orchestration-authoritative identifiers), immutable-evidence,
-  and concurrency-protected next-run-merge invariants; derived-undisposed
-  possibles stay a distinct non-`indexed` WHEEL class excluded from any Ranked
-  Plan (code surface: codexFactory, openxFactory, xFactory, omnigent-install;
-  realization follows the ideation-readiness two-repo split; release allocated
-  at realization). **§3 worker realized 2026-07-22** (codexFactory
-  `specs/004-derive-possibles`, PR #25: worker + prompt contract,
-  orchestration-authoritative identifiers, fingerprint-CAS merge, one-way
-  gate dispositions, boundary-guarded persistence, 33 tests). **§4 lane +
-  2.6 registration realized 2026-07-22**: nightly dispatch + 10/30-minute
-  watchdog + dormant rolling-PR register commit-back (codexFactory PR #27 +
-  the xFactory artifact-only child workflow), the omnigent-install
-  `derive-possibles` profile v1 (Omnigent-Install PR #22, contract-only),
-  and the kernel delta registered as **contract-v1.14**. The lane reports
-  SKIPPED until a host advertises the profile (the readiness precedent's
-  valid landed state). **§5.1 tests realized 2026-07-22** including THE
-  WHEEL (codexFactory PR #28, `web/views/wheel.js` + `wheel-model.js`:
-  the locked Track C deck with class-coded threads — undisposed derived
-  possibles render non-`indexed` `inferred`, demo placeholders
-  `synthesized`). **FIRST LANE RUN 2026-07-23** (nightly run 30000105423,
-  CPC rider profile live): 3 contract-clean `pending_review` possibles
-  derived from cl-codexfactory merged into `possibles_register` via the
-  rolling commit-back PR (openxFactory #38, approved + merged) — the
-  register's bootstrap-empty era is over; humans dispose on the gate
-  console. At 19/20; remaining: 5.2 records through archive
 - [add-ideation-intent-plane](openspec/changes/add-ideation-intent-plane/proposal.md)
   — staged-origin proposal (ideation-action-plane topic, organized 2026-07-23
   from the dashboard-action-center + cloud-workstation-topology brainstorms;
@@ -453,81 +824,132 @@ Active changes:
   document-lifecycle GATES-HAPPEN-ON-MAIN delta (a transition is not real
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
-- [add-propose-verb](openspec/changes/add-propose-verb/proposal.md)
-  — gate-console verb `propose` (Brett's 2026-07-24 action-center direction:
-  take a staging tile to a proposal from the dashboard): kickoff's
-  recorded-dispatch mechanic at the staging→proposal boundary — a human-only
-  `workflow-job` commission (workflow `proposal-authoring`, target
-  `topic_id`) + gate-action record; the authoring runs externally and lands
-  as an ordinary change under the existing review/ratify gates. Additive
-  gate-intent / gate-action-record enum + `topic_id` target extension.
-  (code surface: codexFactory, openxFactory; release allocated at
-  realization)
-- [add-wheel-action-verbs](openspec/changes/add-wheel-action-verbs/proposal.md)
-  — four gate-verb rulings Brett made 2026-07-25 for the wheel's
-  expanded-tile action row: `demote` promoted from descriptor-only to an
-  executing dashboard verb (plan + record on the click, the corpus move stays
-  the separate human-run step), plus three recorded commissions on propose's
-  mechanic — `promote-to-staging` (an ACCEPTED possible organized into
-  `ideation/staging/<topic>/`; dispose-possible is a strict upstream and the
-  pick edge lands with the fragment, not at commission), `derive-possibles`
-  (a cluster-scoped run of the ratified possibles-derivation lane) and
-  `research-brief` (a pre-verdict evidence brief accompanying a possible,
-  never a precondition for disposing). Additive gate-intent /
-  gate-action-record enum + `cluster_id` target extension; the three
-  fulfilment lanes are out of scope (a terminal session fulfils dispatched
-  commissions in the interim, as with propose). (code surface: codexFactory,
-  openxFactory; release allocated at realization)
-- [add-staging-workbench](openspec/changes/add-staging-workbench/proposal.md)
-  — Brett's Track B ruling 2026-07-25 (the staging area is where the real
-  proposal gets developed): the workbench as that area's READ-ONLY
-  foundation. Derived-model growth first — a deterministic per-document
-  completeness signal computed at snapshot generation time (structure,
-  length, open markers, keyword coverage, link degree; fixed weights as v1
-  contract constants, no LLM judgment so it stays testable and
-  byte-identical) emitted as an additive `documents[].completeness` object,
-  informational only and never gating anything. Then the scoped view: a
-  full-screen workbench over ONE topic-bearing tile (cluster, possible, or
-  staged topic) with `docs` (the tile's doc set with completeness bars),
-  `lens` (interconnectedness re-scoped from the existing
-  keyword_index/degree derivation, no new analysis) and `outline` (the
-  topic's outline read through the viewer's `/source` pass-through) panels,
-  plus an ungated read-only `open workbench` row on the wheel's
-  expanded-tile action point. The AI chat layer — and outline editing, and
-  every workbench write path — is Track C, a later change. (code surface:
-  codexFactory, openxFactory; release allocated at realization)
-- [add-cross-factory-ideation-routing](openspec/changes/add-cross-factory-ideation-routing/proposal.md)
-  — staged-origin proposal for unknown-owner/cross-domain claim routing,
-  destination acceptance, the fourteenth deterministic doc-health family, and
-  bounded ideation-organizer lane; implementation follows document cataloging
-- [qualify-avatar-brokered-call-feasibility](openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
-  — tenant-data-free F0 harness for sideband-before-answer ordering, retries,
-  readiness, revocation, redacted evidence, and contract interface impacts;
-  F0 does not qualify live use. **Realized (F0 `PASS`); kept active** because the
-  realized kernel's `interface-lock.yaml` F0 pin resolves this change's evidence —
-  archiving it would break the fail-closed F0 gate or force a `contract-v1.7` re-tag
-- [implement-avatar-client-lab](openspec/changes/implement-avatar-client-lab/proposal.md)
-  — staged-origin change (exit of `ideation/staging/avatar-client-lab`, six
-  decisions locked 2026-07-13) for the offline, deterministic Flutter avatar
-  client UI lab: content-addressed consumption of `contract-v1.7` +
-  `contract-v1.8`, fixture-replay determinism through a pure session core, the
-  replaceable six-state avatar seam, five-region adaptive shell with the
-  authority status strip, gating accessibility baseline, and fail-closed
-  deferral of voice/WebRTC/Hermes to `qualify-avatar-live-voice` (code surface:
-  openxFactory, codexFactory — the Flutter app lives in codexFactory under
-  `apps/avatar-client-lab/`; openxFactory owns the neutral fixtures and acceptance
-  map; codexFactory's pin is a routine submodule-pointer sync; archives on
-  realization evidence)
+
+- [add-omnigent-domain-terminology](openspec/changes/add-omnigent-domain-terminology/proposal.md)
+  — DRAFT, authored 2026-08-09 from Brett's direction ("we have a neutral
+  spine cross domain, but we also need all notices to users and logs shown in
+  domain best-practice and well-adopted terminology"); **UNRATIFIED** — task
+  1.2, Brett's ratification of the block, is the change's one open gate.
+  ANNOTATE, NEVER RENAME: an optional `terminology` block on the
+  omnigent-domain-overlay contract carries display labels for the ids an
+  overlay declares (`workers`, `job_types`, `stop_conditions`, `routing`),
+  presentation only, so a label never changes an archetype, permission,
+  credential tier, or authority; plus an optional per-worker
+  `standards_alignment` crosswalk that is descriptive, asserts no
+  conformance, and requires `no_clean_equivalent` WITH a note rather than a
+  forced mapping. Extends the pattern this family already runs twice —
+  `permission_aliases`, and the Hermes layer model's fixed-roles /
+  specializable-display-names rule. Contract half is realized on main
+  (`target_release: implemented`): the schema block, semantic checks in
+  `scripts/validate-omnigent-contracts.py` for orphan keys, duplicate labels
+  and unnoted `no_clean_equivalent`, three negative fixtures under
+  `contracts/omnigent/examples/fixtures/negative/`, and the canonical
+  `contracts/policies/standards-bodies.yaml` registry (43 bodies, every one
+  jurisdiction-tagged after the China round exposed an all-Anglo-American
+  skew). The §3b research rounds produced the change's blunt finding: EVERY
+  commercially stewarded body assessed (APQC, SFIA, ITIL, COBIT, SWEBOK,
+  ISO/IEC/IEEE 12207, GRADE, SNOMED CT) fails the product-configuration reuse
+  test, O*NET (CC BY 4.0) is the only licence-clean crosswalk in four
+  domains, and MedxFactory registers none — its eleven workers record
+  `no_clean_equivalent` against the PROVIDER taxonomy specifically, because
+  labelling a reasoning agent with a role carrying clinical standing is the
+  mapping a contributor would reach for and the dangerous one. Open: 1.2
+  ratification, the APQC licence question (3b.5d), the remaining ledgerx/adx
+  brief results (3b.5f), and the §4 consumer follow-up naming domain surfaces
+  that render their own vocabulary outside the overlay.
+- [add-model-provider-broker](openspec/changes/add-model-provider-broker/proposal.md)
+  — DRAFT, authored 2026-08-08, awaiting ratification (task 0). doxBench has
+  a model seam and no model: there is no provider adapter in this repository
+  and none is implied, so every model-backed affordance refuses. Brett's
+  ruling names openProfiler — unbuilt — as the answer, which makes it a
+  credential BROKER, a shape `credential-contracts` already owns. The
+  dashboard holds a BINDING (id, label, credential reference, auth kind,
+  broker invocation) whose shape has no secret field at all; setting a key is
+  a hand-off to the broker's stdin that retains nothing; the invocation is
+  declared rather than hardcoded, so openProfiler's real CLI changes a
+  binding and no code. RULED 2026-08-08: the broker MINTS a short-lived
+  scoped token and doxBench calls the provider directly, because brokered
+  dispatch "would be too slow" — which means the "no provider is ever
+  contacted from this repository" boundary narrows to ONE named module
+  rather than holding, with its structural check rewritten rather than
+  deleted, and a minted token that lives in process memory and never
+  reaches the browser. (code surface: openxFactory; target release: none;
+  depends on openProfiler)
+
+
+- [add-composed-view-authoring](openspec/changes/add-composed-view-authoring/proposal.md)
+  — ratified 2026-08-08 ("yes, we need to draft from a project view").
+  `Composed views are read-only with a repository jump` states its reason as
+  "a gate verb binds to one served checkout, and a composed view has none" —
+  true of a TILE-BOUND verb, false of creating a NEW document, which binds to
+  no tile and lands in the serve's own checkout. The blanket rule made the one
+  view where cross-repository convergence is visible the one view unable to
+  act on it. MODIFIED to distinguish the two, plus: the serve now DECLARES the
+  repository it writes to on `/capabilities`, from the same authority a write
+  is refused against, because the browser was inferring it and under a
+  composed view inferred the PROJECT id. (code surface: openxFactory; target
+  release: none)
+
+- [add-lens-document-selection](openspec/changes/add-lens-document-selection/proposal.md)
+  — ratified 2026-08-08 from three annotations on the keyword lens. A
+  document has three views (the radar's dot, the matrix's row, the signature
+  grid's row) and they now publish one key, so pointing at any lights the
+  others. The signature grid states its finding — "32 documents share 3
+  signatures (largest 17)" — and collapses, because a finding that fits in a
+  sentence does not warrant 220px of the best space on the screen. A matrix
+  SELECTION drafts a staging-queue fragment: evidence computed (documents,
+  repositories, the terms all of them share), argument left to the human,
+  nothing written — the exit the keyword radar lacked, distinct from the
+  repository lens's DTN register seed. Carries two dark-theme defect fixes
+  and their guards: a button reset that never stated its colour, and six
+  uses of custom properties the stylesheet never defines whose silent
+  fallbacks painted a white popover behind light text. (code surface:
+  openxFactory; target release: none)
+
+- [add-shared-identity-seeds](openspec/changes/add-shared-identity-seeds/proposal.md)
+  — ratified 2026-08-07 (Brett's "yes, lets start that now", accepting the
+  successor named at the close of `add-repository-lens`). Implements the FIRST
+  of the promotion process's four ways a DTN candidate is born — "two or more
+  domain repos use the same structure with different domain nouns" — which had
+  never been automated: none of the neutrality-drift lane's four stage-1
+  signals asks whether two DOMAIN repositories carry the same thing, so that
+  rule was served by manual search passes only. The repository lens already
+  computes exactly that population (ring 2 and inward on the carrier-count
+  plot), so the change adds `doc_health/shared_identity.py` (the deterministic
+  detector plus a seed drafter emitting the register's own row and
+  `### DTN-NNN:` detail section, numbered from the register so a
+  drafted-but-unmerged gap never collides), a loopback drafting route on the
+  dashboard serve that recomputes carriers from the serve's own composed view
+  and returns TEXT, and the lens drill-in affordance (convergent regions
+  draftable, single-carrier regions refused with the reason). SEED-FIRST,
+  NEVER A WRITE: the register is never opened for writing and a candidate
+  enters the lifecycle only when a human merges the seed — which is what makes
+  the affordance legitimate on a composed READ-ONLY view and leaves D10
+  untouched. No contract growth: no schema, no gate verb, no gate-action
+  record. Tasks 1.1–4.4 are discharged, including the 2026-08-07 live browser
+  check on the real five-factory `domains` project (three convergent regions
+  enabled, five single-carrier rows disabled with their reason, the 3-carrier
+  sector drafting DTN-025 for `docs/credentialing.md`, checkout unchanged).
+  Open: 4.5, Brett merging that first drafted seed — the register's highest
+  entry is still DTN-024. Named successor: promoting the detector to a FIFTH
+  neutrality-drift stage-1 signal so the nightly lane files these seeds
+  unattended. (code surface: openxFactory; target release: none)
 
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived
-2026-07-13 (below); **only F0 feasibility remains active** — its evidence is resolved
-by the realized kernel's `interface-lock.yaml` F0 pin, so archiving it would break the
-fail-closed F0 gate or force a `contract-v1.7` re-tag. The avatar client itself is
-**now proposed** as the active change `implement-avatar-client-lab` (staged origin
-`ideation/staging/avatar-client-lab`, six decisions locked 2026-07-13; ratified and
-in realization 2026-07-14), and its successors are now
+2026-07-13 (below), and F0 feasibility — the last active avatar change — archived
+2026-08-09 (below), which closed issue #30. The F0 hold ("archives only inside a
+contract re-cut that repoints `f0_change_path`", Brett 2026-08-04) was SUPERSEDED
+by Brett's 2026-08-09 ruling accepting the issue's option C: the F0 gate is now
+archive-aware and bundle-aware — it follows the UNCHANGED `f0_change_path` pin
+into the dated archive and reads the pinned schemas from the packaged
+`supporting-docs.tar.gz`, fail-closed on any ambiguity, with the schema digests
+and `source_commit` pins still verifying the bytes wherever they sit — so no
+contract re-cut was needed and `contract-v1.7` was never re-tagged. The avatar client lab itself realized and
+**archived 2026-08-04** (below), its 9.1 platform gate discharged by Brett's
+2026-08-04 disposition (Linux-bench green + portable suite + WCAG web
+exception register accepted as v1; Windows/web deferred), and its successors are
 staged too: `qualify-avatar-live-voice` (internal-live provider qualification;
 blocked on open questions + a released client) and `avatar-pilot-hardening` (real
 Hermes/domains/audits + pilot; structurally last) — see the
@@ -535,6 +957,1153 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [govern-openspec-corpus-membership](openspec/changes/archive/2026-08-24-govern-openspec-corpus-membership/proposal.md)
+  — **ARCHIVED 2026-08-24**; authored, ratified and fully realized 2026-08-23.
+  (The folder date is the CLI's UTC stamp and the archive act ran at 22:57
+  local — the shape `2026-08-22-add-roster-device-admission-surface` and
+  `2026-08-22-add-dashboard-account-menu` already set.) **RATIFIED 2026-08-23**
+  by Brett Heap in an in-session multiple-choice round over all six Open
+  Questions; no approving OpenSpec change exists, so the proposal carries the
+  record-citing `Ratified:` spelling `sanction-ratified-record-spelling`
+  sanctioned. Takes — and this archive ticks — the last unticked box of that
+  change (task 5.1: "`openspec/` joining `GOVERNED_ROOTS` — the event that
+  makes the 15 latent lines live. Separate decision, much larger blast
+  radius"). MEASURED rather than argued, at `20f3e7e`, by patching
+  `corpus.GOVERNED_ROOTS` in memory so no tracked file was ever at risk;
+  restoration verified by a byte-identical re-run. **Full membership would
+  have cost 573 findings** (82 → 655; 4 → 27 critical, 6 → 556 error),
+  **13.2 points of the canon-share headline** (31.3% → 18.1% here, 28.9% →
+  16.7% across the six-repo aggregation) and **123 of 724 doc-health tests** —
+  121 of them one structural collision, `duplicate inventory key` on promoted
+  specs arriving twice, plus two pinned invariants it contradicts outright —
+  with at least five of its new fires demonstrably false. **RULED AND BUILT
+  instead: a scoped lifecycle scan set**, `openspec/changes/**/proposal.md`
+  plus `openspec/changes/**/review/*.md`, read by exactly four families
+  (status validity, standard backing, ratified provenance, succession
+  integrity) and by nothing that computes a census, a word count, a canon
+  share, an inventory entry or a catalog record. Both families are needed, not
+  just the ratification one: the two hand-fixed defects that prompted the
+  question were replayed against their real pre-fix blobs and split —
+  phase-b's uncited `ratified` header is caught by `ratified-provenance`,
+  roster-device's line-41 header is invisible to it (`parse_status` returns
+  `None`) and is caught only by `status-validity`. **All six questions ruled
+  2026-08-23**, four as recommended and two WIDER. **OQ-4**: rewrite every
+  `Ratified by:` line that cites a record rather than a change as a prefix
+  respell to `Ratified:`, content carried verbatim and each justified from its
+  own record — **17, extended the same day to 33** when the slice-5A review
+  found 16 lines naming the document's OWN change id, which passes the family
+  by self-reference and should not (a change is not its own approving change);
+  those 16 are LATENT, so the extension grew the edits and not the findings.
+  **OQ-6**: backfill ALL 47 headerless proposals from their own records rather
+  than granting `proposal-origin`'s pre-contract-legacy grandfather, with the
+  campaign required to STOP AND REPORT any document whose record cannot
+  support a header rather than invent one; this supersedes the class half of
+  `docs/archive-record-discrepancies.md` C2's 2026-08-22 ruling ("The
+  forty-six-wide option was not taken"), while C2's per-record findings stand.
+  **OQ-2 was ruled TWICE.** The second time, after slice 5D's adversarial
+  review found the ruled glob `**/review/*.md` wider than the delta's prose
+  ("any `review/` record whose subject is the ratification"), Brett kept the
+  RAW GLOB and widened the DELTA: every `review/` record under a packet is a
+  governance document, with the taxonomy obligation reaching all of them and
+  the ratification-citation obligation reaching only those whose status IS
+  `ratified`. Measured at **zero new findings** — openxFactory's 13 review
+  records are 5 `ratified` (each already cited under OQ-5) and 8 `record`
+  (a conforming value) — so the widening changed what the rule says and not
+  what the corpus owes. A separate correction in the same lap made the
+  byte-exact-evidence MUST NOT enforceable on MEMBERSHIP rather than left to a
+  census: `corpus.EVIDENCE_PARTS` excludes any path carrying a
+  `supporting-docs`, `source-snapshots` or `evidence` segment, applied AFTER
+  the ruled globs resolve so the globs themselves are untouched, and it
+  removes **nothing** from the real corpus at the aggregation's pinned SHAs
+  (285 scan-set documents before and after). **REALIZED across four merged
+  PRs, every one rebase-merged, so what is cited is what `main` carries and
+  not the branch commits**: **PR #279** (`da1b0e9`, `450735f`) slice 5A, the
+  thirteen active lifecycle-header defects, 9 critical + 4 error; **PR #280**
+  (`d615da5`) slice 5B, twenty-eight archived-record citations — twelve live
+  criticals cleared and the sixteen latent self-citers respelled — under the
+  B1/B2 in-place-overwrite discipline with a travelling bookkeeping note per
+  record; **PR #283** (`64d8087`, `4246592`) slice 5C, forty-four archived
+  backfills by two named derivation routes, 43 direct and one stop-and-report
+  (`enable-live-openxfactory`) resolved the same day by ruling, 44 error; and
+  **PR #284** (`d4ab3ba`, `7157fa3`, `bf0bda0`) slice 5D — four stragglers that
+  landed from other sessions mid-campaign discharged FIRST, on a tree where the
+  gate did not yet exist, then the enforcement, then the review's fix lap.
+  The enforcement itself is `LIFECYCLE_SCAN` + `EVIDENCE_PARTS` and
+  `load_lifecycle_docs` in `scripts/doc_health/corpus.py`, one `Context` field
+  in `runner.py`, and `_lifecycle_scope(ctx)` at exactly four call sites in
+  `families.py`, with `tests/doc-health` at **744** (724 + 20, every new test
+  mutation-validated). **New standing findings on the day it landed: zero** —
+  §5 discharged the whole standing population first (68 at proposal, 69 by
+  5A's start, plus the four that arrived mid-campaign), which is why the gate
+  reads **0 critical / 0 error over the 126-document scan set measured through
+  `runner.build_context`**, the code CI runs, rather than through a replay.
+  **The corpus did not move**: the whole `--single-repo` report is
+  byte-identical with the scan set present and with it neutralized in memory,
+  and stands at 4 critical / 8 error / 68 warning / 4 info over 328 documents.
+  The domain repositories' own **36 critical / 75 error** across 159 packet
+  documents at the aggregation's pinned SHAs are ADVISORY BY RULING and are
+  not silenced — no contract date, no reduced-severity class, no exclusion —
+  and are recorded as seven named follow-ups (FU-DOM-ADX, -HEALTHLINC,
+  -LEDGERX, -MEDXEHR, -MEDXFACTORY, -OPSX, -CODEX) in
+  `docs/archive-record-discrepancies.md`, durably rather than only in a packet
+  that would archive. **PROMOTED**: `doc-health` (MODIFIED `Deterministic
+  check families` — sixteen families corrected to seventeen, the four scan-set
+  readers named, and the census/word-count/canon-share/inventory/catalog
+  exclusion stated; ADDED `Governed corpus membership and the lifecycle scan
+  set`, 5 scenarios) and `document-lifecycle` (ADDED `Proposal packets carry
+  the lifecycle header`, 6 scenarios). Verified by requirement-map diff either
+  side of the archive: 24 → 25 and 13 → 14 requirements, 93 → 98 and 57 → 63
+  scenarios, ZERO requirements dropped, all eight of the modified
+  requirement's scenarios surviving, and zero drift byte-for-byte on every
+  requirement the deltas do not name.
+- [sanction-ratified-record-spelling](openspec/changes/archive/2026-08-22-sanction-ratified-record-spelling/proposal.md)
+  — **ARCHIVED 2026-08-22**, authored, ratified and realized the same day.
+  Closes the gap between the one ratification-citation spelling
+  `docs/document-lifecycle.md` § Status Claim Rules sanctioned
+  (`Ratified by: <change>`) and the two the corpus actually writes, which the
+  2026-08-22 adversarial review recorded in
+  `docs/archive-record-discrepancies.md` (B1, C2, C7) and which Brett's own
+  C2 ruling then made an instruction ("a citation line in whichever existing
+  spelling honestly fits"). Measured at `ca0b905`: under the governed roots,
+  29 documents carry `Ratified by:` — all 29 naming a resolvable change id,
+  13 of them naming ONLY the change id — and zero carry a `Ratified:`
+  header; under `openspec/`, 42 of 86 archived proposals plus 11 active ones
+  carry `Status: ratified`, split 38 `Ratified by:` / 15 `Ratified:`, and
+  only 20 of the 38 name a resolvable change id, so the primary spelling was
+  already half record-citing in practice. Not one of those 53 lines fails an
+  approver-or-date-or-record test — the rule is written to fit what the
+  corpus already does, and **no existing citation line anywhere was
+  rewritten**. **The ratified intent:** `Ratified by:` stays PRIMARY wherever
+  an approving change exists; `Ratified:` is sanctioned as the RECORD-CITING
+  alternative ONLY where none does, and must name at least one of an
+  approver, a date, or a resolvable record path — the three-way floor scoped
+  to that form alone, because applying it to `Ratified by:` would turn those
+  13 sound governed documents CRITICAL in one commit. Exactly ONE citation
+  line per document, counted as one TOTAL across both spellings, so the same
+  spelling twice is the same finding as one of each. A bare uncited
+  `Status: ratified` stays illegal either way. **RATIFIED 2026-08-22** by
+  Brett in an in-session multiple-choice round over all five Open Questions,
+  every recommendation adopted (PR #267, merge `a316a10`); each ruling is
+  recorded inline beside its question, and the proposal is its own first
+  conformance test — having no approving change to name, it cites itself in
+  the record-citing spelling it sanctions. **REALIZED the same day** as
+  **PR #268**, rebase-merged, so cite what `main` carries and not the branch:
+  `c854814` (the widened `fam_ratified_provenance`, the § Status Claim Rules
+  rewrite, and `tests/doc-health/test_ratified_citation_spellings.py`),
+  `8b874a0` (six adversarial-review fixes, two of which amended this change's
+  own deltas to transcribe the OQ-4 ruling the realization was already
+  obeying), `e8dc70b` (Copilot: report the duplicate-citation finding on the
+  count, not the pair) and `93d6216`. The family reads TWO prefixes and never
+  a prefix match on the bare word, which would swallow body prose; a new
+  `_header_lines` returns every matching header line so "exactly one" can be
+  counted rather than short-circuited at the first match. Eight mutations
+  were hand-applied and killed, three of them added after the review
+  demonstrated two loosenings the first five all survived. Promotion verified
+  by diffing the requirement maps either side of the archive: ONE MODIFIED
+  requirement on `document-lifecycle` (`Controlled document status taxonomy`
+  — the citation rule promoted for the FIRST time; 13 requirements unchanged,
+  52 → 57 scenarios, the modified requirement 3 → 8 with all three
+  pre-existing scenarios surviving) and ONE MODIFIED on `doc-health`
+  (`Deterministic check families` — 24 requirements and 93 scenarios
+  unchanged, the whole diff being one widened WHEN bullet that now names four
+  ratification violation kinds where it named one). No contract bundle and no
+  release tag: `target_release: implemented` owes neither. Gates at the
+  archive: `openspec validate --all --strict` 67/67 exit 0 (68 before),
+  `tests/doc-health` 724 passed, workbench 140 passed, and a `--single-repo`
+  doc-health run unmoved at 4 critical / 6 error / 68 warning / 4 info, which
+  is the measurement the change promised — the widening reaches no live
+  document. §5 stays unticked as a recorded scope boundary, not a gap:
+  whether `openspec/` joins `GOVERNED_ROOTS` (the event that makes the 15
+  latent `Ratified:` lines live), the two archived-record citation defects
+  the register routes through a ruling per record, and any rewrite of an
+  existing citation line are all deliberately outside it.
+- [add-doxbench-editing-phase-b](openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md)
+  — **ARCHIVED 2026-08-22** on Brett's explicit word, the doxBench editing
+  sprint complete. Realization evidence at the gate: §3 verify list PR #206 /
+  `e7e7a84`; §4–§9 core PR #207 / `a4a6f6e`; §13 contract release PR #210 /
+  `5daa173` (`contract-v1.34`); §10 knowledge service PR #216 / `ece236a`;
+  §11 harness bridge PR #223 / `7312c25`; §12 share-session; §11.7 PR #244 /
+  `0f50b352` (`contract-v1.38`); and §10.7 PR #256 / `671a6908`
+  (`contract-v1.40` — re-cut from v1.39 when PR #259 took that number
+  mid-review). Its spec text promoted, **+9 ADDED and ~8 MODIFIED** into
+  `ideation-dashboard` (78 → 87 requirements) and **+1 ADDED** into
+  `memory-gateway` (21 → 22), verified byte-for-byte against the deltas with
+  zero drift across the 91 untouched requirements; supporting-docs packaged as
+  `supporting-docs.tar.gz` (3 files) beside its manifest. One follow-up is
+  recorded as issue #263 (a whitespace-only `reduced_reason` passes all five
+  posture gates — unreachable from this repository's producer, real for a
+  third-party one). Authored 2026-08-18, Phase B and the EXIT of the
+  `doxbench-editing-model` staged topic:
+  staged topic: all seven questions dispositioned, 26 claims settled (Brett's
+  live-UI annotations and in-session rulings 2026-08-15 → 2026-08-18). Where
+  Phase A was a layout-and-binding change on proven substrate, Phase B is the
+  state-model generalization plus the working-session model Brett's memory
+  ruling added on top of it. Ten pieces: the buffer set widens from exactly two
+  to `outline` + N loaded documents (the three pinned layers re-cut together —
+  the state validator, `require_outline_and_document`/`PROPOSAL_TARGETS`, and
+  `SAVE_BUFFER_ORDER`, whose fixed pair becomes a RULE: outline first as session
+  ancestry, then documents independently, so one document's refusal stops no
+  other); the chat rail header becomes a DROPDOWN of the loaded documents whose
+  selection IS the active buffer (Q1's numbered chips and LRU fold are
+  overridden — the dropdown is the overflow policy, and the set is bounded and
+  refuses rather than evicting text); the docs-wheel tile carries read / edit /
+  save with a colored loaded-and-dirty state (Q3); each loaded document gets a
+  persisted THREAD with a structured thread-state header (goal, accepted facts,
+  open questions, decisions, evidence refs, pending actions) committing on that
+  document's Save; share-session is an explicit commit-push-return-the-ref verb
+  reusing the pull-request port's EXISTING `push` member and opening no PR; and
+  per-turn context becomes a `memory-gateway` BOUNDED CONTEXT PACKET assembled
+  by a Staged-Set Knowledge Service behind ONE MCP boundary (search, get_source,
+  promote_finding, reindex; `graph_query` reserved and unimplemented) over an
+  internal assembly port — v1 GRAPH-LESS local hybrid on the recorded Mem0-v3
+  caution, graph admitted only on a named graduation trigger, backend an
+  install-time declaration, approved/ratified content exempt from aggressive
+  compression BY THE ASSEMBLER because only it can read a lifecycle `Status:`.
+  Compression is three layers with three fidelity contracts (selection,
+  semantic compaction, mechanical reversible offload); Headroom is WATCH-LISTED
+  with its adoption gates recorded and is deliberately not a dependency. The
+  harness is oh-my-pi behind a thin stdlib bridge that is an ADAPTER for the
+  unchanged three-member `WorkbenchModelPort` — no fourth port member, one
+  harness session per thread, sidecars remain the record, `auto` declares itself
+  a routing rule rather than a model. Carries a chat-turn contract release
+  discharging Phase A's F2 carve-out (the turn record names the DECLARED bound
+  buffer, plus selected-model metadata), realized as a co-resident envelope
+  family so the release is ADDITIVE and the bundle minor is allocated at
+  realization, never reserved. `memory-gateway` gets ONE delta of its own after
+  a full read: a declared SUBJECT-FREE LOCAL CONSUMER CLASS that must name every
+  rail it declares inapplicable, refused to any consumer holding provider
+  credentials or addressing a subject — because the contract's M0 set assumes a
+  customer subject and a credentialed provider this consumer has neither of, and
+  "inapplicable" must be declared rather than silently skipped. Seven verify-list
+  items (harness memory backends, MCP depth, `SYSTEM.md` cadence, Cognee's
+  embedded backend, the artifact store's location, `/shake`'s RPC surface,
+  memory-gateway's realization depth) are BLOCKING pre-realization tasks.
+  Sequenced AFTER `add-doxbench-editing-phase-a`, three of whose ADDED
+  requirements it MODIFIES relative to that change's outcome.
+  `target_release: implemented`.
+- [add-dashboard-account-menu](openspec/changes/archive/2026-08-22-add-dashboard-account-menu/proposal.md)
+  — **ARCHIVED 2026-08-22** (folder dated in UTC; the act fell just after
+  midnight UTC on a machine reading 2026-08-21). Authored 2026-08-21. The
+  hosted dashboard finally says WHO is signed in and offers a way to leave:
+  `/capabilities` gains a per-request `hosted_actor` read from the dox-auth
+  gateway's stamped `X-Auth-Request-User` header (`null` when absent, i.e.
+  local/loopback serving), and a user-account popover joins the theme and
+  settings buttons in the corner controls — signed-in username, an access level
+  DERIVED from the existing `actions` map plus loopback state, and a logout
+  control that navigates to the gateway-owned `/logout`, because the dashboard
+  terminates no session itself. The recorded D16 boundary nuance is the fact to
+  keep: reading a stamped identity header is not HOLDING a credential or
+  BECOMING an auth authority — nothing authorizes on the value, and a hosted
+  request with a stamped actor still gets no write/gate/edit affordance,
+  because those capabilities were never keyed on identity presence but on the
+  loopback console verdict. No schema, contract, or register change; the
+  unversioned `/capabilities` shape grows additively with no version bump, the
+  same pattern the `model` and `repository` fields followed. Realized as
+  **PR #248** (full dashboard suites 3836 passed / 13 skipped) and DEPLOYED to
+  QA — dox-dashboard rolled to the account-menu image (Omnigent-Install #121,
+  digest 65e9a293) and live-verified in-pod at the archive commit. Four ADDED
+  `ideation-dashboard` requirements promoted; `openspec validate --all
+  --strict` green (65). Task 6.2 archives part-ticked on purpose: its live
+  browser leg was written as deferred to after the deploy, since the menu only
+  renders a hosted actor from behind the gateway.
+- [add-roster-device-admission-surface](openspec/changes/archive/2026-08-22-add-roster-device-admission-surface/proposal.md)
+  — **ARCHIVED 2026-08-22** (folder dated in UTC; the act fell just after
+  midnight UTC on a machine reading 2026-08-21). Authored 2026-08-19. Admits
+  the single `device` (node-inventory) admission surface into the closed
+  `admission_surface` vocabulary of `client-identity-roster`, through the
+  capability's own extension route, so OpsxFactory can enroll its ratified
+  `microsoft_managed_node_inventory_reader` (`Device.Read.All` +
+  `DeviceManagementManagedDevices.Read.All` + `CloudPC.Read.All`, tenant-wide
+  read, provider offers nothing narrower — the roster's Decision-3 motivating
+  example). ONE surface, not three — and the three provider areas are NOT
+  declared provider-forced breadth, which is the framing adversarial finding F1
+  rejected before ratification: the governed unit IS the tenant device estate,
+  so tenant-wide read is the GOVERNED scope (`exceeds_governed_unit: false`, no
+  `declared_excess`, no `spanned_surfaces`), and Entra / Intune / Windows 365
+  are named only in the member's `description` prose because the schema would
+  refuse them anywhere structured. Additive — no `contract_schema_version`
+  bump. Proposed on the node-inventory realization evidence per the
+  reader-grant clarify decision Q4. **RATIFIED 2026-08-19** (record: the
+  change's `review/ratification-2026-08-19.md`; clarify rulings plus a
+  cross-model adversarial review, F1 fixed pre-ratification and F2 accepted,
+  the latter being the read/mutate reslice that keeps endpoint MUTATION and
+  Entra-directory as separate future surfaces). Realized the same day as
+  **PR #220** (`78f8e01` — squash-merged, so its four branch commits are
+  reachable on `main` only through that one commit): the `device` `oneOf`
+  member in `contracts/schemas/xfactory-client-identity-roster.schema.yaml`,
+  the resliced extension-route prose, the validator's refusal string in sync,
+  a packaged `device` example on the governed-tenant-scope shape, and the
+  bundle cut as `contract-v1.35 — 2026-08-19` with its digests file (the
+  bundle has since moved on to contract-v1.37; a later cut does not unmake
+  it). The archive gate closed on its own re-measurements rather than the
+  merge run's: roster validator self-test PASS from a clean path (4 positives
+  clean, 31 negatives refused for their registered reason),
+  `openspec validate --all --strict` 65/65 exit 0 (66 before this archive),
+  `validate-contract-release.py verify-commit` pass on `78f8e01`,
+  `tests/doc-health` clean from a clean path, and a doc-health run diffed
+  against its own base with zero findings moved. Its ONE MODIFIED requirement
+  promoted with the device scenario as its third, the capability's requirement
+  count unchanged at 13. `target_release` was corrected from a bare
+  `implementation_pending` to `implemented` on this archive, and the
+  pre-realization banner replaced, since both read as though merged work were
+  still owed. §6 stays unticked as a recorded boundary, not a gap: the
+  downstream OpsxFactory `device` roster entry and its consent ceremony are
+  authored in that repository under its own governance.
+- [add-doxbench-editing-phase-a](openspec/changes/archive/2026-08-21-add-doxbench-editing-phase-a/proposal.md)
+  — **ARCHIVED 2026-08-21** (realization evidence recorded at the gate: PR #196
+  / `6ac42ed`, plus its own annotation round at #199 / `224bf22` and #201 /
+  `96975c1`; its spec text promoted, +5 ADDED and ~2 MODIFIED, which is what
+  gave Phase B's three Phase-A-relative MODIFIED requirements something to
+  amend). Authored 2026-08-15, Phase A of the `doxbench-editing-model` staged
+  topic
+  (sequenced first of Brett's four 2026-08-15 topics; its four Phase-A open
+  questions were dispositioned accepted-as-recommended the same day). Brett's
+  model is one sentence — left selects, center chat works, right shows the
+  result — and Phase A is the half of it that fits the EXISTING two-buffer
+  machinery with no invariant break: the authoring canvas presents the ACTIVE
+  buffer, chosen by the context region rather than by a second tablist of its
+  own; an Editor/Preview VIEW-TAB pair replaces the side-by-side
+  textarea+preview split, with Preview the default and a flush on every switch
+  into it; one Save and one Cancel replace the duplicated per-buffer toolbar
+  pair (Save keeps its ratified branch-session semantics unchanged — reading
+  the code showed `save()` was ALREADY whole-canvas and merely drawn twice —
+  while Cancel discards the ACTIVE buffer to its `base_content`); the chat
+  binds to the active buffer immediately with no confirm step and STATES that
+  binding on the rail; and the per-buffer staleness guard is
+  asserted to survive the consolidation. Phase B — numbered multi-document
+  tabs, the docs-wheel edit verb, the dirty-tile marker, and the N-buffer
+  generalization of `BUFFER_KINDS`/`require_outline_and_document`/`SAVE_BUFFER_ORDER`
+  — is explicitly out of scope. No contract release. **Realized 2026-08-15**
+  on `change/realize-doxbench-editing-phase-a`: `doxbench-editor.js` carries
+  the Editor/Preview view tablist and the panel's one Save / one Cancel,
+  `staging-workbench.js` drives the active buffer from the context region's
+  selection, `doxbench-chat.js` states the bound buffer above the transcript,
+  and `viewer.js`'s external-editor escape hatch is relabelled. Naming the
+  bound buffer in the durable TURN RECORD is deferred to Phase B (F2 carve-out,
+  Brett 2026-08-15: it needs a chat-turn contract release this change forbids,
+  so `doxbench_turns.py` is untouched and the obligation is recorded on the
+  staged topic) — and that F2 obligation is DISCHARGED by Phase B's §13
+  release, `contract-v1.34`, which is why Phase A archived first. Task 9.1's
+  merged-commit evidence is recorded in the archived proposal.
+- [add-staged-topic-outline-template](openspec/changes/archive/2026-08-21-add-staged-topic-outline-template/proposal.md)
+  — **ARCHIVED 2026-08-21**, all 22 tasks discharged and the realization
+  evidence recorded at the gate. THIS CHANGE'S OWN REALIZATION CHAIN is eight
+  merged PRs, each of which edits this change's own files: #193 (`93f4241`,
+  doc-health's WARNING-tier `staged-topic-template` family), #195 (`ea42a43`,
+  the template as contract text in `docs/document-lifecycle.md`), #198
+  (`e0dbcea`, `642dd64`, the outline section model and Amendment 1), #208
+  (`26558e7`, `3a1f3aa`, `cd9f683`, the outline tab, tasks 3.1-3.5 + 4.4), #211
+  (`9dfd59a`, `4c9b46b`, the mutation-validated tests, tasks 4.1 + 4.3), #217
+  (`55e8a67`, `7469d1a`, `b84a936`, task 4.2 discharged by DRIVING the real
+  round trip), #224 (`8dde22f`, `2f9e876`, bookkeeping 6.1-6.3) and #227
+  (`5654343`, `8780bf5`, `67ad236`, `a70bf01`, `0d4cf16`, gates 5.1-5.4).
+  SPAWNED CHANGES REALIZED SEPARATELY, and NOT part of the chain above — each
+  has its own archive record carrying its own evidence, and none of these three
+  PRs touches a file of this change: `align-demote-to-round-trip-rule` (PR #215
+  / `79ed72e`, archived 2026-08-19 by this change's #217),
+  `refine-demote-round-trip-mechanics` (PR #221 / `6c3d87c`) and
+  `align-status-reader-to-real-lines` (PR #222 / `c379a09`), the last two
+  archived 2026-08-21 by #225. All three descend from task 4.2's driven round
+  trip. Separately, #228 (Phase B wave 2) edited this change's `tasks.md` to
+  reconcile its 5.3 enumeration and 6.3 path after the `doxbench-editing-model`
+  topic exited staging — a cross-change bookkeeping repoint, not a realization
+  of anything here. Two ADDED requirements promoted —
+  `document-lifecycle`'s "Staged topic primary-fragment template" (5 scenarios)
+  and `ideation-dashboard`'s "The outline tab renders the staged-topic template"
+  (4 scenarios) — and the staged origin's support bundle archived beside the
+  change as `supporting-docs.tar.gz` + manifest, per `Supporting-document
+  archive retention`. Authored 2026-08-15 from the
+  `staged-topic-outline-template` staged topic,
+  the track Brett's 2026-08-15 sequencing ruling put in PARALLEL with
+  `doxbench-editing-model` Phase A because its five questions were decisions
+  rather than builds. All five accepted as recommended, so the parallel track is
+  closed. A staged topic's primary fragment gets a required template — three
+  required sections, and every open question carrying Context / Recommended
+  answer / Explanation / Disposition status in fixed order, so a question is
+  never recorded bare. The load-bearing clause is ROUND-TRIP ON DEMOTE: a topic
+  that reached proposal and came back does not reset to its aspirational text,
+  it carries the ACTUAL last-attempted `proposal.md` with the change id, both
+  dates and the reason — nothing learned in flight is lost by falling back.
+  Sections added by a human or an AI carry `Added-by:` provenance;
+  proposal-element sections reuse the ratified `xspec:` marker grammar rather
+  than inventing a second addressing mechanism. Q1 keeps `primaryFragmentPath`
+  untouched (the wheel's one-path rule is preserved, not extended); Q2 makes
+  existing topics opt-in with doc-health nudging rather than blocking; Q4 rules
+  `edit-document` the verb for AI section-patching (Amendment 1, 2026-08-15 —
+  ratified text named `edit-apply`, the gate console's main-resident redline
+  verb, which requires a change id and cannot reach a session branch), the
+  hinge that upgrades Phase A's freeform chat rewrites into marker-scoped
+  patches once a successor change builds it (recorded on the
+  `doxbench-editing-model` staged topic; neither Phase A nor Phase B shipped
+  it). Both deltas are ADDED, not MODIFIED as the staging INDEX predicted —
+  the existing requirements govern placement and buffer mechanics, neither
+  fragment shape. Sections 1-4 are realized: the template contract in
+  `docs/document-lifecycle.md`, doc-health's WARNING-tier `staged-topic-template`
+  family, and the outline tab's section index plus gated add-section
+  affordance, all with test coverage. Task 4.2's driven round-trip test
+  surfaced a live demote defect, which is where all three spawned changes
+  listed above came from; every one of them is closed before this change
+  archived. Bookkeeping 6.1-6.3 discharged (this row, the exit-marked staging
+  fragments, and the `doxbench-editing-model` Q4 handoff). GATES 5.1-5.4 ARE
+  NOW CLOSED, task 5.4 by driving a real headless browser against a throwaway
+  scratch checkout: the outline tab opened on a conforming and a pre-template
+  topic, a section added to the conforming one through the free-form control,
+  and the shipped Save landing ONE commit on session branch
+  `draft/outline-conformer` whose `edit-document` verb is evidenced three ways
+  (the `/actions/gate/first-edit` response, the commit subject plus its
+  `Gate-Action` trailer, and the committed gate-action record's own `action:`).
+  5.3's enumeration also surfaced that `staged-topic-template` is registered in
+  `families.FAMILIES` but absent from `FAMILY_IDS`, so the report prints no
+  section for its 29 warnings — the same pre-existing omission `proposal-origin`
+  has, left for `doc-health` to fix. The archive gate then closed on its own
+  measurements: `openspec validate --all --strict` 63/63 exit 0 (64 before this
+  archive), `tests/ideation-dashboard` green, `tests/doc-health` clean from a
+  clean path, and a doc-health run diffed against its own base with zero
+  findings moved. `target_release: implemented`, satisfied.
+- [refine-demote-round-trip-mechanics](openspec/changes/archive/2026-08-21-refine-demote-round-trip-mechanics/proposal.md)
+  The MECHANICS around the round-trip rule `align-demote-to-round-trip-rule` fixed,
+  three of them found by DRIVING both gates on the next lap and the fourth by
+  Brett's Decision 3 ruling. (1) The origin topic was unresolvable for EVERY active
+  change: `generator.py` built `origin_staging_id` only from possibles pick edges,
+  which the forward transition destroys along with the staging folder they point at
+  — measured, 12 of 12 active changes reported `None` and the corpus held one pick
+  edge carrying no `change_id`, so the mapping was EMPTY. The answer was already on
+  disk and unread, since the transition WRITES an origin block into `.openspec.yaml`
+  that `generator.py` already parsed for `_ratifier_of` alone. Promoted as a
+  DECLARED PRECEDENCE ORDER — explicit topic, then the origin block where it
+  declares `kind: staged`, then the pick edge — resolving for the changes that came
+  from staging and refusing by name for the `ad_hoc` ones that have no topic to
+  return to. (2) The demote's own artifacts blocked the topic's next forward
+  transition, and `openspec/INDEX.md` was only the first offender in sorted order:
+  measured, 93 of 94 `tasks.md`, 154 of 158 spec deltas, 65 of 68 `design.md` and
+  49 of 94 `proposal.md` carried no `Status:` header, so nearly every returned
+  change artifact made the cycle one-way. Brett's returned-artifact ruling widened
+  the fix to all of them, and then to the OUTLINE's refresh-in-place arm, whose
+  source is the human's own working document and so never had to pass the forward
+  gate to acquire a header. (3) `Proposed by:` accumulated one line per lap, and the
+  fix landed on the FORWARD transition that writes it rather than the demote's
+  refresh — deduping there would have widened the byte bound the promoted
+  requirement pins as "leaving every other byte of that file unchanged", trading a
+  data-loss guarantee for tidiness. (4) Ruling 3: the state-at-demote slot carries
+  the change's task progress beside its status, which needed a MODIFIED delta
+  because the promoted text named a closed list of five values. The realization also
+  brought both gates onto ONE status grammar — the two readers disagreed on 11 of
+  1133 documents in both directions, and now on 0 — and carved EXACTLY ONE addition
+  out of the refresh's byte bound, in the delta that pins it. Promoted one MODIFIED
+  and two ADDED requirements on `ideation-dashboard` and one ADDED on
+  `document-lifecycle`. Realized 2026-08-20 as PR #221 (`1a7c2a1`, `17bba49`,
+  `8c123bf`, `ca9fcaf`, `6c3d87c`) and archived 2026-08-21: `openspec validate --all
+  --strict` 64/64 exit 0, `tests/ideation-dashboard` + `tests/proposal-support` 3729
+  passed / 14 skipped / exit 0, `tests/doc-health` clean, and the realization proof
+  a full LAP on a scratch tree — forward, demote, forward again — with the origin
+  resolved from the origin block and no operator workaround. Its §8 items stay open
+  BY RULING, not as gaps: the shallowest-markdown arm of the primary-fragment
+  selection rule is deferred until a real topic reaches it (0 of 31 do), and the
+  read-side half went to `align-status-reader-to-real-lines` below.
+- [align-status-reader-to-real-lines](openspec/changes/archive/2026-08-21-align-status-reader-to-real-lines/proposal.md)
+  The READ side of the pseudo-line blindness `align-demote-to-round-trip-rule`
+  half-closed, and the one place a false finding cost more than a crash.
+  `corpus.parse_status` and `parse_kind` scanned `text.splitlines()[:15]`, which
+  also breaks on `\x0b`, `\x0c`, `\x1c`-`\x1e`, `\x85`, U+2028 and U+2029 — so a
+  header carrying enough of them pushed a real `Status:` past the window and
+  doc-health reported "missing status header" about a document that plainly had one,
+  while the demote had just written that header correctly. A false finding accuses a
+  correct document and leaves the operator no recourse but to disbelieve the
+  checker. Promoted one ADDED requirement on `doc-health`: the deterministic pass
+  reads a lifecycle header by REAL lines, that rule holds for EVERY reader of the
+  header, and the rule is shared with the writers rather than reimplemented per
+  reader — with cross-language divergence held by an explicit agreement test rather
+  than by convention. The shared primitive is a new `scripts/doc_health/lines.py`,
+  placed in `doc_health` on the MEASURED dependency direction (module-level imports
+  run `ideation_dashboard` → `doc_health` at five call sites; the reverse is lazy
+  and marked `# lazy: house guard`), so the checker layer does not end up downstream
+  of the dashboard runtime for a text helper. Scope was RULED WIDE by Brett after an
+  adversarial review of the first narrow realization surfaced a contradiction
+  between the delta's every-reader clause and a narrower `code_surface:` — the delta
+  governs, and all ten readers plus a standalone twin converted in this change on a
+  measured zero baseline cost. Realized 2026-08-20 as PR #222 (`e6e3ae5`, `1644d86`,
+  `175e972`, `42cc321`, `50bfee2`, `c379a09`) and archived 2026-08-21: `openspec
+  validate --all --strict` 64/64 exit 0, `tests/doc-health` clean,
+  `tests/ideation-dashboard` + `tests/proposal-support` 3729 passed / 14 skipped /
+  exit 0, and task 5.3's own criterion — a doc-health report IDENTICAL to its
+  baseline, since a moved finding would mean the zero-exotic-separator measurement
+  had gone stale — discharged at all three re-run points and confirmed
+  byte-identical across every branch tip. Measured baseline: 0 of 1227 governed
+  files carry an exotic separator anywhere, so the fix moves ZERO findings today;
+  its value is closing the divergence before something in the corpus makes it
+  visible. Four readers stay UNCONVERTED and recorded rather than silently skipped
+  (`families._template_gaps`, `ideation_routing._scan_lines`,
+  `families._staged_exit_changes`, and `proposal-support.py`'s three rules): none
+  reads the six lifecycle header fields, so each sits honestly outside the
+  every-*header*-reader clause rather than inside it by omission. Its §7.5 follow-up
+  — one stale docstring line in `proposal-support.py` that could only be reworded
+  once BOTH sibling branches had merged — is discharged on this archive.
+- [align-demote-to-round-trip-rule](openspec/changes/archive/2026-08-19-align-demote-to-round-trip-rule/proposal.md)
+  A DEFECT FIX: the demote verb performed precisely the reset the ratified
+  round-trip rule is titled against. `classify_change_file` routes anything under
+  `supporting-docs/` back to the topic root by bare basename, and
+  `proposal-support.py transition` records the topic's own primary fragment there
+  — so the demote's destination WAS the primary fragment, and it came back
+  carrying the aspirational pre-proposal snapshot with the provenance slots gone
+  and `Status: draft` on a file the selector still calls the staged topic's
+  outline. Found by DRIVING the verb rather than reading it: a grep for the slot's
+  own field names finds no writer anywhere, which is exactly what made an earlier
+  review conclude the rule was merely unimplemented. Not a special case — 2 of 2
+  staged-origin manifests had the shape. Promoted one requirement on
+  `ideation-dashboard` carrying four parts: status preservation, provenance-slot
+  fill from values the executor already holds, `xspec:` proposal-element refresh
+  from the returned `proposal.md`, and Brett's no-silent-overwrite ruling — the
+  snapshot is a fallback SOURCE, never the authority, so a destination that exists
+  and differs is refreshed IN PLACE with the snapshot preserved beside it rather
+  than written over live human work. Realized 2026-08-19 as PR #215 (`e2c07ef`,
+  `d28d36d`, `1c8b58a`, `79ed72e`) and archived 2026-08-19: 3240 tests passing,
+  `openspec validate --all --strict` 62/62, doc-health baseline-identical, and a
+  driven demote whose fragment came back right. It unblocked
+  `add-staged-topic-outline-template` task 4.2, discharged in the parent by driving
+  both gates. Three open items the realization surfaced — `corpus.parse_status`'s
+  matching read-side blindness, `plan_demotion` resolving the origin topic only
+  from a pick edge the forward transition erases, and a demote's own
+  `openspec/INDEX.md` blocking the next whole-folder transition — are recorded in
+  its `tasks.md` §7.2 rather than filed silently. **Both of its open rulings are
+  now RULED** (Brett, 2026-08-19, in-session multiple choice): `Status at demote`
+  IS enriched with the change's task progress, riding
+  `refine-demote-round-trip-mechanics`, which also carries the three surfaced
+  defects; and the shallowest-markdown arm of the primary-fragment selection rule
+  stays OUT of path-only scope by ruling — deferred until a real topic hits it,
+  not merely unaddressed. The read-side half goes to
+  `align-status-reader-to-real-lines`.
+- [add-client-identity-roster](openspec/changes/archive/2026-08-15-add-client-identity-roster/proposal.md)
+  Promoted the neutral `client-identity-roster` capability (13 requirements)
+  from the Business Central admission investigation: the identity layer
+  beneath `credential-contracts` and `consent-instrument`. Which identities
+  stand inside a paying client's provider tenant, keyed on (domain, admission
+  surface, authority class, blast-radius unit, duty); admission is a VERIFIED
+  list and consent is never recorded as access; achieved authority is derived
+  from granted permissions and its excess over intent declared; structural
+  scoping is preferred and its absence must be declared; provider-forced
+  breadth is declared, never silently absorbed; destructive authority holds no
+  provider identity by default; and drift REPORTS rather than remediates,
+  withholding our own credential and refusing grant issuance. MODIFIED FOUR
+  capabilities: consent-instrument (the cascade reaches governed identities,
+  and `withdrawn` becomes the sixth lifecycle member as a DISTINCT terminal
+  state that MUST NOT be declared an alias of `terminated`), doc-health (the
+  sixteenth deterministic check family, client identity roster composition,
+  scoped to the CROSS-DOMAIN concerns only), domain-conformance-checks (the
+  neutral utility pack grows to FOUR checks — pack membership is what makes
+  `scripts/validate-client-identity-roster.py` BLOCKING, Decision A
+  2026-08-14) and credential-contracts (the optional, CLOSED
+  `issuance_preconditions` vocabulary whose first member is the roster-drift
+  precondition, Decision B 2026-08-14). Decision C (Brett, 2026-08-15)
+  relocated the uncitable multi-surface-reader packaged example to a synthetic
+  representability fixture after its provider precondition was falsified.
+  Realized 2026-08-15 by Speckit feature `007-client-identity-roster` (PR
+  #190) at `contract-v1.33` and archived 2026-08-15. Intra-repo entry
+  conformance fails the domain gate; cross-domain composition is advisory.
+  This release enforces NO roster completeness rule — neither a missing
+  fragment nor a missing entry is a finding — and scoped completeness, plus
+  the live refuse-then-allow proof at a domain mint surface, are named
+  successors.
+- [add-subject-overlay-contract](openspec/changes/archive/2026-08-15-add-subject-overlay-contract/proposal.md)
+  — ARCHIVED 2026-08-15:
+  the neutral `hermes_subject_overlay` kind is RELEASED as **`contract-v1.32`**
+  (annotated tag verified; 190-entry digest inventory) and CONSUMED —
+  hermes-install pins the family at the tag with parity floors covering the
+  kind (1 positive + 8 negatives), and the first instance
+  (codexFactory `hermes/subject/project-alfa/overlay.yaml`) is LIVE-SEEDED on
+  the QA stack (repin+seed window 2026-08-15). OQ-1 ruled: kind name
+  canonical, identity `subject.id`, `stricter_only` refused for
+  `relation_to_baseline: additive_constraints_only`. Related landing surface
+  for staged topic `subject-establishment` (DTN-017).
+- [add-worker-credential-by-reference](openspec/changes/archive/2026-08-14-add-worker-credential-by-reference/proposal.md)
+  — ARCHIVED 2026-08-14:
+  credential-by-reference is LIVE on all three CPC claude lanes — vault
+  source + rotation proven (§11.4 smokes), and the host is fully
+  credential-free (final smoke run 31833019258). Vault deletion is the
+  single kill switch; rotation is one vault write.
+- [align-doxbench-contract-pin-to-publisher](openspec/changes/archive/2026-08-13-align-doxbench-contract-pin-to-publisher/proposal.md)
+  — **ARCHIVED 2026-08-13**, ratified 2026-08-11 by Brett ("ratify the
+  change"). doxBench's two model routes had been dead since
+  `adopt-neutral-tooling-home` moved the dashboard runtime into openxFactory:
+  `verify_stack_pin` demands the HOSTING repository's `stack.yaml` consumption
+  pin, openxFactory is the publisher and has none, so the model-catalog and
+  chat-turn routes refused fail-closed from every checkout of this repository —
+  the tranche-D open item that relocation itself recorded and deferred. The
+  ruling is PUBLISHER MODE over adding a `stack.yaml` here (design Decision 1;
+  the alternative was put and declined): tooling hosted inside the publisher
+  verifies its consumption by the released BYTES it reads, since a checkout
+  carrying the manifest, the schemas, and the family validator IS the release —
+  a consumer checkout keeps the declared-pin requirement exactly as it stands.
+  Two defects hidden behind the refusal went with it: the hard pin moved
+  contract-v1.28 to contract-v1.31 (digest-neutral — v1.31's manifest records
+  the two digests already pinned), and resolution now prefers the publisher
+  checkout the runtime is running in instead of walking past itself into a
+  sibling checkout sitting on another session's branch. Realized as **PR #164**
+  (`5d8e963`) and green on the implemented target (`tests/ideation-dashboard`
+  2850 passed / 5 skipped, `openspec validate --all --strict` 58/58), plus live
+  browser proof: the request that answered `500 catalog_unavailable` before the
+  restart answered `200` with a conformant empty catalog after it. One
+  requirement promoted into each of `ideation-dashboard` and
+  `shared-contract-ownership`.
+- [add-session-notebook-reconciliation](openspec/changes/archive/2026-08-13-add-session-notebook-reconciliation/proposal.md)
+  — **ARCHIVED 2026-08-13**, ratified 2026-08-10 by Brett ("fix the session
+  teardown notebook gap"). A branch session's notebook is supposed to die with
+  its session, but a session that ends outside the two governed endings — a
+  probe removing its worktree by hand, a crash — retires nothing, and the
+  governed retire path correctly REFUSES a dead session, so the one case that
+  needs cleaning had no governed door at all. On 2026-08-10 two orphans were
+  found on the shared live account and deleted by hand. The fix is a fourth
+  sync mode, `--session-sweep`, reconciling the `xf-session-` namespace against
+  the live-session set, and each of its five properties is a decision: detection
+  runs FORWARD-derived, because `notebook_alias` is lossy and a title can never
+  be inverted to a `(repository, branch)` key; a repository that cannot be
+  enumerated refuses the WHOLE run rather than retiring what it could not
+  account for; a notebook whose repository slug this workspace does not carry is
+  reported out of scope and never judged; report-only until `--apply`; and
+  retirement goes through `retire`, never `delete`, so the session-prefix and
+  key-derived-title guards apply. The dry run earned its place — the first run
+  called both of Brett's LIVE sessions dead because they were opened from
+  feature worktrees the enumeration never asked, which fail-closed could not
+  catch ("no sessions in this checkout" is a legitimate answer); enumeration now
+  covers every worktree git lists, pinned by
+  `test_a_session_opened_from_a_feature_worktree_is_seen_as_live`. Realized as
+  **PR #163** (`1b964ba`), green at 2850 passed / exit 0; one requirement
+  promoted into each of `ideation-dashboard` and
+  `lifecycle-notebook-projection`. Archived by the one-at-a-time gate pass that
+  deliberately LEFT four sibling changes active (two on unbuilt work, two on a
+  disposition call: their code is merged and green but Brett has not used the
+  feature once), and that flagged without fixing `target_release: none` as an
+  illegal value carried here and by five siblings.
+- [split-ideation-book-per-repo](openspec/changes/archive/2026-08-10-split-ideation-book-per-repo/proposal.md)
+  — **ratified and archived 2026-08-10** on realization evidence (Brett,
+  verbatim "ratified" — the cross-model decision review's one declined judgment
+  therefore stands as authored: headroom warning plus further-delta rule, no
+  pre-authorized splits). That morning the shared Ideation book hit
+  NotebookLM's 300-source per-notebook cap MID-SYNC: the next `nlm source add`
+  failed with an empty provider error, the run died, and every subsequent
+  ideation document across all governed repos went silently unprojected. Of the
+  300 capped sources: openxFactory 188, LedgerxFactory 62, MedxFactory 36,
+  codexFactory 11, OpsxFactory 4. Ideation books become PER-REPOSITORY,
+  resolved by TITLE (`xFactory Ideation — <RepoName>`, the provider's truth),
+  with the `xf-ideation-<repo-slug>` alias family a machine-local operator
+  convenience — re-registered idempotently, never fatal when absent, since a
+  second host or CI runner must not die on a per-machine alias store. Books are
+  created lazily on the first apply-mode sync where a repo has ideation
+  membership; Working Drafts and Canon stay single. The new PROJECTION CAPACITY
+  GUARD makes the next crossing a warned, named, governed event instead of a
+  dead run: headroom warning at 30 sources or fewer, a deterministic in-cap
+  prefix with the exact excess reported and a nonzero exit on overflow, and
+  per-book containment so one bad book never kills the rest. The legacy
+  `xf-ideation` book and alias were RETIRED, never repointed — an alias that
+  silently changed meaning would corrupt every operator habit and doc reference
+  at once — after per-repo parity was proven by title-set equality against the
+  corpus scan rather than against the capped book. Task 4.3 was left unticked in
+  the archive commit (`e9a4be6`) by oversight and corrected in place with a
+  note rather than silently, per the contested-finding rule.
+
+- [qualify-avatar-brokered-call-feasibility](openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/proposal.md)
+  — tenant-data-free F0 harness for sideband-before-answer ordering, retries,
+  readiness, revocation, redacted evidence, and contract interface impacts;
+  F0 does not qualify live use. Realized (F0 `PASS`) 2026-07-12; archived
+  2026-08-09 under the archive-aware F0 gate (issue #30 option C — the
+  `interface-lock.yaml` pin is unchanged and the gate resolves the packaged
+  archive, digest-checked, fail-closed).
+- [add-project-visible-set](openspec/changes/archive/2026-08-09-add-project-visible-set/proposal.md)
+  — **ARCHIVED 2026-08-09** on Brett's ruling that the day's Playwright
+  acceptance session (13-repository local plane, project `domains`) satisfied
+  task 3.4; ratified by his 2026-08-07 view-selector ruling
+  (`dashboard-project-scoping` D19). The project filter stops being an
+  INDICATOR of a decision made elsewhere and becomes the VISIBILITY CONTROL it
+  visually promised: each member row's eyeball ticks its repository into or out
+  of the view, `all` and `none` are the two bulk moves (which is why "all
+  repositories" needs no line of its own), and the composed view spans the
+  visible set — narrowing applied BEFORE the ratified cluster union, so merged
+  tallies count visible contributions, and `composed_from` trimmed so the
+  freshness header names the repositories actually rendered. Exactly one
+  visible repository serves that repository's OWN snapshot with full
+  capabilities; any other count serves the read-only composed aggregate; an
+  empty set renders honestly empty. D20 then renamed the second mode SHARED and
+  reset its threshold to TWO OR MORE visible carriers rather than every one —
+  on five visible repositories the strict all-of-them rule had shown 0 clusters
+  where SHARED showed 8 cluster topics, which is the finding D20 exists to
+  surface. It also carries a canon CORRECTION: the promoted
+  membership-commission requirement still refused a second in-flight edit while
+  the code had queued them since D18 shipped on 2026-08-07, that amendment
+  having landed in the `add-opendox-project-header` packet after that change
+  archived. No contract growth — no schema, route, or gate verb; the narrowing
+  is a pure view derivation over data the composition already carries. Its
+  `.openspec.yaml` origin declaration was missing at archive because the bare
+  `openspec` CLI was used rather than the proposal-support wrap, so the
+  fail-closed origin gate never asked for it; the declaration landed the same
+  day (`f9bb1a8`).
+- [add-repository-lens](openspec/changes/archive/2026-08-09-add-repository-lens/proposal.md)
+  — **ARCHIVED 2026-08-09** on the same acceptance ruling (task 4.4); ratified
+  by Brett's 2026-08-07 observation (`dashboard-project-scoping` D21) that the
+  repository filter and the keyword lens are one mechanism wearing different
+  words. `repositoryVocabulary()` re-expresses a composed snapshot in the shape
+  the lens already reads — vocabulary terms are member repositories,
+  "documents" are cross-repository document IDENTITIES, a document "carries" a
+  repository when that repository has that identity — so the lens engine is not
+  modified at all, and the bullseye answers HOW shared rather than merely
+  union-or-shared: a ring per carrier count, a sector per exact repository
+  combination. On the real five-factory `domains` project that distribution WAS
+  the finding — 215 identities in exactly one repository, one in two, one in
+  three, two in all five: a family almost entirely domain-specific over a
+  two-document neutral core, which is precisely the question the
+  domain-neutralization candidate register exists to ask. The repository rail's
+  ticks ARE the visible set of its sibling exit `add-project-visible-set`, read
+  and written through so filter and lens always agree, with local redraws
+  instead of reloads; activating the bullseye's centre or a sector DRILLS IN,
+  scoping the whole shell to that region's document set behind a banner that
+  names and clears it, every other plane keeping only what references that set.
+  No contract growth; saving a repository recipe as a workbench manifest or
+  cluster is deliberately out of scope and would be a successor with real
+  gate-verb growth. Same missing-origin repair as its sibling (`f9bb1a8`).
+
+- [add-openxwallet](openspec/changes/archive/2026-08-08-add-openxwallet/proposal.md)
+  Promoted the neutral `openxwallet` core (8 requirements) and
+  `openxwallet-agent-profile` (3 requirements). A wallet is a key
+  REFERENCE with a declared custody model and never key material;
+  authority travels as ATTENUATED GRANTS that narrow monotonically;
+  exercise requires proof of possession rather than presentation; custody
+  CAPS what a signature evidences; audit is key-attributed; revocation
+  propagates through derivation and is checked at exercise;
+  distinct-holder constraints are expressible and opt-in; and wallets stay
+  optional for every domain, preserving MedxFactory's two ratified
+  constraints. Realized 2026-08-07 by Speckit feature
+  `006-openxwallet-contracts` at `contract-v1.31` and archived 2026-08-08.
+  The feature settled the two decisions ratification left it: the closed
+  custody set is three members with `evidences` DERIVED from two declared
+  booleans and enforced — so the collapse the ruling closes is
+  structurally impossible rather than discouraged — and the composition
+  component set covers a retrieval corpus BY REFERENCE (identity plus
+  governing configuration) rather than by its contents. Patient and
+  practitioner profiles remain named successors, each a NEW profile over
+  the same core and each gated on a consumer of its own.
+- [add-project-merged-projection](openspec/changes/archive/2026-08-07-add-project-merged-projection/proposal.md)
+  Promoted the project merged view into `ideation-dashboard`
+  (dashboard-project-scoping exit 2): one composed snapshot per register
+  project via derived aggregates (per-repo namespaced ids, repository
+  badges, multi-parent membership D8), same-topic cluster union on the
+  wheel, read-only composed views with the single "open in <repo>"
+  navigation verb, and degrade-never-refuse on missing members. Archived
+  2026-08-07 on Brett's first real merged-view pass (correct repository
+  attribution verified at the tile annotation); per-tile repository
+  binding stays a named successor.
+- [add-register-edit-lane](openspec/changes/archive/2026-08-07-add-register-edit-lane/proposal.md)
+  — **ARCHIVED 2026-08-07** (folder dated in UTC; the act fell late on
+  2026-08-06 local) with all 12 tasks done, the lane's requirement promoted
+  into `ideation-dashboard`, suites 2761 passed and strict validation green.
+  Ratified by Brett's 2026-08-06 ruling closing the interim hand-fulfilment
+  stance every `project-register-edit` commission had shipped with — "we need
+  to automate that step 2. we need an update button plus a job that watches" —
+  with the two-fork decision (edit + commit + push under pathspec discipline;
+  the serve runs the lane) carried as decided. The `register_edit_lane` scans
+  dispatched `project-register-edit` descriptors, applies each to the
+  aggregation-owned `project-register.yaml` by surgical block edits that
+  preserve comments, validates the result against the pinned schema BEFORE
+  writing, stamps `delivered_at`/`delivered_by` on the dispatched-to-delivered
+  flip, then commits ONLY the register file (explicit pathspec — the shared
+  checkout carries other sessions' work) and pushes with pull-rebase-retry; any
+  refusal or git failure leaves the descriptor dispatched and reports, and
+  nothing is ever half-applied silently. Watch mode is the same lane in a
+  polling loop, and the header's "⟳ apply N pending" button runs the SAME code
+  inside the serve over a loopback-only, human-gated route, so the click is the
+  deliberate human act and only recorded commissions can ever be applied. No
+  new gate verbs and no contract-schema growth. Task 3.5 closed on the first
+  UNATTENDED fulfilment: Brett commissioned AdxFactory into `xfactory` from the
+  dashboard at 2026-08-07T01:30:23Z and the polling watcher delivered it at
+  01:31:13Z — register-only commit `dd1179e` pushed to the aggregation's
+  `origin/main`, no terminal session involved.
+- [add-project-scoped-selection](openspec/changes/archive/2026-08-06-add-project-scoped-selection/proposal.md)
+  Promoted project-scoped selection into `ideation-dashboard`
+  (dashboard-project-scoping exit 1): the human-only `create-project`
+  commission (register writes stay commissions-only per D2), project as a
+  selection scope on the selector, and the gate-intent/gate-action-record
+  `target.project_id` additive deltas — registered at contract-v1.30.
+  Archived 2026-08-06 with its staged origin declared.
+- [add-opendox-project-header](openspec/changes/archive/2026-08-06-add-opendox-project-header/proposal.md)
+  Promoted the Opensoft openDox project-first header (topic D12–D15): the
+  project selector leads the header, "New Project" rehomes the create
+  commission, and the `edit-project` gate verb lands with the ruled guard
+  order — contract deltas registered at contract-v1.30. Archived
+  2026-08-06 with its staged origin declared.
+- [add-proposal-origin-contract](openspec/changes/archive/2026-08-06-add-proposal-origin-contract/proposal.md)
+  Promoted the proposal-origin contract: every OpenSpec change declares
+  exactly one immutable origin (`staged` with a durable
+  `<repo>:staging:<topic>` id, or `ad_hoc` as an explicit approved
+  exception) in `.openspec.yaml`, repeated in the support manifest.
+  `proposal-support.py` writes the staged origin automatically at
+  transition, gains `declare-adhoc`, and fail-closes the per-change verify
+  and archive gates; the nightly `proposal-origin` family (the fifteenth)
+  reports drift across active and archived proposals with pre-contract
+  legacy as WARNING visibility. 22 archived changes were backfilled from
+  recorded evidence (2026-07-12 migration); the family's first run caught
+  and fixed three real defects. Self-applied: the change's own staged
+  origin gated its own archive. Archived 2026-08-06.
+- [add-cross-factory-ideation-routing](openspec/changes/archive/2026-08-06-add-cross-factory-ideation-routing/proposal.md)
+  Promoted the governed cross-factory routing plane: durable `XFI-` Idea IDs
+  from the central allocation ledger, per-idea routing records with
+  claim-level ownership, destination-owner acceptance, and owner-authorized
+  dispositions; the non-mutating ideation organizer (deterministic-first
+  nightly child with watchdog and immutable evidence); and the fourteenth
+  deterministic doc-health family. Contracts registered at
+  **contract-v1.30**, five domains re-pinned, and archived 2026-08-06 on
+  the two-idea pilot (XFI-2026-001 openxWallet unknown-owner intake,
+  XFI-2026-002 subject-document-estate domain-origin split) with a real
+  organizer run, authorized dispositions, nightly run 31129751955 green,
+  and zero fabricated history in any legacy brainstorm.
+- [add-consent-instrument](openspec/changes/archive/2026-08-06-add-consent-instrument/proposal.md)
+  Promoted the neutral `xfactory_consent_instrument` record kind — the
+  authority-chain root credential grants cite, gates verify, and whose
+  termination cascades through declared dependent references — with the
+  domain-owned closed class registry and the purpose model for the neutral
+  purpose-resolution check (D1–D9, zero open questions). Registered at
+  **contract-v1.30** (DTN-016 `adopted`); both proven instances conform by
+  declaration, never rewrite: LedgerxFactory 8b5c03a (engagement classes,
+  active→executed alias, tenant-tree placement) and MedxFactory 3c7715a
+  (four medical classes, consent-profile dependent ref, governed-store
+  placement), each pinned to the release commit with validator sweeps and
+  purpose probes green. Archived 2026-08-06.
+- [add-lens-gate-verbs](openspec/changes/archive/2026-08-06-add-lens-gate-verbs/proposal.md)
+  Promoted the two lens gate verbs into the dashboard's gate console:
+  `lens-save-recipe` and `lens-add-as-cluster` beside dispose/ratify/
+  propose — same human-only enforcement and refusal/record mechanics,
+  capability-gated execute affordance on the lens plan confirmation, CLI
+  parity. Archived 2026-08-06 under Brett's 3.3 disposition: route tests
+  + the Playwright smoke of the exact dogfood scenario + the real
+  wheel-verbs 4.4 human pass on the same gate engine accepted as
+  realization evidence, first real lens use standing as retroactive
+  confirmation.
+- [add-neutrality-drift-lane](openspec/changes/archive/2026-08-05-add-neutrality-drift-lane/proposal.md)
+  The nightly doc-health lane that scouts the domain factories for content
+  that belongs in openxFactory: four deterministic stage-1 signals plus a
+  bounded model scout under prompt contract v1, drafting DTN-register
+  seeds through the rolling health PR; dispositions are digest-keyed and
+  movement always follows the promotion process. Archived 2026-08-05 on
+  full verification: first live nightly (run 31001274147) carried the
+  report section, and the dry-run evidence
+  (archived change's `evidence/dry-run-2026-08-05.md`) proved no
+  false-positive on the post-shed codexFactory engineering core, the
+  synthetic-fixture catch-and-draft path, and unchanged-rejected
+  suppression with digest-keyed re-filing.
+- [add-wheel-action-verbs](openspec/changes/archive/2026-08-05-add-wheel-action-verbs/proposal.md)
+  Four gate verbs for the wheel's expanded-tile action row (Brett's
+  2026-07-25 rulings): `demote` promoted to an executing dashboard verb
+  (plan + record on the click; the corpus move stays the separate human-run
+  step) and three recorded commissions on propose's mechanic —
+  `promote-to-staging`, `derive-possibles`, `research-brief` — with the
+  additive gate-intent / gate-action-record enum + `cluster_id` extension
+  (shipped `contract-v1.29`) and the shared (verb, target)
+  undelivered-commission index. Engine/routes/CLI/wheel realization rode the
+  `adopt-neutral-tooling-home` Tranche B adoption; the four ADDED
+  requirements live in the `ideation-dashboard` spec. Archived 2026-08-05 on
+  the 4.x evidence: suites green (2572 passed), the live browser check, and
+  Brett's first real commissions — one full
+  possible→staged→proposed→demoted traversal, the demote executed as two
+  deliberate steps (PRs #66/#67/#71); the fulfilment lanes remain named
+  successor work.
+- [adopt-neutral-tooling-home](openspec/changes/archive/2026-08-05-adopt-neutral-tooling-home/proposal.md)
+  The contract owner adopted its implementations: the doc-health checker
+  suite, the ideation dashboard runtime, the routing/organizer lanes, and
+  the NotebookLM lifecycle sync moved from codexFactory to openxFactory
+  (tranches A-D; codexFactory shed via PR #72). Archived 2026-08-05 on the
+  5.2 nightly evidence: xFactory run 31001274147 green with the dashboard
+  lane publishing 14/14 snapshots + index from the new homes, after fixing
+  the three adoption regressions in the way (openxFactory Actions access
+  `none` -> `organization`; App grants for the HealthLinc/MedxEHR/openAvatar
+  submodules; the finalize job's missing `rfc3339-validator`).
+- [implement-avatar-client-lab](openspec/changes/archive/2026-08-04-implement-avatar-client-lab/proposal.md)
+  Realized the offline, deterministic Flutter avatar client UI lab
+  (codexFactory `apps/avatar-client-lab/`, openxFactory fixtures + acceptance
+  map): content-addressed contract-v1.7/v1.8 consumption, fixture-replay
+  determinism, the six-state avatar seam, five-region adaptive shell,
+  keyboard-only F1-F4. Archived 2026-08-04 under Brett's 9.1 disposition —
+  Linux-bench green + the portable suite + the WCAG web exception register
+  accepted as the v1 realization; Windows/web platform evidence deferred to
+  the first pilot-era change that stands up the repo-root CI caller.
+- [add-ideation-cross-reference-readiness](openspec/changes/archive/2026-08-04-add-ideation-cross-reference-readiness/proposal.md)
+  Promoted the unified cross-stage topic cluster + readiness surface:
+  `ideation/cross-reference.yaml` (generated `.md` projection), the
+  four-schema index contract with extension-fit citations, the three-tier
+  Hermes readiness panel, and the min>=8 recommendation gate. Realized
+  2026-07-14 (codexFactory `003-ideation-readiness` merged `1fc0bd7`,
+  aggregation child workflow `669d60a`, omnigent-install readiness-scorer
+  profile `f31a019`); the scoring lane reports SKIPPED until a host
+  advertises the profile — the recorded valid landed state (CPC deploy +
+  submodule commit-back remain on the ops ledger). Archived 2026-08-04.
+- [add-possibles-derivation-lane](openspec/changes/archive/2026-08-04-add-possibles-derivation-lane/proposal.md)
+  Promoted the AI-assisted derive-possibles worker lane: bounded read-only
+  Omnigent worker deriving `pending_review` possibles from the landed
+  cross-reference index, the additive possibles-register kernel delta
+  (contract-v1.14), nightly dispatch with watchdog + dormant rolling-PR
+  commit-back, THE WHEEL's non-`indexed` `inferred` rendering. Realized
+  2026-07-22 (codexFactory PRs #25/#27/#28, Omnigent-Install PR #22,
+  xFactory child workflow); first live lane run 2026-07-23 (run
+  30000105423, 3 possibles merged via openxFactory PR #38). Archived
+  2026-08-04.
+- [adopt-neutral-utility-pack](openspec/changes/archive/2026-08-04-adopt-neutral-utility-pack/proposal.md)
+  The neutral utility pack came home (DTN-018/019/021): the three
+  domain-repo conformance checks and the proposal-support mover moved from
+  codexFactory to openxFactory with their test suites, and the
+  subject/tenant Hermes layer-template schema joined
+  `contracts/hermes-domain-overlay/` with a neutralized `$id`. Archived
+  2026-08-04 after the codexFactory shed landed (PR #73, merge 25e46fd1bf)
+  and DTN-018/019/021 moved to `adopted`.
+- [add-workbench-integrated-editor-chat](openspec/changes/archive/2026-08-02-add-workbench-integrated-editor-chat/proposal.md)
+  — **ARCHIVED 2026-08-02** (task 7.8), the change that NAMES the integrated
+  workbench **doxBench** and turns a read-only viewer into one governed
+  authoring loop: an editable Outline/Document canvas over two independent
+  buffers, a chat rail grounded on the live buffers, scope, ref and content
+  hashes (so unsaved human edits reach the next turn without becoming governed
+  corpus state), model choice from a server-side allowlist with provider
+  credentials never entering browser state, chat payloads, git or snapshots,
+  typed AI proposals a human APPLIES by explicit gesture — AI output never
+  writes a file — refusal of a stale proposal when either target buffer moved
+  (no silent merge), and batch Save through the existing branch-session gate
+  actions instead of per-keystroke commits. The free-form field is renamed
+  **Working subject** so it cannot be confused with a `subject_ref` or any
+  identity-bearing subject. Brett's 2026-07-29 governed implementation-start
+  exception let the Speckit lane begin before the five predecessor dashboard
+  changes archived; it started implementation ONLY, permitting neither a merge
+  nor an archive against an unpromoted capability. The contract half landed
+  FIRST, recorded as fact rather than intention: `contract-v1.27` (tag
+  `fb912b9`) plus the G-1 nullability amendment `contract-v1.28` (openxFactory
+  PR #53, tag `a6f49bb` dereferencing to `ff64e81`), both ancestors of main
+  while codexFactory PR #63 was still open, with the consumer pinning those
+  exact bytes. Realization is that **PR #63**, merged `c80264c` (2,327 passed /
+  6 skipped; doxBench contracts 30/30 against the released bytes) after an
+  independent two-pass review of frozen head `7b63c6a` — 128 raised, 106
+  confirmed after three-vote refutation, 84 distinct, 15 P1 — whose F1-F4
+  landed and were re-verified on the live surface. The archive promoted
+  `+ 6, ~ 2, - 0, → 1` into `ideation-dashboard`, exactly the scratch-copy
+  dry-run's prediction, leaving 46 requirements with `doxBench scoped view`
+  replacing `Staging workbench scoped view`. Two rulings on the record survive
+  it: 24 tasks archive OPEN on purpose, annotated honestly rather than
+  force-ticked, and the front matter's `status: proposed` was left UNTOUCHED —
+  no other change in this repository carries a `status:` field, no post-archive
+  vocabulary is defined for one, and a change's location under `archive/` is
+  its status of record. Carried, not closed: the F5-F10 follow-up wave, R-12,
+  the unexercised Narrator/NVDA legs, and the Sonar coverage wiring, whose
+  quality gate is red on a coverage MEASUREMENT GAP the reviewer of record
+  accepted explicitly.
+- [add-workbench-branch-sessions](openspec/changes/archive/2026-08-01-add-workbench-branch-sessions/proposal.md)
+  Promoted branch-per-tile working sessions into `ideation-dashboard`:
+  commit-per-gate-action on a `draft/` branch, session-local snapshots the
+  panels follow, PR-as-save carrying the D18 merge-commit-never-squash
+  series, and the human-only session verbs. Archived 2026-08-01 after the
+  D10 live pass ran a real session end to end (9.2 PASS WITH FINDINGS
+  F8/F10/F12).
+- [add-dashboard-repo-selector](openspec/changes/archive/2026-08-01-add-dashboard-repo-selector/proposal.md)
+  Promoted the (repository, ref) snapshot registry, the repository
+  selector, serving-side runtime fetch with the baked-snapshot fallback,
+  both refresh bindings, and the dispatchable publication lane. Archived
+  2026-08-01 with the hosted acceptance AND the deliberate human
+  observation complete (6.2 PASS; image digest byte-identical).
+- [add-workbench-bullseye-and-create](openspec/changes/archive/2026-08-01-add-workbench-bullseye-and-create/proposal.md)
+  Promoted the bullseye scope reading (rings/sectors over the checked
+  keyword set) and the create gesture with its per-tab create affordances
+  (header-compliant, create-only gate verb). Archived 2026-08-01 after the
+  D10 live creation pass (7.2 PASS WITH FINDINGS F5).
+- [add-staging-workbench](openspec/changes/archive/2026-08-01-add-staging-workbench/proposal.md)
+  Promoted the staging workbench: scoped docs/lens context, per-document
+  completeness bars over the five-signal scorer, and the
+  `READY_MIN_SCORE` 0.60 staged-to-proposal gate with typed, explainable
+  blockers. Archived 2026-08-01 after the D10 calibration pass (6.5 PASS
+  WITH FINDINGS F2/F3 — the scorer-depth V2 register).
+- [add-propose-verb](openspec/changes/archive/2026-08-01-add-propose-verb/proposal.md)
+  Promoted the `propose` verb: the human-gated staged-topic commission
+  emitting a workflow-job descriptor plus gate-action record behind the
+  live readiness guard. Archived 2026-08-01 after the first REAL
+  commission (4.3 PASS — `add-consent-instrument` dispatched from the
+  D10 pass).
+
+- [add-deployment-handoff-boundary](openspec/changes/archive/2026-07-30-add-deployment-handoff-boundary/proposal.md)
+  — **ratified 2026-07-29, realized and archived 2026-07-30** (doc-only;
+  supporting bundle packaged per the proposal-support archive gate).
+  Promoted the `deployment-handoff-boundary` capability (7 requirements):
+  the managed-subject test is the sole deployment router (tier calibrates
+  governance depth, never the executor; binds workers, CI, and human
+  engineers alike); the crossing is the ratified
+  `client_infrastructure_request` requirements-profile; credential
+  non-possession is the primary enforcement (grants issue only against
+  accepted requests targeting registered subjects; break-glass is a
+  retroactive request with escrow-owned custody); structural channels
+  (merge IS the deployment); correlation stamping makes out-of-band
+  change a first-class audit finding; benches ride standing requests;
+  adoption is phased-never-gapped. MODIFIED `release-realization`:
+  managed-subject deployment evidence references the handoff correlation
+  identifier. Successor packets for OpsxFactory and codexFactory (with
+  the four deferred decisions and the topic-exit conditions):
+  [docs/deployment-handoff-realization-handoff.md](docs/deployment-handoff-realization-handoff.md);
+  escrow coordination and the DTN-017 seam linkage recorded in their
+  owning registers.
+- [publish-semantic-kernel](openspec/changes/archive/2026-07-30-publish-semantic-kernel/proposal.md)
+  — **the capstone: ratified, realized, cut at contract-v1.25, and
+  archived 2026-07-30**. The xFactory semantic kernel's first governed
+  publication: all 34 terms published by explicit per-term steward act
+  (25 concepts + 9 relations, every one adoption-evidenced), released
+  0.1.0 → 1.0.0 by the accountable `openxfactory-maintainers` council
+  through `ontology-release.py`, meaning untouched. The bootstrap window
+  closes in ratified text (the active kernel line never regresses to
+  pending adoption), the kernel's stewardship policy is an EXPLICIT
+  scoping decision (openxFactory change governance; reopening trigger
+  recorded), and the capstone review's P-wave made retention TRUTHFUL IN
+  BOTH DIRECTIONS (active snapshots state published; supersession flips
+  exactly one governed line; orphans fail), added version-AND-digest
+  kernel-import checking, and turned the recurring stale-count slip into
+  a validator lint that caught its own author on introduction. Reviewer
+  APPROVED at ce95d27 with zero new findings — every finding from the
+  original release review and all subsequent waves is closed. Consumers
+  MedxFactory 516bac9 + codexFactory 6f037d5 declare and pin kernel
+  1.0.0. Corpus 57 negatives / 10 positives.
+- [add-ontology-stewardship-hardening](openspec/changes/archive/2026-07-30-add-ontology-stewardship-hardening/proposal.md)
+  — **authored, ratified, realized, cut at contract-v1.24, and archived
+  2026-07-30**, closing the ENTIRE carried-forward set from the
+  domain-ontology release review. F21: the release tool's manifest
+  rewrite carries every declared field, evidence paths are contained
+  inside the package, and retained snapshots are born
+  `lifecycle_state: superseded` (the F3 byte seal independently
+  re-verified intact across all 13 snapshots). F24: readiness blocks on
+  the starter marker's STRUCTURAL placeholder record — a rename can never
+  launder a scaffold into readiness. F25: the marker is inventoried,
+  digest-covered content. F26: quality signals declare min OR max (rate
+  ceilings expressible directly) and a declared source-review cadence
+  requires external review deadlines — a rule that caught a real defect
+  in the codex pilot's own sources on first run. F27: the eight semantic
+  gateway conformance fixtures are EXECUTED (all six probes proven
+  load-bearing; delegates resolution-verified). Plus starter v14's
+  `--ontology-only` adoption mode: mature repositories adopt the ontology
+  without the whole-repo scaffold spray. Corpus 55 negatives / 10
+  positives; contract-v1.24 remote-verified and DELIVERING the v1.23
+  erratum correction; reviewer APPROVED at 55a6202. Consumers MedxFactory
+  f4ca313 + codexFactory 11777a9 (inventoried markers; their v13 markers
+  gain the placeholders block when a publication-driving change
+  regenerates them).
+- [add-omnigent-semantic-wiring](openspec/changes/archive/2026-07-30-add-omnigent-semantic-wiring/proposal.md)
+  — **authored, ratified, realized, cut at contract-v1.23, and archived
+  2026-07-30**, closing the follow-up named at add-domain-ontology-layer
+  6.7 / design decision 13: the Omnigent seam is wired end to end. The
+  domain overlay declares each worker's semantic-context profile by
+  identity (repo-mode resolution against inventoried profiles,
+  archetype-or-class scope agreement); the install manifest pins the
+  compiled per-worker artifacts with exact kernel/package digests,
+  both-direction completeness fail-closed, and — after the review's N5 —
+  the content digest RECOMPUTED from artifact bytes at both gates (the
+  install pin catches tampering even when an artifact is self-consistent;
+  the ontology validator catches drift wherever a context lands). Seam
+  hardening landed F19 (transitive truncation itemization, tool +
+  validator) and F20 (drifted package bytes refuse compilation); the
+  review also surfaced N7 — a stale `contracts/manifest.yaml` digest
+  carried v1.18→v1.23 with no checker — fixed with
+  `scripts/validate-manifest-digests.py` (104/104) and a recorded v1.23
+  erratum. Ontology corpus 51 negatives / 10 positives; wiring suite 16
+  checks. First consumer MedxFactory (80a81af: two profiles, two
+  declarations, overlay-manifest re-pinned); tag `contract-v1.23`
+  remote-verified; reviewer APPROVED at 792afd2.
+- [add-ontology-term-lifecycle-enforcement](openspec/changes/archive/2026-07-30-add-ontology-term-lifecycle-enforcement/proposal.md)
+  — **authored, ratified, realized, and archived 2026-07-30**, landing F18
+  (the first carried-forward finding from the ontology release review):
+  term-level `lifecycle_state`/`effective_version` are enforced, never
+  decorative. A published package carries no draft term — publication is a
+  per-term steward act refused by both the validator
+  (`ONT-TERM-LIFECYCLE`) and `ontology-release.py`; term lifecycle only
+  moves forward across revisions (resurrection fails for every
+  compatibility class); meaning-bearing changes bump `effective_version`
+  (`ONT-TERM-VERSION`); retired terms refuse new compilation at the
+  compile tool (requested OR closure-pulled), in worker profiles, and in
+  current-pin contexts, while prior-pin contexts keep their original
+  interpretation. Five new indexed negatives (corpus 49, ratchet 49);
+  pilots publish their terms as recorded steward acts. Reviewer-verified
+  by construction and APPROVED at 0033d7c. No schema bytes changed
+  (target_release: none). ADDED requirement promoted into
+  `domain-ontology-lifecycle`; `Bounded semantic context` updated in
+  `xfactory-semantic-kernel`.
+- [add-domain-ontology-layer](openspec/changes/archive/2026-07-30-add-domain-ontology-layer/proposal.md)
+  — **ratified 2026-07-28, realized 2026-07-28/29, archived 2026-07-30 at
+  contract-v1.22**: the semantic plane. Promoted `xfactory-semantic-kernel`
+  and `domain-ontology-lifecycle` plus deltas to layer-vocabulary,
+  hermes-domain-overlay, and memory-gateway. Realized: the eighteen-kind
+  `contracts/domain-ontology/` family with the `xf/core` kernel (24 concepts,
+  9 relations, per-term owning contracts + evidenced adoption; DRAFT pending
+  the governed publication decision); canonical validator
+  `validate-domain-ontology.py` (10 positives incl. the retained
+  MedxFactory/codexFactory pilots, 44 indexed negatives, determinism,
+  readiness, repo-scoped registry); starter v13 ontology generation with
+  conflict-preserving candidate ingestion; stewardship tooling
+  (accountable-steward releases with per-signal quality exceptions,
+  consumer-impact evidence, byte-true self-retention; maintenance triggers
+  with identifier fail-closed inputs); purpose-bounded semantic-context
+  compilation + memory-gateway packet preflight (closed packet shapes,
+  real pilot-stamped example digests). Guide:
+  [docs/domain-ontology-guide.md](docs/domain-ontology-guide.md); pilots:
+  [docs/domain-ontology-pilot-report.md](docs/domain-ontology-pilot-report.md).
+  Released through a four-round independent adversarial review (16 blocking
+  findings + N1–N4 all resolved, APPROVED at 5d39bb4); bundle tag
+  `contract-v1.22` remote-verified. MedxFactory adopted (kernel
+  digest-pinned); codexFactory/hermes-install/omnigent adoption recorded as
+  explicit deferrals with the follow-up omnigent change named.
+- [add-capability-steward](openspec/changes/archive/2026-07-30-add-capability-steward/proposal.md)
+  — **authored, ratified, and realized 2026-07-29; archived 2026-07-30**,
+  closing the `recurrence-crystallization` program: promoted
+  `crystallized-capability-registry` (6 requirements),
+  `crystallization-dispatch` (8), and `capability-health` (9) — the
+  single-source registry with the proof-gated spine and
+  pins-vs-live-authority (D10), the dispatch junction with deterministic
+  fences and pure/idempotent admission (D11), and the
+  proof/sentinel/drift/accounting surface with contractual renewal
+  write-backs. Realized at `contract-v1.21`; with `v1.19` (pattern-ledger)
+  and `v1.20` (crystallizer), all three crystallization waves went
+  brainstorm → canon in three days, and the MVP packet-capture corpus runs
+  the entire flywheel in fixtures — episode to verified savings. The dials
+  register remains the topic's staged living remainder; cross-tenant is
+  the deliberate brainstorm remainder for the pooling wave.
+- [add-crystallizer-contracts](openspec/changes/archive/2026-07-29-add-crystallizer-contracts/proposal.md)
+  — **authored, ratified, realized, and archived 2026-07-29** (same-day
+  full cycle; exit 2 of the `recurrence-crystallization` staged topic):
+  promoted `crystallization-decision` (7 requirements),
+  `crystallization-build` (8), and `crystallization-consent` (4), and grew
+  `omnigent-domain-overlay` by two — the crystallized-executor binding on
+  the EXISTING five archetypes (constitutional matrix binds verbatim;
+  authority conservation is a mechanical subset check) and per-category
+  rung ceilings with the conservative L3 default. Realized at
+  `contract-v1.20`; the MVP corpus now runs candidate → funded L3
+  decision → mined spec (real Topics-wrap counterexample) → consent
+  grants → accepted-build shape, end to end in fixtures. Successor exit
+  stays staged: `add-capability-steward`.
+- [add-pattern-ledger](openspec/changes/archive/2026-07-29-add-pattern-ledger/proposal.md)
+  — **authored, ratified, realized, and archived 2026-07-29** (same-day
+  full cycle; exit 1 of the `recurrence-crystallization` staged topic):
+  promoted the `pattern-ledger` capability (8 requirements) — the five
+  sensing record schemas (episode / outcome-label / recurrence-family /
+  recurrence-forecast / crystallization-candidate), the canonical validator
+  with nine named policy rules (self-testing 7 positives / 7 indexed
+  negatives), and the MVP packet-capture fixture corpus hand-derived from
+  the real 2026-07-28/29 runs. Realized at `contract-v1.19`, whose cut also
+  discharged the standing `xfactory-derived-model-conformance`
+  registration. The candidate autonomy boundary — nominate, never spend —
+  is the wave's constitutional line; successor exits stay staged:
+  `add-crystallizer-contracts`, `add-capability-steward`.
+- [add-ideation-dashboard](openspec/changes/archive/2026-07-29-add-ideation-dashboard/proposal.md)
+  — **re-ratified 2026-07-14 (D1–D17), realized, and archived 2026-07-29**:
+  promoted the `ideation-dashboard` capability (15 requirements), created
+  `ideation-cross-reference` (2), and grew doc-health and
+  document-lifecycle by one each. The generated dashboard: realization
+  funnel snapshot over a possibles register, cluster canvas, keyword lens
+  with cluster-as-recipe persistence, project grouping roll-ups, drill-down
+  explorer and read-only viewer, human gate console and next-step kickoff,
+  per-actor authoring authority, and the nightly snapshot lane; web-based
+  v1 on the internal xForge plane. Archive-gate evidence: codexFactory
+  feature 002 merged (231 tests + 34 contract fixtures, adversarial review
+  ACCEPT), doc-health-nightly green with fresh per-repository snapshots on
+  the archive date, live at ideation-dashboard.xforge.us (never-public
+  boundary answering 401 unauthenticated), the contract family registered
+  (`ideation-possibles-register` kernel in `contracts/manifest.yaml`, the
+  family in the contracts README doc index), and the supporting bundle
+  manifest hash-refreshed at preflight to cover the two post-transition
+  governance commits. Seven active changes stack MODIFIED deltas on the
+  promoted spec (repo-selector, branch-sessions, bullseye-and-create,
+  staging-workbench, and the lens/wheel/propose verbs) — all validating
+  strict against it (49/49).
 - [add-hermes-domain-content-manifest](openspec/changes/archive/2026-07-24-add-hermes-domain-content-manifest/proposal.md)
   — **ratified, realized, and archived 2026-07-24** (seeding increment 4b,
   contract half; released as `contract-v1.18`, annotated tag verified): the
@@ -544,6 +2113,78 @@ Archived changes:
   formalizing increment 3's derived gateway-rails input; canonical
   validator extensions green over fixtures and the real codexFactory tree,
   with the live-derived opensoft bindings as the packaged example.
+- [add-client-layer-tuning-contracts](openspec/changes/archive/2026-07-24-add-client-layer-tuning-contracts/proposal.md)
+  — **ratified 2026-07-24, released as `contract-v1.17`** (annotated tag
+  verified) and archived the same day with the staging INDEX marking the
+  `client-layer-tuning` topic complete: the neutral tenant-layer contract set
+  every operating organization needs before a domain specializes it. Three
+  parts — the Plane-1 house team under `templates/client-layer/roles/` (a
+  `house_style` baseline with respect and discretion LOCKED and warmth floored
+  at `moderate`, ten deciders plus the Client Infrastructure Liaison as a
+  composed CAPABILITY rather than a member, and the Finance & Accounting
+  Officer owning cost reporting with its `cost_reporting_steward` worker added
+  to the scaffold); the `contracts/client-content/` schemas the wizard writes
+  and the seeder validates (policy overrides, memory boundaries, integration
+  boundaries, and the seedable `hermes_client_overlay` at the decided canonical
+  path `config/clients/<client_ref>/overlay.yaml`, declared through the repo's
+  overlay descriptor and digest-pinned in the install's compatibility
+  manifest); and `scripts/validate-client-content.py` implementing the
+  STRICTER-ONLY comparability spec — allowlists subset, denylists superset,
+  ceilings at or below, floors at or above, clearances and conjunctive
+  envelopes add-only, ordered enums at or above, and anything with no partial
+  order routed to `review_required` rather than passing silently — one
+  implementation enforced at two points, wizard write time and seeder
+  validation time. Live-proven: the opensoft tenant tuned and seeded on
+  aks-opensoft-platform-qa-01 (hermes-install phase-2 flip evidence).
+- [add-omnigent-domain-overlay](openspec/changes/archive/2026-07-24-add-omnigent-domain-overlay/proposal.md)
+  — **ratified 2026-07-22, contracts registered at `contract-v1.16`, archived
+  2026-07-24** when the last gated realization landed ("the omnigent program is
+  closed"), promoting `omnigent-domain-overlay` + `omnigent-install-manifest`
+  (11 requirements, 38/38 strict). Gave the Omnigent layer the domain tier it
+  lacked — nothing in the install said it was a software-engineering Omnigent,
+  and the only path to a medical or accounting one was copy-fork. Per-domain
+  content is now authored once in each DomainxFactory under `omnigent/`
+  (sibling of `hermes/domain/`) and consumed by install repos ONLY by digest
+  pin, composed under the existing `domain_installation_overlay` operations
+  with `stricter_rule_wins`; every declared worker class maps to exactly one of
+  five neutral archetypes (`frame`, `generate`, `verify`, `challenge`,
+  `assemble_for_admission`) and declares the six-boolean permission matrix with
+  `execute_final_action` and `access_secrets` CONSTITUTIONALLY false in-schema,
+  beside a `never_assignable` credential tier stronger than
+  `unassigned_by_default`. The install manifest digest-pins the Hermes runtime
+  manifest as the single source of stack identity — no parallel identity
+  document — at exactly one tenant, one domain overlay and N subject workloads,
+  composed fail-closed with seeding-vocabulary evidence and pre-rendered
+  effective worker profiles. A new family, so canonical Subject/Tenant/Domain
+  spellings from birth; legacy spellings survive only inside the pinned
+  upstream manifest and are read through the layer-vocabulary mapping. All four
+  gated follow-ups are evidenced in the task ledger: omnigent-install's manifest
+  increment (`3f31270`), hermes-install's worker-readiness port (`09af670`) and
+  its 2026-07-24 live cutover, codexFactory's first overlay with the live
+  coding-patch-worker profile rendered BYTE-VERBATIM from overlay + params
+  (`469322b` / `def6a56`, sha256 `f2f70eb2…`), and MedxFactory's second-domain
+  params fixture proving the pattern with zero core edits. Worker-host mutation
+  verbs and multi-domain fleet federation were REJECTED for this generation.
+- [adopt-subject-tenant-domain-vocabulary](openspec/changes/archive/2026-07-23-adopt-subject-tenant-domain-vocabulary/proposal.md)
+  — **ratified and archived 2026-07-23**, registered at `contract-v1.16`
+  (manifest per-file sha256, tenth CHANGELOG release, annotated tag verified),
+  promoting `layer-vocabulary`. Freezes the canonical Hermes layer vocabulary
+  Brett selected on 2026-07-22 — **Subject Hermes** (the served party or work
+  subject), **Tenant Hermes** (the tenant-operator organization running the
+  installation), **Domain Hermes** (unchanged) — which is review fix priority
+  #2 and closes the §A1 defect where LedgerxFactory's "Client Hermes" was its
+  served-subject layer while canonical "Client Hermes" was the tenant-operator
+  layer. Domain aliases (Patient, Project, managed system…) SPECIALIZE the
+  canonical names and never replace them; "Customer" and "Client" are reserved
+  against use as layer names on new or substantively revised governance
+  surfaces while staying legal in prose about commercial relationships; and
+  released machine identifiers — `customer_subject_ref`, role kinds
+  `customer|client|domain`, `contracts/hermes-runtime/` `$id`s — are FROZEN
+  byte-stable until the next major bundle, interpreted through the published
+  mapping in `contracts/policies/layer-vocabulary.yaml`. The identifier
+  migration and the five per-repo migrations are filed as the deliberately
+  dormant `layer-vocabulary-machine-migration` staging topic that rides that
+  major bundle; hermes-install adopts at its first pin bump.
 - [add-governed-derived-model](openspec/changes/archive/2026-07-23-add-governed-derived-model/proposal.md)
   — **ratified, realized, and archived 2026-07-23** (same-day promotion of
   the governed-derived-model staging topic; DTN-014): the
@@ -558,6 +2199,42 @@ Archived changes:
   is the first `calibrated`-tier conformer (eb98f84, via
   `add-adx-object-model`). Deferred to the contract-v1.16 cut: manifest
   entry + DTN-014 `adopted` flip.
+- [add-hermes-domain-overlay-contract](openspec/changes/archive/2026-07-23-add-hermes-domain-overlay-contract/proposal.md)
+  — **ratified 2026-07-23, released as `contract-v1.15`** (annotated tag
+  verified) and archived the same day with `hermes-domain-overlay` promoted:
+  the neutral `hermes_domain_overlay` schema (domain identity, non-empty
+  approval scope kinds and required approval fields, and `authority_boundaries`
+  split three ways — `<domain>_owns` / `xfactory_owns` / `repository_owns`,
+  each non-empty with no overlaps), the `hermes_overlay_descriptor` that turns
+  the seeder's hard-coded role-to-path rule into a declaration (a missing
+  descriptor falls back to the shipped convention; an unrecognized role fails
+  closed), and `scripts/validate-hermes-domain-overlay.py` with
+  positive/negative fixtures. Closes the gap the seeding runtime had carried
+  since 2026-07-22, when it loaded `hermes/domain/overlay.yaml` under a minimal
+  structural check because no neutral schema existed — two conventions held
+  together by agreement, now contract. Proved against the real consumer: the
+  validator passes on codexFactory's live 37-authority overlay UNMODIFIED, and
+  seeding increment 2 replaces the runtime check with validation against the
+  pinned bundle. First exit of the `layer-content-materialization` staged
+  topic.
+- [add-sops-ciphertext-ruling](openspec/changes/archive/2026-07-19-add-sops-ciphertext-ruling/proposal.md)
+  — **ratified by Brett 2026-07-19 and archived on landing** (`code_surface:
+  none`), promoting the delta into `credential-contracts` (the 24th promoted
+  capability delta at the time) on PR #34's merge (`c9dd404`). The durable
+  record for a ruling that had first been made as a direct doc edit: SOPS
+  ciphertext is NOT a raw credential, so a Flux-managed repository may be the
+  single reconciled source of truth for secrets — provided the repository holds
+  ciphertext only, the decryption identity is custodied externally, recipients
+  are per-environment, plaintext is rejected pre-commit, controller-compromise
+  blast radius is accounted for, and exposure rotates the identity AND the
+  credential, historical git ciphertext remaining recoverable. Ratification is
+  conferred by an OpenSpec change under the document lifecycle and the
+  omnigent-install record already cited this ruling as ratified in its
+  Amendment 3, so this change is that missing record.
+  `docs/credential-access-model.md` §1.1 now cites it. No retroactive blessing
+  of base64 or ad hoc encryption — those remain raw credentials. First approved
+  realization is the xFactory QA environment: one QA-wide age identity, durable
+  private copy only in 1Password, replaceable runtime projection.
 - [add-client-infrastructure-liaison](openspec/changes/archive/2026-07-17-add-client-infrastructure-liaison/proposal.md)
   — exit of `ideation/staging/client-infrastructure-liaison`: the neutral
   Client Infrastructure Liaison coordination profile (promoted capabilities
@@ -613,6 +2290,50 @@ Archived changes:
   offline realization validator; realized as `contract-v1.8` (acceptance map
   relocated to `examples/avatar-first-ui/` so the validator survives archive);
   archived 2026-07-13
+- [add-doc-health-semantic-sweep](openspec/changes/archive/2026-07-12-add-doc-health-semantic-sweep/proposal.md)
+  — **realized and archived 2026-07-12**, promoting +8 requirements (and ~1
+  modified) into `doc-health` through the proposal-support wrap, so its
+  supporting docs packaged as tar.gz plus a readable manifest; 24/24 strict.
+  Adds the AGENTIC second pass beside the deterministic one: an LLM worker
+  reads the governance corpus for the two defect classes twelve grep-shaped
+  families cannot find — untagged normative prose and prose-vs-spec
+  contradictions. Findings are PROPOSALS, never verdicts (always contested,
+  severity capped at warning, each naming doc, passage, suspected conflicting
+  requirement and a confidence note; the sweep blocks no merge in v1);
+  authority splits between deterministic orchestration under the factory
+  identity and a CREDENTIAL-LESS analysis worker bounded by an Omnigent worker
+  profile whose job envelope the report cites; disposition follows content
+  ownership (the owning factory's Domain Hermes for its own docs, the neutral
+  ratify gate for neutral or cross-repo findings); and sweep scope is
+  Hermes-owned policy, deepest `doc_health.sweep_scope` declaration winning,
+  defaulting to incremental. The deterministic pass's "semantic sweeps are out
+  of scope" sentence is RE-SCOPED rather than deleted: that pass makes no model
+  calls, and the capability now owns both. Realization evidence is nightly run
+  29178217833 (2026-07-12, green), whose `health/reports/2026-07-12.md` carries
+  the Semantic Sweep section (claude-sonnet-5, prompt contract v2, envelope
+  SEMSWEEP-21cd3ce31acd) with findings in both families, its analysis child
+  29178226880 running on the CloudPC worker `xfactory-artifact-cpc-brett01`.
+  The implementation lived in codexFactory's `scripts/doc_health/` under the
+  ownership split of the day; `adopt-neutral-tooling-home` relocated it into
+  openxFactory on 2026-08-03.
+- [exclude-worktrees-from-notebook-projection](openspec/changes/archive/2026-07-12-exclude-worktrees-from-notebook-projection/proposal.md)
+  — **ratified by Brett 2026-07-12 and archived the same day** on complete
+  realization evidence, promoting the corpus scan scope requirement into
+  `lifecycle-notebook-projection`. The nightly sync's dry run had reported ~230
+  pending operations, ~39 of them triplicated sources from
+  `xFactories/OpsxFactory-worktrees/` — three feature-branch worktree checkouts
+  the scan had treated as a governed repository named `OpsxFactory-worktrees`.
+  Applying would have published duplicate, unmerged branch content into the
+  shared books under colliding titles; the defect was caught in DRY RUN, so no
+  worktree source ever reached a notebook. The projection now scans
+  openxFactory and each DomainxFactory under `xFactories/` and excludes nested
+  git working copies below a scanned root (`<repo>-worktrees/` containers,
+  embedded clones, nested submodule installs) — a scope that had been prose in
+  the workflow doc and never a spec requirement at all, which is why the fix
+  needed a delta first. Realized in codexFactory (`d71f45b`) with regression
+  tests; the backlog dropped 230 to 194 legitimate operations, all applied
+  2026-07-12 with zero errors and a clean follow-up dry run (canon 34 / drafts
+  114 / ideation 32 desired sources).
 - [define-human-escalation-contract](openspec/changes/archive/2026-07-12-define-human-escalation-contract/proposal.md)
   — route/park/interrupt escalation ladder with a deliberately high interrupt
   bar (containment failure only, cited classes), parked-decision packets at
@@ -620,6 +2341,25 @@ Archived changes:
   and structural parking in external enforcement; ratified 2026-07-12,
   archived on landing (`code_surface: none`); resolves the dangling `HR`
   consultation in the engineering escalation table
+- [add-xfactory-installer-repository](openspec/changes/archive/2026-07-10-add-xfactory-installer-repository/proposal.md)
+  — **archived 2026-07-10** (folder dated in UTC; the act fell on a machine
+  reading 2026-07-09), promoting `workstation-intake` and extending
+  `repo-boundary-governance`. Draws the repository boundary BEFORE any
+  application code exists: private `opensoft/xFactory-Installer` becomes the
+  implementation home for xFactory intake and installer surfaces —
+  bootstrapped with ownership, architecture, contract-consumption, security,
+  validation and release documentation, deliberately claiming no WinUI
+  application, tagged `v0.1.0-bootstrap`, then pinned into the aggregation at
+  `installs/xfactory-installer` at an exact commit. The authority split is the
+  point: canonical intake and enrollment evidence contracts stay in
+  openxFactory, Intune/Graph administration and tenant credentials stay in
+  OpsxFactory, workstation end-state requirements stay in CloudPC-Install, and
+  the installer consumes openxFactory by explicit compatibility declaration
+  rather than copying canonical policy. `xFactory Workstation Intake` is the
+  first product surface; any later website, CLI/TUI or cross-platform surface
+  shares the same neutral intake contract. Task 5.2 records what the bootstrap
+  does NOT claim — WinUI implementation, Intune enrollment, Graph grants,
+  signing and Store submission are successor work, not realization.
 - [add-proposal-supporting-doc-lifecycle](openspec/changes/archive/2026-07-09-add-proposal-supporting-doc-lifecycle/proposal.md)
   — proposal-owned supporting documents, deterministic archive bundles, and
   proposal-stage NotebookLM returns (ratified and realized 2026-07-09)

@@ -176,6 +176,23 @@ scripts/apply-domain-starter.py /path/to/NewFactory \
   --customer-layer-name "New Subject Hermes"
 ```
 
+The v13 starter is ontology-aware: it seeds a draft
+`hermes/domain/ontology/` package deterministically from the `ontology:`
+section of the pre-run answers (`--answers <file>`, defaulting to
+`<target>/instantiation-answers.yaml`, then the generated example),
+declares `domain_ontology` in `hermes/domain/content-manifest.yaml`, and
+records the ontology-aware starter version in
+`hermes/domain/ontology/STARTER.yaml`. Model-assisted extraction enters
+only through `--ingest-candidates <batch.yaml>` — approved registered
+sources plus an extraction-run identity, appending to the candidate
+register without ever touching the active package or an existing
+candidate's disposition. Reruns never overwrite domain-owned ontology
+content: differences surface in the rerun report's Conflicts table, and
+missing semantic inputs in its Unresolved Semantic Inputs table. Validate
+a generated tree with `python3 scripts/validate-domain-ontology.py
+<target>` and exercise the pipeline with
+`python3 scripts/test-domain-starter-ontology.py`.
+
 ## 2. Required Repo Shape
 
 Every new domain factory repo should start with this shape:

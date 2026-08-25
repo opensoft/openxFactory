@@ -1,0 +1,1166 @@
+schema_version: 1
+kind: openxfactory_realization_traceability
+feature: 007-client-identity-roster
+ratified_change: add-client-identity-roster
+capabilities:
+  - client-identity-roster
+  - consent-instrument
+  - doc-health
+  - domain-conformance-checks
+  - credential-contracts
+
+# One row per ratified FR and per ratified SC. The SC rows EXTEND the 006
+# shape, which carries requirement rows only: this feature's success criteria
+# are measurements in their own right (a run, a count, a boundary), and a
+# criterion with no recorded measurement is the thing this file exists to make
+# impossible.
+#
+# `enforced_by` names the validator rule, test or command that actually holds
+# the requirement — the 006 field name, not a renamed one.
+# `negative_confirmation` names the probe that proves the check is
+# load-bearing, or says `n/a` WITH A REASON where the criterion is
+# positive-only.
+# `red_proven` is 006's own sense: SUPPRESSING the rule's finding code turns
+# the packaged corpus RED, which is what proves the probe fails FOR ITS OWN
+# REASON rather than incidentally (FR-018's standard).
+#
+# REPRODUCTION — no new script (task 10.1 forbids one): task 2.2's
+# break-one-negative procedure, which ships as
+# `tests/client-identity-roster/test_client_identity_roster.py`'s five
+# failure-mode tests (`test_failure_mode_a…e`). The suppression sweep run at
+# Phase 10 loaded the validator module 31 times, neutered ONE registered
+# finding code per load by dropping it in `Findings.error`, and ran
+# `self_test()`:
+#   CONTROL (nothing suppressed) — 0 errors, GREEN.
+#   31 of 31 registered codes — self-test RED when suppressed.
+# Every `red_proven` value below is a line of that recorded sweep, not a claim
+# made at authoring time. The self-test's own gate is what turns red: a
+# neutered rule makes its registered negative PASS, which is failure mode (c).
+red_proof_sweep:
+  run_at: 2026-08-15
+  control: "self_test() with nothing suppressed — 0 error(s), GREEN"
+  codes_registered: 31
+  codes_that_turn_the_corpus_red_when_suppressed: 31
+  procedure: >-
+    task 2.2's break-one-negative procedure, shipped as the five
+    `test_failure_mode_*` tests; the sweep applies it to every registered code
+    in turn rather than to one sample.
+
+requirements:
+
+  FR-001:
+    statement: >-
+      A canonical schema `contracts/schemas/xfactory-client-identity-roster.schema.yaml`
+      carrying `schema_version` and `kind` describes a per-client, per-domain
+      roster fragment and its entries.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: >-
+      validate_client_identity_roster.validate_document (Draft 2020-12 schema
+      layer); tests/client-identity-roster::test_entry_field_list_matches_the_ratified_one,
+      ::test_fragment_field_list_matches_the_ratified_one,
+      ::test_every_non_optional_entry_field_is_required
+    negative_confirmation: >-
+      the field-list tests are themselves the negative: they compare the
+      schema's REQUIRED set against the ratified enumeration, so a dropped or
+      quietly-optional field fails them. Every packaged negative also rides
+      this layer.
+    red_proven: >-
+      the `schema` code is the layer's own; the three field-list tests fail
+      when a ratified field is removed from `required` (measured while
+      authoring 1.4/1.5, which is why they exist as tests rather than as a
+      description).
+
+  FR-002:
+    statement: >-
+      `admission` is a LIST whose members each declare surface, act, achieved
+      scope, enforcement mode, evidence reference and verification time; a
+      record cannot express admission as a single act.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: validate_client_identity_roster.check_admission
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/scope-exceeds-unit-undeclared.yaml,
+      examples/client-identity-roster/negative/unverified-act-counted-as-access.yaml
+    red_proven: >-
+      undeclared-scope-excess and unverified-act-counted-as-access neutered in
+      turn; the packaged corpus went RED each time.
+
+  FR-003:
+    statement: >-
+      Provider consent alone is not recordable as access; an unverified
+      admission act is excluded from effective reach, and effective reach is
+      the UNION of verified acts.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: >-
+      validate_client_identity_roster.check_admission (the union is computed
+      over verified acts only; `act_is_verified` is the predicate)
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/consent-recorded-as-access.yaml,
+      examples/client-identity-roster/negative/unverified-act-counted-as-access.yaml
+    red_proven: >-
+      consent-recorded-as-access and unverified-act-counted-as-access neutered
+      in turn; corpus RED each time. The pinned detail on the second probe is
+      "verified_at with NO evidence_ref", so the file cannot pass by carrying
+      an independently asserted flag.
+
+  FR-004:
+    statement: >-
+      `granted_permissions[]` in provider-native identifiers is required on
+      every entry and `authority_class_achieved` is checkable against it,
+      RECORD-INTERNALLY.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: validate_client_identity_roster.check_authority
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/achieved-class-contradicted-by-permissions.yaml
+    red_proven: >-
+      achieved-class-contradicts-permissions neutered; corpus RED. The probe's
+      pinned detail names the maximum class the permissions DECLARE, so the
+      file cannot pass by an inference the validator does not make.
+
+  FR-005:
+    statement: >-
+      The authority-class enumeration is CLOSED to `observe` and `mutate`; a
+      destructive class is unrepresentable.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: validate_client_identity_roster.check_vocabularies (_closed, authority_class)
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/destructive-authority-class.yaml
+    red_proven: >-
+      destructive-authority-class neutered; corpus RED. The pinned detail
+      requires the refusal to name the closed vocabulary, not merely to refuse.
+
+  FR-006:
+    statement: >-
+      Uniqueness is keyed on the tuple (owning domain, admission surface,
+      authority class, blast-radius unit, duty); a per-unit or duty-separated
+      identity is never a finding.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: >-
+      validate_client_identity_roster.check_uniqueness_and_alias;
+      tests/client-identity-roster::test_fixture_1_uniqueness_is_scoped_within_a_fragment
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/full-tuple-duplicate.yaml
+      (positive side: repo fixture 1 carries two fragments whose entries share
+      the WHOLE tuple across fragments and must NOT be reported)
+    red_proven: >-
+      duplicate-identity-key neutered; corpus RED. The pinned detail spells out
+      all five tuple elements, so a refusal that named fewer would fail the
+      detail check rather than pass.
+
+  FR-007:
+    statement: >-
+      `admission_surface` is a CLOSED vocabulary of exactly `business_central`
+      and `exchange` in this release; any other value is refused naming the
+      extension route.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: validate_client_identity_roster.check_vocabularies (_closed, admission_surface)
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/admission-surface-out-of-vocabulary.yaml
+    red_proven: >-
+      admission-surface-out-of-vocabulary neutered; corpus RED. Detail pinned to
+      "admission_surface is 'sharepoint', which is not a member of the closed
+      admission_surface vocabulary" — the SET is named, so the same code firing
+      on a different field would not satisfy the probe.
+
+  FR-008:
+    statement: >-
+      Each entry declares, per admission surface and as a MAPPING, whether a
+      principal scoped to the governed blast-radius unit is available —
+      answering for its own surface and for every spanned surface.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: validate_client_identity_roster.check_authority
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/per-unit-principal-undeclared.yaml,
+      examples/client-identity-roster/negative/per-unit-principal-available-but-logical.yaml,
+      examples/client-identity-roster/negative/provider-enforced-without-per-unit-principal.yaml
+    red_proven: >-
+      per-unit-principal-undeclared, per-unit-principal-available-but-logical
+      and provider-enforced-without-per-unit-principal neutered in turn; corpus
+      RED each time. The three share a subject, so each carries a pinned detail
+      that names its own arm and they cannot be confused for one another.
+
+  FR-009:
+    statement: >-
+      Provider-forced breadth — spanned surfaces, or an achieved class above
+      the intended one — is DECLARABLE with the provider reason and a gate
+      obligation, and is conformant when so declared.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: validate_client_identity_roster.check_authority
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/undeclared-reach.yaml,
+      examples/client-identity-roster/negative/undeclared-act-surface.yaml
+      (positive side: tests/client-identity-roster/fixtures/multi-surface-reader-representability.yaml,
+      which validates CLEAN with the breadth declared)
+    red_proven: >-
+      undeclared-reach and undeclared-act-surface neutered in turn; corpus RED
+      each time. The positive half is separately discriminated by
+      ::test_multi_surface_fixture_is_refused_without_its_declaration, which
+      removes `spanned_surfaces[]` and nothing else and gets BOTH codes back —
+      two independent rules over the same evidence.
+
+  FR-010:
+    statement: >-
+      Where achieved authority exceeds intended authority, the entry declares
+      the excess with the reason, the bounding mechanism, the gate obligation
+      and the enforcement-test reference; a name that understates achieved
+      authority is a finding, cured by a covering `declared_excess`.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: validate_client_identity_roster.check_authority
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/achieved-exceeds-intended-undeclared.yaml,
+      examples/client-identity-roster/negative/name-understates-achieved-authority.yaml,
+      examples/client-identity-roster/negative/scope-exceeds-unit-undeclared.yaml
+    red_proven: >-
+      achieved-exceeds-intended-undeclared, name-understates-achieved-authority
+      and undeclared-scope-excess neutered in turn; corpus RED each time. Gate
+      ruling G6 sharpened the name probe so it fails for its OWN reason:
+      intended equals achieved, so there is no excess to declare and no cure,
+      and the name code fires ALONE rather than masked by the excess code.
+
+  FR-011:
+    statement: >-
+      Every gate obligation resolves to an existing gate in the owning domain's
+      governed workflow records and names a test proving refusal of a target
+      outside the governed blast-radius unit.
+    artifact: scripts/validate-client-identity-roster.py
+    enforced_by: >-
+      validate_client_identity_roster.check_repo_context
+      (unresolvable-gate-obligation) and .check_authority
+      (missing-enforcement-test)
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/missing-enforcement-test.yaml
+      (record-internal) and repo fixture 4 in
+      tests/client-identity-roster::test_fixture_4_unresolvable_gate_obligation_exits_nonzero
+      (repo-shaped: the named gate is absent while the repo carries a REAL
+      gate, so the finding proves non-resolution rather than an empty tree)
+    red_proven: >-
+      missing-enforcement-test neutered; corpus RED. The resolution half is
+      repo-shaped and cannot live in the packaged corpus at all: fixture 4
+      asserts the nonzero EXIT, which a packaged file cannot produce.
+
+  FR-012:
+    statement: >-
+      Each entry declares `identity_kind`, `home_tenant`,
+      `principal_locations[]` and a `residency_model`, with
+      `vendor_tenant_multi` carrying its five obligations.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: validate_client_identity_roster.check_residency
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/vendor-homed-declared-client-resident.yaml,
+      examples/client-identity-roster/negative/vendor-tenant-multi-missing-obligations.yaml
+    red_proven: >-
+      vendor-homed-declared-client-resident and
+      vendor-tenant-multi-missing-obligations neutered in turn; corpus RED each
+      time. Gate ruling G2 pins the first probe's detail to the literal
+      `home_tenant` value, so a record that would pass the REJECTED containment
+      reading cannot pass this one.
+
+  FR-013:
+    statement: >-
+      Each entry carries `lifecycle_state` of `planned`, `enrolled` or
+      `retired` and a standing-credential attestation whose falsification is
+      record-internal.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: >-
+      validate_client_identity_roster.check_attestation and
+      .check_vocabularies (_closed, lifecycle_state)
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/false-standing-credential-attestation.yaml,
+      examples/client-identity-roster/negative/lifecycle-state-out-of-vocabulary.yaml
+      (positive side: the `planned` entry in
+      examples/client-identity-roster/client-identity-roster-farheap-opsx.example.yaml)
+    red_proven: >-
+      false-standing-credential-attestation and lifecycle-state-out-of-vocabulary
+      neutered in turn; corpus RED each time. Three failure shapes share the
+      attestation code, so the probe pins "The record contradicts itself" — the
+      one this file encodes.
+
+  FR-014:
+    statement: >-
+      Each entry names the domain-qualified ratified capability that justifies
+      the identity and the consent instrument that authorizes it, with the
+      citation RESOLVING to an instrument record that is in force.
+    artifact: scripts/validate-client-identity-roster.py
+    enforced_by: >-
+      validate_client_identity_roster.check_roots (presence) and
+      .check_repo_context (unresolvable-consent-citation,
+      consent-instrument-not-in-force)
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/entry-without-consent-instrument.yaml
+      (absence); repo fixture 6 (citation resolves to nothing) and repo fixture
+      8 (citation RESOLVES to a terminated instrument cited by a non-retired
+      entry — a different code from fixture 6's, so each fails for its own
+      reason); positive side: repo fixture 1's `retired` entry citing an ended
+      instrument, which is the ratified exemption and must stay clean
+    red_proven: >-
+      entry-without-consent-instrument neutered; corpus RED. The two resolution
+      arms are repo-shaped and are asserted as EXITS by fixtures 6 and 8, each
+      additionally asserting that the OTHER arm's code did not fire.
+
+  FR-015:
+    statement: >-
+      A single canonical validator `scripts/validate-client-identity-roster.py`
+      enforces every intra-repo rule.
+    artifact: scripts/validate-client-identity-roster.py
+    enforced_by: >-
+      the validator itself; `python3 scripts/validate-client-identity-roster.py <repo>`
+      exits 0/1/2 and self-tests the packaged corpus before it scans anything
+    negative_confirmation: >-
+      tests/client-identity-roster::test_every_fr016_named_rule_has_a_negative_confirmation
+      — a rule with no probe fails the suite
+    red_proven: >-
+      all 31 registered codes neutered in turn; corpus RED 31/31. That sweep IS
+      the measurement that every rule this validator claims is load-bearing.
+
+  FR-016:
+    statement: >-
+      The fixture corpus carries one positive roster and one NEGATIVE
+      CONFIRMATION per rule — sixteen named rules, all homed.
+    artifact: examples/client-identity-roster/negative/
+    enforced_by: >-
+      validate_client_identity_roster.self_test (failure modes
+      negative-missing, negative-unregistered, negative-should-fail,
+      negative-wrong-reason, negative-detail-mismatch);
+      tests/client-identity-roster::test_every_fr016_named_rule_has_a_negative_confirmation
+    negative_confirmation: >-
+      the five failure-mode tests
+      (tests/client-identity-roster::test_failure_mode_a…e) break the corpus
+      one way each and assert the self-test refuses
+    red_proven: >-
+      16 named rules, 16 homed, 0 unhomed (13 packaged, 2 repo-shaped, 1 in the
+      doc-health corpus); 31 packaged negatives on disk, 31 registered, and all
+      31 red-proven by suppression.
+
+  FR-017:
+    statement: >-
+      The corpus carries POSITIVE regression fixtures that keep the two killed
+      flaws killed: a genuine per-unit pair, a genuine duty pair, a declared
+      provider-forced multi-surface reader, and a `planned` entry, each
+      validating clean.
+    artifact: >-
+      examples/client-identity-roster/client-identity-roster-farheap-ledgerx.example.yaml,
+      examples/client-identity-roster/client-identity-roster-farheap-opsx.example.yaml,
+      tests/client-identity-roster/fixtures/multi-surface-reader-representability.yaml
+    enforced_by: >-
+      tests/client-identity-roster::test_discrimination_per_unit_and_duty_pairs_pass_while_the_alias_pair_is_refused,
+      ::test_multi_surface_representability_fixture_validates_clean,
+      ::test_multi_surface_fixture_declares_itself_synthetic
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/alias-pair-observationally-identical.yaml
+      — the near-miss that differs from a genuine pair only by having nothing
+      that distinguishes it
+    red_proven: >-
+      alias-pair-observationally-identical neutered; corpus RED. The
+      discrimination is asserted as ONE test producing THREE verdicts, so a
+      rule broad enough to catch all three cannot pass. Decision C (Brett,
+      2026-08-15) relocated the multi-surface reader from a packaged example to
+      a SYNTHETIC fixture with a dated header, after task 0.1's provider
+      precondition was FALSIFIED; its zero-findings obligation is unchanged and
+      is reached by the Phase 10 measurement.
+
+  FR-018:
+    statement: >-
+      The validator refuses a negative that validates cleanly, a negative that
+      fails for the wrong reason, and a corpus where a registered probe has no
+      file or a file has no registration.
+    artifact: scripts/validate-client-identity-roster.py
+    enforced_by: validate_client_identity_roster.self_test
+    negative_confirmation: >-
+      tests/client-identity-roster::test_failure_mode_a_registered_probe_with_no_file,
+      ::test_failure_mode_b_file_with_no_registration,
+      ::test_failure_mode_c_a_negative_that_passes,
+      ::test_failure_mode_d_a_negative_that_fails_for_the_wrong_reason,
+      ::test_failure_mode_e_the_code_fires_without_its_pinned_detail
+    red_proven: >-
+      ::test_sandbox_is_green_before_anything_is_broken establishes the control
+      (the sandbox corpus passes) and each failure-mode test then breaks
+      exactly one thing and asserts refusal — the same discipline the 31-code
+      suppression sweep applies to the rules themselves.
+
+  FR-019:
+    statement: >-
+      The feature packages instantiable examples under
+      `examples/client-identity-roster/` with a `negative/` subdirectory and a
+      README, covering the Business Central two-admission-act worked case, a
+      duty-separated pair and a `planned` entry, for a client held by two
+      domains.
+    artifact: examples/client-identity-roster/
+    enforced_by: >-
+      validate_client_identity_roster.self_test (every `*.example.yaml`
+      validates CLEAN before any scan)
+    negative_confirmation: >-
+      the `negative/` subdirectory itself — 31 files, each refused for its
+      registered reason in the same self-test
+    red_proven: >-
+      4 example YAMLs + README + 31 negatives, counted on disk and against the
+      registration table in both directions
+      (::test_every_negative_on_disk_is_registered_and_every_registration_has_a_file).
+      RESIDUAL, recorded rather than smoothed over: the ratified FOURTH
+      packaged case (a provider-forced multi-surface reader) is NOT packaged —
+      Decision C relocated it to a synthetic fixture because task 0.1 proved no
+      such provider fact is citable in the estate, and a packaged example may
+      not assert an uncitable provider fact.
+
+  FR-020:
+    statement: >-
+      The contract declares the placement of a domain's roster fragments as
+      `credentials/client-identity-roster/<client_ref>.yaml`, one file per
+      (client, domain) pair, inside the tree
+      `scripts/validate-credential-contracts.py` already scans.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: >-
+      the schema description (the DECLARATION) plus
+      validate_client_identity_roster.repo_scan (the ENFORCEMENT) and the
+      `client-identity-roster` row's `consumption_rule` in
+      contracts/manifest.yaml, which states the same two facts
+    negative_confirmation: >-
+      repo fixtures 5 and 7 (misplaced outside `credentials/`, and NESTED
+      inside the declared directory)
+    red_proven: >-
+      misplaced-roster-instance is asserted by two repo fixtures rather than
+      one, because fixture 7 is the harder case a directory-prefix reading of
+      FR-036 would have let through. The blessed skip-with-notice half is
+      stated in BOTH the schema description and the manifest
+      `consumption_rule`, which is task 1.10's closing condition.
+
+  FR-021:
+    statement: >-
+      The schema is registered in `contracts/manifest.yaml` with the full row
+      shape, carries a `contracts/CHANGELOG.md` entry, and bumps the bundle to
+      `contract-v1.33` with the matching release digest inventory, such that
+      digest verification passes.
+    artifact: >-
+      contracts/manifest.yaml, contracts/CHANGELOG.md, contracts/README.md,
+      contracts/releases/contract-v1.33.digests.yaml
+    enforced_by: >-
+      `python3 scripts/validate-manifest-digests.py` and
+      `python3 scripts/validate-contract-release.py verify-commit --commit HEAD`
+    negative_confirmation: >-
+      the digest checkers fail CLOSED — a stale row or a stale inventory entry
+      is an error, which is the defect (a manifest row stale since 403c2b5)
+      that caused validate-manifest-digests.py to be written at all
+    red_proven: >-
+      MEASURED, and the honest measure is stated rather than rounded up.
+      As first cut at `contract-v1.32` (2026-08-15, before main's merge):
+      validate-manifest-digests.py went from 132 digests checked at `ae3f5c8`
+      to 134, with the failure set BYTE-IDENTICAL before and after — one
+      PRE-EXISTING unrelated mismatch on
+      contracts/omnigent/omnigent-domain-overlay.schema.yaml, proven
+      pre-existing by recomputing the same manifest against the same blobs at
+      `ae3f5c8`, and deliberately NOT repaired inside a cut that does not own
+      that schema. RE-MEASURED at `contract-v1.33` (2026-08-15, after merging
+      origin/main): 135 digests checked, ZERO failures, exit 0 — main's own
+      `contract-v1.32` cut (add-subject-overlay-contract, PR #187) both added
+      the hermes-subject-overlay row and cured that pre-existing omnigent
+      mismatch in its owning lane, which is where it belonged. Every row this
+      change touches verifies; the release verifier passes over the realized
+      commit. "FR-021 exit 0" reads literally now, and read as ZERO NEW, ZERO
+      CHANGED findings before.
+
+  FR-022:
+    statement: >-
+      Intra-repo entry conformance is BLOCKING through PACK MEMBERSHIP —
+      `scripts/validate-client-identity-roster.py` joins the
+      `domain-conformance-checks` pack as its fourth member.
+    artifact: tests/conformance-gate/test_conformance_checks.py
+    enforced_by: >-
+      tests/conformance-gate/test_conformance_checks.py, which loads the roster
+      validator alongside the three `check-*` modules and exercises the four
+      pack behaviours (entry nonconformance -> nonzero; conformant repo -> 0;
+      no fragment -> 0 with an explicit notice; `mutate` with no ratified
+      capability -> ERROR not report)
+    negative_confirmation: >-
+      the pack tests' own nonconformance arms; repo fixture 2
+      (mutate-without-ratified-capability -> nonzero EXIT)
+    red_proven: >-
+      mutate-without-ratified-capability neutered; corpus RED. The 15 existing
+      pack tests pass UNMODIFIED (13 passed + 2 skipped at baseline; 17 passed +
+      2 skipped after, i.e. exactly the four new ones added).
+    residual: >-
+      RULING A-N2, carried here so it is not silently dropped. Pack blocking is
+      NOMINAL at archive. codexFactory's gate enumerates the pack's three
+      members BY NAME, and OpsxFactory's gate invokes no canonical check at all,
+      so joining the pack CONFERS blocking status without yet FIRING in either
+      domain gate. Domain-gate wiring is a NAMED FOLLOW-UP, out of scope by
+      FR-030/SC-012 because it is a domain-repository edit. The claim this
+      feature makes is exactly SC-006's, no wider.
+
+  FR-023:
+    statement: >-
+      Cross-domain composition lands as a sixteenth deterministic doc-health
+      family `client-identity-composition`, registered in `FAMILIES` and
+      `FAMILY_IDS`, with EACH FINDING carrying its own resolution class rather
+      than a blanket family entry.
+    artifact: scripts/doc_health/client_identity_composition.py
+    enforced_by: >-
+      scripts/doc_health/families.py registration;
+      tests/doc-health/test_client_identity_composition.py
+    negative_confirmation: >-
+      tests/doc-health/fixtures/client-identity-composition/ — the four fixture
+      repos (alpha, beta, gamma, delta) carrying shared, separate, spanning and
+      object-level cases
+    red_proven: >-
+      the family's findings are asserted per fixture repo in
+      tests/doc-health/test_client_identity_composition.py; the suite goes from
+      621 passed + 7 skipped at baseline to 642 + 7, i.e. 21 added and ZERO
+      pre-existing tests changed or removed.
+
+  FR-024:
+    statement: >-
+      Two domains each holding their own SEPARATE identity on one admission
+      surface and authority class in one client tenant is NOT a finding at any
+      level.
+    artifact: scripts/doc_health/client_identity_composition.py
+    enforced_by: >-
+      the family's `_shared_material` predicate — sharing is keyed on shared
+      MATERIAL (a shared principal or a shared provider object), never on
+      co-presence
+    negative_confirmation: >-
+      the `client-separate.yaml` fragments in the alpha and beta fixture repos:
+      two domains, one surface, one class, one tenant, SEPARATE identities —
+      asserted to produce NO finding
+    red_proven: >-
+      this is the doc-health half of the killed per-unit flaw: a rule keyed on
+      co-presence would report the separate case, and the fixture asserts it
+      does not. Its discrimination partner is `client-shared.yaml`, which DOES
+      report.
+
+  FR-025:
+    statement: >-
+      The implementation's family set agrees with the RATIFIED DELTA wording
+      ("sixteen check families"), not with the promoted spec text, which the
+      archive step rewrites after this feature lands.
+    artifact: scripts/doc_health/families.py
+    enforced_by: >-
+      `python3 scripts/doc-health.py` — the run enumerates sixteen families and
+      renders a `client-identity-composition` section;
+      `openspec/specs/doc-health/spec.md` confirmed UNEDITED
+    negative_confirmation: >-
+      n/a for a count — the criterion is positive-only. Its negative is
+      structural: editing the promoted spec would be the breach, and the
+      promoted file is confirmed untouched by `git diff`.
+    red_proven: >-
+      MEASURED with the G8 QUALIFICATION. The aggregation run
+      (`--repo-root /home/brett/projects/xFactory`) exits 0, lists
+      `client-identity-composition` under "Skipped families (never silently
+      omitted)" with the explicit reason "no client is held by two or more
+      domains: nothing to compose", and renders its report section. A
+      before/after self-gate pair (`--single-repo` over a throwaway clone at
+      `ae3f5c8` and over this branch) is IDENTICAL across
+      critical/error/warning — zero new, zero changed, zero removed findings;
+      the only delta is one INFO line's draft-age `min` (1 -> 0), a clock
+      artifact of the fresh clone, with `n=69` unchanged. The G8 exclusion set
+      turned out EMPTY: no `document-catalog` `coverage` or `stale-entry`
+      finding landed against any document this change adds or edits, so nothing
+      needed excluding and the qualification was not spent.
+
+  FR-026:
+    statement: >-
+      `consent-instrument` admits a governed identity in the consenting party's
+      tenant as a NAMED dependent-artifact kind (not the `other` escape), and
+      its cascade evidence obligation covers identity removal AND admission
+      withdrawal, not merely credential revocation.
+    artifact: contracts/schemas/consent-instrument.schema.yaml
+    enforced_by: scripts/validate-consent-instruments.py (cascade evidence rules)
+    negative_confirmation: >-
+      examples/consent-instrument/negative/identity-cascade-incomplete-on-terminated.yaml,
+      examples/consent-instrument/negative/identity-cascade-incomplete-on-withdrawn.yaml
+    red_proven: >-
+      both negatives are registered in the consent validator's own expectations
+      table and confirmed refused FOR THEIR INTENDED FINDING on every run; the
+      self-test grows from 5 positives / 5 negatives at baseline to 6 / 7, with
+      the 2 purpose probes unchanged and no pre-existing probe altered.
+
+  FR-027:
+    statement: >-
+      Drift handling creates, modifies, widens, narrows or removes nothing —
+      no identity, no permission, no admission — and triggers no automated
+      remediation.
+    artifact: >-
+      scripts/validate-client-identity-roster.py,
+      scripts/doc_health/client_identity_composition.py
+    enforced_by: >-
+      tests/client-identity-roster::test_no_feature_module_writes_anything_and_the_drift_path_only_records
+      — a SOURCE-LEVEL AST check, because a schema description is not a
+      verification
+    negative_confirmation: >-
+      the same test, run against a deliberately mutating probe module: all
+      three of its arms fire (a forbidden import, a write call, a write-mode
+      `open()`, and a one-argument `Path.replace`)
+    red_proven: >-
+      MEASURED at Phase 10. Three independent arms over every feature module:
+      (1) no write-capable call name appears, with `replace` discriminated BY
+      ARITY so `Path.replace`'s rename cannot hide behind `str.replace`; (2)
+      every `open()` is a READ; (3) no module imports `os`, `shutil`,
+      `subprocess`, a network module or a provider SDK, so a mutation is not
+      merely unused but OUT OF REACH. The red-proof ran the same three arms
+      against a mutating module and got 5 hits.
+
+  FR-028:
+    statement: >-
+      An open drift finding against an identity refuses grant issuance for that
+      identity, as an issuance precondition NAMING the finding.
+    artifact: contracts/schemas/xfactory-credential-contracts.schema.yaml
+    enforced_by: >-
+      the `issuance_preconditions` closed vocabulary
+      (`roster_drift_clear_required`), enforced by
+      scripts/validate-credential-contracts.py
+    negative_confirmation: >-
+      examples/credential-contracts/negative/issuance-precondition-out-of-vocabulary.yaml,
+      examples/credential-contracts/negative/issuance-precondition-valued-false.yaml
+      (positive: examples/credential-contracts/roster-drift.requirements.example.yaml)
+    red_proven: >-
+      both negatives are registered and confirmed refused on every run; the
+      credential-contracts self-test grows from 2 positives / 3 negatives at
+      baseline to 3 / 5. The `const: true` narrowing is what makes the second
+      negative possible at all — `false` is not a second meaning, it is a
+      declaration that reads as governance while asserting nothing.
+    residual: >-
+      The precondition is DECLARABLE and its vocabulary is enforced. APPLYING
+      the refusal at a live mint surface is not in this feature: no mint surface
+      is touched, by FR-029.
+
+  FR-029:
+    statement: >-
+      No client-tenant act, credential minting, live provider call or network
+      access is performed or enabled by any artifact, check or test in this
+      feature.
+    artifact: >-
+      scripts/validate-client-identity-roster.py,
+      scripts/doc_health/client_identity_composition.py,
+      tests/client-identity-roster/
+    enforced_by: >-
+      tests/hermeticity.py (the suite-wide structural guard: a PATH shim plus
+      in-process seam replacement, so a network reach is a test FAILURE rather
+      than a silent success) and
+      ::test_no_feature_module_writes_anything_and_the_drift_path_only_records
+      (the FORBIDDEN_IMPORTS arm)
+    negative_confirmation: >-
+      tests/notebooklm/test_hermeticity_guard.py — the guard's own probe,
+      asserted from a conftest-less directory
+    red_proven: >-
+      the guard is CONFIRMED ACTIVE in this feature's runs: `pytest.ini`
+      anchors rootdir at the repository root, so `tests/conftest.py` is always
+      in the conftest chain; the guard probe passes; and a sweep of the
+      feature's code AND tests finds no network module, no provider SDK and no
+      credential-minting call. The only `subprocess` use anywhere in the feature
+      is the test harness invoking `sys.executable` on the validator itself.
+      Task 0.1's provider precondition was itself resolved OFFLINE, against the
+      pinned checkout, for exactly this reason.
+
+  FR-030:
+    statement: >-
+      No EXISTING credential record shape, grant neutrality rule or JIT
+      discipline changes.
+    artifact: contracts/schemas/xfactory-credential-contracts.schema.yaml
+    enforced_by: >-
+      the 0.3 green-before baseline, re-compared at 10.4;
+      `python3 scripts/validate-credential-contracts.py` over BOTH this
+      checkout and the live OpsxFactory checkout
+    negative_confirmation: >-
+      n/a — this is an ABSENCE criterion. Its measurement is the baseline
+      diff, which is why task 0.3 captured verdicts and finding codes rather
+      than exit codes alone.
+    red_proven: >-
+      MEASURED, with the 7.4 reconciliation stated honestly. Every growth is
+      ADDITIVE and every pre-existing count is preserved:
+      consent 5+5+2 -> 6+7+2; credential-contracts 2+3 -> 3+5;
+      tests/conformance-gate 13+2 -> 17+2 (the 15 pre-existing pass
+      UNMODIFIED); tests/doc-health 621+7 -> 642+7; tests/credential_contracts
+      2 -> 2. NO pre-existing finding code changed or disappeared, and every
+      finding-code register was and remains EMPTY. Over the live OpsxFactory
+      checkout the validator's verdict line is BYTE-IDENTICAL before and after,
+      carrying ONE pre-existing unrelated error (shared-secret-identity on
+      platform-bindings.yaml, proven pre-existing) — so where a task or
+      criterion says "exit 0" over OpsxFactory, the honest measure is ZERO NEW,
+      ZERO CHANGED FINDINGS, and it holds.
+
+  FR-031:
+    statement: >-
+      Surfaces outside the first-release vocabulary are not added, and
+      identities on them are not treated as missing roster entries.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: >-
+      validate_client_identity_roster.check_vocabularies (the closed
+      admission_surface set) plus the total ABSENCE of any completeness rule
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/admission-surface-out-of-vocabulary.yaml
+      (a surface outside the set is REFUSED, not silently accepted)
+    red_proven: >-
+      admission-surface-out-of-vocabulary neutered; corpus RED. The second half
+      — "not treated as missing" — is proven by
+      ::test_no_module_derives_an_expected_entry_set_from_any_inventory, which
+      fails if any feature module can even NAME an inventory to derive an
+      expectation from.
+
+  FR-032:
+    statement: >-
+      Roster completeness — NONE IN THIS RELEASE. Absence of a fragment or of
+      an entry is never a finding.
+    artifact: scripts/validate-client-identity-roster.py
+    enforced_by: >-
+      tests/client-identity-roster::test_no_module_derives_an_expected_entry_set_from_any_inventory,
+      ::test_the_validator_states_the_negative_guarantee_in_its_own_docstring,
+      ::test_fixture_3_no_fragment_exits_zero_with_an_explicit_notice,
+      ::test_fixture_3b_empty_placement_directory_also_exits_zero
+    negative_confirmation: >-
+      the source-level test IS the negative: it asserts that seven inventory
+      markers (`requirements.yaml`, `xfactory_credential_requirements`,
+      `expected_entries`, `missing_entry`, …) appear NOWHERE in the feature's
+      code, with docstrings stripped so the modules' own prose about the
+      guarantee cannot satisfy the search.
+    red_proven: >-
+      the guarantee is enforced in three places at once — no code path can name
+      an inventory, the validator's docstring states the guarantee so the next
+      author cannot delete it silently, and two repo fixtures assert exit 0 with
+      an explicit notice for a repo with no fragment and for an EMPTY placement
+      directory (the case a naive "directory exists" reading would have failed).
+
+  FR-033:
+    statement: >-
+      Admission-evidence freshness — NO DECAY IN THIS RELEASE. A verification
+      time is recorded, never expired against a clock.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: >-
+      validate_client_identity_roster.check_admission — `verified_at` is read
+      as a RECORDED FACT; the module makes no clock call at all
+    negative_confirmation: >-
+      n/a — this is an ABSENCE criterion. A decay rule would be the breach.
+    red_proven: >-
+      structurally proven by the same source-level check that proves FR-027 and
+      SC-011: the feature's modules import no clock and make no clock call, so
+      identical inputs produce identical findings between runs. A staleness
+      rule could not be added without failing determinism.
+
+  FR-034:
+    statement: >-
+      Vocabulary closedness — six entry-side closed sets, each refusing a value
+      outside it and naming the extension route.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: validate_client_identity_roster.check_vocabularies (_closed) and .check_legend
+    negative_confirmation: >-
+      one negative per set: admission-surface-out-of-vocabulary.yaml,
+      destructive-authority-class.yaml, residency-model-out-of-vocabulary.yaml,
+      enforcement-mode-out-of-vocabulary.yaml,
+      lifecycle-state-out-of-vocabulary.yaml,
+      identity-kind-out-of-vocabulary.yaml; plus both legend cases
+      (legend-token-missing.yaml, legend-token-declared-twice.yaml)
+    red_proven: >-
+      all six vocabulary codes and both legend codes neutered in turn; corpus
+      RED each time. Each vocabulary probe pins a detail NAMING THE SET, because
+      the code alone would be satisfied by the same rule firing on a different
+      field.
+
+  FR-035:
+    statement: >-
+      Drift-finding representation SHIPS HERE, as a governed record in the
+      roster contract family with its own `kind` and `schema_version`.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: validate_client_identity_roster.check_drift_record
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/drift-finding-without-roster-value.yaml,
+      drift-finding-without-observed-value.yaml,
+      drift-finding-status-out-of-vocabulary.yaml
+      (positive: examples/client-identity-roster/client-identity-drift-finding.example.yaml)
+    red_proven: >-
+      all three drift codes neutered in turn; corpus RED each time. The drift
+      record is the SECOND kind behind the family's top-level `oneOf`, which is
+      why the five-element uniqueness tuple is defined once and referenced by
+      both.
+
+  FR-036:
+    statement: >-
+      The canonical validator sweeps the ENTIRE target repository for files
+      carrying the roster kind, not only the declared placement, and reports any
+      MISPLACED instance naming the offending path and the declared placement.
+    artifact: scripts/validate-client-identity-roster.py
+    enforced_by: validate_client_identity_roster.repo_scan / sweep_files
+    negative_confirmation: >-
+      repo fixture 5 (`tenants/stray.yaml`, outside `credentials/` entirely)
+      and repo fixture 7 (`credentials/client-identity-roster/<sub>/x.yaml`,
+      INSIDE the declared directory but not a direct child)
+    red_proven: >-
+      fixture 7 is the arm the pre-gate prefix reading left covered by nothing
+      (gate ruling G3): it is invisible to the flat validating glob, so a
+      prefix-based predicate would have called it validated. Both fixtures
+      assert the nonzero EXIT and the `misplaced-roster-instance` code. The
+      `tests/` exclusion the sweep turns on is itself proven against a real
+      roster-kind file under `tests/` — 4.9's fixture, which the self-scan does
+      not report.
+
+  FR-037:
+    statement: >-
+      `evidence_ref` is a DECLARED POINTER — repository, path, optionally a sha
+      — whose SHAPE the validator checks and whose TARGET it does not resolve,
+      because the validator is network-free and reads one repository.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: validate_client_identity_roster.check_evidence_ref
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/evidence-ref-malformed.yaml
+    red_proven: >-
+      evidence-ref-malformed neutered; corpus RED. Detail pinned to
+      "is missing ['path']", so the probe measures the SHAPE rule rather than
+      any resolution the validator deliberately does not perform. The same
+      posture is restated in the consent schema's `ref` description for the
+      `governed_identity` kind, for the same reason.
+
+  FR-038:
+    statement: >-
+      The alias rule is implemented as stated and is NOT broadened.
+    artifact: scripts/validate-client-identity-roster.py
+    enforced_by: validate_client_identity_roster.check_uniqueness_and_alias
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/alias-pair-observationally-identical.yaml,
+      discriminated against BOTH genuine pairs in one run
+    red_proven: >-
+      alias-pair-observationally-identical neutered; corpus RED. The
+      non-broadening half is the harder claim and is measured by
+      ::test_discrimination_per_unit_and_duty_pairs_pass_while_the_alias_pair_is_refused:
+      a rule ignoring `achieved_scope` would refuse the per-unit pair, a rule
+      ignoring `granted_permissions` or the duty rationale would refuse the duty
+      pair, and a rule demanding more than the three ratified predicates would
+      let the alias pair through. Only the ratified conjunction yields all three
+      verdicts. ::test_discrimination_a_rationale_alone_cures_the_alias_pair
+      pins the cure.
+
+  FR-039:
+    statement: >-
+      The `consent-instrument` closed status enumeration grows by `withdrawn`,
+      because the ratified delta requires cascade behaviour on "terminated or
+      withdrawn" while the enumeration admits only `terminated` today.
+    artifact: contracts/schemas/consent-instrument.schema.yaml
+    enforced_by: >-
+      the six-member `status` enum and its `status_history` twin; the class
+      registry's `status_aliases` target enum; and
+      scripts/validate-consent-instruments.py, which refuses `withdrawn`
+      declared as an ALIAS of `terminated`
+    negative_confirmation: >-
+      examples/consent-instrument/negative/identity-cascade-incomplete-on-withdrawn.yaml
+      (positive: examples/consent-instrument/consent-instrument-withdrawn.example.yaml)
+    red_proven: >-
+      task 0.2's ruling A-7 precondition was RE-SWEPT clean and FULL-ESTATE in
+      reach before the enum grew: exactly four files in the estate declare
+      `status_aliases`, the only alias KEY declared anywhere is `active` ->
+      `executed`, and no `withdrawn` key exists — so growing the enum changes no
+      existing registry's verdict. Gate ruling G5 added the promoted lifecycle
+      requirement to the delta so the archive cannot leave a five-state
+      requirement contradicting the shipped six-member enum, and its rider was
+      completed at THREE prose sites, the third
+      (`contracts/manifest.yaml`'s consent `consumption_rule`) found only when
+      the row was touched for its digest.
+
+  SC-001:
+    statement: >-
+      Every named violation in FR-016 is refused by the canonical validator,
+      each naming its own rule — zero pass silently, and no negative fixture
+      passes for a coincidental reason.
+    artifact: examples/client-identity-roster/negative/
+    enforced_by: validate_client_identity_roster.self_test (all five failure modes)
+    negative_confirmation: >-
+      ::test_every_negative_raises_its_registered_code_and_no_other_rule_code —
+      the "and no other rule code" half is what makes "for a coincidental
+      reason" measurable
+    red_proven: >-
+      31/31 registered codes turn the corpus RED when suppressed (control:
+      GREEN, 0 errors). No negative passes, none fails for the wrong code, and
+      none satisfies its code without its pinned detail.
+
+  SC-002:
+    statement: >-
+      The killed-flaw regression positives validate with ZERO findings — a
+      genuine per-unit pair, a genuine duty-separated pair, a declared
+      provider-forced multi-surface reader, and a `planned` entry — while the
+      alias-pair negative in the same corpus is refused.
+    artifact: >-
+      examples/client-identity-roster/,
+      tests/client-identity-roster/fixtures/multi-surface-reader-representability.yaml
+    enforced_by: >-
+      `pytest tests/client-identity-roster/ -k discrimination` plus ONE run of
+      `python3 scripts/validate-client-identity-roster.py <repo>` that reaches
+      the relocated fixture
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/alias-pair-observationally-identical.yaml,
+      refused in the SAME run in which all four positives are clean
+    red_proven: >-
+      MEASURED as one run at Phase 10, and the measurement REACHES the
+      relocated fixture rather than dropping SC-002's fourth positive: the
+      fixture was placed at the declared placement in a scratch repo carrying
+      the gate and consent instrument it cites, and the validator reported
+      "self-test: 4 positive example(s) confirmed clean, 31 negative example(s)
+      confirmed refused for their registered reason" AND "1 roster record(s)
+      checked, 0 error(s) -> PASS" in the same invocation. If any finding had
+      landed against a genuine pair, the two flaws the cross-model review
+      killed would have regressed and the work would have stopped.
+
+  SC-003:
+    statement: >-
+      The Business Central worked case is fully expressible in the neutral
+      contract with no domain-local vocabulary — two admission acts with
+      different achieved scopes and enforcement modes, a union effective reach,
+      and a declared excess whose gate obligation resolves and whose
+      enforcement test is named.
+    artifact: examples/client-identity-roster/client-identity-roster-farheap-opsx.example.yaml
+    enforced_by: >-
+      validate_client_identity_roster.self_test — the example must validate
+      CLEAN before any scan runs
+    negative_confirmation: >-
+      examples/client-identity-roster/negative/scope-exceeds-unit-undeclared.yaml
+      — the SAME shape with the excess NOT declared, which is the
+      discrimination partner that proves the positive is not vacuous
+    red_proven: >-
+      undeclared-scope-excess neutered; corpus RED. The worked case's provider
+      facts are transcribed from the OpsxFactory evidence chain and cited
+      inline by repository, path and commit — the packaged-example rule that
+      bit once and held when task 0.1's fourth case proved uncitable.
+
+  SC-004:
+    statement: >-
+      A reader of any conformant entry can determine, without leaving the record
+      and the surface vocabulary, what the identity reaches, who enforces each
+      bound, when each admission was verified, which consent authorizes it, and
+      whether it holds any standing credential.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: >-
+      the entry's REQUIRED field set
+      (::test_every_non_optional_entry_field_is_required) plus the validator's
+      effective-reach note, which prints the computed union per entry
+    negative_confirmation: >-
+      n/a — a legibility criterion. Its operative negatives are the field-list
+      tests: a field dropped from `required` makes the question unanswerable
+      from the record and fails the suite.
+    red_proven: >-
+      each of the five questions maps to a REQUIRED field or a computed note:
+      reach -> the printed union over verified acts; enforcement ->
+      `enforcement_mode` per act; verification -> `verified_at` +
+      `evidence_ref`; consent -> `consent_ref`; standing credential -> the
+      attestation with `attested_at`, `grant_window_expires_at` and
+      `held_credential_ref`. FR-013's falsification is record-internal because
+      FR-029 forbids observing a credential store.
+
+  SC-005:
+    statement: >-
+      A fragment at the declared placement is claimed and checked by exactly one
+      canonical validator, and a fragment carrying the roster kind ANYWHERE ELSE
+      is reported as misplaced by the whole-repo sweep.
+    artifact: scripts/validate-client-identity-roster.py
+    enforced_by: validate_client_identity_roster.repo_scan
+    negative_confirmation: >-
+      repo fixtures 5 and 7 — one outside `credentials/` entirely, one NESTED
+      inside the declared directory
+    red_proven: >-
+      TWO misplacement fixtures rather than one, because fixture 7 is the arm a
+      directory-prefix reading of FR-036 would have let through (gate ruling
+      G3). The "exactly one validator" half is the blessed skip-with-notice:
+      `validate-credential-contracts.py` skips this path with a notice, stated
+      in the schema description AND the manifest `consumption_rule`.
+
+  SC-006:
+    statement: >-
+      The blocking/reporting split holds in measurement — an intra-repo
+      nonconformance yields a nonzero exit from the domain gate, while a
+      cross-domain shared-identity case yields a doc-health finding and leaves
+      the domain gate exit unchanged.
+    artifact: tests/conformance-gate/test_conformance_checks.py
+    enforced_by: >-
+      the four pack behaviours in
+      tests/conformance-gate/test_conformance_checks.py (blocking side) and
+      tests/doc-health/test_client_identity_composition.py (reporting side)
+    negative_confirmation: >-
+      repo fixture 2 (nonzero EXIT) against the shared-identity fixture repos
+      (a doc-health FINDING, no gate exit)
+    red_proven: >-
+      the two sides are asserted by two different suites over two different
+      artifacts, which is what makes the SPLIT measurable rather than assumed.
+    residual: >-
+      RULING A-N2, the same residual FR-022 carries. Pack blocking is NOMINAL
+      at archive: codexFactory's gate enumerates the pack's three members BY
+      NAME and OpsxFactory's gate invokes no canonical check, so the exit this
+      criterion measures is the VALIDATOR's and the pack test's, not yet a live
+      domain gate's. Domain-gate wiring is a NAMED FOLLOW-UP, out of scope by
+      FR-030/SC-012 because it is a domain-repository edit. The claim made here
+      is exactly this criterion's, no wider.
+
+  SC-007:
+    statement: >-
+      A terminated instrument whose governed-identity dependent shows
+      credential-only cascade evidence is a finding.
+    artifact: scripts/validate-consent-instruments.py
+    enforced_by: >-
+      the cascade evidence rules, which require BOTH
+      `identity_removal_evidence` and `admission_withdrawal_evidence` on a
+      `governed_identity` dependent once the instrument is terminated OR
+      withdrawn
+    negative_confirmation: >-
+      examples/consent-instrument/negative/identity-cascade-incomplete-on-terminated.yaml,
+      identity-cascade-incomplete-on-withdrawn.yaml
+    red_proven: >-
+      both negatives confirmed refused for their intended finding on every run
+      of the consent self-test. Two negatives rather than one because the
+      obligation must hold on BOTH terminal states — a rule keyed only on
+      `terminated` would let the withdrawn half through, which is exactly the
+      half `withdrawn` was added for.
+
+  SC-008:
+    statement: >-
+      The neutral refusal is proven BY FIXTURE — a conformant requirements
+      fixture declaring the roster-drift precondition validates, an
+      out-of-vocabulary token is refused naming the closed vocabulary, and a
+      fixture declaring no preconditions at all still validates.
+    artifact: contracts/schemas/xfactory-credential-contracts.schema.yaml
+    enforced_by: scripts/validate-credential-contracts.py
+    negative_confirmation: >-
+      examples/credential-contracts/negative/issuance-precondition-out-of-vocabulary.yaml,
+      issuance-precondition-valued-false.yaml
+    red_proven: >-
+      the self-test goes 2 positives / 3 negatives -> 3 / 5, and the third
+      clause ("declaring nothing at all still validates") is carried by the TWO
+      pre-existing positives, which declare no preconditions and still pass —
+      which is the additivity argument made as a measurement rather than as
+      prose.
+
+  SC-009:
+    statement: >-
+      doc-health runs sixteen families in agreement with the RATIFIED DELTA
+      wording, with the count-bearing prose sites this feature owns updated, the
+      promoted spec left unedited, the new family reporting or skipping with an
+      explicit reason, producing identical findings on repeated identical runs,
+      and containing no intra-repo rule.
+    artifact: scripts/doc_health/families.py
+    enforced_by: >-
+      `python3 scripts/doc-health.py --repo-root <aggregation checkout>`;
+      tests/doc-health/test_client_identity_composition.py
+    negative_confirmation: >-
+      the family's own fixture repos, which assert both a reporting case and
+      the SKIP case
+    red_proven: >-
+      the aggregation run lists the family under "Skipped families (never
+      silently omitted)" with the reason "no client is held by two or more
+      domains: nothing to compose" and renders its report section; the
+      determinism claim is structural (no clock, no model call, no subprocess,
+      every ordering sorted); the promoted `openspec/specs/doc-health/spec.md`
+      is confirmed UNEDITED; and the delta-fidelity assertion (10.7) confirms
+      all SEVEN promoted scenarios are restated verbatim so the archive cannot
+      delete them.
+
+  SC-010:
+    statement: >-
+      The green bar — repository validators pass, `openspec validate --all
+      --strict` passes, contract digests verify at `contract-v1.33` for every
+      row the feature touches, all FOUR modified capabilities' suites pass, and
+      doc-health reports no new finding against the change or its documents,
+      read with FR-025's qualification.
+    artifact: specs/007-client-identity-roster/traceability.yaml
+    enforced_by: >-
+      `OPENSPEC_TELEMETRY=0 openspec validate add-client-identity-roster
+      --strict` and `--all --strict`;
+      `python3 scripts/validate-manifest-digests.py`;
+      `python3 scripts/validate-contract-release.py verify-commit --commit HEAD`;
+      the five per-directory pytest suites; the doc-health runs
+    negative_confirmation: >-
+      n/a — a green-bar criterion. Its negative is the 0.3 baseline it is
+      diffed against, which is why that baseline recorded finding codes and
+      self-test composition rather than exit codes alone.
+    red_proven: >-
+      MEASURED: change strict VALID; `--all --strict` 58 passed / 0 failed (58
+      items), no regression from the 58/58 at `4de5bb2`; release verifier PASS
+      over the realized commit; the four modified capabilities' suites green
+      with additive growth only; doc-health before/after IDENTICAL. The one
+      wording reconciliation: `validate-manifest-digests.py` is not exit 0 over
+      this checkout, and never was — one PRE-EXISTING unrelated mismatch
+      (omnigent-domain-overlay) stands at `ae3f5c8` and still stands, so this
+      criterion's digest clause is read as it is written, "for every row the
+      feature touches", and that reading is satisfied exactly.
+
+  SC-011:
+    statement: >-
+      Every new check and test runs with no outbound network access and no model
+      call, and produces byte-identical findings across runs.
+    artifact: >-
+      scripts/validate-client-identity-roster.py,
+      scripts/doc_health/client_identity_composition.py
+    enforced_by: >-
+      tests/hermeticity.py (structural, suite-wide) and the FORBIDDEN_IMPORTS
+      arm of
+      ::test_no_feature_module_writes_anything_and_the_drift_path_only_records
+    negative_confirmation: >-
+      tests/notebooklm/test_hermeticity_guard.py — the guard makes a network
+      reach a test FAILURE rather than a silent success, which is the defect
+      class the guard was built for
+    red_proven: >-
+      determinism is structural, not sampled: neither module imports a clock, a
+      network module or `subprocess`, every ordering is `sorted`, and
+      `verified_at` is read as a recorded fact rather than compared against
+      now. The guard is confirmed ACTIVE in this feature's runs (rootdir
+      anchored by `pytest.ini`, so `tests/conftest.py` is always in the conftest
+      chain).
+
+  SC-012:
+    statement: >-
+      No file in any domain repository is modified by this feature, and no
+      credential is minted and no provider call is made at any point in its
+      execution or tests.
+    artifact: specs/007-client-identity-roster/traceability.yaml
+    enforced_by: >-
+      `git status --porcelain` over the AGGREGATION checkout, scoped to
+      `xFactories/`; the FR-029 sweep; tests/hermeticity.py
+    negative_confirmation: >-
+      n/a — a boundary criterion. Its negative would be any write, and the
+      measurement is the porcelain reading plus the source-level import ban.
+    red_proven: >-
+      MEASURED, and the shared-checkout caveat is stated rather than hidden.
+      The aggregation checkout at `/home/brett/projects/xFactory` is SHARED with
+      other sessions and its `xFactories/` porcelain is NOT empty: six modified
+      submodule pointers and six untracked directories. Every one is FOREIGN —
+      the untracked entries' mtimes run 2026-07-19 to 2026-08-04, all predating
+      this session, and the reading is IDENTICAL before and after this feature's
+      only touch of that checkout (a read-only doc-health run). This feature
+      wrote nothing there: every file it creates or edits is inside the
+      openxFactory clone, and the one OpsxFactory measurement (7.4) is a
+      read-only validator run. The doc-health merge phase was NOT run there, per
+      gate ruling G8's rider.
+
+  SC-013:
+    statement: >-
+      Absence is never a finding, measured three ways — a fixture domain repo
+      with no roster fragment exits 0 with an explicit notice, and no code path
+      can derive an expected entry set.
+    artifact: scripts/validate-client-identity-roster.py
+    enforced_by: >-
+      ::test_fixture_3_no_fragment_exits_zero_with_an_explicit_notice,
+      ::test_fixture_3b_empty_placement_directory_also_exits_zero,
+      ::test_no_module_derives_an_expected_entry_set_from_any_inventory,
+      ::test_the_validator_states_the_negative_guarantee_in_its_own_docstring
+    negative_confirmation: >-
+      the source-level marker search, run over CODE with docstrings stripped so
+      the modules' own prose about the guarantee cannot satisfy it
+    red_proven: >-
+      three independent measurements, and the third is the one that survives a
+      refactor: a repo with no fragment exits 0 with a notice, an EMPTY
+      placement directory also exits 0 (the case a "directory exists" reading
+      would have failed), and no feature module can NAME an inventory. The
+      doc-health family repeats the posture — `Skip` with an explicit reason,
+      never a finding.
+
+  SC-014:
+    statement: >-
+      Every closed vocabulary of the ROSTER family is enumerated in the schema
+      and refuses a value outside it — FR-034's six PLUS the drift record's
+      `status`, seven sets in total — while `blast_radius_unit` and `duty`
+      accept any pattern-conformant token that carries a legend binding.
+    artifact: contracts/schemas/xfactory-client-identity-roster.schema.yaml
+    enforced_by: >-
+      validate_client_identity_roster.check_vocabularies;
+      ::test_every_closed_vocabulary_has_a_registered_refusal_probe,
+      ::test_closed_set_refusals_name_the_set_and_the_route (parametrised over
+      all seven)
+    negative_confirmation: >-
+      seven negatives, one per set, each pinned to a detail that NAMES the set:
+      admission_surface, authority_class, residency_model, enforcement_mode,
+      lifecycle_state, identity_kind, drift_status
+    red_proven: >-
+      all seven codes neutered in turn; corpus RED each time. Closure is proven
+      in BOTH directions:
+      ::test_every_closed_vocabulary_has_a_registered_refusal_probe fails if a
+      closed set ships without a probe, so a set added later cannot arrive
+      unmeasured. The free-token side is the discrimination partner —
+      `blast_radius_unit` and `duty` accept any legend-bound token, and the two
+      legend negatives prove the binding is enforced.

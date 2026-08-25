@@ -1,0 +1,44 @@
+# expected_failure: presenting-key-unresolved
+# expected_failure_detail: names no presenting key
+# requirement: OXW-R3
+# VIOLATES core R3: a verified signature that never says which key verified.
+#
+# The proof block claims presented and verified — and omits
+# `presenting_key_ref`, which the schema leaves optional. The attribution
+# block then names the audience's key. A binding that falls back from the
+# empty proof to the attribution block derives the presenting wallet from
+# self-declared data: the original audience-laundering route, one omission
+# deeper. Found by review on the SECOND fix in this area, which is the
+# pattern worth recording — each repair trusted a field the record was still
+# free to shape.
+#
+# A verification that does not record WHICH key verified binds the exercise
+# to nothing, and is refused rather than trusted from attribution.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-verified-anonymous-key-0030
+grant_ref: grant-posting-derived-0002
+act: post_transaction
+object_ref: purchase-invoice:LXRP0036
+occurred_at: "2026-08-08T12:10:00Z"
+event_class: authenticated
+proof_of_possession:
+  presented: true
+  verified: true
+  signature_algorithm: ed25519
+  signed_over: request
+attribution:
+  mode: key_attributed
+  presenting_key_ref: key-poster-0001
+  wallet_ref: wal-agent-poster-0001
+  holder_ref: agent:ledger-poster
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+constraint_evaluations:
+  - constraint_ref: dhc-posting-sod-0001
+    prior_act_holder_ref: agent:ledger-intake-alt
+    this_holder_ref: agent:ledger-poster
+    satisfied: true
+outcome: permitted

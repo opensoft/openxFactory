@@ -1,0 +1,54 @@
+### xfactory-dashboard.service — boot-start and restart for the local ideation plane.
+###
+### INERT ON THIS HOST AS SHIPPED. Measured 2026-08-13: /etc/wsl.conf carries
+### `[boot] systemd=false`, PID 1 is `init(Ubuntu-24.04)`, and `systemctl --user`
+### answers "System has not been booted with systemd as init system. Can't
+### operate." So this unit cannot start until systemd is enabled — it is committed
+### ready, not committed working, and that distinction is the point of this
+### header. `reserve-dashboard.sh --supervise` is the restart-on-crash path that
+### works TODAY; it does not survive a reboot, which is what this unit is for.
+###
+### TO ENABLE (needs root once, and restarts every WSL session):
+###   1. set `systemd=true` under `[boot]` in /etc/wsl.conf
+###   2. from Windows: `wsl --shutdown`, then reopen the distro
+###   3. mkdir -p ~/.config/systemd/user
+###      ln -s <repo>/scripts/systemd/xfactory-dashboard.service \
+###            ~/.config/systemd/user/xfactory-dashboard.service
+###   4. systemctl --user daemon-reload
+###      systemctl --user enable --now xfactory-dashboard
+###   5. loginctl enable-linger "$USER"      # start at boot, not at first login
+###
+### Step 5 is not optional for the stated goal. Without lingering a user unit
+### starts when the user first logs in, so a power cut with nobody logged in
+### leaves the dashboard down — the exact failure this is meant to end.
+###
+### WITHOUT SYSTEMD there are two other boot-start routes, both outside this file:
+###   * /etc/wsl.conf `[boot] command=` — runs as root at WSL start; would need to
+###     drop to the owning user before serving. Root edit, `wsl --shutdown`.
+###   * Windows Task Scheduler at logon running `wsl.exe -u <user> -- <script>`.
+###     No root, but it is Windows-side configuration and invisible from here.
+###
+### ExecStart points at the script, never at a remembered argument list: the
+### script derives the plane, the register and one --source-root per published
+### repository, so this unit cannot drift from what the plane actually contains.
+
+[Unit]
+Description=xFactory ideation dashboard (local multi-repository plane)
+Documentation=file:%h/projects/xFactory/openxFactory/docs/ideation-dashboard-session-runbook.md
+After=network-online.target
+
+[Service]
+Type=exec
+# EDIT THIS PATH if the runtime lives in a different checkout. It is deliberately
+# not derived: a unit that guesses its own working tree is worse than one that
+# states it.
+ExecStart=%h/projects/xFactory/openxFactory-worktrees/change-add-wheel-action-verbs/scripts/reserve-dashboard.sh
+Restart=always
+RestartSec=3
+# The serve binds loopback only and writes into the checkout the gate acts on;
+# it is not hardened further here because gate verbs legitimately write there.
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

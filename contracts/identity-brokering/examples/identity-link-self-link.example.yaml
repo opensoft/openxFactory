@@ -1,0 +1,26 @@
+# VALID self link: the human, already logged in as their persona, links a
+# second upstream identity from that session. This is the FIRST of the two ways
+# a federated identity may join a persona, and the record makes "explicit"
+# checkable rather than a claim: `initiated_by.session_holds_subject` is the
+# persona the session already held, and it is the persona the identity joins.
+#
+# No approver appears, and none is needed — the human is the actor. A self link
+# carries no pre-merge subjects because no persona is retired by it.
+schema_version: 1
+kind: identity_link_record
+link_record_id: lnk-self-google-0001
+broker_instance_ref: broker-opensoft-shared
+mode: self_link
+basis: explicit_user_action
+subjects:
+  - sub-8f2c41d60a974d3b
+surviving_subject: sub-8f2c41d60a974d3b
+linked_identity:
+  provider_id: google-workspace-opensoft
+  upstream_subject: "104729384756102938475"
+initiated_by:
+  subject: sub-8f2c41d60a974d3b
+  session_holds_subject: sub-8f2c41d60a974d3b
+  initiated_at: "2026-08-21T10:15:00Z"
+occurred_at: "2026-08-21T10:15:02Z"
+evidence_ref: "broker-audit://broker-opensoft-shared/link/2026-08-21/10-15-02"

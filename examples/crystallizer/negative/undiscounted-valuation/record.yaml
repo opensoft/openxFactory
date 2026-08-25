@@ -1,0 +1,29 @@
+# expected_failure: valuation-discounting
+# A valuation row without deflation and survival factors — token savings
+# are a melting asset; undiscounted ROI systematically overbuilds.
+schema_version: 1
+kind: crystallization_decision
+decision_id: "dec:opensoft:neg:undiscounted"
+candidate_ref: "cand:opensoft:neg:undiscounted"
+family_ref: "fam:opensoft:neg"
+ceiling:
+  rung: L3
+  source: default
+  reason_ref: null
+valuation:
+  - rung: L3
+    expected_value: 100000
+outcome: funded
+funded:
+  rung: L3
+  budget_cap: 100000
+  abort_rule: "stop at 120%"
+  proof_obligations: [replay-parity]
+not_yet: null
+approvals:
+  domain_fitness_ref: "gate:codexFactory:fitness"
+  tenant_budget_ref: "budget:opensoft:crystallization"
+  consent_check:
+    automation_tier: granted
+decision_ladder_rung: 1
+calibration_refs: []

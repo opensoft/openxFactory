@@ -1,0 +1,14 @@
+schema_version: 1
+kind: xfactory_ontology_quality_report
+package_id: xf/codex
+package_version: 0.1.0
+package_digest: ffe3961f3eee434f9e2c04e82d5798b2478f20bbb25d144b3e3a13962b8df8b8
+window: {from: '2026-07-01', to: '2026-07-28'}
+signals:
+  - signal: intake_scope_coverage
+    numerator: 14
+    denominator: 16
+    procedure_ref: docs/domain-ontology-semantic-decisions.md
+aggregation_floor:
+  distinct_subjects: 5
+  distinct_tenants: 1

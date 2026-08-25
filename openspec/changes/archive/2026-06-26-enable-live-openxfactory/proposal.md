@@ -1,3 +1,5 @@
+Status: draft
+
 ## Why
 
 `openxFactory` now owns the canonical factory workflow, policy, contracts, and

@@ -1,0 +1,808 @@
+schema_version: 1
+kind: openxfactory_realization_traceability
+feature: 009-trust-anchor-contracts
+ratified_change: add-trust-anchor
+capabilities:
+  - trust-anchor
+
+# One row per ratified requirement. `negative_confirmation` names the recorded
+# probes; `red_proven` records that suppressing the rule's finding code turns the
+# packaged corpus red, which is what proves a probe fails FOR ITS OWN REASON
+# rather than incidentally. Reproduce with:
+#   python3 specs/009-trust-anchor-contracts/evidence/red-proof.py
+#
+# Paths under `contracts/trust-anchor/`.
+
+requirements:
+  TA-R1:
+    statement: Systems trust anchors, never individual certificates
+    artifact: >-
+      trust-anchor.schema.yaml (anchor as the governed record; chain position
+      if/then on role), certificate-record.schema.yaml
+      (trust_evaluation.basis as a CONSTANT, refusal vocabulary with no
+      well-formedness member, missing_anchor_ref required on that code)
+    enforced_by: >-
+      validate_trust_anchor.check_anchor and check_certificate (rule l) —
+      anchor resolution, path depth, validity bounding, held-anchor requirement
+      for a trusted evaluation, and the refusal naming the right absence
+    positive_examples: >-
+      examples/anchor-core-root.example.yaml,
+      examples/anchor-core-issuing.example.yaml,
+      examples/anchor-retired-root.example.yaml,
+      examples/certificate-core-service.example.yaml,
+      examples/certificate-under-revoked-anchor.example.yaml
+    negative_confirmation: >-
+      examples/negative/anchor-carrying-key-material.yaml,
+      examples/negative/certificate-trusted-with-no-held-anchor.yaml,
+      examples/negative/certificate-outliving-its-anchor.yaml,
+      examples/negative/certificate-trusted-under-a-revoked-anchor.yaml,
+      examples/negative/subordinate-anchor-with-an-unresolvable-parent.yaml
+    red_proven: >-
+      key-material-embedded, trusted-without-held-anchor,
+      certificate-outlives-anchor, trusted-under-closed-anchor and
+      chain-parent-unresolved neutered in turn; corpus went red each time. The
+      key-material probe pins the VALUE scan specifically (a PEM block in a
+      legitimate string field), because the property-name half is already
+      structurally impossible — every object in the family closes
+      additionalProperties.
+
+  TA-R2:
+    statement: A certificate issues only under recorded authority
+    artifact: >-
+      issuance-evidence.schema.yaml (two establishment levels and nothing
+      weaker; the floor's conjunction; the per-certificate fields forbidden at
+      the floor), certificate-record.schema.yaml (issuance_evidence present/
+      unexplained oneOf-by-if/then, with `unanswered` and
+      `revocation_candidate` as CONSTANTS)
+    enforced_by: >-
+      validate_trust_anchor.check_issuance_evidence (rules m, n, ff) and
+      check_certificate (rules m, o) — authorization derived from the anchor's
+      admitted set, level/provenance coherence, the two trusted-anyway cases,
+      and (added by the 2026-08-21 review) OQ1's two unread fields: the declared
+      floor refused for a family-operated authority, and a record refused for
+      asserting a level above the declaration's achieved one
+    positive_examples: >-
+      examples/issuance-evidence-per-certificate.example.yaml,
+      examples/issuance-evidence-workload-grant.example.yaml,
+      examples/issuance-evidence-floor-managed-broker.example.yaml,
+      examples/issuance-evidence-unauthorized.example.yaml,
+      examples/certificate-unexplained-then-revoked.example.yaml,
+      examples/certificate-issued-without-admitted-authority.example.yaml
+    negative_confirmation: >-
+      examples/negative/issuance-under-an-unadmitted-authority.yaml,
+      examples/negative/issuance-asserting-provenance-at-the-floor-level.yaml,
+      examples/negative/unexplained-certificate-recorded-as-trusted.yaml,
+      examples/negative/certificate-trusted-on-an-unauthorized-issuance.yaml,
+      examples/negative/issuance-at-the-floor-under-a-family-operated-authority.yaml,
+      examples/negative/issuance-asserting-a-level-above-the-declared-achievement.yaml
+    red_proven: >-
+      issuance-authority-not-admitted, provenance-asserted-unestablished,
+      issuance-evidence-absent-trusted and issuance-unauthorized-trusted
+      neutered in turn; corpus went red each time. The probes cover the
+      requirement's distinct clauses — an unadmitted authority recorded as
+      authorized, the floor level asserting the provenance it exists to
+      replace, the unexplained certificate answered as yes, and validity read as
+      retroactive ratification.
+
+  TA-R3:
+    statement: Declared chain custody bounds what a certificate evidences
+    artifact: >-
+      chain-custody-registry.schema.yaml + trust-anchor-chain-custody.registry.yaml
+      (the CLOSED set, derived `evidences`, ordered assurance ladder, declared
+      floor, openxWallet mapping, excluded models), certificate-record.schema.yaml
+      (derived `evidences` and assurance_ceiling), dependent-binding.schema.yaml
+      (required_assurance and the refusal that names the ceiling)
+    enforced_by: >-
+      validate_trust_anchor.check_custody_registry (rules b, c, d, e, f, g, cc),
+      check_certificate (rules h, i, bb, cc), check_anchor (rules cc, bb) and
+      check_dependent_binding (rule v). Corrected by the 2026-08-21 review: rule
+      (g) resolved the declared floor in the CANONICAL registry rather than in
+      the document under validation, so a registry that renamed its members
+      reported `custody-floor-unknown` about a member it declares and the
+      weakest-member comparison was never reached; the registry pointer a record
+      carries was resolved by nothing; and a chain whose anchor key is readable
+      by its using host now caps what may be claimed beneath it
+    positive_examples: >-
+      trust-anchor-chain-custody.registry.yaml,
+      examples/certificate-core-service.example.yaml (host-held),
+      examples/certificate-managed-device.example.yaml (isolated, invocable),
+      examples/certificate-managed-broker.example.yaml (isolated, per-use authorized),
+      examples/certificate-core-workload-undeclared-custody.example.yaml (the floor),
+      examples/dependent-binding-refused-custody-ceiling.example.yaml
+    negative_confirmation: >-
+      examples/negative/host-held-certificate-claiming-hardware-bound-assurance.yaml,
+      examples/negative/custody-registry-readable-claims-the-named-holder.yaml,
+      examples/negative/custody-registry-unearned-top-level.yaml,
+      examples/negative/custody-registry-renamed-top-level.yaml,
+      examples/negative/custody-registry-collapsed-ceilings.yaml,
+      examples/negative/custody-registry-escrow-as-a-custody-tier.yaml,
+      examples/negative/custody-registry-openxwallet-mapping-disagrees.yaml,
+      examples/negative/custody-registry-floor-above-the-weakest-member.yaml,
+      examples/negative/certificate-asserting-stronger-evidences-than-its-custody.yaml,
+      examples/negative/certificate-with-no-custody-claiming-above-the-floor.yaml,
+      examples/negative/certificate-declaring-custody-outside-the-closed-set.yaml,
+      examples/negative/certificate-reaching-holder-assurance-under-a-host-readable-root.yaml,
+      examples/negative/custody-registry-variant-floor-above-its-own-weakest-member.yaml,
+      examples/negative/chain-custody-registry-claiming-the-canonical-registry-id.yaml,
+      examples/negative/certificate-citing-a-registry-it-does-not-derive-from.yaml
+    red_proven: >-
+      assurance-ceiling-exceeded, custody-evidences-derivation,
+      custody-ceiling-unearned, custody-collapse,
+      custody-discriminator-duplicated, custody-openxwallet-mapping-mismatch,
+      custody-floor-not-weakest, certificate-evidences-derivation,
+      certificate-ceiling-derivation and custody-model-unknown neutered in turn;
+      corpus went red each time. ELEVEN probes because this is the ruling's
+      sharp edge and the enumeration can fail in more ways than one: by claiming
+      the wrong evidence, by granting an unearned top level, by RENAMING the top
+      level so the unearned rule stops matching (the attack that defeated an
+      earlier form of the equivalent openxWallet rule), by distinguishing the
+      two cases in NAME while collapsing them in EFFECT, by smuggling in a
+      SECOND AXIS as a member (escrow — the ratified OQ2 ruling made structural),
+      by drifting from the openxWallet set it claims to compose with, by moving
+      the undeclared-custody floor above the weakest member so absence buys
+      authority, and at the record level by over-claiming what a declared or
+      undeclared custody supplies.
+
+  TA-R4:
+    statement: Renewal that changes key material is a rebind obligation
+    artifact: >-
+      renewal-record.schema.yaml — completion_state `complete` forces every
+      rebind entry to carry succeeded evidence (schema if/then, not prose);
+      `failure.attribution` is a CONSTANT naming the issuing workflow;
+      `arises` is bound by shape to `key_change.changed` and forces an empty
+      rebind list when no obligation arises
+    enforced_by: >-
+      validate_trust_anchor.check_renewal (rules q, s, t, ee) — the enumerated
+      dependent with no entry at all, key-generation agreement across records,
+      and the failure naming exactly the unbound set. Guarded on the obligation
+      ARISING, so a key-preserving renewal's empty evidence is a declared fact
+      rather than an omission. The 2026-08-21 review added rule (ee): `changed`
+      was the guard's own premise and nothing verified it, so a supersession no
+      renewal accounts for is refused from the renewal's side and from the
+      certificate's.
+    positive_examples: >-
+      examples/renewal-rebind-evidenced.example.yaml (unattended, evidenced),
+      examples/renewal-key-preserved.example.yaml (no obligation arises),
+      examples/renewal-failed-attributed-to-the-issuing-workflow.example.yaml,
+      examples/dependent-binding-directory-rebound.example.yaml,
+      examples/dependent-binding-mesh-rebind-required.example.yaml
+    negative_confirmation: >-
+      examples/negative/renewal-complete-with-an-unevidenced-dependent.yaml,
+      examples/negative/unattended-renewal-complete-with-an-unevidenced-dependent.yaml,
+      examples/negative/renewal-attributing-failure-to-the-dependent.yaml,
+      examples/negative/renewal-failure-naming-the-wrong-unbound-dependents.yaml,
+      examples/negative/renewal-reporting-a-rebind-at-the-superseded-generation.yaml,
+      examples/negative/certificate-superseded-with-no-renewal-record.yaml
+    red_proven: >-
+      renewal-complete-with-unevidenced-dependent,
+      renewal-failure-misnames-dependents and
+      dependent-rebind-state-contradicts-renewal neutered in turn; corpus went
+      red each time. The attribution probe is NOT red-proven and cannot be: the
+      guarantee is a CONSTANT in the schema, so the record cannot be authored at
+      all and the probe pins the const message
+      ("'issuing_workflow' was expected") as its detail instead. That is the
+      stronger position, not a weaker one. The unattended probe exists because
+      no rule keys on `renewal_mode` — if one did, the exemption the ratified
+      text refuses would live in the mechanism whatever the requirement said.
+
+  TA-R5:
+    statement: Dependent bindings are recorded against the certificate
+    artifact: >-
+      dependent-binding.schema.yaml (holding system inside or outside the
+      family; the key GENERATION as the join; discovery mode),
+      certificate-record.schema.yaml (dependent_binding_enumeration with its
+      declared completeness state; record_defects requiring the added binding),
+      renewal-record.schema.yaml (planning forced to `refused` on a
+      known-incomplete enumeration)
+    enforced_by: >-
+      validate_trust_anchor.check_dependent_binding (rules u, ee) and
+      check_renewal (rules p, r) — enumeration membership, the outage-discovered
+      defect obligation, defect closure by record correction, the rebind set
+      equalling the certificate's set, and the declared enumeration state
+      matching the certificate record. Rule (ee) is the 2026-08-21 review's:
+      the generation comparison ran only THROUGH a renewal record, so a
+      dependent left behind by a renewal recorded as key-preserving — or never
+      recorded — was compared against nothing
+    positive_examples: >-
+      examples/dependent-binding-gateway.example.yaml (declared before service),
+      examples/dependent-binding-directory-rebound.example.yaml (outage-discovered,
+      with the defect entry on certificate-managed-broker),
+      examples/dependent-binding-queue-rebound.example.yaml,
+      examples/dependent-binding-device-network.example.yaml,
+      examples/certificate-managed-broker.example.yaml (the record defect)
+    negative_confirmation: >-
+      examples/negative/renewal-planned-against-an-incomplete-record.yaml,
+      examples/negative/renewal-understating-the-rebind-set.yaml,
+      examples/negative/dependent-binding-the-certificate-does-not-enumerate.yaml,
+      examples/negative/dependent-discovered-by-an-outage-with-no-record-defect.yaml,
+      examples/negative/record-defect-closed-without-correcting-the-record.yaml,
+      examples/negative/dependent-binding-current-at-a-superseded-generation.yaml
+    red_proven: >-
+      renewal-planned-on-incomplete-record, rebind-set-understated,
+      dependent-binding-unenumerated, dependent-omission-unrecorded and
+      record-defect-not-closed-by-record-correction neutered in turn; corpus
+      went red each time. The understated-set probe is the interesting one:
+      every statement in it is true, and the way it reaches "complete" is to
+      shrink the set the completion is measured over — which is why the
+      certificate's enumeration is the authority rather than the renewal's own
+      list.
+
+  TA-R6:
+    statement: Revocation propagates to the authority the certificate supported
+    artifact: >-
+      revocation-propagation.schema.yaml — `mechanism.realized_through` is a
+      CONSTANT naming openxWallet's revocation-through-derivation rule;
+      `completion: complete` forces every downstream authority propagated;
+      `escalated_as` is a CONSTANT `open_exposure`. Plus
+      certificate-record.schema.yaml, where the standing check's basis is the
+      constant `checked_at_use` and a trusted evaluation forces it performed and
+      active.
+    enforced_by: >-
+      validate_trust_anchor.check_revocation_propagation (rules y, z, gg) and
+      check_certificate (rules x, dd) — window arithmetic recomputed, the
+      closed-unevidenced escalation timed against the record's own assessed_at,
+      the transitive closure computed over the corpus, and a revoked certificate
+      refused a trusted evaluation.
+      CORRECTED by the 2026-08-21 review, which found this row claiming more
+      than the mechanism did: (1) the transitive closure was computed for ANCHOR
+      targets only, so "propagates to the authority the CERTIFICATE supported" —
+      the ordinary case, and the requirement's own subject — rested on whatever
+      the record chose to list; it is now computed over the target
+      certificate's own admitted dependent bindings. (2) Propagation evidence
+      dated AFTER the declared window closed read as evidence within it, so the
+      window was decorative; `performed_at` must now fall inside it. (3) The
+      at-use rule refused only `revoked`, so a certificate whose state is
+      `expired`, or whose evaluation moment lies past its own not_after, read as
+      trusted — the refusal vocabulary had reserved
+      `certificate_outside_validity` and nothing produced it
+    positive_examples: >-
+      examples/revocation-propagation-complete.example.yaml (anchor target,
+      transitive, evidenced),
+      examples/revocation-propagation-open-exposure.example.yaml (CERTIFICATE
+      target, honestly escalated, and now the positive that exercises the
+      certificate-side closure: the authority its target's one admitted binding
+      supported is named, unevidenced),
+      examples/dependent-binding-legacy-partner-feed.example.yaml (that binding —
+      added 2026-08-21 so the certificate-side closure has something to be
+      checked against in the passing direction too),
+      examples/certificate-under-revoked-anchor.example.yaml,
+      examples/anchor-retired-root.example.yaml
+    negative_confirmation: >-
+      examples/negative/revocation-window-closed-with-no-propagation-evidence.yaml,
+      examples/negative/anchor-revocation-not-reaching-a-subordinate-certificate.yaml,
+      examples/negative/certificate-revocation-not-reaching-its-dependent-authority.yaml,
+      examples/negative/revocation-window-that-does-not-close-when-declared.yaml,
+      examples/negative/propagation-evidenced-after-the-window-closed.yaml,
+      examples/negative/revoked-certificate-recorded-as-trusted.yaml,
+      examples/negative/expired-certificate-recorded-as-trusted.yaml,
+      examples/negative/certificate-evaluated-after-its-validity-recorded-as-trusted.yaml
+    red_proven: >-
+      revocation-window-closed-unevidenced, revocation-transitivity-incomplete,
+      revocation-window-arithmetic and revoked-certificate-trusted neutered in
+      turn; corpus went red each time. The window-arithmetic probe is
+      load-bearing for the escalation rule as well: the open-exposure check is
+      timed against the close, so a window free to close whenever its widest
+      field says would quietly disable it.
+
+  TA-R7:
+    statement: >-
+      Authority material and issuance credentials are credential records, never
+      committed
+    artifact: >-
+      trust-anchor.schema.yaml — `declared_chain_custody` admits exactly two
+      shapes (the credential record WITH its vault binding, or a declared
+      shortfall), `administration_credentials.brokered_into_ephemeral_scope` is
+      `const: true` rather than a boolean, and the only key-adjacent value any
+      schema in the family admits is a pattern-restricted DIGEST
+    enforced_by: >-
+      validate_trust_anchor.check_no_key_material (rule a — names, values, two
+      decode layers, both base64 alphabets, hex, and the DECODED BYTES tested for
+      DER private-key structure) and check_anchor (rules j, k — the
+      strictest-tier obligation and the credential-record pairing, keyed on the
+      registry's own boolean rather than on a member's name), plus rules bb and
+      ff.
+      CORRECTED by the 2026-08-21 review, which found this row claiming more
+      than the mechanism did: (1) "decoded and re-scanned" re-scanned for the PEM
+      ARMOR, so the rule matched a LABEL — five keys walked past it (unarmored
+      PKCS#8 DER as base64, the same DER as hex, a double-base64 wrapper, an
+      armor label split across two fields, and a DER blob labelled "QA only").
+      The scan is now armor-independent: structure, not label. (2) The
+      strictest-tier obligation was escapable by the citing realization's own
+      declaration — `authority_operated_by_family` was required by the schema and
+      read by nothing, so a family-operated realization could excuse its readable
+      root key by declaring it could not do better (rule ff). (3) A declared
+      shortfall on a readable anchor key stays conformant and now caps the
+      assurance anything beneath that anchor may claim (rule bb), which is what
+      the shortfall costs at point of use
+    positive_examples: >-
+      examples/anchor-core-root.example.yaml (strictest tier, credential record
+      + vault binding, administration credential brokered),
+      examples/anchor-managed-root.example.yaml (no credential record possible,
+      shortfall declared),
+      examples/anchor-managed-issuing.example.yaml (the credential the family
+      DOES hold, beside the shortfall for the one it does not),
+      examples/anchor-partner-host-readable-root.example.yaml (added 2026-08-21:
+      a root whose operator keeps the key readable — conformant BY DECLARATION,
+      and capping every record beneath it),
+      examples/conformance-declaration-managed-authority.example.yaml
+    negative_confirmation: >-
+      examples/negative/authority-key-material-base64-encoded-for-qa.yaml,
+      examples/negative/authority-key-material-hex-encoded.yaml,
+      examples/negative/authority-key-material-as-unarmored-pkcs8-der.yaml,
+      examples/negative/authority-key-material-as-hex-pkcs8-der.yaml,
+      examples/negative/authority-key-material-double-base64-encoded.yaml,
+      examples/negative/authority-key-material-with-the-armor-label-split-across-fields.yaml,
+      examples/negative/authority-key-material-as-der-labelled-qa-only.yaml,
+      examples/negative/anchor-carrying-a-jwk-private-exponent.yaml,
+      examples/negative/certificate-with-a-readable-key-and-no-credential-record.yaml,
+      examples/negative/anchor-below-the-strictest-tier-with-no-declared-shortfall.yaml,
+      examples/negative/anchor-excusing-a-family-operated-authority-key.yaml,
+      examples/negative/conformance-declaration-family-operated-excusing-its-own-authority-key.yaml
+    red_proven: >-
+      key-material-reversibly-encoded, key-material-embedded,
+      custody-credential-record-missing and
+      anchor-custody-below-strictest-tier neutered in turn; corpus went red each
+      time. The base64 probe carries "QA only" as its stated reason, in a
+      free-text note, because that is where the reason goes in real life — and
+      the finding does not depend on reading it. Both reversible encodings get
+      their own probe: a scan written for one encoding is a scan that teaches
+      people which encoding to use.
+
+  TA-R8:
+    statement: A realization declares the obligations it cannot meet
+    artifact: >-
+      conformance-declaration.schema.yaml — exactly eight entries from a closed
+      enumeration, each with a reason and its own `declared_at`, and
+      `achieved_establishment_level` required on the issuance obligation
+      wherever it is satisfied or partial; plus
+      dependent-binding.schema.yaml's refusal shapes, which require the gap
+      entry to be NAMED
+    enforced_by: >-
+      validate_trust_anchor.check_conformance_declaration (rules aa, ff, hh —
+      coverage closed in both directions, the family-operated R7 shortfall
+      refused, a broad `cannot` set reported), check_dependent_binding (rule w —
+      a declared `cannot` refuses the admission as an ERROR, a declared `partial`
+      as a WARNING, which is the point-of-use cost made visible), and the shared
+      `_shortfall_ok` helper (rules n, ff, gg — same realization, right
+      obligation, actually a shortfall, not a family-operated excuse, and
+      declared in time with a moment that RESOLVES rather than a guard that
+      skips)
+    positive_examples: >-
+      examples/conformance-declaration-self-hosted.example.yaml (conforms by
+      construction),
+      examples/conformance-declaration-managed-authority.example.yaml (conforms
+      by declaration, with a `cannot` that costs it something at point of use),
+      examples/dependent-binding-refused-declared-gap.example.yaml,
+      examples/issuance-evidence-floor-managed-broker.example.yaml
+    negative_confirmation: >-
+      examples/negative/undeclared-unsatisfied-obligation.yaml,
+      examples/negative/conformance-declaration-omitting-an-obligation.yaml,
+      examples/negative/binding-admitted-despite-a-declared-gap.yaml,
+      examples/negative/shortfall-declared-after-the-issuance-it-covers.yaml,
+      examples/negative/anchor-shortfall-cited-with-no-claim-moment.yaml,
+      examples/negative/dependent-binding-declaring-no-required-obligations.yaml,
+      examples/negative/conformance-declaration-with-a-duplicated-entry-id.yaml
+    red_proven: >-
+      obligation-undeclared, obligation-coverage-incomplete,
+      declared-gap-claimed and shortfall-declared-after-the-claim neutered in
+      turn; corpus went red each time. The four probes are the four routes an
+      undeclared shortfall actually takes: citing an entry that says the
+      obligation is SATISFIED, omitting the entry entirely (and the omitted one
+      is reliably the unmet one), reading the declaration as a disclosure rather
+      than a constraint, and dating the declaration after the record it excuses.
+
+coverage_closure:
+  rule: >-
+    The validator fails with negative-requirement-uncovered when any requirement
+    in its closed REQUIREMENTS list carries no probe, and with
+    negative-requirement-unknown when a fixture claims a requirement that does
+    not exist. Coverage cannot silently regress in either direction.
+  measured: 8 of 8 requirements carry at least one negative confirmation
+
+named_negatives:
+  rule: >-
+    The change's task 5.8 enumerates TEN violations by name. Each has exactly one
+    probe, listed here so the mapping is checkable without re-reading the task.
+  mapping:
+    key material in an anchor record: examples/negative/anchor-carrying-key-material.yaml
+    a certificate trusted with no held anchor: examples/negative/certificate-trusted-with-no-held-anchor.yaml
+    issuance with no admitted authority: examples/negative/issuance-under-an-unadmitted-authority.yaml
+    asserted provenance the authority cannot establish: examples/negative/issuance-asserting-provenance-at-the-floor-level.yaml
+    a host-held certificate claiming hardware-bound assurance: examples/negative/host-held-certificate-claiming-hardware-bound-assurance.yaml
+    a renewal reported successful with an unevidenced dependent: examples/negative/renewal-complete-with-an-unevidenced-dependent.yaml
+    a renewal planned against an incomplete dependent set: examples/negative/renewal-planned-against-an-incomplete-record.yaml
+    a revocation window closed with no propagation evidence: examples/negative/revocation-window-closed-with-no-propagation-evidence.yaml
+    authority key material in a repository including a reversible encoding with "QA only" as the reason: examples/negative/authority-key-material-base64-encoded-for-qa.yaml
+    an undeclared unsatisfied obligation: examples/negative/undeclared-unsatisfied-obligation.yaml
+
+corpus:
+  positive_examples: 34
+  negative_confirmations: 65
+  distinct_finding_codes_proven: 50
+  note: >-
+    50 is the count of non-`schema` codes the corpus depends on, every one of
+    which is red-proven. `schema` is excluded from the red proof by construction:
+    suppressing it would suppress every document's schema findings at once and
+    the run would collapse into noise. The two probes pinned to `schema` pin the
+    message as their detail instead, which ties them to the invariant as tightly
+    as a dedicated code would.
+    Grown from 32/43/38 by the 2026-08-21 adversarial-review hardening: two
+    positives (a host-readable partner root, and the dependent binding that gives
+    the certificate-side revocation closure something to be checked against) and
+    twenty-two negatives, one per bypass the review demonstrated.
+
+boundary:
+  runtime_created: none
+  authorities_created: 0
+  anchors_created: 0
+  certificates_created: 0
+  keys_created: 0
+  credentials_created: 0
+  existing_capabilities_modified: 0
+  note: >-
+    Contracts, schemas, a validator and a fixture corpus. What a validator cannot
+    check is recorded rather than implied: that a DECLARED custody model or a
+    DECLARED conformance state is the real one. Declaration keeps this contract
+    honest only if realizations declare truthfully, and a false declaration is a
+    governance finding rather than a misconfiguration.
+
+settlements_beyond_the_ratified_text:
+  - id: custody-set-is-a-registry-document
+    was: >-
+      The ratified text requires custody "from a defined set" with `evidences`
+      DERIVED. An inline enum cannot carry a rule OVER members, so the family
+      adds chain-custody-registry.schema.yaml plus the closed instance, mirroring
+      the ratified openxwallet-custody-registry pair. Two files the change's task
+      list does not name individually.
+  - id: discriminator-uniqueness
+    was: >-
+      The ratified OQ2 ruling says escrow is a relationship on the credential
+      record, not a custody tier. Enforcing that with a name check would be a
+      denylist; instead, because `evidences` derives from exactly two booleans, a
+      member declaring the same pair as another differs only in a fact this axis
+      cannot express — a second axis or a rename — and is refused. An escrow
+      member has no choice but to duplicate a pair, so the rule catches it
+      without knowing the word.
+  - id: declared-undeclared-custody-floor
+    was: >-
+      Rather than inferring "the weakest member", the registry DECLARES the floor
+      and the validator checks the declaration is honest (evidences the using
+      host, key readable, at the minimum ceiling any member reaches). Otherwise
+      moving the floor up would make declaring nothing the way to obtain the
+      strongest assurance.
+  - id: obligation-entries-are-addressable-and-dated
+    was: >-
+      The two ratified guards on the degraded-obligation rule are only
+      enforceable if a record can NAME the entry it relies on. So entries carry
+      `entry_id` and their own `declared_at`, and four checks run over a citation.
+      Without per-entry dates a late declaration is indistinguishable from a
+      timely one.
+  - id: anchor-custody-shortfall-pairing
+    was: >-
+      An anchor for an authority the family does not operate has no credential
+      record for its key, and requiring one unconditionally would have made the
+      live realization non-conformant for a reason unrelated to trust — the
+      failure mode D6 exists to prevent. The custody block therefore admits
+      exactly two shapes (credential record + vault binding, or a declared
+      shortfall) and the shortfall is resolved rather than trusted.
+      WORDING CORRECTED 2026-08-21: the second shape is CONDITIONED on the
+      un-operated case, which is what its own justification says. Stated as a
+      general permission it read as an escape available to anybody, and that is
+      how it was implemented — a realization declaring
+      `authority_operated_by_family: true` could excuse its own readable root key
+      by declaring an R7 shortfall, because the field was required by the schema
+      and read by nothing. Where the family operates the authority there is no
+      shortfall to declare, and the declaration is refused at both the entry and
+      the citation.
+  - id: chain-custody-cap-under-a-readable-anchor-key
+    was: >-
+      The ratified derivation is record-local, which leaves a strict leaf under a
+      root whose private key is a readable file validating cleanly. A certificate
+      (and a subordinate anchor) may therefore not carry a ceiling above the
+      ceiling of any anchor in its chain whose key is READABLE by its using host.
+      Conditioned on readability rather than on rank alone, deliberately: every
+      anchor of an authority the family does not operate sits below the strictest
+      tier by declaration, so an unconditioned cap would make a declared R7
+      shortfall a bar to any holder-attributed certificate beneath it — the same
+      D6 hazard, and a ruling for the ratifier rather than for a hardening pass.
+      Reasoning in research.md.
+
+verification:
+  validator: >-
+    python3 scripts/validate-trust-anchor.py -> 0 error(s), 0 warning(s);
+    34 positives, 65 negative confirmations, 8/8 requirements
+  repo_scan: >-
+    python3 scripts/validate-trust-anchor.py . --strict -> 0 error(s),
+    0 warning(s); 0 live artifacts, 1442 documents skipped as another kind
+  test_suite: >-
+    python3 -m pytest tests/trust-anchor/ -> 87 passed. Three files: the
+    validator's exit code and reported corpus counts, every negative fixture
+    adjudicated independently (so a regression names the probe that stopped
+    proving its rule), and the declaration-perimeter rules whose cases need two
+    records that disagree and therefore cannot be single packaged fixtures
+  consumer_scan: >-
+    verified against a scratch consumer corpus: a complete set (anchors,
+    certificate, issuance evidence, binding, declaration) scans clean, and the
+    certificate alone fires trusted-without-held-anchor and
+    issuance-evidence-unresolved — so layer 2 is live and closed over the scanned
+    repository rather than resolving against the packaged examples
+  red_proof: >-
+    python3 specs/009-trust-anchor-contracts/evidence/red-proof.py -> OK all 50
+    codes are load-bearing (the harness derives the code list from the fixture
+    headers, so the twelve codes the hardening added are covered without editing
+    it)
+  openspec: OPENSPEC_TELEMETRY=0 openspec validate --all --strict -> green
+
+# ---------------------------------------------------------------------------
+# Adversarial-review hardening, 2026-08-21. A cross-model review probed the
+# family with 52 constructed corpora (drivers and probe corpora recorded outside
+# the repository) and demonstrated fourteen bypasses. Each is recorded here with
+# what it was, what closed it, and the fixture that keeps the corpus reaching the
+# case — because a bypass that was fixed without a probe is a bypass that comes
+# back the next time the rule is edited.
+#
+# The pattern worth naming, because it accounts for five of the fourteen: a
+# ruling was carried into the SHAPE as a required field, and then nothing read
+# it. `authority_operated_by_family`, `operated_by_family`,
+# `achieved_establishment_level`, `key_change.changed`, `registry_id` — all
+# required, all unread. A required-but-unread field is worse than an absent one:
+# it makes the record LOOK adjudicated.
+review_hardening:
+  reviewed_at: 2026-08-21
+  probes_run: 52
+  findings: 14
+  findings_closed: 14
+  items:
+    - id: 1
+      severity: high
+      was: >-
+        A family-operated realization escaped R7 by declaring its own TA-R7
+        shortfall: `authority_operated_by_family` was schema-required and
+        validator-unread, so a readable root key on an authority the family runs
+        end to end validated on the strength of its own excuse. The ruled
+        addition alongside it: chain custody was record-local, so a strict leaf
+        under a host-readable root read `named_holder` at the top of the ladder.
+      closed_by: >-
+        _shortfall_ok and check_conformance_declaration refuse a TA-R7 shortfall
+        (partial or cannot) where the citing realization declares it operates the
+        authority; check_certificate and check_anchor cap a record's ceiling by
+        the ceiling of any anchor in its chain whose key is readable by its using
+        host (rules ff, bb).
+      fixtures: >-
+        negative/conformance-declaration-family-operated-excusing-its-own-authority-key.yaml,
+        negative/anchor-excusing-a-family-operated-authority-key.yaml,
+        negative/certificate-reaching-holder-assurance-under-a-host-readable-root.yaml
+      also: >-
+        Settlement `anchor-custody-shortfall-pairing` reworded to state the
+        condition its own justification carries; new settlement
+        `chain-custody-cap-under-a-readable-anchor-key` records why the cap is
+        keyed on readability rather than on rank. New positive
+        examples/anchor-partner-host-readable-root.example.yaml — the honest case,
+        conformant by declaration and capped at point of use.
+    - id: 2
+      severity: high
+      was: >-
+        The shortfall lateness guard SKIPPED when either moment was absent, so
+        omitting two optional timestamps disabled it: a shortfall dated 2030 could
+        excuse a record with no date of its own.
+      closed_by: >-
+        Schema `dependentRequired: {declared_shortfall_ref: [declared_at]}` on the
+        anchor custody block; _shortfall_ok errors when no claim moment resolves
+        instead of skipping (rule gg).
+      fixtures: negative/anchor-shortfall-cited-with-no-claim-moment.yaml
+    - id: 3
+      severity: high
+      was: >-
+        The key-material scan was ARMOR-DEPENDENT — it re-ran the PEM label match
+        over decoded text — so five keys walked past it: unarmored PKCS#8 DER as
+        base64, the same DER as hex, a double-base64 wrapper, an armor label split
+        across two fields, and a DER blob labelled "QA only".
+      closed_by: >-
+        check_no_key_material tests DECODED BYTES for DER private-key structure
+        (SEQUENCE, version INTEGER, the PKCS#8/PKCS#1/SEC1 prologues, the
+        rsaEncryption / id-ecPublicKey / Ed25519 OIDs), reverses a second decode
+        layer, admits the URL-safe alphabet, recovers standard-alphabet segments
+        from a polluted run, and joins the document's strings before matching the
+        armor.
+      fixtures: >-
+        negative/authority-key-material-as-unarmored-pkcs8-der.yaml,
+        negative/authority-key-material-as-hex-pkcs8-der.yaml,
+        negative/authority-key-material-double-base64-encoded.yaml,
+        negative/authority-key-material-with-the-armor-label-split-across-fields.yaml,
+        negative/authority-key-material-as-der-labelled-qa-only.yaml
+      verified: >-
+        The review's recovery recipe has no green document left to run against:
+        all eight k-probes are refused, and a sweep of 2350 repository files
+        produces hits only on the eight intended key-material fixtures (two of
+        them openxWallet's, scanned by its own validator).
+    - id: 4
+      severity: high
+      was: >-
+        OQ1's ruling was unrealized. `operated_by_family` and
+        `achieved_establishment_level` were required and unread, so a
+        family-operated authority could record every issuance at the declared
+        floor — the refused middle option — and a record could assert a stronger
+        establishment level than its realization declares it achieves.
+      closed_by: >-
+        Two rules in check_issuance_evidence (rule ff).
+      fixtures: >-
+        negative/issuance-at-the-floor-under-a-family-operated-authority.yaml,
+        negative/issuance-asserting-a-level-above-the-declared-achievement.yaml
+      also: >-
+        research.md Settlement 2 restored OQ1's actual ruling text; it had
+        re-described the refused middle option as "declaring the floor while
+        filling in the strict fields", which is a different hazard (a real one,
+        and the one the shape closes).
+    - id: 5
+      severity: high
+      was: >-
+        `key_change.changed` was an unchecked self-assertion, and every rebind
+        rule is guarded on the obligation arising — so a renewal that did change
+        the key could declare it did not and owe nothing, and a dependent's
+        generation was compared against the certificate ONLY through a renewal
+        record.
+      closed_by: >-
+        check_dependent_binding compares the bound generation against the
+        certificate's current one per rebind_status; check_renewal and
+        check_certificate refuse a supersession no renewal record accounts for
+        (rule ee, with the deliberate escape for a later key-preserving renewal).
+      fixtures: >-
+        negative/dependent-binding-current-at-a-superseded-generation.yaml,
+        negative/certificate-superseded-with-no-renewal-record.yaml
+      divergence: >-
+        The renewal-SIDE half has no packaged single-document fixture: a coherent
+        positive corpus contains no certificate whose supersession lacks an
+        accounting renewal, so the pair cannot be one file. It is locked by
+        tests/trust-anchor/test_declaration_perimeter.py instead, together with
+        the escape.
+      also: >-
+        research.md records that the schema's `changed` -> `arises` implication is
+        sound and inherited an unverified premise, now verified.
+    - id: 6
+      severity: high
+      was: >-
+        Certificate-target revocation had no transitive closure — rule (z) was
+        anchor-only — so a certificate could be revoked and the authority its own
+        recorded binding supported left standing, with the record reading
+        `complete`.
+      closed_by: >-
+        check_revocation_propagation requires every binds.authority_ref from the
+        target certificate's admitted enumerated bindings among the downstream
+        authorities (rule z, certificate half).
+      fixtures: negative/certificate-revocation-not-reaching-its-dependent-authority.yaml
+      also: >-
+        specs/009 spec.md FR-017 corrected — it named anchors only, narrowing the
+        ratified R6 text. New positive
+        examples/dependent-binding-legacy-partner-feed.example.yaml, and
+        certificate-unexplained-then-revoked now enumerates it, so the closure is
+        exercised in the passing direction too.
+    - id: 7
+      severity: medium
+      was: >-
+        Propagation evidence dated after `closes_at` read as complete, making the
+        declared window decorative: any record could close any window by gathering
+        the evidence eventually.
+      closed_by: >-
+        performed_at must fall at or before closes_at (rule gg).
+      fixtures: negative/propagation-evidenced-after-the-window-closed.yaml
+    - id: 8
+      severity: medium
+      was: >-
+        The design's named loophole, open: declare all eight obligations `cannot`,
+        omit `required_obligations` from every binding, and the declaration costs
+        nothing at any point of use.
+      closed_by: >-
+        `required_obligations` is REQUIRED with minItems 1 on every dependent
+        binding; a declaration recording more than one `cannot` WARNS
+        (declaration-cannot-breadth); a binding requiring an obligation declared
+        `partial` WARNS (declared-partial-required) — the ruled addition, an
+        error being unavailable to R8's wording, which refuses what the
+        declaration cannot support (rules w, hh).
+      fixtures: negative/dependent-binding-declaring-no-required-obligations.yaml
+      also: >-
+        Two positives gained `required_obligations` (queue-rebound,
+        mesh-rebind-required) and three negative binding fixtures gained it so
+        they keep testing their own invariant. Warning-only rules cannot be
+        packaged negatives — a fixture with no ERROR is `negative-should-fail` —
+        so both warnings are locked in tests/trust-anchor/ instead. README limits
+        section documents the error/warning split.
+    - id: 9
+      severity: medium
+      was: >-
+        `registry_id` / `registry_version` on a record were decorative, and a
+        second document claiming the canonical registry_id with a renamed ladder
+        was unreported — a diverging closed set shipped beside the records that
+        cite it, both validating.
+      closed_by: >-
+        _check_registry_pointer holds both fields to the canonical registry;
+        check_custody_registry refuses a second document claiming the canonical
+        registry_id whose CONTENT differs (an identical vendored copy is the
+        ordinary consumption path and stays clean) (rule cc).
+      fixtures: >-
+        negative/chain-custody-registry-claiming-the-canonical-registry-id.yaml,
+        negative/certificate-citing-a-registry-it-does-not-derive-from.yaml
+    - id: 10
+      severity: low
+      was: >-
+        Rule (g) resolved `undeclared_custody_resolves_to` in the CANONICAL
+        registry rather than in the document under validation, so a registry that
+        renamed its members reported `custody-floor-unknown` about a member it
+        declares — and the weakest-member comparison was never reached. The check
+        failed open on exactly the document it exists to adjudicate.
+      closed_by: >-
+        The floor lookup is built from the document's own `custody_models`.
+      fixtures: negative/custody-registry-variant-floor-above-its-own-weakest-member.yaml
+      note: >-
+        The review's g1 probe — an internally coherent renamed registry — now
+        passes, which is the correct outcome; the fixture is g1 plus the actual
+        defect, so it can only be caught by resolving in the document's own set.
+    - id: 11
+      severity: low
+      was: >-
+        The at-use rule refused only `revoked`, so a certificate whose state is
+        `expired`, or whose evaluation moment lies past its own not_after, read as
+        trusted. The refusal vocabulary had reserved `certificate_outside_validity`
+        and nothing produced it.
+      closed_by: >-
+        check_certificate refuses both, compared against the record's OWN moments
+        (evaluated_at, the standing check's checked_at) and never the wall clock,
+        so the record stays a stable statement about a moment (rule dd).
+      fixtures: >-
+        negative/expired-certificate-recorded-as-trusted.yaml,
+        negative/certificate-evaluated-after-its-validity-recorded-as-trusted.yaml
+    - id: 12
+      severity: low
+      was: >-
+        Duplicate obligation `entry_id`s were recorded under the declaration's
+        kind and looked up by REALIZATION id, which cannot match — so the check
+        existed and could never fire, and a shortfall citation resolved to
+        whichever entry file order left last.
+      closed_by: >-
+        Context.duplicate_entry_ids, checked for declaration records in
+        validate_record (code record-id-duplicate).
+      fixtures: negative/conformance-declaration-with-a-duplicated-entry-id.yaml
+    - id: 13
+      severity: low
+      was: >-
+        Change task 5.9's "wired into the repository validator bar" mapped to
+        nothing: this repository has no single bar script, and no test directory
+        claimed the family.
+      closed_by: >-
+        tests/trust-anchor/ — test_validator_gate.py (exit code plus the reported
+        corpus counts, so a self-test cannot pass vacuously after a rename),
+        test_negative_corpus.py (every fixture adjudicated independently, both
+        coverage closures, and the positives asserted clean together), and
+        test_declaration_perimeter.py (findings 1, 2, 4, the renewal-side half of
+        5, and the two warnings). Run with `python3 -m pytest tests/trust-anchor/`
+        — the convention tests/credential_contracts and tests/conformance-gate
+        follow. The change's 5.9 DONE note now describes what exists.
+    - id: 14
+      severity: low
+      was: >-
+        Rule (w)'s scope was undocumented, so the error/warning split was
+        discoverable only by reading the validator.
+      closed_by: >-
+        README "Validating: what is an ERROR and what is a WARNING" — cannot is an
+        error, partial is a warning, and warnings are a nonzero exit under
+        --strict.
+  probes_that_correctly_still_pass:
+    - id: c6
+      why: >-
+        A certificate declaring NO custody resolves to the registry floor and
+        names no credential record. Rule (j) keys on a DECLARED readable member,
+        and the ratified floor rule is about the ceiling that binds an undeclared
+        record, not about producing a credential record for a key nobody declared.
+        The asymmetry is deliberate and recorded rather than closed.
+    - id: f2
+      why: A control with no mutation. It must pass.
+    - id: f3
+      why: >-
+        An administration credential naming a credential record that exists
+        nowhere in THIS corpus. `credential-contracts` is a different family with
+        its own validator; resolving its records here would restate it.
+    - id: g1
+      why: Fixed by finding 10 — an internally coherent renamed registry is valid.
+    - id: r2
+      why: >-
+        An unevidenced authority with `assessed_at` inside the window, recorded as
+        an open exposure. The honest record, and the only one the shape allows.

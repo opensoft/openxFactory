@@ -1,0 +1,11 @@
+schema_version: 1
+kind: xfactory_ontology_release_record
+release_id: rel-medx-break
+package_id: xf/medx
+package_version: 2.0.0
+package_digest: 2362431138380cf1c4d58f531c768956ad8649edacf51943d2f689e006780644
+compatibility_class: breaking
+decided_by: medx-ontology-steward
+migration_map_ref: migration-2.0.0.yaml
+quality_report_ref: quality-1.0.0.yaml
+consumer_impact_ref: consumer-impact-2.0.0.yaml

@@ -1,0 +1,13 @@
+# expected_failure: ONT-AUTHORITY-FIELD
+schema_version: 1
+kind: xfactory_ontology_relations
+package_id: xf/negx
+relations:
+  - id: xf/negx/grants_access
+    label: grants access
+    definition: Fixture relation attempting an authority effect.
+    domain: [xf/negx/leak]
+    range: [xf/negx/leak]
+    lifecycle_state: draft
+    effective_version: 1.0.0
+    effect: allow

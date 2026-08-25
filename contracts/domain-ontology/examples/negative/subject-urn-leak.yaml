@@ -1,0 +1,10 @@
+# expected_failure: ONT-PRIVATE
+schema_version: 1
+kind: xfactory_ontology_concepts
+package_id: xf/negx
+concepts:
+  - id: xf/negx/leak
+    label: Leak
+    definition: Derived from urn:xfactory:subject:1234 observations.
+    lifecycle_state: draft
+    effective_version: 1.0.0

@@ -104,10 +104,16 @@ and are NOT executed by this change.
       (0 errors, 0 warnings) over the packaged examples;
       `python3 scripts/validate-ideation-cross-reference.py` still 0
       errors.
-- [ ] 1.11 Register in `contracts/manifest.yaml` + `contracts/CHANGELOG.md`
+- [x] 1.11 Register in `contracts/manifest.yaml` + `contracts/CHANGELOG.md`
       + the README contract index at the next additive bundle cut, per
       `docs/contract-versioning-policy.md`
       (registration-at-realization precedent).
+      Realized 2026-08-02 in the release candidate published as
+      `contract-v1.29` (renumbered 2026-08-03 after the chat-turn release
+      consumed `contract-v1.28`): all seven schemas carry manifest digests
+      and closed release-inventory membership; the canonical validator and
+      11-positive/27-negative fixture corpus are pinned by the exact release
+      commit.
 - [x] 1.12 Close-out: README OpenSpec Records entry; staging INDEX +
       topic file readiness updated to "Proposed as
       add-worker-enrollment-broker (exit 1)"; the parked

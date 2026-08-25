@@ -1,0 +1,23 @@
+{
+  "change_id": "add-trust-anchor",
+  "files": [
+    {
+      "path": "pki-trust-anchor-plane.md",
+      "sha256": "21ffd437d31e0ff5270358149a12f3c4afc4643c018ed75084dbd3a7c8b6ac06",
+      "source_path": "ideation/staging/pki-trust-anchor-plane/pki-trust-anchor-plane.md",
+      "source_sha256": "2081158b26a9dc5e8ee7f28b937e94a8095cb5ed56d67730a339e364efda47c6",
+      "source_snapshot_path": "source-snapshots/pki-trust-anchor-plane.md"
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": {
+    "id": "openxFactory:staging:pki-trust-anchor-plane",
+    "kind": "staged",
+    "path": "ideation/staging/pki-trust-anchor-plane"
+  },
+  "origin_path": "ideation/staging/pki-trust-anchor-plane",
+  "remaining_paths": [],
+  "source_revision": "5f59a32f3f1ad0b129721a4a4d3ea70d563f589a",
+  "transitioned_at": "2026-08-21"
+}

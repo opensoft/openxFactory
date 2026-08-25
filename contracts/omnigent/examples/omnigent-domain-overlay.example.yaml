@@ -44,6 +44,12 @@ workers:
       access_secrets: false
   - id: check_runner
     archetype: verify
+    # Worker-scoped semantic seam (add-omnigent-semantic-wiring): identity
+    # only — the profile lives inventoried in the domain ontology package;
+    # exact digests ride the compiled context, never this declaration.
+    semantic_context:
+      profile_id: prof-example-verify
+      package_id: xf/example
     responsibility: Run deterministic validations and produce reports.
     inputs: [implementation_artifact]
     outputs: [validation_report]
@@ -79,6 +85,29 @@ workers:
       execute_final_action: false
       access_secrets: false
 
+  - id: packet_capture_playbook
+    archetype: generate
+    crystallized: true
+    capability_ref: cap-example-packet-capture
+    automation_rung: L3
+    replaces_configuration: change_author
+    throttle:
+      schedule_ref: dials.young_throttle
+    responsibility: >-
+      Crystallized L3 playbook serving the packet-capture mechanics family
+      previously solved by change_author runs; authoring judgment stays on
+      the AI path. Permissions and credential families are a subset of
+      change_author's (authority conservation).
+    inputs: [scope_frame]
+    outputs: [implementation_artifact]
+    permissions:
+      read_workspace: true
+      write_artifacts: true
+      run_validations: true
+      propose_admission: false
+      execute_final_action: false
+      access_secrets: false
+
 prompt_packs:
   - id: review_lanes
     path: prompts/review-lane-pack.yaml
@@ -97,6 +126,8 @@ credential_requirements:
   by_class:
     change_author:
       - workspace_write
+    packet_capture_playbook:
+      - workspace_write
     admission_assembler:
       - admission_submit
   unassigned_by_default:
@@ -113,3 +144,43 @@ stop_conditions:
   - missing_approved_scope
   - required_validation_failed
   - secret_detected
+
+rung_ceilings:
+  - category: doc_workflow
+    ceiling: L5
+    reason: Mechanically checkable outputs; no subject-affecting judgment.
+  - category: subject_affecting_judgment
+    ceiling: L3
+    reason: Judgment never crystallizes past a playbook in this domain.
+
+# Domain-expert display vocabulary (add-omnigent-domain-terminology).
+# Presentation only: notices, logs, approval packets and refusals render
+# these labels so a domain expert reads familiar terminology, while the ids
+# above stay the machine identifiers and the neutral archetypes are never
+# renamed. The optional standards_alignment crosswalk is descriptive — it
+# asserts no conformance or certification.
+terminology:
+  workers:
+    scope_framer:
+      display_label: Scope Intake
+      # Multiple bodies where a domain has more than one widely adopted one;
+      # each names a different KIND of thing (see the registry's `names`).
+      standards_alignment:
+        apqc_pcf:
+          mapping: "7.1 Develop IT vision and strategy"
+        sfia:
+          mapping: "RLMT Stakeholder relationship management"
+    change_author:
+      display_label: Draft Author
+      standards_alignment:
+        apqc_pcf:
+          mapping: no_clean_equivalent
+          note: >-
+            The framework has no drafting process at this granularity; the
+            closest term would overstate the worker's authority.
+  job_types:
+    scope_framing: Scope Framing
+  stop_conditions:
+    secret_detected: Secret material detected
+  routing:
+    scope_ambiguity: Unclear scope

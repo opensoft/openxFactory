@@ -1,0 +1,40 @@
+# VALID dependent binding still pointing at SUPERSEDED key material. This is the
+# unbound dependent the failed renewal in this corpus names, recorded as what it
+# is: `rebind_required`, at the previous generation. Nothing here pretends the
+# binding is current, which is the whole difference between a silent failure and
+# a tracked one.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:core-workload-02-mesh
+certificate_ref: cert:core-workload-02
+holding_system:
+  system_ref: system:core-service-mesh
+  inside_family: true
+  statement: >-
+    The mesh's peer-authentication policy references this key generation
+    directly.
+binds:
+  binding_kind: signature_verification
+  what_statement: >-
+    Peer verification for the batch runner's mesh identity; the policy pins the
+    key rather than the certificate.
+bound_key_reference:
+  key_generation_ref: keygen:core-workload-02-g1
+  bound_at: "2026-02-01T00:00:00Z"
+required_assurance: host_attributed_act
+required_obligations: [TA-R4, TA-R5]
+admission:
+  state: admitted
+  decided_at: "2026-02-01T00:00:00Z"
+rebind_status:
+  state: rebind_required
+  as_of: "2026-07-01T03:00:00Z"
+  statement: >-
+    The renewal changed the key and this binding still names the superseded
+    generation. Outstanding against the ISSUING WORKFLOW, not against the mesh:
+    the mesh was configured correctly when it was configured.
+discovery:
+  discovered_by: planned_review
+  discovered_at: "2026-06-25T00:00:00Z"
+  recorded_before_first_renewal: true
+record_version: 1

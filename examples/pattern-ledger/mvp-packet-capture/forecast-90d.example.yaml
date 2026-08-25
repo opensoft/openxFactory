@@ -1,0 +1,25 @@
+# The MVP family's first forecast: a distribution (never a point), the
+# declared cost-regime assumption, and a stability outlook. Unscored until
+# matures_at passes (score_ref/scored_at null together — the pairing rule).
+schema_version: 1
+kind: recurrence_forecast
+forecast_id: "fc:opensoft:packet-capture-mechanics:2026-07-29:h90"
+family_ref: "fam:opensoft:packet-capture-mechanics"
+horizon_days: 90
+evidence_window:
+  from: "2026-07-28"
+  to: "2026-07-29"
+  instances: 3
+distribution:
+  p10: 6
+  p50: 12
+  p90: 24
+  basis: "3 instances in 2 days during an ideation wave; waves recur but do not run continuously"
+cost_regime: "current-ai-pricing-2026Q3, interactive-session friction"
+stability_half_life_days: 180
+volumes:
+  raw: 3
+  fence_eligible: null   # no scope fence exists until the crystallizer wave
+matures_at: "2026-10-27"
+score_ref: null
+scored_at: null

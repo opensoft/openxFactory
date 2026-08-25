@@ -1,0 +1,9 @@
+{
+  "as_of": "2026-08-03",
+  "commit": "a461cabd01446f96c23c4ecffa0aa9403ded6fd4",
+  "evidence": "2026-08-03 manual codexFactory neutrality sweep (evidence record under the merged adopt-neutral-tooling-home change's supporting-docs; outcomes DTN-018..023 in docs/domain-neutralization-candidate-register.md). Recorded per add-neutrality-drift-lane task 1.6 so the lane's first incremental codexFactory run reviews only content changed after main@a461cabd (the post-shed tip: PR #74, change/shed-avatar-lab).",
+  "kind": "xfactory_neutrality_baseline",
+  "repo": "codexFactory",
+  "schema_version": 1,
+  "status": "record"
+}

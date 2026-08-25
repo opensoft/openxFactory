@@ -1,0 +1,24 @@
+schema_version: 1
+kind: xfactory_ontology_maintenance_report
+package_id: xf/medx
+package_digest: 2362431138380cf1c4d58f531c768956ad8649edacf51943d2f689e006780644
+as_of: '2026-07-29'
+input_ref: "no-drift.yaml"
+triggers_evaluated:
+  - trigger: source_expiry
+    fired: false
+  - trigger: unknown_terms
+    fired: false
+  - trigger: mapping_failures
+    fired: false
+  - trigger: low_confidence
+    fired: false
+  - trigger: workflow_drift
+    fired: false
+  - trigger: subdomain_requests
+    fired: false
+  - trigger: appeals
+    fired: false
+  - trigger: promotion_candidates
+    fired: false
+drift_found: false

@@ -1,0 +1,7 @@
+# The consent instrument the fragments in this repo cite. Present so every
+# fixture entry's citation RESOLVES to an instrument IN FORCE inside its own
+# repository, which is what keeps this corpus intra-repo conformant (6.7).
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: beta-consent-v1
+status: executed

@@ -1,0 +1,54 @@
+# Hosting declaration and share-out roster for the lifecycle notebook
+# projection. Governed by `docs/lifecycle-notebook-projection.md`; ratified by
+# `add-notebook-projection-identity` (2026-08-23).
+#
+# WHY THIS FILE IS NOT UNDER contracts/. It is the operator's own governance
+# record for one install's tooling account: no other repository, install or
+# domain consumes it, and nothing pins it. Its sibling
+# `lifecycle-notebook-workspaces.yaml` — the workspace registry for this same
+# projection, read and written by the same script — sits here for the same
+# reason. Promoting this shape into `contracts/` is a later, deliberate act if a
+# second install ever needs to interoperate on it.
+schema_version: 1
+kind: notebook_projection_hosting
+
+# WHICH GOOGLE IDENTITY HOSTS THIS INSTALL'S PROJECTION.
+# `case` is one of `operator_hosted` or `self_hosted`. Both are legitimate; an
+# absent declaration is a nonconforming transition state, not a third case.
+hosting:
+  case: operator_hosted
+  account: xFactor001@opensoft.one
+  account_type: google_workspace_user
+  domain: opensoft.one
+  # The `nlm` CLI profile bound to that account. The CLI selects a profile
+  # PROCESS-GLOBALLY (`auth.default_profile`), not per invocation, so the sync
+  # VERIFIES this matches the active profile and refuses otherwise — it never
+  # switches the profile itself, because that is shared user state.
+  nlm_profile: company
+  declared_at: "2026-08-23"
+  declared_by: Brett Heap
+  # Recorded honestly: the migration ran on 2026-08-24 and the books now live
+  # in the declared account above. `from_account` / `from_nlm_profile` are kept
+  # as the history of where the projection came from — they are what the
+  # retirement record in the migration evidence addresses (see
+  # docs/notebook-projection-migration-runbook.md).
+  migration:
+    state: complete
+    completed_at: "2026-08-24"
+    from_account: brettheap@gmail.com
+    from_nlm_profile: personal
+
+# THE SHARE-OUT ROSTER — the record of every governed share act from the
+# hosting account. Uniqueness is (hosting_account, user, book_or_alias): a
+# re-approval, a role change, or a grant by a different actor UPDATES the one
+# live entry rather than adding a second, and the superseded decision moves to
+# that entry's `history`. Approving a request writes or updates an entry here;
+# denials are recorded in `denied` below.
+#
+# Empty until the migration lands: there is nothing to share out from an
+# account that does not yet hold the books.
+share_out: []
+
+# Recorded refusals. A denied request is a governed act too, and is not left to
+# expire unrecorded.
+denied: []

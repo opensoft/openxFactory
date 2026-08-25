@@ -1,0 +1,33 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "fd9a5fc2e07c0f8a35a50fc88f3e28fac6d9f0271b488f2159f7a97293b5688d"
+  },
+  "change_id": "add-staged-topic-outline-template",
+  "files": [
+    {
+      "path": "manifest.yaml",
+      "sha256": "e05488b6498b0a1b0daf0ae05eb2ccd3f2e99842fd194b909f4b074ff4168199"
+    },
+    {
+      "path": "source-snapshots/staged-topic-outline-template.md",
+      "sha256": "022d1eee5d83eedf0f154e8a09956991b626e2421649b28bfdb68f44acdf5227"
+    },
+    {
+      "path": "staged-topic-outline-template.md",
+      "sha256": "47d46ac8762a8fc5797d1013cab19a61288d387f6d6d5a2f04c5168d7ce5038b"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": {
+    "id": "openxFactory:staging:staged-topic-outline-template",
+    "kind": "staged",
+    "path": "ideation/staging/staged-topic-outline-template"
+  },
+  "origin_path": "ideation/staging/staged-topic-outline-template",
+  "packaged_at": "2026-08-21",
+  "source_revision": "696fe684cc84e1738e4587aa548cda4d20f9b73d",
+  "transitioned_at": "2026-08-15"
+}

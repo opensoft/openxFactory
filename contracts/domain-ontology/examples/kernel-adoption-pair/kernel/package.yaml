@@ -1,0 +1,32 @@
+# Positive fixture (finding N1): a PUBLISHED kernel whose
+# package-level adoption includes a domain_package adopter;
+# proves kernel publication is satisfiable and keeps the
+# registry-resolution branch under live fixture coverage.
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/core
+package_version: 1.0.0
+namespace: xf/core
+is_kernel: true
+lifecycle_state: published
+owner:
+  layer: openxfactory
+  name: Fixture owner
+stewards:
+  - steward_id: openxfactory-maintainers
+    role: accountable_steward
+    identity_kind: council
+inventory:
+  - path: concepts.yaml
+    sha256: 4c360f5029872b30d87fcf0adff3605c0d2de577550759100c2c7e19850c64fc
+package_digest: 052917facb963f68ff238af89947aaa2f06912e39f59fce42d00428ab9954abd
+compatibility:
+  class: initial
+  line: xf/core@1
+adoption:
+  status: evidenced
+  adopters:
+    - kind: domain_package
+      ref: xf/negd
+    - kind: shared_subsystem_contract
+      ref: docs/architecture.md

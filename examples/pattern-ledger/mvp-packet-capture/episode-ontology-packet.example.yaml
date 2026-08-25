@@ -1,0 +1,40 @@
+# MVP fixture corpus (add-pattern-ledger task 1.3; staging decision D8).
+# Hand-derived from real audit history: the ontology/micro-agent brainstorm
+# packet capture of 2026-07-28 (openxFactory commit 6c14bb8, 12 docs).
+schema_version: 1
+kind: episode
+episode_id: "ep:opensoft:2026-07-28:ontology-packet-capture"
+tenant_ref: "tenant:opensoft"
+envelope:
+  job_type: brainstorm_packet_capture
+  domain: codexFactory
+  refs:
+    repository: openxFactory
+    commit: 6c14bb8
+    doc_count: 12
+plan_ref:
+  digest: "sha256:727cccd0bcb1264e6efb7f5bf15ba019680d24900356b012f7f5ea72fad7d2be"
+spans:
+  - agent: "session:ontology-packet"
+    steps:
+      - tool: write-docs
+        io_digest: "sha256:112defca56079698373a1383fb92d687b9a38f333fa4827d7308671c756082f8"
+        payload_ref: null
+      - tool: edit-readme-index
+        io_digest: "sha256:fe0a95730ba348758342aa6b810bd5f720bbcaf4e0fd685a5deb81f4c6a353a4"
+        payload_ref: null
+      - tool: git-commit-push
+        io_digest: "sha256:9473d6f745efea2dbce8cc599a99f30af37a27a03787cd07aab83e6ccedc8ccf"
+        payload_ref: null
+cost:
+  credits: null            # unmetered retrospective episode
+  wall_ms: 2340000         # ~39 min (first doc mtime 05:11 -> commit 05:50)
+  human_touches:
+    - "packet request"
+  meter_ref: null
+replayability: live-only   # mutates git and the remote; no recorded tool I/O
+consent:
+  episode_use: true
+  automation: false
+  pooling: false
+labels_ref: "labels:opensoft:ontology-packet-capture"

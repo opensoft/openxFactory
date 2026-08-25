@@ -8,5 +8,5 @@ verb: dispose-possible
 target:
   possible_id: pos-derived-wheel-honesty
 requested_at: "2026-07-23T20:00:00Z"
-snapshot_rev_seen: 563ea35d066d
+snapshot_rev_seen: "563ea35d066d"
 status: applied

@@ -1,0 +1,45 @@
+# VALID trust anchor: the self-hosted root. Its key is isolated from the host
+# that uses it AND each use requires an authorization that host cannot supply,
+# which is the strictest member of the closed set — where authority key material
+# belongs, and therefore where an anchor sits unless the realization declares
+# otherwise.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:core-root
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "Core Production Root Authority"
+  key_identifier_ref: ski:core-root-2026
+  public_key_fingerprint: "sha256:9F2C41A0BE7D3348C5119E0AD2F6B71C4E8A0D5931FB62C7"
+  display_label: Core root
+chain_position:
+  role: root
+  path_depth: 0
+  statement: The trust set's origin; nothing above it is held.
+validity:
+  not_before: "2026-01-01T00:00:00Z"
+  not_after: "2036-01-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:core-root-issuance-policy
+    authority_kind: policy
+    statement: >-
+      Issues subordinate authority certificates only, under two-person control.
+    admitted_at: "2026-01-01T00:00:00Z"
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  credential_record_ref: credential:core-root-signing-key
+  vault_binding_ref: vaultbinding:core/root-signing-key
+  declared_at: "2026-01-01T00:00:00Z"
+  declared_by: opensoft
+administration_credentials:
+  - credential_record_ref: credential:core-root-administration
+    authorizes: [anchor_administration]
+    brokered_into_ephemeral_scope: true
+    statement: >-
+      Held as a credential record and brokered into the ceremony's ephemeral
+      scope; never written into the workflow's own storage or logs.
+record_version: 1
+created_at: "2026-01-01T00:00:00Z"

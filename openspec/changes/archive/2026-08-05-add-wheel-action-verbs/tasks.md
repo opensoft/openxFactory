@@ -1,0 +1,179 @@
+# Tasks: add-wheel-action-verbs
+
+## 1. Contracts (openxFactory)
+
+- [x] 1.1 Extend `gate-intent.schema.yaml`: `promote-to-staging`,
+      `derive-possibles`, `research-brief` in the verb enum; `cluster_id` on
+      `target`; conditionals `promote-to-staging → target.possible_id`,
+      `research-brief → target.possible_id`, `derive-possibles →
+      target.cluster_id`. Document in the header comment that `demote` is
+      unchanged (already enumerated, `change_id` target).
+- [x] 1.2 Extend `gate-action-record.schema.yaml`: the same three actions in
+      the action enum; `cluster_id` on the `target` $def; conditionals
+      requiring each action's target field AND an `artifacts contains
+      workflow-job` companion (the propose/kickoff pattern).
+- [x] 1.3 Keep the additive posture explicit: no `contract_schema_version`
+      bump, no `additionalProperties: false`, header notes naming this change
+      as the growth source; confirm every packaged example still validates.
+- [x] 1.4 Validate: the delegated dashboard-contract validator
+      (`scripts/validate-ideation-dashboard-contracts.py`) plus
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`.
+- [x] 1.5 Contract registration (`contracts/manifest.yaml`,
+      `contracts/CHANGELOG.md`) at the next additive bundle cut, per
+      `docs/contract-versioning-policy.md`.
+      Realized 2026-08-02 in the release candidate published as
+      `contract-v1.29` (renumbered 2026-08-03 after the chat-turn release
+      consumed `contract-v1.28`) together with
+      `add-ideation-intent-plane` 2.4 and `add-worker-enrollment-broker`
+      1.11: gate-intent first registration, gate-action-record digest refresh,
+      README index update, changelog entry, and closed release digest inventory.
+- [x] 1.6 Bundle-cut side repair carried by the same registration commit
+      (a6e7563/10d5165/5a1cdc8): the two doxBench wire schemas published at
+      `contract-v1.27` re-typed from Hermes semantic members (`type: schema`,
+      `semantic_member: true`) to closed release members
+      (`type: release-schema`, `semantic_member: false`), `release-schema`
+      added to the release-digest-inventory type enum, and the bundle
+      verifier widened so release-only schemas carry raw digests AND catalog
+      version pins. Wire-schema bytes unchanged; recorded here so the
+      catalog-membership correction has an OpenSpec trail (it was previously
+      only CHANGELOG prose).
+
+## 2. Engine + routes (codexFactory — Speckit-side realization)
+
+Realized as codexFactory Speckit feature 011 (wheel-action-verbs) and adopted
+into openxFactory by `adopt-neutral-tooling-home` Tranche B (82ae3d8,
+2026-08-03) — the dashboard runtime now lives at
+`scripts/ideation_dashboard/`, so the "codexFactory" file paths below resolve
+here. Verified item-by-item against the adopted tree 2026-08-04.
+
+- [x] 2.1 `gate_console.py`: `ACTION_PROMOTE_TO_STAGING`,
+      `ACTION_DERIVE_POSSIBLES`, `ACTION_RESEARCH_BRIEF`;
+      `build_gate_action_record` grows `cluster_id`.
+- [x] 2.2 `gate_console.py`: promotability predicate over the possibles
+      register — `latent` + (human-authored | accepted human disposition)
+      promotable; `pending_review` / `rejected` / `superseded` / `picked`
+      refused with the state as the reason (design D3).
+- [x] 2.3 `kickoff.py`: generalize the undelivered-commission scan into one
+      index keyed by (verb, target id), replacing
+      `dispatched_propose_topics` with the shared helper (propose keeps its
+      behaviour).
+- [x] 2.4 `kickoff.py`: `promote_to_staging()` — human-only, register-entry
+      existence + promotability guards, duplicate refusal, `workflow-job`
+      descriptor (workflow `staging-fragment-authoring`, `possible_id`
+      target, optional proposed topic slug) + gate-action record; NO register
+      mutation (design D4).
+- [x] 2.5 `kickoff.py`: `derive_possibles()` — human-only, cluster existence
+      guard against the snapshot, duplicate refusal, `workflow-job`
+      descriptor (workflow `derive-possibles`, `cluster_id` target) +
+      gate-action record.
+- [x] 2.6 `kickoff.py`: `research_brief()` — human-only, register-entry
+      existence guard, duplicate refusal, legal while the possible is
+      undisposed, `workflow-job` descriptor (workflow
+      `possible-research-brief`, `possible_id` target) + gate-action record;
+      never disposes and never edits the entry.
+- [x] 2.7 `gate_routes.py`: `EXECUTING_VERBS` gains `demote`,
+      `promote-to-staging`, `derive-possibles`, `research-brief`; four
+      handlers with the dispose-possible response discipline (structured
+      refusal, `message` = engine reason, nothing persisted). `demote`
+      requires `reason` and returns the recorded plan path — it does NOT
+      execute the plan (design D1).
+- [x] 2.8 `cli.py`: `gate promote-to-staging <possible-id>` (`--topic`,
+      `--note`), `gate derive-possibles <cluster-id>` (`--note`),
+      `gate research-brief <possible-id>` (`--note`); update the existing
+      `gate demote` help to name the executing route as its dashboard peer.
+- [x] 2.9 `GateConsole` delegates for the three new verbs, mirroring
+      `GateConsole.propose`.
+
+## 3. Wheel action rows (codexFactory — Speckit-side realization)
+
+- [x] 3.1 `views/wheel-model.js` `WHEEL_ACTIONS`: `clusters` gains
+      `derive-possibles`; `possibles` gains `promote-to-staging` (visible
+      only when the item is promotable) and `research-brief` (visible while
+      undisposed); the change-bearing column gains `demote`. Every row keeps
+      the `!!env.gate && !env.commissioned` shape so a commissioned verb
+      retires for the session.
+- [x] 3.2 `views/wheel.js` `ACTION_MOUNTERS`: one mounter per new verb;
+      `demote` collects the required reason before dispatch; refusals render
+      in the refusal panel textContent-only; success decorates the tile as a
+      session-local overlay (the snapshot is never mutated).
+- [x] 3.3 Pure-model tests for `actionsFor` across the three columns
+      (promotable vs pending vs rejected possible, cluster, change tile,
+      gate off, already-commissioned).
+
+## 4. Verification
+
+- [x] 4.1 Engine + route tests green: accept path per verb, missing target,
+      non-promotable possible (each refused state), undisposed-possible
+      research brief ACCEPTED, duplicate commission, unreasoned demote,
+      agent-path rejection, and demote leaving the corpus untouched.
+      (Verified 2026-08-04: every named scenario present in
+      `tests/ideation-dashboard/test_kickoff.py` / `test_gate_routes.py`;
+      full `tests/ideation-dashboard/ + tests/ideation_dashboard/` run
+      2572 passed, 18 skipped, 0 failed. The 011 T056–T059a DEP-003
+      conformance group went live in the same pass:
+      `find_openxfactory_validator` now prefers this repo's own
+      validator — post-relocation the contract co-lives with the runtime,
+      so the sibling walk-up resolved a STALE aggregation checkout and
+      kept the group skipping after the contract had already shipped in
+      `contract-v1.29`.)
+- [x] 4.2 Schema conformance tests: one valid intent and one valid record per
+      new verb; a record missing its `workflow-job` companion rejected; a
+      `derive-possibles` record without `cluster_id` rejected.
+      (Realized 2026-08-02 in openxFactory as
+      `tests/ideation_dashboard/test_wheel_action_contracts.py`: per-verb
+      positive intent/record cases, workflow-job-companion rejection, and the
+      `cluster_id` rejection, all against the packaged examples/negatives.)
+- [x] 4.3 Live browser check on the local dashboard: each button renders on
+      its column's expanded tile under the gate capability with the actor
+      resolved, and does not render with the capability off; zero page
+      errors.
+      (Verified 2026-08-04, headless Chromium via Playwright against three
+      loopback `generate-and-open` serves of this checkout. GATE ON (actor
+      `brettheap` resolved from git): `derive-possibles` on expanded cluster
+      tiles, `promote-to-staging` on the three promotable latent possibles,
+      `demote` on expanded active-change tiles. `research-brief`'s pre-verdict
+      host has no live corpus tile (all three possibles carry accepted
+      verdicts), so a second serve used a `--possibles` override register —
+      a temp-dir copy plus one synthetic undisposed derived entry, never
+      committed — where `research-brief` rendered on the undisposed tile,
+      `promote-to-staging` correctly did NOT, and both stayed hidden on
+      disposed tiles. GATE OFF (actor suppressed via GIT_CONFIG_GLOBAL=
+      /dev/null; probe returned gate:false/actor:null): all four verbs absent
+      on the same columns' expanded tiles. Zero console errors, zero uncaught
+      page errors, and zero >=400 responses across every instrumented run;
+      one 500 seen once during the first serve's warmup did not reproduce
+      across five later instrumented drives, including the same four cluster
+      tiles it followed.)
+- [x] 4.4 First real commission of each verb by Brett recorded end-to-end
+      (descriptor + record in the checkout), and one dashboard demote planned
+      + executed as two deliberate steps.
+      (Realized 2026-08-05 as one full lifecycle traversal, all four verbs
+      dashboard-clicked by Brett with the fulfilling terminal session
+      delivering each commission. derive-possibles on cl-kill-switch
+      (024442Z; delivered as pos-derived-governed-kill-switch-custody-contract
+      via the lane's own assemble/merge machinery, envelope job
+      DPOSS-ce481777af8d). promote-to-staging on
+      pos-derived-reusable-tier-2-council-clearance-pattern-beyond (024711Z;
+      delivered as staging topic tier2-council-clearance-pattern with the
+      latent->picked edge, per D4). propose on that topic (110644Z; delivered
+      as add-council-clearance-rule-template, pick change_id inherited).
+      demote on that change (111527Z, reasoned "rule-of-three trigger not
+      fired"): PLANNED at the console — the refusal-first path was exercised
+      too (two structured refusals on a change with no recorded origin,
+      nothing persisted) — then EXECUTED as the separate deliberate step
+      through execute_demotion_plan, packet returned to the topic's openspec/
+      workspace, pick inheritance withdrawn. research-brief on the freshly
+      derived, undisposed candidate (161749Z) — a true pre-verdict
+      commission. All descriptors + records committed under
+      ideation/dashboard/gate-records/; commits 827feb1, b8ef31a, 3fdaa7a,
+      f8f4338 on change/wheel-verbs-first-commissions.)
+
+## Bookkeeping correction (2026-08-23, `govern-openspec-corpus-membership`)
+
+`proposal.md` gained TWO header lines in one edit — `Status: ratified` and a single `Ratified:` citation, at real lines 4 and 5, both well inside the fifteen-real-line header window. Nothing else on the page moved: the writer asserted per file that deleting exactly those two lines recovers the original bytes, and refused to write otherwise. The ruling is OQ-6's of 2026-08-23 (Brett Heap, in-session multiple-choice round), which DEPARTED from its own recommendation — no grandfather, no contract date, no reduced-severity class — and backfills every headerless proposal from its OWN record, stopping and reporting rather than inventing where a record cannot carry one. The status and the citation are coupled because the promoted rule in `openspec/specs/document-lifecycle/spec.md` holds that a bare, uncited `Status: ratified` is a violation whatever else the document says.
+
+This document's citation takes derivation route (b), the archive act itself, because no explicit ratification act appears anywhere on the record: the archive commit `1eb617e` applied this change's spec delta into the canonical specs, and a change whose spec deltas have PROMOTED is ratified by construction — the reasoning `bdd09c2` recorded and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites as its own. The three-way floor is cleared on the DATE axis and a resolvable RECORD PATH, measured through `doc_health.families` before the line was written, not assumed.
+
+**Why this reverses no finding.** C2 of `docs/archive-record-discrepancies.md` examined this record on 2026-08-22 and left it headerless, finding the `origin:`-nested `approved_by`/`approved_on: 2026-07-25` pair to record permission to author, dated eleven days before the archive. That finding stands word for word and the pair is NOT cited here. What C2 did not have is OQ-6's later ruling and the phase-b derivation, which make the archive act the citable record.
+
+It is entered in `docs/archive-record-discrepancies.md` as C2's successor. This note travels with the change, as 5B's twenty-seven do.

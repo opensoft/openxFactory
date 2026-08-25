@@ -1,0 +1,46 @@
+# expected_failure: revocation-window-closed-unevidenced
+# expected_failure_detail: escalated as an OPEN EXPOSURE
+# requirement: TA-R6
+# VIOLATES TA-R6: the declared window closed with one downstream authority
+# unevidenced, and the record reports COMPLETE.
+#
+# Read the unevidenced entry: the revocation was SENT. That is the whole
+# temptation — the request went out, nothing bounced, and the window expired while
+# nobody was watching. A revocation whose propagation cannot be evidenced within
+# the declared window is an open exposure, and reporting completion on the
+# strength of the request is how an authority stays live after everyone believes
+# it is dead.
+#
+# The honest version of this record is in the positive corpus, escalated.
+schema_version: 1
+kind: xfactory_certificate_revocation_propagation
+propagation_id: prop:neg-closed-unevidenced
+realization_ref: realization:core-self-hosted-authority
+mechanism:
+  realized_through: openxwallet_revocation_through_derivation
+  statement: Rides the ratified derivation rule.
+revoked:
+  target_kind: certificate
+  target_ref: cert:core-legacy-03
+  revoked_at: "2026-08-25T10:00:00Z"
+  reason_statement: Unexplained certificate, revoked after review.
+declared_window:
+  opens_at: "2026-08-25T10:00:00Z"
+  bounded_seconds: 86400
+  closes_at: "2026-08-26T10:00:00Z"
+assessed_at: "2026-08-28T09:00:00Z"
+downstream_authorities:
+  - authority_ref: authority:core-legacy-reporting-read
+    reached_via: derivation
+    state: propagated
+    propagation_evidence:
+      mode: exercise_refused
+      performed_at: "2026-08-25T10:20:00Z"
+  - authority_ref: authority:core-legacy-partner-feed
+    reached_via: derivation
+    state: unevidenced
+completion:
+  state: complete
+  statement: >-
+    The revocation was sent to every consumer of the certificate and no failures
+    were reported back.

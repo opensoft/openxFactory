@@ -1,0 +1,16 @@
+# VALID gate-intent: commission a membership edit of an EXISTING project
+# (add-opendox-project-header). The args carry the added/removed member
+# lists; the apply lane revalidates both against the live register.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: edit-project
+target:
+  project_id: field-pilots
+args:
+  add: [pilot-gamma]
+  remove: [pilot-beta]
+requested_at: "2026-08-06T18:00:00Z"
+snapshot_rev_seen: "563ea35d066d"
+status: pending
+idempotency_key: brett/edit-project/field-pilots/563ea35d066d

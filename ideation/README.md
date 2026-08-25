@@ -190,15 +190,14 @@ proposal):
 
 Brainstorm (active):
 
-### Three-tier packet overviews
+### Additional three-tier packet overviews
 
-These overviews organize active brainstorm leaves into reusable atomic,
-synthesis, and whole-system tiers. They remain non-normative and may cite
-staged or proposed artifacts as read-only context.
+These overviews organize the packet material added by the brainstorm-packet
+migration into reusable atomic, synthesis, and whole-system tiers. They remain
+non-normative and may cite staged or proposed artifacts as read-only context.
+The current Recurrence Crystallization packet is retained in the active list
+below with its lifecycle notes.
 
-- [Recurrence Crystallization](brainstorm/crystallization-overview.md) —
-  pattern sensing, build decisions, governed dispatch, lifecycle, and savings
-  accounting.
 - [Ontology-Grounded Execution](brainstorm/ontology-overview.md) — semantic
   context compilation, routing, caching, and maintenance proposals.
 - [Domain Ontology Lifecycle](brainstorm/domain-ontology-overview.md) —
@@ -237,6 +236,22 @@ staged or proposed artifacts as read-only context.
   client states, privacy, brokered-call evidence, qualification, and hardening
   boundaries.
 
+- [doxBench Overview](brainstorm/doxbench-overview.md) — entry point for the
+  three-tier doxBench packet: six atomic documents describe surface/scope,
+  dual buffers, grounded chat, typed proposal review, governed persistence,
+  and the provider boundary; two syntheses relate the human/AI authoring loop
+  and governed runtime. The packet is non-normative design exploration; the
+  active `add-workbench-integrated-editor-chat` change owns proposed
+  requirements and implementation gates (2026-07-28).
+- [Agent-Assisted App Testing Overview](brainstorm/agent-assisted-app-testing-overview.md)
+  — anchors a twenty-document packet (sixteen atomic docs, three syntheses, and
+  one overview) for turning browser annotations, Hermes UI audits, and
+  regressions into Project Hermes-managed specialist design work, layered
+  functional/visual evidence, repo-owned approved UI snapshots, deterministic
+  diff review, experience-council admission, bounded agent-only merge handoff,
+  human/professional exception gates, a v1 SDLC session protocol, and a pinned
+  Chromium/Loki render manifest, with a platform-neutral seam for a later
+  Flutter adapter (2026-08-02).
 - [openxWallet — Wallets, Grants, and Certification](brainstorm/agent-certification-wallets.md)
   — every AI agent gets a DID wallet; certified qualification levels grant
   scoped autonomous authority bound to a quantified agent identity
@@ -294,6 +309,108 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
+- [add-identity-brokering](../openspec/changes/add-identity-brokering/proposal.md)
+  — raised, RATIFIED and REALIZED 2026-08-21 (registered at
+  `contract-v1.37`) as the FULL promotion of the `identity-brokering-plane`
+  staged topic, whose row and detail section leave
+  [staging/INDEX.md](staging/INDEX.md) with this pointer: exit 1 of the
+  topic's three exits, the neutral `identity-brokering` capability — one
+  persona per human within a broker INSTANCE, organizations realizing company
+  boundaries on the persona, the broker asserting identity and membership only
+  (never mirroring the tenancy graph), explicit linking or admin-approved
+  merge with no third mode, workloads-are-not-personas, broker credentials as
+  `credential-contracts` records, and isolation escalating by broker instance
+  with the contract SILENT on instance count. Owns the former
+  `identity-brokering-plane.md` fragment under `supporting-docs/`; design
+  history stays in the 2026-07-14
+  [keycloak-identity-brokering](brainstorm/keycloak-identity-brokering.md)
+  brainstorm. Sibling of `add-trust-anchor` from the same 2026-08-21 session —
+  rulings R1 (install repos) and R7 (the ownership split) were made ONCE for
+  both topics — and its repo admission landed as an ADDED per-repo
+  `repo-boundary-governance` requirement rather than the shared MODIFIED
+  enumeration, so the two siblings cannot collide on one requirement at
+  archive time. Exits 2 (`keycloak-administration` in OpsxFactory) and 3 (the
+  `Keycloak-Install` creation) remain, tracked as named successors on
+  the change.
+- [add-trust-anchor](../openspec/changes/add-trust-anchor/proposal.md)
+  — raised, RATIFIED and REALIZED 2026-08-21 (registered at
+  `contract-v1.37`) as the FULL promotion of the `pki-trust-anchor-plane`
+  staged topic, whose row and detail section leave
+  [staging/INDEX.md](staging/INDEX.md) with this pointer: exit 1 of three, the
+  neutral `trust-anchor` capability — anchors as governed records with
+  certificates trusted only derivatively, issuance only under recorded
+  authority, declared chain custody DERIVING what a certificate evidences
+  (composing with `openxwallet` at run time rather than restating it),
+  renewal-as-rebind over dependents enumerated in advance, revocation
+  propagating to the authority the certificate supported, CA material as a
+  `credential-contracts` record, and the declared-degraded-obligation rule —
+  product-agnostic because two realizations are real (live Intune Cloud PKI
+  canary; OpenXPKI planned for the Opensoft production core). Owns the former
+  `pki-trust-anchor-plane.md` fragment under `supporting-docs/`. **The one
+  deliberate divergence from the topic**, recorded here so a reader is not
+  left to infer it: the topic's R1 called for the `repo-boundary-governance`
+  install-repository enumeration to be MODIFIED, and the change instead ADDS a
+  per-repo requirement for the `OpenXPKI-Install` boundary (design
+  D8) — the collision avoidance the sibling `add-identity-brokering` mirrors.
+  Topic-folder and change ids differ deliberately (`pki-trust-anchor-plane`
+  vs `add-trust-anchor`), and R1/R7 were ruled once across this topic and
+  `identity-brokering-plane`. Exits 2 (`pki-administration` in OpsxFactory,
+  plus the time-critical `add-openxpki-qa-image-pipeline` Impact amendment)
+  and 3 (the `OpenXPKI-Install` creation, moving the QA deployment
+  topology in per R2 while image custody stays in `opensoft/Opensoft-Tenant`)
+  remain, tracked as named successors on the change.
+- [add-consent-instrument](../openspec/changes/archive/2026-08-06-add-consent-instrument/proposal.md)
+  — raised 2026-08-03 (ratified same day; archived 2026-08-06 at contract-v1.30) as the full promotion of the
+  `consent-instrument-contract` staged topic (both docs moved to
+  `supporting-docs/`): the neutral consent-instrument capability, DTN-016,
+  authored against the nine 2026-07-31 rulings with two conformant
+  instances (Ledgerx engagement consent, Medx patient consent).
+- [add-capability-steward](../openspec/changes/archive/2026-07-30-add-capability-steward/proposal.md)
+  — raised and RATIFIED 2026-07-29, realized (`contract-v1.21`), and
+  **archived 2026-07-30** as exit 3 (final) of the `recurrence-crystallization`
+  staged topic (partial promotion — the dials register remains staged as
+  the topic's living remainder); owns the former `steward-contracts.md`
+  fragment under `supporting-docs/` and proposes the
+  crystallized-capability registry (proof-gated status spine, artifacts
+  pinned while authority is live-read), the dispatch junction (fences,
+  effect-class admission, fallback taxonomy, audit-shape parity), and
+  capability-health (proof ladder, mandatory sentinels, drift responses,
+  sentinel-anchored accounting, renewal write-backs).
+- [add-crystallizer-contracts](../openspec/changes/archive/2026-07-29-add-crystallizer-contracts/proposal.md)
+  — raised, RATIFIED, realized (`contract-v1.20`), and **archived
+  2026-07-29** as exit 2 of the `recurrence-crystallization` staged
+  topic (partial promotion — steward and dials fragments remain staged for
+  exit 3); owns the former `crystallizer-contracts.md` and
+  `authority-and-consent.md` fragments under `supporting-docs/` and
+  proposes the crystallization decision (the only path from candidate to
+  spend), the episode-mined build contracts (corpus, fence, effect class,
+  provenance), the T1/T2/T3 consent tiers with the approval braid, and the
+  crystallized-executor + rung-ceiling additions to the Omnigent overlay
+  under strict authority conservation.
+- [add-pattern-ledger](../openspec/changes/archive/2026-07-29-add-pattern-ledger/proposal.md)
+  — raised, RATIFIED, realized (`contract-v1.19`), and **archived
+  2026-07-29** as exit 1 of the `recurrence-crystallization` staged
+  topic (partial promotion — the topic keeps its crystallizer, authority,
+  steward, and dials fragments for exits 2 and 3); owns the former
+  `pattern-ledger-contracts.md` fragment under `supporting-docs/` and
+  proposes the five sensing record kinds (episode, outcome-label,
+  recurrence-family, recurrence-forecast, crystallization-candidate), the
+  derived-projection posture, consent-scope gating, scored forecasts, and
+  the candidate autonomy boundary (nominate, never spend).
+- [add-deployment-handoff-boundary](../openspec/changes/add-deployment-handoff-boundary/proposal.md)
+  — fully promoted 2026-07-28, RATIFIED 2026-07-29: owns the former
+  `deployment-handoff-boundary`
+  staged topic under `supporting-docs/`. The managed-subject test routes
+  deployment execution — authority follows management of the target surface,
+  never the environment tier — binding workers, CI, and human engineers
+  alike; credential non-possession is the primary enforcement, correlation
+  stamping makes out-of-band change a first-class finding, cadenced
+  publication rides standing maintenance requests, and release-realization
+  evidence correlates to the completed handoff request. OpsxFactory (QA
+  profile, grant-issuance registry lookup, correlation audit, ACR scope map)
+  and codexFactory (release exit emits the request draft) are named
+  successor realization changes; break-glass custody stays with the
+  `client-credential-escrow-registry` topic.
 - [add-omnigent-domain-overlay](../openspec/changes/archive/2026-07-24-add-omnigent-domain-overlay/proposal.md)
   — fully promoted 2026-07-23: owns the former `omnigent-core-domain-split`
   staged topic under `supporting-docs/`. Both archive-gate halves proven
@@ -317,7 +434,7 @@ Active proposals promoted from staging:
   `validate-derived-models.py`. Canonical spec:
   `openspec/specs/governed-derived-model/`. Conformers: Medx
   (`governed`, declaration-only), Adx (`calibrated`, first).
-- [add-ideation-dashboard](../openspec/changes/add-ideation-dashboard/proposal.md)
+- [add-ideation-dashboard](../openspec/changes/archive/2026-07-29-add-ideation-dashboard/proposal.md)
   — re-proposed 2026-07-13 after a design-round demotion (second
   transition); owns the former `ideation-dashboard` staged packet (primary
   doc plus the interactive mockup) under `supporting-docs/` and defines
@@ -326,7 +443,11 @@ Active proposals promoted from staging:
   grouping (D10), drill-down explorer, viewer, gate console, and next-step
   kickoff (D14–D17), per-actor authoring authority, workbench, and nightly
   snapshot lane; web-based v1 served per Option C alongside the
-  Hermes-stack surfaces; **re-ratified 2026-07-14**.
+  Hermes-stack surfaces; **re-ratified 2026-07-14, realized, and ARCHIVED
+  2026-07-29** — the `ideation-dashboard` capability spec is promoted (15
+  requirements, plus the created `ideation-cross-reference` spec and
+  doc-health/document-lifecycle additions) and the supporting bundle
+  manifest was hash-refreshed at the archive preflight.
 - [codexFactory Domain Hermes Content & Roster](brainstorm/codexfactory-domain-hermes-content.md)
   — fills the Software Engineering domain layer: the Plane-1 authority-persona
   roster (seven Leads + a Scrum Coordinator), domain policy/memory/practice-catalog
@@ -413,6 +534,27 @@ Active proposals promoted from staging:
   foundations, ontology generation/maintenance/context compilation, bounded
   Omnigent task/routing/evaluation contracts, and the combined semantic
   routing, caching, and ontology-maintenance fleet ideas (2026-07-28).
+- [Governed Recursive Inference Overview](brainstorm/governed-recursive-inference-overview.md)
+  — anchors a sixteen-document packet (eleven atomic docs + four syntheses)
+  adapting Recursive Language Models to xFactory as a bounded Omnigent
+  inference strategy: authorized context capsules, typed sandboxed context
+  computation, subordinate task families with monotone authority, depth/cost
+  limits, coverage and trajectory evidence, strategy routing, domain pilots,
+  and council-ready assurance packets (2026-07-30).
+- [Hermes Recursive Subject Establishment Overview](brainstorm/hermes-recursive-subject-establishment-overview.md)
+  — anchors an eighteen-document companion packet (thirteen atomic docs + four
+  syntheses) placing bounded recursive inference in Subject Hermes for durable
+  company, patient, project, or estate establishment: recursive evidence
+  frontiers, heterogeneous evidence manifests, governed acquisition
+  obligations, modality and specialist routing, relationship-scope and lineage
+  controls, purpose-bound derived subject models, qualified readiness, and
+  Ledgerx/Medx proof profiles (2026-07-30).
+- [Polyglot Graph Memory Overview](brainstorm/polyglot-graph-memory-overview.md)
+  — anchors a nine-document packet (six atomic docs + two syntheses) on using
+  purpose-specific graph providers across doxBench, the three Hermes layers,
+  DomainxFactories, and Omnigent while standardizing identity, provenance,
+  bounded context, routing roles, derived-projection authority, disagreement,
+  promotion, and migration through the Memory Gateway (2026-07-30).
 - [Recurrence Crystallization Overview](brainstorm/crystallization-overview.md)
   — anchors a nineteen-document packet (fifteen atomic docs + three arc
   syntheses: Pattern Ledger, Crystallizer, Capability Steward) on turning
@@ -422,7 +564,11 @@ Active proposals promoted from staging:
   episode-mined micro-specs with acceptance corpora and scope fences,
   codexFactory-built capabilities under authority conservation, and
   fence-guarded dispatch with sentinel sampling so learning, drift detection,
-  and savings claims stay honest (2026-07-28).
+  and savings claims stay honest (2026-07-28). Organized 2026-07-29 into the
+  [recurrence-crystallization staged topic](staging/recurrence-crystallization/recurrence-crystallization.md)
+  with decisions D1–D11 and verifications V1–V2 locked; the
+  [cross-tenant fragment](brainstorm/crystallization-cross-tenant.md) stays
+  active brainstorm for a later wave.
 - [Project-Type Template Library — Draft Archetypes](brainstorm/project-type-template-library-draft.md)
   — six project archetypes (service, library, cli, application, infra-iac, spike)
   a project is provisioned from, each a bundle of default policy, expected
@@ -493,7 +639,7 @@ Active proposals promoted from staging:
   controlled tagging, immutable catalog snapshots, deterministic catalog
   validation, and the bounded document cataloger; realized as
   `contract-v1.11` and **archived 2026-07-14**.
-- [add-proposal-origin-contract](../openspec/changes/add-proposal-origin-contract/proposal.md)
+- [add-proposal-origin-contract](../openspec/changes/archive/2026-08-06-add-proposal-origin-contract/proposal.md)
   — owns the former `proposal-origin-contract` primary doc under
   `supporting-docs/` and proposes the mandatory staged/ad-hoc origin
   declaration, gate rejections, archive retention, migration, and the

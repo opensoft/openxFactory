@@ -1,0 +1,70 @@
+schema_version: 1
+name: xfactory_ontology_external_mappings
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-external-mappings.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, tasks 2.1 and 2.6).
+# Mappings from package concepts to EXTERNAL terminologies and code systems —
+# BY REFERENCE ONLY (spec: External terminology mappings are by-reference).
+#
+# A mapping names system/version/code against a system REGISTERED in the
+# package's source inventory as an externally identified system with a license
+# class. There is deliberately NO field for imported term lists, mirrored code
+# tables, or embedded source content — a package inventorying such content
+# fails validation. `quoted_definition` is legal ONLY when the registered
+# source's `permitted_use` includes `definition_quote` (license enforcement,
+# task 3.8); a source refresh is a mapping revision, never a package rewrite.
+#
+# Tenant system names, hosts, endpoints, and tenant-local code systems are
+# NOT legal mapping targets (spec: Subject and tenant knowledge cannot
+# silently become ontology) — the validator rejects any system_id that is not
+# registered as external.
+type: object
+required:
+  - schema_version
+  - kind
+  - package_id
+  - mappings
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_ontology_external_mappings
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  mappings:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [concept_id, system_id, system_version, code, mapping_kind]
+      additionalProperties: false
+      properties:
+        concept_id:
+          type: string
+          pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+        system_id:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
+        system_version:
+          type: string
+          minLength: 1
+          maxLength: 80
+        code:
+          type: string
+          minLength: 1
+          maxLength: 120
+        mapping_kind:
+          enum: [exact, broader, narrower, related]
+        quoted_definition:
+          # Only with a registered permitted_use of definition_quote.
+          type: string
+          minLength: 1
+          maxLength: 1000
+        lifecycle_state:
+          enum: [draft, published, deprecated, retired]
+        notes:
+          type: string
+          minLength: 1
+          maxLength: 400

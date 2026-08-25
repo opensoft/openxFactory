@@ -1,0 +1,16 @@
+# expected_failure: candidate-evidence
+# A nomination resting on praise alone — no episode citations, no forecast.
+# Praise is one label among several; nothing on the road to spend may key
+# off it alone.
+schema_version: 1
+kind: crystallization_candidate
+candidate_id: "cand:opensoft:well-liked-work:2026-07-29"
+idempotency_key: "fam:opensoft:well-liked-work+abcdef0123456789"
+family_ref: "fam:opensoft:well-liked-work"
+forecast_ref: null
+evidence:
+  episode_refs: []
+  cost_baseline: null
+rationale: "operators praised these runs repeatedly; clearly worth building"
+suggested_rung: L5
+state: open

@@ -1,6 +1,6 @@
 # Coupling Crystallization to the Self-Learning Loop — Brainstorm
 
-Status: brainstorm
+Status: staged
 Kind: architecture
 Summary: Crystallization is the missing consolidation stage of the existing
 Hermes self-learning system — episodic memory (episodes) → semantic memory
@@ -18,6 +18,9 @@ knowledge-lifecycle, memory-gateway
 Repository context: openxFactory (extends the knowledge lifecycle's
 experiential path with a procedural promotion target)
 Captured: 2026-07-28
+Organized: 2026-07-29 into the
+[recurrence-crystallization staged topic](../staging/recurrence-crystallization/recurrence-crystallization.md)
+(staged); kept as design history.
 
 ## Possible feats
 

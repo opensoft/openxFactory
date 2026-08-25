@@ -1,0 +1,43 @@
+schema_version: 1
+name: xfactory_ontology_coverage_gap_report
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-coverage-gap-report.schema.yaml"
+# The starter-owned coverage-gap report (release-review finding 4): what
+# the intake did NOT cover, as identifiers and counts only — never free
+# text beyond the length-capped entries below.
+type: object
+required: [schema_version, kind, package_id, seed_gaps]
+additionalProperties: false
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_ontology_coverage_gap_report}
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  seed_gaps:
+    type: object
+    required: [skipped_placeholders, duplicate_intake_items]
+    additionalProperties: false
+    properties:
+      empty_seed_lists:
+        type: array
+        items: {type: string, maxLength: 60}
+      skipped_placeholders: {type: integer, minimum: 0}
+      duplicate_intake_items: {type: integer, minimum: 0}
+  kernel_concepts_without_domain_specialization:
+    type: array
+    items:
+      type: string
+      pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+  external_systems_registered_without_mappings:
+    type: array
+    items: {type: string, maxLength: 80}
+  unresolved_inputs:
+    type: array
+    items: {type: string, maxLength: 300}
+  carried_assumptions:
+    type: array
+    items: {type: string, maxLength: 300}
+  domain_boundaries:
+    type: array
+    items: {type: string, maxLength: 300}

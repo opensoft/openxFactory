@@ -1,0 +1,189 @@
+schema_version: 1
+kind: openxfactory-trust-anchor-contract-schema
+name: xfactory_trust_anchor_chain_custody_registry
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/trust-anchor/v1/chain-custody-registry.schema.yaml"
+contract_id: trust-anchor-chain-custody-registry
+contract_schema_version: 1
+title: Trust-anchor chain-custody registry
+description: >-
+  The CLOSED chain-custody enumeration and the ordered assurance ladder it caps
+  (add-trust-anchor, capability `trust-anchor`, requirement "Declared chain
+  custody bounds what a certificate evidences"; Brett Heap's ratification of
+  2026-08-21 ruling OQ2 as recommended).
+
+  This registry does NOT define a second custody model. The ratified
+  requirement composes with `openxwallet`'s ratified rule — custody is declared
+  from a closed set and caps what a signature evidences — and every member here
+  declares the `openxwallet` custody model it corresponds to. The canonical
+  validator RESOLVES that correspondence against
+  `contracts/openxwallet/openxwallet-custody.registry.yaml` at run time and
+  refuses a member whose declared booleans disagree with the member it claims
+  to be. That is what makes "composes with rather than restates" structural
+  instead of a promise: the two registries cannot drift, because the mapping is
+  checked rather than asserted.
+
+  What differs is the SUBJECT of the two axes, not the axes. openxWallet asks
+  about the holder's own EXECUTION CONTEXT; a certificate's private key is
+  asked about with respect to the USING HOST — the host that presents the
+  certificate. A key readable by the host that uses it evidences that the HOST
+  acted; only custody isolating the key from that host, AND requiring an
+  authorization that host cannot itself supply, evidences that the NAMED HOLDER
+  acted.
+
+  So `evidences` is NEVER independently asserted. It is DERIVED from two
+  declared booleans and checked by the canonical validator:
+
+      evidences = named_holder  iff  (not key_readable_by_using_host)
+                                     and use_requires_authorization_outside_using_host
+                  using_host    otherwise
+
+  A member readable by the host that uses it and claiming to evidence the named
+  holder does not validate. Nor does a member whose ceiling is the HIGHEST
+  assurance level its ladder declares without evidencing the named holder —
+  keyed on RANK, never on a level's name, so no renaming disables the rule —
+  nor a member evidencing only the using host sitting at or above a member that
+  evidences the named holder. The collapse is structurally impossible rather
+  than merely discouraged.
+
+  TWO ORTHOGONAL AXES, AND WHY ONLY ONE OF THEM IS HERE. Operator escrow is
+  NOT a custody member and cannot become one: escrow answers "who else can
+  obtain this key", which is orthogonal to "can the using host read it". An
+  isolated key with an escrow copy is not the same object as a host-readable
+  key, and one axis cannot carry both facts without making both unreadable.
+  Escrow is a relationship on the `credential-contracts` record the custody
+  block references (the direction the `client-credential-escrow-registry`
+  topic is taking). The structural guard is `discriminator uniqueness`: because
+  `evidences` is derived from exactly two booleans, two members declaring the
+  SAME pair differ only in something this axis cannot express — a second axis
+  smuggled in, or a rename — and the validator refuses the registry rather
+  than letting the second axis ride along invisibly.
+
+  UNDECLARED CUSTODY IS NOT A MEMBER. The ratified text says an undeclared
+  certificate evidences the WEAKEST member of the defined set and may hold no
+  authority above it. `undeclared_custody_resolves_to` names that floor, and
+  the validator checks the named member really is a weakest one — it evidences
+  the using host, its ceiling sits at the ladder's minimum rank, and its key is
+  readable by the using host. Absence therefore never buys authority, and the
+  floor cannot be quietly raised by pointing it at a stronger member.
+type: object
+required:
+  - schema_version
+  - kind
+  - registry_id
+  - registry_version
+  - assurance_levels
+  - custody_models
+  - undeclared_custody_resolves_to
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_trust_anchor_chain_custody_registry]
+  registry_id: {$ref: '#/$defs/identifier'}
+  registry_version: {type: integer, minimum: 1}
+  composes_with:
+    # The registry this one rides rather than replaces. Recorded so a reader
+    # can find the parent mechanism, and so the validator knows which registry
+    # to resolve `openxwallet_custody_model` against.
+    type: object
+    required: [registry_id, registry_path, statement]
+    additionalProperties: false
+    properties:
+      registry_id: {$ref: '#/$defs/identifier'}
+      registry_path: {type: string, minLength: 1, maxLength: 300}
+      statement: {type: string, minLength: 1, maxLength: 800}
+  assurance_levels:
+    # ORDERED, ascending. Each level is defined by what an act authenticated by
+    # a certificate at that level may be taken to establish. "Hardware-bound"
+    # is a property of CUSTODY, never a level of its own: raising assurance is
+    # a custody change, so the ladder describes what is being claimed and the
+    # custody set decides who may claim it.
+    type: array
+    minItems: 2
+    uniqueItems: true
+    items:
+      type: object
+      required: [id, rank, statement]
+      additionalProperties: false
+      properties:
+        id: {$ref: '#/$defs/identifier'}
+        rank: {type: integer, minimum: 0}
+        statement: {type: string, minLength: 1, maxLength: 600}
+  custody_models:
+    type: array
+    minItems: 2
+    uniqueItems: true
+    items:
+      type: object
+      required:
+        - id
+        - title
+        - key_readable_by_using_host
+        - use_requires_authorization_outside_using_host
+        - evidences
+        - evidences_statement
+        - assurance_ceiling
+        - openxwallet_custody_model
+      additionalProperties: false
+      properties:
+        id: {$ref: '#/$defs/identifier'}
+        title: {type: string, minLength: 1, maxLength: 200}
+        key_readable_by_using_host:
+          # Can the host that USES the certificate read the private key —
+          # process memory, a file it can open, a mounted secret, an exportable
+          # store? If yes, the key can be exfiltrated and presented anywhere,
+          # and the certificate evidences the host at best.
+          type: boolean
+        use_requires_authorization_outside_using_host:
+          # Does each use require an authorization the using host cannot itself
+          # supply — a hardware presence or attestation gate, an external
+          # policy approval, a separate custodian? If no, a compromised host
+          # authenticates as the named holder at will.
+          type: boolean
+        evidences:
+          # DERIVED, never independently asserted. See the derivation above.
+          type: string
+          enum: [using_host, named_holder]
+        evidences_statement:
+          # Prose an auditor can act on: what an act authenticated by a
+          # certificate under this custody actually proves, in the record's own
+          # words.
+          type: string
+          minLength: 1
+          maxLength: 900
+        assurance_ceiling:
+          # The highest assurance level a certificate declaring this custody
+          # may be admitted for. Raising assurance is therefore a custody
+          # change, never a claim.
+          $ref: '#/$defs/identifier'
+        openxwallet_custody_model:
+          # The `openxwallet` custody member this one corresponds to. Checked,
+          # not decorative: the validator resolves it against the canonical
+          # openxWallet registry and refuses a mapping whose declared booleans
+          # or derived `evidences` disagree.
+          $ref: '#/$defs/identifier'
+        notes: {type: string, maxLength: 1400}
+  undeclared_custody_resolves_to:
+    # The floor an undeclared certificate resolves to — the weakest member of
+    # the set. Declared here rather than inferred so a reader of a record with
+    # no custody block can name the ceiling that binds it.
+    $ref: '#/$defs/identifier'
+  excluded_models:
+    # Deliberate NON-members, recorded so they are not re-litigated as
+    # oversights. A closed set is only honest if what it refuses is visible.
+    type: array
+    items:
+      type: object
+      required: [id, reason]
+      additionalProperties: false
+      properties:
+        id: {$ref: '#/$defs/identifier'}
+        reason: {type: string, minLength: 1, maxLength: 1200}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

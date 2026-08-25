@@ -1,0 +1,36 @@
+# expected_failure: write-action-without-resolved-authorization
+# expected_failure_detail: names NO GOVERNED DECISION POINT
+# requirement: IDB-R9
+# VIOLATES R9: the stronger posture declared and nothing named.
+#
+# The declaration satisfying itself. This surface got the posture right —
+# `resolved_authorization`, write actions declared, resolution in the governed
+# layer — and named no decision point, so nothing in the record says WHERE the
+# per-action decision is taken. That is the honesty limit of a declared posture
+# arriving in the least useful form: a word that costs nothing to write.
+#
+# The contract accepts, and states, that it cannot check the resolution
+# actually happens. It can insist that the record names the place, which is the
+# difference between a declaration a reader can audit and an unstated
+# assumption.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-unnamed-decision-point-9021
+surface_ref: openxfactory-gate-console-unnamed
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+authorization_posture: resolved_authorization
+governed_write_actions:
+  offered: true
+  actions:
+    - ratify_change
+resolved_authorization:
+  decision_point_ref: ""
+  resolves_in: governed_layer
+human_accounts_held_by_surface: false
+prior_shared_credential: none
+isolation:
+  co_residence_restriction: none
+  restriction_ref: "openspec/changes/add-identity-brokering/review/co-residence-finding-2026-08-21.md#fixture-no-restricted-population"
+declared_at: "2026-08-22T11:15:00Z"

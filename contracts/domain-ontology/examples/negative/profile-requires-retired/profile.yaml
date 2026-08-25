@@ -1,0 +1,9 @@
+schema_version: 1
+kind: xfactory_semantic_context_profile
+profile_id: prof-negx-retired
+package_id: xf/negx
+purpose: fixture
+worker_scope:
+  worker_archetype: verify
+required_terms:
+  - xf/negx/old_thing

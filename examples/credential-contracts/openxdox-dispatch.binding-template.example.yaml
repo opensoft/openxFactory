@@ -1,0 +1,28 @@
+# Example (add-dispatch-credential-contract): the openXdox credential BINDINGS —
+# where each requirement resolves to a real secret provider. The dispatch and
+# content credentials are DISTINCT bindings (different secret_ref / owner): the
+# serving tier's dispatch credential never shares identity or key material with
+# the content-write credential. Both are org-owned GitHub Apps whose keys live
+# in the operator's Key Vault (delivered BY REFERENCE, never a baked value); the
+# minter turns the dispatch App key into short-lived tokens the inbox reads by
+# env-name. `rotation_policy: operator_managed` — the vault operator is the
+# per-install binding (OpsxFactory when licensed, the client's IT channel when
+# self-hosted).
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: opensoft
+  display_name: Opensoft (QA)
+credential_bindings:
+  intent_dispatch:
+    provider: azure_key_vault
+    vault: kv-opensoft-xfactory-qa
+    secret_ref: openxdox-intent-dispatch-app
+    owner: opensoft-platform
+    rotation_policy: operator_managed
+  corpus_content_write:
+    provider: azure_key_vault
+    vault: kv-opensoft-xfactory-qa
+    secret_ref: xfactory-content-app
+    owner: opensoft-platform
+    rotation_policy: operator_managed

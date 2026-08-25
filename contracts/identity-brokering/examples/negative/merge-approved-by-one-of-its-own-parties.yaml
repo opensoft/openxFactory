@@ -1,0 +1,45 @@
+# expected_failure: merge-approved-by-a-party
+# expected_failure_detail: is one of the personas being merged
+# requirement: IDB-R4
+# VIOLATES R4: a merge approved by its own beneficiary.
+#
+# THE ACCOUNT TAKEOVER THE REQUIREMENT EXISTS TO REFUSE, and it satisfied every
+# other check in the family. The paperwork is immaculate: mode `admin_merge`,
+# basis `governed_administration_approval`, both parties named in `subjects`,
+# both kept resolvable through `pre_merge_subjects`, an approval record
+# referenced, a timestamp. The approving administrator is the SURVIVING
+# PERSONA — the record says, in effect, that this identity absorbed another
+# because it approved of doing so.
+#
+# The ratified text says a merge is approved through governed administration
+# and does not spell out "not by a party". This slice adopts the refusal as the
+# faithful reading (architect ruling, 2026-08-21, recorded as a
+# post-ratification disposition in research.md): a governed administration
+# approval given by the beneficiary is not a governed approval, and a merge is
+# the one act in this family that cannot be undone from the audit record.
+#
+# The rule refuses an approver in `subjects` OR equal to `surviving_subject`,
+# because both spellings are the same act — the attacker as survivor absorbing
+# a victim, and the attacker as absorbed party approving their own migration
+# into someone else's persona.
+schema_version: 1
+kind: identity_link_record
+link_record_id: lnk-self-approved-merge-9027
+broker_instance_ref: broker-opensoft-shared
+mode: admin_merge
+basis: governed_administration_approval
+subjects:
+  - sub-selfapprover00001
+  - sub-absorbedvictim001
+surviving_subject: sub-selfapprover00001
+pre_merge_subjects:
+  - subject: sub-selfapprover00001
+    remains_resolvable_to: sub-selfapprover00001
+  - subject: sub-absorbedvictim001
+    remains_resolvable_to: sub-selfapprover00001
+approved_by:
+  administrator_subject: sub-selfapprover00001
+  approval_record_ref: "opsx:keycloak-administration/merge-queue/2026-08-22/9027"
+  approved_at: "2026-08-22T12:25:00Z"
+occurred_at: "2026-08-22T12:25:30Z"
+evidence_ref: "broker-audit://broker-opensoft-shared/merge/2026-08-22/12-25-30"
