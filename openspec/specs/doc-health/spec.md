@@ -55,8 +55,16 @@ silently, because the file-level scenario count would have stayed at 98: the
 seven lost exactly offset the seven this change's ADDED requirement brings.
 Caught by the byte-for-byte promotion verification at archive time, before
 anything was committed. The seven are restored below VERBATIM from the promoted
-spec; only the first scenario differs from canon, by the one `AND` bullet this
-change adds for the new family.
+spec; only the first scenario differs from canon, and it differs by TWO `AND`
+bullets rather than one — only the second is this change's. The first names
+`promotion fidelity`, and it is INHERITED: this delta was written on top of
+`add-promotion-fidelity-check`'s text, on the assumption that the sibling would
+land first. That assumption is why canon now says "nineteen check families"
+while `promotion fidelity`'s own owning requirement is still inside that active
+change, so the bullet's "as its owning requirement below defines" is a FORWARD
+REFERENCE until the sibling archives, at which point it resolves on its own.
+Recorded in issue #329 rather than papered over; it is an ordering dependency,
+not a defect in either change.
 
 #### Scenario: A run executes the check families
 - **WHEN** a doc-health run executes
@@ -841,8 +849,22 @@ working. Severity and resolution class are one later decision, taken together
 by ruling.
 
 The family SHALL be reported as skipped, never silently omitted, where a
-repository declares no bundle, where the declared bundle's inventory file is
-absent, or where version control cannot answer for the blobs.
+repository declares no bundle at all, or where version control cannot answer —
+an unavailable git dependency, or a commit that does not resolve. THE SKIP IS
+RESERVED FOR "THE QUESTION COULD NOT BE ASKED": a declared bundle whose
+inventory file is ABSENT is an ANSWER — an invalid release declaration — and is
+reported at `error`, exactly as the scenarios below require, and a member absent
+at the commit is drift rather than a skip.
+
+**A SECOND CORRECTION, 2026-08-25, SAME DEFECT FAMILY (PR #331, Copilot).** The
+sentence above once said the family is SKIPPED where "the declared bundle's
+inventory file is absent" — a stale survivor from before the proposal round's
+tightening, which decided that case is an `error`. The scenarios below and the
+shipped code had said `error` since; only the summary sentence lagged, and
+promotion faithfully copied the inconsistency into canon. Corrected so the prose
+states what the scenarios decided. THIS CHANGES NO DECISION: the scenarios
+govern, the code already implements them, and the sentence is aligned to both
+rather than either being altered.
 
 #### Scenario: A non-editorial member has drifted
 - **WHEN** a member other than the changelog, the manifest or the README differs from the digest the declared bundle's inventory records

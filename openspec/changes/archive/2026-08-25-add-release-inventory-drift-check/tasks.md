@@ -164,6 +164,17 @@ implementation plan the follow-on slice executes (§3, §5).
       they archive) and **#330** (`promotion-fidelity` compares delta to
       spec, so a scenario LOST from a promoted spec that the delta never
       mentions is invisible to it).
+      **AN ORDERING DEPENDENCY, RECORDED RATHER THAN LEFT TO BE NOTICED.** This
+      delta was written on top of `add-promotion-fidelity-check`'s text, on the
+      assumption that the sibling would land first. It did not. So canon now
+      SAYS "nineteen check families" and carries a run-scenario bullet pointing
+      at promotion fidelity's "owning requirement below", while that requirement
+      is still inside the active sibling change — canon names nineteen and
+      defines eighteen, with one forward reference. Not an authorship error in
+      either change and not a defect this archive introduces: it SELF-HEALS the
+      moment the sibling archives. Recorded here and on issue #329 so a reader
+      who meets the dangling pointer knows it is an ordering artifact with a
+      known resolution.
       **THE REALIZATION EVIDENCE IS COMPLETE — recorded here so the archive does
       not have to re-derive it.** Merged as PR #324, squash **`0780875b`**, with
       a tree byte-identical to the reviewed branch tip `39965995`
