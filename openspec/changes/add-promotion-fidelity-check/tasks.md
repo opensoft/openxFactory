@@ -160,9 +160,10 @@ visible rather than becoming a silent later commit.
       verified untouched before the ratified text lands). Box stays open
       until that change lands; this note records the ruling so the
       executing slice needs no new one.
-      **LANDED AND TICKED 2026-08-24.** `apply-branch-sessions-deltas`
-      (archived `2026-08-25-apply-branch-sessions-deltas`; the folder date is
-      the CLI's UTC stamp) carries the ruling: `code_surface: none`, ratified
+      **LANDED AND TICKED 2026-08-24 local time (2026-08-25 UTC — the same
+      instant the archive folder's UTC stamp records).**
+      `apply-branch-sessions-deltas`
+      (archived `2026-08-25-apply-branch-sessions-deltas`) carries the ruling: `code_surface: none`, ratified
       on it with one in-window record-citing `Ratified:` line clearing
       approver and date, its delta a byte-for-byte copy of the 2026-08-01
       one (identical SHA-256 `f6ffd39a…`), archived on landing. Drift was
