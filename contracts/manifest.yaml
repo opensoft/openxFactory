@@ -1589,6 +1589,34 @@ contracts:
       availability and headroom rules — are enforced by
       scripts/validate-ideation-dashboard-contracts.py (the family's
       delegated owner), never re-implemented by consumers.
+  # WHY THIS ROW'S `consumption_rule` GAINED THE NON-BLANK RULE WITHOUT A
+  # RELEASE CUT (issue #263). Read this before editing it again.
+  #
+  # A DOCUMENTATION-ONLY `consumption_rule` edit does not require a cut:
+  #   * `docs/contract-versioning-policy.md`'s change classes — Additive,
+  #     Deprecating, Breaking — are all defined over fields, shapes and
+  #     vocabulary. Manifest prose is none of them, and there is no editorial
+  #     class.
+  #   * PRECEDENT EXISTS AND POINTS THE SAME WAY. Of the 23 commits in history
+  #     that touch a `consumption_rule`, 13 changed no schema file at all, and
+  #     `238369ec` ("Record the subject-overlay contract") is a genuine
+  #     documentation-only edit — manifest and CHANGELOG prose, NO schema bytes
+  #     and NO new version heading. (An earlier reading of this record claimed
+  #     the case had "never happened"; that was wrong, and the verdict it
+  #     supported is better supported without it.)
+  #   * MECHANICALLY nothing new breaks: `validate-manifest-digests.py` passes
+  #     (a `consumption_rule` is prose, not a per-file digest) and the
+  #     contract-v1.40 TAG still verifies at its own commit, because release
+  #     verification is AT-COMMIT.
+  #
+  # AND THE v1.40 CHANGELOG ENTRY IS DELIBERATELY NOT EDITED. It says the
+  # posture family has "TWO DELEGATED RULES" and that one of them lives in
+  # exactly one place. That is now outdated — the non-blank rule is a third —
+  # and it stays as written anyway: a CHANGELOG entry is the immutable record
+  # of what a release SHIPPED, no release was cut here, and editing it would
+  # make it describe a bundle that was never published. The current rule set
+  # lives in this row and in `check_context_packet`'s docstring, which are the
+  # two places a consumer and an implementer actually read.
   - id: xfactory-workbench-chat-turn
     path: contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
     source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
@@ -1616,7 +1644,44 @@ contracts:
       before. Its ABSENCE is not a posture claim: it means the producer predates
       contract-v1.40, never that the context was full. The reason is present IFF
       the posture is `reduced` (two schema conditionals, restated in the
-      delegated validator). The DEPRECATED v1 success envelope is NOT widened
+      delegated validator). TWO DELEGATED RULES now sit beside that pairing,
+      and neither is expressible in the released shape. The reason is LINTED
+      for credential and endpoint spellings as public prose. And the reason is
+      STATES SOMETHING — it carries at least one character in
+      `L* | N* | P* | S*` (a letter, number, punctuation mark or symbol) —
+      which `minLength: 1` cannot say, because it counts CHARACTERS and a lone
+      space, ZWSP, BOM, bidi override, combining mark or control is one of them
+      (issue #263). The rule is stated as what it ADMITS rather than as the
+      blank categories it excludes, because an exclusion is a rule over a set
+      that GROWS WITH THE UNICODE TABLE: a full code-point sweep found 51
+      points where two runtimes on different Unicode versions disagreed, with
+      the server accepting what the browser refused. `Cn` is never L/N/P/S in
+      any table, so admission is version-stable by construction. The admission
+      rule is therefore STRICTLY NARROWER than the blank categories: beyond
+      them it also refuses `Co` (private use), `Cn` (unassigned) and `Cs`
+      (surrogates) — deliberately, on the same fail-closed ground, since a
+      private-use code point renders as tofu for any reader without the font
+      that defines it.
+      HOW IT IS ENFORCED, per surface, because they differ: the delegated
+      validator emits a WARNING (`context-packet-blank`) and still ACCEPTS the
+      record, because contract-v1.40 accepted it and
+      `docs/contract-versioning-policy.md` makes a new validator warning
+      ADDITIVE while a new rejection is BREAKING; it becomes an ERROR at
+      contract-v2.0, alongside the shape's own `minLength: 1`. This
+      repository's runtime REFUSES such a reason at construction, at the record
+      derivation and at the browser adopter — a server may hold itself to more
+      than the wire requires. A producer conformant by the letter can still
+      ship a reduction nobody can read, so consumers MUST NOT treat a
+      schema-valid reason as a readable one.
+      ONE ASYMMETRY, RECORDED RATHER THAN LEFT TO BE DISCOVERED: a third party
+      that VENDORS this runtime — importing `doxbench_packet` or running this
+      serve, rather than only validating against the published contract —
+      inherits contract-v2.0's strictness today, because the runtime gates
+      refuse what the validator merely warns about. That is fail-closed, and it
+      sits outside what the versioning policy governs: the policy binds the
+      published contract surface, not a consumer's choice to run this
+      repository's code. A vendoring consumer should know it is holding itself
+      to the NEXT major's rule early. The DEPRECATED v1 success envelope is NOT widened
       and cannot state a posture — a recorded limitation, not an omission; the
       migration path is the v2 envelope. The v1 family is DEPRECATED at
       contract-v1.34 with removal target contract-v2.0
