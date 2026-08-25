@@ -48,15 +48,25 @@ requirement wholesale and whichever archives last is the one canon keeps.
 THE REGISTRY IS `families.FAMILIES`, not `FAMILY_IDS`. That module's own
 docstring says so — "`FAMILIES` at the bottom of this module is the count" —
 and it is the right authority because it is what `run_suite` actually iterates.
-`FAMILY_IDS` is a REPORTING list and is currently INCOMPLETE by two entries
-(`proposal-origin`, a defect that capability already records, and
-`staged-topic-template`); those two families run and report findings but get no
-report section of their own. This family does NOT fire on that — it is
-pre-existing, recorded, and repairing another capability's registration here
-would put unrelated report output on this feature's evidence. What IS checked
-is the other direction: every `FAMILY_IDS` entry must be a real registered
-family, so a report section can never be promised for a family that does not
-run. See `tasks.md` § 4 for the measurement and § 5.2 for the open box.
+`FAMILY_IDS` is the REPORTING list — the order `report.render` emits
+"## Findings By Family" sections in — and it is now required to MIRROR the
+registry exactly. It did not, for months: `staged-topic-template` (registered
+2026-08-15) and `proposal-origin` were both absent, so between them 61 findings
+— three of them ERRORS — counted in the headline and appeared in the ranked plan
+while rendering under no section at all. Recorded here as a deferred omission
+three separate times, and ruled fixed 2026-08-25 (Brett, "fix the FAMILY_IDS
+drift"); `set(FAMILY_IDS) == set(FAMILIES)` is now pinned by test, so the DRIFT
+CLASS is closed rather than the instance. That equality does not make the
+reporting list a second authority for which families exist — `FAMILIES` remains
+the sole one — it makes it that authority's complete projection. ORDER stays
+unpinned, being presentational.
+
+This family's own runtime check covers the PHANTOM direction only (an entry for
+a family the registry does not register, which would render a heading nothing
+fills). The missing direction is a test-time invariant rather than a finding,
+because both values are constants in this one package: a runtime finding would
+fire identically on every run for every repository and say nothing a reader of
+a report could act on.
 
 CLASSIFICATION AT LAUNCH IS ADVISORY IN BOTH HALVES — WARNING severity and
 deliberate absence from `families.FAMILY_RESOLUTION` — the house pattern its

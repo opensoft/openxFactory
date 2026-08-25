@@ -254,28 +254,65 @@ def test_the_family_is_registered_for_reporting():
     assert FAMILY in FAMILY_IDS
 
 
-def test_the_reporting_list_promises_no_phantom_section():
-    """One direction only, deliberately. A `FAMILY_IDS` entry for an
-    unregistered family renders a heading nothing fills; the opposite
-    direction (a registered family absent from `FAMILY_IDS`) is true of two
-    families today and is recorded rather than reported — see the module
-    docstring and tasks § 5.2."""
+def test_the_reporting_list_mirrors_the_registry_exactly():
+    """THE INVARIANT, pinned so the DRIFT CLASS dies rather than the instance.
+
+    `report.render` iterates `FAMILY_IDS` to emit "## Findings By Family"
+    sections, so a registered family missing from this list reports findings
+    that count in the headline and appear in the ranked plan while rendering
+    under NO SECTION AT ALL. That is what happened: `staged-topic-template`
+    (registered 2026-08-15) and `proposal-origin` were absent, between them
+    carrying 61 findings — three of them ERRORS — with nowhere to show. It was
+    recorded as a known omission three separate times and deferred each time on
+    the "not in this change's evidence" rule, which was right about scope and
+    wrong about the outcome: the deferral outlived its reason. RULED
+    2026-08-25 (Brett, "fix the FAMILY_IDS drift").
+
+    Pinning SET EQUALITY does not make `FAMILY_IDS` a second authority for
+    which families exist — `families.FAMILIES` remains the sole one, as that
+    module's own docstring says. It makes this list the COMPLETE PROJECTION of
+    that authority onto the report. Both directions matter and fail for
+    different reasons: an extra entry renders a heading nothing fills, and a
+    missing one hides real findings.
+
+    ORDER is deliberately NOT pinned. It is the order sections render in, so
+    it is a layout choice someone may legitimately want to change; membership
+    is not.
+    """
     from doc_health import FAMILY_IDS
 
-    assert not set(FAMILY_IDS) - set(FAMILIES)
+    missing = sorted(set(FAMILIES) - set(FAMILY_IDS))
+    phantom = sorted(set(FAMILY_IDS) - set(FAMILIES))
+    assert not missing, (
+        f"registered families with no report section: {missing} — their "
+        f"findings count in the headline and the ranked plan but render "
+        f"under no heading")
+    assert not phantom, (
+        f"`FAMILY_IDS` promises a section for unregistered families: "
+        f"{phantom}")
+    assert set(FAMILY_IDS) == set(FAMILIES)
+    # no duplicates either: a repeated id would render its section twice
+    assert len(FAMILY_IDS) == len(set(FAMILY_IDS)) == len(FAMILIES)
+
+
+def test_the_runtime_phantom_check_still_guards_its_direction():
+    """The family's own runtime check covers the phantom direction, and the
+    test above covers both. Kept because it is the direction a reader of a
+    REPORT can act on, and asserted against a synthetic registry so it does
+    not merely restate the invariant."""
     assert fe._check_reporting_list(REPO, list(FAMILIES)) == []
-    # and the check would fire if one appeared
     assert len(fe._check_reporting_list(REPO, ["only-this-one"])) == 1
 
 
-def test_the_two_families_absent_from_the_reporting_list_are_measured():
-    """Recorded, not reported. The count is asserted so it cannot grow
-    silently: a THIRD family losing its report section should fail here and
-    be dispositioned deliberately, not absorbed."""
+def test_every_registered_family_can_render_a_section():
+    """The consequence, asserted end to end rather than inferred: every
+    registered family is reachable by the renderer's own iteration."""
     from doc_health import FAMILY_IDS
+    from doc_health.semantic import SEMANTIC_FAMILY_IDS
 
-    sectionless = sorted(set(FAMILIES) - set(FAMILY_IDS))
-    assert sectionless == ["proposal-origin", "staged-topic-template"]
+    rendered = FAMILY_IDS + SEMANTIC_FAMILY_IDS + ["preflight"]
+    for family in FAMILIES:
+        assert family in rendered, family
 
 
 # --------------------------------------------------------------- determinism
