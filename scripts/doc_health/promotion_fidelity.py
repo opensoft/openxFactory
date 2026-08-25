@@ -61,8 +61,8 @@ absent from that table — and the flip was taken as ONE decision on 2026-08-24
 (Brett, task 4.1's four-question round, PR #315: "ENFORCING, SEQUENCED"),
 after the standing population it would have gated on was discharged first.
 See `_LAUNCH_SEVERITY` for why the two halves could not move apart, and
-`openspec/changes/add-promotion-fidelity-check/tasks.md` §4.2/§4.3 for the
-ruling and the discharge evidence.
+`openspec/changes/archive/2026-08-25-add-promotion-fidelity-check/tasks.md`
+§4.2/§4.3 for the ruling and the discharge evidence.
 """
 
 from __future__ import annotations
