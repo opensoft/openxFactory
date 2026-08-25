@@ -75,16 +75,23 @@ defense in depth and ties basic refusal to a higher-order service.
 ### D4 — Loud evidence for every outcome
 
 Every evaluation emits a compliance-decision record, including `allow`. The
-record binds outcome, class findings, rationale, policy source, allowance IDs,
-evaluator version, evaluated-content digest, correlation IDs and evaluation
-time. This supports audit, drift detection and aggregate policy demand.
+record binds outcome, class findings, bounded rationale codes/redacted detail,
+policy/vocabulary digests, registry revision, resolved allowance-record
+digests, evaluator version, evaluated-content digest, bounded opaque
+correlation references and evaluation time. Raw intent, provider payloads,
+tenant content and credentials are prohibited. This supports audit, drift
+detection and aggregate policy demand without turning evidence into a second
+content store.
 
 **Alternatives rejected:** quiet passes or rejects make later dispatch and
 admission unable to prove they evaluated the same intent under the same rules.
 
 ### D5 — Central revocable allowance registry
 
-Allowances are first-class records; bindings carry IDs, never copied payloads.
+Allowances are first-class records; bindings carry a registry-qualified
+reference `(registry_id, registry_version, allowance_id)`, never copied
+payloads. Registry revisions and resolved allowance-record digests bind every
+decision to the state it actually evaluated.
 Approval fields are immutable. Revocation is additive and immediately controls
 the next evaluation. A missing/unreadable reference produces
 `needs_human_review`; a resolved revoked allowance produces `block`.
@@ -97,13 +104,29 @@ free-text citations cannot be resolved deterministically.
 The realization produces four interoperable artifacts:
 
 1. `veto-class-vocabulary` — policy-source reference/digest, class identifiers,
-   owner/issuer roles and domain-declared detection metadata.
+   unique-within-vocabulary class identifiers, owner/issuer roles and
+   domain-declared detection metadata.
 2. `policy-allowance` — stable ID, class/scope, policy approval reference,
    issuer identity/authority, approval time and additive revocation state.
 3. `policy-allowance-registry` — registry identity/version and allowance
-   collection, with unique IDs and deterministic resolution semantics.
+   collection, with a monotonically identified revision, unique IDs and
+   deterministic resolution semantics.
 4. `compliance-decision` — evaluated-content digest, evaluator/version,
-   findings, allowance references/resolution facts, outcome and correlation.
+   policy/vocabulary digest, registry revision, findings, resolved allowance
+   record digests, scope-resolution verdicts, outcome and bounded/redacted
+   correlation evidence.
+
+Allowance scope semantics remain domain-owned. A neutral scope reference binds
+`scope_kind`, `scope_ref`, operations and a scope digest; a domain resolver
+emits `covers | does_not_cover | indeterminate` bound to the evaluated-content
+and scope digests. The neutral outcome mapping is fixed: `covers` may satisfy
+that class, `does_not_cover` blocks, and `indeterminate` needs human review.
+
+Classifier escalation has a machine-checkable limit envelope: exactly one
+invocation and one turn, at most 65,536 input bytes, 8,192 output bytes, 4,096
+output tokens and 60 seconds. It receives a redacted bounded excerpt, never the
+raw evidence corpus. Missing limits, limit breach, timeout or invocation error
+produces `needs_human_review` and no dispatch.
 
 The vocabulary schema constrains shape, not universal class membership. The
 codexFactory first conformer will instantiate its ratified five classes.
@@ -119,9 +142,10 @@ codexFactory first conformer will instantiate its ratified five classes.
 - **[Revocation race]** → every dispatch and admission re-resolves allowance
   IDs; earlier `allow` evidence does not authorize later execution.
 - **[Classifier becomes authority]** → contract requires deterministic floor
-  and records classifier contribution separately.
+  and records classifier contribution separately under closed hard limits.
 - **[Evidence volume]** → consumers may tier retention, but may not omit the
-  decision record or its join keys.
+  bounded/redacted decision record or its opaque join keys; raw content and
+  provider payloads are validation failures.
 
 ## Migration Plan
 
