@@ -344,6 +344,40 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-projection-title-uniqueness](openspec/changes/add-projection-title-uniqueness/proposal.md)
+  — authored and ratified 2026-08-25 (Brett Heap, in-session). Raised off that
+  morning's lifecycle-notebook sync report, which recorded FOUR MedxFactory
+  staging topics synced into a book holding ONE source for them. A source title
+  is the projection's identity key — the sync keys its desired set by path and
+  reconciles it by TITLE — but titles derive from a document's file stem and the
+  governing rule (`docs/lifecycle-notebook-projection.md` § 2) special-cases
+  exactly one repeated stem, `README`. Every other repeated stem collapses:
+  `wanted_titles` is a SET, the deletion pass holds each title at one source, and
+  the manifest still records all N documents as synced. Nothing reports the
+  losers, and `--parity` is structurally blind — it compares a set of derived
+  titles against a set of live titles, so a collapse is equal to itself and
+  reports OK. Measured corpus-wide against the live mains the books mirror:
+  693 derived book slots resolve to 688 titles, FIVE documents displaced across
+  THREE collisions (`[staged] MedxFactory: topic` ×4, `[draft] openxFactory:
+  requirements` ×2, `[staged] OpsxFactory: exchange-execution-bringup` ×2), and
+  the provider agrees to the source — 695 live sources where the scan wants 700.
+  The delta MODIFIES `Authority framing` to state INJECTIVITY over the derived
+  set rather than a filename exception, and amends parity to prove membership at
+  the DOCUMENT level. **The rule choice was measured, not chosen**: the
+  always-`<parent>/<stem>` candidate costs 572 renames AND STILL LEAVES A
+  COLLISION (both checklists sit in a directory named `checklists`), and a
+  declared list of structural stems leaves one too (`exchange-execution-bringup`
+  is a topic name no list would carry) — so a fixed enumeration is provably
+  insufficient on this corpus, which is what the `README` case already was. The
+  recommendation is the shortest distinguishing path suffix, repository-scoped:
+  14 renames, 28 book operations, zero collisions, against 611 and 1222 for the
+  fully-qualified alternative. No capacity delta is owed and the absence is
+  measured — the guard already counts DOCUMENTS, so no guard number moves and the
+  largest book stays at 247 of 300. Q1 (the rule), Q2 (whether the migration
+  rides the realization's own sync slice), Q3 (whether five never-projected
+  documents warrant a record) and Q4 (the uniqueness scope, which pre-empts three
+  latent pairs one `Status:` edit from collapsing) are open for Brett.
+
 - [add-family-enumeration-check](openspec/changes/add-family-enumeration-check/proposal.md)
   — authored and ratified 2026-08-25, commissioned in-session ("commission the
   §5.5 enumeration check"). `doc-health`'s own "Deterministic check families"

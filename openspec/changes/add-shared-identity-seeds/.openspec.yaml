@@ -1,8 +1,8 @@
 schema: spec-driven
-created: 2026-07-12
+created: 2026-08-07
 origin:
   kind: ad_hoc
-  id: openxFactory:adhoc:2026-07-12-add-hermes-customer-subject-runtime-contract
+  id: openxFactory:adhoc:2026-08-07-add-shared-identity-seeds
   reason: >-
     SWEPT BY RULING 2026-08-25, verbatim: "sweep the 23 derivable
     proposal-origin warnings". DERIVED FROM THIS PACKET'S OWN RECORD,
@@ -14,17 +14,18 @@ origin:
     as an exit in ideation/staging/INDEX.md — checked in both directions,
     because a topic that merely mentions a change is not that change's
     origin. The origin act is the approval quoted under approved_by. The
-    created date 2026-07-12 was already recorded in this packet's own
-    .openspec.yaml and is VERIFIED, NOT REWRITTEN: it is consistent with
-    the packet's true first commit c557eb72 of 2026-07-12, which a packet
-    is authored before. This declaration supplies the origin and approval
-    pair the proposal-origin contract requires and changes nothing else
-    about the packet: no lifecycle header, no content, no status.
+    created date 2026-08-07 is DERIVED from this packet's true first
+    commit 8a028c21 in git, not from a folder name or a file timestamp.
+    This declaration supplies the origin and approval pair the
+    proposal-origin contract requires and changes nothing else about the
+    packet: no lifecycle header, no content, no status.
   approved_by: >-
-    Per this packet's own "Ratified" citation, quoted verbatim: "user
-    approval of `add-hermes-customer-subject-runtime-contract` on
-    2026-07-12" — recorded in its proposal at authoring time. That is the
+    Per this packet's own "Ratified by" citation, quoted verbatim:
+    "Brett's "yes, lets start that now" on 2026-08-07, accepting the
+    successor named at the close of `add-repository-lens` — exporting a
+    convergent lens region into the domain-neutralization candidate
+    register" — recorded in its proposal at authoring time. That is the
     approval provenance the ad-hoc exception requires, and it is why this
     packet fell in the derivable class rather than the stop class of the
     2026-08-25 sweep.
-  approved_on: 2026-07-12
+  approved_on: 2026-08-07
