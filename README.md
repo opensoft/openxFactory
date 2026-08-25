@@ -380,36 +380,6 @@ Active changes:
   stays open (tasks §5.2); the measurement gap the flip was taken over is
   closed (§5.4).
 
-- [add-promotion-fidelity-check](openspec/changes/add-promotion-fidelity-check/proposal.md)
-  — authored and ratified 2026-08-24, commissioned in-session ("commission the
-  archived-delta-vs-promoted-spec check"). Closes the prevention question
-  `docs/archive-record-discrepancies.md` § FU-DOM-CODEX left open by name when
-  codexFactory PR #85 applied a ratified delta that had sat unpromoted since
-  2026-08-08: "no check yet compares archived deltas to promoted specs, so the
-  class stays unreported." `openspec --strict` validates a delta's SHAPE, never
-  its ARRIVAL, and the four lifecycle families read a packet's headers, not its
-  bodies — so a ratified requirement could archive and silently never reach
-  canon while every check called the repository healthy. `document-lifecycle`
-  gains the obligation (a ratified delta reaches its promoted spec; a packet
-  whose own proposal does not claim ratification carries archived design
-  evidence instead; the most recent archived delta is the authority for a
-  requirement). `doc-health` gains the eighteenth deterministic family, which
-  reads archived spec DELTAS and promoted SPECS rather than either document
-  set, so no census, canon-share figure, inventory entry or catalog record
-  moves. Three resolution rules each prevent a measured false positive:
-  latest-writer-wins (478 capability/requirement pairs, 59 written more than
-  once, one written ten times — per-writer checking fires 20 findings where
-  this fires 2), `RENAMED` retiring the title it names, and the C5 exemption
-  keyed on the archived proposal's own `Status:` header (88 of 89 read
-  `ratified`, one reads `draft`). **Advisory at launch** — every finding
-  `warning`, and the family deliberately absent from `FAMILY_RESOLUTION` so a
-  contested resolution cannot gate through `uncited-resolution`; the flip to
-  enforcing is an open task box, not a later silent commit. The check reports
-  TWO live findings against this repository's own archive on its first run,
-  both against `2026-08-01-add-workbench-branch-sessions` — reported, and
-  deliberately left for the governance act that fixes them. Implementation
-  lands in-change; it archives only on merge-plus-green, following
-  `govern-openspec-corpus-membership`.
 - [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
   — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
   staged topic `doxchat-auto-fit-routing`, whose six questions were
@@ -1041,6 +1011,60 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-promotion-fidelity-check](openspec/changes/archive/2026-08-25-add-promotion-fidelity-check/proposal.md)
+  — **ARCHIVED 2026-08-25** on merge-plus-green, the
+  `govern-openspec-corpus-membership` precedent: the five realization merges
+  landed on `main` first — PRs #310 `73766b48`, #315 `1274b9bf`, #316
+  `51a875ab`, #320 `055a514b`, #325 `44505d1e`, each cited by the sha the
+  MERGE produced and each verified an ancestor of `main` — and the archive act
+  is this separate later commit. Authored and ratified 2026-08-24,
+  commissioned in-session ("commission the archived-delta-vs-promoted-spec
+  check"). Closes the prevention question
+  `docs/archive-record-discrepancies.md` § FU-DOM-CODEX left open by name when
+  codexFactory PR #85 applied a ratified delta that had sat unpromoted since
+  2026-08-08: "no check yet compares archived deltas to promoted specs, so the
+  class stays unreported." `openspec --strict` validates a delta's SHAPE, never
+  its ARRIVAL, and the four lifecycle families read a packet's headers, not its
+  bodies — so a ratified requirement could archive and silently never reach
+  canon while every check called the repository healthy. `document-lifecycle`
+  gained the obligation (a ratified delta reaches its promoted spec; a packet
+  whose own proposal does not claim ratification carries archived design
+  evidence instead; the most recent archived delta is the authority for a
+  requirement). `doc-health`'s eighteenth deterministic family reads archived
+  spec DELTAS and promoted SPECS rather than either document set, so no census,
+  canon-share figure, inventory entry or catalog record moves. Three resolution
+  rules each prevent a measured false positive: latest-writer-wins (478
+  capability/requirement pairs, 59 written more than once, one written ten
+  times — per-writer checking fires 20 findings where this fires 2), `RENAMED`
+  retiring the title it names, and the standing exemption — RELAXED by task
+  4.1's ruling (PR #320) from "the proposal says `ratified`" to its opposite:
+  archiving is PRESUMED to be ratification, and only a packet whose own
+  `proposal.md` declares `draft` or a lower standing is exempt, which is what
+  lets annotated and headerless archives be checked at all. **ENFORCING, not
+  advisory** — the launch state was `warning` with the family deliberately
+  absent from `FAMILY_RESOLUTION`, and PR #325 took the ruled flip in BOTH
+  halves at once (severity `error` AND `"promotion-fidelity": CONTESTED`),
+  because moving either alone lets a contested resolution gate through
+  `uncited-resolution` or leaves an `error` no citation can resolve. The two
+  live findings the first run reported against this repository's own archive —
+  both against `2026-08-01-add-workbench-branch-sessions` — were DISCHARGED
+  before the flip, by `2026-08-25-apply-branch-sessions-deltas` (PR #316), the
+  "apply via a proper change" ruling; the family reads **0 findings** in
+  openxFactory at `--fail-on error`, before and after this archive act.
+  Its own archive gate found a defect worth the halt: this packet's
+  `doc-health` delta restated ONE scenario of an eight-scenario MODIFIED
+  requirement, so archiving as drafted would have destroyed the other seven —
+  the same defect `add-release-inventory-drift-check` carried and Brett ruled
+  on the same day, and the one `add-duplicate-packet-check` still carried
+  until the commit before this one. Because the sibling archived first
+  carrying this change's own inherited text, the faithful block is now CURRENT
+  CANON VERBATIM: the archive act leaves all 26 pre-existing `doc-health`
+  requirements byte-for-byte untouched and adds only this change's two
+  (26 → 28 requirements, 105 → 116 scenarios; `document-lifecycle` 14 → 15,
+  63 → 68). The structural blindness that let it through — latest-writer-wins
+  makes a destroying delta look faithful — is recorded in the packet's § 5.5
+  as a named candidate for a pre-archive restatement-completeness check.
 
 - [add-release-inventory-drift-check](openspec/changes/archive/2026-08-25-add-release-inventory-drift-check/proposal.md)
   — **ARCHIVED 2026-08-25** on Brett's ruling; authored and ratified 2026-08-24
