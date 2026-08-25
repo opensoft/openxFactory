@@ -1,8 +1,8 @@
 schema: spec-driven
-created: 2026-07-15
+created: 2026-07-31
 origin:
   kind: ad_hoc
-  id: openxFactory:adhoc:2026-07-15-adopt-avatar-client-lab-candidates
+  id: openxFactory:adhoc:2026-07-31-add-propose-verb
   reason: >-
     SWEPT BY RULING 2026-08-25, verbatim: "sweep the 23 derivable
     proposal-origin warnings". DERIVED FROM THIS PACKET'S OWN RECORD,
@@ -14,29 +14,31 @@ origin:
     as an exit in ideation/staging/INDEX.md — checked in both directions,
     because a topic that merely mentions a change is not that change's
     origin. The origin act is the approval quoted under approved_by. The
-    created date 2026-07-15 was already recorded in this packet's own
-    .openspec.yaml and is VERIFIED, NOT REWRITTEN: it is consistent with
-    the packet's true first commit 10181df4 of 2026-07-16, which a packet
-    is authored before. This declaration supplies the origin and approval
-    pair the proposal-origin contract requires and changes nothing else
-    about the packet: no lifecycle header, no content, no status.
+    created date 2026-07-31 is DERIVED from this packet's true first
+    commit 583bd6e9 in git, not from a folder name or a file timestamp.
+    This declaration supplies the origin and approval pair the
+    proposal-origin contract requires and changes nothing else about the
+    packet: no lifecycle header, no content, no status.
   approved_by: >-
     Per this packet's own "Ratified" citation, quoted verbatim:
-    "2026-07-16 — record: the archive act, commit `10181df` "Archive
-    adopt-avatar-client-lab-candidates: v1.12 realization complete
-    (codexFactory PR #17)", which applied this change's spec delta into
-    `openspec/specs/avatar-first-ui/spec.md`,
-    `openspec/specs/avatar-lab-evidence/spec.md`; a change whose spec
+    "2026-08-01 — record: the archive act, commit `583bd6e` "Archive
+    add-propose-verb (promote the propose verb into ideation-dashboard)",
+    which applied this change's spec delta into
+    `openspec/specs/ideation-dashboard/spec.md`; a change whose spec
     deltas have PROMOTED is ratified by construction, the derivation
     `bdd09c2` records and
     `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md`
-    cites. The commit body records both the gate and the promotion in
-    words: "Realization gate satisfied: PR #17 merged by Brett (Tier-1
-    approval) at 0fed12c (2026-07-16) ... Applies the avatar-lab-evidence
-    capability (new) and the avatar-first-ui deterministic-acceptance
-    modification to openspec/specs/". The change's own tasks.md 4.1
-    records product-owner sign-off on the candidate's six OPEN QUESTIONS,
-    not on the change, so it corroborates and is not the citation.
+    cites. STATED PRECISELY, because the register examined this record
+    once already and left it headerless: this packet carries NO
+    `.openspec.yaml` at all, and C2's finding stands word for word —
+    "Nothing. Its front matter, its whole directory, its created and
+    archive commits, and its README row name no ratifier and no
+    ratification date"; task 4.3's "Brett sign-off same day" is a
+    verification pass on the first real commission, not a ratification,
+    and nothing here cites either. What C2 did not have is OQ-6's
+    2026-08-23 ruling and the phase-b derivation, which make the archive
+    act itself the citable record. The date is the archive folder's own
+    2026-08-01; the commit carries the 2026-07-31 authoring date.
     Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C
     under OQ-6's ruling that every headerless proposal is derived from its
     own record; no approving OpenSpec change exists to name, so this is
@@ -45,4 +47,4 @@ origin:
     provenance the ad-hoc exception requires, and it is why this packet
     fell in the derivable class rather than the stop class of the
     2026-08-25 sweep.
-  approved_on: 2026-07-16
+  approved_on: 2026-08-01
