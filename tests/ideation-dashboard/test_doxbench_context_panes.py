@@ -191,46 +191,40 @@ def _flatten_strings(value):
 
 def test_the_deterministic_caption_field_matches_ruled_text_once_present(abstract):
     """THE RELOCATED PIN (add-doxbench-distilled-abstract, ruling 5 / task
-    8.1). This replaces `test_the_abstract_is_never_captioned_as_a_distillation`,
-    which used to sweep the WHOLE `staging-workbench.js` source for
-    "distilled"/"ai summary"/"ai-generated" (RULED, Brett, 2026-08-03; see the
-    module docstring above for the full 2026-08-25 reversal this pin now
-    honours). Once the model-derived abstract's own caption ships containing
-    "Distilled by a model..." (§7.8), a file-level sweep can no longer tell
-    that caption FROM a violation on the deterministic one — both abstracts
-    live in the same file — so the pin moves onto this Node harness fixture,
-    per-abstract, keyed on `doxbench_knowledge.RULED_CAPTIONS`.
+    8.1), now in its SECOND and final phase. This replaced
+    `test_the_abstract_is_never_captioned_as_a_distillation`, which used to
+    sweep the WHOLE `staging-workbench.js` source for "distilled"/"ai
+    summary"/"ai-generated" (RULED, Brett, 2026-08-03; see the module docstring
+    above for the full 2026-08-25 reversal this pin now honours). Once the
+    model-derived abstract's own caption shipped containing "Distilled by a
+    model...", a file-level sweep could no longer tell that caption FROM a
+    violation on the deterministic one — both abstracts live in the same file —
+    so the pin moved onto this Node harness fixture, per-abstract, keyed on
+    `doxbench_knowledge.RULED_CAPTIONS`.
 
-    TWO-PHASE, deliberately, and that is the point of this docstring:
-    `documentAbstract()` has no `caption` field yet — §7.8 lands the pure
-    formatter that adds one — so a pin that hard-required the field today
-    would be a KNOWINGLY RED section boundary, which this change's own rules
-    forbid. WHEN the field is present, this test asserts it literally equals
-    `RULED_CAPTIONS[CAPTION_DETERMINISTIC]` ("From the document's own
-    headers") and never contains "distill" (case-insensitive, so it also
-    catches "distillation" — the exact gap the old sweep had, since it banned
-    "distilled" but not "distillation"). WHILE the field is absent, this
-    falls back to the OLD invariant checked at the MODEL level instead of the
-    source level: no string value anywhere in the deterministic abstract's
-    output contains "distill". The test is GREEN TODAY on that fallback and
-    TIGHTENS ITSELF the moment the caption field appears — no one has to
-    remember to come back and un-relax it.
+    PHASE TWO, landed with §7.8: `documentAbstract()` now RETURNS a `caption`
+    field, so the model-level fallback the first phase ran on — "no string
+    value anywhere in the output contains distill" — is GONE, along with its
+    TODO. What stands is the assertion the fallback was standing in for: the
+    field literally equals `RULED_CAPTIONS[CAPTION_DETERMINISTIC]` ("From the
+    document's own headers"), and it never contains "distill" (case-
+    insensitive, so it also catches "distillation" — the exact gap the old
+    sweep had, since it banned "distilled" but not "distillation"). The
+    unconditional model-level invariant it used to share the work with is the
+    test below, which is not replaced by this one and covers every OTHER field.
 
-    TODO(§7.8): once `documentAbstract()` returns a `caption` field, delete
-    the `else` fallback branch below so this test asserts ONLY the
-    caption-field equality. The §7 agent removes this TODO along with the
-    fallback when the formatter lands.
+    The field's presence is asserted rather than assumed: a `documentAbstract`
+    that quietly stopped returning a caption would otherwise make this test
+    vacuous, which is how a relocated pin turns back into a comment.
     """
-    full = abstract["full"]
-    ruled = kn.RULED_CAPTIONS[kn.CAPTION_DETERMINISTIC]
-    if "caption" in full:
-        assert full["caption"] == ruled
-        assert "distill" not in full["caption"].lower()
-    else:
-        for value in _flatten_strings(full):
-            assert "distill" not in value.lower(), (
-                f"the deterministic abstract value {value!r} claims a "
-                "distillation before any caption field exists to say so")
+    for label in ("full", "bare"):
+        value = abstract[label]
+        assert "caption" in value, (
+            f"the deterministic {label} abstract returns no caption field; "
+            "§7.8's formatter is what puts it there and the relocated pin has "
+            "nothing to assert without it")
+        assert value["caption"] == kn.RULED_CAPTIONS[kn.CAPTION_DETERMINISTIC]
+        assert "distill" not in value["caption"].lower()
 
 
 def test_the_deterministic_abstract_is_never_captioned_as_a_distillation(abstract):

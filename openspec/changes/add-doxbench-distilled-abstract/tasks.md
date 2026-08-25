@@ -185,38 +185,38 @@ mark this section done without running 9.5.
 
 ## 7. Renderer, interaction, accessibility
 
-- [ ] 7.1 RED: spinning the docs wheel across N documents dispatches ZERO model
+- [x] 7.1 RED: spinning the docs wheel across N documents dispatches ZERO model
       calls. This is the pin the whole interaction design exists for —
       `doc-wheel.js:205-212` fires `onSelect` on every notch and `:463` at mount.
-- [ ] 7.2 RED: a generation that resolves against a subject the pane no longer has
+- [x] 7.2 RED: a generation that resolves against a subject the pane no longer has
       selected is DISCARDED UNRENDERED, and the region shows the
       not-yet-generated caption for the current subject.
-- [ ] 7.3 RED: the in-flight state is cancellable and states its wait bounded by
+- [x] 7.3 RED: the in-flight state is cancellable and states its wait bounded by
       the ADAPTER'S OWN `port.timeout_seconds` — the value the chat path reads
       through `validated_timeout_seconds` (`serve.py:3416-3417`), which the bridge
       defaults to `60.0` (`doxbench_bridge.py:881`) — and NOT by
       `MAX_ADAPTER_TIMEOUT_SECONDS = 120` (`doxbench_model.py:54`), which is the
       validated ceiling. Pin an adapter declaring 60 and assert the region does
       not state 120.
-- [ ] 7.4 RED: a dirty loaded subject is captioned as describing the SAVED
+- [x] 7.4 RED: a dirty loaded subject is captioned as describing the SAVED
       version, and no unsaved buffer text appears in the dispatched envelope
       (check `port.dispatched`).
-- [ ] 7.5 RED: exactly ONE abstract REGION exists and one abstract STATE renders
+- [x] 7.5 RED: exactly ONE abstract REGION exists and one abstract STATE renders
       at a time, the deterministic one opens, and the 280px budget rule at
       `test_doxbench_context_panes.py:231-240` still holds.
-- [ ] 7.6 RED: an abstract survives leaving and re-entering the tile in-session,
+- [x] 7.6 RED: an abstract survives leaving and re-entering the tile in-session,
       keyed by (path, digest).
-- [ ] 7.6a RED (ruling 3): when the subject's content has moved past the digest
+- [x] 7.6a RED (ruling 3): when the subject's content has moved past the digest
       an abstract was generated from, the abstract is SHOWN and LABELLED STALE
       with its source digest stated — not discarded, not silently refreshed, not
       presented as current.
-- [ ] 7.6b RED (ruling 3): for an UNLOADED subject the source digest is the
+- [x] 7.6b RED (ruling 3): for an UNLOADED subject the source digest is the
       digest of the SERVED SAVED CONTENT, and the per-buffer settled-identity
       guard is not required of it. Pin both an unloaded subject and a loaded one,
       because the escalation rule is the difference between them.
-- [ ] 7.7 RED: with no gate capability the generation control is ABSENT, and an
+- [x] 7.7 RED: with no gate capability the generation control is ABSENT, and an
       already-generated abstract stays readable.
-- [ ] 7.8 **§8.1 and §8.3 must land BEFORE this task.** The relocated captioning
+- [x] 7.8 **§8.1 and §8.3 must land BEFORE this task.** The relocated captioning
       pin has to exist before any caption containing "Distilled" is written, or
       this task knowingly reds the old whole-file sweep at
       `test_doxbench_context_panes.py:144-152` and leaves the section boundary
@@ -225,14 +225,14 @@ mark this section done without running 9.5.
       (`staging-workbench-model.js:1545`), the controls and states in
       `staging-workbench.js`, and ONE fetch call site in `web/app.js`. GREEN
       7.1–7.7.
-- [ ] 7.9 Widen `test_renderer.py:152` from 5 to 6 `app.js` fetch sites and
+- [x] 7.9 Widen `test_renderer.py:152` from 5 to 6 `app.js` fetch sites and
       declare the new route BY NAME in the `:129-133` docstring. Then confirm the
       view's THREE transport asserts still pass —
       `test_staging_workbench.py:795` (`"fetch(" not in view`), `:796`
       (`"POST" not in view`, modulo the prose escape) and `:797`
       (`"XMLHttpRequest" not in view`) — plus the model module's own
       fetch-and-import guard at `:798-801`. The transport stays in `app.js`.
-- [ ] 7.10 ONE region whose accessible name COMPOSES the subject's title/path
+- [x] 7.10 ONE region whose accessible name COMPOSES the subject's title/path
       with the provenance caption of the state shown, so the deterministic and
       model-derived states are distinguishable BY NAME; the name changes when the
       state switches. House idiom preserved
@@ -249,7 +249,7 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
 - [x] 8.1 Move the pin off the whole-file sweep at
       `test_doxbench_context_panes.py:144-152` and onto the node harness fixture
       (`:83-94`) as a per-abstract CAPTION FIELD assertion.
-- [ ] 8.2 Pin all five captions with their declared carriers: model-derived and
+- [x] 8.2 Pin all five captions with their declared carriers: model-derived and
       deterministic as visible text AND part of the region's accessible name;
       stale, ungenerated and hosted-plane as visible text inside a named region.
 - [x] 8.3 Rewrite the module docstring's scope statement (`:26-29`) to RECORD the

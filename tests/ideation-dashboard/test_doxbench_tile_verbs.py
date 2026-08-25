@@ -702,7 +702,19 @@ def test_the_shell_wires_the_tile_verbs_through_the_canvas_controller():
     Anchored on the mount call rather than on a character distance."""
     source = (VIEWS / "staging-workbench.js").read_text(encoding="utf-8")
     mount = source.index("renderDocWheel(selector")
-    window = source[mount:mount + 1800]
+    # STATED ADJUSTMENT (add-doxbench-distilled-abstract task 7.8): the window
+    # was a 1800-character distance from the mount, and `bufferStateFor:` sat
+    # ~75 characters inside that edge — the abstract region's controller made
+    # the selection callback longer, and the NEXT comment added anywhere inside
+    # this call would have failed a pin whose claim was perfectly intact.
+    # It is anchored at BOTH ends now: from the mount call's opening to the
+    # line that adopts its return. That IS the span the docstring was always
+    # describing, and it carries no magic number to drift. It is a little wider
+    # in characters than 1800 (2010 today) and STRICTLY NARROWER in meaning:
+    # only the mount call's own option list can satisfy it now, where the old
+    # distance could have been satisfied by anything that happened to sit
+    # within 1800 characters, inside the call or past its end.
+    window = source[mount:source.index("pane.__docWheel = wheel;", mount)]
     assert "onRead:" in window
     assert "onLoad:" in window
     assert "onSave:" in window

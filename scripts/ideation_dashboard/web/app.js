@@ -245,6 +245,16 @@ const CHAT_TURN_ROUTE = "/actions/workbench/chat-turn";
 // a GET — a thread is written by a TURN, through the Save gate, and this seam
 // has no write to offer.
 const THREAD_ROUTE = "/workbench/thread";
+// add-doxbench-distilled-abstract §5 / ruling 1(c)(i): the DOCUMENT-ABSTRACT
+// route. A NEW same-origin serve.py route rather than a scoped chat turn --
+// the chat-turn assembler is chat-shaped (it requires an outline buffer, a
+// non-blank human message and a transcript) and an abstract request carries
+// none of them, so smuggling one through that envelope would have meant
+// widening a released contract to carry a request it was not written for.
+// The request is a CLOSED shape: a scope, a subject path and a model id. It
+// carries NO buffer, because the server reads the subject's SAVED bytes --
+// which is also why unsaved text can never leave this browser through it.
+const DOCUMENT_ABSTRACT_ROUTE = "/actions/workbench/document-abstract";
 const CONSOLE_TOKEN_HEADER = "X-XF-Console-Token";
 
 export function createDoxBenchCatalogLoader(consoleTokenOf, injectedFetch) {
@@ -343,6 +353,36 @@ export function createDoxBenchTurnSubmitter(consoleTokenOf, injectedFetch) {
     // caller must act on, so unlike the catalog this never collapses to null.
     // An unparseable body becomes `payload: null` rather than a throw or an
     // invented shape -- the caller decides what an unreadable answer means.
+    const payload = await response.json().catch(() => null);
+    return { ok: response.ok, status: response.status, payload };
+  };
+}
+
+export function createDoxBenchAbstractRequester(consoleTokenOf, injectedFetch) {
+  return async function requestDoxBenchAbstract(request) {
+    // Same missing-token rule as the three transports above (PR #63 review): a
+    // MISSING token omits the header entirely rather than sending a literal
+    // "undefined", so the server's console gate refuses honestly.
+    const consoleToken = consoleTokenOf();
+    const options = {
+      method: "POST",
+      headers: consoleToken
+        ? { "Content-Type": "application/json",
+            [CONSOLE_TOKEN_HEADER]: consoleToken }
+        : { "Content-Type": "application/json" },
+      // The caller hands over an already-built request. A TRANSPORT MOVES
+      // BYTES: this function names no field of what it carries, so it cannot
+      // grow into the thing that decides what an abstract request says.
+      body: JSON.stringify(request),
+    };
+    const response = injectedFetch
+      ? await injectedFetch(DOCUMENT_ABSTRACT_ROUTE, options)
+      : await fetch(DOCUMENT_ABSTRACT_ROUTE, options);
+    // Status AND payload, both surfaced, exactly like the turn submitter: an
+    // abstract refusal is STATED and the region renders which class it was, so
+    // this never collapses to null. An unparseable body becomes `payload:
+    // null` rather than a throw or an invented shape -- the caller decides what
+    // an unreadable answer means.
     const payload = await response.json().catch(() => null);
     return { ok: response.ok, status: response.status, payload };
   };
@@ -981,6 +1021,12 @@ async function render() {
       // is where it reads one. A READ seam only — there is no thread write on
       // this bundle, because a thread is written by a turn.
       thread: createDoxBenchThreadLoader(() => caps?.console_token),
+      // add-doxbench-distilled-abstract §7: the docs subpane's model-derived
+      // abstract. One seam, one route, one call site -- and no second provider
+      // path: the route sits behind the SAME three-part verdict the catalog and
+      // chat-turn routes do, and the browser holds no credential for either.
+      documentAbstract: createDoxBenchAbstractRequester(
+        () => caps?.console_token),
     };
     const stagingWorkbench = mountStagingWorkbench(
       document.getElementById("staging-workbench-root"), snapshot,

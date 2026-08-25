@@ -80,6 +80,7 @@ import {
   toggleKeyword, createSeed, createOffered, rewritableDocuments, sessionPosture,
   sessionSurfaceHidden, presentationPosture,
   documentAbstract, docWheelEntries, existingOnTopic,
+  abstractRegionState, abstractSubjectDigest,
 } from "./staging-workbench-model.js";
 import { renderDocWheel } from "./doc-wheel.js";
 import { buildLensModel } from "./lens-model.js";
@@ -142,47 +143,258 @@ const CREATE_LABELS = {
 // is what the per-row bar was actually for. `docs.js` keeps its own unrelated
 // `docRow` for the full-page documents view.
 
-// THE ABSTRACT VIEW — the upper half of the split docs pane. Renders what the
-// snapshot already derived for the selected document. textContent only.
-function renderAbstract(host, doc) {
+// ---- THE ABSTRACT REGION'S SESSION STATE (add-doxbench-distilled-abstract §7)
+//
+// MODULE SCOPE, like `lensSection` below and for the same reason: the docs pane
+// is rebuilt on every scope redraw, and a generated abstract that died with the
+// pane would be re-earned by a model call every time a human came back to a
+// document. Ruling 7.6 states the behaviour rather than leaving it to component
+// lifetime — an abstract SURVIVES leaving and re-entering the tile in-session,
+// KEYED BY (path, digest) — so that pair is literally the key here. The server
+// replays an identical key without a second dispatch anyway; this is what keeps
+// the request from being made at all.
+//
+// SESSION-LOCAL AND NOTHING ELSE (ruling 2(b)): it reaches no storage, no
+// snapshot, no corpus and no gate artifact, and it dies with the page. Bounded
+// by entry count with INSERTION-ORDER eviction — deterministic, never ordered by
+// a clock — which is the same discipline the server's own abstract store keeps,
+// and re-dispatch after eviction is expected behaviour rather than an error.
+const ABSTRACT_SESSION_LIMIT = 8;
+const ABSTRACT_ENTRY_LIMIT = 64;
+const abstractSessions = new Map();
+
+function boundMap(map, limit) {
+  while (map.size > limit) {
+    const oldest = map.keys().next();
+    if (oldest.done) return;
+    map.delete(oldest.value);
+  }
+}
+
+function abstractSessionFor(scopeKey) {
+  const key = String(scopeKey || "");
+  let session = abstractSessions.get(key);
+  if (!session) {
+    session = {
+      // (path, digest) -> the verified abstract the server answered with
+      abstracts: new Map(),
+      // path -> which of that path's digests is the one to show
+      current: new Map(),
+      // path -> the digest the server last echoed for it (ruling 3's source of
+      // truth for an UNLOADED subject: the SERVED SAVED CONTENT's digest)
+      latest: new Map(),
+      // path -> the sentence a stated refusal gave, rendered as the note
+      refusals: new Map(),
+      // THE ADAPTER'S OWN declared bound, learned from the most recent answer
+      // for THIS scope. Null until one has carried it: the region then names no
+      // number rather than inventing the 120-second contract ceiling.
+      waitBound: null,
+      // one monotonic token; a generation whose token has moved on is one
+      // somebody cancelled or superseded, and it never paints
+      token: 0,
+      inFlight: null,
+      subject: null,
+      repaint: null,
+    };
+    abstractSessions.set(key, session);
+    boundMap(abstractSessions, ABSTRACT_SESSION_LIMIT);
+  }
+  return session;
+}
+
+function abstractEntryKey(path, digest) {
+  return String(path) + " @ " + String(digest);
+}
+
+const ABSTRACT_NO_MODEL_SENTENCE =
+  "no approved model is configured on this console, so there is nothing to "
+  + "distil this document with";
+
+// ONE SENTENCE PER FAILURE CLASS, WRITTEN HERE. A plane or transport verdict
+// answers in the released error shape, and this surface maps the CODE to its
+// own sentence rather than echoing the server's message (FR-020/FR-022: this
+// pane states an absence, it never quotes a server). A STATED abstract refusal
+// is the one exception and deliberately so: its `reason` is one of serve.py's
+// own fixed sentences about the DOCUMENT, written to be rendered here, and it
+// carries no prose, no provider text and no document text.
+const ABSTRACT_ERROR_SENTENCES = {
+  model_capability_unavailable:
+    "this console cannot reach a model right now, so nothing was distilled",
+  model_timeout:
+    "the model did not answer within the bound its adapter declared",
+  model_failed: "the model call failed, so nothing was distilled",
+  invalid_abstract_request:
+    "this request was refused as malformed before any provider was reached",
+  abstract_unavailable:
+    "the server could not produce an abstract for this document",
+  turn_scope_refused:
+    "this document is not readable in this tile's scope",
+  console_required:
+    "this console's token is stale — reload the page and try again",
+};
+
+function abstractRefusalSentence(payload) {
+  if (payload && typeof payload.refused === "string") {
+    return typeof payload.reason === "string" && payload.reason
+      ? payload.reason
+      : "this document was refused as a subject (" + payload.refused + ")";
+  }
+  const code = payload && typeof payload.error === "string"
+    ? payload.error : null;
+  if (code && ABSTRACT_ERROR_SENTENCES[code]) {
+    return ABSTRACT_ERROR_SENTENCES[code];
+  }
+  return "no distillation was generated: this console could not read an answer";
+}
+
+// THE ABSTRACT VIEW — the upper half of the split docs pane, and EXACTLY ONE
+// `role=region` (ruling 5 / task 7.5). Two abstracts take turns inside it:
+//
+//   * the DETERMINISTIC one, which re-presents what the snapshot already
+//     derived for the selected document and is what the region OPENS on,
+//     because it is the one that exists before any model runs;
+//   * the MODEL-DERIVED one, written by a provider on an explicit human
+//     request and reached by an explicit control.
+//
+// One STATE renders at a time — the box is a measured 280px, and two regions
+// would mean two accessible names for one box. Which state, what it says, its
+// accessible name and which controls exist are all decided by the PURE
+// `abstractRegionState` in the model module; this function only draws the
+// answer. textContent only.
+function renderAbstract(host, doc, ctx) {
   host.innerHTML = "";
   const model = documentAbstract(doc);
-  if (!model) {
-    host.appendChild(el("div", "swb-empty",
-      "select a document below to see what it declares"));
+  const seam = (ctx && ctx.seam) || null;
+  const path = model ? model.path : null;
+  const state = abstractRegionState({
+    subject: model ? { path: model.path, title: model.title } : null,
+    view: ctx ? ctx.view() : "deterministic",
+    plane: seam && seam.hosted ? "hosted" : "local",
+    capable: !!(seam && seam.capable),
+    generated: ctx && path ? ctx.generatedFor(path) : null,
+    currentDigest: ctx && path ? ctx.currentDigestFor(path) : null,
+    inFlight: !!(ctx && path && ctx.inFlightFor(path)),
+    waitBoundSeconds: ctx ? ctx.waitBound() : null,
+    refusal: ctx && path ? ctx.refusalFor(path) : null,
+    dirty: !!(ctx && path && ctx.dirtyFor(path)),
+  });
+  // THE ONE NAME THIS REGION HAS (task 7.10), composed by the formatter from
+  // the subject's identity and the provenance of the state showing — and re-set
+  // on every render, because a name that did not move when the state did would
+  // be a name for whichever state happened to be first.
+  host.setAttribute("aria-label", state.accessibleName);
+  if (model) host.appendChild(el("div", "swb-abstracttitle", model.title));
+
+  // THE CONTROLS ROW. Chrome, not a state: these are how a human switches
+  // between the two abstracts and asks for a distillation, and they render no
+  // abstract themselves.
+  const controls = el("div", "swb-abstractcontrols");
+  if (state.toggleOffered && ctx) {
+    const toggle = el("button", "swb-abstracttoggle", state.toggleLabel);
+    toggle.type = "button";
+    toggle.addEventListener("click", () => ctx.switchView());
+    controls.appendChild(toggle);
+  }
+  // GENERATION IS EXPLICITLY INVOKED (task 7.1). It is never a side effect of
+  // selection, of the mount-time seed, or of opening a scope — the wheel
+  // notifies on EVERY notch and once more at mount, so a selection-triggered
+  // design would spend a model call on every document a human spins past.
+  // ABSENT rather than present-and-refusing where the gate capability is not
+  // live, and absent on the hosted plane, which offers no such route at all.
+  if (state.generateOffered || state.regenerateOffered) {
+    const generate = el("button", "swb-abstractgenerate",
+      state.regenerateOffered
+        ? "re-generate from the current version"
+        : "distil this document with a model");
+    generate.type = "button";
+    generate.addEventListener("click", () => ctx.generate());
+    controls.appendChild(generate);
+  }
+  if (state.cancelOffered && ctx) {
+    const cancel = el("button", "swb-abstractcancel", "cancel");
+    cancel.type = "button";
+    cancel.addEventListener("click", () => ctx.cancel());
+    controls.appendChild(cancel);
+  }
+  if (controls.children.length) host.appendChild(controls);
+
+  // THE CAPTION, which is the whole of ruling 5: every state says WHO derived
+  // it and WHAT it is not, as VISIBLE TEXT — and for the two states with a
+  // provenance to claim it is part of the accessible name as well. A stale
+  // caption also states the SOURCE digest it was distilled from (a short
+  // prefix: what a 280px box can carry), so "an earlier version" names WHICH
+  // earlier version.
+  if (state.caption) {
+    host.appendChild(el("div", "swb-abstractcaption",
+      state.digestPrefix
+        ? state.caption + " (source digest " + state.digestPrefix + "...)"
+        : state.caption));
+  }
+  if (state.savedVersionNote) {
+    host.appendChild(el("div", "swb-abstractsaved", state.savedVersionNote));
+  }
+  if (state.inFlight) {
+    const inflight = el("div", "swb-abstractinflight", state.waitText);
+    inflight.setAttribute("aria-live", "polite");
+    host.appendChild(inflight);
+  }
+  if (state.note) {
+    host.appendChild(el("div", "swb-abstractnote swb-empty", state.note));
+  }
+
+  // ONE STATE BODY. `structured` is the deterministic abstract, which draws the
+  // document's own declared fields; anything else renders the model's prose, or
+  // nothing where there is none — a stated refusal carries NO prose by
+  // construction, so an unverified answer has no field to arrive in.
+  const body = el("div", "swb-abstractstate swb-abstractstate-"
+    + (state.structured ? "deterministic" : "model"));
+  host.appendChild(body);
+  if (!state.structured) {
+    // (N2) NO PROMOTION AFFORDANCE, and that is a deliberate boundary rather
+    // than an oversight: this abstract is read-only terminal content, and
+    // nothing in this slice writes a document header. A future verb —
+    // "propose this as the document's own Summary:" — attaches HERE, on this
+    // body, and rides the path that already exists end to end: the chat rail's
+    // typed proposal, Apply into the buffer, and the human's own governed Save
+    // through the gate (the proposal's Option B'). Naming it now is what keeps
+    // the read-only slice from becoming an architectural dead end.
+    if (state.text) {
+      const prose = el("div", "swb-abstractprose", state.text);
+      prose.setAttribute("dir", "auto");
+      body.appendChild(prose);
+    }
     return;
   }
-  host.appendChild(el("div", "swb-abstracttitle", model.title));
   const meta = [model.stage, model.kind].filter(Boolean).join(" · ");
-  if (meta) host.appendChild(el("div", "swb-abstractmeta", meta));
+  if (meta) body.appendChild(el("div", "swb-abstractmeta", meta));
   if (model.note) {
-    host.appendChild(el("div", "swb-empty", model.note));
+    body.appendChild(el("div", "swb-empty", model.note));
     return;
   }
   if (model.summary) {
     const summary = el("div", "swb-abstractsummary", model.summary);
     summary.setAttribute("dir", "auto");
-    host.appendChild(summary);
+    body.appendChild(summary);
   }
   if (model.lands.length) {
-    host.appendChild(el("div", "swb-abstractlabel", "feeds"));
+    body.appendChild(el("div", "swb-abstractlabel", "feeds"));
     const lands = el("div", "swb-abstractlands");
     for (const entry of model.lands) {
       lands.appendChild(el("span", "swb-abstractchip", entry));
     }
-    host.appendChild(lands);
+    body.appendChild(lands);
   }
   if (model.topics.length) {
-    host.appendChild(el("div", "swb-abstractlabel", "topics"));
+    body.appendChild(el("div", "swb-abstractlabel", "topics"));
     const topics = el("div", "swb-abstracttopics");
     for (const topic of model.topics) {
       topics.appendChild(el("span", "swb-abstractchip", topic));
     }
-    host.appendChild(topics);
+    body.appendChild(topics);
   }
   if (model.signals.length) {
     // The score alone explains nothing; the signals say WHICH part is thin.
-    host.appendChild(el("div", "swb-abstractlabel",
+    body.appendChild(el("div", "swb-abstractlabel",
       model.score === null ? "signals"
         : "signals · score " + model.score));
     const signals = el("div", "swb-abstractsignals");
@@ -190,7 +402,7 @@ function renderAbstract(host, doc) {
       signals.appendChild(el("span", "swb-abstractchip",
         signal.name + " " + signal.count));
     }
-    host.appendChild(signals);
+    body.appendChild(signals);
   }
 }
 
@@ -224,7 +436,7 @@ function renderAbstract(host, doc) {
 //   verbs.load(path)            -> Promise<{ok, error?}>
 //   verbs.save(path)            -> Promise<{ok, error?}>
 //   verbs.bufferStateFor(path)  -> {loaded, dirty, owned} | null   (LIVE, never cached)
-function renderDocsPanel(pane, scope, onOpen, create, verbs) {
+function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
   // The wheel owns a RAF loop and a ResizeObserver, so the OUTGOING one has to
   // be torn down before its host DOM is discarded — a re-render on every scope
   // change would otherwise leak one animation loop per render, each observing
@@ -247,7 +459,15 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs) {
   const split = el("div", "swb-docsplit");
   const abstract = el("div", "swb-docabstract");
   abstract.setAttribute("role", "region");
-  abstract.setAttribute("aria-label", "selected document");
+  // RULING 6 / task 7.10: this region is NO LONGER named `selected document`.
+  // That name belongs to the loaded-document SELECTOR, and two surfaces
+  // claiming one name is how the two come to disagree about which document a
+  // human is on. The live name is COMPOSED per render, by the pure formatter,
+  // from the SUBJECT's title plus the provenance caption of the state showing —
+  // so a reader on assistive technology learns which document AND which
+  // provenance from the name alone, and the name moves when either does. This
+  // is only the name it carries before any selection has landed.
+  abstract.setAttribute("aria-label", abstractRegionState({}).accessibleName);
   // THE LOWER HALF IS THE WHEEL (the annotation's second half, delivered
   // 2026-08-03): "the same wheel of the docs we have used before" at 0.4 of
   // this subpane's radius. It is the deck's own drum — same projection, same
@@ -266,6 +486,167 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs) {
   note.hidden = true;
   pane.appendChild(note);
 
+  // ---- THE ABSTRACT REGION'S CONTROLLER (§7) -------------------------------
+  //
+  // The pane owns the READING CHOICE (which of the two abstracts is showing)
+  // and the DISPATCH; everything that must outlive a pane redraw — the
+  // abstracts themselves, the digests the server echoed, the adapter's learned
+  // bound — lives in the module-scope session above. No transport of its own:
+  // `seam.generate` is the injected seam `app.js` built, exactly like `save`,
+  // `catalog` and `chatTurn`.
+  const seam = abstractSeam || null;
+  const session = abstractSessionFor(seam ? seam.scopeKey : "");
+  // THE READING CHOICE IS PANE-LOCAL AND OPENS DETERMINISTIC (ruling 5: "the
+  // deterministic abstract MUST be the opening view" — it is the one that
+  // exists before any model runs). It does NOT persist across a redraw or a
+  // scope; the ABSTRACT does, which is the thing ruling 7.6 is about.
+  let abstractView = "deterministic";
+  const paint = () => renderAbstract(
+    abstract, session.subject ? session.subject.doc : null, ctx);
+  // A generation OUTLIVES the pane that asked for it: a redraw between the
+  // click and the answer would otherwise leave the result painting into a
+  // detached node while the live region showed nothing. So everything after
+  // the await repaints through the session's CURRENT pane, and each render
+  // re-registers this one (below).
+  const repaint = () => (session.repaint || paint)();
+
+  async function runAbstractGeneration() {
+    const subject = session.subject;
+    if (!subject || !seam || typeof seam.generate !== "function") return;
+    const path = subject.path;
+    const modelId = typeof seam.modelId === "function" ? seam.modelId() : null;
+    abstractView = "model";
+    if (!modelId) {
+      // STATED, NEVER DISPATCHED: with no approved model there is nothing to
+      // ask for. The shell's posture note says this about the plane; this says
+      // it about the act the human just invoked.
+      session.refusals.set(path, ABSTRACT_NO_MODEL_SENTENCE);
+      boundMap(session.refusals, ABSTRACT_ENTRY_LIMIT);
+      repaint();
+      return;
+    }
+    const token = (session.token += 1);
+    session.inFlight = path;
+    session.refusals.delete(path);
+    repaint();
+    let answer = null;
+    try {
+      answer = await seam.generate(path, modelId);
+    } catch (unused) {
+      answer = null;
+    }
+    // CANCELLED OR SUPERSEDED. The token moved on, so a human took this wait
+    // back or asked again; the answer is dropped without being recorded.
+    // Cancelling never reaches the server — a request already in flight
+    // completes there and its store replays it, so asking again costs nothing.
+    if (token !== session.token) return;
+    session.inFlight = null;
+    const payload = answer && answer.payload
+      && typeof answer.payload === "object" ? answer.payload : null;
+    const echoed = payload && typeof payload.subject_path === "string"
+      ? payload.subject_path : null;
+    // THE SUBJECT RECHECK AT PAINT (task 7.2). Without it a slow answer paints
+    // itself over whatever the reader has since spun to, under a confident
+    // caption: a wrong-document abstract that reads as right. It is DISCARDED
+    // UNRENDERED — and not recorded either, because a discarded answer that
+    // quietly populated the cache would paint itself the moment the reader
+    // came back, which is the same defect one repaint later.
+    const live = session.subject;
+    if (!live || !echoed || echoed !== live.path) {
+      repaint();
+      return;
+    }
+    // THE ADAPTER'S OWN DECLARED BOUND, learned from the answer that carried
+    // it, and never the contract's validated ceiling.
+    if (payload && typeof payload.wait_bound_seconds === "number"
+        && Number.isFinite(payload.wait_bound_seconds)
+        && payload.wait_bound_seconds > 0) {
+      session.waitBound = payload.wait_bound_seconds;
+    }
+    const digest = payload && typeof payload.subject_digest === "string"
+      ? payload.subject_digest : null;
+    // WHICH BYTES THE SERVER READ, recorded whatever the answer was: a stated
+    // refusal echoing a NEW digest is exactly how the pane learns that an
+    // UNLOADED subject has moved past the abstract it already holds (ruling 3).
+    if (digest) {
+      session.latest.set(path, digest);
+      boundMap(session.latest, ABSTRACT_ENTRY_LIMIT);
+    }
+    if (payload && payload.ok === true && digest
+        && typeof payload.prose === "string" && payload.prose) {
+      session.abstracts.set(abstractEntryKey(path, digest), Object.freeze({
+        prose: payload.prose,
+        subjectDigest: digest,
+        modelId: typeof payload.model_id === "string"
+          ? payload.model_id : null,
+        generation: typeof payload.generation === "number"
+          ? payload.generation : null,
+      }));
+      boundMap(session.abstracts, ABSTRACT_ENTRY_LIMIT);
+      session.current.set(path, digest);
+      boundMap(session.current, ABSTRACT_ENTRY_LIMIT);
+    } else {
+      session.refusals.set(path, abstractRefusalSentence(payload));
+      boundMap(session.refusals, ABSTRACT_ENTRY_LIMIT);
+    }
+    repaint();
+  }
+
+  const ctx = {
+    seam,
+    view: () => abstractView,
+    switchView() {
+      abstractView = abstractView === "model" ? "deterministic" : "model";
+      paint();
+    },
+    generatedFor(path) {
+      // KEYED BY (path, digest), which is what makes a regeneration after an
+      // edit a NEW entry rather than an overwrite — and what lets the abstract
+      // for the version a reader last saw stay findable while it is labelled
+      // stale.
+      const digest = session.current.get(path);
+      return digest
+        ? session.abstracts.get(abstractEntryKey(path, digest)) || null : null;
+    },
+    currentDigestFor(path) {
+      return abstractSubjectDigest({
+        buffer: seam && typeof seam.identityFor === "function"
+          ? seam.identityFor(path) : null,
+        echoedDigest: session.latest.get(path) || null,
+      });
+    },
+    refusalFor(path) {
+      const reason = session.refusals.get(path);
+      return reason ? { reason } : null;
+    },
+    dirtyFor(path) {
+      const identity = seam && typeof seam.identityFor === "function"
+        ? seam.identityFor(path) : null;
+      return !!(identity && identity.loaded && identity.dirty);
+    },
+    // WHICH TILE THE GENERATE CONTROL WOULD ACT ON — recorded by the wheel's
+    // own callback, never acted on there (task 7.1).
+    subjectIs(entry) {
+      session.subject = entry && entry.path
+        ? { path: entry.path, doc: entry.row.doc || null } : null;
+    },
+    inFlightFor: (path) => session.inFlight === path,
+    waitBound: () => session.waitBound,
+    cancel() {
+      // CANCELLING TAKES THE WAIT BACK, honestly: it stops this region waiting.
+      // It does not claim to have stopped a provider, because it has not.
+      session.token += 1;
+      session.inFlight = null;
+      paint();
+    },
+    generate() {
+      // Deliberately NOT awaited by the listener: a click handler that returned
+      // the pending dispatch would hold the event open for the whole wait.
+      void runAbstractGeneration();
+    },
+  };
+  session.repaint = paint;
+
   // A drum is one reel, so the sections flatten — carrying their labels onto
   // the tiles rather than losing them (see `docWheelEntries`).
   const entries = docWheelEntries(scope);
@@ -275,14 +656,22 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs) {
   // that document again — the reconcile is the canvas answering, not a human
   // choosing.
   let reconciling = false;
+  // THE ABSTRACT FOLLOWS THE WHEEL TILE (ruling 6), AND NOTHING ELSE HAPPENS ON
+  // A NOTCH (task 7.1). `setFocus` fires the callback below on EVERY notch and
+  // once more as the reel lays out, so a design that generated an abstract on
+  // selection would spend a model call on every document a human spins past —
+  // which is exactly why generation is an explicit control on the centred tile
+  // instead, and why this callback records which subject that control would act
+  // on rather than acting.
   const wheel = renderDocWheel(selector, entries, {
     onSelect: (entry) => {
       // The abstract above, and NOTHING else: a selection is not a binding route
-      // under Phase B (see the note above this function). `seeded` and
-      // `reconciling` survive because the reconcile below still drives this
-      // callback, and neither a mount-time seed nor the canvas answering is a
-      // human choosing anything.
-      renderAbstract(abstract, entry ? entry.row.doc : null);
+      // under Phase B (see the note above this function), and not a generation
+      // either (the note above this mount). `seeded` and `reconciling` survive
+      // because the reconcile below still drives this callback, and neither a
+      // mount-time seed nor the canvas answering is a human choosing anything.
+      renderAbstract(abstract, entry ? entry.row.doc : null, ctx);
+      ctx.subjectIs(entry);
       if (!seeded) { seeded = true; return; }
       if (reconciling) return;
     },
@@ -322,7 +711,10 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs) {
 
   // An empty scope has no tile to select, so nothing seeded the abstract: say
   // so explicitly rather than leaving the upper half blank.
-  if (!entries.length) renderAbstract(abstract, null);
+  if (!entries.length) {
+    ctx.subjectIs(null);
+    renderAbstract(abstract, null, ctx);
+  }
 
   // PR #196 review F4: the wheel is a SELECTION control over the same choice
   // the canvas's own picker makes, and the picker already reverts to the
@@ -1385,7 +1777,7 @@ export function mountStagingWorkbench(container, snapshot,
     if (activeTab === "docs") {
       reconcileDocsSelection = renderDocsPanel(pane, scope, onOpenDoc
         ? (row) => onOpenDoc(row.path, row.doc) : null, create,
-        docTileVerbs());
+        docTileVerbs(), docsAbstractSeam());
       syncContextSelection();   // a fresh wheel starts where the canvas is
     } else if (activeTab === "lens") {
       // the session survives the tab switch and reseeds on a scope change —
@@ -1434,6 +1826,12 @@ export function mountStagingWorkbench(container, snapshot,
   // LIVE — fed back by the rail's adopted catalog through a pure callback
   // (the shell still opens no route). Zero until a catalog really loads.
   let approvedModelCount = 0;
+  // WHICH MODEL AN ABSTRACT WOULD BE DISTILLED BY. The chat rail is where a
+  // human CHOOSES one and the shell already hears its state, so the docs pane
+  // borrows that choice rather than growing a second model picker for a second
+  // consumer. It falls back to the first APPROVED entry, because a reader in
+  // the docs pane has not necessarily opened the rail at all.
+  let abstractModelId = null;
   // T104 F10-1: the rail-reported catalog FAILURE, beside the count and by
   // the same channel. Without it every catalog failure fell through the
   // ladder to approvedModelCount === 0's "no approved model is configured" —
@@ -1469,6 +1867,7 @@ export function mountStagingWorkbench(container, snapshot,
     regions.classList.toggle("has-rail", false);
     rail.hidden = true;
     approvedModelCount = 0;  // a torn-down rail reports no models (R5)
+    abstractModelId = null;  // …and vouches for no model id either
     railCatalogFailure = null;  // …and no catalog failure either (F10-1)
     // T104 F1: a companion blob captured for the tile being torn down must
     // never be applied to the NEXT tile's rail — it was cleared only on a
@@ -1671,6 +2070,71 @@ export function mountStagingWorkbench(container, snapshot,
     }
     return { loaded: false, dirty: false, owned: true, key: null };
   }
+  // THE SUBJECT'S PER-BUFFER SETTLED CONTENT IDENTITY, where the subject is
+  // also a loaded buffer (ruling 3 / task 7.6b). Kept apart from
+  // `docBufferState` above, which answers the tile verbs' question ("which
+  // buffer holds this path, under which key"); this one answers the abstract's
+  // ("what does that buffer currently hash to, and is that hash settled"). An
+  // UNSETTLED hash is reported as such rather than as a value, so the digest
+  // rule can fall back instead of comparing against a number about to change.
+  function docBufferIdentity(path) {
+    const live = canvasController && canvasController.state();
+    if (!live || !live.buffers) return null;
+    for (const key of Object.keys(live.buffers)) {
+      const buffer = live.buffers[key];
+      if (buffer && buffer.kind === "document" && buffer.path === path) {
+        return {
+          loaded: true,
+          dirty: buffer.dirty === true,
+          settled: !buffer.hash_pending
+            && !!(buffer.current_hash && buffer.current_hash.hex),
+          digest: (buffer.current_hash && buffer.current_hash.hex) || null,
+        };
+      }
+    }
+    return null;
+  }
+
+  // ---- THE DISTILLED ABSTRACT'S SEAM (add-doxbench-distilled-abstract §7) ---
+  //
+  // Injected into the docs pane exactly like every other seam on this surface.
+  // The pane opens no route: `generate` is the ONE transport `app.js` built for
+  // the abstract route, handed over already closed over its console token.
+  function docsAbstractSeam() {
+    const wired = !!(doxbench
+      && typeof doxbench.documentAbstract === "function");
+    return {
+      // THE GENERATE CONTROL EXISTS ONLY WHERE GENERATION IS AUTHORIZED
+      // (ruling 7.7: ABSENT, not present-and-refusing). The predicate is
+      // `canvasOffered()` — the SAME derivation the canvas mount and the tile
+      // verbs use — so the pane can never claim a capability the canvas
+      // withheld, nor deny one it has.
+      capable: canvasOffered() && wired,
+      // A statement about the PLANE, which outranks any capability it reports.
+      hosted: sessionSurfaceHidden(caps),
+      scopeKey: [active?.repository, active?.ref, scope?.kind, scope?.id]
+        .join("|"),
+      modelId: () => abstractModelId,
+      identityFor: (path) => docBufferIdentity(path),
+      generate: wired
+        ? (subjectPath, modelId) => doxbench.documentAbstract({
+            scope: {
+              repository: String(active?.repository || ""),
+              ref: String(active?.ref || ""),
+              tile_kind: String(scope?.kind || ""),
+              tile_id: String(scope?.id || ""),
+            },
+            // THE CLOSED REQUEST SHAPE (§5). A scope, a path and a model id —
+            // and no buffer, because the server reads the SAVED bytes and
+            // unsaved text must never leave this browser. There is no field it
+            // could travel in even by accident.
+            subject_path: String(subjectPath),
+            model_id: String(modelId),
+          })
+        : null,
+    };
+  }
+
   // ---- THE ADD-SECTION SEAM (add-staged-topic-outline-template task 3.2) ----
   //
   // The outline tab's add-section affordance writes into the OUTLINE BUFFER and
@@ -1987,6 +2451,16 @@ export function mountStagingWorkbench(container, snapshot,
           applyPendingCompanion();
           const models = chatState.models || [];
           const count = models.filter((m) => m.available === true).length;
+          // The docs pane's abstract borrows the rail's model choice (see
+          // `abstractModelId` above). Read on EVERY state, not only when the
+          // count moves, because choosing a different model changes nothing
+          // about how many are available.
+          const chosen = typeof chatState.selectedModelId === "string"
+            ? chatState.selectedModelId : null;
+          const firstApproved = (models.find(
+            (m) => m.available === true) || {}).model_id;
+          abstractModelId = chosen
+            || (typeof firstApproved === "string" ? firstApproved : null);
           // T104 F10-1: the FAILURE moves the note too, not only the count —
           // a failed catalog never changes the count (it stays zero), which
           // is exactly why the misdiagnosed "no approved model is

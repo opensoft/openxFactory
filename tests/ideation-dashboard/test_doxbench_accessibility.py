@@ -310,6 +310,41 @@ def test_the_canvas_region_is_named_without_a_duplicate_visible_heading():
     assert 'aria-label", "doxBench chat rail"' in shell
 
 
+def test_the_abstract_region_is_named_for_its_subject_and_its_provenance():
+    """add-doxbench-distilled-abstract task 7.10, in the SAME house idiom the
+    test above pins for the canvas: a named `role=region` with no heading of
+    its own.
+
+    What is new here is the NAME. It was the static string `selected document`
+    (`staging-workbench.js:250`) — a name that belongs to the loaded-document
+    selector, and two surfaces claiming one name is how the two come to
+    disagree about which document a reader is on. The docs subpane's abstract
+    region now carries EXACTLY ONE name COMPOSED at render time from the
+    SUBJECT's title or path plus the provenance caption of the state showing,
+    so the deterministic and model-derived states are distinguishable by name
+    alone — and the name moves when either half moves.
+
+    Pinned here as source contract (this suite's remit); the composed value
+    itself, and the fact that it changes when the state switches, is driven
+    through a really-mounted workbench in
+    `test_doxbench_abstract_pane.py::test_the_region_is_never_announced_as_the_selected_document`.
+    """
+    shell = _shell()
+    # the region is still a region, and still named by aria-label rather than
+    # by a heading it would otherwise have announced twice
+    assert 'abstract.setAttribute("role", "region")' in shell
+    assert 'abstract.setAttribute("aria-label"' in shell
+    # the retired static name is GONE as a value handed to the DOM builder
+    assert '"selected document"' not in shell
+    # the name is set from the formatter's composed value, not assembled a
+    # second time in the view (one composition rule, one place)
+    assert "accessibleName" in shell
+    # no heading is constructed inside the region
+    region = shell[shell.index('"swb-docabstract"'):]
+    region = region[:region.index('"swb-docselector"')]
+    assert 'el("h2"' not in region and 'el("h3"' not in region
+
+
 def test_the_panel_controls_sit_in_the_tab_row_but_outside_the_tablist():
     """Brett's 2026-08-15 annotation round: "place the save and cancel in line
     with the tabs." They are in the tab ROW and outside the TABLIST — a button

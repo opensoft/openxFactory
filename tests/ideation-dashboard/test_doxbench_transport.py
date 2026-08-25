@@ -160,23 +160,35 @@ def test_app_js_defines_a_module_scope_source_loader_factory():
 
 
 def test_app_js_carries_exactly_the_four_named_fetch_call_sites():
-    """PIN EVOLUTION (T023 wire clause, then add-doxbench-editing-phase-b §9.5):
-    the cap rose from 2 to 4, and now to 5, one per NAMED call site, each
-    asserted individually -- the cap is a budget on transports, so raising it
-    without naming what filled it would make it meaningless. The five: the
-    pre-existing snapshot fetch, the source-loading pass-through, the two
-    transports the T023 wave added (GET the released model catalog, POST a chat
-    turn), and the THREAD READ this slice adds.
+    """PIN EVOLUTION (T023 wire clause, then add-doxbench-editing-phase-b §9.5,
+    then add-doxbench-distilled-abstract §7.9): the cap rose from 2 to 4, to 5,
+    and now to 6, one per NAMED call site, each asserted individually -- the cap
+    is a budget on transports, so raising it without naming what filled it would
+    make it meaningless. The six: the pre-existing snapshot fetch, the
+    source-loading pass-through, the two transports the T023 wave added (GET the
+    released model catalog, POST a chat turn), the THREAD READ, and the
+    DOCUMENT-ABSTRACT route.
 
     The thread seam is a GET and only a GET: a thread is written by a TURN,
     through the Save gate, so a write call site here would be a second write
-    route to the record."""
+    route to the record.
+
+    The abstract route is a NEW same-origin serve.py route rather than a scoped
+    chat turn, ruled 1(c)(i): the chat-turn assembler requires an outline
+    buffer, a non-blank human message and a transcript, and an abstract request
+    carries none of them, so smuggling one through that envelope would have
+    meant widening a released contract to carry a request it was not written
+    for. Its body is a CLOSED shape -- scope, subject path, model id -- and
+    carries no buffer, because the server reads the subject's SAVED bytes."""
     app = APP_JS.read_text(encoding="utf-8")
     fetches = re.findall(r"fetch\(([^)]*)", app)
-    assert len(fetches) == 5, (
-        f"app.js must carry exactly five fetch( call sites (snapshot, source "
-        f"pass-through, model-catalog GET, chat-turn POST, thread GET), "
-        f"found: {fetches}"
+    assert len(fetches) == 6, (
+        f"app.js must carry exactly six fetch( call sites (snapshot, source "
+        f"pass-through, model-catalog GET, chat-turn POST, thread GET, "
+        f"document-abstract POST), found: {fetches}"
+    )
+    assert sum("DOCUMENT_ABSTRACT_ROUTE" in a for a in fetches) == 1, (
+        "exactly one call site may reach the document-abstract route"
     )
     assert sum("threadUrl" in a for a in fetches) == 1, (
         "exactly one call site may GET a document's thread"

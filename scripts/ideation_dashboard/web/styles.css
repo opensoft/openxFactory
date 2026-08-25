@@ -2115,6 +2115,31 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
   font-family: var(--mono); font-size: 10.5px; color: var(--muted);
   border: 1px solid var(--border); border-radius: 10px; padding: 1px 8px;
 }
+/* THE ABSTRACT REGION'S CHROME (add-doxbench-distilled-abstract §7). One
+   region holds two abstracts that take turns, so the controls row, the
+   provenance caption and the in-flight line are OUTSIDE the state body: they
+   describe which abstract is showing rather than belonging to either. The box
+   is a measured 280px, so every one of these is a single compact line. */
+.swb-abstractcontrols { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+.swb-abstracttoggle, .swb-abstractgenerate, .swb-abstractcancel {
+  font: inherit; font-size: 10px; padding: 2px 8px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--ink);
+}
+/* THE CAPTION IS NEVER DECORATION. Ruling 5 makes it the sentence that says who
+   derived this abstract and what it is not, so it gets its OWN line above the
+   body at the surface's secondary weight — never folded into the body text,
+   where it would read as part of the abstract rather than as a claim about it. */
+.swb-abstractcaption {
+  font-size: 10.5px; color: var(--muted); margin: 2px 0 4px;
+  overflow-wrap: anywhere;
+}
+.swb-abstractsaved, .swb-abstractinflight {
+  font-size: 10.5px; color: var(--faint-ink); margin-bottom: 4px;
+}
+.swb-abstractnote { font-size: 11px; margin-bottom: 4px; }
+.swb-abstractprose { font-size: 12px; margin: 4px 0 6px; overflow-wrap: anywhere; }
+.swb-abstractstate { min-height: 0; }
 
 /* HEIGHT CHAIN (measured, 2026-08-03). `.swb-body` scrolls and `.swb-pane` is
    unconstrained, so a restructured pane grew to its content — the docs

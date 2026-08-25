@@ -2590,8 +2590,19 @@ def test_the_docs_wheels_own_mount_seed_does_not_bind_the_canvas():
     # it renders the abstract above it, which is the other half of the annotation
     # that asked for the wheel, and binding is the tile's LOAD verb's job.
     assert "onBind(entry.path)" not in docs_panel
-    assert "renderAbstract(abstract, entry ? entry.row.doc : null);" in docs_panel
+    # STATED ADJUSTMENT (add-doxbench-distilled-abstract task 7.8): the call
+    # gained a THIRD argument, the abstract region's controller — which is what
+    # lets a notch render the model-derived state a human already generated
+    # without the callback knowing anything about generation. The claim this
+    # line makes is unchanged: a selection renders the abstract above the wheel
+    # and does nothing else. The paired half of that claim, that a notch
+    # dispatches NO model call, is a behavioural pin in
+    # `test_doxbench_abstract_pane.py::test_spinning_the_wheel_dispatches_no_model_call`
+    # rather than a spelling, because a spelling could never have proved it.
+    assert ("renderAbstract(abstract, entry ? entry.row.doc : null, ctx);"
+            in docs_panel)
     assert "a selection is not a binding route" in docs_panel
+    assert "and not a generation" in docs_panel
 
 
 # ---------------------------------------------------------------------------
