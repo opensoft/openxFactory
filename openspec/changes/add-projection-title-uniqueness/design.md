@@ -1,6 +1,7 @@
 # Design: add-projection-title-uniqueness
 
-Status: draft
+Status: ratified
+Ratified by: add-projection-title-uniqueness
 
 The decision this document exists for is **which title derivation replaces the
 `README`-only special case**, and it was taken on measurement rather than on
