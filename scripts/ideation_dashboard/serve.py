@@ -116,6 +116,18 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 from ideation_dashboard import action_errors  # noqa: E402
+from ideation_dashboard import doxbench_abstract_store  # noqa: E402
+# The INSTALL-TIME model-provider declaration the two entrypoints make.
+# Hoisted to module scope by add-doxbench-distilled-abstract §5: the graph is
+# acyclic (`doxbench_install` -> `doxbench_bridge` -> `doxbench_mcp`/
+# `doxbench_threads`/`doxbench_model`, none of which imports this module), and
+# importing the declaration STARTS nothing -- the bridge is constructed lazily
+# on the first resolution and its child only at the first turn that needs one.
+# It used to be a function-scope import inside `serve()`, justified as "only an
+# ENTRYPOINT has any business reading an install declaration"; that is a rule
+# about who CALLS `model_port_factory`, which is still exactly one place, and
+# a deferred import was never what enforced it.
+from ideation_dashboard import doxbench_install  # noqa: E402
 from ideation_dashboard import doxbench_knowledge  # noqa: E402
 from ideation_dashboard import doxbench_packet  # noqa: E402
 # The family's NON-BLANK rule (issue #263), imported rather than
@@ -170,6 +182,16 @@ WORKBENCH_MODEL_CATALOG_ROUTE = "/workbench/model-catalog"
 # the governed artifact.
 WORKBENCH_THREAD_ROUTE = "/workbench/thread"
 ACTIONS_WORKBENCH_CHAT_TURN_ROUTE = "/actions/workbench/chat-turn"
+# add-doxbench-distilled-abstract §5 (design D1): the model-derived per-document
+# distilled abstract's OWN route, deliberately NOT a scoped chat turn. The
+# released turn envelope carries a bound buffer key, per-buffer observed hashes
+# and a buffer-keyed proposal target that an abstract request has none of, and
+# `dispatch_turn` would still demand a `{assistant_prose, proposals}` answer from
+# a request that is not a conversation. The provider-boundary requirement says it
+# in as many words -- a consumer whose request is not a conversation SHALL carry
+# its own request shape and its own declared purpose -- so this is a second
+# CONSUMER of the one model seam, never a second meaning for the chat route.
+ACTIONS_WORKBENCH_DOCUMENT_ABSTRACT_ROUTE = "/actions/workbench/document-abstract"
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 JSON_CTYPE = "application/json; charset=utf-8"
 JSON_OBJECT_BODY_REQUIRED = "a JSON object body is required"
@@ -226,12 +248,18 @@ _DEFAULT_CAPABILITIES = {"actions": {"notebook": False, "gate": False, "refresh"
 # discipline only; the schema-versioned envelope arrives WITH the released
 # contract, not before.
 #
-# `WorkbenchModelPort` and its typed catalog/fake now exist as T020's
-# catalog-only core. `model_port_factory` below (and
-# `_workbench_model_port`, on the handler class further down) remains
-# DUCK-TYPED at the injection boundary; the catalog handler consumes
-# `catalog()`, while the turn handler deliberately stops before provider
-# dispatch because the port has no dispatch member yet.
+# `WorkbenchModelPort` declares THREE members -- the adapter-declared timeout,
+# the catalog, and the single opaque dispatch -- and all three are consumed
+# here. `model_port_factory` below (and `_workbench_model_port`, on the handler
+# class further down) stays DUCK-TYPED at the injection boundary, so a
+# catalog-only adapter still resolves and the dispatch arms probe for
+# `dispatch` rather than asserting a type. (This paragraph used to describe
+# T020's "catalog-only core" and say the turn handler "deliberately stops
+# before provider dispatch because the port has no dispatch member yet". T051's
+# dispatch arm landed and the sentence has been false since; corrected by
+# add-doxbench-distilled-abstract §5 rather than left for the next reader to
+# disbelieve.) The consumers are now TWO: the chat turn, and the per-document
+# distilled abstract, which reaches the same seam through the same gate.
 #
 # Nothing here reaches a provider: no provider SDK import, no provider
 # env-var read, no credential, no raw endpoint, no secret name.
@@ -299,6 +327,16 @@ DOXBENCH_ERR_TURN_SCOPE_REFUSED = "turn_scope_refused"
 DOXBENCH_ERR_CONTENT_IDENTITY_MISMATCH = "content_identity_mismatch"
 DOXBENCH_ERR_MODEL_UNAVAILABLE = "model_unavailable"
 DOXBENCH_ERR_INVALID_TURN_REQUEST = "invalid_turn_request"
+# add-doxbench-distilled-abstract §5, and the same class of judgement call: the
+# abstract route's own malformed-request code. `invalid_turn_request` is not
+# reusable for it, because its fixed message says "the turn request is
+# malformed" and an abstract request is not a turn -- a refusal that misnames
+# what the caller sent points the reader at the wrong contract.
+DOXBENCH_ERR_INVALID_ABSTRACT_REQUEST = "invalid_abstract_request"
+# The 500 for an abstract this server composed and could not then use -- the
+# same class, and deliberately the same phrasing, as `catalog_unavailable`. No
+# request the caller could send would fix it, so a 4xx would misdirect.
+DOXBENCH_ERR_ABSTRACT_UNAVAILABLE = "abstract_unavailable"
 # ---- T051 dispatch-arm additions. These three spell doxbench_model's
 # CLOSED dispatch-code set (`DISPATCH_FAILURE_CODES`; its fourth member is
 # `model_unavailable`, already above). doxbench_model is a deferred
@@ -338,6 +376,9 @@ _DOXBENCH_MSG_TURN_SCOPE_REFUSED = "the requested scope could not be confirmed"
 _DOXBENCH_MSG_CONTENT_IDENTITY_MISMATCH = "the submitted content does not match its declared identity"
 _DOXBENCH_MSG_MODEL_UNAVAILABLE = "the requested model is not available"
 _DOXBENCH_MSG_INVALID_TURN_REQUEST = "the turn request is malformed"
+_DOXBENCH_MSG_INVALID_ABSTRACT_REQUEST = "the abstract request is malformed"
+_DOXBENCH_MSG_ABSTRACT_UNAVAILABLE = (
+    "the abstract request could not be assembled safely")
 _DOXBENCH_MSG_MODEL_TIMEOUT = "the model did not answer within the declared timeout"
 _DOXBENCH_MSG_MODEL_FAILED = "the model request failed"
 _DOXBENCH_MSG_RESPONSE_INVALID = "the model response could not be validated"
@@ -432,6 +473,11 @@ DOXBENCH_ERROR_CATALOG: dict[str, tuple[int, str]] = {
     # invalid_turn_request: judgement-call spelling; known-field shape and
     # blank message.
     DOXBENCH_ERR_INVALID_TURN_REQUEST: (400, _DOXBENCH_MSG_INVALID_TURN_REQUEST),
+    # invalid_abstract_request: 400, this slice's own spelling and status,
+    # mirroring the turn code above for the route beside it.
+    DOXBENCH_ERR_INVALID_ABSTRACT_REQUEST: (
+        400, _DOXBENCH_MSG_INVALID_ABSTRACT_REQUEST),
+    DOXBENCH_ERR_ABSTRACT_UNAVAILABLE: (500, _DOXBENCH_MSG_ABSTRACT_UNAVAILABLE),
     # T051 dispatch outcomes (spellings from doxbench_model's closed set;
     # statuses are this slice's judgement calls): 504 for the deadline
     # outcome (gateway-timeout semantics), 502 for an adapter failure and
@@ -523,6 +569,185 @@ def doxbench_error_status(code: str) -> int:
     """The fixed HTTP status for `code` (companion to `doxbench_error_body`,
     mirroring `action_errors.ERROR_CATALOG`'s status half)."""
     return DOXBENCH_ERROR_CATALOG[code][0]
+
+
+# ---- the distilled abstract's STATED refusals (add-doxbench-distilled-abstract
+# §5; ratified: "A verification failure SHALL be a stated refusal that renders no
+# abstract, and MUST NOT be silently downgraded to rendering the unverified
+# text") ----
+#
+# A DIFFERENT KIND OF REFUSAL from the catalog above, and the difference is what
+# a reader sees. The codes above are verdicts about the PLANE, the TRANSPORT or
+# the PROVIDER, and each carries one fixed sentence because nothing
+# request-derived may reach them. These are verdicts about THE ABSTRACT ITSELF:
+# the region renders a stated reason IN PLACE OF a distillation, so the reason has
+# to say which document and why, and it is rendered rather than logged.
+#
+# WHO OWNS WHICH CLASS. `doxbench_knowledge` owns the six VERIFICATION classes and
+# composes their reasons -- it is the verifier, and a route restating its
+# sentences would be a second spelling of one rule. This module adds only the
+# classes the ROUTE itself decides, and their reasons are FIXED module-level
+# strings composed from nothing the caller sent.
+DOXBENCH_ABSTRACT_REFUSED_SUBJECT_NOT_ELIGIBLE = "subject-not-eligible"
+DOXBENCH_ABSTRACT_REFUSED_SUBJECT_NOT_DISTILLABLE = "subject-not-distillable"
+DOXBENCH_ABSTRACT_REFUSED_SUBJECT_BYTES = "subject-too-large"
+DOXBENCH_ABSTRACT_REFUSED_PROSE_BYTES = "abstract-too-long"
+
+# One statement covering BOTH ways a subject can fail eligibility -- outside this
+# scope entirely, and inside it but readable-only -- and deliberately not an
+# oracle about which: `editable_paths` is fed only from sections flagged `owned`
+# (doxbench_scope.py:356-358), and the standing rule is that disclosure requires
+# edit authority (doxbench_scope.py:390, enforced at doxbench_turns.py:585-591).
+_ABSTRACT_REASON_NOT_ELIGIBLE = (
+    "this document is not one of this scope's editable documents, and on this "
+    "surface disclosure requires edit authority, so no distillation is "
+    "available for it")
+# Refused BEFORE dispatch rather than after: the verifier's coverage base is the
+# snapshot's declared topics and destinations, so a subject declaring neither
+# could only ever come back as `no-declared-base` -- and spending a provider call
+# to learn that would be spending it on a question already answered.
+_ABSTRACT_REASON_NO_DECLARED_BASE = (
+    "the snapshot declares no topics and no destinations for this document, so "
+    "subject-mention coverage has no base and a distilled abstract could not be "
+    "verified against anything the document itself declares")
+_ABSTRACT_REASON_NOT_DISTILLABLE = (
+    "this document carries nothing to distil, so the region states the absence "
+    "rather than asking a model to invent one")
+_ABSTRACT_REASON_SUBJECT_BYTES = (
+    "this document is larger than the byte bound one abstract request may "
+    "carry, so no distillation is available for it")
+_ABSTRACT_REASON_PROSE_BYTES = (
+    "the model answered at greater length than this region can render, and an "
+    "over-long answer is refused in full rather than trimmed into it: text cut "
+    "to fit is text no model wrote and no verifier checked")
+
+# code -> HTTP status. The three 502s are the `response_invalid` class by another
+# name -- the upstream answered, unusably -- and they are the statuses the chat
+# route already gives that class. The two 409s say something different and truer:
+# nothing the caller could resend would help, but the state of the DOCUMENT can
+# change (an edit gives it declared fields, or brings it inside the bound) and
+# then the same request succeeds. The 403 is a capability-shaped verdict about
+# authority over this subject, the same status class as every other refusal on
+# this surface that is about what the caller may reach.
+DOXBENCH_ABSTRACT_REFUSAL_STATUS: dict[str, int] = {
+    DOXBENCH_ABSTRACT_REFUSED_SUBJECT_NOT_ELIGIBLE: 403,
+    DOXBENCH_ABSTRACT_REFUSED_SUBJECT_NOT_DISTILLABLE: 409,
+    DOXBENCH_ABSTRACT_REFUSED_SUBJECT_BYTES: 409,
+    DOXBENCH_ABSTRACT_REFUSED_PROSE_BYTES: 502,
+    doxbench_knowledge.ABSTRACT_REFUSED_EMPTY: 502,
+    doxbench_knowledge.ABSTRACT_REFUSED_NO_DECLARED_BASE: 409,
+    doxbench_knowledge.ABSTRACT_REFUSED_FOREIGN_PATH: 502,
+    doxbench_knowledge.ABSTRACT_REFUSED_SUBJECT_NOT_NAMED: 502,
+    doxbench_knowledge.ABSTRACT_REFUSED_COVERAGE: 502,
+    doxbench_knowledge.ABSTRACT_REFUSED_PREVIOUS_COVERAGE: 502,
+}
+
+
+def doxbench_abstract_refusal_body(code: str, reason: str, *, subject_path: str,
+                                   subject_digest: str | None = None,
+                                   caption_state: str = doxbench_knowledge.CAPTION_NOT_YET_GENERATED,
+                                   wait_bound_seconds: float | None = None) -> dict:
+    """The abstract route's STATED-refusal body -- a PURE module-level function,
+    testable with no handler and no server.
+
+    THE KEY SET IS FIXED AND CARRIES NO PROSE. That is structural rather than a
+    rule someone must remember: a refusal renders nothing, so there is no field a
+    downstream surface could silently downgrade the refused text into. The
+    verifier gives the same guarantee at its own boundary -- `AbstractRefused`
+    has no prose field -- and this shape keeps it on the wire.
+
+    `subject_digest` is `None` where the route refused BEFORE reading the
+    subject's saved bytes (an ineligible subject is refused before any
+    disclosure), and `wait_bound_seconds` is `None` where it refused before
+    resolving the adapter."""
+    if code not in DOXBENCH_ABSTRACT_REFUSAL_STATUS:
+        raise KeyError(code)
+    return {"ok": False, "refused": code, "reason": reason,
+            "caption_state": caption_state, "subject_path": subject_path,
+            "subject_digest": subject_digest,
+            "wait_bound_seconds": wait_bound_seconds}
+
+
+def doxbench_abstract_refusal_status(code: str) -> int:
+    """The fixed HTTP status for one stated abstract refusal (companion to
+    `doxbench_abstract_refusal_body`)."""
+    return DOXBENCH_ABSTRACT_REFUSAL_STATUS[code]
+
+
+def doxbench_abstract_success_body(abstract, *,
+                                   wait_bound_seconds: float | None) -> dict:
+    """The verified abstract's wire body -- a PURE module-level function.
+
+    THE ECHO IS THE POINT (task 5.6, design D6). The body names the subject path
+    and the content digest this abstract was generated FOR, so a result resolving
+    against a subject the pane no longer has selected is discarded unrendered
+    instead of painting itself over whatever the reader has since spun to, under
+    a confident caption.
+
+    `caption_state` comes from the artifact's own `caption_state_for`, never from
+    a literal here: the five ruled captions are `doxbench_knowledge`'s
+    vocabulary, and a sixth spelling in a third file is how five strings become
+    six. `generation` is the store's own increasing counter and never a clock --
+    `DocumentAbstract` refuses a clock reading in that field by construction.
+
+    NO `schema_version`, NO `kind`: no released openxFactory schema declares an
+    abstract shape, so this carries the same unversioned console-internal shape
+    `/capabilities` and the thread read route carry. Inventing a `schema_version`
+    here would claim a release nobody cut."""
+    return {"ok": True,
+            "subject_path": abstract.subject_path,
+            "subject_digest": abstract.subject_digest,
+            "model_id": abstract.model_id,
+            "prose": abstract.prose,
+            "caption_state": abstract.caption_state_for(
+                current_digest=abstract.subject_digest),
+            "generation": abstract.generation,
+            "wait_bound_seconds": wait_bound_seconds}
+
+
+def doxbench_declared_fields(snapshot, subject_path: str):
+    """The SNAPSHOT'S OWN declared topics and destinations for one document, as
+    `(topics, lands)` -- the abstract's verification base, and the two fields its
+    prompt header states.
+
+    The destinations object is FLATTENED here into the surface's own
+    `kind: name` lands (`staging-workbench-model.js:1566-1571`) rather than
+    passed through as a mapping. The assembler renders one line per declared
+    value and refuses a non-string; the verifier accepts either shape. Flattening
+    at the one place that reads the snapshot keeps the base the verifier checks
+    and the header the model reads spelled identically, which is the whole point
+    of the coverage rule.
+
+    Anything that is not a one-line string is SKIPPED rather than rendered: a
+    line break in a declared value would forge a header field, and the assembler
+    refuses one -- so a malformed snapshot value must not be able to turn a
+    readable document into a 500."""
+    documents = snapshot.get("documents") if isinstance(snapshot, dict) else None
+    document = None
+    for raw in documents or ():
+        if isinstance(raw, dict) and raw.get("path") == subject_path:
+            document = raw
+            break
+    if document is None:
+        return (), ()
+
+    def _lines(values):
+        return tuple(value for value in values
+                     if isinstance(value, str) and value.strip()
+                     and "\n" not in value and "\r" not in value)
+
+    topics_raw = document.get("topics")
+    topics = _lines(topics_raw if isinstance(topics_raw, list) else ())
+    lands: list[str] = []
+    destinations = document.get("destinations")
+    if isinstance(destinations, dict):
+        for kind, names in destinations.items():
+            if not isinstance(kind, str):
+                continue
+            for name in (names if isinstance(names, list) else ()):
+                if isinstance(name, str) and name.strip():
+                    lands.append(kind + ": " + name)
+    return topics, _lines(tuple(lands))
 
 
 # ---- the RELEASED chat-turn failure envelope (T024/T051 wire clause) ----
@@ -667,10 +892,14 @@ def doxbench_selected_model(model_entry) -> dict:
     could find, in one place, that the SIDECAR was being handed the requested id
     while the wire record carried the resolved one (F3).
 
-    Its three CONSUMERS are now the v2 wire record, the thread sidecar's turn
-    header, and nothing else. The deprecated v1 success envelope does NOT
-    consult it: that envelope has room for exactly one model id and cannot state
-    both facts, which is recorded as a v1 limitation rather than papered over."""
+    Its CONSUMERS are now the v2 wire record, the thread sidecar's turn header,
+    and -- since add-doxbench-distilled-abstract §5 -- the distilled abstract,
+    which records the ANSWERING model on the artifact it verifies for exactly the
+    reason the routing-rule scenario gives: a reader must be able to learn which
+    model actually answered, and `auto` is not one. The deprecated v1 success
+    envelope does NOT consult it: that envelope has room for exactly one model id
+    and cannot state both facts, which is recorded as a v1 limitation rather than
+    papered over."""
     requested = str(model_entry.model_id)
     routing_rule = bool(getattr(model_entry, "routing_rule", False))
     resolved = getattr(model_entry, "resolved_model_id", None)
@@ -1381,6 +1610,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     # `doxbench_turns.TurnStore()` here -- ONE store per served process, never
     # shared across servers (see `test_turn_store_is_bound_per_server_process`).
     turn_store = None
+    # The per-process DISTILLED-ABSTRACT cache (add-doxbench-distilled-abstract
+    # §5.3, clarification N1). A SEPARATE instance with SEPARATE bounds, never
+    # the chat ledger above: a scope holding more documents than the bound is
+    # the ordinary case for abstracts, so a shared store would evict chat
+    # idempotency records under ordinary abstract churn and a chat retry that
+    # should replay would re-dispatch. None only in hand-constructed handlers;
+    # `build_server` always binds a fresh one.
+    abstract_store = None
     # The doxBench STAGED-SET KNOWLEDGE SERVICE, declared at INSTALL time
     # (add-doxbench-editing-phase-b D11, task 10.6). None means NO knowledge
     # service, which is a declared POSTURE and not an error: the turn degrades
@@ -3419,6 +3656,428 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             pass
         self._send_json(status, body)
 
+    # ---- the distilled abstract (add-doxbench-distilled-abstract §5) -------
+    #
+    # THE SECOND MODEL CONSUMER, and it reaches the provider through the SAME
+    # seam under the SAME gate: `_workbench_model_port`, the three declared port
+    # members, and `_deadline_bound_dispatch` -> `doxbench_model.dispatch_turn`.
+    # No fourth provider verb, no second provider path, and nothing smuggled
+    # through the chat-turn envelope -- what differs is the REQUEST, which is
+    # assembled by `doxbench_turns.build_abstract_envelope` and carries exactly
+    # one subject document with no packet, no second buffer, no transcript and
+    # no human message.
+
+    @staticmethod
+    def _parse_document_abstract_body(payload):
+        """The abstract request's known fields, or None.
+
+        The shape is CLOSED and checked here rather than by a released schema,
+        because no openxFactory schema declares an abstract request: an unknown
+        key is REFUSED rather than ignored. That matters for exactly the keys a
+        chat-shaped client would send by habit -- `buffers`, `transcript`,
+        `context_packet`, `message` -- because silently dropping one would be the
+        smuggling `build_abstract_envelope` exists to refuse, discovered later
+        and by nobody.
+
+        The subject path is checked for SHAPE only (repository-relative POSIX,
+        no traversal segment): a path that is not one is a MALFORMED request, not
+        an ineligible subject, and answering it with the eligibility refusal
+        would echo a traversal string back as though it named a document."""
+        if set(payload) != {"scope", "subject_path", "model_id"}:
+            return None
+        scope = payload.get("scope")
+        if not isinstance(scope, dict):
+            return None
+        if set(scope) != {"repository", "ref", "tile_kind", "tile_id"}:
+            return None
+        if any(not isinstance(value, str) or not value.strip()
+               for value in scope.values()):
+            return None
+        subject_path = payload.get("subject_path")
+        model_id = payload.get("model_id")
+        for value in (subject_path, model_id):
+            if not isinstance(value, str) or not value.strip():
+                return None
+        if (subject_path.startswith("/") or "\\" in subject_path
+                or "\x00" in subject_path
+                or any(segment in ("", ".", "..")
+                       for segment in subject_path.split("/"))):
+            return None
+        return {"scope": scope, "subject_path": subject_path,
+                "model_id": model_id}
+
+    def _refuse_abstract(self, code, reason, *, subject_path,
+                         subject_digest=None, caption_state=None,
+                         wait_bound_seconds=None) -> None:
+        """Send one STATED abstract refusal: a declared class, a reason the
+        region renders, a caption state, and no prose."""
+        body = doxbench_abstract_refusal_body(
+            code, reason, subject_path=subject_path,
+            subject_digest=subject_digest,
+            wait_bound_seconds=wait_bound_seconds,
+            **({} if caption_state is None else {"caption_state": caption_state}))
+        self._send_json(doxbench_abstract_refusal_status(code), body)
+
+    def _handle_workbench_document_abstract(self) -> None:
+        """`POST /actions/workbench/document-abstract` (§5, design D1).
+
+        Every step refuses before the next, and before any disclosure or
+        dispatch, in the same load-bearing order the chat-turn handler uses:
+        plane, console, body bound, request shape, scope, ELIGIBILITY, the
+        subject's saved bytes, the verification base, the model, the assembled
+        request, the store, and only then a provider."""
+        from ideation_dashboard import doxbench_hash
+        from ideation_dashboard import doxbench_model
+        from ideation_dashboard import doxbench_scope
+        from ideation_dashboard import doxbench_turns
+
+        # ---- step 1: the plane. The SAME three-part verdict the catalog and
+        # chat-turn routes sit behind -- a loopback human console, a real
+        # checkout, a resolved actor -- read through the `session` capability
+        # those two already reuse, AND the `gate` capability ruling 7.7 names:
+        # where the gate capability is absent the generation control is ABSENT,
+        # so a request for one is refused rather than served. `capability_verdict`
+        # derives both keys from one `local_human` value today, so naming both is
+        # a statement of the rule rather than a second gate; a plane that ever
+        # separates them refuses generation and keeps every already-generated
+        # abstract readable, which is exactly what 7.7 requires.
+        actions = self.capabilities.get("actions", {})
+        if not (self.loopback and actions.get("session") and actions.get("gate")
+                and self.actor):
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
+            return
+        console_refusal = self._not_the_human_console()
+        if console_refusal is not None:
+            sys.stderr.write("[actions/workbench/document-abstract] "
+                             f"agent_invocation refused: {console_refusal}\n")
+            self._send_json(doxbench_error_status(DOXBENCH_ERR_CONSOLE_REQUIRED),
+                            doxbench_error_body(DOXBENCH_ERR_CONSOLE_REQUIRED))
+            return
+
+        # ---- step 2: the body bound. The TINY pre-existing cap, declared for
+        # this route by name: an abstract request carries a scope, a path and a
+        # model id and never a buffer, so the chat route's 1 MiB bound would be
+        # a bound this route has no use for.
+        payload, refusal = self._read_bounded_json_body(
+            _MAX_BODY_BYTES, "request_body_bytes")
+        if refusal is not None:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED),
+                doxbench_error_body(DOXBENCH_ERR_REQUEST_LIMIT_EXCEEDED,
+                                    limit=refusal))
+            return
+        if payload is None:
+            self._send_json(400, {"ok": False, "error": "invalid_body",
+                                  "message": JSON_OBJECT_BODY_REQUIRED})
+            return
+
+        # ---- step 3: the request shape ----
+        fields = self._parse_document_abstract_body(payload)
+        if fields is None:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_INVALID_ABSTRACT_REQUEST),
+                doxbench_error_body(DOXBENCH_ERR_INVALID_ABSTRACT_REQUEST))
+            return
+        subject_path = fields["subject_path"]
+        model_id = fields["model_id"]
+        key = doxbench_scope.ScopeKey(**fields["scope"])
+
+        # ---- step 4: scope, all from SERVER truth ----
+        projection = None
+        source_root = None
+        snapshot = None
+        scope_refused = False
+        try:
+            entry = self.source.registry.resolve(key.repository, key.ref)
+            if entry is None or entry.source_root is None:
+                scope_refused = True
+            else:
+                source_root = Path(entry.source_root)
+                snapshot = json.loads(entry.read_bytes())
+                created_paths = doxbench_scope.session_created_paths_for_scope(
+                    self.source.registry, key, repository=entry.repository,
+                    ref=entry.ref, source_root=source_root)
+                projection = doxbench_scope.resolve_scope(
+                    snapshot, key, source_root=source_root,
+                    created_paths=created_paths)
+                if projection is None:
+                    scope_refused = True
+        except (doxbench_scope.ScopeConfinementError, ValueError, OSError):
+            scope_refused = True
+        if scope_refused:
+            # The same fail-closed refusal the chat route gives, so no response
+            # is an oracle about which repositories, refs or tiles exist.
+            self._send_json(doxbench_error_status(DOXBENCH_ERR_TURN_SCOPE_REFUSED),
+                            doxbench_error_body(DOXBENCH_ERR_TURN_SCOPE_REFUSED))
+            return
+
+        # ---- step 5: ELIGIBILITY (ruling 7(a)), before any disclosure ----
+        # `revalidate_scope` is the ONE authority for "in scope AND editable"
+        # (`doxbench_turns._require_in_scope_and_editable`), reached here with no
+        # buffers and no declared binding -- which is precisely what an abstract
+        # request carries. The `editable_paths` membership is ALSO read directly,
+        # because that is the ruled set and the reason the region can state
+        # honestly that no distillation is available for a readable-but-not-
+        # editable document. A realization MUST NOT widen the disclosure set to
+        # reach a subject; widening to `context_paths` is ruling 7(b), a named
+        # follow-on with its own delta.
+        try:
+            doxbench_turns.revalidate_scope(
+                projection=projection, request_scope=key,
+                bound_buffer_key=None, buffer_keys=(), paths=(subject_path,))
+            eligible = subject_path in projection.editable_paths
+        except doxbench_turns.TurnScopeError:
+            eligible = False
+        if not eligible:
+            self._refuse_abstract(
+                DOXBENCH_ABSTRACT_REFUSED_SUBJECT_NOT_ELIGIBLE,
+                _ABSTRACT_REASON_NOT_ELIGIBLE, subject_path=subject_path)
+            return
+
+        # ---- step 6: the SUBJECT'S OWN SAVED BYTES ----
+        # The served checkout's file, read through `/source`'s own lens, and
+        # never a browser buffer: an unsaved buffer's text must not leave the
+        # browser, and this route carries no field it could arrive in.
+        resolved = registry_mod.resolve_within(source_root, subject_path)
+        if resolved is None or not resolved.is_file():
+            self._send_json(doxbench_error_status(DOXBENCH_ERR_TURN_SCOPE_REFUSED),
+                            doxbench_error_body(DOXBENCH_ERR_TURN_SCOPE_REFUSED))
+            return
+        try:
+            content = doxbench_hash.served_text(resolved.read_bytes())
+        except (OSError, UnicodeDecodeError, ValueError):
+            self._send_json(doxbench_error_status(DOXBENCH_ERR_TURN_SCOPE_REFUSED),
+                            doxbench_error_body(DOXBENCH_ERR_TURN_SCOPE_REFUSED))
+            return
+        try:
+            digest = doxbench_knowledge.document_content_digest(content)
+        except doxbench_knowledge.AbstractFormatRefused:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_ABSTRACT_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_ABSTRACT_UNAVAILABLE))
+            return
+
+        # ---- step 7: the VERIFICATION BASE, and the refusal it decides ----
+        declared_topics, declared_lands = doxbench_declared_fields(
+            snapshot, subject_path)
+        if not declared_topics and not declared_lands:
+            self._refuse_abstract(
+                doxbench_knowledge.ABSTRACT_REFUSED_NO_DECLARED_BASE,
+                _ABSTRACT_REASON_NO_DECLARED_BASE,
+                subject_path=subject_path, subject_digest=digest)
+            return
+
+        # ---- step 8: the model ----
+        port = self._workbench_model_port()
+        if port is None or not callable(getattr(port, "dispatch", None)):
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
+            return
+        try:
+            catalog = port.catalog()
+        except Exception:  # noqa: BLE001 - never let a provider-shaped exception reach the wire
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_CATALOG_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_CATALOG_UNAVAILABLE))
+            return
+        if not isinstance(catalog, doxbench_model.ModelCatalog):
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_CATALOG_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_CATALOG_UNAVAILABLE))
+            return
+        model_entry = catalog.selectable_entry_for(model_id)
+        if model_entry is None:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_MODEL_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_MODEL_UNAVAILABLE))
+            return
+        # THE ADAPTER'S OWN DECLARED BOUND, which the region states as the wait
+        # it expects. Never `MAX_ADAPTER_TIMEOUT_SECONDS`: that is the validated
+        # CEILING, and a region showing 120s while the adapter declared 60s would
+        # be lying in the safe direction and still lying.
+        try:
+            wait_bound = doxbench_model.validated_timeout_seconds(
+                port.timeout_seconds)
+        except doxbench_model.AdapterTimeoutError:
+            wait_bound = None
+
+        # ---- step 9: the assembled request ----
+        # `build_abstract_envelope` is the ONE authority for what an abstract
+        # request may carry. It is handed the digest this route keyed its store
+        # by, and it REFUSES if that is not the digest of the bytes about to be
+        # sent -- so the pair the response echoes can never be a false statement
+        # about which content was distilled.
+        try:
+            envelope = doxbench_turns.build_abstract_envelope(
+                subject_path, content, model_id=model_id,
+                declared_topics=declared_topics,
+                declared_destinations=declared_lands,
+                declared_digest=digest)
+        except doxbench_turns.TurnLimitError:
+            self._refuse_abstract(
+                DOXBENCH_ABSTRACT_REFUSED_SUBJECT_BYTES,
+                _ABSTRACT_REASON_SUBJECT_BYTES,
+                subject_path=subject_path, subject_digest=digest,
+                wait_bound_seconds=wait_bound)
+            return
+        except doxbench_turns.AbstractPacketRefusedError:
+            # Unreachable by construction -- this route hands the assembler no
+            # packet parameter at all -- and mapped anyway, because the one
+            # refusal that must never become a dead handler is the one nobody
+            # expected. A server-side assembly failure, not a caller's defect.
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_ABSTRACT_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_ABSTRACT_UNAVAILABLE))
+            return
+        except doxbench_turns.AbstractRequestError:
+            # The subject itself: an empty document has nothing to distil, and a
+            # declared field that is not one line would forge a header. Both are
+            # renderable states of the DOCUMENT, so both are stated refusals
+            # rather than errors.
+            self._refuse_abstract(
+                DOXBENCH_ABSTRACT_REFUSED_SUBJECT_NOT_DISTILLABLE,
+                _ABSTRACT_REASON_NOT_DISTILLABLE,
+                subject_path=subject_path, subject_digest=digest,
+                wait_bound_seconds=wait_bound)
+            return
+        except doxbench_turns.TurnIdentityMismatchError:
+            # The route computed the digest from the very bytes it passed, so a
+            # mismatch here is this server contradicting itself. Refuse; never
+            # reconcile, and never send a pair that would be a lie.
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_ABSTRACT_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_ABSTRACT_UNAVAILABLE))
+            return
+
+        # ---- step 10: the store. ONE in-flight generation per key, an
+        # identical key replayed with no second dispatch, and a changed digest a
+        # NEW KEY rather than a conflict (the key is `(path, digest)`). A
+        # concurrent request for the same key ATTACHES here rather than
+        # dispatching a second time -- which is also the "regenerating" state the
+        # renderer shows, so ruling 3(b) needs no machinery of its own.
+        #
+        # THE MODEL ID IS NOT IN THE KEY, and that is the ruled key rather than
+        # an omission: the requirement keys the cache by subject path and content
+        # digest so that returning to a document does not spend a second call on
+        # an answered question. A request naming a different model for bytes
+        # already answered therefore REPLAYS, and the body names the model that
+        # actually answered, so nothing on the wire claims the model that did
+        # not.
+        store_key = doxbench_abstract_store.AbstractKey(
+            subject_path=subject_path, content_digest=digest)
+        lease = self.abstract_store.reserve(store_key)
+        if not lease.should_dispatch:
+            outcome = lease.result
+            self._send_json(outcome["status"], outcome["body"])
+            return
+
+        answered = False
+        try:
+            # ---- step 11: dispatch, under the adapter's OWN deadline ----
+            # `proposal_validator` is deliberately None: an abstract request is
+            # not a conversation and can accept no typed proposal, so a
+            # proposal-bearing answer fails closed inside `dispatch_turn`.
+            outcome = self._deadline_bound_dispatch(
+                port, envelope, model_entry, None)
+            if not isinstance(outcome, doxbench_model.TurnDispatchSuccess):
+                self._send_json(doxbench_error_status(outcome.error),
+                                doxbench_error_body(outcome.error))
+                return
+
+            # ---- step 12: the response bound, then VERIFICATION ----
+            try:
+                prose = doxbench_turns.validate_abstract_prose(
+                    outcome.assistant_prose)
+            except doxbench_turns.TurnLimitError:
+                self._refuse_abstract(
+                    DOXBENCH_ABSTRACT_REFUSED_PROSE_BYTES,
+                    _ABSTRACT_REASON_PROSE_BYTES,
+                    subject_path=subject_path, subject_digest=digest,
+                    wait_bound_seconds=wait_bound)
+                return
+
+            # EVERY repository path the request actually carried: the subject's
+            # own, plus the paths the subject's OWN SAVED CONTENT names. The
+            # verifier refuses an answer naming a path its request did not carry
+            # -- which is what refuses the wrong-document and leaked-neighbour
+            # answers -- and a document that links to its neighbours would
+            # otherwise make every faithful quotation of its own links a
+            # refusal. Derived with the verifier's OWN path rule rather than a
+            # second one here (`verify_document_abstract`'s docstring names this
+            # derivation as the route's job), then filtered to the shapes that
+            # module accepts, so a link the rule finds but the validator refuses
+            # cannot turn a readable document into a 500.
+            carried = [subject_path]
+            for candidate in doxbench_knowledge._named_repository_paths(content):
+                if (candidate.startswith("/") or "\\" in candidate
+                        or any(segment in ("", ".", "..")
+                               for segment in candidate.split("/"))):
+                    continue
+                carried.append(candidate)
+
+            generation = self.abstract_store.next_generation()
+            try:
+                verdict = doxbench_knowledge.verify_document_abstract(
+                    prose,
+                    subject_path=subject_path,
+                    subject_digest=digest,
+                    model_id=doxbench_selected_model(
+                        model_entry)["resolved_model_id"],
+                    declared_topics=declared_topics,
+                    declared_destinations=declared_lands,
+                    request_paths=tuple(carried),
+                    subject_title=envelope.subject_title,
+                    # The PREVIOUS abstract for this document, under whatever
+                    # digest it was generated from: the ratified rule makes it an
+                    # ADDITIONAL base, never the only one. It can never be this
+                    # key's own -- a cached answer for these exact bytes was
+                    # replayed above, before any verification ran -- so what is
+                    # offered here is the answer from BEFORE the last edit,
+                    # which is precisely the base the rule is about.
+                    previous=self.abstract_store.latest_for_path(subject_path),
+                    generation=generation)
+            except doxbench_knowledge.AbstractFormatRefused:
+                self._send_json(
+                    doxbench_error_status(DOXBENCH_ERR_ABSTRACT_UNAVAILABLE),
+                    doxbench_error_body(DOXBENCH_ERR_ABSTRACT_UNAVAILABLE))
+                return
+            if isinstance(verdict, doxbench_knowledge.AbstractRefused):
+                # A verification failure renders NOTHING, and is never silently
+                # downgraded to rendering the unverified text: the refused prose
+                # does not leave the verifier, and this body has no field it
+                # could ride in. It is also NOT cached -- the `finally` below
+                # releases the key -- so the re-generate control can try again
+                # against unchanged content.
+                self._refuse_abstract(
+                    verdict.code, verdict.reason,
+                    subject_path=verdict.subject_path, subject_digest=digest,
+                    caption_state=verdict.caption_state,
+                    wait_bound_seconds=wait_bound)
+                return
+
+            body = doxbench_abstract_success_body(
+                verdict, wait_bound_seconds=wait_bound)
+            try:
+                self.abstract_store.complete(
+                    store_key, {"status": 200, "body": body},
+                    size_bytes=len(json.dumps(body).encode("utf-8")),
+                    abstract=verdict)
+                answered = True
+            except doxbench_abstract_store.AbstractStoreError:
+                # Bookkeeping failed; the verdict was still reached and
+                # self-consistent, so it is answered. A store-side refusal must
+                # never turn a decided answer into a dropped connection.
+                pass
+            self._send_json(200, body)
+        finally:
+            if not answered:
+                # A refusal is not an answer, so the key goes back to being
+                # unknown rather than caching a refusal for these bytes forever.
+                self.abstract_store.release(store_key)
+
     def _deadline_bound_dispatch(self, port, prompt_envelope, model_entry,
                                  proposal_validator):
         """Run `doxbench_model.dispatch_turn` under the adapter's OWN declared
@@ -3607,6 +4266,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return
         if path == ACTIONS_WORKBENCH_CHAT_TURN_ROUTE:
             self._handle_workbench_chat_turn()
+            return
+        if path == ACTIONS_WORKBENCH_DOCUMENT_ABSTRACT_ROUTE:
+            self._handle_workbench_document_abstract()
             return
         if path.startswith(ACTIONS_GATE_PREFIX):
             self._handle_gate_action(path[len(ACTIONS_GATE_PREFIX):])
@@ -4811,6 +5473,11 @@ def build_server(
                   if schema_validator_factory is not None else None)),
         # ONE fresh turn-idempotency ledger per served process (T050/T051).
         "turn_store": doxbench_turns.TurnStore(),
+        # ONE fresh abstract cache per served process, beside it and never it
+        # (add-doxbench-distilled-abstract §5.3, N1). Two stores, two bounds:
+        # abstract churn over a scope larger than the abstract bound evicts
+        # abstracts and nothing else.
+        "abstract_store": doxbench_abstract_store.AbstractStore(),
         # The INSTALL-TIME retrieval-backend declaration (task 10.6). Bound
         # once, here, and READ by the route; the backend instance itself is
         # built per request from this declaration and from nothing else, so no
@@ -4885,11 +5552,11 @@ def serve(
     # served snapshot — so the two entrypoints cannot drift into writing harness
     # sessions in two different places.
     #
-    # Imported inside this entrypoint rather than at module scope: `serve.py` is
-    # imported by lanes that never serve anything (the generator's own tests
-    # among them), and only an ENTRYPOINT has any business reading an install
-    # declaration.
-    from ideation_dashboard import doxbench_install
+    # `doxbench_install` is imported at module scope (see the import block's own
+    # note): the graph is acyclic and importing the declaration starts nothing.
+    # What stays an ENTRYPOINT decision is this call -- the two entrypoints are
+    # the only places that reach for the real declaration, and `build_server`
+    # still never does it on a caller's behalf.
     build_kwargs.setdefault(
         "model_port_factory",
         doxbench_install.model_port_factory(

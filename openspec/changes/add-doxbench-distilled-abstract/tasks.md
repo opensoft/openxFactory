@@ -151,21 +151,21 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
 
 ## 5. The route and the store
 
-- [ ] 5.1 RED: the new route is refused on a non-loopback plane, with no gate
+- [x] 5.1 RED: the new route is refused on a non-loopback plane, with no gate
       capability, and with no resolved actor — the same three-part verdict the
       catalog and turn routes sit behind.
-- [ ] 5.2 RED: the route refuses a subject outside `projection.editable_paths`
+- [x] 5.2 RED: the route refuses a subject outside `projection.editable_paths`
       with a stated reason and reaches no provider (ruling 7(a)).
-- [ ] 5.3 RED: a separate bounded store, keyed by `(subject path, content
+- [x] 5.3 RED: a separate bounded store, keyed by `(subject path, content
       digest)`; one in-flight per key with attach-and-wait; identical-key replay
       with no second dispatch; a changed digest is a NEW key and not a conflict;
       eviction is deterministic and not clock-ordered.
-- [ ] 5.4 RED (N1, explicitly): abstract activity over a scope larger than the
+- [x] 5.4 RED (N1, explicitly): abstract activity over a scope larger than the
       cache bound MUST NOT evict the chat surface's turn-idempotency records.
       Assert against the chat `TurnStore`'s own contents.
-- [ ] 5.5 Implement the route beside `_workbench_model_port` and the store.
+- [x] 5.5 Implement the route beside `_workbench_model_port` and the store.
       GREEN 5.1–5.4.
-- [ ] 5.6 RED then GREEN: the response echoes the subject path and digest it was
+- [x] 5.6 RED then GREEN: the response echoes the subject path and digest it was
       generated for.
 
 ## 6. Snapshot non-interference (both directions)
