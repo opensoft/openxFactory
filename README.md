@@ -1010,12 +1010,14 @@ Archived changes:
   scenario-complete, 27 of 28 pre-existing `doc-health` requirements
   byte-for-byte untouched (28 → 29 requirements, 116 → 124 scenarios;
   `document-lifecycle` 15 → 16, 68 → 72), and both now-enforcing families read
-  0 findings at `--fail-on error` on the archive event itself. Two questions
-  survive as RECORDED, NOT FIXED in the packet: § 5.2, whether the family should
-  join promotion fidelity on the live-`main` basis (it gates on the pinned
-  checkout, which is what it was measured on), and § 5.5, deriving the
-  family-count enumeration instead of restating it so a thin block cannot
-  regress canon again.
+  0 findings at `--fail-on error` on the archive event itself. **The BASIS is
+  ruled too** — Brett closed § 5.2 on 2026-08-25 ("keep the pinned basis"), so
+  the family measures and enforces on the pinned checkout permanently and the
+  live-`main` basis stays scoped to promotion fidelity alone; canon already said
+  so as an unconditional SHALL, so the ruling removed an option rather than
+  adding an obligation. ONE item survives as RECORDED, NOT FIXED in the packet:
+  § 5.5, deriving the family-count enumeration instead of restating it so a thin
+  `MODIFIED` block cannot regress canon a fourth time.
 
 - [add-promotion-fidelity-check](openspec/changes/archive/2026-08-25-add-promotion-fidelity-check/proposal.md)
   — **ARCHIVED 2026-08-25** on merge-plus-green, the
