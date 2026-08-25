@@ -447,41 +447,38 @@ Active changes:
   16 MB bound abstract churn would evict and whose same-key-different-digest
   conflict rule forces the content digest INTO the cache key.
 
-- [add-duplicate-packet-check](openspec/changes/add-duplicate-packet-check/proposal.md)
-  — authored and ratified 2026-08-24, commissioned in-session ("commission the
-  duplicate-packet check"). The neighbour class of promotion fidelity, and the
-  one that family is structurally blind to: TWO archived packets can promote
-  the same delta content — one ruling discharged twice — and because canon then
-  holds exactly what both packets said it should, the archived-delta-vs-canon
-  comparison reads 0 either way. `openspec --strict` sees one packet at a time;
-  the lifecycle families read headers, and both duplicates carry impeccable
-  ones. The near miss is on this repository's own record: PR #317 and the landed
-  `2026-08-25-apply-branch-sessions-deltas` both restated the identical
-  2026-08-01 `add-workbench-branch-sessions` delta — the same git blob — from
-  parallel sessions, and a human closed the second unmerged twenty minutes
-  later. `document-lifecycle` gains the obligation ("A ruling is discharged
-  once": a packet restating another's ratified delta content names it, and the
-  naming records LINEAGE, not authority). `doc-health` gains the family, which
-  compares archived deltas ONLY AGAINST EACH OTHER and moves no census,
-  canon-share figure, inventory entry or catalog record. Content identity is
-  byte-equality above trailing whitespace — never a similarity heuristic, which
-  would report the ordinary case of a requirement being revised. The lineage
-  exemption is what keeps the lawful remedy legal: applying a ratified delta
-  byte-faithfully (codexFactory PR #85's shape) is prescribed, so a pair where
-  either proposal names the other's change id stays quiet, while two remedials
-  of one ruling that do NOT name each other fire. Launched ADVISORY in both
-  halves and **ENFORCING since 2026-08-25** — ruled by Brett ("flip the
-  duplicate-packet check to enforcing"), both halves in one commit: `error`
-  severity plus a `CONTESTED` `FAMILY_RESOLUTION` entry, pinned together by an
-  invariant test that fails by name on a half-flip. Sequenced behind a measured
-  population, never over a standing one — and the population is the FULL pinned
-  set, enumerated from the aggregation repo's own `origin/main` and read at each
-  repository's exact pinned sha: **19 repositories, 207 archived packets, 1124
-  identities, 3 restated groups, 0 findings**. All three restated groups are
-  recorded lineage, codexFactory's PR #85 remedial among them — the archetype of
-  the lawful pattern the exemption protects. The pinned-vs-live basis question
-  stays open (tasks §5.2); the measurement gap the flip was taken over is
-  closed (§5.4).
+- [add-family-enumeration-check](openspec/changes/add-family-enumeration-check/proposal.md)
+  — authored and ratified 2026-08-25, commissioned in-session ("commission the
+  §5.5 enumeration check"). `doc-health`'s own "Deterministic check families"
+  requirement NAMES every check family and COUNTS them three times in prose, and
+  every new family must restate the whole requirement to add itself — so a
+  requirement every new family must restate is a requirement every new family can
+  truncate. It broke THREE TIMES IN THREE DAYS and a human caught it every time:
+  `add-release-inventory-drift-check`, `add-promotion-fidelity-check` and
+  `add-duplicate-packet-check` each restated ONE of its EIGHT scenarios, and
+  because `MODIFIED` replaces a requirement wholesale each would have destroyed
+  seven on promotion with the file-level scenario count never moving. The
+  enumeration half had drifted more quietly before that — `staged-topic-template`
+  registered 2026-08-15 and stayed uncounted until 2026-08-23. Closes the
+  candidate `add-duplicate-packet-check` § 5.5 recorded and left named. Adds
+  doc-health's TWENTY-FIRST family, which derives the enumeration and all three
+  numerals from `families.FAMILIES` instead of trusting the hand-restatement:
+  the CANON half compares the promoted requirement, and the ACTIVE-DELTA half —
+  the real prevention — compares every in-flight change that restates it, so a
+  truncation is reported at authoring time rather than at an archive gate. Canon
+  is exempt while an active delta restates the requirement, because a change
+  registering family N+1 leaves canon at N until it archives: pending, not
+  divergent. ADVISORY at launch in both halves, with the flip a recorded task
+  box. **The irony is the acceptance test**: adding the check as a new family
+  forced exactly the restatement it polices, so with the family registered and no
+  delta written it reported three findings against canon — the omitted name and
+  two stale numerals — and zero once this change's own delta was written. Its own
+  restatement was verified by its own check before it could be committed, and the
+  MODIFIED block restates all eight scenarios, seven byte-identical. Two adjacent
+  gaps are recorded rather than folded in: § 5.2, `FAMILY_IDS` missing two
+  entries so `proposal-origin` and `staged-topic-template` report with no section
+  of their own, and § 5.3, the scenario-completeness half — the one that actually
+  destroyed text — which this check does not cover.
 
 - [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
   — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
@@ -1114,6 +1111,115 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-projection-title-uniqueness](openspec/changes/archive/2026-08-25-add-projection-title-uniqueness/proposal.md)
+  — **ARCHIVED 2026-08-25** on merge-plus-green plus the one piece of evidence
+  code alone could not give: a provider read. PR #353 was REBASE-merged, so the
+  shas that landed are `79bec8a7` (the derivation, the parity amendment, the
+  doc rule, the test file) and `839e0d8e` (the migration record), both verified
+  ancestors of `main` at the gate — the branch tips `58af80ee`/`e4ff1f93` are
+  not, which is exactly the trap this repository's archive record already
+  carries once. Authored and ratified 2026-08-25 (Brett Heap, in-session).
+  Raised off that morning's lifecycle-notebook sync report, which recorded FOUR
+  MedxFactory staging topics synced into a book holding ONE source for them. A
+  source title is the projection's identity key — the sync keys its desired set
+  by path and reconciles it by TITLE — but titles derived from a document's file
+  stem and the governing rule (`docs/lifecycle-notebook-projection.md` § 2)
+  special-cased exactly one repeated stem, `README`. Every other repeated stem
+  collapsed: `wanted_titles` is a SET, the deletion pass holds each title at one
+  source, and the manifest still recorded all N documents as synced. Nothing
+  reported the losers, and `--parity` was structurally blind — it compared a set
+  of derived titles against a set of live titles, so a collapse is equal to
+  itself and reported OK. Measured corpus-wide against the live mains the books
+  mirror: 693 derived book slots resolved to 688 titles, FIVE documents
+  displaced across THREE collisions (`[staged] MedxFactory: topic` ×4, `[draft]
+  openxFactory: requirements` ×2, `[staged] OpsxFactory:
+  exchange-execution-bringup` ×2), and the provider agreed to the source — 695
+  live sources where the scan wanted 700. The delta MODIFIES `Authority framing`
+  to state INJECTIVITY over the derived set rather than a filename exception,
+  and amends parity to prove membership at the DOCUMENT level. **The rule choice
+  was measured, not chosen**: the always-`<parent>/<stem>` candidate costs 572
+  renames AND STILL LEAVES A COLLISION (both checklists sit in a directory named
+  `checklists`), and a declared list of structural stems leaves one too
+  (`exchange-execution-bringup` is a topic name no list would carry) — so a fixed
+  enumeration is provably insufficient on this corpus, which is what the `README`
+  case already was. Ruled: the shortest distinguishing path suffix, repository-
+  scoped, against 611 renames and 1222 operations for the fully-qualified
+  alternative. **Q1 through Q4 were ruled the same day** in one in-session
+  multiple-choice round — the recommendation adopted throughout, Q4's scope
+  sub-question folded into Q1 (so the three latent pairs one `Status:` edit from
+  collapsing close as a side effect), Q2 keeping the migration on the
+  realization's own slice, and Q3 ordering the record that
+  `docs/archive-record-discrepancies.md` now carries as its 2026-08-25 addendum.
+  No capacity delta was owed and the absence is measured — the guard already
+  counts DOCUMENTS, so no guard number moved and the largest book stays at 247 of
+  300. **The migration ran and the provider says so**: the dry run matched
+  `design.md` § 6 row for row (14 `ADD`, 9 `DEL`, 3 `UPD` — 9 and not 14 because
+  three vacated titles were collapsed ones holding a single source between them,
+  which is this packet's own arithmetic correction to the "28 ops" figure), the
+  apply took the seven books from **695 to 700 sources** (`drafts` 188 → 189,
+  `ideation-medxfactory` 49 → 52, `ideation-opsxfactory` 16 → 17, four books
+  unchanged), `--parity` returned **PROVEN** in DOCUMENTS under the amended rule,
+  and a convergence dry run planned **zero** operations — but only on the second
+  attempt: the first caught an oversized `contracts/CHANGELOG.md` source sitting
+  under its temp filename, a known readiness race repaired by hand and recorded
+  rather than smoothed over. Verified at the gate by requirement map:
+  `lifecycle-notebook-projection` **14 → 14 requirements, 48 → 52 scenarios**,
+  nothing removed, **13 of 14 requirements byte-for-byte identical**, and the one
+  that moved is `Authority framing` at 2 → 6 scenarios — its restatement carries
+  the promoted body and both existing scenarios verbatim, and reaches canon
+  byte-for-byte (the promoted file diffs as 51 lines inserted, **0 deleted**).
+  `promotion-fidelity` reads **0 findings at `--fail-on error`** on the archive
+  event itself. FOUR items survive as RECORDED, NOT CLOSED in the packet's § 5:
+  titles stay collision-dependent under the ruled rule (variant (a′), manifest-
+  pinned monotonic qualification, is measured and not taken); nothing checks
+  injectivity outside the sync's own suite, so a corpus-only doc-health family is
+  a named candidate; the manifest is never pruned; and which document's content
+  survived a collapse is unrecoverable, named as unrecoverable rather than
+  guessed.
+
+- [add-duplicate-packet-check](openspec/changes/archive/2026-08-25-add-duplicate-packet-check/proposal.md)
+  — **ARCHIVED 2026-08-25** on Brett's ruling ("archive add-duplicate-packet-check
+  on its realization evidence"), on merge-plus-green: PR #327 `d5f447e8` shipped
+  the family advisory and PR #328 `55bae8a1` flipped it to ENFORCING in both
+  halves, each re-verified an ancestor of `main` at the gate. Authored and
+  ratified 2026-08-24, commissioned in-session ("commission the duplicate-packet
+  check"). The neighbour class of promotion fidelity, and the one that family is
+  structurally blind to: TWO archived packets can promote the same delta content
+  — one ruling discharged twice — and because canon then holds exactly what both
+  packets said it should, the archived-delta-vs-canon comparison reads 0 either
+  way. The near miss is on this repository's own record: PR #317 and the landed
+  `2026-08-25-apply-branch-sessions-deltas` both restated the identical
+  2026-08-01 `add-workbench-branch-sessions` delta — the same git blob — from
+  parallel sessions, and a human closed the second unmerged twenty minutes later.
+  `document-lifecycle` gains "A ruling is discharged once" (a packet restating
+  another's ratified delta content names it, and the naming records LINEAGE, not
+  authority); `doc-health` gains the TWENTIETH family, which compares archived
+  deltas ONLY AGAINST EACH OTHER and moves no census, canon-share figure,
+  inventory entry or catalog record. Content identity is byte-equality above
+  trailing whitespace, never a similarity heuristic. The lineage exemption keeps
+  the lawful remedy legal: a pair where either proposal names the other's change
+  id stays quiet, while two remedials of one ruling that do NOT name each other
+  fire. ENFORCING at archive — `error` severity plus a `CONTESTED` resolution
+  row, pinned together by an invariant test that fails by name on a half-flip —
+  sequenced behind the FULL pinned population measured at zero: 19 repositories,
+  207 archived packets, 1124 identities, 3 restated groups all of them recorded
+  lineage, 0 findings. The archive act promotes the enumeration to twenty and is
+  the LAST of the three same-day family changes that each restated that
+  requirement; all three had written a thin `MODIFIED` block that would have
+  destroyed seven of its eight scenarios, and all three were caught — this one
+  in `d9e545dd`, before its gate ran. Verified at the gate 8-of-8
+  scenario-complete, 27 of 28 pre-existing `doc-health` requirements
+  byte-for-byte untouched (28 → 29 requirements, 116 → 124 scenarios;
+  `document-lifecycle` 15 → 16, 68 → 72), and both now-enforcing families read
+  0 findings at `--fail-on error` on the archive event itself. **The BASIS is
+  ruled too** — Brett closed § 5.2 on 2026-08-25 ("keep the pinned basis"), so
+  the family measures and enforces on the pinned checkout permanently and the
+  live-`main` basis stays scoped to promotion fidelity alone; canon already said
+  so as an unconditional SHALL, so the ruling removed an option rather than
+  adding an obligation. ONE item survives as RECORDED, NOT FIXED in the packet:
+  § 5.5, deriving the family-count enumeration instead of restating it so a thin
+  `MODIFIED` block cannot regress canon a fourth time.
 
 - [add-promotion-fidelity-check](openspec/changes/archive/2026-08-25-add-promotion-fidelity-check/proposal.md)
   — **ARCHIVED 2026-08-25** on merge-plus-green, the

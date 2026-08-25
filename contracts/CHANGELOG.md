@@ -73,6 +73,47 @@ without fabricating historical tags.
   next-additive-bundle changes are folded into this same `Unreleased`
   section.
 
+## contract-v1.42 — 2026-08-25 (additive; the untagged-bundle gap is discharged)
+
+Cut on Brett's ruling of 2026-08-25, alongside the retro-publication of the
+three bundles this policy had recorded as an undischarged gap.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+NO SCHEMA BYTES CHANGE: nothing under `contracts/schemas/` moves, no
+`contract_schema_version` advances, no field is added, deprecated or removed,
+and no existing instance changes meaning. A domain repo on the same major
+version remains conformant without doing anything.
+
+WHAT MOVED, and why it owed a cut:
+
+* `docs/contract-versioning-policy.md` — a release-surface member (the
+  membership clause covers "every modified normative contract **or versioning
+  document**"). Its § *Untagged Bundles After Enforcement Began* is rewritten
+  from a recorded GAP to a recorded DISCHARGE, naming each bundle's realized
+  commit and the rule by which that commit was established.
+* `contracts/CHANGELOG.md` and `contracts/manifest.yaml` — the editorial
+  members, re-baselined.
+
+THE THREE TAGS PUBLISHED WITH THIS CUT, each at the commit its bundle was really
+realized at, each verified from the remote:
+
+| bundle | realized commit | landed as |
+|---|---|---|
+| `contract-v1.33` | `71674ed58e338bf3f85a7b750b64f5f5ab6d02e1` | PR #190, 2026-08-15 |
+| `contract-v1.35` | `78f8e016fbddcf1125c11b7f11234fb2478b0415` | PR #220, 2026-08-19 |
+| `contract-v1.39` | `1f45e427bf7b2491aec09d2a9c9adeaaa5f99839` | PR #259, 2026-08-22 |
+
+Retro-published, not re-dated: no release was reconstructed or re-cut, and no
+version number was reused. Every bundle from `contract-v1.7` — where mandatory
+tag publication begins — now carries a tag.
+
+THAT THIS CUT EXISTS AT ALL is the `release-inventory-drift` family working as
+designed for the second time: editing the policy drifted a member of
+`contract-v1.41`'s inventory, the family reported it as a non-editorial `error`,
+and the remedy the taxonomy prescribes is a release cut rather than an edit to
+make the check pass.
+
 ## contract-v1.41 — 2026-08-25 (additive; the ratified versioning policy joins the release surface)
 
 Cut on Brett's ruling of 2026-08-25, in response to the first finding the

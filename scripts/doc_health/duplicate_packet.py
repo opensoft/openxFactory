@@ -109,13 +109,19 @@ rather than over a standing population, on
 `govern-openspec-corpus-membership`'s rule that "a gate that goes red on the
 commit that introduces it teaches everyone to route around the gate". The
 measurement is recorded in
-`openspec/changes/add-duplicate-packet-check/tasks.md` §5.1.
+`openspec/changes/archive/2026-08-25-add-duplicate-packet-check/tasks.md`
+§5.1.
 
-WHAT THE FLIP DOES NOT SETTLE. §5.2's question — whether this family should
-join promotion fidelity on the live-`main` basis — stays OPEN. This family
-enforces on the PINNED CHECKOUT, which is the basis it was measured at zero on
-and the basis it reads; moving it is still its own ruling, and enforcing on a
-tree is not an argument for enforcing on a different one.
+THE BASIS IS RULED, not merely inherited. **Brett, 2026-08-25, verbatim: "keep
+the pinned basis"** — closing the question the enforcement flip deliberately
+left open (§5.2). This family measures and enforces on the PINNED CHECKOUT,
+permanently, and the live-`main` basis stays ruled for the promotion fidelity
+family ALONE. So `_repo_trees` building a `WorkingTree` and nothing else is now
+a ruled property rather than a conservative default, and the test asserting this
+module cannot even name the basis option is pinning a decision rather than a
+habit. The pinned checkout is also the basis the population was measured at zero
+on before the flip, which is why the two rulings compose: the tree that was
+measured is the tree that gates.
 
 THE NEIGHBOUR'S CLASS STILL DOES NOT REACH THIS ONE, and now the reverse is
 equally true. `runner` applies `FAMILY_RESOLUTION.get(f.family, f.resolution)`

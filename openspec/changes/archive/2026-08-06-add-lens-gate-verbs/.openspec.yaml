@@ -1,0 +1,44 @@
+schema: spec-driven
+created: 2026-08-06
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-06-add-lens-gate-verbs
+  reason: >-
+    SWEPT BY RULING 2026-08-25, verbatim: "sweep the 23 derivable
+    proposal-origin warnings". DERIVED FROM THIS PACKET'S OWN RECORD,
+    never invented. The approval act is this packet's own lifecycle
+    citation, quoted verbatim under approved_by below. The forcing fact is
+    stated in this packet's own proposal under its Why heading, which this
+    metadata-only edit leaves untouched. KIND IS ad_hoc, not staged: this
+    packet records no Staging ID header, and no staging topic declares it
+    as an exit in ideation/staging/INDEX.md — checked in both directions,
+    because a topic that merely mentions a change is not that change's
+    origin. The origin act is the approval quoted under approved_by. The
+    created date 2026-08-06 is DERIVED from this packet's true first
+    commit 409e3998 in git, not from a folder name or a file timestamp.
+    This declaration supplies the origin and approval pair the
+    proposal-origin contract requires and changes nothing else about the
+    packet: no lifecycle header, no content, no status.
+  approved_by: >-
+    Per this packet's own "Ratified" citation, quoted verbatim:
+    "2026-08-06 by Brett Heap — record: this change's tasks.md 3.3,
+    "DISCHARGED by disposition, ruled by Brett 2026-08-06 (decision
+    round)", the ruling under which the change was archived; named again
+    in the archive commit `409e399` ("Archive add-lens-gate-verbs under
+    Brett's 3.3 disposition") and in the README row ("Archived 2026-08-06
+    under Brett's 3.3 disposition"). STATED PRECISELY, because the
+    record's own word is narrower than this header: what Brett ruled on
+    2026-08-06 was a REALIZATION disposition — that the 3.1 route tests,
+    the 3.2 Playwright smoke, and his 4.4 wheel-verbs human pass are
+    together sufficient realization evidence — and the word "ratified"
+    appears nowhere in this change. It is cited as the ratification
+    because it is the only named human decision on this change's record
+    and is the decision that carried it into the archive; a reader who
+    wants the literal act should read 3.3, not this line. Header and
+    citation added 2026-08-22 by `archive-register-rulings` under Brett's
+    ruling on C2 of `docs/archive-record-discrepancies.md`; the proposal
+    carried no `Status:` line from authoring through archive." — recorded
+    in its proposal at authoring time. That is the approval provenance the
+    ad-hoc exception requires, and it is why this packet fell in the
+    derivable class rather than the stop class of the 2026-08-25 sweep.
+  approved_on: 2026-08-06

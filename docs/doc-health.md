@@ -34,9 +34,9 @@ plus the eighteenth, `promotion-fidelity`, whose spec delta is one of the
 deltas that raised the count above. Families 13 through 17, and the
 nineteenth (`release-inventory-drift`), each reached the `doc-health` spec by
 delta and never reached this table — which is also why the two paragraphs
-after it still describe families 13 and 14 as active proposals and still call
-this contract a twelve-family baseline. Repairing that backlog belongs to a
-change that owns those families; it is a named standing gap, recorded in the
+after it still describe families 13 and 14 by the archived changes that added
+them rather than by a table row. Repairing that backlog belongs to a change
+that owns those families; it is a named standing gap, recorded in the
 archived `add-promotion-fidelity-check` §5.2, not an oversight here.
 
 | # | Family | What it verifies |
@@ -55,28 +55,28 @@ archived `add-promotion-fidelity-check` §5.2, not an oversight here.
 | 12 | Notebook projection drift | The lifecycle notebook sync dry-run reports zero add/update/delete operations |
 | 18 | Promotion fidelity | Every archived spec delta reached the promoted spec it was ratified to reach — the requirement title and every scenario stated under it, and a ratified removal actually removed. The most recent archived delta is the authority; only a packet whose own `proposal.md` declares `draft` or a lower standing is exempt. Findings are `error`, classified `contested`, and reported against the archived delta's own path |
 
-The active `add-document-cataloging` change proposes a thirteenth
+The archived `add-document-cataloging` change added a thirteenth
 deterministic family, `document-catalog`, plus a separate, non-deterministic
 `document-cataloger` worker lane that never participates in this pass; see
 its
-[doc-health spec delta](../openspec/changes/add-document-cataloging/specs/doc-health/spec.md)
-for the owned check scope. Until that change promotes, this contract remains
-the twelve-family baseline above, and any catalog classification stays
+[doc-health spec delta](../openspec/changes/archive/2026-07-14-add-document-cataloging/specs/doc-health/spec.md)
+for the owned check scope. Its table registration never landed — see the
+disclosure paragraph above — and any catalog classification stays
 descriptive discovery metadata — never lifecycle, ownership, or approval
 authority (see
 [Document Lifecycle](document-lifecycle.md#catalog-tags-are-not-lifecycle-state)).
 
-A second active change, `add-cross-factory-ideation-routing`, proposes a
+A second archived change, `add-cross-factory-ideation-routing`, added a
 fourteenth deterministic family, `ideation-routing` (sequenced after
 `add-document-cataloging`, per that change's own tasks), covering routing
 schema and controlled-vocabulary conformance, central Idea-ID and Claim-ID
 allocation and uniqueness, legal routing/claim transitions, destination-owner
 acceptance, structured repository/path/revision reference resolution, and
 routing aging; see its
-[doc-health spec delta](../openspec/changes/add-cross-factory-ideation-routing/specs/doc-health/spec.md)
-for the owned check scope. Until both changes promote, this contract remains
-the twelve-family baseline above, and routing metadata stays descriptive
-coordination — never lifecycle, ownership, or approval authority (see
+[doc-health spec delta](../openspec/changes/archive/2026-08-06-add-cross-factory-ideation-routing/specs/doc-health/spec.md)
+for the owned check scope. Its table registration never landed either, and
+routing metadata stays descriptive coordination — never lifecycle,
+ownership, or approval authority (see
 [Document Lifecycle](document-lifecycle.md#cross-factory-ideation-routing)).
 
 ## Finding Severities

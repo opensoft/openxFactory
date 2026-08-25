@@ -65,6 +65,21 @@ REFERENCE until the sibling archives, at which point it resolves on its own.
 Recorded in issue #329 rather than papered over; it is an ordering dependency,
 not a defect in either change.
 
+**THE ORDERING DEPENDENCY RESOLVED, 2026-08-25 — appended, with the paragraph
+above left exactly as ratified.** `add-promotion-fidelity-check` archived
+(`560e0bd5`), so two sentences above are now historical rather than current, and
+they are corrected here rather than edited in place. First: the `promotion
+fidelity` bullet's "as its owning requirement below defines" is no longer a
+forward reference — that requirement is promoted canon, and the bullet resolves
+against it. Second: this block no longer differs from canon by TWO `AND`
+bullets. Canon absorbed the inherited one when the sibling archived, so exactly
+ONE bullet here is new, and it is this change's own — `duplicate packet`.
+Verified at this archive gate scenario-by-scenario: 8 of canon's 8 scenarios
+restated, 7 byte-identical, and the eighth differing by that single bullet and
+nothing else. This change is the third and last of the three siblings that each
+restated this requirement, so the chain closes here — the enumeration reaches
+twenty and no further active change is left holding a version of it.
+
 #### Scenario: A run executes the check families
 - **WHEN** a doc-health run executes
 - **THEN** every check family MUST run over every family repo the aggregation repo pins (openxFactory and each DomainxFactory), plus the per-repo validators as a preflight

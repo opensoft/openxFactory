@@ -663,6 +663,85 @@ def pinned_factory_paths(root: Path) -> list[str]:
             if p.is_dir() and not p.name.endswith(SESSION_CONTAINER_SUFFIX)]
 
 
+# A source title is the projection's IDENTITY KEY: scan() derives a set keyed
+# by document PATH and sync_book() reconciles it against a live book BY TITLE,
+# holding each title at one source. A derivation that is not injective
+# therefore DISPLACES documents silently — four MedxFactory staging topics
+# shared one source until 2026-08-25. The statuses below are the ones that
+# actually reach a book; a `record`, `superseded` or `retired` document is
+# scanned and projected by nothing, so it is outside the uniqueness scope and
+# must not qualify anyone else's title.
+PROJECTED_STATUSES = IDEATION_STATUSES | {
+    s for cfg in STATIC_BOOKS.values() for s in cfg["statuses"]}
+
+# The `[spec]` and `[grounding]` families are DELIBERATELY outside the
+# uniqueness scope (add-projection-title-uniqueness § 2.2), not filtered out by
+# accident: `[spec]` is keyed by a promoted capability's DIRECTORY name and
+# `[grounding]` by a fixed three-document set, so neither is derived from a
+# file stem and neither can collide with one. Measurement on 2026-08-25 showed
+# that folding them in over-qualified one `drafts` title for no reason.
+STEM_SCOPE_EXCLUDES = ("[spec]", "[grounding]")
+
+# `README` floors at its parent directory — the title today's rule already
+# produces for every README, so the amendment never SHORTENS an existing
+# title. It is a MINIMUM and not a special case: a README still ambiguous two
+# segments deep keeps qualifying like any other document.
+README_FLOOR_SEGMENTS = 2
+
+
+def title_segments(rel: Path) -> tuple[str, ...]:
+    """A document's path as title segments, outermost first.
+
+    The repository DIRECTORY is the outermost segment, so a repository-root
+    `README.md` floors at `<repo>/README` — byte for byte the title the old
+    `f.parent.name` rule produced. `xFactories/` is a container, not a path
+    component of the repository, so it never appears.
+    """
+    parts = rel.parts[1:] if rel.parts[0] == "xFactories" else rel.parts
+    return (*parts[:-1], Path(parts[-1]).stem)
+
+
+def derive_stems(documents: Sequence[tuple[str, str, tuple[str, ...]]]
+                 ) -> dict[str, str]:
+    """Resolve every projected document's title stem. Returns {relpath: stem}.
+
+    `documents` is (relpath, repository, segments) over the documents that
+    actually project. A stem is the SHORTEST path suffix that no other
+    projected document OF THE SAME REPOSITORY shares
+    (docs/lifecycle-notebook-projection.md § 2). The scope is the repository's
+    whole projected set rather than one book or one status, so a document is
+    never retitled because a same-stem sibling's `Status:` header moved.
+
+    The result is injective per repository, and therefore per book: two
+    documents can only stop at the same suffix string if they stopped at the
+    same DEPTH, and at that depth neither would have found the suffix
+    unshared. A document that never finds an unshared suffix falls back to its
+    whole segment path, which is unique by construction.
+    """
+    by_repo: dict[str, list[tuple[str, tuple[str, ...]]]] = {}
+    for rel, repo, segs in documents:
+        by_repo.setdefault(repo, []).append((rel, segs))
+    stems: dict[str, str] = {}
+    for docs in by_repo.values():
+        # how many documents of this repository share each suffix, per depth
+        counts: dict[int, dict[str, int]] = {}
+        for _rel, segs in docs:
+            for k in range(1, len(segs) + 1):
+                level = counts.setdefault(k, {})
+                suffix = "/".join(segs[-k:])
+                level[suffix] = level.get(suffix, 0) + 1
+        for rel, segs in docs:
+            floor = (README_FLOOR_SEGMENTS
+                     if segs[-1].lower() == "readme" else 1)
+            stems[rel] = "/".join(segs)  # whole path: distinct by construction
+            for k in range(min(floor, len(segs)), len(segs) + 1):
+                suffix = "/".join(segs[-k:])
+                if counts[k][suffix] == 1:
+                    stems[rel] = suffix
+                    break
+    return stems
+
+
 def scan(root: Path) -> tuple[dict[str, dict[str, str]], dict[str, BookSpec]]:
     """Return ({book_key: {relpath: title}}, {book_key: BookSpec}) desired state.
 
@@ -670,9 +749,15 @@ def scan(root: Path) -> tuple[dict[str, dict[str, str]], dict[str, BookSpec]]:
     ideation book (and therefore its lazy creation) exists exactly when its
     repo has at least one brainstorm/staged document — charter and grounding
     are seeds added to books that exist, never membership that creates one
-    (split-ideation-book-per-repo)."""
+    (split-ideation-book-per-repo).
+
+    TWO PASSES, in this order, because uniqueness is a property of the
+    FINISHED set while the walk visits one repository at a time: collect each
+    projected document's segments, then resolve every title at once
+    (add-projection-title-uniqueness § 2.1)."""
     desired: dict[str, dict[str, str]] = {b: {} for b in STATIC_BOOKS}
     specs: dict[str, BookSpec] = {b: static_spec(b) for b in STATIC_BOOKS}
+    found: list[tuple[str, str, str, tuple[str, ...]]] = []
     for base in ["openxFactory", *pinned_factory_paths(root)]:
         basep = root / base
         for f in sorted(basep.rglob("*.md")):
@@ -685,17 +770,20 @@ def scan(root: Path) -> tuple[dict[str, dict[str, str]], dict[str, BookSpec]]:
             if not m:
                 continue
             status = m.group(1)
+            if status not in PROJECTED_STATUSES:
+                continue  # scanned, projected by no book, out of scope
             repo = rel.parts[0] if rel.parts[0] != "xFactories" else rel.parts[1]
-            # ambiguous stems take their parent dir (docs/lifecycle-notebook-projection.md §2)
-            stem = f"{f.parent.name}/{f.stem}" if f.stem.lower() == "readme" else f.stem
-            title = f"[{status}] {repo}: {stem}"
-            if status in IDEATION_STATUSES:
-                spec = ideation_spec(repo)
-                specs.setdefault(spec.key, spec)
-                desired.setdefault(spec.key, {})[str(rel)] = title
-            for book, cfg in STATIC_BOOKS.items():
-                if status in cfg["statuses"]:
-                    desired[book][str(rel)] = title
+            found.append((str(rel), repo, status, title_segments(rel)))
+    stems = derive_stems([(rel, repo, segs) for rel, repo, _st, segs in found])
+    for rel, repo, status, _segs in found:
+        title = f"[{status}] {repo}: {stems[rel]}"
+        if status in IDEATION_STATUSES:
+            spec = ideation_spec(repo)
+            specs.setdefault(spec.key, spec)
+            desired.setdefault(spec.key, {})[rel] = title
+        for book, cfg in STATIC_BOOKS.items():
+            if status in cfg["statuses"]:
+                desired[book][rel] = title
     # promoted specs -> canon
     for f in sorted((root / "openxFactory/openspec/specs").glob("*/spec.md")):
         rel = f.relative_to(root)
@@ -1995,11 +2083,19 @@ def parity_report(root: Path, *, book: str | None = None,
 
     The scan is the reference on purpose: after a hosting migration the legacy
     books are the artifact whose fidelity is in question, so proving the new
-    account against them proves nothing. Reports per-book title-set equality
-    plus a union reconciliation, and never mutates — including the ALIAS STORE,
-    a single flat file shared across profiles, so registering an alias is a
-    cross-account write rather than a local convenience. Returns 0 when every
-    book in scope matches with nothing pending, 1 otherwise.
+    account against them proves nothing. Reports per-book DOCUMENT-level
+    membership plus a union reconciliation, and never mutates — including the
+    ALIAS STORE, a single flat file shared across profiles, so registering an
+    alias is a cross-account write rather than a local convenience. Returns 0
+    when every book in scope matches with nothing pending, 1 otherwise.
+
+    Membership is proven at the DOCUMENT level, not at the title level
+    (add-projection-title-uniqueness). Comparing a set of derived titles
+    against a set of live titles CANNOT SEE a document that never received a
+    title of its own: a collapse leaves the two sets equal, which is why this
+    mode reported OK on three books that were missing five documents between
+    them. Set equality alone is therefore no longer parity — a derived title
+    carrying more than one document is a FAILURE that names them.
     """
     desired, specs = scan(root)
     if book and book not in desired:
@@ -2018,6 +2114,24 @@ def parity_report(root: Path, *, book: str | None = None,
             continue
         derived = set(items.values())
         derived_union |= derived
+        # DOCUMENT-level check, run on the corpus alone: a title carrying more
+        # than one document is a book that cannot hold them all, whatever the
+        # provider says.
+        carried: dict[str, list[str]] = {}
+        for rel, title in items.items():
+            carried.setdefault(title, []).append(rel)
+        collapsed = {t: sorted(rels) for t, rels in carried.items()
+                     if len(rels) > 1}
+        if collapsed:
+            displaced = sum(len(rels) - 1 for rels in collapsed.values())
+            print(f"[{key}] PARITY FAIL: {len(collapsed)} derived title(s) "
+                  f"carry more than one document — {len(items)} documents "
+                  f"derive only {len(derived)} titles, so {displaced} "
+                  f"cannot hold a source of their own")
+            for title, rels in sorted(collapsed.items())[:5]:
+                print(f"[{key}]   COLLAPSED {title}")
+                for rel in rels:
+                    print(f"[{key}]     {rel}")
         nid, _ok = resolve_or_create_book(root, specs[key], False, notebooks,
                                           bind_alias=False)
         if nid is None:
@@ -2033,16 +2147,18 @@ def parity_report(root: Path, *, book: str | None = None,
                 if str(r.get("title", "")).startswith("[")}
         live_union |= live
         missing, extra = sorted(derived - live), sorted(live - derived)
-        if not missing and not extra:
-            print(f"[{key}] PARITY OK: {len(derived)} titles match")
+        if not missing and not extra and not collapsed:
+            print(f"[{key}] PARITY OK: {len(items)} documents in "
+                  f"{len(derived)} titles match")
             continue
         mismatched.append(key)
-        print(f"[{key}] PARITY FAIL: {len(missing)} missing, {len(extra)} extra "
-              f"(derived {len(derived)}, live {len(live)})")
-        for title in missing[:5]:
-            print(f"[{key}]   MISSING {title}")
-        for title in extra[:5]:
-            print(f"[{key}]   EXTRA   {title}")
+        if missing or extra:
+            print(f"[{key}] PARITY FAIL: {len(missing)} missing, {len(extra)} "
+                  f"extra (derived {len(derived)}, live {len(live)})")
+            for title in missing[:5]:
+                print(f"[{key}]   MISSING {title}")
+            for title in extra[:5]:
+                print(f"[{key}]   EXTRA   {title}")
 
     print(f"parity union: {len(derived_union)} derived titles, "
           f"{len(live_union)} live managed titles, "
