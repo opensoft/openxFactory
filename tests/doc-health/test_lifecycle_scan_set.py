@@ -104,6 +104,13 @@ NON_READERS = {
     # no lifecycle header at all. Its document list is the inventory's own
     # member set, which is fixed by the release rather than by any scan.
     "release-inventory-drift",
+    # add-family-enumeration-check. Its two inputs are a PROMOTED SPEC and a
+    # PYTHON DICT — `doc-health`'s own "Deterministic check families"
+    # requirement plus `families.FAMILIES` — so neither the governed corpus
+    # nor the lifecycle scan set is its document list, and it reads no
+    # lifecycle header at all. It also reads ACTIVE change deltas, and by
+    # named path rather than by any sweep.
+    "family-enumeration",
 }
 
 
@@ -490,10 +497,11 @@ def test_every_family_is_classified_as_reader_or_non_reader():
     # settles, and that half is asserted exactly.
     assert READERS == {"status-validity", "standard-backing",
                        "ratified-provenance", "succession-integrity"}
-    assert len(NON_READERS) == len(FAMILIES) - 4 == 16
+    assert len(NON_READERS) == len(FAMILIES) - 4 == 17
     assert "staged-topic-template" in NON_READERS
     assert "promotion-fidelity" in NON_READERS
     assert "duplicate-packet" in NON_READERS
+    assert "family-enumeration" in NON_READERS
 
 
 def test_the_reader_list_is_structural_not_incidental():

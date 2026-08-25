@@ -1,0 +1,32 @@
+schema: spec-driven
+created: 2026-08-25
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-25-add-family-enumeration-check
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-25, verbatim: "commission the
+    §5.5 enumeration check". Not a staged ideation topic — the forcing fact is a
+    defect class this repository hit THREE TIMES IN THREE DAYS and caught by
+    hand every time. `add-release-inventory-drift-check`,
+    `add-promotion-fidelity-check` and `add-duplicate-packet-check` each wrote a
+    `MODIFIED` block for `doc-health`'s "Deterministic check families" that
+    restated ONE of its EIGHT scenarios; two were caught at their own archive
+    gates and one by a parallel lane. The enumeration half had already drifted
+    once before that: `staged-topic-template` registered 2026-08-15 and stayed
+    uncounted until 2026-08-23. `add-duplicate-packet-check` § 5.5 recorded the
+    structural reading and left it as a named candidate — "a requirement whose
+    text every new family must restate is a requirement every new family can
+    truncate — and the fix is to stop restating it: derive the enumeration and
+    the counts from `FAMILIES` rather than re-typing them into canon" — and
+    Brett commissioned exactly that variant. Authored here because doc-health is
+    an openxFactory capability and the requirement being checked is its own.
+  approved_by: >-
+    Brett — in-session commissioning of the check itself. This records
+    authorization for the DECISION TO BUILD, which is also what the proposal's
+    `Ratified:` line cites. The four design decisions the orchestrating session
+    took under standing patterns (the canon half's scope, the active-delta half
+    as the real prevention, the advisory launch in both of its halves, and
+    acceptance measured in both directions including the self-gate) are NOT
+    covered by that authorization and are flagged for veto in the proposal's
+    § Orchestrator Decisions.
+  approved_on: 2026-08-25
