@@ -238,6 +238,44 @@ avatar changes and nothing else, and extending a ruling to items it did not
 name is the error this register exists to avoid. Two lines, one ruling round
 away from closing.
 
+**CLOSED 2026-08-25 — the ruling round arrived and the two lines are
+annotated.** Brett's in-session quick-wins instruction of 2026-08-25 was that
+round, extending C6's ruled treatment to exactly the two boxes this entry
+named and to nothing else. Both entries above are left standing word for word,
+per the append discipline this register invokes throughout; this block records
+what was executed against them.
+
+Each of the two ledgers gained a trailing `## Bookkeeping annotation — box 3.1
+archived open and unannotated (2026-08-25)` section —
+`openspec/changes/archive/2026-07-29-add-crystallizer-contracts/tasks.md` and
+`openspec/changes/archive/2026-07-30-add-capability-steward/tasks.md`.
+**No box was ticked and no task text was altered in either**, which is C6's
+shape and, in this class, the only defensible one: the boxes' subject is
+README bookkeeping, and an author who both discharges the subject and ticks
+the box has substituted himself for the ratifying record.
+
+What the annotations record is that box 3.1's two halves are answered by each
+change's own commit history, and that both landed exactly when the box says
+they should. The box reads "OpenSpec Records entry at raise; doc-index links
+land with the promoted specs at archive". For `add-crystallizer-contracts`,
+the README `## OpenSpec Records` entry was added by `4aaf14dc`, the raise
+commit ("Raise add-crystallizer-contracts (exit 2 of
+recurrence-crystallization)"), and the `Crystallizer Contracts` doc-index
+entry by `1ac471f1` ("Archive add-crystallizer-contracts; cut contract-v1.20"),
+the same commit that created the archive folder. For `add-capability-steward`,
+the same pair is `e20a8198` (raise) and `44799d80` ("Archive
+add-capability-steward; cut contract-v1.21"), again the archive-creating
+commit. Every promoted spec the two doc-index entries link — the three
+crystallizer specs plus the `omnigent-domain-overlay` spec, and the three
+steward specs — resolves in the tree today, checked path by path before the
+annotations were written rather than inferred from the entries.
+
+**So the corrected claim of 2026-08-22 stands and its remainder is a
+bookkeeping gap, not an evidence gap**: the two boxes' subject was discharged
+on schedule and the boxes were never ticked back. The register records that as
+the closure. Nothing here re-opens A4's other four items, which were annotated
+as originally described.
+
 ### A5 — the two repairs PR #253 made at its own gate
 
 `split-ideation-book-per-repo`'s unticked 4.3 is ticked with an inline note,
