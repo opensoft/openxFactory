@@ -344,54 +344,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [ratify-doxbench-landed-context-surfaces](openspec/changes/ratify-doxbench-landed-context-surfaces/proposal.md)
-  — authored and **ratified 2026-08-25** (Brett, ruling 0 of
-  `add-doxbench-distilled-abstract`); doc-only, `code_surface: none`, archives on
-  landing. The half of `#84` that needed no ruling and should not have waited for
-  seven. Three surfaces shipped into the doxBench context panes on 2026-08-03 —
-  the lens in three subtabs, the docs subpane split into an abstract region above
-  a document wheel, and the deterministic per-document abstract those two exist to
-  carry — and the spec mentions NONE of them: grep `abstract` or `subtab` over
-  `ideation-dashboard/spec.md` and it returns nothing. One of them does worse than
-  go unmentioned. `spec.md:439` requires the bullseye "above the always-present
-  flat matrix" and says in those words that the matrix "MUST NOT become a
-  toggle-only alternate"; the shipped subtabs make the three sections mutually
-  exclusive tabpanels (`staging-workbench.js:488` sets
-  `subPanes.get(name).hidden = !on`), so the requirement has been FALSE about
-  this surface every day since the subtabs landed. That is what a council split
-  bought: a doc-only change that removes a live falsified requirement in one pass
-  rather than waiting on a model-derived abstract's adapter wiring and prompt
-  assembler. The reversal is taken on what the clause was actually protecting —
-  ACCESS to the matrix, not simultaneous rendering — so each section becomes a
-  named, always-reachable member of one APG tablist, the `above` ordering is
-  discharged by the tablist's declared section order, and a keyboard-reachability
-  scenario is added because the guarantee moved from geometry to a widget and a
-  tablist without arrow keys is a worse promise than the one it replaced. Six
-  requirements MODIFIED whole (`:438`, `:863`, `:1853`, `:1705`, `:948`) plus one
-  ADDED for what is already true of the deterministic abstract: never captioned
-  as a distillation (pinned at `test_doxbench_context_panes.py:144-152`), an
-  absence STATED rather than rendered as an empty box (shipped verbatim at
-  `staging-workbench-model.js:1578-1581`), and a named field OMITTED rather than
-  placeheld. Ruling 6 is settled here only where it needs no code: a surface that
-  selects a subject to DESCRIBE is not a second buffer-selection surface, so the
-  buffer contract needs no change and pointing at a document neither loads nor
-  keys nor dirties a buffer. **Packet review CUT two clauses that would have made
-  this change not doc-only** — the region's accessible name is the static string
-  `"selected document"` today (`staging-workbench.js:250`) and no provenance
-  caption exists at all (`renderAbstract` emits none), so ruling 6's rename, the
-  loaded-document-selector requirement (`:1827`, consequently NOT modified here),
-  and the POSITIVE "From the document's own headers" caption all move to
-  `add-doxbench-distilled-abstract`, which owns that line. Asks for no code: the
-  tasks are records plus a cross-check that every promoted sentence describes what
-  already ships, against `test_doxbench_context_panes.py`, `test_doc_wheel.py` and
-  `test_doxbench_accessibility.py` — and if the text is wrong, the text is what
-  gets fixed. The cross-check has three EXPECTED findings it records rather than
-  repairs: a stale comment at `staging-workbench.js:508` still claiming the
-  bullseye sits "ABOVE the always-present matrix", and two suites still asserting
-  the wheel is DEFERRED (`test_doxbench_context_panes.py:19-25` and `:217-229`)
-  when the wheel shipped. Archives BEFORE `add-doxbench-distilled-abstract`, which authors its
-  own `:863` delta against the text this change lands.
-
 - [add-doxbench-distilled-abstract](openspec/changes/add-doxbench-distilled-abstract/proposal.md)
   — authored and **ratified 2026-08-25** (Brett, all eight rulings as
   recommended); `target_release: none` under ruling 2(b), but `code_surface` is
@@ -401,8 +353,10 @@ Active changes:
   distilled per-document abstract the docs subpane was built to carry. Ruling 0
   SPLIT this change — the doc-only half is
   `ratify-doxbench-landed-context-surfaces`, which took the `:439` simultaneity
-  reversal and all six integration-surface items and archives FIRST, so this
-  change's `:863` delta is authored against that change's landed text. What is
+  reversal and all six integration-surface items and ARCHIVED FIRST on
+  2026-08-25, so this change's `:863` delta is authored against that change's
+  landed text (verified at that archive: canon plus this change's own additions,
+  no canon line missing). What is
   left here is the reversal that was actually asked for: Brett's 2026-08-03 ruling
   that the abstract be "header + structure, honestly labelled ... NOT an AI
   distillation" is reversed, and its test pin — a whole-file substring sweep
@@ -1143,6 +1097,90 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [ratify-doxbench-landed-context-surfaces](openspec/changes/archive/2026-08-25-ratify-doxbench-landed-context-surfaces/proposal.md)
+  — **ARCHIVED 2026-08-25**; authored and ratified the same day (Brett, ruling 0
+  of `add-doxbench-distilled-abstract`, recorded as a comment on
+  `opensoft/openxFactory#84`). `code_surface: none`, so the applicable arm of the
+  archive gate is doc-only landing (`release-realization/spec.md:15-16`) with no
+  realization evidence to gather, and origin retention (`:97-103`) is satisfied
+  by a `.openspec.yaml` with exactly ONE commit in its history — its own creation,
+  `5c547610`. The half of `#84` that needed no ruling and should not have waited
+  for seven. Three surfaces shipped into the doxBench context panes on 2026-08-03
+  — the lens in three subtabs, the docs subpane split into an abstract region
+  above a document wheel, and the deterministic per-document abstract those two
+  exist to carry — and the spec mentioned NONE of them: before this archive, grep
+  `abstract` or `subtab` over `ideation-dashboard/spec.md` returned ZERO. One of
+  them did worse than go unmentioned. `spec.md:439` required the bullseye "above
+  the always-present flat matrix" and said in those words that the matrix "MUST
+  NOT become a toggle-only alternate"; the shipped subtabs make the three sections
+  mutually exclusive tabpanels (`staging-workbench.js:488` sets
+  `subPanes.get(name).hidden = !on`), so the requirement had been FALSE about this
+  surface every day since the subtabs landed. That is what a council split bought:
+  a doc-only change that removes a live falsified requirement in one pass rather
+  than waiting on a model-derived abstract's adapter wiring and prompt assembler.
+  The reversal is taken on what the clause was actually protecting — ACCESS to the
+  matrix, not simultaneous rendering — so each section becomes a named,
+  always-reachable member of one APG tablist, the `above` ordering is discharged
+  by the tablist's declared section order, and a keyboard-reachability scenario is
+  added because the guarantee moved from geometry to a widget and a tablist
+  without arrow keys is a worse promise than the one it replaced. FIVE
+  requirements MODIFIED whole (`:438`, `:863`, `:1853`, `:1705`, `:948` — the
+  Active entry read "Six" beside a list of five; the delta always carried five, as
+  the proposal's Capabilities block said) plus one ADDED for what is already true
+  of the deterministic abstract: never captioned as a distillation (pinned at
+  `test_doxbench_context_panes.py:144-152`), an absence STATED rather than
+  rendered as an empty box (shipped verbatim at
+  `staging-workbench-model.js:1578-1581`), and a named field OMITTED rather than
+  placeheld. Ruling 6 is settled here only where it needs no code: a surface that
+  selects a subject to DESCRIBE is not a second buffer-selection surface, so the
+  buffer contract needs no change and pointing at a document neither loads nor
+  keys nor dirties a buffer. **Packet review CUT two clauses that would have made
+  this change not doc-only** — the region's accessible name is the static string
+  `"selected document"` today (`staging-workbench.js:250`) and no provenance
+  caption exists at all (`renderAbstract` emits none), so ruling 6's rename, the
+  loaded-document-selector requirement (`:1827`, consequently NOT modified here),
+  and the POSITIVE "From the document's own headers" caption all moved to
+  `add-doxbench-distilled-abstract`, which owns that line. **The cross-check WAS
+  the change, and it came back clean.** All seven claims were read against the
+  source and the suites that pin it — the three-section APG tablist with roving
+  tabindex, arrows and Home/End (`staging-workbench.js:457-503`); the vertical
+  split with the abstract above (`:245-259`); the single-reel drum sharing
+  `drumProject`, `nextExpanded` and `inReelWindow` with a real spin
+  (`doc-wheel.js:41-53`, `:211`, `:445-451`) over one flattened, still-labelled
+  reel (`staging-workbench-model.js:1607-1644`); selection driving the abstract's
+  SUBJECT and nothing else (`:278-288`, the Phase A binding route recorded as
+  retired at `:197-199`); a pure re-presentation whose `summary` traces to the
+  document's own `Summary:` header through `generator.py:458`; the honest absence
+  verbatim at `:1578-1581` with true field OMISSION in `renderAbstract`; and the
+  `role=region`-with-no-heading idiom — and **NOT ONE WORD of the delta needed
+  correcting**, because the two clauses that would have needed it were cut before
+  it got here. Its three EXPECTED findings were RECORDED rather than repaired,
+  which is what doc-only has to mean: the stale comment at
+  `staging-workbench.js:508` still claiming the bullseye sits "ABOVE the
+  always-present matrix", and two suites still asserting the wheel is DEFERRED
+  (`test_doxbench_context_panes.py:19-25` and `:217-229` — the latter green only
+  by ACCIDENT, since the "wheel" it finds near the selector is now the comment
+  announcing the wheel DELIVERED) while `test_doc_wheel.py:393` already pins the
+  opposite. A fourth rides with them: the arrows/Home/End scenario this change
+  adds has NO test pin, its evidence here being a code read. All four sit on
+  `add-doxbench-distilled-abstract` (§2.5, and §7.10 for the region rename).
+  **Promotion was verified four ways rather than asserted**: the promoted text is
+  in canon (`subtab` 0 → 1 hits, `abstract` 0 → 20, `wheel` 14 → 26, `tablist`
+  1 → 10); the falsified clause is GONE (all three of "above the always-present
+  flat matrix", "toggle-only alternate" and "always-available view of the same
+  membership" now return ZERO where each returned one); nothing unrelated moved
+  (**82 of 87 requirement bodies byte-identical**, the five that changed are
+  exactly the five MODIFIED, none removed, order unchanged); and no scenario was
+  lost (**376 → 386**, the exact +10 the packet predicted — `:438` +1, `:863` +3,
+  `:1853` +1, `:1705` +1, `:948` +1, ADDED +3 — with zero scenario headings
+  dropped). `openspec validate --all --strict` is green at 78 passed / 0 failed
+  after the archive, the archived delta file is byte-identical to the authored
+  one, and `tests/doc-health` plus the three doxBench suites are green on the
+  promoted file. Archived BEFORE `add-doxbench-distilled-abstract`, whose own
+  `:863` delta was authored against this text: verified at this archive to equal
+  new canon plus its own additions — every canon line and all 16 canon scenarios
+  present, diverging only by its declared narrowing of the no-new-ANALYSIS clause
+  and its two new scenarios — so it needed no re-authoring.
 - [add-projection-title-uniqueness](openspec/changes/archive/2026-08-25-add-projection-title-uniqueness/proposal.md)
   — **ARCHIVED 2026-08-25** on merge-plus-green plus the one piece of evidence
   code alone could not give: a provider read. PR #353 was REBASE-merged, so the
