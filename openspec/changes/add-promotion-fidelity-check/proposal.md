@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory (`scripts/doc_health/promotion_fidelity.py` — a new module owning the eighteenth deterministic family: the archived-delta parser, the promoted-spec reader, the latest-writer resolution and its tie-break, the ratification exemption, and the disposition read; `scripts/doc_health/families.py` — one registration line in `FAMILIES` and the note recording why the family is deliberately absent from `FAMILY_RESOLUTION`; `scripts/doc_health/__init__.py` — one entry in `FAMILY_IDS` so the family gets its own report section; `scripts/doc_health/corpus.py` — one new `RealGit` method, `first_commit_timestamp`, because `first_commit_date`'s day resolution cannot break a tie between two packets archived on the same day; `tests/doc-health/test_promotion_fidelity.py` plus `tests/doc-health/fixtures/promotion-fidelity*/` — the regression fixture reconstructing the historical true positive, the three known negatives, the structural pins on the advisory launch, and the tie-break's two-run disagreement; `tests/doc-health/conftest.py` — `FakeGit` gains the matching shim; `tests/doc-health/test_lifecycle_scan_set.py` — the eighteenth family classified as a non-reader of the lifecycle scan set, which is the loud failure that test was built to produce. NO change to the governed corpus, the lifecycle scan set, any existing family's behaviour, the report schema, the regression-diff rule, or any threshold.)
+code_surface: openxFactory (`scripts/doc_health/promotion_fidelity.py` — a new module owning the eighteenth deterministic family: the archived-delta parser, the promoted-spec reader, the latest-writer resolution and its tie-break, the ratification exemption, and the disposition read; `scripts/doc_health/families.py` — one registration line in `FAMILIES` and the note recording why the family is deliberately absent from `FAMILY_RESOLUTION`; `scripts/doc_health/__init__.py` — one entry in `FAMILY_IDS` so the family gets its own report section; `scripts/doc_health/corpus.py` — one new `RealGit` method, `first_commit_timestamp`, because `first_commit_date`'s day resolution cannot break a tie between two packets archived on the same day; `tests/doc-health/test_promotion_fidelity.py` plus `tests/doc-health/fixtures/promotion-fidelity*/` — the regression fixture reconstructing the historical true positive, the three known negatives, the structural pins on the advisory launch, and the tie-break's two-run disagreement; `tests/doc-health/conftest.py` — `FakeGit` gains the matching shim; `tests/doc-health/test_lifecycle_scan_set.py` — the eighteenth family classified as a non-reader of the lifecycle scan set, which is the loud failure that test was built to produce. NO change to the governed corpus, the lifecycle scan set, any existing family's behaviour, the report schema, the regression-diff rule, or any threshold. EXTENDED 2026-08-24 by task 4.1's two non-gate rulings (PR #315): `promotion_fidelity.py` gains the relaxed exemption (`declared_standing` / `_is_exempt_from_promotion`) and the two tree readers (`WorkingTree` / `GitRefTree`) the live-main basis needs; `corpus.py` gains `resolve_ref`, `ls_tree_paths` and `show_blob`, and an optional `ref` on `first_commit_timestamp`; `runner.py` gains the `--promotion-fidelity-basis` flag, the `Context` field, and the deviation line; `families.py` gains a one-entry `FAMILY_NOTES` registry; `__init__.py` gains `RunResult.notes`; `report.py`'s `render` gains an optional `family_notes` that prints under a family's own heading; `.github/workflows/doc-health-reusable.yml` gains a non-mutating live-main fetch step and passes the flag to the reporting run; `tests/doc-health/fixtures/promotion-fidelity-presumption/` and the new cases in `test_promotion_fidelity.py` / `test_workflow_contract.py` carry the evidence. STILL no change to the governed corpus, the lifecycle scan set, any OTHER family's behaviour or measurement basis, the report schema's finding and ranked-plan grammars, the regression-diff rule, or any threshold.)
 target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed. The archive gate is therefore merge-plus-green on main, following `govern-openspec-corpus-membership` exactly: `python3 -m pytest tests/doc-health` green, `python3 -m pytest tests/ideation-dashboard -k workbench` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly the amount this proposal predicts and in no other line. The change therefore ships ACTIVE and archives only after the merge, which is the same sequence that change followed (its enforcement landed in `7157fa3e`/`bf0bda01` and its archive act was a separate later commit, `01ff3434`, titled for the merge it followed).
 Status: ratified
 Ratified: 2026-08-24 by Brett — in-session commissioning, verbatim: "commission the archived-delta-vs-promoted-spec check". The citation covers the DECISION TO BUILD THIS CHECK and nothing else; the four design decisions in § Orchestrator Decisions below were taken by the orchestrating session under standing patterns, are NOT covered by this citation, and are flagged there for veto. No approving OpenSpec change exists to name, so this cites the record in the spelling `sanction-ratified-record-spelling` sanctioned for that case, clearing its three-way floor on two axes rather than the one it needs: approver (`by Brett`) and date (`2026-08-24`).
@@ -99,6 +99,11 @@ cover the four decisions below, which the orchestrating session took under
 standing patterns. They are named here the way codexFactory PR #83 named its
 two dispositions: taken, applied, and reversible on a word.
 
+**D2's revision and D5 are RULINGS, not orchestrator decisions**, and are not
+flagged for veto: both were taken by Brett on 2026-08-24 in task 4.1's
+four-question round (PR #315), and both are recorded verbatim in that task.
+They sit in this section because it is where a reader of D2 will look.
+
 **D1 — Latest writer wins, with archive-commit order as the tie-break.**
 For a given (capability, requirement title), only the most recent archived
 delta is authoritative. Measured over this repository: 478 distinct
@@ -129,6 +134,37 @@ would-be findings, all four of C5's capabilities, and nothing else. The second
 exemption is the existing `health/dispositions.yaml` mechanism, extended with
 an optional `requirement:` key in the shape the neutrality lane's
 `content_sha256` already set.
+
+**D2 REVISED 2026-08-24 by ruling (Brett, task 4.1's four-question round,
+PR #315) — the exemption relaxes to explicit-draft-only.** The rule now asks
+the opposite question: archiving is PRESUMED to be ratification, and a delta is
+exempt only where its packet's header explicitly declares `draft` or a lower
+taxonomy standing. The original spelling was precisely narrow on openxFactory
+and a false-negative channel everywhere else — an annotated ratification
+(`Status: ratified (approved at commit 5ace969)…`) is not the string
+`ratified`, and a packet with no header at all could buy silence by omission.
+Four packets across hermes-install and medx-roottruth-install were exempt for
+a decision nobody took, and with them 54 requirements; both repositories
+reported zero findings at 57.8% and 0% coverage. The relaxation was measured
+before it was ruled and re-measured on realization: openxFactory gives exactly
+the same two findings under both spellings, +54 requirements are newly examined
+across the family, and +0 findings appear anywhere. (The ruling's record says
+57, from a run at a different reference point; the four packets are the same
+ones. Both counts are kept — tasks §4.1.) C5 stays quiet because its own header says
+`draft`. Reasoning and evidence: design D3 REVISED, tasks §3.8 and §3.10.
+
+**D5 — The nightly measures live `main`s FOR THIS FAMILY (ruled 2026-08-24,
+PR #315).** Measured against the aggregation's committed pins this family's
+coverage collapsed — 0% in three repositories — and it could not see the #301
+gap while the codexFactory pin lagged behind the repository that had it. A
+promotion gap is a fact about a repository's own `main`. So the reusable
+workflow fetches each governed submodule's `origin/main` (a fetch moves no
+file) and passes `--promotion-fidelity-basis live-main` to the reporting run;
+every other family still measures the pinned checkout, structurally — no other
+module can name the option, and a test enforces that. The report states the
+basis in the headline and per repository under the family's own heading,
+including on a clean run, and names any repository whose live `main` could not
+be read as having fallen back. Reasoning: design D7; evidence: tasks §3.9.
 
 **D3 — Report-only at launch, and BOTH halves of that.** Every finding is
 `warning`, so no `--fail-on` configuration can red on this family. The less
