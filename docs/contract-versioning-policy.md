@@ -73,6 +73,13 @@ Every bundle from `contract-v1.7` — where mandatory publication begins — is 
 tagged. The legacy `contract-v1.0`–`contract-v1.6` sequence remains untagged by
 design, per the recovery recorded below.
 
+THE RULE WAS NEVER ADVISORY, INCLUDING WHILE IT WAS BEING BROKEN. For the weeks
+these three went untagged, "a bundle is not published until its tag exists" was
+in force and simply unmet: they were a breach of the rule, never an exception to
+it, and their having been consumed anyway is evidence of the cost of the gap
+rather than a precedent. No reader may cite this subsection, or the period it
+narrates, to treat an untagged bundle as released.
+
 RECORDS DESCRIBING THE FORMER GAP STAND AS HISTORY. `docs/archive-record-discrepancies.md`
 (`Status: record`) states that `contract-v1.33` and `contract-v1.35` are not git
 tags. That was true when written and is deliberately NOT edited: a record is

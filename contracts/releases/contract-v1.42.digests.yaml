@@ -911,7 +911,7 @@ entries:
   path: docs/contract-versioning-policy.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:cc08aa6fa0862daa0fe12ae117e49730a0320f6aa9f07d3ed89b74cf0618631c
+  digest: sha256:933b378ff9af45134d15bd942c20970aff0ceacf3f57556644a55548749261ad
 - artifact_id: docs-terminology-and-repo-topology.md
   path: docs/terminology-and-repo-topology.md
   type: documentation
