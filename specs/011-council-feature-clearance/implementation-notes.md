@@ -36,3 +36,24 @@ options (a) accept eventual autonomous approval for narrowly-scoped classes;
 (b) restore report-only posture for new classes specifically (codexFactory-side
 successor); (c) defer all live entries until ruled. Safe subset landed under (c)
 provisionally; live entries (T005/T006/T010) blocked pending ruling.
+
+**RULED 2026-08-23 — see § Round 8 below.** This section states the question, not
+the outcome; do not read "pending ruling" as the current state. The convener ruled
+C→B: stay parked now, land the codexFactory advisory-intent successor next, pilot
+entry follows under its protections. Option A was rejected. T005/T006/T010 remain
+blocked, but they are blocked ON A NAMED SUCCESSOR rather than on an open question.
+
+## Round 8 — Convener R4 ruling: C→B sequence
+
+Convener ruled (2026-08-23): **stay parked now (C); land the advisory-intent
+successor change on codexFactory next (B); pilot entry follows under B's
+protections.** Option A rejected — autonomous approval of authored logic before
+grant-carried seats exist (S3+) inverts evidence-before-autonomy.
+
+Consequences:
+- T005/T006/T010 remain blocked until the successor change lands AND its
+  protections are active; they execute as one pass when unblocked.
+- Successor change (codexFactory-owned): express classification intent so
+  feature-PR candidates commission verdicts while being structurally excluded
+  from the autonomy branch — schema field or rule-level exclusion, decided by
+  that change's own clarify.
