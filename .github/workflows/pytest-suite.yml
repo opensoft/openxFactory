@@ -1,0 +1,220 @@
+# The Python test suite, run on every pull request to main and on main itself
+# (issue #292).
+#
+# Until this workflow, NO trigger in this repository ran pytest at all:
+# `wallet-validation.yml` runs two wallet scripts, `doc-health-reusable.yml` is
+# workflow_call-only, and `session-open-pr.yml` is workflow_dispatch. That left
+# ~6,200 tests — including the whole ideation-dashboard suite and every
+# behavioral pin in it — enforced by nothing but local discipline. This
+# workflow is the gate.
+#
+# The job carries no display name on purpose: the status check must surface as
+# exactly `pytest-suite`, the literal token branch protection pins. A distinct
+# job display name silently de-advises the gate — the same rule
+# `wallet-validation.yml` documents for itself.
+#
+# WHY THE FULL SUITE IN ONE JOB. Measured by simulating this job exactly — a
+# fresh clone into a directory named `openxFactory` with no aggregation
+# workspace above it, a clean venv holding only the hash-pinned lock, node 22
+# and the pinned openspec CLI on PATH, Python 3.12, and
+# `GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1` to deny the ambient git
+# identity a runner does not have:
+#
+#   5877 passed, 17 skipped, 338 deselected, 15 subtests passed, 0 failed
+#   925s (15m25s), exit 0
+#
+# That count is identical to the simulation run before the two fixture repairs,
+# which is the point: the repairs removed environment dependence without
+# skipping or losing a single test.
+#
+# The real gate on GitHub's runner (PR #304, run 32778659788) took 714s
+# (11m54s) — FASTER than any local simulation, so the timeout below is sized off
+# the slower local figures, not this one. That first run also failed, 23 tests
+# in two classes, both of them environment dependencies a developer machine
+# hides rather than defects in this workflow; both are fixed in the tests and
+# described below.
+#
+# 5877 + 17 + 338 = 6232, which is exactly what `--collect-only` reports, so the
+# run covers everything collection sees. Roughly a quarter-hour is comfortably
+# inside a PR-gate budget, so there is no reason to fall back to a collect-only
+# guard plus a partial run — this job pins the collection health AND every
+# assertion.
+#
+# The 17 skips are self-skipping guards ("no sibling openxFactory checkout",
+# "no aggregation checkout reachable from this tree") that stand down when no
+# aggregation workspace surrounds the repo, which is the case both here and on
+# a runner. Locally, outside this simulation, those same tests resolve the
+# AGGREGATION submodule instead and run — so the two-skip difference between a
+# developer's worktree and CI is expected, not a regression.
+#
+# WHY THE LOCK, NOT AN AD-HOC PIP LIST. `requirements/hermes-runtime-contracts.lock`
+# is the ratified validator-input source: `specs/005-customer-subject-runtime/
+# quickstart.md` provisions the bench from it, and `release.py` carries the
+# `.in`/`.lock` pair as AUXILIARY_MEMBERS. Installing it with `--require-hashes`
+# gives this gate the same hash-pinned inputs the contract work was ratified
+# against, instead of whatever the index happens to serve on the day. The `.in`
+# pins all five directly — pyyaml, jsonschema, referencing, rfc3339-validator,
+# pytest — and records why `rfc3339-validator` is not optional: jsonschema
+# registers its date-time format checker only when that package is importable,
+# and the canonical validators fail closed without it.
+#
+# Beyond the lock the suite needs only git and node — plus the openspec CLI,
+# below. It is largely hermetic: tests/hermeticity.py makes the real `nlm` and
+# `gh` unreachable (FR-043), and tests that need git build their own repository
+# in tmp_path.
+#
+# "Their own repository with their own identity" was NOT true everywhere, and
+# the first CI run proved it: 21 tests in
+# tests/ideation-dashboard/test_intent_apply_lane.py failed with
+# `git commit failed (rolled back): Author identity unknown`. Those fixtures
+# passed `-c user.name/-c user.email` on their OWN git calls, but the apply lane
+# under test runs its own `git commit`, which carries no such flags and fell
+# back to an ambient identity that a developer has and a runner does not. The
+# repair belongs in the fixture, not here: it now sets repo-LOCAL identity after
+# `git init`. Deliberately NOT fixed by exporting GIT_AUTHOR_*/GIT_COMMITTER_*
+# in this workflow — that would paper over a real hermeticity defect and leave
+# the suite dependent on the host's global git config. Reproduce the original
+# failure locally with `GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1`; the
+# rest of the suite was swept the same way and was already clean.
+#
+# WHY `-m "not postgres"`. The `postgres` marker selects the isolated
+# PostgreSQL conformance harness under `tests/hermes_runtime_contracts/postgres/`,
+# which drives real Docker containers against digest-pinned images. There is no
+# docker-detection auto-skip in that harness by design: without docker and the
+# pinned images those tests FAIL at the session fixture (`docker image inspect`)
+# rather than skipping. Selection is opt-in and belongs to its own release-gate
+# runner, `scripts/run-hermes-runtime-postgres-tests.sh`, which invokes pytest
+# with `-m postgres`. The repository documents the paired deselection —
+# `pytest tests/hermes_runtime_contracts -m 'not postgres'` in
+# specs/005-customer-subject-runtime/quickstart.md and in the us3/us4 handoff
+# notes — scoped to that contracts subtree; this gate applies the same
+# deselection at whole-suite scope, for the same reason. Note
+# `postgres/test_runner_contract.py` carries NO marker, so the harness's own
+# contract still runs here — and passes without docker.
+#
+# WHY THE CHECKOUT IS NESTED UNDER `openxFactory/`. MEASURED, not defensive:
+# `scripts/ideation_dashboard/snapshot.py::find_validator` walks up from the
+# repo root looking for `openxFactory/scripts/validate-ideation-dashboard-
+# contracts.py`, and `tests/ideation-dashboard/test_snapshot.py::
+# test_find_validator_locates_pinned_checkout` asserts it resolves. In a flat
+# checkout that assert fails (`assert None is not None`); with the tree placed
+# in a directory named `openxFactory` it passes, 17/17. The default GitHub
+# workspace path would satisfy this only by coincidence — it happens to be
+# `/home/runner/work/openxFactory/openxFactory` because of the repository's
+# name — and that coincidence evaporates on a rename or a differently-named
+# fork. `path: openxFactory` makes the layout explicit instead of lucky, at the
+# cost of a `working-directory` on each step.
+#
+# `fetch-depth: 0` because several tests scan the REAL repository rather than a
+# fixture (test_repo_scan_is_green_under_strict,
+# test_validate_candidate_passes_on_the_realized_repository,
+# test_no_workbench_manifest_is_tracked_in_this_repo). None was PROVEN to need
+# history, so this is insurance against a shallow-clone-only failure that
+# cannot be reproduced off-CI; drop it if checkout time ever matters more.
+#
+# WHY NODE IS INSTALLED EXPLICITLY. 41 test files gate DOM and JS probes on
+# `shutil.which("node")` and SKIP when it is absent — they do not fail. The
+# measured run had node 22 on PATH, so those probes ran and are inside the
+# numbers above. `ubuntu-latest` happens to ship a node today, but relying on
+# the image means a future image change would silently drop dozens of files'
+# worth of assertions and still report this gate green — precisely the
+# green-but-enforcing-nothing failure that issue #292 is about. Pinning node
+# makes the probes deterministic instead of incidental.
+#
+# WHY THE openspec CLI IS INSTALLED. tests/proposal-support/test_proposal_support.py
+# drives the REAL `openspec` binary through the archive wrapper — it is a
+# genuine external dependency of that suite, not a mock. Most of those tests
+# already carried `@unittest.skipUnless(shutil.which("openspec"), ...)`; two did
+# not, and on the first CI run they failed with `FileNotFoundError: 'openspec'`
+# instead of skipping. Both now carry the same guard, so a local run without the
+# CLI skips cleanly.
+#
+# Guards alone would leave this gate green while silently testing nothing, which
+# is the failure mode this whole workflow exists to prevent — so the CLI is
+# installed here too, pinned, and the tests actually RUN. Measured both ways:
+# with openspec absent the file reports 33 passed / 3 skipped; with it present,
+# 36 passed / 0 skipped.
+#
+# WHY NO PATH FILTER. An earlier draft filtered to `tests/**`, `scripts/**`,
+# and `pytest.ini`. That was wrong twice over. First, a large group of tests
+# scans the real repository content rather than a fixture — the trust-anchor
+# validator gate, the release inventory, the workbench guard, derive-possibles,
+# and the ideation readiness and dispatch suites all read `contracts/`,
+# `ideation/`, `docs/`, and `openspec/` — so a content-only change is exactly
+# the kind that can turn this suite red while matching no filtered path.
+# Second, a paths filter on a check that is later marked REQUIRED deadlocks
+# every PR it skips: the check never reports, and GitHub waits for it forever.
+# Running unconditionally costs a few minutes of runner time and removes both
+# hazards. (`wallet-validation.yml` likewise carries no paths filter, though it
+# does not say why.)
+#
+# The `push: main` trigger exists for the same first reason: it catches a
+# content-only merge that regresses a repository-scanning test, and it keeps
+# main's status honest even when a PR was merged stale.
+#
+# CONCURRENCY cancels superseded runs per ref, so a rapid push sequence does not
+# queue several 20-minute duplicates of the same suite.
+#
+# SCOPE — WHAT THIS GATE DOES NOT PIN. It runs `pytest tests/`, the whole-suite
+# shape, and that shape only. `conftest` is an ambient top-level module name
+# with a single `sys.modules` slot, and `tests/doc-health/`,
+# `tests/avatar_runtime/`, and `tests/ideation-dashboard/` each carry their own
+# conftest.py without an `__init__.py`, so they contend for it. Multi-directory
+# invocations are therefore ORDER-DEPENDENT: measured,
+# `pytest tests/doc-health tests/avatar_runtime` fails with 23 collection
+# errors, while `pytest tests/avatar_runtime tests/doc-health` collects 841
+# clean. The whole-suite run this gate performs is unaffected, and a green
+# `pytest-suite` says nothing about narrower invocations. The real repair is
+# `--import-mode=importlib`, which pytest.ini's ratified option-free design
+# forecloses — that file is the rootdir anchor for the FR-043 hermeticity guard
+# and deliberately declares no options. Changing it is a separate, specced
+# decision, not a drive-by.
+#
+# TIMEOUT. 35 minutes against a worst measured 17m21s — roughly 2x headroom for
+# a slower runner and, more importantly, a hard stop for the known hang:
+# `tests/ideation-dashboard/test_doxbench_bridge.py` drives a real child process
+# (`fixtures/fake_omp_child.py`) over real pipes and can hang under CPU
+# contention. The job timeout is what bounds that in CI.
+name: pytest-suite
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pytest-suite-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest-suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: openxFactory
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: openxFactory
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - run: npm install -g @fission-ai/openspec@1.2.0
+
+      - run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
+
+      - run: python3 -m pytest tests/ -q -m "not postgres"

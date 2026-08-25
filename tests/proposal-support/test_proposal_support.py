@@ -483,6 +483,7 @@ class ProposalSupportTests(unittest.TestCase):
             self.assertTrue((archived[0] / "supporting-docs.tar.gz").is_file())
             self.assertEqual(support.verify_archive(archived[0]), [])
 
+    @unittest.skipUnless(shutil.which("openspec"), "openspec CLI required")
     def test_archive_wrapper_archives_a_change_that_has_no_supporting_docs(self):
         """A staged-origin change that legitimately never took its topic with it
         MUST still archive through the sanctioned wrapper.
@@ -554,6 +555,7 @@ class ProposalSupportTests(unittest.TestCase):
             # …and the origin still verifies on the archived side
             self.assertEqual(support.verify(root, "change-b"), [])
 
+    @unittest.skipUnless(shutil.which("openspec"), "openspec CLI required")
     def test_final_import_complete_without_a_bundle_is_refused(self):
         """`--final-import-complete` records a NotebookLM import for a support
         bundle. With no bundle it records nothing, so it is refused rather than
