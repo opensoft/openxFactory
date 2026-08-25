@@ -83,6 +83,11 @@ FAMILY_IDS = [
     # nineteenth family (add-release-inventory-drift-check; doc-health delta
     # "Deterministic check families").
     "release-inventory-drift",
+    # twentieth family (add-duplicate-packet-check; doc-health delta
+    # "Deterministic check families"). The eighteenth family's neighbour:
+    # it asks whether ONE ruling was discharged by TWO archived packets,
+    # which promotion fidelity reads as healthy either way.
+    "duplicate-packet",
 ]
 
 

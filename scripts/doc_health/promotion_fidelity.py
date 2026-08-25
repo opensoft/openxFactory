@@ -159,24 +159,39 @@ def norm(title: str) -> str:
 
 
 class DeltaRequirement:
-    """One `### Requirement:` block inside one archived delta file."""
+    """One `### Requirement:` block inside one archived delta file.
 
-    __slots__ = ("op", "title", "scenarios", "seq")
+    `body` is the block's raw lines BELOW its `### Requirement:` header, in
+    file order and unmodified. This family never reads it — arrival in canon
+    is a question about titles and scenario titles, which is why the promoted
+    reader only extracts those. It is carried because the twentieth family
+    (`duplicate_packet.py`, `add-duplicate-packet-check`) asks a question of
+    the same documents that only the BYTES can answer — whether two archived
+    packets restate one ruling — and a second parser for the same headings is
+    how two readers of one document come to disagree about what it says.
+    The header line itself is excluded: the title is compared through `norm`,
+    so folding it into the bytes would make two packets that spell one title
+    with different spacing look like different statements.
+    """
+
+    __slots__ = ("op", "title", "scenarios", "seq", "body")
 
     def __init__(self, op: str, title: str, seq: int):
         self.op = op
         self.title = title
         self.scenarios: list[str] = []
         self.seq = seq
+        self.body: list[str] = []
 
 
 def parse_delta(text: str) -> tuple[list[DeltaRequirement], list[tuple[str, str]]]:
     """`(requirements, renames)` from one `specs/<cap>/spec.md` delta file.
 
-    Requirements are returned in file order with their operation and their
-    own scenario titles; renames as `(from_title, to_title)` pairs. A
-    `#### Scenario:` line before any `### Requirement:` belongs to nothing
-    and is dropped rather than attached to whatever came before.
+    Requirements are returned in file order with their operation, their own
+    scenario titles and their raw body lines; renames as `(from_title,
+    to_title)` pairs. A `#### Scenario:` line before any `### Requirement:`
+    belongs to nothing and is dropped rather than attached to whatever came
+    before.
     """
     requirements: list[DeltaRequirement] = []
     renames: list[tuple[str, str]] = []
@@ -208,6 +223,13 @@ def parse_delta(text: str) -> tuple[list[DeltaRequirement], list[tuple[str, str]
         m = _SCENARIO.match(line)
         if m and current is not None:
             current.scenarios.append(m.group(1))
+        # EVERY line that is not a section header and not the requirement's
+        # own header belongs to the block, scenario headings included. The
+        # two `continue`s above are what keeps the headers out; this is the
+        # single place a line joins a body, so the block a reader sees is
+        # the block the file carries.
+        if current is not None:
+            current.body.append(line)
     return requirements, renames
 
 
@@ -557,6 +579,24 @@ def _is_exempt_from_promotion(tree, change: str) -> bool:
     return declared_standing(corpus.parse_status(text)) in PRE_RATIFICATION
 
 
+def declares_pre_ratification(tree, change: str) -> bool:
+    """The C5 exemption under a name a SIBLING family can say out loud.
+
+    Same question, same answer, one implementation: does this archived
+    packet's own `proposal.md` explicitly declare a standing of `draft` or
+    lower? `add-duplicate-packet-check` needs it for the same reason this
+    family does — a packet that never claimed ratification discharged no
+    ruling, so it can neither fail to promote one nor discharge one twice —
+    and a second reading of the same header is how two families come to
+    disagree about what one packet claims.
+
+    Delegates rather than duplicating, and delegates through the MODULE
+    GLOBAL so a test that monkeypatches `_is_exempt_from_promotion` moves
+    both callers together.
+    """
+    return _is_exempt_from_promotion(tree, change)
+
+
 class Writer:
     """One archived delta's statement about one (capability, requirement)."""
 
@@ -667,8 +707,14 @@ def _tie_ranker(repo_path: Path, git, ref: str | None = None):
     return rank
 
 
-def _load_dispositions(ctx) -> set[tuple[str, str, str | None]]:
-    """Recorded dispositions for this family, as `(repo, path, requirement)`.
+def load_dispositions(ctx, family: str = FAMILY
+                      ) -> set[tuple[str, str, str | None]]:
+    """Recorded dispositions for one family, as `(repo, path, requirement)`.
+
+    `family` defaults to this one and is a parameter so the twentieth family
+    (`duplicate_packet.py`) reads the SAME file through the SAME rules under
+    its own name — an entry naming one family has never disposed another's
+    findings, and one reader is how that stays true.
 
     THE EXISTING MECHANISM, not a new one: `health/dispositions.yaml` at the
     aggregation root, entries keyed by `family`/`repo`/`path` and carrying a
@@ -705,7 +751,7 @@ def _load_dispositions(ctx) -> set[tuple[str, str, str | None]]:
     except (OSError, yaml.YAMLError):
         return out
     for entry in entries:
-        if not isinstance(entry, dict) or entry.get("family") != FAMILY:
+        if not isinstance(entry, dict) or entry.get("family") != family:
             continue
         if not entry.get("cite"):
             continue
@@ -718,7 +764,7 @@ def _load_dispositions(ctx) -> set[tuple[str, str, str | None]]:
     return out
 
 
-def _disposed(dispositions, repo: str, path: str, title: str) -> bool:
+def disposed(dispositions, repo: str, path: str, title: str) -> bool:
     return ((repo, path, None) in dispositions
             or (repo, path, norm(title)) in dispositions)
 
@@ -746,7 +792,7 @@ def fam_promotion_fidelity(ctx):
         return Skip(FAMILY, "no repository in scope carries an OpenSpec "
                             "change archive")
 
-    dispositions = _load_dispositions(ctx)
+    dispositions = load_dispositions(ctx)
     findings: list[Finding] = []
     for repo, repo_path, tree in scoped:
         writers = _collect_writers(tree)
@@ -767,7 +813,7 @@ def fam_promotion_fidelity(ctx):
             writer = _authoritative(writers[key], tie_rank)
             if writer.op not in CHECKED_OPS:
                 continue  # a RENAMED writer retires the old title, nothing more
-            if _disposed(dispositions, repo, writer.delta_rel, writer.title):
+            if disposed(dispositions, repo, writer.delta_rel, writer.title):
                 continue
             canon = promoted(writer.capability)
             spec_rel = f"openspec/specs/{writer.capability}/spec.md"

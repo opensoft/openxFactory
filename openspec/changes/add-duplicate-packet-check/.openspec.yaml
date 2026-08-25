@@ -1,0 +1,33 @@
+schema: spec-driven
+created: 2026-08-24
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-24-add-duplicate-packet-check
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-24, verbatim: "commission the
+    duplicate-packet check". Not a staged ideation topic — the forcing fact is
+    a NEAR MISS this repository produced hours earlier and recorded on its own
+    pull requests. openxFactory PR #317 and the landed
+    `2026-08-25-apply-branch-sessions-deltas` (PR #316) both restated the
+    identical 2026-08-01 `add-workbench-branch-sessions` ratified delta, from
+    parallel sessions; the two delta files hash the same git blob
+    (`63e615aa4119b6bba62685fb539660badf9ba73d`). A human closed #317 unmerged
+    twenty minutes later and recorded the corroboration in its close comment:
+    "One ruling, one discharge: the landed packet is it." Had the merge order
+    gone the other way, both packets would have archived silently — the
+    promotion-fidelity family commissioned the same day reads 0 findings either
+    way, because canon then holds exactly what both packets said it should.
+    This change takes that prevention, and it is authored here rather than in a
+    domain repository because the check is domain-neutral tooling and doc-health
+    is an openxFactory capability.
+  approved_by: >-
+    Brett — in-session commissioning of the check itself. This records
+    authorization for the DECISION TO BUILD, which is also what the proposal's
+    `Ratified:` line cites. The four design decisions the orchestrating session
+    took under standing patterns (content identity rather than resemblance; the
+    lineage exemption keyed on either proposal naming the other's change id;
+    the advisory launch in both of its halves; and acceptance measured in both
+    directions including against the real corpus) are NOT covered by that
+    authorization and are flagged for veto in the proposal's § Orchestrator
+    Decisions.
+  approved_on: 2026-08-24

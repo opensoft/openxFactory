@@ -10,9 +10,10 @@ reference (the regexes below transcribe, never extend, that grammar).
 fifteenth (add-proposal-origin-contract),
 `client_identity_composition.py` owns the sixteenth
 (add-client-identity-roster), `promotion_fidelity.py` owns the
-eighteenth (add-promotion-fidelity-check), and `release_inventory.py` owns
-the nineteenth (add-release-inventory-drift-check); all six are only
-registered below.
+eighteenth (add-promotion-fidelity-check), `release_inventory.py` owns
+the nineteenth (add-release-inventory-drift-check), and
+`duplicate_packet.py` owns the twentieth (add-duplicate-packet-check); all
+seven are only registered below.
 
 The count is deliberately no longer written into this docstring's first
 line. It was wrong for three months — `staged-topic-template` registered on
@@ -34,8 +35,8 @@ from pathlib import Path
 from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
                TAXONOMY, Finding, Skip, recorded_rel)
 from . import (client_identity_composition, corpus, document_catalog,
-               ideation_routing, promotion_fidelity, proposal_origin,
-               release_inventory)
+               duplicate_packet, ideation_routing, promotion_fidelity,
+               proposal_origin, release_inventory)
 from .lines import split_keepends
 
 # Per-family resolution class defaults (doc-health contract): contested
@@ -1045,6 +1046,15 @@ FAMILIES = {
     # is the expected steady state between cuts, and a permanent yellow row for
     # a condition nobody should act on is how a report stops being read.
     "release-inventory-drift": release_inventory.fam_release_inventory_drift,
+    # The TWENTIETH family (add-duplicate-packet-check), and ABSENT from
+    # FAMILY_RESOLUTION for the reason promotion-fidelity was absent at ITS
+    # launch — which is worth saying carefully now that promotion-fidelity has
+    # since flipped to `error` + `CONTESTED`. That flip was earned by a
+    # measured, discharged population; a brand-new class has no such
+    # population, so this family launches advisory in both halves exactly as
+    # its neighbour did, and flips only by its own ruling.
+    # See `duplicate_packet._LAUNCH_SEVERITY`.
+    "duplicate-packet": duplicate_packet.fam_duplicate_packet,
 }
 
 # `family -> (ctx) -> [note line, ...]`, rendered under that family's own
