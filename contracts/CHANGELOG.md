@@ -73,6 +73,53 @@ without fabricating historical tags.
   next-additive-bundle changes are folded into this same `Unreleased`
   section.
 
+## contract-v1.41 — 2026-08-25 (additive; the ratified versioning policy joins the release surface)
+
+Cut on Brett's ruling of 2026-08-25, in response to the first finding the
+`release-inventory-drift` check family ever reported — which was against the
+change that commissioned the family.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+NO SCHEMA BYTES CHANGE IN THIS CUT: no file under `contracts/schemas/` moves, no
+`contract_schema_version` advances, no field is added, deprecated or removed, and
+no existing instance changes meaning. A domain repo on the same major version
+remains conformant without doing anything. What this bundle does is RE-BASELINE
+the release surface's recorded identity.
+
+WHAT MOVED, and why each was already true before the cut:
+
+* `docs/contract-versioning-policy.md` — a release-surface member (the
+  membership clause covers "every modified normative contract **or versioning
+  document**"). It was RATIFIED by `add-release-inventory-drift-check`
+  (`Status: draft` → `ratified`), and that ratification corrected five defects
+  the read-through found: three modern bundles published with no annotated tag
+  (recorded as an undischarged gap, the rule NOT relaxed), a stale present-tense
+  baseline claim, a superseded layer vocabulary called "canonical", the
+  undocumented meaning of a red `verify-commit` at HEAD, and the record-only
+  disposition of the `contract-v1.36` tag move. This bundle records the policy
+  at its ratified state.
+* `contracts/CHANGELOG.md` and `contracts/manifest.yaml` — the editorial members,
+  re-baselined. They had drifted from `contract-v1.40`'s inventory across several
+  commits, which is the expected bounded state between cuts that the policy now
+  documents in as many words.
+
+WHY THIS CUT EXISTS AT ALL, recorded because it is the useful part. The
+`release-inventory-drift` family reported one `error` at `origin/main`:
+`docs/contract-versioning-policy.md` differed from the digest `contract-v1.40`
+records. That was a TRUE POSITIVE, proven both directions — run at the
+`contract-v1.40` tag the family reports zero findings, and run at main it named
+exactly the one member that had moved. Two remedies were available and one was
+refused: reclassifying the policy into the editorial set would have been the
+"hand-edit to make the check pass" that this very policy now forbids in writing.
+The other is this cut, which is what the taxonomy prescribes.
+
+The structural question the finding raised is recorded and NOT answered here:
+ratifying a versioning document is itself a release-surface edit, so under the
+membership clause as written, governing the policy drifts the surface the policy
+governs. Either such edits owe a cut — as this one does — or the membership
+clause wants revisiting. That is a separate change.
+
 ## contract-v1.40 — 2026-08-22 (additive; the doxBench chat-turn record states its assembled context's posture)
 
 Realizes tasks.md §10.7 of `add-doxbench-editing-phase-b` — the ratified
