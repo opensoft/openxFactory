@@ -41,7 +41,7 @@ capture.
 ## Interfaces and boundaries
 
 The UI lab proposal is
-[Avatar Client Lab](../../openspec/changes/implement-avatar-client-lab/proposal.md).
+[Avatar Client Lab](../../openspec/changes/archive/2026-08-04-implement-avatar-client-lab/proposal.md).
 The staged hardening context is
 [Avatar Pilot Hardening](../staging/avatar-pilot-hardening/avatar-pilot-hardening.md).
 The client experience consumes the brokered contract but does not own provider

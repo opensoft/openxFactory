@@ -397,8 +397,9 @@ Active proposals promoted from staging:
   recurrence-family, recurrence-forecast, crystallization-candidate), the
   derived-projection posture, consent-scope gating, scored forecasts, and
   the candidate autonomy boundary (nominate, never spend).
-- [add-deployment-handoff-boundary](../openspec/changes/add-deployment-handoff-boundary/proposal.md)
-  — fully promoted 2026-07-28, RATIFIED 2026-07-29: owns the former
+- [add-deployment-handoff-boundary](../openspec/changes/archive/2026-07-30-add-deployment-handoff-boundary/proposal.md)
+  — fully promoted 2026-07-28, RATIFIED 2026-07-29, and archived 2026-07-30:
+  owns the former
   `deployment-handoff-boundary`
   staged topic under `supporting-docs/`. The managed-subject test routes
   deployment execution — authority follows management of the target surface,
@@ -623,15 +624,16 @@ Active proposals promoted from staging:
   enforceable) gates a *managed* lane while the execution machinery builds in
   parallel and converges (2026-07-21).
 
-- [qualify-avatar-brokered-call-feasibility](../openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
-  — approved split owning the isolated F0 harness and empirical evidence; still
-  active. Its sibling avatar changes promoted from the same staged packet — the
+- [qualify-avatar-brokered-call-feasibility](../openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/proposal.md)
+  — approved split owning the isolated F0 harness and empirical evidence;
+  realized and archived 2026-08-09. Its sibling avatar changes promoted from
+  the same staged packet — the
   AVC kernel (`define-avatar-client-contract-kernel`, realized `contract-v1.7`),
   the reference runtime (`implement-avatar-reference-runtime`), and the UI standard
   (`align-avatar-first-ui-standard`, realized `contract-v1.8`) — were realized and
   archived 2026-07-13 (see the root README's Archived changes).
-- [add-cross-factory-ideation-routing](../openspec/changes/add-cross-factory-ideation-routing/proposal.md)
-  — owns the former `ideation-routing` staged packet under
+- [add-cross-factory-ideation-routing](../openspec/changes/archive/2026-08-06-add-cross-factory-ideation-routing/proposal.md)
+  — realized and archived 2026-08-06; owns the former `ideation-routing` staged packet under
   `supporting-docs/` and proposes capture-first claim routing, destination
   acceptance, deterministic routing validation, and a bounded organizer.
 - [add-document-cataloging](../openspec/changes/archive/2026-07-14-add-document-cataloging/proposal.md)
@@ -645,14 +647,15 @@ Active proposals promoted from staging:
   declaration, gate rejections, archive retention, migration, and the
   proposal-origin doc-health family; the FDA SaMD rationale deliberately
   remains staged.
-- [add-ideation-cross-reference-readiness](../openspec/changes/add-ideation-cross-reference-readiness/proposal.md)
-  — owns the former `ideation-cross-reference-readiness` staged packet under
+- [add-ideation-cross-reference-readiness](../openspec/changes/archive/2026-08-04-add-ideation-cross-reference-readiness/proposal.md)
+  — realized and archived 2026-08-04; owns the former
+  `ideation-cross-reference-readiness` staged packet under
   `supporting-docs/` and proposes the unified cross-stage topic index,
   three-tier Hermes readiness panel, minimum-score recommendation gate, and
   nightly readiness lane.
-- [implement-avatar-client-lab](../openspec/changes/implement-avatar-client-lab/proposal.md)
+- [implement-avatar-client-lab](../openspec/changes/archive/2026-08-04-implement-avatar-client-lab/proposal.md)
   — exit of the `avatar-client-lab` staged topic (six decisions locked
-  2026-07-13, promoted 2026-07-14); owns the four staged fragments under
+  2026-07-13, promoted 2026-07-14, realized and archived 2026-08-04); owns the four staged fragments under
   `supporting-docs/` and realizes the offline, deterministic Flutter avatar
   client UI lab against `contract-v1.7`/`contract-v1.8`.
 - [add-client-infrastructure-liaison](../openspec/changes/archive/2026-07-17-add-client-infrastructure-liaison/proposal.md)

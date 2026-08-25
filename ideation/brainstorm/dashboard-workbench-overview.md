@@ -70,10 +70,10 @@ repository/ref/document snapshot
 
 This packet extends rather than silently amends the active dashboard and
 workbench changes. Relevant context includes
-[Ideation Dashboard](../../openspec/changes/add-ideation-dashboard/proposal.md),
-[Staging Workbench](../../openspec/changes/add-staging-workbench/proposal.md),
-[Workbench Branch Sessions](../../openspec/changes/add-workbench-branch-sessions/proposal.md),
-[Dashboard Repository Selector](../../openspec/changes/add-dashboard-repo-selector/proposal.md),
+[Ideation Dashboard](../../openspec/changes/archive/2026-07-29-add-ideation-dashboard/proposal.md),
+[Staging Workbench](../../openspec/changes/archive/2026-08-01-add-staging-workbench/proposal.md),
+[Workbench Branch Sessions](../../openspec/changes/archive/2026-08-01-add-workbench-branch-sessions/proposal.md),
+[Dashboard Repository Selector](../../openspec/changes/archive/2026-08-01-add-dashboard-repo-selector/proposal.md),
 and [Ideation Intent Plane](../../openspec/changes/add-ideation-intent-plane/proposal.md).
 Accepted product behavior should become an explicit OpenSpec delta before
 implementation.
