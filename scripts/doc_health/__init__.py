@@ -75,6 +75,11 @@ FAMILY_IDS = [
     # inside this change would put an unrelated family's report output on this
     # feature's evidence.
     "client-identity-composition",
+    # eighteenth family (add-promotion-fidelity-check; doc-health delta
+    # "Deterministic check families"). Registered here so the family gets
+    # its own report section — the omission that left "proposal-origin"
+    # sectionless above is a known defect, not a pattern to copy.
+    "promotion-fidelity",
 ]
 
 
