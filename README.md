@@ -344,6 +344,39 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-family-enumeration-check](openspec/changes/add-family-enumeration-check/proposal.md)
+  — authored and ratified 2026-08-25, commissioned in-session ("commission the
+  §5.5 enumeration check"). `doc-health`'s own "Deterministic check families"
+  requirement NAMES every check family and COUNTS them three times in prose, and
+  every new family must restate the whole requirement to add itself — so a
+  requirement every new family must restate is a requirement every new family can
+  truncate. It broke THREE TIMES IN THREE DAYS and a human caught it every time:
+  `add-release-inventory-drift-check`, `add-promotion-fidelity-check` and
+  `add-duplicate-packet-check` each restated ONE of its EIGHT scenarios, and
+  because `MODIFIED` replaces a requirement wholesale each would have destroyed
+  seven on promotion with the file-level scenario count never moving. The
+  enumeration half had drifted more quietly before that — `staged-topic-template`
+  registered 2026-08-15 and stayed uncounted until 2026-08-23. Closes the
+  candidate `add-duplicate-packet-check` § 5.5 recorded and left named. Adds
+  doc-health's TWENTY-FIRST family, which derives the enumeration and all three
+  numerals from `families.FAMILIES` instead of trusting the hand-restatement:
+  the CANON half compares the promoted requirement, and the ACTIVE-DELTA half —
+  the real prevention — compares every in-flight change that restates it, so a
+  truncation is reported at authoring time rather than at an archive gate. Canon
+  is exempt while an active delta restates the requirement, because a change
+  registering family N+1 leaves canon at N until it archives: pending, not
+  divergent. ADVISORY at launch in both halves, with the flip a recorded task
+  box. **The irony is the acceptance test**: adding the check as a new family
+  forced exactly the restatement it polices, so with the family registered and no
+  delta written it reported three findings against canon — the omitted name and
+  two stale numerals — and zero once this change's own delta was written. Its own
+  restatement was verified by its own check before it could be committed, and the
+  MODIFIED block restates all eight scenarios, seven byte-identical. Two adjacent
+  gaps are recorded rather than folded in: § 5.2, `FAMILY_IDS` missing two
+  entries so `proposal-origin` and `staged-topic-template` report with no section
+  of their own, and § 5.3, the scenario-completeness half — the one that actually
+  destroyed text — which this check does not cover.
+
 - [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
   — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
   staged topic `doxchat-auto-fit-routing`, whose six questions were

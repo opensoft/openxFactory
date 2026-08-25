@@ -88,6 +88,11 @@ FAMILY_IDS = [
     # it asks whether ONE ruling was discharged by TWO archived packets,
     # which promotion fidelity reads as healthy either way.
     "duplicate-packet",
+    # twenty-first family (add-family-enumeration-check; doc-health delta
+    # "Deterministic check families"). It derives that requirement's own
+    # enumeration and counts from `families.FAMILIES` instead of trusting the
+    # hand-restatement every new family has to write.
+    "family-enumeration",
 ]
 
 

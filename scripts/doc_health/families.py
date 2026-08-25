@@ -12,8 +12,9 @@ fifteenth (add-proposal-origin-contract),
 (add-client-identity-roster), `promotion_fidelity.py` owns the
 eighteenth (add-promotion-fidelity-check), `release_inventory.py` owns
 the nineteenth (add-release-inventory-drift-check), and
-`duplicate_packet.py` owns the twentieth (add-duplicate-packet-check); all
-seven are only registered below.
+`duplicate_packet.py` owns the twentieth (add-duplicate-packet-check), and
+`family_enumeration.py` owns the twenty-first
+(add-family-enumeration-check); all eight are only registered below.
 
 The count is deliberately no longer written into this docstring's first
 line. It was wrong for three months — `staged-topic-template` registered on
@@ -35,8 +36,8 @@ from pathlib import Path
 from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
                TAXONOMY, Finding, Skip, recorded_rel)
 from . import (client_identity_composition, corpus, document_catalog,
-               duplicate_packet, ideation_routing, promotion_fidelity,
-               proposal_origin, release_inventory)
+               duplicate_packet, family_enumeration, ideation_routing,
+               promotion_fidelity, proposal_origin, release_inventory)
 from .lines import split_keepends
 
 # Per-family resolution class defaults (doc-health contract): contested
@@ -1067,6 +1068,14 @@ FAMILIES = {
     # measured at zero rather than over a standing population.
     # See `duplicate_packet._LAUNCH_SEVERITY`.
     "duplicate-packet": duplicate_packet.fam_duplicate_packet,
+    # The TWENTY-FIRST family (add-family-enumeration-check). ABSENT from
+    # FAMILY_RESOLUTION above for the reason its three predecessors were
+    # absent at THEIR launches: it launches advisory in both halves, and a
+    # `contested` class would route a resolved finding into
+    # `report.uncited_resolutions` as an ERROR. Two of those three have since
+    # flipped to enforcing; this one flips by its own ruling on its own
+    # measured population. See `family_enumeration._LAUNCH_SEVERITY`.
+    "family-enumeration": family_enumeration.fam_family_enumeration,
 }
 
 # `family -> (ctx) -> [note line, ...]`, rendered under that family's own
