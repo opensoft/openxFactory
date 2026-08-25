@@ -366,14 +366,16 @@ Active changes:
   exemption is what keeps the lawful remedy legal: applying a ratified delta
   byte-faithfully (codexFactory PR #85's shape) is prescribed, so a pair where
   either proposal names the other's change id stays quiet, while two remedials
-  of one ruling that do NOT name each other fire. ADVISORY at launch in both
-  halves — `warning` severity and deliberate absence from `FAMILY_RESOLUTION` —
-  with the enforcement flip a recorded task box. Deliberately NOT the
-  neighbour's current `error` + `CONTESTED`: that flip was ruled
-  ENFORCING-SEQUENCED behind a discharged standing population, and this class
-  has none. Measured before proposing and re-measured after merging main: the
-  real corpus reads 0 findings through the exemption and 2 without it, and the
-  single-repo report moves by nothing but the family's own empty section.
+  of one ruling that do NOT name each other fire. Launched ADVISORY in both
+  halves and **ENFORCING since 2026-08-25** — ruled by Brett ("flip the
+  duplicate-packet check to enforcing"), both halves in one commit: `error`
+  severity plus a `CONTESTED` `FAMILY_RESOLUTION` entry, pinned together by an
+  invariant test that fails by name on a half-flip. Sequenced behind a measured
+  population, never over a standing one: 0 findings across five governed
+  repositories and 206 archived packets, including codexFactory's PR #85
+  remedial — the archetype of the lawful pattern the lineage exemption
+  protects. The pinned-vs-live basis question stays open (tasks §5.2), as does
+  the nine-repository measurement gap the flip did not close (§5.4).
 
 - [add-release-inventory-drift-check](openspec/changes/add-release-inventory-drift-check/proposal.md)
   — authored and ratified 2026-08-24 from issue #312. The release verifier

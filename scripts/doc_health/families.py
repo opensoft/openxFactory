@@ -64,6 +64,15 @@ from .lines import split_keepends
 # non-promotion deliberately — so `contested` is the honest class, and it
 # moved in the same commit as the severity because either alone gates the
 # family in a shape nobody chose. See `promotion_fidelity._LAUNCH_SEVERITY`.
+#
+# "duplicate-packet" arrived the next day and took the same route in the same
+# shape: ABSENT for its advisory launch, PRESENT now, flipped by ruling on
+# 2026-08-25 (Brett, verbatim "flip the duplicate-packet check to enforcing";
+# `add-duplicate-packet-check` task 5.1) on a corpus measured at ZERO on the
+# basis it enforces. Its remedy is a governance act too — name the packet you
+# restate, or withdraw the duplicate discharge — so `contested` is the honest
+# class, and it moved in the same commit as its severity for the same reason.
+# See `duplicate_packet._LAUNCH_SEVERITY`.
 FAMILY_RESOLUTION = {
     "location-conformance": CONTESTED,
     "standard-backing": CONTESTED,
@@ -72,6 +81,7 @@ FAMILY_RESOLUTION = {
     "staged-candidate-aging": CONTESTED,
     "uncited-resolution": CONTESTED,
     "promotion-fidelity": CONTESTED,
+    "duplicate-packet": CONTESTED,
 }
 
 # ---------------------------------------------------------------- helpers
@@ -1046,13 +1056,15 @@ FAMILIES = {
     # is the expected steady state between cuts, and a permanent yellow row for
     # a condition nobody should act on is how a report stops being read.
     "release-inventory-drift": release_inventory.fam_release_inventory_drift,
-    # The TWENTIETH family (add-duplicate-packet-check), and ABSENT from
-    # FAMILY_RESOLUTION for the reason promotion-fidelity was absent at ITS
-    # launch — which is worth saying carefully now that promotion-fidelity has
-    # since flipped to `error` + `CONTESTED`. That flip was earned by a
-    # measured, discharged population; a brand-new class has no such
-    # population, so this family launches advisory in both halves exactly as
-    # its neighbour did, and flips only by its own ruling.
+    # The TWENTIETH family (add-duplicate-packet-check). It launched ADVISORY
+    # and is now ENFORCING: registered `contested` in FAMILY_RESOLUTION above
+    # and emitting ERROR. The absence recorded here through its launch was
+    # deliberate and is SUPERSEDED, not forgotten — a `contested` class routes
+    # a resolved finding into `report.uncited_resolutions` as an ERROR, which
+    # was a back door under an advisory family and is the intended discipline
+    # under an enforcing one. Flipped by ruling 2026-08-25 (Brett, verbatim
+    # "flip the duplicate-packet check to enforcing"; task 5.1), on a corpus
+    # measured at zero rather than over a standing population.
     # See `duplicate_packet._LAUNCH_SEVERITY`.
     "duplicate-packet": duplicate_packet.fam_duplicate_packet,
 }

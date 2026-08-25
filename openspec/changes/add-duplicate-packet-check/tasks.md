@@ -6,9 +6,10 @@ taken by the orchestrating session under standing patterns and are flagged for
 veto in `proposal.md` § Orchestrator Decisions — reverting any one of them is
 an edit to this change, not a new one.
 
-**§5 is deliberately OPEN and stays open.** The family ships advisory.
-Flipping it to enforcing is a ruling, and leaving the box unticked is how that
-stays visible rather than becoming a silent later commit.
+**§5.1 IS NOW CLOSED BY RULING (2026-08-25) — the family ENFORCES.** It shipped
+advisory, exactly as this section said it would, and the flip came as its own
+ruling rather than a silent later commit. §5.2 and §5.3 stay open, and §5.4 is
+new: the flip's one unmeasured exposure, recorded rather than left implicit.
 
 ## 1. Ratification
 
@@ -153,9 +154,9 @@ stays visible rather than becoming a silent later commit.
       confirmed by the report diff above: this branch's single-repo run adds
       zero `error` findings and zero `uncited-resolution` findings.
 
-## 5. Open: the flip to enforcing
+## 5. The flip to enforcing — RULED and taken; the rest still open
 
-- [ ] 5.1 RULE on raising this family from advisory to enforcing. The flip
+- [x] 5.1 RULE on raising this family from advisory to enforcing. The flip
       raises severity above `warning` AND adds the `FAMILY_RESOLUTION` entry
       TOGETHER — never one without the other, because a `contested` finding
       that resolves without a citation becomes an `error` under the
@@ -163,6 +164,52 @@ stays visible rather than becoming a silent later commit.
       door. Prerequisite evidence: at least one aggregation run across every
       pinned domain factory, so the decision is taken against a measured
       population rather than against openxFactory's own archive.
+      **RULED AND TAKEN, 2026-08-25 — Brett, in-session, verbatim: "flip the
+      duplicate-packet check to enforcing".** Both halves in one commit, on
+      the `add-promotion-fidelity-check` §4.2 precedent (PR #325):
+      `duplicate_packet._LAUNCH_SEVERITY = ERROR` and
+      `families.FAMILY_RESOLUTION` gains `"duplicate-packet": CONTESTED`. The
+      identifier keeps its `_LAUNCH_` name deliberately — it records where the
+      value STARTED, and a rename would cost the grep that ties every reader of
+      the launch decision together. Both site comments now cite the ruling and
+      SUPERSEDE what they used to say, in those words rather than by deletion:
+      the recorded reason for the absence from `FAMILY_RESOLUTION` was correct
+      for an advisory family and is wrong for an enforcing one.
+      **THE SEQUENCING PRECONDITION, measured on the basis this family
+      ENFORCES ON (the pinned checkout), not on some other tree.** At the exact
+      sha the flip lands on, `d5f447e89cf619fd12113bcf03525468ece4470d`:
+      openxFactory carries 91 archived packets and 543 distinct (capability,
+      requirement, content) identities, 2 of them restated by more than one
+      packet — both the `2026-08-01-add-workbench-branch-sessions` original
+      with its landed remedial `2026-08-25-apply-branch-sessions-deltas` — and
+      the lineage exemption clears both pairs. **0 findings.** The gate goes
+      green on the commit that introduces it.
+      **CORROBORATED ON FOUR MORE GOVERNED ARCHIVES**, read-only, at the shas
+      they sat at (other sessions' scratch checkouts, left untouched — `git
+      status` clean on each, and none is a fresh fetch): codexFactory
+      `dff2a3e9f0af` 24 packets / 112 identities / 1 restated / **0**;
+      openxFactory at the aggregation pin `ebf87c34f4e6` 89 / 541 / 0 / **0**;
+      HealthLinc `52860649ad80` 1 / 7 / **0**; AdxFactory `d302d27b519b`
+      1 / 12 / **0**; MedxEHR `004486ac704d` 1 / 7 / **0**. Five governed
+      repositories, 206 archived packets, **0 findings**.
+      **THE codexFactory RESULT IS THE ONE THAT MATTERS**, and it is the
+      lineage exemption proving itself on a real corpus rather than a fixture.
+      codexFactory's single restated identity is
+      `merge-master-approval` / "Tier-2 ships inactive with report-only
+      classification", restated by `2026-08-24-apply-nightly-sweep-activation-
+      delta` — **PR #85, the canonical remedial this whole exemption exists to
+      keep legal**. Its proposal names the original 4 times, so the pair is
+      exempt and the repository reads zero. Had the exemption been wrong, the
+      flip would have turned the archetype of the lawful remedy into a gating
+      error in another repository.
+      **WHAT THE PREREQUISITE ASKED FOR AND DID NOT GET, stated plainly rather
+      than reported as satisfied.** This box asked for "at least one
+      aggregation run across every pinned domain factory". That is NOT what was
+      taken: five repositories were measured, not fourteen, and four of the
+      five from scratch checkouts at their own shas rather than from a fresh
+      aggregation fetch. The ruling was given on this evidence and supersedes
+      its own prerequisite; the residual is §5.4 and is not hidden inside this
+      tick.
 - [ ] 5.2 CONSIDER, only by ruling, whether this family should join the
       promotion fidelity family on the live-`main` basis. Today it reads the
       pinned checkout, structurally, because the 2026-08-24 ruling scoped that
@@ -170,7 +217,10 @@ stays visible rather than becoming a silent later commit.
       moving it is that a lagging aggregation pin delays a duplicate's report;
       the argument against is that the catch point that matters is the pull
       request adding the second packet, which a repository's own self-gate run
-      already reads. Not decided here.
+      already reads. Not decided here, and NOT decided by the 5.1 flip either:
+      enforcing on a tree is not an argument for enforcing on a different one.
+      The 5.1 measurement was deliberately taken on the pinned basis for
+      exactly that reason — it is the basis the family reads and now gates on.
 - [ ] 5.3 THE COUNT SENTENCE'S ORDERING HAZARD, named rather than fixed. Three
       active changes now MODIFY `doc-health`'s "Deterministic check families",
       each restating the whole requirement with its own cumulative list. The
@@ -179,3 +229,17 @@ stays visible rather than becoming a silent later commit.
       change declares `Sequenced-after:` both of the others; a structural fix —
       making the count derived rather than restated — belongs to its own
       change.
+
+- [ ] 5.4 THE FLIP'S ONE UNMEASURED EXPOSURE, opened by the 5.1 tick rather
+      than left implicit in it. Nine of the fourteen governed repositories were
+      not measured before the flip, so a duplicate discharge standing in one of
+      them will now surface as a gating `error` on the first aggregation
+      nightly rather than as an advisory warning. The exposure is bounded and
+      the shape of the remedy is known — a finding is either a real double
+      discharge (withdraw it, or name the lineage) or a lineage the record
+      states in a spelling this family cannot read (a `health/dispositions.yaml`
+      entry with a cite, then a rule fix) — but it is a real difference from
+      `add-promotion-fidelity-check` §4.3, which discharged its population
+      across fourteen submodules with live mains fetched fresh BEFORE its flip.
+      The first corpus-wide run after this flip closes this box. If it reds,
+      the honest reading is that this box should have been closed first.
