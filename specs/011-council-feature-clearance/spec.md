@@ -23,6 +23,38 @@ feature makes feature PRs lane subjects without weakening any existing control.
 - Q: Which repositories form the first tranche, and are feature-PR verdicts advisory or clearable? → A: BOTH `opensoft/xFactory` AND `opensoft/openxFactory` enter the first tranche (openxFactory is the ratified pilot home of the lane and where real feature PRs occur; xFactory-only would be a rehearsed-but-dormant intake act). Verdicts are ADVISORY-only for every first-tranche class — no feature PR has ever been a council subject, so no evidence base exists for any clearable class, and flipping classification intent IS the tier-2 activation gate-flip reserved to the convener. Floor classes untouched under either ruling.
 - Q: The envelope schema v1 supports only EXACT-string `expected_head_ref` (no ref patterns; `additionalProperties: false`; no classification-intent field) — how is an open-ended feature-PR class expressed? → A: Intake-per-effort, literally. Each feature effort records ONE reviewed exact-ref envelope entry when its branch opens; auto-commissioning engages immediately for that candidate; revocation deletes one entry. No schema change (codexFactory-minor explicitly rejected as premature cross-repo chain; relaxing ref binding refused outright as spoofing surface against Principle VII). If pilot evidence shows per-effort friction is real, promoting `head_ref_pattern` becomes its own evidence-backed successor change — noted in tasks, not built here.
 
+### Correction 2026-08-25 — Q2's first ground evaporated; the answer stands on its second
+
+The answer above is NOT rewritten: it is the record of what was decided on
+2026-08-23 and on what basis. This note records that one of its two grounds was
+false at the time it was written, and that the convener has reaffirmed the answer
+on the remaining ground.
+
+WHAT WAS FALSE. Q2's premise — "the envelope schema v1 supports only EXACT-string
+`expected_head_ref` (no ref patterns)" — was already untrue when the question was
+asked. `head_ref_pattern` is part of schema **v1 itself** (`schema_version` is
+`{"const": 1}`; the member is a `oneOf` alternative to `expected_head_ref`), with
+glob matching in `scripts/merge_master/envelope.py`. It shipped in codexFactory
+`9ebe805` on **2026-08-21**, two days before this clarify, and codexFactory runs a
+pattern class in production today (`head_ref_pattern: change/**`). So the ground
+"no schema change (codexFactory-minor explicitly rejected as premature cross-repo
+chain)" describes a cost that does not exist: expressing an open-ended class needs
+no schema work at all. The other two premises HOLD — `additionalProperties: false`
+is real, and there is still no classification-intent field anywhere.
+
+WHAT STANDS, AND WHY. **Brett reaffirmed intake-per-effort on 2026-08-25**, on the
+answer's second ground alone: relaxing ref binding is a spoofing surface, refused
+against Principle VII. That is a security judgment about what SHOULD be bound, not
+a claim about what the schema CAN express, so the false premise does not disturb
+it. First-tranche classes therefore remain one reviewed exact-ref entry per effort
+— now a deliberate refusal of an available mechanism rather than an accommodation
+of a missing one.
+
+The successor clause is likewise unchanged in effect but not in meaning: promoting
+`head_ref_pattern` would no longer be a schema change, so any future proposal to
+use it is purely a request to revisit the Principle VII judgment on recorded pilot
+evidence, and must be argued on that footing.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - A feature PR gets a recorded council verdict (Priority: P1)

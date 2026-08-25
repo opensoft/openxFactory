@@ -37,6 +37,12 @@ options (a) accept eventual autonomous approval for narrowly-scoped classes;
 successor); (c) defer all live entries until ruled. Safe subset landed under (c)
 provisionally; live entries (T005/T006/T010) blocked pending ruling.
 
+**RULED 2026-08-23 — see § Round 8 below.** This section states the question, not
+the outcome; do not read "pending ruling" as the current state. The convener ruled
+C→B: stay parked now, land the codexFactory advisory-intent successor next, pilot
+entry follows under its protections. Option A was rejected. T005/T006/T010 remain
+blocked, but they are blocked ON A NAMED SUCCESSOR rather than on an open question.
+
 ## Round 8 — Convener R4 ruling: C→B sequence
 
 Convener ruled (2026-08-23): **stay parked now (C); land the advisory-intent

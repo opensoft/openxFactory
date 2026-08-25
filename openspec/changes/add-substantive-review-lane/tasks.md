@@ -137,6 +137,41 @@
       (and a schema change to accept it) or the pilot's first substantive
       class must itself be fixed-branch. Whichever is chosen, it is a
       matcher change, not a config change.
+      **CORRECTED 2026-08-25 — THE FACT ABOVE IS FALSE, AND ITS CONCLUSION IS
+      VOID.** Left standing rather than deleted, because this task exists to stop
+      the realization discovering the matcher late, and a reader who acts on the
+      original text will build something that already ships. The truth:
+      - `head_ref_pattern` is part of schema **v1 itself** — `schema_version` is
+        `{"const": 1}` and the member is a `oneOf` alternative to
+        `expected_head_ref` in codexFactory's
+        `schemas/merge-approval-envelope.schema.json`. Glob matching is
+        implemented in `scripts/merge_master/envelope.py`
+        (`_glob_to_regex`, `_head_ref_matches`).
+      - It shipped in codexFactory `9ebe805` on **2026-08-21 — ONE DAY BEFORE
+        THIS CHANGE WAS RATIFIED**, and the aggregation's pinned merge-master
+        core (`3c35ca8b`) contains it. The capability is live in production now.
+      - codexFactory already runs the exact class the original text calls
+        impossible: `head_ref_pattern: change/**` on `codexfactory-routine-code`,
+        covering human-authored PRs on arbitrary `change/**` branches.
+      - So "a substantive class covering human-authored PRs on arbitrary branches
+        cannot be written against the current matcher" is false, and "it is a
+        matcher change, not a config change" is exactly inverted: for §4.1 it is
+        now a CONFIG change and no schema work is owed.
+      HOW THE ERROR HAPPENED, recorded so it is not repeated: the original was
+      verified 2026-08-22 by reading the aggregation repo's `xFactories/`
+      codexFactory SUBMODULE CHECKOUT, whose pin was then `e61f24da` — a commit
+      predating `9ebe805`. The reading was accurate about the bytes in front of
+      it and wrong about codexFactory. This is the submodule-pin-drift trap:
+      verify realization facts against the submodule's own `origin/main`, never
+      against the pin the aggregation happens to carry.
+      WHAT §4.1 MAY ACTUALLY DO. Pattern classes are available at zero schema
+      cost, but availability is not permission. **Brett ruled 2026-08-25** that
+      intake-per-effort stands for first-tranche classes — one reviewed exact-ref
+      entry per effort — on the anti-spoofing ground alone (Principle VII), the
+      schema-cost ground having evaporated with the fact above. First-tranche
+      classes are therefore fixed-branch BY RULING, not by mechanism, and any
+      future move to patterns is a request to revisit that security judgment on
+      recorded pilot evidence rather than a schema proposal.
 - [ ] 4.5 REALIZATION FACT, and a thing the realization MUST pin (verified by
       reading the code 2026-08-22, NOT a blocker for ratification). A NAMING
       hazard — stated precisely, because the loose version of it ("one key
@@ -168,6 +203,39 @@
       make it the enforced PR scope and reconcile the existing file's value.
       What it must not do is leave an unenforced repo-shaped key disagreeing
       with the enforced one.
+      **CORRECTED 2026-08-25 — DISCHARGED UPSTREAM; THIS TASK IS RE-RECORDED,
+      NOT RE-DONE.** The facts above were true when written and are now stale in
+      both directions. What changed, all in codexFactory `9ebe805`
+      (**2026-08-21**, the same commit as §4.4's matcher work, and likewise
+      missed at ratification because the aggregation's submodule pin was the
+      older `e61f24da`):
+      - `rule.repository` is NO LONGER descriptive-only. `council_clearance.py`'s
+        `select_rule` cross-checks it against the resolved surface's
+        `target_repos` and REFUSES the rule when they contradict — fail-closed,
+        not advisory. `validate_rule` additionally type-checks the field.
+      - Its VALUE was reconciled: `scripts/merge_master/`
+        `nightly-sweep-council-clearance.yaml` now declares
+        `rule.repository: opensoft/xFactory`, agreeing with the `target_repos`
+        of the candidate whose PRs it governs. The disagreement this task was
+        written to prevent no longer exists.
+      - So the mandate was met, by the SECOND of the two options this task
+        offered: the key became enforced and the existing file's value was
+        reconciled. Nothing here is owed.
+      PRECISION, so the discharge is not over-read: the cross-check is a
+      CONSISTENCY GUARD, not the selector. Rule selection still binds on
+      `applies_to.candidate_id`; `rule.repository` can only refuse a rule, never
+      choose one. A realization that starts scoping rules BY that field would be
+      making a new decision, not continuing this one.
+      RESIDUE, recorded small and deliberately not fixed here: the hazard class
+      migrated rather than closed. `rule.tier_1`, in the same file, is read by no
+      code — an unenforced key sitting beside enforced ones, which is the shape
+      §4.5 was written about. codexFactory already knows: the ONLY occurrence of
+      the name anywhere in `scripts/merge_master/*.py` is a comment in
+      `council_clearance.py` that calls the key "a comment with a colon in it",
+      attributing the phrase to its own review finding LA-F12. So this is a
+      known, named, accepted item rather than a discovery. It is harmless at one
+      rule file and worth pinning before per-repo rules multiply, but it belongs
+      to whoever owns that file next, not to this change.
 
 ## 5. Pilot-repo wiring + records (downstream; executed in openxFactory repo)
 
