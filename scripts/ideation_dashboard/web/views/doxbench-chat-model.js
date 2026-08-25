@@ -440,12 +440,23 @@ function adoptContextPacket(carrier) {
   // badge", arriving through the one input shape nobody checked.
   //
   // THE FAMILY'S RULE, RESTATED (canonical statement and the measurement:
-  // `doxbench_packet.states_something`): at least one character outside
-  // `White_Space ∪ Cc ∪ Cf ∪ M`. NOT `.trim()` — that catches space, tab,
-  // NBSP and newline and misses the other five, which are zero-visible-width
-  // rather than whitespace. A cross-runtime test drives the same nine inputs
-  // through this regex and the Python predicate and asserts identical
-  // verdicts, because two spellings of one rule is how they drift.
+  // `doxbench_packet.states_something`): at least one character in
+  // `L* ∪ N* ∪ P* ∪ S*` — a letter, number, punctuation mark or symbol.
+  // Stated as what it ADMITS; see the constant's own note for why an exclusion
+  // over the blank categories was version-unstable. It is strictly narrower
+  // than those categories, additionally refusing `Co` (private use), `Cn`
+  // (unassigned) and `Cs` (surrogates).
+  // NOT `.trim()` — that catches space, tab, NBSP and newline and misses the
+  // other five blank classes, which are zero-visible-width rather than
+  // whitespace. A FULL CODE-POINT SWEEP drives every code point through this
+  // regex and the Python predicate and asserts the server can never accept
+  // what this refuses, because two spellings of one rule is how they drift.
+  //
+  // THIS SURFACE REFUSES. The published conformance validator only WARNS on
+  // the same input, because contract-v1.40 accepted it — but this is not a
+  // conformance verdict on a third party's record, it is this repository's own
+  // browser declining to render its own server's output as a disclosure with
+  // nothing in it.
   const reasonUsable = typeof reason === "string"
     && NON_BLANK_REASON.test(reason)
     && [...reason].length <= CONTEXT_REDUCED_REASON_MAX_LENGTH;

@@ -382,6 +382,27 @@ class CorpusCoverage:
 # Unicode table, so an ADMISSION rule is stable by construction: a code point
 # this predicate accepts is one some table has assigned meaning to.
 #
+# THE ADMISSION RULE IS STRICTLY NARROWER THAN THE BLANK CATEGORIES, and the
+# delta is named here so nobody has to derive it by comparing two spellings
+# (PR #314, Codex P2). Beyond every blank class below it also refuses:
+#
+#   `Co` PRIVATE USE (e.g. U+E000)  — meaningless outside the font that defines
+#                                     it, so a reason made only of these renders
+#                                     as tofu for every other reader: the same
+#                                     disclosure-with-nothing-in-it in disguise
+#   `Cn` UNASSIGNED                 — the version-stability property above
+#   `Cs` SURROGATES                 — not characters at all
+#
+# All three are refused on the same fail-closed ground, deliberately.
+#
+# THE FOUR HOMES AGREE ON THE PREDICATE AND DIFFER ON THE CONSEQUENCE. The
+# published conformance validator WARNS and still accepts, because
+# `contract-v1.40` accepted these records and the versioning policy makes a new
+# validator warning ADDITIVE while a new rejection is BREAKING (PR #314, Codex
+# P1). The three runtime gates — this one, the record derivation, and the
+# browser adopter — REFUSE, because a server may hold itself to more than the
+# wire requires and none of them is judging somebody else's record.
+#
 # WHAT THE SWEEP MEASURES, stated precisely rather than as "the runtimes agree",
 # because they still do not agree everywhere — and the count is not the safety
 # property. Across all 1,112,064 code points:

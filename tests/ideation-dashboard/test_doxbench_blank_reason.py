@@ -201,21 +201,45 @@ def _validator():
     return module
 
 
-def _gate3_errors(reason):
+def _gate3_findings(reason):
+    """(errors, warnings) from the delegated validator.
+
+    BOTH, because this gate deliberately does NOT refuse a blank (PR #314,
+    Codex P1): it WARNS and accepts. `contract-v1.40` accepted these records,
+    and `docs/contract-versioning-policy.md` makes a new validator warning
+    additive while a new rejection is breaking."""
     module = _validator()
     findings = module.Findings()
     module.check_context_packet(
         findings, "probe",
         {"context_packet": {"posture": "reduced", "reduced_reason": reason}})
-    return findings.errors
+    return findings.errors, findings.warnings
+
+
+def _gate3_errors(reason):
+    return _gate3_findings(reason)[0]
 
 
 @pytest.mark.parametrize("name,value,_c,_s", BLANK_CLASSES, ids=BLANK_IDS)
-def test_gate3_validator_refuses_every_blank_class(name, value, _c, _s):
-    errors = _gate3_errors(value)
-    assert errors, name
-    assert any("context-packet" in e and "STATES its reason" in e
-               for e in errors), errors
+def test_gate3_validator_WARNS_on_every_blank_class_and_still_accepts(
+        name, value, _c, _s):
+    """THE PUBLISHED CONFORMANCE VALIDATOR WARNS RATHER THAN REFUSES, and that
+    is the contract-versioning decision, not a weaker guard (PR #314, Codex P1).
+
+    Its verdict on a third party's record IS the contract surface, and
+    `contract-v1.40` — still the declared bundle, changelog and tag — accepted
+    these records with zero errors and zero warnings. The policy's ADDITIVE
+    class is "new optional fields, new contracts, NEW VALIDATOR WARNINGS";
+    rejecting a previously accepted shape is the BREAKING class and may only
+    land at a new major. So this warns now and errors at contract-v2.0."""
+    errors, warnings = _gate3_findings(value)
+    assert errors == [], (
+        f"{name}: the published validator must still ACCEPT this record — "
+        f"rejecting it changes what contract-v1.40 means")
+    assert any("context-packet-blank" in w and "STATES its reason" in w
+               for w in warnings), warnings
+    assert any("contract-v2.0" in w for w in warnings), (
+        "the warning must record where it becomes an error")
 
 
 @pytest.mark.parametrize("name,value", STATED_VALUES, ids=STATED_IDS)
@@ -673,3 +697,63 @@ def test_the_builder_call_site_is_inside_a_packet_error_handler():
         assert any("PacketError" in h for h in handlers), (
             f"the builder call at line {call.lineno} is not inside a try that "
             f"handles PacketError; its refusals would escape as a 500")
+
+
+# ---------------------------------------------------------------------------
+# THE ADMISSION RULE IS STRICTLY NARROWER THAN THE BLANK CATEGORIES
+#
+# Named as its own behaviour (PR #314, Codex P2) rather than left for a reader
+# to derive by comparing two spellings. The exclusion form the rule started as
+# would have ACCEPTED all three of these.
+# ---------------------------------------------------------------------------
+
+NARROWER_THAN_EXCLUSION: tuple[tuple[str, str, str], ...] = (
+    ("private use U+E000", "", "Co"),
+    ("private use U+F8FF", "", "Co"),
+    ("unassigned U+0897", "ࢗ", "Cn"),
+)
+
+
+@pytest.mark.parametrize(
+    "name,value,category", NARROWER_THAN_EXCLUSION,
+    ids=[n for n, _v, _c in NARROWER_THAN_EXCLUSION])
+def test_the_rule_refuses_private_use_and_unassigned(name, value, category):
+    """`Co`/`Cn` are refused on the same fail-closed ground as the blank
+    classes: a private-use code point means nothing outside the font that
+    defines it, so a reason made only of them renders as tofu for every other
+    reader — the disclosure-with-nothing-in-it in a different disguise. `Cn`
+    carries the version-stability property."""
+    assert unicodedata.category(value) == category, name
+    assert pk.states_something(value) is False, name
+    # the EXCLUSION form this replaced would have accepted them, which is the
+    # delta the normative text now names
+    blank_cats = {"Cc", "Cf", "Mn", "Mc", "Me"}
+    would_have_accepted = not (
+        value.isspace() or unicodedata.category(value) in blank_cats)
+    assert would_have_accepted, (
+        f"{name} is not part of the admission/exclusion delta after all")
+
+
+def test_surrogates_are_refused_by_the_rule():
+    """`Cs` completes the delta. Not reachable as text in Python (a lone
+    surrogate is not encodable), so it is asserted at the predicate."""
+    assert pk.states_something("\ud800") is False
+
+
+def test_every_textual_home_states_the_admission_rule():
+    """One rule, four homes — and the round's own lesson is that a home stating
+    the OLD rule is how the four drift apart (PR #314, Codex P2 found exactly
+    that: the normative manifest text still described the exclusion form after
+    the code had been inverted)."""
+    homes = {
+        "canonical": REPO_ROOT / "scripts" / "ideation_dashboard"
+        / "doxbench_packet.py",
+        "validator": REPO_ROOT / "scripts"
+        / "validate-ideation-dashboard-contracts.py",
+        "browser": CHAT_MODEL_JS,
+        "manifest": REPO_ROOT / "contracts" / "manifest.yaml",
+    }
+    for label, path in homes.items():
+        text = path.read_text(encoding="utf-8")
+        assert ("L* ∪ N* ∪ P* ∪ S*" in text or "L* | N* | P* | S*" in text), (
+            f"{label} does not state the admission rule")

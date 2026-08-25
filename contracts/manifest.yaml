@@ -1647,13 +1647,32 @@ contracts:
       delegated validator). TWO DELEGATED RULES now sit beside that pairing,
       and neither is expressible in the released shape. The reason is LINTED
       for credential and endpoint spellings as public prose. And the reason is
-      NON-BLANK — at least one character outside
-      `White_Space | Cc | Cf | Mn | Mc | Me` — which `minLength: 1` cannot say,
-      because it counts CHARACTERS and a lone space, ZWSP, BOM, bidi override,
-      combining mark or control is one of them (issue #263). A producer
-      conformant by the letter could ship a reduction nobody can read;
-      consumers MUST NOT treat a schema-valid reason as a readable one.
-      Tightening the shape itself is a contract-v2.0 question. The DEPRECATED v1 success envelope is NOT widened
+      STATES SOMETHING — it carries at least one character in
+      `L* | N* | P* | S*` (a letter, number, punctuation mark or symbol) —
+      which `minLength: 1` cannot say, because it counts CHARACTERS and a lone
+      space, ZWSP, BOM, bidi override, combining mark or control is one of them
+      (issue #263). The rule is stated as what it ADMITS rather than as the
+      blank categories it excludes, because an exclusion is a rule over a set
+      that GROWS WITH THE UNICODE TABLE: a full code-point sweep found 51
+      points where two runtimes on different Unicode versions disagreed, with
+      the server accepting what the browser refused. `Cn` is never L/N/P/S in
+      any table, so admission is version-stable by construction. The admission
+      rule is therefore STRICTLY NARROWER than the blank categories: beyond
+      them it also refuses `Co` (private use), `Cn` (unassigned) and `Cs`
+      (surrogates) — deliberately, on the same fail-closed ground, since a
+      private-use code point renders as tofu for any reader without the font
+      that defines it.
+      HOW IT IS ENFORCED, per surface, because they differ: the delegated
+      validator emits a WARNING (`context-packet-blank`) and still ACCEPTS the
+      record, because contract-v1.40 accepted it and
+      `docs/contract-versioning-policy.md` makes a new validator warning
+      ADDITIVE while a new rejection is BREAKING; it becomes an ERROR at
+      contract-v2.0, alongside the shape's own `minLength: 1`. This
+      repository's runtime REFUSES such a reason at construction, at the record
+      derivation and at the browser adopter — a server may hold itself to more
+      than the wire requires. A producer conformant by the letter can still
+      ship a reduction nobody can read, so consumers MUST NOT treat a
+      schema-valid reason as a readable one. The DEPRECATED v1 success envelope is NOT widened
       and cannot state a posture — a recorded limitation, not an omission; the
       migration path is the v2 envelope. The v1 family is DEPRECATED at
       contract-v1.34 with removal target contract-v2.0
