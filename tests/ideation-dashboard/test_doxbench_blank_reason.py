@@ -304,9 +304,9 @@ def test_gate4_adopter_accepts_every_stated_value(name, value, js_verdicts):
 
 
 def test_the_two_runtimes_agree_on_every_recorded_input(js_verdicts):
-    """THE AGREEMENT TEST. Four homes, three runtimes, one rule — and two
-    spellings of one rule is exactly how they drift apart. Same inputs, same
-    verdicts, or this fails."""
+    """The recorded inputs, as a fast smoke check. The real assertion is the
+    full-space sweep below — nine inputs is exactly the sample size that let the
+    version-skew defect through (issue #263 review, P2-1)."""
     disagreements = []
     for name, value, _c, _s in BLANK_CLASSES:
         if js_verdicts[name]["predicate"] != pk.states_something(value):
@@ -315,6 +315,102 @@ def test_the_two_runtimes_agree_on_every_recorded_input(js_verdicts):
         if js_verdicts[name]["predicate"] != pk.states_something(value):
             disagreements.append((name, "stated"))
     assert disagreements == []
+
+
+_SWEEP_HARNESS = """
+import { readFileSync } from "node:fs";
+
+// THE SHIPPED REGEX, read out of the module source rather than re-typed here.
+// A sweep against a COPY of the rule proves the copy is fine and says nothing
+// about the gate.
+const src = readFileSync(process.argv[2], "utf8");
+const m = src.match(/export const NON_BLANK_REASON = (\\/.*\\/u);/);
+if (!m) { throw new Error("NON_BLANK_REASON not found in the shipped module"); }
+const RE = eval(m[1]);
+
+const accepted = [];
+for (let cp = 0; cp < 0x110000; cp++) {
+  if (cp >= 0xD800 && cp <= 0xDFFF) continue;   // lone surrogates are not text
+  if (RE.test(String.fromCodePoint(cp))) accepted.push(cp);
+}
+process.stdout.write(JSON.stringify({ accepted, regex: m[1] }));
+"""
+
+
+@pytest.fixture(scope="module")
+def full_space_sweep(tmp_path_factory):
+    """Every code point, through the SHIPPED browser regex."""
+    if NODE is None:
+        pytest.skip("node not available for the full-space sweep")
+    tmp_path = tmp_path_factory.mktemp("sweep")
+    harness = tmp_path / "sweep.mjs"
+    harness.write_text(_SWEEP_HARNESS, encoding="utf-8")
+    proc = subprocess.run(
+        [NODE, str(harness), str(CHAT_MODEL_JS)],
+        capture_output=True, text=True, timeout=120)
+    assert proc.returncode == 0, proc.stderr
+    data = json.loads(proc.stdout)
+    return set(data["accepted"]), data["regex"]
+
+
+def _python_accepted():
+    return {cp for cp in range(0x110000)
+            if not (0xD800 <= cp <= 0xDFFF)
+            and pk.states_something(chr(cp))}
+
+
+def test_no_code_point_is_accepted_by_the_server_and_refused_by_the_browser(
+        full_space_sweep):
+    """THE SAFETY PROPERTY, swept over all 1,112,064 code points.
+
+    NOT "the runtimes agree" — they do not, and cannot, because they ship
+    different Unicode tables. What must hold is that the disagreement only ever
+    runs the SAFE way. A code point the server accepts and the browser refuses
+    is the original bug reproduced: a reason admitted into the durable record
+    that renders as nothing on the surface.
+
+    The blank-category rule this replaced had 51 such code points — every one
+    unassigned in Python's 15.0.0 and newly assigned as a combining mark in
+    ICU's 16 (Arabic, Garay, Tulu-Tigalari). An exclusion rule cannot be fixed
+    by naming more categories, because the next release adds more; an ADMISSION
+    rule is stable by construction, since `Cn` is never L/N/P/S in any table."""
+    js_accepted, _regex = full_space_sweep
+    py_accepted = _python_accepted()
+    bug_direction = py_accepted - js_accepted
+    assert not bug_direction, (
+        f"{len(bug_direction)} code point(s) the server accepts and the "
+        f"browser refuses, e.g. "
+        f"{[hex(c) for c in sorted(bug_direction)[:8]]}")
+
+
+def test_every_residual_version_skew_is_fail_closed(full_space_sweep):
+    """The other direction is ALLOWED and is expected to be non-empty: code
+    points the newer runtime has assigned and the older has not. The server
+    refuses them, so no record is admitted — fail-closed. Asserted so a future
+    reader knows the non-zero number is the design and not a regression."""
+    js_accepted, _regex = full_space_sweep
+    safe_direction = js_accepted - _python_accepted()
+    for cp in sorted(safe_direction)[:200]:
+        assert unicodedata.category(chr(cp)) == "Cn", (
+            f"U+{cp:04X} is assigned here as "
+            f"{unicodedata.category(chr(cp))} yet refused — that is not a "
+            f"version skew, it is a real disagreement")
+
+
+def test_the_predicate_accepts_no_unassigned_code_point():
+    """What makes the rule version-stable, stated as its own assertion: nothing
+    this predicate admits is unassigned, so a newer table can only ever ADD
+    acceptances, never turn a blank into a stated reason."""
+    accepted_unassigned = [
+        cp for cp in _python_accepted()
+        if unicodedata.category(chr(cp)) == "Cn"]
+    assert accepted_unassigned == []
+
+
+def test_the_sweep_reads_the_shipped_regex_not_a_copy(full_space_sweep):
+    _js_accepted, regex = full_space_sweep
+    source = CHAT_MODEL_JS.read_text(encoding="utf-8")
+    assert f"export const NON_BLANK_REASON = {regex};" in source
 
 
 # ---------------------------------------------------------------------------
@@ -457,3 +553,62 @@ def test_the_two_shipped_reasons_pass_every_python_gate():
         assert _gate3_errors(reason) == []
         assert _v2_body(pk.POSTURE_REDUCED, reason)["context_packet"][
             "reduced_reason"] == reason
+
+
+# ---------------------------------------------------------------------------
+# P2-2 — the builder's refusals reach the wire on the ROUTE'S 400 SHAPE
+#
+# The builder gained refusals when its `str()` coercions went, and its call site
+# sits OUTSIDE the packet boundary's `try`. So an escaping `PacketError` was a
+# 500 with a traceback while the builder's own comment claimed both refusals
+# stayed on one shape. Pinned END TO END, through the real route, because the
+# defect was invisible to every test that only drove valid values.
+# ---------------------------------------------------------------------------
+
+def test_a_builder_refusal_answers_on_the_routes_fixed_400_shape(
+        tmp_path, monkeypatch):
+    """Force the builder to raise and assert the wire answer is the SAME fixed
+    `invalid_turn_request` every other structural packet refusal uses — not a
+    500, and not a new code."""
+    from test_doxbench_routes import (  # noqa: E402
+        _assert_v2_refusal, _post_turn, _turn_v2,
+    )
+
+    def _raising(**_kwargs):
+        raise pk.PacketError(
+            "a turn record carries the reduction's reason as the packet "
+            "stated it; a reduction nobody can read is a silent degradation")
+
+    monkeypatch.setattr(serve_mod, "doxbench_turn_v2_success_body", _raising)
+    status, payload, _port = _post_turn(tmp_path, _turn_v2())
+
+    assert status == 400, (status, payload)
+    # The V2 assertion, because a refusal is answered in the family its request
+    # arrived in — asserting the v1 kind here would pass only for a route
+    # answering the wrong one.
+    _assert_v2_refusal(status, payload, "invalid_turn_request")
+
+
+def test_the_builder_call_site_is_inside_a_packet_error_handler():
+    """The structural half, asserted against the AST rather than the text: the
+    call must be lexically inside a `try` that handles `PacketError`. A source
+    grep would pass on a `try` that caught something else."""
+    import ast
+
+    tree = ast.parse((REPO_ROOT / "scripts" / "ideation_dashboard"
+                      / "serve.py").read_text(encoding="utf-8"))
+    calls = [n for n in ast.walk(tree)
+             if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+             and n.func.id == "doxbench_turn_v2_success_body"]
+    assert calls, "the builder is never called"
+    for call in calls:
+        handlers = [
+            ast.unparse(handler.type)
+            for node in ast.walk(tree) if isinstance(node, ast.Try)
+            if any(call is sub for stmt in node.body
+                   for sub in ast.walk(stmt))
+            for handler in node.handlers if handler.type is not None
+        ]
+        assert any("PacketError" in h for h in handlers), (
+            f"the builder call at line {call.lineno} is not inside a try that "
+            f"handles PacketError; its refusals would escape as a 500")

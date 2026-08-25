@@ -366,9 +366,18 @@ function storedTerminalAnswerSurvived(snapshotValue) {
 // showing the bare words "reduced context" with no reason would be that
 // degradation wearing a badge. Both drop to null.
 // The non-blank predicate the reduced-reason gate applies (issue #263). A
-// module constant rather than an inline literal so the cross-runtime agreement
-// test can import the exact regex this gate uses, not a copy of it.
-export const NON_BLANK_REASON = /[^\p{White_Space}\p{Cc}\p{Cf}\p{M}]/u;
+// module constant rather than an inline literal so the full-space sweep test
+// can read the exact regex this gate uses, not a copy of it.
+//
+// STATED AS WHAT IT ADMITS, NOT WHAT IT EXCLUDES (issue #263 review, P2-1).
+// This was an exclusion over a set that grows with the Unicode table, and a
+// full code-point sweep found 51 points where this runtime's ICU (Unicode 16)
+// and the server's Python (15.0.0) disagreed, all newly assigned combining
+// marks. The server ACCEPTED them and this refused — the original bug exactly:
+// a reason in the durable record that renders as nothing. `Cn` is never
+// L/N/P/S in any table, so admission is stable by construction and every
+// residual version skew is fail-closed.
+export const NON_BLANK_REASON = /[\p{L}\p{N}\p{P}\p{S}]/u;
 
 function adoptContextPacket(carrier) {
   // ONE validator for BOTH readers, because they carry the SAME object: a

@@ -362,12 +362,44 @@ class CorpusCoverage:
 # ---------------------------------------------------------------------------
 #
 # THE RULE: a reduction reason STATES SOMETHING iff it contains at least one
-# character outside `White_Space ∪ Cc ∪ Cf ∪ Mn ∪ Mc ∪ Me` — that is, at least
-# one character a reader can actually see.
+# character in `L* ∪ N* ∪ P* ∪ S*` — a letter, a number, a punctuation mark or
+# a symbol.
+#
+# STATED AS WHAT IT ADMITS, NOT WHAT IT EXCLUDES, and that inversion is the
+# whole point (issue #263 review, P2-1). The first version of this rule named
+# the blank categories — "outside `White_Space ∪ Cc ∪ Cf ∪ Mn ∪ Mc ∪ Me`" —
+# which is a rule over a set that GROWS WITH THE UNICODE TABLE. A full
+# code-point sweep found the consequence: Python's `unicodedata` (15.0.0) and
+# Node's ICU (Unicode 16) disagreed on 51 code points, every one of them
+# UNASSIGNED in 15.0 and newly assigned as a combining mark in 16 (Arabic,
+# Garay, Tulu-Tigalari). The disagreement ran in the DANGEROUS direction: the
+# server ACCEPTED a reason made only of them and the browser REFUSED it — which
+# is the original bug exactly, a reason admitted to the durable record that
+# renders as nothing.
+#
+# An exclusion rule cannot be fixed by listing more categories, because the next
+# Unicode release adds more. `Cn` (unassigned) is never `L`/`N`/`P`/`S` in ANY
+# Unicode table, so an ADMISSION rule is stable by construction: a code point
+# this predicate accepts is one some table has assigned meaning to.
+#
+# WHAT THE SWEEP MEASURES, stated precisely rather than as "the runtimes agree",
+# because they still do not agree everywhere — and the count is not the safety
+# property. Across all 1,112,064 code points:
+#
+#   direction                             blank-category rule   this rule
+#   server ACCEPTS / browser REFUSES      51  <-- the bug        0
+#   server REFUSES / browser ACCEPTS       0                  5,761 (safe)
+#   unassigned code points accepted   825,345                      0
+#
+# The 5,761 residual disagreements are code points Unicode 16 assigned and
+# Unicode 15 has not: the older runtime refuses, the newer would accept. That is
+# FAIL-CLOSED — the server is the gate that admits a record, so a stricter
+# server cannot produce an unreadable disclosure. The property the test asserts
+# is therefore not "zero disagreements" but "the bug direction is EMPTY".
 #
 # WHY NOT `.strip()`, which is what the family had and what a reviewer would
-# reach for first: it catches four of the nine blank classes and misses five.
-# Measured, not assumed:
+# reach for first: it catches four of the nine recorded blank classes and misses
+# five. Measured, not assumed:
 #
 #   class                cat  `.strip()` empties it
 #   space                Zs   yes
@@ -383,13 +415,15 @@ class CorpusCoverage:
 # The last five survive `.strip()` because they are not White_Space: they are
 # ZERO-VISIBLE-WIDTH, which is a different property. `U+200B` is `Cf` (it has
 # not been `Zs` since Unicode 4.0.1), a lone combining mark has no base to
-# attach to, and `U+0001` is a control that `str.strip()` leaves alone. So the
-# predicate is written over CATEGORIES, not over whitespace.
+# attach to, and `U+0001` is a control that `str.strip()` leaves alone.
 #
-# `Mn`/`Mc`/`Me` are refused only when a string is combining marks and nothing
-# else — a real reason containing "á" has a base letter and passes, which the
-# tests pin alongside CJK and emoji so this cannot quietly become a filter on
-# non-Latin prose.
+# WHAT THIS PREDICATE DOES NOT CLAIM: that the reason RENDERS visibly. Several
+# assigned characters are letters or symbols by category and blank on screen —
+# U+3164 HANGUL FILLER, U+2800 BRAILLE PATTERN BLANK, U+115F, U+FFA0 — and this
+# accepts them. Visible rendering is a font and shaping question that no
+# category table answers, and a predicate that tried would be chasing a moving
+# target in the wrong layer. The claim is the category statement above and
+# nothing more.
 #
 # THE THREE RESTATEMENTS, kept identical on purpose (this rule is the family's
 # SECOND delegated rule — the released schema cannot express it, because
@@ -401,9 +435,9 @@ class CorpusCoverage:
 #     not import the runtime package it validates artifacts for. A test asserts
 #     the two implementations agree on every class above.
 #   * `adoptContextPacket` in `web/views/doxbench-chat-model.js` — restates it
-#     as a Unicode-property regex. A cross-runtime test drives the same nine
-#     inputs through both and asserts identical verdicts.
-_BLANK_CATEGORIES = frozenset({"Cc", "Cf", "Mn", "Mc", "Me"})
+#     as a Unicode-property regex. A FULL-SPACE sweep test drives every code
+#     point through both runtimes and asserts the bug direction is empty.
+_STATED_CATEGORIES = ("L", "N", "P", "S")
 
 
 def states_something(text: object) -> bool:
@@ -416,8 +450,7 @@ def states_something(text: object) -> bool:
     if not isinstance(text, str):
         return False
     return any(
-        not (ch.isspace() or unicodedata.category(ch) in _BLANK_CATEGORIES)
-        for ch in text)
+        unicodedata.category(ch)[0] in _STATED_CATEGORIES for ch in text)
 
 
 REDUCED_NO_KNOWLEDGE_SERVICE = (

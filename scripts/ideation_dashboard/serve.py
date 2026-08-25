@@ -3252,23 +3252,44 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     # beside the packet, by the same one-place discipline: the
                     # values are the PACKET's own, so the record and the packet's
                     # own declaration cannot disagree.
-                    success_body = doxbench_turn_v2_success_body(
-                        client_turn_id=client_turn_id,
-                        assistant_turn_id="assistant-" + digest[:56],
-                        model_id=selected_model["resolved_model_id"],
-                        requested_model_id=selected_model["requested_model_id"],
-                        routing_rule=selected_model["routing_rule"],
-                        data_handling=selected_model["data_handling"],
-                        bound_buffer=bound_buffer_key,
-                        observed_hashes={
-                            buffer_key: observed.for_key(buffer_key).hex
-                            for buffer_key in observed.keys()
-                        },
-                        context_posture=context_packet_record["posture"],
-                        context_reduced_reason=context_packet_record.get(
-                            "reduced_reason"),
-                        assistant_prose=outcome.assistant_prose,
-                        proposals=outcome.proposals)
+                    # THE BUILDER'S REFUSALS ARE ON THE ROUTE'S 400 SHAPE, and
+                    # this `try` is what makes that true (issue #263 review,
+                    # P2-2). The builder gained refusals when its `str()`
+                    # coercions went, and this call sits OUTSIDE the packet
+                    # boundary's `try` several hundred lines up — so an escaping
+                    # `PacketError` would have been a 500 with a traceback,
+                    # while the comment in the builder claimed both refusals
+                    # stayed on one shape. AST-confirmed uncovered before this.
+                    #
+                    # Mapped to the SAME fixed `invalid_turn_request` the packet
+                    # boundary maps every other structural `PacketError` to,
+                    # rather than a new code: one function, one refusal shape,
+                    # and the recorded 400-vs-500 tension stays exactly one
+                    # tension instead of becoming two.
+                    try:
+                        success_body = doxbench_turn_v2_success_body(
+                            client_turn_id=client_turn_id,
+                            assistant_turn_id="assistant-" + digest[:56],
+                            model_id=selected_model["resolved_model_id"],
+                            requested_model_id=selected_model[
+                                "requested_model_id"],
+                            routing_rule=selected_model["routing_rule"],
+                            data_handling=selected_model["data_handling"],
+                            bound_buffer=bound_buffer_key,
+                            observed_hashes={
+                                buffer_key: observed.for_key(buffer_key).hex
+                                for buffer_key in observed.keys()
+                            },
+                            context_posture=context_packet_record["posture"],
+                            context_reduced_reason=context_packet_record.get(
+                                "reduced_reason"),
+                            assistant_prose=outcome.assistant_prose,
+                            proposals=outcome.proposals)
+                    except doxbench_packet.PacketError:
+                        self._refuse_turn(
+                            validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
+                            turn_id, failure_kind=failure_kind)
+                        return
                 else:
                     # The DEPRECATED v1 success envelope has room for EXACTLY
                     # these two keys. The envelope's own identities are keyed by

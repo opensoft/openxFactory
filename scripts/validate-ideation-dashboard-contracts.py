@@ -810,21 +810,31 @@ _ENDPOINT_RE = _re.compile(r"(?i)\b(https?|wss?)://")
 # an instance simply because both sides share a bug. So the rule is restated,
 # and a test asserts the two implementations agree on every recorded class.
 #
-# The rule: a reason STATES SOMETHING iff it has at least one character outside
-# `White_Space ∪ Cc ∪ Cf ∪ Mn ∪ Mc ∪ Me`. `.strip()` is not it — it catches
-# space/tab/NBSP/newline and misses ZWSP, BOM, bidi overrides, lone combining
-# marks and controls, which are zero-visible-width rather than whitespace.
+# The rule: a reason STATES SOMETHING iff it has at least one character in
+# `L* ∪ N* ∪ P* ∪ S*` — a letter, number, punctuation mark or symbol.
+#
+# STATED AS WHAT IT ADMITS, NOT WHAT IT EXCLUDES (issue #263 review, P2-1). The
+# first version excluded the blank categories, which is a rule over a set that
+# GROWS WITH THE UNICODE TABLE: a full sweep found 51 code points where this
+# validator's Python (15.0.0) and the browser's ICU (16) disagreed, all
+# unassigned in 15.0 and newly assigned combining marks in 16 — and the
+# disagreement ran the dangerous way, with the server side ACCEPTING what the
+# browser refused. `Cn` is never `L`/`N`/`P`/`S` in any table, so an admission
+# rule is stable by construction.
+#
+# `.strip()` is not it either: it catches space/tab/NBSP/newline and misses
+# ZWSP, BOM, bidi overrides, lone combining marks and controls, which are
+# zero-visible-width rather than whitespace.
 import unicodedata as _unicodedata
 
-_BLANK_CATEGORIES = frozenset({"Cc", "Cf", "Mn", "Mc", "Me"})
+_STATED_CATEGORIES = ("L", "N", "P", "S")
 
 
 def _states_something(text: Any) -> bool:
     if not isinstance(text, str):
         return False
     return any(
-        not (ch.isspace() or _unicodedata.category(ch) in _BLANK_CATEGORIES)
-        for ch in text)
+        _unicodedata.category(ch)[0] in _STATED_CATEGORIES for ch in text)
 
 # The routing badge's SEGMENT GRAMMAR (contract-v1.38; adversarial review round
 # 1 F1). RESTATED from `ideation_dashboard.doxbench_model` -- this validator is
