@@ -229,17 +229,44 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
                 f"inventory member is absent at {commit} but recorded in "
                 f"{bundle!r}", _CUT_ACTION))
             continue
+        # A MALFORMED ENTRY IS ITS OWN DEFECT, and it is checked BEFORE either
+        # comparison because of what the alternative does. Both comparisons were
+        # once written as `if recorded.get(field) and ...`, so an entry missing
+        # its `digest` skipped the byte check entirely — and if the mode still
+        # matched, the family reported the member CLEAN while its bytes had
+        # drifted. That is fail-open: the one failure mode a drift check must
+        # not have, arriving through a field nobody thought could be absent
+        # (PR #324, Codex).
+        #
+        # AN INVENTORY THAT CANNOT ANSWER THE QUESTION IS NOT A MATCHING
+        # INVENTORY. Reported unconditionally at `error`, editorial member or
+        # not: the editorial allowance is about members that legitimately MOVE
+        # between cuts, and it says nothing about an inventory entry that cannot
+        # be read — exactly as an ABSENT member is an error in either band.
+        missing_fields = [f for f in ("digest", "git_mode")
+                          if not recorded.get(f)]
+        if missing_fields:
+            findings.append(_finding(
+                ERROR, repo, path,
+                f"inventory entry in {bundle!r} is missing "
+                f"{' and '.join(missing_fields)}, so this member's "
+                f"{'bytes' if 'digest' in missing_fields else 'mode'} cannot "
+                f"be checked at all",
+                "rebuild the inventory with "
+                "scripts/validate-contract-release.py build; an entry that "
+                "cannot answer is not an entry that matches"))
+            continue
         digest = hashlib.sha256(blob).hexdigest()
-        if recorded.get("digest") and digest != recorded["digest"]:
+        if digest != recorded["digest"]:
             findings.append(_finding(
                 severity, repo, path,
                 f"bytes differ from the digest {bundle!r} records"
                 + ("" if not editorial else
                    " (editorial member — expected between cuts)"),
                 _CUT_ACTION))
-        recorded_mode = recorded.get("git_mode")
+        recorded_mode = recorded["git_mode"]
         actual_mode = modes.get(path)
-        if recorded_mode and actual_mode and actual_mode != recorded_mode:
+        if actual_mode and actual_mode != recorded_mode:
             # MODE IS CHECKED SEPARATELY FROM BYTES, because a chmod leaves the
             # digest identical: without this arm a validator could drift
             # executable -> non-executable while the family reported matching.

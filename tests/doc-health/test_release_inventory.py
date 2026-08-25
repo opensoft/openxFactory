@@ -507,3 +507,76 @@ def test_the_never_tagged_bundle_scenario_is_STRUCTURAL_only():
     for tagish in ('"ls-remote"', '"tag"', '"rev-list"', '"describe"',
                    '"for-each-ref"', "git tag"):
         assert tagish not in source, tagish
+
+
+# ------------------------------------------- a malformed entry cannot pass
+#
+# THE FAIL-OPEN CLASS, closed (PR #324, Codex). Both comparisons were once
+# written as `if recorded.get(field) and ...`, so an entry missing its `digest`
+# skipped the byte check entirely — and if the mode still matched, the family
+# reported the member CLEAN while its bytes had drifted. An inventory that
+# cannot answer the question is not a matching inventory.
+
+
+def _inventory_missing(field: str, path: str) -> bytes:
+    """The BASE inventory with one field stripped from one entry."""
+    doc = _inventory(BASE).decode()
+    out, in_entry = [], False
+    for line in doc.splitlines():
+        if line.startswith("  path: "):
+            in_entry = line == f"  path: {path}"
+        if in_entry and line.strip().startswith(f"{field}:"):
+            continue
+        out.append(line)
+    return ("\n".join(out) + "\n").encode()
+
+
+def _world_missing(field, path, **kw):
+    git = _world(BASE, **kw)
+    git.blobs[(REPO, INV)] = _inventory_missing(field, path)
+    return git
+
+
+def test_an_entry_missing_its_digest_cannot_report_the_member_clean():
+    """THE REPRODUCTION. Bytes drifted, mode still matching, digest absent —
+    which reported CLEAN before the fix."""
+    git = _world_missing("digest", SCHEMA,
+                         blob_overrides={SCHEMA: b"DRIFTED BYTES\n"})
+    outcome = _run(git)
+    errors = _sev(outcome, ERROR)
+    assert [f.path for f in errors] == [SCHEMA]
+    assert "missing digest" in errors[0].rule
+    assert "cannot be checked at all" in errors[0].rule
+    assert outcome != [], "a member whose bytes cannot be checked is not clean"
+
+
+def test_an_entry_missing_its_git_mode_is_an_error_too():
+    outcome = _run(_world_missing("git_mode", SCHEMA))
+    errors = _sev(outcome, ERROR)
+    assert [f.path for f in errors] == [SCHEMA]
+    assert "missing git_mode" in errors[0].rule
+
+
+def test_a_malformed_entry_is_an_error_even_for_an_EDITORIAL_member():
+    """Unconditional, for the same reason absence is: the editorial allowance
+    is about members that legitimately MOVE between cuts, and says nothing
+    about an entry that cannot be read."""
+    outcome = _run(_world_missing("digest", CHANGELOG))
+    errors = _sev(outcome, ERROR)
+    assert [f.path for f in errors] == [CHANGELOG]
+    assert _sev(outcome, INFO) == []
+
+
+def test_a_malformed_entry_names_the_rebuild_not_a_release_cut():
+    """The action differs from every other finding here on purpose: a broken
+    inventory is repaired by rebuilding it, not by cutting a release over it."""
+    outcome = _run(_world_missing("digest", SCHEMA))
+    assert "validate-contract-release.py build" in outcome[0].action
+    assert "cut a release" not in outcome[0].action
+
+
+def test_a_well_formed_entry_is_still_compared_on_both_fields():
+    """The fix must not have turned the comparisons off: with every field
+    present, drift on each is still reported."""
+    assert _sev(_run(_world(BASE, blob_overrides={SCHEMA: b"x\n"})), ERROR)
+    assert _sev(_run(_world(BASE, mode_overrides={SCHEMA: "100755"})), ERROR)
