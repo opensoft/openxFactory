@@ -1,0 +1,31 @@
+schema: spec-driven
+created: 2026-08-24
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-24-apply-workbench-branch-sessions-delta
+  reason: >-
+    Ruled in-session by Brett on 2026-08-24, verbatim: "fix the
+    workbench-branch-sessions promotion gap". Not a staged ideation topic —
+    the forcing fact is a defect a check MEASURED. The promotion-fidelity
+    family commissioned by `add-promotion-fidelity-check` reported, on its
+    first run, exactly two findings against this repository's own archive:
+    `2026-08-01-add-workbench-branch-sessions` ratified an ADDED requirement
+    ("Branch-session notebooks") that never reached
+    `openspec/specs/lifecycle-notebook-projection/spec.md`, and a MODIFIED
+    one ("Corpus scan scope") that arrived with three of its four ratified
+    scenarios and without its amended body. That change deliberately did not
+    fix them, recording the choice as its task 5.1: "applying a ratified
+    delta to canon is a governance act belonging to its own change — which is
+    what codexFactory PR #85 was ... apply the ratified delta via a proper
+    change, or record the non-promotion as deliberate." This change is the
+    first exit, taken on Brett's ruling, in the same shape as PR #85.
+  approved_by: >-
+    Brett — in-session ruling on the open promotion-gap finding. This records
+    authorization for the DECISION TO APPLY, which is also what the
+    proposal's `Ratified:` line cites. The packet takes no design decision of
+    its own: its delta is a byte-for-byte copy of already-ratified text
+    (SHA-256 f6ffd39abeab7a1548a93ed78fda9a24d8da19606fbc5f30dc85fe013b0361cd),
+    and the one discrepancy restating it faithfully costs — a book count made
+    stale by a later change — is recorded rather than corrected, in the
+    proposal's § Recorded, not fixed.
+  approved_on: 2026-08-24

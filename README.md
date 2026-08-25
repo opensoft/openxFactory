@@ -352,7 +352,9 @@ Active changes:
   enforcing is an open task box, not a later silent commit. The check reports
   TWO live findings against this repository's own archive on its first run,
   both against `2026-08-01-add-workbench-branch-sessions` — reported, and
-  deliberately left for the governance act that fixes them. Implementation
+  deliberately left for the governance act that fixes them. **That act landed
+  2026-08-24** as `apply-workbench-branch-sessions-delta`, ticking task 5.1;
+  the family now measures 0 findings. Implementation
   lands in-change; it archives only on merge-plus-green, following
   `govern-openspec-corpus-membership`.
 - [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
@@ -987,6 +989,49 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [apply-workbench-branch-sessions-delta](openspec/changes/archive/2026-08-25-apply-workbench-branch-sessions-delta/proposal.md)
+  — **ARCHIVED 2026-08-25**; authored, ratified and promoted 2026-08-24. (The
+  folder date is the CLI's UTC stamp and the archive act ran at 22:06 local —
+  the same shape `2026-08-24-govern-openspec-corpus-membership` records.)
+  **RATIFIED 2026-08-24** by Brett in-session, verbatim: "fix the
+  workbench-branch-sessions promotion gap"; no approving OpenSpec change exists
+  to name, so the proposal carries the record-citing `Ratified:` spelling
+  `sanction-ratified-record-spelling` sanctioned, clearing its floor on
+  approver and date. The **first live catch of the promotion-fidelity family**,
+  and it is in this repository's own archive: `add-workbench-branch-sessions`
+  (archived 2026-08-01) ratified a `lifecycle-notebook-projection` delta whose
+  ADDED requirement **"Branch-session notebooks"** — the per-session
+  `xf-session-<topic>` notebook, its disjointness from the `xf-wb-`
+  reference-set namespace, its creation-and-retirement lifetime, the
+  refresh-notebook action, the worktree-local hybrid import path, and the `L1
+  notebook synthesis` ceiling on its output — never reached
+  `openspec/specs/lifecycle-notebook-projection/spec.md` at all, and whose
+  MODIFIED **"Corpus scan scope"** arrived carrying the pre-2026-08-01 body and
+  three of its four scenarios. The absent body is where the delta wrote the
+  load-bearing sentences: the scan is of the governed corpus **at the default
+  branch**, branch-session worktrees are named among the excluded nested
+  working copies, and branch-session notebooks are the ONLY notebook surface
+  permitted to read a worktree — never contributing a source, a title or a
+  repository name to a lifecycle book, and never relaxing the exclusion for
+  one. Canon had meanwhile been built on the gap:
+  `add-session-notebook-reconciliation` (2026-08-13) governs the retirement of
+  a notebook family whose defining requirement canon never admitted. `code_surface:
+  none`, so it archives on landing. The delta file is a **byte-for-byte copy**
+  of the 2026-08-01 delta (identical SHA-256
+  `f6ffd39a…`), and both promoted requirement blocks were extract-and-hash
+  verified identical to it after promotion — not a rewrite, not a
+  reconciliation with anything learned since. **Latest-writer-wins verified
+  directly**: only two archived changes in the corpus contain "Requirement:
+  Corpus scan scope" (2026-07-12 and this one's source), and the three later
+  writers of the capability touch neither requirement, so applying the ratified
+  text clobbered no later work. Discharges task 5.1 of
+  `add-promotion-fidelity-check` by application — the exit Brett ruled — not by
+  a `health/dispositions.yaml` entry and not by editing the check; the family
+  re-measures from 2 findings to 0 with none added by this packet's own
+  archive. One thing is **recorded rather than fixed**: the ratified body says
+  "the three LIFECYCLE BOOKS", a count `split-ideation-book-per-repo` made
+  stale on 2026-08-10, and correcting it is a normative edit to ratified text
+  belonging to a successor change.
 - [govern-openspec-corpus-membership](openspec/changes/archive/2026-08-24-govern-openspec-corpus-membership/proposal.md)
   — **ARCHIVED 2026-08-24**; authored, ratified and fully realized 2026-08-23.
   (The folder date is the CLI's UTC stamp and the archive act ran at 22:57

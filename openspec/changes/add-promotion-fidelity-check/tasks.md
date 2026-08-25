@@ -120,12 +120,20 @@ visible rather than becoming a silent later commit.
 
 ## 5. Recorded, not fixed
 
-- [ ] 5.1 **openxFactory's own two findings** (§3.2) are unpromoted ratified
+- [x] 5.1 **openxFactory's own two findings** (§3.2) are unpromoted ratified
       deltas of exactly the commissioned class, and applying a ratified delta
       to canon is a governance act belonging to its own change — which is
       what codexFactory PR #85 was. Needs the same decision that gap needed:
       apply the ratified delta via a proper change, or record the
       non-promotion as deliberate.
+      **RULED AND DISCHARGED 2026-08-24** — Brett ruled the first exit,
+      verbatim "fix the workbench-branch-sessions promotion gap", and
+      `apply-workbench-branch-sessions-delta` takes it: a `code_surface: none`
+      change restating the 2026-08-01 `lifecycle-notebook-projection` delta
+      byte-for-byte (identical SHA-256) and archiving on landing, in the same
+      shape as codexFactory PR #85. Both findings clear by application, not by
+      disposition and not by editing the check. This box records the exit
+      taken; the ruling and its evidence live in that change's packet.
 - [ ] 5.2 **`docs/doc-health.md`'s check-family table stops at twelve.**
       Families 13 through 17 were added by spec delta and never reached the
       table; this change adds the eighteenth and does not repair the table
