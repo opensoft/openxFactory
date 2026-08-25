@@ -103,31 +103,27 @@ implementation plan the follow-on slice executes (§3, §5).
       schema the cut changed. SYNTHESIZED rather than pointed at `08c5aa9`, per
       this task list's own instruction — a test depending on a real sha stops
       testing anything the day someone prunes or rewrites it.
-- [ ] 5.2 **NOT SATISFIED AS WRITTEN, AND THE REASON IS THIS CHANGE'S OWN
-      PREDECESSOR.** The criterion was "`origin/main` produces `info` findings
-      only and reddens no gate", measured at 188/2/0/0 when the packet was
-      drafted. Today's main is 187/2/1/0: the family reports ONE `error`, on
-      `docs/contract-versioning-policy.md`.
-      That member is in `contract-v1.40`'s inventory — the membership clause
-      covers "every modified normative contract **or versioning document**" —
-      and the single commit that has touched it since the tag is `57c26e1a`,
-      **PR #319, the change that commissioned this check**, which ratified the
-      policy and corrected five defects in it.
-      The family is CORRECT, proven both directions: run at the `contract-v1.40`
-      tag it reports 0 errors and 0 info, and run at today's main it reports
-      exactly the one member that moved. This is a true positive, not a
-      calibration problem.
-      **NOT REMEDIED HERE, DELIBERATELY.** The two available moves are both
-      refused: reclassifying the policy doc into the editorial set would be
-      gaming the taxonomy to make this slice's own predecessor pass — the exact
-      "hand-edit to make the check pass" the ratified policy now forbids in
-      writing — and cutting a release is a governance act that is Brett's to
-      rule. Recorded for that ruling.
-      **THE UNDERLYING QUESTION IS WORTH THE RULING'S ATTENTION:** ratifying a
-      versioning document is itself a release-surface edit, so under the
-      membership clause as written, governing the policy drifts the surface the
-      policy governs. Either such edits owe a cut, or the membership clause
-      wants revisiting.
+- [x] 5.2 **SATISFIED, VIA A RELEASE CUT — and the route there is the record
+      worth keeping.** The criterion was "`origin/main` produces `info` findings
+      only and reddens no gate", measured 188/2/0/0 when the packet was drafted.
+      By realization time main was 187/2/1/0: the family reported ONE `error`,
+      on `docs/contract-versioning-policy.md`, because the single commit to
+      touch that member since the `contract-v1.40` tag was `57c26e1a` — PR #319,
+      **the change that commissioned this check**. The member is in the
+      inventory because the membership clause covers "every modified normative
+      contract **or versioning document**".
+      A TRUE POSITIVE, proven both directions rather than argued: run at the
+      `contract-v1.40` tag the family reported 0 errors and 0 info; run at main
+      it named exactly the one member that had moved.
+      Two remedies existed and ONE WAS REFUSED: reclassifying the policy into
+      the editorial set would have been the "hand-edit to make the check pass"
+      that the ratified policy forbids in writing. **Brett ruled 2026-08-25: cut
+      a release.** Done as `contract-v1.41` (additive, no schema bytes), and the
+      family now reports **0 error, 0 info** at branch HEAD — every one of the
+      190 members re-baselined.
+      The `#312` symptom resolves with it: `verify-commit --commit HEAD` PASSES
+      for the first time since the v1.40 tag, while `origin/main` remains red on
+      all three drifted members.
 - [x] 5.3 The editorial split is load-bearing: both bands are driven at once and
       neither promotes nor demotes the other.
 - [x] 5.4 The raw-bytes rule is pinned by a BYTE-DISTINGUISHING fixture, and
@@ -153,7 +149,11 @@ implementation plan the follow-on slice executes (§3, §5).
 ## 6. Archive
 
 - [ ] 6.1 Archive ONLY after merge with green realization evidence. This change
-      ships ACTIVE, following both precedents.
+      ships ACTIVE, following both precedents. NOTE the extra item this change's
+      realization carries: `contract-v1.41`'s annotated tag is cut AT THE SQUASH
+      after landing, per the ratified realization order — the bundle is
+      allocated and its inventory shipped in the cut commit, and CHANGELOG
+      presence is the availability test, not tag presence.
 
 ## 7. Recorded, not fixed
 
