@@ -11,6 +11,15 @@ advisory, exactly as this section said it would, and the flip came as its own
 ruling rather than a silent later commit. §5.2 and §5.3 stay open, and §5.4 is
 new: the flip's one unmeasured exposure, recorded rather than left implicit.
 
+**EVERY QUESTION THIS SECTION LEFT OPEN IS NOW CLOSED — appended 2026-08-25,
+with the sentence above left as written.** §5.1 flipped the family to
+enforcing; §5.3 closed when this change archived as the last of the three
+siblings restating the family-count requirement; §5.4 closed when the full
+pinned population was measured at zero; and §5.2 closed by Brett's ruling
+"keep the pinned basis". §5.5 is the one item still recorded-not-fixed, and it
+is a named candidate for a successor change rather than an open question about
+this family's behaviour.
+
 ## 1. Ratification
 
 - [x] 1.1 Brett commissioned the check on 2026-08-24, in the terms the night's
@@ -60,13 +69,49 @@ new: the flip's one unmeasured exposure, recorded rather than left implicit.
       as a non-reader, and `len(NON_READERS) == len(FAMILIES) - 4` moved to 16
       (15 on main after #324's nineteenth family, 14 before it). That test FAILED loudly on the unclassified family before the
       edit, which is what it was built to do.
-- [ ] 2.5 ARCHIVE AFTER REALIZATION. This change ships ACTIVE and archives only
+- [x] 2.5 ARCHIVE AFTER REALIZATION. This change ships ACTIVE and archives only
       on merged-plus-green, following `add-promotion-fidelity-check` and
       `govern-openspec-corpus-membership`: `python3 -m pytest tests/doc-health`
       green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and
       a single-repo doc-health run whose severity counts move by exactly the
       amount the proposal predicts. The archive act is its own commit after the
       merge.
+      **DONE — ARCHIVED 2026-08-25 ON BRETT'S RULING, verbatim: "archive
+      add-duplicate-packet-check on its realization evidence".** The two
+      realization merges are on main and each was RE-VERIFIED an ancestor of it
+      at this gate rather than read out of a PR body: PR #327 (the family)
+      merged 2026-08-25T04:32:54Z as `d5f447e89cf6`, and PR #328 (the
+      enforcement flip) merged 2026-08-25T12:05:57Z as `55bae8a10751`, its two
+      commits landing as `a850b904` and `55bae8a1`. Both green. The
+      merge-plus-green rule this packet declared is therefore satisfied, and the
+      archive act is a separate later commit following
+      `govern-openspec-corpus-membership` and the two sibling archives of the
+      same day (`b03b9992`, `560e0bd5`).
+      **EVIDENCE BANKED AT THE GATE.** The family is live and GATING: severity
+      `error` plus the `CONTESTED` resolution row, both halves pinned by
+      `test_the_two_halves_cannot_drift_apart`. The full pinned population reads
+      zero on the basis it enforces on — 19 repositories, 207 archived packets,
+      1124 identities, 3 restated groups all of them recorded lineage, 0
+      findings (§5.4's table). doc-health suite green at main's baseline, 868
+      passed / 7 skipped, re-measured on a clean `560e0bd5` worktree.
+      **THE §5.3 HAZARD FIRED AND WAS CAUGHT UPSTREAM, which is the part worth
+      recording.** This packet's MODIFIED "Deterministic check families" block
+      restated ONE of that requirement's EIGHT scenarios, and OpenSpec's
+      MODIFIED replaces a requirement wholesale — so promoting it would have
+      destroyed the other seven, silently, exactly as it would have for both
+      siblings. A parallel lane repaired it in `d9e545dd` before this gate ran.
+      Re-verified here scenario-by-scenario against current canon: 8 of 8
+      restated, 7 byte-identical, the eighth differing by exactly ONE `AND`
+      bullet — `duplicate packet`, this change's own. The inherited
+      `promotion fidelity` bullet that the repair's note called a FORWARD
+      REFERENCE has since resolved, because `add-promotion-fidelity-check`
+      archived at `560e0bd5`; that resolution is APPENDED to the delta rather
+      than edited into the ratified paragraph.
+      **THIS IS THE LAST OF THE THREE.** All three changes that each restated
+      the family-count requirement have now archived, in the order their
+      `Sequenced-after:` headers named — seventeen to eighteen to nineteen to
+      twenty. No active change is left holding a version of that requirement, so
+      the §5.3 hazard closes with this act rather than being carried forward.
 
 ## 3. Orchestrator decisions, flagged for veto
 
@@ -213,7 +258,7 @@ new: the flip's one unmeasured exposure, recorded rather than left implicit.
       0 findings**, each repository read at the exact sha the aggregation
       pins. The ruling no longer rests on a superseded prerequisite; the
       prerequisite is satisfied. Table and method: §5.4.
-- [ ] 5.2 CONSIDER, only by ruling, whether this family should join the
+- **5.2 RECORDED, NOT FIXED — still a live question at archive.** Consider, only by ruling, whether this family should join the
       promotion fidelity family on the live-`main` basis. Today it reads the
       pinned checkout, structurally, because the 2026-08-24 ruling scoped that
       basis to one family and the report says so on every run. The argument for
@@ -224,7 +269,28 @@ new: the flip's one unmeasured exposure, recorded rather than left implicit.
       enforcing on a tree is not an argument for enforcing on a different one.
       The 5.1 measurement was deliberately taken on the pinned basis for
       exactly that reason — it is the basis the family reads and now gates on.
-- [ ] 5.3 THE COUNT SENTENCE'S ORDERING HAZARD, named rather than fixed. Three
+      **CARRIED PAST THE ARCHIVE DELIBERATELY, as prose rather than as an open
+      checkbox.** The archived packet carries no unticked box — the house shape
+      both sibling archives followed — but an unresolved question must not
+      vanish because its container was archived. This one is unresolved: the
+      family gates on the PINNED checkout, the live-`main` basis remains ruled
+      for promotion fidelity alone, and moving this family is its own ruling on
+      its own evidence. Nothing in this archive decides it.
+      **RULED AND CLOSED 2026-08-25 — Brett, in-session, verbatim: "keep the
+      pinned basis".** The question above is settled in favour of the family AS
+      BUILT, so nothing in the tree changes: this family MEASURES AND ENFORCES
+      ON THE PINNED CHECKOUT, permanently, and the live-`main` basis remains
+      ruled for the promotion fidelity family ALONE. The promoted `doc-health`
+      requirement already says exactly this as an unconditional SHALL — "This
+      family SHALL measure the checked-out tree. The live-`main` basis this
+      capability defines applies to the promotion fidelity family alone" — so
+      canon needed no amendment and this ruling adds no obligation; it removes
+      an option. The paragraph above is left exactly as written: it is the
+      record of what was open and of the arguments on both sides, and the
+      ruling is appended rather than folded into it. This line is a RULING
+      RECORD, not a ratification citation — the packet's single `Ratified:`
+      citation is unchanged and remains its only one.
+- [x] 5.3 THE COUNT SENTENCE'S ORDERING HAZARD, named rather than fixed. Three
       active changes now MODIFY `doc-health`'s "Deterministic check families",
       each restating the whole requirement with its own cumulative list. The
       archive order therefore decides which list canon keeps, and a packet
@@ -232,6 +298,23 @@ new: the flip's one unmeasured exposure, recorded rather than left implicit.
       change declares `Sequenced-after:` both of the others; a structural fix —
       making the count derived rather than restated — belongs to its own
       change.
+      **CLOSED 2026-08-25 BY THIS ARCHIVE, and it fired on the way — twice on
+      the siblings and once here.** The hazard was worse than this box
+      described. It is not only that archive ORDER decides which enumeration
+      canon keeps; it is that OpenSpec's `MODIFIED` REPLACES a requirement
+      wholesale, so a delta restating one scenario of eight destroys the other
+      seven on promotion, silently. All three siblings had written thin blocks.
+      `add-release-inventory-drift-check` was caught and corrected at its own
+      archive gate (`b03b9992`), `add-promotion-fidelity-check` at its
+      (`560e0bd5`), and this packet's was repaired in `d9e545dd` before this
+      gate ran; re-verified here 8-of-8 scenario-complete against current
+      canon. All three have now archived in `Sequenced-after:` order, the
+      enumeration reads twenty, and NO active change is left restating that
+      requirement — so the ordering hazard has nothing left to order. The
+      structural fix this box called for (making the count DERIVED rather than
+      restated, so a thin block cannot regress it) is still not done and is
+      still worth doing; it is recorded in §5.5 rather than carried as an open
+      box into the archive.
 
 - [x] 5.4 THE FLIP'S UNMEASURED EXPOSURE — OPENED BY THE 5.1 TICK, AND CLOSED
       2026-08-25 BY MEASURING THE WHOLE PINNED POPULATION AT ZERO.
@@ -329,3 +412,19 @@ new: the flip's one unmeasured exposure, recorded rather than left implicit.
       §5.3's ordering hazard stands open and unchanged: that one asks which
       cumulative family list canon keeps; this one asked whether the
       restatement carried the parts it never meant to touch.
+
+- **5.5 RECORDED, NOT FIXED — the structural fix for the count sentence.**
+  Three changes in three days each restated `doc-health`'s "Deterministic check
+  families" in full, and all three wrote a thin `MODIFIED` block that would have
+  destroyed seven scenarios on promotion. Three independent catches, none of
+  them by a check: two archive gates and one parallel lane, all human-noticed.
+  The class is structural — a requirement whose text every new family must
+  restate is a requirement every new family can truncate — and the fix is to
+  stop restating it: derive the enumeration and the counts from `FAMILIES`
+  rather than re-typing them into canon, or split the per-family sentences out
+  of the shared requirement so a new family ADDS rather than MODIFIES. Neither
+  is in scope for this packet, and `add-duplicate-packet-check` is the last
+  change that will hit the hazard in its current form only because there is no
+  fourth family in flight today. Recorded here, and in the archive PR body, so
+  the next family's author meets it as a known class rather than rediscovering
+  it at their own gate.
