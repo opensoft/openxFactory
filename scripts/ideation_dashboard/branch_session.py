@@ -2771,7 +2771,7 @@ def notebook_degradation_notice(alias: str, branch: str, detail: str) -> str:
 
     The PHRASING is the requirement, not a nicety. Notebooks are per TILE (D2) and
     the NotebookLM account is SHARED, its quota spent by three competing
-    populations — the three lifecycle books, every live `xf-wb-*` reference set,
+    populations — the lifecycle books, every live `xf-wb-*` reference set,
     and every live `xf-session-*` session — so the count that matters is the
     number of CONCURRENT TILES ACROSS EVERYONE working in the workspace. A notice
     phrased as "you have too many sessions" would name a cause the human cannot
@@ -2782,7 +2782,7 @@ def notebook_degradation_notice(alias: str, branch: str, detail: str) -> str:
     return (
         f"the session on {branch!r} is OPEN and fully usable; it just has no "
         f"NotebookLM notebook ({alias}): {detail}. Notebooks are per TILE and the "
-        "NotebookLM account is SHARED: its quota is spent on the three lifecycle "
+        "NotebookLM account is SHARED: its quota is spent on the lifecycle "
         "books plus every live reference-set (`xf-wb-*`) and session "
         "(`xf-session-*`) notebook, so the count scales with the CONCURRENT TILES "
         "ACROSS EVERYONE in the workspace. Retire a finished tile's notebook, then "

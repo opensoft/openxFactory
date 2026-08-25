@@ -79,10 +79,20 @@
 
 ## 6. Owed elsewhere, not here
 
-- [ ] 6.1 The phrase survives in code comments and one operator message —
+- [x] 6.1 The phrase survives in code comments and one operator message —
       `scripts/sync-notebooklm-books.py` (three),
       `scripts/ideation_dashboard/branch_session.py` (two, one of them a
       message a human reads), and their tests (two). That is code surface;
       this change declares `code_surface: none` and does not acquire one.
       Owed as a separate change, which may correct them and their tests
-      together
+      together. — Discharged 2026-08-24 by the follow-on fix
+      `fix/lifecycle-books-count-code-strings`, on Brett's ruling "fix the
+      code-surface stragglers in §6.1": all eight instances aligned to this
+      change's ratified vocabulary, each verified prose (docstring, comment,
+      or operator notice) and none a book title or alias, since books resolve
+      by title. Realization alignment to already-ratified vocabulary carries
+      no packet, the shape PR #161 set when it swept stale `xf-ideation`
+      references after `split-ideation-book-per-repo`. Box ticked here with
+      this note rather than silently (document-lifecycle: contested findings
+      resolve by citation), as that same sweep ticked §4.3 of the archived
+      split packet
