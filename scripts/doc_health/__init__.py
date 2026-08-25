@@ -80,6 +80,9 @@ FAMILY_IDS = [
     # its own report section — the omission that left "proposal-origin"
     # sectionless above is a known defect, not a pattern to copy.
     "promotion-fidelity",
+    # nineteenth family (add-release-inventory-drift-check; doc-health delta
+    # "Deterministic check families").
+    "release-inventory-drift",
 ]
 
 

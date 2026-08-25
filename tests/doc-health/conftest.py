@@ -36,7 +36,8 @@ AS_OF = date(2026, 7, 9)
 class FakeGit:
     def __init__(self, last_dates=None, line_dates=None, captures=None,
                  pins=None, remotes=None, heads=None, first_dates=None,
-                 first_stamps=None, refs=None, ref_trees=None):
+                 first_stamps=None, refs=None, ref_trees=None,
+                 blobs=None, modes=None, git_unavailable=False):
         self.last_dates = last_dates or {}
         self.first_dates = first_dates or {}
         # add-promotion-fidelity-check: archive-commit order to SECOND
@@ -58,6 +59,14 @@ class FakeGit:
         # over a reader that never reads what it lists.
         self.refs = refs or {}
         self.ref_trees = ref_trees or {}
+        # add-release-inventory-drift-check: the release-surface readers.
+        # `blobs` is {(repo, path): bytes} and a path ABSENT from it answers
+        # None for that path while the CALL succeeds — the distinction the
+        # family's taxonomy turns on. `git_unavailable` collapses both readers
+        # to None, which is the only way to reach the skip arm.
+        self.blobs = blobs or {}
+        self.modes = modes or {}
+        self.git_unavailable = git_unavailable
 
     def last_commit_date(self, repo: Path, relpath: str):
         return self.last_dates.get((repo.name, relpath))
@@ -97,6 +106,25 @@ class FakeGit:
 
     def head_sha(self, repo: Path):
         return self.heads.get(repo.name)
+
+    # add-release-inventory-drift-check: the release-surface readers.
+    #
+    # `blobs` is `{(repo, path): bytes}` and a path ABSENT from it answers
+    # None for that path while the call itself succeeds — which is exactly the
+    # distinction the family's taxonomy turns on (a deleted member is drift; a
+    # broken git is a skip). `git_unavailable=True` collapses BOTH readers to
+    # None, which is the only way to get the skip arm.
+
+    def blobs_at(self, repo: Path, commit: str, relpaths):
+        if self.git_unavailable:
+            return None
+        return {p: self.blobs.get((repo.name, p)) for p in relpaths}
+
+    def tree_modes(self, repo: Path, commit: str):
+        if self.git_unavailable:
+            return None
+        return {path: mode for (name, path), mode in self.modes.items()
+                if name == repo.name}
 
 
 def make_ctx(family: str, git=None, agg_root=None, notebook=lambda: None,

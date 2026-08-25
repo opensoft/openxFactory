@@ -90,6 +90,12 @@ NON_READERS = {
     # directly rather than through `_lifecycle_scope`, because it needs the
     # status of a NAMED packet rather than a sweep over a document list.
     "promotion-fidelity",
+    # add-release-inventory-drift-check. It reads CONTRACT ARTIFACT BYTES — a
+    # release digest inventory and the blobs it names, at a commit — so it
+    # takes neither the governed corpus nor the lifecycle scan set, and reads
+    # no lifecycle header at all. Its document list is the inventory's own
+    # member set, which is fixed by the release rather than by any scan.
+    "release-inventory-drift",
 }
 
 
@@ -476,7 +482,7 @@ def test_every_family_is_classified_as_reader_or_non_reader():
     # settles, and that half is asserted exactly.
     assert READERS == {"status-validity", "standard-backing",
                        "ratified-provenance", "succession-integrity"}
-    assert len(NON_READERS) == len(FAMILIES) - 4 == 14
+    assert len(NON_READERS) == len(FAMILIES) - 4 == 15
     assert "staged-topic-template" in NON_READERS
     assert "promotion-fidelity" in NON_READERS
 
