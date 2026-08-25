@@ -172,9 +172,13 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
 
 **These pass on the first run under ruling 2(b), and that is the point.** They
 are REGRESSION GUARDS, not RED-first pins: with generation session-local there is
-nothing to make them fail today. What proves they have teeth is mutation 9.5,
-which emits an abstract into a document object and must break 6.1 and 6.2. Do not
-mark this section done without running 9.5.
+nothing to make them fail today. What proves they have teeth is the mutation round:
+9.5 (a CONSTANT abstract emitted into a document object) breaks 6.2 — and only
+6.2, since a constant emission is byte-identical in both arms of 6.1 by
+construction; 9.5b (a document field derived from whether a session generation
+happened) is what 6.1's genuine without-generation arm catches. Measured
+2026-08-25: 9.5b survived all five guards until that arm was added. Do not mark
+this section done without running both.
 
 - [x] 6.1 RED: the generator produces BYTE-IDENTICAL snapshots for one unchanged
       tree, once with abstracts generated in-session and once without.
@@ -260,22 +264,28 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
 
 ## 9. Mutation rounds
 
-- [ ] 9.1 Mutate the verifier: invert each refusal in turn (coverage, foreign
+- [x] 9.1 Mutate the verifier: invert each refusal in turn (coverage, foreign
       path, wrong subject) and confirm a NAMED test fails for each.
-- [ ] 9.2 Mutate the interaction: make generation fire from `onSelect` and confirm
+- [x] 9.2 Mutate the interaction: make generation fire from `onSelect` and confirm
       7.1 fails; remove the subject recheck and confirm 7.2 fails.
-- [ ] 9.3 Mutate the store: key on path alone and confirm 5.3 fails; share the
+- [x] 9.3 Mutate the store: key on path alone and confirm 5.3 fails; share the
       chat `TurnStore` and confirm 5.4 fails.
-- [ ] 9.4 Mutate the boundary: point the abstract at a `context_paths`-only
+- [x] 9.4 Mutate the boundary: point the abstract at a `context_paths`-only
       subject and confirm 5.2 fails; add a fourth port member and confirm
       `test_doxbench_model.py:482`/`:522` fail.
-- [ ] 9.5 Mutate the snapshot: emit the abstract into a document object and
+- [x] 9.5 (2026-08-25 — a CONSTANT emission is caught by 6.2 only, byte-identical in both arms by
+      construction; the session-derived emission 9.5b survived until 6.1 gained a genuine
+      without-generation arm — pin added. 7.2 likewise gained the not-cached assertion after
+      9.2b survived it.) Mutate the snapshot: emit the abstract into a document object and
       confirm 6.1 and 6.2 both fail.
 
 ## 10. Realization gate
 
-- [ ] 10.1 `pytest tests/ideation-dashboard` green.
-- [ ] 10.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green.
+- [x] 10.1 `pytest tests/ideation-dashboard` green. 2026-08-25 — 4390 passed / 13 skipped.
+      Whole-repo `pytest tests/ -m "not postgres"`: 6416 passed, 2 pre-existing failures
+      unrelated to this branch (doc-health bootstrap-cluster drift; hermes release
+      inventory merge-base in a worktree) — CI on the PR is the authority.
+- [x] 10.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green. 2026-08-25 — 78/78.
 - [ ] 10.3 **ONE OPERATOR RUN on the real corpus through a REAL adapter** — the
       bridge lane (§2.2), or the T100 rig's operator-supplied adapter. Record the
       subject document, the model, the returned abstract, and the verifier's
@@ -285,7 +295,7 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
       operator. A green suite against `FakeWorkbenchModelPort` alone does NOT
       close this change: the fake returns a constant
       (`doxbench_model.py:1101`).
-- [ ] 10.4 Confirm `.openspec.yaml`'s origin is unchanged since ratification — the
+- [x] 10.4 Confirm `.openspec.yaml`'s origin is unchanged since ratification — the
       archive gate re-reads it (`release-realization/spec.md:97-103`).
 - [ ] 10.5 Archive. `target_release: none` means no bundle is cut; it does NOT
       mean doc-only, and the merge-plus-green gate still applies
@@ -293,6 +303,8 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
 
 ## 11. Speckit handoff
 
-- [ ] 11.1 EXACTLY ONE feature: `specs/014-doxbench-distilled-abstract`.
+- [ ] 11.1 EXACTLY ONE feature: `specs/015-doxbench-distilled-abstract` (RENUMBERED
+      2026-08-25: `specs/014-register-and-reader` landed on main via 9374b16b while this
+      change was in apply; 015 is the next free number).
       `specs/013-*` is claimed by `013-first-wallet`. **Do not create it here** —
       it is created by the Speckit flow when implementation starts.

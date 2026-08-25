@@ -1008,6 +1008,25 @@ def _named_repository_paths(text: str) -> tuple[str, ...]:
     return tuple(dict.fromkeys(found))
 
 
+def named_repository_paths(text: str) -> tuple[str, ...]:
+    """THE PATH RULE, as a public name — every repository path ``text`` names,
+    in first-appearance order and without duplicates.
+
+    ``verify_document_abstract`` refuses any path an abstract names that its
+    request did not carry, so a route that puts a document's own content into
+    a request has to derive the paths that content names with THE SAME rule the
+    verifier applies. Deriving them with a second rule anywhere else is how the
+    two drift and a faithful quotation of a document's own links becomes a
+    refusal. This is that one rule, exported so a caller never has to reach for
+    the private spelling.
+
+    The result is candidates, not validated paths: a caller that feeds them
+    back as ``request_paths`` still filters them to the shapes
+    ``_validated_subject_path`` accepts."""
+
+    return _named_repository_paths(text)
+
+
 def _carried_by_the_request(candidate: str, carried: frozenset[str]) -> bool:
     # An ANCESTOR directory of a path the request carried names no document the
     # request did not carry, so it is not a leak; a sibling file is.

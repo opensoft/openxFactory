@@ -9,16 +9,32 @@ abstract was generated in-session, and no snapshot field MUST carry a
 model-derived value; and where the model port is absent, raises, or times
 out, the snapshot MUST be unaffected and no lane or gate action MUST fail.
 
-**These pass on the FIRST RUN, and that is the point.** Nothing in this tree
-today writes a model-derived abstract into a document object -- there is no
-route, no `DocumentAbstract` type and no generator parameter for one (that
-surface belongs to this change's other task groups). So every assertion
-below is trivially true right now; what proves these tests have TEETH is
-mutation 9.5, which emits an abstract into a document object and MUST make
-`test_generator_is_byte_identical_with_and_without_in_session_generation` and
-`test_no_document_carries_a_forbidden_abstract_key_or_value` both fail. The
-exact key/value a mutant would have to write to trip them is the
-`FORBIDDEN_DOCUMENT_KEYS` set and the `FAKE_DISPATCH_PROSE` sentinel below.
+**These pass on the FIRST RUN, and that is the point.** The abstract route and
+the `DocumentAbstract` type both exist now, but generation is SESSION-LOCAL:
+nothing hands a dispatch result to the generator, which takes no parameter for
+one. So every assertion below is true today by construction, and what proves
+these tests have TEETH is mutation 9.5 -- which splits into two mutants that
+are NOT caught by the same guard. Measured in the §9 rounds, 2026-08-25:
+
+  * **9.5, a CONSTANT abstract** written into a `documents[]` entry
+    (`doc["abstract"] = "..."`). A constant changes BOTH arms of a byte-identity
+    comparison identically, so it cannot break byte-identity at all and
+    `test_generator_is_byte_identical_with_and_without_in_session_generation`
+    does NOT catch it. It is caught by
+    `test_no_document_carries_a_forbidden_abstract_key_or_value`, on the
+    `FORBIDDEN_DOCUMENT_KEYS` set below.
+
+  * **9.5b, a SESSION-DERIVED emission** -- a field whose value depends on
+    whether an in-session generation happened (measured with a flag set in
+    `dispatch_turn` and read in `generator._document_entry`). It carries neither
+    a forbidden key nor the `FAKE_DISPATCH_PROSE` sentinel, so 6.2 does NOT
+    catch it. It is caught by 6.1's genuine WITHOUT-GENERATION arm -- the
+    reading taken BEFORE any dispatch -- which is why that arm must be a real
+    one and not a second post-dispatch reading of the same state.
+
+This paragraph previously claimed 9.5 made BOTH tests fail. That was wrong in
+the first direction and untested in the second: until the without-generation
+arm existed, 9.5b survived every test in this module.
 
 Hermetic: every corpus tree is a `tmp_path` copy of the fixture base-repo,
 every model port is `FakeWorkbenchModelPort` (no network, no `omp` child),
@@ -169,15 +185,29 @@ def _iter_kv(node):
 # ============================================================================
 
 def test_generator_is_byte_identical_with_and_without_in_session_generation(tmp_path):
-    """Generate a snapshot for one unchanged tree twice: once after a
-    FakeWorkbenchModelPort-backed session actually dispatched and returned a
-    prose abstract through the real `_workbench_model_port` seam, once with
-    no model-port activity at all. Nothing today carries that dispatch
-    result anywhere the generator could read it -- there is no route, no
-    `DocumentAbstract` type and no snapshot parameter for one -- so the two
-    snapshots MUST be byte-identical, per the spec's "The generator runs on a
-    tree with and without generation" scenario."""
+    """Generate a snapshot for one unchanged tree twice: once with NO model-port
+    activity at all, and once after a FakeWorkbenchModelPort-backed session
+    actually dispatched and returned a prose abstract through the real
+    `_workbench_model_port` seam. Generation is session-local -- nothing hands
+    that dispatch result to the generator, which takes no parameter for one --
+    so the two snapshots MUST be byte-identical, per the spec's "The generator
+    runs on a tree with and without generation" scenario.
+
+    WHAT THIS CATCHES, and what it does not: a SESSION-DERIVED snapshot field
+    (mutation 9.5b), because that field is present in the "with" arm and absent
+    from the "without" one. It does NOT catch a CONSTANT abstract emitted into
+    a document object (mutation 9.5) -- a constant lands in both arms and
+    compares equal, which is 6.2's job, not this test's."""
     root = _tree(tmp_path)
+    # THE "WITHOUT" ARM, TAKEN FIRST -- before a model port exists anywhere in
+    # this process and before any dispatch has happened. Two readings taken
+    # AFTER the same dispatch are not a with/without comparison; they are the
+    # same arm twice, and a generator that projected a model-derived value
+    # would carry it in both of them and compare equal. Mutation 9.5 proved
+    # that gap concretely: a `documents[]` field set from whether an in-session
+    # generation had occurred survived this test until this arm existed.
+    without_generation = snapshot_mod.canonical_bytes(_snap(root))
+
     fake = FakeWorkbenchModelPort(
         ModelCatalog.from_entries([_entry()]),
         dispatch_result={"assistant_prose": FAKE_DISPATCH_PROSE, "proposals": []})
@@ -193,8 +223,10 @@ def test_generator_is_byte_identical_with_and_without_in_session_generation(tmp_
     assert outcome.assistant_prose == FAKE_DISPATCH_PROSE
 
     with_generation = snapshot_mod.canonical_bytes(_snap(root))
-    without_generation = snapshot_mod.canonical_bytes(_snap(root))
     assert with_generation == without_generation
+    # ...and the generator is still byte-stable call to call, which is the
+    # weaker property this test used to assert on its own.
+    assert snapshot_mod.canonical_bytes(_snap(root)) == with_generation
 
 
 # ============================================================================
@@ -205,8 +237,11 @@ def test_no_document_carries_a_forbidden_abstract_key_or_value(tmp_path):
     """After the SAME in-session dispatch as above, walk every emitted
     `documents[]` object at every nesting depth: no key from
     `FORBIDDEN_DOCUMENT_KEYS`, and no value equal to (or containing) the
-    dispatched prose, may appear. This is the check mutation 9.5 must trip by
-    writing a model-derived abstract into a document object."""
+    dispatched prose, may appear. This is the check mutation 9.5 trips by
+    writing a CONSTANT model-derived abstract into a document object -- the
+    mutant byte-identity cannot see. It does NOT catch a session-derived field
+    that carries neither a forbidden key nor the sentinel (mutation 9.5b);
+    that one belongs to 6.1's without-generation arm."""
     root = _tree(tmp_path)
     fake = FakeWorkbenchModelPort(
         ModelCatalog.from_entries([_entry()]),

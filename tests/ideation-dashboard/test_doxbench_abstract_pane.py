@@ -761,6 +761,14 @@ def test_an_answer_for_a_subject_the_pane_left_is_discarded_unrendered(pane):
     assert landed["caption"] == CAP_UNGENERATED
     assert landed["name"].startswith("detail.md")
     assert landed["name"].endswith(CAP_UNGENERATED)
+    # DISCARDED MEANS NOT RECORDED EITHER. Painting the CURRENT subject is not
+    # on its own evidence of a discard: the region draws whatever the reader has
+    # selected, so an answer that was quietly filed under the subject it names
+    # would look identical here and paint itself the moment the reader came
+    # back — the same defect one repaint later, which is why the recheck
+    # returns before recording rather than after. Mutation 9.2b removes that
+    # recheck; without this line the pin above still passes.
+    assert "LATE ANSWER" not in (pane["afterReturn"]["body"] or "")
 
 
 def test_an_abstract_survives_leaving_and_re_entering_the_tile(pane):

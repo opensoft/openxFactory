@@ -4011,7 +4011,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # module accepts, so a link the rule finds but the validator refuses
             # cannot turn a readable document into a 500.
             carried = [subject_path]
-            for candidate in doxbench_knowledge._named_repository_paths(content):
+            for candidate in doxbench_knowledge.named_repository_paths(content):
                 if (candidate.startswith("/") or "\\" in candidate
                         or any(segment in ("", ".", "..")
                                for segment in candidate.split("/"))):
