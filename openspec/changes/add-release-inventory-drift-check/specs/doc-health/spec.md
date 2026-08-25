@@ -58,10 +58,11 @@ scope that declares a contract bundle, each member of that bundle's release
 digest inventory against the blob the repository carries at the checked commit,
 and report where they differ.
 
-The obligation being checked belongs to `release-realization` ("The declared
-bundle describes the release surface"); this requirement defines only how
-doc-health checks it, in the same by-reference relationship tag hygiene already
-has with `document-lifecycle`'s marker grammar.
+The obligation being checked belongs to `release-surface-integrity` ("The
+declared bundle describes the release surface"), the capability this change
+adds; this requirement defines only how doc-health checks it, in the same
+by-reference relationship tag hygiene already has with `document-lifecycle`'s
+marker grammar.
 
 THE FAMILY SHALL SPLIT ITS FINDINGS IN TWO, because the two states are
 different facts and reporting them alike would make the common one hide the
@@ -70,7 +71,9 @@ manifest and the README — SHALL be reported at `error`, because a normative
 contract's bytes moved while the repository went on declaring a bundle that
 describes different bytes. EDITORIAL drift — those three members and nothing
 else — SHALL be reported at `info`, because it is the expected bounded state
-between cuts and the next cut re-baselines it.
+between cuts and the next cut re-baselines it. Both verdicts are Brett's ruling
+of 2026-08-24: `info` rather than `warning`, so a condition nobody should act on
+does not hold a permanent yellow row in every report.
 
 DIGESTS SHALL BE COMPUTED OVER RAW BYTES, never over decoded text. The
 inventory's own identity rule is the SHA-256 of raw Git blob bytes and names

@@ -1,4 +1,10 @@
-# release-realization Specification Delta
+# release-surface-integrity Specification Delta
+
+**A NEW CAPABILITY.** Brett ruled 2026-08-24 that this obligation gets its
+own capability rather than joining `release-realization`, which governs the
+proposal/archive lifecycle and says nothing about contract bundles. The
+promoted spec directory is created when this change archives; until then the
+capability exists as these ADDED requirements.
 
 ## ADDED Requirements
 
@@ -28,6 +34,11 @@ This requirement states the OBLIGATION only. Whether and how it is CHECKED is
 `doc-health`'s to define, in the same by-reference relationship the tag-hygiene
 family already has with `document-lifecycle`'s marker grammar. Nothing here
 requires a gate, a severity, or a report section.
+
+THE EDITORIAL SET IS EXACTLY THREE MEMBERS and `contracts/README.md` is one of
+them by ruling (Brett, 2026-08-24), not by observation: it had not drifted in
+the window measured, so its inclusion is a decision about what may legitimately
+move between cuts rather than a description of what has.
 
 A published annotated tag is NOT the reference point, deliberately: a declared
 bundle need not have one. `contract-v1.33` and `contract-v1.35` are recorded in

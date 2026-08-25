@@ -1,7 +1,11 @@
 ---
-code_surface: openxFactory (`scripts/doc_health/release_inventory.py` — a new module owning the nineteenth deterministic family: the declared-bundle reader, the inventory parser, the per-member blob comparison, and the editorial/non-editorial split; `scripts/doc_health/corpus.py` — one new `RealGit` reader returning a blob's RAW BYTES at a commit, because every existing reader decodes to text and the inventory's identity rule names text canonicalization an invalid digest source; `scripts/doc_health/families.py` — one registration line in `FAMILIES` and the note recording why the family is deliberately absent from `FAMILY_RESOLUTION`; `scripts/doc_health/__init__.py` — one entry in `FAMILY_IDS` so the family gets its own report section; `tests/doc-health/test_release_inventory.py` plus fixtures — the regression fixture reconstructing the `contract-v1.36` true positive, today's editorial-only negative, the no-bundle and unreadable-history skips, and a structural pin on the raw-bytes rule; `tests/doc-health/conftest.py` — `FakeGit` gains the matching shim. `docs/contract-versioning-policy.md` gains the paragraph documenting what a red `verify-commit` at HEAD means between cuts, which is the half of issue #312 that must land whichever way the check question is ruled. NO change to the governed corpus, the lifecycle scan set, any existing family's behaviour, the report schema, the regression-diff rule, or any threshold.)
+code_surface: openxFactory (`scripts/doc_health/release_inventory.py` — a new module owning the nineteenth deterministic family: the declared-bundle reader, the inventory parser, the per-member blob comparison, and the editorial/non-editorial split; `scripts/doc_health/corpus.py` — one new `RealGit` reader returning a blob's RAW BYTES at a commit, because every existing reader decodes to text and the inventory's identity rule names text canonicalization an invalid digest source; `scripts/doc_health/families.py` — one registration line in `FAMILIES` and the note recording why the family is deliberately absent from `FAMILY_RESOLUTION`; `scripts/doc_health/__init__.py` — one entry in `FAMILY_IDS` so the family gets its own report section; `tests/doc-health/test_release_inventory.py` plus fixtures — the regression fixture reconstructing the `contract-v1.36` true positive, today's editorial-only negative, the no-bundle and unreadable-history skips, and a structural pin on the raw-bytes rule; `tests/doc-health/conftest.py` — `FakeGit` gains the matching shim. `docs/contract-versioning-policy.md` is RATIFIED by this change (`Status: draft` -> `ratified`), gains the paragraph documenting what a red `verify-commit` at HEAD means between cuts, and carries four corrections the ratification read-through found — see § Ratifying the versioning policy. NO change to the governed corpus, the lifecycle scan set, any existing family's behaviour, the report schema, the regression-diff rule, or any threshold.)
 target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed. Note the asymmetry deliberately: this change is ABOUT the release surface and touches none of it. The archive gate is therefore merge-plus-green on main, following `add-promotion-fidelity-check` and `govern-openspec-corpus-membership` exactly — `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly the amount this proposal predicts and in no other line.
-Status: draft
+Status: ratified
+Ratified: Brett Heap, 2026-08-24 — the route (a new capability), both
+  verdict levels, the editorial set's membership, the versioning-policy
+  ratification fold, and the record-only disposition of the contract-v1.36 tag
+  breach were all ruled in session on that date.
 Proposed: 2026-08-24
 Sequenced-after: add-promotion-fidelity-check (both changes MODIFY `doc-health`'s "Deterministic check families"; that one takes the count seventeen -> eighteen and this one eighteen -> nineteen, so this delta is written against its outcome and must land after it)
 Origin: issue #312, filed 2026-08-24 from the `add-doxbench-editing-phase-b` §12 / issue #263 work, where a session ran `verify-commit` by hand for an unrelated reason and found it already red.
@@ -65,19 +69,23 @@ Two things that measurement also settled, both of which shaped the design:
 
 ## What changes
 
-1. **`release-realization` gains the obligation** — "The declared bundle
-   describes the release surface", with the editorial members named and the
-   no-tag case handled. The obligation is stated before any checker enforces
-   it, because a checker with no promoted rule behind it is a rule invented in
-   Python — the ordering `add-promotion-fidelity-check` states and follows.
+1. **A NEW CAPABILITY, `release-surface-integrity`, gains the obligation** —
+   "The declared bundle describes the release surface", with the editorial
+   members named and the no-tag case handled. Brett ruled 2026-08-24 that this
+   gets its own capability rather than joining `release-realization`, which
+   governs the proposal/archive lifecycle and says nothing about contract
+   bundles. The obligation is stated before any checker enforces it, because a
+   checker with no promoted rule behind it is a rule invented in Python — the
+   ordering `add-promotion-fidelity-check` states and follows.
 2. **`doc-health` gains the nineteenth family**, `release-inventory-drift`,
    which checks that obligation by reference and defines only the checking.
-3. **`docs/contract-versioning-policy.md` gains a paragraph** stating what a
-   red `verify-commit` at HEAD means between cuts. This is issue #312's option
-   2 and it lands **whichever way the check question is ruled**: today a
-   session that runs `verify-commit` and sees red has nothing to consult, and
-   the obvious wrong move — hand-editing an inventory so the check passes —
-   is exactly the one the policy most needs to forbid in writing.
+3. **`docs/contract-versioning-policy.md` is RATIFIED**, gains the paragraph
+   stating what a red `verify-commit` at HEAD means between cuts, and is
+   corrected in four places the ratification read-through found. The paragraph
+   is issue #312's option 2: today a session that runs `verify-commit` and sees
+   red has nothing to consult, and the obvious wrong move — hand-editing an
+   inventory so the check passes — is exactly the one the policy most needs to
+   forbid in writing.
 
 ## What this family does not cover, stated so nobody reads it as wider
 
@@ -119,18 +127,19 @@ Four grounds, three of them the corpus stating the rule about itself:
 
 ## Design decisions taken by the drafting session
 
-Each is the drafting session's call under standing patterns, NOT something
-Brett has ruled. All are open to veto; the ones that most want a ruling are in
-§ Open Questions.
+Each was the drafting session's call under standing patterns. D1 was overridden
+by ruling and is kept for the record; D2–D4 stand as taken and were not
+separately ruled on, so they remain open to veto.
 
-- **D1 — the obligation lands in `release-realization`, not a new capability.**
-  No promoted capability today mentions a contract bundle, a digest inventory
-  or the release surface; the rule's only written home is
-  `docs/contract-versioning-policy.md`, which is `Status: draft` and therefore
-  not settled canon. `release-realization` is the nearest owner — it already
-  governs realization order and archive gates — and minting a capability for
-  one requirement is heavier than the corpus's own decomposition-scale rule
-  favours.
+- **D1 — SUPERSEDED BY RULING.** The drafting session proposed putting the
+  obligation in `release-realization` as the nearest owner, reasoning that
+  minting a capability for one requirement is heavier than the decomposition
+  scale rule favours. Brett ruled a new capability instead
+  (`release-surface-integrity`). The ruling is the better reading and the
+  drafting note is kept rather than deleted so the alternative stays visible:
+  `release-realization` governs the proposal and archive lifecycle, and none of
+  its six requirements mentions a bundle, an inventory, or a release surface —
+  "nearest" was adjacency, not subject.
 - **D2 — the split is error / info, not error / warning.** Editorial drift is
   not a lesser defect, it is the expected steady state between cuts; `warning`
   reads as "drift or first-stage aging" and would put a permanent yellow row in
@@ -150,25 +159,72 @@ Brett has ruled. All are open to veto; the ones that most want a ruling are in
   is not drift from the declared bundle and reporting it as such would train
   people to ignore the family.
 
-## Open Questions
+## Brett's rulings, 2026-08-24
 
-- **OQ-1 — where does the obligation belong?** D1 puts it in
-  `release-realization`. The alternatives are a new small capability
-  (`contract-release-integrity`) or leaving it in the draft versioning policy
-  and having doc-health reference a document rather than a capability. The
-  by-reference precedent (`tag-hygiene`) references a promoted CAPABILITY, not
-  a doc, which is the argument against the third option.
-- **OQ-2 — is `info` the right verdict for editorial drift, or `warning`?**
-  D2 argues `info`. A reader who wants the state visible in the warning band
-  every day would rule `warning`; nothing in the report breaks either way.
-- **OQ-3 — does `contracts/README.md` belong in the editorial set?** It is an
-  inventory member and it is documentation, so it fits the rationale. It has not
-  actually drifted in the observed window, so including it is a judgement about
-  what will happen rather than a fact about what has.
-- **OQ-4 — should the versioning policy leave `Status: draft`?** The policy is
-  the document this obligation is drawn from and the one both this change and
-  PR #314's adjudication cite as decisive. It is a draft. Promoting it is out
-  of this change's scope but the question is now on the record.
+All four questions this packet raised were ruled in session. They are recorded
+as answers rather than deleted, because the alternatives were real and a later
+reader should see what was decided against.
+
+- **OQ-1 — where the obligation belongs: A NEW CAPABILITY.** The drafting
+  session recommended `release-realization`; Brett overrode it.
+  `release-surface-integrity` owns the obligation. The override is the better
+  reading: `release-realization`'s six requirements govern the proposal and
+  archive lifecycle and none of them mentions a contract bundle, a digest
+  inventory, or a release surface, so putting this there would have widened a
+  capability by adjacency rather than by subject.
+- **OQ-2 — the editorial verdict: `info`, not `warning`.** A condition nobody
+  should act on must not hold a permanent yellow row in every report.
+- **OQ-3 — `contracts/README.md` IS in the editorial set.** By ruling rather
+  than by observation: it had not drifted in the measured window, so its
+  inclusion is a decision about what may legitimately move between cuts.
+- **OQ-4 — the versioning policy is RATIFIED BY THIS CHANGE.** See below; the
+  read-through it required found four defects, which this change corrects
+  rather than ratifying as-is.
+
+## Ratifying the versioning policy
+
+`docs/contract-versioning-policy.md` has carried `Status: draft` since it was
+written, while being cited as decisive — by this change, by issue #312, and by
+PR #314's contract-class adjudication. Brett ruled it ratified here.
+
+Ratification required reading it end to end against today's repository rather
+than stamping it, and that read found **four defects**. Each is corrected in
+this change; none is a rewrite of the policy's intent.
+
+1. **THREE MODERN BUNDLES HAVE NO PUBLISHED TAG, and the policy says that
+   cannot happen.** It states "a bundle is not published until its tag exists",
+   requires manifest version, changelog heading and tag to match, and records
+   that mandatory annotated-tag publication *began* after the legacy sequence.
+   Measured against the remote: `contract-v1.33`, `contract-v1.35` and
+   `contract-v1.39` each have a changelog entry and no tag. (`v1.0`–`v1.6` are
+   the acknowledged legacy sequence and are not at issue.) The rule is NOT
+   softened to match practice — that would ratify the gap away. The rule stands
+   and the three exceptions are recorded in the policy as a named, undischarged
+   gap awaiting disposition.
+2. **The legacy-baseline paragraph is stale in the present tense.** It reads
+   "with `contract-v1.6` as the manifest baseline"; the manifest baseline has
+   been `contract-v1.40` since 2026-08-22. Corrected to past tense so the
+   sentence describes the recovery it is about rather than today's state.
+3. **The deprecation entry names a superseded vocabulary as canonical.** It
+   says the flat `hermes` keys are "replaced by `hermes.layers` with canonical
+   roles customer/client/domain". The canonical layer vocabulary has been
+   Subject / Tenant / Domain since `adopt-subject-tenant-domain-vocabulary` was
+   ratified 2026-07-23; `customer|client|domain` survive only as FROZEN MACHINE
+   KEYS. Corrected to say exactly that and to cite
+   `contracts/policies/layer-vocabulary.yaml` for the mapping.
+4. **What a red `verify-commit` at HEAD means was undocumented** — the gap
+   issue #312 named. Added, with the remedy stated and the wrong move named:
+   the fix is a release cut, never a hand-edit of an inventory to make the
+   check pass.
+
+## Filed elsewhere
+
+**Issue #318 — a drafted-but-unapproved packet has no lawful origin shape.**
+`ad_hoc` requires `approved_on`, which does not exist before approval, and
+omitting the origin block is itself an error; this packet carried that error
+for the whole window it was awaiting rulings, and two other draft packets carry
+it now. Not fixed here: inventing an approval date to quiet a check is the move
+this change's own policy correction forbids in writing.
 
 ## Recorded, not fixed
 
@@ -179,6 +235,10 @@ Brett has ruled. All are open to veto; the ones that most want a ruling are in
   superseding release. During the v1.36 landing the tag was published at
   `c465b3e` → `08c5aa9`, then deleted and force-pushed to `42c7696` →
   `d37cfa1` to correct the un-bumped bundle version. The re-point is recorded
-  in `d37cfa1`'s own commit message. This is surfaced here because it is the
-  same family of release-integrity defects and this change is where the record
-  is being read; the remedy is Brett's to rule and is NOT taken in this packet.
+  in `d37cfa1`'s own commit message. **DISPOSITION — RECORD ONLY (Brett, 2026-08-24).** The tag STAYS AS IT IS: a
+  second move would compound the breach rather than repair it, and the
+  sanctioned remedy — a superseding release — would spend a version number to
+  correct provenance that this record already carries accurately. The breach,
+  its reasoning, and this disposition live here, in the change record, which is
+  the durable form the ruling takes. No further action is owed and none should
+  be taken by a later session reading the policy and noticing the mismatch.

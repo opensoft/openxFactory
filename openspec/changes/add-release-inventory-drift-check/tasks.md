@@ -1,9 +1,9 @@
 # Tasks — add-release-inventory-drift-check
 
-**THIS PACKET IS A DRAFT AND NOTHING IN §2 ONWARD MAY BE EXECUTED YET.** Brett
-assigned the SCOUT AND DRAFT of this change, not its construction. §1 is the
-scouting that has been done; everything after it waits on the § Open Questions
-being ruled, and on the change being ratified.
+**RATIFIED 2026-08-24. The CHECKER is a follow-on realization slice and is not
+built here.** This packet carries the scouting (§1), the four rulings and the
+versioning-policy ratification that landed with them (§2, §4), and the
+implementation plan the follow-on slice executes (§3, §5).
 
 ## 1. Scouting and route adjudication — DONE
 
@@ -43,17 +43,18 @@ being ruled, and on the change being ratified.
       vanishes uncited is re-emitted as an `error`, so the family must stay out
       of `FAMILY_RESOLUTION`.
 
-## 2. Ratification — BLOCKED, awaiting Brett
+## 2. Ratification — DONE (Brett, 2026-08-24)
 
-- [ ] 2.1 Rule OQ-1: where the obligation belongs (`release-realization`, a new
-      capability, or a document reference).
-- [ ] 2.2 Rule OQ-2: `info` or `warning` for editorial drift.
-- [ ] 2.3 Rule OQ-3: whether `contracts/README.md` joins the editorial set.
-- [ ] 2.4 Rule OQ-4: whether `docs/contract-versioning-policy.md` stays a draft.
-- [ ] 2.5 Ratify the change, or rule that the check is not wanted and take only
-      §4's documentation half.
+- [x] 2.1 OQ-1 RULED: a NEW CAPABILITY, `release-surface-integrity`, overriding
+      the drafting session's `release-realization` recommendation. The delta is
+      restructured onto it; the promoted spec directory is created at archive.
+- [x] 2.2 OQ-2 RULED: `info` for editorial drift, not `warning`.
+- [x] 2.3 OQ-3 RULED: `contracts/README.md` IS in the editorial set.
+- [x] 2.4 OQ-4 RULED: `docs/contract-versioning-policy.md` is ratified BY THIS
+      CHANGE, and the read-through it required found four defects — see §4.
+- [x] 2.5 The change is ratified. The checker is a follow-on realization slice.
 
-## 3. Implementation — BLOCKED on §2
+## 3. Implementation — the FOLLOW-ON SLICE, not this packet
 
 - [ ] 3.1 `scripts/doc_health/corpus.py` — one new `RealGit` reader returning a
       blob's RAW BYTES at a commit. Every existing reader decodes to text, and
@@ -67,16 +68,30 @@ being ruled, and on the change being ratified.
 - [ ] 3.4 `tests/doc-health/conftest.py` — the `FakeGit` shim for the new
       reader.
 
-## 4. The documentation half — takeable whatever §2 rules
+## 4. The versioning policy — DONE, landed with this change
 
-- [ ] 4.1 `docs/contract-versioning-policy.md` gains a paragraph stating that a
-      red `verify-commit` at HEAD between cuts is EXPECTED under editorial
-      drift, that the reference point is the inventory file rather than a tag,
-      and that the remedy is a release cut and never a hand-edit of an
-      inventory to make the check pass. This is issue #312's option 2 and it is
-      worth landing even if the family is never built.
+- [x] 4.1 `docs/contract-versioning-policy.md` gains § "What a red
+      `verify-commit` at HEAD means": editorial drift between cuts is expected,
+      the reference is the inventory file rather than a tag, a mismatch on any
+      other member is a defect, and the remedy is a release cut and NEVER a
+      hand-edit of an inventory or of `contract_bundle_version` to make a check
+      pass. Issue #312's option 2, landed.
+- [x] 4.2 RATIFIED: `Status: draft` -> `ratified`, `Ratified by:` this change.
+- [x] 4.3 CORRECTION — three bundles allocated after mandatory tagging began
+      (`contract-v1.33`, `contract-v1.35`, `contract-v1.39`) carry a changelog
+      entry and no published tag, which the policy's own rule forbids. Recorded
+      as a named undischarged gap in a new subsection; the rule is NOT relaxed
+      to accommodate it, and the disposition is left open because retro-tagging
+      requires establishing which commit each bundle realized at.
+- [x] 4.4 CORRECTION — the legacy-baseline paragraph claimed `contract-v1.6`
+      IS the manifest baseline; it was, in 2026. Rewritten to past tense.
+- [x] 4.5 CORRECTION — the deprecation entry called `customer/client/domain`
+      the "canonical roles". They are FROZEN MACHINE KEYS; the canonical
+      vocabulary has been Subject / Tenant / Domain since
+      `adopt-subject-tenant-domain-vocabulary` (ratified 2026-07-23). Corrected
+      and pointed at `contracts/policies/layer-vocabulary.yaml`.
 
-## 5. Acceptance evidence, both directions — BLOCKED on §3
+## 5. Acceptance evidence, both directions — the FOLLOW-ON SLICE
 
 - [ ] 5.1 True positive from history: a fixture reconstructing `08c5aa9` fires
       one `error` naming `gate-action-record.schema.yaml`.
@@ -90,22 +105,31 @@ being ruled, and on the change being ratified.
 - [ ] 5.6 Suite counts move by exactly the predicted amount and in no other
       line.
 
-## 6. Archive — BLOCKED
+## 6. Archive
 
 - [ ] 6.1 Archive ONLY after merge with green realization evidence. This change
       ships ACTIVE, following both precedents.
 
 ## 7. Recorded, not fixed
 
-- [ ] 7.1 The `contract-v1.36` tag was moved, which
+- [x] 7.1 The `contract-v1.36` tag was moved, which
       `docs/contract-versioning-policy.md` § Immutable Tag Correction forbids
       outright ("never moved, deleted, or re-tagged, not even for a defective
-      release"; the sanctioned correction is a superseding release). Recorded
-      in the proposal with the evidence. The remedy is Brett's to rule and is
-      NOT taken here.
-- [ ] 7.2 Two schemas changed after the v1.40 tag without a cut
+      release"; the sanctioned correction is a superseding release).
+      **DISPOSITION — RECORD ONLY (Brett, 2026-08-24).** The tag stays as it
+      is: a second move would compound the breach, and a superseding release
+      would spend a version number to correct provenance this record already
+      carries accurately. No further action is owed, and a later session
+      noticing the mismatch should read this line rather than act.
+- [x] 7.2 Two schemas changed after the v1.40 tag without a cut
       (`client-overlay.schema.yaml`, `openxwallet-grant.schema.yaml`). Both are
       tracked and currently matching in the manifest's per-file digests, so
       this is not a live integrity defect — but whether a normative schema may
       change between cuts at all is a policy question this packet does not
-      answer.
+      answer. Recorded; no action taken here.
+
+- [x] 7.3 A drafted-but-not-yet-approved change packet has NO lawful origin
+      shape: `ad_hoc` requires `approved_on`, which does not exist before
+      approval, and omitting the origin block is itself an error. Both other
+      draft packets in this repository sit in the identical state. Filed as
+      **issue #318** rather than worked around by inventing an approval date.
