@@ -13,12 +13,13 @@ overlay, working scripts, proposed changes) — filling the domain layer is
 mostly consolidating and elevating it into the prescribed `hermes/domain/`
 shape, plus authoring the genuine voids. Child of `hermes-layer-content-seeding.md`;
 the persona-depth question is spun out to `hermes-persona-character-model.md`.
-Topics: codexfactory, domain-hermes, three-layer-hermes-runtime, agent-roster,
+Topics: codexfactory-domain, codexfactory, domain-hermes, three-layer-hermes-runtime, agent-roster,
 authority-personas, scrum-coordinator, merge-master, gate-rules-council,
 review-council, practice-catalog, omnigent-separation, moa-advisory,
 layer-content-seeding
 Repository context: openxFactory (targets codexFactory hermes/domain/ + omnigent/)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (Plane-3 / human-step / scrum-boundary decisions; harvest map, practice matrix, exit path)
 
 ## Decided (2026-07-22)

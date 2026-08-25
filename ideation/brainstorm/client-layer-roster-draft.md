@@ -13,10 +13,11 @@ Approvals Authority, Security & Compliance Officer). Because the client layer is
 per-client, the house voice itself is **client-tunable** (the wizard sets the
 baseline), while safety-anchored disposition stays locked. Parent:
 `client-layer-scaffold.md`; character model: `hermes-persona-character-model.md`.
-Topics: client-hermes, company-policy, plane-1, house-team, authority-personas,
+Topics: client, client-hermes, company-policy, plane-1, house-team, authority-personas,
 roster, house-style, approvals, security-compliance, liaison, client-tunable
 Repository context: openxFactory (NEUTRAL client-scaffold roster; domain-specialized, client-tuned)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (finance seat added; voice floor + CSC/LS conjunction decided; v1-scale conformance; liaison/count sync)
 
 ## Decided (2026-07-22)

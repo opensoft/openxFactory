@@ -10,7 +10,7 @@ bench manifests, declared per domain through the ratified overlay's
 in the worker heartbeat, and pre-pulled onto worker hosts by an Intune-deployed
 worker-host agent — replacing both ad-hoc native toolchains and hand-run host
 setup.
-Topics: tech-benches, toolchain-bindings, omnigent-domain-overlay,
+Topics: worker-execution, tech-benches, toolchain-bindings, omnigent-domain-overlay,
 worker-host-agent, intune, worker-heartbeat, bench-manifest, execution-lane,
 containment, worker-hosts, cloudpc, omni-001, dtn-candidate
 Repository context: openxFactory (neutral bench-manifest + heartbeat delta);
@@ -18,6 +18,7 @@ codexFactory `omnigent/` overlay (first `toolchain_bindings` consumer);
 Omnigent-Install (harness selection, host manifest, heartbeat publisher);
 OpsxFactory (bench build pipeline + Intune deployment)
 Captured: 2026-07-23
+
 Organized: 2026-07-23 — the app/Intune/host portion moved to
 [staging/worker-host-app](../staging/worker-host-app/worker-host-app.md);
 the overlay `toolchain_bindings` + neutral bench-manifest contract framing

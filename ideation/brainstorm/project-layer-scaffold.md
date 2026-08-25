@@ -12,7 +12,7 @@ per-client wizard-tuned, project is **per-project instantiated from an archetype
 (the type-template library, filled in `project-type-template-library-draft.md`).
 The documentation help/manual writer lands here as a Plane-2 worker. Parent:
 `hermes-layer-content-seeding.md`.
-Topics: project-hermes, customer-hermes, subject, project-layer, product-owner,
+Topics: project, project-hermes, customer-hermes, subject, project-layer, product-owner,
 project-manager, project-type-template, provisioning, consent, journey-state,
 manual-writer, plane-1
 Repository context: openxFactory (targets codexFactory hermes/subject|customer/ + hermes-install provision-project)

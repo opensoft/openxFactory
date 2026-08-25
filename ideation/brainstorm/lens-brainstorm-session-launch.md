@@ -3,9 +3,10 @@
 Status: brainstorm
 Kind: architecture
 Summary: Feat request against the realized keyword lens — clicking the bullseye's center ring starts a brainstorm session focused on the checked keyword set: a scaffolded brainstorm doc with Topics pre-filled from the checked keywords, a workbench reference set of the matching docs, and optionally a scratch notebook — composing three already-landed mechanisms (authoring scaffold, workbench manifest, xf-wb notebooks) behind one gesture.
-Topics: feat-request, ideation-dashboard, keyword-lens, workbench, doc-management, doc-workflow
+Topics: dashboard-workbench, feat-request, ideation-dashboard, keyword-lens, workbench, doc-management, doc-workflow
 Repository context: openxFactory (capability owner; realization would be a codexFactory delta)
 Captured: 2026-07-14
+
 Origin: Brett, 2026-07-14, using the deployed dashboard.
 
 Brainstorm — contradiction and half-formed options are legal here.

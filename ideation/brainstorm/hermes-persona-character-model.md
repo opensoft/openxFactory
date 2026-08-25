@@ -13,7 +13,7 @@ with the load-bearing guardrail that character shapes *how* a persona decides
 and communicates, never *whether* a gate holds. Sibling of
 `codexfactory-domain-hermes-content.md`; grandchild of
 `hermes-layer-content-seeding.md`.
-Topics: hermes-persona, personality, character-model, authority-personas,
+Topics: hermes, hermes-persona, personality, character-model, authority-personas,
 human-experience, trait-framework, persona-depth, behavioral-identity,
 agent-certification, memory-gateway, client-tunability, domain-hermes
 Repository context: openxFactory (applies to all Hermes-layer personas; piloted on codexFactory domain)

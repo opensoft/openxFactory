@@ -275,6 +275,29 @@ single-branch path never got that fix, so `--session-ref` cannot see a session
 opened from a feature worktree — which is where both live sessions are. Same
 two sessions, same root cause, opposite direction.
 
+**FIXED the same day** (`scripts/sync-notebooklm-books.py`):
+`live_session_targets` now enumerates every worktree git lists for each
+repository and asks each as a potential container owner through the same joint
+signal, degrading to the canonical root alone only when a worktree list is
+unreadable — safe there because this mode only ever REFUSES when it finds
+nothing; it has no retire arm. The multi-match refusal also names the paths and
+distinguishes a cross-repository collision (resolvable with
+`--session-repository`) from two containers of one repository (no alias can
+disambiguate). Covered by
+`test_session_ref_sees_a_session_opened_from_a_feature_worktree`. The fix
+UNBLOCKS step 5's retry but does not perform it — both sessions remain hosted
+on the personal account until a real `--session-ref --apply` run migrates them.
+
+The same landing closes the session route's exposure to the 2026-08-10 death
+mode: `sync_session_notebook` was deliberately unbounded (workbench finding 21),
+so nothing stopped a session whose derived corpus outgrew the provider's
+per-notebook source cap — adds would fail past the cap mid-flight. It now
+carries the lifecycle books' capacity guard: an over-cap plan refuses BEFORE
+any mutation and names the excess. Covered by
+`test_a_session_over_the_provider_source_cap_is_refused_before_any_mutation`.
+This is the source-COUNT cap on the session route, not F4's single-document
+size limit, which stays open.
+
 **F4 — an oversized document fails silently and leaves litter.** Adding the
 228 KB spec makes `nlm source add` report success while creating an untitled
 `xf-sync-<random>.md` `generated_text` source instead of the intended titled

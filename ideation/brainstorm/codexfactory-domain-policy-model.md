@@ -13,11 +13,12 @@ gets right anyway. This doc gives the store-vs-improvise decision test, the
 domain policy categories that pass it (filled with concrete codex positions),
 and the anti-list of what we deliberately do NOT store. Parent:
 `codexfactory-domain-hermes-content.md`.
-Topics: codexfactory, domain-hermes, domain-policy, store-vs-improvise,
+Topics: codexfactory-domain, codexfactory, domain-hermes, domain-policy, store-vs-improvise,
 determinism, enforceability, domain-memory, best-practices, governance-gates,
 layer-content-seeding
 Repository context: openxFactory (targets codexFactory hermes/domain/policies/ + memory-boundaries)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (coverage / contested-position / memory-write decisions; kind map; DTN candidate)
 
 ## Decided (2026-07-22)

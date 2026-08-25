@@ -13,11 +13,12 @@ distinct from the **18 steward workers** (Plane 2, Omnigent), with a coherent
 house style (the deliberate contrast to the domain's independent personas).
 Parent: `hermes-layer-content-seeding.md`; roster filled in
 `client-layer-roster-draft.md`.
-Topics: client-hermes, company-policy, client-layer, scaffold, house-team,
+Topics: client, client-hermes, company-policy, client-layer, scaffold, house-team,
 per-client, policy-wizard, client-infrastructure-liaison, offer-shapes,
 plane-1, plane-2, layer-content-seeding
 Repository context: openxFactory (targets openxFactory client-layer template + codexFactory hermes/client/ + hermes-install config/clients/)
 Captured: 2026-07-21
+
 Updated: 2026-07-22 (roles/ + facts-rule + liaison decisions; seeding path synced; steward table + accounting gap)
 
 ## Decided (2026-07-22)
