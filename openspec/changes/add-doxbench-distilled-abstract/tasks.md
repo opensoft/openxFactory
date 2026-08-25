@@ -18,6 +18,17 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
       the canonical `doxBench scoped view` text matches the base this change's
       delta was authored against; if it drifted, re-author the delta against what
       landed rather than editing canon.
+      2026-08-25 — BOTH HALVES ALREADY VERIFIED by that change's own §3.4 at
+      archive time: it is archived at
+      `openspec/changes/archive/2026-08-25-ratify-doxbench-landed-context-surfaces/`,
+      and this change's MODIFIED `doxBench scoped view` block was compared line
+      by line against the canon it promoted — every canon line and all SIXTEEN
+      canon scenarios are present here, and this block diverges ONLY by its own
+      declared additions (it strikes "a new analysis," from the closing sentence,
+      appends the paragraph narrowing the no-new-ANALYSIS clause to the
+      bullseye's geometry and the completeness signals, and adds the two
+      scenarios that take it to 18). NO DRIFT, no re-authoring owed. Re-confirm
+      and tick when §1 actually starts.
 - [ ] 1.2 Confirm the INTAKE FOLD still matches `add-doxchat-model-intake`'s
       delta at archive time. This change's `:1045` text is canon PLUS intake's
       additions (the one-non-model-INTAKE-affordance paragraph, the widened
