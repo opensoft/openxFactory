@@ -344,40 +344,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-projection-title-uniqueness](openspec/changes/add-projection-title-uniqueness/proposal.md)
-  — authored and ratified 2026-08-25 (Brett Heap, in-session). Raised off that
-  morning's lifecycle-notebook sync report, which recorded FOUR MedxFactory
-  staging topics synced into a book holding ONE source for them. A source title
-  is the projection's identity key — the sync keys its desired set by path and
-  reconciles it by TITLE — but titles derive from a document's file stem and the
-  governing rule (`docs/lifecycle-notebook-projection.md` § 2) special-cases
-  exactly one repeated stem, `README`. Every other repeated stem collapses:
-  `wanted_titles` is a SET, the deletion pass holds each title at one source, and
-  the manifest still records all N documents as synced. Nothing reports the
-  losers, and `--parity` is structurally blind — it compares a set of derived
-  titles against a set of live titles, so a collapse is equal to itself and
-  reports OK. Measured corpus-wide against the live mains the books mirror:
-  693 derived book slots resolve to 688 titles, FIVE documents displaced across
-  THREE collisions (`[staged] MedxFactory: topic` ×4, `[draft] openxFactory:
-  requirements` ×2, `[staged] OpsxFactory: exchange-execution-bringup` ×2), and
-  the provider agrees to the source — 695 live sources where the scan wants 700.
-  The delta MODIFIES `Authority framing` to state INJECTIVITY over the derived
-  set rather than a filename exception, and amends parity to prove membership at
-  the DOCUMENT level. **The rule choice was measured, not chosen**: the
-  always-`<parent>/<stem>` candidate costs 572 renames AND STILL LEAVES A
-  COLLISION (both checklists sit in a directory named `checklists`), and a
-  declared list of structural stems leaves one too (`exchange-execution-bringup`
-  is a topic name no list would carry) — so a fixed enumeration is provably
-  insufficient on this corpus, which is what the `README` case already was. The
-  recommendation is the shortest distinguishing path suffix, repository-scoped:
-  14 renames, 28 book operations, zero collisions, against 611 and 1222 for the
-  fully-qualified alternative. No capacity delta is owed and the absence is
-  measured — the guard already counts DOCUMENTS, so no guard number moves and the
-  largest book stays at 247 of 300. Q1 (the rule), Q2 (whether the migration
-  rides the realization's own sync slice), Q3 (whether five never-projected
-  documents warrant a record) and Q4 (the uniqueness scope, which pre-empts three
-  latent pairs one `Status:` edit from collapsing) are open for Brett.
-
 - [add-family-enumeration-check](openspec/changes/add-family-enumeration-check/proposal.md)
   — authored and ratified 2026-08-25, commissioned in-session ("commission the
   §5.5 enumeration check"). `doc-health`'s own "Deterministic check families"
@@ -1042,6 +1008,72 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-projection-title-uniqueness](openspec/changes/archive/2026-08-25-add-projection-title-uniqueness/proposal.md)
+  — **ARCHIVED 2026-08-25** on merge-plus-green plus the one piece of evidence
+  code alone could not give: a provider read. PR #353 was REBASE-merged, so the
+  shas that landed are `79bec8a7` (the derivation, the parity amendment, the
+  doc rule, the test file) and `839e0d8e` (the migration record), both verified
+  ancestors of `main` at the gate — the branch tips `58af80ee`/`e4ff1f93` are
+  not, which is exactly the trap this repository's archive record already
+  carries once. Authored and ratified 2026-08-25 (Brett Heap, in-session).
+  Raised off that morning's lifecycle-notebook sync report, which recorded FOUR
+  MedxFactory staging topics synced into a book holding ONE source for them. A
+  source title is the projection's identity key — the sync keys its desired set
+  by path and reconciles it by TITLE — but titles derived from a document's file
+  stem and the governing rule (`docs/lifecycle-notebook-projection.md` § 2)
+  special-cased exactly one repeated stem, `README`. Every other repeated stem
+  collapsed: `wanted_titles` is a SET, the deletion pass holds each title at one
+  source, and the manifest still recorded all N documents as synced. Nothing
+  reported the losers, and `--parity` was structurally blind — it compared a set
+  of derived titles against a set of live titles, so a collapse is equal to
+  itself and reported OK. Measured corpus-wide against the live mains the books
+  mirror: 693 derived book slots resolved to 688 titles, FIVE documents
+  displaced across THREE collisions (`[staged] MedxFactory: topic` ×4, `[draft]
+  openxFactory: requirements` ×2, `[staged] OpsxFactory:
+  exchange-execution-bringup` ×2), and the provider agreed to the source — 695
+  live sources where the scan wanted 700. The delta MODIFIES `Authority framing`
+  to state INJECTIVITY over the derived set rather than a filename exception,
+  and amends parity to prove membership at the DOCUMENT level. **The rule choice
+  was measured, not chosen**: the always-`<parent>/<stem>` candidate costs 572
+  renames AND STILL LEAVES A COLLISION (both checklists sit in a directory named
+  `checklists`), and a declared list of structural stems leaves one too
+  (`exchange-execution-bringup` is a topic name no list would carry) — so a fixed
+  enumeration is provably insufficient on this corpus, which is what the `README`
+  case already was. Ruled: the shortest distinguishing path suffix, repository-
+  scoped, against 611 renames and 1222 operations for the fully-qualified
+  alternative. **Q1 through Q4 were ruled the same day** in one in-session
+  multiple-choice round — the recommendation adopted throughout, Q4's scope
+  sub-question folded into Q1 (so the three latent pairs one `Status:` edit from
+  collapsing close as a side effect), Q2 keeping the migration on the
+  realization's own slice, and Q3 ordering the record that
+  `docs/archive-record-discrepancies.md` now carries as its 2026-08-25 addendum.
+  No capacity delta was owed and the absence is measured — the guard already
+  counts DOCUMENTS, so no guard number moved and the largest book stays at 247 of
+  300. **The migration ran and the provider says so**: the dry run matched
+  `design.md` § 6 row for row (14 `ADD`, 9 `DEL`, 3 `UPD` — 9 and not 14 because
+  three vacated titles were collapsed ones holding a single source between them,
+  which is this packet's own arithmetic correction to the "28 ops" figure), the
+  apply took the seven books from **695 to 700 sources** (`drafts` 188 → 189,
+  `ideation-medxfactory` 49 → 52, `ideation-opsxfactory` 16 → 17, four books
+  unchanged), `--parity` returned **PROVEN** in DOCUMENTS under the amended rule,
+  and a convergence dry run planned **zero** operations — but only on the second
+  attempt: the first caught an oversized `contracts/CHANGELOG.md` source sitting
+  under its temp filename, a known readiness race repaired by hand and recorded
+  rather than smoothed over. Verified at the gate by requirement map:
+  `lifecycle-notebook-projection` **14 → 14 requirements, 48 → 52 scenarios**,
+  nothing removed, **13 of 14 requirements byte-for-byte identical**, and the one
+  that moved is `Authority framing` at 2 → 6 scenarios — its restatement carries
+  the promoted body and both existing scenarios verbatim, and reaches canon
+  byte-for-byte (the promoted file diffs as 51 lines inserted, **0 deleted**).
+  `promotion-fidelity` reads **0 findings at `--fail-on error`** on the archive
+  event itself. FOUR items survive as RECORDED, NOT CLOSED in the packet's § 5:
+  titles stay collision-dependent under the ruled rule (variant (a′), manifest-
+  pinned monotonic qualification, is measured and not taken); nothing checks
+  injectivity outside the sync's own suite, so a corpus-only doc-health family is
+  a named candidate; the manifest is never pruned; and which document's content
+  survived a collapse is unrecoverable, named as unrecoverable rather than
+  guessed.
 
 - [add-duplicate-packet-check](openspec/changes/archive/2026-08-25-add-duplicate-packet-check/proposal.md)
   — **ARCHIVED 2026-08-25** on Brett's ruling ("archive add-duplicate-packet-check
