@@ -1,0 +1,34 @@
+schema: spec-driven
+created: 2026-07-26
+origin:
+  kind: staged
+  id: openxFactory:staging:worker-enrollment-broker
+  path: ideation/staging/worker-enrollment-broker
+  reason: >-
+    SWEPT BY RULING 2026-08-25, verbatim: "sweep the 23 derivable
+    proposal-origin warnings". DERIVED FROM THIS PACKET'S OWN RECORD,
+    never invented. The approval act is this packet's own lifecycle
+    citation, quoted verbatim under approved_by below. The forcing fact is
+    stated in this packet's own proposal under its Why heading, which this
+    metadata-only edit leaves untouched. KIND IS staged, derived and
+    verified in BOTH DIRECTIONS rather than assumed from a mention: the
+    kept-current inventory ideation/staging/INDEX.md names this change as
+    the EXIT of the worker-enrollment-broker topic; that topic's folder
+    still exists; and its primary fragment carries the matching Staging ID
+    header for openxFactory:staging:worker-enrollment-broker. The
+    worker-credential lesson from PR #344 applies in reverse here — a
+    topic merely MENTIONED is not an origin, and this one declares the
+    exit. The created date 2026-07-26 is DERIVED from this packet's true
+    first commit 5f4010e2 in git, not from a folder name or a file
+    timestamp. This declaration supplies the origin and approval pair the
+    proposal-origin contract requires and changes nothing else about the
+    packet: no lifecycle header, no content, no status.
+  approved_by: >-
+    Per this packet's own "Ratified" citation, quoted verbatim:
+    "2026-07-26 by Brett Heap — D1-D10 recommendations adopted as decided;
+    phase-1 contract realization authorized, recorded in commit e535a3a
+    and on the Approved line below" — recorded in its proposal at
+    authoring time. That is the approval provenance the ad-hoc exception
+    requires, and it is why this packet fell in the derivable class rather
+    than the stop class of the 2026-08-25 sweep.
+  approved_on: 2026-07-26
