@@ -149,3 +149,8 @@ class RunResult:
     findings: list = field(default_factory=list)
     skips: list = field(default_factory=list)
     preflight: list = field(default_factory=list)  # (repo, entry, ok, detail)
+    # `family -> [note line, ...]` for the families that RAN, rendered under
+    # that family's own report heading (families.FAMILY_NOTES). A note says
+    # something about the RUN a finding list cannot — today, which tree the
+    # promotion-fidelity family measured.
+    notes: dict = field(default_factory=dict)
