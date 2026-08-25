@@ -523,7 +523,18 @@ Active changes:
   xFactory aggregate no longer tracks openChart directly. The intended
   `opensoft/MedxChart` remote still requires a separate publication act.
 - [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
-  — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). The
+  — authored 2026-08-22, **RATIFIED 2026-08-25** against its realized system
+  (Brett, in-session: "ratify add-nightly-dashboard-refresh against its
+  realized system"). Its code is MERGED AND WIRED across all three
+  repositories — openxFactory #260/#261, aggregation opensoft/xFactory #141,
+  Omnigent-Install #123/#126/#129/#143/#146/#153 — with required-check ruleset
+  21294850 live on Omnigent-Install's default branch. **The ARCHIVE gate stays
+  OPEN**: this change's own `target_release` requires one real nightly pin PR
+  merged and reconciled PLUS one wider diff refused and parked, and NEITHER has
+  happened — the build+push child has never run, no `bot/dox-dashboard-pin` PR
+  has ever existed, and both nightlies since the chain landed failed with every
+  refresh step skipped. Merged and wired is not exercised; §7 and §8.5 stay
+  open, discharged by the first real nightly in either direction. The
   openxFactory COMPANION to Omnigent-Install's just-merged
   `add-dox-gitops-reconciliation` (its `main` `7d0370d`, 2026-08-22), which took
   the APPLY and deliberately deferred two open questions to this change. Gives

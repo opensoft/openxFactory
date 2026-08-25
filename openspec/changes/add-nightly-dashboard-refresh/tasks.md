@@ -231,7 +231,7 @@ an extra field — it needs a schema delta.
       > module's already-tested `record_pull_request()` to the CLI so the
       > delivery step can call it once the cross-repo push knows the URL
       > (covered by `test_the_record_pr_cli_phase_patches_the_delivered_status`).
-- [ ] 4.8 (HUMAN GATE) Resolve the reporting-lag choice (design Open Question 3):
+- [x] 4.8 (HUMAN GATE) Resolve the reporting-lag choice (design Open Question 3):
       accept the one-run lag and have the report SAY which run's outcome it
       names, or add a second narrowly-scoped delivery for the status artifact
       after the stage. Record the choice.
@@ -240,6 +240,58 @@ an extra field — it needs a schema delta.
       > naming whose outcome it is ("this run" vs "the PREVIOUS run") — so no
       > second delivery is wired. A reviewer may still fix the choice at
       > ratification; switching to same-run delivery would be an added step.
+      **RESOLVED AT RATIFICATION, 2026-08-25 — Brett, in-session, verbatim:
+      "ratify add-nightly-dashboard-refresh against its realized system".** The
+      reporting-lag choice is settled AS IMPLEMENTED: the one-run lag stands,
+      with the report section naming whose outcome it is, and no second delivery
+      is wired. A reviewer did not fix it the other way, so the note above
+      describes the ratified state rather than a pending option.
+      **THE REALIZATION EVIDENCE, verified at this gate against GitHub and git
+      rather than read out of any handoff — every sha below is the sha the MERGE
+      produced.** openxFactory: PR #260 `de638933` (2026-08-22T13:54:03Z, the
+      packet) and PR #261 `446291d4` (2026-08-22T15:54:20Z, the lane
+      implementation). Aggregation opensoft/xFactory: PR #141 `c1bba45d`
+      (2026-08-24T07:30:53Z, `dashboard-image-worker.yml`, the artifact-only
+      build+push child — confirmed present on `main` at 19281 bytes and
+      registered as an ACTIVE workflow, id 341027124). Omnigent-Install: PR #123
+      `7d0370d5`, #126 `7365eb36` (the Flux delivery companion), #129
+      `509b7d65` (the `acr_push` worker-host credential), #143 `5b5592e4`
+      (token materialization into the runner env), #146 `575bc26f` (merge-master
+      auto-approval for the pin PRs) and #153 `da0bdeba` (the pin shape check
+      hardened to take its adjudicator from the base-branch tip). The
+      receiving-side gate is live: ruleset **21294850** on Omnigent-Install,
+      name "dox digest-only pin scope — required check", target `branch`,
+      enforcement `active`, requiring the context `Digest-only pin scope`.
+      **THE ARCHIVE GATE STAYS OPEN, and this is the honest half of the tick.**
+      This packet's own `target_release` sets the bar in its own words: "one
+      real nightly producing a digest-only pin PR against Omnigent-Install that
+      merge-master approves, GitHub auto-merges and Flux reconciles, PLUS one
+      deliberately wider diff from the same lane identity refused and parked. A
+      lane proven only by a dry run is exactly the evidence this program has
+      learned not to accept." NEITHER HALF IS MET, measured rather than
+      assumed:
+      1. The build+push child has **never run**: the GitHub API reports
+         `total_count: 0` for workflow 341027124's runs.
+      2. **No pin PR has ever existed** — a search of Omnigent-Install for
+         `head:bot/dox-dashboard-pin` across all states returns nothing, so
+         nothing was approved, auto-merged or reconciled.
+      3. The two nightly cycles since the chain landed both **FAILED** before
+         the lane could act — `doc-health-nightly` run `32683853055`
+         (2026-08-24T02:40:44Z) and `32802204594` (2026-08-25T02:39:01Z), both
+         `completed/failure` in `prepare` and `finalize`. On both runs EVERY
+         refresh step is `skipped`, including "Evaluate dashboard-refresh worker
+         readiness", "decide (no-change short-circuit, before any build)",
+         "Dispatch artifact-only dashboard-image child" and "render pin
+         proposal". The lane has therefore not been exercised in either
+         direction — not a pin, and not a clean no-change short-circuit. Note
+         the last SUCCESSFUL nightly, `32613445675` (2026-08-23T02:40:27Z),
+         predates the chain going live.
+      4. The negative direction (§7.3's wider-diff refusal) is likewise
+         unproven, having no lane run to be refused.
+      So the code is MERGED AND WIRED but NOT EXERCISED, which is exactly the
+      state `target_release` declines to archive on. §7 and §8.5 stay open, and
+      §8.5's gate is discharged by the FIRST REAL NIGHTLY, in either
+      direction, not by this ratification.
 - [x] 4.9 Add the report section for the refresh outcome, and the stuck-chain
       signal: a `bot/dox-dashboard-pin` PR still open at the next run is
       reported, naming it.
