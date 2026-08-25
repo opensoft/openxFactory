@@ -1231,6 +1231,49 @@ jobs:
             fi
           fi
           printf '%s\n' "$REASON" > findings/organizer-unavailable-reason.txt
+      - name: Fetch each governed submodule's live origin/main
+        # RULED 2026-08-24 (add-promotion-fidelity-check task 4.1, PR #315):
+        # the promotion-fidelity family measures LIVE MAINS, and it alone.
+        # Measured against the aggregation's committed PINS that family's
+        # coverage collapsed — 0% in three repositories — and it could not
+        # see the #301 gap while the codexFactory pin lagged behind the
+        # repository that had it. A promotion gap is a fact about a
+        # repository's own main; read through a pin it reports the pin.
+        #
+        # THIS STEP MOVES NO FILE. `git fetch` updates
+        # `refs/remotes/origin/main` and the object store; HEAD, the index and
+        # the working tree are untouched, so every OTHER family still reads
+        # exactly the pinned tree the checkout above produced. The family
+        # reads the ref through `git ls-tree` / `git show`, never by checking
+        # anything out.
+        #
+        # Non-fatal by design. A submodule whose main cannot be fetched is
+        # reported by the family as having FALLEN BACK to the pinned
+        # checkout, by name, in the report's own promotion-fidelity section —
+        # a stale true positive rather than a silence.
+        if: always()
+        continue-on-error: true
+        run: |
+          # `|| true` on the whole pipeline: under this shell's default
+          # `-e -o pipefail`, a missing `.gitmodules` (git config exits
+          # non-zero) OR a `.gitmodules` with no governed submodule (grep
+          # matches nothing, also non-zero) would fail the `SUBS=$(...)`
+          # assignment and abort the script right there — turning "nothing
+          # to fetch" into a script failure for a step whose own comment
+          # above says non-fatal by design. An empty `$SUBS` still runs the
+          # loop below zero times and exits 0, which is the actual
+          # non-fatal contract this step keeps.
+          SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
+                 | awk '{print $2}' | grep -E '^(openxFactory|xFactories/)' || true)
+          for sub in $SUBS; do
+            [ -e "$sub/.git" ] || continue
+            if git -C "$sub" fetch --no-tags --quiet origin \
+                 "+refs/heads/main:refs/remotes/origin/main"; then
+              echo "live main fetched: $sub $(git -C "$sub" rev-parse --short=12 origin/main)"
+            else
+              echo "no live main for $sub — the family reports the fall-back"
+            fi
+          done
       - name: Run doc-health suite
         id: run
         if: always()
@@ -1376,8 +1419,14 @@ jobs:
               NEUTRALITY+=(--neutrality-baseline "$NEUTRALITY_BASELINE_INPUT")
             fi
           fi
+          # --promotion-fidelity-basis: ONE family's measurement basis, ruled
+          # 2026-08-24 (task 4.1, PR #315). Deliberately absent from the
+          # prepare-phase invocations above, which build bundles and discard
+          # findings; the report this step writes is the only place the basis
+          # is read by anyone, and it names the basis in its own section.
           python3 openxFactory/scripts/doc-health.py \
             --repo-root . "${SKIPS[@]}" "${GATE[@]}" \
+            --promotion-fidelity-basis live-main \
             --report-out "$REPORT_OUT" \
             ${PREV:+--previous-report "$PREV"} \
             --emit-inventory "$INV_OUT" \

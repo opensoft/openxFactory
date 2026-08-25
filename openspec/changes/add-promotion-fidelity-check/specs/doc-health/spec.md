@@ -70,11 +70,19 @@ prevent a specific false positive rather than to narrow the check:
 - **A `RENAMED` block retires the title it names.** `openspec archive` applies
   RENAMED before MODIFIED, so a later rename legitimately removes an earlier
   delta's title from canon and MUST NOT be reported as a missing requirement.
-- **Only a delta whose own proposal claims ratification is checked.** Where an
-  archived packet's `proposal.md` carries a `Status:` other than `ratified`, or
-  carries none, its deltas are archived design evidence and the family says
-  nothing about them. The status SHALL be read through the same lifecycle
-  header reader every other family uses, never through a second one.
+- **Archiving is presumed to be ratification, and only an explicit
+  pre-ratification standing exempts a delta.** An archived packet's deltas
+  SHALL be checked unless its own `proposal.md` carries a `Status:` whose
+  declared standing is `draft` or lower in this corpus's taxonomy
+  (`brainstorm`, `staged`, `draft`); a packet carrying a ratified-or-later
+  standing, an unrecognized value, no `Status:` header, or no `proposal.md`
+  at all SHALL be checked. The declared standing is the header value's leading
+  token, read the same way in both directions, so an annotated ratification
+  (`Status: ratified (approved at ...)`) declares `ratified` for the same
+  reason an annotated `draft` declares `draft`. The status SHALL be read
+  through the same lifecycle header reader every other family uses, never
+  through a second one; a missing or invalid header is the status-validity
+  family's finding to report, not this one's.
 
 A recorded disposition in the aggregation checkout's `health/dispositions.yaml`
 — an entry naming this family with a `cite`, optionally narrowed to one
@@ -109,8 +117,49 @@ ruling, never a judgement call inside an implementation.
 - **THEN** only the later delta MUST be checked, and the earlier one MUST NOT produce a finding
 
 #### Scenario: A deliberate non-promotion was recorded
-- **WHEN** an archived packet's own `proposal.md` carries a status other than `ratified`
+- **WHEN** an archived packet's own `proposal.md` declares a standing of `draft` or lower
 - **THEN** its spec deltas MUST NOT be checked for arrival in canon
+- **AND** an annotation after the standing MUST NOT change what it declares
+
+#### Scenario: An archived packet declares no pre-ratification standing
+- **WHEN** an archived packet's `proposal.md` declares a ratified-or-later standing, declares a standing the taxonomy does not recognize, carries no `Status:` header, or is absent altogether
+- **THEN** its spec deltas MUST be checked for arrival in canon, archiving being presumed to be ratification
+- **AND** the missing or invalid header itself MUST be left to the status validity family rather than reported here
+
+### Requirement: The promotion fidelity measurement basis is declared
+A doc-health run SHALL compare archived deltas against the checked-out tree by
+default — the same tree every other check family measures — and MAY be
+configured to compare them against each repository's own live `main` instead.
+That option SHALL apply to the promotion fidelity family alone; no other
+family's inputs change because it is set.
+
+A run's report SHALL state which basis this family measured, in the family's
+own report section, on every run and whether or not the family found anything.
+Where a live basis is requested and a repository's live `main` cannot be read,
+the run SHALL measure that repository from its checkout and SHALL name the
+repository as having fallen back — a report that mixed the two bases without
+saying which was which would invite a reader to act on a stale finding as a
+current one.
+
+The obligation being checked does not change with the basis. What changes is
+which state of the repository the run is speaking about, and a reader can only
+act on a finding if the report says which.
+
+#### Scenario: A run declares the live basis
+- **WHEN** a run is configured to measure this family against live `main`s
+- **THEN** the promotion fidelity family MUST read each repository's archived deltas and promoted specs from that repository's own live `main`
+- **AND** every other check family MUST measure the checked-out tree exactly as it does on a default run
+- **AND** the report MUST state the basis, and the resolved `main` it read, in the promotion fidelity section
+
+#### Scenario: A live main cannot be read
+- **WHEN** the live basis is requested and a repository's live `main` is unavailable to the run
+- **THEN** that repository MUST be measured from its checkout rather than skipped
+- **AND** the report MUST name that repository as having fallen back to the checkout
+
+#### Scenario: A run declares no basis
+- **WHEN** a run is not configured with a basis
+- **THEN** the family MUST measure the checked-out tree
+- **AND** the report MUST say so in the family's section
 
 #### Scenario: A finding is dispositioned
 - **WHEN** `health/dispositions.yaml` carries an entry naming this family, a repository, an archived delta path, and a `cite`

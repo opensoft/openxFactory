@@ -27,8 +27,8 @@ except ImportError:
     yaml = None
 
 from . import DEFAULT_THRESHOLDS, ERROR, CRITICAL, Finding, RunResult, Skip
-from . import corpus, report
-from .families import FAMILIES
+from . import corpus, promotion_fidelity, report
+from .families import FAMILIES, FAMILY_NOTES
 from .preflight import run_preflight
 
 SYNC_SCRIPT = "openxFactory/scripts/sync-notebooklm-books.py"
@@ -64,6 +64,14 @@ class Context:
     # findings and moves no measurement. Defaults to empty so a Context
     # built without one behaves exactly as it did before this change.
     lifecycle_docs: list = field(default_factory=list)
+    # add-promotion-fidelity-check task 4.1 (ruled 2026-08-24, PR #315): the
+    # measurement basis for the promotion-fidelity family ALONE — "pinned"
+    # (the checked-out tree, the default, and what every other family reads)
+    # or "live-main" (each repository's own `origin/main`). No other family
+    # consults this field, which is the structural half of "do not change
+    # what any other family measures": there is nothing here for another
+    # family to read even by accident.
+    promotion_fidelity_basis: str = promotion_fidelity.BASIS_PINNED
 
 
 def _real_notebook_dryrun(agg_root: Path | None):
@@ -125,6 +133,26 @@ def build_context(args) -> Context:
     if getattr(args, "routing_strict", False):
         deviations.append("ideation-routing strict organize/proposal mode "
                           "(referenced pinned repositories must materialize)")
+    pf_basis = getattr(args, "promotion_fidelity_basis",
+                       promotion_fidelity.BASIS_PINNED)
+    try:
+        # THE CHOKE POINT: the same `normalize_basis` that
+        # `promotion_fidelity.requested_basis` reads the stored value back
+        # through below. Deciding the headline from a value neither of them
+        # has agreed to recognize is exactly how the deviation line and the
+        # family's own measurement used to read one bad input two ways —
+        # see `normalize_basis`'s docstring. An unrecognized value aborts
+        # HERE, before either consumer has decided anything.
+        pf_basis = promotion_fidelity.normalize_basis(pf_basis)
+    except ValueError as exc:
+        sys.exit(str(exc))
+    if pf_basis != promotion_fidelity.BASIS_PINNED:
+        # In the headline, not only in the family's own section: a reader
+        # comparing two runs' finding counts must be told at the top that one
+        # family changed the tree it reads (task 4.1's ruling, PR #315).
+        deviations.append(
+            "promotion-fidelity measured against each repository's live "
+            "origin/main (every OTHER family measures the pinned checkout)")
 
     # Catalog root (T014): the aggregation checkout when one is in
     # scope; otherwise the one single-repo path, so a lone repo can
@@ -139,7 +167,8 @@ def build_context(args) -> Context:
                   as_of=date.fromisoformat(args.as_of),
                   agg_root=agg_root,
                   notebook_dryrun=_real_notebook_dryrun(agg_root),
-                  catalog_root=catalog_root)
+                  catalog_root=catalog_root,
+                  promotion_fidelity_basis=pf_basis)
     ctx.deviations = deviations
     # add-cross-factory-ideation-routing task 4.3: nightly by default (an
     # unavailable external path is reported as skipped); strict organize/
@@ -205,6 +234,16 @@ def run_suite(ctx, only_family: str | None, skip: set[str]) -> RunResult:
             result.skips.append(Skip(family, "skipped by run configuration"))
             continue
         out = fn(ctx)
+        # Notes describe the run a family ACTUALLY performed, so they are
+        # collected here — beside the call — rather than recomputed later
+        # from flags. That includes a family whose `fn(ctx)` returns a Skip
+        # instance: it still ran and inspected the corpus, so it still gets
+        # a note. Only a family skipped ABOVE by run configuration
+        # (--skip-family) never reaches this line — the `continue` on the
+        # branch above sends it straight to `result.skips` with no note at
+        # all, which is the one case that truly gets none.
+        if family in FAMILY_NOTES:
+            result.notes[family] = FAMILY_NOTES[family](ctx)
         if isinstance(out, Skip):
             result.skips.append(out)
         else:
@@ -230,6 +269,19 @@ def main(argv=None) -> int:
                          "referenced pinned repositories must be materialized "
                          "(default: nightly, unavailable external paths are "
                          "reported as skipped)")
+    ap.add_argument("--promotion-fidelity-basis",
+                    choices=[promotion_fidelity.BASIS_PINNED,
+                             promotion_fidelity.BASIS_LIVE_MAIN],
+                    default=promotion_fidelity.BASIS_PINNED,
+                    help="promotion-fidelity ONLY: which tree to compare "
+                         "archived deltas against — 'pinned' (the checkout, "
+                         "the default, and every other family's basis) or "
+                         "'live-main' (each repository's own origin/main, "
+                         "which the run must have fetched). Ruled for the "
+                         "nightly on 2026-08-24: a promotion gap is a fact "
+                         "about a repository's main, and measuring it "
+                         "through a lagging pin reports 0%% coverage as "
+                         "health. No other family reads this option.")
     ap.add_argument("--config", help="YAML threshold overrides")
     ap.add_argument("--report-out", help="write the report here")
     ap.add_argument("--previous-report",
@@ -643,7 +695,9 @@ def main(argv=None) -> int:
     text = report.render(ctx.as_of, result.findings, result.skips,
                          result.preflight, ctx.docs, spec_words,
                          ctx.deviations, new, semantic_meta=semantic_meta,
-                         catalog_meta=catalog_meta, organizer_meta=organizer_meta)
+                         catalog_meta=catalog_meta,
+                         organizer_meta=organizer_meta,
+                         family_notes=result.notes)
     if neutrality_meta is not None:
         # Folded in post-render like the readiness/derive lanes: its own
         # section plus contested WARNING plan items, never a finding the
