@@ -10,6 +10,9 @@ Ideation books, title-based resolution, the capacity guard, and the legacy
 shared Ideation book's retirement, after the 300-source cap incident
 Amended by: reconcile-lifecycle-books-count (ratified 2026-08-24) — the fixed
 "three books" count retired for the topology the split ratified
+Amended by: add-projection-title-uniqueness (ratified 2026-08-25) — section 2's
+title rule made INJECTIVE over each repository's whole projected set, and
+`--parity` amended to prove membership at the document level
 Repository context: openxFactory
 Purpose: define the full NotebookLM workflow for the governance corpus — how
 document lifecycle states project into derived notebooks, how those notebooks
@@ -83,9 +86,35 @@ Titles are the authority signal chat sees on every citation:
 00 [charter] Read me first               workspace charter (section 4)
 ```
 
-Title rule for ambiguous stems: when the file stem is `README` (or otherwise
-non-unique within a repo), the title uses `<parent-dir>/<stem>` — e.g.
-`[ratified] AdxFactory: ideation/README`.
+**A title is the projection's IDENTITY KEY, so the derivation is INJECTIVE.**
+The sync derives a desired set keyed by document PATH but reconciles it
+against a book's live sources BY TITLE, and holds each title at one source. So
+two documents that derive one title are not two sources with the same label —
+they are one source, and the loser is absent from the book while the manifest
+records it as synced. Every projected document therefore receives a title
+distinct from every other projected document's.
+
+Title rule: a title carries the SHORTEST repository-relative path suffix that
+distinguishes the document from every other projected document of the same
+repository, and a `README` stem carries no fewer than its parent directory —
+e.g. `[ratified] AdxFactory: ideation/README`. A stem that is already unique in
+its repository stays bare. The uniqueness scope is the repository's WHOLE
+projected set, not one book and not one lifecycle status, so a document is
+never retitled because a same-stem sibling's `Status:` header moved. The
+`[spec]` and `[grounding]` families sit outside that scope: they are keyed by a
+promoted capability's directory name and by a fixed three-document set rather
+than by a file stem, and neither can collide with one.
+
+Worth knowing where you are reading it: the rule this replaced said "when the
+file stem is `README` (or otherwise non-unique within a repo)" — the
+parenthesis stated the general obligation and the implementation implemented
+the example, special-casing the literal name `README` and letting everything
+else fall through to a bare stem. Four MedxFactory staging topics shared one
+source, and `--parity` compared title SETS, so it reported OK on books that
+were missing documents. The obligation is now stated over the whole derived
+set precisely so the next repeated stem is answered by the rule instead of by
+a second exception, and parity proves membership at the DOCUMENT level
+(`add-projection-title-uniqueness`, 2026-08-25).
 
 ## 3. Grounding Set
 

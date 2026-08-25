@@ -68,7 +68,7 @@ recorded there rather than implied.
 
 ## 2. Realization — the derivation
 
-- [ ] 2.1 `scripts/sync-notebooklm-books.py`: replace the one-line `README`
+- [x] 2.1 `scripts/sync-notebooklm-books.py`: replace the one-line `README`
       conditional in `scan()` with a repository-scoped uniqueness pass. Two
       steps, in this order, because the scan visits repositories one at a time
       and uniqueness is a property of the finished set: collect each projected
@@ -78,27 +78,63 @@ recorded there rather than implied.
       the same repository; a `README` stem floors at two segments, preserving
       every title today's rule already produces except where that rule was
       itself ambiguous.
-- [ ] 2.2 The `[spec]` and `[grounding]` families stay outside the uniqueness
+      **DONE 2026-08-25.** `scan()` is now two passes over one walk: it
+      collects `(relpath, repository, status, segments)` and hands the
+      projected documents to a new `derive_stems()`, which resolves every stem
+      repository by repository. `title_segments()` carries the repository
+      DIRECTORY as its outermost segment, so a repository-root `README.md`
+      floors at `<repo>/README` — byte for byte the title `f.parent.name`
+      produced. The injectivity is structural, not observed: two documents can
+      only stop at the same suffix string if they stopped at the same DEPTH,
+      and at that depth neither would have found the suffix unshared; a
+      document that never finds one falls back to its whole segment path,
+      which is unique by construction. Re-derived over the ten-repository
+      scratch assembly the design was measured on, the change moves exactly
+      the fourteen titles of `design.md` § 6 and no others, and leaves zero
+      collisions where the replaced rule left three.
+- [x] 2.2 The `[spec]` and `[grounding]` families stay outside the uniqueness
       scope. Both are keyed by something other than a file stem and neither
       collides; measurement showed that including them over-qualified one
       `drafts` title for no reason. Pin the exclusion in code with the reason,
       not as a silent filter.
-- [ ] 2.3 `parity_report()`: compare at the document level. Report a derived
+      **DONE 2026-08-25.** `STEM_SCOPE_EXCLUDES` names both families in code
+      with the measurement that eliminated the alternative. A second scope
+      boundary was found while implementing and is pinned the same way:
+      `PROJECTED_STATUSES`. A `record`, `superseded` or `retired` document is
+      scanned and reaches NO book, so it is not a projected document and must
+      not cost a projected namesake its bare stem — `scan()` now drops it
+      before the uniqueness pass rather than after, and
+      `test_a_record_document_qualifies_nobody` holds that boundary.
+- [x] 2.3 `parity_report()`: compare at the document level. Report a derived
       title carrying more than one path key as a parity FAILURE naming the
       documents, and stop reporting a book as at parity on title-set equality
       alone. This is the check that could not see the defect it existed to
       catch; the amendment is what makes the next instance loud.
-- [ ] 2.4 `docs/lifecycle-notebook-projection.md` § 2: replace the
+      **DONE 2026-08-25.** The mode now builds `{title: [relpaths]}` per book
+      from the desired map and reports every title carrying more than one
+      document as `PARITY FAIL … COLLAPSED <title>` followed by the paths, on
+      the CORPUS alone — no provider call is needed to see it. Title-set
+      equality is no longer sufficient: the `PARITY OK` line requires an empty
+      collapse set as well, and now reads in documents rather than in titles.
+- [x] 2.4 `docs/lifecycle-notebook-projection.md` § 2: replace the
       "Title rule for ambiguous stems" paragraph with the injective rule, and
       add the `Amended by:` line the doc's header convention requires. Note in
       passing that the sentence being replaced already stated the general rule
       in its parenthesis — "or otherwise non-unique within a repo" — and that
       the implementation implemented the example instead. That is the shape of
       failure worth recording where the next reader will meet it.
+      **DONE 2026-08-25.** Section 2 now opens with the identity-key
+      mechanism — why a shared title is one source and not two — then states
+      the shortest-distinguishing-suffix rule, the repository scope, the
+      `README` floor, and the two excluded families. The closing paragraph
+      records the failure shape where the next reader meets it: the
+      parenthesis stated the general obligation and the implementation
+      implemented the example. The header carries
+      `Amended by: add-projection-title-uniqueness (ratified 2026-08-25)`.
 
 ## 3. Tests
 
-- [ ] 3.1 A collision fixture covering the three real shapes this corpus
+- [x] 3.1 A collision fixture covering the three real shapes this corpus
       contains, not one generic pair: several documents sharing a stem inside
       one directory family (`ideation/staging/<topic>/topic.md`, four of them);
       two documents whose PARENT directories also match
@@ -106,22 +142,50 @@ recorded there rather than implied.
       eliminates a one-level qualifier); and a pair split across two directory
       families (`ideation/brainstorm/<slug>.md` against
       `ideation/staging/<slug>/<slug>.md`).
-- [ ] 3.2 An INJECTIVITY assertion over the whole derived set, per book:
+      **DONE 2026-08-25.** `TitleUniquenessTests._world` writes all three
+      shapes at their REAL paths, plus the latent `memory-gateway/README` pair
+      that the replaced rule was itself ambiguous about, plus five documents
+      that must not move: a lone `topic.md` in OpsxFactory, a unique
+      `ideation/README.md`, a repository-root `README.md`, a `record`
+      namesake, and a governance document whose stem is a promoted
+      capability's directory name.
+- [x] 3.2 An INJECTIVITY assertion over the whole derived set, per book:
       `len(set(desired[book].values())) == len(desired[book])`. This is the
       assertion whose absence let the class exist. It must be written over the
       derived set rather than over the fixture's expected titles, so a future
       derivation change cannot satisfy it by agreeing with itself.
-- [ ] 3.3 A STABILITY assertion: change a fixture document's `Status:` header
+      **DONE 2026-08-25.** `_assert_injective()` reads only the derived map,
+      never the expected-title table, and it is ONE method so the mutation
+      check in 3.6 runs that assertion rather than a paraphrase of it.
+- [x] 3.3 A STABILITY assertion: change a fixture document's `Status:` header
       and assert that no other document's title moves. This pins the
       repository-scope choice structurally — under a (book, status) scope this
       test fails, which is the point.
-- [ ] 3.4 A parity-blindness regression: build a state with a collapse present
+      **DONE 2026-08-25.** `test_a_status_change_moves_no_other_title` flips
+      `examples/memory-gateway/README.md` from `draft` to `standard` and
+      asserts every other document's title is byte-identical, and that the
+      moved document keeps its own qualifier. Verified to be the pin it claims
+      to be: with the scope narrowed to (repository, status) it reds, together
+      with the § 6 enumeration test.
+- [x] 3.4 A parity-blindness regression: build a state with a collapse present
       and assert `parity_report` reports FAILURE. Written against the old
       behaviour it must fail; that is the acceptance evidence for §2.3.
-- [ ] 3.5 A FLOOR assertion: a `README` that is unique in its repository still
+      **DONE 2026-08-25.** `ParityProvesDocumentsTests` builds the exact state
+      the old check passed — a live account whose bracket-titled sources are
+      set-equal to the derived titles — under the reverted derivation, and
+      asserts first that the two title sets ARE equal and then that parity
+      returns 1 naming the collapsed documents. The assertion on set equality
+      is what makes it a regression against the old behaviour rather than a
+      new test that happens to pass.
+- [x] 3.5 A FLOOR assertion: a `README` that is unique in its repository still
       carries its parent directory, so the amendment never SHORTENS an existing
       title. Measurement caught a prototype doing exactly that.
-- [ ] 3.6 Mutation checks on the assertions that carry the guarantee, chosen
+      **DONE 2026-08-25.** The assertion runs over EVERY derived README in the
+      fixture, not one named case: each carries at least two segments, and its
+      last two segments equal what the replaced rule produced — which for a
+      repository-root README is `<repo>/README`, the case a naive
+      repository-relative segment list would have shortened.
+- [x] 3.6 Mutation checks on the assertions that carry the guarantee, chosen
       against the classes this repository has been bitten by. (i) Break
       injectivity — revert the derivation to the bare stem — and confirm 3.2
       reds; an assertion that passes against the defective derivation is not
@@ -131,10 +195,26 @@ recorded there rather than implied.
       (iii) Assert on the derived STRUCTURE, not on rendered strings alone, so
       a path-separator or `str(Path)` substitution cannot survive a
       value-equality check.
-- [ ] 3.7 Run the whole `tests/notebooklm` suite, not the new file alone: 94
+      **DONE 2026-08-25, and run out of tree as well as in it.** (i) and (ii)
+      are standing tests that drive the defective derivations directly, so
+      they cannot rot. Both were also run as REAL source mutations against the
+      shipped file: reverting `derive_stems` to the bare stem reds 8 cases
+      including 3.2; narrowing the uniqueness scope to (repository, status)
+      reds exactly 2 — the stability assertion and the § 6 enumeration — which
+      is the latent-pair claim and nothing else. (iii)
+      `test_titles_are_derived_from_structure_not_from_a_rendered_path`
+      asserts the segment TUPLE, that no segment contains a separator in
+      either direction, and that the checklist qualifier is three segments
+      deep because two still collide.
+- [x] 3.7 Run the whole `tests/notebooklm` suite, not the new file alone: 94
       existing cases read `scan()` output and several assert on exact titles.
       Any of them that must move is evidence about the migration's blast
       radius and belongs in the §4 record.
+      **DONE 2026-08-25 — 129 passed, 13 subtests, and NOT ONE existing case
+      had to move.** That is itself evidence about the blast radius: every
+      title in the existing fixtures was already unique in its repository, so
+      the amendment is invisible to them, exactly as a collision-triggered
+      rule should be.
 
 ## 4. The sync that migrates the books, and the archive gate
 
