@@ -1,0 +1,13 @@
+schema: spec-driven
+created: 2026-08-24
+# NO ORIGIN BLOCK YET, DELIBERATELY. The `ad_hoc` origin kind carries a
+# REQUIRED `approved_on`, and the proposal-origin family reports its absence as
+# an error — correctly, because an ad-hoc origin is the exception to the staged
+# queue and the exception is what has to be approved explicitly. This packet is
+# `Status: draft`: Brett assigned the scout and draft of it, not its approval,
+# so there is no approval date to record and inventing one would be the defect
+# the check exists to catch. The two other draft packets in this repository
+# (`create-medxchart-overlay-boundary`, `create-medxpractice-overlay-boundary`)
+# carry exactly this minimal shape for the same reason. The origin block is
+# filled in when the change is approved; the provenance meanwhile lives in the
+# proposal's `Origin:` front-matter and in issue #312.
