@@ -5654,14 +5654,25 @@ async function refusedAncestryLeadsTheSummary() {
 
 // ---- …and an `unchanged` row is not something to report ------------------
 //
-// The companion case to the one above. A tile Save scopes to ONE document and
-// the outline always rides along; when the outline is CLEAN it reports
-// `unchanged`, which is a row with nothing to say. It arrives FIRST in save
-// order, so a lead chosen from "every row that is not committed" takes it and
-// the refusal behind it never reaches the human -- the #81 defect again, from
-// the other end. `tileSaveVerdict` already filters to the withheld set
+// The companion case to the one above, in TWO scenarios since issue #291.
+//
+// `cleanOutlineDoesNotTakeTheLead` is the real-orchestrator half. A tile Save
+// scopes to ONE document; the canvas hands the seam the buffers that CHANGED,
+// so a clean outline is not in the reshaped state and -- since #291 stopped
+// `saveBufferOrder` inventing the reserved key -- gets no row at all. The
+// refused document is therefore the only row, it leads, and the clean outline's
+// own region states its honest condition (`no unsaved changes`) rather than a
+// Save verdict about an act it was never part of.
+//
+// `vacuousRowNeverLeads` keeps the RULE pinned where the shape now lives: the
+// canvas reads whatever rows a seam hands it, `unchanged` is a declared
+// per-buffer status, and a lead chosen from "every row that is not committed"
+// takes the vacuous row and buries the refusal behind it -- the #81 defect from
+// the other end. `tileSaveVerdict` filters to the withheld set
 // (`refused`/`not_attempted`); the visible line must use the SAME set, which is
-// what makes "the two surfaces agree" true rather than nearly true.
+// what makes "the two surfaces agree" true rather than nearly true. The rows are
+// scripted here on purpose: that is exactly the shape the orchestrator used to
+// produce, and the canvas must still refuse to lead with it.
 async function cleanOutlineDoesNotTakeTheLead() {
   const { controller } = await mount({
     save: (request) => runSave(savePlanState(request), {
@@ -5680,6 +5691,74 @@ async function cleanOutlineDoesNotTakeTheLead() {
     eventNote: String(controller.elements().eventNote().textContent),
     statusA: String(controller.elements().status(DOC_A).textContent),
     statusOutline: String(controller.elements().status('outline').textContent),
+  };
+  controller.destroy();
+  return read;
+}
+
+// The scripted half: a seam answer that DOES carry a vacuous row, first.
+const VACUOUS_REFUSAL = 'the document base moved under this buffer';
+
+async function vacuousRowNeverLeads() {
+  const { controller } = await mount({
+    save: async (request) => ({
+      status: 'refused',
+      buffers: [
+        { key: 'outline', status: 'unchanged', action: null, ref: null,
+          revision: null, content_hash: null, message: null },
+        { key: DOC_A, status: 'refused', action: 'edit-document', ref: null,
+          revision: null, content_hash: null, message: VACUOUS_REFUSAL },
+      ],
+    }),
+  });
+  await controller.loadDocumentForEditing(DOC_A);
+  await controller.edit(DOC_A, '# Document A edited\n');
+  const outcome = await controller.saveDocument(DOC_A);
+  const read = {
+    rows: outcome.buffers.map((row) => ({ key: row.key, status: row.status })),
+    tileError: outcome.error,
+    eventNote: String(controller.elements().eventNote().textContent),
+    statusA: String(controller.elements().status(DOC_A).textContent),
+    statusOutline: String(controller.elements().status('outline').textContent),
+  };
+  controller.destroy();
+  return read;
+}
+
+// …and the CONJUNCTION Brett actually ruled: a vacuous row AND nothing
+// withheld. `vacuousRowNeverLeads` above scripts a refusal beside the vacuous
+// row, so it is caught by the lead being WRONG; this one scripts a SUCCESS
+// beside it, so the only way to pass is for the line to stay away entirely.
+// That is the ruled case -- a fully successful Save flashing `Outline: nothing
+// to save in this buffer` about the buffer the human did not act on -- and
+// without this scenario, offering the line to every not-committed row is caught
+// by neither of the other two (one still leads with its refusal, the other has
+// no vacuous row left to offer it since #291).
+async function vacuousRowBesideASuccessTakesNoLine() {
+  const { controller } = await mount({
+    save: async (request) => ({
+      status: 'committed',
+      buffers: [
+        { key: 'outline', status: 'unchanged', action: null, ref: null,
+          revision: null, content_hash: null, message: null },
+        { key: DOC_A, status: 'committed', action: 'edit-document',
+          ref: SESSION_REF, revision: 'rev-1',
+          content_hash: identity(DOC_A + 'saved'), message: null },
+      ],
+    }),
+  });
+  await controller.loadDocumentForEditing(DOC_A);
+  await controller.edit(DOC_A, '# Document A edited\n');
+  const outcome = await controller.saveDocument(DOC_A);
+  const note = controller.elements().eventNote();
+  const read = {
+    rows: outcome.buffers.map((row) => ({ key: row.key, status: row.status })),
+    ok: outcome.ok === true,
+    error: outcome.error,
+    eventNoteText: String(note.textContent),
+    eventNoteHidden: note.hidden === true,
+    statuses: Object.fromEntries(controller.bufferKeys().map(
+      (k) => [k, String(controller.elements().status(k).textContent)])),
   };
   controller.destroy();
   return read;
@@ -5992,6 +6071,8 @@ console.log(JSON.stringify({
   contextOnlyTileSave: await contextOnlyTileSave(),
   refusedAncestry: await refusedAncestryLeadsTheSummary(),
   cleanOutlineLead: await cleanOutlineDoesNotTakeTheLead(),
+  vacuousRowLead: await vacuousRowNeverLeads(),
+  vacuousRowBesideSuccess: await vacuousRowBesideASuccessTakesNoLine(),
   nothingToSay: await nothingToSayTakesNoLine(),
   unadoptableIdentity: await unadoptableIdentityThroughTheRealOrchestrator(),
   unadoptableRow: await committedRowThisCanvasCannotAdopt(),
@@ -6300,28 +6381,29 @@ def test_the_one_visible_save_line_leads_with_the_first_failing_cause(
         assert row["message"] in statuses[row["key"]]
 
 
-def test_an_unchanged_row_never_takes_the_one_visible_save_line(
+def test_a_clean_outline_gets_no_row_and_the_refusal_leads(
     loaded_set_results,
 ):
     """R-5 (openxFactory #81), the companion case: `unchanged` is not a report.
 
-    A tile Save scopes to one document and the outline rides along. A CLEAN
-    outline reports `unchanged` -- a row with nothing to say -- and it arrives
-    FIRST in save order, ahead of the document that was actually refused. A
-    lead chosen from "every row that is not `committed`" therefore takes the
-    vacuous row and the refusal never reaches the human, which is the #81
-    defect arriving from the other end.
+    RESHAPED by issue #291 (2026-08-24), which removed the row this scenario
+    used to be built on. A tile Save scopes to one document, and the canvas
+    hands the seam the buffers that CHANGED -- so a clean outline is not in the
+    state `savePlanState` reshapes, and `saveBufferOrder` no longer invents the
+    reserved key for it. The refused document is the only row there is.
 
-    The line must come from the SAME set the tile verdict already uses -- the
-    withheld rows, `refused` and `not_attempted` -- so that the two surfaces
-    agree in fact and not only in the common case.
+    What the scenario still pins is the half that was always the point: the
+    visible line is the REFUSED row's own verdict, it is the same sentence the
+    tile verdict leads with, and the clean outline -- untouched by an act it was
+    never part of -- states its own honest condition instead of a Save verdict.
+    The vacuous-row lead itself is pinned on the scripted rows next door, which
+    is where that shape now lives.
     """
     result = loaded_set_results["cleanOutlineLead"]
     statuses = [(row["key"], row["status"]) for row in result["rows"]]
-    # the shape: a vacuous row FIRST, the real failure behind it
-    assert statuses[0][1] == "unchanged", statuses
-    refused = [row for row in result["rows"] if row["status"] == "refused"]
-    assert len(refused) == 1, statuses
+    # the shape after #291: no verdict about a buffer the reshaped state does
+    # not hold, so the real failure is the only row
+    assert statuses == [("ideation/staging/topic-x/detail.md", "refused")], statuses
 
     note = result["eventNote"]
     # the line is the refused row's own verdict, the opening of its own region
@@ -6329,8 +6411,89 @@ def test_an_unchanged_row_never_takes_the_one_visible_save_line(
     # …and NOT the clean outline's "nothing to save in this buffer"
     assert "nothing to save" not in note, note
     assert not result["statusOutline"].startswith(note), (note, result)
-    # …and it is the very sentence the tile verdict leads with (same set)
+    # the outline says what is TRUE of it -- it is clean -- rather than carrying
+    # a verdict from a Save that neither sent it nor was asked about it
+    assert result["statusOutline"] == "Outline: no unsaved changes", result
+    # …and the line is the very sentence the tile verdict leads with (same set)
     assert result["tileError"] in note, (note, result["tileError"])
+
+
+def test_a_vacuous_unchanged_row_never_takes_the_visible_line(
+    loaded_set_results,
+):
+    """R-5 (openxFactory #81), the rule the scenario above used to carry.
+
+    The canvas leads its ONE transient line from whatever rows a seam hands it,
+    and `unchanged` is a declared per-buffer status. Handed a vacuous row FIRST
+    and the real refusal behind it -- exactly the shape the orchestrator
+    produced before issue #291 -- a lead chosen from "every row that is not
+    `committed`" takes the vacuous row and the refusal never reaches the human.
+
+    The line must come from the SAME set the tile verdict already uses -- the
+    withheld rows, `refused` and `not_attempted` -- so that the two surfaces
+    agree in fact and not only in the common case.
+    """
+    result = loaded_set_results["vacuousRowLead"]
+    statuses = [(row["key"], row["status"]) for row in result["rows"]]
+    # the shape this defect needs: a vacuous row FIRST, the real failure behind it
+    assert statuses[0] == ("outline", "unchanged"), statuses
+    refused = [row for row in result["rows"] if row["status"] == "refused"]
+    assert len(refused) == 1, statuses
+
+    note = result["eventNote"]
+    # the line is the refused row's own verdict, the opening of its own region
+    assert result["statusA"].startswith(note), (note, result["statusA"])
+    # …and NOT the vacuous row's "nothing to save in this buffer"
+    assert "nothing to save" not in note, note
+    assert not result["statusOutline"].startswith(note), (note, result)
+    # nothing is hidden by the choice: the vacuous row still states itself in
+    # its OWN region, which is where the per-buffer report lives (FR-035)
+    assert "nothing to save in this buffer" in result["statusOutline"], result
+    # …and the line is the very sentence the tile verdict leads with (same set)
+    assert result["tileError"] in note, (note, result["tileError"])
+
+
+def test_a_vacuous_row_beside_a_success_still_takes_no_line(
+    loaded_set_results,
+):
+    """R-5 (openxFactory #81), Brett's ruling of 2026-08-24, at the CONJUNCTION
+    it was ruled on: a vacuous row AND nothing withheld.
+
+    The test above catches the bad lead by the line being WRONG -- it scripts a
+    refusal beside the vacuous row, so leading from "everything not committed"
+    picks the outline instead of the refusal. That leaves the ruled case itself
+    uncovered on this branch, because the ruling is about a Save where NOTHING
+    failed: the only wrong answer available is the line appearing at all, and
+    since #291 removed the vacuous row from the real orchestrator, no scenario
+    driving the real seam can still produce one beside a success.
+
+    So it is scripted here. `unchanged` remains a status a seam may state, the
+    canvas leads from whatever rows it is handed, and a Save with nothing
+    withheld must say NOTHING -- not `Outline: nothing to save in this buffer`
+    about the buffer the human did not act on, standing in for the one they did.
+
+    The line going quiet is the absence of a PROBLEM, not the absence of a
+    report: the committed buffer's own region still states what it committed as,
+    and the vacuous row still states itself in its own region (FR-035).
+    """
+    result = loaded_set_results["vacuousRowBesideSuccess"]
+    statuses = [(row["key"], row["status"]) for row in result["rows"]]
+    # the shape the ruling is about: a vacuous row FIRST, and nothing withheld
+    assert statuses[0] == ("outline", "unchanged"), statuses
+    assert not [row for row in result["rows"]
+                if row["status"] in ("refused", "not_attempted")], statuses
+
+    # THE RULING: no visible line at all, and the region is hidden rather than
+    # left showing an empty box.
+    assert result["eventNoteText"] == "", result["eventNoteText"]
+    assert result["eventNoteHidden"] is True, result
+
+    # …and nothing was lost by the silence.
+    assert result["ok"] is True, result
+    assert result["error"] is None, result["error"]
+    assert "saved as edit-document" in result["statuses"][
+        "ideation/staging/topic-x/detail.md"], result
+    assert "nothing to save in this buffer" in result["statuses"]["outline"], result
 
 
 def test_a_save_with_nothing_withheld_leaves_the_visible_line_alone(
@@ -6339,14 +6502,19 @@ def test_a_save_with_nothing_withheld_leaves_the_visible_line_alone(
     """R-5 (openxFactory #81), Brett's ruling of 2026-08-24: a Save with
     nothing withheld says NOTHING on the one transient line.
 
-    The third case in the family. A tile Save scopes to one document and the
-    outline rides along `unchanged`; before the lead was narrowed to the
-    withheld set, that vacuous row was "not committed" and took the line, so a
-    fully SUCCESSFUL save flashed `Outline: nothing to save in this buffer` --
-    a report about the buffer the human did not act on, standing in for the one
-    they did. Narrowing the lead realized the ruling; this pins it, because a
-    ruled behaviour that nothing asserts is one refactor away from silently
-    ceasing to hold.
+    The third case in the family. A tile Save scopes to one document; before the
+    lead was narrowed to the withheld set, the clean outline's vacuous
+    `unchanged` row was "not committed" and took the line, so a fully SUCCESSFUL
+    save flashed `Outline: nothing to save in this buffer` -- a report about the
+    buffer the human did not act on, standing in for the one they did. Narrowing
+    the lead realized the ruling; this pins it, because a ruled behaviour that
+    nothing asserts is one refactor away from silently ceasing to hold.
+
+    Issue #291 then removed the vacuous row itself, at its source: the clean
+    outline is not in the state the seam is handed, so no verdict is stated
+    about it. The ruling is unchanged and so is every assertion below it -- the
+    row that could have taken the line is simply gone as well as ignored, which
+    is a narrower fact than this test needs and never a wider one.
 
     The line going quiet is the absence of a PROBLEM, not the absence of a
     report, so the second half matters as much as the first: the committed
@@ -6357,12 +6525,15 @@ def test_a_save_with_nothing_withheld_leaves_the_visible_line_alone(
     result = loaded_set_results["nothingToSay"]
     rows = result["rows"]
     statuses = [(row["key"], row["status"]) for row in rows]
-    # the shape: nothing withheld, and a vacuous `unchanged` row riding along
+    # the shape: nothing withheld, and (since #291) no vacuous row either
     assert not [row for row in rows
                 if row["status"] in ("refused", "not_attempted")], statuses
-    assert ("outline", "unchanged") in statuses, statuses
+    assert not [row for row in rows if row["status"] == "unchanged"], statuses
     committed = [row for row in rows if row["status"] == "committed"]
     assert len(committed) == 1, statuses
+    # the clean outline still states its own condition in its own region --
+    # nothing was lost by not stating a verdict about it
+    assert result["statuses"]["outline"] == "Outline: no unsaved changes", result
 
     # THE RULING: no visible line at all, and the region is hidden rather than
     # left showing an empty box.

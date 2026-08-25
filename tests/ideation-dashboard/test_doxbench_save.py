@@ -976,8 +976,12 @@ def test_a_refused_second_save_never_rewrites_the_first_saves_commit(
 # hand-built state (`savePlanState({state})` yields `{key: undefined,
 # buffers: {}}`, an empty plan). It now drives savePlanState with the real
 # request shape and runs the plan end to end: a lone document ROW plans, is
-# sent, and commits, while the absent outline is reported `unchanged` rather
-# than blocking anything.
+# sent, and commits, while the absent outline blocks nothing.
+#
+# Issue #291 (2026-08-24) corrected what "blocks nothing" was allowed to look
+# like. This test used to pin the absent outline as reported `unchanged` -- a
+# verdict about a buffer the state does not hold. It is now reported not at all;
+# the dedicated pins are the issue-#291 set at the end of this module.
 # ---------------------------------------------------------------------------
 
 _ABSENT_OUTLINE_HARNESS = """
@@ -1051,10 +1055,12 @@ def test_an_absent_outline_buffer_no_longer_blocks_the_document_save(absent_outl
         "refusal": None,
     }]
     # and the run itself: the document is sent and commits; the absent outline
-    # is reported `unchanged` rather than blocking the document behind it
+    # blocks nothing behind it, and (issue #291) is not reported on either --
+    # a verdict is a statement of fact about a buffer, and this state holds no
+    # outline buffer to state one about
     assert r["sent"] == ["document"]
     outcome = {row["key"]: row["status"] for row in r["outcome"]}
-    assert outcome == {"outline": "unchanged", "document": "committed"}
+    assert outcome == {"document": "committed"}
 
 
 # ---------------------------------------------------------------------------
@@ -1459,3 +1465,238 @@ def test_the_tile_save_cannot_commit_a_document_without_the_ancestry(
     by_key = {row["key"]: row for row in scoped["rows"]}
     assert by_key["outline"]["status"] == "refused"
     assert by_key["ideation/staging/topic-x/alpha.md"]["status"] == "not_attempted"
+
+
+# ==========================================================================
+# Issue #291: A VERDICT IS A STATEMENT OF FACT ABOUT A BUFFER, so there must
+# be no verdict about a buffer the state does not hold.
+#
+# `saveBufferOrder` prepended the reserved outline key UNCONDITIONALLY, so an
+# absent-outline state -- the legitimate T100 P1-3 shape the module documents
+# and skips everywhere else -- still carried `outline` through `runSave`'s row
+# loop, where the not-planned branch reported it `unchanged`: a statement about
+# a buffer that does not exist. It was inert at both known consumers (the
+# editor's apply pass skips a row whose key the state does not hold, and
+# `tileSaveVerdict` withholds nothing on `unchanged`), which is exactly why it
+# needed pinning rather than leaving: `savePlanState` is an EXPORTED seam, and a
+# caller reading `outcome.buffers` directly reads the phantom row.
+#
+# The two halves are pinned together on purpose. Dropping the phantom row is
+# only correct while the outline STILL LEADS whenever the state does hold one --
+# the ancestry-first ordering rule (design D3 point 1) -- so the companion
+# scenarios below fail if the fix over-reaches and drops a real outline row or
+# demotes it out of first place.
+# ==========================================================================
+
+_PHANTOM_OUTLINE_HARNESS = r"""
+const { runSave, saveOrder, saveBufferOrder, savePlanState } =
+  await import('./doxbench-save.js');
+
+const KEY = { repository: 'fixture-repo', ref: 'main',
+              tile_kind: 'staged', tile_id: 'no-outline-topic' };
+const OUTLINE = 'ideation/staging/no-outline-topic/no-outline-topic.md';
+const ALPHA = 'ideation/staging/no-outline-topic/alpha.md';
+const ZULU = 'ideation/staging/no-outline-topic/zulu.md';
+
+const hex = (seed) => {
+  let out = '';
+  for (const ch of String(seed)) out += ch.charCodeAt(0).toString(16).padStart(2, '0');
+  return out.padEnd(64, '0').slice(0, 64);
+};
+const identity = (seed) => ({ algorithm: 'sha256', hex: hex(seed) });
+
+function buffer(kind, path, { dirty = true, owned = true } = {}) {
+  const base = identity(path + 'base');
+  return {
+    kind, path, owned, repository: KEY.repository,
+    base_ref: 'main', base_revision: 'rev',
+    base_hash: base, base_content: '# ' + path + '\n',
+    current_hash: dirty ? identity(path + 'curr') : base,
+    content: dirty ? '# ' + path + ' edited\n' : '# ' + path + '\n',
+    dirty, load_state: 'ready', hash_generation: dirty ? 1 : 0,
+    hash_pending: false,
+  };
+}
+
+function transportFor(calls) {
+  let n = 0;
+  return async (request) => {
+    calls.push({ kind: request.kind, document: request.document });
+    n += 1;
+    return {
+      ok: true, ref: 'draft/no-outline-topic', revision: 'newrev-' + n,
+      document: request.document,
+      content_hash: { algorithm: 'sha256', hex: hex(request.document + 'saved') },
+    };
+  };
+}
+
+async function run(stateValue) {
+  const calls = [];
+  const outcome = await runSave(stateValue, { transport: transportFor(calls) });
+  return {
+    calls,
+    status: outcome.status,
+    rows: outcome.buffers.map((r) => ({ key: r.key, status: r.status })),
+    stateKeys: Object.keys(outcome.state.buffers),
+  };
+}
+
+// THE SEAM THE ISSUE NAMES. The editor hands over one request row per buffer it
+// holds; a staged topic with no outline document sends no outline row at all.
+const seamRequest = {
+  key: KEY,
+  buffers: [
+    { key: ZULU, ...buffer('document', ZULU) },
+    { key: ALPHA, ...buffer('document', ALPHA) },
+  ],
+};
+const planned = savePlanState(seamRequest);
+
+// The same absence spelled the other way: the key is PRESENT and holds nothing.
+// `validatedState` and `saveOrder` both read `== null` as "not held", so the row
+// loop must read it the same way or the module disagrees with itself.
+const nullOutlineState = {
+  key: KEY, active_buffer: ALPHA,
+  buffers: { outline: null, [ALPHA]: buffer('document', ALPHA) },
+};
+
+// The companions: a state that DOES hold an outline, clean and dirty.
+function heldOutlineState(over = {}) {
+  return {
+    key: KEY, active_buffer: ALPHA,
+    buffers: {
+      outline: buffer('outline', OUTLINE, over.outline || {}),
+      [ZULU]: buffer('document', ZULU),
+      [ALPHA]: buffer('document', ALPHA),
+    },
+  };
+}
+
+console.log(JSON.stringify({
+  // The issue's own literal case, spelled exactly as it reported it.
+  orderOfNothing: saveBufferOrder([]),
+  orderWithoutOutline: saveBufferOrder([ZULU, ALPHA]),
+  orderWithOutline: saveBufferOrder([ZULU, 'outline', ALPHA]),
+  planStateKeys: Object.keys(planned.buffers),
+  planRows: saveOrder(planned).map((r) => r.key),
+  absentOutline: await run(planned),
+  nullOutline: await run(nullOutlineState),
+  heldDirtyOutline: await run(heldOutlineState()),
+  heldCleanOutline: await run(heldOutlineState({ outline: { dirty: false } })),
+}));
+"""
+
+
+@pytest.fixture(scope="module")
+def phantom_outline_results(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the absent-outline verdict probe")
+    root = tmp_path_factory.mktemp("doxbench-save-phantom-outline")
+    (root / "views").mkdir()
+    shutil.copy(SAVE_JS, root / "views" / "doxbench-save.js")
+    shutil.copy(STATE_JS, root / "views" / "doxbench-state.js")
+    (root / "package.json").write_text('{"type": "module"}', encoding="utf-8")
+    harness = root / "views" / "phantom-outline-harness.mjs"
+    harness.write_text(_PHANTOM_OUTLINE_HARNESS, encoding="utf-8")
+    done = subprocess.run([NODE, str(harness)], capture_output=True, text=True,
+                          timeout=60)
+    assert done.returncode == 0, done.stderr
+    return json.loads(done.stdout)
+
+
+def test_the_save_order_prepends_the_outline_only_when_the_state_holds_one(
+        phantom_outline_results):
+    """Issue #291, at the ordering function itself. The reserved key names the
+    ANCESTRY buffer; a key set that does not contain it describes a state with no
+    ancestry buffer to persist, and an order that names it anyway is inventing a
+    buffer for every later reader to trip over."""
+    # the issue's own literal case first: `saveBufferOrder([])` is the empty
+    # order, not a one-row order about a buffer nobody has
+    assert phantom_outline_results["orderOfNothing"] == [], (
+        "saveBufferOrder([]) invented a buffer out of an empty key set")
+    assert phantom_outline_results["orderWithoutOutline"] == [
+        "ideation/staging/no-outline-topic/alpha.md",
+        "ideation/staging/no-outline-topic/zulu.md",
+    ], "saveBufferOrder named a buffer the key set does not contain"
+
+
+def test_the_outline_still_leads_the_order_whenever_the_state_holds_one(
+        phantom_outline_results):
+    """The companion guard (design D3 point 1). Dropping the unconditional
+    prepend must not cost the ancestry-first rule: an outline in the key set
+    still leads, and the documents still follow in the declared order,
+    whatever order the keys arrived in."""
+    assert phantom_outline_results["orderWithOutline"] == [
+        "outline",
+        "ideation/staging/no-outline-topic/alpha.md",
+        "ideation/staging/no-outline-topic/zulu.md",
+    ]
+
+
+def test_an_absent_outline_produces_no_outline_verdict_row(
+        phantom_outline_results):
+    """Issue #291's own case, through the seam it names: `savePlanState` reshapes
+    an editor request with NO outline row, and every row `runSave` reports is
+    then a statement about a buffer the state actually holds."""
+    scenario = phantom_outline_results["absentOutline"]
+    assert phantom_outline_results["planStateKeys"] == [
+        "ideation/staging/no-outline-topic/zulu.md",
+        "ideation/staging/no-outline-topic/alpha.md",
+    ]
+    assert phantom_outline_results["planRows"] == [
+        "ideation/staging/no-outline-topic/alpha.md",
+        "ideation/staging/no-outline-topic/zulu.md",
+    ]
+    reported = [row["key"] for row in scenario["rows"]]
+    assert "outline" not in reported, (
+        "runSave stated a verdict about an outline buffer the state does not "
+        f"hold: {scenario['rows']!r}")
+    assert reported == [
+        "ideation/staging/no-outline-topic/alpha.md",
+        "ideation/staging/no-outline-topic/zulu.md",
+    ]
+    # …and the fix costs the documents nothing: both are still sent, in the
+    # declared order, and both still land.
+    assert [c["document"] for c in scenario["calls"]] == reported
+    assert scenario["status"] == "committed"
+    assert all(row["status"] == "committed" for row in scenario["rows"])
+    assert "outline" not in scenario["stateKeys"]
+
+
+def test_an_outline_key_holding_nothing_is_not_a_buffer_to_report_on(
+        phantom_outline_results):
+    """The second spelling of the same absence. `validatedState` and `saveOrder`
+    both read a null-valued key as NOT HELD (the T100 P1-3 skip); the row loop
+    must agree, or the module reports a verdict about the one buffer its own
+    planner declined to plan."""
+    scenario = phantom_outline_results["nullOutline"]
+    reported = [row["key"] for row in scenario["rows"]]
+    assert reported == ["ideation/staging/no-outline-topic/alpha.md"], (
+        "a null-valued outline key was reported on: "
+        f"{scenario['rows']!r}")
+
+
+def test_a_held_outline_is_still_reported_first_dirty_or_clean(
+        phantom_outline_results):
+    """The companion that catches the over-reaching fix. A state that HOLDS an
+    outline gets its outline row, first, whether the outline is dirty (sent as
+    the ancestry step, committed) or clean (skipped, reported `unchanged`) --
+    the honest verdict the not-planned branch exists for."""
+    dirty = phantom_outline_results["heldDirtyOutline"]
+    assert [row["key"] for row in dirty["rows"]] == [
+        "outline",
+        "ideation/staging/no-outline-topic/alpha.md",
+        "ideation/staging/no-outline-topic/zulu.md",
+    ]
+    assert dirty["rows"][0]["status"] == "committed"
+    assert dirty["calls"][0]["kind"] == "outline"
+
+    clean = phantom_outline_results["heldCleanOutline"]
+    assert [row["key"] for row in clean["rows"]] == [
+        "outline",
+        "ideation/staging/no-outline-topic/alpha.md",
+        "ideation/staging/no-outline-topic/zulu.md",
+    ]
+    assert clean["rows"][0]["status"] == "unchanged"
+    assert [c["kind"] for c in clean["calls"]] == ["document", "document"]

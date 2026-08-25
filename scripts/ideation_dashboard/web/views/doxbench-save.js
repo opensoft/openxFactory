@@ -81,11 +81,20 @@ export const SAVE_DOCUMENT_ORDER_RULE =
 
 // The whole ordering rule, in one exported function, so no caller can iterate a
 // buffer map's own key order and call it an order.
+//
+// The outline leads WHEN THE KEY SET HOLDS ONE, and is not invented when it does
+// not (issue #291). The prepend used to be unconditional, which stated the
+// reserved key as a fact about this MODULE rather than about the state it was
+// handed, and so named a buffer for the legitimate absent-outline state this
+// file skips everywhere else (see `validatedState` below). Membership is read
+// the way the state module reads it -- the key is in the set, or it is not.
 export function saveBufferOrder(bufferKeys) {
-  const documents = Array.from(bufferKeys).filter(
-    (key) => key !== OUTLINE_BUFFER_KEY);
+  const keys = Array.from(bufferKeys);
+  const documents = keys.filter((key) => key !== OUTLINE_BUFFER_KEY);
   documents.sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
-  return Object.freeze([OUTLINE_BUFFER_KEY, ...documents]);
+  return Object.freeze(keys.includes(OUTLINE_BUFFER_KEY)
+    ? [OUTLINE_BUFFER_KEY, ...documents]
+    : documents);
 }
 
 export const SAVE_ACTION_EDIT = "edit-document";
@@ -442,8 +451,14 @@ export async function runSave(stateValue, options = {}) {
     if (scoped !== null && !scoped.has(key)) continue;
     const row = planned.get(key);
     if (!row) {
-      // Not dirty: reported `unchanged` rather than silently omitted, and it
-      // never blocks anything -- there was nothing to land.
+      // A buffer the state does not HOLD gets no verdict at all (issue #291):
+      // a verdict is a statement of fact about a buffer, and there is no fact
+      // to state about one that does not exist. `== null` is the same
+      // not-held rule `validatedState` and `saveOrder` already read, so the
+      // report cannot name a buffer the planner declined to plan.
+      if (state.buffers[key] == null) continue;
+      // Held but not dirty: reported `unchanged` rather than silently omitted,
+      // and it never blocks anything -- there was nothing to land.
       rows.push(outcomeRow(key, { status: "unchanged" }));
       continue;
     }
