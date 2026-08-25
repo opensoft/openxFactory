@@ -661,6 +661,23 @@ def main(argv=None) -> int:
                 dispositions.add((d.get("family"), d.get("repo"),
                                   d.get("path")))
     unavailable_families = set()
+    # A family this run was CONFIGURED not to execute never gets a chance to
+    # re-confirm or refute its prior findings, so its absence from
+    # `result.findings` must never read as "resolved" — the same rule the
+    # readiness/neutrality exclusions below already encode for lanes that
+    # merge post-render. Two run shapes configure a family out: an explicit
+    # `--skip-family`, and a single `--family` run, which executes ONLY the
+    # named family (`run_suite`'s `only_family` branch) and silently never
+    # reaches every OTHER registered family at all. Found during review of
+    # PR #325 (add-promotion-fidelity-check task 4.2): the promotion-fidelity
+    # CONTESTED flip widened the exposure (a nightly `--skip-family
+    # promotion-fidelity` would have manufactured a spurious
+    # uncited-resolution for it), but the gap predates the flip and applied
+    # equally to every other CONTESTED family (record-immutability,
+    # location-conformance, etc.) any time a run skipped one of them.
+    unavailable_families.update(args.skip_family)
+    if args.family:
+        unavailable_families.update(set(FAMILIES) - {args.family})
     if semantic_meta is not None and semantic_meta.skipped_reason:
         unavailable_families.update(semantic.SEMANTIC_FAMILY_IDS)
     # The ideation-readiness lane's `contested` findings are folded into the
