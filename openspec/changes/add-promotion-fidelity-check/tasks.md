@@ -6,9 +6,12 @@ decisions were taken by the orchestrating session under standing patterns and
 are flagged for veto in `proposal.md` § Orchestrator Decisions — reverting any
 one of them is an edit to this change, not a new one.
 
-**§4 is deliberately OPEN and stays open.** The family ships advisory. Flipping
-it to enforcing is a ruling, and leaving the box unticked is how that stays
-visible rather than becoming a silent later commit.
+**§4 WAS deliberately open, and it closed the way it was meant to.** The family
+shipped advisory; flipping it to enforcing was a ruling, and leaving the boxes
+unticked is what kept that visible until Brett made it (2026-08-24, task 4.1)
+instead of letting it become a silent later commit. All three boxes are now
+ticked, in the ruled order: the ruling (4.1), the discharge of the standing
+population (4.3), and only then the both-halves flip (4.2).
 
 ## 1. Ratification
 
@@ -147,6 +150,14 @@ visible rather than becoming a silent later commit.
 - [x] 3.6 **The advisory launch is pinned structurally**: every finding
       `warning`, and `promotion-fidelity` absent from `FAMILY_RESOLUTION`.
       Both, because enforcement can arrive through either.
+      **RE-AIMED BY §4.2, NOT DELETED.** These two tests now pin the
+      ENFORCING state — `error`, and a `contested` entry PRESENT — because
+      the flip was ruled and taken. The claim in this line is the historical
+      one and is kept as written; the tests that carry it forward are
+      `test_enforcement_by_severity` and
+      `test_enforcement_by_resolution_class`, and the reason there are still
+      exactly two of them is unchanged: enforcement can arrive through
+      either half, so each is pinned separately.
 - [x] 3.7 Full suite green: `python3 -m pytest tests/doc-health` →
       764 passed, 7 skipped (baseline 737/7, +27 new).
       `python3 -m pytest tests/ideation-dashboard -k workbench` → 140 passed.
@@ -226,7 +237,7 @@ visible rather than becoming a silent later commit.
       base rather than restated, because the claim they support is about the
       RULE and not about today's canon.
 
-## 4. The flip to enforcing — OPEN, and a ruling not a judgement call
+## 4. The flip to enforcing — RULED, SEQUENCED, and taken
 
 - [x] 4.1 **Decide whether this family gates.** It ships advisory because
       nobody has measured what the pinned domain factories' archives will
@@ -276,17 +287,145 @@ visible rather than becoming a silent later commit.
       medx-roottruth-install +27) where the ruling recorded 57 (30 + 27). The
       shapes and the packets are the same four; the count is re-derived in
       §3.10 from live `origin/main`s on 2026-08-24 rather than copied.
-- [ ] 4.2 **If ruled enforcing, both halves move together**: severity
+- [x] 4.2 **If ruled enforcing, both halves move together**: severity
       `warning` → `error` in `promotion_fidelity._LAUNCH_SEVERITY`, AND a
       `"promotion-fidelity": CONTESTED` entry in `families.FAMILY_RESOLUTION`.
       Taking either alone produces a half-enforcing family nobody chose —
       severity alone gates without the disposition discipline; the contested
       class alone gates through `uncited-resolution` under a family name that
       does not say what happened.
-- [ ] 4.3 **If ruled enforcing, the standing population is discharged
+      **DONE — BOTH HALVES, ONE COMMIT, after 4.3's discharge was verified by
+      measurement rather than assumed.** `_LAUNCH_SEVERITY = ERROR` (the
+      identifier keeps its name: it records where the value STARTED, and a
+      rename would have cost the grep that ties every reader of the launch
+      decision together) and `FAMILY_RESOLUTION` gains one row. Both site
+      comments now cite the ruling and supersede what they used to say —
+      honestly, not by deletion: 2.3's recorded reason for the ABSENCE from
+      `FAMILY_RESOLUTION` was correct for an advisory family and is wrong for
+      an enforcing one, so the registration site says that in those words
+      rather than pretending the absence was never argued for. The
+      `contested` class routing a resolved finding into
+      `report.uncited_resolutions` as an ERROR is the SAME mechanism in both
+      states; what changed is whether it is a back door or the point.
+      **THE TESTS CHANGED MEANING, and that is a design fact rather than a
+      weakening** (§3.7's discipline). `test_launch_is_advisory_by_severity`
+      and `test_launch_is_advisory_by_resolution_class` — 3.6's structural
+      pins — are now `test_enforcement_by_severity` and
+      `test_enforcement_by_resolution_class`, asserting `ERROR` and
+      `FAMILY_RESOLUTION[FAMILY] == CONTESTED`. They pin the opposite of what
+      they pinned yesterday. That is the flip, and it is the only honest way
+      to hold it: a test that still asserted `warning` would have had to be
+      deleted, and a deleted pin is how a ruled state quietly stops being
+      pinned. TWO NEW END-TO-END PINS were added rather than relying on the
+      constants, because the declaration and the application are different
+      facts: `test_both_halves_reach_the_emitted_findings` runs `runner.main`
+      over the fixture and reads `severity=error` and `class="contested"` off
+      the emitted report lines (`runner.main` is the ONLY thing that applies
+      `FAMILY_RESOLUTION` — the family function still labels its findings
+      `auto-fixable`, so a table row some refactor stopped reading would pass
+      the declaration test and fail this one), and
+      `test_an_enforcing_run_reds_a_fail_on_error_gate` measures the point of
+      the flip: the same fixture that returned 0 under `--fail-on error`
+      through the whole advisory launch now returns non-zero, while
+      `--fail-on critical` still returns 0 — the family rose to ERROR, not to
+      CRITICAL. Three further assertions moved with the severity (the
+      presumption fixture's severity set, the report-ordering test's
+      `- [error]` marker, and the module docstring's item 3).
+      **THE BOTH-HALVES INVARIANT IS PINNED BY MUTATION, both directions,
+      measured on the mutant.** Reverting `_LAUNCH_SEVERITY` to `WARNING`
+      while KEEPING the resolution row → **5 failures**
+      (`test_enforcement_by_severity`,
+      `test_both_halves_reach_the_emitted_findings`,
+      `test_an_enforcing_run_reds_a_fail_on_error_gate`,
+      `test_the_presumption_fixture_fires_exactly_three_times`,
+      `test_the_report_states_the_basis_under_the_family_heading`). Removing
+      the `FAMILY_RESOLUTION` row while KEEPING `ERROR` → **2 failures**
+      (`test_enforcement_by_resolution_class`,
+      `test_both_halves_reach_the_emitted_findings`). Neither half can move
+      alone and land green, which is what task 4.2 asked for structurally
+      rather than by convention.
+      **NO FINDING MOVED IN THIS REPOSITORY, as predicted.** Whole-repo
+      `doc-health --single-repo .` before and after the flip: 4 critical, 8
+      error, 73 warning, 4 info — and the two reports are BYTE-IDENTICAL, not
+      merely equal in their totals. The flip changes what a finding COSTS, and
+      openxFactory has none in this family to cost anything.
+      **THE DELTA WAS AMENDED TO MATCH, because a flip that left the promoted
+      requirement saying `warning` would have made this family's own canon the
+      next instance of the class it checks.** The `doc-health` delta's
+      advisory-at-launch paragraph now states the enforcing rule in both
+      halves and keeps the launch as recorded history rather than replacing
+      it; the two scenarios that named a severity now say `error` ("A ratified
+      delta did not reach canon" also gains the `--fail-on` direction and the
+      resolution class it must carry, replacing the line that said the finding
+      must NOT fail an `--fail-on error` run); and `document-lifecycle`'s
+      "advisory finding" becomes "reported finding", since that capability
+      owns the OBLIGATION and never owned doc-health's severity. **Every
+      scenario was restated — 12 before, 12 after, across the same three
+      requirements** — the dropped-scenarios lesson this family exists to
+      catch being exactly the failure available to a careless edit here.
+      `openspec validate add-promotion-fidelity-check --strict`: valid.
+- [x] 4.3 **If ruled enforcing, the standing population is discharged
       FIRST.** `govern-openspec-corpus-membership` established the ordering
       and the reason: "A gate that goes red on the commit that introduces it
       teaches everyone to route around the gate."
+      **DISCHARGED, AND VERIFIED BY RE-MEASUREMENT ON THE DAY OF THE FLIP —
+      not by trusting the discharging PRs' own claims.** The standing
+      population 4.1 named had three parts, and each was re-run today from
+      the merged state rather than read out of a PR body:
+      1. **openxFactory's two true gaps** — the only standing FINDINGS
+         anywhere in 4.1's corpus-wide evidence. Discharged by **openxFactory
+         PR #316**, merge `51a875ab`, which ratified and archived
+         `2026-08-25-apply-branch-sessions-deltas` (the §5.1 ruling; drift
+         checked before applying, fidelity proven by sha256). Re-measured
+         here at `700c1a19`: **0 findings, on BOTH bases** — pinned and
+         `--promotion-fidelity-basis live-main`.
+      2. **hermes-install's coverage gap** (4.1: 0 found but 30 requirements
+         exempt-invisible, coverage 57.8%). Discharged by **hermes-install
+         PR #42**, merge `2a4d719c`. Re-measured today against that live
+         `origin/main`: **0 findings**, the newly examined population clean.
+      3. **medx-roottruth-install's coverage gap** (4.1: 27 exempt-invisible,
+         coverage 0%). Discharged by **medx-roottruth-install PR #1**, merge
+         `89dca824`. Re-measured against that live `origin/main`: **0
+         findings**.
+      **The domain backlogs' zero** is the fourth part, and the ruling did
+      not ask for PRs for it — it ruled the zero "recorded as a one-time
+      verified-clean statement rather than standing findings". That statement
+      lives in THIS packet: §4.1's per-repo counts (landed by PR #315,
+      `1274b9bf`) and §3.10's corpus-wide re-derivation from live mains
+      (landed by PR #320, `055a514b`). It is deliberately NOT a set of
+      register addenda — `docs/archive-record-discrepancies.md` records the
+      commissioning and the family's first live catch, and its per-domain
+      FU-DOM entries are the LIFECYCLE-HEADER campaign's, a different class.
+      Cite the four rows above and this paragraph; a reader looking for four
+      domain register addenda for this family will not find them, because
+      they were never owed.
+      **CORPUS-WIDE RE-MEASUREMENT, today, live mains fetched fresh** (14
+      governed submodules, `git fetch origin main` only — no checkout, reset,
+      merge or pull anywhere): **0 findings, 0 critical, 0 error, 0 warning,
+      0 info.** The gate goes green on the commit that introduces it, which
+      is the whole ordering rule.
+      **TWO HONEST FACTS THE RE-MEASUREMENT SURFACED**, recorded because a
+      later reader will otherwise re-derive them:
+      - **The same run on the PINNED basis reports 2 findings, and they are
+        openxFactory's already-discharged pair.** The aggregation's committed
+        `openxFactory` pin is 22 commits behind `origin/main` and predates
+        `042df4e7`, so the pinned tree still holds the pre-discharge canon.
+        This is not a standing gap; it is D5's argument reproducing itself on
+        demand — the exact reason Brett ruled this family measures live mains.
+        The nightly passes `--promotion-fidelity-basis live-main` (§2.6), so
+        the enforcing gate reads the 0, not the 2. A run that did NOT pass it
+        would red on a gap that no longer exists.
+      - **`corpus.discover_repos` scans `openxFactory` plus `xFactories/*`
+        only; `installs/` is never scanned.** So hermes-install and
+        medx-roottruth-install — the two repositories whose discharge this
+        task sequenced the flip behind — are not in an AGGREGATION run's repo
+        set at all, and their zeros above were measured by direct
+        `--single-repo` runs. This is pre-existing behaviour shared by all
+        eighteen families, not something the flip introduces and not this
+        change's to alter; it means the ruled prerequisite was discharged for
+        the repositories' own sake and the nightly cannot red on them today
+        either way. Named here rather than left for the next reader to trip
+        over.
 
 ## 5. Recorded, not fixed
 
@@ -336,12 +475,28 @@ visible rather than becoming a silent later commit.
       `doc-health` delta ("The promotion fidelity measurement basis is
       declared") and reaches the document when that delta is promoted, which
       is the same door the eighteenth family itself is waiting at.
-- [ ] 5.3 **`python3 -m pytest tests` (the whole directory at once) fails
+      **AND THE SAME RULE KEEPS §4.2's FLIP OUT OF IT.** That document's
+      severity table illustrates `error` as "Malformed/unresolved marker;
+      free-form status; aging past escalation" — a list this family now
+      belongs on. Adding it would put a `standard` document ahead of the
+      promoted spec that backs it, exactly as the family table and the basis
+      note would. All three arrive together when this change's `doc-health`
+      delta is promoted. Box stays open: the table is still twelve rows and
+      the gap is still real.
+- [x] 5.3 **`python3 -m pytest tests` (the whole directory at once) fails
       collection on a duplicate test basename**, `test_header_value_readers.py`
       in both `tests/doc-health/` and `tests/ideation-dashboard/`. Verified
       pre-existing on a clean `origin/main` checkout with no working-tree
       changes. Not this change's to fix; recorded because a reviewer running
       the obvious command will hit it.
+      **CLOSED ELSEWHERE, AND TICKED SO THE PACKET STOPS SAYING SOMETHING
+      UNTRUE.** `74af6cc4` (PR #304, "Test infra: whole-suite pytest collects
+      again and runs on every PR", #292) removed the `tests/doc-health/`
+      duplicate. Re-verified at `700c1a19` on the §4.2 flip: `python3 -m
+      pytest tests --collect-only` collects **6418 tests** clean. The box is
+      ticked as DISCHARGED-BY-ANOTHER-CHANGE, not as work done here — this
+      change never owned it, and the reviewer this note was written for no
+      longer hits the defect.
 
 ## 6. Archive
 

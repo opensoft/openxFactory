@@ -53,14 +53,16 @@ repository's own `origin/main`. The nightly runs this ONE family against live
 mains by ruling — see `_open_tree` and `basis_notes` for why, and for how the
 report is made to say which basis produced its findings.
 
-CLASSIFICATION AT LAUNCH IS ADVISORY, deliberately. Every finding is
-WARNING, so `--fail-on error` (and `--fail-on critical`) cannot red on this
-family, and the family is deliberately ABSENT from
-`families.FAMILY_RESOLUTION` — see `_LAUNCH_SEVERITY`'s note for why
-registering it as `contested` would have re-opened an enforcement path
-through the back door. The flip to enforcing is an open task in
-`openspec/changes/add-promotion-fidelity-check/tasks.md`, not a judgement
-call available here.
+CLASSIFICATION IS NOW ENFORCING, by ruling and in both of its halves. Every
+finding is ERROR, so `--fail-on error` reds on this family, and the family is
+registered `contested` in `families.FAMILY_RESOLUTION`, so a finding that
+vanishes between reports owes a citation. It launched ADVISORY — WARNING, and
+absent from that table — and the flip was taken as ONE decision on 2026-08-24
+(Brett, task 4.1's four-question round, PR #315: "ENFORCING, SEQUENCED"),
+after the standing population it would have gated on was discharged first.
+See `_LAUNCH_SEVERITY` for why the two halves could not move apart, and
+`openspec/changes/add-promotion-fidelity-check/tasks.md` §4.2/§4.3 for the
+ruling and the discharge evidence.
 """
 
 from __future__ import annotations
@@ -68,7 +70,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from . import Finding, Skip, TAXONOMY, WARNING
+from . import ERROR, Finding, Skip, TAXONOMY
 from . import corpus
 
 FAMILY = "promotion-fidelity"
@@ -97,23 +99,35 @@ BASIS_PINNED = "pinned"
 BASIS_LIVE_MAIN = "live-main"
 LIVE_REF = "origin/main"
 
-# The launch severity, named once. Advisory means WARNING: `runner.main`'s
-# gate is `{CRITICAL}` or `{CRITICAL, ERROR}`, so a WARNING family reports
-# without reddening anything. The `staged-topic-template` family is the
-# house precedent for exactly this shape ("reports non-conformance and
-# DELIBERATELY NEVER BLOCKS A GATE").
+# This family's severity, named once. The name records where the value
+# STARTED, and the value records the ruling that moved it: ERROR now, so
+# `runner.main`'s `--fail-on error` gate (`{CRITICAL, ERROR}`) reds on a
+# ratified delta that never reached canon. It launched WARNING, on the
+# `staged-topic-template` precedent ("reports non-conformance and
+# DELIBERATELY NEVER BLOCKS A GATE"), because nobody had yet measured what
+# the domain factories' archives would say.
 #
-# The family is ALSO absent from `families.FAMILY_RESOLUTION`, which is the
-# less obvious half of the same decision. A `contested` resolution class
-# would be the semantically right label — the remedy here is a governance
-# act, not a mechanical edit — but `report.uncited_resolutions` turns a
-# contested finding that VANISHES between reports into an ERROR under the
-# `uncited-resolution` family. That would mean the first time anyone
-# actually promoted a delta this family reported, the nightly went red: an
-# enforcement channel arriving through the back door on the very run that
-# proves the advisory launch worked. Severity and resolution class flip
-# TOGETHER, once, by ruling.
-_LAUNCH_SEVERITY = WARNING
+# The family is ALSO registered `contested` in `families.FAMILY_RESOLUTION`,
+# and that is the less obvious half of the SAME decision — the two cannot
+# move apart. `report.uncited_resolutions` turns a contested finding that
+# VANISHES between reports into an ERROR under the `uncited-resolution`
+# family. Under the advisory launch that was a back door: the nightly would
+# have gone red the first time anyone actually promoted a delta this family
+# reported, on the very run that proved the advisory launch worked. Under
+# enforcement it is the discipline the ruling wanted — the remedy here is a
+# governance act, not a mechanical edit, so a finding that disappears owes a
+# citation. Taking either half alone produces a family nobody chose: severity
+# alone gates without the disposition discipline; the contested class alone
+# gates through `uncited-resolution`, under a family name that does not say
+# what happened.
+#
+# FLIPPED 2026-08-24 by ruling — Brett, task 4.1's four-question round
+# (PR #315), verbatim "ENFORCING, SEQUENCED" — and sequenced behind the
+# discharge of the standing population, per `govern-openspec-corpus-
+# membership`'s rule that "a gate that goes red on the commit that
+# introduces it teaches everyone to route around the gate". The discharge
+# evidence is tasks.md §4.3.
+_LAUNCH_SEVERITY = ERROR
 
 _SECTION = re.compile(r"^##\s+(ADDED|MODIFIED|REMOVED|RENAMED)\s+Requirements\s*$")
 _REQUIREMENT = re.compile(r"^###\s+Requirement:\s*(.+?)\s*$")
@@ -523,8 +537,12 @@ def _is_exempt_from_promotion(tree, change: str) -> bool:
 
     THE PRESUMPTION IS THE CONSERVATIVE DIRECTION NOW, and it was not before:
     an unexamined ratified delta is a governance gap reporting itself healthy,
-    while a wrongly examined one is an advisory WARNING that a `draft` header
-    or a cited disposition retires. A packet with no proposal at all, or with
+    while a wrongly examined one is a finding that a `draft` header or a cited
+    disposition retires. (The relaxation was ruled while this family was still
+    advisory, so that finding was a WARNING then and is an ERROR now — the
+    asymmetry the argument turns on is unchanged, but the cost of being on the
+    wrong side of it is not, which is why both retiring routes are named.)
+    A packet with no proposal at all, or with
     a status the taxonomy does not recognize, is therefore examined —
     `fam_status_validity` already reports the missing or invalid header
     itself, over the lifecycle scan set `govern-openspec-corpus-membership`
