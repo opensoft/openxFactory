@@ -21,10 +21,12 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
 - [ ] 1.2 Confirm the INTAKE FOLD still matches `add-doxchat-model-intake`'s
       delta at archive time. This change's `:1045` text is canon PLUS intake's
       additions (the one-non-model-INTAKE-affordance paragraph, the widened
-      "browser loads model choices" bullet, and the "The intake affordance is
-      submitted as a model" scenario) PLUS this change's own widening — folded in
-      now rather than deferred, so whichever archives second does not drop the
-      other's text.
+      "browser loads model choices" bullet, the "The intake affordance is
+      submitted as a model" scenario, and the "Hosted doxBench is opened"
+      intake-affordance-absence bullet) PLUS this change's own widening —
+      folded in now rather than deferred, so whichever archives second does
+      not drop the other's text.
+      2026-08-25 — intake's hosted-plane bullet folded per #351.
 - [ ] 1.2a Note for the coordinator, NOT fixed here: intake's own delta restates
       an OLDER `:1045` and would silently revert canon on archive. Confirm the
       filed issue exists before either change archives.
