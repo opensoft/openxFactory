@@ -784,7 +784,8 @@ Active changes:
   layout demoted to a project schema a human (`PA`) elects and that confers
   nothing. **The substrate, named with nothing pretended** after three council
   seats independently found the proposal treating described controls as existing
-  ones: S1 wires `validate-openxwallet` into CI as a required check (at
+  ones: S1 wires `validate-openxwallet` into CI (advisory until an
+  operator marks it required — see "Wallet validation gate" above; at
   authoring it ran in no workflow at all, so no grant was operative); S2
   anchors the issuer (root
   issuer = the responsible operator, standing under the Human Escalation
