@@ -65,10 +65,18 @@ EDITORIAL = frozenset({
 _BUNDLE = re.compile(r"^contract_bundle_version:\s*(\S+)\s*$", re.M)
 # The inventory is parsed with regex rather than a YAML load because this
 # package is stdlib-only — no `yaml` import appears anywhere in it, and adding
-# a dependency to read a file whose shape is fixed by its own schema would be a
-# poor trade. Entries are `path:` followed by `digest:` and `git_mode:` within
-# the same list item; the schema fixes that shape and the inventory is machine
-# written, never hand-edited.
+# a dependency for one file is a poor trade.
+#
+# WHAT ACTUALLY GUARANTEES THE KEY ORDER, stated honestly (PR review P3-1). An
+# earlier note here claimed "the schema fixes that shape", which is FALSE: JSON
+# Schema cannot constrain key order, and `release-digest-inventory.schema.yaml`
+# does not try. What is true is narrower and sufficient: every inventory in this
+# repository is MACHINE-WRITTEN by `release.build_release_inventory`, which
+# emits `path` before `digest` for every entry, and a sweep of all 190 members
+# of the current bundle finds zero counterexamples. A hand-edited inventory is
+# already forbidden — the family's own action text says so — so the remaining
+# risk is a future writer changing its key order, and `parse_inventory` refuses
+# loudly rather than silently mis-attributing if that ever happens.
 _ENTRY_PATH = re.compile(r"^\s*-?\s*path:\s*(\S+)\s*$")
 _ENTRY_DIGEST = re.compile(r"^\s*digest:\s*sha256:([0-9a-f]{64})\s*$")
 _ENTRY_MODE = re.compile(r"^\s*git_mode:\s*'?([0-7]{6})'?\s*$")
@@ -97,11 +105,18 @@ def parse_inventory(text: str) -> dict[str, dict[str, str]]:
             current = m.group(1)
             entries.setdefault(current, {})
             continue
-        if current is None:
-            continue
         m = _ENTRY_DIGEST.match(line)
         if m:
+            if current is None:
+                # A digest before any path: the writer's key order changed, and
+                # guessing which member it belongs to is exactly the silent
+                # mis-attribution this parser must not perform.
+                raise ValueError(
+                    "release inventory: a digest appears before any path — "
+                    "the writer's key order is not the one this parser reads")
             entries[current]["digest"] = m.group(1)
+            continue
+        if current is None:
             continue
         m = _ENTRY_MODE.match(line)
         if m:
@@ -132,6 +147,16 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
                             f"at {commit}")
     manifest = blobs.get(MANIFEST)
     if manifest is None:
+        # WHICH ABSENCE IS THIS? `cat-file --batch` answers `missing` both for
+        # a path that does not exist AT a good commit and for a spec whose
+        # COMMIT does not resolve at all, so the bare `None` cannot tell them
+        # apart — and reporting "no manifest" for an unresolvable commit is a
+        # misattribution that would send a reader looking in the wrong place
+        # (PR review P3-2). One extra probe distinguishes them, and it runs only
+        # on this already-degenerate path.
+        if git.tree_modes(repo_path, commit) is None:
+            return Skip(FAMILY, f"{repo}: {commit} does not resolve to a "
+                                f"readable commit")
         return Skip(FAMILY, f"{repo}: no {MANIFEST} at {commit}, so no "
                             f"contract bundle is declared")
 
@@ -188,8 +213,19 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
             # family looks for, and the blob reader returning None for an
             # absent path is DATA — a git failure would have collapsed the
             # whole call above, which is the distinction that makes this safe.
+            #
+            # UNCONDITIONALLY `ERROR`, INCLUDING FOR AN EDITORIAL MEMBER. The
+            # ratified scenario is unqualified — "a deleted normative member is
+            # the strongest form of the drift this family exists to catch" —
+            # and the editorial allowance is about members that legitimately
+            # MOVE between cuts, not ones that legitimately VANISH. A deleted
+            # `contracts/CHANGELOG.md` is not an expected steady state under
+            # any reading. The first version of this branch carried
+            # `ERROR if not editorial else INFO`, which contradicted both the
+            # scenario and this module's own docstring taxonomy (PR review
+            # P2-1).
             findings.append(_finding(
-                ERROR if not editorial else INFO, repo, path,
+                ERROR, repo, path,
                 f"inventory member is absent at {commit} but recorded in "
                 f"{bundle!r}", _CUT_ACTION))
             continue
@@ -215,7 +251,23 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
 
 
 def fam_release_inventory_drift(ctx):
-    """Every repository in scope that declares a contract bundle."""
+    """Every repository in scope that declares a contract bundle.
+
+    A PER-REPOSITORY SKIP IS REPORTED, NOT DROPPED (PR review P2-2). The
+    ratified obligation is per-repository — a family that cannot run "MUST be
+    reported as skipped, never silently omitted" — and the family-level `Skip`
+    return can only carry the ALL-SKIPPED case. In this factory the everyday
+    state is the mixed one: most pinned repositories declare no contract bundle
+    at all, so a design that only spoke up when every repository skipped would
+    be silent about five of six on every single run, which is the shape of
+    "silently omitted" the requirement names.
+
+    Each skipped repository therefore contributes an `info` finding carrying its
+    reason. `info` because a repository that declares no bundle is an inventory
+    fact rather than a defect — the same band the editorial drift uses, and one
+    that reddens no gate. The family-level `Skip` is kept for the case it
+    genuinely describes: nothing in scope was askable at all.
+    """
     results: list[Finding] = []
     skips: list[str] = []
     scoped = sorted(ctx.repo_paths.items())
@@ -225,11 +277,16 @@ def fam_release_inventory_drift(ctx):
         outcome = check_repo(repo, Path(repo_path), ctx.git)
         if isinstance(outcome, Skip):
             skips.append(outcome.reason)
+            results.append(_finding(
+                INFO, repo, MANIFEST,
+                f"not checked: {outcome.reason}",
+                "no action — this repository's release surface was not "
+                "evaluated, and the reason is recorded rather than omitted"))
             continue
         results.extend(outcome)
-    if not results and skips and len(skips) == len(scoped):
-        # EVERY repository declined the question, so the family did not run.
-        # Reported as a skip naming the reasons rather than as an empty pass,
-        # which would read as "checked, nothing wrong".
+    if skips and len(skips) == len(scoped):
+        # EVERY repository declined the question, so the family did not run at
+        # all. Reported as a family-level skip naming the reasons rather than as
+        # a list of info findings that would read as "checked, nothing wrong".
         return Skip(FAMILY, "; ".join(skips))
     return results

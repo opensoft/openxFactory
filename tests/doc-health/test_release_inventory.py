@@ -385,3 +385,125 @@ def test_every_finding_names_the_cut_and_forbids_the_hand_edit():
     for finding in outcome:
         assert "cut a release" in finding.action
         assert "never hand-edit" in finding.action
+
+
+# ------------------------------------------------- the ratified-text fixes
+#
+# Two conformance gaps a review found against the RATIFIED delta, not against
+# taste: the code disagreed with a scenario in one place and with a
+# per-repository obligation in another. Both are pinned here.
+
+
+def test_an_absent_EDITORIAL_member_is_an_error_too():
+    """The ratified scenario is UNQUALIFIED — "a deleted normative member is
+    the strongest form of the drift this family exists to catch" — and the
+    editorial allowance is about members that legitimately MOVE between cuts,
+    not ones that legitimately VANISH. A deleted `contracts/CHANGELOG.md` is
+    not an expected steady state under any reading.
+
+    The first version of the absence branch carried
+    `ERROR if not editorial else INFO`, which contradicted both the scenario and
+    the module's own docstring taxonomy."""
+    outcome = _run(_world(BASE, absent=(CHANGELOG,)))
+    errors = _sev(outcome, ERROR)
+    assert [f.path for f in errors] == [CHANGELOG]
+    assert "absent at HEAD" in errors[0].rule
+    assert _sev(outcome, INFO) == []
+
+
+def test_absence_outranks_the_editorial_band_for_every_member():
+    """Every editorial member EXCEPT the manifest, and the exception is not a
+    gap: the manifest's absence means no bundle is DECLARED at all, which is
+    the skip arm rather than the drift arm. There is no state in which a
+    declared bundle's own manifest is missing from the tree it was read from."""
+    testable = sorted((EDITORIAL & set(BASE)) - {MANIFEST})
+    assert testable, "the fixture must carry at least one absentable member"
+    for path in testable:
+        outcome = _run(_world(BASE, absent=(path,)))
+        assert [f.severity for f in outcome if f.path == path] == [ERROR], path
+
+
+def test_a_skipped_repository_is_REPORTED_not_silently_omitted():
+    """The ratified obligation is PER-REPOSITORY: a family that cannot run
+    "MUST be reported as skipped, never silently omitted". The family-level
+    Skip can only carry the all-skipped case, and in this factory the everyday
+    state is mixed — most pinned repositories declare no bundle — so a design
+    that only spoke up when EVERY repository skipped would be silent about most
+    of them on every run."""
+    from doc_health.release_inventory import fam_release_inventory_drift
+
+    class Ctx:
+        repo_paths = {"declaring": Path("declaring"), "silent": Path("silent")}
+        git = None
+
+    declaring = _world(BASE)
+    ctx = Ctx()
+    # one repo declares a bundle and matches; the other has no manifest at all
+    ctx.git = FakeGit(
+        blobs={(("declaring"), k[1]): v for k, v in declaring.blobs.items()},
+        modes={(("declaring"), k[1]): v for k, v in declaring.modes.items()})
+    out = fam_release_inventory_drift(ctx)
+    assert not isinstance(out, Skip), "one repo was askable, so not a family skip"
+    silent = [f for f in out if f.repo == "silent"]
+    assert len(silent) == 1
+    assert silent[0].severity == INFO
+    assert "not checked" in silent[0].rule
+    assert "declares no contract_bundle_version" in silent[0].rule or \
+           "no contracts/manifest.yaml" in silent[0].rule
+
+
+def test_all_repositories_skipping_is_still_a_family_skip():
+    from doc_health.release_inventory import fam_release_inventory_drift
+
+    class Ctx:
+        repo_paths = {"a": Path("a"), "b": Path("b")}
+        git = FakeGit(blobs={}, modes={})
+    out = fam_release_inventory_drift(Ctx())
+    assert isinstance(out, Skip)
+
+
+def test_an_unresolvable_commit_is_not_reported_as_a_missing_manifest():
+    """`cat-file --batch` answers `missing` both for an absent path at a good
+    commit and for a spec whose COMMIT does not resolve, so the bare None
+    cannot tell them apart. Reporting "no manifest" for an unresolvable commit
+    sends a reader looking in the wrong place."""
+    git = FakeGit(blobs={}, modes={}, git_unavailable=False)
+    # blobs_at answers None-per-path (absence) but tree_modes answers None,
+    # which is the signature of a commit that does not resolve
+    git.tree_modes = lambda repo, commit: None
+    outcome = check_repo(REPO, Path(REPO), git)
+    assert isinstance(outcome, Skip)
+    assert "does not resolve" in outcome.reason
+    assert "no contracts/manifest.yaml" not in outcome.reason
+
+
+def test_the_parser_refuses_a_digest_that_precedes_any_path():
+    """The parser reads `path` before `digest` within an entry. That order is
+    guaranteed by the WRITER (`release.build_release_inventory`), not by the
+    schema — JSON Schema cannot constrain key order. So if a future writer
+    changes it, this refuses loudly rather than mis-attributing a digest to the
+    previous member."""
+    with pytest.raises(ValueError, match="digest appears before any path"):
+        parse_inventory("entries:\n  digest: sha256:" + "a" * 64 + "\n")
+
+
+def test_the_never_tagged_bundle_scenario_is_STRUCTURAL_only():
+    """Traceability note rather than a behavioural pin, said here because this
+    is where a reader checks scenario coverage.
+
+    The ratified scenario "The declared bundle was never tagged" is satisfied
+    by CONSTRUCTION: nothing in this family reads a tag. `check_repo` resolves
+    the inventory from `inventory_path_for(declared)` — a path in the tree —
+    and no code path consults `git tag`, `ls-remote`, or a tag object. There is
+    no behaviour to drive that could distinguish a tagged bundle from an
+    untagged one, which is exactly what the scenario asks for."""
+    import inspect
+
+    from doc_health import release_inventory
+    source = inspect.getsource(release_inventory)
+    # Command tokens, not English words: the module's PROSE necessarily says
+    # things like "the declared bundle describes the release surface", so a
+    # bare `describe` substring matches the requirement's own name.
+    for tagish in ('"ls-remote"', '"tag"', '"rev-list"', '"describe"',
+                   '"for-each-ref"', "git tag"):
+        assert tagish not in source, tagish

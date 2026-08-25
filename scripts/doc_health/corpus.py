@@ -445,6 +445,14 @@ class RealGit:
             header = buf[pos:nl].decode("utf-8", "replace")
             pos = nl + 1
             if header.endswith(" missing") or header.endswith(" ambiguous"):
+                # `ambiguous` FOLDS INTO ABSENCE, and that is a deliberate
+                # narrowing rather than an oversight (PR review P3-3). git
+                # answers `ambiguous` for a bare name that could be several
+                # objects; every spec this reader sends is a fully-qualified
+                # `<commit>:<path>`, which cannot be ambiguous. The branch
+                # exists so an unexpected answer degrades to "not there" rather
+                # than desynchronising the batch parser, and if it ever fires it
+                # will surface as drift on a member — loud, in the right place.
                 out[spec] = None
                 continue
             fields = header.split()
