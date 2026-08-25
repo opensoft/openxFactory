@@ -244,3 +244,42 @@ def test_readiness_merge_step_always_runs_and_never_gates_on_readiness():
     # above): the whole point is it must run even when they never ran.
     assert "steps.xref-readiness" not in merge["if"]
     assert "steps.xref-dispatch" not in merge["if"]
+
+
+# --- promotion-fidelity live-main basis (add-promotion-fidelity-check 4.1) ---
+
+def test_the_live_main_fetch_precedes_the_run_and_checks_nothing_out():
+    """RULED 2026-08-24 (PR #315): this family measures live mains.
+
+    Two properties, and the second is the one that keeps the ruling narrow:
+    the fetch must happen BEFORE the suite runs, and it must not move a single
+    file — every other family reads the pinned tree the checkout produced, so
+    a `checkout`, `reset`, `merge` or `submodule update` in this step would
+    change what all seventeen of them measure.
+    """
+    finalize = workflow()["jobs"]["finalize"]
+    names = [s.get("name") for s in finalize["steps"]]
+    fetch_name = "Fetch each governed submodule's live origin/main"
+    assert names.index(fetch_name) < names.index("Run doc-health suite")
+
+    fetch = step(finalize, fetch_name)
+    assert fetch["continue-on-error"] is True
+    assert fetch["if"] == "always()"
+    assert "+refs/heads/main:refs/remotes/origin/main" in fetch["run"]
+    for mutating in (" checkout", " reset", " merge", " submodule update",
+                     " switch", " restore"):
+        assert mutating not in fetch["run"], mutating
+
+
+def test_only_the_reporting_run_declares_the_live_main_basis():
+    """The flag belongs to the invocation whose report anyone reads. The
+    prepare-phase runs build bundles and discard their findings, so paying
+    for a live basis there would buy nothing and blur where the ruling
+    applies."""
+    value = workflow()
+    flag = "--promotion-fidelity-basis live-main"
+    assert flag in step(value["jobs"]["finalize"], "Run doc-health suite")["run"]
+    carriers = [s.get("name") for job in value["jobs"].values()
+                for s in job.get("steps", [])
+                if flag in (s.get("run") or "")]
+    assert carriers == ["Run doc-health suite"]

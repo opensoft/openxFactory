@@ -8,6 +8,8 @@ branch-session notebooks, plus the main-only rule made explicit in section 1
 Amended by: split-ideation-book-per-repo (ratified 2026-08-10) — per-repo
 Ideation books, title-based resolution, the capacity guard, and the legacy
 shared Ideation book's retirement, after the 300-source cap incident
+Amended by: reconcile-lifecycle-books-count (ratified 2026-08-24) — the fixed
+"three books" count retired for the topology the split ratified
 Repository context: openxFactory
 Purpose: define the full NotebookLM workflow for the governance corpus — how
 document lifecycle states project into derived notebooks, how those notebooks
@@ -64,11 +66,11 @@ lifecycle; promoted specs are included from `openspec/specs/`), and any
 nested git working copy below a scanned repository root — feature-branch
 worktree checkouts (`<repo>-worktrees/` containers, branch-session worktrees
 included) and embedded clones — so unmerged or duplicate checkouts never
-project into the books. The three books are **MAIN-ONLY without exception**: a
-lifecycle book IS the lifecycle projection, so a book carrying unmerged
-sources is not a stale book but a WRONG one, asserting lifecycle states that
-do not exist. Section 9 is the only surface permitted to read a worktree, and
-it is not a book.
+project into the books. The lifecycle books are **MAIN-ONLY without
+exception**: a lifecycle book IS the lifecycle projection, so a book carrying
+unmerged sources is not a stale book but a WRONG one, asserting lifecycle
+states that do not exist. Section 9 is the only surface permitted to read a
+worktree, and it is not a book.
 
 ## 2. Source Titles
 
@@ -195,9 +197,9 @@ archived `add-doc-health-contract` OpenSpec record).
 ## 7. Temporary Hybrid Analysis Notebooks
 
 Temporary hybrid notebooks support focused idea analysis against governed
-Canon. A hybrid is not one of the three lifecycle books. It is a derived
-analysis workspace containing exactly one Canon release line and exactly one
-origin idea target:
+Canon. A hybrid is not one of the lifecycle books. It is a derived analysis
+workspace containing exactly one Canon release line and exactly one origin
+idea target:
 
 ```text
 Canon release line + ideation/brainstorm/<topic>/
@@ -263,8 +265,8 @@ Ratified by `add-workbench-branch-sessions` (2026-07-26; decisions D11, D16).
 
 A branch session — the workbench's working state on a git branch materialized
 as a worktree — MAY carry exactly ONE session notebook, and it is the only
-notebook surface allowed to read a worktree. It is not one of the three books
-and never becomes one: the books stay main-only (section 1), a session
+notebook surface allowed to read a worktree. It is not one of the lifecycle
+books and never becomes one: the books stay main-only (section 1), a session
 notebook MUST NEVER contribute a source, a title, or a repository name to a
 book, and its existence relaxes the worktree exclusion for no book. Session
 material reaches a book only after the session's pull request merges, by the
@@ -282,7 +284,7 @@ hybrid under that section's charter and seeding rules — a future change, not a
 silent re-point. A notebook is optional throughout: when the NotebookLM quota
 is exhausted the session opens anyway, without one, and the human is told
 whose limit was hit (the quota belongs to the install's ONE DECLARED HOSTING
-ACCOUNT — section 1 — consumed by the three books, every live `xf-wb-*`
+ACCOUNT — section 1 — consumed by the lifecycle books, every live `xf-wb-*`
 reference set, and every live `xf-session-*`, so it scales with concurrent
 tiles across everyone sharing that account). The account being declared does
 not make the ceiling bigger; it makes the ceiling's OWNER nameable, and
@@ -341,7 +343,7 @@ release scope, OpenSpec approval, or customer-facing output.
 
 ## 10. Workspace Records
 
-The three books are registered as `external_source_workspace` records in
+The lifecycle books are registered as `external_source_workspace` records in
 [examples/lifecycle-notebook-workspaces.yaml](../examples/lifecycle-notebook-workspaces.yaml),
 per the source-workspaces record model. A branch-session notebook is NOT
 registered: it is derived state bound to a branch that outlives nothing, and
