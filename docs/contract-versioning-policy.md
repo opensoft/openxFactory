@@ -32,28 +32,54 @@ reserve a minor number before merge order is known, and a bundle is not
 published until its tag exists. Consumers record the human-readable bundle
 tag while pinning the exact commit and required file digests.
 
-### Untagged Bundles After Enforcement Began — a recorded gap
+### Untagged Bundles After Enforcement Began — DISCHARGED 2026-08-25
 
-Three bundles allocated AFTER mandatory tag publication began carry a changelog
-entry and a manifest version but NO published annotated tag: `contract-v1.33`,
-`contract-v1.35` and `contract-v1.39`. Measured against the remote on
-2026-08-24, during the ratification read-through of this policy.
+Three bundles allocated AFTER mandatory tag publication began once carried a
+changelog entry and a manifest version but NO published annotated tag:
+`contract-v1.33`, `contract-v1.35` and `contract-v1.39`. Recorded here as an
+undischarged gap when this policy was ratified, and **DISCHARGED on Brett's
+ruling of 2026-08-25** by publishing each bundle's tag at the commit it was
+actually realized at:
 
-This is recorded rather than resolved, and the rule above is NOT relaxed to
-accommodate it. Each is a bundle the repository treated as real — consumers may
-have pinned its commit — while the tag that this policy makes the publication
-act is missing. Whether each is retro-tagged at its realized commit, recorded as
-a deliberate unpublished allocation the way the legacy sequence is, or
-superseded, is a disposition this policy does not take. Note that retro-tagging
-is not obviously available: the tag must point at the exact realized commit, and
-establishing which commit that was for a bundle nobody tagged is itself the
-work.
+| bundle | realized commit | landed as |
+|---|---|---|
+| `contract-v1.33` | `71674ed58e338bf3f85a7b750b64f5f5ab6d02e1` | PR #190, 2026-08-15 |
+| `contract-v1.35` | `78f8e016fbddcf1125c11b7f11234fb2478b0415` | PR #220, 2026-08-19 |
+| `contract-v1.39` | `1f45e427bf7b2491aec09d2a9c9adeaaa5f99839` | PR #259, 2026-08-22 |
 
-Until disposed of, these three are the known exceptions to "a bundle is not
-published until its tag exists", and a reader must not infer from their
-existence that the rule is advisory.
+RETRO-PUBLISHED, NOT RE-DATED. Each tag names the commit its bundle was really
+realized at; no release was reconstructed, re-cut, or altered, and no version
+number was reused.
 
-### Recovered Legacy Baseline
+HOW THE REALIZED COMMIT WAS ESTABLISHED, recorded because the obvious method is
+wrong. "The commit that introduced the bundle's changelog entry" reproduces only
+five of the ten tags that already existed: where a release was COMPLETED by a
+later commit — `contract-v1.31`, `contract-v1.36`, `contract-v1.37` — the tag
+points at the completion, and where the work landed through a merge —
+`contract-v1.32` — it points at the merge rather than at a branch-internal
+commit. The rule actually used is:
+
+> the EARLIEST FIRST-PARENT COMMIT on published `main` that DECLARES the bundle
+> and at which `verify-commit` PASSES.
+
+That rule reproduces **all ten** previously published tags exactly, including
+`contract-v1.36`'s corrected target, which is why it was trusted for the three
+that had none. `contract-v1.39` is the case that needed it: the commit
+introducing its changelog entry is inside the change branch and is not a
+landing, and tagging that commit would have named a target no other tag's shape
+matches.
+
+Every bundle from `contract-v1.7` — where mandatory publication begins — is now
+tagged. The legacy `contract-v1.0`–`contract-v1.6` sequence remains untagged by
+design, per the recovery recorded below.
+
+RECORDS DESCRIBING THE FORMER GAP STAND AS HISTORY. `docs/archive-record-discrepancies.md`
+(`Status: record`) states that `contract-v1.33` and `contract-v1.35` are not git
+tags. That was true when written and is deliberately NOT edited: a record is
+immutable, exactly as an archived change packet is, and rewriting one to match
+today's state would destroy the evidence of what was true then.
+
+### Recovered Legacy Baseline### Recovered Legacy Baseline
 
 The historical `contract-v1.1` through `contract-v1.6` changelog entries were
 created before tag enforcement and have no corresponding repository tags.
