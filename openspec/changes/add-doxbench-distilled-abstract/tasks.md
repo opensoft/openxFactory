@@ -128,23 +128,23 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
 
 ## 4. `DocumentAbstract` and its verifier
 
-- [ ] 4.1 RED: constructing a `DocumentAbstract` with any `authority` other than
+- [x] 4.1 RED: constructing a `DocumentAbstract` with any `authority` other than
       non-authoritative, or any `regenerable_from` other than the document,
       refuses at construction — the guarantee is structural, as it is for
       `DocumentThread` (`doxbench_threads.py:619`).
-- [ ] 4.2 RED (hand-seeded `dispatch_result`, per N5): an abstract mentioning no
+- [x] 4.2 RED (hand-seeded `dispatch_result`, per N5): an abstract mentioning no
       declared topic and no declared destination is REFUSED, verified against the
       SNAPSHOT'S fields on the FIRST generation with no previous abstract present.
-- [ ] 4.3 RED: an abstract naming a repository path absent from its own request is
+- [x] 4.3 RED: an abstract naming a repository path absent from its own request is
       refused; an abstract naming the wrong subject is refused; an abstract naming
       the subject's own path passes.
-- [ ] 4.4 RED: a verification failure renders NOTHING and states a refusal — it is
+- [x] 4.4 RED: a verification failure renders NOTHING and states a refusal — it is
       never silently downgraded to rendering unverified text.
-- [ ] 4.5 Implement the type and verifier in `doxbench_knowledge.py`. GREEN
+- [x] 4.5 Implement the type and verifier in `doxbench_knowledge.py`. GREEN
       4.1–4.4. Name the check `subject-mention coverage` in the code, and add a
       comment saying why it is not fidelity (`dispatch_turn` returns one opaque
       string, `doxbench_model.py:985`).
-- [ ] 4.6 Assert UNCHANGED: `test_doxbench_packet.py:920-921` still passes with
+- [x] 4.6 Assert UNCHANGED: `test_doxbench_packet.py:920-921` still passes with
       `layer(2).owner == "doxbench_threads.compact_thread"`, and
       `assert_fidelity(2, FIDELITY_LOSSLESS_BY_REFERENCE)` still raises. The
       sibling class must not have touched layer 2's ownership.
