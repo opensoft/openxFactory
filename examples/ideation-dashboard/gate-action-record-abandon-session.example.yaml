@@ -9,7 +9,7 @@
 #   - the record is MAIN-RESIDENT so that it OUTLIVES the branch — the abandon
 #     deletes nothing at abandon time (pushed history and any open pull request
 #     survive as reviewable evidence), and the surviving branch becomes
-#     deletable only once the topic's proposal exists (D17);
+#     deletable only after a separate durable retention release (D17);
 #   - the asymmetry with the merge ending is deliberate: the merge preserved the
 #     work, the abandon did not, so the abandon is the ending that has to leave
 #     a reason behind.

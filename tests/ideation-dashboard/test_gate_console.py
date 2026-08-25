@@ -40,6 +40,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
+import yaml
 
 from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit, find_openxfactory_validator
 
@@ -143,6 +144,26 @@ def test_demote_emits_transition_manifest_plan_register_update_and_a_valid_recor
     assert "transition-manifest" in kinds and "register-update" in kinds
 
     proc = _validate(res.record_path)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+
+
+def test_successful_demotion_execution_writes_a_schema_valid_receipt(tmp_path):
+    root = _tree(tmp_path)
+    res = gc.GateConsole(_gate(root)).demote(
+        _snapshot(root), CHANGE, reason="Reworking scope.", at=AT)
+
+    execution = gc.execute_demotion_plan(res.plan, root, at=AT)
+    receipt_path = gc.write_demotion_execution_receipt(
+        _gate(root), res, execution, at="2026-07-14T12:01:00Z")
+
+    receipt = yaml.safe_load(receipt_path.read_text(encoding="utf-8"))
+    assert receipt["kind"] == gc.DEMOTION_EXECUTION_KIND
+    assert receipt["status"] == "executed"
+    assert receipt["change_id"] == CHANGE
+    assert receipt["destination"]["id"] == TOPIC
+    assert receipt["transition_manifest"] == res.manifest_path.relative_to(root).as_posix()
+    assert receipt["returned_artifacts"]
+    proc = _validate(receipt_path)
     assert proc.returncode == 0, proc.stdout + proc.stderr
 
 

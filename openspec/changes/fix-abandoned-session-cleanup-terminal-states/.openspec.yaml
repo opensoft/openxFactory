@@ -1,0 +1,14 @@
+schema: spec-driven
+created: 2026-08-25
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-25-abandoned-session-cleanup-terminal-states
+  reason: >-
+    Brett identified the cleanup deadlock while retiring the stale
+    draft/company-provisioning-ledger-estate-subject-onboarding-intake session:
+    the governed abandon succeeded, but cleanup refused because the exact tile
+    had no active proposal even though its material was already dispositioned
+    elsewhere. The same active-only test also strands branches whose owning
+    proposal has archived or been explicitly demoted.
+  approved_by: Brett Heap
+  approved_on: 2026-08-25

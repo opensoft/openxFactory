@@ -797,12 +797,40 @@ python3 scripts/ideation_dashboard/cli.py gate abandon-session \
   --scope-kind staged-topic --scope-id <topic-id> \
   --reason "<why this exploration stopped>" [--repository <repository>]
 
-# delete an abandoned session's branch, once the topic's proposal exists
+# delete an abandoned session's local branch after durable retention release
 python3 scripts/ideation_dashboard/cli.py gate cleanup-abandoned-branch \
   --repo-root <served checkout> --actor "<name>" \
   --scope-kind staged-topic --scope-id <topic-id> --ref <branch> \
+  [--retention-release-reason "<why this orphan may be discarded>"] \
+  [--superseding-reference <durable reference>] \
   [--repository <repository>]
 ```
+
+Cleanup resolves retention independently from current tile presence. Its closed
+machine-evidence set is:
+
+1. an active change with the exact declared staged origin (or a surviving
+   possibles-pick compatibility edge),
+2. an archived change whose own `.openspec.yaml` retains that exact staged
+   origin, or
+3. an executed demotion to that exact topic. New `gate demote --execute` runs
+   write a `demotion-execution-receipt`; legacy demotions require both their
+   transition manifest and an exact returned README, INDEX, or round-trip
+   fragment. A transition plan or manifest alone never proves execution.
+
+Cluster, possible, renamed, missing, duplicate, superseded, and otherwise true
+orphan branches use `--retention-release-reason`. The reason is mandatory on
+that lane; `--superseding-reference` may be repeated to identify where material
+was preserved. Missing files, a missing tile, a missing worktree, age, or an
+undelivered `propose` dispatch never count as positive evidence.
+
+Every successful cleanup remains human-invoked and local-only. Before deletion
+it verifies branch ownership, no live session or attached worktree, and a durable
+`abandon-session` proof; then it validates and writes a main-resident
+`cleanup-abandoned-branch` gate-action record containing the exact pre-delete
+head and retention evidence. It never deletes the remote branch. If local branch
+deletion fails, the prepared cleanup record is removed so it cannot claim an
+outcome that did not occur.
 
 Four flags are easy to miss, and each answers a question the surface asks:
 
@@ -1031,8 +1059,9 @@ review:
 - **The abandon ending.** `abandon-session` with a durable reason. The worktree,
   the registry entry, and the notebook go; the branch and any pushed history
   SURVIVE, and deleting the branch later is the separate, human-invoked
-  `cleanup-abandoned-branch` verb — offered only once the topic's proposal
-  exists.
+  `cleanup-abandoned-branch` verb — permitted only after exact active, archived,
+  or executed-demotion custody is proved, or after a human records a separate
+  explicit retention-release reason for a true orphan.
 
 ## 7. Testing rule: a serve used in testing points at a SCRATCH checkout ONLY
 

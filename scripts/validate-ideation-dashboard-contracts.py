@@ -124,6 +124,7 @@ SCHEMA_FILENAMES = [
     "xfactory-workbench-chat-turn.schema.yaml",
     "project-register.schema.yaml",
     "gate-action-record.schema.yaml",
+    "demotion-execution-receipt.schema.yaml",
     "gate-intent.schema.yaml",
 ]
 
@@ -134,6 +135,7 @@ KIND_TO_SCHEMA = {
     "ideation-workbench": "ideation-workbench.schema.yaml",
     "project-register": "project-register.schema.yaml",
     "gate-action-record": "gate-action-record.schema.yaml",
+    "demotion-execution-receipt": "demotion-execution-receipt.schema.yaml",
     "gate-intent": "gate-intent.schema.yaml",
     # doxBench wire family (add-workbench-integrated-editor-chat task 2.1):
     # instance kinds use the retained `workbench-*` identifier family; the

@@ -56,7 +56,7 @@ import shutil
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Mapping, Sequence
 
 import yaml
 
@@ -104,6 +104,7 @@ ACTION_CREATE_DOCUMENT = "create-document"
 ACTION_EDIT_DOCUMENT = "edit-document"
 ACTION_OPEN_PR = "open-pr"
 ACTION_ABANDON_SESSION = "abandon-session"
+ACTION_CLEANUP_ABANDONED_BRANCH = "cleanup-abandoned-branch"
 # add-wheel-action-verbs (011): the three GENERATIVE verbs the wheel's action
 # row commissions. Each is a recorded dispatch — a `workflow-job` descriptor
 # plus a gate-action record — and performs none of the work it commissions.
@@ -153,6 +154,8 @@ ART_DOCUMENT = "document"
 ART_COMMIT = "commit"
 ART_PULL_REQUEST = "pull-request"
 ART_OTHER = "other"
+
+DEMOTION_EXECUTION_KIND = "demotion-execution-receipt"
 
 # Default records prefix. A CALLER-DECLARED output path (the HumanGate allowlist);
 # the aggregation lane wires the committed location (section 4). Not baked into
@@ -463,6 +466,7 @@ def build_gate_action_record(
     reason: str | None = None, citation: str | None = None,
     document: str | None = None, notes: str | None = None,
     ref: str | None = None, provenance: "Provenance | None" = None,
+    cleanup: Mapping[str, Any] | None = None,
 ) -> dict:
     """A schema-valid `gate-action-record` (validated by the pinned validator).
     `artifacts` are `{kind, reference}` entries; the per-action companion
@@ -527,6 +531,8 @@ def build_gate_action_record(
         record["provenance"] = provenance.as_record()
     record["at"] = at
     record["artifacts"] = [dict(a) for a in artifacts]
+    if cleanup is not None:
+        record["cleanup"] = dict(cleanup)
     if reason:
         record["reason"] = reason
     if citation:
@@ -534,6 +540,48 @@ def build_gate_action_record(
     if notes:
         record["notes"] = notes
     return record
+
+
+def _validate_contract_document(
+    document: Mapping[str, Any], *, schema_filename: str, label: str,
+) -> None:
+    """Validate one document against a repository-pinned released schema."""
+    try:
+        from jsonschema import Draft202012Validator, FormatChecker
+    except ImportError as exc:  # pragma: no cover - release dependency guard
+        raise GateRefused(
+            f"jsonschema is required to validate {label}") from exc
+    schema_path = (Path(__file__).resolve().parents[2] / "contracts" / "schemas"
+                   / schema_filename)
+    try:
+        schema = yaml.safe_load(schema_path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise GateRefused(
+            f"the {label} schema could not be loaded from {schema_path}: "
+            f"{exc}") from exc
+    errors = sorted(
+        Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(
+            dict(document)),
+        key=lambda error: tuple(str(part) for part in error.absolute_path))
+    if errors:
+        detail = "; ".join(
+            f"{'/'.join(str(part) for part in error.absolute_path) or '<root>'}: "
+            f"{error.message}" for error in errors[:5])
+        raise GateRefused(
+            f"the {label} failed schema validation: {detail}")
+
+
+def validate_gate_action_record(record: Mapping[str, Any]) -> None:
+    """Validate one record against the repository-pinned released schema."""
+    _validate_contract_document(
+        record, schema_filename="gate-action-record.schema.yaml",
+        label="gate-action record")
+
+
+def validate_demotion_execution_receipt(receipt: Mapping[str, Any]) -> None:
+    _validate_contract_document(
+        receipt, schema_filename="demotion-execution-receipt.schema.yaml",
+        label="demotion execution receipt")
 
 
 def gate_action_record_relpath(records_dir: str, action: str, target_id: str, at: str) -> str:
@@ -1401,6 +1449,61 @@ def execute_demotion_plan(plan: DemotionPlan, tree_root: Path | str, *, at: str 
         result.removed_change_folder = not change_dir.exists()
 
     return result
+
+
+def demotion_execution_receipt(
+    result: DemoteResult, execution: DemotionExecution, *, actor: str, at: str,
+    root: Path,
+) -> dict[str, Any]:
+    """The durable statement written only after a demotion execution returns."""
+    returned: list[str] = [to_path for _from_path, to_path in execution.moved]
+    for path in (execution.readme_path, execution.index_path,
+                 execution.preserved_snapshot_path):
+        if path is not None:
+            try:
+                returned.append(path.relative_to(root).as_posix())
+            except ValueError:
+                returned.append(path.as_posix())
+    try:
+        manifest_ref = result.manifest_path.relative_to(root).as_posix()
+    except ValueError:
+        manifest_ref = result.manifest_path.as_posix()
+    return {
+        "schema_version": 1,
+        "kind": DEMOTION_EXECUTION_KIND,
+        "actor": actor,
+        "change_id": result.plan.change_id,
+        "status": "executed",
+        "destination": {
+            "kind": "staged",
+            "id": result.plan.staging_topic,
+            "path": result.plan.topic_path,
+        },
+        "executed_at": at,
+        "transition_manifest": manifest_ref,
+        "returned_artifacts": sorted(set(returned)),
+        "removed_change_folder": execution.removed_change_folder,
+    }
+
+
+def write_demotion_execution_receipt(
+    gate: Any, result: DemoteResult, execution: DemotionExecution, *,
+    at: str | None = None, records_dir: str = DEFAULT_RECORDS_DIR,
+) -> Path:
+    """Persist execution proof after, and only after, successful execution."""
+    human = require_human_gate(gate)
+    at = at or _utcnow()
+    root = human.output.root
+    receipt = demotion_execution_receipt(
+        result, execution, actor=human.human_actor, at=at, root=root)
+    validate_demotion_execution_receipt(receipt)
+    rel = (f"{_prefix(records_dir)}{result.plan.change_id}/demote-"
+           f"{_stamp(at)}.execution-receipt.yaml")
+    return human.write_gate_artifact(
+        rel, _render_yaml(
+            receipt,
+            "# demotion execution receipt — written only after the returned "
+            "artifacts land.\n"))
 
 
 # ==========================================================================
