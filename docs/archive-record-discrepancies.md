@@ -1635,6 +1635,28 @@ Each is a named, durable item. None is discharged by
   stands as measured-not-ruled latent, the deferral-versus-authorization
   ambiguity still named rather than respelled. Both stand exactly as
   codexFactory PR #83 applied them — the approval required no repo edit.
+  **PREVENTION COMMISSIONED AND LANDED, 2026-08-24/25** — the open question
+  both addenda above leave named. Brett commissioned it verbatim on the
+  24th, "commission the archived-delta-vs-promoted-spec check", and
+  openxFactory PR #310 merged `73766b48` on the 25th (aggregation pin
+  `ec7dba9`), shipping `add-promotion-fidelity-check` ACTIVE on this
+  campaign's own archive-after-realization precedent, its archive box
+  recorded in its tasks. The class now has a doc-health FAMILY of its own:
+  the obligation stated in document-lifecycle, the check in doc-health,
+  ADVISORY at launch in both halves — severity and resolution — with the
+  enforcement flip a recorded task box, latest-writer-wins resolution
+  tie-broken on archive-commit order, and exemptions confined to the
+  recorded deliberate-skip class (keyed on the archived proposal's own
+  `Status:` header, where C5's `draft` is the only one in the corpus) plus
+  `health/dispositions.yaml`. Acceptance ran BOTH directions: the
+  reconstructed pre-#85 codex gap fires, while C5's deliberate skips and
+  later-superseded requirements stay quiet. Its FIRST LIVE CATCH is in
+  openxFactory itself — `2026-08-01-add-workbench-branch-sessions` ratified
+  an ADDED requirement that never reached canon and a MODIFIED one that
+  arrived a scenario short — reported by the family, recorded in the
+  commissioning change's tasks as its own follow-up, and deliberately not
+  fixed inside it. The class this entry surfaced is no longer unreported:
+  "named, not dropped" is discharged.
 - **MedxChart and MedxPractice** pin no OpenSpec packets and owe nothing here.
   Their two ACTIVE headerless proposals, named repeatedly in this change's
   task record, live in the openxFactory tree as
