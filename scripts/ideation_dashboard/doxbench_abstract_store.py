@@ -16,9 +16,9 @@ chat retry that should replay would re-dispatch (N1). That is the failure this
 module exists to make impossible: two stores, two bounds, and no line of code
 here that can reach the chat ledger.
 
-THE KEY IS `(subject path, content digest)`, and the digest is IN it rather than
-compared against it. `TurnStore` refuses a differing digest under one key as a
-CONFLICT; an abstract cache keyed on path alone would therefore hard-refuse every
+THE KEY IS `(scope, subject path, content digest)`, and the digest is IN it
+rather than compared against it. `TurnStore` refuses a differing digest under
+one key as a CONFLICT; an abstract cache keyed on path alone would therefore hard-refuse every
 regeneration after every document edit. Here a changed digest is simply a NEW
 KEY, which is what makes "regenerate after an edit" ordinary rather than an
 error, and re-dispatch after eviction is stated expected behaviour for the same
@@ -84,9 +84,27 @@ class AbstractStoreConflictError(AbstractStoreError):
 
 @dataclasses.dataclass(frozen=True, slots=True)
 class AbstractKey:
-    """The ruled cache key: the subject's repository-relative path AND the
-    content digest of the SAVED bytes the abstract was generated from."""
+    """The ruled cache key: the SCOPE, the subject's repository-relative path,
+    AND the content digest of the SAVED bytes the abstract was generated from.
 
+    THE SCOPE IS IN IT — added 2026-08-25 after the adversarial review's S3, and
+    for the same reason `OmpHarnessBridge.conversation_key` carries it. The key
+    used to be `(subject_path, content_digest)` alone, while the store is a
+    single per-served-process dict and one process resolves EVERY repository its
+    registry knows and every ref of each. `ideation/staging/<topic>/README.md`
+    exists in most repositories on this surface, so two scopes holding identical
+    bytes at one path shared a cache entry — and `latest_for_path` then handed
+    repository A's abstract to repository B as its PREVIOUS VERIFICATION BASE,
+    which is a cross-repository leak arriving through the key rather than
+    through a route.
+
+    The components are FIELDS rather than a composed string, so the injectivity
+    the bridge's JSON composition buys is here by construction: a frozen
+    dataclass hashes and compares as the tuple of its fields, and there is no
+    separator for a repository name, a ref or a document path to contain."""
+
+    repository: str
+    ref: str
     subject_path: str
     content_digest: str
 
@@ -279,9 +297,18 @@ class AbstractStore:
 
     # -- read-only peek ------------------------------------------------------
 
-    def latest_for_path(self, subject_path: str) -> object | None:
-        """The most recently used ANSWERED abstract for ``subject_path``, under
-        any digest, or ``None``.
+    def latest_for_path(self, *, repository: str, ref: str,
+                        subject_path: str) -> object | None:
+        """The most recently used ANSWERED abstract for ``subject_path`` IN ONE
+        SCOPE, under any digest, or ``None``.
+
+        SCOPE-QUALIFIED, and keyword-only so the three components cannot be
+        transposed at a call site (S3). "The abstract this document already has"
+        is a question about one repository at one ref: another repository's
+        answer for an identically-named document is a different document's
+        abstract, and handing it to the verifier as a base would refuse a
+        perfectly good answer for dropping coverage of a document this scope
+        never held.
 
         This is the "previously generated abstract" the verification rule takes
         as an ADDITIONAL base. It is a CACHE and never a record: an evicted entry
@@ -295,7 +322,9 @@ class AbstractStore:
             candidates = [record for record in self._records.values()
                           if record.state == ABSTRACT_STATE_COMPLETED
                           and record.abstract is not None
-                          and record.key.subject_path == subject_path]
+                          and record.key.subject_path == subject_path
+                          and record.key.repository == repository
+                          and record.key.ref == ref]
             newest = max(candidates, key=lambda record: record.last_access_order,
                          default=None)
         if newest is None:

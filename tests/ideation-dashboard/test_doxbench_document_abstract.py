@@ -415,11 +415,25 @@ def test_the_check_is_named_subject_mention_coverage_in_the_code():
 
 
 def test_no_public_name_claims_fidelity_or_faithfulness():
+    """THE ONE EXCEPTION, and it is narrowed rather than waived (2026-08-25,
+    S5(c)). The ratified scenario "A sibling artifact is declared at a layer's
+    fidelity class" requires this artifact to CARRY layer two's fidelity word,
+    so the module now holds exactly one name containing it: the declared class
+    constant. Declaring which class an artifact BELONGS TO is not a claim that
+    anything here CHECKED fidelity — which is what this guard exists to catch —
+    so the constant is exempt, by name, and everything else stays banned.
+    Nothing CALLABLE is ever exempt: a checker is where the false claim would
+    live."""
+    exempt = {"FIDELITY_LOSSY_BY_DESIGN"}
+    assert not callable(kn.FIDELITY_LOSSY_BY_DESIGN)
     public = {name for name in vars(kn) if not name.startswith("_")}
-    for name in public:
+    for name in public - exempt:
         lowered = name.lower()
         for forbidden in ("fidelity", "faithful", "accuracy", "verified_true"):
             assert forbidden not in lowered, name
+    for name in public:
+        if callable(getattr(kn, name)):
+            assert "fidelity" not in name.lower(), name
 
 
 def test_the_refusal_reason_says_coverage_and_never_says_fidelity():
@@ -516,3 +530,98 @@ def test_the_abstract_is_a_layer_2_class_sibling_not_a_thread():
                        for field in dataclasses.fields(kn.DocumentAbstract)}
     assert "turns" not in abstract_fields
     assert "state" not in abstract_fields
+
+
+# ===========================================================================
+# S5 (adversarial review, 2026-08-25) — THE THREE SIBLING SCENARIOS, PINNED
+# ===========================================================================
+#
+# `specs/ideation-dashboard/spec.md`'s layer-stack requirement carries three
+# scenarios about a LAYER-2-CLASS SIBLING that this change's realization claimed
+# without pinning. Each one is a sentence about what the ARTIFACT declares, so
+# each is pinned on the artifact's own type rather than on prose about it.
+
+
+def test_the_sibling_carries_layer_twos_fidelity_word_and_no_other():
+    """Scenario "A sibling artifact is declared at a layer's fidelity class":
+    it MUST carry the lossy-by-design fidelity word. A field with exactly one
+    legal value, refused at construction — the same shape `authority` and
+    `regenerable_from` already use — so a caller cannot declare this artifact
+    at layer one's or layer three's class and cannot declare it at no class at
+    all."""
+    abstract = _abstract()
+    assert abstract.fidelity == kn.FIDELITY_LOSSY_BY_DESIGN
+    names = {field.name for field in dataclasses.fields(kn.DocumentAbstract)}
+    assert "fidelity" in names
+    for wrong in (pk.FIDELITY_LOSSLESS_BY_REFERENCE, "lossless", "", None):
+        with pytest.raises(kn.AbstractFormatRefused):
+            _abstract(fidelity=wrong)
+
+
+def test_the_fidelity_word_is_the_SAME_word_the_layer_table_uses():
+    """Spelled in `doxbench_knowledge` rather than imported from
+    `doxbench_packet`, for the reason that module already records for
+    `NON_AUTHORITATIVE`: it keeps its single dependency, and a layer's rule
+    cannot quietly become the sibling's by an import moving. The cost of
+    spelling it is that the two could drift — so the equality is PINNED here,
+    across the two modules, exactly as `NON_AUTHORITATIVE` is."""
+    assert kn.FIDELITY_LOSSY_BY_DESIGN == pk.FIDELITY_LOSSY_BY_DESIGN
+    assert kn.FIDELITY_LOSSY_BY_DESIGN == pk.layer(2).fidelity
+    # …and carrying layer two's fidelity word did not make it layer two
+    assert pk.layer(2).owner == "doxbench_threads.compact_thread"
+
+
+def test_the_sibling_claims_none_of_layer_twos_own_obligations():
+    """Scenario "A sibling claims layer two's own obligations": layer two
+    PRESERVES COMMITMENTS and WRITES THE THREAD-STATE HEADER; a sibling borrows
+    the fidelity class and not the job. The type declares neither, and — being
+    frozen with slots — a caller cannot bolt such a claim on either."""
+    names = {field.name for field in dataclasses.fields(kn.DocumentAbstract)}
+    surface = names | {name for name in dir(kn.DocumentAbstract)
+                       if not name.startswith("__")}
+    for word in ("commitment", "preserve", "preserved", "thread_state",
+                 "threadstate", "header"):
+        assert not any(word in name.lower() for name in surface), word
+
+    # a claim cannot be constructed…
+    for claim in ("preserves_commitments", "commitments", "thread_state"):
+        with pytest.raises(TypeError):
+            _abstract(**{claim: True})
+    # …nor attached afterwards. (A frozen SLOTS dataclass answers an unknown
+    # attribute with the `TypeError` its generated `__setattr__` raises rather
+    # than `FrozenInstanceError`, which is reserved for its declared fields —
+    # both are refusals, and the attribute never exists either way.)
+    abstract = _abstract()
+    with pytest.raises((AttributeError, TypeError)):
+        abstract.preserves_commitments = True
+    assert not hasattr(abstract, "preserves_commitments")
+
+
+def test_human_review_stands_as_a_STATED_OPEN_OBLIGATION():
+    """Scenario "Presentation is offered as human review": rendering an
+    artifact in a pane is NOT a human reviewing it, so layer two's
+    human-reviewable adjective is inherited as an OPEN obligation. The artifact
+    says so itself — one legal value, frozen at construction — rather than
+    leaving the claim to prose nobody checks."""
+    abstract = _abstract()
+    assert abstract.review == kn.REVIEW_UNREVIEWED
+    assert kn.REVIEW_UNREVIEWED == "unreviewed"
+    names = {field.name for field in dataclasses.fields(kn.DocumentAbstract)}
+    assert "review" in names
+    for claimed in ("reviewed", "human-reviewed", "approved", "", None, True):
+        with pytest.raises(kn.AbstractFormatRefused):
+            _abstract(review=claimed)
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        abstract.review = "reviewed"
+    # a VERIFIED abstract is not a reviewed one either: verification is a
+    # machine check about mentions, and it says so
+    assert _verify(COVERED).review == kn.REVIEW_UNREVIEWED
+
+
+def test_no_ruled_caption_claims_the_abstract_has_been_reviewed():
+    """The surface half of the same scenario at the vocabulary the surface
+    shares: none of the five ruled captions offers presentation as review."""
+    for state, caption in kn.RULED_CAPTIONS.items():
+        lowered = caption.lower()
+        for forbidden in ("reviewed", "review", "approved", "checked by"):
+            assert forbidden not in lowered, (state, forbidden)

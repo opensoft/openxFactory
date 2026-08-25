@@ -333,6 +333,42 @@ def test_a_stated_refusal_renders_its_reason_and_no_abstract(formatter):
     assert refused["note"] == "this document declares no topics."
 
 
+def _strings(value):
+    """Every string anywhere inside a render state (the idiom
+    `test_doxbench_context_panes.py::_flatten_strings` uses next door)."""
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            yield str(key)
+            yield from _strings(item)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            yield from _strings(item)
+
+
+def test_no_render_state_ever_labels_the_abstract_as_REVIEWED(formatter):
+    """S5(a) (adversarial review, 2026-08-25) — the SURFACE half of the ratified
+    scenario "Presentation is offered as human review". Layer two's
+    human-reviewable adjective is inherited by this sibling as a STATED OPEN
+    OBLIGATION, and the artifact carries that itself
+    (`doxbench_knowledge.REVIEW_UNREVIEWED`, one legal value, frozen at
+    construction). The claim the scenario forbids is a SURFACE one — "it is
+    human-reviewable because it is rendered here" — so the region is pinned to
+    say no such thing in ANY of its states: no caption, no body, no note, no
+    accessible name and no control label offers presentation as review.
+
+    Every state the formatter can produce, not a sample: the caption vocabulary
+    is ruled and shared with the server, and the rest of the region's words are
+    this formatter's own."""
+    for name, state in formatter.items():
+        for value in _strings(state):
+            lowered = value.lower()
+            for forbidden in ("reviewed", "human-reviewable", "approved",
+                              "signed off", "vetted"):
+                assert forbidden not in lowered, (name, value, forbidden)
+
+
 def test_the_source_digest_escalates_only_where_a_buffer_exists(formatter):
     """7.6b. For an UNLOADED subject the source digest is the SERVED SAVED
     CONTENT's — the digest the server echoed — and the per-buffer
@@ -430,7 +466,7 @@ function scriptedAbstracts() {
   };
 }
 
-function mountWorkbench(container, abstracts, capOverrides) {
+function mountWorkbench(container, abstracts, capOverrides, activeOverride) {
   const doxbench = {
     loadSource: async (path) => ({ content: '# ' + path + '\n', ref: 'main' }),
     storage: { getItem: () => null, setItem() {}, removeItem() {} },
@@ -445,7 +481,7 @@ function mountWorkbench(container, abstracts, capOverrides) {
     caps: { actions: { gate: true, session: true }, actor: 'brett',
             console_token: 'tok', ...(capOverrides || {}) },
     fetcher: async () => ({ ok: false }),
-    active: { repository: 'fixture-repo', ref: 'main' },
+    active: activeOverride || { repository: 'fixture-repo', ref: 'main' },
     index: { entries: [] },
     doxbench,
     sourceBase: '/source/',
@@ -938,6 +974,275 @@ def test_every_caption_ships_with_the_carrier_ruling_5_declared_for_it(
         assert shot["role"] == "region"
         assert shot["name"], "the region carrying the caption must be NAMED"
         assert "selected document" not in shot["name"].lower()
+
+
+# ---------------------------------------------------------------------------
+# 3b. THE DIRTY LOADED SUBJECT, mounted (adversarial review 2026-08-25, S5)
+# ---------------------------------------------------------------------------
+#
+# The dirty-buffer caption had ONE pin, and it was a pure-formatter pin: it
+# handed `abstractRegionState` a `dirty: true` flag it had written itself. That
+# asserts the FORMATTER's arm and nothing about whether anything ever sets the
+# flag — the seam the ratified scenario is actually about is
+# `ctx.dirtyFor(path)` -> `docBufferIdentity(path)` -> the canvas's live buffer
+# state. This harness drives the real one: it loads the subject through the
+# tile's own LOAD verb, types into the real canvas textarea, and reads the
+# region back.
+
+_DIRTY_HARNESS = _prelude() + r"""
+const out = {};
+const abstracts = scriptedAbstracts();
+const container = document.createElement('div');
+const workbench = mountWorkbench(container, abstracts, null);
+workbench.open('staged', 'topic-x');
+await quiesce();
+
+const { one, byClass } = probe(container);
+const wheel = (container.walk().find(
+  (n) => String(n.className).split(' ').includes('swb-pane-docs')) || {}).__docWheel;
+if (!wheel) throw new Error('the docs pane exposes no wheel');
+
+// THE SUBJECT IS PATH_B, and deliberately: PATH_A is this staged topic's own
+// OUTLINE, so loading it produces an `outline` buffer and `docBufferIdentity`
+// — which looks for a DOCUMENT buffer at that path — would correctly answer
+// "no buffer" no matter how dirty the outline got. A test that dirtied the
+// outline and watched for the note would be watching the wrong buffer.
+const SUBJECT = PATH_B;
+
+// A REPAINT WITH NO STATE CHANGE: the region re-renders on the view switch, and
+// switching twice returns the reading choice to where it was. Everything the
+// region says about a buffer is read at RENDER time, which is the point.
+async function repaint() {
+  await press(container, 'swb-abstracttoggle');
+  await press(container, 'swb-abstracttoggle');
+}
+
+const statuses = () => byClass('doxbench-status').map(
+  (n) => String(n.textContent || ''));
+const documentArea = () => byClass('doxbench-textarea').find(
+  (a) => String(a.value || '').includes(SUBJECT));
+
+wheel.selectPath(SUBJECT);
+await quiesce();
+out.documentAreaBeforeLoad = !!documentArea();
+
+// ---- (1) BEFORE the load verb: whatever the canvas holds, nothing is dirty -
+await press(container, 'swb-abstracttoggle');
+await press(container, 'swb-abstractgenerate');
+abstracts.resolve(successBody(
+  SUBJECT, DIGEST_1, 'A distillation of detail.md, in one sentence.', 60, 1));
+await quiesce();
+out.beforeLoad = regionShot(container);
+
+// ---- (2) LOAD the subject through the tile's own verb ---------------------
+// The docs wheel needs a MEASURABLE host before it lays tiles out, and only a
+// laid-out expanded tile mounts its action row —
+// `test_doxbench_composition.py::expandTileFor`'s recipe, followed here for the
+// same reason.
+const host = one('swb-docselector');
+host.clientHeight = 420;
+const docsPane = container.walk().find((n) => n.__docWheelRefresh);
+docsPane.__docWheelRefresh();
+await quiesce(5);
+const tiles = byClass('wheeltile');
+const tile = tiles.find((t) => t.title === SUBJECT);
+if (!tile) throw new Error('no tile for the subject');
+for (let attempt = 0; attempt < 3; attempt += 1) {
+  if (tile.querySelector('.wheelactions')) break;
+  await fire(tile, 'click');
+  await quiesce(5);
+}
+const loadButton = tile.querySelector('.swb-docload');
+if (!loadButton) throw new Error('the expanded tile offers no load verb');
+out.loadDisabled = loadButton.disabled === true;
+await fire(loadButton, 'click');
+await quiesce(60);
+out.verbNote = String((one('swb-docverbnote') || {}).textContent || '');
+
+out.loadedAreaFound = !!documentArea();
+wheel.selectPath(SUBJECT);
+await quiesce();
+await repaint();
+out.loadedClean = regionShot(container);
+out.statusesClean = statuses();
+
+// ---- (3) TYPE into the real buffer: now it is loaded AND dirty -------------
+const area = documentArea();
+if (!area) throw new Error('the subject never became a loaded document buffer');
+area.value = '# ' + SUBJECT + '\nthirty minutes of unsaved work\n';
+await fire(area, 'input');
+await quiesce(20);
+out.statusesDirty = statuses();
+await repaint();
+out.loadedDirty = regionShot(container);
+
+// the ONE transport call this whole scenario made, verbatim
+out.requests = abstracts.requests.slice();
+
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def dirty(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the dirty-buffer probe")
+    return _run_harness(tmp_path_factory, "doxbench-abstract-dirty",
+                        _DIRTY_HARNESS)
+
+
+def test_a_REAL_dirty_loaded_subject_is_captioned_as_describing_the_saved_version(
+        dirty):
+    """The ratified scenario "The subject is a dirty loaded buffer", driven end
+    to end through the seam that actually decides it: the subject is loaded
+    through the TILE'S OWN LOAD VERB, the canvas's real textarea is typed into,
+    and `ctx.dirtyFor(path)` -> `docBufferIdentity(path)` reads that live buffer
+    at render time.
+
+    THE PRECONDITION IS ASSERTED, not assumed — the canvas's own status line
+    says whether the Document buffer has unsaved work — because "a note
+    appeared" proves nothing if nothing was ever dirty. And the note appears
+    ONLY in the dirty state, which is what makes it a statement rather than
+    decoration.
+
+    THE RULED CAPTION IS NOT BENT BY IT. The saved-version sentence is stated
+    BESIDE the caption; the five captions are exact and shared with the server,
+    so a dirty buffer must not produce a sixth."""
+    before, clean, dirty_shot = (dirty["beforeLoad"], dirty["loadedClean"],
+                                 dirty["loadedDirty"])
+
+    # the ABSTRACT is the same in all three: a buffer's state changes what the
+    # region SAYS ABOUT it, never the artifact
+    for shot in (before, clean, dirty_shot):
+        assert shot["body"] == "A distillation of detail.md, in one sentence."
+        assert shot["caption"].startswith(CAP_STALE), shot["caption"]
+        assert shot["regions"] == 1 and shot["states"] == 1
+
+    assert dirty["loadDisabled"] is False
+    assert "loaded" in dirty["verbNote"]
+    assert dirty["loadedAreaFound"] is True, "the LOAD verb loaded no buffer"
+
+    # the note, and only in the dirty state
+    assert before["saved"] is None
+    assert clean["saved"] is None
+    note = dirty_shot["saved"]
+    assert note and "saved" in note.lower(), note
+    assert note not in dirty_shot["caption"], (
+        "the saved-version sentence was folded INTO the ruled caption")
+
+    # THE PRECONDITION, from the canvas's own status line: the DOCUMENT buffer
+    # (not the outline) is what became dirty
+    clean_status = [line for line in dirty["statusesClean"]
+                    if line.startswith("Document:")]
+    dirty_status = [line for line in dirty["statusesDirty"]
+                    if line.startswith("Document:")]
+    assert clean_status and "no unsaved changes" in clean_status[0]
+    assert dirty_status and dirty_status[0] == "Document: unsaved changes"
+
+    # and the unsaved text never left the browser: ONE request, the closed
+    # shape, no buffer field
+    assert len(dirty["requests"]) == 1
+    assert set(dirty["requests"][0]) == {"scope", "subject_path", "model_id"}
+    assert "unsaved work" not in json.dumps(dirty["requests"][0])
+
+
+# ---------------------------------------------------------------------------
+# 3c. THE ABSTRACT SESSION'S SCOPE KEY (adversarial review 2026-08-25, N6)
+# ---------------------------------------------------------------------------
+#
+# `abstractSessions` is a MODULE-SCOPE map keyed by the docs seam's `scopeKey`,
+# and that key was `[repository, ref, kind, id].join("|")`. A separator has to
+# be a character no component can contain, and a git ref, a repository name and
+# a tile id can all contain a pipe — so two different scopes composed one key
+# and the second silently inherited the first's cached abstracts, its echoed
+# digests and its learned wait bound. This is the browser half of the ruling the
+# bridge's `conversation_key` already records; the fix is the same one, JSON
+# composition, which is injective by construction.
+
+_SCOPE_KEY_HARNESS = _prelude() + r"""
+const out = {};
+
+// THE COLLISION PAIR: joined with "|" these two scopes are the SAME string
+//   ["a|b", "c",   "staged", "topic-x"].join("|") === "a|b|c|staged|topic-x"
+//   ["a",   "b|c", "staged", "topic-x"].join("|") === "a|b|c|staged|topic-x"
+// …and they are two different scopes: repository `a|b` at ref `c`, and
+// repository `a` at ref `b|c`.
+const LEFT = { repository: 'a|b', ref: 'c' };
+const RIGHT = { repository: 'a', ref: 'b|c' };
+out.joinCollides =
+  [LEFT.repository, LEFT.ref, 'staged', 'topic-x'].join('|')
+  === [RIGHT.repository, RIGHT.ref, 'staged', 'topic-x'].join('|');
+
+async function openAt(active, abstracts) {
+  const container = document.createElement('div');
+  const workbench = mountWorkbench(container, abstracts, null, active);
+  workbench.open('staged', 'topic-x');
+  await quiesce();
+  const wheel = (container.walk().find(
+    (n) => String(n.className).split(' ').includes('swb-pane-docs')) || {}).__docWheel;
+  if (!wheel) throw new Error('the docs pane exposes no wheel');
+  wheel.selectPath(PATH_A);
+  await quiesce();
+  return { container, wheel };
+}
+
+// ---- the LEFT scope generates and caches an abstract ----------------------
+const leftSeam = scriptedAbstracts();
+const left = await openAt(LEFT, leftSeam);
+await press(left.container, 'swb-abstracttoggle');
+await press(left.container, 'swb-abstractgenerate');
+leftSeam.resolve(successBody(
+  PATH_A, DIGEST_1, 'THE LEFT SCOPE’S OWN ABSTRACT.', 60, 1));
+await quiesce();
+out.left = regionShot(left.container);
+
+// ---- the RIGHT scope opens on the SAME path and must have nothing ---------
+const rightSeam = scriptedAbstracts();
+const right = await openAt(RIGHT, rightSeam);
+await press(right.container, 'swb-abstracttoggle');
+out.right = regionShot(right.container);
+out.rightRequests = rightSeam.requests.length;
+out.leakedIntoRight = String(out.right.regionText || '').includes('LEFT SCOPE');
+
+// ---- and the LEFT scope still has its own, re-entered ---------------------
+const leftAgain = await openAt(LEFT, leftSeam);
+await press(leftAgain.container, 'swb-abstracttoggle');
+out.leftReturned = regionShot(leftAgain.container);
+out.leftRequestsTotal = leftSeam.requests.length;
+
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def scope_keys(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the scope-key probe")
+    return _run_harness(tmp_path_factory, "doxbench-abstract-scopekey",
+                        _SCOPE_KEY_HARNESS)
+
+
+def test_two_scopes_that_a_join_would_merge_hold_two_abstract_sessions(
+        scope_keys):
+    """N6. The pair is chosen so that the OLD composition is byte-identical for
+    both scopes — asserted here, so this test cannot quietly stop being about a
+    collision — and the two scopes must still hold two sessions."""
+    assert scope_keys["joinCollides"] is True, (
+        "the pair no longer collides under a join; this test would prove "
+        "nothing about composition")
+    # the left scope generated one, and reads it back
+    assert scope_keys["left"]["caption"] == CAP_MODEL
+    assert scope_keys["left"]["body"] == "THE LEFT SCOPE’S OWN ABSTRACT."
+    # the right scope has NOTHING, and nothing was dispatched for it
+    assert scope_keys["leakedIntoRight"] is False, (
+        "the second scope inherited the first scope's cached abstract")
+    assert scope_keys["right"]["caption"] == CAP_UNGENERATED
+    assert not (scope_keys["right"]["body"] or "").strip()
+    assert scope_keys["rightRequests"] == 0
+    # …and the left scope's own session survived being left and re-entered
+    # (ruling 7.6), which is the property the key exists to give it
+    assert scope_keys["leftReturned"]["body"] == "THE LEFT SCOPE’S OWN ABSTRACT."
+    assert scope_keys["leftRequestsTotal"] == 1
 
 
 # ---------------------------------------------------------------------------

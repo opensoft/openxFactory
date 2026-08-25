@@ -139,10 +139,47 @@ A separate store with the same SHAPE (`doxbench_turns.py:1033-1069`): one
 in-flight per key with attach-and-wait (which is the "regenerating" state, so
 ruling 3(b) needs no new machinery), identical-key replay without a second
 dispatch, deterministic non-clock eviction. **The key is
-`(subject path, content digest)`** — the digest MUST be IN the key, because that
-store refuses a different digest under the same key as a conflict, so a
-path-only key would hard-refuse every regeneration after every edit. Re-dispatch
-after eviction is specified expected behaviour, not an error.
+`(scope, subject path, content digest)`** — the digest MUST be IN the key,
+because that store refuses a different digest under the same key as a conflict,
+so a path-only key would hard-refuse every regeneration after every edit.
+Re-dispatch after eviction is specified expected behaviour, not an error.
+
+**Corrected 2026-08-25 (adversarial review, S3): the SCOPE is in the key too.**
+This section said `(subject path, content digest)` and the first realization
+built exactly that, while the store is a single per-served-process dict and one
+process resolves every repository its registry knows and every ref of each.
+`ideation/staging/<topic>/README.md` exists in most of them, so two scopes
+holding identical bytes at one path shared a cache entry — and `latest_for_path`
+handed repository A's abstract to repository B as its PREVIOUS VERIFICATION
+BASE. The ratified requirement says the key SHALL *include* the content digest
+as well as the path, which is a floor and not a ceiling, so no delta changes.
+
+### D5a — The abstract binds its OWN conversation (2026-08-25, review B1)
+
+`OmpHarnessBridge.dispatch` is `_dispatch_bound(None, …)`: it REFUSES an unbound
+turn on a fresh process and, once any turn has bound a session, runs inside
+whichever conversation the harness was last switched to. The first realization
+handed the RAW port to `_deadline_bound_dispatch`, so on a real install the
+first generation of a session could only fail, and every generation after a chat
+turn would have been prompted INSIDE that document's chat session — against
+`spec.md`'s one-session-per-document-thread rule and against this route's own
+envelope contract, whose whole claim is that the model was shown ONE subject and
+no other material.
+
+The route therefore binds through `port.for_conversation(...)` — duck-typed
+exactly as `dispatch` is — under a key of its own:
+`serve.py:doxbench_abstract_conversation_key`, JSON-composed as
+`["doxbench-abstract", repository, ref, tile_kind, tile_id, subject_path]`. Its
+own KIND, never `doxbench_bridge.CONVERSATION_KEY_KIND`: reusing the document
+thread's key would fix the refusal and keep the contamination, in the other
+direction. A binding failure is refused with the route's fixed, redacted
+`model_failed` and nothing is dispatched.
+
+THE COST, stated: one harness session per (scope, document) abstract
+conversation, and the bridge starts a fresh child per new thread
+(`doxbench_bridge.py`'s recorded RPC-surface tradeoff). A per-TILE abstract
+conversation would be cheaper and would put document A's abstract in document
+B's context, which is the contract this route sells.
 
 ### D6 — The interaction: explicit invocation and a subject recheck at paint
 

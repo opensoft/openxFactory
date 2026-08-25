@@ -43,8 +43,7 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
       ORDERING CONSTRAINT: `add-doxchat-model-intake` MUST archive BEFORE
       `add-doxbench-distilled-abstract`.
       2026-08-25 — intake's hosted-plane bullet folded per #351.
-- [x] 1.2a 2026-08-25 — intake's delta re-authored against canon (#351, this
-      branch); the remaining hazard is ORDER: intake archives first (see 1.2).
+- [x] 1.2a 2026-08-25 — intake's delta re-authored against canon (#351, landed on main via PR #358, 87d0b95a); the remaining hazard is ORDER: intake archives first (see 1.2).
 - [x] 1.3 (2026-08-25 — valid; --all --strict 78/78; README entry present.) `OPENSPEC_TELEMETRY=0 openspec validate add-doxbench-distilled-abstract
       --strict` and `--all --strict` green; README OpenSpec Records entry present.
 - [x] 1.4 (2026-08-25 — N1–N5 carried verbatim into every apply-wave agent brief.) Re-read `clarifications.md`. N1–N5 are constraints, not suggestions:
@@ -163,7 +162,13 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
 - [x] 5.4 RED (N1, explicitly): abstract activity over a scope larger than the
       cache bound MUST NOT evict the chat surface's turn-idempotency records.
       Assert against the chat `TurnStore`'s own contents.
-- [x] 5.5 Implement the route beside `_workbench_model_port` and the store.
+- [x] 5.5 (2026-08-25 review: the route dispatched the bridge UNBOUND — first call of every
+      process was model_failed and later calls landed in the chat document's harness session
+      (canon :2026). Fixed: the abstract binds ITS OWN JSON-composed conversation key
+      ("doxbench-abstract", scope, subject_path) via for_conversation before dispatch; a bind
+      failure refuses and releases the store key. Proven against the real OmpHarnessBridge with
+      the fake child. request_paths ∩ (editable ∪ context); AbstractKey scope-qualified.)
+      Implement the route beside `_workbench_model_port` and the store.
       GREEN 5.1–5.4.
 - [x] 5.6 RED then GREEN: the response echoes the subject path and digest it was
       generated for.
@@ -273,7 +278,10 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
 - [x] 9.4 Mutate the boundary: point the abstract at a `context_paths`-only
       subject and confirm 5.2 fails; add a fourth port member and confirm
       `test_doxbench_model.py:482`/`:522` fail.
-- [x] 9.5 (2026-08-25 — a CONSTANT emission is caught by 6.2 only, byte-identical in both arms by
+- [x] 9.5 (2026-08-25 — REVIEW ROUND added four more mutants, all caught: dispatch the RAW
+      unbound port (3 route pins incl. the real-bridge leak pin); bind-failure leaving the store
+      key held (attach-and-hang pin); ctx.dirtyFor→false (mounted dirty-buffer pin);
+      MAX_ABSTRACT_PROSE_BYTES 1500→2000 (absolute budget pin). a CONSTANT emission is caught by 6.2 only, byte-identical in both arms by
       construction; the session-derived emission 9.5b survived until 6.1 gained a genuine
       without-generation arm — pin added. 7.2 likewise gained the not-cached assertion after
       9.2b survived it.) Mutate the snapshot: emit the abstract into a document object and
@@ -281,7 +289,7 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
 
 ## 10. Realization gate
 
-- [x] 10.1 `pytest tests/ideation-dashboard` green. 2026-08-25 — 4390 passed / 13 skipped.
+- [x] 10.1 `pytest tests/ideation-dashboard` green. 2026-08-25 — 4390 passed / 13 skipped; after the review fix round 4412 / 13.
       Whole-repo `pytest tests/ -m "not postgres"`: 6416 passed, 2 pre-existing failures
       unrelated to this branch (doc-health bootstrap-cluster drift; hermes release
       inventory merge-base in a worktree) — CI on the PR is the authority.

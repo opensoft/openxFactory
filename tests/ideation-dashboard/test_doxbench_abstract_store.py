@@ -50,9 +50,16 @@ DIGEST_B = "b" * 64
 SUBJECT = "ideation/staging/ideation-governance/README.md"
 OTHER_SUBJECT = "ideation/staging/other-topic/README.md"
 
+# The SCOPE the key is qualified by (adversarial review 2026-08-25, S3). One
+# served process can hold several repositories and several refs of one
+# repository, and `(path, digest)` alone made two of them one question.
+REPOSITORY = "fixture-repo"
+REF = "main"
 
-def _key(path=SUBJECT, digest=DIGEST_A):
-    return store_mod.AbstractKey(subject_path=path, content_digest=digest)
+
+def _key(path=SUBJECT, digest=DIGEST_A, *, repository=REPOSITORY, ref=REF):
+    return store_mod.AbstractKey(repository=repository, ref=ref,
+                                 subject_path=path, content_digest=digest)
 
 
 def _result(text="an abstract"):
@@ -369,7 +376,8 @@ def test_the_two_stores_are_different_types_with_different_keys():
     assert store_mod.AbstractStore is not doxbench_turns.TurnStore
     assert not issubclass(store_mod.AbstractStore, doxbench_turns.TurnStore)
     key = _key()
-    assert (key.subject_path, key.content_digest) == (SUBJECT, DIGEST_A)
+    assert (key.repository, key.ref, key.subject_path, key.content_digest) == (
+        REPOSITORY, REF, SUBJECT, DIGEST_A)
     assert copy.copy(key) == key
 
 
@@ -389,14 +397,15 @@ def test_the_store_hands_back_the_latest_abstract_for_a_path():
     store.reserve(old)
     store.complete(old, _result("about the old bytes"), size_bytes=32,
                    abstract={"marker": "old"})
-    assert store.latest_for_path(SUBJECT) == {"marker": "old"}
+    assert store.latest_for_path(repository=REPOSITORY, ref=REF, subject_path=SUBJECT) == {"marker": "old"}
 
     new = _key(digest=DIGEST_B)
     store.reserve(new)
     store.complete(new, _result("about the new bytes"), size_bytes=32,
                    abstract={"marker": "new"})
-    assert store.latest_for_path(SUBJECT) == {"marker": "new"}
-    assert store.latest_for_path(OTHER_SUBJECT) is None
+    assert store.latest_for_path(repository=REPOSITORY, ref=REF, subject_path=SUBJECT) == {"marker": "new"}
+    assert store.latest_for_path(repository=REPOSITORY, ref=REF,
+                                 subject_path=OTHER_SUBJECT) is None
 
 
 def test_the_latest_abstract_is_isolated_from_its_caller():
@@ -406,10 +415,10 @@ def test_the_latest_abstract_is_isolated_from_its_caller():
     store.reserve(key)
     store.complete(key, _result(), size_bytes=32, abstract=held)
     held["marker"] = "mutated"
-    assert store.latest_for_path(SUBJECT) == {"marker": "kept"}
-    handed_out = store.latest_for_path(SUBJECT)
+    assert store.latest_for_path(repository=REPOSITORY, ref=REF, subject_path=SUBJECT) == {"marker": "kept"}
+    handed_out = store.latest_for_path(repository=REPOSITORY, ref=REF, subject_path=SUBJECT)
     handed_out["marker"] = "mutated on the way out"
-    assert store.latest_for_path(SUBJECT) == {"marker": "kept"}
+    assert store.latest_for_path(repository=REPOSITORY, ref=REF, subject_path=SUBJECT) == {"marker": "kept"}
 
 
 def test_an_evicted_entry_takes_its_abstract_with_it():
@@ -422,4 +431,55 @@ def test_an_evicted_entry_takes_its_abstract_with_it():
     store.complete(first, _result(), size_bytes=64, abstract={"marker": "gone"})
     _fill(store, store_mod.MAX_ABSTRACT_ENTRIES)
     assert store.snapshot(first) is None
-    assert store.latest_for_path("ideation/staging/evicted/README.md") is None
+    assert store.latest_for_path(repository=REPOSITORY, ref=REF,
+                                 subject_path="ideation/staging/evicted/README.md") is None
+
+
+# ---------------------------------------------------------------------------
+# S3 (adversarial review, 2026-08-25) — THE KEY IS SCOPE-QUALIFIED
+# ---------------------------------------------------------------------------
+#
+# `(subject path, content digest)` is one question per document only inside ONE
+# scope. A served process reaches every repository its registry resolves and
+# every ref of each, and `ideation/staging/x/README.md` exists in most of them —
+# so two repositories that happen to hold identical bytes at one path shared a
+# cache entry, and, worse, `latest_for_path` handed repository A's abstract to
+# repository B as its PREVIOUS verification base. The key therefore carries the
+# whole scope, exactly as the harness conversation key does; here the components
+# are dataclass FIELDS, which are injective by construction, so no separator and
+# no string composition is involved at all.
+
+
+def test_two_scopes_holding_one_path_and_one_digest_are_two_keys():
+    """Same document path, same content digest, two scopes: two questions. The
+    second must DISPATCH rather than replay the first's answer."""
+    store = store_mod.AbstractStore()
+    mine = _key(repository="repo-a", ref="main")
+    other_repo = _key(repository="repo-b", ref="main")
+    other_ref = _key(repository="repo-a", ref="session/2026-08-25")
+    assert len({mine, other_repo, other_ref}) == 3
+
+    store.reserve(mine)
+    store.complete(mine, _result("about repo-a@main"), size_bytes=32)
+    # NOT a replay, and not an attach: a different scope is a different question
+    assert store.reserve(other_repo).should_dispatch is True
+    assert store.reserve(other_ref).should_dispatch is True
+    assert store.snapshot(mine).result == _result("about repo-a@main")
+
+
+def test_the_previous_base_never_crosses_a_scope():
+    """The sharpest form of the same defect: `latest_for_path` feeds the
+    VERIFIER, so a cross-scope hit would verify repository B's abstract against
+    repository A's answer and could refuse it for dropping coverage of a
+    document B never had."""
+    store = store_mod.AbstractStore()
+    mine = _key(repository="repo-a", ref="main")
+    store.reserve(mine)
+    store.complete(mine, _result(), size_bytes=32, abstract={"marker": "repo-a"})
+
+    assert store.latest_for_path(repository="repo-a", ref="main",
+                                 subject_path=SUBJECT) == {"marker": "repo-a"}
+    assert store.latest_for_path(repository="repo-b", ref="main",
+                                 subject_path=SUBJECT) is None
+    assert store.latest_for_path(repository="repo-a", ref="session/x",
+                                 subject_path=SUBJECT) is None

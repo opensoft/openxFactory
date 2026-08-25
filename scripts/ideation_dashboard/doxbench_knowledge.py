@@ -742,6 +742,30 @@ class KnowledgeToolBoundary:
 NON_AUTHORITATIVE = "non_authoritative"
 REGENERABLE_FROM_DOCUMENT = "document"
 
+# LAYER TWO'S FIDELITY WORD, which a layer-2-class sibling CARRIES (the ratified
+# scenario "A sibling artifact is declared at a layer's fidelity class"). Spelled
+# here rather than imported from `doxbench_packet.FIDELITY_LOSSY_BY_DESIGN` for
+# the same reason the two constants above are spelled rather than imported from
+# `doxbench_threads`: this module keeps its single dependency, and a layer's rule
+# must not become the sibling's by an import moving underneath it. The cost of
+# spelling is drift, so the equality with the layer table's own word is PINNED
+# across the two modules, in `test_doxbench_document_abstract.py`'s
+# `test_the_fidelity_word_is_the_SAME_word_the_layer_table_uses`.
+#
+# Carrying the WORD is not owning the LAYER: `CompressionLayer.owner` is a
+# one-owner field and stays `doxbench_threads.compact_thread` (design D4).
+FIDELITY_LOSSY_BY_DESIGN = "lossy-by-design"
+
+# HUMAN REVIEW IS A STATED OPEN OBLIGATION, and this is where it is stated.
+# Layer two is human-reviewable; the ratified scenario "Presentation is offered
+# as human review" refuses the claim that a sibling inherits that adjective as
+# DISCHARGED because it is rendered on a surface -- rendering an artifact in a
+# pane is not a human reviewing it. So the artifact carries the obligation
+# itself, as a field with exactly one legal value: every `DocumentAbstract` that
+# can be constructed is UNREVIEWED, no code path can mint a reviewed one, and no
+# ruled caption offers presentation as review.
+REVIEW_UNREVIEWED = "unreviewed"
+
 # The five ruled caption states (ruling 5). Exposed as an enum the route and the
 # renderer share, because five string literals in three files are five strings
 # that drift. Each caption states WHO derived it and WHAT it is not.
@@ -872,6 +896,15 @@ class DocumentAbstract:
     ``DocumentThread`` gives and the reason a cache, a route or a renderer can
     hold one of these safely.
 
+    ``fidelity`` and ``review`` are the same shape, and they carry the two
+    ratified sentences about a LAYER-2-CLASS SIBLING: it declares layer two's
+    fidelity word (lossy by design) and no other, and it inherits layer two's
+    human-reviewable adjective as an OPEN OBLIGATION rather than as something a
+    surface discharged by rendering it. What it does NOT declare is layer two's
+    own job -- there is no field and no method here spelling commitments, their
+    preservation, or the thread-state header, and a frozen slotted type cannot
+    have one attached later.
+
     There is NO generated-at field. Generation order, where a caller needs it,
     is a monotonic ``generation`` sequence: a wall clock would put a moving
     value inside an artifact this surface expects to be reproducible from its
@@ -885,6 +918,8 @@ class DocumentAbstract:
     generation: int = 0
     authority: str = NON_AUTHORITATIVE
     regenerable_from: str = REGENERABLE_FROM_DOCUMENT
+    fidelity: str = FIDELITY_LOSSY_BY_DESIGN
+    review: str = REVIEW_UNREVIEWED
 
     def __post_init__(self) -> None:
         _validated_subject_path(self.subject_path)
@@ -914,6 +949,20 @@ class DocumentAbstract:
                 f"an abstract is regenerable from {REGENERABLE_FROM_DOCUMENT!r}"
                 "; a thread's transcript is another type's origin and this one "
                 "keeps none")
+        if self.fidelity != FIDELITY_LOSSY_BY_DESIGN:
+            raise AbstractFormatRefused(
+                f"a layer-2-class sibling is declared at "
+                f"{FIDELITY_LOSSY_BY_DESIGN!r} and at no other fidelity "
+                "class: it borrows layer two's "
+                "fidelity word, and a derived artifact that claimed selection's "
+                "lossless-by-reference or offload's reversibility would be "
+                "describing work nothing here does")
+        if self.review != REVIEW_UNREVIEWED:
+            raise AbstractFormatRefused(
+                f"an abstract's review state is {REVIEW_UNREVIEWED!r} by "
+                "construction: layer two's human-reviewable adjective is "
+                "inherited as a STATED OPEN OBLIGATION, and rendering an "
+                "artifact on a surface is not a human reviewing it")
 
     def caption_state_for(self, *, current_digest: str) -> str:
         """Which ruled caption this abstract shows against the subject's CURRENT

@@ -39,6 +39,20 @@ under profile `doxbench-bridge` (`:121`). Needed before starting:
    subject_path, subject_digest, model_id, prose, caption_state, generation,
    wait_bound_seconds`.
 
+### One note on what the session root will hold
+
+The abstract dispatches through a conversation of its OWN — key kind
+`doxbench-abstract`, never the chat's `doxbench-conversation`
+(`serve.py:doxbench_abstract_conversation_key`, added 2026-08-25 for the
+adversarial review's B1). So generating an abstract for a document you have also
+been chatting about opens a SECOND harness session under
+`--model-session-root`: two session files for one document is the expected
+shape, and ONE file serving both would be the defect
+(`doxbench_bridge.select_thread`: "one session never serves two threads").
+Before that fix the shipped adapter refused the first generation of every
+session outright (`BridgeSessionConflict` on an unbound dispatch), so a run
+performed against an earlier build recorded nothing about this route.
+
 ## Pass criterion
 
 `caption_state == "model-derived"` (the verifier ACCEPTED it); the visible

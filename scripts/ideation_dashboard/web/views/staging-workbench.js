@@ -2112,8 +2112,19 @@ export function mountStagingWorkbench(container, snapshot,
       capable: canvasOffered() && wired,
       // A statement about the PLANE, which outranks any capability it reports.
       hosted: sessionSurfaceHidden(caps),
-      scopeKey: [active?.repository, active?.ref, scope?.kind, scope?.id]
-        .join("|"),
+      // COMPOSED AS JSON, NEVER JOINED (adversarial review 2026-08-25, N6;
+      // the same ruling `doxbench_bridge.conversation_key` records for the
+      // harness session key). `abstractSessions` is a module-scope map keyed by
+      // this string, and a separator has to be a character no component can
+      // contain — but a repository name, a git ref and a tile id can all
+      // contain a pipe. Two different scopes therefore composed ONE key, and
+      // the second silently inherited the first's cached abstracts, echoed
+      // digests and learned wait bound. JSON escaping makes the composition
+      // injective by construction.
+      scopeKey: JSON.stringify([
+        String(active?.repository || ""), String(active?.ref || ""),
+        String(scope?.kind || ""), String(scope?.id || ""),
+      ]),
       modelId: () => abstractModelId,
       identityFor: (path) => docBufferIdentity(path),
       generate: wired

@@ -564,6 +564,24 @@ def test_the_restructured_panes_are_height_constrained():
     assert "height" in body and "min-height" in body
 
 
+def test_the_abstracts_prose_bound_is_the_number_the_280px_budget_bought():
+    """S4 (adversarial review, 2026-08-25). THE ABSOLUTE PIN for
+    `doxbench_turns.MAX_ABSTRACT_PROSE_BYTES`, and it lives HERE — beside the
+    measured height budget — because 1_500 is not a preference: it is what fits
+    the 280px region the rule above declares, at the type sizes this sheet sets,
+    and `validate_abstract_prose` REFUSES an over-long answer rather than
+    trimming it into the box.
+
+    Every other pin on this constant is RELATIVE (it is smaller than the chat
+    surface's prose bound; an answer one byte over it is refused), so a mutation
+    to 2_000 left all of them green while shipping an abstract that overflows
+    the region it was sized for. This one names the number, and the budget it
+    came from is one screen above it."""
+    from ideation_dashboard import doxbench_turns
+
+    assert doxbench_turns.MAX_ABSTRACT_PROSE_BYTES == 1_500
+
+
 def test_each_half_of_the_restructured_panes_contains_its_own_overflow():
     """The point of bounding the pane is that neither half can push the other
     out of view: a long document list must not displace the abstract, and a

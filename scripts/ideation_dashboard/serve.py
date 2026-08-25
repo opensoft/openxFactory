@@ -674,6 +674,51 @@ def doxbench_abstract_refusal_status(code: str) -> int:
     return DOXBENCH_ABSTRACT_REFUSAL_STATUS[code]
 
 
+# THE KIND THE ABSTRACT'S OWN CONVERSATION IS COMPOSED UNDER, and it is
+# deliberately NOT `doxbench_bridge.CONVERSATION_KEY_KIND`. A distillation is
+# not a chat turn: it must not land in the chat's session (the envelope's claim
+# is that the model was shown ONE subject and no other material), and the chat
+# must not land in the abstract's either. Two kinds is what keeps the two apart
+# no matter how the rest of the key is spelled.
+DOXBENCH_ABSTRACT_CONVERSATION_KIND = "doxbench-abstract"
+
+
+def doxbench_abstract_conversation_key(scope, subject_path: str) -> str:
+    """The conversation ONE abstract generation binds its harness session under
+    -- a PURE module-level function (adversarial review 2026-08-25, B1).
+
+    WHY THE ABSTRACT BINDS AT ALL. `OmpHarnessBridge.dispatch` is
+    `_dispatch_bound(None, ...)`: on a fresh process it REFUSES an unbound turn
+    outright, and once any turn has bound a session it runs inside whichever
+    conversation the harness was last switched to. The abstract route used to
+    hand the raw port to `_deadline_bound_dispatch`, so on a real install the
+    first generation of a session could only fail -- and every generation after a
+    chat turn would have been prompted INSIDE that document's chat session,
+    against design 5.2's one-session-per-thread rule and against this route's own
+    envelope contract.
+
+    WHY ITS OWN KEY RATHER THAN THE DOCUMENT THREAD'S. Reusing
+    `conversation_key(scope, subject_path)` would fix the refusal and keep the
+    contamination, in the other direction: the abstract prompt would join the
+    document thread's conversation and every later chat turn on that document
+    would carry it.
+
+    COMPOSED AS JSON, for the reason `OmpHarnessBridge.conversation_key` states:
+    a separator has to be a character no component can contain, and a repository
+    name, a ref, a tile id and a document path can contain almost anything JSON
+    escaping makes injective by construction. It is an internal session key and
+    an error string, never a wire value."""
+
+    return json.dumps([
+        DOXBENCH_ABSTRACT_CONVERSATION_KIND,
+        str(getattr(scope, "repository", "")),
+        str(getattr(scope, "ref", "")),
+        str(getattr(scope, "tile_kind", "")),
+        str(getattr(scope, "tile_id", "")),
+        str(subject_path),
+    ], ensure_ascii=False)
+
+
 def doxbench_abstract_success_body(abstract, *,
                                    wait_bound_seconds: float | None) -> dict:
     """The verified abstract's wire body -- a PURE module-level function.
@@ -3725,7 +3770,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         dispatch, in the same load-bearing order the chat-turn handler uses:
         plane, console, body bound, request shape, scope, ELIGIBILITY, the
         subject's saved bytes, the verification base, the model, the assembled
-        request, the store, and only then a provider."""
+        request, the store, the conversation this generation is bound to, and
+        only then a provider."""
         from ideation_dashboard import doxbench_hash
         from ideation_dashboard import doxbench_model
         from ideation_dashboard import doxbench_scope
@@ -3952,12 +3998,33 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 doxbench_error_body(DOXBENCH_ERR_ABSTRACT_UNAVAILABLE))
             return
 
-        # ---- step 10: the store. ONE in-flight generation per key, an
+        # ---- step 10: the store. It is a PRECONDITION, not an assumption
+        # (adversarial review 2026-08-25, N8). `build_server` always binds one
+        # and `None` reaches here only from a hand-constructed handler -- which
+        # is exactly what `schema_validator_factory` says too, and that seam
+        # REFUSES rather than trusting the invariant. Without this leg an absent
+        # store was an `AttributeError` on `None` mid-request: the connection
+        # dropped with no stated verdict, after the model had been resolved and
+        # the subject's bytes read. Fail closed, before any dispatch.
+        if self.abstract_store is None:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_ABSTRACT_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_ABSTRACT_UNAVAILABLE))
+            return
+
+        # ONE in-flight generation per key, an
         # identical key replayed with no second dispatch, and a changed digest a
-        # NEW KEY rather than a conflict (the key is `(path, digest)`). A
+        # NEW KEY rather than a conflict (the key is `(scope, path, digest)`). A
         # concurrent request for the same key ATTACHES here rather than
         # dispatching a second time -- which is also the "regenerating" state the
         # renderer shows, so ruling 3(b) needs no machinery of its own.
+        #
+        # THE WHOLE SCOPE IS IN THE KEY (adversarial review 2026-08-25, S3).
+        # `(path, digest)` alone is one question per document only INSIDE one
+        # scope, and this handler serves every repository its registry resolves
+        # and every ref of each -- so two scopes holding identical bytes at one
+        # path shared an entry, and the `previous` base below crossed between
+        # them.
         #
         # THE MODEL ID IS NOT IN THE KEY, and that is the ruled key rather than
         # an omission: the requirement keys the cache by subject path and content
@@ -3967,6 +4034,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # actually answered, so nothing on the wire claims the model that did
         # not.
         store_key = doxbench_abstract_store.AbstractKey(
+            repository=key.repository, ref=key.ref,
             subject_path=subject_path, content_digest=digest)
         lease = self.abstract_store.reserve(store_key)
         if not lease.should_dispatch:
@@ -3976,18 +4044,49 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 
         answered = False
         try:
-            # ---- step 11: dispatch, under the adapter's OWN deadline ----
+            # ---- step 11: THE ABSTRACT'S OWN CONVERSATION, bound AS PART OF
+            # the dispatch (adversarial review 2026-08-25, B1; the chat route's
+            # own pattern at `_handle_workbench_chat_turn`). `for_conversation`
+            # returns a per-turn VIEW, and the adapter binds and prompts inside
+            # ONE lock acquisition -- so under this threading server no other
+            # handler can move the selection in between.
+            #
+            # Duck-typed exactly as `dispatch` is: an adapter that offers
+            # `for_conversation` binds and prompts atomically, and one that does
+            # not is a catalog-only or sessionless adapter and is unchanged. A
+            # BINDING FAILURE IS NOT A TURN -- dispatching anyway would ground
+            # this distillation in another conversation's session, so it refuses
+            # with the same fixed, redacted `model_failed` the chat route uses
+            # and nothing is dispatched. The key is released by the `finally`
+            # below, so the re-generate control can try again.
+            turn_port = port
+            if callable(getattr(port, "for_conversation", None)):
+                try:
+                    turn_port = port.for_conversation(
+                        doxbench_abstract_conversation_key(key, subject_path))
+                except Exception:  # noqa: BLE001 - never let an adapter's text reach the wire
+                    sys.stderr.write(
+                        "[actions/workbench/document-abstract] the harness "
+                        "bridge could not bind this abstract's own "
+                        "conversation; the generation is refused rather than "
+                        "prompted inside another conversation's session\n")
+                    self._send_json(
+                        doxbench_error_status(DOXBENCH_ERR_MODEL_FAILED),
+                        doxbench_error_body(DOXBENCH_ERR_MODEL_FAILED))
+                    return
+
+            # ---- step 12: dispatch, under the adapter's OWN deadline ----
             # `proposal_validator` is deliberately None: an abstract request is
             # not a conversation and can accept no typed proposal, so a
             # proposal-bearing answer fails closed inside `dispatch_turn`.
             outcome = self._deadline_bound_dispatch(
-                port, envelope, model_entry, None)
+                turn_port, envelope, model_entry, None)
             if not isinstance(outcome, doxbench_model.TurnDispatchSuccess):
                 self._send_json(doxbench_error_status(outcome.error),
                                 doxbench_error_body(outcome.error))
                 return
 
-            # ---- step 12: the response bound, then VERIFICATION ----
+            # ---- step 13: the response bound, then VERIFICATION ----
             try:
                 prose = doxbench_turns.validate_abstract_prose(
                     outcome.assistant_prose)
@@ -4010,11 +4109,29 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # derivation as the route's job), then filtered to the shapes that
             # module accepts, so a link the rule finds but the validator refuses
             # cannot turn a readable document into a 500.
+            #
+            # AND INTERSECTED WITH THE READER'S OWN DISCLOSURE SET (adversarial
+            # review 2026-08-25, S2). A corpus document is ATTACKER-AUTHORABLE
+            # material -- anyone who can land a file writes its bytes -- so an
+            # unbounded derivation let a document PRE-AUTHORIZE any name it
+            # liked: write `ideation/elsewhere/secret.md` into a subject and an
+            # answer naming that document stopped being a leaked neighbour. The
+            # carried set is therefore bounded by what this reader may see in
+            # this scope, `editable_paths | context_paths` -- the projection's
+            # own two sets, computed from server truth. `context_paths` and not
+            # `editable_paths` alone, because a link to a READABLE neighbour is
+            # a faithful quotation; the ELIGIBILITY rule (ruling 7(a), step 5)
+            # is the one that stays `editable_paths`, and this is not that rule.
+            # The subject's own path is always carried.
+            disclosed = frozenset(projection.editable_paths) | frozenset(
+                projection.context_paths)
             carried = [subject_path]
             for candidate in doxbench_knowledge.named_repository_paths(content):
                 if (candidate.startswith("/") or "\\" in candidate
                         or any(segment in ("", ".", "..")
                                for segment in candidate.split("/"))):
+                    continue
+                if candidate not in disclosed:
                     continue
                 carried.append(candidate)
 
@@ -4030,14 +4147,17 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     declared_destinations=declared_lands,
                     request_paths=tuple(carried),
                     subject_title=envelope.subject_title,
-                    # The PREVIOUS abstract for this document, under whatever
-                    # digest it was generated from: the ratified rule makes it an
-                    # ADDITIONAL base, never the only one. It can never be this
-                    # key's own -- a cached answer for these exact bytes was
-                    # replayed above, before any verification ran -- so what is
-                    # offered here is the answer from BEFORE the last edit,
-                    # which is precisely the base the rule is about.
-                    previous=self.abstract_store.latest_for_path(subject_path),
+                    # The PREVIOUS abstract for this document IN THIS SCOPE,
+                    # under whatever digest it was generated from: the ratified
+                    # rule makes it an ADDITIONAL base, never the only one. It
+                    # can never be this key's own -- a cached answer for those
+                    # exact bytes was replayed above, before any verification
+                    # ran -- so what is offered here is the answer from BEFORE
+                    # the last edit, which is precisely the base the rule is
+                    # about.
+                    previous=self.abstract_store.latest_for_path(
+                        repository=key.repository, ref=key.ref,
+                        subject_path=subject_path),
                     generation=generation)
             except doxbench_knowledge.AbstractFormatRefused:
                 self._send_json(

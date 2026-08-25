@@ -45,14 +45,18 @@ from __future__ import annotations
 import copy
 import http.client
 import json
+import subprocess
+import sys
 import threading
 from contextlib import contextmanager
+from pathlib import Path
 
 import pytest
 
 from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit
 
 from ideation_dashboard import doxbench_abstract_store as store_mod
+from ideation_dashboard import doxbench_bridge as brg
 from ideation_dashboard import doxbench_hash
 from ideation_dashboard import doxbench_knowledge
 from ideation_dashboard import doxbench_model
@@ -67,6 +71,7 @@ from ideation_dashboard.doxbench_scope import ScopeKey
 from ideation_dashboard.generator import generate_snapshot
 
 WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
+FAKE_CHILD = Path(__file__).resolve().parent / "fixtures" / "fake_omp_child.py"
 
 # The route under test. Referenced at module scope deliberately: it does not
 # exist yet, so this file fails closed at collection.
@@ -104,6 +109,17 @@ def _saved_content(path=SUBJECT_PATH):
 
 def _saved_digest(path=SUBJECT_PATH):
     return doxbench_knowledge.document_content_digest(_saved_content(path))
+
+
+def _projection():
+    """The scope projection the ROUTE resolves for this fixture scope, built
+    from server truth exactly as `_handle_workbench_document_abstract` builds
+    it — the two path sets ruling 7(a) and the S2 disclosure rule are about."""
+    from ideation_dashboard import doxbench_scope
+
+    return doxbench_scope.resolve_scope(
+        _snapshot(), ScopeKey(**SCOPE), source_root=BASE_REPO,
+        created_paths=())
 
 
 # ============================================================================
@@ -361,6 +377,16 @@ def test_a_readable_but_not_editable_subject_is_refused_before_any_provider(tmp_
     (`doxbench_scope.py:356-358`), so a brainstorm document this tile can READ is
     not a subject it may distil, and the standing rule — disclosure requires edit
     authority (`doxbench_scope.py:390`) — refuses it before any disclosure."""
+    # THE PRECONDITION, asserted rather than assumed (adversarial review
+    # 2026-08-25): this path must really be READABLE-BUT-NOT-EDITABLE in this
+    # scope's own projection, or the refusal below would be pinning "a path
+    # this scope cannot see is refused" — a different, weaker claim that the
+    # out-of-scope test next door already makes.
+    projection = _projection()
+    assert READABLE_ONLY_PATH in projection.context_paths
+    assert READABLE_ONLY_PATH not in projection.editable_paths
+    assert SUBJECT_PATH in projection.editable_paths
+
     port = _seeded_port()
     status, payload, fake = _post(
         tmp_path, _body(subject_path=READABLE_ONLY_PATH), port=port)
@@ -701,6 +727,7 @@ def test_abstract_churn_never_evicts_the_served_processes_chat_records(tmp_path)
 
         for index in range(store_mod.MAX_ABSTRACT_ENTRIES * 3):
             key = store_mod.AbstractKey(
+                repository="fixture-repo", ref="main",
                 subject_path=f"ideation/staging/churn-{index:04d}/README.md",
                 content_digest=f"{index:064d}")
             handler.abstract_store.reserve(key)
@@ -733,3 +760,416 @@ def test_generating_an_abstract_writes_nothing(tmp_path):
     after = {path: path.read_bytes()
              for path in sorted(BASE_REPO.rglob("*")) if path.is_file()}
     assert before == after
+
+
+# ============================================================================
+# B1 (adversarial review, 2026-08-25) — THE ABSTRACT'S OWN CONVERSATION
+# ============================================================================
+#
+# The route used to hand the RAW port to `_deadline_bound_dispatch`, so a
+# session-holding adapter was dispatched UNBOUND: `OmpHarnessBridge.dispatch`
+# calls `_dispatch_bound(None, …)`, which refuses outright on a fresh process
+# (`BridgeSessionConflict`) and, once any chat turn has bound a session,
+# silently reuses `_selected` — putting the abstract prompt inside the CHAT
+# DOCUMENT'S harness session. Design §5.2's rule is one harness session per
+# document thread, and the abstract envelope's whole claim is that the model
+# was shown ONE subject and no other material; a prompt landing in a chat
+# session makes that claim false without changing a byte of the envelope.
+#
+# The abstract therefore binds to ITS OWN conversation, composed the way the
+# bridge's `conversation_key` ruling requires (JSON, so the composition is
+# INJECTIVE by construction rather than by a separator no component may
+# contain) and under its OWN kind — never the document thread's key, which
+# would pollute the chat session in the other direction.
+
+
+class _BoundView:
+    """What a session-holding adapter's `for_conversation` returns: the three
+    port members and nothing else, bound to ONE conversation."""
+
+    def __init__(self, port, conversation):
+        self._port = port
+        self._conversation = conversation
+
+    @property
+    def timeout_seconds(self):
+        return self._port.timeout_seconds
+
+    def catalog(self):
+        return self._port.catalog()
+
+    def dispatch(self, prompt_envelope):
+        self._port.calls.append("dispatch")
+        self._port.dispatched.append((self._conversation, prompt_envelope))
+        return {"assistant_prose": self._port.prose, "proposals": []}
+
+
+class _BindingPort:
+    """A SESSION-HOLDING port, modelled on the chat route's own fake
+    (`test_doxbench_thread_wiring.py`'s `_BindingPort`): it records the order of
+    its calls, every conversation it was asked to bind, and — separately — any
+    dispatch that arrived UNBOUND, which is the defect itself."""
+
+    timeout_seconds = 30.0
+
+    def __init__(self, prose=GROUNDED_PROSE):
+        self.prose = prose
+        self.calls = []
+        self.bound = []
+        self.dispatched = []
+        self.unbound = []
+
+    def catalog(self):
+        self.calls.append("catalog")
+        return _catalog()
+
+    def for_conversation(self, conversation):
+        self.calls.append("for_conversation")
+        self.bound.append(conversation)
+        return _BoundView(self, conversation)
+
+    def dispatch(self, prompt_envelope):
+        # THE UNBOUND ARM. A real bridge either refuses here or runs the turn in
+        # whichever session it was last switched to; this fake records it so the
+        # test can say WHICH happened rather than only that a body came back.
+        self.calls.append("dispatch")
+        self.unbound.append(prompt_envelope)
+        self.dispatched.append((None, prompt_envelope))
+        return {"assistant_prose": self.prose, "proposals": []}
+
+
+def test_the_abstract_binds_its_own_conversation_before_dispatching(tmp_path):
+    """B1(i). The bind is not a call the route makes and hopes survives: the
+    bound VIEW is what dispatches, and the raw port's own `dispatch` — the
+    unbound one — is never reached."""
+    port = _BindingPort()
+    status, payload, _fake = _post(tmp_path, port=port)
+    assert status == 200, payload
+    assert port.calls.index("for_conversation") < port.calls.index("dispatch")
+    assert len(port.bound) == 1
+    assert port.unbound == [], (
+        "the abstract was dispatched UNBOUND: a session-holding adapter would "
+        "run it in whichever conversation it was last switched to")
+    assert [conversation for conversation, _envelope in port.dispatched] == [
+        port.bound[0]]
+
+
+def test_the_abstracts_conversation_key_is_never_a_chat_key(tmp_path):
+    """B1(ii). Not the document thread's key — that would put the abstract in
+    the chat's session — and not the tile outline's either. The whole scope is
+    in it, JSON-composed, under its own kind."""
+    port = _BindingPort()
+    status, _payload, _fake = _post(tmp_path, port=port)
+    assert status == 200
+    key = port.bound[0]
+    scope = ScopeKey(**SCOPE)
+    assert key != brg.OmpHarnessBridge.conversation_key(scope, SUBJECT_PATH)
+    assert key != brg.OmpHarnessBridge.outline_conversation_key(scope)
+    for buffer_key in (SUBJECT_PATH, READABLE_ONLY_PATH,
+                       brg.OUTLINE_CONVERSATION_BUFFER):
+        assert key != brg.OmpHarnessBridge.conversation_key(scope, buffer_key)
+    parts = json.loads(key)
+    assert parts[0] != brg.CONVERSATION_KEY_KIND
+    assert parts[1:] == ["fixture-repo", "main", "staged", "ideation-governance",
+                         SUBJECT_PATH]
+
+
+def test_the_abstract_conversation_key_is_injective_over_its_components():
+    """B1(ii)'s composition rule, stated as the bridge states it: a separator
+    has to be a character no component can contain, and a repository name, a
+    ref and a document path can contain almost anything. A collision pair that
+    a `join` would merge stays two keys here."""
+    compose = serve_mod.doxbench_abstract_conversation_key
+    left = compose(ScopeKey(repository="alpha|beta", ref="main",
+                            tile_kind="staged", tile_id="t"), "doc.md")
+    right = compose(ScopeKey(repository="alpha", ref="beta|main",
+                             tile_kind="staged", tile_id="t"), "doc.md")
+    assert left != right
+    same = compose(ScopeKey(repository="alpha|beta", ref="main",
+                            tile_kind="staged", tile_id="t"), "doc.md")
+    assert left == same, "the key is not a function of its components"
+    # …and one subject never borrows another's key
+    assert compose(ScopeKey(**SCOPE), "a/b.md") != compose(
+        ScopeKey(**SCOPE), "a/b.md/")
+
+
+def test_a_port_that_cannot_bind_this_abstract_refuses_and_never_dispatches(
+        tmp_path):
+    """B1(iii). A binding failure is NOT a turn: dispatching anyway would
+    ground the abstract in another conversation, so the route refuses with the
+    fixed, redacted `model_failed` the chat route uses and no provider is
+    reached."""
+
+    class _RefusingPort(_BindingPort):
+        def for_conversation(self, conversation):
+            self.calls.append("for_conversation")
+            self.bound.append(conversation)
+            raise RuntimeError("SECRET-BRIDGE-DIAGNOSTIC")
+
+    port = _RefusingPort()
+    status, payload, _fake = _post(tmp_path, port=port)
+    _assert_fixed_refusal(status, payload, serve_mod.DOXBENCH_ERR_MODEL_FAILED)
+    assert "SECRET-BRIDGE-DIAGNOSTIC" not in json.dumps(payload)
+    assert port.calls.count("dispatch") == 0
+    assert port.unbound == []
+
+
+def test_a_bind_failure_frees_the_store_key_for_the_next_attempt(tmp_path):
+    """B1(iii)'s other half, and the reason the refusal returns from INSIDE the
+    lease's `try`. The store reserves the key BEFORE the bind, and a reserved
+    key that is never released is not merely a stale cache entry: the next
+    request for those bytes ATTACHES to the in-flight entry and waits for a
+    holder that has already answered, so one bind failure would wedge that
+    document's generation for the life of the process."""
+
+    class _FlakyPort(_BindingPort):
+        def __init__(self):
+            super().__init__()
+            self.binds = 0
+
+        def for_conversation(self, conversation):
+            self.calls.append("for_conversation")
+            self.binds += 1
+            if self.binds == 1:
+                raise RuntimeError("SECRET-BRIDGE-DIAGNOSTIC")
+            self.bound.append(conversation)
+            return _BoundView(self, conversation)
+
+    port = _FlakyPort()
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first = _request(host, prt, "POST", ROUTE, body=_body(),
+                         headers=_console_headers(caps))
+        second = _request(host, prt, "POST", ROUTE, body=_body(),
+                          headers=_console_headers(caps))
+    assert first[0] == serve_mod.doxbench_error_status(
+        serve_mod.DOXBENCH_ERR_MODEL_FAILED)
+    assert second[0] == 200, second[1]
+    assert second[1]["prose"] == GROUNDED_PROSE
+    assert port.calls.count("dispatch") == 1
+    assert port.unbound == []
+
+
+# ---------------------------------------------------------------------------
+# B1(iv) — the same two facts against the REAL `OmpHarnessBridge`
+# ---------------------------------------------------------------------------
+#
+# Hermetic exactly as `test_doxbench_bridge.py` is: a REAL child over real
+# pipes, driven by `fixtures/fake_omp_child.py`, whose frames are transcribed
+# from a captured `omp` session. `omp` itself is never reached (it is a
+# GUARDED_BINARY), and the spawn seam is the bridge's own.
+
+
+class _ChatEnvelope:
+    """A chat-shaped prompt envelope, in the shape `render_prompt_message`
+    reads — the bridge's own test idiom. Used to put the bridge in the state a
+    served process is in after ONE chat turn."""
+
+    def __init__(self, model_id="model-a"):
+        self.model_id = model_id
+        self.sections = (
+            _EnvelopeSection("system_contract", "ground every answer"),
+            _EnvelopeSection("human_message", "Human message:\nwhat changed?"),
+        )
+
+
+class _EnvelopeSection:
+    def __init__(self, key, text):
+        self.key = key
+        self.text = text
+
+
+def _harness_bridge(tmp_path, *, reply=GROUNDED_PROSE):
+    """A real `OmpHarnessBridge` over the fake child. No `--session-file` is
+    scripted, so every start reports a FRESH session path — which is what makes
+    "these two conversations hold two sessions" observable."""
+
+    def spawn(argv, environment, cwd):
+        return subprocess.Popen(
+            [sys.executable, str(FAKE_CHILD), *list(argv)[1:], "--reply", reply],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, env=dict(environment), cwd=str(cwd))
+
+    root = tmp_path / "bridge"
+    root.mkdir(parents=True, exist_ok=True)
+    return brg.OmpHarnessBridge(
+        _catalog(), session_root=root,
+        launch=brg.LaunchConfig(session_dir=root, provider_id="local-proxy"),
+        spawn=spawn, log=lambda line: None,
+        environment={"PATH": "/usr/bin:/bin"})
+
+
+def test_a_fresh_process_generates_its_first_abstract_through_the_real_bridge(
+        tmp_path):
+    """B1(iv), first half — the LIVE REPRO. Against the real bridge, an unbound
+    dispatch on a fresh process raises `BridgeSessionConflict` before the child
+    is even asked, so the first generation of the whole session came back as
+    `model_failed` and no abstract could EVER be produced through the shipped
+    adapter. Bound, it succeeds."""
+    bridge = _harness_bridge(tmp_path)
+    try:
+        status, payload, _fake = _post(tmp_path, port=bridge)
+        assert status == 200, payload
+        assert payload["prose"] == GROUNDED_PROSE
+        expected = serve_mod.doxbench_abstract_conversation_key(
+            ScopeKey(**SCOPE), SUBJECT_PATH)
+        assert bridge._selected == expected
+        assert list(bridge._sessions) == [expected]
+    finally:
+        bridge.stop()
+
+
+def test_an_abstract_never_lands_in_the_chat_documents_harness_session(tmp_path):
+    """B1(iv), second half — the SILENT half. After any chat turn the bridge's
+    `_selected` is that document's conversation, and an unbound dispatch runs
+    inside it: the abstract prompt would join the chat transcript's session, so
+    the envelope's "one subject and no other material" would be false about the
+    request the model actually saw. Two conversations, two sessions."""
+    bridge = _harness_bridge(tmp_path)
+    scope = ScopeKey(**SCOPE)
+    chat_key = brg.OmpHarnessBridge.conversation_key(scope, SUBJECT_PATH)
+    try:
+        # exactly what the chat route does: bind and prompt in one acquisition
+        bridge.for_conversation(chat_key).dispatch(_ChatEnvelope())
+        assert bridge._selected == chat_key
+
+        status, payload, _fake = _post(tmp_path, port=bridge)
+        assert status == 200, payload
+        abstract_key = serve_mod.doxbench_abstract_conversation_key(
+            scope, SUBJECT_PATH)
+        assert abstract_key != chat_key
+        assert bridge._selected == abstract_key, (
+            "the abstract was dispatched into the CHAT document's harness "
+            "session")
+        assert set(bridge._sessions) == {chat_key, abstract_key}
+        assert bridge._sessions[chat_key] != bridge._sessions[abstract_key], (
+            "one harness session is serving both the chat thread and the "
+            "abstract")
+    finally:
+        bridge.stop()
+
+
+# ============================================================================
+# S2 (adversarial review, 2026-08-25) — `request_paths` is the READER'S
+# disclosure set, never a set the subject's own bytes may widen
+# ============================================================================
+#
+# The verifier's path rule refuses an answer naming any repository path the
+# request did not carry, and the route derives `carried` from the subject's own
+# content so that a document quoting its neighbours does not turn every faithful
+# quotation into a refusal. That derivation was UNBOUNDED: whatever the subject's
+# bytes named became carried, so a document could pre-authorize a name outside
+# anything the reader may see — and a document is attacker-authorable material
+# on this surface (anyone who can land a file in the corpus writes it). The
+# derived set is now INTERSECTED with the reader's own disclosure set, the
+# projection's `editable_paths | context_paths`; the subject's own path is
+# always carried.
+
+
+def _checkout_naming(tmp_path, mention, *, name="checkout"):
+    """A REAL checkout whose subject document names `mention` in its saved
+    bytes, with the snapshot generated from that same tree."""
+    import shutil
+
+    root = tmp_path / name
+    shutil.copytree(BASE_REPO, root)
+    subject = root / SUBJECT_PATH
+    subject.write_text(
+        subject.read_text(encoding="utf-8")
+        + f"\n\nSee also {mention} for the rest of the story.\n",
+        encoding="utf-8")
+    snapshot = generate_snapshot(root, "fixture-repo",
+                                 source_revision=PINNED_REVISION, git=FakeGit())
+    return root, snapshot
+
+
+OUTSIDE_MENTION = "ideation/brainstorm/nowhere-near-this-scope/notes.md"
+
+
+def test_a_path_the_subject_names_outside_the_readers_disclosure_set_is_not_carried(
+        tmp_path):
+    """S2. The subject's bytes name a path that is in NEITHER `editable_paths`
+    nor `context_paths`. An answer that names it is a leaked neighbour, and the
+    document's own text must not be able to pre-authorize it."""
+    root, snapshot = _checkout_naming(tmp_path, OUTSIDE_MENTION)
+    prose = GROUNDED_PROSE + f" It points onward to {OUTSIDE_MENTION}."
+    status, payload, fake = _post(
+        tmp_path, port=_seeded_port(prose),
+        checkout_root=root, snapshot=snapshot)
+    _assert_abstract_refusal(
+        status, payload, doxbench_knowledge.ABSTRACT_REFUSED_FOREIGN_PATH)
+    # the REASON names the offending path (it is the subject's own byte, and
+    # this reader may read the subject) -- the refused ANSWER is what never
+    # leaves the verifier
+    assert OUTSIDE_MENTION in payload["reason"]
+    assert "It points onward to" not in json.dumps(payload)
+    assert fake.calls.count("dispatch") == 1
+
+
+def test_a_path_the_subject_names_INSIDE_the_disclosure_set_is_still_carried(
+        tmp_path):
+    """The other half, and the reason the intersection is not simply "the
+    subject's own path": a document that links to a neighbour the reader may
+    READ still quotes it faithfully, and that is not a leak. `context_paths`
+    is the readable set — it is the ELIGIBILITY rule (ruling 7(a)) that stays
+    `editable_paths`, and this is not that rule."""
+    readable = READABLE_ONLY_PATH
+    root, snapshot = _checkout_naming(tmp_path, readable, name="readable")
+    prose = GROUNDED_PROSE + f" It builds on {readable}."
+    status, payload, _fake = _post(
+        tmp_path, port=_seeded_port(prose),
+        checkout_root=root, snapshot=snapshot)
+    assert status == 200, payload
+    assert payload["prose"] == prose
+
+
+def test_the_route_keys_the_store_by_the_WHOLE_scope(tmp_path):
+    """S3 at the route. One served process resolves every repository its
+    registry knows and every ref of each, so `(path, digest)` alone made two
+    scopes one cache entry — and made repository A's abstract repository B's
+    `previous` verification base. The key the route builds carries the scope it
+    was requested under."""
+    port = _seeded_port()
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        status, _payload, _raw = _request(host, prt, "POST", ROUTE, body=_body(),
+                                          headers=_console_headers(caps))
+        assert status == 200
+        store = _handler_class(httpd).abstract_store
+        digest = _saved_digest()
+        assert store.snapshot(store_mod.AbstractKey(
+            repository="fixture-repo", ref="main",
+            subject_path=SUBJECT_PATH, content_digest=digest)) is not None
+        # a key differing ONLY in scope is a different question, and the
+        # answered one is not reachable through it
+        for scoped in (("other-repo", "main"), ("fixture-repo", "session/x")):
+            assert store.snapshot(store_mod.AbstractKey(
+                repository=scoped[0], ref=scoped[1],
+                subject_path=SUBJECT_PATH, content_digest=digest)) is None
+        # …and the previous-abstract base is read back under the same scope
+        assert store.latest_for_path(
+            repository="fixture-repo", ref="main",
+            subject_path=SUBJECT_PATH) is not None
+        assert store.latest_for_path(
+            repository="other-repo", ref="main",
+            subject_path=SUBJECT_PATH) is None
+
+
+def test_a_served_process_with_no_abstract_store_refuses_rather_than_dispatching(
+        tmp_path):
+    """N8 (adversarial review, 2026-08-25). `abstract_store` is `None` only in a
+    hand-constructed handler, and `build_server` always binds one — but "only in
+    a hand-constructed handler" is exactly what `schema_validator_factory` says
+    too, and THAT seam refuses fail-closed instead of trusting the invariant.
+    An absent store meant an `AttributeError` on `None` mid-request: the
+    connection dropped with no stated verdict, and the handler had already
+    resolved the model. Refuse, state it, and dispatch nothing."""
+    port = _seeded_port()
+
+    def before(handler, _caps):
+        handler.abstract_store = None
+
+    status, payload, fake = _post(tmp_path, port=port, before=before)
+    _assert_fixed_refusal(status, payload,
+                          serve_mod.DOXBENCH_ERR_ABSTRACT_UNAVAILABLE)
+    assert fake.calls.count("dispatch") == 0
