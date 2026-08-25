@@ -3,8 +3,10 @@
 #
 # DELIBERATELY KINDLESS: no contract schema for custody attestation exists in
 # the openxwallet family, tasks §4 authorizes none, and inventing one would be
-# an unratified contract release. Carrying no `kind:` keeps repo_scan treating
-# this file as context rather than a family record.
+# an unratified contract release. Carrying no `kind:` means repo_scan SKIPS this file
+# entirely - not indexed, not validated, no machine consumer today. It is
+# traceability content for humans and for S4's reader until a schema'd
+# custody-attestation record kind exists.
 #
 # Without a recorded attestation, the intake caps review-authority grants to
 # this wallet at authority tier `request` (ratified unattested-custody rule).

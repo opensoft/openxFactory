@@ -38,7 +38,7 @@ Every load-bearing fact below was verified against the tree at `origin/main`
 8. **Scanner mechanics** (validate-openxwallet.py:1611–1644): `repo_scan`
    sweeps `*.y*ml`, skips packaged corpus by `examples` path segment, indexes
    any doc whose `kind` is in KIND_TO_SCHEMA into a repo-local context, and
-   cross-validates in-tree. A kindless YAML is invisible context.
+   cross-validates in-tree. A kindless YAML is SKIPPED ENTIRELY - not indexed, not validated.
 9. **Identifier grammars**: `$defs/identifier` =
    `^[A-Za-z0-9][A-Za-z0-9._:/-]*$` (no `@`). S2's authorized widening created
    `issuer_identifier` (with `@`) used by grant `issued_by` ALONE. Wallet

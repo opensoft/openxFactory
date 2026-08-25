@@ -32,8 +32,8 @@ any grant field, any key material.
 
 ## Attestation row: `governance/review-authority/attestations/custody-attest-wal-agent-mrc-0001.yaml`
 
-DELIBERATELY KINDLESS — no `kind:` field, so `repo_scan` treats it as context,
-not a family record. Inventing a schema here would be an unratified contract
+DELIBERATELY KINDLESS — no `kind:` field, so `repo_scan` skips it entirely
+(not indexed, no machine consumer today). Inventing a schema here would be an unratified contract
 release.
 
 | Field | Value | Why |

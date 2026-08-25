@@ -63,7 +63,8 @@ def b58(d):
     n = int.from_bytes(d, "big"); s = ""
     while n: n, r = divmod(n, 58); s = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"[r] + s
     return "z" + ("1" * (len(d) - len(d.lstrip(b"\x00")))) + s
-print("did:key:" + b58(b"\xed\x01" + b), b58(b"\xed\x01" + b)[1:])
+print("did:key:" + b58(b"\xed\x01" + b))
+print(b58(b"\xed\x01" + b))
 ```
 
 The two outputs fill `key_reference.did` and `key_reference.public_key_multibase`.

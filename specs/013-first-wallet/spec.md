@@ -61,9 +61,11 @@ none, and inventing one would be an unauthorized contract release.
 below the MVP tier S4 will target (`act`) — the cold start would be born
 already throttled.
 
-**Independent Test**: The row resolves against the wallet ref it names, states
+**Independent Test**: Manual inspection confirms the row names the wallet ref and states
 `isolation_claimed: none` honestly for `holder_readable`, and names the
-approval-before-apply compensating control.
+approval-before-apply compensating control. No validator logic reads the row
+today (kindless files are skipped by repo_scan); machine enforcement is S4
+successor work.
 
 **Acceptance Scenarios**:
 
