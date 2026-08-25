@@ -49,8 +49,23 @@ DEFAULT_THRESHOLDS = {
 }
 
 # Contract family ids, in the contract's table order.
+# EVERY registered family appears here, and a test pins
+# `set(FAMILY_IDS) == set(FAMILIES)` so the drift class cannot come back.
+# `families.FAMILIES` remains the sole AUTHORITY for which families exist —
+# this list is its complete projection onto the report, not a second
+# definition of the set. ORDER here is presentational and deliberately NOT
+# pinned to FAMILIES' order: it is the order "## Findings By Family" renders
+# sections in (`report.render`), so it is a layout choice, while membership is
+# not. RULED 2026-08-25 (Brett, "fix the FAMILY_IDS drift") after two
+# registered families — `staged-topic-template` and `proposal-origin` — were
+# found reporting 61 findings between them, three of them ERRORS, that counted
+# in the headline and the ranked plan while rendering under no section at all.
 FAMILY_IDS = [
     "status-validity",
+    # second family (add-staged-topic-outline-template). ADDED 2026-08-25 by
+    # the FAMILY_IDS drift fix: it had been registered in FAMILIES since
+    # 2026-08-15 and never listed here, so its 28 findings had no section.
+    "staged-topic-template",
     "standard-backing",
     "ratified-provenance",
     "succession-integrity",
@@ -67,18 +82,20 @@ FAMILY_IDS = [
     # fourteenth family (add-cross-factory-ideation-routing; doc-health
     # delta "Deterministic check families").
     "ideation-routing",
+    # fifteenth family (add-proposal-origin-contract). ADDED 2026-08-25 by the
+    # FAMILY_IDS drift fix. Its absence was recorded here three times as a
+    # known omission deferred on the "not in this change's evidence" rule —
+    # correctly each time, and the deferral outlived its reason: the family was
+    # reporting 33 findings, three of them ERRORS, under no section.
+    "proposal-origin",
     # sixteenth family (add-client-identity-roster; doc-health delta
-    # "Deterministic check families"). The FIFTEENTH, "proposal-origin", is
-    # absent from this list — a pre-existing omission that leaves that family
-    # without a report section. It is recorded in this feature's research and
-    # deliberately NOT fixed here: repairing another capability's registration
-    # inside this change would put an unrelated family's report output on this
-    # feature's evidence.
+    # "Deterministic check families").
     "client-identity-composition",
     # eighteenth family (add-promotion-fidelity-check; doc-health delta
     # "Deterministic check families"). Registered here so the family gets
-    # its own report section — the omission that left "proposal-origin"
-    # sectionless above is a known defect, not a pattern to copy.
+    # its own report section — the omission that once left "proposal-origin"
+    # sectionless above was a known defect, not a pattern to copy, and is
+    # fixed as of 2026-08-25.
     "promotion-fidelity",
     # nineteenth family (add-release-inventory-drift-check; doc-health delta
     # "Deterministic check families").

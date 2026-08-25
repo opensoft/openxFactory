@@ -174,7 +174,7 @@ two adjacent gaps it does not close are recorded there rather than implied.
       Today's measurement is one repository's canon and one active delta; the
       population that matters is every future family-adding branch, which by
       construction cannot be measured in advance.
-- [ ] 5.2 REPAIR `FAMILY_IDS`, or rule that the two absences are deliberate.
+- [x] 5.2 REPAIR `FAMILY_IDS`, or rule that the two absences are deliberate.
       `proposal-origin` and `staged-topic-template` are registered families
       with no report section, so their findings publish into the ranked plan
       with no heading of their own. The `proposal-origin` omission is already
@@ -184,6 +184,37 @@ two adjacent gaps it does not close are recorded there rather than implied.
       unrelated report output on this feature's evidence, the same reasoning
       that has kept it open twice already. Measured in §4.9 and pinned by test
       so it cannot grow.
+      **RULED AND DONE 2026-08-25 — Brett, in-session, verbatim: "fix the
+      FAMILY_IDS drift".** Both entries added in `FAMILIES`' own order
+      (`staged-topic-template` after `status-validity`, `proposal-origin` after
+      `ideation-routing`), which happens to make the two lists order-identical
+      today though only MEMBERSHIP is pinned — order is the sequence
+      `report.render` emits sections in, so it is a layout choice, and pinning
+      it would constrain something nobody has decided.
+      **THE CLASS IS CLOSED, NOT THE INSTANCE.**
+      `test_the_reporting_list_mirrors_the_registry_exactly` now pins
+      `set(FAMILY_IDS) == set(FAMILIES)` in both directions plus
+      no-duplicates, so a twenty-second family omitted from the reporting list
+      fails by name instead of quietly losing its section. That equality does
+      NOT promote the reporting list to a second authority — `FAMILIES` remains
+      the sole one, per its own module docstring — it makes the reporting list
+      that authority's COMPLETE PROJECTION onto the report.
+      **THE MEASURED CONSEQUENCE, which is larger than §4.9 implied.** §4.9
+      recorded the two absences as a registration gap. It did not measure what
+      they were hiding: `report.render` iterates `FAMILY_IDS` to emit
+      "## Findings By Family", so those two families' findings counted in the
+      headline and appeared in the ranked plan while rendering under NO SECTION.
+      On this repository that was **61 findings — 28 `staged-topic-template`
+      warnings and 33 `proposal-origin` (3 ERRORS, 30 warnings)** — invisible in
+      the per-family view for as long as the omission stood. Adding the entries
+      moves nothing and hides nothing; it renders 61 already-counted findings
+      where a reader can see them, in two new sections.
+      **THIS CHANGE'S OWN DELTA WAS AMENDED IN THE SAME BREATH**, because it
+      had been written from the state of the code rather than from what the code
+      should be: it said the reporting list "is allowed to be a subset" and that
+      the missing direction MUST NOT be reported. Promoting that would have
+      ratified the defect. Amended before promotion, with the original wording
+      quoted in the amendment rather than deleted.
 - [ ] 5.3 THE SCENARIO-COMPLETENESS HALF, which is the half that actually
       destroyed text. This check derives the ENUMERATION and the COUNTS, which
       is what §5.5 commissioned. A `MODIFIED` block that restates the

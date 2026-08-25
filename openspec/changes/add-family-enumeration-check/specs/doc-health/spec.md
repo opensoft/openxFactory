@@ -155,9 +155,24 @@ truncate. Three changes in three days truncated it, and all three were caught
 by a human rather than by a check.
 
 The registry SHALL be the mapping of family ids the suite iterates when it
-runs — not the reporting list, which is a separate declaration and is allowed
-to be a subset. The reporting list SHALL NOT promise a report section for a
-family the registry does not register.
+runs, and it SHALL be the sole authority for which check families exist. The
+reporting list that drives the report's per-family sections SHALL name exactly
+the families the registry registers — no more, so that a section is never
+promised for a family that does not run, and no fewer, so that a family's
+findings are never counted in the headline and the ranked plan while rendering
+under no section at all. The reporting list's ORDER is presentational and is
+not constrained by this requirement.
+
+**AMENDED 2026-08-25 ON BRETT'S RULING, before promotion.** As first written
+this paragraph said the reporting list "is a separate declaration and is
+allowed to be a subset", and the scenario below said a registered family absent
+from it MUST NOT be reported. That was written from the state of the code rather
+than from what the code should be, and it would have ratified a live defect:
+two registered families, `staged-topic-template` and `proposal-origin`, were
+absent from the list and between them carried 61 findings — three of them
+ERRORS — with no section to render under. Brett ruled the drift fixed ("fix the
+FAMILY_IDS drift"); the realization landed in the same change as this
+amendment, and the equality is pinned by test rather than left to prose.
 
 The verification SHALL cover BOTH the promoted requirement AND every ACTIVE
 change delta that restates it:
@@ -225,7 +240,7 @@ rather than precede it.
 #### Scenario: The reporting list promises a section for no family
 - **WHEN** the reporting list names an id the registry does not register
 - **THEN** the run MUST report it, a report section for a family that never runs being invisible to every other check
-- **AND** a registered family absent from the reporting list MUST NOT be reported by this family, that being a separate declaration this requirement does not govern
+- **AND** a registered family ABSENT from the reporting list MUST also be reported, by the suite's own tests rather than as a run finding, both declarations being constants of one package
 
 #### Scenario: No promoted doc-health specification is in scope
 - **WHEN** no repository in the run's scope carries a promoted `doc-health` specification
