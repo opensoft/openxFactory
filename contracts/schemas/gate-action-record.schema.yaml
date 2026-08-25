@@ -166,7 +166,7 @@ properties:
            lens-save-recipe, lens-add-as-cluster, create-document,
            edit-document, open-pr, abandon-session, promote-to-staging,
            derive-possibles, research-brief, create-project, edit-project,
-           share-session]
+           share-session, cleanup-abandoned-branch]
     # The gate-console actions (spec "Human gate console" + D17 kickoff):
     # reject-to-staging, AI-redline-apply, approve/ratify, post-ratification
     # workflow dispatch, and — add-possibles-derivation-lane ("One-way
@@ -226,6 +226,8 @@ properties:
     # Every action produces at least the manual path's artifacts (spec) —
     # an action record with no artifact is invalid.
     items: {$ref: "#/$defs/artifact"}
+  cleanup:
+    $ref: "#/$defs/cleanup"
   reason:
     type: string
     minLength: 1
@@ -419,6 +421,29 @@ allOf:
       required: [reason]
       properties:
         target: {required: [ref]}
+  # Cleanup is the explicit, local-only ending after an abandon. Its evidence
+  # block is validated before deletion and names exactly one tile scope.
+  - if: {properties: {action: {const: cleanup-abandoned-branch}}}
+    then:
+      required: [cleanup]
+      properties:
+        target:
+          required: [ref]
+          oneOf:
+            - required: [topic_id]
+            - required: [cluster_id]
+            - required: [possible_id]
+  - if:
+      properties:
+        action: {const: cleanup-abandoned-branch}
+        cleanup:
+          properties:
+            retention_release:
+              properties: {kind: {const: explicit-human-release}}
+              required: [kind]
+          required: [retention_release]
+      required: [action, cleanup]
+    then: {required: [reason]}
   # A `share-session` record (add-doxbench-editing-phase-b §12) names the session
   # branch it PUSHED — that branch ref IS the pushed ref, because the verb
   # publishes `refs/heads/<branch>` and nothing else. ADDITIVE: no record has
@@ -566,6 +591,63 @@ $defs:
         # (ADDITIVE growth, add-ideation-intent-plane task 4.3): the apply lane
         # replaying a gate-intent whose actor the inbox stamped from the
         # ingress-authenticated identity — the record names the third door.
+  cleanup:
+    type: object
+    required: [status, pre_delete_head, abandonment, retention_release]
+    properties:
+      status:
+        type: string
+        enum: [prepared, completed]
+      pre_delete_head:
+        type: string
+        pattern: "^[0-9a-f]{40,64}$"
+      abandonment:
+        type: object
+        required: [kind, reference, summary]
+        properties:
+          kind:
+            type: string
+            enum: [abandon-session-record, abandon-ending-marker]
+          reference: {type: string, minLength: 1}
+          summary: {type: string, minLength: 1}
+      retention_release:
+        type: object
+        required: [kind, scope_kind, scope_id, references]
+        properties:
+          kind:
+            type: string
+            enum: [active-proposal, archived-change, executed-demotion,
+                   legacy-executed-demotion, explicit-human-release]
+          scope_kind:
+            type: string
+            enum: [staged-topic, cluster, possible]
+          scope_id: {type: string, minLength: 1}
+          change_id: {type: string, minLength: 1}
+          references:
+            type: array
+            uniqueItems: true
+            items: {type: string, minLength: 1}
+          reason: {type: string, minLength: 1}
+          superseding_references:
+            type: array
+            uniqueItems: true
+            items: {type: string, minLength: 1}
+          recorded_at: {type: string, format: date-time}
+        allOf:
+          - if:
+              properties: {kind: {const: explicit-human-release}}
+              required: [kind]
+            then: {required: [reason]}
+          - if:
+              properties:
+                kind:
+                  enum: [active-proposal, archived-change, executed-demotion,
+                         legacy-executed-demotion]
+              required: [kind]
+            then:
+              required: [change_id, recorded_at]
+              properties:
+                references: {minItems: 1}
   # --- an artifact this action produced ---
   artifact:
     type: object

@@ -9,7 +9,13 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
-## Unreleased — pending bundle registration (fold into the next cut)
+## contract-v1.43 — 2026-08-25 (additive; cleanup retention evidence becomes exact and transactional)
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+The cleanup action and demotion receipt are new contract shapes; no instance
+valid at `contract-v1.42` is narrowed or invalidated. Existing consumers may
+remain pinned until they adopt abandoned-session cleanup or demotion evidence.
 
 - **Additive (minor)**: `contracts/openxwallet/openxwallet-grant.schema.yaml`
   gains an `issuer_identifier` def and `issued_by` moves to it — the issuer
@@ -62,16 +68,33 @@ without fabricating historical tags.
   verdict of an overlay that uses none of it. Its self-test now sweeps EVERY
   packaged positive rather than one hardcoded filename; one new positive and
   eight new negatives ship with it.
-- **Realization is shared, and is NOT performed here.** No minor number is
-  allocated and no tag is cut: `docs/contract-versioning-policy.md` allocates
-  the version LATE, at realization, against what is then available, and
-  forbids reserving one in a proposal. `contract_bundle_version` stays at
-  `contract-v1.40`. The digest inventory
-  (`scripts/validate-contract-release.py build` / `verify-commit` /
-  `verify-promotion`) and the annotated tag are published against the exact
-  commit that lands on `origin/main`, in ONE cut shared with whatever other
-  next-additive-bundle changes are folded into this same `Unreleased`
-  section.
+- **Additive (minor)**: `contracts/schemas/gate-action-record.schema.yaml`
+  registers `cleanup-abandoned-branch` with an exact tile/ref/head, correlated
+  abandonment and retention-release evidence, and a `prepared`/`completed`
+  transaction status. Machine evidence requires the preserving change id,
+  nonempty references, and a durable recording time; explicit release keeps
+  its separately recorded human reason.
+- **Additive (minor)**:
+  `contracts/schemas/demotion-execution-receipt.schema.yaml` is registered for
+  the first time. An executed receipt now accounts for every exact from/to
+  move, asserts source-folder removal, and restricts its manifest and returned
+  artifact references to repository-relative paths. Runtime validation joins
+  it to the exact transition manifest and verifies the returned artifacts
+  still exist before cleanup accepts it.
+- **Validator and examples**: the ideation-dashboard validator enforces exact
+  cleanup target/scope equality, complete machine evidence, matching explicit
+  reasons, exact demotion destinations, and safe repository paths. Packaged
+  negatives cover empty machine evidence, mismatched cleanup scope, mismatched
+  demotion destination, and traversal.
+- **Release identity**: the delegated ideation-dashboard validator joins the
+  closed release inventory's named-validator set, so the validator referenced
+  by these schema consumption rules is pinned by raw-blob digest with the
+  contract instead of being named but unaddressed.
+- **Realization**: `contract-v1.43` was allocated only after rebasing and
+  confirming the tag was available. The manifest, changelog, contract index,
+  schema digests, and candidate release inventory move atomically in this cut;
+  the annotated tag is published only after this exact reviewed commit lands
+  on `origin/main` and passes `verify-promotion`.
 
 ## contract-v1.42 — 2026-08-25 (additive; the untagged-bundle gap is discharged)
 

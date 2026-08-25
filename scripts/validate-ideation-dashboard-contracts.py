@@ -124,6 +124,7 @@ SCHEMA_FILENAMES = [
     "xfactory-workbench-chat-turn.schema.yaml",
     "project-register.schema.yaml",
     "gate-action-record.schema.yaml",
+    "demotion-execution-receipt.schema.yaml",
     "gate-intent.schema.yaml",
 ]
 
@@ -134,6 +135,7 @@ KIND_TO_SCHEMA = {
     "ideation-workbench": "ideation-workbench.schema.yaml",
     "project-register": "project-register.schema.yaml",
     "gate-action-record": "gate-action-record.schema.yaml",
+    "demotion-execution-receipt": "demotion-execution-receipt.schema.yaml",
     "gate-intent": "gate-intent.schema.yaml",
     # doxBench wire family (add-workbench-integrated-editor-chat task 2.1):
     # instance kinds use the retained `workbench-*` identifier family; the
@@ -382,6 +384,9 @@ def validate_instance(
         check_project_register_rules(f, label, doc)
     elif tag == "gate-action-record":
         check_gate_precondition(f, label, doc, ratified_changes)
+        check_cleanup_record(f, label, doc)
+    elif tag == "demotion-execution-receipt":
+        check_demotion_receipt(f, label, doc)
     elif tag == "workbench-model-catalog":
         check_model_catalog(f, label, doc)
     elif tag == "workbench-chat-turn":
@@ -729,6 +734,64 @@ def check_gate_precondition(f: Findings, label: str, doc: dict, ratified_changes
         f.error("kickoff-unratified",
                 f"{label}: kickoff targets change {change_id!r} which carries no recorded "
                 f"ratification in the supplied context (D17 refuses kickoff without ratification)")
+
+
+def check_cleanup_record(f: Findings, label: str, doc: dict) -> None:
+    """Cross-field cleanup identity and evidence requirements."""
+    if doc.get("action") != "cleanup-abandoned-branch":
+        return
+    target = doc.get("target") or {}
+    release = (doc.get("cleanup") or {}).get("retention_release") or {}
+    scope_fields = {
+        "staged-topic": "topic_id", "cluster": "cluster_id",
+        "possible": "possible_id",
+    }
+    scope_kind = release.get("scope_kind")
+    scope_field = scope_fields.get(scope_kind)
+    populated = [field for field in scope_fields.values() if target.get(field)]
+    if (scope_field is None or populated != [scope_field]
+            or target.get(scope_field) != release.get("scope_id")):
+        f.error(
+            "cleanup-scope-mismatch",
+            f"{label}: target tile scope must exactly match retention release")
+    if release.get("kind") == "explicit-human-release":
+        if doc.get("reason") != release.get("reason"):
+            f.error(
+                "cleanup-reason-mismatch",
+                f"{label}: explicit release reason must match the record reason")
+    else:
+        if not release.get("change_id"):
+            f.error("cleanup-machine-change",
+                    f"{label}: machine evidence requires change_id")
+        if not release.get("references"):
+            f.error("cleanup-machine-references",
+                    f"{label}: machine evidence requires nonempty references")
+        if not release.get("recorded_at"):
+            f.error("cleanup-machine-time",
+                    f"{label}: machine evidence requires recorded_at")
+
+
+def _safe_repo_reference(value: Any) -> bool:
+    if (not isinstance(value, str) or not value or "\\" in value
+            or Path(value).is_absolute()):
+        return False
+    return not ({".", ".."} & set(Path(value).parts))
+
+
+def check_demotion_receipt(f: Findings, label: str, doc: dict) -> None:
+    destination = doc.get("destination") or {}
+    if destination.get("path") != f"ideation/staging/{destination.get('id')}":
+        f.error("demotion-destination-mismatch",
+                f"{label}: destination.path must exactly match destination.id")
+    references = [doc.get("transition_manifest")]
+    references.extend(doc.get("returned_artifacts") or [])
+    for move in doc.get("returned_moves") or []:
+        if isinstance(move, dict):
+            references.extend((move.get("from"), move.get("to")))
+    for reference in references:
+        if not _safe_repo_reference(reference):
+            f.error("demotion-unsafe-path",
+                    f"{label}: unsafe repository path {reference!r}")
 
 
 # --------------------------- committed-manifest guard ---------------------------

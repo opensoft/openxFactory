@@ -67,6 +67,7 @@ import hashlib
 import json
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -1490,49 +1491,440 @@ class ProposalState:
         return bool(self.proposal_id) or bool(self.dispatch_in_flight)
 
 
-def landed_proposal_ids(checkout_root: Path | str) -> dict[str, str]:
-    """`{staging topic id: change id}` for every tile carrying a LANDED proposal
-    (FR-024's other half; T055).
+RETENTION_ACTIVE_PROPOSAL = "active-proposal"
+RETENTION_ARCHIVED_CHANGE = "archived-change"
+RETENTION_EXECUTED_DEMOTION = "executed-demotion"
+RETENTION_LEGACY_DEMOTION = "legacy-executed-demotion"
+RETENTION_EXPLICIT_HUMAN = "explicit-human-release"
+RETENTION_RELEASE_KINDS = (
+    RETENTION_ACTIVE_PROPOSAL,
+    RETENTION_ARCHIVED_CHANGE,
+    RETENTION_EXECUTED_DEMOTION,
+    RETENTION_LEGACY_DEMOTION,
+    RETENTION_EXPLICIT_HUMAN,
+)
 
-    Two signals, and BOTH are required, because each answers half the question:
 
-      * the possibles register's PICK EDGE (`pick.staging_id` -> `pick.change_id`)
-        is the only place the workspace records WHICH TILE a change came from — the
-        same edge `generator._pick_links` reads, and the same one `demote`'s
-        register-update note withdraws; and
-      * the change's STATUS must be `active`, read through the generator's own
-        `_iter_changes` so "active" means here exactly what it means in the funnel.
-        An ARCHIVED change is not a live proposal: `plan_demotion` refuses anything
-        non-active, so naming `demote` for one would name a route the human cannot
-        take — the very failure D20 exists to prevent.
+@dataclass(frozen=True)
+class RetentionReleaseEvidence:
+    """Durable evidence that releases an abandoned branch from retention.
 
-    Requiring both is also the forgiving direction: when a demotion has executed
-    (the change folder removed, the pick edge withdrawn) EITHER half disappearing
-    re-opens the tile, so a human who has not yet tidied the register is not locked
-    out of their own topic.
+    This deliberately is not ``ProposalState``. Proposal state answers whether
+    a tile is live and therefore closed to session work; retention release also
+    recognizes historical custody and an explicit human discard decision.
+    Broadening ``ProposalState`` would make archived work look live again.
+    """
 
-    A malformed register is not this function's error to raise — the pinned
-    validator owns conformance — so an unreadable one yields NO landed proposals
-    and the tile stays open rather than becoming unworkable."""
-    from .generator import _iter_changes        # the funnel's own status derivation
-    from .register import CrossReferenceIndexAdapter
+    kind: str
+    scope_kind: str
+    scope_id: str
+    change_id: str | None = None
+    references: tuple[str, ...] = ()
+    reason: str | None = None
+    superseding_references: tuple[str, ...] = ()
+    recorded_at: str | None = None
+
+    def as_record(self) -> dict[str, Any]:
+        record: dict[str, Any] = {
+            "kind": self.kind,
+            "scope_kind": self.scope_kind,
+            "scope_id": self.scope_id,
+            "references": list(self.references),
+        }
+        if self.change_id:
+            record["change_id"] = self.change_id
+        if self.reason:
+            record["reason"] = self.reason
+        if self.superseding_references:
+            record["superseding_references"] = list(
+                self.superseding_references)
+        if self.recorded_at:
+            record["recorded_at"] = self.recorded_at
+        return record
+
+
+def _repo_reference(root: Path, path: Path) -> str:
+    try:
+        return path.relative_to(root).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def _change_rows(checkout_root: Path | str):
+    """The shared active/archive enumeration plus declared staged origin."""
+    from . import generator
 
     root = Path(checkout_root)
+    return tuple(
+        (change_id, status, folder, *generator.declared_origin_state(folder))
+        for change_id, status, folder, _archive_date
+        in generator.iter_changes(root)
+    )
+
+
+def _active_pick_fallbacks(
+    checkout_root: Path | str, *, rows=None,
+    target_staging_id: str | None = None,
+) -> dict[str, tuple[str, ...]]:
+    """Active change ids by staged id for changes lacking declared origin.
+
+    A change picked from two staging ids is ambiguous and is refused instead of
+    selecting whichever register row happened to be encountered first.
+    """
+    from .register import CrossReferenceIndexAdapter
+
+    rows = rows if rows is not None else _change_rows(checkout_root)
+    active_without_origin = {
+        change_id for change_id, status, _folder, origin_state, _origin in rows
+        if status == "active" and origin_state == "absent"
+    }
     try:
-        active = {change_id for change_id, status, _folder, _date
-                  in _iter_changes(root) if status == "active"}
-        entries = CrossReferenceIndexAdapter.discover(root).possibles()
-    except Exception:  # noqa: BLE001 - a malformed input never blocks session work
+        entries = CrossReferenceIndexAdapter.discover(Path(checkout_root)).possibles()
+    except Exception:  # noqa: BLE001 - malformed register contributes no proof
         return {}
-    landed: dict[str, str] = {}
+    staging_by_change: dict[str, set[str]] = {}
     for entry in entries:
         pick = entry.get("pick") if isinstance(entry, Mapping) else None
         if not isinstance(pick, Mapping):
             continue
         staging_id = str(pick.get("staging_id") or "").strip()
         change_id = str(pick.get("change_id") or "").strip()
-        if staging_id and change_id and change_id in active:
-            landed.setdefault(staging_id, change_id)
+        if staging_id and change_id in active_without_origin:
+            staging_by_change.setdefault(change_id, set()).add(staging_id)
+    ambiguous = {
+        change_id: sorted(staging_ids)
+        for change_id, staging_ids in staging_by_change.items()
+        if len(staging_ids) > 1
+    }
+    relevant_ambiguous = {
+        change_id: staging_ids for change_id, staging_ids in ambiguous.items()
+        if target_staging_id is not None and target_staging_id in staging_ids
+    }
+    if relevant_ambiguous:
+        details = ", ".join(
+            f"{change_id!r} -> {staging_ids!r}"
+            for change_id, staging_ids in sorted(relevant_ambiguous.items()))
+        raise SessionRefused(
+            "cleanup retention evidence is ambiguous: active change fallback "
+            f"pick edges disagree ({details}). Record one exact staged origin "
+            "before deleting any branch.")
+    by_staging: dict[str, list[str]] = {}
+    for change_id, staging_ids in staging_by_change.items():
+        if change_id in ambiguous:
+            # The live-state projection cannot return a per-tile refusal object.
+            # Mark every tile touched by the ambiguous edge as live so those
+            # affected tiles fail closed, while unrelated tiles remain usable.
+            if target_staging_id is None:
+                for staging_id in staging_ids:
+                    by_staging.setdefault(staging_id, []).append(change_id)
+            continue
+        staging_id = next(iter(staging_ids))
+        by_staging.setdefault(staging_id, []).append(change_id)
+    return {key: tuple(sorted(values)) for key, values in by_staging.items()}
+
+
+def _proposal_retention_evidence(
+    checkout_root: Path | str, tile: "Tile",
+) -> RetentionReleaseEvidence | None:
+    if tile.scope_kind != STAGED_TOPIC:
+        return None
+    root = Path(checkout_root)
+    rows = _change_rows(root)
+    active = sorted(
+        (change_id, folder) for change_id, status, folder, _state, origin in rows
+        if status == "active" and origin == tile.scope_id)
+    if active:
+        change_id, folder = active[0]
+        return RetentionReleaseEvidence(
+            RETENTION_ACTIVE_PROPOSAL, tile.scope_kind, tile.scope_id,
+            change_id=change_id,
+            references=(_repo_reference(root, folder / ".openspec.yaml"),),
+            recorded_at=_path_recorded_at(root, folder))
+
+    archived = sorted(
+        (change_id, folder) for change_id, status, folder, _state, origin in rows
+        if status == "archived" and origin == tile.scope_id)
+    if archived:
+        change_id, folder = archived[0]
+        return RetentionReleaseEvidence(
+            RETENTION_ARCHIVED_CHANGE, tile.scope_kind, tile.scope_id,
+            change_id=change_id,
+            references=(_repo_reference(root, folder / ".openspec.yaml"),),
+            recorded_at=_path_recorded_at(root, folder))
+
+    fallback = _active_pick_fallbacks(
+        root, rows=rows, target_staging_id=tile.scope_id).get(
+            tile.scope_id, ())
+    if fallback:
+        return RetentionReleaseEvidence(
+            RETENTION_ACTIVE_PROPOSAL, tile.scope_kind, tile.scope_id,
+            change_id=fallback[0],
+            references=("ideation/cross-reference.yaml#possibles_register.pick",),
+            recorded_at=_path_recorded_at(
+                root, root / "ideation" / "cross-reference.yaml"))
+    return None
+
+
+def _path_recorded_at(root: Path, path: Path) -> str | None:
+    try:
+        return SessionGit(root).path_last_commit_at(path)
+    except (GitError, SessionGitRefused, OSError):
+        return None
+
+
+def _load_mapping(path: Path) -> Mapping[str, Any] | None:
+    try:
+        loaded = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, yaml.YAMLError):
+        return None
+    return loaded if isinstance(loaded, Mapping) else None
+
+
+def _matching_demotion_manifest(
+    root: Path, manifest_path: Path, *, change_id: str, topic_id: str,
+    returned_moves: Sequence[Mapping[str, Any]] | None = None,
+) -> bool:
+    manifest = _load_mapping(manifest_path)
+    destination = manifest.get("destination") if manifest else None
+    matched = bool(
+        manifest
+        and manifest.get("transition") == "demote"
+        and str(manifest.get("change_id") or "") == change_id
+        and isinstance(destination, Mapping)
+        and destination.get("kind") == "staged"
+        and str(destination.get("id") or "") == topic_id
+        and str(destination.get("path") or "")
+            == f"ideation/staging/{topic_id}"
+    )
+    if not matched or returned_moves is None:
+        return matched
+    files = manifest.get("files")
+    if (not isinstance(files, list) or not files
+            or any(not isinstance(item, Mapping) for item in files)
+            or any(not isinstance(item, Mapping) for item in returned_moves)):
+        return False
+    planned = sorted(
+        (str(item.get("from") or ""), str(item.get("to") or ""))
+        for item in files if isinstance(item, Mapping))
+    returned = sorted(
+        (str(item.get("from") or ""), str(item.get("to") or ""))
+        for item in returned_moves if isinstance(item, Mapping))
+    return (bool(planned) and all(source and destination
+                                  for source, destination in planned + returned)
+            and planned == returned)
+
+
+def _contained_repo_path(root: Path, reference: str) -> Path | None:
+    candidate = Path(reference)
+    if not reference or "\\" in reference or candidate.is_absolute():
+        return None
+    resolved = (root / candidate).resolve()
+    return resolved if resolved.is_relative_to(root.resolve()) else None
+
+
+def _demotion_retention_evidence(
+    checkout_root: Path | str, tile: "Tile", *,
+    records_dir: str = gate_console.DEFAULT_RECORDS_DIR,
+) -> RetentionReleaseEvidence | None:
+    if tile.scope_kind != STAGED_TOPIC:
+        return None
+    root = Path(checkout_root)
+    records_root = root / gate_console._prefix(records_dir)
+    if not records_root.is_dir():
+        return None
+
+    # New executions: a receipt is written only after the move succeeds and is
+    # joined to the exact planning manifest so a free-standing assertion cannot
+    # manufacture execution evidence.
+    for receipt_path in sorted(records_root.rglob(
+            "demote-*.execution-receipt.yaml")):
+        receipt = _load_mapping(receipt_path)
+        if receipt is not None:
+            try:
+                gate_console.validate_demotion_execution_receipt(receipt)
+            except gate_console.GateRefused:
+                receipt = None
+        destination = receipt.get("destination") if receipt else None
+        if not (
+            receipt
+            and receipt.get("kind") == "demotion-execution-receipt"
+            and receipt.get("status") == "executed"
+            and isinstance(destination, Mapping)
+            and destination.get("kind") == "staged"
+            and str(destination.get("id") or "") == tile.scope_id
+        ):
+            continue
+        change_id = str(receipt.get("change_id") or "").strip()
+        manifest_ref = str(receipt.get("transition_manifest") or "").strip()
+        manifest_path = _contained_repo_path(root, manifest_ref)
+        returned_moves = receipt.get("returned_moves")
+        returned_artifacts = receipt.get("returned_artifacts")
+        if not (
+            change_id and manifest_path is not None
+            and isinstance(returned_moves, list)
+            and isinstance(returned_artifacts, list)
+            and receipt.get("removed_change_folder") is True
+            and all(
+                isinstance(reference, str)
+                and (path := _contained_repo_path(root, reference)) is not None
+                and path.is_file()
+                for reference in returned_artifacts)
+            and _matching_demotion_manifest(
+                root, manifest_path, change_id=change_id,
+                topic_id=tile.scope_id, returned_moves=returned_moves)
+        ):
+            continue
+        manifest = _load_mapping(manifest_path)
+        origin = manifest.get("origin") if manifest else None
+        change_path = _contained_repo_path(
+            root, str(origin.get("path") or "")) if isinstance(origin, Mapping) else None
+        if change_path is None or change_path.exists():
+            continue
+        return RetentionReleaseEvidence(
+            RETENTION_EXECUTED_DEMOTION, tile.scope_kind, tile.scope_id,
+            change_id=change_id,
+            references=(_repo_reference(root, receipt_path), manifest_ref),
+            recorded_at=str(receipt.get("executed_at") or "").strip() or None)
+
+    # Legacy compatibility: the manifest is a plan-time artifact, so it counts
+    # only when a returned artifact independently names the same change and
+    # exact destination.
+    for manifest_path in sorted(records_root.rglob(
+            "demote-*.transition-manifest.yaml")):
+        manifest = _load_mapping(manifest_path)
+        destination = manifest.get("destination") if manifest else None
+        change_id = str(manifest.get("change_id") or "").strip() if manifest else ""
+        if not (
+            change_id and isinstance(destination, Mapping)
+            and destination.get("kind") == "staged"
+            and str(destination.get("id") or "") == tile.scope_id
+            and _matching_demotion_manifest(
+                root, manifest_path, change_id=change_id,
+                topic_id=tile.scope_id)
+        ):
+            continue
+        topic_root = root / "ideation" / "staging" / tile.scope_id
+        boundary = r"(?![A-Za-z0-9_-])"
+        candidates = (
+            (topic_root / "openspec" / "INDEX.md",
+             re.compile(rf"demoted change {re.escape(change_id)}{boundary}")),
+            (topic_root / "README.md",
+             re.compile(rf"demoted {re.escape(change_id)}{boundary}")),
+            (topic_root / f"{tile.scope_id}.md",
+             re.compile(rf"Change ID:\s*{re.escape(change_id)}{boundary}")),
+        )
+        corroborating = None
+        for candidate, marker in candidates:
+            try:
+                if candidate.is_file() and marker.search(candidate.read_text(
+                        encoding="utf-8")):
+                    corroborating = candidate
+                    break
+            except (OSError, UnicodeError):
+                continue
+        if corroborating is not None:
+            return RetentionReleaseEvidence(
+                RETENTION_LEGACY_DEMOTION, tile.scope_kind, tile.scope_id,
+                change_id=change_id,
+                references=(_repo_reference(root, manifest_path),
+                            _repo_reference(root, corroborating)),
+                recorded_at=str(manifest.get("transitioned_at") or "").strip()
+                    or None)
+    return None
+
+
+def retention_release_for(
+    checkout_root: Path | str, tile: "Tile", *,
+    records_dir: str = gate_console.DEFAULT_RECORDS_DIR,
+    explicit_reason: str | None = None,
+    superseding_references: Sequence[str] = (),
+) -> RetentionReleaseEvidence | None:
+    """Resolve the closed machine-evidence set, then explicit human release."""
+    evidence = _proposal_retention_evidence(checkout_root, tile)
+    if evidence is not None:
+        return evidence
+    evidence = _demotion_retention_evidence(
+        checkout_root, tile, records_dir=records_dir)
+    if evidence is not None:
+        return evidence
+    reason = str(explicit_reason or "").strip()
+    if not reason:
+        return None
+    return explicit_retention_release(tile, reason, superseding_references)
+
+
+def explicit_retention_release(
+    tile: "Tile", reason: str,
+    superseding_references: Sequence[str] = (),
+) -> RetentionReleaseEvidence:
+    refs = tuple(str(ref).strip() for ref in superseding_references)
+    if any(not ref for ref in refs):
+        raise SessionRefused(
+            "superseding references must all be nonblank; none are silently "
+            "discarded from an explicit retention-release record")
+    return RetentionReleaseEvidence(
+        RETENTION_EXPLICIT_HUMAN, tile.scope_kind, tile.scope_id,
+        references=refs, reason=reason, superseding_references=refs)
+
+
+def machine_release_correlation_error(
+    retention: RetentionReleaseEvidence, abandonment: "AbandonEvidence",
+    current_head: str,
+) -> str | None:
+    """Explain why machine evidence cannot release this abandonment, if so."""
+    if retention.kind == RETENTION_EXPLICIT_HUMAN:
+        return None
+    if not abandonment.at or not abandonment.abandoned_head:
+        return ("the abandonment proof predates exact-head correlation; machine "
+                "evidence cannot identify which abandoned work it preserved")
+    if abandonment.abandoned_head != current_head:
+        return (f"the abandonment recorded head {abandonment.abandoned_head}, but "
+                f"the branch now points at {current_head}")
+    if not retention.recorded_at:
+        return "the retention evidence has no durable recording time"
+    try:
+        evidence_at = datetime.fromisoformat(
+            retention.recorded_at.replace("Z", "+00:00"))
+        abandoned_at = datetime.fromisoformat(
+            abandonment.at.replace("Z", "+00:00"))
+    except ValueError:
+        return "the retention or abandonment timestamp is invalid"
+    if evidence_at.tzinfo is None or abandoned_at.tzinfo is None:
+        return "the retention or abandonment timestamp lacks a UTC offset"
+    if evidence_at < abandoned_at:
+        return (f"the retention evidence was recorded at {retention.recorded_at}, "
+                f"before the session was abandoned at {abandonment.at}")
+    return None
+
+
+def landed_proposal_ids(checkout_root: Path | str) -> dict[str, str]:
+    """`{staging topic id: change id}` for every tile carrying a LANDED proposal
+    (FR-024's other half; T055).
+
+    The change's declared `.openspec.yaml` staged origin is authoritative. A
+    current possibles-register pick remains a compatibility fallback only for an
+    active change that has no declaration. An ARCHIVED change is intentionally
+    excluded: historical custody can release branch retention, but must not make
+    a completed proposal look live and block a new session (D20).
+
+    A malformed register is not this function's error to raise — the pinned
+    validator owns conformance — so an unreadable one yields NO landed proposals
+    and the tile stays open rather than becoming unworkable."""
+    root = Path(checkout_root)
+    try:
+        rows = _change_rows(root)
+        fallbacks = _active_pick_fallbacks(root, rows=rows)
+    except SessionRefused:
+        raise
+    except Exception:  # noqa: BLE001 - malformed input yields no positive proof
+        return {}
+    landed: dict[str, str] = {}
+    for change_id, status, _folder, _state, origin in sorted(rows):
+        if status == "active" and origin:
+            landed.setdefault(origin, change_id)
+    for staging_id, change_ids in sorted(fallbacks.items()):
+        if change_ids:
+            landed.setdefault(staging_id, change_ids[0])
     return landed
 
 
@@ -3414,11 +3806,10 @@ def _teardown_residue(git: SessionGit, worktree: Path, branch: str,
 # happened. Nothing here changes a repository merge setting; that flip is out of
 # scope (FR-035, plan Constraint 7).
 #
-# NO gate-action record is written by the reconciliation, for the same reason
-# `cleanup-abandoned-branch` writes none: the schema has no `merge` action, and the
-# durable audit of this branch's life is the MAIN-RESIDENT `open-pr` record, which
-# names the branch and the pull request and OUTLIVES the branch — which is the
-# whole reason FR-029 mandates that residence.
+# NO gate-action record is written by the reconciliation because the schema has
+# no `merge` action. Its durable audit is the MAIN-RESIDENT `open-pr` record. The
+# later abandoned-branch cleanup is different: it records the destructive human
+# release and exact pre-delete head under its own action before deleting the ref.
 # --------------------------------------------------------------------------
 
 @dataclass(frozen=True)
@@ -3763,7 +4154,7 @@ def abandon_records_for(checkout_root: Path | str, branch: str, *,
             f"{gate_console.ACTION_ABANDON_SESSION}-*.gate-action.yaml")):
         try:
             loaded = yaml.safe_load(path.read_text(encoding="utf-8"))
-        except (OSError, yaml.YAMLError):
+        except (OSError, UnicodeError, yaml.YAMLError):
             continue
         if not isinstance(loaded, Mapping):
             continue
@@ -3771,6 +4162,52 @@ def abandon_records_for(checkout_root: Path | str, branch: str, *,
         if isinstance(target, Mapping) and str(target.get("ref") or "") == branch:
             found.append(path)
     return tuple(found)
+
+
+@dataclass(frozen=True)
+class AbandonEvidence:
+    kind: str
+    reference: str
+    summary: str
+    at: str | None = None
+    abandoned_head: str | None = None
+
+
+def abandon_evidence(checkout_root: Path | str, branch: str, *,
+                     records_dir: str = gate_console.DEFAULT_RECORDS_DIR
+                     ) -> AbandonEvidence | None:
+    """Structured durable proof that ``branch`` was intentionally abandoned."""
+    root = Path(checkout_root)
+    records = abandon_records_for(root, branch, records_dir=records_dir)
+    if records:
+        record = records[-1]
+        reference = _repo_reference(root, record)
+        loaded = _load_mapping(record) or {}
+        at = str(loaded.get("at") or "").strip() or None
+        abandoned_head = None
+        for artifact in loaded.get("artifacts") or []:
+            if not isinstance(artifact, Mapping):
+                continue
+            artifact_ref = str(artifact.get("reference") or "")
+            prefix = f"refs/heads/{branch}@"
+            if artifact_ref.startswith(prefix):
+                candidate = artifact_ref[len(prefix):]
+                if re.fullmatch(r"[0-9a-f]{40,64}", candidate):
+                    abandoned_head = candidate
+                    break
+        return AbandonEvidence(
+            "abandon-session-record", reference,
+            f"its MAIN-RESIDENT `abandon-session` record {record.name} names "
+            "this ref, carries the recorded reason, and outlives this delete "
+            "(FR-022)", at=at, abandoned_head=abandoned_head)
+    marker = read_ending_marker(root, branch)
+    if marker and str(marker.get("ending") or "") == ENDING_ABANDON:
+        path = ending_marker_path(root, branch)
+        return AbandonEvidence(
+            "abandon-ending-marker", f"{ENDING_SUBDIR}/{path.name}",
+            f"the durable ending marker {path.name} records "
+            f"ending={ENDING_ABANDON!r} for this branch (FR-021)")
+    return None
 
 
 def abandon_proof(checkout_root: Path | str, branch: str, *,
@@ -3797,22 +4234,14 @@ def abandon_proof(checkout_root: Path | str, branch: str, *,
     nothing ended and nothing recorded — and the delete would then take the only
     copy of the evidence with it, while both surfaces attested that "the abandon
     record on `main` survives it"."""
-    records = abandon_records_for(checkout_root, branch, records_dir=records_dir)
-    if records:
-        rel = records[-1].name
-        return (f"its MAIN-RESIDENT `abandon-session` record {rel} names this ref, "
-                "carries the recorded reason, and outlives this delete (FR-022)")
-    marker = read_ending_marker(checkout_root, branch)
-    if marker and str(marker.get("ending") or "") == ENDING_ABANDON:
-        return (f"the durable ending marker "
-                f"{ending_marker_path(checkout_root, branch).name} records "
-                f"ending={ENDING_ABANDON!r} for this branch (FR-021)")
-    return None
+    evidence = abandon_evidence(
+        checkout_root, branch, records_dir=records_dir)
+    return evidence.summary if evidence else None
 
 
 def assert_branch_cleanup_permitted(git: SessionGit, registry: Any, *,
                                     repository: str, tile: "Tile", branch: str,
-                                    proposal: ProposalState | None,
+                                    retention: RetentionReleaseEvidence | None,
                                     checkout_root: Path | str,
                                     inventory: TileInventory | None = None,
                                     records_dir: str = gate_console.DEFAULT_RECORDS_DIR
@@ -3825,12 +4254,9 @@ def assert_branch_cleanup_permitted(git: SessionGit, registry: Any, *,
       1. the branch is THIS TILE's (base or ordinal family, another tile's
          deterministic name EXCLUDED — G12). Deleting a branch on behalf of a tile
          that does not own it is the same defect as joining another tile's session.
-      2. the topic's PROPOSAL EXISTS. Until then the retention window is open: an
-         abandoned branch is the only surviving evidence of the exploration, and
-         the reconciliation D17 describes reads it.
-      3. a `propose` DISPATCH alone is NOT a proposal (the sharp clause): the
-         commissioned authoring may never deliver one, so a dispatch must never
-         make a branch deletable — and it must certainly never delete it.
+      2. durable retention-release evidence names this exact tile. Active and
+         archived proposal custody, executed demotion, or an explicit human
+         release may answer; absence and a proposal dispatch may not.
       4. the session is not LIVE, and no worktree is attached. The affordance is
          offered for an ABANDONED session's branch; a live session's branch is
          deleted by nobody, and a branch with a worktree would leave that worktree
@@ -3858,19 +4284,21 @@ def assert_branch_cleanup_permitted(git: SessionGit, registry: Any, *,
             "forms. A cleanup deletes the tile's OWN abandoned branch and nothing "
             "else — another tile's branch is that tile's to resolve (FR-028, "
             "FR-002, G12).")
-    if proposal is None or not proposal.proposal_id:
-        if proposal is not None and proposal.dispatch_in_flight:
-            raise SessionRefused(
-                f"no cleanup of {branch!r}: a `propose` commission for tile "
-                f"{tile.scope_id!r} was dispatched and the proposal has not landed "
-                "yet. A dispatch is a commission, not a proposal — the authoring "
-                "may never deliver one, so the branch is retained until it does "
-                "(FR-028).")
+    if retention is None:
         raise SessionRefused(
-            f"no cleanup of {branch!r}: tile {tile.scope_id!r} carries no proposal "
-            "yet, so the retention window is still open — the abandoned branch is "
-            "the surviving evidence of that exploration until a proposal exists "
-            "(FR-028).")
+            f"no cleanup of {branch!r}: tile {tile.scope_id!r} has no accepted "
+            "retention-release evidence. An active proposal, exact archived "
+            "origin, or executed demotion can preserve the exploration; a true "
+            "orphan requires an explicit nonblank human release reason. A "
+            "missing tile, missing file, or proposal dispatch proves nothing, so "
+            "the branch remains the surviving evidence (FR-028).")
+    if (retention.scope_kind != tile.scope_kind
+            or retention.scope_id != tile.scope_id):
+        raise SessionRefused(
+            f"no cleanup of {branch!r}: retention evidence names "
+            f"{retention.scope_kind} {retention.scope_id!r}, not "
+            f"{tile.scope_kind} {tile.scope_id!r}. Evidence for another tile "
+            "cannot release this branch.")
     if is_live(registry, repository, branch):
         raise SessionRefused(
             f"no cleanup of {branch!r}: a branch session is LIVE on it. The "

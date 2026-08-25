@@ -208,7 +208,7 @@ def _archived_change(arch: Path) -> tuple[str, str, Path, str | None]:
     return (arch.name, "archived", arch, None)
 
 
-def _iter_changes(repo_root: Path) -> list[tuple[str, str, Path, str | None]]:
+def iter_changes(repo_root: Path) -> list[tuple[str, str, Path, str | None]]:
     """(change_id, status, folder, archive_date) per change — active folders
     under openspec/changes/ and archived (date-prefixed) folders under
     openspec/changes/archive/."""
@@ -227,6 +227,10 @@ def _iter_changes(repo_root: Path) -> list[tuple[str, str, Path, str | None]]:
     return out
 
 
+# Compatibility for callers that pre-date the public lifecycle-evidence reader.
+_iter_changes = iter_changes
+
+
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
@@ -243,7 +247,7 @@ def _task_progress(folder: Path) -> dict[str, int] | None:
     return {"completed": completed, "total": total}
 
 
-def _load_openspec_meta(folder: Path) -> dict:
+def load_openspec_meta(folder: Path) -> dict:
     """A change's `.openspec.yaml` metadata as a dict (empty when absent or
     malformed) — the governed per-change metadata file OpenSpec writes."""
     path = folder / ".openspec.yaml"
@@ -256,7 +260,7 @@ def _load_openspec_meta(folder: Path) -> dict:
     return data if isinstance(data, dict) else {}
 
 
-def _declared_origin_staging(folder: Path) -> str | None:
+def declared_origin_staging(folder: Path) -> str | None:
     """The staging topic a change RECORDS as its own origin, or None.
 
     Read from the change's `.openspec.yaml` `origin:` block — the artifact the
@@ -287,12 +291,36 @@ def _declared_origin_staging(folder: Path) -> str | None:
     returning file. A path that is not below `ideation/staging/` answers NOTHING
     rather than being guessed at: the origin contract puts staged sources there,
     and a malformed declaration is a refusal case, not a parsing challenge."""
-    origin = _load_openspec_meta(folder).get("origin")
-    if not isinstance(origin, dict) or origin.get("kind") != "staged":
-        return None
+    _state, staging_id = declared_origin_state(folder)
+    return staging_id
+
+
+def declared_origin_state(folder: Path) -> tuple[str, str | None]:
+    """Classify a change origin without collapsing invalid data into absence.
+
+    The possibles-register compatibility fallback is safe only for old changes
+    that truly have no origin declaration.  An ad-hoc or malformed declaration
+    is an affirmative statement that the fallback must not reinterpret.
+    """
+    metadata_path = folder / ".openspec.yaml"
+    if not metadata_path.is_file():
+        return "absent", None
+    try:
+        loaded = yaml.safe_load(_read(metadata_path))
+    except (OSError, UnicodeError, yaml.YAMLError):
+        return "invalid", None
+    if not isinstance(loaded, dict):
+        return "invalid", None
+    if "origin" not in loaded:
+        return "absent", None
+    origin = loaded.get("origin")
+    if not isinstance(origin, dict):
+        return "invalid", None
+    if origin.get("kind") != "staged":
+        return "non-staged", None
     path = origin.get("path")
     if not isinstance(path, str):
-        return None
+        return "invalid", None
     # BACKSLASHES ARE TOLERATED ON THE WAY IN. The forward gate now records this
     # path in POSIX form, but it used to record `str(Path.relative_to(...))`,
     # which on a Windows checkout yields `ideation\staging\<topic>` — so a record
@@ -305,8 +333,14 @@ def _declared_origin_staging(folder: Path) -> str | None:
     normalized = path.strip().replace("\\", "/")
     parts = [part for part in normalized.split("/") if part not in ("", ".")]
     if parts[:2] != ["ideation", "staging"] or len(parts) < 3:
-        return None
-    return parts[2]
+        return "invalid", None
+    return "staged", parts[2]
+
+
+# Compatibility aliases. Cleanup now consumes the same declared origin reader
+# as snapshot generation and demotion planning.
+_load_openspec_meta = load_openspec_meta
+_declared_origin_staging = declared_origin_staging
 
 
 def _ratifier_of(folder: Path) -> str | None:
@@ -317,7 +351,7 @@ def _ratifier_of(folder: Path) -> str | None:
     itself), not who ratified the change. Returns None when no artifact records a
     ratifier — the current corpus reality — so ratification stays dormant rather
     than fabricating an authority."""
-    meta = _load_openspec_meta(folder)
+    meta = load_openspec_meta(folder)
     for key in ("ratified_by", "ratifier"):
         value = meta.get(key)
         if isinstance(value, str) and value.strip():
@@ -511,7 +545,7 @@ def _change_entry(
         "status": status,
         "code_surface": code_surface,
         "target_release": target_release,
-        "origin_staging_id": (_declared_origin_staging(folder)
+        "origin_staging_id": (declared_origin_staging(folder)
                               or change_origin_staging.get(change_id)),
     }
     ratification = _ratification(folder, archive_date, status)
@@ -533,7 +567,7 @@ def _project_changes(
     """Changes (funnel columns 5-6) plus the id->status map lineage needs."""
     changes: list[dict[str, Any]] = []
     change_status: dict[str, str] = {}
-    for change_id, status, folder, archive_date in _iter_changes(repo_root):
+    for change_id, status, folder, archive_date in iter_changes(repo_root):
         change_status[change_id] = status
         changes.append(_change_entry(change_id, status, folder, archive_date,
                                      repo_root, change_origin_staging))

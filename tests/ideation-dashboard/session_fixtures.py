@@ -32,6 +32,7 @@ every pre-Phase-7 import site still works, and there is exactly ONE definition.
 
 from __future__ import annotations
 
+import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -168,9 +169,11 @@ class ScratchRepo:
     topic_id: str = DEFAULT_TOPIC
 
     # ---- plumbing ----
-    def git(self, *args: str, cwd: Path | None = None) -> str:
+    def git(self, *args: str, cwd: Path | None = None,
+            env: dict[str, str] | None = None) -> str:
         done = subprocess.run(["git", *args], cwd=str(cwd or self.root),
-                              text=True, capture_output=True, check=True)
+                              text=True, capture_output=True, check=True,
+                              env=env)
         return done.stdout.strip()
 
     def write(self, relpath: str, text: str, *, cwd: Path | None = None) -> Path:
@@ -179,12 +182,19 @@ class ScratchRepo:
         target.write_text(text, encoding="utf-8")
         return target
 
-    def commit(self, message: str, *paths: str, cwd: Path | None = None) -> str:
+    def commit(self, message: str, *paths: str, cwd: Path | None = None,
+               at: str | None = None) -> str:
         """Stage EXPLICIT paths and commit. Never `git add -A` — the shared-tree
-        house rule holds in the fixtures too."""
+        house rule holds in the fixtures too. ``at`` pins chronology-sensitive
+        evidence without asking a test to win a race between Python's wall clock
+        and Git processes operating in different worktrees."""
         assert paths, "stage explicit paths (never -A)"
         self.git("add", "--", *paths, cwd=cwd)
-        self.git("commit", "-m", message, cwd=cwd)
+        commit_env = None
+        if at is not None:
+            commit_env = dict(os.environ)
+            commit_env.update(GIT_AUTHOR_DATE=at, GIT_COMMITTER_DATE=at)
+        self.git("commit", "-m", message, cwd=cwd, env=commit_env)
         return self.git("rev-parse", "HEAD", cwd=cwd)
 
     # ---- reads ----

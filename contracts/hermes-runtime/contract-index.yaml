@@ -31,6 +31,16 @@ contracts:
   - xfactory-codexfactory-ideation-dashboard
   semantic_member: false
   release_member: true
+- contract_id: demotion-execution-receipt
+  path: ../schemas/demotion-execution-receipt.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-codexfactory-ideation-dashboard
+  semantic_member: false
+  release_member: true
 - contract_id: gate-intent
   path: ../schemas/gate-intent.schema.yaml
   type: release-schema

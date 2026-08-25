@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.42
+contract_bundle_version: contract-v1.43
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1707,7 +1707,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/gate-action-record.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 445a7e09c47a6c6da952e790ab423510804252685106f0759069c886ff291a17
+    sha256: 7833331e06994e61121e3342effd6fb4e308aa04549cee97ce87300574d5c937
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1719,16 +1719,37 @@ contracts:
       (add-workbench-branch-sessions 1.8) — plus the contract-v1.29 wheel
       commissions `promote-to-staging`, `derive-possibles`, and
       `research-brief`, with verb-specific targets and required workflow-job
-      companions, and the contract-v1.36 `share-session` action — the doxBench
+      companions, the contract-v1.36 `share-session` action — the doxBench
       workbench verb that commits a session's dirty thread sidecars and pushes
       the session branch, constrained on `target.ref` with NO artifact-kind
       requirement because its record is branch-resident when it commits and
-      main-resident when it has nothing to commit. Consumed through the pinned
-      openxFactory checkout at the contract-v1.36 tag; per-file sha256 verified
+      main-resident when it has nothing to commit — and the contract-v1.43
+      `cleanup-abandoned-branch` transaction. Cleanup records carry an exact
+      tile/ref/head, correlated abandonment and retention evidence, and a
+      `prepared`/`completed` status; machine evidence requires a preserving
+      change, nonempty references, and a recording time. Consumed through the pinned
+      openxFactory checkout at the contract-v1.43 tag; per-file sha256 verified
       before any copy is treated as current. The kickoff-ratification precondition, transition legality,
       and wheel commission pairings are
       enforced by scripts/validate-ideation-dashboard-contracts.py (the
       family's delegated owner), never re-implemented by consumers.
+  - id: demotion-execution-receipt
+    path: contracts/schemas/demotion-execution-receipt.schema.yaml
+    source_path: openxFactory/contracts/schemas/demotion-execution-receipt.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 0e35ced926837aa95d1dcf5ee6387019c26145bc8fd22cb41313bb7cb4dfdaa5
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Durable proof written only after an explicit demotion returns every
+      planned artifact to the exact staged destination and removes the source
+      change folder. The receipt carries the exact transition manifest,
+      complete from/to move set, contained repository-relative returned paths,
+      and a true removal assertion. Consumers pin contract-v1.43 and run
+      scripts/validate-ideation-dashboard-contracts.py; cleanup additionally
+      verifies manifest correspondence and on-disk artifacts before accepting
+      the receipt as retention-release evidence.
   - id: gate-intent
     path: contracts/schemas/gate-intent.schema.yaml
     source_path: openxFactory/contracts/schemas/gate-intent.schema.yaml

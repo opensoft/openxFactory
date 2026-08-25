@@ -25,6 +25,10 @@ root and an explicit output allowlist; no snapshot/record path is baked in here.
 
 from __future__ import annotations
 
+import contextlib
+import os
+import stat
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
@@ -152,6 +156,50 @@ class OutputBoundary:
             resolved.write_bytes(data)
         else:
             resolved.write_text(data, encoding="utf-8")
+        return resolved
+
+    def create_output(self, path, data: str | bytes) -> Path:
+        """Create an allowed output exclusively.
+
+        Gate transactions use this when an existing artifact means another
+        attempt already owns the action identity.  ``write_output`` deliberately
+        retains its historical replace-capable behaviour for projections and
+        other callers.
+        """
+        resolved = self.permit_output(path)
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        if isinstance(data, bytes):
+            with resolved.open("xb") as stream:
+                stream.write(data)
+        else:
+            with resolved.open("x", encoding="utf-8", newline="") as stream:
+                stream.write(data)
+        return resolved
+
+    def replace_output(self, path, data: str | bytes) -> Path:
+        """Atomically replace an existing allowed output on the same filesystem."""
+        resolved = self.permit_output(path)
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        if not resolved.is_file():
+            raise FileNotFoundError(resolved)
+        original_mode = stat.S_IMODE(resolved.stat().st_mode)
+        temporary: Path | None = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                    mode="wb", dir=resolved.parent, prefix=f".{resolved.name}.",
+                    suffix=".tmp", delete=False) as stream:
+                temporary = Path(stream.name)
+                stream.write(data if isinstance(data, bytes)
+                             else data.encode("utf-8"))
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.chmod(temporary, original_mode)
+            os.replace(temporary, resolved)
+            temporary = None
+        finally:
+            if temporary is not None:
+                with contextlib.suppress(OSError):
+                    temporary.unlink()
         return resolved
 
     def permit_draft_skeleton(self, path) -> Path:
@@ -305,6 +353,14 @@ class HumanGate:
         """Write a governed gate/kickoff artifact (demotion/ratification/gate-action/
         workflow-job record) under the declared allowlist, attributed to the human."""
         return self.output.write_output(path, data)
+
+    def create_gate_artifact(self, path, data: str | bytes) -> Path:
+        """Create a governed artifact without replacing a competing attempt."""
+        return self.output.create_output(path, data)
+
+    def replace_gate_artifact(self, path, data: str | bytes) -> Path:
+        """Atomically finalize a governed artifact created by this transaction."""
+        return self.output.replace_output(path, data)
 
     def rewrite_session_document(self, path, text: str | None) -> Path:
         """The session rewrite (FR-015), through the human gate. Delegates to the

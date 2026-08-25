@@ -681,6 +681,56 @@ class SessionGit:
                                f"refs/heads/{branch}")
         return listed.strip() or None if ok else None
 
+    def path_last_commit_at(self, path: Path | str) -> str | None:
+        """The committer date of the newest commit touching a repository path."""
+        candidate = Path(path)
+        if not candidate.is_absolute():
+            candidate = self.served_root / candidate
+        resolved = candidate.resolve()
+        if resolved != self.served_root and not resolved.is_relative_to(
+                self.served_root):
+            raise SessionGitRefused(
+                f"refusing to inspect history for {path!r}: it escapes the "
+                f"served checkout {self.served_root}")
+        rel = resolved.relative_to(self.served_root).as_posix()
+        ok, recorded_at = self._try(
+            self.served_root, "log", "-1", "--format=%cI", "--", rel)
+        return recorded_at.strip() or None if ok else None
+
+    def _atomic_delete_ref(self, branch: str, expect_sha: str) -> None:
+        """Delete one local branch with Git's expected-old-value transaction.
+
+        This is the deliberately narrow exception to the served-checkout command
+        allowlist: callers cannot issue arbitrary ``update-ref`` commands, and
+        this helper can only delete the already validated ``refs/heads`` name at
+        the exact observed object id.
+        """
+        ref = f"refs/heads/{self.require_legal_ref(branch)}"
+        done = self.runner.run(
+            self.served_root, "update-ref", "-d", ref, expect_sha)
+        if done.returncode != 0:
+            current = self.branch_sha(branch)
+            if current != expect_sha:
+                raise SessionGitRefused(
+                    f"refusing to delete {branch!r}: it was at {expect_sha} when "
+                    f"cleanup was authorized and is at {current} now. Git's "
+                    "atomic expected-value ref transaction preserved the changed "
+                    "ref; observe it and decide again")
+            raise GitError(
+                ("update-ref", "-d", ref, expect_sha), done.returncode,
+                done.stderr or "")
+
+    def restore_branch_if_absent(self, branch: str, sha: str) -> None:
+        """Atomically restore a just-deleted ref only while it remains absent."""
+        ref = f"refs/heads/{self.require_legal_ref(branch)}"
+        done = self.runner.run(
+            self.served_root, "update-ref", ref, sha, "0" * len(sha))
+        if done.returncode != 0:
+            current = self.branch_sha(branch)
+            raise SessionGitRefused(
+                f"could not restore {branch!r} at {sha}: the ref is now "
+                f"{current}; refusing to overwrite it")
+
     def delete_branch(self, branch: str, *, remote: bool = False,
                       expect_sha: str | None = None, safe: bool = False) -> None:
         """Delete a session branch. Used by the merge ending (FR-033) and the
@@ -710,6 +760,11 @@ class SessionGit:
             raise SessionGitRefused(
                 f"refusing to delete {branch!r}: it is the served checkout's "
                 "current branch (FR-004)")
+        checked_out = self.checked_out_at(branch)
+        if checked_out:
+            raise SessionGitRefused(
+                f"refusing to delete {branch!r}: it is checked out at "
+                f"{checked_out}")
         if expect_sha is not None:
             current = self.branch_sha(branch)
             if current != expect_sha:
@@ -723,7 +778,10 @@ class SessionGit:
             # FIRST, because it is the fallible one: a failed push must leave the
             # local ref in place so the whole delete is retryable
             self.git(self.served_root, "push", self.remote, "--delete", branch)
-        self.git(self.served_root, "branch", "-d" if safe else "-D", branch)
+        if expect_sha is not None and not safe:
+            self._atomic_delete_ref(branch, expect_sha)
+        else:
+            self.git(self.served_root, "branch", "-d" if safe else "-D", branch)
 
     # ---- staging + commit: explicit paths, ONE commit, no amend ----
     def stage(self, worktree: Path | str, paths: Iterable[str]) -> tuple[str, ...]:

@@ -46,6 +46,7 @@ NAMED_VALIDATORS = (
     "scripts/validate-hermes-runtime-contracts.py",
     "scripts/validate-contract-release.py",
     "scripts/hermes-runtime-dataset-digest.py",
+    "scripts/validate-ideation-dashboard-contracts.py",
 )
 AUXILIARY_MEMBERS = (
     "requirements/hermes-runtime-contracts.in",

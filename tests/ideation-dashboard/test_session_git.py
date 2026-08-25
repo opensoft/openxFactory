@@ -279,6 +279,33 @@ def test_delete_branch_refuses_main_and_the_current_served_branch(git_and_repo):
         git.delete_branch("main")
 
 
+def test_expected_sha_delete_atomically_preserves_a_concurrently_moved_ref(
+        scratch_repo):
+    path = _session_dir(scratch_repo, "draft/demo-topic")
+    setup = sg.SessionGit(scratch_repo.root)
+    setup.worktree_add("draft/demo-topic", path, "main")
+    scratch_repo.write("notes.md", "session work\n", cwd=path)
+    setup.stage(path, ["notes.md"])
+    expected = setup.commit(path, "session work\n\nGate-Action: one")
+    setup.worktree_remove(path)
+    moved_to = scratch_repo.head("main")
+
+    class AdvancingRunner(RecordingRunner):
+        def run(self, cwd, *args):
+            if args[:3] == (
+                    "update-ref", "-d", "refs/heads/draft/demo-topic"):
+                self.real.run(
+                    cwd, "update-ref", "refs/heads/draft/demo-topic",
+                    moved_to, expected)
+            return super().run(cwd, *args)
+
+    git = sg.SessionGit(scratch_repo.root, runner=AdvancingRunner())
+    with pytest.raises(sg.SessionGitRefused, match="atomic expected-value"):
+        git.delete_branch("draft/demo-topic", expect_sha=expected)
+
+    assert git.branch_sha("draft/demo-topic") == moved_to
+
+
 # --------------------------------------------------------------------------
 # the served-checkout immovability guard (FR-004; chg 2.3)
 # --------------------------------------------------------------------------
