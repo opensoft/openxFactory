@@ -365,6 +365,20 @@ function storedTerminalAnswerSurvived(snapshotValue) {
 // exactly the "silent degradation" the requirement exists to prevent, and
 // showing the bare words "reduced context" with no reason would be that
 // degradation wearing a badge. Both drop to null.
+// The non-blank predicate the reduced-reason gate applies (issue #263). A
+// module constant rather than an inline literal so the full-space sweep test
+// can read the exact regex this gate uses, not a copy of it.
+//
+// STATED AS WHAT IT ADMITS, NOT WHAT IT EXCLUDES (issue #263 review, P2-1).
+// This was an exclusion over a set that grows with the Unicode table, and a
+// full code-point sweep found 51 points where this runtime's ICU (Unicode 16)
+// and the server's Python (15.0.0) disagreed, all newly assigned combining
+// marks. The server ACCEPTED them and this refused — the original bug exactly:
+// a reason in the durable record that renders as nothing. `Cn` is never
+// L/N/P/S in any table, so admission is stable by construction and every
+// residual version skew is fail-closed.
+export const NON_BLANK_REASON = /[\p{L}\p{N}\p{P}\p{S}]/u;
+
 function adoptContextPacket(carrier) {
   // ONE validator for BOTH readers, because they carry the SAME object: a
   // success record's `context_packet` and the persisted snapshot's. Naming the
@@ -417,7 +431,34 @@ function adoptContextPacket(carrier) {
   // the server side — where a byte-counting guard would have refused a
   // conformant 1,500-byte CJK reason — arriving on the browser side in the
   // other unit.
-  const reasonUsable = typeof reason === "string" && reason !== ""
+  // …AND NON-BLANK (issue #263). "Usable" meant `!== ""`, which is the
+  // released shape's `minLength: 1` — and that bound counts CHARACTERS, so a
+  // reason of one space, one ZWSP, one BOM, one bidi override, one lone
+  // combining mark or one control satisfied it, adopted cleanly, and the rail
+  // rendered `reduced context: ` with nothing after it. That is the exact
+  // outcome this module's own comment above calls "that degradation wearing a
+  // badge", arriving through the one input shape nobody checked.
+  //
+  // THE FAMILY'S RULE, RESTATED (canonical statement and the measurement:
+  // `doxbench_packet.states_something`): at least one character in
+  // `L* ∪ N* ∪ P* ∪ S*` — a letter, number, punctuation mark or symbol.
+  // Stated as what it ADMITS; see the constant's own note for why an exclusion
+  // over the blank categories was version-unstable. It is strictly narrower
+  // than those categories, additionally refusing `Co` (private use), `Cn`
+  // (unassigned) and `Cs` (surrogates).
+  // NOT `.trim()` — that catches space, tab, NBSP and newline and misses the
+  // other five blank classes, which are zero-visible-width rather than
+  // whitespace. A FULL CODE-POINT SWEEP drives every code point through this
+  // regex and the Python predicate and asserts the server can never accept
+  // what this refuses, because two spellings of one rule is how they drift.
+  //
+  // THIS SURFACE REFUSES. The published conformance validator only WARNS on
+  // the same input, because contract-v1.40 accepted it — but this is not a
+  // conformance verdict on a third party's record, it is this repository's own
+  // browser declining to render its own server's output as a disclosure with
+  // nothing in it.
+  const reasonUsable = typeof reason === "string"
+    && NON_BLANK_REASON.test(reason)
     && [...reason].length <= CONTEXT_REDUCED_REASON_MAX_LENGTH;
   if (posture === "full") {
     return reasonPresent ? null : Object.freeze({ posture: "full" });

@@ -62,6 +62,7 @@ from __future__ import annotations
 import dataclasses
 import re
 import time
+import unicodedata
 from collections.abc import Callable, Mapping, Sequence
 
 from doc_health.lines import split_keepends
@@ -355,6 +356,133 @@ class CorpusCoverage:
     def complete(self) -> bool:
         return self.indexed == self.total
 
+# ---------------------------------------------------------------------------
+# THE NON-BLANK RULE — stated ONCE here, restated identically at every gate
+# that carries a `reduced_reason` value (issue #263, fresh-eyes F1).
+# ---------------------------------------------------------------------------
+#
+# THE RULE: a reduction reason STATES SOMETHING iff it contains at least one
+# character in `L* ∪ N* ∪ P* ∪ S*` — a letter, a number, a punctuation mark or
+# a symbol.
+#
+# STATED AS WHAT IT ADMITS, NOT WHAT IT EXCLUDES, and that inversion is the
+# whole point (issue #263 review, P2-1). The first version of this rule named
+# the blank categories — "outside `White_Space ∪ Cc ∪ Cf ∪ Mn ∪ Mc ∪ Me`" —
+# which is a rule over a set that GROWS WITH THE UNICODE TABLE. A full
+# code-point sweep found the consequence: Python's `unicodedata` (15.0.0) and
+# Node's ICU (Unicode 16) disagreed on 51 code points, every one of them
+# UNASSIGNED in 15.0 and newly assigned as a combining mark in 16 (Arabic,
+# Garay, Tulu-Tigalari). The disagreement ran in the DANGEROUS direction: the
+# server ACCEPTED a reason made only of them and the browser REFUSED it — which
+# is the original bug exactly, a reason admitted to the durable record that
+# renders as nothing.
+#
+# An exclusion rule cannot be fixed by listing more categories, because the next
+# Unicode release adds more. `Cn` (unassigned) is never `L`/`N`/`P`/`S` in ANY
+# Unicode table, so an ADMISSION rule is stable by construction: a code point
+# this predicate accepts is one some table has assigned meaning to.
+#
+# THE ADMISSION RULE IS STRICTLY NARROWER THAN THE BLANK CATEGORIES, and the
+# delta is named here so nobody has to derive it by comparing two spellings
+# (PR #314, Codex P2). Beyond every blank class below it also refuses:
+#
+#   `Co` PRIVATE USE (e.g. U+E000)  — meaningless outside the font that defines
+#                                     it, so a reason made only of these renders
+#                                     as tofu for every other reader: the same
+#                                     disclosure-with-nothing-in-it in disguise
+#   `Cn` UNASSIGNED                 — the version-stability property above
+#   `Cs` SURROGATES                 — not characters at all
+#
+# All three are refused on the same fail-closed ground, deliberately.
+#
+# THE FOUR HOMES AGREE ON THE PREDICATE AND DIFFER ON THE CONSEQUENCE. The
+# published conformance validator WARNS and still accepts, because
+# `contract-v1.40` accepted these records and the versioning policy makes a new
+# validator warning ADDITIVE while a new rejection is BREAKING (PR #314, Codex
+# P1). The three runtime gates — this one, the record derivation, and the
+# browser adopter — REFUSE, because a server may hold itself to more than the
+# wire requires and none of them is judging somebody else's record.
+#
+# WHAT THE SWEEP MEASURES, stated precisely rather than as "the runtimes agree",
+# because they still do not agree everywhere — and the count is not the safety
+# property. Across all 1,112,064 code points:
+#
+#   direction                             blank-category rule   this rule
+#   server ACCEPTS / browser REFUSES      51  <-- the bug        0
+#   server REFUSES / browser ACCEPTS       0                  5,761 (safe)
+#   unassigned code points accepted   825,345                      0
+#
+# The 5,761 residual disagreements are code points Unicode 16 assigned and
+# Unicode 15 has not: the older runtime refuses, the newer would accept. That is
+# FAIL-CLOSED — the server is the gate that admits a record, so a stricter
+# server cannot produce an unreadable disclosure. The property the test asserts
+# is therefore not "zero disagreements" but "the bug direction is EMPTY".
+#
+# WHY NOT `.strip()`, which is what the family had and what a reviewer would
+# reach for first: it catches four of the nine recorded blank classes and misses
+# five. Measured, not assumed:
+#
+#   class                cat  `.strip()` empties it
+#   space                Zs   yes
+#   tab                  Cc   yes
+#   NBSP      U+00A0     Zs   yes
+#   newline              Cc   yes
+#   ZWSP      U+200B     Cf   NO
+#   BOM       U+FEFF     Cf   NO
+#   bidi ovr  U+202E     Cf   NO
+#   combining U+0301     Mn   NO
+#   control   U+0001     Cc   NO
+#
+# The last five survive `.strip()` because they are not White_Space: they are
+# ZERO-VISIBLE-WIDTH, which is a different property. `U+200B` is `Cf` (it has
+# not been `Zs` since Unicode 4.0.1), a lone combining mark has no base to
+# attach to, and `U+0001` is a control that `str.strip()` leaves alone.
+#
+# WHAT THIS PREDICATE DOES NOT CLAIM: that the reason RENDERS visibly. Several
+# assigned characters are letters or symbols by category and blank on screen —
+# U+3164 HANGUL FILLER, U+2800 BRAILLE PATTERN BLANK, U+115F, U+FFA0 — and this
+# accepts them. Visible rendering is a font and shaping question that no
+# category table answers, and a predicate that tried would be chasing a moving
+# target in the wrong layer. The claim is the category statement above and
+# nothing more.
+#
+# THE THREE RESTATEMENTS, kept identical on purpose (this rule is the family's
+# SECOND delegated rule — the released schema cannot express it, because
+# `minLength: 1` counts characters and every blank above is one character):
+#   * `serve.doxbench_context_packet` — imports this function, so the server
+#     boundary and the type share one implementation rather than two spellings.
+#   * `check_context_packet` in `scripts/validate-ideation-dashboard-contracts.py`
+#     — RESTATES it, because that validator is standalone by design and must
+#     not import the runtime package it validates artifacts for. A test asserts
+#     the two implementations agree on every class above.
+#   * `adoptContextPacket` in `web/views/doxbench-chat-model.js` — restates it
+#     as a Unicode-property regex. A FULL-SPACE sweep test drives every code
+#     point through both runtimes and asserts the bug direction is empty.
+_STATED_CATEGORIES = ("L", "N", "P", "S")
+
+
+def states_something(text: object) -> bool:
+    """Whether `text` carries at least one letter, number, punctuation mark or
+    symbol (issue #263).
+
+    STATED AS THE CATEGORY RULE, NOT AS "a reader can see it" (issue #263
+    review, P3-3). The earlier gloss claimed visibility and was falsified:
+    U+3164 HANGUL FILLER, U+2800 BRAILLE PATTERN BLANK, U+115F and U+FFA0 are
+    letters or symbols by category, are accepted here, and render blank. That
+    is not a hole to chase — visible rendering is a font and shaping question
+    no category table answers, and a predicate that tried to decide it would be
+    guessing in the wrong layer. The claim is the categories and nothing more.
+
+    Non-strings are False rather than an error: every caller here is a
+    boundary that already has its own refusal to raise, and a predicate that
+    raised would make each of them handle two failure shapes instead of one."""
+
+    if not isinstance(text, str):
+        return False
+    return any(
+        unicodedata.category(ch)[0] in _STATED_CATEGORIES for ch in text)
+
+
 REDUCED_NO_KNOWLEDGE_SERVICE = (
     "the staged-set knowledge service is unavailable, so this packet carries "
     "the selected thread and the loaded buffers only, with NO corpus evidence; "
@@ -624,12 +752,19 @@ class ContextPacket:
         if self.posture not in (POSTURE_FULL, POSTURE_REDUCED):
             raise PacketError(
                 f"a packet posture is {POSTURE_FULL!r} or {POSTURE_REDUCED!r}")
-        # A NON-EMPTY STRING (Codex review of PR #256, aligned here for the
-        # same reason the presence rule was): a truthy non-string reason is not
-        # a reason, and letting one construct means every reader downstream has
-        # to coerce it into one. The released shape says `type: string`.
-        if self.posture == POSTURE_REDUCED and not (
-                isinstance(self.reduced_reason, str) and self.reduced_reason):
+        # A NON-BLANK STRING (Codex review of PR #256 made it non-empty; issue
+        # #263 makes it non-blank). A truthy non-string reason is not a reason,
+        # and letting one construct means every reader downstream has to coerce
+        # it into one. The released shape says `type: string`.
+        #
+        # NON-BLANK, not non-empty, and this is now the same strictness `ref`
+        # and `provider_id` have had two fields up all along — the inconsistency
+        # issue #263 named. `states_something` is the family's rule, stated once
+        # where it is defined; nine blank classes reach this constructor and
+        # `minLength: 1` blesses every one of them, because each is exactly one
+        # character.
+        if self.posture == POSTURE_REDUCED and not states_something(
+                self.reduced_reason):
             raise PacketError(
                 "a reduced packet STATES the reduced posture's reason; a "
                 "reduction nobody can read is a silent degradation")
@@ -642,9 +777,12 @@ class ContextPacket:
         # string: the shape forbids the field's PRESENCE on a full posture and
         # this forbade only a useful value. Aligned so the claim is true.
         #
-        # The REDUCED arm above is deliberately left on truthiness: there a blank
-        # is refused for being unusable, which is the shape's `minLength: 1`. Two
-        # rules, not one predicate.
+        # The REDUCED arm above refuses a blank for being UNUSABLE; this arm
+        # refuses the field for being THERE. Two rules, not one predicate —
+        # still true, and still the reason these must not be "simplified" into
+        # one. What changed at issue #263 is only the reduced arm's strictness:
+        # it no longer stops at the shape's `minLength: 1`, because that bound
+        # counts characters and a blank one is still a character.
         if self.posture == POSTURE_FULL and self.reduced_reason is not None:
             raise PacketError(
                 "a full packet carries no reduction reason")
