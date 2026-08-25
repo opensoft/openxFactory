@@ -108,21 +108,21 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
 
 ## 3. Prompt assembly (non-chat), RED-first
 
-- [ ] 3.1 RED: `build_prompt_envelope` refuses an abstract-shaped request —
+- [x] 3.1 RED: `build_prompt_envelope` refuses an abstract-shaped request —
       demonstrate the chat-shape barrier concretely (no outline buffer, no human
       message) rather than asserting it in prose.
-- [ ] 3.2 RED: identical construction input yields byte-identical rendered prompt
+- [x] 3.2 RED: identical construction input yields byte-identical rendered prompt
       bytes; and the envelope carries EXACTLY ONE subject section — no layer-1
       packet, no second buffer, no transcript. Check through `port.dispatched`.
-- [ ] 3.3 RED then GREEN: `build_abstract_envelope` REFUSES a `ContextPacket`
+- [x] 3.3 RED then GREEN: `build_abstract_envelope` REFUSES a `ContextPacket`
       handed to it, of ANY declared purpose. Do NOT add a new
       `PACKET_PURPOSE_*`: an abstract request carries no packet, so
       `require_valid` would never run and the constant would be dead code. The
       refusal to pin is "this request carries no packet", not "this packet has
       the wrong label".
-- [ ] 3.4 Implement `doxbench_turns.build_abstract_envelope` with its own
+- [x] 3.4 Implement `doxbench_turns.build_abstract_envelope` with its own
       section-order constant. GREEN 3.1–3.3.
-- [ ] 3.5 RED then GREEN: the output bound is tighter than
+- [x] 3.5 RED then GREEN: the output bound is tighter than
       `MAX_ASSISTANT_PROSE_BYTES` (`doxbench_turns.py:80`) and an over-long
       response is refused, not truncated into the region.
 
