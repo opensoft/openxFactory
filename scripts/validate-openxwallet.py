@@ -164,6 +164,20 @@ The rules the shapes cannot express:
       and the legacy org string every pre-S2 example carries does NOT
       grandfather into the anchor (review-authority intake).
 
+  (u) THE REGISTER AND ITS READER RATIFY TOGETHER, AND A GRANT WITHOUT AN
+      ACTIVE ROW CONFERS NOTHING. When the scanned tree carries an intake
+      register (`governance/review-authority/register.yaml`), every row must
+      resolve: its wallet live and active, its grant indexed, matching in
+      audience/act/tier/expiry, and NOT expired by COMPUTED time — the stored
+      `state` field is never truth about expiry. An `act`-tier row is valid
+      only with a parseable custody attestation naming that wallet; an
+      unparseable attestation refuses loudly rather than silently degrading
+      to the unattested cap. Inversely, an active REVIEW-class grant with no
+      backing active row is refused: authority claimed outside the register
+      the capability ratified is authority this validator does not honour
+      (review-authority intake; design D4/D11 — the register's shape is
+      enforced here, no contract schema authored for it).
+
 WHAT THIS VALIDATOR DELIBERATELY DOES NOT DO
 
 It does not verify signatures, resolve DIDs, contact a key store, or check
@@ -1605,6 +1619,395 @@ def self_test(f: Findings, docs: dict[str, dict], ctx: Context) -> None:
            f"{len(negatives)} negative confirmation(s) across "
            f"{len(covered)}/{len(REQUIREMENTS)} requirements")
 
+    # S4 register-reader assertions. Same discipline as the S2 anchor block:
+    # the live register proves the happy path, and these synthetic probes pin
+    # every refusal code the reader can emit so no edit or deleted fixture
+    # silences an invariant while the self-test stays green. The register is
+    # kindless BY RULING (D11), so file fixtures cannot be corpus negatives -
+    # these synthesized trees ARE the negative coverage.
+    import tempfile
+    now = datetime(2026, 9, 1, tzinfo=timezone.utc)
+    future = "2026-11-23T12:00:00Z"
+    past = "2026-08-01T12:00:00Z"
+
+    def _s4_ctx(*docs):
+        c = Context(ctx.registry, ctx.vocabulary)
+        for d in docs:
+            c.index(d)
+        return c
+
+    s4_wallet = {
+        "schema_version": 1, "kind": "xfactory_wallet_record",
+        "wallet_id": "wal-s4-probe-0001",
+        "holder": {"holder_id": "agent:s4-probe",
+                   "holder_class": "agent"},
+        "key_reference": {"did": "did:key:z6Mko2FefScUQg9opCriwQmjfcb3Qjnb5bN49hQsEVMo6gee",
+                          "key_id": "key-s4-0001",
+                          "signature_algorithm": "ed25519"},
+        "custody": {"model": "holder_readable", "registry_version": 1},
+        "state": "active",
+    }
+    s4_grant = {
+        "schema_version": 1, "kind": "xfactory_wallet_grant",
+        "grant_id": "grant-s4-probe-0001",
+        "audience": {"wallet_ref": "wal-s4-probe-0001"},
+        "scope": {"acts": [REVIEW_ACT_TOKEN], "authority_tier": "act"},
+        "expires_at": future, "state": "active",
+        "issued_by": ROOT_ISSUER_OPERATOR_TOKEN,
+    }
+    s4_row = {
+        "row_id": "row-s4-0001",
+        "holder_ref": "agent:s4-probe",
+        "wallet_ref": "wal-s4-probe-0001",
+        "target_repo": "opensoft/openxFactory",
+        "act": REVIEW_ACT_TOKEN, "authority_tier": "act",
+        "grant_ref": "grant-s4-probe-0001", "expires_at": future,
+        "state": "active",
+    }
+    s4_attest = {
+        "attestation_id": "attest-custody-wal-s4-probe-0001",
+        "subject_wallet_ref": "wal-s4-probe-0001",
+        "custody_model_attested": "holder_readable",
+        "verified_by": {"name": "Brett Heap", "role": "responsible operator",
+                        "standing": "Human Escalation Contract"},
+        "verified_at": "2026-08-24T12:00:00Z",
+        "verified_against": {"method": "operator-minted ed25519 keypair",
+                             "isolation_claimed": False},
+    }
+
+    def _s4_tree(register_rows, with_attest=True, grant=None, wallet=None):
+        base = Path(tempfile.mkdtemp(prefix="s4-selftest-"))
+        ra = base.joinpath(*REGISTER_DIR_PARTS, ATTESTATIONS_DIR)
+        ra.mkdir(parents=True)
+        (base.joinpath(*REGISTER_DIR_PARTS, REGISTER_FILE)).write_text(
+            yaml.safe_dump({"register_version": 1,
+                            "rows": register_rows}), encoding="utf-8")
+        if with_attest:
+            (ra / "custody-attest-wal-s4-probe-0001.yaml").write_text(
+                yaml.safe_dump(s4_attest), encoding="utf-8")
+        return base, _s4_ctx(grant or s4_grant, wallet or s4_wallet)
+
+    def _register_probe(label, base, c, expect_codes):
+        probe = Findings()
+        check_register(probe, base, c, now=now)
+        got = {e.split("]")[0].replace("ERROR [", "") for e in probe.errors}
+        missing = set(expect_codes) - got
+        extra = got - set(expect_codes) - {"register-minimal-shape-exceeded"} \
+            if len(expect_codes) != 1 else set()
+        if missing or (expect_codes and extra):
+            f.error("register-assertion-failed",
+                    f"{label}: expected {sorted(expect_codes)}, got "
+                    f"{sorted(got)}")
+
+    # Positive: a fully resolving row is CLEAN.
+    base, c = _s4_tree([s4_row])
+    _register_probe("self-test/register-clean", base, c, set())
+
+    # Computed expiry: past expires_at refuses as expired AND flags the stale
+    # stored state AND leaves the grant without a backing active row.
+    stale_row = dict(s4_row, expires_at=past)
+    stale_grant = dict(s4_grant, expires_at=past)
+    base, c = _s4_tree([stale_row], grant=stale_grant)
+    _register_probe("self-test/register-computed-expiry", base, c,
+                    {"register-row-expired", "grant-state-stale",
+                     "register-no-active-row"})
+
+    # Grant without any backing row: the headline obligation.
+    empty_reg = dict({"register_version": 1, "rows": []})
+    base = Path(tempfile.mkdtemp(prefix="s4-selftest-"))
+    ra = base.joinpath(*REGISTER_DIR_PARTS, ATTESTATIONS_DIR)
+    ra.mkdir(parents=True)
+    (base.joinpath(*REGISTER_DIR_PARTS, REGISTER_FILE)).write_text(
+        yaml.safe_dump(empty_reg), encoding="utf-8")
+    _register_probe("self-test/register-no-active-row", base,
+                    _s4_ctx(s4_grant, s4_wallet),
+                    {"register-row-malformed", "register-no-active-row"})
+
+    # act tier without a parseable attestation refuses loudly.
+    base, c = _s4_tree([s4_row], with_attest=False)
+    _register_probe("self-test/register-tier-act-unattested", base, c,
+                    {"register-tier-act-unattested"})
+
+    # Minimal shape: a second row is refused outright.
+    second = dict(s4_row, row_id="row-s4-0002")
+    base, c = _s4_tree([s4_row, second])
+    _register_probe("self-test/register-minimal-shape-exceeded", base, c,
+                    {"register-minimal-shape-exceeded"})
+
+    # Unknown field on a row: strict, because this reader IS the shape.
+    fat_row = dict(s4_row, extra_field="nope")
+    base, c = _s4_tree([fat_row])
+    _register_probe("self-test/register-row-malformed", base, c,
+                    {"register-row-malformed"})
+
+    # Absent register with no review grants: legitimate consumer posture.
+    probe = Findings()
+    check_register(probe, Path(tempfile.mkdtemp(prefix="s4-selftest-")),
+                   Context(ctx.registry, ctx.vocabulary), now=now)
+    if probe.errors:
+        f.error("register-assertion-failed",
+                f"absent register with no review grants must be clean; "
+                f"got {probe.errors}")
+
+
+# ------------------- register: the intake's row validator -------------------
+#
+# S4 of add-wallet-carried-review-authority (design D4/D11): the register and
+# its reader land TOGETHER or the capability is not realized. The register's
+# shape is deliberately NOT a contract schema — D11 rules its schema a
+# declared successor until the rule-of-three fires — so THIS function is the
+# shape: kindless YAML at a fixed path, parsed strictly, cross-resolved
+# against the records repo_scan already indexed.
+
+REGISTER_DIR_PARTS = ("governance", "review-authority")
+REGISTER_FILE = "register.yaml"
+ATTESTATIONS_DIR = "attestations"
+REGISTER_ROW_FIELDS = {
+    "row_id", "holder_ref", "wallet_ref", "target_repo", "act",
+    "authority_tier", "grant_ref", "expires_at", "state",
+}
+REGISTER_MVP_SINGLE_ROW = 1
+
+
+def _parse_dt(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _load_attestations(f: Findings, attest_dir: Path,
+                       ctx: Context) -> dict[str, dict]:
+    """Parse every custody-attestation row under attest_dir into
+    wallet_ref -> attestation. Malformed rows are LOUD (error), never
+    silently treated as absent: an unparseable attestation must refuse the
+    act tier it was recorded to unlock, not degrade it to the cap in
+    silence. Rows naming wallets absent from the scan are skipped with a
+    note - they are context for holders this tree does not carry."""
+    out: dict[str, dict] = {}
+    if not attest_dir.is_dir():
+        return out
+    for path in sorted(attest_dir.glob("*.y*ml")):
+        try:
+            doc = load_yaml(path)
+        except yaml.YAMLError as exc:
+            f.error("attestation-unparseable",
+                    f"{path}: parse failure: {exc}")
+            continue
+        ref = doc.get("subject_wallet_ref") if isinstance(doc, dict) else None
+        if not isinstance(ref, str) or not ref:
+            f.error("attestation-malformed",
+                    f"{path}: carries no subject_wallet_ref")
+            continue
+        if ref not in ctx.wallets:
+            f.note(f"attestation {path.name}: subject {ref!r} is not a "
+                   f"wallet in this scan; skipped")
+            continue
+        problems = []
+        by = doc.get("verified_by")
+        if not isinstance(by, dict) or not all(
+                isinstance(by.get(k), str) and by.get(k)
+                for k in ("name", "role", "standing")):
+            problems.append("verified_by must name name/role/standing")
+        against = doc.get("verified_against")
+        if not isinstance(against, dict) or not isinstance(
+                against.get("method"), str) or not against.get("method"):
+            problems.append("verified_against.method missing")
+        if "isolation_claimed" not in (against or {}):
+            problems.append("verified_against.isolation_claimed missing "
+                            "(the honest posture field)")
+        model = doc.get("custody_model_attested")
+        if not isinstance(model, str) or model not in ctx.custody:
+            problems.append(f"custody_model_attested {model!r} is not a "
+                            f"closed-set member")
+        when = _parse_dt(doc.get("verified_at"))
+        if when is None:
+            problems.append("verified_at is not an RFC3339 timestamp")
+        if problems:
+            f.error("attestation-malformed",
+                    f"{path}: " + "; ".join(problems))
+            continue
+        out[ref] = doc
+    return out
+
+
+def check_register(f: Findings, base_dir: Path, ctx: Context,
+                   now: datetime | None = None) -> None:
+    """The register reader. MVP obligations exactly as ratified: every active
+    review-class grant in the scanned tree needs a backing ACTIVE row; every
+    row resolves end to end (wallet, grant, computed expiry, act-tier
+    attestation); the stored `state` field is checked AGAINST computed time,
+    never trusted (N8). Absent register + no review-class grants is the
+    legitimate posture of every consumer repository that has not cold-started
+    the arc."""
+    now = now or datetime.now(timezone.utc)
+    reg_path = Path(base_dir).joinpath(*REGISTER_DIR_PARTS, REGISTER_FILE)
+    if not reg_path.exists():
+        review_holders = [
+            gid for gid, g in ctx.grants.items()
+            if isinstance(g.get("scope"), dict)
+            and REVIEW_ACT_TOKEN in _hashable_set(g["scope"].get("acts"))
+        ]
+        if review_holders:
+            f.error("register-no-active-row",
+                    f"active REVIEW-class grants {sorted(review_holders)} "
+                    f"exist but {reg_path} does not exist; authority claimed "
+                    f"outside the ratified register confers nothing")
+        else:
+            f.note("no intake register at this tree; nothing to read")
+        return
+
+    try:
+        reg = load_yaml(reg_path)
+    except yaml.YAMLError as exc:
+        f.error("register-unparseable", f"{reg_path}: parse failure: {exc}")
+        return
+    if not isinstance(reg, dict):
+        f.error("register-unparseable", f"{reg_path}: not a mapping")
+        return
+    if reg.get("register_version") != 1:
+        f.error("register-version-unknown",
+                f"{reg_path}: register_version {reg.get('register_version')!r} "
+                f"is not 1")
+        return
+    rows = reg.get("rows")
+    if not isinstance(rows, list):
+        f.error("register-row-malformed",
+                f"{reg_path}: `rows` must be a list")
+        return
+    if not rows:
+        # NOT an early return: an empty register still owes the reader's
+        # headline obligation - any active REVIEW-class grant in this tree is
+        # then precisely "a convening admitting a holder with no active row".
+        f.error("register-row-malformed",
+                f"{reg_path}: `rows` must be a non-empty list")
+        rows = []
+    if len(rows) > REGISTER_MVP_SINGLE_ROW:
+        f.error("register-minimal-shape-exceeded",
+                f"{reg_path}: {len(rows)} rows; the ratified first shape is "
+                f"exactly ONE holder/target/act row - wider registers are a "
+                f"named successor change")
+
+    attestations = _load_attestations(f, Path(base_dir).joinpath(
+        *REGISTER_DIR_PARTS, ATTESTATIONS_DIR), ctx)
+
+    active_rows: set[str] = set()
+    for i, row in enumerate(rows):
+        label = f"{reg_path}:rows[{i}]"
+        if not isinstance(row, dict):
+            f.error("register-row-malformed", f"{label}: not a mapping")
+            continue
+        fields = set(row)
+        if fields != REGISTER_ROW_FIELDS:
+            missing = sorted(REGISTER_ROW_FIELDS - fields)
+            extra = sorted(fields - REGISTER_ROW_FIELDS)
+            f.error("register-row-malformed",
+                    f"{label}: field set mismatch (missing={missing}, "
+                    f"unknown={extra}); the register has no schema so THIS "
+                    f"reader is the shape, and it is strict")
+            continue
+        row_id = row["row_id"]
+
+        wallet = ctx.wallets.get(row["wallet_ref"])
+        if wallet is None:
+            f.error("register-wallet-unresolved",
+                    f"{label} ({row_id}): wallet_ref {row['wallet_ref']!r} "
+                    f"resolves to no scanned wallet record")
+            continue
+        if wallet.get("state") != "active":
+            f.error("register-wallet-inactive",
+                    f"{label} ({row_id}): audience wallet "
+                    f"{row['wallet_ref']!r} is state {wallet.get('state')!r}")
+
+        if row["act"] != REVIEW_ACT_TOKEN:
+            f.error("register-act-not-review",
+                    f"{label} ({row_id}): act {row['act']!r} is not the "
+                    f"canonical review token")
+        if row["authority_tier"] == "act_unsupervised":
+            f.error("register-tier-refused",
+                    f"{label} ({row_id}): act_unsupervised is refused for "
+                    f"review authority outright")
+        elif row["authority_tier"] not in ctx.tier_rank:
+            f.error("register-tier-unknown",
+                    f"{label} ({row_id}): authority_tier "
+                    f"{row['authority_tier']!r} is outside the closed ladder")
+
+        expires = _parse_dt(row["expires_at"])
+        if expires is None:
+            f.error("register-row-malformed",
+                    f"{label} ({row_id}): expires_at is not RFC3339")
+            continue
+        if expires <= now:
+            f.error("register-row-expired",
+                    f"{label} ({row_id}): COMPUTED expiry "
+                    f"{row['expires_at']} has passed; the stored state "
+                    f"{row['state']!r} is not truth about expiry (N8)")
+        elif row["state"] == "active":
+            active_rows.add(row_id)
+
+        grant = ctx.grants.get(row["grant_ref"])
+        if grant is None:
+            f.error("register-grant-unresolved",
+                    f"{label} ({row_id}): grant_ref {row['grant_ref']!r} "
+                    f"resolves to no scanned grant")
+            continue
+        g_scope = grant.get("scope") if isinstance(grant.get("scope"), dict) \
+            else {}
+        g_aud = grant.get("audience") if isinstance(
+            grant.get("audience"), dict) else {}
+        mismatches = []
+        if g_aud.get("wallet_ref") != row["wallet_ref"]:
+            mismatches.append("audience.wallet_ref")
+        if REVIEW_ACT_TOKEN not in _hashable_set(g_scope.get("acts")):
+            mismatches.append("acts lacks the review token")
+        if g_scope.get("authority_tier") != row["authority_tier"]:
+            mismatches.append("authority_tier")
+        g_exp = _parse_dt(grant.get("expires_at"))
+        r_exp = _parse_dt(row["expires_at"])
+        if g_exp is None or r_exp is None or g_exp != r_exp:
+            mismatches.append("expires_at differs between row and grant")
+        if grant.get("state") != "active":
+            mismatches.append(f"grant state {grant.get('state')!r}")
+        if g_exp is not None and g_exp <= now and grant.get("state") == \
+                "active":
+            f.error("grant-state-stale",
+                    f"{row['grant_ref']!r}: stored state 'active' but "
+                    f"COMPUTED expiry {grant.get('expires_at')} has passed "
+                    f"(N8: stale state is a finding, not truth)")
+        if mismatches:
+            f.error("register-grant-mismatch",
+                    f"{label} ({row_id}): grant {row['grant_ref']!r} does "
+                    f"not back the row: " + "; ".join(mismatches))
+
+        if row["authority_tier"] == "act" and row["wallet_ref"] not in \
+                attestations:
+            f.error("register-tier-act-unattested",
+                    f"{label} ({row_id}): tier act requires a parseable "
+                    f"custody attestation for wallet "
+                    f"{row['wallet_ref']!r}; none resolved - the unattested "
+                    f"cap applies and this row cannot stand at act")
+
+    # The headline obligation, inverted for CI: an active REVIEW-class grant
+    # whose holder carries no ACTIVE register row means a convening could
+    # admit authority the register never granted.
+    for gid, g in sorted(ctx.grants.items()):
+        scope = g.get("scope") if isinstance(g.get("scope"), dict) else {}
+        if REVIEW_ACT_TOKEN not in _hashable_set(scope.get("acts")):
+            continue
+        backed = any(
+            isinstance(r, dict) and r.get("grant_ref") == gid
+            and r.get("state") == "active"
+            and (_parse_dt(r.get("expires_at")) or now) > now
+            for r in rows if isinstance(r, dict))
+        if not backed:
+            f.error("register-no-active-row",
+                    f"active REVIEW-class grant {gid!r} has no backing "
+                    f"active register row; admitting a convening for this "
+                    f"holder would confer authority the register never "
+                    f"granted")
+
 
 # --------------------------- layer 2: real artifacts ---------------------------
 
@@ -1661,6 +2064,8 @@ def repo_scan(f: Findings, target: Path, docs: dict[str, dict],
     for path, doc in found:
         scanned += 1
         validate_record(f, str(path), doc, docs, repo_ctx)
+    if sweep:
+        check_register(f, target, repo_ctx)
     f.note(f"repo scan: {scanned} openxWallet artifact(s) validated, "
            f"{skipped} document(s) skipped as another kind")
 
