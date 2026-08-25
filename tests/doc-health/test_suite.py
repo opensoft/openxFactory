@@ -3,12 +3,13 @@ regression matching, and threshold deviation reporting."""
 
 from __future__ import annotations
 
+import shutil
 from datetime import date
 
-from conftest import REPO_ROOT, FakeGit, make_ctx
+from conftest import AS_OF, FIXTURES, REPO_ROOT, FakeGit, make_ctx
 
 from doc_health import CRITICAL, ERROR, WARNING, DEFAULT_THRESHOLDS, Finding
-from doc_health import catalog_dispatch, corpus, report
+from doc_health import catalog_dispatch, corpus, report, runner
 from doc_health.families import FAMILIES
 
 
@@ -194,3 +195,97 @@ def test_unavailable_semantic_family_does_not_fake_a_resolution():
                               "semantic-contradiction"})
     assert [(finding.family, finding.path) for finding in got] == [
         ("uncited-resolution", "docs/reg.md")]
+
+
+# ---------------------------------------------------------- run-configuration
+#
+# PR #325 review (add-promotion-fidelity-check task 4.2): `unavailable_families`
+# was populated from semantic/readiness/neutrality availability only, never
+# from run CONFIGURATION — a `--skip-family` entry, or a `--family` run's
+# implicit omission of every other family. `report.uncited_resolutions`
+# treats a family absent from `unavailable_families` as having genuinely run
+# and found nothing, so a run that skipped a CONTESTED family manufactured a
+# spurious `uncited-resolution` ERROR for every one of that family's prior
+# contested findings. `promotion-fidelity`'s CONTESTED flip (this branch)
+# widened the exposure, but it predates the flip — the same hazard applied
+# to `record-immutability`, `location-conformance`, etc. on any run that
+# skipped one of them.
+#
+# `location-conformance`'s existing fixture (a "brainstorm" doc outside
+# ideation/brainstorm/) is reused for all three tests below via `runner.main`
+# end to end, because the fix lives in `runner.main`'s CLI wiring, not in
+# `report.uncited_resolutions` itself (already covered above).
+
+def _previous_report_with_contested_finding():
+    finding = Finding(
+        ERROR, "location-conformance", "alpha", "docs/stray.md",
+        "brainstorm document outside ideation/brainstorm/",
+        "move it under ideation/brainstorm/ or change its status",
+        resolution="contested")
+    return report.render(date(2026, 7, 8), [finding], [], [], [], 0, [], [])
+
+
+def test_skip_family_run_never_manufactures_an_uncited_resolution(tmp_path):
+    repo = tmp_path / "alpha"
+    shutil.copytree(FIXTURES / "location-conformance" / "alpha", repo)
+    prev = tmp_path / "previous.md"
+    prev.write_text(_previous_report_with_contested_finding(),
+                    encoding="utf-8")
+
+    out = tmp_path / "report.md"
+    rc = runner.main([
+        "--single-repo", str(repo),
+        "--skip-family", "location-conformance",
+        "--as-of", AS_OF.isoformat(),
+        "--previous-report", str(prev),
+        "--report-out", str(out)])
+    assert rc == 0
+    text = out.read_text(encoding="utf-8")
+    # The violation is still sitting right there in the repo — skipping the
+    # family must suppress the manufactured resolution regardless of what
+    # the corpus actually contains, because a skipped family never looked.
+    assert "family=uncited-resolution" not in text
+
+
+def test_single_family_run_never_manufactures_an_uncited_resolution(tmp_path):
+    """A `--family` run executes ONLY the named family (`run_suite`'s
+    `only_family` branch silently `continue`s past every other one), so it
+    must suppress exactly like `--skip-family` for every family it did not
+    run — proven here by selecting an unrelated family."""
+    repo = tmp_path / "alpha"
+    shutil.copytree(FIXTURES / "location-conformance" / "alpha", repo)
+    prev = tmp_path / "previous.md"
+    prev.write_text(_previous_report_with_contested_finding(),
+                    encoding="utf-8")
+
+    out = tmp_path / "report.md"
+    rc = runner.main([
+        "--single-repo", str(repo), "--family", "tag-hygiene",
+        "--as-of", AS_OF.isoformat(),
+        "--previous-report", str(prev),
+        "--report-out", str(out)])
+    assert rc == 0
+    text = out.read_text(encoding="utf-8")
+    assert "family=uncited-resolution" not in text
+
+
+def test_full_run_still_fires_uncited_resolution_when_genuinely_resolved(
+        tmp_path):
+    """The mechanism the fix must NOT break: a family that actually RAN and
+    found nothing for a path previously contested still owes a citation."""
+    repo = tmp_path / "alpha"
+    shutil.copytree(FIXTURES / "location-conformance" / "alpha", repo)
+    (repo / "docs" / "stray.md").unlink()  # the violation is genuinely gone
+    prev = tmp_path / "previous.md"
+    prev.write_text(_previous_report_with_contested_finding(),
+                    encoding="utf-8")
+
+    out = tmp_path / "report.md"
+    rc = runner.main([
+        "--single-repo", str(repo),
+        "--as-of", AS_OF.isoformat(),
+        "--previous-report", str(prev),
+        "--report-out", str(out)])
+    assert rc == 0
+    text = out.read_text(encoding="utf-8")
+    assert "family=uncited-resolution" in text

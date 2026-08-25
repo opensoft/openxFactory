@@ -364,6 +364,22 @@ population (4.3), and only then the both-halves flip (4.2).
       requirements** — the dropped-scenarios lesson this family exists to
       catch being exactly the failure available to a careless edit here.
       `openspec validate add-promotion-fidelity-check --strict`: valid.
+      **PR #325'S REVIEW OF THIS FLIP FOUND ONE MORE HAZARD, NOW FIXED:**
+      `runner.main`'s `unavailable_families` set (the exclusion list feeding
+      `report.uncited_resolutions`) was populated from semantic/readiness/
+      neutrality availability only, never from run CONFIGURATION, so a
+      `--skip-family` run — or a single-`--family` run's implicit omission of
+      every other family — silently read that family's prior CONTESTED
+      findings as resolved and manufactured spurious `uncited-resolution`
+      errors; the gap predates this flip and already applied equally to
+      `record-immutability`, `location-conformance`, and every other
+      CONTESTED family, but promotion-fidelity's move to CONTESTED here is
+      what gave the nightly a live family it could actually skip into the
+      hazard, so the review is credited with exposing and fixing it (`runner.
+      py` now joins `args.skip_family`, and every non-selected family on a
+      `--family` run, into `unavailable_families`; covered by three new
+      `tests/doc-health/test_suite.py` cases, mutation-checked by reverting
+      the fix).
 - [x] 4.3 **If ruled enforcing, the standing population is discharged
       FIRST.** `govern-openspec-corpus-membership` established the ordering
       and the reason: "A gate that goes red on the commit that introduces it
