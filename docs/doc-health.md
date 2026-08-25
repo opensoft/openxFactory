@@ -25,9 +25,19 @@ aggregation repo; this document and the `doc-health` spec own the contract.
 
 ## Check Families
 
-Every run executes twelve families over every family repo the aggregation
+Every run executes nineteen families over every family repo the aggregation
 repo pins, after running each repo's own validators as a preflight. A
 family that cannot run is reported as skipped, never silently omitted.
+
+**The table below is knowingly incomplete.** It carries the original twelve
+plus the eighteenth, `promotion-fidelity`, whose spec delta is one of the
+deltas that raised the count above. Families 13 through 17, and the
+nineteenth (`release-inventory-drift`), each reached the `doc-health` spec by
+delta and never reached this table — which is also why the two paragraphs
+after it still describe families 13 and 14 as active proposals and still call
+this contract a twelve-family baseline. Repairing that backlog belongs to a
+change that owns those families; it is a named standing gap, recorded in the
+archived `add-promotion-fidelity-check` §5.2, not an oversight here.
 
 | # | Family | What it verifies |
 | --- | --- | --- |
@@ -43,6 +53,7 @@ family that cannot run is reported as skipped, never silently omitted.
 | 10 | Submodule pin drift | Aggregation-repo pins vs each submodule's remote main |
 | 11 | Contract-copy drift | Domain-local copies vs their canonical openxFactory sources |
 | 12 | Notebook projection drift | The lifecycle notebook sync dry-run reports zero add/update/delete operations |
+| 18 | Promotion fidelity | Every archived spec delta reached the promoted spec it was ratified to reach — the requirement title and every scenario stated under it, and a ratified removal actually removed. The most recent archived delta is the authority; only a packet whose own `proposal.md` declares `draft` or a lower standing is exempt. Findings are `error`, classified `contested`, and reported against the archived delta's own path |
 
 The active `add-document-cataloging` change proposes a thirteenth
 deterministic family, `document-catalog`, plus a separate, non-deterministic
@@ -73,7 +84,7 @@ coordination — never lifecycle, ownership, or approval authority (see
 | Severity | Meaning | Examples |
 | --- | --- | --- |
 | `critical` | Governance integrity broken | Unbacked `standard` claim; dangling provenance; `record` mutation |
-| `error` | Contract violation | Malformed/unresolved marker; free-form status; aging past escalation |
+| `error` | Contract violation | Malformed/unresolved marker; free-form status; aging past escalation; a ratified spec delta that never reached its promoted spec |
 | `warning` | Drift or first-stage aging | Pin drift; copy drift; projection drift; 30-day staged item |
 | `info` | Inventory and metrics | Canon share; per-stage counts; age distributions |
 
@@ -103,7 +114,13 @@ in the xFactory aggregation repo, carrying `Status: record` +
 - **Headline metric** — canon share by words: ratified + standard +
   promoted spec words over total governance words.
 - **Per-stage counts** and age distributions.
-- **Per-family finding sections** for the twelve families.
+- **Per-family finding sections** for every family the run executed.
+- **The promotion fidelity measurement basis**, stated in that family's own
+  section on every run and whether or not it found anything: the pinned
+  checkout by default — the same tree every other family measures — or each
+  repository's own live `main` where the run is configured for it, naming
+  any repository whose live `main` could not be read and was measured from
+  its checkout instead.
 - **Ranked plan** — every finding as a ready-to-stage work item stating
   severity, repo, path, and suggested action, so report output feeds the
   ideation pipeline's input.

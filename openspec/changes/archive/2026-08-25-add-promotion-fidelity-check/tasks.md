@@ -474,7 +474,7 @@ population (4.3), and only then the both-halves flip (4.2).
       identical to the ratified delta's (`99fa2a84…`, `107ede78…`). This
       family now reads **0 findings** in openxFactory, down from the 2 §3.2
       records — measured, not assumed.
-- [ ] 5.2 **`docs/doc-health.md`'s check-family table stops at twelve.**
+- [x] 5.2 **`docs/doc-health.md`'s check-family table stops at twelve.**
       Families 13 through 17 were added by spec delta and never reached the
       table; this change adds the eighteenth and does not repair the table
       either. Deliberate: repairing another capability's registration inside
@@ -499,6 +499,41 @@ population (4.3), and only then the both-halves flip (4.2).
       note would. All three arrive together when this change's `doc-health`
       delta is promoted. Box stays open: the table is still twelve rows and
       the gap is still real.
+      **ALL THREE ARRIVED AT THE ARCHIVE GATE, which is the door this box
+      named, and nothing else did.** The `doc-health` delta was promoted by
+      the archive act in this commit, so the three additions are now behind
+      canon rather than ahead of it, and each is the one this box named:
+      (1) the eighteenth family's row in the check-family table, stating the
+      latest-writer authority, the explicit-draft-or-lower exemption, and the
+      `error`/`contested` pair; (2) the measurement-basis bullet in § Report
+      Contract, carrying the promoted "The promotion fidelity measurement
+      basis is declared" requirement's own obligation — stated on every run
+      and whether or not the family found anything, naming any repository
+      that fell back; (3) this family's own violation on § Finding
+      Severities' `error` examples row, written as prose the way that column
+      writes every other example rather than as a family id, which §4.2's
+      flip is what earned.
+      **THE BACKLOG WAS NOT REPAIRED, deliberately, and the table now says so
+      where a reader meets it** rather than only here. One consequential edit
+      was forced by the arrivals and is named so a reader does not read it as
+      backlog repair: the count sentence moved `twelve` → `nineteen`, because
+      the promoted requirement this change's own delta MODIFIES is the
+      family-count one and a `standard` document restating a count its canon
+      has left is the next instance of this family's own class. It adds no
+      row. § Report Contract's "for the twelve families" became "for every
+      family the run executed" for the same reason — a count restated beside
+      a bullet that is being added is a count being asserted afresh.
+      **THE BACKLOG IS NOW 13-17 PLUS 19, not 13-17.** `release-inventory
+      drift` archived into canon as the nineteenth on 2026-08-25 (PR #331)
+      and did not reach this table either, so the disclosure paragraph names
+      both spans as one gap. The table still enumerates twelve plus the
+      eighteenth, and the two stale paragraphs still describe families 13 and
+      14 as active proposals and still call this contract a twelve-family
+      baseline.
+      **NO FINDING MOVES ON THIS DOCUMENT.** It carried none before the edit
+      and carries none after; it is `Status: standard` and its `Backed by:`
+      line resolves, so what moves is the canon word census alone — the
+      document's words are counted as canon in both reports.
 - [x] 5.3 **`python3 -m pytest tests` (the whole directory at once) fails
       collection on a duplicate test basename**, `test_header_value_readers.py`
       in both `tests/doc-health/` and `tests/ideation-dashboard/`. Verified
@@ -514,11 +549,173 @@ population (4.3), and only then the both-halves flip (4.2).
       change never owned it, and the reviewer this note was written for no
       longer hits the defect.
 
+- [x] 5.4 **THIS PACKET'S OWN `doc-health` DELTA WOULD HAVE DESTROYED SEVEN
+      RATIFIED SCENARIOS, and its archive gate caught it before the archive
+      act.** The MODIFIED "Deterministic check families" block restated the
+      amended requirement text and the ONE scenario this change touches —
+      `A run executes the check families` — and nothing else. MODIFIED
+      replaces a requirement block WHOLESALE, so archiving as drafted would
+      have carried canon's other seven scenarios out of the promoted spec:
+      `Lifecycle conformance checks fire`, `A register carries staged
+      status`, `Drift checks fire`, `Catalog conformance checks fire`,
+      `Routing conformance checks fire`, `Origin conformance checks fire`,
+      and `Roster composition is checked across domains`. Nothing in this
+      proposal proposes removing any of them, and the file-level scenario
+      count would not have flinched — the seven lost exactly offset the seven
+      the ADDED requirements bring.
+      **THE SAME DEFECT WAS FOUND INDEPENDENTLY, THE SAME DAY, BY THE SIBLING
+      LANE**, which is the strongest evidence that this is a class and not an
+      accident: `add-release-inventory-drift-check` carried it, Brett ruled on
+      it, and its delta was made scenario-complete before archiving (PR #331,
+      `b03b9992`) — the ruling's own account now stands in canon as the
+      **CORRECTED 2026-08-25** paragraph inside this requirement.
+      `add-duplicate-packet-check` was STILL carrying the defect at that
+      point and is repaired in the commit before this one; its §5.5 records
+      it. Three carriers, three lanes, one shape.
+      **THIS DELTA WAS RE-DERIVED AGAINST THE CANON THAT MOVED UNDER IT, not
+      merely topped up.** The sibling archived FIRST, and its delta had been
+      written on top of this one's text, so canon at `b03b9992` already
+      carries every amendment this change makes to this requirement — the
+      family list naming `promotion fidelity`, the count arithmetic, the
+      basis paragraph, and the `promotion fidelity MUST compare …` bullet.
+      The faithful MODIFIED block is therefore CURRENT CANON VERBATIM, and it
+      is: the block hashes SHA-256
+      `57cfc188905dc9926ebb9a9570db98d5bd419184409a91b83e56045fba27bf0b`,
+      identical to `openspec/specs/doc-health/spec.md`'s, all eight scenarios
+      identical scenario-by-scenario and in canon's order. Archiving it moves
+      this requirement by NOTHING; what this change still contributes is its
+      two ADDED requirements. Had the drafted block been archived instead it
+      would have destroyed the seven scenarios AND regressed the enumeration
+      from nineteen families to eighteen — dropping `release-inventory
+      drift`, its own paragraph, its `**AND**` bullet, and Brett's CORRECTED
+      paragraph — which is the ordering hazard `add-duplicate-packet-check`
+      §5.3 named, arriving for real.
+      **AND ONE THING IS NAMED, NOT FIXED.** The CORRECTED paragraph is
+      change-authoring commentary that now lives permanently in canon, so
+      every future writer of this requirement must retype it or destroy it.
+      That is the same retyping burden §5.5 is about, and whether the
+      paragraph belongs in the promoted spec at all is a question for a
+      change that owns it — not for this gate, which restated it verbatim
+      precisely so the question stays open rather than being answered by
+      deletion.
+- [x] 5.5 **THIS FAMILY IS STRUCTURALLY BLIND TO THE DAMAGE CLASS §5.4
+      NAMES**, and the blindness is worth recording where the next reader of
+      promotion fidelity will meet it. The family asks whether an archived
+      delta REACHED canon, taking the MOST RECENT archived delta as the
+      authority. A delta that silently drops seven scenarios an earlier delta
+      had promoted therefore reads as perfectly faithful the instant it
+      lands: canon matches the destroying delta exactly, because
+      latest-writer-wins makes the destroyer the authority. No check that
+      compares canon against the latest delta can see the loss. Only a check
+      that compares a MODIFIED delta against the canon it is about to
+      REPLACE — run BEFORE the archive act — can: a pre-archive
+      restatement-completeness check. Named here as a candidate for future
+      tooling; **NOT built by this change.** Both sightings so far were caught
+      by a human-run byte-for-byte verification at an archive gate, which is
+      exactly the check that has no code. Related but distinct:
+      `add-duplicate-packet-check` §5.3 names the ORDERING hazard (which
+      cumulative family list canon keeps when several writers archive in some
+      order); this is the COMPLETENESS hazard (whether a restatement carries
+      the parts it never meant to touch). Both point at the same structural
+      remedy — a requirement's unamended parts should not have to be retyped
+      to survive — and issue #329's forward reference is a third symptom of
+      the same root: deltas written on top of each other's text.
+
 ## 6. Archive
 
-- [ ] 6.1 Archive ONLY after merge with green realization evidence.
+- [x] 6.1 Archive ONLY after merge with green realization evidence.
       `code_surface` is real, so the release-realization rule applies and the
       precedent is `govern-openspec-corpus-membership`: its enforcement landed
       in `7157fa3e`/`bf0bda01` and its archive act was a separate later
       commit, `01ff3434`, titled for the merge it followed. This change
       therefore ships ACTIVE.
+      **MERGED, GREEN, AND ARCHIVED — the five realization merges are all on
+      `main`, cited by the sha the MERGE produced and not by any branch tip**
+      (the lesson the codex archive record paid for: a branch sha names a
+      commit that may never have landed, and this repository already carries
+      one — `ideation/cross-reference.yaml`'s `source_revision` pins
+      `f13a3b60`, PR #322's branch tip, which is NOT an ancestor of `main`;
+      the merged commit is `4e57009c`. NAMED HERE, NOT FIXED HERE: it belongs
+      to the lane that wrote it). Every sha below was read from `gh pr view
+      --json mergeCommit` and re-verified at this gate with `git merge-base
+      --is-ancestor <sha> origin/main`:
+      1. **PR #310 → `73766b48`** — the family itself, advisory at launch
+         (§1, §2.1-§2.5, §3.1-§3.7).
+      2. **PR #315 → `1274b9bf`** — task 4.1's evidence and Brett's four
+         rulings recorded (§4.1, §5.1's ruling).
+      3. **PR #316 → `51a875ab`** — the standing-findings discharge,
+         archiving `2026-08-25-apply-branch-sessions-deltas` (§5.1, §4.3.1).
+      4. **PR #320 → `055a514b`** — the exemption relaxation and the
+         live-mains basis (§2.1, §2.6, §3.8-§3.10).
+      5. **PR #325 → `44505d1e`** — the both-halves flip to enforcing plus
+         the `--skip-family`/`--family` uncited-resolution fix the review
+         exposed (§4.2).
+      **REALIZATION RE-VERIFIED FROM `main` AT THIS GATE, not read out of a
+      PR body.** The enforcing state is live in the tree —
+      `promotion_fidelity._LAUNCH_SEVERITY` is `ERROR` and
+      `families.FAMILY_RESOLUTION` carries `"promotion-fidelity": CONTESTED`,
+      both halves present, neither alone.
+      **THE GATE HALTED TWICE, AND THE SECOND HALT IS WHY THIS BRANCH WAS
+      RE-BASED RATHER THAN TOPPED UP.** The first halt was §5.4's finding.
+      While it was being repaired, `main` moved three commits and archived
+      `add-release-inventory-drift-check` (PR #331, `b03b9992`) — which had
+      carried the SAME defect, was repaired on Brett's ruling, and whose
+      delta had been written on top of this change's text. So canon moved
+      under this packet: nineteen families, not eighteen, with this change's
+      own amendments already inside it. The branch was reset to the new
+      `origin/main` and every artefact re-derived against it rather than
+      merged; §5.4 carries the hashes.
+      **GATES ON THE RE-BASED `origin/main` (`b03b9992`) BEFORE THE ARCHIVE
+      ACT:** `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` → **77
+      passed, 0 failed** (27 active changes + 50 promoted specs); `pytest
+      tests/doc-health` → **874 passed, 1 failed**; `pytest
+      tests/ideation-dashboard -k workbench` → **140 passed**; the enforcing
+      family over openxFactory at `--fail-on error` → **0 findings, exit 0**.
+      **THE ONE FAILURE IS AN ENVIRONMENT ARTIFACT AND WAS PROVEN SO RATHER
+      THAN ASSUMED.** `test_ideation_readiness.py::test_derivation_reproduces_
+      the_real_bootstrap_clusters` resolves its corpus through
+      `_openxfactory_root()`, which walks UP from the test root to the first
+      `openxFactory/ideation/cross-reference.yaml` it finds — from an agent
+      worktree that is the sibling aggregation checkout
+      (`/home/brett/projects/xFactory/openxFactory`, 33 commits behind
+      `origin/main` and carrying another session's UNCOMMITTED edit to that
+      very file), never this tree. The test measures a tree this gate does
+      not own; it fails identically before and after every act in this
+      branch, and it is excluded by enumeration rather than by a blanket
+      allowance.
+      **THE ARCHIVE ACT, VERIFIED BY REQUIREMENT MAP RATHER THAN BY THE
+      CLI's SUMMARY.** Every requirement in both touched capabilities was
+      hashed before and after: `doc-health` **26 → 28 requirements, 105 → 116
+      scenarios**; `document-lifecycle` **14 → 15 / 63 → 68**. Nothing was
+      REMOVED from either, and **26 of 26** pre-existing `doc-health`
+      requirements and **14 of 14** in `document-lifecycle` hash BYTE-FOR-BYTE
+      IDENTICAL across the act — `Deterministic check families` included,
+      because §5.4's re-derivation makes this delta's restatement of it canon
+      verbatim. Both promoted files diff as pure additions: 137 and 79 lines
+      inserted, **0 deleted**.
+      **CLOSING SYMMETRY.** The enforcing family over openxFactory
+      post-archive at `--fail-on error` → **0 findings, exit 0**, matching
+      the pre-archive run exactly: the family that would report an unarrived
+      delta reports nothing about the delta this act just landed. And the
+      packet's own header still parses at its NEW path — the lifecycle scan
+      set (`openspec/changes/**/proposal.md`, 133 documents) picks up
+      `archive/2026-08-25-add-promotion-fidelity-check/proposal.md`, reading
+      `Status: ratified` with the record-citing `Ratified:` line (approver
+      `Brett`, date `2026-08-24`) inside the 15-line header window.
+      **POST-ARCHIVE GATES.** `openspec validate --all --strict` → **76
+      passed, 0 failed** — one fewer item than the 77 before, which is this
+      packet leaving the active set; `pytest tests/doc-health` → **874
+      passed, 1 failed** (the same enumerated environment artifact, unmoved);
+      `pytest tests/ideation-dashboard -k workbench` → **140 passed**; the
+      full single-repo doc-health run's findings are **byte-identical** to
+      the pre-gate baseline — 5 critical, 8 error, 73 warning, 4 info — and
+      exactly two per-stage numbers moved, both predicted: `standard`
+      10851 → 11102 (+251, `docs/doc-health.md`'s own new words, §5.2) and
+      `(promoted specs)` 121304 → 123563 (+2259, the census taking in the
+      requirements this act promoted). They sum to the headline's move
+      (176648 → 179158 canon, 608314 → 610824 total, both +2510; canon share
+      29.0% → 29.3%). Every other line in the report is identical. The
+      preceding delta-repair commit moved **nothing** in this report, because
+      `openspec/changes/` is outside `GOVERNED_ROOTS` — which is also why
+      that repair could be verified only by hashing the delta files
+      directly.
