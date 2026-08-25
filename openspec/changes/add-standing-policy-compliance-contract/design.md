@@ -122,11 +122,36 @@ emits `covers | does_not_cover | indeterminate` bound to the evaluated-content
 and scope digests. The neutral outcome mapping is fixed: `covers` may satisfy
 that class, `does_not_cover` blocks, and `indeterminate` needs human review.
 
-Classifier escalation has a machine-checkable limit envelope: exactly one
+Classifier escalation has a machine-checkable limit envelope: a closed trigger
+of `deterministic_ambiguity` or `policy_sensitive_surface`; the latter MUST
+reference sensitivity metadata declared by the current vocabulary, so a
+consumer cannot label every input sensitive. The decision records trigger
+kind/reference/digest, model/version, declared limits, actual consumption,
+closed result and result digest. Limits are exactly one
 invocation and one turn, at most 65,536 input bytes, 8,192 output bytes, 4,096
 output tokens and 60 seconds. It receives a redacted bounded excerpt, never the
 raw evidence corpus. Missing limits, limit breach, timeout or invocation error
-produces `needs_human_review` and no dispatch.
+produces `needs_human_review` and no dispatch; a positive classifier finding
+also produces `needs_human_review`, never `allow` or direct authority.
+
+All contract digests use `sha256:<64 lowercase hex>`. Machine records and
+evaluated intent use RFC 8785 JSON Canonicalization Scheme UTF-8 bytes; a policy
+source uses the exact git blob bytes at an immutable 40-hex commit revision.
+Policy-source references carry repository, path, revision, content digest and
+the reference/digest of the ratification record. Domain conformance resolves
+both blobs; self-reported hashes are insufficient.
+
+An allowance approval is an immutable content-addressed record. Revocation is
+a separate content-addressed event targeting the approval digest and linking
+its predecessor event/revision. Registry revisions link predecessor revision
+digests, so canonical validation compares the chain rather than trusting one
+mutable object. Evaluation reads the current registry revision atomically;
+bindings carry `(registry_id, allowance_id)` while decisions record the current
+revision digest and resolved approval/revocation digests.
+
+Closed outcome precedence across deterministic evaluation, classifier and
+Hermes is `block > needs_human_review > allow`; every layer's findings are
+retained in the one decision record.
 
 The vocabulary schema constrains shape, not universal class membership. The
 codexFactory first conformer will instantiate its ratified five classes.
@@ -160,9 +185,10 @@ codexFactory first conformer will instantiate its ratified five classes.
 5. Additional domains adopt only after declaring their own vocabulary source,
    class owners and allowance issuers.
 
-Rollback never means permitting unevaluated dispatch. A consumer unable to
-read the contract parks work for human review while returning to the prior
-released bundle.
+Rollback never means returning to a bundle that predates the deterministic
+floor. A consumer unable to read this contract parks/denies work until a
+compatible evaluator is restored; only a prior bundle already implementing
+the same floor is an eligible rollback target.
 
 ## Open Questions
 
