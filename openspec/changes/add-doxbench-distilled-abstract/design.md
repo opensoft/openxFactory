@@ -33,6 +33,9 @@ Current state, verified on this tree:
 
 ## Goals / Non-Goals
 
+Realization evidence for the operator run is recorded at
+`openspec/changes/add-doxbench-distilled-abstract/realization-evidence.md`.
+
 **Goals.** One model-derived abstract per subject document, generated only when a
 human asks, verified before it renders, captioned so it can never be mistaken for
 the document's own account, and reachable through the seam that already exists.
@@ -61,9 +64,15 @@ permanently.
 
 ### D2 — A non-chat prompt assembler and its own packet purpose
 
-`doxbench_turns.build_abstract_envelope`, with its own section-order constant,
-plus `PACKET_PURPOSE_DOCUMENT_ABSTRACT` in `doxbench_packet.py` beside
-`PACKET_PURPOSE_CHAT_TURN` (`:308`). `build_prompt_envelope` (`:837`) cannot be
+`doxbench_turns.build_abstract_envelope`, with its own section-order constant.
+**No new packet purpose.** The earlier draft added
+`PACKET_PURPOSE_DOCUMENT_ABSTRACT`; packet review was right that it would be dead
+code — an abstract request carries NO context packet at all, so `require_valid`
+never runs and the constant would be a declaration nothing reads. What replaces
+it is a real pin: `build_abstract_envelope` REFUSES a `ContextPacket` handed to
+it, of ANY declared purpose, because the refusal that matters is "this request
+carries no packet" and not "this packet has the wrong label".
+`build_prompt_envelope` (`:837`) cannot be
 reused: it requires an outline plus one or more document buffers (`:880`,
 refusing at `:648`), a non-blank human message (`validate_message`, `:493`), a
 working subject, a transcript, and validates against the chat purpose (`:942`);
@@ -71,7 +80,7 @@ its system and response prose are chat instructions (`:239`, `:251`).
 
 The envelope carries exactly ONE section pair — a subject header and the saved
 document content — and NOTHING else: no layer-1 packet, no second buffer, no
-transcript. Byte-determinism comes from the same discipline as
+transcript. Handing it a packet is a refusal, not a re-label. Byte-determinism comes from the same discipline as
 `PromptEnvelope.rendered()` (`:476`): a fixed section order and no clock, no
 counter, no set iteration in the rendered text.
 
@@ -108,7 +117,7 @@ code — a bigger change than this one. Named in the requirement as the follow-o
 The right instrument for a domain factory declaring a derived-model FAMILY; here
 it would declare a family whose only member is one pane's string.
 
-### D4 — Layer 2 gains a SIBLING, never a second owner (N4-adjacent, V4)
+### D4 — Layer 2 gains a SIBLING, never a second owner
 
 `CompressionLayer.owner` is a one-owner field (`doxbench_packet.py:224-229`) and
 `assert_fidelity` keys on layer NUMBER (`:255-267`), so a comma-joined second
@@ -145,8 +154,13 @@ if the pane's current subject differs, the result is discarded UNRENDERED. Witho
 that check a slow answer paints itself over whatever the reader has since spun
 to, under a confident caption.
 
-The in-flight state is cancellable and states its bound:
-`MAX_ADAPTER_TIMEOUT_SECONDS = 120` (`doxbench_model.py:54`). The subject is the
+The in-flight state is cancellable and states the ADAPTER'S OWN declared bound —
+`port.timeout_seconds`, which the chat path already reads through
+`validated_timeout_seconds` (`serve.py:3416-3417`) and which the bridge defaults
+to `60.0` (`doxbench_bridge.py:881`). `MAX_ADAPTER_TIMEOUT_SECONDS = 120`
+(`doxbench_model.py:54`) is the validated CEILING, not a prediction, and a region
+that showed 120s while the adapter declared 60s would be lying in the safe
+direction and still lying. The subject is the
 SAVED file; a dirty loaded buffer is captioned as describing the saved version
 and its unsaved text never leaves the browser.
 
@@ -172,28 +186,86 @@ made inside a UI pull request.
   model-derived abstract beside `documentAbstract` (`:1545`) — no DOM, no I/O, no
   imports; the transport stays in `app.js` and the wiring in
   `staging-workbench.js`.
-- **`web/views/staging-workbench.js`**: the toggle between the two abstracts
-  (one region at a time, deterministic first — the upper half is a measured 280px,
-  `test_doxbench_context_panes.py:231-240`), the generation and re-generate
-  controls, the in-flight and stale states, and ruling 6's region rename.
-- **Accessibility**: two regions, two DISTINCT accessible names, under the house
-  idiom pinned at `test_doxbench_accessibility.py:281-311` — `role=region` named
-  by `aria-label`, no heading of its own, exact `doxBench` casing. Neither is
-  announced as "selected document"; that name belongs to the selector.
+- **`web/views/staging-workbench.js`**: the toggle between the two abstract
+  STATES inside ONE region (deterministic first — the upper half is a measured
+  280px, `test_doxbench_context_panes.py:231-240`), the generation and
+  re-generate controls, the in-flight and stale states, and ruling 6's region
+  rename.
+- **Accessibility — ONE region, a composed name.** Packet review settled the
+  one-region-or-two question: EXACTLY ONE `role=region`, whose accessible name is
+  composed of the SUBJECT's title/path plus the provenance caption of the state
+  shown, so the deterministic and model-derived states are distinguishable BY
+  NAME and a reader knows which document they landed on. Two regions would have
+  meant two names for one 280px box and a second thing to keep in sync. The house
+  idiom at `test_doxbench_accessibility.py:281-311` stays satisfied —
+  `role=region` named by `aria-label`, no heading of its own, exact casing — and
+  this is where the static `"selected document"` at
+  `staging-workbench.js:250` is replaced, since that name belongs to the
+  loaded-document selector. **This change owns `:250`**: the split change cut the
+  rename precisely because it needs code.
 
-### D9 — Wire the adapter, and guard its binary
+### D9 — Wire the adapter at the REAL entrypoint, once per process
 
-Declare `OmpHarnessBridge` as `model_port_factory` at the ENTRYPOINT, in the
-`build_kwargs.setdefault` idiom `serve()` already uses (`serve.py:4850`, `:4857`)
-— an operator must be able to read what their install talks to, which is the
-stated reason that idiom exists. Also correct the stale banner at
-`serve.py:2128-2134`, which still asserts "no code below calls it" of `dispatch`.
+Three corrections from packet review, all verified:
 
-Hermeticity: `tests/hermeticity.py` guards `nlm` and `gh` (`:1`,
-`GUARDED_BINARIES` at `:91`) and NOT `omp`. Add `omp` to `GUARDED_BINARIES`, or
-pin that every abstract test injects its own `spawn=`. Preferred: add it to
-`GUARDED_BINARIES` — the same argument that put `nlm` there applies, and a
-per-test discipline is what that module exists to replace.
+**The entrypoint is `cli.py`, not `serve()`.** `serve()` (`serve.py:4833`) has NO
+CALLERS — grep confirms it. The real entrypoint is
+`cli.py:298`'s `serve_mod.build_server(...)`, which already makes its own
+install-time declarations there: `adapter_factory=serve_mod.real_notebook_adapter`
+(`:304`) and `knowledge_declaration=knowledge_mod.SELF_HOSTED_LOCAL_EMBEDDED`
+(`:311-312`). `model_port_factory` is declared BESIDE those two, for the reason
+those comments already give: an operator must be able to read what their install
+talks to. `serve()`'s `build_kwargs.setdefault` block (`:4850`, `:4857`) gets the
+same declaration as the standalone secondary path, so the two do not drift.
+
+*Test-safe, verified:* every existing test injects `model_port_factory` into
+`build_server` directly, including the two absence pins
+(`test_doxbench_request_handling.py:696`, `:727`), so declaring at the entrypoint
+leaves those `None` and they keep passing.
+
+**The factory takes no arguments, and `OmpHarnessBridge` cannot be built bare.**
+`_workbench_model_port` calls `self.model_port_factory()` with NO args
+(`serve.py:1549`), while `OmpHarnessBridge.__init__`
+(`doxbench_bridge.py:879-886`) has a keyword-only `session_root` with NO DEFAULT
+— unconstructible bare — and `catalog` defaulting to `EMPTY_CATALOG`
+(`doxbench_model.py:719`), which is an INERT adapter: it would resolve, disclose
+nothing, and look like a working install. So the declaration must supply all
+three, at install time, in the idiom `knowledge_declaration` already uses:
+
+- **catalog** — a declaration constant/module beside the knowledge declaration,
+  not a per-turn parameter.
+- **session_root** — a CLI flag on the entrypoint, defaulted next to the other
+  path arguments.
+- **`LaunchConfig`** — `provider_id` and `command`, the shape the live fixture
+  already builds (`tests/ideation-dashboard/test_doxbench_bridge_live.py:145-146`).
+
+Nothing here becomes a per-request or per-turn input. The port stays a
+zero-argument factory; the factory is what closes over the declaration.
+
+**One instance per process, not one per request.** `_workbench_model_port` is
+called per request (`serve.py:2162`, `:2700`) and `OmpHarnessBridge` is STATEFUL
+— `_sessions` and `_selected` at `doxbench_bridge.py:900-901`. Constructing per
+request would break `spec.md:1991`'s "ONE harness session SHALL correspond to one
+document thread" BY CONSTRUCTION, and would restart a supervised child on every
+call. So the entrypoint builds the bridge ONCE and the factory returns that same
+instance; the delta pins it with a same-object-identity scenario across two
+requests.
+
+Also correct two stale statements NOW, not "with the first call site" — a real
+`dispatch` call site already exists at `serve.py:3422`, so both are false today:
+the banner at `serve.py:2128-2134` ("no code below calls it") and
+`_workbench_model_port`'s own docstring at `:1542-1544` ("no route below calls
+it ... the dispatch arm is T051's").
+
+Hermeticity: `tests/hermeticity.py` guards `nlm` and `gh` (`GUARDED_BINARIES` at
+`:91`) and NOT `omp`. Adding `omp` has two knock-on effects that must be handled
+in the same task, because both iterate the tuple:
+`tests/ideation-dashboard/test_hermeticity.py:63` and `:75` parametrize over
+`GUARDED_BINARIES`, and `tests/notebooklm/test_hermeticity_guard.py:43` loops it.
+The refusal is also stamped `MARKER = "FR-043"` (`tests/hermeticity.py:95`) — a
+NotebookLM requirement id, which would mislabel an `omp` refusal. Either
+generalize the marker or document the mislabel explicitly; do not leave a
+refusal citing the wrong requirement.
 
 ### D10 — The captioning pin moves onto the node harness (honours N5)
 
@@ -217,7 +289,8 @@ response-side tests cannot.
   slice, and make one real-adapter operator run part of the realization gate. A
   green suite against a constant-returning fake is not evidence.
 - **Two consoles at one (repository, ref) may show different abstracts** (the
-  ruling 2(b) mirror) → accepted and recorded. A divergence two humans can see
+  ruling 2(b) mirror, and where **N4** lands: the hosted plane's real problem was
+  determinism, not caption wording) → accepted and recorded. A divergence two humans can see
   beats a snapshot field that silently breaks the projection contract.
 - **`editable_paths` is empty on cluster and possible tiles** → the region states
   it. Visible, honest, and the cost of not relaxing a disclosure rule as a side

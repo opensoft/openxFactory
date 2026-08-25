@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory (the doxBench docs subpane's abstract region, its pure view-model, and the explicit human control that invokes generation; a model-derived per-document abstract behind the existing server-side `WorkbenchModelPort` seam, reached by ONE new same-origin route and ONE new `app.js` call site; a NON-CHAT prompt assembler — `doxbench_turns.build_abstract_envelope` with its own section-order constant, plus a second `PACKET_PURPOSE_*` in `doxbench_packet.py`, because the existing assembler is chat-shaped; a new frozen `DocumentAbstract` type with its own document-shaped verifier; the layer-2-class SIBLING-ARTIFACT declaration; the subject-eligibility rule read off `doxbench_scope.py`/`doxbench_turns.py`; an entrypoint declaration binding `OmpHarnessBridge` as `model_port_factory`, which no entrypoint does today; `omp` added to test hermeticity's guarded binaries; the captioning vocabulary and its relocated test pin; conditionally the snapshot schema and generator)
+code_surface: openxFactory (the doxBench docs subpane's abstract region, its pure view-model, and the explicit human control that invokes generation; a model-derived per-document abstract behind the existing server-side `WorkbenchModelPort` seam, reached by ONE new same-origin route and ONE new `app.js` call site; a NON-CHAT prompt assembler — `doxbench_turns.build_abstract_envelope` with its own section-order constant, which refuses a context packet of any purpose rather than declaring a new one, because the existing assembler is chat-shaped and an abstract request carries no packet at all; a new frozen `DocumentAbstract` type with its own document-shaped verifier; the layer-2-class SIBLING-ARTIFACT declaration; the subject-eligibility rule read off `doxbench_scope.py`/`doxbench_turns.py`; an entrypoint declaration at `cli.py:298` binding a process-lifetime `OmpHarnessBridge` as `model_port_factory` — with its catalog, session root and launch config declared install-time — which no entrypoint does today; `omp` added to test hermeticity's guarded binaries and the three places that iterate that tuple; the abstract region's accessible name at `staging-workbench.js:250`, which the split change cut because it needs code; the captioning vocabulary and its relocated test pin; conditionally the snapshot schema and generator)
 target_release: none — RULED 2(b), session-only. No contract bundle is cut. `none` does NOT mean doc-only: `code_surface` is non-empty, so the archive gate stays merge-plus-green plus the operator run named in Impact (`release-realization/spec.md:23-32`)
 Status: ratified
 Ratified: Brett, 2026-08-25 — all eight rulings taken as recommended, recorded as a comment on `opensoft/openxFactory#84`
@@ -492,7 +492,23 @@ option. Under the recommended framing it is honoured and cited, not changed.
 
 ## Rulings requested
 
-Eight decisions plus one sub-ruling. None is decided; each carries options and a
+**This section is the PRE-RULING RECORD, kept as authored.** Brett ruled every
+recommendation as written on 2026-08-25 — see `## Ratified` above for the
+decisions that now govern. It is retained rather than rewritten because the
+options and the arguments against them are the reasoning the rulings rest on, and
+a proposal that deletes its rejected options leaves a reader unable to tell a
+considered decision from a default.
+
+Two statements below were true when written and are now superseded: ruling 0's
+"**The second change is deliberately NOT created here**" (the split change was
+created and ratified the same day), and ruling 1's remark that Group A item 6's
+delta text "CANNOT be authored until `add-doxchat-model-intake` realizes" — the
+packet ruling was to FOLD intake's additions in NOW, so this change's
+provider-boundary delta reads canon plus intake's additions plus this change's
+widening, and the archive-time task is to confirm the fold still matches intake's
+delta.
+
+Eight decisions plus one sub-ruling, as put to review: each carries options and a
 recommendation, and the recommendation is an argument, not a default.
 
 ### Ruling 0 — One change, or two
