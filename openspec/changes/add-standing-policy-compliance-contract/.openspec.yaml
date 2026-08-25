@@ -1,2 +1,19 @@
 schema: spec-driven
 created: 2026-08-25
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-24-add-standing-policy-compliance-contract
+  reason: >-
+    Brett Heap ruled D1 neutral-first on 2026-08-24 while dispositioning the
+    codexFactory staged topic `front-end-compliance-gates`: openxFactory must
+    author the neutral veto vocabulary, compliance-decision and revocable
+    allowance-registry contracts now, with codexFactory as first conformer.
+    The source topic is durably pinned at
+    `opensoft/codexFactory:ideation/staging/front-end-compliance-gates/front-end-compliance-gates.md@2fae181`,
+    but it is not a path in THIS repository, so the openxFactory packet is
+    correctly an explicitly approved cross-repo ad-hoc origin rather than a
+    false local staged origin.
+  approved_by: >-
+    Brett Heap — 2026-08-24 in-session D1 ruling: "Neutral-first
+    (openxFactory now)"; D2-D5 were ruled in the same decision round.
+  approved_on: 2026-08-24
