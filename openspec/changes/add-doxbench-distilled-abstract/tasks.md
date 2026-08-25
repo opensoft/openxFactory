@@ -53,13 +53,13 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
 
 ## 2. The adapter is reachable at all (do this FIRST — nothing else is visible)
 
-- [ ] 2.1 RED: a server built by the ENTRYPOINT path resolves a port whose
+- [x] 2.1 RED: a server built by the ENTRYPOINT path resolves a port whose
       `catalog()` discloses AT LEAST ONE AVAILABLE ENTRY. Non-`None` is not the
       bar: `OmpHarnessBridge`'s `catalog` defaults to `EMPTY_CATALOG`
       (`doxbench_model.py:719`), so a bare declaration would resolve, disclose
       nothing, and look like a working install. Fails today —
       `_workbench_model_port` returns `None` at `serve.py:1546-1547`.
-- [ ] 2.2 Declare `model_port_factory` at the REAL entrypoint: `cli.py:298`'s
+- [x] 2.2 Declare `model_port_factory` at the REAL entrypoint: `cli.py:298`'s
       `serve_mod.build_server(...)`, beside `adapter_factory` (`:304`) and
       `knowledge_declaration` (`:311-312`). `serve()` (`serve.py:4833`) has NO
       CALLERS, so its `setdefault` block gets the same declaration only as the
@@ -70,18 +70,18 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
       `tests/ideation-dashboard/test_doxbench_bridge_live.py:145-146`). NOTHING
       becomes a per-request or per-turn parameter: `_workbench_model_port` calls
       the factory with NO arguments (`serve.py:1549`). GREEN 2.1.
-- [ ] 2.2a RED then GREEN: the factory returns ONE PROCESS-LIFETIME INSTANCE —
+- [x] 2.2a RED then GREEN: the factory returns ONE PROCESS-LIFETIME INSTANCE —
       two requests resolve the SAME object (identity, not equality), and no
       adapter child is started twice. `_workbench_model_port` is called per
       request (`serve.py:2162`, `:2700`) and the bridge is stateful
       (`_sessions`/`_selected`, `doxbench_bridge.py:900-901`), so a per-request
       construction would break `spec.md:1991`'s one-session-per-document-thread
       rule by construction.
-- [ ] 2.2b Confirm the two absence pins still pass unchanged —
+- [x] 2.2b Confirm the two absence pins still pass unchanged —
       `test_doxbench_request_handling.py:696` and `:727` inject
       `model_port_factory` into `build_server` directly, so an entrypoint
       declaration leaves them `None`.
-- [ ] 2.3 Add `omp` to `tests/hermeticity.py`'s `GUARDED_BINARIES` (`:91`) and
+- [x] 2.3 Add `omp` to `tests/hermeticity.py`'s `GUARDED_BINARIES` (`:91`) and
       prove the shim refuses it. THREE places iterate that tuple and must be
       updated in the same commit:
       `tests/ideation-dashboard/test_hermeticity.py:63` and `:75` (both
@@ -91,7 +91,7 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
       id that would MISLABEL an `omp` refusal: either generalize the marker or
       document the mislabel in that module. Alternative if this proves too
       wide: pin instead that every abstract test injects its own `spawn=`.
-- [ ] 2.4 Correct BOTH stale statements now — not "with the first call site",
+- [x] 2.4 Correct BOTH stale statements now — not "with the first call site",
       because a real `dispatch` call site already exists at `serve.py:3422`, so
       both are false today: the banner at `serve.py:2128-2134` ("no code below
       calls it") and `_workbench_model_port`'s docstring at `:1542-1544` ("no

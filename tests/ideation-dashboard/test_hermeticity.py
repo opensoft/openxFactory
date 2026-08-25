@@ -60,6 +60,28 @@ SESSION_ALIAS = bs.notebook_alias("openxFactory", "draft/demo-topic")
 # layer 1 — the real binaries are not on PATH, and the refusal is loud
 # --------------------------------------------------------------------------
 
+# ONE PROBE PER GUARDED BINARY, in that binary's own dialect. The single
+# `notebook list --json` argv this file used to send to every guarded binary was
+# an `nlm` command being handed to a `gh` and (since task 2.3) an `omp`: the
+# refusal is argv-blind, so it still proved the point, but a probe that names a
+# subcommand the binary does not have is a test the next reader has to decode.
+# A guarded binary with no probe here fails the completeness assertion below
+# rather than silently falling back to somebody else's dialect.
+PROBE_ARGV = {
+    "nlm": ("notebook", "list", "--json"),
+    "gh": ("pr", "list", "--json", "number"),
+    "omp": ("--mode", "rpc", "--profile", "doxbench-bridge"),
+}
+
+
+def test_every_guarded_binary_has_a_probe_in_its_own_dialect():
+    """The completeness pin for the table above: adding a binary to
+    `GUARDED_BINARIES` without a probe here would leave it tested through
+    another tool's command line."""
+    missing = [b for b in hermeticity.GUARDED_BINARIES if b not in PROBE_ARGV]
+    assert missing == [], missing
+
+
 @pytest.mark.parametrize("binary", hermeticity.GUARDED_BINARIES)
 def test_the_real_binary_is_not_what_the_suite_resolves(binary, hermetic_binary_path):
     """`shutil.which` is what `NotebookAdapter.available()` and every ambient
@@ -75,9 +97,11 @@ def test_the_real_binary_is_not_what_the_suite_resolves(binary, hermetic_binary_
 @pytest.mark.parametrize("binary", hermeticity.GUARDED_BINARIES)
 def test_an_invocation_of_the_binary_is_refused_and_names_this_test(binary):
     """Any route to the binary — including a child process, which no in-process
-    patch can intercept — exits non-zero and says why, naming FR-043 and the
-    offending test so the escape is attributable rather than mysterious."""
-    done = subprocess.run([binary, "notebook", "list", "--json"],
+    patch can intercept — exits non-zero and says why, naming the guard's marker,
+    the REQUIREMENT that binary would break, and the offending test, so the
+    escape is attributable rather than mysterious."""
+    probe = PROBE_ARGV[binary]
+    done = subprocess.run([binary, *probe],
                           capture_output=True, text=True)
     assert done.returncode == hermeticity.REFUSAL_EXIT_CODE, done
     assert hermeticity.MARKER in done.stderr, done.stderr
@@ -96,9 +120,61 @@ def test_an_invocation_of_the_binary_is_refused_and_names_this_test(binary):
     # from inside the directory, `tests/ideation-dashboard/test_hermeticity.py::…`
     # from the repo root), and a run-shape-dependent assertion is the same class of
     # fragility as finding 19a.
-    assert any(line.startswith(f"{binary} notebook list --json :: ")
+    assert any(line.startswith(f"{binary} {' '.join(probe)} :: ")
                and "test_an_invocation_of_the_binary_is_refused" in line
                for line in lines), lines
+
+
+# --------------------------------------------------------------------------
+# task 2.3 (add-doxbench-distilled-abstract) — the MODEL HARNESS binary
+# --------------------------------------------------------------------------
+
+def test_the_model_harness_binary_is_guarded_too(hermetic_binary_path):
+    """`omp` is the third real binary this repository can reach, and until this
+    task it was unguarded.
+
+    The escape it closes is not hypothetical: the entrypoint now declares an
+    `OmpHarnessBridge` (task 2.2), whose child is a real `omp --mode rpc`
+    process, and `doxbench_bridge._spawn_child` reaches it with no injection at
+    all. Every bridge test today passes its own `spawn=` double — but that is
+    per-test discipline, which is precisely the class of guarantee finding 17
+    proved worthless for `nlm`. The harness's own docstring says no gate may
+    require an `omp`; layer 1 makes that structural."""
+    assert "omp" in hermeticity.GUARDED_BINARIES, (
+        "`omp` is reachable from this repository (doxbench_bridge._spawn_child) "
+        "and no test may run it: a forgotten `spawn=` would start a real harness "
+        "child, exactly as a forgotten adapter double reached the real NotebookLM "
+        "account")
+    resolved = shutil.which("omp")
+    assert resolved is not None, "the omp shim must be on PATH"
+    assert Path(resolved).parent == hermetic_binary_path, resolved
+    done = subprocess.run(["omp", *PROBE_ARGV["omp"]],
+                          capture_output=True, text=True)
+    assert done.returncode == hermeticity.REFUSAL_EXIT_CODE, done
+    assert hermeticity.MARKER in done.stderr, done.stderr
+    assert done.stdout == "", "a refusal must produce no parseable output"
+
+
+def test_a_refusal_cites_the_requirement_that_binary_would_actually_break():
+    """THE MARKER DECISION (task 2.3), as a test rather than a comment.
+
+    The refusal used to be stamped `MARKER = "FR-043"` — the NotebookLM
+    requirement — for EVERY guarded binary. That was already loose for `gh` and
+    would be a plain mislabel for `omp`: a developer reading "FR-043 refusing to
+    run the real 'omp' binary" would go and read a requirement about NotebookLM
+    notebooks. The marker is now the guard's own binary-neutral stamp and each
+    refusal additionally names ITS OWN requirement, so no refusal cites a
+    requirement it has nothing to do with."""
+    omp = subprocess.run(["omp", *PROBE_ARGV["omp"]], capture_output=True,
+                         text=True)
+    nlm = subprocess.run(["nlm", *PROBE_ARGV["nlm"]], capture_output=True,
+                         text=True)
+    assert hermeticity.requirement_for("omp") in omp.stderr, omp.stderr
+    assert "FR-043" not in omp.stderr, (
+        "the omp refusal cites the NotebookLM requirement: a refusal that names "
+        f"the wrong requirement is worse than an unexplained one\n{omp.stderr}")
+    assert hermeticity.requirement_for("nlm") in nlm.stderr, nlm.stderr
+    assert "FR-043" in nlm.stderr, "nlm's own refusal must still cite FR-043"
 
 
 # --------------------------------------------------------------------------

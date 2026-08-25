@@ -1,4 +1,4 @@
-"""Structural test hermeticity: the real `nlm` and `gh` are UNREACHABLE (FR-043).
+"""Structural test hermeticity: the real `nlm`, `gh` and `omp` are UNREACHABLE.
 
 Why this module exists. FR-043 — "Tests MUST NOT create real NotebookLM
 notebooks; the adapter MUST be stubbed" — was enforced only by PER-TEST
@@ -17,17 +17,30 @@ forgets again.
 So hermeticity is made structural, in two INDEPENDENT layers:
 
   1. **PATH** — a shim directory is prepended to `PATH` for the whole session.
-     Its `nlm` and `gh` are refusals: each prints the offending test's nodeid and
-     exits non-zero. This covers every route to the binary, including a child
-     process and `sync-notebooklm-books.nlm`, and it makes the suite behave the
-     SAME on a host with the real binaries installed and on one without — the
-     ambient-installation dependency was itself part of the defect.
+     Its `nlm`, `gh` and `omp` are refusals: each prints the offending test's
+     nodeid, the requirement that binary would break, and the seam to inject
+     instead, then exits non-zero. This covers every route to the binary,
+     including a child process and `sync-notebooklm-books.nlm`, and it makes the
+     suite behave the SAME on a host with the real binaries installed and on one
+     without — the ambient-installation dependency was itself part of the defect.
   2. **the in-process seams** — `workbench._default_runner` (the one place `nlm`
      is spoken) and `session_pr.SubprocessCommandRunner.run` (the one place `gh`
      and the branch `git push` are spoken) are replaced by a refusal that RAISES.
      Layer 1 alone would be absorbed: a non-zero exit is precisely the
      degradation signal the adapter exists to swallow, so the escape would still
      pass silently.
+
+`omp` HAS LAYER 1 ONLY, and that asymmetry is deliberate rather than an omission
+(add-doxbench-distilled-abstract task 2.3). The in-process seam would be
+`doxbench_bridge._spawn_child`, and poisoning it would also break the ONE thing
+the bridge's own live smoke exists to do — run a real harness against a keyless
+local provider, a module that skips cleanly everywhere else and that no gate may
+require (`test_doxbench_bridge_live.py`). Layer 2 exists because a non-zero exit
+is exactly the degradation signal the NOTEBOOK adapter swallows; the bridge
+swallows nothing of the kind — a child that will not start surfaces as an
+unavailable catalog and a raised dispatch — so layer 1 is not absorbed here the
+way it was there. A test that must exercise a turn injects `spawn=`, which every
+bridge test already does.
 
 `HermeticityViolation` derives from `BaseException` DELIBERATELY. `except
 Exception` is what `NotebookAdapter` and `branch_session.open_session_notebook`
@@ -88,11 +101,58 @@ if str(SCRIPTS) not in sys.path:
 # The binaries no test may reach. `nlm` is FR-043 itself; `gh` is the same class
 # of escape on the pull-request port (FR-029/FR-034 — the invoking engineer's own
 # ambient credential), and it is guarded now rather than after a test forgets.
-GUARDED_BINARIES = ("nlm", "gh")
+# `omp` is the doxBench model harness (add-doxbench-distilled-abstract task 2.3),
+# added when an entrypoint began DECLARING an `OmpHarnessBridge`: its child is a
+# real `omp --mode rpc` process started through
+# `doxbench_bridge._spawn_child`, and until now the only thing standing between
+# a test and a real harness was the per-test discipline of passing `spawn=` —
+# the same guarantee finding 17 proved worthless for `nlm`.
+GUARDED_BINARIES = ("nlm", "gh", "omp")
 
-# Every refusal names the requirement, so a failure is self-explaining wherever
-# it surfaces — a captured stderr, a raised message, a subprocess exit.
-MARKER = "FR-043"
+# THE STAMP, and it is deliberately BINARY-NEUTRAL. This used to be
+# `MARKER = "FR-043"` — the NotebookLM requirement — on every refusal, which was
+# already loose for `gh` and would have made an `omp` refusal cite a requirement
+# about NotebookLM notebooks. A refusal naming the WRONG requirement is worse
+# than one naming none: it sends the reader to the wrong document. So the marker
+# is now the guard's own identifier (still one fixed string every route can grep
+# for, which is all any caller ever used it as), and the requirement each binary
+# would actually break is named BESIDE it, per binary, by the table below.
+MARKER = "XF-HERMETIC"
+
+# What each guarded binary's refusal cites. Kept here rather than in the shim
+# template so the PATH layer, the in-process layer and the `unittest` route all
+# read one declaration.
+GUARDED_BINARY_REQUIREMENTS = {
+    "nlm": "FR-043 (tests MUST NOT create real NotebookLM notebooks)",
+    "gh": "FR-029/FR-034 (no test may spend the engineer's own gh credential)",
+    "omp": ("the doxBench provider boundary (no gate may require a real omp; "
+            "inject the bridge's own spawn seam)"),
+}
+
+# The seam to inject INSTEAD, per binary: the refusal's job is not only to stop
+# the escape but to say what the test should have done.
+GUARDED_BINARY_SEAMS = {
+    "nlm": "FakeNotebookAdapter, NotebookAdapter(runner=), cli._notebook_port, "
+           "or serve adapter_factory=",
+    "gh": "FakePullRequests, or GhPullRequests(runner=)",
+    "omp": "OmpHarnessBridge(spawn=...), or a monkeypatched "
+           "doxbench_bridge._spawn_child",
+}
+
+
+def requirement_for(binary: str) -> str:
+    """The requirement `binary`'s refusal cites. An unlisted binary gets the
+    guard's own general statement rather than somebody else's requirement id."""
+    return GUARDED_BINARY_REQUIREMENTS.get(
+        binary, "test hermeticity: no test may reach a real external binary")
+
+
+def seam_for(binary: str) -> str:
+    """What to inject instead of reaching `binary`."""
+    return GUARDED_BINARY_SEAMS.get(
+        binary, "the double at that port's own injection seam")
+
+
 REFUSAL_EXIT_CODE = 97
 
 # The hookups this guard must be registered from (pinned by test_hermeticity):
@@ -148,9 +208,9 @@ fi
 echo "{marker} test hermeticity: refusing to run the real '{name}' binary." >&2
 echo "  offending test: ${{PYTEST_CURRENT_TEST:-<unknown: not under pytest>}}" >&2
 echo "  refused argv:   {name} $*" >&2
+echo "  requirement:    {requirement}" >&2
 echo "  the suite is hermetic by construction (tests/hermeticity.py). Inject a" >&2
-echo "  double at the seam instead: FakeNotebookAdapter, NotebookAdapter(runner=)," >&2
-echo "  cli._notebook_port, serve adapter_factory=, or FakePullRequests." >&2
+echo "  double at the seam instead: {seam}." >&2
 exit {code}
 """
 
@@ -184,10 +244,9 @@ def refusal_message(binary: str, args) -> str:
     return (f"{MARKER} test hermeticity: refusing to run the real '{binary}' "
             f"binary.\n  offending test: {current_test()}\n"
             f"  refused argv:   {binary} {' '.join(str(a) for a in args)}\n"
+            f"  requirement:    {requirement_for(binary)}\n"
             "  the suite is hermetic by construction (tests/hermeticity.py). "
-            "Inject a double at the seam instead: FakeNotebookAdapter, "
-            "NotebookAdapter(runner=), cli._notebook_port, serve "
-            "adapter_factory=, or FakePullRequests.")
+            f"Inject a double at the seam instead: {seam_for(binary)}.")
 
 
 def refusal_log() -> Path | None:
@@ -217,7 +276,9 @@ def build_shim_dir(target: Path, names=GUARDED_BINARIES) -> Path:
         script = target / name
         script.write_text(
             _SHIM_TEMPLATE.format(marker=MARKER, name=name, code=REFUSAL_EXIT_CODE,
-                                  log_env=REFUSAL_LOG_ENV),
+                                  log_env=REFUSAL_LOG_ENV,
+                                  requirement=requirement_for(name),
+                                  seam=seam_for(name)),
             encoding="utf-8")
         script.chmod(0o755)
     return target

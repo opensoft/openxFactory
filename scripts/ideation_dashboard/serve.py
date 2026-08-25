@@ -1537,10 +1537,19 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         capability verdict" discipline.
 
         This accessor itself never calls the port: it stays DUCK-TYPED and
-        reports only presence/absence. The catalog handler is the one consumer
-        of `catalog()`; the port PROTOCOL now declares `dispatch` (T049), but
-        no route below calls it -- the dispatch arm is T051's, and the
-        boundary refuses fixed until it lands."""
+        reports only presence/absence. Its CONSUMERS call it: the catalog
+        handler reads `catalog()`, and the turn route reaches `dispatch`
+        through `_deadline_bound_dispatch` -> `doxbench_model.dispatch_turn`
+        below. (This docstring used to say "no route below calls it -- the
+        dispatch arm is T051's"; T051's dispatch arm landed and the sentence
+        was false from that day. Corrected by
+        add-doxbench-distilled-abstract task 2.4.)
+
+        THE RESOLVED PORT IS NOT NECESSARILY A FRESH ONE. Where the declared
+        adapter is stateful -- the harness bridge the entrypoints declare holds
+        per-document-thread sessions -- the factory returns ONE instance for
+        the life of the process and this accessor hands back that same object
+        on every request. Nothing here may assume a per-request adapter."""
         if not self.capabilities.get("actions", {}).get("session"):
             return None
         if self.model_port_factory is None:
@@ -2125,13 +2134,21 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     # landed. (This banner previously recorded the pre-release
     # discriminator-free posture; the release retired it.)
     #
-    # NO PROVIDER IS EVER CONTACTED FROM THIS SLICE: `WorkbenchModelPort`
-    # now DECLARES `dispatch` (T049), but no code below calls it --
-    # `_handle_workbench_chat_turn`'s dispatch boundary still refuses
-    # `model_capability_unavailable` unconditionally after building (and
-    # discarding) the prompt envelope, until T051's dispatch arm lands with
-    # its own tests -- no provider SDK import, no provider env-var read, no
-    # credential, no raw endpoint, no secret name, anywhere below.
+    # A PROVIDER IS REACHED FROM HERE, THROUGH THE PORT AND NOWHERE ELSE.
+    # This banner used to say "NO PROVIDER IS EVER CONTACTED FROM THIS SLICE
+    # ... no code below calls it -- until T051's dispatch arm lands"; that arm
+    # landed, `_deadline_bound_dispatch` calls `doxbench_model.dispatch_turn`
+    # with the resolved port, and the sentence has been false since. Corrected
+    # by add-doxbench-distilled-abstract task 2.4 rather than left to the next
+    # reader to disbelieve.
+    #
+    # WHAT REMAINS TRUE, and is the claim that always mattered: the ONLY route
+    # to a provider below is the injected `WorkbenchModelPort` and its three
+    # declared members. No provider SDK import, no provider env-var read, no
+    # credential, no raw endpoint and no secret name appears anywhere in this
+    # file -- per-turn model selection, harness session handling and any
+    # adapter-internal routing all happen INSIDE an adapter, and a fourth
+    # provider verb is refused (`FORBIDDEN_PORT_MEMBERS`).
 
     def _handle_workbench_model_catalog(self, head_only: bool) -> None:
         """`GET`/`HEAD /workbench/model-catalog` (T050). Dispatched from
@@ -4856,6 +4873,27 @@ def serve(
     # declares its own here instead.
     build_kwargs.setdefault("knowledge_declaration",
                             doxbench_knowledge.SELF_HOSTED_LOCAL_EMBEDDED)
+    # THE MODEL PROVIDER, declared by the same entrypoint discipline. This is
+    # the STANDALONE SECONDARY PATH: the primary entrypoint is
+    # `cli.cmd_generate_and_open`, which makes the identical declaration with
+    # its own `--model-session-root` flag. Both are written out because a
+    # declaration only one of them makes is a serve whose operator cannot tell
+    # which install talks to a model — and `setdefault` keeps a caller's own
+    # factory (a test, a harness) exactly as the two above do.
+    #
+    # The session root follows the SAME rule the CLI defaults to — beside the
+    # served snapshot — so the two entrypoints cannot drift into writing harness
+    # sessions in two different places.
+    #
+    # Imported inside this entrypoint rather than at module scope: `serve.py` is
+    # imported by lanes that never serve anything (the generator's own tests
+    # among them), and only an ENTRYPOINT has any business reading an install
+    # declaration.
+    from ideation_dashboard import doxbench_install
+    build_kwargs.setdefault(
+        "model_port_factory",
+        doxbench_install.model_port_factory(
+            doxbench_install.session_root_beside(snapshot_path)))
     httpd = build_server(web_dir, snapshot_path, checkout_root, host=host,
                          port=port, quiet=quiet, actor=actor, **build_kwargs)
     print(f"serving ideation dashboard at {server_url(httpd, '/index.html')}")
