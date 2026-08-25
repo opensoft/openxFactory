@@ -1411,12 +1411,39 @@ Each is a named, durable item. None is discharged by
   `2026-07-23-add-adx-object-model`, carries no `Status:` header. Derivable
   from its own archive record; a one-header backfill on the archived-record
   route.
+  **DISCHARGED 2026-08-24** (AdxFactory PR #3, merged `403ac27`;
+  aggregation pin `9b0abf6`). No drift: 0 CRITICAL / 1 ERROR over the same
+  2 scan-set docs at both the pinned `45eaf559` and the tip. The one
+  header — on the repo's first, pre-convention packet — derived per OQ-6
+  route (a), `Status: ratified` plus one `Ratified:` citation clearing ALL
+  THREE floor axes on its first real line (date 2026-07-23, `by Brett`, a
+  resolvable record path), corroborated by the archive act with all 12
+  promoted delta requirements verified by title. One latent named and left
+  standing: `ideation/README.md` already carries the CORRECT primary
+  spelling, naming the real openxFactory change
+  `add-document-lifecycle-vocabulary` — so no convention doc was written,
+  the habit there being live and already right. Validators byte-identical,
+  including the repo's documented pre-existing `validate-domain-factory`
+  warning baseline. Scan set reads 0/0 in both scopes at `403ac27`.
 - **FU-DOM-HEALTHLINC — HealthLinc (1 CRITICAL).**
   `2026-08-06-add-one-patient-intake-experience` carries a `Ratified by:`
   naming no resolvable OpenSpec change. This is exactly the OQ-4 shape: a
   substantively sound citation in the wrong spelling. The remedy that change
   ruled — rewrite to the sanctioned record-citing `Ratified:` where no
   approving change exists to name — applies unchanged.
+  **DISCHARGED 2026-08-24** (HealthLinc PR #2, merged `ce844c1`;
+  aggregation pin `9b0abf6`), the remedy applied exactly as ruled: an OQ-4
+  prefix-only respell, content carried byte-verbatim (-3 bytes), clearing
+  the floor on the DATE axis alone. The approver phrase is possessive —
+  "Brett Heap's direction" — and was deliberately NOT rephrased to
+  `by <Name>`, because that would edit the record rather than respell it.
+  Corroborated by ratify commit `7e82e9a` and the archive promotion, 7 of 7
+  requirement titles verified. The count never moved from the pinned
+  `76008ec5` through the pre-merge tip, though the sync carries one
+  intervening commit that gave the executive summary its header. Two latent
+  free-form `Status: accepted …` feature-spec docs sit OUTSIDE both
+  document sets — named, untouched. `make validate` and openspec
+  byte-identical. Scan set reads 0/0 in both scopes at `ce844c1`.
 - **FU-DOM-LEDGERX — LedgerxFactory (26 ERROR).** The largest
   missing-header block outside openxFactory: 24 archived and 2 active
   proposals with no `Status:` at all. Same shape and same remedy as this
@@ -1435,6 +1462,20 @@ Each is a named, durable item. None is discharged by
   `docs/packet-lifecycle-headers.md`. Scan set reads 0/0 at `a645858`.
 - **FU-DOM-MEDXEHR — MedxEHR (1 CRITICAL).**
   `2026-08-06-add-patient-reconciliation-overlay`, the OQ-4 spelling shape.
+  **DISCHARGED 2026-08-24** (MedxEHR PR #2, merged `7a1427c`; aggregation
+  pin `9b0abf6`). No drift: 1 CRITICAL / 0, the same OQ-4 prefix-only
+  respell, byte-verbatim (-3 bytes), floor cleared on the DATE axis alone.
+  Its citation's only path-shaped token — `assign/review/dispose`,
+  incidental open-questions prose — does NOT resolve, and the bookkeeping
+  note says so: the sound position named against the incidental-token trap
+  rather than counted as a record path. Corroborated by ratify commit
+  `c3c7e55` and the archive promotion, 7 of 7 titles verified; the note
+  also states that the header confers no clinical, diagnostic or regulatory
+  standing. The same latent free-form pair sits outside the document sets —
+  named, untouched. `make validate` and openspec byte-identical. Scan set
+  reads 0/0 in both scopes at `7a1427c`. With FU-DOM-ADX and
+  FU-DOM-HEALTHLINC discharged in the same commit, every domain follow-up
+  named in this section is now discharged.
 - **FU-DOM-MEDXFACTORY — MedxFactory (13 CRITICAL, 1 ERROR).** Thirteen
   archived proposals with unresolvable `Ratified by:` lines — the root-truth
   and terminology series — plus one missing header
@@ -1533,6 +1574,89 @@ Each is a named, durable item. None is discharged by
   codexFactory decision: apply the ratified delta via a proper change, or
   record the non-promotion as deliberate. Also on the record: PR #84's
   close comment carries the first statement of the finding.
+  **RESOLVED 2026-08-24 (same day).** Brett ruled the first of the two
+  options this entry names, verbatim — "apply the ratified delta via a
+  proper change" — and that ruling is the ratification act. codexFactory
+  PR #85 (merged `49601c9`; aggregation pin `8f70329`) carries the change
+  `apply-nightly-sweep-activation-delta`: `code_surface: none`, ratified on
+  the ruling with one in-window `Ratified:` citation clearing approver and
+  date, archived on landing at
+  `2026-08-24-apply-nightly-sweep-activation-delta`. Drift was checked
+  BEFORE applying — the Tier-2 requirement region of the promoted
+  `merge-master-approval` spec was byte-identical, sha-tracked, from its
+  2026-07-28 introduction through the archive and both later spec commits,
+  which were pure end-of-file appends — so the ratified text clobbered no
+  later work. Canon went from 2 scenarios to 6, and the fidelity is proven
+  by sha256 rather than asserted: the packet's delta hashed identical to
+  the archived delta, and the requirement block extracted from canon after
+  promotion diffs identical to the delta's. The four activation scenarios
+  landed word for word, and the delta's own "tier-2" to "tier 2"
+  normalization inside an existing WHEN line was kept as part of the
+  ratified text. The scan set is now 28 documents — the new archived packet
+  joined it — and reads 0 CRITICAL / 0 ERROR in both scopes, codex
+  validators at baseline. What does NOT close: no check yet compares
+  archived deltas to promoted specs, so the class stays unreported. That
+  prevention question is scoped to openxFactory's neutral tooling and
+  recorded both in the packet and in PR #85's body — named, not dropped.
+  **ROOT CAUSE AND SWEEP, 2026-08-24 (the #301 investigation, run after
+  the fix landed and verified independently of it).** WHY it never
+  promoted: plain omission by a HAND-ROLLED archive — `38ded44` is a
+  single-parent commit with no associated PR, pushed straight to main; its
+  whole diffstat is a README row removal plus seven pure renames. Not a
+  tooling defect (the real `openspec archive`, replayed on the pre-fix
+  tree in a throwaway export, applied all six scenarios correctly) and
+  not a skip decision (repo-wide, no `skip-specs` anywhere — this is NOT
+  the C5 class). The omission was then CERTIFIED by the discharge's
+  title-only promotion check — the exact check this defect class passes —
+  and the packet's provenance line credited `38ded44` with the promotion;
+  corrected 2026-08-24 by codexFactory PR #86, and the lesson stands:
+  route-(b) derivations must compare SCENARIO SETS, never titles alone.
+  Corpus-wide sweep (all 26 archived delta files, 108 ADDED + 4 MODIFIED
+  requirement-deltas vs promoted specs by requirement and scenario): NO
+  other silent promotion gap in codexFactory; one cosmetic
+  rewording-at-promotion noted (`add-merge-master-credential-contract`,
+  "useless"→"bounded" in a scenario title, body substantively identical —
+  a note, not a change). Currency verified in code: tier-2 is ACTIVE
+  (`nightly-sweep-council-clearance.yaml` `active: true`) and all four
+  landed scenarios hold, each cited to its enforcing line; one caveat
+  recorded — the delta prose names THREE activation prerequisites, the
+  rule's machine gate lists two (the tier-1-history condition was honored
+  in the act, not machine-enforced). FORWARD RISK, named for whoever
+  archives it: `add-regular-pr-council-clearance` is open with a
+  15-requirement MODIFIED delta against this same spec — the
+  highest-exposure archive this repo has yet faced for this class; the
+  missing archived-delta-vs-canon check remains the open prevention
+  question.
+  **VETOES CLEARED 2026-08-24 (same day).** Brett approved BOTH
+  dispositions this entry flagged, so the window closed with both taken up
+  and nothing to revert: `add-software-team-execution-lane` stands at
+  `Status: ratified` on its explicit 2026-07-12 act, its local lowercase
+  `status: active` line standing; and `adopt-domain-ontology-package`
+  stands as measured-not-ruled latent, the deferral-versus-authorization
+  ambiguity still named rather than respelled. Both stand exactly as
+  codexFactory PR #83 applied them — the approval required no repo edit.
+  **PREVENTION COMMISSIONED AND LANDED, 2026-08-24/25** — the open question
+  both addenda above leave named. Brett commissioned it verbatim on the
+  24th, "commission the archived-delta-vs-promoted-spec check", and
+  openxFactory PR #310 merged `73766b48` on the 25th (aggregation pin
+  `ec7dba9`), shipping `add-promotion-fidelity-check` ACTIVE on this
+  campaign's own archive-after-realization precedent, its archive box
+  recorded in its tasks. The class now has a doc-health FAMILY of its own:
+  the obligation stated in document-lifecycle, the check in doc-health,
+  ADVISORY at launch in both halves — severity and resolution — with the
+  enforcement flip a recorded task box, latest-writer-wins resolution
+  tie-broken on archive-commit order, and exemptions confined to the
+  recorded deliberate-skip class (keyed on the archived proposal's own
+  `Status:` header, where C5's `draft` is the only one in the corpus) plus
+  `health/dispositions.yaml`. Acceptance ran BOTH directions: the
+  reconstructed pre-#85 codex gap fires, while C5's deliberate skips and
+  later-superseded requirements stay quiet. Its FIRST LIVE CATCH is in
+  openxFactory itself — `2026-08-01-add-workbench-branch-sessions` ratified
+  an ADDED requirement that never reached canon and a MODIFIED one that
+  arrived a scenario short — reported by the family, recorded in the
+  commissioning change's tasks as its own follow-up, and deliberately not
+  fixed inside it. The class this entry surfaced is no longer unreported:
+  "named, not dropped" is discharged.
 - **MedxChart and MedxPractice** pin no OpenSpec packets and owe nothing here.
   Their two ACTIVE headerless proposals, named repeatedly in this change's
   task record, live in the openxFactory tree as

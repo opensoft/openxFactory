@@ -1,0 +1,33 @@
+schema: spec-driven
+created: 2026-08-24
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-24-add-promotion-fidelity-check
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-24, verbatim: "commission the
+    archived-delta-vs-promoted-spec check". Not a staged ideation topic — the
+    forcing fact is a defect the register had already measured and left open
+    by name. `docs/archive-record-discrepancies.md` § FU-DOM-CODEX records
+    that codexFactory's archived
+    `2026-08-08-activate-nightly-sweep-council-clearance` ratified a MODIFIED
+    requirement carrying six scenarios while the promoted
+    `merge-master-approval` spec carried the title with two, that the archive
+    commit never touched that file, and — after codexFactory PR #85 applied
+    the ratified delta on 2026-08-24 — that "no check yet compares archived
+    deltas to promoted specs, so the class stays unreported. That prevention
+    question is scoped to openxFactory's neutral tooling and recorded both in
+    the packet and in PR #85's body — named, not dropped." This change takes
+    that prevention. It is authored here rather than in codexFactory because
+    the check is domain-neutral tooling and doc-health is an openxFactory
+    capability.
+  approved_by: >-
+    Brett — in-session commissioning of the check itself. This records
+    authorization for the DECISION TO BUILD, which is also what the
+    proposal's `Ratified:` line cites. The four design decisions the
+    orchestrating session took under standing patterns (latest-writer-wins
+    and its tie-break, the exemption keyed on the archived proposal's own
+    `Status:` header, the advisory launch in both of its halves, and the
+    finding landing on the delta's path) are NOT covered by that
+    authorization and are flagged for veto in the proposal's § Orchestrator
+    Decisions.
+  approved_on: 2026-08-24

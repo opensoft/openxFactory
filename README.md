@@ -231,6 +231,25 @@ The gate surfaces — `.github/workflows/`, `/scripts/validate-openxwallet.py`,
 and `/scripts/wallet-yaml-syntax-gate.py` — are owner-routed via
 [.github/CODEOWNERS](.github/CODEOWNERS) so changes to them need owner review.
 
+## Python test suite gate
+
+Every PR to main runs the `pytest-suite` check, as does every push to main. It
+runs the whole suite — `pytest tests/ -m "not postgres"` — on a hash-pinned
+install of [requirements/hermes-runtime-contracts.lock](requirements/hermes-runtime-contracts.lock).
+The `postgres`-marked tests are excluded because they drive real Docker
+containers and belong to their own release-gate runner,
+`scripts/run-hermes-runtime-postgres-tests.sh`. The check is advisory until an
+operator marks it required.
+
+Mark it required via the active ruleset governing main:
+Repo Settings → Rules → Rulesets → edit the ruleset targeting `main` →
+Require status checks → add `pytest-suite`.
+
+The workflow runs unconditionally, with no paths filter, so it is safe to mark
+required: a filtered check deadlocks the PRs it skips, and a large group of
+these tests scans repository content rather than fixtures, so content-only
+changes can legitimately turn the suite red.
+
 ## Domain Implementations
 
 - `opensoft/codexFactory` — software, code, repo, and engineering xFactory domain stack.
@@ -325,6 +344,57 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-release-inventory-drift-check](openspec/changes/add-release-inventory-drift-check/proposal.md)
+  — authored and ratified 2026-08-24 from issue #312. The release verifier
+  (`validate-contract-release.py verify-commit`) had been failing at
+  `origin/main` since the `contract-v1.40` tag, and NO gate in any session's set runs it, so the state was invisible
+  until a session ran it by hand for an unrelated reason — a release-inventory
+  gate that nothing runs is a gate in name only. Adds the capability
+  `release-surface-integrity` ("the declared bundle describes the release
+  surface", with three editorial members allowed to drift between cuts) and
+  commissions doc-health's nineteenth family to check it; the CHECKER itself is
+  a follow-on realization slice. Measured before proposing: 188 of the declared
+  bundle's 190 inventory members match at `origin/main`, two are editorial, and
+  NON-editorial drift is zero — and the same comparison at `08c5aa9` reproduces
+  the `contract-v1.36` defect, proving the "forgot to bump the bundle" class is
+  detectable at the commit rather than only at tag-verify. This change also
+  RATIFIES [`docs/contract-versioning-policy.md`](docs/contract-versioning-policy.md),
+  correcting the four defects that read-through found — three modern bundles
+  published with no annotated tag (recorded as an undischarged gap, the rule
+  NOT relaxed), a stale present-tense baseline claim, a superseded layer
+  vocabulary called "canonical", and the undocumented meaning of a red
+  `verify-commit` at HEAD.
+
+- [add-promotion-fidelity-check](openspec/changes/add-promotion-fidelity-check/proposal.md)
+  — authored and ratified 2026-08-24, commissioned in-session ("commission the
+  archived-delta-vs-promoted-spec check"). Closes the prevention question
+  `docs/archive-record-discrepancies.md` § FU-DOM-CODEX left open by name when
+  codexFactory PR #85 applied a ratified delta that had sat unpromoted since
+  2026-08-08: "no check yet compares archived deltas to promoted specs, so the
+  class stays unreported." `openspec --strict` validates a delta's SHAPE, never
+  its ARRIVAL, and the four lifecycle families read a packet's headers, not its
+  bodies — so a ratified requirement could archive and silently never reach
+  canon while every check called the repository healthy. `document-lifecycle`
+  gains the obligation (a ratified delta reaches its promoted spec; a packet
+  whose own proposal does not claim ratification carries archived design
+  evidence instead; the most recent archived delta is the authority for a
+  requirement). `doc-health` gains the eighteenth deterministic family, which
+  reads archived spec DELTAS and promoted SPECS rather than either document
+  set, so no census, canon-share figure, inventory entry or catalog record
+  moves. Three resolution rules each prevent a measured false positive:
+  latest-writer-wins (478 capability/requirement pairs, 59 written more than
+  once, one written ten times — per-writer checking fires 20 findings where
+  this fires 2), `RENAMED` retiring the title it names, and the C5 exemption
+  keyed on the archived proposal's own `Status:` header (88 of 89 read
+  `ratified`, one reads `draft`). **Advisory at launch** — every finding
+  `warning`, and the family deliberately absent from `FAMILY_RESOLUTION` so a
+  contested resolution cannot gate through `uncited-resolution`; the flip to
+  enforcing is an open task box, not a later silent commit. The check reports
+  TWO live findings against this repository's own archive on its first run,
+  both against `2026-08-01-add-workbench-branch-sessions` — reported, and
+  deliberately left for the governance act that fixes them. Implementation
+  lands in-change; it archives only on merge-plus-green, following
+  `govern-openspec-corpus-membership`.
 - [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
   — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
   staged topic `doxchat-auto-fit-routing`, whose six questions were
@@ -957,6 +1027,43 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [apply-branch-sessions-deltas](openspec/changes/archive/2026-08-25-apply-branch-sessions-deltas/proposal.md)
+  — **ARCHIVED 2026-08-25** (the CLI's UTC stamp; the act ran 2026-08-24
+  local, the shape `2026-08-24-govern-openspec-corpus-membership` below
+  already set); authored and ratified 2026-08-24. **RATIFIED** on Brett's
+  ruling "apply via a proper change", recorded in `add-promotion-fidelity-check`
+  task 5.1; no approving OpenSpec change exists to name, so the proposal
+  carries the record-citing `Ratified:` spelling
+  `sanction-ratified-record-spelling` sanctioned, clearing its three-way floor
+  on approver and date. The openxFactory equivalent of codexFactory PR #85: a
+  ratified delta that never reached canon is applied through its own change
+  rather than by a silent edit. `2026-08-01-add-workbench-branch-sessions`
+  carried a `lifecycle-notebook-projection` delta whose ADDED
+  `Branch-session notebooks` was absent from the promoted spec entirely and
+  whose MODIFIED `Corpus scan scope` had arrived carrying its PREVIOUS
+  writer's text — three scenarios where the ratified text says four, and none
+  of the amendment that scopes the exclusion to the three lifecycle books,
+  names branch-session worktrees inside it, and makes session notebooks the
+  ONLY notebook surface permitted to read a worktree while never contributing
+  a source, title, or repository name to a lifecycle book. Archive commit
+  `a0ea7666` moved the packet and never touched the promoted spec. Both gaps
+  are the promotion-fidelity family's first live catch, reported against this
+  repository's own archive and deliberately left by the change that found
+  them. Drift was checked BEFORE applying: the `Corpus scan scope` region
+  hashes to `bbb402c4…` at its 2026-07-12 introduction (`1efa5756`), at the
+  source archive (`a0ea7666`), and at all three later commits touching the
+  file (`d5e6d428`, `e9a4be6e`, `18a4ffc3` — which touched other requirements
+  only), and `Branch-session notebooks` had never been in canon at any commit,
+  so the ratified text clobbered no later work. Fidelity is proven by sha256
+  rather than asserted: the packet's delta file hashed identical to the
+  archived one (`f6ffd39a…`), and each requirement block extracted from canon
+  after promotion hashes identical to the ratified delta's (`99fa2a84…`,
+  `107ede78…`). Canon gains one requirement and one scenario; behavior moves
+  nowhere, because the branch-session realization landed in 2026-07 and only
+  the text lagged. `code_surface: none`, so it archived on landing, and its
+  landing ticks `add-promotion-fidelity-check` task 5.1 — the box that RULED
+  note said closes when this change lands. The family reads ZERO
+  promotion-fidelity findings in openxFactory after it.
 - [govern-openspec-corpus-membership](openspec/changes/archive/2026-08-24-govern-openspec-corpus-membership/proposal.md)
   — **ARCHIVED 2026-08-24**; authored, ratified and fully realized 2026-08-23.
   (The folder date is the CLI's UTC stamp and the archive act ran at 22:57
