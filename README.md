@@ -367,20 +367,29 @@ Active changes:
   discharged by the tablist's declared section order, and a keyboard-reachability
   scenario is added because the guarantee moved from geometry to a widget and a
   tablist without arrow keys is a worse promise than the one it replaced. Six
-  requirements MODIFIED whole (`:438`, `:863`, `:1853`, `:1705`, `:948`, `:1827`)
-  plus one ADDED for the deterministic abstract's provenance caption — "From the
-  document's own headers", never a distillation, with an absence STATED rather
-  than an empty box. Ruling 6 is settled here too, in the two places it actually
-  bites: a surface that selects a subject to DESCRIBE is not a second
-  buffer-selection surface, so the buffer contract needs no change and pointing at
-  a document neither loads nor keys nor dirties a buffer; and the phrase naming
-  the working document is claimed by exactly one surface, the selector naming the
-  selected BUFFER and the abstract region naming the SUBJECT it describes. Asks
-  for no code: the tasks are records plus a cross-check that every promoted
-  sentence describes what already ships, against
-  `test_doxbench_context_panes.py`, `test_doc_wheel.py` and
+  requirements MODIFIED whole (`:438`, `:863`, `:1853`, `:1705`, `:948`) plus one
+  ADDED for what is already true of the deterministic abstract: never captioned
+  as a distillation (pinned at `test_doxbench_context_panes.py:144-152`), an
+  absence STATED rather than rendered as an empty box (shipped verbatim at
+  `staging-workbench-model.js:1578-1581`), and a named field OMITTED rather than
+  placeheld. Ruling 6 is settled here only where it needs no code: a surface that
+  selects a subject to DESCRIBE is not a second buffer-selection surface, so the
+  buffer contract needs no change and pointing at a document neither loads nor
+  keys nor dirties a buffer. **Packet review CUT two clauses that would have made
+  this change not doc-only** — the region's accessible name is the static string
+  `"selected document"` today (`staging-workbench.js:250`) and no provenance
+  caption exists at all (`renderAbstract` emits none), so ruling 6's rename, the
+  loaded-document-selector requirement (`:1827`, consequently NOT modified here),
+  and the POSITIVE "From the document's own headers" caption all move to
+  `add-doxbench-distilled-abstract`, which owns that line. Asks for no code: the
+  tasks are records plus a cross-check that every promoted sentence describes what
+  already ships, against `test_doxbench_context_panes.py`, `test_doc_wheel.py` and
   `test_doxbench_accessibility.py` — and if the text is wrong, the text is what
-  gets fixed. Archives BEFORE `add-doxbench-distilled-abstract`, which authors its
+  gets fixed. The cross-check has three EXPECTED findings it records rather than
+  repairs: a stale comment at `staging-workbench.js:508` still claiming the
+  bullseye sits "ABOVE the always-present matrix", and two suites still asserting
+  the wheel is DEFERRED (`test_doxbench_context_panes.py:19-25` and `:217-229`)
+  when the wheel shipped. Archives BEFORE `add-doxbench-distilled-abstract`, which authors its
   own `:863` delta against the text this change lands.
 
 - [add-doxbench-distilled-abstract](openspec/changes/add-doxbench-distilled-abstract/proposal.md)

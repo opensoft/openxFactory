@@ -211,48 +211,20 @@ The local doxBench surface SHALL maintain a KEYED BUFFER SET for its canvas — 
 - **THEN** no buffer MUST be created or keyed for that document
 - **AND** the keyed buffer set MUST be unchanged
 
-### Requirement: The loaded-document selector names the working document
-The chat rail SHALL carry a SELECTOR listing every loaded document, and its selected entry SHALL BE the selected buffer that the canvas presents and the chat binds to. The selector SHALL be a scrolling list rather than a fixed-width row of chips, so a session that accumulates many loaded documents needs no folding, overflow, or least-recently-used eviction policy — the control is the overflow mechanism. An entry whose filename does not fit on one line SHALL reveal its full name on hover and to assistive technology, and MUST NOT be silently truncated or ellipsized into ambiguity with another entry. Every entry SHALL be distinguishable when two loaded documents share a basename, because a selector that cannot tell two files apart is worse than one that shows a longer name. The selector SHALL be keyboard-reachable and operable with the surface's established selection semantics, and MUST NOT introduce a second spelling of selection beside the one the surface already uses. Selecting an entry SHALL be immediate, SHALL switch the transcript to that document's thread, and MUST NOT be the surface's only route to selection: loading a document and focusing the `outline` selection tab SHALL both continue to select, and every route SHALL leave the selector, the canvas, and the chat agreeing about which buffer is selected. Where no document is loaded, the selector SHALL render its empty state honestly rather than hiding, and the `outline` buffer SHALL remain selectable and workable on its own. The phrase that names the working document SHALL be claimed by exactly ONE surface: this selector names the SELECTED BUFFER, and the `docs` context's abstract region SHALL be named for the document it DESCRIBES — its accessible name follows the abstract SUBJECT, which is the wheel's selected tile — so the abstract region MUST NOT reuse the selected buffer's name and MUST NOT be announced as the selected document.
-
-#### Scenario: Several documents are loaded
-- **WHEN** a human has loaded five documents
-- **THEN** the selector MUST list all five and MUST name which one is selected
-- **AND** no entry MUST be folded away, dropped, or evicted to fit
-
-#### Scenario: A long filename does not fit
-- **WHEN** a loaded document's name is longer than one line of the selector
-- **THEN** hovering the entry MUST reveal the full name, and the full name MUST be available to assistive technology
-- **AND** the entry MUST remain distinguishable from every other entry
-
-#### Scenario: Two loaded documents share a basename
-- **WHEN** two loaded documents have the same file name in different folders
-- **THEN** the selector MUST distinguish them
-
-#### Scenario: Selection is changed from another route
-- **WHEN** a human selects the `outline` tab or loads a new document
-- **THEN** the selector, the canvas, and the chat MUST all agree about which buffer is selected
-
-#### Scenario: Nothing is loaded yet
-- **WHEN** no document has been loaded
-- **THEN** the selector MUST render an honest empty state rather than hiding
-- **AND** the `outline` buffer MUST remain selectable and workable
-
-#### Scenario: Two surfaces would claim one name
-- **WHEN** the docs context's abstract region and the loaded-document selector are both rendered
-- **THEN** the abstract region's accessible name MUST name the abstract subject and the selector MUST name the selected buffer
-- **AND** neither MUST be announced with the other's name
-
 ## ADDED Requirements
 
-### Requirement: The deterministic document abstract states its own provenance and its absences
-The `docs` context's abstract region SHALL caption the deterministic abstract as derived from the document's own headers, using the caption "From the document's own headers", and MUST NOT caption it as a distillation, as a summary the surface produced, or as any analysis nobody ran. Where the snapshot carries no derived material at all for the subject document, the region SHALL STATE that absence in words rather than rendering an empty box; where a single named field is absent, the region SHALL omit that field rather than rendering a placeholder that reads as a value. The caption SHALL be both visible text and part of the region's accessible name, following this surface's established region idiom — a named `role=region` carrying no heading of its own.
+### Requirement: The deterministic document abstract is never captioned as a distillation and states its absences
+The `docs` context's abstract region MUST NOT caption, label, or announce the deterministic abstract as a distillation, as a summary the surface produced, or as any analysis nobody ran — it re-presents fields the snapshot already carries, and claiming more would be the surface asserting work nobody did. Where the snapshot carries no derived material at all for the subject document, the region SHALL STATE that absence in words rather than rendering an empty box. Where a single named field is absent, the region SHALL OMIT that field rather than rendering a placeholder that reads as a value.
 
 #### Scenario: A document carries no derived material
 - **WHEN** the abstract region's subject is a document the snapshot references but does not catalogue
 - **THEN** the region MUST state in words that there is nothing derived to show
 - **AND** it MUST NOT render an empty abstract that reads as the document having no content
 
-#### Scenario: The deterministic abstract is captioned
-- **WHEN** the abstract region renders material derived from the snapshot's own fields
-- **THEN** its caption MUST attribute that material to the document's own headers
-- **AND** it MUST NOT describe the material as a distillation or as an analysis the surface performed
+#### Scenario: A named field is absent for the subject
+- **WHEN** the snapshot carries no summary for the subject document, or the document declares no topics
+- **THEN** the region MUST omit that field rather than rendering a placeholder that reads as a value
+
+#### Scenario: The deterministic abstract would be called a distillation
+- **WHEN** any caption, label, or accessible name would describe the deterministic abstract as a distillation or as an analysis the surface performed
+- **THEN** it MUST be rejected

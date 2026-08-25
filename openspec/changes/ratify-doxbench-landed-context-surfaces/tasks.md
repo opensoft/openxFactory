@@ -28,7 +28,12 @@ if the text is wrong, FIX THE TEXT.
       tablist construction and its `keydown` handler) and the subtab assertions
       in `tests/ideation-dashboard/test_doxbench_context_panes.py`. Confirm in
       passing that `:488` is the line that makes the sections mutually exclusive,
-      which is what `:439`'s old clause forbade.
+      which is what `:439`'s old clause forbade. **Record one stale comment**:
+      `staging-workbench.js:508` still reads "the SHARED bullseye widget, ABOVE
+      the always-present matrix", which the subtabs made false and this change's
+      delta supersedes. It is a comment, not behaviour, so it is RECORDED here
+      and corrected by the successor change — not edited under a doc-only
+      change.
 - [ ] 2.2 The docs subpane is a vertical split with the abstract region ABOVE and
       the wheel BELOW — verify against `staging-workbench.js:245-259` and the
       construction-order assertion in `test_doxbench_context_panes.py`.
@@ -36,6 +41,16 @@ if the text is wrong, FIX THE TEXT.
       flattened into one ordered reel, with the surface's own click and spin
       gestures — verify against `web/views/doc-wheel.js:32-50` and
       `tests/ideation-dashboard/test_doc_wheel.py`.
+- [ ] 2.3a **Expected findings, to be RECORDED not fixed.** Two places still
+      assert the wheel is DEFERRED, and the wheel shipped:
+      `test_doxbench_context_panes.py:19-25` (the module docstring: "The
+      mini-wheel is NOT in this slice ... The lower half carries a compact
+      document selector until that lands") and
+      `test_doxbench_context_panes.py:217-229`
+      (`test_the_deferred_wheel_is_recorded_where_the_selector_stands`, which
+      asserts the word "wheel" appears NEAR `"swb-docselector"` as a record of
+      why the wheel is absent). Both are stale in the same direction. Record
+      them as findings for the successor; this change edits no test.
 - [ ] 2.4 Selecting a wheel tile makes that document the abstract region's
       subject — verify the wiring at `staging-workbench.js:285` and confirm that
       selection alone creates no buffer, which is the claim the buffer-contract
@@ -45,18 +60,30 @@ if the text is wrong, FIX THE TEXT.
       and the derivation tests in `test_doxbench_context_panes.py`. Confirm the
       promoted text does not disturb the existing docs-row scenario at
       `openspec/specs/ideation-dashboard/spec.md:896-899`.
-- [ ] 2.6 The honest-absence sentence and the "From the document's own headers"
-      caption match what the module actually renders — verify against
-      `staging-workbench-model.js:1575-1581`. If the shipped caption string
-      differs from the one this delta names, the delta adopts the shipped string.
+- [ ] 2.6 The honest-absence sentence matches what the module actually renders,
+      verbatim — verify against `staging-workbench-model.js:1578-1581`
+      ("this document is referenced but not catalogued in this snapshot, so there
+      is nothing derived to show"). Verify the never-a-distillation rule is
+      already pinned at `test_doxbench_context_panes.py:144-152`, and verify that
+      field OMISSION is what the module does rather than placeholder rendering
+      (`staging-workbench-model.js:1545-1592`). There is NO escape hatch here:
+      the positive provenance caption was CUT from this change during packet
+      review precisely because no caption ships — `renderAbstract`
+      (`staging-workbench.js:147-196`) emits none — so nothing in this delta may
+      name a caption string the surface does not render.
 - [ ] 2.7 The region idiom holds: a named `role=region` with no heading of its
       own, exact `doxBench` casing where the name carries it — verify against
       `tests/ideation-dashboard/test_doxbench_accessibility.py:281-311` and the
       abstract region's own `role`/`aria-label` at
-      `staging-workbench.js:248-250`. This is also where ruling 6's rename lands:
-      confirm the region is NOT named "selected document" once that rename is
-      made, or record the rename as the one code follow-up this change hands to
-      its successor.
+      `staging-workbench.js:248-250`. The region's name today is the STATIC
+      string `"selected document"` (`:250`), which is why ruling 6's rename and
+      the loaded-document-selector requirement were CUT from this change: they
+      need code. Confirm the static string is still what ships, and hand the
+      successor two items — the rename, and a PIN for the arrows/Home/End
+      scenario this delta now requires, which
+      `test_doxbench_context_panes.py:166-175` does not cover (it checks
+      `role`, `aria-selected` and `tabIndex` only). Evidence for that scenario
+      HERE is a code read at `staging-workbench.js:491-503`.
 - [ ] 2.8 Record the cross-check outcome in one paragraph in this file: what was
       confirmed, and every place the delta text was corrected to match the code.
 

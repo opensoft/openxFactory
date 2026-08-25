@@ -66,17 +66,33 @@ always-reachable member of one keyboard-driven tablist — rather than deleted.
   save attach to the wheel's expanded tile with their contract names, authority
   conditions and reporting obligations unchanged, and a change of presentation
   introduces no fourth verb.
-- **One accessible name, one owner** per ruling 6: the loaded-document selector
-  names the SELECTED BUFFER, the abstract region names the SUBJECT it describes,
-  and neither is announced with the other's name.
-- **ADDED: the deterministic abstract's provenance caption and honest absences** —
-  "From the document's own headers", never a distillation; a stated absence
-  rather than an empty box; the caption both visible and part of the region's
-  accessible name.
+- **ADDED: the deterministic abstract is never captioned as a distillation, and
+  states its absences** — the never-a-distillation rule (already pinned by
+  `tests/ideation-dashboard/test_doxbench_context_panes.py:144-152`), the stated
+  absence rather than an empty box (shipped verbatim at
+  `web/views/staging-workbench-model.js:1578-1581`), and field OMISSION rather
+  than a placeholder that reads as a value.
 
-This change ratifies what SHIPPED. It asks for no new code and no new behaviour,
-and it deliberately does not describe the model-derived abstract, which is the
-other half of `#84` and stays with `add-doxbench-distilled-abstract`.
+**Two clauses were CUT from this change during packet review, because they
+describe behaviour that does not ship**, and a doc-only change may not specify
+new behaviour under cover of ratifying old:
+
+- The abstract region's accessible name today is the static string
+  `"selected document"` (`web/views/staging-workbench.js:250`). Ruling 6's rename
+  — the region named for its SUBJECT, and the selector keeping sole claim on the
+  selected buffer's name — is therefore a CODE CHANGE. It moves to
+  `add-doxbench-distilled-abstract`, which owns `:250`, and the
+  loaded-document-selector requirement (`:1827`) is consequently NOT modified
+  here at all.
+- No provenance caption exists on the surface: `renderAbstract`
+  (`staging-workbench.js:147-196`) emits none. The POSITIVE caption "From the
+  document's own headers" and its accessible-name clause move to
+  `add-doxbench-distilled-abstract`; what stays here is the NEGATIVE rule, which
+  is already true and already pinned.
+
+With those cuts this change ratifies what SHIPPED and nothing else. It asks for no
+new code and no new behaviour, and it deliberately does not describe the
+model-derived abstract, which is the other half of `#84`.
 
 ## Capabilities
 
@@ -86,13 +102,13 @@ None.
 
 ### Modified Capabilities
 
-- `ideation-dashboard`: six requirements MODIFIED — Workbench lens bullseye at
+- `ideation-dashboard`: FIVE requirements MODIFIED — Workbench lens bullseye at
   tile scope (`:438`), doxBench scoped view (`:863`), A docs tile carries read,
   load-for-editing, and save (`:1853`), The canvas view surface is expressed over
-  the buffer set (`:1705`), doxBench editor buffer contract (`:948`), The
-  loaded-document selector names the working document (`:1827`) — plus ONE ADDED
-  requirement for the deterministic abstract's captioning, which no existing
-  requirement covers.
+  the buffer set (`:1705`), and doxBench editor buffer contract (`:948`) — plus
+  ONE ADDED requirement for the never-a-distillation rule and the honest
+  absences, which no existing requirement covers. The loaded-document selector
+  (`:1827`) was in this list and is NOT modified here; see the cut above.
 
 ## Impact
 
@@ -104,7 +120,15 @@ None.
 - **Affected tests**: none changed. Three existing suites are the EVIDENCE this
   change is ratifying shipped behaviour and not writing new behaviour:
   `tests/ideation-dashboard/test_doxbench_context_panes.py`,
-  `test_doc_wheel.py`, and `test_doxbench_accessibility.py`.
+  `test_doc_wheel.py`, and `test_doxbench_accessibility.py`. Two of those
+  suites carry assertions that are now STALE — they still record the wheel as
+  deferred — and the cross-check records them for the successor rather than
+  editing them here (§2.3).
+- **One scenario has no test pin**: the arrows/Home/End reachability the
+  bullseye delta now requires is checked only for roles and roving tabindex
+  (`test_doxbench_context_panes.py:166-175`). Its evidence here is a CODE READ
+  (`staging-workbench.js:491-503`), and the pin is handed to
+  `add-doxbench-distilled-abstract`'s task list (§2.7).
 - **Archive gate**: `code_surface: none`, so this change archives on landing
   under `release-realization/spec.md:23-32` — there is no runnable surface to run
   green, because nothing runs.
