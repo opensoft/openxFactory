@@ -148,7 +148,7 @@ visible rather than becoming a silent later commit.
 
 ## 5. Recorded, not fixed
 
-- [ ] 5.1 **openxFactory's own two findings** (§3.2) are unpromoted ratified
+- [x] 5.1 **openxFactory's own two findings** (§3.2) are unpromoted ratified
       deltas of exactly the commissioned class, and applying a ratified delta
       to canon is a governance act belonging to its own change — which is
       what codexFactory PR #85 was. Needs the same decision that gap needed:
@@ -160,6 +160,23 @@ visible rather than becoming a silent later commit.
       verified untouched before the ratified text lands). Box stays open
       until that change lands; this note records the ruling so the
       executing slice needs no new one.
+      **LANDED AND TICKED 2026-08-24 local time (2026-08-25 UTC — the same
+      instant the archive folder's UTC stamp records).**
+      `apply-branch-sessions-deltas`
+      (archived `2026-08-25-apply-branch-sessions-deltas`) carries the ruling: `code_surface: none`, ratified
+      on it with one in-window record-citing `Ratified:` line clearing
+      approver and date, its delta a byte-for-byte copy of the 2026-08-01
+      one (identical SHA-256 `f6ffd39a…`), archived on landing. Drift was
+      checked BEFORE applying — the `Corpus scan scope` region hashes to
+      `bbb402c4…` at its 2026-07-12 introduction (`1efa5756`), at the source
+      archive (`a0ea7666`), and at all three later commits touching the
+      promoted spec (`d5e6d428`, `e9a4be6e`, `18a4ffc3`), which touched other
+      requirements only, and `Branch-session notebooks` had never been in
+      canon at any commit — so the ratified text clobbered no later work.
+      Fidelity proven by sha256, not asserted: each promoted block hashes
+      identical to the ratified delta's (`99fa2a84…`, `107ede78…`). This
+      family now reads **0 findings** in openxFactory, down from the 2 §3.2
+      records — measured, not assumed.
 - [ ] 5.2 **`docs/doc-health.md`'s check-family table stops at twelve.**
       Families 13 through 17 were added by spec delta and never reached the
       table; this change adds the eighteenth and does not repair the table
