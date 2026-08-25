@@ -325,6 +325,36 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-promotion-fidelity-check](openspec/changes/add-promotion-fidelity-check/proposal.md)
+  — authored and ratified 2026-08-24, commissioned in-session ("commission the
+  archived-delta-vs-promoted-spec check"). Closes the prevention question
+  `docs/archive-record-discrepancies.md` § FU-DOM-CODEX left open by name when
+  codexFactory PR #85 applied a ratified delta that had sat unpromoted since
+  2026-08-08: "no check yet compares archived deltas to promoted specs, so the
+  class stays unreported." `openspec --strict` validates a delta's SHAPE, never
+  its ARRIVAL, and the four lifecycle families read a packet's headers, not its
+  bodies — so a ratified requirement could archive and silently never reach
+  canon while every check called the repository healthy. `document-lifecycle`
+  gains the obligation (a ratified delta reaches its promoted spec; a packet
+  whose own proposal does not claim ratification carries archived design
+  evidence instead; the most recent archived delta is the authority for a
+  requirement). `doc-health` gains the eighteenth deterministic family, which
+  reads archived spec DELTAS and promoted SPECS rather than either document
+  set, so no census, canon-share figure, inventory entry or catalog record
+  moves. Three resolution rules each prevent a measured false positive:
+  latest-writer-wins (478 capability/requirement pairs, 59 written more than
+  once, one written ten times — per-writer checking fires 20 findings where
+  this fires 2), `RENAMED` retiring the title it names, and the C5 exemption
+  keyed on the archived proposal's own `Status:` header (88 of 89 read
+  `ratified`, one reads `draft`). **Advisory at launch** — every finding
+  `warning`, and the family deliberately absent from `FAMILY_RESOLUTION` so a
+  contested resolution cannot gate through `uncited-resolution`; the flip to
+  enforcing is an open task box, not a later silent commit. The check reports
+  TWO live findings against this repository's own archive on its first run,
+  both against `2026-08-01-add-workbench-branch-sessions` — reported, and
+  deliberately left for the governance act that fixes them. Implementation
+  lands in-change; it archives only on merge-plus-green, following
+  `govern-openspec-corpus-membership`.
 - [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
   — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
   staged topic `doxchat-auto-fit-routing`, whose six questions were
