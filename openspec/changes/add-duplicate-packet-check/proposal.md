@@ -83,9 +83,11 @@ not.
   A single-repo run at the branch point and the same run on this branch differ
   by four lines, and all four are the new family's own empty report section
   ("### duplicate-packet / Basis line absent by design / No findings."). The
-  headline is `5 critical, 8 error, 73 warning, 4 info` before and after.
-  **It adds no `error` finding**, which matters now that its neighbour gates:
-  see § The neighbour flipped while this was in flight.
+  headline is `5 critical, 8 error, 73 warning, 4 info` before and after —
+  unchanged by the 2026-08-25 enforcement flip too, because the flip changes
+  what a finding COSTS and this repository has none in this family. **It adds
+  no `error` finding**, which matters now that both this family and its
+  neighbour gate: see § The neighbour flipped while this was in flight.
 - **Measured effect on the real corpus, and it is the acceptance evidence that
   matters**: openxFactory's 91 archived packets yield 543 distinct
   (capability, requirement, content) identities. TWO of them are restated by
@@ -153,23 +155,20 @@ family's own reader) discharged no ruling and can duplicate none; and
 `health/dispositions.yaml` suppresses under the same contested-finding
 discipline every other family applies.
 
-**D3 — Report-only at launch, and BOTH halves of it.** Every finding is
-`warning`, so no `--fail-on` configuration can red on this family. The less
-obvious half: the family is deliberately absent from `FAMILY_RESOLUTION`, so
-its findings are not classified `contested` — a contested finding that resolves
-without a citation becomes an `error` under this capability's uncited-resolution
-rule, which would red the nightly the first time anyone withdrew a duplicate
-this family reported. The precedent is the eighteenth family's D3, taken for
-exactly this reason on the same day — and NOT its state today, which is
-`error` + `CONTESTED` after PR #325. Copying the flipped values would be
-copying a conclusion without its premise: that flip was ruled "ENFORCING,
-SEQUENCED" and sequenced behind the discharge of a MEASURED STANDING
-POPULATION, on `govern-openspec-corpus-membership`'s rule that "a gate that
-goes red on the commit that introduces it teaches everyone to route around the
-gate". This class has no discharged population — it has a corpus measured at
-zero and one near miss. **The flip to enforcing is an open task box in
-`tasks.md` §5.1, and it raises severity and adds the contested classification
-TOGETHER.**
+**D3 — Report-only at launch, and BOTH halves of it. SUPERSEDED BY RULING
+2026-08-25 — the family now ENFORCES, in both halves.** Brett ruled it,
+verbatim: *"flip the duplicate-packet check to enforcing"*. `_LAUNCH_SEVERITY`
+is `ERROR` and `FAMILY_RESOLUTION` carries `"duplicate-packet": CONTESTED`;
+they moved in one commit, and an invariant test fails by name if they ever
+drift apart. The advisory launch this decision argued for happened, and the
+sequencing it named — flip only behind a measured population, never over a
+standing one — was honoured: **0 findings across five governed repositories
+and 206 archived packets**, including codexFactory's PR #85 remedial, the
+archetype of the lawful pattern the lineage exemption exists to protect.
+Recorded in `tasks.md` §5.1, with the part of the prerequisite that was NOT
+satisfied recorded as §5.4 rather than folded into the tick. The decision is
+kept here rather than rewritten, because a flipped decision that leaves no
+trace of what it flipped from is a decision nobody can audit.
 
 **D4 — Acceptance runs both directions, and the real corpus is one of the
 directions.** The fixture reconstructs the near-miss (one original, two

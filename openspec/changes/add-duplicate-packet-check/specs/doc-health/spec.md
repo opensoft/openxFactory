@@ -116,20 +116,34 @@ capability defines applies to the promotion fidelity family alone, and a report
 that said otherwise while this family read a pin would mislead every reader of
 its basis line.
 
-**This family SHALL be advisory at launch.** Every finding it emits carries
-`warning` severity, so it publishes into the report and the ranked plan without
-failing any run configured to fail on `error` or `critical`, and it is
-deliberately NOT classified `contested`, because a contested finding that
-resolves without a citation becomes an `error` under this capability's
-uncited-resolution rule — which would make the family gate-blocking through the
-back door on the first duplicate anyone withdrew. Raising the severity and
-adding the contested classification are ONE later decision taken together by
-ruling, never a judgement call inside an implementation.
+**This family SHALL be enforcing, in both halves of what that means.** Every
+finding it emits SHALL carry `error` severity, so a run configured to fail on
+`error` fails on a ruling discharged twice; and the family SHALL be classified
+`contested`, so a finding that stops being reported without a recorded citation
+becomes an `error` under this capability's uncited-resolution rule. The two
+SHALL move together and MUST NOT be taken apart: severity alone gates the
+family without the discipline that makes a disappearing finding accountable,
+and the contested class alone gates it through `uncited-resolution` under a
+family name that does not say what happened.
+
+The family SHIPPED ADVISORY and was flipped by ruling, which is the sequence
+this requirement records rather than a history it has replaced. At launch every
+finding carried `warning` and the family was deliberately unclassified, because
+no run had yet measured what any archive outside this repository would say and
+a `contested` advisory family would have gated through the back door on the
+first duplicate anyone withdrew. The flip SHALL be taken as one decision by
+ruling, never as a judgement call inside an implementation, and SHALL follow a
+measurement showing the population it will gate is discharged rather than
+precede it — a gate that goes red on the commit introducing it teaches everyone
+to route around the gate. The measurement SHALL be taken on the basis this
+family enforces on, which is the checked-out tree; a zero measured on some
+other tree is a fact about that tree.
 
 #### Scenario: Two packets discharge one ruling with no account of each other
 - **WHEN** two archived packets state the same capability and requirement title with requirement bodies identical after trailing-whitespace normalization, and neither packet's `proposal.md` names the other's change id
-- **THEN** the run MUST emit a `warning` finding against the later packet's archived delta path, naming both packets, the requirement, the capability, and a digest of the restated block
-- **AND** the finding MUST NOT cause a run to fail under `--fail-on error` or `--fail-on critical`
+- **THEN** the run MUST emit an `error` finding against the later packet's archived delta path, naming both packets, the requirement, the capability, and a digest of the restated block
+- **AND** the finding MUST cause a run configured `--fail-on error` to fail, and MUST NOT cause a run configured `--fail-on critical` to fail
+- **AND** the finding MUST carry the `contested` resolution class
 
 #### Scenario: A remedial packet names the ruling it applies
 - **WHEN** an archived packet restates another archived packet's ratified delta byte-faithfully and its own `proposal.md` names that packet's change id
@@ -153,6 +167,11 @@ ruling, never a judgement call inside an implementation.
 - **WHEN** `health/dispositions.yaml` carries an entry naming this family, a repository, an archived delta path, and a `cite`
 - **THEN** findings on that path MUST be suppressed, or only the named requirement's finding where the entry carries a `requirement` key
 - **AND** an entry naming a different family MUST suppress nothing here
+
+#### Scenario: A reported duplicate stops being reported
+- **WHEN** a finding this family reported in a previous report is absent from a later report, and the family actually ran in that later run
+- **THEN** the disappearance MUST be reported under the uncited-resolution rule unless a citation records the governance act that closed it
+- **AND** a run CONFIGURED not to execute this family MUST NOT have that family's absent findings read as resolved, a family that never ran having looked at nothing
 
 #### Scenario: No repository in scope carries an archive
 - **WHEN** no repository in the run's scope has an `openspec/changes/archive/` directory
