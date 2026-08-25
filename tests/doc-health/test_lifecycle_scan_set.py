@@ -90,6 +90,14 @@ NON_READERS = {
     # directly rather than through `_lifecycle_scope`, because it needs the
     # status of a NAMED packet rather than a sweep over a document list.
     "promotion-fidelity",
+    # add-duplicate-packet-check. The eighteenth family's neighbour, and a
+    # non-reader for the same reason twice over: it compares archived delta
+    # BODIES to each other, and the two headers it does read — an archived
+    # proposal's `Status:` and its prose naming a lineage — belong to NAMED
+    # packets, not to a swept document list. It reads the status through the
+    # eighteenth family's own `declares_pre_ratification`, so there is one
+    # reader of that header between them rather than two.
+    "duplicate-packet",
 }
 
 
@@ -476,9 +484,10 @@ def test_every_family_is_classified_as_reader_or_non_reader():
     # settles, and that half is asserted exactly.
     assert READERS == {"status-validity", "standard-backing",
                        "ratified-provenance", "succession-integrity"}
-    assert len(NON_READERS) == len(FAMILIES) - 4 == 14
+    assert len(NON_READERS) == len(FAMILIES) - 4 == 15
     assert "staged-topic-template" in NON_READERS
     assert "promotion-fidelity" in NON_READERS
+    assert "duplicate-packet" in NON_READERS
 
 
 def test_the_reader_list_is_structural_not_incidental():

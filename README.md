@@ -344,6 +344,34 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-duplicate-packet-check](openspec/changes/add-duplicate-packet-check/proposal.md)
+  — authored and ratified 2026-08-24, commissioned in-session ("commission the
+  duplicate-packet check"). The neighbour class of promotion fidelity, and the
+  one that family is structurally blind to: TWO archived packets can promote
+  the same delta content — one ruling discharged twice — and because canon then
+  holds exactly what both packets said it should, the archived-delta-vs-canon
+  comparison reads 0 either way. `openspec --strict` sees one packet at a time;
+  the lifecycle families read headers, and both duplicates carry impeccable
+  ones. The near miss is on this repository's own record: PR #317 and the landed
+  `2026-08-25-apply-branch-sessions-deltas` both restated the identical
+  2026-08-01 `add-workbench-branch-sessions` delta — the same git blob — from
+  parallel sessions, and a human closed the second unmerged twenty minutes
+  later. `document-lifecycle` gains the obligation ("A ruling is discharged
+  once": a packet restating another's ratified delta content names it, and the
+  naming records LINEAGE, not authority). `doc-health` gains the family, which
+  compares archived deltas ONLY AGAINST EACH OTHER and moves no census,
+  canon-share figure, inventory entry or catalog record. Content identity is
+  byte-equality above trailing whitespace — never a similarity heuristic, which
+  would report the ordinary case of a requirement being revised. The lineage
+  exemption is what keeps the lawful remedy legal: applying a ratified delta
+  byte-faithfully (codexFactory PR #85's shape) is prescribed, so a pair where
+  either proposal names the other's change id stays quiet, while two remedials
+  of one ruling that do NOT name each other fire. ADVISORY at launch in both
+  halves — `warning` severity and deliberate absence from `FAMILY_RESOLUTION` —
+  with the enforcement flip a recorded task box. Measured before proposing: the
+  real corpus reads 0 findings through the exemption and 2 without it, and the
+  single-repo report moves by nothing but the family's own empty section.
+
 - [add-release-inventory-drift-check](openspec/changes/add-release-inventory-drift-check/proposal.md)
   — authored and ratified 2026-08-24 from issue #312. The release verifier
   (`validate-contract-release.py verify-commit`) had been failing at

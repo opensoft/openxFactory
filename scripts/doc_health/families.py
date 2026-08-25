@@ -9,8 +9,9 @@ reference (the regexes below transcribe, never extend, that grammar).
 (add-cross-factory-ideation-routing), `proposal_origin.py` owns the
 fifteenth (add-proposal-origin-contract),
 `client_identity_composition.py` owns the sixteenth
-(add-client-identity-roster), and `promotion_fidelity.py` owns the
-eighteenth (add-promotion-fidelity-check); all five are only registered
+(add-client-identity-roster), `promotion_fidelity.py` owns the
+eighteenth (add-promotion-fidelity-check), and `duplicate_packet.py` owns
+the nineteenth (add-duplicate-packet-check); all six are only registered
 below.
 
 The count is deliberately no longer written into this docstring's first
@@ -33,7 +34,8 @@ from pathlib import Path
 from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
                TAXONOMY, Finding, Skip, recorded_rel)
 from . import (client_identity_composition, corpus, document_catalog,
-               ideation_routing, promotion_fidelity, proposal_origin)
+               duplicate_packet, ideation_routing, promotion_fidelity,
+               proposal_origin)
 from .lines import split_keepends
 
 # Per-family resolution class defaults (doc-health contract): contested
@@ -1018,6 +1020,10 @@ FAMILIES = {
     # — an ERROR — the first time one of its findings was resolved. See
     # `promotion_fidelity._LAUNCH_SEVERITY`.
     "promotion-fidelity": promotion_fidelity.fam_promotion_fidelity,
+    # The nineteenth family (add-duplicate-packet-check), and ABSENT from
+    # FAMILY_RESOLUTION for exactly the same reason at exactly the same
+    # launch. See `duplicate_packet._LAUNCH_SEVERITY`.
+    "duplicate-packet": duplicate_packet.fam_duplicate_packet,
 }
 
 # `family -> (ctx) -> [note line, ...]`, rendered under that family's own
