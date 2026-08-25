@@ -1,0 +1,31 @@
+schema: spec-driven
+created: 2026-08-24
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-24-add-release-inventory-drift-check
+  reason: >-
+    Assigned in-session by Brett on 2026-08-24 as a pickup of issue #312. The
+    forcing fact is measured and recorded there: `validate-contract-release.py
+    verify-commit` fails at `origin/main` and has since the `contract-v1.40`
+    tag, because commits edited `contracts/manifest.yaml` and
+    `contracts/CHANGELOG.md` without cutting a bundle — and NO gate in any
+    session's set runs `verify-commit`, so the state was invisible until a
+    session ran it by hand for an unrelated reason. The same defect class was
+    caught once before, at the `contract-v1.36` cut, and only because the
+    versioning policy's landing sequence happens to include a manual
+    tag-verify step that someone performed. Not a staged ideation topic: the
+    forcing fact is a filed, measured defect in this repository's own release
+    machinery.
+  approved_by: >-
+    Brett — ruled in session on 2026-08-24, on all four questions this packet
+    raised: the obligation gets its OWN CAPABILITY (`release-surface-integrity`,
+    overriding the drafting session's `release-realization` recommendation);
+    editorial drift is `info` rather than `warning`; `contracts/README.md` IS in
+    the editorial set; and `docs/contract-versioning-policy.md` is RATIFIED by
+    this change. He separately ruled the `contract-v1.36` tag breach RECORD-ONLY
+    on the same date. This records authorization for the change itself and for
+    those five decisions. The drafting session's D2–D4 (the `contested`
+    exclusion, the raw-bytes rule, and the skip-rather-than-working-tree
+    fallback) were taken under standing patterns, were NOT separately ruled on,
+    and remain open to veto — they are flagged as such in the proposal.
+  approved_on: 2026-08-24

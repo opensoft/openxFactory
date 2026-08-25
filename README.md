@@ -344,6 +344,27 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-release-inventory-drift-check](openspec/changes/add-release-inventory-drift-check/proposal.md)
+  — authored and ratified 2026-08-24 from issue #312. The release verifier
+  (`validate-contract-release.py verify-commit`) had been failing at
+  `origin/main` since the `contract-v1.40` tag, and NO gate in any session's set runs it, so the state was invisible
+  until a session ran it by hand for an unrelated reason — a release-inventory
+  gate that nothing runs is a gate in name only. Adds the capability
+  `release-surface-integrity` ("the declared bundle describes the release
+  surface", with three editorial members allowed to drift between cuts) and
+  commissions doc-health's nineteenth family to check it; the CHECKER itself is
+  a follow-on realization slice. Measured before proposing: 188 of the declared
+  bundle's 190 inventory members match at `origin/main`, two are editorial, and
+  NON-editorial drift is zero — and the same comparison at `08c5aa9` reproduces
+  the `contract-v1.36` defect, proving the "forgot to bump the bundle" class is
+  detectable at the commit rather than only at tag-verify. This change also
+  RATIFIES [`docs/contract-versioning-policy.md`](docs/contract-versioning-policy.md),
+  correcting the four defects that read-through found — three modern bundles
+  published with no annotated tag (recorded as an undischarged gap, the rule
+  NOT relaxed), a stale present-tense baseline claim, a superseded layer
+  vocabulary called "canonical", and the undocumented meaning of a red
+  `verify-commit` at HEAD.
+
 - [add-promotion-fidelity-check](openspec/changes/add-promotion-fidelity-check/proposal.md)
   — authored and ratified 2026-08-24, commissioned in-session ("commission the
   archived-delta-vs-promoted-spec check"). Closes the prevention question
