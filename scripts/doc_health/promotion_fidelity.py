@@ -19,8 +19,10 @@ carefully, applied by codexFactory PR #85 on 2026-08-24, and recorded in
 this family exists to retire: "What does NOT close: no check yet compares
 archived deltas to promoted specs, so the class stays unreported."
 
-THREE RULES DO THE WORK, and each one is load-bearing against a false
-positive this corpus actually contains:
+THREE RULES DO THE WORK. The first two are load-bearing against a false
+POSITIVE this corpus actually contains; the third was re-cut on 2026-08-24
+because its first spelling was load-bearing against a false NEGATIVE it was
+also creating:
 
 1. **Latest writer wins.** A requirement is authoritatively stated by the
    MOST RECENT archived delta that touches it, and by that one alone.
@@ -37,10 +39,19 @@ positive this corpus actually contains:
    `2026-08-02-add-workbench-integrated-editor-chat` — fires against all
    THREE of its earlier writers.
 
-3. **A delta is checked only where its own proposal claims ratification.**
-   See `_is_ratified_for_promotion` below; this is the C5 exemption and it
-   is keyed on a header the corpus already carries, not on a marker invented
-   here.
+3. **A delta is exempt only where its own proposal EXPLICITLY declares
+   pre-ratification standing.** See `_is_exempt_from_promotion` below; this is
+   the C5 exemption and it is keyed on a header the corpus already carries,
+   not on a marker invented here. It was narrowed by ruling on 2026-08-24
+   (task 4.1, PR #315) after measurement showed the original
+   `Status == "ratified"` spelling silently exempting more than fifty
+   requirements that nobody had decided to exempt.
+
+THE MEASUREMENT BASIS IS DECLARED, not assumed. `_open_tree` reads either the
+checked-out tree (the default, and what every other family measures) or a
+repository's own `origin/main`. The nightly runs this ONE family against live
+mains by ruling — see `_open_tree` and `basis_notes` for why, and for how the
+report is made to say which basis produced its findings.
 
 CLASSIFICATION AT LAUNCH IS ADVISORY, deliberately. Every finding is
 WARNING, so `--fail-on error` (and `--fail-on critical`) cannot red on this
@@ -57,10 +68,34 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from . import Finding, Skip, WARNING
+from . import Finding, Skip, TAXONOMY, WARNING
 from . import corpus
 
 FAMILY = "promotion-fidelity"
+
+# The lifecycle standings that sit BELOW ratification, in the taxonomy
+# `docs/document-lifecycle.md` promotes and `doc_health.TAXONOMY` carries.
+# A packet whose proposal explicitly declares one of these never claimed the
+# approval that obliges promotion, so its deltas are archived design evidence.
+# Everything else — `ratified`, the post-ratification standings, an
+# unrecognized value, an annotation the taxonomy does not know — is a packet
+# that ARCHIVED, and archiving is what this family presumes ratification from.
+#
+# Split rather than a single set so `RATIFIED_OR_BEYOND` can be asserted to
+# exhaust the taxonomy by test: a ninth standing added to the taxonomy and
+# forgotten here would otherwise land in the presumed-ratified bucket in
+# silence, which is precisely the class of silence the 2026-08-24 ruling
+# closed.
+PRE_RATIFICATION = frozenset({"brainstorm", "staged", "draft"})
+RATIFIED_OR_BEYOND = frozenset({"ratified", "standard", "superseded",
+                                "retired", "record"})
+
+# The two measurement bases, named once. `pinned` is the checked-out tree —
+# what every other family measures and the default here. `live-main` is this
+# family's ruled nightly basis (task 4.1, PR #315).
+BASIS_PINNED = "pinned"
+BASIS_LIVE_MAIN = "live-main"
+LIVE_REF = "origin/main"
 
 # The launch severity, named once. Advisory means WARNING: `runner.main`'s
 # gate is `{CRITICAL}` or `{CRITICAL, ERROR}`, so a WARNING family reports
@@ -195,8 +230,216 @@ def _archive_date(folder: str) -> str:
     return m.group(1) if m else ""
 
 
-def _is_ratified_for_promotion(change_dir: Path) -> bool:
-    """Did this archived change's own proposal claim ratification?
+_ARCHIVE_PREFIX = "openspec/changes/archive/"
+
+
+class WorkingTree:
+    """The repository as it is CHECKED OUT — the basis every family reads.
+
+    In an aggregation run that is the submodule at its committed PIN, which is
+    the whole reason `GitRefTree` exists beside it.
+    """
+
+    __slots__ = ("_root", "basis", "detail", "ref")
+
+    def __init__(self, repo_path: Path, detail: str = ""):
+        self._root = repo_path
+        self.basis = BASIS_PINNED
+        self.detail = detail
+        self.ref = None
+
+    def has_archive(self) -> bool:
+        return (self._root / "openspec" / "changes" / "archive").is_dir()
+
+    def archive_changes(self) -> list[str]:
+        archive = self._root / "openspec" / "changes" / "archive"
+        if not archive.is_dir():
+            return []
+        return sorted(p.name for p in archive.iterdir() if p.is_dir())
+
+    def delta_specs(self, change: str) -> list[str]:
+        specs = (self._root / "openspec" / "changes" / "archive" / change
+                 / "specs")
+        if not specs.is_dir():
+            return []
+        return sorted(p.relative_to(self._root).as_posix()
+                      for p in specs.glob("*/spec.md"))
+
+    def read(self, rel: str) -> str | None:
+        path = self._root / rel
+        if not path.is_file():
+            return None
+        return path.read_text(encoding="utf-8", errors="replace")
+
+
+class GitRefTree:
+    """One repository's `origin/main`, read WITHOUT touching the checkout.
+
+    Every path comes from a single `git ls-tree -r` of the ref, and every body
+    from `git show <ref>:<path>`. Nothing is checked out, nothing is reset, and
+    no other family's input moves — which is the constraint the ruling put on
+    this basis: THIS family measures live mains, and only this family.
+    """
+
+    __slots__ = ("_repo", "_git", "_paths", "basis", "detail", "ref", "sha")
+
+    def __init__(self, repo_path: Path, git, ref: str, sha: str,
+                 paths: list[str]):
+        self._repo = repo_path
+        self._git = git
+        self._paths = frozenset(paths)
+        self.basis = BASIS_LIVE_MAIN
+        self.ref = ref
+        self.sha = sha
+        self.detail = f"{ref} {sha[:12]}"
+
+    def _under_archive(self) -> set[str]:
+        names = set()
+        for path in self._paths:
+            if path.startswith(_ARCHIVE_PREFIX):
+                head = path[len(_ARCHIVE_PREFIX):].split("/", 1)
+                if len(head) == 2:
+                    names.add(head[0])
+        return names
+
+    def has_archive(self) -> bool:
+        return any(p.startswith(_ARCHIVE_PREFIX) for p in self._paths)
+
+    def archive_changes(self) -> list[str]:
+        return sorted(self._under_archive())
+
+    def delta_specs(self, change: str) -> list[str]:
+        prefix = f"{_ARCHIVE_PREFIX}{change}/specs/"
+        return sorted(p for p in self._paths
+                      if p.startswith(prefix) and p.endswith("/spec.md")
+                      and p.count("/", len(prefix)) == 1)
+
+    def read(self, rel: str) -> str | None:
+        # The membership test first: a promoted spec that does not exist is
+        # the COMMON case here (a capability never promoted at all is one of
+        # this family's findings), and paying a subprocess to be told so on
+        # every miss would make the live basis cost what it does not need to.
+        if rel not in self._paths:
+            return None
+        return self._git.show_blob(self._repo, self.ref, rel)
+
+
+def _open_tree(repo_path: Path, git, requested: str):
+    """The tree this family reads for one repository, and how it says so.
+
+    RULED 2026-08-24 (Brett, four-question round; task 4.1, PR #315): **the
+    nightly measures LIVE MAINS for this family, and for this family alone.**
+    The evidence was a corpus-wide run against the aggregation's committed
+    PINS, where this family's coverage collapsed — 0% in three repositories —
+    and where it could not see the very gap (#301) that a lagging codexFactory
+    pin was hiding. A promotion gap is a fact about a repository's own main;
+    measuring it through a pin reports the state of the PIN, and reports it in
+    the vocabulary of the repository, which is the shape of a false negative.
+
+    THE FALL-BACK IS LOUD, NEVER SILENT. `origin/main` has to be present
+    locally (the nightly fetches it; a developer checkout usually has it; a
+    fresh shallow clone may not). Where it is not, this repository is read
+    from its checkout and `basis_notes` names it as having FALLEN BACK. The
+    alternative — refusing to measure the repository at all — trades a stale
+    true positive for silence, and silence is the failure mode the ruling
+    exists to close.
+    """
+    if requested != BASIS_LIVE_MAIN:
+        return WorkingTree(repo_path)
+    resolve = getattr(git, "resolve_ref", None)
+    ls_tree = getattr(git, "ls_tree_paths", None)
+    if resolve is None or ls_tree is None:
+        return WorkingTree(repo_path, "FELL BACK to the pinned checkout — "
+                                      "this run cannot read git refs")
+    sha = resolve(repo_path, LIVE_REF)
+    if sha is None:
+        return WorkingTree(repo_path, f"FELL BACK to the pinned checkout — "
+                                      f"{LIVE_REF} is not present locally")
+    paths = ls_tree(repo_path, LIVE_REF, "openspec")
+    if paths is None:
+        return WorkingTree(repo_path, f"FELL BACK to the pinned checkout — "
+                                      f"{LIVE_REF} {sha[:12]} is unreadable")
+    return GitRefTree(repo_path, git, LIVE_REF, sha, paths)
+
+
+def requested_basis(ctx) -> str:
+    """The basis this run asked for. Absent the field, the pinned checkout —
+    so a Context built before this option existed behaves as it always did."""
+    value = getattr(ctx, "promotion_fidelity_basis", BASIS_PINNED)
+    return value if value in (BASIS_PINNED, BASIS_LIVE_MAIN) else BASIS_PINNED
+
+
+def repo_trees(ctx) -> list[tuple[str, Path, object]]:
+    """`(repo, path, tree)` for every repository in scope that has an archive.
+
+    Called twice per run — once by the family, once by `basis_notes` — because
+    the note must describe the basis the findings ACTUALLY came from, and the
+    only way to be sure of that is to resolve it the same way. Resolution is
+    one `rev-parse` plus one `ls-tree` per repository in live mode and no
+    subprocess at all in the pinned default, so the second call is cheap.
+    """
+    out = []
+    basis = requested_basis(ctx)
+    for repo, path in sorted(ctx.repo_paths.items()):
+        tree = _open_tree(Path(path), ctx.git, basis)
+        if tree.has_archive():
+            out.append((repo, Path(path), tree))
+    return out
+
+
+def basis_notes(ctx) -> list[str]:
+    """The report lines that say WHICH TREE produced this family's findings.
+
+    A reader must never mistake a live-main finding for a pinned one: the two
+    answer different questions, and the ruling that separated them is only
+    honoured if the report carries the separation. So the basis is stated on
+    every run, including the pinned default — a line that appears only in the
+    unusual case is a line nobody has learnt to look for.
+    """
+    basis = requested_basis(ctx)
+    trees = repo_trees(ctx)
+    if basis == BASIS_PINNED:
+        return ["Basis: the pinned checkout — the same tree every other "
+                "family measures."]
+    notes = ["Basis: each repository's live `origin/main`, RULED for this "
+             "family alone (task 4.1, PR #315); every other family in this "
+             "report measures the pinned checkout."]
+    for repo, _path, tree in trees:
+        notes.append(f"- {repo}: {tree.detail}")
+    if not trees:
+        notes.append("- no repository in scope carries an archive on either "
+                     "basis")
+    return notes
+
+
+def declared_standing(status: str | None) -> str | None:
+    """The taxonomy standing a `Status:` value declares, or None.
+
+    `corpus.STATUS_RE` captures the WHOLE rest of the header line, so a
+    packet that annotates its standing — `Status: ratified (superseded by
+    <change>)`, the shape hermes-install's archive carries — parses to a value
+    no equality test against a taxonomy word will ever match. The leading
+    token is what the header declares; the annotation is prose about it.
+
+    Applied SYMMETRICALLY, which is the whole reason it is one function: an
+    annotated `draft` declares `draft` for exactly the same reason an
+    annotated `ratified` declares `ratified`. A second grammar for the two
+    directions is how one reader comes to disagree with itself about what a
+    header says.
+
+    Punctuation the corpus wraps headers in (`` ` ``, `*`, `_`) is stripped;
+    the value is casefolded. An unrecognized word returns None rather than
+    itself, so a typo can never be mistaken for a standing.
+    """
+    if not status:
+        return None
+    token = status.split()[0].strip("`*_").casefold()
+    return token if token in TAXONOMY else None
+
+
+def _is_exempt_from_promotion(tree, change: str) -> bool:
+    """Does this archived packet EXPLICITLY disclaim the ratification that
+    would have obliged promotion?
 
     THE C5 EXEMPTION, keyed on the header the record actually uses rather
     than on a marker invented for this family. `docs/archive-record-
@@ -209,31 +452,56 @@ def _is_ratified_for_promotion(change_dir: Path) -> bool:
     `Status: draft`, with no ratification citation, because "`draft` records
     the honest value this folder has always supported: never ratified".
 
-    So the rule is simply that a delta is checked for arrival only where its
-    own proposal claims the ratification that would have obliged the
-    arrival. A `draft` packet's deltas are archived design evidence and this
-    family says nothing about them.
+    RULED 2026-08-24 (Brett, four-question round; task 4.1, PR #315):
+    **an archived packet is PRESUMED ratified by the act of archiving, and the
+    exemption applies ONLY where the header explicitly parses to `draft` or a
+    lower taxonomy standing.** The first cut asked the opposite question —
+    "does the status read exactly `ratified`?" — and that spelling made the
+    exemption a FALSE-NEGATIVE CHANNEL rather than a narrow record:
 
-    MEASURED, because an exemption that swallows the population is worse
-    than none: across openxFactory's 89 archived changes carrying deltas, 88
-    proposals read `ratified` and exactly ONE reads `draft` — C5's. The
-    exemption is as narrow as the record it implements.
+    - an ANNOTATED ratification (`Status: ratified (superseded ...)`) is not
+      the string `ratified`, so it was exempt;
+    - a packet carrying NO `Status:` header at all was exempt, which meant
+      the corpus could buy silence by omitting a header.
 
-    A packet with no `proposal.md` at all, or with no `Status:` header in
-    its window, makes no claim of ratification and is therefore NOT checked.
-    That is the same conservative direction as the rest of this family, and
-    it is not a silent hole: `fam_status_validity` already reports a
-    proposal missing its status header, over the lifecycle scan set
-    `govern-openspec-corpus-membership` declared.
+    MEASURED, on live `origin/main`s, both before the ruling and again on
+    realization. Four packets were exempt for no decision anyone took, and
+    with them 54 requirements: hermes-install's ANNOTATED
+    `2026-07-19-implement-three-layer-hermes-runtime-foundation` (23) and
+    HEADERLESS `2026-07-22-add-seed-layer-content` (4), and
+    medx-roottruth-install's headerless `2026-08-10-add-runtime-scaffold`
+    (16) and `2026-08-11-add-tiered-ingestion-and-probe` (11). Those two
+    repositories reported zero findings at 57.8% and 0% coverage, and
+    reported it as health.
+
+    (The ruling's own record says 57, from a run taken at a different
+    reference point. The packets and the shapes are the same four; the count
+    here is the one this implementation re-derived. Both are kept — see
+    tasks §4.1.)
+
+    THE RELAXATION COST MEASURED ZERO. 88 of openxFactory's 89
+    delta-carrying packets read exactly `ratified` and the 89th is C5's
+    `Status: draft`, so both spellings give the same two findings; across
+    every other reachable repository the examined-requirement count and the
+    finding count are unchanged. +54 requirements examined, +0 findings
+    anywhere.
+
+    THE PRESUMPTION IS THE CONSERVATIVE DIRECTION NOW, and it was not before:
+    an unexamined ratified delta is a governance gap reporting itself healthy,
+    while a wrongly examined one is an advisory WARNING that a `draft` header
+    or a cited disposition retires. A packet with no proposal at all, or with
+    a status the taxonomy does not recognize, is therefore examined —
+    `fam_status_validity` already reports the missing or invalid header
+    itself, over the lifecycle scan set `govern-openspec-corpus-membership`
+    declared, so nothing here has to double as that check.
 
     The status is read through `corpus.parse_status` — the ONE lifecycle
     header reader — never through a private regex.
     """
-    proposal = change_dir / "proposal.md"
-    if not proposal.is_file():
+    text = tree.read(f"openspec/changes/archive/{change}/proposal.md")
+    if text is None:
         return False
-    return corpus.parse_status(
-        proposal.read_text(encoding="utf-8", errors="replace")) == "ratified"
+    return declared_standing(corpus.parse_status(text)) in PRE_RATIFICATION
 
 
 class Writer:
@@ -253,40 +521,40 @@ class Writer:
         self.seq = seq
 
 
-def _collect_writers(repo_path: Path) -> dict[tuple[str, str], list[Writer]]:
+def _collect_writers(tree) -> dict[tuple[str, str], list[Writer]]:
     """Every archived delta statement in one repo, grouped by its target.
 
     A RENAMED pair contributes a `RENAMED` writer against the OLD title —
     which is how a rename retires it — and nothing against the new one: the
     same change's MODIFIED block already carries the new header, because
     `openspec archive` requires it to.
+
+    Reads through a TREE (`WorkingTree` or `GitRefTree`) rather than through
+    `Path` directly, so the live-main basis is a different reader of the same
+    rules instead of a second copy of the rules.
     """
     writers: dict[tuple[str, str], list[Writer]] = {}
-    archive = repo_path / "openspec" / "changes" / "archive"
-    if not archive.is_dir():
-        return writers
-    for change_dir in sorted(p for p in archive.iterdir() if p.is_dir()):
-        if not _is_ratified_for_promotion(change_dir):
+    for change in tree.archive_changes():
+        deltas = tree.delta_specs(change)
+        if not deltas or _is_exempt_from_promotion(tree, change):
             continue
-        specs = change_dir / "specs"
-        if not specs.is_dir():
-            continue
-        for delta in sorted(specs.glob("*/spec.md")):
-            capability = delta.parent.name
-            rel = delta.relative_to(repo_path).as_posix()
-            requirements, renames = parse_delta(
-                delta.read_text(encoding="utf-8", errors="replace"))
+        for rel in deltas:
+            capability = rel.rsplit("/", 2)[-2]
+            body = tree.read(rel)
+            if body is None:
+                continue
+            requirements, renames = parse_delta(body)
             # Renames first, and given a sequence number below every
             # requirement in the same file: `openspec archive` applies
             # RENAMED before MODIFIED, so within one change the rename is
             # the earlier statement.
             for i, (old, _new) in enumerate(renames):
                 writers.setdefault((capability, norm(old)), []).append(
-                    Writer(change_dir.name, capability, "RENAMED", old, [],
+                    Writer(change, capability, "RENAMED", old, [],
                            rel, -len(renames) + i))
             for req in requirements:
                 writers.setdefault((capability, norm(req.title)), []).append(
-                    Writer(change_dir.name, capability, req.op, req.title,
+                    Writer(change, capability, req.op, req.title,
                            req.scenarios, rel, req.seq))
     return writers
 
@@ -319,12 +587,17 @@ def _authoritative(writers: list[Writer], tie_rank) -> Writer:
     return max(tied, key=lambda w: (tie_rank(w.change), w.change, w.seq))
 
 
-def _tie_ranker(repo_path: Path, git):
+def _tie_ranker(repo_path: Path, git, ref: str | None = None):
     """A memoized `change -> sortable archive-commit rank` for tie-breaking.
 
     Resolved LAZILY and only for the changes a tie actually involves: a full
     sweep would spend one `git log` per archived packet on every run to
     answer a question nineteen pairs ask.
+
+    `ref` is the commit whose history is walked, and it is the SAME ref the
+    statements were read from. A live-main run that broke its ties on HEAD's
+    history would be deciding "which packet archived last" in one tree about
+    statements taken from another — the two agreeing today is not a rule.
     """
     cache: dict[str, int] = {}
     reader = getattr(git, "first_commit_timestamp", None)
@@ -334,7 +607,7 @@ def _tie_ranker(repo_path: Path, git):
             stamp = None
             if reader is not None:
                 stamp = reader(
-                    repo_path, f"openspec/changes/archive/{change}")
+                    repo_path, f"openspec/changes/archive/{change}", ref=ref)
             cache[change] = -1 if stamp is None else int(stamp)
         return cache[change]
 
@@ -415,27 +688,26 @@ def fam_promotion_fidelity(ctx):
     to key on; the promoted spec it failed to reach is named in the rule
     text, which is what a reader acts on.
     """
-    scoped = [(repo, Path(path)) for repo, path in sorted(ctx.repo_paths.items())
-              if (Path(path) / "openspec" / "changes" / "archive").is_dir()]
+    scoped = repo_trees(ctx)
     if not scoped:
         return Skip(FAMILY, "no repository in scope carries an OpenSpec "
                             "change archive")
 
     dispositions = _load_dispositions(ctx)
     findings: list[Finding] = []
-    for repo, repo_path in scoped:
-        writers = _collect_writers(repo_path)
+    for repo, repo_path, tree in scoped:
+        writers = _collect_writers(tree)
         if not writers:
             continue
-        tie_rank = _tie_ranker(repo_path, ctx.git)
+        tie_rank = _tie_ranker(repo_path, ctx.git, tree.ref)
         promoted_cache: dict[str, dict[str, list[str]] | None] = {}
 
-        def promoted(capability: str):
+        def promoted(capability: str, tree=tree):
             if capability not in promoted_cache:
-                spec = repo_path / "openspec" / "specs" / capability / "spec.md"
-                promoted_cache[capability] = parse_promoted(
-                    spec.read_text(encoding="utf-8", errors="replace")
-                ) if spec.is_file() else None
+                body = tree.read(
+                    f"openspec/specs/{capability}/spec.md")
+                promoted_cache[capability] = (
+                    parse_promoted(body) if body is not None else None)
             return promoted_cache[capability]
 
         for key in sorted(writers):

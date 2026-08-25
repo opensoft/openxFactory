@@ -36,7 +36,7 @@ AS_OF = date(2026, 7, 9)
 class FakeGit:
     def __init__(self, last_dates=None, line_dates=None, captures=None,
                  pins=None, remotes=None, heads=None, first_dates=None,
-                 first_stamps=None):
+                 first_stamps=None, refs=None, ref_trees=None):
         self.last_dates = last_dates or {}
         self.first_dates = first_dates or {}
         # add-promotion-fidelity-check: archive-commit order to SECOND
@@ -50,6 +50,14 @@ class FakeGit:
         self.pins = pins
         self.remotes = remotes or {}
         self.heads = heads or {}
+        # add-promotion-fidelity-check task 4.1 (ruled 2026-08-24): the
+        # live-main basis. `refs` answers rev-parse ((repo, ref) -> sha) and
+        # `ref_trees` is a whole tree at a ref ((repo, ref) -> {path: body}),
+        # which serves BOTH ls-tree and show from one declaration — a shim
+        # whose listing and whose bodies could disagree would let a test pass
+        # over a reader that never reads what it lists.
+        self.refs = refs or {}
+        self.ref_trees = ref_trees or {}
 
     def last_commit_date(self, repo: Path, relpath: str):
         return self.last_dates.get((repo.name, relpath))
@@ -57,8 +65,22 @@ class FakeGit:
     def first_commit_date(self, repo: Path, relpath: str):
         return self.first_dates.get((repo.name, relpath))
 
-    def first_commit_timestamp(self, repo: Path, relpath: str):
+    def first_commit_timestamp(self, repo: Path, relpath: str, ref=None):
+        if ref:
+            return self.first_stamps.get((repo.name, ref, relpath))
         return self.first_stamps.get((repo.name, relpath))
+
+    def resolve_ref(self, repo: Path, ref: str):
+        return self.refs.get((repo.name, ref))
+
+    def ls_tree_paths(self, repo: Path, ref: str, prefix: str):
+        tree = self.ref_trees.get((repo.name, ref))
+        if tree is None:
+            return None
+        return sorted(p for p in tree if p.startswith(prefix))
+
+    def show_blob(self, repo: Path, ref: str, relpath: str):
+        return (self.ref_trees.get((repo.name, ref)) or {}).get(relpath)
 
     def line_commit_date(self, repo: Path, relpath: str, line: int):
         return self.line_dates.get((repo.name, relpath, line))

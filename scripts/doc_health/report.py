@@ -99,7 +99,8 @@ def canon_stats(docs, spec_words: int):
 def render(run_date: date, findings: list[Finding], skips, preflight_log,
            docs, spec_words: int, deviations: list[str],
            new_regressions: list[Finding], semantic_meta=None,
-           catalog_meta=None, organizer_meta=None) -> str:
+           catalog_meta=None, organizer_meta=None,
+           family_notes: dict | None = None) -> str:
     findings = sorted(findings, key=Finding.sort_key)
     share, canon, total, by_stage = canon_stats(docs, spec_words)
     out = []
@@ -254,6 +255,14 @@ def render(run_date: date, findings: list[Finding], skips, preflight_log,
         out.append("")
         out.append(f"### {family}")
         out.append("")
+        # A family's own notes come BEFORE its findings and are rendered even
+        # when there are none — a family whose measurement basis varies must
+        # state the basis on a clean run too, or "No findings." reads as a
+        # verdict about a tree nobody named (`families.FAMILY_NOTES`).
+        for note in (family_notes or {}).get(family, ()):
+            out.append(note)
+        if (family_notes or {}).get(family):
+            out.append("")
         if skipped:
             out.append(f"Skipped: {skipped.reason}")
         elif not fam_findings:
