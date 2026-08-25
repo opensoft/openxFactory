@@ -36,25 +36,74 @@ visible rather than becoming a silent later commit.
       reader sharing the same two heading regexes, the latest-writer
       resolution with its tie-break, the ratification exemption, the
       disposition read, and the family function.
+      **REVISED under 4.1's rulings (PR #315).** The exemption is now
+      `_is_exempt_from_promotion` and asks the opposite question — archiving
+      is presumed to be ratification, and only an explicitly declared
+      `draft`-or-lower standing exempts a delta (`declared_standing` reads the
+      header's leading token, symmetrically in both directions, so an
+      annotation cannot change what a standing says). The delta and canon
+      readers now go through a TREE (`WorkingTree` / `GitRefTree`) rather than
+      through `Path`, which is what lets the live-main basis be a second
+      reader of one set of rules rather than a second copy of them.
 - [x] 2.2 `scripts/doc_health/corpus.py`: `RealGit.first_commit_timestamp`.
       `first_commit_date` answers the same question to DAY resolution, which
       is exactly the resolution that cannot break a same-day tie — and 19
       (capability, requirement) pairs in this repository are written twice or
       more on their latest date.
+      **EXTENDED under 4.1's live-mains ruling (PR #315):**
+      `first_commit_timestamp` takes an optional `ref` (a tie decided from
+      HEAD's history about statements read from `origin/main` is two readers
+      of two trees agreeing by accident), and `resolve_ref` / `ls_tree_paths`
+      / `show_blob` read a named ref without touching the checkout.
+      `ls_tree_paths` passes `--full-name` and a `:(top)` pathspec: `ls-tree`
+      resolves and prints against the CURRENT PREFIX while `git show
+      <ref>:<path>` always reads from the tree ROOT, so the untuned pair
+      lists one subtree and reads another. Caught live — the fixture repos
+      sit inside this repository, and the first cut of the CLI test listed
+      the fixture's `openspec/` and read openxFactory's, reporting a clean
+      run for it.
 - [x] 2.3 Registration: `FAMILIES` in `families.py`, `FAMILY_IDS` in
       `__init__.py` (so the family gets its own report section — the
       omission that left `proposal-origin` sectionless is a known defect,
       not a pattern to copy), and NOT `FAMILY_RESOLUTION`, with the reason
       recorded at the registration site.
+      **EXTENDED under 4.1's live-mains ruling (PR #315):**
+      `families.FAMILY_NOTES` (one entry, this family's `basis_notes`),
+      `RunResult.notes` filled beside the family call in `run_suite`, and
+      `report.render(family_notes=...)` rendering a family's notes under its
+      own heading BEFORE its findings and on a clean run too — "No findings."
+      is a verdict, and a verdict about an unnamed tree is what the ruling
+      forbids. The `--promotion-fidelity-basis` flag and the
+      `Context.promotion_fidelity_basis` field live in `runner.py`; a test
+      greps the package to prove no other module can name the option.
 - [x] 2.4 `tests/doc-health/conftest.py`: `FakeGit.first_commit_timestamp`,
       answering `None` where no stamp is supplied — the same degradation
       `RealGit` performs when git cannot answer, which is the fallback path
       §3.4's test exercises deliberately.
+      **EXTENDED under 4.1's live-mains ruling (PR #315):** `refs` answers
+      `resolve_ref` and one `ref_trees` map serves BOTH `ls_tree_paths` and
+      `show_blob`, because a shim whose listing and whose bodies could
+      disagree would let a test pass over a reader that never reads what it
+      lists. `first_commit_timestamp` keys ref-scoped stamps separately, so a
+      fall-back run cannot accidentally be handed the ref's history.
 - [x] 2.5 `tests/doc-health/test_lifecycle_scan_set.py`: the eighteenth
       family classified as a NON-reader of the lifecycle scan set, and the
       `len(NON_READERS) == len(FAMILIES) - 4` arithmetic advanced from 13 to
       14. This test failed loudly on the registration commit, by name, which
       is exactly what it was built to do.
+- [x] 2.6 **The nightly's live-mains basis, realized in this repository.**
+      `.github/workflows/doc-health-reusable.yml` — the reusable workflow the
+      aggregation's thin `doc-health-nightly.yml` calls — gains a "Fetch each
+      governed submodule's live origin/main" step before "Run doc-health
+      suite", and the reporting invocation gains
+      `--promotion-fidelity-basis live-main`. **NO AGGREGATION-SIDE EDIT IS
+      OWED**: the caller passes inputs only and owns no run step, so both
+      halves belong here. The fetch moves no file (it updates
+      `refs/remotes/origin/main` and the object store; HEAD, index and working
+      tree are untouched), which is what keeps the ruling's "other families
+      keep measuring the pinned tree" true STRUCTURALLY rather than by
+      convention — and `test_workflow_contract` asserts both the ordering and
+      the absence of any checkout/reset/merge verb in that step.
 
 ## 3. Acceptance evidence, both directions
 
@@ -80,6 +129,13 @@ visible rather than becoming a silent later commit.
       the findings appear, so the exemption is what is doing the silencing.
       Against the real archive the exemption suppresses 12 would-be findings,
       all four of C5's capabilities, and nothing else.
+      **STILL TRUE AFTER 4.1's RELAXATION (PR #315), and that is the point:**
+      C5 is kept quiet by its own `Status: draft` header, not by the spelling
+      of the rule around it, so narrowing the exemption to
+      explicit-draft-or-lower left it exactly where it stood — measured, not
+      assumed. hermes-install's archived
+      `2026-08-14-add-governed-job-approval-request` is the live instance of
+      the same shape in another repository, and it also stays exempt.
 - [x] 3.4 **A requirement legitimately modified by a LATER archived change
       stays quiet**, and so does one RENAMED by a later change.
       `test_latest_writer_wins_is_load_bearing` measures the delta rather
@@ -98,6 +154,77 @@ visible rather than becoming a silent later commit.
       `tests/ideation-dashboard`, `tests/client-identity-roster` and
       `tests/notebooklm` → 781 passed. `OPENSPEC_TELEMETRY=0 openspec
       validate --all --strict` → green.
+      **RE-RUN on 4.1's realization (PR #315's rulings), from the branch base
+      `1274b9bf`:** `pytest tests/doc-health` → **802 passed** (baseline on
+      that base, same environment: 771 passed; +31 new — 29 in
+      `test_promotion_fidelity.py`, 2 in `test_workflow_contract.py`).
+      `pytest tests/ideation-dashboard -k workbench` → **140 passed**,
+      unmoved. `openspec validate --all --strict` → **75 passed, 0 failed**.
+      **Whole-repo `doc-health --single-repo .` before and after: 4 critical,
+      8 error, 75 warning, 4 info — IDENTICAL, and the ranked plans compare
+      line-for-line identical too.** Nothing to explain, which is what the
+      relaxation's measured-zero cost on this repository predicted.
+      (The 764/7 line above was recorded in a different environment; this
+      base reports the same suite as 771 passed, 0 skipped. Both are kept
+      rather than reconciled — a skip count is a fact about a machine.)
+- [x] 3.8 **The presumption's own evidence** (4.1's exemption ruling, PR
+      #315). `tests/doc-health/fixtures/promotion-fidelity-presumption/`
+      carries the two shapes the ruling's measurement named — an ANNOTATED
+      ratification (hermes-install's three-layer-runtime packet, 23
+      requirements) and a HEADERLESS archive (medx-roottruth-install's two
+      plus hermes-install's seed-layer packet, 31 more) — plus a packet with
+      no `proposal.md` at all, an explicit `draft` and an ANNOTATED `draft`.
+      Three fire, two stay quiet. Both mutation directions are killed by
+      test: restoring the original `== "ratified"` spelling loses all three
+      findings, and dropping the explicit-draft check makes both drafts fire.
+      A ninth taxonomy standing cannot be forgotten either —
+      `PRE_RATIFICATION | RATIFIED_OR_BEYOND == TAXONOMY` is asserted.
+      The alphaFactory fixture is deliberately NOT extended with these:
+      its "fires exactly four times" assertion is the evidence that the
+      relaxation moved NOTHING for packets that read exactly `ratified` or
+      exactly `draft`.
+- [x] 3.9 **The measurement basis is proven load-bearing and proven narrow**
+      (4.1's live-mains ruling, PR #315). ONE fixture is run twice — pinned,
+      and live with an `origin/main` whose promoted spec carries what the
+      checkout's does not — and the two runs DISAGREE (4 findings vs 3),
+      which is what makes the basis a basis rather than a label. The
+      degradation is asserted in all three of its shapes (ref unresolvable,
+      ref unreadable, a git shim that cannot read refs at all): the run
+      measures the checkout and the report NAMES the repository as having
+      fallen back. Narrowness is structural, not asserted in prose — a test
+      greps `scripts/doc_health/*.py` and requires that only
+      `promotion_fidelity.py` and `runner.py` can even NAME the option, so no
+      other family can read it by accident. Two end-to-end `runner.main`
+      runs prove the flag arrives: the live one puts the deviation in the
+      headline and the basis in the family's section, the default one does
+      neither and says "pinned".
+- [x] 3.10 **Measured across every repository this session could reach**,
+      old exemption vs new, both read from live `origin/main`s so the
+      comparison is of rules rather than of checkouts. Requirements EXAMINED,
+      then findings: openxFactory 541 → 541, **2 → 2** (the ruling's
+      predicted zero cost, confirmed); hermes-install 37 → **64**, 0 → 0;
+      medx-roottruth-install 0 → **27**, 0 → 0; codexFactory 113 → 113,
+      LedgerxFactory 136 → 136, MedxFactory 110 → 110, OpsxFactory 77 → 77,
+      omnigent-install 29 → 29, AdxFactory 12 → 12, HealthLinc 7 → 7,
+      MedxEHR 7 → 7 — every one unchanged, 0 findings each. MedxChart and
+      MedxPractice carry no archive. **+54 requirements examined, +0
+      findings anywhere.** The relaxation bought coverage and cost no noise.
+      Four packets were un-exempted, and they are exactly the shapes 3.8
+      freezes: hermes-install's annotated
+      `2026-07-19-implement-three-layer-hermes-runtime-foundation` (23) and
+      headerless `2026-07-22-add-seed-layer-content` (4), and
+      medx-roottruth-install's headerless `2026-08-10-add-runtime-scaffold`
+      (16) and `2026-08-11-add-tiered-ingestion-and-probe` (11).
+      **THE openxFactory PAIR IS NOW ZERO, and not because of anything here.**
+      This branch was cut at `1274b9bf`, where §3.2's two findings still
+      stood. `042df4e7` landed on main mid-session and discharged them —
+      5.1's ruled "apply via a proper change", archived as
+      `2026-08-25-apply-branch-sessions-deltas`. Merged in, this repository
+      reports **0 findings under BOTH exemption spellings**, which is the
+      same equality measured at the base and is what a discharged gap should
+      look like. The 2 → 2 figures above are kept as the measurement at the
+      base rather than restated, because the claim they support is about the
+      RULE and not about today's canon.
 
 ## 4. The flip to enforcing — OPEN, and a ruling not a judgement call
 
@@ -134,6 +261,21 @@ visible rather than becoming a silent later commit.
       gaps first (the campaign pattern), then 4.2's both-halves flip; the
       domain backlogs' zero result is recorded as a one-time
       verified-clean statement rather than standing findings.
+      **BOTH NON-GATE RULINGS ARE REALIZED (PR #315's rulings, built here).**
+      The exemption relaxation lands in `promotion_fidelity.
+      _is_exempt_from_promotion` / `declared_standing` (§2.1, evidence §3.8,
+      corpus-wide measurement §3.10); the live-mains basis lands as
+      `--promotion-fidelity-basis live-main` plus the reusable workflow's
+      fetch step (§2.6, evidence §3.9). The gate ruling itself is NOT
+      realized here and must not be: its own text sequences it behind the
+      hermes-install and medx-roottruth header discharges, which is 4.3, and
+      the flip is 4.2. Both boxes stay open deliberately.
+      ONE NUMBER MOVED against the ruling's record, and it moved because the
+      measurements were taken from different reference points: this session
+      measured **+54** requirements newly examined (hermes-install +27,
+      medx-roottruth-install +27) where the ruling recorded 57 (30 + 27). The
+      shapes and the packets are the same four; the count is re-derived in
+      §3.10 from live `origin/main`s on 2026-08-24 rather than copied.
 - [ ] 4.2 **If ruled enforcing, both halves move together**: severity
       `warning` → `error` in `promotion_fidelity._LAUNCH_SEVERITY`, AND a
       `"promotion-fidelity": CONTESTED` entry in `families.FAMILY_RESOLUTION`.
@@ -186,6 +328,14 @@ visible rather than becoming a silent later commit.
       already records for the sectionless `proposal-origin` family. It is a
       pre-existing gap, named here so the next reader does not have to
       re-discover it.
+      **THE SAME RULE KEPT 4.1's REALIZATION OUT OF THAT DOCUMENT.** The
+      report's new per-family basis note is a report-contract addition, and
+      `docs/doc-health.md` is `Status: standard` — backed by the PROMOTED
+      spec, not by an active change's delta. Putting the note there now would
+      put the standard ahead of its canon. It rides this change's
+      `doc-health` delta ("The promotion fidelity measurement basis is
+      declared") and reaches the document when that delta is promoted, which
+      is the same door the eighteenth family itself is waiting at.
 - [ ] 5.3 **`python3 -m pytest tests` (the whole directory at once) fails
       collection on a duplicate test basename**, `test_header_value_readers.py`
       in both `tests/doc-health/` and `tests/ideation-dashboard/`. Verified

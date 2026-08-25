@@ -117,6 +117,55 @@ That is the conservative direction and it is not a silent hole:
 `fam_status_validity` already reports the missing header over the lifecycle
 scan set, so the packet is reported — by the family that owns headers, once.
 
+### D3 REVISED 2026-08-24 (Brett, task 4.1's four-question round, PR #315)
+
+**The paragraph directly above was wrong, and measurement is what showed it.**
+The question this rule asks is now inverted: archiving a packet is PRESUMED to
+be ratification of its deltas, and the exemption applies only where the header
+EXPLICITLY declares `draft` or a lower taxonomy standing.
+
+The original spelling — "checked only where the status reads exactly
+`ratified`" — was tuned against openxFactory's archive, where it is precisely
+narrow, and it stayed narrow there. Read across the family it was a
+FALSE-NEGATIVE CHANNEL with two mouths:
+
+1. **An annotated ratification.** `corpus.STATUS_RE` captures the whole rest
+   of the header line, so hermes-install's `Status: ratified (approved at
+   commit 5ace969). Amendment A1 …` is not the string `ratified`. Twenty-three
+   requirements went unexamined for a packet that declares its ratification as
+   plainly as any in the corpus.
+2. **A missing header.** Three packets — hermes-install's
+   `2026-07-22-add-seed-layer-content` and medx-roottruth-install's two —
+   carry no `Status:` at all, and thirty-one more requirements went with them.
+   A corpus that can buy silence by omitting a header has an exemption nobody
+   granted.
+
+Two repositories therefore reported 0 findings at 0% and 57.8% coverage, and
+reported it as health.
+
+**The direction of conservatism moved with the evidence.** When the rule was
+written, "not checked" looked like the safe default — a wrongly reported
+delta accuses a governance act. But a wrongly reported delta is an advisory
+WARNING that a `draft` header or a cited disposition retires in one line,
+while an unexamined ratified delta is a governance gap that reports itself
+healthy indefinitely. The second is the failure this whole family exists to
+end, so the presumption belongs on the side of examining.
+
+**The cost was measured before the ruling and re-measured on realization**
+(tasks §3.10): openxFactory 2 findings before, 2 after, across 89
+delta-carrying packets; +54 requirements newly examined across the family;
++0 findings anywhere. C5 stays quiet because its own header says `draft` —
+which is the proof that this narrowing kept the record it was built to
+implement.
+
+**One reader, applied symmetrically.** `declared_standing` takes the header
+value's leading token, strips the punctuation the corpus wraps headers in, and
+returns it only if the taxonomy knows it. So an annotated `draft` declares
+`draft` for exactly the reason an annotated `ratified` declares `ratified`. A
+rule that read annotations only when they made a packet louder would be two
+rules wearing one name. An unrecognized value returns None and the packet is
+examined; the invalid header itself remains `fam_status_validity`'s finding.
+
 ## D4 — Advisory at launch, in both of its halves
 
 **Severity.** Every finding is `warning`. `runner.main`'s gate is `{CRITICAL}`
@@ -173,6 +222,56 @@ loose enough to ignore punctuation in a title is one that would have ignored
 that. Casefolding survives because a title's case is a rendering choice no
 reader acts on differently.
 
+## D7 — The measurement basis, added 2026-08-24 by ruling (PR #315)
+
+Every other family in this suite measures the aggregation checkout: openxFactory
+plus each `xFactories/*` submodule at the pin the aggregation committed. That is
+the right basis for almost every question doc-health asks, because the pin IS
+what the aggregation currently consumes.
+
+**It is the wrong basis for this one.** A promotion gap is a fact about a
+repository's own `main`. Read through a pin, this family reports the state of
+the pin — and the corpus-wide run that produced 4.1's evidence showed exactly
+what that costs: coverage collapsed to 0% in three repositories, and the family
+could not see the #301 gap itself while the codexFactory pin lagged behind the
+repository that contained it. A check that reports "clean" about a tree nobody
+is working in is worse than one that does not run, because it is believed.
+
+So the nightly measures live `origin/main`s FOR THIS FAMILY, and every other
+family keeps the pinned tree. Three properties make that safe to state:
+
+**The narrowness is structural, not conventional.** The option is one field
+(`Context.promotion_fidelity_basis`) that only `promotion_fidelity.py` and the
+`runner.py` that plumbs the flag can even name; a test greps the package and
+fails if a third module learns the word. And the workflow step that makes the
+basis available is a `git fetch` — it updates `refs/remotes/origin/main` and
+the object store, and moves no file — so the checkout every other family reads
+is byte-identical to what it was. A test asserts that step contains no
+`checkout`, `reset`, `merge` or `submodule update`.
+
+**The reading is done through the ref, not through a working tree.** A
+`GitRefTree` answers the same four questions `WorkingTree` does, from one
+`git ls-tree -r` plus a `git show` per file. Both go through one set of rules —
+the alternative, a second traversal for the second basis, is how two readers of
+one archive come to disagree about what it says. The tie-break walks the SAME
+ref the statements came from, because a tie decided from HEAD's history about
+statements read from `origin/main` is two readers of two trees agreeing by
+accident.
+
+**The report says which basis it measured, always.** In the headline as a
+non-default-configuration line, and under the family's own heading as a per
+repository list — including on a clean run, because "No findings." is a verdict
+and a verdict about an unnamed tree is exactly the confusion this ruling was
+taken to prevent. Where a repository's live `main` cannot be read the run
+measures its checkout and the note says `FELL BACK` by name: refusing to
+measure it would trade a stale true positive for silence, and silence is the
+failure mode the ruling exists to close.
+
+**Where it lives.** `doc-health-reusable.yml` is owned by THIS repository and
+the aggregation's `doc-health-nightly.yml` is a thin caller that passes inputs
+and owns no run step — so both halves of the realization land here and no
+aggregation-side edit is owed.
+
 ## What was considered and not done
 
 - **Comparing bodies, not just titles.** A delta's requirement body and its
@@ -189,3 +288,17 @@ reader acts on differently.
   families' output on this feature's evidence, which is the reasoning
   `scripts/doc_health/__init__.py` already records for the sectionless
   `proposal-origin` family. Recorded in `tasks.md` §5 instead.
+- **Making the live basis the default** (D7). Rejected: a developer's
+  `--single-repo` self-gate would then measure a tree they are not editing and
+  report their own unpushed fix as a standing gap, and a fresh or shallow clone
+  would silently take the fall-back path on every run. The nightly is the run
+  that needs the live basis and the nightly is the run that asks for it.
+- **Skipping a repository whose live `main` cannot be read** (D7). Rejected:
+  it converts a stale true positive into no statement at all, and a family
+  whose whole purpose is to end an unreported class must not acquire a second
+  way to report nothing. The fall-back measures the checkout and says so.
+- **Fetching the live mains into the checkout** — `submodule update --remote`
+  or a checkout of `origin/main` per repository. Rejected: it would move every
+  other family's basis with it, which is the one thing 4.1's ruling explicitly
+  did not authorize. A `git fetch` plus a ref-reading tree keeps the change to
+  the one family that was ruled on.

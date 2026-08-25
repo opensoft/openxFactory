@@ -817,7 +817,7 @@ class SessionNotebookRefreshTests(unittest.TestCase):
             # again and no source was ever added from the served checkout
             self.assertEqual(fake.created_titles(), [alias])
             self.assertFalse(any("main body" in c for c in fake.added_contents()))
-            # the three lifecycle books are untouched by an ending
+            # the lifecycle books are untouched by an ending
             self.assertEqual(fake.titles(), ["xf-canon", "xf-drafts", "xf-ideation"])
 
     def test_the_teardown_seam_retires_through_the_real_adapter(self):
@@ -1016,7 +1016,8 @@ class SessionNotebookQuotaTests(unittest.TestCase):
     def test_an_exhausted_quota_still_opens_the_session(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            # three books already exist and the account holds no more
+            # the fixture's lifecycle books already exist and the account
+            # holds no more
             fake = FakeNlm(LIFECYCLE_BOOKS, quota=3)
             adapter = wb.NotebookAdapter(fake, available=True)
 

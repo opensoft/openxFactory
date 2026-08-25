@@ -1,0 +1,29 @@
+schema: spec-driven
+created: 2026-08-24
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-24-reconcile-lifecycle-books-count
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-24. Not a staged ideation
+    topic — the forcing fact is a defect in canon: the promoted
+    `lifecycle-notebook-projection` spec and the `Status: standard` workflow
+    doc both count "the three lifecycle books", a count made stale on
+    2026-08-10 by the archived `split-ideation-book-per-repo`, which replaced
+    the single shared Ideation book with one Ideation book per governed
+    repository beside the shared Working Drafts and Canon books. The count
+    reached canon through `2026-08-25-apply-branch-sessions-deltas`, a
+    promotion change that carried 2026-07-26 ratified text byte-for-byte and
+    declined the correction on purpose ("Any improvement to that text is a
+    separate change with its own ratification"); the closed duplicate PR #317
+    flagged the same residual in its closing comment. Editing ratified or
+    standard text requires a ratified successor change. This is that change.
+  approved_by: >-
+    Brett — in-session on 2026-08-24, verbatim: "commission the successor
+    change reconciling the lifecycle-books count". The authorization covers
+    the DECISION TO RECONCILE and the two documents it touches. It carries no
+    discretion over the topology: the replacement wording is
+    `split-ideation-book-per-repo`'s own ratified vocabulary — "one Ideation
+    book per governed repository", "the shared Working Drafts book", "the
+    shared Canon book" — so there is no new normative content here for an
+    approver to choose.
+  approved_on: 2026-08-24

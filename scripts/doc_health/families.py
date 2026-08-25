@@ -1032,3 +1032,17 @@ FAMILIES = {
     # a condition nobody should act on is how a report stops being read.
     "release-inventory-drift": release_inventory.fam_release_inventory_drift,
 }
+
+# `family -> (ctx) -> [note line, ...]`, rendered under that family's own
+# heading in "## Findings By Family" for the families that RAN.
+#
+# ONE ENTRY TODAY, and it exists because of a ruling rather than a taste:
+# promotion fidelity is the only family whose MEASUREMENT BASIS the nightly
+# varies (task 4.1, PR #315 — live `origin/main`s for this family, the pinned
+# checkout for every other), and a report that mixes two bases without saying
+# which is which invites a reader to act on a pinned finding as though it were
+# a live one. The note is how the report carries the distinction the ruling
+# drew. A family with one basis needs no entry.
+FAMILY_NOTES = {
+    "promotion-fidelity": promotion_fidelity.basis_notes,
+}

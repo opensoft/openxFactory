@@ -340,7 +340,8 @@ class RealGit:
                 return date.fromisoformat(line.strip())
         return None
 
-    def first_commit_timestamp(self, repo: Path, relpath: str) -> int | None:
+    def first_commit_timestamp(self, repo: Path, relpath: str,
+                               ref: str | None = None) -> int | None:
         """Committer epoch seconds of the commit that first added `relpath`.
 
         `first_commit_date` answers the same question to DAY resolution,
@@ -349,14 +350,63 @@ class RealGit:
         family has to break (nineteen such tie groups in this repository).
         Same shape as its sibling: None whenever git cannot answer, so the
         caller falls back rather than crashing.
+
+        `ref` walks a named commit instead of `HEAD`. The promotion-fidelity
+        family's live-main basis reads a tree the checkout does not carry, and
+        a tie broken by HEAD's history while the STATEMENTS came from
+        `origin/main` would be two readers of two different trees agreeing by
+        accident. Default None keeps every existing caller on HEAD.
         """
-        out = self._run(repo, "log", "--reverse", "--format=%ct", "--", relpath)
+        args = ["log", "--reverse", "--format=%ct"]
+        if ref:
+            args.append(ref)
+        out = self._run(repo, *args, "--", relpath)
         if not out:
             return None
         for line in out.splitlines():
             if line.strip():
                 return int(line.strip())
         return None
+
+    def resolve_ref(self, repo: Path, ref: str) -> str | None:
+        """`ref`'s commit sha, or None where the checkout does not carry it.
+
+        The honest answer to "is this basis available here?". A nightly that
+        fetched `origin/main` gets a sha; a developer checkout that never
+        fetched gets None, and the caller says so rather than pretending.
+        """
+        out = self._run(repo, "rev-parse", "--verify", "--quiet",
+                        f"{ref}^{{commit}}")
+        return out.strip() if out and out.strip() else None
+
+    def ls_tree_paths(self, repo: Path, ref: str,
+                      prefix: str) -> list[str] | None:
+        """Every blob path under `prefix` in `ref`'s tree, or None on failure.
+
+        NUL-delimited (`-z`) so a path containing a quote or a non-ASCII byte
+        arrives whole instead of arriving as git's C-style quoted spelling —
+        the reader would otherwise silently miss exactly the documents whose
+        names it cannot spell back.
+
+        ROOT-RELATIVE ON BOTH AXES, and neither is git's default. `ls-tree`
+        resolves its pathspec against the CURRENT PREFIX and prints paths
+        relative to it, while `git show <ref>:<path>` always reads from the
+        tree ROOT. Called with a `repo` that is a subdirectory of a checkout,
+        the untuned pair therefore lists one subtree and reads another —
+        silently, and with plausible-looking output. `--full-name` fixes the
+        printing and the `:(top)` pathspec magic fixes the matching, so a
+        listing and a read of the same name mean the same file wherever the
+        caller points this.
+        """
+        out = self._run(repo, "ls-tree", "-r", "--full-name", "--name-only",
+                        "-z", ref, "--", f":(top){prefix}")
+        if out is None:
+            return None
+        return [p for p in out.split("\0") if p]
+
+    def show_blob(self, repo: Path, ref: str, relpath: str) -> str | None:
+        """`relpath`'s content at `ref`, or None where it is not there."""
+        return self._run(repo, "show", f"{ref}:{relpath}")
 
     def line_commit_date(self, repo: Path, relpath: str, line: int) -> date | None:
         out = self._run(repo, "blame", "--porcelain",

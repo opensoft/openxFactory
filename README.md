@@ -1027,6 +1027,49 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [reconcile-lifecycle-books-count](openspec/changes/archive/2026-08-25-reconcile-lifecycle-books-count/proposal.md)
+  — **ARCHIVED 2026-08-25** (the CLI's UTC stamp; the act ran 2026-08-24
+  local, the shape `2026-08-25-apply-branch-sessions-deltas` below already
+  set); authored and ratified 2026-08-24. **RATIFIED** on Brett's in-session
+  commissioning — "commission the successor change reconciling the
+  lifecycle-books count" — given on the residual PR #317's closing comment
+  flagged in the same words; no approving OpenSpec change exists to name,
+  because the amending act IS this change, so the proposal carries the
+  record-citing `Ratified:` spelling `sanction-ratified-record-spelling`
+  sanctioned, clearing its three-way floor on approver and date. The successor
+  the promotion changes owed. Canon and the `Status: standard` workflow doc
+  both counted "the three lifecycle books" — a count made stale on 2026-08-10
+  by `split-ideation-book-per-repo`, which replaced the single shared Ideation
+  book with ONE IDEATION BOOK PER GOVERNED REPOSITORY beside the shared
+  Working Drafts and Canon books and retired the legacy shared book and its
+  `xf-ideation` alias. That split's own Impact declared "no changes to … scan
+  scope", which is why the count was never in its diff; the staleness was
+  collateral. The count then reached the promoted spec through
+  `2026-08-25-apply-branch-sessions-deltas`, which promoted 2026-07-26
+  ratified text byte-for-byte and declined the correction ON PURPOSE ("Any
+  improvement to that text is a separate change with its own ratification"),
+  as did the closed duplicate PR #317 — the codex PR #85 discipline forbids
+  editing ratified text inside a promotion change. This is the lawful exit
+  both named. `Corpus scan scope` now reads "The LIFECYCLE BOOKS' projection —
+  one Ideation book per governed repository, plus the shared Working Drafts
+  and Canon books —"; `Branch-session notebooks` reads "one of the lifecycle
+  books". Both phrases are `split-ideation-book-per-repo`'s own ratified
+  vocabulary, reused rather than invented, and count-free so the next split
+  cannot restale them. Fidelity is proven by sha256 rather than asserted: each
+  block extracted from canon BEFORE promotion hashes identical to the hashes
+  `apply-branch-sessions-deltas` recorded (`99fa2a84…`, `107ede78…`), and each
+  block extracted AFTER promotion hashes identical to this packet's delta
+  (`94565264…`, `f5be6d40…`); the promotion moves exactly two lines, and the
+  word-diff is `three` out plus the topology clause in, twice, with all nine
+  scenarios byte-identical. The workflow doc's five instances move with them
+  (§1 main-only rule, §7 hybrid exclusion, §9 session exclusion, §9 quota
+  note, §10 workspace records), and the doc records the amending act on an
+  `Amended by:` header line, the convention that same split set on it.
+  Behavior moves nowhere: the sync has projected per-repo books since
+  2026-08-10 and only the text lagged. `code_surface: none`, so it archived on
+  landing. The phrase survives in code comments, one operator message, and
+  their tests — declared out of scope here and owed as a separate change,
+  since this one acquires no code surface.
 - [apply-branch-sessions-deltas](openspec/changes/archive/2026-08-25-apply-branch-sessions-deltas/proposal.md)
   — **ARCHIVED 2026-08-25** (the CLI's UTC stamp; the act ran 2026-08-24
   local, the shape `2026-08-24-govern-openspec-corpus-membership` below
