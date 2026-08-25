@@ -387,14 +387,25 @@ def test_every_residual_version_skew_is_fail_closed(full_space_sweep):
     """The other direction is ALLOWED and is expected to be non-empty: code
     points the newer runtime has assigned and the older has not. The server
     refuses them, so no record is admitted — fail-closed. Asserted so a future
-    reader knows the non-zero number is the design and not a regression."""
+    reader knows the non-zero number is the design and not a regression.
+
+    EVERY ONE OF THEM, not a sample. This checked the first 200, which is the
+    same mistake in miniature that this whole round was about: the nine-input
+    agreement test was a narrow scope, and a narrow scope is exactly what hid
+    the 51-code-point divergence P2-1 turned out to be. If a genuine
+    disagreement ever appears at code point 900,000 — a character assigned in
+    BOTH tables that the two rules classify differently — a sample of the
+    lowest 200 would never see it."""
     js_accepted, _regex = full_space_sweep
     safe_direction = js_accepted - _python_accepted()
-    for cp in sorted(safe_direction)[:200]:
-        assert unicodedata.category(chr(cp)) == "Cn", (
-            f"U+{cp:04X} is assigned here as "
-            f"{unicodedata.category(chr(cp))} yet refused — that is not a "
-            f"version skew, it is a real disagreement")
+    real_disagreements = [
+        cp for cp in sorted(safe_direction)
+        if unicodedata.category(chr(cp)) != "Cn"]
+    assert not real_disagreements, (
+        f"{len(real_disagreements)} code point(s) are assigned here yet "
+        f"refused by the server predicate while the browser accepts them — "
+        f"that is not a version skew, it is a real disagreement: "
+        f"{[(hex(c), unicodedata.category(chr(c))) for c in real_disagreements[:8]]}")
 
 
 def test_the_predicate_accepts_no_unassigned_code_point():
