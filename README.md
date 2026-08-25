@@ -371,11 +371,14 @@ Active changes:
   duplicate-packet check to enforcing"), both halves in one commit: `error`
   severity plus a `CONTESTED` `FAMILY_RESOLUTION` entry, pinned together by an
   invariant test that fails by name on a half-flip. Sequenced behind a measured
-  population, never over a standing one: 0 findings across five governed
-  repositories and 206 archived packets, including codexFactory's PR #85
-  remedial — the archetype of the lawful pattern the lineage exemption
-  protects. The pinned-vs-live basis question stays open (tasks §5.2), as does
-  the nine-repository measurement gap the flip did not close (§5.4).
+  population, never over a standing one — and the population is the FULL pinned
+  set, enumerated from the aggregation repo's own `origin/main` and read at each
+  repository's exact pinned sha: **19 repositories, 207 archived packets, 1124
+  identities, 3 restated groups, 0 findings**. All three restated groups are
+  recorded lineage, codexFactory's PR #85 remedial among them — the archetype of
+  the lawful pattern the exemption protects. The pinned-vs-live basis question
+  stays open (tasks §5.2); the measurement gap the flip was taken over is
+  closed (§5.4).
 
 - [add-release-inventory-drift-check](openspec/changes/add-release-inventory-drift-check/proposal.md)
   — authored and ratified 2026-08-24 from issue #312. The release verifier

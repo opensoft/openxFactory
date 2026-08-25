@@ -162,11 +162,16 @@ is `ERROR` and `FAMILY_RESOLUTION` carries `"duplicate-packet": CONTESTED`;
 they moved in one commit, and an invariant test fails by name if they ever
 drift apart. The advisory launch this decision argued for happened, and the
 sequencing it named — flip only behind a measured population, never over a
-standing one — was honoured: **0 findings across five governed repositories
-and 206 archived packets**, including codexFactory's PR #85 remedial, the
+standing one — is honoured on the FULL population: the pinned domain set was
+enumerated from the aggregation repository's own `origin/main`, every one of
+its **19 repositories** cloned fresh and read at the exact sha it is pinned to,
+and the family run over each on the basis it enforces on. **207 archived
+packets, 1124 identities, 3 restated groups, 0 findings.** All three restated
+groups are recorded lineage — including codexFactory's PR #85 remedial, the
 archetype of the lawful pattern the lineage exemption exists to protect.
-Recorded in `tasks.md` §5.1, with the part of the prerequisite that was NOT
-satisfied recorded as §5.4 rather than folded into the tick. The decision is
+Recorded in `tasks.md` §5.1 and §5.4; the flip was taken on a five-repository
+measurement and the shortfall was carried as an open box until the full
+population discharged it. The decision is
 kept here rather than rewritten, because a flipped decision that leaves no
 trace of what it flipped from is a decision nobody can audit.
 
