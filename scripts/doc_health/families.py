@@ -9,9 +9,10 @@ reference (the regexes below transcribe, never extend, that grammar).
 (add-cross-factory-ideation-routing), `proposal_origin.py` owns the
 fifteenth (add-proposal-origin-contract),
 `client_identity_composition.py` owns the sixteenth
-(add-client-identity-roster), and `promotion_fidelity.py` owns the
-eighteenth (add-promotion-fidelity-check); all five are only registered
-below.
+(add-client-identity-roster), `promotion_fidelity.py` owns the
+eighteenth (add-promotion-fidelity-check), and `release_inventory.py` owns
+the nineteenth (add-release-inventory-drift-check); all six are only
+registered below.
 
 The count is deliberately no longer written into this docstring's first
 line. It was wrong for three months — `staged-topic-template` registered on
