@@ -101,11 +101,39 @@ visible rather than becoming a silent later commit.
 
 ## 4. The flip to enforcing — OPEN, and a ruling not a judgement call
 
-- [ ] 4.1 **Decide whether this family gates.** It ships advisory because
+- [x] 4.1 **Decide whether this family gates.** It ships advisory because
       nobody has measured what the pinned domain factories' archives will
       say, and because the standing ruling for domain findings is that they
       are ADVISORY. The evidence a decision needs is one aggregation run's
       per-repo finding counts.
+      **THE EVIDENCE ARRIVED AND THE RULING IS MADE (2026-08-24, Brett,
+      in-session four-question round; measurement by a parallel session
+      running THE LANDED FAMILY corpus-wide, live mains fetched fresh).**
+      Per-repo, live `origin/main`s: openxFactory **2 true gaps**
+      (§3.2/§5.1's own two — the only standing findings anywhere) from 20
+      naive hits, 12 exempt (C5); codexFactory 0 (1 naive); LedgerxFactory
+      0 (3); OpsxFactory 0 (3); MedxFactory 0 (1); omnigent-install 0 (2);
+      Adx / HealthLinc / MedxEHR / MedxChart 0/0; hermes-install 0 found
+      but **30 requirements exempt-invisible, coverage 57.8%**;
+      medx-roottruth-install **27 exempt-invisible, coverage 0%**. Class
+      distribution: 2 true, 32 legitimately superseded (the resolution
+      rules validated corpus-wide — naive 34 → tuned 2 with zero true
+      positives lost), 12 known-legal, 0 cosmetic. TWO OPERATIONAL
+      FINDINGS THAT SHAPED THE RULING: (1) against the aggregation's
+      committed PINS coverage collapses — 0% in three repos, and the
+      family misses the #301 gap itself while the codex pin lags — so
+      **Brett ruled the nightly measures LIVE MAINS for this family**
+      (other families keep the pinned tree); (2) the ratified-only
+      exemption is a false-negative channel — annotated-ratified and
+      headerless archives are silently unexamined (the 57 requirements
+      above) — and keying on "explicitly draft-or-lower" costs MEASURED
+      ZERO on openxFactory (both shapes give exactly 2; C5 stays
+      suppressed by its own draft header), so **Brett ruled the exemption
+      relaxes to explicit-draft-only**. **The gate ruling: ENFORCING,
+      SEQUENCED** — close the hermes-install and medx-roottruth header
+      gaps first (the campaign pattern), then 4.2's both-halves flip; the
+      domain backlogs' zero result is recorded as a one-time
+      verified-clean statement rather than standing findings.
 - [ ] 4.2 **If ruled enforcing, both halves move together**: severity
       `warning` → `error` in `promotion_fidelity._LAUNCH_SEVERITY`, AND a
       `"promotion-fidelity": CONTESTED` entry in `families.FAMILY_RESOLUTION`.
@@ -126,6 +154,12 @@ visible rather than becoming a silent later commit.
       what codexFactory PR #85 was. Needs the same decision that gap needed:
       apply the ratified delta via a proper change, or record the
       non-promotion as deliberate.
+      **RULED (2026-08-24, Brett, the same four-question round): APPLY VIA
+      A PROPER CHANGE** — the PR #85 equivalent, with its
+      drift-check-before-apply discipline (the requirement region's history
+      verified untouched before the ratified text lands). Box stays open
+      until that change lands; this note records the ruling so the
+      executing slice needs no new one.
 - [ ] 5.2 **`docs/doc-health.md`'s check-family table stops at twelve.**
       Families 13 through 17 were added by spec delta and never reached the
       table; this change adds the eighteenth and does not repair the table
