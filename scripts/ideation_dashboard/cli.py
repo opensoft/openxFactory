@@ -429,6 +429,8 @@ def cmd_gate_demote(args: argparse.Namespace) -> int:
     print(f"  planned moves: {len(res.plan.moves)}; withdrawn picks: {list(res.plan.withdrawn_picks)}")
     if args.execute:
         ex = gate_mod.execute_demotion_plan(res.plan, repo_root)
+        receipt_path = gate_mod.write_demotion_execution_receipt(
+            _human_gate(repo_root, args), res, ex, records_dir=args.records_dir)
         # Not every move lands in openspec/ — supporting-docs restores and the
         # outline restore (below) can land in the topic ROOT instead, so the
         # summary counts both rather than naming a single destination
@@ -439,6 +441,7 @@ def cmd_gate_demote(args: argparse.Namespace) -> int:
         print(f"  EXECUTED: {len(ex.moved)} file(s) moved back into {res.plan.topic_path}/ "
               f"({into_ws} into openspec/, {into_root} into the topic root); "
               f"README+INDEX updated; change folder removed={ex.removed_change_folder}")
+        print(f"  execution receipt: {receipt_path.relative_to(repo_root)}")
         # THE OUTLINE'S OWN SENTENCE (align-demote-to-round-trip-rule). "We did not
         # overwrite your work" is exactly the sentence a human needs to be able to
         # check, and a disposition recorded only in a returned dataclass is a
@@ -1420,8 +1423,8 @@ def cmd_gate_abandon_session(args: argparse.Namespace) -> int:
 
 
 def cmd_gate_cleanup_abandoned_branch(args: argparse.Namespace) -> int:
-    """Delete an ABANDONED session's surviving branch, once the topic's PROPOSAL
-    exists (007-workbench-branch-sessions T056, FR-028/FR-020).
+    """Delete an ABANDONED session's surviving branch after durable retention
+    release (007-workbench-branch-sessions T056, FR-028/FR-020).
 
     HUMAN-INVOKED, always: nothing automatic ever calls this, and a `propose`
     DISPATCH is explicitly not enough — the commissioned authoring may never
@@ -1440,7 +1443,10 @@ def cmd_gate_cleanup_abandoned_branch(args: argparse.Namespace) -> int:
             ref=args.ref, registry=_session_registry(repo_root, repository),
             repository=repository, checkout_root=repo_root,
             records_dir=args.records_dir,
-            tile_inventory=gate_routes_mod.discover_tile_inventory(repo_root))
+            tile_inventory=gate_routes_mod.discover_tile_inventory(repo_root),
+            retention_release_reason=args.retention_release_reason,
+            superseding_references=tuple(args.superseding_reference or ()),
+            provenance=cli_provenance())
     except branch_session_mod.SessionRefused as exc:
         print(f"cleanup-abandoned-branch refused: {exc.report()}", file=sys.stderr)
         return 1
@@ -1459,6 +1465,9 @@ def cmd_gate_cleanup_abandoned_branch(args: argparse.Namespace) -> int:
     # abandon record on `main` survives it" whether or not any abandon had ever
     # happened (PR #49 second-review finding 3).
     print(f"  the abandon this ends was verified first: {result['abandon_proof']}")
+    print(f"  pre-delete head:     {result['pre_delete_head']}")
+    print(f"  retention release:   {result['retention_release']['kind']}")
+    print(f"  gate-action record:  {result['record']}")
     return 0
 
 
@@ -1913,8 +1922,8 @@ def _add_session_ending_subcommands(gsub) -> None:
 
     clean = gsub.add_parser(
         "cleanup-abandoned-branch",
-        help="delete an ABANDONED session's surviving branch, once the topic's "
-             "proposal exists (human-invoked, never automatic)")
+        help="delete an ABANDONED session's surviving local branch after durable "
+             "retention release (human-invoked, never automatic)")
     _add_gate_identity_args(clean)
     clean.add_argument("--scope-kind", required=True,
                        choices=list(branch_session_mod.SCOPE_KINDS),
@@ -1925,6 +1934,15 @@ def _add_session_ending_subcommands(gsub) -> None:
     clean.add_argument("--ref", required=True,
                        help="the abandoned session branch to delete (must be this "
                             "tile's own branch or one of its ordinal forms)")
+    clean.add_argument(
+        "--retention-release-reason", default=None,
+        help="explicit human release for a true orphan, duplicate, superseded, "
+             "cluster, possible, or missing tile; machine-resolved proposal or "
+             "demotion evidence does not require it")
+    clean.add_argument(
+        "--superseding-reference", action="append", default=[],
+        help="optional durable reference supporting an explicit release; repeat "
+             "for multiple references")
     clean.add_argument("--repository", default=None,
                        help="the registry key's repository half (default: the "
                             "checkout directory's name)")
