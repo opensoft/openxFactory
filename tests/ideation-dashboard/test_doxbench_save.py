@@ -533,8 +533,13 @@ STATE_JS = SAVE_JS.parent / "doxbench-state.js"
 # T071 set: the scenarios are independent, so they are all run and returned
 # together (the same economy `mutation_results` uses).
 _SAVE_HARNESS = r"""
-const { runSave, saveOrder, saveBufferOrder, SAVE_DOCUMENT_ORDER_RULE } =
+const { runSave, saveOrder, saveBufferOrder, SAVE_DOCUMENT_ORDER_RULE,
+        IDENTITY_NOT_STATED, IDENTITY_NOT_ADOPTABLE } =
   await import('./doxbench-save.js');
+// #290: the OTHER judge of a content identity, imported by the HARNESS (both
+// modules stay import-free themselves) so the two can be asked the same
+// question and their answers compared.
+const { adoptSavedBase } = await import('./doxbench-state.js');
 
 const KEY = { repository: 'fixture-repo', ref: 'main',
               tile_kind: 'staged', tile_id: 'topic-x' };
@@ -602,7 +607,62 @@ async function scenario(script, over = {}) {
   return { calls, outcome };
 }
 
+// ---- #290: ONE identity rule, asked of BOTH modules ----------------------
+//
+// The reader (`readVerdict`, here) and the writer (`adoptSavedBase`, in
+// doxbench-state.js) are handed the SAME candidate identity, and their answers
+// must agree: an identity this module calls `committed` is an identity that
+// module can adopt, and one it refuses is one that module refuses. Divergence
+// is the defect -- an identity accepted here and refused there produced a
+// `committed` row over a buffer that kept its unsaved text.
+const IDENTITY_CANDIDATES = {
+  lowercaseSha256: { algorithm: 'sha256', hex: hex('committed') },
+  uppercaseHex: { algorithm: 'sha256', hex: 'A'.repeat(64) },
+  mixedCaseHex: { algorithm: 'sha256', hex: 'aB'.repeat(32) },
+  sha512: { algorithm: 'sha512', hex: hex('committed') },
+  emptyAlgorithm: { algorithm: '', hex: hex('committed') },
+  nonHex: { algorithm: 'sha256', hex: 'z'.repeat(64) },
+  tooShort: { algorithm: 'sha256', hex: 'b'.repeat(63) },
+  tooLong: { algorithm: 'sha256', hex: 'b'.repeat(65) },
+  // AN ARRAY CARRYING BOTH PROPERTIES. `typeof [] === "object"`, so a shape
+  // test that stops there admits it while the adopting module's `plainObject`
+  // refuses it. No JSON transport can produce this one -- and the claim under
+  // test is that the two modules AGREE, which is a claim about every value they
+  // can both be handed, not only the ones a wire happens to carry.
+  arrayWithProps: Object.assign([], { algorithm: 'sha256', hex: hex('committed') }),
+  absent: null,
+};
+
+async function identityAgreement() {
+  const out = {};
+  const saved = { ref: 'draft/topic-x', revision: 'newrev-1' };
+  for (const [name, content_hash] of Object.entries(IDENTITY_CANDIDATES)) {
+    // THE READER: one document, one answer carrying this identity.
+    const outcome = await runSave(state({ outline: { dirty: false } }), {
+      transport: async (request) => ({
+        ok: true, document: request.document, ...saved, content_hash }),
+    });
+    const row = outcome.buffers.find((r) => r.key === 'document');
+    // THE WRITER: the same identity, offered to the module that stores it.
+    let adopted;
+    try {
+      adoptSavedBase(state().buffers.document, { ...saved, content_hash });
+      adopted = true;
+    } catch (error) {
+      adopted = false;
+    }
+    out[name] = { status: row.status, message: row.message, adopted,
+                  dirty: outcome.state.buffers.document.dirty };
+  }
+  // The module's OWN words for the two ways an identity fails, carried out so
+  // the pin asserts against them rather than against a copy of them.
+  out.clauses = { notStated: IDENTITY_NOT_STATED,
+                  notAdoptable: IDENTITY_NOT_ADOPTABLE };
+  return out;
+}
+
 const results = {
+  identityAgreement: await identityAgreement(),
   order: saveBufferOrder(Object.keys(state().buffers)),
   orderRule: SAVE_DOCUMENT_ORDER_RULE,
   plan: saveOrder(state()),
@@ -780,6 +840,68 @@ def test_every_buffer_outcome_carries_the_declared_outcome_fields(save_results):
                                 "content_hash", "message"}, row
             assert row["status"] in {"unchanged", "committed", "refused",
                                      "not_attempted"}
+
+
+def test_the_reader_and_the_writer_judge_a_content_identity_identically(
+        save_results):
+    """openxFactory #290: ONE identity rule, asked of BOTH modules.
+
+    `readVerdict` (here) decides whether a server answer is a COMMIT;
+    `adoptSavedBase` (doxbench-state.js) decides whether that same identity may
+    be WRITTEN into working state. They read the same field of the same answer,
+    one immediately after the other, so two different rules is not defence in
+    depth -- it is a gap. It was: this module accepted any non-empty algorithm
+    and any 64 characters, the state module accepts only a lowercase SHA-256
+    identity, and an uppercase-hex or `sha512` answer therefore read `committed`
+    here and threw there, leaving the buffer dirty under a Save that claimed to
+    have landed it.
+
+    Asserted as AGREEMENT over a matrix rather than as this module's rule in
+    isolation: committed if and only if adoptable, for every candidate. A future
+    loosening on either side fails here, whichever side moves.
+    """
+    agreement = dict(save_results["identityAgreement"])
+    clauses = agreement.pop("clauses")
+
+    # THE AGREEMENT ITSELF, candidate by candidate.
+    for name, row in agreement.items():
+        assert (row["status"] == "committed") is row["adopted"], (name, row)
+
+    # …and the matrix is not vacuous: one identity is accepted by both, and
+    # every way of being malformed is refused by both.
+    assert agreement["lowercaseSha256"]["status"] == "committed"
+    assert agreement["lowercaseSha256"]["adopted"] is True
+    assert agreement["lowercaseSha256"]["dirty"] is False
+    for name in ("uppercaseHex", "mixedCaseHex", "sha512", "emptyAlgorithm",
+                 "nonHex", "tooShort", "tooLong", "arrayWithProps", "absent"):
+        assert agreement[name]["status"] == "refused", (name, agreement[name])
+        assert agreement[name]["adopted"] is False, name
+        # a refusal keeps the human's text: nothing landed, nothing is clean
+        assert agreement[name]["dirty"] is True, name
+
+    # THE REFUSAL IS A REPORT, not a status code: it names what was wrong, and
+    # it distinguishes an identity that was never stated from one that was
+    # stated in a form nothing can verify later. Asserted through the module's
+    # OWN exported clauses -- a sentence copied into a test pins the copy, and
+    # goes on passing after a reword has left it describing nothing.
+    malformed = agreement["uppercaseHex"]["message"]
+    assert clauses["notAdoptable"] in malformed, (malformed, clauses)
+    absent = agreement["absent"]["message"]
+    assert clauses["notStated"] in absent, (absent, clauses)
+    # …and the two are genuinely different reports, not one sentence twice
+    assert clauses["notAdoptable"] not in absent, (absent, clauses)
+
+    # …and the rule is SPELLED the same in both homes. Neither module may import
+    # the other (test_doxbench_mutation_boundary.py pins them import-free so the
+    # Node harness executes the browser's exact bytes), which is the same reason
+    # the document-order rule is re-spelled rather than imported -- and the same
+    # reason its spellings are pinned equal rather than trusted.
+    save_js = SAVE_JS.read_text(encoding="utf-8")
+    state_js = STATE_JS.read_text(encoding="utf-8")
+    for source, name in ((save_js, "doxbench-save.js"),
+                         (state_js, "doxbench-state.js")):
+        assert "/^[0-9a-f]{64}$/" in source, name
+        assert '"sha256"' in source, name
 
 
 def _outcome_for(scenario, kind):
