@@ -344,6 +344,45 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [ratify-doxbench-landed-context-surfaces](openspec/changes/ratify-doxbench-landed-context-surfaces/proposal.md)
+  — authored and **ratified 2026-08-25** (Brett, ruling 0 of
+  `add-doxbench-distilled-abstract`); doc-only, `code_surface: none`, archives on
+  landing. The half of `#84` that needed no ruling and should not have waited for
+  seven. Three surfaces shipped into the doxBench context panes on 2026-08-03 —
+  the lens in three subtabs, the docs subpane split into an abstract region above
+  a document wheel, and the deterministic per-document abstract those two exist to
+  carry — and the spec mentions NONE of them: grep `abstract` or `subtab` over
+  `ideation-dashboard/spec.md` and it returns nothing. One of them does worse than
+  go unmentioned. `spec.md:439` requires the bullseye "above the always-present
+  flat matrix" and says in those words that the matrix "MUST NOT become a
+  toggle-only alternate"; the shipped subtabs make the three sections mutually
+  exclusive tabpanels (`staging-workbench.js:488` sets
+  `subPanes.get(name).hidden = !on`), so the requirement has been FALSE about
+  this surface every day since the subtabs landed. That is what a council split
+  bought: a doc-only change that removes a live falsified requirement in one pass
+  rather than waiting on a model-derived abstract's adapter wiring and prompt
+  assembler. The reversal is taken on what the clause was actually protecting —
+  ACCESS to the matrix, not simultaneous rendering — so each section becomes a
+  named, always-reachable member of one APG tablist, the `above` ordering is
+  discharged by the tablist's declared section order, and a keyboard-reachability
+  scenario is added because the guarantee moved from geometry to a widget and a
+  tablist without arrow keys is a worse promise than the one it replaced. Six
+  requirements MODIFIED whole (`:438`, `:863`, `:1853`, `:1705`, `:948`, `:1827`)
+  plus one ADDED for the deterministic abstract's provenance caption — "From the
+  document's own headers", never a distillation, with an absence STATED rather
+  than an empty box. Ruling 6 is settled here too, in the two places it actually
+  bites: a surface that selects a subject to DESCRIBE is not a second
+  buffer-selection surface, so the buffer contract needs no change and pointing at
+  a document neither loads nor keys nor dirties a buffer; and the phrase naming
+  the working document is claimed by exactly one surface, the selector naming the
+  selected BUFFER and the abstract region naming the SUBJECT it describes. Asks
+  for no code: the tasks are records plus a cross-check that every promoted
+  sentence describes what already ships, against
+  `test_doxbench_context_panes.py`, `test_doc_wheel.py` and
+  `test_doxbench_accessibility.py` — and if the text is wrong, the text is what
+  gets fixed. Archives BEFORE `add-doxbench-distilled-abstract`, which authors its
+  own `:863` delta against the text this change lands.
+
 - [add-doxbench-distilled-abstract](openspec/changes/add-doxbench-distilled-abstract/proposal.md)
   — authored 2026-08-25, **NOT YET RATIFIED** (`Status: draft`); spec deltas
   deliberately WITHHELD until six rulings land, so `--strict` reports a
