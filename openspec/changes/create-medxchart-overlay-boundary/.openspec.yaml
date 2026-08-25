@@ -1,2 +1,39 @@
 schema: spec-driven
 created: 2026-08-23
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-23-create-medxchart-overlay-boundary
+  reason: >-
+    ADMITTED BY RULING 2026-08-25, verbatim: "admit the two medx boundary
+    packets". That ruling IS the origin act, and it was needed because this
+    packet's own record establishes none — which was measured, twice, before it
+    was asked for. `govern-openspec-corpus-membership`'s archived read-back of
+    this packet concluded: "The record names no ratification act. `.openspec.yaml`
+    carries `schema:` and `created: 2026-08-23` only — no `approved_by`/
+    `approved_on` pair at all, so C2's distinction never even arises; `tasks.md`
+    is implementation and verification throughout with no ratification task and
+    no approval line; SIX landing commits across the two packets ... all six are
+    single-line implementation messages. No pull request exists for either
+    packet." Of the three things that could have established ratification it
+    found "None of those three exists here." openxFactory PR #344 then
+    STOPPED rather than declare an origin on that record, reporting both medx
+    packets by name: with no approver and no approval date, `kind: ad_hoc`
+    could not be declared without fabricating approval provenance, and with no
+    staging topic (searched across `ideation/staging/` and its INDEX)
+    `kind: staged` was unavailable too. Brett's admission supplies exactly the
+    approval the record lacked. NO STAGING ORIGIN IS CLAIMED: none exists.
+    THE FORCING FACT, from this packet's own § Why: "`openChart` is an
+    independent public clinical-chart repository, but the xFactory aggregation
+    currently presents it as the Medx clinical program's submodule. A dedicated
+    `MedxChart` repository is needed to own the Medx-specific composition
+    boundary while keeping the upstream `openChart` revision independently
+    movable and explicitly pinned."
+  approved_by: >-
+    Brett — in-session on 2026-08-25, verbatim: "admit the two medx boundary
+    packets". THIS IS AN ADMISSION INTO THE PROPOSAL QUEUE, NOT A RATIFICATION
+    OF CONTENT. It supplies the origin and approval pair the proposal-origin
+    contract requires and nothing more: the packet remains `Status: draft`, it
+    carries no ratification citation, and none is owed — the promoted lifecycle
+    rule requires one only for `Status: ratified`. Whether this change's content
+    is ratified is a separate act that has not happened.
+  approved_on: 2026-08-25
