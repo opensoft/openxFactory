@@ -572,7 +572,7 @@ later ARCHIVE ACT is the later statement. A `RENAMED` block retires the title
 it names, because `openspec archive` applies RENAMED before MODIFIED.
 
 #### Scenario: A ratified delta never reaches canon
-- **WHEN** an archived change whose `proposal.md` declares no pre-ratification standing carries a spec delta ADDING or MODIFYING a requirement
+- **WHEN** an archived change carries a spec delta ADDING or MODIFYING a requirement, and its `proposal.md` declares a ratified-or-later standing, declares an unrecognized one, carries no `Status:` header, or does not exist
 - **THEN** the promoted `openspec/specs/<capability>/spec.md` MUST carry that requirement by title, and MUST carry every scenario the delta states under it
 - **AND** where it does not, health tooling MUST report the gap against the archived delta's own path, naming the promoted spec it failed to reach
 
