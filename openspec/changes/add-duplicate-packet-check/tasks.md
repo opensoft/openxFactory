@@ -294,3 +294,38 @@ new: the flip's one unmeasured exposure, recorded rather than left implicit.
       **THE AGGREGATION CHECKOUT WAS NEVER TOUCHED** — its `origin/main` was
       read with `ls-tree` and `show`, never checked out, and every measured tree
       is a fresh clone in this session's own scratch area.
+
+- [x] 5.5 **THIS PACKET'S `doc-health` DELTA WOULD HAVE SILENTLY DESTROYED
+      SEVEN RATIFIED SCENARIOS — repaired 2026-08-25 at a neighbour's archive
+      gate.** Its MODIFIED "Deterministic check families" block restated the
+      amended requirement text and only the `A run executes the check
+      families` scenario. MODIFIED replaces a requirement block WHOLESALE, so
+      this change's own archive gate would have carried `Lifecycle
+      conformance checks fire`, `A register carries staged status`, `Drift
+      checks fire`, `Catalog conformance checks fire`, `Routing conformance
+      checks fire`, `Origin conformance checks fire`, and `Roster composition
+      is checked across domains` out of the promoted spec — seven ratified
+      scenarios this proposal never proposed removing, and the file-level
+      count would not have flinched, because the seven lost exactly offset
+      the eight this change's ADDED requirement brings.
+      **THE SAME SHAPE IN ALL THREE SIBLINGS.**
+      `add-release-inventory-drift-check` carried it, was ruled on by Brett
+      and made scenario-complete before archiving (PR #331, `b03b9992`);
+      `add-promotion-fidelity-check` carried it and was repaired at its own
+      archive gate, which is where this one was found. This packet was the
+      last one still carrying it.
+      **REPAIRED BY RE-DERIVING FROM CURRENT CANON, NOT BY TOPPING UP.**
+      Canon moved twice under this delta, so the block was rebuilt as
+      `openspec/specs/doc-health/spec.md`'s current requirement block with
+      this change's four amendments re-applied to it: `nineteen` → `twenty`,
+      `duplicate packet` on the family list, `fifteen` → `sixteen` families,
+      the duplicate-packet basis paragraph, and the duplicate-packet
+      `**AND**` bullet. Proven, not asserted: the seven restored scenarios
+      hash SHA-256 identical to canon's scenario-by-scenario and stand in
+      canon's order, and `A run executes the check families` differs from
+      canon by exactly this change's own bullet. The rebuild also RECOVERED
+      Brett's **CORRECTED 2026-08-25** paragraph, which this delta had been
+      written before and would otherwise have deleted from canon on archive.
+      §5.3's ordering hazard stands open and unchanged: that one asks which
+      cumulative family list canon keeps; this one asked whether the
+      restatement carried the parts it never meant to touch.
