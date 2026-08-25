@@ -4,7 +4,7 @@ Status: record
 Kind: report
 Captured: 2026-08-24
 Repository context: openxFactory
-Summary: Evidence for the hosting migration of the lifecycle notebook projection from the personal account (brettheap@gmail.com, profile `personal`) to the declared operator account (xFactor001@opensoft.one, profile `company`) — the recorded ids, the re-derivation, the parity numbers, Brett's 2026-08-24 rulings, and the three steps that are HELD rather than done.
+Summary: Evidence for the hosting migration of the lifecycle notebook projection from the personal account (brettheap@gmail.com, profile `personal`) to the declared operator account (xFactor001@opensoft.one, profile `company`) — the recorded ids, the re-derivation, the F4 readiness-race correction, the proven parity numbers, and the remaining held acts.
 Topics: notebooklm, lifecycle-notebook-projection, hosting-migration, parity, acceptance-evidence
 
 Executed against
@@ -13,17 +13,18 @@ numbered as that runbook numbers them.
 
 ## Outcome in one line
 
-The projection is **re-derived and live in the company account** — 7 books,
-**626 managed sources** (633 total, counting each book's charter source), 608
-unique managed titles, **0 unaccounted**. **Steps 5, 8 and 10 are HELD**: one on
-a tooling defect, two on the runbook's own "only once parity holds"
-precondition, which Brett has ruled stays unmet for now.
+The projection is **re-derived and live in the company account** — 7 books.
+After the F4 correction, all seven title sets match the current corpus scan and
+the union reconciles at **613 derived / 613 live managed titles, 0 unprojected,
+0 unaccounted**. **Steps 5 and 10 remain HELD** on the session-migration work;
+step 8's parity precondition is now met, but the recorded retirement act has not
+been performed.
 
-The counts reconcile as: the per-book table below sums to 626 managed sources;
-adding the seven `00 [charter] Read me first` sources gives 633 total; and 626
-managed sources carry 608 DISTINCT titles, because eighteen grounding documents
+The current counts reconcile as: the seven per-book title sets sum to 631
+managed sources; adding the seven `00 [charter] Read me first` sources gives
+638 total; and 631 managed sources carry 613 DISTINCT titles, because eighteen grounding documents
 (`document-lifecycle`, `architecture`, `terminology-and-repo-topology`) are
-projected into more than one book. 608 is therefore the number parity compares,
+projected into more than one book. 613 is therefore the number parity compares,
 and it matches exactly.
 
 ## The gate — how the account was authenticated
@@ -121,6 +122,8 @@ mapping is recorded in a comment in that file.
 
 ## Step 7 — parity against the corpus scan
 
+The initial proof exposed F4:
+
 ```
 [canon] PARITY FAIL: 1 missing, 0 extra (derived 103, live 102)
 [canon]   MISSING [spec] openxFactory: ideation-dashboard
@@ -134,7 +137,7 @@ parity union: 609 derived titles, 608 live managed titles, 1 unprojected, 0 unac
 parity: FAILED for 1 book(s): canon — pending changes remain
 ```
 
-The closing plain dry run is zero-pending except that same single item:
+The closing plain dry run was likewise blocked by that item:
 
 ```
 == drafts: 187 desired sources ==
@@ -147,41 +150,55 @@ The closing plain dry run is zero-pending except that same single item:
 == ideation-codexfactory: 14 desired sources ==
 ```
 
-**The one missing source is pre-existing and provider-imposed, not a fidelity
-loss from this migration.** `openspec/specs/ideation-dashboard/spec.md` is
-228 041 bytes, five times the next largest spec, and exceeds what the provider
-accepts as a pasted source. The legacy canon book (101 sources) did not contain
-it either — verified directly against the personal account. `0 unaccounted`
-across the union is the load-bearing number: nothing that WAS projected went
-missing. See F4.
+The initial diagnosis above was wrong: 228,041 bytes does not exceed an observed
+NotebookLM file-source limit. The controlled probe in F4 uploaded the actual
+spec and 50/100/150/200/228 KiB files successfully. The repository's exact
+file-upload route instead renamed before asynchronous processing completed,
+and the provider silently ignored that early rename.
+
+After adding `--wait`, verifying the renamed title from `source list`, and
+reconciling the corpus drift accumulated since the first migration run, the
+proof closed:
+
+```
+[canon] PARITY OK: 107 titles match
+[drafts] PARITY OK: 187 titles match
+[ideation-codexfactory] PARITY OK: 14 titles match
+[ideation-ledgerxfactory] PARITY OK: 65 titles match
+[ideation-medxfactory] PARITY OK: 48 titles match
+[ideation-openxfactory] PARITY OK: 195 titles match
+[ideation-opsxfactory] PARITY OK: 15 titles match
+parity union: 613 derived titles, 613 live managed titles, 0 unprojected, 0 unaccounted
+parity: PROVEN — every book in scope matches the corpus scan, 0 pending ADD/DEL/UPD
+```
+
+The final dry run named all seven books and emitted no ADD, DEL or UPD action.
 
 Two further reconciliations, both pre-existing corpus conditions surfaced by a
 fresh derivation and both now converged: three MedxFactory staging documents
 that derive one identical title (`[staged] MedxFactory: topic`) and one such
 OpsxFactory duplicate were deleted by the sync's own plan.
 
-## Step 8 — HELD by ruling: legacy books NOT retired
+## Step 8 — UNBLOCKED, NOT YET PERFORMED
 
-The runbook conditions retirement on parity holding. It does not hold, and
-**Brett ruled on 2026-08-24 that it does not**:
+The runbook conditions retirement on parity holding. It did not hold during the
+initial run, and **Brett ruled on 2026-08-24 that it did not**:
 
 > RETIREMENT HELD — parity does NOT hold for step 8 until the
 > oversized-document handling gives the 228KB spec a projected form; legacy
 > books stay untouched.
 
-The legacy books were therefore **not archive-renamed and not touched**; they
-remain live and intact in brettheap@gmail.com under the ids recorded in step 1.
-The operator's reading — that a provider-imposed, pre-existing gap might be
-treated as parity "holding" — was NOT adopted. The gate stands until the
-document is projectable.
+The legacy books were therefore **not archive-renamed and not touched** during
+the initial run; they remain live and intact in brettheap@gmail.com under the
+ids recorded in step 1. The ruling was honored: no retirement occurred while
+parity failed.
 
-**What unblocks it.** F4's oversized-document handling must give
-`openspec/specs/ideation-dashboard/spec.md` a projected form — chunking it into
-provider-sized sources, or another representation that carries its content —
-so canon reaches title-set equality and `--parity` exits zero. Skipping the
-document does NOT clear this gate: the ruling requires a projected form, not an
-excuse. Retirement then proceeds per step 8 against the step 1 ids, which is why
-those ids and the `from_account` / `from_nlm_profile` history are kept.
+**What unblocked it.** F4 was corrected without chunking: the actual 228,041-byte
+document is accepted as a file source when the CLI waits for readiness, and the
+sync now refuses success unless the contract title is visible after rename.
+Canon now reaches title-set equality and `--parity` exits zero. Retirement may
+therefore proceed as the separate recorded act in step 8 against the step 1 ids;
+it was not performed as part of this defect-remediation run.
 
 ## Step 9 — readers listed, NOTHING granted
 
@@ -295,17 +312,28 @@ per-notebook source cap — adds would fail past the cap mid-flight. It now
 carries the lifecycle books' capacity guard: an over-cap plan refuses BEFORE
 any mutation and names the excess. Covered by
 `test_a_session_over_the_provider_source_cap_is_refused_before_any_mutation`.
-This is the source-COUNT cap on the session route, not F4's single-document
-size limit, which stays open.
+This is the source-COUNT cap on the session route, not F4's file-source
+readiness race, which is fixed below.
 
-**F4 — an oversized document fails silently and leaves litter.** Adding the
-228 KB spec makes `nlm source add` report success while creating an untitled
-`xf-sync-<random>.md` `generated_text` source instead of the intended titled
-one. The sync neither verifies the add nor recognises the artifact, so it
-retries every run and **accumulates one orphan per run**. Three had built up in
-canon and were deleted by hand; canon is now clean at 103 (charter + 102
-managed). Two defects to fix: verify the add, and either chunk or skip a
-document over the provider's limit.
+**F4 — FIXED: file-source readiness race silently defeated rename.** The
+228,041-byte spec is not over an observed provider limit. In disposable
+notebook `43b18059-d391-4f5d-b4fe-d12aafbb6861`, every controlled file from
+50 KiB through 228 KiB and the actual spec reached ready with `source add
+--file ... --wait`; retrieved content carried both ends of the controlled file
+and the actual spec. The exact old `add_text_source()` route reproduced the
+failure: upload without `--wait`, sleep two seconds, rename while processing,
+and receive no rename error even though `source list` retained the temporary
+`xf-sync-*.md` title. Renaming the same source after it became ready succeeded.
+
+The sync now adds oversized file sources with `--wait`, extracts the echoed
+source id, renames only after readiness, re-lists the notebook, and requires
+that exact id to carry the contract title. A silent rename failure raises and
+cannot be recorded as a successful projection. Regression coverage proves both
+the wait flag and the fail-closed verification; the NotebookLM suite passes
+118 tests plus 13 subtests. The fixed function was then driven live with the
+actual spec and produced `[probe] fixed add_text_source route 2026-08-24`,
+after which the real canon reconciliation and all-book parity proof completed.
+No chunking was added because the probe disproved the premise for it.
 
 **F5 — `nlm share status` misreports Workspace notebooks as public.** All seven
 new books report `is_public: true` with a public link. **The report is wrong,

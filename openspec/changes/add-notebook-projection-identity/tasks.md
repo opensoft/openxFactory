@@ -109,9 +109,14 @@ first thing to run under a declared account.
 - [ ] 4.4 Re-derive the three lifecycle books under `xFactor001@opensoft.one`
   in one `--apply` (precedent: 314 sources, roughly 40 minutes), then migrate
   every live session notebook per §4.2.
-- [ ] 4.5 Prove parity: per-book title-set equality plus a union reconciliation
+- [x] 4.5 Prove parity: per-book title-set equality plus a union reconciliation
   against THE CORPUS SCAN — not against the legacy books — then a final dry run
   showing zero pending ADD/DEL/UPD. Record the output as the evidence.
+  - REALIZED 2026-08-24 after fixing F4's file-source readiness race: all seven
+    books pass title-set equality (canon 107, drafts 187, ideation 14/65/48/195/15),
+    and the union reconciles at 613 derived / 613 live managed titles with 0
+    unprojected and 0 unaccounted. The closing dry run emitted no ADD/DEL/UPD.
+    Evidence: `docs/notebook-projection-migration-evidence-2026-08-24.md`.
 - [ ] 4.6 Retire the personal-hosted books by RECORDED ACT: archive-rename each
   legacy book and DELETE its alias (never repoint). Do NOT retire the workspace
   record §4.3 just made current — its id is key-derived and unchanged, so it IS
