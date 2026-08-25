@@ -86,7 +86,8 @@ packaged `examples/` corpus so the scanner treats them as live records — where
 S4's register will join them in the same directory.
 
 **Why this priority**: Placement is what makes the wallet RESOLVE instead of
-silently validating nothing; wrong placement would reproduce the vacuous-pass
+a fail-closed `custody-ceiling-unresolved` refusal (an unresolved audience
+wallet never passes silently); wrong placement would reproduce the vacuous-pass
 class this change exists to prevent.
 
 **Independent Test**: The two files sit outside any `examples/` path and
@@ -140,3 +141,10 @@ inside the scanned tree; a targeted scan names both.
 Composition declaration for the agent-class holder (task 4.4), the first
 review-authority grant, the register + reader (S4), exercise records (S3),
 revocation reconciliation (S5).
+
+**Standing obligation handed to S4**: because this attestation row is kindless,
+`repo_scan` skips it today. S4's register reader MUST explicitly parse and
+validate `governance/review-authority/attestations/custody-attest-*.yaml` —
+wallet-ref resolution, custody-model membership, verifier fields present — as
+part of registering a row's holder; a row it cannot parse refuses the holder
+rather than defaulting to the unattested cap in silence.
