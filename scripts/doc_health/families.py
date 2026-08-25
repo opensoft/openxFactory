@@ -33,7 +33,8 @@ from pathlib import Path
 from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
                TAXONOMY, Finding, Skip, recorded_rel)
 from . import (client_identity_composition, corpus, document_catalog,
-               ideation_routing, promotion_fidelity, proposal_origin)
+               ideation_routing, promotion_fidelity, proposal_origin,
+               release_inventory)
 from .lines import split_keepends
 
 # Per-family resolution class defaults (doc-health contract): contested
@@ -1018,4 +1019,15 @@ FAMILIES = {
     # — an ERROR — the first time one of its findings was resolved. See
     # `promotion_fidelity._LAUNCH_SEVERITY`.
     "promotion-fidelity": promotion_fidelity.fam_promotion_fidelity,
+    # NINETEENTH FAMILY (add-release-inventory-drift-check). Also ABSENT from
+    # FAMILY_RESOLUTION above, and for a sharper version of the reason
+    # promotion-fidelity is: BOTH of this family's findings are resolved by a
+    # RELEASE CUT, which is precisely the act that makes them vanish between
+    # reports. A `contested` class would route every correctly performed cut
+    # through `report.uncited_resolutions` as a NEW ERROR — an enforcement
+    # channel arriving through the back door on the runs that prove the family
+    # working. The editorial band is `info` for the same family of reasons: it
+    # is the expected steady state between cuts, and a permanent yellow row for
+    # a condition nobody should act on is how a report stops being read.
+    "release-inventory-drift": release_inventory.fam_release_inventory_drift,
 }
