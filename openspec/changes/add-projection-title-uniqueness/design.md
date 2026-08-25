@@ -112,6 +112,12 @@ what chat cites.
 the five missing sources, and closes all three latent pairs as a side effect of
 its scope choice. Its cost is named plainly in § 5.
 
+**RULED (2026-08-25, Brett, in-session multiple choice): recommendation
+adopted — candidate (a) at repository scope.** `proposal.md` § Open Questions
+OQ-1 rules this decision and folds in the scope sub-question (§ 7 below,
+OQ-4): repository scope, 14 renames, 28 operations, zero collisions, closing
+the three latent pairs as a side effect.
+
 ## 5. What (a) costs, and the variant that would remove it
 
 Under (a) a title is a function of the document AND of its same-stem siblings.

@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (`scripts/sync-notebooklm-books.py` — the title derivation inside `scan()`, which is today one conditional expression special-casing `README`; a repository-scoped uniqueness pass over the scan's desired set; and `parity_report()`, whose per-book comparison is a title-SET equality that cannot see a collapse. `docs/lifecycle-notebook-projection.md` § 2 — the "ambiguous stems" rule the derivation implements, plus an `Amended by:` line. `tests/notebooklm/test_sync_notebooklm_books.py` — a collision fixture over the three real shapes this corpus contains, an injectivity assertion over the whole derived set, a stability assertion against status change, and the parity-blindness regression. NO change to book identity, the `[status]` prefix vocabulary, charter text, chat framing, the grounding set, the corpus scan scope, the capacity guard's arithmetic, the session namespace, or any hybrid surface.)
 target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle: no schema under `contracts/schemas/` moves, no digest set changes, and no release tag is owed. The archive gate is therefore merge-plus-green on main PLUS one piece of evidence the code alone cannot give: an APPLIED sync that migrates the live books, because the defect is a discrepancy between a manifest and a provider and only the provider can say it closed. Concretely — `python3 -m pytest tests/notebooklm tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a post-apply provider read showing the seven books at 700 sources with `--parity` clean under the amended document-level rule. The change ships ACTIVE and archives only after that read.
-Status: draft
+Status: ratified
+Ratified: 2026-08-25 by Brett Heap — in-session, multiple-choice ruling round over OQ-1 through OQ-4; every ruling adopts the recommendation, OQ-1's adoption folds in the OQ-4 scope sub-question (repository scope, closing the three latent pairs as a side effect), and OQ-3's adoption defers execution to realization rather than to this ruling. The round is recorded question by question in the Open Questions section of openspec/changes/add-projection-title-uniqueness/proposal.md, which is this file. No approving OpenSpec change exists to name, so this cites the record in the spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and it clears that spelling's three-way floor on all three axes rather than on the one it needs: approver (`by Brett Heap`), date (`2026-08-25`), and a resolvable record path.
 Proposed: 2026-08-25
 Origin: The lifecycle-notebook sync report of 2026-08-25, which recorded four MedxFactory staging topics synced into a book holding one source for them. Raised in-session the same day; no staged topic preceded it.
 ---
@@ -148,6 +149,15 @@ defect. The four decisions below were taken by the authoring session under
 measurement, are NOT covered by that authorization, and are flagged here for
 veto. Reverting any one of them is an edit to this change, not a new one.
 
+**The veto window closed 2026-08-25 with the ratification round below: none
+of the four decisions was reverted, so all four stand as written.** Decision 1
+(candidate (a)) and Decision 2 (repository scope) are the two decisions the
+Open Questions round actually put to a choice — OQ-1 ruled Decision 1, and its
+fold-in of OQ-4 ruled Decision 2 — and both were confirmed rather than
+reverted. Decisions 3 and 4 were not raised as questions and drew no veto in
+the round; per this section's own rule, reverting either now would be an edit
+to this change, not a fact about the round that already ran.
+
 1. **The rule candidate is (a), collision-triggered minimal suffix.** Chosen on
    churn: 14 renamed titles against 611 for the always-fully-qualified
    alternative. The cost is named rather than hidden — see § Open Questions Q1
@@ -188,6 +198,15 @@ pinning a document's qualification level in the manifest so it can rise but
 never fall; it is not proposed here because it puts identity state in a file
 that is today a pure cache.
 
+**RULED (2026-08-25, Brett, in-session multiple choice): recommendation
+adopted — (a), collision-triggered minimal suffix, at REPOSITORY scope.** 14
+renames, 28 book operations, zero collisions; the repository-scope choice
+closes the three latent pairs (`memory-gateway/README` twice,
+`company-provisioning`, `codexfactory-domain-hermes-content`) as a side
+effect. This ruling folds in Q4's scope sub-question below — the two are one
+choice, not two — so Q4 records the fold rather than a second, independent
+decision.
+
 **Q2 — does the migration ride the realization's own sync slice?** The rule
 change makes 14 titles wrong in the live books at the instant it merges, and
 `notebook-projection-drift` will report 28 pending operations until an
@@ -198,6 +217,13 @@ books sit visibly drifted in between, and the archive gate waits). The
 proposal assumes ONE SLICE and § 4 of `tasks.md` is written that way; splitting
 it is a task edit.
 
+**RULED (2026-08-25, Brett, in-session multiple choice): recommendation
+adopted — the migration rides the realization's own sync slice.** One slice:
+the realization commit is followed immediately by an operator-run apply, so
+the books are correct on merge and the archive evidence exists at once.
+`tasks.md` § 4 is already written this way and needs no edit; no drift window
+is opened.
+
 **Q3 — should the un-collapsed documents' arrival be announced?** Three
 MedxFactory staging topics, one draft checklist and one OpsxFactory staging
 fragment have never been in a book. Anyone who has queried those books has
@@ -206,11 +232,25 @@ worth a record beyond this text; if it is, the place is
 `docs/archive-record-discrepancies.md`, which already carries this shape of
 finding.
 
+**RULED (2026-08-25, Brett, in-session multiple choice): a record is
+owed.** The five never-projected documents — the three MedxFactory staging
+topics, the openxFactory draft checklist, the OpsxFactory staging fragment —
+get a dated, append-only entry in `docs/archive-record-discrepancies.md`, in
+the shape that document already carries for this class of finding. The entry
+is written at realization (`tasks.md` § 4), not now: this proposal has not
+been realized yet, and the record documents what the migration did, not what
+it will do.
+
 **Q4 — the three latent pairs.** Decision 2 pre-empts them silently, by
 qualifying `memory-gateway/README` (twice), `company-provisioning` and
 `codexfactory-domain-hermes-content` before they can collide. That is four of
 the 14 renames. If the tightest scope is preferred instead, those four renames
 disappear and the three pairs stay one status change away from a collapse.
+
+**RULED (2026-08-25, Brett, in-session multiple choice): folded into Q1
+above — no independent ruling.** Repository scope was ruled as part of Q1's
+candidate choice, which pre-empts the three latent pairs named here. The
+tightest correct scope — 8 renames, leaving the pairs latent — was not taken.
 
 ## Impact
 
