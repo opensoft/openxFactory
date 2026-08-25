@@ -1057,10 +1057,10 @@ Archived changes:
   because the seven lost exactly offset the seven this change adds. Corrected
   scenario-complete on Brett's ruling of 2026-08-25 and re-verified
   byte-for-byte: 8 of 8 promoted identical, doc-health 98 → 105 scenarios.
-  Two issues were filed from that finding — the sibling changes carrying the
-  same latent loss, and the `promotion-fidelity` blind spot that cannot see it
-  (that family compares delta→promoted, so scenarios lost from a promoted spec
-  the delta never mentions are invisible).
+  Two issues were filed from that finding — **#329**, the sibling changes
+  carrying the same latent loss, and **#330**, the `promotion-fidelity` blind
+  spot that cannot see it (that family compares delta→promoted, so scenarios
+  lost from a promoted spec the delta never mentions are invisible).
 
 - [reconcile-lifecycle-books-count](openspec/changes/archive/2026-08-25-reconcile-lifecycle-books-count/proposal.md)
   — **ARCHIVED 2026-08-25** (the CLI's UTC stamp; the act ran 2026-08-24

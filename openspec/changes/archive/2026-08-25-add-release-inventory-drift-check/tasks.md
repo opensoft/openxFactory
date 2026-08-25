@@ -159,6 +159,11 @@ implementation plan the follow-on slice executes (§3, §5).
       `Deterministic check families` — `MODIFIED` replaces wholesale, and the
       block restated one of eight. Corrected scenario-complete on Brett's
       ruling (see the delta's dated CORRECTED note) and archived from there.
+      Two issues filed from the same finding: **#329** (two active changes
+      carry the identical lossy block and will drop the same scenarios when
+      they archive) and **#330** (`promotion-fidelity` compares delta to
+      spec, so a scenario LOST from a promoted spec that the delta never
+      mentions is invisible to it).
       **THE REALIZATION EVIDENCE IS COMPLETE — recorded here so the archive does
       not have to re-derive it.** Merged as PR #324, squash **`0780875b`**, with
       a tree byte-identical to the reviewed branch tip `39965995`
