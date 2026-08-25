@@ -3201,17 +3201,33 @@ def execute_cleanup_abandoned_branch(gate, git, *, tile, ref: str, registry,
     # revalidation, and ref deletion across CLI and HTTP processes.
     with git.worktree_action_lock(
             root, action=f"cleanup abandoned branch {branch}"):
-        machine_retention = branch_session.retention_release_for(
+        candidates = branch_session.retention_release_candidates(
             root, tile, records_dir=records_dir)
         abandonment = branch_session.abandon_evidence(
             root, branch, records_dir=records_dir)
         head = git.branch_sha(branch)
+        machine_retention = None
         correlation_error = None
-        if machine_retention is not None and abandonment is not None and head:
-            correlation_error = branch_session.machine_release_correlation_error(
-                machine_retention, abandonment, head)
-            if correlation_error:
-                machine_retention = None
+        if candidates and abandonment is not None and head:
+            # EVERY candidate is correlated, not just the first: a tile can carry
+            # several exact-origin records, and one that predates the abandonment
+            # disqualifies only itself (PR #336 review finding 2). The reported
+            # error is the FIRST candidate's, so a refusal still names the
+            # nearest-miss evidence rather than whichever was tried last.
+            for candidate in candidates:
+                failure = branch_session.machine_release_correlation_error(
+                    candidate, abandonment, head)
+                if not failure:
+                    machine_retention = candidate
+                    correlation_error = None
+                    break
+                if correlation_error is None:
+                    correlation_error = failure
+        elif candidates:
+            # Nothing to correlate against — no abandonment proof, or no ref. The
+            # preconditions below refuse on exactly those, and they refuse better
+            # when the evidence they name is the tile's first candidate.
+            machine_retention = candidates[0]
 
         state = proposal if proposal is not None else branch_session.proposal_state_for(
             tile, records_root=root / records_dir, checkout_root=root)
