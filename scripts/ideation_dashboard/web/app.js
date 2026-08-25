@@ -680,6 +680,7 @@ let renderScope = null;
 // object the render already probes, handed to it via `update()` after each
 // probe — so the menu needs no fetch of its own.
 let accountMenu = null;
+let settingsCaps = null;
 
 function nextRenderScope() {
   if (renderScope) renderScope.abort();
@@ -694,7 +695,7 @@ async function main() {
   // snapshot load, since it has no data dependency and must work even if the
   // snapshot fetch fails. Bound ONCE for the life of the page: it owns no
   // snapshot state, so a re-render must not rebind it.
-  initSettings();
+  initSettings({ getCapabilities: () => settingsCaps });
   // The account menu, wired beside the settings gear and bound once. It has no
   // capabilities yet (the render below probes `/capabilities`); it renders a
   // graceful "local session" default until `render()` hands it the probed
@@ -807,6 +808,7 @@ async function render() {
     // and the static served image 404s. It also carries the per-serve console
     // token used by guarded human actions.
     const probedCaps = await probeCapabilities();
+    settingsCaps = probedCaps;
     // Hand the corner account menu the freshly probed verdict — it reads the
     // signed-in identity (`hosted_actor`) and derives the access level from this
     // SAME object, so it needs no fetch of its own. The RAW probe (before the

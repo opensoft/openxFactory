@@ -118,7 +118,144 @@ function drumLabel(value) {
 // script: the app shell (`.wrap`) clips overflow, so an in-header absolute
 // popover would be cut off. Same idiom as dispose.js's refusal panel.
 
-function buildPanel(onDrum) {
+function buildProviderSettings(opts) {
+  const section = el("section", "settingsproviders");
+  section.appendChild(el("h3", "settingsproviders-title", "model providers"));
+  const disclosure = el("p", "settingsnote",
+    "The dashboard stores only a broker binding. Credential values go to the " +
+    "broker once and are never read back.");
+  section.appendChild(disclosure);
+  const status = el("p", "settingsprovider-status", "not loaded");
+  section.appendChild(status);
+  const list = el("div", "settingsprovider-list");
+  section.appendChild(list);
+
+  const form = el("form", "settingsprovider-form");
+  const id = document.createElement("input");
+  id.type = "text"; id.placeholder = "binding id"; id.autocomplete = "off";
+  id.setAttribute("aria-label", "provider binding id");
+  const label = document.createElement("input");
+  label.type = "text"; label.placeholder = "label"; label.autocomplete = "off";
+  label.setAttribute("aria-label", "provider binding label");
+  const auth = document.createElement("select");
+  for (const value of ["api_key", "oauth"]) {
+    const option = document.createElement("option");
+    option.value = value; option.textContent = value; auth.appendChild(option);
+  }
+  auth.setAttribute("aria-label", "provider authentication kind");
+  const ref = document.createElement("input");
+  ref.type = "text"; ref.placeholder = "broker credential reference (for edits)";
+  ref.autocomplete = "off"; ref.setAttribute("aria-label", "broker credential reference");
+  const invocation = document.createElement("textarea");
+  invocation.rows = 2; invocation.placeholder = "broker argv, one argument per line";
+  invocation.setAttribute("aria-label", "broker invocation");
+  const credential = document.createElement("input");
+  credential.type = "password"; credential.placeholder = "new credential (optional)";
+  credential.autocomplete = "new-password";
+  credential.setAttribute("aria-label", "new provider credential");
+  const save = document.createElement("button");
+  save.type = "submit"; save.className = "settingsreset"; save.textContent = "save binding";
+  form.append(id, label, auth, ref, invocation, credential, save);
+  section.appendChild(form);
+
+  function headers(withBody) {
+    const caps = typeof opts.getCapabilities === "function"
+      ? opts.getCapabilities() : null;
+    if (!caps?.console_token) return null;
+    return {
+      "X-XF-Console-Token": caps.console_token,
+      ...(withBody ? { "Content-Type": "application/json" } : {}),
+    };
+  }
+
+  async function request(method, body) {
+    if (typeof fetch !== "function") {
+      status.textContent = "settings transport unavailable";
+      return null;
+    }
+    const requestHeaders = headers(body !== undefined);
+    if (!requestHeaders) {
+      status.textContent = "model-provider settings require the local console";
+      return null;
+    }
+    try {
+      const response = await fetch("/settings/model-providers", {
+        method, headers: requestHeaders,
+        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data?.ok) {
+        status.textContent = data?.message || "model-provider settings refused";
+        return null;
+      }
+      return data;
+    } catch {
+      status.textContent = "model-provider settings could not be loaded";
+      return null;
+    }
+  }
+
+  function renderBindings(bindings) {
+    list.textContent = "";
+    if (!Array.isArray(bindings) || !bindings.length) {
+      list.appendChild(el("p", "settingsnote", "no model provider is configured"));
+      return;
+    }
+    for (const binding of bindings) {
+      const row = el("div", "settingsprovider-row");
+      const facts = el("span", "settingsprovider-facts",
+        `${binding.label || binding.id} · ${binding.auth_kind} · credential held by broker`);
+      const edit = document.createElement("button");
+      edit.type = "button"; edit.className = "settingsreset"; edit.textContent = "edit";
+      edit.addEventListener("click", (event) => {
+        event.stopPropagation();
+        id.value = binding.id || "";
+        label.value = binding.label || "";
+        auth.value = binding.auth_kind || "api_key";
+        ref.value = binding.credential_ref || "";
+        invocation.value = Array.isArray(binding.broker_invocation)
+          ? binding.broker_invocation.join("\n") : "";
+        credential.value = "";
+        status.textContent = "editing binding; leave credential empty to keep its broker reference";
+        id.focus();
+      });
+      const remove = document.createElement("button");
+      remove.type = "button"; remove.className = "settingsreset"; remove.textContent = "remove";
+      remove.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        const data = await request("POST", { operation: "remove", id: binding.id });
+        if (data) { status.textContent = "binding removed"; renderBindings(data.bindings); }
+      });
+      row.append(facts, edit, remove);
+      list.appendChild(row);
+    }
+  }
+
+  async function refreshProviders() {
+    const data = await request("GET");
+    if (data) {
+      status.textContent = "bindings loaded";
+      renderBindings(data.bindings);
+    }
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault(); event.stopPropagation();
+    const args = invocation.value.split("\n").map((value) => value.trim()).filter(Boolean);
+    const body = {
+      operation: "upsert", id: id.value.trim(), label: label.value.trim(),
+      auth_kind: auth.value, credential_ref: ref.value.trim(),
+      broker_invocation: args,
+    };
+    if (credential.value) body.credential = credential.value;
+    const data = await request("POST", body);
+    credential.value = "";
+    if (data) { status.textContent = "binding saved"; renderBindings(data.bindings); }
+  });
+  return { section, refreshProviders };
+}
+
+function buildPanel(onDrum, opts) {
   const panel = el("aside", "settingspanel");
   panel.id = "settingspanel";
   panel.hidden = true;
@@ -158,6 +295,8 @@ function buildPanel(onDrum) {
     " flattens it. An explicit ?drum= URL wins until you move the slider.");
 
   panel.append(head, row, note);
+  const providerSettings = buildProviderSettings(opts || {});
+  panel.appendChild(providerSettings.section);
 
   // one place that mirrors a value into the controls
   const show = (value) => {
@@ -167,7 +306,7 @@ function buildPanel(onDrum) {
   range.addEventListener("input", () => show(onDrum(Number.parseFloat(range.value))));
   reset.addEventListener("click", () => show(onDrum(DRUM.default)));
 
-  return { panel, close, show };
+  return { panel, close, show, refreshProviders: providerSettings.refreshProviders };
 }
 
 // Wire the header gear. Idempotent-by-construction (app.js calls it once);
@@ -178,7 +317,8 @@ export function initSettings(opts) {
   const btn = document.getElementById(o.buttonId || "settingsbtn");
   if (!btn) return null;
 
-  const { panel, close, show } = buildPanel((v) => setDrumFactor(v, o));
+  const { panel, close, show, refreshProviders } = buildPanel(
+    (v) => setDrumFactor(v, o), o);
   document.body.appendChild(panel);
   show(currentDrumFactor(o));
 
@@ -196,7 +336,10 @@ export function initSettings(opts) {
     open = next;
     panel.hidden = !next;
     btn.setAttribute("aria-expanded", String(next));
-    if (next) anchor();
+    if (next) {
+      anchor();
+      void refreshProviders();
+    }
   }
 
   btn.addEventListener("click", (ev) => {
