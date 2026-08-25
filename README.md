@@ -344,42 +344,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [add-duplicate-packet-check](openspec/changes/add-duplicate-packet-check/proposal.md)
-  — authored and ratified 2026-08-24, commissioned in-session ("commission the
-  duplicate-packet check"). The neighbour class of promotion fidelity, and the
-  one that family is structurally blind to: TWO archived packets can promote
-  the same delta content — one ruling discharged twice — and because canon then
-  holds exactly what both packets said it should, the archived-delta-vs-canon
-  comparison reads 0 either way. `openspec --strict` sees one packet at a time;
-  the lifecycle families read headers, and both duplicates carry impeccable
-  ones. The near miss is on this repository's own record: PR #317 and the landed
-  `2026-08-25-apply-branch-sessions-deltas` both restated the identical
-  2026-08-01 `add-workbench-branch-sessions` delta — the same git blob — from
-  parallel sessions, and a human closed the second unmerged twenty minutes
-  later. `document-lifecycle` gains the obligation ("A ruling is discharged
-  once": a packet restating another's ratified delta content names it, and the
-  naming records LINEAGE, not authority). `doc-health` gains the family, which
-  compares archived deltas ONLY AGAINST EACH OTHER and moves no census,
-  canon-share figure, inventory entry or catalog record. Content identity is
-  byte-equality above trailing whitespace — never a similarity heuristic, which
-  would report the ordinary case of a requirement being revised. The lineage
-  exemption is what keeps the lawful remedy legal: applying a ratified delta
-  byte-faithfully (codexFactory PR #85's shape) is prescribed, so a pair where
-  either proposal names the other's change id stays quiet, while two remedials
-  of one ruling that do NOT name each other fire. Launched ADVISORY in both
-  halves and **ENFORCING since 2026-08-25** — ruled by Brett ("flip the
-  duplicate-packet check to enforcing"), both halves in one commit: `error`
-  severity plus a `CONTESTED` `FAMILY_RESOLUTION` entry, pinned together by an
-  invariant test that fails by name on a half-flip. Sequenced behind a measured
-  population, never over a standing one — and the population is the FULL pinned
-  set, enumerated from the aggregation repo's own `origin/main` and read at each
-  repository's exact pinned sha: **19 repositories, 207 archived packets, 1124
-  identities, 3 restated groups, 0 findings**. All three restated groups are
-  recorded lineage, codexFactory's PR #85 remedial among them — the archetype of
-  the lawful pattern the exemption protects. The pinned-vs-live basis question
-  stays open (tasks §5.2); the measurement gap the flip was taken over is
-  closed (§5.4).
-
 - [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
   — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
   staged topic `doxchat-auto-fit-routing`, whose six questions were
@@ -1011,6 +975,47 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-duplicate-packet-check](openspec/changes/archive/2026-08-25-add-duplicate-packet-check/proposal.md)
+  — **ARCHIVED 2026-08-25** on Brett's ruling ("archive add-duplicate-packet-check
+  on its realization evidence"), on merge-plus-green: PR #327 `d5f447e8` shipped
+  the family advisory and PR #328 `55bae8a1` flipped it to ENFORCING in both
+  halves, each re-verified an ancestor of `main` at the gate. Authored and
+  ratified 2026-08-24, commissioned in-session ("commission the duplicate-packet
+  check"). The neighbour class of promotion fidelity, and the one that family is
+  structurally blind to: TWO archived packets can promote the same delta content
+  — one ruling discharged twice — and because canon then holds exactly what both
+  packets said it should, the archived-delta-vs-canon comparison reads 0 either
+  way. The near miss is on this repository's own record: PR #317 and the landed
+  `2026-08-25-apply-branch-sessions-deltas` both restated the identical
+  2026-08-01 `add-workbench-branch-sessions` delta — the same git blob — from
+  parallel sessions, and a human closed the second unmerged twenty minutes later.
+  `document-lifecycle` gains "A ruling is discharged once" (a packet restating
+  another's ratified delta content names it, and the naming records LINEAGE, not
+  authority); `doc-health` gains the TWENTIETH family, which compares archived
+  deltas ONLY AGAINST EACH OTHER and moves no census, canon-share figure,
+  inventory entry or catalog record. Content identity is byte-equality above
+  trailing whitespace, never a similarity heuristic. The lineage exemption keeps
+  the lawful remedy legal: a pair where either proposal names the other's change
+  id stays quiet, while two remedials of one ruling that do NOT name each other
+  fire. ENFORCING at archive — `error` severity plus a `CONTESTED` resolution
+  row, pinned together by an invariant test that fails by name on a half-flip —
+  sequenced behind the FULL pinned population measured at zero: 19 repositories,
+  207 archived packets, 1124 identities, 3 restated groups all of them recorded
+  lineage, 0 findings. The archive act promotes the enumeration to twenty and is
+  the LAST of the three same-day family changes that each restated that
+  requirement; all three had written a thin `MODIFIED` block that would have
+  destroyed seven of its eight scenarios, and all three were caught — this one
+  in `d9e545dd`, before its gate ran. Verified at the gate 8-of-8
+  scenario-complete, 27 of 28 pre-existing `doc-health` requirements
+  byte-for-byte untouched (28 → 29 requirements, 116 → 124 scenarios;
+  `document-lifecycle` 15 → 16, 68 → 72), and both now-enforcing families read
+  0 findings at `--fail-on error` on the archive event itself. Two questions
+  survive as RECORDED, NOT FIXED in the packet: § 5.2, whether the family should
+  join promotion fidelity on the live-`main` basis (it gates on the pinned
+  checkout, which is what it was measured on), and § 5.5, deriving the
+  family-count enumeration instead of restating it so a thin block cannot
+  regress canon again.
 
 - [add-promotion-fidelity-check](openspec/changes/archive/2026-08-25-add-promotion-fidelity-check/proposal.md)
   — **ARCHIVED 2026-08-25** on merge-plus-green, the
