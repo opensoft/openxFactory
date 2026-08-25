@@ -1574,6 +1574,8 @@ function heldOutlineState(over = {}) {
 }
 
 console.log(JSON.stringify({
+  // The issue's own literal case, spelled exactly as it reported it.
+  orderOfNothing: saveBufferOrder([]),
   orderWithoutOutline: saveBufferOrder([ZULU, ALPHA]),
   orderWithOutline: saveBufferOrder([ZULU, 'outline', ALPHA]),
   planStateKeys: Object.keys(planned.buffers),
@@ -1609,6 +1611,10 @@ def test_the_save_order_prepends_the_outline_only_when_the_state_holds_one(
     ANCESTRY buffer; a key set that does not contain it describes a state with no
     ancestry buffer to persist, and an order that names it anyway is inventing a
     buffer for every later reader to trip over."""
+    # the issue's own literal case first: `saveBufferOrder([])` is the empty
+    # order, not a one-row order about a buffer nobody has
+    assert phantom_outline_results["orderOfNothing"] == [], (
+        "saveBufferOrder([]) invented a buffer out of an empty key set")
     assert phantom_outline_results["orderWithoutOutline"] == [
         "ideation/staging/no-outline-topic/alpha.md",
         "ideation/staging/no-outline-topic/zulu.md",
