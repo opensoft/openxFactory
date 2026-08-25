@@ -231,6 +231,25 @@ The gate surfaces — `.github/workflows/`, `/scripts/validate-openxwallet.py`,
 and `/scripts/wallet-yaml-syntax-gate.py` — are owner-routed via
 [.github/CODEOWNERS](.github/CODEOWNERS) so changes to them need owner review.
 
+## Python test suite gate
+
+Every PR to main runs the `pytest-suite` check, as does every push to main. It
+runs the whole suite — `pytest tests/ -m "not postgres"` — on a hash-pinned
+install of [requirements/hermes-runtime-contracts.lock](requirements/hermes-runtime-contracts.lock).
+The `postgres`-marked tests are excluded because they drive real Docker
+containers and belong to their own release-gate runner,
+`scripts/run-hermes-runtime-postgres-tests.sh`. The check is advisory until an
+operator marks it required.
+
+Mark it required via the active ruleset governing main:
+Repo Settings → Rules → Rulesets → edit the ruleset targeting `main` →
+Require status checks → add `pytest-suite`.
+
+The workflow runs unconditionally, with no paths filter, so it is safe to mark
+required: a filtered check deadlocks the PRs it skips, and a large group of
+these tests scans repository content rather than fixtures, so content-only
+changes can legitimately turn the suite red.
+
 ## Domain Implementations
 
 - `opensoft/codexFactory` — software, code, repo, and engineering xFactory domain stack.
