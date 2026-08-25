@@ -43,14 +43,14 @@ State manifest: <workspace-root>/.claude/nlm-sync-manifest.json
 The default (book-sync) mode also runs the ideation-dashboard workbench
 orphan sweep (`workbench_orphan_sweep` below): --apply deletes `xf-wb-*`
 scratch notebooks no live workbench manifest binds; the dry run prints the
-plan. Only `xf-wb-*` titles are ever candidates — the three lifecycle books
-above can never be swept.
+plan. Only `xf-wb-*` titles are ever candidates — the lifecycle books above
+can never be swept.
 
 The --session-ref mode is the fourth family: ONE
 `xf-session-<repository>-<branch>` notebook per LIVE branch session
 (007-workbench-branch-sessions, FR-036-FR-040), created / re-synced / retired
 from that session's WORKTREE. It is deliberately independent of everything
-above: the three books stay MAIN-ONLY (a session worktree lives in
+above: the lifecycle books stay MAIN-ONLY (a session worktree lives in
 `<repo>-worktrees/`, outside every book's walk — the exclusion is never
 relaxed), the session leaves no manifest for the sweep to trip over, and the
 `xf-session-` namespace is disjoint from the swept `xf-wb-` one. See
@@ -1054,7 +1054,7 @@ def workbench_orphan_sweep(root: Path, apply: bool, adapter=None) -> None:
 # --------------------------------------------------------------------------
 # BRANCH-SESSION notebooks (007-workbench-branch-sessions T073; FR-036-FR-040)
 #
-# A fourth notebook family beside the three lifecycle books and the swept
+# A fourth notebook family beside the lifecycle books and the swept
 # `xf-wb-*` reference sets: ONE `xf-session-<repository>-<branch>` notebook per
 # live branch session, synced FROM that session's WORKTREE.
 #
