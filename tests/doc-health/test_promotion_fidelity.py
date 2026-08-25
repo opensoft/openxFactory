@@ -35,6 +35,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from conftest import AS_OF, FIXTURES, FakeGit, make_ctx
 
 from doc_health import Skip, TAXONOMY, WARNING
@@ -703,11 +705,43 @@ def test_a_git_shim_that_cannot_read_refs_falls_back_loudly():
         f"git refs")
 
 
-def test_an_unknown_basis_value_is_read_as_the_pinned_default():
+def test_an_unknown_basis_value_fails_loudly_instead_of_silently_coercing():
+    """Copilot's PR #320 note: `requested_basis` used to coerce any
+    unrecognized value BACK to pinned, silently, while `runner.build_context`
+    treated the very same raw value as live-main for the headline deviation
+    line — so a typo'd or programmatically-built basis could make the report
+    CLAIM live-main while the family measured pinned. `normalize_basis` is
+    now the one choke point both sides read through, and an unrecognized
+    value fails loudly there instead of letting either side guess."""
     ctx = _ctx()
     ctx.promotion_fidelity_basis = "whatever-someone-typed"
-    assert promotion_fidelity.requested_basis(ctx) == \
-        promotion_fidelity.BASIS_PINNED
+    with pytest.raises(ValueError, match="whatever-someone-typed"):
+        promotion_fidelity.requested_basis(ctx)
+
+
+def test_build_context_rejects_an_unknown_basis_before_deciding_the_headline():
+    """THE MUTATION CHECK for the choke point above, exercised through
+    `runner.build_context` itself rather than through `promotion_fidelity`
+    directly — so a regression that re-introduces `build_context`'s OWN
+    independent `!= BASIS_PINNED` guess (instead of routing through
+    `normalize_basis`) fails this test even though `requested_basis` alone
+    would still look correct in isolation.
+
+    Before the fix, this exact call silently built a Context whose headline
+    would have claimed "measured against live main" while
+    `promotion_fidelity.requested_basis` would separately coerce the same
+    value back to pinned for the family's own measurement — the disagreement
+    this choke point exists to make impossible. After the fix, `build_context`
+    aborts before either side has decided anything.
+    """
+    from types import SimpleNamespace
+
+    repo = FIXTURES / "promotion-fidelity" / REPO
+    with pytest.raises(SystemExit, match="whatever-someone-typed"):
+        runner.build_context(SimpleNamespace(
+            single_repo=str(repo), repo_root=None, config=None, family=None,
+            as_of=AS_OF.isoformat(), routing_strict=False,
+            promotion_fidelity_basis="whatever-someone-typed"))
 
 
 def test_the_tie_break_walks_the_same_ref_the_statements_came_from():

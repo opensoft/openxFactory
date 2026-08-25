@@ -135,6 +135,17 @@ def build_context(args) -> Context:
                           "(referenced pinned repositories must materialize)")
     pf_basis = getattr(args, "promotion_fidelity_basis",
                        promotion_fidelity.BASIS_PINNED)
+    try:
+        # THE CHOKE POINT: the same `normalize_basis` that
+        # `promotion_fidelity.requested_basis` reads the stored value back
+        # through below. Deciding the headline from a value neither of them
+        # has agreed to recognize is exactly how the deviation line and the
+        # family's own measurement used to read one bad input two ways —
+        # see `normalize_basis`'s docstring. An unrecognized value aborts
+        # HERE, before either consumer has decided anything.
+        pf_basis = promotion_fidelity.normalize_basis(pf_basis)
+    except ValueError as exc:
+        sys.exit(str(exc))
     if pf_basis != promotion_fidelity.BASIS_PINNED:
         # In the headline, not only in the family's own section: a reader
         # comparing two runs' finding counts must be told at the top that one
@@ -225,8 +236,12 @@ def run_suite(ctx, only_family: str | None, skip: set[str]) -> RunResult:
         out = fn(ctx)
         # Notes describe the run a family ACTUALLY performed, so they are
         # collected here — beside the call — rather than recomputed later
-        # from flags. A skipped family gets none: its Skip reason is what
-        # the report has to carry.
+        # from flags. That includes a family whose `fn(ctx)` returns a Skip
+        # instance: it still ran and inspected the corpus, so it still gets
+        # a note. Only a family skipped ABOVE by run configuration
+        # (--skip-family) never reaches this line — the `continue` on the
+        # branch above sends it straight to `result.skips` with no note at
+        # all, which is the one case that truly gets none.
         if family in FAMILY_NOTES:
             result.notes[family] = FAMILY_NOTES[family](ctx)
         if isinstance(out, Skip):

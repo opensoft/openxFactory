@@ -1254,8 +1254,17 @@ jobs:
         if: always()
         continue-on-error: true
         run: |
+          # `|| true` on the whole pipeline: under this shell's default
+          # `-e -o pipefail`, a missing `.gitmodules` (git config exits
+          # non-zero) OR a `.gitmodules` with no governed submodule (grep
+          # matches nothing, also non-zero) would fail the `SUBS=$(...)`
+          # assignment and abort the script right there — turning "nothing
+          # to fetch" into a script failure for a step whose own comment
+          # above says non-fatal by design. An empty `$SUBS` still runs the
+          # loop below zero times and exits 0, which is the actual
+          # non-fatal contract this step keeps.
           SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
-                 | awk '{print $2}' | grep -E '^(openxFactory|xFactories/)')
+                 | awk '{print $2}' | grep -E '^(openxFactory|xFactories/)' || true)
           for sub in $SUBS; do
             [ -e "$sub/.git" ] || continue
             if git -C "$sub" fetch --no-tags --quiet origin \

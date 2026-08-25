@@ -362,11 +362,46 @@ def _open_tree(repo_path: Path, git, requested: str):
     return GitRefTree(repo_path, git, LIVE_REF, sha, paths)
 
 
+def normalize_basis(value: str) -> str:
+    """The ONE choke point every reader of the basis value must share.
+
+    `runner.build_context` (deciding whether the headline deviation line
+    says "measured against live main") and `requested_basis` below (deciding
+    which TREE the family actually reads) used to each answer that question
+    on their own: `build_context` treated anything other than `'pinned'` as
+    live-main for the headline, while this function's old body silently
+    coerced anything unrecognized BACK to `'pinned'`. A value neither of
+    them recognized — a typo, or a basis built programmatically rather than
+    through the CLI's own `argparse` `choices=` gate — could therefore make
+    the headline claim live-main while the family measured pinned, or the
+    reverse. Routing BOTH call sites through this one function closes that:
+    they either agree, because they read the same normalization, or the run
+    aborts before either one has decided anything.
+
+    Raises `ValueError` for anything but `BASIS_PINNED` or `BASIS_LIVE_MAIN`.
+    The CLI can never trigger this — `argparse`'s `choices=` rejects an
+    unknown `--promotion-fidelity-basis` before `build_context` runs — so a
+    value that reaches here unrecognized can only have arrived through a
+    hand-built `Context`, and it fails loudly rather than being silently
+    reinterpreted as either basis.
+    """
+    if value not in (BASIS_PINNED, BASIS_LIVE_MAIN):
+        raise ValueError(
+            f"unknown promotion-fidelity basis {value!r}; expected "
+            f"{BASIS_PINNED!r} or {BASIS_LIVE_MAIN!r}")
+    return value
+
+
 def requested_basis(ctx) -> str:
     """The basis this run asked for. Absent the field, the pinned checkout —
-    so a Context built before this option existed behaves as it always did."""
+    so a Context built before this option existed behaves as it always did.
+
+    Reads through `normalize_basis`, the choke point `runner.build_context`
+    also reads through, so the two can never disagree about what an unknown
+    value means.
+    """
     value = getattr(ctx, "promotion_fidelity_basis", BASIS_PINNED)
-    return value if value in (BASIS_PINNED, BASIS_LIVE_MAIN) else BASIS_PINNED
+    return normalize_basis(value)
 
 
 def repo_trees(ctx) -> list[tuple[str, Path, object]]:
