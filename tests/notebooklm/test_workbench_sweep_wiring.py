@@ -16,35 +16,22 @@ unittest-style like the sibling sync tests: validate-docs.sh falls back to
 from __future__ import annotations
 
 import contextlib
-import importlib.util
 import io
 import re
-import sys
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = REPO_ROOT / "scripts" / "sync-notebooklm-books.py"
+from ideation_dashboard import workbench as wb
 
-spec = importlib.util.spec_from_file_location("sync_notebooklm_books_sweep", SCRIPT)
-sync = importlib.util.module_from_spec(spec)
-assert spec.loader is not None
-sys.modules[spec.name] = sync
-spec.loader.exec_module(sync)
+from tests.notebooklm._sync_test_support import sync
 
-sys.path.insert(0, str(REPO_ROOT / "scripts"))
 # adopt-neutral-tooling-home tranche A: the dashboard runtime (and with it
 # `ideation_dashboard.workbench`) arrives with tranche B; until it lands in
 # this repo the sweep wiring has nothing to exercise. Probed with find_spec
 # because `tests/ideation_dashboard/` forms a same-named NAMESPACE package
 # when `tests/` is on sys.path (see tests/hermeticity.py `runner_seams`).
 # Self-healing: the skip disappears the moment the real package exists.
-if importlib.util.find_spec("ideation_dashboard.workbench") is None:
-    raise unittest.SkipTest(
-        "ideation_dashboard arrives with adopt-neutral-tooling-home tranche B")
-from ideation_dashboard import workbench as wb  # noqa: E402
-
 # doc-health's notebook-projection-drift family counts `[book] ADD|DEL|UPD `
 # lines as pending projection operations (scripts/doc_health/families.py).
 # Sweep output must never match it.

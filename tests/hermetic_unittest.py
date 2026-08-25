@@ -30,8 +30,10 @@ import unittest
 from pathlib import Path
 
 TESTS_ROOT = Path(__file__).resolve().parent
-if str(TESTS_ROOT) not in sys.path:
-    sys.path.insert(0, str(TESTS_ROOT))
+REPO_ROOT = TESTS_ROOT.parent
+for import_root in (REPO_ROOT, TESTS_ROOT):
+    if str(import_root) not in sys.path:
+        sys.path.insert(0, str(import_root))
 
 import hermeticity  # noqa: E402  (after the path insert, by construction)
 

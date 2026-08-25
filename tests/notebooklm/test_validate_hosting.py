@@ -11,20 +11,17 @@ current one.
 
 from __future__ import annotations
 
-import importlib.util
-import sys
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import ClassVar
+
+from tests.notebooklm._sync_test_support import load_script_module
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / "scripts" / "validate-notebook-projection-hosting.py"
 
-spec = importlib.util.spec_from_file_location("validate_hosting", SCRIPT)
-validator = importlib.util.module_from_spec(spec)
-assert spec.loader is not None
-sys.modules[spec.name] = validator
-spec.loader.exec_module(validator)
+validator = load_script_module("validate_hosting", SCRIPT)
 
 BASE = """schema_version: 1
 kind: notebook_projection_hosting
@@ -121,7 +118,7 @@ class ShareOutRosterValidationTests(unittest.TestCase):
     def test_a_complete_entry_passes(self):
         self.assertEqual(self._with_roster(self.ENTRY), [])
 
-    FIELDS = {
+    FIELDS: ClassVar[dict[str, str]] = {
         "hosting_account": "xFactor001@opensoft.one",
         "user": "reader@example.com",
         "book_or_alias": "xf-canon",

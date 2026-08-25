@@ -25,15 +25,10 @@ real `nlm` or `gh`. Run it through `python3 -m pytest` (any directory) or
 from __future__ import annotations
 
 import shutil
-import sys
 import unittest
 from pathlib import Path
 
-TESTS_ROOT = Path(__file__).resolve().parent.parent
-if str(TESTS_ROOT) not in sys.path:                # `tests/`, where the guard lives
-    sys.path.insert(0, str(TESTS_ROOT))
-
-import hermeticity  # noqa: E402  (after the path insert, by construction)
+import hermeticity
 
 
 class HermeticityGuardReachesThisDirectoryTests(unittest.TestCase):
@@ -46,6 +41,8 @@ class HermeticityGuardReachesThisDirectoryTests(unittest.TestCase):
                 resolved,
                 f"{binary!r} resolves to nothing, so this run installed no shim: "
                 "the hermeticity guard is not active (see this module's docstring)")
+            if resolved is None:
+                self.fail(f"{binary!r} did not resolve")
             text = Path(resolved).read_text(encoding="utf-8", errors="replace")
             self.assertIn(
                 hermeticity.MARKER, text,
@@ -62,8 +59,8 @@ class HermeticityGuardReachesThisDirectoryTests(unittest.TestCase):
         if find_spec("ideation_dashboard.workbench") is None:
             self.skipTest("ideation_dashboard arrives with "
                           "adopt-neutral-tooling-home tranche B")
-        from ideation_dashboard import session_pr as session_pr_mod
-        from ideation_dashboard import workbench as workbench_mod
+        import ideation_dashboard.session_pr as session_pr_mod
+        import ideation_dashboard.workbench as workbench_mod
 
         self.assertIs(workbench_mod._default_runner, hermeticity.refuse_nlm,
                       "workbench._default_runner is the real `nlm` subprocess: a "
