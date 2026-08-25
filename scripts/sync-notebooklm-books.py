@@ -107,6 +107,10 @@ SOURCE_ID_ECHO_RE = re.compile(r"Source ID:\s*(\S+)")
 CAP_WARN_HEADROOM = 30
 
 
+class OversizedSourceUploadError(RuntimeError):
+    pass
+
+
 @dataclass(frozen=True)
 class BookSpec:
     """One lifecycle book's identity: manifest/report key, provider title
@@ -850,15 +854,24 @@ def add_text_source(handle: str, text: str, title: str) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write(text)
-        out = _add_with_one_retry("source", "add", handle, "--file", tmp)
+        out = _add_with_one_retry(
+            "source", "add", handle, "--file", tmp, "--wait")
         m = SOURCE_ID_ECHO_RE.search(out or "")
         if not m:
-            raise RuntimeError(
+            raise OversizedSourceUploadError(
                 f"oversized source {title!r} uploaded but the CLI echoed no "
                 f"source id to rename — rename it to the contract title by hand")
-        time.sleep(2)
-        nlm("source", "rename", m.group(1), title, "--notebook", handle,
+        source_id = m.group(1)
+        nlm("source", "rename", source_id, title, "--notebook", handle,
             parse=False)
+        sources = nlm("source", "list", handle, "--json")
+        renamed = isinstance(sources, list) and any(
+            source.get("id") == source_id and source.get("title") == title
+            for source in sources)
+        if not renamed:
+            raise OversizedSourceUploadError(
+                f"oversized source {title!r} uploaded as {source_id}, but its "
+                "rename was not visible in the notebook source list")
     finally:
         os.unlink(tmp)
 

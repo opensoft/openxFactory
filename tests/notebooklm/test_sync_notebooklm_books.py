@@ -1278,7 +1278,7 @@ class SplitIdeationBookTests(unittest.TestCase):
     and the capacity guard's occupancy math. All against a stubbed nlm —
     nothing here may touch the real CLI (FR-043)."""
 
-    def _fake(self, notebooks, sources=None, create_ok=True):
+    def _fake(self, notebooks, sources=None, create_ok=True, rename_ok=True):
         calls: list[tuple] = []
         state = {"notebooks": [dict(n) for n in notebooks],
                  "sources": {k: list(v) for k, v in (sources or {}).items()}}
@@ -1296,7 +1296,14 @@ class SplitIdeationBookTests(unittest.TestCase):
                 state["sources"].setdefault(nb["id"], [])
                 return ""
             if head in {("alias", "set"), ("tag", "add"), ("chat", "configure"),
-                        ("source", "delete"), ("source", "rename")}:
+                        ("source", "delete")}:
+                return ""
+            if head == ("source", "rename"):
+                if rename_ok:
+                    for rows in state["sources"].values():
+                        for row in rows:
+                            if row["id"] == args[2]:
+                                row["title"] = args[3]
                 return ""
             if head == ("source", "list"):
                 return list(state["sources"].get(args[2], []))
@@ -1438,7 +1445,6 @@ class SplitIdeationBookTests(unittest.TestCase):
             fake, calls, _state = self._fake([{"id": "nbX", "title": spec.title}])
             with patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
                     patch.object(sync, "nlm", fake), \
-                    patch.object(sync.time, "sleep", lambda _s: None), \
                     contextlib.redirect_stdout(io.StringIO()):
                 ok, _over = sync.sync_book(root, spec, desired[spec.key], {}, True)
             self.assertTrue(ok)
@@ -1446,6 +1452,7 @@ class SplitIdeationBookTests(unittest.TestCase):
                          if c[:2] == ("source", "add") and "--file" in c]
             renames = [c for c in calls if c[:2] == ("source", "rename")]
             self.assertEqual(len(file_adds), 1)
+            self.assertIn("--wait", file_adds[0])
             self.assertEqual(len(renames), 1)
             self.assertEqual(renames[0][3],
                              "[brainstorm] openxFactory: huge")
@@ -1453,6 +1460,23 @@ class SplitIdeationBookTests(unittest.TestCase):
             text_adds = [c for c in calls
                          if c[:2] == ("source", "add") and "--text" in c]
             self.assertTrue(text_adds)
+
+    def test_oversized_source_refuses_a_silent_rename_failure(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self._world(root)
+            big = root / "openxFactory/ideation/brainstorm/huge.md"
+            big.write_text("# Huge\n\nStatus: brainstorm\n" + "x" * 500,
+                           encoding="utf-8")
+            desired, specs = sync.scan(root)
+            spec = specs["ideation-openxfactory"]
+            fake, _calls, _state = self._fake(
+                [{"id": "nbX", "title": spec.title}], rename_ok=False)
+            with patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                    patch.object(sync, "nlm", fake), \
+                    contextlib.redirect_stdout(io.StringIO()), \
+                    self.assertRaisesRegex(RuntimeError, "rename was not visible"):
+                sync.sync_book(root, spec, desired[spec.key], {}, True)
 
     def test_low_headroom_warns_and_names_the_owed_delta(self):
         with TemporaryDirectory() as td:
