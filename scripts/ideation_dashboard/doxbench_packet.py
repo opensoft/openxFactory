@@ -441,7 +441,16 @@ _STATED_CATEGORIES = ("L", "N", "P", "S")
 
 
 def states_something(text: object) -> bool:
-    """Whether `text` is a reason a human could actually read (issue #263).
+    """Whether `text` carries at least one letter, number, punctuation mark or
+    symbol (issue #263).
+
+    STATED AS THE CATEGORY RULE, NOT AS "a reader can see it" (issue #263
+    review, P3-3). The earlier gloss claimed visibility and was falsified:
+    U+3164 HANGUL FILLER, U+2800 BRAILLE PATTERN BLANK, U+115F and U+FFA0 are
+    letters or symbols by category, are accepted here, and render blank. That
+    is not a hole to chase — visible rendering is a font and shaping question
+    no category table answers, and a predicate that tried to decide it would be
+    guessing in the wrong layer. The claim is the categories and nothing more.
 
     Non-strings are False rather than an error: every caller here is a
     boundary that already has its own refusal to raise, and a predicate that

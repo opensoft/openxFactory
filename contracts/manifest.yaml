@@ -1589,6 +1589,34 @@ contracts:
       availability and headroom rules — are enforced by
       scripts/validate-ideation-dashboard-contracts.py (the family's
       delegated owner), never re-implemented by consumers.
+  # WHY THIS ROW'S `consumption_rule` GAINED THE NON-BLANK RULE WITHOUT A
+  # RELEASE CUT (issue #263). Read this before editing it again.
+  #
+  # A DOCUMENTATION-ONLY `consumption_rule` edit does not require a cut:
+  #   * `docs/contract-versioning-policy.md`'s change classes — Additive,
+  #     Deprecating, Breaking — are all defined over fields, shapes and
+  #     vocabulary. Manifest prose is none of them, and there is no editorial
+  #     class.
+  #   * PRECEDENT EXISTS AND POINTS THE SAME WAY. Of the 23 commits in history
+  #     that touch a `consumption_rule`, 13 changed no schema file at all, and
+  #     `238369ec` ("Record the subject-overlay contract") is a genuine
+  #     documentation-only edit — manifest and CHANGELOG prose, NO schema bytes
+  #     and NO new version heading. (An earlier reading of this record claimed
+  #     the case had "never happened"; that was wrong, and the verdict it
+  #     supported is better supported without it.)
+  #   * MECHANICALLY nothing new breaks: `validate-manifest-digests.py` passes
+  #     (a `consumption_rule` is prose, not a per-file digest) and the
+  #     contract-v1.40 TAG still verifies at its own commit, because release
+  #     verification is AT-COMMIT.
+  #
+  # AND THE v1.40 CHANGELOG ENTRY IS DELIBERATELY NOT EDITED. It says the
+  # posture family has "TWO DELEGATED RULES" and that one of them lives in
+  # exactly one place. That is now outdated — the non-blank rule is a third —
+  # and it stays as written anyway: a CHANGELOG entry is the immutable record
+  # of what a release SHIPPED, no release was cut here, and editing it would
+  # make it describe a bundle that was never published. The current rule set
+  # lives in this row and in `check_context_packet`'s docstring, which are the
+  # two places a consumer and an implementer actually read.
   - id: xfactory-workbench-chat-turn
     path: contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
     source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml

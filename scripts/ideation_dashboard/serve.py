@@ -864,6 +864,15 @@ def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str
             "it; a coerced posture is a manufactured one")
     context_packet = {"posture": context_posture}
     if context_reduced_reason is not None:
+        # TWO REFUSALS, NOT ONE (issue #263 review, P3-6). A non-string reason
+        # and a blank one are different defects and had been folded into the
+        # blank message, which told a reader "nobody can read this" about a
+        # value that was never a string — the same manufactured-diagnosis class
+        # the `str()` coercion was.
+        if not isinstance(context_reduced_reason, str):
+            raise doxbench_packet.PacketError(
+                "a turn record carries the reduction's reason as the packet "
+                "stated it; a coerced reason is a manufactured one")
         if not states_something(context_reduced_reason):
             raise doxbench_packet.PacketError(
                 "a turn record carries the reduction's reason as the packet "
