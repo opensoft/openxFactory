@@ -6,7 +6,7 @@ Repository context: openxFactory
 
 **GENERATED FILE — do not edit by hand.** This is a deterministic Markdown projection of the source-of-truth `ideation/cross-reference.yaml`, produced by `scripts/render-ideation-cross-reference.py`. Edit the YAML and re-render; per the `add-ideation-cross-reference-readiness` spec the index is a generated projection over governed documents. See `ideation/README.md` for how this surface relates to the promoted requirements and to `staging/INDEX.md`.
 
-- Source revision: `da9bf3b7d0ee1d86d2d437d42a715c238dddce4b`
+- Source revision: `f13a3b6007736292e1e157febef1ac733e534de9`
 - Generator: `ideation-xref-scorer-0.1.0`
 - Topic clusters: 290
 
