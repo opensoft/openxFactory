@@ -414,6 +414,56 @@ def test_the_sweep_reads_the_shipped_regex_not_a_copy(full_space_sweep):
 
 
 # ---------------------------------------------------------------------------
+# THE BROWSER RESTATEMENT MUST BE AN ADMISSION RULE IN ITS OWN RIGHT
+#
+# A GAP FOUND BY REVERT-TESTING THIS FILE'S OWN PINS, and worth stating because
+# it is the subtle one: reverting the JS regex ALONE — back to the exclusion
+# form, with the Python side left inverted — left every test above GREEN. The
+# safety sweep still held, because everything Python admits (L/N/P/S) the
+# exclusion form also admits, so the bug direction stayed empty and the
+# behavioural property was genuinely satisfied.
+#
+# It was satisfied by accident. The exclusion form admits ~825,000 UNASSIGNED
+# code points; it just happens not to admit anything Python refuses. So the
+# browser would have kept the version-instability P2-1 is about — a future ICU
+# assigning a new combining mark changes what it refuses — while the suite said
+# the rule was safe. The pins below close that: one behavioural, one structural.
+# ---------------------------------------------------------------------------
+
+def test_the_browser_regex_admits_almost_no_unassigned_space(full_space_sweep):
+    """The behavioural half. An ADMISSION rule accepts only what some table has
+    assigned, so the unassigned points it accepts are exactly the ones the newer
+    runtime assigned and this one has not — thousands. The EXCLUSION form
+    accepts the whole unassigned plane — hundreds of thousands. Measured at the
+    time of writing: 5,761 versus 825,294, a 143x gap, so the bound below is
+    generous in both directions and does not need moving when a Unicode
+    release shifts the numbers."""
+    js_accepted, _regex = full_space_sweep
+    unassigned_here = {cp for cp in range(0x110000)
+                       if not (0xD800 <= cp <= 0xDFFF)
+                       and unicodedata.category(chr(cp)) == "Cn"}
+    admitted_unassigned = len(js_accepted & unassigned_here)
+    assert admitted_unassigned < 50_000, (
+        f"the browser regex admits {admitted_unassigned:,} code points that "
+        f"are unassigned here — that is an EXCLUSION rule, whose refusals move "
+        f"with every Unicode release (issue #263 P2-1)")
+
+
+def test_the_browser_regex_is_written_as_an_admission_class(full_space_sweep):
+    """The structural half, because the behavioural one is a bound and a bound
+    invites a clever rule that squeaks under it. A negated class (`[^…]`) is an
+    exclusion by construction whatever it lists."""
+    _js_accepted, regex = full_space_sweep
+    body = regex[1:regex.rindex("/")]
+    assert not body.startswith("[^"), (
+        f"NON_BLANK_REASON is a NEGATED class ({regex}) — the rule must name "
+        f"what it ADMITS, so that an unassigned code point can never satisfy "
+        f"it (issue #263 P2-1)")
+    for prop in (r"\p{L}", r"\p{N}", r"\p{P}", r"\p{S}"):
+        assert prop in body, (regex, prop)
+
+
+# ---------------------------------------------------------------------------
 # the outcome the rule exists to prevent
 # ---------------------------------------------------------------------------
 
