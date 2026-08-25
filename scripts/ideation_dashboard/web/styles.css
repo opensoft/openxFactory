@@ -1294,6 +1294,17 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
 .settingsreset:hover { border-color: var(--st-staged); color: var(--st-staged); }
 .settingsnote { margin: 6px 10px 9px; color: var(--muted); font-size: 10px; line-height: 1.35; }
 .settingspanel :focus-visible { outline: 2px solid var(--st-realized); outline-offset: 2px; }
+.settingsproviders { border-top: 1px solid var(--faint); margin-top: 8px; padding-top: 8px; }
+.settingsproviders-title { margin: 0 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; }
+.settingsprovider-status { margin: 5px 10px; color: var(--muted); font-size: 10px; }
+.settingsprovider-list { margin: 0 10px 6px; }
+.settingsprovider-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+.settingsprovider-facts { flex: 1; min-width: 0; color: var(--ink); font-size: 10px; overflow-wrap: anywhere; }
+.settingsprovider-form { display: grid; gap: 5px; margin: 7px 10px 10px; }
+.settingsprovider-form input, .settingsprovider-form select, .settingsprovider-form textarea {
+  box-sizing: border-box; width: 100%; color: var(--ink); background: var(--faint);
+  border: 1px solid var(--border); border-radius: 3px; padding: 4px 6px; font: 10px var(--mono);
+}
 
 /* ---- account menu (header user icon, views/account-menu.js) ----------------
    The user-account button reuses .themebtn's chrome (same header button family)

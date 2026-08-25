@@ -118,6 +118,7 @@ if str(_SCRIPTS_DIR) not in sys.path:
 from ideation_dashboard import action_errors  # noqa: E402
 from ideation_dashboard import doxbench_knowledge  # noqa: E402
 from ideation_dashboard import doxbench_packet  # noqa: E402
+from ideation_dashboard import doxbench_provider  # noqa: E402
 # The family's NON-BLANK rule (issue #263), imported rather than
 # restated: the type gate and this server boundary share one
 # implementation so they cannot drift into two spellings of one rule.
@@ -162,6 +163,7 @@ ACTIONS_GATE_PREFIX = "/actions/gate/"
 # See the section banner above `_handle_workbench_model_catalog` for the
 # judgement calls their handlers make.
 WORKBENCH_MODEL_CATALOG_ROUTE = "/workbench/model-catalog"
+MODEL_PROVIDER_SETTINGS_ROUTE = "/settings/model-providers"
 # add-doxbench-editing-phase-b task 9.5: the THREAD read route. A console-
 # internal surface, deliberately NOT a released contract envelope — no
 # openxFactory schema declares a thread shape, and inventing a `schema_version`
@@ -226,15 +228,15 @@ _DEFAULT_CAPABILITIES = {"actions": {"notebook": False, "gate": False, "refresh"
 # discipline only; the schema-versioned envelope arrives WITH the released
 # contract, not before.
 #
-# `WorkbenchModelPort` and its typed catalog/fake now exist as T020's
-# catalog-only core. `model_port_factory` below (and
-# `_workbench_model_port`, on the handler class further down) remains
-# DUCK-TYPED at the injection boundary; the catalog handler consumes
-# `catalog()`, while the turn handler deliberately stops before provider
-# dispatch because the port has no dispatch member yet.
+# `WorkbenchModelPort` and its typed catalog/fake now provide the narrow
+# injection seam. `model_port_factory` below (and `_workbench_model_port`, on
+# the handler class further down) remains DUCK-TYPED at the injection boundary;
+# the provider module supplies the configured implementation while the route
+# maps its outcomes into the existing fixed envelopes.
 #
-# Nothing here reaches a provider: no provider SDK import, no provider
-# env-var read, no credential, no raw endpoint, no secret name.
+# This module remains free of provider SDK imports, provider endpoints and
+# minted credentials.  The sole provider transport is
+# `doxbench_provider.py`; this module only selects its port through the seam.
 
 # The ROUTE-SPECIFIC bound (research R7): NOT a second global cap.
 # `_MAX_BODY_BYTES` above stays the EXISTING tiny 65,536-byte tile-action cap
@@ -1370,6 +1372,10 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     # (FR-025), not an error. The injection boundary stays DUCK-TYPED; see
     # `_workbench_model_port`.
     model_port_factory = None
+    # The persisted model-provider bindings.  A non-empty store supplies the
+    # production port dynamically; an empty store preserves the existing
+    # editor-only/no-capability posture, including after startup settings edits.
+    model_provider_store = None
     # The doxBench RELEASED-schema validator supplier (T024/T050/T051 wire
     # clause). Bound by `build_server` to `default_doxbench_validators` unless
     # a caller injects its own; None only in hand-constructed handlers, and a
@@ -1537,16 +1543,22 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         capability verdict" discipline.
 
         This accessor itself never calls the port: it stays DUCK-TYPED and
-        reports only presence/absence. The catalog handler is the one consumer
-        of `catalog()`; the port PROTOCOL now declares `dispatch` (T049), but
-        no route below calls it -- the dispatch arm is T051's, and the
-        boundary refuses fixed until it lands."""
+        reports only presence/absence. The catalog and turn handlers are the
+        consumers; the provider module owns all endpoint/token mechanics."""
         if not self.capabilities.get("actions", {}).get("session"):
             return None
-        if self.model_port_factory is None:
+        factory = self.model_port_factory
+        if factory is None and self.model_provider_store is not None:
+            # The binding store is read at request time so adding a binding in
+            # Settings makes the next model call live without restarting the
+            # console.  The provider module remains the only place that can
+            # construct a token-bearing port.
+            factory = lambda: doxbench_provider.model_port_for_store(
+                self.model_provider_store)
+        if factory is None:
             return None
         try:
-            return self.model_port_factory()
+            return factory()
         except Exception:  # noqa: BLE001 - absence is a capability verdict
             return None
 
@@ -2125,13 +2137,10 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     # landed. (This banner previously recorded the pre-release
     # discriminator-free posture; the release retired it.)
     #
-    # NO PROVIDER IS EVER CONTACTED FROM THIS SLICE: `WorkbenchModelPort`
-    # now DECLARES `dispatch` (T049), but no code below calls it --
-    # `_handle_workbench_chat_turn`'s dispatch boundary still refuses
-    # `model_capability_unavailable` unconditionally after building (and
-    # discarding) the prompt envelope, until T051's dispatch arm lands with
-    # its own tests -- no provider SDK import, no provider env-var read, no
-    # credential, no raw endpoint, no secret name, anywhere below.
+    # The route remains free of provider endpoint/token mechanics.  Once the
+    # configured port is selected, it dispatches through the narrow protocol;
+    # `doxbench_provider.py` is the sole module allowed to mint and transport
+    # provider credentials.  Missing configuration still refuses by absence.
 
     def _handle_workbench_model_catalog(self, head_only: bool) -> None:
         """`GET`/`HEAD /workbench/model-catalog` (T050). Dispatched from
@@ -2705,6 +2714,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return
         try:
             catalog = port.catalog()
+        except doxbench_provider.ModelProviderError:
+            # A configured broker/provider that failed is a failed capability,
+            # not the unconfigured editor-only posture.  The fixed model-failed
+            # envelope preserves that distinction without exposing detail.
+            self._refuse_turn(validators, DOXBENCH_ERR_MODEL_FAILED,
+                              turn_id, failure_kind=failure_kind)
+            return
         except Exception:  # noqa: BLE001 - never let a provider-shaped exception reach the wire
             self._refuse_turn(validators, DOXBENCH_ERR_CATALOG_UNAVAILABLE,
                               turn_id, failure_kind=failure_kind)
@@ -3494,6 +3510,130 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         ref = (params.get("ref") or [None])[0]
         return repository, ref
 
+    def _model_provider_settings_gate(self) -> bool:
+        """Apply the local human-console gate before reading settings input."""
+        if not self.loopback:
+            self._send_json(403, {"ok": False, "error": "loopback_only",
+                                  "message": "model-provider settings are loopback-only"})
+            return False
+        if not self.capabilities.get("actions", {}).get("session") or not self.actor:
+            self._send_json(403, {"ok": False, "error": "action_unavailable",
+                                  "message": "model-provider settings unavailable "
+                                             "(no resolved actor/checkout)"})
+            return False
+        refusal = self._not_the_human_console()
+        if refusal is not None:
+            sys.stderr.write(
+                f"[settings/model-providers] agent_invocation refused: {refusal}\n")
+            self._send_json(403, doxbench_error_body(DOXBENCH_ERR_CONSOLE_REQUIRED))
+            return False
+        return True
+
+    def _handle_model_provider_settings(self, *, head_only: bool = False) -> None:
+        """Read or mutate safe model-provider bindings.
+
+        A POST's optional ``credential`` is consumed by ``BrokerClient`` and is
+        removed from the parsed request before this method returns.  It is
+        never handed to the binding store or included in a response.
+        """
+        if not self._model_provider_settings_gate():
+            return
+        store = self.model_provider_store
+        if store is None:
+            store = doxbench_provider.ModelProviderBindingStore()
+        payload = {
+            "ok": True,
+            "bindings": store.public_list(),
+            "credential_disclosure": (
+                "credentials live in the broker; this dashboard stores only "
+                "the returned credential reference"),
+        }
+        self._serve_bytes(json.dumps(payload).encode("utf-8"), JSON_CTYPE,
+                          head_only)
+
+    def _handle_model_provider_settings_write(self) -> None:
+        if not self._model_provider_settings_gate():
+            return
+        body = self._read_json_body()
+        if not isinstance(body, dict):
+            self._send_json(400, {"ok": False, "error": "invalid_body",
+                                  "message": JSON_OBJECT_BODY_REQUIRED})
+            return
+        allowed = {"operation", "id", "label", "credential_ref", "auth_kind",
+                   "broker_invocation", "credential"}
+        if set(body) - allowed:
+            self._send_json(400, {"ok": False, "error": "invalid_binding",
+                                  "message": "the model-provider binding was not accepted"})
+            return
+        operation = body.get("operation", "upsert")
+        store = self.model_provider_store
+        if store is None:
+            store = doxbench_provider.ModelProviderBindingStore()
+        if operation == "remove":
+            binding_id = body.get("id")
+            if not isinstance(binding_id, str):
+                self._send_json(400, {"ok": False, "error": "invalid_binding",
+                                      "message": "the model-provider binding was not accepted"})
+                return
+            try:
+                removed = store.remove(binding_id)
+            except doxbench_provider.BindingError:
+                removed = False
+            if not removed:
+                self._send_json(404, {"ok": False, "error": "binding_unavailable",
+                                      "message": "the model-provider binding was not found"})
+                return
+            self._send_json(200, {"ok": True, "bindings": store.public_list(),
+                                  "credential_disclosure": (
+                                      "credentials live in the broker; this dashboard "
+                                      "stores only the returned credential reference")})
+            return
+        if operation != "upsert":
+            self._send_json(400, {"ok": False, "error": "invalid_binding",
+                                  "message": "the model-provider binding was not accepted"})
+            return
+
+        # Pop before any later branch so the raw value is not retained in this
+        # request dictionary.  The value is still passed once to broker stdin.
+        credential = body.pop("credential", None)
+        binding_id = body.get("id")
+        existing = store.get(binding_id) if isinstance(binding_id, str) else None
+        credential_ref = body.get("credential_ref") or (
+            existing.credential_ref if existing is not None else "pending")
+        try:
+            candidate = doxbench_provider.ModelProviderBinding(
+                id=body.get("id"), label=body.get("label"),
+                credential_ref=credential_ref, auth_kind=body.get("auth_kind"),
+                broker_invocation=body.get("broker_invocation"),
+            )
+            if credential is None and existing is None and credential_ref == "pending":
+                raise doxbench_provider.BindingError("credential is required")
+            if credential is not None:
+                credential_ref = doxbench_provider.BrokerClient().store_credential(
+                    binding_id=candidate.id, label=candidate.label,
+                    auth_kind=candidate.auth_kind,
+                    broker_invocation=candidate.broker_invocation,
+                    credential=credential)
+            binding = doxbench_provider.ModelProviderBinding(
+                id=candidate.id, label=candidate.label,
+                credential_ref=credential_ref, auth_kind=candidate.auth_kind,
+                broker_invocation=candidate.broker_invocation)
+            store.put(binding)
+        except doxbench_provider.BindingError:
+            self._send_json(400, {"ok": False, "error": "invalid_binding",
+                                  "message": "the model-provider binding was not accepted"})
+            return
+        except doxbench_provider.BrokerError:
+            self._send_json(502, {"ok": False, "error": "broker_unavailable",
+                                  "message": "the credential broker could not complete the request"})
+            return
+        finally:
+            credential = ""
+        self._send_json(200, {"ok": True, "bindings": store.public_list(),
+                              "credential_disclosure": (
+                                  "credentials live in the broker; this dashboard "
+                                  "stores only the returned credential reference")})
+
     def _route(self, head_only: bool) -> bool:
         path = self.path.split("?", 1)[0].split("#", 1)[0]
         if path == self.snapshot_route:
@@ -3542,6 +3682,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             self._serve_bytes(json.dumps(payload).encode("utf-8"),
                               JSON_CTYPE, head_only)
             return True
+        if path == MODEL_PROVIDER_SETTINGS_ROUTE:
+            self._handle_model_provider_settings(head_only=head_only)
+            return True
         if path == WORKBENCH_MODEL_CATALOG_ROUTE:
             self._handle_workbench_model_catalog(head_only)
             return True
@@ -3570,6 +3713,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     # nlm stderr) NEVER enters a response; diagnostics go to the server log.
     def do_POST(self):  # noqa: N802
         path = self.path.split("?", 1)[0].split("#", 1)[0]
+        if path == MODEL_PROVIDER_SETTINGS_ROUTE:
+            self._handle_model_provider_settings_write()
+            return
         if path == ACTIONS_NOTEBOOK_ROUTE:
             self._handle_notebook_action()
             return
@@ -4643,6 +4789,8 @@ def build_server(
     adapter_factory=None,
     pull_request_factory=None,
     model_port_factory=None,
+    model_provider_store=None,
+    model_provider_bindings_path: Path | str | None = None,
     schema_validator_factory=_UNSET_VALIDATOR_FACTORY,
     actor: str | None = None,
     gate_index_validator=None,
@@ -4676,8 +4824,9 @@ def build_server(
     doxBench `WorkbenchModelPort` (T024, research R6): unset means NO model
     port at all — the honest empty-catalog/editor-only posture (FR-025), not
     an error — and it is gated on the reused `session` local-human verdict
-    (see `_workbench_model_port`). The current catalog-only port is consumed
-    by the catalog route; the turn route still stops before provider dispatch.
+    (see `_workbench_model_port`). When no explicit factory is supplied, the
+    safe binding store is consulted dynamically; an empty store remains the
+    existing no-model-capability posture.
 
     The (repository, ref) SOURCE is built here and bootstrapped once: a declared
     `data_source` (the served plane) is tried first, then a `local_index` (the
@@ -4737,6 +4886,10 @@ def build_server(
                                    repository=session_repository)
     active = source.registry.active
     source_revision = active.source_revision if active else _read_source_revision(snapshot_path)
+    if model_provider_store is None:
+        model_provider_store = doxbench_provider.ModelProviderBindingStore(
+            model_provider_bindings_path or
+            doxbench_provider.provider_store_path(checkout_root))
 
     # gate actions need a HUMAN actor: explicit arg, else the checkout's git
     # user.name; unresolvable identity keeps the capability off (fail-closed).
@@ -4783,6 +4936,7 @@ def build_server(
                                 if pull_request_factory is not None else None),
         "model_port_factory": (staticmethod(model_port_factory)
                               if model_port_factory is not None else None),
+        "model_provider_store": model_provider_store,
         # UNSET defaults to the pinned loader; an EXPLICIT None is a caller
         # saying "no validators", which refuses both model routes. The two are
         # distinguished deliberately: an absent argument must never become an
