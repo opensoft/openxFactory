@@ -80,8 +80,9 @@ silent degrade to the cap.
 
 - **FR-001**: `governance/review-authority/register.yaml` exists at the fixed
   path, `register_version: 1`, exactly ONE row matching the MVP shape
-  (holder `wal-agent-mrc-0001`, target `opensoft/openxFactory`, act
-  `review`, tier `act`, grant_ref `grant-mrc-0001`).
+  (holder `agent:merge-readiness-council`, wallet `wal-agent-mrc-0001`,
+  target `opensoft/openxFactory`, act `review`, tier `act`, grant_ref
+  `grant-mrc-0001`).
 - **FR-002**: The register carries, IN ITS OWN DOCUMENTATION: the Q1c
   constraint verbatim-in-substance (file cannot satisfy
   revocation-at-exercise; revocation surface home = live Hermes lookup, S5)
