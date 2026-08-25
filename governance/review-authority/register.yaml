@@ -1,0 +1,38 @@
+# THE INTAKE REGISTER - review-authority over governed objects.
+#
+# S4 of the ratified change add-wallet-carried-review-authority (design D4):
+# the register and its reader landed in ONE change; this file without
+# scripts/validate-openxwallet.py's register reader confers nothing.
+#
+# DELIBERATELY KINDLESS (design D11): no contract schema exists for this
+# register - its shape is a declared successor until the rule-of-three fires,
+# and the reader IS the shape. It is parsed strictly by the validator's
+# register reader, which runs inside the REQUIRED wallet-validation check.
+#
+# PERMANENTLY HUMAN-ONLY SURFACE (ratified requirement, explicit here by
+# name): no council verdict may ever produce an autonomous approval of a
+# change to THIS file. When entered into gate rules, it is a never-clearable
+# floor member BY NAME (codexFactory side, parent task 5.4) - not inferred
+# from any path-shaped clause. A council whose own commission is recorded
+# here is never eligible to clear a candidate that edits it.
+#
+# Q1c DESIGN CONSTRAINT, recorded here as ratified task 5.5 requires: a
+# file-based register CANNOT satisfy revocation-at-exercise. Every
+# distribution path is digest-pinned and lagging, so this file is an
+# issuance-time snapshot; the conforming home for the REVOCATION SURFACE is a
+# live lookup on the Hermes runtime (S5 successor). This file is right for
+# the MVP's one row; it must not be pretended into a revocation surface.
+register_version: 1
+rows:
+  # The MVP row: ONE holder, ONE target repository, ONE act, tier act, ONE
+  # expires_at. Backed by grant-mrc-0001 (root, issued_by the anchored
+  # operator); act tier stands on the custody attestation beside this file.
+  - row_id: row-mrc-0001
+    holder_ref: agent:merge-readiness-council
+    wallet_ref: wal-agent-mrc-0001
+    target_repo: opensoft/openxFactory
+    act: review
+    authority_tier: act
+    grant_ref: grant-mrc-0001
+    expires_at: "2026-11-23T12:00:00Z"
+    state: active
