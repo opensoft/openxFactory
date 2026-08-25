@@ -1673,3 +1673,118 @@ that is the domain's to set. And it does not disposition any of them: a
 `health/dispositions.yaml` entry would suppress a neutrality finding, not a
 lifecycle one, and suppressing them is precisely what the ruling declined to
 do.
+
+## Addendum 2026-08-25 — five documents the projection never held (`add-projection-title-uniqueness`)
+
+Eight documents, three shared titles, five sources that never existed. Entered
+here because `add-projection-title-uniqueness` put the question to Brett on
+2026-08-25 — "should the un-collapsed documents' arrival be announced?" — and
+the ruling was that a record is owed, in this register, at realization rather
+than at proposal, because the record documents what the migration DID. It ran
+the same day; the numbers below are the provider's, read back after it.
+
+This is a class the register has not carried before. Every earlier entry is a
+record that disagrees with a tree. This one is a DERIVED ARTIFACT that held
+fewer members than every record of it claimed, including its own.
+
+### The mechanism, and why nothing reported it
+
+A lifecycle book's sources are titled `[<status>] <repo>: <file stem>`, and
+that title is the projection's IDENTITY KEY. `scan()` derives a desired set
+keyed by document PATH; `sync_book()` reconciles that set against the live book
+BY TITLE; and the reconciliation actively holds each title at ONE source,
+deleting every duplicate copy. Two documents of one repository that derived the
+same stem therefore never became two sources sharing a label. They became one
+source, carrying whichever document won a race whose order depended on the
+provider's listing order across runs — while the manifest, which is written per
+PATH, recorded every one of them as synced.
+
+Three artifacts all said the books were whole. The manifest said so, by
+construction. The nightly `notebook-projection-drift` family said so, because
+it counts PENDING operations and there were none to count — the books were
+exactly what the derivation asked for. And `--parity`, the one mode built to
+prove a book against the corpus, said so because it compared a SET of derived
+titles against a SET of live titles, and a collapse leaves those two sets
+equal. A check that compares titles cannot see a document that never received a
+title of its own.
+
+### The three groups, and the windows they were open
+
+| repository | shared title | documents | held a source | absent |
+| --- | --- | --- | --- | --- |
+| MedxFactory | `[staged] MedxFactory: topic` | 4 | 1 | 3 |
+| openxFactory | `[draft] openxFactory: requirements` | 2 | 1 | 1 |
+| OpsxFactory | `[staged] OpsxFactory: exchange-execution-bringup` | 2 | 1 | 1 |
+
+**MedxFactory — `ideation/staging/<topic>/topic.md`, four staged topics.**
+`terminology-normalization` (added 2026-08-03), `treatment-plan-generation`
+(2026-08-04), `root-truth-grounding` (2026-08-06) and
+`root-truth-target-claims` (2026-08-07). The collapse opened on **2026-08-04**,
+when the second `topic.md` first projected, and deepened to four-into-one on
+2026-08-07. Open until the migration on **2026-08-25**: 21 days, spanning both
+the shared Ideation book and the per-repo `xFactory Ideation — MedxFactory`
+book that `split-ideation-book-per-repo` created on 2026-08-10 — the defect is
+a property of the derivation, so the split carried it across unchanged.
+
+**openxFactory — `specs/<id>/checklists/requirements.md`, two draft
+checklists.** `005-customer-subject-runtime` (added 2026-07-12) and
+`007-client-identity-roster` (2026-08-15). The collapse opened on
+**2026-08-15**, when the second arrived, and closed on **2026-08-25**: 10 days.
+
+**OpsxFactory — `exchange-execution-bringup`, a brainstorm document and its
+staging fragment.** Both were created on 2026-07-23, and for part of that day
+they did not collide: the brainstorm-located document was added at
+`Status: brainstorm` (`e8b9269`), which gave it a different prefix and a
+different book. The commit that staged the topic (`00239e4`) flipped it to
+`Status: staged` and created the staging fragment in the same act, and from
+that moment the two documents derived one title. Open **2026-07-23** to
+**2026-08-25**: 33 days, the longest of the three.
+
+**Which document of each group held the source is not recoverable, and is not
+claimed here.** The survivor was whichever won a listing-order race, re-run on
+every sync. What is exact is the COUNT — three books, five documents, no source
+— and the eight documents that were in the groups. The migration replaced those
+sources wholesale, so the question stops mattering forward and cannot be
+answered backward.
+
+### What this means for what the books have said
+
+Every answer any of these three books gave, over those windows, was given from
+a corpus missing those documents — and gave no sign of it, because a NotebookLM
+answer cites the sources it used and cannot cite the absence of one. The three
+MedxFactory staging topics are the sharpest case: for 18 days a question about
+MedxFactory's staged ideation could be answered from one of four topics with no
+indication that three others existed. This register does not attempt to
+enumerate which answers were affected — the notebooks keep no queryable
+history — and does not claim any downstream artifact is wrong. It claims only
+that the corpus was short and every artifact that would have said so was
+structurally unable to.
+
+### What closed it
+
+`add-projection-title-uniqueness`, ratified 2026-08-25 and realized the same
+day. The derivation now qualifies a stem with the shortest repository-relative
+path suffix that no other projected document of the same repository shares, so
+it is injective by construction rather than by assumption; the uniqueness scope
+is the whole repository, which also pre-empted three same-stem pairs that were
+one `Status:` edit from collapsing (`memory-gateway/README` in openxFactory,
+`company-provisioning` in LedgerxFactory,
+`codexfactory-domain-hermes-content` in openxFactory). `--parity` now proves
+membership at the DOCUMENT level and reports a title carrying more than one
+document as a failure that names them, so the next instance is loud rather than
+silent.
+
+### What this addendum does NOT claim
+
+It does not claim the class is now impossible to reintroduce. The parity
+amendment catches it when parity is RUN; no doc-health family reports a
+non-injective derivation from the corpus alone, and the realizing change
+records that gap openly rather than closing it
+(`add-projection-title-uniqueness` § 5.2). It does not claim the manifest is
+now a trustworthy inventory of a book: it is still never pruned, and still
+carries rows for documents that left long ago — the reading that first made
+this defect look like a manifest problem. And it does not disposition
+anything. Editing this `Status: record` file trips `record-immutability` as it
+always has; that critical was already standing for this document before this
+entry and is unchanged by it, which was verified by running the checker either
+side of the edit rather than assumed.
