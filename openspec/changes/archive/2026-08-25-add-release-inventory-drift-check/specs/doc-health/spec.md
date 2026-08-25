@@ -38,6 +38,29 @@ inventory and the blobs it names — and likewise takes neither document list,
 and it moves no census, word count, canon-share figure, inventory entry, or
 catalog record.
 
+**CORRECTED 2026-08-25 ON BRETT'S RULING — this block is now
+SCENARIO-COMPLETE.** As first written it restated only ONE of this
+requirement's scenarios. OpenSpec's `MODIFIED` REPLACES A REQUIREMENT
+WHOLESALE rather than merging into it, so promoting that block would have
+dropped the seven scenarios it did not restate — `Lifecycle conformance checks
+fire`, `A register carries staged status`, `Drift checks fire`, `Catalog
+conformance checks fire`, `Routing conformance checks fire`, `Origin
+conformance checks fire`, and `Roster composition is checked across domains` —
+silently, because the file-level scenario count would have stayed at 98: the
+seven lost exactly offset the seven this change's ADDED requirement brings.
+Caught by the byte-for-byte promotion verification at archive time, before
+anything was committed. The seven are restored below VERBATIM from the promoted
+spec; only the first scenario differs from canon, and it differs by TWO `AND`
+bullets rather than one — only the second is this change's. The first names
+`promotion fidelity`, and it is INHERITED: this delta was written on top of
+`add-promotion-fidelity-check`'s text, on the assumption that the sibling would
+land first. That assumption is why canon now says "nineteen check families"
+while `promotion fidelity`'s own owning requirement is still inside that active
+change, so the bullet's "as its owning requirement below defines" is a FORWARD
+REFERENCE until the sibling archives, at which point it resolves on its own.
+Recorded in issue #329 rather than papered over; it is an ordering dependency,
+not a defect in either change.
+
 #### Scenario: A run executes the check families
 - **WHEN** a doc-health run executes
 - **THEN** every check family MUST run over every family repo the aggregation repo pins (openxFactory and each DomainxFactory), plus the per-repo validators as a preflight
@@ -49,6 +72,35 @@ catalog record.
 - **AND** release-inventory drift MUST compare each repository's declared bundle inventory against the blobs it names as its owning requirement below defines
 - **AND** status validity, standard backing, ratified provenance, and succession integrity MUST additionally read the declared lifecycle scan set, reporting a finding against the document's own path exactly as they do for a governed-corpus document
 - **AND** a family or reference check that cannot run (for example notebook drift without credentials or an unavailable external checkout) MUST be reported as skipped, never silently omitted
+
+#### Scenario: Lifecycle conformance checks fire
+- **WHEN** a governance document violates a `document-lifecycle` rule — a free-form or missing `Status:` value, an unbacked `standard` claim, a `ratified` document whose lifecycle header carries no ratification citation in either sanctioned spelling, a dangling `Ratified by:` reference, a record-citing `Ratified:` line naming none of an approver, a date, or a resolvable record path, a `ratified` document whose lifecycle header carries more than one ratification citation (one of each spelling, or the same spelling twice), a `superseded` doc without a successor, a `brainstorm` doc outside `ideation/brainstorm/`, a `staged` doc that is outside `ideation/staging/` and is not a candidate register (`Kind: register`), or a content edit to a `record` doc after capture
+- **THEN** the run MUST emit a finding naming the check family, the repo, the path, and the violated rule
+
+#### Scenario: A register carries staged status
+- **WHEN** a candidate register (`Kind: register`) carries `Status: staged` outside `ideation/staging/`
+- **THEN** location conformance MUST NOT emit a finding — registers are a promoted organized-state home per the `document-lifecycle` capability
+
+#### Scenario: Drift checks fire
+- **WHEN** a submodule pin lags its remote main, a contract copy diverges from its canonical source, or the lifecycle notebook projection dry-run reports nonzero add/update/delete operations
+- **THEN** the run MUST emit a drift finding identifying what diverged and from which source of truth
+
+#### Scenario: Catalog conformance checks fire
+- **WHEN** governed-document coverage, catalog identity, freshness, taxonomy, provenance, override standing, or record immutability violates the promoted catalog contract
+- **THEN** the run MUST emit a `document-catalog` finding with the violated requirement and evidence
+
+#### Scenario: Routing conformance checks fire
+- **WHEN** a routed idea, claim, destination, proposal manifest, repository ID or gitlink, or aggregation placement violates the promoted routing contract
+- **THEN** the run MUST emit an `ideation-routing` finding with the violated requirement and evidence
+
+#### Scenario: Origin conformance checks fire
+- **WHEN** a proposal packet, support manifest, or staging-header linkage violates the promoted origin contract
+- **THEN** the run MUST emit a `proposal-origin` finding with the violated requirement and evidence
+
+#### Scenario: Roster composition is checked across domains
+- **WHEN** two or more pinned domain repositories publish client identity roster fragments for the same client
+- **THEN** the roster composition family assembles them and reports shared identity material or undeclared cross-domain reach
+- **AND** intra-repo entry conformance is NOT reported here, because it fails the owning domain's gate instead
 
 ## ADDED Requirements
 
@@ -102,8 +154,22 @@ working. Severity and resolution class are one later decision, taken together
 by ruling.
 
 The family SHALL be reported as skipped, never silently omitted, where a
-repository declares no bundle, where the declared bundle's inventory file is
-absent, or where version control cannot answer for the blobs.
+repository declares no bundle at all, or where version control cannot answer —
+an unavailable git dependency, or a commit that does not resolve. THE SKIP IS
+RESERVED FOR "THE QUESTION COULD NOT BE ASKED": a declared bundle whose
+inventory file is ABSENT is an ANSWER — an invalid release declaration — and is
+reported at `error`, exactly as the scenarios below require, and a member absent
+at the commit is drift rather than a skip.
+
+**A SECOND CORRECTION, 2026-08-25, SAME DEFECT FAMILY (PR #331, Copilot).** The
+sentence above once said the family is SKIPPED where "the declared bundle's
+inventory file is absent" — a stale survivor from before the proposal round's
+tightening, which decided that case is an `error`. The scenarios below and the
+shipped code had said `error` since; only the summary sentence lagged, and
+promotion faithfully copied the inconsistency into canon. Corrected so the prose
+states what the scenarios decided. THIS CHANGES NO DECISION: the scenarios
+govern, the code already implements them, and the sentence is aligned to both
+rather than either being altered.
 
 #### Scenario: A non-editorial member has drifted
 - **WHEN** a member other than the changelog, the manifest or the README differs from the digest the declared bundle's inventory records

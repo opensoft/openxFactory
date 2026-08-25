@@ -148,8 +148,33 @@ implementation plan the follow-on slice executes (§3, §5).
 
 ## 6. Archive
 
-- [ ] 6.1 Archive ONLY after merge with green realization evidence. This change
-      ships ACTIVE, following both precedents.
+- [x] 6.1 Archive ONLY after merge with green realization evidence. This change
+      shipped ACTIVE, following both precedents, and is ARCHIVED on Brett's
+      ruling of 2026-08-25. Discharged BY the archive act, which is the only
+      way it can be: the archive gate refuses on any open task, so a task
+      whose completion IS the archive must tick as part of it.
+      **THE FIRST ARCHIVE ATTEMPT WAS REVERTED UNCOMMITTED**, because the
+      byte-for-byte promotion check found this change's own MODIFIED block
+      would have dropped seven ratified scenarios from doc-health's
+      `Deterministic check families` — `MODIFIED` replaces wholesale, and the
+      block restated one of eight. Corrected scenario-complete on Brett's
+      ruling (see the delta's dated CORRECTED note) and archived from there.
+      Two issues filed from the same finding: **#329** (two active changes
+      carry the identical lossy block and will drop the same scenarios when
+      they archive) and **#330** (`promotion-fidelity` compares delta to
+      spec, so a scenario LOST from a promoted spec that the delta never
+      mentions is invisible to it).
+      **AN ORDERING DEPENDENCY, RECORDED RATHER THAN LEFT TO BE NOTICED.** This
+      delta was written on top of `add-promotion-fidelity-check`'s text, on the
+      assumption that the sibling would land first. It did not. So canon now
+      SAYS "nineteen check families" and carries a run-scenario bullet pointing
+      at promotion fidelity's "owning requirement below", while that requirement
+      is still inside the active sibling change — canon names nineteen and
+      defines eighteen, with one forward reference. Not an authorship error in
+      either change and not a defect this archive introduces: it SELF-HEALS the
+      moment the sibling archives. Recorded here and on issue #329 so a reader
+      who meets the dangling pointer knows it is an ordering artifact with a
+      known resolution.
       **THE REALIZATION EVIDENCE IS COMPLETE — recorded here so the archive does
       not have to re-derive it.** Merged as PR #324, squash **`0780875b`**, with
       a tree byte-identical to the reviewed branch tip `39965995`
