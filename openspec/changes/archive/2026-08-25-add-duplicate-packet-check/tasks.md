@@ -11,6 +11,15 @@ advisory, exactly as this section said it would, and the flip came as its own
 ruling rather than a silent later commit. §5.2 and §5.3 stay open, and §5.4 is
 new: the flip's one unmeasured exposure, recorded rather than left implicit.
 
+**EVERY QUESTION THIS SECTION LEFT OPEN IS NOW CLOSED — appended 2026-08-25,
+with the sentence above left as written.** §5.1 flipped the family to
+enforcing; §5.3 closed when this change archived as the last of the three
+siblings restating the family-count requirement; §5.4 closed when the full
+pinned population was measured at zero; and §5.2 closed by Brett's ruling
+"keep the pinned basis". §5.5 is the one item still recorded-not-fixed, and it
+is a named candidate for a successor change rather than an open question about
+this family's behaviour.
+
 ## 1. Ratification
 
 - [x] 1.1 Brett commissioned the check on 2026-08-24, in the terms the night's
@@ -267,6 +276,20 @@ new: the flip's one unmeasured exposure, recorded rather than left implicit.
       family gates on the PINNED checkout, the live-`main` basis remains ruled
       for promotion fidelity alone, and moving this family is its own ruling on
       its own evidence. Nothing in this archive decides it.
+      **RULED AND CLOSED 2026-08-25 — Brett, in-session, verbatim: "keep the
+      pinned basis".** The question above is settled in favour of the family AS
+      BUILT, so nothing in the tree changes: this family MEASURES AND ENFORCES
+      ON THE PINNED CHECKOUT, permanently, and the live-`main` basis remains
+      ruled for the promotion fidelity family ALONE. The promoted `doc-health`
+      requirement already says exactly this as an unconditional SHALL — "This
+      family SHALL measure the checked-out tree. The live-`main` basis this
+      capability defines applies to the promotion fidelity family alone" — so
+      canon needed no amendment and this ruling adds no obligation; it removes
+      an option. The paragraph above is left exactly as written: it is the
+      record of what was open and of the arguments on both sides, and the
+      ruling is appended rather than folded into it. This line is a RULING
+      RECORD, not a ratification citation — the packet's single `Ratified:`
+      citation is unchanged and remains its only one.
 - [x] 5.3 THE COUNT SENTENCE'S ORDERING HAZARD, named rather than fixed. Three
       active changes now MODIFY `doc-health`'s "Deterministic check families",
       each restating the whole requirement with its own cumulative list. The
