@@ -13,6 +13,12 @@ code surface, so it archives only on merged realization with green evidence
 (`release-realization`) — which here means the aggregation PR merged and §3's
 read-backs green.
 
+**Realization status, 2026-08-25 — REALIZED; the line above is a dated
+snapshot, superseded.** The aggregation act ran: xFactory PR #127 merged at
+`e02d0a88fcfb53c886ccf0c833e64675ca29447b`, an ancestor of aggregation `main`,
+with both gitlinks at exactly the validated commits. §3's read-backs are green
+and tasks 3.5 carries the gate evidence.
+
 Reasoning for every decision is in [design.md](design.md); the authoritative
 obligations are the two ratified boundary requirements restated in
 [`implement-keycloak-install-repo`](../implement-keycloak-install-repo/specs/repo-boundary-governance/spec.md)
@@ -134,11 +140,53 @@ merges — a tick here is a claim about `opensoft/xFactory`'s `main`.
 - [x] 3.4 DONE 2026-08-21 — change valid --strict post-merge. `OPENSPEC_TELEMETRY=0 openspec validate
       admit-install-repos-to-aggregation --strict` and `--all --strict` green
       at archive as well as at authoring.
-- [ ] 3.5 Archive gate: this change declares a code surface, so it archives
+- [x] 3.5 Archive gate: this change declares a code surface, so it archives
       only on merged realization with green evidence — 2.5's PR merged and
       3.1-3.3 captured. No delta-ordering dependency exists (design
       D-ordering): the delta's target *"Install repository scope"* is already
       promoted, unlike the two boundary requirements.
+      **DONE 2026-08-25** — realization re-verified at the gate off
+      `opensoft/xFactory` itself, not off the authoring notes. xFactory PR
+      **#127** ("Admit Keycloak-Install + OpenXPKI-Install submodules; sync
+      openxFactory pointer") is `merged: true` at merge commit
+      **`e02d0a88fcfb53c886ccf0c833e64675ca29447b`**, and that commit is an
+      **ancestor of aggregation `main`** (`compare e02d0a8...main` →
+      `status: ahead`, `ahead_by: 386`, **`behind_by: 0`**) — the ancestor
+      test the `add-projection-title-uniqueness` gate fixed as the rule, run
+      here on the merge sha rather than on a branch tip. The PR's file list is
+      exactly the five paths tasks 2.4 recorded: `.gitmodules`, `README.md`,
+      **added** `installs/keycloak-install` @
+      `1aa184e891d4ba6e641a31260d3f64d2b335f175`, **added**
+      `installs/openxpki-install` @
+      `05f440444d9091206778e838454ed9b5bb7bff60`, and the folded `openxFactory`
+      pointer @ `eeb095d3248fd9e763ab7264b1c14a2d787d78ed`. Read back at the
+      merge commit itself, both gitlinks stand at exactly the two validated
+      commits — the pins landed where ratification put them and nowhere
+      further. Read back on `main` today, both `.gitmodules` stanzas are live
+      and carry `path` + `url` only, **no `branch` key** on either
+      (`url = git@github.com:opensoft/Keycloak-Install.git`,
+      `url = git@github.com:opensoft/OpenXPKI-Install.git`) — design
+      D-no-branch-key holds on the landed tree.
+      **§5 stays open, and that is the record, not an omission.** All seven
+      §5 boxes remain unticked on archive because each names work this
+      ratification deliberately refuses to authorize; an archived change
+      carries its boundary forward as written, on the `roster-device`
+      precedent where §6's not-this-change boxes were archived open for the
+      same reason. Ticking them would convert a refusal into a claim.
+      **Named, not resolved — the pins have since advanced (see 5.7).** Both
+      gitlinks on `main` today are past the validated commits:
+      `installs/keycloak-install` `1aa184e` →
+      `ddfb007982b36b5ac2130de145aa389342d490e5` and
+      `installs/openxpki-install` `05f4404` →
+      `3ee98d63dcb5f05b2a52049a0840796d770c750c`. Checked at the gate because
+      5.7 does not forbid an advance — it fixes the ROUTE ("a new reviewed
+      aggregation PR on the recorded update discipline, never an extension of
+      this ratification") — and both advances took that route: keycloak by
+      aggregation **PR #135** (merged 2026-08-22, authored `openxfactory[bot]`)
+      and openxpki by aggregation **PR #142** (merged 2026-08-23). So the
+      update discipline this change recorded held on its first two exercises.
+      5.7 is left unticked all the same: it is a standing boundary on every
+      future advance, not a box a past advance discharges.
 
 ## 4. Bookkeeping unblocked by the org-owner act (done in this authoring)
 
