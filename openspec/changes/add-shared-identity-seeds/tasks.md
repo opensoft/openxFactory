@@ -44,7 +44,9 @@
       exact-combination fix the first run exposed. The panel states nothing
       was written and where to merge; the checkout was unchanged. Zero
       console errors, page errors, and >=400 responses.)
-- [ ] 4.5 Brett merges the first drafted seed into the register.
+- [x] 4.5 Brett merges the first drafted seed into the register.
+      (Ruled and merged 2026-08-26 — Brett ruled in-session to merge the
+      first drafted seed; DTN-025 admitted to the register.)
 
 ## 5. Successor (not this change)
 
