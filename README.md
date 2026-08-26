@@ -446,6 +446,20 @@ Active changes:
   of their own, and § 5.3, the scenario-completeness half — the one that actually
   destroyed text — which this check does not cover.
 
+- [add-standing-policy-compliance-contract](openspec/changes/add-standing-policy-compliance-contract/proposal.md)
+  — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Neutral-first
+  front-end half of codexFactory issue #3, ruled by Brett Heap the same day:
+  machine-readable standing-policy veto vocabulary, loud compliance-decision
+  evidence and a central revocable policy-allowance registry whose IDs — never
+  copied payloads — travel through governed bindings. Every dispatch keeps a
+  permanent deterministic floor; a bounded classifier may escalate ambiguity
+  but cannot erase a deterministic finding; live Hermes intake adds judgment
+  above the floor rather than subsuming it. codexFactory is the named first
+  conformer through successor `add-intent-compliance-gate`, with FEAT-003 as
+  the regression: no allowance blocks before worker tokens are spent, a valid
+  allowance passes explicitly, and revocation blocks the next dispatch and
+  admission. Realization cuts the next additive contract bundle; no domain
+  detector, runtime registry service or allowance instance lives here.
 - [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
   — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
   staged topic `doxchat-auto-fit-routing`, whose six questions were
