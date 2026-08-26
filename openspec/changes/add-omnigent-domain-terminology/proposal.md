@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (contracts/omnigent/ schema + example + negative fixtures; scripts/validate-omnigent-contracts.py semantic checks)
 target_release: implemented
-Status: draft
+Status: ratified
+Ratified: 2026-08-26 by Brett Heap — in-session instruction, verbatim: "do the omnigent-terminology ratification". Ratifies the optional `terminology` block, the descriptive-crosswalk rule, and the human-facing rendering requirement (this proposal's three ADDED requirements) — not the §3 domain populations, which tasks.md 5.3 assigns to realization, per domain, with the domain's own owner. No approving OpenSpec change exists to name, so this cites the record in the spelling `sanction-ratified-record-spelling` sanctioned for that case, clearing its three-way floor on two axes rather than the one it needs: approver (`by Brett Heap`) and date (`2026-08-26`); the record axis is this change's own `tasks.md` task 1.2 read-back, which also states plainly what ratification unblocks and what still gates each domain.
 ---
 
 # Proposal: add-omnigent-domain-terminology

@@ -7,9 +7,38 @@
       well-adopted terminology so domain experts can read them. Analysis
       recorded in the proposal: annotate, never rename — renaming would point
       each domain at a different framework and churn load-bearing ids.
-- [ ] 1.2 **Brett ratifies this change** — the optional `terminology` block,
-      the descriptive-crosswalk rule, and the human-facing rendering
-      requirement.
+- [x] 1.2 **RATIFIED 2026-08-26** by Brett Heap — in-session instruction,
+      verbatim: "do the omnigent-terminology ratification" (the act itself,
+      same class as the `add-dashboard-account-menu` and
+      `add-family-enumeration-check` precedents: an in-session instruction
+      naming this change IS the ratifying act). Ratifies exactly what this
+      task named and what the proposal's Impact section scopes as its three
+      ADDED requirements: the optional `terminology` block, the
+      descriptive-crosswalk rule (`standards_alignment`, including the
+      `no_clean_equivalent`-requires-a-note discipline), and the
+      human-facing rendering requirement. READ-BACK — what this unblocks:
+      the contract layer's standing is settled; §2's schema, semantic
+      validator checks, and `contracts/policies/standards-bodies.yaml`
+      registry (already realized on main under `target_release: implemented`)
+      now rest on a ratified rule rather than a draft one, and any domain is
+      free to start populating its own `terminology` block. READ-BACK — what
+      this does NOT unblock, because ratifying the RULE is not realizing it
+      per domain: §3's five domain populations (3.1–3.5) stay open, each its
+      own change in its own repo, with the crosswalk framework chosen per
+      domain at realization (task 5.3 — explicitly out of this change's
+      scope, not this ratification's to decide); 3b.5d, the APQC written
+      licence confirmation, stays unobtained — this specifically gates
+      LedgerxFactory and AdxFactory, whose PCF 8.0/3.0 crosswalks were
+      pulled from their shipped overlays pending exactly this licence
+      (3b.5b), not MedxFactory, which registers no APQC/PCF mapping at all
+      by design (3b.5i: patient-safety framing outranks terminology, all
+      eleven medical worker classes record `no_clean_equivalent` against the
+      provider taxonomy on purpose); 3b.5f, the ledgerx UN/CEFACT+BIAN and
+      adx marketing brief results, stays unapplied; and §4's consumer
+      follow-up (OpsxFactory's own adjudication-refusal vocabulary, outside
+      this overlay entirely) stays unaddressed. Front matter `Status:` moves
+      to `ratified` with a record-citing `Ratified:` line, since no
+      approving OpenSpec change exists to name this act.
 
 ## 2. Contract (drafted, validator-green)
 
