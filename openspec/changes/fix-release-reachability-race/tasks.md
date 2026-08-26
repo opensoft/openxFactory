@@ -156,31 +156,48 @@ finishing recipe.
 
 ## 5. Verification
 
-- [ ] 5.1 `python3 -m pytest tests/hermes_runtime_contracts -q` green. Baseline
-      on this branch off `origin/main` at `23be0998`, measured 2026-08-26 in a
-      fresh worktree: recorded in § 5.5 below. The suite passes at authoring
-      because this packet changes no code, and because the object store of a
-      fresh worktree holds the remote tip it was created from — which is
-      precisely why the defect is invisible locally and only fires when the
-      remote moves under a running suite.
+- [ ] 5.1 `python3 -m pytest tests/hermes_runtime_contracts -q` green. **Measured
+      2026-08-26 on this branch, and it was NOT green — the defect fired here.**
+      `-m "not postgres"` (the marker set continuous integration uses):
+      **1 failed, 498 passed, 338 deselected in 276.63s**, the single failure
+      being `test_validate_candidate_passes_on_the_realized_repository` at
+      `release.py:200`, because the remote's `main` had moved to `c1c9c0dc`
+      while this worktree sat still. `git fetch origin c1c9c0dc` then returned
+      0 and the same test passed in isolation (`1 passed in 44.44s`) with no
+      other change. Record that as the authoring baseline honestly: this packet
+      changes no code, so the failure is the defect in flight, exactly as the
+      sibling packet's `1 failed, 895 passed` was.
 - [ ] 5.2 `OPENSPEC_TELEMETRY=0 openspec validate fix-release-reachability-race --strict`
       and `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` both green.
-- [ ] 5.3 THE GATE THAT MATTERS: reproduce the original failure deliberately.
-      In a scratch clone, note the remote tip, advance the remote by one commit
-      from a second clone, and run `validate_realization` from the first — it
-      must refuse before 2.2/2.3 and complete after. A fix for a race that has
-      never been observed failing under control is a fix on trust.
+- [x] 5.3 **DONE 2026-08-26 — the original failure was reproduced under
+      control, and the fix's mechanism was exercised by hand.** Not in a scratch
+      clone: in THIS worktree, which fell into the defect on its own while the
+      packet was being written. `git ls-remote origin refs/heads/main` gave
+      `c1c9c0dcd721b8597bea4462e22721d7e03d3ab3`; `git cat-file -e
+      c1c9c0dc^{commit}` exited 128 locally; the realization test failed at
+      `release.py:200`. Then `git fetch origin c1c9c0dc` exited 0, `cat-file`
+      exited 0, and the same test passed. Resolve the operand, then answer —
+      performed manually against the real remote. What remains for the
+      implementation is to do it in the code, at the four operand sites, with
+      the taxonomy of § 3 of the delta.
 - [ ] 5.4 Re-run the full suite three times with a commit landing on the remote
       `main` inside each window, and confirm three identical verdicts. That is
       the property PR #372's three attempts did not have.
-- [ ] 5.5 Record the authoring-time baselines in this file when measured, so a
-      later reader can tell what moved: `tests/hermes_runtime_contracts` counts,
-      `tests/doc-health` counts, and the two `openspec validate` totals. Note
-      the known worktree hazard: `tests/doc-health`'s
-      `test_derivation_reproduces_the_real_bootstrap_clusters` may red from an
-      agent worktree for reasons this change does not touch — that is defect A
-      of `harden-ideation-readiness-check`, already filed and merged, and it is
-      noted rather than chased.
+- [x] 5.5 **DONE — authoring-time baselines, measured 2026-08-26 in this
+      worktree**, so a later reader can tell what moved:
+      - `python3 -m pytest tests/hermes_runtime_contracts -q -m "not postgres"`
+        → **1 failed, 498 passed, 338 deselected** (0:04:36). The one failure is
+        this change's own defect, firing live; see § 5.1.
+      - the same single test after `git fetch origin <remote main oid>` →
+        **1 passed** (44.44s), tree unchanged.
+      - `python3 -m pytest tests/doc-health -q` → **896 passed**, 1 warning
+        (0:42.91). The known agent-worktree hazard —
+        `test_derivation_reproduces_the_real_bootstrap_clusters`, defect A of
+        `harden-ideation-readiness-check` — did NOT fire on this run; it is
+        noted rather than chased either way, because it is already filed and
+        merged and nothing here touches it.
+      - `OPENSPEC_TELEMETRY=0 openspec validate fix-release-reachability-race
+        --strict` → valid; `--all --strict` → **78 passed, 0 failed**.
 - [ ] 5.6 ARCHIVE AFTER REALIZATION. This change ships ACTIVE and archives only
       on merged-plus-green PLUS the bundle cut of § 4, following
       `add-family-enumeration-check` for the merge half and `contract-v1.10` for

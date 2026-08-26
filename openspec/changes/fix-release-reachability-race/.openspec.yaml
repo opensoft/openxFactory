@@ -25,7 +25,13 @@ origin:
     identically, and PR #374 merged at 05:54:06Z inside its window; attempt 3
     (06:07:45Z -> 06:20:21Z) PASSED, with no merge to main in its window. One
     tree, three verdicts, decided by what else landed during an eleven-minute
-    suite. Authored in openxFactory because the verifier, the test and the
+    suite. THEN REPRODUCED UNDER CONTROL the same day, in this packet's own
+    worktree, which fell into the defect while the packet was being written: the
+    remote's `main` had advanced to `c1c9c0dc`, `git cat-file -e
+    c1c9c0dc^{commit}` exited 128 locally, the realization test failed at
+    `release.py:200`, one `git fetch origin c1c9c0dc` exited 0, and the same
+    test then passed with nothing else changed.
+    Authored in openxFactory because the verifier, the test and the
     obligation it serves are all openxFactory's own.
   approved_by: >-
     Brett — in-session commissioning of the filing itself on 2026-08-26,

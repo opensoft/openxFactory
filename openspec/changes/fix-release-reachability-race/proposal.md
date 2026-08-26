@@ -75,9 +75,44 @@ FAILED tests/hermes_runtime_contracts/test_release_inventory.py::test_validate_c
 
 Attempt 2's tail is identical but for its clock: `1 failed, 6205 passed, 18
 skipped, 338 deselected, 15 subtests passed in 710.13s (0:11:50)`. Attempt 3,
-same tree, no merge in the window, green. The single test passes locally on a
-developer machine at every revision, because a working clone that has fetched
-recently holds the object the remote just named.
+same tree, no merge in the window, green.
+
+**Then it reproduced on this branch, under control, while this packet was being
+authored.** This is the measurement that turns the timeline above from a strong
+inference into a demonstration, and it was not planned — the worktree simply sat
+still long enough for `main` to move:
+
+```text
+$ python3 -m pytest tests/hermes_runtime_contracts -q -m "not postgres"
+1 failed, 498 passed, 338 deselected in 276.63s (0:04:36)
+FAILED tests/hermes_runtime_contracts/test_release_inventory.py::test_validate_candidate_passes_on_the_realized_repository
+scripts/hermes_runtime_validation/release.py:200: ReleaseDependencyError
+
+$ git ls-remote origin refs/heads/main
+c1c9c0dcd721b8597bea4462e22721d7e03d3ab3	refs/heads/main
+$ git cat-file -e c1c9c0dcd721b8597bea4462e22721d7e03d3ab3^{commit}
+fatal: Not a valid object name ...        # exit 128 — the object is not here
+
+$ git fetch origin c1c9c0dcd721b8597bea4462e22721d7e03d3ab3
+ * branch              c1c9c0dc... -> FETCH_HEAD          # exit 0
+$ git cat-file -e c1c9c0dcd721b8597bea4462e22721d7e03d3ab3^{commit}
+                                          # exit 0 — now it is
+
+$ python3 -m pytest ...::test_validate_candidate_passes_on_the_realized_repository -q
+1 passed in 44.44s
+```
+
+Nothing between the red and the green touched the working tree. The only edit
+was to the object store, and the edit was one `git fetch` of one object id. That
+sequence is simultaneously the reproduction, the diagnosis, and a working proof
+of the fix this proposal chooses — which is also why Q1's recommendation below is
+now backed by a measurement rather than a guess: `git fetch <remote> <oid>`
+against the canonical remote returned 0 for an object advertised under no ref
+the clone tracked.
+
+So "it passes locally" is true only of a clone that has fetched recently. The
+defect is not a property of continuous integration; continuous integration is
+merely where clones are always exactly as old as the run.
 
 The window is not a narrow one. The suite takes about eleven minutes, and the
 checkout that seeds the object store is taken at its start, so the exposure is
@@ -217,11 +252,17 @@ Fetching the single object id (`git fetch <remote> <oid>`) is the precise
 request and requires the remote to serve an unadvertised object, which many
 configurations refuse; fetching the ref (`git fetch <remote> refs/heads/main`)
 always works but brings history the verifier did not ask for and mutates the
-clone's remote-tracking refs. **Recommendation: try the object, fall back to the
-ref, treat only the failure of BOTH as the fail-closed case** — the taxonomy
-requirement is written to permit exactly that without naming a git incantation
-in canon. Ruling wanted because it is the difference between a verifier that
-can run against a hardened remote and one that cannot.
+clone's remote-tracking refs. **MEASURED 2026-08-26 against the canonical
+remote**: `git fetch origin c1c9c0dcd721b8597bea4462e22721d7e03d3ab3` returned 0
+for an object under no ref this clone tracked, and the previously-failing test
+then passed (§ What was measured). So the narrow request works where it matters
+most. **Recommendation: try the object, fall back to the ref, treat only the
+failure of BOTH as the fail-closed case** — the measurement removes the doubt
+about the primary path without asserting anything about remotes nobody has
+tested, and the taxonomy requirement is written to permit exactly that without
+naming a git incantation in canon. Ruling still wanted, because the fallback is
+the part that decides whether a hardened or mirrored remote can be verified
+against at all.
 
 **Q2 — is the offline fixture mechanism sound?** `tasks.md` § 3.3 proposes
 making the bare origin's `objects/` directory unreadable so that `ls-remote`

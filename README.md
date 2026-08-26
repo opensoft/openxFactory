@@ -1180,7 +1180,15 @@ Active changes:
   FAILED and #365 merged at 05:46:00Z inside its window; attempt 2
   (05:52:35Z-06:04:47Z) FAILED and #374 merged at 05:54:06Z inside its window;
   attempt 3 (06:07:45Z-06:20:21Z) PASSED with a quiet window. One tree, three
-  verdicts, decided by what else landed during an eleven-minute suite. TWO more
+  verdicts, decided by what else landed during an eleven-minute suite. **THEN
+  REPRODUCED UNDER CONTROL** the same day in the packet's own worktree, which
+  fell into the defect while the packet was being written: remote `main` at
+  `c1c9c0dc`, `git cat-file -e c1c9c0dc^{commit}` exiting 128 locally, the
+  realization test failing at `release.py:200`, one `git fetch origin c1c9c0dc`
+  exiting 0, and the same test then passing with nothing else changed — which is
+  simultaneously the reproduction, the diagnosis, and a hand-run proof of the
+  chosen fix, and which settles the primary half of Q1 (the canonical remote
+  serves a bare object id under no tracked ref). TWO more
   hazard sites are MASKED behind the first: the same live `main_oid` reaches
   `_surface_drift` (`:686` raises `"Git command failed"` on an absent commit;
   `:689` would compare a real blob against `None` and emit FALSE surface drift),

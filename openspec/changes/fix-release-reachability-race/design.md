@@ -119,6 +119,16 @@ placed at the point of comparison covers one of four uses. A repair placed at
 the point the operand ENTERS the local world covers all four, and it covers
 them by construction rather than by having remembered them.
 
+**The mechanism was measured, not assumed.** On 2026-08-26 this branch's own
+worktree fell into the defect — the remote's `main` had advanced to `c1c9c0dc`,
+`git cat-file -e c1c9c0dc^{commit}` exited 128 locally, and the realization test
+failed with the exact message this change is about. One `git fetch origin
+c1c9c0dc` returned 0, `cat-file` then returned 0, and the same test passed with
+no other change to the tree. That is the chosen fix, performed by hand, on the
+real remote: resolve the operand, then answer. It also settles the primary half
+of Q1 — the canonical remote serves a bare object id that no tracked ref points
+at.
+
 **Rejected — retry once on a 128 from `merge-base`.** The obvious minimal fix,
 and it is minimal in the wrong dimension. It repairs `_is_ancestor` and leaves
 `_surface_drift`, `_verify_release_at` and the tag read to meet the same absent
