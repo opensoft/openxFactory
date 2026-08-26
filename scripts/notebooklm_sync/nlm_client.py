@@ -11,7 +11,7 @@ from .models import NlmCommandError
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
-ProviderResult: TypeAlias = JsonValue | str
+ProviderResult: TypeAlias = JsonValue
 
 NLM_CONFIG = Path.home() / ".notebooklm-mcp-cli" / "config.toml"
 _config_path = NLM_CONFIG
@@ -93,7 +93,7 @@ class NotebookProvider(Protocol):
     @overload
     def invoke(self, *args: str, parse: Literal[True] = True) -> ProviderResult: ...
 
-    def invoke(self, *args: str, parse: bool = True) -> ProviderResult: ...
+    def invoke(self, *args: str, parse: bool = True) -> ProviderResult | str: ...
 
 
 class ProviderPayloadError(RuntimeError):
@@ -113,11 +113,9 @@ class SourceRow:
 
 
 def _provider_rows(payload: ProviderResult, collection: str) -> list[dict[str, JsonValue]]:
-    value: JsonValue | str = payload
+    value = payload
     if isinstance(value, dict):
         value = value.get(collection, [])
-    if isinstance(value, str):
-        return []
     if not isinstance(value, list):
         raise ProviderPayloadError(f"NotebookLM {collection} payload must be a list")
     rows: list[dict[str, JsonValue]] = []
@@ -176,7 +174,7 @@ class NlmCliProvider:
     @overload
     def invoke(self, *args: str, parse: Literal[True] = True) -> ProviderResult: ...
 
-    def invoke(self, *args: str, parse: bool = True) -> ProviderResult:
+    def invoke(self, *args: str, parse: bool = True) -> ProviderResult | str:
         self.assert_bound()
         command = [self.executable, *args]
         result = subprocess.run(command, capture_output=True, text=True, check=False)
@@ -187,6 +185,9 @@ class NlmCliProvider:
             return result.stdout
         try:
             parsed: JsonValue = json.loads(result.stdout)
-        except json.JSONDecodeError:
-            return result.stdout
+        except json.JSONDecodeError as exc:
+            preview = result.stdout.strip()[:300]
+            raise ProviderPayloadError(
+                f"nlm {' '.join(args[:3])}... did not return valid JSON: {preview}"
+            ) from exc
         return parsed
