@@ -537,10 +537,41 @@ _THREAD_CODES = {
     "thread_capability_unavailable",
 }
 
+# PIN EVOLUTION (add-doxbench-distilled-abstract §5, the distilled-abstract
+# route). TWO spellings, the same class of recorded judgement call as the packet
+# pair and the thread code above, and BOTH are deliberate widenings of this
+# closed set rather than accidents of a new route:
+#
+#   * `invalid_abstract_request` (400) is `invalid_turn_request`'s sibling for
+#     the route beside the chat one. Reusing the turn code was available and
+#     rejected: its fixed message says "the turn request is malformed", and an
+#     abstract request is not a turn — it carries no message, no transcript and
+#     no buffer set — so that sentence would point a reader at the wrong
+#     contract for a request that never claimed to be one.
+#   * `abstract_unavailable` (500) is `catalog_unavailable`'s sibling, and
+#     deliberately shares its phrasing ("could not be assembled safely"). It
+#     answers the case where this server composed an abstract request it could
+#     not then use — a packet handed to an assembler that takes none, or a
+#     declared digest disagreeing with the bytes the same route just read. No
+#     request the caller could send would fix either, so a 4xx would misdirect.
+#
+# NOTE what is NOT here. The abstract's STATED refusals — an ineligible subject,
+# a document with no declared base, an answer the verifier refused — are not
+# entries in this catalog at all. They carry a class, a rendered reason and a
+# caption state (`serve_mod.DOXBENCH_ABSTRACT_REFUSAL_STATUS` /
+# `doxbench_abstract_refusal_body`), because the region renders a stated reason
+# in place of a distillation, and a fixed catalog message composed from nothing
+# could not say which document or why. This catalog stays what it is: the closed
+# set of PLANE, TRANSPORT and PROVIDER verdicts.
+_ABSTRACT_CODES = {
+    "invalid_abstract_request",
+    "abstract_unavailable",
+}
+
 _ALL_DOXBENCH_CODES = (
     _PLANNING_CONTRACT_CODES | _ROUTE_VERBATIM_CODES
     | _ROUTE_JUDGEMENT_CALL_CODES | _DISPATCH_OUTCOME_CODES | _PACKET_CODES
-    | _THREAD_CODES
+    | _THREAD_CODES | _ABSTRACT_CODES
 )
 
 

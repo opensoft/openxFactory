@@ -139,37 +139,149 @@ A separate store with the same SHAPE (`doxbench_turns.py:1033-1069`): one
 in-flight per key with attach-and-wait (which is the "regenerating" state, so
 ruling 3(b) needs no new machinery), identical-key replay without a second
 dispatch, deterministic non-clock eviction. **The key is
-`(subject path, content digest, resolved model id)`** — the digest MUST be IN the
-key, because that store refuses a different digest under the same key as a
-conflict, so a path-only key would hard-refuse every regeneration after every
+`(repository, ref, subject path, content digest, resolved model id)`** — five
+facts, and two dated corrections put the last of them there. The digest MUST be
+IN the key, because that store refuses a different digest under the same key as
+a conflict, so a path-only key would hard-refuse every regeneration after every
 edit. The RESOLVED MODEL ID must be in the key for the mirror-image reason: a
 human can change the selected model while the document stands still, and on a
-two-part key that request is IDENTICAL, so the first model's prose would replay
-while `DocumentAbstract.model_id` (D3) records the model the reader just picked.
-An artifact that names a model which did not answer is exactly the kind of
-confident false claim this change exists to prevent, and the provider boundary's
-"every consumer resolves a catalog model id" rule forbids it besides. For an
-`auto` routing entry the key carries the RESOLVED id, not the rule's id — same
-reason a turn records the model that actually answered. Re-dispatch after
+key without it that second request is IDENTICAL, so the first model's prose
+would replay while `DocumentAbstract.model_id` (D3) records the model the reader
+just picked. An artifact that names a model which did not answer is exactly the
+kind of confident false claim this change exists to prevent, and the provider
+boundary's "every consumer resolves a catalog model id" rule forbids it besides.
+For an `auto` routing entry the key carries the RESOLVED id, not the rule's id —
+same reason a turn records the model that actually answered. Re-dispatch after
 eviction is specified expected behaviour, not an error.
+
+**Corrected 2026-08-25 (adversarial review, S3): the SCOPE is in the key too.**
+This section said `(subject path, content digest)` and the first realization
+built exactly that, while the store is a single per-served-process dict and one
+process resolves every repository its registry knows and every ref of each.
+`ideation/staging/<topic>/README.md` exists in most of them, so two scopes
+holding identical bytes at one path shared a cache entry — and `latest_for_path`
+handed repository A's abstract to repository B as its PREVIOUS VERIFICATION
+BASE.
+
+**Corrected 2026-08-25 (packet review, Codex on PR #352): the RESOLVED MODEL ID
+is in the key too**, for the reason two paragraphs up. THE TWO CORRECTIONS MAKE
+ONE KEY, and they do not compete: the ratified requirement composes the key from
+the three facts that can vary WITHIN one scope — path, digest, resolved model id
+— and the scope qualification is this store's TENANCY boundary rather than a
+fourth fact about the question. Adding it can only ever split a bucket and never
+merge two, so every sentence the requirement says about the three still holds
+exactly. `AbstractKey` therefore carries `repository`, `ref`, `subject_path`,
+`content_digest`, `resolved_model_id` — five fields, not a composed string, so
+injectivity is by construction. `latest_for_path` keeps a model-agnostic form
+for the reader-facing question "what abstract does this document already have at
+all"; the VERIFICATION BASE it feeds is a narrower question, ruled at the end of
+this section.
 
 **Explicit refresh is a THIRD request mode, not a fourth store.** Replay on an
 identical key and a working RE-GENERATE control are in direct conflict: a
 regeneration against unchanged content and an unchanged model has an identical
 key by construction, so plain replay makes the control inert except by the
-accident of eviction. The request therefore carries a REFRESH INTENT flag. Set,
-it invalidates the completed entry for its key, dispatches, and replaces the
-entry. Unset — which is every selection, mount, and tile re-entry — it replays.
-The in-flight arm is UNCONDITIONAL in both modes: a refresh arriving while a
-generation is in flight for the same key attaches rather than dispatching, so an
-impatient double-click costs one model call. That is one boolean on the request
-and no change to the store's shape.
+accident of eviction. The request therefore carries a REFRESH INTENT flag —
+realized 2026-08-25 as the request's own optional boolean `refresh`, inside the
+same CLOSED shape, so an unknown key is still refused and an absent one still
+means "no intent". Set, it invalidates the completed entry for its key,
+dispatches, and replaces the entry. Unset — which is every selection, mount, and
+tile re-entry — it replays. The in-flight arm is UNCONDITIONAL in both modes: a
+refresh arriving while a generation is in flight for the same key attaches
+rather than dispatching, so an impatient double-click costs one model call. That
+is one boolean on the request and no change to the store's shape.
 
 *Alternative rejected:* a nonce or attempt counter in the key. It works, and it
 also makes every regeneration a permanent new entry, so N regenerations of one
 document hold N slots in a bounded store and evict N-1 useful neighbours to keep
 answers nobody asked for. Invalidate-and-replace keeps one live entry per real
 (subject, digest, model).
+
+*And the invalidated entry is not simply dropped* (2026-08-25 realization): the
+lease hands its `DocumentAbstract` back to the route as that generation's
+PREVIOUS verification base. The verification requirement makes a previously
+generated abstract an ADDITIONAL base "where one exists", and RE-GENERATE is the
+one path where one always exists — invalidating it out of the replay index and
+out of the verifier's reach at the same moment would have made the regenerate
+path verify against a strictly weaker base than every other path.
+
+**Aligned 2026-08-26:** the spec delta's cache-key sentence
+(`specs/ideation-dashboard/spec.md`) now states the key as the subject's
+path, its content digest and the resolved model id, QUALIFIED BY the
+request's scope (repository and ref) — matching the reconciled
+`AbstractKey(repository, ref, subject_path, content_digest,
+resolved_model_id)` recorded above. No behavioural change; the delta text
+had lagged the two corrections already made in this section.
+
+**Ruled 2026-08-26 (SHOULD-FIX 6): the tightening rule is per `(scope, path,
+model)`; cross-model abstracts are not each other's base.** The
+previous-coverage clause can only TIGHTEN, so a base drawn from another model
+made a FIRST generation under a newly selected model defend coverage it had
+never claimed: a reader who switched model and pressed GENERATE was refused
+`previous-coverage-dropped` about an answer that model never produced, and
+every retry met the same live base and the same refusal. Two models may distil
+one document differently without either being wrong — which is exactly what
+that reader was choosing between. A base is a predecessor of the SAME question,
+and 5.3a already put the model IN the question. `latest_for_path` therefore
+takes an optional `resolved_model_id`: the route asks the narrowed question for
+the verification base, and the unnarrowed form stays for the reader-facing
+lookup above.
+
+*Four consequences of this store being a CACHE, stated so a reader does not have
+to derive them:*
+
+- **A refused RE-GENERATE forfeits the previous verification base for that
+  document.** The refusal RELEASES the key rather than completing it, and the
+  entry the refresh invalidated is already gone, so the next generation is
+  verified against the snapshot's own declared fields alone. That is the loss of
+  a CACHE and never of a RECORD — the base the requirement insists must exist is
+  the declared fields, which are untouched, and which is the base generation #1
+  has in any case.
+- **During a refresh window a plain same-key request ATTACHES rather than
+  replaying the old answer**, because that key is in flight rather than
+  completed. So the previous base for it is transiently ABSENT to anything that
+  asks in that window, and the attacher is handed the REFRESHED answer rather
+  than the one it would have replayed a moment earlier. Both follow from the
+  one-in-flight arm being unconditional, and neither is a second mode.
+- **The model dimension multiplies slot pressure on both 64-entry bounds.** One
+  document under two models is two entries here, exactly as it is two turns in
+  the chat ledger, so a reader comparing models across a scope reaches the bound
+  roughly twice as fast. Re-dispatch after eviction stays specified expected
+  behaviour rather than an error — the same statement the digest dimension
+  already carries, and for the same reason: the answer is reproducible from the
+  document.
+- **`latest_for_path` picks by LAST ACCESS, and a replay TOUCHES recency.** The
+  base offered is therefore the most recently READ abstract for the document,
+  not necessarily the most recently generated one. With the model now narrowing
+  the candidates the two coincide far more often, and where they still differ
+  the tie breaks toward the answer the reader actually has in front of them.
+
+### D5a — The abstract binds its OWN conversation (2026-08-25, review B1)
+
+`OmpHarnessBridge.dispatch` is `_dispatch_bound(None, …)`: it REFUSES an unbound
+turn on a fresh process and, once any turn has bound a session, runs inside
+whichever conversation the harness was last switched to. The first realization
+handed the RAW port to `_deadline_bound_dispatch`, so on a real install the
+first generation of a session could only fail, and every generation after a chat
+turn would have been prompted INSIDE that document's chat session — against
+`spec.md`'s one-session-per-document-thread rule and against this route's own
+envelope contract, whose whole claim is that the model was shown ONE subject and
+no other material.
+
+The route therefore binds through `port.for_conversation(...)` — duck-typed
+exactly as `dispatch` is — under a key of its own:
+`serve.py:doxbench_abstract_conversation_key`, JSON-composed as
+`["doxbench-abstract", repository, ref, tile_kind, tile_id, subject_path]`. Its
+own KIND, never `doxbench_bridge.CONVERSATION_KEY_KIND`: reusing the document
+thread's key would fix the refusal and keep the contamination, in the other
+direction. A binding failure is refused with the route's fixed, redacted
+`model_failed` and nothing is dispatched.
+
+THE COST, stated: one harness session per (scope, document) abstract
+conversation, and the bridge starts a fresh child per new thread
+(`doxbench_bridge.py`'s recorded RPC-surface tradeoff). A per-TILE abstract
+conversation would be cheaper and would put document A's abstract in document
+B's context, which is the contract this route sells.
 
 ### D6 — The interaction: explicit invocation and a subject recheck at paint
 

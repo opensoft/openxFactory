@@ -67,6 +67,7 @@ import dataclasses
 import hashlib
 import math
 import re
+import types
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from typing import Protocol, runtime_checkable
 
@@ -714,3 +715,517 @@ class KnowledgeToolBoundary:
                 f"{tool!r} is not a tool this boundary declares; the declared "
                 f"names are {DECLARED_TOOLS}")
         return handler(**arguments)
+
+
+# ---------------------------------------------------------------------------
+# THE MODEL-DERIVED DISTILLED DOCUMENT ABSTRACT — a layer-2-class SIBLING
+# (add-doxbench-distilled-abstract, ruling 4(a), design D3/D4, tasks §4)
+# ---------------------------------------------------------------------------
+#
+# A SIBLING of layer two, and NOT layer two's owner. `CompressionLayer.owner`
+# (`doxbench_packet.py:224`) is a ONE-owner field and `assert_fidelity` keys on
+# the layer NUMBER, so `layer(2).owner` stays `doxbench_threads.compact_thread`
+# and this type carries its own verifier instead of editing that field. What it
+# shares with `compact_thread` is the DISCIPLINE: model output is passed IN,
+# verified here, refused on failure, and non-authoritative and regenerable by
+# CONSTRUCTION rather than by declaration.
+#
+# `DocumentThread` is deliberately not reused. It fixes `regenerable_from` to
+# the transcript (`doxbench_threads.py:593`, refused at `:619`) and its own
+# refusal rule keys on evidence refs and pending actions
+# (`doxbench_threads.py:1071-1093`) that a document abstract has none of. The
+# two constants below are spelled here rather than imported, so this module
+# keeps its single dependency and a thread's rule can never quietly become an
+# abstract's; `NON_AUTHORITATIVE` deliberately carries the SAME value, because
+# one surface must not have two spellings of "not truth".
+
+NON_AUTHORITATIVE = "non_authoritative"
+REGENERABLE_FROM_DOCUMENT = "document"
+
+# LAYER TWO'S FIDELITY WORD, which a layer-2-class sibling CARRIES (the ratified
+# scenario "A sibling artifact is declared at a layer's fidelity class"). Spelled
+# here rather than imported from `doxbench_packet.FIDELITY_LOSSY_BY_DESIGN` for
+# the same reason the two constants above are spelled rather than imported from
+# `doxbench_threads`: this module keeps its single dependency, and a layer's rule
+# must not become the sibling's by an import moving underneath it. The cost of
+# spelling is drift, so the equality with the layer table's own word is PINNED
+# across the two modules, in `test_doxbench_document_abstract.py`'s
+# `test_the_fidelity_word_is_the_SAME_word_the_layer_table_uses`.
+#
+# Carrying the WORD is not owning the LAYER: `CompressionLayer.owner` is a
+# one-owner field and stays `doxbench_threads.compact_thread` (design D4).
+FIDELITY_LOSSY_BY_DESIGN = "lossy-by-design"
+
+# HUMAN REVIEW IS A STATED OPEN OBLIGATION, and this is where it is stated.
+# Layer two is human-reviewable; the ratified scenario "Presentation is offered
+# as human review" refuses the claim that a sibling inherits that adjective as
+# DISCHARGED because it is rendered on a surface -- rendering an artifact in a
+# pane is not a human reviewing it. So the artifact carries the obligation
+# itself, as a field with exactly one legal value: every `DocumentAbstract` that
+# can be constructed is UNREVIEWED, no code path can mint a reviewed one, and no
+# ruled caption offers presentation as review.
+REVIEW_UNREVIEWED = "unreviewed"
+
+# The five ruled caption states (ruling 5). Exposed as an enum the route and the
+# renderer share, because five string literals in three files are five strings
+# that drift. Each caption states WHO derived it and WHAT it is not.
+CAPTION_MODEL_DERIVED = "model-derived"
+CAPTION_DETERMINISTIC = "deterministic"
+CAPTION_STALE = "stale"
+CAPTION_NOT_YET_GENERATED = "not-yet-generated"
+CAPTION_HOSTED_PLANE = "hosted-plane"
+
+CAPTION_STATES: tuple[str, ...] = (
+    CAPTION_MODEL_DERIVED,
+    CAPTION_DETERMINISTIC,
+    CAPTION_STALE,
+    CAPTION_NOT_YET_GENERATED,
+    CAPTION_HOSTED_PLANE,
+)
+
+RULED_CAPTIONS: Mapping[str, str] = types.MappingProxyType({
+    CAPTION_MODEL_DERIVED: ("Distilled by a model — not authoritative; "
+                            "regenerable from the document."),
+    CAPTION_DETERMINISTIC: "From the document's own headers",
+    CAPTION_STALE: "Distilled from an earlier version of this document",
+    CAPTION_NOT_YET_GENERATED: ("No distillation generated for this document "
+                                "yet"),
+    CAPTION_HOSTED_PLANE: "No distillation is available on this plane",
+})
+
+# The refusal classes. A refusal is STATED and renders nothing; there is no
+# "unverified" class, because a class for unverified text is a route to
+# rendering it.
+ABSTRACT_REFUSED_EMPTY = "empty-abstract"
+ABSTRACT_REFUSED_NO_DECLARED_BASE = "no-declared-base"
+ABSTRACT_REFUSED_FOREIGN_PATH = "foreign-path"
+ABSTRACT_REFUSED_SUBJECT_NOT_NAMED = "subject-not-named"
+ABSTRACT_REFUSED_COVERAGE = "subject-mention-coverage"
+ABSTRACT_REFUSED_PREVIOUS_COVERAGE = "previous-coverage-dropped"
+
+ABSTRACT_REFUSAL_CODES: tuple[str, ...] = (
+    ABSTRACT_REFUSED_EMPTY,
+    ABSTRACT_REFUSED_NO_DECLARED_BASE,
+    ABSTRACT_REFUSED_FOREIGN_PATH,
+    ABSTRACT_REFUSED_SUBJECT_NOT_NAMED,
+    ABSTRACT_REFUSED_COVERAGE,
+    ABSTRACT_REFUSED_PREVIOUS_COVERAGE,
+)
+
+# A declared term shorter than this matches everything, so it is no evidence of
+# coverage at all. A subject whose declared fields are ALL that short has no
+# usable base and is refused as such rather than passed as covered.
+MIN_MENTION_TERM_CHARACTERS = 3
+
+_DIGEST_RULE = re.compile(r"[0-9a-f]{64}")
+
+# A repository path as the RESPONSE BYTES can decide one: slash-joined segments
+# that either name a file (a dotted extension on the last segment) or run at
+# least two segments deep. `read/write` and `input/output` are prose, not paths,
+# and a rule that refused them would be turned off by its first false refusal.
+_PATH_CANDIDATE_RULE = re.compile(r"(?<![\w./-])(?:[\w.-]+/)+[\w.-]+(?![\w/])")
+_NAMED_FILE_RULE = re.compile(r"[\w-]+\.[A-Za-z0-9]{1,6}")
+
+_MENTION_NOISE = re.compile(r"[^0-9a-z]+")
+
+
+class AbstractFormatRefused(KnowledgeError):
+    """Raised when an abstract is CONSTRUCTED wrongly, or when a caller hands
+    the verifier something it cannot verify.
+
+    A model that answered badly is not a programming error and does not arrive
+    by this route: it comes back as an ``AbstractRefused`` value."""
+
+
+def document_content_digest(content: str) -> str:
+    """The subject's content digest — sha256, hex, lowercase.
+
+    One spelling, because the abstract cache keys on ``(subject path, content
+    digest)`` and a second spelling would be a second key for one document."""
+
+    if not isinstance(content, str):
+        raise AbstractFormatRefused(
+            "a content digest is taken over the document's SAVED text")
+    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+
+def _validated_abstract_line(value: object, *, field: str) -> str:
+    if not isinstance(value, str):
+        raise AbstractFormatRefused(f"{field} must be a string")
+    text = value.strip()
+    if not text or "\n" in text or "\r" in text:
+        raise AbstractFormatRefused(f"{field} must be one non-empty line")
+    return text
+
+
+def _validated_subject_path(value: object, *, field: str = "subject_path") -> str:
+    """One document-path rule, mirroring ``doxbench_threads``' own: a subject is
+    repository-relative POSIX, so an absolute path names a tree this surface
+    cannot place and a traversal segment names one it must not reach."""
+
+    path = _validated_abstract_line(value, field=field)
+    if "\\" in path or path.startswith("/"):
+        raise AbstractFormatRefused(
+            f"refusing {path!r} as a {field}: a subject path is "
+            "repository-relative POSIX")
+    if any(segment in ("", ".", "..") for segment in path.split("/")):
+        raise AbstractFormatRefused(
+            f"refusing {path!r} as a {field}: an empty or traversal segment "
+            "names a document this surface cannot place")
+    return path
+
+
+def _validated_digest(value: object, *, field: str = "subject_digest") -> str:
+    if not isinstance(value, str) or not _DIGEST_RULE.fullmatch(value):
+        raise AbstractFormatRefused(
+            f"{field} is a sha256 digest in LOWERCASE hex: a digest that "
+            "differs only in case would be two cache keys for one document")
+    return value
+
+
+@dataclasses.dataclass(frozen=True, slots=True)
+class DocumentAbstract:
+    """One document's model-derived distilled abstract: the subject it
+    describes, the SAVED bytes it describes them from, the model that produced
+    it, and the prose itself.
+
+    ``authority`` and ``regenerable_from`` are FIELDS with exactly one legal
+    value each rather than constants a renderer adds, so the refusal lands where
+    the claim is made — a caller that tries to construct an authoritative
+    abstract fails at construction, which is the same guarantee
+    ``DocumentThread`` gives and the reason a cache, a route or a renderer can
+    hold one of these safely.
+
+    ``fidelity`` and ``review`` are the same shape, and they carry the two
+    ratified sentences about a LAYER-2-CLASS SIBLING: it declares layer two's
+    fidelity word (lossy by design) and no other, and it inherits layer two's
+    human-reviewable adjective as an OPEN OBLIGATION rather than as something a
+    surface discharged by rendering it. What it does NOT declare is layer two's
+    own job -- there is no field and no method here spelling commitments, their
+    preservation, or the thread-state header, and a frozen slotted type cannot
+    have one attached later.
+
+    There is NO generated-at field. Generation order, where a caller needs it,
+    is a monotonic ``generation`` sequence: a wall clock would put a moving
+    value inside an artifact this surface expects to be reproducible from its
+    inputs, and nothing here needs to know what time it is."""
+
+    subject_path: str
+    subject_digest: str
+    model_id: str
+    prose: str
+    covered: tuple[str, ...] = ()
+    generation: int = 0
+    authority: str = NON_AUTHORITATIVE
+    regenerable_from: str = REGENERABLE_FROM_DOCUMENT
+    fidelity: str = FIDELITY_LOSSY_BY_DESIGN
+    review: str = REVIEW_UNREVIEWED
+
+    def __post_init__(self) -> None:
+        _validated_subject_path(self.subject_path)
+        _validated_digest(self.subject_digest)
+        _validated_abstract_line(self.model_id, field="model_id")
+        if not isinstance(self.prose, str) or not self.prose.strip():
+            raise AbstractFormatRefused(
+                "an abstract with no prose is an absence, and an absence is "
+                "STATED by its caption rather than rendered as an empty one")
+        if not isinstance(self.covered, tuple) or any(
+                not isinstance(term, str) or not term.strip()
+                for term in self.covered):
+            raise AbstractFormatRefused(
+                "covered names the declared subjects this abstract mentions")
+        if isinstance(self.generation, bool) or not isinstance(
+                self.generation, int) or self.generation < 0:
+            raise AbstractFormatRefused(
+                "generation is a monotonic, non-negative sequence number and "
+                "never a clock reading")
+        if self.authority != NON_AUTHORITATIVE:
+            raise AbstractFormatRefused(
+                f"an abstract's authority is {NON_AUTHORITATIVE!r} by "
+                "construction: a distillation does not become truth by being "
+                "cached, rendered, copied, or projected")
+        if self.regenerable_from != REGENERABLE_FROM_DOCUMENT:
+            raise AbstractFormatRefused(
+                f"an abstract is regenerable from {REGENERABLE_FROM_DOCUMENT!r}"
+                "; a thread's transcript is another type's origin and this one "
+                "keeps none")
+        if self.fidelity != FIDELITY_LOSSY_BY_DESIGN:
+            raise AbstractFormatRefused(
+                f"a layer-2-class sibling is declared at "
+                f"{FIDELITY_LOSSY_BY_DESIGN!r} and at no other fidelity "
+                "class: it borrows layer two's "
+                "fidelity word, and a derived artifact that claimed selection's "
+                "lossless-by-reference or offload's reversibility would be "
+                "describing work nothing here does")
+        if self.review != REVIEW_UNREVIEWED:
+            raise AbstractFormatRefused(
+                f"an abstract's review state is {REVIEW_UNREVIEWED!r} by "
+                "construction: layer two's human-reviewable adjective is "
+                "inherited as a STATED OPEN OBLIGATION, and rendering an "
+                "artifact on a surface is not a human reviewing it")
+
+    def caption_state_for(self, *, current_digest: str) -> str:
+        """Which ruled caption this abstract shows against the subject's CURRENT
+        content: an abstract whose subject has moved past its digest is SHOWN
+        and LABELLED STALE, never silently discarded or presented as current."""
+
+        digest = _validated_digest(current_digest, field="current_digest")
+        return (CAPTION_MODEL_DERIVED if digest == self.subject_digest
+                else CAPTION_STALE)
+
+
+@dataclasses.dataclass(frozen=True, slots=True)
+class AbstractRefused:
+    """What verification returns when it fails: a STATED refusal that renders
+    nothing.
+
+    It deliberately carries no prose, no text and no abstract field. The refused
+    bytes do not leave the verifier, so a downstream surface cannot silently
+    downgrade a failure into rendering the unverified answer — the guarantee is
+    structural rather than a rule someone must remember."""
+
+    code: str
+    reason: str
+    subject_path: str
+    caption_state: str = CAPTION_NOT_YET_GENERATED
+
+    def __post_init__(self) -> None:
+        if self.code not in ABSTRACT_REFUSAL_CODES:
+            raise AbstractFormatRefused(
+                f"{self.code!r} is not a declared abstract refusal class; the "
+                f"declared classes are {ABSTRACT_REFUSAL_CODES}")
+        if not isinstance(self.reason, str) or not self.reason.strip():
+            raise AbstractFormatRefused("a refusal states its reason")
+        _validated_subject_path(self.subject_path)
+        if self.caption_state not in CAPTION_STATES:
+            raise AbstractFormatRefused(
+                f"{self.caption_state!r} is not one of the ruled caption "
+                f"states {CAPTION_STATES}")
+
+
+def _mention_text(value: str) -> str:
+    return " " + _MENTION_NOISE.sub(" ", value.lower()).strip() + " "
+
+
+def _destination_terms(destinations: object) -> tuple[str, ...]:
+    """The declared destinations, as the names an abstract would MENTION.
+
+    Both snapshot shapes are accepted: the raw ``destinations`` object of kind
+    -> names, and the flattened ``kind: name`` lands the surface builds from it
+    (`staging-workbench-model.js:1566-1571`), so a route is never forced to
+    reshape a snapshot field in order to have it verified."""
+
+    if isinstance(destinations, str):
+        raise AbstractFormatRefused(
+            "declared_destinations is the snapshot's destinations object or "
+            "its flattened lands, never one string")
+    terms: list[str] = []
+    if isinstance(destinations, Mapping):
+        for names in destinations.values():
+            if isinstance(names, str):
+                terms.append(names)
+                continue
+            terms.extend(str(name) for name in names)
+        return tuple(terms)
+    for entry in destinations:
+        text = str(entry)
+        _kind, separator, name = text.partition(":")
+        terms.append(name.strip() if separator and name.strip() else text.strip())
+    return tuple(terms)
+
+
+def _declared_terms(topics: object, destinations: object) -> tuple[str, ...]:
+    if isinstance(topics, str):
+        raise AbstractFormatRefused(
+            "declared_topics is the snapshot's topics array, never one string")
+    terms = [str(topic) for topic in topics]
+    terms.extend(_destination_terms(destinations))
+    usable = [term for term in terms
+              if len(_mention_text(term).strip()) >= MIN_MENTION_TERM_CHARACTERS]
+    return tuple(dict.fromkeys(usable))
+
+
+def _named_repository_paths(text: str) -> tuple[str, ...]:
+    found: list[str] = []
+    for match in _PATH_CANDIDATE_RULE.finditer(text):
+        candidate = match.group(0).rstrip(".")
+        if not candidate:
+            continue
+        if candidate.count("/") >= 2 or _NAMED_FILE_RULE.fullmatch(
+                candidate.rsplit("/", 1)[-1]):
+            found.append(candidate)
+    return tuple(dict.fromkeys(found))
+
+
+def named_repository_paths(text: str) -> tuple[str, ...]:
+    """THE PATH RULE, as a public name — every repository path ``text`` names,
+    in first-appearance order and without duplicates.
+
+    ``verify_document_abstract`` refuses any path an abstract names that its
+    request did not carry, so a route that puts a document's own content into
+    a request has to derive the paths that content names with THE SAME rule the
+    verifier applies. Deriving them with a second rule anywhere else is how the
+    two drift and a faithful quotation of a document's own links becomes a
+    refusal. This is that one rule, exported so a caller never has to reach for
+    the private spelling.
+
+    The result is candidates, not validated paths: a caller that feeds them
+    back as ``request_paths`` still filters them to the shapes
+    ``_validated_subject_path`` accepts."""
+
+    return _named_repository_paths(text)
+
+
+def _carried_by_the_request(candidate: str, carried: frozenset[str]) -> bool:
+    # An ANCESTOR directory of a path the request carried names no document the
+    # request did not carry, so it is not a leak; a sibling file is.
+    return candidate in carried or any(
+        path.startswith(candidate + "/") for path in carried)
+
+
+def verify_document_abstract(
+    dispatch_result: str,
+    *,
+    subject_path: str,
+    subject_digest: str,
+    model_id: str,
+    declared_topics: Sequence[str] = (),
+    declared_destinations: object = (),
+    request_paths: Iterable[str] = (),
+    subject_title: str | None = None,
+    previous: DocumentAbstract | None = None,
+    generation: int = 0,
+) -> DocumentAbstract | AbstractRefused:
+    """Verify a returned abstract BEFORE anything renders it, and return either
+    a ``DocumentAbstract`` or a stated ``AbstractRefused``.
+
+    ``dispatch_result`` is the assistant PROSE a dispatch returned — a string.
+    No turn, message, prompt or envelope crosses this seam, which is this
+    module's standing rule and is asserted against the signature.
+
+    Two rules, and the honesty of their names is load-bearing:
+
+      1. **SUBJECT-MENTION COVERAGE** over the SNAPSHOT'S OWN declared fields —
+         its ``topics`` and its ``destinations``, the same fields the surface
+         reads (`staging-workbench-model.js:1566-1573`). The base is the
+         snapshot's, so the rule fires on generation #1 rather than only on a
+         regeneration; a previously generated abstract is an ADDITIONAL base
+         when one exists and never the only one, and it can only TIGHTEN — a
+         regeneration that drops every declared subject its predecessor covered
+         is refused.
+
+         ``previous`` IS A PREDECESSOR OF THE SAME QUESTION, and SELECTING one
+         is the caller's job exactly as deriving ``request_paths`` is. The
+         question is `(scope, subject path, model)` — ruled 2026-08-26,
+         SHOULD-FIX 6 — so a caller offers only an abstract of THIS document
+         produced by the SAME resolved model. Another model's answer is not
+         this generation's base: the clause can only tighten, so offering one
+         would make a FIRST generation under a newly selected model defend
+         coverage it never claimed, and two models may distil one document
+         differently without either being wrong.
+
+         **It is NOT a fidelity check, and it must never be described as one.**
+         A dispatch returns assistant prose as ONE OPAQUE STRING
+         (`doxbench_model.py:985`), so nothing downstream can establish that a
+         mentioned subject was treated faithfully. What is decidable is whether
+         the answer mentions any declared subject of the document it claims to
+         describe. Calling that faithfulness would be this surface committing
+         the exact error the check exists to catch.
+
+      2. **THE PATH RULE** — name the subject's path or title, and name NO
+         repository path the request did not carry. This is the one clause the
+         RESPONSE BYTES can decide, and it refuses the wrong-document answer and
+         the leaked-neighbour answer with the same test.
+
+    ``request_paths`` is every repository path the request actually carried; the
+    subject's own path is always one of them, so a caller may leave it empty.
+    Where a route puts a document's own content into the request, the paths that
+    content names are carried too and belong in this set.
+
+    A verification failure renders NOTHING: the refusal carries a code and a
+    reason and does not carry the refused text, so there is no downgrade path to
+    rendering it unverified."""
+
+    if not isinstance(dispatch_result, str):
+        raise AbstractFormatRefused(
+            "verify_document_abstract verifies the assistant PROSE a dispatch "
+            "returned, which is one string")
+    subject = _validated_subject_path(subject_path)
+    digest = _validated_digest(subject_digest)
+    model = _validated_abstract_line(model_id, field="model_id")
+    if previous is not None:
+        if not isinstance(previous, DocumentAbstract):
+            raise AbstractFormatRefused(
+                "previous is the abstract this subject already has, if any")
+        if previous.subject_path != subject:
+            raise AbstractFormatRefused(
+                "previous belongs to another subject; an abstract is verified "
+                "against ITS OWN document's fields")
+    if subject_title is not None:
+        subject_title = _validated_abstract_line(
+            subject_title, field="subject_title")
+
+    prose = dispatch_result.strip()
+    if not prose:
+        return AbstractRefused(
+            code=ABSTRACT_REFUSED_EMPTY, subject_path=subject,
+            reason=("the provider returned no prose; an absence is stated by "
+                    "the not-yet-generated caption, never rendered as an empty "
+                    "abstract"))
+
+    declared = _declared_terms(declared_topics, declared_destinations)
+    if not declared:
+        return AbstractRefused(
+            code=ABSTRACT_REFUSED_NO_DECLARED_BASE, subject_path=subject,
+            reason=(f"the snapshot declares no topics and no destinations for "
+                    f"{subject}, so subject-mention coverage has no base and "
+                    "this abstract cannot be verified against anything the "
+                    "document itself declares"))
+
+    carried = frozenset(_validated_subject_path(path, field="request_paths")
+                        for path in request_paths) | {subject}
+    named_paths = _named_repository_paths(prose)
+    foreign = tuple(path for path in named_paths
+                    if not _carried_by_the_request(path, carried))
+    if foreign:
+        return AbstractRefused(
+            code=ABSTRACT_REFUSED_FOREIGN_PATH, subject_path=subject,
+            reason=(f"the abstract names {foreign[0]}, a repository path its "
+                    f"request did not carry: the request carried exactly one "
+                    f"document ({subject}), so this is a wrong-document answer "
+                    "or a leaked neighbour and is refused either way"))
+
+    haystack = _mention_text(prose)
+    names_subject = subject in named_paths or (
+        subject_title is not None
+        and _mention_text(subject_title) in haystack)
+    if not names_subject:
+        return AbstractRefused(
+            code=ABSTRACT_REFUSED_SUBJECT_NOT_NAMED, subject_path=subject,
+            reason=(f"the abstract names neither the path nor the title of "
+                    f"{subject}, so nothing in the returned bytes says it "
+                    "describes this document"))
+
+    covered = tuple(term for term in declared
+                    if _mention_text(term) in haystack)
+    if not covered:
+        return AbstractRefused(
+            code=ABSTRACT_REFUSED_COVERAGE, subject_path=subject,
+            reason=("subject-mention coverage failed: the abstract mentions no "
+                    f"declared topic and no declared destination of {subject}, "
+                    f"whose declared subjects are {list(declared)}"))
+
+    if previous is not None and previous.covered:
+        held = tuple(term for term in previous.covered if term in declared)
+        if held and not set(held) & set(covered):
+            return AbstractRefused(
+                code=ABSTRACT_REFUSED_PREVIOUS_COVERAGE, subject_path=subject,
+                reason=("this regeneration mentions none of the declared "
+                        f"subjects its predecessor covered ({list(held)}); a "
+                        "previous abstract is an additional base and can only "
+                        "tighten the coverage the declared fields already "
+                        "require"))
+
+    return DocumentAbstract(
+        subject_path=subject, subject_digest=digest, model_id=model,
+        prose=prose, covered=covered, generation=generation)
