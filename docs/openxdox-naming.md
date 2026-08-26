@@ -21,8 +21,8 @@ dashboard + intent plane + apply lane operating over a corpus of artifacts —
 is named **openXdox**.
 
 - **Capability name:** `openXdox` — house `openX<type>` capital-X form (the
-  lowercase `openxFactory` / `openxWallet` spellings are the family
-  exceptions, not the rule).
+  lowercase `openxFactory` spelling is the family exception, not the rule;
+  `openXwallet` left this list in Amendment 2).
 - **Short handle:** `dox` — already the Kubernetes namespace and the
   `doxbench_*` code-module prefix; both conform unchanged.
 - **Public host:** `openxdox.opensoft.dev` (Amendment 1, below). LOWERCASE on
@@ -107,3 +107,21 @@ issuance is unblocked. **Not yet done at the time of writing:** the shared
 `opensoft-edge-public` Certificate in namespace `opsx-edge` must gain the new
 subject — it lives outside every repository in this workspace, so the live-mode
 edge validators fail until that reissue lands, by design.
+
+## Amendment 2 — `openXwallet` leaves the exception list (2026-08-26)
+
+**`openxWallet` becomes `openXwallet`, the house `openX<type>` capital-X
+form.** Brett's ruling of 2026-08-26 (R1 of `split-openxwallet-repo`), taken
+because the product is being given its own repository and brand at
+`opensoft/openXwallet`, and a brand created under a spelling this record lists
+as an exception would ratify the exception a second time.
+
+The wire label stays LOWERCASE — `openxwallet` capability ids, the
+`xfactory_wallet_*` kind prefix, paths and finding codes are untouched —
+because that is this record's own rule: the brand and the label differ by
+design; this is not a spelling to reconcile. `openXwallet-Install` is
+registered as a NAME here and no repository is created (Q4).
+
+The record above is amended rather than rewritten: `openxWallet` was genuinely
+a family exception when the form was locked on 2026-08-13, and the
+short-handle argument that cited it still holds. Only the brand moved.
