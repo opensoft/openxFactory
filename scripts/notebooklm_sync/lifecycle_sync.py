@@ -37,7 +37,7 @@ def parse_sync_manifest(payload: JsonValue) -> SyncManifest:
             if not isinstance(digest, str) or not isinstance(title, str):
                 raise ManifestPayloadError(
                     f"sync manifest entry {book!r}/{relative!r} requires text "
-                    "hash and title fields"
+                    + "hash and title fields"
                 )
             entries[relative] = {"hash": digest, "title": title}
         manifest[book] = entries
@@ -85,26 +85,26 @@ def sync_book(
         for _relative, title in items[allowed:]:
             print(
                 f"[{key}] EXCESS {title} (occupancy {projected} exceeds "
-                f"cap {source_cap}; cannot project)"
+                + f"cap {source_cap}; cannot project)"
             )
         desired = dict(items[:allowed])
         print(
             f"[{key}] OVER CAP: projecting the deterministic in-cap prefix "
-            f"({allowed} of {len(items)} members; charter + {unmanaged} "
-            "unmanaged occupy the rest)"
+            + f"({allowed} of {len(items)} members; charter + {unmanaged} "
+            + "unmanaged occupy the rest)"
         )
     elif headroom <= warn_headroom:
         print(
             f"[{key}] WARN headroom {headroom}: occupancy {projected} of "
-            f"cap {source_cap}. No successor split is defined for this book — "
-            "the owed remedy is an OpenSpec delta to lifecycle-notebook-projection "
-            "defining its split"
+            + f"cap {source_cap}. No successor split is defined for this book — "
+            + "the owed remedy is an OpenSpec delta to lifecycle-notebook-projection "
+            + "defining its split"
         )
 
     if CHARTER_TITLE not in by_title:
         print(f"[{key}] ADD  {CHARTER_TITLE}")
         if apply and notebook_id:
-            run_text(
+            _ = run_text(
                 "source",
                 "add",
                 handle,
@@ -123,7 +123,7 @@ def sync_book(
         for source_id in doomed:
             print(f"[{key}] DEL  {title}")
             if apply:
-                run_text("source", "delete", source_id, "--confirm")
+                _ = run_text("source", "delete", source_id, "--confirm")
                 sleep(2)
 
     for relative, title in sorted(desired.items()):
@@ -136,7 +136,7 @@ def sync_book(
         if title in by_title:
             print(f"[{key}] UPD  {title}")
             if apply:
-                run_text("source", "delete", by_title[title][0], "--confirm")
+                _ = run_text("source", "delete", by_title[title][0], "--confirm")
                 sleep(2)
         else:
             print(f"[{key}] ADD  {title}")

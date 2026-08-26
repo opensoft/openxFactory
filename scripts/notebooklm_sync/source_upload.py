@@ -33,7 +33,7 @@ def add_text_source(
     max_text_arg_bytes: int,
 ) -> None:
     if len(text.encode("utf-8", "replace")) <= max_text_arg_bytes:
-        add_with_one_retry(
+        _ = add_with_one_retry(
             ("source", "add", handle, "--text", text, "--title", title),
             run_text=run_text,
             sleep=sleep,
@@ -42,7 +42,7 @@ def add_text_source(
     descriptor, temporary = tempfile.mkstemp(suffix=".md", prefix="xf-sync-")
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as file:
-            file.write(text)
+            _ = file.write(text)
         output = add_with_one_retry(
             ("source", "add", handle, "--file", temporary, "--wait"),
             run_text=run_text,
@@ -52,10 +52,10 @@ def add_text_source(
         if match is None:
             raise OversizedSourceUploadError(
                 f"oversized source {title!r} uploaded but the CLI echoed no "
-                "source id to rename — rename it to the contract title by hand"
+                + "source id to rename — rename it to the contract title by hand"
             )
         source_id = match.group(1)
-        run_text("source", "rename", source_id, title, "--notebook", handle)
+        _ = run_text("source", "rename", source_id, title, "--notebook", handle)
         renamed = any(
             source.source_id == source_id and source.title == title
             for source in list_sources(handle)
@@ -63,7 +63,7 @@ def add_text_source(
         if not renamed:
             raise OversizedSourceUploadError(
                 f"oversized source {title!r} uploaded as {source_id}, but its "
-                "rename was not visible in the notebook source list"
+                + "rename was not visible in the notebook source list"
             )
     finally:
         os.unlink(temporary)

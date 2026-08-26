@@ -31,7 +31,7 @@ def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str) -> Non
     if not path.is_file():
         print(
             f"[{spec.key}] NOTICE workspace registry missing at {path}; "
-            f"record {record_id} not written"
+            + f"record {record_id} not written"
         )
         return
     text = path.read_text(encoding="utf-8")
@@ -39,7 +39,7 @@ def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str) -> Non
         if notebook_id not in text:
             print(
                 f"[{spec.key}] NOTICE workspace record {record_id} exists "
-                "with a DIFFERENT provider_notebook_id — reconcile by hand"
+                + "with a DIFFERENT provider_notebook_id — reconcile by hand"
             )
         return
     created = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -59,13 +59,13 @@ def ensure_workspace_record(root: Path, spec: BookSpec, notebook_id: str) -> Non
         "    purpose: derived projection of brainstorm and staged governance "
         f"docs ({repository})\n"
         "    default_authority_level: L1_notebook_synthesis\n"
-        f"    created_at: \"{created}\"\n"
+        f'    created_at: "{created}"\n'
         "    managed_by: openxFactory/scripts/sync-notebooklm-books.py\n"
     )
-    path.write_text(text.rstrip("\n") + "\n" + block, encoding="utf-8")
+    _ = path.write_text(text.rstrip("\n") + "\n" + block, encoding="utf-8")
     print(
         f"[{spec.key}] workspace record {record_id} -> {path.relative_to(root)} "
-        "(commit it with the migration evidence)"
+        + "(commit it with the migration evidence)"
     )
 
 
@@ -75,11 +75,11 @@ def ensure_alias(
     run_text: Callable[..., str],
 ) -> None:
     try:
-        run_text("alias", "set", spec.alias, notebook_id)
+        _ = run_text("alias", "set", spec.alias, notebook_id)
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         print(
             f"[{spec.key}] NOTICE alias {spec.alias!r} not registered "
-            f"(non-fatal: {exc})"
+            + f"(non-fatal: {exc})"
         )
 
 
@@ -112,25 +112,25 @@ def resolve_or_create_book(
     if not apply:
         print(f"[{spec.key}] CREATE {spec.title} (book missing; created on --apply)")
         return None, True
-    run_text("notebook", "create", spec.title)
+    _ = run_text("notebook", "create", spec.title)
     sleep(2)
     fresh = {row.title: row.notebook_id for row in list_notebooks()}
     notebook_id = fresh.get(spec.title)
     if not notebook_id:
         raise NotebookLifecycleError(
             f"created notebook {spec.title!r} but a fresh listing does not "
-            "resolve it by title"
+            + "resolve it by title"
         )
     print(f"[{spec.key}] CREATED {spec.title} ({notebook_id})")
     ok = True
     set_alias(spec, notebook_id)
     try:
-        run_text("tag", "add", notebook_id, "--tags", "xfactory,lifecycle")
+        _ = run_text("tag", "add", notebook_id, "--tags", "xfactory,lifecycle")
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         ok = False
         print(f"[{spec.key}] FAILED tagging {spec.title!r}: {exc}")
     try:
-        run_text(
+        _ = run_text(
             "chat",
             "configure",
             notebook_id,

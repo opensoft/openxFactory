@@ -5,7 +5,7 @@ from collections.abc import Callable, Iterable
 from pathlib import Path
 
 from .models import ExportPlan, ExportTarget, ImportTarget, SessionTarget
-from .nlm_client import JsonValue, SourceRow
+from .nlm_client import SourceRow, decode_json
 
 
 def display_path(path: Path, root: Path) -> Path:
@@ -103,7 +103,7 @@ def render_imported_entry(plan: ExportPlan, notebook: str, content: str) -> str:
 
 def source_content_text(raw: str) -> str:
     try:
-        payload: JsonValue = json.loads(raw)
+        payload = decode_json(raw)
     except json.JSONDecodeError:
         return raw
     if not isinstance(payload, dict):
@@ -123,9 +123,9 @@ def append_import(root: Path, plan: ExportPlan, notebook: str, content: str) -> 
         raise SystemExit(f"refusing to write outside workspace: {plan.path}")
     resolved.parent.mkdir(parents=True, exist_ok=True)
     if not resolved.exists():
-        resolved.write_text(imported_file_header(plan, notebook), encoding="utf-8")
+        _ = resolved.write_text(imported_file_header(plan, notebook), encoding="utf-8")
     with resolved.open("a", encoding="utf-8") as handle:
-        handle.write(render_imported_entry(plan, notebook, content))
+        _ = handle.write(render_imported_entry(plan, notebook, content))
 
 
 def import_exported_sources(
@@ -181,5 +181,5 @@ def import_new_sources(
         append(root, plan, notebook, fetch(plan.source_id))
         written.append(plan.path.resolve())
     if session is not None and written:
-        commit(session, written, notebook)
+        _ = commit(session, written, notebook)
     return count
