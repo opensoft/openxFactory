@@ -5,29 +5,36 @@ from __future__ import annotations
 import contextlib
 import io
 import unittest
+from collections.abc import Sequence
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from ideation_dashboard import branch_session as bs
 from ideation_dashboard import workbench as wb
+from notebooklm_sync.corpus import DesiredState
 
-from tests.notebooklm._sync_test_support import (
+from tests.notebooklm._session_test_support import (
     LIFECYCLE_BOOKS,
     SESSION_ALIAS,
     STAGED_DOC,
     SYNC_OP,
     FakeNlm,
-    _doc,
-    _session_world,
-    sync,
+    SessionNamespaceAdapter,
+    SessionNamespaceFacade,
+    fixture,
+    refresh_sync,
 )
+
+sync = refresh_sync()
 
 
 class SessionNotebookBookIsolationTests(unittest.TestCase):
     """T069 — NO lifecycle book ever contains a worktree-sourced document
     (FR-039), in addition to the existing `<repo>-worktrees/` exclusion."""
 
-    def _assert_books_are_main_only(self, root, worktrees):
+    def _assert_books_are_main_only(
+        self, root: Path, worktrees: Sequence[Path]
+    ) -> DesiredState:
         desired, _specs = sync.scan(root)
         polluted = [path for book in desired.values() for path in book
                     if "-worktrees" in path or "sessions/" in path]
@@ -48,13 +55,14 @@ class SessionNotebookBookIsolationTests(unittest.TestCase):
     def test_session_worktrees_are_outside_every_book_with_pins_present(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _, openx_wt = _session_world(root, repository="openxFactory")
-            _, factory_wt = _session_world(root, repository="codexFactory",
-                                           nested=True)
-            (root / ".gitmodules").write_text(
+            _, openx_wt = fixture.session_world(root, repository="openxFactory")
+            _, factory_wt = fixture.session_world(
+                root, repository="codexFactory", nested=True
+            )
+            _ = (root / ".gitmodules").write_text(
                 "[submodule \"codexFactory\"]\n"
-                "\tpath = xFactories/codexFactory\n"
-                "\turl = https://example.invalid/codexFactory.git\n",
+                + "\tpath = xFactories/codexFactory\n"
+                + "\turl = https://example.invalid/codexFactory.git\n",
                 encoding="utf-8")
             self.assertEqual(sync.pinned_factory_paths(root),
                              ["xFactories/codexFactory"])
@@ -73,17 +81,18 @@ class SessionNotebookBookIsolationTests(unittest.TestCase):
         # the `.gitmodules`-absent fallback path of `pinned_factory_paths`
         with TemporaryDirectory() as td:
             root = Path(td)
-            _, openx_wt = _session_world(root, repository="openxFactory")
-            _, factory_wt = _session_world(root, repository="codexFactory",
-                                           nested=True)
+            _, openx_wt = fixture.session_world(root, repository="openxFactory")
+            _, factory_wt = fixture.session_world(
+                root, repository="codexFactory", nested=True
+            )
             self.assertNotIn("xFactories/codexFactory-worktrees",
                              sync.pinned_factory_paths(root))
-            self._assert_books_are_main_only(root, [openx_wt, factory_wt])
+            _ = self._assert_books_are_main_only(root, [openx_wt, factory_wt])
 
     def test_a_session_source_set_and_a_book_share_no_document(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _, worktree = _session_world(root)
+            _, worktree = fixture.session_world(root)
             target = sync.resolve_session_target(root, "draft/demo-topic")
             session_paths = {str(worktree.relative_to(root) / path)
                              for path, _text in sync.session_source_set(target)}
@@ -98,27 +107,31 @@ class SessionNotebookRefreshTests(unittest.TestCase):
     def test_refresh_resyncs_from_the_worktree_without_recreating(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _checkout, worktree = _session_world(root)
+            _checkout, worktree = fixture.session_world(root)
             fake = FakeNlm(LIFECYCLE_BOOKS)
             adapter = wb.NotebookAdapter(fake, available=True)
             alias = SESSION_ALIAS
 
-            sync.sync_session_notebook(root, "draft/demo-topic", apply=True,
-                                       adapter=adapter)
+            _ = sync.sync_session_notebook(
+                root, "draft/demo-topic", apply=True, adapter=adapter
+            )
             first = fake.notebook_id(alias)
             self.assertEqual(len(fake.sources_of(alias)), 1)
 
             # an unchanged re-sync is a no-op (title + content hash diff)
-            sync.sync_session_notebook(root, "draft/demo-topic", apply=True,
-                                       adapter=adapter)
+            _ = sync.sync_session_notebook(
+                root, "draft/demo-topic", apply=True, adapter=adapter
+            )
             self.assertEqual(fake.created_titles(), [alias])
             self.assertEqual(len(fake.added_contents()), 1)
 
             # the worktree moves on; the refresh follows IT
-            (worktree / STAGED_DOC).write_text(_doc("second worktree body"),
-                                               encoding="utf-8")
-            sync.sync_session_notebook(root, "draft/demo-topic", apply=True,
-                                       adapter=adapter)
+            _ = (worktree / STAGED_DOC).write_text(
+                fixture.doc("second worktree body"), encoding="utf-8"
+            )
+            _ = sync.sync_session_notebook(
+                root, "draft/demo-topic", apply=True, adapter=adapter
+            )
             self.assertEqual(fake.notebook_id(alias), first)
             self.assertEqual(len(fake.sources_of(alias)), 1)
             self.assertIn("second worktree body",
@@ -128,7 +141,7 @@ class SessionNotebookRefreshTests(unittest.TestCase):
     def test_the_dry_run_prints_a_plan_touches_nothing_and_is_not_book_drift(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _session_world(root)
+            _ = fixture.session_world(root)
             fake = FakeNlm(LIFECYCLE_BOOKS)
             adapter = wb.NotebookAdapter(fake, available=True)
             buf = io.StringIO()
@@ -146,12 +159,13 @@ class SessionNotebookRefreshTests(unittest.TestCase):
     def test_session_end_retires_the_notebook_and_never_repoints_it_at_main(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _session_world(root)
+            _ = fixture.session_world(root)
             fake = FakeNlm(LIFECYCLE_BOOKS)
             adapter = wb.NotebookAdapter(fake, available=True)
             alias = SESSION_ALIAS
-            sync.sync_session_notebook(root, "draft/demo-topic", apply=True,
-                                       adapter=adapter)
+            _ = sync.sync_session_notebook(
+                root, "draft/demo-topic", apply=True, adapter=adapter
+            )
             created = fake.notebook_id(alias)
 
             result = sync.sync_session_notebook(root, "draft/demo-topic",
@@ -174,12 +188,13 @@ class SessionNotebookRefreshTests(unittest.TestCase):
         # the xf-session-* notebook, not report a benign no-op.
         with TemporaryDirectory() as td:
             root = Path(td)
-            _session_world(root)
+            _ = fixture.session_world(root)
             fake = FakeNlm(LIFECYCLE_BOOKS)
             adapter = wb.NotebookAdapter(fake, available=True)
             alias = SESSION_ALIAS
-            sync.sync_session_notebook(root, "draft/demo-topic", apply=True,
-                                       adapter=adapter)
+            _ = sync.sync_session_notebook(
+                root, "draft/demo-topic", apply=True, adapter=adapter
+            )
             retired, detail = bs.retire_session_notebook(
                 adapter, repository="openxFactory",
                 branch="draft/demo-topic")
@@ -189,8 +204,10 @@ class SessionNotebookRefreshTests(unittest.TestCase):
     def test_retire_refuses_to_cross_into_the_reference_set_namespace(self):
         fake = FakeNlm([{"id": "w1", "title": "xf-wb-alpha"}])
         adapter = wb.NotebookAdapter(fake, available=True)
+        assert isinstance(adapter, SessionNamespaceAdapter)
+        namespace_adapter = SessionNamespaceFacade(adapter)
         with self.assertRaises(wb.WorkbenchError):
-            adapter.retire("xf-wb-alpha")
+            _ = namespace_adapter.retire("xf-wb-alpha")
         with self.assertRaises(wb.WorkbenchError):
-            adapter.create_session("xf-wb-alpha")
+            _ = namespace_adapter.create_session("xf-wb-alpha")
         self.assertEqual(fake.deleted_ids(), [])

@@ -11,19 +11,26 @@ from unittest.mock import patch
 
 from ideation_dashboard import branch_session as bs
 from ideation_dashboard import workbench as wb
+from notebooklm_sync.models import SessionNotebookRefused, SessionTarget
+from notebooklm_sync.nlm_client import ProviderResult
 
-from tests.notebooklm._sync_test_support import (
+from tests.notebooklm import _sync_test_support as support
+from tests.notebooklm._session_test_support import (
     CODEX_SESSION_ALIAS,
     LIFECYCLE_BOOKS,
     SESSION_ALIAS,
     STAGED_DOC,
     FakeNlm,
-    HarnessFailure,
-    _doc,
-    _seed_checkout,
-    _session_world,
-    sync,
+    fixture,
+    lifecycle_sync,
+    out_of_scope_workbench_dirs,
 )
+
+sync = lifecycle_sync()
+
+
+class ListingFailure(RuntimeError):
+    pass
 
 
 class SessionNotebookAliasTests(unittest.TestCase):
@@ -33,7 +40,7 @@ class SessionNotebookAliasTests(unittest.TestCase):
     def test_session_notebook_is_created_from_the_worktree_under_the_exact_alias(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _checkout, worktree = _session_world(root)
+            _checkout, worktree = fixture.session_world(root)
             fake = FakeNlm(LIFECYCLE_BOOKS)
             adapter = wb.NotebookAdapter(fake, available=True)
 
@@ -74,13 +81,18 @@ class SessionNotebookAliasTests(unittest.TestCase):
         untouched."""
         with TemporaryDirectory() as td:
             root = Path(td)
-            _checkout, _worktree = _session_world(root)
+            _checkout, _worktree = fixture.session_world(root)
             fake = FakeNlm(LIFECYCLE_BOOKS)
             adapter = wb.NotebookAdapter(fake, available=True)
 
-            oversize = [(f"docs/doc-{n}.md", _doc(f"body {n}"))
+            oversize = [(f"docs/doc-{n}.md", fixture.doc(f"body {n}"))
                         for n in range(sync.NOTEBOOK_SOURCE_CAP + 1)]
-            with patch.object(sync, "session_source_set", lambda target: oversize):
+
+            def oversized_source_set(target: SessionTarget) -> list[tuple[str, str]]:
+                del target
+                return oversize
+
+            with patch.object(sync, "session_source_set", oversized_source_set):
                 result = sync.sync_session_notebook(
                     root, "draft/demo-topic", apply=True, adapter=adapter)
 
@@ -92,14 +104,19 @@ class SessionNotebookAliasTests(unittest.TestCase):
     def test_the_same_branch_in_a_second_repository_gets_a_different_alias(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _session_world(root, repository="openxFactory")
-            _session_world(root, repository="codexFactory", nested=True,
-                           main_text="factory main", worktree_text="factory work")
+            _ = fixture.session_world(root, repository="openxFactory")
+            _ = fixture.session_world(
+                root,
+                repository="codexFactory",
+                nested=True,
+                main_text="factory main",
+                worktree_text="factory work",
+            )
 
             # the same branch now lives in TWO repositories: resolving it without
             # naming one is ambiguous, and the refusal names both (spec C9)
-            with self.assertRaises(sync.SessionNotebookRefused) as caught:
-                sync.resolve_session_target(root, "draft/demo-topic")
+            with self.assertRaises(SessionNotebookRefused) as caught:
+                _ = sync.resolve_session_target(root, "draft/demo-topic")
             self.assertIn("openxFactory", str(caught.exception))
             self.assertIn("codexFactory", str(caught.exception))
 
@@ -118,9 +135,11 @@ class SessionNotebookAliasTests(unittest.TestCase):
     def test_a_branch_with_no_live_worktree_is_refused_not_invented(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _seed_checkout(root / "openxFactory", text=_doc("main body"))
-            with self.assertRaises(sync.SessionNotebookRefused):
-                sync.resolve_session_target(root, "draft/demo-topic")
+            fixture.seed_checkout(
+                root / "openxFactory", text=fixture.doc("main body")
+            )
+            with self.assertRaises(SessionNotebookRefused):
+                _ = sync.resolve_session_target(root, "draft/demo-topic")
 
     def test_the_transcribed_container_suffix_is_the_productions_own(self):
         """PR #49 second-review tail B3, the hygiene half. This script restates
@@ -156,7 +175,9 @@ class SessionNotebookSweepSafetyTests(unittest.TestCase):
     """T068 — the sweep leaves a live session notebook untouched (FR-038). This
     is the test that would have caught the original `xf-wb-<topic>` naming."""
 
-    def _sweep(self, root, apply, adapter):
+    def _sweep(
+        self, root: Path, apply: bool, adapter: wb.NotebookAdapter
+    ) -> str:
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
             sync.workbench_orphan_sweep(root, apply, adapter=adapter)
@@ -204,11 +225,19 @@ class SessionNotebookSweepSafetyTests(unittest.TestCase):
         SAME command with `--apply` correctly said the list could not be read. Two
         halves of one command disagreeing about whether the account is empty is
         exactly the absence-of-evidence the finding was filed about."""
-        class Unreadable(FakeNlm):
-            def __call__(self, *args, parse=True):
+        class Unreadable:
+            def __init__(self, notebooks: list[dict[str, str]]) -> None:
+                self._delegate: support.FakeNlm = FakeNlm(notebooks)
+
+            def __call__(
+                self, *args: str, parse: bool = True
+            ) -> ProviderResult:
                 if args[:2] == ("notebook", "list"):
-                    raise HarnessFailure("nlm notebook list: auth expired")
-                return super().__call__(*args, parse=parse)
+                    raise ListingFailure("nlm notebook list: auth expired")
+                return self._delegate(*args, parse=parse)
+
+            def deleted_ids(self) -> list[str]:
+                return self._delegate.deleted_ids()
 
         with TemporaryDirectory() as td:
             fake = Unreadable([{"id": "w1", "title": "xf-wb-orphan"}])
@@ -230,12 +259,13 @@ class SessionNotebookSweepSafetyTests(unittest.TestCase):
         # `_out_of_scope_workbench_dirs` and silently skip the whole sweep.
         with TemporaryDirectory() as td:
             root = Path(td)
-            _session_world(root)
+            _ = fixture.session_world(root)
             fake = FakeNlm([{"id": "w1", "title": "xf-wb-orphan"}])
             adapter = wb.NotebookAdapter(fake, available=True)
-            sync.sync_session_notebook(root, "draft/demo-topic", apply=True,
-                                       adapter=adapter)
-            self.assertEqual(sync._out_of_scope_workbench_dirs(root), [])
+            _ = sync.sync_session_notebook(
+                root, "draft/demo-topic", apply=True, adapter=adapter
+            )
+            self.assertEqual(out_of_scope_workbench_dirs(sync, root), [])
             out = self._sweep(root, True, adapter)
             self.assertNotIn("SKIPPED", out)
             self.assertEqual(fake.deleted_ids(), ["w1"])
