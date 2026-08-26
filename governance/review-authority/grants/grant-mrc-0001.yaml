@@ -25,5 +25,4 @@ scope:
     human_escalation_required_for: []
 expires_at: "2026-11-23T12:00:00Z"
 issued_at: "2026-08-25T12:45:00Z"
-issued_by: Brett.Heap@opensoft.one
 state: active
