@@ -29,7 +29,7 @@ The browser SHALL NEVER receive a minted token. The provider call is made from t
 - THEN no response to the browser carries the minted token
 
 ### Requirement: The dashboard holds bindings, and a minted token outlives nothing
-Settings SHALL store a model-provider BINDING — an id, a label, the credential reference the broker resolves, the authentication kind, and the broker invocation — and SHALL NOT store the API key or OAuth token itself. A binding is safe to read, log and commit; a long-lived secret is none of those, and the standing rule for this workspace is that machinery holds grant and binding templates only.
+Settings SHALL store a model-provider BINDING — an id, a label, the provider name, the credential reference the broker resolves, the authentication kind, the principal who approved the credential, the provider route the minted token is presented at, and the broker invocation — and SHALL NOT store the API key or OAuth token itself. The provider route is the CONSUMER's declaration because the broker's own declared surface deliberately does not name one: a broker that named an endpoint would be accountable for it, and it refuses to be. A binding is safe to read, log and commit; a long-lived secret is none of those, and the standing rule for this workspace is that machinery holds grant and binding templates only.
 
 When a human supplies a credential, the dashboard SHALL hand it to the broker and retain nothing: the value SHALL NOT be written to any file, held in any state that outlives the request, echoed in any response, or included in any error. What the dashboard keeps is the reference the broker returns.
 

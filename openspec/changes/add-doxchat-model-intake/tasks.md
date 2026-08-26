@@ -71,9 +71,33 @@
       provider call, because the entry is not available.
 - [ ] 3.5 The closed seven-field public catalog entry does NOT widen. Assert
       it: proposed-versus-approved stays server-side.
-
-## 4. Evidence
-
+- [ ] 3.6 THE MID-TURN RE-MINT IS VISIBLE IN THE TURN RECORD. Brett ruled
+      2026-08-26 that when a minted token expires part-way through a turn the
+      dashboard re-mints and retries ONCE, "with the re-mint and the paid retry
+      VISIBLY RECORDED in the turn record" — a second paid call the human
+      cannot see is exactly the decision that ruling was made to avoid.
+      HANDED HERE BY `add-model-provider-broker` (its task 2.4, PR #392 review
+      note c, 2026-08-26) because THIS change owns the released turn-record
+      surface and carries a `target_release` that can pay for a schema act,
+      while that one declares `target_release: none`. What it built instead is
+      three real records — the port's content-free `ledger` (binding id,
+      reason, moment, the mint's `audit_ref`), the console's stderr
+      `REMINT_NOTICE`, and the BROKER's own `broker-audit.jsonl` correlated by
+      `--retry-of` — none of which the browser can read.
+      WHY IT COULD NOT LAND THERE, measured rather than asserted:
+      `workbench-chat-turn-success` and `workbench-chat-turn-v2-success` are
+      released schemas, digest-pinned in `contracts/manifest.yaml`, declared
+      `additionalProperties: false`, and self-validated by the route before an
+      envelope is stored or sent; `doxbench_model.dispatch_turn` closes the
+      port's answer shape a second time, refusing any result whose key set is
+      not exactly `{assistant_prose, proposals}`. Both would have to widen.
+      SHAPE, when it is built: an ADDITIVE optional fact on the v2 success
+      envelope only — the v1 envelope is deprecated and its promise is
+      byte-identical stability — carrying the REDACTED fact and nothing more
+      ("this turn re-minted once and retried", with the mint `audit_ref`, which
+      the broker's declaration guarantees carries no token material). Never the
+      token, never the provider's words. Allocate the minor version AT
+      REALIZATION, like 3.3, and reserve no number now.
 - [ ] 4.1 Live-console proof on the real serve: empty catalog shows intake
       first and selected; the rail sentence is unchanged; a completed intake
       leaves a pending entry; approval makes it selectable; a turn runs.
@@ -113,3 +137,8 @@
   clauses, and its four added scenarios. Task 4.2 stands unchanged: this change
   still archives only on merged plus green. **Re-verify the block against canon
   before archiving** — canon has moved once already and will move again.
+- 2026-08-26 — task 3.6 added: the mid-turn re-mint's visibility in the
+  browser's turn record, handed over by `add-model-provider-broker` task 2.4
+  (PR #392 review note c). That change cannot carry it — the envelopes are
+  released and closed and it declares `target_release: none` — and this one
+  already owns the turn-record surface and an additive contract release.

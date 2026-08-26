@@ -5779,10 +5779,20 @@ def serve(
     # What stays an ENTRYPOINT decision is this call -- the two entrypoints are
     # the only places that reach for the real declaration, and `build_server`
     # still never does it on a caller's behalf.
+    #
+    # SINCE add-model-provider-broker (ratified 2026-08-26) the declaration is
+    # `declared_model_port_factory`, which reads the checkout's model-provider
+    # BINDINGS and resolves the broker-backed port when one is declared. A
+    # checkout declaring none resolves exactly the harness factory this line
+    # used to name, so the unconfigured posture is unchanged byte for byte.
+    # This file still names no provider endpoint, holds no credential and holds
+    # no token: all three live in `doxbench_provider` and nowhere else, which
+    # is the narrowed boundary the structural test enforces.
     build_kwargs.setdefault(
         "model_port_factory",
-        doxbench_install.model_port_factory(
-            doxbench_install.session_root_beside(snapshot_path)))
+        doxbench_install.declared_model_port_factory(
+            doxbench_install.session_root_beside(snapshot_path),
+            checkout_root=checkout_root))
     httpd = build_server(web_dir, snapshot_path, checkout_root, host=host,
                          port=port, quiet=quiet, actor=actor, **build_kwargs)
     print(f"serving ideation dashboard at {server_url(httpd, '/index.html')}")

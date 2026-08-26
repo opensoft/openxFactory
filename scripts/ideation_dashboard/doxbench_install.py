@@ -33,6 +33,28 @@ INHERITED_ENVIRONMENT`) that no credential-shaped variable can pass, and an
 API-backed provider's credential is provisioned into the `doxbench-bridge`
 harness profile by the ratified broker lane — never held here.
 
+WIDENED BY add-model-provider-broker (ratified 2026-08-26), and the four claims
+above all survive the widening. This module now makes a SECOND declaration
+beside the harness one: when the checkout declares a model-provider BINDING,
+`declared_model_port_factory` resolves the broker-backed
+`doxbench_provider.BrokeredProviderPort` instead of the harness bridge. It
+still names no endpoint OF ITS OWN (the route is the BINDING's declaration
+since the 2026-08-26 reconciliation — openProfiler's mint answer carries
+neither an endpoint nor a dialect, deliberately — and the only module that
+CONTACTS one is still `doxbench_provider`), still holds no credential and no
+token
+(both live in `doxbench_provider`, the one module permitted to hold them), and
+still reads no credential-shaped environment variable. What it gained is a
+CHOICE between two declarations, which is exactly the kind of install-time fact
+this module exists to make readable in one place.
+
+THE UNCONFIGURED POSTURE IS UNCHANGED, BYTE FOR BYTE. A checkout with no
+bindings document, or one declaring no bindings, resolves the SAME
+`model_port_factory(session_root)` the entrypoints have always resolved, so an
+install that never heard of a broker behaves precisely as it did before this
+change — and a plane with no factory at all still refuses
+`model_capability_unavailable` exactly as it always has.
+
 ONE INSTANCE PER PROCESS, and that is a requirement rather than an optimisation.
 `_workbench_model_port` is called PER REQUEST, and `OmpHarnessBridge` is
 STATEFUL: it holds the per-document-thread harness sessions and the selected
@@ -52,6 +74,7 @@ capabilities probe does — spawns no harness process.
 
 from __future__ import annotations
 
+import sys
 import threading
 from pathlib import Path
 
@@ -163,3 +186,130 @@ def model_port_factory(session_root: Path | str, *,
             return port
 
     return resolve
+
+
+# --------------------------------------------------------------------------
+# the BROKERED declaration (add-model-provider-broker tasks 2.2/2.5)
+# --------------------------------------------------------------------------
+
+# Limits for a brokered provider, narrowing the server ceilings exactly as the
+# harness entry's do. Conservative on purpose: a binding names a provider this
+# repository has never measured, so the declaration promises the smaller number
+# rather than the schema's maximum.
+BROKERED_INPUT_LIMIT_BYTES = 200_000
+BROKERED_OUTPUT_LIMIT_BYTES = 64_000
+
+# The handling badge a brokered entry carries. It states the posture PLAINLY
+# and in the opposite direction from the harness entry's, because it is the
+# opposite posture: this one leaves the host.
+BROKERED_DATA_HANDLING = (
+    "leaves this host: a hosted provider reached with a short-lived token the "
+    "credential broker minted")
+
+# The `provider_class` a brokered entry declares. Free-form by the catalog
+# contract, and this is the honest word for it: the model is reached through a
+# broker's credential rather than run on this host.
+BROKERED_PROVIDER_CLASS = "brokered"
+
+
+def brokered_catalog(binding) -> ModelCatalog:
+    """The one-entry catalog a BINDING discloses.
+
+    Built FROM the binding rather than declared beside it, so the menu an
+    operator sees names the binding they declared — its id and its label — and
+    cannot drift from it. The id is the binding's id for the same reason: a
+    catalog handle that did not match the binding would make a turn's chosen
+    model unresolvable back to the declaration that reached it.
+
+    AVAILABLE ON PURPOSE, and it is a claim about the DECLARATION exactly as the
+    harness catalog's is: `BrokeredProviderPort.catalog()` marks every entry
+    unavailable the moment a mint has refused, which is the honest posture for a
+    broker that cannot answer, while declaring it unavailable up front would say
+    the same thing about a binding that works."""
+    return ModelCatalog.from_entries([
+        ModelCatalogEntry(
+            model_id=binding.id,
+            label=binding.label,
+            provider_class=BROKERED_PROVIDER_CLASS,
+            available=True,
+            input_limit_bytes=BROKERED_INPUT_LIMIT_BYTES,
+            output_limit_bytes=BROKERED_OUTPUT_LIMIT_BYTES,
+            data_handling=BROKERED_DATA_HANDLING,
+        ),
+    ])
+
+
+def brokered_model_port_factory(binding, *, runner=None, opener=None,
+                                clock=None, notice=None):
+    """The ZERO-ARGUMENT factory for a BROKER-BACKED port, memoized per process.
+
+    Same shape and same reason as `model_port_factory` above: the accessor is
+    called per REQUEST, and a port built per call would mint a fresh token for
+    every turn and discard a live one. The seams (`runner`, `opener`, `clock`,
+    `notice`) pass through so a test can exercise a turn without a broker and
+    without a provider; production declares none of them."""
+    from ideation_dashboard import doxbench_provider as provider_mod
+
+    seams = {name: value for name, value in (
+        ("runner", runner), ("opener", opener), ("clock", clock),
+        ("notice", notice)) if value is not None}
+    catalog = brokered_catalog(binding)
+    lock = threading.Lock()
+    holder: dict[str, object] = {}
+
+    def resolve():
+        port = holder.get("port")
+        if port is not None:
+            return port
+        with lock:
+            port = holder.get("port")
+            if port is None:
+                port = provider_mod.BrokeredProviderPort(
+                    binding, catalog, **seams)
+                holder["port"] = port
+            return port
+
+    return resolve
+
+
+def declared_model_port_factory(session_root: Path | str, *,
+                                checkout_root: Path | str,
+                                bindings_path: Path | str | None = None,
+                                spawn=None):
+    """THE declaration both entrypoints make (task 2.5).
+
+    ONE rule, in one place, so `cli.cmd_generate_and_open` and `serve.serve()`
+    cannot drift into two answers for "what does this install talk to":
+
+      * a checkout declaring a model-provider BINDING resolves the brokered
+        port for the FIRST declared binding, and every provider endpoint and
+        every minted token it needs lives inside `doxbench_provider`;
+      * a checkout declaring NONE resolves exactly what these entrypoints have
+        always resolved — the harness bridge — so the unconfigured posture is
+        unchanged byte for byte;
+      * a bindings document that will not READ (malformed YAML, a wrong kind, a
+        record naming an unknown key) resolves the harness declaration too, and
+        says so on stderr. Refusing to serve at all would make one bad line in
+        an operator's settings file take the whole console down, and silently
+        serving a DIFFERENT provider than the one declared would be worse than
+        either.
+
+    THE FIRST DECLARED BINDING, and that is a stated limitation rather than a
+    design: the model seam takes ONE port, so an install talks to one provider
+    at a time. Choosing among several declared bindings needs a selection rule
+    this change does not have and must not invent — see tasks.md 2.5."""
+    from ideation_dashboard import doxbench_binding as binding_mod
+
+    store = binding_mod.BindingStore(
+        bindings_path if bindings_path is not None
+        else binding_mod.bindings_path(checkout_root))
+    try:
+        declared = store.list()
+    except binding_mod.BindingRefused as error:
+        sys.stderr.write(
+            f"[model-provider] the bindings document could not be read "
+            f"({error}); serving the local harness declaration instead\n")
+        declared = ()
+    if not declared:
+        return model_port_factory(Path(session_root), spawn=spawn)
+    return brokered_model_port_factory(declared[0])
