@@ -148,12 +148,24 @@ shipping.
 - [ ] 5.3 The reader COMPUTES expiry from `expires_at` and treats a stale
       `state` field as a finding rather than as truth — nothing in the family
       recomputes `state` (N8).
-- [ ] 5.4 **[codexFactory]** Enter the register's path BY NAME as a
+- [x] 5.4 **[codexFactory]** Enter the register's path BY NAME as a
       never-clearable floor member in the gate rules. Do not rely on inference
       from the floor's four path clauses: a grant register is authority policy
       but is not literally contract bytes, gate/workflow definitions, credential
       surfaces or security posture, and openxFactory is the lane's PILOT
       repository — without this, councils clear their own commissions.
+  - Realized as the codexFactory successor change `protect-review-authority-register`
+    (Speckit feature 012): a new exact, repository-scoped, never-clearable
+    `repository_gate_floor` kind names `governance/review-authority/register.yaml`
+    for `opensoft/openxFactory`, loaded from the same base-branch governance
+    inputs as the gate rules and applied to matched candidates before every
+    tier-1 approval, already-approved result, or council exit — no candidate
+    enrolment, no inference from floor path clauses. Production floor document:
+    codexFactory `scripts/merge_master/openxfactory-review-authority-floor.yaml`.
+    Realization: codexFactory PR #91 merged at `da6795b` (2026-08-25T19:40:27Z,
+    green merge-master-approval/validate/Sonar), archive + promotion PR #92
+    merged at `8dcd5bc`; canonical spec `codexFactory
+    openspec/specs/repository-gate-floor/spec.md`.
 - [ ] 5.5 Record the Q1c design constraint IN the register's own documentation:
       a file-based register cannot satisfy revocation-at-exercise, and the
       conforming home for the REVOCATION SURFACE is a live lookup on the Hermes
