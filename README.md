@@ -340,6 +340,62 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
+  — authored 2026-08-26 as the first and only exit of the staged topic
+  `openxwallet-neutral-home`, on Brett Heap's in-session R1–R8 rulings of the
+  same day, carried as LOCKED constraints rather than re-litigated (verbatim:
+  "approve R1-R8 as recommended, stage the topic and propose"); registered as
+  DTN-026. **The wallet's contracts ARE a product, filed as features of a
+  factory layer** — so the product gets its own repository and openxFactory
+  keeps the seam. ADDS two capabilities that outlive the wallet:
+  `domain-descendant-boundary` (five requirements — how a domain consumes a
+  neutral `open*` product through a `<Domainx><Product>` descendant that pins by
+  commit TWICE, carries profile and never fork, sits at one of two placements
+  whose differing STANDING is stated rather than blended, and is created lazily
+  on its first profile artifact) and `neutral-product-pin` (nine — how
+  openxFactory consumes an external neutral product, a direction it has never
+  consumed in: the ratified `pinned_contract_manifest` grammar reused unchanged,
+  fail-closed on an uninitialized submodule or a digest disagreement, the PINNED
+  reader at the PINNED digest as what a required check runs, a pinned validator
+  invoked with no scan target REFUSES rather than self-tests, and the declared
+  pin living at `contracts/<product>-pin.yaml` rather than `stack.yaml`).
+  REMOVES `openxwallet` (8 requirements) and `openxwallet-agent-profile` (3) to
+  `opensoft/openXwallet` at `wallet-v1.0` — **the corpus's first
+  `## REMOVED Requirements` blocks and its first capability exit**, all eleven
+  titles named verbatim because `promotion_fidelity.py` keys on (capability,
+  normalized title). MODIFIES `trust-anchor` (the dangling cross-corpus custody
+  reference, repointed to the pin), `review-authority-intake` (three blocks: the
+  reader becomes "reachable … in-tree or through a digest-pinned submodule", plus
+  every dangling wallet citation the arc holds) and `shared-contract-ownership`
+  (the third case, where openxFactory is the CONSUMER). The first release is a
+  **byte-identical pure move** — eight sha256s equal to the NAMED CARVE COMMIT's
+  manifest rows, an empty subtree diff, and exactly ONE prose carve-out (the
+  `openxFactory SHALL` → `openXwallet SHALL` subject and the `## Purpose`
+  placeholders in the two promoted specs) — because a move whose diff is not
+  provably empty cannot be bisected against. The live REQUIRED check survives by
+  ALIAS, not by repoint: `openxwallet-consumer-gate.yml` keeps
+  `jobs: wallet-validation:`, so ruleset 21538893 is edited by nothing and no
+  operator act stands between P3 and merge. The cut is a MAJOR, so it owes a
+  preceding deprecation minor whose marker is MANIFEST-carried (`relocating:` on
+  the eight rows plus the CHANGELOG migration note, emitted by
+  `check-openxfactory-pin.py`) and never validator-carried, since a validator
+  warning reds LedgerxFactory's `--strict` run and openxFactory's own gate runs
+  without it. P3b widens codexFactory's merge-gate floor to
+  `contracts/openxwallet-pin.yaml` and the `openXwallet` gitlink in the same
+  wave, because `matching_paths` is exact set membership and the pin is what
+  determines WHICH READER RUNS. Successors named: **P2b** (`wallet-v1.1` — the
+  nested-repository sweep prune and the register-read note, the tag openxFactory
+  actually pins), **P4b** (root-level governed-repo recognition, whose living
+  proof is that `xf-ideation-openavatar` does not exist five months into the
+  openAvatar precedent) and **P6** (`create-ledgerxwallet-overlay-boundary`).
+  `Status: draft`; alignment review raised 30 findings across two reviewers (all
+  MISMATCH / DRIFT / GAP applied, each reviewer's missing-`specs/` finding
+  deferred to the specs phase and discharged there), and the council returned 14
+  verdicts — **all VALID, none DISMISSED**, two of them raised jointly — plus the
+  8 NOTED-class constraints carried into `clarifications.md`; all five review
+  records are retained in the packet rather than folded into the proposal. `code_surface` spans SIX
+  repositories and `target_release: implemented`, so it archives only on merged
+  plus green realization evidence, never on landing.
 - [qualify-avatar-live-voice](openspec/changes/qualify-avatar-live-voice/proposal.md)
   — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
   in-session rulings of the same day: all five blocking forks and all three
