@@ -1062,6 +1062,43 @@ Active changes:
   neutrality-drift stage-1 signal so the nightly lane files these seeds
   unattended. (code surface: openxFactory; target release: none)
 
+- [harden-ideation-readiness-check](openspec/changes/harden-ideation-readiness-check/proposal.md)
+  — authored 2026-08-26, **`Status: draft` and UNADMITTED**: no approval act
+  exists, so `.openspec.yaml` carries `kind: ad_hoc` with a durable id and a
+  reason but deliberately BLANK `approved_by`/`approved_on` rather than
+  fabricated provenance, and `proposal-origin` will report two
+  `ad-hoc origin lacks required` ERRORS against the packet until Brett admits
+  it (a two-field edit; `tasks.md` § 1). Three `doc-health` requirements ADDED,
+  nine scenarios, none MODIFIED. Raised from a 2026-08-26 triage that found TWO
+  independent defects in one test —
+  `test_derivation_reproduces_the_real_bootstrap_clusters`, the proof that the
+  readiness lane's derivation still reproduces the landed
+  `ideation-cross-reference` index. **A**: its `_openxfactory_root()` walks UP
+  to the first ancestor holding `openxFactory/ideation/cross-reference.yaml`,
+  which inside this workspace is always the ONE SHARED CHECKOUT — so every
+  agent worktree proves a verdict about another session's working tree, and a
+  concurrent uncommitted pin bump there (67 listed clusters against 253
+  derived) reddened every worktree on the machine while every isolated clone
+  passed at every revision; the checker's own `find_index_validator()` carries
+  the identical walk and was measured resolving the shared checkout's
+  validator. **B**: `main`'s index pins `f13a3b60`, reachable from NO ref local
+  or remote — the branch that generated it landed squashed as `4e57009c`, and
+  diffing branch tip against landed index shows exactly one changed line, a
+  hand-bumped pin — and the test turns that into `pytest.skip`, so the
+  assertion has NEVER RUN in a fresh clone, with a stated reason ("shallow
+  clone?") that is false where it fires because `pytest-suite.yml` checks out
+  at `fetch-depth: 0`. The three requirements: resolve the repository under
+  test first and announce any fallback; read the index from COMMITTED state so
+  no concurrent edit can move the verdict; and fail — never skip — on an
+  unresolvable pin in a complete clone, keeping the skip only for a genuinely
+  truncated one, with the reason naming which was observed. The one-line index
+  re-pin to `4e57009c` rides the same change because requirement 3 would
+  otherwise land it red on its own gate; the derivation reproduces the
+  committed 290-entry body at `da9bf3b7`, `4e57009c` and `origin/main` alike,
+  so no regeneration is owed. EXPLICITLY DEFERRED to its own future packet: the
+  governance rule that an index pin must be re-derived when a branch lands
+  rewritten. (code surface: openxFactory; target release: implemented)
+
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived

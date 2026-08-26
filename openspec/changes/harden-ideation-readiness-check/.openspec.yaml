@@ -1,0 +1,42 @@
+schema: spec-driven
+created: 2026-08-26
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-26-harden-ideation-readiness-check
+  reason: >-
+    Raised from a 2026-08-26 triage of a red `tests/doc-health` suite in an
+    agent worktree, not from a staged topic — `ideation/staging/` and its
+    INDEX were searched and carry nothing on this surface, so `kind: staged`
+    is unavailable rather than declined. THE FORCING FACTS, both measured that
+    day against `origin/main` at `31c931fa`:
+    `tests/doc-health/test_ideation_readiness.py::test_derivation_reproduces_the_real_bootstrap_clusters`
+    resolves its subject by walking UP from the repository under test to the
+    first ancestor holding `openxFactory/ideation/cross-reference.yaml`, which
+    inside the aggregation workspace is always the one shared checkout — so
+    every agent worktree proves a verdict about somebody else's working tree,
+    and a concurrent uncommitted pin bump in that checkout (67 listed clusters
+    against 253 derived) reddened every worktree on the machine while every
+    isolated clone passed at every revision. Independently, `main`'s index
+    pins `f13a3b6007736292e1e157febef1ac733e534de9`, a commit reachable from
+    no ref local or remote — the branch that generated it landed squashed as
+    `4e57009c` — and the test converts that into `pytest.skip`, so the
+    assertion has never executed in a fresh clone, and the skip's stated
+    reason ("shallow clone?") is false in the one place it fires, since
+    `pytest-suite.yml` checks out at `fetch-depth: 0`.
+    Authored in openxFactory because `doc-health` is an openxFactory
+    capability and the verification being hardened is its own.
+  approved_by: ""
+  approved_on: ""
+  approval_pending: >-
+    DELIBERATELY BLANK, NOT OVERLOOKED. The promoted `document-lifecycle`
+    origin requirement demands explicit approval provenance for an ad-hoc
+    origin, and the authoring session has none to record: this packet was
+    raised by a delegated session from a triage record, and no approval act
+    for it exists. Fabricating one is the failure this repository has already
+    refused once — openxFactory PR #344 stopped rather than declare an origin
+    it could not support, and `create-medxchart-overlay-boundary` carries the
+    shape of the admission that later closed it. Until Brett admits this
+    packet, `proposal-origin` will report `ad-hoc origin lacks required` for
+    both fields, which is the honest signal and is recorded as `tasks.md`
+    § 1.1. Admission fills the two fields above and moves `proposal.md`'s
+    `Status:` from `draft`; nothing else in the packet depends on it.
