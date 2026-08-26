@@ -54,7 +54,10 @@ to vocabulary identity/digest, class identifier, neutral scope reference,
 cited policy approval, issuer identity/authority, approval time and validity
 bounds. Its canonical approval digest SHALL identify those facts. Revocation
 SHALL be a separate content-addressed event targeting the approval digest and
-linking its predecessor event/revision; approval facts SHALL NOT be rewritten.
+linking its predecessor event/revision. Every revocation event SHALL identify
+the revoking principal, authority role and digest-bound authorization proof;
+the validator SHALL require that authority to close to the policy authority
+authorized to revoke the approval. Approval facts SHALL NOT be rewritten.
 
 #### Scenario: allowance approval is issued
 
@@ -65,13 +68,20 @@ linking its predecessor event/revision; approval facts SHALL NOT be rewritten.
 #### Scenario: allowance is revoked
 
 - **WHEN** authorized policy authority revokes an allowance
-- **THEN** a new revocation event targets the approval digest and links predecessor state
+- **THEN** a new revocation event targets the approval digest, links predecessor state and binds the revoking principal/authority proof
 - **AND** mutation of the approval record is a validation failure
+
+#### Scenario: revocation authority does not close
+
+- **WHEN** a revocation event lacks revoker evidence or its authority does not close to authorized policy authority
+- **THEN** the revocation event and registry revision are invalid
+- **AND** the unresolved claimed allowance produces `needs_human_review` rather than trusting the event
 
 ### Requirement: Registry resolution reads current append-only state atomically
 
 openxFactory SHALL define a governed registry with stable registry identity,
-append-only revisions linked by predecessor digest, unique allowance IDs and
+append-only revisions linked by predecessor digest, allowance IDs that are
+unique for the registry lifetime and never reused in a later revision, and
 atomic current-revision lookup. A claimed allowance reference SHALL contain
 only `(registry_id, allowance_id)`; copied/embedded allowance payloads are
 unconditionally forbidden. Decisions SHALL record the current revision digest
@@ -88,6 +98,12 @@ NOT satisfy current-state evaluation.
 
 - **WHEN** a binding or decision embeds copied allowance fields under authority, diagnostic or evidence data
 - **THEN** contract validation fails regardless of the copied data's claimed purpose
+
+#### Scenario: later revision reuses an allowance identifier
+
+- **WHEN** a registry revision assigns any prior allowance identifier to a different approval digest
+- **THEN** the revision is invalid and current-state resolution fails closed
+- **AND** revocation cannot be bypassed by repointing the old identifier
 
 ### Requirement: Domain-owned scope evidence maps to neutral closed outcomes
 
@@ -158,7 +174,11 @@ openxFactory SHALL require deterministic compliance immediately before worker
 invocation regardless of prior approval, classifier use or live Hermes review.
 All deterministic, classifier and Hermes findings SHALL compose into one
 decision under precedence `block > needs_human_review > allow`; no higher layer
-may erase a deterministic block. Evaluation failure SHALL stop dispatch.
+may erase a deterministic block. Evaluation failure SHALL stop dispatch. The
+evaluator SHALL issue a dispatch-authorization token conditioned on the current
+registry revision digest, and worker invocation SHALL atomically compare that
+condition with the registry head at a shared linearization point. A mismatch
+SHALL invalidate authorization and require current-state re-evaluation.
 
 #### Scenario: deterministic floor finds a veto class
 
@@ -170,6 +190,12 @@ may erase a deterministic block. Evaluation failure SHALL stop dispatch.
 - **WHEN** deterministic evaluation allows but Hermes adds a review finding
 - **THEN** the composed decision is `needs_human_review` and all layer findings are retained
 
+#### Scenario: revocation races worker invocation
+
+- **WHEN** the registry head changes after evaluation but before the worker-invocation linearization point
+- **THEN** the dispatch-authorization comparison fails and worker invocation does not occur
+- **AND** compliance is re-evaluated against the new current revision
+
 ### Requirement: Classifier escalation has closed triggers, hard caps and fail-closed results
 
 openxFactory SHALL permit classifier escalation only for trigger
@@ -177,8 +203,11 @@ openxFactory SHALL permit classifier escalation only for trigger
 trigger SHALL reference and digest current vocabulary detection metadata.
 Decision evidence SHALL record trigger kind/reference/digest, model/version,
 one-invocation/one-turn limits, maximum 65,536 input bytes, 8,192 output bytes,
-4,096 output tokens and 60 seconds, actual consumption, closed result and
-result digest. Missing/invalid trigger, blanket undeclared sensitivity, absent
+4,096 output tokens and 60 seconds, actual consumption, closed result from
+`no_veto_signal | veto_signal | indeterminate | error`, and result digest.
+`no_veto_signal` SHALL add no classifier finding and SHALL NOT itself authorize
+`allow`; `veto_signal`, `indeterminate`, and `error` SHALL produce at least
+`needs_human_review`. Missing/invalid trigger, blanket undeclared sensitivity, absent
 limits, breach, timeout or invocation failure SHALL produce
 `needs_human_review`; a positive classifier finding SHALL also produce
 `needs_human_review` and SHALL NOT authorize an allowance.
@@ -193,6 +222,12 @@ limits, breach, timeout or invocation failure SHALL produce
 - **WHEN** bounded classification reports a possible veto class
 - **THEN** the composed outcome is at least `needs_human_review` and dispatch does not occur
 
+#### Scenario: classifier reports no veto signal
+
+- **WHEN** bounded classification returns `no_veto_signal` under a valid trigger and limit envelope
+- **THEN** no classifier finding is added and the remaining deterministic/Hermes findings control the outcome
+- **AND** classifier output alone never authorizes an allowance or final `allow`
+
 #### Scenario: classifier limit or invocation fails
 
 - **WHEN** any classifier cap is absent/exceeded or invocation fails/times out
@@ -202,7 +237,9 @@ limits, breach, timeout or invocation failure SHALL produce
 
 openxFactory SHALL require intent approval, pre-dispatch evaluation and post-
 build admission to bind decisions to identical canonical content digest,
-policy-source/vocabulary digest and registry identity, while each later point
+policy-source/vocabulary digest, registry identity and identical set of claimed
+`(registry_id, allowance_id)` references, compared after lexicographic ordering
+by `registry_id` then `allowance_id`, while each later point
 atomically reads current registry revision and records resolved approval,
 revocation and scope-verdict digests. Stale revision selection, digest mismatch
 or newly revoked authority SHALL NOT authorize the later point.
@@ -217,3 +254,9 @@ or newly revoked authority SHALL NOT authorize the later point.
 
 - **WHEN** dispatch policy/vocabulary digest differs from the approved decision
 - **THEN** dispatch fails closed and requires re-evaluation under the current authority
+
+#### Scenario: allowance claim set changes after approval
+
+- **WHEN** dispatch or admission carries a different allowance-reference set than the approved decision
+- **THEN** the later point fails closed and requires a new compliance decision
+- **AND** current-state re-resolution does not permit substituting another allowance

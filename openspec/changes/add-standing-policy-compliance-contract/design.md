@@ -89,11 +89,13 @@ admission unable to prove they evaluated the same intent under the same rules.
 ### D5 — Central revocable allowance registry
 
 Allowances are first-class records; bindings carry a registry-qualified
-reference `(registry_id, registry_version, allowance_id)`, never copied
+reference `(registry_id, allowance_id)`, never copied
 payloads. Registry revisions and resolved allowance-record digests bind every
 decision to the state it actually evaluated.
 Approval fields are immutable. Revocation is additive and immediately controls
-the next evaluation. A missing/unreadable reference produces
+the next evaluation. Every revocation identifies the revoking principal and
+digest-bound authority proof, which must close to the policy authority allowed
+to revoke that approval. A missing/unreadable reference produces
 `needs_human_review`; a resolved revoked allowance produces `block`.
 
 **Alternative rejected:** embedded allowance objects cannot reflect revocation;
@@ -101,17 +103,20 @@ free-text citations cannot be resolved deterministically.
 
 ### Record family
 
-The realization produces four interoperable artifacts:
+The realization produces five interoperable artifacts:
 
 1. `veto-class-vocabulary` — policy-source reference/digest, class identifiers,
    unique-within-vocabulary class identifiers, owner/issuer roles and
    domain-declared detection metadata.
-2. `policy-allowance` — stable ID, class/scope, policy approval reference,
-   issuer identity/authority, approval time and additive revocation state.
-3. `policy-allowance-registry` — registry identity/version and allowance
-   collection, with a monotonically identified revision, unique IDs and
-   deterministic resolution semantics.
-4. `compliance-decision` — evaluated-content digest, evaluator/version,
+2. `policy-allowance` — immutable stable ID, class/scope, policy approval
+   reference, issuer identity/authority, approval time and validity bounds.
+3. `policy-allowance-revocation` — content-addressed event targeting the
+   approval digest, identifying the authorized revoking principal/authority
+   proof, and linking predecessor event/revision state.
+4. `policy-allowance-registry` — registry identity/version and allowance
+   collection, with a monotonically identified revision, registry-lifetime
+   unique IDs and deterministic resolution semantics.
+5. `compliance-decision` — evaluated-content digest, evaluator/version,
    policy/vocabulary digest, registry revision, findings, resolved allowance
    record digests, scope-resolution verdicts, outcome and bounded/redacted
    correlation evidence.
@@ -120,14 +125,18 @@ Allowance scope semantics remain domain-owned. A neutral scope reference binds
 `scope_kind`, `scope_ref`, operations and a scope digest; a domain resolver
 emits `covers | does_not_cover | indeterminate` bound to the evaluated-content
 and scope digests. The neutral outcome mapping is fixed: `covers` may satisfy
-that class, `does_not_cover` blocks, and `indeterminate` needs human review.
+that class only when all other allowance checks pass; `does_not_cover` blocks,
+and `indeterminate` needs human review.
 
 Classifier escalation has a machine-checkable limit envelope: a closed trigger
 of `deterministic_ambiguity` or `policy_sensitive_surface`; the latter MUST
 reference sensitivity metadata declared by the current vocabulary, so a
 consumer cannot label every input sensitive. The decision records trigger
 kind/reference/digest, model/version, declared limits, actual consumption,
-closed result and result digest. Limits are exactly one
+closed result (`no_veto_signal | veto_signal | indeterminate | error`) and
+result digest. `no_veto_signal` contributes no classifier finding and never
+authorizes an allowance by itself; every other result needs human review.
+Limits are exactly one
 invocation and one turn, at most 65,536 input bytes, 8,192 output bytes, 4,096
 output tokens and 60 seconds. It receives a redacted bounded excerpt, never the
 raw evidence corpus. Missing limits, limit breach, timeout or invocation error
@@ -148,6 +157,13 @@ digests, so canonical validation compares the chain rather than trusting one
 mutable object. Evaluation reads the current registry revision atomically;
 bindings carry `(registry_id, allowance_id)` while decisions record the current
 revision digest and resolved approval/revocation digests.
+
+The pre-dispatch decision and worker invocation serialize against the same
+registry head. The evaluator issues a dispatch-authorization token conditioned
+on the current revision digest; worker invocation atomically compares that
+condition with the registry head. A changed head invalidates the token and
+forces current-state re-evaluation, so a revocation committed before the
+invocation linearization point controls that invocation.
 
 Closed outcome precedence across deterministic evaluation, classifier and
 Hermes is `block > needs_human_review > allow`; every layer's findings are
@@ -175,7 +191,7 @@ codexFactory first conformer will instantiate its ratified five classes.
 ## Migration Plan
 
 1. Ratify this neutral requirement set.
-2. Realize and release the four record schemas/templates, validator and corpus
+2. Realize and release the five record schemas/templates, validator and corpus
    in the next additive openxFactory contract bundle.
 3. Propose/realize codexFactory `add-intent-compliance-gate` against that
    release: instantiate the five classes, grow the binding by allowance refs
