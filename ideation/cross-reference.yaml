@@ -11250,3 +11250,809 @@ possibles_register:
     FR-031's switch already exists in code. No staged topic or existing possible names a neutral custody
     contract, and the same custody/audit/consent questions recur for every future live surface carrying
     an emergency stop, so the answer is capability-shaped rather than pilot-shaped.
+- id: pos-derived-mobile-verdict-terminal-client-for-any-installed
+  title: Mobile verdict-terminal client for any installed DomainxFactory's runtime dashboard
+  claim: 'The cluster''s mobile architecture (a Flutter snapshot-consumer + intent-emitter client, no
+    on-device checkout) could generalize beyond the dev/hosted ideation dashboard into the universal mobile
+    client for the runtime plane: the same two endpoints (snapshot JSON + intent API) pointed at whichever
+    DomainxFactory install''s own dashboard capability is running, so one app serves every tenant''s governed-content
+    wheel rather than only the openxFactory hosted instance.'
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/cloud-workstation-topology.md
+    section: derived-from cluster cl-doc-workflow
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-86c3db6420f9
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-doc-workflow
+  supporting_evidence:
+  - document: ideation/brainstorm/cloud-workstation-topology.md
+    section: '## Mobile (Flutter) — the intent model IS the mobile architecture'
+    passage_sha256: 600be19ae71c21461ec6cac43ee26573290a3916d7fae0c1a05d299cf9df1244
+  rationale: cloud-workstation-topology.md designs the mobile app strictly as a snapshot-consumer + intent-emitter
+    against 'the same htpasswd->Keycloak path' with no device-side git, while the sibling staged topic
+    dashboard-repo-selector.md separately decides that 'the dashboard becomes a neutral xFactory capability
+    every DomainxFactory install ships,' serving a running install's own domain ideas from governed install
+    content, with the dev and runtime planes kept strictly separate. Neither document connects the two,
+    but the mobile client's endpoint-only architecture is exactly the shape needed to talk to a per-install
+    runtime dashboard once one exists -- the connection turns two independently-decided designs into one
+    concrete mobile capability.
+- id: pos-derived-stage-the-lens-enhancements-topic-consolidating
+  title: Stage the lens-enhancements topic consolidating the three keyword-lens feat requests
+  claim: This cluster could become the staged 'lens-enhancements' topic that three of its own brainstorm
+    documents already name as their shared destination -- organizing lens-ring-combination-explorer, lens-keyword-search-and-adhoc,
+    and lens-brainstorm-session-launch into one staged packet with picked possibles realized as a single
+    MODIFIED ideation-dashboard OpenSpec delta.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/lens-ring-combination-explorer.md
+    section: derived-from cluster cl-doc-workflow
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-86c3db6420f9
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-doc-workflow
+  supporting_evidence:
+  - document: ideation/brainstorm/lens-ring-combination-explorer.md
+    section: '## Exit'
+    passage_sha256: 454593f84c06d7af0af81525427ca365294a71d539db34f051d6aba68a1eed25
+  rationale: All three lens brainstorm docs independently carry the identical exit instruction pointing
+    at a not-yet-created staged topic, but none of the cluster's staged documents is that topic -- the
+    convergence across three separately-captured brainstorms on the same unbuilt destination is itself
+    the evidence that this staging step is overdue and exactly the kind of cross-document connection this
+    lane exists to surface.
+- id: pos-derived-shared-passage-discovery-engine-feeding-both-the
+  title: Shared passage-discovery engine feeding both the evidence board and the compilation tree
+  claim: 'The cluster''s automated passage-topic discovery mechanism (proposed in topic-compilation-tree.md
+    to derive doc-to-topic edges) could be built once and consumed by two currently-separate features:
+    the compilation tree''s per-topic index/abstract build, and the cluster canvas''s evidence board in
+    cluster-combining-gui.md, whose passages today are pinned entirely by hand -- pre-populating the human''s
+    evidence board with worker-suggested passages instead of requiring pure manual dragging.'
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/topic-compilation-tree.md
+    section: derived-from cluster cl-doc-workflow
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-86c3db6420f9
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-doc-workflow
+  supporting_evidence:
+  - document: ideation/brainstorm/topic-compilation-tree.md
+    section: '## What already exists to build on (do not reinvent)'
+    passage_sha256: 34963b0172f96d45fd49cfd97b371cb0ccf18f61964efd74adcaf47996be42f7
+  rationale: topic-compilation-tree.md frames passage discovery as 'the possibles-derivation problem in
+    miniature,' while cluster-combining-gui.md's evidence board only supports manually pinning passages
+    that a human drags from member docs. The two documents describe the same underlying act -- finding
+    which passage of a member doc supports a topic -- from opposite directions (automated discovery vs.
+    manual curation) without ever citing each other, so building one shared discovery pass to power both
+    is a genuine connection across the cluster rather than something either document already states.
+- id: pos-derived-unified-passage-evidence-citation-kernel
+  title: Unified passage-evidence citation kernel
+  claim: The cluster's evidence-board, compilation-tree, and funnel-wheel designs could become one shared
+    passage-level, classed-provenance citation primitive (indexed / inferred / synthesized) that the cluster
+    canvas's evidence board, the per-topic compilation tree, and the funnel wheel's connection threads
+    all consume, instead of three independently invented implementations of the same shape.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/topic-compilation-tree.md
+    section: derived-from cluster cl-doc-management
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-c64e1d872bc5
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-doc-management
+  supporting_evidence:
+  - document: ideation/brainstorm/topic-compilation-tree.md
+    section: '## What already exists to build on (do not reinvent)'
+    passage_sha256: 39a533b7986256ea6bafd564a9c019b2bb290fcdc166da6578c44ddfb41c228f
+  rationale: cluster-combining-gui.md's evidence board pins passages with section-reference + passage-hash
+    provenance so a possible 'cites its passages from birth'; topic-compilation-tree.md independently
+    designs a passage->topic edge classed indexed|inferred|synthesized and explicitly notes this is 'EXACTLY
+    the materialized cross-class edge contract the WHEEL realization requires' (ideation-dashboard.md's
+    locked wheel spec, which also classes its threads indexed/inferred/synthesized). Three separate brainstorms
+    converge on the same passage-level, classed-provenance primitive without ever being named as one reusable
+    kernel -- a strong candidate for a single shared contract rather than three parallel builds.
+- id: pos-derived-reusable-bounded-worker-evidence-contract-templa
+  title: Reusable bounded-worker evidence contract template
+  claim: The cluster's repeatedly re-derived worker shape (rationale + evidence + confidence + pending_review
+    disposition) could become one generalized bounded-Omnigent-worker contract template that new AI-assist
+    lanes -- doc-health's semantic sweep, the readiness-scoring panel, the derive-possibles lane, the
+    AI suggestion tray, and the custody-tier sanitizer worker -- adopt directly instead of each brainstorm
+    re-specifying the same shape from scratch.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/ideation-cross-reference-readiness.md
+    section: derived-from cluster cl-doc-management
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-c64e1d872bc5
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-doc-management
+  supporting_evidence:
+  - document: ideation/brainstorm/ideation-cross-reference-readiness.md
+    section: '### Cross-reference index'
+    passage_sha256: 17c9ab104b63c125cd6059455c4e633f0cf4bb98465526c0e40870ecd1a01d81
+  rationale: 'ideation-cross-reference-readiness.md explicitly mirrors ''the evidence-backed-recommendation
+    contract already used by the document-cataloger and the ideation-organizer'' for its three-tier scores.
+    The same shape recurs independently across the cluster: doc-health-pipeline.md''s agentic sweep needs
+    an Omnigent worker profile and credential grants; ideation-dashboard.md names the derive-possibles
+    worker as ''a bounded Omnigent lane (same shape as the cataloger, same model-worker contract lessons)''
+    and later a sanitizer worker as ''a natural bounded Omnigent lane, same shape as the cataloger'';
+    cluster-combining-gui.md''s AI suggestion tray dispatches ''a bounded agent over member docs'' with
+    candidates arriving pending-review. None of these documents point to one canonical template -- each
+    restates the shape independently.'
+- id: pos-derived-custody-tier-gate-on-domain-to-neutral-promotion
+  title: Custody-tier gate on domain-to-neutral promotion
+  claim: 'The domain-to-neutral promotion lifecycle could become custody-tier-aware: a promotion whose
+    originating domain evidence includes protected-tier content (e.g. Medx PHI, Ledgerx financial records)
+    would route through the same custody-tier sanitization / evidence-manifest gate already designed for
+    NotebookLM dispatch, before any illustrative passage from that domain crosses into the neutral layer''s
+    documentation or examples.'
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/ideation-dashboard.md
+    section: derived-from cluster cl-doc-management
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-c64e1d872bc5
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-doc-management
+  supporting_evidence:
+  - document: ideation/brainstorm/ideation-dashboard.md
+    section: '### Custody tiers: git as the traceability plane (Brett + discussion, 2026-07-15)'
+    passage_sha256: 0441b0f24256bd88431579872c98c1d3d2457ec5dd2bc3762b81e768dc613827
+  rationale: domain-to-neutral-promotion.md defines a general lifecycle (domain-local concept -> promotion
+    candidate -> staged neutral concept -> openxFactory OpenSpec change -> promoted neutral contract)
+    for any domain-born concept, but never considers that some domains hold protected-tier evidence. ideation-dashboard.md's
+    custody-tiers section, captured independently five days earlier in this same cluster, sets a hard
+    rule that protected content must never enter GitHub or NotebookLM and must be sanitized before any
+    dispatch across a custody boundary -- and the promotion lifecycle's 'neutralization draft' and cross-domain
+    evidence citation are exactly this kind of boundary crossing, yet the two documents never reference
+    each other on this point.
+- id: pos-derived-governed-client-knowledge-base-ingestion-pipelin
+  title: Governed client knowledge-base ingestion pipeline
+  claim: 'This cluster''s adapter contract and knowledge-base architecture material could become a single
+    shippable capability: a governed, per-source ingestion pipeline (discover → bind → consent-gate →
+    fetch → structure-before-embed → redact → emit evidence rows → embed/store → audit) that turns any
+    client source system into tenant-isolated, source-authority-tagged evidence for retrieval.'
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/client-ingestion-adapter-contract.md
+    section: derived-from cluster cl-client-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-73a058da7bc9
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-client-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/client-ingestion-adapter-contract.md
+    section: '## The ingestion pipeline (governed)'
+    passage_sha256: 702d545a78d77b70eb118bc93d30ab0df9a2b9743a0b6c6397ab6cdfff5dbaec
+  rationale: client-ingestion-adapter-contract.md specifies the nine-step governed pipeline and its evidence_row
+    output, while hermes-knowledge-base-architecture.md independently maps the same structure-before-embed
+    / adapter mechanics onto the Cerebras pattern and explicitly names the adapter contract as its sibling
+    exit path — the two documents describe one coherent, buildable ingestion capability that is not yet
+    staged as its own topic.
+- id: pos-derived-risk-assurance-launch-review-council
+  title: Risk & Assurance launch-review council
+  claim: The cluster's risk/legal material could become a standing 'Risk & Assurance Launch Review' capability
+    — a convened council of the Legal & Compliance Counsel, Reputation & Brand Steward, and Product Liability
+    & Insurance Officer that renders one combined go/no-go verdict on material releases, separate from
+    the routine Change-Approvals clearance pipeline.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/client-risk-and-assurance-model.md
+    section: derived-from cluster cl-client-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-73a058da7bc9
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-client-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/client-risk-and-assurance-model.md
+    section: '## The Risk & Assurance council (launch/release review)'
+    passage_sha256: 11f1c87056671c2d5a22a90830b9fbd0f3d18352392cb98ea5ed4c1f75bbaa36
+  rationale: client-risk-and-assurance-model.md defines the three-persona bench and its shared fail-closed,
+    escalate-to-human posture, and hermes-legal-compliance-model.md independently backs the Legal & Compliance
+    Counsel member with a full advisory panel — together they describe a concrete, convenable review capability
+    that the already-staged client-layer-tuning topic explicitly leaves as still-brainstorm, so it remains
+    unstaged.
+- id: pos-derived-cross-layer-spend-ledger-and-efficiency-audit-lo
+  title: Cross-layer spend ledger and efficiency-audit loop
+  claim: 'The cluster''s cost-accountability material could become a cross-layer spend-ledger capability:
+    Plane-2 workers clock in/out with their directing persona, feeding a domain efficiency-audit algorithm
+    and a client-layer (FAO) accounting rollup, closing the ''accounting gap'' the roster and scaffold
+    docs identify but do not yet wire up.'
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    section: derived-from cluster cl-client-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-73a058da7bc9
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-client-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    section: '## Possible feats'
+    passage_sha256: b7659816e232f6b689a518b73fe587e7e490746d3ad30034bb2b6cb774da4489
+  rationale: cost-accountability-and-efficiency-model.md defines the clock-in protocol and the domain/client/project
+    accounting chain, client-layer-scaffold.md names the same gap as an unresolved 'accounting gap' finding,
+    and client-layer-roster-draft.md adds the Finance & Accounting Officer persona to receive it — the
+    mechanism itself (not just the FAO persona already covered by the staged client-layer-tuning topic)
+    is a distinct, cross-cutting capability this cluster supports.
+- id: pos-derived-lens-enhancements-staged-topic
+  title: Lens-Enhancements Staged Topic
+  claim: The cluster's three lens feat-request brainstorms (lens-brainstorm-session-launch, lens-keyword-search-and-adhoc,
+    lens-ring-combination-explorer) could become one staged 'lens-enhancements' topic bundling their keyword-lens
+    gestures (search/ad-hoc keywords, ring-combination lattice, brainstorm-launch) into a single MODIFIED
+    ideation-dashboard delta, rather than remaining three separate unorganized brainstorms that each independently
+    declare the same intended destination.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/lens-ring-combination-explorer.md
+    section: derived-from cluster cl-ideation-dashboard
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-d2c7992349e0
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-ideation-dashboard
+  supporting_evidence:
+  - document: ideation/brainstorm/lens-ring-combination-explorer.md
+    section: '## Exit'
+    passage_sha256: 454593f84c06d7af0af81525427ca365294a71d539db34f051d6aba68a1eed25
+  rationale: All three lens documents contain the identical exit statement pointing to one shared 'lens-enhancements'
+    staged topic realized as a codexFactory feature, but no such staged topic exists among the cluster's
+    members yet, leaving a declared-but-unrealized organizational connection across the three docs.
+- id: pos-derived-topic-compilation-tree-as-shared-passage-discove
+  title: Topic Compilation Tree as Shared Passage-Discovery Engine
+  claim: The cluster's topic-compilation-tree brainstorm could become the shared passage-discovery and
+    edge-classification engine feeding both the derive-possibles worker lane's candidate generation and
+    the WHEEL view's materialized cross-class edge contract, rather than being realized as an isolated
+    compilation-doc renderer.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/topic-compilation-tree.md
+    section: derived-from cluster cl-ideation-dashboard
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-d2c7992349e0
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-ideation-dashboard
+  supporting_evidence:
+  - document: ideation/brainstorm/topic-compilation-tree.md
+    section: '## What already exists to build on (do not reinvent)'
+    passage_sha256: e144a1303052a21e03bb12c92e8e3ebcad382a8e4535684fc9755a2cf5bedf31
+  rationale: The document itself draws this connection across the cluster, explicitly noting its passage-discovery
+    pass could be shared with the derive-possibles lane and that its edge data is exactly the materialized
+    cross-class edge contract the WHEEL (defined in ideation-dashboard.md) requires, but no candidate
+    currently unifies these into one build target.
+- id: pos-derived-domain-onboarding-playbook-dtn-kit
+  title: Domain-Onboarding Playbook (DTN Kit)
+  claim: The cluster's store-vs-improvise filter, harvest-map method, and the codex-then-Medx repetition
+    of the same domain-hermes-content shape could become a packaged, reusable 'new domain onboarding kit'
+    — neutral schemas, the store-vs-improvise authoring test, and a harvest-map template — so Ledgerx/Opsx/Adx
+    (and any future domain) can stand up Domain Hermes content without re-deriving the codex analysis
+    from scratch.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-policy-model.md
+    section: derived-from cluster cl-domain-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-ec59a2bfb6be
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-domain-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-policy-model.md
+    section: The test, neutralized (DTN candidate)
+    passage_sha256: 185ff70d10d47833e1c5c7383f24984f1823155f685aa7e7e63be97714ec7316
+  rationale: The policy-model doc explicitly names Medx/Ledgerx/Opsx/Adx as candidates for 'the same filter
+    codex used,' and the Medx staged doc independently confirms the codex pattern already generalized
+    in practice (same roles/policies/councils/memory/catalog shape, same two-increment sequence). That
+    repetition across two cluster members is the concrete signal a formal, reusable onboarding kit would
+    pay for, rather than each domain re-running the same brainstorm.
+- id: pos-derived-cross-layer-spend-ledger-efficiency-audit-servic
+  title: Cross-Layer Spend Ledger & Efficiency-Audit Service
+  claim: The roster draft's bidirectional persona↔worker references and the cost-accountability model's
+    clock-in/out protocol, audit-selection algorithm, and tenant/project accounting roles could become
+    one concrete cross-layer spend-ledger service — turning today's isolated budget primitives into an
+    actual aggregated ledger and audit pipeline that feeds practice-catalog and policy updates.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    section: derived-from cluster cl-domain-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-ec59a2bfb6be
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-domain-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    section: Possible feats
+    passage_sha256: b7659816e232f6b689a518b73fe587e7e490746d3ad30034bb2b6cb774da4489
+  rationale: The cost-accountability doc is explicitly the domain slice of a finding raised during the
+    roster review, and its clock-in protocol is defined in terms of the very bidirectional persona↔worker
+    references the roster draft decided — a concrete cross-document mechanism (a manager judging spend
+    through the same reference used for authority) that nothing in the cluster yet turns into a built,
+    working service.
+- id: pos-derived-shared-persona-certification-battery
+  title: Shared Persona Certification Battery
+  claim: The persona character model's trait-axis framework and behavioral battery, already reused unchanged
+    by the Medx roster draft, could become an actual cross-domain test harness — a battery of gate-pressure,
+    disposition-consistency, and voice-bounds probes run against every domain's persona set (codex, Medx,
+    and future domains) before certification, rather than existing only as a described stub.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/hermes-persona-character-model.md
+    section: derived-from cluster cl-domain-hermes
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-ec59a2bfb6be
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-domain-hermes
+  supporting_evidence:
+  - document: ideation/brainstorm/hermes-persona-character-model.md
+    section: Behavioral battery (certification stub)
+    passage_sha256: 780cd260eaa69f11912be2a5e5d1fa9f05522ad82b1d6342e0997171cd04131b
+  rationale: The character-model doc defines the battery only as a stub and leaves 'battery authoring'
+    as an open question, while the Medx roster draft explicitly reuses the same trait spine across domains
+    ('Option-E spine reused unchanged') with no shared test harness to certify it — a concrete cross-cluster
+    gap this feat would close.
+- id: pos-derived-project-layer-cost-accountant-three-layer-cost-l
+  title: Project-Layer Cost Accountant & Three-Layer Cost Ledger
+  claim: The cluster's cost-accountability material could become a project/subject-layer 'project accountant'
+    capability that closes the three-layer cost-accountability chain -- completing the domain (audit selection)
+    and client (Finance & Accounting Officer, already staged) legs with the project-layer spend-tracking
+    role that no staged topic in this cluster currently carries forward.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    section: derived-from cluster cl-layer-content-seeding
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-fba5d4afbf1f
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-layer-content-seeding
+  supporting_evidence:
+  - document: ideation/brainstorm/cost-accountability-and-efficiency-model.md
+    section: Possible feats
+    passage_sha256: 94c5ad9ddc5a594af4817208866baed158a1bff3c6a20809065204ac69bd9512
+  rationale: cost-accountability-and-efficiency-model.md defines a three-layer chain (domain/client/project).
+    The client layer's slice was already staged as the Finance & Accounting Officer plus cost_reporting_steward
+    in client-layer-tuning.md, and the domain layer's audit-selection ownership is an open question in
+    the staged codexfactory-domain-hermes-content.md -- but no staged document anywhere in the cluster
+    mentions a project-layer project accountant or its per-task/sub-project tracking at the tenant-set
+    granularity, a genuine gap visible only by comparing the three staged/brainstorm documents against
+    each other.
+- id: pos-derived-cross-domain-onboarding-playbook-domain-hermes-c
+  title: Cross-Domain Onboarding Playbook (Domain Hermes Content Pattern)
+  claim: The codex domain-content authoring pattern (roles/policies then councils/mixes/escalation/memory/catalog,
+    in two OpenSpec increments plus a lockstep Omnigent extension) could become a reusable, neutralized
+    domain-onboarding playbook, since MedxFactory's staged plan already replicates the identical two-increment
+    structure against the codex precedent, showing the pattern generalizes beyond a single domain.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md
+    section: derived-from cluster cl-layer-content-seeding
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-fba5d4afbf1f
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-layer-content-seeding
+  supporting_evidence:
+  - document: ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md
+    section: Summary
+    passage_sha256: f60e1a5bd74aae3e09d3bd2adb4e7caba83979898f8ff53bcb22446b94ce0394
+  rationale: The staged codexfactory-domain-hermes-content.md shows Change A archived and Change B author-ready
+    for codex's roles/policies/councils/memory/catalog pattern. The staged medxfactory-domain-hermes-content.md
+    explicitly builds the same two-increment structure 'per the prescribed shape proven by codexFactory,'
+    citing the same canonical spec and lockstep-Omnigent obligations -- a direct cross-document repetition
+    of one pattern across two independent staged topics, which supports extracting it as its own reusable
+    onboarding artifact for future domains.
+- id: pos-derived-efficiency-audit-to-auto-clear-envelope-feedback
+  title: Efficiency-Audit-to-Auto-Clear-Envelope Feedback Loop
+  claim: The cluster's material could become a closed feedback loop wiring the domain's efficiency audit
+    through domain memory's practice_effectiveness signal and the practice catalog's risk_class/maturity_gate
+    fields into the client policy wizard's auto-clear envelope, so cheaper-realization findings automatically
+    recalibrate what a client's clearance pipeline may auto-clear.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    section: derived-from cluster cl-layer-content-seeding
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-fba5d4afbf1f
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-layer-content-seeding
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    section: Practice catalog
+    passage_sha256: 93c8beb1db4e86b652e658a2c590b40bd45a0e995dbbe73568dc2bb9f3d343f6
+  rationale: codexfactory-domain-memory-and-practices.md explicitly wires practice_effectiveness to the
+    efficiency audit and the Lead-accepted catalog-update path; client-policy-wizard.md separately establishes
+    that each practice's risk_class feeds the client auto-clear envelope; and cost-accountability-and-efficiency-model.md
+    frames the audit's process-update loop as feeding practice-catalog updates. No single document states
+    the full audit-to-envelope pipeline end-to-end, but connecting all three member documents surfaces
+    it as a concrete, actionable capability.
+- id: pos-derived-practice-catalog-as-the-increment-2-seeding-payl
+  title: Practice-catalog as the increment-2 seeding payload
+  claim: The already-authored codex practice catalog (with its adoption-profile-shaped entries) could
+    become the first real content batch for hermes-layer-seeding-mechanism's content-starved `practice_adoption`
+    materialization slot, turning increment 2 from a designed-but-empty cut-list row into a testable case
+    with real data instead of the 32-line domain stub.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/hermes-layer-seeding-mechanism.md
+    section: derived-from cluster cl-memory-gateway
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-aed3fa544a43
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-memory-gateway
+  supporting_evidence:
+  - document: ideation/brainstorm/hermes-layer-seeding-mechanism.md
+    section: '### The enforceable slice, field by field (increment-2 cut list)'
+    passage_sha256: 763c0db476a3a7a9c8e12231d4df56c0f56246c83a15ff2cfa0452024ee0b916
+  rationale: hermes-layer-seeding-mechanism.md's enforceable-slice cut list marks practice-catalog adoption
+    profiles as 'to author' and explicitly says increment 2 is content-starved because only three fields
+    sourced from the 32-line stub exist today. codexfactory-domain-memory-and-practices.md has, in the
+    same cluster, already drafted a concrete `codex_practice_catalog` with real adoption-profile entries
+    (doc-health-sweep, conformance-gate, etc.) â€” pairing the two closes exactly the gap the seeding
+    doc names.
+- id: pos-derived-unified-evidence-gathering-to-decision-pipeline
+  title: Unified evidence-gathering-to-decision pipeline for Plane-1 personas
+  claim: 'The persona layer''s decide-then-speak architecture and the retrieval primitives'' planner-executor-synthesizer
+    advisory pipeline could be unified into one governed sequence for Plane-1 personas: `search`/`recall`
+    evidence gathering feeding directly into the gate-verdict computation that precedes persona rendering,
+    instead of two independently-described advisory patterns.'
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/hermes-persona-character-model.md
+    section: derived-from cluster cl-memory-gateway
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-aed3fa544a43
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-memory-gateway
+  supporting_evidence:
+  - document: ideation/brainstorm/hermes-persona-character-model.md
+    section: '## Decided (2026-07-22)'
+    passage_sha256: 59da23d1a3227318d463c3c1f5a69dd1bd204437bf70645c487be3ccfb472ee9
+  rationale: hermes-retrieval-primitives-contract.md frames its synthesizer output as advisory context
+    for a Hermes decider ('it advises; Hermes decides'). hermes-persona-character-model.md separately
+    decides that the gate verdict is computed before persona rendering, with the persona only phrasing
+    it. Both encode the same MoA-advises/Hermes-decides split but as separate pipelines; naming the retrieval
+    primitives as the literal pre-verdict evidence stage of decide-then-speak would give Plane-1 deciders
+    one concrete, testable sequence.
+- id: pos-derived-seed-time-escalation-target-consistency-check
+  title: Seed-time escalation-target consistency check
+  claim: The manual escalation-target audit that caught personas pointing at an overloaded, narrowly-defined
+    gate_rules_council could become an automated seed-time validator cross-checking every persona's escalation
+    target against the declared council/body registry — mirroring the bidirectional directs_workers consistency
+    check the cluster already decided on for Plane-2 references.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: derived-from cluster cl-codexfactory
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-73dd222cbed8
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-codexfactory
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: Escalation-target audit (2026-07-22)
+    passage_sha256: 1a0bc18ef6893da4dcc0523c04e80d3da833d11b02a6dcb4b0107722f31ba74c
+  rationale: 'The roster draft found that eight drafted personas systematically misrouted escalation targets
+    (overloading gate_rules_council, sending a peer to referee a deadlock, sending scope disputes to the
+    wrong authority) and had to hand-correct them in a table with the note ''apply this table when the
+    objects promote.'' The cluster elsewhere already decided that persona↔worker references get a seed-time
+    consistency check (''Worker references: both directions, seed-checked''); the same mechanical rigor
+    is conspicuously absent for escalation targets, which is exactly the kind of connection across members
+    (roster draft + deliberation doc''s council definitions) this lane should surface.'
+- id: pos-derived-credential-required-not-held-stop-condition-wire
+  title: Credential-required-not-held stop condition wired to the deployment handoff rail
+  claim: The domain's new 'credential_required_not_held' escalation stop condition ('no credential improvisation,
+    ever') could become the concrete trigger that routes any codexFactory persona or worker lacking a
+    needed credential into the deployment-handoff-boundary's governed client_infrastructure_request path
+    to OpsxFactory, rather than remaining a bare park-and-escalate rule with no defined downstream destination.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-deliberation.md
+    section: derived-from cluster cl-codexfactory
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-73dd222cbed8
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-codexfactory
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-deliberation.md
+    section: Escalation rules
+    passage_sha256: bc61925894dbbf1bceaf1955db9d6bdf81397b6cf811276b49bcb995aa18c74c
+  rationale: 'The deliberation doc adds credential_required_not_held as a new stop condition with on_stop:
+    park_fail_closed, but names no destination for a credential gap. The staged deployment-handoff-boundary
+    topic independently establishes that ''no non-opsX identity holds standing deployment credentials''
+    and that any credential need on a managed surface must flow through an OpsxFactory-issued grant against
+    an accepted request — a ready-made destination this stop condition could point to, connecting a domain-layer
+    rule to a cross-factory enforcement mechanism that already exists in the cluster''s staged material.'
+- id: pos-derived-shared-mechanical-executor-pattern-for-merge-mas
+  title: Shared mechanical-executor pattern for Merge Master and OpsxFactory execution identities
+  claim: The cluster's reframing of Merge Master as a non-deciding, purely mechanical gate-driven operator
+    that executes whatever a council plus human-ack produces could become a generalized neutral 'mechanical
+    executor' capability pattern, shared with the deployment-handoff-boundary's OpsxFactory execution
+    identity, which likewise only executes governed, pre-approved requests without holding standing decision
+    authority.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    section: derived-from cluster cl-codexfactory
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-73dd222cbed8
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-codexfactory
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-hermes-content.md
+    section: Merge Master and the Gate-Rules Council (reframed)
+    passage_sha256: b63357e661efa9bc68c419ef6de66c6ee06930c2853ec09ed6e29991d5d0fb91
+  rationale: Both documents independently arrive at the same shape — a scoped machine identity that performs
+    an action only after human/council authorization and holds no deciding power of its own — for two
+    different surfaces (merge enforcement in codexFactory, deployment execution in OpsxFactory). Naming
+    that shared shape as one pattern is a genuine cross-document connection this lane exists to surface,
+    distinct from any existing possible about schemas or cost accounting.
+- id: pos-derived-cross-domain-persona-framework-package
+  title: Cross-domain persona-framework package
+  claim: This cluster's material could become a single versioned, cross-domain persona-framework package
+    — the trait-axis vocabulary (disposition domain-locked / voice client-tunable), the `hermes_domain_persona`
+    schema, and the decide-then-speak guardrail — that codex, medx, and future domains import and extend
+    by reference instead of re-deriving from scratch.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/medxfactory-domain-roster-draft.md
+    section: derived-from cluster cl-plane-1
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-d347d926a111
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-plane-1
+  supporting_evidence:
+  - document: ideation/brainstorm/medxfactory-domain-roster-draft.md
+    section: What is already fixed (not roster decisions)
+    passage_sha256: 9b2534ba17f136a1145c1036efb69d1403fd4d233eaf73bea49faf79f5b39a16
+  rationale: The codex roster draft originates the full Option-E trait-axis spine and persona schema,
+    and the medx roster draft explicitly states it takes 'the spine' — trait vocabulary, kind, guardrail,
+    bidirectional references — 'reused verbatim from codex,' confirming this is already functioning as
+    a de facto shared framework across two domain clusters, but only informally; formalizing it as a standalone
+    package would let it be versioned and consumed on purpose rather than by copy.
+- id: pos-derived-roster-promotion-conformance-checklist
+  title: Roster-promotion conformance checklist
+  claim: This cluster's material could become a reusable roster-promotion conformance checklist (worker-coverage
+    table, authority-closure matrix, escalation-target audit) that any domain or layer runs before promoting
+    a Plane-1 roster, catching skew like overloaded/mis-routed escalation targets or claimed-but-unstaked
+    authority before it reaches an OpenSpec change.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: derived-from cluster cl-plane-1
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-d347d926a111
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-plane-1
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-roster-draft.md
+    section: Worker-coverage table (all Plane-2 classes → directing persona)
+    passage_sha256: 00eb3439cbde06e5987f88dd6b5a94510f4c37d9f0f093a36ee5fb3541e49f68
+  rationale: 'The codex domain roster draft independently builds a worker-coverage table and an authority-closure
+    matrix to find gaps before promotion, and the medx roster draft performs the same class of check (''Coverage
+    check: 11 workers, each with exactly one directing persona'') plus its own escalation-elevation table
+    — the same audit discipline is being reinvented per domain, which is exactly the kind of repeated
+    cross-cluster pattern worth extracting into one shared, run-before-promotion tool.'
+- id: pos-derived-cross-layer-cost-accountability-pipeline
+  title: Cross-layer cost-accountability pipeline
+  claim: This cluster's material could become a formalized, single cross-layer cost-accountability capability
+    that wires domain-worker clock-in/spend reporting, the client Finance & Accounting Officer's tenant-wide
+    cost roll-up and granularity contract, and a future project-layer accountant into one auditable reporting
+    pipeline, rather than three separately-drafted pieces that only reference each other.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/client-layer-roster-draft.md
+    section: derived-from cluster cl-plane-1
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-d347d926a111
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-plane-1
+  supporting_evidence:
+  - document: ideation/brainstorm/client-layer-roster-draft.md
+    section: 11. Finance & Accounting Officer — `FAO` (added 2026-07-22)
+    passage_sha256: da95d4a7eaca83610b2f49cd896b7405a6ff848c3da5139e3e55b4fa0cf27fc0
+  rationale: The codex domain roster draft introduces worker 'clock-in/clock-out' spend reporting to a
+    directing persona and names the tenant/project layers as downstream consumers; the client roster draft
+    adds the FAO persona explicitly to receive those project/sub-project cost roll-ups at a granularity
+    it sets; and the client scaffold's 'accounting gap' finding ties the two together as one unresolved
+    seam — together these three documents describe one pipeline, not three separate features, which is
+    the connective possible this lane exists to surface.
+- id: pos-derived-practice-catalog-domain-onboarding-kit
+  title: Practice-Catalog Domain Onboarding Kit
+  claim: The cluster's twice-proven practice-catalog pattern (neutral schema, canonical validator, provenance
+    rule, owning_lead/risk_class fields) could become a reusable onboarding kit or checklist that lets
+    a third domain adopt the same shape without rediscovering it from scratch.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md
+    section: derived-from cluster cl-practice-catalog
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-bf373408d04c
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-practice-catalog
+  supporting_evidence:
+  - document: ideation/staging/medxfactory-domain-hermes-content/medxfactory-domain-hermes-content.md
+    section: '## Claims (verified 2026-07-24 against the trees; no roster decision yet)'
+    passage_sha256: e75245399663d71eaa10843084ee19a957c4aadf64aef0794c2d16e6148172aa
+  rationale: The MedxFactory staging doc explicitly verifies that codexFactory's practice-catalog/domain-hermes-content
+    shape (schema, canonical validator, contract versions) is now 'proven' by a second independent domain
+    reusing it verbatim, which is exactly the kind of repeated pattern worth extracting into a durable
+    onboarding artifact for the next domain rather than re-deriving per domain.
+- id: pos-derived-cross-domain-practice-suggestion-engine-validati
+  title: Cross-Domain Practice-Suggestion Engine Validation Pilot
+  claim: With two independently-authored domain practice catalogs (codex, Medx) now sharing the same neutral
+    adoption_profile schema, the cluster's gap-scan/suggestion-generation mechanics could become a pilot
+    that runs the same engine against both catalogs to prove real domain-neutrality rather than codex-only
+    behavior.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/domain-practice-suggestion-generation.md
+    section: derived-from cluster cl-practice-catalog
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-bf373408d04c
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-practice-catalog
+  supporting_evidence:
+  - document: ideation/brainstorm/domain-practice-suggestion-generation.md
+    section: '## Where best practice lives: the practice catalog'
+    passage_sha256: f9a41289a203befae152389d7c5e98501dee426a37b7090cfa16eb03761cfe46
+  rationale: domain-practice-suggestion-generation.md designs the gap-scan and suggestion record as schema-neutral
+    tooling meant to serve any domain's catalog, and the cluster now contains two separately staged domain
+    catalogs (codex ratified, Medx in progress) that give this neutrality claim its first real cross-domain
+    test.
+- id: pos-derived-efficiency-audit-to-practice-catalog-feedback-pi
+  title: Efficiency-Audit-to-Practice-Catalog Feedback Pipeline
+  claim: The cluster's cost-accountability audit-selection loop and the domain memory/practice-catalog's
+    practice_effectiveness wiring could become a concrete, buildable pipeline turning efficiency-audit
+    findings into Lead-accepted catalog parameter updates, rather than staying two documents that merely
+    reference each other.
+  state: latent
+  origin: ai-derived
+  provenance:
+    document: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    section: derived-from cluster cl-practice-catalog
+  derivation:
+    worker_run:
+      correlation_id: DPOSS-bf373408d04c
+      worker_profile: derive-possibles
+      prompt_contract_version: derive-possibles-prompt-v1
+    disposition: pending_review
+  claiming_clusters:
+  - cl-practice-catalog
+  supporting_evidence:
+  - document: ideation/brainstorm/codexfactory-domain-memory-and-practices.md
+    section: '## Practice catalog'
+    passage_sha256: 93c8beb1db4e86b652e658a2c590b40bd45a0e995dbbe73568dc2bb9f3d343f6
+  rationale: codexfactory-domain-memory-and-practices.md explicitly cross-references cost-accountability-and-efficiency-model.md's
+    audit output as the source of the practice_effectiveness memory signal and describes the Lead-accepted
+    path it would ride, but neither document builds the actual mechanism connecting audit findings to
+    catalog updates — a concrete cross-member connection worth staging as its own feat.
