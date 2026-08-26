@@ -270,4 +270,3 @@ class NotebookLmSourceImportTests(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 sync.append_import(root, plan, "book", "content")
             self.assertFalse((Path(td) / "escape.md").exists())
-

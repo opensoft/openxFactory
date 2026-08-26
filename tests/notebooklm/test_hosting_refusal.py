@@ -194,4 +194,3 @@ class ProfileAccountIsCheckedWhenTheCliRecordedOneTests(unittest.TestCase):
         self.assertIsNotNone(got, "an older login that recorded no address must "
                                   "not block the run")
         self.assertIn("records no account address", out.getvalue())
-

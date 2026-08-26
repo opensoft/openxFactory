@@ -189,4 +189,3 @@ share_out: []
         self.assertIn("changed mid-run", str(caught.exception))
         self.assertEqual(ran, [], "the invocation must be refused BEFORE the "
                                   "subprocess, not after it has written")
-

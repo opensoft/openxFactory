@@ -185,4 +185,3 @@ class ParityReportTests(unittest.TestCase):
                         lambda *a, parse=True, value=answer: value
                     )
                 )
-
