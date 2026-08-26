@@ -860,23 +860,39 @@ bodies:
       vocabulary for the Ledgerx workers. The source describes whole human jobs;
       crosswalk individual task statements, not licenses or authority, to the
       narrower artifact-only agents.
-    # FLAGGED, NOT CORRECTED, 2026-08-26. The opsx/codex re-verification found
-    # O*NET 31.0 (August 2026) is the current production database, so this pin
-    # is one release behind. It is left as-is deliberately: this entry is
-    # LedgerxFactory's, its overlay's CC BY attribution names "the O*NET 30.3
-    # Database" by version, and the pin and that attribution must move
-    # together in one act by that domain. Codes and titles are unchanged
-    # across 30.3 -> 31.0, so nothing shipped is wrong today.
-    current_version: O*NET Database 30.3, May 2026
+    # FLAG DISCHARGED 2026-08-26, and the flag's own condition is what let it
+    # be. It read: "FLAGGED, NOT CORRECTED — the opsx/codex re-verification
+    # found O*NET 31.0 (August 2026) is the current production database, so
+    # this pin is one release behind. It is left as-is deliberately: this
+    # entry is LedgerxFactory's, its overlay's CC BY attribution names 'the
+    # O*NET 30.3 Database' by version, and the pin and that attribution must
+    # move together in one act by that domain." That domain has now moved its
+    # half: LedgerxFactory `ded4a0128f9e` on branch
+    # `change/apqc-terminology-and-onet-pin` rewrites the overlay's CC BY
+    # block to O*NET's version-stamped 31.0 wording, so the pin moves here in
+    # the same authoring act rather than drifting apart from it. Codes and
+    # titles are unchanged across 30.3 -> 31.0 — re-read against the body's
+    # own current publication — so no shipped mapping is affected; what moves
+    # is the version a reader would check against.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
     status: current
     source_url: https://www.onetcenter.org/database.html
     term_list_availability: public
+    # The version-stamped attribution is why this entry could not be corrected
+    # on its own: onetcenter.org's required credit wording names the release
+    # ("This page includes information from the O*NET 31.0 Database..."), so a
+    # pin bump without the overlay's wording would have made the shipped
+    # credit false rather than merely stale.
+    reuse_licence: CC BY 4.0
+    redistribution_permitted_in_product_config: yes_with_conditions
+    attribution_required: >-
+      Credit the O*NET 31.0 Database and USDOL/ETA, link CC BY 4.0, state that
+      changes were made, retain the O*NET trademark, and state that USDOL/ETA
+      has not approved, endorsed, or tested the modifications.
     attribution_note: >-
-      O*NET 30.3 database content is CC BY 4.0 except stated exceptions. Credit
-      the O*NET 30.3 Database and USDOL/ETA, link CC BY 4.0, identify changes,
-      retain O*NET trademark usage, and state that USDOL/ETA has not endorsed
-      modifications.
-    confidence: high  # Version, data shape, relevant occupations, and license were verified.
+      O*NET 31.0 database content is CC BY 4.0 except stated exceptions. O*NET
+      is a trademark of USDOL/ETA and must be used as an adjective.
+    confidence: high  # Version, data shape, relevant occupations, and license were verified; version and licence wording re-read on onetcenter.org 2026-08-26.
 
   - id: aicpa_trust_services_criteria
     name: 2017 Trust Services Criteria (with Revised Points of Focus—2022)
