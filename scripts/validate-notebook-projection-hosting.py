@@ -49,6 +49,23 @@ ROLES = ("viewer", "editor")
 # there is no API, and a service principal cannot drive the consumer web UI.
 NON_USER_MARKERS = (".iam.gserviceaccount.com", ".gserviceaccount.com")
 
+#: Field names that carry credential MATERIAL. Refused anywhere in the hosting
+#: record, in BOTH hosting cases — the self-hosted exemption is from declaring
+#: custody, never from keeping secrets out of the repository.
+#:
+#: `session` and `profile` are here for a reason worth stating: the `nlm`
+#: profile is refreshable SESSION STATE, which `credential-contracts` refuses to
+#: distribute as a class because an ephemeral copy's refresh silently stales the
+#: master. Pasting one into this record would be that defect with the copy left
+#: implicit.
+SECRET_SHAPED_FIELDS = frozenset({
+    "password", "passphrase", "secret", "token", "api_key", "apikey",
+    "totp", "totp_seed", "otp_seed", "recovery_code", "recovery_codes",
+    "backup_code", "backup_codes", "cookie", "cookies", "session",
+    "session_token", "profile", "exported_profile", "private_key",
+    "credential", "credentials",
+})
+
 
 def _err(errors: list[str], msg: str) -> None:
     errors.append(msg)
@@ -107,6 +124,135 @@ def _check_hosting(hosting, errors: list[str]) -> None:
         elif migration.get("state") not in (None, "complete"):
             _err(errors, f"hosting.migration.state: {migration.get('state')!r} "
                          f"is neither 'pending' nor 'complete'")
+
+    _check_custody(hosting, case, errors)
+
+
+def _check_custody(hosting, case, errors: list[str]) -> None:
+    """The credential's custody: declared BY REFERENCE, or not at all.
+
+    add-notebook-hosting-credential-custody § 2. Two obligations, and the second
+    is the one that does the work:
+
+      * an OPERATOR-HOSTED declaration names the binding that holds its
+        account's credential — an operated identity with no declared custody is
+        not governed, it is merely undocumented;
+      * NOTHING SECRET-SHAPED appears in this record at all, in either case.
+
+    The self-hosted case is deliberately exempt from the FIRST and never from
+    the SECOND. An individual operating their own account has no operator to
+    bear the custody obligation (the two-case model this capability already
+    holds elsewhere) — but a password written into a self-hosted record is just
+    as leaked as one written into an operator-hosted record.
+    """
+    custody = hosting.get("custody")
+
+    # The secret-shaped refusal runs FIRST and over the whole hosting block, not
+    # just the custody sub-tree, because the failure being prevented is material
+    # in the file — and material does not care which key it was filed under.
+    _refuse_secret_shaped(hosting, "hosting", errors)
+
+    if custody is None:
+        if case == "operator_hosted":
+            _err(errors,
+                 "hosting.custody: an operator-hosted declaration MUST name "
+                 "where the account's credential is held. Without it the "
+                 "identity is undocumented rather than governed, and nobody but "
+                 "whoever created the account can operate it — which is the "
+                 "condition moving off a personal identity exists to remove. "
+                 "The remedy is a binding reference (binding_kind / "
+                 "binding_client / binding_id), never the secret")
+        return
+
+    if not isinstance(custody, dict):
+        _err(errors, "hosting.custody: must be a mapping carrying a binding "
+                     "reference")
+        return
+
+    for field in ("binding_kind", "binding_client", "binding_id"):
+        if not custody.get(field):
+            _err(errors, f"hosting.custody.{field}: the custody reference must "
+                         f"IDENTIFY THE BINDING. All three of binding_kind, "
+                         f"binding_client and binding_id are required — a "
+                         f"partial reference cannot be resolved through the "
+                         f"governed path, which is the only way this record is "
+                         f"meant to be usable")
+
+    covers = custody.get("covers")
+    if not isinstance(covers, list) or not covers:
+        _err(errors, "hosting.custody.covers: name every secret the binding "
+                     "holds. Custody must cover what the identity actually "
+                     "needs to authenticate, not the primary factor alone — a "
+                     "password in a vault beside a TOTP seed on someone's phone "
+                     "is a single point of failure wearing governance")
+
+    # CUSTODY IS NOT AUTOMATION, and the record must not imply it is. A
+    # reference that suggests unattended access the install does not have is
+    # worse than none, because it invites a reader to plan on it.
+    if custody.get("interactive_step_remains") is True:
+        if not str(custody.get("interactive_step") or "").strip():
+            _err(errors,
+                 "hosting.custody.interactive_step: the record declares an "
+                 "interactive step remains but does not say what it is. Name "
+                 "it — a reader deciding whether the projection can run "
+                 "unattended needs the answer here, not in a runbook they may "
+                 "not open")
+    elif "interactive_step_remains" not in custody:
+        _err(errors,
+             "hosting.custody.interactive_step_remains: state plainly whether "
+             "the custody material alone completes the platform's sign-in. "
+             "Silence reads as 'yes' to an operator planning automation, and "
+             "for this platform the honest answer is no")
+
+
+def _refuse_secret_shaped(node, path: str, errors: list[str]) -> None:
+    """Refuse credential MATERIAL anywhere under the hosting record.
+
+    Keyed on the field NAME rather than on the value's shape. A value-shaped
+    heuristic ("does this look like a password?") is exactly the wrong control
+    here: it fails open on anything unusual, and the one thing worse than no
+    check is a check that says a leaked secret looks fine.
+
+    `secret_ref` is refused too, and it is not secret material. It is BINDING
+    DETAIL — the record's job is to point AT the binding, and carrying its
+    fields here invites the rest of the binding to follow (review note,
+    2026-08-23). The refusal names the binding as the remedy rather than
+    redaction in place, because a redacted secret is still a secret that was
+    committed.
+    """
+    # SEQUENCES ARE WALKED TOO. An earlier version descended only into mappings,
+    # so `hosting.anything: [{password: hunter2}]` was skipped outright and the
+    # record validated clean with credential material sitting in it (Copilot,
+    # PR #395; reproduced before this fix, and again after, as a mutation).
+    #
+    # That was the fail-open family INSIDE the refusal written to prevent it: a
+    # path that could not answer returned "nothing to see" instead of looking.
+    # YAML nests freely, and a walk that covers one container type is not a walk
+    # — the recursion is over the DOCUMENT, not over the shape a reader expects.
+    if isinstance(node, (list, tuple)):
+        for index, item in enumerate(node):
+            _refuse_secret_shaped(item, f"{path}[{index}]", errors)
+        return
+    if not isinstance(node, dict):
+        return
+    for key, value in node.items():
+        lowered = str(key).lower()
+        if lowered in SECRET_SHAPED_FIELDS:
+            _err(errors,
+                 f"{path}.{key}: credential material MUST NOT appear in the "
+                 f"hosting record, in this repository, or in any projection "
+                 f"artifact. THE REMEDY IS A BINDING REFERENCE, NOT REDACTION "
+                 f"IN PLACE — a redacted secret is a secret that was already "
+                 f"committed, and the fix is to rotate it and point at the "
+                 f"binding that holds the new one")
+        elif lowered == "secret_ref":
+            _err(errors,
+                 f"{path}.secret_ref: this is BINDING DETAIL and does not "
+                 f"belong in the hosting record. Name the binding "
+                 f"(binding_kind / binding_client / binding_id); the binding "
+                 f"instance carries the provider, vault, secret_ref, owner and "
+                 f"rotation policy, and it lives in the consuming install")
+        _refuse_secret_shaped(value, f"{path}.{key}", errors)
 
 
 def _check_roster(record, hosting_account, errors: list[str]) -> None:

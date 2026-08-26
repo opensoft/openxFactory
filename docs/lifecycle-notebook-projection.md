@@ -421,6 +421,71 @@ own governance artifact for one install's tooling account — nothing else
 consumes it and nothing pins it — and its sibling
 `lifecycle-notebook-workspaces.yaml` sits here for the same reason.
 
+### Where the account's credential lives
+
+Ratified by `add-notebook-hosting-credential-custody` (2026-08-23). Moving off a
+personal identity only half-solves the problem it was raised for: an account
+nobody but its creator can sign into is still a single point of failure, just a
+better-named one. So the hosting record declares WHERE the credential is held.
+
+It declares it **by reference and nothing more**. The `custody:` block names the
+binding — `binding_kind`, `binding_client`, `binding_id` — and carries no
+provider, no vault, no `secret_ref`, and no value. That is deliberate to the
+point of being the whole design: the reference is sufficient to find the
+credential through the governed path and **insufficient to obtain it without
+one**. `secret_ref` is refused by the validator even though it is not itself
+secret, because it is binding detail, and carrying one field of the binding here
+invites the rest to follow.
+
+The binding instance — provider, vault, secret reference, owner, rotation
+policy — lives in the **consuming install**, not in this repository. That split
+is the residency redirect accepted at ratification: neutral obligations here,
+concrete estate facts there. Naming a real vault in a per-client binding is
+exactly what a binding is for and breaches no rule; naming one in a contract
+artifact would.
+
+**Each consuming system reaches the account through its OWN binding.** One
+identity may be shared; one authority may not. The xFactory sync lane and
+openXdox each hold their own access identity against the store, their own grant,
+their own rotation visibility, and their own audit trail — so revoking one does
+not disturb the other, and the store's log can say which system read the secret.
+
+What revocation reaches, stated honestly because a shared bearer secret bounds
+it: revoking a binding stops that system's FUTURE fetches and nothing else. It
+cannot un-disclose a password already fetched, nor end a session already
+established with it. Evicting a consumer that has already read the secret means
+ROTATING it — and rotation necessarily reaches every consumer of that identity.
+That is the one act per-system bindings cannot make independent, and it is
+recorded here rather than left for someone to discover during an incident.
+
+#### Custody is not automation
+
+The most useful sentence in this section. Holding the password and the TOTP seed
+governs **who may obtain them** and proves who did. It does not make the sign-in
+unattended: Google's sign-in for this account is an interactive browser flow, and
+it stays one. An operator with full vault access still completes that step by
+hand.
+
+The hosting record says so in its own `interactive_step_remains` /
+`interactive_step` fields rather than leaving it to this document, and the
+validator refuses silence on the question — because silence reads as "yes" to
+someone planning automation, and a custody reference that implies access the
+install does not have is worse than none.
+
+#### The `nlm` session is NOT a custody subject
+
+The profile under `~/.notebooklm-mcp-cli/` is **refreshable session state**, and
+`credential-contracts` refuses to distribute that class: an ephemeral copy's
+refresh silently stales the master, so two systems sharing one live session is a
+defect with the copy left implicit. The session is re-established by signing in.
+It is never fetched from a vault, never shared between systems, and never
+recorded here — the validator refuses `session`, `cookie` and `profile` fields
+outright, in both hosting cases.
+
+That refusal holds for `self_hosted` too. The self-hosted exemption is from
+DECLARING custody — no operator exists to bear the obligation — never from
+keeping credential material out of the repository.
+
 ### How a run is bound to the declared account
 
 Profile selection in the `nlm` CLI is **process-global**, through
