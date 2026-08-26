@@ -1,0 +1,51 @@
+schema: spec-driven
+created: 2026-08-26
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-26-fix-release-reachability-race
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-26, verbatim: "file the
+    release-inventory CI race fix change". Not a staged ideation topic —
+    `ideation/staging/` and its INDEX carry nothing on the release verifier, so
+    `kind: staged` is unavailable rather than declined. THE FORCING FACT is a
+    verification that answers a live question out of a stale object store.
+    `scripts/hermes_runtime_validation/release.py` asks the REMOTE for the
+    current `refs/heads/main` object id (`_ls_remote` at `:718` and `:803`) and
+    then asks the LOCAL clone whether the candidate is an ancestor of it
+    (`_is_ancestor` at `:723` and `:807`, running `git merge-base
+    --is-ancestor` inside the clone). When main advances on the remote after
+    the clone was taken, the object named by the live answer is absent locally,
+    `git merge-base` exits 128 rather than 0 or 1, and the guard raises
+    `ReleaseDependencyError("commit reachability could not be determined")` —
+    a fail-closed refusal produced by clock skew rather than by anything about
+    the candidate. MEASURED on openxFactory PR #372, a doc-only change, all
+    three runs at the identical head `5c10ce6d`: attempt 1 (05:37:56Z ->
+    05:49:18Z) FAILED with that exact message, and PR #365 merged to main at
+    05:46:00Z inside its window; attempt 2 (05:52:35Z -> 06:04:47Z) FAILED
+    identically, and PR #374 merged at 05:54:06Z inside its window; attempt 3
+    (06:07:45Z -> 06:20:21Z) PASSED, with no merge to main in its window. One
+    tree, three verdicts, decided by what else landed during an eleven-minute
+    suite. Authored in openxFactory because the verifier, the test and the
+    obligation it serves are all openxFactory's own.
+  approved_by: >-
+    Brett — in-session commissioning of the filing itself on 2026-08-26,
+    verbatim: "file the release-inventory CI race fix change". This records
+    authorization for the DECISION TO FILE, which is also what the proposal's
+    `Ratified:` line cites, and it follows the shape
+    `add-family-enumeration-check` ("in-session commissioning of the check
+    itself") and `implement-keycloak-install-repo` (a session instruction cited
+    as the approval act) rather than the blank-pair shape
+    `harden-ideation-readiness-check` was raised under. The distinction is real
+    and was judged, not assumed: that packet had NO instruction behind it — it
+    was raised from an autonomous triage, so there was no approval act to
+    record and fabricating one was refused until Brett ruled the next day. This
+    packet has the instruction, verbatim, and the instruction is the origin
+    act. IT IS AN ADMISSION INTO THE PROPOSAL QUEUE, NOT A RATIFICATION OF
+    CONTENT: the four decisions the authoring session took under standing
+    patterns (the owning capability and the ADDED-not-MODIFIED shape,
+    fetch-before-check over retry-on-128, the bundle-cut target release, and
+    the offline fixture mechanism) are NOT covered by this authorization and
+    are flagged for veto in the proposal's § Orchestrator decisions.
+  approved_on: 2026-08-26
+related:
+  - openxFactory:change:harden-ideation-readiness-check   # same defect family: live state answered against pinned state

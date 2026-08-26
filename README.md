@@ -1134,6 +1134,55 @@ Active changes:
   governance rule that an index pin must be re-derived when a branch lands
   rewritten. (code surface: openxFactory; target release: implemented)
 
+- [fix-release-reachability-race](openspec/changes/fix-release-reachability-race/proposal.md)
+  — authored and **ratified 2026-08-26** (Brett, in-session commissioning of the
+  filing, verbatim: "file the release-inventory CI race fix change"). The
+  commission is the origin act, so `approved_by`/`approved_on` are recorded from
+  it rather than left blank — the `add-family-enumeration-check` shape, NOT the
+  blank-pair shape its sibling was raised under, because that packet had no
+  instruction behind it and this one does. **THE CITATION COVERS THE DECISION TO
+  FILE AND NOTHING ELSE**: Q1 (object fetch or ref fetch), Q2 (whether the
+  offline fixture mechanism even works), Q3 (whether reconciled skew should be
+  observable) and Q4 (the unswept sibling modules) stay OPEN, and the four
+  decisions in § Orchestrator decisions stay flagged for veto. Three
+  `shared-contract-ownership` requirements ADDED, nine scenarios, none MODIFIED.
+  **The defect**: `scripts/hermes_runtime_validation/release.py` asks the REMOTE
+  for the current `refs/heads/main` object id (`_ls_remote` at `:718` and
+  `:803`) and then answers reachability inside the STATIC clone
+  (`git merge-base --is-ancestor` at `:723` and `:807`). When main advances after
+  the clone, that object is absent locally, `merge-base` exits 128 rather than 0
+  or 1, and the guard raises `ReleaseDependencyError("commit reachability could
+  not be determined")` — a fail-closed refusal caused by clock skew, not by the
+  candidate. **Proven on PR #372**, a doc-only change, run `32934803039`, all
+  three attempts at ONE head (`5c10ce6d`): attempt 1 (05:37:56Z-05:49:18Z)
+  FAILED and #365 merged at 05:46:00Z inside its window; attempt 2
+  (05:52:35Z-06:04:47Z) FAILED and #374 merged at 05:54:06Z inside its window;
+  attempt 3 (06:07:45Z-06:20:21Z) PASSED with a quiet window. One tree, three
+  verdicts, decided by what else landed during an eleven-minute suite. TWO more
+  hazard sites are MASKED behind the first: the same live `main_oid` reaches
+  `_surface_drift` (`:686` raises `"Git command failed"` on an absent commit;
+  `:689` would compare a real blob against `None` and emit FALSE surface drift),
+  and `verify_tag` reads the remote-derived TAG object locally at `:816` — which
+  is why the fix resolves the OPERAND on entry rather than retrying the
+  comparison. The three requirements: resolve every remote-derived object before
+  reading it locally, with reachability's meaning explicitly unweakened; name
+  which of three conditions was observed (genuine non-reachability -> the
+  existing refusal; unretrievable object -> the existing fail-closed error with
+  a reason naming the retrieval; reconciled skew -> no finding at all); and pin
+  both new paths with proofs demonstrated to fail when the resolution step alone
+  is removed. SAME DEFECT FAMILY as `harden-ideation-readiness-check` — a
+  verification answering about LIVE state out of PINNED or STALE state and
+  reporting the mismatch as a fact about its subject — and the mirror image of
+  it: the sibling made a proof honest by REFUSING to answer from state it could
+  not resolve, this one by RESOLVING the state before answering. A BUNDLE IS
+  OWED, unlike the sibling: `release.py` is itself a non-editorial member of
+  `contracts/releases/contract-v1.43.digests.yaml` (`:993-996`, digest matching
+  the tree as of 2026-08-26), so editing it without a cut is exactly the
+  non-editorial drift `release-surface-integrity` calls a defect —
+  `contract-v1.10` was cut for this same file for this same cause
+  (`CHANGELOG.md:2170-2185`). (code surface: openxFactory; target release: next
+  additive contract bundle)
+
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived
