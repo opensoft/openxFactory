@@ -1,5 +1,5 @@
 {
-  "typeCheckingMode": "basic",
+  "typeCheckingMode": "recommended",
   "failOnWarnings": true,
   "executionEnvironments": [
     {

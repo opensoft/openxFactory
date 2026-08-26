@@ -21,24 +21,29 @@ class QualityCommand:
     arguments: tuple[str, ...]
 
 
+class QualityArgs(argparse.Namespace):
+    show_surface: bool
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.show_surface = False
+
+
 def resolve_programming_checker() -> Path:
     configured = os.environ.get("PROGRAMMING_CHECKER")
     candidates = (
         Path(configured).expanduser() if configured else None,
         Path.home()
-        / ".cache/opencode/packages/oh-my-opencode@latest/node_modules/"
-        "oh-my-opencode/dist/skills/programming/scripts/python/"
-        "check-no-excuse-rules.py",
+        / ".cache/opencode/packages/oh-my-opencode@latest/node_modules/oh-my-opencode/dist/skills/programming/scripts/python/check-no-excuse-rules.py",
         Path.home()
-        / ".cache/opencode/node_modules/oh-my-opencode/dist/skills/"
-        "programming/scripts/python/check-no-excuse-rules.py",
+        / ".cache/opencode/node_modules/oh-my-opencode/dist/skills/programming/scripts/python/check-no-excuse-rules.py",
     )
     for candidate in candidates:
         if candidate is not None and candidate.is_file():
             return candidate
     raise SystemExit(
         "programming checker unavailable; set PROGRAMMING_CHECKER to "
-        "check-no-excuse-rules.py"
+        + "check-no-excuse-rules.py"
     )
 
 
@@ -66,10 +71,10 @@ def run_quality_gate(root: Path) -> int:
     return 0
 
 
-def parse_args(arguments: Sequence[str]) -> argparse.Namespace:
+def parse_args(arguments: Sequence[str]) -> QualityArgs:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--show-surface", action="store_true")
-    return parser.parse_args(arguments)
+    _ = parser.add_argument("--show-surface", action="store_true")
+    return parser.parse_args(arguments, namespace=QualityArgs())
 
 
 def main(arguments: Sequence[str] | None = None) -> int:
