@@ -1,10 +1,12 @@
 # Tasks: add-doxbench-distilled-abstract
 
-RED-FIRST throughout: every behavioural pin is written and seen to FAIL before
-the code that satisfies it exists. Pins are behavioural — a test that only
-asserts a string is present in a source file is a spelling test, and the one
-place a source-text assertion is legitimate here is the purity/import guard the
-repo already uses.
+RED-FIRST throughout, with ONE declared exception: every behavioural pin is
+written and seen to FAIL before the code that satisfies it exists, EXCEPT §6,
+whose items are labelled GUARD because ruling 2(b) makes them green on the first
+run by construction and their teeth come from mutation 9.5 instead. Pins are
+behavioural — a test that only asserts a string is present in a source file is a
+spelling test, and the one place a source-text assertion is legitimate here is
+the purity/import guard the repo already uses.
 
 Sequencing: **§1 does not start until `ratify-doxbench-landed-context-surfaces`
 has archived** (this change's `:863` delta is authored against its landed text),
@@ -157,9 +159,26 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
 - [ ] 5.2 RED: the route refuses a subject outside `projection.editable_paths`
       with a stated reason and reaches no provider (ruling 7(a)).
 - [ ] 5.3 RED: a separate bounded store, keyed by `(subject path, content
-      digest)`; one in-flight per key with attach-and-wait; identical-key replay
-      with no second dispatch; a changed digest is a NEW key and not a conflict;
+      digest, resolved model id)`; one in-flight per key with attach-and-wait;
+      identical-key replay with no second dispatch FOR A REQUEST CARRYING NO
+      REFRESH INTENT; a changed digest is a NEW key and not a conflict;
       eviction is deterministic and not clock-ordered.
+- [ ] 5.3a RED: the MODEL is in the key. Same subject, same digest, DIFFERENT
+      resolved model id → a second dispatch against the newly resolved model, and
+      the first model's prose is NOT replayed under the second model's recorded
+      id. Assert on `port.dispatched` and on the returned
+      `DocumentAbstract.model_id`, not on the store's internal dict. Pin the
+      routing-rule case too: an `auto` entry keys on the RESOLVED id, not the
+      rule's id, or every routed abstract collides in one bucket.
+- [ ] 5.3b RED: an EXPLICIT REFRESH bypasses completed replay. Same subject,
+      same digest, same model, RE-GENERATE invoked → the completed entry is
+      invalidated, a second dispatch occurs, and the new result replaces the
+      entry. Then the negative half, which is what stops the bypass becoming a
+      free-for-all: a second refresh while the first is still in flight ATTACHES
+      (one dispatch, not two), and re-entering the tile replays with NO dispatch
+      because a re-entry carries no refresh intent. Without 5.3b the RE-GENERATE
+      control the spec requires is inert whenever content and model are
+      unchanged, which is the ordinary case it exists for.
 - [ ] 5.4 RED (N1, explicitly): abstract activity over a scope larger than the
       cache bound MUST NOT evict the chat surface's turn-idempotency records.
       Assert against the chat `TurnStore`'s own contents.
@@ -172,16 +191,20 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
 
 **These pass on the first run under ruling 2(b), and that is the point.** They
 are REGRESSION GUARDS, not RED-first pins: with generation session-local there is
-nothing to make them fail today. What proves they have teeth is mutation 9.5,
-which emits an abstract into a document object and must break 6.1 and 6.2. Do not
-mark this section done without running 9.5.
+nothing to make them fail today, so every item below is labelled GUARD and NOT
+RED — a reviewer who saw RED here would rightly expect a baseline failure that
+cannot exist. What proves they have teeth is mutation 9.5, which emits an
+abstract into a document object and must break 6.1 and 6.2. Do not mark this
+section done without running 9.5.
 
-- [ ] 6.1 RED: the generator produces BYTE-IDENTICAL snapshots for one unchanged
-      tree, once with abstracts generated in-session and once without.
-- [ ] 6.2 RED: no snapshot field carries a model-derived value — assert over the
-      emitted document objects, not over the schema.
-- [ ] 6.3 RED: with the port absent, raising, and timing out, the snapshot is
-      unaffected and no lane or gate action fails.
+- [ ] 6.1 GUARD (green on the first run): the generator produces BYTE-IDENTICAL
+      snapshots for one unchanged tree, once with abstracts generated in-session
+      and once without.
+- [ ] 6.2 GUARD (green on the first run): no snapshot field carries a
+      model-derived value — assert over the emitted document objects, not over
+      the schema.
+- [ ] 6.3 GUARD (green on the first run): with the port absent, raising, and
+      timing out, the snapshot is unaffected and no lane or gate action fails.
 
 ## 7. Renderer, interaction, accessibility
 
@@ -205,7 +228,9 @@ mark this section done without running 9.5.
       at a time, the deterministic one opens, and the 280px budget rule at
       `test_doxbench_context_panes.py:231-240` still holds.
 - [ ] 7.6 RED: an abstract survives leaving and re-entering the tile in-session,
-      keyed by (path, digest).
+      keyed by (path, digest, resolved model id), and the re-entry issues NO
+      refresh intent — the replay path and the bypass path are pinned as two
+      different things here and at 5.3b.
 - [ ] 7.6a RED (ruling 3): when the subject's content has moved past the digest
       an abstract was generated from, the abstract is SHOWN and LABELLED STALE
       with its source digest stated — not discarded, not silently refreshed, not
@@ -264,8 +289,12 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
       path, wrong subject) and confirm a NAMED test fails for each.
 - [ ] 9.2 Mutate the interaction: make generation fire from `onSelect` and confirm
       7.1 fails; remove the subject recheck and confirm 7.2 fails.
-- [ ] 9.3 Mutate the store: key on path alone and confirm 5.3 fails; share the
-      chat `TurnStore` and confirm 5.4 fails.
+- [ ] 9.3 Mutate the store: key on path alone and confirm 5.3 fails; DROP THE
+      MODEL from the key and confirm 5.3a fails; make refresh intent a no-op
+      (fall through to completed replay) and confirm 5.3b's positive half fails;
+      make refresh intent skip the in-flight check and confirm 5.3b's
+      attach-on-second-invocation half fails; share the chat `TurnStore` and
+      confirm 5.4 fails.
 - [ ] 9.4 Mutate the boundary: point the abstract at a `context_paths`-only
       subject and confirm 5.2 fails; add a fourth port member and confirm
       `test_doxbench_model.py:482`/`:522` fail.
