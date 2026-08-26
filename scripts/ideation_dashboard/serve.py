@@ -4074,6 +4074,25 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                         doxbench_error_status(DOXBENCH_ERR_MODEL_FAILED),
                         doxbench_error_body(DOXBENCH_ERR_MODEL_FAILED))
                     return
+                if turn_port is None:
+                    # A port that RETURNS None rather than raising is the same
+                    # non-binding as an exception -- dispatching would hand
+                    # `None` to `_deadline_bound_dispatch`, which reads
+                    # `port.timeout_seconds` unconditionally and drops the
+                    # connection on an `AttributeError` with no stated
+                    # verdict. Refuse the same fixed, redacted `model_failed`
+                    # the raising branch above uses; the key is released by
+                    # the `finally` below, so the re-generate control can try
+                    # again.
+                    sys.stderr.write(
+                        "[actions/workbench/document-abstract] the harness "
+                        "bridge returned no conversation for this abstract; "
+                        "the generation is refused rather than dispatched "
+                        "with no bound session\n")
+                    self._send_json(
+                        doxbench_error_status(DOXBENCH_ERR_MODEL_FAILED),
+                        doxbench_error_body(DOXBENCH_ERR_MODEL_FAILED))
+                    return
 
             # ---- step 12: dispatch, under the adapter's OWN deadline ----
             # `proposal_validator` is deliberately None: an abstract request is

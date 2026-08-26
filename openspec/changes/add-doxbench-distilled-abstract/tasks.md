@@ -279,7 +279,7 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
       subject and confirm 5.2 fails; add a fourth port member and confirm
       `test_doxbench_model.py:482`/`:522` fail.
 - [x] 9.5 (2026-08-25 — REVIEW ROUND added four more mutants, all caught: dispatch the RAW
-      unbound port (3 route pins incl. the real-bridge leak pin); bind-failure leaving the store
+      unbound port (4 route pins incl. the real-bridge leak pin and the bind-failure store-key pin); bind-failure leaving the store
       key held (attach-and-hang pin); ctx.dirtyFor→false (mounted dirty-buffer pin);
       MAX_ABSTRACT_PROSE_BYTES 1500→2000 (absolute budget pin). a CONSTANT emission is caught by 6.2 only, byte-identical in both arms by
       construction; the session-derived emission 9.5b survived until 6.1 gained a genuine

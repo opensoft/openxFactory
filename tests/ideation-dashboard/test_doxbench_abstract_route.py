@@ -914,6 +914,49 @@ def test_a_port_that_cannot_bind_this_abstract_refuses_and_never_dispatches(
     assert port.unbound == []
 
 
+def test_a_port_whose_bind_returns_none_refuses_and_never_dispatches(tmp_path):
+    """B1(iii)'s sibling. A port that RETURNS `None` from `for_conversation`
+    instead of raising is the SAME non-binding, and (pre-fix) a worse one:
+    nothing catches it, so `turn_port` carries `None` straight into
+    `_deadline_bound_dispatch`, which reads `port.timeout_seconds`
+    unconditionally. That is an `AttributeError` on `None` mid-request — the
+    connection drops with no stated verdict, after the model had already been
+    resolved and the subject's bytes read, exactly the class of failure the
+    raising case next door already refuses. The route must refuse the same
+    fixed, redacted `model_failed` here too, reach no provider, and free the
+    store key — so a second request for the same bytes is ANSWERED rather
+    than left waiting on an entry no holder will ever resolve."""
+
+    class _NoneBindingPort(_BindingPort):
+        def for_conversation(self, conversation):
+            self.calls.append("for_conversation")
+            self.bound.append(conversation)
+            return None
+
+    port = _NoneBindingPort()
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first = _request(host, prt, "POST", ROUTE, body=_body(),
+                         headers=_console_headers(caps))
+        second = _request(host, prt, "POST", ROUTE, body=_body(),
+                          headers=_console_headers(caps))
+    assert first[0] == serve_mod.doxbench_error_status(
+        serve_mod.DOXBENCH_ERR_MODEL_FAILED)
+    assert first[1] == serve_mod.doxbench_error_body(
+        serve_mod.DOXBENCH_ERR_MODEL_FAILED)
+    assert port.calls.count("dispatch") == 0
+    assert port.unbound == []
+    # THE SECOND REQUEST, against the very same bytes: the first attempt's
+    # `finally` must have released the store key, or this either hangs
+    # waiting on an in-flight entry nobody will ever complete, or attaches
+    # and replays garbage. This fake never succeeds at binding, so the answer
+    # is the same fixed refusal again — but DELIVERED, not dropped or hung.
+    assert second[0] == serve_mod.doxbench_error_status(
+        serve_mod.DOXBENCH_ERR_MODEL_FAILED)
+    assert second[1] == serve_mod.doxbench_error_body(
+        serve_mod.DOXBENCH_ERR_MODEL_FAILED)
+
+
 def test_a_bind_failure_frees_the_store_key_for_the_next_attempt(tmp_path):
     """B1(iii)'s other half, and the reason the refusal returns from INSIDE the
     lease's `try`. The store reserves the key BEFORE the bind, and a reserved
@@ -1091,6 +1134,17 @@ def test_a_path_the_subject_names_outside_the_readers_disclosure_set_is_not_carr
     """S2. The subject's bytes name a path that is in NEITHER `editable_paths`
     nor `context_paths`. An answer that names it is a leaked neighbour, and the
     document's own text must not be able to pre-authorize it."""
+    # THE PRECONDITION, asserted against the real projection rather than
+    # assumed from the fixture's name (adversarial review 2026-08-25) — the
+    # same discipline `test_a_readable_but_not_editable_subject_is_refused_
+    # before_any_provider` uses. `_checkout_naming` only appends a mention to
+    # the subject's saved bytes; it does not change the scope's section
+    # structure, so the base projection's two path sets are the ones this
+    # scope actually resolves for `OUTSIDE_MENTION` too.
+    projection = _projection()
+    assert OUTSIDE_MENTION not in projection.editable_paths
+    assert OUTSIDE_MENTION not in projection.context_paths
+
     root, snapshot = _checkout_naming(tmp_path, OUTSIDE_MENTION)
     prose = GROUNDED_PROSE + f" It points onward to {OUTSIDE_MENTION}."
     status, payload, fake = _post(
