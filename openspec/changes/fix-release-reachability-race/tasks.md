@@ -1,10 +1,16 @@
 # Tasks: fix-release-reachability-race
 
 NO IMPLEMENTATION here is discharged. This packet is a PROPOSAL: it carries the
-delta, the measurement, and the plan, and it changes no code. § 1.1 IS
-discharged — Brett commissioned the filing on 2026-08-26 and that instruction is
-the origin act — and § 1.2 is not: Q1 through Q4 and the four flagged decisions
-all stand open, uncovered by that commissioning.
+delta, the measurement, and the plan, and it changes no code. § 1.1 and § 1.2
+ARE discharged — Brett commissioned the filing on 2026-08-26, and the same day
+cleared all four flagged decisions as authored. § 1.3 is NOT: Q1 and Q3 stay
+open, Q4 stays declined rather than ruled, and Q2's measurement half stands
+undischarged even though its mechanism half is now ruled.
+
+**AS FIRST WRITTEN this paragraph said "§ 1.2 is not: Q1 through Q4 and the four
+flagged decisions all stand open, uncovered by that commissioning."** That was
+true for a matter of hours. The four decisions are now cleared; the questions are
+not, and splitting the two is the point of the § 1.2 / § 1.3 division below.
 
 **§ 6 is deliberately OPEN and stays open.** Two adjacent gaps are recorded
 there rather than implied, and one of them is the sweep this packet declines to
@@ -25,11 +31,27 @@ claim it performed.
       record and inventing one was refused. This packet has the instruction.
       `proposal.md` carries `Status: ratified` with a single record-citing
       `Ratified:` line clearing the three-way floor on approver and date.
-- [ ] 1.2 Rule the four decisions in `proposal.md` § Orchestrator decisions and
-      the four questions Q1-Q4. Q1 (object fetch or ref fetch) and Q2 (the
-      offline fixture mechanism) both change work below if reversed; Q3 changes
-      nothing structural; Q4 is a scope question this change already answers by
-      declining.
+- [x] 1.2 **DONE 2026-08-26 — the four decisions in `proposal.md`
+      § Orchestrator decisions are CLEARED, all four as authored, none
+      vetoed.** A four-question multi-choice was put to Brett by the
+      orchestrating session and he selected the recommended "keep" option on
+      each: OD-1 the ADDED-in-`shared-contract-ownership` shape, OD-2
+      fetch-before-check, OD-3 the archive gate on the bundle cut, OD-4
+      real-fixture-first with the monkeypatch fallback. No verbatim wording
+      reached the authoring session, so none is quoted — approver, date,
+      mechanism and selected option are stated instead. NOTHING IN THE PACKET
+      MOVED: every decision stands as authored, so no requirement, delta, task
+      or design entry changed, the shape openxFactory PR #307 recorded when
+      Brett cleared the two codex dispositions. `.openspec.yaml`'s origin block
+      is deliberately left byte-identical — see the clearance block in
+      `proposal.md` for why the retention rule makes that the correct choice.
+- [ ] 1.3 STILL OPEN, and NOT covered by 1.2: Q1 (the fetch's narrowness and
+      whether a ref fetch is an authorized fallback) and Q3 (whether reconciled
+      skew should be observable). Q4 remains a scope this change DECLINES rather
+      than one that has been ruled. Q2 is split — OD-4 ruled its MECHANISM half
+      (real fixture first, monkeypatch fallback authorized) and left its
+      MEASUREMENT half entirely undischarged, which is § 3.3 below. Only Q1
+      still changes the work in § 2.
 
 ## 2. Implementation — the resolution step
 
@@ -117,6 +139,13 @@ Fixtures follow the pattern this module already establishes:
       Fallback: monkeypatch `_run_git` (or the helper from 2.1) to fail only
       the fetch invocation. Measure before choosing, and do not keep a fixture
       that passes for the wrong reason.
+      **RULED 2026-08-26 (Brett, OD-4): this ordering is authorized — real
+      fixture first, monkeypatch fallback permitted.** THE RULING DOES NOT
+      DISCHARGE THIS TASK. It settles which mechanism may be used; it supplies
+      no measurement, and the `chmod 000` behaviour of `git upload-pack` during
+      advertisement over a local path remains unobserved. Measure it, and
+      discard the fixture for the fallback if it turns out to prove the
+      pre-existing "remote main is unavailable" path instead.
 - [ ] 3.4 **Pin the proofs to the defect.** Remove the resolution step alone and
       re-run 3.1 and 3.2: both must fail, reproducing the 128 refusal. A proof
       that still passes with the step removed is unpinned and gets rewritten —

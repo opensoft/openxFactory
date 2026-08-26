@@ -1184,8 +1184,21 @@ Active changes:
   instruction behind it and this one does. **THE CITATION COVERS THE DECISION TO
   FILE AND NOTHING ELSE**: Q1 (object fetch or ref fetch), Q2 (whether the
   offline fixture mechanism even works), Q3 (whether reconciled skew should be
-  observable) and Q4 (the unswept sibling modules) stay OPEN, and the four
-  decisions in § Orchestrator decisions stay flagged for veto. Three
+  observable) and Q4 (the unswept sibling modules) stay OPEN. **THE FOUR
+  § Orchestrator decisions were CLEARED the same day** — Brett approved all four
+  as authored, none vetoed, by a four-question multi-choice on which he selected
+  the recommended "keep" option each time (OD-1 the
+  ADDED-in-`shared-contract-ownership` shape, OD-2 fetch-before-check, OD-3 the
+  archive gate on the bundle cut, OD-4 real-fixture-first with the monkeypatch
+  fallback). Nothing in the packet moved: every decision stands as authored, so
+  the clearance required no edit to a requirement, delta, task or design entry —
+  the shape PR #307 recorded when Brett cleared the two codex dispositions. The
+  clearance covers those four and nothing else: Q1 and Q3 stay open, Q4 stays
+  declined rather than ruled, and Q2 is SPLIT — OD-4 ruled its mechanism half
+  and left its measurement half undischarged. `.openspec.yaml`'s origin block is
+  deliberately unedited, because `release-realization`'s origin-retention rule
+  makes rewriting a complete declaration a contested-class act, and a veto
+  clearance is not origin provenance. Three
   `shared-contract-ownership` requirements ADDED, nine scenarios, none MODIFIED.
   **The defect**: `scripts/hermes_runtime_validation/release.py` asks the REMOTE
   for the current `refs/heads/main` object id (`_ls_remote` at `:718` and

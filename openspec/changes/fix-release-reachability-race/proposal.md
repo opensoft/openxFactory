@@ -2,7 +2,7 @@
 code_surface: openxFactory (`scripts/hermes_runtime_validation/release.py` — `_is_ancestor` at `:195-202` and its 128-branch raise at `:200`; `_ls_remote` at `:184-193`, the helper that produces the live object id; `verify_promotion`'s remote read at `:718` and its ancestor check at `:723`; `_surface_drift` at `:682-698`, reached from `:732`, whose `_CommitSource(repo_root, main_oid).list_release_inventories()` at `:686` and `_blob_object_id(repo_root, main_oid, path)` at `:689` read the SAME live object id out of the same local store; `verify_tag`'s remote reads at `:781` and `:803`, its ancestor check at `:807`, and `_verify_release_at(repo_root, peeled_commit, tag)` at `:816`, which reads the remote-derived TAG object locally the same way. Plus `tests/hermes_runtime_contracts/test_release_inventory.py` — new regression cases over the established `_bare_origin` / `_repo_with_committed_inventory` fixture pair at `:116-133` and `:462`. NO change to the finding codes, the inventory schema, the membership closure, the digest rule, the mode comparison, the CLI's exit codes, or what counts as reachable.)
 target_release: next additive contract bundle (allocated at realization per `docs/contract-versioning-policy.md`; `contract-v1.43` is the declared bundle and a proposal MUST NOT reserve a minor number before merge order is known). A BUNDLE IS OWED, and this is the one thing that separates this change from its doc-only siblings: `scripts/hermes_runtime_validation/release.py` is itself a NON-EDITORIAL member of the declared bundle's release digest inventory (`contracts/releases/contract-v1.43.digests.yaml:993-996`, `type: validator`, `digest: sha256:d149a34b...`, which is exactly what the tree carries today — verified 2026-08-26). Editing it without cutting a bundle leaves the declared inventory describing bytes the repository no longer holds, which `release-surface-integrity` names a defect in any non-editorial member and doc-health's release-inventory drift family reports at `error`. The precedent is exact rather than argued: `contract-v1.10` was cut as a superseding additive re-realization for PRECISELY this cause — finding F-U3 hardened release membership and changed this same file, so the frozen `contract-v1.9` inventory stopped reproducing the tree (`contracts/CHANGELOG.md:2170-2185`). The class is additive: no schema moves, `contract_schema_version` is unchanged, no contract instance valid at `contract-v1.43` is narrowed, and every consumer pinned there stays conformant until it upgrades. The archive gate is therefore merge-plus-green PLUS the cut: `python3 -m pytest tests/hermes_runtime_contracts` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and manifest / changelog / digest inventory / verified annotated tag agreeing on the new bundle. The change ships ACTIVE and archives only after that.
 Status: ratified
-Ratified: 2026-08-26 by Brett — in-session commissioning of the filing, verbatim: "file the release-inventory CI race fix change". The citation covers the DECISION TO FILE THIS CHANGE and nothing else; the four decisions in § Orchestrator decisions below were taken by the authoring session under standing patterns, are NOT covered by this citation, and are flagged there for veto. No approving OpenSpec change exists to name, so this cites the record in the spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, clearing its three-way floor on two axes rather than the one it needs: approver (`by Brett`) and date (`2026-08-26`).
+Ratified: 2026-08-26 by Brett — in-session commissioning of the filing, verbatim: "file the release-inventory CI race fix change". The citation covers the DECISION TO FILE THIS CHANGE and nothing else; the four decisions in § Orchestrator decisions below were taken by the authoring session under standing patterns and are NOT covered by this citation. AS FIRST WRITTEN this line ended "and are flagged there for veto" — that was true at authoring and is now historical: Brett cleared all four the same day, as authored, by a separate ruling recorded in full at § Orchestrator decisions. The two acts stay distinct on purpose, because they authorized different things: this citation authorized the FILING, the clearance closed the VETO WINDOW, and neither reaches Q1, Q3 or Q4. No approving OpenSpec change exists to name for either, so both cite the record in the spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, clearing its three-way floor on two axes rather than the one it needs: approver (`by Brett`) and date (`2026-08-26`).
 Proposed: 2026-08-26
 Origin: The 2026-08-26 triage of openxFactory PR #372's continuous-integration history. The red had nothing to do with the branch under test — the same tree failed twice and passed once, and what changed between the three runs was what else merged to `main` while the suite was running.
 ---
@@ -210,12 +210,61 @@ below being about the MECHANICS of a verification rather than about release
 semantics, and it is the reason § Named follow-ups asks whether the family has
 more members.
 
-## Orchestrator decisions, flagged for veto
+## Orchestrator decisions, cleared 2026-08-26 (authored: flagged for veto)
 
-Authored by a delegated session against a commission to file. Brett's
-instruction authorized the FILING; every decision below was taken by the
-authoring session, is uncovered by that authorization, and is flagged for
-reversal. Reverting any one of them is an edit to this change, not a new one.
+**ALL FOUR CLEARED 2026-08-26, THE SAME DAY THEY WERE FLAGGED — Brett approved
+every one as authored, and none was vetoed.** The ruling came as a four-question
+multi-choice put to Brett by the orchestrating session on 2026-08-26 and relayed
+to the authoring session the same day; on each question Brett selected the
+recommended "keep" option: **OD-1** keep the ADDED-in-`shared-contract-ownership`
+shape, **OD-2** keep fetch-before-check, **OD-3** keep the archive gate on the
+bundle cut, **OD-4** keep real-fixture-first with the monkeypatch fallback. No
+verbatim wording of the ruling reached the authoring session, so none is quoted —
+the approver, the date, the mechanism and the option selected on each question
+are stated instead, which is what this repository's own precedent asks for and
+how `harden-ideation-readiness-check`'s admission is recorded. OD-1 through OD-4
+are items 1 through 4 below, in that order.
+
+**Nothing in the packet moves as a result.** All four decisions stand exactly as
+authored, so the clearance required no edit to a requirement, a delta, a task, or
+a design entry — the same shape openxFactory PR #307 recorded when Brett cleared
+the two codex dispositions there ("the approval required no repo edit"). This
+record exists so that the veto window is legibly CLOSED rather than merely
+un-exercised: an unrecorded clearance and an unnoticed flag look identical six
+weeks later.
+
+**`.openspec.yaml`'s ORIGIN BLOCK IS DELIBERATELY NOT EDITED, and that is a
+ruling-respecting choice rather than an oversight.** Its `approved_by` still ends
+by saying the four decisions "are flagged for veto in the proposal's
+§ Orchestrator decisions" — a pointer that now lands the reader on this
+clearance, which is why leaving it costs nothing. What editing it would cost is
+real: `release-realization`'s "Origin retention at archive" requires the archive
+gate to verify that the origin declaration is UNCHANGED from ratification and to
+FAIL on a mutation, making any rewrite a contested-class act. The sibling packet
+did edit its origin, and the difference is the whole point — it was COMPLETING a
+required field that stood blank, which the origin requirement demands be filled,
+whereas this would be appending commentary to a pair that is already complete and
+correct. A veto clearance is not origin provenance, so it is recorded where the
+flagging lives instead.
+
+**THE CLEARANCE COVERS EXACTLY THESE FOUR DECISIONS AND NOTHING ELSE.** Q1 (the
+fetch's narrowness and its fallback) and Q3 (whether reconciled skew should be
+observable) stay OPEN. Q4 stays a scope this change DECLINES rather than one that
+has been ruled. Q2 is split by OD-4: its MECHANISM half is resolved — measure the
+real fixture first, the monkeypatch fallback is authorized — and its MEASUREMENT
+half is not discharged at all, because a ruling that a fixture may be used is not
+a measurement that the fixture works. `tasks.md` § 3.3 stands undischarged.
+
+**HISTORY, KEPT SO THE RESOLUTION IS LEGIBLE.** The paragraph below is the
+section's original preamble, unchanged. It was true when written and is now
+superseded by the clearance above; it is preserved rather than erased for the
+same reason `.openspec.yaml`'s `approval_note` preserves why its approval pair
+once stood blank.
+
+> Authored by a delegated session against a commission to file. Brett's
+> instruction authorized the FILING; every decision below was taken by the
+> authoring session, is uncovered by that authorization, and is flagged for
+> reversal. Reverting any one of them is an edit to this change, not a new one.
 
 1. **The delta lands in `shared-contract-ownership`, all ADDED, nothing
    MODIFIED.** The reasoning and the two rejected homes are in `design.md`
@@ -279,6 +328,16 @@ the "remote main is unavailable" path rather than the fetch-impossible path —
 and the fallback is to monkeypatch `_run_git` to fail the fetch invocation only.
 **Recommendation: measure first, monkeypatch second, and do not ship a fixture
 that passes for the wrong reason.**
+
+**MECHANISM HALF RULED (2026-08-26, Brett, via OD-4): the recommendation stands
+— real fixture first, monkeypatch fallback authorized.** So the CHOICE between
+the two mechanisms is no longer open. **THE MEASUREMENT HALF IS NOT DISCHARGED**,
+and the ruling does not touch it: nobody has yet observed whether `git
+upload-pack` can advertise refs over a local path whose `objects/` directory is
+unreadable, and a ruling that a fixture MAY be used is not evidence that it
+WORKS. `tasks.md` § 3.3 stands undischarged, including its instruction to
+discard the fixture if it turns out to prove the "remote main is unavailable"
+path instead.
 
 **Q3 — should the mid-run-skew case be observable at all?** Requirement 2 makes
 transient skew produce no finding, which is right for a verifier whose output is
