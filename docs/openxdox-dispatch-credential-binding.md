@@ -1,6 +1,7 @@
 # openXdox Dispatch-Credential Binding Runbook
 
-Status: draft
+Status: ratified
+Ratified by: add-dispatch-credential-contract
 Kind: reference
 Repository context: openxFactory
 Purpose: bind the openXdox intent-plane dispatch credential to a real provider
