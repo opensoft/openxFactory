@@ -17,6 +17,9 @@ from .models import (
 )
 
 DesiredState: TypeAlias = dict[str, dict[str, str]]
+PINNED_FACTORY_PATH_RE = re.compile(
+    r"^\s*path\s*=\s*(xFactories/\S+)\s*$", re.MULTILINE
+)
 
 
 def in_nested_checkout(document: Path, repository_root: Path) -> bool:
@@ -31,11 +34,10 @@ def in_nested_checkout(document: Path, repository_root: Path) -> bool:
 def pinned_factory_paths(root: Path) -> list[str]:
     gitmodules = root / ".gitmodules"
     if gitmodules.is_file():
-        pins = re.findall(
-            r"^\s*path\s*=\s*(xFactories/\S+)\s*$",
-            gitmodules.read_text(),
-            re.MULTILINE,
-        )
+        pins = [
+            match.group(1)
+            for match in PINNED_FACTORY_PATH_RE.finditer(gitmodules.read_text())
+        ]
         if pins:
             return sorted(path for path in pins if (root / path).is_dir())
     factories = root / "xFactories"
@@ -76,7 +78,7 @@ def scan(root: Path) -> tuple[DesiredState, dict[str, BookSpec]]:
             title = f"[{status}] {repository}: {stem}"
             if status in IDEATION_STATUSES:
                 spec = ideation_spec(repository)
-                specs.setdefault(spec.key, spec)
+                _ = specs.setdefault(spec.key, spec)
                 desired.setdefault(spec.key, {})[str(relative)] = title
             for book, config in STATIC_BOOKS.items():
                 if status in config["statuses"]:
@@ -84,9 +86,7 @@ def scan(root: Path) -> tuple[DesiredState, dict[str, BookSpec]]:
     specs_root = root / "openxFactory/openspec/specs"
     for document in sorted(specs_root.glob("*/spec.md")):
         relative = document.relative_to(root)
-        desired["canon"][str(relative)] = (
-            f"[spec] openxFactory: {document.parent.name}"
-        )
+        desired["canon"][str(relative)] = f"[spec] openxFactory: {document.parent.name}"
     for grounding in GROUNDING:
         stem = Path(grounding).stem
         for book in desired:

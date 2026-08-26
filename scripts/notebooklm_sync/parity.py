@@ -35,7 +35,7 @@ def parity_report(
     if book and book not in desired:
         print(
             f"parity: {book!r} is not a book this scan derives; available: "
-            f"{', '.join(sorted(desired))}"
+            + f"{', '.join(sorted(desired))}"
         )
         return 1
     rows = notebooks if notebooks is not None else list_notebooks()
@@ -47,13 +47,11 @@ def parity_report(
             continue
         derived = set(items.values())
         derived_union |= derived
-        notebook_id, _ok = resolve_book(
-            root, specs[key], False, rows, bind_alias=False
-        )
+        notebook_id, _ok = resolve_book(root, specs[key], False, rows, bind_alias=False)
         if notebook_id is None:
             print(
                 f"[{key}] PARITY FAIL: no live notebook titled "
-                f"{specs[key].title!r} ({len(derived)} derived members)"
+                + f"{specs[key].title!r} ({len(derived)} derived members)"
             )
             mismatched.append(key)
             continue
@@ -71,7 +69,7 @@ def parity_report(
         mismatched.append(key)
         print(
             f"[{key}] PARITY FAIL: {len(missing)} missing, {len(extra)} extra "
-            f"(derived {len(derived)}, live {len(live)})"
+            + f"(derived {len(derived)}, live {len(live)})"
         )
         for title in missing[:5]:
             print(f"[{key}]   MISSING {title}")
@@ -79,18 +77,18 @@ def parity_report(
             print(f"[{key}]   EXTRA   {title}")
     print(
         f"parity union: {len(derived_union)} derived titles, "
-        f"{len(live_union)} live managed titles, "
-        f"{len(derived_union - live_union)} unprojected, "
-        f"{len(live_union - derived_union)} unaccounted"
+        + f"{len(live_union)} live managed titles, "
+        + f"{len(derived_union - live_union)} unprojected, "
+        + f"{len(live_union - derived_union)} unaccounted"
     )
     if mismatched:
         print(
             f"parity: FAILED for {len(mismatched)} book(s): "
-            f"{', '.join(mismatched)} — pending changes remain"
+            + f"{', '.join(mismatched)} — pending changes remain"
         )
         return 1
     print(
         "parity: PROVEN — every book in scope matches the corpus scan, "
-        "0 pending ADD/DEL/UPD"
+        + "0 pending ADD/DEL/UPD"
     )
     return 0
