@@ -401,6 +401,19 @@ finishing recipe.
       task names holds either way: the cut runs the NEW code, and this pull
       request's own continuous-integration run already exercises it against the
       live remote.
+      **MEASURED, recorded here as well as in the pull request.**
+      `verify-commit --commit HEAD` → `release verify-commit: pass`,
+      `inventory=contracts/releases/contract-v1.44.digests.yaml`, exit 0 — the
+      built inventory reproduces the COMMITTED tree, not just the working tree.
+      `verify-promotion --commit HEAD --remote origin --tag contract-v1.44` on the
+      branch → **exit 1 with findings, not exit 2 with a dependency refusal**,
+      which is itself evidence the resolution step works: a definite answer where
+      the published code could produce "could not be determined". The findings are
+      exactly the honest pre-merge state — `HGR-RELEASE-CANDIDATE-UNREACHABLE`
+      because the candidate is not yet on `main`, and `HGR-RELEASE-SURFACE-DRIFT`
+      on `contracts/CHANGELOG.md`, `contracts/manifest.yaml` and
+      `contracts/releases/contract-v1.44.digests.yaml`, the three surface members
+      this cut moves. Re-run it against the MERGE COMMIT before tagging.
 
 - [ ] 4.6 Annotated tag on the merge commit on `main`, message style
       `contract-v<next> — additive: <summary>`. Then `verify-tag`.
@@ -444,6 +457,19 @@ finishing recipe.
       **44 passed** (0:01:18); `test_validator_cli.py` → **21 passed**
       (0:02:17), no `_run_cli` timeout despite a load average of 26 on the box;
       `test_acceptance_parity.py` → **9 passed**.
+      **AND THE SECOND CI SELECTION, ALSO GREEN.** `python3 -m pytest
+      tests/ -q -m "not postgres"` → **6494 passed, 15 skipped, 338 deselected,
+      15 subtests passed in 1081.52s (0:18:01)**, exit 0, ZERO failures. Two
+      known local artifacts did NOT fire and are recorded as not-fired rather
+      than as not-chased: `test_derivation_reproduces_the_real_bootstrap_clusters`
+      RAN and passed from this worktree (it is the source of the run's single
+      warning, a `tarfile` DeprecationWarning, which is how one can tell it
+      executed), and no `_run_cli` 30-second timeout occurred. THEN ON CONTINUOUS
+      INTEGRATION, pull request #390: `pytest-suite` **pass** and
+      `wallet-validation` **pass**, all checks settled. Both wallet gates also
+      run green locally: `wallet-yaml-syntax-gate.py .` exit 0, and
+      `validate-openxwallet.py .` → `0 error(s), 0 warning(s)` over 17 positives,
+      36 negative confirmations, 13/13 requirements and 2 wallet artifacts.
 
 - [x] 5.2 `OPENSPEC_TELEMETRY=0 openspec validate fix-release-reachability-race --strict`
       and `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` both green.
