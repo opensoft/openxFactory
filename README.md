@@ -997,8 +997,9 @@ Active changes:
   works of the PCF against one verbatim attribution paragraph (3b.5k; Brett
   read PCF 8.0's page in a browser 2026-08-26, and the same paragraph
   text-extracts from the primary 7.4, 7.3.1 and 7.3.0 PDFs). O*NET (CC BY
-  4.0) remains the licence-clean crosswalk in four domains and is not
-  displaced — naming a ROLE and naming a PROCESS are different claims — and
+  4.0) remains the ROLE-level crosswalk in four domains and is not
+  displaced (both bodies are now licence-usable; APQC's grant carries its
+  attribution condition) — naming a ROLE and naming a PROCESS are different claims — and
   MedxFactory registers none: its eleven workers record
   `no_clean_equivalent` against the PROVIDER taxonomy specifically, because
   labelling a reasoning agent with a role carrying clinical standing is the
