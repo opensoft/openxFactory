@@ -787,6 +787,242 @@ def test_verify_tag_reports_a_missing_remote_tag(tmp_path: Path) -> None:
     ]
 
 
+# --- remote-derived operands: mid-run skew and unservable objects --------------
+#
+# Online release verification reads `refs/heads/main` and the tag advertisement
+# from the canonical remote, then answers questions about those object ids
+# inside the local clone. The clone is fixed at the moment it was taken; the
+# remote's refs are not. These fixtures DRIVE that divergence rather than
+# describing it: a second clone advances the bare origin's `main` so the
+# verifying repository genuinely does not hold the object the remote
+# advertises.
+
+
+def _object_is_absent(repo: Path, object_id: str) -> bool:
+    """True when the local object store cannot resolve the object id."""
+    probe = support.run_command(
+        ["git", "cat-file", "-e", f"{object_id}^{{object}}"], cwd=repo
+    )
+    return probe.returncode != 0
+
+
+def _advance_remote_main_from_a_peer_clone(
+    tmp_path: Path,
+    origin: Path,
+    *,
+    relative: str,
+    content: str,
+    message: str = "another change merged inside the window",
+) -> str:
+    """Advance the bare origin's `main` from a SECOND clone and return the oid.
+
+    The verifying repository never sees this commit, which is exactly the
+    condition continuous integration meets whenever another pull request
+    merges inside a suite's eleven-minute window.
+    """
+    peer = tmp_path / "peer"
+    _git(tmp_path, "clone", "--quiet", "--branch", "main", str(origin), str(peer))
+    _git(peer, "config", "user.name", "Hermes Contract Tests")
+    _git(peer, "config", "user.email", "hermes-tests@example.invalid")
+    _git(peer, "config", "commit.gpgsign", "false")
+    target = peer / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(content, encoding="utf-8")
+    advanced = _commit_all(peer, message)
+    _git(peer, "push", "--quiet", "origin", "HEAD:refs/heads/main")
+    return advanced
+
+
+def _skewed_candidate(
+    tmp_path: Path, tag: str, *, relative: str, content: str
+) -> tuple[Path, str, str]:
+    """Build a candidate repository whose remote `main` has moved beyond it."""
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path)
+    # Keep pushed objects loose so a single object file can be made unreadable.
+    _git(origin, "config", "receive.unpackLimit", "10000")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    advanced = _advance_remote_main_from_a_peer_clone(
+        tmp_path, origin, relative=relative, content=content
+    )
+    # The condition is real, not asserted into being.
+    assert release._ls_remote(repo, "origin", "refs/heads/main")[0][0] == advanced
+    assert _object_is_absent(repo, advanced)
+    return repo, commit, advanced
+
+
+def test_verify_promotion_completes_when_remote_main_advanced_past_the_clone(
+    tmp_path: Path,
+) -> None:
+    """THE SKEW REGRESSION. `_ls_remote` names the remote's CURRENT `main`;
+    `git merge-base --is-ancestor` runs inside a clone taken earlier. Before
+    the operand was resolved on entry, `merge-base` exited 128 on the absent
+    object and the verifier raised "commit reachability could not be
+    determined" -- a fail-closed refusal produced by somebody else's merge
+    rather than by anything about this candidate (openxFactory PR #372, run
+    32934803039: one tree, two failures, one pass, decided by what landed
+    during the suite).
+    """
+    tag = "contract-v2.0"
+    repo, commit, _ = _skewed_candidate(
+        tmp_path, tag, relative="unrelated.txt", content="another change\n"
+    )
+    # The same verdict a current clone returns -- see
+    # test_verify_promotion_accepts_a_reviewed_reachable_candidate.
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
+def test_verify_tag_completes_when_the_tag_and_main_are_newer_than_the_clone(
+    tmp_path: Path,
+) -> None:
+    """Both of `verify_tag`'s remote-derived operands absent at once: the
+    commit the published tag peels to AND the remote's `main` tip. A tag
+    published since the clone was taken is missing for the same reason main's
+    new tip is, and `_verify_release_at` reads that commit's tree and blobs
+    locally after the ancestor check.
+    """
+    tag = "contract-v2.0"
+    repo, _ = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path)
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+
+    peer = tmp_path / "peer"
+    _git(tmp_path, "clone", "--quiet", "--branch", "main", str(origin), str(peer))
+    _git(peer, "config", "user.name", "Hermes Contract Tests")
+    _git(peer, "config", "user.email", "hermes-tests@example.invalid")
+    _git(peer, "config", "commit.gpgsign", "false")
+    (peer / "unrelated.txt").write_text("another change\n", encoding="utf-8")
+    advanced = _commit_all(peer, "another change merged inside the window")
+    _git(peer, "tag", "-a", tag, "-m", "release", advanced)
+    _git(peer, "push", "--quiet", "origin", "HEAD:refs/heads/main")
+    _git(peer, "push", "--quiet", "origin", tag)
+
+    assert _object_is_absent(repo, advanced)
+    assert release.verify_tag(repo, remote="origin", tag=tag) == []
+
+
+def test_surface_drift_is_computed_against_a_resolved_advanced_main(
+    tmp_path: Path,
+) -> None:
+    """THE MASKED SECOND SITE. `_surface_drift` reads the same remote-derived
+    `main_oid` twice -- `_CommitSource(...).list_release_inventories()` (a
+    `git ls-tree` that raises "Git command failed" on an absent commit) and
+    `_blob_object_id(...)` (which swallows `ContentResolutionError` and
+    returns `None`, so an absent commit would compare every real blob against
+    nothing and emit a FALSE drift finding on every release-surface path).
+    Both are masked today by the ancestor check raising first, which is why
+    this test asserts the drift verdict the surface actually warrants: ONE
+    finding, on the one path that moved.
+    """
+    tag = "contract-v2.0"
+    repo, commit, _ = _skewed_candidate(
+        tmp_path,
+        tag,
+        relative="contracts/manifest.yaml",
+        content=f"schema_version: 1\ncontract_bundle_version: {tag}\nextra: drift\n",
+    )
+    findings = release.verify_promotion(repo, commit=commit, remote="origin", tag=tag)
+    assert [(finding["code"], finding["path"]) for finding in findings] == [
+        ("HGR-RELEASE-SURFACE-DRIFT", "contracts/manifest.yaml")
+    ]
+
+
+def _revoke_read_on_the_remote_object(origin: Path, object_id: str) -> list[Path]:
+    """Leave the bare origin's refs readable while its objects cannot be served.
+
+    MEASURED 2026-08-26 (the measurement `tasks.md` § 3.3 asked for): `chmod
+    000` on the whole `objects/` directory -- the mechanism that task proposed
+    FIRST -- makes git refuse the path as a repository at all, so `ls-remote`
+    itself exits 128 with "does not appear to be a git repository" and the
+    fixture proves the pre-existing "remote main is unavailable" path instead
+    of this one. Revoking read on the single object FILE keeps advertisement
+    working (`ls-remote` exits 0, naming the advanced oid) while `upload-pack`
+    answers "not our ref", which is the condition wanted: the remote declines
+    to serve an object it advertises.
+    """
+    loose = origin / "objects" / object_id[:2] / object_id[2:]
+    revoked = (
+        [loose]
+        if loose.is_file()
+        else sorted((origin / "objects" / "pack").glob("*.pack"))
+    )
+    assert revoked, "the fixture found no object file to make unreadable"
+    for path in revoked:
+        path.chmod(0o000)
+    return revoked
+
+
+def test_verify_promotion_fails_closed_naming_the_fetch_it_could_not_perform(
+    tmp_path: Path,
+) -> None:
+    """THE UNAVAILABLE-OBJECT PROOF. An object that cannot be made locally
+    available is a fact about the ENVIRONMENT, so it stays a fail-closed
+    dependency refusal rather than becoming a finding about the release -- and
+    its reason names the retrieval that failed. "Reachability could not be
+    determined" points at the verifier's own uncertainty and sends the reader
+    to inspect the candidate, which is the one place the answer is not.
+    """
+    tag = "contract-v2.0"
+    repo, commit, advanced = _skewed_candidate(
+        tmp_path, tag, relative="unrelated.txt", content="another change\n"
+    )
+    origin = tmp_path / "origin.git"
+    revoked = _revoke_read_on_the_remote_object(origin, advanced)
+    try:
+        # Fixture soundness: the refs still advertise, so this is the
+        # fetch-impossible path and NOT "remote main is unavailable".
+        assert release._ls_remote(repo, "origin", "refs/heads/main")[0][0] == advanced
+        with pytest.raises(release.ReleaseDependencyError) as excinfo:
+            release.verify_promotion(repo, commit=commit, remote="origin", tag=tag)
+    finally:
+        for path in revoked:
+            path.chmod(0o644)
+    message = str(excinfo.value)
+    assert "fetch" in message
+    assert advanced in message
+    assert "could not be determined" not in message
+
+
+@pytest.mark.parametrize(
+    ("relative", "content"),
+    [
+        ("unrelated.txt", "another change\n"),
+        (
+            "contracts/manifest.yaml",
+            "schema_version: 1\ncontract_bundle_version: contract-v2.0\nextra: drift\n",
+        ),
+    ],
+    ids=["skew", "surface-drift"],
+)
+def test_mutation_removing_the_resolution_step_alone_reproduces_the_refusal(
+    tmp_path: Path, relative: str, content: str
+) -> None:
+    """MUTATION CHECK: with the resolution step removed and NOTHING else
+    changed, both skew proofs must fail by reproducing the original refusal on
+    an absent object. A proof that still passed would be pinned to the shape of
+    the fix rather than to the defect. This also pins `_is_ancestor`'s
+    128-branch guard in place: widening it to treat 128 as "not reachable"
+    would invent a verdict from an absence, and this assertion would notice.
+    """
+    tag = "contract-v2.0"
+    repo, commit, _ = _skewed_candidate(
+        tmp_path, tag, relative=relative, content=content
+    )
+    original = release._resolve_remote_object
+    release._resolve_remote_object = lambda *args, **kwargs: None
+    try:
+        with pytest.raises(release.ReleaseDependencyError) as excinfo:
+            release.verify_promotion(repo, commit=commit, remote="origin", tag=tag)
+    finally:
+        release._resolve_remote_object = original
+    assert "commit reachability could not be determined" in str(excinfo.value), (
+        "removing the resolution step did not reproduce the 128 refusal -- the "
+        "skew proofs are unpinned and must be rewritten"
+    )
+
+
 # --- candidate / realization modes --------------------------------------------
 
 

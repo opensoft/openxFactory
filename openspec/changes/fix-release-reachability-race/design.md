@@ -245,3 +245,76 @@ cut. `verify-promotion` runs before the tag; if the fix is wrong, the release
 that carries it is the first thing it fails. That is a fortunate property of
 this particular file and it is the reason § 4 of `tasks.md` insists the cut be
 performed with the new code rather than around it.
+
+## 5. Recorded at realization, 2026-08-26 — the two measurements that were owed
+
+This section is appended by the realizing session. It changes no decision above;
+it discharges the two places § 2 and the proposal's Open Questions left a claim
+resting on an assumption, and it records one thing that was measured and NOT
+acted on.
+
+### Q1 — the fetch is narrowed to the object, with NO ref-fetch fallback
+
+**Decided on measurement.** `tasks.md` § 2.1 as authored asked for
+object-then-ref; the orchestrating session's ruling of 2026-08-26 made the
+fallback conditional on a measurement showing the narrow fetch insufficient. It
+is sufficient, so no fallback ships.
+
+Measured against the canonical remote, `git@github.com:opensoft/openxFactory.git`:
+
+| clone | object asked for | result |
+| --- | --- | --- |
+| `--depth 1` of `main` | a commit 25 behind the tip, under no tracked ref | rc 0, 4.80s |
+| non-shallow, 1 commit behind | the current tip | rc 0, 8.13s |
+| non-shallow, 3 commits behind | the current tip | rc 0, 8.49s |
+| non-shallow, 8 commits behind | the current tip | rc 0, 6.55s |
+
+Two things fall out. The remote serves a bare object id that no ref the clone
+tracks points at — which was the entire doubt in Q1 — and the cost is the SSH
+handshake and ref negotiation rather than the object count, so a ref fetch would
+have bought nothing on cost either while bringing unrequested history and
+mutating remote-tracking refs. A remote that declines to serve an object it
+advertises is therefore requirement 2's fail-closed case, reached with a reason
+that names the fetch, and not a case for a wider request nobody has needed.
+
+The already-current case, which is the common one, costs **0.006 seconds and no
+network at all**: `git cat-file -e <oid>^{object}` short-circuits before any
+fetch is attempted. `^{object}` and not `^{type}` — the latter is not git
+syntax, and the former is the type-agnostic form the tag path needs.
+
+The narrowness is verified rather than asserted. After the verifier's own fetch
+on a live stale clone, `git for-each-ref` still listed only `refs/heads/main` and
+`FETCH_HEAD` still named the setup fetch's commit: `--no-tags
+--no-write-fetch-head` confines the mutation to the object store, which is the
+narrowest form the "a verifier that now writes" risk in § Impact can take.
+
+### Q2 — the offline fixture works, one step narrower than proposed
+
+**The mechanism as authored does not work, and the measurement caught it.**
+`chmod 000` on the bare origin's whole `objects/` directory makes git refuse the
+path as a repository at all: `git ls-remote` itself exits 128 with "does not
+appear to be a git repository". A fixture built that way proves the pre-existing
+"remote main is unavailable" path — the exact wrong-reason pass § 3.3 warned
+about.
+
+Revoking read on the single object FILE instead gives the wanted condition
+exactly: `ls-remote` exits 0 and still advertises the advanced oid, while `git
+fetch <remote> <oid>` exits 128 with `upload-pack: not our ref`. A remote that
+advertises an object it will not serve. So the real fixture is KEPT and the
+monkeypatch fallback OD-4 authorized is not used. The proof asserts the fixture's
+own soundness inline, so it cannot silently degrade into the remote-unavailable
+path later.
+
+### Measured and deliberately not acted on — the shallow-clone verdict
+
+Resolving the operand makes the object present. It does not make the ANCESTRY
+present, and in a `--depth 1` clone the new code fetches the object, reaches
+`git merge-base --is-ancestor`, and gets rc 1 out of a grafted history — a FALSE
+`HGR-RELEASE-TAG-UNREACHABLE` where the published code refused with 128. That is
+a verdict invented from an absence, and it is recorded in `tasks.md` § 6.4 with
+the narrow rule that would close it, rather than closed here: this repository
+checks out at `fetch-depth: 0`, the faithful reproduction of the measured defect
+needed a NON-shallow stale clone (where the new code completes with zero
+findings), and the hazard pre-exists this change in kind. Adding mechanism for a
+population nobody has measured failing is the unearned sweep this packet
+declines to perform everywhere else.

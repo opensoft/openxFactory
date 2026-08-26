@@ -1536,6 +1536,9 @@ entries:
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_tag_accepts_an_annotated_reachable_tag
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_cli_verify_promotion_and_verify_tag
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_tag_rejects_a_tag_off_published_main
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_tag_completes_when_the_tag_and_main_are_newer_than_the_clone
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_promotion_completes_when_remote_main_advanced_past_the_clone
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_mutation_removing_the_resolution_step_alone_reproduces_the_refusal[skew]
   - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_internal_consistency_defects_fail_before_object_lookup[handoff-receipt-tag-drift-HGR-HANDOFF-TAG]
   - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_internal_consistency_defects_fail_before_object_lookup[handoff-receipt-commit-drift-HGR-HANDOFF-COMMIT]
   - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_semantic_matrix_over_indexed_fixtures[handoff-receipt-tag-drift]
@@ -1555,6 +1558,8 @@ entries:
   test_node_ids:
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_detects_missing_extra_duplicate_and_unordered
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_promotion_rejects_a_drifted_release_surface
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_surface_drift_is_computed_against_a_resolved_advanced_main
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_mutation_removing_the_resolution_step_alone_reproduces_the_refusal[surface-drift]
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_cli_verify_commit_reports_findings_with_exit_one
   - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_recorded_artifact_digest_drift_is_rejected[closure_packet-HGR-HANDOFF-PACKET-DIGEST]
   - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_semantic_matrix_over_indexed_fixtures[handoff-receipt-packet-digest-drift]
@@ -1575,6 +1580,7 @@ entries:
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_passes_and_ignores_working_tree_edits
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_reads_exact_commit_not_a_short_or_symbolic_revision
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_validate_candidate_passes_on_the_realized_repository
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_promotion_fails_closed_naming_the_fetch_it_could_not_perform
   - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_working_tree_spoof_is_rejected
   - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_missing_recorded_object_is_a_dependency_error[path]
   - tests/hermes_runtime_contracts/test_consumer_handoff.py::test_missing_recorded_object_is_a_dependency_error[commit]

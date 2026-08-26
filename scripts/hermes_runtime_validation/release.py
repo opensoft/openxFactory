@@ -192,6 +192,65 @@ def _ls_remote(repo: Path, remote: str, *patterns: str) -> list[tuple[str, str]]
     return rows
 
 
+def _resolve_remote_object(repo: Path, remote: str, object_id: str) -> None:
+    """Make a remote-derived object locally readable before anything reads it.
+
+    Online release verification asks the canonical remote what its ``main`` and
+    its tags point at, then answers questions about those object ids inside the
+    local clone.  The two halves have different ages: a clone is fixed at the
+    moment it was taken, the remote's refs are not.  When ``main`` advances
+    after the clone, every local operation over the advertised object fails for
+    that reason alone -- ``git merge-base --is-ancestor`` exits 128, a tree read
+    fails outright, and a blob read resolves to nothing.
+
+    The obligation is therefore on the OPERAND rather than on any one
+    comparison: resolve the object where it enters the local world, and all
+    four of its readers are covered by construction.  Probe first, so the
+    common case of an already-current clone costs nothing and the verifier
+    performs no network write at all; fetch only the single named object, never
+    a ref, so the clone's remote-tracking refs and ``FETCH_HEAD`` are left
+    exactly as they were.
+
+    Q1, MEASURED 2026-08-26 and decided on the measurement: no ref-fetch
+    fallback.  ``git fetch <remote> <oid>`` against the canonical remote
+    (``git@github.com:opensoft/openxFactory.git``) returned 0 for an object
+    under no ref the clone tracked, twice -- by hand on the live failure, and
+    from a depth-1 clone fetching a commit 25 behind the tip in 4.80s, well
+    inside ``_run_git``'s 30-second cap.  A remote that declines to serve an
+    advertised object is therefore the fail-closed case below, not a case for a
+    speculative wider fetch nobody has needed.
+
+    Raises ``ReleaseDependencyError`` naming the RETRIEVAL that failed, which
+    is a fact about the environment rather than a verdict about the release.
+    """
+
+    probe = _run_git(
+        repo, "cat-file", "-e", f"{object_id}^{{object}}", allow_failure=True
+    )
+    if probe.returncode == 0:
+        return
+    fetch = _run_git(
+        repo,
+        "fetch",
+        "--no-tags",
+        "--no-write-fetch-head",
+        remote,
+        object_id,
+        allow_failure=True,
+    )
+    if fetch.returncode != 0:
+        raise ReleaseDependencyError(
+            f"remote object fetch failed: {remote} would not serve {object_id}"
+        )
+    confirm = _run_git(
+        repo, "cat-file", "-e", f"{object_id}^{{object}}", allow_failure=True
+    )
+    if confirm.returncode != 0:
+        raise ReleaseDependencyError(
+            f"remote object fetch did not provide {object_id} from {remote}"
+        )
+
+
 def _is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
     result = _run_git(
         repo, "merge-base", "--is-ancestor", ancestor, descendant, allow_failure=True
@@ -719,6 +778,10 @@ def verify_promotion(
     if not main_rows:
         raise ReleaseDependencyError("remote main is unavailable")
     main_oid = main_rows[0][0]
+    # Resolve the live operand where it enters the local world: the ancestor
+    # check below and BOTH of `_surface_drift`'s reads at :732 answer out of the
+    # local object store.
+    _resolve_remote_object(repo_root, remote, main_oid)
 
     if not _is_ancestor(repo_root, commit_oid, main_oid):
         findings.append(
@@ -799,11 +862,16 @@ def verify_tag(repo_root: Path, *, remote: str, tag: str) -> list[dict[str, str]
             )
         )
     peeled_commit = peeled[0][0] if peeled else direct[0][0]
+    # A tag published since the clone was taken is absent for the same reason
+    # main's new tip is, and `_verify_release_at` at :816 walks this commit's
+    # tree and blobs locally.
+    _resolve_remote_object(repo_root, remote, peeled_commit)
 
     main_rows = _ls_remote(repo_root, remote, "refs/heads/main")
     if not main_rows:
         raise ReleaseDependencyError("remote main is unavailable")
     main_oid = main_rows[0][0]
+    _resolve_remote_object(repo_root, remote, main_oid)
     if not _is_ancestor(repo_root, peeled_commit, main_oid):
         findings.append(
             _finding(

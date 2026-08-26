@@ -9,6 +9,91 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.44 — 2026-08-26 (additive; the release verifier resolves its remote operand before it compares)
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+NO SCHEMA BYTES CHANGE: nothing under `contracts/schemas/` moves,
+`contract_schema_version` is unchanged, no field is added, deprecated or
+removed, and no instance valid at `contract-v1.43` is narrowed or invalidated.
+A consumer pinned at `contract-v1.43` remains conformant until it deliberately
+upgrades. No finding code is added, removed, renamed or re-severitied, and
+`HGR-RELEASE-CANDIDATE-UNREACHABLE` / `HGR-RELEASE-TAG-UNREACHABLE` fire on
+exactly the population they fired on before.
+
+WHY THIS CUT EXISTS, stated as membership rather than as preference:
+`scripts/hermes_runtime_validation/release.py` is a NON-EDITORIAL member of
+`contract-v1.43`'s own digest inventory
+(`contracts/releases/contract-v1.43.digests.yaml`, `type: validator`, recorded
+digest `sha256:d149a34b...`, which is exactly what the tree carried before this
+change). Editing it would leave that declared inventory describing bytes the
+repository no longer holds — the state `release-surface-integrity` names a
+defect for any member outside the editorial three, that `doc-health`'s
+release-inventory drift family reports at `error`, and whose prescribed remedy
+is a release cut and never a hand-edit of an inventory to match a tree. THE
+PRECEDENT IS THE SAME FILE FOR THE SAME CAUSE: `contract-v1.10` was cut as a
+superseding additive re-realization because finding F-U3 hardened release
+membership and thereby changed this very file, so the frozen `contract-v1.9`
+inventory stopped reproducing the tree.
+
+WHAT MOVED:
+
+* `scripts/hermes_runtime_validation/release.py` — the release verifier asked
+  the canonical remote a LIVE question (`git ls-remote refs/heads/main`, and the
+  tag advertisement) and answered it out of a STATIC local object store (`git
+  merge-base --is-ancestor`, `git ls-tree`, blob reads). A clone is fixed at the
+  moment it was taken; the remote's refs are not. When `main` advanced after the
+  clone, the advertised object was simply absent locally, `merge-base` exited 128
+  rather than 0 or 1, and the verifier refused with "commit reachability could
+  not be determined" — a fail-closed refusal produced by somebody else's merge
+  rather than by anything about the candidate. MEASURED on openxFactory PR #372,
+  a doc-only change: one tree, three attempts, two failures and one pass, with a
+  merge landing on `main` inside each failing window and none inside the passing
+  one. The fix puts the obligation on the OPERAND rather than on the comparison:
+  a new `_resolve_remote_object` probes with `git cat-file -e`, so an
+  already-current clone spends nothing, and otherwise fetches THE SINGLE NAMED
+  OBJECT (`--no-tags --no-write-fetch-head`, leaving the clone's refs and
+  `FETCH_HEAD` untouched) from the remote that just named it. It is called where
+  each remote-derived object id ENTERS the local world, which covers all four of
+  its readers by construction: the candidate ancestor check, the
+  release-surface comparison and its per-member blob reads, the published-tag
+  ancestor check, and the tag's tree walk in `_verify_release_at`.
+  `_is_ancestor`'s 128-branch refusal is DELIBERATELY UNCHANGED as the last line
+  of defence, and a mutation proof depends on it still being there.
+* Three outcomes are now told apart and named. A candidate genuinely not on
+  published `main` keeps its existing refusal finding, unchanged. Transient skew
+  resolves in the fetch and produces no finding at all. An object that cannot be
+  made available stays a fail-closed dependency refusal — never a finding, never
+  a pass, never a "not reachable" verdict invented from an absence — but its
+  reason now NAMES THE RETRIEVAL (`remote object fetch failed: <remote> would
+  not serve <oid>`) instead of announcing that reachability could not be
+  determined, because the reader's next action differs completely between
+  checking a candidate and checking a network or a credential.
+* `tests/hermes_runtime_contracts/test_release_inventory.py` — six new proofs
+  over the module's established `_bare_origin` fixture pattern, which DRIVE the
+  condition rather than describing it: a second clone advances the bare origin's
+  `main` so the verifying repository genuinely lacks the advertised object. Two
+  skew proofs (`verify_promotion`; and `verify_tag` with BOTH its operands
+  absent, tag and main tip alike), one release-surface proof asserting the drift
+  verdict the surface actually warrants rather than the false drift an
+  unresolved object would produce on every surface path, one unavailable-object
+  proof asserting the refusal and its reason, and a two-case mutation proof
+  demonstrating that removing the resolution step alone reproduces the original
+  128 refusal.
+* `contracts/hermes-runtime/evidence-register.yaml` — the new proofs are bound
+  in place under the `SCO-002` scenarios they serve (`S02` published-tag verify,
+  `S03` pinned-file drift, `S04` verification without a usable network). Test
+  node ids added to existing scenarios; no scenario id added.
+* `contracts/CHANGELOG.md` and `contracts/manifest.yaml` — the editorial
+  members, re-baselined.
+
+A FORTUNATE PROPERTY, worth stating rather than discovering: the verifier's fix
+is verified BY the verifier as part of the cut that carries it.
+`verify-promotion` runs before the tag, so if the fix were wrong the release
+carrying it would be the first thing it failed.
+
+Realized by `fix-release-reachability-race`.
+
 ## contract-v1.43 — 2026-08-25 (additive; cleanup retention evidence becomes exact and transactional)
 
 **Change class: ADDITIVE (minor)** under
