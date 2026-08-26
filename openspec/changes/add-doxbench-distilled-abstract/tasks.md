@@ -259,6 +259,16 @@ running both.
 - [x] 7.2 RED: a generation that resolves against a subject the pane no longer has
       selected is DISCARDED UNRENDERED, and the region shows the
       not-yet-generated caption for the current subject.
+      (2026-08-26 — REFINED by the operator run. DISCARDED is a rule about a
+      SUCCESS: it carries prose, and prose painted under the wrong caption is
+      the defect. A REFUSAL or ERROR answering the subject the request was
+      DISPATCHED for is RECORDED against that subject and renders on it when it
+      is next shown — never on another — because it carries no prose to paint
+      wrongly, and dropping it was what made a refused generation look like a
+      control that did nothing. An answer NAMING A DIFFERENT subject than the
+      dispatched one is discarded whole and recorded against neither. The echo
+      is tested against the DISPATCH, so the recheck and the store key ask one
+      question.)
 - [x] 7.3 RED: the in-flight state is cancellable and states its wait bounded by
       the ADAPTER'S OWN `port.timeout_seconds` — the value the chat path reads
       through `validated_timeout_seconds` (`serve.py:3416-3417`), which the bridge
@@ -373,6 +383,18 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
       without-generation arm — pin added. 7.2 likewise gained the not-cached assertion after
       9.2b survived it.) Mutate the snapshot: emit the abstract into a document object and
       confirm 6.1 and 6.2 both fail.
+      (2026-08-26 — FIX-ROUND MUTANTS on the visible-refusal path, all caught:
+      key the error recording on the CURRENT subject (`session.subject.path`)
+      instead of the DISPATCHED `path` → the refusal-renders-where-it-was-asked
+      pin and the foreign-answer pin both fail; drop `!foreign` from the
+      recording guard (`if (!succeeded)`) → the dropped-whole pin fails; move
+      the recording ABOVE the token check → the cancelled-wait pin fails; drift
+      `ABSTRACT_PROSE_WORDS_APPROX_BYTES` to 1_400 → the word-cap/byte-gloss
+      coherence pin fails. The N3 defect was found by writing its pin first: a
+      SUCCESS echoing a foreign path that equals the CURRENT subject passed the
+      old recheck and was then cached under the DISPATCHED path — one document's
+      prose filed under another's name — and the pin was RED until the recheck
+      took `foreign` into account.)
 
 ## 10. Realization gate
 

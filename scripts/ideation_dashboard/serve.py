@@ -616,10 +616,30 @@ _ABSTRACT_REASON_NOT_DISTILLABLE = (
 _ABSTRACT_REASON_SUBJECT_BYTES = (
     "this document is larger than the byte bound one abstract request may "
     "carry, so no distillation is available for it")
-_ABSTRACT_REASON_PROSE_BYTES = (
-    "the model answered at greater length than this region can render, and an "
-    "over-long answer is refused in full rather than trimmed into it: text cut "
-    "to fit is text no model wrote and no verifier checked")
+
+
+def _abstract_reason_prose_bytes(measured: int, maximum: int) -> str:
+    """The ONE abstract reason composed per refusal rather than fixed, and it
+    NAMES BOTH NUMBERS.
+
+    "Too long" is a verdict a reader cannot act on. The first real operator run
+    (2026-08-26) refused a 2_018-byte answer against the 1_500-byte bound and
+    the region could say only that something was over-long -- so nothing in the
+    surface told the operator how far over, or what the bound even was, and the
+    diagnosis had to be made from the server's own source.
+
+    The two values spliced here are SERVER MEASUREMENTS: integers this process
+    computed over the provider's answer, carried by `TurnLimitError`, which
+    holds the dimension and the two numbers and never the text it measured. The
+    section rule above -- composed from nothing the caller sent -- holds
+    exactly: no caller field and no provider text reaches this string."""
+    return (
+        "the model answered with " + str(int(measured)) + " bytes of prose "
+        "and this region renders at most " + str(int(maximum)) + ": an "
+        "over-long answer is refused in full rather than trimmed into it, "
+        "because text cut to fit is text no model wrote and no verifier "
+        "checked")
+
 
 # code -> HTTP status. The three 502s are the `response_invalid` class by another
 # name -- the upstream answered, unusably -- and they are the statuses the chat
@@ -4151,10 +4171,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 prose = doxbench_turns.validate_abstract_prose(
                     outcome.assistant_prose)
-            except doxbench_turns.TurnLimitError:
+            except doxbench_turns.TurnLimitError as over_long:
                 self._refuse_abstract(
                     DOXBENCH_ABSTRACT_REFUSED_PROSE_BYTES,
-                    _ABSTRACT_REASON_PROSE_BYTES,
+                    _abstract_reason_prose_bytes(over_long.measured,
+                                                 over_long.maximum),
                     subject_path=subject_path, subject_digest=digest,
                     wait_bound_seconds=wait_bound)
                 return

@@ -293,6 +293,19 @@ if the pane's current subject differs, the result is discarded UNRENDERED. Witho
 that check a slow answer paints itself over whatever the reader has since spun
 to, under a confident caption.
 
+**REFINED 2026-08-26, by the first operator run.** "Discarded" is a rule about a
+SUCCESS — the answer that carries prose, and prose under the wrong caption is the
+defect. An ERROR-shaped body names no subject at all (`doxbench_error_body` is
+`{ok, error, message}`), so the recheck dropped every refusal ever composed and
+an invoked control read as one that did nothing. A REFUSAL or ERROR for the
+subject the request was DISPATCHED for is therefore recorded against THAT subject,
+ahead of the recheck, and renders on it when it is next shown — it carries no
+prose, so it is the one answer that cannot paint a wrong document. An answer
+NAMING A DIFFERENT subject than the dispatched one is discarded whole and
+recorded against neither, success or not: the echo is tested against the DISPATCH
+rather than against the live subject, so the recheck and the session store key ask
+one question instead of two that agree only most of the time.
+
 The in-flight state is cancellable and states the ADAPTER'S OWN declared bound —
 `port.timeout_seconds`, which the chat path already reads through
 `validated_timeout_seconds` (`serve.py:3416-3417`) and which the bridge defaults
