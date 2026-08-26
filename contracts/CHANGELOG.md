@@ -65,10 +65,15 @@ WHAT MOVED:
   resolves in the fetch and produces no finding at all. An object that cannot be
   made available stays a fail-closed dependency refusal — never a finding, never
   a pass, never a "not reachable" verdict invented from an absence — but its
-  reason now NAMES THE RETRIEVAL (`remote object fetch failed: <remote> would
-  not serve <oid>`) instead of announcing that reachability could not be
+  reason now NAMES THE RETRIEVAL (`remote object fetch failed: <remote> <oid>
+  (git exit <n>)`) instead of announcing that reachability could not be
   determined, because the reader's next action differs completely between
-  checking a candidate and checking a network or a credential.
+  checking a candidate and checking a network or a credential. It claims NO
+  cause beyond the failed fetch and its exit status: a fetch can fail for a
+  refused credential, an unreachable host, a timeout or a remote that declines
+  the object, and naming one of them unobserved would be the same failure of
+  diagnosis the message replaces (openxFactory pull request #390, Copilot
+  review, accepted).
 * `tests/hermes_runtime_contracts/test_release_inventory.py` — six new proofs
   over the module's established `_bare_origin` fixture pattern, which DRIVE the
   condition rather than describing it: a second clone advances the bare origin's

@@ -267,7 +267,13 @@ Fixtures follow the pattern this module already establishes:
       remote-unavailable path), then asserts a `ReleaseDependencyError` whose
       message contains `fetch` and the oid and does NOT contain "could not be
       determined". The message measured: `remote object fetch failed: origin
-      would not serve <oid>`.
+      <oid> (git exit 128)`. AS FIRST WRITTEN that message ended `would not
+      serve <oid>`, and Copilot's review of pull request #390 was right to
+      object: a fetch can fail for a refused credential, an unreachable host or
+      a timeout, so asserting that the remote DECLINED is a reason that guesses
+      — the very fault the delta's requirement 2 names. Narrowed to the fetch,
+      the remote, the object and git's exit status, with no subprocess output
+      embedded so a remote URL never travels inside a dependency error.
 
 - [x] 3.4 **Pin the proofs to the defect.** Remove the resolution step alone and
       re-run 3.1 and 3.2: both must fail, reproducing the 128 refusal. A proof

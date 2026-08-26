@@ -222,6 +222,13 @@ def _resolve_remote_object(repo: Path, remote: str, object_id: str) -> None:
 
     Raises ``ReleaseDependencyError`` naming the RETRIEVAL that failed, which
     is a fact about the environment rather than a verdict about the release.
+    The reason names the fetch, the remote, the object and git's exit status,
+    and deliberately claims NO cause beyond that: a fetch can fail for a
+    refused credential, an unreachable host, a timeout or a remote that
+    declines the object, and asserting one of them would be the same failure of
+    diagnosis as announcing that reachability "could not be determined".
+    Subprocess output is not embedded, following ``_run_git``'s own terseness
+    and so that a remote URL never travels inside a dependency error.
     """
 
     probe = _run_git(
@@ -240,7 +247,8 @@ def _resolve_remote_object(repo: Path, remote: str, object_id: str) -> None:
     )
     if fetch.returncode != 0:
         raise ReleaseDependencyError(
-            f"remote object fetch failed: {remote} would not serve {object_id}"
+            f"remote object fetch failed: {remote} {object_id} "
+            f"(git exit {fetch.returncode})"
         )
     confirm = _run_git(
         repo, "cat-file", "-e", f"{object_id}^{{object}}", allow_failure=True

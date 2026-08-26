@@ -10,7 +10,7 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:b2bf286451b8d12286bc0fdb64148fca1249a427e636e04b44160284e73bb178
+  digest: sha256:e16a9d1cfc2b0b4289ab0f183d23f68c64f038025cd91d62d412913922e6141e
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
@@ -993,7 +993,7 @@ entries:
   path: scripts/hermes_runtime_validation/release.py
   type: validator
   git_mode: '100644'
-  digest: sha256:2160dc3b745261481c450aef6aa50f8eeeff6ed4d4b88daf7b1138013b6d9d33
+  digest: sha256:10cb88eb3eb97bae0ed810d582b62c48ec2abaccb2b3413146cf60cdb5dc981f
 - artifact_id: scripts-hermes_runtime_validation-schema_registry.py
   path: scripts/hermes_runtime_validation/schema_registry.py
   type: validator
