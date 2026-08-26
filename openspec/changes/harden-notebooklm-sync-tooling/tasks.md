@@ -68,15 +68,16 @@
     every stateful class releases the bound profile in `tearDown`.
 - [x] 3.5 Prove pytest and unittest discovery retain the pre-split test and subtest population and never invoke real `nlm`
   - The pre-split baseline was 118 tests plus 13 subtests. Final pytest
-    collection finds 127 tests; pytest and guarded unittest both pass all 127
-    plus the 13 pytest subtests, with the structural `nlm` refusal guard active.
+    collection finds 129 tests; pytest and guarded unittest both pass all 129
+    plus the 15 pytest subtests, with the structural `nlm` refusal guard active.
 
 ## 4. Scoped debt remediation
 
 - [x] 4.1 Resolve all scoped basedpyright errors without casts, ignore directives, or unbounded `Any`
   - The scoped command reports `0 errors, 0 warnings, 0 notes` at its declared
-    basic mode with warnings configured as fatal; the programming checker also
-    confirms no cast/ignore/`Any` escape hatch exists on the surface.
+    recommended mode with warnings configured as fatal; a negative probe proves
+    a warning exits nonzero, and the programming checker confirms no
+    cast/ignore/`Any` escape hatch exists on the surface.
 - [x] 4.2 Resolve mechanical Ruff findings and the latent loop-closure test defect
   - Ruff reports zero findings. The profile-answer subtest now binds each loop
     value in the injected lambda rather than closing over the moving variable.
@@ -84,8 +85,8 @@
   - Extracted boundaries catch declared operation errors; the programming
     checker reports no broad, bare, or silent exception handling.
 - [x] 4.4 Bring every new or touched production and test module below the repository size ceiling
-  - The programming checker reports no size violations across 41 files; the
-    largest governed module is 239 pure lines, below the 250-line ceiling.
+  - The programming checker reports no size violations across 46 files; the
+    largest governed modules are 248 pure lines, below the 250-line ceiling.
 - [x] 4.5 Enable the scoped quality command at a zero-finding baseline
   - `PROGRAMMING_CHECKER=... python3 scripts/check-notebooklm-sync-quality.py`
     passes Ruff, basedpyright, and the programming checker with zero findings.
@@ -93,10 +94,10 @@
 ## 5. Verification and evidence
 
 - [x] 5.1 Run focused and full NotebookLM tests, pytest collection, and unittest discovery
-  - Final evidence: 127 collected; pytest passed 127 tests plus 13 subtests;
-    guarded unittest passed the same 127 tests.
+  - Final evidence: 129 collected; pytest passed 129 tests plus 15 subtests;
+    guarded unittest passed the same 129 tests.
 - [x] 5.2 Run the zero-finding scoped quality command and the repository programming checker
-  - Final evidence: Ruff clean, basedpyright zero, and no violations in 41
+  - Final evidence: Ruff clean, basedpyright zero, and no violations in 46
     files from `check-no-excuse-rules.py`.
 - [x] 5.3 Run doc-health tests and `openspec validate --all --strict`
   - Strict OpenSpec validation passed all 75 artifacts. Doc-health passed all
@@ -110,5 +111,12 @@
     are isolated in `94630019`. Review remediation is split into provider
     refusal `41c721e0`, pre-provider input validation `52f2fc67`, optional
     adapter degradation `bc4ca1ea`, configured type diagnostics `1201dd60`,
-    and mechanical test normalization `620613da`; this ledger records the
-    realization evidence.
+    and mechanical test normalization `620613da`. Final hardening is split into
+    malformed-envelope refusal `d65bb176`, warning-fatal recommended typing
+    `4ec5d70a`, the public CLI boundary `48c6e54e`, dashboard compatibility
+    `e563be6a`, optional projection compatibility `3d68fa0d`, wrapper hooks
+    `469a041d`, corpus/hosting reports `981bb859`, lifecycle reconciliation
+    `0affdc9a`, session reconciliation `e8d3a8c4`, shared test fixtures
+    `c1eda382`, lifecycle test contracts `d1ca7c7b`, hosting/lifecycle tests
+    `f8178702`, session import tests `b5f9e6d0`, and session sweep tests
+    `d4614502`; this ledger records the realization evidence.
