@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (dashboard settings surface for model-provider bindings; a token-minting broker seam that shells out to openProfiler; ONE server-side provider client behind it; the honest unavailable posture; the narrowed structural provider boundary; tests). openProfiler itself is OUT of scope and unbuilt.
 target_release: none
-Status: draft
+Status: ratified
+Ratified: 2026-08-26 by Brett Heap — in-session, ruled "Ratify now" in the openProfiler-lane dispatch round. No approving OpenSpec change exists to name, so this is the record-citing spelling `sanction-ratified-record-spelling` sanctioned for that case; it clears the three-way floor on two axes rather than the one it needs — approver (`by Brett Heap`) and date (`2026-08-26`).
 Ruling: Brett, 2026-08-08 — the broker MINTS a short-lived token and doxBench calls the provider directly; brokered dispatch "would be too slow"
 ---
 
@@ -104,17 +105,28 @@ DECIDED 2026-08-08 (Brett): the broker MINTS, it does not dispatch. The
 remaining questions are the broker's to answer, and the binding shape is
 deliberately loose until it does:
 
-1. What does a minted token carry — lifetime, scope, and whether it is
-   provider-native (an OAuth access token the provider itself accepts) or a
-   broker-issued credential the provider was pre-configured to trust? The
-   first is the fast path Brett asked for; the second would put the broker
-   back in the path it was just taken out of.
+1. ANSWERED 2026-08-26 by openProfiler's merged declaration
+   (`docs/broker-cli.md`, main `d0538c31`, PR #18). What a minted token
+   carries: it is PROVIDER-NATIVE in both kinds — the fast path Brett asked
+   for, and never a broker-issued credential that would put the broker back
+   in the path it was just taken out of. On the `api_key` path the minted
+   token IS the stored key verbatim and `expires_at` is broker bookkeeping
+   the consumer is bound to honour (`enforcement.expiry:
+   "broker_bookkeeping"`), which the declaration states rather than buries;
+   the `oauth` path returns the provider's own short-lived access token and
+   is DECLARED-DESIGN, refusing with exit 5 until the refresh exchange is
+   built. The binding's argv template did stay declaration-consuming, but the
+   adapter's PARSING of the answer did not: six incompatibilities are
+   recorded in tasks.md 0.2, and reconciling them is owed work.
 2. How does a human complete an OAuth flow — in the browser, with the broker
    as the redirect target, or entirely in the broker's own surface?
 3. What is the audit obligation per MINT, given `credential-contracts`
    requires `issued_by`, `approved_by`, `expires_at` and `audit_ref` on a
    grant? Minting is the moment those fields exist, so the mint is the
    auditable event and the provider calls under one token are its children.
-4. What happens at expiry mid-turn: does the dashboard re-mint and retry
-   once, or surface the refusal? A long generation can outlive a short
-   token, and silently retrying a paid call is a decision, not a detail.
+4. DECIDED 2026-08-26 (Brett, in-session): at expiry mid-turn the dashboard
+   RE-MINTS AND RETRIES ONCE, and the re-mint plus the paid retry are
+   VISIBLY RECORDED in the turn record — the retry is never silent, because
+   a second paid call the human cannot see is exactly the decision this
+   question was raised to avoid. A SECOND expiry within the same turn
+   surfaces the standard refusal rather than minting again.

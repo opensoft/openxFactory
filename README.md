@@ -996,7 +996,8 @@ Active changes:
   xFactory; release allocated at realization)
 
 - [add-model-provider-broker](openspec/changes/add-model-provider-broker/proposal.md)
-  — DRAFT, authored 2026-08-08, awaiting ratification (task 0). doxBench has
+  — authored 2026-08-08, **RATIFIED 2026-08-26** (Brett, in-session), built
+  in the same round. doxBench has
   a model seam and no model: there is no provider adapter in this repository
   and none is implied, so every model-backed affordance refuses. Brett's
   ruling names openProfiler — unbuilt — as the answer, which makes it a
@@ -1011,7 +1012,25 @@ Active changes:
   contacted from this repository" boundary narrows to ONE named module
   rather than holding, with its structural check rewritten rather than
   deleted, and a minted token that lives in process memory and never
-  reaches the browser. (code surface: openxFactory; target release: none;
+  reaches the browser. RULED 2026-08-26: at mid-turn expiry the dashboard
+  re-mints and retries ONCE, with the re-mint and the paid retry visibly
+  recorded, and a second expiry in the same turn refuses. BUILT: the binding
+  record and its store, a `model-binding` CLI verb group, a credential
+  hand-off that streams a handle to the broker's stdin and keeps only the
+  reference, the one provider-client module, the package-wide boundary sweep
+  that narrows the eleven per-module scans without deleting any of them, and
+  the brokered port both entrypoints resolve — with the unconfigured posture
+  byte-identical. Task 0.2 is DISCHARGED — openProfiler PR #18 merged
+  2026-08-26 (`docs/broker-cli.md`, openProfiler main `d0538c31`), answering
+  what a minted token carries: provider-native in both kinds, with `api_key`
+  expiry as broker bookkeeping the consumer honours and the whole oauth path
+  DECLARED-DESIGN. Cross-checking this seam against that declaration found
+  SIX incompatibilities (operation framing, the enrolment stdin, a mint
+  answer carrying neither `endpoint` nor `dialect`, the reference key, an
+  unpassed `--retry-of`, and EPIPE handling); they are recorded in 0.2's body
+  and A RECONCILIATION SLICE IS OWED before a binding can name the real
+  broker.
+  (code surface: openxFactory; target release: none;
   depends on openProfiler)
 
 
