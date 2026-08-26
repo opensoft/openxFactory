@@ -38,6 +38,57 @@ hosting:
     from_account: brettheap@gmail.com
     from_nlm_profile: personal
 
+  # WHERE THIS ACCOUNT'S CREDENTIAL IS HELD — BY REFERENCE ONLY.
+  # (add-notebook-hosting-credential-custody § 1. Ratified 2026-08-23.)
+  #
+  # This block names the BINDING, never the secret. It is deliberately not
+  # enough to obtain anything: resolving it requires the binding instance, which
+  # lives in the consuming install and not in this repository (the residency
+  # redirect Brett accepted at ratification — neutral obligations here, live
+  # binding instances in the installs).
+  #
+  # `secret_ref` is ABSENT ON PURPOSE and the validator refuses it. It is
+  # binding detail; duplicating it here would invite the rest of the binding to
+  # follow, and the record's whole job is to point at the binding rather than
+  # restate it (review note, 2026-08-23).
+  custody:
+    # The binding's identifier: which client's binding template, and which key
+    # within its `credential_bindings` map.
+    binding_kind: xfactory_credential_binding_template
+    binding_client: opensoft
+    binding_id: notebook_projection_hosting
+
+    # WHAT THE CUSTODY COVERS. Named individually because "the credential" is
+    # not one thing, and a second factor left outside custody makes the whole
+    # arrangement a single point of failure wearing governance.
+    covers:
+      - account_password
+      - totp_seed
+
+    # THE HONEST REACH — required by the ratified text, and the reason this
+    # block is prose-heavy rather than three fields.
+    #
+    # CUSTODY IS NOT AUTOMATION. Holding this material governs WHO MAY OBTAIN
+    # IT and proves who did. It does not make the sign-in unattended: Google's
+    # sign-in for this account is an INTERACTIVE BROWSER FLOW, and it stays one.
+    # An operator with the vault material still performs that step by hand.
+    #
+    # A reader planning unattended access on the strength of this block would be
+    # planning on something that does not exist, which is why the limit is
+    # recorded beside the reference rather than in a doc a reader may not reach.
+    interactive_step_remains: true
+    interactive_step: >-
+      Google sign-in for this account is an interactive browser flow. The
+      custody material completes the credential prompts; it does not complete
+      the sign-in. See docs/notebook-projection-migration-runbook.md.
+
+    # THE nlm SESSION IS NOT A CUSTODY SUBJECT. The profile under
+    # ~/.notebooklm-mcp-cli/ is refreshable session state, and
+    # `credential-contracts` already refuses distributing that class: an
+    # ephemeral copy's refresh silently stales the master. It is re-established
+    # by sign-in, never fetched from a vault, and never shared between systems.
+    session_state_in_custody: false
+
 # THE SHARE-OUT ROSTER — the record of every governed share act from the
 # hosting account. Uniqueness is (hosting_account, user, book_or_alias): a
 # re-approval, a role change, or a grant by a different actor UPDATES the one

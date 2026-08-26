@@ -26,6 +26,12 @@ assert spec.loader is not None
 sys.modules[spec.name] = validator
 spec.loader.exec_module(validator)
 
+# The custody block is part of a CONFORMING operator-hosted declaration since
+# add-notebook-hosting-credential-custody: an operated identity with no declared
+# custody is not governed, it is merely undocumented. It is in the base fixture
+# rather than bolted onto the custody tests alone, because every other test here
+# asserts against "an otherwise conforming record" and would otherwise be
+# asserting against a non-conforming one.
 BASE = """schema_version: 1
 kind: notebook_projection_hosting
 hosting:
@@ -34,8 +40,22 @@ hosting:
   account_type: google_workspace_user
   domain: opensoft.one
   nlm_profile: company
+  custody:
+    binding_kind: xfactory_credential_binding_template
+    binding_client: opensoft
+    binding_id: notebook_projection_hosting
+    covers:
+      - account_password
+      - totp_seed
+    interactive_step_remains: true
+    interactive_step: Google sign-in is an interactive browser flow.
+    session_state_in_custody: false
 share_out: []
 """
+
+#: The same record with the custody block removed — the shape an install had
+#: before this requirement, used to prove the refusal actually fires.
+NO_CUSTODY = BASE[:BASE.index("  custody:")] + BASE[BASE.index("share_out: []"):]
 
 
 def _validate(text: str) -> list[str]:
@@ -187,3 +207,135 @@ class ShareOutRosterValidationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CustodyValidationTests(unittest.TestCase):
+    """add-notebook-hosting-credential-custody § 2 — custody BY REFERENCE ONLY.
+
+    Two obligations, and they are asymmetric on purpose: the operator-hosted
+    case must NAME its binding, while NEITHER case may carry secret material.
+    """
+
+    def test_a_conforming_custody_reference_passes(self):
+        self.assertEqual(_validate(BASE), [])
+
+    def test_an_operator_hosted_record_without_custody_is_refused(self):
+        errors = _validate(NO_CUSTODY)
+        self.assertTrue(any("hosting.custody" in e for e in errors), errors)
+        joined = " ".join(errors)
+        self.assertIn("undocumented rather than governed", joined)
+
+    def test_a_self_hosted_record_needs_no_custody(self):
+        """The two-case model: no operator, no obligation."""
+        text = NO_CUSTODY.replace("case: operator_hosted", "case: self_hosted")
+        errors = [e for e in _validate(text) if "custody" in e]
+        self.assertEqual(errors, [], "self-hosted must not be asked for custody")
+
+    def test_a_partial_binding_reference_is_refused(self):
+        """All three fields, or the reference cannot be resolved at all."""
+        for field in ("binding_kind", "binding_client", "binding_id"):
+            with self.subTest(missing=field):
+                text = "\n".join(
+                    line for line in BASE.splitlines()
+                    if not line.strip().startswith(field + ":"))
+                errors = _validate(text)
+                self.assertTrue(any(field in e for e in errors), errors)
+
+    def test_covers_must_name_the_secrets(self):
+        text = BASE.replace("    covers:\n      - account_password\n"
+                            "      - totp_seed\n", "    covers: []\n")
+        errors = _validate(text)
+        self.assertTrue(any("covers" in e for e in errors), errors)
+        self.assertIn("single point of failure", " ".join(errors))
+
+    def test_an_interactive_step_must_be_named_when_declared(self):
+        text = BASE.replace(
+            "    interactive_step: Google sign-in is an interactive browser flow.\n",
+            "")
+        errors = _validate(text)
+        self.assertTrue(any("interactive_step" in e for e in errors), errors)
+
+    def test_silence_about_the_interactive_step_is_refused(self):
+        """Silence reads as 'unattended' to an operator planning automation."""
+        text = BASE.replace("    interactive_step_remains: true\n", "")
+        errors = _validate(text)
+        self.assertTrue(
+            any("interactive_step_remains" in e for e in errors), errors)
+
+
+class SecretMaterialRefusalTests(unittest.TestCase):
+    """Nothing secret-shaped, in EITHER case, anywhere in the record."""
+
+    SECRET_FIELDS = ("password", "totp_seed", "recovery_code", "cookie",
+                     "session", "profile", "private_key", "api_key")
+
+    def test_each_secret_shaped_field_is_refused(self):
+        for field in self.SECRET_FIELDS:
+            with self.subTest(field=field):
+                text = BASE.replace(
+                    "  nlm_profile: company\n",
+                    f"  nlm_profile: company\n  {field}: some-value\n")
+                errors = _validate(text)
+                self.assertTrue(any(field in e for e in errors), (field, errors))
+
+    def test_the_refusal_names_the_binding_not_redaction(self):
+        """A redacted secret is a secret that was already committed."""
+        text = BASE.replace("  nlm_profile: company\n",
+                            "  nlm_profile: company\n  password: hunter2\n")
+        joined = " ".join(_validate(text))
+        self.assertIn("NOT REDACTION IN PLACE", joined)
+        self.assertIn("rotate", joined)
+
+    def test_secret_material_is_refused_in_the_self_hosted_case_too(self):
+        """The self-hosted exemption is from DECLARING custody, never from
+        keeping secrets out of the repository."""
+        text = NO_CUSTODY.replace("case: operator_hosted", "case: self_hosted")
+        text = text.replace("  nlm_profile: company\n",
+                            "  nlm_profile: company\n  password: hunter2\n")
+        errors = _validate(text)
+        self.assertTrue(any("password" in e for e in errors), errors)
+
+    def test_a_nested_secret_is_refused(self):
+        """Material does not care which key it was filed under."""
+        text = BASE.replace(
+            "    session_state_in_custody: false\n",
+            "    session_state_in_custody: false\n    password: hunter2\n")
+        errors = _validate(text)
+        self.assertTrue(any("password" in e for e in errors), errors)
+
+    def test_secret_ref_is_refused_as_binding_detail(self):
+        """Not secret material — binding detail. Carrying it here invites the
+        rest of the binding to follow (review note, 2026-08-23)."""
+        text = BASE.replace(
+            "    binding_id: notebook_projection_hosting\n",
+            "    binding_id: notebook_projection_hosting\n"
+            "    secret_ref: xfactor001-password\n")
+        errors = _validate(text)
+        self.assertTrue(any("secret_ref" in e for e in errors), errors)
+        self.assertIn("BINDING DETAIL", " ".join(errors))
+
+    def test_the_profile_NAME_is_not_mistaken_for_an_exported_profile(self):
+        """`nlm_profile: company` names a CLI profile and must keep passing.
+
+        The refusal is keyed on the exact field name, not a substring, or the
+        record's own required field would be refused as secret material.
+        """
+        self.assertEqual(_validate(BASE), [])
+
+    def test_a_reference_alone_obtains_nothing(self):
+        """§ 2.3's third test, stated structurally.
+
+        The record carries the binding's IDENTITY and no part of its
+        resolution: no provider, no vault, no secret_ref, no value. Resolving
+        it requires the binding instance, which lives in the consuming install.
+        """
+        import yaml  # noqa: PLC0415
+
+        record = yaml.safe_load(BASE)
+        custody = record["hosting"]["custody"]
+        for resolving_field in ("provider", "vault", "secret_ref", "value",
+                                "secret", "password", "url", "endpoint"):
+            self.assertNotIn(resolving_field, custody)
+        self.assertEqual(
+            set(custody) & {"binding_kind", "binding_client", "binding_id"},
+            {"binding_kind", "binding_client", "binding_id"})
