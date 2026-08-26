@@ -1,11 +1,11 @@
 # Wallet contract validation gate for every pull request to main (feature
-# 010-wallet-validator-ci). Advisory until the operator marks it required —
-# see the "Wallet validation gate" section in README.md for the exact
-# click-path.
+# 010-wallet-validator-ci). REQUIRED since 2026-08-26: org ruleset 21538893
+# ("openxFactory wallet-gate") requires this check on the default branch;
+# see the "Wallet validation gate" section in README.md.
 #
 # The job carries no display name on purpose: the status check must surface
-# as exactly `wallet-validation` (FR-007), the literal token branch
-# protection pins; a distinct job display name silently de-advises the gate.
+# as exactly `wallet-validation` (FR-007), the literal token the ruleset
+# pins; a distinct job display name silently de-advises the gate.
 name: wallet-validation
 
 on:
