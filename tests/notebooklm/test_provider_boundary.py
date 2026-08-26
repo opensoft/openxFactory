@@ -4,7 +4,12 @@ import subprocess
 import unittest
 from unittest.mock import patch
 
-from notebooklm_sync.nlm_client import NlmCliProvider, ProviderPayloadError
+from notebooklm_sync.nlm_client import (
+    NlmCliProvider,
+    ProviderPayloadError,
+    parse_notebook_rows,
+    parse_source_rows,
+)
 
 
 class ProviderBoundaryTests(unittest.TestCase):
@@ -24,10 +29,22 @@ class ProviderBoundaryTests(unittest.TestCase):
             ),
             self.assertRaisesRegex(ProviderPayloadError, "valid JSON"),
         ):
-            NlmCliProvider(assert_bound=lambda: None).invoke(
+            _ = NlmCliProvider(assert_bound=lambda: None).invoke(
                 "notebook", "list", "--json"
             )
 
+    def test_valid_json_without_the_expected_collection_is_refused(self) -> None:
+        cases = (
+            (parse_notebook_rows, "notebooks"),
+            (parse_source_rows, "sources"),
+        )
+        for parse_rows, collection in cases:
+            with (
+                self.subTest(collection=collection),
+                self.assertRaisesRegex(ProviderPayloadError, collection),
+            ):
+                _ = parse_rows({"error": "unauthorized"})
+
 
 if __name__ == "__main__":
-    unittest.main()
+    _ = unittest.main()

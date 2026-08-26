@@ -13,6 +13,13 @@ JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 ProviderResult: TypeAlias = JsonValue
 
+
+class JsonDecoder(Protocol):
+    def __call__(self, text: str, /) -> JsonValue: ...
+
+
+LOAD_JSON_VALUE: JsonDecoder = json.loads
+
 NLM_CONFIG = Path.home() / ".notebooklm-mcp-cli" / "config.toml"
 _config_path = NLM_CONFIG
 _bound_profile: str | None = None
@@ -78,12 +85,16 @@ def assert_still_bound() -> None:
         return
     raise SystemExit(
         "hosting: the CLI's active profile changed mid-run — bound to "
-        f"{_bound_profile!r}, now {active!r}. Refusing every further invocation: "
-        "the remaining work would land in an account this install has not "
-        "declared. Re-bind with "
-        f"`nlm login switch {_bound_profile}` and re-run; the sync is idempotent, "
-        "so a resumed run is a no-op over what finished."
+        + f"{_bound_profile!r}, now {active!r}. Refusing every further invocation: "
+        + "the remaining work would land in an account this install has not "
+        + "declared. Re-bind with "
+        + f"`nlm login switch {_bound_profile}` and re-run; the sync is idempotent, "
+        + "so a resumed run is a no-op over what finished."
     )
+
+
+def decode_json(text: str) -> JsonValue:
+    return LOAD_JSON_VALUE(text)
 
 
 class NotebookProvider(Protocol):
@@ -112,10 +123,16 @@ class SourceRow:
     title: str
 
 
-def _provider_rows(payload: ProviderResult, collection: str) -> list[dict[str, JsonValue]]:
+def _provider_rows(
+    payload: ProviderResult, collection: str
+) -> list[dict[str, JsonValue]]:
     value = payload
     if isinstance(value, dict):
-        value = value.get(collection, [])
+        if collection not in value:
+            raise ProviderPayloadError(
+                f"NotebookLM payload requires a {collection!r} collection"
+            )
+        value = value[collection]
     if not isinstance(value, list):
         raise ProviderPayloadError(f"NotebookLM {collection} payload must be a list")
     rows: list[dict[str, JsonValue]] = []
@@ -154,9 +171,7 @@ def parse_notebook_rows(payload: ProviderResult) -> list[NotebookRow]:
 def parse_source_rows(payload: ProviderResult) -> list[SourceRow]:
     return [
         SourceRow(
-            source_id=_required_text(
-                row, ("id", "source_id"), collection="sources"
-            ),
+            source_id=_required_text(row, ("id", "source_id"), collection="sources"),
             title=_required_text(row, ("title",), collection="sources"),
         )
         for row in _provider_rows(payload, "sources")
@@ -184,7 +199,7 @@ class NlmCliProvider:
         if not parse:
             return result.stdout
         try:
-            parsed: JsonValue = json.loads(result.stdout)
+            parsed = decode_json(result.stdout)
         except json.JSONDecodeError as exc:
             preview = result.stdout.strip()[:300]
             raise ProviderPayloadError(
