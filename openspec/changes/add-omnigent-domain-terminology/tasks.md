@@ -140,7 +140,7 @@
       version it was verified against. Task-level verification remains
       OUTSTANDING and unclaimed — mappings are occupation-level only.
 - [ ] 3.2 Populate `terminology` in LedgerxFactory. Candidate bodies:
-      `apqc_pcf` 8.0 (processes — 8.2 AP, 8.3 AR, 8.4 general accounting),
+      `apqc_pcf` 8.0 (processes — 9.6 AP, 9.3 general accounting, 9.9 taxes; the 8.x numbering originally written here was the legacy finance layout, per the correction note below),
       `coso_icif` (controls — the natural home for the segregation-of-duties
       boundary), `ima_mac` (competencies), `aicpa` (standards/competencies).
       NOT GAAP/IFRS: those are REPORTING standards governing what the books
