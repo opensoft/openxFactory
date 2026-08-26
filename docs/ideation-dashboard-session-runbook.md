@@ -1093,8 +1093,9 @@ Every session test builds a throwaway repository with a local bare `origin`
 checkout — is stale. That file was shed from codexFactory `main` on
 2026-08-03 (`adopt-neutral-tooling-home` tranche C, commit `247203e`); it is
 not gone outright, but it now exists only on unmerged codexFactory branches
-(e.g. `007-workbench-branch-sessions`, `010-doxbench-editor-chat`), never on
-`main`. Its successor is the harness described next.
+(e.g. `007-workbench-branch-sessions`, `009-hosted-candidate-review`,
+`011-wheel-action-verbs`), never on `main`. Its successor is the harness
+described next.
 
 The extended eleven-step doxBench editor/chat version of that smoke now lives IN THIS REPO at `tests/ideation-dashboard/tools/playwright-smoke.py` (ported 2026-08-26 from codexFactory `010-doxbench-editor-chat`, blob `fc321637`): an OPERATOR tool — it needs playwright 1.61.0 + chromium on the host, is deliberately not a `test_*.py` so the hermetic suite never collects it, and is run directly as `python3 tests/ideation-dashboard/tools/playwright-smoke.py`.
 
