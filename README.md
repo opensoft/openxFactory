@@ -1035,10 +1035,7 @@ Active changes:
   could re-read because apqc.org answers HTTP 403 to automation — names,
   numbers and element IDs shipped from the primary 7.4 PDF, with APQC's
   stable five-digit IDs carrying the citations and the decimals recorded as
-  7.4's; the IAB entry, which the adx brief found is probably mis-stewarded
-  (IAB Tech Lab, not the trade association) and has never been through the
-  reuse test at all, its taxonomy page publishing no licence text — flagged
-  in the adx overlay, not acted on, because it is a registry decision; the
+  7.4's; the
   ledgerx UN/CEFACT + BIAN brief, the last of 3b.5f's five and never run,
   whose premise has narrowed from filling the process-layer gap (now closed)
   to widening past cross-industry PCF; and the §4 consumer
@@ -1055,6 +1052,28 @@ Active changes:
   for every version, is untouched. Not covered by the grant, and recorded
   rather than assumed: PCF process DEFINITIONS, which ship in separate APQC
   documents whose front matter has not been read.
+  **ALSO NO LONGER OPEN, 2026-08-26: the IAB entry (3b.5l).** Both findings
+  the adx brief flagged and left unacted are discharged. The STEWARD was
+  wrong and is corrected — IAB Technology Laboratory, Inc., a separate
+  501(c)(6) from the Interactive Advertising Bureau trade association — and
+  the REUSE TEST, which had never been run on the one body predating the
+  licence discipline, now passes: **CC BY 3.0, `yes_with_conditions`**. The
+  "no licence text" reading was a false negative of the same shape as APQC's
+  and was caught the same way — the landing pages publish none, but the grant
+  is printed on the artifacts, here on page 2 of the Content Taxonomy 3.0
+  Implementation Guide, and the site ToU's redistribution ban defers to any
+  "Separate License". So the registry's second grant-inside-the-artifact
+  finding in one day narrows 3b.5j again, to eight of ten. What is REGISTERED
+  BUT NOT RESOLVED, and stays visible on the entry rather than being averaged
+  into the verdict: the best-scoped grant sits on a "Released for Public
+  Comment" PDF; only Content Taxonomy is named by it, so Audience and Ad
+  Product rest on blanket wording one notch weaker; two of three version
+  dates are CONTESTED between the steward's own surfaces and BOTH readings
+  are recorded on each rather than one being picked; there is no LICENSE file
+  and no notice in the .tsv files, so attribution must be authored into every
+  consuming overlay; and the IPR Policy PDF is gated and unread, assessed
+  non-blocking because it reaches only members' Submissions. The three
+  AdxFactory crosswalks come off PROVISIONAL in that domain's own repo.
 - [add-model-provider-broker](openspec/changes/add-model-provider-broker/proposal.md)
   — DRAFT, authored 2026-08-08, awaiting ratification (task 0). doxBench has
   a model seam and no model: there is no provider adapter in this repository

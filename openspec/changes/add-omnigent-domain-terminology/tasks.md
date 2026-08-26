@@ -559,6 +559,68 @@
       superseded in place rather than deleted. NOT APPLIED: 3.2 and 3.3 stay
       open. Re-adding PCF to the ledgerx and adx overlays is each domain's
       own act in its own repo.
+- [x] 3b.5l IAB REUSE TEST RUN 2026-08-26, AND THE ENTRY REGISTERED. This
+      discharges BOTH body-level findings 3.3 recorded as flagged-not-acted —
+      the two the adx overlay header carried and this change kept open as
+      "registry decisions this task does not own". Ruled by Brett
+      2026-08-26: investigate the licence first, register afterward on
+      evidence. The investigation ran on primary sources by the same method
+      3b.5k used on APQC — hunt the ARTIFACTS for their own embedded grant,
+      not the site terms.
+      VERDICT: **CC BY 3.0, `yes_with_conditions`.** The taxonomies ARE usable
+      in shipped product configuration, with attribution. Finding (2), "the
+      reuse test was never run and its taxonomy page publishes no licence
+      text", was a FALSE NEGATIVE and is now reversed — the landing pages
+      genuinely publish none, which is why the earlier round was right about
+      the page and wrong about the body. The grant lives one hop away, on the
+      artifacts: page 2 of the Content Taxonomy 3.0 Implementation Guide PDF
+      names the TAXONOMY as the licensed work ("Content Taxonomy by the IAB
+      Tech Lab's Taxonomy Working Group is licensed under a Creative Commons
+      Attribution 3.0 License"), and the Taxonomies repo README carries the
+      same grant, corroborated verbatim by an independent mirror. The site
+      ToU's all-caps redistribution ban does not govern, because the ToU
+      itself defers to any "Separate License" — which CC BY 3.0 is.
+      Finding (1), the STEWARD, is CONFIRMED and corrected: IAB Technology
+      Laboratory, Inc. is a separate 501(c)(6) (EIN 47-3384874, New York,
+      established 2015) from the Interactive Advertising Bureau trade
+      association the entry named. The `iab` id is KEPT rather than split the
+      way CICPA and AICPA were — the AdxFactory overlay resolves against it,
+      and only `steward`, `name` and `scope` move.
+      APPLIED HERE: `iab` in `contracts/policies/standards-bodies.yaml` now
+      carries the corrected steward, the grant quoted verbatim as
+      `reuse_licence` with its `licence_page` provenance,
+      `redistribution_permitted_in_product_config: yes_with_conditions` with
+      the CC BY §4(a)/§4(b) conditions as `attribution_required`, and version
+      pins. It is the second body in this registry to pass the reuse test on
+      a grant printed inside the artifact rather than published as a page,
+      after APQC — which is now a pattern worth reading as one, not a
+      coincidence: 3b.5j's "every commercially stewarded body fails" NARROWS
+      AGAIN, from eight of nine to eight of ten.
+      GAPS PRESERVED, NOT RESOLVED, because a registration that quietly
+      launders them is worse than none: (a) the best-scoped grant sits on a
+      PDF cover-stamped "Released for Public Comment" and no final-stamped
+      taxonomy artifact carrying the same block was found; (b) only Content
+      Taxonomy is named by that grant — Audience and Ad Product coverage
+      rests on the README's blanket "applicable taxonomies" wording plus the
+      ToU deferral, sound but one notch weaker; (c) TWO OF THREE VERSION
+      DATES ARE CONTESTED between the steward's own surfaces (Audience
+      Taxonomy 1.1: standards page October 2020 vs the steward's own XLSX
+      upload path 2020/07; Ad Product Taxonomy 2.0: GitHub release
+      AP2-202310 published 2023-10-18 vs standards page November 2024) and
+      the entry records BOTH readings on each, resolving neither in either
+      direction; (d) there is no LICENSE file and the .tsv files carry no
+      notice, so licence scanners will read the repo as unlicensed and
+      attribution cannot be inherited — it must be authored into every
+      consuming overlay; (e) the IPR Policy PDF is gated behind an
+      acknowledgment form and was NOT read, assessed non-blocking because it
+      is scoped to Submissions by MEMBERS.
+      NOT APPLIED, and deliberately: the outward-facing follow-up — asking
+      IAB Tech Lab in a public issue to fix the README's stale "OpenRTB
+      Specification" sentence and add a LICENSE file — is recorded on the
+      registry entry and held on Brett's desk rather than done here. Promoting
+      the three adx crosswalks from PROVISIONAL and authoring the CC BY
+      attribution into that overlay is AdxFactory's own act in its own repo,
+      landing alongside this.
 - [ ] 3b.5f Apply the results of the remaining brief (ledgerx UN/CEFACT +
       BIAN, and the adx marketing round) as they return. (ledgerx
       UN/CEFACT+BIAN, adx marketing, opsx, codex, medx) as they return.
