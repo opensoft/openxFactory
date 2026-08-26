@@ -85,5 +85,5 @@ authority that accepts a pilot.
 
 - [Brokered Call Feasibility](../../openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/proposal.md)
 - [Avatar Client Lab](../../openspec/changes/archive/2026-08-04-implement-avatar-client-lab/proposal.md)
-- [Qualify Avatar Live Voice](../staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md)
+- [Qualify Avatar Live Voice](../../openspec/changes/qualify-avatar-live-voice/proposal.md)
 - [Avatar Pilot Hardening](../staging/avatar-pilot-hardening/avatar-pilot-hardening.md)

@@ -41,8 +41,8 @@ set rather than the latest demonstration.
 
 The qualification proposal is archived at
 [Brokered Call Feasibility](../../openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/proposal.md).
-The staged successor context is
-[Qualify Avatar Live Voice](../staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md).
+The successor proposal, raised from staging on 2026-08-26, is
+[Qualify Avatar Live Voice](../../openspec/changes/qualify-avatar-live-voice/proposal.md).
 This brainstorm does not alter either artifact.
 
 ## Alternatives and tensions

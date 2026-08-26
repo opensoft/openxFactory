@@ -1,0 +1,30 @@
+{
+  "change_id": "qualify-avatar-live-voice",
+  "files": [
+    {
+      "path": "fork-decision-memo.md",
+      "sha256": "37769b71309be4fb9ecf202df1825db534ebf96f117cf3ba762aebd017f2ea48",
+      "source_path": "ideation/staging/qualify-avatar-live-voice/fork-decision-memo.md",
+      "source_sha256": "a012ede3cbd9dacf4f8ff0de2f1e548be71203a1b52c706071668eb5d0b3cf1b",
+      "source_snapshot_path": "source-snapshots/fork-decision-memo.md"
+    },
+    {
+      "path": "qualify-avatar-live-voice.md",
+      "sha256": "06255331005c0dba2b3547ae696e3933b697db30a382170831be656dff73e86e",
+      "source_path": "ideation/staging/qualify-avatar-live-voice/qualify-avatar-live-voice.md",
+      "source_sha256": "672831bd26adcb6bcdb4cd9e4699f51d685025b017eec1349c9522b7e098c438",
+      "source_snapshot_path": "source-snapshots/qualify-avatar-live-voice.md"
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": {
+    "id": "openxFactory:staging:qualify-avatar-live-voice",
+    "kind": "staged",
+    "path": "ideation/staging/qualify-avatar-live-voice"
+  },
+  "origin_path": "ideation/staging/qualify-avatar-live-voice",
+  "remaining_paths": [],
+  "source_revision": "3f4073390beed6ce80d76f5f84d115fc3923cb15",
+  "transitioned_at": "2026-08-26"
+}

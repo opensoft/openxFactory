@@ -309,6 +309,36 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
+- [qualify-avatar-live-voice](../openspec/changes/qualify-avatar-live-voice/proposal.md)
+  — raised 2026-08-26 as the FULL promotion of the
+  `qualify-avatar-live-voice` staged topic, whose row and detail section
+  leave [staging/INDEX.md](staging/INDEX.md) with this pointer. The topic had
+  declared itself not ready to propose behind five blocking forks; Brett Heap
+  ruled all five and all three latent decisions in session on 2026-08-26, and
+  this change is the Exit those rulings authorized. It ADDS the neutral
+  `avatar-live-voice` capability — the AVC-09 adapter descriptor and AVC-10
+  latency sample lifted from reserved to defined using their RESERVED SHAPES
+  AS-IS, the internal-live activation gate as the kernel's four-element ring
+  with the eight-condition GPT-Live-1 list demoted to its evidence-producing
+  checklist, a neutral relative-regression latency SLO at the ratified
+  >15% relative OR >150 ms absolute threshold, broker-held custody with two
+  independent fail-closed spend layers, synthetic evaluation audio with a
+  strictly ephemeral single-model consented canary, the written
+  revoke-versus-block rollback policy the kernel required and never had, and
+  the deferrals named rather than implied. It MODIFIES three
+  `avatar-client-runtime` requirements plus the two repository-boundary
+  requirements, because latent decision 1 makes this the change that extracts
+  `xfactory-avatar-client` from codexFactory `apps/avatar-client-lab` — a job
+  canon required and no change had ever owned. Owns both former staged
+  fragments (`qualify-avatar-live-voice.md`, `fork-decision-memo.md`) under
+  `supporting-docs/`; design history stays in the
+  [avatar-live-voice brainstorms](brainstorm/avatar-live-voice-overview.md).
+  `Status: draft` — the rulings are locked staging decisions, not a
+  ratification, and with `code_surface: openxFactory, xfactory-avatar-client`
+  and `target_release: implementation_pending` it archives only on merged
+  plus green internal-live realization evidence. Aggregation admission of the
+  client repository, the GPT-Live-1 default swap, and the
+  `avatar-pilot-hardening` deferrals are explicitly NOT in it.
 - [add-identity-brokering](../openspec/changes/add-identity-brokering/proposal.md)
   — raised, RATIFIED and REALIZED 2026-08-21 (registered at
   `contract-v1.37`) as the FULL promotion of the `identity-brokering-plane`
