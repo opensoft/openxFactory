@@ -702,7 +702,19 @@ def test_the_shell_wires_the_tile_verbs_through_the_canvas_controller():
     Anchored on the mount call rather than on a character distance."""
     source = (VIEWS / "staging-workbench.js").read_text(encoding="utf-8")
     mount = source.index("renderDocWheel(selector")
-    window = source[mount:mount + 1800]
+    # STATED ADJUSTMENT (add-doxbench-distilled-abstract task 7.8): the window
+    # was a 1800-character distance from the mount, and `bufferStateFor:` sat
+    # ~75 characters inside that edge — the abstract region's controller made
+    # the selection callback longer, and the NEXT comment added anywhere inside
+    # this call would have failed a pin whose claim was perfectly intact.
+    # It is anchored at BOTH ends now: from the mount call's opening to the
+    # line that adopts its return. That IS the span the docstring was always
+    # describing, and it carries no magic number to drift. It is a little wider
+    # in characters than 1800 (2010 today) and STRICTLY NARROWER in meaning:
+    # only the mount call's own option list can satisfy it now, where the old
+    # distance could have been satisfied by anything that happened to sit
+    # within 1800 characters, inside the call or past its end.
+    window = source[mount:source.index("pane.__docWheel = wheel;", mount)]
     assert "onRead:" in window
     assert "onLoad:" in window
     assert "onSave:" in window
@@ -731,7 +743,24 @@ def test_the_rail_is_given_the_selection_seam_and_no_longer_the_unload_seam():
     refusal still lives in exactly one place."""
     source = (VIEWS / "staging-workbench.js").read_text(encoding="utf-8")
     mount = source.index("mountDoxBenchChatRail(rail")
-    window = source[mount:mount + 5000]
+    # STATED ADJUSTMENT (add-doxbench-distilled-abstract task 7.8, second
+    # instance, 2026-08-25): the window was a flat 5000-character distance from
+    # the mount, and `selectBuffer:` sat inside its far edge. The rail's own
+    # `onState` grew by ten lines when the docs abstract began following the
+    # rail's MODEL choice (task 5.3a's client half), and `selectBuffer:` fell
+    # off the end of a pin whose claim was perfectly intact. Anchored at BOTH
+    # ends now — from the mount call's opening to the line just past its close —
+    # exactly as the sibling pin one function up was re-anchored, and for the
+    # same reason: a distance is satisfied by whatever happens to sit inside it
+    # and refuted by any comment written above it, neither of which is what this
+    # test is about. As with that sibling, the figure is DISCLOSED rather than
+    # left to be discovered: the span is wider in characters than the 5000 it
+    # replaces (7399 today) and STRICTLY NARROWER in meaning — only the mount
+    # call's own option list can satisfy it now, where the old distance could be
+    # satisfied by anything that happened to sit within 5000 characters, inside
+    # the call or past its end.
+    window = source[mount:source.index("const mounted = canvasController;",
+                                       mount)]
     assert "selectBuffer:" in window
     assert "canvasController.setActiveBuffer" in window
     assert "unloadBuffer:" not in window, (

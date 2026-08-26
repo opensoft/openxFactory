@@ -65,8 +65,11 @@ shipping.
       `--all --strict` green.
 - [x] 1.7 List the change in `README.md`'s `## OpenSpec Records` →
       `Active changes:` block (Architect F20).
-- [ ] 1.8 **[OPERATOR] [GOVERNANCE]** Ratify or return the proposal. Nothing in
+- [x] 1.8 **[OPERATOR] [GOVERNANCE]** Ratify or return the proposal. Nothing in
       §2 onward is authorized work until this is discharged.
+  - RATIFIED 2026-08-23 by Brett Heap (openxFactory operator authority),
+    in-session — `proposal.md` header and the ratification record at
+    `proposal.md:13` ("Ratified as restructured", PART I/II/III).
 - [ ] 1.9 Before archive: re-check §1.3's restated requirement text against
       `add-substantive-review-lane`'s FINAL promoted text (design risk R6).
 
@@ -74,19 +77,33 @@ shipping.
 
 *No grant is operative until this lands. It precedes everything.*
 
-- [ ] 2.1 Author a `pull_request`-triggered workflow running
+- [x] 2.1 Author a `pull_request`-triggered workflow running
       `python3 scripts/validate-openxwallet.py <checkout> --strict`.
       **This is openxFactory's FIRST pull-request-triggered workflow** — both
       existing workflows are `workflow_call` / `workflow_dispatch` — so it needs
       its own trigger, permissions and concurrency design (clarifications N3).
-- [ ] 2.2 Follow the house Python pattern: `actions/setup-python@v5` pinned to
+  - Realized as `.github/workflows/wallet-validation.yml` (feature
+    010-wallet-validator-ci T002): `on: pull_request` targeting `main`, single
+    unnamed job so the status check surfaces as exactly `wallet-validation`,
+    `permissions: contents: read`. As amended by review rounds the invocation
+    omits `--strict`; that deviation is the RECORDED decision, see task 2.4.
+- [x] 2.2 Follow the house Python pattern: `actions/setup-python@v5` pinned to
       `3.12` plus `pip install pyyaml`; PyYAML is a hard dependency and the
       validator exits 2 without it (N4).
-- [ ] 2.3 Pass the checkout path explicitly. A path-less invocation self-tests
+  - Workflow pins `actions/setup-python@v5` to Python `3.12` and installs
+    `pyyaml jsonschema rfc3339-validator` per the review-round amendment
+    (feature 010 T002).
+- [x] 2.3 Pass the checkout path explicitly. A path-less invocation self-tests
       only and passes green while scanning nothing — the vacuous-pass trap this
       whole change exists to name (N5).
-- [ ] 2.4 Decide and record whether the gate runs `--strict`; the doc-health
+  - Both steps pass the checkout explicitly (`wallet-yaml-syntax-gate.py .`,
+    `validate-openxwallet.py .`); observed live on every PR since landing
+    (green `wallet-validation` runs on #363/#366/#369).
+- [x] 2.4 Decide and record whether the gate runs `--strict`; the doc-health
       precedent parameterizes `fail-on` rather than hard-coding it (N5).
+  - DECIDED: no `--strict`. Recorded in feature 010 T002 ("No scoping logic,
+    no `--strict` (R2/R4/R5; R5 partly superseded — see its header note)",
+    `specs/010-wallet-validator-ci/tasks.md`).
 - [ ] 2.5 **[OPERATOR]** Make the check REQUIRED in the branch ruleset. This is a
       repository setting, not a tree fact — a merged workflow file is not
       evidence (N6).
@@ -98,34 +115,55 @@ shipping.
 
 *Precedes the first wallet: an unanchored root grant is an unbounded one.*
 
-- [ ] 3.1 Implement `issued_by` as REQUIRED **for review-authority grants** — a
+- [x] 3.1 Implement `issued_by` as REQUIRED **for review-authority grants** — a
       scope restriction by the consuming capability, not a schema change. The
       field already exists and stays optional in the shared grant schema, so no
       `contracts/` edit, no manifest entry, no CHANGELOG line, no bundle cut.
-- [ ] 3.2 Implement the ROOT-GRANT class: a grant with no `parent_grant_ref` is a
+  - Validator rule (t) requires a REVIEW-class grant to name `issued_by`
+    (`scripts/validate-openxwallet.py`); shared schema untouched. Feature
+    012-wallet-issuer-anchor tasks all complete (11/11).
+- [x] 3.2 Implement the ROOT-GRANT class: a grant with no `parent_grant_ref` is a
       root, and its issuer's authority is recorded OUTSIDE the register it
       writes into.
-- [ ] 3.3 Record the root-issuer anchor: the responsible operator, standing under
+  - Root class implemented in rule (t); the live first root
+    `grants/grant-mrc-0001.yaml` carries no `parent_grant_ref` and roots in
+    the anchored operator (feature 012/014 records).
+- [x] 3.3 Record the root-issuer anchor: the responsible operator, standing under
       the Human Escalation Contract (`docs/roles-and-authority.md:103-140`,
       whose parked-decision list names "privileged capability grants"). No
       wallet, no grant.
-- [ ] 3.4 **Gate:** the validator refuses a review-authority grant with no
+  - Anchor recorded in validator rule (t) citing the Human Escalation
+    Contract; machine-named issuers refused with their own wording; legacy org
+    strings do not grandfather (feature 012-wallet-issuer-anchor, 11/11).
+- [x] 3.4 **Gate:** the validator refuses a review-authority grant with no
       `issued_by`, and refuses a root grant naming an agent holder as issuer.
+  - Refusal probes pinned by feature 012's red/green evidence and exercised by
+    the wallet-validation suite; pytest-suite green on every recent PR run
+    (#366/#369).
 
 ## 4. The first wallet
 
 *Cold start. One holder, not eight.*
 
-- [ ] 4.1 **[OPERATOR]** Mint one wallet for codexFactory's
+- [x] 4.1 **[OPERATOR]** Mint one wallet for codexFactory's
       `merge_readiness_council` as a body, custody model `holder_readable` —
       the only realistic model with no key infrastructure in the stack, and the
       tier the registry designed for exactly this situation (N13).
-- [ ] 4.2 Write the wallet record IN THE SAME TREE as the register: `repo_scan`
+  - Wallet minted in-tree:
+    `governance/review-authority/wallets/wal-agent-mrc-0001.yaml`, holder
+    `agent:merge-readiness-council`, custody model `holder_readable`
+    (feature 013-first-wallet, 7/7).
+- [x] 4.2 Write the wallet record IN THE SAME TREE as the register: `repo_scan`
       builds its context from the scanned repository's own records, and a
       cross-repository audience wallet has no resolution path today (N7).
-- [ ] 4.3 Record the custody ATTESTATION row — who verified the isolation,
+  - Same tree confirmed: `governance/review-authority/wallets/` beside
+    `register.yaml` / `grants/` / `attestations/` (landed #341).
+- [x] 4.3 Record the custody ATTESTATION row — who verified the isolation,
       against what, when. Without it the intake caps grants to that wallet at
       `request`.
+  - Attestation recorded:
+    `governance/review-authority/attestations/custody-attest-wal-agent-mrc-0001.yaml`,
+    referenced by the act-tier register row (feature 013/014 records).
 - [ ] 4.4 **[codexFactory]** Declare the holder's composition: map the six
       declared components (model version, prompt contract, tool manifest,
       policy version, parameters, retrieval corpus) onto the actual seat
@@ -139,28 +177,67 @@ shipping.
 
 *Cannot precede S1, by the capability's own ratification condition.*
 
-- [ ] 5.1 Create the register at a fixed path in openxFactory (canonical home:
+- [x] 5.1 Create the register at a fixed path in openxFactory (canonical home:
       `canonical-policy-migration:33-38`, `repo-boundary-governance:8-13`), at
       the MVP shape: one holder, one target repository, one act, tier `act`, one
       `expires_at`, one row.
-- [ ] 5.2 Author its reader IN THE SAME CHANGE. Its only obligation at this
+  - Realized by xFactory#341 (merged `410fa18`, 2026-08-25T16:14:41Z):
+    `governance/review-authority/register.yaml` carries exactly ONE row
+    (`row-mrc-0001`) — one holder (`agent:merge-readiness-council`), one
+    target repository (`opensoft/openxFactory`), one act (`review`), tier
+    `act`, one `expires_at` (2026-11-23T12:00:00Z).
+- [x] 5.2 Author its reader IN THE SAME CHANGE. Its only obligation at this
       shape: fail a convening that admits a holder with no active row.
-- [ ] 5.3 The reader COMPUTES expiry from `expires_at` and treats a stale
+  - Same change (#341): validator rule (u) + `check_register` /
+    `_load_attestations` wired into `repo_scan` inside the REQUIRED
+    wallet-validation check (`scripts/validate-openxwallet.py`). An active
+    REVIEW-class grant with no backing active row is refused; the
+    production-wiring mutation probe fired `register-no-active-row` and was
+    refused, restored immediately (feature 014 T003, T007x).
+- [x] 5.3 The reader COMPUTES expiry from `expires_at` and treats a stale
       `state` field as a finding rather than as truth — nothing in the family
       recomputes `state` (N8).
-- [ ] 5.4 **[codexFactory]** Enter the register's path BY NAME as a
+  - Rows and grants are judged expired by COMPUTED time from `expires_at`;
+    the stored `state` field is never truth about expiry; the stale-state
+    finding is implemented and pinned by the computed-expiry probes
+    (feature 014 T003/T004; validator rule (u)).
+- [x] 5.4 **[codexFactory]** Enter the register's path BY NAME as a
       never-clearable floor member in the gate rules. Do not rely on inference
       from the floor's four path clauses: a grant register is authority policy
       but is not literally contract bytes, gate/workflow definitions, credential
       surfaces or security posture, and openxFactory is the lane's PILOT
       repository — without this, councils clear their own commissions.
-- [ ] 5.5 Record the Q1c design constraint IN the register's own documentation:
+  - Realized as the codexFactory successor change `protect-review-authority-register`
+    (Speckit feature 012): a new exact, repository-scoped, never-clearable
+    `repository_gate_floor` kind names `governance/review-authority/register.yaml`
+    for `opensoft/openxFactory`, loaded from the same base-branch governance
+    inputs as the gate rules and applied to matched candidates before every
+    tier-1 approval, already-approved result, or council exit — no candidate
+    enrolment, no inference from floor path clauses. Production floor document:
+    codexFactory `scripts/merge_master/openxfactory-review-authority-floor.yaml`.
+    Realization: codexFactory PR #91 merged at `da6795b` (2026-08-25T19:40:27Z,
+    green merge-master-approval/validate/Sonar), archive + promotion PR #92
+    merged at `8dcd5bc`; canonical spec `codexFactory
+    openspec/specs/repository-gate-floor/spec.md`.
+- [x] 5.5 Record the Q1c design constraint IN the register's own documentation:
       a file-based register cannot satisfy revocation-at-exercise, and the
       conforming home for the REVOCATION SURFACE is a live lookup on the Hermes
       runtime. The file is right for one row; it is not pretended to be a
       revocation surface.
-- [ ] 5.6 **Gate:** a convening admitting a holder with no active row fails the
+  - Recorded verbatim in `register.yaml`'s header (Q1c DESIGN CONSTRAINT
+    block): the file is an issuance-time snapshot; the conforming REVOCATION
+    SURFACE is a live lookup on the Hermes runtime (S5 successor); it must
+    not be pretended into a revocation surface.
+- [x] 5.6 **Gate:** a convening admitting a holder with no active row fails the
       required check.
+  - Gate evidence ACCEPTED by the operator (Brett) on 2026-08-26: feature
+    014's T007x live mutation probe emptied the register in the production
+    tree and the REQUIRED wallet-validation check refused with
+    `register-no-active-row`, restored immediately (nothing red was ever
+    committed). The probe exercises exactly the required check a convening's
+    holder admission rides, so an admission with no active row fails it by
+    construction. Evidence: `specs/014-register-and-reader/tasks.md` T007x,
+    `implementation-notes.md`. This acceptance closes S4.
 
 ## 6. S3 — the exercise, at verdict conformance
 
@@ -226,7 +303,7 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
 
 ## 8. Bench and governance items carried, not performed
 
-- [ ] 8.1 **[GOVERNANCE]** Rule **Q8** — composition drift for hosted-model
+- [x] 8.1 **[GOVERNANCE]** Rule **Q8** — composition drift for hosted-model
       holders: a standing reissue policy as a first-class intake act; whether
       derived grants survive a parent revoked for DRIFT rather than CAUSE; who
       tells the operator the register emptied (the Human Escalation Contract's
@@ -234,16 +311,30 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
       holder may pin a model FAMILY (today a validation failure). Exits (b) and
       (c) of the first two limbs need `openxwallet` / `openxwallet-agent-profile`
       core deltas.
-- [ ] 8.2 **[GOVERNANCE]** Rule **Q9** — the floor's source-of-truth inversion.
+  - RULED 2026-08-26 by Brett Heap — fail-closed bundle
+    (`rulings-2026-08-26.md`): reissue is always an explicit register act;
+    DRIFT cascades revocation to derived grants exactly like CAUSE;
+    empty-register notification rides the HEC decision-ready packet; exact
+    model versions only, no family pinning. Cascade enforcement rides the
+    named core deltas at S5.
+- [x] 8.2 **[GOVERNANCE]** Rule **Q9** — the floor's source-of-truth inversion.
       Either move the floor's source of truth into a seedable, schema-validated
       `.yaml` carrier and demote the record to evidence, or amend
       `roles-authority-model` so the PROMOTED SPEC TEXT governs. Both amend
       `add-substantive-review-lane`'s ratified text, so both need their own
       declared delta.
+  - RULED 2026-08-26 by Brett Heap — Exit A (`rulings-2026-08-26.md`): the
+    seedable, schema-validated YAML carrier is THE source of truth; the record
+    is demoted to evidence. The declared delta that moves floor authority into
+    the carrier remains to be authored.
 - [ ] 8.3 **[GOVERNANCE]** Rule **Q10** — does a non-human authorizer satisfy
       `isolated_per_use_authorized`? Does not block anything above, because
       §1.2's `act_unsupervised` refusal excludes those holders from
       review-authority grants until it is ruled.
+  - DIRECTION RULED 2026-08-26 by Brett Heap — ADMIT WITH CONDITIONS
+    (`rulings-2026-08-26.md`). Stays OPEN by design until the per-use
+    admission conditions are designed, recorded, and validated; §1.2's
+    exclusion remains in force until then.
 - [ ] 8.4 **[codexFactory]** Scaffold the OFFER of the three-repository project
       schema, if and when a project's `PA` elects it. Offering is realization
       work; electing is a human's per-project act; neither is performed by this

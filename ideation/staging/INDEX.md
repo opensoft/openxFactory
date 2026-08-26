@@ -76,6 +76,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [doxbench-editing-model](#doxbench-editing-model) | MODIFIED `ideation-dashboard` (left-panel dynamic document tabs generalizing the outline/document buffer pair to N document buffers; chat-context binding to the active left-panel selection; docs-wheel tile edit verb + dirty-tile marker; right-panel Editor/Preview tab redesign with Save/Cancel) | 1 | Registered 2026-08-15 — origin is Brett's direction settling the general doxBench interaction model: left panel selects the working document (docs/lens/outline plus dynamic numbered tabs per open edit), center chat binds to whatever is selected, right panel shows the result via Editor/Preview tabs with Save/Cancel (replacing today's split md/preview layout); 26 claims settled (includes the ruled two-plane chat memory design, Claims 13-21, and its 2026-08-18 second-pass addendum settling memory-gateway conformance, the three-layer compression stack with shake v1, and Headroom watch-listed not adopted, Claims 22-26); verified live that `BUFFER_KINDS`, the turn-assembly buffer requirement, and the save order are all hard-coded to exactly outline+document today, so the N-buffer generalization is the load-bearing engineering question; 7 open questions (tab overflow, Save/Cancel semantics, dirty-tile storage, chat-binding rule, Editor/Preview default, concurrent-edit safety, and the chat memory system — ruled 2026-08-18), none blocking; sibling of `staged-topic-outline-template` Open question 4 (content-contract vs. interaction-model halves of the same AI-edit act); SEQUENCED first, in two phases (Brett 2026-08-15) — Phase A (chat-on-outline + Editor/Preview tabs + Save/Cancel on the existing two-buffer machinery) built before the other three topics, Phase B (N-buffer generalization) following `staged-topic-outline-template`'s ratification. **EXITED STAGING 2026-08-21** — both phases raised and realized; `add-doxbench-editing-phase-a` ARCHIVED 2026-08-21 and its spec text promoted, `add-doxbench-editing-phase-b` carried the whole remainder (§4–§11 + §13 realized across PRs #207/#210/#216/#223, `contract-v1.34`) and remains ACTIVE pending §12 share-session, which Brett ruled 2026-08-21 trails as its own slice. The fragment moved to Phase B's `supporting-docs/`; two items are PARKED, not adopted — see the detail section |
 | [doxchat-auto-fit-routing](#doxchat-auto-fit-routing) | MODIFIED `ideation-dashboard` (per-turn fit-aware `auto` resolution; the no-fit warn/ask surface and its session-sticky consent; compress-to-fit as a turn outcome) + a likely ADDITIVE model-catalog release (capability dimensions beyond byte limits, at minimum modality) + a likely additive chat-turn release (the recorded fit decision) | 1 | Registered 2026-08-21 — origin is Brett's direction given at the `contract-v1.38` rule-5 ruling, quoted VERBATIM in the fragment; 6 claims settled (per-turn fit-aware resolution, filter out models too small for the turn, no-fit is a human decision, session-sticky continue-all consent, compress-to-fit on continue, and fit is multi-dimensional with raw size only one axis); 6 open questions, none blocking. **DISPOSITIONED 2026-08-24 — all six resolved**, architect adjudications on verified evidence anchored in Brett's rulings, with TWO of the fragment's own recommendations CORRECTED by recon. Q1: the ROUTE decides, upheld, but at the ASSEMBLY POINT INSIDE STEP 9 — not at precondition 7, because the packet does not exist there (steps: 5 scope, 6 identity, 7 model+limits, 8 idempotency, 9 dispatch, with assembly at `serve.py:2926`); the route's `error` is free-form `^[a-z][a-z0-9_]{2,63}$`, not an enum, so a no-fit code costs no contract act. A review-found CONSTRAINT rides with it: request bytes are bounded EARLIER against the selected entry (`:2677`/`:2730`), so exit (b) must also move or redefine that pre-assembly guard or a request sized for a wider `routes_to` member is refused before routing runs. Q2: `resolved_model_id` STAYS as the declared default, naming debt accepted explicitly, removal rejected. Q3: one closed additive `modalities`, PLUS a batching obligation — the release must decide, not silently pass, the type-side `models.maxItems` question and the `model_id` bounds gap (N7). Q4: turn-record self-description plus a RECORDED arm, adjudicated under Brett's own intake-lane OQ-3 test (a recorded gate action suffices on the single-operator loopback; an instrument is required only on tenant/shared installs), with the consent scoped to session identity/rekey/generation and NEVER a wall clock, honoring his arm-and-reconfirm ruling. Q5: three sequenced exits, with (c) REDEFINED — a fit-reducing act ALREADY happens silently under `posture: full` (`serve.py:2935-2956`; `dropped_evidence` reaches no wire field), so (c) discloses it via a third `reduced_reason` constant on the RELEASED v1.40 field with zero contract change; a third posture VALUE is rejected. Corrected on review: what already runs is LAYER-1 SELECTION (lossless by reference, and it REFUSES when mandatory threads alone overflow), so (c) also owes the real LAYER-2 compaction Claim 5 needs — the module's own `assert_fidelity` refuses conflating the two. Q6: union badge unchanged and non-negotiable; the record carries both badges. **SEQUENCING GATE CLEARED** — Phase B archived 2026-08-22 and 10.7 shipped as `contract-v1.40`; the remaining sequencing fact is the model-intake lane's collision with exit (b), which exit (a) avoids |
 | [notebook-access-wallet-governance](#notebook-access-wallet-governance) | MODIFIED `lifecycle-notebook-projection` (the ratified share-out roster entry becomes a wallet-governed record; the grant lane's provider act and revocation semantics) and possibly MODIFIED `openxwallet` (though the grant's closed scope and wallet-only audience already answer the interesting half) | 1 | Registered 2026-08-24 — origin is Brett's direction: sharing happens THROUGH THE APP, so if the books were opened org-wide in the Google machinery the access would still sit on the user, and he asked whether this can go in the wallet and be controlled per repo or finer. Two rulings the same day: the Google-side posture is **RESTRICTED with the app as the sole grantor** (org-visible REJECTED), and the topic is staged rather than proposed. 7 claims settled — sharing through the app; restricted posture; **Google's ACLs are the OUTER enforcement**, so an org-visible book is provider-granted access no app record can subtract; deny-by-default with every grant through the governed lane; the provider's enforcement atom is per-notebook/per-user/viewer-editor; per-repo control maps to per-book because `split-ideation-book-per-repo` already made the books per-repo; and finer-than-book is NOT provider-enforceable, a named non-goal of the Google half. The org-visible rejection rests on `client-identity-roster`'s promoted doctrine — where a provider-enforced principal IS available it must be used, and recording a bound as provider-enforced when none exists is a finding — so org-visibility would downgrade an available provider-enforced bound to a logic-enforced one. 7 open questions (whether a wallet grant can scope an external resource at all — checked against the schema: its `audience` must be a wallet and its `scope` has no property for a provider or a provider-side role, so the wallet holds the AUTHORITY to perform a granting act, narrowed to books via free-form `scope.objects` — while the GRANTEE, holding no wallet, cannot appear in a grant at all; one record or two; what revocation means provider-side, contrasted with #282's bearer-secret lesson; who approves and whether this closes task 2.4; whether a repo may declare its own book's policy as a derived input; where finer-than-book lives; and how a grantee is NAMED, since a persona's subject pattern admits no `@` while `nlm share invite` needs exactly an email). **SEQUENCED AFTER the migration thread's held steps clear** — nothing to grant access to under the declared account until the books are re-derived there (migration in flight as PR #289), and both `add-notebook-projection-identity` and `add-notebook-hosting-credential-custody` are ACTIVE with ratified-but-unpromoted deltas this topic would amend |
+| [treatment-options-engine](#treatment-options-engine) | MODIFIED `governed-derived-model` (a `role: recommendation` member emitting ranked, cited, non-authoritative options; a declared `evidence_floor` dial with labelled, structurally non-mixable relaxed modes; an `editorial_weights` declaration for ranking inputs no truth store supplies) — with the realized half MedxFactory-owned across `root-truth-grounding` (adverse-reaction and mechanism-of-action backfill), `terminology-normalization` (drug-class and indication mapping tables) and `treatment-plan-generation` (the engine itself) | 1 | Registered 2026-08-26 — Brett's build decision ("we will build this"), six steps: indicated → minus contraindicated → minus interacting → weighed by adverse reactions → rebalance on a charted non-response → off-label mode with the evidence floor lowered and mechanism similarity as the candidate generator. 7 claims settled, the governance boundary among them and NOT a dial: the engine PROPOSES and a clinician decides, `execute_final_action: false` holds, the plan gate stays human-reviewed, and the rebalance trigger is a chart observation rather than a timer. **Corpus recon 2026-08-26 corrected the described shape in four ways that change the deltas**: (a) `adverse_effect` is ALREADY in the closed ten-member claim-type enum with 3 records, so §6 work is a BACKFILL, not a new claim type; (b) the drug→condition edge is effectively ABSENT — 5 of 6,510 grounded pairs are `condition_*` — so "list all drugs indicated for X" is unanswerable today rather than merely slow; (c) the condition namespace already carries TWO id conventions (generated `condition_<icd10>` vs curated readable slugs, curated silently winning), which `indicated_for` must settle before writing a row; (d) evidence_grade is already multi-valued (6,499 regulatory_label + 7 across three lower grades), so the off-label floor has grades to drop to. Corpus measured at 6,506 records / 1,302 medication concepts / 1,298 custody SPLs (≈22% of the 5,803-row prescribable RxNorm set). 10 open questions, all `open`; three are hard blockers — Q7 (MoA as an eleventh enum member vs overloading `target`) fixes every backfilled record id, Q9 (no Medx policy authorizes `person_modeling: identified_persons_under_policy`, and the Medx conformance file declares `synthetic_only`) blocks declaring the family at all, and Q10 (WHO ATC's licence commit rule) is a structural validate gate with FDA-EPC-alone as the fallback. Q8 asks whether the engine is a MODIFIED `treatment-plan-generation` rather than a new capability — its nine promoted requirements already cover the entry point, the citation obligation, the closed worker plane, consent, the model pin and the plan-G1 gate. Exits NEUTRAL-FIRST: the `governed-derived-model` delta once Q7/Q8/Q9 dispose, then the Medx corpus+engine change once Q10 clears and the extractor-model policy re-pin (a governed version bump of `medx.domain.policy.plan_authoring_models` v1, recommended on cost) is made or declined |
 
 ## hermes-stack-topology-per-client
 
@@ -1822,3 +1823,147 @@ repo scope.
   delta (wallet-governed roster entry, the grant lane's provider act,
   revocation semantics) together with whatever `openxwallet` delta question 1
   resolves to.
+
+## treatment-options-engine
+
+- Staging ID: `openxFactory:staging:treatment-options-engine`
+- Repository context: SPLIT on purpose. openxFactory owns the neutral half —
+  `governed-derived-model` — with `omnigent-domain-overlay` (constitutional
+  `execute_final_action: false`) and `workflow-gate-contract` (where the
+  clinician's decision is recorded) supplying refusal and gate surfaces the
+  topic reuses rather than re-invents. MedxFactory owns the realized half:
+  `root-truth-grounding` (the SPL §6 / §12.1 backfill over already-pinned
+  custody XMLs), `terminology-normalization` (drug-class and indication mapping
+  tables) and `treatment-plan-generation` (the engine). Staged HERE because the
+  neutral delta is the one that needs designing; the Medx work is comparatively
+  mechanical once it lands. The fragment deliberately does NOT fence the Medx
+  capabilities as `xspec:candidate` targets — they do not resolve from an
+  openxFactory document and fencing them would emit tag-hygiene findings for a
+  claim this repo cannot host.
+- Source: Brett Heap, in session 2026-08-26, deciding to build rather than
+  explore — "we will build this" — with the capability given in six steps: list
+  all drugs INDICATED for the condition, remove those CONTRAINDICATED for the
+  patient, check INTERACTIONS against current medications, weigh ADVERSE
+  REACTIONS, REBALANCE toward a combination with fewer negative and more
+  positive interactions and a better reaction profile (rerunning when the chart
+  observes non-response after a trial period), and an OFF-LABEL MODE running the
+  same engine with the evidence-grade gate lowered and mechanism-of-action
+  similarity admitted as a candidate generator.
+- Claim: seven settled, not reopened by the questions — it is a build decision;
+  the engine PROPOSES and a clinician DECIDES (the governance boundary, and not
+  a dial: Omnigent constitutional `execute_final_action: false` and
+  `access_secrets: false` hold, the treatment-plan gate stays human-reviewed,
+  and nothing selects, orders, or cycles a regimen); the rebalance trigger is a
+  charted OBSERVATION, never a timer and never an automatic rerun; every line of
+  every output cites a root-truth record, with un-citable steps surfaced as gaps
+  rather than run silently; on-label first, with off-label a separate MODE whose
+  outputs are structurally un-mixable with on-label ones; the interaction
+  severity and combination weights are EDITORIAL POLICY — versioned,
+  human-reviewed, and visible in every output that used them; and the backfill
+  FETCHES NOTHING NEW, running over the 1,298 custody SPL XMLs already pinned by
+  digest.
+- Corpus recon 2026-08-26 (measured, and it corrected the described shape):
+  6,506 records over 1,302 distinct `medication_*` concepts, 1,298 custody XMLs
+  (261 MB) under `var/root-truth-sources/`, ≈22% of the 5,803-row prescribable
+  RxNorm ingredient set. Four corrections that change the deltas: (1)
+  `adverse_effect` is ALREADY the ninth member of the closed ten-member
+  claim-type enum (`scripts/root_truth/validate_root_truth.py:24-25`) with 3
+  records, so the §6 work is a backfill under an existing member and not a new
+  claim type — while `mechanism_of_action` genuinely does not exist and the
+  nearest member, `target`, holds 1 record; (2) the drug→condition edge is
+  effectively absent — exactly 5 of 6,510 grounded pairs are `condition_*`, and
+  indications are one prose blob per family (`RT-SIMVASTATIN-IND-0001` carries
+  six indication limbs in a single `claim` string) — so the engine's first step
+  is not answerable from the corpus at all today; (3) the condition namespace
+  already carries two colliding id conventions, generated `condition_<icd10>`
+  from the 98,184-row FY2026 table versus curated readable slugs in
+  `examples/terminology/tables/conditions.yaml`, with the generated manifest
+  stating curated keys are SKIPPED at generation, and the five existing
+  condition pairs use both; (4) evidence_grade is already multi-valued (6,499
+  `regulatory_label`, 3 `retrospective_cohort_study`, 2
+  `clinical_practice_guideline`, 2 `public_health_guidance`), so the off-label
+  floor has real grades to drop to. There is no drug-class field anywhere.
+- Build order (Brett's, with one governance note): (1) backfill §6 + §12.1 over
+  existing sources — NOTE that the extractor model is pinned by
+  `medx.domain.policy.plan_authoring_models` v1 at `claude-fable-5`, whose own
+  `policy-revision-is-governed` position says the admissible set moves only
+  through an OpenSpec change, so re-pinning extraction to a cheaper tier for
+  ~2,600 extractions is a POLICY VERSION BUMP rather than a configuration
+  change; (2) the MED-RT class/indication/MoA table via RxClass, scripted and
+  deterministic with no model in the loop; (3) the derived treatment-options
+  model, on-label only; (4) the interaction-severity table, then rebalance
+  (never rebalance first — a search built before the scale hard-codes the
+  judgement); (5) off-label mode.
+- Files:
+  - [treatment-options-engine.md](treatment-options-engine/treatment-options-engine.md)
+    — primary: 7 claims, a measured current-state section, three live
+    `xspec:candidate` blocks (all targeting `governed-derived-model`, all
+    resolving), the Medx-side delta in unfenced prose, a build-order section, 6
+    idea notes, 6 conflicts, 10 open questions each with Context / Recommended
+    answer / Explanation / Disposition status, a related-work map, and a
+    two-change exit.
+- Open questions (10, all `open`): (1) which reference GRADES interactions and
+  can we cite it — recommended: define our own small ordinal scale as the
+  editorial policy artifact rather than adopt a commercial one, since a scale we
+  cannot redistribute makes the "weights visible in every output" obligation
+  unsatisfiable; (2) how patient state enters — recommended: yes, through the
+  promoted `one-patient-integration-contracts` snapshot, pinned per run with no
+  second path, the open part being whether the snapshot's current shape carries
+  allergies and the active medication list at enough fidelity to key
+  interactions; (3) where POSITIVE-interaction evidence comes from — recommended:
+  split the term, since pharmacokinetic boosting IS label-grade and in the
+  corpus already while clinical synergy is guideline-grade and must contribute
+  separately rather than blend into one score; (4) ICD-10 vs SNOMED —
+  recommended ICD-10-CM now (SNOMED needs an affiliate licence and the promoted
+  licence commit rule is structural), retiring the curated slugs to aliases and
+  carrying the code system alongside the concept so SNOMED is later additive;
+  (5) whether adverse-reaction weighting needs INCIDENCE data — recommended yes
+  where §6 presents tables, because severity without incidence ranks a
+  30%-incidence nuisance level with a 0.01% catastrophe, which also makes the §6
+  backfill materially more expensive than §12.1 and feeds the model-tier
+  decision; (6) off-label consent and liability gates in Hermes — recommended a
+  DISTINCT consent purpose reusing the promoted machinery, with the mode and
+  floor as a structural disclosure, and no attempt to encode liability beyond
+  recording who requested what; (7) **blocker** — is mechanism-of-action the
+  existing `target` type or an ELEVENTH enum member, recommended eleventh
+  member because a molecular target and a mechanism are different claims and
+  off-label similarity reasons on the mechanism, and it must settle before
+  extraction because it fixes every record id; (8) is the engine a new Medx
+  capability or a MODIFIED `treatment-plan-generation` — recommended MODIFIED,
+  since the nine promoted requirements (charted-diagnosis entry point, citation
+  from a pinned run, knowledge-basis declaration, closed worker plane, consent
+  purpose, model pin, plan-G1 fixture replay with zero EMR writes) are all
+  needed unchanged; (9) **blocker** — which domain policy authorizes
+  `person_modeling: identified_persons_under_policy`, given the promoted family
+  FAILS validation when the referenced policy does not exist and MedxFactory's
+  `models/derived-model-conformance.yaml` declares its single `dream_simulation`
+  family as `synthetic_only` at `scope: domain`; recommended a new
+  `patient_derived_modeling` domain policy rather than stretching
+  `patient-consent-instrument`, which answers a different question; (10)
+  **blocker** — whether RxClass/MED-RT and WHO ATC clear the pin registry's
+  licence commit rule, recommended MED-RT under the existing derived-table
+  pattern with ATC as a separate pin, and FDA EPC alone (label-derived, already
+  in custody) as a genuinely acceptable fallback.
+- Conflicts recorded, not resolved: the claim-type enum is closed at ten ON
+  PURPOSE and Q7 wants an eleventh; editorial weights are un-sourced numbers
+  entering a corpus built to refuse un-sourced assertions (the neutral
+  `editorial_weights` declaration is a reconciliation, not an absence of
+  tension); `treatment-plan-generation`'s "charted diagnoses are the only plan
+  entry points" versus an off-label generator that reaches drugs no charted
+  diagnosis indicates — whether that requirement bounds the entry point or the
+  whole candidate set must be read before off-label is built; the Medx
+  conformance file's `synthetic_only` dial is currently INCONSISTENT with what
+  this topic needs; the two condition-id conventions, where a miss in the filter
+  chain looks exactly like "no drug is indicated for this"; and that "rebalance
+  reruns" reads like a loop claim 2 forbids, so the proposal must state the
+  trigger as an event a human authored.
+- Exit: TWO changes, neutral first. The neutral change modifies
+  `governed-derived-model` (recommendation member role, evidence-floor dial with
+  declared relaxed modes, editorial-weights declaration, plus validator support)
+  and can be raised once Q7, Q8 and Q9 carry dispositions — those three
+  determine whether the Medx family can be declared against the role at all. The
+  Medx change (or changes) covers the corpus backfill, the new terminology
+  tables and the engine, and cannot be raised until Q10 clears and the
+  extractor-model policy re-pin is made or explicitly declined. Q1's severity
+  scale must be decided BEFORE any rebalance work begins rather than alongside
+  it.

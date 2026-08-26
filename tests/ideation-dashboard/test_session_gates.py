@@ -1406,6 +1406,113 @@ def test_matching_proposal_evidence_from_before_abandonment_requires_fresh_relea
     assert payload["retention_release"]["kind"] == bs.RETENTION_EXPLICIT_HUMAN
 
 
+def test_a_later_edit_elsewhere_in_the_change_folder_does_not_freshen_the_origin(
+        scratch_repo, tmp_path, monkeypatch):
+    """The ORIGIN EVIDENCE's own recording time correlates, not the newest commit
+    touching the whole change directory (PR #336 review finding 1).
+
+    A change folder is edited for reasons that have nothing to do with the tile's
+    staged origin — a task checked off, a spec delta revised. Reading the
+    directory's newest commit let any such edit re-date historical custody as if
+    it had been recorded after the abandonment, and the branch carrying the newer
+    exploration was then deleted on the strength of evidence that predates it."""
+    archived = f"openspec/changes/archive/2026-08-20-{CHANGE}"
+    _write_staged_origin(scratch_repo, archived)
+    scratch_repo.write(f"{archived}/proposal.md", "# Older archived proposal\n")
+    scratch_repo.commit(
+        "Archive older proposal custody",
+        f"{archived}/.openspec.yaml", f"{archived}/proposal.md")
+    registry, _created, _worktree = _session(scratch_repo, tmp_path)
+    monkeypatch.setattr(gc, "_utcnow", lambda: "2099-08-25T12:00:00Z")
+    _abandon(scratch_repo, registry, reason="parked after older proposal work")
+    # An unrelated file in the SAME folder, committed after the abandonment. The
+    # staged origin declaration itself is untouched.
+    scratch_repo.write(f"{archived}/tasks.md", "- [ ] unrelated later task\n")
+    scratch_repo.commit(
+        "Revise tasks inside the archived change folder",
+        f"{archived}/tasks.md", at="2099-08-26T12:00:00Z")
+
+    status, payload = _cleanup(scratch_repo, registry)
+
+    assert status == 409, payload
+    assert "before the session was abandoned" in payload["message"]
+    assert sg.SessionGit(scratch_repo.root).branch_exists(DRAFT) is True
+
+    # and the origin declaration's OWN later commit does release it
+    origin_file = scratch_repo.root / archived / ".openspec.yaml"
+    scratch_repo.write(
+        f"{archived}/.openspec.yaml",
+        origin_file.read_text(encoding="utf-8") + "# origin re-declared\n")
+    scratch_repo.commit(
+        "Re-declare the archived staged origin after abandonment",
+        f"{archived}/.openspec.yaml", at="2099-08-27T12:00:00Z")
+
+    status, payload = _cleanup(scratch_repo, registry)
+
+    assert status == 200, payload
+    assert payload["retention_release"]["kind"] == bs.RETENTION_ARCHIVED_CHANGE
+
+
+def test_a_second_matching_record_recorded_after_abandonment_releases_cleanup(
+        scratch_repo, tmp_path, monkeypatch):
+    """Every matching lifecycle record is correlated, not just the first one
+    (PR #336 review finding 2).
+
+    A tile can carry several exact-origin records. Stopping at the deterministic
+    first candidate refused cleanup whenever THAT one predated the abandonment,
+    even though another record independently satisfied the retention requirement
+    and the operator was pushed into an explicit release they did not need."""
+    earlier = f"openspec/changes/archive/2026-08-20-{CHANGE}-earlier"
+    _write_staged_origin(scratch_repo, earlier)
+    scratch_repo.write(f"{earlier}/proposal.md", "# Earlier archived proposal\n")
+    scratch_repo.commit(
+        "Archive an earlier proposal custody",
+        f"{earlier}/.openspec.yaml", f"{earlier}/proposal.md")
+    registry, _created, _worktree = _session(scratch_repo, tmp_path)
+    monkeypatch.setattr(gc, "_utcnow", lambda: "2099-08-25T12:00:00Z")
+    _abandon(scratch_repo, registry, reason="parked after older proposal work")
+    successor = f"openspec/changes/archive/2026-08-26-{CHANGE}-successor"
+    _write_staged_origin(scratch_repo, successor)
+    scratch_repo.write(f"{successor}/proposal.md", "# Successor proposal\n")
+    scratch_repo.commit(
+        "Archive a successor carrying the same staged origin",
+        f"{successor}/.openspec.yaml", f"{successor}/proposal.md",
+        at="2099-08-26T12:00:00Z")
+
+    status, payload = _cleanup(scratch_repo, registry)
+
+    assert status == 200, payload
+    evidence = payload["retention_release"]
+    assert evidence["kind"] == bs.RETENTION_ARCHIVED_CHANGE
+    assert evidence["change_id"] == f"{CHANGE}-successor"
+    assert evidence["references"] == [f"{successor}/.openspec.yaml"]
+
+
+def test_no_matching_record_after_abandonment_still_refuses_cleanup(
+        scratch_repo, tmp_path, monkeypatch):
+    """Correlating every candidate must not weaken the refusal: when EVERY
+    matching record predates the abandonment, cleanup still refuses and reports
+    the chronology (PR #336 review finding 2, the fail-closed half)."""
+    earlier = f"openspec/changes/archive/2026-08-20-{CHANGE}-earlier"
+    later = f"openspec/changes/archive/2026-08-21-{CHANGE}-second"
+    for folder in (earlier, later):
+        _write_staged_origin(scratch_repo, folder)
+        scratch_repo.write(f"{folder}/proposal.md", "# Historical proposal\n")
+    scratch_repo.commit(
+        "Archive two historical proposal custodies",
+        f"{earlier}/.openspec.yaml", f"{earlier}/proposal.md",
+        f"{later}/.openspec.yaml", f"{later}/proposal.md")
+    registry, _created, _worktree = _session(scratch_repo, tmp_path)
+    monkeypatch.setattr(gc, "_utcnow", lambda: "2099-08-25T12:00:00Z")
+    _abandon(scratch_repo, registry, reason="parked after older proposal work")
+
+    status, payload = _cleanup(scratch_repo, registry)
+
+    assert status == 409, payload
+    assert "before the session was abandoned" in payload["message"]
+    assert sg.SessionGit(scratch_repo.root).branch_exists(DRAFT) is True
+
+
 def test_branch_advanced_after_abandonment_requires_explicit_current_head_release(
         scratch_repo, tmp_path):
     registry, _created, _worktree = _session(scratch_repo, tmp_path)

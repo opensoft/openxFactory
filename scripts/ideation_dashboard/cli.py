@@ -30,6 +30,7 @@ if str(_SCRIPTS_DIR) not in sys.path:
 
 from ideation_dashboard import authoring as authoring_mod  # noqa: E402
 from ideation_dashboard import branch_session as branch_session_mod  # noqa: E402
+from ideation_dashboard import doxbench_install as install_mod  # noqa: E402
 from ideation_dashboard import doxbench_knowledge as knowledge_mod  # noqa: E402
 from ideation_dashboard import gate_console as gate_mod  # noqa: E402
 from ideation_dashboard import gate_routes as gate_routes_mod  # noqa: E402
@@ -295,6 +296,11 @@ def cmd_generate_and_open(args: argparse.Namespace, *, opener=webbrowser.open) -
     if rc != 0:
         return rc
 
+    # The model adapter's session root: the flag when given, else beside the
+    # snapshot this run just wrote.
+    model_session_root = (Path(args.model_session_root).resolve()
+                          if getattr(args, "model_session_root", None)
+                          else install_mod.session_root_beside(written))
     httpd = serve_mod.build_server(WEB_DIR, written, checkout_root,
                                    host=args.host, port=args.port,
                                    actor=getattr(args, "actor", None),
@@ -302,6 +308,27 @@ def cmd_generate_and_open(args: argparse.Namespace, *, opener=webbrowser.open) -
                                    # adapter; `build_server` never reaches for one
                                    # on a caller's behalf (PR #49 hardening item 1)
                                    adapter_factory=serve_mod.real_notebook_adapter,
+                                   # and the MODEL PROVIDER, for the third time
+                                   # in the same idiom and for the same reason:
+                                   # an operator must be able to read what their
+                                   # install talks to. Without a declaration HERE
+                                   # no model consumer on this surface can reach
+                                   # a provider at all — `_workbench_model_port`
+                                   # returns None and every consumer's honest
+                                   # posture is an absent capability
+                                   # (add-doxbench-distilled-abstract D9).
+                                   #
+                                   # ONE bridge for the life of this process: the
+                                   # adapter is stateful (it holds the per-thread
+                                   # harness sessions), and `_workbench_model_port`
+                                   # resolves per REQUEST. The factory takes no
+                                   # arguments, so nothing about the adapter can
+                                   # become a per-turn input; the three
+                                   # install-time inputs it cannot supply itself
+                                   # — catalog, session root, launch config — are
+                                   # declared in `doxbench_install`.
+                                   model_port_factory=install_mod.model_port_factory(
+                                       model_session_root),
                                    # and the same discipline for the doxBench
                                    # knowledge service: the ENTRYPOINT makes the
                                    # install-time retrieval-backend declaration
@@ -1551,6 +1578,16 @@ def build_parser() -> argparse.ArgumentParser:
     gao.add_argument("--no-open", action="store_true", help="do not launch a browser (print the URL only)")
     gao.add_argument("--no-serve", action="store_true",
                      help="generate + print the URL, then exit without serving (non-blocking)")
+    # The model adapter's SESSION ROOT — the third install-time input the
+    # entrypoint's `model_port_factory` declaration needs, beside its catalog
+    # and its launch config (see the `build_server` call in
+    # `cmd_generate_and_open`). A PATH ARGUMENT, defaulted like the others: with
+    # no flag it sits beside the served snapshot, in the run directory this
+    # process already owns, so a harness child writes into scratch space rather
+    # than into the served checkout.
+    gao.add_argument("--model-session-root", default=None,
+                     help="where the model adapter's harness sessions live "
+                          f"(default: <run-dir>/{install_mod.MODEL_SESSIONS_DIRNAME})")
     gao.set_defaults(func=cmd_generate_and_open)
 
     create = sub.add_parser(

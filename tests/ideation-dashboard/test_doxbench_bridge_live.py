@@ -13,7 +13,9 @@ never installs, downloads, or writes outside its own `tmp_path`.
 DISCOVERY, in order, so a developer can point it anywhere:
 
   1. `DOXBENCH_OMP_BINARY`   — an explicit path to the harness binary
-  2. `shutil.which("omp")`   — an omp on PATH
+  2. `shutil.which("omp")`   — an omp on PATH, IGNORING the test-hermeticity
+     shim, which since `omp` joined the guarded binaries is always first on
+     `PATH` inside this suite (see `_is_the_hermeticity_shim`)
   3. `DOXBENCH_OMP_HOME`     — a directory holding `bin/omp`
 
 and, for the model, `DOXBENCH_OMP_MOCK_BASE_URL` (default
@@ -53,6 +55,8 @@ import pytest
 
 from conftest import REPO_ROOT  # noqa: F401  (sys.path side effect)
 
+import hermeticity  # noqa: E402  (after conftest's path insert, by construction)
+
 from ideation_dashboard import doxbench_bridge as br  # noqa: E402
 from ideation_dashboard import doxbench_mcp as mcp  # noqa: E402
 from ideation_dashboard.doxbench_model import (  # noqa: E402
@@ -65,12 +69,37 @@ MOCK_PROVIDER_ID = "local-proxy"
 LIVE_TIMEOUT_SECONDS = 120.0
 
 
+def _is_the_hermeticity_shim(candidate: str) -> bool:
+    """True when `candidate` is the suite's OWN refusal shim rather than a real
+    harness.
+
+    `omp` joined `hermeticity.GUARDED_BINARIES` when an entrypoint began
+    declaring an `OmpHarnessBridge` (add-doxbench-distilled-abstract §2), and the
+    guard installs an executable refusal for every guarded binary FIRST on
+    `PATH`. So `shutil.which("omp")` now always resolves -- to the shim -- and
+    step 2 of the discovery below would have "found a harness" in every run,
+    turning a module that must skip cleanly into one that starts the shim, reads
+    its exit-97 refusal, and fails.
+
+    Detected by reading the file for the guard's own `MARKER`, which is one fixed
+    string the shim stamps on every refusal, rather than by comparing paths
+    against a shim directory the fixture chooses per session. `DOXBENCH_OMP_BINARY`
+    stays the explicit opt-in and is checked BEFORE this, so an operator pointing
+    the smoke at a real harness is never second-guessed."""
+    try:
+        return hermeticity.MARKER in Path(candidate).read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError, ValueError):
+        # A real harness is a binary: unreadable as text is exactly what one
+        # looks like, and it is NOT the shim (a small text script).
+        return False
+
+
 def _harness_binary() -> str | None:
     explicit = os.environ.get("DOXBENCH_OMP_BINARY")
     if explicit and Path(explicit).is_file():
         return explicit
     found = shutil.which(br.HARNESS_COMMAND)
-    if found:
+    if found and not _is_the_hermeticity_shim(found):
         return found
     home = os.environ.get("DOXBENCH_OMP_HOME")
     if home:
