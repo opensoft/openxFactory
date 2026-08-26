@@ -139,7 +139,69 @@
       registry entry is corrected here, and the overlay now records the
       version it was verified against. Task-level verification remains
       OUTSTANDING and unclaimed — mappings are occupation-level only.
-- [ ] 3.2 Populate `terminology` in LedgerxFactory. Candidate bodies:
+- [x] 3.2 **LEDGERX POPULATED WITH THE PROCESS LAYER, AND THE O*NET PIN
+      MOVED.** Authored at LedgerxFactory `ded4a0128f9e` on branch
+      `change/apqc-terminology-and-onet-pin`, landing via that domain's PR,
+      unmerged as of this tick. READ-BACK — what shipped: `apqc_pcf` is back
+      in the overlay as a THIRD body beside `onet_accounting_occupations`
+      (unchanged, 14/14 workers) and `coso_icif` (unchanged, 5 workers), so
+      the same 14 workers now carry 28 crosswalks across three bodies naming
+      three different kinds of thing. PCF: 6 workers mapped
+      (`invoice_coder`, `bookkeeper`, `reconciliation_specialist`,
+      `close_accountant`, `tax_preparation_assistant`, `books_designer`), 3
+      recording `no_clean_equivalent` (`document_intake_processor`,
+      `document_fact_reader`, `posting_admission_agent`), 5 OMITTED.
+      READ-BACK — the crosswalk is BOUNDED to what 3b.5b preserved, and the
+      omissions are the shape of that bound rather than an oversight. Only
+      9.3 (10730), 9.6 (10733) and 9.9 (10736) and their sub-elements were
+      restored; every `no_clean_equivalent` note says in its own text that it
+      is scoped to those three and is not a claim about thirteen categories.
+      The five omitted workers have plausible PCF homes OUTSIDE the preserved
+      set — 9.1 (10728) for `scenario_modeler`, 9.2 (10729) for
+      `counterparty_analyst`, 9.8 (10735) for `controller_reviewer` and
+      `compliance_reviewer` — and the overlay names them as such. Widening
+      past the preserved set was not this act's to decide, so it did not, and
+      the overlay's own OMISSION-IS-NOT-no_clean_equivalent discipline is
+      what makes the difference readable. A LATER ACT MAY WIDEN IT; nothing
+      here forecloses that.
+      READ-BACK — 5.1 and 5.2 held: worker ids, archetypes, permissions and
+      credential tiers are byte-identical across the change (the diff touches
+      only the terminology block's comments and `standards_alignment`), and
+      every note that names an approval, payment, posting or filing node
+      names it as REFUSED — 9.6.1.4 Approve payments (10872) and 9.6.1.8
+      Process payments (10876) for `invoice_coder`, 9.3.2.9 (10827) excluded
+      from `close_accountant` because a node cannot be half-claimed.
+      `bookkeeper` is the sharpest case and now diverges twice over: both the
+      human occupation AND PCF 9.3.2.2 Process journal entries (10820)
+      include posting, and the worker cannot post.
+      READ-BACK — the licence condition is discharged in the artifact, not
+      just in the registry: APQC's mandatory paragraph rides in the overlay
+      header verbatim with its ® marks intact, and the grant's scope limit is
+      honoured — names, hierarchy numbers and element IDs are quoted and NO
+      process definition text is, not even paraphrased.
+      FLAGGED, and it is the one thing this act could not close: PCF 8.0 is
+      the pinned version, apqc.org answers HTTP 403 to automation and no 8.0
+      mirror is public, so the names, numbers and IDs shipped were
+      text-extracted from the primary 7.4 PDF and 8.0's NUMBERING WAS NOT
+      RE-READ. The five-digit element IDs are APQC's stable identifiers and
+      carry the citations; the decimal numbers are 7.4's and the overlay says
+      so. This is 3b.3's failure mode held at arm's length rather than
+      eliminated, and closing it needs the same browser act that closed
+      3b.5d.
+      READ-BACK — 3.0a's flag DISCHARGED: the ledgerx O*NET pin and its
+      by-version attribution moved together as that flag required. The
+      overlay's CC BY block now carries onetcenter.org's version-stamped 31.0
+      wording (including "has not approved, endorsed, or tested these
+      modifications") and `onet_accounting_occupations` in
+      `contracts/policies/standards-bodies.yaml` moves 30.3 -> 31.0 in this
+      same commit, gaining the `reuse_licence` /
+      `redistribution_permitted_in_product_config` / `attribution_required`
+      triple the opsx and codex entries already carried. Every SOC code is
+      unchanged across the release, so no mapping shifted. Task-level
+      verification remains OUTSTANDING and unclaimed here as everywhere.
+      ORIGINAL TASK TEXT (2026-08-09, with its 2026-08-26 corrections) kept
+      below, because the read-back is only checkable against what was asked:
+      Populate `terminology` in LedgerxFactory. Candidate bodies:
       `apqc_pcf` 8.0 (processes — 9.6 AP, 9.3 general accounting, 9.9 taxes; the 8.x numbering originally written here was the legacy finance layout, per the correction note below),
       `coso_icif` (controls — the natural home for the segregation-of-duties
       boundary), `ima_mac` (competencies), `aicpa` (standards/competencies).
@@ -155,7 +217,72 @@
       instead of it — process-level and role-level are different claims. The
       stale O*NET 30.3 pin and the by-version attribution in the ledgerx
       overlay move in this same act (3.0a).
-- [ ] 3.3 Populate `terminology` in AdxFactory. Candidate bodies:
+- [x] 3.3 **ADX POPULATED, AND ITS BRIEF FINALLY RUN.** Authored at
+      AdxFactory `02d022cefb34` on branch `change/terminology-population`,
+      landing via that domain's PR, unmerged as of this tick. READ-BACK —
+      what shipped: all 10 workers now carry a crosswalk where 3 did before,
+      against THREE bodies — `onet_marketing_occupations` (new, 10 entries: 5
+      mapped, 5 `no_clean_equivalent`), `apqc_pcf` (new, 10 entries: 6
+      mapped, 4 `no_clean_equivalent`) and `iab` (3 entries, carried forward
+      unchanged). `job_types`, `stop_conditions` and `routing` labels are
+      untouched. The seven workers that carried display labels only now carry
+      at least one crosswalk each.
+      READ-BACK — THIS DOMAIN IS WHERE THE MULTI-BODY DESIGN (2.2b) PAYS FOR
+      ITSELF, and it is worth recording because the other four domains
+      shipped a single body and could not demonstrate it. The two workers
+      with NO honest occupation have clean PROCESS homes: `media_planner` ->
+      3.2.3.4 Select channels for target segments (10128) with 3.2.5.6
+      (16854); `lifecycle_marketer` -> 3.2.6 Design and manage customer
+      loyalty program (18924) with 3.3.6.4 (16616). A single-body crosswalk
+      would have written both off as unmappable. The reverse case is
+      `compliance_reviewer`: a clean occupation (13-1041.00 with 13-1041.07)
+      and no home inside PCF category 3.0 — and its note NAMES 11.0 as the
+      real home rather than implying none exists.
+      READ-BACK — the registry's recorded gaps were RE-TESTED, not inherited,
+      which is the whole point of 3.0. The entry records "O*NET has no title
+      match for 'media planner' or 'media buyer'"; this act read 11-2011.00
+      Advertising and Promotions Managers directly and confirmed none of its
+      ten Reported Job Titles is either, and read 13-1161.00 for
+      `lifecycle_marketer` and found nothing lifecycle, retention, CRM or
+      email. BOTH RESOLVED TO `no_clean_equivalent` RATHER THAN A PARTIAL:
+      the schema expresses partiality only as a mapping string plus a note,
+      and using one here would have named a manager occupation carrying
+      media-buying and budget authority these workers must never appear to
+      hold. 27-1011.00 Art Directors lists "Creative Director" as a verbatim
+      Reported Job Title, which is what makes that mapping clean rather than
+      approximate.
+      READ-BACK — 3b.5e's adx brief RAN, seventeen days after it was written,
+      and it found what it predicted. Two findings, both recorded in the
+      overlay and NEITHER acted on, because both are registry decisions this
+      task does not own: (1) the Audience Taxonomy page names IAB TECH LAB as
+      steward throughout, not the Interactive Advertising Bureau the registry
+      names — the brief asked whether `iab` should split the way CICPA and
+      AICPA did, and on this evidence it should; (2) THE REUSE TEST WAS NEVER
+      RUN ON IAB — its taxonomy page publishes no licence text and no licence
+      link, so the one body in this overlay that predates the licence
+      discipline is the one body still shipping on an assumption. Current
+      version read: Audience Taxonomy 1.1 (October 2020). The three IAB
+      mappings are carried forward MARKED PROVISIONAL, and the OpenRTB
+      citation for `media_planner` is narrowed in place rather than removed:
+      a bidding protocol names the plumbing a plan executes through, not the
+      planning work — the brief's own QUESTION THREE, answered.
+      READ-BACK — 5.1 and 5.2 held: no worker id, archetype, permission or
+      credential tier changed, and every occupation or node carrying the
+      launch/spend act is named as refused (3.3.4.5 Execute promotional
+      activities (10169) for `creative_director`; 3.3.2 Establish marketing
+      budgets (10149) for `campaign_strategist`; 3.2.6.2 (18925) for
+      `lifecycle_marketer`).
+      SAME FLAG AS 3.2, same cause: PCF element names, numbers and IDs were
+      text-extracted from the primary 7.4 PDF because 8.0 is unreachable to
+      automation, so 8.0's numbering was not re-read. This act DID close half
+      of the old adx note's open question — 3.0 Market and Sell Products and
+      Services (10004) is confirmed against a primary source as 7.4's number,
+      superseding the 7.0.5 pin that note carried — and left the other half
+      open honestly. Task-level verification remains OUTSTANDING.
+      ORIGINAL TASK TEXT (2026-08-09, with its 2026-08-26 prerequisite note)
+      kept below, because the read-back is only checkable against what was
+      asked:
+      Populate `terminology` in AdxFactory. Candidate bodies:
       `apqc_pcf` 3.0 (processes), `iab` (ad-tech specs/taxonomies — fits the
       media and audience classes, not the creative or compliance ones),
       `cim` (competencies), `ama_marketing` (concept definitions).
@@ -435,6 +562,37 @@
 - [ ] 3b.5f Apply the results of the remaining brief (ledgerx UN/CEFACT +
       BIAN, and the adx marketing round) as they return. (ledgerx
       UN/CEFACT+BIAN, adx marketing, opsx, codex, medx) as they return.
+      STATE AS OF 2026-08-26, counted rather than assumed. Of the five briefs
+      this task tracks, FOUR have been run and applied: opsx (3b.5g), codex
+      (3b.5h), medx (3b.5i), and — as of this tick — **adx marketing, run and
+      applied in 3.3**. Its findings landed in two places and neither is a
+      report file: the crosswalks themselves went into AdxFactory
+      `02d022cefb34`, and its two body-level findings (the IAB steward is
+      IAB Tech Lab, not the trade association; IAB's taxonomy page publishes
+      no licence text, so the reuse test was never run on it) are recorded in
+      that overlay's header as flagged-not-acted, because both are registry
+      decisions. NO REPORT FILE WAS WRITTEN for the adx round — the prompt at
+      AdxFactory
+      `openspec/changes/adopt-neutral-omnigent-overlay/supporting-docs/marketing-bodies-research-prompt.md`
+      still has no sibling report, unlike opsx/codex/medx which have one each
+      under `research/` here. That asymmetry is a real gap in the evidence
+      trail and is named rather than glossed.
+      WHAT THIS TASK STILL OWES: the ledgerx UN/CEFACT + BIAN round, and
+      only that. Its brief is written and has NEVER been run — LedgerxFactory
+      `openspec/changes/adopt-neutral-omnigent-overlay/supporting-docs/apqc-replacement-candidates-verification-prompt.md`,
+      `Status: record`, prepared 2026-08-09, with no report anywhere in that
+      repo.
+      ITS PREMISE HAS CHANGED, which is the honest thing to say about it. The
+      brief exists to fill "a **process-layer gap** over the operational
+      accounting workers" that APQC's removal opened, ideally with the
+      international reach O*NET lacks. 3b.5k lifted that removal and 3.2 put
+      the process layer back, so the gap the brief was commissioned to fill
+      is closed. What survives is narrower and optional: whether UN/CEFACT or
+      BIAN adds international process vocabulary BEYOND cross-industry PCF,
+      which is a widening question rather than a gap-filling one. Running it
+      is still worthwhile; treating it as a blocking dependency would be
+      false, and leaving it unmarked would let it read as pending for a
+      reason that no longer holds.
 
 ## 4. Consumer follow-up (named, not assumed)
 

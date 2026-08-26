@@ -1004,7 +1004,7 @@ Active changes:
   `no_clean_equivalent` against the PROVIDER taxonomy specifically, because
   labelling a reasoning agent with a role carrying clinical standing is the
   mapping a contributor would reach for and the dangerous one. Ratification
-  (task 1.2) is now closed, and so are TWO of the five domain populations:
+  (task 1.2) is now closed, and so are FOUR of the five domain populations:
   **3.1 OpsxFactory and 3.4 codexFactory ticked 2026-08-26** on their O*NET
   crosswalks with the task-3.0 verification discharged for both — every
   registered occupation code and title re-read verbatim against the body's
@@ -1013,16 +1013,38 @@ Active changes:
   inherited silently, which is the APQC failure mode 3b.3 named. Opsx ships
   6 mapped / 3 `no_clean_equivalent` across 9 workers, codex 8 / 3 across 11;
   both populations cover every declared id in all four vocabularies; both
-  land via their own domain PRs. STILL OPEN: 3.2 LedgerxFactory and 3.3
-  AdxFactory (each its own change, crosswalk framework chosen per domain at
-  realization per task 5.3) — and 3.5 MedxFactory, whose box is unticked but
-  whose overlay already ships the population 3b.5i ruled: eleven workers,
-  every one `no_clean_equivalent` against `nucc_taxonomy`, which IS the
-  realization rather than an absence of one. Also open: task-level
-  verification for the opsx/codex crosswalks, which stay OCCUPATION-level and
-  say so; `onet_accounting_occupations`, flagged carrying the same stale 30.3
-  pin that LedgerxFactory must move together with its by-version attribution;
-  the remaining ledgerx/adx brief results (3b.5f), and the §4 consumer
+  land via their own domain PRs. **3.2 LedgerxFactory and 3.3 AdxFactory
+  ticked 2026-08-26**, the two populations the APQC bar had held: both now
+  ship a PROCESS layer beside their role layer, which is the first time the
+  multi-body design (task 2.2b) is exercised anywhere in the family. Ledgerx
+  restores `apqc_pcf` as a third body beside O*NET and COSO — 6 mapped / 3
+  scoped `no_clean_equivalent` / 5 deliberately omitted, the crosswalk
+  BOUNDED to the three nodes 3b.5b preserved (9.3 10730, 9.6 10733, 9.9
+  10736) with the omitted workers' plausible homes named outside that bound
+  rather than declared absent — and moves the stale O*NET 30.3 pin to 31.0
+  together with its by-version attribution, which is what the registry flag
+  required and what discharges it. Adx goes from 3 of 10 workers crosswalked
+  to 10 of 10 across three bodies (O*NET 5 mapped / 5 absent, PCF 6 / 4, IAB
+  3 carried forward), and it is the domain that proves the design: its two
+  workers with no honest occupation, `media_planner` and
+  `lifecycle_marketer`, have clean process homes a single-body crosswalk
+  would have written off. Its long-unrun marketing brief (3b.5e) ran as part
+  of that act. STILL OPEN: 3.5 MedxFactory, whose box is unticked but whose
+  overlay already ships the population 3b.5i ruled: eleven workers, every one
+  `no_clean_equivalent` against `nucc_taxonomy`, which IS the realization
+  rather than an absence of one. Also open: task-level
+  verification for every crosswalk in the family, which stays OCCUPATION- and
+  PROCESS-level and says so; PCF 8.0's NUMBERING, which neither population
+  could re-read because apqc.org answers HTTP 403 to automation — names,
+  numbers and element IDs shipped from the primary 7.4 PDF, with APQC's
+  stable five-digit IDs carrying the citations and the decimals recorded as
+  7.4's; the IAB entry, which the adx brief found is probably mis-stewarded
+  (IAB Tech Lab, not the trade association) and has never been through the
+  reuse test at all, its taxonomy page publishing no licence text — flagged
+  in the adx overlay, not acted on, because it is a registry decision; the
+  ledgerx UN/CEFACT + BIAN brief, the last of 3b.5f's five and never run,
+  whose premise has narrowed from filling the process-layer gap (now closed)
+  to widening past cross-industry PCF; and the §4 consumer
   follow-up naming domain surfaces that render their own vocabulary outside
   the overlay. NO LONGER OPEN: the APQC written licence confirmation (3b.5d),
   which gated LedgerxFactory's and AdxFactory's pulled PCF 8.0/3.0 crosswalks
