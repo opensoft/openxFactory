@@ -381,15 +381,17 @@ def subprocess_broker_runner(argv, *, source=None,
     (`~/.openprofiler/broker`) resolves, so the allowlist already carries
     everything a broker needs and nothing it does not.
 
-    Stderr is CAPTURED AND DROPPED. A broker's own words must never reach a
-    caller, and letting them inherit this process's stderr would put them on the
-    console instead."""
+    Stderr is DISCARDED AT THE DESCRIPTOR (DEVNULL, PR #392 review note): a
+    broker's own words must never reach a caller, inheriting this process's
+    stderr would put them on the console, and capturing them into a pipe would
+    make this process's memory a function of how noisy a declared program
+    chooses to be. The kernel drops them instead, unread by construction."""
     try:
         child = subprocess.Popen(  # noqa: S603 - argv from a declared binding plus the declared subcommand, never a shell string
             list(argv),
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
             env=bridge_mod.child_environment(os.environ),
             text=True,
         )
@@ -647,7 +649,7 @@ def _post_to_provider(token: MintedToken, *, model_id: str, prompt: str,
         PROVIDER_REQUEST_MODEL_FIELD: model_id,
         PROVIDER_REQUEST_PROMPT_FIELD: prompt,
     }).encode("utf-8")
-    request = urllib.request.Request(  # noqa: S310 - endpoint declared by the broker's mint answer
+    request = urllib.request.Request(  # noqa: S310 - endpoint declared on the binding by its operator, carried on the minted token
         token.endpoint, data=body, method="POST")
     request.add_header("Content-Type", "application/json")
     request.add_header("Authorization", f"Bearer {token.token}")

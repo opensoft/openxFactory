@@ -160,14 +160,22 @@ def test_the_generic_http_client_has_exactly_two_named_holders():
     provider facts, so the second holder is named rather than swept away."""
     permitted = {PROVIDER_CLIENT_MODULE, SNAPSHOT_SOURCE_MODULE}
     offenders: list[str] = []
+    holders_seen: set[str] = set()
     for module in _package_modules():
         if module.name in permitted:
+            source = _source(module)
+            if any(needle in source for needle in HTTP_CLIENT_NEEDLES):
+                holders_seen.add(module.name)
             continue
         source = _source(module)
         for needle in HTTP_CLIENT_NEEDLES:
             if needle in source:
                 offenders.append(f"{module.name}: {needle}")
     assert not offenders, offenders
+    # "Exactly two" means both halves: no third holder above, and each named
+    # holder really holds — an exemption for a module with no needles would be
+    # a stale permit waiting to hide a future offender.
+    assert holders_seen == permitted, holders_seen
 
 
 def test_the_snapshot_source_holds_nothing_from_the_provider_tier():
