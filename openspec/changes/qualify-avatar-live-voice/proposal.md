@@ -47,7 +47,7 @@ Exit, executed on the 2026-08-26 rulings recorded in its
 
 ## What Changes
 
-- **ADD the neutral `avatar-live-voice` capability** — ten requirements: the
+- **ADD the neutral `avatar-live-voice` capability** — nine requirements: the
   AVC-09 adapter descriptor; the AVC-10 latency sample; the internal-live
   activation gate as the kernel's four-element ring with the eight conditions
   reused as its mapped checklist; the neutral relative-regression latency SLO;

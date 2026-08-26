@@ -10,7 +10,7 @@ is mis-specified.
 
 ## 1. Spec deltas (THIS CHANGE)
 
-- [x] 1.1 `avatar-live-voice` — ten ADDED requirements: AVC-09 adapter
+- [x] 1.1 `avatar-live-voice` — NINE ADDED requirements: AVC-09 adapter
       descriptor; AVC-10 latency sample; the internal-live activation gate as
       the kernel's four-element ring with the eight conditions demoted to its
       mapped preflight/canary checklist; the neutral relative-regression

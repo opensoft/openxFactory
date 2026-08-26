@@ -347,7 +347,7 @@ Active changes:
   re-litigated. This is the change that turns on real voice — internal-live
   provider qualification of the live WebRTC/broker/media plane behind the
   fail-closed `SessionTransport` port, with `gpt-realtime-2.1` as the
-  candidate. ADDS the neutral `avatar-live-voice` capability (ten
+  candidate. ADDS the neutral `avatar-live-voice` capability (nine
   requirements): AVC-09 voice adapter descriptor and AVC-10 voice latency
   sample lifted from reserved to defined using their RESERVED SHAPES AS-IS —
   Fork 2's Option C means AVC-09 gains NO numeric latency-budget field; the
