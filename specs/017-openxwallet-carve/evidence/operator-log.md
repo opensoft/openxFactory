@@ -331,3 +331,23 @@ the ratified table asks for ("first green `wallet-validation`", "first green
 | P2 — carve + scaffold | `wallet-validation` | **33024308629** | the carve-completeness check: 100/100, empty listing diff, `specs/006-openxwallet-contracts/evidence/` and both `examples/negative/` trees named explicitly |
 | P2 — runnable half | `pytest-suite` | **33024308567** | the byte-identity proof of the eight rows against the NAMED CARVE COMMIT: 8/8 |
 | P2 — vendored-schema verify (V8) | `wallet-validation` | **33024308629** | the log line at `23:42:19.9757` showing the digest verified 253 ms BEFORE the validator started, PLUS the red run refusing a mutated copy with both remediation lines |
+
+## T056 — the openxFactory pull request
+
+**https://github.com/opensoft/openxFactory/pull/399** — "P2: openXwallet is
+carved, proven byte-identical, and tagged". Base `main`, head
+`017-openxwallet-carve`, commit `ab237727`. **Left OPEN, not merged**, per the
+house rule that OpenSpec ratifies and Speckit builds.
+
+openxFactory's own required gates dispatched on the pull request:
+`wallet-validation` run **33024620283**, `pytest-suite` run **33024620311**.
+
+### The openxFactory footprint of this whole feature
+
+```
+A  specs/017-openxwallet-carve/                        (the feature directory)
+M  openspec/changes/split-openxwallet-repo/tasks.md    (group 3 ticks + evidence)
+```
+
+**Zero deletions. Zero renames. Zero force-pushes.** No existing repository was
+rewritten by any step of P2 — openxFactory's own tree is shed at P3, not here.
