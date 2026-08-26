@@ -85,6 +85,22 @@ the credential, or do nothing at all. A message asserting that reachability
 "could not be determined" points at the verification's own uncertainty and sends
 the reader to look at the candidate, which is the one place the answer is not.
 
+A TRUNCATED HISTORY IS A FOURTH WAY THE QUESTION CAN GO UNANSWERED, and it is
+the one that hides behind a definite answer. Making an object locally resolvable
+does not make the ANCESTRY between it and another object resolvable: a clone
+whose history has been truncated carries a boundary that declares its oldest
+commits parentless, so an ancestry query returns a definite NEGATIVE for a
+commit that is reachable on the real history. Release verification SHALL NOT
+report such a negative as a candidate or a tag being unreachable. A POSITIVE
+answer needs no such care and SHALL be honoured wherever it is obtained, because
+a path that was found is a path that exists; the obligation falls on the
+negative alone, which is also what keeps the check off the ordinary path. Where
+the store cannot bear the weight of its own negative, the outcome SHALL be the
+fail-closed dependency refusal of this requirement, with a reason naming the
+truncated history — and it SHALL be that refusal even when the negative happens
+to be correct, because a verification that cannot tell an earned negative from
+an artefact of its own store has not established which one it holds.
+
 #### Scenario: The object cannot be made available
 - **WHEN** the remote named an object the clone does not hold and it cannot be retrieved — the remote is unreachable, the credential is refused, or the remote declines to serve it
 - **THEN** the verification MUST fail closed as an unavailable dependency, not as a finding about the release
@@ -99,6 +115,11 @@ the reader to look at the candidate, which is the one place the answer is not.
 - **WHEN** a reachability comparison cannot be performed for any reason
 - **THEN** the outcome MUST NOT be reported as the candidate being unreachable
 - **AND** it MUST NOT be reported as the candidate being reachable
+
+#### Scenario: A truncated history returns a negative it cannot earn
+- **WHEN** the reachability comparison runs in a clone whose history is truncated and returns a negative answer
+- **THEN** the verification MUST fail closed as an unavailable dependency naming the truncated history, not report the candidate or the tag as unreachable
+- **AND** a positive answer in the same clone MUST still be honoured, because a path that was found is a path that exists
 
 ### Requirement: The skew and unavailable-object paths are pinned by executable proofs
 Release verification SHALL carry executable proofs for both paths this

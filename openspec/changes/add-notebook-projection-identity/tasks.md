@@ -106,13 +106,55 @@ first thing to run under a declared account.
   that leaves the company-hosted book unregistered. Leave exactly one active
   record per live book.
   - PROCEDURE LANDED, code gap OPEN and stated: runbook step 5 makes the record replacement an explicit numbered step with the reason `ensure_workspace_record()` will not do it. The function still returns `reconcile by hand`; teaching it to replace is a code change that belongs with the migration run, not before it.
-- [ ] 4.4 Re-derive the three lifecycle books under `xFactor001@opensoft.one`
+- [x] 4.4 Re-derive the three lifecycle books under `xFactor001@opensoft.one`
   in one `--apply` (precedent: 314 sources, roughly 40 minutes), then migrate
   every live session notebook per §4.2.
-- [ ] 4.5 Prove parity: per-book title-set equality plus a union reconciliation
+  - **DONE 2026-08-24**, evidence in PR #289 (`546e0a98`),
+    `docs/notebook-projection-migration-evidence-2026-08-24.md`: 7 books, 626
+    managed sources. **THE TICK WAS OWED SINCE THAT DATE** — #289 recorded the
+    evidence document but touched no task box, so this list read as unstarted
+    work that had in fact run. Ticked 2026-08-26 against that recorded evidence.
+    The session-notebook half of this task is the separately HELD step 5 and is
+    NOT claimed here.
+- [x] 4.5 Prove parity: per-book title-set equality plus a union reconciliation
   against THE CORPUS SCAN — not against the legacy books — then a final dry run
   showing zero pending ADD/DEL/UPD. Record the output as the evidence.
-- [ ] 4.6 Retire the personal-hosted books by RECORDED ACT: archive-rename each
+  - **DONE — but ticked against the 2026-08-25 run, not the 2026-08-24 one, and
+    the difference is the point.** The 2026-08-24 pass (608/608 titles) was
+    produced by a parity mode later proven unable to see this class of gap:
+    `add-projection-title-uniqueness` (archived 2026-08-25) established that
+    comparing derived TITLES against live TITLES *"reports OK on a book that is
+    missing documents"*, and measured three collisions, eight documents, five
+    displaced — with `ideation-medxfactory`, which our own evidence recorded as
+    `PARITY OK: 48 titles match`, among them.
+  - The run that satisfies this task is the one taken AFTER that fix, under the
+    amended rule: **`parity: PROVEN`, exit 0**, every book reading *N documents
+    in N titles* (canon 113/113, drafts 188/188, openxFactory 246/246,
+    LedgerxFactory 65/65, MedxFactory 51/51, OpsxFactory 16/16, codexFactory
+    14/14), union 675 derived / 675 live managed, **0 unprojected, 0
+    unaccounted**, and a convergence dry run planning ZERO operations. Full
+    reasoning: `review/retirement-gate-clearance-2026-08-26.md` § 3.
+- [ ] 4.6 **READY — AWAITING OPERATOR EXECUTION.** The gate is CLEARED: Brett
+  Heap ruled 2026-08-26 that the 2026-08-24 retirement hold is discharged on its
+  own stated terms — the 228KB spec has a projected form — with the live provider
+  check as post-hoc confirmation rather than a precondition. Record:
+  `review/retirement-gate-clearance-2026-08-26.md`.
+  This box stays UNTICKED because retirement is an ACT and nothing in this
+  repository can perform it: it renames seven notebooks inside
+  `brettheap@gmail.com`, which needs an `nlm` session bound to the legacy
+  account, and profile selection is process-global user state the sync refuses to
+  switch. Prepared instead, to be run in one sitting:
+  **`docs/notebook-projection-retirement-runbook-step8.md`** — seven exact
+  renames with the legacy ids resolved from the legacy→company mapping recorded
+  in the block headed `# Legacy (still live, pending
+  retirement) -> new (live, registered) ids:` at the head of
+  `examples/lifecycle-notebook-workspaces.yaml` — their only source here, cited
+  by header because a line citation into a file this change edits rots (the
+  records' own `provider_notebook_id` fields carry the COMPANY ids), three
+  verifications, and the abort conditions. Tick this from the operator's
+  recorded output, not from the runbook existing.
+  The original task text, unchanged, is what that runbook performs:
+  Retire the personal-hosted books by RECORDED ACT: archive-rename each
   legacy book and DELETE its alias (never repoint). Do NOT retire the workspace
   record §4.3 just made current — its id is key-derived and unchanged, so it IS
   the live book's registration; retire the legacy PROVIDER NOTEBOOK and preserve

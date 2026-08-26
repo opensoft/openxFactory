@@ -29,6 +29,7 @@ default fake's constant answer. Every response-side test seeds its own
 from __future__ import annotations
 
 import dataclasses
+import re
 
 import pytest
 
@@ -46,11 +47,13 @@ from ideation_dashboard.doxbench_model import (
 )
 from ideation_dashboard.doxbench_scope import ScopeKey, ScopeProjection
 from ideation_dashboard.doxbench_turns import (
+    ABSTRACT_PROSE_WORDS_APPROX_BYTES,
     ABSTRACT_SECTION_ORDER,
     ABSTRACT_SUBJECT_FENCE_CLOSE_PREFIX,
     ABSTRACT_SUBJECT_FENCE_OPEN_PREFIX,
     ABSTRACT_SYSTEM_CONTRACT_TEXT,
     MAX_ABSTRACT_PROSE_BYTES,
+    MAX_ABSTRACT_PROSE_WORDS,
     MAX_ASSISTANT_PROSE_BYTES,
     RESPONSE_INSTRUCTION_TEXT,
     SYSTEM_CONTRACT_TEXT,
@@ -705,3 +708,106 @@ def test_the_envelope_states_the_bound_the_model_is_asked_to_respect():
     envelope = _abstract()
     assert envelope.max_prose_bytes == MAX_ABSTRACT_PROSE_BYTES
     assert str(MAX_ABSTRACT_PROSE_BYTES) in envelope.rendered()
+
+
+# ---------------------------------------------------------------------------
+# THE FORM THE PROMPT ASKS FOR IS ONE A MODEL CAN OBEY
+# ---------------------------------------------------------------------------
+#
+# THE OPERATOR EVIDENCE (first real run of add-doxbench-distilled-abstract,
+# 2026-08-26). A live model, asked to "keep it under 1500 bytes of UTF-8",
+# answered with 2_018 bytes. The answer was a good abstract -- the verifier
+# accepted every one of its claims -- and only the BOUND refused it. That is not
+# a model failing to follow an instruction; it is an instruction no model can
+# follow, because a model cannot count the UTF-8 bytes of prose it has not
+# written yet. WORDS it can count.
+#
+# So the bound STAYS (it is pinned to the measured 280px region) and the ASK
+# changes: the prompt names a word cap the bound comfortably admits. The two
+# numbers are pinned to each other below so they cannot drift apart -- a word
+# cap raised without raising the bound would recreate the same refusal, only
+# with the prompt's own blessing.
+
+# Deliberately shape-only: `\d+`, not `1[0-9]{2}`. A pattern that spelled the
+# current value into itself would stop MATCHING the day the cap moved, and an
+# `assert found` that fails because the SEARCH went blind reads as "the prompt
+# states no cap" when the prompt states a perfectly good one. The value is
+# asserted below, against the constant, where a mismatch says what it means.
+_ABSTRACT_WORD_CAP_PATTERN = re.compile(r"\b(\d+) words\b")
+
+# ~6.5 UTF-8 bytes per word of ordinary English including its trailing space;
+# 7 is that rounded UP, so the arithmetic below is the pessimistic direction.
+_BYTES_PER_ENGLISH_WORD = 7
+
+
+def test_the_prompt_states_a_word_cap_and_not_only_a_byte_bound():
+    """The instruction section states a WORD cap, in words, as a number a model
+    can count against while it writes. Read out of the RENDERED text rather
+    than off the constant: the constant matters only if it reaches the prompt."""
+    instruction = [s for s in _abstract().sections
+                   if s.key == ABSTRACT_SECTION_ORDER[-1]][0]
+    found = _ABSTRACT_WORD_CAP_PATTERN.search(instruction.text)
+    assert found, instruction.text
+    assert int(found.group(1)) == MAX_ABSTRACT_PROSE_WORDS
+    # ...and the asked-for shape is one paragraph of prose, with the three
+    # things the 280px region cannot render named as excluded.
+    lowered = instruction.text.lower()
+    assert "one paragraph" in lowered
+    assert "no heading" in lowered
+    assert "no list" in lowered
+    assert "no preamble" in lowered
+
+
+def test_the_stated_word_cap_fits_inside_the_byte_bound_with_room_to_spare():
+    """THE ANTI-DRIFT PIN, and the whole reason the word cap is a constant
+    rather than a phrase. An answer that honours the asked-for form must not be
+    refusable by the bound that follows it, so the cap times a pessimistic
+    bytes-per-word must stay UNDER `MAX_ABSTRACT_PROSE_BYTES`. Raise either
+    number alone and this fails."""
+    assert (MAX_ABSTRACT_PROSE_WORDS * _BYTES_PER_ENGLISH_WORD
+            < MAX_ABSTRACT_PROSE_BYTES)
+    # The same relation, read out of the prompt the model actually sees.
+    rendered = _abstract().rendered()
+    stated = _ABSTRACT_WORD_CAP_PATTERN.search(rendered)
+    assert stated
+    assert int(stated.group(1)) * _BYTES_PER_ENGLISH_WORD < MAX_ABSTRACT_PROSE_BYTES
+    # And the hard bound is STILL stated: the word cap is the ask, not a
+    # replacement for telling the model what actually gets refused.
+    assert str(MAX_ABSTRACT_PROSE_BYTES) in rendered
+
+
+def test_the_stated_byte_figure_is_the_word_caps_own_honest_conversion():
+    """THE THIRD NUMBER, pinned to the other two. The prompt states the cap in
+    WORDS (what a model can count) and glosses it in BYTES (what the bound is
+    measured in), and the gloss is a rounded constant rather than an arithmetic
+    the model is asked to perform. A gloss that drifted from the cap would be
+    the original defect wearing a different hat: an instruction whose two halves
+    ask for different lengths, one of which the bound refuses.
+
+    So it is held between six and seven bytes a word — ordinary English either
+    side of the ~6.5 the constant's own note claims — and strictly under the
+    hard bound, because a stated approximation at or above the thing that
+    refuses would be an invitation to be refused."""
+    assert (MAX_ABSTRACT_PROSE_WORDS * 6
+            <= ABSTRACT_PROSE_WORDS_APPROX_BYTES
+            <= MAX_ABSTRACT_PROSE_WORDS * _BYTES_PER_ENGLISH_WORD)
+    assert ABSTRACT_PROSE_WORDS_APPROX_BYTES < MAX_ABSTRACT_PROSE_BYTES
+    # ...and it is the figure the model is actually shown, read out of the
+    # rendered prompt rather than off the constant.
+    assert str(ABSTRACT_PROSE_WORDS_APPROX_BYTES) in _abstract().rendered()
+
+
+def test_a_word_capped_abstract_of_ordinary_english_is_never_refused():
+    """The end of the operator's defect, stated as arithmetic over real words:
+    an abstract written to the stated cap passes `validate_abstract_prose`.
+    2_018 bytes is what the unguided run produced; this is what the guided one
+    produces."""
+    # A word at exactly the PESSIMISTIC rate the pin above assumes: six letters
+    # and its space. Real English averages shorter, so this is the ceiling of
+    # what a capped answer costs, not a typical one.
+    word = "policy "
+    assert utf8_size(word) == _BYTES_PER_ENGLISH_WORD
+    at_cap = (word * MAX_ABSTRACT_PROSE_WORDS).strip()
+    assert at_cap.count(" ") + 1 == MAX_ABSTRACT_PROSE_WORDS
+    assert utf8_size(at_cap) < MAX_ABSTRACT_PROSE_BYTES
+    assert validate_abstract_prose(at_cap) == at_cap

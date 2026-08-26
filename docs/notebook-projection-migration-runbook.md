@@ -39,6 +39,23 @@ browser, add `--wsl` (it launches Windows Chrome); if that corrupts the
 terminal, use the CDP route recorded in the open item
 (`nlm login --cdp-url http://127.0.0.1:9444 --profile company`).
 
+> **THE SESSION THIS CREATES IS NOT A CUSTODY SUBJECT — do not try to vault it.**
+>
+> It is refreshable session state, and `credential-contracts` refuses to
+> distribute that class outright: an ephemeral copy's refresh silently stales
+> the master, so a session copied to a second system breaks the first at an
+> unpredictable moment, and the failure surfaces far from the copy that caused
+> it. Two systems sharing one live session is that defect with the copy left
+> implicit.
+>
+> The account's PASSWORD and TOTP seed are held in custody, by reference, and
+> that is what a second system fetches — through **its own binding** — before
+> signing in **itself**. What it must never do is borrow this session, this
+> profile directory, or an export of either.
+>
+> Which is the same sentence from the other direction: custody does not make
+> this step unattended. It makes the material to perform it governed.
+
 This creates and authenticates the profile; it does **not** change the default
 profile, which step 2 does. Verify the new profile before going further:
 
@@ -77,6 +94,33 @@ nlm alias delete xf-ideation-openxfactory    # ...and the rest
 Deleting rather than repointing is the ratified requirement, and doing it here
 is what makes that possible: the re-derivation in step 4 would otherwise
 repoint them for you. This is the 2026-08-10 precedent's order.
+
+## Step 1a — Get the credential from custody, not from a person
+
+Before you can sign in as the hosting account you need its credential, and the
+hosting record tells you where it is held — `hosting.custody` in
+`examples/notebook-projection-hosting.yaml` — by naming the BINDING
+(`binding_kind` / `binding_client` / `binding_id`). It does not name the vault
+or the secret, and it is not supposed to: resolve it through the binding
+instance in the consuming install, which carries the provider, vault,
+`secret_ref`, owner and rotation policy.
+
+Fetch through **your own system's binding**, not by borrowing another's and not
+by asking a colleague. The audit trail is per-binding, and the store's log
+should be able to say which system read the secret.
+
+**AND THEN YOU SIGN IN BY HAND.** The custody covers the account password and
+the TOTP seed; it does not cover the sign-in. Google's flow for this account is
+interactive, so what the vault gives you is the material to answer its prompts —
+not a way to skip them. If you were planning an unattended run on the strength
+of the custody record, stop here: that is exactly the misreading the record's
+`interactive_step_remains: true` exists to prevent.
+
+Nothing you fetch is written down. Not into the hosting record, not into a
+scratch file in the repository, not into a commit message. The validator refuses
+password / TOTP / recovery-code / cookie / session / profile fields anywhere in
+the record, and the remedy for a leak is rotation plus a binding reference,
+never redaction in place — a redacted secret is a secret that was committed.
 
 ## Step 2 — Bind this host to the declared profile
 

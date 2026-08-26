@@ -11,40 +11,40 @@ that operator act rather than as work this change performs.
 
 ## 1. The hosting record declares its custody
 
-- [ ] 1.1 Add a `custody:` block to `examples/notebook-projection-hosting.yaml`
+- [x] 1.1 Add a `custody:` block to `examples/notebook-projection-hosting.yaml`
   carrying a BY-REFERENCE pointer only: the BINDING'S IDENTIFIER and what the
   custody covers. NOT the `secret_ref` — that field belongs to the binding
   instance, and duplicating it here would invite the rest of the binding to
   follow (review note, 2026-08-23). No password, recovery code, TOTP seed,
   session cookie, or exported profile — in this file or any other.
-- [ ] 1.2 State the custody's honest reach in the record itself: which secrets
+- [x] 1.2 State the custody's honest reach in the record itself: which secrets
   the binding holds, and that the sign-in's interactive step remains. A
   reference that implies unattended access invites a reader to plan on it.
-- [ ] 1.3 Leave `self_hosted` declarations free of the obligation, matching the
+- [x] 1.3 Leave `self_hosted` declarations free of the obligation, matching the
   two-case model: no operator, no obligation.
 
 ## 2. The validator enforces by-reference-only
 
-- [ ] 2.1 Teach `scripts/validate-notebook-projection-hosting.py` the custody
+- [x] 2.1 Teach `scripts/validate-notebook-projection-hosting.py` the custody
   rule: an operator-hosted declaration carries a custody BINDING IDENTIFIER; a
   self-hosted one need not. Refuse a `secret_ref` in the hosting record too —
   it is binding detail, and the record's job is to point at the binding.
-- [ ] 2.2 REFUSE anything secret-shaped in the record — a `password`,
+- [x] 2.2 REFUSE anything secret-shaped in the record — a `password`,
   `totp`/`otp_seed`, `recovery_code`, `cookie`, `session` or `profile` field,
   and any value that looks like credential material rather than a reference.
   The refusal message names the binding as the remedy, not redaction in place.
-- [ ] 2.3 Tests for both directions, and a test that a reference alone is
+- [x] 2.3 Tests for both directions, and a test that a reference alone is
   insufficient to obtain anything.
 
 ## 3. Documentation
 
-- [ ] 3.1 `docs/lifecycle-notebook-projection.md` §12: the custody story — where
+- [x] 3.1 `docs/lifecycle-notebook-projection.md` §12: the custody story — where
   the credential lives, that each consuming system reaches it through its own
   binding, and that custody is not automation.
-- [ ] 3.2 `docs/notebook-projection-migration-runbook.md`: the custody step in
+- [x] 3.2 `docs/notebook-projection-migration-runbook.md`: the custody step in
   sequence, and what an operator does when the interactive login is needed
   anyway.
-- [ ] 3.3 Record the session-class rule where a reader will hit it: the `nlm`
+- [x] 3.3 Record the session-class rule where a reader will hit it: the `nlm`
   profile is refreshable session state and is NOT a custody subject, on the
   same grounds `credential-contracts` already refuses distributing that class.
 

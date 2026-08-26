@@ -340,6 +340,63 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
+  — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
+  Speckit) — authored 2026-08-26 as the first and only exit of the staged topic
+  `openxwallet-neutral-home`, on Brett Heap's in-session R1–R8 rulings of the
+  same day, carried as LOCKED constraints rather than re-litigated (verbatim:
+  "approve R1-R8 as recommended, stage the topic and propose"); registered as
+  DTN-026. **The wallet's contracts ARE a product, filed as features of a
+  factory layer** — so the product gets its own repository and openxFactory
+  keeps the seam. ADDS two capabilities that outlive the wallet:
+  `domain-descendant-boundary` (five requirements — how a domain consumes a
+  neutral `open*` product through a `<Domainx><Product>` descendant that pins by
+  commit TWICE, carries profile and never fork, sits at one of two placements
+  whose differing STANDING is stated rather than blended, and is created lazily
+  on its first profile artifact) and `neutral-product-pin` (nine — how
+  openxFactory consumes an external neutral product, a direction it has never
+  consumed in: the ratified `pinned_contract_manifest` grammar reused unchanged,
+  fail-closed on an uninitialized submodule or a digest disagreement, the PINNED
+  reader at the PINNED digest as what a required check runs, a pinned validator
+  invoked with no scan target REFUSES rather than self-tests, and the declared
+  pin living at `contracts/<product>-pin.yaml` rather than `stack.yaml`).
+  REMOVES `openxwallet` (8 requirements) and `openxwallet-agent-profile` (3) to
+  `opensoft/openXwallet` at `wallet-v1.0` — **the corpus's first
+  `## REMOVED Requirements` blocks and its first capability exit**, all eleven
+  titles named verbatim because `scripts/doc_health/promotion_fidelity.py` keys
+  on (capability, normalized title). MODIFIES `trust-anchor` (the dangling cross-corpus custody
+  reference, repointed to the pin), `review-authority-intake` (three blocks: the
+  reader becomes "reachable … in-tree or through a digest-pinned submodule", plus
+  every dangling wallet citation the arc holds) and `shared-contract-ownership`
+  (the third case, where openxFactory is the CONSUMER). The first release is a
+  **byte-identical pure move** — eight sha256s equal to the NAMED CARVE COMMIT's
+  manifest rows, an empty subtree diff, and exactly ONE prose carve-out (the
+  `openxFactory SHALL` → `openXwallet SHALL` subject and the `## Purpose`
+  placeholders in the two promoted specs) — because a move whose diff is not
+  provably empty cannot be bisected against. The live REQUIRED check survives by
+  ALIAS, not by repoint: `openxwallet-consumer-gate.yml` keeps
+  `jobs: wallet-validation:`, so ruleset 21538893 is edited by nothing and no
+  operator act stands between P3 and merge. The cut is a MAJOR, so it owes a
+  preceding deprecation minor whose marker is MANIFEST-carried (`relocating:` on
+  the eight rows plus the CHANGELOG migration note, emitted by
+  `check-openxfactory-pin.py`) and never validator-carried, since a validator
+  warning reds LedgerxFactory's `--strict` run and openxFactory's own gate runs
+  without it. P3b widens codexFactory's merge-gate floor to
+  `contracts/openxwallet-pin.yaml` and the `openXwallet` gitlink in the same
+  wave, because `matching_paths` is exact set membership and the pin is what
+  determines WHICH READER RUNS. Successors named: **P2b** (`wallet-v1.1` — the
+  nested-repository sweep prune and the register-read note, the tag openxFactory
+  actually pins), **P4b** (root-level governed-repo recognition, whose living
+  proof is that `xf-ideation-openavatar` does not exist five months into the
+  openAvatar precedent) and **P6** (`create-ledgerxwallet-overlay-boundary`).
+  `Status: draft`; alignment review raised 30 findings across two reviewers (all
+  MISMATCH / DRIFT / GAP applied, each reviewer's missing-`specs/` finding
+  deferred to the specs phase and discharged there), and the council returned 14
+  verdicts — **all VALID, none DISMISSED**, two of them raised jointly — plus the
+  8 NOTED-class constraints carried into `clarifications.md`; all five review
+  records are retained in the packet rather than folded into the proposal. `code_surface` spans SIX
+  repositories and `target_release: implemented`, so it archives only on merged
+  plus green realization evidence, never on landing.
 - [qualify-avatar-live-voice](openspec/changes/qualify-avatar-live-voice/proposal.md)
   — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
   in-session rulings of the same day: all five blocking forks and all three
@@ -381,75 +438,6 @@ Active changes:
   green internal-live realization evidence, never on landing. Aggregation
   admission of the client repo, the GPT-Live-1 default swap, and the
   `avatar-pilot-hardening` deferrals are explicitly out of scope.
-- [add-doxbench-distilled-abstract](openspec/changes/add-doxbench-distilled-abstract/proposal.md)
-  — authored and **ratified 2026-08-25** (Brett, all eight rulings as
-  recommended); `target_release: none` under ruling 2(b), but `code_surface` is
-  non-empty, so the archive gate is merge-plus-green PLUS one operator run on the
-  real corpus through a real adapter, recorded in `realization-evidence.md`.
-  Three requirements MODIFIED, seven ADDED. The MODEL half of `#84`: the
-  distilled per-document abstract the docs subpane was built to carry. Ruling 0
-  SPLIT this change — the doc-only half is
-  `ratify-doxbench-landed-context-surfaces`, which took the `:439` simultaneity
-  reversal and FIVE of the six integration-surface items and ARCHIVED FIRST on
-  2026-08-25, so this change's `:863` delta is authored against that change's
-  landed text (verified at that archive: canon plus this change's own additions,
-  no canon line missing). The sixth item, the loaded-document selector's claim on
-  the accessible name (`:1827`), came back here at packet review because it needs
-  code, and is carried by this change's added captioning requirement rather than
-  by modifying `:1827`. What is
-  left here is the reversal that was actually asked for: Brett's 2026-08-03 ruling
-  that the abstract be "header + structure, honestly labelled ... NOT an AI
-  distillation" is reversed, and its test pin — a whole-file substring sweep
-  (`test_doxbench_context_panes.py:144-152`) that bans "distilled" while missing
-  "distillation" — is RELOCATED onto the Node harness as a per-abstract caption
-  assertion rather than deleted, because after this change both captions live in
-  one file and a file-level sweep cannot tell them apart. Council review then
-  found the first draft describing a feature that could not run. A real adapter
-  EXISTS — `OmpHarnessBridge` (`doxbench_bridge.py:869`) supervises an
-  `omp --mode rpc` child with no credential — but NO ENTRYPOINT declares
-  `model_port_factory`, so `_workbench_model_port` returns `None` on every real
-  serve. Packet review sharpened that twice more: `serve()` has no callers at all,
-  so the declaration belongs at `cli.py:298` beside the notebook adapter and the
-  knowledge declaration; and the bridge is unconstructible bare (keyword-only
-  `session_root`, no default) and INERT if given only that (catalog defaults to
-  `EMPTY_CATALOG`), so the entrypoint must declare catalog, session root and
-  launch config install-time — and must build ONE instance for the process, since
-  the bridge is stateful and `spec.md:1991` requires one harness session per
-  document thread. The prompt ASSEMBLER is new surface, not a reuse:
-  `build_prompt_envelope` is chat-shaped to its bones — outline plus documents, a
-  non-blank human message, a transcript — so an abstract request needs its own
-  assembler, whose pin is that it REFUSES a context packet of any purpose (a new
-  purpose constant would have been dead code, since the request carries no packet
-  at all). Layer 2 is NOT widened: a comma-joined second owner in a one-owner
-  field would degrade the fidelity checker to a comment, so the abstract is a
-  layer-2-CLASS SIBLING under the requirement's universal non-authoritative
-  clause and `compact_thread` keeps sole ownership with its equality pin green
-  unchanged. The verifier's base is the SNAPSHOT'S declared topics and
-  destinations — so it fires on the FIRST generation, not only on a regeneration
-  — and its check is named SUBJECT-MENTION COVERAGE rather than fidelity, because
-  `dispatch_turn` returns one opaque string and claiming more would be this change
-  committing the sin it exists to prevent; the one structurally decidable clause
-  is that the abstract must name its subject and no path its request did not
-  carry, which is also what discharges the injection-leak case. Ruling 7 was the
-  sharpest finding: disclosure on this surface REQUIRES EDIT AUTHORITY
-  (`doxbench_scope.py:390`), `editable_paths` is fed only by `owned` sections and
-  exactly ONE section is owned, so on a cluster tile the eligible subject set is
-  EMPTY — either the abstract is refused there or a feature PR quietly opens a new
-  disclosure path. Ruled 7(a), with the widening named as a follow-on ruling.
-  `clarifications.md` carries the five council constraints (N1-N5), chief among
-  them that the abstract cache MUST NOT be the chat `TurnStore`, whose 64-entry /
-  16 MB bound abstract churn would evict and whose same-key-different-digest
-  conflict rule forces the content digest INTO the cache key. Packet review
-  (Codex, PR #352) then closed two holes in that store: the RESOLVED MODEL ID
-  joins path and digest in the key, because a human can change the selected model
-  while the document stands still and a two-part key would replay the first
-  model's prose under the second model's recorded id; and the RE-GENERATE control
-  carries an EXPLICIT REFRESH INTENT that invalidates the completed entry before
-  dispatching, because a regeneration against unchanged content and an unchanged
-  model has an identical key and plain identical-key replay made the required
-  control inert except by the accident of eviction. The one-in-flight arm stays
-  unconditional, so a double-click still spends one model call.
-
 - [add-family-enumeration-check](openspec/changes/add-family-enumeration-check/proposal.md)
   — authored and ratified 2026-08-25, commissioned in-session ("commission the
   §5.5 enumeration check"). `doc-health`'s own "Deterministic check families"
@@ -1138,9 +1126,32 @@ Active changes:
   governance rule that an index pin must be re-derived when a branch lands
   rewritten. (code surface: openxFactory; target release: implemented)
 
-- [fix-release-reachability-race](openspec/changes/fix-release-reachability-race/proposal.md)
-  — authored and **ratified 2026-08-26** (Brett, in-session commissioning of the
-  filing, verbatim: "file the release-inventory CI race fix change"). The
+The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
+standard (`contract-v1.8`) are realized. The contract kernel, the revocation
+clarification, the reference runtime, and the avatar-first UI standard all archived
+2026-07-13 (below), and F0 feasibility — the last active avatar change — archived
+2026-08-09 (below), which closed issue #30. The F0 hold ("archives only inside a
+contract re-cut that repoints `f0_change_path`", Brett 2026-08-04) was SUPERSEDED
+by Brett's 2026-08-09 ruling accepting the issue's option C: the F0 gate is now
+archive-aware and bundle-aware — it follows the UNCHANGED `f0_change_path` pin
+into the dated archive and reads the pinned schemas from the packaged
+`supporting-docs.tar.gz`, fail-closed on any ambiguity, with the schema digests
+and `source_commit` pins still verifying the bytes wherever they sit — so no
+contract re-cut was needed and `contract-v1.7` was never re-tagged. The avatar client lab itself realized and
+**archived 2026-08-04** (below), its 9.1 platform gate discharged by Brett's
+2026-08-04 disposition (Linux-bench green + portable suite + WCAG web
+exception register accepted as v1; Windows/web deferred), and its successors are
+staged too: `qualify-avatar-live-voice` (internal-live provider qualification;
+blocked on open questions + a released client) and `avatar-pilot-hardening` (real
+Hermes/domains/audits + pilot; structurally last) — see the
+[Staging Index](ideation/staging/INDEX.md).
+
+Archived changes:
+
+- [fix-release-reachability-race](openspec/changes/archive/2026-08-26-fix-release-reachability-race/proposal.md)
+  — **ARCHIVED 2026-08-26**; authored and **ratified 2026-08-26** (Brett,
+  in-session commissioning of the filing, verbatim: "file the
+  release-inventory CI race fix change"). The
   commission is the origin act, so `approved_by`/`approved_on` are recorded from
   it rather than left blank — the `add-family-enumeration-check` shape, NOT the
   blank-pair shape its sibling was raised under, because that packet had no
@@ -1162,7 +1173,10 @@ Active changes:
   deliberately unedited, because `release-realization`'s origin-retention rule
   makes rewriting a complete declaration a contested-class act, and a veto
   clearance is not origin provenance. Three
-  `shared-contract-ownership` requirements ADDED, nine scenarios, none MODIFIED.
+  `shared-contract-ownership` requirements ADDED, **TEN** scenarios, none
+  MODIFIED — nine as authored, and a tenth on requirement 2 when Brett's
+  2026-08-26 ruling folded the shallow-clone rule (§ 6.4) into the same pull
+  request.
   **The defect**: `scripts/hermes_runtime_validation/release.py` asks the REMOTE
   for the current `refs/heads/main` object id (`_ls_remote` at `:718` and
   `:803`) and then answers reachability inside the STATIC clone
@@ -1206,29 +1220,155 @@ Active changes:
   non-editorial drift `release-surface-integrity` calls a defect —
   `contract-v1.10` was cut for this same file for this same cause
   (`CHANGELOG.md:2170-2185`). (code surface: openxFactory; target release: next
-  additive contract bundle)
+  additive contract bundle) **REALIZED 2026-08-26 as `contract-v1.44`**: the
+  resolution step (`_resolve_remote_object` — `git cat-file -e` probe, then a
+  narrow single-object `git fetch --no-tags --no-write-fetch-head`) is called
+  where each remote-derived object id enters the local world, covering all four
+  readers; six new proofs pin the skew, the release-surface verdict, the
+  unavailable-object refusal and the mutation. Q1 DECIDED ON MEASUREMENT — no
+  ref-fetch fallback: the canonical remote served a bare object id under no
+  tracked ref in 4.80s from a depth-1 clone, so a remote that declines is the
+  fail-closed case rather than a case for a speculative wider fetch. Q2's
+  MEASUREMENT half is discharged, and it corrected the fixture: `chmod 000` on
+  the whole bare `objects/` directory makes git refuse the path as a repository
+  at all, so `ls-remote` exits 128 and the fixture would have proved the
+  pre-existing "remote main is unavailable" path — revoking read on the single
+  object FILE keeps advertisement working while `upload-pack` answers "not our
+  ref", which is the condition wanted.
+  **ARCHIVED 2026-08-26 on a fully discharged gate.** Merged as PR #390
+  (2026-08-26T21:21:13Z, merge commit `8894901c`, re-verified an ancestor of
+  `origin/main`); green on the final head `d548d04d` (`pytest-suite` and
+  `wallet-validation` both `success`; local full suite 6497 passed / 0 failed,
+  `tests/hermes_runtime_contracts` 508 passed); and the bundle CUT, which is the
+  arm its doc-only siblings never had — `contract-v1.44` inventory built twice
+  byte-identical at 192 entries, `verify-commit` pass, `verify-promotion` pass on
+  the merge commit before the tag, the annotated tag `contract-v1.44` published
+  on `8894901c` ("additive: the release verifier resolves its remote operand
+  before it compares") with `verify-tag` pass re-run at the archive, and the
+  aggregation submodule pointer synced at `901bd04a` naming that same sha.
+  Canon effect: `openspec/specs/shared-contract-ownership/spec.md` 7 → 10
+  requirements and 23 → 33 scenarios, 162 lines inserted and NONE deleted, the
+  promoted block byte-identical to the delta
+  (`sha256:a645ce31…`). `target_release` was rewritten at the archive from the
+  forward-looking "next additive contract bundle" to the `implemented —
+  <evidence>` shape register C1 ruled, since the bundle it awaited is now cut.
+  FOUR ITEMS SURVIVE AS NAMED FOLLOW-UPS AND NONE OF THEM REACHED CANON: § 5.4
+  (the many-runs-identical property — unprovable by construction, recorded
+  unproven and substituted by the deterministic skew fixtures plus one live
+  probe), § 6.1 (the unperformed sweep of the sibling verifier modules,
+  `consumer_handoff.py` first), § 6.2 (the eleven-minute exposure window, a
+  `pytest-suite.yml` question) and § 6.3 (`_blob_object_id` conflating an absent
+  blob with an absent commit).
 
-The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
-standard (`contract-v1.8`) are realized. The contract kernel, the revocation
-clarification, the reference runtime, and the avatar-first UI standard all archived
-2026-07-13 (below), and F0 feasibility — the last active avatar change — archived
-2026-08-09 (below), which closed issue #30. The F0 hold ("archives only inside a
-contract re-cut that repoints `f0_change_path`", Brett 2026-08-04) was SUPERSEDED
-by Brett's 2026-08-09 ruling accepting the issue's option C: the F0 gate is now
-archive-aware and bundle-aware — it follows the UNCHANGED `f0_change_path` pin
-into the dated archive and reads the pinned schemas from the packaged
-`supporting-docs.tar.gz`, fail-closed on any ambiguity, with the schema digests
-and `source_commit` pins still verifying the bytes wherever they sit — so no
-contract re-cut was needed and `contract-v1.7` was never re-tagged. The avatar client lab itself realized and
-**archived 2026-08-04** (below), its 9.1 platform gate discharged by Brett's
-2026-08-04 disposition (Linux-bench green + portable suite + WCAG web
-exception register accepted as v1; Windows/web deferred), and its successors are
-staged too: `qualify-avatar-live-voice` (internal-live provider qualification;
-blocked on open questions + a released client) and `avatar-pilot-hardening` (real
-Hermes/domains/audits + pilot; structurally last) — see the
-[Staging Index](ideation/staging/INDEX.md).
+- [add-doxbench-distilled-abstract](openspec/changes/archive/2026-08-26-add-doxbench-distilled-abstract/proposal.md)
+  — **ARCHIVED 2026-08-26**; authored and **ratified 2026-08-25** (Brett, all
+  eight rulings as recommended); `target_release: none` under ruling 2(b), but
+  `code_surface` was non-empty, so the archive gate was merge-plus-green PLUS one
+  operator run on the real corpus through a real adapter, recorded in
+  `realization-evidence.md`.
+  Three requirements MODIFIED, seven ADDED. The MODEL half of `#84`: the
+  distilled per-document abstract the docs subpane was built to carry. Ruling 0
+  SPLIT this change — the doc-only half is
+  `ratify-doxbench-landed-context-surfaces`, which took the `:439` simultaneity
+  reversal and FIVE of the six integration-surface items and ARCHIVED FIRST on
+  2026-08-25, so this change's `:863` delta is authored against that change's
+  landed text (verified at that archive: canon plus this change's own additions,
+  no canon line missing). The sixth item, the loaded-document selector's claim on
+  the accessible name (`:1827`), came back here at packet review because it needs
+  code, and is carried by this change's added captioning requirement rather than
+  by modifying `:1827`. What is
+  left here is the reversal that was actually asked for: Brett's 2026-08-03 ruling
+  that the abstract be "header + structure, honestly labelled ... NOT an AI
+  distillation" is reversed, and its test pin — a whole-file substring sweep
+  (`test_doxbench_context_panes.py:144-152`) that bans "distilled" while missing
+  "distillation" — is RELOCATED onto the Node harness as a per-abstract caption
+  assertion rather than deleted, because after this change both captions live in
+  one file and a file-level sweep cannot tell them apart. Council review then
+  found the first draft describing a feature that could not run. A real adapter
+  EXISTS — `OmpHarnessBridge` (`doxbench_bridge.py:869`) supervises an
+  `omp --mode rpc` child with no credential — but NO ENTRYPOINT declares
+  `model_port_factory`, so `_workbench_model_port` returns `None` on every real
+  serve. Packet review sharpened that twice more: `serve()` has no callers at all,
+  so the declaration belongs at `cli.py:298` beside the notebook adapter and the
+  knowledge declaration; and the bridge is unconstructible bare (keyword-only
+  `session_root`, no default) and INERT if given only that (catalog defaults to
+  `EMPTY_CATALOG`), so the entrypoint must declare catalog, session root and
+  launch config install-time — and must build ONE instance for the process, since
+  the bridge is stateful and `spec.md:1991` requires one harness session per
+  document thread. The prompt ASSEMBLER is new surface, not a reuse:
+  `build_prompt_envelope` is chat-shaped to its bones — outline plus documents, a
+  non-blank human message, a transcript — so an abstract request needs its own
+  assembler, whose pin is that it REFUSES a context packet of any purpose (a new
+  purpose constant would have been dead code, since the request carries no packet
+  at all). Layer 2 is NOT widened: a comma-joined second owner in a one-owner
+  field would degrade the fidelity checker to a comment, so the abstract is a
+  layer-2-CLASS SIBLING under the requirement's universal non-authoritative
+  clause and `compact_thread` keeps sole ownership with its equality pin green
+  unchanged. The verifier's base is the SNAPSHOT'S declared topics and
+  destinations — so it fires on the FIRST generation, not only on a regeneration
+  — and its check is named SUBJECT-MENTION COVERAGE rather than fidelity, because
+  `dispatch_turn` returns one opaque string and claiming more would be this change
+  committing the sin it exists to prevent; the one structurally decidable clause
+  is that the abstract must name its subject and no path its request did not
+  carry, which is also what discharges the injection-leak case. Ruling 7 was the
+  sharpest finding: disclosure on this surface REQUIRES EDIT AUTHORITY
+  (`doxbench_scope.py:390`), `editable_paths` is fed only by `owned` sections and
+  exactly ONE section is owned, so on a cluster tile the eligible subject set is
+  EMPTY — either the abstract is refused there or a feature PR quietly opens a new
+  disclosure path. Ruled 7(a), with the widening named as a follow-on ruling.
+  `clarifications.md` carries the five council constraints (N1-N5), chief among
+  them that the abstract cache MUST NOT be the chat `TurnStore`, whose 64-entry /
+  16 MB bound abstract churn would evict and whose same-key-different-digest
+  conflict rule forces the content digest INTO the cache key. Packet review
+  (Codex, PR #352) then closed two holes in that store: the RESOLVED MODEL ID
+  joins path and digest in the key, because a human can change the selected model
+  while the document stands still and a two-part key would replay the first
+  model's prose under the second model's recorded id; and the RE-GENERATE control
+  carries an EXPLICIT REFRESH INTENT that invalidates the completed entry before
+  dispatching, because a regeneration against unchanged content and an unchanged
+  model has an identical key and plain identical-key replay made the required
+  control inert except by the accident of eviction. The one-in-flight arm stays
+  unconditional, so a double-click still spends one model call.
 
-Archived changes:
+  **The outcome.** The code merged as #365 (`02477d40`) and the surface then took
+  one more round: the FIRST operator run, 2026-08-26, found two defects and closed
+  nothing. Four presses of Generate all failed inside the operator's adapter on
+  `observed_hashes`, and because `model_failed` is an error-shaped body that names
+  no subject, the pane's subject recheck returned before recording anything — all
+  four presses left the region on the not-yet-generated caption and the whole of
+  `ABSTRACT_ERROR_SENTENCES` was unreachable, so the required control read as one
+  that did nothing. A diagnostic dispatch in the same session then returned a
+  2_018-byte abstract against `MAX_ABSTRACT_PROSE_BYTES = 1_500` — a good abstract,
+  every claim holding against the document's own fields, refused in full only by
+  the length bound, after a model call had been spent. #386 (`d4740415`) fixed
+  both: a refusal is now recorded against the path the request was DISPATCHED for,
+  ahead of the recheck, and the prompt asks for ~150 WORDS
+  (`MAX_ABSTRACT_PROSE_WORDS`) — a number a model can count while it writes — with
+  the byte bound left where the 280px region put it. Attempt 2, on the corpus at
+  `d4740415`, PASSED: Brett at the local console served by
+  `~/doxbench-operator/t100_serve.py` — the T100 subscription adapter over the
+  `claude` CLI, the second of the two adapters §10.3 allows, `omp` not being
+  installed on that host — generated an abstract for
+  `ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md`
+  (digest `20b36eb3…be505a`) on `claude-haiku-subscription.low`, 1119 bytes, and
+  the pane rendered it under the ruled model-derived caption beside both controls:
+  `caption_state: model-derived`, verifier ACCEPTED, no refusal class. `generation`
+  and `wait_bound_seconds` are recorded as NOT CAPTURED rather than invented — the
+  operator read the pane, not the network tab. One thing changed at the archive
+  itself: the INTAKE FOLD was REVERSED. This change and `add-doxchat-model-intake`
+  both modify `doxBench model catalog and provider boundary`, and archive replaces
+  canon's block with the archiving delta's raw markdown, so the last archiver must
+  carry the other's text; the recorded plan had intake go first. Intake stands at
+  0/22 tasks with a real code surface and a blocking broker dependency, so
+  archiving this change with intake's four additions folded in would have written
+  an intake affordance NOBODY HAS BUILT into canon. This change therefore archived
+  FIRST carrying only its own additions — grep for `INTAKE affordance` over
+  promoted canon returns 0 — and intake, as the later archiver, now declares
+  relative to this change's outcome, which is the direction
+  `release-realization/spec.md:64-74` asked for. Promotion: three requirements
+  MODIFIED and seven ADDED, canon 88 → 95 requirements and 404 → 444 scenarios,
+  85 requirements byte-identical and none removed. `specs/015-doxbench-distilled-abstract`
+  is NOT created here; task 11.1 stays open for the Speckit flow.
 
 - [add-omnigent-domain-terminology](openspec/changes/archive/2026-08-26-add-omnigent-domain-terminology/proposal.md)
   — **ARCHIVED 2026-08-26** on met realization evidence, after a task-level

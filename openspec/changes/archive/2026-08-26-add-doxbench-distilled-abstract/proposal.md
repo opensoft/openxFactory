@@ -979,3 +979,27 @@ drawn from. That sentence is the whole point.
   or repository-level distillation.
 - **Rendered geometry.** The context panes' measurements stay with the operator
   rig, exactly as `test_doxbench_context_panes.py:31-34` records.
+
+## Addendum 2026-08-26 — fold direction reversed at archive
+
+The superseded-statements paragraph and the Sequencing block above describe the
+plan as authored: fold `add-doxchat-model-intake`'s four provider-boundary
+additions into this change now, then archive `add-doxchat-model-intake` first so
+it carries the merged text forward. At archive time `add-doxchat-model-intake`
+stood at 0/22 tasks with a real code surface and a blocking dependency on
+`add-model-provider-broker`, so its merged-plus-green archive gate
+(`release-realization/spec.md:23-32`) was far off, while this change was already
+realized (#365 `02477d40`, #386 `d4740415`, pytest-suite green on main, operator
+run on record). Archiving this change with intake's affordance folded in would
+have promoted spec text describing an intake capability nobody had built, so the
+direction was reversed: this change archived FIRST, carrying only its own
+additions with intake's four additions (the one-non-model-INTAKE-affordance
+paragraph, the widened "browser loads model choices" bullet, the "intake
+affordance is submitted as a model" scenario, and the hosted-plane
+intake-affordance-absence bullet) removed from its `doxBench model catalog and
+provider boundary` block, and intake's delta was re-authored as the LATER
+archiver, declared relative to this change's landed outcome per
+`release-realization/spec.md:64-74`. The authoritative record of the reversal is
+this change's `tasks.md` 1.2/1.2a (superseding the original ORDERING
+CONSTRAINT), `add-doxchat-model-intake/tasks.md`'s Amendment Record entry dated
+2026-08-26, and this change's README archived-changes entry.
