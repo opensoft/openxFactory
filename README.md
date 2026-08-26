@@ -945,10 +945,13 @@ Active changes:
   xFactory; release allocated at realization)
 
 - [add-omnigent-domain-terminology](openspec/changes/add-omnigent-domain-terminology/proposal.md)
-  — DRAFT, authored 2026-08-09 from Brett's direction ("we have a neutral
-  spine cross domain, but we also need all notices to users and logs shown in
-  domain best-practice and well-adopted terminology"); **UNRATIFIED** — task
-  1.2, Brett's ratification of the block, is the change's one open gate.
+  — authored 2026-08-09 from Brett's direction ("we have a neutral spine
+  cross domain, but we also need all notices to users and logs shown in
+  domain best-practice and well-adopted terminology"), **RATIFIED 2026-08-26**
+  (Brett, in-session: "do the omnigent-terminology ratification" — task 1.2,
+  read-back in tasks.md). Ratification covers the RULE only — the optional
+  `terminology` block, the descriptive-crosswalk shape, and the
+  human-facing-rendering requirement — not any domain's realization.
   ANNOTATE, NEVER RENAME: an optional `terminology` block on the
   omnigent-domain-overlay contract carries display labels for the ids an
   overlay declares (`workers`, `job_types`, `stop_conditions`, `routing`),
@@ -972,10 +975,15 @@ Active changes:
   domains, and MedxFactory registers none — its eleven workers record
   `no_clean_equivalent` against the PROVIDER taxonomy specifically, because
   labelling a reasoning agent with a role carrying clinical standing is the
-  mapping a contributor would reach for and the dangerous one. Open: 1.2
-  ratification, the APQC licence question (3b.5d), the remaining ledgerx/adx
-  brief results (3b.5f), and the §4 consumer follow-up naming domain surfaces
-  that render their own vocabulary outside the overlay.
+  mapping a contributor would reach for and the dangerous one. Ratification
+  (task 1.2) is now closed; STILL OPEN: §3's five domain populations
+  (3.1–3.5, each its own change, crosswalk framework chosen per domain at
+  realization per task 5.3), the APQC written licence confirmation (3b.5d) —
+  which specifically gates LedgerxFactory's and AdxFactory's pulled PCF
+  8.0/3.0 crosswalks (3b.5b), not MedxFactory, which by design registers no
+  APQC/PCF mapping at all — the remaining ledgerx/adx brief results (3b.5f),
+  and the §4 consumer follow-up naming domain surfaces that render their own
+  vocabulary outside the overlay.
 - [add-model-provider-broker](openspec/changes/add-model-provider-broker/proposal.md)
   — DRAFT, authored 2026-08-08, awaiting ratification (task 0). doxBench has
   a model seam and no model: there is no provider adapter in this repository
