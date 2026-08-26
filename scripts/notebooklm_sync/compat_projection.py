@@ -126,20 +126,23 @@ class ProjectionFacade:
     ) -> None:
         try:
             workbench = self._dashboard("workbench")
-        except (ImportError, OSError, RuntimeError) as exc:
+            selected = adapter or workbench.NotebookAdapter()
+            live_notebook_aliases = workbench.live_notebook_aliases
+            notebook_title = workbench._notebook_title
+            apply_orphan_sweep = workbench.orphan_sweep
+        except (AttributeError, ImportError, OSError, RuntimeError) as exc:
             print(f"[workbench] orphan sweep SKIPPED (unavailable: {exc})")
             return
-        selected = adapter or workbench.NotebookAdapter()
         orphan_sweep(
             root,
             apply,
             selected,
             pinned_paths=pinned_factory_paths,
-            live_aliases=lambda base, directory: workbench.live_notebook_aliases(
+            live_aliases=lambda base, directory: live_notebook_aliases(
                 base, workbench_dir=directory
             ),
-            notebook_title=workbench._notebook_title,
-            apply_sweep=lambda base, target, directory: workbench.orphan_sweep(
+            notebook_title=notebook_title,
+            apply_sweep=lambda base, target, directory: apply_orphan_sweep(
                 base, target, workbench_dir=directory
             ),
         )

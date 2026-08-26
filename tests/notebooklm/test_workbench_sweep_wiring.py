@@ -21,6 +21,8 @@ import re
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import ModuleType
+from unittest.mock import patch
 
 from ideation_dashboard import workbench as wb
 
@@ -151,6 +153,16 @@ class WorkbenchSweepWiringTests(unittest.TestCase):
             out = _run(Path(td), True, adapter)
             self.assertIn("SKIPPED", out)
             self.assertIn("nlm unavailable", out)
+
+    def test_skips_gracefully_when_optional_dashboard_adapter_is_incomplete(self):
+        with TemporaryDirectory() as td:
+            incomplete = ModuleType("incomplete_workbench")
+            with patch.object(
+                sync._projection, "_dashboard", return_value=incomplete
+            ):
+                out = _run(Path(td), True, adapter=None)
+        self.assertIn("SKIPPED", out)
+        self.assertIn("unavailable", out)
 
     def test_out_of_scope_manifest_skips_the_sweep(self):
         # A manifest outside the v1 openxFactory scope could bind a notebook
