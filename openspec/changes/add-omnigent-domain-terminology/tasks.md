@@ -559,9 +559,66 @@
       superseded in place rather than deleted. NOT APPLIED: 3.2 and 3.3 stay
       open. Re-adding PCF to the ledgerx and adx overlays is each domain's
       own act in its own repo.
-- [ ] 3b.5f Apply the results of the remaining brief (ledgerx UN/CEFACT +
+- [x] 3b.5f Apply the results of the remaining brief (ledgerx UN/CEFACT +
       BIAN, and the adx marketing round) as they return. (ledgerx
       UN/CEFACT+BIAN, adx marketing, opsx, codex, medx) as they return.
+      CLOSED 2026-08-26. The ledgerx UN/CEFACT + BIAN round — the last of
+      the five this task tracked — was RUN on 2026-08-26 against live
+      primary sources, on Brett's in-session ruling that it still runs
+      despite its premise having lapsed. Report:
+      `research/ledgerx-international-process-bodies-research-report.md`,
+      the sibling of the opsx/codex/medx reports that the adx round never
+      got. The brief itself stays in LedgerxFactory rather than being copied
+      here; it is record-class evidence in its own repo.
+      THE RULING, recorded because it changed what was asked: 3b.5k had
+      already lifted the APQC bar and 3.2 had already put PCF 8.0 back, so
+      the gap the brief was written to fill was closed before it ran. Brett
+      ruled run it anyway, against the narrowed question this task's body
+      states — whether either body adds INTERNATIONAL PROCESS vocabulary
+      BEYOND cross-industry PCF 8.0. A widening question, not gap-filling.
+      OUTCOME — NEITHER ADOPTED, and the decisive ground is category, not
+      licence. UN/CEFACT names DATA: its finance ontology module declares
+      five OWL classes (FinanceAgreement, Payment, Account, Insurance,
+      PaymentMeans) plus properties, the whole seven-domain vocabulary is
+      classes/properties/SKOS code lists, and the Cross Industry Invoice is
+      an invoice document schema. It adds zero process vocabulary, so it
+      cannot add process vocabulary beyond PCF. BIAN names a bank's own
+      SERVICES: Service Domains are capability partitions, and the brief's
+      domain-fit prior is CONFIRMED rather than refuted in BIAN's own words
+      — Financial Accounting "lives in the accounting world of the bank",
+      Accounts Receivable handles "invoices issue by the bank", Regulatory
+      Reporting meets "the bank's" obligations. ledgerx keeps books FOR
+      CLIENT COMPANIES. Fourteen of fourteen workers record no honest
+      counterpart against each body.
+      NO ADOPTION FOLLOW-UP IS FLAGGED. This closes fully: no registry entry
+      is proposed, `contracts/policies/standards-bodies.yaml` is untouched,
+      and the ledgerx overlay is untouched. The scope rule that would have
+      deferred an adoption to a separate act never triggered.
+      TWO LICENCE FINDINGS KEPT ANYWAY, because they are true and cost the
+      work to establish. BIAN: `github.com/bian-official/public` carries a
+      root LICENSE containing verbatim Apache-2.0 over 259 release-14.0.0
+      Service Domain specifications, so BIAN Service Domain NAMES at the
+      current release are lawfully embeddable — the APQC lesson running the
+      other way, since bian.org itself says only "© 2026 BIAN. All rights
+      reserved." The Service Landscape HIERARCHY at 14.0 is not in any
+      Apache-2.0 artefact; the hierarchy that is Apache-2.0 sits in
+      `bian-official/artefacts`, last committed 2021-10-06, ~six releases
+      stale. UN/CEFACT: CONTRADICTORY AT PRIMARY SOURCE and unresolved.
+      `vocabulary.uncefact.org/terms` — the licence page of the site that
+      serves BSP element names — grants use "for the User's personal,
+      non-commercial use, without any right to resell or redistribute them
+      or to compile or create derivative works therefrom", while five
+      UNECE-operated deliverable sites footer "All UN/CEFACT standards are
+      free to use under CC By 4.0 license" with no deed, no attribution
+      formula, and no LICENSE file anywhere in the UN-hosted source repo.
+      The UN/CEFACT IPR Policy that would settle it is unreachable —
+      unece.org answers HTTP 403 to every automated fetch — so a human must
+      read it in a browser before any UN/CEFACT term is embedded for any
+      purpose. Recorded as a gap, not guessed.
+      AND THE MOTIVATION ITSELF LAPSED: the international-reach argument was
+      an artefact of the removed premise. PCF 8.0 is registered
+      `jurisdiction: international` and APQC's own mandatory attribution
+      paragraph scopes it "regardless of industry, size, or geography".
       STATE AS OF 2026-08-26, counted rather than assumed. Of the five briefs
       this task tracks, FOUR have been run and applied: opsx (3b.5g), codex
       (3b.5h), medx (3b.5i), and — as of this tick — **adx marketing, run and
