@@ -1116,7 +1116,22 @@ Active changes:
   non-editorial drift `release-surface-integrity` calls a defect —
   `contract-v1.10` was cut for this same file for this same cause
   (`CHANGELOG.md:2170-2185`). (code surface: openxFactory; target release: next
-  additive contract bundle)
+  additive contract bundle) **REALIZED 2026-08-26 as `contract-v1.44`**: the
+  resolution step (`_resolve_remote_object` — `git cat-file -e` probe, then a
+  narrow single-object `git fetch --no-tags --no-write-fetch-head`) is called
+  where each remote-derived object id enters the local world, covering all four
+  readers; six new proofs pin the skew, the release-surface verdict, the
+  unavailable-object refusal and the mutation. Q1 DECIDED ON MEASUREMENT — no
+  ref-fetch fallback: the canonical remote served a bare object id under no
+  tracked ref in 4.80s from a depth-1 clone, so a remote that declines is the
+  fail-closed case rather than a case for a speculative wider fetch. Q2's
+  MEASUREMENT half is discharged, and it corrected the fixture: `chmod 000` on
+  the whole bare `objects/` directory makes git refuse the path as a repository
+  at all, so `ls-remote` exits 128 and the fixture would have proved the
+  pre-existing "remote main is unavailable" path — revoking read on the single
+  object FILE keeps advertisement working while `upload-pack` answers "not our
+  ref", which is the condition wanted. Awaiting the annotated `contract-v1.44`
+  tag on the merge commit before it archives.
 
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
