@@ -805,6 +805,13 @@ bodies:
       vocabulary for the Ledgerx workers. The source describes whole human jobs;
       crosswalk individual task statements, not licenses or authority, to the
       narrower artifact-only agents.
+    # FLAGGED, NOT CORRECTED, 2026-08-26. The opsx/codex re-verification found
+    # O*NET 31.0 (August 2026) is the current production database, so this pin
+    # is one release behind. It is left as-is deliberately: this entry is
+    # LedgerxFactory's, its overlay's CC BY attribution names "the O*NET 30.3
+    # Database" by version, and the pin and that attribution must move
+    # together in one act by that domain. Codes and titles are unchanged
+    # across 30.3 -> 31.0, so nothing shipped is wrong today.
     current_version: O*NET Database 30.3, May 2026
     status: current
     source_url: https://www.onetcenter.org/database.html
@@ -856,7 +863,16 @@ bodies:
       opsx workers cannot execute, so every crosswalk records the authority
       gap. Mappings are at occupation level; task-level verification is
       outstanding.
-    current_version: O*NET Database 30.3
+    # VERSION CORRECTED 2026-08-26 (task 3.0 re-verification for the opsx
+    # population). Was `O*NET Database 30.3`, which was current at the
+    # 2026-08-09 run and has since been superseded — O*NET ships quarterly.
+    # Every occupation code and title listed in `scope` was re-read against
+    # the source_url below and is UNCHANGED across the release, so the opsx
+    # crosswalk is unaffected; the pin moves so the entry does not read as
+    # verified against a version that is no longer current. This is the APQC
+    # failure mode (a body reference outliving its numbering) caught by the
+    # rule that entry put here.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
     status: current
     source_url: https://www.onetonline.org/find/family?f=15
     term_list_availability: public
@@ -885,7 +901,13 @@ bodies:
       15-1254.00, 15-1243.00, 15-1211.00, 27-3042.00. Describes whole HUMAN
       jobs that include releasing and deploying; codex workers cannot merge
       or release, so every crosswalk records the authority gap.
-    current_version: O*NET Database 30.3
+    # VERSION CORRECTED 2026-08-26 (task 3.0 re-verification for the codex
+    # population), on the same finding as the opsx entry above: 30.3 was
+    # current at the 2026-08-09 run, O*NET ships quarterly, and every code
+    # and title listed in `scope` was re-read and is UNCHANGED across the
+    # release. 27-3042.00 was re-read on its own summary page; the other six
+    # on the family listing at source_url.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
     status: current
     source_url: https://www.onetonline.org/find/family?f=15
     term_list_availability: public

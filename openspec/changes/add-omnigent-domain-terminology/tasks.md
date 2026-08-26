@@ -81,12 +81,64 @@
 - [ ] 3.0 Per domain, VERIFY the chosen bodies' current terms and versions
       against each body's own publication before committing a crosswalk (the
       registry's sourcing caveat). A wrong term is worse than none.
-- [ ] 3.1 Populate `terminology` in OpsxFactory. Candidate bodies: `itil4`
-      (practices), `sfia` (skills — closest to worker shape), `apqc_pcf` 7.0
-      (processes), `cobit_2019` (audit-facing), `nist_csf` (security-adjacent
-      reviewers). `no_clean_equivalent` expected for `blast_radius_reviewer`
-      and `credential_grant_reviewer`, which have no clean counterpart in a
-      process framework.
+- [x] 3.0a DISCHARGED FOR OPSX AND CODEX 2026-08-26 (3.0 itself stays open —
+      it is a standing per-domain obligation and three domains have not run
+      it). All thirteen registered O*NET occupation codes and titles across
+      `onet_it_occupations` and `onet_engineering_occupations` were re-read
+      against the body's own current publication and match verbatim; no term
+      was corrected, which is the outcome a verification is allowed to have.
+      THE VERSION DID NOT SURVIVE. O*NET ships quarterly and the current
+      production database is 31.0 (August 2026), superseding the 30.3 (May
+      2026) release pinned at the 2026-08-09 run. Codes and titles are
+      unchanged across it, so nothing shipped in any domain is wrong today —
+      but a `current_version` that has quietly moved is the exact APQC
+      failure mode 3b.3 named (a body reference reading as verified while its
+      numbering has moved), and the reason that entry's version-pinning rule
+      exists is so it is caught rather than inherited. The two entries this
+      run verified are corrected to 31.0 with the verification date.
+      FLAGGED FOR LEDGERX, deliberately NOT corrected here:
+      `onet_accounting_occupations` carries the same stale 30.3 pin, and the
+      ledgerx overlay's CC BY attribution names "the O*NET 30.3 Database" BY
+      VERSION (3b.5c) — pin and attribution must move together in one act by
+      that domain, so the entry carries a flag comment instead of an edit.
+      The opsx and codex overlays credit "the O*NET Database" without a
+      version, so their attribution stays true across releases and the
+      verified-against version is recorded separately in each overlay header.
+      STILL OUTSTANDING for both domains and unclaimed anywhere: TASK-LEVEL
+      verification. Every mapping in both overlays is at OCCUPATION level;
+      only 11-3021.00 and 27-3042.00 ever had task statements read verbatim,
+      and no note in either overlay asserts a task-statement match.
+- [x] 3.1 **OPSX POPULATED AND VERIFIED.** Population authored at OpsxFactory
+      `1b118c9` (the O*NET replacement, 2026-08-09) and its 3.0 verification
+      at `2d3e5ad` on branch `change/omnigent-terminology-population`; both
+      land via that domain PR, unmerged as of this tick. READ-BACK — what
+      shipped: `terminology` covers every id the overlay declares — 9 workers,
+      5 job_types, 8 stop_conditions, 6 routing classes — with 6 workers
+      mapped and 3 recording `no_clean_equivalent`
+      (`blast_radius_reviewer`, `change_documentation_agent`,
+      `admission_packet_agent`). The crosswalk body is `onet_it_occupations`
+      alone. READ-BACK — the candidate list above did NOT survive contact
+      with the licences, and this task's own body is the record of what was
+      expected rather than what is true: 3b.5g found `itil4` and `sfia` both
+      fail the product-configuration reuse test and `cobit_2019` requires an
+      ISACA licence for incorporation into software given to third parties;
+      `apqc_pcf` was already barred by 3b.5b. `nist_csf` is registered
+      licence-clean but its Function names were never enumerated from a
+      primary source, so no function-level mapping was authorised and none
+      shipped — recorded rather than guessed. The expected
+      `no_clean_equivalent` pair is NOT the shipped pair: swapping the body
+      moved the unmapped set, because `credential_grant_reviewer` has an
+      honest counterpart in 15-1212.00 Information Security Analysts where it
+      had none in a process framework. That the unmapped set moves with the
+      body is the crosswalk behaving descriptively (5.2) rather than as an
+      identity; worker ids, archetypes, permissions and credential tiers are
+      byte-identical across the swap (5.1 held). READ-BACK — 3.0 for this
+      domain: all six registered codes re-read verbatim on O*NET OnLine
+      2026-08-26. FLAGGED: the O*NET Database moved 30.3 -> 31.0 (August
+      2026) since the 2026-08-09 run; codes and titles are unchanged, the
+      registry entry is corrected here, and the overlay now records the
+      version it was verified against. Task-level verification remains
+      OUTSTANDING and unclaimed — mappings are occupation-level only.
 - [ ] 3.2 Populate `terminology` in LedgerxFactory. Candidate bodies:
       `apqc_pcf` 8.0 (processes — 8.2 AP, 8.3 AR, 8.4 general accounting),
       `coso_icif` (controls — the natural home for the segregation-of-duties
@@ -98,9 +150,32 @@
       `apqc_pcf` 3.0 (processes), `iab` (ad-tech specs/taxonomies — fits the
       media and audience classes, not the creative or compliance ones),
       `cim` (competencies), `ama_marketing` (concept definitions).
-- [ ] 3.4 Populate `terminology` in codexFactory. Candidate bodies:
-      `swebok` (knowledge areas), `sfia` (skills), `iso_iec_ieee_12207`
-      (life-cycle processes), `apqc_pcf` 2.0.
+- [x] 3.4 **CODEX POPULATED AND VERIFIED.** Population authored at
+      codexFactory `54ccc9b` (2026-08-09, from scratch — codex had no
+      terminology block at all) and its 3.0 verification at `d5f5f3c` on
+      branch `change/omnigent-terminology-population`; both land via that
+      domain PR, unmerged as of this tick. READ-BACK — what shipped:
+      `terminology` covers every id the overlay declares — 11 workers, 12
+      job_types, 6 stop_conditions, 6 routing classes — with 8 workers mapped
+      and 3 recording `no_clean_equivalent` (`pr_admission_agent`,
+      `merge_readiness_agent`, `scrum_master_worker`). The crosswalk body is
+      `onet_engineering_occupations` alone. READ-BACK — none of the candidate
+      bodies above shipped, and 3b.5h is the record of why: `swebok` needs
+      IEEE permission for commercial republication, `sfia` was already
+      prohibited outright by the opsx round, `iso_iec_ieee_12207` is sold by
+      ISO, and `apqc_pcf` was barred by 3b.5b. The Scrum Guide's CC BY-SA
+      question was answered and DECLINED — bare role names are very likely
+      outside copyright, but share-alike could oblige this configuration to
+      be CC BY-SA if definitional text were reproduced, which is asymmetric
+      risk for a label we can write ourselves. `scrum_master_worker` is the
+      sharpest 5.1/5.2 case in the family and is handled twice over: it is
+      deliberately unmapped AND its display label avoids the term, because
+      "Scrum Master" names a human role holding facilitation authority over
+      PEOPLE. READ-BACK — 3.0 for this domain: all seven registered codes
+      re-read verbatim 2026-08-26 (27-3042.00 on its own summary page, the
+      rest on the family listing). FLAGGED: the same 30.3 -> 31.0 version
+      move as 3.1, corrected in the registry entry here and recorded in the
+      overlay. Task-level verification remains OUTSTANDING and unclaimed.
 - [ ] 3.5 Populate `terminology` in MedxFactory — WITH CARE. The provider
       taxonomies (`nucc_taxonomy`, `hl7_fhir_practitionerrole`) describe
       humans holding CLINICAL STANDING; medical Omnigent workers are

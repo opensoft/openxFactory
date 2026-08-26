@@ -976,9 +976,25 @@ Active changes:
   `no_clean_equivalent` against the PROVIDER taxonomy specifically, because
   labelling a reasoning agent with a role carrying clinical standing is the
   mapping a contributor would reach for and the dangerous one. Ratification
-  (task 1.2) is now closed; STILL OPEN: §3's five domain populations
-  (3.1–3.5, each its own change, crosswalk framework chosen per domain at
-  realization per task 5.3), the APQC written licence confirmation (3b.5d) —
+  (task 1.2) is now closed, and so are TWO of the five domain populations:
+  **3.1 OpsxFactory and 3.4 codexFactory ticked 2026-08-26** on their O*NET
+  crosswalks with the task-3.0 verification discharged for both — every
+  registered occupation code and title re-read verbatim against the body's
+  own current publication, and the O*NET Database's move from 30.3 (May 2026)
+  to 31.0 (August 2026) caught and pinned in the registry rather than
+  inherited silently, which is the APQC failure mode 3b.3 named. Opsx ships
+  6 mapped / 3 `no_clean_equivalent` across 9 workers, codex 8 / 3 across 11;
+  both populations cover every declared id in all four vocabularies; both
+  land via their own domain PRs. STILL OPEN: 3.2 LedgerxFactory and 3.3
+  AdxFactory (each its own change, crosswalk framework chosen per domain at
+  realization per task 5.3) — and 3.5 MedxFactory, whose box is unticked but
+  whose overlay already ships the population 3b.5i ruled: eleven workers,
+  every one `no_clean_equivalent` against `nucc_taxonomy`, which IS the
+  realization rather than an absence of one. Also open: task-level
+  verification for the opsx/codex crosswalks, which stay OCCUPATION-level and
+  say so; `onet_accounting_occupations`, flagged carrying the same stale 30.3
+  pin that LedgerxFactory must move together with its by-version attribution;
+  the APQC written licence confirmation (3b.5d) —
   which specifically gates LedgerxFactory's and AdxFactory's pulled PCF
   8.0/3.0 crosswalks (3b.5b), not MedxFactory, which by design registers no
   APQC/PCF mapping at all — the remaining ledgerx/adx brief results (3b.5f),
