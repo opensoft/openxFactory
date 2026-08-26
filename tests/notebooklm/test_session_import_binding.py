@@ -3,22 +3,31 @@
 from __future__ import annotations
 
 import unittest
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import TypedDict
 from unittest.mock import patch
 
 from ideation_dashboard import branch_session as bs
 from ideation_dashboard import workbench as wb
+from notebooklm_sync.models import SessionNotebookRefused
+from notebooklm_sync.nlm_client import JsonValue, ProviderResult
 
-from tests.notebooklm._sync_test_support import (
+from tests.notebooklm._session_test_support import (
     STAGED_DOC,
-    _add_worktree,
-    _dashboard_registry,
-    _doc,
-    _git,
-    _session_world,
-    sync,
+    NlmCall,
+    fixture,
+    import_binding_sync,
 )
+
+
+class SourceRow(TypedDict):
+    id: str
+    title: str
+
+
+sync = import_binding_sync()
 
 
 class SessionImportBindingTests(unittest.TestCase):
@@ -30,19 +39,35 @@ class SessionImportBindingTests(unittest.TestCase):
     real `nlm`: `sync.nlm` is patched at every call site, and
     `tests/hermeticity.py` makes the binary unreachable besides (FR-043)."""
 
-    def _nlm(self, sources, contents=None):
+    def _nlm(
+        self,
+        sources: Sequence[SourceRow],
+        contents: Mapping[str, str] | None = None,
+    ) -> NlmCall:
         contents = contents or {}
 
-        def fake_nlm(*args, parse=True):
+        def fake_nlm(*args: str, parse: bool = True) -> ProviderResult:
+            del parse
             if args[:2] == ("source", "list"):
-                return list(sources)
+                listed: list[JsonValue] = [
+                    {"id": source["id"], "title": source["title"]}
+                    for source in sources
+                ]
+                return listed
             if args[:2] == ("source", "content"):
                 return contents.get(args[2], "Session note body.")
             raise AssertionError(args)
 
         return fake_nlm
 
-    def _import(self, root, notebook, target_arg, sources, contents=None):
+    def _import(
+        self,
+        root: Path,
+        notebook: str,
+        target_arg: str,
+        sources: Sequence[SourceRow],
+        contents: Mapping[str, str] | None = None,
+    ) -> int:
         with patch.object(sync, "nlm", self._nlm(sources, contents)):
             return sync.import_new_sources(root, notebook, target_arg, True,
                                            "2026-07-26")
@@ -55,34 +80,44 @@ class SessionImportBindingTests(unittest.TestCase):
         up as a lifecycle-book source, breaching FR-039's main-only rule."""
         with TemporaryDirectory() as td:
             root = Path(td)
-            checkout, _worktree = _session_world(root)
+            checkout, _worktree = fixture.session_world(root)
             alias = bs.notebook_alias("openxFactory", "draft/demo-topic")
 
-            with self.assertRaises(sync.SessionNotebookRefused) as caught:
-                self._import(root, alias, "openxFactory/ideation/staging/demo-topic",
-                             [{"id": "src-note", "title": "A converted note"}])
+            with self.assertRaises(SessionNotebookRefused) as caught:
+                _ = self._import(
+                    root,
+                    alias,
+                    "openxFactory/ideation/staging/demo-topic",
+                    [{"id": "src-note", "title": "A converted note"}],
+                )
 
             self.assertIn("not inside it", str(caught.exception))
             self.assertFalse(
                 (checkout / "ideation/staging/demo-topic"
-                 "/notebooklm-ideas-2026-07-26.md").exists())
-            self.assertEqual(_git(checkout, "status", "--porcelain"), "")
+                 / "notebooklm-ideas-2026-07-26.md").exists())
+            self.assertEqual(fixture.git(checkout, "status", "--porcelain"), "")
 
     def test_a_session_notebook_cannot_import_into_another_sessions_worktree(self):
         """Session A's notebook pointed at session B's worktree wrote A's content
         onto B's branch, carrying A's `Source workspace:` header."""
         with TemporaryDirectory() as td:
             root = Path(td)
-            checkout, _a = _session_world(root)
-            other = _add_worktree(checkout, "draft/other-topic")
-            (other / STAGED_DOC).write_text(_doc("other body"), encoding="utf-8")
+            checkout, _a = fixture.session_world(root)
+            other = fixture.add_worktree(checkout, "draft/other-topic")
+            _ = (other / STAGED_DOC).write_text(
+                fixture.doc("other body"), encoding="utf-8"
+            )
             alias = bs.notebook_alias("openxFactory", "draft/demo-topic")
             target_arg = str(
                 (other / "ideation/staging/demo-topic").relative_to(root))
 
-            with self.assertRaises(sync.SessionNotebookRefused):
-                self._import(root, alias, target_arg,
-                             [{"id": "src-note", "title": "A converted note"}])
+            with self.assertRaises(SessionNotebookRefused):
+                _ = self._import(
+                    root,
+                    alias,
+                    target_arg,
+                    [{"id": "src-note", "title": "A converted note"}],
+                )
 
             self.assertEqual(
                 list((other / "ideation/staging/demo-topic").glob(
@@ -93,13 +128,17 @@ class SessionImportBindingTests(unittest.TestCase):
         work, so another notebook's sources may not be written onto its branch."""
         with TemporaryDirectory() as td:
             root = Path(td)
-            _checkout, worktree = _session_world(root)
+            _checkout, worktree = fixture.session_world(root)
             target_arg = str(
                 (worktree / "ideation/staging/demo-topic").relative_to(root))
 
-            with self.assertRaises(sync.SessionNotebookRefused) as caught:
-                self._import(root, "xf-ideation", target_arg,
-                             [{"id": "src-note", "title": "A converted note"}])
+            with self.assertRaises(SessionNotebookRefused) as caught:
+                _ = self._import(
+                    root,
+                    "xf-ideation",
+                    target_arg,
+                    [{"id": "src-note", "title": "A converted note"}],
+                )
 
             self.assertIn("is not that session's notebook", str(caught.exception))
 
@@ -111,18 +150,22 @@ class SessionImportBindingTests(unittest.TestCase):
         directory, answered `live=()` and reported it stale (FR-008, D10)."""
         with TemporaryDirectory() as td:
             root = Path(td)
-            checkout, worktree = _session_world(root, branch="draft/residue-topic")
-            _git(checkout, "worktree", "remove", "--force", str(worktree))
-            _git(checkout, "branch", "-D", "draft/residue-topic")
+            checkout, worktree = fixture.session_world(
+                root, branch="draft/residue-topic"
+            )
+            _ = fixture.git(
+                checkout, "worktree", "remove", "--force", str(worktree)
+            )
+            _ = fixture.git(checkout, "branch", "-D", "draft/residue-topic")
             worktree.mkdir(parents=True)
             (worktree / "ideation/staging/demo-topic").mkdir(parents=True)
 
-            with self.assertRaises(sync.SessionNotebookRefused) as caught:
+            with self.assertRaises(SessionNotebookRefused) as caught:
                 sync.resolve_session_target(root, "draft/residue-topic")
             self.assertIn("JOINT worktree+branch signal", str(caught.exception))
 
             # and the two liveness answers now AGREE
-            registry = _dashboard_registry()
+            registry = fixture.dashboard_registry()
             report = bs.bootstrap_sessions(registry, repository="openxFactory",
                                            checkout_root=checkout)
             self.assertEqual(report.branches, ())
@@ -136,7 +179,7 @@ class SessionImportBindingTests(unittest.TestCase):
         source-id dedupe could not stop it by construction."""
         with TemporaryDirectory() as td:
             root = Path(td)
-            _checkout, worktree = _session_world(root)
+            _checkout, worktree = fixture.session_world(root)
             alias = bs.notebook_alias("openxFactory", "draft/demo-topic")
             target_arg = str(
                 (worktree / "ideation/staging/demo-topic").relative_to(root))
@@ -159,7 +202,7 @@ class SessionImportBindingTests(unittest.TestCase):
         imports into the bound session worktree and still LANDS on the branch."""
         with TemporaryDirectory() as td:
             root = Path(td)
-            _checkout, worktree = _session_world(root)
+            _checkout, worktree = fixture.session_world(root)
             alias = bs.notebook_alias("openxFactory", "draft/demo-topic")
             target_arg = str(
                 (worktree / "ideation/staging/demo-topic").relative_to(root))
@@ -174,6 +217,6 @@ class SessionImportBindingTests(unittest.TestCase):
                       / "notebooklm-ideas-2026-07-26.md")
             self.assertTrue(landed.is_file())
             self.assertNotIn("notebooklm-ideas",
-                             _git(worktree, "status", "--porcelain"))
+                              fixture.git(worktree, "status", "--porcelain"))
             self.assertIn("Source-Notebook: " + alias,
-                          _git(worktree, "log", "-1", "--format=%B"))
+                           fixture.git(worktree, "log", "-1", "--format=%B"))

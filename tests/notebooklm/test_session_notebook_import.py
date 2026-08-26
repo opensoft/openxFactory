@@ -12,18 +12,17 @@ from unittest.mock import patch
 from ideation_dashboard import branch_session as bs
 from ideation_dashboard import session_git as sg
 from ideation_dashboard import workbench as wb
+from notebooklm_sync.nlm_client import ProviderResult
 
-from tests.notebooklm._sync_test_support import (
+from tests.notebooklm._session_test_support import (
     LIFECYCLE_BOOKS,
     SESSION_ALIAS,
     FakeNlm,
-    _doc,
-    _FakeRegistry,
-    _git,
-    _seed_checkout,
-    _session_world,
-    sync,
+    fixture,
+    notebook_import_sync,
 )
+
+sync = notebook_import_sync()
 
 
 class SessionNotebookImportTests(unittest.TestCase):
@@ -34,11 +33,12 @@ class SessionNotebookImportTests(unittest.TestCase):
     def test_an_import_lands_in_the_worktree_on_the_session_branch(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            checkout, worktree = _session_world(root)
+            checkout, worktree = fixture.session_world(root)
             target_arg = str(
                 (worktree / "ideation/staging/demo-topic").relative_to(root))
 
-            def fake_nlm(*args, parse=True):
+            def fake_nlm(*args: str, parse: bool = True) -> ProviderResult:
+                del parse
                 if args[:2] == ("source", "list"):
                     return [{"id": "src-note", "title": "A converted note"}]
                 if args == ("source", "content", "src-note"):
@@ -51,10 +51,13 @@ class SessionNotebookImportTests(unittest.TestCase):
                                                 "2026-07-26")
             self.assertEqual(count, 1)
 
-            landed = worktree / "ideation/staging/demo-topic/notebooklm-ideas-2026-07-26.md"
+            landed = (
+                worktree
+                / "ideation/staging/demo-topic/notebooklm-ideas-2026-07-26.md"
+            )
             self.assertTrue(landed.is_file())
             # INSIDE the worktree, on the session BRANCH — never on `main`
-            self.assertEqual(_git(worktree, "rev-parse", "--abbrev-ref", "HEAD"),
+            self.assertEqual(fixture.git(worktree, "rev-parse", "--abbrev-ref", "HEAD"),
                              "draft/demo-topic")
             # LANDED, not merely written (FR-041, T071: "on the branch"). This
             # test used to pin the file as UNTRACKED, which locked in silent data
@@ -64,21 +67,23 @@ class SessionNotebookImportTests(unittest.TestCase):
             # BOTH endings run `git worktree remove --force`, which deletes
             # untracked files outright (measured: PR #49 review finding 12).
             self.assertNotIn("notebooklm-ideas-2026-07-26.md",
-                             _git(worktree, "status", "--porcelain"))
+                              fixture.git(worktree, "status", "--porcelain"))
             self.assertIn("notebooklm-ideas-2026-07-26.md",
-                          _git(worktree, "show", "--name-only", "--format=",
+                           fixture.git(worktree, "show", "--name-only", "--format=",
                                "HEAD"))
             self.assertIn("Source-Notebook: " + alias,
-                          _git(worktree, "log", "-1", "--format=%B"))
+                           fixture.git(worktree, "log", "-1", "--format=%B"))
             # …and the commit carries ONLY the imported file: the governed commit
             # path binds it (`commit --only`), so a neighbouring modification in
             # the same worktree cannot ride along
             self.assertEqual(
-                _git(worktree, "show", "--name-only", "--format=", "HEAD").split(),
+                fixture.git(
+                    worktree, "show", "--name-only", "--format=", "HEAD"
+                ).split(),
                 ["ideation/staging/demo-topic/notebooklm-ideas-2026-07-26.md"])
             self.assertFalse(
-                (checkout / "ideation/staging/demo-topic/"
-                 "notebooklm-ideas-2026-07-26.md").exists())
+                (checkout / "ideation/staging/demo-topic"
+                 / "notebooklm-ideas-2026-07-26.md").exists())
 
             # the header contract, applied VERBATIM and unchanged
             text = landed.read_text()
@@ -112,17 +117,20 @@ class SessionNotebookImportTests(unittest.TestCase):
         deterministic barrier, not a sleep."""
         with TemporaryDirectory() as td:
             root = Path(td)
-            checkout, worktree = _session_world(root)
+            checkout, worktree = fixture.session_world(root)
             target_arg = str(
                 (worktree / "ideation/staging/demo-topic").relative_to(root))
-            before = _git(checkout, "rev-parse", "draft/demo-topic")
+            before = fixture.git(checkout, "rev-parse", "draft/demo-topic")
 
-            def fake_nlm(*args, parse=True):
+            def fake_nlm(*args: str, parse: bool = True) -> ProviderResult:
+                del parse
                 if args[:2] == ("source", "list"):
                     return [{"id": "src-note", "title": "A converted note"}]
                 if args == ("source", "content", "src-note"):
-                    _git(worktree, "checkout", "-q", "-b",
-                         "somebody-elses-branch")
+                    _ = fixture.git(
+                        worktree, "checkout", "-q", "-b",
+                        "somebody-elses-branch"
+                    )
                     return "Session note body."
                 raise AssertionError(args)
 
@@ -145,8 +153,10 @@ class SessionNotebookImportTests(unittest.TestCase):
             self.assertTrue(landed.is_file())
             # NOTHING was committed: not onto the drifted branch, and not onto the
             # session branch the report would otherwise have named
-            self.assertEqual(_git(checkout, "rev-parse", "draft/demo-topic"), before)
-            self.assertEqual(_git(worktree, "rev-parse", "somebody-elses-branch"),
+            self.assertEqual(
+                fixture.git(checkout, "rev-parse", "draft/demo-topic"), before
+            )
+            self.assertEqual(fixture.git(worktree, "rev-parse", "somebody-elses-branch"),
                              before)
             # ... and the report says so, naming the branch git actually holds
             self.assertNotIn("[session] COMMITTED", out)
@@ -157,8 +167,9 @@ class SessionNotebookImportTests(unittest.TestCase):
     def test_a_nested_factory_session_import_keeps_the_repository_name(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _checkout, worktree = _session_world(root, repository="codexFactory",
-                                                 nested=True)
+            _checkout, worktree = fixture.session_world(
+                root, repository="codexFactory", nested=True
+            )
             target = sync.target_from_path(
                 root, str((worktree / "ideation/staging/demo-topic")
                           .relative_to(root)))
@@ -170,7 +181,9 @@ class SessionNotebookQuotaTests(unittest.TestCase):
     """T072 — an exhausted quota DEGRADES the session, never blocks it, and the
     notice is honest about whose limit was hit (FR-042, D19)."""
 
-    def _open(self, root, adapter):
+    def _open(
+        self, root: Path, adapter: wb.NotebookAdapter | None
+    ) -> bs.SessionOpen:
         """Open the session and then ATTACH its notebook — the two steps the
         gate action performs, in the order it performs them.
 
@@ -181,9 +194,9 @@ class SessionNotebookQuotaTests(unittest.TestCase):
         the degradation, the notice, the create-from-the-worktree — is unchanged;
         only WHEN it happens moved."""
         checkout = root / "openxFactory"
-        _seed_checkout(checkout, text=_doc("main body"))
+        fixture.seed_checkout(checkout, text=fixture.doc("main body"))
         git = sg.SessionGit(checkout)
-        registry = _FakeRegistry()
+        registry = fixture.registry()
         tile = bs.Tile("staged-topic", "demo-topic")
         session = bs.open_session(git, registry, repository="openxFactory",
                                   tile=tile, checkout_root=checkout,
