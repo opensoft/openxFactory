@@ -18,6 +18,23 @@ workspaces:
 # that retirement occurred, and do not skip it. Status: PENDING RETIREMENT.
 # See docs/notebook-projection-migration-evidence-2026-08-24.md.
 #
+# GATE CLEARED 2026-08-26, ACT NOT YET PERFORMED — the two are different things
+# and this block stays PENDING RETIREMENT until the second happens. Brett Heap
+# ruled that day that the hold's condition is satisfied: the oversized
+# `openspec/specs/ideation-dashboard/spec.md` now HAS a projected form (the
+# sync's temp-file + rename path above MAX_TEXT_ARG_BYTES), canon reached
+# title-set equality, and the 2026-08-25 document-parity run reports 675/675
+# with zero unprojected. Reasoning, including why the 2026-08-24 parity figure
+# was measured by an instrument that could not see this gap:
+# openspec/changes/add-notebook-projection-identity/review/
+#   retirement-gate-clearance-2026-08-26.md
+#
+# What remains is the ACT, which only the operator can run because it renames
+# notebooks inside brettheap@gmail.com:
+# docs/notebook-projection-retirement-runbook-step8.md
+# When it runs, replace this block's status with the executed statement and the
+# date. Until then the left-hand ids below are still LIVE.
+#
 # Legacy (still live, pending retirement) -> new (live, registered) ids:
 #   b83e63e3-262a-4dfe-9b9f-332b3d27d1bb -> 991f0af7-2077-4c26-ac1d-d92e2af9f99c
 #   6f10282a-7b5b-41c5-9109-55e603890730 -> b331ed13-fa0b-456a-8004-184f66939ecd
