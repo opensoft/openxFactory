@@ -50,7 +50,7 @@ unchanged by this round, and nothing here is flagged as follow-up.**
    `processes`. And the brief's domain-fit prior is **confirmed, not
    refuted**: BIAN's Financial Accounting Service Domain "lives in the
    accounting world of the bank"; Accounts Receivable handles "invoices
-   issue by the bank"; Regulatory Reporting meets "the bank's" obligations.
+   issue [sic] by the bank"; Regulatory Reporting meets "the bank's" obligations.
    ledgerx keeps books **for client companies**. The overlap is nominal.
 3. **The licences split in opposite directions, and neither rescues the
    category verdict.** BIAN — which fails category — has a genuinely usable
@@ -205,7 +205,7 @@ Apache-2.0 artefacts:
 | BIAN Service Domain | BIAN's own text | Why it is not our work |
 |---|---|---|
 | Financial Accounting | "It **lives in the accounting world of the bank** … It knows and maintains the chart of accounts and it can create accounting instructions that will update the general ledger and sub ledger accounts" | A bank's internal posting engine over the bank's own GL |
-| Accounts Receivable | "handles accounts receivable for **invoices issue by the bank** to customers and partners" | The bank as creditor, not a bookkeeper for a client |
+| Accounts Receivable | "handles accounts receivable for **invoices issue [sic] by the bank** to customers and partners" | The bank as creditor, not a bookkeeper for a client |
 | Account Reconciliation | "This Service Domain handles account reconciliation tasks" | The bank's own internal reconciliation |
 | Regulatory Reporting | "the tasks required to meet **the bank's** regulatory reporting obligations" | The bank's own obligations |
 | Compliance Reporting | "apply and report on internal audit control and reporting activity" | The bank's internal audit function |

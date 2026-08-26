@@ -586,7 +586,7 @@
       SERVICES: Service Domains are capability partitions, and the brief's
       domain-fit prior is CONFIRMED rather than refuted in BIAN's own words
       — Financial Accounting "lives in the accounting world of the bank",
-      Accounts Receivable handles "invoices issue by the bank", Regulatory
+      Accounts Receivable handles "invoices issue [sic] by the bank", Regulatory
       Reporting meets "the bank's" obligations. ledgerx keeps books FOR
       CLIENT COMPANIES. Fourteen of fourteen workers record no honest
       counterpart against each body.
@@ -619,10 +619,10 @@
       an artefact of the removed premise. PCF 8.0 is registered
       `jurisdiction: international` and APQC's own mandatory attribution
       paragraph scopes it "regardless of industry, size, or geography".
-      STATE AS OF 2026-08-26, counted rather than assumed. Of the five briefs
-      this task tracks, FOUR have been run and applied: opsx (3b.5g), codex
-      (3b.5h), medx (3b.5i), and — as of this tick — **adx marketing, run and
-      applied in 3.3**. Its findings landed in two places and neither is a
+      STATE AS OF 2026-08-26, counted rather than assumed. All FIVE briefs
+      this task tracks have now been run and applied: opsx (3b.5g), codex
+      (3b.5h), medx (3b.5i), adx marketing (run and applied in 3.3), and —
+      as of the later 2026-08-26 tick below — **ledgerx UN/CEFACT+BIAN**. Its findings landed in two places and neither is a
       report file: the crosswalks themselves went into AdxFactory
       `02d022cefb34`, and its two body-level findings (the IAB steward is
       IAB Tech Lab, not the trade association; IAB's taxonomy page publishes
