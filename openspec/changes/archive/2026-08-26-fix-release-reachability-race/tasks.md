@@ -21,6 +21,18 @@ measurement, and Brett ruled on 2026-08-26 that it be folded into the same pull
 request rather than deferred. It is ticked, with the ruling recorded in place.
 § 6.1, § 6.2 and § 6.3 stand open as authored.
 
+**READ THE OPENING PARAGRAPH AS HISTORY, NOT AS STATUS — ARCHIVED 2026-08-26.**
+"NO IMPLEMENTATION here is discharged" was true of the packet at its proposing
+commit `c65cce22` and is false of the packet you are reading: § 2 and § 3 were
+implemented and proved on the realization branch, § 4 cut and published
+`contract-v1.44`, and § 5.6 is now the archive act itself. The sentence is kept
+rather than rewritten because the whole point of the § 1.2 / § 1.3 division it
+introduces is what the packet claimed AT AUTHORING, and a status line edited
+after the fact would erase the distinction the record exists to hold. What
+remains genuinely open after the archive is four items and no more — § 5.4,
+§ 6.1, § 6.2 and § 6.3 — and § 5.6 below names each one and states that none of
+them is asserted anywhere in canon.
+
 ## 1. Admission
 
 - [x] 1.1 **DONE 2026-08-26 — the filing was commissioned, and the commission
@@ -396,7 +408,7 @@ finishing recipe.
       `d149a34b...` the frozen `contract-v1.43` inventory records. NO INVENTORY
       WAS HAND-EDITED at any point.
 
-- [ ] 4.5 `verify-commit --commit HEAD` after committing, then
+- [x] 4.5 `verify-commit --commit HEAD` after committing, then
       `verify-promotion --commit <candidate> --remote origin --tag <tag>` BEFORE
       tagging. Note the fortunate property: this runs the NEW code, so the fix
       is exercised by the cut that carries it. `HGR-RELEASE-TAG-EXISTS` after
@@ -425,16 +437,49 @@ finishing recipe.
       on `contracts/CHANGELOG.md`, `contracts/manifest.yaml` and
       `contracts/releases/contract-v1.44.digests.yaml`, the three surface members
       this cut moves. Re-run it against the MERGE COMMIT before tagging.
+      **RE-RUN AGAINST THE MERGE COMMIT, AND IT PASSED — 2026-08-26, before the
+      tag was cut; recorded from the session that performed the cut.**
+      `verify-promotion --commit 8894901c --remote origin --tag contract-v1.44`
+      → **pass, exit 0, zero findings**, so the pre-merge run's
+      `HGR-RELEASE-CANDIDATE-UNREACHABLE` and its three
+      `HGR-RELEASE-SURFACE-DRIFT` entries are all gone, which is exactly what a
+      merged candidate whose surface members match the published bundle looks
+      like. The fortunate property this task names held in the strongest form
+      available: the pass was produced BY the resolution step this change adds,
+      against the live canonical remote.
+      **AND RE-CHECKED AT THE ARCHIVE, WHERE IT REPORTS THE LATER STATE THIS
+      TASK PRE-DECLARED.** The same invocation run at the archive act returns
+      `HGR-RELEASE-TAG-EXISTS error path=refs/tags/contract-v1.44: the bundle
+      tag already exists on the remote` — "the expected later state, not a
+      failure", in this task's own words, because 4.6's tag is now published.
+      The pre-tag pass is therefore NOT reproducible after the tag by
+      construction, and is recorded from the cutting session rather than
+      re-measured here; what the archive DID re-measure is 4.6's `verify-tag`,
+      which reads the same bundle from the same remote and passes.
 
-- [ ] 4.6 Annotated tag on the merge commit on `main`, message style
+- [x] 4.6 Annotated tag on the merge commit on `main`, message style
       `contract-v<next> — additive: <summary>`. Then `verify-tag`.
       **NOT DONE, and not this session's to do.** The annotated
       `contract-v1.44` tag goes on the MERGE COMMIT on `main`, message style
       `contract-v1.44 — additive: the release verifier resolves its remote
       operand before it compares`, followed by `verify-tag`. Deferred to the
       post-merge cut on the orchestrating session's instruction.
+      **DONE 2026-08-26 — CUT, PUSHED AND VERIFIED, and verified here from the
+      remote rather than taken on report.** `git ls-remote --tags origin` shows
+      `refs/tags/contract-v1.44` as tag object
+      `0f40899c7759a383279e4ed94c9da49ea3d5ddcd` whose peel
+      (`refs/tags/contract-v1.44^{}`) is
+      `8894901c192a231dcf77bf9360764ce98a12a822` — the merge commit of pull
+      request #390, so the tag sits where this task says it must. `git cat-file
+      -p` on that object confirms it is ANNOTATED (`type commit`, `tag
+      contract-v1.44`, tagger `brettheap`) and carries exactly the message style
+      asked for: `contract-v1.44 — additive: the release verifier resolves its
+      remote operand before it compares`. Then `python3
+      scripts/validate-contract-release.py verify-tag --remote origin --tag
+      contract-v1.44` → `release verify-tag: pass`, **exit 0**, re-run at the
+      archive act.
 
-- [ ] 4.7 Sync the aggregation-repo submodule pointer. The shared openxFactory
+- [x] 4.7 Sync the aggregation-repo submodule pointer. The shared openxFactory
       checkout usually holds other sessions' uncommitted work — stage the
       gitlink directly with `git update-index --cacheinfo 160000,<sha>,openxFactory`,
       verify `git diff --cached --name-only` shows exactly that entry, and
@@ -444,6 +489,14 @@ finishing recipe.
       with `git update-index --cacheinfo 160000,<sha>,openxFactory`, verify `git
       diff --cached --name-only` shows exactly that entry, and commit inside that
       verified window.
+      **DONE 2026-08-26 — SYNCED, AND READ BACK OUT OF THE AGGREGATION TREE.**
+      Aggregation commit `901bd04a3282d4637735c0278ae84c497b969eed`, "Sync
+      submodule pointers: openxFactory realizes fix-release-reachability-race,
+      contract-v1.44 (#390)". `git ls-tree 901bd04a openxFactory` reads
+      `160000 commit 8894901c192a231dcf77bf9360764ce98a12a822`, so the gitlink
+      names exactly the merge commit of 4.5 and the tagged commit of 4.6 — the
+      three agree on one sha, which is the property the verified-window
+      discipline exists to produce.
 
 ## 5. Verification
 
@@ -542,7 +595,7 @@ finishing recipe.
         merged and nothing here touches it.
       - `OPENSPEC_TELEMETRY=0 openspec validate fix-release-reachability-race
         --strict` → valid; `--all --strict` → **78 passed, 0 failed**.
-- [ ] 5.6 ARCHIVE AFTER REALIZATION. This change ships ACTIVE and archives only
+- [x] 5.6 ARCHIVE AFTER REALIZATION. This change ships ACTIVE and archives only
       on merged-plus-green PLUS the bundle cut of § 4, following
       `add-family-enumeration-check` for the merge half and `contract-v1.10` for
       the cut half. The archive act is its own commit after the release.
@@ -551,6 +604,102 @@ finishing recipe.
       the tag (4.6) is outstanding. Per the orchestrating session's instruction
       of 2026-08-26 this session does not merge, does not tag, and does not
       archive.
+      **DONE 2026-08-26 — THE GATE IS FULLY DISCHARGED, AND THIS ENTRY IS THE
+      ARCHIVE ACT.** Every arm checked rather than asserted
+      (`release-realization/spec.md:23-32`). CODE MERGED ON THE IMPLEMENTED
+      TARGET — pull request #390, merged 2026-08-26T21:21:13Z as merge commit
+      `8894901c192a231dcf77bf9360764ce98a12a822`, re-verified here an ancestor
+      of `origin/main` (`git merge-base --is-ancestor` exit 0) rather than taken
+      from the pull request page. THE RUNNABLE SURFACE RAN GREEN — on the final
+      head `d548d04d2d88f76568b719c5e3e41956ebc1594a`, `pytest-suite` and
+      `wallet-validation` both concluded `success` (read back from the check-runs
+      API at the archive), the pytest lane in 13m10s; locally the full suite was
+      6497 passed / 0 failed and `tests/hermes_runtime_contracts` 508 passed.
+      THE § 4 CUT — `contract-v1.44` built twice byte-identical with
+      `verify-commit` pass (4.4, 4.5), `verify-promotion` pass on the merge
+      commit before the tag (4.5), the annotated tag published on `8894901c` and
+      `verify-tag` **re-run at this act, exit 0** (4.6), and the aggregation
+      submodule pointer at `901bd04a` naming that same sha (4.7).
+      **THE ACT.** ARCHIVED to
+      `openspec/changes/archive/2026-08-26-fix-release-reachability-race/` by
+      `OPENSPEC_TELEMETRY=0 openspec archive fix-release-reachability-race
+      --yes`, which reported `shared-contract-ownership: update`, `+ 3 added`,
+      `Totals: + 3, ~ 0, - 0, → 0` and applied the delta into
+      `openspec/specs/shared-contract-ownership/spec.md`.
+      **ONE THING THE CLI DID NOT DO, AND IT MATTERS FOR THE ORIGIN GATE.**
+      `openspec archive` moved `proposal.md`, `design.md`, `tasks.md` and the
+      delta but DELETED `.openspec.yaml` instead of moving it — the dotfile is
+      outside its copy set. It was restored into the archive folder from the
+      pre-archive tree and checked, not assumed: blob
+      `68c538318df34c03060480b14b67676e18252cd9`, byte-identical to the blob at
+      the commit the archive was taken from. An archived ad-hoc change whose
+      origin declaration had silently vanished would fail the origin-retention
+      requirement on its own terms, so this is verified rather than trusted.
+      **PROMOTION VERIFIED BYTE-FOR-BYTE, which is the whole point of the
+      act.** `openspec/specs/shared-contract-ownership/spec.md` goes **7 → 10
+      requirements** and **23 → 33 scenarios** (+10 = 3 + 4 + 3, the fourth on
+      requirement 2 being § 6.4's folded-in shallow-clone rule), 170 → 332
+      lines. The diff is **162 lines inserted and ZERO deleted**, all of them at
+      the tail (`@@ -168,3 +168,165 @@`), so the seven pre-existing requirements
+      are byte-identical after the act, none was removed, and the order is
+      unchanged. The promoted block equals the delta text EXACTLY: the delta's
+      requirement body (its lines 5-165, i.e. everything below
+      `## ADDED Requirements`) and canon's appended block (its lines 171-331)
+      are both 161 lines and share one digest,
+      `sha256:a645ce318a98b5e214a67990691a9a96f7a327072874671b11dff2d0daa9af05`,
+      with `cmp` reporting no difference. The archived
+      `specs/shared-contract-ownership/spec.md` is itself byte-identical to the
+      authored delta, so the record of what was promoted stays in the packet.
+      **THE MECHANISM WAS `openspec archive`, NOT `proposal-support archive`,
+      and the choice is deliberate.** `proposal_support.archive_change` refuses
+      any change whose `tasks.md` still carries a `^- \[ \]` line — a blanket
+      gate that cannot tell a surviving named follow-up from unfinished work —
+      and this packet keeps four on purpose. The two things that wrapper adds
+      were run anyway: the origin gate, `python3 scripts/proposal-support.py .
+      verify fix-release-reachability-race` → `proposal support verification ok`
+      before the move and the whole-corpus sweep `verify` (no argument) → ok
+      after it; and packaging, which is a lawful no-op here because an ad-hoc
+      origin with no `supporting-docs/` folder has nothing to bundle. The
+      precedent is `ratify-doxbench-landed-context-surfaces`, archived by
+      `openspec archive <change> --yes`, plus the four archived siblings that
+      carry unticked follow-ups through the archive —
+      `add-projection-title-uniqueness` (4),
+      `govern-openspec-corpus-membership` (4),
+      `add-omnigent-domain-terminology` (3) and
+      `add-doxbench-distilled-abstract` (1).
+      **THE ORIGIN-RETENTION GATE, STATED PRECISELY RATHER THAN WAVED
+      THROUGH.** `.openspec.yaml`'s `kind`, `id`, `approved_by` and
+      `approved_on` are byte-identical to the proposing-and-ratifying commit
+      `c65cce22`. Its `reason` is NOT: `830d635c`, hours later the same day and
+      before any merge, APPENDED the under-control reproduction to it (blob
+      `f627d96a` → `68c53831`: `-1 +7` lines, the one removed line being the
+      "Authored in openxFactory because…" sentence, which reappears unchanged on
+      its own line after the six new ones — so nothing was deleted from the
+      reason, it was interleaved). Recorded here because a reader diffing those
+      two blobs will see the move and should not have to guess what it was: an
+      extension of the reason by the authoring session inside the authoring
+      window, not a rewrite of provenance. The retention requirement's own words
+      are that an archived ad-hoc change "retain the reason and approval
+      provenance", and it does; the coherence gate reads the declaration as it
+      stands and passes.
+      **GATES AFTER THE ACT.** `OPENSPEC_TELEMETRY=0 openspec validate --all
+      --strict` → **76 passed, 0 failed**, one fewer item than the 77 before,
+      because this packet left the active set.
+      **WHAT SURVIVES AS A FOLLOW-UP RATHER THAN AS A CLAIM — four items, and
+      none of them is asserted anywhere in canon.** § 5.4, the
+      many-runs-identical property: recorded UNPROVEN and substituted, not
+      ticked, because it is unprovable by construction; the substitutes are the
+      § 3.1/§ 3.2 fixtures that DRIVE the skew on every run and § 5.3's single
+      live probe. § 6.1, the sweep of the sibling modules under
+      `scripts/hermes_runtime_validation/` (`consumer_handoff.py` first): NAMED
+      AND NOT PERFORMED. § 6.2, the eleven-minute exposure window: a
+      `pytest-suite.yml` question, not an obligation about the verifier. § 6.3,
+      `_blob_object_id`'s conflation of "absent blob" with "absent commit":
+      still there. The three promoted requirements speak only to resolving the
+      operand, naming which of four outcomes was observed, and pinning both new
+      paths with proofs — they say nothing about a repeated-run property, the
+      unswept siblings, the window, or the conflation, so the archive promotes
+      no unearned claim.
 
 ## 6. Open — deliberately not closed by this change
 
