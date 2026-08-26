@@ -34,7 +34,11 @@ at P3 records `wallet-v1.1`.
       evidence`); the byte-identity floor with its ONE named prose carve-out; the
       alias-preserved `wallet-validation` token; ten non-negotiable sequencing
       items; the realization-evidence table as a gate; Q1–Q5 with recommended
-      answers and destinations; the successors named. `Status: draft`.
+      answers and destinations; the successors named. The header read
+      `Status: draft` as authored; 1.13 superseded that, and it now carries
+      `Status: ratified` with its `Ratified:` provenance line and the
+      `## Ratification record, 2026-08-26`. (Corrected in Speckit feature
+      `016-openxwallet-split-bookkeeping`.)
 - [x] 1.2 **Seven spec deltas, 30 requirement blocks.** ADDED 14 —
       `domain-descendant-boundary` (5: descendant repository, pin-by-commit
       twice, profile-never-fork, ratified placement, lazy consumer-gated
@@ -85,10 +89,29 @@ at P3 records `wallet-v1.1`.
 - [x] 1.9 List the change in `README.md`'s `## OpenSpec Records` →
       `Active changes:` block, at the top, in the existing entries' shape.
       (PR #391, 2026-08-26)
-- [ ] 1.10 `python3 scripts/doc-health.py --single-repo .` shows NO new finding
+- [x] 1.10 `python3 scripts/doc-health.py --single-repo .` shows NO new finding
       attributable to this change directory or the README entry, measured against
       the same command's report on the tree before the packet's completion.
-- [ ] 1.11 **Amendment 2 to `docs/openxdox-naming.md`** — THIS CHANGE'S OWN DIFF,
+      **MEASURED, and the numbers are recorded rather than summarized as
+      "green".** Pre-packet `5ef6d8d2^1` = `64486a51`: 5 critical, 6 error, 41
+      warning, 4 info. Post-packet `5ef6d8d2`: 5 critical, 7 error, 41 warning,
+      4 info. The differential is **exactly one finding**, and it is NOT in
+      1.10's scope: `family=location-conformance`,
+      `path=ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md`,
+      `rule="staged material already cites proposal split-openxwallet-repo"`,
+      `class="contested"`. Zero findings attributable to
+      `openspec/changes/split-openxwallet-repo/` or to 1.9's README entry, which
+      is what this task asserts. The one finding is the standard staged-topic-exit
+      signal — `scripts/doc_health/families.py` `fam_location_conformance` fires
+      when a `staged` fragment cites a change id that now exists on disk — so it
+      is triggered by the packet's EXISTENCE, not by a defect in it. It is
+      deliberately NOT remedied here: the remedy is a lifecycle act on a staged
+      topic (moving material into `supporting-docs/`) that §1 does not authorize,
+      the topic is still the reference for §2–§12, and a `contested` finding is
+      resolved only by a cited change or a recorded disposition — never by a
+      silent edit. Left for the wave's archive step or its own change.
+      (Speckit feature `016-openxwallet-split-bookkeeping`)
+- [x] 1.11 **Amendment 2 to `docs/openxdox-naming.md`** — THIS CHANGE'S OWN DIFF,
       not a successor, because R1 contradicts a `ratified` record. TWO edits, both
       quoted verbatim in the proposal so the diff is checkable. **(a)** The new
       `## Amendment 2 — openXwallet leaves the exception list (2026-08-26)`
@@ -100,12 +123,33 @@ at P3 records `wallet-v1.1`.
       not the rule; `openXwallet` left this list in Amendment 2)" — singular verb,
       singular noun. A mechanical substitution there leaves a `ratified` record
       ungrammatical.
-- [ ] 1.12 **[xFactory]** Amend `CLAUDE.md` § "Working rules" item 1 to the
+      **DONE** in `docs/openxdox-naming.md`: (a) Amendment 2 appended as the
+      file's new final section (`:111-127`), body byte-equal to the proposal's
+      quoted block modulo wrapping; (b) the § Decision bullet rewritten at
+      `:23-25` — singular `spelling`/`is`/`exception`, so the record body above
+      Amendment 2 carries zero `openxWallet` occurrences (the two inside
+      Amendment 2 are the ratified text naming the retired spelling as history).
+      The lifecycle header is byte-identical and still carries exactly ONE
+      ratification citation line, per Amendment 1's precedent and
+      `docs/document-lifecycle.md` § Status Claim Rules. The whole diff is two
+      hunks: one append, one bullet — amended, never rewritten.
+      **Left OPEN for the human merge gate — not merged.**
+      (commit `b08184e`, PR #396, Speckit feature
+      `016-openxwallet-split-bookkeeping`, 2026-08-26)
+- [x] 1.12 **[xFactory]** Amend `CLAUDE.md` § "Working rules" item 1 to the
       replacement text quoted verbatim in the proposal — neutral contracts live in
       openxFactory **or in a neutral `open*` product repository openxFactory pins
       by commit and digest**. THIS CHANGE'S OWN DIFF per the RATIFIES list. Until
       P4 lands, the rule as written is the one in force and this change
       contradicts it; that is stated in the proposal rather than discovered later.
+      **DONE** in xFactory `CLAUDE.md` rule 1 (`:61-64`), replaced with the
+      proposal's verbatim four-line text; one file changed, four insertions and
+      two deletions, `## Working rules` heading and rules 2 onward byte-identical,
+      no `.gitmodules`/gitlink/submodule pin touched. Authored in the dedicated
+      worktree `xFactory-worktrees/openxwallet-working-rule` and committed with an
+      explicit `-- CLAUDE.md` pathspec per that repo's own working rule #2.
+      **Left OPEN for the human merge gate — not merged.**
+      (xFactory commit `b66db51`, PR opensoft/xFactory#157, 2026-08-26)
 - [x] 1.13 **[OPERATOR] [GOVERNANCE]** Ratify or return the proposal. Nothing in
       §2 onward is authorized work until this is discharged; record the
       ratification in the proposal header and set `Ratified by:`.
