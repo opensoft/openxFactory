@@ -262,7 +262,13 @@ about the primary path without asserting anything about remotes nobody has
 tested, and the taxonomy requirement is written to permit exactly that without
 naming a git incantation in canon. Ruling still wanted, because the fallback is
 the part that decides whether a hardened or mirrored remote can be verified
-against at all.
+against at all. **A cost argument points the same way**: the online realization
+path is capped at 30 seconds twice over — `_run_git`'s per-invocation `timeout=30`
+and `_run_cli`'s whole-invocation `timeout=30` in
+`tests/hermes_runtime_contracts/test_validator_cli.py:104-113` — and that cap was
+breached once under machine load while this packet was being authored
+(`tasks.md` § 5.5). A single object is cheaper than a ref's history, and probing
+with `git cat-file -e` first makes the already-current case free.
 
 **Q2 — is the offline fixture mechanism sound?** `tasks.md` § 3.3 proposes
 making the bare origin's `objects/` directory unreadable so that `ls-remote`

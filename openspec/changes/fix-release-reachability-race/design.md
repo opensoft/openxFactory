@@ -142,7 +142,13 @@ the remote threaded down into it for no reason other than the retry.
 to write, and it makes a network round trip on every call including the common
 case where the clone is already current. It also fetches when the answer is
 already knowable, which is precisely the property that makes a verification slow
-enough to be skipped.
+enough to be skipped. The cost is not hypothetical: the online realization path
+is capped at 30 seconds twice over — `_run_git`'s per-invocation `timeout=30` at
+`:135-156`, and `_run_cli`'s whole-invocation `timeout=30` at
+`tests/hermes_runtime_contracts/test_validator_cli.py:104-113`, which governs
+`--require-realization` — and that cap was breached once under machine load
+during this packet's authoring (`tasks.md` § 5.5). Probe with `git cat-file -e`
+first, so the already-current case spends nothing.
 
 **Rejected — stop reading the remote; compare against the local
 `refs/remotes/<remote>/main`.** This removes the mixing by removing the live

@@ -55,6 +55,25 @@ claim it performed.
       the resolution step is ever bypassed, and the regression in 3.4 depends on
       it still being there. Widening it to treat 128 as "not reachable" is
       refused on the record in `design.md` § 2.
+- [ ] 2.4b **MIND THE 30-SECOND BUDGET ON THE ONLINE PATH.** This change adds a
+      network fetch to a path that is already capped twice over: `_run_git` runs
+      every git invocation with `timeout=30` (`:135-156`), and
+      `tests/hermes_runtime_contracts/test_validator_cli.py`'s `_run_cli` at
+      `:104-113` caps the WHOLE CLI invocation at `timeout=30` — including
+      `--require-realization`, which is the online realization path. That cap was
+      breached once during this packet's own authoring: the full suite reported
+      `subprocess.TimeoutExpired` after 30 seconds on
+      `test_release_mode_field_is_preserved_on_the_real_repository[--require-realization-realization]`
+      (§ 5.5). That was almost certainly machine load — three other sessions'
+      pytest suites were running concurrently on the same box — and it is NOT
+      evidence of a defect in the validator. It is evidence that the budget is
+      already tight, and this change spends more of it. Two consequences for
+      2.1: prefer the NARROW object fetch over a ref fetch on cost grounds as
+      well as precision grounds (Q1), and probe with `git cat-file -e` FIRST so
+      the common case of an already-current clone costs nothing. If the budget
+      turns out to be genuinely insufficient after the fix, raising it is a
+      separate decision with its own evidence — do not raise it silently as part
+      of this change.
 - [ ] 2.5 Confirm by reading, not by assuming, that `_surface_drift`'s two
       remote-object reads are now covered: `_CommitSource(repo_root,
       main_oid).list_release_inventories()` at `:686` (a `git ls-tree` that
@@ -190,6 +209,15 @@ finishing recipe.
         this change's own defect, firing live; see § 5.1.
       - the same single test after `git fetch origin <remote main oid>` →
         **1 passed** (44.44s), tree unchanged.
+      - the FULL `python3 -m pytest tests/hermes_runtime_contracts -q` (postgres
+        markers INCLUDED, run concurrently with three other sessions' suites on
+        the same machine) → **1 failed, 836 passed in 2980.75s (0:49:40)**, and
+        the failure was a DIFFERENT one:
+        `test_validator_cli.py::test_release_mode_field_is_preserved_on_the_real_repository[--require-realization-realization]`
+        raising `subprocess.TimeoutExpired` after 30 seconds. Recorded because a
+        reader running the full suite will see it and should not mistake it for
+        this defect. It is a load artifact against the `_run_cli` cap, not a
+        finding about the validator — but it is why § 2.4b exists.
       - `python3 -m pytest tests/doc-health -q` → **896 passed**, 1 warning
         (0:42.91). The known agent-worktree hazard —
         `test_derivation_reproduces_the_real_bootstrap_clusters`, defect A of
