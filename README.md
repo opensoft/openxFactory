@@ -1020,8 +1020,9 @@ Active changes:
   rather than declared absent — and moves the stale O*NET 30.3 pin to 31.0
   together with its by-version attribution, which is what the registry flag
   required and what discharges it. Adx goes from 3 of 10 workers crosswalked
-  to 10 of 10 across three bodies (O*NET 5 mapped / 5 absent, PCF 6 / 4, IAB
-  3 carried forward), and it is the domain that proves the design: its two
+  to 10 of 10 workers carrying at least one crosswalk entry (O*NET 5 mapped /
+  5 absent, PCF 6 / 4; IAB stays a 3-worker carry-forward, not a full-domain
+  body), and it is the domain that proves the design: its two
   workers with no honest occupation, `media_planner` and
   `lifecycle_marketer`, have clean process homes a single-body crosswalk
   would have written off. Its long-unrun marketing brief (3b.5e) ran as part
