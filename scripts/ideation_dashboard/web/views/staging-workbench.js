@@ -260,9 +260,20 @@ const ABSTRACT_NO_MODEL_SENTENCE =
 // answers in the released error shape, and this surface maps the CODE to its
 // own sentence rather than echoing the server's message (FR-020/FR-022: this
 // pane states an absence, it never quotes a server). A STATED abstract refusal
-// is the one exception and deliberately so: its `reason` is one of serve.py's
-// own fixed sentences about the DOCUMENT, written to be rendered here, and it
-// carries no prose, no provider text and no document text.
+// is the one exception and deliberately so: its `reason` is SERVER-AUTHORED
+// text about the DOCUMENT or the ANSWER, written by serve.py or the verifier to
+// be rendered here.
+//
+// THE INVARIANT, STATED AS IT NOW HOLDS (review N1). "One of serve.py's own
+// FIXED sentences" stopped being true on 2026-08-26, when `abstract-too-long`
+// began naming the two numbers a reader needs to act on. What holds — and what
+// makes rendering a server's own words safe here at all — is narrower and
+// exact: the WORDING is the server's, composed from nothing the caller sent;
+// the only variable parts are AT MOST TWO INTEGERS this process measured over
+// the answer (`TurnLimitError` carries the dimension and the two numbers and
+// never the text it measured); and no prose, no provider text and no document
+// text ever reaches the string. A reason is a sentence about an absence, and it
+// stays one.
 const ABSTRACT_ERROR_SENTENCES = {
   model_capability_unavailable:
     "this console cannot reach a model right now, so nothing was distilled",
@@ -645,8 +656,19 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
     // as right. It is DISCARDED UNRENDERED — and not recorded either, because a
     // discarded answer that quietly populated the cache would paint itself the
     // moment the reader came back, which is the same defect one repaint later.
+    //
+    // `foreign` IS PART OF THIS TEST, not only of the refusal one above (review
+    // N3). The store below keys by the DISPATCHED `path`; this recheck asked
+    // only whether the ECHO matches the LIVE subject. Those two questions agree
+    // everywhere except in one shape — an answer echoing a path that is NOT the
+    // dispatched one but IS the document the reader has since spun to — and
+    // there they disagreed in the worst direction: the answer passed the
+    // recheck and was then cached as the DISPATCHED document's abstract. One
+    // document's prose filed under another's name is precisely what this
+    // recheck exists to prevent, so the echo is tested against the DISPATCH
+    // first and the two now ask the same question.
     const live = session.subject;
-    if (!live || !echoed || echoed !== live.path) {
+    if (!live || foreign || echoed !== live.path) {
       repaint();
       return;
     }

@@ -1,10 +1,11 @@
 # Realization evidence — add-doxbench-distilled-abstract §10.3
 
-**PENDING — operator run not yet performed.** This file is the recipe plus an
-empty record. §10.3 is an operator act: ONE run on the real corpus through a
-REAL adapter. A green suite does not close it — `FakeWorkbenchModelPort` returns
-a constant (`doxbench_model.py:1101`) the verifier refuses by design, so nobody
-may fill the record below from a test run.
+**PENDING — one run attempted (2026-08-26), none has closed it.** This file is
+the recipe, the account of Attempt 1, and an empty record. §10.3 is an operator
+act: ONE run on the real corpus through a REAL adapter whose abstract the
+verifier ACCEPTS. A green suite does not close it — `FakeWorkbenchModelPort`
+returns a constant (`doxbench_model.py:1101`) the verifier refuses by design, so
+nobody may fill the record below from a test run.
 
 ## Reachability — the `omp` harness
 
@@ -87,6 +88,39 @@ document.` and the region's accessible name is `<title> — <that caption>`. Any
 refusal class (`subject-mention-coverage`, `foreign-path`, `subject-not-named`,
 `empty`, `no-declared-base`) is a run that did NOT close §10.3 — record it and
 run again; never relax the verifier to pass.
+
+## Attempt 1 — 2026-08-26 (did NOT close §10.3)
+
+The first real run of this surface. Operator **Brett**, on the **T100
+subscription adapter** (an operator-supplied rig fronting `sonnet` and `haiku`,
+not the `omp` bridge lane), subject
+`ideation/staging/client-credential-escrow-registry/client-credential-escrow-registry.md`.
+Four presses of **Generate**. EVERY answer failed inside the adapter, on
+`observed_hashes` — an adapter-side defect, fixed outside this repo — so each
+press routed to `model_failed` and no abstract ever reached the verifier.
+
+The run closed nothing, and it found two defects in THIS surface, both fixed by
+`change/abstract-length-cap-and-visible-refusal`:
+
+1. **The pane showed no reason.** `model_failed` is an ERROR-shaped body
+   (`{ok, error, message}`) and NAMES NO SUBJECT, so the subject recheck at the
+   paint boundary returned before recording anything: all four presses left the
+   region on the not-yet-generated caption, and the control read as one that did
+   nothing. The whole of `ABSTRACT_ERROR_SENTENCES` was unreachable. A refusal
+   is now recorded against the path the request was DISPATCHED for, ahead of
+   that recheck.
+2. **The ask was one no model could obey.** A diagnostic dispatch made during
+   the same session — the model answering directly, outside the failing adapter
+   path — returned a 2_018-byte abstract against `MAX_ABSTRACT_PROSE_BYTES =
+   1_500`. So the answer would have been refused `abstract-too-long`, in full,
+   after a model call had been spent — while the VERIFIER ACCEPTED it: every
+   claim in it held against the document's own declared fields. Only the length
+   bound refused it, and it refused a good abstract. The prompt now asks for
+   ~150 WORDS (`MAX_ABSTRACT_PROSE_WORDS`), a number a model can count while it
+   writes, and the byte bound stays where the 280px region put it.
+
+§10.3 still wants a run whose abstract reaches the verifier and is ACCEPTED.
+Attempt 2 fills the record below.
 
 ## The record (fill on the run)
 

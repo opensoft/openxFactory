@@ -732,6 +732,84 @@ abstracts.resolve({ ok: false, status: 502, payload: null });
 await quiesce();
 out.afterUnreadable = regionShot(container);
 
+// ---- WHICH DOCUMENT A REFUSAL BELONGS TO (review S1/S2/S3, 2026-08-26) ----
+// Recording a refusal BEFORE the subject recheck buys visibility, and the
+// question it opens is whose. The three arms below are the three answers, and
+// each of them is a different key: the DISPATCHED path, never the current one;
+// nothing at all when the answer names another document; nothing at all when
+// the wait was taken back.
+
+// (S1) THE READER SPUN AWAY WHILE IT WAS IN FLIGHT. The refusal belongs to the
+// document the control was pressed on -- A -- and must appear there when the
+// reader comes back, while B, which asked for nothing, is left exactly as it
+// was.
+out.beforeMidFlight = regionShot(container);
+wheel.selectPath(PATH_A);
+await quiesce();
+await press(container, 'swb-abstractgenerate');
+wheel.selectPath(PATH_B);
+await quiesce();
+abstracts.resolve({ ok: false, status: 502, payload: {
+  ok: false, error: 'model_failed',
+  message: 'the model call failed' } });
+await quiesce();
+out.midFlightOnB = regionShot(container);
+wheel.selectPath(PATH_A);
+await quiesce();
+out.midFlightBackOnA = regionShot(container);
+
+// (S2) AN ANSWER NAMING A DIFFERENT DOCUMENT. `subject_path` is echoed and it
+// is not the one this request carried, so the answer is not this request's at
+// all: it is dropped whole and records nothing -- not on the document it names,
+// and not on the one that asked.
+wheel.selectPath(PATH_B);
+await quiesce();
+await press(container, 'swb-abstractgenerate');
+abstracts.resolve({ ok: false, status: 502, payload: {
+  ok: false, error: 'model_timeout', message: 'timed out',
+  subject_path: PATH_A } });
+await quiesce();
+out.foreignErrorOnB = regionShot(container);
+wheel.selectPath(PATH_A);
+await quiesce();
+out.foreignErrorOnA = regionShot(container);
+wheel.selectPath(PATH_B);
+await quiesce();
+out.foreignErrorBackOnB = regionShot(container);
+
+// (S3) THE WAIT WAS TAKEN BACK. Cancel moves the token, and a refusal that
+// lands afterwards is as dropped as a success would be -- a human who cancelled
+// is not owed a reason for an answer they stopped waiting for. Read back after
+// a spin away and back, because "records nothing" is only visible on a repaint
+// the recording did not itself trigger.
+await press(container, 'swb-abstractgenerate');
+await press(container, 'swb-abstractcancel');
+out.afterCancelBeforeRefusal = regionShot(container);
+abstracts.resolve({ ok: false, status: 502, payload: {
+  ok: false, error: 'console_required', message: 'stale token' } });
+await quiesce();
+out.cancelledRefusalLanded = regionShot(container);
+wheel.selectPath(PATH_A);
+await quiesce();
+wheel.selectPath(PATH_B);
+await quiesce();
+out.cancelledRefusalOnReturn = regionShot(container);
+
+// (N3) THE SAME QUESTION FOR A SUCCESS, in the one shape the recheck alone got
+// wrong: an answer echoing a path that is NOT the dispatched one but IS the
+// document the reader has since spun to. The recheck compared the echo against
+// the LIVE subject and let it through, and the store keyed it under the
+// DISPATCHED path -- so one document's prose was cached as another's.
+await press(container, 'swb-abstractgenerate');
+wheel.selectPath(PATH_A);
+await quiesce();
+abstracts.resolve(successBody(PATH_A, DIGEST_1, 'A FOREIGN ANSWER.', 60, 9));
+await quiesce();
+out.foreignSuccessOnA = regionShot(container);
+wheel.selectPath(PATH_B);
+await quiesce();
+out.foreignSuccessOnB = regionShot(container);
+
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -873,9 +951,14 @@ def test_an_answer_for_a_subject_the_pane_left_is_discarded_unrendered(pane):
     # on its own evidence of a discard: the region draws whatever the reader has
     # selected, so an answer that was quietly filed under the subject it names
     # would look identical here and paint itself the moment the reader came
-    # back — the same defect one repaint later, which is why the recheck
-    # returns before recording rather than after. Mutation 9.2b removes that
-    # recheck; without this line the pin above still passes.
+    # back — the same defect one repaint later, which is why the recheck returns
+    # before the SUCCESS is cached rather than after. (It no longer stands
+    # between every answer and the store: since 2026-08-26 a REFUSAL for the
+    # dispatched subject is recorded ahead of it, deliberately — a refusal
+    # carries no prose, so there is no wrong-document text it could paint, and
+    # dropping it was what made a refused generation look like a control that
+    # did nothing. The pins for that are further down this file.) Mutation 9.2b
+    # removes the recheck; without this line the pin above still passes.
     assert "LATE ANSWER" not in (pane["afterReturn"]["body"] or "")
 
 
@@ -996,6 +1079,107 @@ def test_an_unreadable_answer_says_so_rather_than_nothing(pane):
     assert shot["caption"] == CAP_UNGENERATED
     assert shot["note"] == (
         "no distillation was generated: this console could not read an answer")
+
+
+# ---------------------------------------------------------------------------
+# ...AND ON THE DOCUMENT IT WAS ASKED FOR, AND NOWHERE ELSE
+# ---------------------------------------------------------------------------
+#
+# Recording a refusal BEFORE the subject recheck is what made the reason
+# visible at all, and it moves the interesting question one step along: the
+# recheck used to be the only thing standing between an answer and the region,
+# so with a refusal now recorded ahead of it, WHICH KEY the refusal is filed
+# under is the whole of the guarantee.
+#
+# THE RULE, IN THREE ARMS. The key is the path THIS REQUEST WAS DISPATCHED FOR
+# — not the path the reader happens to be looking at when the answer lands, and
+# not a path the answer names for itself. So: a refusal for the dispatched
+# subject renders on THAT subject when it is next shown, whatever the reader has
+# spun to meanwhile (S1); an answer echoing a DIFFERENT subject is not this
+# request's answer at all and is dropped whole, recording nothing on either
+# document (S2); and a wait a human took back records nothing, because a
+# cancelled ask is not owed a reason (S3).
+#
+# The fourth pin asks the same question of a SUCCESS, and it is the one that
+# found a live defect: the recheck compared the ECHO against the LIVE subject
+# while the store keyed by the DISPATCHED path, so an answer echoing a foreign
+# path that happened to be the document the reader had spun to was cached as the
+# DISPATCHED document's abstract (N3).
+
+
+def test_a_refusal_renders_on_the_document_it_was_asked_for(pane):
+    """S1. The reader presses generate on A and spins to B while it is in
+    flight. The answer is an ERROR body, which names no subject — so the only
+    honest key is the one the DISPATCH carried. Filing it under the CURRENT
+    subject would tell a reader that the document they are looking at failed to
+    distil when nothing was ever asked of it, and would leave the document that
+    DID fail showing the not-yet-generated caption for ever."""
+    on_b = pane["midFlightOnB"]
+    before = pane["beforeMidFlight"]
+    # B asked for nothing, so nothing about B moved
+    assert on_b["note"] == before["note"]
+    assert "the model call failed" not in (on_b["note"] or "")
+    assert "the model call failed" not in (on_b["regionText"] or "")
+    # ...and A, which did ask, carries the reason when the reader returns to it
+    back = pane["midFlightBackOnA"]
+    assert back["note"] == (
+        "the model call failed, so nothing was distilled")
+    assert "nothing was distilled" in (back["regionText"] or "")
+
+
+def test_an_answer_naming_another_document_is_dropped_whole(pane):
+    """S2. `subject_path` is echoed and it is not the one this request carried.
+    That is not a slow answer for this document, it is an answer to a question
+    this request did not ask — and there is no key it could honestly be filed
+    under: not the document it names (nobody asked about that one here) and not
+    the one that asked (the answer is not about it). It is dropped entirely, and
+    the arm is read back after a spin away and back, because "not recorded" is
+    only visible on a repaint the drop did not itself trigger."""
+    for shot in (pane["foreignErrorOnB"], pane["foreignErrorBackOnB"]):
+        assert shot["caption"] == CAP_UNGENERATED, shot
+        assert shot["note"] in (None, ""), shot
+        assert "did not answer within" not in (shot["regionText"] or ""), shot
+    # the document the answer NAMED is untouched too — it still carries only
+    # what its own dispatch left there
+    named = pane["foreignErrorOnA"]
+    assert "did not answer within" not in (named["note"] or "")
+    assert named["note"] == (
+        "the model call failed, so nothing was distilled")
+
+
+def test_a_cancelled_wait_records_no_refusal_either(pane):
+    """S3. Cancel moves the token, and the token arm is checked BEFORE anything
+    is recorded. A human who took the wait back is not owed a reason for an
+    answer they stopped waiting for — and a reason filed anyway would surface
+    later, unbidden, under a caption that had moved on."""
+    assert pane["afterCancelBeforeRefusal"]["note"] in (None, "")
+    for shot in (pane["cancelledRefusalLanded"],
+                 pane["cancelledRefusalOnReturn"]):
+        assert shot["caption"] == CAP_UNGENERATED, shot
+        assert shot["note"] in (None, ""), shot
+        assert "reload the page" not in (shot["regionText"] or ""), shot
+
+
+def test_a_success_naming_another_document_is_dropped_and_not_cached(pane):
+    """N3, and the one shape the recheck alone got wrong. The recheck asked
+    whether the ECHO matches the LIVE subject; the store keys by the DISPATCHED
+    path. Those two agree in every ordinary case and disagree in exactly one: an
+    answer echoing a path that is not the one dispatched but IS the one the
+    reader has since spun to. It passed the recheck and was then cached as the
+    DISPATCHED document's abstract — one document's prose filed under another's
+    name, which is the defect the whole recheck exists to prevent.
+
+    The echo is now tested against the dispatch first, so the recheck and the
+    store key ask the same question."""
+    on_b = pane["foreignSuccessOnB"]
+    assert "FOREIGN ANSWER" not in (on_b["regionText"] or "")
+    assert on_b["caption"] == CAP_UNGENERATED
+    assert on_b["body"] in (None, "")
+    # and the document the answer NAMED gained nothing from it either: it still
+    # shows its own abstract, from its own dispatch
+    on_a = pane["foreignSuccessOnA"]
+    assert "FOREIGN ANSWER" not in (on_a["regionText"] or "")
+    assert on_a["body"] == "A distillation of topic-x, in one sentence."
 
 
 # ---------------------------------------------------------------------------

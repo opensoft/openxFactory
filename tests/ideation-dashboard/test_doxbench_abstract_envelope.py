@@ -47,6 +47,7 @@ from ideation_dashboard.doxbench_model import (
 )
 from ideation_dashboard.doxbench_scope import ScopeKey, ScopeProjection
 from ideation_dashboard.doxbench_turns import (
+    ABSTRACT_PROSE_WORDS_APPROX_BYTES,
     ABSTRACT_SECTION_ORDER,
     ABSTRACT_SUBJECT_FENCE_CLOSE_PREFIX,
     ABSTRACT_SUBJECT_FENCE_OPEN_PREFIX,
@@ -727,7 +728,12 @@ def test_the_envelope_states_the_bound_the_model_is_asked_to_respect():
 # cap raised without raising the bound would recreate the same refusal, only
 # with the prompt's own blessing.
 
-_ABSTRACT_WORD_CAP_PATTERN = re.compile(r"\b(1[0-9]{2}) words\b")
+# Deliberately shape-only: `\d+`, not `1[0-9]{2}`. A pattern that spelled the
+# current value into itself would stop MATCHING the day the cap moved, and an
+# `assert found` that fails because the SEARCH went blind reads as "the prompt
+# states no cap" when the prompt states a perfectly good one. The value is
+# asserted below, against the constant, where a mismatch says what it means.
+_ABSTRACT_WORD_CAP_PATTERN = re.compile(r"\b(\d+) words\b")
 
 # ~6.5 UTF-8 bytes per word of ordinary English including its trailing space;
 # 7 is that rounded UP, so the arithmetic below is the pessimistic direction.
@@ -768,6 +774,27 @@ def test_the_stated_word_cap_fits_inside_the_byte_bound_with_room_to_spare():
     # And the hard bound is STILL stated: the word cap is the ask, not a
     # replacement for telling the model what actually gets refused.
     assert str(MAX_ABSTRACT_PROSE_BYTES) in rendered
+
+
+def test_the_stated_byte_figure_is_the_word_caps_own_honest_conversion():
+    """THE THIRD NUMBER, pinned to the other two. The prompt states the cap in
+    WORDS (what a model can count) and glosses it in BYTES (what the bound is
+    measured in), and the gloss is a rounded constant rather than an arithmetic
+    the model is asked to perform. A gloss that drifted from the cap would be
+    the original defect wearing a different hat: an instruction whose two halves
+    ask for different lengths, one of which the bound refuses.
+
+    So it is held between six and seven bytes a word — ordinary English either
+    side of the ~6.5 the constant's own note claims — and strictly under the
+    hard bound, because a stated approximation at or above the thing that
+    refuses would be an invitation to be refused."""
+    assert (MAX_ABSTRACT_PROSE_WORDS * 6
+            <= ABSTRACT_PROSE_WORDS_APPROX_BYTES
+            <= MAX_ABSTRACT_PROSE_WORDS * _BYTES_PER_ENGLISH_WORD)
+    assert ABSTRACT_PROSE_WORDS_APPROX_BYTES < MAX_ABSTRACT_PROSE_BYTES
+    # ...and it is the figure the model is actually shown, read out of the
+    # rendered prompt rather than off the constant.
+    assert str(ABSTRACT_PROSE_WORDS_APPROX_BYTES) in _abstract().rendered()
 
 
 def test_a_word_capped_abstract_of_ordinary_english_is_never_refused():
