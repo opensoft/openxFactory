@@ -190,8 +190,16 @@ shipping.
     block): the file is an issuance-time snapshot; the conforming REVOCATION
     SURFACE is a live lookup on the Hermes runtime (S5 successor); it must
     not be pretended into a revocation surface.
-- [ ] 5.6 **Gate:** a convening admitting a holder with no active row fails the
+- [x] 5.6 **Gate:** a convening admitting a holder with no active row fails the
       required check.
+  - Gate evidence ACCEPTED by the operator (Brett) on 2026-08-26: feature
+    014's T007x live mutation probe emptied the register in the production
+    tree and the REQUIRED wallet-validation check refused with
+    `register-no-active-row`, restored immediately (nothing red was ever
+    committed). The probe exercises exactly the required check a convening's
+    holder admission rides, so an admission with no active row fails it by
+    construction. Evidence: `specs/014-register-and-reader/tasks.md` T007x,
+    `implementation-notes.md`. This acceptance closes S4.
 
 ## 6. S3 — the exercise, at verdict conformance
 
