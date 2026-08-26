@@ -291,7 +291,11 @@ The dashboard SHALL be delivered as a local generate-and-open command plus a pub
 - **THEN** it MUST NOT — legacy docs without `Possible feats:` sections simply carry no possibles
 
 ### Requirement: Staged-topic proposal commissioning
-The gate console SHALL offer a human-only `propose` action on a staging topic that commissions proposal authoring as a recorded dispatch — a `workflow-job` descriptor naming the proposal-authoring workflow and targeting the topic's staging id, plus a gate-action record — without authoring anything itself; the commissioned authoring runs externally and lands as an ordinary OpenSpec change subject to the existing review and ratify gates. The console SHALL refuse a topic absent from the pinned checkout's staging area and SHALL refuse a duplicate commission while a dispatched `propose` job for the same topic remains undelivered. The console SHALL ALSO refuse `propose` while the topic's tile carries an UNRESOLVED branch session, and the refusal MUST name the session and the two resolutions available — merge its pull request, or abandon the session to discard it. Proposal is the end of the staging pipeline: commissioning it from a tile whose drafts are still scattered across an unmerged branch would propose from a state no reviewer can see, so the human SHALL clear the session first. A session is UNRESOLVED while its snapshot registry entry is live; a merged session and an abandoned session are both resolved, and a branch surviving an abandon MUST NOT block propose, because the abandon already recorded the human's decision to discard. An abandoned branch is retained as reviewable evidence only until the topic's PROPOSAL exists; once it does, that branch MAY be deleted, because the proposal has closed the topic off and the abandoned exploration no longer has a question to answer. The deletion SHALL remain a human-invoked cleanup rather than an automatic consequence of commissioning — `propose` dispatches authoring and the proposal lands externally, so the branch MUST NOT be destroyed on the strength of a commission that has not yet produced anything.
+The gate console SHALL offer a human-only `propose` action on a staging topic that commissions proposal authoring as a recorded dispatch — a `workflow-job` descriptor naming the proposal-authoring workflow and targeting the topic's staging id, plus a gate-action record — without authoring anything itself; the commissioned authoring runs externally and lands as an ordinary OpenSpec change subject to the existing review and ratify gates. The console SHALL refuse a topic absent from the pinned checkout's staging area and SHALL refuse a duplicate commission while a dispatched `propose` job for the same topic remains undelivered. The console SHALL ALSO refuse `propose` while the topic's tile carries an UNRESOLVED branch session, and the refusal MUST name the session and the two resolutions available — merge its pull request, or abandon the session to discard it. Proposal is the end of the staging pipeline: commissioning it from a tile whose drafts are still scattered across an unmerged branch would propose from a state no reviewer can see, so the human SHALL clear the session first. A session is UNRESOLVED while its snapshot registry entry is live; a merged session and an abandoned session are both resolved, and a branch surviving an abandon MUST NOT block propose, because the abandon already recorded the human's decision to discard.
+
+An abandoned branch SHALL remain reviewable evidence until a human invokes cleanup with a durable RETENTION-RELEASE basis. The console SHALL accept an exact-tile active proposal, an archived change carrying that exact staged origin, or an executed demotion returning the proposal to that exact tile as machine-resolved preservation evidence. A demotion plan, proposal dispatch, missing change, missing worktree, missing tile, or non-live session state MUST NOT itself release retention. Demotion execution SHALL be proved by a durable execution receipt for new demotions; a pre-receipt demotion MAY be accepted only when the exact transition manifest and an exact returned-topic artifact jointly prove execution.
+
+Where no machine-resolved preservation evidence exists, cleanup MAY proceed only through an explicit human retention release carrying a nonblank reason. This lane SHALL support staged-topic, cluster, possible, missing, renamed, and otherwise orphaned tile identities without inferring that absence is disposition. Every successful cleanup SHALL remain human-invoked, local-only, and non-automatic; SHALL verify the branch belongs to the supplied tile, the session is not live, no worktree is attached, and a durable `abandon-session` proof names the ref; and SHALL write a main-resident cleanup record naming the exact tile scope, pre-delete head, abandonment proof, retention-release evidence, and reason where explicitly supplied. A failed deletion MUST NOT leave a record claiming success.
 
 #### Scenario: A staged tile is taken toward proposal
 - **WHEN** a human runs the propose action on a staging topic
@@ -320,10 +324,96 @@ The gate console SHALL offer a human-only `propose` action on a staging topic th
 - **WHEN** propose is invoked for a topic whose session was abandoned but whose pushed branch still exists
 - **THEN** propose MUST proceed — the session is resolved, and the surviving branch is reviewable evidence rather than unresolved working state
 
-#### Scenario: An abandoned branch outlives the proposal that closed its topic
-- **WHEN** a topic's proposal exists and an abandoned session branch for that topic is still present
-- **THEN** that branch MAY be deleted — the proposal has closed the topic off, so the abandoned exploration is no longer evidence anyone needs
-- **AND** the deletion MUST be human-invoked, never an automatic consequence of the `propose` dispatch, whose commissioned authoring may not have produced a proposal yet
+#### Scenario: An active proposal preserves the abandoned exploration
+- **WHEN** cleanup is invoked for an abandoned branch and an active change resolves to the exact staged-topic origin
+- **THEN** the branch MAY be deleted after every ownership, liveness, worktree, and abandonment-proof check passes
+- **AND** the cleanup record MUST name that active change as its retention-release evidence
+
+#### Scenario: An archived proposal preserves the abandoned exploration
+- **WHEN** cleanup is invoked for an abandoned branch and an archived change's own staged-origin metadata resolves to the exact topic
+- **THEN** the archived change MUST release retention even though it is not a live proposal and no current pick edge survives
+- **AND** the cleanup record MUST name the archived change and its origin evidence
+
+#### Scenario: Historical evidence predates the abandonment
+- **WHEN** matching active, archived, or demotion evidence was recorded before the session was abandoned
+- **THEN** that historical evidence MUST NOT release retention for the newer abandoned work
+- **AND** cleanup MUST require a fresh machine disposition or explicit human retention release
+
+#### Scenario: The abandoned branch moved after abandonment
+- **WHEN** the branch no longer points at the exact head recorded by `abandon-session`
+- **THEN** machine-resolved retention evidence MUST NOT authorize deletion
+- **AND** cleanup MUST preserve the moved ref until a new explicit human retention release names the current head
+
+#### Scenario: An executed demotion preserves the abandoned exploration
+- **WHEN** cleanup is invoked for an abandoned branch and a demotion execution receipt proves that the proposal returned to the exact staged topic
+- **THEN** the executed demotion MUST release retention
+- **AND** the cleanup record MUST name the demotion evidence and returned destination
+
+#### Scenario: A legacy demotion is corroborated by returned artifacts
+- **WHEN** a pre-receipt demotion has an exact transition manifest and an exact returned-topic artifact naming the same change and destination
+- **THEN** their joint evidence MAY release retention
+- **AND** neither artifact alone MUST be treated as execution proof
+
+#### Scenario: A demotion was planned but not executed
+- **WHEN** a transition manifest and plan exist but no execution receipt or exact returned-topic artifact proves execution
+- **THEN** cleanup MUST NOT infer that the proposal was demoted
+- **AND** the machine-evidence lane MUST refuse without deleting the branch
+
+#### Scenario: Demotion execution is incomplete
+- **WHEN** any planned source artifact is missing, any move is skipped, the source change remains, or a returned artifact does not occupy its exact planned destination
+- **THEN** demotion MUST NOT emit an `executed` receipt
+- **AND** cleanup MUST NOT treat the partial result as retention-release evidence
+
+#### Scenario: The current tile is absent but exact disposition survives
+- **WHEN** the supplied tile is absent from the current inventory but branch-family ownership, abandonment proof, and accepted retention-release evidence all resolve to its exact identity
+- **THEN** current tile absence MUST NOT block cleanup
+- **AND** absence MUST contribute no positive disposition evidence of its own
+
+#### Scenario: A true orphan is explicitly released by a human
+- **WHEN** no machine-resolved preservation evidence exists and a human invokes cleanup with a nonblank retention-release reason
+- **THEN** cleanup MAY delete the abandoned local branch after all non-disposition preconditions pass
+- **AND** it MUST first record the exact scope, pre-delete head, reason, and prior abandonment proof in the main-resident cleanup record
+
+#### Scenario: A non-staged tile has no proposal lifecycle
+- **WHEN** an abandoned cluster or possible branch is cleaned
+- **THEN** it MUST use the explicit human retention-release lane rather than being permanently blocked on a proposal state that tile kind can never carry
+
+#### Scenario: An orphan has neither disposition nor explicit release
+- **WHEN** no accepted preservation evidence exists and no nonblank human retention-release reason is supplied
+- **THEN** cleanup MUST refuse and delete nothing
+- **AND** missing files, missing tiles, missing worktrees, and absent changes MUST NOT weaken that refusal
+
+#### Scenario: Retention evidence names another tile
+- **WHEN** active, archived, demoted, or operator-supplied evidence resolves to a different tile identity than the branch's supplied owner
+- **THEN** cleanup MUST refuse with the mismatch and persist nothing
+
+#### Scenario: Origin metadata is non-staged or malformed
+- **WHEN** a change declares an ad-hoc, unsupported, or malformed origin
+- **THEN** cleanup MUST NOT reinterpret that change through the possibles-pick compatibility fallback
+- **AND** ambiguity unrelated to the requested tile MUST NOT globally block exact evidence for the requested tile
+
+#### Scenario: Cleanup is attempted on live or unattested work
+- **WHEN** the session is live, a worktree remains attached, the branch is outside the tile's branch family, or no durable `abandon-session` proof names the ref
+- **THEN** cleanup MUST refuse regardless of proposal or retention-release evidence
+
+#### Scenario: Branch deletion fails after the cleanup record is prepared
+- **WHEN** local branch deletion fails after the cleanup action prepared its main-resident record
+- **THEN** the record MUST be unwound so no durable artifact claims a deletion that did not occur
+- **AND** the branch and prior abandonment evidence MUST remain available for retry
+
+#### Scenario: Concurrent cleanup attempts share a tile and timestamp
+- **WHEN** cleanup attempts target different refs for the same tile during the same second, or two attempts race for the same ref
+- **THEN** their records MUST NOT overwrite or unlink one another
+- **AND** only a record whose exact ref deletion completed MAY enter completed state
+
+#### Scenario: The branch changes during cleanup
+- **WHEN** the ref advances after its head is inspected but before deletion
+- **THEN** the expected-value deletion MUST fail atomically and preserve the advanced ref
+- **AND** no cleanup record may claim that the advanced ref was deleted
+
+#### Scenario: Cleanup services address different repositories
+- **WHEN** the human gate output root and the Git service root do not resolve to the same checkout
+- **THEN** cleanup MUST refuse before writing a record or touching a branch
 
 ### Requirement: Deterministic per-document completeness signal
 The snapshot generator SHALL compute a per-document completeness signal at generation time and emit it as an additive `completeness` object on each `documents[]` entry — a `score` plus five named signals: `structure` (the fraction of the document's expected structural elements present, the expected set fixed per `Kind:` with a common fallback — H1 title, the governance header block, at least one section), `length` (body size normalized against a fixed saturation threshold, so padding past the threshold cannot outscore substance), `open_markers` (an INVERSE signal over open-question / TODO / TBD markers normalized against a fixed saturation count), `keyword_coverage` (the fraction of the document's declared `Topics:` subjects that resolve to the snapshot's keyword vocabulary), and `link_degree` (the document's snapshot edge degree — cluster document edges plus `destinations` staged topics, changes, and capabilities — normalized against a fixed saturation degree). Every signal SHALL be reported as a named normalized value beside the raw count that produced it, so a rendered bar is explainable. The computation MUST be deterministic and reproducible from the pinned tree alone: no model call, no wall clock, no network, no judgment input of any kind, with the `score` a fixed-weight combination of the normalized signals at a fixed decimal precision — the weights are contract constants in v1 (a tunable configuration would be a successor change, never a per-run input). The per-document signal SHALL stay out of judgment surfaces: it MUST NOT be an input to the readiness recommendation gate and MUST NOT produce a doc-health finding; its ONE sanctioned gate consumer is the staged-to-proposal readiness gate defined in this change, which consumes document scores only through the staged-topic health aggregate — no other gate verb, console guard, or lifecycle transition may consult it or refuse on it (Brett's 2026-07-25 ruling supersedes this change's earlier informational-only bound). Growth is additive — the field is optional, no existing snapshot is invalidated, and a renderer reading a pre-growth snapshot MUST degrade to showing no completeness rather than failing.
@@ -2080,4 +2170,3 @@ The `docs` context's abstract region MUST NOT caption, label, or announce the de
 #### Scenario: The deterministic abstract would be called a distillation
 - **WHEN** any caption, label, or accessible name would describe the deterministic abstract as a distillation or as an analysis the surface performed
 - **THEN** it MUST be rejected
-
