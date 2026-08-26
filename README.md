@@ -1360,7 +1360,7 @@ Archived changes:
   across all six population commits — worker ids, archetypes, permissions and
   credential tiers IDENTICAL IN SIX OF SIX, which is the constitutional
   5.1/5.2 claim measured rather than asserted. Full record:
-  `review/task-verification-2026-08-26.md`.
+  `openspec/changes/archive/2026-08-26-add-omnigent-domain-terminology/review/task-verification-2026-08-26.md`.
   **THE LAST THREE BOXES CLOSED AT THE GATE.** 3.0, the standing per-domain
   term-and-version obligation, is discharged for all five domains — opsx and
   codex by 3.0a, ledgerx and adx by the 2026-08-26 population slices, and medx
