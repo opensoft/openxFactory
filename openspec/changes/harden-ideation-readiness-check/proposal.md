@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (`tests/doc-health/test_ideation_readiness.py` — the `_openxfactory_root()` ancestor walk at `:28`, the index read at `:389-390`, the `git archive` read point and its skip branch at `:393-398`, and three further call sites of the same helper at `:556`, `:568`, `:934`; `tests/doc-health/test_derive_possibles.py:29` and `tests/doc-health/test_readiness_dispatch.py:318` — the same helper spelled twice more, which must move with it or the hazard survives in two places; `scripts/doc_health/ideation_readiness.py` — `find_index_validator()` at `:682-692`, whose identical walk resolves the pinned validator out of a foreign checkout, and the resolution helper the module already carries at `:1067-1077` for the renderer, which is the shape the other two should take. NO change to `derive_clusters`, the prompt contract, the evidence contract, the gate constants, the boundary allowlist, the readiness lane's severity or disposition, the index schema, or the generator.)
 target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle: no schema under `contracts/schemas/` moves, no digest set changes, and no release tag is owed. The archive gate is therefore merge-plus-green on main, plus one piece of evidence the code alone cannot give — the index repair in `tasks.md` § 3, because requirement 3 turns today's silent skip into a red and the change would otherwise land red on its own gate. Concretely: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a scratch-clone run of the readiness proof that PASSES rather than skips — which is the first time any fresh clone will have executed this test's assertion at all. The change ships ACTIVE and archives only after that.
-Status: draft
+Status: ratified
+Ratified: 2026-08-26 by Brett — admission ruling given against this packet's § Open Questions Q0 while it stood at PR #372, and relayed to the authoring session the same day. The ruling is recorded question by question at openspec/changes/harden-ideation-readiness-check/proposal.md § Open Questions Q0, which is this file, and discharged at openspec/changes/harden-ideation-readiness-check/tasks.md § 1. THE CITATION COVERS THE ADMISSION OF THIS PACKET AND NOTHING ELSE: Q1, Q2 and Q3 remain open, and the four decisions in § Orchestrator decisions were taken by the authoring session, are NOT covered by this citation, and stay flagged for veto there. No approving OpenSpec change exists to name, so this cites the record in the spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and it clears that spelling's three-way floor on all three axes rather than on the one it needs: approver (`by Brett`), date (`2026-08-26`), and a resolvable record path. No verbatim wording of the ruling reached the authoring session, so none is quoted.
 Proposed: 2026-08-26
 Origin: The 2026-08-26 triage of a red `tests/doc-health` suite in an agent worktree. The red was not caused by the branch under test; chasing it found two independent defects in one test, and the second of them had been hiding an assertion that has never run in continuous integration.
 ---
@@ -224,10 +225,16 @@ Whatever that assertion finds, it will be the first time it has been asked.
 
 ## Orchestrator decisions, flagged for veto
 
-This packet was authored by a delegated session against a triage record. NO
-approval act exists for it — see § Open Questions Q0 — so every decision below
-was taken by the authoring session and is flagged for reversal. Reverting any
-one of them is an edit to this change, not a new one.
+This packet was authored by a delegated session against a triage record. Every
+decision below was taken by the authoring session and is flagged for reversal.
+Reverting any one of them is an edit to this change, not a new one.
+
+**CORRECTED 2026-08-26 ON THE ADMISSION RULING.** As first written this
+paragraph opened "NO approval act exists for it — see § Open Questions Q0".
+That was true at authoring and is now historical: Brett admitted the packet the
+same day, and Q0 below records the ruling. The correction changes nothing else
+here — **the admission covers the packet, NOT these four decisions**, which
+remain uncovered by any citation and stay flagged for veto exactly as written.
 
 1. **All three requirements land in `doc-health`, all ADDED, and no
    requirement is MODIFIED.** The obligations are about how the verification
@@ -259,6 +266,20 @@ admission that closed it. **Until Brett admits this packet, `proposal-origin`
 will report two `ad-hoc origin lacks required` ERRORS against it in the
 nightly run.** Admission is a two-field edit to `.openspec.yaml` plus a
 `Status:` move; nothing else in the packet depends on it.
+
+**RULED (2026-08-26, Brett): the packet is ADMITTED, with his approval.** The
+ruling was given against this question while the packet stood at PR #372 and
+reached the authoring session the same day; no verbatim wording came with it,
+so none is quoted — the approver, the date and the record are stated instead,
+which is what the origin requirement asks for. Discharged exactly as this
+question described it: `.openspec.yaml` now carries `approved_by` (Brett) and
+`approved_on` (2026-08-26), with an `approval_note` preserving why the pair
+stood blank at authoring, and `Status:` has moved from `draft` to `ratified`
+with the record-citing spelling in the lifecycle header. The two
+`ad-hoc origin lacks required` errors this question predicted are the exact
+population the edit clears. **THE ADMISSION IS NOT A RULING ON Q1, Q2 OR Q3**,
+which stand open below, nor on the four decisions in § Orchestrator decisions,
+which stay flagged for veto.
 
 **Q1 — should the skip survive at all?** Requirement 3 keeps a skip for a
 genuinely truncated clone. The stricter alternative is to delete the skip

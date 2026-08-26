@@ -1,8 +1,10 @@
 # Tasks: harden-ideation-readiness-check
 
-NOTHING here is discharged. This packet is a PROPOSAL: it carries the delta,
-the measurement, and the plan. No code is changed by it, and § 1 has not
-happened.
+NO IMPLEMENTATION here is discharged. This packet is a PROPOSAL: it carries the
+delta, the measurement, and the plan, and it changes no code. § 1.1 and § 1.2
+ARE discharged — Brett admitted the packet on 2026-08-26 — and § 1.3 is not:
+Q1, Q2, Q3 and the four flagged decisions all stand open, uncovered by the
+admission.
 
 **§ 5 is deliberately OPEN and stays open.** Two adjacent gaps are recorded
 there rather than implied, and one of them is the follow-up packet the
@@ -10,18 +12,28 @@ proposal declines to write.
 
 ## 1. Admission
 
-- [ ] 1.1 Brett admits the packet. No approval act exists today — see
-      `proposal.md` § Open Questions Q0. `.openspec.yaml` declares
-      `kind: ad_hoc` with a durable id and a reason, and carries NO
-      `approved_by` / `approved_on`, because the authoring session has no
-      approval to record and the promoted origin requirement will not be
-      satisfied by inventing one. `proposal-origin` reports two
-      `ad-hoc origin lacks required` ERRORS against this packet until 1.1 is
-      done; that noise is the honest signal, not an oversight to be silenced.
-- [ ] 1.2 On admission: add `approved_by` and `approved_on` to
-      `.openspec.yaml` and move `proposal.md`'s `Status:` from `draft` to
-      `ratified` with the ratification citation the lifecycle requires. One
-      edit to each file; nothing else in the packet depends on it.
+- [x] 1.1 **DONE 2026-08-26 — Brett admitted the packet, with his approval.**
+      As written, this task said no approval act existed and that
+      `.openspec.yaml` therefore carried NO `approved_by` / `approved_on`,
+      because the authoring session had none to record and the promoted origin
+      requirement will not be satisfied by inventing one. That state lasted
+      one day. The ruling was given against `proposal.md` § Open Questions Q0
+      while the packet stood at PR #372 and reached the authoring session the
+      same day; no verbatim wording came with it, so none is quoted anywhere
+      in the packet — approver, date and record are stated instead. The two
+      `ad-hoc origin lacks required` ERRORS this task predicted were the
+      honest signal while they stood, and 1.2 clears them.
+- [x] 1.2 **DONE 2026-08-26.** `.openspec.yaml` `approved_by` records Brett
+      and the admission ruling of 2026-08-26; `approved_on` is `2026-08-26`;
+      the `approval_pending` key that explained the blank pair is resolved
+      into an `approval_note` that keeps the history legible rather than
+      erasing it. `proposal.md`'s `Status:` moved `draft` → `ratified` with a
+      single record-citing `Ratified:` line clearing the spelling's three-way
+      floor on all three axes — approver, date, and a resolvable record path.
+      The README's active-changes entry, which asserted `Status: draft` and
+      UNADMITTED and predicted the two errors, is corrected in the same edit,
+      because leaving it would make the README false about a fact the packet
+      itself now records otherwise.
 - [ ] 1.3 Rule the four decisions in `proposal.md` § Orchestrator decisions and
       the three questions Q1–Q3. Q1 (keep the narrowed skip) and Q2 (re-pin
       target) both change work below if reversed; Q3 changes only § 5.1.

@@ -25,18 +25,27 @@ origin:
     `pytest-suite.yml` checks out at `fetch-depth: 0`.
     Authored in openxFactory because `doc-health` is an openxFactory
     capability and the verification being hardened is its own.
-  approved_by: ""
-  approved_on: ""
-  approval_pending: >-
-    DELIBERATELY BLANK, NOT OVERLOOKED. The promoted `document-lifecycle`
-    origin requirement demands explicit approval provenance for an ad-hoc
-    origin, and the authoring session has none to record: this packet was
-    raised by a delegated session from a triage record, and no approval act
-    for it exists. Fabricating one is the failure this repository has already
-    refused once — openxFactory PR #344 stopped rather than declare an origin
-    it could not support, and `create-medxchart-overlay-boundary` carries the
-    shape of the admission that later closed it. Until Brett admits this
-    packet, `proposal-origin` will report `ad-hoc origin lacks required` for
-    both fields, which is the honest signal and is recorded as `tasks.md`
-    § 1.1. Admission fills the two fields above and moves `proposal.md`'s
-    `Status:` from `draft`; nothing else in the packet depends on it.
+  approved_by: >-
+    Brett — admission ruling of 2026-08-26, given against this packet's
+    § Open Questions Q0 while it stood at PR #372 and relayed to the authoring
+    session the same day. THIS ADMITS THE PACKET AND SUPPLIES THE APPROVAL
+    PROVENANCE THE AD-HOC ORIGIN REQUIRES; it is not a ruling on the packet's
+    open choices. Q1 (whether the narrowed skip survives), Q2 (the re-pin
+    target) and Q3 (whether the three resolver helpers collapse) remain OPEN,
+    and the four decisions in `proposal.md` § Orchestrator decisions remain
+    flagged for veto and uncovered by this citation. No verbatim wording of
+    the ruling reached the authoring session, so none is quoted here — the
+    approver, the date, and the record are stated instead, which is what the
+    origin requirement asks for.
+  approved_on: 2026-08-26
+  approval_note: >-
+    HISTORY, KEPT SO THE RESOLUTION IS LEGIBLE. At authoring on 2026-08-26
+    these two fields were deliberately left BLANK rather than filled with
+    fabricated provenance: no approval act existed yet, and the promoted
+    origin requirement is satisfied by a real approver or not at all. That is
+    the refusal openxFactory PR #344 already made once, and
+    `create-medxchart-overlay-boundary` carries the shape of the admission
+    that later closed it. The blank state was recorded as `tasks.md` § 1.1 and
+    § Open Questions Q0, and both now record the ruling that resolved it. The
+    two `ad-hoc origin lacks required` findings that state produced are
+    expected to clear with this edit.

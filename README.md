@@ -1063,12 +1063,17 @@ Active changes:
   unattended. (code surface: openxFactory; target release: none)
 
 - [harden-ideation-readiness-check](openspec/changes/harden-ideation-readiness-check/proposal.md)
-  — authored 2026-08-26, **`Status: draft` and UNADMITTED**: no approval act
-  exists, so `.openspec.yaml` carries `kind: ad_hoc` with a durable id and a
-  reason but deliberately BLANK `approved_by`/`approved_on` rather than
-  fabricated provenance, and `proposal-origin` will report two
-  `ad-hoc origin lacks required` ERRORS against the packet until Brett admits
-  it (a two-field edit; `tasks.md` § 1). Three `doc-health` requirements ADDED,
+  — authored 2026-08-26 and **ADMITTED the same day** (Brett, admission ruling
+  against § Open Questions Q0 while the packet stood at PR #372). It was
+  raised `Status: draft` with deliberately BLANK `approved_by`/`approved_on`
+  rather than fabricated provenance — the refusal PR #344 already made once —
+  and the admission filled both fields and moved `Status:` to `ratified` under
+  the record-citing spelling, clearing the two `ad-hoc origin lacks required`
+  errors that blank pair produced. **THE ADMISSION COVERS THE PACKET AND
+  NOTHING ELSE**: Q1 (whether the narrowed skip survives), Q2 (the re-pin
+  target) and Q3 (whether the three resolver helpers collapse) stay OPEN, and
+  the four decisions in § Orchestrator decisions stay flagged for veto.
+  Three `doc-health` requirements ADDED,
   nine scenarios, none MODIFIED. Raised from a 2026-08-26 triage that found TWO
   independent defects in one test —
   `test_derivation_reproduces_the_real_bootstrap_clusters`, the proof that the
