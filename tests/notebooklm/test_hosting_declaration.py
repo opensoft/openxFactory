@@ -5,18 +5,26 @@ from __future__ import annotations
 import contextlib
 import io
 import unittest
+from collections.abc import Callable
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
+
+from notebooklm_sync.nlm_client import ProviderResult
 
 from tests.notebooklm._sync_test_support import (
     HOSTING_DECLARED,
     HOSTING_PENDING,
     FakeNlm,
-    _declare_hosting,
-    _profile_runner,
-    sync,
 )
+from tests.notebooklm.typed_sync_contracts import (
+    constant_runner,
+    declare_hosting,
+    load_typed_sync,
+    profile_runner,
+)
+
+sync = load_typed_sync()
 
 
 class HostingDeclarationTests(unittest.TestCase):
@@ -28,74 +36,87 @@ class HostingDeclarationTests(unittest.TestCase):
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
                 got = sync.enforce_hosting_profile(
-                    root, runner=_profile_runner("personal"))
+                    root, runner=profile_runner("personal"))
         self.assertIsNone(got, "an undeclared install has no declaration to return")
         self.assertIn("NO DECLARED HOSTING IDENTITY", out.getvalue())
-        self.assertIn("transition state", out.getvalue(),
-                      "undeclared must be reported as nonconforming, never as "
-                      "a third legitimate case")
+        self.assertIn(
+            "transition state",
+            out.getvalue(),
+            "undeclared must be reported as nonconforming, never as "
+            + "a third legitimate case",
+        )
 
     def test_declared_profile_active_binds_the_run(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _declare_hosting(root, HOSTING_DECLARED)
+            declare_hosting(root, HOSTING_DECLARED)
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
                 got = sync.enforce_hosting_profile(
-                    root, runner=_profile_runner("company"))
+                    root, runner=profile_runner("company"))
+        if got is None:
+            raise AssertionError("declared profile did not bind")
         self.assertEqual(got["account"], "xFactor001@opensoft.one")
         self.assertIn("verified active", out.getvalue())
 
     def test_a_run_pointed_at_another_account_refuses(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _declare_hosting(root, HOSTING_DECLARED)
+            declare_hosting(root, HOSTING_DECLARED)
             with self.assertRaises(SystemExit) as caught:
-                sync.enforce_hosting_profile(
-                    root, runner=_profile_runner("personal"))
+                _ = sync.enforce_hosting_profile(
+                    root, runner=profile_runner("personal"))
         message = str(caught.exception)
-        self.assertIn("Refusing", message,
-                      "writing a governed projection into an undeclared "
-                      "account is the failure this capability retires")
+        self.assertIn(
+            "Refusing",
+            message,
+            "writing a governed projection into an undeclared "
+            + "account is the failure this capability retires",
+        )
         self.assertIn("nlm login switch company", message,
                       "the refusal must carry the exact remediation command")
 
     def test_an_unreadable_profile_refuses_rather_than_guessing(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _declare_hosting(root, HOSTING_DECLARED)
+            declare_hosting(root, HOSTING_DECLARED)
             with self.assertRaises(SystemExit) as caught:
-                sync.enforce_hosting_profile(
-                    root, runner=_profile_runner(None))
+                _ = sync.enforce_hosting_profile(
+                    root, runner=profile_runner(None))
         self.assertIn("cannot prove", str(caught.exception))
 
     def test_a_pending_migration_binds_to_the_account_that_holds_the_books(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _declare_hosting(root, HOSTING_PENDING)
+            declare_hosting(root, HOSTING_PENDING)
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
                 got = sync.enforce_hosting_profile(
-                    root, runner=_profile_runner("personal"))
+                    root, runner=profile_runner("personal"))
         self.assertIsNotNone(got)
         self.assertIn("MIGRATION PENDING", out.getvalue())
-        self.assertIn("brettheap@gmail.com", out.getvalue(),
-                      "a declaration is not a migration: until the books move, "
-                      "the run binds where they actually live")
+        self.assertIn(
+            "brettheap@gmail.com",
+            out.getvalue(),
+            "a declaration is not a migration: until the books move, "
+            + "the run binds where they actually live",
+        )
 
     def test_a_pending_migration_still_refuses_a_third_account(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _declare_hosting(root, HOSTING_PENDING)
+            declare_hosting(root, HOSTING_PENDING)
             with self.assertRaises(SystemExit):
-                sync.enforce_hosting_profile(
-                    root, runner=_profile_runner("someone-else"))
+                _ = sync.enforce_hosting_profile(
+                    root, runner=profile_runner("someone-else"))
 
     def test_the_reader_ignores_comments_and_nested_blocks(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _declare_hosting(root, "# leading comment\n" + HOSTING_PENDING)
+            declare_hosting(root, "# leading comment\n" + HOSTING_PENDING)
             got = sync.read_hosting_declaration(root)
+        if got is None:
+            raise AssertionError("declared hosting file was not read")
         self.assertEqual(got["nlm_profile"], "company")
         self.assertEqual(got["migration_from_nlm_profile"], "personal")
         self.assertEqual(got["case"], "operator_hosted")
@@ -106,18 +127,20 @@ class ParityReportTests(unittest.TestCase):
     @staticmethod
     def _world(root: Path) -> None:
         (root / "openxFactory/examples").mkdir(parents=True, exist_ok=True)
-        (root / "openxFactory/examples/lifecycle-notebook-workspaces.yaml"
-         ).write_text("workspaces:\n", encoding="utf-8")
+        _ = (root / "openxFactory/examples/lifecycle-notebook-workspaces.yaml").write_text(
+            "workspaces:\n", encoding="utf-8"
+        )
         for g in sync.GROUNDING:
             p = root / g
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text("# Grounding\n", encoding="utf-8")
+            _ = p.write_text("# Grounding\n", encoding="utf-8")
         base = root / "openxFactory/ideation/brainstorm"
         base.mkdir(parents=True, exist_ok=True)
-        (base / "idea-00.md").write_text("# Idea\n\nStatus: brainstorm\n",
-                                         encoding="utf-8")
+        _ = (base / "idea-00.md").write_text(
+            "# Idea\n\nStatus: brainstorm\n", encoding="utf-8"
+        )
 
-    def _run_parity(self, root: Path, fake) -> tuple[int, str]:
+    def _run_parity(self, root: Path, fake: Callable[..., ProviderResult]) -> tuple[int, str]:
         out = io.StringIO()
         with contextlib.redirect_stdout(out), patch.object(sync, "nlm", fake):
             code = sync.parity_report(root)
@@ -131,8 +154,12 @@ class ParityReportTests(unittest.TestCase):
             fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
                             for i, k in enumerate(sorted(desired))])
             code, text = self._run_parity(root, fake)
-        self.assertEqual(code, 1, "an empty live book cannot be at parity with "
-                                  "a scan that derives members")
+        self.assertEqual(
+            code,
+            1,
+            "an empty live book cannot be at parity with "
+            + "a scan that derives members",
+        )
         self.assertIn("PARITY FAIL", text)
         self.assertIn("MISSING", text)
 
@@ -159,7 +186,7 @@ class ParityReportTests(unittest.TestCase):
             desired, specs = sync.scan(root)
             fake = FakeNlm([{"id": f"nb{i}", "title": specs[k].title}
                             for i, k in enumerate(sorted(desired))])
-            self._run_parity(root, fake)
+            _ = self._run_parity(root, fake)
             verbs = {call[:2] for call in fake.calls}
         # `alias set` belongs in this blocklist: the alias store is a single
         # flat file shared across profiles, so registering one during a parity
@@ -167,9 +194,12 @@ class ParityReportTests(unittest.TestCase):
         for mutating in (("source", "add"), ("source", "delete"),
                          ("notebook", "create"), ("notebook", "delete"),
                          ("alias", "set"), ("alias", "delete")):
-            self.assertNotIn(mutating, verbs,
-                             "a parity proof that changes the thing it measures "
-                             "is not a proof")
+            self.assertNotIn(
+                mutating,
+                verbs,
+                "a parity proof that changes the thing it measures "
+                + "is not a proof",
+            )
 
     def test_a_non_string_profile_answer_is_unknown_not_a_crash(self):
         """A runner that answers with anything but text means 'unknown'.
@@ -178,10 +208,9 @@ class ParityReportTests(unittest.TestCase):
         an exception here would escape the guard instead of becoming the
         governed refusal.
         """
-        for answer in ({}, [], None, 42):
+        answers: tuple[ProviderResult, ...] = ({}, [], None, 42)
+        for answer in answers:
             with self.subTest(answer=answer):
                 self.assertIsNone(
-                    sync.active_nlm_profile(
-                        lambda *a, parse=True, value=answer: value
-                    )
+                    sync.active_nlm_profile(constant_runner(answer))
                 )

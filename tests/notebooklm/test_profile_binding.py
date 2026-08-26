@@ -7,17 +7,37 @@ import io
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import final
 from unittest.mock import patch
+
+from notebooklm_sync.nlm_client import (
+    assert_still_bound,
+    bind_profile,
+    bound_profile,
+    clear_profile_cache,
+    configured_nlm_profile,
+    reset_profile_state,
+)
 
 from tests.notebooklm._sync_test_support import (
     HOSTING_DECLARED,
-    _declare_hosting,
-    _profile_runner,
-    sync,
+)
+from tests.notebooklm.typed_sync_contracts import (
+    declare_hosting,
+    load_typed_sync,
+    profile_runner,
 )
 
+sync = load_typed_sync()
 
-class ProfileBindingHoldsForTheWholeRunTests(unittest.TestCase):
+
+class _ProfileCleanup:
+    def tearDown(self) -> None:
+        reset_profile_state()
+
+
+@final
+class ProfileBindingHoldsForTheWholeRunTests(_ProfileCleanup, unittest.TestCase):
     """The binding is re-asserted before EVERY invocation, not once.
 
     Found in review: profile selection is process-global, so another terminal
@@ -26,41 +46,40 @@ class ProfileBindingHoldsForTheWholeRunTests(unittest.TestCase):
     that takes about forty minutes.
     """
 
-    def tearDown(self):
-        sync.reset_profile_state()
-
     @staticmethod
     def _config(root: Path, profile: str) -> Path:
         path = root / "config.toml"
-        path.write_text(f'[output]\nformat = "table"\n\n[auth]\n'
-                        f'browser = "auto"\ndefault_profile = "{profile}"\n',
-                        encoding="utf-8")
+        _ = path.write_text(
+            '[output]\nformat = "table"\n\n[auth]\n'
+            + f'browser = "auto"\ndefault_profile = "{profile}"\n',
+            encoding="utf-8",
+        )
         return path
 
     def test_the_configured_profile_is_read_from_the_file(self):
         with TemporaryDirectory() as td:
             path = self._config(Path(td), "company")
-            self.assertEqual(sync.configured_nlm_profile(path), "company")
+            self.assertEqual(configured_nlm_profile(path), "company")
 
     def test_an_absent_config_is_unknown(self):
         with TemporaryDirectory() as td:
             self.assertIsNone(
-                sync.configured_nlm_profile(Path(td) / "nope.toml"))
+                configured_nlm_profile(Path(td) / "nope.toml"))
 
     def test_an_unbound_run_asserts_nothing(self):
-        sync.bind_profile(None)
-        sync.assert_still_bound()  # must not raise
+        bind_profile(None)
+        assert_still_bound()  # must not raise
 
     def test_a_profile_switched_mid_run_refuses_the_next_invocation(self):
         with TemporaryDirectory() as td:
             path = self._config(Path(td), "company")
-            sync.reset_profile_state(path)
-            sync.bind_profile("company")
-            sync.assert_still_bound()          # still bound: no raise
-            self._config(Path(td), "personal")  # another terminal switches
-            sync.clear_profile_cache()
+            reset_profile_state(path)
+            bind_profile("company")
+            assert_still_bound()          # still bound: no raise
+            _ = self._config(Path(td), "personal")  # another terminal switches
+            clear_profile_cache()
             with self.assertRaises(SystemExit) as caught:
-                sync.assert_still_bound()
+                assert_still_bound()
         message = str(caught.exception)
         self.assertIn("changed mid-run", message)
         self.assertIn("nlm login switch company", message)
@@ -68,17 +87,21 @@ class ProfileBindingHoldsForTheWholeRunTests(unittest.TestCase):
     def test_the_cache_does_not_hide_a_switch(self):
         with TemporaryDirectory() as td:
             path = self._config(Path(td), "company")
-            sync.reset_profile_state(path)
-            sync.bind_profile("company")
-            sync.assert_still_bound()
+            reset_profile_state(path)
+            bind_profile("company")
+            assert_still_bound()
             # rewrite with a different size so the (mtime_ns, size) stamp
             # moves even inside one filesystem timestamp tick
-            path.write_text('[auth]\ndefault_profile = "a-different-one"\n',
-                            encoding="utf-8")
+            _ = path.write_text(
+                '[auth]\ndefault_profile = "a-different-one"\n', encoding="utf-8"
+            )
             with self.assertRaises(SystemExit):
-                sync.assert_still_bound()
+                assert_still_bound()
 
-class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
+@final
+class DeclarationIsEnforcedOnTheOperationalPathTests(
+    _ProfileCleanup, unittest.TestCase
+):
     """The refusals must fire during an ordinary run, not only in the validator.
 
     Found in review: nothing the sync runs invoked the validator, so a
@@ -86,12 +109,11 @@ class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
     by `--apply`.
     """
 
-    def tearDown(self):
-        sync.bind_profile(None)
-
-    def _enforce(self, root: Path, text: str, active: str = "company"):
-        _declare_hosting(root, text)
-        return sync.enforce_hosting_profile(root, runner=_profile_runner(active))
+    def _enforce(
+        self, root: Path, text: str, active: str = "company"
+    ) -> dict[str, str] | None:
+        declare_hosting(root, text)
+        return sync.enforce_hosting_profile(root, runner=profile_runner(active))
 
     def test_a_service_account_is_refused_by_the_sync_itself(self):
         with TemporaryDirectory() as td:
@@ -101,7 +123,7 @@ class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
                 "account: books@xf.iam.gserviceaccount.com").replace(
                 "domain: opensoft.one", "domain: xf.iam.gserviceaccount.com")
             with self.assertRaises(SystemExit) as caught:
-                self._enforce(root, text)
+                _ = self._enforce(root, text)
         self.assertIn("service account", str(caught.exception))
 
     def test_a_consumer_account_is_refused_for_the_operator_hosted_case(self):
@@ -111,7 +133,7 @@ class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
                 "account_type: google_workspace_user",
                 "account_type: consumer_google_account")
             with self.assertRaises(SystemExit) as caught:
-                self._enforce(root, text)
+                _ = self._enforce(root, text)
         self.assertIn("google_workspace_user", str(caught.exception))
 
     def test_an_account_outside_the_declared_domain_is_refused(self):
@@ -120,7 +142,7 @@ class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
             text = HOSTING_DECLARED.replace("domain: opensoft.one",
                                             "domain: elsewhere.example")
             with self.assertRaises(SystemExit) as caught:
-                self._enforce(root, text)
+                _ = self._enforce(root, text)
         self.assertIn("not in the declared domain", str(caught.exception))
 
     def test_a_third_case_is_refused(self):
@@ -129,7 +151,7 @@ class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
             text = HOSTING_DECLARED.replace("case: operator_hosted",
                                             "case: partly_hosted")
             with self.assertRaises(SystemExit) as caught:
-                self._enforce(root, text)
+                _ = self._enforce(root, text)
         self.assertIn("exactly one of", str(caught.exception))
 
     def test_a_conforming_declaration_binds_the_run(self):
@@ -138,18 +160,20 @@ class DeclarationIsEnforcedOnTheOperationalPathTests(unittest.TestCase):
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
                 got = self._enforce(root, HOSTING_DECLARED)
+        if got is None:
+            raise AssertionError("conforming declaration did not bind")
         self.assertEqual(got["account"], "xFactor001@opensoft.one")
-        self.assertEqual(sync.bound_profile(), "company",
+        self.assertEqual(bound_profile(), "company",
                          "a bound run must pin the profile it verified")
 
     def test_an_undeclared_install_releases_the_pin(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            sync.bind_profile("stale")
+            bind_profile("stale")
             with contextlib.redirect_stdout(io.StringIO()):
-                sync.enforce_hosting_profile(
-                    root, runner=_profile_runner("personal"))
-        self.assertIsNone(sync.bound_profile())
+                _ = sync.enforce_hosting_profile(
+                    root, runner=profile_runner("personal"))
+        self.assertIsNone(bound_profile())
 
     def test_a_self_hosted_personal_declaration_is_accepted(self):
         text = """schema_version: 1
@@ -164,6 +188,8 @@ share_out: []
             root = Path(td)
             with contextlib.redirect_stdout(io.StringIO()):
                 got = self._enforce(root, text, active="personal")
+        if got is None:
+            raise AssertionError("self-hosted declaration did not bind")
         self.assertEqual(got["case"], "self_hosted",
                          "an individual's own account is a complete binding")
 
@@ -177,15 +203,24 @@ share_out: []
         """
         with TemporaryDirectory() as td:
             path = Path(td) / "config.toml"
-            path.write_text('[auth]\ndefault_profile = "someone-else"\n',
-                            encoding="utf-8")
-            ran = []
-            sync.reset_profile_state(path)
-            with patch.object(sync.subprocess, "run",
-                              lambda *a, **k: ran.append(a)):
-                sync.bind_profile("company")
+            _ = path.write_text(
+                '[auth]\ndefault_profile = "someone-else"\n', encoding="utf-8"
+            )
+            ran: list[tuple[str, ...]] = []
+
+            def record_run(*args: str, **kwargs: bool) -> None:
+                del kwargs
+                ran.append(args)
+
+            reset_profile_state(path)
+            with patch.object(sync.subprocess, "run", record_run):
+                bind_profile("company")
                 with self.assertRaises(SystemExit) as caught:
-                    sync.nlm("notebook", "list", "--json")
+                    _ = sync.nlm("notebook", "list", "--json")
         self.assertIn("changed mid-run", str(caught.exception))
-        self.assertEqual(ran, [], "the invocation must be refused BEFORE the "
-                                  "subprocess, not after it has written")
+        self.assertEqual(
+            ran,
+            [],
+            "the invocation must be refused BEFORE the "
+            + "subprocess, not after it has written",
+        )
