@@ -86,3 +86,30 @@
 - 2026-08-25 — delta re-authored against canon per #351; the block previously
   restated a pre-2026-08-22 version and would have reverted six clauses and
   two scenarios on archive.
+- 2026-08-26 — delta re-authored a SECOND time, now against the outcome of
+  `add-doxbench-distilled-abstract` rather than against bare canon, because the
+  ARCHIVE ORDER of the two changes was reversed. Both modify
+  `doxBench model catalog and provider boundary`, and archive replaces canon's
+  block with the archiving delta's raw markdown — no merge — so whichever
+  archives LAST must already carry the other's text. The earlier plan had that
+  change carry THIS one's four additions and archive second. That is no longer
+  workable, and was never the safe direction: this change stands at 0/22 tasks
+  with a real code surface and a blocking dependency on
+  `add-model-provider-broker`, so its merged-plus-green archive gate
+  (`release-realization/spec.md:23-32`) is far off, while
+  `add-doxbench-distilled-abstract` is realized now (#365 `02477d40`, #386
+  `d4740415`, green on main, operator run on record) — and archiving it with an
+  intake affordance NOBODY HAS BUILT written into canon would have promoted spec
+  text that describes what the code does not do. So that change archived first
+  carrying only its own additions, and this change, as the later archiver, now
+  declares relative to its outcome, per `release-realization/spec.md:64-74`. What
+  changed here is only the BASE, not this change's own content: the block still
+  adds exactly the four things it always added — the
+  one-non-model-INTAKE-affordance paragraph, the widened
+  `The browser loads model choices` bullet, the
+  `The intake affordance is submitted as a model` scenario, and the hosted-plane
+  intake-affordance-absence bullet — and it now sits on top of that change's
+  EVERY-MODEL-CONSUMER widening, its entrypoint-declaration and stateful-adapter
+  clauses, and its four added scenarios. Task 4.2 stands unchanged: this change
+  still archives only on merged plus green. **Re-verify the block against canon
+  before archiving** — canon has moved once already and will move again.
