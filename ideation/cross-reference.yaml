@@ -11118,8 +11118,8 @@ possibles_register:
 - id: pos-derived-neutral-openxfactory-schema-package-for-domain-h
   title: Neutral openxFactory schema package for domain Hermes content
   claim: The cluster's scattered schema needs (persona shape, agent-mix/council shape, and the domain-overlay
-    shape) could become a single neutral openxFactory schema package so every domain â€” not just codexFactory
-    â€” validates its Hermes content the same way.
+    shape) could become a single neutral openxFactory schema package so every domain — not just codexFactory
+    — validates its Hermes content the same way.
   state: latent
   origin: ai-derived
   provenance:
@@ -11189,7 +11189,7 @@ possibles_register:
 - id: pos-derived-reusable-tier-2-council-clearance-pattern-beyond
   title: Reusable tier-2 council-clearance pattern beyond the doc-health sweep
   claim: The nightly-sweep-specific tier-2 council-clearance rule could become a generalized per-repo
-    gate-rule pattern â€” a template other autonomous sweeps or repos can instantiate through their own
+    gate-rule pattern — a template other autonomous sweeps or repos can instantiate through their own
     Gate-Rules Council exercise, rather than a one-off doc-health carve-out.
   state: picked
   pick:
@@ -11772,7 +11772,7 @@ possibles_register:
     profiles as 'to author' and explicitly says increment 2 is content-starved because only three fields
     sourced from the 32-line stub exist today. codexfactory-domain-memory-and-practices.md has, in the
     same cluster, already drafted a concrete `codex_practice_catalog` with real adoption-profile entries
-    (doc-health-sweep, conformance-gate, etc.) â€” pairing the two closes exactly the gap the seeding
+    (doc-health-sweep, conformance-gate, etc.) — pairing the two closes exactly the gap the seeding
     doc names.
 - id: pos-derived-unified-evidence-gathering-to-decision-pipeline
   title: Unified evidence-gathering-to-decision pipeline for Plane-1 personas
