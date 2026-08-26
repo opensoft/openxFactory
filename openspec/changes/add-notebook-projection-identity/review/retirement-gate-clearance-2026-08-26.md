@@ -196,7 +196,13 @@ outputs, and abort conditions are in:
 
 written to be run in one sitting, with the seven legacy ids resolved from the
 legacy→company mapping recorded at the head of
-`examples/lifecycle-notebook-workspaces.yaml` (lines 21–28).
+the mapping block at the head of
+`examples/lifecycle-notebook-workspaces.yaml` headed
+`# Legacy (still live, pending retirement) -> new (live, registered) ids:`.
+
+(Cited by header rather than line number: an earlier draft said "lines 21–28",
+and the gate-clearance note this record itself added shifted the block to line 38.
+A line citation into a file the same change edits rots by construction.)
 
 That mapping is their ONLY source in this repository — the workspace records'
 `provider_notebook_id` fields carry only the company ids. An earlier draft of

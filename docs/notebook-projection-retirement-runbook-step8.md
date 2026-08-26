@@ -31,8 +31,14 @@ You need:
 
 Legacy id is what you rename. The new id is listed only so you can prove you are
 not touching it. Both columns were resolved from the legacy→company mapping
-recorded at the head of `examples/lifecycle-notebook-workspaces.yaml`
-(lines 21–28).
+recorded in the mapping block at the head of
+`examples/lifecycle-notebook-workspaces.yaml` headed
+`# Legacy (still live, pending retirement) -> new (live, registered) ids:`.
+
+**Cited by its header line, not by line number, deliberately.** An earlier
+draft said "lines 21–28" and this change's own gate-clearance note then shifted
+the block to line 38 — a citation into a file the same change edits was always
+going to rot. Search for the header.
 
 That provenance is worth stating precisely, because an earlier draft of this file
 got it wrong: the records' own `provider_notebook_id` fields carry **only the
