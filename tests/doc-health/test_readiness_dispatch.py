@@ -13,6 +13,7 @@ under `tmp_path` — never the shared openxFactory checkout.
 from __future__ import annotations
 
 import json
+import os
 from datetime import date
 from pathlib import Path
 
@@ -315,13 +316,61 @@ def test_main_never_raises_and_reports_skip_on_unhandled_error(tmp_path,
 
 # --- real validator (skipped if unreachable) --------------------------------
 
-def _openxfactory_root():
-    marker = Path("openxFactory") / "ideation" / "cross-reference.yaml"
-    base = Path(REPO_ROOT).resolve()
+# harden-ideation-readiness-check. Spelled identically in
+# `test_ideation_readiness.py` (which carries the full rationale) and in
+# `test_derive_possibles.py`. The duplication is deliberate and tracked: the
+# packet's Q3 / tasks § 5.1 — whether the three collapse into one shared
+# fixture — is OPEN and is not decided by this realization. Edit one, edit all
+# three.
+ROOT_FALLBACK_MARKER = "[openxfactory-root] fallback"
+INDEX_REL = Path("ideation") / "cross-reference.yaml"
+SIBLING_INDEX_REL = Path("openxFactory") / INDEX_REL
+
+
+def _openxfactory_root(under_test=None, *, fallback=None, announce=print):
+    """Resolve the openxFactory checkout this run is a proof ABOUT: the
+    REPOSITORY UNDER TEST first, then an explicit `fallback`, then
+    `OPENXFACTORY_ROOT`, then the ancestor walk to a sibling `openxFactory/` —
+    every rung past the first announcing which checkout it resolved and why.
+    None when nothing is reachable."""
+    base = Path(under_test or REPO_ROOT).resolve()
+    if (base / INDEX_REL).is_file():
+        return base
+
+    why = f"the repository under test ({base}) carries no {INDEX_REL.as_posix()}"
+    if fallback is not None and (Path(fallback) / INDEX_REL).is_file():
+        resolved = Path(fallback).resolve()
+        announce(f"{ROOT_FALLBACK_MARKER}: resolved {resolved} from the "
+                 f"explicit argument because {why}")
+        return resolved
+
+    declared = os.environ.get("OPENXFACTORY_ROOT")
+    if declared and (Path(declared) / INDEX_REL).is_file():
+        resolved = Path(declared).resolve()
+        announce(f"{ROOT_FALLBACK_MARKER}: resolved {resolved} from "
+                 f"OPENXFACTORY_ROOT because {why}")
+        return resolved
+
     for d in [base, *base.parents]:
-        if (d / marker).is_file():
-            return d / "openxFactory"
+        if (d / SIBLING_INDEX_REL).is_file():
+            resolved = d / "openxFactory"
+            announce(f"{ROOT_FALLBACK_MARKER}: resolved {resolved} by walking "
+                     f"up from the repository under test because {why}")
+            return resolved
     return None
+
+
+def _openxfactory_root_or_skip(under_test=None):
+    """The resolved checkout, or a skip whose reason names what was searched."""
+    root = _openxfactory_root(under_test)
+    if root is None:
+        base = Path(under_test or REPO_ROOT).resolve()
+        pytest.skip(f"proof NOT PERFORMED: no openxFactory checkout serves it "
+                    f"— the repository under test ({base}) carries no "
+                    f"{INDEX_REL.as_posix()}, OPENXFACTORY_ROOT names no "
+                    f"checkout that does, and no ancestor of it holds "
+                    f"{SIBLING_INDEX_REL.as_posix()}")
+    return root
 
 
 def test_merge_wires_the_real_validator_for_a_genuinely_scored_index(
@@ -333,10 +382,11 @@ def test_merge_wires_the_real_validator_for_a_genuinely_scored_index(
     shape) validates clean end to end. Never touches the shared checkout:
     the validator SCRIPT is discovered from the real sibling repo, but the
     index it validates and the `--repo` it resolves citations against are
-    both this test's own tmp fixture."""
-    real_openx = _openxfactory_root()
-    if real_openx is None:
-        pytest.skip("openxFactory checkout unreachable")
+    both this test's own tmp fixture. Since
+    harden-ideation-readiness-check the validator resolves out of the
+    REPOSITORY UNDER TEST first rather than out of whichever checkout sits
+    above it on the filesystem."""
+    real_openx = _openxfactory_root_or_skip()  # noqa: F841 (the gate, not the arg)
 
     agg = make_agg_root(tmp_path)
     findings_path = tmp_path / "findings.json"

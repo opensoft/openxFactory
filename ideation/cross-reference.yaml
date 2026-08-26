@@ -7,7 +7,7 @@ schema_version: 1
 kind: ideation-cross-reference
 repository: openxFactory
 generation:
-  source_revision: f13a3b6007736292e1e157febef1ac733e534de9
+  source_revision: 4e57009c0a1aed9bdbe3c0f6cc5ca948e15ec8cc
   generator_version: ideation-xref-scorer-0.1.0
 topic_entries:
 - id: cl-accessibility
