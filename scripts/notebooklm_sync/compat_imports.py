@@ -3,7 +3,9 @@ from __future__ import annotations
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from types import ModuleType
+from typing import Protocol, runtime_checkable
 
+from .compat_errors import DashboardCompatibilityError
 from .import_execution import (
     append_import,
     import_exported_sources,
@@ -27,7 +29,28 @@ from .models import (
     SessionTarget,
 )
 from .nlm_client import SourceRow
-from .session_imports import commit_session_import
+from .session_imports import SessionCommitGit, commit_session_import
+
+
+@runtime_checkable
+class _ImportWorkbenchModule(Protocol):
+    def parse_managed_source_title(self, title: str) -> tuple[str, str] | None: ...
+
+
+@runtime_checkable
+class _ImportSessionGitModule(Protocol):
+    @property
+    def SessionGit(self) -> Callable[[Path], SessionCommitGit]: ...
+
+
+@runtime_checkable
+class _ImportBranchSessionModule(Protocol):
+    @property
+    def SessionRefused(self) -> type[Exception]: ...
+
+    def assert_git_holds_branch(
+        self, git: SessionCommitGit, worktree: Path, branch: str, *, during: str
+    ) -> None: ...
 
 
 class ImportFacade:
@@ -39,10 +62,30 @@ class ImportFacade:
         dashboard: Callable[[str], ModuleType],
         bind_session: Callable[[Path, str, ImportTarget], SessionTarget | None],
     ) -> None:
-        self._list_sources = list_sources
-        self._run_text = run_text
-        self._dashboard = dashboard
-        self._bind_session = bind_session
+        self._list_sources: Callable[[str], list[SourceRow]] = list_sources
+        self._run_text: Callable[[tuple[str, ...]], str] = run_text
+        self._dashboard: Callable[[str], ModuleType] = dashboard
+        self._bind_session: Callable[
+            [Path, str, ImportTarget], SessionTarget | None
+        ] = bind_session
+
+    def _workbench(self) -> _ImportWorkbenchModule:
+        module = self._dashboard("workbench")
+        if not isinstance(module, _ImportWorkbenchModule):
+            raise DashboardCompatibilityError("workbench")
+        return module
+
+    def _session_git(self) -> _ImportSessionGitModule:
+        module = self._dashboard("session_git")
+        if not isinstance(module, _ImportSessionGitModule):
+            raise DashboardCompatibilityError("session git")
+        return module
+
+    def _branch_session(self) -> _ImportBranchSessionModule:
+        module = self._dashboard("branch_session")
+        if not isinstance(module, _ImportBranchSessionModule):
+            raise DashboardCompatibilityError("branch session")
+        return module
 
     def export_plan(
         self, root: Path, notebook: str, imported_on: str
@@ -57,7 +100,7 @@ class ImportFacade:
         )
 
     def is_seed_source(self, title: str) -> bool:
-        parser = self._dashboard("workbench").parse_managed_source_title
+        parser = self._workbench().parse_managed_source_title
         return (
             title in {CHARTER_TITLE, HYBRID_CHARTER_TITLE}
             or title.startswith(MANAGED_SOURCE_PREFIXES)
@@ -121,8 +164,8 @@ class ImportFacade:
         *,
         notebook: str,
     ) -> str | None:
-        branch_session = self._dashboard("branch_session")
-        session_git = self._dashboard("session_git")
+        branch_session = self._branch_session()
+        session_git = self._session_git()
         return commit_session_import(
             session,
             written,
