@@ -104,9 +104,20 @@ shipping.
   - DECIDED: no `--strict`. Recorded in feature 010 T002 ("No scoping logic,
     no `--strict` (R2/R4/R5; R5 partly superseded — see its header note)",
     `specs/010-wallet-validator-ci/tasks.md`).
-- [ ] 2.5 **[OPERATOR]** Make the check REQUIRED in the branch ruleset. This is a
+- [x] 2.5 **[OPERATOR]** Make the check REQUIRED in the branch ruleset. This is a
       repository setting, not a tree fact — a merged workflow file is not
       evidence (N6).
+  - DONE 2026-08-26 on operator delegation: org ruleset **21538893**
+    "openxFactory wallet-gate (require wallet-validation)" targets this
+    repository's default branch with enforcement ACTIVE and requires status
+    check `wallet-validation`; strict policy OFF per task 2.4's recorded
+    decision; OrganizationAdmin bypass always (house pattern, matching the
+    Tier-1 ruleset's shape). Verified live:
+    `GET repos/opensoft/openxFactory/rules/branches/main` returns
+    `required_status_checks → [wallet-validation]` sourced from ruleset
+    21538893. The org-scoped form was used because the repo-level ruleset
+    endpoints were unavailable to the acting token; scoping confines the
+    requirement to openxFactory alone.
 - [ ] 2.6 **Gate:** a deliberately malformed grant fails the pull request, and
       the realization evidence includes the ruleset state showing the check
       required (not just the workflow file).
