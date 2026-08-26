@@ -139,15 +139,30 @@ shipping.
 
 *Cannot precede S1, by the capability's own ratification condition.*
 
-- [ ] 5.1 Create the register at a fixed path in openxFactory (canonical home:
+- [x] 5.1 Create the register at a fixed path in openxFactory (canonical home:
       `canonical-policy-migration:33-38`, `repo-boundary-governance:8-13`), at
       the MVP shape: one holder, one target repository, one act, tier `act`, one
       `expires_at`, one row.
-- [ ] 5.2 Author its reader IN THE SAME CHANGE. Its only obligation at this
+  - Realized by xFactory#341 (merged `410fa18`, 2026-08-25T16:14:41Z):
+    `governance/review-authority/register.yaml` carries exactly ONE row
+    (`row-mrc-0001`) — one holder (`agent:merge-readiness-council`), one
+    target repository (`opensoft/openxFactory`), one act (`review`), tier
+    `act`, one `expires_at` (2026-11-23T12:00:00Z).
+- [x] 5.2 Author its reader IN THE SAME CHANGE. Its only obligation at this
       shape: fail a convening that admits a holder with no active row.
-- [ ] 5.3 The reader COMPUTES expiry from `expires_at` and treats a stale
+  - Same change (#341): validator rule (u) + `check_register` /
+    `_load_attestations` wired into `repo_scan` inside the REQUIRED
+    wallet-validation check (`scripts/validate-openxwallet.py`). An active
+    REVIEW-class grant with no backing active row is refused; the
+    production-wiring mutation probe fired `register-no-active-row` and was
+    refused, restored immediately (feature 014 T003, T007x).
+- [x] 5.3 The reader COMPUTES expiry from `expires_at` and treats a stale
       `state` field as a finding rather than as truth — nothing in the family
       recomputes `state` (N8).
+  - Rows and grants are judged expired by COMPUTED time from `expires_at`;
+    the stored `state` field is never truth about expiry; the stale-state
+    finding is implemented and pinned by the computed-expiry probes
+    (feature 014 T003/T004; validator rule (u)).
 - [x] 5.4 **[codexFactory]** Enter the register's path BY NAME as a
       never-clearable floor member in the gate rules. Do not rely on inference
       from the floor's four path clauses: a grant register is authority policy
@@ -166,11 +181,15 @@ shipping.
     green merge-master-approval/validate/Sonar), archive + promotion PR #92
     merged at `8dcd5bc`; canonical spec `codexFactory
     openspec/specs/repository-gate-floor/spec.md`.
-- [ ] 5.5 Record the Q1c design constraint IN the register's own documentation:
+- [x] 5.5 Record the Q1c design constraint IN the register's own documentation:
       a file-based register cannot satisfy revocation-at-exercise, and the
       conforming home for the REVOCATION SURFACE is a live lookup on the Hermes
       runtime. The file is right for one row; it is not pretended to be a
       revocation surface.
+  - Recorded verbatim in `register.yaml`'s header (Q1c DESIGN CONSTRAINT
+    block): the file is an issuance-time snapshot; the conforming REVOCATION
+    SURFACE is a live lookup on the Hermes runtime (S5 successor); it must
+    not be pretended into a revocation surface.
 - [ ] 5.6 **Gate:** a convening admitting a holder with no active row fails the
       required check.
 
