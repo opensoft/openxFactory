@@ -874,17 +874,6 @@ Active changes:
   landing `governance/review-authority/register.yaml` at the ruled
   one-row MVP together with its reader. S3 (`[hermes-install]`) and S5 remain
   outstanding.
-- [add-dispatch-credential-contract](openspec/changes/add-dispatch-credential-contract/proposal.md)
-  — authored 2026-08-13: two neutral `credential-contracts` requirements for the
-  openXdox intent-plane dispatch credential — dispatch-only least privilege with
-  serving-tier separation (the trigger credential must be a distinct binding from
-  the content-write App; the credential-free serving pod must never hold
-  contents-write-capable key material), and reference-delivered credential with
-  operator-as-binding (generalizing the two-case worker-credential principle:
-  vault-referenced, ephemeral, operator per-install, neutral home). Ratifies
-  `docs/openxdox-naming.md`; realizes the dispatch binding as an org-owned GitHub
-  App + token-minter, retiring the personal PAT `dox-intent-inbox-qa-20260810`.
-
 - [add-worker-enrollment-broker](openspec/changes/add-worker-enrollment-broker/proposal.md)
   — authored 2026-07-26, exit 1 of the `worker-enrollment-broker` staged
   topic: the neutral contract for how a machine becomes a governed worker and
@@ -1086,6 +1075,49 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-dispatch-credential-contract](openspec/changes/archive/2026-08-25-add-dispatch-credential-contract/proposal.md)
+  — **ARCHIVED 2026-08-25** on landed realization, no contract bundle owed.
+  Authored 2026-08-13, RATIFIED that day by the landing of PR **#168** (merge
+  `4e4190cb`). Two neutral `credential-contracts` requirements for the openXdox
+  intent-plane dispatch credential — dispatch-only least privilege with
+  serving-tier separation (the trigger credential must be a distinct binding from
+  the content-write App; the credential-free serving pod must never hold
+  contents-write-capable key material), and reference-delivered credential with
+  operator-as-binding (generalizing the two-case worker-credential principle:
+  vault-referenced, ephemeral, operator per-install, neutral home). Both promoted
+  into `openspec/specs/credential-contracts/spec.md`, taking it 5 requirements to
+  **7** and 18 scenarios to **24**, byte-for-byte from an ADDED-only delta.
+  **The realization LANDED** — the plan voice this row carried while active is
+  discharged. Contract side on PRs **#171** (`fceaf837`) and **#172**
+  (`eb3cb2f1`): the packaged dispatch/content example records, three negatives
+  each naming the rule it violates in `scripts/validate-credential-contracts.py`,
+  and the operator-neutral binding runbook. Operator binding: the org-owned
+  **openXdox Intent Dispatch** GitHub App, ID **`4582547`**, installation
+  **`153530982`** on `opensoft/xFactory`, permissions exactly
+  `{actions: write, metadata: read}`; the token-minter resolved as an in-cluster
+  **CronJob** pinned at omnigent-install **`66ca33fd`**. Proven end to end: an
+  authorized intent fired `intent-apply` run **`31856312594`**
+  (completed/success) on `opensoft/xFactory`, the minted token showing
+  `actions:write` on that one repo and repository-contents 403, with
+  `XFACTORY_APP` still the separate content-write binding. Closed out in
+  `installs/hermes-install` — readiness result
+  `ready-opensoft-dox-qa-dispatch-minter-20260815t013000z` `ready` on 6/6
+  mandatory checks, and CIR `cir-opensoft-qa-dox-dispatch-minter` `completed` at
+  seq 9, 2026-08-15T01:35Z. The personal-PAT stopgap
+  `dox-intent-inbox-qa-20260810` is **deleted** (Brett, via GitHub settings,
+  2026-08-15 — an operator attestation, recorded as such: a fine-grained PAT
+  under an individual account is not enumerable by the automation, which is the
+  fragility this change existed to retire). Also ratifies
+  `docs/openxdox-naming.md` and, in the archive slice itself,
+  `docs/openxdox-dispatch-credential-binding.md` (`draft -> ratified`).
+  `target_release: none` — it moves no bytes under `contracts/`; the schema shape
+  it uses was published at DTN-004 and registered at `contract-v1.33` by
+  `add-client-identity-roster`, which is also where routing that registration
+  through THIS lane was rejected as cross-lane coupling. The proposal's original
+  "next additive contract bundle" line was authoring boilerplate, ruled
+  mis-authored 2026-08-25; the stale PR **#177**, which acted on it by allocating
+  a `contract-v1.32` cut, was closed the same day as superseded.
 
 - [admit-install-repos-to-aggregation](openspec/changes/archive/2026-08-25-admit-install-repos-to-aggregation/proposal.md)
   — **ARCHIVED 2026-08-25** on merged realization in another repository, which
