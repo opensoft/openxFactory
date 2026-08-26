@@ -1,7 +1,7 @@
 ---
 code_surface: none
 target_release: none
-Status: draft
+Status: ratified
 Ratified: Brett, 2026-08-25 — ruling 0 of `add-doxbench-distilled-abstract` (SPLIT), recorded as a comment on `opensoft/openxFactory#84`
 ---
 
