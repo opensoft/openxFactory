@@ -1,4 +1,6 @@
 {
+  "typeCheckingMode": "basic",
+  "failOnWarnings": true,
   "executionEnvironments": [
     {
       "root": ".",

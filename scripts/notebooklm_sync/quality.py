@@ -47,7 +47,7 @@ def quality_commands(checker: Path) -> tuple[QualityCommand, ...]:
         QualityCommand("ruff", ("uvx", "ruff", "check", *QUALITY_SURFACE)),
         QualityCommand(
             "basedpyright",
-            ("uvx", "basedpyright", "--level", "error", *QUALITY_SURFACE),
+            ("uvx", "basedpyright", *QUALITY_SURFACE),
         ),
         QualityCommand(
             "programming-checker",

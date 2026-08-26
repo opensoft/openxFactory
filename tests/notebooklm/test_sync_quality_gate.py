@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import unittest
@@ -9,6 +10,7 @@ from notebooklm_sync.quality import quality_commands
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 QUALITY_COMMAND = REPO_ROOT / "scripts" / "check-notebooklm-sync-quality.py"
+PYRIGHT_CONFIG = REPO_ROOT / "pyrightconfig.json"
 
 
 class SyncQualityGateTests(unittest.TestCase):
@@ -32,16 +34,16 @@ class SyncQualityGateTests(unittest.TestCase):
         self.assertNotIn("scripts/ideation_dashboard", surface)
         self.assertNotIn("tests/doc-health", surface)
 
-    def test_type_gate_requires_zero_basedpyright_errors(self) -> None:
+    def test_type_gate_does_not_filter_warning_level_findings(self) -> None:
         commands = quality_commands(Path("checker.py"))
         basedpyright = next(
             command for command in commands if command.name == "basedpyright"
         )
-        self.assertIn(("--level", "error"), tuple(zip(
-            basedpyright.arguments,
-            basedpyright.arguments[1:],
-            strict=False,
-        )))
+        config = json.loads(PYRIGHT_CONFIG.read_text(encoding="utf-8"))
+
+        self.assertNotIn("--level", basedpyright.arguments)
+        self.assertEqual(config["typeCheckingMode"], "basic")
+        self.assertIs(config["failOnWarnings"], True)
 
 
 if __name__ == "__main__":
