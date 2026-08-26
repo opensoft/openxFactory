@@ -268,6 +268,47 @@ def _is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
     return result.returncode == 0
 
 
+def _refuse_unreachable_in_a_shallow_clone(
+    repo: Path, ancestor: str, descendant: str
+) -> None:
+    """Refuse a NEGATIVE ancestor verdict that a truncated history cannot earn.
+
+    Resolving a remote-derived operand makes the OBJECT present.  It does not
+    make the ANCESTRY present.  In a shallow clone the graft boundary tells git
+    that a commit has no parents, so ``git merge-base --is-ancestor`` returns 1
+    -- a definite "no" -- for a commit that is perfectly reachable on the real
+    history.  Reporting that as ``HGR-RELEASE-*-UNREACHABLE`` would be a verdict
+    invented from an absence, which is the same fault as reporting an absent
+    object as unreachable and is what requirement 2 of
+    ``fix-release-reachability-race`` forbids.
+
+    The asymmetry is the whole rule, and it is why this is not a blanket refusal
+    on shallow clones: a POSITIVE verdict is trustworthy in any store, because a
+    path git found is a path that exists.  Only the NEGATIVE is suspect, so only
+    the negative is re-examined -- which also keeps the cost off the common path,
+    one ``rev-parse`` on the false branch and nothing at all otherwise.
+
+    A shallow clone that genuinely holds a non-ancestor gets this refusal too,
+    rather than the finding it would have earned.  That is deliberate: the
+    verifier cannot tell the two apart, and a fail-closed dependency refusal
+    naming the truncated history is the honest outcome for both.  Deepen the
+    clone, or verify from a full one.
+
+    Ruled by Brett on 2026-08-26 (fold-in of ``tasks.md`` § 6.4, raised on a
+    measurement and independently on openxFactory pull request #390's review).
+    """
+
+    result = _run_git(
+        repo, "rev-parse", "--is-shallow-repository", allow_failure=True
+    )
+    if result.returncode != 0 or str(result.stdout).strip() != "true":
+        return
+    raise ReleaseDependencyError(
+        "ancestry cannot be judged in a shallow clone: "
+        f"{ancestor} against {descendant}"
+    )
+
+
 def _blob_object_id(repo: Path, commit: str, path: str) -> str | None:
     try:
         return resolve_git_object(repo, commit, path).blob_oid
@@ -792,6 +833,7 @@ def verify_promotion(
     _resolve_remote_object(repo_root, remote, main_oid)
 
     if not _is_ancestor(repo_root, commit_oid, main_oid):
+        _refuse_unreachable_in_a_shallow_clone(repo_root, commit_oid, main_oid)
         findings.append(
             _finding(
                 "HGR-RELEASE-CANDIDATE-UNREACHABLE",
@@ -881,6 +923,7 @@ def verify_tag(repo_root: Path, *, remote: str, tag: str) -> list[dict[str, str]
     main_oid = main_rows[0][0]
     _resolve_remote_object(repo_root, remote, main_oid)
     if not _is_ancestor(repo_root, peeled_commit, main_oid):
+        _refuse_unreachable_in_a_shallow_clone(repo_root, peeled_commit, main_oid)
         findings.append(
             _finding(
                 "HGR-RELEASE-TAG-UNREACHABLE",

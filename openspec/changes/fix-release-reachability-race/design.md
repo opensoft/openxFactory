@@ -305,7 +305,47 @@ monkeypatch fallback OD-4 authorized is not used. The proof asserts the fixture'
 own soundness inline, so it cannot silently degrade into the remote-unavailable
 path later.
 
-### Measured and deliberately not acted on — the shallow-clone verdict
+### Ruled and acted on — the shallow-clone verdict
+
+**RULED BY BRETT, 2026-08-26, via multi-choice: fold the rule into the same pull
+request.** The section below is the realizing session's original entry, written
+when the hazard had been measured and the decision to defer it was the
+scope-respecting one. It is kept unchanged, because the measurement is the reason
+the rule exists and because the deferral was the honest posture before a ruling
+existed. What changed is the disposition, not the finding — and the finding was
+reached twice independently, once by measurement here and once by Copilot's
+review of pull request #390.
+
+The rule shipped is the one that was specced before the ruling, unaltered:
+`_refuse_unreachable_in_a_shallow_clone` runs `git rev-parse
+--is-shallow-repository` on the FALSE branch of each `_is_ancestor` call site
+and, in a truncated store, raises a dependency refusal naming the shallow clone
+instead of emitting `HGR-RELEASE-CANDIDATE-UNREACHABLE` or
+`HGR-RELEASE-TAG-UNREACHABLE`. `_is_ancestor` itself stays byte-unchanged, per
+§ 2.4 of `tasks.md` and the mutation proof that depends on it.
+
+The asymmetry deserves restating because it is what makes the rule cheap and
+what makes it correct. A POSITIVE ancestry answer is trustworthy in any store: a
+path git found is a path that exists, and truncation can only ever hide paths,
+never invent them. A NEGATIVE answer is exactly the one truncation can
+manufacture. So the guard touches the negative alone, which costs one local
+`rev-parse` on a branch the ordinary case never enters, and it leaves every
+verification that can answer able to answer.
+
+One consequence is accepted rather than engineered around: a shallow clone
+holding a genuinely unreachable candidate now takes the refusal too, so the two
+UNREACHABLE findings become unavailable to a shallow verification. The verifier
+cannot tell an earned negative from a grafted one, and a verification that
+cannot establish which of the two it holds has not earned either verdict. Exit 2
+where exit 1 once stood; both block, and only one of them is honest about why.
+
+Canon moved with it. Requirement 2 gains a fourth scenario, because a truncated
+history is a fourth way the question goes unanswered and requirement 2 is where
+the taxonomy of unanswered outcomes lives. Three proofs over a real `--depth 1`
+clone pin the two refusals and the asymmetry, and the two refusals are
+mutation-pinned at source level.
+
+### Measured and deliberately not acted on, as first written — the shallow-clone verdict
 
 Resolving the operand makes the object present. It does not make the ANCESTRY
 present, and in a `--depth 1` clone the new code fetches the object, reaches

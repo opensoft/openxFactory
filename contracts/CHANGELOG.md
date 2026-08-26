@@ -85,6 +85,24 @@ WHAT MOVED:
   proof asserting the refusal and its reason, and a two-case mutation proof
   demonstrating that removing the resolution step alone reproduces the original
   128 refusal.
+* **A negative ancestry verdict is no longer trusted in a truncated history.**
+  Resolving the operand makes the OBJECT present; it does not make the ANCESTRY
+  present. A shallow clone's graft boundary declares its oldest commits
+  parentless, so `git merge-base --is-ancestor` returns a definite 1 for a commit
+  that is reachable on the real history — which would have turned this cut's own
+  fix into a FALSE `HGR-RELEASE-TAG-UNREACHABLE`. Measured against the canonical
+  remote in a `--depth 1` clone, and raised independently in review.
+  `_refuse_unreachable_in_a_shallow_clone` runs `git rev-parse
+  --is-shallow-repository` on the FALSE branch of each ancestor check only, and
+  in a truncated store raises `ancestry cannot be judged in a shallow clone`
+  instead of emitting the unreachable finding. THE ASYMMETRY IS THE RULE: a
+  positive answer is honoured in any store, because a path git found is a path
+  that exists, so only the negative is re-examined — one local `rev-parse`, never
+  on the ordinary path, no network. A shallow clone holding a genuinely
+  unreachable candidate takes the refusal as well, which is deliberate: the
+  verifier cannot tell an earned negative from an artefact of its own store, and
+  a fail-closed refusal naming the truncation is honest about both. Ruled by
+  Brett 2026-08-26 (openxFactory pull request #390).
 * `contracts/hermes-runtime/evidence-register.yaml` — the new proofs are bound
   in place under the `SCO-002` scenarios they serve (`S02` published-tag verify,
   `S03` pinned-file drift, `S04` verification without a usable network). Test

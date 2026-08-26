@@ -16,6 +16,11 @@ not, and splitting the two is the point of the § 1.2 / § 1.3 division below.
 there rather than implied, and one of them is the sweep this packet declines to
 claim it performed.
 
+**ONE § 6 ENTRY DID NOT STAY OPEN.** § 6.4 was added at realization on a
+measurement, and Brett ruled on 2026-08-26 that it be folded into the same pull
+request rather than deferred. It is ticked, with the ruling recorded in place.
+§ 6.1, § 6.2 and § 6.3 stand open as authored.
+
 ## 1. Admission
 
 - [x] 1.1 **DONE 2026-08-26 — the filing was commissioned, and the commission
@@ -569,35 +574,54 @@ finishing recipe.
       case; the conflation itself survives, and it is the kind of thing that
       makes the next defect in this file hard to read.
 
-- [ ] 6.4 **NAMED HERE BECAUSE IT WAS MEASURED HERE, and it is the one thing
-      in this realization that may want a ruling before the tag: A SHALLOW CLONE
-      STILL CANNOT ANSWER, AND NOW ANSWERS WRONGLY.** Resolving the operand makes
-      the object present; it does not make the ANCESTRY present. MEASURED
-      2026-08-26 against the canonical remote, in a `--depth 1` clone of `main`:
-      the published validator refuses with `commit reachability could not be
-      determined` (128, the object absent), and the NEW validator fetches the
-      object, reaches `git merge-base --is-ancestor`, and gets rc **1** from a
-      grafted history — reporting a FALSE `HGR-RELEASE-TAG-UNREACHABLE` on a tag
-      that is perfectly reachable. That is a verdict invented from an absence,
-      which is the shape requirement 2's third scenario forbids, so it is stated
-      plainly rather than buried.
-      WHY IT IS NOT FIXED HERE, and why that is defensible: this repository's
-      continuous integration checks out at `fetch-depth: 0`
-      (`.github/workflows/pytest-suite.yml:206`, and `doc-health-reusable.yml:813`
-      likewise), so no measured run of this suite is shallow — the faithful
-      reproduction of the real defect needed a NON-shallow stale clone, and there
-      the new validator completes with zero findings. The hazard also pre-exists
-      this change in kind: a shallow clone holding the object but not the
-      connecting history already got a false rc 1. What this change does is widen
-      how often the comparison is REACHED in a truncated store. Fixing it means
-      new mechanism nobody asked for, on a population nobody measured failing,
-      which is exactly the unearned sweep this packet's § Named follow-ups
-      declines to perform — and the four orchestrator decisions were ruled
-      narrowly enough that taking a fifth unbidden would be the wrong move.
-      THE NARROW RULE, if it is wanted: a POSITIVE ancestor verdict is
-      trustworthy in any store, because a path git found is a path that exists; a
-      NEGATIVE verdict in a shallow store is not. So refuse — as a dependency
-      refusal naming the truncated history — only when `_is_ancestor` returns
-      false AND `git rev-parse --is-shallow-repository` says true, at the two call
-      sites rather than inside `_is_ancestor` (which § 2.4 protects). One local
-      git call, no network, no widening. Its own packet, on this measurement.
+- [x] 6.4 **RULED AND FOLDED IN — Brett, 2026-08-26.** Raised here as a named
+      follow-up because it was MEASURED here and independently by Copilot's
+      review of pull request #390; put to Brett as a multi-choice and he took the
+      recommended option: fold the rule into #390 rather than defer it to its own
+      packet. So this is no longer a follow-up, and the entry is kept rather than
+      deleted because the measurement is the reason the rule exists.
+      **THE HAZARD, MEASURED 2026-08-26 against the canonical remote in a
+      `--depth 1` clone of `main`:** the published validator refuses with `commit
+      reachability could not be determined` (128, the object absent), and the
+      resolution step alone made it worse — it fetches the object, reaches `git
+      merge-base --is-ancestor`, and gets rc **1** out of a grafted history,
+      reporting a FALSE `HGR-RELEASE-TAG-UNREACHABLE` on a tag that is perfectly
+      reachable. A verdict invented from an absence, which is the shape the
+      delta's requirement 2 forbids.
+      **THE RULE AS IMPLEMENTED, exactly the one specced before the ruling.**
+      `_refuse_unreachable_in_a_shallow_clone(repo, ancestor, descendant)` runs
+      `git rev-parse --is-shallow-repository` and, when it answers `true`, raises
+      `ReleaseDependencyError("ancestry cannot be judged in a shallow clone:
+      <ancestor> against <descendant>")`. It is called ONLY on the false branch
+      of the two `_is_ancestor` call sites — `verify_promotion` before the
+      `HGR-RELEASE-CANDIDATE-UNREACHABLE` finding and `verify_tag` before the
+      `HGR-RELEASE-TAG-UNREACHABLE` one — and NOT inside `_is_ancestor`, which
+      § 2.4 protects and which remains byte-unchanged against `origin/main`. The
+      asymmetry is the rule: a POSITIVE verdict is honoured in any store, because
+      a path git found is a path that exists, so only the negative is
+      re-examined. That is also the whole budget story — one extra local
+      `rev-parse`, on the false branch only, no network.
+      **THE COST, ACCEPTED ON THE RECORD.** A shallow clone holding a genuinely
+      unreachable candidate now takes the refusal rather than the finding, so a
+      shallow verification can no longer emit the two UNREACHABLE codes at all.
+      That is deliberate: the verifier cannot distinguish an earned negative from
+      a grafted one, and a fail-closed dependency refusal naming the truncation
+      is the honest outcome for both. Exit 2 in place of exit 1 — both block.
+      **CANON AND PROOFS.** A fourth scenario, `A truncated history returns a
+      negative it cannot earn`, plus its governing prose, is ADDED to the delta's
+      requirement 2 in `specs/shared-contract-ownership/spec.md`, which is the
+      natural home because this is a fourth way the question goes unanswered and
+      requirement 2 owns the taxonomy of unanswered outcomes. Three proofs, over
+      a REAL `--depth 1` clone (which needs a `file://` URL, because git ignores
+      `--depth` on a plain local path) — `test_verify_tag_refuses_a_negative_
+      verdict_a_shallow_clone_cannot_earn`, which also asserts that a FULL clone
+      of the same origin returns `== []`;
+      `test_verify_promotion_refuses_a_negative_verdict_in_a_shallow_clone`, with
+      a full-history oracle asserting the negative is genuinely earned; and
+      `test_a_shallow_clone_still_answers_when_merge_base_can_say_yes`, which
+      pins the asymmetry. Bound in the register under `SCO-002-S04` (the two
+      refusals) and `SCO-002-S02` (the asymmetry). Mutation-pinned at source
+      level: both call sites neutralized → both refusal proofs fail
+      `DID NOT RAISE`, and the asymmetry proof still passes, which is what it
+      should do.
+

@@ -10,7 +10,7 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:e16a9d1cfc2b0b4289ab0f183d23f68c64f038025cd91d62d412913922e6141e
+  digest: sha256:910dc359a2180ec51a0369a0c10d2a1b0c49ba1e23c36ae2798355cf0a0f7c6b
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
@@ -140,7 +140,7 @@ entries:
   path: contracts/hermes-runtime/evidence-register.yaml
   type: evidence-register
   git_mode: '100644'
-  digest: sha256:a8b861de7b66448b3b048afd55300ff7599e87cc2587badfbe0823f2b407ffd9
+  digest: sha256:5807398519fc431a8e102b9149847e8d4d0f4f0169b0cd99c18f5c9ea099df7e
 - artifact_id: contracts-hermes-runtime-fixtures-approvals-approval-authority-chain-unreachable.yaml
   path: contracts/hermes-runtime/fixtures/approvals/approval-authority-chain-unreachable.yaml
   type: fixture
@@ -993,7 +993,7 @@ entries:
   path: scripts/hermes_runtime_validation/release.py
   type: validator
   git_mode: '100644'
-  digest: sha256:10cb88eb3eb97bae0ed810d582b62c48ec2abaccb2b3413146cf60cdb5dc981f
+  digest: sha256:660e55ca7e6896ea24106483b926e1919a0cb195ef8b9a700a3522f1f393f6b0
 - artifact_id: scripts-hermes_runtime_validation-schema_registry.py
   path: scripts/hermes_runtime_validation/schema_registry.py
   type: validator
