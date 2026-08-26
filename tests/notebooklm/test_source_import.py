@@ -7,17 +7,21 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from tests.notebooklm._sync_test_support import (
-    sync,
-)
+from notebooklm_sync.nlm_client import ProviderResult
+
+from tests.notebooklm.typed_sync_contracts import load_typed_sync
+
+sync = load_typed_sync()
 
 
 class NotebookLmSourceImportTests(unittest.TestCase):
     def test_parse_export_title_still_supports_explicit_route(self):
         target = sync.parse_export_title(
             "[export:brainstorm] openxFactory: openspec-speckit-release-flow - "
-            "release branch concern"
+            + "release branch concern"
         )
+        if target is None:
+            raise AssertionError("explicit brainstorm route did not parse")
         self.assertEqual(target.status, "brainstorm")
         self.assertEqual(target.repo, "openxFactory")
         self.assertEqual(target.topic, "openspec-speckit-release-flow")
@@ -26,6 +30,8 @@ class NotebookLmSourceImportTests(unittest.TestCase):
         staged = sync.parse_export_title(
             "[export:staged] doc-health-checks - notebook drift issue"
         )
+        if staged is None:
+            raise AssertionError("explicit staged route did not parse")
         self.assertEqual(staged.status, "staged")
         self.assertEqual(staged.repo, "openxFactory")
         self.assertEqual(staged.topic, "doc-health-checks")
@@ -44,7 +50,8 @@ class NotebookLmSourceImportTests(unittest.TestCase):
                 parents=True
             )
 
-            def fake_nlm(*args, parse=True):
+            def fake_nlm(*args: str, parse: bool = True) -> ProviderResult:
+                del parse
                 self.assertEqual(args, ("source", "list", "hybrid-book", "--json"))
                 return [
                     {
@@ -86,9 +93,10 @@ class NotebookLmSourceImportTests(unittest.TestCase):
             root = Path(td)
             target = "openxFactory/ideation/staging/doc-health-checks"
             (root / target).mkdir(parents=True)
-            content_calls = []
+            content_calls: list[str] = []
 
-            def fake_nlm(*args, parse=True):
+            def fake_nlm(*args: str, parse: bool = True) -> ProviderResult:
+                del parse
                 if args == ("source", "list", "hybrid-book", "--json"):
                     return {"sources": [
                         {
@@ -162,12 +170,13 @@ class NotebookLmSourceImportTests(unittest.TestCase):
             change = root / "openxFactory/openspec/changes/change-a"
             target = change / "supporting-docs"
             target.mkdir(parents=True)
-            (change / "proposal.md").write_text("## Why\n")
-            (target / "manifest.yaml").write_text(
+            _ = (change / "proposal.md").write_text("## Why\n")
+            _ = (target / "manifest.yaml").write_text(
                 '{"format_version": 1, "files": []}\n'
             )
 
-            def fake_nlm(*args, parse=True):
+            def fake_nlm(*args: str, parse: bool = True) -> ProviderResult:
+                del parse
                 if args == ("source", "list", "proposal-book", "--json"):
                     return [{"id": "proposal-source", "title": "New proposal idea"}]
                 if args == ("source", "content", "proposal-source"):
@@ -193,22 +202,24 @@ class NotebookLmSourceImportTests(unittest.TestCase):
         with TemporaryDirectory() as td:
             root = Path(td)
             archived = (
-                root / "openxFactory/openspec/changes/archive/"
-                "2026-07-09-change-a/supporting-docs"
+                root
+                / "openxFactory/openspec/changes/archive/2026-07-09-change-a/supporting-docs"
             )
             archived.mkdir(parents=True)
             with self.assertRaises(ValueError):
-                sync.target_from_path(root, str(archived.relative_to(root)))
+                _ = sync.target_from_path(root, str(archived.relative_to(root)))
             missing = (
                 "openxFactory/openspec/changes/change-b/supporting-docs"
             )
             with self.assertRaises(ValueError):
-                sync.target_from_path(root, missing)
+                _ = sync.target_from_path(root, missing)
 
     def test_hostile_export_titles_cannot_traverse_the_workspace(self):
         # topic with path syntax is flattened to a single safe segment
         target = sync.parse_export_title(
             "[export:staged] a/../../../../etc/cron.d - x")
+        if target is None:
+            raise AssertionError("hostile staged route did not parse")
         self.assertNotIn("/", target.topic)
         self.assertNotIn("..", target.topic)
         # repo with path syntax drops the source entirely
@@ -222,20 +233,20 @@ class NotebookLmSourceImportTests(unittest.TestCase):
             governed = root / "xFactories/RealFactory"
             (governed / "docs").mkdir(parents=True)
             (governed / ".git").mkdir()
-            (governed / "docs/real-doc.md").write_text("# Real\n\n" + doc)
+            _ = (governed / "docs/real-doc.md").write_text("# Real\n\n" + doc)
             (root / "openxFactory").mkdir()
 
             # feature-branch worktree container beside the governed repos
             wt = root / "xFactories/OpsxFactory-worktrees/002-branch"
             (wt / "docs").mkdir(parents=True)
-            (wt / ".git").write_text("gitdir: elsewhere\n")
-            (wt / "docs/branch-doc.md").write_text("# Branch\n\n" + doc)
+            _ = (wt / ".git").write_text("gitdir: elsewhere\n")
+            _ = (wt / "docs/branch-doc.md").write_text("# Branch\n\n" + doc)
 
             # embedded clone nested inside a governed repo
             nested = governed / "vendor/clone"
             (nested / "docs").mkdir(parents=True)
             (nested / ".git").mkdir()
-            (nested / "docs/clone-doc.md").write_text("# Clone\n\n" + doc)
+            _ = (nested / "docs/clone-doc.md").write_text("# Clone\n\n" + doc)
 
             desired, specs = sync.scan(root)
 

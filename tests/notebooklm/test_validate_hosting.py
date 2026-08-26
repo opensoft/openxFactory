@@ -14,14 +14,33 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import ClassVar
+from typing import ClassVar, Protocol, final, runtime_checkable
 
 from tests.notebooklm._sync_test_support import load_script_module
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / "scripts" / "validate-notebook-projection-hosting.py"
 
-validator = load_script_module("validate_hosting", SCRIPT)
+@runtime_checkable
+class HostingValidator(Protocol):
+    DEFAULT_REL: str
+    ENTRY_FIELDS: tuple[str, ...]
+
+    def validate(self, path: Path) -> list[str]: ...
+
+
+class HostingValidatorContractError(TypeError):
+    script: Path
+
+    def __init__(self, script: Path) -> None:
+        self.script = script
+        super().__init__(f"hosting validator lacks its test contract: {script}")
+
+
+loaded_validator = load_script_module("validate_hosting", SCRIPT)
+if not isinstance(loaded_validator, HostingValidator):
+    raise HostingValidatorContractError(SCRIPT)
+validator = loaded_validator
 
 BASE = """schema_version: 1
 kind: notebook_projection_hosting
@@ -38,10 +57,11 @@ share_out: []
 def _validate(text: str) -> list[str]:
     with TemporaryDirectory() as td:
         path = Path(td) / "notebook-projection-hosting.yaml"
-        path.write_text(text, encoding="utf-8")
+        _ = path.write_text(text, encoding="utf-8")
         return validator.validate(path)
 
 
+@final
 class HostingDeclarationValidationTests(unittest.TestCase):
 
     def test_the_committed_record_conforms(self):
@@ -65,18 +85,20 @@ hosting:
   nlm_profile: personal
 share_out: []
 """
-        self.assertEqual(_validate(text), [],
-                         "an individual's own account is a complete binding, "
-                         "not a degraded operator-hosted one")
+        self.assertEqual(
+            _validate(text), [],
+            "an individual's own account is a complete binding, not a degraded operator-hosted one",
+        )
 
     def test_a_service_account_cannot_host_a_projection(self):
         errors = _validate(BASE.replace(
             "account: xFactor001@opensoft.one",
             "account: books@xf-proj.iam.gserviceaccount.com").replace(
             "domain: opensoft.one", "domain: xf-proj.iam.gserviceaccount.com"))
-        self.assertTrue(any("service account" in e for e in errors),
-                        "NotebookLM has no API and a service account cannot "
-                        "drive its consumer web UI")
+        self.assertTrue(
+            any("service account" in e for e in errors),
+            "NotebookLM has no API and a service account cannot drive its consumer web UI",
+        )
 
     def test_operator_hosted_refuses_a_consumer_account(self):
         errors = _validate(BASE.replace(
@@ -101,9 +123,10 @@ share_out: []"""))
         self.assertTrue(any("from_nlm_profile" in e for e in errors))
 
 
+@final
 class ShareOutRosterValidationTests(unittest.TestCase):
 
-    ENTRY = """share_out:
+    ENTRY: ClassVar[str] = """share_out:
   - hosting_account: xFactor001@opensoft.one
     user: reader@example.com
     book_or_alias: xf-canon
@@ -152,9 +175,10 @@ class ShareOutRosterValidationTests(unittest.TestCase):
     granted_at: "2026-08-24"
     granted_by: Brett Heap
 """
-        self.assertEqual(self._with_roster(roster), [],
-                         "the grantee is part of the key — this is the case "
-                         "that broke the client-identity roster")
+        self.assertEqual(
+            self._with_roster(roster), [],
+            "the grantee is part of the key — this is the case that broke the client-identity roster",
+        )
 
     def test_a_re_decision_must_update_rather_than_add_a_second_entry(self):
         roster = self.ENTRY + """  - hosting_account: xFactor001@opensoft.one
@@ -165,10 +189,10 @@ class ShareOutRosterValidationTests(unittest.TestCase):
     granted_by: Someone Else
 """
         errors = self._with_roster(roster)
-        self.assertTrue(any("duplicate share-out key" in e for e in errors),
-                        "role, grant time and actor are ATTRIBUTES: two live "
-                        "entries would assert a stale grant beside a current "
-                        "one")
+        self.assertTrue(
+            any("duplicate share-out key" in e for e in errors),
+            "role, grant time and actor are ATTRIBUTES: two live entries would assert a stale grant beside a current one",
+        )
 
     def test_an_entry_for_another_hosting_account_is_refused(self):
         roster = self.ENTRY.replace("hosting_account: xFactor001@opensoft.one",
@@ -183,4 +207,4 @@ class ShareOutRosterValidationTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    _ = unittest.main()
