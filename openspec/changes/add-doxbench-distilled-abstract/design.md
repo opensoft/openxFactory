@@ -172,11 +172,10 @@ fourth fact about the question. Adding it can only ever split a bucket and never
 merge two, so every sentence the requirement says about the three still holds
 exactly. `AbstractKey` therefore carries `repository`, `ref`, `subject_path`,
 `content_digest`, `resolved_model_id` — five fields, not a composed string, so
-injectivity is by construction. `latest_for_path` stays a per-`(scope, path)`
-question ACROSS models, because it answers "what abstract does this document
-already have", which the verification requirement takes as an ADDITIONAL base:
-an answer from another model is still a previous answer about THIS document, and
-the requirement says nothing that would narrow it to one model.
+injectivity is by construction. `latest_for_path` keeps a model-agnostic form
+for the reader-facing question "what abstract does this document already have at
+all"; the VERIFICATION BASE it feeds is a narrower question, ruled at the end of
+this section.
 
 **Explicit refresh is a THIRD request mode, not a fourth store.** Replay on an
 identical key and a working RE-GENERATE control are in direct conflict: a
@@ -205,6 +204,57 @@ generated abstract an ADDITIONAL base "where one exists", and RE-GENERATE is the
 one path where one always exists — invalidating it out of the replay index and
 out of the verifier's reach at the same moment would have made the regenerate
 path verify against a strictly weaker base than every other path.
+
+**Aligned 2026-08-26:** the spec delta's cache-key sentence
+(`specs/ideation-dashboard/spec.md`) now states the key as the subject's
+path, its content digest and the resolved model id, QUALIFIED BY the
+request's scope (repository and ref) — matching the reconciled
+`AbstractKey(repository, ref, subject_path, content_digest,
+resolved_model_id)` recorded above. No behavioural change; the delta text
+had lagged the two corrections already made in this section.
+
+**Ruled 2026-08-26 (SHOULD-FIX 6): the tightening rule is per `(scope, path,
+model)`; cross-model abstracts are not each other's base.** The
+previous-coverage clause can only TIGHTEN, so a base drawn from another model
+made a FIRST generation under a newly selected model defend coverage it had
+never claimed: a reader who switched model and pressed GENERATE was refused
+`previous-coverage-dropped` about an answer that model never produced, and
+every retry met the same live base and the same refusal. Two models may distil
+one document differently without either being wrong — which is exactly what
+that reader was choosing between. A base is a predecessor of the SAME question,
+and 5.3a already put the model IN the question. `latest_for_path` therefore
+takes an optional `resolved_model_id`: the route asks the narrowed question for
+the verification base, and the unnarrowed form stays for the reader-facing
+lookup above.
+
+*Four consequences of this store being a CACHE, stated so a reader does not have
+to derive them:*
+
+- **A refused RE-GENERATE forfeits the previous verification base for that
+  document.** The refusal RELEASES the key rather than completing it, and the
+  entry the refresh invalidated is already gone, so the next generation is
+  verified against the snapshot's own declared fields alone. That is the loss of
+  a CACHE and never of a RECORD — the base the requirement insists must exist is
+  the declared fields, which are untouched, and which is the base generation #1
+  has in any case.
+- **During a refresh window a plain same-key request ATTACHES rather than
+  replaying the old answer**, because that key is in flight rather than
+  completed. So the previous base for it is transiently ABSENT to anything that
+  asks in that window, and the attacher is handed the REFRESHED answer rather
+  than the one it would have replayed a moment earlier. Both follow from the
+  one-in-flight arm being unconditional, and neither is a second mode.
+- **The model dimension multiplies slot pressure on both 64-entry bounds.** One
+  document under two models is two entries here, exactly as it is two turns in
+  the chat ledger, so a reader comparing models across a scope reaches the bound
+  roughly twice as fast. Re-dispatch after eviction stays specified expected
+  behaviour rather than an error — the same statement the digest dimension
+  already carries, and for the same reason: the answer is reproducible from the
+  document.
+- **`latest_for_path` picks by LAST ACCESS, and a replay TOUCHES recency.** The
+  base offered is therefore the most recently READ abstract for the document,
+  not necessarily the most recently generated one. With the model now narrowing
+  the candidates the two coincide far more often, and where they still differ
+  the tie breaks toward the answer the reader actually has in front of them.
 
 ### D5a — The abstract binds its OWN conversation (2026-08-25, review B1)
 

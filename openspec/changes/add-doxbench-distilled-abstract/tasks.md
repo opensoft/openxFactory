@@ -204,8 +204,8 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
       invalidation would have made the refresh path verify against a strictly
       weaker base than every other path. The ATTACH path is deliberately not a
       refresh path — a caller that WAITED replays the holder's answer rather
-      than invalidating what it just waited for. Original obligation: an
-      EXPLICIT REFRESH bypasses completed replay. Same subject,
+      than invalidating what it just waited for. The original obligation, in
+      full: same subject,
       same digest, same model, RE-GENERATE invoked → the completed entry is
       invalidated, a second dispatch occurs, and the new result replaces the
       entry. Then the negative half, which is what stops the bypass becoming a
@@ -376,11 +376,11 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
 
 ## 10. Realization gate
 
-- [x] 10.1 `pytest tests/ideation-dashboard` green. 2026-08-25 — 4390 passed / 13 skipped; after the review fix round 4412 / 13.
+- [x] 10.1 `pytest tests/ideation-dashboard` green. 2026-08-25 — 4390 passed / 13 skipped; after the review fix round 4412 / 13; 4442 / 13 after the #364 catch-up; 4447 / 13 after the final polish round.
       Whole-repo `pytest tests/ -m "not postgres"`: 6416 passed, 2 pre-existing failures
       unrelated to this branch (doc-health bootstrap-cluster drift; hermes release
       inventory merge-base in a worktree) — CI on the PR is the authority.
-- [x] 10.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green. 2026-08-25 — 78/78.
+- [x] 10.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green. 2026-08-25 — 78/78; 77/77 after merging main (one change archived there).
 - [ ] 10.3 **ONE OPERATOR RUN on the real corpus through a REAL adapter** — the
       bridge lane (§2.2), or the T100 rig's operator-supplied adapter. Record the
       subject document, the model, the returned abstract, and the verifier's

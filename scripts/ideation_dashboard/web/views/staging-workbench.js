@@ -1952,6 +1952,15 @@ export function mountStagingWorkbench(container, snapshot,
     rail.hidden = true;
     approvedModelCount = 0;  // a torn-down rail reports no models (R5)
     abstractModelId = null;  // …and vouches for no model id either
+    // …AND THE DOCS PANE HEARS IT, exactly as it hears a model CHANGE from the
+    // rail's own state callback. The abstract shown is a fact about
+    // (document, digest, MODEL), so a region left painted under a model id
+    // that no longer exists is the same stale-provenance claim the onState
+    // repaint was added to prevent — reached by teardown rather than by a
+    // switch. The seam reads `active`/`scope` through optional chaining and
+    // the pane's `paint` writes into its own captured node, so this is safe
+    // from every teardown caller, including `close()`.
+    repaintAbstractSession(docsAbstractSeam().scopeKey);
     railCatalogFailure = null;  // …and no catalog failure either (F10-1)
     // T104 F1: a companion blob captured for the tile being torn down must
     // never be applied to the NEXT tile's rail — it was cleared only on a

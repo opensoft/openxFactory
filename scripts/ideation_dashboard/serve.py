@@ -4207,22 +4207,38 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     declared_destinations=declared_lands,
                     request_paths=tuple(carried),
                     subject_title=envelope.subject_title,
-                    # The PREVIOUS abstract for this document IN THIS SCOPE,
-                    # under whatever digest and whatever model it was generated
+                    # The PREVIOUS abstract for this document IN THIS SCOPE AND
+                    # UNDER THIS MODEL, under whatever digest it was generated
                     # from: the ratified rule makes it an ADDITIONAL base, never
                     # the only one. On the ORDINARY path it can never be this
                     # key's own -- a cached answer for those exact bytes and
                     # that exact model was replayed above, before any
                     # verification ran -- so what is offered is the answer from
-                    # before the last edit or from the other model, which is
-                    # precisely the base the rule is about. On the REFRESH path
-                    # it IS this key's own, invalidated moments ago and handed
-                    # back on the lease rather than dropped.
+                    # before the last edit, which is precisely the base the rule
+                    # is about. On the REFRESH path it IS this key's own,
+                    # invalidated moments ago and handed back on the lease
+                    # rather than dropped (and the same model by construction,
+                    # because the model is in the key).
+                    #
+                    # NARROWED BY THE RESOLVED MODEL (ruled 2026-08-26,
+                    # SHOULD-FIX 6). The base can only TIGHTEN, so offering
+                    # another model's answer made a FIRST generation under model
+                    # B defend model A's coverage: a reader who switched model
+                    # and pressed GENERATE was refused `previous-coverage-
+                    # dropped` about an answer this model had never produced,
+                    # and every retry met the same live base and the same
+                    # refusal. Two models can distil one document differently
+                    # without either being wrong, which is exactly what that
+                    # reader was choosing between.
+                    # `latest_for_path` keeps its model-agnostic form for
+                    # the reader-facing "what abstract does this document have
+                    # at all"; the VERIFICATION BASE is this narrower question.
                     previous=(invalidated_abstract
                               if invalidated_abstract is not None
                               else self.abstract_store.latest_for_path(
                                   repository=key.repository, ref=key.ref,
-                                  subject_path=subject_path)),
+                                  subject_path=subject_path,
+                                  resolved_model_id=resolved_model_id)),
                     generation=generation)
             except doxbench_knowledge.AbstractFormatRefused:
                 self._send_json(

@@ -381,17 +381,27 @@ class AbstractStore:
     # -- read-only peek ------------------------------------------------------
 
     def latest_for_path(self, *, repository: str, ref: str,
-                        subject_path: str) -> object | None:
+                        subject_path: str,
+                        resolved_model_id: str | None = None) -> object | None:
         """The most recently used ANSWERED abstract for ``subject_path`` IN ONE
-        SCOPE, under any digest AND UNDER ANY MODEL, or ``None``.
+        SCOPE, under any digest, or ``None``.
 
-        MODEL-AGNOSTIC, deliberately, even though the model is in the key. This
-        answers "what abstract does this document already have", which the
-        ratified verification rule takes as an ADDITIONAL base: an answer from
-        another model is still a previous answer about THIS document, and the
-        rule says nothing that would narrow it to one model. The SCOPE is a
-        different matter — see below — because another repository's answer for
-        an identically-named document is a different document's abstract.
+        MODEL-AGNOSTIC BY DEFAULT, and NARROWED WHEN A CALLER NAMES A MODEL.
+        Unnarrowed it answers the reader-facing question "what abstract does
+        this document already have at all", which is the one a display or a
+        readable-abstract fallback asks and which has no model in it.
+        ``resolved_model_id`` answers the narrower question the VERIFIER's
+        previous-coverage clause needs — "what did THIS model last say about
+        this document" — ruled 2026-08-26 (SHOULD-FIX 6): that clause can only
+        TIGHTEN, so offering it another model's answer made a FIRST generation
+        under model B defend model A's coverage and refused it
+        ``previous-coverage-dropped`` for an answer this model never produced.
+        Two models can distil one document differently without either being
+        wrong; a base is a predecessor of the SAME question, and the model is
+        already IN the question (the key's fifth field). The SCOPE is a
+        different matter again — see below — because another repository's
+        answer for an identically-named document is a different document's
+        abstract.
 
         SCOPE-QUALIFIED, and keyword-only so the three components cannot be
         transposed at a call site (S3). "The abstract this document already has"
@@ -415,7 +425,10 @@ class AbstractStore:
                           and record.abstract is not None
                           and record.key.subject_path == subject_path
                           and record.key.repository == repository
-                          and record.key.ref == ref]
+                          and record.key.ref == ref
+                          and (resolved_model_id is None
+                               or record.key.resolved_model_id
+                               == resolved_model_id)]
             newest = max(candidates, key=lambda record: record.last_access_order,
                          default=None)
         if newest is None:

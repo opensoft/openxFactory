@@ -1114,6 +1114,16 @@ def verify_document_abstract(
          regeneration that drops every declared subject its predecessor covered
          is refused.
 
+         ``previous`` IS A PREDECESSOR OF THE SAME QUESTION, and SELECTING one
+         is the caller's job exactly as deriving ``request_paths`` is. The
+         question is `(scope, subject path, model)` — ruled 2026-08-26,
+         SHOULD-FIX 6 — so a caller offers only an abstract of THIS document
+         produced by the SAME resolved model. Another model's answer is not
+         this generation's base: the clause can only tighten, so offering one
+         would make a FIRST generation under a newly selected model defend
+         coverage it never claimed, and two models may distil one document
+         differently without either being wrong.
+
          **It is NOT a fidelity check, and it must never be described as one.**
          A dispatch returns assistant prose as ONE OPAQUE STRING
          (`doxbench_model.py:985`), so nothing downstream can establish that a

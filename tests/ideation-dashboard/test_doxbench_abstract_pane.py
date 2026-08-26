@@ -998,6 +998,25 @@ def test_switching_back_replays_the_first_models_abstract_with_no_new_call(
     assert "THE M2 DISTILLATION" not in model_switch["backOnM1"]["regionText"]
 
 
+def test_a_rail_teardown_clears_the_abstract_model_AND_repaints_the_pane():
+    """NIT 4a (2026-08-26). The docs abstract borrows the rail's model choice,
+    and the shell repaints the pane whenever that choice MOVES — the region's
+    state genuinely differs under a different model. A rail TEARDOWN moves it
+    too, all the way to `null`, so the same repaint belongs there or the region
+    keeps a model-derived caption sourced from a model the shell no longer
+    holds. Pinned at the SOURCE rather than through a harness: teardown is
+    reached by `close()` (which has already emptied the pane's DOM) and by
+    `drawCanvas()` (which is about to re-render it), so a mounted probe can see
+    the symmetry in neither place — the same reason the sibling teardown pin in
+    `test_staging_workbench.py` reads the function's body."""
+    shell = SHELL_JS.read_text(encoding="utf-8")
+    teardown = shell.split("function teardownRail()", 1)[1].split("\n  }", 1)[0]
+    assert "abstractModelId = null;" in teardown
+    assert "repaintAbstractSession(" in teardown
+    # …the same call the model-CHANGE path makes, so the two cannot drift
+    assert shell.count("repaintAbstractSession(docsAbstractSeam().scopeKey)") == 2
+
+
 _POSTURE_HARNESS = _prelude() + r"""
 const out = {};
 

@@ -753,8 +753,12 @@ def test_the_rail_is_given_the_selection_seam_and_no_longer_the_unload_seam():
     # exactly as the sibling pin one function up was re-anchored, and for the
     # same reason: a distance is satisfied by whatever happens to sit inside it
     # and refuted by any comment written above it, neither of which is what this
-    # test is about. The span is STRICTLY NARROWER in meaning: only the mount
-    # call's own option list can satisfy it now.
+    # test is about. As with that sibling, the figure is DISCLOSED rather than
+    # left to be discovered: the span is wider in characters than the 5000 it
+    # replaces (7399 today) and STRICTLY NARROWER in meaning — only the mount
+    # call's own option list can satisfy it now, where the old distance could be
+    # satisfied by anything that happened to sit within 5000 characters, inside
+    # the call or past its end.
     window = source[mount:source.index("const mounted = canvasController;",
                                        mount)]
     assert "selectBuffer:" in window

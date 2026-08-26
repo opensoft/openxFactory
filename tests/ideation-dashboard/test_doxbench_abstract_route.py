@@ -1439,6 +1439,7 @@ def test_a_refresh_arriving_mid_flight_spends_ONE_model_call(tmp_path):
     bypass cannot become a free-for-all."""
     released = threading.Event()
     seen = threading.Event()
+    parked = threading.Event()
 
     class _BlockingPort(_ScriptedPort):
         def dispatch(self, prompt_envelope):
@@ -1451,6 +1452,29 @@ def test_a_refresh_arriving_mid_flight_spends_ONE_model_call(tmp_path):
     with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, prt):
         caps = _capabilities(host, prt)
         headers = _console_headers(caps)
+        # THE HANDSHAKE, and it is an EVENT rather than a short `join` on the
+        # second thread (which was a sleep wearing a timeout's clothes). The
+        # second request must be KNOWN to have reached `reserve` and found the
+        # holder before the first is released: released early, the first
+        # completes, and the second's refresh then invalidates a COMPLETED entry
+        # and dispatches a second time — the test would fail for a scheduling
+        # reason and, worse, could pass for one.
+        #
+        # The store's own condition announces the park, which is the store-level
+        # twin's `started` event at the one point where it is airtight rather
+        # than merely early: `Condition.wait` is entered HOLDING the store's
+        # lock, so a thread that has set this event cannot be overtaken by the
+        # first request's `complete`, which needs that same lock. It is a
+        # synchronisation instrument and asserts nothing about the store's
+        # internals.
+        store = _handler_class(httpd).abstract_store
+        _real_wait = store._condition.wait
+
+        def _announcing_wait(timeout=None):
+            parked.set()
+            return _real_wait(timeout)
+
+        store._condition.wait = _announcing_wait
 
         def _fire(name, body):
             answers[name] = _request(host, prt, "POST", ROUTE, body=body,
@@ -1464,11 +1488,157 @@ def test_a_refresh_arriving_mid_flight_spends_ONE_model_call(tmp_path):
                                   args=("second", _body(refresh=True)),
                                   daemon=True)
         second.start()
-        # give the second a moment to reach the store and ATTACH
-        second.join(timeout=0.5)
+        # it has reached `reserve`, found the in-flight holder, and is parking
+        assert parked.wait(timeout=10)
         released.set()
         first.join(timeout=15)
         second.join(timeout=15)
     assert answers["first"][0] == answers["second"][0] == 200
     assert answers["first"][1] == answers["second"][1]
     assert port.calls.count("dispatch") == 1
+
+
+# ============================================================================
+# SHOULD-FIX 6 — THE PREVIOUS VERIFICATION BASE IS PER (SCOPE, PATH, MODEL)
+# ============================================================================
+#
+# Ruled 2026-08-26. The tightening clause makes a previously generated abstract
+# an ADDITIONAL base that can only NARROW what the declared fields already
+# require, and the route offered the latest abstract for `(scope, path)` UNDER
+# ANY MODEL. A FIRST generation under model B therefore had to defend model A's
+# coverage: two models can distil one document differently without either being
+# wrong, so a reader who switched model and pressed GENERATE could be told
+# `previous-coverage-dropped` about an answer this model has never produced, and
+# every retry met the same live base and the same refusal. A base is a
+# predecessor of the SAME question, and 5.3a already put the model IN the
+# question.
+#
+# NARROWED AT THE VERIFICATION BASE AND NOWHERE ELSE. `latest_for_path` keeps
+# its model-agnostic form for the reader-facing question ("what abstract does
+# this document already have"); the route asks the model-narrowed one.
+#
+# THE FIXTURE NEEDS TWO DECLARED SUBJECTS. The tightening clause fires only when
+# two answers cover DISJOINT declared subjects, and the fixture subject declares
+# exactly one topic — so every answer that passes the coverage rule at all
+# covers the same term and the clause can never be reached. The snapshot below
+# gives the subject a second declared topic, which is what makes both halves of
+# the ruling decidable at this route.
+
+SECOND_TOPIC = "coffee-rituals"
+
+# The mirror of `GROUNDED_PROSE`: it satisfies BOTH verifier rules for the same
+# subject — names it by title, names no other repository path — while covering
+# the OTHER declared topic and neither of the first answer's terms.
+SECOND_TOPIC_PROSE = (
+    "README.md is the staged packet for coffee-rituals: it works through that "
+    "one question and records nothing else about it."
+)
+
+
+def _with_second_topic(snapshot):
+    """The fixture subject, given a SECOND declared topic in the snapshot the
+    verifier reads its base from. The document's saved bytes are untouched."""
+    for document in snapshot["documents"]:
+        if document.get("path") == SUBJECT_PATH:
+            document["topics"] = list(document.get("topics") or ()) + [
+                SECOND_TOPIC]
+    return snapshot
+
+
+def _two_topic_snapshot():
+    return _with_second_topic(copy.deepcopy(_snapshot()))
+
+
+def _two_topic_checkout(tmp_path, *, name="two-topic"):
+    """A REAL checkout of the fixture tree with its own snapshot, so a test can
+    SAVE an edit between two requests and give the second a new digest — the
+    one path on which a same-model regeneration reads its previous base out of
+    `latest_for_path` rather than off a refresh lease."""
+    import shutil
+
+    root = tmp_path / name
+    shutil.copytree(BASE_REPO, root)
+    snapshot = generate_snapshot(root, "fixture-repo",
+                                 source_revision=PINNED_REVISION, git=FakeGit())
+    return root, _with_second_topic(snapshot)
+
+
+def test_a_first_generation_under_a_SECOND_MODEL_is_not_refused_against_the_FIRSTS(
+        tmp_path):
+    """THE RULING. Model A distils the document covering one declared topic; the
+    reader switches to model B and presses GENERATE, and B's answer covers the
+    OTHER declared topic. That is B's FIRST answer about this document — it has
+    no predecessor of its own — so it MUST NOT be refused for dropping coverage
+    A's answer held."""
+    port = _ScriptedPort([GROUNDED_PROSE, SECOND_TOPIC_PROSE],
+                         catalog=_two_model_catalog())
+    with _serving(tmp_path, model_port_factory=lambda: port,
+                  snapshot=_two_topic_snapshot()) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first = _request(host, prt, "POST", ROUTE,
+                         body=_body(model_id="model-a"),
+                         headers=_console_headers(caps))
+        second = _request(host, prt, "POST", ROUTE,
+                          body=_body(model_id="model-b"),
+                          headers=_console_headers(caps))
+    assert first[0] == 200, first[1]
+    assert first[1]["prose"] == GROUNDED_PROSE
+    # the refusal this ruling is about, named rather than inferred from a status
+    assert second[1].get("refused") != (
+        doxbench_knowledge.ABSTRACT_REFUSED_PREVIOUS_COVERAGE), second[1]
+    assert second[0] == 200, second[1]
+    assert second[1]["prose"] == SECOND_TOPIC_PROSE
+    assert second[1]["model_id"] == "model-b"
+    assert port.calls.count("dispatch") == 2
+
+
+def test_a_SAME_MODEL_regeneration_after_an_edit_still_tightens(tmp_path):
+    """THE OTHER HALF, and the one that proves the narrowing did not simply
+    throw the base away: the SAME model, a saved edit between the two requests
+    (so the second is a new key and really re-dispatches), and an answer that
+    covers none of the declared subjects its own predecessor covered. Still
+    refused — this is the base `latest_for_path` supplies, and the ruling
+    narrows it by model, not out of existence."""
+    root, snapshot = _two_topic_checkout(tmp_path)
+    subject = root / SUBJECT_PATH
+    port = _ScriptedPort([GROUNDED_PROSE, SECOND_TOPIC_PROSE])
+    with _serving(tmp_path, model_port_factory=lambda: port, snapshot=snapshot,
+                  checkout_root=root) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first = _request(host, prt, "POST", ROUTE,
+                         body=_body(model_id="model-a"),
+                         headers=_console_headers(caps))
+        subject.write_text(
+            subject.read_text(encoding="utf-8")
+            + "\n\nA saved edit, so the next request carries a new digest.\n",
+            encoding="utf-8")
+        second = _request(host, prt, "POST", ROUTE,
+                          body=_body(model_id="model-a"),
+                          headers=_console_headers(caps))
+    assert first[0] == 200, first[1]
+    # it really re-dispatched: a new digest is a new key, never a replay
+    assert port.calls.count("dispatch") == 2
+    _assert_abstract_refusal(
+        second[0], second[1],
+        doxbench_knowledge.ABSTRACT_REFUSED_PREVIOUS_COVERAGE)
+
+
+def test_a_SAME_MODEL_RE_GENERATE_that_drops_coverage_is_still_refused(tmp_path):
+    """The refresh path's twin of the pin above. Its base is the abstract the
+    reservation invalidated moments ago rather than `latest_for_path`'s, and it
+    is the same model by construction — the model is IN the key — so the
+    tightening rule reaches it unchanged."""
+    port = _ScriptedPort([GROUNDED_PROSE, SECOND_TOPIC_PROSE])
+    with _serving(tmp_path, model_port_factory=lambda: port,
+                  snapshot=_two_topic_snapshot()) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first = _request(host, prt, "POST", ROUTE, body=_body(),
+                         headers=_console_headers(caps))
+        refreshed = _request(host, prt, "POST", ROUTE,
+                             body=_body(refresh=True),
+                             headers=_console_headers(caps))
+    assert first[0] == 200, first[1]
+    assert port.calls.count("dispatch") == 2
+    _assert_abstract_refusal(
+        refreshed[0], refreshed[1],
+        doxbench_knowledge.ABSTRACT_REFUSED_PREVIOUS_COVERAGE)

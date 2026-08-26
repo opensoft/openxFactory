@@ -530,12 +530,11 @@ def test_the_key_names_its_five_fields_and_nothing_else():
                       "resolved_model_id")
 
 
-def test_the_previous_base_is_a_per_scope_per_path_question_across_models():
-    """`latest_for_path` is NOT narrowed by the model, and that is deliberate:
-    it answers "what abstract does this document already have", which the
-    verification requirement takes as an ADDITIONAL base. An answer from another
-    model is still a previous answer about THIS document, and the ratified rule
-    says nothing that would narrow it to one model."""
+def test_the_unnarrowed_lookup_answers_across_models():
+    """`latest_for_path` with NO model named is the READER-FACING question —
+    "what abstract does this document already have at all" — and it is answered
+    across models, because a display or a readable-abstract fallback has no
+    model in its question."""
     store = store_mod.AbstractStore()
     by_a = _key(model=MODEL_A)
     store.reserve(by_a)
@@ -543,6 +542,37 @@ def test_the_previous_base_is_a_per_scope_per_path_question_across_models():
 
     assert store.latest_for_path(
         repository=REPOSITORY, ref=REF, subject_path=SUBJECT) == {"by": MODEL_A}
+
+
+def test_the_previous_VERIFICATION_base_is_narrowed_by_the_model():
+    """Ruled 2026-08-26 (SHOULD-FIX 6). The verifier's previous-coverage clause
+    can only TIGHTEN, so its base must be a predecessor of the SAME question —
+    and the model is in the question (it is the key's fifth field). Asking for
+    model B's previous answer must NOT hand back model A's: that turned a FIRST
+    generation under a newly selected model into a refusal for dropping coverage
+    it never claimed."""
+    store = store_mod.AbstractStore()
+    by_a = _key(model=MODEL_A)
+    store.reserve(by_a)
+    store.complete(by_a, _result(), size_bytes=32, abstract={"by": MODEL_A})
+
+    assert store.latest_for_path(
+        repository=REPOSITORY, ref=REF, subject_path=SUBJECT,
+        resolved_model_id=MODEL_A) == {"by": MODEL_A}
+    assert store.latest_for_path(
+        repository=REPOSITORY, ref=REF, subject_path=SUBJECT,
+        resolved_model_id=MODEL_B) is None
+
+    # …and once B has answered for itself, each model reads back its OWN
+    by_b = _key(model=MODEL_B)
+    store.reserve(by_b)
+    store.complete(by_b, _result(), size_bytes=32, abstract={"by": MODEL_B})
+    assert store.latest_for_path(
+        repository=REPOSITORY, ref=REF, subject_path=SUBJECT,
+        resolved_model_id=MODEL_A) == {"by": MODEL_A}
+    assert store.latest_for_path(
+        repository=REPOSITORY, ref=REF, subject_path=SUBJECT,
+        resolved_model_id=MODEL_B) == {"by": MODEL_B}
 
 
 # ---------------------------------------------------------------------------
