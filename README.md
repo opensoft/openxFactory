@@ -381,75 +381,6 @@ Active changes:
   green internal-live realization evidence, never on landing. Aggregation
   admission of the client repo, the GPT-Live-1 default swap, and the
   `avatar-pilot-hardening` deferrals are explicitly out of scope.
-- [add-doxbench-distilled-abstract](openspec/changes/add-doxbench-distilled-abstract/proposal.md)
-  — authored and **ratified 2026-08-25** (Brett, all eight rulings as
-  recommended); `target_release: none` under ruling 2(b), but `code_surface` is
-  non-empty, so the archive gate is merge-plus-green PLUS one operator run on the
-  real corpus through a real adapter, recorded in `realization-evidence.md`.
-  Three requirements MODIFIED, seven ADDED. The MODEL half of `#84`: the
-  distilled per-document abstract the docs subpane was built to carry. Ruling 0
-  SPLIT this change — the doc-only half is
-  `ratify-doxbench-landed-context-surfaces`, which took the `:439` simultaneity
-  reversal and FIVE of the six integration-surface items and ARCHIVED FIRST on
-  2026-08-25, so this change's `:863` delta is authored against that change's
-  landed text (verified at that archive: canon plus this change's own additions,
-  no canon line missing). The sixth item, the loaded-document selector's claim on
-  the accessible name (`:1827`), came back here at packet review because it needs
-  code, and is carried by this change's added captioning requirement rather than
-  by modifying `:1827`. What is
-  left here is the reversal that was actually asked for: Brett's 2026-08-03 ruling
-  that the abstract be "header + structure, honestly labelled ... NOT an AI
-  distillation" is reversed, and its test pin — a whole-file substring sweep
-  (`test_doxbench_context_panes.py:144-152`) that bans "distilled" while missing
-  "distillation" — is RELOCATED onto the Node harness as a per-abstract caption
-  assertion rather than deleted, because after this change both captions live in
-  one file and a file-level sweep cannot tell them apart. Council review then
-  found the first draft describing a feature that could not run. A real adapter
-  EXISTS — `OmpHarnessBridge` (`doxbench_bridge.py:869`) supervises an
-  `omp --mode rpc` child with no credential — but NO ENTRYPOINT declares
-  `model_port_factory`, so `_workbench_model_port` returns `None` on every real
-  serve. Packet review sharpened that twice more: `serve()` has no callers at all,
-  so the declaration belongs at `cli.py:298` beside the notebook adapter and the
-  knowledge declaration; and the bridge is unconstructible bare (keyword-only
-  `session_root`, no default) and INERT if given only that (catalog defaults to
-  `EMPTY_CATALOG`), so the entrypoint must declare catalog, session root and
-  launch config install-time — and must build ONE instance for the process, since
-  the bridge is stateful and `spec.md:1991` requires one harness session per
-  document thread. The prompt ASSEMBLER is new surface, not a reuse:
-  `build_prompt_envelope` is chat-shaped to its bones — outline plus documents, a
-  non-blank human message, a transcript — so an abstract request needs its own
-  assembler, whose pin is that it REFUSES a context packet of any purpose (a new
-  purpose constant would have been dead code, since the request carries no packet
-  at all). Layer 2 is NOT widened: a comma-joined second owner in a one-owner
-  field would degrade the fidelity checker to a comment, so the abstract is a
-  layer-2-CLASS SIBLING under the requirement's universal non-authoritative
-  clause and `compact_thread` keeps sole ownership with its equality pin green
-  unchanged. The verifier's base is the SNAPSHOT'S declared topics and
-  destinations — so it fires on the FIRST generation, not only on a regeneration
-  — and its check is named SUBJECT-MENTION COVERAGE rather than fidelity, because
-  `dispatch_turn` returns one opaque string and claiming more would be this change
-  committing the sin it exists to prevent; the one structurally decidable clause
-  is that the abstract must name its subject and no path its request did not
-  carry, which is also what discharges the injection-leak case. Ruling 7 was the
-  sharpest finding: disclosure on this surface REQUIRES EDIT AUTHORITY
-  (`doxbench_scope.py:390`), `editable_paths` is fed only by `owned` sections and
-  exactly ONE section is owned, so on a cluster tile the eligible subject set is
-  EMPTY — either the abstract is refused there or a feature PR quietly opens a new
-  disclosure path. Ruled 7(a), with the widening named as a follow-on ruling.
-  `clarifications.md` carries the five council constraints (N1-N5), chief among
-  them that the abstract cache MUST NOT be the chat `TurnStore`, whose 64-entry /
-  16 MB bound abstract churn would evict and whose same-key-different-digest
-  conflict rule forces the content digest INTO the cache key. Packet review
-  (Codex, PR #352) then closed two holes in that store: the RESOLVED MODEL ID
-  joins path and digest in the key, because a human can change the selected model
-  while the document stands still and a two-part key would replay the first
-  model's prose under the second model's recorded id; and the RE-GENERATE control
-  carries an EXPLICIT REFRESH INTENT that invalidates the completed entry before
-  dispatching, because a regeneration against unchanged content and an unchanged
-  model has an identical key and plain identical-key replay made the required
-  control inert except by the accident of eviction. The one-in-flight arm stays
-  unconditional, so a double-click still spends one model call.
-
 - [add-family-enumeration-check](openspec/changes/add-family-enumeration-check/proposal.md)
   — authored and ratified 2026-08-25, commissioned in-session ("commission the
   §5.5 enumeration check"). `doc-health`'s own "Deterministic check families"
@@ -1208,6 +1139,116 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-doxbench-distilled-abstract](openspec/changes/archive/2026-08-26-add-doxbench-distilled-abstract/proposal.md)
+  — **ARCHIVED 2026-08-26**; authored and **ratified 2026-08-25** (Brett, all
+  eight rulings as recommended); `target_release: none` under ruling 2(b), but
+  `code_surface` was non-empty, so the archive gate was merge-plus-green PLUS one
+  operator run on the real corpus through a real adapter, recorded in
+  `realization-evidence.md`.
+  Three requirements MODIFIED, seven ADDED. The MODEL half of `#84`: the
+  distilled per-document abstract the docs subpane was built to carry. Ruling 0
+  SPLIT this change — the doc-only half is
+  `ratify-doxbench-landed-context-surfaces`, which took the `:439` simultaneity
+  reversal and FIVE of the six integration-surface items and ARCHIVED FIRST on
+  2026-08-25, so this change's `:863` delta is authored against that change's
+  landed text (verified at that archive: canon plus this change's own additions,
+  no canon line missing). The sixth item, the loaded-document selector's claim on
+  the accessible name (`:1827`), came back here at packet review because it needs
+  code, and is carried by this change's added captioning requirement rather than
+  by modifying `:1827`. What is
+  left here is the reversal that was actually asked for: Brett's 2026-08-03 ruling
+  that the abstract be "header + structure, honestly labelled ... NOT an AI
+  distillation" is reversed, and its test pin — a whole-file substring sweep
+  (`test_doxbench_context_panes.py:144-152`) that bans "distilled" while missing
+  "distillation" — is RELOCATED onto the Node harness as a per-abstract caption
+  assertion rather than deleted, because after this change both captions live in
+  one file and a file-level sweep cannot tell them apart. Council review then
+  found the first draft describing a feature that could not run. A real adapter
+  EXISTS — `OmpHarnessBridge` (`doxbench_bridge.py:869`) supervises an
+  `omp --mode rpc` child with no credential — but NO ENTRYPOINT declares
+  `model_port_factory`, so `_workbench_model_port` returns `None` on every real
+  serve. Packet review sharpened that twice more: `serve()` has no callers at all,
+  so the declaration belongs at `cli.py:298` beside the notebook adapter and the
+  knowledge declaration; and the bridge is unconstructible bare (keyword-only
+  `session_root`, no default) and INERT if given only that (catalog defaults to
+  `EMPTY_CATALOG`), so the entrypoint must declare catalog, session root and
+  launch config install-time — and must build ONE instance for the process, since
+  the bridge is stateful and `spec.md:1991` requires one harness session per
+  document thread. The prompt ASSEMBLER is new surface, not a reuse:
+  `build_prompt_envelope` is chat-shaped to its bones — outline plus documents, a
+  non-blank human message, a transcript — so an abstract request needs its own
+  assembler, whose pin is that it REFUSES a context packet of any purpose (a new
+  purpose constant would have been dead code, since the request carries no packet
+  at all). Layer 2 is NOT widened: a comma-joined second owner in a one-owner
+  field would degrade the fidelity checker to a comment, so the abstract is a
+  layer-2-CLASS SIBLING under the requirement's universal non-authoritative
+  clause and `compact_thread` keeps sole ownership with its equality pin green
+  unchanged. The verifier's base is the SNAPSHOT'S declared topics and
+  destinations — so it fires on the FIRST generation, not only on a regeneration
+  — and its check is named SUBJECT-MENTION COVERAGE rather than fidelity, because
+  `dispatch_turn` returns one opaque string and claiming more would be this change
+  committing the sin it exists to prevent; the one structurally decidable clause
+  is that the abstract must name its subject and no path its request did not
+  carry, which is also what discharges the injection-leak case. Ruling 7 was the
+  sharpest finding: disclosure on this surface REQUIRES EDIT AUTHORITY
+  (`doxbench_scope.py:390`), `editable_paths` is fed only by `owned` sections and
+  exactly ONE section is owned, so on a cluster tile the eligible subject set is
+  EMPTY — either the abstract is refused there or a feature PR quietly opens a new
+  disclosure path. Ruled 7(a), with the widening named as a follow-on ruling.
+  `clarifications.md` carries the five council constraints (N1-N5), chief among
+  them that the abstract cache MUST NOT be the chat `TurnStore`, whose 64-entry /
+  16 MB bound abstract churn would evict and whose same-key-different-digest
+  conflict rule forces the content digest INTO the cache key. Packet review
+  (Codex, PR #352) then closed two holes in that store: the RESOLVED MODEL ID
+  joins path and digest in the key, because a human can change the selected model
+  while the document stands still and a two-part key would replay the first
+  model's prose under the second model's recorded id; and the RE-GENERATE control
+  carries an EXPLICIT REFRESH INTENT that invalidates the completed entry before
+  dispatching, because a regeneration against unchanged content and an unchanged
+  model has an identical key and plain identical-key replay made the required
+  control inert except by the accident of eviction. The one-in-flight arm stays
+  unconditional, so a double-click still spends one model call.
+
+  **The outcome.** The code merged as #365 (`02477d40`) and the surface then took
+  one more round: the FIRST operator run, 2026-08-26, found two defects and closed
+  nothing. Four presses of Generate all failed inside the operator's adapter on
+  `observed_hashes`, and because `model_failed` is an error-shaped body that names
+  no subject, the pane's subject recheck returned before recording anything — all
+  four presses left the region on the not-yet-generated caption and the whole of
+  `ABSTRACT_ERROR_SENTENCES` was unreachable, so the required control read as one
+  that did nothing. A diagnostic dispatch in the same session then returned a
+  2_018-byte abstract against `MAX_ABSTRACT_PROSE_BYTES = 1_500` — a good abstract,
+  every claim holding against the document's own fields, refused in full only by
+  the length bound, after a model call had been spent. #386 (`d4740415`) fixed
+  both: a refusal is now recorded against the path the request was DISPATCHED for,
+  ahead of the recheck, and the prompt asks for ~150 WORDS
+  (`MAX_ABSTRACT_PROSE_WORDS`) — a number a model can count while it writes — with
+  the byte bound left where the 280px region put it. Attempt 2, on the corpus at
+  `d4740415`, PASSED: Brett at the local console served by
+  `~/doxbench-operator/t100_serve.py` — the T100 subscription adapter over the
+  `claude` CLI, the second of the two adapters §10.3 allows, `omp` not being
+  installed on that host — generated an abstract for
+  `ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md`
+  (digest `20b36eb3…be505a`) on `claude-haiku-subscription.low`, 1119 bytes, and
+  the pane rendered it under the ruled model-derived caption beside both controls:
+  `caption_state: model-derived`, verifier ACCEPTED, no refusal class. `generation`
+  and `wait_bound_seconds` are recorded as NOT CAPTURED rather than invented — the
+  operator read the pane, not the network tab. One thing changed at the archive
+  itself: the INTAKE FOLD was REVERSED. This change and `add-doxchat-model-intake`
+  both modify `doxBench model catalog and provider boundary`, and archive replaces
+  canon's block with the archiving delta's raw markdown, so the last archiver must
+  carry the other's text; the recorded plan had intake go first. Intake stands at
+  0/22 tasks with a real code surface and a blocking broker dependency, so
+  archiving this change with intake's four additions folded in would have written
+  an intake affordance NOBODY HAS BUILT into canon. This change therefore archived
+  FIRST carrying only its own additions — grep for `INTAKE affordance` over
+  promoted canon returns 0 — and intake, as the later archiver, now declares
+  relative to this change's outcome, which is the direction
+  `release-realization/spec.md:64-74` asked for. Promotion: three requirements
+  MODIFIED and seven ADDED, canon 88 → 95 requirements and 404 → 444 scenarios,
+  85 requirements byte-identical and none removed. `specs/015-doxbench-distilled-abstract`
+  is NOT created here; task 11.1 stays open for the Speckit flow.
 
 - [add-omnigent-domain-terminology](openspec/changes/archive/2026-08-26-add-omnigent-domain-terminology/proposal.md)
   — **ARCHIVED 2026-08-26** on met realization evidence, after a task-level

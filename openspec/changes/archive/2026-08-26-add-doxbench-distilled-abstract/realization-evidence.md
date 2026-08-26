@@ -1,11 +1,12 @@
 # Realization evidence — add-doxbench-distilled-abstract §10.3
 
-**PENDING — one run attempted (2026-08-26), none has closed it.** This file is
-the recipe, the account of Attempt 1, and an empty record. §10.3 is an operator
-act: ONE run on the real corpus through a REAL adapter whose abstract the
-verifier ACCEPTS. A green suite does not close it — `FakeWorkbenchModelPort`
+**RECORDED — Attempt 2 CLOSED §10.3 on 2026-08-26.** This file is the recipe,
+the account of both attempts, and the record they were run to fill. §10.3 is an
+operator act: ONE run on the real corpus through a REAL adapter whose abstract
+the verifier ACCEPTS. A green suite does not close it — `FakeWorkbenchModelPort`
 returns a constant (`doxbench_model.py:1101`) the verifier refuses by design, so
-nobody may fill the record below from a test run.
+nothing below was filled from a test run. Attempt 1 (below) did not close it and
+is kept, because the two defects it found are why Attempt 2 could pass.
 
 ## Reachability — the `omp` harness
 
@@ -122,11 +123,70 @@ The run closed nothing, and it found two defects in THIS surface, both fixed by
 §10.3 still wants a run whose abstract reaches the verifier and is ACCEPTED.
 Attempt 2 fills the record below.
 
-## The record (fill on the run)
+## Attempt 2 — 2026-08-26 (CLOSED §10.3)
 
-> On <date> <operator> generated a distilled abstract for `<subject path>` in
-> the `<repository>` corpus through the `omp` bridge lane, model `<model_id as
-> echoed>`. The returned abstract was: "<prose verbatim>". The verifier ACCEPTED
-> it — `caption_state: model-derived`, `generation: <n>`, `subject_digest:
-> <digest>`, `wait_bound_seconds: <n>` — and the region rendered it under the
-> ruled model-derived caption, named `<title> — Distilled by a model …`.
+The pass run, on the corpus checkout at main `d4740415` — the #386 fix landed
+FIRST, so this run exercised the ~150-WORD ask and the visible-refusal path
+Attempt 1 bought, not the build that produced them.
+
+**On the adapter, honestly.** This run did NOT go through the `omp` bridge lane
+the "Reachability" section above describes: **`omp` is not installed on this
+host**, so the bridge lane was never reachable here. It went through the
+operator-supplied **T100 subscription adapter** at
+`~/doxbench-operator/t100_serve.py` — a local console that serves the dashboard
+with a `model_port_factory` bound to an adapter fronting the `claude` CLI on the
+operator's own subscription. §10.3 asks for a REAL adapter, not specifically the
+bridge lane ("the bridge lane (§2.2), or the T100 rig's operator-supplied
+adapter"), and this is the second of those two. What the run therefore does NOT
+evidence is the bridge lane itself — `OmpHarnessBridge` at an entrypoint, its
+`doxbench-abstract` conversation key, and the second-session shape the section
+above predicts remain covered by the suite and by §2's tasks, not by an operator
+run. Anyone re-running this on a host with `omp` should follow the recipe above
+unchanged.
+
+**What was captured, and what was not.** The operator read the RENDERED PANE and
+the adapter's own dispatch record; they did not open the network tab, so the
+response body's `generation` and `wait_bound_seconds` were not captured and are
+recorded as such below rather than invented. Both are nonetheless bounded by
+declaration: the adapter's `timeout_seconds` is 115, and this was the first
+generation for this cache key on a freshly started process.
+
+## The record
+
+> On **2026-08-26** **Brett** generated a distilled abstract for
+> `ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md` in the
+> **openxFactory** corpus — checkout at main `d4740415`, content digest
+> `20b36eb37ac3bf7b2bf97682c0979b4528501a61a178f1847bd62fd330be505a` as
+> computed by `document_content_digest` over the saved bytes — at the local
+> console served by `~/doxbench-operator/t100_serve.py`, whose declared model
+> port is the **T100 subscription adapter over the `claude` CLI** (the `omp`
+> bridge lane is not installed on this host). The model, as evidenced by the
+> adapter's own dispatch record, was **`claude-haiku-subscription.low`** — that
+> label in `turn-timings.jsonl`, and `adapter.log` carrying `dispatch ok
+> model=haiku dur=27s prompt_bytes=15314 proposals=0`. The returned abstract was
+> **1119 bytes**, inside `MAX_ABSTRACT_PROSE_BYTES = 1_500`, and read:
+> "avatar-pilot-hardening.md is a staged architecture specification for
+> replacing the avatar-pilot's static fixture authority implementation with real
+> Hermes control and delegation behind frozen protocol ports, while adding
+> per-domain overlays and personas atop the neutral kernel. It details
+> commissioning a formal WCAG 2.2 AA accessibility audit, standing up production
+> operations and telemetry infrastructure, and executing a staged pilot rollout
+> with operational rollback. Seven core claims cover protocol stability,
+> delegation layering, domain isolation, accessibility, operations, and
+> fail-closed rollback. Six blocking open questions remain on Hermes call-site
+> architecture, overlay scope, accessibility targeting, cohort selection,
+> kill-switch granularity, and provider contractual ownership. Pilot entry
+> requires qualified live voice profiles, SBOM, license review, formal audit,
+> client-integrity evidence, privacy review, and penetration test. The
+> capability cannot propose until predecessor capabilities complete and all
+> blocking questions are resolved." The **verifier ACCEPTED it**: the pane
+> rendered the abstract under the ruled caption *"Distilled by a model — not
+> authoritative; regenerable from the document."* beside the controls *"show the
+> document's own headers"* and *"re-generate from the current version"* — which
+> is `caption_state: model-derived` and no refusal class. `generation` and
+> `wait_bound_seconds` were **not captured** (the operator read the pane, not the
+> network tab); the adapter's declared `timeout_seconds` is 115, and this was the
+> first generation for this key on a fresh process.
+
+The pass criterion above is met and §10.3 is closed. No verifier bound was
+relaxed to reach it.

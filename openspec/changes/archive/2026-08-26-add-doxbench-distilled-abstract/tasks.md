@@ -9,9 +9,11 @@ spelling test, and the one place a source-text assertion is legitimate here is
 the purity/import guard the repo already uses.
 
 Sequencing: **§1 does not start until `ratify-doxbench-landed-context-surfaces`
-has archived** (this change's `:863` delta is authored against its landed text),
-and §2's provider-boundary delta is authored relative to the outcome of the
-ratified `add-doxchat-model-intake`, which modifies the same requirement
+has archived** (this change's `:863` delta is authored against its landed text).
+The provider-boundary delta was originally authored relative to the outcome of
+the ratified `add-doxchat-model-intake`, which modifies the same requirement; on
+2026-08-26 that ordering was REVERSED (1.2/1.2a) — this change archives FIRST and
+intake now declares relative to THIS change's outcome
 (`release-realization/spec.md:64-74`).
 
 ## 1. Gate and ground
@@ -45,7 +47,37 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
       ORDERING CONSTRAINT: `add-doxchat-model-intake` MUST archive BEFORE
       `add-doxbench-distilled-abstract`.
       2026-08-25 — intake's hosted-plane bullet folded per #351.
+      **2026-08-26 — THE FOLD DIRECTION IS REVERSED, and the ordering constraint
+      above is WITHDRAWN.** The asymmetry analysis holds; the ordering it
+      concluded does not. `add-doxchat-model-intake` stands at 0/22 tasks with a
+      real code surface (selector, intake flow, broker hand-off, an additive
+      gate-action enum member) and a BLOCKING dependency on
+      `add-model-provider-broker`, so its archive gate — merged plus green
+      (`release-realization/spec.md:23-32`) — cannot be met for a long time. This
+      change is realized NOW (#365 `02477d40`, #386 `d4740415`, pytest-suite green
+      on main, operator run recorded at §10.3), so waiting on intake would hold a
+      realized change open indefinitely; and archiving THIS change with intake's
+      text folded in would promote into canon an intake affordance that DOES NOT
+      EXIST in the code — a promoted spec describing what the code does not do,
+      which is the exact invariant `release-realization` protects. So: this
+      change's block is re-authored as canon PLUS ITS OWN additions only (the
+      three intake sentences, the widened selector bullet, the intake scenario
+      and the hosted-plane intake bullet all REMOVED from it), and intake — the
+      LATER archiver — is re-authored as (canon + this change's widening + this
+      change's four scenarios) + intake's four additions. That is the direction
+      `release-realization/spec.md:64-74` asks for in the first place: the later
+      proposal declares its deltas relative to the earlier change's OUTCOME.
+      Verified mechanically the same day: this change's block minus canon is
+      exactly its own two widened sentences, its three added sentences and its
+      four added scenarios (34 → 52 lines); intake's block carries every line of
+      this change's block except the one selector bullet it deliberately widens,
+      plus exactly its four additions (52 → 60 lines).
 - [x] 1.2a 2026-08-25 — intake's delta re-authored against canon (#351, landed on main via PR #358, 87d0b95a); the remaining hazard is ORDER: intake archives first (see 1.2).
+      2026-08-26 — SUPERSEDED with 1.2: the order is flipped, THIS change archives
+      first, and intake's delta is re-authored a second time — no longer against
+      bare canon but against this change's landed outcome. Its own tasks carry the
+      matching Amendment Record entry and its delta header now states the base it
+      is authored against, so nothing about the flip depends on reading this file.
 - [x] 1.3 (2026-08-25 — valid; --all --strict 78/78; README entry present.) `OPENSPEC_TELEMETRY=0 openspec validate add-doxbench-distilled-abstract
       --strict` and `--all --strict` green; README OpenSpec Records entry present.
 - [x] 1.4 (2026-08-25 — N1–N5 carried verbatim into every apply-wave agent brief.) Re-read `clarifications.md`. N1–N5 are constraints, not suggestions:
@@ -403,7 +435,7 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
       unrelated to this branch (doc-health bootstrap-cluster drift; hermes release
       inventory merge-base in a worktree) — CI on the PR is the authority.
 - [x] 10.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green. 2026-08-25 — 78/78; 77/77 after merging main (one change archived there).
-- [ ] 10.3 **ONE OPERATOR RUN on the real corpus through a REAL adapter** — the
+- [x] 10.3 **ONE OPERATOR RUN on the real corpus through a REAL adapter** — the
       bridge lane (§2.2), or the T100 rig's operator-supplied adapter. Record the
       subject document, the model, the returned abstract, and the verifier's
       verdict. **Record it at
@@ -412,11 +444,45 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
       operator. A green suite against `FakeWorkbenchModelPort` alone does NOT
       close this change: the fake returns a constant
       (`doxbench_model.py:1101`).
+      2026-08-26 — **CLOSED by Attempt 2.** Operator Brett, at the local console
+      served by `~/doxbench-operator/t100_serve.py` (the T100 subscription
+      adapter over the `claude` CLI — the second of the two adapters this item
+      allows; `omp` is not installed on that host, so the bridge lane was not
+      reachable and this run evidences none of it). Corpus checkout at main
+      `d4740415`, i.e. AFTER the #386 fix. Subject
+      `ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md`,
+      content digest `20b36eb3…be505a`; model as evidenced by the adapter's
+      dispatch record `claude-haiku-subscription.low`; answer 1119 bytes, inside
+      the 1_500-byte bound. The pane rendered it under the ruled model-derived
+      caption beside both controls — `caption_state: model-derived`, verifier
+      ACCEPTED, no refusal class. `generation` and `wait_bound_seconds` were not
+      captured and are recorded as not captured, not invented. Attempt 1
+      (2026-08-26, four failed presses) is kept in the file: it closed nothing
+      and found the two defects `change/abstract-length-cap-and-visible-refusal`
+      fixed.
 - [x] 10.4 Confirm `.openspec.yaml`'s origin is unchanged since ratification — the
       archive gate re-reads it (`release-realization/spec.md:97-103`).
-- [ ] 10.5 Archive. `target_release: none` means no bundle is cut; it does NOT
+      2026-08-26 — RE-CONFIRMED at archive time: the blob is byte-identical to
+      the one at ratification commit `1ccb2ae0` (`428e06ed` both sides), and the
+      file's whole history is its single creation commit `5c547610`.
+- [x] 10.5 Archive. `target_release: none` means no bundle is cut; it does NOT
       mean doc-only, and the merge-plus-green gate still applies
       (`release-realization/spec.md:23-32`).
+      2026-08-26 — ARCHIVED as
+      `openspec/changes/archive/2026-08-26-add-doxbench-distilled-abstract/`.
+      Gate, each arm checked rather than asserted: code MERGED on main (#365
+      `02477d40`, #386 `d4740415`, both contained in `origin/main`); CI GREEN on
+      main — `pytest-suite` concluded `success` at `d4740415`; the OPERATOR RUN
+      recorded at §10.3 and in `realization-evidence.md`; origin UNCHANGED
+      (§10.4 — blob `428e06ed` identical to ratification commit `1ccb2ae0`);
+      `openspec validate --all --strict` green before and after. Promotion:
+      three requirements MODIFIED and seven ADDED — canon went 88 → 95
+      requirements and 404 → 444 scenarios, matching this delta exactly (+3/+4/+2
+      on the modified blocks, +31 across the seven added), with 85 requirements
+      byte-identical and none removed. The provider-boundary block promoted is
+      this change's own and carries NO intake text: grep for `INTAKE affordance`
+      and `intake affordance is submitted` over promoted canon returns 0, which
+      is the point of the 1.2 reversal.
 
 ## 11. Speckit handoff
 
