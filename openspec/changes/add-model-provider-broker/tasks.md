@@ -95,20 +95,24 @@
       are fixed redacted sentences — but the distinction the declaration asks
       for is lost.
 
-      NONE OF THE SIX IS FIXED HERE, and with the declaration now merged that
-      needs a better reason than the one that held while it was in flight.
-      The reason is scope: closing them is a code change to the binding's
-      SHAPE (a per-operation argv map, an endpoint and a dialect the binding
-      declares rather than the mint answer, a placeholder able to carry a
-      previous `audit_ref`) and to the adapter's PARSING of a document it does
-      not own. That is a second slice, not a correction to this one — and it
-      would land unreviewed on top of a build already carrying a boundary
-      change that deserves its own read. So it is stated rather than done, and
-      A RECONCILIATION SLICE IS OWED before any operator can declare a binding
-      that names `openprofiler-broker`. Until it lands, this seam mints
-      against the contract it declares in `doxbench_provider` and against no
-      broker that exists — which is why every one of its tests drives a broker
-      child this repository writes.
+      RECONCILED 2026-08-26, ALL SIX — see 2.6, which carries the evidence.
+      The six findings above are KEPT VERBATIM as the record of what was
+      reconciled and why; they are no longer a statement of the seam's posture.
+      When they were written the reason for stating rather than closing them
+      was scope — closing them is a change to the binding's SHAPE and to the
+      adapter's PARSING of a document this repository does not own, which is a
+      second slice and not a correction to the first. That slice is the one
+      2.6 records: the binding now carries the provider, the approver and the
+      provider ROUTE the declaration deliberately withholds; the adapter names
+      the operation as the declared argv subcommand, hands `intake` a standard
+      input holding the secret and nothing else, parses the declaration's own
+      answer kinds and fields exactly, passes `--retry-of` on the mid-turn
+      re-mint, and reads a broken pipe as the refusal arriving. The seam is no
+      longer tested only against a broker this repository writes: the fake now
+      speaks the DECLARED contract, and
+      `tests/ideation-dashboard/test_openprofiler_broker_e2e.py` drives the
+      REAL `openprofiler-broker` binary through intake, mint, a mid-turn
+      re-mint correlated in the broker's own audit trail, and revoke.
 - [x] 0.3 RULED 2026-08-26 (Brett, in-session): at mid-turn expiry the
       dashboard RE-MINTS AND RETRIES ONCE, with the re-mint and the paid
       retry VISIBLY RECORDED in the turn record; a SECOND expiry within the
@@ -201,8 +205,23 @@
       joins the vocabulary and an arm joins beside the first; the check is
       never loosened.
       ANSWERED, AND NOT AS THIS SESSION GUESSED: openProfiler's landed
-      declaration carries neither field — see 0.2 FINDING 3. The veto flag
-      stands, and the reconciliation is 0.2's rather than this task's.
+      declaration carries neither field — see 0.2 FINDING 3.
+      RESOLVED 2026-08-26 (task 2.6), and the resolution is the one the
+      declaration forces rather than a compromise: BOTH FACTS MOVED TO THE
+      BINDING. `endpoint` and `dialect` are now declared fields of
+      `model-provider-binding`, validated where they are declared — a dialect
+      outside the closed vocabulary and an endpoint naming no scheme are both
+      refused when an OPERATOR DECLARES the binding, which is earlier than a
+      mint and far earlier than a paid call. The reasoning that put them on the
+      mint answer still holds where it mattered ("a token that did not say
+      where it is good is unusable"); what was wrong was the SOURCE. The broker
+      is provider-agnostic about the request grammar and will not name an
+      endpoint it would then be accountable for, so provider routing is the
+      CONSUMER's fact and belongs on the consumer's own record. The mint answer
+      is now parsed for exactly the seventeen fields the declaration emits, and
+      an answer that DID carry an `endpoint` would be refused as malformed
+      rather than believed. The veto flag is DISCHARGED: no field of the mint
+      answer is this repository's invention any more.
 - [x] 2.2 ONE provider-client module behind it. Every other module stays
       free of provider endpoints, SDKs and tokens.
       BUILT 2026-08-26 as `scripts/ideation_dashboard/doxbench_provider.py`,
@@ -244,16 +263,36 @@
       content-free `ledger`, and prints the fixed `REMINT_NOTICE`. A second
       expiry inside one turn raises `DIAG_TOKEN_EXPIRED_TWICE`; no third
       paid call is bought. The retry budget is per TURN, asserted.
-      WHERE "VISIBLY RECORDED" LANDS, stated rather than implied: in the
-      port's `ledger` and on the console's stderr, NOT in the browser's turn
-      record. The released `workbench-chat-turn-success` envelope has no field
-      for it and inventing one would be a contract release this change does
-      not carry. Surfacing the re-mint in the BROWSER is owed and is not done
-      here.
-      THE BROKER-SIDE CORRELATION IS NOT DONE EITHER. openProfiler's
-      declaration carries `mint --retry-of <audit_ref>` for exactly this
-      ruling, and this seam passes nothing — see 0.2 FINDING 5. What is
-      asserted here is the dashboard half of the ruling, in full.
+      WHERE "VISIBLY RECORDED" LANDS, STATED EXACTLY (PR #392 review note c).
+      Three places, and the browser is not one of them:
+        * `BrokeredProviderPort.ledger` — one content-free `MintEvent` per
+          issuance and per paid retry, carrying the binding id, a reason from
+          the closed vocabulary, the moment, and (since 2.6) the mint's
+          `audit_ref`. Readable by anything holding the port;
+        * the console's STDERR — the fixed, content-free `REMINT_NOTICE`,
+          which is where every other non-wire diagnostic on this surface goes;
+        * the BROKER's own `broker-audit.jsonl` — since 2.6 the re-mint passes
+          `--retry-of <audit_ref>`, so the trail shows one turn that needed two
+          tokens rather than two unrelated issuances. Asserted against the real
+          binary in `test_openprofiler_broker_e2e.py`.
+      NOT IN THE BROWSER'S TURN RECORD, and that is a closed contract rather
+      than a preference. `workbench-chat-turn-success` and its v2 successor are
+      RELEASED schemas, digest-pinned in `contracts/manifest.yaml`, declared
+      `additionalProperties: false`, and SELF-VALIDATED by the route before the
+      envelope is stored or sent (`_doxbench_wire_conforms`); the port's answer
+      shape is closed a second time by `dispatch_turn`, which refuses any
+      dispatch result whose key set is not exactly `{assistant_prose,
+      proposals}`. A re-mint fact on the wire is therefore a CONTRACT RELEASE,
+      and this change declares `target_release: none`. It was measured before
+      it was claimed, not assumed.
+      THE GAP IS NAMED AND OWNED: `add-doxchat-model-intake` task 3.6 carries
+      surfacing the re-mint in the browser's turn record, because that change
+      already owns the released turn-record surface and carries a
+      `target_release` that can pay for a schema act. Recorded there rather
+      than left as prose here, so it is a task somebody will meet.
+      THE BROKER-SIDE CORRELATION IS DONE (2.6): 0.2 FINDING 5 is closed. What
+      this task asserts is now BOTH halves of the ruling — the dashboard's, in
+      full, and the broker's.
 - [x] 2.5 Wire `serve.py`'s `model_port_factory`; unconfigured stays exactly
       the posture it is now.
       DONE 2026-08-26. Both entrypoints — `serve.serve()` and
@@ -269,6 +308,116 @@
       so an install talks to one provider at a time; choosing among several
       declared bindings needs a selection rule this change does not have and
       must not invent. Stated, not hidden.
+
+- [x] 2.6 Reconcile the seam with openProfiler's declared surface (the six 0.2
+      findings) and prove it against the real binary.
+      DONE 2026-08-26 against `opensoft/openProfiler` main `d0538c31`
+      (`docs/broker-cli.md`, read in full), with the binary built from that
+      commit (`cargo build -p opensoft-open-profiler-broker --release`,
+      `openprofiler-broker --version` -> `0.1.4`). Per finding:
+        * FINDING 1 (operation framing) — the invented
+          `model-provider-broker-request` stdin document is GONE. The operation
+          is the declared argv SUBCOMMAND, and all four are expressible:
+          `broker_operation_argv(binding, operation, retry_of=None)` appends
+          the subcommand and its declared flags to the binding's own BASE
+          `broker_argv`. The binding stays DECLARATION-CONSUMING — it names the
+          program and its fixed leading arguments and no command path appears
+          in code — while the subcommand-and-flag vocabulary, which IS the
+          declaration, is recorded in `doxbench_provider` with a `§`-level
+          citation on every constant. Four argv templates in an operator's
+          settings file would have been four ways to get somebody else's
+          contract subtly wrong.
+        * FINDING 2 (enrolment stdin) — `intake` now receives the credential
+          and NOTHING ELSE. The runner writes no request line; every fact the
+          operation needs rides a declared flag. Asserted by reading what the
+          broker child actually received.
+        * FINDING 3 (mint answer shape) — `MINT_FIELDS` is the declaration's
+          own seventeen, `kind` is `openprofiler_broker_mint`, and the demand
+          for `endpoint`/`dialect` is dropped. Both facts moved to the BINDING
+          with validation at declaration time; 2.1's veto flag is discharged
+          there.
+        * FINDING 4 (enrolment answer key) — the intake answer is read for
+          `reference`, the declaration's own field name, under
+          `kind: openprofiler_broker_intake`.
+        * FINDING 5 (`--retry-of`) — the mid-turn re-mint passes
+          `--retry-of <audit_ref>`, read from the mint answer and carried in
+          per-turn state that lives no longer than the turn. Discard-on-expiry
+          deliberately passes NOTHING: a token that bought no call replaced no
+          issuance, and claiming otherwise would put a retry in the broker's
+          record that never happened.
+        * FINDING 6 (EPIPE) — a broken pipe on the credential write is the
+          refusal ARRIVING. It is swallowed and the answer taken from the exit
+          code and the child's own output, so an `--auth-kind oauth` intake
+          reads as `DIAG_BROKER_REFUSED` and not as `DIAG_BROKER_UNREACHABLE`.
+          A program that could not be STARTED keeps the other sentence, which
+          is the distinction the declaration asked for.
+      THE FAKE AND THE REAL AGREE. The lane's fake broker was rewritten to
+      speak the declared contract — subcommand framing, declared answer kinds
+      and fields — so it can no longer agree with the adapter about a protocol
+      neither openProfiler nor anyone else implements.
+      PROVEN AGAINST THE BINARY:
+      `tests/ideation-dashboard/test_openprofiler_broker_e2e.py`, 3 tests, all
+      passing locally against the real program on 2026-08-26. It measures the
+      four declared answer key sets against what the binary emits (which is
+      what makes the EXACT parse defensible rather than a transcription taken
+      on trust); it drives an `--auth-kind oauth` intake with a credential
+      large enough to overflow the pipe buffer and asserts the refusal
+      classification; and it runs the whole lifecycle — intake a sentinel
+      secret, mint, assert the token is the stored key verbatim with a 300-second
+      `expires_at` honoured either side of the instant, take a mid-turn 401,
+      re-mint with `--retry-of`, read the broker's own `broker-audit.jsonl` and
+      assert the third mint record's `retry_of` is the first mint's
+      `audit_ref`, age the clock past the broker's declared expiry to prove
+      discard-on-expiry mints afresh and correlates NOTHING, list, revoke —
+      and greps the custody root at every step: the sentinel lives in exactly
+      `custody/<reference>.json` while it is held and NOWHERE once it is
+      revoked, while the audit trail survives the revocation carrying no token
+      material.
+      IT SKIPS WHEN THE BINARY IS ABSENT, with a reason naming the build
+      command and the two ways to point at one. CI has no Rust toolchain and no
+      reason to grow one: this repository is the CONSUMER of that declaration,
+      and the binary is another repository's artefact. The skip softens no
+      assertion — every claim in the file is exact.
+      NO ENVIRONMENT WIDENING WAS NEEDED, which is asserted rather than
+      assumed: the broker resolves its custody root from `HOME` when
+      `OPENPROFILER_BROKER_HOME` is unset, and `HOME` and `PATH` are already
+      the scrubbed allowlist the harness bridge declares. A seam that had
+      needed a new inherited variable to reach a real broker would have been a
+      finding of its own.
+      ONE OPERATOR-FACING SPELLING COULD NOT MIRROR THE DECLARATION, and it is
+      recorded rather than quietly worked around: the CLI flag naming the
+      credential's approver is `--credential-approver` and not the broker's own
+      `--approved-by`. `test_session_verbs.py`'s
+      `test_the_save_cli_offers_no_token_and_no_bypass_flag` scans `cli.py`'s
+      SOURCE for a family of forbidden flag spellings — `contracts/cli.md` +
+      D22 hold that no CLI flag may approve, merge or bypass a record — and a
+      substring scan cannot tell a flag that APPROVES from one that NAMES AN
+      APPROVER. Measured, not predicted: the mirrored spelling turned the suite
+      red. The guard is right about its invariant and the invariant is worth
+      more than a matching flag name, so the flag was renamed rather than the
+      guard loosened. The BINDING's field (`approved_by`) and the broker's own
+      flag keep the declaration's spelling; `dest` carries the operator's value
+      back to it.
+      STILL NOT PASSED, and stated rather than left to be discovered:
+      `--scope` and `--lifetime-seconds`. Both are OPTIONAL on the declared
+      surface with documented defaults (300 seconds, no scopes), and both are
+      declared-not-enforced on the `api_key` path by openProfiler's own
+      account — `enforcement: {expiry: broker_bookkeeping, scope: declared}`.
+      Declaring a scope this seam cannot enforce and the broker does not
+      enforce either would put a claim in an audit record that nothing backs.
+      When a binding needs to narrow a lifetime, the binding gains the field
+      and the adapter gains the flag.
+      EVIDENCE, 2026-08-26: `tests/ideation-dashboard/` — 4533 passed, 28
+      skipped, 1 deselected in 12m04s, exit 0, with the real binary on PATH
+      (`test_snapshot.py::test_find_validator_locates_pinned_checkout`
+      deselected: it fails identically on pristine main in a scratch clone, a
+      location artifact rather than this change's). Without the binary the same
+      suite reports 31 skipped and stays green.
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — 78 passed, 0
+      failed. `python3 scripts/doc-health.py --single-repo .` — 5 critical, 6
+      error, 41 warning, 4 info, byte-identical once the clone name is
+      normalized to BOTH the base clone's report and this branch's first
+      commit's. Zero new findings.
 
 ## 3. Verification
 

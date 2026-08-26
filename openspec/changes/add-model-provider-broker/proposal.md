@@ -65,19 +65,27 @@ more than the hop it would save. The token is never written to a file, never
 placed in a response, never logged, and never survives the process.
 
 **The dashboard still holds no long-lived secret.** Settings hold a BINDING
-per provider: an id, a label, the credential reference the broker resolves,
-the authentication kind (`api_key` | `oauth`), and the broker invocation. A
-binding is safe to read, safe to log and safe to commit. When a human enters
+per provider: an id, a label, the provider name, the credential reference the
+broker resolves, the authentication kind (`api_key` | `oauth`), the human who
+approved the credential, the provider route (endpoint and dialect — the
+consumer's facts, per the answer to question 1 below), and the broker
+invocation. A binding is safe to read, safe to log and safe to commit. When a human enters
 a key or completes an OAuth flow, the value goes to the broker on its
 standard input and the dashboard retains nothing — no variable that outlives
 the request, no file, no echo in a response. What comes back is a reference,
 and later, on demand, a short-lived token.
 
-**The broker invocation is DECLARED, not hardcoded.** openProfiler does not
-exist yet, so this change must not encode a command line it cannot verify.
-The binding carries the argv template; the adapter substitutes and executes
-it. When openProfiler ships with a different surface, the binding changes and
-no code does.
+**The broker invocation is DECLARED, not hardcoded.** This change must not
+encode a command path it cannot verify, so the binding carries the PROGRAM and
+its fixed leading arguments and the adapter substitutes and executes them. An
+operator who moves their broker changes a record rather than code.
+REFINED BY THE RECONCILIATION (task 2.6), because openProfiler shipped and the
+line moved one step: the OPERATION is an argv subcommand and the flags are
+named, and that vocabulary is the DECLARATION's rather than the operator's. So
+the subcommands and flags are recorded in the adapter with a citation to the
+section they were read from, and only the part an operator can actually know —
+which program, where — stays in the record. Four argv templates in a settings
+file is four ways to get somebody else's contract subtly wrong.
 
 **Absent, unconfigured or failing, the answer is the same honest refusal it
 is today.** `model_capability_unavailable` already has a defined shape, a
@@ -116,8 +124,24 @@ deliberately loose until it does:
    the `oauth` path returns the provider's own short-lived access token and
    is DECLARED-DESIGN, refusing with exit 5 until the refresh exchange is
    built. The binding's argv template did stay declaration-consuming, but the
-   adapter's PARSING of the answer did not: six incompatibilities are
-   recorded in tasks.md 0.2, and reconciling them is owed work.
+   adapter's PARSING of the answer did not: six incompatibilities were
+   recorded in tasks.md 0.2. THEY ARE RECONCILED (2026-08-26, task 2.6),
+   against the declaration and against the real `openprofiler-broker` binary
+   built from that commit.
+   THE ONE ANSWER THAT CHANGED A SHAPE HERE rather than a parse: the mint
+   answer carries NEITHER an endpoint NOR a dialect, deliberately — the broker
+   is provider-agnostic about the request grammar and refuses to name an
+   endpoint it would then be accountable for. So PROVIDER ROUTING IS THE
+   CONSUMER'S, and both facts moved onto the BINDING, where they are validated
+   when an operator declares one: a dialect outside this repository's closed
+   vocabulary and an endpoint naming no scheme are refused at declaration time,
+   which is earlier than a mint and far earlier than a paid call. The binding
+   therefore holds nine fields rather than five, and STILL no secret field —
+   the absence of a tenth is the same claim the absence of a sixth was. The
+   answer to question 1 is complete: what a minted token carries is what the
+   declaration says it carries, and what it does NOT carry, this repository now
+   declares for itself instead of demanding of a broker that had good reason to
+   withhold it.
 2. How does a human complete an OAuth flow — in the browser, with the broker
    as the redirect target, or entirely in the broker's own surface?
 3. What is the audit obligation per MINT, given `credential-contracts`

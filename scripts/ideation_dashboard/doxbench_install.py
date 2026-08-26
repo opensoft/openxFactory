@@ -38,8 +38,11 @@ above all survive the widening. This module now makes a SECOND declaration
 beside the harness one: when the checkout declares a model-provider BINDING,
 `declared_model_port_factory` resolves the broker-backed
 `doxbench_provider.BrokeredProviderPort` instead of the harness bridge. It
-still names no endpoint (the endpoint arrives in the broker's mint answer, and
-lives only in `doxbench_provider`), still holds no credential and no token
+still names no endpoint OF ITS OWN (the route is the BINDING's declaration
+since the 2026-08-26 reconciliation — openProfiler's mint answer carries
+neither an endpoint nor a dialect, deliberately — and the only module that
+CONTACTS one is still `doxbench_provider`), still holds no credential and no
+token
 (both live in `doxbench_provider`, the one module permitted to hold them), and
 still reads no credential-shaped environment variable. What it gained is a
 CHOICE between two declarations, which is exactly the kind of install-time fact

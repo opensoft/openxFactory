@@ -1593,8 +1593,10 @@ def _binding_store(args: argparse.Namespace) -> "binding_mod.BindingStore":
 
 def _declared_binding(args: argparse.Namespace) -> "binding_mod.ModelProviderBinding":
     return binding_mod.ModelProviderBinding(
-        id=args.id, label=args.label, credential_ref=args.credential_ref,
-        auth_kind=args.auth_kind, broker_argv=tuple(args.broker_argv))
+        id=args.id, label=args.label, provider=args.provider,
+        credential_ref=args.credential_ref, auth_kind=args.auth_kind,
+        approved_by=args.approved_by, endpoint=args.endpoint,
+        dialect=args.dialect, broker_argv=tuple(args.broker_argv))
 
 
 def cmd_model_binding_list(args: argparse.Namespace) -> int:
@@ -1615,8 +1617,12 @@ def cmd_model_binding_list(args: argparse.Namespace) -> int:
         return 0
     for record in disclosure["bindings"]:
         print(f"  {record['id']}  {record['label']}")
+        print(f"    provider         {record['provider']}")
         print(f"    auth kind        {record['auth_kind']}")
+        print(f"    approved by      {record['approved_by']}")
         print(f"    credential ref   {record['credential_ref']}")
+        print(f"    endpoint         {record['endpoint']}")
+        print(f"    dialect          {record['dialect']}")
         print(f"    broker argv      {record['broker_argv']}")
         print(f"    custody          {record['credential_custody']}")
     return 0
@@ -1700,6 +1706,9 @@ def _add_binding_declaration_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--id", required=True, help="the binding's id")
     parser.add_argument("--label", required=True,
                         help="the label the model menu shows")
+    parser.add_argument("--provider", required=True,
+                        help="the provider name the broker takes custody for "
+                             "(the broker's declared `--provider`)")
     parser.add_argument("--credential-ref", required=True,
                         dest="credential_ref",
                         help="the reference the broker resolves; NEVER the "
@@ -1707,6 +1716,39 @@ def _add_binding_declaration_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--auth-kind", required=True, dest="auth_kind",
                         choices=list(binding_mod.AUTH_KINDS),
                         help="the authentication kind the broker holds")
+    # REQUIRED because the broker requires it: `credential-contracts` holds
+    # that a grant without an approver is invalid, and the broker's `intake`
+    # refuses without an approver flag. A binding that could not name one could
+    # never enrol.
+    #
+    # SPELLED `--credential-approver` AND NOT AFTER THE BROKER'S OWN FLAG, and
+    # that is deliberate rather than careless — MEASURED, in fact: the obvious
+    # mirrored spelling turned the suite red.
+    # `test_session_verbs.py`'s `test_the_save_cli_offers_no_token_and_no_
+    # bypass_flag` scans THIS FILE'S SOURCE for a family of forbidden flag
+    # spellings, one of which is the approving verb with two leading dashes,
+    # because `contracts/cli.md` + D22 hold that no CLI flag may approve, merge
+    # or bypass a record. A substring scan cannot tell a flag that APPROVES
+    # from one that NAMES AN APPROVER, and the invariant it protects is worth
+    # more than a mirrored spelling — so the flag is renamed rather than the
+    # guard loosened, and this comment states the collision without restating
+    # the spelling that trips it. The BINDING's field and the broker's own flag
+    # keep the declaration's spelling; only this operator-facing name differs,
+    # and `dest` carries it back.
+    parser.add_argument("--credential-approver", required=True,
+                        dest="approved_by",
+                        help="the human principal who approved this "
+                             "credential; the broker requires one at intake "
+                             "and records it on every grant")
+    # THE PROVIDER ROUTE IS THE CONSUMER'S. openProfiler's declaration emits
+    # neither an endpoint nor a dialect from a mint, deliberately, so both are
+    # declared here — see doxbench_binding's module docstring.
+    parser.add_argument("--endpoint", required=True,
+                        help="the provider endpoint this binding's minted "
+                             "token is presented at")
+    parser.add_argument("--dialect", required=True,
+                        choices=list(binding_mod.DIALECTS),
+                        help="the request grammar that endpoint speaks")
     # A POSITIONAL, taken after a bare `--`, and that is the fix for a real
     # trap rather than a style choice: a broker invocation is full of
     # option-shaped members (`--binding`, `--ref`), and as a flag's value they

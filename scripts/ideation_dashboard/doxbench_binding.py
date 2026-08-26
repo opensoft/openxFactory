@@ -18,16 +18,30 @@ extra keyword is a `TypeError` at construction, and an extra attribute is an
 not a validator that a later edit could soften.
 
 WHAT IS NOT IN THIS MODULE, deliberately: the broker itself, the credential
-hand-off, the minted token, and every provider endpoint. All four live in
+hand-off, the minted token, and every provider TRANSPORT. All four live in
 `doxbench_provider`, the ONE module this repository permits to hold them, and
 the structural boundary test names that module by name. This one holds records
 and a file, reaches no network, spawns no process, and never sees a credential.
 
-THE ARGV TEMPLATE IS DECLARED, NOT WRITTEN INTO CODE. openProfiler — the broker
-Brett's 2026-08-08 ruling names — is not built yet, so a command line this
-repository cannot verify must not be frozen into it. The binding carries the
-template; `doxbench_provider` substitutes and executes it. When openProfiler
-ships with a different surface the binding changes and no code does.
+IT DOES NOW DECLARE THE PROVIDER ROUTE, and that is a reconciliation rather than
+a widening (task 2.6, 0.2 FINDING 3). The binding carries `endpoint` and
+`dialect` because openProfiler's landed declaration
+(`docs/broker-cli.md`, § "mint") emits NEITHER: the broker is deliberately
+provider-agnostic about the request grammar and refuses to name an endpoint it
+would then be accountable for. So provider routing is the CONSUMER's fact, and
+the consumer's declared record is where a fact the consumer owns belongs.
+Declaring a route is not holding a transport: nothing here opens a socket, and
+the module still names no provider host of its own.
+
+THE BROKER INVOCATION IS DECLARED, NOT WRITTEN INTO CODE — the program and its
+fixed leading arguments. `broker_argv` is the BASE invocation and names no
+operation: openProfiler takes the operation as an argv SUBCOMMAND
+(`intake`/`mint`/`revoke`/`list`), and that subcommand-and-flag vocabulary is
+the DECLARATION's, so `doxbench_provider` appends it from its own record of
+`docs/broker-cli.md` § "CLI surface" rather than each operator respelling four
+argv templates in a settings file they could get subtly wrong. What stays with
+the operator is the part only they can know: which program, where it lives, and
+any fixed leading arguments it needs.
 
 STDLIB AT IMPORT TIME, and `yaml` only when a document is actually parsed or
 written. That is not tidiness: the LEAN HOSTED IMAGE HAS NO PyYAML, and
@@ -78,13 +92,49 @@ AUTH_KIND_OAUTH = "oauth"
 #: for its own `issuance_preconditions` vocabulary.
 AUTH_KINDS: tuple[str, ...] = (AUTH_KIND_API_KEY, AUTH_KIND_OAUTH)
 
+#: The CLOSED dialect vocabulary a binding may declare — the request grammar the
+#: provider client speaks at the declared endpoint. ONE member today: this
+#: repository's own already-declared turn shape, a prompt in and an
+#: `assistant_prose` out, which is the shape `doxbench_model.dispatch_turn`
+#: validates on the way back, so no second response grammar exists to keep
+#: honest. CLOSED rather than open because an UNKNOWN dialect must REFUSE rather
+#: than be guessed at: sending an assembled prompt to an endpoint whose grammar
+#: this client does not know is a paid call that cannot succeed. A second member
+#: joins here and an arm joins beside the first in `doxbench_provider`; the check
+#: is never loosened.
+#:
+#: THE VOCABULARY LIVES HERE, on the record that declares it, and
+#: `doxbench_provider` reads it from this module — so an unknown dialect is
+#: refused when an operator DECLARES the binding rather than when a turn fails.
+DIALECT_XFACTORY_PROMPT_V1 = "xfactory-prompt-v1"
+DIALECTS: tuple[str, ...] = (DIALECT_XFACTORY_PROMPT_V1,)
+
+#: The URL schemes a declared endpoint may carry. `http://` is permitted for the
+#: on-this-host proxy posture an operator may legitimately run; a scheme this
+#: tuple does not name is refused at declaration, because `file://` or a bare
+#: host is not something a provider client should discover at dispatch time.
+ENDPOINT_SCHEMES: tuple[str, ...] = ("https://", "http://")
+
 #: The exact, ordered field list a binding declares. Nothing else may appear in
 #: a stored record, and nothing else appears in a read-back.
+#:
+#: WIDENED BY THE RECONCILIATION (task 2.6) from five to nine, and every one of
+#: the four is a fact openProfiler's declaration says the CONSUMER owns:
+#: `provider` and `approved_by` are REQUIRED flags of the declared `intake`
+#: (`--provider`, `--approved-by`; the second because `credential-contracts`
+#: holds that a grant without an approver is invalid), and `endpoint`/`dialect`
+#: are the provider route the mint answer deliberately does not carry. STILL NO
+#: SECRET FIELD: nine fields, and the absence of a tenth is the same point the
+#: absence of a sixth was.
 BINDING_FIELDS: tuple[str, ...] = (
     "id",
     "label",
+    "provider",
     "credential_ref",
     "auth_kind",
+    "approved_by",
+    "endpoint",
+    "dialect",
     "broker_argv",
 )
 
@@ -95,7 +145,9 @@ BINDING_FIELDS: tuple[str, ...] = (
 #: anything outside this set is refused at construction rather than at
 #: execution — an operator finds out when they declare the binding, not when a
 #: turn fails.
-ARGV_PLACEHOLDERS: tuple[str, ...] = ("binding_id", "credential_ref", "auth_kind")
+ARGV_PLACEHOLDERS: tuple[str, ...] = (
+    "binding_id", "label", "provider", "credential_ref", "auth_kind",
+    "approved_by", "endpoint", "dialect")
 
 #: The fixed sentence a read-back states about custody (task 1.2: "read-back
 #: discloses the binding and states plainly that the credential lives in the
@@ -133,25 +185,41 @@ def _require_non_blank_str(field: str, value: object) -> str:
 class ModelProviderBinding:
     """ONE model provider, as settings hold it.
 
-    Five fields, and the absence of a sixth is the point (see the module
-    docstring). `broker_argv` is the DECLARED invocation as a tuple of argv
+    Nine fields, and the absence of a tenth is the point (see the module
+    docstring). `broker_argv` is the DECLARED BASE invocation as a tuple of argv
     members — argv, never a shell string, so no operator's label and no
-    credential reference can ever be read as shell syntax.
+    credential reference can ever be read as shell syntax. It names the program
+    and its fixed leading arguments and NOT the operation: the operation is a
+    declared subcommand `doxbench_provider` appends.
     """
 
     id: str
     label: str
+    provider: str
     credential_ref: str
     auth_kind: str
+    approved_by: str
+    endpoint: str
+    dialect: str
     broker_argv: tuple[str, ...]
 
     def __post_init__(self) -> None:
-        for field in ("id", "label", "credential_ref", "auth_kind"):
+        for field in ("id", "label", "provider", "credential_ref", "auth_kind",
+                      "approved_by", "endpoint", "dialect"):
             _require_non_blank_str(field, getattr(self, field))
         if self.auth_kind not in AUTH_KINDS:
             raise BindingRefused(
                 f"auth_kind {self.auth_kind!r} is outside the closed "
                 f"vocabulary {AUTH_KINDS}")
+        if self.dialect not in DIALECTS:
+            raise BindingRefused(
+                f"dialect {self.dialect!r} is outside the closed vocabulary "
+                f"{DIALECTS}; an unknown request grammar is refused at "
+                "DECLARATION rather than guessed at on a paid call")
+        if not self.endpoint.startswith(ENDPOINT_SCHEMES):
+            raise BindingRefused(
+                f"endpoint {self.endpoint!r} does not name one of "
+                f"{ENDPOINT_SCHEMES}")
         if isinstance(self.broker_argv, (str, bytes)):
             raise BindingRefused(
                 "broker_argv must be a sequence of argv members, not a single "
@@ -186,8 +254,12 @@ class ModelProviderBinding:
             "kind": BINDING_KIND,
             "id": self.id,
             "label": self.label,
+            "provider": self.provider,
             "credential_ref": self.credential_ref,
             "auth_kind": self.auth_kind,
+            "approved_by": self.approved_by,
+            "endpoint": self.endpoint,
+            "dialect": self.dialect,
             "broker_argv": list(self.broker_argv),
         }
 
@@ -204,17 +276,27 @@ class ModelProviderBinding:
         return disclosed
 
     def substituted_argv(self) -> tuple[str, ...]:
-        """The declared invocation with its placeholders filled from this
+        """The declared BASE invocation with its placeholders filled from this
         binding's own fields.
 
         PURE, and it is here rather than in the executing module on purpose:
         substitution is a fact about the record, so it can be asserted without
-        spawning anything. `doxbench_provider` calls this and then executes the
-        result; it never builds an argv of its own."""
+        spawning anything.
+
+        THIS IS A PREFIX, NOT A WHOLE COMMAND (task 2.6). `doxbench_provider`
+        appends the DECLARED subcommand and its declared flags —
+        openProfiler `docs/broker-cli.md` § "CLI surface" — and executes the
+        result. The operator declares the program; the declaration declares the
+        verbs."""
         values = {
             "binding_id": self.id,
+            "label": self.label,
+            "provider": self.provider,
             "credential_ref": self.credential_ref,
             "auth_kind": self.auth_kind,
+            "approved_by": self.approved_by,
+            "endpoint": self.endpoint,
+            "dialect": self.dialect,
         }
         return tuple(_substitute(member, values) for member in self.broker_argv)
 
@@ -249,8 +331,12 @@ class ModelProviderBinding:
         return cls(
             id=record["id"],
             label=record["label"],
+            provider=record["provider"],
             credential_ref=record["credential_ref"],
             auth_kind=record["auth_kind"],
+            approved_by=record["approved_by"],
+            endpoint=record["endpoint"],
+            dialect=record["dialect"],
             broker_argv=record["broker_argv"],
         )
 
@@ -283,6 +369,33 @@ def _substitute(member: str, values: Mapping[str, str]) -> str:
     for name in ARGV_PLACEHOLDERS:
         out = out.replace("{" + name + "}", values[name])
     return out
+
+
+#: What a store says when the interpreter running it has no YAML parser. A
+#: FIXED sentence, because the caller that catches it is an entrypoint choosing
+#: a posture and not a human debugging an import.
+NO_YAML_NOTICE = (
+    "this install has no YAML parser (PyYAML), so a bindings document cannot "
+    "be read or written; the install serves its declared posture without one")
+
+
+def _yaml_or_refused():
+    """The YAML parser, or a `BindingRefused` — never a `ModuleNotFoundError`.
+
+    THE LEAN HOSTED IMAGE HAS NO PyYAML (see the module docstring), and both
+    entrypoints resolve their model port through this store at startup. A store
+    with no document already answers without the parser; a store WITH one used
+    to raise `ModuleNotFoundError` straight through
+    `declared_model_port_factory`, which catches `BindingRefused` and nothing
+    else — so a hosted image that had ever written a binding would have died at
+    startup instead of falling back to its harness declaration. Raising the
+    module's ONE refusal class is what makes that graceful fallback hold, and it
+    is asserted."""
+    try:
+        import yaml
+    except ModuleNotFoundError as error:
+        raise BindingRefused(NO_YAML_NOTICE) from error
+    return yaml
 
 
 # ---------------------------------------------------------------------------
@@ -381,7 +494,7 @@ class BindingStore:
             # install with no bindings document answers here and never needs a
             # YAML parser at all.
             return []
-        import yaml
+        yaml = _yaml_or_refused()
         try:
             document = yaml.safe_load(self.path.read_text(encoding="utf-8"))
         except yaml.YAMLError as error:
@@ -419,7 +532,7 @@ class BindingStore:
         return bindings
 
     def _save(self, bindings: Iterable[ModelProviderBinding]) -> None:
-        import yaml
+        yaml = _yaml_or_refused()
         document = {
             "schema_version": SCHEMA_VERSION,
             "kind": BINDINGS_KIND,
