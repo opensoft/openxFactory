@@ -888,7 +888,8 @@ bodies:
     attribution_required: >-
       Credit the O*NET 31.0 Database and USDOL/ETA, link CC BY 4.0, state that
       changes were made, retain the O*NET trademark, and state that USDOL/ETA
-      has not approved, endorsed, or tested the modifications.
+      has not approved, endorsed, or tested these modifications (the overlay's
+      version-stamped wording, quoted exactly).
     attribution_note: >-
       O*NET 31.0 database content is CC BY 4.0 except stated exceptions. O*NET
       is a trademark of USDOL/ETA and must be used as an adjective.
