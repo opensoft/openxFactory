@@ -118,9 +118,21 @@ shipping.
     21538893. The org-scoped form was used because the repo-level ruleset
     endpoints were unavailable to the acting token; scoping confines the
     requirement to openxFactory alone.
-- [ ] 2.6 **Gate:** a deliberately malformed grant fails the pull request, and
+- [x] 2.6 **Gate:** a deliberately malformed grant fails the pull request, and
       the realization evidence includes the ruleset state showing the check
       required (not just the workflow file).
+  - PROVED 2026-08-26 on draft canary PR #387 at commit `423b8f92`: removing
+    only `issued_by` from the live production-scanned
+    `governance/review-authority/grants/grant-mrc-0001.yaml` passed the YAML
+    syntax gate, then required check `wallet-validation` failed in run
+    **32997867639**, job/check **98271703098**. `validate-openxwallet.py .`
+    emitted exactly one `issuer-unrecorded` error (`records no issued_by`),
+    zero warnings, and exited 1.
+  - GitHub reported the PR `BLOCKED`; live
+    `GET repos/opensoft/openxFactory/rules/branches/main` independently returned
+    required context `wallet-validation`, sourced from active org ruleset
+    **21538893** with strict policy OFF. PR #387 was closed unmerged, its canary
+    branch was deleted, and `origin/main` retained the valid `issued_by` field.
 
 ## 3. S2 — the issuer anchor
 
