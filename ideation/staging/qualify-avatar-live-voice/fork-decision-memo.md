@@ -31,11 +31,29 @@ the "Ruling" cell (or by a per-section PR comment).
 
 | # | Fork | Recommendation (one line) | Ruling (Brett) |
 | --- | --- | --- | --- |
-| 1 | Credential custody + spend cap | **C** — Layered hard-closed: session hard-kill in the broker (reuse the runtime's quota/duration terminal + kill switch + lease revocation), per-tenant/ring hard stop at the F0-proven spend-capped provider project, async Usage Meter for visibility; durable granular per-tenant counter deferred to pilot-hardening | |
-| 2 | Latency budget derivation | **C** — Two-tier: a neutral relative-regression SLO is the hard gate (p50+p95, Windows desktop + web at nominal network); per-profile measured numbers recorded in AVC-10 and surfaced in AVC-09 as informational evidence (p99 + teardown recorded, not gated); proposed material threshold >15% relative OR >150 ms absolute (whichever greater) — Brett to ratify the number | |
-| 3 | Scope of the eight-condition activation gate | **C** — The kernel's four-element ring is the binding exit contract; the eight GPT-Live-1 conditions are reused as the mapped preflight+canary checklist that produces that evidence, condition 6 reinterpreted to "no material regression vs the direct-provider reference", and all "replace-primary"/default-swap semantics reserved to the later GPT-Live adoption change | |
-| 4 | Consent + data-control for evaluation audio | **C** — Synthetic-only model-vs-model evaluation corpus + live-ephemeral consented canary audio (single-model, never retained, never shadowed); consent rides the existing three neutral purposes; retained-real corpus + retention-class unreservation deferred to pilot-hardening | |
-| 5 | Canary cohorting + rollback semantics | **B** — Vendor-org + one internal-staffed domain sandbox (synthetic/internally-consented audio only); hybrid rollback under a written policy: safety/integrity breaches auto-revoke active leases, latency/error breaches auto block-new, quality/cost operator-triggered; rollback target is disable-voice → text/handoff (first qualified profile, no model fallback) | |
+| 1 | Credential custody + spend cap | **C** — Layered hard-closed: session hard-kill in the broker (reuse the runtime's quota/duration terminal + kill switch + lease revocation), per-tenant/ring hard stop at the F0-proven spend-capped provider project, async Usage Meter for visibility; durable granular per-tenant counter deferred to pilot-hardening | **RULED 2026-08-26 (Brett, in-session)** — **Option C** (Layered hard-closed): session hard-kill lives in the broker on the existing duration/quota terminal outcome + kill switch + lease revocation; the dedicated spend-capped internal-live OpenAI project is the hard per-tenant/ring stop; async Usage Meter + alerting carry visibility; the durable synchronous per-tenant counter is an explicit pilot-hardening follow-on |
+| 2 | Latency budget derivation | **C** — Two-tier: a neutral relative-regression SLO is the hard gate (p50+p95, Windows desktop + web at nominal network); per-profile measured numbers recorded in AVC-10 and surfaced in AVC-09 as informational evidence (p99 + teardown recorded, not gated); proposed material threshold >15% relative OR >150 ms absolute (whichever greater) — Brett to ratify the number | **RULED 2026-08-26 (Brett, in-session)** — **Option C** (Two-tier), **and the proposed materiality threshold is RATIFIED AS PROPOSED**: an adapter percentile is a material regression when it exceeds the direct-provider reference by more than 15% relative OR more than 150 ms absolute, whichever is greater, on first-playable-after-authorized and sideband-ready. Hard gate = p50 + p95 on Windows desktop + web canvas at nominal network; per-profile numbers recorded in AVC-10 / surfaced in AVC-09 evidence; p99 + teardown recorded, not gated |
+| 3 | Scope of the eight-condition activation gate | **C** — The kernel's four-element ring is the binding exit contract; the eight GPT-Live-1 conditions are reused as the mapped preflight+canary checklist that produces that evidence, condition 6 reinterpreted to "no material regression vs the direct-provider reference", and all "replace-primary"/default-swap semantics reserved to the later GPT-Live adoption change | **RULED 2026-08-26 (Brett, in-session)** — **Option C**: the kernel's four-element ring is the binding exit contract; conditions 1-5, 7 and 8 are reused as the mapped preflight/canary checklist exactly per the memo's per-condition classification; condition 6 is reinterpreted as "no material regression vs the direct-provider reference" with the number owned by Fork 2; all replace-the-primary semantics are reserved to the GPT-Live adoption change |
+| 4 | Consent + data-control for evaluation audio | **C** — Synthetic-only model-vs-model evaluation corpus + live-ephemeral consented canary audio (single-model, never retained, never shadowed); consent rides the existing three neutral purposes; retained-real corpus + retention-class unreservation deferred to pilot-hardening | **RULED 2026-08-26 (Brett, in-session)** — **Option C**: the evaluation corpus is synthetic; the opt-in canary MAY carry real consented users on the single candidate with strictly ephemeral processing (`ephemeral_presentation` + `structured_record` only) — nothing retained, nothing shadowed to a second model; the retained-real corpus and the retention-class unreservation are deferred to pilot-hardening |
+| 5 | Canary cohorting + rollback semantics | **B** — Vendor-org + one internal-staffed domain sandbox (synthetic/internally-consented audio only); hybrid rollback under a written policy: safety/integrity breaches auto-revoke active leases, latency/error breaches auto block-new, quality/cost operator-triggered; rollback target is disable-voice → text/handoff (first qualified profile, no model fallback) | **RULED 2026-08-26 (Brett, in-session)** — **Option B**: cohort = vendor-org plus ONE internally-staffed domain sandbox, synthetic / internally-consented audio only. The written revoke-vs-block policy is ratified as split: hard safety/integrity breaches auto-abort WITH active-lease revocation; latency-budget breaches auto-block-new and let in-flight legs drain; quality/cost breaches are operator-triggered. Rollback target is disable-voice → text/handoff |
+
+**ALL FIVE FORKS RULED 2026-08-26 (Brett, in-session via AskUserQuestion), plus
+all three latent decisions below.** Per this memo's own "Named gaps →
+assumptions to ratify" sections, a ruling on a fork's option ratifies that
+option's named-gap assumptions as recorded in that fork's list — so Fork 1's
+gaps 1-7, Fork 2's gaps 1-7 (gap 2, the material-regression magnitude, is
+ratified at the proposed >15% relative OR >150 ms absolute, whichever is
+greater; gap 3's nominal-network-only matrix is accepted for the internal-live
+ring; gap 7 is moot, since Option B was not taken), Fork 3's, Fork 4's and Fork
+5's named gaps all stand ratified as recorded under their respective options.
+Where a gap names a value the option itself defers (the durable per-tenant
+counter, the retained-real corpus and retention-class unreservation), the
+deferral — not the value — is what is ratified, and its carrier is the
+`avatar-pilot-hardening` topic per latent decision 2. Remaining unvalued items
+(the concrete vault pick, numeric per-session/per-tenant ceilings, rotation
+cadence, alerting thresholds, sample counts) are authoring inputs the
+`qualify-avatar-live-voice` change pins at proposal time under the ruled
+posture; they are not reopened forks.
 
 Note the pattern: forks 1–4 each recommend the "layered / two-tier / mapped"
 option (C) — the most fail-closed posture the change can ship without
@@ -1197,6 +1215,12 @@ Brett can rule on them alongside, or explicitly defer them.
    distinct reviewed change (repo-boundary-governance:57-59) — not this one.
    *Decision requested: does qualify-avatar-live-voice perform the extraction, or
    does a predecessor?*
+   **RULED 2026-08-26 (Brett, in-session):** `qualify-avatar-live-voice` OWNS
+   the `xfactory-avatar-client` extraction from codexFactory
+   `apps/avatar-client-lab` — matching the staging topic's Exit
+   (`code_surface: openxFactory, xfactory-avatar-client`); no predecessor change
+   is required. Adding the new repo to the aggregation remains a separate
+   reviewed change (repo-boundary-governance:57-59), unchanged by this ruling.
 2. **The named pilot-hardening successor (from Forks 1 and 4).** Both the
    custody fork (durable per-tenant spend counter) and the consent fork
    (retention-class unreservation + retained-real corpus) defer work to a
@@ -1207,6 +1231,11 @@ Brett can rule on them alongside, or explicitly defer them.
    as the carrier of these specific deferrals. *Decision requested: confirm that
    `avatar-pilot-hardening` is the intended carrier of the deferred durable-counter
    and retention-unreservation work, or name a different successor.*
+   **RULED 2026-08-26 (Brett, in-session):** CONFIRMED — the staged
+   `avatar-pilot-hardening` topic IS the carrier of both deferrals: Fork 1's
+   durable synchronous per-tenant spend counter and Fork 4's retention-class
+   unreservation plus retained-real evaluation corpus. No different successor is
+   named.
 3. **Production-default status of a qualified gpt-realtime-2.1 (from Fork 3).**
    The sources say internal-live qualification records "approved promotion
    evidence" and rollback "selects the last qualified profile" (spec.md:430-436),
@@ -1215,6 +1244,12 @@ Brett can rule on them alongside, or explicitly defer them.
    DEFAULT primary. Staging says internal-live-only. *Decision requested: confirm
    internal-live qualification does NOT auto-promote to production default (a
    separate future ruling).*
+   **RULED 2026-08-26 (Brett, in-session):** CONFIRMED — internal-live
+   qualification does NOT auto-promote `gpt-realtime-2.1` to the production
+   default primary. Qualification yields a selectable, internal-live-only
+   profile; promotion to production default is a separate future ruling, which
+   is consistent with Fork 3's reservation of all replace-the-primary semantics
+   to the GPT-Live adoption change.
 
 ## Ruling mechanics
 
@@ -1229,7 +1264,17 @@ Brett can rule on them alongside, or explicitly defer them.
   locked input to the future `qualify-avatar-live-voice` change; it is not itself
   a contract mutation, an OpenSpec ratification, or an interface-lock change.
   Nothing in this memo is pre-ratified.
-- **On all five ruled.** The topic's Exit section executes: create the
+- **Status after the rulings — this document stays `staged`.** All five forks
+  and all three latent decisions were ruled by Brett in session on 2026-08-26
+  and are recorded above. That does NOT change this file's lifecycle status: a
+  ruling here is a staging decision, not an approved OpenSpec change and not a
+  contract mutation, so `Status: staged` remains correct per
+  `docs/document-lifecycle.md` (`staged` = "structured toward a proposal; not
+  yet policy"). Claiming `ratified` would require naming an approving change
+  that does not yet exist; the ratification this memo's rulings feed is the
+  `qualify-avatar-live-voice` change's own. The file's status changes only when
+  it moves into that change's `supporting-docs/` at the proposal gate.
+- **On all five ruled — SATISFIED 2026-08-26.** The topic's Exit section executes: create the
   `qualify-avatar-live-voice` change (`code_surface: openxFactory,
   xfactory-avatar-client`; `target_release: implemented` or a named internal-live
   release defined at proposal time), move this folder's staged files into that
