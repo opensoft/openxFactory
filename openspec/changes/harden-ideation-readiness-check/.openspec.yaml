@@ -1,0 +1,51 @@
+schema: spec-driven
+created: 2026-08-26
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-26-harden-ideation-readiness-check
+  reason: >-
+    Raised from a 2026-08-26 triage of a red `tests/doc-health` suite in an
+    agent worktree, not from a staged topic — `ideation/staging/` and its
+    INDEX were searched and carry nothing on this surface, so `kind: staged`
+    is unavailable rather than declined. THE FORCING FACTS, both measured that
+    day against `origin/main` at `31c931fa`:
+    `tests/doc-health/test_ideation_readiness.py::test_derivation_reproduces_the_real_bootstrap_clusters`
+    resolves its subject by walking UP from the repository under test to the
+    first ancestor holding `openxFactory/ideation/cross-reference.yaml`, which
+    inside the aggregation workspace is always the one shared checkout — so
+    every agent worktree proves a verdict about somebody else's working tree,
+    and a concurrent uncommitted pin bump in that checkout (67 listed clusters
+    against 253 derived) reddened every worktree on the machine while every
+    isolated clone passed at every revision. Independently, `main`'s index
+    pins `f13a3b6007736292e1e157febef1ac733e534de9`, a commit reachable from
+    no ref local or remote — the branch that generated it landed squashed as
+    `4e57009c` — and the test converts that into `pytest.skip`, so the
+    assertion has never executed in a fresh clone, and the skip's stated
+    reason ("shallow clone?") is false in the one place it fires, since
+    `pytest-suite.yml` checks out at `fetch-depth: 0`.
+    Authored in openxFactory because `doc-health` is an openxFactory
+    capability and the verification being hardened is its own.
+  approved_by: >-
+    Brett — admission ruling of 2026-08-26, given against this packet's
+    § Open Questions Q0 while it stood at PR #372 and relayed to the authoring
+    session the same day. THIS ADMITS THE PACKET AND SUPPLIES THE APPROVAL
+    PROVENANCE THE AD-HOC ORIGIN REQUIRES; it is not a ruling on the packet's
+    open choices. Q1 (whether the narrowed skip survives), Q2 (the re-pin
+    target) and Q3 (whether the three resolver helpers collapse) remain OPEN,
+    and the four decisions in `proposal.md` § Orchestrator decisions remain
+    flagged for veto and uncovered by this citation. No verbatim wording of
+    the ruling reached the authoring session, so none is quoted here — the
+    approver, the date, and the record are stated instead, which is what the
+    origin requirement asks for.
+  approved_on: 2026-08-26
+  approval_note: >-
+    HISTORY, KEPT SO THE RESOLUTION IS LEGIBLE. At authoring on 2026-08-26
+    these two fields were deliberately left BLANK rather than filled with
+    fabricated provenance: no approval act existed yet, and the promoted
+    origin requirement is satisfied by a real approver or not at all. That is
+    the refusal openxFactory PR #344 already made once, and
+    `create-medxchart-overlay-boundary` carries the shape of the admission
+    that later closed it. The blank state was recorded as `tasks.md` § 1.1 and
+    § Open Questions Q0, and both now record the ruling that resolved it. The
+    two `ad-hoc origin lacks required` findings that state produced are
+    expected to clear with this edit.
