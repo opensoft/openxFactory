@@ -145,9 +145,11 @@ first thing to run under a declared account.
   account, and profile selection is process-global user state the sync refuses to
   switch. Prepared instead, to be run in one sitting:
   **`docs/notebook-projection-retirement-runbook-step8.md`** — seven exact
-  renames with the legacy ids resolved from each workspace record's own
-  `provider_notebook_id`, three verifications, and the abort conditions. Tick
-  this from the operator's recorded output, not from the runbook existing.
+  renames with the legacy ids resolved from the legacy→company mapping recorded
+  at the head of `examples/lifecycle-notebook-workspaces.yaml` (lines 21–28,
+  their only source here; the records' own `provider_notebook_id` fields carry
+  the COMPANY ids), three verifications, and the abort conditions. Tick this
+  from the operator's recorded output, not from the runbook existing.
   The original task text, unchanged, is what that runbook performs:
   Retire the personal-hosted books by RECORDED ACT: archive-rename each
   legacy book and DELETE its alias (never repoint). Do NOT retire the workspace

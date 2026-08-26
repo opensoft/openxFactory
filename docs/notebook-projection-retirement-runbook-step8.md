@@ -30,8 +30,15 @@ You need:
 ### The seven notebooks
 
 Legacy id is what you rename. The new id is listed only so you can prove you are
-not touching it. Both were read from each workspace record's own
-`provider_notebook_id` in `examples/lifecycle-notebook-workspaces.yaml`.
+not touching it. Both columns were resolved from the legacy→company mapping
+recorded at the head of `examples/lifecycle-notebook-workspaces.yaml`
+(lines 21–28).
+
+That provenance is worth stating precisely, because an earlier draft of this file
+got it wrong: the records' own `provider_notebook_id` fields carry **only the
+company ids**. The legacy ids — the column you type into the renames below —
+exist nowhere in this repository except that comment block. If it is ever edited,
+these seven values have no second source to check against.
 
 | Book | Legacy id — RENAME THIS | Company id — DO NOT TOUCH |
 | --- | --- | --- |
@@ -53,9 +60,15 @@ nlm auth status
 
 **Expected:** the **personal** profile (`brettheap@gmail.com`) is active.
 
-> **ABORT** if it shows `company` / `xFactor001@opensoft.one`. Renaming there
-> would retitle the LIVE books. Switch with `nlm login switch personal` and
-> re-run this check before going on.
+> **ABORT** if it shows `company` / `xFactor001@opensoft.one`. Switch with
+> `nlm login switch personal` and re-run this check before going on.
+>
+> To be accurate about the risk rather than dramatic: renaming from the company
+> profile would **not** retitle the live books. The renames address notebooks by
+> uuid, and the seven legacy uuids do not exist in that account, so each command
+> would error. This abort exists to save you seven confusing failures, not to
+> prevent a silent corruption — step 1 explains why that corruption is
+> structurally unavailable.
 
 ---
 
@@ -84,6 +97,19 @@ nlm notebook list --json | jq -r '.[] | "\(.id)  \(.title)"'
 > **ABORT** if an id is missing. A missing legacy notebook means something else
 > already acted on this account — stop and find out what before renaming
 > anything.
+
+**THIS CHECK IS STRUCTURAL, NOT ADVISORY — and it is stronger than step 0.**
+
+The seven legacy uuids exist only in `brettheap@gmail.com`. They are not
+notebooks in the company account under a different name; they are not there at
+all. So if you are on the wrong profile this step returns **nothing**, and the
+renames in step 2 do not quietly retitle the live books — `nlm notebook rename`
+addresses by uuid, so each command **fails to resolve its target and errors**.
+
+The dangerous outcome this runbook is most worried about — renaming the company
+books by running on the wrong profile — is therefore not merely warned against.
+It cannot happen by uuid. Step 0 remains, because failing loudly seven times is a
+worse way to learn you are on the wrong profile than being told once.
 >
 > **NOTE, not an abort:** a title already carrying `(RETIRED …)` means that book
 > was done in an earlier attempt. Skip it in step 2 and say so in step 5.
@@ -166,10 +192,18 @@ titles*, union 0 unprojected / 0 unaccounted.
 
 ## 5. Record the act
 
-Retirement is a RECORDED act; the rename alone is not the deliverable. Report
-back, or write it straight into
-`docs/notebook-projection-migration-evidence-2026-08-24.md` under a
-`## Step 8 — EXECUTED 2026-08-26` heading:
+Retirement is a RECORDED act; the rename alone is not the deliverable.
+
+**THE OUTPUT LANDS IN `docs/notebook-projection-migration-evidence-2026-08-24.md`**,
+under a new `## Step 8 — EXECUTED 2026-08-26` heading, immediately after the
+existing `## Step 8 — HELD by ruling` section. Decided rather than left open:
+that document is where the hold was recorded, and **a hold and its discharge
+belong in one place** — a reader who finds "Step 8 — HELD" must not have to know
+that a second document lifted it. The clearance record explains WHY the gate
+opened; this evidence doc records WHAT was then done, which is the split those
+two artifacts already have.
+
+Contents:
 
 * the seven legacy ids and their new titles (copy step 2's echoes),
 * the `nlm alias list` output from step 3,

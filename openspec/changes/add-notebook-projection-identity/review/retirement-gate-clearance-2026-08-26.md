@@ -20,6 +20,11 @@ Brett ruled on 2026-08-24:
 > RETIREMENT HELD — parity does NOT hold for step 8 until the oversized-document
 > handling gives the 228KB spec a projected form; legacy books stay untouched.
 
+(The quotation stands verbatim. For a reader checking the figure: that document,
+`openspec/specs/ideation-dashboard/spec.md`, measures **270,834 bytes** today —
+it has grown since the ruling. Nothing turns on the number; the note is here so a
+checker finding 264 KiB does not think the wrong file is meant.)
+
 The evidence record stated the unblock condition precisely, and its last sentence
 is the one that governs this clearance:
 
@@ -86,6 +91,33 @@ failure is gone. The single missing document was the condition of the hold.
 `notebook-projection-drift` over the applied state plans **zero** ADD/DEL/UPD.
 A missing source would plan an ADD.
 
+### 2.5 A WARNING FOR WHOEVER CHECKS THIS NEXT — the drift number needs a full assembly
+
+Verifying § 2.4 from an isolated clone produces an alarming and meaningless
+number, and the mechanism is worth recording so the next reader does not have to
+rediscover it — or worse, believe it.
+
+A doc-health run taken from a scratch workspace containing **only `openxFactory`**
+reported `notebook-projection-drift: 549 pending operations`. There is no drift.
+The reasoning, corrected at review after a first, imprecise reading:
+
+* The family does not simply skip on a small workspace. `_real_notebook_dryrun`
+  returns `None` — and the family emits `Skip` — only when `agg_root is None` or
+  the sync script is not found under it. A scratch parent holding one repository
+  still resolves both, so the dry run **ran**.
+* What ran was therefore an **AGGREGATION run over a PARTIAL assembly**. The sync
+  derived the projected set from the one repository present (~246 documents, the
+  openxFactory book's own count) and compared it against **675 live managed
+  sources** spanning ten repositories.
+* Everything the missing nine repositories contribute is live-but-underived, so
+  the plan fills with **DELs**. The count is a measure of how much of the
+  workspace was absent, not of how far the projection has drifted.
+
+**So: the authoritative drift number comes only from a complete workspace
+assembly** — the nightly, or an operator's own full checkout. A number obtained
+any other way should be discarded rather than reported, and a run whose
+`agg_root` is genuinely absent will say `Skip` rather than mislead.
+
 ## 3. THE INSTRUMENT THAT MEASURED 2026-08-24 WAS BLIND — said plainly
 
 This record would be dishonest if it presented § 2.3 as simply "parity improved".
@@ -101,8 +133,13 @@ TITLES, and therefore:
 > Parity reports OK on a book that is missing documents.
 
 Its measured consequence, in its own design § 2: **three collisions, eight
-documents, five displaced** — and the mode built to catch exactly this
-*"reported OK on three books missing five documents between them."*
+documents, five displaced** — and the books were, in that change's own words,
+
+> Five sources short, in exactly the three books the census names.
+
+(An earlier draft of this record set a paraphrase of that finding in quotation
+marks. The sentence above is the supported verbatim, from that change's
+`proposal.md`; the paraphrase said the same thing and was not a quotation.)
 
 One of those books is named in its own table: `ideation-medxfactory`, four
 documents collapsed to three titles. The 2026-08-24 evidence in this repository
@@ -157,8 +194,21 @@ outputs, and abort conditions are in:
 
 **`docs/notebook-projection-retirement-runbook-step8.md`**
 
-written to be run in one sitting, with the seven legacy ids resolved from each
-workspace record's own `provider_notebook_id` rather than transcribed.
+written to be run in one sitting, with the seven legacy ids resolved from the
+legacy→company mapping recorded at the head of
+`examples/lifecycle-notebook-workspaces.yaml` (lines 21–28).
+
+That mapping is their ONLY source in this repository — the workspace records'
+`provider_notebook_id` fields carry only the company ids. An earlier draft of
+this record claimed the legacy ids came from those fields; the seven values were
+right and the provenance sentence was wrong, corrected here rather than quietly.
+
+**The wrong-profile hazard is smaller than this record first implied**, and the
+runbook now says so: the renames address notebooks by uuid, the seven legacy
+uuids exist only in the legacy account, so running them on the company profile
+ERRORS rather than retitling the live books. The profile check remains as a
+courtesy, not as the thing standing between the operator and a silent
+corruption — which was underselling a guard that is structural.
 
 ## 6. The remaining chain, mapped
 
