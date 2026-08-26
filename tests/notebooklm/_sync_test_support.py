@@ -5,19 +5,22 @@ from __future__ import annotations
 import importlib.util
 import itertools
 import re
-import subprocess
 import sys
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from types import ModuleType
-from typing import NoReturn, Protocol
+from typing import Protocol, final, runtime_checkable
 
 from ideation_dashboard import branch_session as bs
-from ideation_dashboard.snapshot_registry import SnapshotRegistry
+from ideation_dashboard.workbench import NotebookAdapter
 from notebooklm_sync.nlm_client import JsonValue, ProviderResult
+
+from tests.notebooklm import _sync_world_support as world
+from tests.notebooklm._sync_world_support import HarnessFailure
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / "scripts" / "sync-notebooklm-books.py"
+STAGED_DOC = world.STAGED_DOC
 
 
 class TestSupportError(RuntimeError):
@@ -35,7 +38,16 @@ def load_script_module(name: str, path: Path) -> ModuleType:
     return module
 
 
-def load_sync_module() -> ModuleType:
+@runtime_checkable
+class SyncModule(Protocol):
+    BOOKS: Mapping[str, Mapping[str, str]]
+
+    def workbench_orphan_sweep(
+        self, root: Path, apply: bool, adapter: NotebookAdapter | None = None
+    ) -> None: ...
+
+
+def load_sync_module() -> SyncModule:
     """Load the public hyphenated entry point and verify its test contract."""
     module = load_script_module("sync_notebooklm_books", SCRIPT)
     required = (
@@ -49,6 +61,8 @@ def load_sync_module() -> ModuleType:
     if missing:
         joined = ", ".join(missing)
         raise TestSupportError(f"NotebookLM sync entry point lacks: {joined}")
+    if not isinstance(module, SyncModule):
+        raise TestSupportError("NotebookLM sync entry point has an invalid contract")
     return module
 
 
@@ -60,7 +74,6 @@ LIFECYCLE_BOOKS: list[dict[str, str]] = [
     {"id": "b2", "title": "xf-drafts"},
     {"id": "b3", "title": "xf-canon"},
 ]
-STAGED_DOC = "ideation/staging/demo-topic/README.md"
 SESSION_ALIAS = bs.notebook_alias("openxFactory", "draft/demo-topic")
 CODEX_SESSION_ALIAS = bs.notebook_alias("codexFactory", "draft/demo-topic")
 
@@ -93,19 +106,7 @@ share_out: []
 """
 
 
-class HarnessFailure(RuntimeError):
-    pass
-
-
-class RegistryEntry(Protocol):
-    repository: str
-    ref: str
-
-
-def _doc(body: str) -> str:
-    return f"# Demo Topic\n\nStatus: staged\nKind: staging-packet\n\n{body}\n"
-
-
+@final
 class FakeNlm:
     """Typed, isolated runner for the NotebookLM verbs used by the tests."""
 
@@ -116,15 +117,15 @@ class FakeNlm:
         quota: int | None = None,
     ) -> None:
         self.calls: list[tuple[str, ...]] = []
-        self.notebooks = [
+        self.notebooks: list[dict[str, str]] = [
             {"id": str(notebook["id"]), "title": str(notebook["title"])}
             for notebook in notebooks
         ]
         self.sources: dict[str, list[dict[str, str]]] = {
             notebook["id"]: [] for notebook in self.notebooks
         }
-        self.quota = quota
-        self._ids = itertools.count(1)
+        self.quota: int | None = quota
+        self._ids: itertools.count[int] = itertools.count(1)
 
     def __call__(self, *args: str, parse: bool = True) -> ProviderResult:
         del parse
@@ -136,8 +137,7 @@ class FakeNlm:
             title = args[2]
             if self.quota is not None and len(self.notebooks) >= self.quota:
                 raise HarnessFailure(
-                    "nlm notebook create: the account's notebook limit is "
-                    "reached (quota exhausted)"
+                    "nlm notebook create: the account's notebook limit is reached (quota exhausted)"
                 )
             notebook = {"id": f"nb{next(self._ids)}", "title": title}
             self.notebooks.append(notebook)
@@ -145,7 +145,7 @@ class FakeNlm:
             return dict(notebook)
         if head == ("notebook", "delete"):
             self.notebooks = [row for row in self.notebooks if row["id"] != args[2]]
-            self.sources.pop(args[2], None)
+            _ = self.sources.pop(args[2], None)
             return ""
         if head == ("notebook", "get"):
             return {"id": args[2]}
@@ -197,93 +197,9 @@ class FakeNlm:
         return [call[2] for call in self.calls if call[:2] == ("notebook", "delete")]
 
 
-def _boom(*args: str, **kwargs: bool) -> NoReturn:
-    del args, kwargs
-    raise AssertionError("the real nlm runner must never be called in tests")
-
-
-def _git(cwd: Path, *args: str) -> str:
-    done = subprocess.run(
-        ["git", *args], cwd=cwd, text=True, capture_output=True, check=True
-    )
-    return done.stdout.strip()
-
-
-def _init_repo(root: Path) -> None:
-    root.mkdir(parents=True, exist_ok=True)
-    _git(root, "init", "--initial-branch=main")
-    _git(root, "config", "user.email", "harness@example.invalid")
-    _git(root, "config", "user.name", "Notebook Harness")
-    _git(root, "config", "commit.gpgsign", "false")
-
-
-def _seed_checkout(checkout: Path, *, text: str) -> None:
-    _init_repo(checkout)
-    target = checkout / STAGED_DOC
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(text, encoding="utf-8")
-    _git(checkout, "add", "--", STAGED_DOC)
-    _git(checkout, "commit", "-m", "Seed the scratch corpus")
-
-
-def _add_worktree(checkout: Path, branch: str) -> Path:
-    path = bs.worktree_path(checkout, branch)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    _git(checkout, "worktree", "add", "-b", branch, str(path), "main")
-    return path
-
-
-def _session_world(
-    root: Path,
-    *,
-    repository: str = "openxFactory",
-    branch: str = "draft/demo-topic",
-    main_text: str = "main body",
-    worktree_text: str = "worktree body",
-    nested: bool = False,
-) -> tuple[Path, Path]:
-    checkout = root / ("xFactories/" + repository if nested else repository)
-    _seed_checkout(checkout, text=_doc(main_text))
-    worktree = _add_worktree(checkout, branch)
-    (worktree / STAGED_DOC).write_text(_doc(worktree_text), encoding="utf-8")
-    return checkout, worktree
-
-
-class _FakeRegistry:
-    def __init__(self) -> None:
-        self.entries: dict[tuple[str, str], RegistryEntry] = {}
-
-    def get(self, repository: str, ref: str) -> RegistryEntry | None:
-        return self.entries.get((repository, ref))
-
-    def register(self, entry: RegistryEntry) -> RegistryEntry:
-        self.entries[(entry.repository, entry.ref)] = entry
-        return entry
-
-    def keys(self) -> list[tuple[str, str]]:
-        return list(self.entries)
-
-    def drop(self, repository: str, ref: str) -> None:
-        self.entries.pop((repository, ref), None)
-
-
-def _dashboard_registry() -> SnapshotRegistry:
-    return SnapshotRegistry()
-
-
-def _declare_hosting(root: Path, text: str) -> None:
-    path = root / "openxFactory/examples/notebook-projection-hosting.yaml"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
-
-
-def _profile_runner(active: str | None) -> Callable[..., ProviderResult]:
-    def run(*args: str, parse: bool = True) -> ProviderResult:
-        del parse
-        if args[:3] == ("config", "get", "auth.default_profile"):
-            if active is None:
-                raise HarnessFailure("nlm config get: no configuration")
-            return active
-        return {}
-
-    return run
+_boom = world.boom
+_session_world = world.session_world
+_FakeRegistry = world.FakeRegistry
+_dashboard_registry = world.dashboard_registry
+_declare_hosting = world.declare_hosting
+_profile_runner = world.profile_runner
