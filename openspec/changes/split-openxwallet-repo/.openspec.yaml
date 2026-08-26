@@ -1,0 +1,38 @@
+schema: spec-driven
+created: 2026-08-26
+origin:
+  kind: staged
+  id: openxFactory:staging:openxwallet-neutral-home
+  path: ideation/staging/openxwallet-neutral-home
+  reason: >-
+    Staged and exited the same day, 2026-08-26, because a consumer named
+    itself rather than because the idea aged. Brett asked two questions in
+    session — is openXwallet a repo-level project or features inside
+    another repo, and do domains integrate a neutral product directly or
+    through a <Domain>Wallet repo that pins it — and the inventory taken to
+    answer them found no `opensoft/openXwallet` repository, two neutral
+    contract families filed as features of a factory layer, and a house
+    descendant pattern established three times over and written down
+    nowhere as a general rule. The pressure is concrete: LedgerxFactory is
+    a live consumer whose CI fails loudly rather than skipping, a second
+    domain is about to want wallet content, and slices S3 and S5 of the
+    active add-wallet-carried-review-authority are entirely open — so if
+    the extraction lands first, their `openxwallet` core deltas are
+    authored once in the right repository instead of being written in
+    openxFactory and immediately migrated. DTN-026 (`split`, P1) carries
+    the register row; the reusable half is the two ADDED capabilities,
+    `domain-descendant-boundary` and `neutral-product-pin`, which outlive
+    the wallet. Its origin provenance runs back to the
+    agent-certification-wallets brainstorm (Brett, 2026-07-15/16) and the
+    promoted change archive/2026-08-08-add-openxwallet.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on
+    2026-08-26, verbatim: "approve R1-R8 as recommended, stage the topic
+    and propose". This records authorization to AUTHOR this proposal and
+    the eight rulings R1-R8 as LOCKED decisions the proposal carries as
+    constraints; it is NOT ratification of the proposal. The two ADDED
+    capabilities, the two REMOVED corpus exits, the two MODIFIED deltas,
+    the Amendment 2 and working-rule amendments, and the five carried open
+    questions (Q1 expected to travel to the council rather than resolve)
+    are declared, not decided.
+  approved_on: 2026-08-26
