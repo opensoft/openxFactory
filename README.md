@@ -340,6 +340,47 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [qualify-avatar-live-voice](openspec/changes/qualify-avatar-live-voice/proposal.md)
+  — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
+  in-session rulings of the same day: all five blocking forks and all three
+  latent decisions, carried into the proposal as LOCKED decisions rather than
+  re-litigated. This is the change that turns on real voice — internal-live
+  provider qualification of the live WebRTC/broker/media plane behind the
+  fail-closed `SessionTransport` port, with `gpt-realtime-2.1` as the
+  candidate. ADDS the neutral `avatar-live-voice` capability (ten
+  requirements): AVC-09 voice adapter descriptor and AVC-10 voice latency
+  sample lifted from reserved to defined using their RESERVED SHAPES AS-IS —
+  Fork 2's Option C means AVC-09 gains NO numeric latency-budget field; the
+  internal-live activation gate as the kernel's FOUR-element ring (secret
+  scan, telemetry-redaction verification, kill-switch proof, measured latency
+  evidence) with the eight-condition GPT-Live-1 list demoted to the mapped
+  preflight/canary checklist that produces that evidence and condition 6
+  reinterpreted as no-material-regression; a neutral relative-regression
+  latency SLO at the RATIFIED threshold (>15% relative OR >150 ms absolute,
+  whichever greater, on first-playable-after-authorized and sideband-ready;
+  p50+p95 gated on Windows desktop + web canvas at nominal network; p99 and
+  teardown recorded, not gated); a fresh client-side direct-provider baseline,
+  because F0's Python/aiortc figures explicitly do not qualify as the
+  reference; broker-held custody with two independent fail-closed spend layers
+  (session hard-kill on the existing duration/quota terminal, dedicated
+  spend-capped internal-live provider project as the per-tenant/ring stop) and
+  the durable per-tenant counter deferred; synthetic evaluation audio with a
+  strictly ephemeral, single-model, never-retained consented canary that
+  unreserves NO retention class and adds NO consent purpose; and the written
+  revoke-versus-block rollback policy the kernel required and never had, with
+  disable-voice-to-text/handoff as the only rollback target because this is
+  the first qualified profile. MODIFIES three `avatar-client-runtime`
+  requirements (the reserved-set release of exactly AVC-09/AVC-10, the
+  internal-live-ONLY reading of promotion evidence, and the latency-evidence
+  rule) plus `repo-boundary-governance` and `avatar-client-lab`, because
+  latent decision 1 makes this the change that extracts
+  `xfactory-avatar-client` from codexFactory `apps/avatar-client-lab` — an
+  obligation canon carried with no change owning it. `Status: draft`;
+  `code_surface: openxFactory, xfactory-avatar-client` and
+  `target_release: implementation_pending`, so it archives only on merged plus
+  green internal-live realization evidence, never on landing. Aggregation
+  admission of the client repo, the GPT-Live-1 default swap, and the
+  `avatar-pilot-hardening` deferrals are explicitly out of scope.
 - [add-doxbench-distilled-abstract](openspec/changes/add-doxbench-distilled-abstract/proposal.md)
   — authored and **ratified 2026-08-25** (Brett, all eight rulings as
   recommended); `target_release: none` under ruling 2(b), but `code_surface` is

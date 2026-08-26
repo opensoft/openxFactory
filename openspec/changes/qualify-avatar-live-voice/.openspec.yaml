@@ -1,0 +1,36 @@
+schema: spec-driven
+created: 2026-08-26
+origin:
+  kind: staged
+  id: openxFactory:staging:qualify-avatar-live-voice
+  path: ideation/staging/qualify-avatar-live-voice
+  reason: >-
+    The staged topic's Exit, executed. The topic declared itself "not yet
+    ready to propose" behind five blocking forks — credential custody and
+    spend cap, latency-budget derivation, activation-gate scope,
+    evaluation-audio consent and data control, and canary cohorting with
+    rollback semantics — and the staged `fork-decision-memo.md` (staged
+    2026-07-16) researched each fork against the archived contract kernel,
+    the F0 feasibility evidence, and the reference runtime, surfacing three
+    latent decisions the rulings would implicate. Brett Heap ruled all five
+    forks and all three latent decisions in session on 2026-08-26; the
+    rulings are written into the memo's "Rulings requested" table and its
+    latent-decision items, and the staging INDEX recorded the topic
+    UNBLOCKED the same day. This change is the Exit those rulings
+    authorized: it carries the eight rulings as locked decisions, lifts
+    AVC-09 and AVC-10 from reserved to defined, writes the internal-live
+    activation gate as the kernel's four-element ring, and owns the
+    `xfactory-avatar-client` extraction per latent decision 1. Both staged
+    files move into this change's `supporting-docs/`, so the topic promotes
+    fully and its INDEX row and detail section leave the staging register.
+  approved_by: >-
+    Brett Heap — in-session rulings of 2026-08-26 on all five forks (F1
+    Option C, F2 Option C with the materiality threshold ratified as
+    proposed, F3 Option C, F4 Option C, F5 Option B) and all three latent
+    decisions (this change owns the client extraction; `avatar-pilot-hardening`
+    carries the deferrals; internal-live qualification does not auto-promote
+    to the production default), recorded on the staged decision memo and in
+    `ideation/staging/INDEX.md`. The rulings are staging decisions that
+    become this change's locked inputs; ratification of this proposal is a
+    separate act that has not happened.
+  approved_on: 2026-08-26
