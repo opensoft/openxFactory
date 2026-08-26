@@ -31,12 +31,17 @@ def _run(
     )
 
 
-def _provider_stub(root: Path) -> Path:
+def _provider_stub(root: Path, *, call_log: Path | None = None) -> Path:
     binary_directory = root / "bin"
     binary_directory.mkdir()
     executable = binary_directory / "nlm"
+    log_call = (
+        f"from pathlib import Path\nPath({str(call_log)!r}).open('a').write('call\\n')\n"
+        if call_log is not None
+        else ""
+    )
     executable.write_text(
-        f"#!{sys.executable}\nprint('[]')\n",
+        f"#!{sys.executable}\n{log_call}print('[]')\n",
         encoding="utf-8",
     )
     executable.chmod(0o755)
@@ -81,6 +86,40 @@ class SyncCliContractTests(unittest.TestCase):
             "--target-path is required with --import-new-sources",
             completed.stderr,
         )
+        self.assertNotIn("Traceback", completed.stderr)
+
+    def test_malformed_manifest_is_refused_before_any_provider_call(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            _seed_grounding(root)
+            manifest = root / ".claude/nlm-sync-manifest.json"
+            manifest.parent.mkdir()
+            manifest.write_text('{"canon": []}\n', encoding="utf-8")
+            call_log = root / "provider-calls.log"
+
+            completed = _run(
+                temporary,
+                "--apply",
+                provider_bin=_provider_stub(root, call_log=call_log),
+            )
+
+            provider_was_called = call_log.exists()
+        self.assertEqual(completed.returncode, 2)
+        self.assertIn("manifest", completed.stderr)
+        self.assertFalse(provider_was_called)
+        self.assertNotIn("Traceback", completed.stderr)
+
+    def test_non_import_mode_ignores_an_irrelevant_import_date(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            _seed_grounding(root)
+            completed = _run(
+                temporary,
+                "--import-date",
+                "not-a-date",
+                provider_bin=_provider_stub(root),
+            )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertNotIn("Traceback", completed.stderr)
 
 

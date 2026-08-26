@@ -13,6 +13,37 @@ BookManifest: TypeAlias = dict[str, ManifestEntry]
 SyncManifest: TypeAlias = dict[str, BookManifest]
 
 
+class ManifestPayloadError(RuntimeError):
+    pass
+
+
+def parse_sync_manifest(payload: JsonValue) -> SyncManifest:
+    if not isinstance(payload, dict):
+        raise ManifestPayloadError("sync manifest must contain a JSON object")
+    manifest: SyncManifest = {}
+    for book, raw_entries in payload.items():
+        if not isinstance(raw_entries, dict):
+            raise ManifestPayloadError(
+                f"sync manifest book {book!r} must contain a JSON object"
+            )
+        entries: BookManifest = {}
+        for relative, raw_entry in raw_entries.items():
+            if not isinstance(raw_entry, dict):
+                raise ManifestPayloadError(
+                    f"sync manifest entry {book!r}/{relative!r} must be an object"
+                )
+            digest = raw_entry.get("hash")
+            title = raw_entry.get("title")
+            if not isinstance(digest, str) or not isinstance(title, str):
+                raise ManifestPayloadError(
+                    f"sync manifest entry {book!r}/{relative!r} requires text "
+                    "hash and title fields"
+                )
+            entries[relative] = {"hash": digest, "title": title}
+        manifest[book] = entries
+    return manifest
+
+
 def sync_book(
     root: Path,
     spec: BookSpec,

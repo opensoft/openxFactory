@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Protocol
 
 from .corpus import DesiredState
-from .lifecycle_sync import SyncManifest
+from .lifecycle_sync import ManifestPayloadError, SyncManifest, parse_sync_manifest
 from .models import BookSpec, SessionSync
 from .nlm_client import JsonValue, NotebookRow
 
@@ -134,13 +134,14 @@ def run(
         return
     if args.session_retire or args.session_repository:
         parser.error("--session-retire / --session-repository require --session-ref")
-    imported_on = datetime.fromisoformat(args.import_date).date().isoformat()
     if args.import_exports:
+        imported_on = _import_date(args.import_date, parser)
         import_exports(args.root, args.import_exports, args.apply, imported_on)
         return
     if args.import_new_sources:
         if not args.target_path:
             parser.error("--target-path is required with --import-new-sources")
+        imported_on = _import_date(args.import_date, parser)
         import_new(
             args.root,
             args.import_new_sources,
@@ -160,6 +161,13 @@ def run(
     )
 
 
+def _import_date(value: str, parser: argparse.ArgumentParser) -> str:
+    try:
+        return datetime.fromisoformat(value).date().isoformat()
+    except ValueError:
+        parser.error(f"--import-date must be an ISO date, got {value!r}")
+
+
 def _sync_books(
     args: CliArgs,
     parser: argparse.ArgumentParser,
@@ -171,10 +179,13 @@ def _sync_books(
     operation_errors: tuple[type[Exception], ...],
 ) -> None:
     manifest_path = args.root / ".claude/nlm-sync-manifest.json"
-    raw = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
-    if not isinstance(raw, dict):
-        parser.error(f"{manifest_path} must contain a JSON object")
-    manifest: SyncManifest = raw
+    try:
+        raw: JsonValue = (
+            json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+        )
+        manifest: SyncManifest = parse_sync_manifest(raw)
+    except (json.JSONDecodeError, ManifestPayloadError) as exc:
+        parser.error(f"invalid sync manifest {manifest_path}: {exc}")
     if manifest.pop("ideation", None) is not None:
         print("manifest: dropped the retired shared-ideation key")
     desired, specs = scan(args.root)
