@@ -357,7 +357,7 @@ Active changes:
   preflight/canary checklist that produces that evidence and condition 6
   reinterpreted as no-material-regression; a neutral relative-regression
   latency SLO at the RATIFIED threshold (>15% relative OR >150 ms absolute,
-  whichever greater, on first-playable-after-authorized and sideband-ready;
+  whichever is greater, on first-playable-after-authorized and sideband-ready;
   p50+p95 gated on Windows desktop + web canvas at nominal network; p99 and
   teardown recorded, not gated); a fresh client-side direct-provider baseline,
   because F0's Python/aiortc figures explicitly do not qualify as the
