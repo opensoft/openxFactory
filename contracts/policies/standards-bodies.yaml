@@ -128,14 +128,145 @@ bodies:
   # ---------------------------------------------------------------- accounting
   # ---------------------------------------------------------------- marketing
   - id: iab
-    jurisdiction: international  # US-origin
-    name: IAB / IAB Tech Lab specifications and taxonomies
-    steward: Interactive Advertising Bureau
+    # LICENCE VERDICT 2026-08-26 (live-source, APQC method): USABLE in shipped
+    # product configuration under CC BY 3.0 with attribution. This REVERSES the
+    # 2026-08-26 population-round finding of "no licence text", which was a
+    # false negative for an understandable reason: that round read the taxonomy
+    # LANDING PAGES, which genuinely publish none. The grant lives one hop away,
+    # on the artifacts. Two independent primary sources:
+    #   (1) the Content Taxonomy 3.0 Implementation Guide PDF, page 2 — see
+    #       licence_page below. It names the TAXONOMY as the licensed work, not
+    #       a specification document, and it is version-unqualified.
+    #   (2) the Taxonomies repo README "License" section, carrying the same
+    #       CC BY 3.0 grant, corroborated verbatim by an independent mirror
+    #       (ubermedia/IAB-Taxonomies) so the wording is genuine upstream text
+    #       rather than a rendering artefact or a recent edit.
+    # The site ToU's all-caps redistribution ban does NOT govern, because the
+    # ToU itself subordinates: "for any IAB Tech Lab Materials licensed to you
+    # pursuant to a Separate License, such Separate License (and not these Terms
+    # of Use) shall govern your usage of those IAB Tech Lab Materials."
+    # CC BY 3.0 is that Separate License. This is the OPPOSITE of the SFIA and
+    # ITIL outcomes above, where the steward's own terms blocked product use.
+    #
+    # KNOWN DEFECTS in the steward's packaging, recorded so a future reader does
+    # not re-derive them. The repo has NO LICENSE file — GitHub's licence API
+    # 404s on it, so scanners will read the repo as unlicensed and any SCA gate
+    # must be answered by hand. The .tsv data files carry no notice of any kind:
+    # all three were scanned for licen[cs]|copyright|creative commons|© at zero
+    # hits each. And the README's grant SENTENCE is stale OpenRTB boilerplate
+    # ("OpenRTB Specification the IAB Tech Lab is licensed under...") copied from
+    # the openrtb repo and never re-pointed — only its SECOND paragraph was
+    # adapted, to "applicable taxonomies" and the Taxonomy and Mapping Working
+    # Group. So the README states the inbound (contributor -> Tech Lab)
+    # direction cleanly and garbles the outbound one; the PDF in (1) is what
+    # supplies the outbound grant correctly scoped.
+    #
+    # STEWARD CORRECTED on this round. Was "Interactive Advertising Bureau",
+    # which is the TRADE ASSOCIATION and not the publisher. IAB Technology
+    # Laboratory, Inc. is a separate 501(c)(6) — EIN 47-3384874, New York,
+    # established 2015, spun out of IAB as an independent R&D consortium — and
+    # is the copyright holder in every notice on these artifacts and the CC BY
+    # licensor. The ambiguity that produced the error is real: Audience Taxonomy
+    # material appears under both iabtechlab.com/standards/ and the trade
+    # association's iab.com/guidelines/. The `iab` id is KEPT rather than split,
+    # because the AdxFactory overlay resolves against it; only `steward`,
+    # `name` and `scope` move.
+    #
+    # OPEN FOLLOW-UP, deliberately not this entry's act: asking IAB Tech Lab in
+    # a public issue to fix the OpenRTB sentence and add a LICENSE file would
+    # convert the converging inference below into an on-the-record answer at no
+    # cost. It is an outward-facing approach and is held rather than done here.
+    jurisdiction: international  # US-origin (New York)
+    name: IAB Tech Lab Content, Audience, and Ad Product Taxonomies
+    steward: IAB Technology Laboratory, Inc. (IAB Tech Lab)
     names: adtech_specifications_and_taxonomies
     scope: >-
-      Content Taxonomy, Audience Taxonomy, OpenRTB. Names ad-tech plumbing
-      rather than roles — expect it to fit the media/audience classes and
-      not the creative or compliance ones.
+      Content Taxonomy (topical "aboutness" plus orthogonal vectors for
+      environment, purpose, source, form factor and brand suitability),
+      Audience Taxonomy (demographic, interest and purchase-intent segment
+      nomenclature), and Ad Product Taxonomy (the product or service being
+      advertised). These name ad-tech plumbing and content/audience CATEGORIES,
+      not roles and not authority — expect fit with the media and audience
+      worker classes and not the creative or compliance ones, and never read a
+      taxonomy node as an agent power.
+      OPENRTB IS OUTSIDE THIS ENTRY'S INVESTIGATED SCOPE, and is named here
+      rather than dropped because the AdxFactory overlay cites it under this id
+      for `media_planner`. It is the same steward's real-time bidding PROTOCOL,
+      not a taxonomy, and the 2026-08-26 licence round covered the three
+      taxonomies above. It is not LESS covered — the README's stale sentence
+      grants CC BY 3.0 to the "OpenRTB Specification" by name, which is the one
+      thing that sentence does say cleanly — but it was not separately verified
+      on this round, and a citation to it inherits that limit.
+    current_version: >-
+      Content Taxonomy 3.1, GitHub release Taxos-202412 published 2024-12-09
+      (standards page states December 2024 — agrees); Audience Taxonomy 1.1,
+      2020 (standards page says October 2020, the steward's own XLSX upload path
+      says 2020/07 — CONTESTED, unresolved); Ad Product Taxonomy 2.0, GitHub
+      release AP2-202310 published 2023-10-18 (standards page says November 2024
+      — CONTESTED, unresolved). Verified 2026-08-26. The artifact dates (GitHub
+      release tags) are recorded as primary and the standards-page claims are
+      recorded beside them; NEITHER contested date is resolved in either
+      direction, and both must be re-verified on any overlay change. This is the
+      APQC discipline applied — a body reference outliving its numbering is the
+      failure mode these fields exist to catch.
+    status: current
+    source_url: https://github.com/InteractiveAdvertisingBureau/Taxonomies
+    term_list_availability: public  # Full TSVs in a public repo, no gate and no lead form.
+    licence_page: >-
+      Not a page on iabtechlab.com — like APQC's, the correctly-scoped grant is
+      printed INSIDE the artifact: page 2 of the Content Taxonomy 3.0
+      Implementation Guide PDF, under the heading "License", at
+      https://iabtechlab.com/wp-content/uploads/2021/09/Implementation-Guide-Content-Taxonomy-3-0-pc-Sept2021.pdf
+      (22pp; page 2 is the "About IAB Tech Lab" front matter, whose footer reads
+      "© 2021 IAB Technology Laboratory"). Text-extracted with pypdf from the
+      actual file bytes rather than trusted to a summarizer. CAVEAT HELD OPEN
+      rather than resolved: that document is cover-stamped "Released for Public
+      Comment September 2021", so the best-scoped evidence sits on a
+      draft-stage artifact. It is the steward's own publication and it agrees
+      with the README and the ToU, but no FINAL-stamped taxonomy PDF carrying
+      the same block was located. The blanket grant is at
+      https://raw.githubusercontent.com/InteractiveAdvertisingBureau/Taxonomies/main/README.md
+      and the ToU deferral at https://iabtechlab.com/terms-of-use/. Cited as
+      SILENT so neither is later read as supporting or contradicting: the Brand
+      Suitability CT 2.2 Implementation Guide and the February 2022
+      Seller-Defined Audience standards PDF carry © notices and no CC grant.
+    reuse_licence: >-
+      CC BY 3.0. The grant verbatim, from page 2 of the Content Taxonomy 3.0
+      Implementation Guide: "Content Taxonomy by the IAB Tech Lab's Taxonomy
+      Working Group is licensed under a Creative Commons Attribution 3.0
+      License.   To view a copy of this license, visit
+      creativecommons.org/licenses/by/3.0/ or write to Creative Commons, 171
+      Second Street, Suite 300, San Francisco, CA 94105, USA." Legal code:
+      https://creativecommons.org/licenses/by/3.0/legalcode
+    redistribution_permitted_in_product_config: yes_with_conditions  # Two conditions, both CC BY 3.0's: §4(b) attribution and §4(a) the licence URI travelling with the distribution. See attribution_required.
+    attribution_required: >-
+      Credit IAB Tech Lab's Taxonomy Working Group as the Original Author, name
+      the work and its version (e.g. "Content Taxonomy 3.1"), carry the licence
+      URI https://creativecommons.org/licenses/by/3.0/, and — CC BY 3.0
+      §4(b)(iv), the credit identifying the use — identify the crosswalk as OUR
+      mapping rather than an IAB Tech Lab endorsed one. §4(a) additionally
+      requires the licence copy or URI travel with every distribution and
+      FORBIDS imposing terms that restrict a recipient's exercise of the
+      licensed rights. A domain overlay embedding taxonomy names or ids is a
+      distribution and must carry all of it. There is no share-alike and no
+      non-commercial bar in CC BY 3.0; attribution is the whole obligation.
+    attribution_note: >-
+      NOTHING TRAVELS WITH THE DATA — there is no LICENSE file and the .tsv
+      files carry no notice — so the attribution above cannot be inherited from
+      the source and must be AUTHORED into each consuming overlay. EVIDENCE IS
+      NOT EVEN across the three taxonomies: the Content Taxonomy grant is the
+      best-evidenced, because it is the work the PDF names; Audience Taxonomy
+      and Ad Product Taxonomy rest on the README's blanket "applicable
+      taxonomies" wording plus the ToU deferral, which is sound but one notch
+      weaker, and a crosswalk to either should say so. IAB Tech Lab's IPR Policy
+      (v2.15.25, January 2025) is gated behind an acknowledgment form and was
+      NOT read; it is scoped to Submissions by IAB Tech Lab MEMBERS, so it does
+      not reach us as a downstream consumer — assessed non-blocking, not
+      assessed absent. The steward's own XLSX download for Audience Taxonomy 1.1
+      (/wp-content/uploads/2020/07/IABTL-Audience-Taxonomy-1.1-Final.xlsx) now
+      returns HTTP 404 while the standards page still links it, so cite the
+      GitHub raw path and not the site download.
+    confidence: high  # The grant, the steward entity and the ToU deferral are each verified on primary sources. The weak points are named rather than averaged away: the best-scoped grant sits on a "Released for Public Comment" PDF, Audience and Ad Product coverage rests on blanket wording, and two of three version dates are CONTESTED between the steward's own surfaces — see current_version, which resolves neither.
   - id: ama_marketing
     jurisdiction: united_states
     name: American Marketing Association definitions
