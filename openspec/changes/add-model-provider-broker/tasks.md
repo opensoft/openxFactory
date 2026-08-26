@@ -119,6 +119,15 @@
       same turn surfaces the standard refusal. Silently retrying a paid call
       was the decision this question named, and the ruling answers it by
       making the retry visible rather than by forbidding it.
+      WHERE THE VISIBILITY LANDED (2026-08-26, 2.4/2.6): in the port's
+      ledger, on stderr, and in the broker's own audit trail via
+      `--retry-of`. The BROWSER-FACING turn record does NOT yet carry it:
+      both turn-success wire shapes are released, digest-pinned,
+      `additionalProperties: false` schemas that this change (target
+      release none) cannot widen, so that half of the ruling is handed by
+      name to `add-doxchat-model-intake` task 3.6, which owns turn-record
+      facts. The ruling text above is kept verbatim as the record of what
+      was ruled; this note is the record of how far it is realized.
 
 ## 1. The binding (implementable now)
 

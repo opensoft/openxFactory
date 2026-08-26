@@ -1028,8 +1028,10 @@ Active changes:
   SIX incompatibilities (operation framing, the enrolment stdin, a mint
   answer carrying neither `endpoint` nor `dialect`, the reference key, an
   unpassed `--retry-of`, and EPIPE handling); they are recorded in 0.2's body
-  and A RECONCILIATION SLICE IS OWED before a binding can name the real
-  broker.
+  and were RECONCILED the same day as task 2.6: the seam speaks the declared
+  subcommand contract, `endpoint`/`dialect` moved onto the binding, and an
+  end-to-end test drives the real `openprofiler-broker` binary through
+  intake, mint, a `--retry-of`-correlated re-mint, and revoke.
   (code surface: openxFactory; target release: none;
   depends on openProfiler)
 
