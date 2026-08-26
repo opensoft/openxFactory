@@ -1,19 +1,53 @@
 #!/usr/bin/env python3
 """T098: the scratch-repository doxBench Playwright smoke (quickstart §7).
 
-The acceptance environment provides Playwright 1.61.0 (`pip install
-playwright==1.61.0 && python -m playwright install chromium`; the 1.61.1 pin
-this header once named DOES NOT EXIST on PyPI — corrected from the first real
-run's findings, 2026-07-31). The py-bench container deliberately does not
-carry it; run on the HOST:
+PROVENANCE. Ported into openxFactory on 2026-08-26, on Brett's ruling that
+this tool's home is openxFactory — beside the runtime it drives. It came from
+codexFactory branch `010-doxbench-editor-chat`, path
+`specs/010-doxbench-editor-chat/playwright-smoke.py`, blob `fc321637`
+(authored there 2026-08-08 at commit `3e6f900`). codexFactory's
+`adopt-neutral-tooling-home` tranche C shed the shorter `main` version along
+with the dashboard runtime it drives; this extended 892-line version was never
+adopted and survived only in that branch's history. The port is VERBATIM apart
+from this header and the checkout-root depth below — nothing in the eleven
+scenarios changed. The `quickstart §7` the title names is codexFactory's,
+retained there as the specification of what T098 covered.
 
-    OPENXFACTORY_ROOT=<an openxFactory checkout at the stack.yaml contract_ref> \
-    /tmp/t098-venv/bin/python specs/010-doxbench-editor-chat/playwright-smoke.py
+AN OPERATOR TOOL, OUTSIDE THE HERMETIC SUITE. It drives a real browser, so it
+lives under `tests/ideation-dashboard/tools/` and is deliberately NOT named
+`test_*.py`: neither pytest collection nor `tests/hermetic_unittest.py`'s
+`test_*.py` discovery may ever pick it up, and no gate may require it. Do not
+add a `conftest.py` beside it either — `test_hermeticity.py` pins the SET of
+conftests under `tests/`, and `conftest` is an ambient module name.
 
-(the env override points doxbench_contracts at the pinned release checkout so
-the routes' released-schema validators resolve). The script fails CLOSED with
-a named preflight error rather than skipping, so a green T098 can only ever
-mean the scenarios really ran.
+WHAT IT NEEDS. Playwright 1.61.0 and its chromium browser, on the HOST (`pip
+install playwright==1.61.0 && python -m playwright install chromium`; the
+1.61.1 pin this header once named DOES NOT EXIST on PyPI — corrected from the
+first real run's findings, 2026-07-31). Containers built for the hermetic
+suite deliberately do not carry it. Run from an openxFactory checkout:
+
+    python3 tests/ideation-dashboard/tools/playwright-smoke.py
+
+NO CONSOLE URL IS PASSED, and no console should be started for it. The smoke
+builds its own world end to end — a scratch bare remote, a scratch checkout
+seeded from `tests/ideation-dashboard/fixtures/base-repo`, a snapshot, and a
+loopback server constructed IN PYTHON through `serve.build_server` bound to
+127.0.0.1 on an ephemeral port — and then drives that. The operator rig's
+serves (`scripts/ideation_dashboard/cli.py generate-and-open`, or
+`~/doxbench-operator/t100_serve.py <worktree> <corpus> <port>`) are for a
+human at a real corpus and are NOT used here; pointing this smoke at one would
+break the session runbook §7 rule that a serve under test points at a SCRATCH
+checkout only.
+
+`OPENXFACTORY_ROOT` IS NO LONGER REQUIRED. Under codexFactory the env override
+pointed `doxbench_contracts` at a pinned openxFactory release so the routes'
+released-schema validators could resolve. Run from openxFactory itself,
+`doxbench_contracts.resolve_root` recognises the hosting repository as a
+publisher checkout and resolves the contract there. Set it only to pin a
+DIFFERENT released checkout deliberately.
+
+The script fails CLOSED with a named preflight error rather than skipping, so
+a green run can only ever mean the scenarios really ran.
 
 Everything here is hermetic by construction: a scratch checkout cloned from a
 scratch bare remote, a fake model port (deterministic prose + one typed
@@ -66,7 +100,11 @@ import tempfile
 import threading
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+# `tests/ideation-dashboard/tools/playwright-smoke.py` — three directories
+# down from the checkout root. Under codexFactory the script sat two down
+# (`specs/010-doxbench-editor-chat/`), which is the ONLY path fact the port
+# had to change; every path below is derived from here and needs no edit.
+REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 # The proven session fixtures (fake pull-request port) live beside the
 # hermetic suites; steps 8-10 reuse them at their ONE injection point each.
