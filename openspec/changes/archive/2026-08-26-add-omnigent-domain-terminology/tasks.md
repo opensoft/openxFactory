@@ -78,9 +78,62 @@
 
 ## 3. Domain follow-ups (each its own change, in its own repo)
 
-- [ ] 3.0 Per domain, VERIFY the chosen bodies' current terms and versions
+- [x] 3.0 Per domain, VERIFY the chosen bodies' current terms and versions
       against each body's own publication before committing a crosswalk (the
       registry's sourcing caveat). A wrong term is worse than none.
+      **DISCHARGED FOR ALL FIVE DOMAINS 2026-08-26**, at the archive-gate
+      verification sweep that re-read every claim in this list against the
+      five repositories at live main rather than trusting the ticks.
+      Per-domain evidence, each re-counted here rather than quoted forward:
+      - **opsx** — 3.0a plus OpsxFactory `2d3e5ad` (on main). All six codes
+        registered on `onet_it_occupations` re-read verbatim on O*NET OnLine;
+        no term corrected. Registry entry now reads O*NET Database 31.0
+        (August 2026), verified 2026-08-26; the overlay records the
+        verified-against version and credits "the O*NET Database" without a
+        version, so its attribution stays true across quarterly releases.
+      - **codex** — 3.0a plus codexFactory `d5f5f3c` (on main). All seven
+        codes registered on `onet_engineering_occupations` re-read verbatim
+        (27-3042.00 on its own summary page, the rest on the family listing);
+        same 31.0 correction, same versionless attribution. Six plus seven is
+        the thirteen 3.0a counted, confirmed against the registry file.
+      - **ledgerx** — 3.2, LedgerxFactory PR #24 (branch commit
+        `ded4a0128f9e`, on main as `e0d1abeb` after a rebase merge —
+        identical tree, identical parent). `onet_accounting_occupations`
+        moved 30.3 -> 31.0 in the same act as the overlay's by-version CC BY
+        block, as 3.0a's flag required; every SOC code unchanged across the
+        release. `apqc_pcf` pinned at Cross-Industry PCF 8.0 with its
+        licence-page provenance (3b.5d, 3b.5k). `coso_icif` unchanged.
+      - **adx** — 3.3, AdxFactory PR #4 (branch commit `02d022cefb34`, on
+        main as `6543a14a`, identical tree) and PR #5 (`1fc5a2f`).
+        `onet_marketing_occupations` codes read on O*NET OnLine 2026-08-26
+        at 31.0, with the two title gaps re-tested rather than inherited;
+        `apqc_pcf` at 8.0; `iab` versions read 2026-08-26 (3b.5l).
+      - **medx** — VACUOUS BY CHOICE, and that is a discharge rather than a
+        skip: 3b.5i registered no crosswalk body at all, so there is no
+        body whose terms or versions could be verified. What the overlay
+        commits is eleven `no_clean_equivalent` declarations against the
+        provider taxonomy (MedxFactory `5d16ccc5`, on main), which assert no
+        term of any body. An obligation over chosen bodies is discharged by
+        choosing none.
+      THREE RESIDUALS CARRIED FORWARD RATHER THAN GLOSSED, because this tick
+      states what the verification RETURNED, not that everything came back
+      confirmed:
+      (a) **PCF 8.0's numbering was not re-read** in either ledgerx or adx.
+      apqc.org answers HTTP 403 to automation and no 8.0 mirror is public, so
+      element names, decimal numbers and five-digit IDs were text-extracted
+      from the primary 7.4 PDF; both overlays say so in their own headers,
+      and the five-digit element IDs are APQC's stable identifiers. This is
+      3b.3's failure mode held at arm's length, not eliminated. Closing it
+      needs the same browser act that closed 3b.5d.
+      (b) **Two of three IAB version dates are contested** between the
+      steward's own surfaces and the registry records BOTH readings on each,
+      resolving neither (3b.5l gap (c)).
+      (c) **Task-level verification remains OUTSTANDING and unclaimed** in
+      all four crosswalking domains. Every mapping is at OCCUPATION level and
+      no overlay asserts a task-statement match; only 11-3021.00 and
+      27-3042.00 ever had task statements read verbatim. This task asked for
+      terms and versions and got them; task statements are a further claim
+      nothing in the family makes, and each domain owns it in its own repo.
 - [x] 3.0a DISCHARGED FOR OPSX AND CODEX 2026-08-26 (3.0 itself stays open —
       it is a standing per-domain obligation and three domains have not run
       it). All thirteen registered O*NET occupation codes and titles across
@@ -327,7 +380,46 @@
       rest on the family listing). FLAGGED: the same 30.3 -> 31.0 version
       move as 3.1, corrected in the registry entry here and recorded in the
       overlay. Task-level verification remains OUTSTANDING and unclaimed.
-- [ ] 3.5 Populate `terminology` in MedxFactory — WITH CARE. The provider
+- [x] 3.5 **MEDX POPULATED — AND ITS POPULATION IS THE REFUSAL.** Landed at
+      MedxFactory `5d16ccc5` "Add medx terminology: display labels only, and
+      the provider-mapping refusal in data" (on main; verified at the
+      archive-gate sweep 2026-08-26). This box is ticked on 3b.5i's finding
+      rather than by re-arguing it: the all-`no_clean_equivalent` stance IS
+      the population this task asked for, not an absence of one.
+      READ-BACK — what shipped, counted at live main: `terminology` covers
+      every id the overlay declares — 11 workers, 6 job_types, 9
+      stop_conditions, 7 routing classes — with display labels throughout and
+      ALL ELEVEN worker classes recording `no_clean_equivalent` against
+      `nucc_taxonomy`, each with its note. Zero mapped, by design. That is
+      the coverage 3.1 and 3.4 shipped, reached by the opposite verdict.
+      READ-BACK — the care this task asked for is where the value is. 3b.5i
+      failed medx on BOTH category and licence, and the outcome is the one
+      the brief named as acceptable and possibly correct: register nothing.
+      The refusal is written against the PROVIDER taxonomy SPECIFICALLY,
+      because that is the mapping a contributor would reach for and it is the
+      dangerous one — a provider role asserts clinical standing and legal
+      accountability these reasoning agents must never appear to hold, in the
+      one domain where that misrepresentation could contribute to patient
+      harm. Recording the refusal in machine-readable data beats both a
+      forced crosswalk and a silent omission, and it is why this domain
+      needed no body registered to be complete.
+      READ-BACK — 5.1 held: worker ids, archetypes, permissions and
+      credential tiers are byte-identical across `5d16ccc5` (diff-verified at
+      the sweep). `snomed_ct` was not used for artifact or job_type labels
+      either; the licence bar 3b.5i found applies there too.
+      FLAGGED, and it is MedxFactory's own act in its own repo: the overlay
+      header cites the findings at `openxFactory openspec/changes/
+      add-omnigent-domain-terminology/supporting-docs/
+      medx-clinical-bodies-research-report.md`, a path that has been wrong
+      since the 2026-08-22 folder ruling (3b.5e) moved these reports to
+      `research/`, and that moves again under `archive/` when this change
+      archives. The opsx and codex overlays cite the same class of file
+      correctly AND pin a commit sha; medx and the two `tasks.md` citations
+      in ledgerx and adx do not. Named here rather than silently repaired
+      across four repositories this change does not own.
+      ORIGINAL TASK TEXT (2026-08-09) kept below, because the read-back is
+      only checkable against what was asked:
+      Populate `terminology` in MedxFactory — WITH CARE. The provider
       taxonomies (`nucc_taxonomy`, `hl7_fhir_practitionerrole`) describe
       humans holding CLINICAL STANDING; medical Omnigent workers are
       reasoning agents and hold none. Mapping a reasoning agent onto a
@@ -684,7 +776,15 @@
       STATE AS OF 2026-08-26, counted rather than assumed. All FIVE briefs
       this task tracks have now been run and applied: opsx (3b.5g), codex
       (3b.5h), medx (3b.5i), adx marketing (run and applied in 3.3), and —
-      as of the later 2026-08-26 tick below — **ledgerx UN/CEFACT+BIAN**. Its findings landed in two places and neither is a
+      as of the CLOSED note at the head of this task — **ledgerx
+      UN/CEFACT+BIAN**, whose report IS a file,
+      `research/ledgerx-international-process-bodies-research-report.md`.
+      ANTECEDENT CORRECTED 2026-08-26 at the archive-gate verification sweep:
+      the sentence that follows was written about THE ADX ROUND and kept its
+      wording when ledgerx was appended to the list ahead of it, which left
+      "Its" pointing at the wrong round and reading as though the ledgerx
+      round produced no report. It did. THE ADX ROUND's findings landed in
+      two places and neither is a
       report file: the crosswalks themselves went into AdxFactory
       `02d022cefb34`, and its two body-level findings (the IAB steward is
       IAB Tech Lab, not the trade association; IAB's taxonomy page publishes
@@ -696,6 +796,18 @@
       still has no sibling report, unlike opsx/codex/medx which have one each
       under `research/` here. That asymmetry is a real gap in the evidence
       trail and is named rather than glossed.
+      SUPERSEDED 2026-08-26 BY THE CLOSED NOTE AT THE HEAD OF THIS TASK. The
+      two paragraphs below are the 2026-08-26 mid-day text, written while the
+      ledgerx round was still unrun; they are kept word for word under the
+      append discipline rather than deleted, because the CLOSED note is only
+      checkable against what was still owed when it was written. READ AS
+      HISTORY, NOT AS CURRENT STATE: the round HAS since been run against live
+      primary sources, its report is
+      `research/ledgerx-international-process-bodies-research-report.md`,
+      neither body was adopted, and nothing in this task is still owed. Found
+      and corrected at the archive-gate verification sweep, where the text
+      below still read as an open obligation contradicting this task's own
+      closing note.
       WHAT THIS TASK STILL OWES: the ledgerx UN/CEFACT + BIAN round, and
       only that. Its brief is written and has NEVER been run — LedgerxFactory
       `openspec/changes/adopt-neutral-omnigent-overlay/supporting-docs/apqc-replacement-candidates-verification-prompt.md`,
@@ -715,7 +827,52 @@
 
 ## 4. Consumer follow-up (named, not assumed)
 
-- [ ] 4.1 Domain surfaces that render human-facing vocabulary OUTSIDE the
+- [x] 4.1 **BUILT AND MERGED 2026-08-26**, in the consumer's own repository
+      as the principle required. OpsxFactory PR #115 (`f1065cc`, merged to
+      main 2026-08-26), change packet
+      `openspec/changes/render-domain-labels-in-refusals/` in that repo,
+      ratified the same day by Brett Heap's in-session ruling, which cites
+      this task by number as the reason it exists.
+      READ-BACK — verified at OpsxFactory main at the archive-gate sweep,
+      artifact by artifact rather than from the PR description:
+      - `workflows/business-central-administration.yaml` carries
+        `workflow.adjudication` with `refusal_renders_display_label: true`,
+        `refusal_carries_stable_check_id: true`,
+        `check_id_is_never_renamed: true`, and the fixed-order `order` list
+        of four `id` + `display_label` pairs — `tenant_managed` -> "Tenant
+        management authority", `environment_operable` -> "Environment
+        operability", `action_class` -> "Action class", `books_boundary` ->
+        "Accounting-domain boundary". Contract data before code, the same
+        shape as an overlay's `terminology:` block.
+      - `scripts/business_central_administration.py` carries
+        `ADJUDICATION_CHECK_LABELS`, the public
+        `adjudication_check_label(check_id)`, and `_adjudication_refusal`,
+        which composes "adjudication refused at the <label> check: <detail>"
+        and attaches `check_id` to the raised error so the machine
+        identifier survives on the failure boundary while the message reads
+        in domain vocabulary. An undeclared id RAISES rather than falling
+        back to rendering the id.
+      - All five adjudication negative fixtures assert the RENDERED LABEL,
+        not the id — `adjudicate-unmanaged-tenant` and
+        `adjudicate-first-failed-check-named` expect "the Tenant management
+        authority check", `adjudicate-unregistered-environment` "Environment
+        operability", `adjudicate-mutation-action` "Action class",
+        `adjudicate-books-surface` "Accounting-domain boundary".
+      - `test_refusal_renders_the_domain_label_and_never_the_check_id`
+        asserts the id is ABSENT per check (`assertNotIn`), not merely
+        demoted — a message carrying both would still render a machine id.
+      READ-BACK — 5.1 held on the consumer surface too, and that is the point
+      of naming it here: `ADJUDICATION_ORDER` is byte-identical before and
+      after, so no check id was renamed. The `books_boundary` label matches
+      the omnigent overlay's own stop-condition label "Accounting-domain
+      boundary crossed", so the two surfaces speak one vocabulary rather than
+      two dialects of the same principle.
+      NOTE ON WHAT THIS DOES AND DOES NOT CLOSE: it discharges this task for
+      the ONE consumer this task named. Whether other domain surfaces outside
+      the overlay carry the same defect has not been surveyed by anyone, and
+      this box does not claim it has. That survey is each domain's own act.
+      ORIGINAL TASK TEXT (2026-08-09) kept below:
+      Domain surfaces that render human-facing vocabulary OUTSIDE the
       overlay — e.g. OpsxFactory's fixed-order adjudication refusals, which
       name internal check ids (`tenant_managed`, `environment_operable`) in
       messages a human reads — adopt the same render-the-domain-label
@@ -724,9 +881,45 @@
 
 ## 5. Explicitly out of scope
 
+**ALL THREE BOXES STAY UNTICKED AT ARCHIVE, DELIBERATELY.** House precedent
+is settled and was read rather than assumed: `add-roster-device-admission-
+surface` archived with its out-of-scope box unticked ("an unticked box here
+means 'owned elsewhere', and ticking it would claim work this repository
+never did"), following `refine-demote-round-trip-mechanics` §8 by ruling;
+`sanction-ratified-record-spelling` §5.1 ticked its box only because a
+SEPARATE DECISION was later taken and could be named. Neither pattern fits a
+box whose content is a prohibition. 5.1 and 5.2 are constitutional negatives
+— there is no act that discharges "we did not do this", and a tick would
+read as one. 5.3 is a pointer to 3.1–3.4, which are ticked in their own
+right. A closing note is the honest form; a tick is not.
+
+**5.1 AND 5.2 HELD, AND IT WAS MEASURED RATHER THAN ASSERTED.** At the
+archive-gate sweep 2026-08-26 every population commit was diffed for the
+identity surface — worker ids, archetypes, permissions, credential
+requirements, rung ceilings, routing — across LedgerxFactory `ded4a0128f9e`,
+AdxFactory `02d022cefb34` and `1fc5a2f`, OpsxFactory `1b118c9`,
+codexFactory `54ccc9b`, and MedxFactory `5d16ccc5`. **Identical in all six.**
+Every crosswalk in the family is descriptive: no overlay asserts
+conformance, certification or endorsement, and the sharpest cases are
+handled where they are sharpest — `scrum_master_worker` deliberately
+unmapped AND its display label avoiding the term; `bookkeeper` diverging
+from both its human occupation and PCF 9.3.2.2 because both include posting
+and the worker cannot post; every launch, spend, approval, payment, posting
+and filing node named as REFUSED in its note. 5.2 also survived a swap that
+could have broken it: 3.1 records the unmapped set MOVING when the body
+changed, which is a crosswalk behaving descriptively rather than as an
+identity.
+
 - [ ] 5.1 Renaming any worker class id, archetype, permission, or credential
       family — the whole point is that presentation changes and identity
       does not.
 - [ ] 5.2 Asserting conformance with or certification by any named framework.
 - [ ] 5.3 Choosing each domain's crosswalk framework (that is 3.1–3.4, per
       domain, with the domain's owner).
+      RECORDED BOUNDARY AT ARCHIVE, NOT AN OPEN GAP: the choosing DID happen,
+      five times, in each domain's own repository with that domain's owner —
+      which is precisely what "out of scope here" reserved. The chosen sets
+      are `onet_it_occupations` (opsx), `onet_engineering_occupations`
+      (codex), `onet_accounting_occupations` + `apqc_pcf` + `coso_icif`
+      (ledgerx), `onet_marketing_occupations` + `apqc_pcf` + `iab` (adx), and
+      — the answer this box most needed to leave open — NONE, for medx.
