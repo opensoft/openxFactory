@@ -686,6 +686,52 @@ out.stale = regionShot(container);
 await press(container, 'swb-abstracttoggle');
 out.backToDeterministic = regionShot(container);
 
+// ---- A REFUSED GENERATION IS VISIBLE IN THE REGION (operator run 2026-08-26)
+// The three shapes an unsuccessful answer arrives in, on a document that has
+// NO abstract yet -- which is the state the operator was actually in, and the
+// one where nothing else in the region could stand in for the reason.
+wheel.selectPath(PATH_B);
+await quiesce();
+await press(container, 'swb-abstracttoggle');
+
+// (a) an ERROR-shaped body. `doxbench_error_body` carries {ok, error, message}
+// and NAMES NO SUBJECT, so nothing in it can be matched against the document
+// the reader is on.
+await press(container, 'swb-abstractgenerate');
+abstracts.resolve({ ok: false, status: 502, payload: {
+  ok: false, error: 'model_failed',
+  message: 'the model call failed' } });
+await quiesce();
+out.afterModelFailed = regionShot(container);
+
+// (b) the STATED refusal the operator hit: the answer was over the region's
+// byte bound, and the reason says so.
+await press(container, 'swb-abstractgenerate');
+abstracts.resolve({ ok: false, status: 502, payload: {
+  ok: false, refused: 'abstract-too-long',
+  reason: 'the model answered with 2018 bytes of prose and this region '
+    + 'renders at most 1500.',
+  caption_state: 'not-yet-generated', subject_path: PATH_B,
+  subject_digest: DIGEST_2, wait_bound_seconds: 60 } });
+await quiesce();
+out.afterTooLong = regionShot(container);
+
+// ...and it OUTLIVES a redraw: the reader spins away and back, and the reason
+// is still under the caption, because nothing has been generated since.
+wheel.selectPath(PATH_A);
+await quiesce();
+wheel.selectPath(PATH_B);
+await quiesce();
+out.tooLongOnReturn = regionShot(container);
+
+// (c) an UNREADABLE answer -- a thrown transport or a body that is not JSON.
+// There is no code to map, so the region says exactly that rather than nothing.
+await press(container, 'swb-abstractgenerate');
+out.duringRetry = regionShot(container);
+abstracts.resolve({ ok: false, status: 502, payload: null });
+await quiesce();
+out.afterUnreadable = regionShot(container);
+
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -880,6 +926,76 @@ def test_a_subject_that_moved_past_its_abstract_is_labelled_stale(pane):
     assert stale["name"].endswith(CAP_STALE)
     # the refusal's own sentence is stated too — it is why nothing replaced it
     assert "declares neither topics nor destinations" in (stale["note"] or "")
+
+
+# ---------------------------------------------------------------------------
+# A REFUSED GENERATION SAYS WHY, IN THE REGION (operator run 2026-08-26)
+# ---------------------------------------------------------------------------
+#
+# THE OPERATOR EVIDENCE. The first real run of this surface refused an abstract
+# for exceeding the region's byte bound, and the pane showed the reader only the
+# not-yet-generated caption: an invoked control that appeared to do nothing. The
+# reason had been composed by the route, sent on the wire and mapped to a
+# sentence by `abstractRefusalSentence` — and then dropped, because the subject
+# recheck at the paint boundary returned before recording ANY answer that named
+# no subject, and an error-shaped body names none. `ABSTRACT_ERROR_SENTENCES`
+# was therefore unreachable in its entirety.
+#
+# The rule these pins hold: an unsuccessful answer for THIS request's own
+# subject is RECORDED and RENDERED as visible text under the caption, in all
+# three shapes it can arrive in, and it stays until the next generation attempt.
+# The recheck keeps its real job — a refusal carries no prose, so there is no
+# wrong-document text it could paint.
+
+
+def test_a_model_failure_states_its_fixed_sentence_in_the_region(pane):
+    """An ERROR-shaped body (`{ok, error, message}`) names no subject. It is
+    still this request's answer, and the region maps the CODE to its own fixed
+    sentence rather than echoing the server's message."""
+    shot = pane["afterModelFailed"]
+    assert shot["caption"] == CAP_UNGENERATED
+    assert shot["note"] == "the model call failed, so nothing was distilled"
+    # ...visible in the region's own text, not only in a state object
+    assert "nothing was distilled" in (shot["regionText"] or "")
+    # and no prose was invented to fill the body
+    assert shot["body"] in (None, "")
+
+
+def test_an_over_long_answer_tells_the_reader_the_size_and_the_bound(pane):
+    """THE OPERATOR'S OWN CASE. `abstract-too-long` is a STATED refusal, so its
+    reason is the route's own sentence about the ANSWER — and it names both
+    numbers, because "too long" without them tells a reader nothing they can
+    act on."""
+    shot = pane["afterTooLong"]
+    assert shot["caption"] == CAP_UNGENERATED
+    note = shot["note"] or ""
+    assert "2018" in note and "1500" in note
+    assert "renders at most" in note
+    assert "2018" in (shot["regionText"] or "")
+
+
+def test_a_stated_refusal_outlives_the_redraw_that_follows_it(pane):
+    """UNTIL THE NEXT GENERATION ATTEMPT, not until the next repaint. A reason
+    that vanished when the reader spun away and back would be a reason they
+    could not re-read, and re-reading it is the whole point."""
+    back = pane["tooLongOnReturn"]
+    assert back["caption"] == CAP_UNGENERATED
+    assert "2018" in (back["note"] or "")
+    # ...and the NEXT attempt clears it: an in-flight generation must not show a
+    # stale reason beside its own wait sentence.
+    during = pane["duringRetry"]
+    assert during["note"] in (None, "")
+    assert during["inflight"]
+
+
+def test_an_unreadable_answer_says_so_rather_than_nothing(pane):
+    """A thrown transport or a body that is not JSON arrives as `payload: null`.
+    There is no code to map and no reason to quote, so the region states the one
+    honest thing it knows."""
+    shot = pane["afterUnreadable"]
+    assert shot["caption"] == CAP_UNGENERATED
+    assert shot["note"] == (
+        "no distillation was generated: this console could not read an answer")
 
 
 # ---------------------------------------------------------------------------

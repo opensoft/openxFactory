@@ -662,6 +662,35 @@ def test_an_over_long_answer_is_refused_in_full_and_never_trimmed(tmp_path):
     assert long_prose[:40] not in json.dumps(payload)
 
 
+def test_the_over_long_refusal_names_the_size_and_the_bound(tmp_path):
+    """THE OPERATOR'S OWN CASE (first real run, 2026-08-26). A live model
+    answered with 2_018 bytes against the 1_500-byte bound, and the region could
+    say only that something was over-long: nothing on the surface told the
+    operator how far over or what the bound was, so the number that mattered had
+    to be read out of the server's source.
+
+    The reason now names BOTH — the measured size and the maximum — and they are
+    the server's OWN measurements, spliced as integers. Nothing the caller sent
+    and none of the text that was measured reaches the sentence, which is the
+    standing rule for every reason on this route."""
+    long_prose = GROUNDED_PROSE + (" the ideation-governance queue." *
+                                   doxbench_turns.MAX_ABSTRACT_PROSE_BYTES)
+    measured = len(long_prose.encode("utf-8"))
+    port = _seeded_port(long_prose)
+    status, payload, _fake = _post(tmp_path, port=port)
+    _assert_abstract_refusal(
+        status, payload, serve_mod.DOXBENCH_ABSTRACT_REFUSED_PROSE_BYTES)
+    reason = payload["reason"]
+    assert str(measured) in reason
+    assert str(doxbench_turns.MAX_ABSTRACT_PROSE_BYTES) in reason
+    # composed by the module-level function, so the sentence is testable with no
+    # handler and no server
+    assert reason == serve_mod._abstract_reason_prose_bytes(
+        measured, doxbench_turns.MAX_ABSTRACT_PROSE_BYTES)
+    # ...and still carries none of the refused text
+    assert long_prose[:40] not in json.dumps(payload)
+
+
 # ============================================================================
 # 5.3 at the route: one store per served process, keyed by (path, digest)
 # ============================================================================

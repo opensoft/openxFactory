@@ -604,12 +604,47 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
       && typeof answer.payload === "object" ? answer.payload : null;
     const echoed = payload && typeof payload.subject_path === "string"
       ? payload.subject_path : null;
-    // THE SUBJECT RECHECK AT PAINT (task 7.2). Without it a slow answer paints
-    // itself over whatever the reader has since spun to, under a confident
-    // caption: a wrong-document abstract that reads as right. It is DISCARDED
-    // UNRENDERED — and not recorded either, because a discarded answer that
-    // quietly populated the cache would paint itself the moment the reader
-    // came back, which is the same defect one repaint later.
+    const digest = payload && typeof payload.subject_digest === "string"
+      ? payload.subject_digest : null;
+    // A REFUSED GENERATION SAYS WHY, AND THE OPERATOR SEES IT (first real run
+    // of this surface, 2026-08-26).
+    //
+    // WHAT WENT WRONG. The route composed a reason, sent it on the wire, and
+    // `abstractRefusalSentence` mapped it to a sentence — and then it was
+    // dropped, because the subject recheck below returned before recording ANY
+    // answer that names no subject, and an ERROR-shaped body names none:
+    // `doxbench_error_body` is `{ok, error, message}` by construction. So every
+    // one of `ABSTRACT_ERROR_SENTENCES` was unreachable, an unparseable body was
+    // unreachable, and an operator who pressed the control saw the region go
+    // back to the not-yet-generated caption as though nothing had been asked.
+    //
+    // WHOSE ANSWER THIS IS is the question the recheck was answering, and the
+    // honest form of it is against `path` — the subject THIS REQUEST was
+    // dispatched for. An answer NAMING A DIFFERENT document is not this
+    // request's and is dropped whole; an answer naming NONE is still this
+    // request's, and its refusal is recorded against the path it was asked for.
+    // Keyed by (path, model) like every other refusal, so it can only ever
+    // render on the document a human actually invoked it from — and it renders
+    // there even if they spun away while it was in flight, which is precisely
+    // when a reader most needs to be told the ask failed.
+    //
+    // A REFUSAL CARRIES NO PROSE by construction, at the verifier's boundary
+    // and on the wire, so nothing recorded here is text a wrong-document
+    // abstract could be painted from. That is what makes recording it safe
+    // where recording a SUCCESS is not.
+    const foreign = !!(echoed && echoed !== path);
+    const succeeded = !!(payload && payload.ok === true && digest
+      && typeof payload.prose === "string" && payload.prose);
+    if (!foreign && !succeeded) {
+      session.refusals.set(noteKey, abstractRefusalSentence(payload));
+      boundMap(session.refusals, ABSTRACT_ENTRY_LIMIT);
+    }
+    // THE SUBJECT RECHECK AT PAINT (task 7.2), unchanged in what it guards:
+    // without it a slow answer paints itself over whatever the reader has since
+    // spun to, under a confident caption — a wrong-document abstract that reads
+    // as right. It is DISCARDED UNRENDERED — and not recorded either, because a
+    // discarded answer that quietly populated the cache would paint itself the
+    // moment the reader came back, which is the same defect one repaint later.
     const live = session.subject;
     if (!live || !echoed || echoed !== live.path) {
       repaint();
@@ -622,8 +657,6 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
         && payload.wait_bound_seconds > 0) {
       session.waitBound = payload.wait_bound_seconds;
     }
-    const digest = payload && typeof payload.subject_digest === "string"
-      ? payload.subject_digest : null;
     // WHICH BYTES THE SERVER READ, recorded whatever the answer was: a stated
     // refusal echoing a NEW digest is exactly how the pane learns that an
     // UNLOADED subject has moved past the abstract it already holds (ruling 3).
@@ -631,8 +664,7 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
       session.latest.set(path, digest);
       boundMap(session.latest, ABSTRACT_ENTRY_LIMIT);
     }
-    if (payload && payload.ok === true && digest
-        && typeof payload.prose === "string" && payload.prose) {
+    if (succeeded) {
       // KEYED BY THE MODEL THIS REQUEST WAS DISPATCHED WITH, not by the one the
       // answer records. They are the same for a plain entry and differ for a
       // routing rule, and the REQUESTED id is the only one a later lookup can
@@ -654,10 +686,10 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
       boundMap(session.current, ABSTRACT_ENTRY_LIMIT);
       session.lastAnswered.set(path, abstractEntryKey(path, digest, modelId));
       boundMap(session.lastAnswered, ABSTRACT_ENTRY_LIMIT);
-    } else {
-      session.refusals.set(noteKey, abstractRefusalSentence(payload));
-      boundMap(session.refusals, ABSTRACT_ENTRY_LIMIT);
     }
+    // NO `else` HERE ANY MORE: the refusal was recorded ABOVE, before the
+    // recheck, which is the only place it can be recorded for the answers that
+    // name no subject at all.
     repaint();
   }
 
