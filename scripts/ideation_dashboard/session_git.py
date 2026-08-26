@@ -710,6 +710,21 @@ class SessionGit:
             self.served_root, "update-ref", "-d", ref, expect_sha)
         if done.returncode != 0:
             current = self.branch_sha(branch)
+            if current is None:
+                # `update-ref -d <ref> <old>` cannot lock a ref that is not
+                # there, so a ref deleted concurrently lands HERE and not on the
+                # success path. Saying it "is at None now" described the state as
+                # an object id; it is an ABSENCE, and the operator's next step is
+                # different (PR #336 Copilot finding). This process deleted
+                # nothing, so it refuses and the caller unwinds its prepared
+                # record rather than claiming a deletion it did not perform.
+                raise SessionGitRefused(
+                    f"refusing to record a delete of {branch!r}: it was at "
+                    f"{expect_sha} when cleanup was authorized and NO LONGER "
+                    "EXISTS — something outside this transaction removed the "
+                    "ref. This process deleted nothing and claims nothing; "
+                    "confirm what removed it, and if the branch is genuinely "
+                    "gone there is no cleanup delete left to run")
             if current != expect_sha:
                 raise SessionGitRefused(
                     f"refusing to delete {branch!r}: it was at {expect_sha} when "
@@ -727,9 +742,13 @@ class SessionGit:
             self.served_root, "update-ref", ref, sha, "0" * len(sha))
         if done.returncode != 0:
             current = self.branch_sha(branch)
+            # Absence is reported as absence here too: the create can also fail
+            # while the ref stays gone (a contended lock), and "the ref is now
+            # None" told the operator nothing about which case they are in.
+            observed = f"at {current}" if current else "still absent"
             raise SessionGitRefused(
-                f"could not restore {branch!r} at {sha}: the ref is now "
-                f"{current}; refusing to overwrite it")
+                f"could not restore {branch!r} at {sha}: the ref is {observed}; "
+                "refusing to overwrite it")
 
     def delete_branch(self, branch: str, *, remote: bool = False,
                       expect_sha: str | None = None, safe: bool = False) -> None:
@@ -767,6 +786,16 @@ class SessionGit:
                 f"{checked_out}")
         if expect_sha is not None:
             current = self.branch_sha(branch)
+            if current is None:
+                # An absence, not an object id: "it is at None now" read as a
+                # moved ref and sent the operator looking for work that landed
+                # on a branch that is not there (PR #336 Copilot finding).
+                raise SessionGitRefused(
+                    f"refusing to delete {branch!r}: it was at {expect_sha} when "
+                    "the decision to delete it was made and NO LONGER EXISTS — "
+                    "something outside this operation removed the ref. Nothing "
+                    "was deleted here, so nothing may be recorded as deleted; "
+                    "confirm what removed it and observe the tile again")
             if current != expect_sha:
                 raise SessionGitRefused(
                     f"refusing to delete {branch!r}: it was at {expect_sha} when the "

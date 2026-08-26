@@ -1623,46 +1623,59 @@ def _active_pick_fallbacks(
     return {key: tuple(sorted(values)) for key, values in by_staging.items()}
 
 
-def _proposal_retention_evidence(
+def _proposal_retention_candidates(
     checkout_root: Path | str, tile: "Tile",
-) -> RetentionReleaseEvidence | None:
+) -> tuple[RetentionReleaseEvidence, ...]:
+    """EVERY exact-origin proposal custody record for this tile, in acceptance
+    order: active changes first, then archived ones, then — only when neither
+    declared any origin — the possibles-pick compatibility fallback.
+
+    All of them are returned because a tile can carry several: an older custody
+    and a newer one, and only the caller knows which abandonment the evidence has
+    to be correlated against (PR #336 review finding 2). Stopping at the first
+    record refused cleanup whenever THAT record predated the abandonment, even
+    when a later one independently satisfied the retention requirement.
+
+    `recorded_at` is the recording time of the ORIGIN EVIDENCE ITSELF — the
+    `.openspec.yaml` this candidate references — and never the newest commit
+    touching the whole change folder (PR #336 review finding 1). A change folder
+    is edited for reasons unrelated to its staged origin; reading the directory
+    let any such edit re-date historical custody as post-abandonment evidence,
+    and the branch carrying the newer exploration was deleted on the strength of
+    it (reproduced). An origin declaration with no commit of its own has NO
+    durable recording time, which the correlation treats as a refusal."""
     if tile.scope_kind != STAGED_TOPIC:
-        return None
+        return ()
     root = Path(checkout_root)
     rows = _change_rows(root)
-    active = sorted(
-        (change_id, folder) for change_id, status, folder, _state, origin in rows
-        if status == "active" and origin == tile.scope_id)
-    if active:
-        change_id, folder = active[0]
-        return RetentionReleaseEvidence(
-            RETENTION_ACTIVE_PROPOSAL, tile.scope_kind, tile.scope_id,
-            change_id=change_id,
-            references=(_repo_reference(root, folder / ".openspec.yaml"),),
-            recorded_at=_path_recorded_at(root, folder))
-
-    archived = sorted(
-        (change_id, folder) for change_id, status, folder, _state, origin in rows
-        if status == "archived" and origin == tile.scope_id)
-    if archived:
-        change_id, folder = archived[0]
-        return RetentionReleaseEvidence(
-            RETENTION_ARCHIVED_CHANGE, tile.scope_kind, tile.scope_id,
-            change_id=change_id,
-            references=(_repo_reference(root, folder / ".openspec.yaml"),),
-            recorded_at=_path_recorded_at(root, folder))
+    candidates: list[RetentionReleaseEvidence] = []
+    for kind, wanted in ((RETENTION_ACTIVE_PROPOSAL, "active"),
+                         (RETENTION_ARCHIVED_CHANGE, "archived")):
+        for change_id, folder in sorted(
+            (change_id, folder)
+            for change_id, status, folder, _state, origin in rows
+            if status == wanted and origin == tile.scope_id
+        ):
+            origin_evidence = folder / ".openspec.yaml"
+            candidates.append(RetentionReleaseEvidence(
+                kind, tile.scope_kind, tile.scope_id,
+                change_id=change_id,
+                references=(_repo_reference(root, origin_evidence),),
+                recorded_at=_path_recorded_at(root, origin_evidence)))
+    if candidates:
+        return tuple(candidates)
 
     fallback = _active_pick_fallbacks(
         root, rows=rows, target_staging_id=tile.scope_id).get(
             tile.scope_id, ())
-    if fallback:
-        return RetentionReleaseEvidence(
+    return tuple(
+        RetentionReleaseEvidence(
             RETENTION_ACTIVE_PROPOSAL, tile.scope_kind, tile.scope_id,
-            change_id=fallback[0],
+            change_id=change_id,
             references=("ideation/cross-reference.yaml#possibles_register.pick",),
             recorded_at=_path_recorded_at(
                 root, root / "ideation" / "cross-reference.yaml"))
-    return None
+        for change_id in fallback)
 
 
 def _path_recorded_at(root: Path, path: Path) -> str | None:
@@ -1722,16 +1735,24 @@ def _contained_repo_path(root: Path, reference: str) -> Path | None:
     return resolved if resolved.is_relative_to(root.resolve()) else None
 
 
-def _demotion_retention_evidence(
+def _demotion_retention_candidates(
     checkout_root: Path | str, tile: "Tile", *,
     records_dir: str = gate_console.DEFAULT_RECORDS_DIR,
-) -> RetentionReleaseEvidence | None:
+) -> tuple[RetentionReleaseEvidence, ...]:
+    """EVERY demotion that returned a proposal to this exact tile: receipt-proved
+    executions first, then the corroborated pre-receipt ones.
+
+    All of them, for the same reason the proposal candidates are all returned —
+    the caller correlates each against the abandonment and one qualifying record
+    is enough (PR #336 review finding 2). The evidence bar per candidate is
+    unchanged: nothing here is admitted that the single-answer reader admitted."""
     if tile.scope_kind != STAGED_TOPIC:
-        return None
+        return ()
     root = Path(checkout_root)
     records_root = root / gate_console._prefix(records_dir)
     if not records_root.is_dir():
-        return None
+        return ()
+    candidates: list[RetentionReleaseEvidence] = []
 
     # New executions: a receipt is written only after the move succeeds and is
     # joined to the exact planning manifest so a free-standing assertion cannot
@@ -1780,11 +1801,11 @@ def _demotion_retention_evidence(
             root, str(origin.get("path") or "")) if isinstance(origin, Mapping) else None
         if change_path is None or change_path.exists():
             continue
-        return RetentionReleaseEvidence(
+        candidates.append(RetentionReleaseEvidence(
             RETENTION_EXECUTED_DEMOTION, tile.scope_kind, tile.scope_id,
             change_id=change_id,
             references=(_repo_reference(root, receipt_path), manifest_ref),
-            recorded_at=str(receipt.get("executed_at") or "").strip() or None)
+            recorded_at=str(receipt.get("executed_at") or "").strip() or None))
 
     # Legacy compatibility: the manifest is a plan-time artifact, so it counts
     # only when a returned artifact independently names the same change and
@@ -1805,7 +1826,7 @@ def _demotion_retention_evidence(
             continue
         topic_root = root / "ideation" / "staging" / tile.scope_id
         boundary = r"(?![A-Za-z0-9_-])"
-        candidates = (
+        returned_markers = (
             (topic_root / "openspec" / "INDEX.md",
              re.compile(rf"demoted change {re.escape(change_id)}{boundary}")),
             (topic_root / "README.md",
@@ -1814,23 +1835,42 @@ def _demotion_retention_evidence(
              re.compile(rf"Change ID:\s*{re.escape(change_id)}{boundary}")),
         )
         corroborating = None
-        for candidate, marker in candidates:
+        for returned_path, marker in returned_markers:
             try:
-                if candidate.is_file() and marker.search(candidate.read_text(
-                        encoding="utf-8")):
-                    corroborating = candidate
+                if returned_path.is_file() and marker.search(
+                        returned_path.read_text(encoding="utf-8")):
+                    corroborating = returned_path
                     break
             except (OSError, UnicodeError):
                 continue
         if corroborating is not None:
-            return RetentionReleaseEvidence(
+            candidates.append(RetentionReleaseEvidence(
                 RETENTION_LEGACY_DEMOTION, tile.scope_kind, tile.scope_id,
                 change_id=change_id,
                 references=(_repo_reference(root, manifest_path),
                             _repo_reference(root, corroborating)),
                 recorded_at=str(manifest.get("transitioned_at") or "").strip()
-                    or None)
-    return None
+                    or None))
+    return tuple(candidates)
+
+
+def retention_release_candidates(
+    checkout_root: Path | str, tile: "Tile", *,
+    records_dir: str = gate_console.DEFAULT_RECORDS_DIR,
+) -> tuple[RetentionReleaseEvidence, ...]:
+    """The closed machine-evidence set for this tile — EVERY matching record, in
+    acceptance order (proposal custody, then demotion).
+
+    The caller correlates each candidate against the abandonment it must release
+    and takes the first that qualifies; a candidate that fails correlation
+    disqualifies only ITSELF (PR #336 review finding 2). The explicit human
+    release is not a candidate: it is a separate lane, reached only when no
+    machine candidate qualifies."""
+    return (
+        *_proposal_retention_candidates(checkout_root, tile),
+        *_demotion_retention_candidates(
+            checkout_root, tile, records_dir=records_dir),
+    )
 
 
 def retention_release_for(
@@ -1839,14 +1879,14 @@ def retention_release_for(
     explicit_reason: str | None = None,
     superseding_references: Sequence[str] = (),
 ) -> RetentionReleaseEvidence | None:
-    """Resolve the closed machine-evidence set, then explicit human release."""
-    evidence = _proposal_retention_evidence(checkout_root, tile)
-    if evidence is not None:
-        return evidence
-    evidence = _demotion_retention_evidence(
+    """The FIRST machine candidate, or the explicit human release when there is
+    none. Callers that must correlate evidence against an abandonment read
+    `retention_release_candidates` instead — this one cannot express "that
+    candidate does not correlate, is there another"."""
+    candidates = retention_release_candidates(
         checkout_root, tile, records_dir=records_dir)
-    if evidence is not None:
-        return evidence
+    if candidates:
+        return candidates[0]
     reason = str(explicit_reason or "").strip()
     if not reason:
         return None

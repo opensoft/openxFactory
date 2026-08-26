@@ -306,6 +306,80 @@ def test_expected_sha_delete_atomically_preserves_a_concurrently_moved_ref(
     assert git.branch_sha("draft/demo-topic") == moved_to
 
 
+def test_a_concurrently_removed_ref_is_reported_as_absent_not_as_none(
+        scratch_repo):
+    """`update-ref -d <ref> <old>` cannot lock a ref that is already gone, so a
+    concurrent removal fails the delete rather than succeeding it. The refusal
+    says the ref NO LONGER EXISTS — reading the missing head back as an object id
+    printed "is at None now" and described an absence as a value (PR #336)."""
+    path = _session_dir(scratch_repo, "draft/demo-topic")
+    setup = sg.SessionGit(scratch_repo.root)
+    setup.worktree_add("draft/demo-topic", path, "main")
+    scratch_repo.write("notes.md", "session work\n", cwd=path)
+    setup.stage(path, ["notes.md"])
+    expected = setup.commit(path, "session work\n\nGate-Action: one")
+    setup.worktree_remove(path)
+
+    class VanishingRunner(RecordingRunner):
+        def run(self, cwd, *args):
+            if args[:3] == (
+                    "update-ref", "-d", "refs/heads/draft/demo-topic"):
+                self.real.run(
+                    cwd, "update-ref", "-d", "refs/heads/draft/demo-topic",
+                    expected)
+            return super().run(cwd, *args)
+
+    git = sg.SessionGit(scratch_repo.root, runner=VanishingRunner())
+    with pytest.raises(sg.SessionGitRefused) as refusal:
+        git.delete_branch("draft/demo-topic", expect_sha=expected)
+
+    message = str(refusal.value)
+    assert "NO LONGER EXISTS" in message
+    assert "None" not in message
+    assert expected in message
+    assert not git.branch_exists("draft/demo-topic")
+
+
+def test_a_ref_removed_before_the_delete_is_reported_as_absent_too(scratch_repo):
+    """The same absence, observed by the pre-flight compare instead of by the
+    transaction: the ref is gone before `update-ref` is ever reached."""
+    path = _session_dir(scratch_repo, "draft/demo-topic")
+    git = sg.SessionGit(scratch_repo.root)
+    git.worktree_add("draft/demo-topic", path, "main")
+    scratch_repo.write("notes.md", "session work\n", cwd=path)
+    git.stage(path, ["notes.md"])
+    expected = git.commit(path, "session work\n\nGate-Action: one")
+    git.worktree_remove(path)
+    scratch_repo.git("update-ref", "-d", "refs/heads/draft/demo-topic", expected)
+
+    with pytest.raises(sg.SessionGitRefused) as refusal:
+        git.delete_branch("draft/demo-topic", expect_sha=expected)
+
+    message = str(refusal.value)
+    assert "NO LONGER EXISTS" in message
+    assert "None" not in message
+
+
+def test_a_restore_onto_a_ref_that_is_still_absent_says_so(scratch_repo):
+    """The restore's refusal describes an absence as an absence too."""
+    sha = scratch_repo.head("main")
+
+    class RefusingRunner(RecordingRunner):
+        def run(self, cwd, *args):
+            if args[:1] == ("update-ref",) and "-d" not in args:
+                return subprocess.CompletedProcess(
+                    ["git", *args], 1, "", "cannot lock ref: contended\n")
+            return super().run(cwd, *args)
+
+    git = sg.SessionGit(scratch_repo.root, runner=RefusingRunner())
+    with pytest.raises(sg.SessionGitRefused) as refusal:
+        git.restore_branch_if_absent("draft/demo-topic", sha)
+
+    message = str(refusal.value)
+    assert "still absent" in message
+    assert "None" not in message
+
+
 # --------------------------------------------------------------------------
 # the served-checkout immovability guard (FR-004; chg 2.3)
 # --------------------------------------------------------------------------

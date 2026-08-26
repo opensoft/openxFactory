@@ -127,7 +127,7 @@ owner would degrade the checker to a comment. `layer(2).owner` stays
 The sibling class is declared in the spec and carried in code as the
 `DocumentAbstract` type's own verifier.
 
-### D5 — A separate, digest-keyed, bounded store (honours N1)
+### D5 — A separate, digest-and-model-keyed, bounded store with an explicit-refresh bypass (honours N1)
 
 NOT the chat `TurnStore` instance. There is one per served process
 (`serve.py:4796`) bounded at `MAX_IDEMPOTENCY_ENTRIES = 64` and
@@ -139,10 +139,20 @@ A separate store with the same SHAPE (`doxbench_turns.py:1033-1069`): one
 in-flight per key with attach-and-wait (which is the "regenerating" state, so
 ruling 3(b) needs no new machinery), identical-key replay without a second
 dispatch, deterministic non-clock eviction. **The key is
-`(scope, subject path, content digest)`** — the digest MUST be IN the key,
-because that store refuses a different digest under the same key as a conflict,
-so a path-only key would hard-refuse every regeneration after every edit.
-Re-dispatch after eviction is specified expected behaviour, not an error.
+`(repository, ref, subject path, content digest, resolved model id)`** — five
+facts, and two dated corrections put the last of them there. The digest MUST be
+IN the key, because that store refuses a different digest under the same key as
+a conflict, so a path-only key would hard-refuse every regeneration after every
+edit. The RESOLVED MODEL ID must be in the key for the mirror-image reason: a
+human can change the selected model while the document stands still, and on a
+key without it that second request is IDENTICAL, so the first model's prose
+would replay while `DocumentAbstract.model_id` (D3) records the model the reader
+just picked. An artifact that names a model which did not answer is exactly the
+kind of confident false claim this change exists to prevent, and the provider
+boundary's "every consumer resolves a catalog model id" rule forbids it besides.
+For an `auto` routing entry the key carries the RESOLVED id, not the rule's id —
+same reason a turn records the model that actually answered. Re-dispatch after
+eviction is specified expected behaviour, not an error.
 
 **Corrected 2026-08-25 (adversarial review, S3): the SCOPE is in the key too.**
 This section said `(subject path, content digest)` and the first realization
@@ -151,8 +161,50 @@ process resolves every repository its registry knows and every ref of each.
 `ideation/staging/<topic>/README.md` exists in most of them, so two scopes
 holding identical bytes at one path shared a cache entry — and `latest_for_path`
 handed repository A's abstract to repository B as its PREVIOUS VERIFICATION
-BASE. The ratified requirement says the key SHALL *include* the content digest
-as well as the path, which is a floor and not a ceiling, so no delta changes.
+BASE.
+
+**Corrected 2026-08-25 (packet review, Codex on PR #352): the RESOLVED MODEL ID
+is in the key too**, for the reason two paragraphs up. THE TWO CORRECTIONS MAKE
+ONE KEY, and they do not compete: the ratified requirement composes the key from
+the three facts that can vary WITHIN one scope — path, digest, resolved model id
+— and the scope qualification is this store's TENANCY boundary rather than a
+fourth fact about the question. Adding it can only ever split a bucket and never
+merge two, so every sentence the requirement says about the three still holds
+exactly. `AbstractKey` therefore carries `repository`, `ref`, `subject_path`,
+`content_digest`, `resolved_model_id` — five fields, not a composed string, so
+injectivity is by construction. `latest_for_path` stays a per-`(scope, path)`
+question ACROSS models, because it answers "what abstract does this document
+already have", which the verification requirement takes as an ADDITIONAL base:
+an answer from another model is still a previous answer about THIS document, and
+the requirement says nothing that would narrow it to one model.
+
+**Explicit refresh is a THIRD request mode, not a fourth store.** Replay on an
+identical key and a working RE-GENERATE control are in direct conflict: a
+regeneration against unchanged content and an unchanged model has an identical
+key by construction, so plain replay makes the control inert except by the
+accident of eviction. The request therefore carries a REFRESH INTENT flag —
+realized 2026-08-25 as the request's own optional boolean `refresh`, inside the
+same CLOSED shape, so an unknown key is still refused and an absent one still
+means "no intent". Set, it invalidates the completed entry for its key,
+dispatches, and replaces the entry. Unset — which is every selection, mount, and
+tile re-entry — it replays. The in-flight arm is UNCONDITIONAL in both modes: a
+refresh arriving while a generation is in flight for the same key attaches
+rather than dispatching, so an impatient double-click costs one model call. That
+is one boolean on the request and no change to the store's shape.
+
+*Alternative rejected:* a nonce or attempt counter in the key. It works, and it
+also makes every regeneration a permanent new entry, so N regenerations of one
+document hold N slots in a bounded store and evict N-1 useful neighbours to keep
+answers nobody asked for. Invalidate-and-replace keeps one live entry per real
+(subject, digest, model).
+
+*And the invalidated entry is not simply dropped* (2026-08-25 realization): the
+lease hands its `DocumentAbstract` back to the route as that generation's
+PREVIOUS verification base. The verification requirement makes a previously
+generated abstract an ADDITIONAL base "where one exists", and RE-GENERATE is the
+one path where one always exists — invalidating it out of the replay index and
+out of the verifier's reach at the same moment would have made the regenerate
+path verify against a strictly weaker base than every other path.
 
 ### D5a — The abstract binds its OWN conversation (2026-08-25, review B1)
 

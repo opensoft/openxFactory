@@ -16,11 +16,17 @@ Brett ruled every recommendation as written on 2026-08-25, recorded as a comment
 on `#84`. One line per ruling:
 
 - **0 — SPLIT.** The doc-only half is now
-  `ratify-doxbench-landed-context-surfaces`, ratified the same day. **BREAKING #2
-  and every Group B item moved THERE**; this change's deltas are authored
-  RELATIVE TO ITS OUTCOME (`release-realization/spec.md:64-74`).
-- **1 — (c)** on-demand through the existing server-side port seam, with a
-  digest-keyed cache.
+  `ratify-doxbench-landed-context-surfaces`, ratified and ARCHIVED the same day
+  (`openspec/changes/archive/2026-08-25-ratify-doxbench-landed-context-surfaces/`).
+  **BREAKING #2
+  and FIVE of the six Group B items moved THERE**; the sixth, `:1827`, came back
+  at packet review because it needs code, and is carried by this change's added
+  captioning requirement rather than by modifying `:1827`. This change's deltas
+  are authored RELATIVE TO THE SPLIT CHANGE'S OUTCOME
+  (`release-realization/spec.md:64-74`).
+- **1 — (c)** on-demand through the existing server-side port seam, with a cache
+  keyed on `(path, content digest, resolved model id)` and an explicit-refresh
+  bypass for the RE-GENERATE control.
 - **1(c)(i) — a NEW same-origin route**, not a scoped chat turn. The `app.js`
   fetch pin widens 5 → 6, declared by name.
 - **2 — (b) session-only.** `target_release: none`. 2(a) is WITHDRAWN as an
@@ -359,7 +365,10 @@ surface and B′ is the fixing surface, and B′ remains available afterwards.
   dispatch, and refuses a different digest for the same key as a conflict
   without blocking; and `_VALIDATOR_CACHE` (`doxbench_contracts.py:515-549`) is
   keyed on digests the per-call verification just PROVED (`:541`), never on time
-  or trust.
+  or trust. The abstract store adds ONE thing neither existing shape has: a
+  REFRESH INTENT on the request, because neither of those callers has a human
+  control whose whole job is "ask again". It is a boolean on the request, not a
+  second store — the key composition and the one-in-flight arm are unchanged.
 
 ## The interaction, stated
 
@@ -380,7 +389,15 @@ not left to implementation:
   (`doxbench_model.py:54`). A spinner with no stated bound in front of a
   two-minute ceiling is a surface that looks broken.
 - **Re-generation is its own explicit control**, run against the subject's
-  CURRENT digest — the affordance ruling 3's stale caption implies.
+  CURRENT digest — the affordance ruling 3's stale caption implies. It carries an
+  EXPLICIT REFRESH INTENT, because a regeneration against unchanged content and
+  an unchanged model has an IDENTICAL cache key, and a cache that replays every
+  identical key would make this control inert except by the accident of eviction.
+  Refresh invalidates the completed entry, dispatches, and replaces it; the
+  one-in-flight arm still holds, so invoking it twice before the first resolves
+  spends one call. *WHEN RE-GENERATE is invoked on an already-generated abstract
+  THEN a second dispatch MUST occur and the completed entry MUST NOT be replayed
+  as the answer.*
 - **Subject recheck at paint.** The response carries the subject path and digest
   it was generated for. *WHEN a generation resolves and the pane's selected
   subject differs THEN the result MUST be discarded unrendered and the
@@ -394,9 +411,15 @@ not left to implementation:
   reading under which sending it to a model is the safer choice.
 - **Whether an abstract survives leaving and re-entering the tile in-session** is
   a stated behaviour, not an accident of component lifetime. Proposed: it
-  survives, keyed by (path, digest), because a reader comparing two documents
-  will move between them and regenerating on every return would spend a model
-  call on a question already answered.
+  survives, keyed by (path, digest, RESOLVED MODEL ID), because a reader
+  comparing two documents will move between them and regenerating on every return
+  would spend a model call on a question already answered. The model belongs in
+  the key for the reason the digest does, one axis over: a human can change the
+  selected model while the document stands still, and on a two-part key that
+  request is identical, so the first model's prose would replay while
+  `DocumentAbstract` records the model the reader just picked — an artifact
+  lying about its own provenance. A re-entry carries NO refresh intent; only the
+  RE-GENERATE control does.
 - **A reader with no gate capability on the loopback console.** `spec.md:864`
   requires the context to "remain usable" there. Proposed: the generation control
   is ABSENT (not present-and-refusing), and any already-cached abstract stays
@@ -479,10 +502,15 @@ verbs against a wheel rather than a list (`:1853`), the per-buffer staleness
 guard (`:1685`), the canvas view surface and the buffer contract
 (`:1705` / `:948`), the session thread (`:1880`), and the selector's claim on the
 accessible name (`:1827`) — belong to the surfaces that ALREADY SHIPPED, not to
-the model-derived abstract. Four of them are modified by that change; `:1685` and
-`:1880` are honoured here without modification, because ruling 3's digest rule
-and ruling 4's sibling-artifact framing both sit inside what those requirements
-already say. Surface identity (`:931`) and the shared-height budget also move
+the model-derived abstract. THREE of them are modified by that change (`:1853`,
+`:1705`, `:948`); `:1685` and `:1880` are honoured here without modification,
+because ruling 3's digest rule and ruling 4's sibling-artifact framing both sit
+inside what those requirements already say. `:1827` is the sixth and is modified
+by NEITHER change: the split change CUT it at packet review because the region's
+accessible name is a static string in code today, and this change carries the
+selector's sole claim on that name inside its own added captioning requirement
+rather than by editing `:1827`. Surface identity (`:931`) and the shared-height
+budget also move
 there, except for the two-accessible-names consequence of having a SECOND
 abstract, which is this change's own and is stated in its added captioning
 requirement.
