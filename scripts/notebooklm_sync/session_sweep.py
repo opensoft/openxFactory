@@ -33,7 +33,9 @@ def classify_session_notebooks(
     return classified
 
 
-def session_source_count(row: Mapping[str, JsonValue]) -> int | None:
+def session_source_count(
+    row: JsonValue | Mapping[str, JsonValue],
+) -> int | None:
     if not isinstance(row, Mapping):
         return None
     for key in ("source_count", "sources", "sourceCount"):
@@ -105,7 +107,9 @@ def session_notebook_sweep(
     if errors:
         print(
             "[session-sweep] REFUSED: this run could not account for every "
+            +
             "session repository, and a repository it cannot enumerate looks "
+            +
             "exactly like one whose sessions have ended. Nothing was retired."
         )
         for detail in errors:
@@ -115,7 +119,9 @@ def session_notebook_sweep(
     if not listing.ok:
         print(
             "[session-sweep] REFUSED: the notebook list could not be read, so "
+            +
             "nothing is known about session notebooks — this is NOT an empty "
+            +
             f"account: {listing.detail}"
         )
         return 1
@@ -133,6 +139,7 @@ def session_notebook_sweep(
         elif verdict == SESSION_FOREIGN:
             print(
                 f"[session-sweep] SKIP   {title} (names a repository this "
+                +
                 "workspace does not carry)"
             )
         else:
@@ -141,6 +148,7 @@ def session_notebook_sweep(
             action = "RETIRE" if apply else "DEAD  "
             print(
                 f"[session-sweep] {action} {title} "
+                +
                 f"(no live session claims it{discards})"
             )
     if not dead:
@@ -149,6 +157,7 @@ def session_notebook_sweep(
     if not apply:
         print(
             f"[session-sweep] dry-run: {len(dead)} orphan(s) pending; "
+            +
             "re-run with --apply to retire"
         )
         return 0
@@ -157,6 +166,7 @@ def session_notebook_sweep(
         result = adapter.retire(title)
         print(
             f"[session-sweep] {'retired' if result.ok else 'FAILED '} {title}: "
+            +
             f"{result.detail}"
         )
         if not result.ok:

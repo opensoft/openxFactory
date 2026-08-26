@@ -45,13 +45,16 @@ def commit_session_import(
             sha = git.commit(
                 worktree,
                 f"notebooklm import: {', '.join(relatives)}\n\n"
+                +
                 f"Source-Notebook: {notebook}\n",
                 only=relatives,
             )
     except operation_errors as exc:
         print(
             f"[session] NOT COMMITTED on {session.branch}: {exc} — the imported "
+            +
             f"file is in {worktree} but UNTRACKED, and both endings remove that "
+            +
             "worktree with `--force`. Commit it before the session ends (FR-041)"
         )
         return None
@@ -75,20 +78,31 @@ def bind_session_import(
             return None
         raise SessionNotebookRefused(
             "[session] --target-path resolves inside the session worktree "
+            +
             f"{inside} but {notebook!r} is not that session's notebook: a session "
+            +
             "worktree holds ONE session's unmerged work, and importing another "
+            +
             "notebook's sources into it would put content nobody projected from "
+            +
             "this branch onto this branch (FR-041). Use "
+            +
             f"{notebook_prefix}… for this session, or a target outside the worktree"
         )
     if inside is None or inside.resolve() != session.worktree.resolve():
         raise SessionNotebookRefused(
             f"[session] {notebook!r} is the notebook of the live session on "
+            +
             f"{session.branch!r}, whose worktree is {session.worktree} — but "
+            +
             f"--target-path resolves to {target.path}, which is not inside it. "
+            +
             "FR-041 requires a session import to write into the origin folder "
+            +
             "INSIDE the session worktree: a target outside it puts one session's "
+            +
             "unmerged synthesis into the served checkout (FR-004) or into another "
+            +
             "session's branch. Nothing was written"
         )
     return session

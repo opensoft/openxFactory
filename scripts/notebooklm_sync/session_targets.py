@@ -91,10 +91,15 @@ def resolve_session_target(
         named = f" in repository {repository!r}" if repository else ""
         raise SessionNotebookRefused(
             f"[session] no live session worktree for branch {branch!r}{named} "
+            +
             f"under {root.resolve()}: a session notebook is bound to a LIVE "
+            +
             "session, and liveness is the JOINT worktree+branch signal — a "
+            +
             "directory alone is crash residue or an ended session, never a "
+            +
             "session (FR-036, FR-008, D10). Nothing here creates, re-syncs, or "
+            +
             "retires it"
         )
     if len(found) > 1:
@@ -102,14 +107,18 @@ def resolve_session_target(
         paths = ", ".join(str(target.worktree) for target in found)
         advice = (
             "; a session notebook alias is keyed on (repository, branch) "
+            +
             "(FR-037, spec C9), so name one with --session-repository"
             if len({target.repository for target in found}) > 1
             else "; the same branch is live under more than one session container "
+            +
             "IN this repository, which no alias can disambiguate — end or clean "
+            +
             "up all but one before addressing its notebook"
         )
         raise SessionNotebookRefused(
             f"[session] branch {branch!r} names a live session in more than "
+            +
             f"one place ({names}: {paths}){advice}"
         )
     return found[0]
@@ -147,17 +156,25 @@ def session_target_for_alias(
         names = ", ".join(f"{target.repository}@{target.branch}" for target in matches)
         raise SessionNotebookRefused(
             f"[session] the notebook alias {alias!r} resolves to MORE THAN ONE "
+            +
             f"live session ({names}); FR-037 says two live sessions can never "
+            +
             "share an alias, so this is a collision and an import cannot choose "
+            +
             "between them — end one of the sessions first"
         )
     if not matches:
         raise SessionNotebookRefused(
             f"[session] {alias!r} is an `xf-session-*` notebook but no LIVE branch "
+            +
             f"session under {resolved_root} owns it: liveness is the JOINT "
+            +
             "worktree+branch signal (FR-008, D10), so a session whose worktree is "
+            +
             "gone, whose branch is gone, or whose ending left residue owns nothing. "
+            +
             "An import into a dead session's directory would write governed content "
+            +
             "nothing can ever merge"
         )
     return matches[0]

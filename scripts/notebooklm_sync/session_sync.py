@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping
 from pathlib import Path
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from .models import SessionSync, SessionTarget
 from .nlm_client import JsonValue
+from .session_targets import SessionGit, SessionGitFactory
 
 
 class SessionActionResult(Protocol):
@@ -35,6 +36,48 @@ class ProjectDocuments(Protocol):
         alias: str,
         documents: list[tuple[str, str]],
     ) -> SessionActionResult: ...
+
+
+@runtime_checkable
+class SessionGitModule(Protocol):
+    @property
+    def SessionGit(self) -> SessionGitFactory: ...
+
+
+@runtime_checkable
+class BranchSessionModule(Protocol):
+    @property
+    def NOTEBOOK_PREFIX(self) -> str: ...
+
+    def live_session_worktree(
+        self, git: SessionGit, checkout: Path, branch: str
+    ) -> Path | None: ...
+
+    def notebook_alias(self, repository: str, branch: str) -> str: ...
+
+    def sessions_root(self, checkout: Path) -> Path: ...
+
+    def live_session_branches_of(
+        self, git: SessionGit, checkout: Path
+    ) -> tuple[Iterable[str], Iterable[str]]: ...
+
+
+@runtime_checkable
+class SessionWorkbenchModule(Protocol):
+    @property
+    def NotebookAdapter(self) -> type[SessionAdapter]: ...
+
+    def session_documents(
+        self, worktree: Path, *, repository: str | None = None
+    ) -> list[tuple[str, str]]: ...
+
+    def project_documents(
+        self,
+        adapter: SessionAdapter,
+        alias: str,
+        documents: list[tuple[str, str]],
+    ) -> SessionActionResult: ...
+
 
 
 def session_source_set(
@@ -73,6 +116,7 @@ def sync_session_notebook(
     paths = tuple(path for path, _text in documents)
     print(
         f"[session] SYNC {target.alias} <- {len(paths)} worktree source(s) "
+        +
         f"({relative})"
     )
     for path in paths:
@@ -80,9 +124,13 @@ def sync_session_notebook(
     if len(paths) > source_cap:
         print(
             f"[session] {target.alias} REFUSED: {len(paths)} desired sources "
+            +
             f"exceed the provider's {source_cap}-source per-notebook cap by "
+            +
             f"{len(paths) - source_cap}. Applying would die mid-run; scope the "
+            +
             "session membership rule down or split the projection first (see "
+            +
             "split-ideation-book-per-repo). Nothing was created, added, or retired."
         )
         return SessionSync(
@@ -110,6 +158,7 @@ def retire_session_notebook(
 ) -> SessionSync:
     print(
         f"[session] RETIRE {target.alias} (the session is over; the "
+        +
         "notebook is not re-pointed at main)"
     )
     if not apply:
