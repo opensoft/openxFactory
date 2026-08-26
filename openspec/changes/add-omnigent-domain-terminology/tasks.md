@@ -146,10 +146,34 @@
       NOT GAAP/IFRS: those are REPORTING standards governing what the books
       say, not what a worker is — ledgerx's reporting-standard grounding
       already lives in the subject books-design layer.
+      TWO CORRECTIONS TO THE CANDIDATE LIST ABOVE, which is 2026-08-09 text:
+      the PCF numbers in it are the wrong-for-every-version ones 3b.5b
+      caught — use 9.3 general accounting, 9.6 AP and 9.9 taxes with their
+      element IDs. And the licence bar that pulled PCF out is lifted (3b.5k,
+      3b.5d): `apqc_pcf` may ship again, carrying APQC's attribution
+      paragraph verbatim, alongside `onet_accounting_occupations` rather than
+      instead of it — process-level and role-level are different claims. The
+      stale O*NET 30.3 pin and the by-version attribution in the ledgerx
+      overlay move in this same act (3.0a).
 - [ ] 3.3 Populate `terminology` in AdxFactory. Candidate bodies:
       `apqc_pcf` 3.0 (processes), `iab` (ad-tech specs/taxonomies — fits the
       media and audience classes, not the creative or compliance ones),
       `cim` (competencies), `ama_marketing` (concept definitions).
+      PREREQUISITE LANDED 2026-08-26, task still open: adx had no role-level
+      body registered at all — three of its ten worker classes carry an IAB
+      crosswalk and seven carry display labels only — so
+      `onet_marketing_occupations` is now registered in
+      `contracts/policies/standards-bodies.yaml` (O*NET 31.0, CC BY 4.0,
+      spanning SOC families 11-0000, 13-0000, 15-0000 and 27-0000 rather than
+      one, which is why its `source_url` is the database page and not a
+      family listing). Six occupation codes are recorded on the entry with
+      the gaps named — O*NET has no title match for "media planner" or "media
+      buyer" — but WHICH adx worker maps to WHICH code is this task's act and
+      nothing here asserts it. The `apqc_pcf` bar is also lifted (3b.5k), so
+      the process-level layer is available beside the role-level one. The adx
+      marketing brief (`supporting-docs/marketing-bodies-research-prompt.md`
+      in AdxFactory) is written but has still never been run; it is the
+      natural vehicle for this task.
 - [x] 3.4 **CODEX POPULATED AND VERIFIED.** Population authored at
       codexFactory `54ccc9b` (2026-08-09, from scratch — codex had no
       terminology block at all) and its 3.0 verification at `d5f5f3c` on
@@ -248,8 +272,19 @@
       `no_clean_equivalent`. This is the licence-clean replacement for the
       APQC layer: the terms permit exactly this use, provided attribution
       is stated.
-- [ ] 3b.5d Obtain APQC written licence confirmation if PCF element names or
-      numbers are ever to ship in product configuration.
+- [x] 3b.5d DISCHARGED 2026-08-26 — no written confirmation is needed,
+      because APQC already published one. The PCF's own PDF carries, on page
+      2, a perpetual, worldwide, royalty-free grant to use, copy, publish,
+      modify and create derivative works of the PCF, conditional on one
+      attribution paragraph reproduced verbatim. Brett downloaded PCF 8.0 —
+      the pinned version — and read that page in a browser on 2026-08-26,
+      confirming the grant and the paragraph are present; that act is what
+      this task was actually waiting on, and 3b.5k is its record. PCF element
+      names and numbers MAY ship in product configuration provided the
+      attribution paragraph rides with them. Closed by a published licence,
+      not by correspondence. NOT discharged by this: process DEFINITIONS,
+      which ship in separate APQC documents whose front matter has not been
+      read.
 - [x] 3b.5e BRIEFS WRITTEN for every remaining domain (2026-08-09). Adx's
       lives in its own repo (it has an active change);
       opsx/codex/medx briefs live here in `research/` because codex and
@@ -341,6 +376,62 @@
       licence-clean crosswalk in four domains, and medx registers none. The
       registry was seeded from what practitioners TALK ABOUT rather than
       what a product may LAWFULLY EMBED, and those are different sets.
+- [x] 3b.5k APQC VERDICT CORRECTED 2026-08-26 — the bar came off the wrong
+      document. WHAT WAS RE-TESTED: the PCF's own licence page, which is page
+      2 of the PCF PDF under the heading COPYRIGHT AND ATTRIBUTION and is not
+      anything on apqc.org. It carries a self-contained grant — "APQC hereby
+      grants you a perpetual, worldwide, royalty-free license to use, copy,
+      publish, modify, and create derivative works of the PCF" — conditional
+      on one mandatory attribution paragraph carried verbatim. The paragraph
+      was text-extracted from three independently hosted primary PDFs (7.4,
+      7.3.1, 7.3.0) and appears in APQC-hosted 7.2.1 industry PDFs, so it is
+      APQC's standard licence page rather than a one-version quirk. PCF 8.0,
+      the pinned version, is unreachable to automation (apqc.org answers HTTP
+      403 to every fetch and no 8.0 mirror is public), so BRETT DOWNLOADED
+      PCF 8.0 AND READ PAGE 2 IN A BROWSER on 2026-08-26 and confirmed the
+      grant and the paragraph are present. That act is the 8.0 record; the
+      7.4 mirrors are the machine-verifiable copies. Both provenances are
+      recorded on the registry entry.
+      WHY THE 2026-08-09 VERDICT DIFFERED: it read apqc.org's site Terms of
+      Service, which govern that portal's Online Resources ("shall not be
+      publicly distributed or displayed, reproduced, published, licensed,
+      transferred, sold, or incorporated in derivative works without the
+      express written permission of APQC"), and never the licence printed
+      inside the artifact. APQC was also never run through the
+      product-configuration reuse test itself: it was barred earlier, at
+      3b.5b, and that verdict was inherited as already-settled by 3b.5g,
+      3b.5h and 3b.5j. The one body judged on a site ToS is the one body the
+      test never saw.
+      3b.5b IS SUPERSEDED, NOT REWRITTEN. It and the ledgerx report
+      `usa-accounting-bodies-research-report.md` are record-class evidence
+      with a 2026-08-09 evidence cutoff; they stay exactly as written and
+      this task is the correction. 3b.5b's OTHER finding is untouched and
+      still stands: the 8.x finance numbering shipped in those overlays was
+      wrong for every version, so the re-added references must be the
+      corrected ones 3b.5b preserved (9.3 general accounting, 9.6 AP, 9.9
+      taxes, with their element IDs).
+      3b.5j NARROWS FROM NINE TO EIGHT. "Every commercially stewarded body
+      assessed fails the product-configuration reuse test" becomes eight of
+      nine. The other eight bars stand unchanged, each tested against its own
+      licence text: SFIA, ITIL 4, COBIT 2019, SWEBOK v4, ISO/IEC/IEEE 12207,
+      GRADE, SNOMED CT, and the declined CC BY-SA Scrum Guide. What weakens
+      is the escalation to "a finding about the approach, not four
+      coincidences" — its founding data point was the one body judged on the
+      wrong document.
+      SCOPE LIMIT, recorded rather than assumed: the grant is over "the PCF",
+      the document holding element names, hierarchy numbers and five-digit
+      element IDs. Process DEFINITIONS ship in separate "Process Definitions
+      and Key Measures" documents whose front matter has not been read, so
+      nothing here authorises embedding definition text.
+      APPLIED HERE: `apqc_pcf` in `contracts/policies/standards-bodies.yaml`
+      now carries the grant as `reuse_licence`,
+      `redistribution_permitted_in_product_config: yes_with_conditions` with
+      the attribution condition, the mandatory paragraph verbatim with its
+      registered marks intact, and the licence-page provenance; the
+      superseded ToS-based bar in the section header above it is marked
+      superseded in place rather than deleted. NOT APPLIED: 3.2 and 3.3 stay
+      open. Re-adding PCF to the ledgerx and adx overlays is each domain's
+      own act in its own repo.
 - [ ] 3b.5f Apply the results of the remaining brief (ledgerx UN/CEFACT +
       BIAN, and the adx marketing round) as they return. (ledgerx
       UN/CEFACT+BIAN, adx marketing, opsx, codex, medx) as they return.
