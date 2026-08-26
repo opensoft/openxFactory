@@ -1095,6 +1095,8 @@ it from that checkout):
 python3 specs/007-workbench-branch-sessions/playwright-smoke.py
 ```
 
+The extended eleven-step doxBench editor/chat version of that smoke now lives IN THIS REPO at `tests/ideation-dashboard/tools/playwright-smoke.py` (ported 2026-08-26 from codexFactory `010-doxbench-editor-chat`, blob `fc321637`): an OPERATOR tool — it needs playwright 1.61.0 + chromium on the host, is deliberately not a `test_*.py` so the hermetic suite never collects it, and is run directly as `python3 tests/ideation-dashboard/tools/playwright-smoke.py`.
+
 That script builds its own scratch world, constructs the server **in Python** so
 the two seams can be fakes — `pull_request_factory` (no `gh`, no network) and
 `adapter_factory` (no real NotebookLM notebook) — and drives the whole session
