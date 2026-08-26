@@ -1048,9 +1048,32 @@ Active changes:
   governance rule that an index pin must be re-derived when a branch lands
   rewritten. (code surface: openxFactory; target release: implemented)
 
-- [fix-release-reachability-race](openspec/changes/fix-release-reachability-race/proposal.md)
-  — authored and **ratified 2026-08-26** (Brett, in-session commissioning of the
-  filing, verbatim: "file the release-inventory CI race fix change"). The
+The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
+standard (`contract-v1.8`) are realized. The contract kernel, the revocation
+clarification, the reference runtime, and the avatar-first UI standard all archived
+2026-07-13 (below), and F0 feasibility — the last active avatar change — archived
+2026-08-09 (below), which closed issue #30. The F0 hold ("archives only inside a
+contract re-cut that repoints `f0_change_path`", Brett 2026-08-04) was SUPERSEDED
+by Brett's 2026-08-09 ruling accepting the issue's option C: the F0 gate is now
+archive-aware and bundle-aware — it follows the UNCHANGED `f0_change_path` pin
+into the dated archive and reads the pinned schemas from the packaged
+`supporting-docs.tar.gz`, fail-closed on any ambiguity, with the schema digests
+and `source_commit` pins still verifying the bytes wherever they sit — so no
+contract re-cut was needed and `contract-v1.7` was never re-tagged. The avatar client lab itself realized and
+**archived 2026-08-04** (below), its 9.1 platform gate discharged by Brett's
+2026-08-04 disposition (Linux-bench green + portable suite + WCAG web
+exception register accepted as v1; Windows/web deferred), and its successors are
+staged too: `qualify-avatar-live-voice` (internal-live provider qualification;
+blocked on open questions + a released client) and `avatar-pilot-hardening` (real
+Hermes/domains/audits + pilot; structurally last) — see the
+[Staging Index](ideation/staging/INDEX.md).
+
+Archived changes:
+
+- [fix-release-reachability-race](openspec/changes/archive/2026-08-26-fix-release-reachability-race/proposal.md)
+  — **ARCHIVED 2026-08-26**; authored and **ratified 2026-08-26** (Brett,
+  in-session commissioning of the filing, verbatim: "file the
+  release-inventory CI race fix change"). The
   commission is the origin act, so `approved_by`/`approved_on` are recorded from
   it rather than left blank — the `add-family-enumeration-check` shape, NOT the
   blank-pair shape its sibling was raised under, because that packet had no
@@ -1072,7 +1095,10 @@ Active changes:
   deliberately unedited, because `release-realization`'s origin-retention rule
   makes rewriting a complete declaration a contested-class act, and a veto
   clearance is not origin provenance. Three
-  `shared-contract-ownership` requirements ADDED, nine scenarios, none MODIFIED.
+  `shared-contract-ownership` requirements ADDED, **TEN** scenarios, none
+  MODIFIED — nine as authored, and a tenth on requirement 2 when Brett's
+  2026-08-26 ruling folded the shallow-clone rule (§ 6.4) into the same pull
+  request.
   **The defect**: `scripts/hermes_runtime_validation/release.py` asks the REMOTE
   for the current `refs/heads/main` object id (`_ls_remote` at `:718` and
   `:803`) and then answers reachability inside the STATIC clone
@@ -1130,30 +1156,31 @@ Active changes:
   at all, so `ls-remote` exits 128 and the fixture would have proved the
   pre-existing "remote main is unavailable" path — revoking read on the single
   object FILE keeps advertisement working while `upload-pack` answers "not our
-  ref", which is the condition wanted. Awaiting the annotated `contract-v1.44`
-  tag on the merge commit before it archives.
-
-The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
-standard (`contract-v1.8`) are realized. The contract kernel, the revocation
-clarification, the reference runtime, and the avatar-first UI standard all archived
-2026-07-13 (below), and F0 feasibility — the last active avatar change — archived
-2026-08-09 (below), which closed issue #30. The F0 hold ("archives only inside a
-contract re-cut that repoints `f0_change_path`", Brett 2026-08-04) was SUPERSEDED
-by Brett's 2026-08-09 ruling accepting the issue's option C: the F0 gate is now
-archive-aware and bundle-aware — it follows the UNCHANGED `f0_change_path` pin
-into the dated archive and reads the pinned schemas from the packaged
-`supporting-docs.tar.gz`, fail-closed on any ambiguity, with the schema digests
-and `source_commit` pins still verifying the bytes wherever they sit — so no
-contract re-cut was needed and `contract-v1.7` was never re-tagged. The avatar client lab itself realized and
-**archived 2026-08-04** (below), its 9.1 platform gate discharged by Brett's
-2026-08-04 disposition (Linux-bench green + portable suite + WCAG web
-exception register accepted as v1; Windows/web deferred), and its successors are
-staged too: `qualify-avatar-live-voice` (internal-live provider qualification;
-blocked on open questions + a released client) and `avatar-pilot-hardening` (real
-Hermes/domains/audits + pilot; structurally last) — see the
-[Staging Index](ideation/staging/INDEX.md).
-
-Archived changes:
+  ref", which is the condition wanted.
+  **ARCHIVED 2026-08-26 on a fully discharged gate.** Merged as PR #390
+  (2026-08-26T21:21:13Z, merge commit `8894901c`, re-verified an ancestor of
+  `origin/main`); green on the final head `d548d04d` (`pytest-suite` and
+  `wallet-validation` both `success`; local full suite 6497 passed / 0 failed,
+  `tests/hermes_runtime_contracts` 508 passed); and the bundle CUT, which is the
+  arm its doc-only siblings never had — `contract-v1.44` inventory built twice
+  byte-identical at 192 entries, `verify-commit` pass, `verify-promotion` pass on
+  the merge commit before the tag, the annotated tag `contract-v1.44` published
+  on `8894901c` ("additive: the release verifier resolves its remote operand
+  before it compares") with `verify-tag` pass re-run at the archive, and the
+  aggregation submodule pointer synced at `901bd04a` naming that same sha.
+  Canon effect: `openspec/specs/shared-contract-ownership/spec.md` 7 → 10
+  requirements and 23 → 33 scenarios, 162 lines inserted and NONE deleted, the
+  promoted block byte-identical to the delta
+  (`sha256:a645ce31…`). `target_release` was rewritten at the archive from the
+  forward-looking "next additive contract bundle" to the `implemented —
+  <evidence>` shape register C1 ruled, since the bundle it awaited is now cut.
+  FOUR ITEMS SURVIVE AS NAMED FOLLOW-UPS AND NONE OF THEM REACHED CANON: § 5.4
+  (the many-runs-identical property — unprovable by construction, recorded
+  unproven and substituted by the deterministic skew fixtures plus one live
+  probe), § 6.1 (the unperformed sweep of the sibling verifier modules,
+  `consumer_handoff.py` first), § 6.2 (the eleven-minute exposure window, a
+  `pytest-suite.yml` question) and § 6.3 (`_blob_object_id` conflating an absent
+  blob with an absent commit).
 
 - [add-doxbench-distilled-abstract](openspec/changes/archive/2026-08-26-add-doxbench-distilled-abstract/proposal.md)
   — **ARCHIVED 2026-08-26**; authored and **ratified 2026-08-25** (Brett, all
