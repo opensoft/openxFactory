@@ -65,8 +65,11 @@ shipping.
       `--all --strict` green.
 - [x] 1.7 List the change in `README.md`'s `## OpenSpec Records` →
       `Active changes:` block (Architect F20).
-- [ ] 1.8 **[OPERATOR] [GOVERNANCE]** Ratify or return the proposal. Nothing in
+- [x] 1.8 **[OPERATOR] [GOVERNANCE]** Ratify or return the proposal. Nothing in
       §2 onward is authorized work until this is discharged.
+  - RATIFIED 2026-08-23 by Brett Heap (openxFactory operator authority),
+    in-session — `proposal.md` header and the ratification record at
+    `proposal.md:13` ("Ratified as restructured", PART I/II/III).
 - [ ] 1.9 Before archive: re-check §1.3's restated requirement text against
       `add-substantive-review-lane`'s FINAL promoted text (design risk R6).
 
@@ -74,19 +77,33 @@ shipping.
 
 *No grant is operative until this lands. It precedes everything.*
 
-- [ ] 2.1 Author a `pull_request`-triggered workflow running
+- [x] 2.1 Author a `pull_request`-triggered workflow running
       `python3 scripts/validate-openxwallet.py <checkout> --strict`.
       **This is openxFactory's FIRST pull-request-triggered workflow** — both
       existing workflows are `workflow_call` / `workflow_dispatch` — so it needs
       its own trigger, permissions and concurrency design (clarifications N3).
-- [ ] 2.2 Follow the house Python pattern: `actions/setup-python@v5` pinned to
+  - Realized as `.github/workflows/wallet-validation.yml` (feature
+    010-wallet-validator-ci T002): `on: pull_request` targeting `main`, single
+    unnamed job so the status check surfaces as exactly `wallet-validation`,
+    `permissions: contents: read`. As amended by review rounds the invocation
+    omits `--strict`; that deviation is the RECORDED decision, see task 2.4.
+- [x] 2.2 Follow the house Python pattern: `actions/setup-python@v5` pinned to
       `3.12` plus `pip install pyyaml`; PyYAML is a hard dependency and the
       validator exits 2 without it (N4).
-- [ ] 2.3 Pass the checkout path explicitly. A path-less invocation self-tests
+  - Workflow pins `actions/setup-python@v5` to Python `3.12` and installs
+    `pyyaml jsonschema rfc3339-validator` per the review-round amendment
+    (feature 010 T002).
+- [x] 2.3 Pass the checkout path explicitly. A path-less invocation self-tests
       only and passes green while scanning nothing — the vacuous-pass trap this
       whole change exists to name (N5).
-- [ ] 2.4 Decide and record whether the gate runs `--strict`; the doc-health
+  - Both steps pass the checkout explicitly (`wallet-yaml-syntax-gate.py .`,
+    `validate-openxwallet.py .`); observed live on every PR since landing
+    (green `wallet-validation` runs on #363/#366/#369).
+- [x] 2.4 Decide and record whether the gate runs `--strict`; the doc-health
       precedent parameterizes `fail-on` rather than hard-coding it (N5).
+  - DECIDED: no `--strict`. Recorded in feature 010 T002 ("No scoping logic,
+    no `--strict` (R2/R4/R5; R5 partly superseded — see its header note)",
+    `specs/010-wallet-validator-ci/tasks.md`).
 - [ ] 2.5 **[OPERATOR]** Make the check REQUIRED in the branch ruleset. This is a
       repository setting, not a tree fact — a merged workflow file is not
       evidence (N6).
@@ -98,34 +115,55 @@ shipping.
 
 *Precedes the first wallet: an unanchored root grant is an unbounded one.*
 
-- [ ] 3.1 Implement `issued_by` as REQUIRED **for review-authority grants** — a
+- [x] 3.1 Implement `issued_by` as REQUIRED **for review-authority grants** — a
       scope restriction by the consuming capability, not a schema change. The
       field already exists and stays optional in the shared grant schema, so no
       `contracts/` edit, no manifest entry, no CHANGELOG line, no bundle cut.
-- [ ] 3.2 Implement the ROOT-GRANT class: a grant with no `parent_grant_ref` is a
+  - Validator rule (t) requires a REVIEW-class grant to name `issued_by`
+    (`scripts/validate-openxwallet.py`); shared schema untouched. Feature
+    012-wallet-issuer-anchor tasks all complete (11/11).
+- [x] 3.2 Implement the ROOT-GRANT class: a grant with no `parent_grant_ref` is a
       root, and its issuer's authority is recorded OUTSIDE the register it
       writes into.
-- [ ] 3.3 Record the root-issuer anchor: the responsible operator, standing under
+  - Root class implemented in rule (t); the live first root
+    `grants/grant-mrc-0001.yaml` carries no `parent_grant_ref` and roots in
+    the anchored operator (feature 012/014 records).
+- [x] 3.3 Record the root-issuer anchor: the responsible operator, standing under
       the Human Escalation Contract (`docs/roles-and-authority.md:103-140`,
       whose parked-decision list names "privileged capability grants"). No
       wallet, no grant.
-- [ ] 3.4 **Gate:** the validator refuses a review-authority grant with no
+  - Anchor recorded in validator rule (t) citing the Human Escalation
+    Contract; machine-named issuers refused with their own wording; legacy org
+    strings do not grandfather (feature 012-wallet-issuer-anchor, 11/11).
+- [x] 3.4 **Gate:** the validator refuses a review-authority grant with no
       `issued_by`, and refuses a root grant naming an agent holder as issuer.
+  - Refusal probes pinned by feature 012's red/green evidence and exercised by
+    the wallet-validation suite; pytest-suite green on every recent PR run
+    (#366/#369).
 
 ## 4. The first wallet
 
 *Cold start. One holder, not eight.*
 
-- [ ] 4.1 **[OPERATOR]** Mint one wallet for codexFactory's
+- [x] 4.1 **[OPERATOR]** Mint one wallet for codexFactory's
       `merge_readiness_council` as a body, custody model `holder_readable` —
       the only realistic model with no key infrastructure in the stack, and the
       tier the registry designed for exactly this situation (N13).
-- [ ] 4.2 Write the wallet record IN THE SAME TREE as the register: `repo_scan`
+  - Wallet minted in-tree:
+    `governance/review-authority/wallets/wal-agent-mrc-0001.yaml`, holder
+    `agent:merge-readiness-council`, custody model `holder_readable`
+    (feature 013-first-wallet, 7/7).
+- [x] 4.2 Write the wallet record IN THE SAME TREE as the register: `repo_scan`
       builds its context from the scanned repository's own records, and a
       cross-repository audience wallet has no resolution path today (N7).
-- [ ] 4.3 Record the custody ATTESTATION row — who verified the isolation,
+  - Same tree confirmed: `governance/review-authority/wallets/` beside
+    `register.yaml` / `grants/` / `attestations/` (landed #341).
+- [x] 4.3 Record the custody ATTESTATION row — who verified the isolation,
       against what, when. Without it the intake caps grants to that wallet at
       `request`.
+  - Attestation recorded:
+    `governance/review-authority/attestations/custody-attest-wal-agent-mrc-0001.yaml`,
+    referenced by the act-tier register row (feature 013/014 records).
 - [ ] 4.4 **[codexFactory]** Declare the holder's composition: map the six
       declared components (model version, prompt contract, tool manifest,
       policy version, parameters, retrieval corpus) onto the actual seat
