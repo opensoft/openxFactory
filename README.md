@@ -353,10 +353,13 @@ Active changes:
   distilled per-document abstract the docs subpane was built to carry. Ruling 0
   SPLIT this change — the doc-only half is
   `ratify-doxbench-landed-context-surfaces`, which took the `:439` simultaneity
-  reversal and all six integration-surface items and ARCHIVED FIRST on
+  reversal and FIVE of the six integration-surface items and ARCHIVED FIRST on
   2026-08-25, so this change's `:863` delta is authored against that change's
   landed text (verified at that archive: canon plus this change's own additions,
-  no canon line missing). What is
+  no canon line missing). The sixth item, the loaded-document selector's claim on
+  the accessible name (`:1827`), came back here at packet review because it needs
+  code, and is carried by this change's added captioning requirement rather than
+  by modifying `:1827`. What is
   left here is the reversal that was actually asked for: Brett's 2026-08-03 ruling
   that the abstract be "header + structure, honestly labelled ... NOT an AI
   distillation" is reversed, and its test pin — a whole-file substring sweep
@@ -399,7 +402,16 @@ Active changes:
   `clarifications.md` carries the five council constraints (N1-N5), chief among
   them that the abstract cache MUST NOT be the chat `TurnStore`, whose 64-entry /
   16 MB bound abstract churn would evict and whose same-key-different-digest
-  conflict rule forces the content digest INTO the cache key.
+  conflict rule forces the content digest INTO the cache key. Packet review
+  (Codex, PR #352) then closed two holes in that store: the RESOLVED MODEL ID
+  joins path and digest in the key, because a human can change the selected model
+  while the document stands still and a two-part key would replay the first
+  model's prose under the second model's recorded id; and the RE-GENERATE control
+  carries an EXPLICIT REFRESH INTENT that invalidates the completed entry before
+  dispatching, because a regeneration against unchanged content and an unchanged
+  model has an identical key and plain identical-key replay made the required
+  control inert except by the accident of eviction. The one-in-flight arm stays
+  unconditional, so a double-click still spends one model call.
 
 - [add-family-enumeration-check](openspec/changes/add-family-enumeration-check/proposal.md)
   — authored and ratified 2026-08-25, commissioned in-session ("commission the
@@ -1125,7 +1137,9 @@ Archived changes:
   — the lens in three subtabs, the docs subpane split into an abstract region
   above a document wheel, and the deterministic per-document abstract those two
   exist to carry — and the spec mentioned NONE of them: before this archive, grep
-  `abstract` or `subtab` over `ideation-dashboard/spec.md` returned ZERO. One of
+  `abstract` or `subtab` over `openspec/specs/ideation-dashboard/spec.md` returned
+  ZERO — the full path, because `ideation-dashboard/spec.md` is not a path this
+  repo has and the shorthand read as a runnable command. One of
   them did worse than go unmentioned. `spec.md:439` required the bullseye "above
   the always-present flat matrix" and said in those words that the matrix "MUST
   NOT become a toggle-only alternate"; the shipped subtabs make the three sections

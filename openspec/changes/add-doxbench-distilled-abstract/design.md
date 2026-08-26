@@ -127,7 +127,7 @@ owner would degrade the checker to a comment. `layer(2).owner` stays
 The sibling class is declared in the spec and carried in code as the
 `DocumentAbstract` type's own verifier.
 
-### D5 — A separate, digest-keyed, bounded store (honours N1)
+### D5 — A separate, digest-and-model-keyed, bounded store with an explicit-refresh bypass (honours N1)
 
 NOT the chat `TurnStore` instance. There is one per served process
 (`serve.py:4796`) bounded at `MAX_IDEMPOTENCY_ENTRIES = 64` and
@@ -139,10 +139,37 @@ A separate store with the same SHAPE (`doxbench_turns.py:1033-1069`): one
 in-flight per key with attach-and-wait (which is the "regenerating" state, so
 ruling 3(b) needs no new machinery), identical-key replay without a second
 dispatch, deterministic non-clock eviction. **The key is
-`(subject path, content digest)`** — the digest MUST be IN the key, because that
-store refuses a different digest under the same key as a conflict, so a
-path-only key would hard-refuse every regeneration after every edit. Re-dispatch
-after eviction is specified expected behaviour, not an error.
+`(subject path, content digest, resolved model id)`** — the digest MUST be IN the
+key, because that store refuses a different digest under the same key as a
+conflict, so a path-only key would hard-refuse every regeneration after every
+edit. The RESOLVED MODEL ID must be in the key for the mirror-image reason: a
+human can change the selected model while the document stands still, and on a
+two-part key that request is IDENTICAL, so the first model's prose would replay
+while `DocumentAbstract.model_id` (D3) records the model the reader just picked.
+An artifact that names a model which did not answer is exactly the kind of
+confident false claim this change exists to prevent, and the provider boundary's
+"every consumer resolves a catalog model id" rule forbids it besides. For an
+`auto` routing entry the key carries the RESOLVED id, not the rule's id — same
+reason a turn records the model that actually answered. Re-dispatch after
+eviction is specified expected behaviour, not an error.
+
+**Explicit refresh is a THIRD request mode, not a fourth store.** Replay on an
+identical key and a working RE-GENERATE control are in direct conflict: a
+regeneration against unchanged content and an unchanged model has an identical
+key by construction, so plain replay makes the control inert except by the
+accident of eviction. The request therefore carries a REFRESH INTENT flag. Set,
+it invalidates the completed entry for its key, dispatches, and replaces the
+entry. Unset — which is every selection, mount, and tile re-entry — it replays.
+The in-flight arm is UNCONDITIONAL in both modes: a refresh arriving while a
+generation is in flight for the same key attaches rather than dispatching, so an
+impatient double-click costs one model call. That is one boolean on the request
+and no change to the store's shape.
+
+*Alternative rejected:* a nonce or attempt counter in the key. It works, and it
+also makes every regeneration a permanent new entry, so N regenerations of one
+document hold N slots in a bounded store and evict N-1 useful neighbours to keep
+answers nobody asked for. Invalidate-and-replace keeps one live entry per real
+(subject, digest, model).
 
 ### D6 — The interaction: explicit invocation and a subject recheck at paint
 
