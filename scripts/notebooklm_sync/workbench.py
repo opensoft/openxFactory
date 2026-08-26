@@ -65,8 +65,8 @@ def orphan_sweep(
         )
         print(
             "[workbench] orphan sweep SKIPPED (manifests outside the v1 "
-            f"openxFactory scope: {relatives}; extend the sweep scope before "
-            "enabling)"
+            + f"openxFactory scope: {relatives}; extend the sweep scope before "
+            + "enabling)"
         )
         return
     if not apply:
@@ -75,8 +75,8 @@ def orphan_sweep(
         if not listing.ok:
             print(
                 "[workbench] orphan sweep plan UNAVAILABLE (the notebook list "
-                "could not be read, so nothing is known about orphans — this "
-                f"is NOT an empty account: {listing.detail})"
+                + "could not be read, so nothing is known about orphans — this "
+                + f"is NOT an empty account: {listing.detail})"
             )
             return
         pending = 0
@@ -92,7 +92,7 @@ def orphan_sweep(
         if pending:
             print(
                 f"[workbench] dry-run: {pending} orphan(s) pending; "
-                "re-run with --apply to sweep"
+                + "re-run with --apply to sweep"
             )
         return
     result = apply_sweep(resolved_root, adapter, V1_WORKBENCH_DIR)
@@ -101,5 +101,5 @@ def orphan_sweep(
         return
     print(
         f"[workbench] {result.detail}; "
-        f"deleted={result.deleted or []} kept={result.kept or []}"
+        + f"deleted={result.deleted or []} kept={result.kept or []}"
     )

@@ -3,7 +3,9 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from types import ModuleType
+from typing import Protocol, runtime_checkable
 
+from .compat_errors import DashboardCompatibilityError
 from .corpus import pinned_factory_paths
 from .lifecycle import ensure_alias, ensure_workspace_record, resolve_or_create_book
 from .lifecycle_sync import SyncManifest, sync_book
@@ -17,10 +19,29 @@ from .nlm_client import (
     parse_source_rows,
 )
 from .source_upload import add_text_source, add_with_one_retry
-from .workbench import WorkbenchAdapter, orphan_sweep, out_of_scope_workbench_dirs
+from .workbench import (
+    SweepResult,
+    WorkbenchAdapter,
+    orphan_sweep,
+    out_of_scope_workbench_dirs,
+)
 
 LegacyRow = Mapping[str, JsonValue]
 RunText = Callable[[tuple[str, ...]], str]
+
+
+@runtime_checkable
+class _ProjectionWorkbenchModule(Protocol):
+    @property
+    def NotebookAdapter(self) -> type[WorkbenchAdapter]: ...
+
+    def live_notebook_aliases(
+        self, repo_root: Path, *, workbench_dir: str
+    ) -> set[str]: ...
+
+    def orphan_sweep(
+        self, repo_root: Path, adapter: WorkbenchAdapter, *, workbench_dir: str
+    ) -> SweepResult: ...
 
 
 class ProjectionFacade:
@@ -35,13 +56,19 @@ class ProjectionFacade:
         warn_headroom: Callable[[], int],
         max_text_bytes: Callable[[], int],
     ) -> None:
-        self._run_json = run_json
-        self._run_text = run_text
-        self._sleep = sleep
-        self._dashboard = dashboard
-        self._source_cap = source_cap
-        self._warn_headroom = warn_headroom
-        self._max_text_bytes = max_text_bytes
+        self._run_json: Callable[[tuple[str, ...]], ProviderResult] = run_json
+        self._run_text: RunText = run_text
+        self._sleep: Callable[[float], None] = sleep
+        self._dashboard: Callable[[str], ModuleType] = dashboard
+        self._source_cap: Callable[[], int] = source_cap
+        self._warn_headroom: Callable[[], int] = warn_headroom
+        self._max_text_bytes: Callable[[], int] = max_text_bytes
+
+    def _workbench(self) -> _ProjectionWorkbenchModule:
+        module = self._dashboard("workbench")
+        if not isinstance(module, _ProjectionWorkbenchModule):
+            raise DashboardCompatibilityError("workbench")
+        return module
 
     def list_sources(self, notebook: str) -> list[SourceRow]:
         return parse_source_rows(self._run_json(("source", "list", notebook, "--json")))
@@ -125,12 +152,17 @@ class ProjectionFacade:
         self, root: Path, apply: bool, adapter: WorkbenchAdapter | None = None
     ) -> None:
         try:
-            workbench = self._dashboard("workbench")
+            workbench = self._workbench()
             selected = adapter or workbench.NotebookAdapter()
             live_notebook_aliases = workbench.live_notebook_aliases
-            notebook_title = workbench._notebook_title
             apply_orphan_sweep = workbench.orphan_sweep
-        except (AttributeError, ImportError, OSError, RuntimeError) as exc:
+        except (
+            AttributeError,
+            DashboardCompatibilityError,
+            ImportError,
+            OSError,
+            RuntimeError,
+        ) as exc:
             print(f"[workbench] orphan sweep SKIPPED (unavailable: {exc})")
             return
         orphan_sweep(
@@ -141,8 +173,16 @@ class ProjectionFacade:
             live_aliases=lambda base, directory: live_notebook_aliases(
                 base, workbench_dir=directory
             ),
-            notebook_title=notebook_title,
+            notebook_title=self._notebook_title,
             apply_sweep=lambda base, target, directory: apply_orphan_sweep(
                 base, target, workbench_dir=directory
             ),
         )
+
+    @staticmethod
+    def _notebook_title(notebook: LegacyRow) -> str | None:
+        for key in ("title", "name", "emoji_title"):
+            value = notebook.get(key)
+            if isinstance(value, str) and value:
+                return value
+        return None

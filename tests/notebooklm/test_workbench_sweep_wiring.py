@@ -19,12 +19,16 @@ import contextlib
 import io
 import re
 import unittest
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import ModuleType
+from typing import NoReturn, final
 from unittest.mock import patch
 
 from ideation_dashboard import workbench as wb
+from notebooklm_sync.compat_projection import ProjectionFacade
+from notebooklm_sync.nlm_client import JsonValue, ProviderResult
 
 from tests.notebooklm._sync_test_support import sync
 
@@ -39,36 +43,43 @@ from tests.notebooklm._sync_test_support import sync
 # Sweep output must never match it.
 SYNC_OP = re.compile(r"^\[[^\]]+\]\s+(ADD|DEL|UPD)\s")
 
-LIFECYCLE_BOOKS = [
+LIFECYCLE_BOOKS: list[dict[str, str]] = [
     {"id": "b1", "title": "xf-ideation"},
     {"id": "b2", "title": "xf-drafts"},
     {"id": "b3", "title": "xf-canon"},
 ]
 
 
+@final
 class FakeNlm:
     """Records calls; models `notebook list|delete`. Injected as the adapter's
     runner so the real nlm is never reached."""
 
-    def __init__(self, notebooks):
-        self.calls = []
-        self.notebooks = list(notebooks)
+    def __init__(self, notebooks: Iterable[Mapping[str, JsonValue]]) -> None:
+        self.calls: list[tuple[str, ...]] = []
+        self.notebooks: list[dict[str, str]] = [
+            {"id": str(row["id"]), "title": str(row["title"])}
+            for row in notebooks
+        ]
 
-    def __call__(self, *args, parse=True):
+    def __call__(self, *args: str, parse: bool = True) -> ProviderResult:
+        del parse
         self.calls.append(args)
         if args[:2] == ("notebook", "list"):
-            return list(self.notebooks)
+            rows: list[JsonValue] = [dict(row) for row in self.notebooks]
+            return rows
         if args[:2] == ("notebook", "delete"):
             nid = args[2]
             self.notebooks = [n for n in self.notebooks if n.get("id") != nid]
             return ""
         return {}
 
-    def deleted_ids(self):
+    def deleted_ids(self) -> list[str]:
         return [c[2] for c in self.calls if c[:2] == ("notebook", "delete")]
 
 
-def _boom(*args, **kwargs):
+def _boom(*args: str, parse: bool = True) -> NoReturn:
+    del args, parse
     raise AssertionError("the real nlm runner must never be called in tests")
 
 
@@ -78,12 +89,23 @@ def _live_manifest(root: Path, name: str, alias: str) -> Path:
     repo = root / "openxFactory"
     boundary_root = repo
     from ideation_dashboard.boundary import OutputBoundary
-    w = wb.Workbench.create("openxFactory", name, now="2026-07-14T08:00:00Z")
-    w.bind_notebook(alias, now="2026-07-14T08:00:00Z")
+    w = wb.Workbench(
+        {
+            "schema_version": wb.SCHEMA_VERSION,
+            "kind": wb.KIND,
+            "repository": "openxFactory",
+            "name": name,
+            "created": "2026-07-14T08:00:00Z",
+            "updated": "2026-07-14T08:00:00Z",
+            "members": [],
+            "seed": {"kind": wb.SEED_ADHOC},
+        }
+    )
+    _ = w.bind_notebook(alias, now="2026-07-14T08:00:00Z")
     return wb.save(w, OutputBoundary(boundary_root, [wb.WORKBENCH_DIR]))
 
 
-def _run(root, apply, adapter):
+def _run(root: Path, apply: bool, adapter: wb.NotebookAdapter | None) -> str:
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
         sync.workbench_orphan_sweep(root, apply, adapter=adapter)
@@ -94,7 +116,7 @@ class WorkbenchSweepWiringTests(unittest.TestCase):
     def test_apply_sweeps_orphans_and_keeps_bound(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _live_manifest(root, "Alpha", "xf-wb-alpha")
+            _ = _live_manifest(root, "Alpha", "xf-wb-alpha")
             fake = FakeNlm(LIFECYCLE_BOOKS + [
                 {"id": "w1", "title": "xf-wb-alpha"},
                 {"id": "w2", "title": "xf-wb-orphan"},
@@ -117,7 +139,7 @@ class WorkbenchSweepWiringTests(unittest.TestCase):
                 {"id": "w1", "title": "xf-wb-stale"},
             ])
             adapter = wb.NotebookAdapter(fake, available=True)
-            _run(Path(td), True, adapter)
+            _ = _run(Path(td), True, adapter)
             self.assertEqual(fake.deleted_ids(), ["w1"])
             survivors = sorted(n["title"] for n in fake.notebooks)
             self.assertEqual(
@@ -133,7 +155,7 @@ class WorkbenchSweepWiringTests(unittest.TestCase):
     def test_dry_run_prints_a_plan_and_deletes_nothing(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            _live_manifest(root, "Alpha", "xf-wb-alpha")
+            _ = _live_manifest(root, "Alpha", "xf-wb-alpha")
             fake = FakeNlm(LIFECYCLE_BOOKS + [
                 {"id": "w1", "title": "xf-wb-alpha"},
                 {"id": "w2", "title": "xf-wb-orphan"},
@@ -158,7 +180,7 @@ class WorkbenchSweepWiringTests(unittest.TestCase):
         with TemporaryDirectory() as td:
             incomplete = ModuleType("incomplete_workbench")
             with patch.object(
-                sync._projection, "_dashboard", return_value=incomplete
+                ProjectionFacade, "_workbench", return_value=incomplete
             ):
                 out = _run(Path(td), True, adapter=None)
         self.assertIn("SKIPPED", out)
@@ -171,7 +193,7 @@ class WorkbenchSweepWiringTests(unittest.TestCase):
             root = Path(td)
             stray = root / "xFactories" / "codexFactory" / "ideation" / "workbench"
             stray.mkdir(parents=True)
-            (stray / "stray.workbench.yaml").write_text(
+            _ = (stray / "stray.workbench.yaml").write_text(
                 "kind: ideation-workbench\n", encoding="utf-8")
             fake = FakeNlm([{"id": "w1", "title": "xf-wb-orphan"}])
             adapter = wb.NotebookAdapter(fake, available=True)
@@ -182,4 +204,4 @@ class WorkbenchSweepWiringTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    _ = unittest.main()
