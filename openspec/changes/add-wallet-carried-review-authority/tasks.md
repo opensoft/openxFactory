@@ -303,7 +303,7 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
 
 ## 8. Bench and governance items carried, not performed
 
-- [ ] 8.1 **[GOVERNANCE]** Rule **Q8** — composition drift for hosted-model
+- [x] 8.1 **[GOVERNANCE]** Rule **Q8** — composition drift for hosted-model
       holders: a standing reissue policy as a first-class intake act; whether
       derived grants survive a parent revoked for DRIFT rather than CAUSE; who
       tells the operator the register emptied (the Human Escalation Contract's
@@ -311,16 +311,30 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
       holder may pin a model FAMILY (today a validation failure). Exits (b) and
       (c) of the first two limbs need `openxwallet` / `openxwallet-agent-profile`
       core deltas.
-- [ ] 8.2 **[GOVERNANCE]** Rule **Q9** — the floor's source-of-truth inversion.
+  - RULED 2026-08-26 by Brett Heap — fail-closed bundle
+    (`rulings-2026-08-26.md`): reissue is always an explicit register act;
+    DRIFT cascades revocation to derived grants exactly like CAUSE;
+    empty-register notification rides the HEC decision-ready packet; exact
+    model versions only, no family pinning. Cascade enforcement rides the
+    named core deltas at S5.
+- [x] 8.2 **[GOVERNANCE]** Rule **Q9** — the floor's source-of-truth inversion.
       Either move the floor's source of truth into a seedable, schema-validated
       `.yaml` carrier and demote the record to evidence, or amend
       `roles-authority-model` so the PROMOTED SPEC TEXT governs. Both amend
       `add-substantive-review-lane`'s ratified text, so both need their own
       declared delta.
+  - RULED 2026-08-26 by Brett Heap — Exit A (`rulings-2026-08-26.md`): the
+    seedable, schema-validated YAML carrier is THE source of truth; the record
+    is demoted to evidence. The declared delta that moves floor authority into
+    the carrier remains to be authored.
 - [ ] 8.3 **[GOVERNANCE]** Rule **Q10** — does a non-human authorizer satisfy
       `isolated_per_use_authorized`? Does not block anything above, because
       §1.2's `act_unsupervised` refusal excludes those holders from
       review-authority grants until it is ruled.
+  - DIRECTION RULED 2026-08-26 by Brett Heap — ADMIT WITH CONDITIONS
+    (`rulings-2026-08-26.md`). Stays OPEN by design until the per-use
+    admission conditions are designed, recorded, and validated; §1.2's
+    exclusion remains in force until then.
 - [ ] 8.4 **[codexFactory]** Scaffold the OFFER of the three-repository project
       schema, if and when a project's `PA` elects it. Offering is realization
       work; electing is a human's per-project act; neither is performed by this
