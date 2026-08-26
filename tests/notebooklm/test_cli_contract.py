@@ -40,7 +40,7 @@ def _provider_stub(root: Path, *, call_log: Path | None = None) -> Path:
         if call_log is not None
         else ""
     )
-    executable.write_text(
+    _ = executable.write_text(
         f"#!{sys.executable}\n{log_call}print('[]')\n",
         encoding="utf-8",
     )
@@ -52,7 +52,7 @@ def _seed_grounding(root: Path) -> None:
     for relative in GROUNDING:
         path = root / relative
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("# Grounding\n", encoding="utf-8")
+        _ = path.write_text("# Grounding\n", encoding="utf-8")
 
 
 class SyncCliContractTests(unittest.TestCase):
@@ -94,7 +94,7 @@ class SyncCliContractTests(unittest.TestCase):
             _seed_grounding(root)
             manifest = root / ".claude/nlm-sync-manifest.json"
             manifest.parent.mkdir()
-            manifest.write_text('{"canon": []}\n', encoding="utf-8")
+            _ = manifest.write_text('{"canon": []}\n', encoding="utf-8")
             call_log = root / "provider-calls.log"
 
             completed = _run(
@@ -124,4 +124,4 @@ class SyncCliContractTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    _ = unittest.main()

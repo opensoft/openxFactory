@@ -74,22 +74,22 @@ class CliArgs(argparse.Namespace):
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
-    parser.add_argument("root", type=Path)
-    parser.add_argument("--apply", action="store_true")
-    parser.add_argument(
+    _ = parser.add_argument("root", type=Path)
+    _ = parser.add_argument("--apply", action="store_true")
+    _ = parser.add_argument(
         "--parity",
         action="store_true",
         help="prove live books against the corpus scan; reports, never mutates",
     )
-    parser.add_argument("--book", help="sync one scan-derived book key")
-    parser.add_argument("--session-ref", metavar="BRANCH")
-    parser.add_argument("--session-repository", metavar="REPOSITORY")
-    parser.add_argument("--session-retire", action="store_true")
-    parser.add_argument("--session-sweep", action="store_true")
-    parser.add_argument("--import-exports", metavar="NOTEBOOK")
-    parser.add_argument("--import-new-sources", metavar="NOTEBOOK")
-    parser.add_argument("--target-path")
-    parser.add_argument(
+    _ = parser.add_argument("--book", help="sync one scan-derived book key")
+    _ = parser.add_argument("--session-ref", metavar="BRANCH")
+    _ = parser.add_argument("--session-repository", metavar="REPOSITORY")
+    _ = parser.add_argument("--session-retire", action="store_true")
+    _ = parser.add_argument("--session-sweep", action="store_true")
+    _ = parser.add_argument("--import-exports", metavar="NOTEBOOK")
+    _ = parser.add_argument("--import-new-sources", metavar="NOTEBOOK")
+    _ = parser.add_argument("--target-path")
+    _ = parser.add_argument(
         "--import-date",
         default=datetime.now(timezone.utc).date().isoformat(),
         help="date stamp for imported idea files (YYYY-MM-DD)",
@@ -113,18 +113,18 @@ def run(
 ) -> None:
     parser = _parser()
     args = parser.parse_args(namespace=CliArgs())
-    enforce_profile(args.root)
+    _ = enforce_profile(args.root)
     if args.parity:
         raise SystemExit(parity_report(args.root, book=args.book))
     if args.session_sweep:
         if args.session_ref:
             parser.error(
                 "--session-sweep reconciles the whole session namespace and "
-                "--session-ref names one branch; run them separately"
+                + "--session-ref names one branch; run them separately"
             )
         raise SystemExit(sweep_sessions(args.root, args.apply))
     if args.session_ref:
-        sync_session(
+        _ = sync_session(
             args.root,
             args.session_ref,
             args.apply,
@@ -136,13 +136,13 @@ def run(
         parser.error("--session-retire / --session-repository require --session-ref")
     if args.import_exports:
         imported_on = _import_date(args.import_date, parser)
-        import_exports(args.root, args.import_exports, args.apply, imported_on)
+        _ = import_exports(args.root, args.import_exports, args.apply, imported_on)
         return
     if args.import_new_sources:
         if not args.target_path:
             parser.error("--target-path is required with --import-new-sources")
         imported_on = _import_date(args.import_date, parser)
-        import_new(
+        _ = import_new(
             args.root,
             args.import_new_sources,
             args.target_path,
@@ -192,12 +192,12 @@ def _sync_books(
     if args.book and args.book not in desired:
         parser.error(
             f"--book {args.book!r} is not a book this scan derives; "
-            f"available: {', '.join(sorted(desired))}"
+            + f"available: {', '.join(sorted(desired))}"
         )
 
     def flush_manifest() -> None:
         manifest_path.parent.mkdir(exist_ok=True)
-        manifest_path.write_text(json.dumps(manifest, indent=1))
+        _ = manifest_path.write_text(json.dumps(manifest, indent=1))
 
     notebooks: list[NotebookRow] | None = None
     failures: list[str] = []
