@@ -133,7 +133,9 @@ at P3 records `wallet-v1.1`.
       ratification citation line, per Amendment 1's precedent and
       `docs/document-lifecycle.md` § Status Claim Rules. The whole diff is two
       hunks: one append, one bullet — amended, never rewritten.
-      (Speckit feature `016-openxwallet-split-bookkeeping`)
+      **Left OPEN for the human merge gate — not merged.**
+      (commit `b08184e`, PR #396, Speckit feature
+      `016-openxwallet-split-bookkeeping`, 2026-08-26)
 - [x] 1.12 **[xFactory]** Amend `CLAUDE.md` § "Working rules" item 1 to the
       replacement text quoted verbatim in the proposal — neutral contracts live in
       openxFactory **or in a neutral `open*` product repository openxFactory pins

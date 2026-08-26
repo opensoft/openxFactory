@@ -129,10 +129,10 @@ both PRs for the human merge gate.
 
 - [X] T023 Run `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` in `OX` and confirm `77 passed, 0 failed` — unchanged from the T006 baseline (FR-015)
 - [X] T024 Run `python3 scripts/doc-health.py --single-repo .` in `OX` and confirm the `Findings:` line equals the T005 baseline exactly; an error count of 8 means the naming-record edit introduced a finding and must be fixed before commit (FR-016)
-- [ ] T025 Commit in `OX` with explicit pathspecs naming `docs/openxdox-naming.md`, `openspec/changes/split-openxwallet-repo/tasks.md`, `specs/016-openxwallet-split-bookkeeping/` and `.specify/feature.json`, after checking `git -C $OX status -sb` and `git -C $OX diff --cached --stat` for foreign entries; subject ≤72 chars in house style, body citing §1, PR #391 and `5ef6d8d2`
-- [ ] T026 Push with `git -C $OX push -u origin 016-openxwallet-split-bookkeeping`
-- [ ] T027 Open the pull request with `gh pr create -R opensoft/openxFactory --base main`, body covering what/why, the Amendment 2 text summary, a link to the xFactory PR from T017, the validation results from T023/T024, and the Claude Code footer; leave it **unmerged**
-- [ ] T028 [P] Confirm both PRs are `OPEN` and unmerged (`gh pr list` per quickstart.md § 5) and that no box in `tasks.md` §2–§12 was ticked (FR-013, FR-017)
+- [X] T025 Commit in `OX` with explicit pathspecs naming `docs/openxdox-naming.md`, `openspec/changes/split-openxwallet-repo/tasks.md`, `specs/016-openxwallet-split-bookkeeping/` and `.specify/feature.json`, after checking `git -C $OX status -sb` and `git -C $OX diff --cached --stat` for foreign entries; subject ≤72 chars in house style, body citing §1, PR #391 and `5ef6d8d2`
+- [X] T026 Push with `git -C $OX push -u origin 016-openxwallet-split-bookkeeping`
+- [X] T027 Open the pull request with `gh pr create -R opensoft/openxFactory --base main`, body covering what/why, the Amendment 2 text summary, a link to the xFactory PR from T017, the validation results from T023/T024, and the Claude Code footer; leave it **unmerged**
+- [X] T028 [P] Confirm both PRs are `OPEN` and unmerged (`gh pr list` per quickstart.md § 5) and that no box in `tasks.md` §2–§12 was ticked (FR-013, FR-017)
 
 ---
 
