@@ -1128,10 +1128,12 @@ Active changes:
   check on the real five-factory `domains` project (three convergent regions
   enabled, five single-carrier rows disabled with their reason, the 3-carrier
   sector drafting DTN-025 for `docs/credentialing.md`, checkout unchanged).
-  Open: 4.5, Brett merging that first drafted seed — the register's highest
-  entry is still DTN-024. Named successor: promoting the detector to a FIFTH
-  neutrality-drift stage-1 signal so the nightly lane files these seeds
-  unattended. (code surface: openxFactory; target release: none)
+  4.5 is discharged too: Brett ruled in-session 2026-08-26 to merge that
+  first drafted seed — the register's highest entry is now DTN-025. Only the
+  named successor remains, out of scope for this change: promoting the
+  detector to a FIFTH neutrality-drift stage-1 signal so the nightly lane
+  files these seeds unattended. (code surface: openxFactory; target release:
+  none)
 
 - [harden-ideation-readiness-check](openspec/changes/harden-ideation-readiness-check/proposal.md)
   — authored 2026-08-26 and **ADMITTED the same day** (Brett, admission ruling

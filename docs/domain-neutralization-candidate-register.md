@@ -52,6 +52,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-022 | Avatar client lab neutral home | `split` | P2 | `adopted` | own repo `opensoft/openAvatar` (ruled 2026-08-03); domain descendants are pin-and-profile distributions |
 | DTN-023 | Governance change-review lane | `split` | P2 | `seed` | change-review half of the review lane (ten governance-document dimensions) |
 | DTN-024 | Governed recommendation artifact (evidence-cited, hypothesis-only, authority-slotted proposal) | `split` | P2 | `seed` | neutral recommendation-artifact skeleton: evidence-citation + knowledge_basis vocabulary, empty-authority-slot invariant, refusal documents, seeded-defect critique harness pattern |
+| DTN-025 | Shared across 3 factories: docs/credentialing.md | `promote` | P2 | `seed` | to be determined at staging (the shared surface, neutralized once) |
 
 ## Candidate Details
 
@@ -731,3 +732,33 @@ never the medicine.
 Exit condition (per the DTN-016 pattern): a second domain instantiates
 the skeleton; then `add-recommendation-artifact` (or fold into
 governed-derived-model as a profile) stages in openxFactory.
+
+### DTN-025: Shared across 3 factories: docs/credentialing.md
+
+Deterministic seed drafted 2026-08-07 from the ideation dashboard's
+repository lens over project `domains` — pending human approval; this
+candidate enters the register lifecycle only when the seed is merged. It
+satisfies the promotion process's first candidate rule verbatim: “Two or
+more domain repos use the same structure with different domain nouns.”
+
+1 document identity is carried by 2 or more of the project's member
+repositories (Ledgerx, Ops, codex). The carrier set is the evidence: no
+model judged this, and a re-run over the same corpus state drafts the
+same seed.
+
+Evidence:
+
+- `docs/credentialing.md` — carried by 3 of 3: Ledgerx, Ops, codex
+
+Domain-local exclusions: a shared PATH is not a shared CONTRACT — staging
+must read the carriers and separate the neutral structure from each
+factory's domain nouns before any promotion decision.
+
+**Merged (2026-08-26, Brett):** ruled in-session to admit the first
+drafted seed the shared-identity detector produced on its 2026-08-07 live
+run against the real five-factory `domains` project
+([add-shared-identity-seeds](../openspec/changes/add-shared-identity-seeds/proposal.md)
+task 4.4), discharging task 4.5. Row and section above are the drafted
+text verbatim — `doc_health/shared_identity.py`'s `draft_seed` is
+deterministic, so a re-run over the same corpus state reproduces it
+byte-for-byte.
