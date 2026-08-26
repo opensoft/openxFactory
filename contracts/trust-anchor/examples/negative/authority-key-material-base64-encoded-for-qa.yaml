@@ -1,0 +1,41 @@
+# expected_failure: key-material-reversibly-encoded
+# expected_failure_detail: base64-encoded key material
+# requirement: TA-R7
+# VIOLATES TA-R7 in the form it always actually arrives in: the QA authority's
+# key, base64-encoded, committed with the reason stated in the record itself.
+#
+# The reason given is the one the ratified text names and refuses — "QA only".
+# There is no field here that grants an exemption, because the contract provides
+# none: a demonstration or QA authority's private key is an authority key, and a
+# committed one is a compromised one. The reason is in a free-text note precisely
+# because that is where it goes in real life, and the finding does not depend on
+# reading it.
+#
+# The scan reverses the encoding and re-runs the value patterns. "Any encoding a
+# reader can reverse" is the ratified wording, and base64 is what makes committed
+# key material look like configuration.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:neg-qa-encoded-key
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "QA Root Authority"
+chain_position:
+  role: root
+  path_depth: 0
+validity:
+  not_before: "2026-01-01T00:00:00Z"
+  not_after: "2027-01-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:qa-issuance-policy
+    authority_kind: policy
+    statement: QA certificates only.
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  credential_record_ref: credential:neg-qa-root-key
+  vault_binding_ref: vaultbinding:qa/root-key
+notes: >-
+  QA only, not production, safe to commit so the bring-up script can restore the
+  authority without a vault round trip: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tTUlJRXZRSUJBREFOQmdrcWhraUc5dzBCQVFFRkFBU0NCS2N3Z2dTakFnRUFBb0lCQVFEQXFhMWJaMnZRLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQ==

@@ -1,0 +1,31 @@
+# Positive fixture (finding N1): the domain half of the
+# kernel-adoption pair; registered in the shared package
+# registry so the kernel's domain_package adopter resolves.
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/negd
+package_version: 1.0.0
+namespace: xf/negd
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: negd-steward
+    role: accountable_steward
+    identity_kind: human
+  - steward_id: negd-bot
+    role: accountable_steward
+    identity_kind: agent
+kernel_import:
+  package_id: xf/core
+  package_version: 1.0.0
+  package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+inventory:
+  - path: concepts.yaml
+    sha256: 01fe9c119c93499bf9da427648adee51af42f9724b6db55ae1923da07509dec3
+package_digest: c7829ac495f9f4381b10419bd5a1c722e90b2e5809eb6a0a7724e1f6d9a64f56
+compatibility:
+  class: initial
+  line: xf/negd@1

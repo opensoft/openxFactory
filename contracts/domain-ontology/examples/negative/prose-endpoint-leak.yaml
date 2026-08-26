@@ -1,0 +1,12 @@
+# expected_failure: ONT-PRIVATE
+# expected_failure_detail: prose content
+schema_version: 1
+kind: xfactory_ontology_concepts
+package_id: xf/negx
+concepts:
+  - id: xf/negx/leaky
+    label: Leaky
+    definition: Resolved against https://records.internal for chart pulls.
+    notes: Contact steward at leak.author@example.com for provenance.
+    lifecycle_state: draft
+    effective_version: 1.0.0

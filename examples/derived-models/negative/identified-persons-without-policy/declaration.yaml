@@ -1,0 +1,33 @@
+# expected_failure: person_modeling_policy
+# A family declaring identified_persons_under_policy with no
+# authorizing policy reference — the strongest person-modeling posture
+# is only available under an explicit domain policy.
+schema_version: 1
+kind: xfactory_derived_model_conformance
+conforms_to: governed-derived-model
+
+domain:
+  id: negx
+
+families:
+  - id: persons_without_policy
+    tier: governed
+    identity_subject_kind: person_subject
+    members:
+      - role: model
+        kind: ok_model
+        template: templates/ok-model.yaml
+        provenance:
+          form: assumption_register
+          assumption_register_field: assumption_register
+        truth_store_access:
+          field: truth_access
+          value: read_only
+    dials:
+      identity: real_entity
+      scope: subject
+      isolation_boundary: per_subject
+      truth_store: example_truth
+      truth_store_class: hermes_memory
+      promoting_authority: human_reviewer
+      person_modeling: identified_persons_under_policy

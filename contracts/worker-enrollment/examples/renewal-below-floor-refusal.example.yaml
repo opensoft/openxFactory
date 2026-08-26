@@ -1,0 +1,52 @@
+# Positive reference example — the renewal REFUSAL that fails a below-floor
+# worker closed (spec R5 scenario 1). The platform raised the minimum app version
+# to 1.5.0; this volunteer workstation is still on 1.3.2.
+#
+# What the shape says, and why each part matters:
+#   * `lease_state: refused` with `refusal_reason: below_floor` — the refusal is a
+#     decision the broker records, not an inference from silence;
+#   * `required_action: update_required` — the one refusal whose recovery is an
+#     UPDATE. The worker stops its runner services and reports `update_required`
+#     in its heartbeat until the engineer re-runs the installer at or above the
+#     floor (v1 recovery is a reinstall by design);
+#   * `floor` present, as on every response — here it is also the instruction;
+#   * no `new_expiry` — authority is granted FORWARD by renewal, so a refused
+#     renewal simply grants nothing.
+#
+# Nothing on the host can override this: there is no local flag, retry, or
+# configuration edit that restores work below the floor.
+schema_version: 1
+kind: worker_lease_renewal
+
+renewal_id: rnw-ws-brett-01-0163
+lease_id: wl-ws-brett-01-0001
+
+request:
+  requested_at: "2026-08-14T08:00:00Z"
+  authentication:
+    # The SAME identity that enrolled, re-presented for the renewal — and the
+    # declaration that matters on a volunteered workstation: no standing secret
+    # was written to this machine to make this call (spec R1).
+    mode: device_code
+    subject:
+      class: engineer
+      ref: engineer:eng-brett
+    standing_secret_on_host: none
+    reauthenticated_at: "2026-08-14T07:55:00Z"
+  observed:
+    app_version: 1.3.2
+    runner_version: v2.337.1
+  liveness:
+    last_heartbeat_at: "2026-08-14T07:57:00Z"
+    consecutive_failed_renewals: 0
+
+response:
+  decided_at: "2026-08-14T08:00:00Z"
+  lease_state: refused
+  floor:
+    min_app_version: 1.5.0
+    source: policy
+  required_action: update_required
+  refusal_reason: below_floor
+  policy_version: worker-enrollment-v2
+  note: observed app version below the estate floor; runner services must stop

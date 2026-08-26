@@ -1,0 +1,20 @@
+schema_version: 1
+name: client_memory_boundaries
+# Client-content contract (add-client-layer-tuning-contracts). Structural
+# shape; the stricter-only comparability rules live in the canonical
+# validator (scripts/validate-client-content.py) and are never re-implemented
+# by consumers.
+type: object
+required:
+  - schema_version
+  - kind
+  - buckets
+  - invariant
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind: {type: string, enum: [client_memory_boundaries]}
+  buckets:
+    type: object
+    required: [client_private_memory, customer_relationship_memory, domain_learning_candidates, current_state_evidence]
+  consent: {type: string}
+  invariant: {type: string, enum: [tenant_isolated]}

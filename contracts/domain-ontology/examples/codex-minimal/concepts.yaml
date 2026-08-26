@@ -1,0 +1,23 @@
+schema_version: 1
+kind: xfactory_ontology_concepts
+package_id: xf/codex
+concepts:
+  - id: xf/codex/project
+    label: Project
+    definition: The engineering work subject, specializing the neutral subject.
+    parents: [xf/core/subject]
+    steward: codex-ontology-steward
+    lifecycle_state: published
+    effective_version: 1.0.0
+  - id: xf/codex/repository
+    label: Repository
+    definition: A version-controlled focal item a project journey is about.
+    parents: [xf/core/focal_item]
+    lifecycle_state: published
+    effective_version: 1.0.0
+  - id: xf/codex/pull_request
+    label: Pull Request
+    definition: A reviewed engineering artifact specialization.
+    parents: [xf/core/artifact]
+    lifecycle_state: published
+    effective_version: 1.0.0

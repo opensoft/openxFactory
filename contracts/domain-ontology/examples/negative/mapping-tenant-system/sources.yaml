@@ -1,0 +1,8 @@
+schema_version: 1
+kind: xfactory_ontology_source_inventory
+package_id: xf/negx
+sources:
+  - system_id: tenant-crm
+    name: Tenant internal CRM
+    source_kind: internal_document
+    license_class: open

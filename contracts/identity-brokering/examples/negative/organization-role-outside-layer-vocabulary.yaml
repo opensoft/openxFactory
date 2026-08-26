@@ -1,0 +1,22 @@
+# expected_failure: reserved-layer-term
+# expected_failure_detail: company_role 'client' is a RESERVED layer term
+# requirement: IDB-R2
+# VIOLATES R2: the company boundary spelled outside the ratified vocabulary.
+#
+# `client` is the natural word and it is exactly the word the family retired:
+# `adopt-subject-tenant-domain-vocabulary` reserved `customer` and `client` so
+# they cannot name a layer on new governance surfaces, because the same two
+# words were naming three different things across four repos. This record
+# reintroduces one of them as a company role.
+#
+# The refusal is READ FROM THE POLICY FILE
+# (`contracts/policies/layer-vocabulary.yaml`) at run time rather than restated
+# in the validator: the reserved list has one home, and a check that copied it
+# would be a second spelling of the thing being enforced.
+schema_version: 1
+kind: broker_organization
+organization_id: farheap-client-role
+display_name: FarHeap Solutions (legacy role spelling)
+company_role: client
+broker_instance_ref: broker-opensoft-shared
+declared_at: "2026-08-21T12:25:00Z"

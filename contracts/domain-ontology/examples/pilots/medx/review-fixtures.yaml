@@ -1,0 +1,236 @@
+schema_version: 1
+kind: xfactory_ontology_review_fixtures
+# Labeled classification fixtures for Domain Hermes review — every
+# case is SYNTHETIC (starter-derived from intake labels); no subject
+# or tenant material may ever be added here without de-identification
+# through the promotion gates.
+package_id: xf/medx
+cases:
+  - case_id: fx-active_treatment-positive
+    text: "synthetic intake mention of Active Treatment"
+    expected: xf/medx/active_treatment
+    label: positive
+  - case_id: fx-active_treatment-negative
+    text: "synthetic intake mention of Care Gap Closed"
+    expected_not: xf/medx/active_treatment
+    label: negative
+  - case_id: fx-active_treatment-representative
+    text: "synthetic representative case for Active Treatment"
+    expected: xf/medx/active_treatment
+    label: representative
+  - case_id: fx-care_gap_closed-positive
+    text: "synthetic intake mention of Care Gap Closed"
+    expected: xf/medx/care_gap_closed
+    label: positive
+  - case_id: fx-care_gap_closed-negative
+    text: "synthetic intake mention of Care Plan"
+    expected_not: xf/medx/care_gap_closed
+    label: negative
+  - case_id: fx-care_gap_closed-representative
+    text: "synthetic representative case for Care Gap Closed"
+    expected: xf/medx/care_gap_closed
+    label: representative
+  - case_id: fx-care_plan-positive
+    text: "synthetic intake mention of Care Plan"
+    expected: xf/medx/care_plan
+    label: positive
+  - case_id: fx-care_plan-negative
+    text: "synthetic intake mention of Care Plan Review"
+    expected_not: xf/medx/care_plan
+    label: negative
+  - case_id: fx-care_plan-representative
+    text: "synthetic representative case for Care Plan"
+    expected: xf/medx/care_plan
+    label: representative
+  - case_id: fx-care_plan_review-positive
+    text: "synthetic intake mention of Care Plan Review"
+    expected: xf/medx/care_plan_review
+    label: positive
+  - case_id: fx-care_plan_review-negative
+    text: "synthetic intake mention of Chart Review"
+    expected_not: xf/medx/care_plan_review
+    label: negative
+  - case_id: fx-care_plan_review-representative
+    text: "synthetic representative case for Care Plan Review"
+    expected: xf/medx/care_plan_review
+    label: representative
+  - case_id: fx-chart_review-positive
+    text: "synthetic intake mention of Chart Review"
+    expected: xf/medx/chart_review
+    label: positive
+  - case_id: fx-chart_review-negative
+    text: "synthetic intake mention of Clinician Review Packet"
+    expected_not: xf/medx/chart_review
+    label: negative
+  - case_id: fx-chart_review-representative
+    text: "synthetic representative case for Chart Review"
+    expected: xf/medx/chart_review
+    label: representative
+  - case_id: fx-clinician_review_packet-positive
+    text: "synthetic intake mention of Clinician Review Packet"
+    expected: xf/medx/clinician_review_packet
+    label: positive
+  - case_id: fx-clinician_review_packet-negative
+    text: "synthetic intake mention of Condition"
+    expected_not: xf/medx/clinician_review_packet
+    label: negative
+  - case_id: fx-clinician_review_packet-representative
+    text: "synthetic representative case for Clinician Review Packet"
+    expected: xf/medx/clinician_review_packet
+    label: representative
+  - case_id: fx-condition-positive
+    text: "synthetic intake mention of Condition"
+    expected: xf/medx/condition
+    label: positive
+  - case_id: fx-condition-negative
+    text: "synthetic intake mention of Diagnosis"
+    expected_not: xf/medx/condition
+    label: negative
+  - case_id: fx-condition-representative
+    text: "synthetic representative case for Condition"
+    expected: xf/medx/condition
+    label: representative
+  - case_id: fx-diagnosis-positive
+    text: "synthetic intake mention of Diagnosis"
+    expected: xf/medx/diagnosis
+    label: positive
+  - case_id: fx-diagnosis-negative
+    text: "synthetic intake mention of Encounter Note"
+    expected_not: xf/medx/diagnosis
+    label: negative
+  - case_id: fx-diagnosis-representative
+    text: "synthetic representative case for Diagnosis"
+    expected: xf/medx/diagnosis
+    label: representative
+  - case_id: fx-encounter_note-positive
+    text: "synthetic intake mention of Encounter Note"
+    expected: xf/medx/encounter_note
+    label: positive
+  - case_id: fx-encounter_note-negative
+    text: "synthetic intake mention of Follow Up Call"
+    expected_not: xf/medx/encounter_note
+    label: negative
+  - case_id: fx-encounter_note-representative
+    text: "synthetic representative case for Encounter Note"
+    expected: xf/medx/encounter_note
+    label: representative
+  - case_id: fx-follow_up_call-positive
+    text: "synthetic intake mention of Follow Up Call"
+    expected: xf/medx/follow_up_call
+    label: positive
+  - case_id: fx-follow_up_call-negative
+    text: "synthetic intake mention of Intake"
+    expected_not: xf/medx/follow_up_call
+    label: negative
+  - case_id: fx-follow_up_call-representative
+    text: "synthetic representative case for Follow Up Call"
+    expected: xf/medx/follow_up_call
+    label: representative
+  - case_id: fx-intake-positive
+    text: "synthetic intake mention of Intake"
+    expected: xf/medx/intake
+    label: positive
+  - case_id: fx-intake-negative
+    text: "synthetic intake mention of Intake Review"
+    expected_not: xf/medx/intake
+    label: negative
+  - case_id: fx-intake-representative
+    text: "synthetic representative case for Intake"
+    expected: xf/medx/intake
+    label: representative
+  - case_id: fx-intake_review-positive
+    text: "synthetic intake mention of Intake Review"
+    expected: xf/medx/intake_review
+    label: positive
+  - case_id: fx-intake_review-negative
+    text: "synthetic intake mention of Lab Report"
+    expected_not: xf/medx/intake_review
+    label: negative
+  - case_id: fx-intake_review-representative
+    text: "synthetic representative case for Intake Review"
+    expected: xf/medx/intake_review
+    label: representative
+  - case_id: fx-lab_report-positive
+    text: "synthetic intake mention of Lab Report"
+    expected: xf/medx/lab_report
+    label: positive
+  - case_id: fx-lab_report-negative
+    text: "synthetic intake mention of Monitoring"
+    expected_not: xf/medx/lab_report
+    label: negative
+  - case_id: fx-lab_report-representative
+    text: "synthetic representative case for Lab Report"
+    expected: xf/medx/lab_report
+    label: representative
+  - case_id: fx-monitoring-positive
+    text: "synthetic intake mention of Monitoring"
+    expected: xf/medx/monitoring
+    label: positive
+  - case_id: fx-monitoring-negative
+    text: "synthetic intake mention of Patient"
+    expected_not: xf/medx/monitoring
+    label: negative
+  - case_id: fx-monitoring-representative
+    text: "synthetic representative case for Monitoring"
+    expected: xf/medx/monitoring
+    label: representative
+  - case_id: fx-patient-positive
+    text: "synthetic intake mention of Patient"
+    expected: xf/medx/patient
+    label: positive
+  - case_id: fx-patient-negative
+    text: "synthetic intake mention of Stabilized"
+    expected_not: xf/medx/patient
+    label: negative
+  - case_id: fx-patient-representative
+    text: "synthetic representative case for Patient"
+    expected: xf/medx/patient
+    label: representative
+  - case_id: fx-stabilized-positive
+    text: "synthetic intake mention of Stabilized"
+    expected: xf/medx/stabilized
+    label: positive
+  - case_id: fx-stabilized-negative
+    text: "synthetic intake mention of Treatment"
+    expected_not: xf/medx/stabilized
+    label: negative
+  - case_id: fx-stabilized-representative
+    text: "synthetic representative case for Stabilized"
+    expected: xf/medx/stabilized
+    label: representative
+  - case_id: fx-treatment-positive
+    text: "synthetic intake mention of Treatment"
+    expected: xf/medx/treatment
+    label: positive
+  - case_id: fx-treatment-negative
+    text: "synthetic intake mention of Treatment Planning"
+    expected_not: xf/medx/treatment
+    label: negative
+  - case_id: fx-treatment-representative
+    text: "synthetic representative case for Treatment"
+    expected: xf/medx/treatment
+    label: representative
+  - case_id: fx-treatment_planning-positive
+    text: "synthetic intake mention of Treatment Planning"
+    expected: xf/medx/treatment_planning
+    label: positive
+  - case_id: fx-treatment_planning-negative
+    text: "synthetic intake mention of Triage Assessment"
+    expected_not: xf/medx/treatment_planning
+    label: negative
+  - case_id: fx-treatment_planning-representative
+    text: "synthetic representative case for Treatment Planning"
+    expected: xf/medx/treatment_planning
+    label: representative
+  - case_id: fx-triage_assessment-positive
+    text: "synthetic intake mention of Triage Assessment"
+    expected: xf/medx/triage_assessment
+    label: positive
+  - case_id: fx-triage_assessment-negative
+    text: "synthetic intake mention of Active Treatment"
+    expected_not: xf/medx/triage_assessment
+    label: negative
+  - case_id: fx-triage_assessment-representative
+    text: "synthetic representative case for Triage Assessment"
+    expected: xf/medx/triage_assessment
+    label: representative

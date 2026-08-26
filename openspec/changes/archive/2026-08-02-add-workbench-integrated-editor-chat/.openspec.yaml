@@ -1,0 +1,51 @@
+schema: spec-driven
+created: 2026-07-28
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-28-add-workbench-integrated-editor-chat
+  reason: >-
+    SWEPT BY RULING 2026-08-25, verbatim: "sweep the 23 derivable
+    proposal-origin warnings". DERIVED FROM THIS PACKET'S OWN RECORD,
+    never invented. The approval act is this packet's own lifecycle
+    citation, quoted verbatim under approved_by below. The forcing fact is
+    stated in this packet's own proposal under its Why heading, which this
+    metadata-only edit leaves untouched. KIND IS ad_hoc, not staged: this
+    packet records no Staging ID header, and no staging topic declares it
+    as an exit in ideation/staging/INDEX.md — checked in both directions,
+    because a topic that merely mentions a change is not that change's
+    origin. The origin act is the approval quoted under approved_by. The
+    created date 2026-07-28 was already recorded in this packet's own
+    .openspec.yaml and is VERIFIED, NOT REWRITTEN: it is consistent with
+    the packet's true first commit 354ded9b of 2026-08-02, which a packet
+    is authored before. This declaration supplies the origin and approval
+    pair the proposal-origin contract requires and changes nothing else
+    about the packet: no lifecycle header, no content, no status.
+  approved_by: >-
+    Per this packet's own "Ratified" citation, quoted verbatim:
+    "2026-07-29 by Brett — record: this change's own tasks.md 1.7, "Brett
+    ratified the proposal decisions and approved a narrow
+    implementation-start exception on 2026-07-29: exact `doxBench` naming,
+    local-only provider/data-handling posture, first-edit session
+    materialization, two-buffer semantics, and no-autosave/no-force-apply
+    stand", ticked. The date recorded is the ratification's, four days
+    before the archive folder's date; the archive act followed in
+    `354ded9` (2026-08-02), which promoted the doxBench capability into
+    `openspec/specs/ideation-dashboard/spec.md`. This `Status:` line is
+    written under the RULED supersession of 2026-08-23 (5D.2a):
+    `354ded9`'s recorded decision against writing a status value stands
+    unaltered and is quoted word for word in tasks.md "Bookkeeping
+    correction"; its stated reason, that no post-archive vocabulary owned
+    the field, is dissolved by the promoted rule in
+    `openspec/specs/document-lifecycle/spec.md` that now does. The
+    lowercase `status: proposed` front-matter field the author wrote is
+    deliberately LEFT STANDING and is not a second status header —
+    `doc_health.corpus.STATUS_RE` is case-sensitive and reads only this
+    line. Backfilled 2026-08-23 by `govern-openspec-corpus-membership`
+    slice 5C under OQ-6's ruling that every headerless proposal is derived
+    from its own record; no approving OpenSpec change exists to name, so
+    this is the record-citing spelling. See tasks.md "Bookkeeping
+    correction"." — recorded in its proposal at authoring time. That is
+    the approval provenance the ad-hoc exception requires, and it is why
+    this packet fell in the derivable class rather than the stop class of
+    the 2026-08-25 sweep.
+  approved_on: 2026-07-29

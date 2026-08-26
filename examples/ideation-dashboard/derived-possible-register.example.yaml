@@ -1,0 +1,68 @@
+# VALID possibles-register section — AI-DERIVED possibles
+# (add-possibles-derivation-lane task 2.3). Exercises the additive kernel delta
+# (`register_entry.origin` + `derivation`) on the register example set, wrapped
+# under the plain `possibles_register:` container key (the same convention the
+# other register fixtures use). It is validated by
+# `scripts/validate-ideation-dashboard-contracts.py` (the C3 delegated register
+# validator) and proven against the four-schema co-load registry per the
+# examples/ideation-cross-reference README methodology.
+#
+# Cases (one entry each):
+#   (1) UNDISPOSED derived possible — origin ai-derived, worker-run identity,
+#       machine `pending_review`, sourced by a claiming_clusters edge AND a
+#       supporting_evidence pin, no human_disposition yet (awaiting the gate).
+#   (2) ACCEPTED derived possible — a human authority accepted it on the gate
+#       console, so it is a first-class `latent` possible RETAINING origin
+#       ai-derived, carrying the human_disposition mirror.
+#   (3) HUMAN-AUTHORED possible — no `origin` field, no `derivation`: the delta
+#       leaves it valid and it defaults to human-authored (additive posture).
+possibles_register:
+  - id: pos-derived-wheel-honesty
+    title: WHEEL possibles honesty rail
+    claim: The dashboard WHEEL could render real derived possibles in place of demo placeholders.
+    state: latent
+    origin: ai-derived
+    provenance: {document: doc-ideation-dashboard-brainstorm, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-2026-07-16T00-00-00Z-a1b2c3
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: pending_review
+    claiming_clusters: [cl-ideation-dashboard]
+    supporting_evidence:
+      - document: doc-ideation-dashboard-brainstorm
+        section: THE WHEEL
+        passage_sha256: 1626841707979eedd6930109c80581da087b708bb3bd614f76f9c9c6446095ce
+  - id: pos-derived-lens-recipe
+    title: Persisted lens recipe possible
+    claim: The keyword-lens cluster could become a re-runnable intensional recipe.
+    state: latent
+    origin: ai-derived
+    provenance: {document: doc-keyword-lens, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-2026-07-16T00-00-00Z-d4e5f6
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: pending_review
+      human_disposition:
+        outcome: accepted
+        authority: openxFactory ideation gate
+        at: "2026-07-16"
+        note: Accepted at the gate console; proceeds on the normal pick lifecycle retaining origin ai-derived.
+    claiming_clusters: [cl-keyword-lens]
+    supporting_evidence:
+      - document: doc-keyword-lens
+        section: Set-builder
+        passage_sha256: 182ba64dc6df4c9135b26983d548d6bfd2281de1432bb25d5a794edf2a1f1081
+  - id: pos-human-authored
+    title: Human-authored backlog possible
+    claim: A possible a human declared directly in a Possible feats block, unaffected by the delta.
+    state: latent
+    provenance: {document: doc-cluster-canvas, section: Possible feats}
+    claiming_clusters: [cl-ideation-dashboard]
+    supporting_evidence:
+      - document: doc-cluster-canvas
+        section: Three-pane layout
+        passage_sha256: 6ce7776bde8c158bcfe15089223b413d2752d8ff7b6b290464b452556d46f16b

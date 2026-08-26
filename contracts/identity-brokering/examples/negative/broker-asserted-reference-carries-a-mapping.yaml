@@ -1,0 +1,39 @@
+# expected_failure: schema
+# expected_failure_detail: mapping
+# requirement: IDB-R5
+# VIOLATES R5: a mapping smuggled into a first-party assertion.
+#
+# The provenance conditionals were built to make the wrong combinations
+# unrepresentable, and they closed every one but this: `broker_asserted`
+# refused a `pre_broker` block and admitted a `mapping` block. The subject is a
+# real broker-issued one, the issuer is named, the record reads as a
+# first-party broker assertion — and it carries a mapping whose evidence
+# reference is `we inferred it from the name`.
+#
+# The point is which rules apply. Every check governing a mapping — that it
+# resolves to a broker-issued subject rather than to itself, that its target is
+# not a bare username the corpus records as pre-broker — hangs off provenance
+# being `mapped_historical_actor`. Declared `broker_asserted`, none of them run,
+# so an unverified resolution travels inside the class that is supposed to mean
+# "the broker said this".
+#
+# The three classes are exclusive. A record carrying a mapping is a record
+# whose actor was RESOLVED from a pre-broker username, and that is
+# `mapped_historical_actor` with that class's obligations attached.
+schema_version: 1
+kind: actor_subject_reference
+reference_id: asr-asserted-with-mapping-9034
+governed_record_ref:
+  record_type: gate_action
+  record_ref: "openxfactory:gate/add-openxwallet/ratify/2026-08-07"
+provenance: broker_asserted
+issuer:
+  broker_instance_id: broker-opensoft-shared
+subject: sub-8f2c41d60a974d3b
+display_name_at_record: Brett Heap
+mapping:
+  mapped_from_username: bheap
+  mapped_by: sub-ad91c740be6f5312
+  mapped_on: "2026-08-22"
+  evidence_ref: "we inferred it from the name"
+recorded_at: "2026-08-22T13:05:00Z"

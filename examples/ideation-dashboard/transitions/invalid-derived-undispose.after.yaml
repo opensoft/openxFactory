@@ -1,0 +1,25 @@
+# INVALID transition (after) — the disposed derived possible is edited BACK to
+# undisposed: its human_disposition is removed, reverting it to the machine
+# `pending_review` (undisposed) state. The disposition is one-way and MUST NOT be
+# edited back to pending_review (validator rule register-derived-undispose;
+# add-possibles-derivation-lane one-way disposition lifecycle).
+possibles_register:
+  - id: pos-da
+    title: A disposed derived possible
+    claim: A cluster could become an accepted feature.
+    state: latent
+    origin: ai-derived
+    provenance: {document: doc-a, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-run-da
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: pending_review
+      # VIOLATION: human_disposition removed — a disposed derived possible cannot
+      # be reverted to undisposed/pending_review.
+    claiming_clusters: [cl-a]
+    supporting_evidence:
+      - document: doc-a
+        section: Notes
+        passage_sha256: 8c3cb206de27f4c8a5755b29147e5793788870af96c88e7c27291a06c357cb31

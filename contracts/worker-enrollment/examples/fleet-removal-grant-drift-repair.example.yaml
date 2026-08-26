@@ -1,0 +1,73 @@
+# Positive reference example — DRIFT REPAIR on a fleet host (spec R3 scenario 2;
+# task 2.5 contract delta). The host found a stale runner registration left behind
+# by a reimage: the runner name is registered in GitHub, nothing on the machine is
+# serving it, and the lease it was created under is long gone. The host asks the
+# broker for a remove token against its CURRENT lease and deregisters the orphan.
+#
+# Read what the shape is doing:
+#
+#   * the lease is a REFERENCE (`lease_id`), not an embedded copy — the lease is
+#     the authority record and this document is not a second place to state it;
+#   * `binding.runner_group` is the token's blast radius, and it is the fleet's
+#     standing group here because this IS fleet metal. On a volunteered host the
+#     same field must name the temp group, and the canonical validator's
+#     segregation rule reads this shape exactly as it reads a lease;
+#   * there is NO `runner_package` and NO `registration_token`: a repair removes a
+#     registration and never re-enrolls. Putting a worker back to work is a fresh
+#     lease decision;
+#   * `remove_token` declares TRANSIENCE — single-use, a lifetime the pattern caps
+#     at fifteen minutes, persist and log forbidden, excluded from derived records
+#     — and carries NO `value`. The live response body carries one; no stored
+#     artifact ever may, which is why this packaged example cannot show one and the
+#     canonical validator fails any artifact that does;
+#   * `audit_ref` REFERENCES the `remove_token` audit record rather than restating
+#     its facts, so there is one evidence trail and not two that can disagree.
+schema_version: 1
+kind: worker_removal_grant
+
+removal_grant_id: rmg-cpc-omni01-0001
+requested_at: "2026-07-29T10:11:52Z"
+issued_at: "2026-07-29T10:12:00Z"
+
+lease_id: wl-cpc-omni01-0001
+estate: fleet
+
+subject:
+  class: host
+  ref: host:cpc-omni01
+  authentication_mode: host_identity
+
+host:
+  host_id: cpc-omni01
+  device_name: CPC-Omni0-P5AJB
+  managed: true
+
+worker:
+  worker_id: xfactory-coding-cpc-omni01
+  runner_name: xfactory-coding-cpc-omni01-stale
+  runner_ref: runner:4471
+
+binding:
+  runner_group: xfactory-execution-lane-workers
+
+trust_tier: managed_fleet
+
+reason: drift_repair
+reason_detail: orphaned registration left by a reimage; no service on the host is serving it
+
+remove_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-07-29T10:22:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded
+
+policy_version: worker-enrollment-v1
+
+audit_ref:
+  event: remove_token
+  record_id: aud-cpc-omni01-0043
+  record_ref: broker/audit/2026-07-29/aud-cpc-omni01-0043

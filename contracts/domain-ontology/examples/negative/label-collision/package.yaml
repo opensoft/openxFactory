@@ -1,0 +1,26 @@
+# expected_failure: ONT-LABEL-COLLISION
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/negx
+package_version: 1.0.0
+namespace: xf/negx
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: negx-steward
+    role: accountable_steward
+    identity_kind: human
+kernel_import:
+  package_id: xf/core
+  package_version: 1.0.0
+  package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+inventory:
+  - path: concepts.yaml
+    sha256: 891caad4a7a5d90e3ff8304aa25e440d40d4d29acfda09708434fd68dc7985fe
+package_digest: 5fb77284249beeca231761635f2fe128bd979211c8e0c89b6fa746742318aac7
+compatibility:
+  class: initial
+  line: xf/negx@1

@@ -1,0 +1,12 @@
+# INVALID gate-intent: status=applied without the required applied_record —
+# an applied intent must chain to its gate-action record. Violated rule:
+# allOf applied->applied_record. Layer: SCHEMA.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: dispose-possible
+target:
+  possible_id: pos-derived-wheel-honesty
+requested_at: "2026-07-23T20:00:00Z"
+snapshot_rev_seen: "563ea35d066d"
+status: applied

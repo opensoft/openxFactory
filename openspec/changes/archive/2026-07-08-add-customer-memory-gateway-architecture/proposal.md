@@ -1,3 +1,6 @@
+Status: ratified
+Ratified: 2026-07-08 — record: the archive act, commit `d5ada44` "Reconcile domain-neutral spec ownership", which applied this change's spec delta into `openspec/specs/memory-gateway/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. That one commit both archived this change and created the promoted capability, so the archive act and the promotion are the same act here. Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
+
 ## Why
 
 Customer Hermes needs a governed brain/memory/personality layer, but the stack

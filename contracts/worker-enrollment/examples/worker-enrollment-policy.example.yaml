@@ -1,0 +1,124 @@
+# Positive reference example — the OpsxFactory-owned policy the broker consumes
+# (design D3, D2, D6, D8; spec R7, R8). This is the estate policy instance, not
+# broker-local config: the broker reads the merged document and never accepts a
+# floor from an ad-hoc call, and raising a floor travels the governed review lane
+# because it denies work across a whole estate.
+#
+# The two declarations the canonical validator reads from here are
+# `estates.temp.runner_group` (the group a volunteer lease must bind) and
+# `standing_execution_lane_runner_groups` (the groups it must never bind). With a
+# policy in scope the segregation rule is checked against these facts rather than
+# against a naming heuristic.
+schema_version: 1
+kind: worker_enrollment_policy
+
+policy_version: worker-enrollment-v1
+effective_from: "2026-07-26T00:00:00Z"
+
+cadence:
+  # Design D2: the hourly supervisor already exists, so renewal is free; 24h TTL
+  # with 12h grace means an overnight or a flaky VPN never fails a worker closed,
+  # while a revoked laptop loses authority within a working day at worst.
+  ttl: PT24H
+  renewal_interval: PT1H
+  grace: PT12H
+  clock_skew_tolerance: PT5M
+
+registration_token:
+  # The estate ceiling on "short-lived" (spec R2). A grant declares its own
+  # bounded `lifetime`; this is the cap the broker may not exceed, and the
+  # canonical validator checks every grant's granted_at -> expires_at span
+  # against it — so "short-lived, single-use" is a number three realizations
+  # share rather than an adjective each interprets.
+  max_lifetime: PT15M
+  single_use: true
+
+estates:
+  fleet:
+    authentication_mode: host_identity
+    min_app_version: 1.4.0
+    runner_package:
+      mode: pinned
+      version: v2.336.0
+      platform: win-x64
+      sha256: d59123a43003e357b0805b5d0f611d0bd2f65ab67d51bd070dd4e7a0f685c162
+      self_update: disabled
+      delivery: manifest_rollout
+    runner_group: xfactory-execution-lane-workers
+    labels:
+      - self-hosted
+      - omnigent
+      - coding-patch
+    trust_tier: managed_fleet
+    manifest_source: delivery_plane
+  temp:
+    authentication_mode: device_code
+    min_app_version: 1.4.0
+    runner_package:
+      mode: self_update
+      self_update: enabled
+      observed_version_handling: informational
+    runner_group: xfactory-temp-volunteer-workers
+    labels:
+      - self-hosted
+      - omnigent
+      - temp
+      - volunteered
+    trust_tier: volunteered_hardware
+    manifest_source: broker_served
+    manifest_template:
+      workers: 1
+      profiles:
+        - coding-patch-worker
+      benches: []
+
+eligibility:
+  groups:
+    - estate: fleet
+      directory_group_ref: entra-group:xfactory-worker-hosts
+    - estate: temp
+      directory_group_ref: entra-group:xfactory-engineering
+  max_machines_per_engineer: 1
+
+trust_tiers:
+  - id: managed_fleet
+    accepts_sensitive_work: true
+    runner_group_projection: xfactory-execution-lane-workers
+    label_projection:
+      - self-hosted
+      - omnigent
+    description: Intune-managed estate hardware under managed delivery
+  - id: volunteered_hardware
+    accepts_sensitive_work: false
+    runner_group_projection: xfactory-temp-volunteer-workers
+    label_projection:
+      - temp
+      - volunteered
+    description: engineer-owned workstation; unvetted hardware, no standing secret
+
+execution_lanes:
+  # The LANE SIDE of R8 scenario 3. The tier on the lease says what a worker is;
+  # this says what a lane will take. Two lanes can now differ — the standing lane
+  # accepts managed fleet metal only, the temp lane accepts volunteered hardware
+  # — without carving yet another runner group to express it, and the canonical
+  # validator refuses a standing lane that accepts volunteered hardware.
+  - lane_ref: lane:xfactory-coding-standing
+    runner_group: xfactory-execution-lane-workers
+    accepts_trust_tiers:
+      - managed_fleet
+    accepts_sensitive_work: true
+    description: standing coding lane; managed fleet metal only
+  - lane_ref: lane:xfactory-coding-temp
+    runner_group: xfactory-temp-volunteer-workers
+    accepts_trust_tiers:
+      - volunteered_hardware
+    accepts_sensitive_work: false
+    description: volunteer workstations; no sensitive work
+
+standing_execution_lane_runner_groups:
+  - xfactory-execution-lane-workers
+
+review:
+  floor_raise_path: governed_review_lane
+  owner: opsxfactory
+  note: raising a floor denies work estate-wide, so it lands through the governed lane

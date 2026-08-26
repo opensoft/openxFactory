@@ -1,0 +1,75 @@
+# Positive reference example — REVOCATION-DRIVEN removal on a volunteered
+# workstation (spec R3 scenario 2, R6; design D7; task 2.5 contract delta). This is
+# the follow-on to `revocation-audit-record.example.yaml`: the same lease
+# (`wl-ws-brett-01-0001`), revoked by the same duty operator because its owner left
+# the company, with the machine powered off and never contacted.
+#
+# THE REMOVAL IS NOT THE REVOCATION. The revocation already took effect the moment
+# the lease was marked revoked — the next renewal is refused, and that needs no
+# reach into the machine, no deleted registration, and no engineer's cooperation
+# (spec R6). This grant removes the GitHub-side registration afterwards, because
+# leaving a runner registered against a departed engineer's laptop is untidy rather
+# than dangerous. Local state removal on that machine stays best-effort by design.
+#
+# Three things the temp estate changes and one it does not:
+#
+#   * `binding.runner_group` names the DEDICATED temp group. It must: a remove
+#     token is authority over registrations in a runner group, so one scoped to a
+#     standing execution lane would let volunteered hardware deregister fleet
+#     workers. The canonical validator's segregation rule reads this shape exactly
+#     as it reads a lease;
+#   * the subject is the OPERATOR, by `operator_action` — the engineer is gone, and
+#     a revocation-driven removal is an operator decision;
+#   * `trust_tier` and `host.managed` say volunteered and unmanaged, and the shape
+#     couples them to `estate: temp` in both directions, so no single relabelled
+#     enum can make this read as fleet metal;
+#   * the transient-token discipline is IDENTICAL to the fleet case and to an
+#     enrollment grant. One protocol, two estates.
+schema_version: 1
+kind: worker_removal_grant
+
+removal_grant_id: rmg-ws-brett-01-0001
+requested_at: "2026-08-20T11:04:10Z"
+issued_at: "2026-08-20T11:04:12Z"
+
+lease_id: wl-ws-brett-01-0001
+estate: temp
+
+subject:
+  class: operator
+  ref: operator:opsx-duty-1
+  authentication_mode: operator_action
+
+host:
+  host_id: ws-brett-01
+  device_name: WS-BRETT-TUBV0
+  managed: false
+
+worker:
+  worker_id: xfactory-coding-temp-ws-brett-01
+  runner_name: xfactory-coding-temp-ws-brett-01
+
+binding:
+  runner_group: xfactory-temp-volunteer-workers
+
+trust_tier: volunteered_hardware
+
+reason: revocation
+reason_detail: registration removed after the lease was revoked; the machine was offline throughout
+
+remove_token:
+  transient: true
+  single_use: true
+  lifetime: PT5M
+  expires_at: "2026-08-20T11:09:12Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded
+
+policy_version: worker-enrollment-v2
+
+audit_ref:
+  event: remove_token
+  record_id: aud-ws-brett-01-0212
+  record_ref: broker/audit/2026-08-20/aud-ws-brett-01-0212

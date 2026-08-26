@@ -1,0 +1,196 @@
+schema_version: 1
+name: xfactory_ontology_package_manifest
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-package-manifest.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, tasks 2.1-2.3). The
+# manifest of one content-addressed ontology package — the xFactory kernel
+# (`is_kernel: true`, namespace `xf/core`, owned by openxFactory) or a domain
+# package (owned by Domain Hermes in the DomainxFactory repository).
+#
+# THE PACKAGE IS IMMUTABLE ONCE PUBLISHED (spec: Content-addressed ontology
+# package contract). `inventory` lists every content file with its raw sha256;
+# `package_digest` is sha256 over the sorted "path sha256" lines of the
+# inventory (one per line, "\n"-joined, UTF-8) — the manifest itself is NOT
+# inventoried, so the digest has no self-reference; manifest integrity rides
+# version control. Published bytes stay retrievable at their digest while any
+# pin or historical artifact references them: supersession, deprecation, and
+# retirement change `lifecycle_state`, never bytes.
+#
+# ADOPTION EVIDENCE (spec: Neutral semantic kernel ownership): a PUBLISHED
+# kernel term needs two independent resolvable adopters; a DRAFT kernel may
+# record `adoption.status: pending` so the initial kernel can exist before any
+# domain package does. The canonical validator enforces the publication gate.
+#
+# THE CLOSED FIELD VOCABULARY IS THE AUTHORITY FIREWALL (spec: Deterministic
+# semantic conformance): `additionalProperties: false` at every level means an
+# `effect:`, `permission:`, `grant:`, `credential:`, `scope:`, or routing field
+# cannot be attached anywhere; the canonical validator additionally scans all
+# names and reference values for authority-plane record kinds.
+type: object
+required:
+  - schema_version
+  - kind
+  - package_id
+  - package_version
+  - namespace
+  - is_kernel
+  - lifecycle_state
+  - owner
+  - stewards
+  - inventory
+  - package_digest
+  - compatibility
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_ontology_package_manifest
+  package_id:
+    $ref: "#/$defs/namespace_id"
+  package_version:
+    type: string
+    pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+  namespace:
+    # Equals package_id; every term ID in the package starts with "<namespace>/".
+    $ref: "#/$defs/namespace_id"
+  is_kernel:
+    type: boolean
+  lifecycle_state:
+    enum: [draft, published, superseded, deprecated, retired]
+  owner:
+    type: object
+    required: [layer, name]
+    additionalProperties: false
+    properties:
+      layer:
+        # openxfactory owns exactly the kernel; domain_hermes owns every
+        # domain package (spec: four semantic strata, design decision 1).
+        enum: [openxfactory, domain_hermes]
+      name:
+        $ref: "#/$defs/constrained_text"
+  stewards:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [steward_id, role, identity_kind]
+      additionalProperties: false
+      properties:
+        steward_id:
+          $ref: "#/$defs/slug"
+        role:
+          enum: [accountable_steward, reviewer, council]
+        identity_kind:
+          # Publication decisions must resolve to human or council identity;
+          # a worker/agent-attributed publication fails validation (spec:
+          # Domain Hermes ontology stewardship).
+          enum: [human, council, worker, agent]
+        name:
+          $ref: "#/$defs/constrained_text"
+  kernel_import:
+    # Required for domain packages (validator enforces is_kernel XOR
+    # kernel_import); the exact kernel line the package specializes.
+    type: object
+    required: [package_id, package_version, package_digest]
+    additionalProperties: false
+    properties:
+      package_id:
+        const: xf/core
+      package_version:
+        type: string
+        pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      package_digest:
+        $ref: "#/$defs/sha256"
+  inventory:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [path, sha256]
+      additionalProperties: false
+      properties:
+        path:
+          type: string
+          pattern: "^[A-Za-z0-9._/-]{1,200}$"
+        sha256:
+          $ref: "#/$defs/sha256"
+  package_digest:
+    $ref: "#/$defs/sha256"
+  compatibility:
+    type: object
+    required: [class, line]
+    additionalProperties: false
+    properties:
+      class:
+        enum: [additive, clarifying, breaking, retiring, initial]
+      line:
+        # Compatibility line, e.g. "xf/medx@1"; a breaking revision starts a
+        # new line (spec: Immutable ontology evolution and compatibility).
+        type: string
+        pattern: "^xf/[a-z0-9_]+@[0-9]+$"
+      previous:
+        type: object
+        required: [package_version, package_digest]
+        additionalProperties: false
+        properties:
+          package_version:
+            type: string
+            pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          package_digest:
+            $ref: "#/$defs/sha256"
+      migration_map:
+        # Path of the migration map inside the family tree; required by the
+        # validator when class is breaking or retiring.
+        type: string
+        pattern: "^[A-Za-z0-9._/-]{1,200}$"
+  supersedes:
+    type: array
+    items:
+      type: object
+      required: [package_version, package_digest]
+      additionalProperties: false
+      properties:
+        package_version:
+          type: string
+          pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        package_digest:
+          $ref: "#/$defs/sha256"
+  adoption:
+    # Kernel-only cross-factory adoption evidence.
+    type: object
+    required: [status]
+    additionalProperties: false
+    properties:
+      status:
+        enum: [pending, evidenced]
+      adopters:
+        type: array
+        items:
+          type: object
+          required: [kind, ref]
+          additionalProperties: false
+          properties:
+            kind:
+              enum: [domain_package, shared_subsystem_contract]
+            ref:
+              # A domain package id (xf/<domain>) or a repo-relative contract
+              # path; the validator resolves it.
+              type: string
+              pattern: "^[A-Za-z0-9._/@-]{1,200}$"
+  notes:
+    $ref: "#/$defs/constrained_text"
+$defs:
+  namespace_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  slug:
+    type: string
+    pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
+  sha256:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+  constrained_text:
+    type: string
+    minLength: 1
+    maxLength: 400

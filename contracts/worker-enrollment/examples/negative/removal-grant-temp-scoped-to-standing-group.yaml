@@ -1,0 +1,65 @@
+# expected_failure: temp-lease-in-standing-group
+# VIOLATES spec R8 on the shape where the violation costs the most. Everything here
+# is honestly labelled — `estate: temp`, `trust_tier: volunteered_hardware`,
+# `host.managed: false`, an operator subject — and the removal grant is scoped to
+# the STANDING execution-lane runner group.
+#
+# A remove token is not authority over one runner: it is authority to deregister
+# registrations in a runner GROUP. So a removal grant scoped to
+# `xfactory-execution-lane-workers` and handed to (or on behalf of) a volunteered
+# workstation is a token that can deregister FLEET workers out of the standing lane
+# — a strictly larger hazard than the temp LEASE the segregation rule was written
+# for, arriving through a call whose stated purpose is tidying up.
+#
+# This is why `worker_removal_grant.binding.runner_group` is named to match
+# `worker_lease.binding.runner_group`: the canonical validator's rule (b) reads a
+# removal grant exactly as it reads a lease, with no special case that could fall
+# out of step, and the check is armed by ANY temp-shaped fact rather than by the
+# estate label alone. It fires here through the declared-policy path AND through the
+# no-policy naming fallback, which is the path a broker checkout actually runs.
+schema_version: 1
+kind: worker_removal_grant
+
+removal_grant_id: rmg-ws-lee-02-0001
+issued_at: "2026-08-22T09:41:00Z"
+
+lease_id: wl-ws-lee-02-0001
+estate: temp
+
+subject:
+  class: operator
+  ref: operator:opsx-duty-2
+  authentication_mode: operator_action
+
+host:
+  host_id: ws-lee-02
+  device_name: WS-LEE-QH4RM
+  managed: false
+
+worker:
+  worker_id: xfactory-coding-temp-ws-lee-02
+  runner_name: xfactory-coding-temp-ws-lee-02
+
+binding:
+  runner_group: xfactory-execution-lane-workers
+
+trust_tier: volunteered_hardware
+
+reason: teardown
+reason_detail: volunteer uninstall; clearing the registration
+
+remove_token:
+  transient: true
+  single_use: true
+  lifetime: PT5M
+  expires_at: "2026-08-22T09:46:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded
+
+policy_version: worker-enrollment-v1
+
+audit_ref:
+  event: remove_token
+  record_id: aud-ws-lee-02-0003

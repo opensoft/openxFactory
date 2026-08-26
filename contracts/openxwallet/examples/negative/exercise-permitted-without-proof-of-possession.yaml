@@ -1,0 +1,32 @@
+# expected_failure: proof-of-possession-missing
+# expected_failure_detail: possession of a grant confers nothing
+# requirement: OXW-R3
+# VIOLATES core R3: a grant PRESENTED and accepted, with no proof of
+# possession.
+#
+# This is the bearer-token model the requirement exists to refuse. The grant
+# is genuine and unexpired, and that is precisely the problem: if presentation
+# sufficed, a grant copied out of a log, a config file or an intercepted
+# request would carry the holder's full authority. Requiring a signature from
+# the holder's key over the request is what makes a stolen grant inert, which
+# is the property a bearer model cannot offer.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-bearer-0009
+grant_ref: grant-posting-derived-0002
+act: post_transaction
+object_ref: purchase-invoice:LXRP0011
+occurred_at: "2026-08-07T12:00:00Z"
+event_class: unauthenticated_request
+proof_of_possession:
+  presented: false
+attribution:
+  mode: key_attributed
+  presenting_key_ref: key-poster-0001
+  wallet_ref: wal-agent-poster-0001
+  holder_ref: agent:ledger-poster
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+outcome: permitted

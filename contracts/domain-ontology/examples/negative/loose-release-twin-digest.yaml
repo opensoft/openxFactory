@@ -1,0 +1,10 @@
+# expected_failure: ONT-RELEASE
+# expected_failure_detail: worker/agent
+schema_version: 1
+kind: xfactory_ontology_release_record
+release_id: rel-negq-agent-try
+package_id: xf/negq
+package_version: 1.0.0
+package_digest: 0f616b64aeccf79e31a81d3c436d27ea8344bed0d87576111fced59f65822824
+compatibility_class: initial
+decided_by: negq-bot

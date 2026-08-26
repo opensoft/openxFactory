@@ -1,0 +1,15 @@
+# expected_failure: adjudication-pairing
+# A capability_wrong verdict paired with an episode relabel — verdicts and
+# consequences pair so the right artifact gets corrected.
+schema_version: 1
+kind: adjudication_record
+adjudication_id: "adj:opensoft:neg:0001"
+context: shadow
+capability_ref: "cap:opensoft:neg"
+episode_ref: "ep:opensoft:neg:0001"
+disagreement: "the capability emitted a malformed index entry"
+verdict: capability_wrong
+consequence: episode_relabel
+adjudicator:
+  kind: human
+  ref: "human:brett"

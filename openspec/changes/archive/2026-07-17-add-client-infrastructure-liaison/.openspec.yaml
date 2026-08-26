@@ -1,0 +1,48 @@
+schema: spec-driven
+created: 2026-07-16
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-16-add-client-infrastructure-liaison
+  reason: >-
+    SWEPT BY RULING 2026-08-25, verbatim: "sweep the 23 derivable
+    proposal-origin warnings". DERIVED FROM THIS PACKET'S OWN RECORD,
+    never invented. The approval act is this packet's own lifecycle
+    citation, quoted verbatim under approved_by below. The forcing fact is
+    stated in this packet's own proposal under its Why heading, which this
+    metadata-only edit leaves untouched. KIND IS ad_hoc, not staged: this
+    packet records no Staging ID header, and no staging topic declares it
+    as an exit in ideation/staging/INDEX.md — checked in both directions,
+    because a topic that merely mentions a change is not that change's
+    origin. The origin act is the approval quoted under approved_by. The
+    created date 2026-07-16 was already recorded in this packet's own
+    .openspec.yaml and is VERIFIED, NOT REWRITTEN: it is consistent with
+    the packet's true first commit 3a66fc59 of 2026-07-17, which a packet
+    is authored before. This declaration supplies the origin and approval
+    pair the proposal-origin contract requires and changes nothing else
+    about the packet: no lifecycle header, no content, no status.
+  approved_by: >-
+    Per this packet's own "Ratified" citation, quoted verbatim:
+    "2026-07-16 by Brett — record: this change's own tasks.md 4.1, under
+    its "## 4. Ratification gate" heading — "[GATE] Product-owner sign-off
+    on D1 ... and D5 ... recorded here before the specs are treated as
+    settled. — SIGNED OFF by Brett, 2026-07-16, item-by-item", ticked, and
+    closing with the decisive clause the same line records: "Governing doc
+    flipped to `Status: ratified` + `Ratified by:
+    add-client-infrastructure-liaison` at this gate" —
+    `docs/client-infrastructure-liaison.md` carries exactly that header
+    today, verified against the live file; the archive act followed on
+    2026-07-17 in `3a66fc5`, "Archive add-client-infrastructure-liaison
+    (5.2); promote capabilities", which promoted
+    `openspec/specs/client-infrastructure-liaison/spec.md` and
+    `openspec/specs/client-infrastructure-request/spec.md` and updated
+    `openspec/specs/roles-authority-model/spec.md`. The date recorded is
+    the sign-off's, which is one day before the archive folder's.
+    Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C
+    under OQ-6's ruling that every headerless proposal is derived from its
+    own record; no approving OpenSpec change exists to name, so this is
+    the record-citing spelling. See tasks.md "Bookkeeping correction"." —
+    recorded in its proposal at authoring time. That is the approval
+    provenance the ad-hoc exception requires, and it is why this packet
+    fell in the derivable class rather than the stop class of the
+    2026-08-25 sweep.
+  approved_on: 2026-07-16

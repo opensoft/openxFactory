@@ -1,0 +1,30 @@
+schema: spec-driven
+created: 2026-08-21
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-21-implement-keycloak-install-repo
+  reason: >-
+    Successor of a RATIFIED change rather than of a staged topic.
+    `add-identity-brokering` (ratified 2026-08-21 by Brett Heap, realized at
+    `contract-v1.37`) added the `repo-boundary-governance` requirement
+    "Keycloak install repository boundary", and that requirement names THIS
+    change id as the act that creates the repository; the parent's tasks 4.2
+    describes the same handoff. The organized source material for this change
+    is therefore the ratified requirement itself, cited in the proposal — not
+    an unstaged idea. `ad_hoc` is the correct kind and not a substitute for
+    staging: the staged topic that fathered the parent
+    (`openxFactory:staging:identity-brokering-plane`) was CONSUMED at the
+    parent's proposal transition — its
+    `supporting-docs/manifest.yaml` records `remaining_paths: []` and the
+    folder no longer exists under `ideation/staging/` — so declaring
+    `kind: staged` here would claim a staging source that cannot resolve,
+    which the `document-lifecycle` proposal-gate scenario rejects. This change
+    creates and seeds ONE repository under an already-ratified boundary; it
+    deploys no broker, defines no realm, holds no credential, and does not
+    admit the repository to the aggregation.
+  approved_by: >-
+    Brett Heap, 2026-08-21 (session instruction "do both install repos",
+    following his same-day ruling that the install repositories are
+    Opensoft-level and unprefixed, recorded as the parent proposal's
+    Amendment)
+  approved_on: 2026-08-21

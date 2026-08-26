@@ -1,0 +1,64 @@
+# expected_failure: estate-coherence
+# expected_failure_detail: estate 'fleet' contradicts
+# VIOLATES spec R1/R8 the same way `volunteer-lease-relabelled-as-fleet.yaml` and
+# `audit-record-volunteer-as-managed-fleet.yaml` do, on the third shape that carries
+# the four coupled facts. `host.managed: false` and
+# `trust_tier: volunteered_hardware` describe a volunteered workstation;
+# `estate: fleet` claims managed metal.
+#
+# On a removal grant the relabelling is worse than on either of the other two,
+# because the segregation rule that keeps volunteered hardware out of a standing
+# runner group KEYS OFF THE ESTATE — so a removal grant that reads as fleet can be
+# scoped to the standing execution lane without rule (b) ever arming. That is why
+# the rule is additionally armed by any temp-shaped fact, why the shape couples the
+# four fields in both directions, and why this fixture exists: a rule branch with no
+# fixture is a rule branch that rots.
+#
+# The runner group here is the honest temp one, so the ONLY finding is the estate
+# lie — the fixture tests the coupling and nothing else.
+schema_version: 1
+kind: worker_removal_grant
+
+removal_grant_id: rmg-ws-nia-03-0001
+issued_at: "2026-08-24T15:02:00Z"
+
+lease_id: wl-ws-nia-03-0001
+estate: fleet
+
+subject:
+  class: operator
+  ref: operator:opsx-duty-3
+  authentication_mode: operator_action
+
+host:
+  host_id: ws-nia-03
+  device_name: WS-NIA-D9KPT
+  managed: false
+
+worker:
+  worker_id: xfactory-coding-temp-ws-nia-03
+  runner_name: xfactory-coding-temp-ws-nia-03
+
+binding:
+  runner_group: xfactory-temp-volunteer-workers
+
+trust_tier: volunteered_hardware
+
+reason: revocation
+reason_detail: registration removed after revocation
+
+remove_token:
+  transient: true
+  single_use: true
+  lifetime: PT5M
+  expires_at: "2026-08-24T15:07:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded
+
+policy_version: worker-enrollment-v1
+
+audit_ref:
+  event: remove_token
+  record_id: aud-ws-nia-03-0002

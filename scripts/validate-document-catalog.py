@@ -38,7 +38,7 @@ Two layers always run:
 
 `--inventory FILE` supplies an external `{repo, path|document_ref}` list
 (the shared doc-health inventory this validator does not itself own —
-codexFactory task 3.x) to check exact coverage; without it, coverage
+doc_health task 3.x) to check exact coverage; without it, coverage
 checking is limited to the duplicate-identity half it can prove alone.
 `--baseline` discloses that complete-coverage enforcement is not yet
 active (spec requirement "Full baseline and incremental refresh", scenario
@@ -321,8 +321,8 @@ def check_source_freshness(f: Findings, label: str, doc: dict) -> None:
     snapshot id from its own run. An entry recording a different revision
     or snapshot_id than the run that carries it is evidence stale relative
     to that run, never current — the one freshness dimension this
-    validator can prove without the live shared inventory (codexFactory
-    task 3.x owns cross-inventory freshness)."""
+    validator can prove without the live shared inventory (the in-repo
+    doc_health inventory, task 3.x, owns cross-inventory freshness)."""
     run = doc.get("run") or {}
     run_rev = run.get("repository_revision")
     run_snap = run.get("inventory_snapshot_id")
@@ -486,7 +486,7 @@ def check_taxonomy_digest_consistency(f: Findings, snapshots: list[tuple[str, di
     registry_revision are provenance and must never change it. This
     validator checks that invariant across every snapshot it is given
     rather than recomputing the digest bit-for-bit (recomputation is
-    codexFactory's `document_catalog.py`, task 5.x)."""
+    the in-repo `scripts/doc_health/document_catalog.py`, task 5.x)."""
     seen: dict[tuple, tuple[str, str]] = {}
     for label, doc in snapshots:
         taxonomy = doc.get("taxonomy") or {}
@@ -523,7 +523,7 @@ def _standing_violation(repo: str, actor: str) -> str | None:
     this checks the correct owning-authority CLASS for the correct
     repository (openxFactory ratify authority naming both "openxfactory"
     and "ratify"; a domain's Domain Hermes naming that domain specifically)
-    rather than hardcoding the sibling codexFactory realization's exact
+    rather than hardcoding the in-repo realization's exact
     `_owning_authority` convention (`scripts/doc_health/document_catalog.py`
     / `semantic.NEUTRAL_DISPOSER`) verbatim — that convention may reasonably
     reword without becoming a contract violation. Verifying the actor's
@@ -559,7 +559,7 @@ def check_snapshot_review_standing(f: Findings, label: str, doc: dict) -> None:
     ownership standing for that entry's `repo` (see `_standing_violation`)
     — the spec's "aggregation-side edits or actors without standing MUST
     NOT create reviewed or overridden state" is otherwise unenforceable on
-    a committed `status: record` snapshot. The codexFactory realization's
+    a committed `status: record` snapshot. The in-repo realization's
     `_override_standing_findings` checks this same merged surface."""
     for entry in doc.get("entries") or []:
         key = _entry_key(entry)

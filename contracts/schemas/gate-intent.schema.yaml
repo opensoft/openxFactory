@@ -1,0 +1,152 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "gate-intent.schema.yaml"
+title: "Gate intent: a signed, attributed REQUEST for a gate-console action"
+contract_schema_version: 1
+type: object
+description: >-
+  One human's REQUEST that a gate-console verb be applied (the
+  `ideation-intent-plane` capability, `add-ideation-intent-plane`). An intent
+  is NEVER a write and never a record of an applied act — it is the artifact
+  a zero-write-authority client (the hosted dashboard, the Flutter verdict
+  terminal) emits so the apply lane can execute the verb through the
+  gate-console engine with full server-side revalidation. The applied act's
+  durable trace is the sibling `gate-action-record`; an applied intent
+  references its resulting record (`applied_record`), giving the
+  request->act chain without conflating the two kinds.
+
+  IDENTITY. `actor` is stamped by the intent inbox from the
+  ingress-authenticated identity, never trusted from a client body (the
+  delta's "A forged actor is ignored" scenario). Replacing the authenticator
+  (per-user Basic Auth -> Keycloak SSO) does not change this contract.
+
+  CONCURRENCY. `snapshot_rev_seen` records the snapshot source_revision the
+  actor was viewing when they decided; the apply lane refuses an intent whose
+  target has materially advanced past it (stale-view refusal — the register
+  fingerprint CAS precedent).
+
+  LIFECYCLE (one-way, enforced by the delegated validator across snapshots;
+  this schema expresses only per-status field requirements):
+    pending -> applied | refused.  Neither applied nor refused ever returns
+  to pending; a re-decision is a NEW intent.
+
+  WHEEL ACTION COMMISSIONS (`add-wheel-action-verbs`; additive growth of
+  `contract_schema_version: 1`): `promote-to-staging`, `derive-possibles`,
+  and `research-brief` request governed workflow dispatches. Their targets
+  are respectively a possible, a cluster, and a possible. `demote` is
+  unchanged by that change: it was already enumerated here with a
+  `change_id` target and remains the request for the existing two-step
+  plan-and-record / human-execute path.
+
+  PROJECT CREATION COMMISSION (`add-project-scoped-selection`; additive
+  growth of `contract_schema_version: 1`): `create-project` requests a
+  `project-register-edit` workflow dispatch targeting a `project_id` (the
+  id is orchestration-slugged from the proposed name at commission time).
+  The dashboard never writes the aggregation-owned register itself — the
+  fulfilment of the recorded commission applies the edit.
+
+  PROJECT MEMBERSHIP COMMISSION (`add-opendox-project-header`; additive
+  growth of `contract_schema_version: 1`): `edit-project` requests the
+  same `project-register-edit` dispatch for an EXISTING project, its
+  args carrying the added and removed member lists. Same boundary: only
+  the fulfilment writes the register.
+
+  ADDITIVE / forward-compatible: objects stay open (no
+  additionalProperties: false), consumers ignore unknown properties, and
+  additive growth needs no contract_schema_version bump (the
+  ideation-dashboard family posture).
+required: [schema_version, kind, actor, verb, target, requested_at, snapshot_rev_seen, status]
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: gate-intent
+  actor:
+    type: string
+    minLength: 1
+    # The ingress-authenticated human identity (inbox-stamped, never
+    # client-supplied).
+  verb:
+    type: string
+    enum: [demote, edit-apply, ratify, kickoff, dispose-possible, propose,
+           promote-to-staging, derive-possibles, research-brief,
+           create-project, edit-project]
+    # The intent-transportable subset of gate-action-record.action: only the
+    # console verbs the zero-write-authority request plane carries. The
+    # record enum is wider (session/document verbs like create-document,
+    # edit-document, open-pr, abandon-session, and the lens-* pair are
+    # record-only) — grow this enum only when a verb becomes requestable
+    # through the intent plane, not on every record-enum growth.
+    # `propose` (add-propose-verb)
+    # commissions proposal authoring for a staging topic — the same
+    # recorded-dispatch mechanic as kickoff, one boundary earlier. The three
+    # `add-wheel-action-verbs` commissions extend that mechanic without
+    # changing `demote`, which was already present in this enum.
+  target:
+    type: object
+    # Mirrors gate-action-record.target: the change-lifecycle verbs address a
+    # change_id; dispose-possible addresses a possible_id (+ outcome in args);
+    # propose addresses a staging topic_id; promote-to-staging and
+    # research-brief address a possible_id; derive-possibles addresses a
+    # cluster_id; create-project addresses a project_id.
+    properties:
+      change_id: {type: string, minLength: 1}
+      possible_id: {type: string, minLength: 1}
+      cluster_id: {type: string, minLength: 1}
+      topic_id: {type: string, minLength: 1}
+      project_id: {type: string, minLength: 1}
+      document: {type: string, minLength: 1}
+  args:
+    type: object
+    # Verb arguments exactly as the console entrypoint takes them (e.g.
+    # dispose-possible: outcome, reason, citation, note). The apply lane —
+    # not this schema — enforces per-verb argument legality; the lane
+    # recomputes/validates everything server-side.
+  requested_at:
+    type: string
+    format: date-time
+  snapshot_rev_seen:
+    type: string
+    minLength: 7
+    # The snapshot generation.source_revision the actor was viewing.
+  status:
+    type: string
+    enum: [pending, applied, refused]
+  refusal_reason:
+    type: string
+    minLength: 1
+    # REQUIRED when status=refused (allOf below) — a silent refusal is
+    # invalid (the delta's "A refused intent is visible" scenario).
+  applied_record:
+    type: string
+    minLength: 1
+    # REQUIRED when status=applied (allOf below): repo-relative path (or id)
+    # of the resulting gate-action record — the request->act chain.
+  applied_at:
+    type: string
+    format: date-time
+  idempotency_key:
+    type: string
+    minLength: 1
+    # Digest over (actor, verb, target, snapshot_rev_seen); the lane skips
+    # already-applied duplicates.
+allOf:
+  - if: {properties: {status: {const: refused}}, required: [status]}
+    then: {required: [refusal_reason]}
+  - if: {properties: {status: {const: applied}}, required: [status]}
+    then: {required: [applied_record]}
+  - if: {properties: {verb: {const: dispose-possible}}, required: [verb]}
+    then: {properties: {target: {required: [possible_id]}}}
+  - if: {properties: {verb: {const: propose}}, required: [verb]}
+    then: {properties: {target: {required: [topic_id]}}}
+  - if: {properties: {verb: {const: promote-to-staging}}, required: [verb]}
+    then: {properties: {target: {required: [possible_id]}}}
+  - if: {properties: {verb: {const: derive-possibles}}, required: [verb]}
+    then: {properties: {target: {required: [cluster_id]}}}
+  - if: {properties: {verb: {const: research-brief}}, required: [verb]}
+    then: {properties: {target: {required: [possible_id]}}}
+  - if: {properties: {verb: {const: create-project}}, required: [verb]}
+    then: {properties: {target: {required: [project_id]}}}
+  - if: {properties: {verb: {const: edit-project}}, required: [verb]}
+    then: {properties: {target: {required: [project_id]}}}
+  - if: {properties: {verb: {enum: [demote, edit-apply, ratify, kickoff]}}, required: [verb]}
+    then: {properties: {target: {required: [change_id]}}}

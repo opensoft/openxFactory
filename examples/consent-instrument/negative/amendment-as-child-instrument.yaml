@@ -1,0 +1,42 @@
+# INVALID consent instrument — violates spec requirement "Amendments Are
+# Transitions, Never New Instruments" (ruling D7): a NEW instrument carrying
+# `parent_ref` to the instrument it claims to amend. The neutral schema has
+# NO parent_ref property anywhere and the record object is closed
+# (additionalProperties: false), so this is schema-rejected — an amendment
+# is a status transition carrying its delta on the EXISTING instrument, and
+# every consent citation keeps resolving to the same instrument identifier.
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: "ci-demo-advisory-0001-amend-1"
+parent_ref: "ci-demo-advisory-0001"
+domain: demo-advisory
+instrument_class: engagement_letter
+parties:
+  - party: "Acme Advisors LLP"
+    rung: 1
+    role: tenant_firm
+    authority_basis: direct
+  - party: "Meridian Retail Ltd"
+    rung: 2
+    role: subject_client_company
+    authority_basis: direct
+scope:
+  purposes: [bookkeeping, monthly-close]
+  out_of_scope: [payroll-support]
+autonomy_position: "hypothesis_only"
+revocation:
+  right: "Either party may revoke delegated access by written notice."
+  sla: "P1D"
+custody:
+  locator: "opaque:demo-advisory/instruments/ci-demo-advisory-0001-amend-1"
+  sha256: "1f6e5d4c3b2a19087f6e5d4c3b2a19087f6e5d4c3b2a19087f6e5d4c3b2a1908"
+status: executed
+status_history:
+  - status: draft
+    at: "2026-07-25T09:00:00Z"
+  - status: pending_signatures
+    at: "2026-07-26T15:00:00Z"
+  - status: executed
+    at: "2026-07-27T10:30:00Z"
+data_consent:
+  mapping: none

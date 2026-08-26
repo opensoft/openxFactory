@@ -1,0 +1,24 @@
+schema_version: 1
+kind: xfactory_domain_stack
+
+domain:
+  id: medx
+  product_name: MedxFactory
+  display_name: Medx Factory
+  category: medical
+
+xfactory:
+  contract_repo: github.com/opensoft/openxFactory
+  contract_name: openxFactory
+  contract_ref_type: commit
+  contract_ref: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+schemas:
+  artifact_root: schemas
+  required:
+    - patient-intake.schema.yaml
+    - generic-envelope.schema.yaml
+
+tooling:
+  scripts:
+    - scripts/inventory-listed.py

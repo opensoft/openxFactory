@@ -1,9 +1,14 @@
 schema_version: 1
 kind: xfactory_memory_gateway_expert_context_packet_example
+# Expert packet with a bounded semantic context (release-review
+# finding 13): the diagnostic reviewer runs as a verify worker under
+# the SAME compiled medx pilot context as the customer example —
+# pins and content digest are real and resolve in this tree.
 expert_context_packet:
   id: expert-context:medx-diagnostic-reviewer-001
   issued_at: "2026-07-03T00:00:00Z"
   expires_at: "2026-07-03T00:20:00Z"
+  purpose: classification for a verify worker
   expert_profile: expert://medx/diagnostic-reviewer
   workflow_ref: workflow:medx:diagnostic-review
   knowledge_scopes:
@@ -28,3 +33,27 @@ expert_context_packet:
     - audit:expert-context-001
   usage_refs:
     - usage:expert-context-001
+  semantic_context:
+    semantic_context_id: ctx-medx-verify-pilot
+    content_digest: 5d9543db41f7b3d7ede60826f69eae85932bf618fad2d4d7d2c7c9cb3deccb8a
+    purpose: classification for a verify worker
+    worker_scope:
+      worker_archetype: verify
+    kernel_pin:
+      package_id: xf/core
+      package_version: 1.0.0
+      package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+    package_pin:
+      package_id: xf/medx
+      package_version: 2.0.0
+      package_digest: 2362431138380cf1c4d58f531c768956ad8649edacf51943d2f689e006780644
+    term_subset:
+      - xf/core/focal_item
+      - xf/core/intervention
+      - xf/core/subject
+      - xf/medx/patient
+      - xf/medx/treatment
+    lifecycle:
+      package_lifecycle_state: published
+      compiled_at: "2026-07-29T00:00:00Z"
+      ttl_seconds: 3600

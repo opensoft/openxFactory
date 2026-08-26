@@ -1,0 +1,13 @@
+Captured 2026-07-31T23:44Z via az aks command invoke (read-only), after the
+hosted refresh observation.
+
+Deployment image (deploy/ideation-dashboard, ns xfactory-control):
+acropensoftxfactoryqa.azurecr.io/ideation-dashboard@sha256:b602380e6f07ddc7d4eff7a7e1680fc37082e274f2cd947085898329ecdb02c3
+
+Running pod imageID (ideation-dashboard-54b78cbbc7-rwklw, restarts=0):
+acropensoftxfactoryqa.azurecr.io/ideation-dashboard@sha256:b602380e6f07ddc7d4eff7a7e1680fc37082e274f2cd947085898329ecdb02c3
+
+IDENTICAL to c-62-image-before.txt — no rebake, no rollout. Note: the pod
+name changed from -4f6cc (preflight) to -rwklw during the session — a spot-
+pool reschedule within the SAME ReplicaSet 54b78cbbc7 with zero restarts
+and the same immutable digest; not an image or Deployment change.

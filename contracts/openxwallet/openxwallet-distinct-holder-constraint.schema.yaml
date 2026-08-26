@@ -1,0 +1,86 @@
+schema_version: 1
+kind: openxfactory-openxwallet-contract-schema
+name: xfactory_wallet_distinct_holder_constraint
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/openxwallet/v1/openxwallet-distinct-holder-constraint.schema.yaml"
+contract_id: openxwallet-distinct-holder-constraint
+contract_schema_version: 1
+title: openxWallet distinct-holder constraint
+description: >-
+  A consuming capability's declaration that the holder exercising a grant for
+  one act must be DISTINCT from the holder recorded for a named prior act on
+  the same object (add-openxwallet, capability `openxwallet`, requirement
+  "Distinct-holder constraints are expressible").
+
+  Segregation of duties lives in the grant model rather than being
+  reimplemented per domain. It is maker-checker, which is not an agent
+  property — it applies equally to practitioners — so it belongs in the
+  holder-agnostic core and the agent profile inherits it rather than restating
+  it.
+
+  IT IS OPT-IN BY CONSTRUCTION. A capability that declares no constraint is
+  not subject to one, and no default distinctness is inferred. A silent
+  default here would make every two-step flow in the family suddenly require
+  two actors.
+
+  The comparison basis is the PRIOR ACT'S RECORDED HOLDER — what the exercise
+  record for that act actually carries — not a claim made at the time of the
+  second act.
+
+  What this does NOT decide: whether two holders are sufficiently INDEPENDENT.
+  Two agents from the same model, orchestrator and prompt are not independent
+  the way two humans are; this constraint defends against slips and loops, not
+  against a wrong policy applied consistently by both. The agent profile's
+  composition hash gives an objective floor — different hash, different holder
+  — and whether that floor suffices is left to the consuming domain, which is
+  why `distinctness_floor` is declared here rather than fixed.
+type: object
+required:
+  - schema_version
+  - kind
+  - constraint_id
+  - declared_by
+  - object_kind
+  - acts
+  - comparison_basis
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_wallet_distinct_holder_constraint]
+  constraint_id: {$ref: '#/$defs/identifier'}
+  declared_by:
+    # The consuming capability that declares this constraint. Named, because
+    # the constraint is available rather than implied, and a reader must be
+    # able to tell who asked for it.
+    $ref: '#/$defs/identifier'
+  object_kind:
+    # The kind of object both acts are performed on. Distinctness is required
+    # per object, not globally: the same holder may create one invoice and
+    # post a different one.
+    $ref: '#/$defs/identifier'
+  acts:
+    type: object
+    required: [prior, subsequent]
+    additionalProperties: false
+    properties:
+      prior: {$ref: '#/$defs/identifier'}
+      subsequent: {$ref: '#/$defs/identifier'}
+  comparison_basis:
+    type: string
+    enum: [recorded_holder_of_prior_act]
+  distinctness_floor:
+    # What makes two holders count as distinct, declared by the consuming
+    # domain. `holder_id` is the plain reading. `composition_hash` is the
+    # objective floor available for agent holders — different hash, different
+    # holder — and is meaningful only where both holders are agents.
+    type: string
+    enum: [holder_id, composition_hash]
+  statement: {type: string, minLength: 1, maxLength: 800}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

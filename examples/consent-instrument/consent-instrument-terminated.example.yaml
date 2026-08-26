@@ -1,0 +1,65 @@
+# VALID consent instrument: TERMINATED, with the full transition trace, an
+# amendment recorded as a TRANSITION ON THIS RECORD (ruling D7 — the citation
+# target `ci-demo-advisory-0003` never changed), and cascade evidence on
+# EVERY declared dependent reference (spec "Termination Cascades Through
+# Declared Dependent References" — each fell due under the P1D revocation
+# SLA; the cascade MECHANICS live in the owning contract families, D5).
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: "ci-demo-advisory-0003"
+domain: demo-advisory
+instrument_class: engagement_letter
+parties:
+  - party: "Acme Advisors LLP"
+    rung: 1
+    role: tenant_firm
+    authority_basis: direct
+  - party: "Meridian Retail Ltd"
+    rung: 2
+    role: subject_client_company
+    authority_basis: direct
+scope:
+  purposes: [bookkeeping, monthly-close]
+  out_of_scope: [payroll-support]
+delegation_clauses:
+  - clause_id: "dc-1"
+    summary: "Read-write ledger access for bookkeeping, subject-scoped."
+    access:
+      permission: "ledger:read-write"
+      constraint: "subject-scoped; no cross-subject reads"
+autonomy_position: "hypothesis_only"
+revocation:
+  right: "Either party may terminate the engagement by written notice."
+  sla: "P1D"
+custody:
+  locator: "opaque:demo-advisory/instruments/ci-demo-advisory-0003"
+  sha256: "1f6e5d4c3b2a19087f6e5d4c3b2a19087f6e5d4c3b2a19087f6e5d4c3b2a1908"
+status: terminated
+status_history:
+  - status: draft
+    at: "2026-05-20T09:00:00Z"
+  - status: pending_signatures
+    at: "2026-05-27T11:00:00Z"
+  - status: executed
+    at: "2026-06-01T09:30:00Z"
+  - status: amended
+    at: "2026-07-10T09:00:00Z"
+  - status: terminated
+    at: "2026-07-28T16:00:00Z"
+amendments:
+  - at: "2026-07-10T09:00:00Z"
+    delta: >-
+      Scope amended: monthly-close added to purposes (the Ledgerx
+      "AR by amendment" pattern); citation target unchanged.
+effective:
+  executed_on: "2026-06-01"
+  terminated_on: "2026-07-28"
+dependent_refs:
+  - kind: credential_grant
+    ref: "credentials/grants/meridian-bookkeeping-grant.yaml"
+    cascade_evidence: "credentials/revocations/meridian-bookkeeping-grant-2026-07-29.yaml"
+  - kind: adapter_activation
+    ref: "adapters/mailbox/meridian-activation.yaml"
+    cascade_evidence: "adapters/mailbox/meridian-deactivation-2026-07-29.yaml"
+data_consent:
+  mapping: none

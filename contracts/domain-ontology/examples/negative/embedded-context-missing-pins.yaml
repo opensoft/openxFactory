@@ -1,0 +1,7 @@
+# expected_failure: ONT-CONTEXT-PIN
+schema_version: 1
+kind: example_derived_artifact
+artifact_id: derived-001
+semantic_context:
+  semantic_context_id: ctx-derived-001
+  purpose: classification

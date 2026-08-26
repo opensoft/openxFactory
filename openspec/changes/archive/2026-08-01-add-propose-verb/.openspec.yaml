@@ -1,0 +1,50 @@
+schema: spec-driven
+created: 2026-07-31
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-07-31-add-propose-verb
+  reason: >-
+    SWEPT BY RULING 2026-08-25, verbatim: "sweep the 23 derivable
+    proposal-origin warnings". DERIVED FROM THIS PACKET'S OWN RECORD,
+    never invented. The approval act is this packet's own lifecycle
+    citation, quoted verbatim under approved_by below. The forcing fact is
+    stated in this packet's own proposal under its Why heading, which this
+    metadata-only edit leaves untouched. KIND IS ad_hoc, not staged: this
+    packet records no Staging ID header, and no staging topic declares it
+    as an exit in ideation/staging/INDEX.md — checked in both directions,
+    because a topic that merely mentions a change is not that change's
+    origin. The origin act is the approval quoted under approved_by. The
+    created date 2026-07-31 is DERIVED from this packet's true first
+    commit 583bd6e9 in git, not from a folder name or a file timestamp.
+    This declaration supplies the origin and approval pair the
+    proposal-origin contract requires and changes nothing else about the
+    packet: no lifecycle header, no content, no status.
+  approved_by: >-
+    Per this packet's own "Ratified" citation, quoted verbatim:
+    "2026-08-01 — record: the archive act, commit `583bd6e` "Archive
+    add-propose-verb (promote the propose verb into ideation-dashboard)",
+    which applied this change's spec delta into
+    `openspec/specs/ideation-dashboard/spec.md`; a change whose spec
+    deltas have PROMOTED is ratified by construction, the derivation
+    `bdd09c2` records and
+    `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md`
+    cites. STATED PRECISELY, because the register examined this record
+    once already and left it headerless: this packet carries NO
+    `.openspec.yaml` at all, and C2's finding stands word for word —
+    "Nothing. Its front matter, its whole directory, its created and
+    archive commits, and its README row name no ratifier and no
+    ratification date"; task 4.3's "Brett sign-off same day" is a
+    verification pass on the first real commission, not a ratification,
+    and nothing here cites either. What C2 did not have is OQ-6's
+    2026-08-23 ruling and the phase-b derivation, which make the archive
+    act itself the citable record. The date is the archive folder's own
+    2026-08-01; the commit carries the 2026-07-31 authoring date.
+    Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C
+    under OQ-6's ruling that every headerless proposal is derived from its
+    own record; no approving OpenSpec change exists to name, so this is
+    the record-citing spelling. See tasks.md "Bookkeeping correction"." —
+    recorded in its proposal at authoring time. That is the approval
+    provenance the ad-hoc exception requires, and it is why this packet
+    fell in the derivable class rather than the stop class of the
+    2026-08-25 sweep.
+  approved_on: 2026-08-01

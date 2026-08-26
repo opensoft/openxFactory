@@ -1,0 +1,50 @@
+# Positive reference example — the REVOCATION audit record (spec R6, R9). An
+# operator revoked the lease of a volunteered workstation whose owner left the
+# company. The machine was powered off at the time and was never contacted.
+#
+# This record, plus the refusal records of the renewals that follow it, is the
+# whole evidence chain for "when did that worker lose authority, and why" — it
+# establishes both WITHOUT reference to host-side logs, which on somebody's
+# personal laptop nobody can compel.
+#
+# Read what is NOT here: no token, no key, no secret, no credential, no response
+# body. Not because an emitter was careful, but because the schema has no property
+# that could hold one and `reason_detail` is bounded so one cannot be smuggled
+# into prose.
+schema_version: 1
+kind: worker_enrollment_audit_record
+
+record_id: aud-ws-brett-01-0211
+event: revoke
+occurred_at: "2026-08-20T11:04:00Z"
+
+subject:
+  class: operator
+  ref: operator:opsx-duty-1
+  authentication_mode: operator_action
+
+host:
+  host_id: ws-brett-01
+  device_name: WS-BRETT-TUBV0
+  managed: false
+
+estate: temp
+decision: revoked
+reason: subject_departed
+reason_detail: lease revoked with the machine offline; work stops at the refused renewal
+
+lease_id: wl-ws-brett-01-0001
+trust_tier: volunteered_hardware
+runner_group: xfactory-temp-volunteer-workers
+
+observed:
+  app_version: 1.5.0
+  runner_version: v2.337.1
+floor:
+  min_app_version: 1.5.0
+  source: policy
+policy_version: worker-enrollment-v2
+
+evidence_ref:
+  class: operator_action
+  ref: broker/revocations/2026-08-20/wl-ws-brett-01-0001

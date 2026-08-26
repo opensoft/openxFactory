@@ -1,0 +1,75 @@
+schema_version: 1
+name: xfactory_ontology_maintenance_report
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-maintenance-report.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, task 5.4). The
+# append-only record of one scheduled or event-driven maintenance
+# evaluation. When no trigger fires, the report IS the evidence the check
+# completed while the active package and consumer pins stayed unchanged
+# (lifecycle spec scenario "No maintenance trigger fires"). A report sits
+# BESIDE the package (never inventoried) and is never rewritten — a
+# re-evaluation for the same as_of with different results is a conflict to
+# investigate, not an overwrite.
+type: object
+required:
+  - schema_version
+  - kind
+  - package_id
+  - package_digest
+  - as_of
+  - triggers_evaluated
+  - drift_found
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_ontology_maintenance_report
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  package_digest:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+  as_of:
+    type: string
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+  input_ref:
+    type: string
+    minLength: 1
+    maxLength: 300
+  triggers_evaluated:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [trigger, fired]
+      additionalProperties: false
+      properties:
+        trigger:
+          enum:
+            - source_expiry
+            - unknown_terms
+            - mapping_failures
+            - low_confidence
+            - workflow_drift
+            - subdomain_requests
+            - appeals
+            - promotion_candidates
+        fired:
+          type: boolean
+        detail:
+          type: string
+          minLength: 1
+          maxLength: 400
+        mode:
+          enum: [seed, extend, refresh, reconcile, correct, deprecate, retire]
+        candidate_refs:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+            maxLength: 200
+  drift_found:
+    type: boolean

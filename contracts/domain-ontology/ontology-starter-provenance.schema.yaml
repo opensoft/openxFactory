@@ -1,0 +1,36 @@
+schema_version: 1
+name: xfactory_ontology_starter_provenance
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-starter-provenance.schema.yaml"
+# The deterministic ontology-aware starter marker the generated-domain
+# completeness check keys on (release-review finding 4: now schema'd).
+type: object
+required: [schema_version, kind, starter, starter_version, ontology_aware, package_id]
+additionalProperties: false
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_ontology_starter_provenance}
+  starter: {type: string, maxLength: 120}
+  starter_version: {type: integer, minimum: 13}
+  ontology_aware: {const: true}
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  placeholders:
+    # Structural placeholder record (add-ontology-stewardship-hardening,
+    # review F24): the term ids and steward ids the run SEEDED as
+    # placeholders. Readiness blocks on any entry still present in the
+    # package — renaming a placeholder never makes a scaffold read ready.
+    type: object
+    additionalProperties: false
+    properties:
+      terms:
+        type: array
+        items:
+          type: string
+          pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+      stewards:
+        type: array
+        items:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"

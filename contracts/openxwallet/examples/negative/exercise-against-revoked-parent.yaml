@@ -1,0 +1,38 @@
+# expected_failure: revoked-chain-exercised
+# expected_failure_detail: in its chain is revoked
+# requirement: OXW-R6
+# VIOLATES core R6: a derivation of a REVOKED parent, still exercising.
+#
+# The grant named here reads `state: active` on its own face, and its parent
+# was revoked ahead of expiry. A consumer that trusted issuance-time validity
+# — or trusted only the grant it was handed — would permit this. Revocation is
+# effective THROUGH derivation and is checked AT EXERCISE, or it is advisory:
+# revoking a parent that leaves its children usable revokes nothing that
+# matters.
+#
+# The record compounds it by reporting the revocation check as `active`, which
+# is what a check that walked no chain would report.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-revoked-chain-0009
+grant_ref: grant-revoked-derivation-0005
+act: post_transaction
+object_ref: purchase-invoice:LXRP0014
+occurred_at: "2026-08-07T12:30:00Z"
+event_class: authenticated
+proof_of_possession:
+  presented: true
+  verified: true
+  signature_algorithm: ed25519
+  signed_over: request
+  presenting_key_ref: key-poster-0001
+attribution:
+  mode: key_attributed
+  presenting_key_ref: key-poster-0001
+  wallet_ref: wal-agent-poster-0001
+  holder_ref: agent:ledger-poster
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+outcome: permitted

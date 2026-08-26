@@ -1,0 +1,57 @@
+# MVP corpus continuation: the micro-spec mined from the three real
+# packet-capture episodes. The counterexample is real: the 2026-07-28 run
+# shipped a Topics keyword split across a line wrap, caught and corrected —
+# exactly the failure the capture post-condition must refuse.
+schema_version: 1
+kind: crystallization_spec
+spec_id: "cspec:packet-capture-mechanics:v1"
+decision_ref: "dec:opensoft:packet-capture-mechanics:2026-07-29"
+family_ref: "fam:opensoft:packet-capture-mechanics"
+mined:
+  invariants:
+    - claim: "Every captured doc passes the ideation header contract (H1 suffix, field order, Possible feats)."
+      episode_refs: ["ep:opensoft:2026-07-28:ontology-packet-capture", "ep:opensoft:2026-07-28:crystallization-packet-capture", "ep:opensoft:2026-07-29:staging-topic-capture"]
+    - claim: "Every packet lands an index entry on its governing surface in the same commit."
+      episode_refs: ["ep:opensoft:2026-07-28:ontology-packet-capture", "ep:opensoft:2026-07-28:crystallization-packet-capture", "ep:opensoft:2026-07-29:staging-topic-capture"]
+    - claim: "Commits stage explicit paths and commit with pathspecs; pushes retry via rebase."
+      episode_refs: ["ep:opensoft:2026-07-28:crystallization-packet-capture", "ep:opensoft:2026-07-29:staging-topic-capture"]
+  parameters:
+    - claim: "Document count varies per packet."
+      observed: "6..19 docs"
+      episode_refs: ["ep:opensoft:2026-07-28:ontology-packet-capture", "ep:opensoft:2026-07-28:crystallization-packet-capture", "ep:opensoft:2026-07-29:staging-topic-capture"]
+    - claim: "Index surface varies by lifecycle stage."
+      observed: "ideation/README.md (brainstorm) | staging/INDEX.md (staged)"
+      episode_refs: ["ep:opensoft:2026-07-28:ontology-packet-capture", "ep:opensoft:2026-07-29:staging-topic-capture"]
+  branches:
+    - claim: "Staging-variant captures additionally flip organized brainstorm docs to Status: staged with Organized headers."
+      episode_refs: ["ep:opensoft:2026-07-29:staging-topic-capture"]
+  counterexamples:
+    - claim: "A Topics keyword split across a line wrap MUST fail the capture post-condition (corrupts downstream clustering)."
+      episode_refs: ["ep:opensoft:2026-07-28:crystallization-packet-capture"]
+acceptance_corpus:
+  episode_refs:
+    - "ep:opensoft:2026-07-28:ontology-packet-capture"
+    - "ep:opensoft:2026-07-28:crystallization-packet-capture"
+    - "ep:opensoft:2026-07-29:staging-topic-capture"
+  equivalence_predicates:
+    - output_type: committed-doc-set
+      comparator: structural-exact
+      rubric: "header fields, order, and index-entry presence compare exactly"
+    - output_type: index-entry-prose
+      comparator: semantic
+      rubric: "entry names the packet, its date, and its anchor doc"
+  cassettes_ref: null        # live-only family: proof leans on shadow
+  corpus_digest: "sha256:af0cabdf6d518b46ffc65e3726726838cf479ba3e14b1783c6b2858765f95d06"
+scope_fence:
+  predicate: "job_type == brainstorm_packet_capture AND repository == openxFactory AND doc_count <= 25 AND target_dirs subset-of {ideation/brainstorm, ideation/staging}"
+  derived_from: observed-support
+  digest: "sha256:be150f4ad7ad6938a3963658c93565f71306eb3b721e690f8fa371b40bdcde44"
+effect_class: idempotent     # re-capture of identical content is a no-op tree
+miner:
+  version: manual-0
+  evidence_bounds:
+    episodes: 3
+    span: "2026-07-28..2026-07-29"
+ratification:
+  mode: human                # MVP posture; auto below L4 is the staged lean
+  scaled_by: [rung, risk]

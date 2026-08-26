@@ -1,0 +1,42 @@
+# Positive reference example — FLEET enrollment request (spec R1 scenario 1).
+# An Intune-managed Cloud PC presents the per-host identity provisioned for it in
+# the managed-platform key vault. That identity is broker ACCESS only: it carries
+# no token-minting authority, and it appears here only as a REFERENCE — the proof
+# of authentication happens in the transport, never in the record.
+schema_version: 1
+kind: worker_enrollment_request
+
+request_id: req-cpc-omni01-0001
+requested_at: "2026-07-26T09:00:00Z"
+estate: fleet
+
+authentication:
+  mode: host_identity
+  subject:
+    class: host
+    ref: host:cpc-omni01
+  authenticated_at: "2026-07-26T08:59:58Z"
+
+host:
+  host_id: cpc-omni01
+  device_name: CPC-Omni0-P5AJB
+  managed: true
+  os:
+    family: windows
+    version: "11 24H2"
+  app_version_observed: 1.4.0
+  runner_version_observed: v2.336.0
+
+requested_worker:
+  worker_id: xfactory-coding-cpc-omni01
+  runner_name: xfactory-coding-cpc-omni01
+  requested_runner_group: xfactory-execution-lane-workers
+  requested_labels:
+    - self-hosted
+    - omnigent
+    - coding-patch
+  profiles:
+    coding-patch-worker: "1"
+
+policy_version_seen: worker-enrollment-v1
+note: first app-driven enrollment of the Omni-001 Cloud PC

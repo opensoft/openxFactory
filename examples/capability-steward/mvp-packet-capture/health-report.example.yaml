@@ -1,0 +1,23 @@
+# The standing scorecard: one auto finding (executed without approval) and
+# one contested finding (waits for its gate disposition), doc-health style.
+schema_version: 1
+kind: capability_health_report
+report_id: "health:cap:opensoft:packet-capture-playbook:2026-07"
+capability_ref: "cap:opensoft:packet-capture-playbook"
+window:
+  from: "2026-07-29"
+  to: "2026-08-05"
+signals:
+  fallback_rate: 0.12
+  postcondition_breaches: 0
+  sentinel_disagreement: 0.0
+  corrections: 0
+  dormant_days: 0
+findings:
+  - class: auto
+    rule: "sentinel-rate-hold (MVP no-decay posture confirmed)"
+    action_or_disposition: "epsilon held at 0.20"
+  - class: contested
+    rule: "promote-to-canary (shadow window complete, adjudications favorable)"
+    action_or_disposition: null   # waits for the promotion gate's disposition
+drift_response: observe

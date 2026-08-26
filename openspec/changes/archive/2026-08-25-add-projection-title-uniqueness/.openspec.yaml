@@ -1,0 +1,42 @@
+schema: spec-driven
+created: 2026-08-25
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-25-projection-title-uniqueness
+  reason: >-
+    Raised in-session on 2026-08-25 off that morning's lifecycle-notebook sync
+    report, which recorded a discrepancy nobody had a check for: the sync's own
+    manifest says it synced FOUR MedxFactory staging topics, and the book holds
+    ONE source. Not a staged ideation topic — the forcing fact is a live
+    projection defect, measured and reproduced before this packet was written.
+    Source titles derive from a document's FILE STEM, and the governing rule
+    (`docs/lifecycle-notebook-projection.md` § 2) special-cases exactly one
+    repeated stem, `README`. Every other repeated stem collapses: the desired
+    map is keyed by path but reconciled by title, `wanted_titles` is a SET of
+    titles, and the deletion pass keeps `sids[0]` and deletes the rest — so N
+    documents sharing a stem become one source, and the losers are absent from
+    the book while the manifest records them as synced. `--parity` cannot see
+    it: it compares a SET of derived titles against a SET of live titles, so a
+    collapse is equal to itself and reports PARITY OK. Measured corpus-wide on
+    2026-08-25 against a scratch assembly of the ten repositories at the live
+    mains the books mirror: 693 projected book slots, 688 distinct titles, FIVE
+    documents displaced across THREE collisions — `[staged] MedxFactory: topic`
+    (4 documents, 3 absent), `[draft] openxFactory: requirements` (2, the
+    005/007 checklists), `[staged] OpsxFactory: exchange-execution-bringup`
+    (2, a brainstorm/staging pair). The live provider counts confirm it
+    exactly: 695 sources across the seven books where the corpus scan wants
+    700.
+  approved_by: >-
+    Brett's session — the in-session instruction of 2026-08-25 to author this
+    proposal against the measured defect. That authorization covers the
+    DECISION TO RAISE A PROPOSAL and nothing else. This packet shipped
+    `Status: draft` and NOT ratified: Brett was to rule after reading. He
+    did, the same day — `Status: ratified` 2026-08-25, per `proposal.md`'s
+    `Ratified:` line. Every design decision the authoring session took under
+    measurement — the rule candidate, its uniqueness scope, the parity
+    amendment, and whether the un-collapsed sources ride the realization's
+    own sync slice — is flagged in
+    `proposal.md` § Orchestrator Decisions and § Open Questions for ruling or
+    veto, and reverting any one of them is an edit to this change rather than
+    a new one.
+  approved_on: 2026-08-25

@@ -23,7 +23,11 @@ without the declarations is a doc-only change (`code_surface: none`,
 A change with a non-empty code surface SHALL NOT archive until realization
 evidence exists: its code merged on the implemented target through the
 owning domain's engineering gates, and — where the surface is runnable — a
-green run of that surface. Until then the change remains active as
+green run of that surface. Where realization deploys onto a surface that is
+a registered managed subject of another factory, the realization evidence
+SHALL reference the completed deployment handoff request by correlation
+identifier — correlation, not duplication: the request record remains with
+the executing factory. Until then the change remains active as
 approved-but-unrealized intent, preserving the invariant that promoted
 specs describe what the code does.
 
@@ -35,6 +39,11 @@ specs describe what the code does.
 #### Scenario: Realization completes
 - **WHEN** merge evidence and a green run exist on the implemented target
 - **THEN** the change archives and its deltas promote, exactly as doc-only changes do on landing
+
+#### Scenario: Realization deploys onto a managed subject
+- **WHEN** a change's realization includes deployment onto a registered managed subject of another factory
+- **THEN** the realization evidence references the completed handoff request's correlation identifier
+- **AND** a deployment claim with no correlatable accepted request MUST NOT count as realization evidence
 
 ### Requirement: Decomposition scale rule
 A ratified code-surface change SHALL be an admitted engineering intent
@@ -84,4 +93,25 @@ the normal OpenSpec archive operation rather than replace spec promotion.
 - **WHEN** implementation and repository tests pass, strict OpenSpec validation passes, final source returns complete, and the support bundle verifies
 - **THEN** the normal OpenSpec archive operation MAY run
 - **AND** canonical spec promotion MUST proceed unchanged
+
+### Requirement: Origin retention at archive
+The archive gate SHALL verify that a change's `.openspec.yaml` still carries
+its original origin declaration unchanged. For staged origins, the
+compressed supporting-document manifest SHALL retain the same origin id and
+path; for ad-hoc origins, the archived change SHALL retain the reason and
+approval provenance even when no support bundle exists. Mutation of an
+origin declaration after ratification SHALL be rejected at the archive gate.
+
+#### Scenario: A staged-origin change archives
+- **WHEN** a change with a staged origin reaches its archive gate
+- **THEN** the archived `.openspec.yaml` and the readable support manifest MUST carry the identical origin id and path declared at creation
+
+#### Scenario: An ad-hoc change without a support bundle archives
+- **WHEN** a change with an ad-hoc origin and no supporting documents reaches its archive gate
+- **THEN** the archived packet MUST retain the origin's reason, approving authority, and approval date
+
+#### Scenario: An origin was mutated after ratification
+- **WHEN** the archive gate finds the origin declaration differs from the declaration present at ratification
+- **THEN** the archive MUST fail
+- **AND** restoring or accepting the mutation is a contested-class act requiring an explicit disposition
 

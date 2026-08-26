@@ -1,0 +1,18 @@
+# Project register fixture (change 3.8/D10). The instance is workspace-owned;
+# this fixture stands in for the aggregation repo's register. It maps the
+# fixture repository into a project and group; a repository absent from the
+# register renders ungrouped as its own implicit project (a generator behavior,
+# not a validation failure). Validates against project-register.schema.yaml.
+schema_version: 1
+kind: project-register
+projects:
+  - id: fixture-core
+    name: Fixture core
+    repositories: [fixture-repo]
+  - id: fixture-siblings
+    name: Fixture siblings
+    repositories: [fixture-repo-b, fixture-repo-c]
+project_groups:
+  - id: fixture-family
+    name: Fixture family
+    projects: [fixture-core, fixture-siblings]

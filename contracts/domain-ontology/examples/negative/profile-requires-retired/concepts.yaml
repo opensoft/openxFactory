@@ -1,0 +1,9 @@
+schema_version: 1
+kind: xfactory_ontology_concepts
+package_id: xf/negx
+concepts:
+  - id: xf/negx/old_thing
+    label: Old Thing
+    definition: A fixture concept.
+    lifecycle_state: retired
+    effective_version: 1.0.0

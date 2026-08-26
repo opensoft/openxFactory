@@ -1,0 +1,16 @@
+# VALID gate-intent: commission staging-fragment authoring for an accepted
+# possible. The intent records a request only; it does not create a staging
+# fragment or mutate the possibles register.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: promote-to-staging
+target:
+  possible_id: pos-derived-lens-recipe
+args:
+  topic: persisted-lens-recipe
+  note: Organize the accepted possible into a reviewable staging fragment.
+requested_at: "2026-07-25T14:00:00Z"
+snapshot_rev_seen: "563ea35d066d"
+status: pending
+idempotency_key: brett/promote-to-staging/pos-derived-lens-recipe/563ea35d066d

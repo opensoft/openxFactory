@@ -1,0 +1,16 @@
+# expected_failure: ONT-FLOOR
+# expected_failure_detail: below two
+schema_version: 1
+kind: xfactory_ontology_quality_report
+package_id: xf/negx
+package_version: 1.0.0
+package_digest: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+window: {from: '2026-07-01', to: '2026-07-28'}
+signals:
+  - signal: unknown_term_rate
+    numerator: 3
+    denominator: 500
+    procedure_ref: docs/domain-ontology-semantic-decisions.md
+aggregation_floor:
+  distinct_subjects: 1
+  distinct_tenants: 1

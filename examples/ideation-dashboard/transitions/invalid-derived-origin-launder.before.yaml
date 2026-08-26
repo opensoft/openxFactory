@@ -1,0 +1,21 @@
+# INVALID transition (before) — a derived possible (origin ai-derived) with its
+# worker-run provenance (add-possibles-derivation-lane task 2.4). An accepted
+# derived possible must RETAIN origin ai-derived.
+possibles_register:
+  - id: pos-da
+    title: A derived possible
+    claim: A cluster could become a feature.
+    state: latent
+    origin: ai-derived
+    provenance: {document: doc-a, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-run-da
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: pending_review
+    claiming_clusters: [cl-a]
+    supporting_evidence:
+      - document: doc-a
+        section: Notes
+        passage_sha256: f1393ea661b866e81efbe1ee4e19031a4e596322a5669fcd41ad3245194a8695

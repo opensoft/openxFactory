@@ -1,0 +1,9 @@
+# INVALID gate-intent: derive-possibles must target a cluster_id.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: derive-possibles
+target: {}
+requested_at: "2026-07-25T14:05:00Z"
+snapshot_rev_seen: "563ea35d066d"
+status: pending

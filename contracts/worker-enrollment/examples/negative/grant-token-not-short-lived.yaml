@@ -1,0 +1,79 @@
+# expected_failure: registration-token-not-short-lived
+# VIOLATES spec R2 ("the registration token MUST be short-lived") and makes R2
+# scenario 3 ("an expired token cannot register") untestable. The declaration says
+# every right thing — `transient: true`, `single_use: true`, persist and log
+# forbidden, excluded from derived records — and the token is good until 2099.
+#
+# `single_use` was pinned as a constant while "short-lived" had no representation
+# anywhere in the family: no maximum in the grant, no token lifetime in the
+# policy, and no check against `granted_at`. A 73-year single-use token validated
+# with zero findings, and so did one already expired at the moment of issue, so
+# the broker service, the host app and the managed-platform policy could each pick
+# a different lifetime while all three claimed to pin the same bundle.
+#
+# Fixed in three places: the grant declares a `lifetime` the PATTERN caps at
+# fifteen minutes, the policy declares `registration_token.max_lifetime` as the
+# estate ceiling, and the canonical validator's rule (g) checks the actual
+# `granted_at` -> `expires_at` span against both (and rejects a non-positive one).
+schema_version: 1
+kind: worker_enrollment_grant
+
+grant_id: grant-cpc-omni05-0001
+request_ref: req-cpc-omni05-0001
+granted_at: "2026-08-05T09:00:00Z"
+
+lease:
+  schema_version: 1
+  kind: worker_lease
+  lease_id: wl-cpc-omni05-0001
+  estate: fleet
+  subject:
+    class: host
+    ref: host:cpc-omni05
+  host:
+    host_id: cpc-omni05
+    device_name: CPC-Omni0-W4NP6
+    managed: true
+  worker:
+    worker_id: xfactory-coding-cpc-omni05
+    runner_name: xfactory-coding-cpc-omni05
+  binding:
+    runner_group: xfactory-execution-lane-workers
+    labels:
+      - self-hosted
+      - omnigent
+      - coding-patch
+  trust_tier: managed_fleet
+  issued_at: "2026-08-05T09:00:00Z"
+  expires_at: "2026-08-06T09:00:00Z"
+  cadence:
+    ttl: PT24H
+    renewal_interval: PT1H
+    grace: PT12H
+    clock_skew_tolerance: PT5M
+  floor_in_force:
+    min_app_version: 1.4.0
+  state: active
+  policy_version: worker-enrollment-v1
+
+runner_package:
+  mode: pinned
+  version: v2.336.0
+  platform: win-x64
+  sha256: d59123a43003e357b0805b5d0f611d0bd2f65ab67d51bd070dd4e7a0f685c162
+  self_update: disabled
+  delivery: manifest_rollout
+
+host_manifest:
+  source: delivery_plane
+  policy_version: worker-enrollment-v1
+
+registration_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2099-01-01T00:00:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded

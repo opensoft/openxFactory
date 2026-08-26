@@ -1,0 +1,27 @@
+# VALID gate-action record: a human open-pr action — the SESSION SAVE
+# (add-workbench-branch-sessions task 1.3/D8/D13).
+#   - action=open-pr names the session branch it pushed (target.ref) and
+#     references the pull request it opened as a `pull-request`-kind artifact
+#     (schema allOf);
+#   - NO `commit` artifact, deliberately: this action adds no commit to the
+#     branch, and a record naming one would name something that does not exist.
+#     The schema therefore requires none for this action;
+#   - the record is MAIN-RESIDENT — written into the served checkout's records
+#     tree, never onto the session branch, because a branch-resident record
+#     would never reach the pull request and would die with the branch at merge;
+#   - target carries the ref ALONE: no change_id, because a session save is not
+#     a change-lifecycle transition. It dispatches into the existing
+#     Merge-Master ritual and decides nothing — the verb cannot merge, approve,
+#     self-review, or bypass protection, and it consults NO readiness signal
+#     (D21: readiness guards propose, not save).
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: open-pr
+target:
+  ref: draft/workbench-branch-sessions
+at: "2026-07-26T15:40:00Z"
+artifacts:
+  - kind: pull-request
+    reference: https://github.com/opensoft/openxFactory/pull/312
+notes: Session offered for review; the Merge Master merges with a merge commit (D18).

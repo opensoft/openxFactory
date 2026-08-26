@@ -1,0 +1,45 @@
+# MVP corpus continuation (add-crystallizer-contracts task 1.4): the funded
+# L3 decision consuming the candidate the pattern ledger already nominates
+# (examples/pattern-ledger/mvp-packet-capture/candidate-open.example.yaml).
+# Ceiling resolves FIRST: no overlay declares a ceiling for this category
+# yet, so the neutral L3 default binds and only L2/L3 are valued.
+schema_version: 1
+kind: crystallization_decision
+decision_id: "dec:opensoft:packet-capture-mechanics:2026-07-29"
+candidate_ref: "cand:opensoft:packet-capture-mechanics:2026-07-29"
+family_ref: "fam:opensoft:packet-capture-mechanics"
+ceiling:
+  rung: L3
+  source: default          # undeclared category -> conservative L3 default
+  reason_ref: null
+valuation:
+  - rung: L2
+    expected_value: -40000   # memo cache useless: packets are never byte-identical
+    deflation_factor: 0.85
+    survival_factor: 0.90
+    nontoken_value: {}
+  - rung: L3
+    expected_value: 260000
+    deflation_factor: 0.85   # AI-price decline assumption, 90d horizon
+    survival_factor: 0.90    # stability half-life 180d (forecast fc:...:h90)
+    nontoken_value:
+      determinism: "header contract enforced mechanically on every capture"
+      human_minutes_reclaimed_per_instance: 25
+outcome: funded
+funded:
+  rung: L3
+  budget_cap: 500000
+  abort_rule: "stop at 120% of estimate; persist partials; return actuals"
+  proof_obligations:
+    - replay-parity
+    - shadow-human-compared-14d
+    - sentinel-0.20-no-decay   # MVP posture from the dials register
+not_yet: null
+approvals:
+  domain_fitness_ref: "gate:codexFactory:crystallization-fitness:2026-07-29"
+  tenant_budget_ref: "budget:opensoft:crystallization:2026-Q3"
+  consent_check:
+    automation_tier: granted
+decision_ladder_rung: 1     # human judgment over the evidence packet (D8)
+calibration_refs: []
+at: "2026-07-29"

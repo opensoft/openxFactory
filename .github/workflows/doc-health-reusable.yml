@@ -1,0 +1,3009 @@
+# Reusable doc-health run (doc-health-checker capability).
+# The caller (the xFactory aggregation repo's thin nightly workflow) owns
+# scheduling, dispatch, and permissions; suite logic changes only here.
+#
+# Hosted prepare/finalize jobs never depend on a self-hosted job. Prepare
+# performs a fail-closed readiness check and asynchronously dispatches the
+# caller repo's artifact-only child workflow. Finalize polls that child for a
+# bounded interval, then records a skip and continues if it is unavailable.
+name: doc-health-reusable
+
+on:
+  workflow_call:
+    inputs:
+      skip-families:
+        description: >-
+          Space-separated family ids to skip with notice. Scheduled runs
+          skip notebook-projection-drift until a CI auth strategy for nlm
+          exists (operator-triggered runs cover it).
+        type: string
+        default: "notebook-projection-drift"
+      fail-on:
+        description: Optional gate severity (critical or error); empty = report-only.
+        type: string
+        default: ""
+      worker-tenant-boundary:
+        description: Required tenant attestation for the semantic corpus.
+        type: string
+        default: "opensoft"
+      worker-data-boundary:
+        description: Required data-boundary attestation for the semantic corpus.
+        type: string
+        default: "opensoft-internal"
+      worker-handling-class:
+        description: Required worker handling authorization.
+        type: string
+        default: "internal-governance"
+      worker-heartbeat-max-age-seconds:
+        description: Maximum accepted readiness heartbeat age.
+        type: number
+        default: 300
+      readiness-only:
+        description: >-
+          Run the real fail-closed readiness evaluation (runner group +
+          authenticated Hermes heartbeat) as if the worker were enabled,
+          while structurally disabling analysis dispatch, the inline
+          fallback, and every finalize side effect. Lets operators prove
+          the runner/heartbeat pair with OMNIGENT_WORKER=false.
+        type: boolean
+        default: false
+      catalog-baseline:
+        description: >-
+          Force baseline-shard mode for the document-cataloger this run,
+          regardless of catalog_baseline.is_baseline_complete() state (an
+          operator escape hatch; normal baseline progress happens
+          automatically across scheduled runs until complete). Full
+          baseline-mode behavior lands with feature task T014 (US2); this
+          input is plumbed through now so US1's bundle-build step can
+          reference it without a later YAML change.
+        type: boolean
+        default: false
+      catalog-scope:
+        description: >-
+          Optional manual override of the document-cataloger's incremental
+          selection scope (e.g. a single repository); empty means "let
+          cataloger.select() decide from the inventory diff as usual."
+        type: string
+        default: ""
+      organizer-manual-ideas:
+        description: >-
+          Optional space-separated Idea IDs (XFI-YYYY-NNN) to request a bounded
+          ideation-organizer review this run, in addition to the ideas the
+          deterministic selector qualifies automatically (the "manual requests"
+          trigger). Empty reviews qualifying inputs only.
+        type: string
+        default: ""
+      neutrality-drift:
+        description: >-
+          Run the neutrality-drift lane (add-neutrality-drift-lane): the
+          deterministic stage-1 pre-filter over the pinned xFactories/*
+          domain repos plus the bounded model scout over its survivors.
+          Default on (opt-out input); with no omnigent worker host the
+          lane records a graceful skip note and stage-1 counts only.
+        type: boolean
+        default: true
+      neutrality-baseline:
+        description: >-
+          Optional domain repo name (e.g. MedxFactory) for a one-time
+          manual FULL neutrality sweep of that repo, ignoring its recorded
+          baseline marker; the lane records a fresh baseline marker when
+          the sweep queue drains. Empty means incremental as usual.
+        type: string
+        default: ""
+    secrets:
+      XFACTORY_APP_ID:
+        description: App ID of the openxFactory GitHub App (factory identity).
+        required: false
+      XFACTORY_APP_PRIVATE_KEY:
+        description: Private key of the openxFactory GitHub App.
+        required: false
+      SUBMODULE_TOKEN:
+        description: >-
+          Fallback PAT able to read the pinned family repos; used only when
+          the app credentials are absent.
+        required: false
+      ANTHROPIC_API_KEY:
+        description: >-
+          Inline-fallback model key, used only when no omnigent worker host
+          is registered (OMNIGENT_WORKER unset). The dispatch path needs no
+          model secret — the workstation's claude persona login is the
+          credential. Absent both, the sweep is recorded as skipped.
+        required: false
+      HERMES_READINESS_TOKEN:
+        description: >-
+          Read-only control-plane token used by hosted readiness to fetch the
+          sanitized worker heartbeat. It has no repository authority.
+        required: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    env:
+      HAS_APP_KEY: ${{ secrets.XFACTORY_APP_PRIVATE_KEY != '' }}
+    outputs:
+      # vars resolves against the caller repo: set OMNIGENT_WORKER=true on
+      # opensoft/xFactory only after readiness publication is operational.
+      omnigent: ${{ vars.OMNIGENT_WORKER == 'true' }}
+      dispatched: ${{ steps.dispatch.outputs.dispatched || 'false' }}
+      worker_reason: ${{ steps.dispatch.outputs.reason || steps.readiness.outputs.reason }}
+      correlation_id: ${{ steps.readiness.outputs.correlation_id }}
+      catalog_dispatched: ${{ steps.catalog-dispatch.outputs.dispatched || 'false' }}
+      catalog_worker_reason: ${{ steps.catalog-dispatch.outputs.reason || steps.catalog-readiness.outputs.reason }}
+      catalog_correlation_id: ${{ steps.catalog-readiness.outputs.correlation_id }}
+      organizer_dispatched: ${{ steps.organizer-dispatch.outputs.dispatched || 'false' }}
+      organizer_worker_reason: ${{ steps.organizer-dispatch.outputs.reason || steps.organizer-readiness.outputs.reason }}
+      organizer_correlation_id: ${{ steps.organizer-readiness.outputs.correlation_id }}
+    steps:
+      - name: Mint xFactory app token
+        id: app-token
+        if: env.HAS_APP_KEY == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - name: Rewrite ssh submodule URLs for token auth
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token || secrets.SUBMODULE_TOKEN || github.token }}
+      - uses: actions/checkout@v4
+      - name: Init governed submodules only
+        run: |
+          SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
+                 | awk '{print $2}' | grep -E '^(openxFactory|xFactories/)')
+          git submodule update --init $SUBS
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install suite dependencies
+        run: pip install pyyaml
+      - name: Build semantic sweep bundle
+        if: inputs.readiness-only != true
+        env:
+          SKIP_FAMILIES_INPUT: ${{ inputs.skip-families }}
+        run: |
+          PREV_INV="$(ls health/inventory/[0-9]*.json 2>/dev/null | sort | tail -1 || true)"
+          SKIPS=()
+          if [ -n "$SKIP_FAMILIES_INPUT" ]; then
+            read -r -a SKIP_VALUES <<< "$SKIP_FAMILIES_INPUT"
+            for family in "${SKIP_VALUES[@]}"; do
+              SKIPS+=(--skip-family "$family")
+            done
+          fi
+          python3 openxFactory/scripts/doc-health.py \
+            --repo-root . \
+            "${SKIPS[@]}" \
+            ${PREV_INV:+--previous-inventory "$PREV_INV"} \
+            --semantic-prepare sweep-bundle
+      - uses: actions/upload-artifact@v4
+        if: inputs.readiness-only != true
+        with:
+          name: semantic-sweep-bundle
+          path: sweep-bundle
+      - name: Build document catalog bundle
+        # Deterministic-first (FR-001/FR-002): --catalog-prepare runs the
+        # full 13-family suite (including the document-catalog family) and
+        # computes the mechanical entries/diff before this step's shard
+        # bundle is even built, so nothing here can race ahead of that pass.
+        # The durable, committed snapshot write happens once, unconditionally,
+        # from "Run doc-health suite" below (scripts/doc_health/
+        # catalog_dispatch.py's prepare_catalog_bundle docstring explains why
+        # this step itself never calls catalog.write_snapshot).
+        if: inputs.readiness-only != true
+        env:
+          CATALOG_BASELINE_INPUT: ${{ inputs.catalog-baseline }}
+          CATALOG_SCOPE_INPUT: ${{ inputs.catalog-scope }}
+        run: |
+          BASELINE=()
+          [ "$CATALOG_BASELINE_INPUT" = "true" ] && BASELINE=(--catalog-baseline)
+          SCOPE=()
+          if [ -n "$CATALOG_SCOPE_INPUT" ]; then
+            SCOPE=(--catalog-scope "$CATALOG_SCOPE_INPUT")
+          fi
+          python3 openxFactory/scripts/doc-health.py \
+            --repo-root . \
+            "${BASELINE[@]}" "${SCOPE[@]}" \
+            --catalog-prepare catalog-bundle
+      - uses: actions/upload-artifact@v4
+        if: inputs.readiness-only != true
+        with:
+          name: document-catalog-bundle
+          path: catalog-bundle
+      - name: Evaluate hosted worker readiness
+        id: readiness
+        env:
+          WORKER_ENABLED: ${{ vars.OMNIGENT_WORKER == 'true' }}
+          READINESS_ONLY: ${{ inputs.readiness-only == true }}
+          HERMES_READINESS_URL: ${{ vars.HERMES_READINESS_URL }}
+          HERMES_WORKER_ID: ${{ vars.OMNIGENT_WORKER_ID }}
+          HERMES_READINESS_TOKEN: ${{ secrets.HERMES_READINESS_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          REQUIRED_TENANT: ${{ inputs.worker-tenant-boundary }}
+          REQUIRED_DATA_BOUNDARY: ${{ inputs.worker-data-boundary }}
+          REQUIRED_HANDLING: ${{ inputs.worker-handling-class }}
+          MAX_AGE: ${{ inputs.worker-heartbeat-max-age-seconds }}
+        run: |
+          GROUP="xfactory-artifact-workers"
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          # Readiness-only mode probes and evaluates as if enabled; the
+          # dispatch step below is separately and unconditionally guarded.
+          PROBE="$WORKER_ENABLED"
+          [ "$READINESS_ONLY" = "true" ] && PROBE="true"
+          QUERY_ERROR=""
+          : > runners-api.json
+          if [ "$PROBE" = "true" ]; then
+            GROUP_ID=""
+            if gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups?per_page=100" \
+                > runner-groups-api.json 2>/dev/null; then
+              GROUP_ID="$(python3 - "$GROUP" <<'PY'
+          import json
+          import sys
+          try:
+              pages = json.load(open("runner-groups-api.json", encoding="utf-8"))
+              if not isinstance(pages, list):
+                  raise ValueError("runner group pages must be an array")
+              groups = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runner_groups"), list):
+                      raise ValueError("runner group page is malformed")
+                  groups.extend(page["runner_groups"])
+              print(next((item.get("id") for item in groups
+                          if isinstance(item, dict)
+                          and item.get("name") == sys.argv[1]
+                          and isinstance(item.get("id"), int)), ""))
+          except (OSError, json.JSONDecodeError, AttributeError, ValueError):
+              print("")
+          PY
+              )"
+            else
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+            if [ -n "$GROUP_ID" ]; then
+              gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups/${GROUP_ID}/runners?per_page=100" \
+                > runners-api.json 2>/dev/null || QUERY_ERROR="runner_query_failed"
+            elif [ -z "$QUERY_ERROR" ]; then
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+          fi
+          python3 - "$GROUP" "$QUERY_ERROR" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          group, error = sys.argv[1:]
+          try:
+              pages = json.loads(Path("runners-api.json").read_text() or "[]")
+              if not isinstance(pages, list):
+                  raise ValueError("runner response must be an array")
+              runners = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runners"), list):
+                      raise ValueError("runner response page is malformed")
+                  runners.extend(page["runners"])
+          except (json.JSONDecodeError, ValueError):
+              runners, error = [], error or "invalid_runner_response"
+          Path("runner-group.json").write_text(json.dumps({
+              "group": group, "query_error": error,
+              "runners": runners,
+          }))
+          PY
+          if [ "$PROBE" = "true" ] && \
+             [ -n "$HERMES_READINESS_URL" ] && \
+             [ -n "$HERMES_WORKER_ID" ]; then
+            AUTH=()
+            [ -n "$HERMES_READINESS_TOKEN" ] && \
+              AUTH=(-H "Authorization: Bearer ${HERMES_READINESS_TOKEN}")
+            if curl --fail --silent --show-error \
+                 "${AUTH[@]}" \
+                 "${HERMES_READINESS_URL%/}/api/readiness/workers/${HERMES_WORKER_ID}" \
+                 > hermes-worker.json; then
+              if ! python3 - <<'PY'
+          import json
+          from pathlib import Path
+          response = json.load(open("hermes-worker.json", encoding="utf-8"))
+          if not isinstance(response, dict):
+              raise ValueError("readiness response must be an object")
+          worker = response.get("worker", {})
+          if not isinstance(worker, dict):
+              raise ValueError("readiness worker must be an object")
+          metadata = worker.get("metadata", {})
+          heartbeat = dict(metadata) if isinstance(metadata, dict) else {}
+          heartbeat.setdefault("host_id", worker.get("id"))
+          heartbeat.setdefault("observed_at", worker.get("last_seen_at"))
+          heartbeat["status"] = worker.get("status")
+          heartbeat["current_jobs"] = worker.get("current_jobs")
+          Path("heartbeat.json").write_text(json.dumps(heartbeat),
+                                              encoding="utf-8")
+          PY
+              then
+                printf '%s\n' '{"query_error":"invalid_heartbeat_response"}' \
+                  > heartbeat.json
+              fi
+            else
+              printf '%s\n' '{"query_error":"heartbeat_query_failed"}' \
+                > heartbeat.json
+            fi
+          else
+            printf '%s\n' '{"query_error":"heartbeat_endpoint_unconfigured"}' \
+              > heartbeat.json
+          fi
+          ENABLED=()
+          [ "$PROBE" = "true" ] && ENABLED=(--enabled)
+          python3 scripts/check-worker-readiness.py \
+            --runner-group runner-group.json \
+            --heartbeat heartbeat.json \
+            "${ENABLED[@]}" \
+            --required-group "$GROUP" \
+            --required-label self-hosted \
+            --required-label artifact-only \
+            --required-label doc-analysis \
+            --required-profile doc-analysis-worker \
+            --required-profile-version 1 \
+            --required-tenant "$REQUIRED_TENANT" \
+            --required-data-boundary "$REQUIRED_DATA_BOUNDARY" \
+            --required-handling "$REQUIRED_HANDLING" \
+            --required-policy-version artifact-worker-v1 \
+            --max-age-seconds "$MAX_AGE" \
+            --output readiness.json
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          value = json.load(open("readiness.json", encoding="utf-8"))
+          print(f"ready={str(value['ready']).lower()}")
+          print(f"reason={value['reason']}")
+          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          print(f"correlation_id=semantic-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
+          PY
+      - name: Dispatch artifact-only analysis child
+        id: dispatch
+        # readiness-only can prove ready=true but must never dispatch.
+        if: steps.readiness.outputs.ready == 'true' && inputs.readiness-only != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CORRELATION_ID: ${{ steps.readiness.outputs.correlation_id }}
+          DISPATCH_LABEL: ${{ steps.readiness.outputs.dispatch_label }}
+        run: |
+          if gh workflow run doc-health-analysis-worker.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f source_run_id="$GITHUB_RUN_ID" \
+            -f source_sha="$GITHUB_SHA" \
+            -f correlation_id="$CORRELATION_ID" \
+            -f dispatch_label="$DISPATCH_LABEL"; then
+            echo "dispatched=true" >> "$GITHUB_OUTPUT"
+            echo "reason=ready" >> "$GITHUB_OUTPUT"
+          else
+            echo "dispatched=false" >> "$GITHUB_OUTPUT"
+            echo "reason=child_dispatch_failed" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Evaluate cataloger worker readiness
+        # Cloned from "Evaluate hosted worker readiness" verbatim (research
+        # D0 decision: reuse the proven dispatch/readiness shape rather than
+        # design a new one) -- same runner-group/heartbeat query shape,
+        # reusing the SAME shared artifact-worker host (plan.md: "the
+        # document-analysis Cloud PC host per the already-merged omnigent
+        # profile"), a distinct required label/profile and its own
+        # intermediate filenames so this step's local files never collide
+        # with the sweep readiness step's.
+        id: catalog-readiness
+        env:
+          WORKER_ENABLED: ${{ vars.OMNIGENT_WORKER == 'true' }}
+          READINESS_ONLY: ${{ inputs.readiness-only == true }}
+          HERMES_READINESS_URL: ${{ vars.HERMES_READINESS_URL }}
+          HERMES_WORKER_ID: ${{ vars.OMNIGENT_WORKER_ID }}
+          HERMES_READINESS_TOKEN: ${{ secrets.HERMES_READINESS_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          REQUIRED_TENANT: ${{ inputs.worker-tenant-boundary }}
+          REQUIRED_DATA_BOUNDARY: ${{ inputs.worker-data-boundary }}
+          REQUIRED_HANDLING: ${{ inputs.worker-handling-class }}
+          MAX_AGE: ${{ inputs.worker-heartbeat-max-age-seconds }}
+        run: |
+          GROUP="xfactory-artifact-workers"
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          # Readiness-only mode probes and evaluates as if enabled; the
+          # dispatch step below is separately and unconditionally guarded.
+          PROBE="$WORKER_ENABLED"
+          [ "$READINESS_ONLY" = "true" ] && PROBE="true"
+          QUERY_ERROR=""
+          : > catalog-runners-api.json
+          if [ "$PROBE" = "true" ]; then
+            GROUP_ID=""
+            if gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups?per_page=100" \
+                > catalog-runner-groups-api.json 2>/dev/null; then
+              GROUP_ID="$(python3 - "$GROUP" <<'PY'
+          import json
+          import sys
+          try:
+              pages = json.load(open("catalog-runner-groups-api.json", encoding="utf-8"))
+              if not isinstance(pages, list):
+                  raise ValueError("runner group pages must be an array")
+              groups = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runner_groups"), list):
+                      raise ValueError("runner group page is malformed")
+                  groups.extend(page["runner_groups"])
+              print(next((item.get("id") for item in groups
+                          if isinstance(item, dict)
+                          and item.get("name") == sys.argv[1]
+                          and isinstance(item.get("id"), int)), ""))
+          except (OSError, json.JSONDecodeError, AttributeError, ValueError):
+              print("")
+          PY
+              )"
+            else
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+            if [ -n "$GROUP_ID" ]; then
+              gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups/${GROUP_ID}/runners?per_page=100" \
+                > catalog-runners-api.json 2>/dev/null || QUERY_ERROR="runner_query_failed"
+            elif [ -z "$QUERY_ERROR" ]; then
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+          fi
+          python3 - "$GROUP" "$QUERY_ERROR" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          group, error = sys.argv[1:]
+          try:
+              pages = json.loads(Path("catalog-runners-api.json").read_text() or "[]")
+              if not isinstance(pages, list):
+                  raise ValueError("runner response must be an array")
+              runners = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runners"), list):
+                      raise ValueError("runner response page is malformed")
+                  runners.extend(page["runners"])
+          except (json.JSONDecodeError, ValueError):
+              runners, error = [], error or "invalid_runner_response"
+          Path("catalog-runner-group.json").write_text(json.dumps({
+              "group": group, "query_error": error,
+              "runners": runners,
+          }))
+          PY
+          if [ "$PROBE" = "true" ] && \
+             [ -n "$HERMES_READINESS_URL" ] && \
+             [ -n "$HERMES_WORKER_ID" ]; then
+            AUTH=()
+            [ -n "$HERMES_READINESS_TOKEN" ] && \
+              AUTH=(-H "Authorization: Bearer ${HERMES_READINESS_TOKEN}")
+            if curl --fail --silent --show-error \
+                 "${AUTH[@]}" \
+                 "${HERMES_READINESS_URL%/}/api/readiness/workers/${HERMES_WORKER_ID}" \
+                 > catalog-hermes-worker.json; then
+              if ! python3 - <<'PY'
+          import json
+          from pathlib import Path
+          response = json.load(open("catalog-hermes-worker.json", encoding="utf-8"))
+          if not isinstance(response, dict):
+              raise ValueError("readiness response must be an object")
+          worker = response.get("worker", {})
+          if not isinstance(worker, dict):
+              raise ValueError("readiness worker must be an object")
+          metadata = worker.get("metadata", {})
+          heartbeat = dict(metadata) if isinstance(metadata, dict) else {}
+          heartbeat.setdefault("host_id", worker.get("id"))
+          heartbeat.setdefault("observed_at", worker.get("last_seen_at"))
+          heartbeat["status"] = worker.get("status")
+          heartbeat["current_jobs"] = worker.get("current_jobs")
+          Path("catalog-heartbeat.json").write_text(json.dumps(heartbeat),
+                                              encoding="utf-8")
+          PY
+              then
+                printf '%s\n' '{"query_error":"invalid_heartbeat_response"}' \
+                  > catalog-heartbeat.json
+              fi
+            else
+              printf '%s\n' '{"query_error":"heartbeat_query_failed"}' \
+                > catalog-heartbeat.json
+            fi
+          else
+            printf '%s\n' '{"query_error":"heartbeat_endpoint_unconfigured"}' \
+              > catalog-heartbeat.json
+          fi
+          ENABLED=()
+          [ "$PROBE" = "true" ] && ENABLED=(--enabled)
+          python3 scripts/check-worker-readiness.py \
+            --runner-group catalog-runner-group.json \
+            --heartbeat catalog-heartbeat.json \
+            "${ENABLED[@]}" \
+            --required-group "$GROUP" \
+            --required-label document-cataloger \
+            --required-profile document-cataloger \
+            --required-profile-version 1 \
+            --required-tenant "$REQUIRED_TENANT" \
+            --required-data-boundary "$REQUIRED_DATA_BOUNDARY" \
+            --required-handling "$REQUIRED_HANDLING" \
+            --required-policy-version artifact-worker-v1 \
+            --max-age-seconds "$MAX_AGE" \
+            --output catalog-readiness.json
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          value = json.load(open("catalog-readiness.json", encoding="utf-8"))
+          print(f"ready={str(value['ready']).lower()}")
+          print(f"reason={value['reason']}")
+          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          print(f"correlation_id=catalog-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
+          PY
+      - name: Dispatch artifact-only cataloger child
+        id: catalog-dispatch
+        # readiness-only can prove ready=true but must never dispatch.
+        if: steps.catalog-readiness.outputs.ready == 'true' && inputs.readiness-only != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CORRELATION_ID: ${{ steps.catalog-readiness.outputs.correlation_id }}
+          DISPATCH_LABEL: ${{ steps.catalog-readiness.outputs.dispatch_label }}
+        run: |
+          if gh workflow run doc-health-cataloger-worker.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f source_run_id="$GITHUB_RUN_ID" \
+            -f source_sha="$GITHUB_SHA" \
+            -f correlation_id="$CORRELATION_ID" \
+            -f dispatch_label="$DISPATCH_LABEL"; then
+            echo "dispatched=true" >> "$GITHUB_OUTPUT"
+            echo "reason=ready" >> "$GITHUB_OUTPUT"
+          else
+            echo "dispatched=false" >> "$GITHUB_OUTPUT"
+            echo "reason=child_dispatch_failed" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build ideation organizer bundle
+        # Deterministic-first (task 7.1 / spec "The deterministic run SHALL
+        # complete without waiting for organizer execution"): --organizer-prepare
+        # runs the full fourteen-family suite (including the deterministic
+        # ideation-routing family) and only THEN selects/authorizes qualifying
+        # ideas and writes this self-contained bundle, so nothing here can race
+        # ahead of that pass. Source/host authorization is applied here
+        # (organizer_dispatch.py): a source whose declared handling is not
+        # authorized for the attested worker boundary is never bundled.
+        if: inputs.readiness-only != true
+        env:
+          SKIP_FAMILIES_INPUT: ${{ inputs.skip-families }}
+          ORGANIZER_MANUAL_INPUT: ${{ inputs.organizer-manual-ideas }}
+          ORGANIZER_TENANT: ${{ inputs.worker-tenant-boundary }}
+          ORGANIZER_DATA_BOUNDARY: ${{ inputs.worker-data-boundary }}
+          ORGANIZER_HANDLING: ${{ inputs.worker-handling-class }}
+        run: |
+          SKIPS=()
+          if [ -n "$SKIP_FAMILIES_INPUT" ]; then
+            read -r -a SKIP_VALUES <<< "$SKIP_FAMILIES_INPUT"
+            for family in "${SKIP_VALUES[@]}"; do
+              SKIPS+=(--skip-family "$family")
+            done
+          fi
+          MANUAL=()
+          if [ -n "$ORGANIZER_MANUAL_INPUT" ]; then
+            read -r -a MANUAL_VALUES <<< "$ORGANIZER_MANUAL_INPUT"
+            for idea in "${MANUAL_VALUES[@]}"; do
+              MANUAL+=(--organizer-manual-idea "$idea")
+            done
+          fi
+          python3 openxFactory/scripts/doc-health.py \
+            --repo-root . \
+            "${SKIPS[@]}" "${MANUAL[@]}" \
+            --organizer-tenant-boundary "$ORGANIZER_TENANT" \
+            --organizer-data-boundary "$ORGANIZER_DATA_BOUNDARY" \
+            --organizer-handling-class "$ORGANIZER_HANDLING" \
+            --organizer-prepare organizer-bundle
+      - uses: actions/upload-artifact@v4
+        if: inputs.readiness-only != true
+        with:
+          name: ideation-organizer-bundle
+          path: organizer-bundle
+      - name: Evaluate organizer worker readiness
+        # Cloned from "Evaluate hosted worker readiness" verbatim (research
+        # D0 decision: reuse the proven dispatch/readiness shape rather than
+        # design a new one) -- same runner-group/heartbeat query shape,
+        # reusing the SAME shared artifact-worker host (plan.md: "the
+        # document-analysis Cloud PC host per the already-merged omnigent
+        # profile"), a distinct required label/profile and its own
+        # intermediate filenames so this step's local files never collide
+        # with the sweep readiness step's.
+        id: organizer-readiness
+        env:
+          WORKER_ENABLED: ${{ vars.OMNIGENT_WORKER == 'true' }}
+          READINESS_ONLY: ${{ inputs.readiness-only == true }}
+          HERMES_READINESS_URL: ${{ vars.HERMES_READINESS_URL }}
+          HERMES_WORKER_ID: ${{ vars.OMNIGENT_WORKER_ID }}
+          HERMES_READINESS_TOKEN: ${{ secrets.HERMES_READINESS_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          REQUIRED_TENANT: ${{ inputs.worker-tenant-boundary }}
+          REQUIRED_DATA_BOUNDARY: ${{ inputs.worker-data-boundary }}
+          REQUIRED_HANDLING: ${{ inputs.worker-handling-class }}
+          MAX_AGE: ${{ inputs.worker-heartbeat-max-age-seconds }}
+        run: |
+          GROUP="xfactory-artifact-workers"
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          # Readiness-only mode probes and evaluates as if enabled; the
+          # dispatch step below is separately and unconditionally guarded.
+          PROBE="$WORKER_ENABLED"
+          [ "$READINESS_ONLY" = "true" ] && PROBE="true"
+          QUERY_ERROR=""
+          : > organizer-runners-api.json
+          if [ "$PROBE" = "true" ]; then
+            GROUP_ID=""
+            if gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups?per_page=100" \
+                > organizer-runner-groups-api.json 2>/dev/null; then
+              GROUP_ID="$(python3 - "$GROUP" <<'PY'
+          import json
+          import sys
+          try:
+              pages = json.load(open("organizer-runner-groups-api.json", encoding="utf-8"))
+              if not isinstance(pages, list):
+                  raise ValueError("runner group pages must be an array")
+              groups = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runner_groups"), list):
+                      raise ValueError("runner group page is malformed")
+                  groups.extend(page["runner_groups"])
+              print(next((item.get("id") for item in groups
+                          if isinstance(item, dict)
+                          and item.get("name") == sys.argv[1]
+                          and isinstance(item.get("id"), int)), ""))
+          except (OSError, json.JSONDecodeError, AttributeError, ValueError):
+              print("")
+          PY
+              )"
+            else
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+            if [ -n "$GROUP_ID" ]; then
+              gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups/${GROUP_ID}/runners?per_page=100" \
+                > organizer-runners-api.json 2>/dev/null || QUERY_ERROR="runner_query_failed"
+            elif [ -z "$QUERY_ERROR" ]; then
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+          fi
+          python3 - "$GROUP" "$QUERY_ERROR" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          group, error = sys.argv[1:]
+          try:
+              pages = json.loads(Path("organizer-runners-api.json").read_text() or "[]")
+              if not isinstance(pages, list):
+                  raise ValueError("runner response must be an array")
+              runners = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runners"), list):
+                      raise ValueError("runner response page is malformed")
+                  runners.extend(page["runners"])
+          except (json.JSONDecodeError, ValueError):
+              runners, error = [], error or "invalid_runner_response"
+          Path("organizer-runner-group.json").write_text(json.dumps({
+              "group": group, "query_error": error,
+              "runners": runners,
+          }))
+          PY
+          if [ "$PROBE" = "true" ] && \
+             [ -n "$HERMES_READINESS_URL" ] && \
+             [ -n "$HERMES_WORKER_ID" ]; then
+            AUTH=()
+            [ -n "$HERMES_READINESS_TOKEN" ] && \
+              AUTH=(-H "Authorization: Bearer ${HERMES_READINESS_TOKEN}")
+            if curl --fail --silent --show-error \
+                 "${AUTH[@]}" \
+                 "${HERMES_READINESS_URL%/}/api/readiness/workers/${HERMES_WORKER_ID}" \
+                 > organizer-hermes-worker.json; then
+              if ! python3 - <<'PY'
+          import json
+          from pathlib import Path
+          response = json.load(open("organizer-hermes-worker.json", encoding="utf-8"))
+          if not isinstance(response, dict):
+              raise ValueError("readiness response must be an object")
+          worker = response.get("worker", {})
+          if not isinstance(worker, dict):
+              raise ValueError("readiness worker must be an object")
+          metadata = worker.get("metadata", {})
+          heartbeat = dict(metadata) if isinstance(metadata, dict) else {}
+          heartbeat.setdefault("host_id", worker.get("id"))
+          heartbeat.setdefault("observed_at", worker.get("last_seen_at"))
+          heartbeat["status"] = worker.get("status")
+          heartbeat["current_jobs"] = worker.get("current_jobs")
+          Path("organizer-heartbeat.json").write_text(json.dumps(heartbeat),
+                                              encoding="utf-8")
+          PY
+              then
+                printf '%s\n' '{"query_error":"invalid_heartbeat_response"}' \
+                  > organizer-heartbeat.json
+              fi
+            else
+              printf '%s\n' '{"query_error":"heartbeat_query_failed"}' \
+                > organizer-heartbeat.json
+            fi
+          else
+            printf '%s\n' '{"query_error":"heartbeat_endpoint_unconfigured"}' \
+              > organizer-heartbeat.json
+          fi
+          ENABLED=()
+          [ "$PROBE" = "true" ] && ENABLED=(--enabled)
+          python3 scripts/check-worker-readiness.py \
+            --runner-group organizer-runner-group.json \
+            --heartbeat organizer-heartbeat.json \
+            "${ENABLED[@]}" \
+            --required-group "$GROUP" \
+            --required-label ideation-organizer \
+            --required-profile ideation-organizer \
+            --required-profile-version 1 \
+            --required-tenant "$REQUIRED_TENANT" \
+            --required-data-boundary "$REQUIRED_DATA_BOUNDARY" \
+            --required-handling "$REQUIRED_HANDLING" \
+            --max-age-seconds "$MAX_AGE" \
+            --output organizer-readiness.json
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          value = json.load(open("organizer-readiness.json", encoding="utf-8"))
+          print(f"ready={str(value['ready']).lower()}")
+          print(f"reason={value['reason']}")
+          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          print(f"correlation_id=organizer-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
+          PY
+      - name: Dispatch artifact-only organizer child
+        id: organizer-dispatch
+        # readiness-only can prove ready=true but must never dispatch.
+        if: steps.organizer-readiness.outputs.ready == 'true' && inputs.readiness-only != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CORRELATION_ID: ${{ steps.organizer-readiness.outputs.correlation_id }}
+          DISPATCH_LABEL: ${{ steps.organizer-readiness.outputs.dispatch_label }}
+        run: |
+          if gh workflow run ideation-organizer-worker.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f source_run_id="$GITHUB_RUN_ID" \
+            -f source_sha="$GITHUB_SHA" \
+            -f correlation_id="$CORRELATION_ID" \
+            -f dispatch_label="$DISPATCH_LABEL"; then
+            echo "dispatched=true" >> "$GITHUB_OUTPUT"
+            echo "reason=ready" >> "$GITHUB_OUTPUT"
+          else
+            echo "dispatched=false" >> "$GITHUB_OUTPUT"
+            echo "reason=child_dispatch_failed" >> "$GITHUB_OUTPUT"
+          fi
+
+  finalize:
+    needs: prepare
+    # readiness-only produces no reports, no inline sweep, no side
+    # effects — the readiness evaluation output is the whole result.
+    if: always() && inputs.readiness-only != true
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+      issues: write
+      # pull-requests: write is required by the "Commit report" step: since
+      # org ruleset 18962101 (PR + 1 approval, OrgAdmin-only bypass) protects
+      # the default branch, the nightly can no longer push reports directly —
+      # it delivers them through a rolling PR instead. Callers must grant the
+      # same permission (see doc-health-nightly.yml).
+      pull-requests: write
+    env:
+      HAS_APP_KEY: ${{ secrets.XFACTORY_APP_PRIVATE_KEY != '' }}
+      HAS_ANTHROPIC_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+    steps:
+      - name: Mint xFactory app token
+        id: app-token
+        if: env.HAS_APP_KEY == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - name: Rewrite ssh submodule URLs for token auth
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token || secrets.SUBMODULE_TOKEN || github.token }}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token || github.token }}
+      - name: Init governed submodules only
+        run: |
+          SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
+                 | awk '{print $2}' | grep -E '^(openxFactory|xFactories/)')
+          git submodule update --init $SUBS
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install suite dependencies
+        run: pip install pyyaml jsonschema pytest rfc3339-validator
+      - name: Download prepared deterministic inventory
+        if: needs.prepare.result == 'success'
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: semantic-sweep-bundle
+          path: prepared
+      # Inline fallback only: without a registered omnigent worker the
+      # sweep runs in-job when a model key exists, else records a skip.
+      - name: Install analysis worker CLI (inline fallback)
+        if: needs.prepare.outputs.omnigent != 'true' && env.HAS_ANTHROPIC_KEY == 'true'
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Collect bounded worker result
+        if: needs.prepare.outputs.omnigent == 'true'
+        continue-on-error: true
+        timeout-minutes: 45
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCHED: ${{ needs.prepare.outputs.dispatched }}
+          INITIAL_REASON: ${{ needs.prepare.outputs.worker_reason }}
+          CORRELATION_ID: ${{ needs.prepare.outputs.correlation_id }}
+        run: |
+          mkdir -p findings
+          REASON="${INITIAL_REASON:-worker_unavailable}"
+          if [ "$DISPATCHED" = "true" ]; then
+            TITLE="doc-health-analysis-${CORRELATION_ID}"
+            DISCOVERY_DEADLINE=$((SECONDS + 120))
+            CHILD_ID=""
+            REASON="child_not_observed"
+            while [ $SECONDS -lt $DISCOVERY_DEADLINE ]; do
+              if ! gh run list \
+                  --repo "$GITHUB_REPOSITORY" \
+                  --workflow doc-health-analysis-worker.yml \
+                  --limit 50 \
+                  --json databaseId,displayTitle \
+                  > child-runs.json 2>/dev/null; then
+                REASON="worker_result_query_failed"
+                break
+              fi
+              if ! CHILD_ID="$(python3 - "$TITLE" <<'PY'
+          import json
+          import sys
+          try:
+              runs = json.load(open("child-runs.json", encoding="utf-8"))
+              if not isinstance(runs, list):
+                  raise ValueError("run list is not an array")
+              print(next((str(run.get("databaseId")) for run in runs
+                          if isinstance(run, dict)
+                          and run.get("displayTitle") == sys.argv[1]
+                          and isinstance(run.get("databaseId"), int)), ""))
+          except (OSError, json.JSONDecodeError, ValueError):
+              raise SystemExit(1)
+          PY
+              )"; then
+                REASON="worker_result_response_invalid"
+                break
+              fi
+              [ -n "$CHILD_ID" ] && break
+              sleep 10
+            done
+            if [ -n "$CHILD_ID" ]; then
+              COMPLETED="false"
+              RUNNING="false"
+              QUEUE_DEADLINE=$((SECONDS + 600))
+              REASON="child_queue_timeout"
+              while [ $SECONDS -lt $QUEUE_DEADLINE ]; do
+                if ! STATUS="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json status --jq .status 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  break
+                fi
+                if [ "$STATUS" = "completed" ]; then
+                  COMPLETED="true"
+                  break
+                fi
+                if [ "$STATUS" = "in_progress" ]; then
+                  RUNNING="true"
+                  break
+                fi
+                sleep 15
+              done
+              if [ "$RUNNING" = "true" ]; then
+                RUN_DEADLINE=$((SECONDS + 1800))
+                REASON="child_timeout"
+                while [ $SECONDS -lt $RUN_DEADLINE ]; do
+                  if ! STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    REASON="worker_result_query_failed"
+                    break
+                  fi
+                  if [ "$STATUS" = "completed" ]; then
+                    COMPLETED="true"
+                    break
+                  fi
+                  sleep 15
+                done
+                if [ "$COMPLETED" != "true" ] && \
+                   [ "$REASON" = "child_timeout" ]; then
+                  if STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    [ "$STATUS" = "completed" ] && COMPLETED="true"
+                  else
+                    REASON="worker_result_query_failed"
+                  fi
+                fi
+              fi
+              if [[ "$COMPLETED" != "true" && \
+                    ( "$REASON" = "child_timeout" || \
+                      "$REASON" = "child_queue_timeout" ) ]]; then
+                gh run cancel "$CHILD_ID" --repo "$GITHUB_REPOSITORY" \
+                  >/dev/null 2>&1 || true
+              fi
+              if [ "$COMPLETED" = "true" ]; then
+                if ! CONCLUSION="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json conclusion --jq .conclusion 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  CONCLUSION=""
+                fi
+                if [ "$CONCLUSION" = "success" ] && \
+                   gh run download "$CHILD_ID" \
+                     --repo "$GITHUB_REPOSITORY" \
+                     --name "semantic-sweep-findings-${CORRELATION_ID}" \
+                     --dir findings; then
+                  REASON="ready"
+                elif [ -n "$CONCLUSION" ]; then
+                  REASON="child_${CONCLUSION:-artifact_unavailable}"
+                fi
+              fi
+            fi
+          fi
+          printf '%s\n' "$REASON" > findings/unavailable-reason.txt
+      - name: Collect bounded cataloger result
+        # Cloned from "Collect bounded worker result" verbatim (research D0
+        # decision: reuse the proven watchdog shape for a second dispatch
+        # lane rather than design a new one) -- identical 120s discovery /
+        # 600s queue-timeout / 1800s run-timeout deadlines and cancel-on-
+        # timeout behavior, with the cataloger's own correlation id and
+        # workflow name. continue-on-error + the unconditional if: always()
+        # on "Run doc-health suite" below mean a total cataloger outage can
+        # delay the report by at most this step's bounded wall time and can
+        # never prevent it from landing (FR-005; Constitution Check).
+        if: needs.prepare.outputs.omnigent == 'true'
+        continue-on-error: true
+        timeout-minutes: 45
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCHED: ${{ needs.prepare.outputs.catalog_dispatched }}
+          INITIAL_REASON: ${{ needs.prepare.outputs.catalog_worker_reason }}
+          CORRELATION_ID: ${{ needs.prepare.outputs.catalog_correlation_id }}
+        run: |
+          mkdir -p findings
+          REASON="${INITIAL_REASON:-worker_unavailable}"
+          if [ "$DISPATCHED" = "true" ]; then
+            TITLE="doc-health-cataloger-${CORRELATION_ID}"
+            DISCOVERY_DEADLINE=$((SECONDS + 120))
+            CHILD_ID=""
+            REASON="child_not_observed"
+            while [ $SECONDS -lt $DISCOVERY_DEADLINE ]; do
+              if ! gh run list \
+                  --repo "$GITHUB_REPOSITORY" \
+                  --workflow doc-health-cataloger-worker.yml \
+                  --limit 50 \
+                  --json databaseId,displayTitle \
+                  > catalog-child-runs.json 2>/dev/null; then
+                REASON="worker_result_query_failed"
+                break
+              fi
+              if ! CHILD_ID="$(python3 - "$TITLE" <<'PY'
+          import json
+          import sys
+          try:
+              runs = json.load(open("catalog-child-runs.json", encoding="utf-8"))
+              if not isinstance(runs, list):
+                  raise ValueError("run list is not an array")
+              print(next((str(run.get("databaseId")) for run in runs
+                          if isinstance(run, dict)
+                          and run.get("displayTitle") == sys.argv[1]
+                          and isinstance(run.get("databaseId"), int)), ""))
+          except (OSError, json.JSONDecodeError, ValueError):
+              raise SystemExit(1)
+          PY
+              )"; then
+                REASON="worker_result_response_invalid"
+                break
+              fi
+              [ -n "$CHILD_ID" ] && break
+              sleep 10
+            done
+            if [ -n "$CHILD_ID" ]; then
+              COMPLETED="false"
+              RUNNING="false"
+              QUEUE_DEADLINE=$((SECONDS + 600))
+              REASON="child_queue_timeout"
+              while [ $SECONDS -lt $QUEUE_DEADLINE ]; do
+                if ! STATUS="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json status --jq .status 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  break
+                fi
+                if [ "$STATUS" = "completed" ]; then
+                  COMPLETED="true"
+                  break
+                fi
+                if [ "$STATUS" = "in_progress" ]; then
+                  RUNNING="true"
+                  break
+                fi
+                sleep 15
+              done
+              if [ "$RUNNING" = "true" ]; then
+                RUN_DEADLINE=$((SECONDS + 1800))
+                REASON="child_timeout"
+                while [ $SECONDS -lt $RUN_DEADLINE ]; do
+                  if ! STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    REASON="worker_result_query_failed"
+                    break
+                  fi
+                  if [ "$STATUS" = "completed" ]; then
+                    COMPLETED="true"
+                    break
+                  fi
+                  sleep 15
+                done
+                if [ "$COMPLETED" != "true" ] && \
+                   [ "$REASON" = "child_timeout" ]; then
+                  if STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    [ "$STATUS" = "completed" ] && COMPLETED="true"
+                  else
+                    REASON="worker_result_query_failed"
+                  fi
+                fi
+              fi
+              if [[ "$COMPLETED" != "true" && \
+                    ( "$REASON" = "child_timeout" || \
+                      "$REASON" = "child_queue_timeout" ) ]]; then
+                gh run cancel "$CHILD_ID" --repo "$GITHUB_REPOSITORY" \
+                  >/dev/null 2>&1 || true
+              fi
+              if [ "$COMPLETED" = "true" ]; then
+                if ! CONCLUSION="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json conclusion --jq .conclusion 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  CONCLUSION=""
+                fi
+                # Assumes the (tracked, out-of-repo) doc-health-cataloger-
+                # worker.yml uploads its single validated artifact file
+                # named after its own dispatched job id (CATJOB-*.json,
+                # cataloger.envelope's id prefix) -- "Run doc-health suite"
+                # below recovers that job id from the downloaded filename.
+                if [ "$CONCLUSION" = "success" ] && \
+                   gh run download "$CHILD_ID" \
+                     --repo "$GITHUB_REPOSITORY" \
+                     --name "document-catalog-recommendation-${CORRELATION_ID}" \
+                     --dir findings; then
+                  REASON="ready"
+                elif [ -n "$CONCLUSION" ]; then
+                  REASON="child_${CONCLUSION:-artifact_unavailable}"
+                fi
+              fi
+            fi
+          fi
+          printf '%s\n' "$REASON" > findings/catalog-unavailable-reason.txt
+      - name: Collect bounded organizer result
+        # Cloned from "Collect bounded worker result" verbatim (research D0
+        # decision: reuse the proven watchdog shape for a second dispatch
+        # lane rather than design a new one) -- identical 120s discovery /
+        # 600s queue-timeout / 1800s run-timeout deadlines and cancel-on-
+        # timeout behavior, with the cataloger's own correlation id and
+        # workflow name. continue-on-error + the unconditional if: always()
+        # on "Run doc-health suite" below mean a total cataloger outage can
+        # delay the report by at most this step's bounded wall time and can
+        # never prevent it from landing (FR-005; Constitution Check).
+        if: needs.prepare.outputs.omnigent == 'true'
+        continue-on-error: true
+        timeout-minutes: 45
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCHED: ${{ needs.prepare.outputs.organizer_dispatched }}
+          INITIAL_REASON: ${{ needs.prepare.outputs.organizer_worker_reason }}
+          CORRELATION_ID: ${{ needs.prepare.outputs.organizer_correlation_id }}
+        run: |
+          mkdir -p findings
+          REASON="${INITIAL_REASON:-worker_unavailable}"
+          if [ "$DISPATCHED" = "true" ]; then
+            TITLE="ideation-organizer-${CORRELATION_ID}"
+            DISCOVERY_DEADLINE=$((SECONDS + 120))
+            CHILD_ID=""
+            REASON="child_not_observed"
+            while [ $SECONDS -lt $DISCOVERY_DEADLINE ]; do
+              if ! gh run list \
+                  --repo "$GITHUB_REPOSITORY" \
+                  --workflow ideation-organizer-worker.yml \
+                  --limit 50 \
+                  --json databaseId,displayTitle \
+                  > organizer-child-runs.json 2>/dev/null; then
+                REASON="worker_result_query_failed"
+                break
+              fi
+              if ! CHILD_ID="$(python3 - "$TITLE" <<'PY'
+          import json
+          import sys
+          try:
+              runs = json.load(open("organizer-child-runs.json", encoding="utf-8"))
+              if not isinstance(runs, list):
+                  raise ValueError("run list is not an array")
+              print(next((str(run.get("databaseId")) for run in runs
+                          if isinstance(run, dict)
+                          and run.get("displayTitle") == sys.argv[1]
+                          and isinstance(run.get("databaseId"), int)), ""))
+          except (OSError, json.JSONDecodeError, ValueError):
+              raise SystemExit(1)
+          PY
+              )"; then
+                REASON="worker_result_response_invalid"
+                break
+              fi
+              [ -n "$CHILD_ID" ] && break
+              sleep 10
+            done
+            if [ -n "$CHILD_ID" ]; then
+              COMPLETED="false"
+              RUNNING="false"
+              QUEUE_DEADLINE=$((SECONDS + 600))
+              REASON="child_queue_timeout"
+              while [ $SECONDS -lt $QUEUE_DEADLINE ]; do
+                if ! STATUS="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json status --jq .status 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  break
+                fi
+                if [ "$STATUS" = "completed" ]; then
+                  COMPLETED="true"
+                  break
+                fi
+                if [ "$STATUS" = "in_progress" ]; then
+                  RUNNING="true"
+                  break
+                fi
+                sleep 15
+              done
+              if [ "$RUNNING" = "true" ]; then
+                RUN_DEADLINE=$((SECONDS + 1800))
+                REASON="child_timeout"
+                while [ $SECONDS -lt $RUN_DEADLINE ]; do
+                  if ! STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    REASON="worker_result_query_failed"
+                    break
+                  fi
+                  if [ "$STATUS" = "completed" ]; then
+                    COMPLETED="true"
+                    break
+                  fi
+                  sleep 15
+                done
+                if [ "$COMPLETED" != "true" ] && \
+                   [ "$REASON" = "child_timeout" ]; then
+                  if STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    [ "$STATUS" = "completed" ] && COMPLETED="true"
+                  else
+                    REASON="worker_result_query_failed"
+                  fi
+                fi
+              fi
+              if [[ "$COMPLETED" != "true" && \
+                    ( "$REASON" = "child_timeout" || \
+                      "$REASON" = "child_queue_timeout" ) ]]; then
+                gh run cancel "$CHILD_ID" --repo "$GITHUB_REPOSITORY" \
+                  >/dev/null 2>&1 || true
+              fi
+              if [ "$COMPLETED" = "true" ]; then
+                if ! CONCLUSION="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json conclusion --jq .conclusion 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  CONCLUSION=""
+                fi
+                # Assumes the (tracked, out-of-repo) ideation-organizer-
+                # worker.yml uploads its single validated artifact file
+                # named after its own dispatched job id (IDEAORG-*.json,
+                # organizer.envelope's id prefix) -- "Run doc-health suite"
+                # below recovers that job id from the downloaded filename.
+                if [ "$CONCLUSION" = "success" ] && \
+                   gh run download "$CHILD_ID" \
+                     --repo "$GITHUB_REPOSITORY" \
+                     --name "ideation-organizer-recommendation-${CORRELATION_ID}" \
+                     --dir findings; then
+                  REASON="ready"
+                elif [ -n "$CONCLUSION" ]; then
+                  REASON="child_${CONCLUSION:-artifact_unavailable}"
+                fi
+              fi
+            fi
+          fi
+          printf '%s\n' "$REASON" > findings/organizer-unavailable-reason.txt
+      - name: Fetch each governed submodule's live origin/main
+        # RULED 2026-08-24 (add-promotion-fidelity-check task 4.1, PR #315):
+        # the promotion-fidelity family measures LIVE MAINS, and it alone.
+        # Measured against the aggregation's committed PINS that family's
+        # coverage collapsed — 0% in three repositories — and it could not
+        # see the #301 gap while the codexFactory pin lagged behind the
+        # repository that had it. A promotion gap is a fact about a
+        # repository's own main; read through a pin it reports the pin.
+        #
+        # THIS STEP MOVES NO FILE. `git fetch` updates
+        # `refs/remotes/origin/main` and the object store; HEAD, the index and
+        # the working tree are untouched, so every OTHER family still reads
+        # exactly the pinned tree the checkout above produced. The family
+        # reads the ref through `git ls-tree` / `git show`, never by checking
+        # anything out.
+        #
+        # Non-fatal by design. A submodule whose main cannot be fetched is
+        # reported by the family as having FALLEN BACK to the pinned
+        # checkout, by name, in the report's own promotion-fidelity section —
+        # a stale true positive rather than a silence.
+        if: always()
+        continue-on-error: true
+        run: |
+          # `|| true` on the whole pipeline: under this shell's default
+          # `-e -o pipefail`, a missing `.gitmodules` (git config exits
+          # non-zero) OR a `.gitmodules` with no governed submodule (grep
+          # matches nothing, also non-zero) would fail the `SUBS=$(...)`
+          # assignment and abort the script right there — turning "nothing
+          # to fetch" into a script failure for a step whose own comment
+          # above says non-fatal by design. An empty `$SUBS` still runs the
+          # loop below zero times and exits 0, which is the actual
+          # non-fatal contract this step keeps.
+          SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
+                 | awk '{print $2}' | grep -E '^(openxFactory|xFactories/)' || true)
+          for sub in $SUBS; do
+            [ -e "$sub/.git" ] || continue
+            if git -C "$sub" fetch --no-tags --quiet origin \
+                 "+refs/heads/main:refs/remotes/origin/main"; then
+              echo "live main fetched: $sub $(git -C "$sub" rev-parse --short=12 origin/main)"
+            else
+              echo "no live main for $sub — the family reports the fall-back"
+            fi
+          done
+      - name: Run doc-health suite
+        id: run
+        if: always()
+        env:
+          # Only reaches the inline-fallback worker; the runner scrubs its
+          # subprocess environment so no repo token reaches the model.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SKIP_FAMILIES_INPUT: ${{ inputs.skip-families }}
+          FAIL_ON_INPUT: ${{ inputs.fail-on }}
+          OMNIGENT_ENABLED: ${{ needs.prepare.outputs.omnigent }}
+          ORGANIZER_MANUAL_INPUT: ${{ inputs.organizer-manual-ideas }}
+          ORGANIZER_TENANT: ${{ inputs.worker-tenant-boundary }}
+          ORGANIZER_DATA_BOUNDARY: ${{ inputs.worker-data-boundary }}
+          ORGANIZER_HANDLING: ${{ inputs.worker-handling-class }}
+          NEUTRALITY_ENABLED: ${{ inputs.neutrality-drift }}
+          NEUTRALITY_BASELINE_INPUT: ${{ inputs.neutrality-baseline }}
+        run: |
+          RUN_DATE="$(date -u +%F)"
+          PREV="$(ls health/reports/[0-9]*.md 2>/dev/null | sort | tail -1 || true)"
+          # Reports are immutable records: a same-day rerun must never
+          # overwrite the landed report — it becomes an artifact instead.
+          REPORT_OUT="health/reports/${RUN_DATE}.md"
+          COMMIT="true"
+          if [ -f "$REPORT_OUT" ]; then
+            REPORT_OUT="${RUNNER_TEMP}/doc-health-${RUN_DATE}.md"
+            COMMIT="false"
+          fi
+          # Inventory: the snapshot both passes report against. Same-day
+          # rerun redirects to temp like the report (records are immutable).
+          PREV_INV="$(ls health/inventory/[0-9]*.json 2>/dev/null | sort | tail -1 || true)"
+          INV_OUT="health/inventory/${RUN_DATE}.json"
+          [ -f "$INV_OUT" ] && INV_OUT="${RUNNER_TEMP}/inventory-${RUN_DATE}.json"
+          # Sweep mode: merge the omnigent worker's artifact when dispatch
+          # is enabled (a missing artifact records the worker-offline skip);
+          # otherwise attempt the inline sweep (skips without CLI/key).
+          INVENTORY=()
+          if [ "$OMNIGENT_ENABLED" = "true" ]; then
+            REASON="$(cat findings/unavailable-reason.txt 2>/dev/null || echo worker_unavailable)"
+            if [ -f prepared/inventory.json ]; then
+              INVENTORY=(--inventory-in prepared/inventory.json)
+            else
+              REASON="deterministic_inventory_unavailable"
+              rm -f findings/findings.json
+            fi
+            SWEEP=(--semantic-findings-in findings/findings.json \
+              --semantic-unavailable-reason "$REASON")
+          else
+            SWEEP=(--semantic-sweep)
+          fi
+          SKIPS=()
+          if [ -n "$SKIP_FAMILIES_INPUT" ]; then
+            read -r -a SKIP_VALUES <<< "$SKIP_FAMILIES_INPUT"
+            for family in "${SKIP_VALUES[@]}"; do
+              SKIPS+=(--skip-family "$family")
+            done
+          fi
+          GATE=()
+          if [ -n "$FAIL_ON_INPUT" ]; then
+            GATE=(--fail-on "$FAIL_ON_INPUT")
+          fi
+          # Catalog mode: unlike the sweep, this always engages -- FR-001/
+          # FR-006/FR-007 require every nightly main run to produce a full
+          # mechanical snapshot regardless of whether a cataloger worker is
+          # even enabled (US1 acceptance 1), so this is not gated on
+          # OMNIGENT_ENABLED the way SWEEP's inline-fallback branch is.
+          # findings/catalog-unavailable-reason.txt defaults to
+          # worker_unavailable when the collector step above never ran
+          # (omnigent disabled) or never got far enough to write it.
+          CATALOG_REASON="$(cat findings/catalog-unavailable-reason.txt 2>/dev/null || echo worker_unavailable)"
+          # The downloaded recommendation artifact is named after its own
+          # dispatched job id (CATJOB-*.json); doc-health.py recovers the
+          # job id from this filename (--catalog-findings-in's stem). The
+          # worker dispatches and uploads exactly one shard's artifact per
+          # run (doc-health-cataloger-worker.yml) -- more than one match
+          # here means that invariant broke, so this fails closed (treated
+          # as unavailable) rather than silently picking one and dropping
+          # the rest (PR #6 review).
+          mapfile -t CATALOG_FILES < <(ls findings/CATJOB-*.json 2>/dev/null || true)
+          if [ "${#CATALOG_FILES[@]}" -eq 1 ]; then
+            CATALOG=(--catalog-findings-in "${CATALOG_FILES[0]}" \
+              --catalog-unavailable-reason "$CATALOG_REASON")
+          else
+            if [ "${#CATALOG_FILES[@]}" -gt 1 ]; then
+              CATALOG_REASON="multiple_recommendation_artifacts"
+            fi
+            CATALOG=(--catalog-unavailable-reason "$CATALOG_REASON")
+          fi
+          # Organizer mode (task 7.2): like the catalog lane this always
+          # engages so the report's "## Ideation Organizer" section always
+          # renders (skipped when no worker is enabled); it is non-blocking and
+          # never writes anything unless a valid recommendation returned. The
+          # manual-idea and host-boundary flags MUST match the prepare phase so
+          # the merge recomputes the same selection/authorization and can match
+          # the dispatched idea's returned artifact (IDEAORG-*.json, named after
+          # its own dispatched job id). More than one match means the
+          # one-child-per-run invariant broke, so this fails closed.
+          ORGANIZER_REASON="$(cat findings/organizer-unavailable-reason.txt 2>/dev/null || echo worker_unavailable)"
+          ORGANIZER_MANUAL=()
+          if [ -n "$ORGANIZER_MANUAL_INPUT" ]; then
+            read -r -a OM_VALUES <<< "$ORGANIZER_MANUAL_INPUT"
+            for idea in "${OM_VALUES[@]}"; do
+              ORGANIZER_MANUAL+=(--organizer-manual-idea "$idea")
+            done
+          fi
+          ORGANIZER_HOST=(--organizer-tenant-boundary "$ORGANIZER_TENANT" \
+            --organizer-data-boundary "$ORGANIZER_DATA_BOUNDARY" \
+            --organizer-handling-class "$ORGANIZER_HANDLING")
+          mapfile -t ORGANIZER_FILES < <(ls findings/IDEAORG-*.json 2>/dev/null || true)
+          if [ "${#ORGANIZER_FILES[@]}" -eq 1 ]; then
+            ORGANIZER=(--organizer-findings-in "${ORGANIZER_FILES[0]}" \
+              --organizer-unavailable-reason "$ORGANIZER_REASON" \
+              "${ORGANIZER_MANUAL[@]}" "${ORGANIZER_HOST[@]}")
+          else
+            if [ "${#ORGANIZER_FILES[@]}" -gt 1 ]; then
+              ORGANIZER_REASON="multiple_recommendation_artifacts"
+            fi
+            ORGANIZER=(--organizer-unavailable-reason "$ORGANIZER_REASON" \
+              "${ORGANIZER_MANUAL[@]}" "${ORGANIZER_HOST[@]}")
+          fi
+          # Neutrality-drift lane (add-neutrality-drift-lane task 1.4):
+          # engaged by default, opted out via the neutrality-drift input.
+          # Stage 1 is deterministic and always reported; stage 2 rides
+          # the same artifact-only dispatch seam as the organizer
+          # (NEUTJOB-*.json, named after its dispatched job id). With no
+          # worker host (OMNIGENT_WORKER=false) no collector runs, the
+          # reason defaults to worker_unavailable, and the lane records a
+          # graceful skip NOTE — never an error. More than one artifact
+          # match fails closed, mirroring the sibling lanes.
+          NEUTRALITY=()
+          if [ "$NEUTRALITY_ENABLED" = "true" ]; then
+            NEUTRALITY_REASON="$(cat findings/neutrality-unavailable-reason.txt 2>/dev/null || echo worker_unavailable)"
+            mapfile -t NEUTRALITY_FILES < <(ls findings/NEUTJOB-*.json 2>/dev/null || true)
+            if [ "${#NEUTRALITY_FILES[@]}" -eq 1 ]; then
+              NEUTRALITY=(--neutrality-findings-in "${NEUTRALITY_FILES[0]}" \
+                --neutrality-unavailable-reason "$NEUTRALITY_REASON")
+            else
+              if [ "${#NEUTRALITY_FILES[@]}" -gt 1 ]; then
+                NEUTRALITY_REASON="multiple_recommendation_artifacts"
+              fi
+              NEUTRALITY=(--neutrality-unavailable-reason "$NEUTRALITY_REASON")
+            fi
+            if [ -n "$NEUTRALITY_BASELINE_INPUT" ]; then
+              NEUTRALITY+=(--neutrality-baseline "$NEUTRALITY_BASELINE_INPUT")
+            fi
+          fi
+          # --promotion-fidelity-basis: ONE family's measurement basis, ruled
+          # 2026-08-24 (task 4.1, PR #315). Deliberately absent from the
+          # prepare-phase invocations above, which build bundles and discard
+          # findings; the report this step writes is the only place the basis
+          # is read by anyone, and it names the basis in its own section.
+          python3 openxFactory/scripts/doc-health.py \
+            --repo-root . "${SKIPS[@]}" "${GATE[@]}" \
+            --promotion-fidelity-basis live-main \
+            --report-out "$REPORT_OUT" \
+            ${PREV:+--previous-report "$PREV"} \
+            --emit-inventory "$INV_OUT" \
+            "${INVENTORY[@]}" \
+            ${PREV_INV:+--previous-inventory "$PREV_INV"} \
+            "${SWEEP[@]}" \
+            "${CATALOG[@]}" \
+            "${ORGANIZER[@]}" \
+            "${NEUTRALITY[@]}" \
+            --new-findings-out new-findings.json
+          echo "run_date=${RUN_DATE}" >> "$GITHUB_OUTPUT"
+          echo "report_out=${REPORT_OUT}" >> "$GITHUB_OUTPUT"
+          echo "commit=${COMMIT}" >> "$GITHUB_OUTPUT"
+          echo "new_count=$(python3 -c 'import json;print(len(json.load(open("new-findings.json"))))')" >> "$GITHUB_OUTPUT"
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: doc-health-report-${{ steps.run.outputs.run_date }}
+          path: ${{ steps.run.outputs.report_out }}
+      - name: Neutrality-drift lane commit-back (rolling PR; dormant until first scout run)
+        # add-neutrality-drift-lane task 1.4 / design D3: when — and only
+        # when — the neutrality merge inside "Run doc-health suite" above
+        # PERSISTED lane writes into the openxFactory checkout (drafted
+        # DTN-seed evidence, lane state, a recorded baseline marker under
+        # health/neutrality-drift/), commit them inside the SUBMODULE and
+        # deliver via the same force-free rolling-PR pattern the
+        # derive-possibles lane uses. The drafted seed TEXT rides this PR;
+        # Brett's approval of a seed is his merge of the register
+        # addition — this step never edits the register, any domain repo,
+        # or any contract (design D4). Dormant while no worker host
+        # advertises the neutrality-scout profile (the merge records a
+        # worker_unavailable skip and writes nothing).
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_DATE: ${{ steps.run.outputs.run_date }}
+        run: |
+          cd openxFactory
+          git status --porcelain health/neutrality-drift/ | grep -q . \
+            || { echo "no neutrality lane writes — nothing to commit back"; exit 0; }
+          BRANCH="doc-health/neutrality-drift"
+          git config user.name "openxfactory[bot]"
+          git config user.email "openxfactory[bot]@users.noreply.github.com"
+          git add health/neutrality-drift/
+          git diff --cached --quiet && { echo "no submodule changes staged"; exit 0; }
+          git commit -m "neutrality-drift: drafted seeds + lane state (${RUN_DATE})"
+          NEW_COMMIT="$(git rev-parse HEAD)"
+          if git ls-remote --exit-code origin "refs/heads/${BRANCH}" >/dev/null 2>&1; then
+            git fetch origin "${BRANCH}"
+            OPEN_PR="$(gh pr list --repo "${GITHUB_REPOSITORY_OWNER}/openxFactory" \
+              --head "${BRANCH}" --state open --json number --jq 'length' || echo 0)"
+            if [ "${OPEN_PR}" != "0" ]; then
+              # Preserve the open PR: advance the branch by a merge commit
+              # whose FIRST parent is the remote tip (a fast-forward push)
+              # and whose tree is this run's content.
+              MERGE="$(git commit-tree "${NEW_COMMIT}^{tree}" \
+                -p "$(git rev-parse FETCH_HEAD)" -p "${NEW_COMMIT}" \
+                -m "neutrality-drift: drafted seeds + lane state (${RUN_DATE})")"
+              git push origin "${MERGE}:refs/heads/${BRANCH}"
+            else
+              # Stale branch left by a merged/closed PR: ref deletion is
+              # unrestricted; recreate the branch fresh (a creation push,
+              # never a non-fast-forward).
+              git push origin --delete "${BRANCH}" || true
+              git push origin "${NEW_COMMIT}:refs/heads/${BRANCH}"
+            fi
+          else
+            git push origin "${NEW_COMMIT}:refs/heads/${BRANCH}"
+          fi
+          if [ "$(gh pr list --repo "${GITHUB_REPOSITORY_OWNER}/openxFactory" \
+              --head "${BRANCH}" --state open --json number --jq 'length' || echo 0)" = "0" ]; then
+            gh pr create --repo "${GITHUB_REPOSITORY_OWNER}/openxFactory" \
+              --head "${BRANCH}" \
+              --title "Neutrality-drift drafted seeds ${RUN_DATE}" \
+              --body "Nightly neutrality-drift lane output: drafted DTN-register seed candidates + lane state (add-neutrality-drift-lane). Approving a seed = merging its register addition; rejection = a disposition in health/dispositions.yaml keyed (repo, path, content digest)." \
+              || true
+          fi
+      # Ideation readiness lane (openxFactory
+      # add-ideation-cross-reference-readiness, change tasks 4.1/4.3).
+      # Clones the cataloger lane's own readiness-check/dispatch/collect
+      # shape (same runner-group/heartbeat query, same artifact-only
+      # child-workflow dispatch, same bounded discovery/queue/run
+      # watchdog) with ONE deliberate difference: this lane's own ADDED
+      # requirement binds it to run AFTER the deterministic pass, against
+      # the SAME inventory snapshot this run just emitted -- so every step
+      # below lives here in `finalize`, after "Run doc-health suite",
+      # never in `prepare` alongside the semantic/cataloger bundles (which
+      # dispatch against the PREVIOUS day's inventory instead). No host
+      # advertises the `ideation-readiness` profile yet, so `ready` below
+      # is false and every following step short-circuits via its own
+      # `if:` guard -- this WILL be the initial state.
+      - name: Evaluate readiness-scorer worker readiness
+        id: xref-readiness
+        env:
+          WORKER_ENABLED: ${{ needs.prepare.outputs.omnigent }}
+          HERMES_READINESS_URL: ${{ vars.HERMES_READINESS_URL }}
+          HERMES_WORKER_ID: ${{ vars.OMNIGENT_WORKER_ID }}
+          HERMES_READINESS_TOKEN: ${{ secrets.HERMES_READINESS_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          REQUIRED_TENANT: ${{ inputs.worker-tenant-boundary }}
+          REQUIRED_DATA_BOUNDARY: ${{ inputs.worker-data-boundary }}
+          REQUIRED_HANDLING: ${{ inputs.worker-handling-class }}
+          MAX_AGE: ${{ inputs.worker-heartbeat-max-age-seconds }}
+        run: |
+          GROUP="xfactory-artifact-workers"
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          QUERY_ERROR=""
+          : > xref-runners-api.json
+          if [ "$WORKER_ENABLED" = "true" ]; then
+            GROUP_ID=""
+            if gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups?per_page=100" \
+                > xref-runner-groups-api.json 2>/dev/null; then
+              GROUP_ID="$(python3 - "$GROUP" <<'PY'
+          import json
+          import sys
+          try:
+              pages = json.load(open("xref-runner-groups-api.json", encoding="utf-8"))
+              if not isinstance(pages, list):
+                  raise ValueError("runner group pages must be an array")
+              groups = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runner_groups"), list):
+                      raise ValueError("runner group page is malformed")
+                  groups.extend(page["runner_groups"])
+              print(next((item.get("id") for item in groups
+                          if isinstance(item, dict)
+                          and item.get("name") == sys.argv[1]
+                          and isinstance(item.get("id"), int)), ""))
+          except (OSError, json.JSONDecodeError, AttributeError, ValueError):
+              print("")
+          PY
+              )"
+            else
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+            if [ -n "$GROUP_ID" ]; then
+              gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups/${GROUP_ID}/runners?per_page=100" \
+                > xref-runners-api.json 2>/dev/null || QUERY_ERROR="runner_query_failed"
+            elif [ -z "$QUERY_ERROR" ]; then
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+          fi
+          python3 - "$GROUP" "$QUERY_ERROR" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          group, error = sys.argv[1:]
+          try:
+              pages = json.loads(Path("xref-runners-api.json").read_text() or "[]")
+              if not isinstance(pages, list):
+                  raise ValueError("runner response must be an array")
+              runners = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runners"), list):
+                      raise ValueError("runner response page is malformed")
+                  runners.extend(page["runners"])
+          except (json.JSONDecodeError, ValueError):
+              runners, error = [], error or "invalid_runner_response"
+          Path("xref-runner-group.json").write_text(json.dumps({
+              "group": group, "query_error": error,
+              "runners": runners,
+          }))
+          PY
+          if [ "$WORKER_ENABLED" = "true" ] && \
+             [ -n "$HERMES_READINESS_URL" ] && \
+             [ -n "$HERMES_WORKER_ID" ]; then
+            AUTH=()
+            [ -n "$HERMES_READINESS_TOKEN" ] && \
+              AUTH=(-H "Authorization: Bearer ${HERMES_READINESS_TOKEN}")
+            if curl --fail --silent --show-error \
+                 "${AUTH[@]}" \
+                 "${HERMES_READINESS_URL%/}/api/readiness/workers/${HERMES_WORKER_ID}" \
+                 > xref-hermes-worker.json; then
+              if ! python3 - <<'PY'
+          import json
+          from pathlib import Path
+          response = json.load(open("xref-hermes-worker.json", encoding="utf-8"))
+          if not isinstance(response, dict):
+              raise ValueError("readiness response must be an object")
+          worker = response.get("worker", {})
+          if not isinstance(worker, dict):
+              raise ValueError("readiness worker must be an object")
+          metadata = worker.get("metadata", {})
+          heartbeat = dict(metadata) if isinstance(metadata, dict) else {}
+          heartbeat.setdefault("host_id", worker.get("id"))
+          heartbeat.setdefault("observed_at", worker.get("last_seen_at"))
+          heartbeat["status"] = worker.get("status")
+          heartbeat["current_jobs"] = worker.get("current_jobs")
+          Path("xref-heartbeat.json").write_text(json.dumps(heartbeat),
+                                              encoding="utf-8")
+          PY
+              then
+                printf '%s\n' '{"query_error":"invalid_heartbeat_response"}' \
+                  > xref-heartbeat.json
+              fi
+            else
+              printf '%s\n' '{"query_error":"heartbeat_query_failed"}' \
+                > xref-heartbeat.json
+            fi
+          else
+            printf '%s\n' '{"query_error":"heartbeat_endpoint_unconfigured"}' \
+              > xref-heartbeat.json
+          fi
+          ENABLED=()
+          [ "$WORKER_ENABLED" = "true" ] && ENABLED=(--enabled)
+          python3 scripts/check-worker-readiness.py \
+            --runner-group xref-runner-group.json \
+            --heartbeat xref-heartbeat.json \
+            "${ENABLED[@]}" \
+            --required-group "$GROUP" \
+            --required-label ideation-readiness \
+            --required-profile readiness-scorer \
+            --required-profile-version 1 \
+            --required-tenant "$REQUIRED_TENANT" \
+            --required-data-boundary "$REQUIRED_DATA_BOUNDARY" \
+            --required-handling "$REQUIRED_HANDLING" \
+            --required-policy-version artifact-worker-v1 \
+            --max-age-seconds "$MAX_AGE" \
+            --output xref-readiness.json
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          value = json.load(open("xref-readiness.json", encoding="utf-8"))
+          print(f"ready={str(value['ready']).lower()}")
+          print(f"reason={value['reason']}")
+          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          print(f"correlation_id=readiness-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
+          PY
+      - name: Build readiness bundle (per-cluster untrusted payloads)
+        id: xref-build
+        # Precomputes each cluster's FULL untrusted analysis-input text (not
+        # just raw ingredients): the child below has no repository access
+        # and cannot import doc_health at all (the same reason
+        # doc-health-cataloger-worker.yml embeds only stdlib json, never a
+        # package import), so this step does ALL the clustering + prompt
+        # assembly a bounded worker needs, using the SAME checkout state
+        # that just produced this run's inventory.
+        if: steps.xref-readiness.outputs.ready == 'true'
+        run: |
+          python3 openxFactory/scripts/ideation-readiness-nightly.py \
+            --repo-root . --phase prepare --out-dir xref-bundle \
+            --as-of "${{ steps.run.outputs.run_date }}" \
+            --run-id "${{ steps.xref-readiness.outputs.correlation_id }}"
+          echo "cluster_count=$(python3 -c 'import json; print(json.load(open("xref-bundle/manifest.json"))["cluster_count"])')" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        if: steps.xref-readiness.outputs.ready == 'true' && steps.xref-build.outputs.cluster_count != '0'
+        with:
+          name: ideation-readiness-bundle
+          path: xref-bundle
+      - name: Dispatch artifact-only readiness child
+        id: xref-dispatch
+        # Cloned from "Dispatch artifact-only cataloger child" (no separate
+        # readiness-only guard needed: the whole finalize job already
+        # carries `if: always() && inputs.readiness-only != true`).
+        if: steps.xref-readiness.outputs.ready == 'true' && steps.xref-build.outputs.cluster_count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CORRELATION_ID: ${{ steps.xref-readiness.outputs.correlation_id }}
+          DISPATCH_LABEL: ${{ steps.xref-readiness.outputs.dispatch_label }}
+        run: |
+          if gh workflow run doc-health-readiness-worker.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f source_run_id="$GITHUB_RUN_ID" \
+            -f source_sha="$GITHUB_SHA" \
+            -f correlation_id="$CORRELATION_ID" \
+            -f dispatch_label="$DISPATCH_LABEL"; then
+            echo "dispatched=true" >> "$GITHUB_OUTPUT"
+            echo "reason=ready" >> "$GITHUB_OUTPUT"
+          else
+            echo "dispatched=false" >> "$GITHUB_OUTPUT"
+            echo "reason=child_dispatch_failed" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Collect bounded readiness result
+        # Cloned from "Collect bounded cataloger result" verbatim --
+        # identical 120s discovery / 600s queue-timeout / 1800s
+        # run-timeout deadlines and cancel-on-timeout behavior. This
+        # lane's own readiness-check + dispatch already ran earlier in
+        # THIS SAME job (not `prepare` -- see the block above), so the
+        # gating and correlation id come from this job's own step
+        # outputs rather than `needs.prepare.outputs.*`.
+        if: steps.xref-readiness.outputs.ready == 'true'
+        continue-on-error: true
+        timeout-minutes: 45
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCHED: ${{ steps.xref-dispatch.outputs.dispatched }}
+          CORRELATION_ID: ${{ steps.xref-readiness.outputs.correlation_id }}
+        run: |
+          mkdir -p xref-findings
+          REASON="child_dispatch_failed"
+          if [ "$DISPATCHED" = "true" ]; then
+            TITLE="doc-health-readiness-${CORRELATION_ID}"
+            DISCOVERY_DEADLINE=$((SECONDS + 120))
+            CHILD_ID=""
+            REASON="child_not_observed"
+            while [ $SECONDS -lt $DISCOVERY_DEADLINE ]; do
+              if ! gh run list \
+                  --repo "$GITHUB_REPOSITORY" \
+                  --workflow doc-health-readiness-worker.yml \
+                  --limit 50 \
+                  --json databaseId,displayTitle \
+                  > xref-child-runs.json 2>/dev/null; then
+                REASON="worker_result_query_failed"
+                break
+              fi
+              if ! CHILD_ID="$(python3 - "$TITLE" <<'PY'
+          import json
+          import sys
+          try:
+              runs = json.load(open("xref-child-runs.json", encoding="utf-8"))
+              if not isinstance(runs, list):
+                  raise ValueError("run list is not an array")
+              print(next((str(run.get("databaseId")) for run in runs
+                          if isinstance(run, dict)
+                          and run.get("displayTitle") == sys.argv[1]
+                          and isinstance(run.get("databaseId"), int)), ""))
+          except (OSError, json.JSONDecodeError, ValueError):
+              raise SystemExit(1)
+          PY
+              )"; then
+                REASON="worker_result_response_invalid"
+                break
+              fi
+              [ -n "$CHILD_ID" ] && break
+              sleep 10
+            done
+            if [ -n "$CHILD_ID" ]; then
+              COMPLETED="false"
+              RUNNING="false"
+              QUEUE_DEADLINE=$((SECONDS + 600))
+              REASON="child_queue_timeout"
+              while [ $SECONDS -lt $QUEUE_DEADLINE ]; do
+                if ! STATUS="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json status --jq .status 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  break
+                fi
+                if [ "$STATUS" = "completed" ]; then
+                  COMPLETED="true"
+                  break
+                fi
+                if [ "$STATUS" = "in_progress" ]; then
+                  RUNNING="true"
+                  break
+                fi
+                sleep 15
+              done
+              if [ "$RUNNING" = "true" ]; then
+                RUN_DEADLINE=$((SECONDS + 1800))
+                REASON="child_timeout"
+                while [ $SECONDS -lt $RUN_DEADLINE ]; do
+                  if ! STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    REASON="worker_result_query_failed"
+                    break
+                  fi
+                  if [ "$STATUS" = "completed" ]; then
+                    COMPLETED="true"
+                    break
+                  fi
+                  sleep 15
+                done
+                if [ "$COMPLETED" != "true" ] && \
+                   [ "$REASON" = "child_timeout" ]; then
+                  if STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    [ "$STATUS" = "completed" ] && COMPLETED="true"
+                  else
+                    REASON="worker_result_query_failed"
+                  fi
+                fi
+              fi
+              if [[ "$COMPLETED" != "true" && \
+                    ( "$REASON" = "child_timeout" || \
+                      "$REASON" = "child_queue_timeout" ) ]]; then
+                gh run cancel "$CHILD_ID" --repo "$GITHUB_REPOSITORY" \
+                  >/dev/null 2>&1 || true
+              fi
+              if [ "$COMPLETED" = "true" ]; then
+                if ! CONCLUSION="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json conclusion --jq .conclusion 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  CONCLUSION=""
+                fi
+                # The child uploads exactly one file, findings.json, so
+                # the download always lands at xref-findings/findings.json.
+                if [ "$CONCLUSION" = "success" ] && \
+                   gh run download "$CHILD_ID" \
+                     --repo "$GITHUB_REPOSITORY" \
+                     --name "ideation-readiness-findings-${CORRELATION_ID}" \
+                     --dir xref-findings; then
+                  REASON="ready"
+                elif [ -n "$CONCLUSION" ]; then
+                  REASON="child_${CONCLUSION:-artifact_unavailable}"
+                fi
+              fi
+            fi
+          fi
+          printf '%s\n' "$REASON" > xref-findings/unavailable-reason.txt
+      - name: Ideation readiness lane (merge, persist, report link)
+        # Runs unconditionally: a not-ready / never-dispatched / collection-
+        # failed run still must record the lane as SKIPPED and preserve any
+        # PRIOR findings (doc-health "Ideation readiness lane" scenario "The
+        # lane is skipped" / change task 5.1's last case: absent findings
+        # from a skipped lane are never treated as resolved) — this step
+        # never gates on `xref-readiness`/`xref-dispatch` the way the steps
+        # above do. continue-on-error is belt-and-braces so this lane can
+        # never affect the already-landed deterministic report/inventory.
+        if: always()
+        continue-on-error: true
+        env:
+          CHECK_REASON: ${{ steps.xref-readiness.outputs.ready != 'true' && steps.xref-readiness.outputs.reason || '' }}
+        run: |
+          FINDINGS_IN=""
+          [ -f xref-findings/findings.json ] && FINDINGS_IN="xref-findings/findings.json"
+          UNAVAILABLE="$CHECK_REASON"
+          if [ -z "$UNAVAILABLE" ] && [ -f xref-findings/unavailable-reason.txt ]; then
+            REASON_FILE="$(cat xref-findings/unavailable-reason.txt)"
+            [ "$REASON_FILE" != "ready" ] && UNAVAILABLE="$REASON_FILE"
+          fi
+          ARGS=(--repo-root . --phase merge \
+            --as-of "${{ steps.run.outputs.run_date }}" \
+            --run-id "readiness-${{ github.run_id }}-${{ github.run_attempt }}" \
+            --report-in "${{ steps.run.outputs.report_out }}")
+          [ -n "$FINDINGS_IN" ] && ARGS+=(--findings-in "$FINDINGS_IN")
+          [ -n "$UNAVAILABLE" ] && ARGS+=(--unavailable-reason "$UNAVAILABLE")
+          python3 openxFactory/scripts/ideation-readiness-nightly.py "${ARGS[@]}"
+      # =====================================================================
+      # Derive-possibles lane (openxFactory add-possibles-derivation-lane,
+      # tasks 4.1/4.2/4.4). Clones the ideation-readiness lane's
+      # readiness-check/build/dispatch/collect/merge shape above verbatim
+      # (same runner-group/heartbeat query, same artifact-only child-workflow
+      # dispatch, same bounded 120s-discovery / 600s-queue / 1800s-run
+      # watchdog with cancel-on-timeout) with TWO deliberate differences:
+      # (1) it runs AFTER the readiness merge above, so the clusters it
+      # derives against are this run's freshest index, and (2) its outcome
+      # NEVER reaches the Ranked Plan — undisposed derived possibles are
+      # excluded from ranked plans by contract and get their own report
+      # section only. No host advertises the `derive-possibles` profile yet,
+      # so `ready` below is false and every following step short-circuits via
+      # its own `if:` guard — the same valid landed state the readiness lane
+      # shipped in (the lane reports SKIPPED until the ops deployment step).
+      - name: Evaluate derive-possibles worker readiness
+        id: dposs-readiness
+        env:
+          WORKER_ENABLED: ${{ needs.prepare.outputs.omnigent }}
+          HERMES_READINESS_URL: ${{ vars.HERMES_READINESS_URL }}
+          HERMES_WORKER_ID: ${{ vars.OMNIGENT_WORKER_ID }}
+          HERMES_READINESS_TOKEN: ${{ secrets.HERMES_READINESS_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          REQUIRED_TENANT: ${{ inputs.worker-tenant-boundary }}
+          REQUIRED_DATA_BOUNDARY: ${{ inputs.worker-data-boundary }}
+          REQUIRED_HANDLING: ${{ inputs.worker-handling-class }}
+          MAX_AGE: ${{ inputs.worker-heartbeat-max-age-seconds }}
+        run: |
+          GROUP="xfactory-artifact-workers"
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          QUERY_ERROR=""
+          : > dposs-runners-api.json
+          if [ "$WORKER_ENABLED" = "true" ]; then
+            GROUP_ID=""
+            if gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups?per_page=100" \
+                > dposs-runner-groups-api.json 2>/dev/null; then
+              GROUP_ID="$(python3 - "$GROUP" <<'PY'
+          import json
+          import sys
+          try:
+              pages = json.load(open("dposs-runner-groups-api.json", encoding="utf-8"))
+              if not isinstance(pages, list):
+                  raise ValueError("runner group pages must be an array")
+              groups = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runner_groups"), list):
+                      raise ValueError("runner group page is malformed")
+                  groups.extend(page["runner_groups"])
+              print(next((item.get("id") for item in groups
+                          if isinstance(item, dict)
+                          and item.get("name") == sys.argv[1]
+                          and isinstance(item.get("id"), int)), ""))
+          except (OSError, json.JSONDecodeError, AttributeError, ValueError):
+              print("")
+          PY
+              )"
+            else
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+            if [ -n "$GROUP_ID" ]; then
+              gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups/${GROUP_ID}/runners?per_page=100" \
+                > dposs-runners-api.json 2>/dev/null || QUERY_ERROR="runner_query_failed"
+            elif [ -z "$QUERY_ERROR" ]; then
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+          fi
+          python3 - "$GROUP" "$QUERY_ERROR" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          group, error = sys.argv[1:]
+          try:
+              pages = json.loads(Path("dposs-runners-api.json").read_text() or "[]")
+              if not isinstance(pages, list):
+                  raise ValueError("runner response must be an array")
+              runners = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runners"), list):
+                      raise ValueError("runner response page is malformed")
+                  runners.extend(page["runners"])
+          except (json.JSONDecodeError, ValueError):
+              runners, error = [], error or "invalid_runner_response"
+          Path("dposs-runner-group.json").write_text(json.dumps({
+              "group": group, "query_error": error,
+              "runners": runners,
+          }))
+          PY
+          if [ "$WORKER_ENABLED" = "true" ] && \
+             [ -n "$HERMES_READINESS_URL" ] && \
+             [ -n "$HERMES_WORKER_ID" ]; then
+            AUTH=()
+            [ -n "$HERMES_READINESS_TOKEN" ] && \
+              AUTH=(-H "Authorization: Bearer ${HERMES_READINESS_TOKEN}")
+            if curl --fail --silent --show-error \
+                 "${AUTH[@]}" \
+                 "${HERMES_READINESS_URL%/}/api/readiness/workers/${HERMES_WORKER_ID}" \
+                 > dposs-hermes-worker.json; then
+              if ! python3 - <<'PY'
+          import json
+          from pathlib import Path
+          response = json.load(open("dposs-hermes-worker.json", encoding="utf-8"))
+          if not isinstance(response, dict):
+              raise ValueError("readiness response must be an object")
+          worker = response.get("worker", {})
+          if not isinstance(worker, dict):
+              raise ValueError("readiness worker must be an object")
+          metadata = worker.get("metadata", {})
+          heartbeat = dict(metadata) if isinstance(metadata, dict) else {}
+          heartbeat.setdefault("host_id", worker.get("id"))
+          heartbeat.setdefault("observed_at", worker.get("last_seen_at"))
+          heartbeat["status"] = worker.get("status")
+          heartbeat["current_jobs"] = worker.get("current_jobs")
+          Path("dposs-heartbeat.json").write_text(json.dumps(heartbeat),
+                                              encoding="utf-8")
+          PY
+              then
+                printf '%s\n' '{"query_error":"invalid_heartbeat_response"}' \
+                  > dposs-heartbeat.json
+              fi
+            else
+              printf '%s\n' '{"query_error":"heartbeat_query_failed"}' \
+                > dposs-heartbeat.json
+            fi
+          else
+            printf '%s\n' '{"query_error":"heartbeat_endpoint_unconfigured"}' \
+              > dposs-heartbeat.json
+          fi
+          ENABLED=()
+          [ "$WORKER_ENABLED" = "true" ] && ENABLED=(--enabled)
+          python3 scripts/check-worker-readiness.py \
+            --runner-group dposs-runner-group.json \
+            --heartbeat dposs-heartbeat.json \
+            "${ENABLED[@]}" \
+            --required-group "$GROUP" \
+            --required-label derive-possibles \
+            --required-profile derive-possibles \
+            --required-profile-version 1 \
+            --required-tenant "$REQUIRED_TENANT" \
+            --required-data-boundary "$REQUIRED_DATA_BOUNDARY" \
+            --required-handling "$REQUIRED_HANDLING" \
+            --required-policy-version artifact-worker-v1 \
+            --max-age-seconds "$MAX_AGE" \
+            --output dposs-readiness.json
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          value = json.load(open("dposs-readiness.json", encoding="utf-8"))
+          print(f"ready={str(value['ready']).lower()}")
+          print(f"reason={value['reason']}")
+          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          print(f"correlation_id=derive-possibles-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
+          PY
+      - name: Build derive-possibles bundle (per-cluster untrusted payloads)
+        id: dposs-build
+        # Precomputes each ELIGIBLE cluster's FULL untrusted analysis-input
+        # text (index cluster + member documents + the cluster's existing
+        # possibles for dedupe steering): the child below has no repository
+        # access and cannot import doc_health at all. Built AFTER the
+        # readiness merge above, so the index the clusters come from is this
+        # run's freshest.
+        if: steps.dposs-readiness.outputs.ready == 'true'
+        run: |
+          python3 openxFactory/scripts/derive-possibles-nightly.py \
+            --repo-root . --phase prepare --out-dir dposs-bundle \
+            --as-of "${{ steps.run.outputs.run_date }}" \
+            --run-id "${{ steps.dposs-readiness.outputs.correlation_id }}"
+          echo "cluster_count=$(python3 -c 'import json; print(json.load(open("dposs-bundle/manifest.json"))["cluster_count"])')" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        if: steps.dposs-readiness.outputs.ready == 'true' && steps.dposs-build.outputs.cluster_count != '0'
+        with:
+          name: ideation-derive-possibles-bundle
+          path: dposs-bundle
+      - name: Dispatch artifact-only derive-possibles child
+        id: dposs-dispatch
+        if: steps.dposs-readiness.outputs.ready == 'true' && steps.dposs-build.outputs.cluster_count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CORRELATION_ID: ${{ steps.dposs-readiness.outputs.correlation_id }}
+          DISPATCH_LABEL: ${{ steps.dposs-readiness.outputs.dispatch_label }}
+        run: |
+          if gh workflow run doc-health-derive-possibles-worker.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f source_run_id="$GITHUB_RUN_ID" \
+            -f source_sha="$GITHUB_SHA" \
+            -f correlation_id="$CORRELATION_ID" \
+            -f dispatch_label="$DISPATCH_LABEL"; then
+            echo "dispatched=true" >> "$GITHUB_OUTPUT"
+            echo "reason=ready" >> "$GITHUB_OUTPUT"
+          else
+            echo "dispatched=false" >> "$GITHUB_OUTPUT"
+            echo "reason=child_dispatch_failed" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Collect bounded derive-possibles result
+        # Cloned from "Collect bounded readiness result" verbatim — the
+        # SAME 120s discovery / 600s queue-timeout / 1800s run-timeout
+        # deadlines and cancel-on-timeout realize the change's watchdog
+        # requirement (task 4.2: report and cancel a child queued beyond
+        # ten minutes or running beyond thirty).
+        if: steps.dposs-readiness.outputs.ready == 'true'
+        continue-on-error: true
+        timeout-minutes: 45
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCHED: ${{ steps.dposs-dispatch.outputs.dispatched }}
+          CORRELATION_ID: ${{ steps.dposs-readiness.outputs.correlation_id }}
+        run: |
+          mkdir -p dposs-findings
+          REASON="child_dispatch_failed"
+          if [ "$DISPATCHED" = "true" ]; then
+            TITLE="doc-health-derive-possibles-${CORRELATION_ID}"
+            DISCOVERY_DEADLINE=$((SECONDS + 120))
+            CHILD_ID=""
+            REASON="child_not_observed"
+            while [ $SECONDS -lt $DISCOVERY_DEADLINE ]; do
+              if ! gh run list \
+                  --repo "$GITHUB_REPOSITORY" \
+                  --workflow doc-health-derive-possibles-worker.yml \
+                  --limit 50 \
+                  --json databaseId,displayTitle \
+                  > dposs-child-runs.json 2>/dev/null; then
+                REASON="worker_result_query_failed"
+                break
+              fi
+              if ! CHILD_ID="$(python3 - "$TITLE" <<'PY'
+          import json
+          import sys
+          try:
+              runs = json.load(open("dposs-child-runs.json", encoding="utf-8"))
+              if not isinstance(runs, list):
+                  raise ValueError("run list is not an array")
+              print(next((str(run.get("databaseId")) for run in runs
+                          if isinstance(run, dict)
+                          and run.get("displayTitle") == sys.argv[1]
+                          and isinstance(run.get("databaseId"), int)), ""))
+          except (OSError, json.JSONDecodeError, ValueError):
+              raise SystemExit(1)
+          PY
+              )"; then
+                REASON="worker_result_response_invalid"
+                break
+              fi
+              [ -n "$CHILD_ID" ] && break
+              sleep 10
+            done
+            if [ -n "$CHILD_ID" ]; then
+              COMPLETED="false"
+              RUNNING="false"
+              QUEUE_DEADLINE=$((SECONDS + 600))
+              REASON="child_queue_timeout"
+              while [ $SECONDS -lt $QUEUE_DEADLINE ]; do
+                if ! STATUS="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json status --jq .status 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  break
+                fi
+                if [ "$STATUS" = "completed" ]; then
+                  COMPLETED="true"
+                  break
+                fi
+                if [ "$STATUS" = "in_progress" ]; then
+                  RUNNING="true"
+                  break
+                fi
+                sleep 15
+              done
+              if [ "$RUNNING" = "true" ]; then
+                RUN_DEADLINE=$((SECONDS + 1800))
+                REASON="child_timeout"
+                while [ $SECONDS -lt $RUN_DEADLINE ]; do
+                  if ! STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    REASON="worker_result_query_failed"
+                    break
+                  fi
+                  if [ "$STATUS" = "completed" ]; then
+                    COMPLETED="true"
+                    break
+                  fi
+                  sleep 15
+                done
+                if [ "$COMPLETED" != "true" ] && \
+                   [ "$REASON" = "child_timeout" ]; then
+                  if STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    [ "$STATUS" = "completed" ] && COMPLETED="true"
+                  else
+                    REASON="worker_result_query_failed"
+                  fi
+                fi
+              fi
+              if [[ "$COMPLETED" != "true" && \
+                    ( "$REASON" = "child_timeout" || \
+                      "$REASON" = "child_queue_timeout" ) ]]; then
+                gh run cancel "$CHILD_ID" --repo "$GITHUB_REPOSITORY" \
+                  >/dev/null 2>&1 || true
+              fi
+              if [ "$COMPLETED" = "true" ]; then
+                if ! CONCLUSION="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json conclusion --jq .conclusion 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  CONCLUSION=""
+                fi
+                # The child uploads exactly one file, findings.json, so
+                # the download always lands at dposs-findings/findings.json.
+                if [ "$CONCLUSION" = "success" ] && \
+                   gh run download "$CHILD_ID" \
+                     --repo "$GITHUB_REPOSITORY" \
+                     --name "ideation-derive-possibles-findings-${CORRELATION_ID}" \
+                     --dir dposs-findings; then
+                  REASON="ready"
+                elif [ -n "$CONCLUSION" ]; then
+                  REASON="child_${CONCLUSION:-artifact_unavailable}"
+                fi
+              fi
+            fi
+          fi
+          printf '%s\n' "$REASON" > dposs-findings/unavailable-reason.txt
+      - name: Derive-possibles lane (merge, persist, report link)
+        # Runs unconditionally: a not-ready / never-dispatched / collection-
+        # failed run still must record the lane as SKIPPED in the dated
+        # report while leaving the register and the deterministic results at
+        # their prior state (the delta's "The worker is offline" scenario) —
+        # this step never gates on `dposs-readiness`/`dposs-dispatch`.
+        # continue-on-error is belt-and-braces so this lane can never affect
+        # the already-landed deterministic report/inventory.
+        if: always()
+        continue-on-error: true
+        env:
+          CHECK_REASON: ${{ steps.dposs-readiness.outputs.ready != 'true' && steps.dposs-readiness.outputs.reason || '' }}
+        run: |
+          FINDINGS_IN=""
+          [ -f dposs-findings/findings.json ] && FINDINGS_IN="dposs-findings/findings.json"
+          UNAVAILABLE="$CHECK_REASON"
+          if [ -z "$UNAVAILABLE" ] && [ -f dposs-findings/unavailable-reason.txt ]; then
+            REASON_FILE="$(cat dposs-findings/unavailable-reason.txt)"
+            [ "$REASON_FILE" != "ready" ] && UNAVAILABLE="$REASON_FILE"
+          fi
+          ARGS=(--repo-root . --phase merge \
+            --as-of "${{ steps.run.outputs.run_date }}" \
+            --run-id "derive-possibles-${{ github.run_id }}-${{ github.run_attempt }}" \
+            --report-in "${{ steps.run.outputs.report_out }}" \
+            --status-out dposs-status.json)
+          [ -n "$FINDINGS_IN" ] && ARGS+=(--findings-in "$FINDINGS_IN")
+          [ -n "$UNAVAILABLE" ] && ARGS+=(--unavailable-reason "$UNAVAILABLE")
+          python3 openxFactory/scripts/derive-possibles-nightly.py "${ARGS[@]}"
+      - name: Derive-possibles register commit-back (rolling PR; dormant until first lane persist)
+        # Change task 4.4: when — and only when — the merge above PERSISTED a
+        # merged register into the openxFactory checkout, commit those
+        # governed writes (index yaml + md + health/derive-possibles/
+        # evidence) inside the SUBMODULE under the factory identity and
+        # deliver them to openxFactory via the same force-free rolling-PR
+        # pattern the report delivery uses (org rulesets: default branches
+        # need PR + approval; non-fast-forward is blocked org-wide, ref
+        # deletion is not). The aggregation PIN BUMP follows once that PR
+        # merges — via the established "Sync submodule pointers" practice —
+        # because pinning the aggregation to a not-yet-reviewed branch commit
+        # would smuggle unreviewed content past openxFactory's own gate.
+        # Dormant until a host advertises the derive-possibles profile (the
+        # merge above reports SKIPPED and writes persisted=false).
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_DATE: ${{ steps.run.outputs.run_date }}
+          CORRELATION_ID: ${{ steps.dposs-readiness.outputs.correlation_id }}
+        run: |
+          [ -f dposs-status.json ] || { echo "no lane status — nothing to commit back"; exit 0; }
+          PERSISTED="$(python3 -c 'import json; print(str(json.load(open("dposs-status.json")).get("persisted", False)).lower())')"
+          [ "$PERSISTED" = "true" ] || { echo "lane did not persist — nothing to commit back"; exit 0; }
+          BRANCH="doc-health/derive-possibles"
+          cd openxFactory
+          git config user.name "openxfactory[bot]"
+          git config user.email "openxfactory[bot]@users.noreply.github.com"
+          git add ideation/cross-reference.yaml health/derive-possibles/
+          [ -f ideation/cross-reference.md ] && git add ideation/cross-reference.md
+          git diff --cached --quiet && { echo "no submodule changes staged"; exit 0; }
+          git commit -m "derive-possibles: merged register (${RUN_DATE}, ${CORRELATION_ID:-manual})"
+          NEW_COMMIT="$(git rev-parse HEAD)"
+          if git ls-remote --exit-code origin "refs/heads/${BRANCH}" >/dev/null 2>&1; then
+            git fetch origin "${BRANCH}"
+            OPEN_PR="$(gh pr list --repo "${GITHUB_REPOSITORY_OWNER}/openxFactory" \
+              --head "${BRANCH}" --state open --json number --jq 'length' || echo 0)"
+            if [ "${OPEN_PR}" != "0" ]; then
+              # Preserve the open PR: advance the branch by a merge commit
+              # whose FIRST parent is the remote tip (a fast-forward push)
+              # and whose tree is this run's content.
+              MERGE="$(git commit-tree "${NEW_COMMIT}^{tree}" \
+                -p "$(git rev-parse FETCH_HEAD)" -p "${NEW_COMMIT}" \
+                -m "derive-possibles: merged register (${RUN_DATE})")"
+              git push origin "${MERGE}:refs/heads/${BRANCH}"
+            else
+              # Stale branch left by a merged/closed PR: ref deletion is
+              # unrestricted; recreate the branch fresh (a creation push,
+              # never a non-fast-forward).
+              git push origin --delete "${BRANCH}" || true
+              git push origin "${NEW_COMMIT}:refs/heads/${BRANCH}"
+            fi
+          else
+            git push origin "${NEW_COMMIT}:refs/heads/${BRANCH}"
+          fi
+          if [ "$(gh pr list --repo "${GITHUB_REPOSITORY_OWNER}/openxFactory" \
+              --head "${BRANCH}" --state open --json number --jq 'length' || echo 0)" = "0" ]; then
+            gh pr create --repo "${GITHUB_REPOSITORY_OWNER}/openxFactory" \
+              --head "${BRANCH}" \
+              --title "Derive-possibles register merge ${RUN_DATE}" \
+              --body "Nightly derive-possibles lane output: merged possibles_register + immutable evidence (add-possibles-derivation-lane task 4.4). Auto-merges on approval." \
+              && gh pr merge --repo "${GITHUB_REPOSITORY_OWNER}/openxFactory" \
+                   "${BRANCH}" --merge --auto || true
+          fi
+      # Ideation-dashboard snapshot lane (openxFactory add-ideation-dashboard
+      # task 4.1 + add-dashboard-repo-selector task 4.2): AFTER the deterministic
+      # pass, refresh one current snapshot per project-register repository plus
+      # the thin (repository, ref) index beside the dated reports;
+      # the "Commit report" step's `git add health/` sweeps
+      # health/ideation-dashboard/ into the same commit that lands the reports
+      # and inventories. The lane script always exits 0 — any error
+      # (generation, validation, missing checkout) is reported as SKIPPED in
+      # health/ideation-dashboard/lane-status.json and on stdout — and
+      # continue-on-error is belt-and-braces so this step can never affect the
+      # deterministic doc-health results.
+      - name: Ideation-dashboard snapshot lane (skip-on-error, never gates)
+        continue-on-error: true
+        run: |
+          python3 openxFactory/scripts/ideation-dashboard-nightly.py \
+            --repo-root . \
+            --repositories registered \
+            --aggregate medx-clinical \
+            --aggregate-members MedxFactory,openChart,MedxEHR,HealthLinc \
+            --aggregate-display-name "Medx clinical"
+      - name: Ideation-dashboard image refresh — report previous outcome (one-run lag; Decision 6)
+        # The refresh STAGE runs AFTER report delivery (below), so the
+        # refresh-status.json present in the tree is the PREVIOUS run's. Decision
+        # 6's preferred resolution: name whose outcome it is and say so (the
+        # module's render_report_section does), and surface a bot/dox-dashboard-pin
+        # PR still open on Omnigent-Install as a STUCK CHAIN. Best-effort: it
+        # never fails the nightly, and only annotates a FRESH dated report
+        # (steps.run.outputs.commit == 'true') so the immutable dated record a
+        # same-day rerun leaves in the tree is never mutated. THIS run's own
+        # outcome is carried immediately by the stage's ::notice::/::warning::
+        # annotations below, which is why the one-run report lag is acceptable.
+        if: steps.run.outputs.commit == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_DATE: ${{ steps.run.outputs.run_date }}
+        run: |
+          REPORT="health/reports/${RUN_DATE}.md"
+          [ -f "$REPORT" ] || { echo "no dated report to annotate this run"; exit 0; }
+          # A stuck chain is the clearest parked-refresh signal (task 4.9). The
+          # lookup is fail-soft: an App token without Omnigent-Install scope
+          # simply yields no stuck PR, never an error.
+          STUCK="$(gh pr list --repo opensoft/Omnigent-Install \
+            --head bot/dox-dashboard-pin --base main --state open \
+            --json url -q '.[0].url' 2>/dev/null || true)"
+          ARGS=(--repo-root . --phase report --report-in "$REPORT")
+          [ -n "$STUCK" ] && ARGS+=(--stuck-pull-request "$STUCK")
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py "${ARGS[@]}"
+      # Delivers living health/ artifacts. NOT gated on steps.run.outputs.commit:
+      # a same-day rerun redirects only the DATED report/inventory to
+      # RUNNER_TEMP (records are immutable — they never re-enter the tree, so
+      # `git add health/` cannot pick them up), while the SAME rerun still
+      # refreshes living artifacts under health/ (the ideation-dashboard lane
+      # status + snapshot, document-catalog runs, inventories). `git add health/`
+      # + `git diff --cached --quiet` acts whenever — and only when — something
+      # under health/ actually changed, so the dated report stays immutable while
+      # fresh lane output always lands.
+      #
+      # DELIVERY IS VIA PR, NOT DIRECT PUSH (org ruleset 18962101, created
+      # 2026-07-15): the default branch now requires PR + 1 approval with
+      # OrgAdmin-only bypass, so this job's token can no longer push reports
+      # straight to it. Instead we stage the report onto a rolling branch
+      # `doc-health/nightly`, open a PR against the default branch, and enable
+      # auto-merge. Merge Master now evaluates the exact-head, base-branch
+      # envelope and approves an in-envelope PR autonomously; any failed or
+      # unevaluable condition leaves it parked for the human gate.
+      #
+      # DELIVERY IS FORCE-FREE (org ruleset 8981805 "Copilot Auto-Review All
+      # PRs"): that ruleset applies `non_fast_forward` to `~ALL` branches with
+      # NO bypass, so NO token — App or PAT — can force-push ANY branch in this
+      # org, including a non-default one like `doc-health/nightly`. (An earlier
+      # revision force-rebuilt the branch and wrongly claimed the rule scoped
+      # `~DEFAULT_BRANCH` only; it succeeded solely on nights the push happened
+      # to CREATE the branch, which is not a non-fast-forward.) So we deliver
+      # only via branch creation and fast-forward:
+      #   * No open PR (branch absent, or a stale branch left by a merged/closed
+      #     PR): delete any stale branch (ref DELETION is unrestricted), then
+      #     push a single fresh commit atop current main as a branch CREATION,
+      #     and open the PR.
+      #   * Open PR exists: PRESERVE it and its review thread. Advance the branch
+      #     by a merge commit whose FIRST parent is the current remote branch tip
+      #     (so the push is a FAST-FORWARD, not blocked) and whose SECOND parent
+      #     is current main. Its tree is current main with the fresh report
+      #     health/ overlaid, so (a) report content always wins, (b) everything
+      #     outside health/ matches main, hence the PR diff stays exactly
+      #     health/** — which the merge-approval envelope's path_allowlist
+      #     requires — and (c) same-day reruns replace the report content without
+      #     stacking a stale base.
+      #
+      # No-change fast-path preserved: if nothing under health/ changed, there is
+      # no commit, no branch, and no PR. And if the fresh report is already
+      # byte-identical to main's health/, there is nothing to deliver.
+      - name: Commit report (deliver via rolling PR — ruleset 18962101)
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          # The content-App token above satisfies the branch-confinement
+          # ruleset for the push, but its installation carries no `actions`
+          # permission, so the approval-workflow dispatch at the end of this
+          # step must run on the job's GITHUB_TOKEN instead (403 otherwise —
+          # live-verified 2026-07-28, task 7.1 canary).
+          DISPATCH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          RUN_DATE: ${{ steps.run.outputs.run_date }}
+          NEW_COUNT: ${{ steps.run.outputs.new_count }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          git config user.name "doc-health"
+          git config user.email "doc-health@users.noreply.github.com"
+          git add health/
+          # No-op guard #1 (unchanged same-day-rerun contract): nothing under
+          # health/ moved -> no commit, no branch, no PR.
+          if git diff --cached --quiet; then
+            echo "No health/ changes — no commit, no branch, no PR."
+            exit 0
+          fi
+          # Snapshot the report tree as a local commit so we can overlay just its
+          # health/ subtree below.
+          git commit -m "Doc-health report ${RUN_DATE}"
+          REPORT_COMMIT="$(git rev-parse HEAD)"
+          # Resolve the default branch (PR base). github.event.repository is not
+          # populated on schedule events, so ask the API.
+          DEFAULT_BRANCH="$(gh repo view "$GITHUB_REPOSITORY" --json defaultBranchRef -q .defaultBranchRef.name)"
+          git fetch origin "$DEFAULT_BRANCH"
+          MAIN_TIP="$(git rev-parse "origin/${DEFAULT_BRANCH}")"
+          # Build the delivery tree in the index: current default-branch tree with
+          # the FRESH report health/ overlaid (report content always wins). Reset
+          # to main, drop main's health/, then lay down exactly the report's
+          # health/ — so files main carried but the report dropped are removed too.
+          git checkout -B doc-health/nightly "$MAIN_TIP"
+          rm -rf health/
+          git checkout "$REPORT_COMMIT" -- health/
+          git add -A health/
+          # No-op guard #2 (already-current-on-main): the report's health/ tree is
+          # byte-identical to what already sits on the default branch — nothing to
+          # deliver.
+          if git diff --cached --quiet; then
+            echo "health/ already current on ${DEFAULT_BRANCH} — nothing to deliver."
+            exit 0
+          fi
+          DELIVERY_TREE="$(git write-tree)"
+          # Is there an open rolling PR whose thread we must preserve?
+          OPEN_PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --head doc-health/nightly --base "$DEFAULT_BRANCH" --state open --json number -q '.[0].number')"
+          if [ -n "$OPEN_PR" ]; then
+            # Preserve the open PR + its review thread. Fast-forward the branch:
+            # merge commit, first parent = current remote branch tip (makes the
+            # push a fast-forward, never blocked by ~ALL non_fast_forward), second
+            # parent = current main. Tree = main + fresh report health/.
+            git fetch origin doc-health/nightly
+            REMOTE_TIP="$(git rev-parse FETCH_HEAD)"
+            NEW_TIP="$(git commit-tree "$DELIVERY_TREE" -p "$REMOTE_TIP" -p "$MAIN_TIP" -m "Doc-health report ${RUN_DATE}")"
+            git update-ref refs/heads/doc-health/nightly "$NEW_TIP"
+            git push origin doc-health/nightly            # fast-forward, no --force
+          else
+            # No open PR: (re)create the delivery branch from scratch. Remove any
+            # stale branch first (ref deletion is unrestricted by the ruleset),
+            # then push a single fresh commit atop main as a branch CREATION.
+            if git ls-remote --exit-code --heads origin doc-health/nightly >/dev/null 2>&1; then
+              git push origin --delete doc-health/nightly
+            fi
+            NEW_TIP="$(git commit-tree "$DELIVERY_TREE" -p "$MAIN_TIP" -m "Doc-health report ${RUN_DATE}")"
+            git update-ref refs/heads/doc-health/nightly "$NEW_TIP"
+            git push origin doc-health/nightly            # branch creation, no --force
+            printf '%s\n' \
+              "Nightly doc-health report for ${RUN_DATE}." \
+              "" \
+              "- Run: ${RUN_URL}" \
+              "- New findings this run: ${NEW_COUNT}" \
+              "" \
+              "🤖 Generated with [Claude Code](https://claude.com/claude-code)" \
+              > "$RUNNER_TEMP/doc-health-pr-body.md"
+            gh pr create --repo "$GITHUB_REPOSITORY" \
+              --base "$DEFAULT_BRANCH" --head doc-health/nightly \
+              --title "Doc-health report ${RUN_DATE}" \
+              --body-file "$RUNNER_TEMP/doc-health-pr-body.md"
+            gh pr comment doc-health/nightly --repo "$GITHUB_REPOSITORY" \
+              --body "Auto-merge is enabled. Merge Master evaluates this PR's exact head against the reviewed low-risk envelope and approves it autonomously only when every condition holds. Any failed or unevaluable condition leaves the PR parked for the human gate (ruleset 18962101 requires PR + 1 approval; repository ruleset 19887057 dismisses previous-head approvals)."
+          fi
+          # Land on approval. Non-fatal: if repo auto-merge is disabled the PR
+          # still waits for a manual merge after approval.
+          gh pr merge doc-health/nightly --repo "$GITHUB_REPOSITORY" --auto --merge \
+            || echo "::warning::Could not enable auto-merge; merge doc-health/nightly manually after approval."
+          # Chain the merge-master approval workflow. Reached only on a real
+          # delivery (both no-op guards above exit 0 before here). The
+          # content-App-authored push DOES raise pull_request_target, but that
+          # run evaluates before required checks finish and parks fail-closed,
+          # and Actions-created check suites never retrigger check_suite — so
+          # this explicit dispatch is the trigger that actually approves
+          # (live-verified 2026-07-28). It runs on the job's GITHUB_TOKEN
+          # (DISPATCH_TOKEN): the content-App token cannot dispatch, and
+          # workflow_dispatch is exempt from the recursion guard. Non-fatal
+          # (fail-closed): a failed dispatch just leaves the PR parked for the
+          # human gate, never fails the nightly.
+          GH_TOKEN="$DISPATCH_TOKEN" gh workflow run merge-master-approval.yml \
+            --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH" \
+            || echo "::warning::approval-workflow dispatch failed — PR parks for the human gate"
+      # ===================================================================
+      # Ideation-dashboard IMAGE REFRESH stage (add-nightly-dashboard-refresh
+      # §4). Ordered HERE — strictly AFTER "Commit report" delivery — so a
+      # refresh can never jeopardise the report it follows (design Decision 4).
+      # Worker-gated, dispatched artifact-only child on cpc-omni01, fail-closed
+      # SKIP when no ready worker, and NO inline hosted fallback: the build and
+      # the ACR push belong to the host that holds the registry binding
+      # (Decision 5 / spec "never falls back to a hosted runner"). The child
+      # `dashboard-image-worker.yml` lives in the AGGREGATION (the caller repo,
+      # $GITHUB_REPOSITORY), like every other worker child dispatched above;
+      # this stage dispatches it, collects its one result (the digest), renders
+      # the pin, and delivers the envelope-shaped PR to Omnigent-Install.
+      # ===================================================================
+      - name: Evaluate dashboard-refresh worker readiness
+        id: dfr-readiness
+        # Cloned verbatim from "Evaluate readiness-scorer worker readiness":
+        # same GROUP="xfactory-artifact-workers" runner-group resolution +
+        # authenticated Hermes heartbeat, handed to check-worker-readiness.py,
+        # ready=false ⇒ fail-closed skip (task 4.2). Only the required
+        # label/profile identify THIS lane's worker capability; those and the
+        # matching worker-profile registration are an AGGREGATION/host concern
+        # (see tasks §1.4, §2) — until they resolve, readiness is false and the
+        # stage skips fail-closed, which is the designed default.
+        env:
+          WORKER_ENABLED: ${{ needs.prepare.outputs.omnigent }}
+          HERMES_READINESS_URL: ${{ vars.HERMES_READINESS_URL }}
+          HERMES_WORKER_ID: ${{ vars.OMNIGENT_WORKER_ID }}
+          HERMES_READINESS_TOKEN: ${{ secrets.HERMES_READINESS_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          REQUIRED_TENANT: ${{ inputs.worker-tenant-boundary }}
+          REQUIRED_DATA_BOUNDARY: ${{ inputs.worker-data-boundary }}
+          REQUIRED_HANDLING: ${{ inputs.worker-handling-class }}
+          MAX_AGE: ${{ inputs.worker-heartbeat-max-age-seconds }}
+        run: |
+          GROUP="xfactory-artifact-workers"
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          QUERY_ERROR=""
+          : > dfr-runners-api.json
+          if [ "$WORKER_ENABLED" = "true" ]; then
+            GROUP_ID=""
+            if gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups?per_page=100" \
+                > dfr-runner-groups-api.json 2>/dev/null; then
+              GROUP_ID="$(python3 - "$GROUP" <<'PY'
+          import json
+          import sys
+          try:
+              pages = json.load(open("dfr-runner-groups-api.json", encoding="utf-8"))
+              if not isinstance(pages, list):
+                  raise ValueError("runner group pages must be an array")
+              groups = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runner_groups"), list):
+                      raise ValueError("runner group page is malformed")
+                  groups.extend(page["runner_groups"])
+              print(next((item.get("id") for item in groups
+                          if isinstance(item, dict)
+                          and item.get("name") == sys.argv[1]
+                          and isinstance(item.get("id"), int)), ""))
+          except (OSError, json.JSONDecodeError, AttributeError, ValueError):
+              print("")
+          PY
+              )"
+            else
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+            if [ -n "$GROUP_ID" ]; then
+              gh api --paginate --slurp \
+                "orgs/${OWNER}/actions/runner-groups/${GROUP_ID}/runners?per_page=100" \
+                > dfr-runners-api.json 2>/dev/null || QUERY_ERROR="runner_query_failed"
+            elif [ -z "$QUERY_ERROR" ]; then
+              QUERY_ERROR="runner_group_query_failed"
+            fi
+          fi
+          python3 - "$GROUP" "$QUERY_ERROR" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          group, error = sys.argv[1:]
+          try:
+              pages = json.loads(Path("dfr-runners-api.json").read_text() or "[]")
+              if not isinstance(pages, list):
+                  raise ValueError("runner response must be an array")
+              runners = []
+              for page in pages:
+                  if not isinstance(page, dict) or not isinstance(
+                          page.get("runners"), list):
+                      raise ValueError("runner response page is malformed")
+                  runners.extend(page["runners"])
+          except (json.JSONDecodeError, ValueError):
+              runners, error = [], error or "invalid_runner_response"
+          Path("dfr-runner-group.json").write_text(json.dumps({
+              "group": group, "query_error": error,
+              "runners": runners,
+          }))
+          PY
+          if [ "$WORKER_ENABLED" = "true" ] && \
+             [ -n "$HERMES_READINESS_URL" ] && \
+             [ -n "$HERMES_WORKER_ID" ]; then
+            AUTH=()
+            [ -n "$HERMES_READINESS_TOKEN" ] && \
+              AUTH=(-H "Authorization: Bearer ${HERMES_READINESS_TOKEN}")
+            if curl --fail --silent --show-error \
+                 "${AUTH[@]}" \
+                 "${HERMES_READINESS_URL%/}/api/readiness/workers/${HERMES_WORKER_ID}" \
+                 > dfr-hermes-worker.json; then
+              if ! python3 - <<'PY'
+          import json
+          from pathlib import Path
+          response = json.load(open("dfr-hermes-worker.json", encoding="utf-8"))
+          if not isinstance(response, dict):
+              raise ValueError("readiness response must be an object")
+          worker = response.get("worker", {})
+          if not isinstance(worker, dict):
+              raise ValueError("readiness worker must be an object")
+          metadata = worker.get("metadata", {})
+          heartbeat = dict(metadata) if isinstance(metadata, dict) else {}
+          heartbeat.setdefault("host_id", worker.get("id"))
+          heartbeat.setdefault("observed_at", worker.get("last_seen_at"))
+          heartbeat["status"] = worker.get("status")
+          heartbeat["current_jobs"] = worker.get("current_jobs")
+          Path("dfr-heartbeat.json").write_text(json.dumps(heartbeat),
+                                              encoding="utf-8")
+          PY
+              then
+                printf '%s\n' '{"query_error":"invalid_heartbeat_response"}' \
+                  > dfr-heartbeat.json
+              fi
+            else
+              printf '%s\n' '{"query_error":"heartbeat_query_failed"}' \
+                > dfr-heartbeat.json
+            fi
+          else
+            printf '%s\n' '{"query_error":"heartbeat_endpoint_unconfigured"}' \
+              > dfr-heartbeat.json
+          fi
+          ENABLED=()
+          [ "$WORKER_ENABLED" = "true" ] && ENABLED=(--enabled)
+          python3 scripts/check-worker-readiness.py \
+            --runner-group dfr-runner-group.json \
+            --heartbeat dfr-heartbeat.json \
+            "${ENABLED[@]}" \
+            --required-group "$GROUP" \
+            --required-label dashboard-image \
+            --required-profile dashboard-image-refresh \
+            --required-profile-version 1 \
+            --required-tenant "$REQUIRED_TENANT" \
+            --required-data-boundary "$REQUIRED_DATA_BOUNDARY" \
+            --required-handling "$REQUIRED_HANDLING" \
+            --required-policy-version artifact-worker-v1 \
+            --max-age-seconds "$MAX_AGE" \
+            --output dfr-readiness.json
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          value = json.load(open("dfr-readiness.json", encoding="utf-8"))
+          print(f"ready={str(value['ready']).lower()}")
+          print(f"reason={value['reason']}")
+          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          print(f"correlation_id=dashboard-refresh-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
+          PY
+      - name: Ideation-dashboard image refresh — record skip (worker unavailable)
+        # Fail-closed SKIP: an unready worker records the lane as skipped and the
+        # nightly continues (spec "skips when its worker is unavailable"). No
+        # hosted fallback — deliberately. The lane reads no input at all here.
+        if: steps.dfr-readiness.outputs.ready != 'true'
+        continue-on-error: true
+        env:
+          REASON: ${{ steps.dfr-readiness.outputs.reason }}
+        run: |
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase decide \
+            --skip-reason "worker unavailable: ${REASON:-not_ready}"
+      - name: Ideation-dashboard image refresh — decide (no-change short-circuit, before any build)
+        id: dfr-decide
+        # The input-revision decision (design Decision 10), which precedes the
+        # checkout: it reads the corpus baked-input revision from the initialised
+        # openxFactory submodule at origin/main and the recipe revision + pinned
+        # provenance from Omnigent-Install via the App token. Both inputs are
+        # PATH-SCOPED to the baked inputs, never a branch tip. An input it cannot
+        # read (e.g. the App lacks Omnigent-Install scope) ⇒ undecidable ⇒
+        # fail-closed skip, build=false, nothing dispatched.
+        if: steps.dfr-readiness.outputs.ready == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase decide \
+            --corpus-checkout openxFactory \
+            --run-url "$RUN_URL" \
+            --decision-out dfr-decision.json
+          BUILD="$(python3 -c 'import json;print(str(json.load(open("dfr-decision.json"))["build"]).lower())' 2>/dev/null || echo false)"
+          echo "build=${BUILD}" >> "$GITHUB_OUTPUT"
+      - name: Dispatch artifact-only dashboard-image child
+        id: dfr-dispatch
+        # Cloned from "Dispatch artifact-only readiness child". The child lives
+        # in the AGGREGATION (do not look for it in openxFactory), dispatched
+        # only when the worker is ready AND the inputs moved. It holds no
+        # repository credential; its ONLY result is the digest.
+        if: steps.dfr-readiness.outputs.ready == 'true' && steps.dfr-decide.outputs.build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
+          DISPATCH_LABEL: ${{ steps.dfr-readiness.outputs.dispatch_label }}
+        run: |
+          if gh workflow run dashboard-image-worker.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f source_run_id="$GITHUB_RUN_ID" \
+            -f source_sha="$GITHUB_SHA" \
+            -f correlation_id="$CORRELATION_ID" \
+            -f dispatch_label="$DISPATCH_LABEL"; then
+            echo "dispatched=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dispatched=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::dashboard-image child dispatch failed — refresh skips this cycle, next run catches up in one hop"
+          fi
+      - name: Collect bounded dashboard-image result
+        # Cloned from "Collect bounded readiness result" verbatim — identical
+        # 120s discovery / 600s queue-timeout / 1800s run-timeout deadlines and
+        # cancel-on-timeout. The child uploads exactly one file, digest.json.
+        if: steps.dfr-dispatch.outputs.dispatched == 'true'
+        continue-on-error: true
+        timeout-minutes: 45
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCHED: ${{ steps.dfr-dispatch.outputs.dispatched }}
+          CORRELATION_ID: ${{ steps.dfr-readiness.outputs.correlation_id }}
+        run: |
+          mkdir -p dfr-digest
+          REASON="child_dispatch_failed"
+          if [ "$DISPATCHED" = "true" ]; then
+            TITLE="dashboard-image-${CORRELATION_ID}"
+            DISCOVERY_DEADLINE=$((SECONDS + 120))
+            CHILD_ID=""
+            REASON="child_not_observed"
+            while [ $SECONDS -lt $DISCOVERY_DEADLINE ]; do
+              if ! gh run list \
+                  --repo "$GITHUB_REPOSITORY" \
+                  --workflow dashboard-image-worker.yml \
+                  --limit 50 \
+                  --json databaseId,displayTitle \
+                  > dfr-child-runs.json 2>/dev/null; then
+                REASON="worker_result_query_failed"
+                break
+              fi
+              if ! CHILD_ID="$(python3 - "$TITLE" <<'PY'
+          import json
+          import sys
+          try:
+              runs = json.load(open("dfr-child-runs.json", encoding="utf-8"))
+              if not isinstance(runs, list):
+                  raise ValueError("run list is not an array")
+              print(next((str(run.get("databaseId")) for run in runs
+                          if isinstance(run, dict)
+                          and run.get("displayTitle") == sys.argv[1]
+                          and isinstance(run.get("databaseId"), int)), ""))
+          except (OSError, json.JSONDecodeError, ValueError):
+              raise SystemExit(1)
+          PY
+              )"; then
+                REASON="worker_result_response_invalid"
+                break
+              fi
+              [ -n "$CHILD_ID" ] && break
+              sleep 10
+            done
+            if [ -n "$CHILD_ID" ]; then
+              COMPLETED="false"
+              RUNNING="false"
+              QUEUE_DEADLINE=$((SECONDS + 600))
+              REASON="child_queue_timeout"
+              while [ $SECONDS -lt $QUEUE_DEADLINE ]; do
+                if ! STATUS="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json status --jq .status 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  break
+                fi
+                if [ "$STATUS" = "completed" ]; then
+                  COMPLETED="true"
+                  break
+                fi
+                if [ "$STATUS" = "in_progress" ]; then
+                  RUNNING="true"
+                  break
+                fi
+                sleep 15
+              done
+              if [ "$RUNNING" = "true" ]; then
+                RUN_DEADLINE=$((SECONDS + 1800))
+                REASON="child_timeout"
+                while [ $SECONDS -lt $RUN_DEADLINE ]; do
+                  if ! STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    REASON="worker_result_query_failed"
+                    break
+                  fi
+                  if [ "$STATUS" = "completed" ]; then
+                    COMPLETED="true"
+                    break
+                  fi
+                  sleep 15
+                done
+                if [ "$COMPLETED" != "true" ] && \
+                   [ "$REASON" = "child_timeout" ]; then
+                  if STATUS="$(gh run view "$CHILD_ID" \
+                      --repo "$GITHUB_REPOSITORY" \
+                      --json status --jq .status 2>/dev/null)"; then
+                    [ "$STATUS" = "completed" ] && COMPLETED="true"
+                  else
+                    REASON="worker_result_query_failed"
+                  fi
+                fi
+              fi
+              if [[ "$COMPLETED" != "true" && \
+                    ( "$REASON" = "child_timeout" || \
+                      "$REASON" = "child_queue_timeout" ) ]]; then
+                gh run cancel "$CHILD_ID" --repo "$GITHUB_REPOSITORY" \
+                  >/dev/null 2>&1 || true
+              fi
+              if [ "$COMPLETED" = "true" ]; then
+                if ! CONCLUSION="$(gh run view "$CHILD_ID" \
+                    --repo "$GITHUB_REPOSITORY" \
+                    --json conclusion --jq .conclusion 2>/dev/null)"; then
+                  REASON="worker_result_query_failed"
+                  CONCLUSION=""
+                fi
+                # The child uploads exactly one file, digest.json, so the
+                # download always lands at dfr-digest/digest.json.
+                if [ "$CONCLUSION" = "success" ] && \
+                   gh run download "$CHILD_ID" \
+                     --repo "$GITHUB_REPOSITORY" \
+                     --name "dashboard-image-digest-${CORRELATION_ID}" \
+                     --dir dfr-digest; then
+                  REASON="ready"
+                elif [ -n "$CONCLUSION" ]; then
+                  REASON="child_${CONCLUSION:-artifact_unavailable}"
+                fi
+              fi
+            fi
+          fi
+          printf '%s\n' "$REASON" > dfr-digest/unavailable-reason.txt
+      - name: Ideation-dashboard image refresh — render pin proposal
+        id: dfr-pin
+        # The module RENDERS the pin (rewritten overlay + PR body) from the
+        # child's returned digest; it opens no PR and pushes no branch (that is
+        # the delivery step below). Re-reads the inputs so the pin is never
+        # rendered on inputs that moved out from under the build. Writes this
+        # run's RESULT_OK refresh-status.json — which rides the NEXT delivery
+        # (Decision 6 one-run lag), reported by the section step above.
+        if: steps.dfr-dispatch.outputs.dispatched == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ ! -f dfr-digest/digest.json ]; then
+            echo "::warning::no digest artifact from the dashboard-image child ($(cat dfr-digest/unavailable-reason.txt 2>/dev/null || echo unknown)) — nothing to pin this cycle"
+            echo "pinned=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+            --repo-root . --phase pin \
+            --corpus-checkout openxFactory \
+            --digest-in dfr-digest/digest.json \
+            --pin-out dfr-pin \
+            --run-url "$RUN_URL"
+          if [ -f dfr-pin/kustomization.yaml ] && [ -f dfr-pin/pr-body.md ]; then
+            echo "pinned=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pinned=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::pin was not rendered this cycle — refresh parks, next run retries"
+          fi
+      - name: Ideation-dashboard image refresh — deliver pin PR to Omnigent-Install (force-free, fail-soft)
+        # Envelope-shaped delivery of the ONE-file digest pin to the served
+        # plane's repository, on the FIXED head branch bot/dox-dashboard-pin,
+        # authored by the minted App token — mirroring the report step's
+        # force-free rolling-branch mechanics (org ruleset 8981805 forbids
+        # non-fast-forward on ~ALL branches, so deliver by branch CREATION or a
+        # fast-forward merge commit whose FIRST parent is the remote tip; never
+        # --force). RESILIENT / FAIL-SOFT: if the App token lacks
+        # Omnigent-Install scope (installation gate task 1.2 unsatisfied) the
+        # step logs and returns 0 — the nightly never hard-fails. The lane sets
+        # NO label, title prefix or commit-message convention that claims the
+        # diff shape: the receiving repository adjudicates the actual diff.
+        if: steps.dfr-pin.outputs.pinned == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        run: |
+          set -uo pipefail
+          RECIPE_REPO="opensoft/Omnigent-Install"
+          OVERLAY="deploy/kubernetes/overlays/aks-qa/kustomization.yaml"
+          BRANCH="bot/dox-dashboard-pin"
+          # Fail-soft scope probe: a read that 403s means the App installation
+          # does not yet include Omnigent-Install (task 1.2). Log and park.
+          if ! gh api "repos/${RECIPE_REPO}" >/dev/null 2>&1; then
+            echo "::warning::the minted App token cannot reach ${RECIPE_REPO} (installation gate 1.2 unsatisfied) — pin PR not opened; refresh parks for the human gate"
+            exit 0
+          fi
+          BOT_LOGIN="$(gh api /user -q .login 2>/dev/null || echo 'xfactory-app[bot]')"
+          WORK="$RUNNER_TEMP/omnigent-install-pin"
+          rm -rf "$WORK"
+          if ! git clone --depth 1 --branch main \
+              "https://x-access-token:${GH_TOKEN}@github.com/${RECIPE_REPO}.git" "$WORK" 2>/dev/null; then
+            echo "::warning::could not clone ${RECIPE_REPO} with the App token — pin PR not opened; refresh parks"
+            exit 0
+          fi
+          cp dfr-pin/kustomization.yaml "$WORK/$OVERLAY"
+          git -C "$WORK" config user.name "$BOT_LOGIN"
+          git -C "$WORK" config user.email "${BOT_LOGIN}@users.noreply.github.com"
+          git -C "$WORK" add "$OVERLAY"
+          # Envelope guard: the ONLY diff is the overlay. If nothing changed, the
+          # served plane already carries this pin — nothing to propose.
+          if git -C "$WORK" diff --cached --quiet; then
+            echo "the rendered overlay is byte-identical to ${RECIPE_REPO} main — nothing to propose"
+            exit 0
+          fi
+          MAIN_TIP="$(git -C "$WORK" rev-parse HEAD)"
+          git -C "$WORK" commit -q -m "dox: refresh ideation-dashboard image pin"
+          DELIVERY_TREE="$(git -C "$WORK" write-tree)"
+          OPEN_PR="$(gh pr list --repo "$RECIPE_REPO" --head "$BRANCH" --base main --state open --json number -q '.[0].number' 2>/dev/null || true)"
+          PR_URL=""
+          if [ -n "$OPEN_PR" ]; then
+            # Preserve the open PR + its thread. Fast-forward the branch: merge
+            # commit, first parent = current remote branch tip, second = main.
+            git -C "$WORK" fetch origin "$BRANCH" 2>/dev/null || true
+            REMOTE_TIP="$(git -C "$WORK" rev-parse FETCH_HEAD 2>/dev/null || echo "$MAIN_TIP")"
+            NEW_TIP="$(git -C "$WORK" commit-tree "$DELIVERY_TREE" -p "$REMOTE_TIP" -p "$MAIN_TIP" -m "dox: refresh ideation-dashboard image pin")"
+            git -C "$WORK" update-ref "refs/heads/${BRANCH}" "$NEW_TIP"
+            if ! git -C "$WORK" push origin "$BRANCH" 2>/dev/null; then
+              echo "::warning::could not advance ${BRANCH} on ${RECIPE_REPO} (App scope? installation gate 1.2) — refresh parks for the human gate"
+              exit 0
+            fi
+            PR_URL="$(gh pr view "$OPEN_PR" --repo "$RECIPE_REPO" --json url -q .url 2>/dev/null || echo "")"
+          else
+            # No open PR: (re)create the branch by CREATION (ref deletion is
+            # unrestricted), then a single fresh commit atop main — no --force.
+            if git -C "$WORK" ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+              git -C "$WORK" push origin --delete "$BRANCH" 2>/dev/null || true
+            fi
+            NEW_TIP="$(git -C "$WORK" commit-tree "$DELIVERY_TREE" -p "$MAIN_TIP" -m "dox: refresh ideation-dashboard image pin")"
+            git -C "$WORK" update-ref "refs/heads/${BRANCH}" "$NEW_TIP"
+            if ! git -C "$WORK" push origin "$BRANCH" 2>/dev/null; then
+              echo "::warning::could not create ${BRANCH} on ${RECIPE_REPO} (App scope? installation gate 1.2) — pin PR not opened; refresh parks for the human gate"
+              exit 0
+            fi
+            PR_URL="$(gh pr create --repo "$RECIPE_REPO" \
+              --base main --head "$BRANCH" \
+              --title "dox: refresh ideation-dashboard image pin" \
+              --body-file dfr-pin/pr-body.md 2>/dev/null || echo "")"
+          fi
+          if [ -n "$PR_URL" ]; then
+            echo "::notice::ideation-dashboard-refresh: pin PR delivered — ${PR_URL}"
+            # Patch this run's status with the PR reference (task 4.7). Rides the
+            # next delivery, like the status itself. Best-effort.
+            python3 openxFactory/scripts/dashboard-refresh-nightly.py \
+              --repo-root . --phase record-pr --pull-request "$PR_URL" || true
+          else
+            echo "::warning::pin branch delivered but the PR reference could not be resolved — refresh may need a manual PR open"
+          fi
+      # =================== end image refresh stage =======================
+      - name: Open regression issue (one per run, contract regression rule)
+        if: steps.run.outputs.new_count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "New critical/error findings versus the previous report"
+            echo "(matched by family + path). Full report:"
+            echo "health/reports/${{ steps.run.outputs.run_date }}.md"
+            echo
+            python3 - <<'PY'
+          import json
+          for f in json.load(open("new-findings.json")):
+              print(f"- [{f['severity']}] {f['family']} {f['repo']}:{f['path']} — {f['rule']}")
+          PY
+          } > issue-body.md
+          gh issue create \
+            --title "doc-health regressions ${{ steps.run.outputs.run_date }}" \
+            --body-file issue-body.md \
+            --repo "${{ github.repository }}"
+      - name: Supersede stale regression issues
+        # Non-fatal housekeeping. Each nightly recomputes regressions fresh
+        # against the previous report, so any OPEN "doc-health regressions
+        # <date>" issue whose date is STRICTLY OLDER than this run's date is a
+        # stale point-in-time alert already superseded by the current report.
+        # Close those, citing the current report. The strict-older date filter
+        # guarantees the current run's own issue (date == run_date) is never
+        # touched. Every gh call is guarded so this step can never fail the
+        # nightly.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_DATE: ${{ steps.run.outputs.run_date }}
+          REPORT_PATH: health/reports/${{ steps.run.outputs.run_date }}.md
+        run: |
+          if ! gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+              --limit 200 --json number,title > open-issues.json; then
+            echo "::warning::could not list issues; skipping stale-regression cleanup"
+            exit 0
+          fi
+          STALE="$(python3 - "$RUN_DATE" <<'PY'
+          import json, re, sys
+          run_date = sys.argv[1]
+          # Exact title shape only: "doc-health regressions YYYY-MM-DD".
+          pat = re.compile(r"^doc-health regressions (\d{4}-\d{2}-\d{2})$")
+          try:
+              issues = json.load(open("open-issues.json"))
+          except (OSError, json.JSONDecodeError):
+              issues = []
+          for issue in issues:
+              m = pat.match(issue.get("title", ""))
+              # ISO dates compare correctly as strings; strict-older only.
+              if m and m.group(1) < run_date:
+                  print(issue["number"])
+          PY
+          )"
+          if [ -z "$STALE" ]; then
+            echo "No stale regression issues older than ${RUN_DATE}."
+            exit 0
+          fi
+          for n in $STALE; do
+            gh issue close "$n" --repo "$GITHUB_REPOSITORY" \
+              --comment "superseded by ${REPORT_PATH}" \
+              && echo "Closed stale regression issue #${n}." \
+              || echo "::warning::failed to close stale regression issue #${n}"
+          done

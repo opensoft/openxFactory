@@ -135,6 +135,10 @@ client_infrastructure_liaison:
     escalation_target: null
     failure_and_recovery_scenario_exercised: false
 
+# Plane-1 house team: the decider personas + house style live in
+# templates/client-layer/roles/ (10 deciders + the liaison capability;
+# add-client-layer-tuning-contracts). The stewards below are Plane-2 workers
+# the deciders direct.
 agent_scaffold:
   - id: client_profile_steward
     purpose: maintain client identity, tenant boundaries, operating units, and supported customer kinds
@@ -174,6 +178,8 @@ agent_scaffold:
     purpose: produce containment, dual-run, cutover, retirement, and drift-monitoring plans
   - id: consent_adoption_gatekeeper
     purpose: collect workflow-change consent and block cutover when approval or acknowledgement is missing
+  - id: cost_reporting_steward
+    purpose: roll task and sub-project spend up to the Finance & Accounting Officer at the tenant-set tracking granularity; flag envelope breaches (cost-accountability model)
 
 skill_scaffold:
   - id: offer_modeling

@@ -1,0 +1,88 @@
+# expected_failure: standing-lane-accepts-volunteered-hardware
+# VIOLATES spec R8 from the LANE side. The policy still lists
+# `xfactory-execution-lane-workers` as a standing execution lane a temp lease must
+# never bind — and then declares a lane bound to that very group which accepts
+# `volunteered_hardware`.
+#
+# This is what a lane-side declaration makes possible to get wrong, and why it was
+# worth adding: before `execution_lanes` existed, R8 scenario 3 ("a lane declares
+# that it accepts no volunteered-hardware workers") had no shape at all, only a
+# single repo-wide `accepts_sensitive_work` boolean per tier, and a realization
+# asked to honour a per-lane exclusion had to invent the field. Now the declaration
+# is data — and data can contradict its own document, so the canonical validator's
+# rule (h) checks the lane declarations and the tier projections against the
+# standing-group list the same policy carries.
+schema_version: 1
+kind: worker_enrollment_policy
+
+policy_version: worker-enrollment-v1-bad-lanes
+effective_from: "2026-08-08T00:00:00Z"
+
+cadence:
+  ttl: PT24H
+  renewal_interval: PT1H
+  grace: PT12H
+  clock_skew_tolerance: PT5M
+
+registration_token:
+  max_lifetime: PT15M
+  single_use: true
+
+estates:
+  fleet:
+    authentication_mode: host_identity
+    min_app_version: 1.4.0
+    runner_package:
+      mode: pinned
+      version: v2.336.0
+      platform: win-x64
+      sha256: d59123a43003e357b0805b5d0f611d0bd2f65ab67d51bd070dd4e7a0f685c162
+      self_update: disabled
+      delivery: manifest_rollout
+    runner_group: xfactory-execution-lane-workers
+    trust_tier: managed_fleet
+    manifest_source: delivery_plane
+  temp:
+    authentication_mode: device_code
+    min_app_version: 1.4.0
+    runner_package:
+      mode: self_update
+      self_update: enabled
+      observed_version_handling: informational
+    runner_group: xfactory-temp-volunteer-workers
+    labels:
+      - temp
+      - volunteered
+    trust_tier: volunteered_hardware
+    manifest_source: broker_served
+
+eligibility:
+  groups:
+    - estate: fleet
+      directory_group_ref: entra-group:xfactory-worker-hosts
+    - estate: temp
+      directory_group_ref: entra-group:xfactory-engineering
+  max_machines_per_engineer: 1
+
+trust_tiers:
+  - id: managed_fleet
+    accepts_sensitive_work: true
+    runner_group_projection: xfactory-execution-lane-workers
+  - id: volunteered_hardware
+    accepts_sensitive_work: false
+    runner_group_projection: xfactory-temp-volunteer-workers
+
+execution_lanes:
+  - lane_ref: lane:xfactory-coding-standing
+    runner_group: xfactory-execution-lane-workers
+    accepts_trust_tiers:
+      - managed_fleet
+      - volunteered_hardware
+    accepts_sensitive_work: true
+
+standing_execution_lane_runner_groups:
+  - xfactory-execution-lane-workers
+
+review:
+  floor_raise_path: governed_review_lane
+  owner: opsxfactory

@@ -1,0 +1,70 @@
+schema_version: 1
+name: xfactory_semantic_context_profile
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/semantic-context-profile.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, task 6.7; design
+# decision 13). The neutral WORKER-SCOPED semantic-context profile: which
+# term subset a worker archetype (or domain worker class) receives for a
+# purpose. `scripts/ontology-compile-context.py --profile` compiles it into
+# one bounded `xfactory_semantic_context` artifact per worker — closed over
+# specialization ancestors and relation endpoints, or itemized-truncated
+# when the profile allows it — never an unrestricted corpus.
+#
+# The profile is PACKAGE CONTENT (inventoried, digest-covered): the term
+# subsets a domain grants its workers are governed meaning. WHICH SURFACE
+# declares a profile for a LIVE worker (the omnigent domain overlay is the
+# leading answer) and the worker runtime wiring belong to the follow-up
+# omnigent change — this artifact and its compilation are defined here so
+# that seam is ready. Semantic context never changes the worker permission
+# matrix: no permission field exists in this shape or in the compiled
+# artifact, and `execute_final_action`/`access_secrets` remain
+# constitutionally false in the omnigent contract this profile scopes for.
+type: object
+required:
+  - schema_version
+  - kind
+  - profile_id
+  - package_id
+  - purpose
+  - worker_scope
+  - required_terms
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_semantic_context_profile
+  profile_id:
+    type: string
+    pattern: "^prof-[a-z0-9][a-z0-9-]{0,63}$"
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  purpose:
+    type: string
+    minLength: 1
+    maxLength: 200
+  worker_scope:
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    properties:
+      worker_archetype:
+        enum: [frame, generate, verify, challenge, assemble_for_admission]
+      worker_class:
+        type: string
+        pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
+  required_terms:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+  truncation_allowed:
+    # When true, compilation MAY emit an itemized truncation instead of
+    # closing the subset; default false — the subset closes.
+    type: boolean
+  notes:
+    type: string
+    minLength: 1
+    maxLength: 400

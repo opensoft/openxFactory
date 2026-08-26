@@ -1,0 +1,26 @@
+# expected_failure: ONT-PARENT-MISSING
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/negx
+package_version: 1.0.0
+namespace: xf/negx
+is_kernel: false
+lifecycle_state: published
+owner:
+  layer: domain_hermes
+  name: Fixture owner
+stewards:
+  - steward_id: negx-steward
+    role: accountable_steward
+    identity_kind: human
+kernel_import:
+  package_id: xf/core
+  package_version: 1.0.0
+  package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+inventory:
+  - path: concepts.yaml
+    sha256: f1fa1472a247f2695b32638af18a5cb0375d3b654371f6f10d03337cc9cb7d18
+package_digest: 7c94791d777d4b90228024c4120d5e2f02a0f96bad931674954ec1f67edade8c
+compatibility:
+  class: initial
+  line: xf/negx@1

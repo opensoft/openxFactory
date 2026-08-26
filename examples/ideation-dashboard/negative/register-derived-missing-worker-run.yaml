@@ -1,0 +1,20 @@
+# INVALID possibles-register section (SCHEMA layer) — a derived entry omits its
+# worker run (add-possibles-derivation-lane task 2.3/2.4; spec scenario "A
+# derived entry omits its worker run"). The entry is `origin: ai-derived` with a
+# `derivation` block, but `derivation.worker_run` is absent. `$defs/derivation`
+# requires `worker_run`, so python-jsonschema (draft 2020-12) rejects this at the
+# SCHEMA layer; no validator-side rule is needed to catch it.
+possibles_register:
+  - id: pos-derived-no-worker-run
+    title: Derived possible missing its worker run
+    claim: A candidate proposed without recording the worker run that produced it.
+    state: latent
+    origin: ai-derived
+    provenance: {document: doc-keyword-lens, section: Possible feats}
+    derivation:
+      disposition: pending_review   # <-- VIOLATION: worker_run is required on `derivation`
+    claiming_clusters: [cl-keyword-lens]
+    supporting_evidence:
+      - document: doc-keyword-lens
+        section: Set-builder
+        passage_sha256: 182ba64dc6df4c9135b26983d548d6bfd2281de1432bb25d5a794edf2a1f1081

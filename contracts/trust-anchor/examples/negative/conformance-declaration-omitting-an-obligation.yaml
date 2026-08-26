@@ -1,0 +1,78 @@
+# expected_failure: obligation-coverage-incomplete
+# expected_failure_detail: carries no entry
+# requirement: TA-R8
+# VIOLATES TA-R8: a declaration covering seven of the eight obligations. The
+# missing one is the dependent-binding enumeration — which is, of course, the one
+# this realization has not done.
+#
+# That is the whole failure mode. An undeclared shortfall does not announce
+# itself; it looks like a complete declaration with one row that was never
+# written, and the obligation nobody declared is reliably the obligation nobody
+# met. So the declaration is CLOSED over all eight and coverage is checked in both
+# directions: a missing entry is refused, and so is an entry naming an obligation
+# this capability does not have.
+#
+# The ratified text treats the silence itself as non-conformance, even where the
+# identical shortfall, declared, would have been conformant — and declaring it
+# afterwards does not validate the claims made while it was silent.
+schema_version: 1
+kind: xfactory_trust_anchor_conformance_declaration
+declaration_id: decl:neg-partial-coverage
+capability: trust-anchor
+realization:
+  realization_id: realization:neg-partial-declaration
+  statement: A third realization declaring its conformance for the first time.
+  authority_operated_by_family: true
+  authority_statement: Operated by the family.
+declared_at: "2026-08-01T00:00:00Z"
+obligations:
+  - entry_id: ob:neg-partial:TA-R1
+    obligation: TA-R1
+    satisfaction: satisfied
+    reason: >-
+      Met by the same arrangements the self-hosted realization uses; recorded so
+      a consumer can read it rather than infer it.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-partial:TA-R2
+    obligation: TA-R2
+    satisfaction: satisfied
+    reason: >-
+      Met by the same arrangements the self-hosted realization uses; recorded so
+      a consumer can read it rather than infer it.
+    declared_at: "2026-08-01T00:00:00Z"
+    achieved_establishment_level: per_certificate_record
+  - entry_id: ob:neg-partial:TA-R3
+    obligation: TA-R3
+    satisfaction: satisfied
+    reason: >-
+      Met by the same arrangements the self-hosted realization uses; recorded so
+      a consumer can read it rather than infer it.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-partial:TA-R4
+    obligation: TA-R4
+    satisfaction: satisfied
+    reason: >-
+      Met by the same arrangements the self-hosted realization uses; recorded so
+      a consumer can read it rather than infer it.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-partial:TA-R6
+    obligation: TA-R6
+    satisfaction: satisfied
+    reason: >-
+      Met by the same arrangements the self-hosted realization uses; recorded so
+      a consumer can read it rather than infer it.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-partial:TA-R7
+    obligation: TA-R7
+    satisfaction: satisfied
+    reason: >-
+      Met by the same arrangements the self-hosted realization uses; recorded so
+      a consumer can read it rather than infer it.
+    declared_at: "2026-08-01T00:00:00Z"
+  - entry_id: ob:neg-partial:TA-R8
+    obligation: TA-R8
+    satisfaction: satisfied
+    reason: >-
+      Met by the same arrangements the self-hosted realization uses; recorded so
+      a consumer can read it rather than infer it.
+    declared_at: "2026-08-01T00:00:00Z"

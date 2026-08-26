@@ -19,6 +19,7 @@ from pathlib import Path
 import subprocess
 from typing import Iterable, Mapping
 
+import posixpath
 import yaml
 
 from scripts.hermes_runtime_validation.content import (
@@ -45,6 +46,7 @@ NAMED_VALIDATORS = (
     "scripts/validate-hermes-runtime-contracts.py",
     "scripts/validate-contract-release.py",
     "scripts/hermes-runtime-dataset-digest.py",
+    "scripts/validate-ideation-dashboard-contracts.py",
 )
 AUXILIARY_MEMBERS = (
     "requirements/hermes-runtime-contracts.in",
@@ -89,6 +91,22 @@ class ReleaseDependencyError(RuntimeError):
 
 def _finding(code: str, path: str, message: str) -> dict[str, str]:
     return {"code": code, "severity": "error", "path": path, "message": message}
+
+
+def _require_schema_pin(catalog_entry: Mapping[str, object]) -> int:
+    """The catalog is read as raw YAML here, so a schema/release-schema member
+    missing `contract_schema_version` must become a clean dependency error,
+    not an int(None) traceback."""
+
+    raw = catalog_entry.get("contract_schema_version")
+    try:
+        return int(raw)  # type: ignore[arg-type]
+    except (TypeError, ValueError) as exc:
+        raise ReleaseDependencyError(
+            "catalog entry "
+            f"{catalog_entry.get('contract_id')!r} declares no usable "
+            f"contract_schema_version (got {raw!r})"
+        ) from exc
 
 
 def _sorted(findings: Iterable[Mapping[str, object]]) -> list[dict[str, str]]:
@@ -232,6 +250,16 @@ class _WorkingTreeSource:
 
     def read_member(self, path: str) -> tuple[bytes, str, str]:
         target = self.root / path
+        # Defense in depth beneath the membership guard: a normalized path
+        # outside the repository root is refused here too, so no caller of
+        # this source can ever digest bytes from beyond the tree.
+        try:
+            target.resolve().relative_to(self.root.resolve())
+        except ValueError:
+            raise ReleaseDependencyError(
+                f"release member path escapes the repository root: {path}",
+                code="HGR-RELEASE-MEMBER-ESCAPES",
+            ) from None
         if target.is_symlink() or not target.is_file():
             raise ContentResolutionError(
                 f"release member is not a regular file: {path}"
@@ -341,7 +369,29 @@ def _collect_members(
         relative = entry.get("path")
         if not isinstance(relative, str):
             continue
-        repo_path = FAMILY_PREFIX + relative
+        # Catalog paths are family-relative; `..` segments let the canonical
+        # index name cross-family release members (the doxBench wire schemas
+        # live in contracts/schemas/). Normalized here so both the working-tree
+        # and the git-object sources see one canonical repo path.
+        repo_path = posixpath.normpath(FAMILY_PREFIX + relative)
+        # Fail closed on a path that would leave the repository: content from
+        # outside the tree must never be digested into a release inventory
+        # (PR #45 review finding 1).
+        if repo_path == ".." or repo_path.startswith("../"):
+            raise ReleaseDependencyError(
+                "catalog path escapes the repository after normalization: "
+                f"{relative}",
+                code="HGR-RELEASE-MEMBER-ESCAPES",
+            )
+        # Two DISTINCT entries normalizing to one repository file would let a
+        # silent overwrite swap catalog metadata inside the closed membership
+        # (PR #45 review blocker 5) — refuse loudly instead.
+        if repo_path in catalog_map:
+            raise ReleaseDependencyError(
+                "two catalog entries normalize to the same release member: "
+                f"{relative!r} -> {repo_path}",
+                code="HGR-RELEASE-MEMBER-COLLISION",
+            )
         catalog_map[repo_path] = entry
         members.add(repo_path)
 
@@ -393,9 +443,9 @@ def _entry_for(
             "type": artifact_type,
             "git_mode": git_mode,
         }
-        if artifact_type == "schema":
+        if artifact_type in {"schema", "release-schema"}:
             entry["schema_id"] = str(catalog_entry.get("contract_id"))
-            entry["schema_version"] = int(catalog_entry.get("contract_schema_version"))
+            entry["schema_version"] = _require_schema_pin(catalog_entry)
         entry["digest"] = digest
         return entry
     return {
@@ -803,16 +853,14 @@ def _catalog_pin_findings(
         if (
             isinstance(entry, Mapping)
             and entry.get("release_member")
-            and entry.get("type") == "schema"
+            and entry.get("type") in {"schema", "release-schema"}
         ):
-            schema_pins[str(entry.get("contract_id"))] = int(
-                entry.get("contract_schema_version")
-            )
+            schema_pins[str(entry.get("contract_id"))] = _require_schema_pin(entry)
     inventory_pins = {
         str(entry.get("schema_id")): entry.get("schema_version")
         for entry in (inventory.get("entries", []) or [])
         if isinstance(entry, Mapping)
-        and entry.get("type") == "schema"
+        and entry.get("type") in {"schema", "release-schema"}
         and entry.get("schema_id")
     }
     findings: list[dict[str, str]] = []

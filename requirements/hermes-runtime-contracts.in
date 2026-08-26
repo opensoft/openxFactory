@@ -2,4 +2,9 @@
 pyyaml==6.0.3
 jsonschema==4.25.1
 referencing==0.37.0
+# jsonschema registers its date-time format checker only when
+# rfc3339-validator is importable; the canonical validators fail closed
+# without it (validate-ideation-dashboard-contracts.py,
+# validate-worker-enrollment.py).
+rfc3339-validator==0.1.4
 pytest==9.1.1

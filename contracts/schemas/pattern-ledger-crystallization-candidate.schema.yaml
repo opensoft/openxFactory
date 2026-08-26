@@ -1,0 +1,67 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "pattern-ledger-crystallization-candidate.schema.yaml"
+title: "Pattern-ledger crystallization-candidate record (nominate, never spend)"
+contract_schema_version: 1
+description: >-
+  The pattern ledger's ONLY mutating output (add-pattern-ledger,
+  requirement "Candidates Nominate And Never Spend"): a suggestion-grammar
+  nomination whose creation schedules no work, consumes no budget, and
+  executes nothing — a separate decision record (successor change
+  add-crystallizer-contracts) is the only path to spend. Idempotency key =
+  family ref + evidence-window digest ("idempotency-missing" /
+  "idempotency-family-mismatch" in the canonical validator); suppression
+  holds while one candidate is open for the same key. Evidence MUST cite
+  episodes and a forecast — a rationale resting on praise labels alone is
+  invalid ("candidate-evidence"), which is how the multi-source-label rule
+  is enforced where money starts. suggested_rung is advisory only (L2–L6;
+  L0/L1 are the status quo and nothing to build). The schema deliberately
+  leaves idempotency_key optional and forecast_ref/episode_refs relaxable
+  so the canonical validator, not the shape, carries those policy
+  rejections. Canonical validator: scripts/validate-pattern-ledger.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - candidate_id
+  - family_ref
+  - forecast_ref
+  - evidence
+  - rationale
+  - state
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: crystallization_candidate
+  candidate_id:
+    type: string
+    pattern: "^cand:"
+  idempotency_key:
+    type: string
+    pattern: "^fam:.+\\+[0-9a-f]{8,64}$"
+  family_ref:
+    type: string
+    pattern: "^fam:"
+  forecast_ref:
+    type: ["string", "null"]
+    description: "Nullable in shape; the canonical validator requires a forecast citation."
+  evidence:
+    type: object
+    additionalProperties: false
+    required: [episode_refs, cost_baseline]
+    properties:
+      episode_refs:
+        type: array
+        items:
+          type: string
+          pattern: "^ep:"
+      cost_baseline:
+        type: ["number", "string", "null"]
+  rationale:
+    type: string
+    minLength: 1
+  suggested_rung:
+    enum: [L2, L3, L4, L5, L6]
+  state:
+    enum: [open, superseded, disposed]

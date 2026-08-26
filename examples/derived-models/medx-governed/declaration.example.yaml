@@ -1,0 +1,42 @@
+schema_version: 1
+kind: xfactory_derived_model_conformance
+# Reference fixture: the MedxFactory shape — governed tier (no
+# calibration), synthetic identity at domain scope, assumptions
+# forbidden, truth-store protection expressed as gates. Mirrors the
+# ratified templates/{dream-object,simulation-scenario}.yaml; template
+# files here are trimmed fixture copies.
+conforms_to: governed-derived-model
+
+domain:
+  id: medx
+
+families:
+  - id: dream_simulation
+    display_name: Dream Object and Simulation Scenario
+    tier: governed
+    members:
+      - role: model
+        kind: dream_object
+        template: templates/dream-object.yaml
+        provenance:
+          form: assumptions_forbidden
+          evidence_field: source_trace
+          invented_facts_field: invented_patient_facts
+        truth_store_access:
+          gate: cannot_write_patient_truth_model
+      - role: scenario
+        kind: simulation_scenario
+        template: templates/simulation-scenario.yaml
+        truth_store_access:
+          field: truth_model_write_access
+          value: read_only
+        action_authority:
+          - gate: cannot_create_orders
+        output_status_field: output_status
+    dials:
+      identity: synthetic
+      scope: domain
+      truth_store: patient_truth_model
+      truth_store_class: hermes_memory
+      promoting_authority: clinician_of_record
+      person_modeling: synthetic_only

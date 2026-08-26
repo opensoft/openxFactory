@@ -55,7 +55,7 @@ Hermes owns:
 
 Hermes may read domain execution artifacts for status and traceability, but Hermes does not run domain agent implementation work directly.
 
-Hermes may use Mixture of Agents presets inside a domain, client, or customer
+Hermes may use Mixture of Agents presets inside a domain, tenant, or subject
 Hermes layer. A mix can improve reasoning quality by collecting independent
 reference-agent opinions and synthesizing them through an acting Hermes role.
 The mix output is evidence or recommendation only until the owning Hermes gate,
@@ -90,7 +90,8 @@ governance layer inside `openxFactory` and inside every DomainxFactory.
 It owns:
 
 - required stack-part contracts
-- the three-Hermes-layer contract: customer, client, and domain
+- the three-Hermes-layer contract: Subject, Tenant, and Domain (legacy
+  customer/client/domain; see `contracts/policies/layer-vocabulary.yaml`)
 - default responsibility boundaries for each Hermes layer
 - workflow contracts
 - avatar-first UI contracts
@@ -103,8 +104,8 @@ It owns:
 - audit expectations
 - handoff boundaries between governance, execution, and enforcement systems
 
-The xFactory layer says that a DomainxFactory must map customer Hermes, client
-Hermes, and domain Hermes to concrete domain names and authority scopes. It does
+The xFactory layer says that a DomainxFactory must map Subject Hermes, Tenant
+Hermes, and Domain Hermes to concrete domain names and authority scopes. It does
 not decide the domain-specific content of those layers. Domain factory repos
 define the domain nouns, domain policies, domain memory boundaries, and
 domain-specific agent population.
@@ -176,6 +177,21 @@ compliance systems for regulated review records
 ```
 
 The enforcement system depends on the domain.
+
+## Semantic Plane
+
+Meaning is governed separately from authority: openxFactory owns the
+xFactory semantic kernel and the ontology meta-contract
+([contracts/domain-ontology/](../contracts/domain-ontology/README.md));
+each DomainxFactory's Domain Hermes owns its content-addressed ontology
+package and answers for its measurable quality; Tenant Hermes binds local
+codes; Subject Hermes instantiates and never publishes. Runtime work
+receives bounded, digest-pinned semantic contexts (closed term subsets,
+worker-scoped for Omnigent) — never an unrestricted corpus — and no
+semantic result can grant authority, consent, approval, or cross-layer
+access. Term-by-term ownership and the collision registers live in
+[Domain-Ontology Semantic Inventory And Decisions](domain-ontology-semantic-decisions.md);
+the lifecycle guide is [Domain-Ontology Guide](domain-ontology-guide.md).
 
 ## Authority Model
 

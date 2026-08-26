@@ -1,0 +1,43 @@
+# expected_failure: floor-not-meaningful
+# VIOLATES spec R4 and R5 with a floor that is present, well-formed, and switched
+# off. `0.0.0` denies nothing; the response even says where it came from — a cache,
+# after the policy read failed — and then extends the lease as if nothing happened.
+#
+# Rule (d) used to check only that `min_app_version` was PRESENT and truthy, so a
+# no-op floor satisfied R4 while disabling the only control that reaches unmanaged
+# hardware. The floor-consistency reading could not catch it either, because it
+# compares the observed version against the response's OWN floor — and everything
+# clears a floor of zero.
+#
+# This is the "floor that sometimes travels" failure the belt-and-braces note in
+# `worker-lease-renewal.schema.yaml` says the family cannot afford, arriving as a
+# value rather than as an absence. A floor of zero is now a finding wherever it
+# appears: on a renewal response, and on the lease's own `floor_in_force`.
+schema_version: 1
+kind: worker_lease_renewal
+
+renewal_id: rnw-ws-brett-01-0093
+lease_id: wl-ws-brett-01-0001
+
+request:
+  requested_at: "2026-07-30T11:00:00Z"
+  authentication:
+    mode: device_code
+    subject:
+      class: engineer
+      ref: engineer:eng-brett
+    standing_secret_on_host: none
+  observed:
+    app_version: 1.0.0
+    runner_version: v2.337.1
+
+response:
+  decided_at: "2026-07-30T11:00:00Z"
+  lease_state: active
+  new_expiry: "2026-07-31T11:00:00Z"
+  floor:
+    min_app_version: 0.0.0
+    source: last_known
+  required_action: none
+  policy_version: worker-enrollment-v9
+  note: floor served from cache after policy read failure

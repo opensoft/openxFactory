@@ -1,0 +1,271 @@
+schema_version: 1
+name: worker_enrollment_grant
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/worker-enrollment/v1/worker-enrollment-grant.schema.yaml"
+# Worker-enrollment contract (add-worker-enrollment-broker, task 1.3). The
+# APPROVED enrollment response: the lease (embedded whole, by `$ref` into
+# `worker-lease.schema.yaml`), the runner package policy for the estate, the
+# temp estate's broker-served host manifest, and the short-lived registration
+# token — declared TRANSIENT (spec R2, R7).
+#
+# A REFUSED enrollment produces no grant at all: no lease, no token, only a
+# `worker_enrollment_audit_record` naming the refusal reason (spec R1). That is
+# why this shape has no `decision` field — its existence IS the approval.
+#
+# The transient-token declaration is the point of the shape:
+#   * `registration_token` carries `transient: true`, `single_use: true`, an
+#     expiry, and an explicit handling block whose three constants are
+#     `persist: forbidden`, `log: forbidden`, `derived_records: excluded`;
+#   * `value` is `writeOnly` — it exists in the live response body ONLY. Every
+#     derived record in this family (the lease, the renewal, the audit record)
+#     has NO property that could hold it, at any depth;
+#   * the canonical validator treats a `registration_token.value` present in any
+#     stored, committed, or scanned artifact as a finding, so "the token is never
+#     retained" (spec R2) is testable rather than merely asserted.
+#
+# Estate package split (spec R7, design ruling 6): the fleet gets a HARD PIN —
+# exact version + sha256 + runner self-update disabled — whose bumps ride
+# manifest rollouts through the managed delivery plane, never a broker
+# instruction to a running host. A temp worker runs with runner self-update
+# ENABLED and its observed runner version informational, and MUST NOT carry a
+# pin: a volunteered laptop must not fail closed for runner-binary drift, whose
+# only fail-closed control is the app-version floor.
+type: object
+required:
+  - schema_version
+  - kind
+  - grant_id
+  - request_ref
+  - granted_at
+  - lease
+  - runner_package
+  - registration_token
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [worker_enrollment_grant]
+  grant_id: {$ref: '#/$defs/identifier'}
+  request_ref:
+    # The `worker_enrollment_request.request_id` this grant answers.
+    $ref: '#/$defs/identifier'
+  granted_at: {type: string, format: date-time}
+  approval:
+    # v1 auto-approves on directory-group eligibility with the evidence
+    # recorded, and lets the TRUST TIER carry the difference rather than a human
+    # gate (design D4). A later Hermes approval step changes WHO answers the
+    # enrollment call, not this shape — which is why `mode` is additive.
+    type: object
+    required: [mode, evidence]
+    additionalProperties: false
+    properties:
+      mode:
+        type: string
+        enum: [eligibility_auto_approved, human_approved]
+      evidence:
+        type: object
+        required: [eligibility_group_ref, policy_version]
+        additionalProperties: false
+        properties:
+          eligibility_group_ref: {$ref: '#/$defs/identifier'}
+          policy_version: {$ref: '#/$defs/policy_version'}
+          approver_ref: {$ref: '#/$defs/identifier'}
+  lease:
+    # The authority record, embedded WHOLE — the host persists exactly this and
+    # nothing else from the response (spec R2). Referenced by ABSOLUTE `$id`, so
+    # a stock validator in the broker service, the host app, or the policy repo
+    # resolves it the same way this repo's canonical validator does.
+    $ref: "https://xforge.us/schemas/openxfactory/worker-enrollment/v1/worker-lease.schema.yaml"
+  runner_package:
+    oneOf:
+      - # FLEET: hard pin, self-update disabled, bumps ride manifest rollouts.
+        type: object
+        required: [mode, version, platform, sha256, self_update, delivery]
+        additionalProperties: false
+        properties:
+          mode: {const: pinned}
+          version: {$ref: '#/$defs/runner_version'}
+          platform:
+            type: string
+            enum: [win-x64, win-arm64, linux-x64, linux-arm64, osx-x64, osx-arm64]
+          sha256: {$ref: '#/$defs/sha256'}
+          self_update: {const: disabled}
+          delivery: {const: manifest_rollout}
+          download_ref: {$ref: '#/$defs/locator'}
+      - # TEMP: self-update enabled, observed version informational, NO PIN —
+        # `additionalProperties: false` makes a version/sha256 here a schema
+        # failure as well as a validator finding (spec R7).
+        type: object
+        required: [mode, self_update, observed_version_handling]
+        additionalProperties: false
+        properties:
+          mode: {const: self_update}
+          self_update: {const: enabled}
+          observed_version_handling: {const: informational}
+  host_manifest:
+    # Design D5: the fleet receives its manifest inside the Intune package, so
+    # the grant only names the delivery plane. A volunteer workstation has NO
+    # delivery plane, so enrollment is the only door — the broker SERVES the
+    # temp manifest, rendered from the policy for the temp estate and carrying
+    # its own policy_version identity, so a volunteer's manifest is as
+    # traceable as a fleet host's. Exactly one of `ref` / `inline`.
+    type: object
+    required: [source, policy_version]
+    additionalProperties: false
+    oneOf:
+      - required: [ref]
+        not: {required: [inline]}
+      - required: [inline]
+        not: {required: [ref]}
+      - allOf:
+          - not: {required: [ref]}
+          - not: {required: [inline]}
+        properties: {source: {const: delivery_plane}}
+    properties:
+      source:
+        type: string
+        enum: [broker_served, delivery_plane]
+      policy_version: {$ref: '#/$defs/policy_version'}
+      ref: {$ref: '#/$defs/locator'}
+      inline:
+        # The rendered `worker_host_manifest` payload. Its OWN contract validates
+        # its fields; what THIS schema bounds is the CHANNEL, because for the temp
+        # estate this document is the only delivery plane there is — the one
+        # artifact a volunteer host writes to disk that the fleet receives through
+        # Intune instead. An open object here was an unbounded channel into a
+        # volunteered workstation, and a chunked private-key body, a hex secret,
+        # or a split runner token rode it while every other level of the family
+        # was closed. So: bounded key names, bounded scalars, bounded breadth and
+        # depth, no free-form nesting past level 3, and the canonical validator
+        # additionally de-chunks arrays and maps inside this subtree (spec R2, R9).
+        $ref: '#/$defs/bounded_payload'
+  registration_token:
+    # TRANSIENT BY CONTRACT. See the header: single-use, short-lived, never
+    # persisted, never logged, excluded from every derived record BY SHAPE.
+    type: object
+    required: [transient, single_use, lifetime, expires_at, handling]
+    additionalProperties: false
+    properties:
+      transient: {const: true}
+      single_use: {const: true}
+      lifetime:
+        # "SHORT-LIVED" IS A SHAPE HERE, NOT AN ADJECTIVE (spec R2). `single_use`
+        # was pinned as a constant while "short-lived" had no representation
+        # anywhere in the family, so a 73-year single-use token — or one already
+        # expired at the moment of issue — validated cleanly and R2 scenario 3
+        # was untestable. The declared lifetime is bounded BY THE PATTERN to at
+        # most 15 minutes, the canonical validator checks `expires_at` against
+        # `granted_at` and against this declaration, and the enrollment policy's
+        # `registration_token.max_lifetime` caps it for the estate.
+        $ref: '#/$defs/short_lifetime'
+      expires_at: {type: string, format: date-time}
+      handling:
+        type: object
+        required: [persist, log, derived_records]
+        additionalProperties: false
+        properties:
+          persist: {const: forbidden}
+          log: {const: forbidden}
+          derived_records: {const: excluded}
+      value:
+        # writeOnly: present in the LIVE response body only. Any stored,
+        # committed, or scanned artifact carrying it is a validator finding —
+        # including every packaged example in this family.
+        type: string
+        writeOnly: true
+        minLength: 16
+        maxLength: 256
+
+allOf:
+  # A temp-estate grant MUST carry the broker-served manifest, because nothing
+  # else can deliver one to a volunteered machine (design D5).
+  - if:
+      required: [lease]
+      properties:
+        lease:
+          required: [estate]
+          properties: {estate: {const: temp}}
+    then:
+      required: [host_manifest]
+      properties:
+        host_manifest:
+          properties: {source: {const: broker_served}}
+
+$defs:
+  identifier:
+    type: string
+    minLength: 2
+    maxLength: 128
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/-]{1,127}$'
+  locator:
+    type: string
+    minLength: 3
+    maxLength: 256
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/+-]{2,255}$'
+  runner_version:
+    type: string
+    pattern: '^v?[0-9]+\.[0-9]+\.[0-9]+$'
+  sha256:
+    type: string
+    pattern: '^[0-9a-f]{64}$'
+  policy_version:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,63}$'
+  short_lifetime:
+    # An ISO-8601 duration the pattern itself caps: at most 15 minutes, at most
+    # 999 seconds, and never zero. A token lifetime that cannot be written down
+    # cannot be shipped (spec R2).
+    type: string
+    pattern: '^PT(?:(?:[1-9]|1[0-5])M|[1-9][0-9]{0,2}S)$'
+  # ---------------------------------------------------------------------------
+  # The bounded channel for `host_manifest.inline` (spec R2, R9). Three container
+  # levels below the payload root, closed key vocabulary, bounded breadth, and
+  # scalars only at the leaves — the manifest's own contract still validates its
+  # FIELDS, but nothing can ride this channel that is not a bounded scalar.
+  # ---------------------------------------------------------------------------
+  bounded_payload:
+    type: object
+    minProperties: 1
+    maxProperties: 32
+    propertyNames: {$ref: '#/$defs/payload_key'}
+    additionalProperties: {$ref: '#/$defs/payload_value_1'}
+  payload_value_1:
+    anyOf:
+      - {$ref: '#/$defs/payload_scalar'}
+      - {type: array, maxItems: 32, items: {$ref: '#/$defs/payload_value_2'}}
+      - type: object
+        maxProperties: 32
+        propertyNames: {$ref: '#/$defs/payload_key'}
+        additionalProperties: {$ref: '#/$defs/payload_value_2'}
+  payload_value_2:
+    anyOf:
+      - {$ref: '#/$defs/payload_scalar'}
+      - {type: array, maxItems: 32, items: {$ref: '#/$defs/payload_value_3'}}
+      - type: object
+        maxProperties: 32
+        propertyNames: {$ref: '#/$defs/payload_key'}
+        additionalProperties: {$ref: '#/$defs/payload_value_3'}
+  payload_value_3:
+    anyOf:
+      - {$ref: '#/$defs/payload_scalar'}
+      - {type: array, maxItems: 32, items: {$ref: '#/$defs/payload_scalar'}}
+      - type: object
+        maxProperties: 32
+        propertyNames: {$ref: '#/$defs/payload_key'}
+        additionalProperties: {$ref: '#/$defs/payload_scalar'}
+  payload_key:
+    type: string
+    minLength: 1
+    maxLength: 64
+    pattern: '^[a-z][a-z0-9._-]{0,63}$'
+  payload_scalar:
+    anyOf:
+      - {type: boolean}
+      - {type: 'null'}
+      - {type: integer, minimum: -1048576, maximum: 1048576}
+      - type: string
+        maxLength: 64
+        pattern: '^[A-Za-z0-9][A-Za-z0-9 ._:@/+-]{0,63}$'

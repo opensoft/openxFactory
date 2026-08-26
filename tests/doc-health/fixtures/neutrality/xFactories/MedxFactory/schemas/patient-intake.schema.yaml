@@ -1,0 +1,22 @@
+schema_version: 1
+kind: xfactory_schema
+$id: https://example.invalid/schemas/patient-intake.schema.yaml
+title: Medx patient intake record
+description: >-
+  Properly domain-flavored fixture: a MedxFactory patient intake shape
+  full of medx vocabulary (patient, treatment, care plan). The
+  pre-filter must NOT select it.
+type: object
+required:
+  - patient_id
+  - intake_reason
+properties:
+  patient_id:
+    type: string
+  intake_reason:
+    type: string
+  proposed_treatment:
+    type: string
+  care_plan_ref:
+    type: string
+additionalProperties: false

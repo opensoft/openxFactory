@@ -1,0 +1,25 @@
+# VALID actor reference on a governed record: a gate action bound to the
+# persona that took it. The STRUCTURED REFERENCE settled at realization
+# (design OQ-3): issuer, opaque subject, and the display name in force when the
+# record was written.
+#
+# Why all three. The opaque subject is the only durable identifier — display
+# names change and upstream accounts are reassigned. The display name is
+# denormalized so the record stays readable without a live broker. And the
+# issuer is what makes the subject interpretable once a second broker instance
+# exists, which design D3 makes an expected state rather than a hypothesis.
+#
+# This closes the gate console's forgeable-actor risk: a later display-name
+# change does not change who this record names.
+schema_version: 1
+kind: actor_subject_reference
+reference_id: asr-gate-ratify-0001
+governed_record_ref:
+  record_type: gate_action
+  record_ref: "openxfactory:gate/add-identity-brokering/ratify/2026-08-21"
+provenance: broker_asserted
+issuer:
+  broker_instance_id: broker-opensoft-shared
+subject: sub-8f2c41d60a974d3b
+display_name_at_record: Brett Heap
+recorded_at: "2026-08-21T15:40:00Z"

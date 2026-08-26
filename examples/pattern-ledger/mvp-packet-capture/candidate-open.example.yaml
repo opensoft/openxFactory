@@ -1,0 +1,27 @@
+# The ledger's only mutating output, for the MVP family: an open nomination
+# citing episodes AND the forecast (praise alone is insufficient), keyed for
+# idempotent regeneration, advisory rung L3 (freeze the mechanics playbook;
+# the authoring judgment stays on the AI path). Creating this record
+# schedules nothing and spends nothing.
+schema_version: 1
+kind: crystallization_candidate
+candidate_id: "cand:opensoft:packet-capture-mechanics:2026-07-29"
+idempotency_key: "fam:opensoft:packet-capture-mechanics+30bd0db045381304"
+family_ref: "fam:opensoft:packet-capture-mechanics"
+forecast_ref: "fc:opensoft:packet-capture-mechanics:2026-07-29:h90"
+evidence:
+  episode_refs:
+    - "ep:opensoft:2026-07-28:ontology-packet-capture"
+    - "ep:opensoft:2026-07-28:crystallization-packet-capture"
+    - "ep:opensoft:2026-07-29:staging-topic-capture"
+  cost_baseline: null
+rationale: >-
+  Three same-shape runs inside two days (episodes cited above; forecast
+  fc:...:h90 projects a p50 of 12 instances/90d). The mechanics are
+  mechanically checkable — the header contract already has a working
+  checker, i.e. the post-condition prototype predates the capability — and
+  the plan is stable across runs (one recorded variant branch: staging
+  capture). Suggested rung L3: freeze the capture/index/commit/sync
+  playbook; keep authoring on the AI path.
+suggested_rung: L3
+state: open

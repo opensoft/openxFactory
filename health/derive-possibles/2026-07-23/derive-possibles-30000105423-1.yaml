@@ -1,0 +1,75 @@
+schema_version: 1
+kind: derive_possibles_run
+status: record
+run_id: derive-possibles-30000105423-1
+source_revision: 3e6784f5ae2ac70c3cf151de1ca5ebf958c80e71
+generated_at: '2026-07-23T00:00:00Z'
+prompt_contract_version: derive-possibles-prompt-v1
+worker_profile: derive-possibles
+generator_version: possibles-derivation-0.1.0
+register_fingerprint_read: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+register_fingerprint_written: c824b97b5bec69e6fe719592cbc8fc007891f51fbe589787ebb5e72d1bf8e48d
+envelopes:
+- cluster_id: cl-client-hermes
+  job_id: DPOSS-a014b7d48b34
+- cluster_id: cl-doc-management
+  job_id: DPOSS-00659f44a1f0
+- cluster_id: cl-domain-hermes
+  job_id: DPOSS-0a66bc2da6b6
+- cluster_id: cl-layer-content-seeding
+  job_id: DPOSS-774527650166
+- cluster_id: cl-memory-gateway
+  job_id: DPOSS-522bcfa39d34
+- cluster_id: cl-codexfactory
+  job_id: DPOSS-71aecbb1422d
+- cluster_id: cl-ideation-dashboard
+  job_id: DPOSS-c6e0d3a6e99c
+- cluster_id: cl-practice-catalog
+  job_id: DPOSS-034899032742
+- cluster_id: cl-auto-clear-envelope
+  job_id: DPOSS-59b7f9add9ae
+- cluster_id: cl-consent
+  job_id: DPOSS-589a0cedfef6
+proposed:
+- id: pos-derived-neutral-openxfactory-schema-package-for-domain-h
+- id: pos-derived-cross-plane-cost-accountability-integration-spec
+- id: pos-derived-reusable-tier-2-council-clearance-pattern-beyond
+merge_skipped: []
+skipped_clusters:
+- cluster_id: cl-client-hermes
+  reason: 'output rejected: candidate 1: grounding passage is not found verbatim in
+    the cited member document ''ideation/brainstorm/cost-accountability-and-efficiency-model.md''
+    (a cited passage must be real)'
+- cluster_id: cl-doc-management
+  reason: 'output rejected: candidate 0: grounding passage is not found verbatim in
+    the cited member document ''ideation/brainstorm/topic-compilation-tree.md'' (a
+    cited passage must be real)'
+- cluster_id: cl-domain-hermes
+  reason: 'output rejected: candidate 0: grounding passage is not found verbatim in
+    the cited member document ''ideation/brainstorm/cost-accountability-and-efficiency-model.md''
+    (a cited passage must be real)'
+- cluster_id: cl-layer-content-seeding
+  reason: 'output rejected: candidate 0: grounding passage is not found verbatim in
+    the cited member document ''ideation/brainstorm/cost-accountability-and-efficiency-model.md''
+    (a cited passage must be real)'
+- cluster_id: cl-memory-gateway
+  reason: 'output rejected: candidate 0: grounding passage is not found verbatim in
+    the cited member document ''ideation/brainstorm/hermes-layer-seeding-mechanism.md''
+    (a cited passage must be real)'
+- cluster_id: cl-ideation-dashboard
+  reason: 'output rejected: candidate 1: grounding passage is not found verbatim in
+    the cited member document ''ideation/brainstorm/keycloak-identity-brokering.md''
+    (a cited passage must be real)'
+- cluster_id: cl-practice-catalog
+  reason: 'output rejected: candidate 0: grounding passage is not found verbatim in
+    the cited member document ''ideation/brainstorm/cost-accountability-and-efficiency-model.md''
+    (a cited passage must be real)'
+- cluster_id: cl-auto-clear-envelope
+  reason: 'output rejected: candidate 0: grounding passage is not found verbatim in
+    the cited member document ''ideation/brainstorm/nightly-sweep-council-clearance-rule.md''
+    (a cited passage must be real)'
+- cluster_id: cl-consent
+  reason: 'output rejected: candidate 1: grounding passage is not found verbatim in
+    the cited member document ''ideation/brainstorm/subject-recall-and-consent-path.md''
+    (a cited passage must be real)'
+voided: []

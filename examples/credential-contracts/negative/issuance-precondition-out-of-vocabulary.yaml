@@ -1,0 +1,23 @@
+# NEGATIVE (expect: issuance-precondition-unknown). A requirement declaring
+# `roster_drift_clear` — a near-miss spelling outside the closed
+# issuance-precondition vocabulary. A local token the mint surface cannot
+# adjudicate binds issuance to nothing; the vocabulary grows through the
+# credential-contracts capability, not by declaration.
+schema_version: 1
+kind: xfactory_credential_requirements
+domain:
+  id: examplexfactory
+requirements:
+  - id: client_tenant_observation
+    purpose: read-only observation of a governed unit
+    access_mode: workload_identity
+    allowed_workflows:
+      - observation
+    minimum_scopes:
+      - read_environment
+    requires_domain_approval: true
+    requires_human_approval: true
+    max_grant_minutes: 30
+    audit_required: true
+    issuance_preconditions:
+      roster_drift_clear: true

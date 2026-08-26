@@ -1,0 +1,24 @@
+schema_version: 1
+kind: xfactory_ontology_candidate_record
+candidate_id: cand-care-plan
+package_id: xf/medx
+mode: extend
+proposed:
+  concepts:
+    - id: xf/medx/care_plan
+      label: "Care Plan"
+      definition: "Model re-proposal colliding with the structured import."
+      parents: [xf/core/focal_item]
+provenance:
+  method: model_extraction
+  extraction_run_id: run-medx-pilot-0001
+  confidence: 0.9
+  source_refs: [medx-intake-notes]
+conflicts:
+  - with_id: xf/medx/care_plan
+    description: "declared by the extraction batch; resolve in review"
+review_state: rejected
+disposition:
+  decided_by: medx-ontology-steward
+  decision: rejected
+  decision_ref: structured import takes precedence

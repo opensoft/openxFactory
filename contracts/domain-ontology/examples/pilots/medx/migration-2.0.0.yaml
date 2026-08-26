@@ -1,0 +1,16 @@
+schema_version: 1
+kind: xfactory_ontology_migration_map
+from_package:
+  package_id: xf/medx
+  package_version: 1.0.0
+  package_digest: f5af84120d8cf0b92bcfa1dc9f333a77752ee243cdf1c63d180c10e655b3bea6
+to_package:
+  package_id: xf/medx
+  package_version: 2.0.0
+  package_digest: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+compatibility_class: breaking
+migrations:
+  - from_id: xf/medx/treatment
+    disposition: reparented
+    to_ids: [xf/medx/treatment]
+    note: treatment now also specializes intervention

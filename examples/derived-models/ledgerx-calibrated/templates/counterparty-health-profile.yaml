@@ -1,0 +1,31 @@
+schema_version: 1
+kind: ledgerx_object_template
+# Trimmed fixture copy of the staged LedgerxFactory
+# counterparty-health-profile template.
+
+template:
+  id: counterparty_health_profile
+
+fields:
+  signals:
+    type: list
+    required: true
+  assumption_register:
+    type: list
+    required: true
+  authority_status:
+    type: enum
+    required: true
+    values:
+      - non_authoritative
+  ledger_write_access:
+    type: enum
+    required: true
+    values:
+      - read_only
+
+gates:
+  - id: every_signal_carries_provenance
+    blocks_on_failure: true
+  - id: cross_client_reuse_prohibited
+    blocks_on_failure: true

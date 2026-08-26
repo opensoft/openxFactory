@@ -1,0 +1,49 @@
+schema_version: 1
+# Semantic-context packet example (add-domain-ontology-layer, tasks
+# 6.2/6.3): a customer context packet whose domain terms are
+# interpreted under an exact bounded semantic context. Every digest
+# here is REAL: the pins and content digest come from the compiled
+# medx pilot context at contracts/domain-ontology/examples/pilots/
+# medx/ctx-medx-verify-pilot.yaml (stamped by run-ontology-pilots),
+# and the gateway validator resolves them against that tree.
+context_packet:
+  id: packet-medx-verify-0001
+  issued_at: "2026-07-29T00:00:00Z"
+  expires_at: "2026-07-29T01:00:00Z"
+  purpose: classification for a verify worker
+  workflow_ref: workflow://medx/intake_review
+  subject_refs:
+    - "urn:xfactory:subject:00000000-0000-4000-8000-000000000001"
+  redaction_class: customer_redacted
+  current_state_snapshot_refs: []
+  memory_item_refs: []
+  source_claim_refs: []
+  trace_refs:
+    - trace://medx/intake_review/0001
+  provider_refs: []
+  audit_refs:
+    - audit://medx/packet-medx-verify-0001
+  semantic_context:
+    semantic_context_id: ctx-medx-verify-pilot
+    content_digest: 5d9543db41f7b3d7ede60826f69eae85932bf618fad2d4d7d2c7c9cb3deccb8a
+    purpose: classification for a verify worker
+    worker_scope:
+      worker_archetype: verify
+    kernel_pin:
+      package_id: xf/core
+      package_version: 1.0.0
+      package_digest: 37090ba25369d8c34f6034535fdd8f7980b8e254e65496ec4de637e1ce369038
+    package_pin:
+      package_id: xf/medx
+      package_version: 2.0.0
+      package_digest: 2362431138380cf1c4d58f531c768956ad8649edacf51943d2f689e006780644
+    term_subset:
+      - xf/core/focal_item
+      - xf/core/intervention
+      - xf/core/subject
+      - xf/medx/patient
+      - xf/medx/treatment
+    lifecycle:
+      package_lifecycle_state: published
+      compiled_at: "2026-07-29T00:00:00Z"
+      ttl_seconds: 3600

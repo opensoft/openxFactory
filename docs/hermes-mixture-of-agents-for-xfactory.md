@@ -66,10 +66,10 @@ xFactory keeps the standard stack:
 Customer subject
   patient, managed system, campaign, ledger, project, account, matter
 
-Customer Hermes layer
+Subject Hermes layer
   subject-specific context, consent, preferences, memory, active work
 
-Client Hermes layer
+Tenant Hermes layer
   organization policy, staff, integrations, tenant configuration, approvals
 
 Domain Hermes layer
@@ -134,9 +134,9 @@ Recommended documentation file in each domain repo:
 docs/hermes-agent-mixes.md
 ```
 
-Domain Hermes presets describe reusable domain review patterns. Client Hermes
+Domain Hermes presets describe reusable domain review patterns. Tenant Hermes
 templates describe how a client can strengthen or specialize those patterns.
-Customer Hermes templates describe customer-subject level reasoning that must
+Subject Hermes templates describe customer-subject level reasoning that must
 stay private to the customer subject unless explicitly promoted.
 
 ## 5. Mix Profile Shape

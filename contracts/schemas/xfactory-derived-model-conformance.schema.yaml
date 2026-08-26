@@ -1,0 +1,209 @@
+schema_version: 1
+name: xfactory_derived_model_conformance
+# Conformance declaration for the governed-derived-model capability
+# (add-governed-derived-model, DTN-014). A domain factory declares each
+# governed derived-model FAMILY — a model object plus optional scenario
+# object — with its conformance tier and the six dials; the domain keeps
+# its own object templates and binds their field/gate names here.
+#
+# Declaration home (realization decision, see the change's design.md):
+# a standalone domain-owned document at the convention path
+# `models/derived-model-conformance.yaml`, template paths repo-root
+# relative. Enters the contract bundle manifest at contract-v1.16.
+#
+# Rules the JSON-Schema shape cannot express live in the canonical
+# validator (scripts/validate-derived-models.py, never copied):
+#   - at least one `role: model` member per family; no duplicate member
+#     kinds;
+#   - tier `calibrated` requires dials.calibration_writer, which must not
+#     be a member kind (writer separation);
+#   - identity `real_entity` requires family.identity_subject_kind,
+#     which must not be a member kind (the two-object split);
+#   - person_modeling `identified_persons_under_policy` requires
+#     dials.person_modeling_policy (path must exist when a repo path is
+#     supplied);
+#   - scope `subject` requires dials.isolation_boundary (`per_*`);
+#   - template deep checks: model members carry single-value
+#     `authority_status: [non_authoritative]`; provenance bindings
+#     resolve (assumption-register field present, or the
+#     assumptions-forbidden pair: evidence field required/min 1 +
+#     single-value invented-facts `[none]`); scenario members' output
+#     status enum is exactly hypothesis_proposed|no_signal|discarded;
+#     access bindings resolve as single-value field locks or present
+#     gates.
+type: object
+required:
+  - schema_version
+  - kind
+  - conforms_to
+  - domain
+  - families
+properties:
+  schema_version:
+    type: integer
+    minimum: 1
+  kind:
+    type: string
+    enum:
+      - xfactory_derived_model_conformance
+  conforms_to:
+    type: string
+    enum:
+      - governed-derived-model
+  domain:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        pattern: "^[a-z][a-z0-9_]*$"
+  families:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required:
+        - id
+        - tier
+        - members
+        - dials
+      properties:
+        id:
+          type: string
+          pattern: "^[a-z][a-z0-9_]*$"
+        display_name:
+          type: string
+        tier:
+          type: string
+          enum:
+            - governed
+            - calibrated
+        identity_subject_kind:
+          type: string
+          description: >-
+            Required when dials.identity is real_entity: the paired
+            authoritative graph-subject kind carrying the real identity
+            (the derived model never owns identity).
+        members:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required:
+              - role
+              - kind
+              - template
+              - truth_store_access
+            properties:
+              role:
+                type: string
+                enum:
+                  - model
+                  - scenario
+              kind:
+                type: string
+                pattern: "^[a-z][a-z0-9_]*$"
+              template:
+                type: string
+                description: Repo-root-relative path to the domain object template.
+              truth_store_access:
+                type: object
+                description: >-
+                  How the template encodes read-only truth-store access:
+                  a single-value field lock {field, value: read_only} or
+                  a declared gate {gate: <gate name/id>}.
+              action_authority:
+                type: array
+                description: >-
+                  Zero-action-authority bindings ({field, value: none} or
+                  {gate: ...}); required non-empty on scenario members.
+                items:
+                  type: object
+              output_status_field:
+                type: string
+                description: >-
+                  Scenario members: the template field whose enum must be
+                  exactly hypothesis_proposed | no_signal | discarded.
+              provenance:
+                type: object
+                description: >-
+                  Model members: how the template encodes full
+                  provenance.
+                required:
+                  - form
+                properties:
+                  form:
+                    type: string
+                    enum:
+                      - assumption_register
+                      - assumptions_forbidden
+                  evidence_field:
+                    type: string
+                  assumption_register_field:
+                    type: string
+                  invented_facts_field:
+                    type: string
+              locks:
+                type: array
+                description: >-
+                  Additional single-value enum locks the validator
+                  verifies in the template ({field, value}).
+                items:
+                  type: object
+                  required:
+                    - field
+                    - value
+        dials:
+          type: object
+          required:
+            - identity
+            - scope
+            - truth_store
+            - truth_store_class
+            - promoting_authority
+            - person_modeling
+          properties:
+            identity:
+              type: string
+              enum:
+                - synthetic
+                - synthetic_aggregate
+                - real_entity
+            scope:
+              type: string
+              enum:
+                - domain
+                - subject
+            isolation_boundary:
+              type: string
+              pattern: "^per_[a-z][a-z0-9_]*$"
+            truth_store:
+              type: string
+            truth_store_class:
+              type: string
+              enum:
+                - hermes_memory
+                - external_enforcement
+            calibration_writer:
+              type: string
+              description: >-
+                Required when tier is calibrated: the designated
+                calibration-writer workflow id; never a member kind.
+            calibration_source:
+              type: string
+            promoting_authority:
+              type: string
+            person_modeling:
+              type: string
+              enum:
+                - synthetic_only
+                - aggregated_only
+                - identified_organizations_only
+                - identified_persons_under_policy
+            person_modeling_policy:
+              type: string
+              description: >-
+                Required when person_modeling is
+                identified_persons_under_policy: repo-root-relative path
+                to the authorizing domain policy document.

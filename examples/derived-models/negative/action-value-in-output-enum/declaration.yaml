@@ -1,0 +1,41 @@
+# expected_failure: output status
+# A scenario whose output enum smuggles an action value
+# (launch_approved) — hypothesis-only output is the invariant that
+# keeps promotion human-gated.
+schema_version: 1
+kind: xfactory_derived_model_conformance
+conforms_to: governed-derived-model
+
+domain:
+  id: negx
+
+families:
+  - id: action_in_output
+    tier: governed
+    members:
+      - role: model
+        kind: ok_model
+        template: templates/ok-model.yaml
+        provenance:
+          form: assumption_register
+          assumption_register_field: assumption_register
+        truth_store_access:
+          field: truth_access
+          value: read_only
+      - role: scenario
+        kind: bad_scenario
+        template: templates/bad-scenario.yaml
+        truth_store_access:
+          field: truth_access
+          value: read_only
+        action_authority:
+          - field: action_grant
+            value: none
+        output_status_field: output_status
+    dials:
+      identity: synthetic
+      scope: domain
+      truth_store: example_truth
+      truth_store_class: hermes_memory
+      promoting_authority: human_reviewer
+      person_modeling: synthetic_only

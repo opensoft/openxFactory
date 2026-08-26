@@ -1,0 +1,39 @@
+# VALID transition (before) — two UNDISPOSED derived possibles awaiting the gate
+# console (add-possibles-derivation-lane task 2.4, one-way disposition lifecycle).
+# Both are origin ai-derived, machine `pending_review`, sourced, with no
+# human_disposition yet.
+possibles_register:
+  - id: pos-da
+    title: Derived possible to accept
+    claim: A cluster could become an accepted feature.
+    state: latent
+    origin: ai-derived
+    provenance: {document: doc-a, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-run-da
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: pending_review
+    claiming_clusters: [cl-a]
+    supporting_evidence:
+      - document: doc-a
+        section: Notes
+        passage_sha256: a64d3db74540566c46bb89ebb8e6952c438cbc05604eccb93782bf4ed413ecdc
+  - id: pos-dr
+    title: Derived possible to reject
+    claim: A cluster could become a rejected feature.
+    state: latent
+    origin: ai-derived
+    provenance: {document: doc-b, section: Possible feats}
+    derivation:
+      worker_run:
+        correlation_id: derive-possibles-run-dr
+        worker_profile: derive-possibles
+        prompt_contract_version: derive-possibles-prompt-v1
+      disposition: pending_review
+    claiming_clusters: [cl-b]
+    supporting_evidence:
+      - document: doc-b
+        section: Notes
+        passage_sha256: c68d4f72fbc242930cd22351c8f173440bc60e574064e395340408187758d53a

@@ -1,0 +1,21 @@
+# VALID record of a grant DERIVED from a revoked parent. Its own state field
+# still reads `active`, which is the whole point: revocation is effective
+# through derivation and is CHECKED AT EXERCISE, not trusted from issuance.
+# A consumer reading only this record's own state would be wrong, and the
+# negative fixture `exercise-against-revoked-parent.yaml` is the probe proving
+# the check catches exactly that.
+schema_version: 1
+kind: xfactory_wallet_grant
+grant_id: grant-revoked-derivation-0005
+audience:
+  wallet_ref: wal-agent-poster-0001
+  holder_ref: agent:ledger-poster
+scope:
+  acts:
+    - post_transaction
+  authority_tier: act
+expires_at: "2026-09-30T23:59:59Z"
+issued_at: "2026-08-01T10:00:00Z"
+issued_by: opensoft
+parent_grant_ref: grant-revoked-parent-0004
+state: active

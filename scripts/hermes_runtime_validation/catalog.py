@@ -104,23 +104,48 @@ def _normalized_member_path(value: Any, context: str) -> str:
     pure = PurePosixPath(path)
     if pure.is_absolute() or path != pure.as_posix():
         raise CatalogError(f"{context}: normalized repository-relative path required")
-    if any(part in {"", ".", ".."} for part in pure.parts):
+    # A LEADING `..` run names a cross-family member (e.g. the doxBench wire
+    # schemas under contracts/schemas/, catalogued as ../schemas/...); it is
+    # confined to the repository root at resolution time
+    # (_contained_regular_file). INTERIOR traversal and empty segments stay
+    # forbidden exactly as before.
+    parts = pure.parts
+    lead = 0
+    while lead < len(parts) and parts[lead] == "..":
+        lead += 1
+    tail = parts[lead:]
+    if not tail or any(part in {"", ".", ".."} for part in tail):
         raise CatalogError(f"{context}: traversal and empty path segments are forbidden")
-    if any(re.fullmatch(r"[A-Za-z0-9._-]+", part) is None for part in pure.parts):
+    if any(re.fullmatch(r"[A-Za-z0-9._-]+", part) is None for part in tail):
         raise CatalogError(f"{context}: path segments contain non-canonical characters")
     return path
 
 
 def _contained_regular_file(root: Path, member_path: str, context: str) -> Path:
-    candidate = root.joinpath(*PurePosixPath(member_path).parts)
+    parts = PurePosixPath(member_path).parts
+    candidate = root.joinpath(*parts)
+    # Cross-family members (leading `..`) are confined to the REPOSITORY root
+    # -- the family root's grandparent (contracts/<family> is two levels below
+    # it) -- everything else stays confined to the family root. Fail closed
+    # either way (HRC-CATALOG-INVALID semantics preserved).
+    if parts and parts[0] == "..":
+        try:
+            boundary = root.parents[1]
+        except IndexError as exc:
+            raise CatalogError(
+                f"{context}: member escapes the repository root") from exc
+        escape_message = "member escapes the repository root"
+    else:
+        boundary = root
+        escape_message = "member escapes the family root"
     try:
         resolved = candidate.resolve(strict=True)
     except OSError as exc:
         raise CatalogError(f"{context}: member is unavailable: {exc}") from exc
     try:
-        resolved.relative_to(root)
+        resolved.relative_to(boundary)
     except ValueError as exc:
-        raise CatalogError(f"{context}: member escapes the family root") from exc
+        raise CatalogError(f"{context}: {escape_message}") from exc
     if candidate.is_symlink() or not resolved.is_file():
         raise CatalogError(f"{context}: regular non-symlink file required")
     return resolved

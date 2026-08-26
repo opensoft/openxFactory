@@ -1,0 +1,35 @@
+schema_version: 1
+name: hermes_overlay_descriptor
+# Machine-readable role→path declaration a domain repo MAY ship at
+# `hermes/overlay-descriptor.yaml`. Keys are the runtime layer ROLES
+# (domain / client / customer) — deliberately not directory names, since the
+# role label and the directory can differ (e.g. the customer role's overlay
+# may live under `hermes/subject/`, per the 2026-07-22 naming decision).
+# Absent descriptor => consumers fall back to the documented convention
+# (domain → hermes/domain/overlay.yaml). A declared path that does not exist
+# in the repo fails validation (checked by the canonical validator when a
+# repo path is supplied).
+type: object
+required:
+  - schema_version
+  - kind
+  - overlay_paths
+properties:
+  schema_version:
+    type: integer
+    minimum: 1
+  kind:
+    type: string
+    enum:
+      - hermes_overlay_descriptor
+  overlay_paths:
+    type: object
+    minProperties: 1
+    properties:
+      domain:
+        type: string
+      client:
+        type: string
+      customer:
+        type: string
+    additionalProperties: false

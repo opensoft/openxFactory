@@ -1,0 +1,40 @@
+# expected_failure: write-action-without-resolved-authorization
+# expected_failure_detail: while declaring offered=False
+# requirement: IDB-R9
+# VIOLATES R9: the write actions written down, the posture not.
+#
+# THE QUIET TRANSITION, CAUGHT MID-COMMIT. Every posture check in this family
+# keyed on `governed_write_actions.offered`, so a record could NAME the actions
+# it writes — ratify a change, close a gate, issue a deployment grant — and
+# declare `offered: false` beside them, and the schema's write-action
+# conditional never fired. It is not a hypothetical shape: it is what a diff
+# looks like halfway through adding the feature, and what a record looks like
+# when someone answers "does this surface offer write actions?" with the posture
+# they wish were true.
+#
+# A record that lists what it writes offers what it lists. The bound is now in
+# the schema (a non-empty `actions` list requires `offered: true`, which then
+# requires the stronger posture and a named decision point) and the validator
+# reports it under its own code as well, so the refusal names the RULE rather
+# than an if/then failure — the same reason rule (h) reports a second
+# governed-record pointer rather than an array length.
+schema_version: 1
+kind: broker_surface_adoption
+adoption_id: adopt-actions-named-not-offered-9031
+surface_ref: openxfactory-gate-console-half-adopted
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+authorization_posture: authenticated_persona
+governed_write_actions:
+  offered: false
+  actions:
+    - ratify_change
+    - close_deployment_grant
+    - issue_deployment_grant
+human_accounts_held_by_surface: false
+prior_shared_credential: none
+isolation:
+  co_residence_restriction: none
+  restriction_ref: "openspec/changes/add-identity-brokering/review/co-residence-finding-2026-08-21.md#fixture-no-restricted-population"
+declared_at: "2026-08-22T12:45:00Z"

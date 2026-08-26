@@ -1,0 +1,37 @@
+# VALID broker client declaration: the one place a non-human identity is
+# legitimate in a broker — a confidential client for a web surface that needs
+# an OIDC authorization-code flow. The declaration STATES WHY tokens are
+# required, so provisioning a client is a visible act rather than a default.
+#
+# It is TRANSPORT, and says so three times over because each claim closes a
+# different laundering route: it is transport, it is never the actor of a
+# governed act, and it holds no organization membership as authority. Workload
+# authority stays where the family already ratified it — `credential-contracts`
+# grants and `openxwallet` holders — which is stronger than a user row:
+# attenuated grants, proof of possession, key-attributed audit, revocation that
+# propagates.
+#
+# Its secret is a `credential-contracts` requirement with a named holder and a
+# declared custody location, referenced here and stored nowhere here.
+schema_version: 1
+kind: broker_client_declaration
+client_id: workbench-oauth2-proxy
+broker_instance_ref: broker-opensoft-shared
+surface_ref: opendox-workbench
+client_type: confidential
+oidc_token_reason: >-
+  The workbench route is fronted by oauth2-proxy, which performs the OIDC
+  authorization-code exchange on the surface's behalf and therefore needs a
+  confidential client. No other component of the surface holds tokens, and the
+  proxy holds no authority of its own.
+service_account_subject: svc-1f70b8d2c9a34e61
+credential_requirement:
+  requirement_id: keycloak-confidential-client-workbench
+  requirements_document_ref: OpsxFactory:credentials/requirements.yaml
+  holder_ref: opsx:service-subject:keycloak-opensoft-shared
+  custody_declared_in: "OpsxFactory:credentials/requirements.yaml#keycloak-confidential-client-workbench"
+transport:
+  is_transport: true
+  actor_of_governed_acts: false
+  organization_membership_as_authority: false
+declared_at: "2026-08-21T09:30:00Z"

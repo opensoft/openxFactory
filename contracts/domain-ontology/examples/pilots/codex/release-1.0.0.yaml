@@ -1,0 +1,9 @@
+schema_version: 1
+kind: xfactory_ontology_release_record
+release_id: rel-codex-first
+package_id: xf/codex
+package_version: 1.0.0
+package_digest: ffe3961f3eee434f9e2c04e82d5798b2478f20bbb25d144b3e3a13962b8df8b8
+compatibility_class: additive
+decided_by: codex-ontology-steward
+quality_report_ref: quality-first.yaml

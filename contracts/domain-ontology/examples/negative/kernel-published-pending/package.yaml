@@ -1,0 +1,24 @@
+# expected_failure: ONT-ADOPTION
+schema_version: 1
+kind: xfactory_ontology_package_manifest
+package_id: xf/core
+package_version: 1.0.0
+namespace: xf/core
+is_kernel: true
+lifecycle_state: published
+owner:
+  layer: openxfactory
+  name: Fixture owner
+stewards:
+  - steward_id: openxfactory-maintainers
+    role: accountable_steward
+    identity_kind: council
+inventory:
+  - path: concepts.yaml
+    sha256: 776e77c938c54f0df94a5a935b33938c3513a36e89f534572ac0144f0977fd2a
+package_digest: 359e7eb76fe3dca076e34065c52c93dfd47f687f6e739b1d576bdae7cdd5736d
+compatibility:
+  class: initial
+  line: xf/core@1
+adoption:
+  status: pending

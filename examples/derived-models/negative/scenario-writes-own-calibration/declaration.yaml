@@ -1,0 +1,42 @@
+# expected_failure: calibration_writer
+# A calibrated family naming its own scenario as the calibration
+# writer — the model would grade its own homework; writer separation is
+# the calibrated tier's core rule.
+schema_version: 1
+kind: xfactory_derived_model_conformance
+conforms_to: governed-derived-model
+
+domain:
+  id: negx
+
+families:
+  - id: self_calibrating
+    tier: calibrated
+    members:
+      - role: model
+        kind: ok_model
+        template: templates/ok-model.yaml
+        provenance:
+          form: assumption_register
+          assumption_register_field: assumption_register
+        truth_store_access:
+          field: truth_access
+          value: read_only
+      - role: scenario
+        kind: ok_scenario
+        template: templates/ok-scenario.yaml
+        truth_store_access:
+          field: truth_access
+          value: read_only
+        action_authority:
+          - field: action_grant
+            value: none
+        output_status_field: output_status
+    dials:
+      identity: synthetic
+      scope: domain
+      truth_store: example_truth
+      truth_store_class: hermes_memory
+      calibration_writer: ok_scenario
+      promoting_authority: human_reviewer
+      person_modeling: synthetic_only

@@ -19,14 +19,25 @@ This contract covers the **deterministic pass only**: same inputs, same
 findings, no model calls. The agentic/semantic sweep (untagged normative
 prose, prose-vs-spec contradiction) is a separate active change
 (`openspec/changes/add-doc-health-semantic-sweep/`). Implementation lives in
-codexFactory; the nightly runner is hosted by the xFactory aggregation
-repo; this document and the `doc-health` spec own the contract.
+this repository (`scripts/doc_health/`, adopted from codexFactory by
+`adopt-neutral-tooling-home`); the nightly runner is hosted by the xFactory
+aggregation repo; this document and the `doc-health` spec own the contract.
 
 ## Check Families
 
-Every run executes twelve families over every family repo the aggregation
+Every run executes nineteen families over every family repo the aggregation
 repo pins, after running each repo's own validators as a preflight. A
 family that cannot run is reported as skipped, never silently omitted.
+
+**The table below is knowingly incomplete.** It carries the original twelve
+plus the eighteenth, `promotion-fidelity`, whose spec delta is one of the
+deltas that raised the count above. Families 13 through 17, and the
+nineteenth (`release-inventory-drift`), each reached the `doc-health` spec by
+delta and never reached this table — which is also why the two paragraphs
+after it still describe families 13 and 14 by the archived changes that added
+them rather than by a table row. Repairing that backlog belongs to a change
+that owns those families; it is a named standing gap, recorded in the
+archived `add-promotion-fidelity-check` §5.2, not an oversight here.
 
 | # | Family | What it verifies |
 | --- | --- | --- |
@@ -42,29 +53,30 @@ family that cannot run is reported as skipped, never silently omitted.
 | 10 | Submodule pin drift | Aggregation-repo pins vs each submodule's remote main |
 | 11 | Contract-copy drift | Domain-local copies vs their canonical openxFactory sources |
 | 12 | Notebook projection drift | The lifecycle notebook sync dry-run reports zero add/update/delete operations |
+| 18 | Promotion fidelity | Every archived spec delta reached the promoted spec it was ratified to reach — the requirement title and every scenario stated under it, and a ratified removal actually removed. The most recent archived delta is the authority; only a packet whose own `proposal.md` declares `draft` or a lower standing is exempt. Findings are `error`, classified `contested`, and reported against the archived delta's own path |
 
-The active `add-document-cataloging` change proposes a thirteenth
+The archived `add-document-cataloging` change added a thirteenth
 deterministic family, `document-catalog`, plus a separate, non-deterministic
 `document-cataloger` worker lane that never participates in this pass; see
 its
-[doc-health spec delta](../openspec/changes/add-document-cataloging/specs/doc-health/spec.md)
-for the owned check scope. Until that change promotes, this contract remains
-the twelve-family baseline above, and any catalog classification stays
+[doc-health spec delta](../openspec/changes/archive/2026-07-14-add-document-cataloging/specs/doc-health/spec.md)
+for the owned check scope. Its table registration never landed — see the
+disclosure paragraph above — and any catalog classification stays
 descriptive discovery metadata — never lifecycle, ownership, or approval
 authority (see
 [Document Lifecycle](document-lifecycle.md#catalog-tags-are-not-lifecycle-state)).
 
-A second active change, `add-cross-factory-ideation-routing`, proposes a
+A second archived change, `add-cross-factory-ideation-routing`, added a
 fourteenth deterministic family, `ideation-routing` (sequenced after
 `add-document-cataloging`, per that change's own tasks), covering routing
 schema and controlled-vocabulary conformance, central Idea-ID and Claim-ID
 allocation and uniqueness, legal routing/claim transitions, destination-owner
 acceptance, structured repository/path/revision reference resolution, and
 routing aging; see its
-[doc-health spec delta](../openspec/changes/add-cross-factory-ideation-routing/specs/doc-health/spec.md)
-for the owned check scope. Until both changes promote, this contract remains
-the twelve-family baseline above, and routing metadata stays descriptive
-coordination — never lifecycle, ownership, or approval authority (see
+[doc-health spec delta](../openspec/changes/archive/2026-08-06-add-cross-factory-ideation-routing/specs/doc-health/spec.md)
+for the owned check scope. Its table registration never landed either, and
+routing metadata stays descriptive coordination — never lifecycle,
+ownership, or approval authority (see
 [Document Lifecycle](document-lifecycle.md#cross-factory-ideation-routing)).
 
 ## Finding Severities
@@ -72,7 +84,7 @@ coordination — never lifecycle, ownership, or approval authority (see
 | Severity | Meaning | Examples |
 | --- | --- | --- |
 | `critical` | Governance integrity broken | Unbacked `standard` claim; dangling provenance; `record` mutation |
-| `error` | Contract violation | Malformed/unresolved marker; free-form status; aging past escalation |
+| `error` | Contract violation | Malformed/unresolved marker; free-form status; aging past escalation; a ratified spec delta that never reached its promoted spec |
 | `warning` | Drift or first-stage aging | Pin drift; copy drift; projection drift; 30-day staged item |
 | `info` | Inventory and metrics | Canon share; per-stage counts; age distributions |
 
@@ -102,7 +114,13 @@ in the xFactory aggregation repo, carrying `Status: record` +
 - **Headline metric** — canon share by words: ratified + standard +
   promoted spec words over total governance words.
 - **Per-stage counts** and age distributions.
-- **Per-family finding sections** for the twelve families.
+- **Per-family finding sections** for every family the run executed.
+- **The promotion fidelity measurement basis**, stated in that family's own
+  section on every run and whether or not it found anything: the pinned
+  checkout by default — the same tree every other family measures — or each
+  repository's own live `main` where the run is configured for it, naming
+  any repository whose live `main` could not be read and was measured from
+  its checkout instead.
 - **Ranked plan** — every finding as a ready-to-stage work item stating
   severity, repo, path, and suggested action, so report output feeds the
   ideation pipeline's input.
@@ -114,10 +132,9 @@ machine-parseable so a later dashboard consumes the same files.
 ## Ownership
 
 ```text
-openxFactory      owns the CONTRACT: this document, the doc-health spec,
-                  the report schema
-codexFactory      owns the IMPLEMENTATION: checker scripts, report
-                  generator, reusable workflow
+openxFactory      owns the CONTRACT (this document, the doc-health spec,
+                  the report schema) AND the IMPLEMENTATION: checker
+                  scripts, report generator, reusable workflow
 xFactory (root)   HOSTS the nightly runner and health/reports/ (the only
                   repo pinning every submodule)
 each domain repo  owns APPROVAL of its own content: the pipeline reports
@@ -132,6 +149,44 @@ thirteenth family. It reports staged documents that already cite a proposal,
 active support folders without valid manifests, `staged` status below an
 active proposal, unverifiable archived bundles, and bundles misplaced below
 `openspec/specs/`.
+
+## Neutrality-Drift Lane
+
+Ratified by `add-neutrality-drift-lane` (2026-08-04) as a MODIFIED
+`doc-health` requirement: a nightly, incremental, model-driven lane beside
+the deterministic families — the standing scout for domain-factory content
+that belongs in openxFactory. Families/lanes overview row:
+
+| Lane | Scope | Stage 1 (deterministic) | Stage 2 (model) | Output |
+| --- | --- | --- | --- | --- |
+| `neutrality-drift` | pinned `xFactories/*` domain repos only (never openxFactory, openAvatar, or installs in v1) | near-duplicate of a neutral artifact (token-set similarity, `contract-copy-drift` generalized), zero domain-lexicon hits in a schema/script (lexicon from the repo's own identity + ontology), cross-repo consumers, stack.yaml-uninventoried `scripts/` tooling | bounded batch of new/changed survivors judged under `scripts/doc_health/neutrality-prompt.md` ("would another domain need this essentially unchanged?") | drafted DTN-register seed (row + detail section, the register's own format) + ranked-plan items |
+
+**Approval flow** (nothing moves automatically — ever): candidates land in
+the rolling health PR as drafted register-seed text (persisted under
+`health/neutrality-drift/seeds/` in this repo) plus contested WARNING
+ranked-plan items. Brett's approval of a seed is his merge of the register
+addition; movement then follows the
+[Domain-To-Neutral Promotion Process](domain-to-neutral-promotion-process.md)
+(staged topic → OpenSpec change → tranche moves), never the nightly. The
+lane's write surface is exactly its own `health/neutrality-drift/` tree
+(state, baseline markers, drafted seeds) plus the dated report — it never
+edits a domain repo, the register, or any contract.
+
+**Dispositions keying**: a rejected candidate gets an entry in the
+aggregation repo's existing `health/dispositions.yaml` — the same
+vocabulary every contested resolution uses, extended for this lane with a
+content digest — keyed `family: neutrality-drift`, `repo`, `path`,
+`content_sha256`, plus the required `cite`. Suppression holds while the
+content is unchanged; a changed digest re-files the candidate.
+
+**Incremental state**: `health/neutrality-drift/state.yaml` records each
+repo's last-run commit and judged content digests;
+`health/neutrality-drift/baseline/<repo>.yaml` is the recorded baseline
+marker for a completed full sweep (codexFactory's cites the 2026-08-03
+manual sweep). The reusable nightly exposes `neutrality-drift` (opt-out,
+default on) and `neutrality-baseline` (manual full-sweep repo) inputs; with
+no omnigent worker host the lane records a skip note and stage-1 counts
+only, never an error.
 
 ## Related Documents
 

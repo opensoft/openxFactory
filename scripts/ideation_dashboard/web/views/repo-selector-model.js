@@ -1,0 +1,537 @@
+// Repository-selector VIEW MODEL (openxFactory change add-dashboard-repo-selector,
+// tasks 3.2/3.5 and Brett's 2026-07-26 rulings). PURE derivation over the
+// snapshot INDEX — no DOM, no fetch, no imports — so it is copied ALONE into a
+// node harness (test_repo_selector.py) exactly like model.js/grouping.js.
+//
+// The index (openxFactory `ideation-dashboard-snapshot-index`) is the ONLY
+// roster: the dashboard keeps no second repository list, so adding a repository
+// is a project-register edit plus a publication run — no application change and
+// no image rebuild (design D9). Entries the index carries but the register does
+// not are still offered; they simply render ungrouped, which the snapshot's own
+// absent `project` field already expresses.
+//
+// Three derivations live here:
+//   * ROSTER — one option per (repository, ref) entry plus one per declared
+//     aggregate, each carrying its availability so an unfetchable entry can say
+//     so instead of vanishing (spec: "An indexed snapshot cannot be fetched");
+//   * FRESHNESS — the `repo @ ref · short SHA · generated-at` header contract
+//     (design D11), plus the stale-fallback notice (D6). A baked entry NEVER
+//     renders silently; that silence is the bug this change exists to end;
+//   * THE PASSIVE HINT — whether the data source advertises a NEWER snapshot
+//     than the one loaded (Brett's 2026-07-26 ruling on open question 2: a
+//     passive badge on a background index poll, never an auto-reload).
+
+export const DEFAULT_REF = "main";
+// The repository the dev plane opens on when the roster offers a choice and the
+// viewer has not made one — today's single-repository behaviour, preserved.
+export const PREFERRED_REPOSITORY = "openxFactory";
+export const KIND_REPOSITORY = "repository";
+export const KIND_AGGREGATE = "aggregate";
+
+export function normalizeRef(ref) {
+  const text = ref == null ? "" : String(ref).trim();
+  return text || DEFAULT_REF;
+}
+
+// The wire/DOM form of a key — `repository@ref`, matching the server's key_id.
+export function keyId(repository, ref) {
+  return String(repository) + "@" + normalizeRef(ref);
+}
+
+export function parseKeyId(text) {
+  const raw = text == null ? "" : String(text);
+  const at = raw.lastIndexOf("@");
+  if (at <= 0) return null;
+  return { repository: raw.slice(0, at), ref: normalizeRef(raw.slice(at + 1)) };
+}
+
+export function sameKey(a, b) {
+  if (!a || !b) return false;
+  return String(a.repository) === String(b.repository)
+    && normalizeRef(a.ref) === normalizeRef(b.ref);
+}
+
+// ---- request safety: what may address a request ----
+//
+// The snapshot INDEX arrives over the network and the viewer's stored preference
+// arrives from sessionStorage, so both are THIRD-PARTY DATA — and two of their
+// values (repository, ref) address the shell's one state fetch. Neither may be
+// allowed to steer that request (Sonar jssecurity:S8476, CWE-20), so a key earns
+// its way into a URL twice over:
+//
+//   * MEMBERSHIP — it must be a pair the loaded index actually advertises
+//     (`resolveStoredKey` for the stored preference, `resolveActive` for
+//     everything else). A repository that has left the roster stops being
+//     requested, which is also the plain bug: a stale stored key kept fetching a
+//     snapshot the index no longer offers;
+//   * SHAPE — both segments must survive this ALLOW-LIST, which returns a string
+//     rebuilt from KEY_SEGMENT_CHARS itself rather than a slice of the input, so
+//     not one character of an index- or storage-supplied value reaches a request
+//     URL. `..` is refused outright: no repository name and no git ref contains
+//     it, and it is the one sequence that would mean something to a path-shaped
+//     route.
+//
+// A BRANCH-SESSION ref (`draft/<topic>`, `cluster/<id>`) is a first-class citizen
+// of this same path and introduces no second one (add-workbench-branch-sessions
+// FR-014, G11): the serving index advertises the live session as an ordinary
+// (repository, ref) row, so a session key earns a URL by the same membership +
+// shape test, and a session that has ENDED stops being requested exactly as a
+// repository that has left the roster does. Note what that rests on: `/` is in
+// KEY_SEGMENT_CHARS because a git ref legitimately contains one. Removing it would
+// silently make every session key unrequestable while leaving `main` working.
+const KEY_SEGMENT_CHARS =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-/";
+const KEY_SEGMENT_TABLE = new Map([...KEY_SEGMENT_CHARS].map((c) => [c, c]));
+export const KEY_SEGMENT_MAX = 200;
+
+export function safeKeySegment(value) {
+  const raw = value == null ? "" : String(value);
+  if (!raw || raw.length > KEY_SEGMENT_MAX || raw.includes("..")) return null;
+  let safe = "";
+  for (const ch of raw) {
+    const allowed = KEY_SEGMENT_TABLE.get(ch);
+    if (allowed === undefined) return null;   // one stray character rejects the pair
+    safe += allowed;                          // from the table, never from `raw`
+  }
+  return safe;
+}
+
+// The request-safe form of a key — `{ repository, ref }` rebuilt through the
+// allow-list — or null when either segment cannot survive it.
+export function safeKey(key) {
+  if (!key) return null;
+  const repository = safeKeySegment(key.repository);
+  const ref = safeKeySegment(normalizeRef(key.ref));
+  if (!repository || !ref) return null;
+  return { repository, ref };
+}
+
+// ---- roster ----
+
+function entryOption(entry) {
+  const key = { repository: String(entry.repository), ref: normalizeRef(entry.ref) };
+  const available = entry.available !== false;
+  return {
+    kind: KIND_REPOSITORY,
+    id: keyId(key.repository, key.ref),
+    repository: key.repository,
+    ref: key.ref,
+    label: entry.display_name || key.repository,
+    available,
+    unavailableReason: available ? null : (entry.unavailable_reason || "snapshot unavailable"),
+    origin: entry.origin || null,
+    stale: entry.stale === true,
+    staleReason: entry.stale_reason || null,
+    sourceRevision: entry.source_revision || null,
+    generatedAt: entry.generated_at || null,
+    latestSourceRevision: entry.latest_source_revision || null,
+    latestGeneratedAt: entry.latest_generated_at || null,
+    newerAvailable: entry.newer_available === true,
+  };
+}
+
+function aggregateOption(aggregate) {
+  const members = (aggregate.members || [])
+    .filter((m) => m && m.repository)
+    .map((m) => ({ repository: String(m.repository), ref: normalizeRef(m.ref) }));
+  return {
+    kind: KIND_AGGREGATE,
+    id: keyId(aggregate.id, DEFAULT_REF),
+    repository: String(aggregate.id),
+    ref: DEFAULT_REF,
+    label: aggregate.display_name || String(aggregate.id),
+    available: members.length > 0,
+    unavailableReason: members.length ? null : "no members declared",
+    members,
+    origin: "composed",
+    stale: false,
+    staleReason: null,
+    sourceRevision: null,
+    generatedAt: null,
+    newerAvailable: false,
+  };
+}
+
+// The selector's options, in index order for entries and declared order for
+// aggregates (composed views sort last — they are a roll-up OF the repositories
+// above them). Returns [] for a missing/empty index, which is what makes the
+// no-index plane degrade to today's single-snapshot dashboard.
+export function buildRoster(index) {
+  if (!index || typeof index !== "object") return [];
+  const entries = Array.isArray(index.entries) ? index.entries : [];
+  const aggregates = Array.isArray(index.aggregates) ? index.aggregates : [];
+  const options = entries
+    .filter((e) => e && e.repository)
+    .map(entryOption);
+  const composed = aggregates
+    .filter((a) => a && a.id)
+    .map(aggregateOption);
+  return options.concat(composed);
+}
+
+export function findOption(roster, key) {
+  if (!key) return null;
+  return roster.find((o) => sameKey(o, key)) || null;
+}
+
+// Does the loaded index actually advertise this (repository, ref) pair? The one
+// membership question the shell asks before a stored value is allowed to matter.
+export function hasKey(index, key) {
+  const wanted = typeof key === "string" ? parseKeyId(key) : key;
+  if (!wanted) return false;
+  return findOption(buildRoster(index), wanted) !== null;
+}
+
+// The viewer's STORED key, validated against the roster: null when this index no
+// longer advertises the pair (or when the stored text is not request-safe), and
+// `resolveActive(index, null)` then picks the default exactly as if nothing had
+// been stored. The value handed back is the ROSTER'S own pair rebuilt through the
+// allow-list — deliberately not the storage's string — so what travels on to a
+// request URL is an index-advertised, character-checked pair and nothing else.
+export function resolveStoredKey(index, stored) {
+  const wanted = typeof stored === "string" ? parseKeyId(stored) : stored;
+  const safe = safeKey(wanted);
+  if (!safe) return null;
+  const option = findOption(buildRoster(index), safe);
+  return option ? safeKey({ repository: option.repository, ref: option.ref }) : null;
+}
+
+// Which option is ACTIVE: an explicit request (a viewer's stored choice) wins
+// when the roster still offers it; then whatever the server marked active; then
+// the preferred repository at the default ref; then the first available option.
+// A roster with nothing available still returns its first option rather than
+// null — a selector that offers an unavailable repository and SAYS it is
+// unavailable is more honest than an empty one.
+export function resolveActive(index, requested) {
+  const roster = buildRoster(index);
+  if (!roster.length) return null;
+  const wanted = typeof requested === "string" ? parseKeyId(requested) : requested;
+  const explicit = findOption(roster, wanted);
+  if (explicit) return explicit;
+  const served = index && index.active ? findOption(roster, index.active) : null;
+  if (served) return served;
+  const preferred = findOption(roster, { repository: PREFERRED_REPOSITORY, ref: DEFAULT_REF });
+  if (preferred) return preferred;
+  return roster.find((o) => o.available) || roster[0];
+}
+
+// ---- project scoping (add-project-scoped-selection) ----
+//
+// The snapshot INDEX is a locator and deliberately carries no grouping, so
+// the picker reads the REGISTER PROJECTION (`/project-register.json`, served
+// read-only from the aggregation-owned register). Both derivations here are
+// pure over (projection, roster): no projection -> no projects -> the picker
+// hides and the roster renders unscoped, which is the static image's and the
+// pre-change plane's behaviour.
+
+// The picker's project list: `{id, name, repositories}` rows with a
+// well-formed id, in register order. An EMPTY project is a legal row (D17:
+// created first, populated later) — it MUST surface here, or the register
+// carries a project the dropdown never shows and the filter's add line can
+// never reach.
+export function buildProjects(projection) {
+  if (!projection || typeof projection !== "object") return [];
+  const projects = Array.isArray(projection.projects) ? projection.projects : [];
+  return projects
+    .filter((p) => p && typeof p === "object" && p.id)
+    .map((p) => ({
+      id: String(p.id),
+      name: p.name ? String(p.name) : String(p.id),
+      repositories: (Array.isArray(p.repositories) ? p.repositories : [])
+        .map((r) => String(r)),
+    }));
+}
+
+// The INTENT half of the projection (design D-e): dispatched, undelivered
+// create-project commissions, rendered as non-selectable pending entries so a
+// fresh commission never looks like it did nothing. A pending id the register
+// already names is dropped — truth wins the moment the fulfilment lands.
+export function buildPendingProjects(projection) {
+  if (!projection || typeof projection !== "object") return [];
+  const real = new Set(buildProjects(projection).map((p) => p.id));
+  const pending = Array.isArray(projection.pending) ? projection.pending : [];
+  return pending
+    .filter((p) => p && p.id && !real.has(String(p.id)))
+    .map((p) => ({
+      id: String(p.id),
+      name: p.name ? String(p.name) : String(p.id),
+    }));
+}
+
+// The roster narrowed to one project's members (aggregates keep their place
+// only when composed purely of members). `projectId` null/unknown returns the
+// roster untouched — clearing the picker restores the full list, and a
+// projection that stopped naming the stored project degrades identically.
+// A PENDING id never scopes: it is not in `projects`, so it falls through to
+// the unknown-project degrade by construction.
+export function scopeRoster(roster, projects, projectId) {
+  if (!projectId) return roster;
+  const project = (projects || []).find((p) => p && p.id === String(projectId));
+  if (!project) return roster;
+  const members = new Set(project.repositories);
+  return roster.filter((o) => o.kind === KIND_AGGREGATE
+    ? (o.members || []).length > 0 && (o.members || []).every((m) => members.has(m.repository))
+    : members.has(o.repository));
+}
+
+// ---- the openDox project-first header (add-opendox-project-header) ----
+
+// D13 — the current project: the stored scope when the projection still
+// names it, else the FIRST register project. The viewer is always in a
+// project; there is no unscoped line.
+export function defaultProjectScope(projects, stored) {
+  const wanted = stored == null ? null : String(stored);
+  if (wanted && (projects || []).some((p) => p.id === wanted)) return wanted;
+  return projects && projects.length ? projects[0].id : null;
+}
+
+// D14 — the filter popover's rows for the current project: the all-repos
+// line first (its option is the project's DERIVED aggregate when the roster
+// carries one — add-project-merged-projection arms it; null renders the
+// line disabled with the merged view named as unavailable), then one row per
+// member repository carrying its roster option (null = no published
+// snapshot, rendered disabled with the reason).
+// A repository row must resolve to MAIN — the shared truth — and a live session
+// must be its OWN row (Brett, 2026-08-10: "how do I get to the rest of the
+// workbench on this doc?").
+//
+// This used to take the FIRST roster option for the repository, and the serving
+// index lists a repository's refs in sorted order, so `draft/…` sorts before
+// `main`: clicking `openxFactory` keyed the whole dashboard to whichever branch
+// happened to sort first — a session the human had not chosen and could not see
+// they were on. Measured on the live plane, where three refs were advertised.
+//
+// The same arbitrary pick was also the only way IN to a session, which is why
+// the branch a create had just opened looked unreachable: it was reachable by
+// accident and by the wrong name. Both halves are fixed here — main is chosen
+// deliberately, and every live session becomes an addressable row of its own.
+export function projectFilterRows(roster, project) {
+  if (!project) return [];
+  const options = roster || [];
+  const rows = [{
+    kind: "all",
+    option: options.find(
+      (o) => o.kind === KIND_AGGREGATE && o.repository === project.id) || null,
+  }];
+  for (const repository of project.repositories || []) {
+    const mine = options.filter(
+      (o) => o.kind === KIND_REPOSITORY && o.repository === repository);
+    // main by name, never "whichever came first"; a repository that publishes
+    // no main falls back to its first advertised ref rather than disappearing
+    const option = mine.find((o) => normalizeRef(o.ref) === DEFAULT_REF)
+      || mine[0] || null;
+    rows.push({ kind: "repo", repository, option });
+    // …and every OTHER advertised ref is a live branch session (FR-014: the
+    // index advertises one as an ordinary row), offered under its repository so
+    // the human can choose the one they mean.
+    for (const session of mine) {
+      if (normalizeRef(session.ref) === DEFAULT_REF) continue;
+      if (option && session.id === option.id) continue;
+      rows.push({ kind: "session", repository, ref: normalizeRef(session.ref),
+                  option: session });
+    }
+  }
+  return rows;
+}
+
+// D16 (Brett's 2026-08-06 header annotation) — the filter works like the
+// project dropdown: its first line ADDS. These are the candidates that add
+// line offers: every repository the roster or the register knows, minus the
+// project's current members, sorted. The engine re-validates at commission.
+export function addableRepositories(roster, projects, project) {
+  const known = new Set();
+  for (const option of roster || []) {
+    if (option.kind === KIND_REPOSITORY) known.add(option.repository);
+  }
+  for (const p of projects || []) {
+    for (const repository of p.repositories || []) known.add(repository);
+  }
+  for (const member of project?.repositories || []) known.delete(member);
+  return [...known].sort();
+}
+
+// D19 (Brett, 2026-08-07) — the VISIBLE member set. The eyeball stopped being
+// an indicator and became the control: the view spans exactly the ticked
+// repositories, under the union/intersection mode. Stored per project and
+// intersected with the CURRENT membership here, so a repository that left the
+// project simply drops out of the stored set instead of haunting the view.
+// No stored entry (or an entry that survives nothing) means EVERY member —
+// the composition's own default, which is what a fresh viewer should see.
+export function visibleRepositories(project, storedVisibility) {
+  const members = (project?.repositories || []).map(String);
+  const stored = storedVisibility && storedVisibility[String(project?.id)];
+  if (!Array.isArray(stored)) return members;              // never ticked
+  const wanted = stored.map(String);
+  const kept = members.filter((r) => wanted.includes(r));
+  if (kept.length) return kept;
+  // Nothing survived: an EMPTY stored set is the human's "none" and stays
+  // empty; a non-empty set that membership outlived is stale, so the default
+  // (every member) returns rather than a view of nothing nobody asked for.
+  return wanted.length ? members : [];
+}
+
+// D19 — one tick flipped, in member order (the popover's row order, so the
+// stored set never reshuffles the list).
+export function toggleVisibility(visible, repository, members) {
+  const set = new Set((visible || []).map(String));
+  const id = String(repository);
+  if (set.has(id)) set.delete(id);
+  else set.add(id);
+  return (members || []).map(String).filter((r) => set.has(r));
+}
+
+// D16 — the eyeball: is this member repository VISIBLE in the current view?
+// True when it IS the active single-repository view, or when the active view
+// is this project's merged aggregate (whose composition shows every member).
+export function repositoryVisible(repository, project, active) {
+  if (!active) return false;
+  if (String(active.repository) === String(repository)) return true;
+  return !!project && String(active.repository) === String(project.id);
+}
+
+// Dispatched, undelivered MEMBERSHIP edits (the D-e two-plane posture applied
+// to D15): what the popover badges until the fulfilment lands. Server-side
+// the plane already drops edits whose project left the register; this stays
+// tolerant of malformed rows anyway. Edits QUEUE (topic D18), so one project
+// may carry several rows here — `netPendingEdit` below nets them for display.
+export function buildPendingEdits(projection) {
+  const rows = Array.isArray(projection?.pending_edits)
+    ? projection.pending_edits : [];
+  return rows
+    .filter((e) => e && e.project_id)
+    .map((e) => ({
+      projectId: String(e.project_id),
+      add: (Array.isArray(e.add) ? e.add : []).map(String),
+      remove: (Array.isArray(e.remove) ? e.remove : []).map(String),
+    }));
+}
+
+// The NET pending overlay for ONE project (edits queue, topic D18): the
+// project's queued edit rows — oldest first, as served and as appended by
+// same-page commissions — replayed against its register members, exactly the
+// effective-state computation the engine validates against. An addition of a
+// pending removal cancels it (and vice versa), so the popover badges what
+// will actually change when the queue delivers. Null when nothing nets out.
+export function netPendingEdit(pendingEdits, project) {
+  if (!project) return null;
+  const rows = (pendingEdits || []).filter(
+    (e) => e && e.projectId === String(project.id));
+  if (!rows.length) return null;
+  const members = new Set((project.repositories || []).map(String));
+  const add = [];
+  const remove = [];
+  const drop = (list, value) => {
+    const i = list.indexOf(value);
+    if (i >= 0) list.splice(i, 1);
+    return i >= 0;
+  };
+  for (const row of rows) {
+    for (const repo of row.add || []) {
+      const r = String(repo);
+      if (!drop(remove, r) && !members.has(r) && !add.includes(r)) add.push(r);
+    }
+    for (const repo of row.remove || []) {
+      const r = String(repo);
+      if (!drop(add, r) && members.has(r) && !remove.includes(r)) remove.push(r);
+    }
+  }
+  if (!add.length && !remove.length) return null;
+  return { add, remove };
+}
+
+// ---- freshness (design D11) ----
+
+export function shortRevision(revision) {
+  const text = revision == null ? "" : String(revision);
+  return text ? text.slice(0, 12) : "unknown";
+}
+
+function stampDay(stamp) {
+  const text = stamp == null ? "" : String(stamp);
+  return text ? text.slice(0, 10) : "unknown";
+}
+
+// `repo @ ref · <short sha> · generated <date>` — the question behind the whole
+// refresh ask ("did my doc make it in?") answered at a glance, against a stated
+// revision rather than a deployment time. A COMPOSED view
+// (add-project-merged-projection 2.3) answers the same question in aggregate:
+// `<id> · N repos · composed <date>`, the per-member revisions living in the
+// snapshot's own `composed_from` block.
+export function freshnessLabel(option, snapshot) {
+  const gen = (snapshot && snapshot.generation) || {};
+  const members = gen.composed_from;
+  const repository = (option && option.repository) || snapshot?.repository || "unknown";
+  if (Array.isArray(members)) {
+    return repository + " · " + members.length + " repos · composed "
+      + stampDay(gen.generated_at);
+  }
+  const ref = normalizeRef(option && option.ref);
+  const revision = (option && option.sourceRevision) || gen.source_revision;
+  const stamp = (option && option.generatedAt) || gen.generated_at;
+  return repository + " @ " + ref + " · " + shortRevision(revision)
+    + " · generated " + stampDay(stamp);
+}
+
+// The stale-fallback notice (D6). Non-null ONLY when the rendered snapshot is
+// the baked fallback: it names the fallback's generated-at, because the failure
+// mode this change exists to end is not old data — it is old data that looked
+// current.
+export function staleNotice(option) {
+  if (!option || option.stale !== true) return null;
+  const detail = option.staleReason
+    || "the declared data source is unreachable — showing the snapshot baked into this image";
+  return "stale snapshot: " + detail + " (generated " + stampDay(option.generatedAt) + ")";
+}
+
+// ---- the passive newer-data hint (Brett 2026-07-26, open question 2) ----
+
+// True when the index advertises a snapshot NEWER than the one loaded for this
+// option. Revision inequality is the signal (the index restates the snapshot's
+// own `source_revision`, so a difference means the source moved); a newer
+// generated-at is accepted as a signal too. NEVER triggers a reload on its own —
+// the viewer clicks refresh.
+export function newerAvailable(option, snapshot) {
+  if (!option) return false;
+  const loadedRevision = (snapshot && snapshot.generation && snapshot.generation.source_revision)
+    || option.sourceRevision || null;
+  const latest = option.latestSourceRevision;
+  if (latest && loadedRevision && String(latest) !== String(loadedRevision)) return true;
+  if (option.newerAvailable === true && latest && !loadedRevision) return true;
+  const loadedStamp = (snapshot && snapshot.generation && snapshot.generation.generated_at)
+    || option.generatedAt || null;
+  if (option.latestGeneratedAt && loadedStamp
+      && String(option.latestGeneratedAt) > String(loadedStamp)) return true;
+  return false;
+}
+
+export function hintLabel(option) {
+  const stamp = option && option.latestGeneratedAt ? stampDay(option.latestGeneratedAt) : null;
+  return "newer data available" + (stamp ? " (" + stamp + ")" : "") + " — click refresh";
+}
+
+// ---- sparse stations (design D10) ----
+
+// Which funnel stations this snapshot has NO data for. Sparse is rendered, never
+// refused: an install repository carrying only OpenSpec changes shows active and
+// archived and says, explicitly, that the middle is empty in THIS repository.
+export const STATIONS = [
+  ["documents", "ideation documents"],
+  ["clusters", "topic clusters"],
+  ["possibles", "possibles"],
+  ["staged_topics", "staged topics"],
+  ["changes", "OpenSpec changes"],
+];
+
+export function emptyStations(snapshot) {
+  const snap = snapshot || {};
+  return STATIONS.filter(([key]) => !(Array.isArray(snap[key]) && snap[key].length))
+    .map(([key, label]) => ({ key, label }));
+}
+
+export function sparseNotice(option, snapshot) {
+  const empty = emptyStations(snapshot);
+  if (!empty.length) return null;
+  const repository = (option && option.repository) || snapshot?.repository || "this repository";
+  return "no " + empty.map((s) => s.label).join(", no ") + " in " + repository
+    + " — a sparse funnel is an honest funnel, not a broken one";
+}

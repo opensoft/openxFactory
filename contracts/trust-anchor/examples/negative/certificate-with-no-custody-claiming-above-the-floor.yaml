@@ -1,0 +1,50 @@
+# expected_failure: certificate-ceiling-derivation
+# expected_failure_detail: raising assurance is a custody change
+# requirement: TA-R3
+# VIOLATES TA-R3's undeclared-custody rule: no custody is declared, `evidences`
+# is honestly the floor's, and the ceiling is quietly the top of the ladder.
+#
+# This is how the floor gets escaped in practice — not by claiming the wrong
+# evidence, which reads as a lie, but by claiming the assurance while agreeing
+# about the evidence, which reads as an oversight. An undeclared certificate may
+# hold no authority above the weakest member of the set. Raising the ceiling means
+# declaring custody, not editing this field.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:neg-undeclared-above-floor
+realization_ref: realization:core-self-hosted-authority
+anchor_ref: anchor:core-issuing
+subject:
+  identifier: "undeclared-workload.core.internal"
+  subject_class: workload
+validity:
+  not_before: "2026-08-01T00:00:00Z"
+  not_after: "2027-08-01T00:00:00Z"
+state: valid
+key_generation:
+  generation_ref: keygen:neg-undeclared-above-floor-g1
+evidences: using_host
+assurance_ceiling: holder_attributed_act
+issuance_evidence:
+  present: false
+  unexplained:
+    question_answered_as: unanswered
+    disposition: revocation_candidate
+    recorded_at: "2026-08-01T00:00:00Z"
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: "2026-08-01T00:00:00Z"
+  binding_refs: []
+trust_evaluation:
+  evaluated_at: "2026-08-16T09:00:00Z"
+  basis: held_anchor_record
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: "2026-08-16T09:00:00Z"
+    result: current_standing_active
+  outcome: refused
+  refusal:
+    code: issuance_evidence_absent
+    statement: Refused for a missing issuance record.

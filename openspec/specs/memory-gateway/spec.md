@@ -228,51 +228,45 @@ subject has an adult, minor, protected, delegated, or guardian-mediated status.
   packet metadata
 
 ### Requirement: Context Packets Bound Runtime Memory
-
-The system SHALL provide bounded context packets for Hermes and Omnigent runtime
-use instead of exposing unrestricted Customer Hermes memory or unrestricted
-expert knowledge DB access.
+The system SHALL provide bounded context packets for Hermes and Omnigent
+runtime use instead of exposing unrestricted Subject Hermes memory,
+unrestricted expert knowledge DB access, or an unrestricted domain ontology
+corpus. When semantic classification, normalization, retrieval, or inference
+is included, the packet SHALL identify the exact bounded semantic-context
+artifact and its kernel, domain ontology, and approved tenant-binding pins.
 
 #### Scenario: Context packet created for active workflow
-
 - **WHEN** Hermes requests context for an active workflow
-- **THEN** the gateway MUST use workflow purpose, subject-safety profile,
-  consent, privacy, authority, current state snapshot refs, redaction policy,
-  and source trace refs to build the context packet
+- **THEN** the gateway MUST use workflow purpose, subject-safety profile, consent, privacy, authority, current state snapshot refs, redaction policy, source trace refs, and any required pinned semantic context to build the context packet
 
 #### Scenario: Omnigent receives memory context
-
 - **WHEN** Omnigent needs customer-subject context for an approved job
-- **THEN** Omnigent MUST receive a bounded context packet from Hermes or
-  xFactory rather than direct unrestricted provider access
+- **THEN** Omnigent MUST receive a bounded context packet from Hermes or xFactory rather than direct unrestricted provider access
 
 #### Scenario: Omnigent receives expert knowledge context
-
 - **WHEN** Omnigent needs expert knowledge context for an approved job
-- **THEN** Omnigent MUST receive a bounded expert context packet from xFactory
-  rather than direct unrestricted DB, vector index, graph, or source workspace
-  access
+- **THEN** Omnigent MUST receive a bounded expert context packet from xFactory rather than direct unrestricted DB, vector index, graph, source workspace, or ontology-corpus access
+
+#### Scenario: Semantic context is included
+- **WHEN** a context packet contains domain terms, mappings, classifications, or semantic relations
+- **THEN** it MUST carry the exact semantic-context ID and digest plus the kernel and domain ontology package identities used to interpret them
+- **AND** a packet whose semantic context fails digest verification, names a package the installation does not pin, or references a retired package MUST be rejected before provider I/O
 
 #### Scenario: Context packet expires
-
 - **WHEN** a context packet's declared TTL has elapsed
-- **THEN** the packet MUST be invalid as workflow input and a new packet
-  request MUST re-run the rails
+- **THEN** the packet MUST be invalid as workflow input and a new packet request MUST re-run the rails
 
 #### Scenario: Context packet used for a different purpose
-
-- **WHEN** a context packet issued for one workflow purpose is presented as
-  input to a different workflow or purpose
-- **THEN** the consuming surface MUST reject the packet and request a new
-  packet for the actual purpose
+- **WHEN** a context packet issued for one workflow purpose is presented as input to a different workflow or purpose
+- **THEN** the consuming surface MUST reject the packet and request a new packet for the actual purpose
 
 #### Scenario: Packet-derived worker memory inherits redaction class
+- **WHEN** an Omnigent worker stores content derived from a context packet in worker-local memory such as AgentMemory
+- **THEN** the stored derivative MUST inherit the packet's redaction class and subject refs, and storing packet-derived content above its redaction class MUST be treated as a rail violation
 
-- **WHEN** an Omnigent worker stores content derived from a context packet in
-  worker-local memory such as AgentMemory
-- **THEN** the stored derivative MUST inherit the packet's redaction class and
-  subject refs, and storing packet-derived content above its redaction class
-  MUST be treated as a rail violation
+#### Scenario: Ontology inference suggests a permitted operation
+- **WHEN** semantic context classifies or infers a relationship that could affect retrieval, routing, promotion, or external action
+- **THEN** the gateway MUST still run the existing consent, privacy, source-authority, binding, grant, purpose, redaction, promotion, and audit rails and MUST NOT treat the inference as authority
 
 ### Requirement: Customer Memory Fill And Maintenance Modes Are Canonical
 
@@ -552,7 +546,14 @@ The system SHALL provide conformance fixtures or checks for provider profiles,
 rail denials, caller identity, credential custody, fail modes, break-glass,
 context-packet metadata, packet leash behavior, expert context-packet
 metadata, consent contract behavior, promotion review, revocation, erasure,
-migration, and audit, mapped to the conformance tiers.
+migration, and audit, mapped to the conformance tiers. Semantic-context
+conformance fixtures SHALL be EXECUTED, never merely declared: each fixture
+either carries a probe — a recorded mutation of the canonical example packet
+that the canonical gateway validator applies and runs through its own
+preflight, asserting the expected rejection — or names the exact existing
+artifact or suite that executes the behavior, whose resolution the validator
+verifies. A fixture that neither executes nor resolves its delegate SHALL
+fail validation.
 
 #### Scenario: Domain stack declares xFactory memory gateway provider
 
@@ -573,3 +574,97 @@ migration, and audit, mapped to the conformance tiers.
   against the gateway contract schemas, and MUST flag provider endpoints or
   connection references found inside Hermes overlay files as direct-binding
   violations
+
+#### Scenario: A semantic-context fixture executes its promise
+
+- **WHEN** a semantic-context conformance fixture carries a probe
+- **THEN** the gateway validator applies the probe to the canonical example packet, runs the result through the same preflight it applies to examples, and fails unless the packet is rejected as the fixture promises
+
+#### Scenario: A fixture delegates to an executed proof
+
+- **WHEN** a fixture's behavior is executed elsewhere (a canonical negative fixture or a named test suite) rather than by an inline probe
+- **THEN** the fixture names the executing artifact and the validator verifies it exists — a dangling delegate fails validation
+
+### Requirement: Derived memory bindings validate against the neutral schema
+A `hermes_memory_binding` record — the normalized, gateway-vocabulary-expressed projection of a layer's seeded memory boundary that the gateway's rails consume — SHALL validate against the neutral memory-binding schema: `layer_role`, `scopes[]` with per-scope `subject_scope` and an optional promotion block whose `gateway` MUST be `customer_memory_gateway` and whose `accepted_authority_level` MUST be drawn from the ratified `authority_levels` vocabulary, `denied_scopes[]`, `invariants[]`, `derived_from: memory_boundary`, and `vocabulary_bundle_tag` provenance — and a binding declaring a provider endpoint, credential, or any raw secret SHALL fail validation (a binding is rails input, never a provider binding and never a store).
+
+#### Scenario: A live-derived domain binding validates
+- **WHEN** the binding derived from the domain's memory boundary (cross-tenant learning scope with the `reviewed` cap, `client_private` denied) is validated
+- **THEN** it passes the canonical validator
+
+#### Scenario: A foreign authority level fails validation
+- **WHEN** a binding's promotion block carries an `accepted_authority_level` outside the ratified `authority_levels` vocabulary
+- **THEN** the canonical validator rejects it naming the level
+
+#### Scenario: A provider or secret surface fails validation
+- **WHEN** a binding declares a provider endpoint or credential-bearing field
+- **THEN** the canonical validator rejects it — provider bindings and grants live in the gateway's own binding layer, never in a derived boundary record
+
+### Requirement: Subject-Free Local Consumers Declare Their Inapplicable Rails
+
+The system SHALL permit a governed memory consumer that has NO customer subject
+and NO credentialed provider to declare itself a SUBJECT-FREE LOCAL CONSUMER
+CLASS, and that declaration SHALL NAME every rail it declares inapplicable
+together with the reason, so an inapplicable rail is a recorded decision rather
+than an unexplained absence. The declaration SHALL NOT reduce what remains
+applicable: such a consumer SHALL still route governed access through the
+gateway, run its rails before provider I/O, express its retrieval backends as
+provider profiles behind canonical product-neutral ports, bound its runtime
+memory in context packets that declare purpose, sources, scope, and expiry,
+keep worker-local or harness-local memory separate and non-authoritative, and
+promote only through explicit review. The declaration SHALL be REFUSED to any
+consumer that holds or can read a provider credential, that addresses a
+customer subject, or that routes to a networked provider — for those the full
+tier applies, and a consumer whose scope later acquires any of them SHALL LOSE
+the declaration and satisfy the tier before it may continue. Where such a
+consumer's promotion target is not a Hermes memory layer, the promotion
+requirement SHALL be satisfied by the reviewed act that creates the target
+object, and the declaration SHALL name that act — promotion stays explicit and
+reviewed, and what changes is the target, never the gate. A subject-free
+consumer SHALL NOT be treated as conformant to a tier whose requirements it
+declares inapplicable: it declares the tier it meets and the rails it does not
+carry, and conformance validation SHALL read the declaration rather than infer
+conformance from silence.
+
+#### Scenario: An authoring surface declares the class
+
+- **WHEN** an authoring surface assembles bounded context packets over its own
+  repository corpus using an in-process local index, with no customer subject
+  and no provider credential anywhere in its path
+- **THEN** it MAY declare the subject-free local consumer class, naming consent,
+  subject-safety, provider bindings and grants, and provider mapping as
+  inapplicable with the reason
+- **AND** it MUST still bound its packets, run its rails before I/O, express its
+  backends as provider profiles behind the canonical ports, and promote only
+  through review
+
+#### Scenario: A declared rail is skipped without being named
+
+- **WHEN** a consumer declares the class but does not name a rail it is not
+  running
+- **THEN** validation MUST fail — the class exists to make the absence
+  auditable, and an unnamed absence is the thing it replaces
+
+#### Scenario: The consumer acquires a credential or a subject
+
+- **WHEN** a declared subject-free consumer gains a provider credential, a
+  networked provider route, or a customer-subject scope
+- **THEN** it MUST lose the declaration and MUST satisfy the applicable tier's
+  requirements before continuing
+- **AND** the previously declared inapplicability MUST NOT survive as a
+  standing exemption
+
+#### Scenario: Promotion targets an object outside the Hermes layers
+
+- **WHEN** a subject-free consumer promotes a finding into a reviewed object
+  that is not a Hermes memory layer
+- **THEN** the promotion requirement is satisfied by that reviewed act, which
+  the declaration MUST name
+- **AND** automatic durability without review MUST remain refused
+
+#### Scenario: Conformance is inferred from silence
+
+- **WHEN** a consumer presents no declaration and no failing rail
+- **THEN** validation MUST NOT infer conformance — a tier claim is read from the
+  declaration, never from the absence of a complaint
+

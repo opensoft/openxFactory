@@ -1,0 +1,31 @@
+# VALID renewal that PRESERVED the key. No rebind obligation arises, and the
+# record says so explicitly — `arises: false` with a statement, and an empty
+# rebind list the shape requires rather than merely permits. That is what stops a
+# reader from having to decide whether an absent rebind is an omission.
+schema_version: 1
+kind: xfactory_certificate_renewal_record
+renewal_id: renewal:core-service-01-2026-08
+certificate_ref: cert:core-service-01
+anchor_ref: anchor:core-issuing
+renewal_mode: requested
+planning:
+  planned_at: "2026-07-25T00:00:00Z"
+  certificate_enumeration_state: complete
+  outcome: proceeded
+  statement: >-
+    The certificate's dependent enumeration was complete, so the rebind set was
+    known before the renewal rather than after it.
+key_change:
+  changed: false
+rebind_obligation:
+  arises: false
+  statement: >-
+    The existing key was retained, so every binding made against it still points
+    at material the holder uses. Nothing is owed and nothing is missing.
+enumerated_dependents:
+  - bind:core-service-01-gateway
+dependent_rebinds: []
+authority_outcome: issued
+completion_state: complete
+reported_at: "2026-08-01T00:10:00Z"
+record_version: 1

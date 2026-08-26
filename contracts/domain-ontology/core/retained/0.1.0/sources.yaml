@@ -1,0 +1,25 @@
+schema_version: 1
+kind: xfactory_ontology_source_inventory
+# The kernel's governed source inventory (add-domain-ontology-layer, task
+# 2.4): the internal authorities kernel terms cite. External terminologies
+# never appear here — the kernel is domain-neutral and maps to nothing.
+package_id: xf/core
+sources:
+  - system_id: xfactory-contracts
+    name: openxFactory canonical machine contracts
+    source_kind: internal_contract
+    license_class: open
+    permitted_use: [reference, definition_quote]
+    authority_ref: contracts/README.md
+  - system_id: xfactory-architecture-docs
+    name: openxFactory architecture and model documents
+    source_kind: internal_document
+    license_class: open
+    permitted_use: [reference, definition_quote]
+    authority_ref: docs/README.md
+  - system_id: xfactory-policies
+    name: openxFactory machine-readable policies
+    source_kind: internal_contract
+    license_class: open
+    permitted_use: [reference, definition_quote]
+    authority_ref: contracts/policies/layer-vocabulary.yaml

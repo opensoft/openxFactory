@@ -1,0 +1,16 @@
+# VALID gate-intent: the same request AFTER the apply lane executed it —
+# status applied with the REQUIRED applied_record reference (the
+# request->act chain to the sibling gate-action record).
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: dispose-possible
+target:
+  possible_id: pos-derived-wheel-honesty
+args:
+  outcome: accepted
+requested_at: "2026-07-23T20:00:00Z"
+snapshot_rev_seen: "563ea35d066d"
+status: applied
+applied_at: "2026-07-23T20:04:12Z"
+applied_record: ideation/dashboard/gate-records/pos-derived-wheel-honesty/dispose-possible-20260723T200412Z.gate-action.yaml

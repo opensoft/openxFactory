@@ -1,0 +1,73 @@
+schema_version: 1
+kind: openxfactory-openxwallet-contract-schema
+name: xfactory_wallet_subject_attestation
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/openxwallet/v1/openxwallet-subject-attestation.schema.yaml"
+contract_id: openxwallet-subject-attestation
+contract_schema_version: 1
+title: openxWallet subject attestation reference
+description: >-
+  The shape a subject or record uses to carry an OPTIONAL wallet reference
+  (add-openxwallet, capability `openxwallet`, requirement "The capability is
+  an authority control, never an identity substrate").
+
+  This capability is an authority control. A wallet SHALL NOT become a
+  prerequisite for reconstructing a record, resolving a subject, or operating
+  a domain, and a wallet identifier SHALL NOT become a subject identifier.
+  That is not a preference — it preserves two RATIFIED constraints in
+  MedxFactory, adopted here as a core rule rather than worked around:
+  `patient-identity-and-assembly` (a wallet address MUST NOT be silently
+  accepted as identity proof) and `patient-snapshot-ledger-custody` (custody
+  stays wallet-neutral and reconstructable with no wallet available).
+
+  So the shape makes the wrong reading unrepresentable rather than
+  discouraged. `subject_ref` is the identifier and is REQUIRED.
+  `reference_role` is closed to `attestation`. `resolution.resolved_by` is
+  closed to `subject_ref`, so a record cannot declare that it resolves the
+  subject through the wallet. A domain adopting no wallets writes no record of
+  this kind at all and is refused by nothing.
+type: object
+required:
+  - schema_version
+  - kind
+  - subject_ref
+  - wallet_ref
+  - reference_role
+  - resolution
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_wallet_subject_attestation]
+  subject_ref:
+    # The subject's OWN identifier in its domain. Required, and the only thing
+    # resolution may key on.
+    $ref: '#/$defs/identifier'
+  wallet_ref: {$ref: '#/$defs/identifier'}
+  reference_role:
+    # Closed to one value on purpose. The moment this admits `identifier`, a
+    # wallet address becomes identity proof and both Medx constraints break.
+    type: string
+    enum: [attestation]
+  resolution:
+    type: object
+    required: [resolved_by]
+    additionalProperties: false
+    properties:
+      resolved_by:
+        type: string
+        enum: [subject_ref]
+      reconstructable_without_wallet:
+        # Declaring `false` is refused: a record may not assert that a wallet
+        # is a prerequisite for its own reconstruction. OMISSION IS PERMITTED
+        # — the promoted requirement binds the domain's records either way,
+        # and declaring `true` merely makes the assertion explicit.
+        type: boolean
+  attested_at: {type: string, format: date-time}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

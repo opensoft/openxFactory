@@ -1,0 +1,16 @@
+# gate-action record — a HUMAN-authenticated console action audit entry
+# (gate-action-record.schema.yaml). Agents structurally cannot author one
+# (the console rejects any non-human caller before a record is ever written).
+schema_version: 1
+kind: gate-action-record
+actor: Brett
+action: dispose-possible
+target:
+  possible_id: pos-derived-neutral-openxfactory-schema-package-for-domain-h
+  outcome: accepted
+at: '2026-07-23T19:01:03Z'
+artifacts:
+- kind: register-update
+  reference: ideation/cross-reference.yaml#possibles_register
+notes: 'Strong DTN candidate: three docs converge on the same neutral schema gap;
+  not covered by staged Changes A/B.'

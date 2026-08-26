@@ -1,0 +1,31 @@
+# expected_failure: proof-of-possession-missing
+# expected_failure_detail: the grant was supplied and is not what was lacking
+# requirement: OXW-R3
+# VIOLATES core R3's second clause: the refusal names the WRONG absence.
+#
+# The exercise is correctly refused, so a reader skimming outcomes sees the
+# control working. What is wrong is the reason recorded: `missing_grant`, when
+# the grant was supplied and verified as present. The requirement is explicit
+# that the refusal names the missing PROOF, because the two refusals send an
+# operator to entirely different places — one to re-issue a grant that already
+# exists, the other to the signing path that actually failed.
+schema_version: 1
+kind: xfactory_wallet_grant_exercise
+exercise_id: exr-wrong-refusal-0009
+grant_ref: grant-posting-derived-0002
+act: post_transaction
+object_ref: purchase-invoice:LXRP0012
+occurred_at: "2026-08-07T12:10:00Z"
+event_class: unauthenticated_request
+proof_of_possession:
+  presented: false
+attribution:
+  mode: unattributed
+custody_model_in_force: isolated_per_use_authorized
+revocation_check:
+  performed_at_exercise: true
+  result: active
+outcome: refused
+refusal:
+  code: missing_grant
+  statement: No grant was supplied for this request.

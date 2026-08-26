@@ -1,0 +1,31 @@
+# VALID administrative merge: the SECOND and only other way a federated
+# identity joins a persona. Two personas that were the same human are merged
+# through the governed administration workflow, and the record names the
+# approver, BOTH prior subject identifiers, and the time.
+#
+# The pre-merge block is the load-bearing half. Every prior subject stays
+# resolvable to the surviving persona, so records already written against the
+# losing identifier stay attributable. Without it the merge silently orphans
+# every one of them — re-creating, at merge time, exactly the attribution loss
+# the whole capability is built to prevent.
+schema_version: 1
+kind: identity_link_record
+link_record_id: lnk-merge-duplicate-0002
+broker_instance_ref: broker-opensoft-shared
+mode: admin_merge
+basis: governed_administration_approval
+subjects:
+  - sub-8f2c41d60a974d3b
+  - sub-3ab77e90c4f21d55
+surviving_subject: sub-8f2c41d60a974d3b
+pre_merge_subjects:
+  - subject: sub-8f2c41d60a974d3b
+    remains_resolvable_to: sub-8f2c41d60a974d3b
+  - subject: sub-3ab77e90c4f21d55
+    remains_resolvable_to: sub-8f2c41d60a974d3b
+approved_by:
+  administrator_subject: sub-ad91c740be6f5312
+  approval_record_ref: "opsx:keycloak-administration/merge-queue/2026-08-21/0002"
+  approved_at: "2026-08-21T14:02:00Z"
+occurred_at: "2026-08-21T14:02:30Z"
+evidence_ref: "broker-audit://broker-opensoft-shared/merge/2026-08-21/14-02-30"

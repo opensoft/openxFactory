@@ -1,0 +1,16 @@
+# VALID: an explicitly enabled zero-retention hosted model with NARROW limits.
+{
+  "schema_version": 1,
+  "kind": "workbench-model-catalog",
+  "models": [
+    {
+      "model_id": "hosted-zr-1",
+      "label": "Hosted zero-retention model (explicitly enabled)",
+      "provider_class": "hosted-zero-retention",
+      "available": true,
+      "input_limit_bytes": 2048,
+      "output_limit_bytes": 8192,
+      "data_handling": "Zero retention; content leaves the tenant boundary for inference only."
+    }
+  ]
+}

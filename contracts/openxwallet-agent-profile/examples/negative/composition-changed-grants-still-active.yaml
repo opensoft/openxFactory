@@ -1,0 +1,32 @@
+# expected_failure: declared-change-not-revoked
+# expected_failure_detail: no tolerance band and no grace period
+# requirement: OXWA-R2
+# VIOLATES profile R2: a changed composition whose grants are still live.
+#
+# The attested hash differs from the declared hash — somebody edited a prompt,
+# a policy or a tool manifest — and the record keeps `grants_state: active`.
+# This is the plausible mistake, because a grace period sounds operationally
+# kind: let the agent finish what it is doing.
+#
+# It is refused because an agent IS its composition. A changed agent is a
+# different agent, and the authority granted to the previous one was never
+# granted to this one. The family already applies this to OUTPUTS — a
+# prompt-contract version bump invalidated every prior classification — and
+# the profile generalizes it to AUTHORITY. No threshold, score, or tolerance
+# band is consulted; any single declared component changing is sufficient.
+schema_version: 1
+kind: xfactory_wallet_agent_composition
+wallet_ref: wal-agent-poster-0001
+holder_class: agent
+composition:
+  hash_algorithm: sha256
+  declared_hash: "sha256:2a1961a71070be42d17a35b9599ff18a88bd1431ae721ada212ef18b697a9c18"
+  component_set:
+    - component: prompt_contract
+      binding_mode: content
+      content_digest: "sha256:22b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091"
+attestation:
+  attested_hash: "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+  attested_at: "2026-08-07T14:00:00Z"
+  source: omnigent:readiness-heartbeat
+grants_state: active

@@ -1,0 +1,35 @@
+# expected_failure: pre-merge-subject-unresolvable
+# expected_failure_detail: sub-3ab77e90c4f21d55
+# requirement: IDB-R4
+# VIOLATES R4: the merge drops a prior subject identifier.
+#
+# Approved, recorded, and it looks complete: an approver, a time, an evidence
+# reference, and a pre-merge entry for the surviving subject. What is missing is
+# the LOSING subject — the identifier every record written before the merge
+# actually carries. Dropping it silently orphans all of them, re-creating at
+# merge time precisely the attribution loss the capability was built to
+# prevent.
+#
+# The failure is invisible at merge time and discovered later, by a reader
+# asking who took an act, which is why the resolvability obligation is
+# structural rather than procedural: the record carries every prior subject and
+# the survivor it resolves to, or it is not a valid merge.
+schema_version: 1
+kind: identity_link_record
+link_record_id: lnk-merge-drops-subject-9008
+broker_instance_ref: broker-opensoft-shared
+mode: admin_merge
+basis: governed_administration_approval
+subjects:
+  - sub-8f2c41d60a974d3b
+  - sub-3ab77e90c4f21d55
+surviving_subject: sub-8f2c41d60a974d3b
+pre_merge_subjects:
+  - subject: sub-8f2c41d60a974d3b
+    remains_resolvable_to: sub-8f2c41d60a974d3b
+approved_by:
+  administrator_subject: sub-ad91c740be6f5312
+  approval_record_ref: "opsx:keycloak-administration/merge-queue/2026-08-22/0008"
+  approved_at: "2026-08-22T09:30:00Z"
+occurred_at: "2026-08-22T09:30:30Z"
+evidence_ref: "broker-audit://broker-opensoft-shared/merge/2026-08-22/09-30-30"

@@ -40,7 +40,8 @@ import argparse
 import hashlib
 import re
 import sys
-from pathlib import Path
+import tarfile
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 try:
@@ -1473,6 +1474,53 @@ def f0_gate_decision(s: dict) -> tuple[bool, str]:
     return True, "F0 gate satisfied"
 
 
+def _resolve_f0_dir(pin: dict) -> Path:
+    """The pinned F0 change directory, following it into the archive once the
+    owning change archives (issue #30, option C). The pin's path stays
+    authoritative: the fallback fires only when the live directory is gone,
+    and only on an UNAMBIGUOUS dated-archive match — zero or several matches
+    return the absent pinned path so every dimension downstream resolves
+    False and the gate stays BLOCKED. The schema digests and source_commit
+    pins still verify the bytes wherever the directory is found."""
+    pinned = ROOT / (pin.get("f0_change_path") or "")
+    if pinned.is_dir():
+        return pinned
+    if pinned.name:
+        matches = sorted((ROOT / "openspec" / "changes" / "archive").glob(f"*-{pinned.name}"))
+        if len(matches) == 1 and matches[0].is_dir():
+            return matches[0]
+    return pinned
+
+
+def _f0_member_bytes(f0_dir: Path, rel: str) -> bytes | None:
+    """Bytes of a pinned F0 artifact: the loose file, or — in a packaged
+    archive, where proposal-support tarballs supporting-docs/ on archive —
+    the identically named member of supporting-docs.tar.gz. Missing, unsafe,
+    or unreadable resolves None so every gate dimension downstream stays
+    False and the gate stays BLOCKED."""
+    if not rel:
+        return None
+    loose = f0_dir / rel
+    if loose.is_file():
+        return loose.read_bytes()
+    parts = PurePosixPath(rel).parts
+    if len(parts) < 2 or parts[0] != "supporting-docs":
+        return None
+    bundle = f0_dir / "supporting-docs.tar.gz"
+    if not bundle.is_file():
+        return None
+    member = "/".join(parts[1:])
+    try:
+        with tarfile.open(bundle, "r:gz") as archive:
+            info = archive.getmember(member)
+            if not info.isfile():
+                return None
+            stream = archive.extractfile(info)
+            return stream.read() if stream is not None else None
+    except (tarfile.TarError, KeyError, OSError):
+        return None
+
+
 def check_f0_gate(f: Findings, require_realization: bool) -> None:
     """US4 (T039): fail-closed F0 publication gate + self-test of the adverse table."""
     # T040 self-test: prove the fail-closed table (does not need real F0 files).
@@ -1502,10 +1550,10 @@ def check_f0_gate(f: Findings, require_realization: bool) -> None:
     # is NOT present in this worktree; when it is absent every dimension below
     # resolves False/unknown and the gate stays BLOCKED, exactly like the
     # tag-withheld `pending` path above.
-    f0_dir = ROOT / (pin.get("f0_change_path") or "")
-    rs = f0_dir / (pin.get("f0_results_schema") or "")
-    iis = f0_dir / (pin.get("f0_interface_impact_schema") or "")
-    schema_present = rs.is_file() and iis.is_file()
+    f0_dir = _resolve_f0_dir(pin)
+    rs_bytes = _f0_member_bytes(f0_dir, pin.get("f0_results_schema") or "")
+    iis_bytes = _f0_member_bytes(f0_dir, pin.get("f0_interface_impact_schema") or "")
+    schema_present = rs_bytes is not None and iis_bytes is not None
 
     # Load the consumed F0 evidence INSTANCES (f0-results + f0-interface-impact).
     ev_dir = f0_dir / "evidence"
@@ -1519,8 +1567,8 @@ def check_f0_gate(f: Findings, require_realization: bool) -> None:
     instance_valid = False
     if schema_present and isinstance(results_inst, dict) and isinstance(impact_inst, dict):
         try:
-            r_schema = load_yaml(rs)
-            i_schema = load_yaml(iis)
+            r_schema = yaml.safe_load(rs_bytes.decode("utf-8"))
+            i_schema = yaml.safe_load(iis_bytes.decode("utf-8"))
             r_ok = not list(Draft202012Validator(r_schema).iter_errors(results_inst))
             i_ok = not list(Draft202012Validator(i_schema).iter_errors(impact_inst))
             instance_valid = r_ok and i_ok
@@ -1559,8 +1607,8 @@ def check_f0_gate(f: Findings, require_realization: bool) -> None:
     state = {
         "schema_present": schema_present,
         "digest_match": schema_present
-        and pin.get("f0_results_schema_sha256") == digest_file(rs)
-        and pin.get("f0_interface_impact_schema_sha256") == digest_file(iis),
+        and pin.get("f0_results_schema_sha256") == hashlib.sha256(rs_bytes).hexdigest()
+        and pin.get("f0_interface_impact_schema_sha256") == hashlib.sha256(iis_bytes).hexdigest(),
         "commit_match": commit_match,
         "instance_valid": instance_valid,
         "unknown_variance_field": unknown_variance,

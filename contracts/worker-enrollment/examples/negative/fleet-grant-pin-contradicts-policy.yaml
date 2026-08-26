@@ -1,0 +1,76 @@
+# expected_failure: fleet-grant-pin-contradicts-policy
+# VIOLATES spec R7 by pinning the WRONG artifact. Every field the pin rule looked
+# for is present — `mode: pinned`, a version, a sha256, `self_update: disabled`,
+# `delivery: manifest_rollout` — and the version and digest match no package the
+# enrollment policy declares.
+#
+# The stated purpose of the pin is "what makes the installed runner a known,
+# digest-verified artifact and what keeps version changes inside the governed
+# manifest-rollout path". PRESENCE establishes neither: a broker free to pin
+# v2.100.0 and a digest of zeros is a broker that has taken the fleet's runner
+# binary outside the governed rollout path while reading as compliant.
+#
+# The canonical validator's rule (c) therefore compares a fleet grant's pin
+# against `estates.fleet.runner_package` whenever a policy is in scope.
+schema_version: 1
+kind: worker_enrollment_grant
+
+grant_id: grant-cpc-omni06-0001
+request_ref: req-cpc-omni06-0001
+granted_at: "2026-08-06T09:00:00Z"
+
+lease:
+  schema_version: 1
+  kind: worker_lease
+  lease_id: wl-cpc-omni06-0001
+  estate: fleet
+  subject:
+    class: host
+    ref: host:cpc-omni06
+  host:
+    host_id: cpc-omni06
+    device_name: CPC-Omni0-Y8QD1
+    managed: true
+  worker:
+    worker_id: xfactory-coding-cpc-omni06
+    runner_name: xfactory-coding-cpc-omni06
+  binding:
+    runner_group: xfactory-execution-lane-workers
+    labels:
+      - self-hosted
+      - omnigent
+      - coding-patch
+  trust_tier: managed_fleet
+  issued_at: "2026-08-06T09:00:00Z"
+  expires_at: "2026-08-07T09:00:00Z"
+  cadence:
+    ttl: PT24H
+    renewal_interval: PT1H
+    grace: PT12H
+    clock_skew_tolerance: PT5M
+  floor_in_force:
+    min_app_version: 1.4.0
+  state: active
+  policy_version: worker-enrollment-v1
+
+runner_package:
+  mode: pinned
+  version: v2.100.0
+  platform: win-x64
+  sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+  self_update: disabled
+  delivery: manifest_rollout
+
+host_manifest:
+  source: delivery_plane
+  policy_version: worker-enrollment-v1
+
+registration_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-08-06T09:10:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded

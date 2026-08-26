@@ -1,0 +1,44 @@
+# VALID trust anchor: the self-hosted issuing authority, one below the root. Its
+# validity window is inside its parent's, because an anchor's window bounds
+# everything beneath it.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:core-issuing
+realization_ref: realization:core-self-hosted-authority
+anchor_identity:
+  subject_name: "Core Production Issuing Authority"
+  key_identifier_ref: ski:core-issuing-2026
+  public_key_fingerprint: "sha256:1B77E9C0A5D43F82661C0EBA97D5F3428A0E6D19C7B42F53"
+chain_position:
+  role: subordinate
+  parent_anchor_ref: anchor:core-root
+  path_depth: 1
+validity:
+  not_before: "2026-02-01T00:00:00Z"
+  not_after: "2031-02-01T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:core-service-issuance-policy
+    authority_kind: policy
+    statement: Service certificates for the production core.
+    admitted_at: "2026-02-01T00:00:00Z"
+  - authority_ref: grant:core-workload-issuance-grant
+    authority_kind: grant
+    statement: >-
+      Workload certificates, issued on a scoped grant rather than a standing
+      policy, so the grant's expiry bounds the population.
+    admitted_at: "2026-02-01T00:00:00Z"
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  credential_record_ref: credential:core-issuing-signing-key
+  vault_binding_ref: vaultbinding:core/issuing-signing-key
+  declared_at: "2026-02-01T00:00:00Z"
+  declared_by: opensoft
+administration_credentials:
+  - credential_record_ref: credential:core-issuance-service-account
+    authorizes: [issuance, revocation]
+    brokered_into_ephemeral_scope: true
+record_version: 1
+created_at: "2026-02-01T00:00:00Z"

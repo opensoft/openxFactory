@@ -1,0 +1,16 @@
+# gate-action record — a HUMAN-authenticated console action audit entry
+# (gate-action-record.schema.yaml). Agents structurally cannot author one
+# (the console rejects any non-human caller before a record is ever written).
+schema_version: 1
+kind: gate-action-record
+actor: Brett
+action: dispose-possible
+target:
+  possible_id: pos-derived-reusable-tier-2-council-clearance-pattern-beyond
+  outcome: accepted
+at: '2026-07-23T19:03:49Z'
+artifacts:
+- kind: register-update
+  reference: ideation/cross-reference.yaml#possibles_register
+notes: Sound abstraction-from-precedent; extract the template when a second sweep
+  wants a tier-2 rule (rule-of-three noted at accept time).

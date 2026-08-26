@@ -1,0 +1,73 @@
+schema_version: 1
+kind: xfactory_ontology_stewardship_policy
+# Starter-seeded Domain Hermes stewardship policy (deterministic
+# defaults; add-domain-ontology-layer §5). Domain Hermes tunes the
+# council, cadence, mode workflows, trigger thresholds, quality gate,
+# and privacy floor; the canonical validator resolves every steward
+# reference and tools enforce the gate at release.
+package_id: xf/codex
+council:
+  name: "codexFactory Ontology Review Council"
+  members:
+    - codex-ontology-steward
+  quorum: 1
+  high_impact_requires: [council]
+source_review:
+  default_review_days: 180
+  expired_source_mode: refresh
+modes:
+  seed:
+    required_inputs: [intake_answer_set]
+    review_evidence: [steward_review]
+    outputs: [package_revision]
+    blocked_states: [awaiting_review]
+  extend:
+    required_inputs: [candidate_record]
+    review_evidence: [steward_review]
+    outputs: [candidate_disposition]
+    blocked_states: [awaiting_review]
+  refresh:
+    required_inputs: [source_inventory_entry]
+    review_evidence: [steward_review]
+    outputs: [candidate_disposition]
+    blocked_states: [awaiting_review]
+  reconcile:
+    required_inputs: [telemetry_observation]
+    review_evidence: [council_review]
+    outputs: [maintenance_report]
+    blocked_states: [awaiting_review]
+  correct:
+    required_inputs: [appeal_record]
+    review_evidence: [council_review]
+    outputs: [package_revision]
+    blocked_states: [awaiting_review]
+  deprecate:
+    required_inputs: [impact_report]
+    review_evidence: [council_review]
+    outputs: [deprecation_notice]
+    blocked_states: [awaiting_review]
+  retire:
+    required_inputs: [migration_map]
+    review_evidence: [council_review]
+    outputs: [retirement_notice]
+    blocked_states: [awaiting_review]
+triggers:
+  unknown_term_count_threshold: 25
+  mapping_failure_count_threshold: 10
+  low_confidence_threshold: 0.5
+  low_confidence_count_threshold: 20
+  unknown_term_mode: extend
+  mapping_failure_mode: refresh
+  low_confidence_mode: reconcile
+  workflow_drift_mode: reconcile
+  subdomain_request_mode: extend
+  appeal_mode: correct
+  promotion_mode: extend
+quality_gate:
+  required_signals:
+    - signal: intake_scope_coverage
+      min_value: 0.5
+  exception_requires: reviewed_exception_ref
+aggregation_floor:
+  distinct_subjects: 5
+  distinct_tenants: 1

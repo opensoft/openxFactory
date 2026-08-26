@@ -1,0 +1,66 @@
+# VALID anchor for a root the family HOLDS but does not operate, whose private
+# key its operator keeps as a readable file on its own host. Two things are true
+# at once, and both are recorded:
+#
+#   * The arrangement is CONFORMANT. The family cannot produce a
+#     credential-contracts record and a vault binding for someone else's key, so
+#     the R7 shortfall is declared — with the entry named, belonging to this
+#     realization, and dated before this record. That is the honest-shortfall
+#     rule working exactly as ratified.
+#   * The arrangement COSTS SOMETHING AT POINT OF USE. Because the key is
+#     readable by the host that uses it, anything with read access to that host
+#     can issue under this chain, anywhere, indefinitely — so no subordinate
+#     anchor and no certificate chaining here may carry an assurance ceiling
+#     above this anchor's `host_attributed_act`, whatever the leaf's own custody
+#     is. A declared gap is not permission to assert the evidence, and this is
+#     what that means for a chain rather than for a single record.
+#
+# The corpus deliberately holds no certificate beneath this anchor: the negative
+# fixture `certificate-reaching-holder-assurance-under-a-host-readable-root.yaml`
+# is the record that tries, and it does not validate.
+schema_version: 1
+kind: xfactory_trust_anchor
+anchor_id: anchor:partner-readable-root
+realization_ref: realization:managed-cloud-authority-canary
+anchor_identity:
+  subject_name: "Partner Federation Root CA"
+  display_label: Partner federation root (held, not operated)
+  public_key_fingerprint: "sha256:9F41B7C2D08E5A6318C4B9E27F0D5A3168E4C7B2D9A05F13"
+chain_position:
+  role: root
+  path_depth: 0
+  statement: >-
+    A root the family holds in its trust store under a federation agreement. It
+    is a root here because nothing above it is held; the partner's own hierarchy
+    is not the family's to record.
+validity:
+  not_before: "2026-06-15T00:00:00Z"
+  not_after: "2032-06-15T00:00:00Z"
+state: held
+admitted_issuance_authorities:
+  - authority_ref: policy:partner-federation-issuance
+    authority_kind: policy
+    statement: >-
+      Certificates for the partner's federated services, issued under the
+      federation profile the agreement names.
+    admitted_at: "2026-06-15T00:00:00Z"
+declared_chain_custody:
+  custody_model: host_held
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  declared_at: "2026-06-15T00:00:00Z"
+  declared_by: opensoft
+  declared_shortfall_ref: ob:managed:TA-R7
+  statement: >-
+    The partner keeps this root's private key as a readable file on the host
+    that signs with it. Declared rather than described as stronger than it is:
+    the family cannot produce a credential record for a key it does not hold,
+    and the realization's TA-R7 entry says so.
+record_version: 1
+created_at: "2026-06-15T00:00:00Z"
+notes: >-
+  Recorded because the alternative is not recording it — a root in the trust
+  store with no governed record is the case this capability exists to refuse.
+  What the custody declaration buys a reader is the ability to see, from the
+  record alone, that an act authenticated under this chain evidences a HOST at
+  best.

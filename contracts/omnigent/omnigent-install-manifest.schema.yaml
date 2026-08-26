@@ -1,0 +1,221 @@
+schema_version: 1
+kind: openxfactory-omnigent-contract-schema
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/omnigent/v1/omnigent-install-manifest.schema.yaml"
+contract_id: omnigent-install-manifest
+contract_schema_version: 1
+title: Omnigent install manifest
+description: >-
+  The Omnigent install manifest (`add-omnigent-domain-overlay`, capability
+  `omnigent-install-manifest`). Digest-pins the Hermes runtime manifest of
+  its stack as the single source of stack identity — tenant, domain, and
+  subject-workload identity come from that pinned document, and this
+  manifest deliberately has nowhere to declare a parallel identity
+  (`additionalProperties: false` plus no identity fields). It adds only
+  overlay resolution (exactly one domain overlay — cardinality is one
+  tenant, one domain, N subject workloads), the subject-workload registry
+  (activation state and validator mode, machine-readable rather than
+  inferred from GitOps tree diffs), the pre-rendered effective-profile
+  record with provenance, and the compose/verify evidence root. Machine
+  identifiers use the canonical subject/tenant/domain spellings from birth;
+  legacy customer/client spellings appear only inside the pinned upstream
+  artifacts and are interpreted via the published layer-vocabulary mapping.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - stack_identity
+  - domain_overlays
+  - subject_workloads
+  - effective_profiles
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: omnigent_install_manifest
+  stack_identity:
+    type: object
+    additionalProperties: false
+    required: [hermes_runtime_manifest]
+    properties:
+      hermes_runtime_manifest:
+        type: object
+        additionalProperties: false
+        required: [repository, commit, path, digest]
+        properties:
+          repository:
+            $ref: "#/$defs/repository_ref"
+          commit:
+            $ref: "#/$defs/git_commit"
+          path:
+            $ref: "#/$defs/relative_path"
+          digest:
+            $ref: "#/$defs/sha256_digest"
+  domain_overlays:
+    description: >-
+      Exactly one active domain overlay per install stack; a second domain
+      is a second stack (multi-domain fleets rejected for this contract
+      generation).
+    type: array
+    minItems: 1
+    maxItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - domain_id
+        - repository
+        - commit
+        - overlay_root
+        - overlay_manifest_path
+        - overlay_manifest_digest
+      properties:
+        domain_id:
+          $ref: "#/$defs/identifier"
+        repository:
+          $ref: "#/$defs/repository_ref"
+        commit:
+          $ref: "#/$defs/git_commit"
+        overlay_root:
+          $ref: "#/$defs/relative_path"
+        overlay_manifest_path:
+          description: >-
+            Path of the v2 hermes-runtime overlay-manifest document (file
+            inventory + per-file sha256) for this overlay root.
+          $ref: "#/$defs/relative_path"
+        overlay_manifest_digest:
+          $ref: "#/$defs/sha256_digest"
+  subject_workloads:
+    description: >-
+      Registry of subject workloads. May be empty only for bootstrap
+      states; an operational install requires at least one active entry
+      (enforced by the compose/verify step, not this schema).
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - workload_id
+        - subject_ref
+        - activation_state
+        - validator_mode
+        - workload_root
+      properties:
+        workload_id:
+          $ref: "#/$defs/identifier"
+        subject_ref:
+          $ref: "#/$defs/identifier"
+        activation_state:
+          enum:
+            - dormant_foundation
+            - activating
+            - active
+            - deactivated
+        validator_mode:
+          enum:
+            - render
+            - activation
+            - cluster
+            - public
+        workload_root:
+          $ref: "#/$defs/relative_path"
+  effective_profiles:
+    description: >-
+      Pre-rendered effective worker profiles, committed with provenance:
+      the exact core revision, overlay manifest digest, and tenant
+      parameter digest that produced them. Launch from unrendered inputs
+      is refused by the compose/verify step.
+    type: object
+    additionalProperties: false
+    required: [rendered_root, provenance]
+    properties:
+      rendered_root:
+        $ref: "#/$defs/relative_path"
+      provenance:
+        type: object
+        additionalProperties: false
+        required:
+          - core_revision
+          - overlay_manifest_digest
+          - tenant_params_digest
+        properties:
+          core_revision:
+            $ref: "#/$defs/git_commit"
+          overlay_manifest_digest:
+            $ref: "#/$defs/sha256_digest"
+          tenant_params_digest:
+            $ref: "#/$defs/sha256_digest"
+  evidence:
+    type: object
+    additionalProperties: false
+    required: [records_root]
+    properties:
+      records_root:
+        $ref: "#/$defs/relative_path"
+  semantic_contexts:
+    description: >-
+      Install-pinned worker semantic contexts (`add-omnigent-semantic-wiring`).
+      Required exactly when the pinned domain overlay declares worker
+      `semantic_context` profiles (both-direction completeness is enforced
+      by the canonical validator over the pinned overlay, not by this
+      schema). Pins are EXACT: the kernel and domain ontology package
+      digests every compiled artifact must embed, and one entry per
+      declaring worker naming the compiled artifact's identity, content
+      digest, and install-relative path. The artifact itself is the
+      ratified xfactory_semantic_context kind — closure, authority
+      firewall, and privacy stay the ontology validator's jurisdiction.
+    type: object
+    additionalProperties: false
+    required: [kernel, ontology_package, contexts]
+    properties:
+      kernel:
+        $ref: "#/$defs/ontology_pin"
+      ontology_package:
+        $ref: "#/$defs/ontology_pin"
+      contexts:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          required: [worker_class, context_id, content_digest, path]
+          properties:
+            worker_class:
+              $ref: "#/$defs/identifier"
+            context_id:
+              type: string
+              pattern: "^ctx-[a-z0-9][a-z0-9-]{0,63}$"
+            content_digest:
+              $ref: "#/$defs/sha256_digest"
+            path:
+              $ref: "#/$defs/relative_path"
+$defs:
+  ontology_pin:
+    type: object
+    additionalProperties: false
+    required: [package_id, package_version, package_digest]
+    properties:
+      package_id:
+        type: string
+        pattern: "^xf/[a-z0-9_]+$"
+      package_version:
+        type: string
+        pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      package_digest:
+        $ref: "#/$defs/sha256_digest"
+  identifier:
+    type: string
+    pattern: "^[a-z][a-z0-9_-]*$"
+  repository_ref:
+    type: string
+    pattern: "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$"
+  git_commit:
+    type: string
+    pattern: "^[0-9a-f]{40}$"
+  sha256_digest:
+    type: string
+    pattern: "^[0-9a-f]{64}$"
+  relative_path:
+    type: string
+    pattern: "^[^/].*[^/]$"

@@ -1,0 +1,75 @@
+# expected_failure: token-in-record
+# expected_failure_detail: registration_token
+# VIOLATES spec R2/R3 and the rule that a REMOVAL NEVER RE-ENROLLS. This is the
+# plausible version of the mistake, and the one a broker author reaches for: the
+# host asked for a remove token to clear a stale registration, so answer with the
+# remove token AND a fresh registration token, saving the host a round trip.
+#
+# That round trip is the governance. Re-registering is a NEW LEASE DECISION —
+# eligibility, the machine cap, the version floor, the trust tier, the policy
+# version, an `enroll` audit record — and a repair call that quietly hands back
+# registration authority skips every one of them. Worse, it does so on the one call
+# whose whole purpose is to clean up after drift, so a host that repairs in a loop
+# re-registers in a loop with no enrollment ever recorded.
+#
+# The declaration block below carries no `value` on purpose: the finding is the
+# PRESENCE OF THE FIELD, not a leaked secret. Fails twice, by design — the shape's
+# `additionalProperties: false` has no such property, and the canonical validator's
+# rule (a) finds a token-shaped property in a kind whose only exempt one is
+# `remove_token`.
+schema_version: 1
+kind: worker_removal_grant
+
+removal_grant_id: rmg-cpc-omni03-0001
+issued_at: "2026-07-31T13:02:00Z"
+
+lease_id: wl-cpc-omni03-0001
+estate: fleet
+
+subject:
+  class: host
+  ref: host:cpc-omni03
+  authentication_mode: host_identity
+
+host:
+  host_id: cpc-omni03
+  device_name: CPC-Omni0-J8QWM
+  managed: true
+
+worker:
+  worker_id: xfactory-coding-cpc-omni03
+  runner_name: xfactory-coding-cpc-omni03-stale
+
+binding:
+  runner_group: xfactory-execution-lane-workers
+
+trust_tier: managed_fleet
+
+reason: drift_repair
+reason_detail: deregister the orphan and re-register in one call
+
+remove_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-07-31T13:12:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded
+
+registration_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-07-31T13:12:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded
+
+policy_version: worker-enrollment-v1
+
+audit_ref:
+  event: remove_token
+  record_id: aud-cpc-omni03-0019

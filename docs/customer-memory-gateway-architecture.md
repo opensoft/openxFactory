@@ -5,16 +5,16 @@ Kind: architecture
 Ratified by: add-customer-memory-gateway-architecture (archived 2026-07-08)
 Repository context: openxFactory
 Related models:
-[Customer Hermes Memory Model](customer-hermes-memory-model.md),
+[Subject Hermes Memory Model](customer-hermes-memory-model.md),
 [Customer Memory Fill And Maintenance Taxonomy](customer-memory-fill-maintenance-taxonomy.md),
 [xFactory Domain Factory Model](xfactory-domain-factory-model.md)
-Purpose: organize the implementation architecture for Customer Hermes brain,
+Purpose: organize the implementation architecture for Subject Hermes brain,
 memory, and personality, and for Omnigent expert memory and knowledge access,
 without binding xFactory to a single memory or knowledge product.
 
 ## 1. Summary
 
-Customer Hermes needs a durable, governed brain for each customer subject:
+Subject Hermes needs a durable, governed brain for each customer subject:
 Patient Hermes for a patient, Managed System Hermes for a tenant or service,
 Project Hermes for a software project, Campaign Hermes for a campaign, and so
 on.
@@ -32,14 +32,14 @@ stores, source workspaces, knowledge DBs, or future systems should map into
 those contracts through adapters.
 
 The fill and maintenance taxonomy defines how information enters and changes
-Customer Hermes memory. This gateway defines how those candidate writes,
+Subject Hermes memory. This gateway defines how those candidate writes,
 refreshes, corrections, promotions, and migrations are gated and routed.
 
 ```text
 Memory and knowledge products store and retrieve.
 xFactory governs access and movement.
 Hermes owns decisions.
-Customer Hermes owns customer-subject truth.
+Subject Hermes owns customer-subject truth.
 Domain Hermes owns reusable domain truth.
 Omnigent owns bounded expert execution.
 Omnigent receives bounded customer and expert context packets.
@@ -52,10 +52,10 @@ The customer and expert memory system should be organized in layers:
 
 ```text
 Goal
-  what Customer Hermes must accomplish for the customer subject
+  what Subject Hermes must accomplish for the customer subject
 
 Canonical model
-  stable Customer Hermes objects, expert knowledge objects, and authority
+  stable Subject Hermes objects, expert knowledge objects, and authority
   boundaries
 
 Gateway ports
@@ -73,7 +73,7 @@ Provider adapters
 ```
 
 This keeps the architecture portable. A DomainxFactory can use GBrain today and
-swap or augment it later without changing the Customer Hermes authority model
+swap or augment it later without changing the Subject Hermes authority model
 or the Omnigent expert call surface.
 
 ## 3. Placement In The Stack
@@ -105,7 +105,7 @@ truth DB, vector index, graph DB, source workspace, or case-pattern store.
 Direct provider calls may exist only for bootstrap, health checks, or
 diagnostics using separate operator-scoped credentials that are read-only and
 bound to non-production or shadow namespaces. They never create approved
-Customer Hermes memory or authoritative expert context.
+Subject Hermes memory or authoritative expert context.
 
 ## 4. Framework Components
 
@@ -633,7 +633,7 @@ archive
   tombstone, de-identify, or retire old provider refs according to retention
 ```
 
-The framework goal is that Customer Hermes stays logically continuous even
+The framework goal is that Subject Hermes stays logically continuous even
 when its memory provider changes.
 
 ## 10. Runtime Request Flow
@@ -701,12 +701,12 @@ the external provider bindings, route tables, source-authority requirements,
 usage metering, migrations, and audit trail. Domain Hermes should own reusable
 domain truth, expert policy, review standards, and promotion decisions.
 
-Expert memory uses the same gateway model as Customer Hermes memory, with
+Expert memory uses the same gateway model as Subject Hermes memory, with
 different scopes and ports.
 
 ```text
 customer_subject_memory
-  private customer-subject memory owned by Customer Hermes
+  private customer-subject memory owned by Subject Hermes
 
 profile_relationship_memory
   person, organization, relationship, and preference memory
@@ -737,7 +737,7 @@ expert_evaluation_memory
 The same gateway operation can serve both consumers:
 
 ```text
-Customer Hermes
+Subject Hermes
   -> xfactory.memory.context_packet
   -> customer context packet
 
@@ -759,7 +759,7 @@ provider_role
 
 source_authority
   required for expert context just like source refs are required for durable
-  Customer Hermes memory writes
+  Subject Hermes memory writes
 ```
 
 Omnigent writes follow a promotion path:
@@ -841,7 +841,7 @@ One operation:
   xfactory.memory.context_packet
 
 One provider role:
-  group_project_memory for Customer Hermes
+  group_project_memory for Subject Hermes
   expert_knowledge_memory for the first Omnigent proof
 
 One provider adapter:
@@ -920,8 +920,8 @@ current state snapshot version, and redaction profile.
 
 | Layer | Owns | Does Not Own |
 | --- | --- | --- |
-| Customer Hermes | customer-subject identity, consent, preferences, timeline, evidence, current state, memory, active workflow context, follow-up, promotion candidates | reusable domain truth, tenant-wide credentials, client policy |
-| Client Hermes | client organization policy, local staff, integrations, customer relationship, tenant configuration, local approval gates | global domain standards, customer-private memory by default |
+| Subject Hermes | customer-subject identity, consent, preferences, timeline, evidence, current state, memory, active workflow context, follow-up, promotion candidates | reusable domain truth, tenant-wide credentials, client policy |
+| Tenant Hermes | client organization policy, local staff, integrations, customer relationship, tenant configuration, local approval gates | global domain standards, customer-private memory by default |
 | Domain Hermes | reusable domain knowledge, expert truth, review standards, routing, taxonomy, safety policy, domain memory | individual customer consent, raw customer records, provider secrets |
 | xFactory | memory and knowledge rails, provider bindings, source authority, gates, promotion, traceability, audit, migration, metering, provider neutrality | product-specific storage internals, domain truth decisions |
 | Provider adapter | mapping canonical objects and operations to a product API | authority decisions |
@@ -1037,6 +1037,15 @@ Creates, validates, monitors, and reports memory migrations without changing
 the Hermes memory call surface.
 
 ## 18. Rails
+
+Semantic-context preflight (ratified `add-domain-ontology-layer`): when a
+customer or expert context packet carries a `semantic_context` block, the
+gateway verifies it BEFORE provider I/O — exact context id and content
+digest, exact kernel and domain package pins, published-or-deprecated
+package lifecycle (retired fails closed), purpose agreement with the
+packet, and a non-empty bounded term subset; an authority-named key inside
+the block is a violation. Presence of semantic context never changes any
+rail, and inference never becomes authority.
 
 Rails run before provider I/O whenever the operation is governed.
 
@@ -1293,7 +1302,7 @@ Hermes needs user/profile preference context
   -> xFactory redacts and packages result
 ```
 
-Neither AgentMemory nor Honcho should silently become Customer Hermes truth.
+Neither AgentMemory nor Honcho should silently become Subject Hermes truth.
 Neither AgentMemory nor an external expert DB should silently become Domain
 Hermes truth without a reviewed promotion path.
 
@@ -1442,7 +1451,7 @@ Project Hermes.
 Use this rule when evaluating implementation options:
 
 ```text
-If a memory product can be replaced without changing Customer Hermes authority,
+If a memory product can be replaced without changing Subject Hermes authority,
 the architecture is healthy.
 
 If an expert knowledge DB can be replaced without changing the Omnigent expert

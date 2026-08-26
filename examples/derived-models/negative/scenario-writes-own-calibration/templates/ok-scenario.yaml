@@ -1,0 +1,24 @@
+schema_version: 1
+kind: negx_object_template
+
+template:
+  id: ok_scenario
+
+fields:
+  truth_access:
+    type: enum
+    required: true
+    values:
+      - read_only
+  action_grant:
+    type: enum
+    required: true
+    values:
+      - none
+  output_status:
+    type: enum
+    required: true
+    values:
+      - hypothesis_proposed
+      - no_signal
+      - discarded

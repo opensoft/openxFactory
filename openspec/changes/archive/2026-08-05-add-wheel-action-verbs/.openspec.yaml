@@ -1,0 +1,18 @@
+schema: spec-driven
+created: 2026-07-25
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:wheel-action-verbs
+  reason: >-
+    Four gate-verb rulings Brett made 2026-07-25 during the wheel
+    expanded-tile tuning session, on the action row that session introduced:
+    promote `demote` to an executing dashboard verb, and add
+    `promote-to-staging`, `derive-possibles`, and `research-brief` as
+    recorded commissions. The lineage is the ideation-action-plane staged
+    topic (whose first exit was add-ideation-intent-plane, with
+    add-propose-verb the second), but no staged fragment describes these
+    verbs — they were decided live against the running wheel, so the change
+    enters as an approved ad-hoc origin rather than a backdated staging
+    claim.
+  approved_by: Brett (openxFactory operator authority)
+  approved_on: 2026-07-25

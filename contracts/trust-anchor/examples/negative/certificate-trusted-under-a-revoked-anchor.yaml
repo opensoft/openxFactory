@@ -1,0 +1,51 @@
+# expected_failure: trusted-under-closed-anchor
+# expected_failure_detail: stops trusting its subordinates
+# requirement: TA-R1
+# VIOLATES TA-R1: recorded as trusted under an anchor that has been revoked.
+#
+# This is the withdrawal that withdraws nothing, which is the failure the
+# anchor-first framing exists to prevent. The certificate is inside its own
+# validity window and its standing check came back active — because a
+# certificate-level standing check does not ask about the ANCHOR. Trust runs
+# through the anchor record, so the anchor's state is the answer.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:neg-under-revoked-anchor
+realization_ref: realization:core-self-hosted-authority
+anchor_ref: anchor:retired-root
+subject:
+  identifier: "still-running.retired.internal"
+  subject_class: service
+validity:
+  not_before: "2026-01-01T00:00:00Z"
+  not_after: "2027-01-01T00:00:00Z"
+state: valid
+key_generation:
+  generation_ref: keygen:neg-under-revoked-anchor-g1
+declared_chain_custody:
+  custody_model: host_held
+  registry_id: trust-anchor-chain-custody
+  credential_record_ref: credential:neg-under-revoked-anchor-key
+  vault_binding_ref: vaultbinding:core/neg-under-revoked-anchor-key
+evidences: using_host
+assurance_ceiling: host_attributed_act
+issuance_evidence:
+  present: false
+  unexplained:
+    question_answered_as: unanswered
+    disposition: revocation_candidate
+    recorded_at: "2026-01-01T00:00:00Z"
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: "2026-01-01T00:00:00Z"
+  binding_refs: []
+trust_evaluation:
+  evaluated_at: "2026-06-01T09:00:00Z"
+  basis: held_anchor_record
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: "2026-06-01T09:00:00Z"
+    result: current_standing_active
+  outcome: trusted

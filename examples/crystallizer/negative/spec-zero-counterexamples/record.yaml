@@ -1,0 +1,35 @@
+# expected_failure: counterexample-floor
+# A spec with only happy paths — a corpus without failure cases cannot
+# define refusal behavior.
+schema_version: 1
+kind: crystallization_spec
+spec_id: "cspec:neg:v1"
+decision_ref: "dec:opensoft:neg:base"
+family_ref: "fam:opensoft:neg"
+mined:
+  invariants:
+    - claim: "output validates"
+      episode_refs: ["ep:opensoft:neg:one"]
+  parameters: []
+  branches: []
+  counterexamples: []
+acceptance_corpus:
+  episode_refs: ["ep:opensoft:neg:one"]
+  equivalence_predicates:
+    - output_type: artifact
+      comparator: structural-exact
+  cassettes_ref: null
+  corpus_digest: "sha256:76783233834e180a222597276a80af073c7d8e112c6641a4f239207c37e85ac7"
+scope_fence:
+  predicate: "job_type == neg"
+  derived_from: observed-support
+  digest: "sha256:183ccbdc445eed32ad17ae64bee4d4db7ab23f943c0fa40e2b26150963a0b9a8"
+effect_class: idempotent
+miner:
+  version: manual-0
+  evidence_bounds:
+    episodes: 2
+    span: "2026-07-29"
+ratification:
+  mode: human
+  scaled_by: [rung, risk]

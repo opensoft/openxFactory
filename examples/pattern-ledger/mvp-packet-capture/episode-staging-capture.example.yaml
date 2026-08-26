@@ -1,0 +1,43 @@
+# MVP fixture corpus: the staging-topic capture of 2026-07-29 (openxFactory
+# commit 8e1a8be) — a same-family variant whose plan diverges (staging INDEX
+# row + Organized-header flips instead of a README-only index entry): the
+# kind of branch divergence requirements mining feeds on.
+schema_version: 1
+kind: episode
+episode_id: "ep:opensoft:2026-07-29:staging-topic-capture"
+tenant_ref: "tenant:opensoft"
+envelope:
+  job_type: brainstorm_packet_capture
+  domain: codexFactory
+  refs:
+    repository: openxFactory
+    commit: 8e1a8be
+    doc_count: 6
+    variant: staging-topic
+plan_ref:
+  digest: "sha256:727cccd0bcb1264e6efb7f5bf15ba019680d24900356b012f7f5ea72fad7d2be"
+spans:
+  - agent: "session:crystallization-packet"
+    steps:
+      - tool: write-docs
+        io_digest: "sha256:379173737540b8898bf09e9ee1f72908d04de52c163156bf4cc8224c447de904"
+        payload_ref: null
+      - tool: update-staging-index
+        io_digest: "sha256:1dff8bbebe59aa304045bbb6e1f5a4715d824a93869ea17e5021f87f02b370a5"
+        payload_ref: null
+      - tool: git-commit-push
+        io_digest: "sha256:d25b8d95a63721e739ec515451e81d51d9184755b237380b70370c6a630a091c"
+        payload_ref: null
+cost:
+  credits: null
+  wall_ms: 1800000         # ~30 min
+  human_touches:
+    - "go decision (recommendations adopted)"
+    - "commit approval"
+  meter_ref: null
+replayability: live-only
+consent:
+  episode_use: true
+  automation: false
+  pooling: false
+labels_ref: "labels:opensoft:staging-topic-capture"

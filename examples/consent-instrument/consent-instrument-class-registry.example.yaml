@@ -1,0 +1,27 @@
+# VALID instrument-class registry for the demo-advisory domain (spec
+# "Domain-Owned Instrument-Class Registries Under Neutral Constraints",
+# ruling D2): a CLOSED domain-owned class list — every class declares BOTH
+# its custody-anchor kind and its execution-evidence kind plus its lifecycle
+# posture. `portal_acceptance` declares signature_phase false (the D3
+# DECLARED direct-to-executed skip); `engagement_letter` declares the
+# Ledgerx-precedent status alias `active` -> `executed`;
+# `internal_beta_authorization` echoes the Ledgerx mid-engagement class no
+# neutral vocabulary would have admitted.
+schema_version: 1
+kind: xfactory_consent_instrument_class_registry
+domain: demo-advisory
+classes:
+  - name: engagement_letter
+    custody_anchor_kind: countersigned_pdf
+    execution_evidence_kind: dual_signature_page
+    signature_phase: true
+    status_aliases:
+      active: executed
+  - name: portal_acceptance
+    custody_anchor_kind: acceptance_event_export
+    execution_evidence_kind: portal_acceptance_event
+    signature_phase: false
+  - name: internal_beta_authorization
+    custody_anchor_kind: countersigned_pdf
+    execution_evidence_kind: authorization_memo_signature
+    signature_phase: true

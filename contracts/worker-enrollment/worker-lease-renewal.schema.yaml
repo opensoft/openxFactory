@@ -1,0 +1,319 @@
+schema_version: 1
+name: worker_lease_renewal
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/worker-enrollment/v1/worker-lease-renewal.schema.yaml"
+# Worker-enrollment contract (add-worker-enrollment-broker, task 1.4). The
+# renewal EXCHANGE — request and response in one record, because the pair is
+# what the audit trail and the tests reason about. Renewal is the only mechanism
+# that extends authority (spec R4): a lease not renewed within its TTL plus the
+# declared grace window expires, and nothing on the host can repair it.
+#
+# THE FLOOR IS REQUIRED ON EVERY RESPONSE, INCLUDING APPROVALS (spec R4, R5,
+# R6). That is deliberate and load-bearing: raising the minimum app version is
+# the ONLY control that reaches an unmanaged workstation, and it reaches it by
+# travelling on every renewal response whether or not that worker is affected
+# by it. A response without a floor is a schema failure AND a finding of the
+# canonical validator's rule (d) — belt and braces, because a floor that
+# sometimes travels is a floor that cannot be relied upon.
+#
+# `response` is optional so an in-flight request is representable; whenever a
+# response is present it carries the floor.
+#
+# No token property exists in this record, at any depth (spec R2, R9): renewal
+# never mints anything. Re-registration requires a fresh enrollment.
+#
+# THE RENEWAL EXCHANGE NAMES WHO AUTHENTICATED IT (spec R1). It used to carry no
+# authenticating subject at all — a renewal was authenticated by nothing but a
+# lease id — which left R1's "the device-code identity is used for the exchange
+# AND FOR RENEWALS, never escrowed on the machine" unexpressible in the bundle.
+# With hourly renewals a host app has exactly two ways to renew
+# non-interactively, and the contract MUST distinguish them: re-presenting the
+# device-code identity, or persisting a refresh credential next to the lease —
+# which IS a standing secret on somebody's laptop, the one property this design
+# says should stop the program rather than be negotiated. So
+# `request.authentication` carries the mode, the subject, and an explicit
+# `standing_secret_on_host` declaration whose only legal value under
+# `device_code` is `none`.
+type: object
+required:
+  - schema_version
+  - kind
+  - renewal_id
+  - lease_id
+  - request
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [worker_lease_renewal]
+  renewal_id: {$ref: '#/$defs/identifier'}
+  lease_id: {$ref: '#/$defs/identifier'}
+  request:
+    type: object
+    required: [requested_at, authentication, observed]
+    additionalProperties: false
+    properties:
+      requested_at: {type: string, format: date-time}
+      authentication:
+        # WHO the renewal is authenticated as — the SAME identity that enrolled,
+        # by reference, never a credential in the record (spec R1). See the
+        # header: this block exists so escrowing a refresh credential beside the
+        # lease is a statement the contract can hold and a gate can refuse,
+        # rather than an implementation detail no artifact records.
+        type: object
+        required: [mode, subject, standing_secret_on_host]
+        additionalProperties: false
+        properties:
+          mode:
+            type: string
+            enum: [host_identity, device_code]
+          subject:
+            type: object
+            required: [class, ref]
+            additionalProperties: false
+            properties:
+              class:
+                type: string
+                enum: [host, engineer]
+              ref: {$ref: '#/$defs/identifier'}
+          standing_secret_on_host:
+            # `none` is the ONLY legal value under `device_code`: a volunteered
+            # workstation holds no standing secret at any point in its life, so a
+            # persisted OAuth refresh token is not an implementation choice, it is
+            # a contract violation. `broker_access_only` is the fleet's one
+            # standing secret — the per-host identity in the managed-platform key
+            # vault, which carries broker ACCESS and no minting authority (R1, R3).
+            type: string
+            enum: [none, broker_access_only]
+          reauthenticated_at:
+            # When the renewing identity was last re-presented interactively, for
+            # a device-code subject. A reference to a moment, not a credential.
+            type: string
+            format: date-time
+      observed:
+        # What the host reports about itself. `app_version` is what the floor is
+        # evaluated against; `runner_version` is informational for the temp
+        # estate by contract (spec R7).
+        type: object
+        required: [app_version]
+        additionalProperties: false
+        properties:
+          app_version: {$ref: '#/$defs/app_version'}
+          runner_version: {$ref: '#/$defs/runner_version'}
+      liveness:
+        # Heartbeat liveness facts. The broker tolerates clock skew per the
+        # lease cadence; an unreachable broker is "not yet lapsed" until TTL
+        # plus grace, so a flaky network never fails a worker closed (D2).
+        type: object
+        additionalProperties: false
+        properties:
+          last_heartbeat_at: {type: string, format: date-time}
+          consecutive_failed_renewals: {type: integer, minimum: 0}
+          host_clock_offset: {$ref: '#/$defs/signed_duration'}
+  response:
+    type: object
+    # `policy_version` is required on every response EXCEPT the one refusal that
+    # means the policy could not be read (`policy_unavailable`) — see the allOf
+    # below. Citing a policy version the broker never read would put invented
+    # governance data into the only evidence R9 designates.
+    required: [decided_at, lease_state, floor, required_action]
+    additionalProperties: false
+    properties:
+      decided_at: {type: string, format: date-time}
+      lease_state:
+        type: string
+        enum: [active, expired, revoked, refused]
+      new_expiry:
+        # Required when the lease stays active — the extension IS the renewal.
+        type: string
+        format: date-time
+      floor:
+        # ALWAYS PRESENT (spec R4). Not conditional on the outcome, not omitted
+        # when unchanged, not omitted on refusal — INCLUDING when the policy could
+        # not be read, which is why `source` exists: the floor still travels, and
+        # it says whether it came from the policy or from the broker's last known
+        # value. A floor that sometimes travels is a floor that cannot be relied
+        # on; a floor whose provenance is unstated is a floor that can silently
+        # zero itself.
+        type: object
+        required: [min_app_version, source]
+        additionalProperties: false
+        properties:
+          min_app_version: {$ref: '#/$defs/app_version'}
+          source:
+            type: string
+            enum: [policy, last_known]
+      required_action:
+        # What the supervisor must do. `update_required` is the fail-closed
+        # below-floor signal the heartbeat reports (spec R5); `stop` covers an
+        # expired or revoked lease and any other refusal. Either way the runner
+        # services stop, and no local flag, retry, or configuration edit on the
+        # host may override the decision.
+        type: string
+        enum: [none, update_required, stop]
+      refusal_reason:
+        # Coded and closed — the reason a worker lost authority must be
+        # machine-legible off-machine (spec R6, R9).
+        type: string
+        enum:
+          - below_floor
+          - revoked_lease
+          - expired_lease
+          - unknown_lease
+          - ineligible_subject
+          - machine_cap_exceeded
+          - policy_unavailable
+      policy_version: {$ref: '#/$defs/policy_version'}
+      note: {$ref: '#/$defs/constrained_text'}
+
+allOf:
+  # A device-code renewal declares NO standing secret on the host, and its
+  # subject is the engineer; a host-identity renewal is the fleet's broker-access
+  # identity and its subject is the host (spec R1).
+  - if:
+      required: [request]
+      properties:
+        request:
+          required: [authentication]
+          properties:
+            authentication:
+              required: [mode]
+              properties: {mode: {const: device_code}}
+    then:
+      properties:
+        request:
+          properties:
+            authentication:
+              properties:
+                standing_secret_on_host: {const: none}
+                subject: {properties: {class: {const: engineer}}}
+  - if:
+      required: [request]
+      properties:
+        request:
+          required: [authentication]
+          properties:
+            authentication:
+              required: [mode]
+              properties: {mode: {const: host_identity}}
+    then:
+      properties:
+        request:
+          properties:
+            authentication:
+              properties:
+                standing_secret_on_host: {const: broker_access_only}
+                subject: {properties: {class: {const: host}}}
+  # An ACTIVE lease returns `required_action: none` and nothing else. It used to
+  # read `[none, update_required]` here while the `update_required` branch below
+  # forces `lease_state: refused` — an unsatisfiable pair in the one place a
+  # broker author looks for "what may an active renewal return?".
+  - if:
+      required: [response]
+      properties:
+        response:
+          required: [lease_state]
+          properties: {lease_state: {const: active}}
+    then:
+      properties:
+        response:
+          required: [new_expiry]
+          properties:
+            required_action: {const: none}
+  - if:
+      required: [response]
+      properties:
+        response:
+          required: [lease_state]
+          properties: {lease_state: {enum: [expired, revoked]}}
+    then:
+      properties:
+        response:
+          required: [refusal_reason]
+          properties:
+            required_action: {const: stop}
+  - if:
+      required: [response]
+      properties:
+        response:
+          required: [lease_state]
+          properties: {lease_state: {const: refused}}
+    then:
+      properties:
+        response:
+          required: [refusal_reason]
+          properties:
+            required_action: {enum: [update_required, stop]}
+  # `update_required` is reserved for the version floor: it is the ONE refusal
+  # whose recovery is an UPDATE rather than a re-enrollment or an operator
+  # action, and the one the heartbeat reports by name (spec R5).
+  - if:
+      required: [response]
+      properties:
+        response:
+          required: [required_action]
+          properties: {required_action: {const: update_required}}
+    then:
+      properties:
+        response:
+          required: [lease_state, refusal_reason]
+          properties:
+            lease_state: {const: refused}
+            refusal_reason: {const: below_floor}
+  # THE ONE REFUSAL THAT CANNOT CITE A POLICY: `policy_unavailable` means the
+  # broker could not read the merged policy. The floor still travels (R4 is
+  # unconditional) but it is explicitly the LAST KNOWN floor, and the response
+  # does not have to name a policy version it never read — the alternative was to
+  # drop the record during a control-plane fault or to fabricate governance data.
+  - if:
+      required: [response]
+      properties:
+        response:
+          required: [refusal_reason]
+          properties: {refusal_reason: {const: policy_unavailable}}
+    then:
+      properties:
+        response:
+          properties:
+            floor:
+              properties: {source: {const: last_known}}
+  - if:
+      required: [response]
+      properties:
+        response:
+          not:
+            required: [refusal_reason]
+            properties: {refusal_reason: {const: policy_unavailable}}
+    then:
+      properties:
+        response:
+          required: [policy_version]
+
+$defs:
+  identifier:
+    type: string
+    minLength: 2
+    maxLength: 128
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:@/-]{1,127}$'
+  app_version:
+    type: string
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]{1,32})?$'
+  runner_version:
+    type: string
+    pattern: '^v?[0-9]+\.[0-9]+\.[0-9]+$'
+  duration:
+    type: string
+    pattern: '^PT(?=[0-9])(?:[0-9]{1,4}H)?(?:[0-9]{1,4}M)?(?:[0-9]{1,4}S)?$'
+  signed_duration:
+    type: string
+    pattern: '^-?PT(?=[0-9])(?:[0-9]{1,4}H)?(?:[0-9]{1,4}M)?(?:[0-9]{1,4}S)?$'
+  policy_version:
+    type: string
+    minLength: 2
+    maxLength: 64
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{1,63}$'
+  constrained_text:
+    type: string
+    maxLength: 200
+    pattern: '^(?!.*[A-Za-z0-9+/=_:.-]{25,})[A-Za-z0-9 ,.:;()/_-]{0,200}$'

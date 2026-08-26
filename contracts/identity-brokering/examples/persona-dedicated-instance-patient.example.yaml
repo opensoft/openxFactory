@@ -1,0 +1,27 @@
+# VALID persona assertion in a DEDICATED broker instance — the co-residence
+# finding of 2026-08-21 realized as a record. HealthLinc's clinical patients
+# were the one population found that must not co-reside with the operator and
+# staff persona plane, so they are served by their own instance rather than by
+# a partition inside the shared one.
+#
+# Two things this fixture proves at once. The persona is SINGLE WITHIN ITS OWN
+# INSTANCE — the same human holding a persona here and in the shared instance
+# holds two single personas, and no capability requires the two to be linked.
+# And the membership list is legitimately EMPTY: no operator organization
+# applies to a patient, and stating the empty set beats leaving absence
+# ambiguous.
+schema_version: 1
+kind: persona_assertion
+assertion_id: pa-healthlinc-ar-0001
+broker_instance:
+  instance_id: broker-healthlinc-ar
+  deployment: dedicated
+subject: sub-5e3d90ac71bf4682
+display_name: Paciente Demo
+linked_identities:
+  - provider_id: healthlinc-ar-patients
+    upstream_subject: hl-ar-7723418
+    linked_at: "2026-08-21T11:00:00Z"
+organization_memberships: []
+asserted_at: "2026-08-21T11:00:30Z"
+policy_version: 1

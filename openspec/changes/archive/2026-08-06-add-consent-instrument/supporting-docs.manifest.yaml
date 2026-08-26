@@ -1,0 +1,28 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "967549bd513febd22d55da13d52e5752b6fc88aa5d37470cbae50dd9484b7c78"
+  },
+  "change_id": "add-consent-instrument",
+  "files": [
+    {
+      "path": "consent-instrument-contract.md",
+      "sha256": "014bc79102b679440d9f877144e9771623ee5688f1cdcba7af40d508e7e852a3"
+    },
+    {
+      "path": "consent-instrument-design-decisions.md",
+      "sha256": "9e25ba3dfe5b79415304675c89196d5d395302f9842c3ca81571984a5cac65f6"
+    },
+    {
+      "path": "manifest.yaml",
+      "sha256": "6b67ba6ea9a56f50d7190480fc863dfbdec740f320795cafc7c9f7b8229c96a5"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/consent-instrument-contract",
+  "packaged_at": "2026-08-06",
+  "source_revision": "47286356ff6e87035eca0d0324c16c97ccf6ff31",
+  "transitioned_at": null
+}

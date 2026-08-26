@@ -1,0 +1,38 @@
+# expected_failure: never-mirror-property
+# expected_failure_detail: names 'stack/opensoft/qa/layer/tenant'
+# requirement: IDB-R3
+# VIOLATES R3: the tenancy graph as a PATH in a membership id.
+#
+# The role-as-membership fixture's sibling, and the more complete projection: a
+# membership id that is a walk down the governed tenancy graph — stack, client,
+# environment, layer. One field, and broker state now holds the shape of the
+# graph rather than a pointer into it, which is precisely the partial copy that
+# will disagree with the real one (design D2's named risk).
+#
+# The path form is what an implementer reaches for when the broker has to
+# "remember which stack this persona belongs to", and the reason it is worth a
+# fixture of its own is that it does not LOOK like a role or a grant: it reads
+# as a legitimate scoping value, and it is the tenancy graph.
+#
+# Refused twice: the narrowed `organization_id` pattern admits no '/', and the
+# validator finds no organization declaring it.
+# `broker-organization.schema.yaml` narrows its own `organization_id` to the
+# same pattern, so this cannot be answered by declaring an organization whose
+# id is the path — the two shapes agree.
+schema_version: 1
+kind: persona_assertion
+assertion_id: pa-membership-tenancy-path-9025
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+subject: sub-membership-path-001a
+display_name: Probe Tenancy Path Membership
+linked_identities:
+  - provider_id: entra-opensoft
+    upstream_subject: membership-path-upstream-0001
+organization_memberships:
+  - organization_id: opensoft
+    member_since: "2026-01-06"
+  - organization_id: stack/opensoft/qa/layer/tenant
+    member_since: "2026-01-06"
+asserted_at: "2026-08-22T12:15:00Z"

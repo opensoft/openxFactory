@@ -1,0 +1,7 @@
+# expected_failure: unknown role
+schema_version: 1
+kind: hermes_overlay_descriptor
+
+overlay_paths:
+  domain: hermes/domain/overlay.yaml
+  warehouse: hermes/warehouse/overlay.yaml

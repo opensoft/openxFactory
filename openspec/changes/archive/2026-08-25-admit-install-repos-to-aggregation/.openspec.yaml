@@ -1,0 +1,41 @@
+schema: spec-driven
+created: 2026-08-21
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-21-admit-install-repos-to-aggregation
+  reason: >-
+    Demanded by TWO ratified `repo-boundary-governance` requirements, each of
+    which names this act and refuses to be it. "Keycloak install repository
+    boundary" (added by `add-identity-brokering`, ratified 2026-08-21):
+    "Adding the repository to the aggregation SHALL be a separate reviewed
+    change that records path, remote, visibility, exact validated commit,
+    checkout, compatibility, update, and rollback behavior... Repository
+    creation SHALL NOT be treated as aggregation admission", with its
+    scenario "Broker aggregation pin is proposed" adding that "the
+    repository's own creation change MUST NOT be accepted as that record".
+    "OpenXPKI install repository boundary" (added by `add-trust-anchor`,
+    ratified 2026-08-21) carries the same clause with `recursive checkout`
+    named explicitly, in its scenario "Aggregation admission is proposed".
+    Both were modelled on the promoted requirement "Deferred aggregation and
+    web-console integration", which fixed the same separate-reviewed-act
+    discipline, and the promoted "Neutral installer repository integration"
+    is the enacted precedent (archived
+    `2026-07-10-add-xfactory-installer-repository`). The organized source
+    material for this change is therefore the ratified requirement text
+    itself, quoted in design.md — not an unstaged idea, and not a staging
+    folder: the two staged topics that fathered the parents
+    (`openxFactory:staging:identity-brokering-plane`,
+    `openxFactory:staging:pki-trust-anchor-plane`) were CONSUMED at those
+    parents' proposal transitions, so declaring `kind: staged` here would
+    claim a staging source that cannot resolve. `ad_hoc` is the correct kind
+    and is not a substitute for staging. This change admits TWO already-created
+    repositories to the aggregation at their exact validated commits and
+    refreshes one enumeration; it deploys nothing, advances no pin beyond the
+    recorded commits, and creates no repository.
+  approved_by: >-
+    Brett Heap, 2026-08-21 (session instruction "do the aggregation admission
+    change, the two repos are added to openXfactory github app" — the second
+    clause is the org-owner act that closes
+    `implement-keycloak-install-repo` and `implement-openxpki-install-repo`
+    tasks 1.3/3.3, read back and recorded here)
+  approved_on: 2026-08-21

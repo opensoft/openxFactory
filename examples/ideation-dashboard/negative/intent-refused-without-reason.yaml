@@ -1,0 +1,12 @@
+# INVALID gate-intent: status=refused without the required refusal_reason —
+# a silent refusal is invalid (delta scenario "A refused intent is visible").
+# Violated rule: allOf refused->refusal_reason. Layer: SCHEMA.
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: ratify
+target:
+  change_id: add-ideation-intent-plane
+requested_at: "2026-07-23T20:00:00Z"
+snapshot_rev_seen: "563ea35d066d"
+status: refused

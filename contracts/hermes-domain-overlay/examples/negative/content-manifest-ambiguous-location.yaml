@@ -1,0 +1,7 @@
+# expected_failure: exactly one of path or directory
+schema_version: 1
+kind: hermes_domain_content_manifest
+content_set:
+  memory_boundary:
+    path: hermes/domain/memory-boundaries.yaml
+    directory: hermes/domain

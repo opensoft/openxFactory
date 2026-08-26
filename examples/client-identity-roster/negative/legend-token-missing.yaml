@@ -1,0 +1,53 @@
+# INVALID roster fragment — violates FR-034's legend rule: the entry's `duty`
+# token `auditing` has NO entry in the fragment legend. Every free token used
+# in a fragment is bound there to its provider-native identifier — that
+# binding is where provider fidelity lives for the two values the neutral
+# layer deliberately leaves open. (An UNUSED legend entry is deliberately NOT
+# a finding: no requirement makes it one and such a rule would fire on a
+# conformant fragment whose entry is `retired` or `planned`.) (finding
+# legend-token-missing).
+schema_version: 1
+kind: xfactory_client_identity_roster
+client_ref: demo-client
+client_tenant: 11111111-1111-1111-1111-111111111111
+domain: demoxfactory
+legend:
+  blast_radius_units:
+    unit_a: Unit A
+  duties:
+    observing: Read-only observation
+entries:
+- identity_ref: demo-bc-identity
+  identity_kind: entra_app_registration
+  home_tenant: 11111111-1111-1111-1111-111111111111
+  principal_locations:
+  - 11111111-1111-1111-1111-111111111111
+  residency_model: client_tenant_single
+  admission_surface: business_central
+  duty: auditing
+  blast_radius_unit: unit_a
+  authority_class_intended: observe
+  authority_class_achieved: observe
+  granted_permissions:
+  - id: Demo.Read.All
+    achieves: observe
+    reaches:
+    - business_central
+  admission:
+  - surface: business_central
+    act: per-environment application user created
+    achieved_scope: Unit A environment
+    enforcement_mode: provider_enforced
+    evidence_ref:
+      repo: opensoft/DemoxFactory
+      path: tenants/demo-admission-evidence-v1.yaml
+    verified_at: '2026-08-01T00:00:00Z'
+    exceeds_governed_unit: false
+  per_unit_principal_available:
+    business_central: true
+  lifecycle_state: enrolled
+  standing_credential_attestation:
+    no_standing_credential: true
+    attested_at: '2026-08-01T00:00:00Z'
+  ratified_by: demoxfactory:demo-observation-capability
+  consent_ref: demo-consent-v1

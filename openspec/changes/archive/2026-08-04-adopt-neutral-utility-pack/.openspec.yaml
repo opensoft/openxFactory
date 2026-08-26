@@ -1,0 +1,29 @@
+schema: spec-driven
+created: 2026-08-04
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-04-adopt-neutral-utility-pack
+  reason: >-
+    SWEPT BY RULING 2026-08-25, verbatim: "sweep the 23 derivable
+    proposal-origin warnings". DERIVED FROM THIS PACKET'S OWN RECORD,
+    never invented. The approval act is this packet's own lifecycle
+    citation, quoted verbatim under approved_by below. The forcing fact is
+    stated in this packet's own proposal under its Why heading, which this
+    metadata-only edit leaves untouched. KIND IS ad_hoc, not staged: this
+    packet records no Staging ID header, and no staging topic declares it
+    as an exit in ideation/staging/INDEX.md — checked in both directions,
+    because a topic that merely mentions a change is not that change's
+    origin. The origin act is the approval quoted under approved_by. The
+    created date 2026-08-04 is DERIVED from this packet's true first
+    commit 61ecb5a5 in git, not from a folder name or a file timestamp.
+    This declaration supplies the origin and approval pair the
+    proposal-origin contract requires and changes nothing else about the
+    packet: no lifecycle header, no content, no status.
+  approved_by: >-
+    Per this packet's own "Ratified" citation, quoted verbatim: "Brett's
+    2026-08-03 approval of the presented DTN-018/019/021 scope ("do both -
+    the utility pack change and the runbook move")" — recorded in its
+    proposal at authoring time. That is the approval provenance the ad-hoc
+    exception requires, and it is why this packet fell in the derivable
+    class rather than the stop class of the 2026-08-25 sweep.
+  approved_on: 2026-08-03

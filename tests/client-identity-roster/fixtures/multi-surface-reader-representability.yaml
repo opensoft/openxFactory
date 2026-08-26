@@ -1,0 +1,141 @@
+# =====================================================================
+# SYNTHETIC REPRESENTABILITY FIXTURE — 2026-08-15
+# =====================================================================
+#
+# 1. THIS RECORD IS SYNTHETIC. It is NOT a packaged example, it does not live in
+#    `examples/client-identity-roster/`, and IT MUST NOT BE INSTANTIATED FROM.
+#    No identity described below exists in any tenant. Every value is a
+#    placeholder chosen to exercise a rule, and a domain copying it would be
+#    copying a fiction.
+#
+# 2. WHY IT IS SYNTHETIC RATHER THAN PACKAGED. As of 2026-08-15, NO
+#    in-vocabulary provider-forced multi-surface permission exists — that is a
+#    measured finding, not an absence of effort, and BOTH halves of the
+#    falsification are citable:
+#
+#      * Business Central offers NO read-only path at all
+#        (OpsxFactory openspec/specs/business-central-administration/spec.md
+#        lines 93-101: the platform exposes exactly four app-only roles and no
+#        read-only admin-center role, so the credential able to read a
+#        deployment status is also able to delete an environment); and
+#      * Exchange offers a SURFACE-SCOPED read-only path
+#        (OpsxFactory openspec/specs/exchange-administration/spec.md lines
+#        46-56: `Mail.Read` constrained to exactly one mailbox by an Exchange
+#        application access policy, verified by attempted overreach), which
+#        falsifies "no read-only role scoped to just one of the two exists"
+#        outright.
+#
+#    A governed packaged example is a TRUTHFUL worked case, so the fourth
+#    mandated positive could not be packaged without asserting a provider fact
+#    nobody can cite — and a packaged example is an instantiation template a
+#    domain copies. Synthesizing one is exactly what this contract exists to
+#    forbid.
+#
+# 3. WHAT IT EXISTS TO PROVE. Killed-flaw (a), REPRESENTABILITY: an entry whose
+#    provider-forced reach spans a second admission surface, with that breadth
+#    DECLARED, validates with ZERO findings. The ratified requirement is
+#    CONDITIONAL — "WHEN the narrowest available permission reaches more than
+#    one admission surface…" — so the contract must carry the capability even
+#    while no in-vocabulary instance exists, and proving exactly that is this
+#    fixture's whole job. It also stands ready for vocabulary growth: when a
+#    surface enters with the promotion of the capability that governs it, the
+#    shape is already known to work.
+#
+#    Its discrimination partner is itself: remove `spanned_surfaces[]` and the
+#    same record is REFUSED for undeclared reach — which is what proves this
+#    fixture measures the rules rather than passing vacuously.
+#
+# 4. AUTHORIZED BY DECISION C (Brett, 2026-08-15) — the relocation of the
+#    fourth packaged case to this fixture, recorded at
+#    openspec/changes/add-client-identity-roster/review/amendment-record-2026-08-15b.md.
+#    All forced-breadth machinery, every reach rule and every named negative
+#    stay exactly as specified; only the CASE moved, and its zero-findings
+#    obligation moved with it.
+# =====================================================================
+schema_version: 1
+kind: xfactory_client_identity_roster
+client_ref: synthetic-client
+client_tenant: 00000000-0000-0000-0000-000000000000
+domain: synthetic-domain
+legend:
+  blast_radius_units:
+    synthetic_unit: "SYNTHETIC — the governed unit this fixture pretends to hold"
+  duties:
+    cross_surface_reading: "SYNTHETIC — read-only observation spanning two admission surfaces"
+entries:
+  - identity_ref: synthetic-multi-surface-reader
+    identity_kind: entra_app_registration
+    home_tenant: 00000000-0000-0000-0000-000000000000
+    principal_locations:
+      - 00000000-0000-0000-0000-000000000000
+    residency_model: client_tenant_single
+    admission_surface: business_central
+    duty: cross_surface_reading
+    blast_radius_unit: synthetic_unit
+    authority_class_intended: observe
+    authority_class_achieved: observe
+    granted_permissions:
+      # ONE permission reaching BOTH surfaces — the shape the ratified
+      # conditional requirement describes. The identifier is a placeholder and
+      # names no real provider permission; see header item 2.
+      - id: SYNTHETIC.CrossSurface.Read.All
+        achieves: observe
+        reaches: [business_central, exchange]
+    admission:
+      # An admission act on EACH surface: reach needs both keys, and an act on
+      # a surface no permission declares is refused just as a permission
+      # reaching a surface no act admits to would be.
+      - surface: business_central
+        act: "SYNTHETIC — per-environment application user created"
+        achieved_scope: "SYNTHETIC — the governed unit's environment"
+        enforcement_mode: provider_enforced
+        evidence_ref:
+          repo: opensoft/SyntheticxFactory
+          path: fixtures/synthetic-business-central-admission-evidence.yaml
+        verified_at: "2026-08-15T00:00:00Z"
+        exceeds_governed_unit: false
+      - surface: exchange
+        act: "SYNTHETIC — application access policy created against a scope group"
+        achieved_scope: "SYNTHETIC — the governed unit's mailbox set"
+        enforcement_mode: provider_enforced
+        evidence_ref:
+          repo: opensoft/SyntheticxFactory
+          path: fixtures/synthetic-exchange-admission-evidence.yaml
+        verified_at: "2026-08-15T00:00:00Z"
+        exceeds_governed_unit: false
+    declared_excess:
+      # THE DECLARATION UNDER TEST. Removing `spanned_surfaces` — and nothing
+      # else — turns this record's clean verdict into `undeclared-reach`.
+      spanned_surfaces: [exchange]
+      # A REPRESENTABILITY PLACEHOLDER, deliberately NOT an asserted provider
+      # fact. This is the distinction the whole relocation turns on: header
+      # item 2 records that no in-vocabulary provider-forced multi-surface
+      # permission is citable as of 2026-08-15, so this field states what a
+      # real record WOULD have to carry rather than claiming it here.
+      provider_reason: >-
+        SYNTHETIC PLACEHOLDER — see this file's dated header, item 2. A real
+        entry of this shape would carry, verbatim and citable, the provider's
+        own statement that the narrowest available permission reaches both
+        admission surfaces and that no surface-scoped equivalent exists. No
+        such statement is citable within the v1 two-surface vocabulary, which
+        is why this record is a fixture and not a packaged example.
+      bound_mechanism: >-
+        SYNTHETIC PLACEHOLDER — the deterministic surface and per-call evidence
+        that would hold the bound the provider does not.
+      gate_obligation: synthetic_cross_surface_refusal_gate
+      enforcement_test_ref: >-
+        SYNTHETIC PLACEHOLDER — the test that would prove the gate refuses a
+        target outside the governed unit on either surface.
+    per_unit_principal_available:
+      # ONE ANSWER PER SURFACE. This is why the field is a MAPPING and not a
+      # single boolean: a provider-forced multi-surface identity needs an answer
+      # for its own surface AND for every surface it declares as spanned, and a
+      # surface it touches with no key at all is its own finding.
+      business_central: true
+      exchange: true
+    lifecycle_state: enrolled
+    standing_credential_attestation:
+      no_standing_credential: true
+      attested_at: "2026-08-15T00:00:00Z"
+    ratified_by: synthetic-domain:synthetic-capability
+    consent_ref: synthetic-consent-v1

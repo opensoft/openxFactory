@@ -1,0 +1,21 @@
+schema: spec-driven
+created: 2026-08-06
+origin:
+  kind: staged
+  id: openxFactory:staging:agent-wallet-identity
+  path: ideation/staging/agent-wallet-identity
+  reason: >-
+    Organized 2026-08-06 from the agent-certification-wallets brainstorm
+    (Brett, 2026-07-15/16) at the moment a consumer named itself rather
+    than because the idea aged: LedgerxFactory's poster identity gained
+    real posting rights that day, the platform-level refusal backing
+    "agents never post" went with them, and the proposed replacement
+    control — refuse a post when the requesting agent created the
+    transaction — proved unbuildable because every agent reaches the
+    platform through ONE shared credential. This change is the topic's
+    first exit, scoped to identity, proof of control, authority binding
+    and declared-change decertification; batteries, measured drift,
+    qualification tiers and delegation chains are named successors, each
+    gated on a consumer of its own.
+  approved_by: Brett (openxFactory operator authority)
+  approved_on: 2026-08-06

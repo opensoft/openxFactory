@@ -1,0 +1,17 @@
+# INVALID drift finding — violates FR-035: the record states what the roster
+# DECLARES but not what was OBSERVED — a finding about nothing seen. Both
+# values are required (finding drift-finding-without-observed-value).
+schema_version: 1
+kind: xfactory_client_identity_drift_finding
+identity_ref:
+  domain: demoxfactory
+  admission_surface: business_central
+  authority_class_intended: observe
+  blast_radius_unit: unit_a
+  duty: observing
+fragment_ref: opensoft/DemoxFactory:credentials/client-identity-roster/demo-client.yaml
+rule_id: admission-achieved-scope-drift
+roster_value: Unit A environment
+observed_at: '2026-08-10T00:00:00Z'
+opened_at: '2026-08-10T00:05:00Z'
+status: open

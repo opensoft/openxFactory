@@ -1,0 +1,22 @@
+schema: spec-driven
+created: 2026-07-25
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:workbench-bullseye-and-create
+  reason: >-
+    Brett's rulings 2026-07-25, made live against the running staging
+    workbench in the session that landed add-lens-gate-verbs: the workbench's
+    lens tab must show the SAME match-count bullseye the main lens tab shows
+    (the scoped derivation already computes the geometry — only the renderer
+    is missing), and the workbench must be able to CREATE the document the
+    human is about to write, through the gate, seeded from the scope they are
+    standing in. The creation slice has real staged-lineage provenance in the
+    brainstorm `ideation/brainstorm/lens-brainstorm-session-launch.md`
+    (Brett, 2026-07-14, against the deployed dashboard: "clicking the
+    bullseye's center ring starts a brainstorm session focused on the checked
+    keyword set"), but that brainstorm has never been organized into a
+    staging topic and the workbench framing is new, so the change enters as
+    an approved ad-hoc origin citing the brainstorm as design provenance
+    rather than a backdated staging claim.
+  approved_by: Brett (openxFactory operator authority)
+  approved_on: 2026-07-25

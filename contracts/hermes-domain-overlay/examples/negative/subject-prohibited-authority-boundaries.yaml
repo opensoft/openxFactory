@@ -1,0 +1,20 @@
+# expected_failure: prohibited block for a subject overlay
+# The Domain layer's enforceable slice, claimed from the subject seat: a
+# subject that carried authority boundaries would be legislating for the
+# domain rather than adding constraints beneath it.
+schema_version: 1
+kind: hermes_subject_overlay
+
+subject:
+  id: project-alfa
+  subject_kind: project
+  display_name: Project Alfa Subject Hermes
+  policy_namespace: opensoft.codexfactory.project-alfa
+  relation_to_baseline: additive_constraints_only
+  authority_boundaries:
+    project_alfa_owns:
+      - merge_authority
+  policies:
+    admission-conditions:
+      policy_id: admission-conditions
+      policy_namespace: opensoft.codexfactory.project-alfa

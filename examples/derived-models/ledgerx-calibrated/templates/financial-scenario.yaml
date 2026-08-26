@@ -1,0 +1,32 @@
+schema_version: 1
+kind: ledgerx_object_template
+# Trimmed fixture copy of the staged LedgerxFactory financial-scenario template.
+
+template:
+  id: financial_scenario
+
+fields:
+  assumption_set:
+    type: list
+    required: true
+  ledger_write_access:
+    type: enum
+    required: true
+    values:
+      - read_only
+  posting_authority:
+    type: enum
+    required: true
+    values:
+      - none
+  output_status:
+    type: enum
+    required: true
+    values:
+      - hypothesis_proposed
+      - no_signal
+      - discarded
+
+gates:
+  - id: estimate_implications_route_through_human_gates
+    blocks_on_failure: true

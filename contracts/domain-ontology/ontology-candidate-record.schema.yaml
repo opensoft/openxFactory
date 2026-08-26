@@ -1,0 +1,204 @@
+schema_version: 1
+name: xfactory_ontology_candidate_record
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/domain-ontology/v1/ontology-candidate-record.schema.yaml"
+# Domain-ontology contract (add-domain-ontology-layer, task 2.1; lifecycle spec
+# "Reproducible ontology scaffold and fill pipeline" and "Domain Hermes
+# ontology stewardship"). One proposed ontology change in the candidate
+# register. Candidates are APPEND-ONLY: a rerun never deletes, replaces, or
+# resurrects a candidate or its recorded disposition; new model output is
+# reported as new, duplicate, or conflicting against existing candidate ids.
+#
+# Model-assisted extraction writes ONLY here — never to the active package —
+# and MUST carry its extraction-run identity and confidence. Acceptance
+# requires a disposition decided by a steward identity; agents and Omnigent
+# workers may prepare candidates but a worker/agent-attributed disposition of
+# `accepted` fails validation (advisory-only rule, enforced in shape + the
+# canonical validator).
+#
+# PRIVACY: the closed shape carries no subject/tenant identifier fields and
+# no free-text observation payload — a candidate derived from operation
+# carries the reusable abstraction and evidence REFERENCES (spec: Subject and
+# tenant knowledge cannot silently become ontology).
+type: object
+required:
+  - schema_version
+  - kind
+  - candidate_id
+  - package_id
+  - mode
+  - proposed
+  - provenance
+  - review_state
+additionalProperties: false
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_ontology_candidate_record
+  candidate_id:
+    type: string
+    pattern: "^cand-[a-z0-9][a-z0-9-]{0,63}$"
+  package_id:
+    type: string
+    pattern: "^xf/[a-z0-9_]+$"
+  mode:
+    enum: [seed, extend, refresh, reconcile, correct, deprecate, retire]
+  proposed:
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    properties:
+      concepts:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          required: [id, label, definition]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+            label:
+              type: string
+              minLength: 1
+              maxLength: 80
+            definition:
+              type: string
+              minLength: 1
+              maxLength: 1000
+            parents:
+              type: array
+              minItems: 1
+              items:
+                type: string
+                pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+      relations:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          required: [id, label, definition, domain, range]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+            label:
+              type: string
+              minLength: 1
+              maxLength: 80
+            definition:
+              type: string
+              minLength: 1
+              maxLength: 1000
+            domain:
+              type: array
+              minItems: 1
+              items:
+                type: string
+                pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+            range:
+              type: array
+              minItems: 1
+              items:
+                type: string
+                pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+      mappings:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          required: [concept_id, system_id, system_version, code, mapping_kind]
+          additionalProperties: false
+          properties:
+            concept_id:
+              type: string
+              pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+            system_id:
+              type: string
+              pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
+            system_version:
+              type: string
+              minLength: 1
+              maxLength: 80
+            code:
+              type: string
+              minLength: 1
+              maxLength: 120
+            mapping_kind:
+              enum: [exact, broader, narrower, related]
+      retirements:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          pattern: "^xf/[a-z0-9_]+(/[a-z0-9_]+)+$"
+  provenance:
+    type: object
+    required: [method]
+    additionalProperties: false
+    properties:
+      method:
+        enum:
+          - structured_import
+          - model_extraction
+          - human_authored
+          - telemetry_trigger
+          - promotion
+      source_refs:
+        type: array
+        items:
+          type: string
+          minLength: 1
+          maxLength: 300
+      extraction_run_id:
+        # Required when method is model_extraction (validator rule): the
+        # non-reproducible stage is identified per run.
+        type: string
+        pattern: "^run-[a-z0-9][a-z0-9-]{0,63}$"
+      confidence:
+        type: number
+        minimum: 0
+        maximum: 1
+      evidence_refs:
+        # De-identified evidence references only — never raw payloads.
+        type: array
+        items:
+          type: string
+          minLength: 1
+          maxLength: 300
+  conflicts:
+    type: array
+    items:
+      type: object
+      required: [with_id, description]
+      additionalProperties: false
+      properties:
+        with_id:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+          maxLength: 400
+  review_state:
+    enum: [open, in_review, accepted, rejected, withdrawn]
+  disposition:
+    type: object
+    required: [decided_by, decision]
+    additionalProperties: false
+    properties:
+      decided_by:
+        # A steward_id from the package manifest; must resolve to a human or
+        # council identity for acceptance.
+        type: string
+        pattern: "^[a-z0-9][a-z0-9_-]{0,63}$"
+      decision:
+        enum: [accepted, rejected, withdrawn]
+      decision_ref:
+        type: string
+        minLength: 1
+        maxLength: 300

@@ -1,0 +1,1071 @@
+# Canonical registry of professional standards bodies a domain overlay may
+# crosswalk its worker terminology to (add-omnigent-domain-terminology).
+#
+# Why a registry: five repos writing free-text framework names would drift
+# ("itil" / "ITIL v4" / "itil4") the same way the layer vocabulary would have
+# without contracts/policies/layer-vocabulary.yaml. Framework ids in an
+# overlay's terminology.workers.*.standards_alignment MUST resolve here.
+#
+# THE LOAD-BEARING FIELD IS `names`. These bodies do NOT all name the same
+# kind of thing: some define practices, some processes, some skills, some
+# controls, some clinical terminologies. A crosswalk that maps a worker class
+# to a PROCESS is making a different claim than one mapping it to a ROLE, and
+# conflating them is how a crosswalk quietly overstates what a worker is.
+#
+# A crosswalk is DESCRIPTIVE ONLY: listing a body here asserts no conformance
+# with it, no certification by it, and no endorsement from it. Several bodies
+# below hold trademarks in their names; a crosswalk references the term, it
+# never adopts it as the class identity.
+#
+# SOURCING CAVEAT (honest): the ORIGINAL 17 entries and their term spellings
+# are drawn from working knowledge, not verified against each body's current
+# publication. Before a domain commits a crosswalk, its exact terms and the
+# current framework version must be checked against the body's own current
+# material — that verification is a task on each domain's follow-up change.
+# The Greater China entries at the foot of this file ARE live-source
+# verified (2026-08-09) and carry per-entry confidence ratings; the older
+# entries do not, and that asymmetry is deliberate rather than hidden.
+#
+# ENTRY FIELDS. Required: id, name, steward, names, scope, jurisdiction.
+# The verified entries additionally carry current_version, status,
+# source_url, term_list_availability, and confidence — fields the original
+# 17 lack. New entries SHOULD supply the full set; the version fields exist
+# because APQC proved category numbers move between framework versions.
+#
+# JURISDICTION is mandatory on every body. Without it the registry's
+# regional coverage is invisible in the data: for its first day this file
+# held 17 bodies that were ALL Anglo-American and nothing said so.
+schema_version: 1
+kind: standards_body_registry
+policy_id: standards-bodies-v1
+
+bodies:
+  # ---------------------------------------------------------------- cross-domain
+  - id: sfia
+    # LICENCE VERDICT 2026-08-09 (live-source): NOT usable in shipped product
+    # configuration. SFIA Foundation: "you cannot sub-licence SFIA to others
+    # through your products, services or associate, reseller and partner
+    # programmes"; redistributing SFIA material electronically to another
+    # organisation is restricted. Commercial product use requires a SFIA
+    # Partner Licence. REMOVED from the opsx overlay on this finding.
+    reuse_licence: SFIA Foundation licensing scheme — Partner Licence required for commercial product use
+    redistribution_permitted_in_product_config: 'no'
+    source_url: https://sfia-online.org/en/about-sfia/licensing-sfia/using-and-licensing-sfia
+    confidence: high
+    jurisdiction: international  # UK-origin (SFIA Foundation)
+    name: SFIA (Skills Framework for the Information Age)
+    steward: SFIA Foundation
+    names: skills
+    scope: >-
+      Internationally adopted IT skills framework (e.g. CHMG change
+      management, USUP incident management, PROG programming, TEST testing).
+      Skill-shaped rather than role-shaped, which fits worker classes more
+      closely than practice frameworks do. Strong fit for opsx and codex.
+
+  # ---------------------------------------------------------------- IT operations
+  - id: itil4
+    # LICENCE VERDICT 2026-08-09 (live-source): treat as NOT usable. ITIL is a
+    # registered trade mark of PeopleCert, "all rights reserved", and no
+    # third-party citation permission could be established from primary
+    # sources. REMOVED from the opsx overlay pending written permission.
+    reuse_licence: PeopleCert proprietary — all rights reserved; permission not established
+    redistribution_permitted_in_product_config: unclear_treat_as_no
+    source_url: https://www.peoplecert.org/acknowledgements
+    confidence: high
+    jurisdiction: international  # UK-origin (PeopleCert/Axelos)
+    name: ITIL 4
+    steward: PeopleCert / Axelos
+    names: practices
+    scope: >-
+      The lingua franca of IT service management (Change Enablement,
+      Incident Management, Problem Management, Service Request Management,
+      Deployment Management, Release Management, Monitoring and Event
+      Management). ITIL 4 names PRACTICES, not roles — a worker class maps
+      to the practice it acts within, never to a job title.
+    attribution_note: ITIL is a registered trade mark; reference only.
+  - id: cobit_2019
+    # LICENCE VERDICT 2026-08-09 (live-source): DO NOT ADOPT. ISACA requires an
+    # annual licence for incorporation of COBIT into software sold or given to
+    # third parties; unauthorized uses include inserting COBIT into any
+    # product, including software.
+    reuse_licence: ISACA proprietary — annual licence required for use in software given to third parties
+    redistribution_permitted_in_product_config: 'no'
+    source_url: https://www.isaca.org/why-isaca/about-us/cobit-usage-guidelines
+    confidence: high
+    jurisdiction: international  # US-origin (ISACA)
+    name: COBIT 2019
+    steward: ISACA
+    names: governance_and_management_objectives
+    scope: >-
+      Audit- and governance-facing objectives (e.g. BAI06 Managed IT
+      Changes, DSS01 Managed Operations). Useful where the audience is an
+      auditor or a governance committee rather than an operator.
+  - id: nist_csf
+    # LICENCE VERDICT 2026-08-09 (live-source): USABLE. US Government work,
+    # public domain under 17 USC 105. Version 2.0 published 2024-02-24.
+    # CAVEAT: the Function names were not enumerated on the pages fetched, so
+    # no function-level mapping is authorised yet — verify before citing
+    # internals.
+    current_version: CSF 2.0, published 2024-02-24
+    reuse_licence: US Government work — public domain (17 USC 105)
+    redistribution_permitted_in_product_config: 'yes'
+    source_url: https://www.nist.gov/cyberframework
+    confidence: high
+    jurisdiction: united_states
+    name: NIST Cybersecurity Framework
+    steward: NIST (US)
+    names: functions_and_categories
+    scope: >-
+      Identify / Protect / Detect / Respond / Recover. Public-domain, no
+      licensing friction. Fits the security-adjacent reviewer classes.
+  - id: iso_iec_20000
+    jurisdiction: international
+    name: ISO/IEC 20000
+    steward: ISO/IEC
+    names: service_management_requirements
+    scope: Certifiable service-management requirements; formal-assurance audiences.
+
+  # ---------------------------------------------------------------- accounting
+  # ---------------------------------------------------------------- marketing
+  - id: iab
+    jurisdiction: international  # US-origin
+    name: IAB / IAB Tech Lab specifications and taxonomies
+    steward: Interactive Advertising Bureau
+    names: adtech_specifications_and_taxonomies
+    scope: >-
+      Content Taxonomy, Audience Taxonomy, OpenRTB. Names ad-tech plumbing
+      rather than roles — expect it to fit the media/audience classes and
+      not the creative or compliance ones.
+  - id: ama_marketing
+    jurisdiction: united_states
+    name: American Marketing Association definitions
+    steward: American Marketing Association
+    names: concept_definitions
+    scope: Canonical concept definitions; useful for job_type and artifact labels.
+  - id: cim
+    jurisdiction: united_kingdom
+    name: CIM Professional Marketing Competencies
+    steward: Chartered Institute of Marketing (UK)
+    names: competencies
+    scope: Competency-shaped; the closest marketing analog to SFIA.
+
+  # ---------------------------------------------------------------- engineering
+  - id: swebok
+    # LICENCE VERDICT 2026-08-09 (live-source): NOT usable in shipped product
+    # configuration. IEEE permits educational/personal use free, but
+    # "permission to reprint/republish this material for commercial ...
+    # purposes or for creating new collective works for resale or
+    # redistribution must be obtained from IEEE". v4.0 released 2024-10-15
+    # (v4.0a Sept 2025), 18 knowledge areas.
+    current_version: SWEBOK v4.0 (2024-10-15); v4.0a released Sept 2025
+    reuse_licence: IEEE copyright — permission required for commercial republication
+    redistribution_permitted_in_product_config: 'no'
+    confidence: high
+    jurisdiction: international  # US-origin (IEEE CS)
+    name: SWEBOK (Software Engineering Body of Knowledge)
+    steward: IEEE Computer Society
+    names: knowledge_areas
+    scope: >-
+      Requirements, design, construction, testing, maintenance,
+      configuration management, quality. Knowledge-area shaped.
+  - id: iso_iec_ieee_12207
+    # LICENCE VERDICT 2026-08-09: ISO sells its standards; process names
+    # cannot be assumed freely embeddable. Not adopted.
+    redistribution_permitted_in_product_config: 'no'
+    confidence: medium
+    jurisdiction: international
+    name: ISO/IEC/IEEE 12207
+    steward: ISO/IEC/IEEE
+    names: life_cycle_processes
+    scope: Software life-cycle processes; formal-assurance audiences.
+
+  # ---------------------------------------------------------------- medical
+  - id: nucc_taxonomy
+    # SAFETY VERDICT 2026-08-09: registered as an ANTI-PATTERN reference. The
+    # medx overlay records `no_clean_equivalent` against THIS body for all
+    # eleven workers, because a provider role asserts clinical standing and
+    # legal accountability that a reasoning agent must never appear to hold.
+    # It is registered so that refusal is machine-readable, not so it can be
+    # mapped.
+    clinical_standing_risk: >-
+      HIGH — mapping any agent to a provider role implies clinical standing
+      and accountability it does not have.
+    confidence: high
+    jurisdiction: united_states
+    name: NUCC Health Care Provider Taxonomy
+    steward: National Uniform Claim Committee (US)
+    names: provider_roles_and_specialties
+    scope: >-
+      The US provider role/specialty taxonomy. STRONG CAUTION: medical
+      Omnigent workers are reasoning agents, not clinicians. Mapping a
+      reasoning agent onto a provider role would imply clinician standing
+      the worker does not have and must never appear to have, so
+      `no_clean_equivalent` is expected to be the honest answer for most
+      medical worker classes.
+  - id: hl7_fhir_practitionerrole
+    jurisdiction: international
+    name: HL7 FHIR PractitionerRole and role code systems
+    steward: HL7 International
+    names: practitioner_roles
+    scope: >-
+      Interoperability-facing practitioner roles. Same caution as NUCC: it
+      describes humans with clinical standing, not agents.
+  - id: snomed_ct
+    # LICENCE VERDICT 2026-08-09 (live-source): NOT usable without an
+    # Affiliate Licence. Vendors distributing products that include or
+    # provide access to SNOMED CT must be SNOMED International Affiliates;
+    # non-member territories incur fees by World Bank Territory Band, renewed
+    # annually, with sub-licensing and reporting obligations. Category also
+    # fails: it names clinical CONTENT, not work.
+    reuse_licence: SNOMED International Affiliate Licence required for vendor distribution
+    redistribution_permitted_in_product_config: 'no'
+    source_url: https://www.snomed.org/licensing
+    confidence: high
+    jurisdiction: international
+    name: SNOMED CT
+    steward: SNOMED International
+    names: clinical_concepts
+    scope: >-
+      Clinical findings and procedures — the CONTENT a medical worker
+      reasons about, not what the worker IS. Registered for artifact and
+      job_type labels, not for worker-role crosswalks.
+
+  # ------------------------------------------------- Greater China (2026-08-09)
+  # Landed from the live-source research report (LedgerxFactory
+  # openspec/changes/adopt-neutral-omnigent-overlay/supporting-docs/
+  # china-accounting-bodies-research-report.md), which verified each entry
+  # against primary sources and carries the crosswalk analysis for the 14
+  # artifact-only accounting worker roles.
+  #
+  # JURISDICTIONS ARE NOT INTERCHANGEABLE. Mainland, Hong Kong, Taiwan and
+  # Macau terms must never be substituted for one another even where the
+  # English gloss looks identical — hence the jurisdiction field, now carried
+  # by every body in this file so the registry's regional coverage is visible
+  # in the data rather than implied.
+  #
+  # Entries are reproduced with the report's own confidence ratings and
+  # inline reasoning intact. `gb_t_46704_financial_shared_services` is
+  # recommended shared-service GUIDANCE and explicitly NOT a Chinese APQC
+  # equivalent: no mainland body matches APQC's full finance hierarchy, and
+  # that absence is a finding, not a gap to paper over.
+  #
+  # Reporting standards stay excluded here as everywhere: 企业会计准则 (CAS),
+  # HKFRS and the Taiwan/Macau equivalents govern what the books must say,
+  # not what a worker is — the same rule that excludes US GAAP and IFRS.
+  - id: prc_enterprise_internal_control_norms
+    jurisdiction: mainland_china
+    name: 企业内部控制基本规范及配套指引 (Basic Standard for Enterprise Internal Control and Supporting Guidelines)
+    steward: 财政部会计司及企业内部控制标准委员会; relevant regulators implement it, with 财政部 and 中国证监会 responsible for the current listed-company notice
+    names: controls
+    scope: >-
+      The mainland enterprise-control system. It names five control elements,
+      eighteen application-guide domains, enterprise self-evaluation, and
+      external internal-control audit. It is the strongest mainland functional
+      counterpart for controller_reviewer and compliance_reviewer, but it does
+      not name artifact-only worker roles.
+    current_version: 财会〔2008〕7号, effective 2009-07-01; supporting guidelines 财会〔2010〕11号; current listed-company implementation reinforced by 财会〔2023〕30号
+    status: current
+    source_url: https://kjs.mof.gov.cn/zhengcefabu/200807/t20080704_55982.htm
+    term_list_availability: public
+    attribution_note: Cite the Ministry of Finance source; no document-specific open-content license was verified, and bulk republication is not proposed.
+    confidence: high  # Current use, maintenance machinery, and official texts were all verified.
+
+  - id: prc_management_accounting_guidance_system
+    jurisdiction: mainland_china
+    name: 管理会计指引体系 (Management Accounting Guidance System)
+    steward: 中华人民共和国财政部
+    names: practices
+    scope: >-
+      A basic guide, application guides, and case library for management-
+      accounting practice. It names activities, domains, tools, methods, and
+      reports rather than professional competencies. 情景分析 is an honest
+      practice-level counterpart for scenario_modeler; information-system,
+      internal-control, compliance, and financial-shared-service terms provide
+      narrower contextual alignments for other workers.
+    current_version: 管理会计基本指引, 财会〔2016〕10号, plus the application-guide series through 第804号——财务共享服务, 财会〔2026〕9号, issued 2026-06-23
+    status: current
+    source_url: https://kjs.mof.gov.cn/zhengcefabu/201606/t20160624_2336654.htm
+    term_list_availability: public
+    attribution_note: Cite the Ministry of Finance source; no document-specific open-content license was verified.
+    confidence: high  # The basic guide and the latest additions were verified in current MoF publications.
+
+  - id: prc_accounting_professional_title_system
+    jurisdiction: mainland_china
+    name: 会计专业技术资格及会计人员职称制度 (Accounting Professional and Technical Qualification and Title System)
+    steward: 人力资源和社会保障部 and 财政部
+    names: professional_roles_or_qualifications
+    scope: >-
+      A human qualification and seniority ladder: 助理会计师, 会计师,
+      高级会计师, 正高级会计师. It is authoritative qualification context,
+      but none of the four titles is a safe Ledgerx worker label because using
+      one would imply a human credential and professional standing.
+    current_version: 人社部发〔2019〕8号; current 2026 examinations operate at 初级, 中级, and 高级 levels
+    status: current
+    source_url: https://kjs.mof.gov.cn/zhengcefabu/201901/t20190117_3124613.htm
+    term_list_availability: public
+    attribution_note: Public government material; cite the issuing ministries. No special trademark claim was found.
+    confidence: high  # The title ladder and current examination operation were verified in MoF sources.
+
+  - id: cicpa_industry_talent_competency_guide
+    jurisdiction: mainland_china
+    name: 中国注册会计师行业人才胜任能力指南 (Competency Guide for Talent in the Chinese CPA Profession)
+    steward: 中国注册会计师协会, under national industry oversight and guidance by 财政部
+    names: competencies
+    scope: >-
+      A staged competency framework for persons entering accounting firms,
+      assistants, CPAs, non-managing partners, and managing partners. It includes
+      technical competence, professional skills, management competence, ethics,
+      experience, and international capability. Several domains resemble Ledgerx
+      work, but the framework is for humans in public practice and must not confer
+      CPA status on an agent.
+    current_version: 会协〔2022〕48号, issued 2022-12-26 and effective 2023-01-01; supersedes the 2007 guide
+    status: current
+    source_url: https://www.cicpa.org.cn/xxfb/tzgg/202212/t20221226_63887.html
+    term_list_availability: public
+    attribution_note: Public CICPA PDF; cite CICPA. No framework-specific open license was verified.
+    confidence: high  # Current effect, supersession, ladder, and competency structure were verified in CICPA sources.
+
+  - id: cicpa_professional_practice_standards
+    jurisdiction: mainland_china
+    name: 中国注册会计师执业准则体系 (Chinese CPA Professional Standards System)
+    steward: 财政部 and 中国注册会计师协会
+    names: practices
+    scope: >-
+      A living public-practice suite covering audit, review, other assurance,
+      related services, quality management, ethics, and current specialist
+      assurance. It provides narrow practice-level analogues for
+      controller_reviewer and compliance_reviewer, but its practitioner,
+      engagement, opinion, and signing implications are incompatible with an
+      artifact-only worker identity.
+    current_version: living suite; key 11-standard consistency revision 财会〔2022〕1号, with current portal additions through 2026-03-04
+    status: current
+    source_url: https://www.cicpa.org.cn/ztzl1/Professional_standards/
+    term_list_availability: public
+    attribution_note: Public official standards; cite the specific MoF or CICPA standard used. No blanket open license was verified.
+    confidence: high  # The current portal and the 2022 revision were verified; this is intentionally not described as one frozen edition.
+
+  - id: prc_accounting_basic_work_norm
+    jurisdiction: mainland_china
+    name: 会计基础工作规范 (Accounting Basic Work Norm)
+    steward: 中华人民共和国财政部
+    names: other:roles_and_accounting_work_requirements
+    scope: >-
+      A mandatory departmental norm for accounting organization, positions,
+      records, supervision, handover, and internal accounting management. It
+      contains the most direct mainland role vocabulary for ordinary accounting
+      work, but many position terms carry real operational duties. The current
+      2019-amended text remains operative while a replacement and a voucher-and-
+      ledger operation guide remain under revision.
+    current_version: 财会字〔1996〕19号, amended by 财政部令第98号 on 2019-03-14; replacement drafts re-consulted under 财办会〔2025〕34号
+    status: under_revision
+    source_url: https://www.mof.gov.cn/gp/xxgkml/tfs/201903/t20190318_3195239.htm
+    term_list_availability: public
+    attribution_note: Public government text; cite the Ministry of Finance. Draft wording must not be treated as current law.
+    confidence: high  # Current operative text and the still-draft replacement were both verified.
+
+  - id: prc_agency_bookkeeping_basic_work_norm
+    jurisdiction: mainland_china
+    name: 代理记账基础工作规范（试行） (Basic Work Norm for Agency Bookkeeping, Trial)
+    steward: 中华人民共和国财政部
+    names: processes
+    scope: >-
+      A nationwide work-process and quality-control norm for licensed agency-
+      bookkeeping institutions. It directly names engagement acceptance, work
+      planning, document handover, accounting, quality control, personnel, and
+      archives. It is highly relevant to intake, coding, draft bookkeeping,
+      reconciliation, close support, and review, but the regulated institution
+      performs real accounting and may produce signed outputs, so Ledgerx mappings
+      require explicit draft-only and human-gate qualifiers.
+    current_version: 财会〔2023〕27号, effective 2024-01-01
+    status: current
+    source_url: https://www.mof.gov.cn/gkml/caizhengwengao/wg2023/wg202311/202401/t20240131_3927918.htm
+    term_list_availability: public
+    attribution_note: Public government text and reference forms; cite the Ministry of Finance. No document-specific open-content license was verified.
+    confidence: high  # Text, effective date, process list, and 2025 enforcement use were verified.
+
+  - id: prc_accounting_informationization_norms
+    jurisdiction: mainland_china
+    name: 会计信息化工作规范及会计软件基本功能和服务规范 (Accounting Informationization Work Norm and Basic Accounting-Software Function and Service Norm)
+    steward: 中华人民共和国财政部
+    names: other:accounting_information_system_processes_and_controls
+    scope: >-
+      Mandatory national-unified-accounting-system rules for informationization
+      governance, system construction, electronic-voucher processing, data and
+      system controls, software functions, security, and supervision. They offer
+      strong context for document_intake_processor, ledger_platform_specialist,
+      controller_reviewer, and posting-admission controls, but they define system
+      requirements rather than worker roles.
+    current_version: 财会〔2024〕11号 and 财会〔2024〕12号, effective 2025-01-01; supersede the identified 2013, 1996, and 1994 predecessor norms
+    status: current
+    source_url: https://kjs.mof.gov.cn/zhengcefabu/202408/P020240805628932632907.pdf
+    term_list_availability: public
+    attribution_note: Public government PDFs; cite the Ministry of Finance. No document-specific open-content license was verified.
+    confidence: high  # Both current norms, their effective date, and superseded predecessors were verified in MoF sources.
+
+  - id: gb_t_46704_financial_shared_services
+    jurisdiction: mainland_china
+    name: GB/T 46704-2025 共享经济 企业财务共享服务指南 (Sharing economy—Guidelines for enterprise financial shared services)
+    steward: 全国共享经济标准化技术委员会 TC587, under 国家标准化管理委员会
+    names: service_management_requirements
+    scope: >-
+      Recommended national guidance for enterprise financial shared-service
+      providers, users, platforms, service procedure, assurance/emergency
+      arrangements, and continual improvement. It is a service-management
+      standard, not an APQC-style hierarchical catalog of all finance processes,
+      and its published vocabulary does not provide direct Ledgerx worker labels.
+    current_version: GB/T 46704-2025, published and effective 2025-10-31; recommended GB/T, not mandatory GB
+    status: current
+    source_url: https://std.samr.gov.cn/gb/search/gbDetailed?id=42BA7D06A39BE936E06397BE0A0ACDC9
+    term_list_availability: public
+    attribution_note: The official platform marks its content 版权所有/侵权必究; reference the standard number and terms, but do not bulk reproduce the text without permission.
+    confidence: medium  # Status and high-level structure are official; exact final clause vocabulary was not exported from the platform viewer.
+
+  - id: hkicpa_paib_professional_development_framework
+    jurisdiction: hong_kong
+    name: 香港會計師公會商界專業會計師的專業發展框架 (HKICPA Professional Development Framework for PAIBs)
+    steward: 香港會計師公會; statutory functions are overseen by the Accounting and Financial Reporting Council
+    names: competencies
+    scope: >-
+      A Hong Kong competency framework for professional accountants in business,
+      organized by technical, business, leadership/people, and ethics domains and
+      by seniority. It provides domain-level counterparts for scenario modeling,
+      tax, information technology, risk/internal-control, and review work, but
+      does not supply exact artifact-agent role labels.
+    current_version: framework released 2019; current HKICPA framework page verified 2026-08-09
+    status: current
+    source_url: https://www.hkicpa.org.hk/en/Membership/For-Professional-Accountants-in-Business/Professional-Development-Framework-for-PAIBs
+    term_list_availability: public
+    attribution_note: Public HKICPA page; cite HKICPA. No framework-specific open license was verified.
+    confidence: high  # Current page, purpose, knowledge areas, competencies, and seniority treatment were verified.
+
+  - id: taiwan_icap_accounting_competency_standards
+    jurisdiction: taiwan
+    name: 臺灣勞動部 iCAP 會計職能基準 (Taiwan Ministry of Labor iCAP Accounting Competency Standards)
+    steward: 勞動部勞動力發展署
+    names: competencies
+    scope: >-
+      Public occupation-and-task standards with duties, tasks, outputs, behavioral
+      indicators, levels, knowledge, and skills. Current standards for 會計助理,
+      會計人員, 會計主管, 企業內部稽核人員, and 企業財務人員 provide the
+      closest Chinese-language role/task counterparts found in this research.
+      They still describe humans who execute, supervise, file, or audit, so exact
+      Ledgerx labels require authority qualifiers or no-equivalent findings.
+    current_version: FAC3313-001v2, FAC4311-001v2, FAC1211-001v2, FAC2411-001v2, and FFN2412-003v2; all current v2 standards dated 2024-12-15
+    status: current
+    source_url: https://icap.wda.gov.tw/ap/get_file.php?c=%E8%81%B7%E8%83%BD%E5%9F%BA%E6%BA%96%E4%B8%80%E8%A6%BD%E8%A1%A8.pdf&e=20260428154408.pdf&t=download
+    term_list_availability: public
+    attribution_note: Public official PDFs; cite iCAP and the exact standard code/version. No document-specific open license was verified.
+    confidence: high  # Current list, version status, and task content were verified in official iCAP PDFs.
+
+  - id: macau_cpc_accounting_profession_qualifications
+    jurisdiction: macau
+    name: 澳門會計師專業及執業資格制度 (Macao Accounting Profession and Practising Qualification System)
+    steward: 會計師專業委員會 (Comissão Profissional dos Contabilistas)
+    names: professional_roles_or_qualifications
+    scope: >-
+      The statutory Macau qualification system distinguishes 會計師 and
+      執業會計師 and regulates firms and accounting/tax-service providers.
+      These are licensed human statuses, not safe identities for any Ledgerx
+      worker.
+    current_version: 第20/2020號法律, effective 2020-12-01; current regulator and registers verified 2026-08-09
+    status: current
+    source_url: https://www.cpc.gov.mo/
+    term_list_availability: public
+    attribution_note: CPC states that website content may not be reproduced without authorization; cite the law and CPC page rather than copying the registry.
+    confidence: high  # Statutory regulator, qualification distinction, and current operation were verified in CPC sources.
+
+  - id: macau_cpc_professional_practice_standards
+    jurisdiction: macau
+    name: 澳門會計行業執業準則及指引 (Macao Accounting Profession Practice Standards and Guidance)
+    steward: 會計師專業委員會, through its 準則及紀律委員會
+    names: practices
+    scope: >-
+      Current audit, general audit-practice, review, agreed-upon-procedures, and
+      ethics material for Macau public practice. It gives narrow practice-level
+      context for controller_reviewer and compliance_reviewer, but assurance
+      conclusions and practising authority make the practitioner terms unsuitable
+      as Ledgerx worker labels.
+    current_version: 1/2021/CPC ethics; 2/2021/CPC audit and 3/2021/CPC general audit practice, effective 2022-01-01; 1/2022/CPC review; 1/2023/CPC agreed-upon procedures
+    status: current
+    source_url: https://www.cpc.gov.mo/zh-hant/accountantprofession/standards?component=DownLoad&slug=Cdchep%2Cnc%2Cmacauifrs%2Cna%2Cnr%2Cnepa
+    term_list_availability: public
+    attribution_note: CPC states that website content may not be reproduced without authorization; reference publication numbers and links only.
+    confidence: high  # CPC's current standards page and 2025 status summary were verified.
+
+  # --------------------------------------- United States (verified 2026-08-09)
+  # Landed from the live-source clean-and-lock report (LedgerxFactory
+  # openspec/changes/adopt-neutral-omnigent-overlay/supporting-docs/
+  # usa-accounting-bodies-research-report.md). These entries REPLACE the
+  # earlier working-knowledge apqc_pcf / coso_icif / ima_mac / aicpa drafts.
+  #
+  # Verdicts applied: apqc_pcf corrected (PCF 8.0, 2026-02-27); coso_icif
+  # confirmed; ima_mac corrected to the 2025 IMA Competency Framework; the
+  # compound `aicpa` entry REJECTED and split, because practice standards and
+  # competencies make different claims — the same split the CICPA research
+  # forced in the China round.
+  #
+  # LICENSING IS A GATE, NOT A FOOTNOTE. APQC's terms prohibit shipping a
+  # copied PCF hierarchy in product configuration without written licence
+  # confirmation, so no overlay may embed PCF element names or numbers until
+  # that is obtained — registering the BODY here is fine; shipping its
+  # hierarchy is not. O*NET is the CC BY 4.0 alternative and is therefore the
+  # recommended primary US role/task vocabulary.
+  # ^ SUPERSEDED 2026-08-26 AS TO APQC ONLY. That bar quoted apqc.org's site
+  # Terms of Service rather than the licence APQC prints inside the PCF
+  # itself, which grants the reuse outright — see the corrected verdict on the
+  # apqc_pcf entry below, and task 3b.5k of add-omnigent-domain-terminology.
+  # The first sentence's principle stands unchanged, and so does O*NET's
+  # standing: naming a ROLE and naming a PROCESS are different claims, so the
+  # two bodies are complements, not substitutes.
+  #
+  # AUTHORITY CONTEXT, NOT ROLE LABELS: CPA licensure (nasba_aicpa_uaa),
+  # PCAOB standards, and IRS Circular 230 describe humans holding legal
+  # standing. They are registered for context and must never become the
+  # identity of an artifact-only worker.
+  #
+  # REJECTED, recorded so it is not re-proposed: SOX section 404 — a binding
+  # legal obligation, but not a taxonomy. Cite the SEC obligation and use
+  # COSO/PCAOB vocabulary instead.
+  # LICENCE VERDICT CORRECTED 2026-08-26: USABLE in shipped product
+  # configuration, with the attribution paragraph carried verbatim. The
+  # 2026-08-09 bar was read off the wrong document — apqc.org's site Terms of
+  # Service, which govern that portal's Online Resources — and APQC was never
+  # run through the product-configuration reuse test that eliminated the other
+  # eight commercially stewarded bodies. The licence that governs the PCF is
+  # printed inside the PCF itself, on page 2 of the PDF under the heading
+  # COPYRIGHT AND ATTRIBUTION, and grants exactly what a shipped overlay does.
+  # Brett read PCF 8.0's page 2 in a browser on 2026-08-26 and confirmed the
+  # grant and its attribution paragraph are present; the identical paragraph
+  # was text-extracted from the primary 7.4, 7.3.1 and 7.3.0 PDFs.
+  # SCOPE LIMIT, recorded rather than assumed: the grant is over "the PCF" —
+  # the document holding element names, hierarchy numbers and five-digit
+  # element IDs. Process DEFINITIONS ship in separate "Process Definitions and
+  # Key Measures" documents whose front matter has not been read, so this
+  # verdict does not reach definition text.
+  # The superseded verdict is NOT rewritten: task 3b.5b and the ledgerx report
+  # `usa-accounting-bodies-research-report.md` are record-class evidence with
+  # a 2026-08-09 cutoff and stand as written. The correction is task 3b.5k of
+  # add-omnigent-domain-terminology.
+  - id: apqc_pcf
+    name: APQC Process Classification Framework (Cross-Industry)
+    steward: APQC
+    jurisdiction: international  # US-origin; APQC is based in Houston, Texas
+    names: processes
+    scope: >-
+      A cross-industry hierarchy of business work. PCF 8.0 category 9.0 names
+      finance processes relevant to invoice_coder, bookkeeper,
+      reconciliation_specialist, close_accountant, tax_preparation_assistant,
+      scenario_modeler, books_designer, ledger_platform_specialist,
+      controller_reviewer, and compliance_reviewer. Process names describe
+      organizational work, not artifact-only authority; approval, payment,
+      posting, and filing nodes must not be applied as agent powers.
+    current_version: Cross-Industry PCF 8.0, published 2026-02-27 (licence page verified 2026-08-26)
+    status: current
+    source_url: https://www.apqc.org/resource-library/resource-listing/apqc-process-classification-framework-pcf-cross-industry-pdf-13
+    term_list_availability: public  # Download is lead-form gated; public measure pages expose definitions.
+    licence_page: >-
+      Not a page on apqc.org: the grant is printed inside the artifact, on
+      page 2 of the cross-industry PCF PDF under the heading COPYRIGHT AND
+      ATTRIBUTION. For the pinned 8.0 the record is Brett's browser reading of
+      that page on 2026-08-26, because apqc.org answers HTTP 403 to every
+      automated fetch and no 8.0 mirror is public. The automation-verifiable
+      copies of the same paragraph are the primary 7.4 PDFs at
+      https://solutions.ifrc.org/sites/default/files/2024-10/K014750_APQC%20Process%20Classification%20Framework%20(PCF)%20-%20Cross%20Industry%20-%20PDF%20Version%207.4.pdf
+      and
+      https://www.business-analysis.com.au/wp-content/uploads/2025/04/K014750_APQC-Process-Classification-Framework-PCF-Cross-Industry-PDF-Version-7.4_January-2025.pdf
+      plus 7.3.1 at https://juraguvi.com/data/files/pcf_crossindustry_v7.3.1_september_2023.pdf
+      and 7.3.0 at https://www.ospco.net/wp-content/uploads/2022/07/APQC_7_3_ver_1653811220.pdf
+      — three independently hosted versions carrying it identically, which is
+      why it reads as APQC's standard licence page and not a one-version quirk.
+    reuse_licence: >-
+      APQC's own in-document grant, NOT a Creative Commons licence: "APQC
+      hereby grants you a perpetual, worldwide, royalty-free license to use,
+      copy, publish, modify, and create derivative works of the PCF", provided
+      all copies and derivative works carry the attribution paragraph.
+    redistribution_permitted_in_product_config: yes_with_conditions  # The condition is the attribution paragraph, verbatim, in every copy and derivative work.
+    attribution_required: >-
+      Reproduce the attribution_note paragraph below VERBATIM and unaltered,
+      with its ® marks intact, in every copy of the PCF and in every
+      derivative work — a domain overlay embedding PCF element names or
+      numbers is a derivative work and must carry it. Process Classification
+      Framework® and PCF® are registered marks of APQC; a crosswalk
+      references the term and never adopts it as a class identity.
+    attribution_note: >-
+      APQC's Process Classification Framework® (PCF) is an open standard
+      developed by APQC, a nonprofit that promotes benchmarking and best
+      practices worldwide. The PCF is intended to facilitate organizational
+      improvement through process management and benchmarking, regardless of
+      industry, size, or geography. To download the full PCF or
+      industry-specific versions of the PCF, as well as associated measures
+      and benchmarking, please visit www.apqc.org/pcf.
+    confidence: high  # Version and release date from APQC's own listing; the grant read on the PCF PDF's page 2 — 8.0 by Brett in a browser 2026-08-26, 7.3.0-7.4 by text extraction from primary PDFs.
+
+  - id: coso_icif
+    name: COSO Internal Control—Integrated Framework
+    steward: Committee of Sponsoring Organizations of the Treadway Commission (COSO)
+    jurisdiction: united_states  # US private-sector consortium; used internationally
+    names: control_components_and_principles
+    scope: >-
+      Five components and seventeen principles for designing, operating, and
+      evaluating internal control. It is a strong control alignment for
+      controller_reviewer, compliance_reviewer, and the human-gated control
+      boundary around posting_admission_agent. It does not name bookkeeping or
+      tax-preparation roles.
+    current_version: Internal Control—Integrated Framework, May 2013
+    status: current
+    source_url: https://www.coso.org/internal-control
+    term_list_availability: purchase_only  # Executive summary and supplemental guidance are public.
+    attribution_note: >-
+      The full framework is copyrighted and sold. COSO permits limited uses
+      under its Acceptable Use guidelines, but incorporating even free-download
+      material into software distributed to third parties requires a license.
+    confidence: high  # COSO still identifies 2013 as the framework and labels newer guidance supplemental.
+
+  - id: coso_erm
+    name: Enterprise Risk Management—Integrating with Strategy and Performance
+    steward: Committee of Sponsoring Organizations of the Treadway Commission (COSO)
+    jurisdiction: united_states  # US-origin; internationally used
+    names: "other:risk_management_components_and_principles"
+    scope: >-
+      A separate five-component, twenty-principle enterprise-risk framework.
+      It plausibly aligns scenario_modeler, counterparty_analyst,
+      controller_reviewer, and compliance_reviewer to risk identification,
+      assessment, response, review, and reporting. It is not an accounting
+      process or occupation taxonomy.
+    current_version: 2017
+    status: current
+    source_url: https://www.coso.org/enterprise-risk-management
+    term_list_availability: purchase_only  # Executive summary and selected supplements are public.
+    attribution_note: >-
+      COSO copyright and software-incorporation licensing restrictions apply;
+      reference the framework rather than embedding its full hierarchy without
+      permission.
+    confidence: high  # COSO continues to identify the 2017 framework as current.
+
+  - id: ima_mac
+    name: IMA Competency Framework
+    steward: Institute of Management Accountants (IMA)
+    jurisdiction: united_states  # Designed for global accounting and finance professionals
+    names: competencies
+    scope: >-
+      The 2025 framework names ten competency domains and three proficiency
+      tiers for accounting and finance professionals. It is useful competency
+      context for scenario_modeler, books_designer, ledger_platform_specialist,
+      controller_reviewer, and compliance_reviewer, but its professional
+      proficiency claims must not become agent credentials.
+    current_version: 2025 expanded framework
+    status: current
+    source_url: https://www.imanet.org/career-resources/competency-framework
+    term_list_availability: public
+    attribution_note: >-
+      IMA publications are copyrighted and all rights are reserved; cite IMA
+      and do not reproduce the competency matrix in product configuration
+      without permission.
+    confidence: high  # The current IMA page and 2025 white paper state the expanded domains and tiers.
+
+  - id: aicpa_professional_standards
+    name: AICPA Professional Standards
+    steward: American Institute of Certified Public Accountants (AICPA)
+    jurisdiction: united_states
+    names: practices
+    scope: >-
+      A living suite covering audit and attest, preparation/compilation/review,
+      quality management, ethics, consulting, forensic, valuation, peer review,
+      and tax services. Narrow practice alignments exist for close_accountant,
+      tax_preparation_assistant, controller_reviewer, and compliance_reviewer.
+      Audit, attest, compilation, review, signing, and client-representation
+      terms describe regulated human services and cannot label Ledgerx agents.
+    current_version: living codified suite; current sections and pronouncements through 2026
+    status: current
+    source_url: https://www.aicpa-cima.com/resources/landing/standards-and-statements
+    term_list_availability: paywalled  # Landing pages and some individual standards are public; full library is subscription.
+    attribution_note: >-
+      AICPA standards and related content are copyrighted. AICPA offers explicit
+      IP licenses for professional standards and software products; linking does
+      not require permission, but reproduction in product content does.
+    confidence: high  # The AICPA standards hub and current section pages were verified.
+
+  - id: aicpa_foundational_competencies
+    name: Foundational Competencies Framework for Aspiring CPAs
+    steward: American Institute of Certified Public Accountants (AICPA)
+    jurisdiction: united_states
+    names: competencies
+    scope: >-
+      Entry-to-profession competencies grouped as technical, organizational,
+      and leadership. It can inform competency alignment across Ledgerx roles,
+      especially reviewers and accounting-system design, but is intended for
+      aspiring human CPAs and cannot confer CPA status.
+    current_version: November 2022
+    status: current
+    source_url: https://www.aicpa-cima.com/news/article/aicpa-releases-updated-foundational-competencies-framework-for-aspiring-cpas
+    term_list_availability: public
+    attribution_note: >-
+      AICPA copyright and reuse rules apply. Cite the framework; obtain
+      permission before reproducing its detailed content in a product.
+    confidence: medium  # The 2022 replacement is official; no newer replacement was found as of the cutoff.
+
+  - id: cgma_competency_framework
+    name: CGMA Competency Framework
+    steward: Association of International Certified Professional Accountants (AICPA & CIMA)
+    jurisdiction: international  # Joint AICPA/CIMA framework
+    names: competencies
+    scope: >-
+      Five knowledge areas—technical, business, people, leadership, and
+      digital—with detailed finance competencies and proficiency levels. It is
+      useful for management-accounting, analysis, systems, and review roles,
+      but is not uniquely US and must remain separate from AICPA practice
+      standards and CPA licensure.
+    current_version: 2019 framework; component resources published 2022 and still current on the official site
+    status: current
+    source_url: https://www.aicpa-cima.com/resources/landing/cimas-cgma-competency-framework-a-framework-for-success
+    term_list_availability: public
+    attribution_note: >-
+      The Association licenses the CGMA Competency Framework for third-party
+      reuse. Citation is appropriate; incorporation or adaptation in product
+      configuration requires checking Association licensing terms.
+    confidence: medium  # Current official pages use the framework but do not expose a simple edition label.
+
+  - id: iia_ippf
+    name: International Professional Practices Framework (IPPF), 2024 edition
+    steward: The Institute of Internal Auditors (The IIA)
+    jurisdiction: international  # US-origin global professional body
+    names: practices
+    scope: >-
+      The IPPF comprises the mandatory Global Internal Audit Standards and
+      Topical Requirements plus recommended Global Guidance. Its principles
+      and engagement practices are strong alignments for controller_reviewer
+      and compliance_reviewer. The terms internal auditor, assurance,
+      engagement conclusion, and chief audit executive imply human professional
+      responsibilities and are not agent display labels.
+    current_version: issued 2024-01-09; effective 2025-01-09
+    status: current
+    source_url: https://www.theiia.org/en/standards
+    term_list_availability: public  # Complete standards public; some guidance/tools members-only or sold.
+    attribution_note: >-
+      IIA content is copyrighted. Small quotations with attribution are
+      permitted; reproduction, distribution, and software use beyond that
+      require permission or a content license. IPPF and related names are marks.
+    confidence: high  # The IIA explicitly states that the 2024 IPPF superseded the 2017 IPPF.
+
+  - id: iia_internal_auditing_competency_framework
+    name: Internal Auditing Competency Framework
+    steward: The Institute of Internal Auditors (The IIA)
+    jurisdiction: international  # US-origin global professional body
+    names: competencies
+    scope: >-
+      Four competency categories and 28 subcategories for internal auditors,
+      with proficiency expectations and job-role profiles. It is the better IIA
+      source for competency alignment of controller_reviewer and
+      compliance_reviewer; the IPPF remains the source for practice standards.
+    current_version: July 2025; supersedes the framework last updated in 2022
+    status: current
+    source_url: https://www.theiia.org/en/content/guidance/global/competency-framework/
+    term_list_availability: public  # Guide public; assessment templates members-only.
+    attribution_note: >-
+      Copyright belongs to The IIA. Reference or quote only small portions with
+      attribution unless permission is obtained.
+    confidence: high  # Issue date, supersession, categories, and availability were verified on IIA pages.
+
+  - id: pcaob_auditing_standards
+    name: PCAOB Auditing Standards
+    steward: Public Company Accounting Oversight Board (PCAOB), subject to SEC approval
+    jurisdiction: united_states
+    names: practices
+    scope: >-
+      Mandatory external-audit practices for registered firms auditing issuers
+      and broker-dealers. AS 2201 supplies detailed ICFR audit vocabulary, but
+      none of the Ledgerx reviewers is an external auditor or issues an opinion.
+      Register only as public-company assurance context, not as a default worker
+      label source.
+    current_version: standards for fiscal years beginning on or after 2025-12-15; identified amendments effective 2026-12-15
+    status: current
+    source_url: https://pcaobus.org/oversight/standards/auditing-standards
+    term_list_availability: public
+    attribution_note: >-
+      Standards are publicly readable. Cite PCAOB standard numbers and titles;
+      no blanket open-content license for bulk product reuse was verified.
+    confidence: high  # PCAOB publishes period-specific current compilations and effective dates.
+
+  - id: irs_circular_230
+    name: Treasury Department Circular No. 230 / 31 CFR Part 10
+    steward: U.S. Department of the Treasury; administered by IRS Office of Professional Responsibility
+    jurisdiction: united_states
+    names: professional_roles_or_qualifications
+    scope: >-
+      Defines practice before the IRS, covered practitioner categories, duties,
+      restrictions, and discipline. It is relevant qualification and conduct
+      context for tax work, but tax_preparation_assistant neither represents a
+      taxpayer nor files or signs a return. CPA, attorney, enrolled agent,
+      enrolled actuary, and enrolled retirement plan agent are human titles and
+      cannot label the worker.
+    current_version: 31 CFR Part 10 currently in force; IRS PDF revision June 2014; modernization proposed 2024-12-26
+    status: under_revision  # Existing regulations remain effective while the proposal is unresolved.
+    source_url: https://www.irs.gov/tax-professionals/office-of-professional-responsibility-and-circular-230
+    term_list_availability: public
+    attribution_note: >-
+      Federal regulations are public government material. Cite Treasury/IRS and
+      the current CFR; do not use agency seals or imply IRS endorsement.
+    confidence: high  # IRS confirms scope and covered practitioners; the newer rulemaking remains proposed.
+
+  - id: nasba_aicpa_uaa
+    name: Uniform Accountancy Act
+    steward: National Association of State Boards of Accountancy (NASBA) and AICPA
+    jurisdiction: united_states
+    names: professional_roles_or_qualifications
+    scope: >-
+      Model legislation for CPA licensure, firm permits, practice privileges,
+      mobility, attest/compilation definitions, and regulation. It provides a
+      useful national vocabulary, but each jurisdiction may adopt it in whole,
+      in part, or not at all. It cannot establish a worker's credential or
+      authority.
+    current_version: Ninth Edition, July 2025
+    status: current
+    source_url: https://nasba.org/blog/2025/07/22/nasba-and-aicpa-publish-ninth-edition-of-the-uniform-accountancy-act-uaa/
+    term_list_availability: public
+    attribution_note: >-
+      Cite NASBA and AICPA. The publication is copyrighted; no open license for
+      product incorporation was verified.
+    confidence: high  # Joint publication, edition, and model-law status were verified.
+
+  - id: bls_soc
+    name: 2018 Standard Occupational Classification
+    steward: U.S. Office of Management and Budget, supported by the SOC Policy Committee and BLS
+    jurisdiction: united_states
+    names: "other:occupational_roles"
+    scope: >-
+      The federal statistical occupation hierarchy. Relevant codes include
+      Accountants and Auditors (13-2011), Tax Preparers (13-2082), Credit
+      Analysts (13-2041), Financial Risk Specialists (13-2054), Bookkeeping,
+      Accounting, and Auditing Clerks (43-3031), and Billing and Posting Clerks
+      (43-3021). SOC is role-shaped but deliberately broad and does not provide
+      the detailed task vocabulary available in O*NET.
+    current_version: 2018 SOC; 2028 revision in progress
+    status: current
+    source_url: https://www.bls.gov/soc/
+    term_list_availability: public
+    attribution_note: >-
+      Federal statistical material is public; cite OMB/BLS and the edition. Do
+      not imply federal endorsement of derived worker mappings.
+    confidence: high  # BLS identifies 2018 as the current federal standard and 2028 as a revision project.
+
+  - id: onet_accounting_occupations
+    name: O*NET Database — accounting and finance occupations
+    steward: National Center for O*NET Development for U.S. Department of Labor, Employment and Training Administration
+    jurisdiction: united_states
+    names: "other:occupations_tasks_and_work_activities"
+    scope: >-
+      Occupation titles, tasks, detailed work activities, skills, knowledge,
+      and work context. The accounting, bookkeeping, tax, credit, risk, billing,
+      and financial-manager occupations give the closest US role-and-task
+      vocabulary for the Ledgerx workers. The source describes whole human jobs;
+      crosswalk individual task statements, not licenses or authority, to the
+      narrower artifact-only agents.
+    # FLAG DISCHARGED 2026-08-26, and the flag's own condition is what let it
+    # be. It read: "FLAGGED, NOT CORRECTED — the opsx/codex re-verification
+    # found O*NET 31.0 (August 2026) is the current production database, so
+    # this pin is one release behind. It is left as-is deliberately: this
+    # entry is LedgerxFactory's, its overlay's CC BY attribution names 'the
+    # O*NET 30.3 Database' by version, and the pin and that attribution must
+    # move together in one act by that domain." That domain has now moved its
+    # half: LedgerxFactory `ded4a0128f9e` on branch
+    # `change/apqc-terminology-and-onet-pin` rewrites the overlay's CC BY
+    # block to O*NET's version-stamped 31.0 wording, so the pin moves here in
+    # the same authoring act rather than drifting apart from it. Codes and
+    # titles are unchanged across 30.3 -> 31.0 — re-read against the body's
+    # own current publication — so no shipped mapping is affected; what moves
+    # is the version a reader would check against.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
+    status: current
+    source_url: https://www.onetcenter.org/database.html
+    term_list_availability: public
+    # The version-stamped attribution is why this entry could not be corrected
+    # on its own: onetcenter.org's required credit wording names the release
+    # ("This page includes information from the O*NET 31.0 Database..."), so a
+    # pin bump without the overlay's wording would have made the shipped
+    # credit false rather than merely stale.
+    reuse_licence: CC BY 4.0
+    redistribution_permitted_in_product_config: yes_with_conditions
+    attribution_required: >-
+      Credit the O*NET 31.0 Database and USDOL/ETA, link CC BY 4.0, state that
+      changes were made, retain the O*NET trademark, and state that USDOL/ETA
+      has not approved, endorsed, or tested these modifications (the overlay's
+      version-stamped wording, quoted exactly).
+    attribution_note: >-
+      O*NET 31.0 database content is CC BY 4.0 except stated exceptions. O*NET
+      is a trademark of USDOL/ETA and must be used as an adjective.
+    confidence: high  # Version, data shape, relevant occupations, and license were verified; version and licence wording re-read on onetcenter.org 2026-08-26.
+
+  - id: aicpa_trust_services_criteria
+    name: 2017 Trust Services Criteria (with Revised Points of Focus—2022)
+    steward: AICPA Assurance Services Executive Committee (ASEC)
+    jurisdiction: united_states
+    names: controls
+    scope: >-
+      Criteria for evaluating controls over security, availability, processing
+      integrity, confidentiality, and privacy in attestation or consulting
+      engagements. It is plausible control context for ledger_platform_specialist,
+      controller_reviewer, and compliance_reviewer, but SOC 2 examination and
+      opinion language is outside all Ledgerx worker authority.
+    current_version: 2017 criteria with revised points of focus—2022
+    status: current
+    source_url: https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022
+    term_list_availability: public  # Free-account access is required for the download.
+    attribution_note: >-
+      TSC content and SOC marks are licensed AICPA intellectual property.
+      Third-party software incorporation requires an AICPA license; linking and
+      citation do not authorize copying the criteria.
+    confidence: high  # The current AICPA SOC suite still names this edition.
+
+  # ------------------------------------ IT operations (verified 2026-08-09)
+  # Landed from the opsx live-source verification, which found BOTH previously
+  # shipped bodies (ITIL 4, SFIA) fail the reuse test. This is the
+  # licence-clean replacement, on the same CC BY 4.0 basis as the accounting
+  # domain's O*NET adoption.
+  - id: onet_it_occupations
+    jurisdiction: united_states
+    name: O*NET Database — IT operations and computing occupations
+    steward: National Center for O*NET Development for U.S. Department of Labor, Employment and Training Administration
+    names: other:occupations_tasks_and_work_activities
+    scope: >-
+      Occupation titles, tasks and work activities for systems
+      administration, information security, network and user support,
+      database administration and IT management. Verified occupation codes:
+      15-1244.00, 15-1212.00, 15-1231.00, 15-1232.00, 15-1242.00,
+      11-3021.00. Describes whole HUMAN jobs that include executing changes —
+      opsx workers cannot execute, so every crosswalk records the authority
+      gap. Mappings are at occupation level; task-level verification is
+      outstanding.
+    # VERSION CORRECTED 2026-08-26 (task 3.0 re-verification for the opsx
+    # population). Was `O*NET Database 30.3`, which was current at the
+    # 2026-08-09 run and has since been superseded — O*NET ships quarterly.
+    # Every occupation code and title listed in `scope` was re-read against
+    # the source_url below and is UNCHANGED across the release, so the opsx
+    # crosswalk is unaffected; the pin moves so the entry does not read as
+    # verified against a version that is no longer current. This is the APQC
+    # failure mode (a body reference outliving its numbering) caught by the
+    # rule that entry put here.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
+    status: current
+    source_url: https://www.onetonline.org/find/family?f=15
+    term_list_availability: public
+    reuse_licence: CC BY 4.0
+    redistribution_permitted_in_product_config: yes_with_conditions
+    attribution_required: >-
+      Credit the O*NET Database and USDOL/ETA, link CC BY 4.0, state that
+      changes were made, retain the O*NET trademark, and state that USDOL/ETA
+      has not endorsed the modifications.
+    attribution_note: O*NET is a trademark of USDOL/ETA.
+    confidence: high
+
+  # ---------------------------------- Software engineering (verified 2026-08-09)
+  # From the codex live-source verification, which found SWEBOK, SFIA and
+  # ISO/IEC/IEEE 12207 all fail the reuse test and the Scrum Guide's
+  # share-alike makes it asymmetric risk. O*NET again the only clean answer.
+  - id: onet_engineering_occupations
+    jurisdiction: united_states
+    name: O*NET Database — software engineering occupations
+    steward: National Center for O*NET Development for U.S. Department of Labor, Employment and Training Administration
+    names: other:occupations_tasks_and_work_activities
+    scope: >-
+      Occupation titles, tasks and work activities for software development,
+      QA and testing, systems analysis, security analysis and technical
+      writing. Verified codes: 15-1252.00, 15-1253.00, 15-1251.00,
+      15-1254.00, 15-1243.00, 15-1211.00, 27-3042.00. Describes whole HUMAN
+      jobs that include releasing and deploying; codex workers cannot merge
+      or release, so every crosswalk records the authority gap.
+    # VERSION CORRECTED 2026-08-26 (task 3.0 re-verification for the codex
+    # population), on the same finding as the opsx entry above: 30.3 was
+    # current at the 2026-08-09 run, O*NET ships quarterly, and every code
+    # and title listed in `scope` was re-read and is UNCHANGED across the
+    # release. 27-3042.00 was re-read on its own summary page; the other six
+    # on the family listing at source_url.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
+    status: current
+    source_url: https://www.onetonline.org/find/family?f=15
+    term_list_availability: public
+    reuse_licence: CC BY 4.0
+    redistribution_permitted_in_product_config: yes_with_conditions
+    attribution_required: >-
+      Credit the O*NET Database and USDOL/ETA, link CC BY 4.0, state that
+      changes were made, retain the O*NET trademark, and state that USDOL/ETA
+      has not endorsed the modifications.
+    attribution_note: O*NET is a trademark of USDOL/ETA.
+    confidence: high
+
+  # ASSESSED AND NOT ADOPTED (recorded so it is not re-proposed): the Scrum
+  # Guide is CC BY-SA 4.0. Bare role and event NAMES are very likely outside
+  # copyright, but share-alike means reproducing definitional text could
+  # oblige our own configuration to be CC BY-SA. Asymmetric risk for a label
+  # we can write ourselves, so no entry is registered.
+
+  # -------------------------------------- Marketing (registered 2026-08-26)
+  # Registered ahead of the adx population (3.3), because AdxFactory has no
+  # role-level body at all today: three of its ten worker classes carry an IAB
+  # crosswalk and the other seven carry display labels only. The adx marketing
+  # brief (`supporting-docs/marketing-bodies-research-prompt.md` in
+  # AdxFactory) is written but has never been run; registering the body does
+  # not pre-empt that run, it gives the run something registered to map to.
+  # STRUCTURAL DIFFERENCE FROM THE OPSX AND CODEX ENTRIES, and the reason
+  # `source_url` here is the database page rather than a family listing:
+  # marketing work does not concentrate in one SOC family the way computing
+  # work does in 15-0000. It spans 11-0000 (management), 13-0000 (business and
+  # financial operations), 15-0000 (computer and mathematical) and 27-0000
+  # (arts, design, entertainment, sports and media). A single
+  # onetonline.org/find/family?f=NN URL would quietly claim one family covers
+  # the domain, so the four family listings are named here instead:
+  #   https://www.onetonline.org/find/family?f=11
+  #   https://www.onetonline.org/find/family?f=13
+  #   https://www.onetonline.org/find/family?f=15
+  #   https://www.onetonline.org/find/family?f=27
+  # Licence text: https://www.onetcenter.org/license_db.html
+  - id: onet_marketing_occupations
+    name: O*NET Database — marketing, advertising and media occupations
+    steward: National Center for O*NET Development for U.S. Department of Labor, Employment and Training Administration
+    jurisdiction: united_states
+    names: "other:occupations_tasks_and_work_activities"
+    scope: >-
+      Occupation titles, tasks and work activities for marketing management,
+      market and search-marketing analysis, audience and data analysis,
+      creative direction, and marketing-adjacent regulatory compliance —
+      spanning SOC families 11-0000, 13-0000, 15-0000 and 27-0000 rather than
+      any one of them. Codes read on O*NET OnLine 2026-08-26: 11-2021.00
+      Marketing Managers; 13-1161.01 Search Marketing Strategists; 13-1041.00
+      Compliance Officers with 13-1041.07 Regulatory Affairs Specialists;
+      15-2051.00 Data Scientists with 15-2051.01 Business Intelligence
+      Analysts; and 27-1011.00 Art Directors, which carries "Creative
+      Director" as a reported job title verbatim. KNOWN GAPS, recorded so the
+      adx population does not force a mapping over them: O*NET has no title
+      match for "media planner" or "media buyer", and lifecycle or retention
+      marketing matches only partially. Describes whole HUMAN jobs that
+      include buying media, approving creative and signing off compliance;
+      adx workers can do none of those, so every crosswalk records the
+      authority gap. Mappings are at occupation level; task-level
+      verification is outstanding here as it is for opsx and codex.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
+    status: current
+    source_url: https://www.onetcenter.org/database.html
+    term_list_availability: public
+    reuse_licence: CC BY 4.0
+    redistribution_permitted_in_product_config: yes_with_conditions
+    attribution_required: >-
+      Credit the O*NET Database and USDOL/ETA, link CC BY 4.0, state that
+      changes were made, retain the O*NET trademark, and state that USDOL/ETA
+      has not endorsed the modifications.
+    attribution_note: O*NET is a trademark of USDOL/ETA.
+    confidence: high  # Version and licence read on the body's own pages 2026-08-26, the six occupation codes on O*NET OnLine the same day. Which adx worker maps to which code is 3.3's act and is not asserted here.
+
+  # ASSESSED AND REJECTED for the medical domain (recorded so they are not
+  # re-proposed), from the medx live-source verification 2026-08-09:
+  #   - GRADE (certainty-of-evidence framework, adopted by Cochrane, WHO,
+  #     NICE and others): the closest thing to a body naming clinical
+  #     REASONING activity, but published CC BY-NC-ND 4.0 — NonCommercial
+  #     excludes our use and NoDerivs excludes adaptation. Doubly barred.
+  #   - O*NET healthcare occupations: licence-clean but CATEGORY-wrong; they
+  #     name whole clinician jobs carrying clinical standing.
+  #   - LOINC / ICD / CPT: name clinical content, not work; CPT is AMA
+  #     copyright with fees.
+  #   - AMIA and national clinical-informatics competency frameworks:
+  #     licensing not established, and they describe human informatics
+  #     practitioners rather than agent reasoning work.
+  # CONCLUSION: medx registers no crosswalk body. It is the only domain that
+  # failed on BOTH category and licence rather than licence alone.

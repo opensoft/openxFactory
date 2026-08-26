@@ -1,0 +1,10 @@
+{
+  "change_id": "add-pattern-ledger",
+  "files": [
+    {
+      "path": "pattern-ledger-contracts.md",
+      "sha256": "0b81697af234b7c666eab0bfb468a0b1547c3e2790fc21000ef40f84a168110d",
+      "source_path": "ideation/staging/recurrence-crystallization/pattern-ledger-contracts.md"
+    }
+  ]
+}

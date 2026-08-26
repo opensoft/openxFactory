@@ -1,0 +1,40 @@
+# Example (add-dispatch-credential-contract): the openXdox intent-plane
+# credential REQUIREMENTS — the neutral, domain-abstract declaration of what
+# credentials the plane needs, before any provider is bound. TWO deliberately
+# separated requirements: a dispatch-ONLY trigger credential and the
+# content-write credential. `access_mode: dispatch_only` marks the trigger
+# credential; its `minimum_scopes` carry only trigger authority (actions:write
+# on the one workflow repo) and no repository-contents authority — the
+# dispatch-only least-privilege invariant made concrete.
+schema_version: 1
+kind: xfactory_credential_requirements
+domain:
+  id: openxdox
+  product_name: openXdox
+requirements:
+  - id: intent_dispatch
+    purpose: >-
+      Trigger the ONE apply workflow from the intent inbox. Dispatch-only —
+      no repository-contents authority.
+    access_mode: dispatch_only
+    allowed_workflows:
+      - intent-apply.yml
+    minimum_scopes:
+      - actions:write
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true
+  - id: corpus_content_write
+    purpose: >-
+      Commit intents + gate-action records + artifacts to the corpus, inside
+      the apply lane (CI only) — the privileged writer, never the serving tier.
+    access_mode: contents_write
+    allowed_workflows:
+      - intent-apply.yml
+    minimum_scopes:
+      - contents:write
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true

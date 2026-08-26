@@ -1,0 +1,90 @@
+# expected_failure: temp-grant-carries-package-pin
+# VIOLATES spec R7 from the other side. This temp grant is otherwise correct — temp
+# lease, dedicated group, broker-served manifest, self-update enabled — and it also
+# names a version and a digest, because pinning "feels safer".
+#
+# It is not safer here, it is the fail-closed control pointed at the wrong thing:
+# a volunteered laptop must never lose its lease for runner-binary drift, which is
+# upstream's business and not the engineer's. The only fail-closed control on
+# volunteered hardware is the app-version floor.
+#
+# This fixture exists because rule (c) had a defined finding for this branch and no
+# packaged negative exercising it — half of a load-bearing rule with no regression
+# test, which the README's "fails closed if that degrades" promise could not see.
+schema_version: 1
+kind: worker_enrollment_grant
+
+grant_id: grant-ws-volunteer-62-0001
+request_ref: req-ws-volunteer-62-0001
+granted_at: "2026-08-07T14:00:00Z"
+
+lease:
+  schema_version: 1
+  kind: worker_lease
+  lease_id: wl-ws-volunteer-62-0001
+  estate: temp
+  subject:
+    class: engineer
+    ref: engineer:eng-0094
+  host:
+    host_id: ws-volunteer-62
+    device_name: WS-VOL62-JD5R8
+    managed: false
+  worker:
+    worker_id: xfactory-coding-temp-ws-volunteer-62
+    runner_name: xfactory-coding-temp-ws-volunteer-62
+  binding:
+    runner_group: xfactory-temp-volunteer-workers
+    labels:
+      - self-hosted
+      - omnigent
+      - temp
+      - volunteered
+  trust_tier: volunteered_hardware
+  issued_at: "2026-08-07T14:00:00Z"
+  expires_at: "2026-08-08T14:00:00Z"
+  cadence:
+    ttl: PT24H
+    renewal_interval: PT1H
+    grace: PT12H
+    clock_skew_tolerance: PT5M
+  floor_in_force:
+    min_app_version: 1.4.0
+  state: active
+  policy_version: worker-enrollment-v1
+
+runner_package:
+  mode: self_update
+  self_update: enabled
+  observed_version_handling: informational
+  version: v2.336.0
+  sha256: d59123a43003e357b0805b5d0f611d0bd2f65ab67d51bd070dd4e7a0f685c162
+
+host_manifest:
+  source: broker_served
+  policy_version: worker-enrollment-v1
+  inline:
+    schema_version: 1
+    kind: xfactory_worker_host_manifest
+    host:
+      host_id: ws-volunteer-62
+      policy_version: worker-enrollment-v1
+    workers:
+      - worker_id: xfactory-coding-temp-ws-volunteer-62
+        runner_name: xfactory-coding-temp-ws-volunteer-62
+        runner_group: xfactory-temp-volunteer-workers
+        labels:
+          - self-hosted
+          - omnigent
+          - temp
+          - volunteered
+
+registration_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-08-07T14:10:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded

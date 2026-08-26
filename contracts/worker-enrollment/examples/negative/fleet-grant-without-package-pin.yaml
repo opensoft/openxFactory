@@ -1,0 +1,70 @@
+# expected_failure: fleet-grant-without-package-pin
+# VIOLATES spec R7: a FLEET enrollment is served a hard-pinned runner package —
+# exact version, sha256, runner self-update disabled — whose bumps ride manifest
+# rollouts through the managed delivery plane.
+#
+# The failure mode this fixture reproduces is the tempting one: "the fleet can
+# self-update too, it saves a rollout." It does not. On managed metal the pin is
+# what makes the installed runner a known, digest-verified artifact and what keeps
+# version changes inside the governed manifest-rollout path. Dropping it trades an
+# auditable rollout for an unannounced upstream change on every fleet host at
+# once.
+#
+# Note what is legal here: this document is schema-VALID (the self-update variant
+# is a real variant of `runner_package`). Only the cross-shape rule ties the
+# variant to the estate, which is why the canonical validator's rule (c) exists.
+schema_version: 1
+kind: worker_enrollment_grant
+
+grant_id: grant-cpc-omni02-0001
+request_ref: req-cpc-omni02-0001
+granted_at: "2026-07-28T09:00:00Z"
+
+lease:
+  schema_version: 1
+  kind: worker_lease
+  lease_id: wl-cpc-omni02-0001
+  estate: fleet
+  subject:
+    class: host
+    ref: host:cpc-omni02
+  host:
+    host_id: cpc-omni02
+    device_name: CPC-Omni0-R7KX2
+    managed: true
+  worker:
+    worker_id: xfactory-coding-cpc-omni02
+    runner_name: xfactory-coding-cpc-omni02
+  binding:
+    runner_group: xfactory-execution-lane-workers
+    labels:
+      - self-hosted
+      - omnigent
+      - coding-patch
+  trust_tier: managed_fleet
+  issued_at: "2026-07-28T09:00:00Z"
+  expires_at: "2026-07-29T09:00:00Z"
+  cadence:
+    ttl: PT24H
+    renewal_interval: PT1H
+    grace: PT12H
+    clock_skew_tolerance: PT5M
+  floor_in_force:
+    min_app_version: 1.4.0
+  state: active
+  policy_version: worker-enrollment-v1
+
+runner_package:
+  mode: self_update
+  self_update: enabled
+  observed_version_handling: informational
+
+registration_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-07-28T09:10:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded

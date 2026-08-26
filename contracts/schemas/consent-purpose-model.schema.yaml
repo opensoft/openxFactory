@@ -1,0 +1,47 @@
+# Grown by `add-consent-instrument` (DTN-016): the domain-declared purpose
+# model the neutral executed-instrument check resolves purposes into (ruling
+# D4 — the Medx pattern). Canonical validator:
+# scripts/validate-consent-instruments.py.
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "consent-purpose-model.schema.yaml"
+title: "xFactory consent purpose model: the domain-declared purpose vocabulary"
+contract_schema_version: 1
+type: object
+description: >-
+  The domain-declared purpose model behind spec requirement "The Neutral
+  Check Verifies Purpose Resolution Only" (ruling D4): a requested purpose
+  resolves into an instrument's `scope.purposes`, which resolve into THIS
+  model — direct membership, or a `resolves_to` chain up to a parent purpose
+  (`reconcile-bank-feeds` -> `bookkeeping`). A purpose that cannot resolve is
+  a validator finding naming the missing link. The model is a flat declared
+  vocabulary, deliberately minimal: technical access shapes stay
+  credential-contracts enforcement and never appear here.
+additionalProperties: false
+required: [schema_version, kind, domain, purposes]
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: xfactory_consent_purpose_model
+  domain:
+    type: string
+    minLength: 1
+    # The domain whose instruments resolve against this model; instruments
+    # carry the same `domain` value.
+  purposes:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [purpose]
+      properties:
+        purpose:
+          type: string
+          minLength: 1
+        resolves_to:
+          type: string
+          minLength: 1
+          # Optional parent link: this purpose is covered whenever its
+          # parent is. The target must itself be a purpose in this model
+          # (validator finding purpose-model-dangling-link otherwise).

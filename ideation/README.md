@@ -135,6 +135,22 @@ header-derived clusters with every readiness tier unscored until the scoring
 worker (codexFactory) realizes; the possibles register folds in later via the
 ideation-dashboard flows.
 
+**AI-derived possibles.** A bounded, read-only derive-possibles worker may
+propose candidate possibles into the register (`origin: ai-derived` with a
+`derivation` worker-run block) for humans to dispose on the gate console — the
+possibles-side analog of human-seen cluster intake. The additive kernel shape
+lives in
+[`contracts/schemas/ideation-possibles-register.schema.yaml`](../contracts/schemas/ideation-possibles-register.schema.yaml)
+(`origin` + `derivation`), and the rules live in the `add-possibles-derivation-lane`
+`ideation-cross-reference` requirements (Derived possible register entry and
+provenance; Orchestration-authoritative identifiers and hashes; One-way
+derived-possible disposition on the gate console; Bounded derivation worker,
+immutable evidence, and concurrency-protected merge; Derived possibles are a
+distinct class until disposed; Non-mutating derivation bound) — referenced here,
+not duplicated. The derived register-entry shape and the one-way disposition
+lifecycle are enforced by the delegated register validator
+`scripts/validate-ideation-dashboard-contracts.py`.
+
 ## Contents
 
 Brainstorm (design history; fully organized into staging or an archived
@@ -174,6 +190,68 @@ proposal):
 
 Brainstorm (active):
 
+### Additional three-tier packet overviews
+
+These overviews organize the packet material added by the brainstorm-packet
+migration into reusable atomic, synthesis, and whole-system tiers. They remain
+non-normative and may cite staged or proposed artifacts as read-only context.
+The current Recurrence Crystallization packet is retained in the active list
+below with its lifecycle notes.
+
+- [Ontology-Grounded Execution](brainstorm/ontology-overview.md) — semantic
+  context compilation, routing, caching, and maintenance proposals.
+- [Domain Ontology Lifecycle](brainstorm/domain-ontology-overview.md) —
+  governed generation, publication, drift, and renewal.
+- [Omnigent Micro-Agents](brainstorm/omnigent-micro-agent-overview.md) —
+  bounded task contracts, routing, composition, evaluation, and economics.
+- [Client Hermes Layer](brainstorm/client-overview.md) — tenant authority,
+  policy tuning, assurance, content, and source ingestion.
+- [codexFactory Domain Hermes](brainstorm/codexfactory-domain-overview.md) —
+  software-domain personas, deliberation, policy, memory, and practices.
+- [Three-Layer Hermes Runtime](brainstorm/hermes-overview.md) — deterministic
+  layer seeding, authority, personas, legal boundaries, retrieval, and
+  non-mutating learning.
+- [Hermes Memory and Retrieval](brainstorm/memory-retrieval-overview.md)
+  — source authority, per-query consent, minimized context, and recall audit.
+- [Governed Practice Adoption](brainstorm/practice-adoption-overview.md) —
+  domain suggestion, client clearance, project realization, outcomes, and
+  accounting.
+- [Project and Subject Hermes](brainstorm/project-overview.md) — template
+  provisioning, subject identity, scope, consent, acceptance, and catalog
+  boundaries.
+- [Dashboard Integrated Document Workbench](brainstorm/dashboard-workbench-overview.md)
+  — shared Outline/Document editing, subject-aware chat, model selection, and
+  human/AI draft turns.
+- [Identity and Custody](brainstorm/identity-custody-overview.md) — brokered
+  people, qualified agents, grants, vault tiers, and explainable access.
+- [Governed Worker Execution](brainstorm/worker-execution-overview.md) —
+  enrolled hosts, digest-pinned benches, bounded jobs, evidence, and external
+  enforcement.
+- [Medical Domain Hermes and Omnigent](brainstorm/medical-domain-overview.md)
+  — clinical-domain authority, bounded workers, safety, and clinician handoff.
+- [Contract Release and Document Lifecycle](brainstorm/release-lifecycle-overview.md)
+  — immutable source provenance, explicit promotion, signed releases, and
+  stack adoption.
+- [Avatar Live Voice](brainstorm/avatar-live-voice-overview.md) — visible
+  client states, privacy, brokered-call evidence, qualification, and hardening
+  boundaries.
+
+- [doxBench Overview](brainstorm/doxbench-overview.md) — entry point for the
+  three-tier doxBench packet: six atomic documents describe surface/scope,
+  dual buffers, grounded chat, typed proposal review, governed persistence,
+  and the provider boundary; two syntheses relate the human/AI authoring loop
+  and governed runtime. The packet is non-normative design exploration; the
+  active `add-workbench-integrated-editor-chat` change owns proposed
+  requirements and implementation gates (2026-07-28).
+- [Agent-Assisted App Testing Overview](brainstorm/agent-assisted-app-testing-overview.md)
+  — anchors a twenty-document packet (sixteen atomic docs, three syntheses, and
+  one overview) for turning browser annotations, Hermes UI audits, and
+  regressions into Project Hermes-managed specialist design work, layered
+  functional/visual evidence, repo-owned approved UI snapshots, deterministic
+  diff review, experience-council admission, bounded agent-only merge handoff,
+  human/professional exception gates, a v1 SDLC session protocol, and a pinned
+  Chromium/Loki render manifest, with a platform-neutral seam for a later
+  Flutter adapter (2026-08-02).
 - [openxWallet — Wallets, Grants, and Certification](brainstorm/agent-certification-wallets.md)
   — every AI agent gets a DID wallet; certified qualification levels grant
   scoped autonomous authority bound to a quantified agent identity
@@ -200,6 +278,30 @@ Brainstorm (active):
 - [Contract Release Identity and Stack-Surface Gaps](brainstorm/contract-release-and-stack-surface.md)
   — three upstream gaps from the codexFactory conformance-gate hardening;
   seeds a future openxFactory proposal.
+- [Hermes-Governed Nightly Sweep](brainstorm/hermes-governed-nightly-sweep.md)
+  — umbrella for the practice-adoption pipeline: the hand-wired doc-health sweep
+  should become an OUTPUT of the three-layer flow (domain suggests, client
+  clears, project realizes). Companions below (2026-07-20).
+- [Domain Practice Suggestion Generation](brainstorm/domain-practice-suggestion-generation.md)
+  — how the Domain Hermes autonomously generates practice-adoption suggestions:
+  a practice catalog of adoption profiles, a read-only gap scan, a structured
+  suggestion record, and a hard autonomy boundary (the domain may only SUGGEST)
+  (2026-07-20).
+- [Practice Clearance and Project Realization](brainstorm/practice-clearance-and-project-realization.md)
+  — the clearance (client auto-clear envelope + human liaison) and realization
+  (project implements through the factory's own PR/review front door) legs of
+  the pipeline (2026-07-20).
+- [Topic Compilation Tree](brainstorm/topic-compilation-tree.md)
+  — link-not-copy supporting docs, and a generated per-topic tree compilation:
+  a one-line-summary index opening to per-passage abstracts linked to sources
+  (2026-07-19).
+- [Three-Layer Hermes Content & Seeding](brainstorm/hermes-layer-content-seeding.md)
+  — how each Hermes layer gets its personality/memory/policy *content* (not
+  just structural topology): Domain authored once in codexFactory (same for all
+  installs), Client scaffolded + tuned by a policy wizard, Project scaffolded
+  from a project-type template library; hinges on whether the runtime loads the
+  inert `overlay_ref`. Substrate under the practice-pipeline brainstorms
+  (`hermes-governed-nightly-sweep.md` + its two companions) (2026-07-21).
 
 Staged topics: see the [Staging Index](staging/INDEX.md), the kept-current
 inventory of every topic under `staging/` — update it, not this list, when a
@@ -207,7 +309,133 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
-- [add-ideation-dashboard](../openspec/changes/add-ideation-dashboard/proposal.md)
+- [add-identity-brokering](../openspec/changes/add-identity-brokering/proposal.md)
+  — raised, RATIFIED and REALIZED 2026-08-21 (registered at
+  `contract-v1.37`) as the FULL promotion of the `identity-brokering-plane`
+  staged topic, whose row and detail section leave
+  [staging/INDEX.md](staging/INDEX.md) with this pointer: exit 1 of the
+  topic's three exits, the neutral `identity-brokering` capability — one
+  persona per human within a broker INSTANCE, organizations realizing company
+  boundaries on the persona, the broker asserting identity and membership only
+  (never mirroring the tenancy graph), explicit linking or admin-approved
+  merge with no third mode, workloads-are-not-personas, broker credentials as
+  `credential-contracts` records, and isolation escalating by broker instance
+  with the contract SILENT on instance count. Owns the former
+  `identity-brokering-plane.md` fragment under `supporting-docs/`; design
+  history stays in the 2026-07-14
+  [keycloak-identity-brokering](brainstorm/keycloak-identity-brokering.md)
+  brainstorm. Sibling of `add-trust-anchor` from the same 2026-08-21 session —
+  rulings R1 (install repos) and R7 (the ownership split) were made ONCE for
+  both topics — and its repo admission landed as an ADDED per-repo
+  `repo-boundary-governance` requirement rather than the shared MODIFIED
+  enumeration, so the two siblings cannot collide on one requirement at
+  archive time. Exits 2 (`keycloak-administration` in OpsxFactory) and 3 (the
+  `Keycloak-Install` creation) remain, tracked as named successors on
+  the change.
+- [add-trust-anchor](../openspec/changes/add-trust-anchor/proposal.md)
+  — raised, RATIFIED and REALIZED 2026-08-21 (registered at
+  `contract-v1.37`) as the FULL promotion of the `pki-trust-anchor-plane`
+  staged topic, whose row and detail section leave
+  [staging/INDEX.md](staging/INDEX.md) with this pointer: exit 1 of three, the
+  neutral `trust-anchor` capability — anchors as governed records with
+  certificates trusted only derivatively, issuance only under recorded
+  authority, declared chain custody DERIVING what a certificate evidences
+  (composing with `openxwallet` at run time rather than restating it),
+  renewal-as-rebind over dependents enumerated in advance, revocation
+  propagating to the authority the certificate supported, CA material as a
+  `credential-contracts` record, and the declared-degraded-obligation rule —
+  product-agnostic because two realizations are real (live Intune Cloud PKI
+  canary; OpenXPKI planned for the Opensoft production core). Owns the former
+  `pki-trust-anchor-plane.md` fragment under `supporting-docs/`. **The one
+  deliberate divergence from the topic**, recorded here so a reader is not
+  left to infer it: the topic's R1 called for the `repo-boundary-governance`
+  install-repository enumeration to be MODIFIED, and the change instead ADDS a
+  per-repo requirement for the `OpenXPKI-Install` boundary (design
+  D8) — the collision avoidance the sibling `add-identity-brokering` mirrors.
+  Topic-folder and change ids differ deliberately (`pki-trust-anchor-plane`
+  vs `add-trust-anchor`), and R1/R7 were ruled once across this topic and
+  `identity-brokering-plane`. Exits 2 (`pki-administration` in OpsxFactory,
+  plus the time-critical `add-openxpki-qa-image-pipeline` Impact amendment)
+  and 3 (the `OpenXPKI-Install` creation, moving the QA deployment
+  topology in per R2 while image custody stays in `opensoft/Opensoft-Tenant`)
+  remain, tracked as named successors on the change.
+- [add-consent-instrument](../openspec/changes/archive/2026-08-06-add-consent-instrument/proposal.md)
+  — raised 2026-08-03 (ratified same day; archived 2026-08-06 at contract-v1.30) as the full promotion of the
+  `consent-instrument-contract` staged topic (both docs moved to
+  `supporting-docs/`): the neutral consent-instrument capability, DTN-016,
+  authored against the nine 2026-07-31 rulings with two conformant
+  instances (Ledgerx engagement consent, Medx patient consent).
+- [add-capability-steward](../openspec/changes/archive/2026-07-30-add-capability-steward/proposal.md)
+  — raised and RATIFIED 2026-07-29, realized (`contract-v1.21`), and
+  **archived 2026-07-30** as exit 3 (final) of the `recurrence-crystallization`
+  staged topic (partial promotion — the dials register remains staged as
+  the topic's living remainder); owns the former `steward-contracts.md`
+  fragment under `supporting-docs/` and proposes the
+  crystallized-capability registry (proof-gated status spine, artifacts
+  pinned while authority is live-read), the dispatch junction (fences,
+  effect-class admission, fallback taxonomy, audit-shape parity), and
+  capability-health (proof ladder, mandatory sentinels, drift responses,
+  sentinel-anchored accounting, renewal write-backs).
+- [add-crystallizer-contracts](../openspec/changes/archive/2026-07-29-add-crystallizer-contracts/proposal.md)
+  — raised, RATIFIED, realized (`contract-v1.20`), and **archived
+  2026-07-29** as exit 2 of the `recurrence-crystallization` staged
+  topic (partial promotion — steward and dials fragments remain staged for
+  exit 3); owns the former `crystallizer-contracts.md` and
+  `authority-and-consent.md` fragments under `supporting-docs/` and
+  proposes the crystallization decision (the only path from candidate to
+  spend), the episode-mined build contracts (corpus, fence, effect class,
+  provenance), the T1/T2/T3 consent tiers with the approval braid, and the
+  crystallized-executor + rung-ceiling additions to the Omnigent overlay
+  under strict authority conservation.
+- [add-pattern-ledger](../openspec/changes/archive/2026-07-29-add-pattern-ledger/proposal.md)
+  — raised, RATIFIED, realized (`contract-v1.19`), and **archived
+  2026-07-29** as exit 1 of the `recurrence-crystallization` staged
+  topic (partial promotion — the topic keeps its crystallizer, authority,
+  steward, and dials fragments for exits 2 and 3); owns the former
+  `pattern-ledger-contracts.md` fragment under `supporting-docs/` and
+  proposes the five sensing record kinds (episode, outcome-label,
+  recurrence-family, recurrence-forecast, crystallization-candidate), the
+  derived-projection posture, consent-scope gating, scored forecasts, and
+  the candidate autonomy boundary (nominate, never spend).
+- [add-deployment-handoff-boundary](../openspec/changes/archive/2026-07-30-add-deployment-handoff-boundary/proposal.md)
+  — fully promoted 2026-07-28, RATIFIED 2026-07-29, and archived 2026-07-30:
+  owns the former
+  `deployment-handoff-boundary`
+  staged topic under `supporting-docs/`. The managed-subject test routes
+  deployment execution — authority follows management of the target surface,
+  never the environment tier — binding workers, CI, and human engineers
+  alike; credential non-possession is the primary enforcement, correlation
+  stamping makes out-of-band change a first-class finding, cadenced
+  publication rides standing maintenance requests, and release-realization
+  evidence correlates to the completed handoff request. OpsxFactory (QA
+  profile, grant-issuance registry lookup, correlation audit, ACR scope map)
+  and codexFactory (release exit emits the request draft) are named
+  successor realization changes; break-glass custody stays with the
+  `client-credential-escrow-registry` topic.
+- [add-omnigent-domain-overlay](../openspec/changes/archive/2026-07-24-add-omnigent-domain-overlay/proposal.md)
+  — fully promoted 2026-07-23: owns the former `omnigent-core-domain-split`
+  staged topic under `supporting-docs/`. Both archive-gate halves proven
+  the same day — the live coding-patch-worker binding renders
+  byte-equivalently from the codexFactory overlay
+  (`author-execution-lane-profile-in-overlay` + omnigent-install
+  `render-effective-profiles`, ratified + archived 2026-07-23), and the
+  MedxFactory second-domain fixture renders as a params-only delta with
+  zero core edits. The change itself stays active until its remaining task
+  (hermes-install readiness port) and bundle registration land.
+- [add-governed-derived-model](../openspec/changes/archive/2026-07-23-add-governed-derived-model/proposal.md)
+  — promoted 2026-07-23 (same-day capture → decisions → promotion →
+  **ratified, realized, archived 2026-07-23**); owns the former
+  `governed-derived-model` staged topic (DTN-014) under
+  `supporting-docs/`. Neutralizes the pattern three domains instantiate
+  independently (Medx Dream Object/Simulation Scenario, Adx
+  Persona/Campaign Simulation, Ledgerx Counterparty Health
+  Profile/Financial Scenario): five verified invariants, `governed` /
+  `calibrated` conformance tiers, six declared dials, a
+  `xfactory_derived_model_conformance` declaration, and
+  `validate-derived-models.py`. Canonical spec:
+  `openspec/specs/governed-derived-model/`. Conformers: Medx
+  (`governed`, declaration-only), Adx (`calibrated`, first).
+- [add-ideation-dashboard](../openspec/changes/archive/2026-07-29-add-ideation-dashboard/proposal.md)
   — re-proposed 2026-07-13 after a design-round demotion (second
   transition); owns the former `ideation-dashboard` staged packet (primary
   doc plus the interactive mockup) under `supporting-docs/` and defines
@@ -216,34 +444,227 @@ Active proposals promoted from staging:
   grouping (D10), drill-down explorer, viewer, gate console, and next-step
   kickoff (D14–D17), per-actor authoring authority, workbench, and nightly
   snapshot lane; web-based v1 served per Option C alongside the
-  Hermes-stack surfaces; **re-ratified 2026-07-14**.
+  Hermes-stack surfaces; **re-ratified 2026-07-14, realized, and ARCHIVED
+  2026-07-29** — the `ideation-dashboard` capability spec is promoted (15
+  requirements, plus the created `ideation-cross-reference` spec and
+  doc-health/document-lifecycle additions) and the supporting bundle
+  manifest was hash-refreshed at the archive preflight.
+- [codexFactory Domain Hermes Content & Roster](brainstorm/codexfactory-domain-hermes-content.md)
+  — fills the Software Engineering domain layer: the Plane-1 authority-persona
+  roster (seven Leads + a Scrum Coordinator), domain policy/memory/practice-catalog
+  storage map, and the Merge-Master-as-operator / cross-layer Gate-Rules-Council
+  reframing; keeps the Plane-2 execution workers in the Omnigent install
+  (2026-07-21).
+- [Hermes-Layer Persona Character Model](brainstorm/hermes-persona-character-model.md)
+  — how much personality a Hermes decider should carry (technical disposition →
+  full authored character), the dimensions of character, five options (A–E,
+  leaning a trait-framework-plus-prose hybrid), and the guardrail that character
+  shapes *how* not *whether* a persona decides (2026-07-21).
+- [codexFactory Domain Plane-1 Roster — Draft Role Objects](brainstorm/codexfactory-domain-roster-draft.md)
+  — the eight drafted domain decider personas (seven Leads + Scrum Coordinator)
+  under the Option-E character model: a trait-axis framework (disposition
+  domain-locked, voice client-tunable), authored prose for the three flagship
+  deciders, and no house style — deliberately distinct personas (2026-07-21).
+- [codexFactory Domain Policy — Store the Delta, Not the Textbook](brainstorm/codexfactory-domain-policy-model.md)
+  — what belongs in *stored* domain policy/memory vs. what the model improvises:
+  pin only the choices that must be consistent, the rules a gate must enforce,
+  the fail-closed boundaries, the staked positions, and the accumulated learning;
+  leave generic best practice to the model. Includes the decision test and the
+  filled codex policy categories (2026-07-21).
+- [codexFactory Domain Deliberation](brainstorm/codexfactory-domain-deliberation.md)
+  — the roster-adjacent stored content: MoA agent-mix profiles (declaring the
+  review-lane ensemble as `panel_synthesis`; Plane 3 profile lives in Hermes,
+  execution in Omnigent), escalation routing + stop conditions remapped onto the
+  personas, and the two review councils (per-PR merge-readiness vs. cross-layer
+  gate-rules) (2026-07-21).
+- [codexFactory Domain Memory & Practice Catalog](brainstorm/codexfactory-domain-memory-and-practices.md)
+  — the learning-side content: memory boundaries (cross-client domain learning
+  vs. never-touch client-private, promoted only through the ratified memory
+  gateway) and the practice catalog (adoption profiles over the promoted codex
+  capabilities, feeding the suggestion pipeline) (2026-07-21).
+- [Client (Company Policy) Layer Scaffold](brainstorm/client-layer-scaffold.md)
+  — scaffolds and lists the Client layer: three-tier composition (neutral
+  scaffold → domain specialization → per-client wizard tuning), the plane split
+  (house-team deciders vs. the 18 steward workers), the object model, file shape,
+  and the policy wizard; the key contrast is that client content is per-client
+  and wizard-loaded, not authored once (2026-07-21).
+- [Client (Company Policy) Plane-1 Roster — Draft House Team](brainstorm/client-layer-roster-draft.md)
+  — the ten house-team decider personas, clustered as policy core (Company Policy
+  Lead, Change Approvals Authority), a Risk & Assurance bench (Legal & Compliance
+  Counsel, Reputation & Brand Steward, Product Liability & Insurance Officer),
+  Security, Ops (Integrations Steward, Infrastructure Liaison, Delivery & SLA
+  Lead), and Customer & Communications — all sharing a coherent house-style
+  voice, itself client-tunable; a **neutral** roster (openxFactory scaffold),
+  domain-specialized and client-tuned (2026-07-21).
+- [Hermes Legal & Compliance Model](brainstorm/hermes-legal-compliance-model.md)
+  — a dedicated Legal & Compliance Counsel (IP/licensing, age-appropriate,
+  financial, data-protection, accessibility, export) that enforces human-ratified
+  legal constraints, fails closed, and escalates novel legal questions to human
+  counsel — never practices law; cross-layer (client authority, domain
+  license-scan practice, project audience expectations) (2026-07-21).
+- [Client Risk & Assurance Bench](brainstorm/client-risk-and-assurance-model.md)
+  — groups legal, a Reputation & Brand Steward (harm to the company's
+  reputation), and a Product Liability & Insurance Officer (product-liability
+  exposure + Errors & Omissions coverage) into one bench; all enforce stored
+  constraints, fail closed, and escalate to a human, convening as a launch/
+  release Risk & Assurance review (2026-07-21).
+- [Client Layer Content — policy/memory/integration boundaries](brainstorm/client-layer-content-draft.md)
+  — fills the three client content files: policy overrides (the client's stored
+  delta, stricter-than-domain only), the four per-tenant memory buckets with the
+  domain-promotion gate, and integration boundaries (credential references only);
+  each a domain default plus a wizard-tuned per-client instance (2026-07-21).
+- [Client Policy Wizard](brainstorm/client-policy-wizard.md)
+  — the guided elicitation that turns a scaffolded client into a tuned one:
+  the bounded question set, the auto-clear-envelope generator (the clearance
+  pipeline's input), conservative park-by-default safety, idempotent re-tuning
+  with disposition feedback, and the stricter-only guard (2026-07-21).
+- [Project/Customer (Subject) Layer Scaffold](brainstorm/project-layer-scaffold.md)
+  — the subject-centric layer: its content model (identity, scope, acceptance,
+  consent, private memory, journey state), a small Plane-1 roster (Product Owner
+  + Project Manager) with the three-layer coordination boundary (domain Scrum
+  Coordinator / project PM / client Delivery Lead), provisioning from an
+  archetype, and the manual-writer as a Plane-2 worker (2026-07-21).
+- [Tenant Project Catalog and Engineer Workstation Projection](brainstorm/tenant-project-catalog-and-workstation-cache.md)
+  — separates the company runtime's authoritative project/repository catalog
+  and principal assignments from the engineer workstation's tenant-scoped
+  cache and local preferences; defines Company Projects, My Projects,
+  native Windows/WSL state locations, and the single-project request boundary
+  (2026-07-27).
+- [Ontology and Omnigent Micro-Agent Exploration Map](brainstorm/ontology-and-micro-agent-exploration-map.md)
+  — anchors a twelve-document collection covering the ontology and micro-agent
+  foundations, ontology generation/maintenance/context compilation, bounded
+  Omnigent task/routing/evaluation contracts, and the combined semantic
+  routing, caching, and ontology-maintenance fleet ideas (2026-07-28).
+- [Governed Recursive Inference Overview](brainstorm/governed-recursive-inference-overview.md)
+  — anchors a sixteen-document packet (eleven atomic docs + four syntheses)
+  adapting Recursive Language Models to xFactory as a bounded Omnigent
+  inference strategy: authorized context capsules, typed sandboxed context
+  computation, subordinate task families with monotone authority, depth/cost
+  limits, coverage and trajectory evidence, strategy routing, domain pilots,
+  and council-ready assurance packets (2026-07-30).
+- [Hermes Recursive Subject Establishment Overview](brainstorm/hermes-recursive-subject-establishment-overview.md)
+  — anchors an eighteen-document companion packet (thirteen atomic docs + four
+  syntheses) placing bounded recursive inference in Subject Hermes for durable
+  company, patient, project, or estate establishment: recursive evidence
+  frontiers, heterogeneous evidence manifests, governed acquisition
+  obligations, modality and specialist routing, relationship-scope and lineage
+  controls, purpose-bound derived subject models, qualified readiness, and
+  Ledgerx/Medx proof profiles (2026-07-30).
+- [Polyglot Graph Memory Overview](brainstorm/polyglot-graph-memory-overview.md)
+  — anchors a nine-document packet (six atomic docs + two syntheses) on using
+  purpose-specific graph providers across doxBench, the three Hermes layers,
+  DomainxFactories, and Omnigent while standardizing identity, provenance,
+  bounded context, routing roles, derived-projection authority, disagreement,
+  promotion, and migration through the Memory Gateway (2026-07-30).
+- [Recurrence Crystallization Overview](brainstorm/crystallization-overview.md)
+  — anchors a nineteen-document packet (fifteen atomic docs + three arc
+  syntheses: Pattern Ledger, Crystallizer, Capability Steward) on turning
+  repeatedly-AI-solved task families into governed cheaper paths: an episode
+  ledger over existing audit/metering, recurrence + stability forecasting, a
+  budget-consented build decision on a seven-rung automation ladder,
+  episode-mined micro-specs with acceptance corpora and scope fences,
+  codexFactory-built capabilities under authority conservation, and
+  fence-guarded dispatch with sentinel sampling so learning, drift detection,
+  and savings claims stay honest (2026-07-28). Organized 2026-07-29 into the
+  [recurrence-crystallization staged topic](staging/recurrence-crystallization/recurrence-crystallization.md)
+  with decisions D1–D11 and verifications V1–V2 locked; the
+  [cross-tenant fragment](brainstorm/crystallization-cross-tenant.md) stays
+  active brainstorm for a later wave.
+- [Project-Type Template Library — Draft Archetypes](brainstorm/project-type-template-library-draft.md)
+  — six project archetypes (service, library, cli, application, infra-iac, spike)
+  a project is provisioned from, each a bundle of default policy, expected
+  practices, workflows, and default agents; the stricter-only invariant chains
+  domain→client→project-type, and the spike shows safe gate *relaxation* via
+  quarantine (2026-07-21).
+- [Hermes Knowledge-Base Architecture](brainstorm/hermes-knowledge-base-architecture.md)
+  — applies the Cerebras knowledge-base pattern (federate over sources, unified
+  evidence rows, structure-before-embed, hybrid retrieval + RRF + age decay,
+  planner→executor→synthesizer, primitives-not-answers) inside the ratified
+  memory gateway's consent / tenant-isolation / source-authority rails; the
+  client layer is the star case (federate over the operating org's real systems
+  via the scaffold's source-inventory + memory-steward agents) (2026-07-21).
+- [Client Ingestion-Adapter Contract](brainstorm/client-ingestion-adapter-contract.md)
+  — the governed connector from a client source system (chat, VCS, tickets, CRM,
+  …) to tenant-scoped evidence rows: a `client_source_adapter` manifest composing
+  the ratified provider/consent contracts, an `evidence_row` output schema, the
+  differential-sync + structure-before-embed + redact pipeline, and the
+  non-negotiables (credential-reference-only, tenant isolation, consent-gated,
+  source-authority tagged); runs as a read-only Plane-2 worker (2026-07-21).
+- [Hermes Retrieval Primitives](brainstorm/hermes-retrieval-primitives-contract.md)
+  — the read side: governed low-level primitives (`search`, `search_<source>`,
+  `who_knows`, `recall`) returning context-packets, a planner→executor→
+  synthesizer pipeline that only *advises* (Hermes decides), the hybrid + RRF +
+  age-decay ranking recipe, per-query consent/tenant/ACL/source-authority
+  enforcement, and MCP tool exposure (2026-07-21).
+- [Subject Recall & Consent Path](brainstorm/subject-recall-and-consent-path.md)
+  — the hardest case: recalling a person-subject's (patient's) private memory
+  with consent checked per query — a subject-owned consent model (who/what/why/
+  how-long/where, default deny), purpose-bound + minimized recall with an
+  explained denial list and a subject-visible audit log, immediate revocation/
+  erasure, and an audited dual-authorized break-glass exception for life-critical
+  domains (2026-07-21).
+- [Hermes Layer Seeding Mechanism](brainstorm/hermes-layer-seeding-mechanism.md)
+  — the runtime `seed-layer-content` step that makes the drafted content live:
+  resolve the pinned overlay_ref → verify digest → compose the overlay stack →
+  validate → split into three destinations (enforceable slice → runtime records,
+  memory → gateway bindings, persona prose → pinned reference); deterministic,
+  digest-pinned, idempotent, re-seeds on re-pin (client-consented), fails closed
+  to a safe structural-only layer (2026-07-21).
+- [Tech-Stack Benches as Governed Worker Toolchains](brainstorm/tech-stack-benches.md)
+  — adopt the operator's per-stack bench containers as governed worker
+  execution environments: neutral bench-manifest contract, digest-pinned
+  `toolchain_bindings` in domain overlays, per-job bench selection, heartbeat
+  bench inventory, and Intune-deployed worker-host-agent pre-pull; first
+  bench-enabled host is the idle Omni-001 Cloud PC (2026-07-23).
+- [Omnigent Lane Activation Path](brainstorm/omnigent-lane-activation-path.md)
+  — the sequenced path from today's govern/record plane to a Hermes-managed
+  omnigent lane that autonomously codes: P0 runtime (live) → P1 seed+enforce
+  content → P2 governed job lifecycle → P3 omnigent run loop → P4 governed close
+  → P5 self-host; the ordering answer is that Hermes layer *content* (seeded +
+  enforceable) gates a *managed* lane while the execution machinery builds in
+  parallel and converges (2026-07-21).
 
-- [qualify-avatar-brokered-call-feasibility](../openspec/changes/qualify-avatar-brokered-call-feasibility/proposal.md)
-  — approved split owning the isolated F0 harness and empirical evidence; still
-  active. Its sibling avatar changes promoted from the same staged packet — the
+- [qualify-avatar-brokered-call-feasibility](../openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/proposal.md)
+  — approved split owning the isolated F0 harness and empirical evidence;
+  realized and archived 2026-08-09. Its sibling avatar changes promoted from
+  the same staged packet — the
   AVC kernel (`define-avatar-client-contract-kernel`, realized `contract-v1.7`),
   the reference runtime (`implement-avatar-reference-runtime`), and the UI standard
   (`align-avatar-first-ui-standard`, realized `contract-v1.8`) — were realized and
   archived 2026-07-13 (see the root README's Archived changes).
-- [add-cross-factory-ideation-routing](../openspec/changes/add-cross-factory-ideation-routing/proposal.md)
-  — owns the former `ideation-routing` staged packet under
+- [add-cross-factory-ideation-routing](../openspec/changes/archive/2026-08-06-add-cross-factory-ideation-routing/proposal.md)
+  — realized and archived 2026-08-06; owns the former `ideation-routing` staged packet under
   `supporting-docs/` and proposes capture-first claim routing, destination
   acceptance, deterministic routing validation, and a bounded organizer.
-- [add-document-cataloging](../openspec/changes/add-document-cataloging/proposal.md)
+- [add-document-cataloging](../openspec/changes/archive/2026-07-14-add-document-cataloging/proposal.md)
   — user-approved split from the former umbrella proposal; owns external
   controlled tagging, immutable catalog snapshots, deterministic catalog
-  validation, and the bounded document cataloger.
-- [add-proposal-origin-contract](../openspec/changes/add-proposal-origin-contract/proposal.md)
+  validation, and the bounded document cataloger; realized as
+  `contract-v1.11` and **archived 2026-07-14**.
+- [add-proposal-origin-contract](../openspec/changes/archive/2026-08-06-add-proposal-origin-contract/proposal.md)
   — owns the former `proposal-origin-contract` primary doc under
   `supporting-docs/` and proposes the mandatory staged/ad-hoc origin
   declaration, gate rejections, archive retention, migration, and the
   proposal-origin doc-health family; the FDA SaMD rationale deliberately
   remains staged.
-- [add-ideation-cross-reference-readiness](../openspec/changes/add-ideation-cross-reference-readiness/proposal.md)
-  — owns the former `ideation-cross-reference-readiness` staged packet under
+- [add-ideation-cross-reference-readiness](../openspec/changes/archive/2026-08-04-add-ideation-cross-reference-readiness/proposal.md)
+  — realized and archived 2026-08-04; owns the former
+  `ideation-cross-reference-readiness` staged packet under
   `supporting-docs/` and proposes the unified cross-stage topic index,
   three-tier Hermes readiness panel, minimum-score recommendation gate, and
   nightly readiness lane.
+- [implement-avatar-client-lab](../openspec/changes/archive/2026-08-04-implement-avatar-client-lab/proposal.md)
+  — exit of the `avatar-client-lab` staged topic (six decisions locked
+  2026-07-13, promoted 2026-07-14, realized and archived 2026-08-04); owns the four staged fragments under
+  `supporting-docs/` and realizes the offline, deterministic Flutter avatar
+  client UI lab against `contract-v1.7`/`contract-v1.8`.
+- [add-client-infrastructure-liaison](../openspec/changes/archive/2026-07-17-add-client-infrastructure-liaison/proposal.md)
+  — exit of the `client-infrastructure-liaison` staged topic (promoted
+  2026-07-16); owns the six staged fragments (bundled as
+  `supporting-docs.tar.gz` at archive) and adds the neutral Client
+  Infrastructure Liaison coordination profile plus the
+  `client_infrastructure_request` contract family; realized as
+  `contract-v1.13` and **archived 2026-07-17**.
 
 Proposal source and completed design history are retained with their active or
 archived OpenSpec changes under `supporting-docs/` or

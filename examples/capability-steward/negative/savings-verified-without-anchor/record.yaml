@@ -1,0 +1,22 @@
+# expected_failure: savings-anchor
+# A verified savings claim with no sentinel anchor — self-graded savings
+# are exactly what the counterfactual discipline forbids.
+schema_version: 1
+kind: savings_entry
+entry_id: "sav:opensoft:neg:2026-08"
+capability_ref: "cap:opensoft:neg"
+window:
+  from: "2026-08-01"
+  to: "2026-08-05"
+instances:
+  served: 10
+  sentinel: 0
+  fallback: 1
+counterfactual:
+  anchor_ref: null
+  anchored_at: null
+net:
+  savings_per_instance: 50000
+  volume: 10
+  full_cost_deductions: 0
+verdict: verified

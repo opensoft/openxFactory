@@ -1,0 +1,45 @@
+# Positive reference example — a healthy renewal that CARRIES THE FLOOR
+# (spec R4 scenarios 1 and 3). This is the ordinary case: a worker at or above
+# the floor renews before expiry, the broker extends the lease, and the response
+# carries the current floor anyway.
+#
+# The floor travels here even though this worker is not affected by it. That is
+# the requirement: on hardware nobody manages, the renewal response is the only
+# channel that reaches the machine, so the floor must ride EVERY response rather
+# than only the ones that deny something.
+schema_version: 1
+kind: worker_lease_renewal
+
+renewal_id: rnw-ws-brett-01-0087
+lease_id: wl-ws-brett-01-0001
+
+request:
+  requested_at: "2026-07-30T08:00:00Z"
+  authentication:
+    # The SAME identity that enrolled, re-presented for the renewal — and the
+    # declaration that matters on a volunteered workstation: no standing secret
+    # was written to this machine to make this call (spec R1).
+    mode: device_code
+    subject:
+      class: engineer
+      ref: engineer:eng-brett
+    standing_secret_on_host: none
+    reauthenticated_at: "2026-07-30T07:55:00Z"
+  observed:
+    app_version: 1.4.0
+    runner_version: v2.337.1
+  liveness:
+    last_heartbeat_at: "2026-07-30T07:57:00Z"
+    consecutive_failed_renewals: 0
+    host_clock_offset: PT2S
+
+response:
+  decided_at: "2026-07-30T08:00:00Z"
+  lease_state: active
+  new_expiry: "2026-07-31T08:00:00Z"
+  floor:
+    min_app_version: 1.4.0
+    source: policy
+  required_action: none
+  policy_version: worker-enrollment-v1
+  note: renewed at or above floor; observed runner version informational for temp

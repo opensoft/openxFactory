@@ -1,0 +1,36 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "6f019643ee53ebd109416503b78143bacd688c68b42327589d1554214b3aa242"
+  },
+  "change_id": "add-cross-factory-ideation-routing",
+  "files": [
+    {
+      "path": "idea-routing-record.template.yaml",
+      "sha256": "6c6f8be45edd3c9fa4481a786495e05dcbfb50cefc955cea58d7e8246fa1cfe1"
+    },
+    {
+      "path": "ideation-routing.md",
+      "sha256": "9a2106611b1511f01cff5f57fdfbf96e3f4f111ce1c57f4db9328c6943bd5985"
+    },
+    {
+      "path": "manifest.yaml",
+      "sha256": "a7dc211aef434b4d8fd4f28d74dde48f1d2dfbec1394248b78939dbd90f705ed"
+    },
+    {
+      "path": "metadata-application-matrix.md",
+      "sha256": "5d4a373461fdf99d2295abd1cbe28be4e579a4cce71a4239c552a33f8e0807b5"
+    },
+    {
+      "path": "organizer-and-sweep-contract.md",
+      "sha256": "4f8d398063e0f01a3e91a3b263c48c30b2f1f949cbf350fae6ef8bc69d804248"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/ideation-routing",
+  "packaged_at": "2026-08-06",
+  "source_revision": "uncommitted-worktree",
+  "transitioned_at": "2026-07-09"
+}

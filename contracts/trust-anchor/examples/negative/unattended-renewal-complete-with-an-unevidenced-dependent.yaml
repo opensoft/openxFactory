@@ -1,0 +1,41 @@
+# expected_failure: renewal-complete-with-unevidenced-dependent
+# expected_failure_detail: FAILURE OF THE ISSUING WORKFLOW
+# requirement: TA-R4
+# VIOLATES TA-R4 in the mode the ratified text specifically refuses to exempt: an
+# UNATTENDED renewal.
+#
+# This fixture exists because "it renewed itself, nobody did anything" is the most
+# natural place for an exemption to appear, and because the canary's actual
+# incident was exactly this. No rule in the validator keys on `renewal_mode` — if
+# one did, the exemption would exist in the mechanism no matter what the
+# requirement said — so this record fails for the same reason a requested one
+# would.
+schema_version: 1
+kind: xfactory_certificate_renewal_record
+renewal_id: renewal:neg-unattended-complete-unevidenced
+certificate_ref: cert:core-workload-02
+anchor_ref: anchor:core-issuing
+renewal_mode: unattended
+planning:
+  planned_at: "2026-06-30T00:00:00Z"
+  certificate_enumeration_state: complete
+  outcome: proceeded
+  statement: Unattended cycle; nothing reported an error.
+key_change:
+  changed: true
+  superseded_key_generation_ref: keygen:core-workload-02-g1
+  new_key_generation_ref: keygen:core-workload-02-g2
+rebind_obligation:
+  arises: true
+  statement: New key material.
+enumerated_dependents:
+  - bind:core-workload-02-queue
+  - bind:core-workload-02-mesh
+dependent_rebinds: []
+authority_outcome: issued
+completion_state: complete
+reported_at: "2026-07-01T02:10:00Z"
+notes: >-
+  The renewal ran, the certificate is valid, and the record reports success
+  because nothing objected. This is the silent failure the contract exists to
+  turn into a missing artifact.

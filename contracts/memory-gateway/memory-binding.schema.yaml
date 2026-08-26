@@ -1,0 +1,89 @@
+schema_version: 1
+name: hermes_memory_binding
+# The derived memory-binding record (hermes-install seeding increment 3,
+# formalized by add-hermes-domain-content-manifest): the normalized,
+# gateway-vocabulary-expressed projection of a layer's seeded memory boundary
+# that the gateway's rails consume. It is RAILS INPUT — never a provider
+# binding (provider ids, endpoints, and grants live in
+# provider-binding.schema.yaml) and never a memory store. A binding carrying
+# a provider or credential surface fails validation (enforced by the
+# canonical validator; the schema deliberately closes scope entries and the
+# top level with additionalProperties: false).
+type: object
+required:
+  - schema_version
+  - kind
+  - layer_role
+  - derived_from
+  - scopes
+  - denied_scopes
+  - invariants
+  - vocabulary_bundle_tag
+properties:
+  schema_version:
+    type: integer
+    minimum: 1
+  kind:
+    type: string
+    enum:
+      - hermes_memory_binding
+  layer_role:
+    type: string
+    enum: [domain, client, customer]
+  derived_from:
+    type: string
+    enum: [memory_boundary]
+  scopes:
+    type: array
+    items:
+      type: object
+      required: [scope, subject_scope]
+      properties:
+        scope: {type: string}
+        subject_scope: {type: string}
+        remembers:
+          type: array
+          items: {type: string}
+        promotion:
+          type: object
+          required: [gateway, consent_required]
+          properties:
+            gateway:
+              type: string
+              enum: [customer_memory_gateway]
+            candidate_kind: {type: string}
+            consent_required: {type: boolean}
+            accepted_authority_level:
+              type: string
+              # MUST be a member of vocabularies.yaml authority_levels
+              # (cross-checked by the canonical validator).
+          additionalProperties: false
+        write_authority:
+          type: object
+          properties:
+            proposer: {type: string}
+            accepter: {type: string}
+          additionalProperties: false
+        deidentification_required: {type: boolean}
+        shared_with_domain: {type: boolean}
+        cross_client: {type: string}
+        visibility: {type: string}
+        promotion_requires_domain_review: {type: boolean}
+        retention: {type: string}
+      additionalProperties: false
+  denied_scopes:
+    type: array
+    items:
+      type: object
+      required: [scope]
+      properties:
+        scope: {type: string}
+      additionalProperties: false
+  invariants:
+    type: array
+    items: {type: string}
+  consent_profile:
+    type: string
+  vocabulary_bundle_tag:
+    type: string
+additionalProperties: false

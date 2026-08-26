@@ -1,0 +1,64 @@
+# expected_failure: token-in-record
+# expected_failure_detail: remove_token.value
+# VIOLATES spec R2/R3 and the transient-token declaration of
+# worker-removal-grant.schema.yaml. The declaration says every right thing —
+# `transient: true`, `single_use: true`, persist and log forbidden, excluded from
+# derived records — and then the broker wrote the issuance response to its own
+# store with the token value still in it, "so a retry can reuse it".
+#
+# There is no retry. The token is single-use and short-lived by contract, and a
+# retry is a second request against the lease. `value` is `writeOnly` precisely so
+# that a stored, committed, or scanned artifact carrying it is a finding rather than
+# a judgement call — which is why every packaged positive example of this family
+# shows the declaration and no value.
+#
+# Fails twice, by design — the canonical validator's `remove_token.value` check and
+# its rule (a) value scan, which sees a token-shaped run.
+schema_version: 1
+kind: worker_removal_grant
+
+removal_grant_id: rmg-cpc-omni02-0001
+requested_at: "2026-07-30T08:14:50Z"
+issued_at: "2026-07-30T08:15:00Z"
+
+lease_id: wl-cpc-omni02-0001
+estate: fleet
+
+subject:
+  class: host
+  ref: host:cpc-omni02
+  authentication_mode: host_identity
+
+host:
+  host_id: cpc-omni02
+  device_name: CPC-Omni0-K2RXD
+  managed: true
+
+worker:
+  worker_id: xfactory-coding-cpc-omni02
+  runner_name: xfactory-coding-cpc-omni02-stale
+
+binding:
+  runner_group: xfactory-execution-lane-workers
+
+trust_tier: managed_fleet
+
+reason: drift_repair
+reason_detail: stale registration after a reimage
+
+remove_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2026-07-30T08:25:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded
+  value: ARCH7QK2WMZP4YDNVLB6TXE3FGHJ5S8UC9ROIA2QZ1KDMWPLTN6Y
+
+policy_version: worker-enrollment-v1
+
+audit_ref:
+  event: remove_token
+  record_id: aud-cpc-omni02-0007

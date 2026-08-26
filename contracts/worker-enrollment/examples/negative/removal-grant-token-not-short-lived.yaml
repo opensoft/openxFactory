@@ -1,0 +1,64 @@
+# expected_failure: remove-token-not-short-lived
+# VIOLATES spec R3 ("receives a short-lived single-use token") the same way
+# `grant-token-not-short-lived.yaml` violated R2 for the registration token: the
+# declaration says every right thing — `transient: true`, `single_use: true`,
+# `lifetime: PT10M`, persist and log forbidden, excluded from derived records — and
+# the token is good until 2099.
+#
+# This fixture exists because the phase-1 review proved the identical hole in the
+# ENROLLMENT grant, and a remove token is the SAME administration-tier authority
+# pointed the other way: it deregisters runners. A shape that declares a bounded
+# `lifetime` and never checks it against the clock is a shape whose bound is
+# decoration. So the canonical validator checks the actual `issued_at` ->
+# `expires_at` span against both the declared lifetime and the contract's
+# fifteen-minute ceiling, and rejects a non-positive one.
+#
+# A remove token that lives for decades is a standing deregistration credential —
+# and unlike a stale registration, a stale REMOVAL authority takes workers out of
+# the standing execution lane.
+schema_version: 1
+kind: worker_removal_grant
+
+removal_grant_id: rmg-cpc-omni05-0001
+issued_at: "2026-08-05T09:00:00Z"
+
+lease_id: wl-cpc-omni05-0001
+estate: fleet
+
+subject:
+  class: host
+  ref: host:cpc-omni05
+  authentication_mode: host_identity
+
+host:
+  host_id: cpc-omni05
+  device_name: CPC-Omni0-W4NP6
+  managed: true
+
+worker:
+  worker_id: xfactory-coding-cpc-omni05
+  runner_name: xfactory-coding-cpc-omni05-stale
+
+binding:
+  runner_group: xfactory-execution-lane-workers
+
+trust_tier: managed_fleet
+
+reason: drift_repair
+reason_detail: orphaned registration after a reimage
+
+remove_token:
+  transient: true
+  single_use: true
+  lifetime: PT10M
+  expires_at: "2099-01-01T00:00:00Z"
+  handling:
+    persist: forbidden
+    log: forbidden
+    derived_records: excluded
+
+policy_version: worker-enrollment-v1
+
+audit_ref:
+  event: remove_token
+  record_id: aud-cpc-omni05-0004

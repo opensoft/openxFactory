@@ -1,0 +1,3 @@
+schema_version: 1
+kind: external_terminology_content
+terms: [a, b, c]

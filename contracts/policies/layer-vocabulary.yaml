@@ -1,0 +1,88 @@
+# Canonical Hermes layer vocabulary and legacy mapping.
+# Ratified by: adopt-subject-tenant-domain-vocabulary (2026-07-23; naming
+# decision Brett Heap 2026-07-22). Pending bundle registration per the
+# contract versioning policy (see contracts/README.md holding area).
+schema_version: 1
+kind: layer_vocabulary
+policy_id: layer-vocabulary-v1
+
+canonical_layers:
+  - id: subject
+    name: Subject Hermes
+    legacy_id: customer
+    role: >-
+      The served party or work subject (a patient, a project, a managed
+      system, a client company): subject-specific context, consent,
+      preferences, journey state, private memory.
+  - id: tenant
+    name: Tenant Hermes
+    legacy_id: client
+    role: >-
+      The tenant-operator organization running the installation: its
+      policy, staff, integrations, local constraints, credentials, and
+      organizational memory.
+  - id: domain
+    name: Domain Hermes
+    legacy_id: domain
+    role: >-
+      Reusable expert-domain policy, source authority, domain ontology
+      stewardship (the accountable steward, review councils, and release
+      decisions of the domain's ontology package under the
+      contracts/domain-ontology/ contract), domain memory boundaries,
+      review standards, escalation.
+
+legacy_mapping:
+  customer: subject
+  client: tenant
+  domain: domain
+
+# "Customer" and "Client" MUST NOT name a Hermes layer on new or
+# substantively revised governance surfaces. Both remain legal in
+# commercial-relationship prose (a client of Opensoft, a customer
+# engagement) and inside the frozen identifiers below.
+reserved_layer_terms:
+  - customer
+  - client
+
+# Released machine identifiers stay byte-stable until the next major
+# contract bundle; interpret them through legacy_mapping, never edit them
+# in place.
+frozen_identifiers:
+  - surface: contracts/hermes-runtime/
+    items:
+      - role kinds `customer|client|domain` (runtime-topology, shared-definitions)
+      - "`customer_subject`, `customer_subject_ref`"
+      - schema `$id` and `contract_id` values of the v2 family
+  - surface: contracts/schemas/xfactory-domain-stack.schema.yaml
+    items:
+      - "`hermes.layers` role keys `customer|client|domain` (v1, frozen)"
+  - surface: contracts/schemas/ (v1 set)
+    items:
+      - released field names containing `customer` or `client`
+
+# Domain-facing aliases specialize canonical names and never replace them.
+# An alias may not equal a canonical layer name of a different layer —
+# which retires OpsxFactory's former secondary alias "Tenant Hermes" for
+# its subject layer (now reserved by the canonical tenant layer).
+domain_aliases:
+  MedxFactory:
+    subject: Patient Hermes
+    tenant: Care Organization Hermes
+  codexFactory:
+    subject: Project Hermes
+    tenant: Engineering Organization Hermes
+  OpsxFactory:
+    subject: Managed System Hermes
+    tenant: Operator Organization Hermes
+  LedgerxFactory:
+    # The review-A1 "Client Hermes" collision was fixed in-repo (renamed
+    # Engagement Hermes 2026-07-03; hermes/client/ = Firm Hermes).
+    subject: Engagement Hermes
+    tenant: Firm Hermes
+  AdxFactory:
+    # Filled 2026-07-24 from AdxFactory stack.yaml hermes.layers display
+    # names (subject renamed Campaign -> Advertiser Hermes and the phantom
+    # "Brand Hermes" delivered as Marketing Organization Hermes by
+    # add-adx-object-model, archived 2026-07-23; review 2026-07-03 A2 closed).
+    subject: Advertiser Hermes
+    tenant: Marketing Organization Hermes

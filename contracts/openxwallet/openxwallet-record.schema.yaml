@@ -1,0 +1,124 @@
+schema_version: 1
+kind: openxfactory-openxwallet-contract-schema
+name: xfactory_wallet_record
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/openxwallet/v1/openxwallet-record.schema.yaml"
+contract_id: openxwallet-record
+contract_schema_version: 1
+title: openxWallet wallet record
+description: >-
+  The neutral wallet record (add-openxwallet, capability `openxwallet`,
+  requirement "A wallet is a key, never a record of a key"). A wallet is a
+  signing key anchored to a decentralized identifier and held by a HOLDER;
+  the record carries the holder's identifier, a REFERENCE to the key, and the
+  key's declared custody model.
+
+  THE RECORD HAS NO PROPERTY THAT COULD HOLD KEY MATERIAL, at any depth, with
+  `additionalProperties: false` everywhere so a consumer cannot add one. This
+  is the load-bearing absence of the family: a raw key can be neither expired
+  nor revoked, and a shared key destroys attribution, so a key-material FIELD
+  is not merely discouraged here — it is unrepresentable. The canonical
+  validator additionally scans string VALUES for the key-material forms it
+  knows — PEM-armored blocks and serialized JWKs carrying a private
+  exponent — because a conformant shape can still carry key text inside a
+  string field that legitimately exists. That scan is a blocklist, not a
+  proof: a key serialized some other way (raw hex, bare base64) passes it,
+  so keeping key material out of free-text fields is an obligation the
+  contract places on its consumers rather than one the validator can
+  discharge.
+
+  Holder class is closed but the capability is holder-class AGNOSTIC: no
+  requirement in the core assumes a class, and everything agent-specific lives
+  in `openxwallet-agent-profile`, never here.
+type: object
+required:
+  - schema_version
+  - kind
+  - wallet_id
+  - holder
+  - key_reference
+  - custody
+  - state
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_wallet_record]
+  wallet_id:
+    $ref: '#/$defs/identifier'
+  holder:
+    # The holder is the party the key is held BY. A holder identifier is the
+    # subject's own identifier in its domain; it is never derived from, and
+    # never replaced by, the wallet identifier (see the non-substrate rule in
+    # openxwallet-subject-attestation.schema.yaml).
+    type: object
+    required: [holder_id, holder_class]
+    additionalProperties: false
+    properties:
+      holder_id: {$ref: '#/$defs/identifier'}
+      holder_class:
+        # Closed per the fail-closed registry rule, and deliberately plural:
+        # the core recognises every class the family recognises, and imposes
+        # no requirement that assumes one.
+        type: string
+        enum: [person, practitioner, organisation, agent]
+      display_label: {type: string, maxLength: 200}
+  key_reference:
+    # A REFERENCE. `did` anchors the key to a decentralized identifier;
+    # `key_id` names the key within that anchor. `public_key_multibase` is
+    # admitted because a public key is not key material — it is what a
+    # verifier needs and what proof of possession is checked against.
+    type: object
+    required: [did, key_id]
+    additionalProperties: false
+    properties:
+      did:
+        type: string
+        pattern: '^did:[a-z0-9]+:[A-Za-z0-9._:%-]+$'
+      key_id: {$ref: '#/$defs/identifier'}
+      public_key_multibase:
+        type: string
+        pattern: '^z[1-9A-HJ-NP-Za-km-z]+$'
+      signature_algorithm:
+        # Closed, and widened by MEASUREMENT, not preference. The original
+        # set was curve-only; the family's first enforcement surface
+        # (LedgerxFactory's posting control in the Business Central
+        # extension) verifies signatures with the platform's own crypto,
+        # and BC 28.3 AL exposes exactly RSA, DSA and RSASSA-PSS — no
+        # ed25519, no ECDSA (measured 2026-08-08 against the 28.3 System
+        # Application symbols; SignatureAlgorithm enum 1446). A schema
+        # that admits no platform-verifiable algorithm would force the
+        # verification off-platform, reintroducing the network dependency
+        # the consumer's local-decision rule exists to remove. The rsa-*
+        # values mean RSASSA-PKCS1-v1_5 over the named SHA-2 digest —
+        # what CryptographyManagement.VerifyData implements.
+        type: string
+        enum: [ed25519, ecdsa-p256, ecdsa-secp256k1,
+               rsa-2048-sha256, rsa-3072-sha256]
+  custody:
+    # The declared custody model, by id, resolved against the closed registry
+    # in openxwallet-custody.registry.yaml. The registry states what each
+    # model EVIDENCES and the authority it CAPS; this record only declares
+    # which one is in force, so the two can never disagree by restatement.
+    type: object
+    required: [model, registry_version]
+    additionalProperties: false
+    properties:
+      model: {$ref: '#/$defs/identifier'}
+      registry_version: {type: integer, minimum: 1}
+      declared_at: {type: string, format: date-time}
+      declared_by: {$ref: '#/$defs/identifier'}
+  state:
+    # `revoked` revokes every grant this wallet holds, through the core's
+    # revocation-propagation rule, without waiting for expiry.
+    type: string
+    enum: [active, suspended, revoked]
+  created_at: {type: string, format: date-time}
+  policy_version: {type: integer, minimum: 1}
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'

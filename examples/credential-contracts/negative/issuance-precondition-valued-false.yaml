@@ -1,0 +1,23 @@
+# NEGATIVE (expect: issuance-precondition-unknown). The member is IN the closed
+# vocabulary and valued `false` — the false-comfort shape the vocabulary exists
+# to refuse. A precondition is declared or not declared; `false` is not a second
+# meaning, it is a record that reads as governance while asserting nothing, and
+# a reader would take the requirement for drift-gated when it is not.
+schema_version: 1
+kind: xfactory_credential_requirements
+domain:
+  id: examplexfactory
+requirements:
+  - id: client_tenant_observation
+    purpose: read-only observation of a governed unit
+    access_mode: workload_identity
+    allowed_workflows:
+      - observation
+    minimum_scopes:
+      - read_environment
+    requires_domain_approval: true
+    requires_human_approval: true
+    max_grant_minutes: 30
+    audit_required: true
+    issuance_preconditions:
+      roster_drift_clear_required: false

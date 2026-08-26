@@ -1,0 +1,18 @@
+# INVALID gate-action record: action=open-pr whose artifacts list contains no
+# `pull-request`. Violated rule: open-pr requires an artifact of kind
+# `pull-request` (add-workbench-branch-sessions D8/D13 — the pull request IS the
+# formal re-entry of a session's work into the governed doc system, so a save
+# record that does not reference one records no save). Layer: SCHEMA. The record
+# names the session branch correctly; substituting a `commit` artifact is the
+# realistic mistake and is exactly wrong twice over — open-pr adds no commit to
+# the branch, and the pull request it did produce goes unrecorded.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: open-pr
+target:
+  ref: draft/workbench-branch-sessions
+at: "2026-07-26T15:40:00Z"
+artifacts:
+  - kind: commit
+    reference: 20260726T154000Z

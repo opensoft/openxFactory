@@ -1,0 +1,96 @@
+schema_version: 1
+name: hermes_client_overlay
+# Client-content contract (add-client-layer-tuning-contracts). Structural
+# shape; the stricter-only comparability rules live in the canonical
+# validator (scripts/validate-client-content.py) and are never re-implemented
+# by consumers.
+type: object
+required:
+  - schema_version
+  - kind
+  - client
+# The SEEDABLE per-client document: canonical path
+# config/clients/<client_ref>/overlay.yaml in the install repo, declared to
+# the seeder via the repo's hermes_overlay_descriptor (client role), and
+# digest-pinned in the install compatibility manifest's client_overlays[].
+# Composes the three content kinds above as its enforceable tenant slice.
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind: {type: string, enum: [hermes_client_overlay]}
+  client:
+    type: object
+    required: [ref, display_name, policy_overrides]
+    properties:
+      ref: {type: string}
+      display_name: {type: string}
+      policy_overrides: {type: object}       # a client_policy_overrides document
+      memory_boundaries: {type: object}      # a client_memory_boundaries document
+      integration_boundaries: {type: object} # a client_integration_boundaries document
+      # ---- OPTIONAL standing policy (declare-client-standing-policy-contract) ----
+      # A Tenant layer may carry FREESTANDING company-wide policy, not only
+      # deviations from the domain baseline: `policies` is a mapping keyed by
+      # policy id whose entries materialize to `policy_position` rows, and
+      # `policy_namespace` is the namespace those ids are addressed in, so a
+      # named tenant policy resolves as `<policy_namespace>/<policy_id>`.
+      # Faithful mirror of `contracts/hermes-domain-overlay/hermes-subject-overlay.schema.yaml`'s
+      # `subject.policy_namespace` + `subject.policies` one layer up. Tenant =
+      # tenant-operator (`contracts/policies/layer-vocabulary.yaml`), which is
+      # where company-wide policy belongs.
+      #
+      # ADDITIVE AND OPTIONAL. `client.required` is unchanged
+      # (`[ref, display_name, policy_overrides]`): a client overlay that
+      # declares neither key takes exactly the verdict it took before this
+      # block existed. The two blocks are orthogonal in every direction — a
+      # document may carry either, both, or neither. `policy_overrides` is a
+      # DEVIATION from the domain baseline (`relation_to_domain:
+      # stricter_only`); `policies` is a POSITION, which is why it declares no
+      # `relation_to_*` field: there is no baseline for it to relate to.
+      #
+      # DECLARED INLINE, not as a fourth sibling schema file. The three sibling
+      # `client-*.schema.yaml` files each govern a self-identifying SUB-DOCUMENT
+      # that dispatches on its own inner `kind:` field
+      # (`client_policy_overrides` / `client_memory_boundaries` /
+      # `client_integration_boundaries`); these two entries carry no `kind` and
+      # are not documents, so a sibling file would add a schema that nothing
+      # dispatches to. The subject family answered the same question the same
+      # way — `subject.policies` is inline in `hermes-subject-overlay.schema.yaml`
+      # — and the mirror is the point.
+      #
+      # THE CONDITIONAL REQUIREMENT LIVES IN THE VALIDATOR. `policy_namespace`
+      # is required WHEN AND ONLY WHEN `policies` is present. JSON Schema in
+      # this family carries no `if`/`then` (no schema here uses one), so the
+      # rule is enforced by the canonical validator
+      # (`scripts/validate-client-content.py`), exactly as the subject family
+      # leaves its own cross-field policy rules to
+      # `scripts/validate-hermes-domain-overlay.py`. The shape below is the
+      # floor; the address rules the shape cannot express are:
+      #   1. `client.policy_namespace` is present and non-empty when `policies`
+      #      is present.
+      #   2. Every `policies` key equals its entry's `policy_id`, and every
+      #      entry's `policy_namespace` equals `client.policy_namespace`, so a
+      #      materialized row is address-resolvable without joining to a
+      #      sibling row.
+      #   3. No two entries claim the same `<policy_namespace>/<policy_id>`.
+      #   4. A DECLARED BUT EMPTY block is REFUSED, not treated as absent (omit
+      #      the block to carry no standing policy).
+      #   5. The `client.policies` SUBTREE carries neither the Domain layer's
+      #      enforceable blocks nor raw key material. The scan is scoped to the
+      #      subtree, deliberately narrower than the subject path's
+      #      whole-document walk — see the validator's own comment.
+      policy_namespace: {type: string, minLength: 1}
+      policies:
+        type: object
+        minProperties: 1
+        additionalProperties:
+          type: object
+          required:
+            - policy_id
+            - policy_namespace
+          properties:
+            policy_id: {type: string, minLength: 1}
+            policy_namespace: {type: string, minLength: 1}
+          # OPEN body: the policy's conditions are the tenant's own. Enumerating
+          # policy names is exactly what stops `client-policy-overrides.schema.yaml`
+          # (a CLOSED set of seven) from carrying a named standing policy; this
+          # block governs the addressing envelope, not the policy vocabulary.
+          additionalProperties: true

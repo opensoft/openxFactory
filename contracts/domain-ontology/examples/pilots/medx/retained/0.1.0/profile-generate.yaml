@@ -1,0 +1,10 @@
+schema_version: 1
+kind: xfactory_semantic_context_profile
+profile_id: prof-medx-generate
+package_id: xf/medx
+purpose: drafting context for a generate worker
+worker_scope:
+  worker_archetype: generate
+required_terms:
+  - xf/medx/care_plan
+  - xf/medx/intake

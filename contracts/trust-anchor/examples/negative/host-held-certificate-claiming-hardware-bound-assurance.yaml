@@ -1,0 +1,41 @@
+# expected_failure: assurance-ceiling-exceeded
+# expected_failure_detail: raising assurance is a custody change rather than a claim
+# requirement: TA-R3
+# VIOLATES TA-R3: a binding that requires holder-attributed assurance —
+# hardware-bound custody, in the ratified wording — against a certificate whose
+# declared custody is HOST-HELD, recorded as admitted.
+#
+# This is the ratified scenario's exact shape, and the refusal it should have got
+# exists in the positive corpus. Two things about that refusal matter: it names
+# the CUSTODY CEILING, and it says nothing about the certificate's contents. The
+# certificate here is impeccable. It is the key custody that cannot support the
+# claim, and no amount of admitting the binding changes what the key can evidence.
+schema_version: 1
+kind: xfactory_certificate_dependent_binding
+binding_id: bind:neg-host-held-claiming-hardware
+certificate_ref: cert:core-service-01
+holding_system:
+  system_ref: system:core-attested-signing-service
+  inside_family: true
+  statement: >-
+    A signing service that treats a presented certificate as evidence the named
+    service authorized the request.
+binds:
+  binding_kind: signature_verification
+  what_statement: >-
+    Attributing a signing request to the named service rather than to the host it
+    ran on.
+bound_key_reference:
+  key_generation_ref: keygen:core-service-01-g1
+required_assurance: holder_attributed_act
+required_obligations: [TA-R3]
+admission:
+  state: admitted
+  decided_at: "2026-08-16T09:00:00Z"
+rebind_status:
+  state: current
+  as_of: "2026-08-16T09:00:00Z"
+discovery:
+  discovered_by: planned_review
+  discovered_at: "2026-08-16T00:00:00Z"
+  recorded_before_first_renewal: true

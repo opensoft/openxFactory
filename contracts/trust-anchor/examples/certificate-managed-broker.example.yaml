@@ -1,0 +1,84 @@
+# VALID certificate record: the host-broker certificate from the managed
+# authority — the canary, and the whole reason this contract exists.
+#
+# Its key is isolated from the using host AND each use requires an attestation
+# that host cannot itself supply, so it evidences the NAMED HOLDER and may reach
+# the top of the assurance ladder. Compare the device certificate in this corpus,
+# whose key is equally hardware-resident and evidences only the host: "hardware"
+# is not the discriminator.
+#
+# It also carries the record defect the family walked into. An automatic renewal
+# produced new key material; the directory binding that had bound authority to
+# the PREVIOUS key was not in this record's enumeration and surfaced only when
+# authentication failed. That omission is recorded as a DEFECT OF THIS RECORD,
+# resolved by adding the binding to the enumeration — not by the re-bind alone.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:managed-broker-01
+realization_ref: realization:managed-cloud-authority-canary
+anchor_ref: anchor:managed-issuing
+subject:
+  identifier: "broker-host-04.fleet.managed"
+  subject_class: host
+  display_label: Fleet host broker 04
+validity:
+  not_before: "2026-08-01T00:00:00Z"
+  not_after: "2027-02-01T00:00:00Z"
+state: valid
+key_generation:
+  generation_ref: keygen:managed-broker-01-g2
+  generated_at: "2026-08-01T00:00:00Z"
+  supersedes_generation_ref: keygen:managed-broker-01-g1
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  declared_at: "2026-08-01T00:00:00Z"
+  declared_by: opensoft
+  statement: >-
+    Hardware-resident and gated: each use requires an attestation the host
+    cannot produce on its own. No credential record exists because the material
+    never leaves the module — there is nothing to hold elsewhere.
+evidences: named_holder
+assurance_ceiling: holder_attributed_act
+custody_in_force_at: "2026-08-01T00:00:00Z"
+issuance_evidence:
+  present: true
+  evidence_ref: ie:managed-broker-01
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: "2026-08-05T00:00:00Z"
+  binding_refs:
+    - bind:managed-broker-01-directory
+  statement: >-
+    Complete as of the correction below. It was not complete before the renewal,
+    which is what the defect records.
+record_defects:
+  - defect_id: defect:managed-broker-01-directory-omitted
+    discovered_at: "2026-07-20T14:10:00Z"
+    discovered_by: authentication_failure
+    added_binding_ref: bind:managed-broker-01-directory
+    resolution: record_corrected
+    corrected_at: "2026-08-05T00:00:00Z"
+    rebind_evidence_ref: evidence:managed-broker-01-rebind-2026-08
+    statement: >-
+      The directory binding referenced the previous key generation and was not
+      enumerated here, so the renewal owed a rebind nobody could compute. Found
+      when authentication stopped working. The enumeration is corrected and the
+      binding is now named; the re-bind alone would not have closed this.
+trust_evaluation:
+  evaluated_at: "2026-08-15T10:00:00Z"
+  basis: held_anchor_record
+  presented_chain:
+    - cert:managed-broker-01
+    - anchor:managed-issuing
+    - anchor:managed-root
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: "2026-08-15T10:00:00Z"
+    result: current_standing_active
+  outcome: trusted
+record_version: 3
+created_at: "2026-08-01T00:00:00Z"

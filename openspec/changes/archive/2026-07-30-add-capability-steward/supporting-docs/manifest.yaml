@@ -1,0 +1,10 @@
+{
+  "change_id": "add-capability-steward",
+  "files": [
+    {
+      "path": "steward-contracts.md",
+      "sha256": "30f2db3eb99d4db0f5033dfbeeda4d7775250b9f75eda9733a3f9c6e97bb7b1c",
+      "source_path": "ideation/staging/recurrence-crystallization/steward-contracts.md"
+    }
+  ]
+}

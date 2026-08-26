@@ -1,0 +1,17 @@
+# VALID gate-intent: a PENDING dispose-possible request from the hosted
+# dashboard (add-ideation-intent-plane). The inbox stamped the actor from the
+# ingress-authenticated identity; snapshot_rev_seen records the view the
+# decision was made against (stale-view refusal input).
+schema_version: 1
+kind: gate-intent
+actor: brett
+verb: dispose-possible
+target:
+  possible_id: pos-derived-wheel-honesty
+args:
+  outcome: accepted
+  note: Accepted from the mobile verdict terminal.
+requested_at: "2026-07-23T20:00:00Z"
+snapshot_rev_seen: "563ea35d066d"
+status: pending
+idempotency_key: brett/dispose-possible/pos-derived-wheel-honesty/563ea35d066d

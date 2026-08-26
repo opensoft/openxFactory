@@ -1,0 +1,54 @@
+# expected_failure: temp-lease-in-standing-group
+# VIOLATES spec R8: a volunteer-workstation lease binds a DEDICATED temp runner
+# group and MUST NOT be bound into a standing execution-lane runner group.
+#
+# This lease is otherwise impeccable — right estate, right trust tier, temp labels
+# present — which is the point. Segregation cannot be inferred from the tier or
+# the labels: a label is host-assertable and a tier is only advisory to a lane
+# that consults it, while the runner group is what GitHub actually dispatches
+# against. Bound here, this volunteered laptop would receive standing-lane work
+# regardless of every other field.
+#
+# No schema can catch this, because no schema knows which groups are standing
+# lanes. The canonical validator's rule (b) reads that fact from the enrollment
+# policy (`standing_execution_lane_runner_groups`), and falls back to a naming
+# heuristic when no policy is in scope.
+schema_version: 1
+kind: worker_lease
+
+lease_id: wl-ws-volunteer-09-0001
+estate: temp
+
+subject:
+  class: engineer
+  ref: engineer:eng-0042
+
+host:
+  host_id: ws-volunteer-09
+  device_name: WS-VOL09-QQ4C1
+  managed: false
+
+worker:
+  worker_id: xfactory-coding-temp-ws-volunteer-09
+  runner_name: xfactory-coding-temp-ws-volunteer-09
+
+binding:
+  runner_group: xfactory-execution-lane-workers
+  labels:
+    - self-hosted
+    - omnigent
+    - temp
+    - volunteered
+
+trust_tier: volunteered_hardware
+issued_at: "2026-07-27T10:00:00Z"
+expires_at: "2026-07-28T10:00:00Z"
+cadence:
+  ttl: PT24H
+  renewal_interval: PT1H
+  grace: PT12H
+  clock_skew_tolerance: PT5M
+floor_in_force:
+  min_app_version: 1.4.0
+state: active
+policy_version: worker-enrollment-v1

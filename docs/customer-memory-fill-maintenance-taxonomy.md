@@ -4,16 +4,16 @@ Status: draft
 Kind: architecture
 Repository context: openxFactory
 Related docs:
-[Customer Hermes Memory Model](customer-hermes-memory-model.md),
+[Subject Hermes Memory Model](customer-hermes-memory-model.md),
 [xFactory Memory Gateway Architecture](customer-memory-gateway-architecture.md),
 [Avatar-First UI Standard](avatar-first-ui-standard.md)
-Purpose: classify the general ways Customer Hermes memory is filled and
+Purpose: classify the general ways Subject Hermes memory is filled and
 maintained, and define what each DomainxFactory must specialize locally.
 
 ## 1. Core Boundary
 
 Customer memory is built from customer interaction and from ingested
-information about the customer subject. The customer UI is not Customer Hermes.
+information about the customer subject. The customer UI is not Subject Hermes.
 
 ```text
 Avatar-first UI or conventional UI
@@ -27,12 +27,12 @@ xFactory Memory Gateway
   runs consent, source authority, privacy, retention, budget, provider route,
   migration, and audit rails before durable memory is written or changed
 
-Customer Hermes
+Subject Hermes
   owns the customer-subject memory model and current truth state
 ```
 
 Raw transcripts, recordings, uploaded files, telemetry, external records, and
-agent summaries are source material. They do not become durable Customer Hermes
+agent summaries are source material. They do not become durable Subject Hermes
 memory until the domain's Hermes layer distills them and xFactory gates the
 write or update.
 
@@ -53,7 +53,7 @@ openxFactory owns the general shape:
 DomainxFactory repos own the domain mapping:
 
 - domain name for the customer layer, such as Patient Hermes, Managed System
-  Hermes, Project Hermes, or Campaign Hermes ("Client Hermes" is reserved for
+  Hermes, Project Hermes, or Campaign Hermes ("Tenant Hermes" is reserved for
   the tenant/operator layer and must not alias the customer layer)
 - domain source families and adapters
 - domain claim types, timeline event types, and evidence graph relations
@@ -68,7 +68,7 @@ capture or ingest source material
   -> create source ref and ingestion metadata
   -> Hermes distills candidate claims, events, preferences, obligations, or state
   -> xFactory evaluates consent, purpose, authority, privacy, retention, and route
-  -> Customer Hermes appends or updates canonical objects
+  -> Subject Hermes appends or updates canonical objects
   -> audit, usage, and provider mapping records are emitted
 ```
 

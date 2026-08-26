@@ -1,0 +1,25 @@
+# VALID broker organization: the TENANT company — the operator layer running
+# the installation. It carries exactly ONE pointer to the governed record it
+# corresponds to, and the pointer resolves in the governed layer.
+#
+# The pointer is the seam design D2 adds, and the reason it is a pointer: with
+# no reference at all, the governed layer cannot resolve the boundary the
+# broker just named, and implementers rebuild the mapping by string-matching
+# company names — which is the mirror, arrived at accidentally. With more than
+# a pointer, broker state becomes a partial copy of the tenancy graph that will
+# disagree with it.
+schema_version: 1
+kind: broker_organization
+organization_id: opensoft
+display_name: Opensoft
+company_role: tenant
+broker_instance_ref: broker-opensoft-shared
+routed_domains:
+  - opensoft.one
+  - xforge.us
+governed_record_refs:
+  - record_kind: tenant
+    record_ref: hermes/tenant/opensoft
+    resolves_in: governed_layer
+declared_at: "2026-08-21T09:00:00Z"
+policy_version: 1

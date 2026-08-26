@@ -1,10 +1,16 @@
-# Customer Hermes Memory Model
+# Subject Hermes Memory Model
 
 Status: draft
 Kind: architecture
 Repository context: openxFactory
 Purpose: define the canonical memory and identity objects owned by the
-Customer Hermes layer, including Patient Hermes in MedxFactory.
+Subject Hermes layer, including Patient Hermes in MedxFactory.
+
+Party position: Subject Hermes is rung 2 of the neutral
+[Party Ladder](party-ladder.md) (author/operator → tenant → subject →
+third parties); the subject's own policy binds work stricter-rule-wins,
+and the subject's modeled third parties (counterparties, personas) live
+inside this layer's scope as governed objects, never as layers.
 
 Implementation architecture: see
 [xFactory Memory Gateway Architecture](customer-memory-gateway-architecture.md)
@@ -17,15 +23,15 @@ for the general fill and maintenance modes every DomainxFactory must map.
 
 ## 1. Core Rule
 
-Customer Hermes owns the customer-subject memory boundary.
+Subject Hermes owns the customer-subject memory boundary.
 
 ```text
-Customer Hermes
+Subject Hermes
   owns subject-specific identity, consent, preferences, timeline, evidence,
   current state, active workflow context, memory, follow-up, and promotion
   candidates.
 
-Client Hermes
+Tenant Hermes
   owns organization policy, staff, integrations, customer relationships,
   tenant configuration, and local approval gates.
 
@@ -39,21 +45,21 @@ xFactory
   and audit.
 ```
 
-Customer Hermes may specialize by domain:
+Subject Hermes may specialize by domain:
 
-| Domain | Customer Hermes alias | Customer subject |
+| Domain | Subject Hermes alias | Customer subject |
 | --- | --- | --- |
 | MedxFactory | Patient Hermes | patient, case, episode, care context |
 | OpsxFactory | Managed System Hermes | tenant, system, service, vault, endpoint fleet |
 | AdxFactory | Buyer or Campaign Hermes | buyer, audience, campaign, account |
-| LedgerxFactory | Ledger or Client Hermes | ledger, entity, filing, account |
+| LedgerxFactory | Ledger or Tenant Hermes | ledger, entity, filing, account |
 | codexFactory | Project Hermes | project, repo, feature, deployment |
 
 The alias may change, but the object model stays recognizable.
 
 ## 2. Canonical Object Set
 
-Every Customer Hermes implementation should support these object families.
+Every Subject Hermes implementation should support these object families.
 
 ```text
 identity profile
@@ -134,7 +140,7 @@ L5 operational policy or approved action state
 ## 4. Identity Profile
 
 The identity profile anchors the customer subject. It should identify the
-subject without turning Customer Hermes into the source of every external
+subject without turning Subject Hermes into the source of every external
 system identifier.
 
 ```yaml
@@ -322,7 +328,7 @@ Rules:
 
 ## 10. Current State Snapshot
 
-The current state snapshot is a dated summary of what Customer Hermes currently
+The current state snapshot is a dated summary of what Subject Hermes currently
 believes is true about the subject for a defined purpose.
 
 ```yaml
@@ -409,7 +415,7 @@ Rules:
 - Omnigent workers should receive bounded context packets derived from this
   object, not unrestricted customer memory.
 - Omnigent expert knowledge packets use the same xFactory gateway, but they are
-  expert-scoped and do not change the Customer Hermes object model.
+  expert-scoped and do not change the Subject Hermes object model.
 
 ## 13. Follow-Up Obligation
 
@@ -462,7 +468,7 @@ promotion_candidate:
 
 Rules:
 
-- Nothing silently moves from Customer Hermes to Client Hermes or Domain
+- Nothing silently moves from Subject Hermes to Tenant Hermes or Domain
   Hermes.
 - Customer-to-domain promotion requires consent and de-identification when
   required by domain policy.
@@ -470,7 +476,7 @@ Rules:
 
 ## 15. Read And Write Path
 
-Customer Hermes memory should be accessed through bounded context packets.
+Subject Hermes memory should be accessed through bounded context packets.
 
 ```text
 workflow asks for customer context
@@ -493,8 +499,8 @@ workflow asks for expert knowledge context
   -> Omnigent receives expert context, not raw DB access
 ```
 
-Customer Hermes memory and Omnigent expert memory may appear in the same
-workflow, but they remain different authority scopes. Customer Hermes owns
+Subject Hermes memory and Omnigent expert memory may appear in the same
+workflow, but they remain different authority scopes. Subject Hermes owns
 customer-subject truth. Domain Hermes owns reusable expert truth. xFactory owns
 the gates, provider bindings, migrations, and audit trail between them.
 

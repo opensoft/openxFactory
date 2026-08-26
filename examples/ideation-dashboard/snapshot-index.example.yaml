@@ -1,0 +1,62 @@
+# VALID ideation-dashboard snapshot index (add-dashboard-repo-selector task 1.4;
+# design D3/D4). The thin LOCATOR the repository selector renders and a refresh
+# re-fetches. This example stands in for what the publication lane writes beside
+# the dated doc-health reports:
+#   - FOUR repositories, every entry at `ref: main` (the only ref the served
+#     plane ever exercises — a non-main snapshot is session-local and never
+#     published);
+#   - a SPARSE INSTALL REPO (`agenttower`) whose corpus populates only OpenSpec
+#     changes: it is indexed, selectable, and renders the stations it has data
+#     for. Adoption of an ideation convention is never a precondition of being
+#     in this index (D10, "sparse wheels are honest");
+#   - unique (repository, ref) pairs (validator rule
+#     snapshot-index-duplicate-repo-ref);
+#   - NO document / cluster / possible / staged-topic / change / keyword data
+#     anywhere (validator rule snapshot-index-carries-projection-data) — every
+#     entry only LOCATES the snapshot that carries those;
+#   - `generated_at` derived from each entry's `source_revision` commit date,
+#     never a wall clock (the determinism note in the schema);
+#   - an optional AGGREGATE (`xFactory`) that composes the all-submodules dev
+#     view from member (repository, ref) pairs named here — so a composing
+#     renderer reads this index and the snapshots it names and scans no
+#     repository. Its rendering shape stays the staged topic's open question 1.
+schema_version: 1
+kind: ideation-dashboard-snapshot-index
+generated_at: "2026-07-26T08:15:00Z"
+entries:
+  - repository: openxFactory
+    ref: main
+    snapshot: openxFactory-snapshot.json
+    source_revision: "9f2c1b7ad4e35608c1d90ab4477e2f6b0c8d15ae"
+    generated_at: "2026-07-26T08:15:00Z"
+    display_name: openxFactory (canonical contracts)
+  - repository: MedxFactory
+    ref: main
+    snapshot: MedxFactory-snapshot.json
+    source_revision: "3ab77e5109cc4d2f8b6e0a1d55f4c93027be8811"
+    generated_at: "2026-07-25T21:40:00Z"
+  - repository: LedgerxFactory
+    ref: main
+    snapshot: LedgerxFactory-snapshot.json
+    source_revision: "c41d0e88a97b5f2360ad7e19b8c5f0a4d2361477"
+    generated_at: "2026-07-25T19:05:00Z"
+  # The sparse install repository: OpenSpec changes only, no `ideation/` tree.
+  # Indexed and selectable exactly like the others.
+  - repository: agenttower
+    ref: main
+    snapshot: agenttower-snapshot.json
+    source_revision: "70b9f4c2ee18a5d3417c6b09fd82e5a1c30947bb"
+    generated_at: "2026-07-25T18:22:00Z"
+    display_name: AgentTower (install repo — changes only)
+aggregates:
+  - id: xFactory
+    display_name: xFactory (all submodules)
+    members:
+      - repository: openxFactory
+        ref: main
+      - repository: MedxFactory
+        ref: main
+      - repository: LedgerxFactory
+        ref: main
+      # `ref` omitted means `main` (D4's default applies to members too).
+      - repository: agenttower

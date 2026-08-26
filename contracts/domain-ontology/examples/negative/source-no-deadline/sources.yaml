@@ -1,0 +1,9 @@
+schema_version: 1
+kind: xfactory_ontology_source_inventory
+package_id: xf/negx
+sources:
+  - system_id: undated-terms
+    name: Undated External Terminology
+    source_kind: external_terminology
+    license_class: no_redistribution
+    permitted_use: [reference]

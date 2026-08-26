@@ -1,5 +1,7 @@
 code_surface: openxFactory, codexFactory, xFactory, DomainxFactories, omnigent-install, cloudpc-install
 target_release: implemented
+Status: ratified
+Ratified: 2026-07-14 — record: the archive act, commit `20c76cd` "Realize and archive add-document-cataloging (contract-v1.11)", which applied this change's spec delta into `openspec/specs/doc-health/spec.md`, `openspec/specs/document-cataloging/spec.md`; a change whose spec deltas have PROMOTED is ratified by construction, the derivation `bdd09c2` records and `openspec/changes/archive/2026-08-22-add-doxbench-editing-phase-b/proposal.md` cites. The commit body records the promotion in words: "Spec deltas folded into openspec/specs/document-cataloging and doc-health". Corroborated, not relied on, by this change's own tasks.md 8.7, which records a Brett gate the same day for a different artifact ("`docs/document-catalog-adoption.md` ratified (Brett's gate 2026-07-14)"). Backfilled 2026-08-23 by `govern-openspec-corpus-membership` slice 5C under OQ-6's ruling that every headerless proposal is derived from its own record; no approving OpenSpec change exists to name, so this is the record-citing spelling. See tasks.md "Bookkeeping correction".
 
 ## Why
 

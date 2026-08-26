@@ -1,0 +1,20 @@
+# INVALID drift finding — violates FR-034/SC-014: `status` is `reopened`,
+# outside the closed set of `open`, `resolved` and `disposed`. This is the
+# family's SEVENTH closed vocabulary, and it gets the refusal probe the other
+# six have; a fourth state arrives with the change that governs it (finding
+# drift-finding-status-out-of-vocabulary).
+schema_version: 1
+kind: xfactory_client_identity_drift_finding
+identity_ref:
+  domain: demoxfactory
+  admission_surface: business_central
+  authority_class_intended: observe
+  blast_radius_unit: unit_a
+  duty: observing
+fragment_ref: opensoft/DemoxFactory:credentials/client-identity-roster/demo-client.yaml
+rule_id: admission-achieved-scope-drift
+roster_value: Unit A environment
+observed_value: Unit A and Unit B environments
+observed_at: '2026-08-10T00:00:00Z'
+opened_at: '2026-08-10T00:05:00Z'
+status: reopened

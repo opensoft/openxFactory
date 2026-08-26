@@ -1,0 +1,10 @@
+schema_version: 1
+kind: xfactory_ontology_concepts
+package_id: xf/negd
+concepts:
+  - id: xf/negd/thing
+    label: Thing
+    definition: A fixture concept.
+    parents: [xf/core/subject]
+    lifecycle_state: published
+    effective_version: 1.0.0

@@ -1,0 +1,46 @@
+# VALID consent instrument: a PORTAL ACCEPTANCE entering `executed` DIRECTLY
+# — legal because its registry class declares signature_phase false (ruling
+# D3; spec scenario "A non-signature class enters executed directly").
+# data_consent maps to a derived memory-gateway consent profile with its
+# derivation basis (the Medx pattern, spec "The Consent-Profile Mapping Is
+# Declared"), and the derived profile is ALSO declared as a dependent
+# reference — the instrument authorizes ACTION, the profile governs DATA.
+schema_version: 1
+kind: xfactory_consent_instrument
+instrument_id: "ci-demo-advisory-0002"
+domain: demo-advisory
+instrument_class: portal_acceptance
+parties:
+  - party: "Acme Advisors LLP"
+    rung: 1
+    role: tenant_firm
+    authority_basis: direct
+  - party: "Dana Osei"
+    rung: 2
+    role: subject_individual
+    authority_basis: direct
+scope:
+  purposes: [portal-messaging]
+  out_of_scope: [marketing-contact]
+autonomy_position: "hypothesis_only"
+revocation:
+  right: "The subject may withdraw portal consent at any time in the portal."
+  sla: "PT72H"
+custody:
+  locator: "opaque:demo-advisory/acceptance-events/ci-demo-advisory-0002"
+  sha256: "4b7a2f0e6d1c9b8a5f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a"
+status: executed
+status_history:
+  - status: executed
+    at: "2026-07-25T08:12:00Z"
+effective:
+  executed_on: "2026-07-25"
+dependent_refs:
+  - kind: consent_profile
+    ref: "profiles/dana-osei-portal-consent-profile.yaml"
+data_consent:
+  mapping: consent_profile
+  profile_ref: "profiles/dana-osei-portal-consent-profile.yaml"
+  derivation_basis: >-
+    Portal acceptance authorizes the messaging ACTION; the derived profile
+    scopes DATA use to portal-messaging under the memory gateway.

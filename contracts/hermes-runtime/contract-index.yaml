@@ -1,6 +1,140 @@
 schema_version: 1
 kind: openxfactory-hermes-runtime-contract-index
 contracts:
+- contract_id: xfactory-workbench-model-catalog
+  path: ../schemas/xfactory-workbench-model-catalog.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-codexfactory-doxbench
+  semantic_member: false
+  release_member: true
+- contract_id: xfactory-workbench-chat-turn
+  path: ../schemas/xfactory-workbench-chat-turn.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-codexfactory-doxbench
+  semantic_member: false
+  release_member: true
+- contract_id: gate-action-record
+  path: ../schemas/gate-action-record.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-codexfactory-ideation-dashboard
+  semantic_member: false
+  release_member: true
+- contract_id: demotion-execution-receipt
+  path: ../schemas/demotion-execution-receipt.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-codexfactory-ideation-dashboard
+  semantic_member: false
+  release_member: true
+- contract_id: gate-intent
+  path: ../schemas/gate-intent.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-codexfactory-ideation-dashboard
+  semantic_member: false
+  release_member: true
+- contract_id: worker-enrollment-audit-record
+  path: ../worker-enrollment/worker-enrollment-audit-record.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-worker-enrollment-broker
+  - xfactory-omnigent-install
+  - xfactory-opsxfactory
+  semantic_member: false
+  release_member: true
+- contract_id: worker-enrollment-grant
+  path: ../worker-enrollment/worker-enrollment-grant.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-worker-enrollment-broker
+  - xfactory-omnigent-install
+  - xfactory-opsxfactory
+  semantic_member: false
+  release_member: true
+- contract_id: worker-enrollment-policy
+  path: ../worker-enrollment/worker-enrollment-policy.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-worker-enrollment-broker
+  - xfactory-omnigent-install
+  - xfactory-opsxfactory
+  semantic_member: false
+  release_member: true
+- contract_id: worker-enrollment-request
+  path: ../worker-enrollment/worker-enrollment-request.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-worker-enrollment-broker
+  - xfactory-omnigent-install
+  - xfactory-opsxfactory
+  semantic_member: false
+  release_member: true
+- contract_id: worker-lease-renewal
+  path: ../worker-enrollment/worker-lease-renewal.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-worker-enrollment-broker
+  - xfactory-omnigent-install
+  - xfactory-opsxfactory
+  semantic_member: false
+  release_member: true
+- contract_id: worker-lease
+  path: ../worker-enrollment/worker-lease.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-worker-enrollment-broker
+  - xfactory-omnigent-install
+  - xfactory-opsxfactory
+  semantic_member: false
+  release_member: true
+- contract_id: worker-removal-grant
+  path: ../worker-enrollment/worker-removal-grant.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers:
+  - openxfactory-validator
+  - openxfactory-release-verifier
+  - xfactory-worker-enrollment-broker
+  - xfactory-omnigent-install
+  - xfactory-opsxfactory
+  semantic_member: false
+  release_member: true
 - contract_id: hermes-runtime-acceptance-map
   path: acceptance-map.yaml
   type: acceptance-map

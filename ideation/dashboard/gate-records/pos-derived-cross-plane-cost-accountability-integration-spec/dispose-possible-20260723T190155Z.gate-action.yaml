@@ -1,0 +1,17 @@
+# gate-action record — a HUMAN-authenticated console action audit entry
+# (gate-action-record.schema.yaml). Agents structurally cannot author one
+# (the console rejects any non-human caller before a record is ever written).
+schema_version: 1
+kind: gate-action-record
+actor: Brett
+action: dispose-possible
+target:
+  possible_id: pos-derived-cross-plane-cost-accountability-integration-spec
+  outcome: accepted
+at: '2026-07-23T19:01:55Z'
+artifacts:
+- kind: register-update
+  reference: ideation/cross-reference.yaml#possibles_register
+notes: 'Genuine cross-member connection: the integration surface between Plane-2 spend,
+  Plane-3 convenings, and practice-effectiveness signals is specified nowhere. Broad
+  — may start as a staged exploration when picked.'

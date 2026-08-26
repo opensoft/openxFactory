@@ -1,0 +1,24 @@
+{
+  "bundle": {
+    "path": "supporting-docs.tar.gz",
+    "sha256": "ee099f2d0675ec40744c32d1e5cb3878a34daa03a6b6ff4eaa30a4964badabb7"
+  },
+  "change_id": "add-deployment-handoff-boundary",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "2bf127177e3f245712c10c3f5b47272da4079adb47777d24078a5488b5f1cb8d"
+    },
+    {
+      "path": "deployment-handoff-boundary.md",
+      "sha256": "fe4a101b9372b8e5dd7ad4f34fa9438255361c27caa66f77c610be77065e6677"
+    }
+  ],
+  "final_notebook_import_complete": false,
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin_path": "ideation/staging/deployment-handoff-boundary",
+  "packaged_at": "2026-07-30",
+  "source_revision": "16172e2225328ef4f81d6de9f5468de038938282",
+  "transitioned_at": "2026-07-28"
+}

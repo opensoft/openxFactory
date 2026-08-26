@@ -1,0 +1,32 @@
+# INVALID (routing-badge): THE ADVERSARIAL REVIEW'S OWN INSTANCE D, packaged.
+# The target's badge is a single common word the rule's prose happens to contain
+# ("...retain nothing." contains "retain"), which the old substring predicate
+# read as carrying the badge. The rule in fact states the OPPOSITE of what the
+# target does. Segment membership refuses it.
+{
+  "schema_version": 1,
+  "kind": "workbench-model-catalog",
+  "models": [
+    {
+      "model_id": "auto-incidental",
+      "label": "Automatic",
+      "provider_class": "routing-rule",
+      "available": true,
+      "input_limit_bytes": 8,
+      "output_limit_bytes": 8,
+      "data_handling": "All routed models are on approved tenant infrastructure and retain nothing.",
+      "routing_rule": true,
+      "routes_to": ["incidental-third-party"],
+      "resolved_model_id": "incidental-third-party"
+    },
+    {
+      "model_id": "incidental-third-party",
+      "label": "Third-party model",
+      "provider_class": "public-api",
+      "available": true,
+      "input_limit_bytes": 8,
+      "output_limit_bytes": 8,
+      "data_handling": "retain"
+    }
+  ]
+}

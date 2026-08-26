@@ -1,0 +1,13 @@
+# VALID project-register: project `p-new` has NO member repositories yet.
+# A project MAY be empty (Brett's 2026-08-06 ruling on
+# add-opendox-project-header): it is created first and gains members later
+# through edit-project commissions — an empty set is a legal starting and
+# ending state.
+schema_version: 1
+kind: project-register
+projects:
+  - id: p-a
+    repositories: [openxFactory]
+  - id: p-new
+    name: Brand New
+    repositories: []

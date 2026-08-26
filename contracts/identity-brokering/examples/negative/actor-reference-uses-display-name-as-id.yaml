@@ -1,0 +1,41 @@
+# expected_failure: actor-identifier-not-opaque
+# expected_failure_detail: is the display name
+# requirement: IDB-R5
+# VIOLATES R5: the display name used as the identifier.
+#
+# What every pre-broker record already does, carried forward one step too far:
+# the human-readable name in the identifier position. It reads correctly today
+# and breaks on the first rename — and renames are ordinary (marriage, legal
+# name change, a corrected transliteration), which is exactly why the opaque
+# subject exists.
+#
+# Two mechanisms refuse this. The `opaque_subject` pattern admits no whitespace,
+# so most display names are unrepresentable outright; and the validator refuses
+# a subject whose ALPHANUMERIC SKELETON equals its own record's display name's.
+#
+# The original comment here claimed the second mechanism "catches the
+# single-token names the pattern would let through", and that was an over-claim:
+# the comparison was BYTE-EXACT, so it caught only a subject spelled identically
+# to the display name — `BrettHeapOpensoft` and `Brett.Heap.Opensoft` cleared
+# both mechanisms at once. Corrected in the review hardening of 2026-08-21
+# (finding F3); the sibling fixture
+# `actor-reference-display-name-with-spaces-removed` is the probe.
+#
+# What is still NOT caught, stated plainly: a subject that is a genuinely
+# DIFFERENT string from the display name — an abbreviation, an initial-plus-
+# surname, a truncation — is a name in the identifier position that no
+# comparison against this record's own display name can see. The structural
+# guards (no '@', no whitespace, the length floor) carry those cases as far as
+# they reach.
+schema_version: 1
+kind: actor_subject_reference
+reference_id: asr-display-name-id-9010
+governed_record_ref:
+  record_type: gate_action
+  record_ref: "openxfactory:gate/add-identity-brokering/close/2026-08-22"
+provenance: broker_asserted
+issuer:
+  broker_instance_id: broker-opensoft-shared
+subject: Brett Heap
+display_name_at_record: Brett Heap
+recorded_at: "2026-08-22T10:00:00Z"

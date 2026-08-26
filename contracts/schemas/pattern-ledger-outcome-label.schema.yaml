@@ -1,0 +1,47 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "pattern-ledger-outcome-label.schema.yaml"
+title: "Pattern-ledger outcome-label event (append-only)"
+contract_schema_version: 1
+description: >-
+  One append-only outcome event on an episode (add-pattern-ledger,
+  requirement "Outcome Labels Are Append-Only Events"). Episode quality is
+  computed as a fold over the label stream, never stored as a verdict:
+  praise at close plus a later correction re-grades the episode while both
+  events remain unaltered. Source vocabulary is fixed at four values —
+  praise | gate_outcome | correction | adjudication — and praise is one
+  label among several by construction: nothing that spends money may key
+  off praise alone (enforced on the candidate side by the
+  "candidate-evidence" rule). Canonical validator:
+  scripts/validate-pattern-ledger.py.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - episode_ref
+  - source
+  - actor_ref
+  - grade
+  - at
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: outcome_label
+  episode_ref:
+    type: string
+    pattern: "^ep:"
+  source:
+    enum: [praise, gate_outcome, correction, adjudication]
+  actor_ref:
+    type: string
+    minLength: 1
+  grade:
+    enum: [positive, negative, neutral]
+  at:
+    type: string
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+  evidence_ref:
+    type: ["string", "null"]
+  note:
+    type: string

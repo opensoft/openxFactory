@@ -1,0 +1,37 @@
+# expected_failure: second-persona-in-instance
+# expected_failure_detail: resolves to persona 'sub-whitespace-variant-01'
+# requirement: IDB-R1
+# VIOLATES R1: a second persona for one human, minted by a trailing space.
+#
+# THE ONE-CHARACTER BYPASS. `examples/persona-two-upstreams-two-organizations`
+# already holds this exact federated identity in this exact instance, and the
+# sameness rule keyed on the BYTE-EXACT triple (instance, provider, upstream
+# subject) — so `…4b77 ` was a different human from `…4b77`, and the check that
+# exists to prevent one human holding two personas signed off on it.
+#
+# The same trick works three other ways, all of them ordinary rather than
+# adversarial: a case change in the upstream subject (upstream providers vary),
+# a case change in the provider id, and a case change in the instance id
+# (configuration, and a value typed twice). Federation metadata and
+# configuration files are exactly where a stray space survives a round trip.
+#
+# The key is now NORMALIZED — NFKC, stripped, case folded — on all three
+# components, and ONLY for the identity key: a subject is never rewritten for
+# comparison anywhere else, because two genuinely different subjects that fold
+# together must stay different everywhere they are not being tested for
+# sameness. Sameness a stray space defeats is not sameness.
+schema_version: 1
+kind: persona_assertion
+assertion_id: pa-whitespace-variant-9022
+broker_instance:
+  instance_id: broker-opensoft-shared
+  deployment: shared
+subject: sub-whitespace-variant-01
+display_name: Brett Heap
+linked_identities:
+  - provider_id: entra-opensoft
+    upstream_subject: "9c1f52a7-4d8e-4b1f-9c33-6f0a1d2e4b77 "
+organization_memberships:
+  - organization_id: opensoft
+    member_since: "2026-01-06"
+asserted_at: "2026-08-22T12:00:00Z"

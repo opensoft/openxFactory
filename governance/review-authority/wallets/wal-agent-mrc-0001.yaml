@@ -1,0 +1,41 @@
+# LIVE INSTANCE — not packaged corpus, not a teaching fixture.
+#
+# The first wallet in the stack: codexFactory's merge_readiness_council as a
+# body, minted under tasks 4.1–4.2 of the ratified change
+# add-wallet-carried-review-authority. openxFactory ships no instance records
+# EXCEPT this declared narrow exception: repo_scan builds its context from the
+# scanned repository's own records, and a cross-repository audience wallet has
+# no resolution path today (clarifications N7). S4's register joins this
+# directory tree; this file must stay OUTSIDE any examples/ path or the
+# scanner will silently stop treating it as live.
+#
+# Custody holder_readable is the registry's designed tier for a consumer with
+# no key infrastructure: it reaches authority tier `act`, its signatures
+# evidence the ENVIRONMENT, and approval-before-apply is the compensating
+# control already in force by the constitutional floor (N13).
+schema_version: 1
+kind: xfactory_wallet_record
+wallet_id: wal-agent-mrc-0001
+holder:
+  holder_id: agent:merge-readiness-council
+  holder_class: agent
+  display_label: codexFactory merge readiness council (body)
+key_reference:
+  # OPERATOR-MINTED identity (task 4.1 [OPERATOR]): private half retained in
+  # the operator's vault, never entering git/CI/agent sessions; only the
+  # public half appears here. Minted and supplied by Brett Heap 2026-08-24.
+  did: "did:key:z6Mko2FefScUQg9opCriwQmjfcb3Qjnb5bN49hQsEVMo6gee"
+  key_id: key-mrc-0001
+  public_key_multibase: z6Mko2FefScUQg9opCriwQmjfcb3Qjnb5bN49hQsEVMo6gee
+  signature_algorithm: ed25519
+custody:
+  model: holder_readable
+  registry_version: 1
+  declared_at: "2026-08-24T23:23:54Z"
+  # Strict identifier grammar (no '@'): the email-form anchor token
+  # Brett.Heap@opensoft.one is scoped to grant issued_by by S2's authorized
+  # widening and is deliberately NOT generalized to wallet fields.
+  declared_by: Brett.Heap
+state: active
+created_at: "2026-08-24T23:23:54Z"
+policy_version: 1

@@ -56,6 +56,23 @@ def repository_snapshot(tmp_path: Path) -> Path:
         destination = snapshot / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(source, destination, ignore=ignored)
+
+    # The catalog may close release-only schemas that live in sibling contract
+    # families. Keep this isolated snapshot aligned with the catalog rather
+    # than maintaining a second, hand-written list of cross-family members.
+    family_root = REPOSITORY_ROOT / "contracts/hermes-runtime"
+    catalog = yaml.safe_load((family_root / "contract-index.yaml").read_text(
+        encoding="utf-8"
+    ))
+    for entry in catalog["contracts"]:
+        member = (family_root / entry["path"]).resolve(strict=True)
+        relative = member.relative_to(REPOSITORY_ROOT)
+        destination = snapshot / relative
+        if destination.exists():
+            continue
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(member, destination)
+
     validator = snapshot / "scripts/validate-hermes-runtime-contracts.py"
     validator.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ENTRYPOINT, validator)

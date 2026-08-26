@@ -1,0 +1,10 @@
+schema_version: 1
+kind: xfactory_ontology_maintenance_report
+package_id: xf/negx
+package_digest: a6871eec24b091454a711966163167af036d59f36f2823c56cac86b184bc6dfe
+as_of: '2026-07-28'
+triggers_evaluated:
+  - trigger: unknown_terms
+    fired: true
+    detail: "threshold crossed but no candidate recorded"
+drift_found: true
