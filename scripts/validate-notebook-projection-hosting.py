@@ -220,6 +220,19 @@ def _refuse_secret_shaped(node, path: str, errors: list[str]) -> None:
     redaction in place, because a redacted secret is still a secret that was
     committed.
     """
+    # SEQUENCES ARE WALKED TOO. An earlier version descended only into mappings,
+    # so `hosting.anything: [{password: hunter2}]` was skipped outright and the
+    # record validated clean with credential material sitting in it (Copilot,
+    # PR #395; reproduced before this fix, and again after, as a mutation).
+    #
+    # That was the fail-open family INSIDE the refusal written to prevent it: a
+    # path that could not answer returned "nothing to see" instead of looking.
+    # YAML nests freely, and a walk that covers one container type is not a walk
+    # — the recursion is over the DOCUMENT, not over the shape a reader expects.
+    if isinstance(node, (list, tuple)):
+        for index, item in enumerate(node):
+            _refuse_secret_shaped(item, f"{path}[{index}]", errors)
+        return
     if not isinstance(node, dict):
         return
     for key, value in node.items():
